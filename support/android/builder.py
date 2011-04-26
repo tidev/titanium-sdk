@@ -1357,6 +1357,7 @@ class Builder(object):
 			os.rename(app_apk+'z',app_apk)
 
 		if self.dist_dir:
+			self.post_build()
 			sys.exit(0)
 
 		if self.build_only:
@@ -1460,6 +1461,7 @@ class Builder(object):
 		deploy_type = 'development'
 		self.build_only = build_only
 		self.device_args = device_args
+		self.postbuild_modules = [];
 		if install:
 			if self.device_args == None:
 				self.device_args = ['-d']
@@ -1517,6 +1519,10 @@ class Builder(object):
 				m.update(open(code_path,'rb').read()) 
 				code_hash = m.hexdigest()
 				p = imp.load_source(code_hash, code_path, fin)
+				module_functions = dict(inspect.getmembers(p, inspect.isfunction))
+				if module_functions.has_key('postbuild'):
+					debug("plugin contains a postbuild function. Will execute after project is built and packaged")
+					self.postbuild_modules.append( (plugin['name'], p) );
 				p.compile(compiler_config)
 				fin.close()
 			
@@ -1779,6 +1785,8 @@ class Builder(object):
 				if relaunched:
 					info("Relaunched %s ... Application should be running." % self.name)
 
+			self.post_build()
+
 			#intermediary code for on-device debugging (later)
 			#if debugger_host != None:
 				#import debugger
@@ -1788,6 +1796,15 @@ class Builder(object):
 			os.chdir(curdir)
 			sys.stdout.flush()
 			
+	def post_build(self):
+		try:
+			if self.postbuild_modules:
+				for p in self.postbuild_modules:
+					info("Running postbuild function in %s plugin" % p[0])
+					p[1].postbuild()
+		except:
+			error("error performing post-build steps: %s" % sys.exc_info()[0])
+
 
 if __name__ == "__main__":
 	def usage():
