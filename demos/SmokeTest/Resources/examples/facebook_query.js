@@ -1,11 +1,12 @@
+/*globals Ti, Titanium, JSON, alert */
 var win = Ti.UI.currentWindow;
 //
 // Login Button
 //
+Titanium.Facebook.appid = "134793934930";
+Titanium.Facebook.permissions = ['publish_stream', 'read_stream'];
 var fbButton = Titanium.Facebook.createLoginButton({
 	'style':'wide',
-	'apikey':'9494e611f2a93b8d7bfcdfa8cefdaf9f',
-	'sessionProxy':'http://api.appcelerator.net/p/fbconnect/',
 	bottom:10
 });
 win.add(fbButton);
@@ -34,21 +35,30 @@ function runQuery()
 	{
 		win.close();
 	});
-	if (Ti.Platform.osname == 'iPhone OS') {
+	if (Ti.Platform.osname == 'iphone' || Ti.Platform.osname == 'ipad') {
 		win.setRightNavButton(close);
 	}
 
 	// run query, populate table view and open window
 	var query = "SELECT uid, name, pic_square, status FROM user ";
-	query +=  "where uid IN (SELECT uid2 FROM friend WHERE uid1 = " + Titanium.Facebook.getUserId() + ")";
+	query +=  "where uid IN (SELECT uid2 FROM friend WHERE uid1 = " + Titanium.Facebook.uid + ")";
 	query += "order by last_name limit 20";
-	Ti.API.info('user id ' + Titanium.Facebook.getUserId());
-	Titanium.Facebook.query(query, function(r)
+	Ti.API.info('user id ' + Titanium.Facebook.uid);
+	Titanium.Facebook.request('fql.query', {query: query},  function(r)
 	{
+		if (!r.success) {
+			if (r.error) {
+				alert(r.error);
+			} else {
+				alert("call was unsuccessful");
+			}
+			return;
+		}
+		var result = JSON.parse(r.result);
 		var data = [];
-		for (var c=0;c<r.data.length;c++)
+		for (var c=0;c<result.length;c++)
 		{
-			var row = r.data[c];
+			var row = result[c];
 
 			var tvRow = Ti.UI.createTableViewRow({
 				height:'auto',
@@ -57,7 +67,7 @@ function runQuery()
 			});
 			var imageView;
 			imageView = Ti.UI.createImageView({
-				image:row.pic_square == null ? '../images/custom_tableview/user.png' : row.pic_square,
+				image:row.pic_square === null ? '../images/custom_tableview/user.png' : row.pic_square,
 				left:10,
 				width:50,
 				height:50
@@ -97,26 +107,15 @@ function runQuery()
 		win.open({modal:true});
 		b1.title = 'Run Query';
 	});
-};
+}
 
 b1.addEventListener('click', function()
 {
-	if (Titanium.Facebook.isLoggedIn()==false)
+	if (!Titanium.Facebook.loggedIn)
 	{
 		Ti.UI.createAlertDialog({title:'Facebook', message:'Login before running query'}).show();
 		return;
 	}
 
-	Ti.API.info('Facebook read_stream permission ' + Titanium.Facebook.hasPermission("read_stream"));
-	if (!Titanium.Facebook.hasPermission("read_stream"))
-	{
-		Titanium.Facebook.requestPermission("read_stream",function(evt)
-		{
-			if (evt.success)
-			{
-				runQuery();
-			}
-		});
-	}
 	runQuery();
 });
