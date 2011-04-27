@@ -49,22 +49,6 @@ type[int] : [optional] one of (`Titanium.Database.FIELD_TYPE_STRING` | `Titanium
 
 - method : isValidRow, boolean
 
-- method : getInt, int
-
-field[int | string] : the column name or index referencing the value to retrieve as an int.
-
-- method : getFloat, float
-
-field[int | string] : the column name or index referencing the value to retrieve as a float.
-
-- method : getDouble, double
-
-field[int | string] : the column name or index referencing the value to retrieve as a double.
-
-- method : getString, string
-
-field[int | string] : the column name or index referencing the value to retrieve as a string.
-
 - properties
 
 rowCount[int] : the number of rows in the result set
