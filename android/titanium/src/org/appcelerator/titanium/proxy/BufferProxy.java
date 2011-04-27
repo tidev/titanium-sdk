@@ -179,6 +179,17 @@ public class BufferProxy extends KrollProxy
 		}
 	}
 
+	public int write(int position, byte[] sourceBuffer, int sourceOffset, int sourceLength)
+	{
+		if ((position + sourceLength) > buffer.length) {
+			buffer = copyOf(buffer, (position + sourceLength));
+		}
+
+		System.arraycopy(sourceBuffer, sourceOffset, buffer, position, sourceLength);
+
+		return sourceLength;
+	}
+
 	@Kroll.method
 	public int append(Object[] args)
 	{

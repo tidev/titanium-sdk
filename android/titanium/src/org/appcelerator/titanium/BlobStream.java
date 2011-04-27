@@ -12,6 +12,7 @@ import java.io.InputStream;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.io.StreamModule;
 import org.appcelerator.titanium.io.TiStream;
 import org.appcelerator.titanium.proxy.BufferProxy;
 import org.appcelerator.titanium.util.TiConfig;
@@ -25,12 +26,15 @@ public class BlobStream extends KrollProxy implements TiStream
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private TiBlob tiBlob;
+	private int mode = 0;
+	private InputStream inputStream = null;
 
 
-	public BlobStream(TiBlob tiBlob)
+	public BlobStream(TiBlob tiBlob, int mode)
 	{
 		super(tiBlob.getTiContext());
 		this.tiBlob = tiBlob;
+		this.mode = mode;
 	}
 
 
@@ -38,6 +42,10 @@ public class BlobStream extends KrollProxy implements TiStream
 	@Kroll.method
 	public int read(Object args[]) throws IOException
 	{
+		if (mode != StreamModule.MODE_READ) {
+			throw new IOException("Unable to read on a stream, not opened in read mode");
+		}
+
 		BufferProxy bufferProxy = null;
 		int offset = 0;
 		int length = 0;
@@ -79,7 +87,10 @@ public class BlobStream extends KrollProxy implements TiStream
 			throw new IllegalArgumentException("Invalid number of arguments");
 		}
 
-		InputStream inputStream = tiBlob.getInputStream();
+		if (inputStream == null) {
+			inputStream = tiBlob.getInputStream();
+		}
+
 		if(inputStream != null) {
 			return TiStreamHelper.read(inputStream, bufferProxy, offset, length);
 
@@ -95,7 +106,7 @@ public class BlobStream extends KrollProxy implements TiStream
 	}
 
 	@Kroll.method
-	public boolean isWriteable()
+	public boolean isWritable()
 	{
 		return false;
 	}
@@ -103,6 +114,9 @@ public class BlobStream extends KrollProxy implements TiStream
 	@Kroll.method
 	public boolean isReadable()
 	{
+		if (mode != StreamModule.MODE_READ) {
+			return false;
+		}
 		return true;
 	}
 }

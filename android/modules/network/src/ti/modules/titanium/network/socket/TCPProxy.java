@@ -450,7 +450,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 	}
 
 	@Kroll.method
-	public boolean isWriteable()
+	public boolean isWritable()
 	{
 		return isConnected();
 	}
