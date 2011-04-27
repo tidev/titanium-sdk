@@ -27,7 +27,7 @@ describe("Ti.Codec tests", {
 		valueOf(Ti.Codec.nativeByteOrder).shouldBeOneOf([Ti.Codec.BIG_ENDIAN, Ti.Codec.LITTLE_ENDIAN]);
 	},
 
-	testEncodeNumber: function() {
+	testEncodeIntegers: function() {
 		var buffer = Ti.createBuffer({ length: 8 });
 
 		Ti.Codec.encodeNumber({
@@ -79,6 +79,7 @@ describe("Ti.Codec tests", {
 		buffer.length = 4;
 		buffer.clear();
 
+		// down casting discards the high bits (0x12)
 		Ti.Codec.encodeNumber({
 			dest: buffer,
 			data: 0x123456789a,
@@ -90,6 +91,86 @@ describe("Ti.Codec tests", {
 		valueOf(buffer[1]).shouldBe(0x56);
 		valueOf(buffer[2]).shouldBe(0x78);
 		valueOf(buffer[3]).shouldBe(0x9a);
+
+		buffer.length = 2;
+		buffer.clear();
+
+		// down casting discards the high bits (0x3)
+		Ti.Codec.encodeNumber({
+			dest: buffer,
+			data: 0x34567,
+			type: Ti.Codec.TYPE_SHORT,
+			byteOrder: Ti.Codec.BIG_ENDIAN
+		});
+		valueOf(buffer[0]).shouldBe(0x45);
+		valueOf(buffer[1]).shouldBe(0x67);
+	},
+
+	testDecodeIntegers: function() {
+		var buffer = Ti.createBuffer({ length: 8 });
+		buffer[0] = 0x9a;
+		buffer[1] = 0x78;
+		buffer[2] = 0x56;
+		buffer[3] = 0x34;
+		buffer[4] = 0x12;
+		var n = Ti.Codec.decodeNumber({
+			src: buffer,
+			type: Ti.Codec.TYPE_LONG,
+			byteOrder: Ti.Codec.LITTLE_ENDIAN
+		});
+		valueOf(n).shouldBe(0x123456789a);
+	},
+
+	testDecodeFloatingPoint: function() {
+		var buffer = Ti.createBuffer({ length: 8 });
+		// Should be ~1/3
+		buffer[0] = 0x3f;
+		buffer[1] = 0xd5;
+		for (var i = 2; i < 8; i++) {
+			buffer[i] = 0x55;
+		}
+
+		var n = Ti.Codec.decodeNumber({
+			src: buffer,
+			type: Ti.Codec.TYPE_DOUBLE,
+			byteOrder: Ti.Codec.BIG_ENDIAN
+		});
+		valueOf(n).shouldBe(1/3);
+
+		// 1.23456789 -> 0x3ff3c0ca4283de1b
+		buffer = Ti.createBuffer({
+			data: 1.23456789,
+			type: Ti.Codec.TYPE_DOUBLE,
+			byteOrder: Ti.Codec.BIG_ENDIAN
+		});
+
+		valueOf(buffer[0]).shouldBe(0x3f);
+		valueOf(buffer[1]).shouldBe(0xf3);
+		valueOf(buffer[2]).shouldBe(0xc0);
+		valueOf(buffer[3]).shouldBe(0xca);
+		valueOf(buffer[4]).shouldBe(0x42);
+		valueOf(buffer[5]).shouldBe(0x83);
+		valueOf(buffer[6]).shouldBe(0xde);
+		valueOf(buffer[7]).shouldBe(0x1b);
+
+		// 0x3ff3c0ca4283de1b -> 1.23456789
+		buffer.clear();
+		buffer.length = 8;
+		buffer[0] = 0x3f;
+		buffer[1] = 0xf3;
+		buffer[2] = 0xc0;
+		buffer[3] = 0xca;
+		buffer[4] = 0x42;
+		buffer[5] = 0x83;
+		buffer[6] = 0xde;
+		buffer[7] = 0x1b;
+
+		n = Ti.Codec.decodeNumber({
+			src: buffer,
+			type: Ti.Codec.TYPE_DOUBLE,
+			byteOrder: Ti.Codec.BIG_ENDIAN
+		});
+		valueOf(n).shouldBe(1.23456789);
 	},
 	
 	options: {
