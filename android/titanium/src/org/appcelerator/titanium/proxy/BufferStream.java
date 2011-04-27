@@ -12,6 +12,7 @@ import java.io.IOException;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.io.StreamModule;
 import org.appcelerator.titanium.io.TiStream;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiStreamHelper;
@@ -24,20 +25,39 @@ public class BufferStream extends KrollProxy implements TiStream
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private BufferProxy buffer;
-	private int bytesRead = 0;
+	private int mode = 0;
+	private int position = -1;
 
 
-	public BufferStream(BufferProxy buffer)
+	public BufferStream(BufferProxy buffer, int mode)
 	{
 		super(buffer.getTiContext());
-		this.buffer = buffer;
-	}
 
+		if (mode == StreamModule.MODE_READ) {
+			position = 0;
+
+		} else if (mode == StreamModule.MODE_WRITE) {
+			position = 0;
+
+		} else if (mode == StreamModule.MODE_APPEND) {
+			position = buffer.getLength();
+
+		} else {
+			throw new IllegalArgumentException("invalid mode");
+		}
+
+		this.buffer = buffer;
+		this.mode = mode;
+	}
 
 	// TiStream interface methods
 	@Kroll.method
 	public int read(Object args[]) throws IOException
 	{
+		if (mode != StreamModule.MODE_READ) {
+			throw new IOException("Unable to read on a stream, not opened in read mode");
+		}
+
 		BufferProxy bufferProxy = null;
 		int offset = 0;
 		int length = 0;
@@ -79,8 +99,9 @@ public class BufferStream extends KrollProxy implements TiStream
 			throw new IllegalArgumentException("Invalid number of arguments");
 		}
 
-		ByteArrayInputStream bufferInputStream = new ByteArrayInputStream(buffer.getBuffer(), bytesRead, (buffer.getLength() - bytesRead));
-		bytesRead += TiStreamHelper.read(bufferInputStream, bufferProxy, offset, length);
+		ByteArrayInputStream bufferInputStream = new ByteArrayInputStream(buffer.getBuffer(), position, (buffer.getLength() - position));
+		int bytesRead = TiStreamHelper.read(bufferInputStream, bufferProxy, offset, length);
+		position += bytesRead;
 
 		return bytesRead;
 	}
@@ -88,6 +109,10 @@ public class BufferStream extends KrollProxy implements TiStream
 	@Kroll.method
 	public int write(Object args[]) throws IOException
 	{
+		if ((mode != StreamModule.MODE_WRITE) && (mode != StreamModule.MODE_APPEND)) {
+			throw new IOException("Unable to write on stream, not opened in read or append mode");
+		}
+
 		BufferProxy bufferProxy = null;
 		int offset = 0;
 		int length = 0;
@@ -129,18 +154,27 @@ public class BufferStream extends KrollProxy implements TiStream
 			throw new IllegalArgumentException("Invalid number of arguments");
 		}
 
-		return buffer.append(new Object[] {bufferProxy, offset, length});
+		int bytesWritten = buffer.write(position, bufferProxy.getBuffer(), offset, length);
+		position += bytesWritten;
+
+		return bytesWritten;
 	}
 
 	@Kroll.method
-	public boolean isWriteable()
+	public boolean isWritable()
 	{
-		return false;
+		if ((mode != StreamModule.MODE_WRITE) && (mode != StreamModule.MODE_APPEND)) {
+			return false;
+		}
+		return true;
 	}
 
 	@Kroll.method
 	public boolean isReadable()
 	{
+		if (mode != StreamModule.MODE_READ) {
+			return false;
+		}
 		return true;
 	}
 }
