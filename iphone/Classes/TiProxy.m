@@ -594,6 +594,42 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	[self forgetProxy:self];
 }
 
+-(void)setCallback:(KrollCallback *)eventCallback forKey:(NSString *)key
+{
+	BOOL isCallback = [eventCallback isKindOfClass:[KrollCallback class]]; //Also check against nil.
+	KrollBridge * blessedBridge = [[eventCallback context] delegate];
+	NSArray * bridges = [KrollBridge krollBridgesUsingProxy:self];
+
+	for (KrollBridge * currentBridge in bridges)
+	{
+		KrollObject * currentKrollObject = [currentBridge krollObjectForProxy:self];
+		if(!isCallback || (blessedBridge != currentBridge))
+		{
+			[currentKrollObject forgetCallbackForKey:key];
+		}
+		else
+		{
+			[currentKrollObject noteCallback:eventCallback forKey:key];
+		}
+	}
+
+}
+
+-(void)fireCallback:(NSString*)type withArg:(NSDictionary *)argDict withSource:(id)source
+{
+	NSMutableDictionary* eventObject = [NSMutableDictionary dictionaryWithObjectsAndKeys:type,@"type",self,@"source",nil];
+	if ([argDict isKindOfClass:[NSDictionary class]])
+	{
+		[eventObject addEntriesFromDictionary:argDict];
+	}
+
+	NSArray * bridges = [KrollBridge krollBridgesUsingProxy:self];
+	for (KrollBridge * currentBridge in bridges)
+	{
+		KrollObject * currentKrollObject = [currentBridge krollObjectForProxy:self];
+		[currentKrollObject invokeCallbackForKey:type withObject:eventObject thisObject:source];
+	}
+}
 
 -(void)addEventListener:(NSArray*)args
 {
@@ -602,7 +638,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	ENSURE_TYPE(listener,KrollCallback);
 
 	KrollObject * ourObject = [self krollObjectForContext:[listener context]];
-	[ourObject storeCallback:listener forEvent:type];
+	[ourObject storeListener:listener forEvent:type];
 
 	//TODO: You know, we can probably nip this in the bud and do this at a lower level,
 	//Or make this less onerous.
@@ -626,7 +662,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	ENSURE_TYPE(listener,KrollCallback);
 
 	KrollObject * ourObject = [self krollObjectForContext:[listener context]];
-	[ourObject removeCallback:listener forEvent:type];
+	[ourObject removeListener:listener forEvent:type];
 
 	//TODO: You know, we can probably nip this in the bud and do this at a lower level,
 	//Or make this less onerous.
@@ -705,6 +741,26 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 - (void)setValuesForKeysWithDictionary:(NSDictionary *)keyedValues
 {
+	//It's possible that the 'setvalueforkey' has its own plans of what should be in the JS object,
+	//so we should do this first as to not overwrite the subclass's setter.
+	for (KrollBridge * currentBridge in [KrollBridge krollBridgesUsingProxy:self])
+	{
+		KrollObject * currentKrollObject = [currentBridge krollObjectForProxy:self];
+		for (NSString * currentKey in keyedValues)
+		{
+			id currentValue = [keyedValues objectForKey:currentKey];
+
+			if(![currentValue isKindOfClass:[TiProxy class]] || ![currentBridge usesProxy:currentValue])
+			{
+				[currentKrollObject forgetKrollObjectforKey:currentKey];
+			}
+			else
+			{
+				[currentKrollObject noteKrollObject:[currentBridge krollObjectForProxy:currentValue] forKey:currentKey];
+			}
+		}
+	}
+
 	NSArray * keySequence = [self keySequence];
 
 	for (NSString * thisKey in keySequence)
