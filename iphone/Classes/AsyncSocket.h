@@ -38,7 +38,7 @@ typedef enum AsyncSocketError AsyncSocketError;
  * When connecting, this delegate method may be called
  * before"onSocket:didAcceptNewSocket:" or "onSocket:didConnectToHost:".
 **/
-- (void)onSocket:(AsyncSocket *)sock willDisconnectWithError:(NSError *)err;
+- (BOOL)onSocket:(AsyncSocket *)sock shouldDisconnectWithError:(NSError *)err;
 
 /**
  * Called when a socket disconnects with or without error.  If you want to release a socket after it disconnects,
