@@ -235,7 +235,7 @@ public class TiConvert
 		} else if (value instanceof String) {
 			return Boolean.parseBoolean(((String) value));
 		} else {
-			throw new IllegalArgumentException("Unable to convert " + value.getClass().getName() + " to boolean.");
+			throw new IllegalArgumentException("Unable to convert " + (value == null ? "null" : value.getClass().getName()) + " to boolean.");
 		}
 	}
 	public static boolean toBoolean(KrollDict d, String key) {

@@ -11,8 +11,10 @@
 // Generic stream for data; designed to encapsulate blobs and buffers.
 @interface TiDataStream : TiStreamProxy<TiStreamInternal> {
     NSData* data;
+    TiStreamMode mode;
     int position;
 }
+@property (nonatomic) TiStreamMode mode;
 @property (nonatomic,readwrite,retain) NSData* data;
 
 @end
