@@ -74,14 +74,35 @@
 #pragma mark Public API : Functions
 
 // TODO: Methods need to check isReadable() isWritable()
+// TODO: Need to determine if there's a 'default' mode
 // Note that this is kind of a stub; we may need to expand it later.
 -(TiStreamProxy*)createStream:(id)args
 {
+    ENSURE_SINGLE_ARG(args,NSDictionary);
+    
     id obj = nil;
-    ENSURE_ARG_AT_INDEX(obj, args, 0, NSObject);
+    TiStreamMode mode;
+    
+    ENSURE_ARG_FOR_KEY(obj, args, @"source", NSObject);
+    ENSURE_INT_FOR_KEY(mode, args, @"mode");
+    
+    if (mode != TI_READ && mode != TI_WRITE && mode != TI_APPEND) {
+        [self throwException:@"TypeError"
+                   subreason:[NSString stringWithFormat:@"Invalid mode value %d", mode]
+                    location:CODELOCATION];
+    }
+    
     if ([obj respondsToSelector:@selector(data)]) {
+        if (mode & (TI_WRITE | TI_APPEND)) {
+            [self throwException:@"TypeError"
+                       subreason:[NSString stringWithFormat:@"Invalid mode value %d for BlobStream can be MODE_READ only", mode]
+                        location:CODELOCATION];            
+        }
+        
         TiDataStream* stream = [[[TiDataStream alloc] _initWithPageContext:[self executionContext]] autorelease];
         [stream setData:[obj data]];
+        [stream setMode:mode];
+        
         return stream;
     }
     else {
@@ -199,6 +220,13 @@
     
     [stream pumpToCallback:callback chunkSize:size asynch:isAsynch];
 }
+
+#pragma mark Public API : Properties
+
+MAKE_SYSTEM_PROP(MODE_READ,TI_READ);
+MAKE_SYSTEM_PROP(MODE_WRITE,TI_WRITE);
+MAKE_SYSTEM_PROP(MODE_APPEND,TI_APPEND);
+
 
 @end
 #endif

@@ -1611,7 +1611,7 @@ class Builder(object):
 			if not os.path.exists(self.classes_dir):
 				os.makedirs(self.classes_dir)
 
-			if (not debugger_host is None) and (not self.debugger_host is None) and len(self.debugger_host) > 0:
+			if (not debugger_host is None) and len(debugger_host) > 0:
 				hostport = debugger_host.split(":")
 				self.debugger_host = hostport[0]
 				self.debugger_port = int(hostport[1])
@@ -1807,12 +1807,14 @@ if __name__ == "__main__":
 	argc = len(sys.argv)
 	if argc < 2:
 		usage()
-	
+
 	command = sys.argv[1]
 	log = TiLogger(os.path.join(os.path.abspath(os.path.expanduser(dequote(sys.argv[4]))), 'build.log'))
 	template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 	get_values_from_tiapp = False
-	
+
+	log.debug(" ".join(sys.argv))
+
 	if command == 'run':
 		if argc < 4:
 			print 'Usage: %s run <project_dir> <android_sdk>' % sys.argv[0]

@@ -2,7 +2,6 @@
 var win = Ti.UI.currentWindow;
 Titanium.Facebook.appid = "134793934930";
 Titanium.Facebook.permissions = ['publish_stream', 'read_stream'];
-
 //
 // Login Status
 //
@@ -14,6 +13,18 @@ var label = Ti.UI.createLabel({
 	textAlign:'center'
 });
 win.add(label);
+
+var forceButton = Ti.UI.createButton({
+	title:'Force dialog: '+Titanium.Facebook.forceDialogAuth,
+	top:50,
+	width:160,
+	height:40
+});
+forceButton.addEventListener('click', function() {
+	Titanium.Facebook.forceDialogAuth = !Titanium.Facebook.forceDialogAuth;
+	forceButton.title = "Force dialog: "+Titanium.Facebook.forceDialogAuth;
+});
+win.add(forceButton);
 
 function updateLoginStatus() {
 	label.text = 'Logged In = ' + Titanium.Facebook.loggedIn;
