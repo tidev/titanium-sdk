@@ -28,6 +28,7 @@
 	if (self = [super initWithStyle:style_ reuseIdentifier:reuseIdentifier_]) {
 		proxy = row_;
 		[proxy setCallbackCell:self];
+		self.exclusiveTouch = YES;
 	}
 	
 	return self;

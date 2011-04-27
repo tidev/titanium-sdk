@@ -141,7 +141,7 @@ public class FileStream extends KrollProxy implements TiStream
 	}
 
 	@Kroll.method
-	public boolean isWriteable()
+	public boolean isWritable()
 	{
 		return (fileProxy.tbf.isOpen() && fileProxy.tbf.isWriteable());
 	}

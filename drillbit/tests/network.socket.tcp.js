@@ -11,34 +11,52 @@ describe("Ti.Network.Socket.TCP tests", {
 	},
 
 	testConnectAccept: asyncTest({
-		start: function() {
+		start: function(callback) {
 			var listener = Ti.Network.Socket.createTCP({
 				host:'localhost',
 				port:40404
 			});
-			listener.accepted = this.async(function (e) {
-				valueOf(e.socket).shouldBeObject();
-				valueOf(e.socket.state).shouldBe(Ti.Network.Socket.LISTENING);
-				valueOf(e.inbound).shouldBeObject();
-				valueOf(e.inbound.state).shouldBe(Ti.Network.Socket.CONNECTED);
-			
-				valueOf(e.inbound.error).shouldBeFunction();
+			var acceptPassed = false;
+			var connectPassed = false;
+			listener.accepted = function (e) {
+				try {
+					valueOf(e.socket).shouldBeObject();
+					valueOf(e.socket.state).shouldBe(Ti.Network.Socket.LISTENING);
+					valueOf(e.inbound).shouldBeObject();
+					valueOf(e.inbound.state).shouldBe(Ti.Network.Socket.CONNECTED);
 				
-				valueOf(function() { e.inbound.close(); }).shouldNotThrowException();
-				valueOf(function() { e.socket.close(); }).shouldNotThrowException();
-			});
+					valueOf(e.inbound.error).shouldBeFunction();
+					
+					valueOf(function() { e.inbound.close(); }).shouldNotThrowException();
+					valueOf(function() { e.socket.close(); }).shouldNotThrowException();
+					acceptPassed = true;
+					if (connectPassed) {
+						callback.passed();
+					}
+				} catch (e) {
+					callback.failed(e);
+				}
+			};
 			var connector = Ti.Network.Socket.createTCP({
 				host:'localhost',
 				port:40404
 			});
-			connector.connected = this.async(function (e) {
-				valueOf(e.socket).shouldBeObject();
-				valueOf(e.socket.state).shouldBe(Ti.Network.Socket.CONNECTED);
-			});
-			
+			connector.connected = function (e) {
+				try {
+					valueOf(e.socket).shouldBeObject();
+					valueOf(e.socket.state).shouldBe(Ti.Network.Socket.CONNECTED);
+					connectPassed = true;
+					if (acceptPassed) {
+						callback.passed();
+					}
+				} catch (e) {
+					callback.failed(e);
+				}
+			};
+			var x = function(e) {};
 			valueOf(function() { listener.listen() }).shouldNotThrowException();
 			valueOf(function() { listener.accept({
-				error:function(e) {}
+				error:x
 			}) }).shouldNotThrowException();
 			valueOf(function() { connector.connect() }).shouldNotThrowException();
 		},
@@ -90,7 +108,7 @@ describe("Ti.Network.Socket.TCP tests", {
 			});
 			
 			valueOf(function() { listener.listen(); }).shouldNotThrowException();
-			valueOf(function() { listener.accept(); }).shouldNotThrowException();
+			valueOf(function() { listener.accept({}); }).shouldNotThrowException();
 			valueOf(function() { connector.connect(); }).shouldNotThrowException();
 		},
 		timeout: 10000,

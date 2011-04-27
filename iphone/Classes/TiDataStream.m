@@ -8,7 +8,7 @@
 #import "TiDataStream.h"
 
 @implementation TiDataStream
-@synthesize data;
+@synthesize data, mode;
 
 #pragma mark Internals
 
@@ -16,6 +16,7 @@
 {
     if (self = [super init]) {
         data = nil;
+        mode = TI_READ;
         position = 0;
     }
     return self;
@@ -30,7 +31,16 @@
 #pragma mark I/O Stream implementation
 
 -(int)readToBuffer:(TiBuffer *)toBuffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback
-{    
+{
+    // TODO: Throw exception, or no-op?  For now, assume NO-OP
+    if (position >= [data length]) {
+        if (callback != nil) {
+            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(-1),@"bytesProcessed",nil];
+            [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
+        }        
+        return -1;
+    }
+    
     // TODO: This is a dumb convention. Go back and fix it.
     if (length == 0) {
         length = [data length];
@@ -52,8 +62,9 @@
     return bytesToWrite;
 }
 
+// TODO: Need to extend the data if we're writing past its current bounds
 -(int)writeFromBuffer:(TiBuffer *)fromBuffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback
-{    
+{
     // Sanity check for mutable data (just in case...)
     if (![data isKindOfClass:[NSMutableData class]]) {
         NSString* errorStr = [NSString stringWithFormat:@"[ERROR] Attempt to write to unwritable stream"];
@@ -65,25 +76,33 @@
         return -1;   
     }
     
-    // We've already thrown an exception if this is the result of a direct write; now we need treat it as a no-op, internally.
-    if (offset > [data length]) {
-        return 0;
+    // OK, even if we're working with NSData (and not NSMutableData) we have to cast away const here; we're going to assume that
+    // even with immutable data (i.e. blob) if the user has specified WRITE or APPEND, they're OK with digging their own grave.
+    NSMutableData* mutableData = (NSMutableData*)data;
+    if (mode & TI_WRITE) {
+        int overflow = length - ([data length] - position);
+        if (overflow > 0) {
+            [mutableData increaseLengthBy:overflow];
+        }
+        
+        void* bytes = [mutableData mutableBytes];
+        const void* fromBytes = [[fromBuffer data] bytes];
+        
+        memcpy(bytes+position, fromBytes+offset, length);
+        position += length;        
     }
-    
-    void* bytes = [(NSMutableData*)data mutableBytes];
-    const void* fromBytes = [[fromBuffer data] bytes];
-    
-    int bytesToWrite = MIN([data length] - position, length);
-    memcpy(bytes+position, fromBytes+offset, bytesToWrite);
+    else if (mode & TI_APPEND) {
+        [mutableData appendData:[[fromBuffer data] subdataWithRange:NSMakeRange(offset,length)]];
+        position = [data length];
+    }
 
-    position += bytesToWrite;
     
     if (callback != nil) {
-        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(bytesToWrite),@"bytesProcessed",nil];
+        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(length),@"bytesProcessed",nil];
         [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
     }
     
-    return bytesToWrite;
+    return length;
 }
 
 -(int)writeToStream:(id<TiStreamInternal>)output chunkSize:(int)size callback:(KrollCallback *)callback
@@ -92,10 +111,7 @@
     int totalBytes = 0;
     while (position < length) {
         TiBuffer* tempBuffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
-        NSRange subdataRange = NSMakeRange(position,size);
-        if (position+size > length) {
-            subdataRange.length = position+size-length;
-        }
+        NSRange subdataRange = NSMakeRange(position,MIN(size,length-position));
         
         void* bytes = malloc(subdataRange.length);
         [data getBytes:bytes range:subdataRange];
@@ -160,12 +176,12 @@
 
 -(NSNumber*)isReadable:(id)_void
 {
-    return NUMBOOL(YES);
+    return NUMBOOL(mode & TI_READ);
 }
 
 -(NSNumber*)isWritable:(id)_void
 {
-    return NUMBOOL([data isKindOfClass:[NSMutableData class]]);
+    return NUMBOOL(mode & (TI_WRITE | TI_APPEND));
 }
 
 @end
