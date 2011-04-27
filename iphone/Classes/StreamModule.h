@@ -12,8 +12,11 @@
 @interface StreamModule : TiModule {
     
 }
-
 // Public API
+@property (nonatomic,readonly) NSNumber* MODE_READ;
+@property (nonatomic,readonly) NSNumber* MODE_WRITE;
+@property (nonatomic,readonly) NSNumber* MODE_APPEND;
+
 -(TiStreamProxy*)createStream:(id)args;
 
 -(void)read:(id)args;

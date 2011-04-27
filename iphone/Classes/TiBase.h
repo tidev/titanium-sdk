@@ -487,6 +487,12 @@ typedef enum {
     TI_DOUBLE
 } TiDataType;
     
+typedef enum {
+    TI_READ = 1<<0,
+    TI_WRITE = 1<<1,
+    TI_APPEND = 1<<2
+} TiStreamMode;
+    
 extern NSString * const kTiASCIIEncoding;
 extern NSString * const kTiISOLatin1Encoding;
 extern NSString * const kTiUTF8Encoding;
