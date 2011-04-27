@@ -124,11 +124,9 @@ methods:
                 type: Number
 
     - name: clear
-        returns: Boolean
         description: clears buffer contents but does not change the size of the buffer
 
     - name: release
-        returns: Boolean
         description: releases the space allocated to the buffer, sets length to 0.  This is effectively nothing more than an alias for buffer.length = 0
 
     - name: toString
