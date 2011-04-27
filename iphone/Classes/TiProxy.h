@@ -123,6 +123,9 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(void)rememberSelf;
 -(void)forgetSelf;
 
+-(void)setCallback:(KrollCallback *)eventCallback forKey:(NSString *)key;
+-(void)fireCallback:(NSString*)type withArg:(NSDictionary *)argDict withSource:(id)source;
+
 #pragma mark Public 
 -(id<NSFastEnumeration>)allKeys;
 -(NSArray *)keySequence;

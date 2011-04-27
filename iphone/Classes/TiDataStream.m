@@ -111,10 +111,7 @@
     int totalBytes = 0;
     while (position < length) {
         TiBuffer* tempBuffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
-        NSRange subdataRange = NSMakeRange(position,size);
-        if (position+size > length) {
-            subdataRange.length = position+size-length;
-        }
+        NSRange subdataRange = NSMakeRange(position,MIN(size,length-position));
         
         void* bytes = malloc(subdataRange.length);
         [data getBytes:bytes range:subdataRange];

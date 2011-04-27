@@ -2158,18 +2158,21 @@ Failed:
 {
 	theFlags |= kClosingWithError;
 	
+    BOOL disconnect = YES;
 	if (theFlags & kDidStartDelegate)
 	{
 		// Try to salvage what data we can.
 		[self recoverUnreadData];
 		
 		// Let the delegate know, so it can try to recover if it likes.
-		if ([theDelegate respondsToSelector:@selector(onSocket:willDisconnectWithError:)])
+		if ([theDelegate respondsToSelector:@selector(onSocket:shouldDisconnectWithError:)])
 		{
-			[theDelegate onSocket:self willDisconnectWithError:err];
+			disconnect = [theDelegate onSocket:self shouldDisconnectWithError:err];
 		}
 	}
-	[self close];
+    if (disconnect) {
+        [self close];
+    }
 }
 
 // Prepare partially read data for recovery.

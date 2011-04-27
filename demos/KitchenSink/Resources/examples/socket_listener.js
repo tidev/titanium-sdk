@@ -2,8 +2,20 @@ var win = Titanium.UI.currentWindow;
 
 var connectedSockets = [];
 
+function removeSocket(sock) {
+	var index = connectedSockets.indexOf(sock);
+	if (index != -1) {
+		connectedSockets.splice(index,1);
+	}	
+}
+
 function pumpCallback(e) {
-	if (e.errorDescription == null) {
+	if (e.bytesProcessed == -1) { // EOF
+		readLabel.text = "<EOF> - Closing the remote socket!";
+		e.source.close();
+		removeSocket(e.source);
+	}
+	else if (e.errorDescription == null || e.errorDescription == "") {
 		readLabel.text = "DATA: "+e.buffer.toString();
 	}
 	else {
@@ -17,10 +29,7 @@ var acceptedCallbacks = {
 			title:"Socket error: "+e.socket.host,
 			message:e.error
 		}).show();
-		var index = connectedSockets.indexOf(e.socket);
-		if (index != -1) {
-			connectedSockets.splice(index,1); // Removes socket
-		}
+		removeSocket(e.socket);
 	}
 };
 
@@ -144,11 +153,11 @@ var writeButton = Titanium.UI.createButton({
 win.add(writeButton);
 writeButton.addEventListener('click', function() {
 	var plBlob = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'paradise_lost.txt').read();
-	var buff = Ti.createBuffer({data:plBlob});
+	var input = Ti.Stream.createStream({source:plBlob, mode:Ti.Stream.MODE_READ});
 
 	for (var index in connectedSockets) {
 		var sock = connectedSockets[index];
-		sock.write(buff);
+		Ti.Stream.writeStream(input, sock, 4096);
 	}
 	messageLabel.text = "I'm a writer!";
 });

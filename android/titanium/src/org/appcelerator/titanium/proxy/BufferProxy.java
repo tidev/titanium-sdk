@@ -320,17 +320,15 @@ public class BufferProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public boolean clear()
+	public void clear()
 	{
 		Arrays.fill(buffer, (byte)0);
-		return true;
 	}
 
 	@Kroll.method
-	public boolean release()
+	public void release()
 	{
 		buffer = new byte[0];
-		return true;
 	}
 
 	public String toString()

@@ -12,7 +12,7 @@
 
 // Used to determine the type of processing 
 typedef enum {
-    TO_BUFFER,
+    TO_BUFFER = 1,
     TO_STREAM,
     TO_CALLBACK,
 } ReadDestination;
