@@ -241,5 +241,78 @@ describe("Ti.Codec tests", {
 			byteOrder: Ti.Codec.LITTLE_ENDIAN
 		});
 		valueOf(n.toFixed(4)).shouldBe(1.2345);
+	},
+	testEncodeString: function() {
+		var PHRASE = "Wer reitet so spät durch Nacht und Wind?";
+		var buffer = Ti.createBuffer({ length: 1024 });
+		var length = Ti.Codec.encodeString({
+			src: PHRASE,
+			dest: buffer
+		});
+		valueOf(length).shouldBe(PHRASE.length + 1); // +1 for the umlaut char set byte
+		var umlautLoc = PHRASE.indexOf('ä');
+		valueOf(buffer[umlautLoc]).shouldBe(0xc3); // C3 char set in utf-8
+		valueOf(buffer[umlautLoc + 1]).shouldBe(0xa4); // umlaut-a itself
+
+		buffer.clear();
+		buffer.length = 1024;
+		length = Ti.Codec.encodeString({
+			src: PHRASE,
+			dest: buffer,
+			charset: Ti.Codec.CHARSET_UTF16
+		});
+		valueOf(length).shouldBe(((PHRASE.length) * 2) + 2); // The final "+ 2" is for the BOM.
+		buffer.length = length;
+		// round trip?
+		valueOf( Ti.Codec.decodeString({ charset: Ti.Codec.CHARSET_UTF16, src: buffer })).shouldBe(PHRASE);
+	},
+	testDecodeString: function() {
+		var TEST = "spät";
+		var buffer = Ti.createBuffer({ length: 5 });
+		buffer[0] = 0x73; // s
+		buffer[1] = 0x70; // p
+		buffer[2] = 0xc3; // char table
+		buffer[3] = 0xa4; // umlaut-a
+		buffer[4] = 0x74; // t
+		valueOf(Ti.Codec.decodeString({ charset: Ti.Codec.CHARSET_UTF8, src: buffer} )).shouldBe(TEST);
+
+		// UTF-16
+		buffer.clear();
+		buffer.length = 10; // BOM=2, then 4 chars * 2
+		if (Ti.Codec.getNativeByteOrder === Ti.Codec.LITTLE_ENDIAN) {
+			// BOM
+			buffer[0] = 0xff;
+			buffer[1] = 0xfe;
+			// "s"
+			buffer[2] = 0x73;
+			buffer[3] = 0x00;
+			// "p"
+			buffer[4] = 0x70;
+			buffer[5] = 0x00;
+			// "ä"
+			buffer[6] = 0xe4;
+			buffer[7] = 0x00;
+			// "t"
+			buffer[8] = 0x74;
+			buffer[9] = 0x00;
+		} else {
+			// BOM
+			buffer[1] = 0xff;
+			buffer[0] = 0xfe;
+			// "s"
+			buffer[3] = 0x73;
+			buffer[2] = 0x00;
+			// "p"
+			buffer[5] = 0x70;
+			buffer[4] = 0x00;
+			// "ä"
+			buffer[7] = 0xe4;
+			buffer[6] = 0x00;
+			// "t"
+			buffer[9] = 0x74;
+			buffer[8] = 0x00;
+		}
+		valueOf(Ti.Codec.decodeString({ charset: Ti.Codec.CHARSET_UTF16, src: buffer})).shouldBe(TEST);
 	}
+
 });
