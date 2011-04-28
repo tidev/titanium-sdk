@@ -33,7 +33,7 @@ function runTests() {
 			}
 			if (idx != -1) {
 				var endIdx = line.lastIndexOf(')');
-				var absoluteLine = lineNumber + entry.lineOffsets[fname];
+				var absoluteLine = lineNumber + entry.lineOffsets[fname] + 1;
 				if (line.charAt(endIdx-1)=='(') {
 					line = line.substring(0, endIdx) + 'null,' + absoluteLine + ');';
 				} else {
