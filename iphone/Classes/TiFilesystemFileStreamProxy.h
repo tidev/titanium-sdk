@@ -5,16 +5,24 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "StreamModule.h"
+#ifdef USE_TI_FILESYSTEM
 
-@class TiFilesystemFileProxy;
+#import "TiStreamProxy.h"
 
-@interface TiFilesystemFileStreamProxy : TiStreamProxy <TiStreamInternal> {
+@interface TiFilesystemFileStreamProxy : TiStreamProxy<TiStreamInternal> {
 
 @private
-	TiFilesystemFileProxy *fileProxy;
-
+	NSFileHandle *fileHandle;
+	NSArray *modes;
 }
 
+@property (nonatomic, readonly) NSArray *modes;
+
+#pragma mark Public API
+
+-(id) pump:(id) args;
+-(id) writeStream:(id) args;
 
 @end
+
+#endif

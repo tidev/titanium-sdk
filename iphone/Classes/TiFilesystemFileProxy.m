@@ -4,14 +4,13 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiFilesystemFileProxy.h"
 
 #ifdef USE_TI_FILESYSTEM
 
 #import "TiUtils.h"
 #import "TiBlob.h"
+#import "TiFilesystemFileProxy.h"
 #import "TiFilesystemFileStreamProxy.h"
-
 
 #define FILE_TOSTR(x) \
 	([x isKindOfClass:[TiFilesystemFileProxy class]]) ? [(TiFilesystemFileProxy*)x nativePath] : [TiUtils stringValue:x]
@@ -155,11 +154,15 @@ FILENOOP(setHidden:(id)x);
 }
 
 -(TiFilesystemFileStreamProxy *) open:(id) args {
-	NSArray *modes;
-	ENSURE_ARG_AT_INDEX(modes, args, 0, NSArray);
-	
-	NSArray *payload = [NSArray arrayWithObjects:self, modes];
+	id modes = [NSNull null];
+	if([args count] > 0) {
+		id firstArg = [args objectAtIndex:0];
+		modes = ([firstArg isKindOfClass:[NSArray class]]) ? firstArg : [NSArray arrayWithObject:firstArg];
+	}
 
+	NSLog(@"open: args %@", args);
+	NSArray *payload = [NSArray arrayWithObjects:[self path], modes, nil];
+	
 	return [[[TiFilesystemFileStreamProxy alloc] _initWithPageContext:[self executionContext] args:payload] autorelease];
 }
 
