@@ -464,6 +464,13 @@ TiValueRef KrollGetProperty(TiContextRef jsContext, TiObjectRef object, TiString
 			return NULL;
 		}
 		
+		TiObjectRef cachedObject = [o objectForTiString:prop context:jsContext];
+		
+		if ((cachedObject != NULL) && TiObjectIsFunction(jsContext,cachedObject))
+		{
+			return cachedObject;
+		}
+		
 		id result = [o valueForKey:name];
 		TiValueRef jsResult = ConvertIdTiValue([o context],result);
 		if ([result isKindOfClass:[KrollObject class]] &&
@@ -1300,6 +1307,30 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 	}
 
 	TiObjectDeleteProperty(jsContext, jsProxyHash, keyString, &exception);
+}
+
+-(TiObjectRef)objectForTiString:(TiStringRef) keyString context:(TiContextRef) jsContext
+{
+	TiValueRef exception=NULL;
+
+	TiStringRef jsPropertyHashString = TiStringCreateWithUTF8CString("__PR");
+	TiObjectRef jsProxyHash = TiObjectGetProperty(jsContext, propsObject, jsPropertyHashString, &exception);
+	TiStringRelease(jsPropertyHashString);
+
+	jsProxyHash = TiValueToObject(jsContext, jsProxyHash, &exception);
+	if ((jsProxyHash == NULL) || (TiValueGetType(jsContext,jsProxyHash) != kTITypeObject))
+	{
+		return NULL;
+	}
+	
+	TiObjectRef result = TiObjectGetProperty(jsContext, jsProxyHash, keyString, NULL);
+
+	if ((result == NULL) || (TiValueGetType(jsContext,result) != kTITypeObject))
+	{
+		return NULL;
+	}
+
+	return result;
 }
 
 -(void)storeListener:(KrollCallback *)eventCallback forEvent:(NSString *)eventName

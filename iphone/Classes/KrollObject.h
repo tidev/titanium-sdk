@@ -76,6 +76,7 @@ bool KrollDeleteProperty(TiContextRef ctx, TiObjectRef object, TiStringRef prope
 -(void)forgetKrollObjectforKey:(NSString *)key;
 -(void)noteObject:(TiObjectRef)storedJSObject forTiString:(TiStringRef) keyString context:(TiContextRef) jsxContext;
 -(void)forgetObjectForTiString:(TiStringRef) keyString context:(TiContextRef) jsContext;
+-(TiObjectRef)objectForTiString:(TiStringRef) keyString context:(TiContextRef) jsContext;
 
 -(void)noteCallback:(KrollCallback *)eventCallback forKey:(NSString *)key;
 -(void)forgetCallbackForKey:(NSString *)key;
