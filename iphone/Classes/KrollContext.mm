@@ -1289,6 +1289,15 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 }
 
+- (void) dealloc
+{
+	[invocationTarget release];
+	[invocationArg1 release];
+	[invocationArg2 release];
+	[invocationArg3 release];
+	[invocationArg4 release];
+	[super dealloc];
+}
 
 
 
