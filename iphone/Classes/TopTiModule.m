@@ -85,7 +85,7 @@
     BOOL hasByteOrder;
     
     ENSURE_INT_OR_NIL_FOR_KEY(length, arg, @"length", hasLength);
-    ENSURE_ARG_OR_NIL_FOR_KEY(data, arg, @"data", NSObject);
+    ENSURE_ARG_OR_NIL_FOR_KEY(data, arg, @"value", NSObject);
     ENSURE_ARG_OR_NIL_FOR_KEY(type, arg, @"type", NSString);
     ENSURE_INT_OR_NIL_FOR_KEY(byteOrder, arg, @"byteOrder", hasByteOrder);
     
