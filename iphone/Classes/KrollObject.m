@@ -1299,6 +1299,7 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 
 	TiStringRef jsPropertyHashString = TiStringCreateWithUTF8CString("__PR");
 	TiObjectRef jsProxyHash = TiObjectGetProperty(jsContext, propsObject, jsPropertyHashString, &exception);
+	TiStringRelease(jsPropertyHashString);
 
 	jsProxyHash = TiValueToObject(jsContext, jsProxyHash, &exception);
 	if ((jsProxyHash == NULL) || (TiValueGetType(jsContext,jsProxyHash) != kTITypeObject))
