@@ -49,7 +49,7 @@
 	[self lockViews];
 	NSArray * result = [viewProxies copy];
 	[self unlockViews];
-	return result;
+	return [result autorelease];
 }
 
 -(int)viewCount
