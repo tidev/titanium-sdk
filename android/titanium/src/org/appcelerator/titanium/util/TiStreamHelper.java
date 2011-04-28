@@ -23,24 +23,16 @@ public class TiStreamHelper
 	public static final int DEFAULT_BUFFER_SIZE = 1024;
 
 
-	public static int read(InputStream inputStream, BufferProxy bufferProxy, int offset, int length)
+	public static int read(InputStream inputStream, BufferProxy bufferProxy, int offset, int length) throws IOException
 	{
 		byte[] buffer = bufferProxy.getBuffer();
-		int bytesRead = -1;
 
 		if((offset + length) > buffer.length)
 		{
 			length = buffer.length - offset;
 		}
 
-		try {
-			bytesRead = inputStream.read(buffer, offset, length);
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		return bytesRead;
+		return inputStream.read(buffer, offset, length);
 	}
 
 	public static int write(OutputStream outputStream, BufferProxy bufferProxy, int offset, int length)
