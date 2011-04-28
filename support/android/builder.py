@@ -1809,11 +1809,8 @@ if __name__ == "__main__":
 		usage()
 
 	command = sys.argv[1]
-	log = TiLogger(os.path.join(os.path.abspath(os.path.expanduser(dequote(sys.argv[4]))), 'build.log'))
 	template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 	get_values_from_tiapp = False
-
-	log.debug(" ".join(sys.argv))
 
 	if command == 'run':
 		if argc < 4:
@@ -1849,6 +1846,9 @@ if __name__ == "__main__":
 		sdk_dir = os.path.abspath(os.path.expanduser(dequote(sys.argv[3])))
 		project_dir = os.path.abspath(os.path.expanduser(dequote(sys.argv[4])))
 		app_id = dequote(sys.argv[5])
+
+	log = TiLogger(os.path.join(os.path.abspath(os.path.expanduser(dequote(project_dir))), 'build.log'))
+	log.debug(" ".join(sys.argv))
 	
 	s = Builder(project_name,sdk_dir,project_dir,template_dir,app_id)
 	s.command = command

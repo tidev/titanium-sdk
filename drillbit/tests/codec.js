@@ -22,9 +22,7 @@ describe("Ti.Codec tests", {
 
 		valueOf(Ti.Codec.BIG_ENDIAN).shouldBeNumber();
 		valueOf(Ti.Codec.LITTLE_ENDIAN).shouldBeNumber();
-		// TODO: Spec explicitly says this is getNativeByteOrder(), not a property
-		// Decide on final value
-		valueOf(Ti.Codec.nativeByteOrder).shouldBeOneOf([Ti.Codec.BIG_ENDIAN, Ti.Codec.LITTLE_ENDIAN]);
+		valueOf(Ti.Codec.getNativeByteOrder()).shouldBeOneOf([Ti.Codec.BIG_ENDIAN, Ti.Codec.LITTLE_ENDIAN]);
 	},
 
 	testEncodeIntegers: function() {
@@ -36,7 +34,7 @@ describe("Ti.Codec tests", {
 			type: Ti.Codec.TYPE_LONG
 		});
 
-		if (Ti.Codec.nativeByteOrder == Ti.Codec.BIG_ENDIAN) {
+		if (Ti.Codec.getNativeByteOrder() == Ti.Codec.BIG_ENDIAN) {
 			for (var i = 0; i < 3; i++) {
 				valueOf(buffer[i]).shouldBe(0);
 			}
@@ -104,6 +102,16 @@ describe("Ti.Codec tests", {
 		});
 		valueOf(buffer[0]).shouldBe(0x45);
 		valueOf(buffer[1]).shouldBe(0x67);
+
+		buffer.clear();
+		buffer[0] = 63;
+		Ti.Codec.encodeNumber({
+			dest: buffer,
+			data: 63,
+			position: 1,
+			type: Ti.Codec.TYPE_BYTE
+		});
+		valueOf(buffer[0]).shouldBe(buffer[1]);
 	},
 
 	testDecodeIntegers: function() {
@@ -119,6 +127,70 @@ describe("Ti.Codec tests", {
 			byteOrder: Ti.Codec.LITTLE_ENDIAN
 		});
 		valueOf(n).shouldBe(0x123456789a);
+
+		n = Ti.Codec.decodeNumber({
+			src: buffer,
+			type: Ti.Codec.TYPE_INT,
+			byteOrder: Ti.Codec.BIG_ENDIAN,
+			position: 1
+		});
+		valueOf(n).shouldBe(0x78563412);
+
+		n = Ti.Codec.decodeNumber({
+			src: buffer,
+			type: Ti.Codec.TYPE_SHORT,
+			byteOrder: Ti.Codec.LITTLE_ENDIAN
+		});
+
+		// down casting discards the low bits (0x563412)
+		valueOf(n).shouldBe(0x789a);
+	},
+
+	testEncodeFloatingPoint: function() {
+		var buffer = Ti.createBuffer({ length: 8 });
+
+		// 1/3 -> 0x3fd5555555555555
+		Ti.Codec.encodeNumber({
+			dest: buffer,
+			data: 1/3,
+			type: Ti.Codec.TYPE_DOUBLE,
+			byteOrder: Ti.Codec.BIG_ENDIAN
+		});
+		valueOf(buffer[0]).shouldBe(0x3f);
+		valueOf(buffer[1]).shouldBe(0xd5);
+		for (var i = 2; i < 8; i++) {
+			valueOf(buffer[i]).shouldBe(0x55);
+		}
+
+		// 1.23456789 -> 0x3ff3c0ca4283de1b
+		buffer = Ti.createBuffer({
+			data: 1.23456789,
+			type: Ti.Codec.TYPE_DOUBLE,
+			byteOrder: Ti.Codec.BIG_ENDIAN
+		});
+
+		valueOf(buffer[0]).shouldBe(0x3f);
+		valueOf(buffer[1]).shouldBe(0xf3);
+		valueOf(buffer[2]).shouldBe(0xc0);
+		valueOf(buffer[3]).shouldBe(0xca);
+		valueOf(buffer[4]).shouldBe(0x42);
+		valueOf(buffer[5]).shouldBe(0x83);
+		valueOf(buffer[6]).shouldBe(0xde);
+		valueOf(buffer[7]).shouldBe(0x1b);
+
+		// 1.2345 -> 0x3f9e0419 (float)
+		buffer.clear();
+		buffer.length = 4;
+		Ti.Codec.encodeNumber({
+			dest: buffer,
+			data: 1.2345,
+			type: Ti.Codec.TYPE_FLOAT,
+			byteOrder: Ti.Codec.BIG_ENDIAN
+		});
+		valueOf(buffer[0]).shouldBe(0x3f);
+		valueOf(buffer[1]).shouldBe(0x9e);
+		valueOf(buffer[2]).shouldBe(0x04);
+		valueOf(buffer[3]).shouldBe(0x19);
 	},
 
 	testDecodeFloatingPoint: function() {
@@ -136,22 +208,6 @@ describe("Ti.Codec tests", {
 			byteOrder: Ti.Codec.BIG_ENDIAN
 		});
 		valueOf(n).shouldBe(1/3);
-
-		// 1.23456789 -> 0x3ff3c0ca4283de1b
-		buffer = Ti.createBuffer({
-			data: 1.23456789,
-			type: Ti.Codec.TYPE_DOUBLE,
-			byteOrder: Ti.Codec.BIG_ENDIAN
-		});
-
-		valueOf(buffer[0]).shouldBe(0x3f);
-		valueOf(buffer[1]).shouldBe(0xf3);
-		valueOf(buffer[2]).shouldBe(0xc0);
-		valueOf(buffer[3]).shouldBe(0xca);
-		valueOf(buffer[4]).shouldBe(0x42);
-		valueOf(buffer[5]).shouldBe(0x83);
-		valueOf(buffer[6]).shouldBe(0xde);
-		valueOf(buffer[7]).shouldBe(0x1b);
 
 		// 0x3ff3c0ca4283de1b -> 1.23456789
 		buffer.clear();
@@ -171,9 +227,19 @@ describe("Ti.Codec tests", {
 			byteOrder: Ti.Codec.BIG_ENDIAN
 		});
 		valueOf(n).shouldBe(1.23456789);
-	},
-	
-	options: {
-		forceBuild: true
+
+		// 0x3f9e0419 ~> 1.2345 (float / little endian)
+		buffer.clear();
+		buffer.length = 4;
+		buffer[0] = 0x19;
+		buffer[1] = 0x04;
+		buffer[2] = 0x9e;
+		buffer[3] = 0x3f;
+		n = Ti.Codec.decodeNumber({
+			src: buffer,
+			type: Ti.Codec.TYPE_FLOAT,
+			byteOrder: Ti.Codec.LITTLE_ENDIAN
+		});
+		valueOf(n.toFixed(4)).shouldBe(1.2345);
 	}
 });

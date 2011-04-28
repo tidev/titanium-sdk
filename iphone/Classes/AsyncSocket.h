@@ -38,7 +38,7 @@ typedef enum AsyncSocketError AsyncSocketError;
  * When connecting, this delegate method may be called
  * before"onSocket:didAcceptNewSocket:" or "onSocket:didConnectToHost:".
 **/
-- (void)onSocket:(AsyncSocket *)sock willDisconnectWithError:(NSError *)err;
+- (BOOL)onSocket:(AsyncSocket *)sock shouldDisconnectWithError:(NSError *)err;
 
 /**
  * Called when a socket disconnects with or without error.  If you want to release a socket after it disconnects,
@@ -66,6 +66,11 @@ typedef enum AsyncSocketError AsyncSocketError;
  * thread on which the new socket and its delegate should operate. If omitted, [NSRunLoop currentRunLoop] is used.
 **/
 - (NSRunLoop *)onSocket:(AsyncSocket *)sock wantsRunLoopForNewSocket:(AsyncSocket *)newSocket;
+
+/**
+ * Called when the socket has been attached to run loop, etc. and is ready to hit the big time.
+ */
+-(void)onSocketReadyInRunLoop:(AsyncSocket *)sock;
 
 /**
  * Called when a socket is about to connect. This method should return YES to continue, or NO to abort.
