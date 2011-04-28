@@ -133,7 +133,7 @@ methods:
       - type: Number
         description: The Number decoded from `src`.
     examples: |
-        Decode a double-precision floating point number from 8 bytes using the OS byte order
+        Decode an 8 byte double-precision floating point number using the OS byte order
         
             var buffer = //...
             var value = Ti.Codec.decodeNumber({
@@ -164,7 +164,7 @@ methods:
       - type: Number
         description: The position after the encoded String inside `dest`.
     examples: |
-        Encode and trim a simple UTF-8 String
+        Encode and trim a simple String using the UTF-8 (default) charset
         
             var buffer = Ti.createBuffer({ length: 1024 });
             var length = Ti.Codec.encodeString({
@@ -173,7 +173,7 @@ methods:
             });
             buffer.length = length;
         
-        Encode the first 10 characters of a String into UTF-16
+        Encode the first 10 characters of a String using the UTF-16 charset
         
             // (10 * 2) + BOM = 22
             var buffer = Ti.createBuffer({ length: 22 });
@@ -197,11 +197,11 @@ methods:
       - type: String
         description: The decoded string
     examples: |
-        Decode a simple UTF-8 String
+        Decode a String using the UTF-8 (default) charset
             var buffer = //...
             var string = Ti.Codec.decodeString({ src: buffer });
         
-        Decode a UTF-16 string
+        Decode a string using the UTF-16 charset
             var buffer = //...
             var string = Ti.Codec.decodeString({
               src: buffer,

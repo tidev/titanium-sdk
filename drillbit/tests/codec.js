@@ -29,8 +29,8 @@ describe("Ti.Codec tests", {
 		var buffer = Ti.createBuffer({ length: 8 });
 
 		Ti.Codec.encodeNumber({
+			src: 0x123456789a,
 			dest: buffer,
-			data: 0x123456789a,
 			type: Ti.Codec.TYPE_LONG
 		});
 
@@ -58,8 +58,8 @@ describe("Ti.Codec tests", {
 		buffer.clear();
 
 		Ti.Codec.encodeNumber({
+			src: 0x123456789a,
 			dest: buffer,
-			data: 0x123456789a,
 			type: Ti.Codec.TYPE_LONG,
 			byteOrder: Ti.Codec.BIG_ENDIAN,
 			position: 2
@@ -79,8 +79,8 @@ describe("Ti.Codec tests", {
 
 		// down casting discards the high bits (0x12)
 		Ti.Codec.encodeNumber({
+			src: 0x123456789a,
 			dest: buffer,
-			data: 0x123456789a,
 			type: Ti.Codec.TYPE_INT,
 			byteOrder: Ti.Codec.BIG_ENDIAN
 		});
@@ -95,8 +95,8 @@ describe("Ti.Codec tests", {
 
 		// down casting discards the high bits (0x3)
 		Ti.Codec.encodeNumber({
+			src: 0x34567,
 			dest: buffer,
-			data: 0x34567,
 			type: Ti.Codec.TYPE_SHORT,
 			byteOrder: Ti.Codec.BIG_ENDIAN
 		});
@@ -106,8 +106,8 @@ describe("Ti.Codec tests", {
 		buffer.clear();
 		buffer[0] = 63;
 		Ti.Codec.encodeNumber({
+			src: 63,
 			dest: buffer,
-			data: 63,
 			position: 1,
 			type: Ti.Codec.TYPE_BYTE
 		});
@@ -151,8 +151,8 @@ describe("Ti.Codec tests", {
 
 		// 1/3 -> 0x3fd5555555555555
 		Ti.Codec.encodeNumber({
+			src: 1/3,
 			dest: buffer,
-			data: 1/3,
 			type: Ti.Codec.TYPE_DOUBLE,
 			byteOrder: Ti.Codec.BIG_ENDIAN
 		});
@@ -164,7 +164,7 @@ describe("Ti.Codec tests", {
 
 		// 1.23456789 -> 0x3ff3c0ca4283de1b
 		buffer = Ti.createBuffer({
-			data: 1.23456789,
+			value: 1.23456789,
 			type: Ti.Codec.TYPE_DOUBLE,
 			byteOrder: Ti.Codec.BIG_ENDIAN
 		});
@@ -182,8 +182,8 @@ describe("Ti.Codec tests", {
 		buffer.clear();
 		buffer.length = 4;
 		Ti.Codec.encodeNumber({
+			src: 1.2345,
 			dest: buffer,
-			data: 1.2345,
 			type: Ti.Codec.TYPE_FLOAT,
 			byteOrder: Ti.Codec.BIG_ENDIAN
 		});
@@ -242,6 +242,7 @@ describe("Ti.Codec tests", {
 		});
 		valueOf(n.toFixed(4)).shouldBe(1.2345);
 	},
+
 	testEncodeString: function() {
 		var PHRASE = "Wer reitet so spät durch Nacht und Wind?";
 		var buffer = Ti.createBuffer({ length: 1024 });
@@ -264,8 +265,9 @@ describe("Ti.Codec tests", {
 		valueOf(length).shouldBe(((PHRASE.length) * 2) + 2); // The final "+ 2" is for the BOM.
 		buffer.length = length;
 		// round trip?
-		valueOf( Ti.Codec.decodeString({ charset: Ti.Codec.CHARSET_UTF16, src: buffer })).shouldBe(PHRASE);
+		valueOf( Ti.Codec.decodeString({ src: buffer, charset: Ti.Codec.CHARSET_UTF16 })).shouldBe(PHRASE);
 	},
+
 	testDecodeString: function() {
 		var TEST = "spät";
 		var buffer = Ti.createBuffer({ length: 5 });
@@ -274,45 +276,45 @@ describe("Ti.Codec tests", {
 		buffer[2] = 0xc3; // char table
 		buffer[3] = 0xa4; // umlaut-a
 		buffer[4] = 0x74; // t
-		valueOf(Ti.Codec.decodeString({ charset: Ti.Codec.CHARSET_UTF8, src: buffer} )).shouldBe(TEST);
+		valueOf(Ti.Codec.decodeString({ src: buffer, charset: Ti.Codec.CHARSET_UTF8 } )).shouldBe(TEST);
 
 		// UTF-16
 		buffer.clear();
 		buffer.length = 10; // BOM=2, then 4 chars * 2
-		if (Ti.Codec.getNativeByteOrder === Ti.Codec.LITTLE_ENDIAN) {
-			// BOM
-			buffer[0] = 0xff;
-			buffer[1] = 0xfe;
-			// "s"
-			buffer[2] = 0x73;
-			buffer[3] = 0x00;
-			// "p"
-			buffer[4] = 0x70;
-			buffer[5] = 0x00;
-			// "ä"
-			buffer[6] = 0xe4;
-			buffer[7] = 0x00;
-			// "t"
-			buffer[8] = 0x74;
-			buffer[9] = 0x00;
-		} else {
-			// BOM
-			buffer[1] = 0xff;
-			buffer[0] = 0xfe;
-			// "s"
-			buffer[3] = 0x73;
-			buffer[2] = 0x00;
-			// "p"
-			buffer[5] = 0x70;
-			buffer[4] = 0x00;
-			// "ä"
-			buffer[7] = 0xe4;
-			buffer[6] = 0x00;
-			// "t"
-			buffer[9] = 0x74;
-			buffer[8] = 0x00;
-		}
-		valueOf(Ti.Codec.decodeString({ charset: Ti.Codec.CHARSET_UTF16, src: buffer})).shouldBe(TEST);
+
+		// BOM: Little Endian Encoding
+		buffer[0] = 0xff;
+		buffer[1] = 0xfe;
+		// "s"
+		buffer[2] = 0x73;
+		buffer[3] = 0x00;
+		// "p"
+		buffer[4] = 0x70;
+		buffer[5] = 0x00;
+		// "ä"
+		buffer[6] = 0xe4;
+		buffer[7] = 0x00;
+		// "t"
+		buffer[8] = 0x74;
+		buffer[9] = 0x00;
+		valueOf(Ti.Codec.decodeString({ src: buffer, charset: Ti.Codec.CHARSET_UTF16 })).shouldBe(TEST);
+
+		// BOM: Big Endian Encoding
+		buffer[1] = 0xff;
+		buffer[0] = 0xfe;
+		// "s"
+		buffer[3] = 0x73;
+		buffer[2] = 0x00;
+		// "p"
+		buffer[5] = 0x70;
+		buffer[4] = 0x00;
+		// "ä"
+		buffer[7] = 0xe4;
+		buffer[6] = 0x00;
+		// "t"
+		buffer[9] = 0x74;
+		buffer[8] = 0x00;
+		valueOf(Ti.Codec.decodeString({ src: buffer, charset: Ti.Codec.CHARSET_UTF16 })).shouldBe(TEST);
 	}
 
 });

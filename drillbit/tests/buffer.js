@@ -103,6 +103,25 @@ describe("Ti.Buffer tests", {
 			buffer1.insert(buffer2, 0, 99, 100);
 		}).shouldThrowException();
 	},
+	
+	testInsertBlogExample: function() {
+		var buffer = Ti.createBuffer({ length : 2});
+		buffer[0] = 1;
+		buffer[1] = 3;
+
+		var buffer2 = Ti.createBuffer({ length : 1});
+		buffer2[0] = 2;
+		buffer.insert(buffer2, 1);
+
+		valueOf(String(buffer[0]) + String(buffer[1]) + String(buffer[2])).shouldBe("123");
+		valueOf(buffer.length).shouldBe(3);
+		valueOf(buffer[0]).shouldBe(1);
+		valueOf(buffer[1]).shouldBe(2);
+		valueOf(buffer[2]).shouldBe(3);
+		
+		valueOf(buffer2.length).shouldBe(1); //unchanged
+		valueOf(buffer2[0]).shouldBe(2);
+	},
 
 	testCopy: function() {
 		var buffer1 = Ti.createBuffer({ length: 20 });
@@ -239,7 +258,7 @@ describe("Ti.Buffer tests", {
 
 	testAutoEncode: function() {
 		// default UTF8
-		var buffer = Ti.createBuffer({ data: "appcelerator" });
+		var buffer = Ti.createBuffer({ value: "appcelerator" });
 		valueOf(buffer.length).shouldBe(12);
 		valueOf(buffer[0]).shouldBe(97); // a
 		valueOf(buffer[1]).shouldBe(112); // p
@@ -255,7 +274,7 @@ describe("Ti.Buffer tests", {
 		valueOf(buffer[11]).shouldBe(114); // r
 
 		// UTF-16
-		buffer = Ti.createBuffer({ data: "appcelerator", type: Ti.Codec.CHARSET_UTF16 });
+		buffer = Ti.createBuffer({ value: "appcelerator", type: Ti.Codec.CHARSET_UTF16 });
 		var length = 24;
 		var start = 0;
 
@@ -286,7 +305,7 @@ describe("Ti.Buffer tests", {
 		valueOf(buffer[start+23]).shouldBe(114); // r
 
 		// 8 Byte long in Big Endian (most significant byte first)
-		buffer = Ti.createBuffer({ data: 0x12345678, type: Ti.Codec.TYPE_LONG, byteOrder: Ti.Codec.BIG_ENDIAN });
+		buffer = Ti.createBuffer({ value: 0x12345678, type: Ti.Codec.TYPE_LONG, byteOrder: Ti.Codec.BIG_ENDIAN });
 		valueOf(buffer.length).shouldBe(8);
 		for (var i = 0; i < 4; i++) {
 			valueOf(buffer[i]).shouldBe(0);
@@ -297,7 +316,7 @@ describe("Ti.Buffer tests", {
 		valueOf(buffer[7]).shouldBe(0x78);
 
 		// 4 byte int in Little Endian (least significant byte first)
-		buffer = Ti.createBuffer({ data: 0x12345678, type: Ti.Codec.TYPE_INT, byteOrder: Ti.Codec.LITTLE_ENDIAN });
+		buffer = Ti.createBuffer({ value: 0x12345678, type: Ti.Codec.TYPE_INT, byteOrder: Ti.Codec.LITTLE_ENDIAN });
 		valueOf(buffer[0]).shouldBe(0x78);
 		valueOf(buffer[1]).shouldBe(0x56);
 		valueOf(buffer[2]).shouldBe(0x34);
