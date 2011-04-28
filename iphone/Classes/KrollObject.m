@@ -370,7 +370,7 @@ void KrollFinalizer(TiObjectRef ref)
 {
 	id o = (KrollObject*)TiObjectGetPrivate(ref);
 
-	if ([o isKindOfClass:[KrollContext class]])
+	if ((o==nil) || [o isKindOfClass:[KrollContext class]])
 	{
 		return;
 	}
@@ -507,7 +507,6 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 #if KOBJECT_DEBUG == 1
 		NSLog(@"KROLL SET PROPERTY: %@=%@ against %@",name,v,o);
 #endif
-		[o setValue:v forKey:name];
 		if ([v isKindOfClass:[TiProxy class]])
 		{
 			[o noteObject:value forTiString:prop context:jsContext];
@@ -516,6 +515,7 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 		{
 			[o forgetObjectForTiString:prop context:jsContext];
 		}
+		[o setValue:v forKey:name];
 
 		return true;
 	}
@@ -1183,7 +1183,7 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 	TiStringRelease(nameRef);
 }
 
--(void)invokeCallbackForKey:(NSString *)key withObject:(NSDictionary *)eventData thisObject:(KrollObject *)thisObject
+-(void)invokeCallbackForKey:(NSString *)key withObject:(NSDictionary *)eventData thisObject:(id)thisObject
 {
 	if (![context isKJSThread])
 	{
@@ -1192,6 +1192,11 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 		[context enqueue:safeInvoke];
 		[safeInvoke release];
 		return;
+	}
+	
+	if (![thisObject isKindOfClass:[KrollObject class]])
+	{
+		thisObject = [(KrollBridge *)[context delegate] registerProxy:thisObject];
 	}
 	
 	TiValueRef exception=NULL;
@@ -1252,7 +1257,7 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 	TiStringRelease(nameRef);
 }
 
--(void)noteObject:(TiObjectRef)storedJSObject forTiString:(TiStringRef) keyString context:(TiContextRef) jsxContext
+-(void)noteObject:(TiObjectRef)storedJSObject forTiString:(TiStringRef) keyString context:(TiContextRef) jsContext
 {
 	if ((propsObject == NULL) || (storedJSObject == NULL))
 	{
@@ -1261,7 +1266,6 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 	}
 	TiValueRef exception=NULL;
 
-	TiContextRef jsContext = [context context];
 	TiStringRef jsPropertyHashString = TiStringCreateWithUTF8CString("__PR");
 	TiObjectRef jsProxyHash = TiObjectGetProperty(jsContext, propsObject, jsPropertyHashString, &exception);
 
@@ -1272,6 +1276,7 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 		TiObjectSetProperty(jsContext, propsObject, jsPropertyHashString, jsProxyHash,
 				kTiPropertyAttributeDontEnum , &exception);
 	}
+	TiStringRelease(jsPropertyHashString);
 
 	TiObjectSetProperty(jsContext, jsProxyHash, keyString, storedJSObject,
 			kTiPropertyAttributeDontEnum , &exception);
