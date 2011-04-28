@@ -750,11 +750,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		{
 			id currentValue = [keyedValues objectForKey:currentKey];
 
-			if(![currentValue isKindOfClass:[TiProxy class]] || ![currentBridge usesProxy:currentValue])
-			{
-				[currentKrollObject forgetKrollObjectforKey:currentKey];
-			}
-			else
+			if([currentValue isKindOfClass:[TiProxy class]] && [currentBridge usesProxy:currentValue])
 			{
 				[currentKrollObject noteKrollObject:[currentBridge krollObjectForProxy:currentValue] forKey:currentKey];
 			}
