@@ -100,10 +100,17 @@ public class BufferStream extends KrollProxy implements TiStream
 		}
 
 		ByteArrayInputStream bufferInputStream = new ByteArrayInputStream(buffer.getBuffer(), position, (buffer.getLength() - position));
-		int bytesRead = TiStreamHelper.read(bufferInputStream, bufferProxy, offset, length);
-		position += bytesRead;
+		int bytesRead;
 
-		return bytesRead;
+		try {
+			bytesRead = TiStreamHelper.read(bufferInputStream, bufferProxy, offset, length);
+			position += bytesRead;
+			return bytesRead;
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IOException("Unable to read from file, IO error");
+		}
 	}
 
 	@Kroll.method

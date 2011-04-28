@@ -92,10 +92,16 @@ public class BlobStream extends KrollProxy implements TiStream
 		}
 
 		if(inputStream != null) {
-			return TiStreamHelper.read(inputStream, bufferProxy, offset, length);
+			try {
+				return TiStreamHelper.read(inputStream, bufferProxy, offset, length);
+
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw new IOException("Unable to read from blob, IO error");
+			}
 
 		} else {
-			throw new IOException("Unable to read from blob, IO error");
+			throw new IOException("Unable to read from blob, input stream is null");
 		}
 	}
 

@@ -1,0 +1,322 @@
+---
+name: Titanium.Codec
+description: A module for converting Numbers and Strings to and from a <Titanium.Buffer>.
+extends: Titanium.Module
+since: "1.7"
+
+properties:
+  - name: CHARSET_ASCII
+    type: String
+    description: |
+        The [ASCII Character Set](http://en.wikipedia.org/wiki/ASCII)
+    value: "ascii"
+    permission: read-only
+  - name: CHARSET_ISO_LATIN1
+    type: String
+    description: |
+        The [ISO 8859-1 (LATIN-1) Character Set](http://en.wikipedia.org/wiki/ISO/IEC_8859-1)
+    value: "iso-latin-1"
+    permission: read-only
+  - name: CHARSET_UTF8
+    type: String
+    description: |
+        The [UTF-8 Character Set](http://en.wikipedia.org/wiki/UTF-8)
+    value: "utf8"
+    permission: read-only
+  - name: CHARSET_UTF16
+    description: |
+        The [UTF-16 Character Set](http://en.wikipedia.org/wiki/UTF-16/UCS-2)
+    value: "utf16"
+    permission: read-only
+  - name: CHARSET_UTF16BE
+    type: String
+    description: |
+        The [UTF-16 Character Set](http://en.wikipedia.org/wiki/UTF-16/UCS-2) with Big Endian byte order
+    value: "utf16be"
+    permission: read-only
+  - name: CHARSET_UTF16LE
+    description: |
+        The [UTF-16 Character Set](http://en.wikipedia.org/wiki/UTF-16/UCS-2) with Little Endian byte order
+    value: "utf16le"
+    permission: read-only
+  - name: TYPE_BYTE
+    type: String
+    description: |
+        8 bit integer encoding type
+    value: "byte"
+    permission: read-only
+  - name: TYPE_SHORT
+    type: String
+    description: |
+        16 bit integer encoding type
+    value: "short"
+    permission: read-only
+  - name: TYPE_INT
+    type: String
+    description: |
+        32 bit integer encoding type
+    value: "int"
+    permission: read-only
+  - name: TYPE_FLOAT
+    type: String
+    description: |
+        32 bit single precision floating-point type
+    value: "float"
+    permission: read-only
+  - name: TYPE_LONG
+    type: String
+    description: |
+        64 bit integer encoding type
+    value: "long"
+    permission: read-only
+  - name: TYPE_DOUBLE
+    type: String
+    description: |
+        64 bit double precision floating-point type
+    value: "double"
+    permission: read-only
+  - name: BIG_ENDIAN
+    type: Number
+    description: |
+        Big Endian (network) byte order, i.e. most significant byte first.
+    permission: read-only
+  - name: LITTLE_ENDIAN
+    type: Number
+    description: |
+        Little Endian byte order, i.e. least significant byte first.
+    permission: read-only
+
+methods:
+  - name: getNativeByteOrder
+    description: Get the OS native byte order (either <Titanium.Codec.BIG_ENDIAN> or <Titanium.Codec.LITTLE_ENDIAN>)
+    returns:
+      - type: Number
+        description: The OS native byte order
+  - name: encodeNumber
+    description: Encodes the Number `data` into `dest` using the passed in data `type`.
+    parameters:
+      - name: options
+        description: encodeNumber named options
+        type: EncodeNumberSpec
+    returns:
+      - type: Number
+        description: The position after the encoded number in `dest`.
+    examples: |
+        Encode a double-precision floating point value in 8 bytes using the OS byte order
+        
+            var buffer = Ti.createBuffer({ length: 8 });
+            Ti.Codec.encodeNumber({
+              data: 1.23456789,
+              dest: buffer,
+              type: Ti.Codec.TYPE_DOUBLE
+            });
+        
+        Encode a 4 byte integer to position 10 using BIG_ENDIAN encoding
+        
+            var buffer = Ti.createBuffer({ length: 100 });
+            Ti.Codec.encodeNumber({
+                data: 0x3456789a,
+                dest: buffer,
+                position: 10,
+                type: Ti.Codec.TYPE_INT,
+                byteOrder: Ti.Codec.BIG_ENDIAN
+            });
+  - name: decodeNumber
+    description: |
+        Decodes the `src` buffer (starting at the optional `position`) using the passed in data `type`.
+        Throws an Exception if `src` is null, or `position` is greater than `src.length`
+    parameters:
+      - name: options
+        description: decodeNumber named options
+        type: DecodeNumberSpec
+    returns:
+      - type: Number
+        description: The Number decoded from `src`.
+    examples: |
+        Decode a double-precision floating point number from 8 bytes using the OS byte order
+        
+            var buffer = //...
+            var value = Ti.Codec.decodeNumber({
+                src: buffer,
+                type: Ti.Codec.TYPE_DOUBLE
+            });
+        
+        Decode a 4 byte integer from position 10 using BIG_ENDIAN encoding
+        
+          var buffer = //...
+          var value = Ti.Codec.decodeNumber({
+              src: buffer,
+              position: 10,
+              type: Ti.Codec.TYPE_INT,
+              byteOrder: Ti.Codec.BIG_ENDIAN
+          });
+  - name: encodeString
+    description: |
+        Encodes the String `src` into `dest` using `charset`.
+        Throws an Exception if `charset` is not a valid character set,
+        `src` is null, or either `srcPosition`, `srcLength`, or
+        `srcPosition`+`srcLength` is greater than `src.length`.
+    parameters:
+      - name: options
+        description: encodeString named options
+        type: EncodeStringSpec
+    returns:
+      - type: Number
+        description: The position after the encoded String inside `dest`.
+    examples: |
+        Encode and trim a simple UTF-8 String
+        
+            var buffer = Ti.createBuffer({ length: 1024 });
+            var length = Ti.Codec.encodeString({
+                src: "hello world",
+                dest: buffer
+            });
+            buffer.length = length;
+        
+        Encode the first 10 characters of a String into UTF-16
+        
+            // (10 * 2) + BOM = 22
+            var buffer = Ti.createBuffer({ length: 22 });
+            Ti.Codec.encodeString({
+                src: "jack jumped over the candle stick",
+                srcLength: 10,
+                dest: buffer,
+                charset: Ti.Codec.CHARSET_UTF16
+            });
+  - name: decodeString
+    description: |
+        Decodes the `src` buffer into a String starting at `position`, with `length` bytes,
+        using the supplied character set `charset`. Throws an Exception if `charset` is not
+        a valid character set, `src` is null, or either `position`, `length`, or
+        `position`+`length` is greater than `src.length`.
+    parameters:
+      - name: options
+        description: decodeString named options
+        type: DecodeStringSpec
+    returns:
+      - type: String
+        description: The decoded string
+    examples: |
+        Decode a simple UTF-8 String
+            var buffer = //...
+            var string = Ti.Codec.decodeString({ src: buffer });
+        
+        Decode a UTF-16 string
+            var buffer = //...
+            var string = Ti.Codec.decodeString({
+              src: buffer,
+              charset: Ti.Codec.CHARSET_UTF16
+            });
+---
+name: EncodeNumberSpec
+description: Specification for <Titanium.Codec.encodeNumber>
+properties:
+  - name: dest
+    type: Titanium.Buffer
+    description: The destination buffer
+    optional: false
+  - name: data
+    type: Number
+    description: The number to encode
+    optional: false
+  - name: type
+    type: String
+    description:
+        The encoding type to use. Must be one of <Titanium.Codec.TYPE_BYTE>,
+        <Titanium.Codec.TYPE_SHORT>, <Titanium.Codec.TYPE_INT>, <Titanium.Codec.TYPE_FLOAT>,
+        <Titanium.Codec.TYPE_LONG>, or <Titanium.Codec.TYPE_DOUBLE>
+    optional: false
+  - name: position
+    type: Number
+    description: The position in dest to set the encoded data
+    optional: true
+    default: 0
+  - name: byteOrder
+    type: Number
+    description: The byte order to encode with
+    optional: true
+    default: Return value of <Titanium.Codec.getNativeByteOrder>
+
+---
+name: DecodeNumberSpec
+description: Specification for <Titanium.Codec.decodeNumber>
+properties:
+  - name: src
+    type: Titanium.Buffer
+    description: The buffer to decode
+    optional: false
+  - name: type
+    type: String
+    description:
+        The encoding type to use. Must be one of <Titanium.Codec.TYPE_BYTE>,
+        <Titanium.Codec.TYPE_SHORT>, <Titanium.Codec.TYPE_INT>, <Titanium.Codec.TYPE_FLOAT>,
+        <Titanium.Codec.TYPE_LONG>, or <Titanium.Codec.TYPE_DOUBLE>
+    optional: false
+  - name: position
+    type: Number
+    description: The position in `src` to start at
+    optional: true
+    default: 0
+  - name: byteOrder
+    type: Number
+    description: The byte order to decode with
+    optional: true
+    default: Return value of <Titanium.Codec.getNativeByteOrder>
+
+---
+name: EncodeStringSpec
+description: Specification for <Titanium.Codec.encodeString>
+properties:
+  - name: dest
+    type: Titanium.Buffer
+    description: The destination buffer
+    optional: false
+  - name: src
+    type: String
+    description: The string to encode
+    optional: false
+    optional: false
+  - name: destPosition
+    type: Number
+    description: The position in `dest` to set the encoded string.
+    optional: true
+    default: 0
+  - name: srcPosition
+    type: Number
+    description: The position in `src` to start encoding.
+    optional: true
+    default: 0
+  - name: srcLength
+    type: Number
+    description: The number of characters in `src` to encode.
+    optional: true
+    default: The length of `src`
+  - name: charset
+    type: String
+    description: The character set to use when encoding this string to bytes.
+    optional: true
+    default: <Titanium.Codec.CHARSET_UTF8>
+
+---
+name: DecodeStringSpec
+description: Specification for <Titanium.Codec.decodeString>
+properties:
+  - name: src
+    type: Titanium.Buffer
+    description: The buffer to decode.
+    optional: false
+  - name: position
+    type: Number
+    description: The position to start decoding.
+    optional: true
+    default: 0
+  - name: length
+    type: Number
+    description: The number of bytes to decode.
+    optional: true
+    default: The length of `src`
+  - name: charset
+    type: String
+    description: The character set to use when encoding this string to bytes.
+    optional: true
+    default: <Titanium.Codec.CHARSET_UTF8>

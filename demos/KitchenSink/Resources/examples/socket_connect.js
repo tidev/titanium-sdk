@@ -3,7 +3,10 @@ var win = Ti.UI.currentWindow;
 var connectingSocket = null;
 
 function pumpCallback(e) {
-	if (e.errorDescription == null) {
+	if (e.bytesProcessed == -1) { // EOF
+		statusArea.value = "<EOF> - Can't perform any more operations on connected socket";
+	}
+	else if (e.errorDescription == null || e.errorDescription == "") {
 		statusArea.value = "DATA: "+e.buffer.toString();
 	}
 	else {

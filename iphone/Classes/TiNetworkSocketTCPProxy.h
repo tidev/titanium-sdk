@@ -12,7 +12,7 @@
 
 // Used to determine the type of processing 
 typedef enum {
-    TO_BUFFER,
+    TO_BUFFER = 1,
     TO_STREAM,
     TO_CALLBACK,
 } ReadDestination;
@@ -41,6 +41,7 @@ typedef enum {
     NSRunLoop* acceptRunLoop;
     NSCondition* acceptCondition;
     BOOL accepting;
+    BOOL acceptedReady;
     
     // Information used to hash callbacks and asynch ops to tags.
     int asynchTagCount;

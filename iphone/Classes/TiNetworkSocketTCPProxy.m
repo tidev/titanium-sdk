@@ -34,6 +34,7 @@ static NSString* ARG_KEY = @"arg";
         ioCondition = [[NSCondition alloc] init];
         internalState = SOCKET_INITIALIZED;
         socketThread = nil;
+        acceptRunLoop = nil;
         acceptArgs = [[NSMutableDictionary alloc] init];
         acceptCondition = [[NSCondition alloc] init];
         operationInfo = [[NSMutableDictionary alloc] init];
@@ -209,8 +210,7 @@ static NSString* ARG_KEY = @"arg";
     // is blocking, we need to hold on to the conditions we wait on, and then release them once we're done with them. Introduces some extra
     // overhead, but it probably prevents DUMB CRASHES from happening.
     
-    AsyncSocket* newSocket = [[[info objectForKey:SOCK_KEY] retain] autorelease];
-    
+    // 1. Provide the run loop to the new socket...
     NSCondition* tempConditionRef = [acceptCondition retain];
     [tempConditionRef lock];
     acceptRunLoop = [NSRunLoop currentRunLoop];
@@ -218,8 +218,11 @@ static NSString* ARG_KEY = @"arg";
     [tempConditionRef unlock];
     [tempConditionRef release];
     
+    // 2. ... And then wait for it to attach to the run loop.
+    AsyncSocket* newSocket = [[[info objectForKey:SOCK_KEY] retain] autorelease];
     NSArray* arg = [info objectForKey:ARG_KEY];
     TiNetworkSocketTCPProxy* proxy = [[[TiNetworkSocketTCPProxy alloc] _initWithPageContext:[self executionContext] args:arg] autorelease];
+    [proxy rememberSelf];
     [proxy setConnectedSocket:newSocket];
     
     // TODO: remoteHost/remotePort & host/port?
@@ -230,8 +233,18 @@ static NSString* ARG_KEY = @"arg";
         NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"socket",proxy,@"inbound",nil];
         [self _fireEventToListener:@"accepted" withObject:event listener:accepted thisObject:self];
     }
-
+    
+    tempConditionRef = [acceptCondition retain];
+    [tempConditionRef lock];
+    if (!acceptedReady) {
+        [tempConditionRef wait];
+    }
+    acceptedReady = NO;
+    [tempConditionRef unlock];
+    [tempConditionRef release];
+    
     [proxy socketRunLoop];
+    [proxy forgetSelf];
     
     [pool release];
 }
@@ -390,6 +403,15 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
 
 -(int)readToBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback
 {
+    // TODO: Put this in the write()/read() wrappers when they're being called consistently, blah blah blah
+    if ([[buffer data] length] == 0 && length != 0) {
+        if (callback != nil) {
+            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(0),@"bytesProcessed", nil];
+            [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
+        }
+        return 0;
+    }
+
     // As always, ensure that operations take place on the socket thread...
     if ([NSThread currentThread] != socketThread) {
         NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:@selector(readToBuffer:offset:length:callback:)]];
@@ -420,7 +442,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         int tag = -1;
         if (callback != nil) {
             tag = asynchTagCount;
-            NSDictionary* asynchInfo = [NSDictionary dictionaryWithObjectsAndKeys:buffer,@"buffer",callback,@"callback",NUMINT(TO_BUFFER),@"type",nil];
+            NSDictionary* asynchInfo = [NSDictionary dictionaryWithObjectsAndKeys:buffer,@"buffer",callback,@"callback",NUMINT(TO_BUFFER),@"type",NUMINT(0),@"errorState",@"",@"errorDescription",nil];
             [operationInfo setObject:asynchInfo forKey:NUMINT(tag)];
             asynchTagCount = (asynchTagCount + 1) % INT_MAX;
         }
@@ -437,6 +459,15 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
 
 -(int)writeFromBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback
 {
+    // TODO: Put this in the write()/read() wrappers when they're being called consistently, blah blah blah
+    if ([[buffer data] length] == 0) {
+        if (callback != nil) {
+            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(0),@"bytesProcessed",NUMINT(0),@"errorState",@"",@"errorDescription", nil];
+            [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
+        }
+        return 0;
+    }
+    
     // As always, ensure that operations take place on the socket thread...
     if ([NSThread currentThread] != socketThread) {
         NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:@selector(writeFromBuffer:offset:length:callback:)]];
@@ -477,6 +508,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         }
         [socket writeData:subdata withTimeout:-1 tag:tag];
         
+        // TODO: Actually need the amount of data written - similar to readDataLength, for writes
         return [subdata length];
     }
 }
@@ -567,14 +599,25 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     if (sock != socket) {
         return;
     }
-
+    
     internalState = SOCKET_CONNECTED;
     
     if (connected != nil) {
         NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"socket",nil];
         [self _fireEventToListener:@"connected" withObject:event listener:connected thisObject:self];        
     }
- }
+}
+
+// Prevent that goofy race conditon where a socket isn't attached to a run loop before beginning the accepted socket run loop.
+-(void)onSocketReadyInRunLoop:(AsyncSocket *)sock
+{
+    NSCondition* tempConditionRef = [acceptCondition retain];
+    [tempConditionRef lock];
+    acceptedReady = YES;
+    [tempConditionRef signal];
+    [tempConditionRef unlock];
+    [tempConditionRef release];
+}
 
 -(void)onSocketDidDisconnect:(AsyncSocket *)sock
 {
@@ -615,33 +658,81 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     if (acceptRunLoop == nil) {
         [tempConditionRef wait];
     }
+    NSRunLoop* currentRunLoop = acceptRunLoop;
+    acceptRunLoop = nil;
     [tempConditionRef unlock];
     [tempConditionRef release];
     
-    return acceptRunLoop;
+    return currentRunLoop;
 }
 
 
 // TODO: As per AsyncSocket docs, may want to call "unreadData" and return that information, or at least allow access to it via some other method
-// TODO: Distinguish between R/W and Socket errors
--(void)onSocket:(AsyncSocket *)sock willDisconnectWithError:(NSError *)err
+-(BOOL)onSocket:(AsyncSocket *)sock shouldDisconnectWithError:(NSError *)err
 {
-    internalState = SOCKET_ERROR;
-    
-    // TODO: We need the information about # bytes written, # bytes read before firing these...
-    // That means inside asynchSocket, we're going to have to start tracking the read/write ops manually.  More mods.
-    for (NSDictionary* info in [operationInfo objectEnumerator]) {
-        KrollCallback* callback = [info valueForKey:@"callback"];
-        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT([err code]),@"errorState",[err localizedDescription],@"errorDescription", nil];
-        [self _fireEventToListener:@"error" withObject:event listener:callback thisObject:nil];
+    if (err != nil) {
+        internalState = SOCKET_ERROR;
+        
+        // TODO: We need the information about # bytes written, # bytes read before firing these...
+        // That means inside asynchSocket, we're going to have to start tracking the read/write ops manually.  More mods.
+        for (NSDictionary* info in [operationInfo objectEnumerator]) {
+            KrollCallback* callback = [info valueForKey:@"callback"];
+            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT([err code]),@"errorState",[err localizedDescription],@"errorDescription", nil];
+            [self _fireEventToListener:@"error" withObject:event listener:callback thisObject:nil];
+        }
+        
+        if (error != nil) {
+            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"socket",NUMINT([err code]),@"errorCode",[err localizedDescription],@"error",nil];
+            [self _fireEventToListener:@"error" withObject:event listener:error thisObject:self];
+        }
+        
+        socketError = [err retain]; // Used for synchronous I/O error handling
+        return YES;
     }
-    
-    if (error != nil) {
-        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"socket",NUMINT([err code]),@"errorCode",[err localizedDescription],@"error",nil];
-        [self _fireEventToListener:@"error" withObject:event listener:error thisObject:self];
+    else { // Remote hangup; we encountered EOF, and should not close (but should return -1 to asynch info, and as the # bytes read/written)
+        // Trigger callbacks
+        for (NSDictionary* info in [operationInfo objectEnumerator]) {
+            KrollCallback* callback = [info valueForKey:@"callback"];
+            ReadDestination type = [[info objectForKey:@"type"] intValue];
+            NSDictionary* event = nil;
+            NSString* name = nil;
+            
+            switch (type) {
+                case TO_BUFFER: {
+                    name = @"read";
+                    
+                    event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(0),@"errorState",@"",@"errorDescription",NUMINT(-1),@"bytesProcessed",self,@"source", nil];
+                    break;
+                }
+                case TO_STREAM: {
+                    name = @"writeStream";
+                    id<TiStreamInternal> stream = [info valueForKey:@"destination"];
+                    
+                    event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(0),@"errorState",@"",@"errorDescription",NUMINT(-1),@"bytesProcessed",self,@"fromStream",stream,@"toStream", nil];
+                }
+                case TO_CALLBACK: {
+                    name = @"pump";
+                    
+                    event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(0),@"errorState",@"",@"errorDescription",NUMINT(-1),@"bytesProcessed",self,@"source",NUMINT(readDataLength),@"totalBytesProcessed",[NSNull null],@"buffer",nil];
+                }
+                default: {
+                    name = @"write";
+                    event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(0),@"errorState",@"",@"errorDescription",NUMINT(-1),@"bytesProcessed",self,@"source", nil];
+                    break;
+                }
+            }
+
+            [self _fireEventToListener:name withObject:event listener:callback thisObject:nil];
+        }
+        readDataLength = -1;
+                             
+        // Unlock any synch I/O
+        [ioCondition lock];
+        [ioCondition broadcast];
+        [ioCondition unlock];
+        
+        return NO;
     }
-    
-    socketError = [err retain]; // Used for synchronous I/O error handling
 }
 
 -(void)onSocket:(AsyncSocket *)sock didWriteDataWithTag:(long)tag 
@@ -652,7 +743,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         NSDictionary* info = [operationInfo objectForKey:NUMINT(tag)];
         KrollCallback* callback = [info valueForKey:@"callback"];
         
-        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:[info valueForKey:@"bytesProcessed"],@"bytesProcessed",nil];
+        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:[info valueForKey:@"bytesProcessed"],@"bytesProcessed",NUMINT(0),@"errorState",@"",@"errorDescription",nil];
         [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:self];
         [operationInfo removeObjectForKey:NUMINT(tag)];
     } 
@@ -679,7 +770,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
                 KrollCallback* callback = [info valueForKey:@"callback"];
                 TiBuffer* buffer = [info valueForKey:@"buffer"];
                 
-                NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:buffer,@"buffer",NUMINT([data length]),@"bytesProcessed", nil];
+                NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:buffer,@"buffer",NUMINT([data length]),@"bytesProcessed",NUMINT(0),@"errorState",@"",@"errorDescription", nil];
                 [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:self];
                 break;
             }
@@ -709,7 +800,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
                 [tempBuffer setData:[NSMutableData dataWithData:data]];
                 readDataLength += [data length];
                 
-                NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",tempBuffer,@"buffer",NUMINT([data length]),@"bytesProcessed",NUMINT(readDataLength),@"totalBytesProcessed", nil];
+                NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",tempBuffer,@"buffer",NUMINT([data length]),@"bytesProcessed",NUMINT(readDataLength),@"totalBytesProcessed", NUMINT(0),@"errorState",@"",@"errorDescription",nil];
                 [self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];
                 
                 // ... And queue up the next pump.

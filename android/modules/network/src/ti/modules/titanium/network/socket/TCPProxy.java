@@ -8,6 +8,8 @@
 package ti.modules.titanium.network.socket;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -31,12 +33,13 @@ public class TCPProxy extends KrollProxy implements TiStream
 	private static final String LCAT = "TCPProxy";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	private boolean initialized = false;
+	//private boolean initialized = false;
 	private Socket clientSocket = null;
 	private ServerSocket serverSocket = null;
 	private boolean accepting = false;
 	private KrollDict acceptOptions = null;
 	private int state = 0;
+	private InputStream inputStream = null;
 
 
 	public TCPProxy(TiContext context)
@@ -46,16 +49,20 @@ public class TCPProxy extends KrollProxy implements TiStream
 	}
 
 	@Kroll.method
-	public void connect()
+	public void connect() throws Exception
 	{
-		Object host = getProperty("host");
-		Object port = getProperty("port");
-		if((host != null) && (port != null)) {
-			initialized = true;
-			new ConnectedSocketThread().start();
+		if ((state != SocketModule.LISTENING) && (state != SocketModule.CONNECTED)) {
+			Object host = getProperty("host");
+			Object port = getProperty("port");
+			if((host != null) && (port != null)) {
+				new ConnectedSocketThread().start();
+
+			} else {
+				throw new IllegalArgumentException("unable to call connect, socket must have a valid host and port");
+			}
 
 		} else {
-			throw new IllegalArgumentException("unable to call connect, socket must have a valid host and port");
+			throw new Exception("Unable to call connect on socket in <" + state + "> state");
 		}
 	}
 
@@ -181,11 +188,11 @@ public class TCPProxy extends KrollProxy implements TiStream
 
 	private void setSocketProperty(String propertyName, Object propertyValue)
 	{
-		if(!initialized) {
+		if ((state != SocketModule.LISTENING) && (state != SocketModule.CONNECTED)) {
 			setProperty(propertyName, propertyValue);
 
 		} else {
-			Log.e(LCAT, "Socket is already initialized, unable to set property <" + propertyName + ">");
+			Log.e(LCAT, "Unable to set property <" + propertyName + "> on socket in <" + state + "> state");
 		}
 	}
 
@@ -205,9 +212,19 @@ public class TCPProxy extends KrollProxy implements TiStream
 		public void run()
 		{
 			String host = TiConvert.toString(getProperty("host"));
+			Object timeoutProperty = getProperty("timeout");
 
 			try {
-				clientSocket = new Socket(host, TiConvert.toInt(getProperty("port")));
+				if (timeoutProperty != null) {
+					int timeout = TiConvert.toInt(timeoutProperty);
+
+					clientSocket = new Socket();
+					clientSocket.setSoTimeout(timeout);
+					clientSocket.connect(new InetSocketAddress(host, TiConvert.toInt(getProperty("port"))), timeout);
+
+				} else {
+					clientSocket = new Socket(host, TiConvert.toInt(getProperty("port")));
+				}
 				updateState(SocketModule.CONNECTED, "connected", buildConnectedCallbackArgs());
 
 			} catch (UnknownHostException e) {
@@ -383,8 +400,12 @@ public class TCPProxy extends KrollProxy implements TiStream
 			throw new IllegalArgumentException("Invalid number of arguments");
 		}
 
+		if (inputStream == null) {
+			inputStream = clientSocket.getInputStream();
+		}
+
 		try {
-			return TiStreamHelper.read(clientSocket.getInputStream(), bufferProxy, offset, length);
+			return TiStreamHelper.read(inputStream, bufferProxy, offset, length);
 
 		} catch (IOException e) {
 			e.printStackTrace();

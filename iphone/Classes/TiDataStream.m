@@ -32,10 +32,19 @@
 
 -(int)readToBuffer:(TiBuffer *)toBuffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback
 {
+    // TODO: Codify in read() and write() when we have every method calling the wrappers... like it should.
+    if ([[toBuffer data] length] == 0  && length != 0) {
+        if (callback != nil) {
+            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(0),@"bytesProcessed", NUMINT(0),@"errorState",@"",@"errorDescription", nil];
+            [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
+        }
+        return 0;
+    }
+    
     // TODO: Throw exception, or no-op?  For now, assume NO-OP
     if (position >= [data length]) {
         if (callback != nil) {
-            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(-1),@"bytesProcessed",nil];
+            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(-1),@"bytesProcessed",NUMINT(0),@"errorState",@"",@"errorDescription", nil];
             [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
         }        
         return -1;
@@ -55,7 +64,7 @@
     position += bytesToWrite;
     
     if (callback != nil) {
-        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(bytesToWrite),@"bytesProcessed",nil];
+        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(bytesToWrite),@"bytesProcessed",NUMINT(0),@"errorState",@"",@"errorDescription", nil];
         [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
     }
     
@@ -70,10 +79,19 @@
         NSString* errorStr = [NSString stringWithFormat:@"[ERROR] Attempt to write to unwritable stream"];
         NSLog(errorStr);
         if (callback != nil) {
-            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(-1),@"bytesProcessed",errorStr,@"errorDescription", nil];
+            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(-1),@"bytesProcessed",errorStr,@"errorDescription",NUMINT(-1),@"errorState", nil];
             [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
         }
         return -1;   
+    }
+    
+    // TODO: Codify in read() and write() when we have every method calling the wrappers... like it should.
+    if ([[fromBuffer data] length] == 0) {
+        if (callback != nil) {
+            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(0),@"bytesProcessed",NUMINT(0),@"errorState",@"",@"errorDescription", nil];
+            [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
+        }
+        return 0;
     }
     
     // OK, even if we're working with NSData (and not NSMutableData) we have to cast away const here; we're going to assume that
@@ -98,7 +116,7 @@
 
     
     if (callback != nil) {
-        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(length),@"bytesProcessed",nil];
+        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(length),@"bytesProcessed",NUMINT(0),@"errorState",@"",@"errorDescription",nil];
         [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
     }
     
@@ -127,7 +145,7 @@
             // 2. # bytes produced as part of the write
             // In the exception.
             if (callback != nil) {
-                NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"fromStream",output,@"toStream",NUMINT(totalBytes),@"bytesWritten",[e reason],@"errorDescription", nil];
+                NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"fromStream",output,@"toStream",NUMINT(totalBytes),@"bytesWritten",[e reason],@"errorDescription", NUMINT(-1),@"errorState",nil];
                 [self _fireEventToListener:@"writeToStream" withObject:event listener:callback thisObject:nil];
             }
             else {
@@ -143,7 +161,7 @@
     }
     
     if (callback != nil) {
-        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"fromStream",output,@"toStream",NUMINT(totalBytes),@"bytesProcessed",nil];
+        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"fromStream",output,@"toStream",NUMINT(totalBytes),@"bytesProcessed",NUMINT(0),@"errorState",@"",@"errorDescription",nil];
         [self _fireEventToListener:@"writeToStream" withObject:event listener:callback thisObject:nil];
     }
     
@@ -169,7 +187,7 @@
         totalBytes += bytesToWrite;
         position += bytesToWrite;
         
-        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",tempBuffer,@"buffer",NUMINT(bytesToWrite),@"bytesProcessed",NUMINT(totalBytes),@"totalBytesProcessed", nil];
+        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",tempBuffer,@"buffer",NUMINT(bytesToWrite),@"bytesProcessed",NUMINT(totalBytes),@"totalBytesProcessed", NUMINT(0),@"errorState",@"",@"errorDescription",nil];
         [self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];
     }
 }
