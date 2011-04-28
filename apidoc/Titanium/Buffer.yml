@@ -8,14 +8,15 @@ properties:
   - name: length
     type: Number
     description: The length of the buffer in bytes. When `length` is modified the buffer will be re-sized while preserving existing data where possible. If the new buffer length is smaller than the length of the existing data then the existing data will be truncated down to the size of the new buffer.
-  - name: data
+    default: 0, unless `value` is specified, at which case the length of the encoded data is used
+  - name: value
     type: [Number, String]
     availability: creation
-    description: Data to be encoded. If data is a Number, `type` must also be set. (this is simply a convenient way of calling <Titanium.Codec.encodeString> or <Titanium.Codec.encodeNumber>).
+    description: Data to be encoded. If `value` is a Number, `type` must also be set. (this is simply a convenient way of calling <Titanium.Codec.encodeString> or <Titanium.Codec.encodeNumber>).
   - name:  type
     type: String
     availability: creation
-    description: The type of data encoding to use with `data`. Required when `data` is a Number. When `data` is a String, <Titanium.Codec.CHARSET_UTF8> is the default.
+    description: The type of data encoding to use with `value`. Required when `value` is a Number. When `value` is a String, <Titanium.Codec.CHARSET_UTF8> is the default.
   - name: byteOrder
     type: Number
     availability: creation
