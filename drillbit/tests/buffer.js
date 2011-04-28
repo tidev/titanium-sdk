@@ -103,6 +103,25 @@ describe("Ti.Buffer tests", {
 			buffer1.insert(buffer2, 0, 99, 100);
 		}).shouldThrowException();
 	},
+	
+	testInsertBlogExample: function() {
+		var buffer = Ti.createBuffer({ length : 2});
+		buffer[0] = 1;
+		buffer[1] = 3;
+
+		var buffer2 = Ti.createBuffer({ length : 1});
+		buffer2[0] = 2;
+		buffer.insert(buffer2, 1);
+
+		valueOf(String(buffer[0]) + String(buffer[1]) + String(buffer[2])).shouldBe("123");
+		valueOf(buffer.length).shouldBe(3);
+		valueOf(buffer[0]).shouldBe(1);
+		valueOf(buffer[1]).shouldBe(2);
+		valueOf(buffer[2]).shouldBe(3);
+		
+		valueOf(buffer2.length).shouldBe(1); //unchanged
+		valueOf(buffer2[0]).shouldBe(2);
+	},
 
 	testCopy: function() {
 		var buffer1 = Ti.createBuffer({ length: 20 });
