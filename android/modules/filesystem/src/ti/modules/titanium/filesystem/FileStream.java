@@ -157,5 +157,11 @@ public class FileStream extends KrollProxy implements TiStream
 	{
 		return fileProxy.tbf.isOpen();
 	}
+
+	@Kroll.method
+	public void close()
+	{
+		fileProxy.tbf.close();
+	}
 }
 
