@@ -59,7 +59,11 @@ NSArray* bufferKeySequence = nil;
     
     int length = MIN(sourceLength, [[source data] length] - sourceOffset);
     const void* bytes = [[source data] bytes];
-    [data appendBytes:(bytes+sourceOffset) length:length];
+	if(data == nil) {
+		data = [[NSMutableData alloc] initWithBytes:bytes+sourceOffset length:length];
+	} else {
+		[data appendBytes:(bytes+sourceOffset) length:length];
+	}
     
     return NUMINT(length);
 }

@@ -9,13 +9,13 @@
 #import "FilesystemModule.h"
 #import "TiFilesystemFileProxy.h"
 #import "TiFilesystemBlobProxy.h"
+#import "TiFilesystemFileStreamProxy.h"
 
 #if TARGET_IPHONE_SIMULATOR 
 extern NSString * TI_APPLICATION_RESOURCE_DIR;
 #endif
 
 @implementation FilesystemModule
-
 
 -(id)createTempFile:(id)args
 {
@@ -31,28 +31,39 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 	NSArray  *modes;
 	NSString *path;
 
-	ENSURE_ARG_AT_INDEX(modes, args, 0, NSArray);
-	ENSURE_ARG_AT_INDEX(path, args, 1, NSString);
+	ENSURE_ARG_COUNT(args, 2);
+	id mode = [args objectAtIndex:0];
+	if([mode isKindOfClass:[NSArray class]]) {
+		modes = mode;
+	} else {		
+		modes = [NSArray arrayWithObject:mode];		
+	}
+
+	id target = [args objectAtIndex:1];
+	if([target isKindOfClass:[TiFile class]]) {
+		path = [target path];
+	} else {
+		path = [TiUtils stringValue:target];
+	}
 	
-	TiFilesystemFileProxy *fileProxy = [[[TiFilesystemFileProxy alloc] initWithPath:path] autorelease];
-	NSArray *payload = [NSArray arrayWithObjects:fileProxy, modes, nil];
+	NSArray *payload = [NSArray arrayWithObjects:path, modes, nil];
 
 	return [[[TiFilesystemFileStreamProxy alloc] _initWithPageContext:[self executionContext] args:payload] autorelease];
 }
 
 -(id)MODE_APPEND
 {
-	return NUMINT((int)'A');
+	return NUMINT(TI_APPEND);
 }
 
 -(id)MODE_READ
 {
-	return NUMINT((int)'R');
+	return NUMINT(TI_READ);
 }
 
 -(id)MODE_WRITE
 {
-	return NUMINT((int)'W');
+	return NUMINT(TI_WRITE);
 }
 
 -(id)isExternalStoragePresent:(id)unused
