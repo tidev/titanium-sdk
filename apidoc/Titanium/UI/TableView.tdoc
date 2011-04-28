@@ -48,7 +48,7 @@ style[int]: iPhone only. the style of the table view. constant from `Titanium.UI
 allowsSelection[boolean]: true if the rows can be selected
 allowsSelectionDuringEditing[boolean]: true if the rows can be selected while editing the table (iOS Only)
 scrollable[boolean]: true (default) if tableview can be scrolled
-
+showVerticalScrollIndicator[boolean]: true (default) if tableview displays vertical scroll indicator (iOS Only)
 - methods
 
 setData: set the data in the table, optionally with animation
