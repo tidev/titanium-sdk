@@ -39,7 +39,7 @@
     
     ENSURE_ARG_FOR_KEY(dest, args, @"dest", TiBuffer);
     ENSURE_INT_OR_NIL_FOR_KEY(position, args, @"position", hasPosition);
-    ENSURE_ARG_FOR_KEY(data, args, @"data", NSNumber);
+    ENSURE_ARG_FOR_KEY(data, args, @"src", NSNumber);
     ENSURE_ARG_FOR_KEY(type, args, @"type", NSString);
     ENSURE_INT_OR_NIL_FOR_KEY(byteOrder, args, @"byteOrder", hasByteOrder);
     
