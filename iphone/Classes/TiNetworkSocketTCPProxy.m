@@ -404,7 +404,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
 -(int)readToBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback
 {
     // TODO: Put this in the write()/read() wrappers when they're being called consistently, blah blah blah
-    if ([[buffer data] length] == 0) {
+    if ([[buffer data] length] == 0 && length != 0) {
         if (callback != nil) {
             NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(0),@"bytesProcessed", nil];
             [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
@@ -442,7 +442,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         int tag = -1;
         if (callback != nil) {
             tag = asynchTagCount;
-            NSDictionary* asynchInfo = [NSDictionary dictionaryWithObjectsAndKeys:buffer,@"buffer",callback,@"callback",NUMINT(TO_BUFFER),@"type",nil];
+            NSDictionary* asynchInfo = [NSDictionary dictionaryWithObjectsAndKeys:buffer,@"buffer",callback,@"callback",NUMINT(TO_BUFFER),@"type",NUMINT(0),@"errorState",@"",@"errorDescription",nil];
             [operationInfo setObject:asynchInfo forKey:NUMINT(tag)];
             asynchTagCount = (asynchTagCount + 1) % INT_MAX;
         }
@@ -462,7 +462,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     // TODO: Put this in the write()/read() wrappers when they're being called consistently, blah blah blah
     if ([[buffer data] length] == 0) {
         if (callback != nil) {
-            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(0),@"bytesProcessed", nil];
+            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(0),@"bytesProcessed",NUMINT(0),@"errorState",@"",@"errorDescription", nil];
             [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
         }
         return 0;
@@ -743,7 +743,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         NSDictionary* info = [operationInfo objectForKey:NUMINT(tag)];
         KrollCallback* callback = [info valueForKey:@"callback"];
         
-        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:[info valueForKey:@"bytesProcessed"],@"bytesProcessed",nil];
+        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:[info valueForKey:@"bytesProcessed"],@"bytesProcessed",NUMINT(0),@"errorState",@"",@"errorDescription",nil];
         [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:self];
         [operationInfo removeObjectForKey:NUMINT(tag)];
     } 
@@ -770,7 +770,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
                 KrollCallback* callback = [info valueForKey:@"callback"];
                 TiBuffer* buffer = [info valueForKey:@"buffer"];
                 
-                NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:buffer,@"buffer",NUMINT([data length]),@"bytesProcessed", nil];
+                NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:buffer,@"buffer",NUMINT([data length]),@"bytesProcessed",NUMINT(0),@"errorState",@"",@"errorDescription", nil];
                 [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:self];
                 break;
             }
@@ -800,7 +800,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
                 [tempBuffer setData:[NSMutableData dataWithData:data]];
                 readDataLength += [data length];
                 
-                NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",tempBuffer,@"buffer",NUMINT([data length]),@"bytesProcessed",NUMINT(readDataLength),@"totalBytesProcessed", nil];
+                NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",tempBuffer,@"buffer",NUMINT([data length]),@"bytesProcessed",NUMINT(readDataLength),@"totalBytesProcessed", NUMINT(0),@"errorState",@"",@"errorDescription",nil];
                 [self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];
                 
                 // ... And queue up the next pump.

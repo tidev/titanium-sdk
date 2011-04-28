@@ -94,7 +94,7 @@
     }
     
     if ([obj respondsToSelector:@selector(data)]) {
-        if (mode & (TI_WRITE | TI_APPEND)) {
+        if (![[obj data] isKindOfClass:[NSMutableData class]] && (mode & (TI_WRITE | TI_APPEND))) {
             [self throwException:@"TypeError"
                        subreason:[NSString stringWithFormat:@"Invalid mode value %d for BlobStream can be MODE_READ only", mode]
                         location:CODELOCATION];            
