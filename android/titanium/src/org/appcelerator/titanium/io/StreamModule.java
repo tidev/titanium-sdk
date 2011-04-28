@@ -344,7 +344,7 @@ public class StreamModule extends KrollModule
 	@Kroll.method
 	//public void writeStream(TiStream inputStream, TiStream outputStream, int maxChunkSize) throws IOException
 	//public void writeStream(TiStream inputStream, TiStream outputStream, int maxChunkSize, KrollCallback resultsCallback)
-	public void writeStream(Object args[]) throws IOException
+	public int writeStream(Object args[]) throws IOException
 	{
 		TiStream inputStream = null;
 		TiStream outputStream = null;
@@ -387,7 +387,7 @@ public class StreamModule extends KrollModule
 		}
 
 		if (args.length == 3) {
-			writeStream(inputStream, outputStream, maxChunkSize);
+			return writeStream(inputStream, outputStream, maxChunkSize);
 
 		} else {
 			final TiStream finputStream = inputStream;
@@ -413,6 +413,8 @@ public class StreamModule extends KrollModule
 					fresultsCallback.callAsync(buildWriteStreamCallbackArgs(finputStream, foutputStream, totalBytesWritten, errorState, errorDescription));
 				}
 			}) {}.start();
+
+			return 0;
 		}
 	}
 

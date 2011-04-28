@@ -258,7 +258,7 @@ describe("Ti.Buffer tests", {
 
 	testAutoEncode: function() {
 		// default UTF8
-		var buffer = Ti.createBuffer({ data: "appcelerator" });
+		var buffer = Ti.createBuffer({ value: "appcelerator" });
 		valueOf(buffer.length).shouldBe(12);
 		valueOf(buffer[0]).shouldBe(97); // a
 		valueOf(buffer[1]).shouldBe(112); // p
@@ -274,7 +274,7 @@ describe("Ti.Buffer tests", {
 		valueOf(buffer[11]).shouldBe(114); // r
 
 		// UTF-16
-		buffer = Ti.createBuffer({ data: "appcelerator", type: Ti.Codec.CHARSET_UTF16 });
+		buffer = Ti.createBuffer({ value: "appcelerator", type: Ti.Codec.CHARSET_UTF16 });
 		var length = 24;
 		var start = 0;
 
@@ -305,7 +305,7 @@ describe("Ti.Buffer tests", {
 		valueOf(buffer[start+23]).shouldBe(114); // r
 
 		// 8 Byte long in Big Endian (most significant byte first)
-		buffer = Ti.createBuffer({ data: 0x12345678, type: Ti.Codec.TYPE_LONG, byteOrder: Ti.Codec.BIG_ENDIAN });
+		buffer = Ti.createBuffer({ value: 0x12345678, type: Ti.Codec.TYPE_LONG, byteOrder: Ti.Codec.BIG_ENDIAN });
 		valueOf(buffer.length).shouldBe(8);
 		for (var i = 0; i < 4; i++) {
 			valueOf(buffer[i]).shouldBe(0);
@@ -316,7 +316,7 @@ describe("Ti.Buffer tests", {
 		valueOf(buffer[7]).shouldBe(0x78);
 
 		// 4 byte int in Little Endian (least significant byte first)
-		buffer = Ti.createBuffer({ data: 0x12345678, type: Ti.Codec.TYPE_INT, byteOrder: Ti.Codec.LITTLE_ENDIAN });
+		buffer = Ti.createBuffer({ value: 0x12345678, type: Ti.Codec.TYPE_INT, byteOrder: Ti.Codec.LITTLE_ENDIAN });
 		valueOf(buffer[0]).shouldBe(0x78);
 		valueOf(buffer[1]).shouldBe(0x56);
 		valueOf(buffer[2]).shouldBe(0x34);

@@ -49,15 +49,15 @@ public class CodecModule extends KrollModule
 		if (!args.containsKey(TiC.PROPERTY_DEST)) {
 			throw new IllegalArgumentException("dest was not specified for encodeNumber");
 		}
-		if (!args.containsKey(TiC.PROPERTY_DATA)) {
-			throw new IllegalArgumentException("data was not specified for encodeNumber");
+		if (!args.containsKey(TiC.PROPERTY_SRC)) {
+			throw new IllegalArgumentException("src was not specified for encodeNumber");
 		}
 		if (!args.containsKey(TiC.PROPERTY_TYPE)) {
 			throw new IllegalArgumentException("type was not specified for encodeNumber");
 		}
 
 		BufferProxy dest = (BufferProxy) args.get(TiC.PROPERTY_DEST);
-		Double data = (Double) args.get(TiC.PROPERTY_DATA);
+		Double src = (Double) args.get(TiC.PROPERTY_SRC);
 		String type = TiConvert.toString(args, TiC.PROPERTY_TYPE);
 		int byteOrder = getByteOrder(args.get(TiC.PROPERTY_BYTE_ORDER));
 
@@ -67,12 +67,12 @@ public class CodecModule extends KrollModule
 		}
 
 		byte buffer[] = dest.getBuffer();
-		return encodeNumber(data, type, buffer, position, byteOrder);
+		return encodeNumber(src, type, buffer, position, byteOrder);
 	}
 
-	public static int encodeNumber(Number data, String type, byte dest[], int position, int byteOrder)
+	public static int encodeNumber(Number src, String type, byte dest[], int position, int byteOrder)
 	{
-		long l = data.longValue();
+		long l = src.longValue();
 		if (type.equals(TYPE_BYTE)) {
 			dest[position] = (byte)(l & 0xFF);
 			return position+1;
@@ -85,7 +85,7 @@ public class CodecModule extends KrollModule
 			return position+2;
 		} else if (type.equals(TYPE_INT) || type.equals(TYPE_FLOAT)) {
 			if (type.equals(TYPE_FLOAT)) {
-				l = Float.floatToIntBits(data.floatValue());
+				l = Float.floatToIntBits(src.floatValue());
 			}
 			int bits = byteOrder == BIG_ENDIAN ? 24 : 0;
 			int step = byteOrder == BIG_ENDIAN ? -8 : 8;
@@ -95,7 +95,7 @@ public class CodecModule extends KrollModule
 			return position+4;
 		} else if (type.equals(TYPE_LONG) || type.equals(TYPE_DOUBLE)) {
 			if (type.equals(TYPE_DOUBLE)) {
-				l = Double.doubleToLongBits(data.doubleValue());
+				l = Double.doubleToLongBits(src.doubleValue());
 			}
 			int bits = byteOrder == BIG_ENDIAN ? 56 : 0;
 			int step = byteOrder == BIG_ENDIAN ? -8 : 8;

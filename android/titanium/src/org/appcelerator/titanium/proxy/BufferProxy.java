@@ -82,15 +82,15 @@ public class BufferProxy extends KrollProxy
 		}
 
 		buffer = new byte[length];
-		Object data = dict.get(TiC.PROPERTY_DATA);
-		if (data instanceof Number) {
-			encodeNumber((Number) data, dict);
-		} else if (data instanceof String) {
-			encodeString((String) data, dict);
+		Object value = dict.get(TiC.PROPERTY_VALUE);
+		if (value instanceof Number) {
+			encodeNumber((Number) value, dict);
+		} else if (value instanceof String) {
+			encodeString((String) value, dict);
 		}
 	}
 
-	protected void encodeNumber(Number data, KrollDict dict)
+	protected void encodeNumber(Number value, KrollDict dict)
 	{
 		String type = TiConvert.toString(dict, TiC.PROPERTY_TYPE);
 		if (type == null) {
@@ -102,10 +102,10 @@ public class BufferProxy extends KrollProxy
 		}
 
 		int byteOrder = CodecModule.getByteOrder(dict.get(TiC.PROPERTY_BYTE_ORDER));
-		CodecModule.encodeNumber(data, type, buffer, 0, byteOrder);
+		CodecModule.encodeNumber(value, type, buffer, 0, byteOrder);
 	}
 
-	protected void encodeString(String data, KrollDict dict)
+	protected void encodeString(String value, KrollDict dict)
 	{
 		String type = TiConvert.toString(dict, TiC.PROPERTY_TYPE);
 		if (type == null) {
@@ -114,7 +114,7 @@ public class BufferProxy extends KrollProxy
 
 		String charset = CodecModule.getCharset(type);
 		try {
-			byte bytes[] = data.getBytes(charset);
+			byte bytes[] = value.getBytes(charset);
 			if (buffer.length == 0) {
 				buffer = bytes;
 			} else {

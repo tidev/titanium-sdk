@@ -237,16 +237,14 @@ NSArray* bufferKeySequence = nil;
 }
 
 
--(NSNumber*)clear:(id)_void
+-(void)clear:(id)_void
 {
     [data resetBytesInRange:NSMakeRange(0, [data length])];
-    return NUMBOOL(YES); // TODO: What the hell does this return value mean...?
 }
 
--(NSNumber*)release:(id)_void
+-(void)release:(id)_void
 {
     RELEASE_TO_NIL(data);
-    return NUMBOOL(YES);
 }
 
 -(TiBlob*)toBlob:(id)_void

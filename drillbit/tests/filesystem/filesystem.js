@@ -60,111 +60,107 @@ describe("Ti.Filesystem tests", {
 	},
 	
 	// FileStream tests
-	
-	fileStreamTest:function() {
+	fileStreamBasicTest:function() {
 		valueOf(Ti.createBuffer).shouldBeFunction();
 		valueOf(Ti.Filesystem.openStream).shouldBeFunction();
-		
-		var infile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt');
-		var outfile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory,'stream_test_out.txt');
 
-		valueOf(infile).shouldBeObject();
-		valueOf(outfile).shouldBeObject();
-		valueOf(infile.open).shouldBeFunction();
-		valueOf(outfile.open).shouldBeFunction();
-		
-		valueOf(infile.exists()).shouldBeTrue();
-		valueOf(outfile.exists()).shouldBeTrue();
-		
-		var tempBufferLength = 50;
-		
-		var inStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_READ, infile);
+		var resourceFileStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_READ, Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt');
+		valueOf(resourceFileStream).shouldBeObject();
+		valueOf(resourceFileStream.read).shouldBeFunction();
+		valueOf(resourceFileStream.write).shouldBeFunction();
+
 		var inBuffer = Ti.createBuffer();
-		var tempBuffer = Ti.createBuffer({length:tempBufferLength});
-
-		valueOf(inStream).shouldBeObject();
 		valueOf(inBuffer).shouldBeObject();
+
+		var tempBufferLength = 50;
+		var tempBuffer = Ti.createBuffer({length:tempBufferLength});
 		valueOf(tempBuffer).shouldBeObject();
 		valueOf(tempBuffer.length).shouldBe(tempBufferLength);
 
-		valueOf(inStream.read).shouldBeFunction();
-		valueOf(inStream.write).shouldBeFunction();
-		
-		var bytesRead = inStream.read(tempBuffer);
+		var bytesRead = resourceFileStream.read(tempBuffer);
 		while(bytesRead > -1) {
-				Ti.API.info('bytes read ' + bytesRead);
+			Ti.API.info('bytes read ' + bytesRead);
 
 	 	   	// buffer is expanded to contain the new data and the length is updated to reflect this
-	    	var previousData = inBuffer.toString();
-				inBuffer.append(tempBuffer);
+			var previousData = inBuffer.toString();
+			inBuffer.append(tempBuffer);
 
-				// assert that the append worked correctly
-				valueOf(previousData + tempBuffer.toString()).shouldBe(inBuffer.toString());
+			// assert that the append worked correctly
+			valueOf(previousData + tempBuffer.toString()).shouldBe(inBuffer.toString());
 				
-		    // clear the buffer rather than creating a new temp one
-		    tempBuffer.clear();
-		
-				bytesRead = inStream.read(tempBuffer);
-		}		
-		
+			// clear the buffer rather than creating a new temp one
+			tempBuffer.clear();
+			bytesRead = resourceFileStream.read(tempBuffer);
+		}
+		resourceFileStream.close();
+
 		// assert that we can read/write successfully from the out file.
+		var appDataFileOutStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_WRITE, Ti.Filesystem.applicationDataDirectory, 'stream_test_out.txt');
+		appDataFileOutStream.write(inBuffer); //write inBuffer to outfile
+		appDataFileOutStream.close();
 
-		var outStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_WRITE, outfile);
-		outStream.write(inBuffer); //write inBuffer to outfile
-		outStream.close();
+		var outBuffer = Ti.createBuffer({length:50}); // have to set length on read buffer or no data will be read
+		var appDataFileInStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_READ, Ti.Filesystem.applicationDataDirectory, 'stream_test_out.txt');
+		bytesRead = appDataFileInStream.read(outBuffer); //read 50 byes of data from outfile into outBuffer
+		appDataFileInStream.close();
 
-		var outBuffer = Ti.createBuffer();
-		outStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_READ, outfile);
-		outStream.read(outBuffer); //read data from outfile into outBuffer
+		for (var i=0; i < bytesRead; i++) {
+			valueOf(inBuffer[i]).shouldBeExactly(outBuffer[i]);
+		}
+	},
 
-		Ti.API.info("inBuffer is " + inBuffer.toString());
-		Ti.API.info("outBuffer is " + outBuffer.toString());
+	fileStreamPumpTest:function() {
+		var pumpInputFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt');
+		valueOf(pumpInputFile).shouldBeObject();
+		valueOf(pumpInputFile.open).shouldBeFunction();
+		valueOf(pumpInputFile.exists()).shouldBeTrue();
 
-		valueOf(outBuffer.toString()).shouldBe(inBuffer.toString());	
-
-		// pumping
-		
-		var pumpStream = outfile.open(Ti.Filesystem.MODE_READ);
 		var step = 10;
 		var pumpTotal = 0;
-		
-		valueOf(pumpStream).shouldBeObject();
-		
 		var pumpCallback = function(e) {
-		    Ti.API.info('Received data chunk of size <' + e.bytesProcessed + '>');
-				Ti.API.info('Received buffer <' + e.data + '>');
-		    Ti.API.info('Total bytes received thus far <' + e.totalBytesProcessed + '>');
+			Ti.API.info('Received data chunk of size <' + e.bytesProcessed + '>');
+			Ti.API.info('Received buffer <' + e.data + '>');
+			Ti.API.info('Total bytes received thus far <' + e.totalBytesProcessed + '>');
 
-				valueOf(e.bytesProcessed).shouldBe(step);
-				valueOf(e.totalBytesProcessed).shouldBe(step + pumpTotal);
+			valueOf(e.bytesProcessed).shouldBe(step);
+			valueOf(e.totalBytesProcessed).shouldBe(step + pumpTotal);
 
-				pumpTotal += e.bytesProcessed;
+			pumpTotal += e.bytesProcessed;
 		};
 
-		pumpStream.pump(pumpCallback, step);
-		pumpStream.close();
-		
-		// stream operations
+		var pumpStream = pumpInputFile.open(Ti.Filesystem.MODE_READ);
+		valueOf(pumpStream).shouldBeObject();
 
-		var outFileStream = outfile.open(Ti.Filesystem.MODE_WRITE);
-		var inBufferStream = Ti.Stream.createStream({source:inBuffer, mode:Ti.Filesystem.MODE_READ});
-		
+		Ti.Stream.pump(pumpStream, pumpCallback, step);
+		pumpStream.close();
+	},
+
+	fileStreamWriteStreamTest:function() {
+		var inBuffer = Ti.createBuffer({data:"huray for data, lets have a party for data1 huray for data, lets have a party for data2 huray for data, lets have a party for data3"});
+		valueOf(inBuffer).shouldBeObject();
+		var inStream = Ti.Stream.createStream({source:inBuffer, mode:Ti.Stream.MODE_READ});
+		valueOf(inStream).shouldNotBeNull();
+
+		var outFileStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_WRITE, Ti.Filesystem.applicationDataDirectory, 'stream_test_out.txt');
 		valueOf(outFileStream).shouldBeObject();
-		valueOf(inBufferStream).shouldBeObject();
-		
-		// writes all data from inBufferStream to outFileStream in chunks of 1024
-		var bytesWritten = outFileStream.writeStream(inBufferStream, 1024);
+
+		// writes all data from inBufferStream to outFileStream in chunks of 30
+		var bytesWritten = Ti.Stream.writeStream(inStream, outFileStream, 30);
 		Ti.API.info('<' + bytesWritten + '> bytes written, closing both streams');
 
 		// assert that the length of the outBuffer is equal to the amount of bytes that were written
-		valueOf(bytesWritten).shouldBe(outBuffer.length);
-		
+		valueOf(bytesWritten).shouldBe(inBuffer.length);
+
 		outFileStream.close();
+	},
 
-		// end stream ops
+	fileStreamResourceFileTest:function() {
+		valueOf(function() {Ti.Filesystem.openStream(Ti.Filesystem.MODE_WRITE, Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt')}).shouldThrowException();
+		valueOf(function() {Ti.Filesystem.openStream(Ti.Filesystem.MODE_APPEND, Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt')}).shouldThrowException();
 
-
-		inStream.close();
-		outStream.close();
+		valueOf(function() {
+			var resourceFileStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_READ, Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt');
+			resourceFileStream.close()
+		}).shouldNotThrowException();
 	}
 });
