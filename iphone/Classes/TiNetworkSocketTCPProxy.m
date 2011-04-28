@@ -233,7 +233,16 @@ static NSString* ARG_KEY = @"arg";
         NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"socket",proxy,@"inbound",nil];
         [self _fireEventToListener:@"accepted" withObject:event listener:accepted thisObject:self];
     }
-
+    
+    tempConditionRef = [acceptCondition retain];
+    [tempConditionRef lock];
+    if (!acceptedReady) {
+        [tempConditionRef wait];
+    }
+    acceptedReady = NO;
+    [tempConditionRef unlock];
+    [tempConditionRef release];
+    
     [proxy socketRunLoop];
     [proxy forgetSelf];
     
@@ -572,14 +581,25 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     if (sock != socket) {
         return;
     }
-
+    
     internalState = SOCKET_CONNECTED;
     
     if (connected != nil) {
         NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"socket",nil];
         [self _fireEventToListener:@"connected" withObject:event listener:connected thisObject:self];        
     }
- }
+}
+
+// Prevent that goofy race conditon where a socket isn't attached to a run loop before beginning the accepted socket run loop.
+-(void)onSocketReadyInRunLoop:(AsyncSocket *)sock
+{
+    NSCondition* tempConditionRef = [acceptCondition retain];
+    [tempConditionRef lock];
+    acceptedReady = YES;
+    [tempConditionRef signal];
+    [tempConditionRef unlock];
+    [tempConditionRef release];
+}
 
 -(void)onSocketDidDisconnect:(AsyncSocket *)sock
 {

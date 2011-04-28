@@ -1821,6 +1821,10 @@ Failed:
 		if(![newSocket attachStreamsToRunLoop:runLoop error:nil]) goto Failed;
 		if(![newSocket configureStreamsAndReturnError:nil])       goto Failed;
 		if(![newSocket openStreamsAndReturnError:nil])            goto Failed;
+        
+        if ([theDelegate respondsToSelector:@selector(onSocketReadyInRunLoop:)]) {
+            [theDelegate onSocketReadyInRunLoop:newSocket];
+        }
 		
 		return newSocket;
 		

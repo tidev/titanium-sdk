@@ -68,6 +68,11 @@ typedef enum AsyncSocketError AsyncSocketError;
 - (NSRunLoop *)onSocket:(AsyncSocket *)sock wantsRunLoopForNewSocket:(AsyncSocket *)newSocket;
 
 /**
+ * Called when the socket has been attached to run loop, etc. and is ready to hit the big time.
+ */
+-(void)onSocketReadyInRunLoop:(AsyncSocket *)sock;
+
+/**
  * Called when a socket is about to connect. This method should return YES to continue, or NO to abort.
  * If aborted, will result in AsyncSocketCanceledError.
  * 

@@ -41,6 +41,7 @@ typedef enum {
     NSRunLoop* acceptRunLoop;
     NSCondition* acceptCondition;
     BOOL accepting;
+    BOOL acceptedReady;
     
     // Information used to hash callbacks and asynch ops to tags.
     int asynchTagCount;
