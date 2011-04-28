@@ -123,6 +123,8 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 		[button addTarget:self action:@selector(clicked:event:) forControlEvents:UIControlEventTouchUpInside];
 		[button addTarget:self action:@selector(highlightOn:) forControlEvents:highlightingTouches];
 		[button addTarget:self action:@selector(highlightOff:) forControlEvents:unHighlightingTouches];
+		button.exclusiveTouch = YES;
+
 	}
 	return button;
 }

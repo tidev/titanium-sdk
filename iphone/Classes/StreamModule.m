@@ -28,6 +28,7 @@
     [pool release];
 }
 
+// TODO: Call read/write directly, NOT internal impls
 -(void)invokeRWOperation:(SEL)operation withArgs:(id)args
 {
     id<TiStreamInternal> stream = nil; // Conform to proxy because we're gonna ship that mother some internal messages
@@ -93,7 +94,7 @@
     }
     
     if ([obj respondsToSelector:@selector(data)]) {
-        if (mode & (TI_WRITE | TI_APPEND)) {
+        if (![[obj data] isKindOfClass:[NSMutableData class]] && (mode & (TI_WRITE | TI_APPEND))) {
             [self throwException:@"TypeError"
                        subreason:[NSString stringWithFormat:@"Invalid mode value %d for BlobStream can be MODE_READ only", mode]
                         location:CODELOCATION];            
@@ -114,14 +115,34 @@
 
 -(void)read:(id)args
 {
+    TiStreamProxy<TiStreamInternal>* stream = nil;
+    ENSURE_ARG_AT_INDEX(stream, args, 0, TiStreamProxy);
+    
+    // TODO: Throw exception, or call callback?
+    if (![stream isReadable:nil]) {
+        [self throwException:@"StreamException"
+                   subreason:@"read() operation on stream that is not readable"
+                    location:CODELOCATION];        
+    }
     [self invokeRWOperation:@selector(readToBuffer:offset:length:callback:) withArgs:args];
 }
 
 -(void)write:(id)args
 {
+    TiStreamProxy<TiStreamInternal>* stream = nil;
+    ENSURE_ARG_AT_INDEX(stream, args, 0, TiStreamProxy);
+    
+    // TODO: Throw exception, or call callback?
+    if (![stream isWritable:nil]) {
+        [self throwException:@"StreamException"
+                   subreason:@"write() operation on stream that is not writable"
+                    location:CODELOCATION];        
+    }
+    
     [self invokeRWOperation:@selector(writeFromBuffer:offset:length:callback:) withArgs:args];
 }
 
+// TODO: Call API read(), not internal read methods, if possible
 -(TiBuffer*)readAll:(id)args
 {
     id<TiStreamInternal> stream = nil; // Conform to proxy because we're gonna ship that mother some internal messages
@@ -129,6 +150,11 @@
     KrollCallback* callback = nil;
     
     ENSURE_ARG_AT_INDEX(stream, args, 0, TiStreamProxy);
+    if (![stream isReadable:nil]) {
+        [self throwException:@"StreamException"
+                   subreason:@"read() operation on stream that is not readable"
+                    location:CODELOCATION];        
+    }
     
     if ([args count] > 1) {
         ENSURE_ARG_AT_INDEX(buffer, args, 1, TiBuffer);
@@ -162,6 +188,7 @@
     return buffer;
 }
 
+// TODO: Use read()/write()
 -(NSNumber*)writeStream:(id)args
 {
     id<TiStreamInternal> inputStream = nil;
@@ -174,6 +201,17 @@
     ENSURE_ARG_AT_INDEX(chunkSize, args, 2, NSObject);
     ENSURE_ARG_OR_NIL_AT_INDEX(callback, args, 3, KrollCallback);
 
+    if (![inputStream isReadable:nil]) {
+        [self throwException:@"StreamException"
+                   subreason:@"read() operation on stream that is not readable"
+                    location:CODELOCATION];        
+    }
+    if (![outputStream isWritable:nil]) {
+        [self throwException:@"StreamException"
+                   subreason:@"write() operation on stream that is not readable"
+                    location:CODELOCATION];        
+    }   
+    
     int size = [TiUtils intValue:chunkSize];
     if (callback != nil) {
         NSInvocation* invoke = [NSInvocation invocationWithMethodSignature:[inputStream methodSignatureForSelector:@selector(writeToStream:chunkSize:callback:)]];
@@ -191,6 +229,7 @@
     return NUMINT([inputStream writeToStream:outputStream chunkSize:size callback:nil]);
 }
 
+// TODO: Use read()
 -(void)pump:(id)args
 {
     id<TiStreamInternal> stream = nil;
@@ -202,6 +241,12 @@
     ENSURE_ARG_AT_INDEX(callback, args, 1, KrollCallback);
     ENSURE_ARG_AT_INDEX(chunkSize, args, 2, NSObject);
     ENSURE_ARG_OR_NIL_AT_INDEX(asynch, args, 3, NSObject);
+  
+    if (![stream isReadable:nil]) {
+        [self throwException:@"StreamException"
+                   subreason:@"read() operation on stream that is not readable"
+                    location:CODELOCATION];        
+    }
     
     int size = [TiUtils intValue:chunkSize];
     BOOL isAsynch = [TiUtils boolValue:asynch def:YES];

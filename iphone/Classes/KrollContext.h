@@ -57,6 +57,7 @@
 -(void)gc;
 -(TiGlobalContextRef)context;
 -(void*)debugger;
+-(BOOL)isKJSThread;
 
 #ifdef DEBUG
 // used during debugging only
@@ -131,19 +132,6 @@
 -(void)invoke:(KrollContext*)context;
 @end
 
-@class KrollObject;
-@interface Kroll : NSObject {
-@private
-	NSString * type;
-	KrollObject * callbackObject;
-	NSDictionary *eventObject;
-	id thisObject;
-}
--(id)initWithType:(NSString *)newType ForKrollObject:(KrollObject*)newCallbackObject eventObject:(NSDictionary*)newEventObject thisObject:(id)newThisObject;
--(void)invoke:(KrollContext*)context;
-@end
-
-
 @protocol KrollTargetable
 @required
 -(void)setExecutionContext:(id<KrollDelegate>)delegate;
@@ -160,6 +148,29 @@ TI_INLINE KrollContext* GetKrollContext(TiContextRef context)
 	TiStringRelease(string);
 	return ctx;
 }
+
+//TODO: After 1.7, move to individual file and convert KrollInvocation and Callbacks to ExpandedInvocationOperation.
+@interface ExpandedInvocationOperation : NSOperation {
+@private
+	id invocationTarget;
+	SEL invocationSelector;
+	id invocationArg1;
+	id invocationArg2;
+	id invocationArg3;
+	id invocationArg4;
+}
+- (id)initWithTarget:(id)target selector:(SEL)sel object:(id)arg1 object:(id)arg2;
+- (id)initWithTarget:(id)target selector:(SEL)sel object:(id)arg1 object:(id)arg2 object:(id)arg3;
+- (id)initWithTarget:(id)target selector:(SEL)sel object:(id)arg1 object:(id)arg2 object:(id)arg3 object:(id)arg4;
+
+@property(nonatomic,readwrite,retain)	id invocationTarget;
+@property(nonatomic,readwrite,assign)	SEL invocationSelector;
+@property(nonatomic,readwrite,retain)	id invocationArg1;
+@property(nonatomic,readwrite,retain)	id invocationArg2;
+@property(nonatomic,readwrite,retain)	id invocationArg3;
+@property(nonatomic,readwrite,retain)	id invocationArg4;
+
+@end
 
 
 

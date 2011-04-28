@@ -15,7 +15,7 @@ properties:
   - name:  type
     type: String
     availability: creation
-    description: The type of data encoding to use with <data>. Required when <data> is a Number. When <data> is a String, <Titanium.Codec.CHARSET_UTF8> is the default.
+    description: The type of data encoding to use with `data`. Required when `data` is a Number. When `data` is a String, <Titanium.Codec.CHARSET_UTF8> is the default.
   - name: byteOrder
     type: Number
     availability: creation
@@ -24,14 +24,14 @@ properties:
 methods:
   - name: append
     returns: Number
-    description: appends <sourceBuffer> to the current buffer.  Buffer is grown dynamically to accommodate the additional data if need be.  returns the number of bytes appended
+    description: appends `sourceBuffer` to the current buffer.  Buffer is grown dynamically to accommodate the additional data if need be.  returns the number of bytes appended
     parameters:
       - name: sourceBuffer
         description: buffer to append to current buffer
         type: Titanium.Buffer
   - name: append
     returns: Number
-    description: same as normal append except this allows appending only <sourceLength> bytes from the <sourceBuffer> starting at <sourceOffset>. returns the number of bytes appended
+    description: same as normal append except this allows appending only `sourceLength` bytes from the `sourceBuffer` starting at `sourceOffset`. returns the number of bytes appended
     parameters:
       - name: sourceBuffer
         description: buffer to append to current buffer
@@ -44,7 +44,7 @@ methods:
         type: Number
   - name: insert
     returns: Number
-    description: inserts <sourceBuffer> into the current buffer at <offset>.  Buffer is grown to accommodate the new data.  returns the number of bytes inserted
+    description: inserts `sourceBuffer` into the current buffer at `offset`.  Buffer is grown to accommodate the new data.  returns the number of bytes inserted
     parameters:
       - name: sourceBuffer
         description: buffer to insert into current buffer
@@ -54,7 +54,7 @@ methods:
         type: Number
   - name: insert
     returns: Number
-    description: inserts <sourceLength> amount of data starting at <sourceOffset> from <sourceBuffer> into current buffer at <offset>.  Buffer is grown to accommodate the new data.  returns the number of bytes inserted
+    description: inserts `sourceLength` amount of data starting at `sourceOffset` from `sourceBuffer` into current buffer at `offset`.  Buffer is grown to accommodate the new data.  returns the number of bytes inserted
     parameters:
       - name: sourceBuffer
         description: buffer to insert into current buffer
@@ -70,7 +70,7 @@ methods:
         type: Number
   - name: copy
     returns: Number
-    description: copies the contents of <sourceBuffer> into the current buffer at <offset>.  will not expand buffer if there is not enough room in the current buffer to accomodate all the requested data from <sourceBuffer>.  returns the number of bytes copied
+    description: copies the contents of `sourceBuffer` into the current buffer at `offset`.  will not expand buffer if there is not enough room in the current buffer to accomodate all the requested data from `sourceBuffer`.  returns the number of bytes copied
     parameters:
       - name: sourceBuffer
         description: buffer to copy into current buffer
@@ -80,7 +80,7 @@ methods:
         type: Number
   - name: copy
     returns: Number
-    description: copies <sourceLength> contents from <sourceBuffer> starting at <sourceOffset> into the current buffer at <offset>.  will not expand buffer if there is not enough room in the current buffer to accomodate all the request data from <sourceBuffer>.  returns the number of bytes copied
+    description: copies `sourceLength` contents from `sourceBuffer` starting at `sourceOffset` into the current buffer at `offset`.  will not expand buffer if there is not enough room in the current buffer to accomodate all the request data from `sourceBuffer`.  returns the number of bytes copied
     parameters:
       - name: sourceBuffer
         description: buffer to copy into current buffer
@@ -99,7 +99,7 @@ methods:
     description: create new copy of the current buffer
   - name: clone
     returns: Titanium.Buffer
-    description: creates a new buffer from the original buffer contents starting at <offset> and ending at <offset> + <length>
+    description: Creates a new buffer from the original buffer contents starting at `offset` and ending at `offset` + `length`
     parameters:
       - name: offset
         description: offset of buffer to start clone
@@ -108,13 +108,13 @@ methods:
         description: length of buffer data starting at offset to clone
         type: Number
   - name: fill
-    description: fills buffer with <fillByte>
+    description: fills buffer with `fillByte`
     parameters:
       - name: fillByte
         description: byte to fill buffer with
         type: Number
   - name: fill
-    description: fills buffer starting from <offset> until <length> number of <fillByte> has been written or the end of the buffer is reached
+    description: fills buffer starting from `offset` until `length` number of `fillByte` has been written or the end of the buffer is reached
     parameters:
       - name: fillByte
         description: byte to fill buffer with
@@ -126,14 +126,12 @@ methods:
         description: number of bytes to fill
         type: Number
   - name: clear
-    returns: void
     description: Clears buffer contents but does not change the size of the buffer
   - name: release
-    returns: void
-    description: Releases the space allocated to the buffer, sets length to 0.  This is effectively nothing more than an alias for buffer.length = 0
+    description: Releases the space allocated to the buffer, sets length to 0.  This is effectively the same as `buffer.length = 0`
   - name: toString
     returns: String
-    description: Converts buffer to string
+    description: Converts this buffer to a String
   - name: toBlob
     returns: Titanium.Blob
-    description: Converts buffer to a <Titanium.Blob>
+    description: Converts this buffer to a <Titanium.Blob>

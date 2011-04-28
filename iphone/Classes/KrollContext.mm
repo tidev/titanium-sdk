@@ -1243,3 +1243,53 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 }
 
 @end
+
+@implementation ExpandedInvocationOperation
+@synthesize invocationTarget, invocationSelector;
+@synthesize invocationArg1, invocationArg2, invocationArg3, invocationArg4;
+
+- (id)initWithTarget:(id)target selector:(SEL)sel object:(id)arg1 object:(id)arg2;
+{
+	self = [super init];
+	if (self != nil)
+	{
+		[self setInvocationTarget:target];
+		[self setInvocationSelector:sel];
+		[self setInvocationArg1:arg1];
+		[self setInvocationArg2:arg2];
+	}
+	return self;
+}
+
+- (id)initWithTarget:(id)target selector:(SEL)sel object:(id)arg1 object:(id)arg2 object:(id)arg3;
+{
+	self = [self initWithTarget:target selector:sel object:arg1 object:arg2];
+	if (self != nil)
+	{
+		[self setInvocationArg3:arg3];
+	}
+	return self;
+}
+
+- (id)initWithTarget:(id)target selector:(SEL)sel object:(id)arg1 object:(id)arg2 object:(id)arg3 object:(id)arg4;
+{
+	self = [self initWithTarget:target selector:sel object:arg1 object:arg2 object:arg3];
+	if (self != nil)
+	{
+		[self setInvocationArg4:arg4];
+	}
+	return self;
+}
+
+-(void)main
+{
+	IMP ourFunction = [invocationTarget methodForSelector:invocationSelector];
+	id result = ourFunction(invocationTarget,invocationSelector,
+		invocationArg1,invocationArg2,invocationArg3,invocationArg4);
+
+}
+
+
+
+
+@end
