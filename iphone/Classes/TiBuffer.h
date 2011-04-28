@@ -23,8 +23,8 @@
 -(TiBuffer*)clone:(id)args;
 -(void)fill:(id)args;
 
--(NSNumber*)clear:(id)_void;
--(NSNumber*)release:(id)_void;
+-(void)clear:(id)_void;
+-(void)release:(id)_void;
 
 -(TiBlob*)toBlob:(id)_void;
 -(NSString*)toString:(id)_void;
