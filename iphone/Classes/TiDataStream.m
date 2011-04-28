@@ -32,6 +32,15 @@
 
 -(int)readToBuffer:(TiBuffer *)toBuffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback
 {
+    // TODO: Codify in read() and write() when we have every method calling the wrappers... like it should.
+    if ([[toBuffer data] length] == 0) {
+        if (callback != nil) {
+            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(0),@"bytesProcessed", nil];
+            [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
+        }
+        return 0;
+    }
+    
     // TODO: Throw exception, or no-op?  For now, assume NO-OP
     if (position >= [data length]) {
         if (callback != nil) {
@@ -74,6 +83,15 @@
             [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
         }
         return -1;   
+    }
+    
+    // TODO: Codify in read() and write() when we have every method calling the wrappers... like it should.
+    if ([[fromBuffer data] length] == 0) {
+        if (callback != nil) {
+            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(0),@"bytesProcessed", nil];
+            [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
+        }
+        return 0;
     }
     
     // OK, even if we're working with NSData (and not NSMutableData) we have to cast away const here; we're going to assume that

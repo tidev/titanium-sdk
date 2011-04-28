@@ -403,6 +403,15 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
 
 -(int)readToBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback
 {
+    // TODO: Put this in the write()/read() wrappers when they're being called consistently, blah blah blah
+    if ([[buffer data] length] == 0) {
+        if (callback != nil) {
+            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(0),@"bytesProcessed", nil];
+            [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
+        }
+        return 0;
+    }
+
     // As always, ensure that operations take place on the socket thread...
     if ([NSThread currentThread] != socketThread) {
         NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:@selector(readToBuffer:offset:length:callback:)]];
@@ -450,6 +459,15 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
 
 -(int)writeFromBuffer:(TiBuffer*)buffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback
 {
+    // TODO: Put this in the write()/read() wrappers when they're being called consistently, blah blah blah
+    if ([[buffer data] length] == 0) {
+        if (callback != nil) {
+            NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(0),@"bytesProcessed", nil];
+            [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
+        }
+        return 0;
+    }
+    
     // As always, ensure that operations take place on the socket thread...
     if ([NSThread currentThread] != socketThread) {
         NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:@selector(writeFromBuffer:offset:length:callback:)]];
