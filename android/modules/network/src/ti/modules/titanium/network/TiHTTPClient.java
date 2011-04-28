@@ -21,6 +21,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.zip.GZIPInputStream;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -221,6 +222,11 @@ public class TiHTTPClient
 						contentType = entity.getContentType().getValue();
 					}
 					is = entity.getContent();
+					Header contentEncoding = response.getFirstHeader("Content-Encoding");
+					if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip")) {
+						is = new GZIPInputStream(is);
+					}
+
 					charset = EntityUtils.getContentCharSet(entity);
 				} else {
 					is = null;
