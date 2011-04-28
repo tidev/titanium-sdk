@@ -879,6 +879,11 @@ DEFINE_EXCEPTIONS
 
 - (void) setValue:(id)value forUndefinedKey: (NSString *) key
 {
+	if([value isKindOfClass:[KrollCallback class]]){
+		[self setCallback:value forKey:key];
+		value = nil;	//Set and forget.
+	}
+
 	id current = nil;
 	pthread_rwlock_wrlock(&dynpropsLock);
 	if (dynprops!=nil)
