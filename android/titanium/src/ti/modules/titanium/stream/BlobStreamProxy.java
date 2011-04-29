@@ -21,7 +21,7 @@ import ti.modules.titanium.BufferProxy;
 
 
 @Kroll.proxy
-public class BlobStream extends KrollProxy implements TiStream
+public class BlobStreamProxy extends KrollProxy implements TiStream
 {
 	private static final String LCAT = "BlobStream";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -31,7 +31,7 @@ public class BlobStream extends KrollProxy implements TiStream
 	private InputStream inputStream = null;
 
 
-	public BlobStream(TiBlob tiBlob, int mode)
+	public BlobStreamProxy(TiBlob tiBlob, int mode)
 	{
 		super(tiBlob.getTiContext());
 		this.tiBlob = tiBlob;

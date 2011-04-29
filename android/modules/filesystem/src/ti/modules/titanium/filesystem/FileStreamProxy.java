@@ -20,7 +20,7 @@ import ti.modules.titanium.BufferProxy;
 
 
 @Kroll.proxy
-public class FileStream extends KrollProxy implements TiStream
+public class FileStreamProxy extends KrollProxy implements TiStream
 {
 	private static final String LCAT = "FileStream";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -29,7 +29,7 @@ public class FileStream extends KrollProxy implements TiStream
 	private InputStream inputStream = null;
 
 
-	public FileStream(FileProxy fileProxy)
+	public FileStreamProxy(FileProxy fileProxy)
 	{
 		super(fileProxy.getTiContext());
 		this.fileProxy = fileProxy;

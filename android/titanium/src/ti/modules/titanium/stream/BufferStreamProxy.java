@@ -20,7 +20,7 @@ import ti.modules.titanium.BufferProxy;
 
 
 @Kroll.proxy
-public class BufferStream extends KrollProxy implements TiStream
+public class BufferStreamProxy extends KrollProxy implements TiStream
 {
 	private static final String LCAT = "BufferStream";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -30,7 +30,7 @@ public class BufferStream extends KrollProxy implements TiStream
 	private int position = -1;
 
 
-	public BufferStream(BufferProxy buffer, int mode)
+	public BufferStreamProxy(BufferProxy buffer, int mode)
 	{
 		super(buffer.getTiContext());
 

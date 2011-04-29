@@ -53,10 +53,10 @@ public class StreamModule extends KrollModule
 		}
 
 		if (source instanceof TiBlob) {
-			return new BlobStream((TiBlob) source, ((Double)mode).intValue());
+			return new BlobStreamProxy((TiBlob) source, ((Double)mode).intValue());
 
 		} else if(source instanceof BufferProxy) {
-			return new BufferStream((BufferProxy) source, ((Double)mode).intValue());
+			return new BufferStreamProxy((BufferProxy) source, ((Double)mode).intValue());
 
 		} else {
 			throw new IllegalArgumentException("Unable to create a stream for the specified argument");
