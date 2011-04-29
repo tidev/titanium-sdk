@@ -1114,6 +1114,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(void)animationCompleted:(TiAnimation*)animation
 {
+	[self forgetProxy:animation];
 	[[self view] animationCompleted];
 }
 
