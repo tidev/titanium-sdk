@@ -1391,15 +1391,11 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 
 -(void)removeListener:(KrollCallback *)eventCallback forEvent:(NSString *)eventName
 {
-	if (finalized)
-	{
-		return
-	}
-
-	if (propsObject == NULL)
+	if (finalized || (propsObject == NULL))
 	{
 		return;
 	}
+
 	TiContextRef jsContext = [context context];
 	TiStringRef jsEventHashString = TiStringCreateWithUTF8CString("__EV");
 	TiObjectRef jsEventHash = TiObjectGetProperty(jsContext, propsObject, jsEventHashString, NULL);
