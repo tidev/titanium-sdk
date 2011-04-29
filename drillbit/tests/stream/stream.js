@@ -2,7 +2,7 @@ describe("Ti.Stream tests", {
 	before_all: function() {
 		// createBuffer should be tested by Ti.Buffer
 		this.sourceBuffer = Ti.createBuffer({
-				data:"All work and no play makes Jack a dull boy all work and no play makes Jack a dull boy all work and no play makes Jack a dull boy ALL WORK AND NO PLAY MAKES JACK A DULL BOY"
+				value:"All work and no play makes Jack a dull boy all work and no play makes Jack a dull boy all work and no play makes Jack a dull boy ALL WORK AND NO PLAY MAKES JACK A DULL BOY"
 		});
 
 		// create file to work with
@@ -80,7 +80,7 @@ describe("Ti.Stream tests", {
 			valueOf(sourceBuffer[i]).shouldBeExactly(destBuffer[i]);
 		}
 
-		var appendBuffer = Ti.createBuffer({data:"appendme"});
+		var appendBuffer = Ti.createBuffer({value:"appendme"});
 		var appendBytes = astream.write(appendBuffer, 0, appendBuffer.length);
 		valueOf(appendBytes).shouldBeExactly(appendBuffer.length);
 		for (var i=0; i < appendBytes; i++) {
@@ -126,7 +126,7 @@ describe("Ti.Stream tests", {
 			// This stuff has to be copied into each asynch test because it lives
 			// in a different 'this' context
 			var sourceBuffer = Ti.createBuffer({
-				data:"All work and no play makes Jack a dull boy all work and no play makes Jack a dull boy all work and no play makes Jack a dull boy ALL WORK AND NO PLAY MAKES JACK A DULL BOY"
+				value:"All work and no play makes Jack a dull boy all work and no play makes Jack a dull boy all work and no play makes Jack a dull boy ALL WORK AND NO PLAY MAKES JACK A DULL BOY"
 			});
 			var sourceBlob = Titanium.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'streamfile.txt').read();
 			var sourceBlobStr = sourceBlob.toString();
@@ -190,7 +190,7 @@ describe("Ti.Stream tests", {
 			// This stuff has to be copied into each asynch test because it lives
 			// in a different 'this' context
 			var sourceBuffer = Ti.createBuffer({
-				data:"All work and no play makes Jack a dull boy all work and no play makes Jack a dull boy all work and no play makes Jack a dull boy ALL WORK AND NO PLAY MAKES JACK A DULL BOY"
+				value:"All work and no play makes Jack a dull boy all work and no play makes Jack a dull boy all work and no play makes Jack a dull boy ALL WORK AND NO PLAY MAKES JACK A DULL BOY"
 			});
 		
 			var dest = Ti.createBuffer({length:sourceBuffer.length});
@@ -247,7 +247,7 @@ describe("Ti.Stream tests", {
 			// This stuff has to be copied into each asynch test because it lives
 			// in a different 'this' context
 			var sourceBuffer = Ti.createBuffer({
-				data:"All work and no play makes Jack a dull boy all work and no play makes Jack a dull boy all work and no play makes Jack a dull boy ALL WORK AND NO PLAY MAKES JACK A DULL BOY"
+				value:"All work and no play makes Jack a dull boy all work and no play makes Jack a dull boy all work and no play makes Jack a dull boy ALL WORK AND NO PLAY MAKES JACK A DULL BOY"
 			});
 			var sourceBlob = Titanium.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'streamfile.txt').read();
 			var sourceBlobStr = sourceBlob.toString();
@@ -293,7 +293,7 @@ describe("Ti.Stream tests", {
 			// This stuff has to be copied into each asynch test because it lives
 			// in a different 'this' context
 			var sourceBuffer = Ti.createBuffer({
-				data:"All work and no play makes Jack a dull boy all work and no play makes Jack a dull boy all work and no play makes Jack a dull boy ALL WORK AND NO PLAY MAKES JACK A DULL BOY"
+				value:"All work and no play makes Jack a dull boy all work and no play makes Jack a dull boy all work and no play makes Jack a dull boy ALL WORK AND NO PLAY MAKES JACK A DULL BOY"
 			});
 			var sourceBlob = Titanium.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'streamfile.txt').read();
 			var sourceBlobStr = sourceBlob.toString();
@@ -335,7 +335,7 @@ describe("Ti.Stream tests", {
 			// This stuff has to be copied into each asynch test because it lives
 			// in a different 'this' context
 			var sourceBuffer = Ti.createBuffer({
-				data:"All work and no play makes Jack a dull boy all work and no play makes Jack a dull boy all work and no play makes Jack a dull boy ALL WORK AND NO PLAY MAKES JACK A DULL BOY"
+				value:"All work and no play makes Jack a dull boy all work and no play makes Jack a dull boy all work and no play makes Jack a dull boy ALL WORK AND NO PLAY MAKES JACK A DULL BOY"
 			});
 			var sourceBlob = Titanium.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'streamfile.txt').read();
 			var sourceBlobStr = sourceBlob.toString();
