@@ -265,6 +265,11 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	[super _destroy];
 }
 
++(BOOL)shouldRegisterOnInit
+{
+    return NO;
+}
+
 -(void)_initWithProperties:(NSDictionary *)properties
 {
 	[super _initWithProperties:properties];
