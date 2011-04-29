@@ -21,7 +21,7 @@ import org.appcelerator.titanium.util.TiStreamHelper;
 @Kroll.proxy
 public class BufferStream extends KrollProxy implements TiStream
 {
-	private static final String LCAT = "BlobStream";
+	private static final String LCAT = "BufferStream";
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private BufferProxy buffer;
