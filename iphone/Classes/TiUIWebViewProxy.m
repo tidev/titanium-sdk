@@ -151,7 +151,11 @@ USE_VIEW_FOR_AUTO_WIDTH
 
 -(void)setPageToken:(NSString*)pageToken_
 {
-	RELEASE_TO_NIL(pageToken);
+	if (pageToken != nil)
+	{
+		[[self host] unregisterContext:(id<TiEvaluator>)self forToken:pageToken];
+		RELEASE_TO_NIL(pageToken);
+	}
 	pageToken = [pageToken_ retain];
 	[[self host] registerContext:self forToken:pageToken];
 }

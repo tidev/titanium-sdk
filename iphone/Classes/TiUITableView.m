@@ -444,6 +444,7 @@
 		{
 			[section setTable:nil];
 			[section setParent:nil];
+			[self.proxy forgetProxy:section];
 		}
 	}
 	RELEASE_TO_NIL(sections);
@@ -463,6 +464,8 @@
 			row.section = section;
 			row.parent = section;
 		}
+		[self.proxy rememberProxy:section];
+
 	}
 
 	[self reloadDataFromCount:oldCount toCount:newCount animation:animation];
@@ -471,8 +474,15 @@
 -(void)updateRow:(TiUITableViewRowProxy*)row
 {
 	NSAssert(sections!=nil,@"sections was nil");
+	
 	row.table = self;
 	NSMutableArray *rows = [row.section rows];
+	
+	if ([rows count] > row.row) {
+		TiUITableViewRowProxy* oldRow = [rows objectAtIndex:row.row];
+		[row.section forgetProxy:oldRow];
+	}	
+	[row.section rememberProxy:row];
 	[rows replaceObjectAtIndex:row.row withObject:row];
 	[row.section reorderRows];
 }
@@ -484,6 +494,7 @@
 	row.section = before.section;
 	NSMutableArray *rows = [row.section rows];
 	[rows insertObject:row atIndex:row.row];
+	[row.section rememberProxy:row];
 	[row.section reorderRows];
 }
 
@@ -501,6 +512,7 @@
 	{
 		[rows insertObject:row atIndex:after.row+1];
 	}
+	[row.section rememberProxy:row];
 	[row.section reorderRows];
 }
 
@@ -513,6 +525,7 @@
 	ENSURE_VALUE_CONSISTENCY([rows containsObject:row],YES);
 #endif
 	[rows removeObject:row];
+	[row.section forgetProxy:row];
 	[row.section reorderRows];
 }
 
@@ -522,6 +535,7 @@
 	row.table = self;
 	TiUITableViewSectionProxy *section = row.section;
     [section add:row];
+	[row.section rememberProxy:row];
 	[row.section reorderRows];
 }
 
