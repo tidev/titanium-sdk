@@ -90,12 +90,14 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 -(void)_destroy
 {
 	[controller setProxy:nil];
+
 	RELEASE_TO_NIL(controller);
 	RELEASE_TO_NIL(navController);
 	RELEASE_TO_NIL(tab);
 	RELEASE_TO_NIL(reattachWindows);
 	RELEASE_TO_NIL(closeView);
-	
+
+
 	RELEASE_TO_NIL(openAnimation);
 	RELEASE_TO_NIL(closeAnimation);
 	
@@ -213,13 +215,12 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	closing = NO;
 	
 	[self detachView];
-	
 	// notify our child that his window is closing
 	for (TiViewProxy *child in self.children)
 	{
 		[child windowDidClose];
 	}
-	
+		
 	[self windowDidClose];
 
 	RELEASE_TO_NIL(navController);
@@ -419,15 +420,20 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		{
 			modalFlag = YES;
 			attached = YES;
+		   
 			TiViewController *wc = (TiViewController*)[self controller];
 		   
 		    UINavigationController *nc = nil;
-		
-		    BOOL showNav = ![self argOrWindowProperty:@"navBarHidden" args:args];
-    
-			nc = [[[UINavigationController alloc] initWithRootViewController:wc] autorelease];
 			
-		    [nc setNavigationBarHidden:showNav];
+			BOOL navBarHidden = [self argOrWindowProperty:@"navBarHidden" args:args];
+			if([wc navigationController] != nil) {
+				nc = [wc navigationController];
+			} else {
+				nc = [[[UINavigationController alloc] initWithRootViewController:wc] autorelease];
+			}
+			if(nc != nil) {
+				[nc setNavigationBarHidden:navBarHidden];
+			}
 
 			NSDictionary *dict = [args count] > 0 ? [args objectAtIndex:0] : nil;
 			int style = [TiUtils intValue:@"modalTransitionStyle" properties:dict def:-1];
@@ -448,7 +454,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 				    [nc setModalPresentationStyle:style];
 				}
 			}
-#endif			
+#endif		
 			[self setController:wc];
 			[self setNavController:nc];
 			BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];

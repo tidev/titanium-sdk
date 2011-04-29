@@ -155,12 +155,14 @@ describe("Ti.Filesystem tests", {
 	},
 
 	fileStreamResourceFileTest:function() {
-		valueOf(function() {Ti.Filesystem.openStream(Ti.Filesystem.MODE_WRITE, Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt')}).shouldThrowException();
-		valueOf(function() {Ti.Filesystem.openStream(Ti.Filesystem.MODE_APPEND, Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt')}).shouldThrowException();
+		if(Ti.Platform.osname === 'android') {
+			valueOf(function() {Ti.Filesystem.openStream(Ti.Filesystem.MODE_WRITE, Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt')}).shouldThrowException();
+			valueOf(function() {Ti.Filesystem.openStream(Ti.Filesystem.MODE_APPEND, Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt')}).shouldThrowException();
 
-		valueOf(function() {
-			var resourceFileStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_READ, Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt');
-			resourceFileStream.close()
-		}).shouldNotThrowException();
+			valueOf(function() {
+				var resourceFileStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_READ, Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt');
+				resourceFileStream.close()
+			}).shouldNotThrowException();
+		}
 	}
 });

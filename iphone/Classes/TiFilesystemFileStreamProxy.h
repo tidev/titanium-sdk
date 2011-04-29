@@ -13,15 +13,8 @@
 
 @private
 	NSFileHandle *fileHandle;
-	NSArray *modes;
+	TiStreamMode mode;
 }
-
-@property (nonatomic, readonly) NSArray *modes;
-
-#pragma mark Public API
-
--(id) pump:(id) args;
--(id) writeStream:(id) args;
 
 @end
 
