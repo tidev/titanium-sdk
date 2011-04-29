@@ -5,33 +5,28 @@ description: Socket module
 since: "1.7"
 
 properties:
-    - name: INITIALIZED
-        type: Number
-        description: state representing the initialized state of a socket
-
-    - name: CONNECTED
-        type: Number
-        description: state representing the connected state of a socket
-
-    - name: LISTENING
-        type: Number
-        description: state representing the listening state of a socket
-
-    - name: CLOSED
-        type: Number
-        description: state representing the closed state of a socket
-
-    - name: ERROR
-        type: Number
-        description: state representing the error state of a socket
-
+  - name: INITIALIZED
+    type: Number
+    description: state representing the initialized state of a socket
+  - name: CONNECTED
+    type: Number
+    description: state representing the connected state of a socket
+  - name: LISTENING
+    type: Number
+    description: state representing the listening state of a socket
+  - name: CLOSED
+    type: Number
+    description: state representing the closed state of a socket
+  - name: ERROR
+    type: Number
+    description: state representing the error state of a socket
 
 methods:
-    - name: createTCP
-        returns: Titanium.Network.Socket.TCP
-        description: returns new TCP socket object, takes object containing properties list defined in `Titanium.Network.Socket.TCP`.  Some properties are only needed based on whether the socket will be a connecting socket or a listening socket.
-        parameters:
-            - name: params
-                description: creation parameters
-                type: Object
+  - name: createTCP
+    returns: Titanium.Network.Socket.TCP
+    description: returns new TCP socket object, takes object containing properties list defined in `Titanium.Network.Socket.TCP`.  Some properties are only needed based on whether the socket will be a connecting socket or a listening socket.
+    parameters:
+      - name: params
+        description: creation parameters
+        type: Object
 

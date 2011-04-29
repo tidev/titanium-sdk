@@ -5,39 +5,7 @@ description: Wrapper around `Titanium.Filesystem.File` that implements the `Tita
 extends: Titanium.Proxy
 since: "1.7"
 
-properties:
-    - name: MODE_READ
-        type: Number
-        permission: read-only
-        description: constant representing a read mode
-
-    - name: MODE_WRITE
-        type: Number
-        permission: read-only
-        description: constant representing a write mode
-
-    - name: MODE_APPEND
-        type: Number
-        permission: read-only
-        description: constant representing a append mode
-
-    - name: modes
-        type: Array<Number>
-        description: list of modes for the file stream to be opened in
-
 methods:
-    - name: close
-        description: closes file stream, exception is thrown on error
-
-    - name: seek
-        returns: Number
-        description: moves read position to specified position
-        parameters:
-            - name: position
-                description: position where read position will be moved to
-                type: Number
-
-    - name: tell
-        returns: Number
-        description: returns the current read position
+  - name: close
+    description: closes file stream, exception is thrown on error
 
