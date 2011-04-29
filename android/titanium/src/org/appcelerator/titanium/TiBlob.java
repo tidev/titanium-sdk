@@ -236,10 +236,20 @@ public class TiBlob extends KrollProxy
 	public int getWidth() {
 		return width;
 	}
+	
+	@Kroll.setProperty @Kroll.method
+	public void setWidth(int width) {
+		this.width = width;
+	}
 
 	@Kroll.getProperty @Kroll.method
 	public int getHeight() {
 		return height;
+	}
+	
+	@Kroll.setProperty @Kroll.method
+	public void setHeight(int height) {
+		this.height = height;
 	}
 
 	public String toString()
