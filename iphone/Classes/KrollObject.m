@@ -1192,6 +1192,11 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 
 -(void)invokeCallbackForKey:(NSString *)key withObject:(NSDictionary *)eventData thisObject:(id)thisObject
 {
+	if (finalized)
+	{
+		return;
+	}
+
 	if (![context isKJSThread])
 	{
 		NSOperation * safeInvoke = [[ExpandedInvocationOperation alloc]
@@ -1266,9 +1271,8 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 
 -(void)noteObject:(TiObjectRef)storedJSObject forTiString:(TiStringRef) keyString context:(TiContextRef) jsContext
 {
-	if ((propsObject == NULL) || (storedJSObject == NULL))
+	if ((propsObject == NULL) || (storedJSObject == NULL) || finalized)
 	{
-		NSLog(@"[WARN] Trying to note an object without a JS object");
 		return;
 	}
 	TiValueRef exception=NULL;
@@ -1291,7 +1295,7 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 
 -(void)forgetObjectForTiString:(TiStringRef) keyString context:(TiContextRef) jsContext
 {
-	if (propsObject == NULL)
+	if ((propsObject == NULL) || finalized)
 	{
 		return;
 	}
@@ -1312,6 +1316,10 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 
 -(TiObjectRef)objectForTiString:(TiStringRef) keyString context:(TiContextRef) jsContext
 {
+	if(finalized){
+		return NULL;
+	}
+
 	TiValueRef exception=NULL;
 
 	TiStringRef jsPropertyHashString = TiStringCreateWithUTF8CString("__PR");
@@ -1336,14 +1344,8 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 
 -(void)storeListener:(KrollCallback *)eventCallback forEvent:(NSString *)eventName
 {
-	if (finalized)
+	if ((propsObject == NULL) || finalized)
 	{
-		NSLog(@"We would crash here, wouldn't we? %@(%@) %@ %@ %@",target,self,eventName,eventCallback,CODELOCATION);
-	}
-
-	if (propsObject == NULL)
-	{
-		NSLog(@"[WARN] Trying to trigger an event without a JS object");
 		return;
 	}
 
@@ -1389,15 +1391,11 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 
 -(void)removeListener:(KrollCallback *)eventCallback forEvent:(NSString *)eventName
 {
-	if (finalized)
-	{
-		NSLog(@"We would crash here, wouldn't we? %@(%@) %@ %@ %@",target,self,eventName,eventCallback,CODELOCATION);
-	}
-
-	if (propsObject == NULL)
+	if (finalized || (propsObject == NULL))
 	{
 		return;
 	}
+
 	TiContextRef jsContext = [context context];
 	TiStringRef jsEventHashString = TiStringCreateWithUTF8CString("__EV");
 	TiObjectRef jsEventHash = TiObjectGetProperty(jsContext, propsObject, jsEventHashString, NULL);
@@ -1440,16 +1438,11 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 
 -(void)triggerEvent:(NSString *)eventName withObject:(NSDictionary *)eventData thisObject:(KrollObject *)thisObject
 {
-	if (finalized || [thisObject finalized])
+	if (finalized || [thisObject finalized] || (propsObject == NULL))
 	{
-		VerboseLog(@"[WARN] We would crash here, wouldn't we? %@(%@), %@(%@) %@ %@ %@",target,self,[thisObject target],thisObject,eventName,eventData,CODELOCATION);
 		return;
 	}
 
-	if (propsObject == NULL)
-	{
-		return;
-	}
 	TiContextRef jsContext = [context context];
 	TiStringRef jsEventHashString = TiStringCreateWithUTF8CString("__EV");
 	TiObjectRef jsEventHash = TiObjectGetProperty(jsContext, propsObject, jsEventHashString, NULL);
