@@ -78,6 +78,8 @@ import ${packageName}.${proxyClassName};
 	KrollBindingUtils.assertRequiredArgs(__args, ${requiredArgs}, METHOD_${methodName});
 		</#if>
 	</#if>
+
+	Object __${methodName}_tmp;
 	<#if returnType != "void">
 	final ${converter} __${methodName}_converter = ${converter}.getInstance();
 	</#if>
@@ -118,8 +120,11 @@ import ${packageName}.${proxyClassName};
 				</#if>
 			</#if>
 			<#if argNeedsConvert>
-				${arg.name} = (${castType})
-					${arg.converter}.getInstance().convertJavascript(__invocation, ${argValue}, ${convertType}.class);
+				__${methodName}_tmp = ${arg.converter}.getInstance().convertJavascript(__invocation, ${argValue}, ${convertType}.class);
+				if (!(__${methodName}_tmp instanceof ${castType})) {
+					throw new IllegalArgumentException("Expected ${castType} type for argument \"${arg.name}\" in \"${methodName}\", but got " + __${methodName}_tmp);
+				}
+				${arg.name} = (${castType}) __${methodName}_tmp;
 			<#else>
 				__${arg.name}_argument.setValueDefault(true);
 				${arg.name} = (${castType})

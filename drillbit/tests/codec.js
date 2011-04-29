@@ -315,6 +315,12 @@ describe("Ti.Codec tests", {
 		buffer[9] = 0x74;
 		buffer[8] = 0x00;
 		valueOf(Ti.Codec.decodeString({ src: buffer, charset: Ti.Codec.CHARSET_UTF16 })).shouldBe(TEST);
+
+		// Test decoding of a string with empty data after it using "length"
+		buffer = Ti.createBuffer({ value: "The system is down", length: 100 });
+		valueOf(buffer.length).shouldBe(100);
+		var str = Ti.Codec.decodeString({ src: buffer, length: 18 });
+		valueOf(str).shouldBe("The system is down");
 	}
 
 });
