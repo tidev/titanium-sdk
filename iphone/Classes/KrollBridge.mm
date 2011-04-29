@@ -606,6 +606,11 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		return ourKrollObject;
 	}
 
+	if (![context isKJSThread])
+	{
+		return nil;
+	}
+
 	[proxyLock lock];
 	if (proxies==nil)
 	{
@@ -616,12 +621,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		[proxies addObject:proxy];
 	}
 	[proxyLock unlock];
-
-
-	if (![context isKJSThread])
-	{
-		return nil;
-	}
 	
 	ourKrollObject = [[KrollObject alloc] initWithTarget:proxy context:context];
 
