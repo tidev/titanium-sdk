@@ -256,8 +256,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	    //Registered proxies will handle the memory issues.
 	}
 	
-	[proxyLock unlock];
 	RELEASE_TO_NIL(proxies);
+	[proxyLock unlock];
 }
 
 -(void)dealloc
