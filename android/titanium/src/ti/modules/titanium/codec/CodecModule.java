@@ -15,11 +15,11 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.proxy.BufferProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.mozilla.javascript.Scriptable;
 
+import ti.modules.titanium.BufferProxy;
 import ti.modules.titanium.TitaniumModule;
 
 @Kroll.module(parentModule=TitaniumModule.class)

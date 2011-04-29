@@ -5,17 +5,18 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-package org.appcelerator.titanium.proxy;
+package ti.modules.titanium.stream;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.io.StreamModule;
 import org.appcelerator.titanium.io.TiStream;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiStreamHelper;
+
+import ti.modules.titanium.BufferProxy;
 
 
 @Kroll.proxy

@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-package org.appcelerator.titanium.proxy;
+package ti.modules.titanium;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -25,7 +25,6 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.mozilla.javascript.Scriptable;
 
-import ti.modules.titanium.TitaniumModule;
 import ti.modules.titanium.codec.CodecModule;
 
 
