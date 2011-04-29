@@ -121,10 +121,11 @@ import ${packageName}.${proxyClassName};
 			</#if>
 			<#if argNeedsConvert>
 				__${methodName}_tmp = ${arg.converter}.getInstance().convertJavascript(__invocation, ${argValue}, ${convertType}.class);
-				if (!(__${methodName}_tmp instanceof ${castType})) {
+				try {
+					${arg.name} = (${castType}) __${methodName}_tmp;
+				} catch (ClassCastException e) {
 					throw new IllegalArgumentException("Expected ${castType} type for argument \"${arg.name}\" in \"${methodName}\", but got " + __${methodName}_tmp);
 				}
-				${arg.name} = (${castType}) __${methodName}_tmp;
 			<#else>
 				__${arg.name}_argument.setValueDefault(true);
 				${arg.name} = (${castType})
