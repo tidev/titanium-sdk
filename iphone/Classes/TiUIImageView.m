@@ -458,6 +458,7 @@ DEFINE_EXCEPTIONS
 		}
 		if (image!=nil)
 		{
+            [(TiUIImageViewProxy*)[self proxy] setImageURL:url_];
 			CGSize fullSize = [[ImageLoader sharedLoader] fullImageSize:img];
 			autoWidth = fullSize.width;
 			autoHeight = fullSize.height;
@@ -530,6 +531,10 @@ DEFINE_EXCEPTIONS
 		
 		image = [[ImageLoader sharedLoader] loadImmediateImage:url_ withSize:CGSizeMake(TiDimensionCalculateValue(width, autoWidth), 
 																						TiDimensionCalculateValue(height, autoHeight))];
+        
+        if (image != nil) {
+            [(TiUIImageViewProxy*)[self proxy] setImageURL:url_];
+        }
 	}
 	else if ([arg isKindOfClass:[UIImage class]])
 	{
