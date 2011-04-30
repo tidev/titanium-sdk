@@ -586,7 +586,10 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	}	
 	
 	opening = NO;
-	UIView *myview = [self view];
+	UIView *myview = nil;
+	if([self viewAttached]) {
+		myview = [self view];
+	}
 	[[myview retain] autorelease];
 	
 	// hold ourself during close
