@@ -26,7 +26,7 @@ public class BufferStreamProxy extends KrollProxy implements TiStream
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private BufferProxy buffer;
-	private int mode = 0;
+	private int mode = -1;
 	private int position = -1;
 
 
@@ -105,7 +105,11 @@ public class BufferStreamProxy extends KrollProxy implements TiStream
 
 		try {
 			bytesRead = TiStreamHelper.read(bufferInputStream, bufferProxy, offset, length);
-			position += bytesRead;
+
+			if (bytesRead > -1) {
+				position += bytesRead;
+			}
+
 			return bytesRead;
 
 		} catch (IOException e) {
