@@ -27,9 +27,9 @@ import ti.modules.titanium.TitaniumModule;
 @Kroll.module(parentModule=TitaniumModule.class)
 public class StreamModule extends KrollModule
 {
-	@Kroll.constant public static final int MODE_READ = 1;
-	@Kroll.constant public static final int MODE_WRITE = 2;
-	@Kroll.constant public static final int MODE_APPEND = 3;
+	@Kroll.constant public static final int MODE_READ = 0;
+	@Kroll.constant public static final int MODE_WRITE = 1;
+	@Kroll.constant public static final int MODE_APPEND = 2;
 
 
 	private static final String LCAT = "StreamModule";
