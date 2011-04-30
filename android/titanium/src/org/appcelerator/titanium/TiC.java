@@ -300,4 +300,5 @@ public class TiC
 	public static final String URL_APP_PREFIX = "app://";
 	public static final String URL_APP_SCHEME = "app";
 	public static final String URL_APP_JS = "app://app.js";
+	public static final String URL_ANDROID_ASSET_RESOURCES = "file:///android_asset/Resources/";
 }

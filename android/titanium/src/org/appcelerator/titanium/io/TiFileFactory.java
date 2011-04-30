@@ -8,6 +8,7 @@ package org.appcelerator.titanium.io;
 
 import java.io.File;
 
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -40,7 +41,7 @@ public class TiFileFactory
 			String path = initial.substring(6);
 			path = formPath(path,parts);
 			file = new TiResourceFile(tiContext, path);
-		} else if (initial.startsWith("file:///android_asset/Resources/")) {
+		} else if (initial.startsWith(TiC.URL_ANDROID_ASSET_RESOURCES)) {
 			String path = initial.substring(32);
 			path = formPath(path,parts);
 			file = new TiResourceFile(tiContext, path);
