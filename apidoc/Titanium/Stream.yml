@@ -4,10 +4,21 @@ description: Stream module containing stream utility methods
 extends: Titanium.Module
 since: "1.7"
 
+properties:
+  - name: MODE_READ
+    type: Number
+    description: read only mode value
+  - name: MODE_WRITE
+    type: Number
+    description: write mode value
+  - name: MODE_APPEND
+    type: Number
+    description: append mode value
+
 methods:
   - name: createStream
     returns: Titanium.IOStream
-    description: Creates stream from specified container
+    description: Creates stream from specified container.  Returns `Titanium.BufferStream` or `Titanium.BlobStream` depending on whether a Buffer or Blob is provided as the 'source' property in params.
     parameters:
       - name: params
         description: creation arguments

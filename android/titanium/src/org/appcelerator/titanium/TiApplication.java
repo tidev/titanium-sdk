@@ -195,7 +195,7 @@ public abstract class TiApplication extends Application
 			}
 		});
 
-		baseUrl = "file:///android_asset/Resources/";
+		baseUrl = TiC.URL_ANDROID_ASSET_RESOURCES;
 
 		File fullPath = new File(baseUrl, getStartFilename("app.js"));
 		baseUrl = fullPath.getParent();

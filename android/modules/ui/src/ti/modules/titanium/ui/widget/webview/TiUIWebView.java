@@ -278,7 +278,7 @@ public class TiUIWebView extends TiUIView {
 		// 			//alert('AFTER: ' + imgs[i].src);
 		// 		}
 
-		setHtml(html, "file:///android_asset/Resources/");
+		setHtml(html, TiC.URL_ANDROID_ASSET_RESOURCES);
 	}
 
 	private void setHtml(String html, String baseUrl)
