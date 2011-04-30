@@ -109,6 +109,63 @@ describe("Ti.Filesystem tests", {
 		}
 	},
 
+	fileStreamWriteTest:function() {
+		var infile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt');
+		var instream = infile.open(Ti.Filesystem.MODE_READ);
+		var outfile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fswritetest.jpg');
+		var outstream = outfile.open(Ti.Filesystem.MODE_WRITE);
+
+		var buffer = Ti.createBuffer({length: 20});
+		var totalWriteSize = 0;
+		var size = 0;
+		while ((size = instream.read(buffer)) > -1) {
+			outstream.write(buffer, 0, size);
+			totalWriteSize += size;
+		}
+		instream.close();
+		outstream.close();
+
+		infile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fswritetest.jpg');
+		instream = infile.open(Ti.Filesystem.MODE_READ);
+		var inBuffer = Ti.Stream.readAll(instream);
+		var totalReadSize = inBuffer.length;
+		valueOf(totalReadSize).shouldBeExactly(totalWriteSize);
+		instream.close();
+	},
+
+	fileStreamAppendTest:function() {
+		var infile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt');
+		var instream = infile.open(Ti.Filesystem.MODE_READ);
+		var outfile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fsappendtest.jpg');
+		var outstream = outfile.open(Ti.Filesystem.MODE_WRITE);
+
+		var bytesStreamed = Ti.Stream.writeStream(instream, outstream, 40);
+		instream.close();
+		outstream.close();
+
+		infile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt');
+		instream = infile.open(Ti.Filesystem.MODE_READ);
+		var appendfile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fsappendtest.jpg');
+		var appendstream = appendfile.open(Ti.Filesystem.MODE_APPEND);
+
+		var buffer = Ti.createBuffer({length: 20});
+		var totalWriteSize = 0;
+		var size = 0;
+		while ((size = instream.read(buffer)) > -1) {
+			appendstream.write(buffer, 0, size);
+			totalWriteSize += size;
+		}
+		instream.close();
+		appendstream.close();
+
+		infile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fsappendtest.jpg');
+		instream = infile.open(Ti.Filesystem.MODE_READ);
+		var inBuffer = Ti.Stream.readAll(instream);
+		var totalReadSize = inBuffer.length;
+		valueOf(totalReadSize).shouldBeExactly(bytesStreamed + totalWriteSize);
+		instream.close();
+	},
+
 	fileStreamPumpTest:function() {
 		var pumpInputFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt');
 		valueOf(pumpInputFile).shouldBeObject();

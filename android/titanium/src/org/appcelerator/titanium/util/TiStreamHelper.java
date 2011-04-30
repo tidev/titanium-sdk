@@ -35,7 +35,7 @@ public class TiStreamHelper
 		return inputStream.read(buffer, offset, length);
 	}
 
-	public static int write(OutputStream outputStream, BufferProxy bufferProxy, int offset, int length)
+	public static int write(OutputStream outputStream, BufferProxy bufferProxy, int offset, int length) throws IOException
 	{
 		byte[] buffer = bufferProxy.getBuffer();
 
@@ -44,13 +44,8 @@ public class TiStreamHelper
 			length = buffer.length - offset;
 		}
 
-		try {
-			outputStream.write(buffer, offset, length);
-			outputStream.flush();
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		outputStream.write(buffer, offset, length);
+		outputStream.flush();
 
 		return length;
 	}
