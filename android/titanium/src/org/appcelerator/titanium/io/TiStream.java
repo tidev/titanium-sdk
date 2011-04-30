@@ -9,7 +9,7 @@ package org.appcelerator.titanium.io;
 
 import java.io.IOException;
 
-import org.appcelerator.titanium.proxy.BufferProxy;
+import ti.modules.titanium.BufferProxy;
 
 
 public interface TiStream

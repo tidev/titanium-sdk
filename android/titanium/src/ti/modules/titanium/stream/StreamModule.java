@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-package org.appcelerator.titanium.io;
+package ti.modules.titanium.stream;
 
 import java.io.IOException;
 
@@ -13,15 +13,14 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.BlobStream;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.io.TiStream;
 import org.appcelerator.titanium.kroll.KrollCallback;
-import org.appcelerator.titanium.proxy.BufferProxy;
-import org.appcelerator.titanium.proxy.BufferStream;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
+import ti.modules.titanium.BufferProxy;
 import ti.modules.titanium.TitaniumModule;
 
 
@@ -54,10 +53,10 @@ public class StreamModule extends KrollModule
 		}
 
 		if (source instanceof TiBlob) {
-			return new BlobStream((TiBlob) source, ((Double)mode).intValue());
+			return new BlobStreamProxy((TiBlob) source, ((Double)mode).intValue());
 
 		} else if(source instanceof BufferProxy) {
-			return new BufferStream((BufferProxy) source, ((Double)mode).intValue());
+			return new BufferStreamProxy((BufferProxy) source, ((Double)mode).intValue());
 
 		} else {
 			throw new IllegalArgumentException("Unable to create a stream for the specified argument");

@@ -334,6 +334,7 @@ DEFINE_EXCEPTIONS
 	NSLog(@"[INFO] %d pages free before clearing image cache.",vmStats.free_count);
 #endif
 
+    // TODO: Replace this logic with some that doesn't remove the cache entry completely, just purges what it can
 	do
 	{
 		doomedKey = nil;
@@ -604,6 +605,12 @@ DEFINE_EXCEPTIONS
 	[self doImageLoader:request];
 	
 	return request;
+}
+
+-(BOOL)purgeEntry:(NSURL*)url
+{
+    NSString* key = [url absoluteString];
+    return [[cache objectForKey:[url absoluteString]] purgable];
 }
 
 -(void)suspend

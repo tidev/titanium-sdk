@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.appcelerator.titanium.proxy.BufferProxy;
+import ti.modules.titanium.BufferProxy;
 
 
 public class TiStreamHelper

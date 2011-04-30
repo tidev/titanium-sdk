@@ -5,22 +5,23 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-package org.appcelerator.titanium;
+package ti.modules.titanium.stream;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.io.StreamModule;
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.io.TiStream;
-import org.appcelerator.titanium.proxy.BufferProxy;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiStreamHelper;
 
+import ti.modules.titanium.BufferProxy;
+
 
 @Kroll.proxy
-public class BlobStream extends KrollProxy implements TiStream
+public class BlobStreamProxy extends KrollProxy implements TiStream
 {
 	private static final String LCAT = "BlobStream";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -30,7 +31,7 @@ public class BlobStream extends KrollProxy implements TiStream
 	private InputStream inputStream = null;
 
 
-	public BlobStream(TiBlob tiBlob, int mode)
+	public BlobStreamProxy(TiBlob tiBlob, int mode)
 	{
 		super(tiBlob.getTiContext());
 		this.tiBlob = tiBlob;

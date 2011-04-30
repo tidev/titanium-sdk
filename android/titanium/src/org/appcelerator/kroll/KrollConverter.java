@@ -241,7 +241,8 @@ public class KrollConverter implements KrollNativeConverter,
 		return scriptable.has(JS_PROPERTY_LENGTH, scriptable) &&
 			scriptable.get(JS_PROPERTY_LENGTH, scriptable) instanceof Number &&
 			!(scriptable instanceof KrollObject) &&
-			!(scriptable instanceof Function);
+			!(scriptable instanceof Function) &&
+			scriptable.getClassName().equals("Array");
 	}
 
 	public Object[] toArray(KrollInvocation invocation, Scriptable scriptable)

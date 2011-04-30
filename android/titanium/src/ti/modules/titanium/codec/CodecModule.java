@@ -1,3 +1,9 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package ti.modules.titanium.codec;
 
 import java.io.UnsupportedEncodingException;
@@ -9,11 +15,11 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.proxy.BufferProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.mozilla.javascript.Scriptable;
 
+import ti.modules.titanium.BufferProxy;
 import ti.modules.titanium.TitaniumModule;
 
 @Kroll.module(parentModule=TitaniumModule.class)

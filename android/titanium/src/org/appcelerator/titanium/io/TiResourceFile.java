@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiFastDev;
 import org.appcelerator.titanium.util.Log;
@@ -213,7 +214,7 @@ public class TiResourceFile extends TiBaseFile
 	}
 
 	public String toURL() {
-		return "file:///android_asset/Resources/" + path;
+		return TiC.URL_ANDROID_ASSET_RESOURCES + path;
 	}
 
 	public double size()

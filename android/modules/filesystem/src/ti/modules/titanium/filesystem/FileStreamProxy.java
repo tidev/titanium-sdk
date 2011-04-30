@@ -9,26 +9,29 @@ package ti.modules.titanium.filesystem;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.io.TiStream;
-import org.appcelerator.titanium.proxy.BufferProxy;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiStreamHelper;
 
+import ti.modules.titanium.BufferProxy;
+
 
 @Kroll.proxy
-public class FileStream extends KrollProxy implements TiStream
+public class FileStreamProxy extends KrollProxy implements TiStream
 {
 	private static final String LCAT = "FileStream";
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private FileProxy fileProxy;
 	private InputStream inputStream = null;
+	private OutputStream outputStream = null;
 
 
-	public FileStream(FileProxy fileProxy)
+	public FileStreamProxy(FileProxy fileProxy)
 	{
 		super(fileProxy.getTiContext());
 		this.fileProxy = fileProxy;
@@ -138,7 +141,11 @@ public class FileStream extends KrollProxy implements TiStream
 		}
 
 		try {
-			return TiStreamHelper.write(fileProxy.tbf.getOutputStream(), bufferProxy, offset, length);
+			if (outputStream == null) {
+				outputStream = fileProxy.tbf.getOutputStream();
+			}
+
+			return TiStreamHelper.write(outputStream, bufferProxy, offset, length);
 
 		} catch (IOException e) {
 			e.printStackTrace();

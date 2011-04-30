@@ -25,7 +25,10 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.TiFastDev;
 import org.appcelerator.titanium.TiMessageQueue;
+import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -49,6 +52,7 @@ import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
@@ -689,9 +693,29 @@ public class TiUIHelper
 		}
 		return bitmap;
 	}
-	
+
+	public static Drawable loadFastDevDrawable(TiContext context, String url)
+	{
+		try {
+			TiBaseFile tbf = TiFileFactory.createTitaniumFile(context, new String[] { url }, false);
+			InputStream stream = tbf.getInputStream();
+			Drawable d = BitmapDrawable.createFromStream(stream, url);
+			stream.close();
+			return d;
+		} catch (IOException e) {
+			Log.w(LCAT, e.getMessage(), e);
+		}
+		return null;
+	}
+
 	public static Drawable getResourceDrawable(TiContext context, String url)
 	{
+		if (TiFastDev.isFastDevEnabled()) {
+			Drawable d = loadFastDevDrawable(context, url);
+			if (d != null) {
+				return d;
+			}
+		}
 		int id = getResourceId(url);
 		if (id == 0) {
 			return null;

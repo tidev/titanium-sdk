@@ -102,12 +102,12 @@ public class FilesystemModule extends KrollModule
 	}
 
 	@Kroll.method
-	public FileStream openStream(int mode, Object[] parts) throws IOException
+	public FileStreamProxy openStream(int mode, Object[] parts) throws IOException
 	{
 		String[] sparts = TiConvert.toStringArray(parts);
 		FileProxy fileProxy = new FileProxy(getTiContext(), sparts);
 		fileProxy.tbf.open(mode, true);
 
-		return new FileStream(fileProxy);
+		return new FileStreamProxy(fileProxy);
 	}
 }

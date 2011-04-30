@@ -283,11 +283,11 @@ public class FileProxy extends TiFileProxy
 	}
 
 	@Kroll.method
-	public FileStream open(int mode) throws IOException
+	public FileStreamProxy open(int mode) throws IOException
 	{
 		if(!(tbf.isOpen())) {
 			tbf.open(mode, true);
 		}
-		return new FileStream(this);
+		return new FileStreamProxy(this);
 	}
 }
