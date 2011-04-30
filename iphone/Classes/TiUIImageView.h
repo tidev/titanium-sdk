@@ -39,6 +39,7 @@
 	NSInteger readyCount;
 	NSInteger loadTotal;
 	UIImageView * imageView;
+    NSURL* remoteURL;
 }
 
 -(void)start;

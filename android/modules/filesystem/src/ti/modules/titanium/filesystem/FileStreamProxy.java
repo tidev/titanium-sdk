@@ -9,6 +9,7 @@ package ti.modules.titanium.filesystem;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -27,6 +28,7 @@ public class FileStreamProxy extends KrollProxy implements TiStream
 
 	private FileProxy fileProxy;
 	private InputStream inputStream = null;
+	private OutputStream outputStream = null;
 
 
 	public FileStreamProxy(FileProxy fileProxy)
@@ -139,7 +141,11 @@ public class FileStreamProxy extends KrollProxy implements TiStream
 		}
 
 		try {
-			return TiStreamHelper.write(fileProxy.tbf.getOutputStream(), bufferProxy, offset, length);
+			if (outputStream == null) {
+				outputStream = fileProxy.tbf.getOutputStream();
+			}
+
+			return TiStreamHelper.write(outputStream, bufferProxy, offset, length);
 
 		} catch (IOException e) {
 			e.printStackTrace();
