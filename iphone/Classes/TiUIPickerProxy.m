@@ -116,7 +116,7 @@ NSArray* pickerKeySequence;
 }
 
 -(void)addPickerColumn:(NSDictionary*)params {
-	ENSURE_UI_THREAD(addPickerRow,params);
+	ENSURE_UI_THREAD_1_ARG(params);
 	NSMutableArray *columns = [params objectForKey:@"columns"];
 	TiUIPickerColumnProxy *column = [params objectForKey:@"column"];
 	if (windowOpened) {
@@ -133,7 +133,7 @@ NSArray* pickerKeySequence;
 }
 
 -(void)addRowOfColumns:(NSDictionary*)params {
-	ENSURE_UI_THREAD(addPickerRow,params);
+	ENSURE_UI_THREAD_1_ARG(params);
 	NSMutableArray *columns = [params objectForKey:@"columns"];
 	NSArray *data = [params objectForKey:@"data"];
 	for (id column in data)
@@ -152,7 +152,7 @@ NSArray* pickerKeySequence;
 }
 
 -(void)addRowOfDicts:(NSDictionary*)params {
-	ENSURE_UI_THREAD(addPickerRow,params);
+	ENSURE_UI_THREAD_1_ARG(params);
 	TiUIPickerRowProxy *row = [params objectForKey:@"row"];
 	TiUIPickerColumnProxy *column = [params objectForKey:@"column"];
 	NSNumber* rowIndex = [params objectForKey:@"rowIndex"];
@@ -168,7 +168,7 @@ NSArray* pickerKeySequence;
 }
 
 -(void)addDefault:(NSDictionary*)params {
-	ENSURE_UI_THREAD(addPickerRow,params);
+	ENSURE_UI_THREAD_1_ARG(params);
 	TiUIPickerColumnProxy *column = [params objectForKey:@"column"];
 	NSArray *data = [params objectForKey:@"data"];
 	for (id item in data)
