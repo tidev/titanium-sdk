@@ -101,6 +101,11 @@ static NSArray* imageKeySequence;
 - (void) dealloc
 {
 	RELEASE_TO_NIL(urlRequest);
+    [self replaceValue:nil forKey:@"image" notification:NO];
+    
+    // Purge needs to happen AFTER we've released the ref to 'image', so that the cache knows it can unload the information
+    [[ImageLoader sharedLoader] purgeEntry:remoteURL];
+    RELEASE_TO_NIL(remoteURL);
 	[super dealloc];
 }
 
@@ -194,6 +199,8 @@ USE_VIEW_FOR_AUTO_HEIGHT
 	{
 		[(TiUIImageView *)[self view] imageLoadSuccess:request image:image];
 	}
+    RELEASE_TO_NIL(remoteURL);
+    remoteURL = [[urlRequest url] retain];
 	RELEASE_TO_NIL(urlRequest);
 }
 
