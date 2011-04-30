@@ -27,15 +27,13 @@ public class BlobStreamProxy extends KrollProxy implements TiStream
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private TiBlob tiBlob;
-	private int mode = 0;
 	private InputStream inputStream = null;
 
 
-	public BlobStreamProxy(TiBlob tiBlob, int mode)
+	public BlobStreamProxy(TiBlob tiBlob)
 	{
 		super(tiBlob.getTiContext());
 		this.tiBlob = tiBlob;
-		this.mode = mode;
 	}
 
 
@@ -43,10 +41,6 @@ public class BlobStreamProxy extends KrollProxy implements TiStream
 	@Kroll.method
 	public int read(Object args[]) throws IOException
 	{
-		if (mode != StreamModule.MODE_READ) {
-			throw new IOException("Unable to read on a stream, not opened in read mode");
-		}
-
 		BufferProxy bufferProxy = null;
 		int offset = 0;
 		int length = 0;
@@ -90,6 +84,7 @@ public class BlobStreamProxy extends KrollProxy implements TiStream
 
 		if (inputStream == null) {
 			inputStream = tiBlob.getInputStream();
+			// TODO set position based on mode
 		}
 
 		if(inputStream != null) {
@@ -121,9 +116,6 @@ public class BlobStreamProxy extends KrollProxy implements TiStream
 	@Kroll.method
 	public boolean isReadable()
 	{
-		if (mode != StreamModule.MODE_READ) {
-			return false;
-		}
 		return true;
 	}
 }

@@ -8,8 +8,6 @@
 package ti.modules.titanium.filesystem;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -27,8 +25,6 @@ public class FileStreamProxy extends KrollProxy implements TiStream
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private FileProxy fileProxy;
-	private InputStream inputStream = null;
-	private OutputStream outputStream = null;
 
 
 	public FileStreamProxy(FileProxy fileProxy)
@@ -83,12 +79,8 @@ public class FileStreamProxy extends KrollProxy implements TiStream
 			throw new IllegalArgumentException("Invalid number of arguments");
 		}
 
-		if (inputStream == null) {
-			inputStream = fileProxy.getInputStream();
-		}
-
 		try {
-			return TiStreamHelper.read(inputStream, bufferProxy, offset, length);
+			return TiStreamHelper.read(fileProxy.tbf.getExistingInputStream(), bufferProxy, offset, length);
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -141,11 +133,7 @@ public class FileStreamProxy extends KrollProxy implements TiStream
 		}
 
 		try {
-			if (outputStream == null) {
-				outputStream = fileProxy.tbf.getOutputStream();
-			}
-
-			return TiStreamHelper.write(outputStream, bufferProxy, offset, length);
+			return TiStreamHelper.write(fileProxy.tbf.getExistingOutputStream(), bufferProxy, offset, length);
 
 		} catch (IOException e) {
 			e.printStackTrace();

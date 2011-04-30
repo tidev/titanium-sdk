@@ -13,12 +13,12 @@ properties:
     description: write mode value
   - name: MODE_APPEND
     type: Number
-    description: append mode value
+    description: append mode value. 
 
 methods:
   - name: createStream
     returns: Titanium.IOStream
-    description: Creates stream from specified container.  Returns `Titanium.BufferStream` or `Titanium.BlobStream` depending on whether a Buffer or Blob is provided as the 'source' property in params.
+    description: Creates stream from specified container.  Returns `Titanium.BufferStream` or `Titanium.BlobStream` depending on whether a Buffer or Blob is provided as the 'source' property in params.  Write and append mode only applies to Buffer as Blob is read only.
     parameters:
       - name: params
         description: creation arguments

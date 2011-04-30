@@ -17,7 +17,6 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.io.TiStream;
 import org.appcelerator.titanium.kroll.KrollCallback;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
 import ti.modules.titanium.BufferProxy;
@@ -46,17 +45,22 @@ public class StreamModule extends KrollModule
 	//public Object createStream(Object container)
 	{
 		Object source = params.get("source");
-		Object mode = params.get("mode");
 
-		if (!(mode instanceof Double)) {
-			// error
+		Object rawMode = params.get("mode");
+		if (!(rawMode instanceof Double)) {
+			throw new IllegalArgumentException("Unable to create stream, invalid mode");
 		}
-
+		int mode = ((Double)rawMode).intValue();
+		
 		if (source instanceof TiBlob) {
-			return new BlobStreamProxy((TiBlob) source, ((Double)mode).intValue());
+			if(mode != MODE_READ) {
+				throw new IllegalArgumentException("Unable to create a blob stream in a mode other than read");
+			}
+
+			return new BlobStreamProxy((TiBlob) source);
 
 		} else if(source instanceof BufferProxy) {
-			return new BufferStreamProxy((BufferProxy) source, ((Double)mode).intValue());
+			return new BufferStreamProxy((BufferProxy) source, mode);
 
 		} else {
 			throw new IllegalArgumentException("Unable to create a stream for the specified argument");

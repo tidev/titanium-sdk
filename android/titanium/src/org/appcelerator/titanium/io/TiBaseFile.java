@@ -410,6 +410,16 @@ public abstract class TiBaseFile
 		}
 	}
 
+	public InputStream getExistingInputStream()
+	{
+		return instream;
+	}
+
+	public OutputStream getExistingOutputStream()
+	{
+		return outstream;
+	}
+
 	public abstract InputStream getInputStream() throws IOException;
 	public abstract OutputStream getOutputStream() throws IOException;
 	public abstract File getNativeFile();
