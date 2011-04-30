@@ -387,7 +387,14 @@
 -(void)setUserLocation_:(id)value
 {
 	ENSURE_SINGLE_ARG(value,NSObject);
-	[self map].showsUserLocation = [TiUtils boolValue:value];
+	BOOL boolValue = [TiUtils boolValue:value];
+	[self map].showsUserLocation = boolValue;
+	if (boolValue)
+	{
+		MKUserLocation* userLocationAnnotation = [self map].userLocation;
+		userLocationAnnotation.title = nil;
+		userLocationAnnotation.subtitle = nil;
+	}
 }
 
 -(void)setLocation_:(id)location
