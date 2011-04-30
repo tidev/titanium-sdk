@@ -13,7 +13,6 @@
 
 @interface TiFilesystemFileStreamProxy (Private)
 
--(BOOL) modeExists:(int) mode;
 -(unsigned long long) currentFileSize;
 
 @end
@@ -21,9 +20,12 @@
 
 @implementation TiFilesystemFileStreamProxy
 
-@synthesize modes;
-
 #pragma mark Internal
+
+// TODO: Default mode should be TI_READ
+// TODO: TI_WRITE and TI_APPEND are mutually exclusive.
+// TODO: Throw exception on bad creation; don't just log a message
+// TODO: Find out if filestreams can only have one mode for now (probably!)
 
 -(id) _initWithPageContext:(id <TiEvaluator>)context args:(NSArray *)args {
 	if(self = [super _initWithPageContext:context args:args]) {
@@ -31,18 +33,16 @@
 			NSString *filePath = [args objectAtIndex:0];
 			NSFileHandle *handle = nil;
 			
-			if([args count] > 1 && [[args objectAtIndex:1] isKindOfClass:[NSArray class]]) {
-				modes = [[args objectAtIndex:1] retain];
-			} else {
-				modes = [[NSArray alloc] initWithObjects:NUMINT(TI_READ), NUMINT(TI_WRITE), NUMINT(TI_APPEND), nil];
+			mode = TI_READ;
+			if([args count] == 2) {
+				mode = [[args objectAtIndex:1] intValue];
 			}
+
 			handle = [NSFileHandle fileHandleForUpdatingAtPath:filePath];
-			
 			if(handle == nil) {
-//				[self throwException:TiExceptionOSError
-//						   subreason:[NSString stringWithFormat:@"Could not open file stream for file at URL: %@ - error: %@", filePath, [err localizedDescription], nil]
-//							location:CODELOCATION];
-				NSLog(@"[WARN] Could not open file stream for file at path: %@", filePath);
+				[self throwException:TiExceptionOSError
+						   subreason:[NSString stringWithFormat:@"Could not open file stream for file at path: %@", filePath, nil]
+							location:CODELOCATION];
 			} else {
 				fileHandle = [handle retain];
 			}
@@ -57,29 +57,37 @@
 }
 
 -(void) dealloc {
-	RELEASE_TO_NIL(modes);
 	RELEASE_TO_NIL(fileHandle);
 	[super dealloc];
 }
 
-#pragma mark Private methods
-
--(BOOL) modeExists:(int)mode {
-	return [modes containsObject:NUMINT(mode)];
+#define THROW_IF_HANDLE_NIL(loc) \
+if(fileHandle == nil) {\
+  [self throwException:TiExceptionInternalInconsistency\
+		 	 subreason:@"File handle has already been closed."\
+			  location:loc];\
 }
 
+
+#pragma mark Private methods
+
 -(unsigned long long) currentFileSize {
-	unsigned long long offset = [fileHandle offsetInFile],
-						 size = [fileHandle seekToEndOfFile];
+	unsigned long long offset = [fileHandle offsetInFile];
+    unsigned long long size = [fileHandle seekToEndOfFile];
 	[fileHandle seekToFileOffset:offset]; //revert to previous position
 	return size;
 }
 
 #pragma mark TiStreamInternal methods
-				
+
+// TODO: Remember to remove debug NSLog
+// TODO: Length == 0 does not indicate read to EOF; only to create the buffer.
+// TODO: bufferBytes+offset!=NULL check is not necessary; this address will only be null if bufferBytes==NULL,offset==0
+// TODO: Should throw exceptions/call callback on error; -1 indicates EOF only.
 -(int) readToBuffer:(TiBuffer *)buffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback {
-	NSLog(@"readToBuffer: called");
-	if(![self modeExists:TI_READ]) {
+	THROW_IF_HANDLE_NIL(CODELOCATION);
+	
+	if(mode != TI_READ) {
 		[self throwException:TiExceptionInternalInconsistency
 				   subreason:@"You cannot read from a write-only FileStream"
 					location:CODELOCATION];
@@ -87,11 +95,15 @@
 	}
 
 	if([[buffer data] length] == 0 && length != 0) {
+		NSString *errorMessage = @"Buffer length is zero"; 
 		if(callback != nil) {
-			NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINT(0) forKey:@"bytesProcessed"];
+			NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(0), @"bytesProcessed", errorMessage, @"errorMessage", NUMINT(0), @"errorCode"];
 			[self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
+		} else {
+			[self throwException:TiExceptionRangeError
+					   subreason:errorMessage
+						location:CODELOCATION];
 		}
-		return -1;
 	}
 
 	NSData *fileData = nil;
@@ -102,31 +114,27 @@
 
 	if([fileHandle offsetInFile] >= [self currentFileSize]) {
 		//out of bounds
-		//TODO: Throw exception or something
 		return -1;
 	}
 	
+	fileData = [fileHandle readDataOfLength:length];
+
 	if(length == 0) {
-		//if length is 0, read until EOF
-		fileData = [fileHandle readDataToEndOfFile];
-		
 		[[buffer data] appendData:fileData];
 		return [fileData length];
 	}
-	
-	fileData = [fileHandle readDataOfLength:length];
-	
+		
 	if([fileData length] > 0) {
-		NSLog(@"fileData is %@", [NSString stringWithCString:[fileData bytes] encoding:NSUTF8StringEncoding]);
+		VerboseLog(@"fileData is %@", [NSString stringWithCString:[fileData bytes] encoding:NSUTF8StringEncoding]);
 
 		void* bufferBytes = [[buffer data] mutableBytes];
 		const void* streamBytes = [fileData bytes];
-		NSLog(@"bufferBytes is NULL? %@", bufferBytes == NULL ? @"YES" : @"NO");
-		NSLog(@"streamBytes is NULL? %@", streamBytes == NULL ? @"YES" : @"NO");
+		VerboseLog(@"bufferBytes is NULL? %@", bufferBytes == NULL ? @"YES" : @"NO");
+		VerboseLog(@"streamBytes is NULL? %@", streamBytes == NULL ? @"YES" : @"NO");
 
-		if(bufferBytes != NULL && streamBytes != NULL && (void*) (bufferBytes + offset) != NULL) {
-			NSLog(@"bufferBytes: %@", [NSString stringWithCString:bufferBytes encoding:NSUTF8StringEncoding]);
-			NSLog(@"streamBytes: %@", [NSString stringWithCString:streamBytes encoding:NSUTF8StringEncoding]);
+		if(bufferBytes != NULL && streamBytes != NULL) {
+			VerboseLog(@"bufferBytes: %@", [NSString stringWithCString:bufferBytes encoding:NSUTF8StringEncoding]);
+			VerboseLog(@"streamBytes: %@", [NSString stringWithCString:streamBytes encoding:NSUTF8StringEncoding]);
 
 			memcpy(bufferBytes + offset, streamBytes, MIN([fileData length], length));	
 			return [fileData length];
@@ -135,8 +143,12 @@
 	return -1;
 }
 
+// TODO: Your NSRange may be out of range of the buffer (offset+length may extend past the buffer bounds) - use MIN([[buffer data] length]-offset,length)
+// TODO: Should throw exceptions/call callback on error; -1 indicates EOF only.
 -(int) writeFromBuffer:(TiBuffer *)buffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback {
-	if(![self modeExists:TI_WRITE] && ![self modeExists:TI_APPEND]) {
+	THROW_IF_HANDLE_NIL(CODELOCATION);
+
+	if(mode != TI_WRITE && mode != TI_APPEND) {
 		[self throwException:TiExceptionInternalInconsistency
 				   subreason:@"You cannot write from a read-only FileStream"
 					location:CODELOCATION];
@@ -146,7 +158,7 @@
 	NSData *slicedData = [[buffer data] subdataWithRange:NSMakeRange(offset, length)];
 	NSData *newData = slicedData;
 
-	if([self modeExists:TI_APPEND] && offset != 0) {
+	if(mode == TI_APPEND && offset != 0) {
 		NSMutableData *realigned = [NSMutableData data];
 		[realigned appendData:[[buffer data] subdataWithRange:NSMakeRange(0, offset)]];
 		[realigned appendData:slicedData];
@@ -166,8 +178,11 @@
 	return -1;
 }
 
+
 -(int) writeToStream:(id <TiStreamInternal>)output chunkSize:(int)size callback:(KrollCallback *)callback {
-	if(![self modeExists:TI_WRITE] && ![self modeExists:TI_APPEND]) {
+	THROW_IF_HANDLE_NIL(CODELOCATION);
+	
+	if(mode != TI_WRITE || mode != TI_APPEND) {
 		[self throwException:TiExceptionInternalInconsistency
 				   subreason:@"You cannot write from a read-only FileStream"
 					location:CODELOCATION];
@@ -215,8 +230,11 @@
     return totalBytes;
 }
 
+// TODO: chunkedData needs to be NSMutableData - buffers require that.
 -(void) pumpToCallback:(KrollCallback *)callback chunkSize:(int)size asynch:(BOOL)asynch {
-	if(![self modeExists:TI_READ]) {
+	THROW_IF_HANDLE_NIL(CODELOCATION);
+
+	if(mode != TI_READ) {
 		[self throwException:TiExceptionInternalInconsistency
 				   subreason:@"You cannot read from a write-only FileStream"
 					location:CODELOCATION];
@@ -234,7 +252,7 @@
 	while([chunkedData length] > 0) {
 		//create temporary buffer
 		TiBuffer *buffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
-		[buffer setData:chunkedData];
+		[buffer setData:[NSMutableData dataWithData:chunkedData]];
 		
 		totalBytes += [chunkedData length];
 		chunkedData = [fileHandle readDataOfLength:size];
@@ -245,7 +263,10 @@
 	}
 }
 
+// TODO: Remove these; see comments in code
 #pragma mark Public API
+
+// TODO: REMOVE THESE.  pump and writeStream are methods on Ti.Stream, NOT on stream objects.
 
 //Wrapper for TiStreamInternal's pumpToCallback: method
 -(id) pump:(id) args {
@@ -285,10 +306,12 @@
 	return NUMINT([self writeToStream:stream chunkSize:[chunkSize intValue] callback:callback]);
 }
 
+// TODO: When closing the fileHandle, RELEASE_TO_NIL and then check for this in all operations on the stream to ensure that nothing is being done with a closed stream.
 -(id) close:(id) args {
 	BOOL closed = YES;
 	@try {
 		[fileHandle closeFile];	
+		RELEASE_TO_NIL(fileHandle);
 	} @catch (NSException *e) {
 		closed = NO;
 	}
@@ -296,11 +319,11 @@
 }
 
 -(NSNumber*)isReadable:(id)_void {
-	return NUMBOOL([self modeExists:TI_READ]);
+	return NUMBOOL(mode == TI_READ);
 }
 
 -(NSNumber*)isWritable:(id)_void {
-	return NUMBOOL([self modeExists:TI_WRITE] || [self modeExists:TI_APPEND]);
+	return NUMBOOL(mode == TI_WRITE || mode == TI_APPEND);
 }
 
 @end

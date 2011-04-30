@@ -6,10 +6,11 @@
  */
 package org.appcelerator.titanium.util;
 
+import org.appcelerator.titanium.TiC;
+
 public class TiFileHelper2
 {
 	public static final String APP_SCHEME= "app://";
-	public static final String FILE_WITH_ASSET = "file:///android_asset/Resources/";
 
 	/**
 	 * Joins a path with a relative "Resources" folder
@@ -70,8 +71,8 @@ public class TiFileHelper2
 			} else {
 				return relativePath;
 			}
-		} else if (relativePath.startsWith(FILE_WITH_ASSET)) {
-			return relativePath.substring(FILE_WITH_ASSET.length());
+		} else if (relativePath.startsWith(TiC.URL_ANDROID_ASSET_RESOURCES)) {
+			return relativePath.substring(TiC.URL_ANDROID_ASSET_RESOURCES.length());
 		}
 		return null;
 	}

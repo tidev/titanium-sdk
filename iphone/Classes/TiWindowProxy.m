@@ -89,13 +89,18 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 
 -(void)_destroy
 {
-	[controller setProxy:nil];
-	RELEASE_TO_NIL(controller);
-	RELEASE_TO_NIL(navController);
+	[(TiViewController*)controller setProxy:nil];
+
+	[navController performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
+	navController = nil;
+	[controller performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
+	controller = nil;
+	
 	RELEASE_TO_NIL(tab);
 	RELEASE_TO_NIL(reattachWindows);
 	RELEASE_TO_NIL(closeView);
-	
+
+
 	RELEASE_TO_NIL(openAnimation);
 	RELEASE_TO_NIL(closeAnimation);
 	
@@ -206,24 +211,23 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 
 	[self forgetProxy:closeAnimation];
 	RELEASE_TO_NIL(closeAnimation);
-	[self forgetSelf];
 	opened = NO;
 	attached = NO;
 	opening = NO;
 	closing = NO;
 	
 	[self detachView];
-	
 	// notify our child that his window is closing
 	for (TiViewProxy *child in self.children)
 	{
 		[child windowDidClose];
 	}
 	
-	[self windowDidClose];
-
 	RELEASE_TO_NIL(navController);
 	RELEASE_TO_NIL(controller);
+	
+	[self windowDidClose];
+	[self forgetSelf];
 }
 
 -(void)windowWillClose
@@ -410,24 +414,20 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		}
 		if (fullscreenFlag)
 		{
-			fullscreenFlag = YES;
 			restoreFullscreen = [UIApplication sharedApplication].statusBarHidden;
 			[[UIApplication sharedApplication] setStatusBarHidden:YES];
 			[self view].frame = [[[TiApp app] controller] resizeView];
 		}
-		else if (modalFlag)
+		if (modalFlag)
 		{
 			modalFlag = YES;
 			attached = YES;
 			TiViewController *wc = (TiViewController*)[self controller];
-		   
-		    UINavigationController *nc = nil;
-		
-		    BOOL showNav = ![self argOrWindowProperty:@"navBarHidden" args:args];
-    
-			nc = [[[UINavigationController alloc] initWithRootViewController:wc] autorelease];
-			
-		    [nc setNavigationBarHidden:showNav];
+
+			UINavigationController *nc = [[[UINavigationController alloc] initWithRootViewController:wc] autorelease];
+
+			BOOL navBarHidden = [self argOrWindowProperty:@"navBarHidden" args:args];
+			[nc setNavigationBarHidden:navBarHidden];
 
 			NSDictionary *dict = [args count] > 0 ? [args objectAtIndex:0] : nil;
 			int style = [TiUtils intValue:@"modalTransitionStyle" properties:dict def:-1];
@@ -448,12 +448,12 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 				    [nc setModalPresentationStyle:style];
 				}
 			}
-#endif			
-			[self setController:wc];
+#endif		
+//			[self setController:wc];
 			[self setNavController:nc];
 			BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
 			[self setupWindowDecorations];
-			
+
 			if (rootViewAttached==NO)
 			{
 				//TEMP hack until we can figure out split view issue
@@ -466,14 +466,8 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			}
 			else
 			{
-				if (nc!=nil)
-				{
-					[[TiApp app] showModalController:nc animated:animated];
-				}
-				else 
-				{
-					[[TiApp app] showModalController:wc animated:animated];
-				}
+				//showModalController will show the passed-in controller's navigation controller if it exists
+				[[TiApp app] showModalController:nc animated:animated];
 			}
 		}
 		if (openAnimation==nil)
@@ -551,7 +545,6 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 
 -(void)closeOnUIThread:(id)args
 {
-	VerboseLog(@"%@ (modal:%d)%@",self,modalFlag,CODELOCATION);
 	[self windowWillClose];
 
 	//TEMP hack until we can figure out split view issue
@@ -593,7 +586,10 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	}	
 	
 	opening = NO;
-	UIView *myview = [self view];
+	UIView *myview = nil;
+	if([self viewAttached]) {
+		myview = [self view];
+	}
 	[[myview retain] autorelease];
 	
 	// hold ourself during close

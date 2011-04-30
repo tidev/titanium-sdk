@@ -32,8 +32,6 @@ DEFINE_EXCEPTIONS
 	{
 		[timer invalidate];
 	}
-    [[ImageLoader sharedLoader] purgeEntry:remoteURL];
-    RELEASE_TO_NIL(remoteURL);
 	RELEASE_TO_NIL(timer);
 	RELEASE_TO_NIL(images);
 	RELEASE_TO_NIL(container);
@@ -775,10 +773,7 @@ DEFINE_EXCEPTIONS
 		computedHeight *= 2;
 	}
 	
-    RELEASE_TO_NIL(remoteURL);
-    remoteURL = [[request url] retain];
-    
-	UIImage * bestImage = [[ImageLoader sharedLoader] loadImmediateImage:remoteURL withSize:CGSizeMake(computedWidth, computedHeight)];
+	UIImage * bestImage = [[ImageLoader sharedLoader] loadImmediateImage:[request url] withSize:CGSizeMake(computedWidth, computedHeight)];
 	if (bestImage != nil)
 	{
 		image = bestImage;

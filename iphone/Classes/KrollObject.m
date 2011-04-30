@@ -1239,6 +1239,11 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 
 -(void)noteKrollObject:(KrollObject *)value forKey:(NSString *)key
 {
+	if ([value finalized])
+	{
+		return;
+	}
+
 	if (![context isKJSThread])
 	{
 		NSLog(@"[WARN] %@ tried to note the callback for %@ in the wrong thead.",target,key);

@@ -28,16 +28,10 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 }
 
 -(id)openStream:(id) args {
-	NSArray  *modes;
 	NSString *path;
-
-	ENSURE_ARG_COUNT(args, 2);
-	id mode = [args objectAtIndex:0];
-	if([mode isKindOfClass:[NSArray class]]) {
-		modes = mode;
-	} else {		
-		modes = [NSArray arrayWithObject:mode];		
-	}
+	NSNumber *fileMode;
+	
+	ENSURE_ARG_AT_INDEX(fileMode, args, 0, NSNumber);
 
 	id target = [args objectAtIndex:1];
 	if([target isKindOfClass:[TiFile class]]) {
@@ -46,7 +40,7 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 		path = [TiUtils stringValue:target];
 	}
 	
-	NSArray *payload = [NSArray arrayWithObjects:path, modes, nil];
+	NSArray *payload = [NSArray arrayWithObjects:path, fileMode, nil];
 
 	return [[[TiFilesystemFileStreamProxy alloc] _initWithPageContext:[self executionContext] args:payload] autorelease];
 }
