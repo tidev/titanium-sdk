@@ -310,15 +310,6 @@ NSString * const TI_DB_VERSION = @"1";
 
 -(void)queueEvent:(NSString*)type name:(NSString*)name data:(NSDictionary*)data immediate:(BOOL)immediate
 {
-	[lock lock];
-	
-	if (database==nil)
-	{
-		// doh, no database???
-		[lock unlock];
-		return;
-	}
-	
 	static int sequence = 0;
 	
 	NSMutableDictionary *dict = [NSMutableDictionary dictionary];
@@ -358,12 +349,25 @@ NSString * const TI_DB_VERSION = @"1";
 	PLSqlitePreparedStatement * statement = (PLSqlitePreparedStatement *) [database prepareStatement:sql error:&error];
 	[statement bindParameters:[NSArray arrayWithObjects:value,nil]];
 	
+    // MAJOR TODO: This has been a source of bugs since the dawn of iOS 4.0, which we have chipped away at...
+    // This can be triggered as part of a background task... so, if we're going to be backgrounding, need to set this up
+    // to unlock the lock when the BG task ends.  Otherwise, on resume, we hit the lock again (from another analytics event)
+    // and DEADLOCK.
+    
+    // Don't lock until we need to
+    [lock lock];
+    if (database==nil)
+	{
+		// doh, no database???
+		[lock unlock];
+		return;
+	}
+    
 	[database beginTransaction];
 	[statement executeUpdate];
 	[database commitTransaction];
 	
 	[statement close];
-	
 	[lock unlock];
 	
 	if (immediate)
