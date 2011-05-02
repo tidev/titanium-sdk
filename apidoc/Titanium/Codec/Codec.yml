@@ -24,6 +24,7 @@ properties:
     value: "utf8"
     permission: read-only
   - name: CHARSET_UTF16
+    type: String
     description: |
         The [UTF-16 Character Set](http://en.wikipedia.org/wiki/UTF-16/UCS-2)
     value: "utf16"
@@ -35,6 +36,7 @@ properties:
     value: "utf16be"
     permission: read-only
   - name: CHARSET_UTF16LE
+    type: String
     description: |
         The [UTF-16 Character Set](http://en.wikipedia.org/wiki/UTF-16/UCS-2) with Little Endian byte order
     value: "utf16le"
