@@ -480,7 +480,12 @@
 	
 	if ([rows count] > row.row) {
 		TiUITableViewRowProxy* oldRow = [rows objectAtIndex:row.row];
+		[oldRow retain];
+		oldRow.table = nil;
+		oldRow.section = nil;
+		oldRow.parent = nil;
 		[row.section forgetProxy:oldRow];
+		[oldRow release];
 	}	
 	[row.section rememberProxy:row];
 	[rows replaceObjectAtIndex:row.row withObject:row];
