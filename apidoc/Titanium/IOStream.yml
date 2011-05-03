@@ -56,6 +56,9 @@ methods:
     returns:  Boolean
     description: reads true if stream is readable, false otherwise
 
+  - name: close
+    description: closes stream and throws exception on error
+
 
 examples: |
     ## write data to stream

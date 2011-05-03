@@ -189,5 +189,13 @@ public class BufferStreamProxy extends KrollProxy implements TiStream
 		}
 		return true;
 	}
+
+	@Kroll.method
+	public void close() throws IOException
+	{
+		buffer = null;
+		mode = -1;
+		position = -1;
+	}
 }
 

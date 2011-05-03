@@ -110,22 +110,6 @@ public class TCPProxy extends KrollProxy implements TiStream
 		accepting = true;
 	}
 
-	@Kroll.method
-	public void close() throws Exception
-	{
-		if((state != SocketModule.CONNECTED) && (state != SocketModule.LISTENING)) {
-			throw new Exception("Socket is not connected or listening, unable to call close");
-		}
-
-		try {
-			closeSocket();
-
-		} catch (IOException e) {
-			e.printStackTrace();
-			updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to close socket, IO error", 0));
-		}
-	}
-
 	private void closeSocket() throws IOException {
 		if (clientSocket != null) {
 			clientSocket.close();
@@ -481,6 +465,22 @@ public class TCPProxy extends KrollProxy implements TiStream
 	public boolean isReadable()
 	{
 		return isConnected();
+	}
+
+	@Kroll.method
+	public void close() throws IOException
+	{
+		if((state != SocketModule.CONNECTED) && (state != SocketModule.LISTENING)) {
+			throw new IOException("Socket is not connected or listening, unable to call close");
+		}
+
+		try {
+			closeSocket();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IOException("Error occured when closing socket");
+		}
 	}
 }
 
