@@ -28,6 +28,7 @@
 	TiWindowProxy *window = [args objectAtIndex:0];
 	ENSURE_TYPE(window,TiWindowProxy);
 	[self rememberProxy:window];
+
 	ENSURE_UI_THREAD(open, args);
 	NSDictionary *properties = [args count] > 1 ? [args objectAtIndex:1] : [NSDictionary dictionary];
 	[[self view] performSelector:@selector(open:withObject:) withObject:window withObject:properties];
@@ -41,13 +42,11 @@
 		
 		TiWindowProxy *window = [args objectAtIndex:0];
 		ENSURE_TYPE(window,TiWindowProxy);
-		
-		[self forgetProxy:window];
-		
 		ENSURE_UI_THREAD(close,args);
 
 		NSDictionary *properties = [args count] > 1 ? [args objectAtIndex:1] : [NSDictionary dictionary];
 		[[self view] performSelector:@selector(close:withObject:) withObject:window withObject:properties];
+		[self forgetProxy:window];
 	}
 	else 
 	{
