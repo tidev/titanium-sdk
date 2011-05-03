@@ -127,7 +127,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 -(void)setOndatastream:(KrollCallback *)callback
 {
 	hasOndatastream = [callback isKindOfClass:[KrollCallback class]];
-	[self setCallback:callback forKey:@"oncallback"];
+	[self setCallback:callback forKey:@"ondatastream"];
 }
 
 -(void)setOnsendstream:(KrollCallback *)callback
