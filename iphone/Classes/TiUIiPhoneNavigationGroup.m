@@ -18,8 +18,7 @@
 	{
 		return;
 	}
-	[visibleProxy _tabBeforeBlur];
-	[visibleProxy _tabBlur];
+    // NOTE: We don't need to blur the currently visible proxy, because it gets closed out by the close: call.
 	[visibleProxy autorelease];
 
 	visibleProxy = [newVisibleProxy retain];
