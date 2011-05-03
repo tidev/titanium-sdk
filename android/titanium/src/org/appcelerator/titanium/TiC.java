@@ -256,9 +256,9 @@ public class TiC
 	public static final String PROPERTY_SOFT_KEYBOARD_ON_FOCUS = "softKeyboardOnFocus";
 	public static final String PROPERTY_SOUND = "sound";
 	public static final String PROPERTY_SPEED = "speed";
-	public static final String PROPERTY_SRC = "src";
-	public static final String PROPERTY_SRC_LENGTH = "srcLength";
-	public static final String PROPERTY_SRC_POSITION = "srcPosition";
+	public static final String PROPERTY_SOURCE = EVENT_PROPERTY_SOURCE;
+	public static final String PROPERTY_SOURCE_LENGTH = "sourceLength";
+	public static final String PROPERTY_SOURCE_POSITION = "sourcePosition";
 	public static final String PROPERTY_STATE = "state";
 	public static final String PROPERTY_STATUS = "status";
 	public static final String PROPERTY_STREET = "street";
