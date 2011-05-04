@@ -249,7 +249,7 @@
     }
     
     int size = [TiUtils intValue:chunkSize];
-    BOOL isAsynch = [TiUtils boolValue:asynch def:YES];
+    BOOL isAsynch = [TiUtils boolValue:asynch def:NO];
     if (isAsynch) {
         NSInvocation* invoke = [NSInvocation invocationWithMethodSignature:[stream methodSignatureForSelector:@selector(pumpToCallback:chunkSize:asynch:)]];
         [invoke setTarget:stream];
