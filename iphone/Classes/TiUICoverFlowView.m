@@ -79,7 +79,7 @@
 	else if ([arg isKindOfClass:[TiFile class]])
 	{
 		TiFile *file = (TiFile*)arg;
-		NSURL * fileUrl = [TiUtils toURL:[NSURL fileURLWithPath:[file path]] proxy:self.proxy];
+		NSURL * fileUrl = [TiUtils toURL:[file path] proxy:self.proxy];
 		image = [[ImageLoader sharedLoader] loadImmediateImage:fileUrl];
 	}
 	else if ([arg isKindOfClass:[NSString class]]) {

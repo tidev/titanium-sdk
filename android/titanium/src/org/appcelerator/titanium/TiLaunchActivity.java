@@ -55,7 +55,12 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	 * This happens before the script is loaded.
 	 */
 	protected void contextCreated() { }
-	
+
+	public TiContext getTiContext()
+	{
+		return tiContext;
+	}
+
 	protected void loadActivityScript()
 	{
 		try {

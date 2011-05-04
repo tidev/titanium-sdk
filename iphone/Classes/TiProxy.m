@@ -255,19 +255,17 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(void)contextShutdown:(id)sender
 {
 	id<TiEvaluator> context = (id<TiEvaluator>)sender;
-	// remove any listeners that match this context being destroyed that we have registered
-	//TODO: This listeners needs a lock around it, but not deadlock with the removeEventListener inside.
 
-//This should not be a destroy, because proxies can span multiple contexts.	
-//	[self _destroy];
 	[self contextWasShutdown:context];
 	if(pageContext == context){
 		//One thing we missed from _destroy: Ensuring the page context stays gone.
 		pageContext = nil;
 	}
-	//Make sure we're not locked in.
-	KrollObject * ourKrollObject = [sender krollObjectForProxy:self];
-	[ourKrollObject unprotectJsobject];
+
+	if([KrollBridge countOfKrollBridgesUsingProxy:self]==0)
+	{	//We destroy if and only if there are no KrollBridge implementations about.
+		[self _destroy];
+	}
 }
 
 -(void)setExecutionContext:(id<TiEvaluator>)context
@@ -942,13 +940,16 @@ DEFINE_EXCEPTIONS
 		return nil;
 	}
 
-	NSURL * result = [TiUtils toURL:value proxy:self];
-	if (result == nil)
+	if([value isKindOfClass:[NSString class]])
 	{
-		return value;
+		NSURL * result = [TiUtils toURL:value proxy:self];
+		if (result != nil)
+		{
+			return result;
+		}
 	}
 	
-	return result;
+	return value;
 }
 
 #pragma mark Memory Management
