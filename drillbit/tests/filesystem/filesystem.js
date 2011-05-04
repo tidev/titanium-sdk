@@ -137,6 +137,9 @@ describe("Ti.Filesystem tests", {
 		var infile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt');
 		var instream = infile.open(Ti.Filesystem.MODE_READ);
 		var outfile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fsappendtest.jpg');
+		if(outfile.exists()) {
+			outfile.deleteFile();
+		}
 		var outstream = outfile.open(Ti.Filesystem.MODE_WRITE);
 
 		var bytesStreamed = Ti.Stream.writeStream(instream, outstream, 40);
@@ -167,8 +170,6 @@ describe("Ti.Filesystem tests", {
 		Ti.API.info('Total write size: '+totalWriteSize);
 		valueOf(totalReadSize).shouldBeExactly(bytesStreamed + totalWriteSize);
 		instream.close();
-
-		infile.deleteFile(); //delete the file so that the tests don't fail on the next test run.
 	},
 
 	fileStreamPumpTest:function() {
