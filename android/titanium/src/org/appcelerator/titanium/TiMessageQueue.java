@@ -34,8 +34,8 @@ import android.os.Message;
  * #post(Runnable)}.
  * 
  * In situations where the current thread needs to be blocked while waiting on
- * another thread to process a message, see {@link #sendBlockingMesssage(Message,
- * TiMessageQueue, AsyncResult)}.
+ * another thread to process a message, see {@link
+ * #sendBlockingMessage(Message, TiMessageQueue, AsyncResult)}.
  * 
  * If the thread blocking is simply a busy loop, a simple 1-count CountDownLatch
  * is stored internally that can be used in multiple places by calling {@link
@@ -101,7 +101,7 @@ public class TiMessageQueue implements Handler.Callback
 	 * thread, it is dispatched immediately to the Handler</li>
 	 * <li>If this TiMessageQueue is currently blocking, it is pushed into the
 	 * internal message queue to be processed by the next call to {@link
-	 * dispatchMessage()}</li>
+	 * #dispatchMessage()}</li>
 	 * <li>If this TiMessageQuee is <b>NOT</b> current blocking, it is queued to
 	 * it's Handler normally by using msg.sendToTarget()</li>
 	 * </ul>
@@ -227,7 +227,7 @@ public class TiMessageQueue implements Handler.Callback
 
 	/**
 	 * Convenience function for posting a Runnable block of code on this message
-	 * queue's thread using {@link sendMessage(Message)}
+	 * queue's thread using {@link #sendMessage(Message)}
 	 * 
 	 * @param runnable A runnable block of code
 	 */
@@ -248,7 +248,7 @@ public class TiMessageQueue implements Handler.Callback
 	 * Start blocking the current thread with a busy loop that blocks on an
 	 * internal CountDownLatch.
 	 * 
-	 * Another thread or entry point will need to call {@link stopBlocking()}
+	 * Another thread or entry point will need to call {@link #stopBlocking()}
 	 * for this method to return. While looping, the queue will also dispatch
 	 * messages.
 	 */

@@ -40,7 +40,7 @@ var socket = Titanium.Network.Socket.createTCP({
 		var sock = e.inbound;
 		connectedSockets.push(sock);
 		messageLabel.text = 'ACCEPTED: '+sock.host+':'+sock.port;
-		Ti.Stream.pump(sock, pumpCallback, 1024);
+		Ti.Stream.pump(sock, pumpCallback, 1024, true);
 		socket.accept(acceptedCallbacks);
 	},
 	closed: function(e) {

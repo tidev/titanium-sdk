@@ -46,6 +46,7 @@ var editable = Titanium.UI.createButton({
 editable.addEventListener('click', function()
 {
 	dashboard.editable = !dashboard.editable;
+	Ti.API.info("View is now "+ ((dashboard.editable) ? "Editable" : "Uneditable"));
 });
 win.rightNavButton = editable;
 

@@ -83,7 +83,7 @@ connectButton.addEventListener('click', function() {
 				port:portField.value,
 				connected:function(e) {
 					e.socket.write(Ti.createBuffer({data:"Well, hello there!"}));
-					Ti.Stream.pump(e.socket,pumpCallback,1024);
+					Ti.Stream.pump(e.socket,pumpCallback,1024, true);
 				},
 				error:function(e) {
 					statusArea.value = "ERROR ("+e.errorCode+"): "+e.error;

@@ -79,6 +79,11 @@ public abstract class TiBaseActivity extends Activity
 		return (TiApplication) getApplication();
 	}
 
+	public TiWindowProxy getWindowProxy()
+	{
+		return this.window;
+	}
+
 	public void setWindowProxy(TiWindowProxy proxy)
 	{
 		this.window = proxy;

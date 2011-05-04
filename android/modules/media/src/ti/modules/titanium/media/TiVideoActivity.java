@@ -87,7 +87,6 @@ public class TiVideoActivity extends Activity
 		        int height = getDefaultSize(videoHeight, heightMeasureSpec);
 		        if (videoWidth > 0 && videoHeight > 0) {
 		        	int mode = intent.getIntExtra(TiC.PROPERTY_SCALING_MODE, MediaModule.VIDEO_SCALING_ASPECT_FIT);
-		        	mode = MediaModule.VIDEO_SCALING_MODE_FILL;
 		        	
 		        	switch(mode) {
 			        	case MediaModule.VIDEO_SCALING_NONE : {

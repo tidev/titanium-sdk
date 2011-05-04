@@ -118,5 +118,12 @@ public class BlobStreamProxy extends KrollProxy implements TiStream
 	{
 		return true;
 	}
+
+	@Kroll.method
+	public void close() throws IOException
+	{
+		tiBlob = null;
+		inputStream.close();
+	}
 }
 

@@ -154,14 +154,11 @@ FILENOOP(setHidden:(id)x);
 }
 
 -(TiFilesystemFileStreamProxy *) open:(id) args {
-	id modes = [NSNull null];
-	if([args count] > 0) {
-		id firstArg = [args objectAtIndex:0];
-		modes = ([firstArg isKindOfClass:[NSArray class]]) ? firstArg : [NSArray arrayWithObject:firstArg];
-	}
-
-	NSLog(@"open: args %@", args);
-	NSArray *payload = [NSArray arrayWithObjects:[self path], modes, nil];
+	NSNumber *mode;
+	ENSURE_ARG_AT_INDEX(mode, args, 0, NSNumber);
+	ENSURE_VALUE_RANGE([mode intValue], TI_READ, TI_APPEND);
+	
+	NSArray *payload = [NSArray arrayWithObjects:[self path], mode, nil];
 	
 	return [[[TiFilesystemFileStreamProxy alloc] _initWithPageContext:[self executionContext] args:payload] autorelease];
 }
@@ -292,7 +289,7 @@ FILENOOP(setHidden:(id)x);
 	if ([arg isKindOfClass:[TiBlob class]] ||
 		[arg isKindOfClass:[NSString class]]) {
 				
-		NSFileHandle *file = [[NSFileHandle fileHandleForUpdatingAtPath:path] retain];
+		NSFileHandle *file = [NSFileHandle fileHandleForUpdatingAtPath:path];
 		
 		if (file) {
 			TiBlob *blob = (TiBlob*) arg;
@@ -303,7 +300,6 @@ FILENOOP(setHidden:(id)x);
 			[file seekToEndOfFile];
 			[file writeData:[blob data]];
 			[file closeFile];
-			[file release];
 			return NUMBOOL(YES);
 		} else {
 			NSLog(@"[ERROR] Can't open file for appending");
@@ -320,11 +316,10 @@ FILENOOP(setHidden:(id)x);
 	if([args count] > 1) {
 		ENSURE_TYPE([args objectAtIndex:1], NSNumber);
 
-		//We have a second argument, is it truthy?
+		//We have a second argument, is it TI_APPEND?
 		//If yes, we'll hand the args to -append:
 		NSNumber *mode = [args objectAtIndex:1];
-		if([mode boolValue] == YES) {
-			//we have a truthy value that isn't MODE_READ or MODE_WRITE
+		if([mode intValue] == TI_APPEND) {
 			return [self append:[args subarrayWithRange:NSMakeRange(0, 1)]];
 		}
 	}

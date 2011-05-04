@@ -139,14 +139,14 @@ AndroidEmulator.prototype.run = function(readLineCb) {
 
 	if (!emulatorRunning) {
 		this.drillbit.frontendDo('status', 'pre-building initial APK', true);
-		var prebuildLaunchProcess = this.createTestHarnessBuilderProcess('simulator', [this.avdId, 'HVGA']);
+		var waitProcess = this.drillbit.createPythonProcess([this.waitForDevice, this.androidSdk, 'emulator']);
 		var self = this;
-		prebuildLaunchProcess.setOnExit(function(e) {
+		waitProcess.setOnExit(function(e) {
 			ti.api.info("==> Finished waiting for android emualtor to boot");
-			
+
 			// wipe appdata://test.js if it already exists
 			self.removeTestJS();
-			
+
 			self.drillbit.frontendDo('status', 'unlocking android screen...', true);
 			var unlockScreenAPK = ti.path.join(self.drillbit.resourcesDir, 'android', 'UnlockScreen', 'dist', 'UnlockScreen.apk');
 			self.runADB(['install', '-r', unlockScreenAPK]);
@@ -155,8 +155,12 @@ AndroidEmulator.prototype.run = function(readLineCb) {
 			self.drillbit.frontendDo('status', 'screen unlocked, ready to run tests');
 			self.drillbit.frontendDo('setup_finished');
 		});
-		prebuildLaunchProcess.launch();
+		waitProcess.launch();
 	} else {
+		if (this.testHarnessRunning) {
+			// Kill the test harness on bootup if it's still running
+			this.killTestHarness()
+		}
 		this.drillbit.frontendDo('status', 'ready to run tests');
 		this.drillbit.frontendDo('setup_finished');
 	}
@@ -285,6 +289,20 @@ AndroidEmulator.prototype.launchTestHarness = function() {
 		'-n', this.drillbit.testHarnessId + '/.Test_harnessActivity']);
 };
 
+AndroidEmulator.prototype.killTestHarness = function() {
+	if (this.device.indexOf('emulator') == 0) {
+		var pid = this.getTestHarnessPID();
+		if (pid != null && pid.length > 0) {
+			this.runADB(['shell', 'kill', pid]);
+		}
+	} else {
+		var jdwpKill = ti.path.join(this.drillbit.mobileSdk, 'android', 'jdwp_kill.py');
+		var jdwpKillProcess = this.drillbit.createPythonProcess([jdwpKill, this.androidSdk, this.device, this.drillbit.testHarnessId]);
+		jdwpKillProcess();
+	}
+	this.testHarnessRunning = false;
+};
+
 AndroidEmulator.prototype.runTestHarness = function(suite, stagedFiles) {
 	var forceBuild = 'forceBuild' in suite.options && suite.options.forceBuild;
 	if (!this.testHarnessRunning || this.needsBuild || this.testHarnessNeedsBuild(stagedFiles) || forceBuild) {
@@ -317,16 +335,7 @@ AndroidEmulator.prototype.runTestHarness = function(suite, stagedFiles) {
 	} else {
 		// restart the app
 		this.drillbit.frontendDo('running_test_harness', suite.name, 'android');
-		if (this.device.indexOf('emulator') == 0) {
-			var pid = this.getTestHarnessPID();
-			if (pid != null && pid.length > 0) {
-				this.runADB(['shell', 'kill', pid]);
-			}
-		} else {
-			var jdwpKill = ti.path.join(this.drillbit.mobileSdk, 'android', 'jdwp_kill.py');
-			var jdwpKillProcess = this.drillbit.createPythonProcess([jdwpKill, this.androidSdk, this.device, this.drillbit.testHarnessId]);
-			jdwpKillProcess();
-		}
+		this.killTestHarness();
 		
 		// wait a few seconds after kill, every now and then the proc will still
 		// be hanging up when we try to start it after kill returns

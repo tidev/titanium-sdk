@@ -348,11 +348,6 @@ NSString * const TI_DB_VERSION = @"1";
 	NSError *error = nil;
 	PLSqlitePreparedStatement * statement = (PLSqlitePreparedStatement *) [database prepareStatement:sql error:&error];
 	[statement bindParameters:[NSArray arrayWithObjects:value,nil]];
-	
-    // MAJOR TODO: This has been a source of bugs since the dawn of iOS 4.0, which we have chipped away at...
-    // This can be triggered as part of a background task... so, if we're going to be backgrounding, need to set this up
-    // to unlock the lock when the BG task ends.  Otherwise, on resume, we hit the lock again (from another analytics event)
-    // and DEADLOCK.
     
     // Don't lock until we need to
     [lock lock];
@@ -366,9 +361,10 @@ NSString * const TI_DB_VERSION = @"1";
 	[database beginTransaction];
 	[statement executeUpdate];
 	[database commitTransaction];
+	[lock unlock];
 	
 	[statement close];
-	[lock unlock];
+
 	
 	if (immediate)
 	{	

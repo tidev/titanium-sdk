@@ -32,6 +32,12 @@
 
 -(int)readToBuffer:(TiBuffer *)toBuffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback
 {
+    if (data == nil) {
+        [self throwException:@"TiStreamException"
+                   subreason:@"Attempt to read off of closed/nil data stream"
+                    location:CODELOCATION];
+    }
+    
     // TODO: Codify in read() and write() when we have every method calling the wrappers... like it should.
     if ([[toBuffer data] length] == 0  && length != 0) {
         if (callback != nil) {
@@ -74,6 +80,12 @@
 // TODO: Need to extend the data if we're writing past its current bounds
 -(int)writeFromBuffer:(TiBuffer *)fromBuffer offset:(int)offset length:(int)length callback:(KrollCallback *)callback
 {
+    if (data == nil) {
+        [self throwException:@"TiStreamException"
+                   subreason:@"Attempt to write from closed/nil data stream"
+                    location:CODELOCATION];
+    }
+    
     // Sanity check for mutable data (just in case...)
     if (![data isKindOfClass:[NSMutableData class]]) {
         NSString* errorStr = [NSString stringWithFormat:@"[ERROR] Attempt to write to unwritable stream"];
@@ -125,6 +137,12 @@
 
 -(int)writeToStream:(id<TiStreamInternal>)output chunkSize:(int)size callback:(KrollCallback *)callback
 {
+    if (data == nil) {
+        [self throwException:@"TiStreamException"
+                   subreason:@"Attempt to write from closed/nil data stream"
+                    location:CODELOCATION];
+    }
+    
     int length = [data length];
     int totalBytes = 0;
     while (position < length) {
@@ -171,6 +189,12 @@
 // We don't need the asynch hint
 -(void)pumpToCallback:(KrollCallback *)callback chunkSize:(int)size asynch:(BOOL)asynch
 {
+    if (data == nil) {
+        [self throwException:@"TiStreamException"
+                   subreason:@"Attempt to write from closed/nil data stream"
+                    location:CODELOCATION];
+    }
+    
     int totalBytes = 0;
     int bytesWritten = 0;
     int length = [data length];
@@ -200,6 +224,12 @@
 -(NSNumber*)isWritable:(id)_void
 {
     return NUMBOOL(mode & (TI_WRITE | TI_APPEND));
+}
+
+-(void)close:(id)_void
+{
+    RELEASE_TO_NIL(data);
+    position = 0;
 }
 
 @end

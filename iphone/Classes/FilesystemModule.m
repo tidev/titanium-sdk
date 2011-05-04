@@ -32,13 +32,19 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 	NSNumber *fileMode;
 	
 	ENSURE_ARG_AT_INDEX(fileMode, args, 0, NSNumber);
+	ENSURE_VALUE_RANGE([fileMode intValue], TI_READ, TI_APPEND);
 
-	id target = [args objectAtIndex:1];
-	if([target isKindOfClass:[TiFile class]]) {
-		path = [target path];
-	} else {
-		path = [TiUtils stringValue:target];
+	if([args count] < 2) {
+		[self throwException:TiExceptionNotEnoughArguments
+				   subreason:nil
+					location:CODELOCATION];
 	}
+	
+	//allow variadic file components to be passed
+	NSArray *pathComponents = [args subarrayWithRange:NSMakeRange(1, [args count] - 1 )];
+	NSString *target = [pathComponents componentsJoinedByString:@"/"];
+
+	path = [TiUtils stringValue:target];
 	
 	NSArray *payload = [NSArray arrayWithObjects:path, fileMode, nil];
 

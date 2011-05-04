@@ -1841,7 +1841,7 @@ static BOOL isiPhoneOS2;
 				if (range.location!=NSNotFound)
 				{
                     // Perform the EXACT SAME magic for redirects that we do for all other URLs
-					NSString *path = [(NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)[urlString substringFromIndex:range.location], CFSTR(":[]@!$ '()*+,;\"<>%{}|\\^~`"), NULL, CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding)) autorelease];
+					NSString *path = [(NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)[urlString substringFromIndex:range.location], CFSTR(":[]@!$'()*+,;\"<>%{}|\\^~`"), NULL, CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding)) autorelease];
 					urlString = [NSString stringWithFormat:@"%@%@",[urlString substringToIndex:range.location],path];
 				}
 			}

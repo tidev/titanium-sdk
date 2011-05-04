@@ -327,7 +327,7 @@ public class TiDrawableReference
 	/**
 	 * Gets the bitmap, scaled to a specific width, with the height matching the
 	 * original aspect ratio.
-	 * @parm destWidth Width in pixels of resulting bitmap
+	 * @param destWidth Width in pixels of resulting bitmap
 	 * @return Bitmap, or null if any problem getting it.  Check logcat if null.
 	 */
 	public Bitmap getBitmap(int destWidth)

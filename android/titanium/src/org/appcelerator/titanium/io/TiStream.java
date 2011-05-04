@@ -18,5 +18,6 @@ public interface TiStream
 	int write(Object args[]) throws IOException;
 	boolean isWritable();
 	boolean isReadable();
+	void close() throws IOException;
 }
 

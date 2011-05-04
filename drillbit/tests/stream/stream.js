@@ -86,6 +86,8 @@ describe("Ti.Stream tests", {
 		for (var i=0; i < appendBytes; i++) {
 			valueOf(sourceBuffer[(sourceBuffer.length - appendBuffer.length)+i]).shouldBeExactly(appendBuffer[i]);
 		}
+
+		valueOf(function() {astream.close()}).shouldNotThrowException();
 	},
 	
 	basicBlobStream: function() {
@@ -119,6 +121,8 @@ describe("Ti.Stream tests", {
 		for (var i=0; i < 20; i++) {
 			valueOf(str.charCodeAt(20 + i)).shouldBeExactly(destBuffer[ 20 + i]);
 		}
+
+		valueOf(function() {stream.close()}).shouldNotThrowException();
 	},
 	
 	asyncRead: asyncTest({
@@ -365,7 +369,7 @@ describe("Ti.Stream tests", {
 			valueOf(bufferStream).shouldNotBeNull();
 
 			// Synch pump
-			Ti.Stream.pump(bufferStream, handler, chunksize, false);
+			Ti.Stream.pump(bufferStream, handler, chunksize);
 
 			sourceValue = function(pos, totalsize) {
 				return sourceBlobStr.charCodeAt(pos+totalsize);
@@ -375,7 +379,7 @@ describe("Ti.Stream tests", {
 
 			// Asynch pump
 			totalsize = 0;
-			Ti.Stream.pump(blobStream, this.async(handler), chunksize);
+			Ti.Stream.pump(blobStream, this.async(handler), chunksize, true);
 		},
 		timeout: 10000,
 		timeoutError: "Timed out waiting for pump"
