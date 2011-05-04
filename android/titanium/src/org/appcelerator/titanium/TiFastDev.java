@@ -78,10 +78,11 @@ public class TiFastDev
 	{
 		port = deployData.getFastDevPort();
 		listen = deployData.getFastDevListen();
-		Log.d(TAG, "Enabling Fastdev mode, port: " + port + ", listen: " + listen);
 		if (listen) {
+			Log.d(TAG, "Enabling Fastdev in listening mode...");
 			acceptConnection();
 		} else if (port != -1) {
+			Log.d(TAG, "Enabling Fastdev on port " + port);
 			connect();
 		} else {
 			enabled = false;

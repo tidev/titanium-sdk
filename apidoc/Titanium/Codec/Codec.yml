@@ -92,7 +92,7 @@ methods:
   - name: getNativeByteOrder
     description: Get the OS native byte order (either <Titanium.Codec.BIG_ENDIAN> or <Titanium.Codec.LITTLE_ENDIAN>)
     returns:
-      - type: Number
+        type: Number
         description: The OS native byte order
   - name: encodeNumber
     description: Encodes the Number `source` into `dest` using the passed in data `type`.
@@ -101,7 +101,7 @@ methods:
         description: encodeNumber named options
         type: EncodeNumberSpec
     returns:
-      - type: Number
+        type: Number
         description: The position after the encoded number in `dest`.
     examples: |
         Encode a double-precision floating point value in 8 bytes using the OS byte order
@@ -132,7 +132,7 @@ methods:
         description: decodeNumber named options
         type: DecodeNumberSpec
     returns:
-      - type: Number
+        type: Number
         description: The Number decoded from `source`.
     examples: |
         Decode an 8 byte double-precision floating point number using the OS byte order
@@ -163,7 +163,7 @@ methods:
         description: encodeString named options
         type: EncodeStringSpec
     returns:
-      - type: Number
+        type: Number
         description: The position after the encoded String inside `dest`.
     examples: |
         Encode and trim a simple String using the UTF-8 (default) charset
@@ -196,7 +196,7 @@ methods:
         description: decodeString named options
         type: DecodeStringSpec
     returns:
-      - type: String
+        type: String
         description: The decoded string
     examples: |
         Decode a String using the UTF-8 (default) charset
