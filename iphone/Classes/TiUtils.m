@@ -234,7 +234,11 @@ NSDictionary* sizeMap = nil;
 	{
 		return (NSString*)value;
 	}
-	if ([value isKindOfClass:[NSNull class]])
+	if ([value isKindOfClass:[NSURL class]])
+	{
+		return [(NSURL *)value absoluteString];
+	}
+	else if ([value isKindOfClass:[NSNull class]])
 	{
 		return nil;
 	}
@@ -501,102 +505,190 @@ NSDictionary* sizeMap = nil;
 
 +(NSURL*)checkFor2XImage:(NSURL*)url
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-	if ([url isFileURL] && [TiUtils isRetinaDisplay])
+	NSString * path = nil;
+	
+	if([url isFileURL])
 	{
-		NSString *path = [url path];
-		if ([path hasSuffix:@".png"] || [path hasSuffix:@".jpg"])
+		path = [url path];
+	}
+	
+	if([[url scheme] isEqualToString:@"app"])
+	{ //Technically, this will have an extra /, but iOS ignores this.
+		path = [url resourceSpecifier];
+	}
+
+	NSString *ext = [path pathExtension];
+
+	if(![ext isEqualToString:@"png"] && ![ext isEqualToString:@"jpg"])
+	{ //It's not an image.
+		return url;
+	}
+
+	//NOTE; I'm not sure the order here.. the docs don't necessarily 
+	//specify the exact order 
+	NSFileManager *fm = [NSFileManager defaultManager];
+	NSString *partial = [path stringByDeletingPathExtension];
+
+	NSString *os = [TiUtils isIPad] ? @"~ipad" : @"~iphone";
+
+	if([TiUtils isRetinaDisplay]){
+		// first try 2x device specific
+		NSString *testpath = [NSString stringWithFormat:@"%@@2x%@.%@",partial,os,ext];
+		if ([fm fileExistsAtPath:testpath])
 		{
-			//NOTE; I'm not sure the order here.. the docs don't necessarily 
-			//specify the exact order 
-			NSFileManager *fm = [NSFileManager defaultManager];
-			NSString *partial = [path substringToIndex:[path length]-4];
-			NSString *ext = [path substringFromIndex:[path length]-4];
-			NSString *os = [TiUtils isIPad] ? @"~ipad" : @"~iphone";
-			// first try 2x device specific
-			NSString *testpath = [NSString stringWithFormat:@"%@@2x%@%@",partial,os,ext];
-			if ([fm fileExistsAtPath:testpath])
-			{
-				return [NSURL fileURLWithPath:testpath];
-			}
-			// second try plain 2x
-			testpath = [NSString stringWithFormat:@"%@@2x%@",partial,ext];
-			if ([fm fileExistsAtPath:testpath])
-			{
-				return [NSURL fileURLWithPath:testpath];
-			}
-			// third try just device specific normal res
-			testpath = [NSString stringWithFormat:@"%@%@%@",partial,os,ext];
-			if ([fm fileExistsAtPath:testpath])
-			{
-				return [NSURL fileURLWithPath:testpath];
-			}
+			return [NSURL fileURLWithPath:testpath];
+		}
+		// second try plain 2x
+		testpath = [NSString stringWithFormat:@"%@@2x.%@",partial,ext];
+		if ([fm fileExistsAtPath:testpath])
+		{
+			return [NSURL fileURLWithPath:testpath];
 		}
 	}
-#endif
+	// third try just device specific normal res
+	NSString *testpath = [NSString stringWithFormat:@"%@%@.%@",partial,os,ext];
+	if ([fm fileExistsAtPath:testpath])
+	{
+		return [NSURL fileURLWithPath:testpath];
+	}
+
 	return url;
 }
 
 const CFStringRef charactersThatNeedEscaping = NULL;
-const CFStringRef charactersToNotEscape = CFSTR(":[]@!$ '()*+,;\"<>%{}|\\^~`#");
+const CFStringRef charactersToNotEscape = CFSTR(":[]@!$' ()*+,;\"<>%{}|\\^~`#");
 
-+(NSURL*)toURL:(id)object proxy:(TiProxy*)proxy
++(NSURL*)toURL:(NSString *)relativeString relativeToURL:(NSURL *)rootPath
 {
-	NSURL *url = nil;
+/*
+Okay, behavior: Bad values are either converted or ejected.
+sms:, tel:, mailto: are all done
+
+If the new path is HTTP:// etc, then punt and massage the code.
+
+If the new path starts with / and the base url is app://..., we have to massage the url.
+
+
+*/
+	if((relativeString == nil) || (relativeString == [NSNull null]))
+	{
+		return nil;
+	}
+
+	if(![relativeString isKindOfClass:[NSString class]])
+	{
+		NSLog(@"[WARN] <%@> was an %@, not an NSString. Converting.",relativeString,[relativeString class]);
+		relativeString = [TiUtils stringValue:relativeString];
+	}
+
+	if ([relativeString hasPrefix:@"sms:"] || 
+		[relativeString hasPrefix:@"tel:"] ||
+		[relativeString hasPrefix:@"mailto:"])
+	{
+		return [NSURL URLWithString:relativeString];
+	}
+
+	NSURL *result = nil;
+		
+	// don't bother if we don't at least have a path and it's not remote
+	//TODO: What is this mess? -BTH
+	if ([relativeString hasPrefix:@"http://"] || [relativeString hasPrefix:@"https://"])
+	{
+		NSRange range = [relativeString rangeOfString:@"/" options:0 range:NSMakeRange(7, [relativeString length]-7)];
+		if (range.location!=NSNotFound)
+		{
+			NSString *firstPortion = [relativeString substringToIndex:range.location];
+			NSString *pathPortion = [relativeString substringFromIndex:range.location];
+			CFStringRef escapedPath = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
+					(CFStringRef)pathPortion, charactersToNotEscape,charactersThatNeedEscaping,
+					kCFStringEncodingUTF8);
+			relativeString = [firstPortion stringByAppendingString:(NSString *)escapedPath];
+			if(escapedPath != NULL)
+			{
+				CFRelease(escapedPath);
+			}
+		}
+	}
+
+	if ([relativeString hasPrefix:@"/"] && [[rootPath scheme] isEqualToString:@"app"])
+	{
+		relativeString = [@"app:/" stringByAppendingString:relativeString];
+	}
+
+	result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
 	
-	if ([object isKindOfClass:[NSString class]])
+	if (result==nil)
 	{
-		if ([object hasPrefix:@"/"])
+		//encoding problem - fail fast and make sure we re-escape
+		NSRange range = [relativeString rangeOfString:@"?"];
+		if (range.location != NSNotFound)
 		{
-			return [TiUtils checkFor2XImage:[NSURL fileURLWithPath:object]];
-		}
-		if ([object hasPrefix:@"sms:"] || 
-			[object hasPrefix:@"tel:"] ||
-			[object hasPrefix:@"mailto:"])
-		{
-			return [NSURL URLWithString:object];
-		}
-		
-		// don't bother if we don't at least have a path and it's not remote
-		///TODO: This looks ugly and klugy.
-		NSString *urlString = [TiUtils stringValue:object];
-		if ([urlString hasPrefix:@"http"])
-		{
-			NSRange range = [urlString rangeOfString:@"/" options:0 range:NSMakeRange(7, [urlString length]-7)];
-			if (range.location!=NSNotFound)
-			{
-				NSString *firstPortion = [urlString substringToIndex:range.location];
-				NSString *pathPortion = [urlString substringFromIndex:range.location];
-				CFStringRef escapedPath = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-						(CFStringRef)pathPortion, charactersToNotEscape,charactersThatNeedEscaping,
-						kCFStringEncodingUTF8);
-				urlString = [firstPortion stringByAppendingString:(NSString *)escapedPath];
-				if(escapedPath != NULL)
-				{
-					CFRelease(escapedPath);
-				}
-			}
-		}
-		
-		url = [NSURL URLWithString:urlString relativeToURL:[proxy _baseURL]];
-		
-		if (url==nil)
-		{
-			//encoding problem - fail fast and make sure we re-escape
-			NSRange range = [object rangeOfString:@"?"];
-			if (range.location != NSNotFound)
-			{
-				NSString *qs = [TiUtils encodeURIParameters:[object substringFromIndex:range.location+1]];
-				NSString *newurl = [NSString stringWithFormat:@"%@?%@",[object substringToIndex:range.location],qs];
-				return [TiUtils checkFor2XImage:[NSURL URLWithString:newurl]];
-			}
+			NSString *qs = [TiUtils encodeURIParameters:[relativeString substringFromIndex:range.location+1]];
+			NSString *newurl = [NSString stringWithFormat:@"%@?%@",[relativeString substringToIndex:range.location],qs];
+			return [TiUtils checkFor2XImage:[NSURL URLWithString:newurl]];
 		}
 	}
-	else if ([object isKindOfClass:[NSURL class]])
-	{
-		return [TiUtils checkFor2XImage:[NSURL URLWithString:[object absoluteString] relativeToURL:[proxy _baseURL]]];
-	}
-	return [TiUtils checkFor2XImage:url];			  
+	return [TiUtils checkFor2XImage:result];			  
+}
+
++(NSURL*)toURL:(NSString *)object proxy:(TiProxy*)proxy
+{
+	return [self toURL:object relativeToURL:[proxy _baseURL]];
+//	NSURL *url = nil;
+//	
+//	if ([object isKindOfClass:[NSString class]])
+//	{
+//		if ([object hasPrefix:@"/"])
+//		{
+//			return [TiUtils checkFor2XImage:[NSURL fileURLWithPath:object]];
+//		}
+//		if ([object hasPrefix:@"sms:"] || 
+//			[object hasPrefix:@"tel:"] ||
+//			[object hasPrefix:@"mailto:"])
+//		{
+//			return [NSURL URLWithString:object];
+//		}
+//		
+//		// don't bother if we don't at least have a path and it's not remote
+//		///TODO: This looks ugly and klugy.
+//		NSString *urlString = [TiUtils stringValue:object];
+//		if ([urlString hasPrefix:@"http"])
+//		{
+//			NSRange range = [urlString rangeOfString:@"/" options:0 range:NSMakeRange(7, [urlString length]-7)];
+//			if (range.location!=NSNotFound)
+//			{
+//				NSString *firstPortion = [urlString substringToIndex:range.location];
+//				NSString *pathPortion = [urlString substringFromIndex:range.location];
+//				CFStringRef escapedPath = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
+//						(CFStringRef)pathPortion, charactersToNotEscape,charactersThatNeedEscaping,
+//						kCFStringEncodingUTF8);
+//				urlString = [firstPortion stringByAppendingString:(NSString *)escapedPath];
+//				if(escapedPath != NULL)
+//				{
+//					CFRelease(escapedPath);
+//				}
+//			}
+//		}
+//		
+//		url = [NSURL URLWithString:urlString relativeToURL:[proxy _baseURL]];
+//		
+//		if (url==nil)
+//		{
+//			//encoding problem - fail fast and make sure we re-escape
+//			NSRange range = [object rangeOfString:@"?"];
+//			if (range.location != NSNotFound)
+//			{
+//				NSString *qs = [TiUtils encodeURIParameters:[object substringFromIndex:range.location+1]];
+//				NSString *newurl = [NSString stringWithFormat:@"%@?%@",[object substringToIndex:range.location],qs];
+//				return [TiUtils checkFor2XImage:[NSURL URLWithString:newurl]];
+//			}
+//		}
+//	}
+//	else if ([object isKindOfClass:[NSURL class]])
+//	{
+//		return [TiUtils checkFor2XImage:[NSURL URLWithString:[(NSURL *)object absoluteString] relativeToURL:[proxy _baseURL]]];
+//	}
+//	return [TiUtils checkFor2XImage:url];			  
 }
 
 +(UIImage *)stretchableImage:(id)object proxy:(TiProxy*)proxy
