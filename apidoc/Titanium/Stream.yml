@@ -88,7 +88,7 @@ methods:
         type: Titanium.Buffer
       - name: resultsCallback
         description: called with result of the write operation
-        type: Calback<WriteCallbackArgs>
+        type: Callback<WriteCallbackArgs>
 
   - name: write
     description: Async version of write on `Titanium.IOStream` that takes offset and length
@@ -107,7 +107,7 @@ methods:
         type: Number
       - name: resultsCallback
         description: called with result of the write operation
-        type: Calback<WriteCallbackArgs>
+        type: Callback<WriteCallbackArgs>
 
   - name: writeStream
     description: Writes all data from input stream to output stream
