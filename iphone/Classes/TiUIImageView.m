@@ -419,7 +419,7 @@ DEFINE_EXCEPTIONS
 	{
 		[self removeAllImagesFromContainer];
 		
-		NSURL *url_ = [TiUtils toURL:img proxy:self.proxy];
+		NSURL *url_ = [TiUtils toURL:[img absoluteString] proxy:self.proxy];
 		
 		// NOTE: Loading from URL means we can't pre-determine any % value.
 		CGSize imageSize = CGSizeMake(TiDimensionCalculateValue(width, 0.0), 
@@ -675,16 +675,18 @@ DEFINE_EXCEPTIONS
 	
 	if (image == nil) 
 	{
-		if ([arg isKindOfClass:[NSString class]] || [arg isKindOfClass:[NSURL class]])
+		if ([arg isKindOfClass:[NSString class]])
+		{
+			[self loadUrl:[NSURL URLWithString:arg]];
+			return;
+		}
+		if ([arg isKindOfClass:[NSURL class]])
 		{
 			[self loadUrl:arg];
 			return;
 		}
-		else
-		{
-			[self throwException:@"invalid image type" subreason:[NSString stringWithFormat:@"expected either TiBlob or TiFile, was: %@",[arg class]] location:CODELOCATION];
-			return;
-		}
+		[self throwException:@"invalid image type" subreason:[NSString stringWithFormat:@"expected either TiBlob or TiFile, was: %@",[arg class]] location:CODELOCATION];
+		return;
 	}
 	
 	[imageview setImage:image];

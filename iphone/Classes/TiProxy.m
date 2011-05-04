@@ -942,13 +942,16 @@ DEFINE_EXCEPTIONS
 		return nil;
 	}
 
-	NSURL * result = [TiUtils toURL:value proxy:self];
-	if (result == nil)
+	if([value isKindOfClass:[NSString class]])
 	{
-		return value;
+		NSURL * result = [TiUtils toURL:value proxy:self];
+		if (result != nil)
+		{
+			return result;
+		}
 	}
 	
-	return result;
+	return value;
 }
 
 #pragma mark Memory Management

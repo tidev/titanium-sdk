@@ -43,7 +43,9 @@ typedef enum {
 +(UIImage*)toImage:(id)object proxy:(TiProxy*)proxy size:(CGSize)imageSize;
 +(UIImage*)toImage:(id)object proxy:(TiProxy*)proxy;
 
-+(NSURL*)toURL:(id)object proxy:(TiProxy*)proxy;
++(NSURL*)toURL:(NSString *)relativeString relativeToURL:(NSURL *)rootPath;
++(NSURL*)toURL:(NSString *)object proxy:(TiProxy*)proxy;
+//+(NSURL*)toURL:(id)object proxy:(TiProxy*)proxy;
 
 +(UIImage *)image:(id)object proxy:(TiProxy*)proxy;
 

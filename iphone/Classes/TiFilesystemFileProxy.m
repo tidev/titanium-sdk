@@ -36,7 +36,7 @@
 
 -(id)nativePath
 {
-	return path;
+	return [[NSURL fileURLWithPath:path] absoluteString];
 }
 
 -(id)exists:(id)args

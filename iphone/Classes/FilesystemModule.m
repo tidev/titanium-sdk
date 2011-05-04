@@ -67,6 +67,8 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 	return NUMBOOL(NO);
 }
 
+#define fileURLify(foo)	[[NSURL fileURLWithPath:foo isDirectory:YES] absoluteString]
+
 -(NSString*)resourcesDirectory
 {
 #if TARGET_IPHONE_SIMULATOR 
@@ -75,31 +77,33 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 		// if the .local file exists and we're in the simulator, then force load from resources bundle
 		if (![[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithFormat:@"%@/.local",[[NSBundle mainBundle] resourcePath]]])
 		{
-			return TI_APPLICATION_RESOURCE_DIR;
+			return fileURLify(TI_APPLICATION_RESOURCE_DIR);
 		}
 	}
 #endif
-	return [[NSBundle mainBundle] resourcePath];
+
+
+	return fileURLify([[NSBundle mainBundle] resourcePath]);
 }
 
 -(NSString*)applicationDirectory
 {
-	return [NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+	return fileURLify([NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSUserDomainMask, YES) objectAtIndex:0]);
 }
 
 -(NSString*)applicationSupportDirectory
 {
-	return [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+	return fileURLify([NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0]);
 }
 
 -(NSString*)applicationDataDirectory
 {
-	return [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+	return fileURLify([NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]);
 }
 
 -(NSString*)tempDirectory
 {
-	return NSTemporaryDirectory();
+	return fileURLify(NSTemporaryDirectory());
 }
 
 -(NSString*)separator
@@ -124,22 +128,28 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 
 -(id)getFile:(id)args
 {
-	NSMutableString *newpath = [[[NSMutableString alloc] init] autorelease];
+	NSString * newpath;
 	id first = [args objectAtIndex:0];
-	if ([first characterAtIndex:0]!='/')
+	if ([first hasPrefix:@"file://localhost/"])
 	{
-		[newpath appendFormat:@"%@/%@",[self resourcesDirectory],[self resolveFile:first]];
+		NSURL * fileUrl = [NSURL URLWithString:first];
+		//Why not just crop? Because the url may have some things escaped that need to be unescaped.
+		newpath =[fileUrl path];
+	}
+	else if ([first characterAtIndex:0]!='/')
+	{
+		newpath = [[self resourcesDirectory] stringByAppendingPathComponent:[self resolveFile:first]];
 	}
 	else 
 	{
-		[newpath appendString:[self resolveFile:first]];
+		newpath = [self resolveFile:first];
 	}
 	
 	if ([args count] > 1)
 	{
 		for (int c=1;c<[args count];c++)
 		{
-			[newpath appendFormat:@"/%@",[self resolveFile:[args objectAtIndex:c]]];
+			newpath = [newpath stringByAppendingPathComponent:[self resolveFile:[args objectAtIndex:c]]];
 		}
 	}
 	
