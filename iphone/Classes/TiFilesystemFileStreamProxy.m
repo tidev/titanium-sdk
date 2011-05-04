@@ -306,16 +306,12 @@ if(fileHandle == nil) {\
 	return NUMINT([self writeToStream:stream chunkSize:[chunkSize intValue] callback:callback]);
 }
 
-// TODO: When closing the fileHandle, RELEASE_TO_NIL and then check for this in all operations on the stream to ensure that nothing is being done with a closed stream.
--(id) close:(id) args {
-	BOOL closed = YES;
+-(void) close:(id) args {
 	@try {
 		[fileHandle closeFile];	
-		RELEASE_TO_NIL(fileHandle);
-	} @catch (NSException *e) {
-		closed = NO;
-	}
-	return NUMBOOL(closed);
+	} @finally {
+        RELEASE_TO_NIL(fileHandle);
+    }
 }
 
 -(NSNumber*)isReadable:(id)_void {

@@ -154,7 +154,7 @@ public class FileStreamProxy extends KrollProxy implements TiStream
 	}
 
 	@Kroll.method
-	public void close()
+	public void close() throws IOException
 	{
 		fileProxy.tbf.close();
 	}

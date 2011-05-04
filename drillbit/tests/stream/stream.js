@@ -86,6 +86,8 @@ describe("Ti.Stream tests", {
 		for (var i=0; i < appendBytes; i++) {
 			valueOf(sourceBuffer[(sourceBuffer.length - appendBuffer.length)+i]).shouldBeExactly(appendBuffer[i]);
 		}
+
+		valueOf(function() {astream.close()}).shouldNotThrowException();
 	},
 	
 	basicBlobStream: function() {
@@ -119,6 +121,8 @@ describe("Ti.Stream tests", {
 		for (var i=0; i < 20; i++) {
 			valueOf(str.charCodeAt(20 + i)).shouldBeExactly(destBuffer[ 20 + i]);
 		}
+
+		valueOf(function() {stream.close()}).shouldNotThrowException();
 	},
 	
 	asyncRead: asyncTest({

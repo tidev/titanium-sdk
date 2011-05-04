@@ -46,6 +46,7 @@ describe("Ti.Network.Socket.TCP tests", {
 					valueOf(e.socket).shouldBeObject();
 					valueOf(e.socket.state).shouldBe(Ti.Network.Socket.CONNECTED);
 					connectPassed = true;
+					valueOf(function() {e.socket.close()}).shouldNotThrowException();
 					if (acceptPassed) {
 						callback.passed();
 					}
