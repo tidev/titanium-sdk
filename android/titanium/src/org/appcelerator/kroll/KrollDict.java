@@ -105,6 +105,15 @@ public class KrollDict
 		return KrollConverter.toInt(get(key));
 	}
 
+	public Integer optInt(String key, Integer defaultValue) {
+		Integer result = defaultValue;
+
+		if (containsKey(key)) {
+			result = getInt(key);
+		}
+		return result;
+	}
+
 	public Double getDouble(String key) {
 		return KrollConverter.toDouble(get(key));
 	}

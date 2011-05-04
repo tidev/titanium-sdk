@@ -9,7 +9,6 @@ package ti.modules.titanium.ui.widget;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -59,6 +58,10 @@ public class TiUIImageView extends TiUIView
 	private static final int FRAME_QUEUE_SIZE = 5;
 	public static final int INFINITE = 0;
 
+	// TIMOB-3599: A bug in Gingerbread forces us to retry decoding bitmaps when they initially fail
+	private static final String PROPERTY_DECODE_RETRIES = "decodeRetries";
+	private static final int DEFAULT_DECODE_RETRIES = 5;
+
 	private Timer timer;
 	private Animator animator;
 	private Object[] images;
@@ -77,6 +80,7 @@ public class TiUIImageView extends TiUIView
 	private ArrayList<TiDrawableReference> imageSources;
 	private TiDrawableReference defaultImageSource;
 	private TiDownloadListener downloadListener;
+	private int decodeRetries = 0;
 
 	private class BgImageLoader extends TiBackgroundImageLoadTask
 	{
@@ -133,7 +137,7 @@ public class TiUIImageView extends TiUIView
 					// The requested image did not make it into our TiResponseCache,
 					// possibly because it had a header forbidding that.  Now get it
 					// via the "old way" (not relying on cache).
-					synchronized(imageTokenGenerator) {
+					synchronized (imageTokenGenerator) {
 						token = imageTokenGenerator.incrementAndGet();
 						imageSources.get(0).getBitmapAsync(new BgImageLoader(getProxy().getTiContext(), requestedWidth, requestedHeight, token));
 					}
@@ -538,7 +542,7 @@ public class TiUIImageView extends TiUIView
 			defaultImageSource = TiDrawableReference.fromObject(getProxy().getTiContext(), object);
 		}
 	}
-	
+
 	private void setImage(boolean recycle)
 	{
 		if (imageSources == null || imageSources.size() == 0) {
@@ -574,7 +578,12 @@ public class TiUIImageView extends TiUIView
 				if (getAsync) {
 					imageref.getBitmapAsync(downloadListener);
 				} else {
-					setImage(imageref.getBitmap(getParentView(), requestedWidth, requestedHeight));
+					Bitmap bitmap = imageref.getBitmap(getParentView(), requestedWidth, requestedHeight);
+					if (bitmap != null) {
+						setImage(bitmap);
+					} else {
+						retryDecode(recycle);
+					}
 				}
 			} else {
 				setImage(imageref.getBitmap(getParentView(), requestedWidth, requestedHeight));
@@ -592,7 +601,31 @@ public class TiUIImageView extends TiUIView
 		}
 		setImage(defaultImageSource.getBitmap(getParentView(), requestedWidth, requestedHeight));
 	}
-	
+
+	private void retryDecode(final boolean recycle)
+	{
+		// Really odd Android 2.3/Gingerbread behavior -- BitmapFactory.decode* Skia functions
+		// fail randomly and seemingly without a cause. Retry 5 times by default w/ 250ms between each try,
+		// Usually the 2nd or 3rd try succeeds, but the "decodeRetries" property
+		// will allow users to tweak this if needed
+		final int maxRetries = proxy.getProperties().optInt(PROPERTY_DECODE_RETRIES, DEFAULT_DECODE_RETRIES);
+		if (decodeRetries < maxRetries) {
+			decodeRetries++;
+			proxy.getUIHandler().postDelayed(new Runnable() {
+				public void run() {
+					Log.d(LCAT, "Retrying bitmap decode: " + decodeRetries + "/" + maxRetries);
+					setImage(recycle);
+				}
+			}, 250);
+		} else {
+			String url = null;
+			if (imageSources != null && imageSources.size() == 1) {
+				url = imageSources.get(0).getUrl();
+			}
+			Log.e(LCAT, "Max retries reached, giving up decoding image source: " + url);
+		}
+	}
+
 	@Override
 	public void processProperties(KrollDict d)
 	{

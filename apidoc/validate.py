@@ -3,11 +3,12 @@
 # A simple command line validator for TDoc2 YAML/Markdown based documentation
 #
 
-import os, sys
+import os, sys, re
 import codecs, optparse
 import yaml, markdown
 
 apiDocDir = os.path.abspath(os.path.dirname(__file__))
+types = {}
 errorTrackers = {}
 options = None
 
@@ -28,6 +29,12 @@ class ErrorTracker(object):
 
 	def trackError(self, description):
 		self.errors.append(description)
+
+	def getTracker(self, childName):
+		for child in self.children:
+			if child.name == childName:
+				return child
+		return None
 
 	def hasErrors(self):
 		if len(self.errors) > 0:
@@ -59,7 +66,7 @@ def validatePlatforms(tracker, platforms):
 
 def validateSince(tracker, since):
 	if type(since) not in [str, dict]:
-		tracker.trackError('"since" should either be a version inside a string, or a dictionary of platform to version: %s' % since)
+		tracker.trackError('"since" should either be a version inside a string, or a dictionary of platform to version: %s, %s' % (since, type(since)))
 
 def validateDeprecated(tracker, deprecated):
 	if type(deprecated) != dict or 'since' not in deprecated:
@@ -77,6 +84,26 @@ def validateMarkdown(tracker, mdData, name):
 		html = markdown.markdown(mdData)
 	except Exception, e:
 		tracker.trackError('Error parsing markdown block "%s": %s' % (name, e))
+
+def findType(tracker, typeName, name):
+	if typeName in ['Boolean', 'Number', 'String', 'Date', 'Object']: return
+
+	containerRegex = r'(Dictionary|Callback|Array)\<([^\>]+)\>'
+	match = re.match(containerRegex, typeName)
+	if match:
+		elementType = match.group(2)
+		findType(tracker, elementType, name)
+		return
+
+	found = False
+	for tdocPath, tdocTypes in types.iteritems():
+		for t in tdocTypes:
+			if 'name' in t and t['name'] == typeName:
+				found = True
+				break
+	if not found:
+		tracker.trackError('"%s" type "%s" could not be found' % (name, typeName))
+
 
 def validateCommon(tracker, map):
 	if 'platforms' in map:
@@ -96,6 +123,14 @@ def validateMethod(typeTracker, method):
 
 	validateRequired(tracker, method, ['name'])
 	validateCommon(tracker, method)
+
+	if 'returns' in method:
+		if type(method['returns']) not in [str, dict]:
+			tracker.trackError('"returns" must be either a String or Object: %s' % method['returns'])
+		if type(method['returns']) == dict:
+			if 'type' not in method['returns']:
+				tracker.trackError('Required property "type" missing in "returns": %s' % method["returns"])
+
 
 	if 'parameters' in method:
 		if type(method['parameters']) != list:
@@ -146,23 +181,75 @@ def validateType(typeDoc):
 		for event in typeDoc['events']:
 			validateEvent(tracker, event)
 
-	tracker.printStatus()
 
 def validateTDoc(tdocPath):
-	for type in yaml.load_all(codecs.open(tdocPath, 'r', 'utf8').read()):
+	tdocTypes = [type for type in yaml.load_all(codecs.open(tdocPath, 'r', 'utf8').read())]
+
+	for type in tdocTypes:
 		validateType(type)
+
+	global types
+	types[tdocPath] = tdocTypes
+
+def validateRef(tracker, ref, name):
+	if type(ref) not in [str, list]:
+		tracker.trackError('"%s" reference "%s" must be either a String or List' % (name, ref))
+
+	if type(ref) is str:
+		findType(tracker, ref, name)
+	elif type(ref) is list:
+		for t in ref:
+			findType(tracker, t, name)
+
+def validateMethodRefs(typeTracker, method):
+	tracker = typeTracker.getTracker(method['name'])
+	if 'returns' in method:
+		if type(method['returns']) == str:
+			validateRef(tracker, method['returns'], 'returns')
+		elif type(method['returns']) == dict:
+			returnObj = method['returns']
+			rTracker = ErrorTracker(returnObj, tracker)
+			if 'type' in returnObj:
+				validateRef(rTracker, returnObj['type'], 'type')
+	if 'parameters' in method:
+		for param in method['parameters']:
+			pTracker = tracker.getTracker(param['name'])
+			if 'type' in param:
+				validateRef(pTracker, param['type'], 'type')
+
+def validateRefs():
+	for tdocPath, tdocTypes in types.iteritems():
+		for typeDoc in tdocTypes:
+			tracker = errorTrackers[typeDoc['name']]
+			if 'extends' in typeDoc:
+				validateRef(tracker, typeDoc['extends'], 'extends')
+			if 'methods' in typeDoc:
+				for method in typeDoc['methods']:
+					validateMethodRefs(tracker, method)
+			if 'properties' in typeDoc:
+				for property in typeDoc['properties']:
+					pTracker = tracker.getTracker(property['name'])
+					if 'type' in property:
+						validateRef(pTracker, property['type'], 'type')
+
 
 def validateDir(dir):
 	for root, dirs, files in os.walk(dir):
 		for file in files:
 			if file.endswith(".yml"):
 				absolutePath = os.path.join(root, file)
-				relativePath = absolutePath[len(dir)+1:]
-				print "Validating %s:" % relativePath
 				try:
 					validateTDoc(absolutePath)
 				except Exception, e:
 					printError("Error parsing, %s:" % str(e))
+	validateRefs()
+
+def printStatus(dir=None):
+	for tdocPath, tdocTypes in types.iteritems():
+		if dir: tdocPath = tdocPath[len(dir)+1:]
+		print '%s:' % tdocPath
+		for type in tdocTypes:
+			errorTrackers[type["name"]].printStatus()
 
 def main(args):
 	parser = optparse.OptionParser()
@@ -175,12 +262,14 @@ def main(args):
 	global options
 	(options, args) = parser.parse_args(args)
 
+	dir=None
 	if options.file is not None:
 		print "Validating %s:" % options.file
 		validateTDoc(options.file)
 	else:
 		dir = options.dir or apiDocDir
 		validateDir(dir)
+	printStatus(dir)
 
 if __name__ == "__main__":
 	main(sys.argv)

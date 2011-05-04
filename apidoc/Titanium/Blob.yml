@@ -1,0 +1,25 @@
+---
+name: Titanium.Blob
+description: The blob is an abstract data type that represents binary information, often obtained through HTTPClient or via files. It often is used to store text or the actual data of an image.
+extends: Titanium.Proxy
+since: "0.9"
+platforms: [android, iphone, ipad]
+methods:
+  - name: imageAsThumbnail
+    description: Generate a thumbnail version of an image, optionally with a border and rounded corners
+    platforms: [iphone, ipad]
+    returns: Titanium.Blob
+    parameters:
+      - name: size
+        type: Number
+        description: The size of the thumbnail, in either width or height
+      - name: borderSize
+        type: Number
+        description: The width of the thumbnail's border.
+        optional: true
+        default: 1
+      - name: cornerRadius
+        type: Number
+        description: The radius of the thumbnail's corners.
+        optional: true
+        default: 0

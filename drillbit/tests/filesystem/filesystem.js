@@ -162,8 +162,13 @@ describe("Ti.Filesystem tests", {
 		instream = infile.open(Ti.Filesystem.MODE_READ);
 		var inBuffer = Ti.Stream.readAll(instream);
 		var totalReadSize = inBuffer.length;
+		Ti.API.info('Total read size: '+totalReadSize);
+		Ti.API.info('Streamed: '+bytesStreamed);
+		Ti.API.info('Total write size: '+totalWriteSize);
 		valueOf(totalReadSize).shouldBeExactly(bytesStreamed + totalWriteSize);
 		instream.close();
+
+		infile.deleteFile(); //delete the file so that the tests don't fail on the next test run.
 	},
 
 	fileStreamPumpTest:function() {
@@ -175,8 +180,13 @@ describe("Ti.Filesystem tests", {
 		var step = 10;
 		var pumpTotal = 0;
 		var pumpCallback = function(e) {
+			if(e.bytesProcessed == -1) {
+				//EOF
+				Ti.API.info('Reached EOF in pumpCallback');
+				return;
+			}
 			Ti.API.info('Received data chunk of size <' + e.bytesProcessed + '>');
-			Ti.API.info('Received buffer <' + e.data + '>');
+			Ti.API.info('Received buffer <' + e.buffer + '>');
 			Ti.API.info('Total bytes received thus far <' + e.totalBytesProcessed + '>');
 
 			valueOf(e.bytesProcessed).shouldBe(step);
@@ -193,7 +203,7 @@ describe("Ti.Filesystem tests", {
 	},
 
 	fileStreamWriteStreamTest:function() {
-		var inBuffer = Ti.createBuffer({data:"huray for data, lets have a party for data1 huray for data, lets have a party for data2 huray for data, lets have a party for data3"});
+		var inBuffer = Ti.createBuffer({value:"huray for data, lets have a party for data1 huray for data, lets have a party for data2 huray for data, lets have a party for data3"});
 		valueOf(inBuffer).shouldBeObject();
 		var inStream = Ti.Stream.createStream({source:inBuffer, mode:Ti.Stream.MODE_READ});
 		valueOf(inStream).shouldNotBeNull();

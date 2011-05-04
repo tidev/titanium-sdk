@@ -636,6 +636,7 @@ class Builder(object):
 		CONTACTS_PERMISSION = ['READ_CONTACTS']
 		VIBRATE_PERMISSION = ['VIBRATE']
 		CAMERA_PERMISSION = ['CAMERA']
+		WALLPAPER_PERMISSION = ['SET_WALLPAPER']
 		
 		# this is our module method to permission(s) trigger - for each method on the left, require the permission(s) on the right
 		permission_mapping = {
@@ -663,6 +664,9 @@ class Builder(object):
 			'Contacts.getAllPeople' : CONTACTS_PERMISSION,
 			'Contacts.getAllGroups' : CONTACTS_PERMISSION,
 			'Contacts.getGroupByID' : CONTACTS_PERMISSION,
+
+			# WALLPAPER
+			'Media.Android.setSystemWallpaper' : WALLPAPER_PERMISSION,
 		}
 		
 		VIDEO_ACTIVITY = """<activity
