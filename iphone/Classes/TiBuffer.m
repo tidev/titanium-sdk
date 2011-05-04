@@ -300,7 +300,7 @@ NSArray* bufferKeySequence = nil;
         }
         
         void* bytes = [data mutableBytes];
-        *(unsigned char*)(bytes+index) = [value charValue];
+        *(unsigned char*)(bytes+index) = (unsigned char)[value charValue];
     }
     else {
         [super setValue:value forUndefinedKey:key];

@@ -1395,32 +1395,15 @@ if ([str isEqualToString:@#orientation]) return orientation;
     }
     
     int length = MIN(srcLength, [string length] - srcPosition);
-    int maxBytes = MIN(length, [[dest data] length] - destPosition);
+    NSData* encodedString = [[string substringWithRange:NSMakeRange(srcPosition, length)] dataUsingEncoding:encoding];
+    int encodeLength = MIN([encodedString length], [[dest data] length] - destPosition);
     
-    switch (encoding) {
-        case NSUTF16StringEncoding:
-        case NSUTF16LittleEndianStringEncoding:
-        case NSUTF16BigEndianStringEncoding: {
-            // Encoding identifier
-            maxBytes++;
-            
-            // Recalculate max bytes
-            maxBytes *= 2;
-            maxBytes = MIN(maxBytes, [[dest data] length] - destPosition);
-            break;
-        }
-    }
+    void* bufferBytes = [[dest data] mutableBytes];
+    const void* stringBytes = [encodedString bytes];
     
-    // TODO: This does not encode the null terminator... do we want it?
-    [string getBytes:([[dest data] mutableBytes]+destPosition)
-           maxLength:maxBytes
-          usedLength:NULL 
-            encoding:encoding
-             options:NSStringEncodingConversionAllowLossy // TODO: Is this always right? 
-               range:NSMakeRange(srcPosition,length) 
-      remainingRange:NULL];
+    memcpy(bufferBytes+destPosition, stringBytes, encodeLength);
     
-    return destPosition+length;
+    return destPosition+encodeLength;
 }
 
 +(int)encodeNumber:(NSNumber *)data toBuffer:(TiBuffer *)dest offset:(int)position type:(NSString *)type endianness:(CFByteOrder)byteOrder
@@ -1448,7 +1431,7 @@ if ([str isEqualToString:@#orientation]) return orientation;
     switch ([self constantToType:type]) {
         case TI_BYTE: {
             char byte = [data charValue];
-            memcpy(bytes+position, &bytes, size);
+            memcpy(bytes+position, &byte, size);
             break;
         }
         case TI_SHORT: {
@@ -1497,33 +1480,43 @@ if ([str isEqualToString:@#orientation]) return orientation;
             break;
         }
         case TI_FLOAT: {
-            CFSwappedFloat32 val = CFConvertFloat32HostToSwapped([data floatValue]);
+            // To prevent type coercion, we use a union where we assign the floatVaue as a Float32, and then access the integer byte representation off of the CFSwappedFloat struct.
+            union {
+                Float32 f;
+                CFSwappedFloat32 sf;
+            } val;
+            val.f = [data floatValue];
             switch (byteOrder) {
                 case CFByteOrderLittleEndian: {
-                    val.v = CFSwapInt32HostToLittle(val.v);
+                    val.sf.v = CFSwapInt32HostToLittle(val.sf.v);
                     break;
                 }
                 case CFByteOrderBigEndian: {
-                    val.v = CFSwapInt32HostToBig(val.v);
+                    val.sf.v = CFSwapInt32HostToBig(val.sf.v);
                     break;
                 }
             }
-            memcpy(bytes+position, &(val.v), size);
+            memcpy(bytes+position, &(val.sf.v), size);
             break;
         }
         case TI_DOUBLE: {
-            CFSwappedFloat64 val = CFConvertFloat64HostToSwapped([data doubleValue]);
+            // See above for why we do union encoding.
+            union {
+                Float64 f;
+                CFSwappedFloat64 sf;
+            } val;
+            val.f = [data doubleValue];
             switch (byteOrder) {
                 case CFByteOrderLittleEndian: {
-                    val.v = CFSwapInt64HostToLittle(val.v);
+                    val.sf.v = CFSwapInt64HostToLittle(val.sf.v);
                     break;
                 }
                 case CFByteOrderBigEndian: {
-                    val.v = CFSwapInt64HostToBig(val.v);
+                    val.sf.v = CFSwapInt64HostToBig(val.sf.v);
                     break;
                 }
             }
-            memcpy(bytes+position, &(val.v), size);
+            memcpy(bytes+position, &(val.sf.v), size);
             break;
         }
         default:
