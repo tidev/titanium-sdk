@@ -212,7 +212,7 @@ public class MediaModule extends KrollModule
 
 		if (!isHTCCameraApp) {
 			cameraIntent.getIntent().putExtra(MediaStore.EXTRA_OUTPUT, Uri.parse(imageUrl));
-		} 
+		}
 
 		CameraResultHandler resultHandler = new CameraResultHandler();
 		resultHandler.imageFile = imageFile;
@@ -272,7 +272,7 @@ public class MediaModule extends KrollModule
 					Uri imageUri = activity.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
 
 					// puts newly captured photo into the gallery
-					MediaScannerClient mediaScanner = new MediaScannerClient(getTiContext(), new String[] {imageFile.getAbsolutePath()}, null);
+					MediaScannerClient mediaScanner = new MediaScannerClient(getTiContext(), new String[] {imageUrl}, null);
 					mediaScanner.scan();
 
 					try {
