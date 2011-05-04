@@ -40,6 +40,7 @@ animating[boolean]: readonly boolean to indicate if the animation is animating
 canScale[boolean]: allow image to scale (Android)
 enableZoomControls[boolean]: enable zoom controls on Android. Default is true for backward compatibility. (1.3.0)
 hires[boolean]: indicates whether or not the source image is in 2x resolution for retina displays.  Use for remote images ONLY.  (iOS)
+decodeRetries[int]: number of times to retry decoding the bitmap at this URL (1.7.0 / Android only. default: 5)
 
 
 - methods

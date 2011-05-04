@@ -72,10 +72,15 @@ public class TiStreamHelper
 		}
 	}
 
-	public static String toString(InputStream in)
+	public static byte[] toByteArray(InputStream in)
 	{
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		pump(in, out);
-		return new String(out.toByteArray());
+		return out.toByteArray();
+	}
+
+	public static String toString(InputStream in)
+	{
+		return new String(toByteArray(in));
 	}
 }
