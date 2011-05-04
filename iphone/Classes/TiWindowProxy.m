@@ -542,7 +542,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		[self rememberProxy:closeAnimation];
 	}
 
-	[self performSelectorOnMainThread:@selector(closeOnUIThread:) withObject:args waitUntilDone:NO];
+	[self performSelectorOnMainThread:@selector(closeOnUIThread:) withObject:args waitUntilDone:YES];
 }
 
 -(void)closeOnUIThread:(id)args
