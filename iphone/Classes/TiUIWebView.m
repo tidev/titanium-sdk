@@ -243,6 +243,23 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	}
 }
 
+-(UIScrollView*)scrollview
+{
+	UIWebView* webView = [self webview];
+	if ([webView respondsToSelector:@selector(scrollView)]) {
+		// as of iOS 5.0, we can return the scroll view
+		return [webView scrollView];
+	} else {
+		// in earlier versions, we need to find the scroll view
+		for (id subview in [webView subviews]) {
+			if ([subview isKindOfClass:[UIScrollView class]]) {
+				return (UIScrollView*)subview;
+			}
+		}
+	}
+	return nil;
+}
+
 
 #pragma mark Public APIs
 
@@ -386,6 +403,18 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	BOOL scaling = [TiUtils boolValue:args];
 	scalingOverride = YES;
 	[[self webview] setScalesPageToFit:scaling];
+}
+
+-(void)setDisableBounce_:(id)value
+{
+	BOOL bounces = ![TiUtils boolValue:value];
+	[[self scrollview] setBounces:bounces];
+}
+
+-(void)setScrollsToTop_:(id)value
+{
+	BOOL scrollsToTop = [TiUtils boolValue:value];
+	[[self scrollview] setScrollsToTop:scrollsToTop];
 }
 
 #ifndef USE_BASE_URL

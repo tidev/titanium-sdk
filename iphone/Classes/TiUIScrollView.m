@@ -155,6 +155,11 @@
 	[[self scrollView] setBounces:![TiUtils boolValue:value]];
 }
 
+-(void)setScrollsToTop_:(id)value
+{
+	[[self scrollView] setScrollsToTop:[TiUtils boolValue:value]];
+}
+
 -(void)setHorizontalBounce_:(id)value
 {
 	[[self scrollView] setAlwaysBounceHorizontal:[TiUtils boolValue:value]];
