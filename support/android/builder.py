@@ -672,6 +672,7 @@ class Builder(object):
 		VIDEO_ACTIVITY = """<activity
 		android:name="ti.modules.titanium.media.TiVideoActivity"
 		android:configChanges="keyboardHidden|orientation"
+		android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
 		android:launchMode="singleTask"
     	/>"""
 
