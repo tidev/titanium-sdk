@@ -87,15 +87,17 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 	}
 }
 
+-(void) dealloc {
+	RELEASE_TO_NIL(navController);
+	RELEASE_TO_NIL(controller);
+	
+	[super dealloc];
+}
+
 -(void)_destroy
 {
 	[(TiViewController*)controller setProxy:nil];
 
-	[navController performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
-	navController = nil;
-	[controller performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
-	controller = nil;
-	
 	RELEASE_TO_NIL(tab);
 	RELEASE_TO_NIL(reattachWindows);
 	RELEASE_TO_NIL(closeView);
@@ -481,7 +483,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 // goofiness, and need to perform the prepatory steps that open: usually does.
 -(void)prepareForNavView:(UINavigationController*)navController_
 {
-	ENSURE_UI_THREAD(prepareForNavView, navController_);
+	ENSURE_UI_THREAD_1_ARG(navController_)
 	
 	if (opened) {
 		return;
