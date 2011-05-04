@@ -72,6 +72,8 @@ preferredProvider[string]: allows setting of the preferred location provider.  R
 
 purpose[string]: (iOS only). This property informs the end-user why location services are being requested by the application.  This string will be display in the permission dialog. This property is REQUIRED starting in 4.0.
 locationServicesAuthorization[int]: (iOS 4.2+ only). Returns an authorization constant indicating if the application has access to location services. Always returns AUTHORIZATION_UNKNOWN on pre-4.2 devices. Attempting to re-authorize when AUTHORIZATION_RESTRICTED will lead to issues
+distanceFilter[double]: The minimum change of position (in meters) before a 'location' event is fired. Default is 0, meaning that location events are continuously generated.
+headingFilter[double]: The minium change of heading (in degrees) before a 'heading' event is fired. Default is 0, meaning that heading events are continuously generated.
 
 - events
 

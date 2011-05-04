@@ -262,10 +262,11 @@ return; \
 } \
 
 // Convenience for io waits
-#define SAFE_WAIT(condition) \
+#define SAFE_WAIT(condition, invocation) \
 {\
 NSCondition* temp = [condition retain]; \
 [temp lock]; \
+[invocation performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:NO]; \
 [temp wait]; \
 [temp unlock]; \
 [temp release]; \
@@ -423,10 +424,8 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         [invocation setArgument:&callback atIndex:5];
         [invocation retainArguments];
         
-        [invocation performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:NO];
-        
         if (callback == nil) {
-            SAFE_WAIT(ioCondition);
+            SAFE_WAIT(ioCondition, invocation);
             if (socketError != nil) {
                 // Have to autorelease because we need to hold onto it for throwing the exception
                 RELEASE_TO_NIL_AUTORELEASE(socketError);
@@ -434,6 +433,9 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
                            subreason:[socketError localizedDescription]
                             location:CODELOCATION];
             }
+        }
+        else { // Queue up that invocation and go home
+            [invocation performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:NO];
         }
         
         return readDataLength;
@@ -479,10 +481,8 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         [invocation setArgument:&callback atIndex:5];
         [invocation retainArguments];
         
-        [invocation performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:NO];
-        
         if (callback == nil) {
-            SAFE_WAIT(ioCondition);
+            SAFE_WAIT(ioCondition, invocation);
             if (socketError != nil) {
                 // Have to autorelease because we need to hold onto it for throwing the exception
                 RELEASE_TO_NIL_AUTORELEASE(socketError);
@@ -490,6 +490,9 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
                            subreason:[socketError localizedDescription]
                             location:CODELOCATION];
             }
+        }
+        else {
+            [invocation performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:NO];
         }
         
         int result = 0;
@@ -526,7 +529,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         [invocation retainArguments];
         
         if (callback == nil) {
-            SAFE_WAIT(ioCondition);
+            SAFE_WAIT(ioCondition, invocation);
             if (socketError != nil) {
                 // Have to autorelease because we need to hold onto it for throwing the exception
                 RELEASE_TO_NIL_AUTORELEASE(socketError);
@@ -534,6 +537,9 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
                            subreason:[socketError localizedDescription]
                             location:CODELOCATION];
             }
+        }
+        else {
+            [invocation performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:NO];
         }
         
         return readDataLength;
@@ -563,11 +569,10 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         [invocation setArgument:&callback atIndex:2];
         [invocation setArgument:&size atIndex:3];
         [invocation setArgument:&asynch atIndex:4];
-        [invocation performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:NO];
         [invocation retainArguments];
         
         if (!asynch) {
-            SAFE_WAIT(ioCondition);
+            SAFE_WAIT(ioCondition, invocation);
             if (socketError != nil) {
                 // Have to autorelease because we need to hold onto it for throwing the exception
                 RELEASE_TO_NIL_AUTORELEASE(socketError);
@@ -576,6 +581,10 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
                             location:CODELOCATION];
             }
         }
+        else {
+            [invocation performSelector:@selector(invoke) onThread:socketThread withObject:nil waitUntilDone:NO];
+        }
+        
     }
     else {
         int tag = asynchTagCount;
