@@ -341,8 +341,7 @@ extern NSString * const TI_APPLICATION_GUID;
 	{
 		args = [args stringByReplacingOccurrencesOfString:@"app://" withString:@""];
 	}
-	NSString *path = [[NSBundle mainBundle] resourcePath];
-	return [NSString stringWithFormat:@"%@/%@",path,args];
+	return [[TiHost resourcePath] stringByAppendingPathComponent:args];
 }
 
 -(id)arguments:(id)args

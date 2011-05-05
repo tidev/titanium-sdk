@@ -505,7 +505,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 -(void)didStartNewContext:(KrollContext*)kroll
 {
 	// create Titanium global object
-	NSString *basePath = (url==nil) ? [[NSBundle mainBundle] resourcePath] : [[url path] stringByDeletingLastPathComponent];
+	NSString *basePath = (url==nil) ? [TiHost resourcePath] : [[url path] stringByDeletingLastPathComponent];
 	titanium = [[TitaniumObject alloc] initWithContext:kroll host:host context:self baseURL:[NSURL fileURLWithPath:basePath]];
 	
 	TiContextRef jsContext = [kroll context];

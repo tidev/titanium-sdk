@@ -178,7 +178,7 @@
 
 -(NSURL*)moduleResourceURL:(NSString*)name
 {
-	NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
+	NSString *resourceurl = [TiHost resourcePath];
 	NSURL *path = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/modules/%@/%@",resourceurl,[self moduleId],name]];
 	return path;
 }

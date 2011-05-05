@@ -77,19 +77,7 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 
 -(NSString*)resourcesDirectory
 {
-#if TARGET_IPHONE_SIMULATOR 
-	if (TI_APPLICATION_RESOURCE_DIR!=nil && [TI_APPLICATION_RESOURCE_DIR isEqualToString:@""]==NO)
-	{
-		// if the .local file exists and we're in the simulator, then force load from resources bundle
-		if (![[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithFormat:@"%@/.local",[[NSBundle mainBundle] resourcePath]]])
-		{
-			return fileURLify(TI_APPLICATION_RESOURCE_DIR);
-		}
-	}
-#endif
-
-
-	return fileURLify([[NSBundle mainBundle] resourcePath]);
+	return fileURLify([TiHost resourcePath]);
 }
 
 -(NSString*)applicationDirectory
