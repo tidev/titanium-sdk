@@ -55,10 +55,10 @@ extern NSString * const TI_APPLICATION_ID;
 
 +(NSURL*)resourceBasedURL:(NSString*)fn baseURL:(NSString**)base
 {
-	NSString *fullpath = [NSString stringWithFormat:@"%@/%@",[self resourcePath],fn];
+	NSString *fullpath = [[self resourcePath] stringByAppendingPathComponent:fn];
 	if (base!=NULL)
 	{
-		*base = [fullpath stringByDeletingLastPathComponent];
+		*base = [[fullpath stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"."];
 	}
 	return [NSURL fileURLWithPath:fullpath];
 }
