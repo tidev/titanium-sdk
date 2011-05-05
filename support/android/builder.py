@@ -448,9 +448,6 @@ class Builder(object):
 	def is_app_installed(self):
 		return self.check_file_exists('/data/app/%s*.apk' % self.app_id)
 
-	def is_deploy_file_installed(self):
-		return self.check_file_exists('/sdcard/%s/deploy.json' % self.app_id)
-		
 	def are_resources_installed(self):
 		return self.check_file_exists(self.sdcard_resources+'/app.js')
 	
@@ -1642,8 +1639,7 @@ class Builder(object):
 					include_all_ti_modules = True
 			if self.tiapp_changed or (self.js_changed and not self.fastdev) or \
 					self.force_rebuild or self.deploy_type == "production" or \
-					(self.fastdev and not self.app_installed) or \
-					(self.deploy_type == 'test' and not self.is_deploy_file_installed()):
+					(self.fastdev and not self.app_installed):
 				trace("Generating Java Classes")
 				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')),
 					True, project_dir = self.top_dir, include_all_ti_modules=include_all_ti_modules)
