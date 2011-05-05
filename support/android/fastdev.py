@@ -1,10 +1,13 @@
 #
 # A custom server that speeds up development time in Android significantly
 #
-import os, sys, optparse
+import os, sys, time, optparse
 import tcpserver, urllib
 import simplejson, threading
 import SocketServer, socket, struct, codecs
+import logging
+
+logging.basicConfig(format='[%(levelname)s] [%(asctime)s] %(message)s', level=logging.INFO)
 
 support_android_dir = os.path.dirname(os.path.abspath(__file__))
 support_dir = os.path.dirname(support_android_dir)
@@ -13,6 +16,9 @@ sys.path.append(support_dir)
 import tiapp
 
 server = None
+request_count = 0
+start_time = time.time()
+idle_thread = None
 
 def pack_int(i):
 	return struct.pack("!i", i)
@@ -24,7 +30,48 @@ def send_tokens(socket, *tokens):
 		buffer += token
 	socket.send(buffer)
 
+def read_int(socket):
+	data = socket.recv(4)
+	if not data: return None
+	return struct.unpack("!i", data)[0]
+
+def read_tokens(socket):
+	token_count = read_int(socket)
+	if token_count == None: return None
+	tokens = []
+	for i in range(0, token_count):
+		length = read_int(socket)
+		data = socket.recv(length)
+		tokens.append(data)
+	return tokens
+
 utf8_codec = codecs.lookup("utf-8")
+
+""" A simple idle checker thread """
+class IdleThread(threading.Thread):
+	def __init__(self, max_idle_time):
+		super(IdleThread, self).__init__()
+		self.idle_time = 0
+		self.max_idle_time = max_idle_time
+		self.running = True
+
+	def clear_idle_time(self):
+		self.idle_lock.acquire()
+		self.idle_time = 0
+		self.idle_lock.release()
+
+	def run(self):
+		self.idle_lock = threading.Lock()
+		while self.running:
+			if self.idle_time < self.max_idle_time:
+				time.sleep(1)
+				self.idle_lock.acquire()
+				self.idle_time += 1
+				self.idle_lock.release()
+			else:
+				logging.info("Shutting down Fastdev server due to idle timeout: %s" % self.idle_time)
+				server.shutdown()
+				self.running = False
 
 """
 A handler for fastdev requests.
@@ -48,22 +95,20 @@ class FastDevHandler(SocketServer.BaseRequestHandler):
 	handshake = None
 	app_handler = None
 
-	def recv_int(self):
-		data = self.request.recv(4)
-		if not data: return None
-		return struct.unpack("!i", data)[0]
-
 	def handle(self):
+		global request_count
 		self.valid_handshake = False
+		self.request.settimeout(1.0)
 		while True:
-			token_count = self.recv_int()
-			if token_count == None: break
-			tokens = []
-			for i in range(0, token_count):
-				length = self.recv_int()
-				data = self.request.recv(length)
-				tokens.append(data)
+			try:
+				tokens = read_tokens(self.request)
+				if tokens == None: break
+			except socket.timeout, e:
+				# only break the loop when not serving, otherwise timeouts are normal
+				if not server.is_serving(): break
+				else: continue
 
+			idle_thread.clear_idle_time()
 			command = tokens[0]
 			if command == "handshake":
 				FastDevHandler.app_handler = self
@@ -75,29 +120,40 @@ class FastDevHandler(SocketServer.BaseRequestHandler):
 					self.send_tokens("Invalid Handshake")
 					break
 				if command == "get":
+					request_count += 1
 					self.handle_get(tokens[1])
 				elif command == "kill-app":
 					self.handle_kill_app()
 					break
+				elif command == "restart-app":
+					self.handle_restart_app()
+					break
+				elif command == "status":
+					self.handle_status()
 				elif command == "shutdown":
 					self.handle_shutdown()
 					break
 
 	def handle_handshake(self, handshake):
+		logging.info("handshake: %s" % handshake)
 		if handshake == self.handshake:
 			self.send_tokens("OK")
 			self.valid_handshake = True
 		else:
+			logging.warn("handshake: invalid handshake sent, rejecting")
 			self.send_tokens("Invalid Handshake")
 
 	def handle_get(self, relative_path):
 		android_path = os.path.join(self.resources_dir, 'android', relative_path)
 		path = os.path.join(self.resources_dir, relative_path)
 		if os.path.exists(android_path):
+			logging.info("get %s: %s" % (relative_path, android_path))
 			self.send_file(android_path)
 		elif os.path.exists(path):
+			logging.info("get %s: %s" % (relative_path, path))
 			self.send_file(path)
 		else:
+			logging.warn("get %s: path not found" % relative_path)
 			self.send_tokens("NOT_FOUND")
 
 	def send_tokens(self, *tokens):
@@ -108,15 +164,45 @@ class FastDevHandler(SocketServer.BaseRequestHandler):
 		self.send_tokens(buffer)
 
 	def handle_kill_app(self):
+		logging.info("request: kill-app")
 		if FastDevHandler.app_handler != None:
 			FastDevHandler.app_handler.send_tokens("kill")
 			self.send_tokens("OK")
 		else:
 			self.send_tokens("App not connected")
+			logging.warn("kill: no app is connected")
+
+	def handle_restart_app(self):
+		logging.info("request: restart-app")
+		if FastDevHandler.app_handler != None:
+			try:
+				FastDevHandler.app_handler.send_tokens("restart")
+				self.send_tokens("OK")
+			except Exception, e:
+				logging.error("restart: error: %s" % e)
+		else:
+			self.send_tokens("App not connected")
+			logging.warn("restart: no app is connected")
+
+	def handle_status(self):
+		logging.info("request: status")
+		global server
+		global request_count
+		global start_time
+		app_connected = FastDevHandler.app_handler != None
+		status = {
+			"uptime": int(time.time() - start_time),
+			"pid": os.getpid(),
+			"app_connected": app_connected,
+			"request_count": request_count,
+			"port": server.server_address[1]
+		}
+		self.send_tokens(simplejson.dumps(status))
 
 	def handle_shutdown(self):
 		self.send_tokens("OK")
 		server.shutdown()
+		idle_thread.running = False
 
 class ThreadingTCPServer(SocketServer.ThreadingMixIn, tcpserver.TCPServer): pass
 
@@ -140,11 +226,14 @@ class FastDevRequest(object):
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.socket.connect(("", self.port))
 		send_tokens(self.socket, "script-handshake", self.app_guid)
+		response = read_tokens(self.socket)[0]
+		if response != "OK":
+			print >>sys.stderr, "Error: Handshake was not accepted by the Fastdev server"
+			sys.exit(1)
 
 	def send(self, *tokens):
 		send_tokens(self.socket, *tokens)
-		response = self.socket.recv(1024)
-		return response
+		return read_tokens(self.socket)
 
 	def close(self):
 		self.socket.close()
@@ -170,9 +259,10 @@ def start_server(dir, options):
 	FastDevHandler.handshake = app_guid
 
 	global server
+	global idle_thread
 	server = ThreadingTCPServer(("", int(options.port)), FastDevHandler)
 	port = server.server_address[1]
-	print "Serving up files for %s at 0.0.0.0:%d from %s" % (app_id, port, dir)
+	logging.info("Serving up files for %s at 0.0.0.0:%d from %s" % (app_id, port, dir))
 
 	f = open(lock_file, 'w+')
 	f.write(simplejson.dumps({
@@ -185,48 +275,114 @@ def start_server(dir, options):
 	f.close()
 
 	try:
+		idle_thread = IdleThread(int(options.timeout))
+		idle_thread.start()
 		server.serve_forever()
 	except KeyboardInterrupt, e:
+		idle_thread.running = False
+		server.shutdown_noblock()
 		print "Terminated"
 
-	print "Fastdev Server Stopped."
+	logging.info("Fastdev server stopped.")
 	os.unlink(lock_file)
 
 def stop_server(dir, options):
 	request = FastDevRequest(dir, options)
-	print request.send("shutdown")
+	print request.send("shutdown")[0]
 	request.close()
 
 	print "Fastdev server for %s stopped." % request.data["app_id"]
 
 def kill_app(dir, options):
 	request = FastDevRequest(dir, options)
-	print request.send("kill-app")
+	result = request.send("kill-app")
 	request.close()
 
-	print "Killed app %s." % request.data["app_id"]
+	if result and result[0] == "OK":
+		print "Killed app %s." % request.data["app_id"]
+		return True
+	else:
+		print "Error killing app, result: %s" % result
+		return False
 
-def main():
+def restart_app(dir, options):
+	request = FastDevRequest(dir, options)
+	result = request.send("restart-app")
+	request.close()
+
+	if result and result[0] == "OK":
+		print "Restarted app %s." % request.data["app_id"]
+		return True
+	else:
+		print "Error restarting app, result: %s" % result
+		return False
+
+def is_running(dir):
+	class Options(object): pass
+	options = Options()
+	options.lock_file = os.path.join(dir, '.fastdev.lock')
+
+	if not os.path.exists(options.lock_file):
+		return False
+
+	try:
+		request = FastDevRequest(dir, options)
+		result = request.send("status")[0]
+		request.close()
+		status = simplejson.loads(result)
+		return type(status) == dict
+	except Exception, e:
+		return False
+
+def status(dir, options):
+	lock_file = get_lock_file(dir, options)
+
+	if lock_file == None or not os.path.exists(lock_file):
+		print "No Fastdev servers running in %s" % dir
+	else:
+		data = simplejson.loads(open(lock_file, 'r').read())
+		port = data["port"]
+		try:
+			request = FastDevRequest(dir, options)
+			result = request.send("status")[0]
+			request.close()
+			status = simplejson.loads(result)
+
+			print "Fastdev server running for app %s:" % data["app_id"]
+			print "Port: %d" % port
+			print "Uptime: %d sec" % status["uptime"]
+			print "PID: %d" % status["pid"]
+			print "Requests: %d" % status["request_count"]
+		except Exception, e:
+			print >>sys.stderr, "Error: .fastdev.lock found in %s, but couldn't connect to the server on port %d: %s. Try manually deleting .fastdev.lock." % (dir, port, e)
+
+def get_optparser():
 	usage = """Usage: %prog [command] [options] [app-dir]
 
 Supported Commands:
 	start		start the fastdev server
-	kill-app	kill the app connected to this fastdev server
+	status		get the status of the fastdev server
 	stop		stop the fastdev server
+	restart-app	restart the app connected to this fastdev server
+	kill-app	kill the app connected to this fastdev server
 """
 	parser = optparse.OptionParser(usage)
 	parser.add_option('-p', '--port', dest='port',
 		help='port to bind the server to [default: first available port]', default=0)
 	parser.add_option('-t', '--timeout', dest='timeout',
 		help='Timeout in seconds before the Fastdev server shuts itself down when it hasn\'t received a request [default: %default]',
-		default=15*60)
+		default=30 * 60)
 	parser.add_option('-l', '--lock-file', dest='lock_file',
 		help='Path to the server lock file [default: app-dir/.fastdev.lock]',
 		default=None)
+	return parser
+
+def main():
+	parser = get_optparser()
 	(options, args) = parser.parse_args()
 
-	if len(args) == 0:
-		parser.error("Required command missing (\"start\" or \"stop\")")
+	if len(args) == 0 or args[0] not in ['start', 'stop', 'kill-app', 'restart-app', 'status']:
+		parser.error("Missing required command")
 		sys.exit(1)
 
 	command = args[0]
@@ -241,11 +397,19 @@ Supported Commands:
 		if not os.path.exists(os.path.join(dir, "tiapp.xml")):
 			parser.error("Directory is not a Titanium Project: %s" % dir)
 			sys.exit(1)
-		start_server(dir, options)
+		try:
+			start_server(dir, options)
+		except Exception, e:
+			print >>sys.stderr, "Error starting Fastdev server: %s" % e
+
 	elif command == "stop":
 		stop_server(dir, options)
 	elif command == "kill-app":
 		kill_app(dir, options)
+	elif command == 'restart-app':
+		restart_app(dir, options)
+	elif command == "status":
+		status(dir, options)
 
 if __name__ == "__main__":
 	main()

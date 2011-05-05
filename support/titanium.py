@@ -70,16 +70,20 @@ def get_optional(config,key,default=None):
 		return default
 	return value
 
-def get_required(config,key):
-	if not has_config(config,key):
+def get_required(config, key, env=None):
+	if not has_config(config, key):
+		if env and env in os.environ: return os.environ[env]
 		die("required argument '%s' missing" % key)
 	return config[key]
 
-def get_required_dir(config,key):
-	dir = os.path.expanduser(get_required(config,key))
+def get_required_dir(config, key, env=None):
+	dir = os.path.expanduser(get_required(config,key,env))
 	if not os.path.exists(dir):
 		die("directory: %s doesn't exist" % dir)
 	return dir
+
+def get_android_sdk(config):
+	return get_required_dir(config, 'android', env='ANDROID_SDK')
 
 def is_ios(osname):
 	if osname == 'iphone' or osname == 'ipad' or osname == 'ios':
@@ -111,7 +115,7 @@ def create_android_project(project_dir,osname,args):
 	name = get_required(args,'name')
 	validate_project_name(name)
 	appid = get_required(args,'id')
-	android_sdk = get_required_dir(args,'android')
+	android_sdk = get_android_sdk(args)
 	args = [script,name,appid,project_dir,osname,android_sdk]
 	fork(args,True)
 	print "Created %s application project" % osname
@@ -123,7 +127,7 @@ def create_android_module(project_dir,osname,args):
 	name = get_required(args,'name')
 	validate_project_name(name)
 	appid = get_required(args,'id')
-	android_sdk = get_required_dir(args,'android')
+	android_sdk = get_android_sdk(args)
 	args = [script,'--name',name,'--id',appid,'--directory',project_dir,'--platform',osname,'--sdk',android_sdk]
 	
 	fork(args,False)
@@ -202,8 +206,12 @@ def build(args):
 	pass
 	
 def run_project_args(args,script,project_dir,platform):
-	return [script,"run",project_dir]
-	
+	if platform == "android":
+		android_sdk = get_android_sdk(args)
+		return [script, "run", project_dir, android_sdk]
+
+	return [script, "run", project_dir]
+
 def run_module_args(args,script,project_dir,platform):
 	return [script,"run",platform,project_dir]
 		
@@ -248,7 +256,7 @@ def dyn_run(args,project_cb,module_cb):
 		os.chdir(cwd)
 			
 def run(args):
-	dyn_run(args,run_project_args,run_module_args)
+	dyn_run(args, run_project_args, run_module_args)
 
 def install_project_args(args,script,project_dir,platform):
 	tiapp_xml = os.path.join(project_dir,'tiapp.xml')
@@ -257,7 +265,7 @@ def install_project_args(args,script,project_dir,platform):
 	name = ti.properties['name']
 	version = get_optional(args,'ver','4.0')
 	return [script,"install",version,project_dir,appid,name]
-	
+
 def install_module_args(args,script,project_dir,platform):
 	pass
 
@@ -294,6 +302,15 @@ def docgen_args(args, script, project_dir, platform):
 def docgen(args):
 	dyn_run(args, docgen_args, docgen_args)
 
+def fastdev(args):
+	# This is Android only for now
+	project_dir = check_valid_project(args['dir'], os.getcwd())
+	fastdev_script = os.path.join(template_dir, 'android', 'fastdev.py')
+	fastdev_args = [sys.executable, fastdev_script]
+	fastdev_args.extend(sys.argv[2:])
+	fastdev_args.extend([project_dir])
+	os.execv(sys.executable, fastdev_args)
+
 def help(args=[],suppress_banner=False):
 	if not suppress_banner:
 		print "Appcelerator Titanium"
@@ -308,6 +325,7 @@ def help(args=[],suppress_banner=False):
 		print "  run         - run an existing project"
 		print "  emulator    - start the emulator (android)"
 		print "  docgen      - generate html docs for a module (android)"
+		print "  fastdev     - management for the Android fastdev server"
 #		print "  install     - install a project"
 #		print "  package     - package a project for distribution"
 		print "  help        - get help"
@@ -340,17 +358,22 @@ def help(args=[],suppress_banner=False):
 			print 
 			print "  --dir=d    project directory"
 		elif cmd == 'docgen':
-			print "Usage %s docgen [--dir=d] [--dest-dir=d]" % os.path.basename(sys.argv[0])
+			print "Usage: %s docgen [--dir=d] [--dest-dir=d]" % os.path.basename(sys.argv[0])
 			print
 			print "  --dir=d         project directory"
 			print "  --dest-dir=d    destination directory"
+		elif cmd == 'fastdev':
+			android_dir = os.path.join(template_dir, 'android')
+			sys.path.append(android_dir)
+			import fastdev
+			fastdev.get_optparser().print_usage()
 		else:
 			print "Unknown command: %s" % cmd
 	print
 	sys.exit(-1)
 	
 def slurp_args(args):
-	config = {}
+	config = {"args": []}
 	for arg in args:
 		if arg[0:2]=='--':
 			arg = arg[2:]
@@ -363,6 +386,8 @@ def slurp_args(args):
 			if v!=None and v.find(',')!=-1:
 				v = v.split(',')
 			config[k]=v
+		else:
+			config["args"].append(arg)
 	return config
 				
 def main(args):
