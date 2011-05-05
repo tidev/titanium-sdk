@@ -151,7 +151,7 @@ static XHRBridge *xhrBridge = nil;
 		}
 		if (data==nil)
 		{
-			NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
+			NSString *resourceurl = [TiHost resourcePath];
 			NSString *path = [NSString stringWithFormat:@"%@%@",resourceurl,urlpath];
 			data = [[[NSData alloc] initWithContentsOfFile:path] autorelease];
 		}

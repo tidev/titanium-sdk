@@ -158,7 +158,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 
 -(NSURL*)fileURLToAppURL:(NSURL*)url_
 {
-	NSString *basepath = [[NSBundle mainBundle] resourcePath];
+	NSString *basepath = [TiHost resourcePath];
 	NSString *urlstr = [url_ path];
 	NSString *path = [urlstr stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"%@/",basepath] withString:@""];
 	if ([path hasPrefix:@"/"])

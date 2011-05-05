@@ -439,7 +439,7 @@ DEFINE_EXCEPTIONS
 			NSURL *defURL = [TiUtils toURL:[self.proxy valueForKey:@"defaultImage"] proxy:self.proxy];
 			
 			if ((defURL == nil) && ![TiUtils boolValue:[self.proxy valueForKey:@"preventDefaultImage"] def:NO])
-			{
+			{	//This is a special case, because it IS built into the bundle despite being in the simulator.
 				NSString * filePath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"modules/ui/images/photoDefault.png"];
 				defURL = [NSURL fileURLWithPath:filePath];
 			}
