@@ -93,6 +93,13 @@ class BaseServer:
 		self.__serving = False
 		self.__is_shut_down.wait()
 
+	def shutdown_noblock(self):
+		""" Stops the server_forever loop but without blocking """
+		self.__serving = False
+
+	def is_serving(self):
+		return self.__serving
+
 	# The distinction between handling, getting, processing and
 	# finishing a request is fairly arbitrary.  Remember:
 	#
