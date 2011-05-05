@@ -1,6 +1,4 @@
 var win = Titanium.UI.currentWindow;
-var win1 = null;
-var win2 = null;
 
 var l = Titanium.UI.createLabel({
 	text:'See Log for output',
@@ -21,13 +19,13 @@ win.add(b1);
 
 b1.addEventListener('click', function()
 {
-	win1 = Titanium.UI.createWindow({
+	var win1 = Titanium.UI.createWindow({
 		url:'database_2.js',
 		height:30,
 		width:280,
 		borderRadius:10,
 		bottom:80,
-		backgroundColor:'#333',
+		backgroundColor:'#333'
 	});
 	var l1 = Titanium.UI.createLabel({
 		text:'2nd context test - see log.',
@@ -50,15 +48,15 @@ win.add(b2);
 
 b2.addEventListener('click', function()
 {
- 	win2 = Titanium.UI.createWindow({
+	var win2 = Titanium.UI.createWindow({
 		url:'database_3.js',
 		height:30,
 		width:280,
 		borderRadius:10,
 		bottom:140,
-		backgroundColor:'#333',
+		backgroundColor:'#333'
 	});
-	var l2 = Titanium.UI.createLabel({
+	var l2= Titanium.UI.createLabel({
 		text:'Pre-packaged Db - see log.',
 		color:'#fff',
 		font:{fontSize:14},
@@ -67,6 +65,7 @@ b2.addEventListener('click', function()
 	});
 	win2.add(l2);
 	win2.open();
+	
 });
 var l3 = Titanium.UI.createLabel({
 	text:'unicode placeholder',
@@ -75,21 +74,6 @@ var l3 = Titanium.UI.createLabel({
 	top:160
 });
 win.add(l3);
-
-//when the window is closed, fade out the windows that were shown while this window was open
-win.addEventListener('close', function(e) {
-	var wins = [win1, win2];
-	for(var i = 0; i < wins.length; i++) {
-		var w = wins[i];
-		if(w == null) {
-			continue;
-		}
-		w.animate({opacity:0, duration:100}, function(e) {
-			w.close();
-		});
-	}
-});
-
 var db = Titanium.Database.open('mydb');
 
 db.execute('CREATE TABLE IF NOT EXISTS DATABASETEST  (ID INTEGER, NAME TEXT)');

@@ -610,12 +610,24 @@ If the new path starts with / and the base url is app://..., we have to massage 
 		}
 	}
 
-	if ([relativeString hasPrefix:@"/"] && [[rootPath scheme] isEqualToString:@"app"])
+	result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
+
+	//TODO: Make this less ugly.
+	if ([relativeString hasPrefix:@"/"])
 	{
-		relativeString = [@"app:/" stringByAppendingString:relativeString];
+		NSString * rootScheme = [rootPath scheme];
+		NSString * resourcePath = [TiHost resourcePath];
+		BOOL usesApp = [rootScheme isEqualToString:@"app"];
+		if(!usesApp && [rootScheme isEqualToString:@"file"])
+		{
+			usesApp = [[rootPath path] hasPrefix:resourcePath];
+		}
+		if(usesApp)
+		{
+			result = [NSURL fileURLWithPath:[resourcePath stringByAppendingPathComponent:relativeString]];
+		}
 	}
 
-	result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
 	
 	if (result==nil)
 	{

@@ -258,13 +258,11 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 	[self contextWasShutdown:context];
 	if(pageContext == context){
-		//One thing we missed from _destroy: Ensuring the page context stays gone.
-		pageContext = nil;
-	}
-
-	if([KrollBridge countOfKrollBridgesUsingProxy:self]==0)
-	{	//We destroy if and only if there are no KrollBridge implementations about.
+		//TODO: Should we really stay bug compatible with the old behavior?
+		//I think we should instead have it that the proxy stays around until
+		//it's no longer referenced by any contexts at all.
 		[self _destroy];
+		pageContext = nil;
 	}
 }
 

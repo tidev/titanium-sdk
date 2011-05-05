@@ -57,18 +57,6 @@
 	}
 
 	[context setCurrentURL:oldUrl];
-
-//	for (id file in jsfiles)
-//	{
-//		// only allow includes that are local to our execution context url
-//		// for security, refuse to load non-compiled in Javascript code
-//		NSString *rootPath = [[self _baseURL] path];	 	
-//		NSURL *url = [[NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/%@",rootPath,file]] standardizedURL];
-//#ifdef DEBUG
-//		NSLog(@"[DEBUG] include url: %@",[url absoluteString]);
-//#endif
-//		[[self executionContext] evalFile:[url absoluteString]];
-//	}
 }
 
 #ifdef DEBUG
