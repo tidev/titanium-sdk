@@ -237,27 +237,26 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 -(void)removeProxies
 {
 	[proxyLock lock];
-	if (proxies!=nil)
-	{
-		SEL sel = @selector(contextShutdown:);
-		// we have to make a copy since shutdown will possibly remove
-		for (id proxy in [NSArray arrayWithArray:proxies])
-		{
-			if ([proxy respondsToSelector:sel])
-			{
-				[proxy contextShutdown:self];
-			}
-		}
-	}
-	if (registeredProxies!= NULL)
-	{
-		CFRelease(registeredProxies);
-	    registeredProxies = nil;
-	    //Registered proxies will handle the memory issues.
-	}
-	
+
+	CFDictionaryRef oldProxies = registeredProxies;
+	registeredProxies = nil;
 	RELEASE_TO_NIL(proxies);
 	[proxyLock unlock];
+	
+	for (id thisProxy in (NSDictionary *)oldProxies)
+	{
+		KrollObject * thisKrollObject = (id)CFDictionaryGetValue(oldProxies, thisProxy);
+			if ([thisProxy respondsToSelector:@selector(contextShutdown:)])
+			{
+				[thisProxy contextShutdown:self];
+			}
+		[thisKrollObject unprotectJsobject];
+	}
+
+	if (oldProxies != NULL)
+	{
+		CFRelease(oldProxies);
+	}
 }
 
 -(void)dealloc
@@ -782,6 +781,31 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	}
 	
 	@throw [NSException exceptionWithName:@"org.appcelerator.kroll" reason:[NSString stringWithFormat:@"Couldn't find module: %@",path] userInfo:nil];
+}
+
++ (int)countOfKrollBridgesUsingProxy:(id)proxy
+{
+	int result = 0;
+
+	OSSpinLockLock(&krollBridgeRegistryLock);
+	int bridgeCount = CFSetGetCount(krollBridgeRegistry);
+	KrollBridge * registryObjects[bridgeCount];
+	CFSetGetValues(krollBridgeRegistry, (const void **)registryObjects);
+	
+	for (int currentBridgeIndex = 0; currentBridgeIndex < bridgeCount; currentBridgeIndex++)
+	{
+		KrollBridge * currentBridge = registryObjects[currentBridgeIndex];
+		if (![currentBridge usesProxy:proxy])
+		{
+			continue;
+		}
+		result ++;
+	}
+
+	//Why do we wait so long? In case someone tries to dealloc the krollBridge while we're looking at it.
+	//registryObjects nor the registry does a retain here!
+	OSSpinLockUnlock(&krollBridgeRegistryLock);
+	return result;
 }
 
 + (NSArray *)krollBridgesUsingProxy:(id)proxy

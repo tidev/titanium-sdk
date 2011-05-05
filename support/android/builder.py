@@ -447,6 +447,9 @@ class Builder(object):
 		
 	def is_app_installed(self):
 		return self.check_file_exists('/data/app/%s*.apk' % self.app_id)
+
+	def is_deploy_file_installed(self):
+		return self.check_file_exists('/sdcard/%s/deploy.json' % self.app_id)
 		
 	def are_resources_installed(self):
 		return self.check_file_exists(self.sdcard_resources+'/app.js')
@@ -673,6 +676,7 @@ class Builder(object):
 		VIDEO_ACTIVITY = """<activity
 		android:name="ti.modules.titanium.media.TiVideoActivity"
 		android:configChanges="keyboardHidden|orientation"
+		android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
 		android:launchMode="singleTask"
     	/>"""
 
@@ -1632,17 +1636,24 @@ class Builder(object):
 			# self.enable_debugger(debugger_host)
 			self.copy_project_resources()
 
+			include_all_ti_modules = self.fastdev 
+			if (self.tiapp.has_app_property('ti.android.include_all_modules')):
+				if self.tiapp.to_bool(self.tiapp.get_app_property('ti.android.include_all_modules')):
+					include_all_ti_modules = True
 			if self.tiapp_changed or (self.js_changed and not self.fastdev) or \
-				self.force_rebuild or self.deploy_type == "production":
+					self.force_rebuild or self.deploy_type == "production" or \
+					(self.fastdev and not self.app_installed) or \
+					(self.deploy_type == 'test' and not self.is_deploy_file_installed()):
 				trace("Generating Java Classes")
 				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')),
-					True, project_dir = self.top_dir)
+					True, project_dir = self.top_dir, include_all_ti_modules=include_all_ti_modules)
 			else:
 				info("Tiapp.xml unchanged, skipping class generation")
 
 			# compile resources
 			full_resource_dir = os.path.join(self.project_dir, self.assets_resources_dir)
-			compiler = Compiler(self.tiapp, full_resource_dir, self.java, self.classes_dir, self.project_dir)
+			compiler = Compiler(self.tiapp, full_resource_dir, self.java, self.classes_dir, self.project_dir, 
+					include_all_modules=include_all_ti_modules)
 			compiler.compile()
 			self.compiled_files = compiler.compiled_files
 			self.android_jars = compiler.jar_libraries

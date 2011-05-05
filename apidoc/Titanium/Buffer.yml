@@ -7,7 +7,7 @@ since: "1.7"
 properties:
   - name: length
     type: Number
-    description: The length of the buffer in bytes. When `length` is modified the buffer will be re-sized while preserving existing data where possible. If the new buffer length is smaller than the length of the existing data then the existing data will be truncated down to the size of the new buffer.
+    description: The length of the buffer in bytes. When `length` is modified the buffer will be re-sized while preserving existing data where possible. If the new buffer length is smaller than the length of the existing data then the existing data will be truncated down to the size of the new buffer.  Resizing the buffer via setting length should be used sparingly due to the associated overhead.
     default: 0, unless `value` is specified, at which case the length of the encoded data is used
   - name: value
     type: [Number, String]

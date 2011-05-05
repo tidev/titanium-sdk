@@ -53,6 +53,8 @@
 - (KrollContext*)krollContext;
 
 + (NSArray *)krollBridgesUsingProxy:(id)proxy;
++ (int)countOfKrollBridgesUsingProxy:(id)proxy;
+
 + (BOOL)krollBridgeExists:(KrollBridge *)bridge;
 
 -(void)enqueueEvent:(NSString*)type forProxy:(TiProxy *)proxy withObject:(id)obj withSource:(id)source;

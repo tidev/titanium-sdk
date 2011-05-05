@@ -28,6 +28,7 @@ public class BufferStreamProxy extends KrollProxy implements TiStream
 	private BufferProxy buffer;
 	private int mode = -1;
 	private int position = -1;
+	private boolean isOpen = false;
 
 
 	public BufferStreamProxy(BufferProxy buffer, int mode)
@@ -49,12 +50,17 @@ public class BufferStreamProxy extends KrollProxy implements TiStream
 
 		this.buffer = buffer;
 		this.mode = mode;
+		isOpen = true;
 	}
 
 	// TiStream interface methods
 	@Kroll.method
 	public int read(Object args[]) throws IOException
 	{
+		if (!isOpen) {
+			throw new IOException("Unable to read from buffer, not open");
+		}
+
 		if (mode != StreamModule.MODE_READ) {
 			throw new IOException("Unable to read on a stream, not opened in read mode");
 		}
@@ -121,6 +127,10 @@ public class BufferStreamProxy extends KrollProxy implements TiStream
 	@Kroll.method
 	public int write(Object args[]) throws IOException
 	{
+		if (!isOpen) {
+			throw new IOException("Unable to write to buffer, not open");
+		}
+
 		if ((mode != StreamModule.MODE_WRITE) && (mode != StreamModule.MODE_APPEND)) {
 			throw new IOException("Unable to write on stream, not opened in read or append mode");
 		}
@@ -196,6 +206,7 @@ public class BufferStreamProxy extends KrollProxy implements TiStream
 		buffer = null;
 		mode = -1;
 		position = -1;
+		isOpen = false;
 	}
 }
 

@@ -24,21 +24,38 @@ extern NSString * const TI_APPLICATION_ID;
 @implementation TiHost
 @synthesize debugMode;
 
-+(NSURL*)resourceBasedURL:(NSString*)fn baseURL:(NSString**)base
++(NSString *)resourcePath
 {
-	NSString *path = [[NSBundle mainBundle] bundlePath];
+	NSString *resourcePath = [[NSBundle mainBundle] bundlePath];
 #if TARGET_IPHONE_SIMULATOR
-	if (TI_APPLICATION_RESOURCE_DIR!=nil && [TI_APPLICATION_RESOURCE_DIR isEqualToString:@""]==NO)
+	if (TI_APPLICATION_RESOURCE_DIR!=nil && ![TI_APPLICATION_RESOURCE_DIR isEqualToString:@""])
 	{
 		// if the .local file exists and we're in the simulator, then force load from resources bundle
-		if (![[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithFormat:@"%@/.local",[[NSBundle mainBundle] resourcePath]]])
+		NSString * localFilePath = [resourcePath stringByAppendingPathComponent:@".local"];
+		if (![[NSFileManager defaultManager] fileExistsAtPath:localFilePath])
 		{
 			// we use our app resource directory
-			path = TI_APPLICATION_RESOURCE_DIR;
+			resourcePath = TI_APPLICATION_RESOURCE_DIR;
 		}
 	}
 #endif
-	NSString *fullpath = [NSString stringWithFormat:@"%@/%@",path,fn];
+	return resourcePath;
+}
+
++(NSURL*)resolveFilePathForAppUrl:(NSURL*)appUrl
+{
+	if (![[appUrl scheme] isEqualToString:@"app"])
+	{//Whoops! We don't need to translate!
+		return appUrl;
+	}
+
+	NSString * result = [[self resourcePath] stringByAppendingPathComponent:[appUrl path]];
+	return [NSURL fileURLWithPath:result];
+}
+
++(NSURL*)resourceBasedURL:(NSString*)fn baseURL:(NSString**)base
+{
+	NSString *fullpath = [NSString stringWithFormat:@"%@/%@",[self resourcePath],fn];
 	if (base!=NULL)
 	{
 		*base = [fullpath stringByDeletingLastPathComponent];

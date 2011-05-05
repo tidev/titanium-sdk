@@ -25,12 +25,14 @@ public class FileStreamProxy extends KrollProxy implements TiStream
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private FileProxy fileProxy;
+	private boolean isOpen = false;
 
 
 	public FileStreamProxy(FileProxy fileProxy)
 	{
 		super(fileProxy.getTiContext());
 		this.fileProxy = fileProxy;
+		isOpen = true;
 	}
 
 
@@ -38,6 +40,10 @@ public class FileStreamProxy extends KrollProxy implements TiStream
 	@Kroll.method
 	public int read(Object args[]) throws IOException
 	{
+		if (!isOpen) {
+			throw new IOException("Unable to read from file, not open");
+		}
+
 		BufferProxy bufferProxy = null;
 		int offset = 0;
 		int length = 0;
@@ -91,6 +97,10 @@ public class FileStreamProxy extends KrollProxy implements TiStream
 	@Kroll.method
 	public int write(Object args[]) throws IOException
 	{
+		if (!isOpen) {
+			throw new IOException("Unable to write to file, not open");
+		}
+
 		BufferProxy bufferProxy = null;
 		int offset = 0;
 		int length = 0;
@@ -157,6 +167,7 @@ public class FileStreamProxy extends KrollProxy implements TiStream
 	public void close() throws IOException
 	{
 		fileProxy.tbf.close();
+		isOpen = false;
 	}
 }
 
