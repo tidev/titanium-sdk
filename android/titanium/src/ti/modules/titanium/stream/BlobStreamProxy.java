@@ -28,12 +28,14 @@ public class BlobStreamProxy extends KrollProxy implements TiStream
 
 	private TiBlob tiBlob;
 	private InputStream inputStream = null;
+	private boolean isOpen = false;
 
 
 	public BlobStreamProxy(TiBlob tiBlob)
 	{
 		super(tiBlob.getTiContext());
 		this.tiBlob = tiBlob;
+		isOpen = true;
 	}
 
 
@@ -41,6 +43,10 @@ public class BlobStreamProxy extends KrollProxy implements TiStream
 	@Kroll.method
 	public int read(Object args[]) throws IOException
 	{
+		if (!isOpen) {
+			throw new IOException("Unable to read from blob, not open");
+		}
+
 		BufferProxy bufferProxy = null;
 		int offset = 0;
 		int length = 0;
@@ -124,6 +130,7 @@ public class BlobStreamProxy extends KrollProxy implements TiStream
 	{
 		tiBlob = null;
 		inputStream.close();
+		isOpen = false;
 	}
 }
 
