@@ -17,6 +17,47 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 
 @implementation FilesystemModule
 
+// internal
+-(id)resolveFile:(id)arg
+{
+	if ([arg isKindOfClass:[TiFilesystemFileProxy class]])
+	{
+		return [arg path];
+	}
+	return [TiUtils stringValue:arg];
+}
+
+-(NSString*)pathFromComponents:(NSArray*)args
+{
+	NSString * newpath;
+	id first = [args objectAtIndex:0];
+	if ([first hasPrefix:@"file://localhost/"])
+	{
+		NSURL * fileUrl = [NSURL URLWithString:first];
+		//Why not just crop? Because the url may have some things escaped that need to be unescaped.
+		newpath =[fileUrl path];
+	}
+	else if ([first characterAtIndex:0]!='/')
+	{
+		NSURL* url = [NSURL URLWithString:[self resourcesDirectory]];
+        newpath = [[url path] stringByAppendingPathComponent:[self resolveFile:first]];
+	}
+	else 
+	{
+		newpath = [self resolveFile:first];
+	}
+	
+	if ([args count] > 1)
+	{
+		for (int c=1;c<[args count];c++)
+		{
+			newpath = [newpath stringByAppendingPathComponent:[self resolveFile:[args objectAtIndex:c]]];
+		}
+	}
+    
+    return [newpath stringByStandardizingPath];
+}
+
 -(id)createTempFile:(id)args
 {
 	return [TiFilesystemFileProxy makeTemp:NO];
@@ -28,7 +69,6 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 }
 
 -(id)openStream:(id) args {
-	NSString *path;
 	NSNumber *fileMode;
 	
 	ENSURE_ARG_AT_INDEX(fileMode, args, 0, NSNumber);
@@ -42,10 +82,8 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 	
 	//allow variadic file components to be passed
 	NSArray *pathComponents = [args subarrayWithRange:NSMakeRange(1, [args count] - 1 )];
-	NSString *target = [pathComponents componentsJoinedByString:@"/"];
-
-	path = [TiUtils stringValue:target];
-	
+	NSString *path = [self pathFromComponents:pathComponents];
+    
 	NSArray *payload = [NSArray arrayWithObjects:path, fileMode, nil];
 
 	return [[[TiFilesystemFileStreamProxy alloc] _initWithPageContext:[self executionContext] args:payload] autorelease];
@@ -122,43 +160,10 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 	return @"\n";
 }
 
-// internal
--(id)resolveFile:(id)arg
-{
-	if ([arg isKindOfClass:[TiFilesystemFileProxy class]])
-	{
-		return [arg path];
-	}
-	return [TiUtils stringValue:arg];
-}
-
 -(id)getFile:(id)args
 {
-	NSString * newpath;
-	id first = [args objectAtIndex:0];
-	if ([first hasPrefix:@"file://localhost/"])
-	{
-		NSURL * fileUrl = [NSURL URLWithString:first];
-		//Why not just crop? Because the url may have some things escaped that need to be unescaped.
-		newpath =[fileUrl path];
-	}
-	else if ([first characterAtIndex:0]!='/')
-	{
-		newpath = [[self resourcesDirectory] stringByAppendingPathComponent:[self resolveFile:first]];
-	}
-	else 
-	{
-		newpath = [self resolveFile:first];
-	}
-	
-	if ([args count] > 1)
-	{
-		for (int c=1;c<[args count];c++)
-		{
-			newpath = [newpath stringByAppendingPathComponent:[self resolveFile:[args objectAtIndex:c]]];
-		}
-	}
-	
+	NSString* newpath = [self pathFromComponents:args];
+    
 	if ([newpath hasPrefix:[self resourcesDirectory]] &&
 		([newpath hasSuffix:@".html"]||
 		 [newpath hasSuffix:@".js"]||
