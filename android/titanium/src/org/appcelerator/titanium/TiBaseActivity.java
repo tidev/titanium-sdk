@@ -498,12 +498,12 @@ public abstract class TiBaseActivity extends Activity
 					if (degrees > 350 || degrees < 10) {
 						// set portrait
 						newOrientation = 1;
-					} else if ((degrees > 80 || degrees < 100) && VERSION.SDK_INT == 9) {
+					} else if ((degrees > 80 && degrees < 100) && VERSION.SDK_INT == 9) {
 						// set reverse landscape
-						newOrientation = 8;
-					} else if ((degrees > 170 || degrees < 190) && VERSION.SDK_INT == 9) {
+						// newOrientation = 8;
+					} else if ((degrees > 170 && degrees < 190) && VERSION.SDK_INT == 9) {
 						// set reverse portrait
-						newOrientation = 9;
+						// newOrientation = 9;
 					} else if (degrees > 260 && degrees < 280) {
 						// set landscape
 						newOrientation = 0;

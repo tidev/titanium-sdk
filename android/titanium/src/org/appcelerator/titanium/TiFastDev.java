@@ -13,11 +13,12 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Arrays;
 
 import org.appcelerator.titanium.util.Log;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Looper;
 import android.os.Process;
 import android.widget.Toast;
 
@@ -35,6 +36,7 @@ public class TiFastDev
 	public static final String COMMAND_GET = "get";
 	public static final String COMMAND_HANDSHAKE = "handshake";
 	public static final String COMMAND_KILL = "kill";
+	public static final String COMMAND_RESTART = "restart";
 	public static final String COMMAND_SHUTDOWN = "shutdown";
 
 	public static final String UTF8_CHARSET = "UTF-8";
@@ -112,13 +114,19 @@ public class TiFastDev
 		}
 	}
 
+	protected void showToast(String message)
+	{
+		if (Looper.myLooper() == null) {
+			Looper.prepare();
+		}
+		Context ctx = TiApplication.getInstance().getRootActivity();
+		Toast toast = Toast.makeText(ctx, message, Toast.LENGTH_LONG);
+		toast.show();
+	}
+
 	protected void showDisabledWarning(Exception e)
 	{
-		Context ctx = TiApplication.getInstance().getRootActivity();
-		Toast toast = Toast.makeText(ctx,
-			"Warning: FastDev mode is disabled. Error Message: " + e.getMessage(),
-			Toast.LENGTH_LONG);
-		toast.show();
+		showToast("Warning: FastDev mode is disabled. Error Message: " + e.getMessage());
 	}
 
 	public String toURL(String relativePath)
@@ -293,13 +301,38 @@ public class TiFastDev
 			try {
 				String command = new String(message[0], UTF8_CHARSET);
 				if (COMMAND_KILL.equals(command)) {
-					Log.d(TAG, "Killing app from Fastdev server request");
-					sendTokens(RESULT_OK);
-					Process.killProcess(Process.myPid());
+					executeKill();
+				}
+				else if (COMMAND_RESTART.equals(command)) {
+					executeRestart();
 				}
 			} catch (UnsupportedEncodingException e) {
 				Log.e(TAG, e.getMessage(), e);
 			}
+		}
+
+		protected void executeKill()
+		{
+			String message ="Killing app from Fastdev server request";
+			Log.w(TAG, message);
+			showToast(message);
+
+			sendTokens(RESULT_OK);
+			Process.killProcess(Process.myPid());
+		}
+
+		protected void executeRestart()
+		{
+			String message = "Restarting app from Fastdev server request";
+			Log.w(TAG, message);
+			showToast(message);
+
+			sendTokens(RESULT_OK);
+			TiApplication app = TiApplication.getInstance();
+			Intent i = app.getPackageManager().getLaunchIntentForPackage(app.getPackageName());
+			i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			i.addCategory(Intent.CATEGORY_LAUNCHER);
+			app.getRootActivity().startActivity(i);
 		}
 
 		protected boolean sendTokens(String... tokens)
