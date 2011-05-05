@@ -84,6 +84,7 @@ Currently supported commands are:
 	- "script-handshake" <guid> : Script control handshake
 	- "get" <Resources relative path> : Get the contents of a file from the Resources folder
 	- "kill-app" : Kills the connected app's process
+	- "restart-app" : Restarts the connected app's process
 	-"shutdown" : Shuts down the server
 
 Right now the VFS rules for "get" are:
@@ -96,16 +97,19 @@ class FastDevHandler(SocketServer.BaseRequestHandler):
 	app_handler = None
 
 	def handle(self):
+		logging.info("connected: %s:%d" % self.client_address)
 		global request_count
 		self.valid_handshake = False
 		self.request.settimeout(1.0)
 		while True:
 			try:
 				tokens = read_tokens(self.request)
-				if tokens == None: break
+				if tokens == None:
+					break
 			except socket.timeout, e:
 				# only break the loop when not serving, otherwise timeouts are normal
-				if not server.is_serving(): break
+				if not server.is_serving():
+					break
 				else: continue
 
 			idle_thread.clear_idle_time()
@@ -133,6 +137,7 @@ class FastDevHandler(SocketServer.BaseRequestHandler):
 				elif command == "shutdown":
 					self.handle_shutdown()
 					break
+		logging.info("disconnected: %s:%d" % self.client_address)
 
 	def handle_handshake(self, handshake):
 		logging.info("handshake: %s" % handshake)
@@ -166,8 +171,12 @@ class FastDevHandler(SocketServer.BaseRequestHandler):
 	def handle_kill_app(self):
 		logging.info("request: kill-app")
 		if FastDevHandler.app_handler != None:
-			FastDevHandler.app_handler.send_tokens("kill")
-			self.send_tokens("OK")
+			try:
+				FastDevHandler.app_handler.send_tokens("kill")
+				self.send_tokens("OK")
+			except Exception, e:
+				logging.error("kill: error: %s" % e)
+				self.send_tokens(str(e))
 		else:
 			self.send_tokens("App not connected")
 			logging.warn("kill: no app is connected")
@@ -180,6 +189,7 @@ class FastDevHandler(SocketServer.BaseRequestHandler):
 				self.send_tokens("OK")
 			except Exception, e:
 				logging.error("restart: error: %s" % e)
+				self.send_tokens(str(e))
 		else:
 			self.send_tokens("App not connected")
 			logging.warn("restart: no app is connected")
