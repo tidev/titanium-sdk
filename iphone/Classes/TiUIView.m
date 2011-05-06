@@ -476,6 +476,10 @@ DEFINE_EXCEPTIONS
     changedInteraction = YES;
 }
 
+-(BOOL) touchEnabled {
+	return touchEnabled;
+}
+
 -(UIView *)gradientWrapperView
 {
 	return self;
