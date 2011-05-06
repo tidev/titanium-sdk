@@ -30,6 +30,21 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 	[super dealloc];
 }
 
+-(UIView *) hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+	UIView *superResult = [super hitTest:point withEvent:event];
+	
+	if(superResult == nil) {
+		return nil;
+	}
+	
+	if([superResult isKindOfClass:[TiUIView class]] 
+	   && ![(TiUIView*)superResult touchEnabled]) {
+		return [self button];
+	}
+
+	return superResult;
+}
+
 -(BOOL)hasTouchableListener
 {
 	// since this guy only works with touch events, we always want them
