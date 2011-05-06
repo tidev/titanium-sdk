@@ -448,9 +448,6 @@ class Builder(object):
 	def is_app_installed(self):
 		return self.check_file_exists('/data/app/%s*.apk' % self.app_id)
 
-	def is_deploy_file_installed(self):
-		return self.check_file_exists('/sdcard/%s/deploy.json' % self.app_id)
-		
 	def are_resources_installed(self):
 		return self.check_file_exists(self.sdcard_resources+'/app.js')
 	
@@ -1636,17 +1633,26 @@ class Builder(object):
 			# self.enable_debugger(debugger_host)
 			self.copy_project_resources()
 
+			last_build_info = None
+			built_all_modules = False
+			build_info_path = os.path.join(self.project_dir, 'bin', 'build_info.json')
+			if os.path.exists(build_info_path):
+				last_build_info = simplejson.loads(open(build_info_path, 'r').read())
+				built_all_modules = last_build_info["include_all_modules"]
+
 			include_all_ti_modules = self.fastdev 
 			if (self.tiapp.has_app_property('ti.android.include_all_modules')):
 				if self.tiapp.to_bool(self.tiapp.get_app_property('ti.android.include_all_modules')):
 					include_all_ti_modules = True
 			if self.tiapp_changed or (self.js_changed and not self.fastdev) or \
 					self.force_rebuild or self.deploy_type == "production" or \
-					(self.fastdev and not self.app_installed) or \
-					(self.deploy_type == 'test' and not self.is_deploy_file_installed()):
+					(self.fastdev and (not self.app_installed or not built_all_modules)):
 				trace("Generating Java Classes")
 				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')),
 					True, project_dir = self.top_dir, include_all_ti_modules=include_all_ti_modules)
+				open(build_info_path, 'w').write(simplejson.dumps({
+					"include_all_modules": include_all_ti_modules
+				}))
 			else:
 				info("Tiapp.xml unchanged, skipping class generation")
 

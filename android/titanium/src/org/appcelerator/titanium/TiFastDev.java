@@ -56,6 +56,7 @@ public class TiFastDev
 	protected String urlPrefix;
 	protected Socket fastDevSocket;
 	protected Session session;
+	protected boolean restarting = false;
 
 	public TiFastDev()
 	{
@@ -152,10 +153,15 @@ public class TiFastDev
 
 	public static void onDestroy()
 	{
-		TiFastDev fastdev = getInstance();
-		if (fastdev.session != null) {
-			fastdev.session.close();
-			fastdev.session = null;
+		// onDestroy will be called after the new activity is launched
+		// so protect the new instance here
+		if (_instance != null && _instance.restarting) {
+			_instance.restarting = false;
+			return;
+		}
+		if (_instance != null && _instance.session != null) {
+			_instance.session.close();
+			_instance.session = null;
 		}
 		_instance = null;
 	}
@@ -326,6 +332,7 @@ public class TiFastDev
 			String message = "Restarting app from Fastdev server request";
 			Log.w(TAG, message);
 			showToast(message);
+			restarting = true;
 
 			sendTokens(RESULT_OK);
 			TiApplication app = TiApplication.getInstance();
@@ -373,6 +380,7 @@ public class TiFastDev
 			if (fastDevSocket != null) {
 				try {
 					fastDevSocket.close();
+					fastDevSocket = null;
 				} catch (IOException e) {
 					Log.e(TAG, e.getMessage(), e);
 				}
