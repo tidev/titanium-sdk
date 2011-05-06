@@ -56,7 +56,6 @@ class Android(object):
 
 	def __init__(self, name, myid, sdk, deploy_type, java):
 		self.name = name
-		
 		# android requires at least one dot in packageid
 		if len(re.findall(r'\.',myid))==0:
 			myid = 'com.%s' % myid
@@ -154,11 +153,12 @@ class Android(object):
 			else:
 				self.render(template_dir, 'JSService.java', app_package_dir, service['classname']+'.java', service=service)
 
-	def build_modules_info(self, resources_dir, app_bin_dir):
+	def build_modules_info(self, resources_dir, app_bin_dir, include_all_ti_modules=False):
 		self.app_modules = []
 		(modules, external_child_modules) = bindings.get_all_module_bindings()
 		
-		compiler = Compiler(self.tiapp, resources_dir, self.java, app_bin_dir, os.path.dirname(app_bin_dir))
+		compiler = Compiler(self.tiapp, resources_dir, self.java, app_bin_dir, os.path.dirname(app_bin_dir),
+				include_all_modules=include_all_ti_modules)
 		compiler.compile(compile_bytecode=False, info_message=None)
 		for module in compiler.modules:
 			module_bindings = []
@@ -211,7 +211,7 @@ class Android(object):
 						'manifest': module.manifest
 					})
 		
-	def create(self, dir, build_time=False, project_dir=None):
+	def create(self, dir, build_time=False, project_dir=None, include_all_ti_modules=False):
 		template_dir = os.path.dirname(sys._getframe(0).f_code.co_filename)
 		
 		# Build up output directory tree
@@ -250,7 +250,7 @@ class Android(object):
 		app_bin_assets_dir = self.newdir(app_bin_dir, 'assets')
 		
 		self.build_app_info(project_dir)
-		self.build_modules_info(resource_dir, app_bin_dir)
+		self.build_modules_info(resource_dir, app_bin_dir, include_all_ti_modules=include_all_ti_modules)
 		
 		# Create android source
 		self.render(template_dir, 'AppInfo.java', app_package_dir, self.config['classname'] + 'AppInfo.java',

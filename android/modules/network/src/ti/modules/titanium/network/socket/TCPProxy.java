@@ -260,8 +260,12 @@ public class TCPProxy extends KrollProxy implements TiStream
 						accepting = false;
 
 					} catch (IOException e) {
-						e.printStackTrace();
-						updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to accept new connection, IO error", 0));
+						if (state == SocketModule.LISTENING) {
+							e.printStackTrace();
+							updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to accept new connection, IO error", 0));
+						}
+
+						break;
 					}
 
 				} else {
@@ -344,6 +348,11 @@ public class TCPProxy extends KrollProxy implements TiStream
 	@Kroll.method
 	public int read(Object args[]) throws IOException
 	{
+		if(!isConnected())
+		{
+			throw new IOException("Unable to read from socket, not connected");
+		}
+
 		BufferProxy bufferProxy = null;
 		int offset = 0;
 		int length = 0;
@@ -403,6 +412,11 @@ public class TCPProxy extends KrollProxy implements TiStream
 	@Kroll.method
 	public int write(Object args[]) throws IOException
 	{
+		if(!isConnected())
+		{
+			throw new IOException("Unable to write to socket, not connected");
+		}
+
 		BufferProxy bufferProxy = null;
 		int offset = 0;
 		int length = 0;
@@ -471,11 +485,13 @@ public class TCPProxy extends KrollProxy implements TiStream
 	public void close() throws IOException
 	{
 		if((state != SocketModule.CONNECTED) && (state != SocketModule.LISTENING)) {
-			throw new IOException("Socket is not connected or listening, unable to call close");
+			throw new IOException("Socket is not connected or listening, unable to call close on socket in <" + state + "> state");
 		}
 
 		try {
+			state = 0; // set socket state to uninitialized to prevent use while closing
 			closeSocket();
+			state = SocketModule.CLOSED;
 
 		} catch (IOException e) {
 			e.printStackTrace();

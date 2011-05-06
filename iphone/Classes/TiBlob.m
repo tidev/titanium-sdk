@@ -210,7 +210,7 @@
 // For Android compatibility
 -(NSString*)nativePath
 {
-	return path;
+	return [[NSURL fileURLWithPath:path] absoluteString];
 }
 
 -(NSNumber*)length

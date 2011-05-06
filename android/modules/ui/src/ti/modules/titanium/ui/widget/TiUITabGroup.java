@@ -40,6 +40,10 @@ public class TiUITabGroup extends TiUIView
 	{
 		super(proxy);
 		tabHost = activity.getTabHost();
+		// Set to GONE to overcome a NullPointerException
+		// deep in Android code in pre api 8.  See Android issue
+		// 2772.
+		tabHost.setVisibility(View.GONE);
 		tabHost.clearAllTabs();
 		tabHost.setOnTabChangedListener(this);
 		tabHost.setup(activity.getLocalActivityManager());
@@ -64,6 +68,17 @@ public class TiUITabGroup extends TiUIView
 		addingTab = true;
 		tabHost.addTab(tab);
 		addingTab = false;
+		if (tabHost.getVisibility() == View.GONE) {
+			boolean visibilityPerProxy = true; // default
+			if (proxy.hasProperty(TiC.PROPERTY_VISIBLE)) {
+				visibilityPerProxy = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_VISIBLE));
+			}
+			if (visibilityPerProxy) {
+				tabHost.setVisibility(View.VISIBLE);
+			} else {
+				tabHost.setVisibility(View.INVISIBLE);
+			}
+		}
 	}
 
 	public void setActiveTab(int index)

@@ -122,14 +122,14 @@
         case TI_BYTE: {
             // We don't need to worry about endianness for single-byte information
             char byte;
-            memcpy((void*)data+position, &byte, sizeof(byte));
+            memcpy(&byte, (void*)data+position, sizeof(byte));
             // Note that returning 'char' forces a conversion to boolean value by the Ti system, so we coerce to int
             return [NSNumber numberWithInt:byte];
             break;
         }
         case TI_SHORT: {
             uint16_t shortVal;
-            memcpy((void*)data+position, &shortVal, sizeof(shortVal));
+            memcpy(&shortVal, (void*)data+position, sizeof(shortVal));
             switch (byteOrder) {
                 case CFByteOrderLittleEndian:
                     return [NSNumber numberWithShort:CFSwapInt16LittleToHost(shortVal)];
@@ -140,7 +140,7 @@
         }
         case TI_INT: {
             uint32_t intVal;
-            memcpy((void*)data+position, &intVal, sizeof(intVal));
+            memcpy(&intVal, (void*)data+position, sizeof(intVal));
             switch (byteOrder) {
                 case CFByteOrderLittleEndian:
                     return [NSNumber numberWithInt:CFSwapInt32LittleToHost(intVal)];
@@ -151,7 +151,7 @@
         }
         case TI_LONG: {
             uint64_t longVal;
-            memcpy((void*)data+position, &longVal, sizeof(longVal));
+            memcpy(&longVal, (void*)data+position, sizeof(longVal));
             switch (byteOrder) {
                 case CFByteOrderLittleEndian:
                     return [NSNumber numberWithLongLong:CFSwapInt64LittleToHost(longVal)];
@@ -161,35 +161,42 @@
             break;
         }
         case TI_FLOAT: {
-            CFSwappedFloat32 floatVal;
-            memcpy((void*)data+position, &(floatVal.v), sizeof(floatVal.v));
+            // As per encoding, we need to use a union to translate float bytes into an int structure.
+            union {
+                Float32 f;
+                CFSwappedFloat32 sf;
+            } val;
+            memcpy(&(val.sf.v), (void*)data+position, sizeof(val.sf.v));
             switch (byteOrder) {
                 case CFByteOrderLittleEndian: {
-                    floatVal.v = CFSwapInt32LittleToHost(floatVal.v);
+                    val.sf.v = CFSwapInt32LittleToHost(val.sf.v);
                     break;
                 }
                 case CFByteOrderBigEndian: {
-                    floatVal.v = CFSwapInt32BigToHost(floatVal.v);
+                    val.sf.v = CFSwapInt32BigToHost(val.sf.v);
                     break;
                 }
             }
-            return [NSNumber numberWithFloat:CFConvertFloat32SwappedToHost(floatVal)];
+            return [NSNumber numberWithFloat:val.f];
             break;
         }
         case TI_DOUBLE: {
-            CFSwappedFloat64 doubleVal;
-            memcpy((void*)data+position, &(doubleVal.v), sizeof(doubleVal.v));
+            union {
+                Float64 f;
+                CFSwappedFloat64 sf;
+            } val;
+            memcpy(&(val.sf.v), (void*)data+position, sizeof(val.sf.v));
             switch (byteOrder) {
                 case CFByteOrderLittleEndian: {
-                    doubleVal.v = CFSwapInt64LittleToHost(doubleVal.v);
+                    val.sf.v = CFSwapInt64LittleToHost(val.sf.v);
                     break;
                 }
                 case CFByteOrderBigEndian: {
-                    doubleVal.v = CFSwapInt64BigToHost(doubleVal.v);
+                    val.sf.v = CFSwapInt64BigToHost(val.sf.v);
                     break;
                 }
             }
-            return [NSNumber numberWithDouble:CFConvertFloat64SwappedToHost(doubleVal)];
+            return [NSNumber numberWithDouble:val.f];
             break;
         }
         default:
@@ -262,15 +269,20 @@
     
     TiBuffer* src = nil;
     int position;
+    BOOL hasPosition;
     int length;
+    BOOL hasLength;
     NSString* charset = nil;
     
     ENSURE_ARG_FOR_KEY(src, args, @"source", TiBuffer);
-    ENSURE_INT_FOR_KEY(position, args, @"position");
-    ENSURE_INT_FOR_KEY(length, args, @"length");
+    ENSURE_INT_OR_NIL_FOR_KEY(position, args, @"position", hasPosition);
+    ENSURE_INT_OR_NIL_FOR_KEY(length, args, @"length", hasLength);
     ENSURE_ARG_OR_NIL_FOR_KEY(charset, args, @"charset", NSString);
     
+    position = (hasPosition) ? position : 0;
+    length = (hasLength) ? length : [[src length] intValue];
     charset = (charset) ? charset : [self CHARSET_UTF8];
+    
     NSStringEncoding encoding = [TiUtils charsetToEncoding:charset];
     if (encoding == 0) {
         [self throwException:[NSString stringWithFormat:@"Invalid string encoding type '%@'",charset]

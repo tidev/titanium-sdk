@@ -34,7 +34,7 @@
 
 -(id)nativePath
 {
-	return path;
+	return [[NSURL fileURLWithPath:path] absoluteString];
 }
 
 -(id)exists:(id)args
@@ -159,7 +159,7 @@ FILENOOP(setHidden:(id)x);
 
 -(id)resolve:(id)args
 {
-	return path;
+	return [self nativePath];
 }
 
 -(id)description

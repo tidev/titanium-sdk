@@ -848,9 +848,18 @@ public class TiUIHelper
 			case Configuration.ORIENTATION_LANDSCAPE:
 			case ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:
 				return LANDSCAPE_LEFT;
-			case Configuration.ORIENTATION_PORTRAIT:
+
 			// == case ActivityInfo.SCREEN_ORIENTATION_PORTRAIT:
+			case Configuration.ORIENTATION_PORTRAIT:
 				return PORTRAIT;
+
+			// TODO ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE is not available in sdk 7
+			case 8:
+				return LANDSCAPE_RIGHT;
+
+			// TODO ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE is not available in sdk 7
+			case 9:
+				return UPSIDE_PORTRAIT;
 		}
 		return UNKNOWN;
 	}

@@ -206,14 +206,16 @@
 
 -(int)currentPage
 {
-	CGPoint offset = [[self scrollview] contentOffset];
-    if (offset.x >= 0) {
-        CGSize scrollFrame = [self bounds].size;
-        if (scrollFrame.width != 0) {
-            return floor(offset.x/scrollFrame.width);
-        }
-        else {
-            NSLog(@"[WARN] Divide by 0 width in scrollview page calculation... check your bounds.");
+    if (scrollview != nil) {
+        CGPoint offset = [[self scrollview] contentOffset];
+        if (offset.x >= 0) {
+            CGSize scrollFrame = [self bounds].size;
+            if (scrollFrame.width != 0) {
+                return floor(offset.x/scrollFrame.width);
+            }
+            else {
+                NSLog(@"[WARN] Divide by 0 width in scrollview page calculation... check your bounds.");
+            }
         }
     }
     return 0;

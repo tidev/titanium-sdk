@@ -685,14 +685,17 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 }
 #endif
 
+-(void)unregisterForNotifications
+{
+	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 -(void)dealloc
 {
 #if CONTEXT_MEMORY_DEBUG==1
 	NSLog(@"DEALLOC: %@",self);
 #endif
-	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiSuspendNotification object:nil];
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiResumeNotification object:nil];
 	assert(!destroyed);
 	destroyed = YES;
 	[self destroy];
@@ -1228,7 +1231,8 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	prop = TiStringCreateWithUTF8CString("Kroll");
 	TiObjectDeleteProperty(context, globalRef, prop, NULL);	//TODO: This still needed?
 	TiStringRelease(prop);
-	
+
+	[self performSelectorOnMainThread:@selector(unregisterForNotifications) withObject:nil waitUntilDone:NO];
 	[self forceGarbageCollectNow];
 	// cause the global context to be released and all objects internally to be finalized
 	TiGlobalContextRelease(context);

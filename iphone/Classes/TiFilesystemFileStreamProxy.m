@@ -46,6 +46,11 @@
 					if(!created) {
 						[NSException raise:NSInternalInconsistencyException format:@"An error occurred while trying to create the file."];
 					}
+				} else {
+					//If the file exists and the mode is TI_WRITE, truncate the file.
+					if(mode == TI_WRITE) {
+ 						[@"" writeToFile:filePath atomically:YES];
+					}
 				}
 				
 				handle = [NSFileHandle fileHandleForUpdatingAtPath:filePath];

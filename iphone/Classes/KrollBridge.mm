@@ -168,23 +168,33 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 }
 @synthesize currentURL;
 
+-(void)registerForMemoryWarning
+{
+	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
+	[[NSNotificationCenter defaultCenter] addObserver:self
+			selector:@selector(didReceiveMemoryWarning:)
+			name:UIApplicationDidReceiveMemoryWarningNotification  
+			object:nil]; 
+}
+
+-(void)unregisterForMemoryWarning
+{
+	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+}
+
 -(id)init
 {
 	if (self = [super init])
 	{
 #if KROLLBRIDGE_MEMORY_DEBUG==1
 		NSLog(@"INIT: %@",self);
-#endif
-		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-		[[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(didReceiveMemoryWarning:)
-													 name:UIApplicationDidReceiveMemoryWarningNotification  
-												   object:nil]; 
-		
+#endif		
 		proxyLock = [[NSRecursiveLock alloc] init];
 		OSSpinLockLock(&krollBridgeRegistryLock);
 		CFSetAddValue(krollBridgeRegistry, self);
 		OSSpinLockUnlock(&krollBridgeRegistryLock);
+		[self performSelectorOnMainThread:@selector(registerForMemoryWarning) withObject:nil waitUntilDone:NO];
 	}
 	return self;
 }
@@ -237,27 +247,26 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 -(void)removeProxies
 {
 	[proxyLock lock];
-	if (proxies!=nil)
-	{
-		SEL sel = @selector(contextShutdown:);
-		// we have to make a copy since shutdown will possibly remove
-		for (id proxy in [NSArray arrayWithArray:proxies])
-		{
-			if ([proxy respondsToSelector:sel])
-			{
-				[proxy contextShutdown:self];
-			}
-		}
-	}
-	if (registeredProxies!= NULL)
-	{
-		CFRelease(registeredProxies);
-	    registeredProxies = nil;
-	    //Registered proxies will handle the memory issues.
-	}
-	
+
+	CFDictionaryRef oldProxies = registeredProxies;
+	registeredProxies = nil;
 	RELEASE_TO_NIL(proxies);
 	[proxyLock unlock];
+	
+	for (id thisProxy in (NSDictionary *)oldProxies)
+	{
+		KrollObject * thisKrollObject = (id)CFDictionaryGetValue(oldProxies, thisProxy);
+			if ([thisProxy respondsToSelector:@selector(contextShutdown:)])
+			{
+				[thisProxy contextShutdown:self];
+			}
+		[thisKrollObject unprotectJsobject];
+	}
+
+	if (oldProxies != NULL)
+	{
+		CFRelease(oldProxies);
+	}
 }
 
 -(void)dealloc
@@ -265,10 +274,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 #if KROLLBRIDGE_MEMORY_DEBUG==1
 	NSLog(@"DEALLOC: %@",self);
 #endif
-	
-	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
-	
+		
 	[self removeProxies];
 	RELEASE_TO_NIL(preload);
 	RELEASE_TO_NIL(context);
@@ -506,7 +512,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 -(void)didStartNewContext:(KrollContext*)kroll
 {
 	// create Titanium global object
-	NSString *basePath = (url==nil) ? [[NSBundle mainBundle] resourcePath] : [[url path] stringByDeletingLastPathComponent];
+	NSString *basePath = (url==nil) ? [TiHost resourcePath] : [[[url path] stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"."];
 	titanium = [[TitaniumObject alloc] initWithContext:kroll host:host context:self baseURL:[NSURL fileURLWithPath:basePath]];
 	
 	TiContextRef jsContext = [kroll context];
@@ -575,6 +581,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 -(void)didStopNewContext:(KrollContext*)kroll
 {
+	[self performSelectorOnMainThread:@selector(unregisterForMemoryWarning) withObject:nil waitUntilDone:NO];
 	[self removeProxies];
 	RELEASE_TO_NIL(titanium);
 	RELEASE_TO_NIL(context);
@@ -782,6 +789,31 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	}
 	
 	@throw [NSException exceptionWithName:@"org.appcelerator.kroll" reason:[NSString stringWithFormat:@"Couldn't find module: %@",path] userInfo:nil];
+}
+
++ (int)countOfKrollBridgesUsingProxy:(id)proxy
+{
+	int result = 0;
+
+	OSSpinLockLock(&krollBridgeRegistryLock);
+	int bridgeCount = CFSetGetCount(krollBridgeRegistry);
+	KrollBridge * registryObjects[bridgeCount];
+	CFSetGetValues(krollBridgeRegistry, (const void **)registryObjects);
+	
+	for (int currentBridgeIndex = 0; currentBridgeIndex < bridgeCount; currentBridgeIndex++)
+	{
+		KrollBridge * currentBridge = registryObjects[currentBridgeIndex];
+		if (![currentBridge usesProxy:proxy])
+		{
+			continue;
+		}
+		result ++;
+	}
+
+	//Why do we wait so long? In case someone tries to dealloc the krollBridge while we're looking at it.
+	//registryObjects nor the registry does a retain here!
+	OSSpinLockUnlock(&krollBridgeRegistryLock);
+	return result;
 }
 
 + (NSArray *)krollBridgesUsingProxy:(id)proxy

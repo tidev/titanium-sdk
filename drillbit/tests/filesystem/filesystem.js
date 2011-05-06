@@ -137,6 +137,9 @@ describe("Ti.Filesystem tests", {
 		var infile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'stream_test_in.txt');
 		var instream = infile.open(Ti.Filesystem.MODE_READ);
 		var outfile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'fsappendtest.jpg');
+		if(outfile.exists()) {
+			outfile.deleteFile();
+		}
 		var outstream = outfile.open(Ti.Filesystem.MODE_WRITE);
 
 		var bytesStreamed = Ti.Stream.writeStream(instream, outstream, 40);
@@ -167,8 +170,6 @@ describe("Ti.Filesystem tests", {
 		Ti.API.info('Total write size: '+totalWriteSize);
 		valueOf(totalReadSize).shouldBeExactly(bytesStreamed + totalWriteSize);
 		instream.close();
-
-		infile.deleteFile(); //delete the file so that the tests don't fail on the next test run.
 	},
 
 	fileStreamPumpTest:function() {
@@ -231,5 +232,35 @@ describe("Ti.Filesystem tests", {
 				resourceFileStream.close()
 			}).shouldNotThrowException();
 		}
+	},
+
+	fileStreamTruncateTest:function() {
+		var inBuffer = Ti.createBuffer({value:"huray for data, lets have a party for data1 huray for data, lets have a party for data2 huray for data, lets have a party for data3"});
+		valueOf(inBuffer).shouldBeObject();
+		var inStream = Ti.Stream.createStream({source:inBuffer, mode:Ti.Stream.MODE_READ});
+		valueOf(inStream).shouldNotBeNull();
+
+		var outFileStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_WRITE, Ti.Filesystem.applicationDataDirectory, 'stream_test_truncate.txt');
+		valueOf(outFileStream).shouldBeObject();
+
+		// writes all data from inBufferStream to outFileStream in chunks of 30
+		var bytesWritten = Ti.Stream.writeStream(inStream, outFileStream, 30);
+		Ti.API.info('<' + bytesWritten + '> bytes written, closing both streams');
+
+		// assert that the length of the outBuffer is equal to the amount of bytes that were written
+		valueOf(bytesWritten).shouldBe(inBuffer.length);
+		outFileStream.close();
+
+		var outFileStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_WRITE, Ti.Filesystem.applicationDataDirectory, 'stream_test_truncate.txt');
+		valueOf(outFileStream).shouldBeObject();
+		outFileStream.close();
+
+		var inFileStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_READ, Ti.Filesystem.applicationDataDirectory, 'stream_test_truncate.txt');
+		valueOf(inFileStream).shouldBeObject();
+
+		var truncateBuffer = Ti.Stream.readAll(inFileStream);
+		valueOf(truncateBuffer.length).shouldBeExactly(0);
+
+		inFileStream.close();
 	}
 });

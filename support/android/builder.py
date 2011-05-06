@@ -27,6 +27,7 @@ from deltafy import Deltafy, Delta
 from css import csscompiler
 from module import ModuleDetector
 import localecompiler
+import fastdev
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn', 'CVS'];
@@ -446,7 +447,7 @@ class Builder(object):
 		
 	def is_app_installed(self):
 		return self.check_file_exists('/data/app/%s*.apk' % self.app_id)
-		
+
 	def are_resources_installed(self):
 		return self.check_file_exists(self.sdcard_resources+'/app.js')
 	
@@ -672,6 +673,7 @@ class Builder(object):
 		VIDEO_ACTIVITY = """<activity
 		android:name="ti.modules.titanium.media.TiVideoActivity"
 		android:configChanges="keyboardHidden|orientation"
+		android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
 		android:launchMode="singleTask"
     	/>"""
 
@@ -1420,28 +1422,28 @@ class Builder(object):
 		self.run_adb('push', deploy_json, '/sdcard/%s/deploy.json' % self.app_id)
 		os.unlink(deploy_json)
 
-	def enable_fastdev(self):
-		lock_file = os.path.join(self.top_dir, ".fastdev.lock")
-		if not os.path.exists(lock_file):
-			info("Enabling Fastdev... (5s)")
-			fastdev = os.path.join(template_dir, "fastdev.py")
-			pid = subprocess.Popen([sys.executable, fastdev, "start", self.top_dir]).pid
-			# sleep a few seconds to give the server enough time
-			# to load and give us the info we need
-			time.sleep(5)
-
-		data = simplejson.loads(open(lock_file, 'r').read())
-		self.fastdev_port = data["port"]
+	def verify_fastdev(self):
+		lock_file = os.path.join(self.top_dir, '.fastdev.lock')
+		if not fastdev.is_running(self.top_dir):
+			if os.path.exists(lock_file):
+				os.unlink(lock_file)
+			return False
+		else:
+			data = simplejson.loads(open(lock_file, 'r').read())
+			self.fastdev_port = data["port"]
+			return True
 
 	def fastdev_kill_app(self):
 		lock_file = os.path.join(self.top_dir, ".fastdev.lock")
 		if os.path.exists(lock_file):
-			fastdev = os.path.join(template_dir, "fastdev.py")
-			process = subprocess.Popen([sys.executable, fastdev, "kill-app", self.top_dir])
-			process.communicate()
-			if process.returncode != 0:
+			class Options(object): pass
+			options = Options()
+			options.lock_file = lock_file
+
+			try:
+				return fastdev.kill_app(self.top_dir, options)
+			except Exception, e:
 				return False
-		return True
 
 	def merge_internal_module_resources(self):
 		if not self.android_jars:
@@ -1607,9 +1609,16 @@ class Builder(object):
 				self.sdcard_copy = self.tiapp.to_bool(self.tiapp.get_app_property(sdcard_property))
 
 			fastdev_property = "ti.android.fastdev"
-			self.fastdev = self.deploy_type == 'development'
+			fastdev_enabled = self.deploy_type == 'development'
 			if self.tiapp.has_app_property(fastdev_property):
-				self.fastdev = self.tiapp.to_bool(self.tiapp.get_app_property(fastdev_property))
+				fastdev_enabled = self.tiapp.to_bool(self.tiapp.get_app_property(fastdev_property))
+
+			if fastdev_enabled:
+				if self.verify_fastdev():
+					info("Fastdev server running, deploying in Fastdev mode")
+					self.fastdev = True
+				else:
+					warn("Fastdev enabled, but server isn't running, deploying normally")
 
 			self.classes_dir = os.path.join(self.project_dir, 'bin', 'classes')	
 			if not os.path.exists(self.classes_dir):
@@ -1624,17 +1633,33 @@ class Builder(object):
 			# self.enable_debugger(debugger_host)
 			self.copy_project_resources()
 
+			last_build_info = None
+			built_all_modules = False
+			build_info_path = os.path.join(self.project_dir, 'bin', 'build_info.json')
+			if os.path.exists(build_info_path):
+				last_build_info = simplejson.loads(open(build_info_path, 'r').read())
+				built_all_modules = last_build_info["include_all_modules"]
+
+			include_all_ti_modules = self.fastdev 
+			if (self.tiapp.has_app_property('ti.android.include_all_modules')):
+				if self.tiapp.to_bool(self.tiapp.get_app_property('ti.android.include_all_modules')):
+					include_all_ti_modules = True
 			if self.tiapp_changed or (self.js_changed and not self.fastdev) or \
-				self.force_rebuild or self.deploy_type == "production":
+					self.force_rebuild or self.deploy_type == "production" or \
+					(self.fastdev and (not self.app_installed or not built_all_modules)):
 				trace("Generating Java Classes")
 				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')),
-					True, project_dir = self.top_dir)
+					True, project_dir = self.top_dir, include_all_ti_modules=include_all_ti_modules)
+				open(build_info_path, 'w').write(simplejson.dumps({
+					"include_all_modules": include_all_ti_modules
+				}))
 			else:
 				info("Tiapp.xml unchanged, skipping class generation")
 
 			# compile resources
 			full_resource_dir = os.path.join(self.project_dir, self.assets_resources_dir)
-			compiler = Compiler(self.tiapp, full_resource_dir, self.java, self.classes_dir, self.project_dir)
+			compiler = Compiler(self.tiapp, full_resource_dir, self.java, self.classes_dir, self.project_dir, 
+					include_all_modules=include_all_ti_modules)
 			compiler.compile()
 			self.compiled_files = compiler.compiled_files
 			self.android_jars = compiler.jar_libraries
@@ -1682,8 +1707,6 @@ class Builder(object):
 			remove_orphaned_files(resources_dir, os.path.join(self.project_dir, 'bin', 'assets', 'Resources'))
 
 			generated_classes_built = self.build_generated_classes()
-			if self.fastdev and not build_only:
-				self.enable_fastdev()
 
 			self.push_deploy_json()
 			self.classes_dex = os.path.join(self.project_dir, 'bin', 'classes.dex')
