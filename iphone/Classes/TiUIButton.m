@@ -37,10 +37,11 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 		return nil;
 	}
 	
-	if([[self button] pointInside:point withEvent:event]) {
+	if([superResult isKindOfClass:[TiUIView class]] 
+	   && ![(TiUIView*)superResult touchEnabled]) {
 		return [self button];
 	}
-	
+
 	return superResult;
 }
 
