@@ -441,7 +441,8 @@ class Builder(object):
 	def check_file_exists(self, path):
 		output = self.run_adb('shell', 'ls', path)
 		if output != None:
-			if output.find("No such file or directory") == -1:
+			if output.find("No such file or directory") == -1 \
+				and output.find("error: device offline") == -1:
 				return True
 		return False
 		
@@ -1410,6 +1411,30 @@ class Builder(object):
 			'-n', '%s/.%sActivity' % (self.app_id , self.classname))
 		trace("Launch output: %s" % output)
 
+	def wait_for_sdcard(self):
+		info("Waiting for SDCard to become available..")
+		waited = 0
+		max_wait = 60
+		while waited < max_wait:
+			output = self.run_adb('shell', 'mount')
+			if output != None:
+				mount_points = output.splitlines()
+				for mount_point in mount_points:
+					tokens = mount_point.split()
+					if len(tokens) < 2: continue
+					mount_path = tokens[1]
+					if mount_path in ['/sdcard', '/mnt/sdcard']:
+						return True
+			else:
+				error("Error checking for SDCard using 'mount'")
+				return False
+			time.sleep(1)
+			waited += 1
+
+		error("Timed out waiting for SDCard to become available (%ds)" % max_wait)
+		return False
+
+
 	def push_deploy_json(self):
 		deploy_data = {
 			"debuggerEnabled": self.debugger_host != None,
@@ -1418,8 +1443,10 @@ class Builder(object):
 		}
 		deploy_json = os.path.join(self.project_dir, 'bin', 'deploy.json')
 		open(deploy_json, 'w+').write(simplejson.dumps(deploy_data))
-		self.run_adb('shell', 'mkdir /sdcard/%s || echo' % self.app_id)
-		self.run_adb('push', deploy_json, '/sdcard/%s/deploy.json' % self.app_id)
+		sdcard_available = self.wait_for_sdcard()
+		if sdcard_available:
+			self.run_adb('shell', 'mkdir /sdcard/%s || echo' % self.app_id)
+			self.run_adb('push', deploy_json, '/sdcard/%s/deploy.json' % self.app_id)
 		os.unlink(deploy_json)
 
 	def verify_fastdev(self):

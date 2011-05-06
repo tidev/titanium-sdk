@@ -192,15 +192,29 @@ def create(args):
 		
 		# we need to generate a GUID since Ti Developer does this currently
 		tiapp = os.path.join(dir,'tiapp.xml')
+		guid = str(uuid.uuid4())
 		if os.path.exists(tiapp):
-			guid = str(uuid.uuid4())
 			xml = open(tiapp).read()
 			xml = xml.replace('<guid></guid>','<guid>%s</guid>' % guid)
 			fout = open(tiapp,'w')
 			fout.write(xml)
 			fout.close()
-			
+		if atype == 'project':
+			appid = get_required(args, 'id')
+			name = get_required(args, 'name')
 		
+			manifest = open(os.path.join(project_dir, name, 'manifest'), 'w')
+			manifest.write('#appname: %s\n' % name)
+			manifest.write('#appid: %s\n' % appid)
+			manifest.write('#type: mobile\n')
+			manifest.write('#guid: %s\n' % guid)
+			manifest.write('#version: %s\n' % get_optional(args, 'version', '1.0'))
+			manifest.write('#publisher: %s\n' % get_optional(args, 'publisher', 'not specified'))
+			manifest.write('#url: %s\n' % get_optional(args, 'url', 'not specified'))
+			manifest.write('#image: %s\n' % get_optional(args, 'image', 'appicon.png'))
+			manifest.write('#desc: %s\n' % get_optional(args, 'description', 'not specified'))
+			manifest.close()
+
 def build(args):
 	print args
 	pass
