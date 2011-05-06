@@ -520,8 +520,12 @@ public class StreamModule extends KrollModule
 					totalBytesRead += bytesRead;
 				}
 
-				if ((bytesRead != buffer.getLength()) && (bytesRead != -1)) {
-					buffer.resize(bytesRead);
+				if (bytesRead != buffer.getLength()) {
+					if (bytesRead == -1) {
+						buffer.resize(0);
+					} else {
+						buffer.resize(bytesRead);
+					}
 				}
 				handler.callSync(buildPumpCallbackArgs(inputStream, buffer, bytesRead, totalBytesRead, errorState, errorDescription));
 				buffer = null;

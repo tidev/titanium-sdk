@@ -358,7 +358,9 @@ describe("Ti.Stream tests", {
 					valueOf(e.buffer[i]).shouldBeExactly(sourceValue(i,totalsize));
 				}
 
-				totalsize += e.bytesProcessed;
+				if (e.bytesProcessed != -1) {
+					totalsize += e.bytesProcessed;
+				}
 				valueOf(totalsize).shouldBeExactly(e.totalBytesProcessed);
 			}
 			
