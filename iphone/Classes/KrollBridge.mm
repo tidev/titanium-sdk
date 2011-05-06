@@ -168,23 +168,33 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 }
 @synthesize currentURL;
 
+-(void)registerForMemoryWarning
+{
+	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
+	[[NSNotificationCenter defaultCenter] addObserver:self
+			selector:@selector(didReceiveMemoryWarning:)
+			name:UIApplicationDidReceiveMemoryWarningNotification  
+			object:nil]; 
+}
+
+-(void)unregisterForMemoryWarning
+{
+	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+}
+
 -(id)init
 {
 	if (self = [super init])
 	{
 #if KROLLBRIDGE_MEMORY_DEBUG==1
 		NSLog(@"INIT: %@",self);
-#endif
-		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-		[[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(didReceiveMemoryWarning:)
-													 name:UIApplicationDidReceiveMemoryWarningNotification  
-												   object:nil]; 
-		
+#endif		
 		proxyLock = [[NSRecursiveLock alloc] init];
 		OSSpinLockLock(&krollBridgeRegistryLock);
 		CFSetAddValue(krollBridgeRegistry, self);
 		OSSpinLockUnlock(&krollBridgeRegistryLock);
+		[self performSelectorOnMainThread:@selector(registerForMemoryWarning) withObject:nil waitUntilDone:NO];
 	}
 	return self;
 }
@@ -264,10 +274,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 #if KROLLBRIDGE_MEMORY_DEBUG==1
 	NSLog(@"DEALLOC: %@",self);
 #endif
-	
-	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
-	
+		
 	[self removeProxies];
 	RELEASE_TO_NIL(preload);
 	RELEASE_TO_NIL(context);
@@ -574,6 +581,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 -(void)didStopNewContext:(KrollContext*)kroll
 {
+	[self performSelectorOnMainThread:@selector(unregisterForMemoryWarning) withObject:nil waitUntilDone:NO];
 	[self removeProxies];
 	RELEASE_TO_NIL(titanium);
 	RELEASE_TO_NIL(context);
