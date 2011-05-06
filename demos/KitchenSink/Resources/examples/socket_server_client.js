@@ -92,15 +92,23 @@ function postConnect()
 		clientStatusArea.value = "STATUS: reading data";
 		var readBuffer = Ti.createBuffer({length:1024});
 		var bytesRead = 0;
-		while ((bytesRead = connectSocket.read(readBuffer)) > -1) {
-			var str = Ti.Codec.decodeString({ source: readBuffer, length: bytesRead });
+		
+		function readCallback(e) {
+			if (e.bytesProcessed == -1) { // EOF
+				clientStatusArea.value = "STATUS: closing";
+				connectSocket.close(); // close the socket on our end
+				clientStatusArea.value = "STATUS: closed";
+				return;
+			}
+			var str = Ti.Codec.decodeString({source:e.buffer, length:e.bytesProcessed});
 			clientStatusArea.value = "RECV FROM LISTENER: " + str;
-			readBuffer.clear(); // clear the buffer before the next read
+			e.buffer.clear(); // clear the buffer before the next read
+			
+			// queue up the next read
+			Ti.Stream.read(connectSocket,readBuffer,readCallback);
 		}
-		clientStatusArea.value = "STATUS: closing";
-		connectSocket.close(); // close the socket on our end
-		clientStatusArea.value = "STATUS: closed";
-
+		
+		Ti.Stream.read(connectSocket,readBuffer,readCallback);
 	} catch (e) {
 		// IO error on socket. socket is closed and connectSocket.error is called
 		clientStatusArea.value = "STATUS: error - closed";

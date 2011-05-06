@@ -39,9 +39,12 @@ typedef enum {
     // properly, we need THESE as well...
     NSMutableDictionary* acceptArgs;
     NSRunLoop* acceptRunLoop;
-    NSCondition* acceptCondition;
     BOOL accepting;
-    BOOL acceptedReady;
+
+    // And, last but not least, in order to make sure that socket run loops are configured AND ACTIVE before performing any work on them,
+    // we need to be able to signal that they're 
+    NSCondition* readyCondition;
+    BOOL socketReady;
     
     // Information used to hash callbacks and asynch ops to tags.
     int asynchTagCount;

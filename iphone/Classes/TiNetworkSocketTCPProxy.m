@@ -35,8 +35,9 @@ static NSString* ARG_KEY = @"arg";
         internalState = SOCKET_INITIALIZED;
         socketThread = nil;
         acceptRunLoop = nil;
+        socketReady = NO;
         acceptArgs = [[NSMutableDictionary alloc] init];
-        acceptCondition = [[NSCondition alloc] init];
+        readyCondition = [[NSCondition alloc] init];
         operationInfo = [[NSMutableDictionary alloc] init];
         asynchTagCount = 0;
     }
@@ -69,7 +70,7 @@ static NSString* ARG_KEY = @"arg";
     // Release the conditions... so long as each condition has been retained, this is safe.
     RELEASE_TO_NIL(listening);
     RELEASE_TO_NIL(ioCondition);
-    RELEASE_TO_NIL(acceptCondition);
+    RELEASE_TO_NIL(readyCondition);
     
     RELEASE_TO_NIL(host);
     
@@ -87,9 +88,9 @@ static NSString* ARG_KEY = @"arg";
     [ioCondition broadcast];
     [ioCondition unlock];
     
-    [acceptCondition lock];
-    [acceptCondition broadcast];
-    [acceptCondition unlock];
+    [readyCondition lock];
+    [readyCondition broadcast];
+    [readyCondition unlock];
     
     [socket disconnect];
     [socket setDelegate:nil];
@@ -211,7 +212,7 @@ static NSString* ARG_KEY = @"arg";
     // overhead, but it probably prevents DUMB CRASHES from happening.
     
     // 1. Provide the run loop to the new socket...
-    NSCondition* tempConditionRef = [acceptCondition retain];
+    NSCondition* tempConditionRef = [readyCondition retain];
     [tempConditionRef lock];
     acceptRunLoop = [NSRunLoop currentRunLoop];
     [tempConditionRef signal];
@@ -234,12 +235,11 @@ static NSString* ARG_KEY = @"arg";
         [self _fireEventToListener:@"accepted" withObject:event listener:accepted thisObject:self];
     }
     
-    tempConditionRef = [acceptCondition retain];
+    tempConditionRef = [readyCondition retain];
     [tempConditionRef lock];
-    if (!acceptedReady) {
+    if (!socketReady) {
         [tempConditionRef wait];
     }
-    acceptedReady = NO;
     [tempConditionRef unlock];
     [tempConditionRef release];
     
@@ -283,10 +283,8 @@ NSCondition* temp = [condition retain]; \
     }
     
     if (host == nil || [host isEqual:@""]) {
-        [self throwException:@"Attempt to connect with bad host: nil or empty"
-                   subreason:nil
-                    location:CODELOCATION];
-        return;
+        // Use the loopback
+        [self setHost:@"127.0.0.1"];
     }
     
     [self performSelectorInBackground:@selector(startConnectingSocket) withObject:nil];
@@ -301,10 +299,8 @@ NSCondition* temp = [condition retain]; \
         return;
     }
     if (host == nil || [host isEqual:@""]) {
-        [self throwException:@"Attempt to listen with bad host: nil or empty"
-                   subreason:nil
-                    location:CODELOCATION];
-        return;       
+        // Use the loopback
+        [self setHost:@"127.0.0.1"];
     }
     
     [self performSelectorInBackground:@selector(startListeningSocket) withObject:nil];
@@ -509,6 +505,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
             [operationInfo setObject:asynchInfo forKey:NUMINT(tag)];
             asynchTagCount = (asynchTagCount + 1) % INT_MAX;
         }
+        NSLog(@"Queuing up my write!");
         [socket writeData:subdata withTimeout:-1 tag:tag];
         
         // TODO: Actually need the amount of data written - similar to readDataLength, for writes
@@ -620,9 +617,9 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
 // Prevent that goofy race conditon where a socket isn't attached to a run loop before beginning the accepted socket run loop.
 -(void)onSocketReadyInRunLoop:(AsyncSocket *)sock
 {
-    NSCondition* tempConditionRef = [acceptCondition retain];
+    NSCondition* tempConditionRef = [readyCondition retain];
     [tempConditionRef lock];
-    acceptedReady = YES;
+    socketReady = YES;
     [tempConditionRef signal];
     [tempConditionRef unlock];
     [tempConditionRef release];
@@ -662,7 +659,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
 -(NSRunLoop*)onSocket:(AsyncSocket *)sock wantsRunLoopForNewSocket:(AsyncSocket *)newSocket
 {
     // We start up the accepted socket thread, and wait for the run loop to be cached, and return it...
-    NSCondition* tempConditionRef = [acceptCondition retain];
+    NSCondition* tempConditionRef = [readyCondition retain];
     [tempConditionRef lock];
     if (acceptRunLoop == nil) {
         [tempConditionRef wait];
