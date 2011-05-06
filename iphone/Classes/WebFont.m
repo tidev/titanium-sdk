@@ -10,7 +10,7 @@
 
 @implementation WebFont
 
-@synthesize family, size, isBoldWeight, isNormalWeight, isItalicStyle, isNormalStyle;
+@synthesize family, size, isBoldWeight, isNormalWeight, isItalicStyle, isNormalStyle, isSemiboldWeight;
 
 -(void)dealloc
 {
@@ -40,7 +40,7 @@
 		UIFont * result;
 		if (family!=nil)
 		{
-			if (isBoldWeight || isItalicStyle)
+			if (isBoldWeight || isSemiboldWeight || isItalicStyle)
 			{
 				// cache key must include size or .... yeah, you know what
 				NSString *cacheKey = [NSString stringWithFormat:@"%@-%f",family,self.size];
@@ -55,14 +55,17 @@
 				{
 					return cn;
 				}
+                
+                // TODO: COMPLETELY UNSUSTAINABLE.  FIX THIS.  FONT LOADING ON IOS SUCKS.
+                
 				// bold weight for non system fonts are based on the name of the 
 				// font family, not actually settable - so we need to attempt to 
 				// resolve it in a terribly inconsistently named font way
                 NSString* primaryStyle;
                 BOOL hasSecondaryStyle = NO;
                 NSString* secondaryStyle;
-                if (isBoldWeight) { // 'Italic' is considered a secondary style when bolded; see the font check loop
-                    primaryStyle = @"Bold";
+                if (isBoldWeight || isSemiboldWeight) { // 'Italic' is considered a secondary style when bolded; see the font check loop
+                    primaryStyle = (isBoldWeight) ? @"Bold" : @"Semibold";
                     secondaryStyle = @"Italic";
                     if (isItalicStyle) {
                         hasSecondaryStyle = YES;
@@ -78,14 +81,38 @@
 					// we've set a property for bold, now we need to see if we can find it
 					for (NSString *name in [UIFont fontNamesForFamilyName:family])
 					{
-						// see if the font name has Bold in it (since the names aren't based on any pattern)
-						// but filter out italic-style fonts
-						if ([name rangeOfString:primaryStyle].location!=NSNotFound &&
-							((!hasSecondaryStyle &&[name rangeOfString:secondaryStyle].location==NSNotFound) ||
-                         (hasSecondaryStyle && [name rangeOfString:secondaryStyle].location!=NSNotFound))&&
-							[name rangeOfString:@"Oblique"].location==NSNotFound)
+                        BOOL foundFont = NO;
+                        
+                        // Case 1. Only italic
+                        if (isItalicStyle && !(isBoldWeight || isSemiboldWeight)) {
+                            foundFont = [name rangeOfString:primaryStyle].location != NSNotFound;
+                            if (!foundFont) { // Perform the "super secret" It check; some PS fonts use 'It' suffix instead of 'Italic'
+                                foundFont = [name rangeOfString:@"It" options:NSBackwardsSearch].location == [name length]-2;
+                            }
+                            foundFont = foundFont && ([name rangeOfString:@"Bold"].location == NSNotFound);
+                            foundFont = foundFont && ([name rangeOfString:@"Semibold"].location == NSNotFound);
+                        }
+                        // Case 2. Only weighted
+                        else if (!isItalicStyle && (isBoldWeight || isSemiboldWeight)) {
+                            foundFont = [name rangeOfString:primaryStyle].location != NSNotFound;
+                            foundFont = foundFont && ([name rangeOfString:@"Italic"].location == NSNotFound);
+                            foundFont = foundFont && ([name rangeOfString:@"It"].location != [name length]-2);
+                        }
+                        // Case 3. Both
+                        else {
+                            foundFont = [name rangeOfString:primaryStyle].location != NSNotFound;
+                            if (foundFont) {
+                                foundFont = [name rangeOfString:secondaryStyle].location != NSNotFound;
+                                if (!foundFont) {
+                                    foundFont = [name rangeOfString:@"It" options:NSBackwardsSearch].location == [name length]-2;
+                                }
+                            }
+                        }
+                        
+						if (foundFont)
 						{
 							result = [UIFont fontWithName:name size:self.size];
+                            cacheKey = [NSString stringWithFormat:@"%@-%f",name,self.size];
 							[cache setObject:result forKey:cacheKey];
 							RELEASE_TO_NIL(family);
 							family = [name retain];
@@ -171,13 +198,20 @@
 	NSString * fontWeightObject = [fontDict objectForKey:@"fontWeight"];
 	if([fontWeightObject isKindOfClass:[NSString class]]){
 		fontWeightObject = [fontWeightObject lowercaseString];
-		if([fontWeightObject isEqualToString:@"bold"]){
-			didChange |= !(self.isBoldWeight)||(self.isNormalWeight);
-			self.isBoldWeight = YES;
-			self.isNormalWeight = NO;
+		if([fontWeightObject isEqualToString:@"semibold"]) {
+            didChange |= !(self.isSemiboldWeight)||(self.isBoldWeight)||(self.isNormalWeight);
+            self.isSemiboldWeight = YES;
+            self.isBoldWeight = NO;
+            self.isNormalWeight = NO;
+        } else if([fontWeightObject isEqualToString:@"bold"]){
+            didChange |= !(self.isBoldWeight)||(self.isSemiboldWeight)||(self.isNormalWeight);
+            self.isBoldWeight = YES;
+            self.isSemiboldWeight = NO;
+            self.isNormalWeight = NO;
 		} else if([fontWeightObject isEqualToString:@"normal"]){
-			didChange |= (self.isBoldWeight)||!(self.isNormalWeight);
+			didChange |= (self.isBoldWeight)||(self.isSemiboldWeight)||!(self.isNormalWeight);
 			self.isBoldWeight = NO;
+            self.isSemiboldWeight = NO;
 			self.isNormalWeight = YES;
 		}
 	} else if((inheritedFont != NULL) && (fontWeightObject == nil)) {
@@ -191,6 +225,11 @@
 			didChange = YES;
 			self.isNormalWeight = isNormalBool;
 		}
+        BOOL isSemiboldBool = inheritedFont.isSemiboldWeight;
+        if (self.isSemiboldWeight != isSemiboldBool) {
+            didChange = YES;
+            self.isSemiboldWeight = isSemiboldBool;
+        }
 	}
     
     NSString* fontStyleObject = [fontDict objectForKey:@"fontStyle"];
