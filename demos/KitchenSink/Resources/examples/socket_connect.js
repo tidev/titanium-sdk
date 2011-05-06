@@ -82,7 +82,7 @@ connectButton.addEventListener('click', function() {
 				host:hostField.value,
 				port:portField.value,
 				connected:function(e) {
-					e.socket.write(Ti.createBuffer({data:"Well, hello there!"}));
+					e.socket.write(Ti.createBuffer({value:"Well, hello there!"}));
 					Ti.Stream.pump(e.socket,pumpCallback,1024, true);
 				},
 				error:function(e) {
@@ -116,6 +116,7 @@ disconnectButton.addEventListener('click', function() {
 		try {
 			connectingSocket.close();
 			connectingSocket = null;
+			statusArea.value = 'Disconnected';
 		}
 		catch (e) {
 			statusArea.value = "EXCEPTION (close): "+e.toString();
@@ -136,7 +137,7 @@ var writeButton = Ti.UI.createButton({
 });
 writeButton.addEventListener('click', function() {
 	if (connectingSocket != null && connectingSocket.isWritable()) {
-		connectingSocket.write(Ti.createBuffer({data:writeArea.value}));
+		connectingSocket.write(Ti.createBuffer({value:writeArea.value}));
 	}
 });
 win.add(writeButton);
