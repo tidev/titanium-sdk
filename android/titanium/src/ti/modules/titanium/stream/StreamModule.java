@@ -432,10 +432,7 @@ public class StreamModule extends KrollModule
 				break;
 			}
 
-			if (bytesRead != buffer.getLength()) {
-				buffer.resize(bytesRead);
-			}
-			int bytesWritten = outputStream.write(new Object[] {buffer});
+			int bytesWritten = outputStream.write(new Object[] {buffer, 0, bytesRead});
 			totalBytesWritten += bytesWritten;
 			buffer.clear();
 		}
@@ -511,31 +508,33 @@ public class StreamModule extends KrollModule
 
 	private void pump(TiStream inputStream, KrollCallback handler, int maxChunkSize)
 	{
-		BufferProxy buffer = new BufferProxy(getTiContext(), maxChunkSize);
 		int totalBytesRead = 0;
 		int errorState = 0;
 		String errorDescription = "";
 
 		try {
 			while(true) {
+				BufferProxy buffer = new BufferProxy(getTiContext(), maxChunkSize);
 				int bytesRead = inputStream.read(new Object[] {buffer, 0, maxChunkSize});
-				if(bytesRead == -1) {
-					break;
+				if(bytesRead != -1) {
+					totalBytesRead += bytesRead;
 				}
 
-				totalBytesRead += bytesRead;
-
-				if (bytesRead != buffer.getLength()) {
+				if ((bytesRead != buffer.getLength()) && (bytesRead != -1)) {
 					buffer.resize(bytesRead);
 				}
 				handler.callSync(buildPumpCallbackArgs(inputStream, buffer, bytesRead, totalBytesRead, errorState, errorDescription));
-				buffer.clear();
+				buffer = null;
+
+				if (bytesRead == -1) {
+					break;
+				}
 			}
 
 		} catch (IOException e) {
 			errorState = 1;
 			errorDescription = e.getMessage();
-			handler.callSync(buildPumpCallbackArgs(inputStream, buffer, 0, totalBytesRead, errorState, errorDescription));
+			handler.callSync(buildPumpCallbackArgs(inputStream, new BufferProxy(getTiContext()), 0, totalBytesRead, errorState, errorDescription));
 		}
 	}
 
