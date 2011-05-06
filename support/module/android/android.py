@@ -18,12 +18,12 @@ class android(module.ModulePlatform):
 	def __init__(self, project_dir, config, module_project):
 		super(android, self).__init__(project_dir, config, module_project)
 		
-		self.sdk = androidsdk.AndroidSDK(module_project.sdk, 4)
+		self.sdk = androidsdk.AndroidSDK(module_project.sdk)
 		if self.sdk.get_platform_dir() == None:
-			print "[ERROR] Couldn't find the Android API r4 platform directory"
+			print "[ERROR] Couldn't find the Android API r%s platform directory" % self.sdk.DEFAULT_API_LEVEL
 			sys.exit(1)
 		if self.sdk.get_google_apis_dir() == None:
-			print "[ERROR] Couldn't find the Google APIs r4 add-on directory"
+			print "[ERROR] Couldn't find the Google APIs r%s add-on directory" % self.sdk.DEFAULT_API_LEVEL
 			sys.exit(1)
 		self.init_classpath()
 	

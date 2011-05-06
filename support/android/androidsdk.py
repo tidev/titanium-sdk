@@ -12,7 +12,11 @@ android_api_levels = {
 	4: 'android-1.6',
 	5: 'android-2.0',
 	6: 'android-2.0.1',
-	7: 'android-2.1'
+	7: 'android-2.1',
+	8: 'android-2.2',
+	9: 'android-2.3',
+	10: 'android-2.3.3',
+	11: 'android-3.0'
 }
 
 class Device:
