@@ -100,9 +100,9 @@ function postConnect()
 				clientStatusArea.value = "STATUS: closed";
 				return;
 			}
-			var str = Ti.Codec.decodeString({source:e.buffer, length:e.bytesProcessed});
+			var str = Ti.Codec.decodeString({source:readBuffer, length:e.bytesProcessed});
 			clientStatusArea.value = "RECV FROM LISTENER: " + str;
-			e.buffer.clear(); // clear the buffer before the next read
+			readBuffer.clear(); // clear the buffer before the next read
 			
 			// queue up the next read
 			Ti.Stream.read(connectSocket,readBuffer,readCallback);
@@ -117,7 +117,6 @@ function postConnect()
 
 // Cleanup
 var cleanup = function(e) {
-	Ti.API.info("---inside close event");
 	try {
 		listenSocket.close();
 	}
