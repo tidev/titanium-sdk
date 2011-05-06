@@ -214,6 +214,10 @@
         NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",tempBuffer,@"buffer",NUMINT(bytesToWrite),@"bytesProcessed",NUMINT(totalBytes),@"totalBytesProcessed", NUMINT(0),@"errorState",@"",@"errorDescription",nil];
         [self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];
     }
+    
+    // We've reached the end of the stream - so we need to pump the -1 EOF
+    NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",[NSNull null],@"buffer",NUMINT(-1),@"bytesProcessed",NUMINT(totalBytes),@"totalBytesProcessed", NUMINT(0),@"errorState",@"",@"errorDescription", nil];
+    [self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];
 }
 
 -(NSNumber*)isReadable:(id)_void
