@@ -106,3 +106,27 @@ function postConnect()
 		clientStatusArea.value = "STATUS: error - closed";
 	}
 }
+
+// Cleanup
+var cleanup = function(e) {
+	Ti.API.info("---inside close event");
+	try {
+		listenSocket.close();
+	}
+	catch (e) {
+		// Don't care about exceptions; just means the socket was already closed
+	}
+	try {
+		connectSocket.close();
+	}
+	catch (e) {
+		// Don't care about exceptions; just means the socket was already closed
+	}
+};
+win.addEventListener('close', cleanup)
+
+if (Titanium.Platform.name == 'android')
+{
+	Ti.Android.currentActivity.addEventListener('pause', cleanup);
+	Ti.Android.currentActivity.addEventListener('destroy', cleanup);
+}
