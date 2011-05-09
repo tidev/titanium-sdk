@@ -247,7 +247,6 @@ public class TiFileHelper
 			return loadDrawable(path, report, checkForNinePatch);
 		}
 
-		Log.d(LCAT, "loadDrawable: " + path);
 		// getResourceDrawable wants a resolved url
 		String url = path;
 		if (!url.startsWith("file:")) {
