@@ -577,7 +577,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 	if(![relativeString isKindOfClass:[NSString class]])
 	{
-		NSLog(@"[WARN] <%@> was an %@, not an NSString. Converting.",relativeString,[relativeString class]);
+		//NSLog(@"[WARN] <%@> was an %@, not an NSString. Converting.",relativeString,[relativeString class]);
 		relativeString = [TiUtils stringValue:relativeString];
 	}
 
