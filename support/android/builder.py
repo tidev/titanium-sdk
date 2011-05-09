@@ -824,11 +824,31 @@ class Builder(object):
 			debug('generating theme.xml')
 			theme_file = open(theme_xml, 'w')
 			theme_flags = "Theme"
+			# We need to treat the default values for fulscreen and
+			# navbar-hidden the same as android.py does -- false for both.
+			theme_fullscreen = False
+			theme_navbarhidden = False
 			if (self.tiapp.properties.get("fullscreen") == "true" or 
 					self.tiapp.properties.get("statusbar-hidden") == "true"):
-				theme_flags = theme_flags + ".NoTitleBar.Fullscreen"
+				theme_fullscreen = True
 			elif self.tiapp.properties.get("navbar-hidden") == "true":
-				theme_flags = theme_flags + ".NoTitleBar"
+				theme_navbarhidden = True
+			if theme_fullscreen:
+				theme_flags += ".NoTitleBar.Fullscreen"
+			elif theme_navbarhidden:
+				theme_flags += ".NoTitleBar"
+			# Wait, one exception.  If you want the notification area (very
+			# top of screen) hidden, but want the title bar in the app,
+			# there's no theme for that.  So we have to use the default theme (no flags)
+			# and when the application code starts running, the adjustments are then made.
+			# Only do this when the properties are explicitly set, so as to avoid changing
+			# old default behavior.
+			if theme_flags.endswith('.Fullscreen') and \
+					self.tiapp.properties.get("navbar-hidden") == 'false' and \
+					('fullscreen' in self.tiapp.explicit_properties or \
+					'statusbar-hidden' in self.tiapp.explicit_properties) and \
+					'navbar-hidden' in self.tiapp.explicit_properties:
+				theme_flags = 'Theme'
 
 			TITANIUM_THEME="""<?xml version="1.0" encoding="utf-8"?>
 <resources>
