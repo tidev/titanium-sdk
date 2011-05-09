@@ -73,7 +73,10 @@ def get_optional(config,key,default=None):
 def get_required(config, key, env=None):
 	if not has_config(config, key):
 		if env and env in os.environ: return os.environ[env]
-		die("required argument '%s' missing" % key)
+		if env == None:
+			die("required argument '--%s' missing" % key)
+		else:
+			die("required argument '--%s' missing (you can also set the environment variable %s)" % (key, env))
 	return config[key]
 
 def get_required_dir(config, key, env=None):

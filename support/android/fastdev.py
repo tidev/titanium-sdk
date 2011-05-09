@@ -234,7 +234,7 @@ class FastDevRequest(object):
 		self.app_guid = self.data["app_guid"]
 
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.socket.connect(("", self.port))
+		self.socket.connect((socket.gethostname(), self.port))
 		send_tokens(self.socket, "script-handshake", self.app_guid)
 		response = read_tokens(self.socket)[0]
 		if response != "OK":
