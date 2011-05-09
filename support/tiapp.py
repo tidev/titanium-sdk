@@ -64,6 +64,7 @@ class TiAppXML(object):
 			'modules' : [],
 			'plugins' : []
 		}
+		self.explicit_properties = []
 		self.app_properties = {}
 		self.android = {}
 		self.android_manifest = {}
@@ -112,6 +113,7 @@ class TiAppXML(object):
 				# properties of the app
 				else:
 					self.properties[child.nodeName]=getText(child.childNodes)
+					self.explicit_properties.append(child.nodeName)
 		
 		# ensure we create a guid if the project doesn't already have one
 		if not parse_only and not self.properties.has_key('guid'):
