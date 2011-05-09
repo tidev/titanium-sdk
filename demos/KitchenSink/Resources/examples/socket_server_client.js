@@ -92,17 +92,48 @@ function postConnect()
 		clientStatusArea.value = "STATUS: reading data";
 		var readBuffer = Ti.createBuffer({length:1024});
 		var bytesRead = 0;
-		while ((bytesRead = connectSocket.read(readBuffer)) > -1) {
-			var str = Ti.Codec.decodeString({ source: readBuffer, length: bytesRead });
+		
+		function readCallback(e) {
+			if (e.bytesProcessed == -1) { // EOF
+				clientStatusArea.value = "STATUS: closing";
+				connectSocket.close(); // close the socket on our end
+				clientStatusArea.value = "STATUS: closed";
+				return;
+			}
+			var str = Ti.Codec.decodeString({source:readBuffer, length:e.bytesProcessed});
 			clientStatusArea.value = "RECV FROM LISTENER: " + str;
 			readBuffer.clear(); // clear the buffer before the next read
+			
+			// queue up the next read
+			Ti.Stream.read(connectSocket,readBuffer,readCallback);
 		}
-		clientStatusArea.value = "STATUS: closing";
-		connectSocket.close(); // close the socket on our end
-		clientStatusArea.value = "STATUS: closed";
-
+		
+		Ti.Stream.read(connectSocket,readBuffer,readCallback);
 	} catch (e) {
 		// IO error on socket. socket is closed and connectSocket.error is called
 		clientStatusArea.value = "STATUS: error - closed";
 	}
+}
+
+// Cleanup
+var cleanup = function(e) {
+	try {
+		listenSocket.close();
+	}
+	catch (e) {
+		// Don't care about exceptions; just means the socket was already closed
+	}
+	try {
+		connectSocket.close();
+	}
+	catch (e) {
+		// Don't care about exceptions; just means the socket was already closed
+	}
+};
+win.addEventListener('close', cleanup)
+
+if (Titanium.Platform.name == 'android')
+{
+	Ti.Android.currentActivity.addEventListener('pause', cleanup);
+	Ti.Android.currentActivity.addEventListener('destroy', cleanup);
 }

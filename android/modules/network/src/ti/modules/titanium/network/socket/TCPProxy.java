@@ -239,6 +239,8 @@ public class TCPProxy extends KrollProxy implements TiStream
 
 						TCPProxy acceptedTcpProxy = new TCPProxy(context);
 						acceptedTcpProxy.clientSocket = acceptedSocket;
+						acceptedTcpProxy.setProperty("host", acceptedTcpProxy.clientSocket.getInetAddress());
+						acceptedTcpProxy.setProperty("port", acceptedTcpProxy.clientSocket.getPort());
 
 						Object optionValue;
 						if((optionValue = acceptOptions.get("timeout")) != null) {
