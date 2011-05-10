@@ -218,6 +218,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	opening = NO;
 	closing = NO;
 	
+	//TODO: Since windowDidClose also calls detachView, is this necessary?
 	[self detachView];
 	// notify our child that his window is closing
 	for (TiViewProxy *child in self.children)
