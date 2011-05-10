@@ -249,6 +249,7 @@ NSArray* bufferKeySequence = nil;
 
 -(TiBlob*)toBlob:(id)_void
 {
+	//TODO: Static analysis finds we're leaking the [data copy]. We should have an autorelease here, but for later.
     return [[[TiBlob alloc] initWithData:[data copy] mimetype:@"application/octet-stream"] autorelease];
 }
 
