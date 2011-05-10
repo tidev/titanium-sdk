@@ -257,10 +257,16 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 
 - (void)reload:(id)args
 {
-	if ((webview!=nil) && (reloadData != nil))
+	if (webview == nil)
+	{
+		return;
+	}
+	if (reloadData != nil)
 	{
 		[self performSelector:reloadMethod withObject:reloadData];
+		return;
 	}
+	[webview reload];
 }
 
 - (void)stopLoading:(id)args
@@ -325,6 +331,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 
 -(void)setHtml_:(NSString*)content
 {
+	ignoreNextRequest = YES;
 	[self setReloadData:content];
 	reloadMethod = @selector(setHtml_:);
 	[self loadHTML:content encoding:NSUTF8StringEncoding textEncodingName:@"utf-8" mimeType:@"text/html" baseURL:nil];
@@ -332,6 +339,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 
 -(void)setData_:(id)args
 {
+	ignoreNextRequest = YES;
 	[self setReloadData:args];
 	reloadMethod = @selector(setData_:);
 	RELEASE_TO_NIL(url);
@@ -394,6 +402,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 
 -(void)setUrl_:(id)args
 {
+	ignoreNextRequest = YES;
 	[self setReloadData:args];
 	reloadMethod = @selector(setUrl_:);
 
@@ -631,6 +640,16 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	NSString * scheme = [[newUrl scheme] lowercaseString];
 	if ([scheme hasPrefix:@"http"] || [scheme hasPrefix:@"app"] || [scheme hasPrefix:@"file"] || [scheme hasPrefix:@"ftp"])
 	{
+		NSLog(@"New scheme: %@",request);
+		if (ignoreNextRequest)
+		{
+			ignoreNextRequest = NO;
+		}
+		else
+		{
+			[self setReloadData:[newUrl absoluteString]];
+			reloadMethod = @selector(setUrl_:);
+		}
 		return YES;
 	}
 	

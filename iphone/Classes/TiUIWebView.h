@@ -20,6 +20,7 @@
 	NSString *basicCredentials;
 	
 	//TODO: make more elegant
+	BOOL ignoreNextRequest;
 	id reloadData;
 	SEL reloadMethod;
 }
