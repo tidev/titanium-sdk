@@ -180,6 +180,7 @@
 -(void)show:(id)args
 {
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+	[self rememberSelf];
 	ENSURE_UI_THREAD_1_ARG(args);
 	
 	NSDictionary *rectProps = [args objectForKey:@"rect"];
@@ -198,7 +199,6 @@
 
 	isShowing = YES;
 	[self retain];
-	[self rememberSelf];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
 	[self windowWillOpen];
 	[self reposition];
