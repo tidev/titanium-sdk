@@ -93,6 +93,7 @@
 		[controller.view removeFromSuperview];
 		[controller resignFirstResponder];
 		RELEASE_TO_NIL(controller);
+		[visibleProxy autorelease];
 		visibleProxy = nil; // close/release handled by view removal
 	}
 }
