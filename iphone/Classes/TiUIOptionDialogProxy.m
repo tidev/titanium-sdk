@@ -31,9 +31,9 @@
 -(void)show:(id)args
 {
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+	[self rememberSelf];
 	ENSURE_UI_THREAD(show,args);
 	
-	[self rememberSelf];
 	NSMutableArray *options = [self valueForKey:@"options"];
 	if (options==nil)
 	{
