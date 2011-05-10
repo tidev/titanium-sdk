@@ -17,7 +17,8 @@
 {
 	if (self = [super init])
 	{
-		//FIXME: review this with Blain as to why...
+		//This is done to insert the top line of the nav bar
+		//underneath the bottom line of the status bar.
 		layoutProperties.top = TiDimensionPixels(-1);
 	}
 	return self;
@@ -106,6 +107,12 @@
 	[parentOrientationController childOrientationControllerChangedFlags:self];
 }
 
+-(void)windowDidClose
+{
+	WARN_IF_BACKGROUND_THREAD;
+	[[self view] close];
+	[super windowDidClose];
+}
 
 @end
 

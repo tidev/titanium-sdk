@@ -85,6 +85,7 @@
 				[win retain];
 				[[win view] removeFromSuperview];
 				[win close:nil];
+				[[self proxy] forgetProxy:win];
 				[win autorelease];
 			}
 		}
@@ -140,9 +141,10 @@
 	
 	if (newWindow!=visibleProxy)
 	{
-		if (visibleProxy!=root && opening==NO)
+		if (visibleProxy != nil && visibleProxy!=root && opening==NO)
 		{
-			[self close:visibleProxy withObject:nil];
+			//TODO: This is a hideous hack, but NavGroup needs rewriting anyways
+			[[self proxy] close:[NSArray arrayWithObject:visibleProxy]];
 		}
 		[self setVisibleProxy:newWindow];
 	}
