@@ -852,6 +852,17 @@
 }
 
 #pragma mark Overloaded view handling
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+{
+	UIView * result = [super hitTest:point withEvent:event];
+	if(result == self)
+	{	//There is no valid reason why the TiUITableView will get an
+		//touch event; it should ALWAYS be a child view.
+		return nil;
+	}
+	return result;
+}
+
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event 
 {
 	// iOS idiom seems to indicate that you should never be able to interact with a table
