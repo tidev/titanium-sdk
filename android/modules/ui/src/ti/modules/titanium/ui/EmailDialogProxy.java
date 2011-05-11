@@ -38,10 +38,10 @@ import android.text.Html;
 @Kroll.proxy(creatableInModule=UIModule.class,
 	propertyAccessors={"bccRecipients", "ccRecipients", "html", "messageBody", "subject", "toRecipients"})
 public class EmailDialogProxy extends TiViewProxy {
-	
+
 	private static final String LCAT = "EmailDialogProxy";
 	private static final boolean DBG = TiConfig.LOGD;	
-	
+
 	@Kroll.constant
 	public static final int CANCELLED = 0;
 	@Kroll.constant
@@ -50,17 +50,16 @@ public class EmailDialogProxy extends TiViewProxy {
 	public static final int SENT = 2;
 	@Kroll.constant
 	public static final int FAILED = 3;
-	
+
 	private ArrayList<Object> attachments;
-	
+
 	public EmailDialogProxy(TiContext tiContext) {
 		super(tiContext);
 	}
-	
+
 	@Kroll.method
 	public boolean isSupported() {
 		boolean supported = false;
-		
 		Activity activity = getTiContext().getActivity();
 		if (activity != null) {
 			PackageManager pm = activity.getPackageManager();
@@ -78,7 +77,7 @@ public class EmailDialogProxy extends TiViewProxy {
 		
 		return supported;
 	}
-	
+
 	@Kroll.method
 	public void addAttachment(Object attachment) {
 		if (attachment instanceof FileProxy || attachment instanceof TiBlob) {
@@ -93,10 +92,9 @@ public class EmailDialogProxy extends TiViewProxy {
 			}
 		}
 	}
-	
+
 	private String baseMimeType(boolean isHtml) {
 		String result = isHtml ? "text/html" : "text/plain";
-		
 		// After 1.6 (api 4, "Donut"), message/rfc822 will work and still recognize
 		// html encoded text.  The advantage to putting it to message/rfc822 is that
 		// it will most likely "force" the e-mail dialog as opposed to the intent leading
@@ -108,44 +106,39 @@ public class EmailDialogProxy extends TiViewProxy {
 		}
 		return result;
 	}
-	
+
 	private Intent buildIntent() {
-		Intent sendIntent = new Intent(Intent.ACTION_SEND);
-		
+		ArrayList<Uri> uris = getAttachmentUris();
+		Intent sendIntent = new Intent((uris != null && uris.size()>1) ? Intent.ACTION_SEND_MULTIPLE : Intent.ACTION_SEND);
 		boolean isHtml = false;
 		if (hasProperty("html")) {
 			isHtml = TiConvert.toBoolean(getProperty("html"));
 		}
-		
 		String intentType = baseMimeType(isHtml);
-		
 		sendIntent.setType(intentType);
 		putAddressExtra(sendIntent, Intent.EXTRA_EMAIL, "toRecipients");
 		putAddressExtra(sendIntent, Intent.EXTRA_CC, "ccRecipients");
 		putAddressExtra(sendIntent, Intent.EXTRA_BCC, "bccRecipients");
-		
 		putStringExtra(sendIntent, Intent.EXTRA_SUBJECT, "subject");
-		
 		putStringExtra(sendIntent, Intent.EXTRA_TEXT , "messageBody", isHtml);
-		
-		prepareAttachments(sendIntent);
-		
+		prepareAttachments(sendIntent, uris);
+
 		if (DBG) {
 			Log.d(LCAT, "Choosing for mime type " + sendIntent.getType());
 		}
-		
+
 		return sendIntent;
 	}
-	
+
 	@Kroll.method
 	public void open(){
 		Intent sendIntent = buildIntent();
 		Intent choosingIntent = Intent.createChooser(sendIntent, "Send");
-	
+
 		Activity activity = getTiContext().getActivity();
 		TiActivitySupport activitySupport = (TiActivitySupport) activity;
 		final int code = activitySupport.getUniqueResultCode();
-		
+
 		activitySupport.launchActivityForResult(choosingIntent, code, 
 			new TiActivityResultHandler() {
 				
@@ -158,132 +151,128 @@ public class EmailDialogProxy extends TiViewProxy {
 					KrollDict result = new KrollDict();
 					result.put("result", SENT); // TODO fix this when figure out above
 					result.put("success", true);
-					fireEvent("complete", result);					
+					fireEvent("complete", result);
 				}
-				
+
 				@Override
 				public void onError(Activity activity, int requestCode, Exception e) {
 					KrollDict result = new KrollDict();
 					result.put("result", FAILED);
 					result.put("error", e.getMessage());
 					result.put("success", false);
-					fireEvent("complete", result);					
+					fireEvent("complete", result);
 				}
 			});
 			
 	}
-	
+
 	private File blobToTemp(TiBlob blob, String fileName) {
-		
+
 		File tempFolder = new File (getTiContext().getTiFileHelper().getDataDirectory(false), "temp");
 		tempFolder.mkdirs();
-		
+
 		File tempfilej = new File(tempFolder, fileName);
 		TiFile tempfile = new TiFile(getTiContext(),tempfilej, tempfilej.getPath(), false);
-		
+
 		if (tempfile.exists()) {
 			tempfile.deleteFile();
 		}
-					
 		try {
 			tempfile.write(blob, false);
 			return tempfile.getNativeFile();
 		} catch (IOException e) {
 			Log.e(LCAT, "Unable to attach file " + fileName + ": " + e.getMessage(), e);
 		}
-		
+
 		return null;
 	}
-	
-	private void attachAssetFile(Intent sendIntent, FileProxy file) {
+	private File assetToTemp(FileProxy file)
+	{
 		File tempfile = null;
-		try {			
+		try {
 			tempfile = blobToTemp(file.read(), file.getName()); 
 		} catch(IOException e) {
 			Log.e(LCAT, "Unable to attach file " + file.getName() + ": " + e.getMessage(), e);
 		}
-		if (tempfile != null) {
-			attachStandardFile(sendIntent, Uri.fromFile(tempfile));	
-		}
+		return tempfile;
 	}
-	
-	private void attachStandardFile(Intent sendIntent, Uri uri) {
-		attachStandardFile(sendIntent, uri, TiMimeTypeHelper.getMimeType(uri.toString()));		
-	}
-	
-	private void attachStandardFile(Intent sendIntent, Uri uri, String mimeType) {
-		if (DBG) {
-			Log.d(LCAT, "Attaching standard file " + uri.toString() + " with mimetype " + mimeType);
-		}
-		sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
-		// Only set SEND intent's type to attachment's type
-		// if API level 4, because in later API levels
-		// we want to force a true e-mail dialog instead
-		// of a chooser. Someday we'll have an intents module
-		// to make choice/choosers easier!
-		if (android.os.Build.VERSION.SDK_INT == android.os.Build.VERSION_CODES.DONUT) {
-			sendIntent.setType(mimeType);
-		}
-		
-	}
-	
-	private void attachBlob(Intent sendIntent, TiBlob blob) {
-		if (DBG) {
-			Log.d(LCAT, "Attaching blob of type " + blob.getMimeType());
-		}
-		
+
+	private File blobToFile(TiBlob blob)
+	{
 		// Some blobs refer to files (TYPE_FILE), such as a selection from
 		// the photo gallery . If that's the case with this
 		// blob, then just attach the file and be done with it.
 		if (blob.getType() == TiBlob.TYPE_FILE) {
-			TiBaseFile baseFile =  (TiBaseFile) blob.getData();
-			attachStandardFile(sendIntent, Uri.fromFile(baseFile.getNativeFile()), blob.getMimeType());
-			return;
+			return ((TiBaseFile)blob.getData()).getNativeFile();
 		}
-		
+
 		// For non-file blobs, make a temp file and attach.
 		String fileName ="attachment";
 		String extension = TiMimeTypeHelper.getFileExtensionFromMimeType(blob.getMimeType(), "");
 		if (extension.length() > 0 ) {
 			fileName += "." + extension;
 		}
-		File f = blobToTemp(blob, fileName);
-		if (f != null) {
-			attachStandardFile(sendIntent, Uri.fromFile(f), blob.getMimeType());
-		}
-			
+		return blobToTemp(blob, fileName);
 	}
-	
-	private void prepareAttachments(Intent sendIntent) {
-		// sending multiple attachments in Android not yet supported		
-		// 
-		if (attachments == null) {
-			return;
-		}		
-		
-		for (Object attachment : attachments) {			
-			if (attachment instanceof FileProxy) {				
-				FileProxy fileProxy = (FileProxy) attachment;
-				if (fileProxy.isFile()) {	
-					if (fileProxy.getNativePath().contains("android_asset")) {
-						attachAssetFile(sendIntent, fileProxy);
+
+	private Uri getAttachmentUri(Object attachment)
+	{
+		if (attachment instanceof FileProxy) {
+			FileProxy fileProxy = (FileProxy) attachment;
+			if (fileProxy.isFile()) {
+				if (fileProxy.getNativePath().contains("android_asset")) {
+					File file = assetToTemp(fileProxy);
+					if (file != null) {
+						return Uri.fromFile(file);
 					} else {
-						attachStandardFile(sendIntent, Uri.fromFile(fileProxy.getBaseFile().getNativeFile()));
-					}					
-				}				
-			} else if (attachment instanceof TiBlob) {
-				TiBlob blob = (TiBlob) attachment;
-				attachBlob(sendIntent, blob);				
+						return null;
+					}
+				} else {
+					return Uri.fromFile(fileProxy.getBaseFile().getNativeFile());
+				}
 			}
-			break; // just sending one attachment for now
+		} else if (attachment instanceof TiBlob) {
+			File file = blobToFile((TiBlob)attachment);
+			if (file != null) {
+				return Uri.fromFile(file);
+			}
 		}
+		return null;
 	}
-	
+
+	private ArrayList<Uri> getAttachmentUris()
+	{
+		ArrayList<Uri>  uris = new ArrayList<Uri>();
+		for (Object attachment : attachments) {
+			Uri uri = getAttachmentUri(attachment);
+			if (uri != null) {
+				uris.add(uri);
+			}
+		}
+		return uris;
+	}
+
+	private void prepareAttachments(Intent sendIntent, ArrayList<Uri> uris) {
+		if (uris == null || uris.size() == 0) {
+			return;
+		}
+		if (uris.size() == 1) {
+			sendIntent.putExtra(Intent.EXTRA_STREAM, uris.get(0));
+			// For api level 4, set the intent mimetype to single attachment's mimetype.
+			if (android.os.Build.VERSION.SDK_INT == android.os.Build.VERSION_CODES.DONUT) {
+				sendIntent.setType(TiMimeTypeHelper.getMimeType(uris.get(0).toString()));
+			}
+			return;
+		}
+		// Multiple attachments.
+		sendIntent.putExtra(Intent.EXTRA_STREAM, uris);
+	}
+
 	private void putStringExtra(Intent intent, String extraType, String ourKey)
 	{
 		putStringExtra(intent, extraType, ourKey, false);
 	}
-	
+
 	private void putStringExtra(Intent intent, String extraType, String ourkey, boolean encodeHtml) {
 		if (this.hasProperty(ourkey)) {
 			String text = TiConvert.toString(this.getProperty(ourkey)) ;
@@ -294,7 +283,7 @@ public class EmailDialogProxy extends TiViewProxy {
 			}
 		}
 	}
-	
+
 	private void putAddressExtra(Intent intent, String extraType, String ourkey) {
 		Object testprop = this.getProperty(ourkey);
 		if (testprop instanceof Object[]) {
@@ -305,7 +294,7 @@ public class EmailDialogProxy extends TiViewProxy {
 				addrs[i] = TiConvert.toString(oaddrs[i]);
 			}
 			intent.putExtra(extraType, addrs);
-		}		
+		}
 	}
 
 	@Override
