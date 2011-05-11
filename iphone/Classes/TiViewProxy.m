@@ -128,15 +128,20 @@
 	ENSURE_UI_THREAD_1_ARG(arg);
 
 	pthread_rwlock_wrlock(&childrenLock);
-	BOOL viewIsInChildren = [children containsObject:arg];
-	if (viewIsInChildren==NO)
+	if ([children containsObject:arg])
+	{
+		[children removeObject:arg];
+	}
+	else if ([pendingAdds containsObject:arg])
+	{
+		[pendingAdds removeObject:arg];
+	}
+	else
 	{
 		pthread_rwlock_unlock(&childrenLock);
 		NSLog(@"[WARN] called remove for %@ on %@, but %@ isn't a child or has already been removed",arg,self,arg);
 		return;
 	}
-
-	[children removeObject:arg];
 
 	[self contentsWillChange];
 	if(parentVisible && !hidden)
@@ -150,8 +155,6 @@
 	}
 	pthread_rwlock_unlock(&childrenLock);
 		
-	//TODO: We should be doing this before we get to the UI thread.
-	[self forgetProxy:arg];
 	[arg setParent:nil];
 	
 	if (view!=nil)
@@ -175,6 +178,8 @@
 			}
 		}
 	}
+	//Yes, we're being really lazy about letting this go. This is intentional.
+	[self forgetProxy:arg];
 }
 
 -(void)show:(id)arg
