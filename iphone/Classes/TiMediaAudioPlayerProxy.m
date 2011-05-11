@@ -31,6 +31,7 @@
 	if (timer!=nil)
 	{
 		[timer invalidate];
+		RELEASE_TO_NIL(timer);
 	}
 	if (player!=nil)
 	{
@@ -166,6 +167,10 @@ PLAYER_PROP_DOUBLE(state,state);
 
 -(void)setUrl:(id)args
 {
+	if (![NSThread isMainThread]) {
+		[self performSelectorOnMainThread:@selector(setUrl:) withObject:args waitUntilDone:YES];
+		return;
+	}
 	RELEASE_TO_NIL(url);
 	ENSURE_SINGLE_ARG(args,NSString);
 	url = [[TiUtils toURL:args proxy:self] retain];
@@ -203,6 +208,10 @@ PLAYER_PROP_DOUBLE(state,state);
 
 -(void)stop:(id)args
 {
+	if (![NSThread isMainThread]) {
+		[self performSelectorOnMainThread:@selector(stop:) withObject:args waitUntilDone:YES];
+		return;
+	}
 	if (player!=nil)
 	{		
 		if ([player isPlaying] || [player isPaused] || [player isWaiting])
@@ -215,6 +224,10 @@ PLAYER_PROP_DOUBLE(state,state);
 
 -(void)pause:(id)args
 {
+	if (![NSThread isMainThread]) {
+		[self performSelectorOnMainThread:@selector(pause:) withObject:args waitUntilDone:YES];
+		return;
+	}
 	if (player!=nil)
 	{
 		[player pause];
