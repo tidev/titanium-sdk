@@ -1592,6 +1592,7 @@ if(ourTableView != tableview)	\
 	if (cell == nil)
 	{
 		cell = [[[TiUITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:row.tableClass row:row] autorelease];
+		[cell setBounds:CGRectMake(0, 0, [tableview bounds].size.width,44)];
 	}
 	else
 	{
