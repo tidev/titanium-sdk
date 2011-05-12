@@ -29,6 +29,12 @@ describe("Ti.Filesystem tests", {
 		valueOf(readText).shouldBeString();
 		valueOf(readText.length).shouldBe(TEXT.length);
 		valueOf(readText).shouldBe(TEXT);
+		
+		//these should all fail
+		var bad_params = [10000, true, {}];
+		for(var i = 0, j = bad_params.length; i < j; i++) {
+			valueOf(file.write(bad_params[i])).shouldBeFalse();
+		}
 		file.deleteFile();
 	},
 	blobNativeFile: function() {
