@@ -18,6 +18,7 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
@@ -52,9 +53,12 @@ public class EmailDialogProxy extends TiViewProxy {
 	public static final int FAILED = 3;
 
 	private ArrayList<Object> attachments;
+	private String privateDataDirectoryPath = null;
 
 	public EmailDialogProxy(TiContext tiContext) {
 		super(tiContext);
+		TiBaseFile privateDataDirectory = TiFileFactory.createTitaniumFile(tiContext, "appdata-private:///", false);
+		privateDataDirectoryPath = privateDataDirectory.getNativeFile().getAbsolutePath();
 	}
 
 	@Kroll.method
@@ -74,7 +78,7 @@ public class EmailDialogProxy extends TiViewProxy {
 				}
 			}
 		}
-		
+
 		return supported;
 	}
 
@@ -144,7 +148,7 @@ public class EmailDialogProxy extends TiViewProxy {
 				
 				@Override
 				public void onResult(Activity activity, int requestCode, int resultCode,
-						Intent data) {					
+						Intent data) {
 					// ACTION_SEND does not set a result code (so the default of 0
 					// is always returned. We'll neither confirm nor deny -- assume SENT
 					// see http://code.google.com/p/android/issues/detail?id=5512
@@ -186,7 +190,7 @@ public class EmailDialogProxy extends TiViewProxy {
 
 		return null;
 	}
-	private File assetToTemp(FileProxy file)
+	private File privateFileToTemp(FileProxy file)
 	{
 		File tempfile = null;
 		try {
@@ -220,15 +224,16 @@ public class EmailDialogProxy extends TiViewProxy {
 		if (attachment instanceof FileProxy) {
 			FileProxy fileProxy = (FileProxy) attachment;
 			if (fileProxy.isFile()) {
-				if (fileProxy.getNativePath().contains("android_asset")) {
-					File file = assetToTemp(fileProxy);
+				if (isPrivateData(fileProxy)) {
+					File file = privateFileToTemp(fileProxy);
 					if (file != null) {
 						return Uri.fromFile(file);
 					} else {
 						return null;
 					}
 				} else {
-					return Uri.fromFile(fileProxy.getBaseFile().getNativeFile());
+					File nativeFile = fileProxy.getBaseFile().getNativeFile();
+					return Uri.fromFile(nativeFile);
 				}
 			}
 		} else if (attachment instanceof TiBlob) {
@@ -300,5 +305,18 @@ public class EmailDialogProxy extends TiViewProxy {
 	@Override
 	public TiUIView createView(Activity activity) {
 		return null;
+	}
+
+	private boolean isPrivateData(FileProxy file)
+	{
+		if (file.isFile()) {
+			if (file.getNativePath().contains("android_asset")){
+				return true;
+			}
+			if (file.getNativePath().contains(privateDataDirectoryPath)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
