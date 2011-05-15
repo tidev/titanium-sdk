@@ -640,6 +640,17 @@ if (![TiUtils isIOS4OrGreater]) { \
 	return NUMINT(UIImagePickerControllerCameraDeviceRear);
 }
 
+-(BOOL)isCameraFlashSupported;
+{
+	ONLY_IN_IOS4_OR_GREATER(camera,nil)
+	
+	if (picker!=nil)
+	{
+		return [picker isFlashAvailableForCameraDevice];
+	}
+	return NO;
+}
+
 -(id)cameraFlashMode
 {
 	ONLY_IN_IOS4_OR_GREATER(cameraFlashMode,nil)

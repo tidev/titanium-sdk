@@ -97,6 +97,7 @@
 @property(nonatomic,readonly) NSNumber* CAMERA_FLASH_OFF;
 @property(nonatomic,readonly) NSNumber* CAMERA_FLASH_AUTO;
 @property(nonatomic,readonly) NSNumber* CAMERA_FLASH_ON;
+@property(nonatomic,readonly) BOOL isCameraFlashSupported;
 
 #endif
 
