@@ -644,11 +644,7 @@ if (![TiUtils isIOS4OrGreater]) { \
 {
 	ONLY_IN_IOS4_OR_GREATER(camera,NO)
 	
-	if (picker!=nil)
-	{
-		return [UIImagePickerController isFlashAvailableForCameraDevice:UIImagePickerControllerCameraDeviceRear];
-	}
-	return NO;
+	return [UIImagePickerController isFlashAvailableForCameraDevice:UIImagePickerControllerCameraDeviceRear];
 }
 
 -(id)cameraFlashMode
