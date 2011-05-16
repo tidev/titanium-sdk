@@ -3,6 +3,7 @@ name: Titanium
 description: The top level Titanium module.
 since: "0.1"
 platforms: [android, iphone, ipad]
+extends: Titanium.Module
 
 properties:
   - name: userAgent
@@ -83,7 +84,7 @@ since: "1.7"
 properties:
   - name: value
     type: [String, Number]
-    description: Value to be encoded. If value is a Number, type must also be set. (this is simply a convenient way of calling <Titanium.Codec.encodeString> or <Titanium.Codec.encodeNumber>)
+    description: An initial value which will be encoded and placed in the buffer. If value is a Number, type must also be set. (this is simply a convenient way of calling <Titanium.Codec.encodeString> or <Titanium.Codec.encodeNumber> and placing the encoded value in the returned buffer.)
     optional: true
   - name: length
     type: Number
