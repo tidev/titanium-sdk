@@ -26,10 +26,14 @@ version[string]: the version of Titanium that is executing
 - methods
 
 include: one or more filenames to include as if the Javascript code was written in place.  This is similar to a C `#include` function.
+createBuffer: creates a new buffer based on the params
 
 - method : include
 
 name[string]: filename to include
+
+- method : createBuffer, `Titanium.Buffer`
+params[object]: Key value pairs.  You can include: `value`, an optional initial value which will be encoded and placed in the buffer.  If value is a Number, `type` must also be set. This is simply a convenient way of calling `Titanium.Codec.encodeString` or `Titanium.Codec.encodeNumber` and placing the encoded value in the returned buffer.  `length`: the length of the buffer, with a default of 0 unless `value` is specified, in which case the length of the encoded `value`.  `type`, the type of data encoding to use with `value`, with `Titanium.Codec.CHARSET_UTF8` being the default if `value` is a String, else this argument is required in the case of `value` being a number.  `byteOrder`, the byte order of this buffer, with the default being the OS native byte order is used by default (see `Titanium.Codec.getNativeByteOrder`).
 
 - notes
 

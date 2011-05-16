@@ -1,0 +1,159 @@
+- namespace
+
+Titanium.Codec
+
+- type
+
+module
+
+- description
+
+A module for converting Numbers and Strings to and from a `Titanium.Buffer`.
+
+- since
+
+1.7
+
+- platforms
+
+iphone, android, ipad
+
+- properties
+
+CHARSET_ASCII[String]: The [ASCII Character Set](http://en.wikipedia.org/wiki/ASCII)
+
+CHARSET_ISO_LATIN1[String]: The [ISO 8859-1 (LATIN-1) Character Set](http://en.wikipedia.org/wiki/ISO/IEC_8859-1)
+
+CHARSET_UTF8[String]: The [UTF-8 Character Set](http://en.wikipedia.org/wiki/UTF-8)
+
+CHARSET_UTF16[String]: The [UTF-16 Character Set](http://en.wikipedia.org/wiki/UTF-16/UCS-2)
+
+CHARSET_UTF16BE[String]: The [UTF-16 Character Set](http://en.wikipedia.org/wiki/UTF-16/UCS-2) with Big Endian byte order
+
+CHARSET_UTF16LE[String]: The [UTF-16 Character Set](http://en.wikipedia.org/wiki/UTF-16/UCS-2) with Little Endian byte order
+
+TYPE_BYTE[String]: 8 bit integer encoding type
+
+TYPE_SHORT[String]: 16 bit integer encoding type
+
+TYPE_INT[String]: 32 bit integer encoding type
+
+TYPE_FLOAT[String]: 32 bit single precision floating-point type
+
+TYPE_LONG[String]: 64 bit integer encoding type
+
+TYPE_DOUBLE[String]: 64 bit double precision floating-point type
+
+BIG_ENDIAN[Number]: Big Endian (network) byte order, i.e. most significant byte first.
+
+LITTLE_ENDIAN[Number]: Little Endian byte order, i.e. least significant byte first.
+
+
+- methods
+
+getNativeByteOrder: Get the OS native byte order (either [[Titanium.Codec.BIG_ENDIAN]] or [[Titanium.Codec.LITTLE_ENDIAN]])
+encodeNumber: Encodes the Number `source` into `dest` using the passed in data `type`.  Returns the position after the encoded number in `dest`.'
+decodeNumber: Decodes the `source` buffer (starting at the optional `position`) into a number using the passed in data `type`.  Throws an Exception if `source` is null, or `position` is greater than `source.length`
+
+encodeString: Encodes the String `source` into `dest` using `charset`. Returns the position after the encoded String inside `dest`.' Throws an Exception if `charset` is not a valid character set, `source` is null, or either `sourcePosition`, `sourceLength`, or `sourcePosition`+`sourceLength` is greater than `source.length`.
+
+decodeString: Decodes the `source` buffer into a String starting at `position`, with `length` bytes, using the supplied character set `charset`. Throws an Exception if `charset` is not a valid character set, `source` is null, or either `position`, `length`, or `position`+`length` is greater than `source.length`.
+
+
+- method : getNativeByteOrder, Number
+
+- method : encodeNumber, Number
+options[Object]: encodeNumber named options.  These are: `source`, the number to be encoded.  `dest`, the destination `Titanium.Buffer` into which the encoded number will be written.  `type`, the encoding type to use, which must be one of `Titanium.Codec.TYPE_BYTE`, `Titanium.Codec.TYPE_SHORT`, `Titanium.Codec.TYPE_INT`, `Titanium.Codec.TYPE_FLOAT`, `Titanium.Codec.TYPE_LONG`, or `Titanium.Codec.TYPE_DOUBLE`.  `position`, the position in dest to set the encoded data (optional, default is 0).  `byteOrder`, the byte order to encode with (optional, default is `Titanium.Codec.getNativeByteOrder`).
+
+- method : decodeNumber, Number
+options[Object]: decodeNumber named options.  These are: `source`, the `Titanium.Buffer` to decode.  `type`, the encoding type to use, which must be one of `Titanium.Codec.TYPE_BYTE`, `Titanium.Codec.TYPE_SHORT`, `Titanium.Codec.TYPE_INT`, `Titanium.Codec.TYPE_FLOAT`, `Titanium.Codec.TYPE_LONG`, or `Titanium.Codec.TYPE_DOUBLE`.  `position`, the position in `source` to start at (optional, default is 0).  `byteOrder`, the byte order to decode with (optional, default is `Titanium.Codec.getNativeByteOrder`).
+
+
+- method : encodeString, Number
+options[Object]: encodeString named options.  These are: `source`, the source string to encode.  `dest`, the destination `Titanium.Buffer`.  `destPosition`, the position in `dest` to set the encoded string (optional, default is 0).  `sourcePosition`, the position in `source` to start encoding (optional, default is 0).  `sourceLength`, the number of characters in `source` to encode (optional, default is the length of the source).  `charset`, the character set to use when encoding this string to bytes (optional, default is `Titanium.Codec.CHARSET_UTF8`).
+
+- method : decodeString, String
+options[Object]: decodeString named options.  These are: `source`, the `Titanium.Buffer` to decode.  `position`, the position to start decoding (optional, default is 0).  `length`, the number of bytes to decode (optional, default is the length of the source buffer).  `charset`, the character set to decode from (optional, default is `Titanium.Codec.CHARSET_UTF8`).
+
+- example : Encoding Numbers
+Encode a double-precision floating point value in 8 bytes using the OS byte order
+~~~        
+var buffer = Ti.createBuffer({ length: 8 });
+Ti.Codec.encodeNumber({
+  source: 1.23456789,
+  dest: buffer,
+  type: Ti.Codec.TYPE_DOUBLE
+});
+~~~
+        
+Encode a 4 byte integer to position 10 using BIG_ENDIAN encoding
+~~~        
+var buffer = Ti.createBuffer({ length: 100 });
+Ti.Codec.encodeNumber({
+	source: 0x3456789a,
+	dest: buffer,
+	position: 10,
+	type: Ti.Codec.TYPE_INT,
+	byteOrder: Ti.Codec.BIG_ENDIAN
+});
+~~~
+
+- example : Decoding Numbers
+Decode an 8 byte double-precision floating point number using the OS byte order
+~~~
+var buffer = //...
+var value = Ti.Codec.decodeNumber({
+	source: buffer,
+	type: Ti.Codec.TYPE_DOUBLE
+});
+~~~
+        
+Decode a 4 byte integer from position 10 using BIG_ENDIAN encoding
+~~~
+var buffer = //...
+var value = Ti.Codec.decodeNumber({
+  source: buffer,
+  position: 10,
+  type: Ti.Codec.TYPE_INT,
+  byteOrder: Ti.Codec.BIG_ENDIAN
+});
+~~~
+
+- example : Encoding Strings
+Encode and trim a simple String using the UTF-8 (default) charset
+~~~
+var buffer = Ti.createBuffer({ length: 1024 });
+var length = Ti.Codec.encodeString({
+	source: "hello world",
+	dest: buffer
+});
+buffer.length = length;
+~~~
+
+Encode the first 10 characters of a String using the UTF-16 charset
+~~~
+// (10 * 2) + BOM = 22
+var buffer = Ti.createBuffer({ length: 22 });
+Ti.Codec.encodeString({
+	source: "jack jumped over the candle stick",
+	sourceLength: 10,
+	dest: buffer,
+	charset: Ti.Codec.CHARSET_UTF16
+});
+~~~
+
+- example : Decoding Strings
+Decode a String using the UTF-8 (default) charset
+~~~
+var buffer = //...
+var string = Ti.Codec.decodeString({ source: buffer });
+~~~
+
+Decode a string using the UTF-16 charset
+var buffer = //...
+var string = Ti.Codec.decodeString({
+  source: buffer,
+  charset: Ti.Codec.CHARSET_UTF16
+});
+~~~
+

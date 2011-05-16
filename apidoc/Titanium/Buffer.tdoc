@@ -1,0 +1,73 @@
+- namespace
+
+Titanium.Buffer
+
+- type
+
+proxy
+
+- description
+
+Buffer is a container for raw data. A buffer is created by the method `Titanium.createBuffer`.
+
+- since
+
+1.7
+
+- platforms
+
+iphone, android, ipad
+
+- properties
+
+length[Number]: The length of the buffer in bytes. When `length` is modified the buffer will be re-sized while preserving existing data where possible. If the new buffer length is smaller than the length of the existing data then the existing data will be truncated down to the size of the new buffer.  Resizing the buffer via setting length should be used sparingly due to the associated overhead.
+value[Number, String]: Data to be encoded. If `value` is a Number, `type` must also be set. (this is simply a convenient way of calling `Titanium.Codec.encodeString` or `Titanium.Codec.encodeNumber`).
+type[String]: The type of data encoding to use with `value`. Required when `value` is a Number. When `value` is a String, `Titanium.Codec.CHARSET_UTF8` is the default.
+byteOrder[Number]: The byte order of this buffer. The OS native byte order is used by default.
+
+- methods
+
+append: appends `sourceBuffer` to the current buffer.  Buffer is grown dynamically to accommodate the additional data if need be.  returns the number of bytes appended. Optional offset and length arguments to specify from where in -- and how much of -- source buffer to take.
+insert: inserts `sourceBuffer` into the current buffer at `offset`.  Buffer is grown to accommodate the new data.  returns the number of bytes inserted.  Optional sourceOffset and length arguments to specify from where in -- and how much of -- source buffer to take.
+copy: copies the contents of `sourceBuffer` into the current buffer at `offset`.  will not expand buffer if there is not enough room in the current buffer to accomodate all the requested data from `sourceBuffer`.  returns the number of bytes copied.  Optional sourceOffset and length arguments to specify from where in -- and how much of -- source buffer to take.
+clone: create new copy of the current buffer.  Optional offset and length arguments to specify from where in -- and how much of -- source buffer to take.
+fill: fills buffer with `fillByte`.  Optional offset and length arguments to specify that filling should occur starting at particular offset and finish when `length` bytes have been written or the end of the buffer is reached.
+clear: Clears buffer contents but does not change the size of the buffer
+release: Releases the space allocated to the buffer, sets length to 0.  This is effectively the same as `buffer.length = 0`
+toString: Converts this buffer to a String
+toBlob: Converts this buffer to a [[Titanium.Blob]]
+
+- method : append, Number
+sourceBuffer[`Titanium.Buffer`]: buffer to append to current buffer
+sourceOffset[Number]: (Optional) offset to start reading buffer data from
+sourceLength[Number]: (Optional) length of data to read from buffer
+
+- method : insert, Number
+sourceBuffer[`Titanium.Buffer`]: buffer to insert into current buffer
+offset[Number]: offset to insert new buffer at
+sourceOffset[Number]: (Optional) offset of sourceBuffer to insert data from
+sourceLength[Number]: (Optional) length of data from sourceBuffer to insert
+
+- method : copy, Number
+sourceBuffer[`Titanium.Buffer`]: buffer to copy into current buffer
+offset[Number]: offset to copy new buffer at
+sourceOffset[Number]: (Optional) offset of sourceBuffer to copy data from
+sourceLength[Number]: (Optional) length of data from sourceBuffer to copy
+
+- method : clone, `Titanium.Buffer`
+offset[Number]: (Optional) offset of buffer to start clone
+length[Number]: (Optional) length of buffer data starting at offset to clone
+
+- method : fill
+fillByte[Number]: byte to fill buffer with
+offset[Number]: (Optional) offset of where to start fill
+length[Number]: (Optional) number of bytes to fill
+
+- method : clear
+
+- method : release
+
+- method : toString, String
+
+- method : toBlob, `Titanium.Blob`
+
