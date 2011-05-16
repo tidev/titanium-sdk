@@ -6,30 +6,30 @@ Titanium.Network.Socket
 
 module
 
-- returns
-
-object
-
 - description
 
-This submodule contains constants relating to, and constructors for, socket objects.
+Socket module
 
 - since
 
-1.7.0
+1.7
 
 - platforms
 
-android, iphone, ipad
+iphone, android, ipad
 
 - properties
 
-INITIALIZED[int]: The state representing an 'initialized' socket
-CONNECTED[int]: The state representing a 'connected' socket
-LISTENING[int]: The state representing a 'listening' socket
-CLOSED[int]: The state representing a 'closed' socket
-ERROR[int]: The state representing a socket which has experienced an error
+INITIALIZED[Number]: state representing the initialized state of a socket
+CONNECTED[Number]: state representing the connected state of a socket
+LISTENING[Number]: state representing the listening state of a socket
+CLOSED[Number]: state representing the closed state of a socket
+ERROR[Number]: state representing the error state of a socket
 
 - methods
 
-createTCP: Returns a new `Titanium.Network.Socket.TCP` instance
+createTCP: returns new TCP socket object, takes object containing properties list defined in `Titanium.Network.Socket.TCP`.  Some properties are only needed based on whether the socket will be a connecting socket or a listening socket.
+
+- method : createTCP, `Titanium.Network.Socket.TCP`
+params[Object]: creation parameters
+
