@@ -53,7 +53,7 @@ name: the name of the file
 
 - method : append, boolean
 
-data[Blob | File | string]: the contents of which to append
+data[`Titanium.Blob`,`Titanium.Filesystem.File`,string]: the contents of which to append
 
 - method : nativePath, string
 - method : exists, boolean
