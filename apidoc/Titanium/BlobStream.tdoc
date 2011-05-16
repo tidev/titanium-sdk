@@ -1,6 +1,6 @@
 - namespace
 
-Titanium.IOStream
+Titanium.BlobStream
 
 - type
 
@@ -8,7 +8,7 @@ proxy
 
 - description
 
-IOStream is the interface that all stream types implement
+Wrapper around `Titanium.Blob` that implements the `Titanium.IOStream` interface
 
 - since
 

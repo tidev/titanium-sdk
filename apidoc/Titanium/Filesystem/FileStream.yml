@@ -1,8 +1,7 @@
 ---
 name: Titanium.Filesystem.FileStream
-type: Titanium.IOStream
 description: Wrapper around `Titanium.Filesystem.File` that implements the `Titanium.IOStream` interface
-extends: Titanium.Proxy
+extends: Titanium.IOStream
 since: "1.7"
 
 methods:

@@ -1,7 +1,7 @@
 ---
 name: Titanium.Network.Socket
-type: Titanium.Module
 description: Socket module
+extends: Titanium.Module
 since: "1.7"
 
 properties:
