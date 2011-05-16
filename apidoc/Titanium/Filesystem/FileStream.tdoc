@@ -1,6 +1,6 @@
 - namespace
 
-Titanium.IOStream
+Titanium.Filesystem.FileStream
 
 - type
 
@@ -8,7 +8,7 @@ proxy
 
 - description
 
-IOStream is the interface that all stream types implement
+Wrapper around `Titanium.Filesystem.File` that implements the `Titanium.IOStream` interface.
 
 - since
 
