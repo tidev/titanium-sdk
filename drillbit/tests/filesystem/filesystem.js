@@ -29,12 +29,6 @@ describe("Ti.Filesystem tests", {
 		valueOf(readText).shouldBeString();
 		valueOf(readText.length).shouldBe(TEXT.length);
 		valueOf(readText).shouldBe(TEXT);
-		
-		//these should all fail
-		var bad_params = [10000, true, {}];
-		for(var i = 0, j = bad_params.length; i < j; i++) {
-			valueOf(file.write(bad_params[i])).shouldBeFalse();
-		}
 		file.deleteFile();
 	},
 	blobNativeFile: function() {
@@ -268,5 +262,22 @@ describe("Ti.Filesystem tests", {
 		valueOf(truncateBuffer.length).shouldBeExactly(0);
 
 		inFileStream.close();
+	},
+
+	fileMove: function() {
+		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'text.txt');
+		var contents = f.read();
+
+		var newDir = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,'mydir');
+		if(!newDir.exists()) {
+			newDir.createDirectory();
+		}
+		valueOf(newDir.exists()).shouldBeTrue();
+
+		var newFile = Titanium.Filesystem.getFile(newDir.nativePath,'newfile.txt');
+		newFile.write(f.read());
+		valueOf(newFile.exists()).shouldBeTrue();
+
+		valueOf(newFile.move(Titanium.Filesystem.applicationDataDirectory+'/moved.txt')).shouldBeTrue();
 	}
 });
