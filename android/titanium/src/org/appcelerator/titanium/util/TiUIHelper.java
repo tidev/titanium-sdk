@@ -297,6 +297,8 @@ public class TiUIHelper
 				Log.e(LCAT, "Unable to load 'fonts' assets. Perhaps doesn't exist? " + e.getMessage());
 			}
 		}
+
+		mCustomTypeFaces.put(fontFamily, null);
 		return null;
 	}
 
