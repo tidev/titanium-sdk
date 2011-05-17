@@ -13,6 +13,7 @@ import java.io.IOException;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.io.TiStream;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiStreamHelper;
 
@@ -119,8 +120,8 @@ public class BufferStreamProxy extends KrollProxy implements TiStream
 			return bytesRead;
 
 		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException("Unable to read from file, IO error");
+			Log.e(LCAT, "Unable to read from buffer stream, IO error", e);
+			throw new IOException("Unable to read from buffer stream, IO error");
 		}
 	}
 
