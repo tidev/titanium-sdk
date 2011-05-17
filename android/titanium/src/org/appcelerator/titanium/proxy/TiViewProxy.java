@@ -94,7 +94,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 					String langKey = (String) options.get(convertKey);
 					if (langKey != null) {
 						try {
-							options.put(key, activity.getString(TiRHelper.getResource("string." + langKey)));
+							int resid = TiRHelper.getResource("string." + langKey);
+							if (resid != 0) {
+								options.put(key, activity.getString(resid));
+							}
 						}
 						catch (TiRHelper.ResourceNotFoundException e) {}
 					}
