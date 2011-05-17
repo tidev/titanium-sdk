@@ -132,5 +132,5 @@ Titanium.Media.showCamera({
 	showControls:false,	// don't show system controls
 	mediaTypes:Ti.Media.MEDIA_TYPE_VIDEO,
 	videoQuality:Ti.Media.QUALITY_640x480,
-	autohide:false 	// tell the system not to auto-hide and we'll do it ourself
+	autohide:false // tell the system not to auto-hide and we'll do it ourself
 });

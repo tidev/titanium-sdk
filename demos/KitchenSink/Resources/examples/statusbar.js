@@ -35,29 +35,21 @@ b2.addEventListener('click', function()
 	switch(style)
 	{
 		case 0:
-		{
 			Titanium.UI.iPhone.statusBarStyle = Titanium.UI.iPhone.StatusBar.OPAQUE_BLACK;
 			style++;
 			break;
-		}
 		case 1:
-		{
 			Titanium.UI.iPhone.statusBarStyle = Titanium.UI.iPhone.StatusBar.GRAY;
 			style++;
 			break;
-		}
 		case 2:
-		{
 			Titanium.UI.iPhone.statusBarStyle = Titanium.UI.iPhone.StatusBar.TRANSLUCENT_BLACK;
 			style++;
 			break;
-		}
 		case 3:
-		{
 			Titanium.UI.iPhone.statusBarStyle = Titanium.UI.iPhone.StatusBar.DEFAULT;
 			style=0;
 			break;
-		}
 	}
 });
 win.add(b2);

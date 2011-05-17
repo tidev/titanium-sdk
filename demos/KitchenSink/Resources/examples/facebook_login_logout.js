@@ -37,7 +37,7 @@ Titanium.Facebook.addEventListener('logout', updateLoginStatus);
 //
 // Login Button
 //
-win.add ( Titanium.Facebook.createLoginButton({
-	'style':'wide',
+win.add(Titanium.Facebook.createLoginButton({
+	style:'wide',
 	bottom:30
-}) );
+}));

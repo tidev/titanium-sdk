@@ -98,10 +98,10 @@ SOAPClient._loadWsdl = function(url, method, parameters, async, callback)
 	};
 	xmlHttp.send(null);
 
-	// if (!async)
-	// {
-	// 	return SOAPClient._onLoadWsdl(url, method, parameters, async, callback, xmlHttp);
-	// }
+	//	if (!async)
+	//	{
+	//		return SOAPClient._onLoadWsdl(url, method, parameters, async, callback, xmlHttp);
+	//	}
 };
 SOAPClient._onLoadWsdl = function(url, method, parameters, async, callback, req)
 {
@@ -137,10 +137,10 @@ SOAPClient._sendSoapRequest = function(url, method, parameters, async, callback,
 	xmlHttp.setRequestHeader("SOAPAction", soapaction);
 	xmlHttp.setRequestHeader("Content-Type", "text/xml; charset=utf-8");
 	xmlHttp.send(sr);
-	// if (!async)
-	// {
-	// 	return SOAPClient._onSendSoapRequest(method, async, callback, wsdl, xmlHttp);
-	// }
+	//	if (!async)
+	//	{
+	//		return SOAPClient._onSendSoapRequest(method, async, callback, wsdl, xmlHttp);
+	//	}
 };
 SOAPClient._onSendSoapRequest = function(method, async, callback, wsdl, req)
 {

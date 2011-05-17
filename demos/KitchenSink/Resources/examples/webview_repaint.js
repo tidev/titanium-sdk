@@ -20,7 +20,7 @@ win.rightNavButton = bb1;
 var size = 15;
 bb1.addEventListener('click', function(e)
 {
-	if (e.index == 0)
+	if (e.index === 0)
 	{
 		size +=5;
 		Ti.App.fireEvent('fontchange', {amount:size});
