@@ -13,6 +13,7 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiRHelper;
 
@@ -22,6 +23,7 @@ import android.telephony.PhoneNumberUtils;
 public class LocaleModule extends KrollModule
 {
 	private static final String LCAT = "LocaleModule";
+	private static final boolean DBG = TiConfig.LOGD;
 	
 	public LocaleModule(TiContext tiContext)
 	{
@@ -88,8 +90,19 @@ public class LocaleModule extends KrollModule
 	public String getString(KrollInvocation invocation, String key, @Kroll.argument(optional=true) String defaultValue)
 	{
 		try {
-			return invocation.getTiContext().getActivity().getString(TiRHelper.getResource("string." + key));
+			int resid = TiRHelper.getResource("string." + key);
+			if (resid != 0) {
+				return invocation.getTiContext().getActivity().getString(resid);
+			} else {
+				return defaultValue;
+			}
 		} catch (TiRHelper.ResourceNotFoundException e) {
+			if (DBG) {
+				Log.d(LCAT, "Resource string with key '" + key + "' not found.  Returning default value.");
+			}
+			return defaultValue;
+		} catch (Exception e) {
+			Log.e(LCAT, "Error trying to get resource string with key '" + key + "':", e);
 			return defaultValue;
 		}
 	}
