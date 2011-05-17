@@ -264,7 +264,29 @@ describe("Ti.UI.Android tests", {
 	pickerRowCustomAttr: function() {
 		var row = Ti.UI.createPickerRow({title: 'blah', custom: 'blee'});
 		valueOf(row.custom).shouldBe("blee");
-	}
+	},
+	// http://jira.appcelerator.org/browse/TIMOB-3862
+	complexRowHeightCrash_as_async: function(callback) {
+		var failureTimeout = null;
+		var w = Ti.UI.createWindow();
+		var tv = Ti.UI.createTableView({
+			data: [ Ti.UI.createTableViewRow({title:'test', height: '50dp'}) ]
+		});
+		w.add( tv );
+		w.addEventListener('open', function() {
+			setTimeout(function(){
+				var height = tv.size.height;
+				if (failureTimeout !== null) {
+					clearTimeout(failureTimeout);
+				}
+				callback.passed();
+			}, 1000);
+		});
+		failureTimeout = setTimeout(function(){
+			callback.failed("Test may have crashed app.  Was never able to read back tableview dimensions.");
+		},5000);
+		w.open();
 
+	}
 })
 
