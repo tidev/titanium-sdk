@@ -1120,7 +1120,8 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 			}
 			else 
 			{
-				entry = [queue objectAtIndex:0];
+				entry = [[queue objectAtIndex:0] retain];
+				[queue removeObjectAtIndex:0];
 			}
 			[lock unlock];
 			if (entry!=nil)
@@ -1145,9 +1146,8 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 				}
 				@finally 
 				{
-					[lock lock];
-					[queue removeObjectAtIndex:0];
-					[lock unlock];
+					[entry release];
+					entry = nil;
 				}				
 			}
 		}

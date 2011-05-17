@@ -221,6 +221,10 @@ FILENOOP(setHidden:(id)x);
 -(NSString *)_grabFirstArgumentAsFileName_:(id)args {
     NSString * arg = [args objectAtIndex:0];
     NSString * file = FILE_TOSTR(arg);
+	NSURL * fileUrl = [NSURL URLWithString:file];
+	if([fileUrl isFileURL]){
+		file = [fileUrl path];
+	}
     NSString * dest = [file stringByStandardizingPath];
 
     return dest;
