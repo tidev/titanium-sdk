@@ -46,7 +46,7 @@ for (var c=0;c<30;c++)
 {
 	var row = Ti.UI.createTableViewRow();
 	row.rightImage = '../images/tableview/easycustom/indicator.png';
-	if (c==0)
+	if (c === 0)
 	{
 		row.backgroundImage = '../images/tableview/easycustom/topRow.png';
 		row.selectedBackgroundImage = '../images/tableview/easycustom/topRowSelected.png';

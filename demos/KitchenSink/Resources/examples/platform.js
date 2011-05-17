@@ -18,21 +18,13 @@ function batteryStateToString(state)
 	switch (state)
 	{
 		case Titanium.Platform.BATTERY_STATE_UNKNOWN:
-		{
 			return 'unknown';
-		}
 		case Titanium.Platform.BATTERY_STATE_UNPLUGGED:
-		{
 			return 'unplugged';
-		}
 		case Titanium.Platform.BATTERY_STATE_CHARGING:
-		{
 			return 'charging';
-		}
 		case Titanium.Platform.BATTERY_STATE_FULL:
-		{
 			return 'full';
-		}
 	}
 	return '???';
 }
@@ -92,8 +84,7 @@ var l5 = Titanium.UI.createLabel({
 	width:'auto',
 	height:'auto',
 	font:{fontSize:14},
-	color:'#777',
-	height:'auto'
+	color:'#777'
 });
 
 win.add(l5);
@@ -172,8 +163,7 @@ var l12 = Titanium.UI.createLabel({
 	width:300,
 	height:'auto',
 	font:{fontSize:14},
-	color:'#777',
-	height:'auto'
+	color:'#777'
 });
 
 win.add(l12);
@@ -251,23 +241,17 @@ b.addEventListener('click', function()
 	switch(openURL % 3)
 	{
 		case 0:
-		{
 			url = 'http://www.google.com';
 			b.title='Open URL (web)';
 			break;
-		}
 		case 1:
-		{
 			url = 'tel:4043332222';
 			b.title='Open URL (tel)';
 			break;
-		}
 		case 2:
-		{
 			url = 'sms:4043332222';
 			b.title='Open URL (sms)';
 			break;
-		}
 	}
 	if (Titanium.Platform.name != 'android') {
 		if (!Titanium.Platform.canOpenURL(url)) {

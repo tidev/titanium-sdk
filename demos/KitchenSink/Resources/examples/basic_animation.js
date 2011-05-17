@@ -36,30 +36,21 @@ circle.addEventListener('click', function()
 	switch(mode)
 	{
 		case 0:
-		{
 			firstAnimation();
 			mode++;
 			break;
-		}
 		case 1:
-		{
 			secondAnimation();
 			mode++;
 			break;
-		}
 		case 2:
-		{
 			thirdAnimation();
 			mode++;
 			break;
-		}
 		case 3:
-		{
 			fourthAnimation();
 			mode=0;
 			break;
-		}
-
 	}
 });
 
@@ -83,7 +74,7 @@ function firstAnimation()
 
 		circle.animate({opacity:1,transform:t,duration:500});
 	});
-};
+}
 
 // background color - use animation object
 function secondAnimation()
@@ -122,7 +113,7 @@ function secondAnimation()
 			label.text = 'Click circle repeatedly to animate or drag window';
 		},2000);
 	});
-};
+}
 
 // animate the top and right property
 function thirdAnimation()
@@ -131,7 +122,7 @@ function thirdAnimation()
 	{
 		circle.animate({top:0,left:0, duration:500});
 	});
-};
+}
 
 // animate the center point object
 function fourthAnimation()
@@ -146,4 +137,4 @@ function fourthAnimation()
 			});
 		});
 	});
-};
+}

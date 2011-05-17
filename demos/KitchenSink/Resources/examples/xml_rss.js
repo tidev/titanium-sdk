@@ -34,7 +34,7 @@ xhr.onload = function()
 				{
 					// iphone moved to a single image property - android needs to do the same
 					img = Ti.UI.createImageView({
-						url:media,
+						image:media,
 						left:5,
 						height:60,
 						width:60

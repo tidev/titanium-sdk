@@ -23,7 +23,7 @@ xhr.onload = function()
 {
 	var f = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory,'ti.png');
 	f.write(this.responseData);
-	imageView.url = f.nativePath;
+	imageView.image = f.nativePath;
 };
 // open the client (and test HTTPS)
 xhr.open('GET','https://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png');

@@ -46,7 +46,7 @@ b1.addEventListener('click', function(e) {
 		width : 'auto', height : 'auto',
 		text : 'Press the menu button, then select Close Window'
 	});
-	w.add (l);
+	w.add(l);
 	
 	w.open({ animated : true});
 });

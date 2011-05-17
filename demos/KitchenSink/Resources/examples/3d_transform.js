@@ -46,7 +46,7 @@ button.addEventListener('click', function()
 
 	a1.addEventListener('complete', function(e)
 	{
-		 	t1 = t1.rotate(180,1,1,0);
+			t1 = t1.rotate(180,1,1,0);
 			t1 = t1.scale(2.0,2.0,2.0);
 			t1.m34 = 1.0/-1500;
 			var a1 = Titanium.UI.createAnimation();

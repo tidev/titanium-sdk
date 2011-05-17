@@ -1,7 +1,7 @@
 // create table view data object
 var data = [];
 
-for (c=0; c<10; c++) 
+for (var c=0; c<10; c++) 
 {
 	var row = Ti.UI.createTableViewRow({height:100});
 	
