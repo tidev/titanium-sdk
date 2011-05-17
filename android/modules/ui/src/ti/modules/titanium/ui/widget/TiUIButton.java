@@ -23,7 +23,6 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 
@@ -37,20 +36,7 @@ public class TiUIButton extends TiUIView
 		if (DBG) {
 			Log.d(LCAT, "Creating a button");
 		}
-
-		Button btn = new Button(proxy.getContext()) {
-
-			@Override
-			public boolean onKeyUp(int keyCode, KeyEvent event)
-			{
-				if (event.getAction() == KeyEvent.ACTION_UP &&
-						(keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER))
-				{
-					proxy.fireEvent(TiC.EVENT_CLICK, new KrollDict());
-				}
-				return super.onKeyUp(keyCode, event);
-			}
-		};
+		Button btn = new Button(proxy.getContext());
 		btn.setPadding(8, 0, 8, 0);
 		btn.setGravity(Gravity.CENTER);
 		setNativeView(btn);
