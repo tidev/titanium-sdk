@@ -464,7 +464,9 @@ TiValueRef KrollGetProperty(TiContextRef jsContext, TiObjectRef object, TiString
 			return NULL;
 		}
 		
-		TiObjectRef cachedObject = [o objectForTiString:prop context:jsContext];
+        // Special hack (TIMOB-4075): We have our own toString, even though it's a prototype on all objects.
+        // Skip over the TiCore implementation where we can, and fetch it from the valueForKey.
+		TiObjectRef cachedObject = [name isEqualToString:@"toString"] ? NULL : [o objectForTiString:prop context:jsContext];
 		
 		if ((cachedObject != NULL) && TiObjectIsFunction(jsContext,cachedObject))
 		{
