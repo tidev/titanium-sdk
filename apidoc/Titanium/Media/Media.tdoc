@@ -38,6 +38,17 @@ showMusicLibrary: show the music library.  iPhone and iPad only.
 hideMusicLibrary: hide the music library.  This must be called after calling `showMusicLibrary` and only when `autohide` is set to false.  iPhone and iPad only.
 startMicrophoneMonitor: start the monitoring of microphone sound level
 stopMicrophoneMonitor: stop the monitoring of microphone sound level
+cameraFlashMode: gets the current flash mode for the main camera, returning one of the Titanium.Media.CAMERA_FLASH_* constants. iPhone and iPad only.
+setCameraFlashMode: sets the flash mode for the main camera. this must be called after calling `showCamera`. iPhone and iPad only.
+switchCamera: changes which camera is active. this must be called after calling `showCamera`. iPhone and iPad only.
+
+- method : switchCamera
+
+cameraDevice[int]: pass either `Titanium.Media.CAMERA_FRONT` or `Titanium.Media.CAMERA_REAR`
+
+- method : setCameraFlashMode
+
+flashMode[int]: pass one of the Titanium.Media.CAMERA_FLASH_* constants
 
 - method : isMediaTypeSupported, boolean
 
@@ -65,7 +76,7 @@ callbacks[object]: pass a dictionary with the following supported keys: `success
 - method : showMusicLibrary
 
 options[object]: pass a dictionary with the following supported keys: `success` a function that will be called when the camera is completed, `error` a function that will be called upon receiving an error, `cancel` a function that will be called if the user presses the cancel button, `autohide` boolean if the library listing should auto hide after selection is completed (defaults to true), `animated` boolean if the dialog should be animated (defaults to true) upon showing and hiding, `mediaTypes` an array of media type constants defining selectable media (see MUSIC_MEDIA_TYPE_* properties below) as either an array or a bitwise-or single value, `allowMultipleSelections` boolean whether or not more than one media selection is allowed
-
+ 
 - properties
 
 UNKNOWN_ERROR[int]: constant for unknown media error
@@ -210,6 +221,17 @@ VIDEO_TIME_OPTION_EXACT[int]: use the exact time
 VIDEO_FINISH_REASON_PLAYBACK_ENDED[int]: the video playback ended normally
 VIDEO_FINISH_REASON_PLAYBACK_ERROR[int]: the video playback ended abnormally
 VIDEO_FINISH_REASON_USER_EXITED[int]: the video playback ended by user action (such as clicking the `Done` button)
+
+# NOTE: these are introduced in iOS 4.0
+availableCameras[array]: the list of available cameras including [[Titanium.Media.CAMERA_FRONT]] and [[Titanium.Media.CAMERA_REAR]] in iOS 4.0+
+CAMERA_FRONT[int]: the front-facing camera device on iOS 4.0+
+CAMERA_REAR[int]: the main (rear-facing) camera device on iOS 4.0+
+
+isCameraFlashSupported[boolean]: returns true if the main camera has flash capabilities on iOS 4.0+
+CAMERA_FLASH_OFF[int]: the flash will not fire on iOS 4.0+
+CAMERA_FLASH_ON[int]: the flash will always fire on iOS 4.0+
+CAMERA_FLASH_AUTO[int]: the flash will fire only if necessary on iOS 4.0+
+
 
 - events
 
