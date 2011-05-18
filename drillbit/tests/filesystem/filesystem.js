@@ -59,6 +59,73 @@ describe("Ti.Filesystem tests", {
 		valueOf(text.length).shouldBeGreaterThan(0);
 	},
 	
+	appendStringTest:function() {
+		var f = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'data.txt');
+		valueOf(f).shouldNotBeNull();
+
+		var appended_text = 'Some appended text';
+		var previous_text = "";
+		
+		// Check if the file exists before trying to read from it!
+
+		if(f.exists()) {
+			var prev_blob;
+
+			valueOf(function() {
+				prev_blob = f.read();
+				previous_text = prev_blob.text;
+			}).shouldNotThrowException();
+		}
+
+		f.write(appended_text, true);
+		
+		var final_blob = f.read();
+		valueOf(final_blob).shouldNotBeNull();
+		valueOf(final_blob.text).shouldBe(previous_text + appended_text);
+	},
+	appendBlobTest: function() {
+		var blob = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'file.txt').read();
+		var dest = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'append_blob.txt');
+		
+		valueOf(blob).shouldNotBeNull();
+		valueOf(dest).shouldNotBeNull();
+		
+		var previous = "";
+		
+		if(dest.exists()) {
+			var dest_blob = dest.read();
+			valueOf(dest_blob).shouldNotBeNull();
+			previous = dest_blob.text;
+		}
+		
+		dest.write(blob, true);
+		
+		var final_blob = dest.read();
+		valueOf(final_blob).shouldNotBeNull();
+		valueOf(final_blob.text).shouldBe(previous + blob.text);
+	},
+	appendFileTest: function() {
+		var source = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'file.txt');
+		var dest 	 = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'append_file.txt');
+		var previous = "";
+
+		valueOf(source).shouldNotBeNull();
+		valueOf(dest).shouldNotBeNull();
+		
+		if(dest.exists()) {
+			previous = dest.read().text;
+		}
+		
+		dest.write(source, true);
+		
+		var source_blob = source.read();
+		valueOf(source_blob).shouldNotBeNull();
+		
+		var dest_blob = dest.read();
+		valueOf(dest_blob).shouldNotBeNull();
+		
+		valueOf(dest_blob.text).shouldBe(previous + source_blob.text);		
+	},
 	// FileStream tests
 	fileStreamBasicTest:function() {
 		valueOf(Ti.createBuffer).shouldBeFunction();

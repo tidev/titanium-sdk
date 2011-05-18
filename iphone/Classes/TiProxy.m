@@ -910,6 +910,10 @@ DEFINE_EXCEPTIONS
 	// notify our delegate
 	if (current!=value)
 	{
+        // Remember any proxies set on us so they don't get GC'd
+        if ([propvalue isKindOfClass:[TiProxy class]]) {
+            [self rememberProxy:propvalue];
+        }
 		[dynprops setValue:propvalue forKey:key];
 		pthread_rwlock_unlock(&dynpropsLock);
 		if (self.modelDelegate!=nil)
@@ -917,6 +921,9 @@ DEFINE_EXCEPTIONS
 			[[(NSObject*)self.modelDelegate retain] autorelease];
 			[self.modelDelegate propertyChanged:key oldValue:current newValue:value proxy:self];
 		}
+        if ([current isKindOfClass:[TiProxy class]]) {
+            [self forgetProxy:current];
+        }
 		return; // so we don't unlock twice
 	}
 	pthread_rwlock_unlock(&dynpropsLock);
