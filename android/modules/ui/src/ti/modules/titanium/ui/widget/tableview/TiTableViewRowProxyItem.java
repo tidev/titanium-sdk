@@ -44,7 +44,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	private TiCompositeLayout content;
 	private ArrayList<TiUIView> views;
 	private boolean hasControls;
-	private int height = -1;
+	private TiDimension height = null;
 	private Item item;
 	private Object selectorSource;
 	private Drawable selectorDrawable;
@@ -261,7 +261,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 		if (props.containsKey(TiC.PROPERTY_HEIGHT)) {
 			if (!props.get(TiC.PROPERTY_HEIGHT).equals(TiC.SIZE_AUTO)) {
-				height = TiConvert.toInt(props, TiC.PROPERTY_HEIGHT);
+				height = TiConvert.toTiDimension(TiConvert.toString(props, TiC.PROPERTY_HEIGHT), TiDimension.TYPE_HEIGHT);
 			}
 		}
 
@@ -320,16 +320,16 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			measureChild(content, MeasureSpec.makeMeasureSpec(adjustedWidth, wMode), heightMeasureSpec);
 			if(hMode == MeasureSpec.UNSPECIFIED) {
 				TableViewProxy table = ((TableViewRowProxy)item.proxy).getTable();
-				int minRowHeight = 0;
+				int minRowHeight = -1;
 				if (table != null && table.hasProperty(TiC.PROPERTY_MIN_ROW_HEIGHT)) {
-					minRowHeight = TiConvert.toInt(table.getProperty(TiC.PROPERTY_MIN_ROW_HEIGHT));
+					minRowHeight = TiConvert.toTiDimension(TiConvert.toString(table.getProperty(TiC.PROPERTY_MIN_ROW_HEIGHT)), TiDimension.TYPE_HEIGHT).getAsPixels(this);
 				}
 
-				if (height == -1) {
+				if (height == null) {
 					h = Math.max(h, Math.max(content.getMeasuredHeight(), Math.max(leftImageHeight, rightImageHeight)));
 					h = Math.max(h, minRowHeight);
 				} else {
-					h = Math.max(minRowHeight, height);
+					h = Math.max(minRowHeight, height.getAsPixels(this));
 				}
 				if (DBG) {
 					Log.d(LCAT, "Row content measure (" + adjustedWidth + "x" + h + ")");
