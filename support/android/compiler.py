@@ -139,7 +139,7 @@ class Compiler(object):
 
 		# chop off '.js'
 		js_class_name = resource_relative_path[:-3]
-		escape_chars = ['\\', '/', ' ', '.']
+		escape_chars = ['\\', '/', ' ', '.', '-']
 		for escape_char in escape_chars:
 			js_class_name = js_class_name.replace(escape_char, '_')
 		

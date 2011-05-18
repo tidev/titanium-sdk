@@ -71,7 +71,7 @@ public class TiScriptRunner {
 	protected String getScriptClassName(String relativePath) {
 		String scriptClassName = new String(relativePath);
 		scriptClassName = scriptClassName.replace(".js","").
-			replace("/","_").replace("\\", "_").replace(" ","_").replace(".","_");
+			replace("/","_").replace("\\", "_").replace(" ","_").replace(".","_").replace("-","_");
 		
 		return appPackageName + ".js." + scriptClassName;
 	}

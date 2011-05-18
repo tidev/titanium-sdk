@@ -267,7 +267,8 @@ class API(object):
 			'long' : '0',
 			'callback' : 'function(){}',
 			'Intent' : 'Titanium.Android.Intent',
-			'Titanium.App.Android.R':"{}"
+			'Titanium.App.Android.R':"{}",
+			'Number, String': '[Number, String]'
 		}
 		return retTypes.get(str,str)
 	
