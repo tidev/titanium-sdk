@@ -60,10 +60,6 @@ public class TiUIWindow extends TiUIView
 
 	// Intent.FLAG_ACTIVITY_NO_ANIMATION not available in API 4
 	private static final int INTENT_FLAG_ACTIVITY_NO_ANIMATION = 65536;
-	private static final String[] NEW_ACTIVITY_REQUIRED_KEYS = {
-		TiC.PROPERTY_FULLSCREEN, TiC.PROPERTY_NAV_BAR_HIDDEN,
-		TiC.PROPERTY_MODAL, TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE
-	};
 	private static final String WINDOW_ID_PREFIX = "window$";
 	
 	protected String activityKey;
@@ -83,7 +79,7 @@ public class TiUIWindow extends TiUIView
 
 	private static AtomicInteger idGenerator;
 
-	public TiUIWindow(TiViewProxy proxy, KrollDict options, Messenger messenger, int messageId)
+	public TiUIWindow(TiWindowProxy proxy, KrollDict options, Messenger messenger, int messageId)
 	{
 		super(proxy);
 		animate = true;
@@ -99,7 +95,7 @@ public class TiUIWindow extends TiUIView
 		this.lastHeight = LayoutParams.FILL_PARENT;
 
 		resolver = new TiPropertyResolver(options, proxy.getProperties());
-		newActivity = requiresNewActivity();
+		newActivity = proxy.requiresNewActivity(options);
 		if (!newActivity && options != null && options.containsKey(TiC.PROPERTY_TAB_OPEN)) {
 			newActivity = TiConvert.toBoolean(options, TiC.PROPERTY_TAB_OPEN);
 		}
@@ -119,7 +115,7 @@ public class TiUIWindow extends TiUIView
 		}
 	}
 
-	public TiUIWindow(TiViewProxy proxy, Activity activity)
+	public TiUIWindow(TiWindowProxy proxy, Activity activity)
 	{
 		super(proxy);
 		if (idGenerator == null) {
@@ -510,11 +506,6 @@ public class TiUIWindow extends TiUIView
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
-	}
-
-	protected boolean requiresNewActivity()
-	{
-		return resolver.hasAnyOf(NEW_ACTIVITY_REQUIRED_KEYS);
 	}
 
 	protected LayoutArrangement getLayoutArrangement()

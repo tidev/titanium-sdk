@@ -7,11 +7,13 @@
 package org.appcelerator.titanium.util;
 
 import java.io.IOException;
-import java.util.concurrent.Semaphore;
+import java.lang.ref.WeakReference;
+import java.util.LinkedList;
 
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiFastDev;
-import org.appcelerator.titanium.TiMessageQueue;
+import org.appcelerator.titanium.util.TiUIHelper.CurrentActivityListener;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -30,6 +32,8 @@ import android.widget.TextView;
 public class TiJSErrorDialog
 {
 	private static final String TAG = "TiJSError";
+	private static LinkedList<ErrorMessage> errorMessages = new LinkedList<ErrorMessage>();
+	private static boolean dialogShowing = false;
 
 	public static void printError(String title, String message,
 		String sourceName, int line, String lineSource, int lineOffset)
@@ -38,6 +42,13 @@ public class TiJSErrorDialog
 		Log.e(TAG, "- In " + sourceName + ":" + line + "," + lineOffset);
 		Log.e(TAG, "- Message: " + message);
 		Log.e(TAG, "- Source: " + lineSource);
+	}
+
+	private static class ErrorMessage
+	{
+		WeakReference<TiContext> tiContext;
+		String title, message, sourceName, lineSource;
+		int line, lineOffset;
 	}
 
 	public static void openErrorDialog(final TiContext tiContext, final Activity activity, final String title, final String message,
@@ -50,23 +61,33 @@ public class TiJSErrorDialog
 			return;
 		}
 
-		final Semaphore semaphore = new Semaphore(0);
-		TiMessageQueue.getMainMessageQueue().post(new Runnable() {
-			public void run()
-			{
-				createDialog(tiContext, semaphore, activity, title, message, sourceName, line, lineSource, lineOffset);
-			}
-		});
-		try {
-			semaphore.acquire();
-		} catch (InterruptedException e) {
-			// Ignore
+		ErrorMessage error = new ErrorMessage();
+		error.tiContext = new WeakReference<TiContext>(tiContext);
+		error.title = title;
+		error.message = message;
+		error.sourceName = sourceName;
+		error.line = line;
+		error.lineSource = lineSource;
+		error.lineOffset = lineOffset;
+
+		if (!dialogShowing) {
+			dialogShowing = true;
+			final ErrorMessage fError = error;
+			TiUIHelper.waitForCurrentActivity(new CurrentActivityListener() {
+				@Override
+				public void onCurrentActivityReady(Activity activity)
+				{
+					createDialog(fError);
+				}
+			});
+		} else {
+			errorMessages.add(error);
 		}
 	}
 
-	protected static void createDialog(final TiContext tiContext, final Semaphore semaphore, Context context, String title, String message,
-		final String sourceName, int line, String lineSource, int lineOffset)
+	protected static void createDialog(final ErrorMessage error)
 	{
+		Context context = TiApplication.getInstance().getCurrentActivity();
 		FrameLayout layout = new FrameLayout(context);
 		layout.setBackgroundColor(Color.rgb(128, 0, 0));
 
@@ -79,19 +100,19 @@ public class TiJSErrorDialog
 		sourceInfoView.setBackgroundColor(Color.WHITE);
 		sourceInfoView.setTextColor(Color.BLACK);
 		sourceInfoView.setPadding(4, 5, 4, 0);
-		sourceInfoView.setText("[" + line + "," + lineOffset + "] " + sourceName);
+		sourceInfoView.setText("[" + error.line + "," + error.lineOffset + "] " + error.sourceName);
 
 		TextView messageView = new TextView(context);
 		messageView.setBackgroundColor(Color.WHITE);
 		messageView.setTextColor(Color.BLACK);
 		messageView.setPadding(4, 5, 4, 0);
-		messageView.setText(message);
+		messageView.setText(error.message);
 
 		TextView sourceView = new TextView(context);
 		sourceView.setBackgroundColor(Color.WHITE);
 		sourceView.setTextColor(Color.BLACK);
 		sourceView.setPadding(4, 5, 4, 0);
-		sourceView.setText(lineSource);
+		sourceView.setText(error.lineSource);
 
 		TextView infoLabel = new TextView(context);
 		infoLabel.setText("Location: ");
@@ -122,17 +143,22 @@ public class TiJSErrorDialog
 					Process.killProcess(Process.myPid());
 				} else if (which == DialogInterface.BUTTON_NEUTRAL) {
 					// Continue
-					semaphore.release();
 				} else if (which == DialogInterface.BUTTON_NEGATIVE) {
 					// Reload (Fastdev)
-					semaphore.release();
-					reload(tiContext, sourceName);
+					if (error.tiContext != null && error.tiContext.get() != null) {
+						reload(error.tiContext.get(), error.sourceName);
+					}
+				}
+				if (!errorMessages.isEmpty()) {
+					createDialog(errorMessages.pop());
+				} else {
+					dialogShowing = false;
 				}
 			}
 		};
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(context)
-			.setTitle(title)
+			.setTitle(error.title)
 			.setView(layout)
 			.setPositiveButton("Kill", clickListener)
 			.setNeutralButton("Continue", clickListener)
@@ -141,10 +167,6 @@ public class TiJSErrorDialog
 			builder.setNegativeButton("Reload", clickListener);
 		}
 		builder.create().show();
-
-		if (TiMessageQueue.getMainMessageQueue().isBlocking()) {
-			semaphore.release();
-		}
 	}
 
 	protected static void reload(TiContext tiContext, String sourceName)

@@ -23,6 +23,7 @@ import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
 import android.app.Service;
+import android.content.Context;
 import android.content.ContextWrapper;
 import android.os.Looper;
 import android.os.Message;
@@ -295,7 +296,7 @@ public class TiContext implements ErrorReporter
 	{
 		TiJSErrorDialog.openErrorDialog(this, getActivity(),
 			"Runtime Error", message, sourceName, line, lineSource, lineOffset);
-		return null;
+		return new EvaluatorException(message, sourceName, line, lineSource, lineOffset);
 	}
 
 	@Override

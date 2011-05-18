@@ -6,6 +6,8 @@
  */
 package org.appcelerator.titanium.proxy;
 
+import java.lang.ref.WeakReference;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollProxy;
@@ -15,6 +17,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiPropertyResolver;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
@@ -29,11 +32,15 @@ public abstract class TiWindowProxy extends TiViewProxy
 	private static final boolean DBG = TiConfig.LOGD;
 	
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
-
 	private static final int MSG_OPEN = MSG_FIRST_ID + 100;
 	private static final int MSG_CLOSE = MSG_FIRST_ID + 101;
-
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
+
+	private static final String[] NEW_ACTIVITY_REQUIRED_KEYS = {
+		TiC.PROPERTY_FULLSCREEN, TiC.PROPERTY_NAV_BAR_HIDDEN,
+		TiC.PROPERTY_MODAL, TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE
+	};
+	private static WeakReference<TiWindowProxy> waitingForOpen;
 
 	protected boolean opened, opening;
 	protected boolean focused;
@@ -45,6 +52,18 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected TiViewProxy tabGroup;
 	protected TiViewProxy tab;
 	protected boolean inTab;
+	protected PostOpenListener postOpenListener;
+
+	public static interface PostOpenListener
+	{
+		public void onPostOpen(TiWindowProxy window);
+	}
+
+	public static TiWindowProxy getWaitingForOpen()
+	{
+		if (waitingForOpen == null) return null;
+		return waitingForOpen.get();
+	}
 
 	public TiWindowProxy(TiContext tiContext)
 	{
@@ -80,11 +99,18 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
+	public boolean requiresNewActivity(KrollDict extraOptions)
+	{
+		TiPropertyResolver resolver = new TiPropertyResolver(getProperties(), extraOptions);
+		return resolver.hasAnyOf(NEW_ACTIVITY_REQUIRED_KEYS);
+	}
+
 	@Kroll.method
 	public void open(@Kroll.argument(optional = true) Object arg)
 	{
 		if (opened || opening) { return; }
 
+		waitingForOpen = new WeakReference<TiWindowProxy>(this);
 		opening = true;
 		KrollDict options = null;
 		TiAnimation animation = null;
@@ -162,6 +188,11 @@ public abstract class TiWindowProxy extends TiViewProxy
 		return this.tabGroup;
 	}
 
+	public void setPostOpenListener(PostOpenListener listener)
+	{
+		this.postOpenListener = listener;
+	}
+
 	@Kroll.method
 	public void hideTabBar()
 	{
@@ -233,4 +264,25 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected abstract void handleOpen(KrollDict options);
 	protected abstract void handleClose(KrollDict options);
 	protected abstract Activity handleGetActivity();
+
+	/**
+	 * Sub-classes will need to call handlePostOpen after their window is visible
+	 * so any pending dialogs can succesfully show after the window is opened
+	 */
+	protected void handlePostOpen()
+	{
+		if (postOpenListener != null)
+		{
+			getUIHandler().post(new Runnable() {
+				public void run() {
+					postOpenListener.onPostOpen(TiWindowProxy.this);
+				}
+			});
+		}
+
+		if (waitingForOpen != null && waitingForOpen.get() == this)
+		{
+			waitingForOpen = null;
+		}
+	}
 }
