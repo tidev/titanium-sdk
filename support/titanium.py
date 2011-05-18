@@ -326,14 +326,16 @@ def fastdev(args):
 	fastdev_args = [sys.executable, fastdev_script]
 	fastdev_args.extend(sys.argv[2:])
 	fastdev_args.extend([project_dir])
-	# put quotes around args with spaces
-	new_args = []
-	for arg in fastdev_args:
-		if ' ' in arg:
-			new_args.append('"' + arg + '"')
-		else:
-			new_args.append(arg)
-	os.execv(sys.executable, new_args)
+	# put quotes around args with spaces in Windows
+	if platform.system() == "Windows":
+		new_args = []
+		for arg in fastdev_args:
+			if ' ' in arg:
+				new_args.append('"' + arg + '"')
+			else:
+				new_args.append(arg)
+		fastdev_args = new_args
+	os.execv(sys.executable, fastdev_args)
 
 def help(args=[],suppress_banner=False):
 	if not suppress_banner:
