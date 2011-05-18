@@ -68,5 +68,5 @@ button.addEventListener('click',function(e)
 
 picker.addEventListener('change',function(e)
 {
-	label.text = e.value;
+	label.text = e.value.toLocaleString();
 });

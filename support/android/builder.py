@@ -1656,7 +1656,7 @@ class Builder(object):
 				self.sdcard_copy = self.tiapp.to_bool(self.tiapp.get_app_property(sdcard_property))
 
 			fastdev_property = "ti.android.fastdev"
-			fastdev_enabled = self.deploy_type == 'development'
+			fastdev_enabled = (self.deploy_type == 'development' and not self.build_only)
 			if self.tiapp.has_app_property(fastdev_property):
 				fastdev_enabled = self.tiapp.to_bool(self.tiapp.get_app_property(fastdev_property))
 
@@ -1755,7 +1755,8 @@ class Builder(object):
 
 			generated_classes_built = self.build_generated_classes()
 
-			self.push_deploy_json()
+			if not self.build_only and self.deploy_type != "production":
+				self.push_deploy_json()
 			self.classes_dex = os.path.join(self.project_dir, 'bin', 'classes.dex')
 			
 			def jar_includer(path, isfile):
