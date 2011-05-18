@@ -268,7 +268,7 @@ describe("Ti.Filesystem tests", {
 		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'text.txt');
 		var contents = f.read();
 
-		var newDir = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,'mydir');
+		var newDir = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,'movedir');
 		if(!newDir.exists()) {
 			newDir.createDirectory();
 		}
@@ -277,6 +277,12 @@ describe("Ti.Filesystem tests", {
 		var newFile = Titanium.Filesystem.getFile(newDir.nativePath,'newfile.txt');
 		newFile.write(f.read());
 		valueOf(newFile.exists()).shouldBeTrue();
+
+		// remove destination file if it exists otherwise the test will fail on multiple runs
+		var destinationFile = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory+'/moved.txt');
+		if(destinationFile.exists()) {
+			destinationFile.deleteFile();
+		}
 
 		valueOf(newFile.move(Titanium.Filesystem.applicationDataDirectory+'/moved.txt')).shouldBeTrue();
 	}

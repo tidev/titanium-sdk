@@ -12,6 +12,7 @@ import java.io.IOException;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.io.TiStream;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiStreamHelper;
 
@@ -89,7 +90,7 @@ public class FileStreamProxy extends KrollProxy implements TiStream
 			return TiStreamHelper.read(fileProxy.tbf.getExistingInputStream(), bufferProxy, offset, length);
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.e(LCAT, "Unable to read from file, IO error", e);
 			throw new IOException("Unable to read from file, IO error");
 		}
 	}
@@ -146,7 +147,7 @@ public class FileStreamProxy extends KrollProxy implements TiStream
 			return TiStreamHelper.write(fileProxy.tbf.getExistingOutputStream(), bufferProxy, offset, length);
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.e(LCAT, "Unable to write to file, IO error", e);
 			throw new IOException("Unable to write to file, IO error");
 		}
 	}
