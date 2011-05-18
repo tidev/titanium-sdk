@@ -37,6 +37,7 @@
 	NSMutableDictionary *modules;
 	TitaniumObject *titanium;
 	BOOL shutdown;
+    BOOL evaluationError;
 	NSMutableArray *proxies;
 	//NOTE: Do NOT treat registeredProxies like a mutableDictionary; mutable dictionaries copy keys,
 	//CFMutableDictionaryRefs only retain keys, which lets them work with proxies properly.
@@ -47,20 +48,17 @@
 - (void)boot:(id)callback url:(NSURL*)url_ preload:(NSDictionary*)preload_;
 - (void)evalJSWithoutResult:(NSString*)code;
 - (id)evalJSAndWait:(NSString*)code;
-
+- (BOOL)evaluationError;
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(TiProxy*)thisObject;
 - (id)preloadForKey:(id)key name:(id)name;
 - (KrollContext*)krollContext;
 
 + (NSArray *)krollBridgesUsingProxy:(id)proxy;
 + (int)countOfKrollBridgesUsingProxy:(id)proxy;
-
 + (BOOL)krollBridgeExists:(KrollBridge *)bridge;
 
 -(void)enqueueEvent:(NSString*)type forProxy:(TiProxy *)proxy withObject:(id)obj withSource:(id)source;
-
 -(void)registerProxy:(id)proxy krollObject:(KrollObject *)ourKrollObject;
-
 -(int)forceGarbageCollectNow;
 
 @end
