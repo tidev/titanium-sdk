@@ -332,7 +332,13 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 - (void)scriptError:(NSString*)message
 {
+    evaluationError = YES;
 	[[TiApp app] showModalError:message];
+}
+
+-(BOOL)evaluationError
+{
+    return evaluationError;
 }
 
 - (void)evalFileOnThread:(NSString*)path context:(KrollContext*)context_ 
@@ -417,6 +423,9 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 			NSLog(@"[ERROR] Script Error = %@.",[TiUtils exceptionMessage:excm]);
 			[self scriptError:[TiUtils exceptionMessage:excm]];
 		}
+        else {
+            evaluationError = NO;
+        }
 	}
 	
 	TiStringRelease(jsCode);
