@@ -24,7 +24,6 @@ android, iphone, ipad
 
 - methods
 
-append: appends the given TiBlob, File or String objects' contents to the end of the file. Returns true if it was successful.
 nativePath: returns the fully resolved native path
 exists: returns true if the file or directory exists on the device
 readonly: returns true if the file is readonly
@@ -50,10 +49,6 @@ write: write the contents to file.
 extension: return the file extension
 getParent: return the file parent
 name: the name of the file
-
-- method : append, boolean
-
-data[`Titanium.Blob`,`Titanium.Filesystem.File`,string]: the contents of which to append
 
 - method : nativePath, string
 - method : exists, boolean
