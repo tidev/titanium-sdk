@@ -55,13 +55,13 @@ public class TiWebChromeClient extends WebChromeClient {
 	}
 	*/
 
-    @Override
+	@Override
 	public void onProgressChanged(WebView view, final int newProgress)
-    {
-    	if (isWindow && showProgress) {
+	{
+		if (isWindow && showProgress) {
 			//super.onProgressChanged(view, newProgress);
-    		final Activity activity = softActivity.get();
-    		if (activity != null) {
+			final Activity activity = softActivity.get();
+			if (activity != null) {
 				if (newProgress < 100) {
 					activity.runOnUiThread(new Runnable(){
 						public void run() {
@@ -75,19 +75,19 @@ public class TiWebChromeClient extends WebChromeClient {
 							activity.setProgress(newProgress * 100);
 						}});
 				}
-    		}
-    	}
+			}
+		}
 	}
 
 	public boolean onJsAlert(WebView view, String url, String message, final android.webkit.JsResult result)
 	{
-		TiUIHelper.doOkDialog(view.getContext(), "Alert", message, new OnClickListener() {
+		TiUIHelper.doOkDialog("Alert", message, new OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
 				result.confirm();
 			}
 		});
 		
-   		return true;
-    }
+		return true;
+	}
 }
 

@@ -237,7 +237,7 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 			Log.w(LCAT, "alert() called inside service -- no attempt will be made to display it to user interface.");
 			return;
 		}
-		TiUIHelper.doOkDialog(invocation.getTiContext().getActivity(), "Alert", msg, null);
+		TiUIHelper.doOkDialog("Alert", msg, null);
 	}
 
 	public void cancelTimers(TiBaseActivity activity)
