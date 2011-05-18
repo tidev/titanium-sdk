@@ -78,6 +78,7 @@ public class WindowProxy extends TiWindowProxy
 					//TODO attach window
 				}
 				opened = true;
+				handlePostOpen();
 				fireEvent(TiC.EVENT_OPEN, null);
 				return true;
 			}
