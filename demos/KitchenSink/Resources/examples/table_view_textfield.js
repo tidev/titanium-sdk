@@ -36,10 +36,11 @@ var data = [];
 
 for (var x=0;x<10;x++)
 {
-	if (x==9)
+	if (x==9){
 		data[x] = addRow(true);
-	else
+	} else {
 		data[x] = addRow();
+	}
 
 }
 

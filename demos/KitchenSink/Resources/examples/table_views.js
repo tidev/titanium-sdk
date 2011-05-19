@@ -31,7 +31,7 @@ var data = [
 	{title:'Table View Scroll Indicators', hasChild:true, test:'../examples/table_view_scroll_indicators.js'},
 	{title:'Composite (Partial Size)', hasChild:true, test:'../examples/table_view_composite.js'},
 	{title:'Table View (Layout)', hasChild:true, test:'../examples/table_view_layout.js'},
-	{title:'Table View (Layout 2)', hasChild:true, test:'../examples/table_view_layout_2.js'},
+	{title:'Table View (Layout 2)', hasChild:true, test:'../examples/table_view_layout_2.js'}
 ];
 
 data.push({title:'Table Search', hasChild:true, test:'../examples/table_view_api_search.js'});

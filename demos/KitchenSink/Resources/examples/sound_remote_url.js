@@ -109,10 +109,11 @@ volumeDown.addEventListener('click', function()
 {
 	if (sound.volume > 0)
 	{
-		if (sound.volume < 0.1)
+		if (sound.volume < 0.1){
 			sound.volume = 0;
-		else
+		} else {
 			sound.volume -= 0.1;
+		}
 		var roundedVolume = Math.round(sound.volume*1000)/1000;
 		volumeDown.title = 'Volume-- (' + roundedVolume + ')';
 		volumeUp.title = 'Volume++';
@@ -133,7 +134,7 @@ var looping = Titanium.UI.createButton({
 });
 looping.addEventListener('click', function()
 {
-	sound.looping = (sound.isLooping()==false)?true:false;
+	sound.looping = (sound.isLooping() === false)?true:false;
 	looping.title = 'Looping (' + sound.isLooping() + ')';
 });
 win.add(looping);

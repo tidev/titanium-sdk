@@ -81,7 +81,7 @@ var start = Titanium.UI.createButton({
 });
 start.addEventListener('click', function()
 {
-	if (imageView.animating == false)
+	if (imageView.animating === false)
 	{
 		imageView.start();
 	}

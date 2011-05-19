@@ -220,6 +220,10 @@ enum
 
 - (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController
 {
+	if([popoverController contentViewController] == musicPicker) {
+		RELEASE_TO_NIL(musicPicker);
+	}
+	
 	RELEASE_TO_NIL(popover);
 }
 
