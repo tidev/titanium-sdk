@@ -83,6 +83,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		getTiApp().setCurrentActivity(this, this);
 		Intent intent = getIntent();
 		if (intent != null) {
 			if (checkMissingLauncher(intent, savedInstanceState)) {

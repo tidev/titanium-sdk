@@ -20,8 +20,8 @@ addTabButton.addEventListener('click', function(e)
 	{
 		var win = Ti.UI.createWindow({title:'New Tab Window',barColor:'#000'});
 		var newtab = Titanium.UI.createTab({  
-		    icon:'../images/tabs/KS_nav_mashup.png',
-		    title:'New Tab',
+			icon:'../images/tabs/KS_nav_mashup.png',
+			title:'New Tab',
 			win:win
 		});
 		tabGroup.addTab(newtab);
@@ -48,7 +48,7 @@ var transformed = false;
 // create button event listener
 animateTabButton.addEventListener('click', function(e)
 {
-	if (transformed == false)
+	if (transformed === false)
 	{
 		var transform = Ti.UI.create2DMatrix();
 		transform = transform.scale(0.6);

@@ -58,7 +58,7 @@ tableview.addEventListener('click', function(e)
 	];
 
 	var webview = null;
-	if (rowdata.auto ==true)
+	if (rowdata.auto === true)
 	{
 		webview = Ti.UI.createWebView({height:'auto',width:'auto'});
 	}
@@ -66,11 +66,11 @@ tableview.addEventListener('click', function(e)
 	{
 		webview = Ti.UI.createWebView();
 	}
-	// webview.addEventListener('singletap', function(e)
-	// {
-	// 	alert('singletap');
-	// });
-	// handle xhr to filesystem case first
+	//	webview.addEventListener('singletap', function(e)
+	//	{
+	//		alert('singletap');
+	//	});
+	//	handle xhr to filesystem case first
 	if (e.index == 2)
 	{
 		w.add(webview);

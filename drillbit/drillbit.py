@@ -74,8 +74,16 @@ def build_and_run(args=None):
 	
 	# use the latest version in the system
 	versions.sort()
-	use_version = versions[len(versions) - 1]
+	use_version = versions[-1]
+	
+	try:
+		# temporary hack to avoid using Desktop version >= 1.2.0 - we don't play nice with it...yet.
+		if version(use_version) >= version("1.2.0"):	
+			use_version = versions[-2]
+	except: pass
+	
 	print 'Using Desktop version %s' % use_version
+	
 	
 	desktop_sdk = os.path.join(base_sdk, use_version)
 	tibuild = os.path.join(desktop_sdk, 'tibuild.py')
@@ -102,7 +110,7 @@ def build_and_run(args=None):
 	sys.path.append(desktop_sdk)
 	import env
 	
-	# use the desktop SDK API to stage and run drillbit (along w/ it's custom modules)
+	# use the desktop SDK API to stage and run drillbit (along w/ its custom modules)
 	environment = env.PackagingEnvironment(platform_name, False)
 	app = environment.create_app(drillbit_app_dir)
 	stage_dir = os.path.join(drillbit_build_dir, app.name)

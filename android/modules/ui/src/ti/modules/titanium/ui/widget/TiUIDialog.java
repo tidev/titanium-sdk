@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.widget;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
@@ -95,24 +96,15 @@ public class TiUIDialog extends TiUIView
 		super.processProperties(d);
 	}
 
-	private void processOptions(String[] optionText) {
-		getBuilder().setSingleChoiceItems(optionText, -1 , new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				handleEvent(which);
-				dialog.dismiss();
-			}
-		});
-	}
-
 	private void processOptions(String[] optionText,int selectedIndex) {
 		getBuilder().setSingleChoiceItems(optionText, selectedIndex , new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
 				handleEvent(which);
-				dialog.dismiss();
+				hide(null);
 			}
 		});
 	}
-	
+
 	private void processButtons(String[] buttonText) {
 		getBuilder().setPositiveButton(null, null);
 		getBuilder().setNegativeButton(null, null);

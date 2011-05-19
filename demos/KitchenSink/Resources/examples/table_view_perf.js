@@ -17,7 +17,7 @@ v.add(l);
 w.add(v);
 
 var count = 500;
-var ts = new Date;
+var ts = new Date();
 
 var data = [];
 
@@ -29,7 +29,7 @@ for (var c=0;c<count;c++)
 
 tv.data = data;
 
-var ts2 = new Date;
+var ts2 = new Date();
 var duration = ts2.getTime() - ts.getTime();
 var each = duration / count;
 l.text = "Executed: "+count+" iterations\nTook: " + duration +" ms\n" + each.toFixed(2) + " ms/row";

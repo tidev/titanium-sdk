@@ -31,6 +31,7 @@ import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -46,6 +47,7 @@ import android.os.Handler;
 public class TitaniumModule extends KrollModule implements TiContext.OnLifecycleEvent, TiContext.OnServiceLifecycleEvent
 {
 	private static final String LCAT = "TitaniumModule";
+	private static final boolean DBG = TiConfig.LOGD;
 
 	private Stack<String> basePath;
 	private Map<String, NumberFormat> numberFormats = java.util.Collections.synchronizedMap(
@@ -235,7 +237,7 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 			Log.w(LCAT, "alert() called inside service -- no attempt will be made to display it to user interface.");
 			return;
 		}
-		TiUIHelper.doOkDialog(invocation.getTiContext().getActivity(), "Alert", msg, null);
+		TiUIHelper.doOkDialog("Alert", msg, null);
 	}
 
 	public void cancelTimers(TiBaseActivity activity)
@@ -366,11 +368,24 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 	public String localize(KrollInvocation invocation, Object args[])
 	{
 		String key = (String) args[0];
+		String defaultValue = args.length > 1 ? (String) args[1] : null;
 		try {
-			return invocation.getTiContext().getAndroidContext().getString(TiRHelper.getResource("string." + key));
+			int resid = TiRHelper.getResource("string." + key);
+			if (resid != 0) {
+				return invocation.getTiContext().getAndroidContext().getString(resid);
+			} else {
+				return defaultValue;
+			}
 		}
 		catch (TiRHelper.ResourceNotFoundException e) {
-			return args.length > 1 ? (String) args[1] : null;
+			if (DBG) {
+				Log.d(LCAT, "Resource string with key '" + key + "' not found.  Returning default value.");
+			}
+			return defaultValue;
+		}
+		catch (Exception e) {
+			Log.e(LCAT, "Exception trying to localize string '" + key + "': ", e);
+			return defaultValue;
 		}
 	}
 

@@ -139,7 +139,7 @@ class Compiler(object):
 
 		# chop off '.js'
 		js_class_name = resource_relative_path[:-3]
-		escape_chars = ['\\', '/', ' ', '.']
+		escape_chars = ['\\', '/', ' ', '.','-']
 		for escape_char in escape_chars:
 			js_class_name = js_class_name.replace(escape_char, '_')
 		
@@ -151,7 +151,11 @@ class Compiler(object):
 
 		print "[INFO] Compiling javascript: %s" % resource_relative_path
 		sys.stdout.flush()
-		run.run(jsc_args)
+		so, se = run.run(jsc_args, ignore_error=True, return_error=True)
+		if not se is None and len(se):
+			sys.stderr.write("[ERROR] %s\n" % se)
+			sys.stderr.flush()
+			sys.exit(1)
 
 	def compile_into_bytecode(self, paths):
 		compile_js = False

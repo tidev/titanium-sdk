@@ -7,8 +7,8 @@ function isIPhone3_2_Plus()
 	if (Titanium.Platform.name == 'iPhone OS')
 	{
 		var version = Titanium.Platform.version.split(".");
-		var major = parseInt(version[0]);
-		var minor = parseInt(version[1]);
+		var major = parseInt(version[0],10);
+		var minor = parseInt(version[1],10);
 		
 		// can only test this support on a 3.2+ device
 		if (major > 3 || (major == 3 && minor > 1))
@@ -25,7 +25,7 @@ function isiOS4Plus()
 	if (Titanium.Platform.name == 'iPhone OS')
 	{
 		var version = Titanium.Platform.version.split(".");
-		var major = parseInt(version[0]);
+		var major = parseInt(version[0],10);
 		
 		// can only test this support on a 3.2+ device
 		if (major >= 4)

@@ -21,6 +21,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
@@ -29,6 +31,8 @@ import org.appcelerator.titanium.TiFastDev;
 import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
+import org.appcelerator.titanium.proxy.TiWindowProxy;
+import org.appcelerator.titanium.proxy.TiWindowProxy.PostOpenListener;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -126,17 +130,55 @@ public class TiUIHelper
 			.setCancelable(false).create().show();
 	}
 
-	public static void doOkDialog(Context context, String title, String message, OnClickListener listener) {
+	public static interface CurrentActivityListener
+	{
+		public void onCurrentActivityReady(Activity activity);
+	}
+
+	public static void waitForCurrentActivity(final CurrentActivityListener l)
+	{
+		// Some window opens are async, so we need to make sure we don't
+		// sandwich ourselves in between windows when transitioning
+		// between activities TIMOB-3644
+		TiWindowProxy waitingForOpen = TiWindowProxy.getWaitingForOpen();
+		if (waitingForOpen != null) {
+			waitingForOpen.setPostOpenListener(new PostOpenListener() {
+				@Override
+				public void onPostOpen(TiWindowProxy window)
+				{
+					TiApplication app = TiApplication.getInstance();
+					Activity activity = app.getCurrentActivity();
+					if (activity != null) {
+						l.onCurrentActivityReady(activity);
+					}
+				}
+			});
+		} else {
+			TiApplication app = TiApplication.getInstance();
+			Activity activity = app.getCurrentActivity();
+			if (activity != null) {
+				l.onCurrentActivityReady(activity);
+			}
+		}
+	}
+
+	public static void doOkDialog(final String title, final String message, OnClickListener listener) {
 		if (listener == null) {
 			listener = new OnClickListener() {
-
 				public void onClick(DialogInterface dialog, int which) {
 					// Do nothing.
 				}};
 		}
-		new AlertDialog.Builder(context).setTitle(title).setMessage(message)
-			.setPositiveButton(android.R.string.ok, listener)
-			.setCancelable(false).create().show();
+		final OnClickListener fListener = listener;
+		waitForCurrentActivity(new CurrentActivityListener() {
+			@Override
+			public void onCurrentActivityReady(Activity activity)
+			{
+				new AlertDialog.Builder(activity).setTitle(title).setMessage(message)
+					.setPositiveButton(android.R.string.ok, fListener)
+					.setCancelable(false).create().show();
+			}
+		});
 	}
 
 	public static int toTypefaceStyle(String fontWeight) {
@@ -297,6 +339,8 @@ public class TiUIHelper
 				Log.e(LCAT, "Unable to load 'fonts' assets. Perhaps doesn't exist? " + e.getMessage());
 			}
 		}
+
+		mCustomTypeFaces.put(fontFamily, null);
 		return null;
 	}
 

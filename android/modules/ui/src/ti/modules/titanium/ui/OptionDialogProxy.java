@@ -16,7 +16,7 @@ import ti.modules.titanium.ui.widget.TiUIDialog;
 import android.app.Activity;
 
 @Kroll.proxy(creatableInModule=UIModule.class)
-public class OptionDialogProxy extends TiViewProxy
+public class OptionDialogProxy extends TiDialogProxy
 {
 	public OptionDialogProxy(TiContext tiContext)
 	{

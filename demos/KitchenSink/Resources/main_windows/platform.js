@@ -18,7 +18,7 @@ var data = [
 	{title:'JSON', hasChild:true, test:'../examples/json.js'},
 	{title:'JS search', hasChild:true, test:'../examples/search_case_insensitive.js'},
 	{title:'Clipboard', hasChild:true, test:'../examples/clipboard.js'},
-	{title:'Sockets', hasChild:true, test:'../examples/sockets.js'},
+	{title:'Sockets', hasChild:true, test:'../examples/sockets.js'}
 ];
 
 if (Titanium.Platform.name == 'iPhone OS')

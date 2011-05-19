@@ -172,6 +172,12 @@
 -(TiViewProxy *)viewAtIndex:(int)index
 {
 	[self lockViews];
+	// force index to be in range in case the scrollable view is rotated while scrolling
+	if (index < 0) {
+		index = 0;
+	} else if (index >= [viewProxies count]) {
+		index = [viewProxies count] - 1;
+	}
 	TiViewProxy * result = [viewProxies objectAtIndex:index];
 	[self unlockViews];
 	return result;

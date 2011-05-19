@@ -105,7 +105,12 @@ NSArray * tableKeySequence;
 
 -(TiUITableViewSectionProxy *)sectionWithHeader:(NSString *)newHeader table:(TiUITableView *)table
 {
+    // TODO: OK, this is actually kind of important.. need to do stuff like this throughout the code,
+    // to make sure that things are properly registered/unregistered.
 	id<TiEvaluator> ourContext = [self executionContext];
+    if (ourContext == nil) {
+        ourContext = [self pageContext];
+    }
 	TiUITableViewSectionProxy *result = [[TiUITableViewSectionProxy alloc] _initWithPageContext:ourContext args:nil];
 	[(KrollBridge *)ourContext registerProxy:result];
 	[self rememberProxy:result];

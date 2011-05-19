@@ -264,6 +264,7 @@ public abstract class TiBaseActivity extends Activity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		getTiApp().setCurrentActivity(this, this);
 		messageQueue = TiMessageQueue.getMessageQueue();
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onCreate");
@@ -290,7 +291,6 @@ public abstract class TiBaseActivity extends Activity
 		layout = createLayout();
 		super.onCreate(savedInstanceState);
 		getTiApp().setWindowHandler(this);
-		getTiApp().setCurrentActivity(this, this);
 		windowCreated();
 
 		if (activityProxy != null) {

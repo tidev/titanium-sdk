@@ -301,6 +301,14 @@ TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
 		}
 		return TiObjectMake(jsContext,KrollMethodClassRef,obj);
 	}
+	else if ([obj isKindOfClass:[KrollFunction class]])
+	{
+		if ([KrollBridge krollBridgeExists:[(KrollFunction *)obj remoteBridge]])
+		{
+			return [(KrollFunction *)obj remoteFunction];
+		}
+		//Otherwise, this flows to null.
+	}
 	else if ([obj isKindOfClass:[KrollObject class]])
 	{
 		KrollContext * ourContext = [(KrollObject *)obj context];
@@ -464,14 +472,31 @@ TiValueRef KrollGetProperty(TiContextRef jsContext, TiObjectRef object, TiString
 			return NULL;
 		}
 		
-		TiObjectRef cachedObject = [o objectForTiString:prop context:jsContext];
-		
-		if ((cachedObject != NULL) && TiObjectIsFunction(jsContext,cachedObject))
-		{
-			return cachedObject;
-		}
-		
+
 		id result = [o valueForKey:name];
+		TiObjectRef cachedObject = [o objectForTiString:prop context:jsContext];
+
+			//TODO: This is kind of an ugly hack and needs revisiting.
+		if ([result isKindOfClass:[KrollFunction class]])
+		{
+			if (![KrollBridge krollBridgeExists:[(KrollFunction *)result remoteBridge]])
+			{
+				//This remote object no longer exists.
+				[o deleteKey:name];
+				result = nil;
+			}
+			else
+			{
+				TiObjectRef remoteFunction = [(KrollFunction *)result remoteFunction];
+				if ((cachedObject != NULL) && (cachedObject != remoteFunction))
+				{
+					[o forgetObjectForTiString:prop context:jsContext];	//Clean up the old property.
+				}
+				return remoteFunction;
+			}
+
+		}
+
 		TiValueRef jsResult = ConvertIdTiValue([o context],result);
 		if ([result isKindOfClass:[KrollObject class]] &&
 				![result isKindOfClass:[KrollCallback class]] && [[result target] isKindOfClass:[TiProxy class]])

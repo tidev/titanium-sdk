@@ -1,7 +1,7 @@
 // create slider view data object
 var data = [
 	{title:'Basic', hasChild:true, test:'../examples/slider_basic.js'},
-	{title:'Change Min/Max', hasChild:true, test:'../examples/slider_min_max.js'},
+	{title:'Change Min/Max', hasChild:true, test:'../examples/slider_min_max.js'}
 ];
 
 // add iphone specific tests

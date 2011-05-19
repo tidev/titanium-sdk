@@ -258,14 +258,17 @@ class API(object):
 			'object' : '{}',
 			'function' : 'function(){}',
 			'float' : '0.0',
-			'float,string' : "''",
-			'int,string' : "''",
-			'string,int' : "''",
+			'float,string' : "[0.0,'']",
+			'int,string' : "[0,'']",
+			'string,int' : "['',0]",
+			'date, int' : '[new Date(),0]',
+			'int, string' : "[0, '']",
 			'date' : 'new Date()',
 			'long' : '0',
 			'callback' : 'function(){}',
 			'Intent' : 'Titanium.Android.Intent',
-			'Titanium.App.Android.R':"function(){return Titanium.App.Android.R;}"
+			'Titanium.App.Android.R':"{}",
+			'Number, String': '[Number, String]'
 		}
 		return retTypes.get(str,str)
 	
@@ -1157,7 +1160,7 @@ def produce_vsdoc(config):
 def produce_vsdoc_output(config,outdir,theobj):
 	lookupDir = TemplateLookup(directories=[os.path.join(template_dir,'templates')])
 	
-	filename = os.path.join(outdir,'Titanium-vsdoc.js')
+	filename = os.path.join(outdir,'Ti-vsdoc.js')
 	f = open(filename,'w+')
 	
 	for name in sorted(theobj.iterkeys()):

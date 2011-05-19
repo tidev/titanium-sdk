@@ -54,11 +54,6 @@ value[int]: value
 property[string]: property name
 value[double]: value
 
-- method : setInt
-
-property[string]: property name
-value[int]: value
-
 - method : setString
 
 property[string]: property name

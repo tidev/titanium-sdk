@@ -6,7 +6,7 @@ var picker = Ti.UI.createPicker();
 function addRow(x)
 {
 	var row = Ti.UI.createPickerRow();
-	var img = Ti.UI.createImageView({url:'../images/imageview/'+x+'.jpg',width:40,height:40});
+	var img = Ti.UI.createImageView({image:'../images/imageview/'+x+'.jpg',width:40,height:40});
 	row.add(img);
 	picker.add(row);
 }

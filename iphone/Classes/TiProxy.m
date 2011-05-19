@@ -877,7 +877,12 @@ DEFINE_EXCEPTIONS
 {
 	if([value isKindOfClass:[KrollCallback class]]){
 		[self setCallback:value forKey:key];
-		value = nil;	//Set and forget.
+		//As a wrapper, we hold onto a krollFunction tuple so that other contexts
+		//may access the function.
+		KrollFunction * newValue = [[[KrollFunction alloc] init] autorelease];
+		[newValue setRemoteBridge:[[value context] delegate]];
+		[newValue setRemoteFunction:[value function]];
+		value = newValue;
 	}
 
 	id current = nil;
@@ -910,6 +915,10 @@ DEFINE_EXCEPTIONS
 	// notify our delegate
 	if (current!=value)
 	{
+        // Remember any proxies set on us so they don't get GC'd
+        if ([propvalue isKindOfClass:[TiProxy class]]) {
+            [self rememberProxy:propvalue];
+        }
 		[dynprops setValue:propvalue forKey:key];
 		pthread_rwlock_unlock(&dynpropsLock);
 		if (self.modelDelegate!=nil)
@@ -917,6 +926,9 @@ DEFINE_EXCEPTIONS
 			[[(NSObject*)self.modelDelegate retain] autorelease];
 			[self.modelDelegate propertyChanged:key oldValue:current newValue:value proxy:self];
 		}
+        if ([current isKindOfClass:[TiProxy class]]) {
+            [self forgetProxy:current];
+        }
 		return; // so we don't unlock twice
 	}
 	pthread_rwlock_unlock(&dynpropsLock);

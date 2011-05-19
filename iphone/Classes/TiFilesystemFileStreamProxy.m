@@ -40,7 +40,7 @@
 				NSFileManager *fm = [NSFileManager defaultManager];
 				if([fm fileExistsAtPath:filePath] == NO) {
 					if(mode != TI_WRITE) {
-						[NSException raise:NSInternalInconsistencyException format:@""];
+						[NSException raise:NSInternalInconsistencyException format:@"File does not exist at path %@", filePath, nil];
 					}
 					BOOL created = [fm createFileAtPath:filePath contents:[NSData data] attributes:nil];
 					if(!created) {
@@ -49,11 +49,19 @@
 				} else {
 					//If the file exists and the mode is TI_WRITE, truncate the file.
 					if(mode == TI_WRITE) {
- 						[@"" writeToFile:filePath atomically:YES];
+						NSError *error = nil;
+						[@"" writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:&error];
+						if(error != nil) {
+							[NSException raise:NSInternalInconsistencyException format:@"%@", error, nil];
+						}
 					}
 				}
 				
-				handle = [NSFileHandle fileHandleForUpdatingAtPath:filePath];
+				if(mode == TI_WRITE || mode == TI_APPEND) {
+					handle = [NSFileHandle fileHandleForUpdatingAtPath:filePath];
+				} else {
+					handle = [NSFileHandle fileHandleForReadingAtPath:filePath];
+				}
 				
 				if(handle == nil) {
 					//something went wrong with creating the file handle

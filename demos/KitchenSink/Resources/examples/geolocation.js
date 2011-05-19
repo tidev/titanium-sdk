@@ -219,7 +219,7 @@ var locationAdded = false;
 //
 //  SHOW CUSTOM ALERT IF DEVICE HAS GEO TURNED OFF
 //
-if (Titanium.Geolocation.locationServicesEnabled==false)
+if (Titanium.Geolocation.locationServicesEnabled === false)
 {
 	Titanium.UI.createAlertDialog({title:'Kitchen Sink', message:'Your device has geo turned off - turn it on.'}).show();
 }

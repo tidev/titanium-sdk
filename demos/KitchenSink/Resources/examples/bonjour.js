@@ -93,7 +93,7 @@ updateUI = function(e) {
 		data.push(row);
 	}
 
-	if (data.length == 0) {
+	if (data.length === 0) {
 		data.push(Titanium.UI.createTableViewRow({
 			title:'No services'
 		}));
