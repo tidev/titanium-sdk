@@ -10,9 +10,9 @@ var data = [
 	{title:'Options Dialog', hasChild:true, test:'../examples/options_dialog.js'},
 	{title:'Remove Views', hasChild:true, test:'../examples/remove_views.js'},
 	{title:'zIndex', hasChild:true, test:'../examples/views_zindex.js'},
-    {title:'Email Dialog', hasChild:true, test:'../examples/email_dialog.js'},
+	{title:'Email Dialog', hasChild:true, test:'../examples/email_dialog.js'},
 	{title:'Map View', hasChild:true, test:'../examples/map_view.js'},
-	{title:'View w/ Size', hasChild:true, test:'../examples/view_with_size.js'},
+	{title:'View w/ Size', hasChild:true, test:'../examples/view_with_size.js'}
 
 ];
 

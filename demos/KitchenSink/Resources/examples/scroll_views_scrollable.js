@@ -3,33 +3,19 @@ function getOrientation(o)
 	switch (o)
 	{
 		case Titanium.UI.PORTRAIT:
-		{
 			return 'portrait';
-		}
 		case Titanium.UI.UPSIDE_PORTRAIT:
-		{
 			return 'upside portrait';
-		}
 		case Titanium.UI.LANDSCAPE_LEFT:
-		{
 			return 'landscape left';
-		}
 		case Titanium.UI.LANDSCAPE_RIGHT:
-		{
 			return 'landscape right';
-		}
 		case Titanium.UI.FACE_UP:
-		{
 			return 'face up';
-		}
 		case Titanium.UI.FACE_DOWN:
-		{
 			return 'face down';
-		}
 		case Titanium.UI.UNKNOWN:
-		{
 			return 'unknown';
-		}
 	}
 }
 
@@ -41,7 +27,7 @@ win.backgroundColor = '#ccc';
 win.orientationModes = [
 	Titanium.UI.PORTRAIT,
 	Titanium.UI.LANDSCAPE_LEFT,
-	Titanium.UI.LANDSCAPE_RIGHT,
+	Titanium.UI.LANDSCAPE_RIGHT
 ];
 
 
@@ -200,7 +186,7 @@ var left = Titanium.UI.createButton({
 });
 left.addEventListener('click', function(e)
 {
-	if (i == 0) return;
+	if (i === 0){ return; }
 	i--;
 	scrollView.scrollToView(i);
 });
@@ -211,7 +197,7 @@ var right = Titanium.UI.createButton({
 });
 right.addEventListener('click', function(e)
 {
-	if (i == (scrollView.views.length-1)) return;
+	if (i === (scrollView.views.length-1)){ return; }
 	i++;
 	scrollView.scrollToView(scrollView.views[i]);
 });

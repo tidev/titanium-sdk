@@ -34,7 +34,7 @@ picker.addEventListener('change',function(e)
 	label.text = e.value;
 });
 
-win.add (Ti.UI.createLabel({
+win.add(Ti.UI.createLabel({
 	text: 'This example shows setting "minuteInterval: 15".',
 	backgroundColor: 'blue',
 	color: 'yellow',

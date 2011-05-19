@@ -45,7 +45,7 @@ for (var i=0;i<50;i++)
 	row.add(textView);
 	
 	var imageView = Ti.UI.createImageView({
-		url:'../images/custom_tableview/user.png',
+		image:'../images/custom_tableview/user.png',
 		left:10,
 		top:10,
 		height:50,

@@ -36,7 +36,7 @@ var changeButton = Titanium.UI.createButton({
 });
 changeButton.addEventListener('click', function()
 {
-	if (basicSwitch.value == false)
+	if (basicSwitch.value === false)
 	{
 		basicSwitch.value = true;
 	}
@@ -58,7 +58,7 @@ var hideShowButton = Titanium.UI.createButton({
 var hidden=false;
 hideShowButton.addEventListener('click', function()
 {
-	if (hidden==true)
+	if (hidden === true)
 	{
 		basicSwitch.show();
 		hidden=false;

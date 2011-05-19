@@ -252,7 +252,7 @@ mapview.addEventListener('click',function(evt)
 	}
 	if (myid == 2)
 	{
-		if(annotationAdded==false)
+		if(annotationAdded === false)
 		{
 			mapview.addAnnotation(mountainView);
 			annotationAdded=true;

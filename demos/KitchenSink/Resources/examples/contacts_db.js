@@ -16,7 +16,7 @@ var makeTable = function() {
 	for (var i = 0; i < people.length; i++) {
 		Ti.API.info("People object is: "+people[i]);
 		var title = people[i].fullName;
-		if (!title || title.length == 0) {
+		if (!title || title.length === 0) {
 			title = "(no name)";
 		}
 		rows[i] = Ti.UI.createTableViewRow({

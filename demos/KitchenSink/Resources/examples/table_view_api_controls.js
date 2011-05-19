@@ -5,7 +5,7 @@ var ts1 = new Date().getTime();
 function rightButtonClickHandler(e)
 {
 	Ti.API.info("button click on row. index = "+e.index+", row = "+e.source.row+", section = "+e.source.section+",rightButton = "+rightButton);
-};
+}
 
 function rowClickHandler(e)
 {
@@ -87,7 +87,7 @@ var messageWin = Titanium.UI.createWindow({
 	Titanium.UI.PORTRAIT,
 	Titanium.UI.UPSIDE_PORTRAIT,
 	Titanium.UI.LANDSCAPE_LEFT,
-	Titanium.UI.LANDSCAPE_RIGHT,
+	Titanium.UI.LANDSCAPE_RIGHT
 	]
 });
 

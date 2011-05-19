@@ -1,5 +1,5 @@
 //
-// 	animation properties
+//	animation properties
 //	---------------------
 //	zIndex, left, right, top, bottom, width, height
 //	duration, center, backgroundColor, opacity, opaque,

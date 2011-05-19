@@ -21,7 +21,7 @@ var images = [
 		'http://www.bytelove.com/images/uploads/Bytelove/Geek/rss%20feed%20me%20-%20photo.jpg'
 ];
 
-for (c=0; c<10; c++) 
+for (var c=0; c<10; c++) 
 {
 	var row = Ti.UI.createTableViewRow({height:'auto',backgroundColor:'#ffffff',selectedBackgroundColor:'#dddddd'}); 
 
