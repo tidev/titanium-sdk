@@ -109,31 +109,31 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 -(void)setOnload:(KrollCallback *)callback
 {
 	hasOnload = [callback isKindOfClass:[KrollCallback class]];
-	[self setCallback:callback forKey:@"onload"];
+	[self setValue:callback forUndefinedKey:@"onload"];
 }
 
 -(void)setOnerror:(KrollCallback *)callback
 {
 	hasOnerror = [callback isKindOfClass:[KrollCallback class]];
-	[self setCallback:callback forKey:@"onerror"];
+	[self setValue:callback forUndefinedKey:@"onerror"];
 }
 
 -(void)setOnreadystatechange:(KrollCallback *)callback
 {
 	hasOnreadystatechange = [callback isKindOfClass:[KrollCallback class]];
-	[self setCallback:callback forKey:@"onreadystatechange"];
+	[self setValue:callback forUndefinedKey:@"onreadystatechange"];
 }
 
 -(void)setOndatastream:(KrollCallback *)callback
 {
 	hasOndatastream = [callback isKindOfClass:[KrollCallback class]];
-	[self setCallback:callback forKey:@"ondatastream"];
+	[self setValue:callback forUndefinedKey:@"ondatastream"];
 }
 
 -(void)setOnsendstream:(KrollCallback *)callback
 {
 	hasOnsendstream = [callback isKindOfClass:[KrollCallback class]];
-	[self setCallback:callback forKey:@"onsendstream"];
+	[self setValue:callback forUndefinedKey:@"onsendstream"];
 }
 
 -(void)_destroy

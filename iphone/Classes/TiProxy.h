@@ -123,7 +123,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(void)rememberSelf;
 -(void)forgetSelf;
 
--(void)setCallback:(KrollCallback *)eventCallback forKey:(NSString *)key;
+//SetCallback is done internally by setValue:forUndefinedKey:
 -(void)fireCallback:(NSString*)type withArg:(NSDictionary *)argDict withSource:(id)source;
 
 #pragma mark Public 
