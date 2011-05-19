@@ -12,6 +12,8 @@ import android.app.Activity;
 @Kroll.proxy
 public abstract class TiDialogProxy extends TiViewProxy
 {
+	protected boolean showing = false;
+
 	public TiDialogProxy(TiContext tiContext)
 	{
 		super(tiContext);
@@ -20,12 +22,22 @@ public abstract class TiDialogProxy extends TiViewProxy
 	@Override
 	public void show(final KrollDict options)
 	{
+		showing = true;
 		TiUIHelper.waitForCurrentActivity(new CurrentActivityListener() {
 			@Override
 			public void onCurrentActivityReady(Activity activity)
 			{
-				TiDialogProxy.super.show(options);
+				if (showing) {
+					TiDialogProxy.super.show(options);
+				}
 			}
 		});
+	}
+
+	@Override
+	public void hide(KrollDict options)
+	{
+		showing = false;
+		super.hide(options);
 	}
 }
