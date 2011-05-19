@@ -877,7 +877,12 @@ DEFINE_EXCEPTIONS
 {
 	if([value isKindOfClass:[KrollCallback class]]){
 		[self setCallback:value forKey:key];
-		value = nil;	//Set and forget.
+		//As a wrapper, we hold onto a krollFunction tuple so that other contexts
+		//may access the function.
+		KrollFunction * newValue = [[[KrollFunction alloc] init] autorelease];
+		[newValue setRemoteBridge:[[value context] delegate]];
+		[newValue setRemoteFunction:[value function]];
+		value = newValue;
 	}
 
 	id current = nil;
