@@ -57,7 +57,7 @@ Titanium.Yahoo.yql('select * from flickr.photos.search where text="Cat" limit 10
 		{
 			// iphone moved to a single image property - android needs to do the same
 			image = Ti.UI.createImageView({
-				url : url,
+				image: url,
 				height:50,
 				width:50,
 				left:10,
@@ -68,7 +68,7 @@ Titanium.Yahoo.yql('select * from flickr.photos.search where text="Cat" limit 10
 		else
 		{
 			image = Ti.UI.createImageView({
-				image : url,
+				image: url,
 				height:50,
 				width:50,
 				left:10,

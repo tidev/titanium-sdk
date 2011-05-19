@@ -146,6 +146,6 @@ function showTableView()
 	var t = Ti.UI.create2DMatrix();
 	tableview.animate({transform:t,duration:100});
 
-};
+}
 
 

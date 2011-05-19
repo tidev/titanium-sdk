@@ -1,6 +1,6 @@
 //
 //  When you open windows outside of tab groups, they are appear on top of either
-// 	the current window or the current tab group.  These examples show you different ways
+//  the current window or the current tab group.  These examples show you different ways
 //  to open windows outside of tab groups.
 //
 

@@ -4,7 +4,7 @@ var data = [
 	{title:'Alice', hasDetail:true},
 	{title:'Alexander', hasCheck:true},
 	{title:'Amos'},
-	{title:'Alonzo', footer:'footer'},
+	{title:'Alonzo', footer:'footer'}
 ];
 
 // create table view

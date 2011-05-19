@@ -77,7 +77,7 @@ win.setRightNavButton(bb);
 
 bb.addEventListener('click',function(e)
 {
-	if (e.index == 0)
+	if (e.index === 0)
 	{
 		scrollView.zoomScale = scrollView.scale+0.1;
 	}

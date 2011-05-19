@@ -118,7 +118,7 @@ bb4.addEventListener('click', function(e)
 	// toggle enabled
 	else if (e.index == 2)
 	{
-		buttonObjects[0].enabled = (buttonObjects[0].enabled==false)?true:false;
+		buttonObjects[0].enabled = (buttonObjects[0].enabled === false)?true:false;
 		bb4.labels = buttonObjects;		
 	}
 	l.text = 'You clicked index = ' + e.index;

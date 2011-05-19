@@ -30,7 +30,6 @@ tableView.addEventListener('click',function(e)
 	switch(e.index)
 	{
 		case 0:
-		{
 			var data = [];
 			for (var c=0;c<10;c++)
 			{
@@ -43,9 +42,7 @@ tableView.addEventListener('click',function(e)
 			tableView.separatorStyle = Ti.UI.iPhone.TableViewSeparatorStyle.NONE;
 			tableView.setData(data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.NONE});				
 			break;
-		}
 		case 1:
-		{
 			var data = [
 				{title:'Set TableView 1',hasDetail:true, image:'Phone.png'},
 				{title:'Set TableView 2', hasChild:true, image:'Safari.png'},
@@ -59,9 +56,7 @@ tableView.addEventListener('click',function(e)
 			tableView.separatorColor = null;
 			tableView.setData(data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
 			break;
-		}
 		case 2:
-		{
 			var data = [
 				{title:'Set TableView 1'},
 				{title:'Set TableView 2'},
@@ -78,8 +73,6 @@ tableView.addEventListener('click',function(e)
 			tableView.separatorColor = "red";
 			tableView.setData(data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.UP});
 			break;
-		}
-		
 	}
 		
 });

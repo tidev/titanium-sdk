@@ -73,7 +73,11 @@ changeMode.addEventListener('click', function()
 	audio.stop();
 	sound.stop();
 
-	if (count == modeArray.length-1)count=0; else count++;
+	if (count === modeArray.length-1){
+		count=0;
+	} else {
+		count++;
+	}
 	Titanium.Media.audioSessionMode = modeArray[count].mode;
 	l.text = modeArray[count].desc;
 });

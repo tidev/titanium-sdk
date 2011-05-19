@@ -99,5 +99,5 @@ Titanium.Media.showCamera({
 	overlay:overlay,
 	showControls:false,	// don't show system controls
 	mediaTypes:Ti.Media.MEDIA_TYPE_PHOTO,
-	autohide:false 	// tell the system not to auto-hide and we'll do it ourself
+	autohide:false // tell the system not to auto-hide and we'll do it ourself
 });

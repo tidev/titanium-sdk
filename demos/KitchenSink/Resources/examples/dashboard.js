@@ -12,7 +12,7 @@ for (var x=0;x<2;x++)
 			selectedImage:'../images/dashboard/'+labels[c]+'_on.png',
 			label:labels[c]
 		});
-		if (c==0) item.badge = 10;
+		if (c === 0) { item.badge = 10; }
 		data.push(item);
 	}
 }

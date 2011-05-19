@@ -12,20 +12,20 @@ var win1 = Titanium.UI.createWindow({className:'win1'});
 
 var tab1 = Titanium.UI.createTab({
 	id:'tab1',
-    window:win1
+	window:win1
 });
 
 //
 // create controls tab and root window
 //
 var win2 = Titanium.UI.createWindow({
-    url:'main_windows/controls.js',
-    titleid:'controls_win_title'
+	url:'main_windows/controls.js',
+	titleid:'controls_win_title'
 });
 var tab2 = Titanium.UI.createTab({
-    icon:'images/tabs/KS_nav_ui.png',
-    titleid:'controls_win_title',
-    window:win2
+	icon:'images/tabs/KS_nav_ui.png',
+	titleid:'controls_win_title',
+	window:win2
 });
 
 
@@ -33,13 +33,13 @@ var tab2 = Titanium.UI.createTab({
 // create phone tab and root window
 //
 var win3 = Titanium.UI.createWindow({
-    url:'main_windows/phone.js',
-    titleid:'phone_win_title'
+	url:'main_windows/phone.js',
+	titleid:'phone_win_title'
 });
 var tab3 = Titanium.UI.createTab({
-    icon:'images/tabs/KS_nav_phone.png',
-    titleid:'phone_win_title',
-    window:win3
+	icon:'images/tabs/KS_nav_phone.png',
+	titleid:'phone_win_title',
+	window:win3
 });
 
 
@@ -47,28 +47,28 @@ var tab3 = Titanium.UI.createTab({
 // create platform tab and root window
 //
 var win4 = Titanium.UI.createWindow({
-    url:'main_windows/platform.js',
-    titleid:'platform_win_title'
+	url:'main_windows/platform.js',
+	titleid:'platform_win_title'
 });
 var tab4 = Titanium.UI.createTab({
-    icon:'images/tabs/KS_nav_platform.png',
-    titleid:'platform_win_title',
-// Commented out as per 1773
+	icon:'images/tabs/KS_nav_platform.png',
+	titleid:'platform_win_title',
+//	Commented out as per 1773
 //	active:true,
-    window:win4
+	window:win4
 });
 
 //
 // create mashup tab and root window
 //
 var win5 = Titanium.UI.createWindow({
-    url:'main_windows/mashups.js',
-    titleid:'mashups_win_title'
+	url:'main_windows/mashups.js',
+	titleid:'mashups_win_title'
 });
 var tab5 = Titanium.UI.createTab({
-    icon:'images/tabs/KS_nav_mashup.png',
-    titleid:'mashups_win_title',
-    window:win5
+	icon:'images/tabs/KS_nav_mashup.png',
+	titleid:'mashups_win_title',
+	window:win5
 });
 
 //
@@ -86,7 +86,7 @@ tabGroup.addEventListener('open',function()
 	Titanium.UI.setBackgroundColor('#fff');
 });
 
-tabGroup.setActiveTab(1); 
+tabGroup.setActiveTab(1);
 // open tab group with a transition animation
 tabGroup.open({
 	transition:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT
@@ -94,10 +94,9 @@ tabGroup.open({
 
 // setTimeout(function()
 // {
-// 	tabGroup.close({
-// 		transition:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT
-// 	});
-// 	
+	// tabGroup.close({
+		// transition:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT
+	// });
 // },2000);
 
 
@@ -115,7 +114,7 @@ var messageWin = Titanium.UI.createWindow({
 	Titanium.UI.PORTRAIT,
 	Titanium.UI.UPSIDE_PORTRAIT,
 	Titanium.UI.LANDSCAPE_LEFT,
-	Titanium.UI.LANDSCAPE_RIGHT,
+	Titanium.UI.LANDSCAPE_RIGHT
 	]
 });
 var messageView = Titanium.UI.createView({
@@ -261,7 +260,7 @@ function showIndicator()
 		height:30,
 		width:30
 	});
-	
+
 	if (Ti.Platform.osname != 'android')
 	{
 		indWin.add(actInd);
@@ -282,7 +281,7 @@ function showIndicator()
 	}
 	actInd.show();
 
-};
+}
 
 function hideIndicator()
 {
@@ -290,7 +289,7 @@ function hideIndicator()
 	if (Ti.Platform.osname != 'android') {
 		indWin.close({opacity:0,duration:500});
 	}
-};
+}
 
 //
 // Add global event handlers to hide/show custom indicator
@@ -319,10 +318,10 @@ Ti.include("welcome.js");
 Ti.API.info(String.format("%s%s",L("welcome_message","default_not_set"),Titanium.version));
 Ti.API.debug(String.format("%s %s",L("user_agent_message","default_not_set"),Titanium.userAgent));
 
-Ti.API.debug(String.format("locale specific date is %s",String.formatDate(new Date))); // default is short
-Ti.API.debug(String.format("locale specific date (medium) is %s",String.formatDate(new Date,"medium")));
-Ti.API.debug(String.format("locale specific date (long) is %s",String.formatDate(new Date,"long")));
-Ti.API.debug(String.format("locale specific time is %s",String.formatTime(new Date)));
+Ti.API.debug(String.format("locale specific date is %s",String.formatDate(new Date()))); // default is short
+Ti.API.debug(String.format("locale specific date (medium) is %s",String.formatDate(new Date(),"medium")));
+Ti.API.debug(String.format("locale specific date (long) is %s",String.formatDate(new Date(),"long")));
+Ti.API.debug(String.format("locale specific time is %s",String.formatTime(new Date())));
 Ti.API.debug(String.format("locale specific currency is %s",String.formatCurrency(12.99)));
 Ti.API.debug(String.format("locale specific decimal is %s",String.formatDecimal(12.99)));
 
@@ -339,14 +338,14 @@ Ti.API.info("should be hello, was = "+String.format('%s','hello'));
 Ti.API.info("instanceof check, should be true => " + (Ti.UI.createWindow() instanceof Ti.UI.createView()));
 Ti.API.info("instanceof check, should be false => " + (Ti.UI.createView() instanceof Ti.UI.createWindow()));
 
-// test to check that we can iterate over titanium based objects 
+// test to check that we can iterate over titanium based objects
 (function(){
 	Ti.API.info("you should see a list of properties (3 or more) below this line");
 	Ti.API.info("---------------------------------------------------------------");
 	for (var p in win1)
 	{
-        	Ti.API.info("         win1 property: "+p);	
-	}	 
+		Ti.API.info("         win1 property: "+p);
+	}
 	Ti.API.info("Did you see properties? ^^^^^ ");
 	Ti.API.info("---------------------------------------------------------------");
 
@@ -354,8 +353,8 @@ Ti.API.info("instanceof check, should be false => " + (Ti.UI.createView() instan
 	Ti.API.info("---------------------------------------------------------------");
 	for (var p in Titanium)
 	{
-        	Ti.API.info("             module: "+p);	
-	}	 
+		Ti.API.info("             module: "+p);
+	}
 	Ti.API.info("Did you see modules? ^^^^^ ");
 	Ti.API.info("---------------------------------------------------------------");
 })();
@@ -367,7 +366,7 @@ if (isiOS4Plus())
 {
 	// register a background service. this JS will run when the app is backgrounded
 	var service = Ti.App.iOS.registerBackgroundService({url:'bg.js'});
-	
+
 	Ti.API.info("registered background service = "+service);
 
 	// listen for a local notification event

@@ -4,7 +4,7 @@ var data = [
 	{title:'Scrolling Tabs', hasChild:true, test:'../examples/scroll_views_tabs.js'},
 	{title:'Scrollable View', hasChild:true, test:'../examples/scroll_views_scrollable.js'},
 	{title:'Many on a Screen', hasChild:true, test:'../examples/scroll_views_many.js'},
-	{title:'Scroll Views TextArea', hasChild:true, test:'../examples/scroll_views_textareas.js'},
+	{title:'Scroll Views TextArea', hasChild:true, test:'../examples/scroll_views_textareas.js'}
 
 ];
 

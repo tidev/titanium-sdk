@@ -14,7 +14,7 @@ var label = Ti.UI.createLabel({
 });
 win.add(label);
 
-;
+
 var softState = null;
 var softAdjust = null;
 
