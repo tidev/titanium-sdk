@@ -150,7 +150,7 @@ public class TiJSErrorDialog
 					}
 				}
 				if (!errorMessages.isEmpty()) {
-					createDialog(errorMessages.pop());
+					createDialog(errorMessages.removeFirst());
 				} else {
 					dialogShowing = false;
 				}

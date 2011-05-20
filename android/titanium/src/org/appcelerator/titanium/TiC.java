@@ -115,6 +115,7 @@ public class TiC
 	public static final String PROPERTY_BORDER_RADIUS = "borderRadius";
 	public static final String PROPERTY_BORDER_WIDTH = "borderWidth";
 	public static final String PROPERTY_BOTTOM = "bottom";
+	public static final String PROPERTY_BUTTON = "button";
 	public static final String PROPERTY_BUTTON_NAMES = "buttonNames";
 	public static final String PROPERTY_BYTE_ORDER = "byteOrder";
 	public static final String PROPERTY_CAN_SCALE = "canScale";
