@@ -42,7 +42,7 @@ FAILED[int]: constant for the FAILED status result
 
 isSupported: return whether or not sending email is supported
 open: open the email dialog. the email dialog itself is a modal window
-addAttachment: add an attachment to the email. the attachment can either be a Blob or File object. (Note: Android will only accept one attachment at this time.)
+addAttachment: add an attachment to the email. The attachment can either be a Blob or File object. Note: Versions before 1.7.1 will only support one attachment in Android.  Since version 1.7.1, our Android implementation will accept multiple attachments, but multiple attachments will only work if the user chooses to send via the Android Gmail app; the Android "Mail" app (which is anyway not available on some handsets) will only accept one attachment from a Titanium app.  K9 has also been tested successfully with multiple attachments.
 
 - method : open
 
