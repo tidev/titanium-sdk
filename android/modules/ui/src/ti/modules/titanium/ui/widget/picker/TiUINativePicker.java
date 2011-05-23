@@ -26,6 +26,7 @@ public class TiUINativePicker extends TiUIPicker
 		implements OnItemSelectedListener
 {
 	private static final String LCAT = "TiUINativePicker";
+	private boolean firstSelectedFired = false;
 	
 	public TiUINativePicker(TiViewProxy proxy) 
 	{
@@ -60,6 +61,7 @@ public class TiUINativePicker extends TiUIPicker
 			}
 		} finally {
 			spinner.setOnItemSelectedListener(this);
+			firstSelectedFired = true;
 		}
 	}
 
@@ -142,6 +144,12 @@ public class TiUINativePicker extends TiUIPicker
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
 			long itemId)
 	{
+		if (!firstSelectedFired) {
+			// swallow the first selected event that gets fired after the adapter gets set, so as to avoid
+			// firing our change event in that case.
+			firstSelectedFired = true;
+			return;
+		}
 		fireSelectionChange(0, position);
 	}
 
