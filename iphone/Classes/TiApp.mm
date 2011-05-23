@@ -465,6 +465,34 @@ void MyUncaughtExceptionHandler(NSException *exception)
 #ifdef USE_TI_UIWEBVIEW
 	[xhrBridge gc];
 #endif 
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+	
+	if (backgroundServices==nil || runningServices!=nil)
+	{
+		return;
+	}
+	
+	UIApplication* app = [UIApplication sharedApplication];
+	TiApp *tiapp = self;
+	bgTask = [app beginBackgroundTaskWithExpirationHandler:^{
+        // Synchronize the cleanup call on the main thread in case
+        // the task actually finishes at around the same time.
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (bgTask != UIBackgroundTaskInvalid)
+            {
+                [app endBackgroundTask:bgTask];
+                bgTask = UIBackgroundTaskInvalid;
+            }
+        });
+    }];
+	// Start the long-running task and return immediately.
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+		
+        // Do the work associated with the task.
+		[tiapp beginBackgrounding];
+    });
+#endif
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
@@ -483,7 +511,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 	
-	if (backgroundServices==nil)
+	if (backgroundServices==nil || runningServices!=nil)
 	{
 		return;
 	}
