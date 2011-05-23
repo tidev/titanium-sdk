@@ -30,6 +30,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.view.View;
+import android.view.View.MeasureSpec;
 import android.widget.MediaController;
 import android.widget.TiVideoView4;
 
@@ -82,6 +83,9 @@ public class TiVideoActivity extends Activity
 			protected void measureVideo(int videoWidth, int videoHeight,
 					int widthMeasureSpec, int heightMeasureSpec) 
 			{
+		    	Log.e("VideoView", "******* mVideoWidth: " + videoWidth + " mVideoHeight: " + videoHeight +
+		    			" width: " + MeasureSpec.getSize(widthMeasureSpec) + " height: " + MeasureSpec.getSize(heightMeasureSpec));
+
 		        //Log.i("@@@@", "onMeasure");
 		        int width = getDefaultSize(videoWidth, widthMeasureSpec);
 		        int height = getDefaultSize(videoHeight, heightMeasureSpec);

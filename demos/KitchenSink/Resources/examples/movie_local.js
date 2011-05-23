@@ -1,6 +1,13 @@
 var win = Titanium.UI.currentWindow;
 var android = (Titanium.Platform.name == 'android');
 
+/*
+ * Cheat sheet for scalingModes
+ * Titanium.Media.VIDEO_SCALING_ASPECT_FILL
+ * Titanium.Media.VIDEO_SCALING_ASPECT_FIT
+ * Titanium.Media.VIDEO_SCALING_MODE_FILL
+ * Titanium.Media.VIDEO_SCALING_NONE
+*/
 var options = {
 	contentURL:'../movie.mp4',
 	backgroundColor:'#111',
