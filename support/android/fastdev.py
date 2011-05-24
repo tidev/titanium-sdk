@@ -1,11 +1,15 @@
 #
 # A custom server that speeds up development time in Android significantly
 #
-import os, sys, time, optparse
-import tcpserver, urllib
-import simplejson, threading
+import os, sys, time, optparse, logging
+import urllib, simplejson, threading
 import SocketServer, socket, struct, codecs
-import logging
+
+# we use our compatibility code for python 2.5
+if sys.version_info < (2, 6):
+	from tcpserver import TCPServer
+else:
+	from SocketServer import TCPServer
 
 logging.basicConfig(format='[%(levelname)s] [%(asctime)s] %(message)s', level=logging.INFO)
 
@@ -214,7 +218,7 @@ class FastDevHandler(SocketServer.BaseRequestHandler):
 		server.shutdown()
 		idle_thread.running = False
 
-class ThreadingTCPServer(SocketServer.ThreadingMixIn, tcpserver.TCPServer): pass
+class ThreadingTCPServer(SocketServer.ThreadingMixIn, TCPServer): pass
 
 class FastDevRequest(object):
 	def __init__(self, dir, options):

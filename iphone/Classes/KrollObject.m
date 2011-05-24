@@ -338,6 +338,11 @@ TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
 		{
 			if (![ourBridge usesProxy:obj])
 			{
+				if (![context isKJSThread])
+				{
+					NSLog(@"[WARN] Creating %@ in a different context than the calling function.",obj);
+					ourBridge = [KrollBridge krollBridgeForThreadName:[[NSThread currentThread] name]];
+				}
 				return [[ourBridge registerProxy:obj] jsobject];
 			}
 			KrollObject * objKrollObject = [ourBridge krollObjectForProxy:obj];
@@ -491,6 +496,10 @@ TiValueRef KrollGetProperty(TiContextRef jsContext, TiObjectRef object, TiString
 				if ((cachedObject != NULL) && (cachedObject != remoteFunction))
 				{
 					[o forgetObjectForTiString:prop context:jsContext];	//Clean up the old property.
+				}
+				if (remoteFunction != NULL)
+				{
+					[o noteObject:remoteFunction forTiString:prop context:jsContext];
 				}
 				return remoteFunction;
 			}
