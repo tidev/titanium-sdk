@@ -115,13 +115,10 @@ class FastDevHandler(SocketServer.BaseRequestHandler):
 				serving = False
 				if sys.version_info < (2, 6):
 					serving = server.is_serving()
-					logging.info('no except server.is_serving()')
 				elif sys.version_info < (2, 7):
 					serving = server._BaseServer__serving
-					logging.info('no except server._BaseServer__serving')
 				else:
 					serving = not server._BaseServer__is_shut_down.isSet()
-					logging.info('no except server._BaseServer__is_shut_down')
 				if not serving:
 					break
 				else: continue
