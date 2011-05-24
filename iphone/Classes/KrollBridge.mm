@@ -883,6 +883,33 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	return result;
 }
 
++ (KrollBridge *)krollBridgeForThreadName:(NSString *)threadName;
+{
+	if(threadName == nil)
+	{
+		return nil;
+	}
+
+	KrollBridge * result=nil;
+	OSSpinLockLock(&krollBridgeRegistryLock);
+	int bridgeCount = CFSetGetCount(krollBridgeRegistry);
+	KrollBridge * registryObjects[bridgeCount];
+	CFSetGetValues(krollBridgeRegistry, (const void **)registryObjects);
+	for (int currentBridgeIndex = 0; currentBridgeIndex < bridgeCount; currentBridgeIndex++)
+	{
+		KrollBridge * currentBridge = registryObjects[currentBridgeIndex];
+		if ([[[currentBridge krollContext] threadName] isEqualToString:threadName])
+		{
+			result = [[currentBridge retain] autorelease];
+			break;
+		}
+	}
+	OSSpinLockUnlock(&krollBridgeRegistryLock);
+
+	return result;
+}
+
+
 -(int)forceGarbageCollectNow;
 {
 	[context gc];
