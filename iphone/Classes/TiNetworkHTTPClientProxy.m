@@ -373,7 +373,14 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	[self _fireReadyStateChange:NetworkClientStateOpened failed:NO];
 	[self _fireReadyStateChange:NetworkClientStateHeaders failed:NO];
 }
-
+-(void)clearCookies:(id)args
+{
+    NSHTTPCookie *cookie;
+    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    for (cookie in [storage cookies]) {
+        [storage deleteCookie:cookie];
+    }
+}
 -(void)setRequestHeader:(id)args
 {
 	ENSURE_ARG_COUNT(args,2);

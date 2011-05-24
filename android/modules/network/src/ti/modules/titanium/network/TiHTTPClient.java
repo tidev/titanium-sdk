@@ -657,6 +657,10 @@ public class TiHTTPClient
 	protected HashMap<String,String> headers = new HashMap<String,String>();
 	private Uri uri;
 	private String url;
+
+  public void clearCookies() {
+    client.getCookieStore().clear(); 
+  }
 	
 	public void setRequestHeader(String header, String value)
 	{
