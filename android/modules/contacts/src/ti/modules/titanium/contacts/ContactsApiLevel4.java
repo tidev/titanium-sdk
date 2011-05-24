@@ -152,8 +152,8 @@ public class ContactsApiLevel4 extends CommonContactsApi
 		Cursor cursor = tiContext.getActivity().managedQuery(
 				Contacts.People.CONTENT_URI, 
 				PEOPLE_PROJECTION, 
-				Contacts.People.NAME + " = ?", 
-				new String[]{name},
+				Contacts.People.NAME + " like ?", 
+				new String[]{'%' + name + '%'},
 				null);
 		while (cursor.moveToNext()) {
 			all.add(getPersonFromCursor(cursor));
