@@ -94,7 +94,7 @@ public class TiVideoView4 extends SurfaceView implements MediaPlayerControl {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
     	measureVideo(mVideoWidth, mVideoHeight, widthMeasureSpec, heightMeasureSpec);
-    	if (mSurfaceHolder != null && mMediaPlayer != null && mMediaPlayer.isPlaying()) {
+    	if (mSurfaceHolder != null && mMediaPlayer != null && mMediaPlayer.getCurrentPosition() > 0) {
     		mSurfaceHolder.setFixedSize(getMeasuredWidth(), getMeasuredHeight());
     	}
     }

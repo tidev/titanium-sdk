@@ -119,8 +119,8 @@ public class TiVideoActivity extends Activity
 				            break;
 			        	}
 			        	case MediaModule.VIDEO_SCALING_MODE_FILL : {
-			        		width = MeasureSpec.getSize(widthMeasureSpec) + 1;
-			        		height = MeasureSpec.getSize(heightMeasureSpec) + 1;
+			        		width = MeasureSpec.getSize(widthMeasureSpec);
+			        		height = MeasureSpec.getSize(heightMeasureSpec);
 			        		break;
 			        	}
 		        	}
