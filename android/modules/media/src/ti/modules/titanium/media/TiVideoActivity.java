@@ -11,6 +11,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -29,8 +30,9 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.View;
-import android.view.View.MeasureSpec;
 import android.widget.MediaController;
 import android.widget.TiVideoView4;
 
@@ -125,8 +127,36 @@ public class TiVideoActivity extends Activity
 			        	}
 		        	}
 		        }
- 		        Log.i("@@@@@@@@@@", "setting size: " + width + 'x' + height);
-		        setMeasuredDimension(width, height);    	
+		        String model = TiPlatformHelper.getModel();
+		        if (model != null && model.equals("SPH-P100")) {
+			        Display d = getWindowManager().getDefaultDisplay();
+			        if (d != null) {
+			        	DisplayMetrics dm = new DisplayMetrics();
+			        	d.getMetrics(dm);
+			        	if (TiPlatformHelper.applicationLogicalDensity != dm.densityDpi) {
+				        	int maxScaledWidth = (int) Math.floor((d.getWidth() - 1) * TiPlatformHelper.applicationScaleFactor);
+				        	int maxScaledHeight = (int) Math.floor((d.getHeight() - 1) * TiPlatformHelper.applicationScaleFactor);
+				        	if (width * TiPlatformHelper.applicationScaleFactor > maxScaledWidth) {
+				        		int oldWidth = width;		        	
+				        		width = d.getWidth() - 1;
+						        if (DBG) {
+						        	Log.d("@@@@@@@@@@", "TOO WIDE: " + oldWidth + " changed to " + width);
+						        }
+				        	}
+				        	if (height * TiPlatformHelper.applicationScaleFactor >  maxScaledHeight) {
+				        		int oldHeight = height;
+				        		height = d.getHeight() - 1;
+						        if (DBG) {
+						        	Log.d("@@@@@@@@@@", "TOO HIGH: " + oldHeight + " changed to " + height);
+						        }
+				        	}
+			        	}
+			        }
+			        if (DBG) {
+			        	Log.i("@@@@@@@@@@", "setting size: " + width + 'x' + height);
+			        }
+			        setMeasuredDimension(width, height);
+		        }
 			}			
 		};
 	
