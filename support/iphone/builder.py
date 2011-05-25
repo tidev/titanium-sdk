@@ -700,12 +700,7 @@ def main(args):
 					plist = plist.replace('__DEBUGGER_PORT__','')
 				pf = codecs.open(debuggerplist,'w', encoding='utf-8')
 				pf.write(plist)
-				pf.close()	
-				o.write("+ writing debugger plist:\n\n")
-				pf = codecs.open(debuggerplist,'r', encoding='utf-8')
-				o.write(pf.read())
 				pf.close()
-				o.write("\n\n")
 				
 				
 # TODO:				
@@ -888,16 +883,6 @@ def main(args):
 			debug_plist = os.path.join(iphone_dir,'Resources','debugger.plist')
 			write_debugger_plist(debug_plist)
 
-			if command=='simulator':
-				debug_sim_dir = os.path.join(iphone_dir,'build','Debug-iphonesimulator','%s.app' % name)
-				if os.path.exists(debug_sim_dir):
-					app_stylesheet = os.path.join(iphone_dir,'build','Debug-iphonesimulator','%s.app' % name,'stylesheet.plist')
-					asf = codecs.open(app_stylesheet,'w','utf-8')
-					asf.write(cssc.code)
-					asf.close()
-					
-					shutil.copy(debug_plist,os.path.join(iphone_dir,'build','Debug-iphonesimulator','%s.app' % name, 'debugger.plist'))
-					
 			if command!='simulator':
 				# compile plist into binary format so it's faster to load
 				# we can be slow on simulator
