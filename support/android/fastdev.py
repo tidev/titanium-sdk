@@ -112,7 +112,14 @@ class FastDevHandler(SocketServer.BaseRequestHandler):
 					break
 			except socket.timeout, e:
 				# only break the loop when not serving, otherwise timeouts are normal
-				if not server.is_serving():
+				serving = False
+				if sys.version_info < (2, 6):
+					serving = server.is_serving()
+				elif sys.version_info < (2, 7):
+					serving = server._BaseServer__serving
+				else:
+					serving = not server._BaseServer__is_shut_down.isSet()
+				if not serving:
 					break
 				else: continue
 
@@ -218,7 +225,14 @@ class FastDevHandler(SocketServer.BaseRequestHandler):
 		server.shutdown()
 		idle_thread.running = False
 
-class ThreadingTCPServer(SocketServer.ThreadingMixIn, TCPServer): pass
+class ThreadingTCPServer(SocketServer.ThreadingMixIn, TCPServer):
+	def shutdown_noblock(self):
+		if sys.version_info < (2, 6):
+			self.__serving = False
+		elif sys.version_info < (2, 7):
+			self._BaseServer__serving = False
+		else:
+			self._BaseServer__shutdown_request = True
 
 class FastDevRequest(object):
 	def __init__(self, dir, options):
@@ -292,6 +306,7 @@ def start_server(dir, options):
 		idle_thread = IdleThread(int(options.timeout))
 		idle_thread.start()
 		server.serve_forever()
+
 	except KeyboardInterrupt, e:
 		idle_thread.running = False
 		server.shutdown_noblock()
