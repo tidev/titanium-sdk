@@ -1755,7 +1755,8 @@ class Builder(object):
 
 			generated_classes_built = self.build_generated_classes()
 
-			if not self.build_only and self.deploy_type != "production":
+			# TODO: enable for "test" / device mode for debugger / fastdev
+			if not self.build_only and self.deploy_type == "development":
 				self.push_deploy_json()
 			self.classes_dex = os.path.join(self.project_dir, 'bin', 'classes.dex')
 			
