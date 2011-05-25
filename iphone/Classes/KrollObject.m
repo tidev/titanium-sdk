@@ -1468,9 +1468,8 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 		TiValueRef currentCallback = TiObjectGetPropertyAtIndex(jsContext, jsCallbackArray, currentCallbackIndex, NULL);
 		if (currentCallback == callbackFunction)
 		{
-			TiStringRef propertyName = TiStringCreateWithCFString((CFStringRef) [NSString stringWithFormat:@"%d",currentCallbackIndex]);
-			TiObjectDeleteProperty(jsContext, jsCallbackArray, propertyName, NULL);
-			TiStringRelease(propertyName);
+			TiValueRef undefined = TiValueMakeUndefined(jsContext);
+			TiObjectSetPropertyAtIndex(jsContext, jsCallbackArray, currentCallbackIndex, undefined, NULL);
 		}
 	}
 }
@@ -1516,6 +1515,11 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 	for (int currentCallbackIndex=0; currentCallbackIndex<arrayLength; currentCallbackIndex++)
 	{
 		TiValueRef currentCallback = TiObjectGetPropertyAtIndex(jsContext, jsCallbackArray, currentCallbackIndex, NULL);
+		currentCallback = TiValueToObject(jsContext, currentCallback, NULL);
+		if ((currentCallback == NULL) || !TiObjectIsFunction(jsContext,currentCallback))
+		{
+			continue;
+		}
 		TiValueRef exception = NULL;
 		TiObjectCallAsFunction(jsContext, currentCallback, [thisObject jsobject], 1, &jsEventData,&exception);
 		if (exception!=NULL)
