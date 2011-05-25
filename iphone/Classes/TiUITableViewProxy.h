@@ -12,11 +12,25 @@
 
 #include "TiViewProxy.h"
 
+@class TiUITableViewRowProxy;
 @interface TiUITableViewProxy : TiViewProxy
 {
+	NSMutableArray *sections;
 }
 -(void)setData:(id)args withObject:(id)properties;
 -(NSArray*)data;
+
+//Sections is private. Data is the sanitized version.
+@property(nonatomic,readwrite,retain) NSMutableArray *sections;
+-(int)sectionCount;
+
+-(NSInteger)indexForRow:(TiUITableViewRowProxy*)row;
+-(NSInteger)sectionIndexForIndex:(NSInteger)theindex;
+-(TiUITableViewRowProxy*)rowForIndex:(NSInteger)index section:(NSInteger*)section;
+-(NSIndexPath *)indexPathFromInt:(NSInteger)index;
+-(NSInteger)indexForIndexPath:(NSIndexPath *)path;
+
+
 @end
 
 #endif
