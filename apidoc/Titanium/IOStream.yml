@@ -6,7 +6,9 @@ extends: Titanium.Proxy
 
 methods:
   - name: read
-    returns: Number
+    returns:
+        type: Number
+        description: Number of bytes read.
     description: reads data from stream into a buffer
     parameters:
       - name: buffer
@@ -14,7 +16,9 @@ methods:
         type: Titanium.Buffer
 
   - name: read
-    returns: Number
+    returns:
+        type: Number
+        description: Number of bytes read.
     description: reads data from stream into a buffer
     parameters:
       - name: buffer
@@ -28,7 +32,9 @@ methods:
         type: Number
 
   - name: write
-    returns: Number
+    returns:
+        type: Number
+        description: Number of bytes written.
     description: writes data from buffer to stream
     parameters:
       - name: buffer
@@ -36,7 +42,9 @@ methods:
         type: Titanium.Buffer
 
   - name: write
-    returns: Number
+    returns:
+        type: Number
+        description: Number of bytes written.
     description: reads data from stream into a buffer
     parameters:
       - name: buffer
@@ -50,12 +58,16 @@ methods:
         type: Number
 
   - name: isWriteable
-    returns:  Boolean
-    description: reads true if stream is writeable, false otherwise
+    returns:
+        type: Boolean
+        description: true if stream is writeable, false otherwise
+    description: Whether stream is writeable.
 
   - name: isReadable
-    returns:  Boolean
-    description: reads true if stream is readable, false otherwise
+    description: Whether stream is readable.
+    returns:
+        type: Boolean
+        description: true if stream is readable, false otherwise
 
   - name: close
     description: closes stream and throws exception on error

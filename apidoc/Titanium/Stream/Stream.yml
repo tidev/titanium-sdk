@@ -17,7 +17,8 @@ properties:
 
 methods:
   - name: createStream
-    returns: Titanium.IOStream
+    returns:
+        type: Titanium.IOStream
     description: Creates stream from specified container.  Returns `Titanium.BufferStream` or `Titanium.BlobStream` depending on whether a Buffer or Blob is provided as the 'source' property in params.  Write and append mode only applies to Buffer as Blob is read only.
     parameters:
       - name: params
@@ -58,7 +59,8 @@ methods:
 
   - name: readAll
     description: reads all data from `Titanium.IOStream`
-    returns: Titanium.Buffer
+    returns:
+        type: Titanium.Buffer
     parameters:
       - name: sourceStream
         description: Stream to read from
@@ -111,7 +113,9 @@ methods:
 
   - name: writeStream
     description: Writes all data from input stream to output stream
-    returns: Number
+    returns:
+        type: Number
+        description: Number of bytes written
     parameters:
       - name: inputStream
         description: Stream to read from

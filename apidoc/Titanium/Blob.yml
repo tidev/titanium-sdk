@@ -8,7 +8,7 @@ methods:
   - name: imageAsThumbnail
     description: Generate a thumbnail version of an image, optionally with a border and rounded corners
     platforms: [iphone, ipad]
-    returns: Titanium.Blob
+    returns: {type: "Titanium.Blob", description: "The image thumbnail in a blob."}
     parameters:
       - name: size
         type: Number

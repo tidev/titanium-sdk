@@ -23,7 +23,9 @@ properties:
 
 methods:
   - name: createTCP
-    returns: Titanium.Network.Socket.TCP
+    returns:
+        type: Titanium.Network.Socket.TCP
+        description: New TCP socket.
     description: returns new TCP socket object, takes object containing properties list defined in `Titanium.Network.Socket.TCP`.  Some properties are only needed based on whether the socket will be a connecting socket or a listening socket.
     parameters:
       - name: params

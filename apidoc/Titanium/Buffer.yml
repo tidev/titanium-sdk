@@ -24,15 +24,19 @@ properties:
 
 methods:
   - name: append
-    returns: Number
-    description: appends `sourceBuffer` to the current buffer.  Buffer is grown dynamically to accommodate the additional data if need be.  returns the number of bytes appended
+    returns:
+        type: Number
+        description: The number of bytes appended.
+    description: appends `sourceBuffer` to the current buffer.  Buffer is grown dynamically to accommodate the additional data if need be.
     parameters:
       - name: sourceBuffer
         description: buffer to append to current buffer
         type: Titanium.Buffer
   - name: append
-    returns: Number
-    description: same as normal append except this allows appending only `sourceLength` bytes from the `sourceBuffer` starting at `sourceOffset`. returns the number of bytes appended
+    returns:
+        type: Number
+        description: The number of bytes appended.
+    description: same as normal append except this allows appending only `sourceLength` bytes from the `sourceBuffer` starting at `sourceOffset`.
     parameters:
       - name: sourceBuffer
         description: buffer to append to current buffer
@@ -44,8 +48,10 @@ methods:
         description: length of data to read from buffer
         type: Number
   - name: insert
-    returns: Number
-    description: inserts `sourceBuffer` into the current buffer at `offset`.  Buffer is grown to accommodate the new data.  returns the number of bytes inserted
+    returns:
+        type: Number
+        description: The number of bytes inserted.
+    description: inserts `sourceBuffer` into the current buffer at `offset`.  Buffer is grown to accommodate the new data.
     parameters:
       - name: sourceBuffer
         description: buffer to insert into current buffer
@@ -54,8 +60,10 @@ methods:
         description: offset to insert new buffer at
         type: Number
   - name: insert
-    returns: Number
-    description: inserts `sourceLength` amount of data starting at `sourceOffset` from `sourceBuffer` into current buffer at `offset`.  Buffer is grown to accommodate the new data.  returns the number of bytes inserted
+    returns:
+        type: Number
+        description: The number of bytes inserted.
+    description: inserts `sourceLength` amount of data starting at `sourceOffset` from `sourceBuffer` into current buffer at `offset`.  Buffer is grown to accommodate the new data.
     parameters:
       - name: sourceBuffer
         description: buffer to insert into current buffer
@@ -70,8 +78,10 @@ methods:
         description: length of data from sourceBuffer to insert
         type: Number
   - name: copy
-    returns: Number
-    description: copies the contents of `sourceBuffer` into the current buffer at `offset`.  will not expand buffer if there is not enough room in the current buffer to accomodate all the requested data from `sourceBuffer`.  returns the number of bytes copied
+    returns:
+        type: Number
+        description: The number of bytes copied.
+    description: copies the contents of `sourceBuffer` into the current buffer at `offset`.  will not expand buffer if there is not enough room in the current buffer to accomodate all the requested data from `sourceBuffer`.
     parameters:
       - name: sourceBuffer
         description: buffer to copy into current buffer
@@ -80,8 +90,10 @@ methods:
         description: offset to copy new buffer at
         type: Number
   - name: copy
-    returns: Number
-    description: copies `sourceLength` contents from `sourceBuffer` starting at `sourceOffset` into the current buffer at `offset`.  will not expand buffer if there is not enough room in the current buffer to accomodate all the request data from `sourceBuffer`.  returns the number of bytes copied
+    returns:
+        type: Number
+        description: The number of bytes copied.
+    description: copies `sourceLength` contents from `sourceBuffer` starting at `sourceOffset` into the current buffer at `offset`.  will not expand buffer if there is not enough room in the current buffer to accomodate all the request data from `sourceBuffer`.
     parameters:
       - name: sourceBuffer
         description: buffer to copy into current buffer
@@ -96,10 +108,12 @@ methods:
         description: length of data from sourceBuffer to copy
         type: Number
   - name: clone
-    returns: Titanium.Buffer
+    returns:
+        type: Titanium.Buffer
     description: create new copy of the current buffer
   - name: clone
-    returns: Titanium.Buffer
+    returns:
+        type: Titanium.Buffer
     description: Creates a new buffer from the original buffer contents starting at `offset` and ending at `offset` + `length`
     parameters:
       - name: offset
@@ -131,8 +145,10 @@ methods:
   - name: release
     description: Releases the space allocated to the buffer, sets length to 0.  This is effectively the same as `buffer.length = 0`
   - name: toString
-    returns: String
+    returns:
+        type: String
     description: Converts this buffer to a String
   - name: toBlob
-    returns: Titanium.Blob
+    returns:
+        type: Titanium.Blob
     description: Converts this buffer to a <Titanium.Blob>
