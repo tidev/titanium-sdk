@@ -196,6 +196,9 @@
 		{
 			return [scrollWrappers objectAtIndex:index];
 		}
+		//This happens when we are in the middle of setting things up.
+		//Punt because it's not there yet.
+		return nil;
 	}
 	//TODO: Generate the view?
 	return [super parentViewForChild:child];
