@@ -20,6 +20,8 @@ if os.path.exists(module_support_dir):
 # in case this is running in Python < 2.6, in which case standard python json
 # module is not available
 sitescons_dir = os.path.abspath(os.path.join(this_dir, '..', 'site_scons'))
+
+suppress_htmlerize = False
 if os.path.exists(sitescons_dir):
 	sys.path.append(sitescons_dir)
 
@@ -618,6 +620,8 @@ def tokenize_keyvalues(buf):
 	return array
 	
 def tickerize(line):
+	if suppress_htmlerize:
+		return line
 	idx = line.find('`')
 	if idx == -1:
 		return line
@@ -634,6 +638,8 @@ def tickerize(line):
 	return tickerize(line[0:idx] + content + line[idx2+1:])
 
 def anchorize(line):
+	if suppress_htmlerize:
+		return line
 	idx = line.find('[[')
 	if idx == -1:
 		return line
@@ -645,6 +651,8 @@ def anchorize(line):
 	return anchorize(result)
 	
 def htmlerize(content):
+	if suppress_htmlerize:
+		return content
 	begin = 0
 	end = len(content)
 	idx = content.find('\\')
