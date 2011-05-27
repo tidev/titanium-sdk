@@ -79,26 +79,31 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 	return controller;
 }
 
+-(void)releaseController
+{
+	[(TiViewController *)controller setProxy:nil];
+	[controller performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
+	controller = nil;
+}
+
 -(void)replaceController
 {
 	if (controller != nil) {
-		[(TiViewController *)controller setProxy:nil];
-		RELEASE_TO_NIL(controller);
+		[self releaseController];
 		[self controller];
 	}
 }
 
 -(void) dealloc {
 	RELEASE_TO_NIL(navController);
-	[(TiViewController *)controller setProxy:nil];
-	RELEASE_TO_NIL(controller);
+	[self releaseController];
 	
 	[super dealloc];
 }
 
 -(void)_destroy
 {
-	[(TiViewController*)controller setProxy:nil];
+	[self releaseController];
 
 	RELEASE_TO_NIL(tab);
 	RELEASE_TO_NIL(reattachWindows);
@@ -233,8 +238,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	}
 	
 	RELEASE_TO_NIL(navController);
-	[(TiViewController *)controller setProxy:nil];
-	RELEASE_TO_NIL(controller);
+	[self releaseController];
 	
 	[self windowDidClose];
 	[self forgetSelf];
@@ -310,8 +314,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 // to a tab or nil to disassociate
 -(void)_associateTab:(UIViewController*)controller_ navBar:(UINavigationController*)navbar_ tab:(TiProxy<TiTab>*)tab_ 
 {
-	[(TiViewController *)controller setProxy:nil];
-	RELEASE_TO_NIL(controller);
+	[self releaseController];
 	RELEASE_TO_NIL(navController);
 	RELEASE_TO_NIL(tab);
 	
