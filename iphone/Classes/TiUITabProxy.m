@@ -73,6 +73,18 @@
 
 -(void)setTabGroup:(TiUITabGroupProxy*)proxy
 {
+	if (proxy == tabGroup)
+	{
+		return;
+	}
+	for (TiViewController * thisController in [controller viewControllers])
+	{
+		if (![thisController isKindOfClass:[TiViewController class]])
+		{
+			continue;
+		}
+		[(TiWindowProxy *)[thisController proxy] _associateTab:nil navBar:nil tab:nil];
+	}
 	RELEASE_TO_NIL(tabGroup);
 	tabGroup = [proxy retain];
 }
