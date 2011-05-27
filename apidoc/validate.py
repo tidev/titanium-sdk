@@ -184,6 +184,8 @@ def validateType(typeDoc):
 
 def validateTDoc(tdocPath):
 	tdocTypes = [type for type in yaml.load_all(codecs.open(tdocPath, 'r', 'utf8').read())]
+	if options.parseonly:
+		return
 
 	for type in tdocTypes:
 		validateType(type)
@@ -241,7 +243,7 @@ def validateDir(dir):
 				try:
 					validateTDoc(absolutePath)
 				except Exception, e:
-					printError("Error parsing, %s:" % str(e))
+					printError("Error parsing %s: %s:" % (os.path.join(root,file), str(e)))
 	validateRefs()
 
 def printStatus(dir=None):
@@ -259,6 +261,8 @@ def main(args):
 		default=None, help='directory to recursively validate *.yml TDoc2 files')
 	parser.add_option('-f', '--file', dest='file',
 		default=None, help='specific TDoc2 file to validate (overrides -d/--dir)')
+	parser.add_option('-p', '--parseonly', dest='parseonly',
+		action='store_true', default=False, help='only check yaml parse-ability')
 	global options
 	(options, args) = parser.parse_args(args)
 
