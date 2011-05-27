@@ -29,6 +29,7 @@
 }
 
 -(void)manageRotation;
+-(UIScrollView*)scrollview;
 
 @end
 
