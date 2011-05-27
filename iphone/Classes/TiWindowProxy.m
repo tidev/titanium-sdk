@@ -212,6 +212,10 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	}
 	VerboseLog(@"%@ (modal:%d)%@",self,modalFlag,CODELOCATION);
 	[[[TiApp app] controller] didHideViewController:controller animated:YES];
+	if ([self _hasListeners:@"close"])
+	{
+		[self fireEvent:@"close" withObject:nil];
+	}
 
 	[self forgetProxy:closeAnimation];
 	RELEASE_TO_NIL(closeAnimation);
@@ -602,12 +606,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	
 	// hold ourself during close
 	[[self retain] autorelease];
-	
-	if ([self _hasListeners:@"close"])
-	{
-		[self fireEvent:@"close" withObject:nil];
-	}
-	
+
 	[[[TiApp app] controller] willHideViewController:controller animated:YES];
 	VerboseLog(@"%@ (modal:%d)%@",self,modalFlag,CODELOCATION);
 	if ([self _handleClose:args])
