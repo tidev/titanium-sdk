@@ -204,8 +204,6 @@
 		{
 			return [scrollWrappers objectAtIndex:index];
 		}
-		NSLog(@"[ERROR] Mismatch on scroll wrappers! %@",self);
-		return nil;
 	}
 	//TODO: Generate the view?
 	return [super parentViewForChild:child];
