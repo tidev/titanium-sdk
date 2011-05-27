@@ -93,7 +93,8 @@ def read_module_properties(dir):
 def parse_xcconfig(xcconfig, moduleId, variables):
 	module_xcconfig = open(xcconfig)
 	new_xcconfig = ''
-	
+	local_variables = {}
+    	
 	prefix = moduleId.upper().replace('.','_')
 	for line in module_xcconfig:
 		# Strip comments
@@ -101,23 +102,41 @@ def parse_xcconfig(xcconfig, moduleId, variables):
 		if comment != -1:
 			line = line[0:comment]
 		
-		# Generate new varname
-		splitline = line.split('=', 1)
-		if len(splitline) >= 2:
-			print splitline
-			(varname, value) = splitline[0:2]
-			
+		# Generate new varname / value pairings
+		# The regular expression parses a valid line into components
+		#   <var>=<value>
+		#   <var>[<key>=<keyvalue>]=<value>
+		#   e.g.
+		#     OTHER_LDFLAGS=-framework EventKit
+		#     OTHER_LDFLAGS[sdk=iphoneos4*]=-liconv
+		splitline = re.split('(([^\[=]+)(\[[^\]]+\])?) *=? *(.+)', line)
+		
+		if len(splitline) >= 5:
+			varname = splitline[1]
+			value = splitline[4]
+					
 			name = prefix + '_' + varname.strip()
-			
-			# Add new varname to the list
-			if not varname in variables:
-				variables[varname] = [name]
-			else:
-				variables[varname].append(name)
-			
+			name = re.sub(r'[^\w]', '_', name)
+			local_variables[varname] = name
 			new_xcconfig += name + '=' + value + '\n'
 			
 	module_xcconfig.close()
+    
+	# Update any local variable references with new varname
+	# and add variables to the global variables map
+	for (varname, name) in local_variables.iteritems():
+		source = '$(%s)' % varname
+		target = '$(%s)' % name
+		new_xcconfig = new_xcconfig.replace(source,target)    
+	
+		# Add new varname to the list
+		if not varname in variables:
+			variables[varname] = [name]
+		else:
+			variables[varname].append(name)
+	
+	new_xcconfig += '\n'
+	
 	return new_xcconfig
 		
 #
@@ -228,21 +247,11 @@ class Compiler(object):
 				xcfile = module.get_resource('module.xcconfig')
 				if os.path.exists(xcfile):
 					xcconfig_contents = parse_xcconfig(xcfile, module_id, variables)
-					xcconfig_path = os.path.join(self.iphone_dir, module_id + '.xcconfig')
-					module_xcconfig = open(xcconfig_path, 'w')
-					module_xcconfig.write(xcconfig_contents)
-					module_xcconfig.close()
-					
-					xcconfig_c+="#include \"%s\"\n" % xcconfig_path
+					xcconfig_c += xcconfig_contents
 				xcfile = os.path.join(self.project_dir,'modules','iphone',"%s.xcconfig" % module_name)
 				if os.path.exists(xcfile):
 					xcconfig_contents = parse_xcconfig(xcfile, module_id, variables)
-					xcconfig_path = os.path.join(self.iphone_dir, module_id + '.xcconfig')
-					module_xcconfig = open(xcconfig_path, 'w')
-					module_xcconfig.write(xcconfig_contents)
-					module_xcconfig.close()
-					
-					xcconfig_c+="#include \"%s\"\n" % xcconfig_path
+					xcconfig_c += xcconfig_contents
 				mods.write("	[modules addObject:[NSDictionary dictionaryWithObjectsAndKeys:@\"%s\",@\"name\",@\"%s\",@\"moduleid\",@\"%s\",@\"version\",@\"%s\",@\"guid\",@\"%s\",@\"licensekey\",nil]];\n" % (module_name,module_id,module_version,module_guid,module_licensekey));
 			mods.write("	return modules;\n")	
 			mods.write("}\n")
