@@ -32,7 +32,10 @@
 
 - (void) dealloc
 {
-	RELEASE_TO_NIL(textWidgetView);
+	[textWidgetView performSelectorOnMainThread:@selector(removeFromSuperview) withObject:nil waitUntilDone:YES];
+	[textWidgetView	performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
+	//Because text fields MUST be played with on main thread, we cannot release if there's the chance we're on a BG thread
+	textWidgetView = nil;	//Wasted action, yes.
 	[super dealloc];
 }
 
