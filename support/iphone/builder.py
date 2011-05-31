@@ -974,7 +974,7 @@ def main(args):
 
 				# compile localization files
 				# Using app_name here will cause the locale to be put in the WRONG bundle!!
-				localecompiler.LocaleCompiler(name,project_dir,devicefamily,command).compile()
+				localecompiler.LocaleCompiler(name,project_dir,devicefamily,deploytype).compile()
 				
 				# copy any module resources
 				if len(module_asset_dirs)>0:

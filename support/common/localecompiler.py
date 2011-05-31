@@ -32,9 +32,11 @@ class LocaleCompiler(object):
 		
 	def get_ios_dir(self):
 		if self.outdir!=None: return self.outdir
-		if self.mode == 'simulator':
+		if self.mode == 'development': # simulator
 			return os.path.join(self.iphone_dir,'Debug-iphonesimulator','%s.app' % self.name)
-		else:
+		elif self.mode == 'test': # adhoc install
+			return os.path.join(self.iphone_dir,'Debug-iphoneos','%s.app' % self.name)
+		else: # distribution
 			return os.path.join(self.iphone_dir,'Release-iphoneos','%s.app' % self.name)
 
 	def getText(self,nodelist):
@@ -74,7 +76,7 @@ class LocaleCompiler(object):
 			value = value.replace("%s",'%@')
 			f.write(u'"%s" = "%s";\n' % (name,value))
 		f.close()
-		if self.mode!='simulator': #only compile if not simulator
+		if self.mode!='development': #only compile if not simulator
 			os.system("/usr/bin/plutil -convert binary1 \"%s\"" % locale_file)
 		print "[DEBUG] compiled ios file: %s" % locale_file
 	
