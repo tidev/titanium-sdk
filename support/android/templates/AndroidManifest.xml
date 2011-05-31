@@ -19,6 +19,7 @@
             android:label="${config['appname']}"
 			android:theme="@style/Theme.Titanium"
             android:configChanges="keyboardHidden|orientation"
+            android:alwaysRetainTaskState="true"
         >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
