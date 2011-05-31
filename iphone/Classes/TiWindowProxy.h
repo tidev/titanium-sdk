@@ -99,6 +99,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args);
 @property(nonatomic,readwrite,retain)	UIViewController *controller;
 @property(nonatomic,readwrite,retain)	UINavigationController *navController;
 
+-(void)releaseController;
 -(void)replaceController;
 -(UIWindow*)_window;
 -(BOOL)_handleOpen:(id)args;
