@@ -511,6 +511,7 @@ def main(args):
 			output_dir = os.path.expanduser(dequote(args[8].decode("utf-8")))
 			if argc > 9:
 				devicefamily = dequote(args[9].decode("utf-8"))
+			print "[INFO] Switching to production mode for distribution"
 			deploytype = 'production'
 		elif command == 'simulator':
 			link_version = check_iphone_sdk(iphone_version)
@@ -547,6 +548,7 @@ def main(args):
 					debughost=None
 				else:
 					debughost,debugport = debughost.split(":")
+			target = 'Debug'
 			deploytype = 'test'
 		
 		# setup up the useful directories we need in the script
