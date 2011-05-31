@@ -191,14 +191,19 @@
 	
 	if (index != NSNotFound)
 	{
-		NSArray * scrollWrappers = [[[self view] scrollview] subviews];
+		TiUIScrollableView * ourView = (TiUIScrollableView *)[self view];
+		NSArray * scrollWrappers = [[ourView scrollview] subviews];
 		if (index < [scrollWrappers count])
 		{
 			return [scrollWrappers objectAtIndex:index];
 		}
-		//This happens when we are in the middle of setting things up.
-		//Punt because it's not there yet.
-		return nil;
+		//Hideous hack is hideous. This should stave off the bugs until layout is streamlined
+		[ourView refreshScrollView:[[self view] bounds] readd:YES];
+		scrollWrappers = [[ourView scrollview] subviews];
+		if (index < [scrollWrappers count])
+		{
+			return [scrollWrappers objectAtIndex:index];
+		}
 	}
 	//TODO: Generate the view?
 	return [super parentViewForChild:child];

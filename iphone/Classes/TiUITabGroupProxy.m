@@ -27,6 +27,7 @@
 	for (id thisTab in tabs)
 	{
 		[thisTab setParentOrientationController:nil];
+		[thisTab setTabGroup:nil];
 	}
 	RELEASE_TO_NIL(tabs);
 	[super dealloc];
@@ -111,16 +112,24 @@
 
 	for (id thisTab in tabs)
 	{
-		[thisTab setParentOrientationController:nil];
-		[self forgetProxy:thisTab];
+		if (![newTabs containsObject:thisTab])
+		{
+			[thisTab setParentOrientationController:nil];
+			[thisTab setTabGroup:nil];
+			[self forgetProxy:thisTab];
+		}
+	}
+	for (id thisTab in newTabs)
+	{
+		if (![tabs containsObject:thisTab])
+		{
+			[self rememberProxy:thisTab];
+			[thisTab setTabGroup:self];
+			[thisTab setParentOrientationController:self];
+		}
 	}
 	[tabs release];
 	tabs = [newTabs mutableCopy];
-	for (id thisTab in tabs)
-	{
-		[self rememberProxy:thisTab];
-		[thisTab setParentOrientationController:self];
-	}
 
 	[self replaceValue:tabs forKey:@"tabs" notification:YES];
 }

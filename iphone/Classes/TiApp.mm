@@ -293,6 +293,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
             [self setDebugMode:YES];
             TiDebuggerStart(host,[port intValue]);
         }
+        [params release];
     }
 	
 	kjsBridge = [[KrollBridge alloc] initWithHost:self];
