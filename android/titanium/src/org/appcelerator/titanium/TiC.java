@@ -33,6 +33,7 @@ public class TiC
 	public static final String EVENT_HEADING = "heading";
 	public static final String EVENT_LOAD = "load";
 	public static final String EVENT_LOCATION = "location";
+	public static final String EVENT_LONG_CLICK = "longclick";
 	public static final String EVENT_OPEN = "open";
 	public static final String EVENT_PAUSE = "pause";
 	public static final String EVENT_PROPERTY_CLICKSOURCE = "clicksource";
@@ -128,6 +129,7 @@ public class TiC
 	public static final String PROPERTY_CONTENT_VIEW = "contentView";
 	public static final String PROPERTY_COUNTRY = "country";
 	public static final String PROPERTY_COUNTRY_CODE = "countryCode";
+	public static final String PROPERTY_CUSTOM_TITLE_VIEW = "customTitle";
 	public static final String PROPERTY_DATA = "data";
 	public static final String PROPERTY_DEFAULT_IMAGE = "defaultImage";
 	public static final String PROPERTY_DEFAULTS = "defaults";
@@ -186,9 +188,11 @@ public class TiC
 	public static final String PROPERTY_LOCATION = "location";
 	public static final String PROPERTY_LONGITUDE = "longitude";
 	public static final String PROPERTY_LONGITUDE_DELTA = "longitudeDelta";
+	public static final String PROPERTY_LONG_CLICK = "longClick";
 	public static final String PROPERTY_MAGNETIC_HEADING = "magneticHeading";
 	public static final String PROPERTY_MAP_TYPE = "mapType";
 	public static final String PROPERTY_MENU = EVENT_PROPERTY_MENU;
+	public static final String PROPERTY_MAX_LINES = "maxLines";
 	public static final String PROPERTY_MESSAGE = "message";
 	public static final String PROPERTY_MIN_ROW_HEIGHT = "minRowHeight";
 	public static final String PROPERTY_MODAL = "modal";
@@ -199,6 +203,7 @@ public class TiC
 	public static final String PROPERTY_ON_PREPARE_OPTIONS_MENU = "onPrepareOptionsMenu";
 	public static final String PROPERTY_OPACITY = "opacity";
 	public static final String PROPERTY_OPTIONS = "options";
+	public static final String PROPERTY_OPTIONS_STYLE = "optionsStyle";
 	public static final String PROPERTY_ORDER = "order";
 	public static final String PROPERTY_PACKAGE_NAME = "packageName";
 	public static final String PROPERTY_PARENT = "parent";
@@ -248,6 +253,7 @@ public class TiC
 	public static final String PROPERTY_TIME = "time";
 	public static final String PROPERTY_TIMESTAMP = "timestamp";
 	public static final String PROPERTY_TITLE = "title";
+	public static final String PROPERTY_TITLE_CONTROL = "titleControl";
 	public static final String PROPERTY_TITLEID = "titleid";
 	public static final String PROPERTY_TOP = "top";
 	public static final String PROPERTY_TOUCH_ENABLED = "touchEnabled";

@@ -36,6 +36,7 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ListView;
@@ -49,7 +50,8 @@ public class TiTableView extends FrameLayout
 
 	//TODO make this configurable
 	protected static final int MAX_CLASS_NAMES = 32;
-
+    
+	private String clickType = "click";
 	private TableViewModel viewModel;
 	private ListView listView;
 	private TTVListAdapter adapter;
@@ -68,6 +70,7 @@ public class TiTableView extends FrameLayout
 
 	public interface OnItemClickedListener {
 		public void onClick(KrollDict item);
+		public boolean onLongClick(KrollDict item);
 	}
 
 	class TTVListAdapter extends BaseAdapter {
@@ -323,6 +326,7 @@ public class TiTableView extends FrameLayout
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				clickType = "click";
 				if (itemClickListener != null) {
 					if (!(view instanceof TiBaseTableViewItem)) {
 						return;
@@ -330,10 +334,31 @@ public class TiTableView extends FrameLayout
 					if (TiTableView.this.proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
 						position -= 1;
 					}
-					rowClicked((TiBaseTableViewItem)view, position);
+					rowClicked((TiBaseTableViewItem)view, position, clickType);
 				}
 			}
 		});
+		if (proxy.getProperties().containsKey(TiC.PROPERTY_LONG_CLICK)) {
+			if (TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_LONG_CLICK))) {
+				listView.setOnItemLongClickListener(new OnItemLongClickListener() {
+						public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+							clickType = "longclick";
+							if (itemClickListener != null) {
+								if (!(view instanceof TiBaseTableViewItem)) {
+									return false;
+								}
+								if (TiTableView.this.proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
+									position -= 1;
+								}
+								rowClicked((TiBaseTableViewItem)view, position, clickType);
+								return true;
+							}
+							return false;
+						}
+					});
+				}
+			};
+ 
 		addView(listView);
 	}
 
@@ -349,7 +374,7 @@ public class TiTableView extends FrameLayout
 		return viewModel.getViewModel().get(adapter.index.get(position));
 	}
 
-	protected void rowClicked(TiBaseTableViewItem rowView, int position) {
+	protected void rowClicked(TiBaseTableViewItem rowView, int position, String type) {
 		String viewClicked = rowView.getLastClickedViewName();
 		Item item = getItemAtPosition(position);
 		KrollDict event = new KrollDict();
@@ -360,12 +385,24 @@ public class TiTableView extends FrameLayout
 		event.put(TiC.EVENT_PROPERTY_SEARCH_MODE, adapter.isFiltered());
 
 		if(item.proxy != null && item.proxy instanceof TableViewRowProxy) {
-			TableViewRowProxy rp = (TableViewRowProxy) item.proxy;
-			if (rp.hasListeners(TiC.EVENT_CLICK)) {
-				rp.fireEvent(TiC.EVENT_CLICK, event);
+			if (type.equals("click")) {
+				TableViewRowProxy rp = (TableViewRowProxy) item.proxy;
+				if (rp.hasListeners(TiC.EVENT_CLICK)) {
+					rp.fireEvent(TiC.EVENT_CLICK, event);
+				}
+			} else {
+				TableViewRowProxy rp = (TableViewRowProxy) item.proxy;
+				if (rp.hasListeners(TiC.EVENT_LONG_CLICK)) {
+					rp.fireEvent(TiC.EVENT_LONG_CLICK, event);
+				}
 			}
+			
 		}
-		itemClickListener.onClick(event);
+		if (type == "click") {
+			itemClickListener.onClick(event);
+		} else {
+			itemClickListener.onLongClick(event);
+		}
 	}
 
 	private View layoutHeaderOrFooter(TiViewProxy viewProxy)

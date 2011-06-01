@@ -761,6 +761,7 @@ public abstract class TiUIView
 		mTouchView = new WeakReference<View>(touchable);
 		final GestureDetector detector = new GestureDetector(proxy.getTiContext().getActivity(),
 			new SimpleOnGestureListener() {
+			    
 				@Override
 				public boolean onDoubleTap(MotionEvent e) {
 					boolean handledTap = proxy.fireEvent(TiC.EVENT_DOUBLE_TAP, dictFromEvent(e));
@@ -781,6 +782,7 @@ public abstract class TiUIView
 					// called via Handler in GestureDetector. <-- See its Java source.
 					return handledTap;// || handledClick;
 				}
+			
 			});
 
 		touchable.setOnTouchListener(new OnTouchListener() {
