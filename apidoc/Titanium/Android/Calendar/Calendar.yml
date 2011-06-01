@@ -1,0 +1,208 @@
+---
+name: Titanium.Android.Calendar
+description: The Android.Calendar module provides proxies and methods for accessing the native Android calendar functionality.
+extends: Titanium.Module
+platforms: [android]
+since: "1.5"
+methods:
+  - name: getCalendarById
+    description: Returns the <Titanium.Android.Calendar.Calendar> object specified by the given integer id.
+    returns:
+        type: Titanium.Android.Calendar.Calendar
+    parameters:
+      - name: id
+        description: The system id of the calendar to be retrieved.
+        type: Number
+properties:
+  - name: METHOD_ALERT
+    description: constant for the <Titanium.Android.Calendar.Reminder> method property.
+    type: Number
+  - name: METHOD_DEFAULT
+    description: constant for the <Titanium.Android.Calendar.Reminder> method property.
+    type: Number
+  - name: METHOD_EMAIL
+    description: constant for the <Titanium.Android.Calendar.Reminder> method property.
+    type: Number
+  - name: METHOD_SMS
+    description: constant for the <Titanium.Android.Calendar.Reminder> method property.
+    type: Number
+  - name: STATE_DISMISSED
+    description: constant for the <Titanium.Android.Calendar.Alert> state property.
+    type: Number
+  - name: STATE_FIRED
+    description: constant for the <Titanium.Android.Calendar.Alert> state property.
+    type: Number
+  - name: STATE_SCHEDULED
+    description: constant for the <Titanium.Android.Calendar.Alert> state property.
+    type: Number
+  - name: STATUS_CANCELED
+    description: constant for the <Titanium.Android.Calendar.Event> status property.
+    type: Number
+  - name: STATUS_CONFIRMED
+    description: constant for the <Titanium.Android.Calendar.Event> status property.
+    type: Number
+  - name: STATUS_TENTATIVE
+    description: constant for the <Titanium.Android.Calendar.Event> status property.
+    type: Number
+  - name: VISIBILITY_CONFIDENTIAL
+    description: constant for the <Titanium.Android.Calendar.Event> visibility property.
+    type: Number
+  - name: VISIBILITY_DEFAULT
+    description: constant for the <Titanium.Android.Calendar.Event> visibility property.
+    type: Number
+  - name: VISIBILITY_PRIVATE
+    description: constant for the <Titanium.Android.Calendar.Event> visibility property.
+    type: Number
+  - name: VISIBILITY_PUBLIC
+    description: constant for the <Titanium.Android.Calendar.Event> visibility property.
+    type: Number
+  - name: allAlerts
+    description: Array of <Titanium.Android.Calendar.Alert> objects representing all alerts.
+    type: Array<Titanium.Android.Calendar.Alert>
+  - name: allCalendars
+    description: Array of <Titanium.Android.Calendar.Calendar> objects representing all the calendars known to the native calendar app.
+    type: Array<Titanium.Android.Calendar.Calendar>
+  - name: selectableCalendars
+    description: Array of <Titanium.Android.Calendar.Calendar> objects representing calendars selected within the native calendar app. This may be a subset of allCalendars; for example, the native calendar application may know -- via your Gooogle account -- about calendars that you have access to but have not selected to be displayed in the native calendar app.
+    type: Array<Titanium.Android.Calendar.Calendar>
+notes: The API supports retrieving information about existing events and creating new events.  However, modifying or deleting existing events is not yet supported.  Additionally, recurring events are not yet supported.
+examples: |
+    All Calendars vs Selectable Calendars
+    
+    
+    Prints the names of all of your calendars known to Android, then prints the names of calendars that you have selected in the native Android calendar application.  The latter could be a subset, because (for example) Android -- via your Google account -- may know about more calendars that you have access to but that you have not selected inside the calendar app.
+    
+        function showCalendars(calendars) {
+            for (var i = 0; i < calendars.length; i++) {
+                Ti.API.info(calendars[i].name);
+            }
+        }
+        
+        Ti.API.info('ALL CALENDARS:');
+        showCalendars(Ti.Android.Calendar.allCalendars);
+        Ti.API.info('SELECTABLE CALENDARS:');
+        showCalendars(Ti.Android.Calendar.selectableCalendars);
+    
+    Events in a year
+    
+    
+    This example will look at each event in a year for a given calendar.  Just set the desired calendar's id and the desired year to see it in action.  You can see calendar ids by running the example above.
+    
+        var win = Ti.UI.currentWindow;
+        var sv = Ti.UI.createScrollView();
+        win.add(sv);
+        
+        var console = Ti.UI.createLabel({
+            backgroundColor: 'white', color: 'black', text: 'generating info...'
+        });
+        sv.add(console);
+        
+        var consoleString = '';
+        
+        function print(s) {
+            Ti.API.info(s);
+            if (consoleString.length > 0) {
+                consoleString = consoleString + '\n';
+            }
+            consoleString = consoleString + s;
+        }
+        
+        
+        // SHOW ALL EVENTS FOR 2010 FOR ONE CALENDAR
+        var YEAR = 2010;
+        var TEST_WITH_THIS_CAL_ID = 3;
+        var calendar = Ti.Android.Calendar.getCalendarById(TEST_WITH_THIS_CAL_ID);
+        
+        function printReminder(r) {
+            var typetext = '[method unknown]';
+            if (r.method == Ti.Android.Calendar.METHOD_EMAIL) {
+                typetext = 'Email';
+            } else if (r.method == Ti.Android.Calendar.METHOD_SMS) {
+                typetext = 'SMS';
+            } else if (r.method == Ti.Android.Calendar.METHOD_ALERT) {
+                typetext = 'Alert';
+            } else if (r.method == Ti.Android.Calendar.METHOD_DEFAULT) {
+                typetext = '[default reminder method]';
+            }
+            print(typetext + ' reminder to be sent ' + r.minutes + ' minutes before the event');
+        }
+        
+        function printAlert(a) {
+            print('Alert id ' + a.id + ' begin ' + a.begin + '; end ' + a.end + '; alarmTime ' + a.alarmTime + '; minutes ' + a.minutes);
+        }
+        
+        function printEvent(event) {
+            if (event.allDay) {
+                print('Event: ' + event.title + '; ' + event.begin.toLocaleDateString() + ' (all day)');
+            } else {
+                print('Event: ' + event.title + '; ' + event.begin.toLocaleDateString() + ' ' + event.begin.toLocaleTimeString()+ '-' + event.end.toLocaleTimeString());
+            }
+        
+            var reminders = event.reminders;
+            if (reminders && reminders.length) {
+                print('There is/are ' + reminders.length + ' reminder(s)');
+                for (var i = 0; i < reminders.length; i++) {
+                    printReminder(reminders[i]);
+                }
+            }
+        
+            print('hasAlarm? ' + event.hasAlarm);
+            var alerts = event.alerts;
+            if (alerts && alerts.length) {
+                for (i = 0; i < alerts.length; i++) {
+                    printAlert(alerts[i]);
+                }
+            }
+        
+            var status = event.status;
+            if (status == Ti.Android.Calendar.STATUS_TENTATIVE) {
+                print('This event is tentative');
+            }
+            if (status == Ti.Android.Calendar.STATUS_CONFIRMED) {
+                print('This event is confirmed');
+            }
+            if (status == Ti.Android.Calendar.STATUS_CANCELED) {
+                print('This event was canceled');
+            }
+        }
+        
+        var events = calendar.getEventsInYear(YEAR);
+        if (events && events.length) {
+            print(events.length + ' event(s) in ' + YEAR);
+            print('');
+            for (var i = 0; i < events.length; i++) {
+                printEvent(events[i]);
+                print('');
+            }
+        } else {
+            print('No events on 2010-12-6');
+        }
+        
+        console.text = consoleString;
+    
+    Create an Event and Reminder
+    
+    
+    This example creates an event and adds an e-mail reminder for 10 minutes before the event.
+    
+        var CALENDAR_TO_USE = 3;
+        var calendar = Ti.Android.Calendar.getCalendarById(CALENDAR_TO_USE);
+        
+        // Create the event
+        var eventBegins = new Date(2010, 11, 26, 12, 0, 0);
+        var eventEnds = new Date(2010, 11, 26, 14, 0, 0);
+        var details = {
+            title: 'Do some stuff',
+            description: "I'm going to do some stuff at this time.",
+            begin: eventBegins,
+            end: eventEnds
+        };
+        
+        var event = calendar.createEvent(details);
+        
+        // Now add a reminder via e-mail for 10 minutes before the event.
+        var reminderDetails = {
+            minutes: 10,
+            method: Ti.Android.Calendar.METHOD_EMAIL
+        };
+        event.createReminder(reminderDetails);

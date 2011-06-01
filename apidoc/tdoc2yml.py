@@ -16,7 +16,7 @@ except:
 
 types = []
 doc_dir = os.path.abspath(os.path.dirname(__file__))
-OUTPUT_DIR_OVERRIDE = "/Users/bill/tmp/yml"
+OUTPUT_DIR_OVERRIDE = None
 skip_methods = (
 	'addEventListener',
 	'removeEventListener',
@@ -246,6 +246,11 @@ def convert_type(t):
 		convert_properties(t, f)
 		if 'remarks' in t and len(t['remarks'])>0:
 			wl(f, 'notes: %s' % prepare_free_text(t['remarks'][0].strip()))
+		if 'examples' in t and len(t['examples'])>0:
+			examples = ''
+			for example in t['examples']:
+				examples += example['name'] + '\n\n' + example['code']
+			wl(f, 'examples: %s' % prepare_free_text(examples))
 
 	finally:
 		f.close()

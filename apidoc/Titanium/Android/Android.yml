@@ -1,0 +1,603 @@
+---
+name: Titanium.Android
+description: The top level Android module. <Ti.Android.currentActivity> provides each context an Activity. This object cannot be created directly.
+extends: Titanium.Module
+platforms: [android]
+since: "1.5"
+methods:
+  - name: createBroadcastIntent
+    description: Create a <Titanium.Android.Intent> to be used to start a Broadcast.
+    returns:
+        type: Titanium.Android.Intent
+  - name: createIntent
+    description: Create a <Titanium.Android.Intent>. Used to start other Activities and for marshaling data.
+    returns:
+        type: Titanium.Android.Intent
+  - name: createIntentChooser
+    description: Display chooser interface to allow selection of desired target.
+    returns:
+        type: Titanium.Android.Intent
+  - name: createNotification
+    description: Crate a <Titanium.Android.Notification>. Used to notify the user of an event.
+    returns:
+        type: Titanium.Android.Notification
+    parameters:
+      - name: options
+        description: Options dictionary
+        type: Titanium.Android.Notification
+  - name: createPendingIntent
+    description: Create a <Titanium.Android.PendingIntent> to be used inside a <Titanium.Android.Notification>
+    returns:
+        type: Titanium.Android.PendingIntent
+    parameters:
+      - name: intent
+        description: The Intent that will be executed
+        type: Titanium.Android.Intent
+      - name: flags
+        default: 0
+        optional: true
+        description: |
+            Can be any of <Titanium.Android.FLAG_CANCEL_CURRENT>, <Titanium.Android.FLAG_NO_CREATE>, <Titanium.Android.FLAG_ONE_SHOT>, <Titanium.Android.FLAG_UPDATE_CURRENT>
+        type: Number
+  - name: createService
+    description: Create a <Titanium.Android.Service> so you can start/stop it and listen for events from it.
+    returns:
+        type: Titanium.Android.Service
+    parameters:
+      - name: intent
+        description: An Intent created with <Titanium.Android.createServiceIntent> which specifies the service to be instantiated.
+        type: Titanium.Android.Intent
+  - name: createServiceIntent
+    description: Create an <Titanium.Android.Intent> to be used to start a Service.
+    returns:
+        type: Titanium.Android.Intent
+    parameters:
+      - name: options
+        description: Options dictionary -- pass in a `url` option to specify the path to a javascript-based service you create.
+        type: Object
+  - name: isServiceRunning
+    description: Check on state of Service.
+    returns:
+        type: Boolean
+    parameters:
+      - name: intent
+        description: An Intent created with <Titanium.Android.createServiceIntent> which specifies the service to check.
+        type: Titanium.Android.Intent
+  - name: startService
+    description: Start a simple service
+    parameters:
+      - name: intent
+        description: An Intent created with <Titanium.Android.createServiceIntent> which specifies the service to start.
+        type: Titanium.Android.Intent
+  - name: stopService
+    description: Stop a simple service that was started with `startService`.
+    parameters:
+      - name: intent
+        description: An Intent created with <Titanium.Android.createServiceIntent> which specifies the service to stop.
+        type: Titanium.Android.Intent
+properties:
+  - name: ACTION_AIRPLANE_MODE_CHANGED
+    description: 
+    type: String
+  - name: ACTION_ALL_APPS
+    description: 
+    type: String
+  - name: ACTION_ANSWER
+    description: 
+    type: String
+  - name: ACTION_ATTACH_DATA
+    description: 
+    type: String
+  - name: ACTION_BATTERY_CHANGED
+    description: 
+    type: String
+  - name: ACTION_BATTERY_LOW
+    description: 
+    type: String
+  - name: ACTION_BATTERY_OKAY
+    description: 
+    type: String
+  - name: ACTION_BOOT_COMPLETED
+    description: 
+    type: String
+  - name: ACTION_BUG_REPORT
+    description: 
+    type: String
+  - name: ACTION_CALL
+    description: 
+    type: String
+  - name: ACTION_CALL_BUTTON
+    description: 
+    type: String
+  - name: ACTION_CAMERA_BUTTON
+    description: 
+    type: String
+  - name: ACTION_CHOOSER
+    description: 
+    type: String
+  - name: ACTION_CLOSE_SYSTEM_DIALOGS
+    description: 
+    type: String
+  - name: ACTION_CONFIGURATION_CHANGED
+    description: 
+    type: String
+  - name: ACTION_CREATE_SHORTCUT
+    description: 
+    type: String
+  - name: ACTION_DATE_CHANGED
+    description: 
+    type: String
+  - name: ACTION_DEFAULT
+    description: 
+    type: String
+  - name: ACTION_DELETE
+    description: 
+    type: String
+  - name: ACTION_DEVICE_STORAGE_LOW
+    description: 
+    type: String
+  - name: ACTION_DIAL
+    description: 
+    type: String
+  - name: ACTION_EDIT
+    description: 
+    type: String
+  - name: ACTION_GET_CONTENT
+    description: 
+    type: String
+  - name: ACTION_GTALK_SERVICE_CONNECTED
+    description: 
+    type: String
+  - name: ACTION_GTALK_SERVICE_DISCONNECTED
+    description: 
+    type: String
+  - name: ACTION_HEADSET_PLUG
+    description: 
+    type: String
+  - name: ACTION_INPUT_METHOD_CHANGED
+    description: 
+    type: String
+  - name: ACTION_INSERT
+    description: 
+    type: String
+  - name: ACTION_INSERT_OR_EDIT
+    description: 
+    type: String
+  - name: ACTION_MAIN
+    description: 
+    type: String
+  - name: ACTION_MANAGE_PACKAGE_STORAGE
+    description: 
+    type: String
+  - name: ACTION_MEDIA_BAD_REMOVAL
+    description: 
+    type: String
+  - name: ACTION_MEDIA_BUTTON
+    description: 
+    type: String
+  - name: ACTION_MEDIA_CHECKING
+    description: 
+    type: String
+  - name: ACTION_MEDIA_EJECT
+    description: 
+    type: String
+  - name: ACTION_MEDIA_MOUNTED
+    description: 
+    type: String
+  - name: ACTION_MEDIA_NOFS
+    description: 
+    type: String
+  - name: ACTION_MEDIA_REMOVED
+    description: 
+    type: String
+  - name: ACTION_MEDIA_SCANNER_FINISHED
+    description: 
+    type: String
+  - name: ACTION_MEDIA_SCANNER_SCAN_FILE
+    description: 
+    type: String
+  - name: ACTION_MEDIA_SCANNER_STARTED
+    description: 
+    type: String
+  - name: ACTION_MEDIA_SHARED
+    description: 
+    type: String
+  - name: ACTION_MEDIA_UNMOUNTABLE
+    description: 
+    type: String
+  - name: ACTION_MEDIA_UNMOUNTED
+    description: 
+    type: String
+  - name: ACTION_NEW_OUTGOING_CALL
+    description: 
+    type: String
+  - name: ACTION_PACKAGE_ADDED
+    description: 
+    type: String
+  - name: ACTION_PACKAGE_CHANGED
+    description: 
+    type: String
+  - name: ACTION_PACKAGE_DATA_CLEARED
+    description: 
+    type: String
+  - name: ACTION_PACKAGE_INSTALL
+    description: 
+    type: String
+  - name: ACTION_PACKAGE_REMOVED
+    description: 
+    type: String
+  - name: ACTION_PACKAGE_REPLACED
+    description: 
+    type: String
+  - name: ACTION_PACKAGE_RESTARTED
+    description: 
+    type: String
+  - name: ACTION_PICK
+    description: 
+    type: String
+  - name: ACTION_PICK_ACTIVITY
+    description: 
+    type: String
+  - name: ACTION_POWER_CONNECTED
+    description: 
+    type: String
+  - name: ACTION_POWER_DISCONNECTED
+    description: 
+    type: String
+  - name: ACTION_POWER_USAGE_SUMMARY
+    description: 
+    type: String
+  - name: ACTION_PROVIDER_CHANGED
+    description: 
+    type: String
+  - name: ACTION_REBOOT
+    description: 
+    type: String
+  - name: ACTION_RUN
+    description: 
+    type: String
+  - name: ACTION_SCREEN_OFF
+    description: 
+    type: String
+  - name: ACTION_SCREEN_ON
+    description: 
+    type: String
+  - name: ACTION_SEARCH
+    description: 
+    type: String
+  - name: ACTION_SEARCH_LONG_PRESS
+    description: 
+    type: String
+  - name: ACTION_SEND
+    description: 
+    type: String
+  - name: ACTION_SENDTO
+    description: 
+    type: String
+  - name: ACTION_SEND_MULTIPLE
+    description: 
+    type: String
+  - name: ACTION_SET_WALLPAPER
+    description: 
+    type: String
+  - name: ACTION_SHUTDOWN
+    description: 
+    type: String
+  - name: ACTION_SYNC
+    description: 
+    type: String
+  - name: ACTION_SYSTEM_TUTORIAL
+    description: 
+    type: String
+  - name: ACTION_TIME_CHANGED
+    description: 
+    type: String
+  - name: ACTION_TIME_TICK
+    description: 
+    type: String
+  - name: ACTION_UID_REMOVED
+    description: 
+    type: String
+  - name: ACTION_UMS_CONNECTED
+    description: 
+    type: String
+  - name: ACTION_UMS_DISCONNECTED
+    description: 
+    type: String
+  - name: ACTION_USER_PRESENT
+    description: 
+    type: String
+  - name: ACTION_VIEW
+    description: 
+    type: String
+  - name: ACTION_VOICE_COMMAND
+    description: 
+    type: String
+  - name: ACTION_WALLPAPER_CHANGED
+    description: 
+    type: String
+  - name: ACTION_WEB_SEARCH
+    description: 
+    type: String
+  - name: CATEGORY_ALTERNATIVE
+    description: 
+    type: String
+  - name: CATEGORY_BROWSABLE
+    description: 
+    type: String
+  - name: CATEGORY_DEFAULT
+    description: 
+    type: String
+  - name: CATEGORY_DEVELOPMENT_PREFERENCE
+    description: 
+    type: String
+  - name: CATEGORY_EMBED
+    description: 
+    type: String
+  - name: CATEGORY_FRAMEWORK_INSTRUMENTATION_TEST
+    description: 
+    type: String
+  - name: CATEGORY_HOME
+    description: 
+    type: String
+  - name: CATEGORY_INFO
+    description: 
+    type: String
+  - name: CATEGORY_LAUNCHER
+    description: 
+    type: String
+  - name: CATEGORY_MONKEY
+    description: 
+    type: String
+  - name: CATEGORY_OPENABLE
+    description: 
+    type: String
+  - name: CATEGORY_PREFERENCE
+    description: 
+    type: String
+  - name: CATEGORY_SAMPLE_CODE
+    description: 
+    type: String
+  - name: CATEGORY_SELECTED_ALTERNATIVE
+    description: 
+    type: String
+  - name: CATEGORY_TAB
+    description: 
+    type: String
+  - name: CATEGORY_TEST
+    description: 
+    type: String
+  - name: CATEGORY_UNIT_TEST
+    description: 
+    type: String
+  - name: DEFAULT_ALL
+    description: Use all default values (where applicable).
+    type: Number
+  - name: DEFAULT_LIGHTS
+    description: Use the default notification lights.
+    type: Number
+  - name: DEFAULT_SOUND
+    description: Use the default notification sound.
+    type: Number
+  - name: DEFAULT_VIBRATE
+    description: Use the default notification vibrate.
+    type: Number
+  - name: EXTRA_ALARM_COUNT
+    description: 
+    type: String
+  - name: EXTRA_BCC
+    description: 
+    type: String
+  - name: EXTRA_CC
+    description: 
+    type: String
+  - name: EXTRA_DATA_REMOVED
+    description: 
+    type: String
+  - name: EXTRA_DONT_KILL_APP
+    description: 
+    type: String
+  - name: EXTRA_EMAIL
+    description: 
+    type: String
+  - name: EXTRA_INTENT
+    description: 
+    type: String
+  - name: EXTRA_KEY_EVENT
+    description: 
+    type: String
+  - name: EXTRA_PHONE_NUMBER
+    description: 
+    type: String
+  - name: EXTRA_REPLACING
+    description: 
+    type: String
+  - name: EXTRA_SHORTCUT_ICON
+    description: 
+    type: String
+  - name: EXTRA_SHORTCUT_ICON_RESOURCE
+    description: 
+    type: String
+  - name: EXTRA_SHORTCUT_INTENT
+    description: 
+    type: String
+  - name: EXTRA_SHORTCUT_NAME
+    description: 
+    type: String
+  - name: EXTRA_STREAM
+    description: 
+    type: String
+  - name: EXTRA_SUBJECT
+    description: 
+    type: String
+  - name: EXTRA_TEMPLATE
+    description: 
+    type: String
+  - name: EXTRA_TEXT
+    description: 
+    type: String
+  - name: EXTRA_TITLE
+    description: 
+    type: String
+  - name: EXTRA_UID
+    description: 
+    type: String
+  - name: FILL_IN_ACTION
+    description: 
+    type: Number
+  - name: FILL_IN_CATEGORIES
+    description: 
+    type: Number
+  - name: FILL_IN_COMPONENT
+    description: 
+    type: Number
+  - name: FILL_IN_DATA
+    description: 
+    type: Number
+  - name: FILL_IN_PACKAGE
+    description: 
+    type: Number
+  - name: FLAG_ACTIVITY_BROUGHT_TO_FRONT
+    description: 
+    type: Number
+  - name: FLAG_ACTIVITY_CLEAR_TOP
+    description: 
+    type: Number
+  - name: FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET
+    description: 
+    type: Number
+  - name: FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+    description: 
+    type: Number
+  - name: FLAG_ACTIVITY_FORWARD_RESULT
+    description: 
+    type: Number
+  - name: FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY
+    description: 
+    type: Number
+  - name: FLAG_ACTIVITY_MULTIPLE_TASK
+    description: 
+    type: Number
+  - name: FLAG_ACTIVITY_NEW_TASK
+    description: 
+    type: Number
+  - name: FLAG_ACTIVITY_NO_ANIMATION
+    description: 
+    type: Number
+  - name: FLAG_ACTIVITY_NO_HISTORY
+    description: 
+    type: Number
+  - name: FLAG_ACTIVITY_NO_USER_ACTION
+    description: 
+    type: Number
+  - name: FLAG_ACTIVITY_PREVIOUS_IS_TOP
+    description: 
+    type: Number
+  - name: FLAG_ACTIVITY_REORDER_TO_FRONT
+    description: 
+    type: Number
+  - name: FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
+    description: 
+    type: Number
+  - name: FLAG_ACTIVITY_SINGLE_TOP
+    description: 
+    type: Number
+  - name: FLAG_AUTO_CANCEL
+    description: Bit to be bitwise-ored into the flags field that should be set if the notification should be canceled when it is clicked by the user.
+    type: Number
+  - name: FLAG_CANCEL_CURRENT
+    description: 
+    type: Number
+  - name: FLAG_DEBUG_LOG_RESOLUTION
+    description: 
+    type: Number
+  - name: FLAG_FROM_BACKGROUND
+    description: 
+    type: Number
+  - name: FLAG_GRANT_READ_URI_PERMISSION
+    description: 
+    type: Number
+  - name: FLAG_GRANT_WRITE_URI_PERMISSION
+    description: 
+    type: Number
+  - name: FLAG_INSISTENT
+    description: Bit to be bitwise-ored into the flags field that if set, the audio will be repeated until the notification is cancelled or the notification window is opened.
+    type: Number
+  - name: FLAG_NO_CLEAR
+    description: Bit to be bitwise-ored into the flags field that should be set if the notification should not be canceled when the user clicks the Clear all button.
+    type: Number
+  - name: FLAG_NO_CREATE
+    description: 
+    type: Number
+  - name: FLAG_ONE_SHOT
+    description: 
+    type: Number
+  - name: FLAG_ONGOING_EVENT
+    description: Bit to be bitwise-ored into the flags field that should be set if this notification is in reference to something that is ongoing, like a phone call.
+    type: Number
+  - name: FLAG_ONLY_ALERT_ONCE
+    description: Bit to be bitwise-ored into the flags field that should be set if you want the sound and/or vibration play each time the notification is sent, even if it has not been canceled before that.
+    type: Number
+  - name: FLAG_RECEIVER_REGISTERED_ONLY
+    description: 
+    type: Number
+  - name: FLAG_SHOW_LIGHTS
+    description: Bit to be bitwise-ored into the flags field that should be set if you want the LED on for this notification.
+    type: Number
+  - name: FLAG_UPDATE_CURRENT
+    description: 
+    type: Number
+  - name: PENDING_INTENT_FOR_ACTIVITY
+    description: 
+    type: Number
+  - name: PENDING_INTENT_FOR_BROADCAST
+    description: 
+    type: Number
+  - name: PENDING_INTENT_FOR_SERVICE
+    description: 
+    type: Number
+  - name: PENDING_INTENT_MAX_VALUE
+    description: 
+    type: Number
+  - name: R
+    description: Accessor for android resources
+    type: Object
+  - name: RESULT_CANCELED
+    description: 
+    type: Number
+  - name: RESULT_FIRST_USER
+    description: 
+    type: Number
+  - name: RESULT_OK
+    description: 
+    type: Number
+  - name: SCREEN_ORIENTATION_BEHIND
+    description: 
+    type: Number
+  - name: SCREEN_ORIENTATION_LANDSCAPE
+    description: 
+    type: Number
+  - name: SCREEN_ORIENTATION_NOSENSOR
+    description: 
+    type: Number
+  - name: SCREEN_ORIENTATION_PORTRAIT
+    description: 
+    type: Number
+  - name: SCREEN_ORIENTATION_SENSOR
+    description: 
+    type: Number
+  - name: SCREEN_ORIENTATION_UNSPECIFIED
+    description: 
+    type: Number
+  - name: SCREEN_ORIENTATION_USER
+    description: 
+    type: Number
+  - name: STREAM_DEFAULT
+    description: Use this constant as the value for audioStreamType to request that the default stream type for notifications be used.
+    type: Number
+  - name: URI_INTENT_SCHEME
+    description: 
+    type: Number
+notes: Several (almost all) of the constants you see above are directly taken from Android.  So if we've failed to document all of them, have a look online at the [Android SDK reference pages](http://developer.android.com/reference/android/app/Service.html).
+    
+    The most important page there will be the [Intent reference](http://developer.android.com/reference/android/content/Intent.html), which will give you the meaning of those ACTION, EXTRA and CATEGORY constants.
