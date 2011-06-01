@@ -49,7 +49,33 @@ class version(object):
 				elif len(other.parts) == 3:
 					return other.parts[2]
 				else: return 0
-				
+
+def usage():
+	print """
+%s [--platforms=PLATFORMS] [--tests-dir=DIR] [--results-dir=DIR] [--tests=TESTS] [platform specific args..]
+    Common Arguments
+    --platforms=PLATFORMS           A list of platforms to run Drillbit for (default: android,iphone)
+    --tests-dir=DIR                 Additional tests are loaded from DIR
+    --results-dir=DIR               Generates JSON and HTML results in DIR
+    --tests=TESTS                   Specify which test suites to enable by default (separated by comma)
+
+    UI Specific arguments:
+    --autorun                       Start running tests as soon as Drillibit starts
+    --autoclose                     Close Drillbit as soon as all tests are finished running
+    --web-console                   Launch Drillbit with the Web / Javascript Console showing (for debugging Drillbit itself)
+
+    iPhone Specific Arguments
+    --iphone-version=DIR            The iPhone SDK version to build against (default: 4.0)
+    
+    Android Specific Arguments
+    --android-sdk=DIR               Android SDK is loaded from DIR
+    --android-version=VERSION       The Android Platform version to build against (default: 4)
+    --android-force-build           When passed, the test harness is forcefully built on initial deploy
+    --android-device=DEVICE         The device argument to pass to ADB.
+                                    Valid values: emulator (-e), device (-d), or specific serial (default: emulator)
+""" % sys.argv[0]
+	sys.exit(1)
+
 def build_and_run(args=None):
 	# first we need to find the desktop SDK for tibuild.py
 	if platform.system() == 'Darwin':
