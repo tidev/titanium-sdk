@@ -46,23 +46,23 @@ Drillbit = function() {
 	
 	this.resultsDir = ti.fs.getFile(ti.path.fromurl('app://test_results'));
 	this.initPython();
-	
-	ti.include(ti.path.join(this.module.getPath(), 'lib', 'optimist.js'));
-	ti.include(ti.path.join(this.module.getPath(), 'lib', 'ejs.js'));
-	this.processArgv();
-	
+
 	var app = Ti.API.getApplication();
 	this.resourcesDir = app.getResourcesPath();
 	this.contentsDir = ti.path.dirname(this.resourcesDir);
 	this.testHarnessDir = ti.path.join(this.resourcesDir, 'test_harness');
 	this.testHarnessResourcesDir = ti.path.join(this.testHarnessDir, 'Resources');
 	this.testHarnessId = 'org.appcelerator.titanium.testharness';
-	
+
+	ti.include(ti.path.join(this.module.getPath(), 'lib', 'optimist.js'));
+	ti.include(ti.path.join(this.module.getPath(), 'lib', 'ejs.js'));
+	this.processArgv();
+
 	this.drillbitTestJs = ti.fs.getFile(this.module.getPath(), 'drillbitTest.js').read().toString();
 	this.templatesDir = ti.path.join(this.module.getPath(), 'templates');
-	
+
 	this.loadAllTests();
-	
+
 	var manifestPath = app.getManifestPath();
 	var manifestHarness = ti.fs.getFile(ti.path.dirname(manifestPath), 'manifest_harness');
 	this.setupTestHarness(manifestHarness);
