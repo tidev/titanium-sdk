@@ -202,7 +202,7 @@ def build(args):
 	pass
 	
 def run_project_args(args,script,project_dir,platform):
-	return [script,"run",project_dir]
+	return [script,"run",project_dir,platform]
 	
 def run_module_args(args,script,project_dir,platform):
 	return [script,"run",platform,project_dir]
