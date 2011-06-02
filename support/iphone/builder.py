@@ -511,6 +511,7 @@ def main(args):
 			output_dir = os.path.expanduser(dequote(args[8].decode("utf-8")))
 			if argc > 9:
 				devicefamily = dequote(args[9].decode("utf-8"))
+			print "[INFO] Switching to production mode for distribution"
 			deploytype = 'production'
 		elif command == 'simulator':
 			link_version = check_iphone_sdk(iphone_version)
@@ -547,6 +548,7 @@ def main(args):
 					debughost=None
 				else:
 					debughost,debugport = debughost.split(":")
+			target = 'Debug'
 			deploytype = 'test'
 		
 		# setup up the useful directories we need in the script
@@ -882,6 +884,10 @@ def main(args):
 			# compile debugger file
 			debug_plist = os.path.join(iphone_dir,'Resources','debugger.plist')
 			write_debugger_plist(debug_plist)
+			# Every time the debugger changes, we need to relink so that the new
+			# host/port gets picked up
+			if debughost:
+				force_xcode = True
 
 			if command!='simulator':
 				# compile plist into binary format so it's faster to load
@@ -972,7 +978,7 @@ def main(args):
 
 				# compile localization files
 				# Using app_name here will cause the locale to be put in the WRONG bundle!!
-				localecompiler.LocaleCompiler(name,project_dir,devicefamily,command).compile()
+				localecompiler.LocaleCompiler(name,project_dir,devicefamily,deploytype).compile()
 				
 				# copy any module resources
 				if len(module_asset_dirs)>0:
@@ -1125,7 +1131,6 @@ def main(args):
 
 				# this is a simulator build
 				if command == 'simulator':
-
 					debugstr = ''
 					if debughost:
 						debugstr = 'DEBUGGER_ENABLED=1'
