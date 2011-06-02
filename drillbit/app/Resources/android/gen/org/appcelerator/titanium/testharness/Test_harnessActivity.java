@@ -25,15 +25,14 @@ public final class Test_harnessActivity extends TiRootActivity
 		super.onCreate(savedInstanceState);
 	}
 
-	protected boolean isDrillbitFinished(Scriptable global)
+	protected boolean isDrillbitFinished(KrollBridge bridge)
 	{
-		if (global == null) return false;
 
-		Object drillbitTest = global.get("DrillbitTest", global);
+		Object drillbitTest = bridge.getObject("DrillbitTest");
 		if (drillbitTest == null || drillbitTest.equals(Scriptable.NOT_FOUND)
 			|| !(drillbitTest instanceof Scriptable))
 		{
-			Log.w(TAG, "DrillbitTest is not found");
+			Log.w(TAG, "DrillbitTest was either not found, or wasn't a Scriptable. Value: " + drillbitTest);
 			return false;
 		}
 
@@ -68,7 +67,6 @@ public final class Test_harnessActivity extends TiRootActivity
 		}
 
 		Scriptable global = krollContext.getScope();
-
 		Context context = Context.enter();
 		context.setOptimizationLevel(-1);
 		try {
@@ -79,7 +77,7 @@ public final class Test_harnessActivity extends TiRootActivity
 
 		// In some cases the drillbit test will finish executing
 		// before the Instrumentation can be injected, so we need to double check
-		if (isDrillbitFinished(global)) {
+		if (isDrillbitFinished(bridge)) {
 			Log.i(TAG, "Drillbit test suite finished early, shutting down.");
 			instrumentation.finish(Activity.RESULT_OK, new Bundle());
 		}
