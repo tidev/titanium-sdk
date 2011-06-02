@@ -1,0 +1,43 @@
+---
+name: Titanium.Map
+description: The top level Map module.  The Map module is used for creating in-application native maps.
+extends: Titanium.Module
+since: "0.8"
+properties:
+  - name: HYBRID_TYPE
+    description: Displays a satellite image of the area with road and road name information layered on top.
+    type: Number
+  - name: SATELLITE_TYPE
+    description: Displays satellite imagery of the area.
+    type: Number
+  - name: STANDARD_TYPE
+    description: Displays a street map that shows the position of all roads and some road names.
+    type: Number
+examples: |
+    Map Example
+    
+    This is a basic map example that uses a custom annotation on the map.
+    
+        var mountainView = Titanium.Map.createAnnotation({
+        	latitude:37.390749,
+        	longitude:-122.081651,
+        	title:"Appcelerator Headquarters",
+        	subtitle:'Mountain View, CA',
+        	pincolor:Titanium.Map.ANNOTATION_RED,
+        	animate:true,
+        	leftButton: '../images/appcelerator_small.png',
+        	myid:1 // CUSTOM ATTRIBUTE THAT IS PASSED INTO EVENT OBJECTS
+        });
+        
+        var mapview = Titanium.Map.createView({
+        	mapType: Titanium.Map.STANDARD_TYPE,
+        	region: {latitude:33.74511, longitude:-84.38993, 
+        			latitudeDelta:0.01, longitudeDelta:0.01},
+        	animate:true,
+        	regionFit:true,
+        	userLocation:true,
+        	annotations:[mountainView]
+        });
+        
+        win.add(mapview);
+    
