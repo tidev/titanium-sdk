@@ -11,6 +11,7 @@ import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.drillbit.InstrumentedActivity;
 
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 
 public final class Test_harnessActivity extends TiRootActivity
@@ -18,51 +19,30 @@ public final class Test_harnessActivity extends TiRootActivity
 {
 	private static final String TAG = "TestHarnessActivity";
 	protected Instrumentation instrumentation;
+	protected Function callback;
+	protected KrollBridge krollBridge;
+	protected KrollContext krollContext;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState)
+	public void contextCreated()
 	{
-		super.onCreate(savedInstanceState);
-	}
+		super.contextCreated();
 
-	protected boolean isDrillbitFinished(KrollBridge bridge)
-	{
-
-		Object drillbitTest = bridge.getObject("DrillbitTest");
-		if (drillbitTest == null || drillbitTest.equals(Scriptable.NOT_FOUND)
-			|| !(drillbitTest instanceof Scriptable))
-		{
-			Log.w(TAG, "DrillbitTest was either not found, or wasn't a Scriptable. Value: " + drillbitTest);
-			return false;
-		}
-
-		Scriptable drillbitTestJs = (Scriptable) drillbitTest;
-		Object completed = drillbitTestJs.get("completed", drillbitTestJs);
-		if (completed instanceof Boolean) {
-			return ((Boolean)completed).booleanValue();
-		}
-		return false;
-	}
-
-	public void setInstrumentation(Instrumentation instrumentation)
-	{
-		this.instrumentation = instrumentation;
-
-		// Our TiContext should hopefully be non-null at this point
+		// Our TiContext should be non-null at this point
 		if (tiContext == null) {
-			Log.w(TAG, "TiContext is null for test_harness activity, binding aborted");
+			Log.e(TAG, "TiContext is null for test_harness activity, binding aborted");
 			return;
 		}
 
-		KrollBridge bridge = tiContext.getKrollBridge();
-		if (bridge == null) {
-			Log.w(TAG, "KrollBridge is null for test_harness activity, binding aborted");
+		krollBridge = tiContext.getKrollBridge();
+		if (krollBridge == null) {
+			Log.e(TAG, "KrollBridge is null for test_harness activity, binding aborted");
 			return;
 		}
 
-		KrollContext krollContext = bridge.getKrollContext();
+		krollContext = krollBridge.getKrollContext();
 		if (krollContext == null) {
-			Log.w(TAG, "KrollContext is null for test_harness activity, binding aborted");
+			Log.e(TAG, "KrollContext is null for test_harness activity, binding aborted");
 			return;
 		}
 
@@ -70,16 +50,38 @@ public final class Test_harnessActivity extends TiRootActivity
 		Context context = Context.enter();
 		context.setOptimizationLevel(-1);
 		try {
-			bridge.bindToTopLevel("TestHarnessRunner", Context.javaToJS(instrumentation, global));
+			krollBridge.bindToTopLevel("TestHarnessActivity", Context.javaToJS(this, global));
 		} finally {
 			Context.exit();
 		}
+	}
 
-		// In some cases the drillbit test will finish executing
-		// before the Instrumentation can be injected, so we need to double check
-		if (isDrillbitFinished(bridge)) {
-			Log.i(TAG, "Drillbit test suite finished early, shutting down.");
-			instrumentation.finish(Activity.RESULT_OK, new Bundle());
+	public void onRunnerReady(Function callback)
+	{
+		this.callback = callback;
+	}
+
+	public void setInstrumentation(Instrumentation instrumentation)
+	{
+		this.instrumentation = instrumentation;
+		if (krollBridge == null || krollContext == null) {
+			Log.e(TAG, "Bridge/context is null for test_harness activity, finishing");
+			finish();
+			return;
+		}
+
+		Scriptable global = krollContext.getScope();
+		Context context = Context.enter();
+		context.setOptimizationLevel(-1);
+		try {
+			krollBridge.bindToTopLevel("TestHarnessRunner", Context.javaToJS(instrumentation, global));
+			Log.i(TAG, "Running tests from custom Activity...");
+			callback.call(context, global, global, new Object[0]);
+		} finally {
+			Context.exit();
+			krollBridge = null;
+			krollContext = null;
+			callback = null;
 		}
 	}
 }
