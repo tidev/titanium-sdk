@@ -29,19 +29,38 @@ var harnessConsole = Ti.UI.createWebView({
 	url: 'test_harness_console.html'
 });
 
-harnessConsole.addEventListener('load', function(e) {
-	harnessConsole.evalJS('tiReady()');
-	runTests();
-});
+var isAndroid = Ti.Platform.osname == "android";
+if (isAndroid) {
+	harnessConsole.html = "<b>test suite: " + testName + "</b><br>";
+} else {
+	harnessConsole.text = "test suite: " + testName + "\n";
+}
 
 w.add(harnessConsole);
+
+// in Android, we run tests through the custom Activity
+if (isAndroid) {
+	TestHarnessActivity.onRunnerReady(runTests);
+} else {
+	w.addEventListener("open", function(e) {
+		runTests();
+	});
+}
 w.open();
 
 function appendMessage(msg, type) {
-	var event = {message: msg};
-	if (type) {
-		event[type] = true;
+	if (isAndroid) {
+		var message = "<font";
+		if (type) {
+			if (type == "fail") {
+				message += " color=\"red\"";
+			} else if (type == "pass") {
+				message += " color=\"green\"";
+			}
+		}
+		message += ">" + msg + "</font><br>";
+		harnessConsole.html += message;
+	} else {
+		harnessConsole.text += message + "\n";
 	}
-	
-	Ti.App.fireEvent('message', event);
 }
