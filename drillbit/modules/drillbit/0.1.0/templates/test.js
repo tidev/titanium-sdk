@@ -9,7 +9,6 @@
  */
 
 var testName = "<%= entry.name %>";
-var DrillbitTest = null;
 
 <%
 methodWrap = typeof(methodWrap) == 'undefined' ? false : methodWrap;
