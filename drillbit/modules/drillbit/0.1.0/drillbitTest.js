@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-DrillbitTest = 
+var DrillbitTest = 
 {
 	currentTest:null,
 	results:[],
@@ -531,3 +531,5 @@ function asyncTest(args) {
 	args = typeof(args) == 'function' ? {start: args} : args;
 	return new AsyncTest(args);
 };
+
+Ti.DrillbitTest = DrillbitTest;
