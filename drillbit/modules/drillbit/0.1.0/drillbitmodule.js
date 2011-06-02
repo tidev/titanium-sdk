@@ -811,6 +811,14 @@ Drillbit.prototype.generateFinalResults = function()
 	drillbitJsonStream.close();
 };
 
+Drillbit.prototype.handleTestError = function(suite)
+{
+	this.frontendDo('test_platform_status', suite.name, 'Error', 'android');
+	this.frontendDo('test_status', suite.name, 'Error')
+	this.testDuration = (new Date().getTime() - this.testsStarted)/1000;
+	this.frontendDo('all_finished');
+}
+
 Drillbit.prototype.reset = function()
 {
 	this.executingTests = [];

@@ -76,18 +76,25 @@ public final class Test_harnessActivity extends TiRootActivity
 			return;
 		}
 
-		Scriptable global = krollContext.getScope();
-		Context context = Context.enter();
-		context.setOptimizationLevel(-1);
-		try {
-			krollBridge.bindToTopLevel("TestHarnessRunner", Context.javaToJS(instrumentation, global));
-			Log.i(TAG, "Running tests from custom Activity...");
-			callback.call(context, global, global, new Object[0]);
-		} finally {
-			Context.exit();
-			krollBridge = null;
-			krollContext = null;
-			callback = null;
-		}
+		final Instrumentation fInstrumentation = instrumentation;
+		krollContext.post(new Runnable() {
+			@Override
+			public void run()
+			{
+				Scriptable global = krollContext.getScope();
+				Context context = Context.enter();
+				context.setOptimizationLevel(-1);
+				try {
+					krollBridge.bindToTopLevel("TestHarnessRunner", Context.javaToJS(fInstrumentation, global));
+					Log.i(TAG, "Running tests from custom Activity...");
+					callback.call(context, global, global, new Object[0]);
+				} finally {
+					Context.exit();
+					krollBridge = null;
+					krollContext = null;
+					callback = null;
+				}
+			}
+		});
 	}
 }
