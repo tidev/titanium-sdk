@@ -884,6 +884,10 @@ def main(args):
 			# compile debugger file
 			debug_plist = os.path.join(iphone_dir,'Resources','debugger.plist')
 			write_debugger_plist(debug_plist)
+			# Every time the debugger changes, we need to relink so that the new
+			# host/port gets picked up
+			if debughost:
+				force_xcode = True
 
 			if command!='simulator':
 				# compile plist into binary format so it's faster to load
@@ -1127,7 +1131,6 @@ def main(args):
 
 				# this is a simulator build
 				if command == 'simulator':
-
 					debugstr = ''
 					if debughost:
 						debugstr = 'DEBUGGER_ENABLED=1'
