@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-var DrillbitTest = 
+DrillbitTest = 
 {
 	currentTest:null,
 	results:[],
@@ -13,7 +13,8 @@ var DrillbitTest =
 	failed:0,
 	totalAssertions:0,
 	autoRun: true,
-	
+	completed: false,
+
 	fireEvent: function(name, event) {
 		event.name = name;
 		event.suite = DrillbitTest.NAME;
@@ -68,6 +69,7 @@ var DrillbitTest =
 	},
 	
 	complete: function() {
+		this.completed = true;
 		try {
 			var results = this.getResults();
 			// logcat has a character limit in Android, so we save to the sdcard and pull down from Drillbit
