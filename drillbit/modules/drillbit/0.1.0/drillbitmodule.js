@@ -212,7 +212,9 @@ Drillbit.prototype.renderTemplate = function(path, data, toPath) {
 };
 
 Drillbit.prototype.createPythonProcess = function(args) {
-	return Ti.Process.createProcess([this.python].concat(args));
+	var pyArgs = [this.python].concat(args);
+	Ti.API.info("running: " + pyArgs.join(" "));
+	return Ti.Process.createProcess(pyArgs);
 };
 
 Drillbit.prototype.frontendDo = function()

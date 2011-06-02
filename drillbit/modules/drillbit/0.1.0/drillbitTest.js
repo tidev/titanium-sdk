@@ -535,5 +535,3 @@ function asyncTest(args) {
 	args = typeof(args) == 'function' ? {start: args} : args;
 	return new AsyncTest(args);
 };
-
-Ti.DrillbitTest = DrillbitTest;

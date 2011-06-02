@@ -14,19 +14,25 @@ var w = Ti.UI.createWindow({
 	backgroundColor: 'white'
 });
 
-var label = Ti.UI.createLabel({
-	font: {fontSize: 20},
-	color: 'black',
-	text: 'test suite: ' + testName,
-	top: 10, left: 10, right: 10
+var scrollView = Ti.UI.createScrollView({
+	top: 0, left: 0,
+	right: 0, bottom: 0,
+	scrollType: 'vertical',
+	showVerticalScrollIndicator: true,
+	backgroundColor: 'black',
+	contentHeight: 'auto',
+	contentWidth: 'auto'
 });
-w.add(label);
 
-var harnessConsole = Ti.UI.createWebView({
-	top: 5, left: 5, right: 5, bottom: 5,
-	backgroundColor: 'white',
-	scalesPageToFit: false,
-	url: 'test_harness_console.html'
+var harnessConsole = Ti.UI.createLabel({
+	top: 0, left: 5, right: 5,
+	height: 'auto',
+	backgroundColor: 'black',
+	font: {
+		fontFamily: 'monospace',
+		fontSize: '14'
+	},
+	color: 'white'
 });
 
 var isAndroid = Ti.Platform.osname == "android";

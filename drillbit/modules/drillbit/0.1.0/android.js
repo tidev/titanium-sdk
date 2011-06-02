@@ -335,12 +335,11 @@ AndroidEmulator.prototype.killTestHarness = function() {
 AndroidEmulator.prototype.runTestHarness = function(suite, stagedFiles) {
 	var forceBuild = 'forceBuild' in suite.options && suite.options.forceBuild;
 	if (!this.testHarnessRunning || this.needsBuild || this.testHarnessNeedsBuild(stagedFiles) || forceBuild) {
-		//var command = 'simulator';
-		//var commandArgs = [this.avdId, 'HVGA'];
 		var command = 'build';
 		var commandArgs = [];
 		var needsInstall = true;
 		var needsLaunch = false;
+
 		if (this.device.indexOf('emulator') != 0) {
 			command = 'install';
 			commandArgs = [this.avdId, this.device];
@@ -349,7 +348,7 @@ AndroidEmulator.prototype.runTestHarness = function(suite, stagedFiles) {
 		}
 		var process = this.createTestHarnessBuilderProcess(command, commandArgs);
 		this.drillbit.frontendDo('building_test_harness', suite.name, 'android');
-		
+
 		var self = this;
 		process.setOnReadLine(function(data) {
 			var lines = data.split("\n");
@@ -370,9 +369,7 @@ AndroidEmulator.prototype.runTestHarness = function(suite, stagedFiles) {
 	} else {
 		// restart the app
 		this.drillbit.frontendDo('running_test_harness', suite.name, 'android');
-		// Killing is now taken care of in the custom Instrumentation
-		// this.killTestHarness();
-		
+
 		// wait a few seconds after kill, every now and then the proc will still
 		// be hanging up when we try to start it after kill returns
 		var self = this;
