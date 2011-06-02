@@ -41,11 +41,10 @@ public class TestHarnessRunner extends Instrumentation
 		super.onStart();
 		Looper.prepare();
 
-		Log.d(TAG, "starting MAIN activity for package: " + getTargetContext().getPackageName());
+		Log.d(TAG, "Starting package/activity: " + getTargetContext().getPackageName() + "/" + activityClassName);
 		Intent intent = new Intent();
 		intent.setClassName(getTargetContext(), activityClassName);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		intent.setPackage(getTargetContext().getPackageName());
 		Activity activity = startActivitySync(intent);
 		if (activity instanceof InstrumentedActivity)
 		{
