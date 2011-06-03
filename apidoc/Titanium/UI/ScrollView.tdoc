@@ -37,6 +37,7 @@ maxZoomScale[float]: the maximum scale of the content
 minZoomScale[float]: the minimum scale of the content
 scrollType[string]: (Android only) the type of ScrollView: "vertical" or "horizontal"
 canCancelEvents[boolean]: (iPhone only) boolean to indicate if the scroll view can cancel subview touches in order to scroll instead. Default of true
+disableBounce[boolean]: disable view bouncing.  iOS only.
 
 - methods
 
