@@ -1344,19 +1344,6 @@ class Builder(object):
 			'-S', 'res', '-I', self.android_jar, '-I', self.titanium_jar, '-F', ap_], warning_regex=r'skipping')
 
 		unsigned_apk = self.create_unsigned_apk(ap_)
-		#unsigned_apk = os.path.join(self.project_dir, 'bin', 'app-unsigned.apk')
-		#apk_build_cmd = [self.apkbuilder, unsigned_apk, '-u', '-z', ap_, '-f', self.classes_dex, '-rf', self.project_src_dir]
-		#for jar in self.android_jars:
-		#	apk_build_cmd += ['-rj', jar]
-		#for jar in self.module_jars:
-		#	apk_build_cmd += ['-rj', jar]
-		
-		#output, err_output = run.run(apk_build_cmd, ignore_error=True, return_error=True)
-		#if err_output:
-		#	if 'THIS TOOL IS DEPRECATED' in err_output:
-		#		debug('apkbuilder deprecation warning received')
-		#	else:
-		#		run.check_and_print_err(err_output, None)
 
 		if self.dist_dir:
 			app_apk = os.path.join(self.dist_dir, self.name + '.apk')	
@@ -1681,7 +1668,6 @@ class Builder(object):
 				self.debugger_port = int(hostport[1])
 			debugger_enabled = self.debugger_host != None and len(self.debugger_host) > 0
 
-			# self.enable_debugger(debugger_host)
 			self.copy_project_resources()
 
 			last_build_info = None
@@ -1809,23 +1795,7 @@ class Builder(object):
 				else:
 					dex_built = True
 					debug("Android classes.dex built")
-			
-			"""if self.sdcard_copy and not build_only and \
-				(not self.resources_installed or not self.app_installed) and \
-				(self.deploy_type == 'development' or self.deploy_type == 'test'):
-				
-					if self.install: self.wait_for_device('e')
-					else: self.wait_for_device('d')
-				
-					trace("Performing full copy to SDCARD -> %s" % self.sdcard_resources)
-					output = self.run_adb('push', os.path.join(self.top_dir, 'Resources'), self.sdcard_resources)
-					trace("result: %s" % output)
-			
-					android_resources_dir = os.path.join(self.top_dir, 'Resources', 'android')
-					if os.path.exists(android_resources_dir):
-						output = self.run_adb('push', android_resources_dir, self.sdcard_resources)
-						trace("result: %s" % output)"""
-						
+
 			if dex_built or generated_classes_built or self.tiapp_changed or self.manifest_changed or not self.app_installed or not self.fastdev:
 				# metadata has changed, we need to do a full re-deploy
 				launched, launch_failed = self.package_and_deploy()
