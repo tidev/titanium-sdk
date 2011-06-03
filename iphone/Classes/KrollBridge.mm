@@ -43,6 +43,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		// pre-cache a few modules we always use
 		TiModule *ui = [host moduleNamed:@"UI" context:pageContext_];
 		[self addModule:@"UI" module:ui];
+		TiModule *api = [host moduleNamed:@"API" context:pageContext_];
+		[self addModule:@"API" module:api];
 		
 		if (TI_APPLICATION_ANALYTICS)
 		{
@@ -139,6 +141,10 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 -(KrollObject*)addModule:(NSString*)name module:(TiModule*)module
 {
 	KrollObject *ko = [pageContext registerProxy:module];
+	if (ko == nil)
+	{
+		return nil;
+	}
 	[self noteKrollObject:ko forKey:name];	
 	[modules setObject:ko forKey:name];
 	return ko;
