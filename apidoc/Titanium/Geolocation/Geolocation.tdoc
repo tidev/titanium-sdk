@@ -67,6 +67,7 @@ ERROR_REGION_MONITORING_FAILURE[int]: error constant (iOS 4.0+ only)
 ERROR_REGION_MONITORING_DELAYED[int]: error constant (iOS 4.0+ only)
 
 locationServicesEnabled[boolean]: returns true if the user has enabled or disable location services for the device (not the application). 
+hasLocationProvider[boolean]: returns true if the specified location provider and accuracy are enabled on the device.
 showCalibration[boolean]: returns true if the calibration UI can show
 preferredProvider[string]: allows setting of the preferred location provider.  Returns undefined when the preferred provider is auto-detected
 
