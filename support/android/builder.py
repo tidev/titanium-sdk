@@ -1208,8 +1208,12 @@ class Builder(object):
 		src_list_file.close()
 		
 		javac_command.append('@' + src_list_filename)
-		out = run.run(javac_command)
+		(out, err, javac_process) = run.run(javac_command, ignore_error=True, return_error=True, return_process=True)
 		os.remove(src_list_filename)
+		if javac_process.returncode != 0:
+			error("Error(s) compiling generated Java code")
+			error(str(err))
+			sys.exit(1)
 		return True
 
 	def create_unsigned_apk(self, resources_zip_file):
