@@ -47,8 +47,9 @@ a.disabled {
 	margin-top: 5px;
 	overflow: auto;
 	width: 98%;
-	height: 300px;
 	position: absolute;
+	top: 55px;
+	bottom: 300px;
 }
 
 .suite
@@ -101,7 +102,7 @@ a.disabled {
 	background: #363;
 }
 
-.suite-failed
+.suite-failed, .suite-error
 {
 	background: #633;
 }
@@ -111,7 +112,7 @@ a.disabled {
 	margin-left: 5px;
 }
 
-.untested, .init, .building, .running, .failed, .passed {
+.untested, .init, .building, .running, .failed, .passed, .error {
 	font-size: 10px;
 	color: #ccc;
 	font-weight:bold;
@@ -126,7 +127,7 @@ a.disabled {
 	color: #66c;
 }
 
-.failed {
+.failed, .error {
 	color: #c66;
 }
 
@@ -155,6 +156,5 @@ a.disabled {
 	right: 5px;
 	overflow: scroll;
 	resize: vertical;
+	-webkit-user-select: text;
 }
-
-

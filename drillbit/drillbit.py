@@ -49,8 +49,37 @@ class version(object):
 				elif len(other.parts) == 3:
 					return other.parts[2]
 				else: return 0
-				
+
+def usage():
+	print """
+%s [--platforms=PLATFORMS] [--tests-dir=DIR] [--results-dir=DIR] [--tests=TESTS] [platform specific args..]
+    Common Arguments
+    --platforms=PLATFORMS           A list of platforms to run Drillbit for (default: android,iphone)
+    --tests-dir=DIR                 Additional tests are loaded from DIR
+    --results-dir=DIR               Generates JSON and HTML results in DIR
+    --tests=TESTS                   Specify which test suites to enable by default (separated by comma)
+
+    UI Specific arguments:
+    --autorun                       Start running tests as soon as Drillibit starts
+    --autoclose                     Close Drillbit as soon as all tests are finished running
+    --web-console                   Launch Drillbit with the Web / Javascript Console showing (for debugging Drillbit itself)
+
+    iPhone Specific Arguments
+    --iphone-version=DIR            The iPhone SDK version to build against (default: 4.0)
+    
+    Android Specific Arguments
+    --android-sdk=DIR               Android SDK is loaded from DIR
+    --android-version=VERSION       The Android Platform version to build against (default: 4)
+    --android-force-build           When passed, the test harness is forcefully built on initial deploy
+    --android-device=DEVICE         The device argument to pass to ADB.
+                                    Valid values: emulator (-e), device (-d), or specific serial (default: emulator)
+""" % sys.argv[0]
+	sys.exit(1)
+
 def build_and_run(args=None):
+	if len(args) == 1 and args[0] in ["--help", "-h"]:
+		usage()
+
 	# first we need to find the desktop SDK for tibuild.py
 	if platform.system() == 'Darwin':
 		base_sdk = '/Library/Application Support/Titanium/sdk/osx'
@@ -78,7 +107,7 @@ def build_and_run(args=None):
 	
 	try:
 		# temporary hack to avoid using Desktop version >= 1.2.0 - we don't play nice with it...yet.
-		if version(use_version) >= version("1.2.0"):	
+		if version(use_version) >= version("1.2.0"):
 			use_version = versions[-2]
 	except: pass
 	
@@ -97,7 +126,7 @@ def build_and_run(args=None):
 	mobilesdk_dir = os.path.join(mobile_dist_dir, 'mobilesdk', platform_name, titanium_version.version)
 	mobilesdk_zipfile = os.path.join(mobile_dist_dir, 'mobilesdk-%s-%s.zip' % (titanium_version.version, platform_name))
 	if platform.system() == 'Darwin':
-		subprocess.Popen(['/usr/bin/unzip', '-q', '-o', '-d', mobile_dist_dir, os.path.join(mobile_dist_dir, 'mobilesdk-%s-%s.zip' % (titanium_version.version, platform_name))])
+		subprocess.Popen(['/usr/bin/unzip', '-q', '-o', '-d', mobile_dist_dir, mobilesdk_zipfile])
 	else:
 		# extract the mobilesdk zip so we can use it for testing
 		mobilesdk_zip = zipfile.ZipFile(mobilesdk_zipfile)

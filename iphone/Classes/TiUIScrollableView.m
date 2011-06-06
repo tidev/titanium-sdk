@@ -455,6 +455,11 @@
 	minScale = [TiUtils floatValue:scale];
 }
 
+-(void)setDisableBounce_:(id)value
+{
+	[[self scrollview] setBounces:![TiUtils boolValue:value]];
+}
+
 #pragma mark Rotation
 
 -(void)manageRotation

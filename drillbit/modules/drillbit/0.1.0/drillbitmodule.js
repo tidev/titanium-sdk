@@ -46,23 +46,23 @@ Drillbit = function() {
 	
 	this.resultsDir = ti.fs.getFile(ti.path.fromurl('app://test_results'));
 	this.initPython();
-	
-	ti.include(ti.path.join(this.module.getPath(), 'lib', 'optimist.js'));
-	ti.include(ti.path.join(this.module.getPath(), 'lib', 'ejs.js'));
-	this.processArgv();
-	
+
 	var app = Ti.API.getApplication();
 	this.resourcesDir = app.getResourcesPath();
 	this.contentsDir = ti.path.dirname(this.resourcesDir);
 	this.testHarnessDir = ti.path.join(this.resourcesDir, 'test_harness');
 	this.testHarnessResourcesDir = ti.path.join(this.testHarnessDir, 'Resources');
 	this.testHarnessId = 'org.appcelerator.titanium.testharness';
-	
+
+	ti.include(ti.path.join(this.module.getPath(), 'lib', 'optimist.js'));
+	ti.include(ti.path.join(this.module.getPath(), 'lib', 'ejs.js'));
+	this.processArgv();
+
 	this.drillbitTestJs = ti.fs.getFile(this.module.getPath(), 'drillbitTest.js').read().toString();
 	this.templatesDir = ti.path.join(this.module.getPath(), 'templates');
-	
+
 	this.loadAllTests();
-	
+
 	var manifestPath = app.getManifestPath();
 	var manifestHarness = ti.fs.getFile(ti.path.dirname(manifestPath), 'manifest_harness');
 	this.setupTestHarness(manifestHarness);
@@ -212,7 +212,9 @@ Drillbit.prototype.renderTemplate = function(path, data, toPath) {
 };
 
 Drillbit.prototype.createPythonProcess = function(args) {
-	return Ti.Process.createProcess([this.python].concat(args));
+	var pyArgs = [this.python].concat(args);
+	Ti.API.info("running: " + pyArgs.join(" "));
+	return Ti.Process.createProcess(pyArgs);
 };
 
 Drillbit.prototype.frontendDo = function()
@@ -808,6 +810,14 @@ Drillbit.prototype.generateFinalResults = function()
 	drillbitJsonStream.write(JSON.stringify(finalResults));
 	drillbitJsonStream.close();
 };
+
+Drillbit.prototype.handleTestError = function(suite)
+{
+	this.frontendDo('test_platform_status', suite.name, 'Error', 'android');
+	this.frontendDo('test_status', suite.name, 'Error')
+	this.testDuration = (new Date().getTime() - this.testsStarted)/1000;
+	this.frontendDo('all_finished');
+}
 
 Drillbit.prototype.reset = function()
 {
