@@ -226,6 +226,13 @@ function reloadTests() {
 
 $(window).ready(function()
 {
+	var mouseDown = false,
+		startY = 0,
+		drillbitConsole= document.getElementById('console'),
+		drillbitResize= document.getElementById('resize-bar'), 
+		startHeight = $(drillbitConsole).height(),
+		resizerHeight = 12;
+
 	if ('webConsole' in Drillbit.argv) {
 		Titanium.UI.currentWindow.showInspector(true);
 	}
@@ -254,9 +261,29 @@ $(window).ready(function()
 			Drillbit.emulators.android.needsBuild = $(this).is(':checked');
 		}	
 	});
-	
-	runLink.click(function ()
-	{
+	$("#resize-bar").mousedown(function() {
+		mouseDown = true;
+		startHeight = $(drillbitConsole).height();
+		startY = event.clientY;
+	});
+	$("body").mousemove(function() {
+		if (mouseDown)
+		{
+			mouseY = event.clientY;
+			$(drillbitConsole).height((startY - mouseY) + startHeight);
+			drillbitResize.style.bottom = (startY - mouseY) + startHeight + resizerHeight;
+		}
+	});
+	$("body").mouseup(function() {
+		if (mouseDown) {
+			mouseDown = false;
+			mouseY = event.clientY;
+			$(drillbitConsole).height((startY - mouseY) + startHeight);
+			drillbitResize.style.bottom = (startY - mouseY) + startHeight + resizerHeight;
+		}
+		
+	});
+	runLink.click(function () {
 		if (!runLinkDisabled)
 		{
 			reloadTests();
