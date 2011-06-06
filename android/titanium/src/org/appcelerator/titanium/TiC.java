@@ -194,6 +194,7 @@ public class TiC
 	public static final String PROPERTY_LEFT = "left";
 	public static final String PROPERTY_LEFT_BUTTON = "leftButton";
 	public static final String PROPERTY_LEFT_IMAGE = "leftImage";
+	public static final String PROPERTY_LEFT_VIEW = "leftView";
 	public static final String PROPERTY_LENGTH = "length";
 	public static final String PROPERTY_LEVEL = "level";
 	public static final String PROPERTY_LOCATION = "location";
@@ -239,6 +240,7 @@ public class TiC
 	public static final String PROPERTY_RIGHT = "right";
 	public static final String PROPERTY_RIGHT_BUTTON = "rightButton";
 	public static final String PROPERTY_RIGHT_IMAGE = "rightImage";
+	public static final String PROPERTY_RIGHT_VIEW = "rightView";
 	public static final String PROPERTY_ROTATE = "rotate";
 	public static final String PROPERTY_ROW_DATA = "rowData";
 	public static final String PROPERTY_ROW_HEIGHT = "rowHeight";

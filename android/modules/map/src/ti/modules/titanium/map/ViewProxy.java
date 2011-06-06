@@ -15,7 +15,6 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
@@ -23,7 +22,6 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.app.Activity;
 import android.app.LocalActivityManager;
 import android.content.Intent;
-import android.os.Message;
 import android.view.Window;
 
 @Kroll.proxy(creatableInModule=MapModule.class)

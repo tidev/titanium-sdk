@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.map;
 
+import org.appcelerator.titanium.proxy.TiViewProxy;
+
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.OverlayItem;
 
@@ -13,6 +15,8 @@ public class TiOverlayItem extends OverlayItem
 {
 	private String leftButtonPath;
 	private String rightButtonPath;
+	private TiViewProxy leftView;
+	private TiViewProxy rightView;
 	private AnnotationProxy proxy;
 
 	public TiOverlayItem(GeoPoint location, String title, String snippet, AnnotationProxy proxy) {
@@ -34,6 +38,24 @@ public class TiOverlayItem extends OverlayItem
 
 	public String getRightButton() {
 		return rightButtonPath;
+	}
+
+	public void setLeftView(TiViewProxy leftView) {
+		this.leftView = leftView;
+	}
+
+	public TiViewProxy getLeftView()
+	{
+		return leftView;
+	}
+
+	public void setRightView(TiViewProxy rightView) {
+		this.rightView = rightView;
+	}
+
+	public TiViewProxy getRightView()
+	{
+		return rightView;
 	}
 
 	public AnnotationProxy getProxy() {
