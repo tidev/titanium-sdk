@@ -35,7 +35,9 @@
 	for (int i=0; i < length; i++) {
 		[encoded appendFormat:@"%02x",result[i]];
 	}
-	return [encoded lowercaseString];
+	NSString* value = [encoded lowercaseString];
+	[encoded release];
+	return value;
 }
 
 #pragma mark Public API

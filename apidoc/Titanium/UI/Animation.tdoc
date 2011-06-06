@@ -64,12 +64,12 @@ var view = Titanium.UI.createView({
 var animation = Titanium.UI.createAnimation();
 animation.backgroundColor = 'black';
 animation.duration = 1000;
-animation.addEventListener('complete',function()
-{
-   animation.removeEventListener('complete',this);
+var animationHandler = function() {
+   animation.removeEventListener('complete',animationHandler);
    animation.backgroundColor = 'orange';
    view.animate(animation);
-});
+};
+animation.addEventListener('complete',animationHandler);
 view.animate(animation);
 ~~~
 
