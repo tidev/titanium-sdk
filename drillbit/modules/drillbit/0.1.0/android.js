@@ -40,13 +40,35 @@ function AndroidEmulator(drillbit, androidSdk, apiLevel, platform, googleApis) {
 	this.testHarnessRunning = false;
 	
 	this.needsBuild = 'androidForceBuild' in drillbit.argv;
+
+	var androidGenDir = ti.path.join(this.drillbit.resourcesDir, 'android', 'gen');
+	var androidSrcDir = ti.path.join(this.drillbit.resourcesDir, 'android', 'src');
+	var self = this;
+	ti.path.recurse(androidGenDir, function(file) {
+		var relativePath = ti.path.relpath(file.nativePath(), androidGenDir);
+		ti.api.debug("relativePath="+relativePath);
+		var destFile = ti.fs.getFile(self.drillbit.testHarnessDir, 'platform', 'android', 'gen', relativePath);
+		ti.api.debug("destFileParentExists="+destFile.parent().exists());
+		if (!destFile.parent().exists()) {
+			destFile.parent().createDirectory(true);
+		}
+		file.copy(destFile);
+	});
+	ti.path.recurse(androidSrcDir, function(file) {
+		var relativePath = ti.path.relpath(file.nativePath(), androidSrcDir);
+		var destFile = ti.fs.getFile(self.drillbit.testHarnessDir, 'platform', 'android', 'src', relativePath);
+		if (!destFile.parent().exists()) {
+			destFile.parent().createDirectory(true);
+		}
+		file.copy(destFile);
+	});
 };
 
 AndroidEmulator.prototype.createADBProcess = function(args) {
 	var adbArgs = [this.adb];
 	if (this.device == 'emulator') {
 		adbArgs.push('-e');
-	} else if (this.device == 'usb') {
+	} else if (this.device == 'device') {
 		adbArgs.push('-d');
 	} else {
 		adbArgs = adbArgs.concat(['-s', this.device]);
@@ -282,11 +304,18 @@ AndroidEmulator.prototype.testHarnessNeedsBuild = function(stagedFiles) {
 	return false;
 };
 
+AndroidEmulator.prototype.installTestHarness = function(launch) {
+	this.runADB(['install', '-r', ti.path.join(this.drillbit.testHarnessDir, 'build', 'android', 'bin', 'app.apk')]);
+	if (launch)
+	{
+		this.launchTestHarness();
+	}
+};
+
 AndroidEmulator.prototype.launchTestHarness = function() {
-	this.runADB(['shell', 'am', 'start',
-		'-a', 'android.intent.action.MAIN',
-		'-c', 'android.intent.category.LAUNCHER',
-		'-n', this.drillbit.testHarnessId + '/.Test_harnessActivity']);
+	this.runADB(['shell', 'am', 'instrument',
+		'-e', 'class', this.drillbit.testHarnessId + '.Test_harnessActivity',
+		this.drillbit.testHarnessId + '/org.appcelerator.titanium.drillbit.TestHarnessRunner']);
 };
 
 AndroidEmulator.prototype.killTestHarness = function() {
@@ -306,17 +335,20 @@ AndroidEmulator.prototype.killTestHarness = function() {
 AndroidEmulator.prototype.runTestHarness = function(suite, stagedFiles) {
 	var forceBuild = 'forceBuild' in suite.options && suite.options.forceBuild;
 	if (!this.testHarnessRunning || this.needsBuild || this.testHarnessNeedsBuild(stagedFiles) || forceBuild) {
-		var command = 'simulator';
-		var commandArgs = [this.avdId, 'HVGA'];
+		var command = 'build';
+		var commandArgs = [];
+		var needsInstall = true;
 		var needsLaunch = false;
+
 		if (this.device.indexOf('emulator') != 0) {
 			command = 'install';
 			commandArgs = [this.avdId, this.device];
 			needsLaunch = true;
+			needsInstall = false;
 		}
 		var process = this.createTestHarnessBuilderProcess(command, commandArgs);
 		this.drillbit.frontendDo('building_test_harness', suite.name, 'android');
-		
+
 		var self = this;
 		process.setOnReadLine(function(data) {
 			var lines = data.split("\n");
@@ -325,7 +357,13 @@ AndroidEmulator.prototype.runTestHarness = function(suite, stagedFiles) {
 			});
 		});
 		process.setOnExit(function(e) {
-			if (needsLaunch) {
+			if (process.getExitCode() != 0) {
+				self.drillbit.handleTestError(suite);
+				return;
+			}
+			if (needsInstall) {
+				self.installTestHarness(true);
+			} else if (needsLaunch) {
 				self.launchTestHarness();
 			}
 			self.testHarnessRunning = true;
@@ -335,8 +373,7 @@ AndroidEmulator.prototype.runTestHarness = function(suite, stagedFiles) {
 	} else {
 		// restart the app
 		this.drillbit.frontendDo('running_test_harness', suite.name, 'android');
-		this.killTestHarness();
-		
+
 		// wait a few seconds after kill, every now and then the proc will still
 		// be hanging up when we try to start it after kill returns
 		var self = this;

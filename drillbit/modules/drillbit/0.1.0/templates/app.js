@@ -14,34 +14,59 @@ var w = Ti.UI.createWindow({
 	backgroundColor: 'white'
 });
 
-var label = Ti.UI.createLabel({
-	font: {fontSize: 20},
-	color: 'black',
-	text: 'test suite: ' + testName,
-	top: 10, left: 10, right: 10
-});
-w.add(label);
-
-var harnessConsole = Ti.UI.createWebView({
-	top: 5, left: 5, right: 5, bottom: 5,
-	backgroundColor: 'white',
-	scalesPageToFit: false,
-	url: 'test_harness_console.html'
+var scrollView = Ti.UI.createScrollView({
+	top: 0, left: 0,
+	right: 0, bottom: 0,
+	scrollType: 'vertical',
+	showVerticalScrollIndicator: true,
+	backgroundColor: 'black',
+	contentHeight: 'auto',
+	contentWidth: 'auto'
 });
 
-harnessConsole.addEventListener('load', function(e) {
-	harnessConsole.evalJS('tiReady()');
-	runTests();
+var harnessConsole = Ti.UI.createLabel({
+	top: 0, left: 5, right: 5,
+	height: 'auto',
+	backgroundColor: 'black',
+	font: {
+		fontFamily: 'monospace',
+		fontSize: '14'
+	},
+	color: 'white'
 });
+
+var isAndroid = Ti.Platform.osname == "android";
+if (isAndroid) {
+	harnessConsole.html = "<b>test suite: " + testName + "</b><br>";
+} else {
+	harnessConsole.text = "test suite: " + testName + "\n";
+}
 
 w.add(harnessConsole);
+
+// in Android, we run tests through the custom Activity
+if (isAndroid) {
+	TestHarnessActivity.onRunnerReady(runTests);
+} else {
+	w.addEventListener("open", function(e) {
+		runTests();
+	});
+}
 w.open();
 
 function appendMessage(msg, type) {
-	var event = {message: msg};
-	if (type) {
-		event[type] = true;
+	if (isAndroid) {
+		var message = "<font";
+		if (type) {
+			if (type == "fail") {
+				message += " color=\"red\"";
+			} else if (type == "pass") {
+				message += " color=\"green\"";
+			}
+		}
+		message += ">" + msg + "</font><br>";
+		harnessConsole.html += message;
+	} else {
+		harnessConsole.text += message + "\n";
 	}
-	
-	Ti.App.fireEvent('message', event);
 }
