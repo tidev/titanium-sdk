@@ -1,0 +1,601 @@
+---
+name: Titanium.Media.VideoPlayer
+description: The VideoPlayer object is returned by <Titanium.Media.createVideoPlayer> and is useful for playing videos.
+extends: Titanium.UI.View
+since: "0.9"
+methods:
+  - name: add
+    description: add a child to the view hierarchy
+    parameters:
+      - name: view
+        description: the view to add to this views hiearchy
+        type: Object
+  - name: animate
+    description: animate the view
+    parameters:
+      - name: obj
+        description: either a dictionary of animation properties or an Animation object
+        type: Object
+      - name: callback
+        description: function to be invoked upon completion of the animation
+        type: Callback
+  - name: cancelAllThumbnailImageRequests
+    description: Cancels all pending asynchronous thumbnail requests.
+  - name: hide
+    description: hide the view
+  - name: pause
+    description: pause playing the video. On iOS only available under 3.2 and later
+  - name: play
+    description: start playing the video
+  - name: release
+    description: release the internal video resources immediately.  this is not usually necessary but can help if you no longer need to use the player after it is used to help converse memory.
+  - name: remove
+    description: remove a previously add view from the view hiearchy
+    parameters:
+      - name: view
+        description: the view to remove from this views hiearchy
+        type: Object
+  - name: requestThumbnailImagesAtTimes
+    description: Asynchronously request thumbnails for one or more times, provided as an array of numbers (double). Fires a `thumbnail` event on completion. Optionally invokes the callback function passed in the method.
+    parameters:
+      - name: times
+        description: array of doubles for each time to request
+        type: Array<Object>
+      - name: option
+        description: either <Titanium.Media.VIDEO_TIME_OPTION_NEAREST_KEYFRAME> or <Titanium.Media.VIDEO_TIME_OPTION_EXACT>.
+        type: Number
+  - name: setBackgroundView
+    description: A view for customization which is always displayed behind movie content.
+    parameters:
+      - name: view
+        description: view to set
+        type: Object
+  - name: setMedia
+    description: the a non-url based media to play, either a File or Blob.
+    parameters:
+      - name: media
+        description: media to play
+        type: Object
+  - name: setUrl
+    description: the url to play
+    parameters:
+      - name: url
+        description: the url to play
+        type: String
+  - name: show
+    description: make the view visible
+  - name: stop
+    description: stop playing the video
+  - name: thumbnailImageAtTime
+    description: Returns a thumbnail at the given time as a blob.
+    returns:
+        type: Object
+    parameters:
+      - name: time
+        description: playback time
+        type: Number
+      - name: option
+        description: either <Titanium.Media.VIDEO_TIME_OPTION_NEAREST_KEYFRAME> or <Titanium.Media.VIDEO_TIME_OPTION_EXACT>
+        type: Number
+  - name: toImage
+    description: return a Blob image of the rendered view
+    returns:
+        type: Object
+    parameters:
+      - name: f
+        description: function to be invoked upon completion. if non-null, this method will be performed asynchronously. if null, it will be performed immediately
+        type: Callback
+events:
+  - name: click
+    description: fired when the device detects a click (longer than touch) against the view
+    properties:
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: source
+        description: the source object that fired the event
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+  - name: complete
+    description: fired when movie playback ends or a user exits playback
+    properties:
+      - name: source
+        description: the source object that fired the event
+      - name: reason
+        description: the completion reason. One of <Titanium.Media.VIDEO_FINISH_REASON_PLAYBACK_ENDED>, <Titanium.Media.VIDEO_FINISH_REASON_PLAYBACK_ERROR> or <Titanium.Media.VIDEO_FINISH_REASON_USER_EXITED>.
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+  - name: dblclick
+    description: fired when the device detects a double click against the view
+    properties:
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: source
+        description: the source object that fired the event
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+  - name: doubletap
+    description: fired when the device detects a double tap against the view
+    properties:
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: source
+        description: the source object that fired the event
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+  - name: durationAvailable
+    description: fired when the duration is available
+    properties:
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: source
+        description: the source object that fired the event
+      - name: duration
+        description: duration
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+  - name: error
+    description: fired when movie playback encounters an error
+    properties:
+      - name: source
+        description: the source object that fired the event
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+      - name: message
+        description: reason for error as string
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+  - name: fullscreen
+    description: fired when a movie changes from fullscreen view
+    properties:
+      - name: source
+        description: the source object that fired the event
+      - name: entering
+        description: true to indicate entering fullscreen, false to indicate leaving fullscreen
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+  - name: load
+    description: fired when the movie play loads
+    properties:
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: source
+        description: the source object that fired the event
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+  - name: loadstate
+    description: fired when the network loadState changes
+    properties:
+      - name: loadState
+        description: loadState
+      - name: source
+        description: the source object that fired the event
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+  - name: mediaTypesAvailable
+    description: fired when the media types is available
+    properties:
+      - name: source
+        description: the source object that fired the event
+      - name: mediaTypes
+        description: media types
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+  - name: naturalSizeAvailable
+    description: fired when the natural size is available
+    properties:
+      - name: naturalSize
+        description: natural size as a dictionary. see `naturalSize` property.
+      - name: source
+        description: the source object that fired the event
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+  - name: playbackState
+    description: fired when the playbackState changes
+    properties:
+      - name: source
+        description: the source object that fired the event
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+      - name: playbackState
+        description: playbackState
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+  - name: playing
+    description: fired when the currently playing movie changes
+    properties:
+      - name: url
+        description: url of the media
+      - name: source
+        description: the source object that fired the event
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+  - name: preload
+    description: fired when the movie has preloaded and is ready to play
+    properties:
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: source
+        description: the source object that fired the event
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+  - name: resize
+    description: fired when the movie player is resized
+    properties:
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: source
+        description: the source object that fired the event
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+  - name: singletap
+    description: fired when the device detects a single tap against the view
+    properties:
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: source
+        description: the source object that fired the event
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+  - name: sourceChange
+    description: fired when the movieSourceType is <Titanium.Media.VIDEO_SOURCE_TYPE_UNKNOWN> when preparing for playback.
+    properties:
+      - name: sourceChange
+        description: the new sourceType
+      - name: source
+        description: the source object that fired the event
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+  - name: swipe
+    description: fired when the device detects a swipe (left or right) against the view
+    properties:
+      - name: direction
+        description: direction of the swipe - either left or right
+      - name: source
+        description: the source object that fired the event
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+  - name: thumbnail
+    description: fired when a movie thumbnail is available from `requestThumbnailImagesAtTimes`
+    properties:
+      - name: success
+        description: boolean to indicate success or failure
+      - name: image
+        description: blob of the thumbnail image
+      - name: time
+        description: time
+      - name: source
+        description: the source object that fired the event
+      - name: error
+        description: if success is `false`, error message as string for reason
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+  - name: touchcancel
+    description: fired when a touch event is interrupted by the device. this happens in circumenstances such as an incoming call to allow the UI to clean up state.
+    properties:
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: source
+        description: the source object that fired the event
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+  - name: touchend
+    description: fired when a touch event is completed
+    properties:
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: source
+        description: the source object that fired the event
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+  - name: touchmove
+    description: fired as soon as the device detects movement of a touch.  Event coordinates are always relative to the view in which the initial touch occurred
+    properties:
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: source
+        description: the source object that fired the event
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+  - name: touchstart
+    description: fired as soon as the device detects a gesture
+    properties:
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: source
+        description: the source object that fired the event
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+  - name: twofingertap
+    description: fired when the device detects a two-finger tap against the view
+    properties:
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: source
+        description: the source object that fired the event
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+properties:
+  - name: allowsAirPlay
+    description: Whether or not the movie can be played on a remote device.  iOS 4.3+ only.
+    type: Boolean
+    platforms: [iphone, ipad]
+    osver:
+        ios:
+            min: "4.3"
+  - name: anchorPoint
+    description: a dictionary with properties x and y to indicate the anchor point value. anchor specifies the position by which animation should occur. center is 0.5, 0.5
+    type: Object
+  - name: animatedCenterPoint
+    description: read-only object with x and y properties of where the view is during animation
+    type: Object
+  - name: autoplay
+    description: indicates if a movie should automatically start playback when it is likely to finish uninterrupted based on e.g. network conditions. Defaults to true.
+    type: Boolean
+  - name: backgroundColor
+    description: the background color of the view
+    type: String
+  - name: backgroundDisabledColor
+    description: the disabled background color of the view. (Android)
+    platforms: [android]
+    type: String
+  - name: backgroundDisabledImage
+    description: the disabled background image url of the view. (Android)
+    platforms: [android]
+    type: String
+  - name: backgroundFocusedColor
+    description: the focused background color of the view. focusable must be true for normal views. (Android)
+    platforms: [android]
+    type: String
+  - name: backgroundFocusedImage
+    description: the focused background image url of the view. focusable must be true for normal views. (Android)
+    platforms: [android]
+    type: String
+  - name: backgroundGradient
+    description: |
+        a background gradient for the view with the properties: type,startPoint,endPoint,startRadius,endRadius,backfillStart,backfillEnd,colors.
+    type: Object
+  - name: backgroundImage
+    description: the background image url of the view
+    type: String
+  - name: backgroundLeftCap
+    description: End caps specify the portion of an image that should not be resized when an image is stretched. This technique is used to implement buttons and other resizable image-based interface elements. When a button with end caps is resized, the resizing occurs only in the middle of the button, in the region between the end caps. The end caps themselves keep their original size and appearance. This property specifies the size of the left end cap. The middle (stretchable) portion is assumed to be 1 pixel wide. The right end cap is therefore computed by adding the size of the left end cap and the middle portion together and then subtracting that value from the width of the image
+    type: Number
+  - name: backgroundSelectedColor
+    description: the selected background color of the view. focusable must be true for normal views. (Android)
+    platforms: [android]
+    type: String
+  - name: backgroundSelectedImage
+    description: the selected background image url of the view. focusable must be true for normal views. (Android)
+    platforms: [android]
+    type: String
+  - name: backgroundTopCap
+    description: End caps specify the portion of an image that should not be resized when an image is stretched. This technique is used to implement buttons and other resizable image-based interface elements. When a button with end caps is resized, the resizing occurs only in the middle of the button, in the region between the end caps. The end caps themselves keep their original size and appearance. This property specifies the size of the top end cap. The middle (stretchable) portion is assumed to be 1 pixel wide. The bottom end cap is therefore computed by adding the size of the top end cap and the middle portion together and then subtracting that value from the height of the image
+    type: Number
+  - name: borderColor
+    description: the border color of the view
+    type: String
+  - name: borderRadius
+    description: the border radius of the view
+    type: Number
+  - name: borderWidth
+    description: the border width of the view
+    type: Number
+  - name: bottom
+    description: property for the view bottom position. This position is relative to the view's parent. Can be either a float value or a dimension string ie 'auto' (default).
+    type: [Number,String]
+  - name: center
+    description: a dictionary with properties x and y to indicate the center of the views position relative to the parent view
+    type: Object
+  - name: contentURL
+    description: deprecated. use url property instead.
+    type: String
+  - name: duration
+    description: The duration of the movie, or 0.0 if not known.
+    type: Number
+  - name: endPlaybackTime
+    description: The end time of movie playback. Defaults to NaN, which indicates natural end time of the movie.
+    type: Number
+  - name: focusable
+    description: |
+        Set true if you want a view to be focusable when navigating with the trackball or D-Pad. Default: false. (Android Only)
+    type: Boolean
+  - name: fullscreen
+    description: Determines if the movie is presented in the entire screen (obscuring all other application content). Default is false. Setting this property to true before the movie player's view is visible will have no effect.
+    type: Boolean
+  - name: height
+    description: property for the view height. Can be either a float value or a dimension string ie 'auto' (default).
+    type: [Number,String]
+  - name: initialPlaybackTime
+    description: The start time of movie playback. Defaults to NaN, indicating the natural start time of the movie.
+    type: Number
+  - name: left
+    description: property for the view left position. This position is relative to the view's parent. Can be either a float value or a dimension string ie 'auto' (default).
+    type: [Number,String]
+  - name: loadState
+    description: Returns the network load state of the movie player.
+    type: Number
+  - name: media
+    description: the media object, either a File or Blob.
+    type: Object
+  - name: mediaControlStyle
+    description: The style of the playback controls. Defaults to <Titanium.Media.VIDEO_CONTROL_DEFAULT>
+    type: Number
+  - name: mediaTypes
+    description: The types of media in the movie, or <Titanium.Media.VIDEO_MEDIA_TYPE_NONE> if not known.
+    type: Number
+  - name: movieControlMode
+    description: deprecated in 3.2+ of the iPhone SDK - use `mediaControlStyle`. Provides the ability to set the control mode of the movie player. Defaults to <Titanium.Media.VIDEO_CONTROL_DEFAULT>.
+    type: Number
+  - name: naturalSize
+    description: returns a dictionary with properties `width` and `height`. Returns the natural size of the movie or 0 for both properties if not known or applicable.
+    type: Object
+  - name: opacity
+    description: the opacity from 0.0-1.0
+    type: Number
+  - name: playableDuration
+    description: The currently playable duration of the movie, for progressively downloaded network content.
+    type: Number
+  - name: playbackState
+    description: Returns the current playback state of the music player
+    type: Number
+  - name: playing
+    description: Boolean to indicate if the player has started playing.
+    type: Boolean
+  - name: repeatMode
+    description: Determines how the movie player repeats when reaching the end of playback. Defaults to <Titanium.Media.VIDEO_REPEAT_MODE_NONE>.
+    type: Number
+  - name: right
+    description: property for the view right position. This position is relative to the view's parent. Can be either a float value or a dimension string ie 'auto' (default).
+    type: [Number,String]
+  - name: scalingMode
+    description: Determines how the content scales to fit the view. Defaults to <Titanium.Media.VIDEO_SCALING_ASPECT_FIT>.
+    type: Number
+  - name: size
+    description: the size of the view as a dictionary of width and height properties
+    type: Object
+  - name: softKeyboardOnFocus
+    description: One of Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS, Titanium.UI.Android.SOFT_KEYBOARD_HIDE_ON_FOCUS, or Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS. (Android only)
+    platforms: [android]
+    type: Number
+  - name: sourceType
+    description: The playback type of the movie. Defaults to <Titanium.Media.VIDEO_SOURCE_TYPE_UNKNOWN>. Specifying a playback type before playing the movie can result in faster load times.
+    type: Number
+  - name: top
+    description: property for the view top position. This position is relative to the view's parent. Can be either a float value or a dimension string ie 'auto' (default).
+    type: [Number,String]
+  - name: touchEnabled
+    description: a boolean indicating if the view should receive touch events (true, default) or forward them to peers (false)
+    type: Boolean
+  - name: transform
+    description: the transformation matrix to apply to the view
+    type: Object
+  - name: url
+    description: url of the media.
+    type: String
+  - name: useApplicationAudioSession
+    description: Indicates if the movie player should inherit the application's audio session instead of creating a new session (which would interrupt the application's session). Defaults to true. Setting this property during playback will not take effect until playback is stopped and started again.
+    type: Boolean
+  - name: visible
+    description: a boolean of the visibility of the view
+    type: Boolean
+  - name: width
+    description: property for the view width. Can be either a float value or a dimension string ie 'auto' (default).
+    type: [Number,String]
+  - name: zIndex
+    description: the z index position relative to other sibling views
+    type: Number
+notes: Starting in iPhone 3.2 SDK, the video player can be embedded in any normal view.  However, if you create multiple video players at one time, only the last one to have its URL set will display video content or behave as if it is a view for a video player.  Prior to 3.2, only fullscreen views were available on iPhone.

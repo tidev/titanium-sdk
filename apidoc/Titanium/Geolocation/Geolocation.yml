@@ -1,0 +1,185 @@
+---
+name: Titanium.Geolocation
+description: The top level Geolocation module. The Geolocation module is used for accessing device location based information.
+extends: Titanium.Module
+since: "0.1"
+methods:
+  - name: forwardGeocoder
+    description: tries to resolve an address to a location.
+    parameters:
+      - name: address
+        description: address to resolve.
+        type: String
+      - name: callback
+        description: function to invoke on success or failure. The event object contains the properties described as the `place` dictionary in <Titanium.Geolocation.reverseGeocoder>.
+        type: Callback
+  - name: getCurrentHeading
+    description: retrieve the current compass heading.
+    parameters:
+      - name: callback
+        description: function to invoke on success or failure of obtaining the current heading. See heading event in <Titanium.Geolocation>.
+        type: Callback
+  - name: getCurrentPosition
+    description: retrieve the last known location from the device. On Android, the radios are not turned on to update the location. On iOS the radios MAY be used if the location is too "old".
+    parameters:
+      - name: callback
+        description: function to invoke on success or failure of obtaining the current location. See location event in <Titanium.Geolocation>.
+        type: Callback
+  - name: reverseGeocoder
+    description: tries to resolve a location to an address.
+    parameters:
+      - name: latitude
+        description: latitude to search
+        type: Number
+      - name: longitude
+        description: longitude to search
+        type: Number
+      - name: callback
+        description: |
+            function to invoke on success or failure. The event object passed contains a `places` array of zero or more place dictionaries. Each `place` dictionary contains the following properties: `street`, `street1`, `city`, `region1`, `region2`, `postalCode`, `country`, `countryCode`, `longitude`, `latitude`, `displayAddress`, `address`.
+        type: Callback
+  - name: setShowCalibration
+    description: configure the calibration UI. set the false to disable the calibration display. (iOS only)
+events:
+  - name: calibration
+    description: fired only on iPhone/iPad when the device detects interface and requires calibration. when this event is fired, the calibration UI is being displayed to the end user.
+    properties:
+      - name: source
+        description: the source object that fired the event
+      - name: type
+        description: the name of the event fired
+  - name: heading
+    description: fired when a heading event is received
+    properties:
+      - name: code
+        description: if success is false, the error code if available (iOS only)
+        platforms: [iphone, ipad]
+      - name: success
+        description: boolean to indicate if the heading event was successfully received or an error occurred
+      - name: source
+        description: the source object that fired the event
+      - name: error
+        description: if success is false, returns a string of the error description
+      - name: type
+        description: the name of the event fired
+      - name: heading
+        description: |
+                heading results dictionary with the following sub-properties: `magneticHeading`, `trueHeading`, `accuracy`, `x`, `y`, `z`, `timestamp`.
+  - name: location
+    description: fired when a location event is received
+    properties:
+      - name: code
+        description: if success is false, the error code if available (iOS only)
+        platforms: [iphone, ipad]
+      - name: success
+        description: boolean to indicate if the location event was successfully received or an error occurred
+      - name: provider
+        platforms: [android]
+        description: |
+                (Android only) location provider dictionary with the following sub-properties: `name`, `accuracy`, `power`, and `provider`.
+      - name: source
+        description: the source object that fired the event
+      - name: coords
+        description: |
+                location coordinates dictionary with the following sub-properties: `latitude`, `longitude`, `altitude`, `accuracy`, `altitudeAccuracy`, `heading`, `speed`, `timestamp`.
+      - name: error
+        description: if success is false, returns a string of the error description
+      - name: type
+        description: the name of the event fired
+properties:
+  - name: ACCURACY_BEST
+    description: accuracy constant
+    type: Number
+  - name: ACCURACY_HUNDRED_METERS
+    description: accuracy constant
+    type: Number
+  - name: ACCURACY_KILOMETER
+    description: accuracy constant
+    type: Number
+  - name: ACCURACY_NEAREST_TEN_METERS
+    description: accuracy constant
+    type: Number
+  - name: ACCURACY_THREE_KILOMETERS
+    description: accuracy constant
+    type: Number
+  - name: AUTHORIZATION_AUTHORIZED
+    description: authorization constant
+    type: Number
+  - name: AUTHORIZATION_DENIED
+    description: authorization constant (user disabled authorization)
+    type: Number
+  - name: AUTHORIZATION_RESTRICTED
+    description: authorization constant (system disabled authorization)
+    type: Number
+  - name: AUTHORIZATION_UNKNOWN
+    description: authorization constant
+    type: Number
+  - name: ERROR_DENIED
+    description: error constant (iOS only)
+    platforms: [iphone, ipad]
+    type: Number
+  - name: ERROR_HEADING_FAILURE
+    description: error constant (iOS only)
+    platforms: [iphone, ipad]
+    type: Number
+  - name: ERROR_LOCATION_UNKNOWN
+    description: error constant (iOS only)
+    platforms: [iphone, ipad]
+    type: Number
+  - name: ERROR_NETWORK
+    description: error constant (iOS only)
+    platforms: [iphone, ipad]
+    type: Number
+  - name: ERROR_REGION_MONITORING_DELAYED
+    description: error constant (iOS 4.0+ only)
+    platforms: [iphone, ipad]
+    osver:
+        ios:
+            min: "4.0"
+    type: Number
+  - name: ERROR_REGION_MONITORING_DENIED
+    description: error constant (iOS 4.0+ only)
+    type: Number
+    platforms: [iphone, ipad]
+    osver:
+        ios:
+            min: "4.0"
+  - name: ERROR_REGION_MONITORING_FAILURE
+    description: error constant (iOS 4.0+ only)
+    type: Number
+    platforms: [iphone, ipad]
+    osver:
+        ios:
+            min: "4.0"
+  - name: PROVIDER_GPS
+    description: The GPS location provider
+    type: String
+  - name: PROVIDER_NETWORK
+    description: The Network location provider
+    type: String
+  - name: distanceFilter
+    description: The minimum change of position (in meters) before a 'location' event is fired. Default is 0, meaning that location events are continuously generated.
+    type: Number
+  - name: headingFilter
+    description: The minium change of heading (in degrees) before a 'heading' event is fired. Default is 0, meaning that heading events are continuously generated.
+    type: Number
+  - name: locationServicesAuthorization
+    description: (iOS 4.2+ only). Returns an authorization constant indicating if the application has access to location services. Always returns AUTHORIZATION_UNKNOWN on pre-4.2 devices. Attempting to re-authorize when AUTHORIZATION_RESTRICTED will lead to issues
+    type: Number
+    platforms: [iphone, ipad]
+    osver:
+        ios:
+            min: "4.2"
+  - name: locationServicesEnabled
+    description: returns true if the user has enabled or disable location services for the device (not the application).
+    type: Boolean
+  - name: preferredProvider
+    description: allows setting of the preferred location provider.  Returns undefined when the preferred provider is auto-detected
+    type: String
+  - name: purpose
+    description: (iOS only). This property informs the end-user why location services are being requested by the application.  This string will be display in the permission dialog. This property is REQUIRED starting in 4.0.
+    platforms: [iphone, ipad]
+    type: String
+  - name: showCalibration
+    description: returns true if the calibration UI can show
+    type: Boolean

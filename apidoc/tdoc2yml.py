@@ -16,19 +16,15 @@ except:
 
 types = []
 doc_dir = os.path.abspath(os.path.dirname(__file__))
-OUTPUT_DIR_OVERRIDE = "/Users/bill/tmp/yml"
+OUTPUT_DIR_OVERRIDE = None
 skip_methods = (
 	'addEventListener',
 	'removeEventListener',
 	'fireEvent')
-skip_methods_view = (
-	'add',
-	'remove',
-	'toImage',
-	'animate'
-	)
 skip_properties = []
-skip_properties_view = []
+view_methods = []
+view_properties = []
+view_events = []
 indent = "    "
 
 def clean_type(t):
@@ -43,16 +39,20 @@ def clean_type(t):
 def skip_property(p, t):
 	if p['name'] in skip_properties:
 		return True
-	if t['name'].startswith('Titanium.UI.') and t['name'] != 'Titanium.UI.View':
-		return p['name'] in skip_properties_view
+	if is_view(t) and t['name'] != 'Titanium.UI.View':
+		return p['name'] in view_properties
 	return False
 
 def skip_method(m, t):
 	if m['name'] in skip_methods:
 		return True
-	if t['name'].startswith('Titanium.UI.') and t['name'] != 'Titanium.UI.View':
-		return m['name'] in skip_methods_view
+	if is_view(t) and t['name'] != 'Titanium.UI.View':
+		return m['name'] in view_methods
 	return False
+
+def skip_event(e, t):
+	if is_view(t) and t['name'] != 'Titanium.UI.View':
+		return e['name'] in view_events
 
 def err(msg, exit=False):
 	print >> sys.stderr, "[ERROR] %s" % msg
@@ -73,6 +73,36 @@ def is_module(t):
 		if tt['name'].startswith(t['name']) and tt['name'] != t['name']:
 			return True
 	return False
+
+def is_view(t):
+	if 'properties' in t:
+		props = [p['name'] for p in t['properties']]
+		return 'height' in props and 'width' in props and 'borderColor' in props
+	return False
+
+def fetch_view_attributes():
+	global view_methods
+	global view_properties
+	global view_events
+	view_type = [t for t in types if t['name'] == 'Titanium.UI.View'][0]
+	view_methods = [m['name'] for m in view_type['methods']]
+	view_properties = [p['name'] for p in view_type['properties']]
+	view_events = [e['name'] for e in view_type['events']]
+
+def is_view_method(method_name):
+	if len(view_methods) == 0:
+		fetch_view_attributes()
+	return method_name in view_methods
+
+def is_view_event(event_name):
+	if len(view_events) == 0:
+		fetch_view_attributes()
+	return event_name in view_events
+
+def is_view_property(property_name):
+	if len(view_properties) == 0:
+		fetch_view_attributes()
+	return property_name in view_properties
 
 def prepare_free_text(s, indent_level=0):
 	ind = ''
@@ -128,10 +158,11 @@ def wl(f, line):
 
 def convert_basic_info(t, f):
 	module = is_module(t)
+	view = is_view(t)
 	extends = 'Titanium.Proxy'
 	if module:
 		extends = 'Titanium.Module'
-	elif t['name'].startswith('Titanium.UI') and t['name'] != "Titanium.UI.View":
+	elif view and t['name'] != "Titanium.UI.View":
 		extends = 'Titanium.UI.View'
 	wl(f, '---')
 	wl(f, 'name: %s' % t['name'])
@@ -212,6 +243,8 @@ def convert_events(t, f):
 		return
 	wl(f, 'events:')
 	for event in t['events']:
+		if skip_event(event, t):
+			continue
 		convert_event(t, event, f)
 
 # t=type, p=property, f=file
@@ -246,6 +279,11 @@ def convert_type(t):
 		convert_properties(t, f)
 		if 'remarks' in t and len(t['remarks'])>0:
 			wl(f, 'notes: %s' % prepare_free_text(t['remarks'][0].strip()))
+		if 'examples' in t and len(t['examples'])>0:
+			examples = ''
+			for example in t['examples']:
+				examples += example['name'] + '\n\n' + example['code']
+			wl(f, 'examples: %s' % prepare_free_text(examples))
 
 	finally:
 		f.close()
