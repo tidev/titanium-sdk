@@ -233,7 +233,10 @@ $(window).ready(function()
 		drillbitSuite=document.getElementsByClassName('suites')[0],
 		startHeightSuite=$(drillbitSuite).height(),
 		startHeightConsole = $(drillbitConsole).height(),
-		resizerHeight = 12;	
+		consoleRatio= $(drillbitConsole).height()/window.innerHeight,
+		suiteRatio= $(drillbitSuite).height()/window.innerHeight,
+		resizerHeight = 12
+		spaceBuffer = 85;	
 
 	if ('webConsole' in Drillbit.argv) {
 		Titanium.UI.currentWindow.showInspector(true);
@@ -263,6 +266,7 @@ $(window).ready(function()
 			Drillbit.emulators.android.needsBuild = $(this).is(':checked');
 		}	
 	});
+	
 	$("#resize-bar").mousedown(function() {
 		mouseDown = true;
 		startHeightConsole = $(drillbitConsole).height();
@@ -274,8 +278,10 @@ $(window).ready(function()
 		{
 			mouseY = event.clientY;
 			$(drillbitConsole).height((startY - mouseY) + startHeightConsole);
-			$(drillbitSuite).height(window.innerHeight - 85 - $(drillbitConsole).height());
+			$(drillbitSuite).height(window.innerHeight - spaceBuffer - $(drillbitConsole).height());
 			drillbitResize.style.bottom = (startY - mouseY) + startHeightConsole + resizerHeight;
+			consoleRatio= $(drillbitConsole).height()/window.innerHeight;
+			suiteRatio= $(drillbitSuite).height()/window.innerHeight;
 		}
 	});
 	$("body").mouseup(function() {
@@ -283,10 +289,15 @@ $(window).ready(function()
 			mouseDown = false;
 			mouseY = event.clientY;
 			$(drillbitConsole).height((startY - mouseY) + startHeightConsole);
-			$(drillbitSuite).height(window.innerHeight - 85 - $(drillbitConsole).height());
+			$(drillbitSuite).height(window.innerHeight - spaceBuffer - $(drillbitConsole).height());
 			drillbitResize.style.bottom = (startY - mouseY) + startHeightConsole + resizerHeight;
+			consoleRatio= $(drillbitConsole).height()/window.innerHeight;
+			suiteRatio= $(drillbitSuite).height()/window.innerHeight;
 		}
-		
+	});
+	$(window).resize(function() {
+		$(drillbitConsole).height(window.innerHeight-$(drillbitSuite).height()-spaceBuffer);
+		drillbitResize.style.bottom = $(drillbitConsole).height() + resizerHeight;
 	});
 	runLink.click(function () {
 		if (!runLinkDisabled)
