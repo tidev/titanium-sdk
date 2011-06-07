@@ -79,9 +79,10 @@ methods:
       - name: data
         description: event data or null if not specified. the object must be serializable as JSON
         type: Object
-examples: Custom Feature Event
-    
-    This examples shows how to send a featureEvent during an application session to indicate some feature was triggered/used by the user that you would like to track.
-    
-        Titanium.Analytics.featureEvent('app.feature.blah',{product:'killer'});
-    
+examples:
+  - title: Custom Feature Event
+    example: |
+        This examples shows how to send a featureEvent during an application session to indicate some feature was triggered/used by the user that you would like to track.
+        
+            Titanium.Analytics.featureEvent('app.feature.blah',{product:'killer'});
+        

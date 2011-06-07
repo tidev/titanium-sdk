@@ -1,0 +1,69 @@
+---
+name: Titanium.UI.Clipboard
+description: A module used for accessing clipboard data.
+extends: Titanium.Module
+since: "1.5"
+methods:
+  - name: clearData
+    description: Clear data of the given mime-type from the clipboard. If no mime-type is given, clear all data from the clipboard.
+    parameters:
+      - name: type
+        description: (optional) The mime-type of the data to clear.
+        type: String
+  - name: clearText
+    description: Clear the text portion of the clipboard.
+  - name: getData
+    description: Get the data on the clipboard from the portion which contains data of the given mime-type.
+    parameters:
+      - name: type
+        description: The mime-type of the data to get.
+        type: String
+  - name: getText
+    description: Get the current text on the clipboard.
+  - name: hasData
+    description: Return true if there is any content of the given mime-type on the clipboard.
+    parameters:
+      - name: type
+        description: (optional) The mime-type of the data to check.
+        type: String
+  - name: hasText
+    description: Return true if there is any content in the text portion of the clipboard.
+  - name: setData
+    description: Set the data on the clipboard given a mime-type and the new data. This method will set data on the appropriate portion of the clipboard for the given mime-type.
+    parameters:
+      - name: type
+        description: The mime-type of the data to set.
+        type: String
+      - name: data
+        description: The new clipboard text.
+        type: Object
+  - name: setText
+    description: Set the text on the clipboard. This will overwrite the current contents of the clipboard.
+    parameters:
+      - name: text
+        description: The new clipboard text. If the text is an empty string
+        type: String
+examples: |
+    Copying text to the clipboard
+    
+    
+        copyButton.addEventListener('click', function() {
+            Ti.UI.Clipboard.setText(data.url);
+        });
+    
+    Pasting text from the clipboard
+    
+        if (Ti.UI.Clipboard.hasText()) {
+            doSomethingWith(Ti.UI.Clipboard.getText());
+        } else {
+            alert('Hey there was no text.');
+        }
+    
+    Clipboard data types
+    
+    The *Text() functions are equivalent to calling *Data() with 'text' or 'text/plain' types, and work with plain Unicode strings.
+    
+    On Android, only plain text is supported; other MIME types will be ignored.
+    
+    On iOS, images will be returned as a <Titanium.Blob>; the special type 'image' or an explicit MIME type may be specified. URLs can be fetched with the special 'URL' or 'text/uri-list' types, and will return strings. Other data types may or may not be correctly mapped to clipboard types by the system, and will be retrieved as binary data in a <Titanium.Blob>.
+    

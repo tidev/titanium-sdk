@@ -117,16 +117,18 @@ properties:
   - name: requestedOrientation
     description: The requested orientation of this Activity. See possible constant values that begin with SCREEN_ORIENTATION in the <Titanium.Android> module.
     type: Number
-examples: Callback example
-    
-        activity.startActivityForResult(intent, function(e) {
-            // The request code used to start this Activity
-            var requestCode = e.requestCode;
-            // The result code returned from the Activity (http://developer.android.com/reference/android/app/Activity.html#StartingActivities)
-            var resultCode = e.resultCode;
-            // A Titanium.Android.Intent filled with data returned from the Activity
-            var intent = e.intent;
-            // The Activity the received the result
-            var source = e.source;
-        });
-    
+examples:
+  - title: Callback example
+    example: |
+        
+            activity.startActivityForResult(intent, function(e) {
+                // The request code used to start this Activity
+                var requestCode = e.requestCode;
+                // The result code returned from the Activity (http://developer.android.com/reference/android/app/Activity.html#StartingActivities)
+                var resultCode = e.resultCode;
+                // A Titanium.Android.Intent filled with data returned from the Activity
+                var intent = e.intent;
+                // The Activity the received the result
+                var source = e.source;
+            });
+        

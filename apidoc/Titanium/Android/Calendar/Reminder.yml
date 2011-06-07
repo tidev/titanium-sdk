@@ -14,7 +14,7 @@ properties:
   - name: minutes
     description: The minutes before the event when the reminder should occur.
     type: Number
-examples: Reminder API
+notes: Reminder API
     
     See <Titanium.Android.Calendar> for examples of retrieving reminder information and creating reminders for events.
     

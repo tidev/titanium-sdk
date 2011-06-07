@@ -82,7 +82,5 @@ properties:
     description: The event's visibility.  Possible values are the VISIBILITY constants in <Titanium.Android.Calendar>.
     type: Number
 notes: The API supports retrieving information about existing events and creating new events.  However, modifying or deleting existing events is not yet supported.  Additionally, recurring events are not yet supported.
-examples: Event API
     
     See <Titanium.Android.Calendar> for examples of retrieving event information and creating events.
-    

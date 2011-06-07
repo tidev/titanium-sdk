@@ -1,0 +1,38 @@
+---
+name: Titanium.UI.Tab
+description: A TabGroup Tab instance.  Each Tab instance maintains a stack of tab windows. Only one window 
+    within in the Tab can be visible at a time.  When a window is closed, either by the user or 
+    by code, the window is removed from the stack, make the previous window visible. The root tab 
+    window cannot be removed. The Tab Group is created by the method <Titanium.UI.createTab>.
+extends: Titanium.UI.View
+since: "0.8"
+events:
+properties:
+  - name: badge
+    description: the badge value for the tab group for this tab. null indicates no badge is value
+    type: String
+  - name: icon
+    description: the icon url for the tab group for this tab
+    type: String
+  - name: title
+    description: the title for the tab group for this tab
+    type: String
+  - name: window
+    description: the root level tab window.  all tabs must have at least one root level tab window.
+    type: Object
+notes: |
+    
+examples:
+  - title: Simple Tab Example
+    example: |
+        
+        In this example, we create a simple tab and add it to a tab group.
+        
+            var tab = Titanium.UI.createTab({
+            	window:mywin,
+            	title:'Hello',
+            	icon:'myicon.png'
+            });
+            tabGroup.addTab(tab);
+        
+        

@@ -107,27 +107,30 @@ properties:
   - name: url
     description: The URL to a Titanium Javascript Activity
     type: String
-examples: |
-    Create an Intent for Launching an Activity
+examples:
+  - title: Create an Intent for Launching an Activity
+    example: |
+        
+            var intent = Ti.Android.createIntent({
+                action: Ti.Android.ACTION_MAIN,
+                url: 'activity1.js'
+            });
+            intent.addCategory(Ti.Android.CATEGORY_LAUNCHER);
+            Ti.Android.currentActivity.startActivity(intent);
+        
+  - title: Create an Intent to get a Contact URI from the user's contacts
+    example: |
+        
+            var intent = Ti.Android.createIntent({
+                action: Ti.Android.ACTION_GET_CONTENT,
+                type: "vnd.android.cursor.item/phone"
+            });
     
-        var intent = Ti.Android.createIntent({
-            action: Ti.Android.ACTION_MAIN,
-            url: 'activity1.js'
-        });
-        intent.addCategory(Ti.Android.CATEGORY_LAUNCHER);
-        Ti.Android.currentActivity.startActivity(intent);
-    
-    Create an Intent to get a Contact URI from the user's contacts
-    
-        var intent = Ti.Android.createIntent({
-            action: Ti.Android.ACTION_GET_CONTENT,
-            type: "vnd.android.cursor.item/phone"
-        });
-    
-    Pick a Photo from the Photo Gallery
-    
-        var intent = Ti.Android.createIntent({
-            action: Ti.Android.ACTION_PICK,
-            type: "image/*"
-        });
-        intent.addCategory(Ti.Android.CATEGORY_DEFAULT);
+  - title: Pick a Photo from the Photo Gallery
+    example: |
+        
+            var intent = Ti.Android.createIntent({
+                action: Ti.Android.ACTION_PICK,
+                type: "image/*"
+            });
+            intent.addCategory(Ti.Android.CATEGORY_DEFAULT);

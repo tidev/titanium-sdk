@@ -1,0 +1,26 @@
+---
+name: Titanium.UI.PickerColumn
+description: The picker row object created by [Titanium.UI.createPickerColumn](Titanium.UI.createPickerColumn).
+extends: Titanium.UI.View
+since: "0.9"
+methods:
+  - name: addRow
+    description: add a row to the column.
+    parameters:
+      - name: row
+        description: The row to add.
+        type: Titanium.UI.PickerRow
+  - name: removeRow
+    description: remove a row from the column.
+    parameters:
+      - name: row
+        description: The row to remove.
+        type: Titanium.UI.PickerRow
+events:
+properties:
+  - name: rowCount
+    description: number of rows in the column (readonly)
+    type: Number
+  - name: rows
+    description: an array of rows
+    type: Array<Object>

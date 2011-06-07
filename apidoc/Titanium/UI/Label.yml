@@ -1,0 +1,83 @@
+---
+name: Titanium.UI.Label
+description: A Label is created by the method <Titanium.UI.createLabel>.
+extends: Titanium.UI.View
+since: "0.8"
+events:
+properties:
+  - name: autoLink
+    description: One of Ti.UI.Android.LINKIFY constants. Automatically create clickable links for the specified type. (Android Only)
+    type: Number
+    platforms: [android]
+  - name: backgroundPaddingBottom
+    description: the number of pixels to extend the background image past the label on the bottom
+    type: Number
+  - name: backgroundPaddingLeft
+    description: the number of pixels to extend the background image past the label on the left
+    type: Number
+  - name: backgroundPaddingRight
+    description: the number of pixels to extend the background image past the label on the right
+    type: Number
+  - name: backgroundPaddingTop
+    description: the number of pixels to extend the background image past the label on the top
+    type: Number
+  - name: color
+    description: the color of the label
+    type: String
+  - name: ellipsize
+    description: Turn on/off the addition of ellipses at the end of the label if the text is too large to fit. (Android Only, default false)
+    type: Boolean
+    default: false
+    platforms: [android]
+  - name: font
+    description: the label font object properties
+    type: Object
+  - name: highlightedColor
+    description: the color of the label when in the highlighted state
+    type: String
+  - name: html
+    description: simple html formatting. (Android Only)
+    platforms: [android]
+    type: String
+  - name: minimumFontSize
+    description: the minimum size of the font when the font is sized based on the contents.  Enables font scaling to fit and forces the label content to be limited to a single line
+    type: Number
+  - name: shadowColor
+    description: the text shadow color
+    type: String
+  - name: shadowOffset
+    description: the shadow offset as a dictionary with the properties `x` and `y`
+    type: Object
+  - name: text
+    description: the text of the label
+    type: String
+  - name: textAlign
+    description: the alignment constant or string value such as `left`, `center` or `right`
+    type: [String,Number]
+  - name: textid
+    description: the key in the locale file to use for the text property
+    type: String
+  - name: wordWrap
+    description: Turn on/off word wrapping in the label. (Android Only - default true)
+    type: Boolean
+    platforms: [android]
+    default: true
+notes: |
+    
+examples:
+  - title: Basic Label
+    example: |
+        Create a label with a nice text shadow, 48px font that's aligned `center` and height `auto`.
+        
+            var l2 = Titanium.UI.createLabel({
+            	text:'Appcelerator',
+            	height:'auto',
+            	width:'auto',
+            	shadowColor:'#aaa',
+            	shadowOffset:{x:5,y:5},
+            	color:'#900',
+            	font:{fontSize:48},
+            	textAlign:'center'
+            });
+        
+        

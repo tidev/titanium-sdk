@@ -78,5 +78,5 @@ properties:
   - name: selected
     description: Whether the calendar is selected.
     type: Boolean
-examples: See <Titanium.Android.Calendar> for examples.
+notes: See <Titanium.Android.Calendar> for examples.
     

@@ -105,10 +105,11 @@ properties:
     description: the volume of the audio. this volume only affects the media, not the device audio.
     type: Number
 notes: You can pass the property `preload` in the constructor as an object property to cause the audio to be preloaded before `play` is invoked.  For larger audio files, this is recommended if you want the audio to begin immediately when invoking `play`.
-examples: Simple Example
-    
-    Simple example of playing a WAVE file from the Resources directory.
-    
-        var player = Ti.Media.createSound({url:"sound.wav"});
-        player.play();
-    
+examples:
+  - title: Simple Example
+    example: |
+        Simple example of playing a WAVE file from the Resources directory.
+        
+            var player = Ti.Media.createSound({url:"sound.wav"});
+            player.play();
+        
