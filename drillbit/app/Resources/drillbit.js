@@ -226,6 +226,18 @@ function reloadTests() {
 
 $(window).ready(function()
 {
+	var mouseDown = false,
+		startY = 0,
+		drillbitConsole= document.getElementById('console'),
+		drillbitResize= document.getElementById('resize-bar'), 
+		drillbitSuite=document.getElementsByClassName('suites')[0],
+		startHeightSuite=$(drillbitSuite).height(),
+		startHeightConsole = $(drillbitConsole).height(),
+		consoleRatio= $(drillbitConsole).height()/window.innerHeight,
+		suiteRatio= $(drillbitSuite).height()/window.innerHeight,
+		resizerHeight = 12
+		spaceBuffer = 85;	
+
 	if ('webConsole' in Drillbit.argv) {
 		Titanium.UI.currentWindow.showInspector(true);
 	}
@@ -233,7 +245,7 @@ $(window).ready(function()
 	Drillbit.runTestsAsync = true;
 	Drillbit.frontend = frontend;
 	Drillbit.window = window;
-	initUI();
+	initUI();	
 	
 	var runLink = $('#run-link');
 	$('#toggle-link').click(function() {
@@ -255,8 +267,39 @@ $(window).ready(function()
 		}	
 	});
 	
-	runLink.click(function ()
-	{
+	$("#resize-bar").mousedown(function() {
+		mouseDown = true;
+		startHeightConsole = $(drillbitConsole).height();
+		startHeightSuite = $(drillbitSuite).height();		
+		startY = event.clientY;
+	});
+	$("body").mousemove(function() {
+		if (mouseDown)
+		{
+			mouseY = event.clientY;
+			$(drillbitConsole).height((startY - mouseY) + startHeightConsole);
+			$(drillbitSuite).height(window.innerHeight - spaceBuffer - $(drillbitConsole).height());
+			drillbitResize.style.bottom = (startY - mouseY) + startHeightConsole + resizerHeight;
+			consoleRatio= $(drillbitConsole).height()/window.innerHeight;
+			suiteRatio= $(drillbitSuite).height()/window.innerHeight;
+		}
+	});
+	$("body").mouseup(function() {
+		if (mouseDown) {
+			mouseDown = false;
+			mouseY = event.clientY;
+			$(drillbitConsole).height((startY - mouseY) + startHeightConsole);
+			$(drillbitSuite).height(window.innerHeight - spaceBuffer - $(drillbitConsole).height());
+			drillbitResize.style.bottom = (startY - mouseY) + startHeightConsole + resizerHeight;
+			consoleRatio= $(drillbitConsole).height()/window.innerHeight;
+			suiteRatio= $(drillbitSuite).height()/window.innerHeight;
+		}
+	});
+	$(window).resize(function() {
+		$(drillbitConsole).height(window.innerHeight-$(drillbitSuite).height()-spaceBuffer);
+		drillbitResize.style.bottom = $(drillbitConsole).height() + resizerHeight;
+	});
+	runLink.click(function () {
 		if (!runLinkDisabled)
 		{
 			reloadTests();

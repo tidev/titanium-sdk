@@ -135,6 +135,16 @@ a.disabled {
 	color: #6c6;
 }
 
+#resize-bar{
+	height: 12px;
+	position: absolute;
+	background-color: #555;
+	bottom: 285px;
+	left: 5px;
+	right: 5px;
+	cursor: n-resize;
+}
+
 #console {
 	height: 275px;
 	font-family: monospace;
@@ -144,6 +154,6 @@ a.disabled {
 	bottom: 5px;
 	left: 5px;
 	right: 5px;
-	overflow: scroll;
+	overflow: auto;
 	-webkit-user-select: text;
 }
