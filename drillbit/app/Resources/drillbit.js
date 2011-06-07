@@ -230,8 +230,10 @@ $(window).ready(function()
 		startY = 0,
 		drillbitConsole= document.getElementById('console'),
 		drillbitResize= document.getElementById('resize-bar'), 
-		startHeight = $(drillbitConsole).height(),
-		resizerHeight = 12;
+		drillbitSuite=document.getElementsByClassName('suites')[0],
+		startHeightSuite=$(drillbitSuite).height(),
+		startHeightConsole = $(drillbitConsole).height(),
+		resizerHeight = 12;	
 
 	if ('webConsole' in Drillbit.argv) {
 		Titanium.UI.currentWindow.showInspector(true);
@@ -240,7 +242,7 @@ $(window).ready(function()
 	Drillbit.runTestsAsync = true;
 	Drillbit.frontend = frontend;
 	Drillbit.window = window;
-	initUI();
+	initUI();	
 	
 	var runLink = $('#run-link');
 	$('#toggle-link').click(function() {
@@ -263,23 +265,26 @@ $(window).ready(function()
 	});
 	$("#resize-bar").mousedown(function() {
 		mouseDown = true;
-		startHeight = $(drillbitConsole).height();
+		startHeightConsole = $(drillbitConsole).height();
+		startHeightSuite = $(drillbitSuite).height();		
 		startY = event.clientY;
 	});
 	$("body").mousemove(function() {
 		if (mouseDown)
 		{
 			mouseY = event.clientY;
-			$(drillbitConsole).height((startY - mouseY) + startHeight);
-			drillbitResize.style.bottom = (startY - mouseY) + startHeight + resizerHeight;
+			$(drillbitConsole).height((startY - mouseY) + startHeightConsole);
+			$(drillbitSuite).height(window.innerHeight - 85 - $(drillbitConsole).height());
+			drillbitResize.style.bottom = (startY - mouseY) + startHeightConsole + resizerHeight;
 		}
 	});
 	$("body").mouseup(function() {
 		if (mouseDown) {
 			mouseDown = false;
 			mouseY = event.clientY;
-			$(drillbitConsole).height((startY - mouseY) + startHeight);
-			drillbitResize.style.bottom = (startY - mouseY) + startHeight + resizerHeight;
+			$(drillbitConsole).height((startY - mouseY) + startHeightConsole);
+			$(drillbitSuite).height(window.innerHeight - 85 - $(drillbitConsole).height());
+			drillbitResize.style.bottom = (startY - mouseY) + startHeightConsole + resizerHeight;
 		}
 		
 	});
