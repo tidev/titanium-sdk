@@ -77,6 +77,7 @@ var DrillbitTest =
 				var resultsFile = Ti.Filesystem.getFile("appdata://results.json");
 				results.suite = DrillbitTest.NAME;
 				resultsFile.write(JSON.stringify(results));
+				Ti.dumpCoverage();
 				this.fireEvent("completeAndroid", {});
 				try {
 					if (TestHarnessRunner) {

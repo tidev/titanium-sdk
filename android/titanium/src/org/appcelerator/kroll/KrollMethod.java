@@ -1,11 +1,13 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2010-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.kroll;
 
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
@@ -22,11 +24,17 @@ public abstract class KrollMethod
 
 	protected String name;
 	protected boolean runOnUiThread = false;
+	protected boolean coverageEnabled = false;
 
 	public KrollMethod(String name)
 	{
 		super();
 		this.name = name;
+
+		TiApplication app = TiApplication.getInstance();
+		if (app != null) {
+			coverageEnabled = app.isCoverageEnabled();
+		}
 	}
 
 	@Override
@@ -46,6 +54,9 @@ public abstract class KrollMethod
 		Object methodResult = null;
 		Exception exception = null;
 		KrollInvocation inv = KrollInvocation.createMethodInvocation(scope, thisObj, name, this, proxy);
+		if (coverageEnabled) {
+			
+		}
 		try {
 			if (!runOnUiThread) {
 				return invoke(inv, args);
@@ -114,6 +125,11 @@ public abstract class KrollMethod
 	
 	@Override
 	protected Object equivalentValues(Object value)
+	{
+		return isEquivalentValue(value);
+	}
+
+	public Object isEquivalentValue(Object value)
 	{
 		if (value instanceof KrollProxy.ThisMethod) {
 			KrollProxy.ThisMethod other = (KrollProxy.ThisMethod) value;

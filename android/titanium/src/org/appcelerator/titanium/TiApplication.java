@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -57,6 +57,7 @@ public abstract class TiApplication extends Application
 	private static final String PROPERTY_THREAD_STACK_SIZE = "ti.android.threadstacksize";
 	private static final String PROPERTY_COMPILE_JS = "ti.android.compilejs";
 	public static final String PROPERTY_FASTDEV = "ti.android.fastdev";
+	private static final String PROPERTY_ENABLE_COVERAGE = "ti.android.enablecoverage";
 	
 	private static final String LCAT = "TiApplication";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -554,6 +555,15 @@ public abstract class TiApplication extends Application
 		// When the property is set, it overrides the default behavior
 		return getSystemProperties().getBool(TiApplication.PROPERTY_FASTDEV,
 			getDeployType().equals(TiApplication.DEPLOY_TYPE_DEVELOPMENT));
+	}
+
+	public boolean isCoverageEnabled()
+	{
+		if (!getDeployType().equals(TiApplication.DEPLOY_TYPE_PRODUCTION))
+		{
+			return getSystemProperties().getBool(TiApplication.PROPERTY_ENABLE_COVERAGE, false);
+		}
+		return false;
 	}
 
 	public void scheduleRestart(int delay)
