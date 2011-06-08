@@ -157,27 +157,36 @@ public class ViewProxy extends TiViewProxy
 	public void selectAnnotation(Object[] args)
 	{
 		String title = null;
+		boolean animate = false;
+		boolean center = true; // keep existing default behavior
 
-		if (args.length > 0) {
-			if (args[0] instanceof AnnotationProxy) {
-				title = TiConvert.toString(((AnnotationProxy) args[0]).getProperty("title"));
-			} else if (args[0] instanceof String) {
-				title = TiConvert.toString(args[0]);
+		if (args[0] instanceof KrollDict) {
+			KrollDict params = (KrollDict)args[0];
+			title = params.getString("title");
+			animate = params.getBoolean("animate");
+			center = params.getBoolean("center");
+
+		} else {
+			if (args.length > 0) {
+				if (args[0] instanceof AnnotationProxy) {
+					title = TiConvert.toString(((AnnotationProxy) args[0]).getProperty("title"));
+				} else if (args[0] instanceof String) {
+					title = TiConvert.toString(args[0]);
+				}
+
+				if (args.length > 1) {
+					animate = TiConvert.toBoolean(args[1]);
+				}
 			}
 		}
+
 		if (title != null) {
-			boolean animate = false;
-
-			if (args.length > 1) {
-				animate = TiConvert.toBoolean(args[1]);
-			}
-
 			if (mapView == null) {
 				Log.e(LCAT, "calling selectedAnnotations.add");
 				selectedAnnotations.add(new TiMapView.SelectedAnnotation(title, animate));
 			} else {
 				Log.e(LCAT, "calling selectedAnnotations.add2");
-				mapView.selectAnnotation(true, title, animate);
+				mapView.selectAnnotation(true, title, animate, center);
 			}
 		}
 	}
@@ -209,7 +218,7 @@ public class ViewProxy extends TiViewProxy
 					}
 				}
 			} else {
-				mapView.selectAnnotation(false, title, animate);
+				mapView.selectAnnotation(false, title, animate, false);
 			}
 		}
 	}

@@ -33,6 +33,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -387,38 +388,48 @@ public class TiMapView extends TiUIView
 				doSetLocation((KrollDict) msg.obj);
 				return true;
 			}
+
 			case MSG_SET_MAPTYPE : {
 				doSetMapType(msg.arg1);
 				return true;
 			}
+
 			case MSG_SET_REGIONFIT :
 				regionFit = msg.arg1 == 1 ? true : false;
 				return true;
+
 			case MSG_SET_ANIMATE :
 				animate = msg.arg1 == 1 ? true : false;
 				return true;
+
 			case MSG_SET_SCROLLENABLED :
 				animate = msg.arg1 == 1 ? true : false;
 				if (view != null) {
 					view.setScrollable(scrollEnabled);
 				}
 				return true;
+
 			case MSG_SET_USERLOCATION :
 				userLocation = msg.arg1 == 1 ? true : false;
 				doUserLocation(userLocation);
 				return true;
+
 			case MSG_CHANGE_ZOOM :
 				MapController mc = view.getController();
 				if (mc != null) {
 					mc.setZoom(view.getZoomLevel() + msg.arg1);
 				}
 				return true;
+
 			case MSG_SELECT_ANNOTATION :
-				boolean select = msg.arg1 == 1 ? true : false;
-				boolean animate = msg.arg2 == 1 ? true : false;
-				String title = (String) msg.obj;
-				doSelectAnnotation(select, title, animate);
+				Bundle args = msg.getData();
+				boolean select = args.getBoolean("select", false);
+				String title = args.getString("title");
+				boolean animate = args.getBoolean("animate", false);
+				boolean center = args.getBoolean("center", true); // keep existing default behavior
+				doSelectAnnotation(select, title, animate, center);
 				return true;
+
 			case MSG_UPDATE_ANNOTATIONS :
 				doUpdateAnnotations();
 				return true;
@@ -598,8 +609,9 @@ public class TiMapView extends TiUIView
 
 					int numSelectedAnnotations = selectedAnnotations.size();
 					for(int i = 0; i < numSelectedAnnotations; i++) {
-						Log.e(LCAT, "Executing internal call to selectAnnotation:" + (selectedAnnotations.get(i)).title);
-						selectAnnotation(true, (selectedAnnotations.get(i)).title, (selectedAnnotations.get(i)).animate);
+						SelectedAnnotation annotation = selectedAnnotations.get(i);
+						Log.e(LCAT, "Executing internal call to selectAnnotation:" + annotation.title);
+						selectAnnotation(true, annotation.title, annotation.animate, false);
 					}
 				}
 
@@ -608,15 +620,24 @@ public class TiMapView extends TiUIView
 		}
 	}
 
-	public void selectAnnotation(boolean select, String title, boolean animate)
+	public void selectAnnotation(boolean select, String title, boolean animate, boolean center)
 	{
 		if (title != null) {
 			Log.e(LCAT, "calling obtainMessage");
-			handler.obtainMessage(MSG_SELECT_ANNOTATION, select ? 1 : 0, animate ? 1 : 0, title).sendToTarget();
+
+			Bundle args = new Bundle();
+			args.putBoolean("select", select);
+			args.putString("title", title);
+			args.putBoolean("animate", animate);
+			args.putBoolean("center", center);
+
+			Message message = handler.obtainMessage(MSG_SELECT_ANNOTATION);
+			message.setData(args);
+			message.sendToTarget();
 		}
 	}
 
-	public void doSelectAnnotation(boolean select, String title, boolean animate)
+	public void doSelectAnnotation(boolean select, String title, boolean animate, boolean center)
 	{
 		if (title != null && view != null && annotations != null && overlay != null) {
 			int index = ((ViewProxy)proxy).findAnnotation(title);
@@ -633,13 +654,16 @@ public class TiMapView extends TiUIView
 
 							hideAnnotation();
 
-							MapController controller = view.getController();
-							if (animate) {
-								controller.animateTo(item.getPoint());
-							} else {
-								controller.setCenter(item.getPoint());
+							if (center) {
+								MapController controller = view.getController();
+								if (animate) {
+									controller.animateTo(item.getPoint());
+								} else {
+									controller.setCenter(item.getPoint());
+								}
 							}
 							showAnnotation(index, item);
+
 						} else {
 							hideAnnotation();
 						}
