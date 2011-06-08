@@ -194,9 +194,9 @@ AndroidEmulator.prototype.handleCompleteAndroidEvent = function(event)
 	var resultsData = this.runADB(['shell', 'cat', '/sdcard/' + this.drillbit.testHarnessId + '/results.json']);
 	var results = JSON.parse(resultsData);
 
-	var coverageDest = ti.path.join(this.drillbit.resultsDir.nativePath(), results.suite + '-coverage.json');
-	var coverageData = this.runADB(['pull', '/sdcard/' + this.drillbit.testHarnessId + '/coverage.json', coverageDest]);
-	this.drillbit.handleCompleteEvent(results, 'android');
+	var coverageData = this.runADB(['shell', 'cat', '/sdcard/' + this.drillbit.testHarnessId + '/coverage.json']);
+	var coverage = JSON.parse(coverageData);
+	this.drillbit.handleCompleteEvent(results, 'android', coverage);
 };
 
 AndroidEmulator.prototype.removeTestJS = function(testScript) {

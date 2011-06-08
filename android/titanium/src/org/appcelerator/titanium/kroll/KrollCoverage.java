@@ -12,6 +12,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollMethod;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.util.Log;
@@ -25,29 +26,48 @@ import org.mozilla.javascript.Scriptable;
 public class KrollCoverage extends KrollObject
 {
 	private static final String TAG = "KrollCoverage";
-	public static HashMap<String, HashMap<String, Integer>> coverageCount = new HashMap<String, HashMap<String, Integer>>();
+	public static HashMap<String, HashMap<String, HashMap<String, HashMap<String, Integer>>>> coverageCount =
+		new HashMap<String, HashMap<String, HashMap<String, HashMap<String, Integer>>>>();
+
+	public static final String PROXIES = "proxies";
+	public static final String MODULES = "modules";
 	public static final String PROPERTY_GET = "propertyGet";
 	public static final String PROPERTY_SET = "propertySet";
 	public static final String FUNCTION_CALL = "functionCall";
 
 	protected String name;
 	protected KrollCoverage parent;
-	protected HashMap<String, KrollCoverage> children = new HashMap<String, KrollCoverage>();
+	protected String apiType;
 
 	public KrollCoverage(String name, KrollProxy proxy, KrollCoverage parent)
 	{
 		super(proxy);
+
+		this.apiType = proxy instanceof KrollModule ? MODULES : PROXIES;
 		this.name = name;
 		this.parent = parent;
 	}
 
-	public static void incrementCoverage(String name, String type)
+	public static void incrementCoverage(String apiType, String component, String name, String type)
 	{
-		HashMap<String, Integer> coverage = coverageCount.get(name);
+		HashMap<String, HashMap<String, HashMap<String, Integer>>> apiTypeCoverage = coverageCount.get(apiType);
+		if (apiTypeCoverage == null) {
+			apiTypeCoverage = new HashMap<String, HashMap<String, HashMap<String, Integer>>>();
+			coverageCount.put(apiType, apiTypeCoverage);
+		}
+
+		HashMap<String, HashMap<String, Integer>> componentCoverage = apiTypeCoverage.get(component);
+		if (componentCoverage == null) {
+			componentCoverage = new HashMap<String, HashMap<String, Integer>>();
+			apiTypeCoverage.put(component, componentCoverage);
+		}
+
+		HashMap<String, Integer> coverage = componentCoverage.get(name);
 		if (coverage == null) {
 			coverage = new HashMap<String, Integer>();
-			coverageCount.put(name, coverage);
+			componentCoverage.put(name, coverage);
 		}
+
 		Integer count = coverage.get(type);
 		if (count == null) {
 			count = 1;
@@ -57,11 +77,14 @@ public class KrollCoverage extends KrollObject
 		coverage.put(type, count);
 	}
 
+	protected void incrementCoverage(String name, String type)
+	{
+		incrementCoverage(apiType, this.name, name, type);
+	}
+
 	public Object get(String name, Scriptable start)
 	{
-		String propName = this.name + "." + name;
-		incrementCoverage(propName, PROPERTY_GET);
-
+		incrementCoverage(name, PROPERTY_GET);
 		Object o = super.get(name, start);
 		if (o instanceof KrollMethod)
 		{
@@ -74,28 +97,30 @@ public class KrollCoverage extends KrollObject
 	@Override
 	public void put(String name, Scriptable start, Object value)
 	{
-		String propName = this.name + "." + name;
-		incrementCoverage(propName, PROPERTY_SET);
+		incrementCoverage(name, PROPERTY_SET);
 		super.put(name, start, value);
 	}
 
 	public static class KrollMethodCoverage
 		extends BaseFunction implements Function
 	{
-		protected String fullName;
+		protected String name;
 		protected KrollMethod method;
-		protected KrollCoverage parent;
+		protected String apiType;
+		protected String parentName;
 
 		public KrollMethodCoverage(String name, KrollMethod method, KrollCoverage parent)
 		{
 			super();
 			this.method = method;
-			this.fullName = parent.name + "." + name;
+			this.name = name;
+			this.apiType = parent.apiType;
+			this.parentName = parent.name;
 		}
 
 		public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 		{
-			incrementCoverage(fullName, FUNCTION_CALL);
+			incrementCoverage(apiType, parentName, name, FUNCTION_CALL);
 			return method.call(cx, scope, thisObj, args);
 		}
 
@@ -123,12 +148,23 @@ public class KrollCoverage extends KrollObject
 		try {
 			JSONObject o = new JSONObject();
 			// We have to manually convert, JSONObject doesn't recurse
-			for (String apiName : coverageCount.keySet()) {
-				JSONObject apiMap = new JSONObject();
-				o.putOpt(apiName, apiMap);
-				for (String type : coverageCount.get(apiName).keySet()) {
-					Integer count = coverageCount.get(apiName).get(type);
-					apiMap.putOpt(type, count);
+			for (String apiType : coverageCount.keySet()) {
+				JSONObject apiTypeMap = new JSONObject();
+				o.putOpt(apiType, apiTypeMap);
+				HashMap<String, HashMap<String, HashMap<String, Integer>>> apiTypes = coverageCount.get(apiType);
+				for (String typeName : apiTypes.keySet()) {
+					JSONObject typeNameMap = new JSONObject();
+					apiTypeMap.putOpt(typeName, typeNameMap);
+					HashMap<String, HashMap<String, Integer>> typeNames = apiTypes.get(typeName);
+					for (String apiName : typeNames.keySet()) {
+						JSONObject apiNameMap = new JSONObject();
+						typeNameMap.putOpt(apiName, apiNameMap);
+						HashMap<String, Integer> apiNames = typeNames.get(apiName);
+						for (String coverageType : apiNames.keySet()) {
+							Integer count = apiNames.get(coverageType);
+							apiNameMap.putOpt(coverageType, count);
+						}
+					}
 				}
 			}
 			String str = o.toString();
