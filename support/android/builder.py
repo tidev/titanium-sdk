@@ -650,7 +650,6 @@ class Builder(object):
 			
 			# MEDIA
 			'Media.vibrate' : VIBRATE_PERMISSION,
-			'Media.createVideoPlayer' : CAMERA_PERMISSION,
 			'Media.showCamera' : CAMERA_PERMISSION,
 			
 			# CONTACTS
