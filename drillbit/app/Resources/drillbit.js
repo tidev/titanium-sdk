@@ -232,7 +232,6 @@ $(window).ready(function()
 		drillbitConsole= document.getElementById('console'),
 		drillbitResize= document.getElementById('resize-bar'), 
 		drillbitSuite=document.getElementsByClassName('suites')[0],
-		startHeightSuite=$(drillbitSuite).height(),
 		startHeightConsole = $(drillbitConsole).height(),
 		resizerHeight = 12,
 		spaceBuffer = 85;	
@@ -269,17 +268,12 @@ $(window).ready(function()
 		
 		if(!$("#log-link").hasClass("disabled")){
 			Titanium.Platform.openApplication(Drillbit.logPath.nativePath());
-			/*var p = Titanium.Process.createProcess({
-	        		args: ['C:\\Windows\\System32\\cmd.exe', '/c', 'start', Drillbit.logPath.nativePath()]
-    		});
-    		p();*/
 		}
 	});
 	
 	$("#resize-bar").mousedown(function() {
 		mouseDown = true;
 		startHeightConsole = $(drillbitConsole).height();
-		startHeightSuite = $(drillbitSuite).height();		
 		startY = event.clientY;
 	});
 	$("body").mousemove(function() {
