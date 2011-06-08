@@ -4,7 +4,6 @@ description: A Tabbed Bar is created by the method <Titanium.UI.createTabbedBar>
 extends: Titanium.UI.View
 platforms: [iphone, ipad]
 since: "0.8"
-events:
 properties:
   - name: index
     description: the selected index

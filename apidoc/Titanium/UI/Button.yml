@@ -3,7 +3,6 @@ name: Titanium.UI.Button
 description: A Button is created by the method <Titanium.UI.createButton>.
 extends: Titanium.UI.View
 since: "0.8"
-events:
 properties:
   - name: color
     description: the foreground color of the button text
@@ -30,8 +29,6 @@ properties:
     description: the key in the locale file to use for the title property
     type: String
     since: "1.5"
-notes: |
-    
 examples:
   - title: Simple Button Example
     example: |

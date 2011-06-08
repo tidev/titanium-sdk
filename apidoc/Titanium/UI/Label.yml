@@ -3,7 +3,6 @@ name: Titanium.UI.Label
 description: A Label is created by the method <Titanium.UI.createLabel>.
 extends: Titanium.UI.View
 since: "0.8"
-events:
 properties:
   - name: autoLink
     description: One of Ti.UI.Android.LINKIFY constants. Automatically create clickable links for the specified type. (Android Only)
@@ -62,8 +61,6 @@ properties:
     type: Boolean
     platforms: [android]
     default: true
-notes: |
-    
 examples:
   - title: Basic Label
     example: |

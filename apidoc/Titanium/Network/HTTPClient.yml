@@ -78,19 +78,19 @@ properties:
     type: String
   - name: ondatastream
     description: set this to a function before calling open to cause the function to be called at regular intervals as the request data is being received. the `progress` property of the event will contain a value from 0.0-1.0 with the progress.
-    type: Callback
+    type: Callback<Object>
   - name: onerror
     description: set this to a function before calling open to cause the function to be called upon a error response
-    type: Callback
+    type: Callback<Object>
   - name: onload
     description: set this to a function before calling open to cause the function to be called upon a successful response
-    type: Callback
+    type: Callback<Object>
   - name: onreadystatechange
     description: set this to a function before calling open to cause the function to be called for each readyState change
-    type: Callback
+    type: Callback<Object>
   - name: onsendstream
     description: set this to a function before calling open to cause the function to be called at regular intervals as the request data is being transmitted. the `progress` property of the event will contain a value from 0.0-1.0 with the progress.
-    type: Callback
+    type: Callback<Object>
   - name: readyState
     description: the readyState value
     type: Number

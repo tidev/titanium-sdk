@@ -16,7 +16,6 @@ methods:
       - name: row
         description: The row to remove.
         type: Titanium.UI.PickerRow
-events:
 properties:
   - name: rowCount
     description: number of rows in the column (readonly)

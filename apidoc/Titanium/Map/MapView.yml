@@ -9,7 +9,7 @@ methods:
     parameters:
       - name: annotation
         description: either a dictionary of properties for the annotation or a <Titanium.Map.Annotation> instance.
-        type: [Dictionary<Titanium.Map.Annotation>, Titanium.Map.Annotation>]
+        type: [Dictionary<Titanium.Map.Annotation>, Titanium.Map.Annotation]
   - name: addAnnotations
     description: add one or more new annotation to the map
     parameters:

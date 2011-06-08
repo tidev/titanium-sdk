@@ -3,7 +3,6 @@ name: Titanium.UI.TableViewSection
 description: A TableView section object created by the method <Titanium.UI.createTableViewSection>.
 extends: Titanium.UI.View
 since: "0.9"
-events:
 properties:
   - name: footerTitle
     description: the title of the section footer

@@ -11,7 +11,7 @@ methods:
     parameters:
       - name: callback
         description: callback function to invoke upon network connectivity changes
-        type: Callback
+        type: Callback<Object>
   - name: createBonjourBrowser
     description: create and return an instance of <Titanium.Network.BonjourBrowser>
     platforms: [iphone, ipad]
@@ -99,7 +99,7 @@ methods:
     parameters:
       - name: callback
         description: callback function to remove
-        type: Callback
+        type: Callback<Object>
 events:
   - name: change
     description: fired upon a network connectivity change

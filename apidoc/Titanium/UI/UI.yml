@@ -3,7 +3,6 @@ name: Titanium.UI
 description: The main <Titanium.UI> module.  The UI module is responsible for native user-interface components and interaction inside Titanium.  The goal of the UI module is to provide a native experience along with native performance by compiling Javascript code into their native counterparts as part of the build process.
 extends: Titanium.Module
 since: "0.4"
-methods:
 properties:
   - name: ANIMATION_CURVE_EASE_IN
     description: animation curve constant

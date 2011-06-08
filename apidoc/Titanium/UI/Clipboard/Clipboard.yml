@@ -43,27 +43,30 @@ methods:
       - name: text
         description: The new clipboard text. If the text is an empty string
         type: String
-examples: |
-    Copying text to the clipboard
-    
-    
-        copyButton.addEventListener('click', function() {
-            Ti.UI.Clipboard.setText(data.url);
-        });
-    
-    Pasting text from the clipboard
-    
-        if (Ti.UI.Clipboard.hasText()) {
-            doSomethingWith(Ti.UI.Clipboard.getText());
-        } else {
-            alert('Hey there was no text.');
-        }
-    
-    Clipboard data types
-    
-    The *Text() functions are equivalent to calling *Data() with 'text' or 'text/plain' types, and work with plain Unicode strings.
-    
-    On Android, only plain text is supported; other MIME types will be ignored.
-    
-    On iOS, images will be returned as a <Titanium.Blob>; the special type 'image' or an explicit MIME type may be specified. URLs can be fetched with the special 'URL' or 'text/uri-list' types, and will return strings. Other data types may or may not be correctly mapped to clipboard types by the system, and will be retrieved as binary data in a <Titanium.Blob>.
-    
+examples:
+  - title: Copying text to the clipboard
+    example: |
+        
+        
+            copyButton.addEventListener('click', function() {
+                Ti.UI.Clipboard.setText(data.url);
+            });
+        
+  - title: Pasting text from the clipboard
+    example: |
+        
+            if (Ti.UI.Clipboard.hasText()) {
+                doSomethingWith(Ti.UI.Clipboard.getText());
+            } else {
+                alert('Hey there was no text.');
+            }
+        
+  - title: Clipboard data types
+    example: |
+        
+        The *Text() functions are equivalent to calling *Data() with 'text' or 'text/plain' types, and work with plain Unicode strings.
+        
+        On Android, only plain text is supported; other MIME types will be ignored.
+        
+        On iOS, images will be returned as a <Titanium.Blob>; the special type 'image' or an explicit MIME type may be specified. URLs can be fetched with the special 'URL' or 'text/uri-list' types, and will return strings. Other data types may or may not be correctly mapped to clipboard types by the system, and will be retrieved as binary data in a <Titanium.Blob>.
+        

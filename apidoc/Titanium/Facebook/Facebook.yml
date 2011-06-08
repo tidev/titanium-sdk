@@ -25,7 +25,7 @@ methods:
       - name: callback
         description: |
             A callback for when dialog is completed/cancelled.  The callback should accept a single argument which will be filled with a dictionary object concerning call results: items in the dictionary can be "success" (boolean), "error" (string with the error message), "cancelled" (set to true if user cancelled) and "result" (the data returned by Facebook.)
-        type: Callback
+        type: Callback<Object>
   - name: logout
     description: Clear the OAuth `accessToken` and logout the user.
   - name: request
@@ -40,7 +40,7 @@ methods:
       - name: callback
         description: |
             A callback for when call is completed.  The callback should accept a single argument which will be filled with a dictionary object concerning call results: items in the dictionary can be "success" (boolean), "error" (string with the error message), "method" (the REST method call you specified), "result" (the data returned by Facebook.)
-        type: Callback
+        type: Callback<Object>
   - name: requestWithGraphPath
     description: Make a [Facebook Graph API](http://developers.facebook.com/docs/reference/api/) request.  If the request requires user authorization, be sure user is already logged-in and your app is authorized.  (You can check `loggedIn` for that.)
     parameters:
@@ -56,7 +56,7 @@ methods:
       - name: callback
         description: |
             A callback for when call is completed.  The callback should accept a single argument which will be filled with a dictionary object concerning call results: items in the dictionary can be "success" (boolean), "error" (string with the error message), "path" (the graph call path you specified), "result" (the JSON returned by Facebook.)
-        type: Callback
+        type: Callback<Object>
 events:
   - name: login
     description: fired at session login

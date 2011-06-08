@@ -82,7 +82,7 @@ methods:
         type: Number
       - name: pendingIntent
         description: The PendingIntent to execute when this view is clicked
-        type: Ti.Android.PendingIntent
+        type: Titanium.Android.PendingIntent
   - name: setProgressBar
     description: Sets the progress, max value, and indeterminate flag of a ProgressBar. See Android's documentation for [setProgressBar](http://developer.android.com/reference/android/widget/RemoteViews.html#setProgressBar(int, int, int, boolean))
     parameters:

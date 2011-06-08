@@ -82,13 +82,13 @@ methods:
     parameters:
       - name: cancel
         description: The function to call when selection is cancelled
-        type: Callback
+        type: Callback<Object>
       - name: selectedPerson
         description: The function to call when a person is selected.  Mutually exclusive with `selectedProperty`
-        type: Callback
+        type: Callback<Object>
       - name: selectedProperty
         description: The function to call when a property is selected.  Mutally exclusive with `selectedPerson`
-        type: Callback
+        type: Callback<Object>
       - name: animated
         description: Whether or not to animate the show/hide of the contacts picker
         type: Boolean

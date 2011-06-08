@@ -3,7 +3,6 @@ name: Titanium.UI.PickerRow
 description: The picker row object created by [Titanium.UI.createPickerRow](Titanium.UI.createPickerRow).
 extends: Titanium.UI.View
 since: "0.9"
-events:
 properties:
   - name: fontSize
     description: the font size when displaying the text. ignored when using a custom view

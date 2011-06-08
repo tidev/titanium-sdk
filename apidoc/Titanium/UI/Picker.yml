@@ -9,7 +9,7 @@ methods:
     parameters:
       - name: data
         description: add an array of rows, a single row or a column to the picker
-        type: [Array,Object]
+        type: [Array<Titanium.UI.PickerRow>, Titanium.UI.PickerColumn, Titanium.UI.PickerRow]
   - name: getSelectedRow
     description: get the selected row object for column
     returns:

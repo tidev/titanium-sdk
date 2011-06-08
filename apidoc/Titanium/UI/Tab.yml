@@ -6,7 +6,6 @@ description: A TabGroup Tab instance.  Each Tab instance maintains a stack of ta
     window cannot be removed. The Tab Group is created by the method <Titanium.UI.createTab>.
 extends: Titanium.UI.View
 since: "0.8"
-events:
 properties:
   - name: badge
     description: the badge value for the tab group for this tab. null indicates no badge is value
@@ -20,8 +19,6 @@ properties:
   - name: window
     description: the root level tab window.  all tabs must have at least one root level tab window.
     type: Object
-notes: |
-    
 examples:
   - title: Simple Tab Example
     example: |

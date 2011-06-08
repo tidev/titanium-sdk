@@ -18,7 +18,7 @@ methods:
         type: Object
       - name: callback
         description: function to be invoked upon completion of the animation
-        type: Callback
+        type: Callback<Object>
   - name: hide
     description: hide the view
   - name: remove
@@ -36,7 +36,7 @@ methods:
     parameters:
       - name: f
         description: function to be invoked upon completion. if non-null, this method will be performed asynchronously. if null, it will be performed immediately
-        type: Callback
+        type: Callback<Object>
 events:
   - name: click
     description: fired when the device detects a click (longer than touch) against the view
