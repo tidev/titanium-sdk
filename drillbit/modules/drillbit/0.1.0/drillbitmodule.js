@@ -66,6 +66,9 @@ Drillbit = function() {
 	var manifestPath = app.getManifestPath();
 	var manifestHarness = ti.fs.getFile(ti.path.dirname(manifestPath), 'manifest_harness');
 	this.setupTestHarness(manifestHarness);
+	
+	this.logPath = ti.fs.getFile(this.resultsDir, 'drillbitConsole.log');
+	this.logStream = this.logPath.open(ti.fs.MODE_WRITE);
 };
 
 Drillbit.prototype.processArgv = function() {
@@ -567,6 +570,7 @@ Drillbit.prototype.readLine = function(data, platform)
 	var eventIndex = data.indexOf(eventPrefix);
 	if (eventIndex == -1) {
 		this.frontendDo('process_data', data);
+		this.logStream.write(data + "\n");
 		return;
 	}
 	
@@ -741,7 +745,7 @@ Drillbit.prototype.runTest = function(entry)
 	var logPath = ti.fs.getFile(this.resultsDir, entry.name+'.log');
 
 	profilePath.deleteFile();
-	logPath.deleteFile();
+	/*logPath.deleteFile();*/
 	this.currentPassed = 0;
 	this.currentFailed = 0;
 	this.currentTimer = null;
@@ -809,6 +813,7 @@ Drillbit.prototype.generateFinalResults = function()
 	
 	drillbitJsonStream.write(JSON.stringify(finalResults));
 	drillbitJsonStream.close();
+	logPath.close();
 };
 
 Drillbit.prototype.handleTestError = function(suite)

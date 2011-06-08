@@ -91,10 +91,10 @@ var frontend = {
 	
 	process_data: function(data)
 	{
-		var drillbit_console = $('#console');
-		
+		var drillbit_console = $('#console');		
 		drillbit_console.append(data+"\n");
 		drillbit_console.scrollTop(drillbit_console[0].scrollHeight);
+		
 	},
 	
 	all_finished: function()
@@ -102,6 +102,7 @@ var frontend = {
 		$("#run-link").removeClass("disabled");
 		runLinkDisabled = false;
 		$('#current-test').html('<b>Finished.</b> Took ' + Drillbit.testDuration + 's');
+		$("#log-link").removeClass("disabled");
 	}
 };
 
@@ -233,9 +234,7 @@ $(window).ready(function()
 		drillbitSuite=document.getElementsByClassName('suites')[0],
 		startHeightSuite=$(drillbitSuite).height(),
 		startHeightConsole = $(drillbitConsole).height(),
-		consoleRatio= $(drillbitConsole).height()/window.innerHeight,
-		suiteRatio= $(drillbitSuite).height()/window.innerHeight,
-		resizerHeight = 12
+		resizerHeight = 12,
 		spaceBuffer = 85;	
 
 	if ('webConsole' in Drillbit.argv) {
@@ -266,6 +265,16 @@ $(window).ready(function()
 			Drillbit.emulators.android.needsBuild = $(this).is(':checked');
 		}	
 	});
+	$('#log-link').click(function() {
+		
+		if(!$("#log-link").hasClass("disabled")){
+			Titanium.Platform.openApplication(Drillbit.logPath.nativePath());
+			/*var p = Titanium.Process.createProcess({
+	        		args: ['C:\\Windows\\System32\\cmd.exe', '/c', 'start', Drillbit.logPath.nativePath()]
+    		});
+    		p();*/
+		}
+	});
 	
 	$("#resize-bar").mousedown(function() {
 		mouseDown = true;
@@ -280,8 +289,7 @@ $(window).ready(function()
 			$(drillbitConsole).height((startY - mouseY) + startHeightConsole);
 			$(drillbitSuite).height(window.innerHeight - spaceBuffer - $(drillbitConsole).height());
 			drillbitResize.style.bottom = (startY - mouseY) + startHeightConsole + resizerHeight;
-			consoleRatio= $(drillbitConsole).height()/window.innerHeight;
-			suiteRatio= $(drillbitSuite).height()/window.innerHeight;
+			
 		}
 	});
 	$("body").mouseup(function() {
@@ -291,8 +299,6 @@ $(window).ready(function()
 			$(drillbitConsole).height((startY - mouseY) + startHeightConsole);
 			$(drillbitSuite).height(window.innerHeight - spaceBuffer - $(drillbitConsole).height());
 			drillbitResize.style.bottom = (startY - mouseY) + startHeightConsole + resizerHeight;
-			consoleRatio= $(drillbitConsole).height()/window.innerHeight;
-			suiteRatio= $(drillbitSuite).height()/window.innerHeight;
 		}
 	});
 	$(window).resize(function() {
