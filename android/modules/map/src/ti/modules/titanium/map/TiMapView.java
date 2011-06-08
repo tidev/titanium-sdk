@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -20,7 +20,6 @@ import org.appcelerator.titanium.TiProperties;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -225,6 +224,24 @@ public class TiMapView extends TiUIView
 				if (a.containsKey(TiC.PROPERTY_RIGHT_BUTTON)) {
 					item.setRightButton(proxy.getTiContext().resolveUrl(null, TiConvert.toString(a, TiC.PROPERTY_RIGHT_BUTTON)));
 				}
+				if (a.containsKey(TiC.PROPERTY_LEFT_VIEW)) {
+					Object leftView = a.get(TiC.PROPERTY_LEFT_VIEW);
+					if (leftView instanceof TiViewProxy) {
+						item.setLeftView((TiViewProxy)leftView);
+
+					} else {
+						Log.e(LCAT, "invalid type for leftView");
+					}
+				}
+				if (a.containsKey(TiC.PROPERTY_RIGHT_VIEW)) {
+					Object rightView = a.get(TiC.PROPERTY_RIGHT_VIEW);
+					if (rightView instanceof TiViewProxy) {
+						item.setRightView((TiViewProxy)rightView);
+
+					} else {
+						Log.e(LCAT, "invalid type for rightView");
+					}
+				}
 			} else {
 				Log.w(LCAT, "Skipping annotation: No coordinates #" + i);
 			}
@@ -337,7 +354,7 @@ public class TiMapView extends TiUIView
 
 		setNativeView(view);
 
-		this.regionFit =true;
+		this.regionFit = true;
 		this.animate = false;
 
 		final TiViewProxy fproxy = proxy;
@@ -418,11 +435,9 @@ public class TiMapView extends TiUIView
 	}
 
 	private void showAnnotation(int index, TiOverlayItem item) {
-		Log.e(LCAT, "B:" + view + ":" + itemView + ":" + item);
 		if (view != null && itemView != null && item != null) {
-			Log.e(LCAT, "B2");
 			itemView.setItem(index, item);
-			//Make sure the atonnation is always on top of the marker
+			//Make sure the annotation is always on top of the marker
 			int y = -1*item.getMarker(TiOverlayItem.ITEM_STATE_FOCUSED_MASK).getIntrinsicHeight();
 			MapView.LayoutParams params = new MapView.LayoutParams(LayoutParams.WRAP_CONTENT,
 					LayoutParams.WRAP_CONTENT, item.getPoint(), 0, y, MapView.LayoutParams.BOTTOM_CENTER);
@@ -603,10 +618,8 @@ public class TiMapView extends TiUIView
 
 	public void doSelectAnnotation(boolean select, String title, boolean animate)
 	{
-		Log.e(LCAT, "A:" + title + ":" + view + ":" + annotations + ":" + overlay);
 		if (title != null && view != null && annotations != null && overlay != null) {
 			int index = ((ViewProxy)proxy).findAnnotation(title);
-			Log.e(LCAT, "A2:" + index);
 			if (index > -1) {
 				if (overlay != null) {
 					synchronized(overlay) {
@@ -626,7 +639,6 @@ public class TiMapView extends TiUIView
 							} else {
 								controller.setCenter(item.getPoint());
 							}
-							Log.e(LCAT, "A3:" + index + ":" + item);
 							showAnnotation(index, item);
 						} else {
 							hideAnnotation();
