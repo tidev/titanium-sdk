@@ -162,14 +162,14 @@ public class ViewProxy extends TiViewProxy
 
 		if (args[0] instanceof KrollDict) {
 			KrollDict params = (KrollDict)args[0];
-			title = params.getString("title");
-			animate = params.getBoolean("animate");
-			center = params.getBoolean("center");
+			title = params.getString(TiC.PROPERTY_TITLE);
+			animate = params.getBoolean(TiC.PROPERTY_ANIMATE);
+			center = params.getBoolean(TiC.PROPERTY_CENTER);
 
 		} else {
 			if (args.length > 0) {
 				if (args[0] instanceof AnnotationProxy) {
-					title = TiConvert.toString(((AnnotationProxy) args[0]).getProperty("title"));
+					title = TiConvert.toString(((AnnotationProxy) args[0]).getProperty(TiC.PROPERTY_TITLE));
 				} else if (args[0] instanceof String) {
 					title = TiConvert.toString(args[0]);
 				}

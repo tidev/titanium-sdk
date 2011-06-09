@@ -610,7 +610,9 @@ public class TiMapView extends TiUIView
 					int numSelectedAnnotations = selectedAnnotations.size();
 					for(int i = 0; i < numSelectedAnnotations; i++) {
 						SelectedAnnotation annotation = selectedAnnotations.get(i);
-						Log.e(LCAT, "Executing internal call to selectAnnotation:" + annotation.title);
+						if (DBG) {
+							Log.d(LCAT, "Executing internal call to selectAnnotation:" + annotation.title);
+						}
 						selectAnnotation(true, annotation.title, annotation.animate, false);
 					}
 				}
