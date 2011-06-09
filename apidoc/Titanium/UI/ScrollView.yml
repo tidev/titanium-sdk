@@ -1,0 +1,116 @@
+---
+name: Titanium.UI.ScrollView
+description: |
+    A Scroll View is used to create a scrollable region of content.  Views added to the Scroll View will be scrolled based on the content size of the Scroll View. The Scroll View is created by the method <Titanium.UI.createScrollView>. Note: In Android, Scroll Views can only scroll in one direction, either vertical or horizontal, but not both at the same time. See the <Titanium.UI.ScrollView.scrollType> property
+extends: Titanium.UI.View
+since: "0.9"
+methods:
+  - name: scrollTo
+    description: scrollTo a particular point
+    parameters:
+      - name: x
+        description: the x point within the view
+        type: Number
+      - name: y
+        description: the y point within the view
+        type: Number
+events:
+  - name: scale
+    description: fired when the zoom scale factor changes
+    properties:
+      - name: scale
+        description: the new scale as a float
+      - name: source
+        description: the source object that fired the event
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+  - name: scroll
+    description: fired when the view is scrolled
+    properties:
+      - name: source
+        description: the source object that fired the event
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+      - name: dragging
+        description: boolean to indicate if the scroll is based on a dragging gesture
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+      - name: decelerating
+        description: boolean to indicate if the scroll is decelerating
+properties:
+  - name: canCancelEvents
+    description: (iPhone only) boolean to indicate if the scroll view can cancel subview touches in order to scroll instead. Default of true
+    type: Boolean
+  - name: contentHeight
+    description: the height of the scrollable area
+    type: Number
+  - name: contentOffset
+    description: an object (with x and y properties) to indicate the offset of the content area
+    type: Object
+  - name: contentWidth
+    description: the width of the scrollable area
+    type: Number
+  - name: disableBounce
+    description: disable view bouncing.  iOS only.
+    type: Boolean
+  - name: horizontalBounce
+    description: boolean to control the horizontal bounce during scrolling
+    type: Boolean
+  - name: maxZoomScale
+    description: the maximum scale of the content
+    type: Number
+  - name: minZoomScale
+    description: the minimum scale of the content
+    type: Number
+  - name: scrollType
+    description: |
+        (Android only) the type of ScrollView: "vertical" or "horizontal"
+    type: String
+    platforms: [android]
+  - name: showHorizontalScrollIndicator
+    description: boolean to indicate whether the horizontal scroll indicator is visible
+    type: Boolean
+  - name: showVerticalScrollIndicator
+    description: boolean to indicate whether the vertical scroll indicator is visible
+    type: Boolean
+  - name: verticalBounce
+    description: boolean to control the vertical bounce during scrolling
+    type: Boolean
+  - name: zoomScale
+    description: set the zoom scale for the current content area
+    type: Number
+notes: |
+    If your scrollable region fits within the size of the content area the scroll view will not scroll.
+examples:
+  - title: Simple Scroll View
+    example: |
+        Create a scroll view with content.
+        
+            var scrollView = Titanium.UI.createScrollView({
+            	contentWidth:'auto',
+            	contentHeight:'auto',
+            	top:0,
+            	showVerticalScrollIndicator:true,
+            	showHorizontalScrollIndicator:true
+            });
+            var view = Ti.UI.createView({
+            	backgroundColor:'#336699',
+            	borderRadius:10,
+            	width:300,
+            	height:2000,
+            	top:10
+            });
+            scrollView.add(view);
+            Titanium.UI.currentWindow.add(scrollView);
+        
+        

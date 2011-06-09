@@ -1,0 +1,44 @@
+---
+name: Titanium.UI.Button
+description: A Button is created by the method <Titanium.UI.createButton>.
+extends: Titanium.UI.View
+since: "0.8"
+properties:
+  - name: color
+    description: the foreground color of the button text
+    type: String
+  - name: enabled
+    description: boolean that indicates if the button is enabled or not
+    type: Boolean
+  - name: font
+    description: the font properties of the button
+    type: Object
+  - name: image
+    description: the image to display on the button to the left of the title
+    type: String
+  - name: selectedColor
+    description: the selected color of the button text when the button is in the selected state
+    type: String
+  - name: style
+    description: style constant for the type of button
+    type: Number
+  - name: title
+    description: button title
+    type: String
+  - name: titleid
+    description: the key in the locale file to use for the title property
+    type: String
+    since: "1.5"
+examples:
+  - title: Simple Button Example
+    example: |
+        
+            var button = Titanium.UI.createButton({
+               title: 'Hello'
+            });
+            button.addEventListener('click',function(e)
+            {
+               Titanium.API.info("You clicked the button");
+            });
+        
+        

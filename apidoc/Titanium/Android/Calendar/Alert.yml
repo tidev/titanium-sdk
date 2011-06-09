@@ -1,0 +1,28 @@
+---
+name: Titanium.Android.Calendar.Alert
+description: An object which represents a single alert for an event in an Android calendar.
+extends: Titanium.Proxy
+since: "1.5"
+platforms: [android]
+properties:
+  - name: alarmTime
+    description: The date/time at which the alert's alarm is triggered.
+    type: Date
+  - name: begin
+    description: The date/time at which the corresponding event begins.
+    type: Date
+  - name: end
+    description: The date/time at which the corresponding event ends.
+    type: Date
+  - name: eventId
+    description: The integer id of the event for which the alert is set.
+    type: Number
+  - name: id
+    description: The id of the alert.
+    type: String
+  - name: minutes
+    description: The minutes before the event when the alert should trigger.
+    type: Number
+  - name: state
+    description: The current state of the alert.  Possible values are the STATE_ constants in <Titanium.Android.Calendar>.
+    type: Number

@@ -1,0 +1,54 @@
+---
+name: Titanium.App
+description: The top level App module.  The App module is mainly used for accessing information about the application at runtime.
+extends: Titanium.Module
+since: "0.1"
+methods:
+  - name: getArguments
+    description: return the arguments passed to the application on startup as a dictionary
+    returns:
+        type: Object
+events:
+  - name: proximity
+    description: fired when a proximity state changes
+    properties:
+      - name: source
+        description: the source object that fired the event
+      - name: state
+        description: the proximity state value
+      - name: type
+        description: the name of the event fired
+properties:
+  - name: copyright
+    description: the application's copyright
+    type: String
+  - name: description
+    description: the application's description
+    type: String
+  - name: guid
+    description: the application's globally unique id (this is system generated and consistent through all versions)
+    type: String
+  - name: id
+    description: the application's app id as specified in Titanium Developer or Titanium Studio
+    type: String
+  - name: idleTimerDisabled
+    description: property for controlling whether the phone screen will be locked on idle time. Can be set to true to disable the timer
+    type: Boolean
+  - name: name
+    description: the application's name
+    type: String
+  - name: proximityDetection
+    description: a boolean to indicate whether proximity detection is enabled
+    type: Boolean
+  - name: proximityState
+    description: the state of the device's proximity detector
+    type: Number
+  - name: publisher
+    description: the application's publisher
+    type: String
+  - name: url
+    description: the application url
+    type: String
+  - name: version
+    description: the application's version
+    type: String

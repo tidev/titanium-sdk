@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# vim: set fileencoding=utf-8 :
+# vim: set expandtab fileencoding=utf-8 :
 """
 Convert new .yml docs to old .tdoc format.
 Done as a stopgap measure to get docs ready for 
