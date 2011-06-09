@@ -1,0 +1,121 @@
+---
+name: Titanium.UI.WebView
+description: The Web View allows you to open an HTML5 based view which can load either local or remote content. The content can be any valid web content such as HTML, PDF, SVG or other WebKit supported content types. The Web View is created by the method <Titanium.UI.createWebView>.
+extends: Titanium.UI.View
+since: "0.8"
+methods:
+  - name: canGoBack
+    description: returns true if the webview can go back in history
+    returns:
+        type: Boolean
+  - name: canGoForward
+    description: returns true if the webview can go forward in history
+    returns:
+        type: Boolean
+  - name: evalJS
+    description: invoke JavaScript inside the context of the webview and optionally, return a result
+    returns:
+        type: String
+    parameters:
+      - name: content
+        description: JavaScript code as a string. The code will be evaluated inside the webview context.
+        type: String
+  - name: goBack
+    description: go back one entry in history to the previous page
+  - name: goForward
+    description: go forward one entry in history to the page before the current page
+  - name: reload
+    description: reload the current webpage
+  - name: repaint
+    description: force the webview to repaint its contents
+  - name: setBasicAuthentication
+    description: set the basic authentication for the webview instance to be used on subsequent url requests
+    parameters:
+      - name: username
+        description: the username
+        type: String
+      - name: password
+        description: the password
+        type: String
+  - name: stopLoading
+    description: stop loading a currently loading page
+events:
+  - name: beforeload
+    description: fired before the webview starts loading its content
+    properties:
+      - name: url
+        description: the url of the web document
+      - name: source
+        description: the source object that fired the event
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+  - name: error
+    description: fired when the webview cannot load the content
+    properties:
+      - name: url
+        description: the url of the web document
+      - name: source
+        description: the source object that fired the event
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+      - name: message
+        description: the error message
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+  - name: load
+    description: fired when the webview is loaded
+    properties:
+      - name: url
+        description: the url of the web document
+      - name: source
+        description: the source object that fired the event
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+properties:
+  - name: data
+    description: a data blob or file that is used to load the web document
+    type: Object
+  - name: html
+    description: the html content of the web document
+    type: String
+  - name: loading
+    description: boolean indicating if the webview is loading content
+    type: Boolean
+  - name: scalesPageToFit
+    description: whether the webview should scale it's contents or not
+    type: Boolean
+  - name: url
+    description: the url to the web document. this property will change as the content of the webview changes (such as from internal hyperlinks, etc)
+    type: String
+notes: |
+    Creating webviews are more expensive than creating pure native views because of the requirement to
+    load the HTML browser into memory.
+    
+    Since a webview internally wants to handle its own events, scrolling and other related touch events against it's own view surface, you cannot have both Titanium style events against the webview instance and internal Javascript events in the DOM.  You must choose between one or the other.
+examples:
+  - title: Basic Web View to external URL example
+    example: |
+        Create a web view to a remote URL and open the window as modal.
+        
+            	var webview = Titanium.UI.createWebView({url:'http://www.appcelerator.com'});
+            	var window = Titanium.UI.createWindow();
+            	window.add(webview);
+            	window.open({modal:true});
+        
+        

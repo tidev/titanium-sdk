@@ -1,0 +1,16 @@
+---
+name: Titanium.UI.iPhone.ScrollIndicatorStyle
+description: A set of constants for the styles available for <Titanium.UI.ActivityIndicator> objects.
+extends: Titanium.Proxy
+since: "0.9"
+platforms: [iphone, ipad]
+properties:
+  - name: BLACK
+    description: A style of indicator which is black smaller than the default style. This style is good against a white content background.
+    type: Number
+  - name: DEFAULT
+    description: The default style of scroll indicator, which is black with a white border. This style is good against any content background.
+    type: Number
+  - name: WHITE
+    description: A style of indicator is white and smaller than the default style. This style is good against a black content background.
+    type: Number

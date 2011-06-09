@@ -1,0 +1,15 @@
+---
+name: Titanium.Yahoo
+description: The top level Yahoo module.  The Yahoo module is used for accessing Yahoo related API services.
+extends: Titanium.Module
+since: "0.8"
+methods:
+  - name: yql
+    description: invoke a Yahoo YQL query
+    parameters:
+      - name: yql
+        description: the YQL query to execute
+        type: String
+      - name: callback
+        description: the function to execute when the query completes. The event will contain the boolean property `success` if successful. If `success` is false, the `message` property will contain the error message. If `success` is true, the `data` property will contain the data payload received from the YQL.
+        type: Callback<Object>
