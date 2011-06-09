@@ -269,10 +269,12 @@ public class TiMapView extends TiUIView
 	public static class SelectedAnnotation {
 		String title;
 		boolean animate;
+		boolean center;
 
-		public SelectedAnnotation(String title, boolean animate) {
+		public SelectedAnnotation(String title, boolean animate, boolean center) {
 			this.title = title;
 			this.animate = animate;
+			this.center = center;
 		}
 	}
 	
@@ -613,7 +615,7 @@ public class TiMapView extends TiUIView
 						if (DBG) {
 							Log.d(LCAT, "Executing internal call to selectAnnotation:" + annotation.title);
 						}
-						selectAnnotation(true, annotation.title, annotation.animate, false);
+						selectAnnotation(true, annotation.title, annotation.animate, annotation.center);
 					}
 				}
 
