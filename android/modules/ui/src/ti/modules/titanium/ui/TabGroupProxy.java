@@ -23,6 +23,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUITabGroup;
+import ti.modules.titanium.ui.ViewProxy;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -98,7 +99,12 @@ public class TabGroupProxy extends TiWindowProxy
 
 		return tps;
 	}
-
+    
+	public ArrayList<TabProxy> getTabList()
+    {
+	  return tabs;
+	}
+	
 	@Kroll.method
 	public void addTab(TabProxy tab)
 	{
@@ -156,6 +162,8 @@ public class TabGroupProxy extends TiWindowProxy
 		String icon = (String) tab.getProperty("icon");
 		String tag = (String) tab.getProperty("tag");
 
+		ViewProxy tView = (ViewProxy) tab.getProperty("tabView");
+
 		if (title == null) {
 			title = "";
 		}
@@ -167,7 +175,9 @@ public class TabGroupProxy extends TiWindowProxy
 
 		if (tag != null && vp != null) {
 			TabSpec tspec = tg.newTab(tag);
-			if (icon == null) {
+			if (tView != null){
+				tspec.setIndicator(tView.getView(null).getNativeView());
+			}else if (icon == null) {
 				tspec.setIndicator(title);
 			} else {
 				String path = getTiContext().resolveUrl(null, icon);
@@ -236,6 +246,10 @@ public class TabGroupProxy extends TiWindowProxy
 		}
 		tg.changeActiveTab(initialActiveTab);
 
+		if (hasProperty("titleControl")){
+			((TiTabActivity)activity).setTitleControl((ViewProxy) getProperty("titleControl"));
+		}
+
 		opened = true;
 	}
 
@@ -301,6 +315,9 @@ public class TabGroupProxy extends TiWindowProxy
 			}
 			if (props.containsKey("navBarHidden")) {
 				intent.putExtra("navBarHidden", TiConvert.toBoolean(props, "navBarHidden"));
+			}
+			if (props.containsKey("titleControl")) {
+				intent.putExtra("titleControl", true);
 			}
 		}
 		intent.putExtra("finishRoot", activity.isTaskRoot());

@@ -663,6 +663,7 @@ public abstract class TiUIView
 		}
 		final GestureDetector detector = new GestureDetector(proxy.getTiContext().getActivity(),
 			new SimpleOnGestureListener() {
+			    
 				@Override
 				public boolean onDoubleTap(MotionEvent e) {
 					boolean handledTap = proxy.fireEvent(TiC.EVENT_DOUBLE_TAP, dictFromEvent(e));
@@ -670,23 +671,25 @@ public abstract class TiUIView
 					return handledTap || handledClick;
 				}
 
-				@Override
+			   @Override
 				public boolean onSingleTapConfirmed(MotionEvent e) {
-					Log.e(LCAT, "TAP, TAP, TAP on " + proxy);
+					Log.d(LCAT, "TAP, TAP, TAP on " + proxy);
 					boolean handledTap = proxy.fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
 					boolean handledClick = proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(e));
 					return handledTap || handledClick;
 				}
+			
 			});
 
 		touchable.setOnTouchListener(new OnTouchListener() {
-			public boolean onTouch(View view, MotionEvent event) {
+			public boolean onTouch(View view, MotionEvent event) { 
 				boolean handled = detector.onTouchEvent(event);
 				if (!handled && motionEvents.containsKey(event.getAction())) {
 					if (event.getAction() == MotionEvent.ACTION_UP) {
-						Rect r = new Rect(view.getLeft(), view.getTop(), view.getRight(), view.getBottom());
-						boolean inRect = r.contains((int) event.getX(), (int)event.getY());
-						if (!inRect) {
+						float viewWidth = view.getRight() - view.getLeft();
+						float viewHeigth = view.getBottom() - view.getTop();
+						boolean inView  = ((event.getX() >= 0 && event.getX() <= viewWidth) && (event.getY() >= 0 && event.getY() <= viewHeigth));
+						if (!inView) {
 							handled = proxy.fireEvent(motionEvents.get(MotionEvent.ACTION_CANCEL), dictFromEvent(event));
 						} else {
 							handled = proxy.fireEvent(motionEvents.get(MotionEvent.ACTION_UP), dictFromEvent(event));
