@@ -745,7 +745,7 @@ Drillbit.prototype.runTest = function(entry)
 	var logPath = ti.fs.getFile(this.resultsDir, entry.name+'.log');
 
 	profilePath.deleteFile();
-	/*logPath.deleteFile();*/
+	logPath.deleteFile();
 	this.currentPassed = 0;
 	this.currentFailed = 0;
 	this.currentTimer = null;
