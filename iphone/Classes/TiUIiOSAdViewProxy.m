@@ -16,8 +16,21 @@
 
 @implementation TiUIiOSAdViewProxy
 
-MAKE_SYSTEM_STR(SIZE_320x50,ADBannerContentSizeIdentifier320x50);
-MAKE_SYSTEM_STR(SIZE_480x32,ADBannerContentSizeIdentifier480x32);
+-(NSString*)SIZE_320x50 
+{
+	if ([TiUtils isIOS4_2OrGreater]) {
+		return ADBannerContentSizeIdentifierPortrait;
+	}
+	return @"ADBannerContentSize320x50";
+}
+
+-(NSString*)SIZE_480x32 
+{
+	if ([TiUtils isIOS4_2OrGreater]) {
+		return ADBannerContentSizeIdentifierLandscape;
+	}
+	return @"ADBannerContentSize480x32";
+}
 
 USE_VIEW_FOR_AUTO_HEIGHT
 USE_VIEW_FOR_AUTO_WIDTH
