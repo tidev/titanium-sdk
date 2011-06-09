@@ -1,0 +1,114 @@
+---
+name: Titanium.UI.TabGroup
+description: The Tab Group allows you to manage a tabbed UI of one or more windows. The Tab Group is created by the method <Titanium.UI.createTabGroup>.
+extends: Titanium.UI.View
+since: "0.9"
+methods:
+  - name: addTab
+    description: add a tab to the tab group
+  - name: close
+    description: close the tab group and remove it from the UI
+  - name: open
+    description: open the tab group and make it visible
+  - name: removeTab
+    description: remove a tab from the tab group
+  - name: setActiveTab
+    description: select the currently active tab in a tab group
+    parameters:
+      - name: indexOrObject
+        description: an int representing the desired tab index or a reference to the tab object you'd like to switch to
+        type: Object
+events:
+  - name: blur
+    description: fired when the tab group loses focus
+    properties:
+      - name: index
+        description: the tab index
+      - name: source
+        description: the source object that fired the event
+      - name: previousIndex
+        description: the previous tab index
+      - name: tab
+        description: the tab object
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+      - name: previousTab
+        description: the previous tab object
+  - name: close
+    description: fired when the tab group is closed
+    properties:
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: source
+        description: the source object that fired the event
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+  - name: focus
+    description: fired when the tab group gains focus
+    properties:
+      - name: index
+        description: the tab index
+      - name: source
+        description: the source object that fired the event
+      - name: previousIndex
+        description: the previous tab index
+      - name: tab
+        description: the tab object
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+      - name: previousTab
+        description: the previous tab object
+  - name: open
+    description: fired when the tab group is opened
+    properties:
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: source
+        description: the source object that fired the event
+      - name: type
+        description: the name of the event fired
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+properties:
+  - name: activeTab
+    description: the active tab
+    type: Object
+  - name: allowUserCustomization
+    description: whether or not the user can configure the tab group via the 'More' tab's edit functionality.  iPhone/iPad only
+    platforms: [iphone, ipad]
+    type: Boolean
+  - name: barColor
+    description: the default navigation bar color (typically for the "More" tab)
+    type: String
+  - name: editButtonTitle
+    description: the title for the 'More' tab edit button.  iPhone/iPad only
+    platforms: [iphone, ipad]
+    type: String
+  - name: tabs
+    description: array of tab objects that are managed by the tab group
+    type: Array<Object>
+  - name: windowSoftInputMode
+    description: |
+        One of Ti.UI.Android.SOFT_INPUT_ADJUST_PAN, Ti.UI.Android.SOFT_INPUT_ADJUST_RESIZE, or Ti.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED. Note: MUST be passed in the creation options. (Android Only) [Android Doc: Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int))
+    type: Number
+    platforms: [android]
+notes: |
+    Note that when opening a tab group, if one or more of its tabs have been set 'active' prior to opening, or if setActiveTab() has been called while a tab is 'active', the result of which tab is initially selected is undefined.

@@ -1,0 +1,6 @@
+---
+name: Titanium.UI.iOS
+description: The Apple iOS specific UI capabilities.  All properties, methods and events in this namespace will only work on the Apple iOS related devices.
+extends: Titanium.Module
+since: "1.4"
+platforms: [iphone, ipad]

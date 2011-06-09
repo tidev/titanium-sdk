@@ -1,0 +1,5 @@
+---
+name: Titanium.Module
+description: The base for all module types
+extends: Titanium.Proxy
+since: "0.1"
