@@ -153,11 +153,7 @@ public class KrollProxy
 	{
 		if (krollObject == null) {
 			if (coverageEnabled) {
-				KrollCoverage parent = null;
-				if (createdInModule != null) {
-					parent = (KrollCoverage) createdInModule.getKrollObject();
-				}
-				krollObject = new KrollCoverage("Titanium."+getAPIName(), this, parent);
+				krollObject = new KrollCoverage(this);
 			} else {
 				krollObject = new KrollObject(this);
 			}

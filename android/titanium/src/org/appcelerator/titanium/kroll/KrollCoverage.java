@@ -39,6 +39,21 @@ public class KrollCoverage extends KrollObject
 	protected KrollCoverage parent;
 	protected String apiType;
 
+	public KrollCoverage(KrollProxy proxy)
+	{
+		super(proxy);
+
+		if (proxy.getCreatedInModule() != null) {
+			parent = (KrollCoverage) proxy.getCreatedInModule().getKrollObject();
+		}
+		if (proxy.getBinding() != null) {
+			name = proxy.getAPIName();
+			if (name != null && name.indexOf("Titanium.") == -1) {
+				name = "Titanium." + name;
+			}
+		}
+	}
+
 	public KrollCoverage(String name, KrollProxy proxy, KrollCoverage parent)
 	{
 		super(proxy);
