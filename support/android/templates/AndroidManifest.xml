@@ -14,6 +14,7 @@
       	android:name="${config['classname']}Application"
       	android:debuggable="false"
 	>
+		<!-- TI_APPLICATION -->
     	<activity
         	android:name=".${config['classname']}Activity"
             android:label="${config['appname']}"
@@ -26,7 +27,6 @@
             </intent-filter>
         </activity>
 
-		<!-- TI_APPLICATION -->
 		<!-- TI_ACTIVITIES -->
 		<activity
         	android:name="org.appcelerator.titanium.TiActivity"

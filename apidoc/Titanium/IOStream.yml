@@ -73,28 +73,30 @@ methods:
     description: closes stream and throws exception on error
 
 
-examples: |
-    ## write data to stream
+examples:
+  - title: write data to stream
+    example: |
+        
+            var outBuffer = Ti.createBuffer({data: "write me"});
+            var outStream = // stream object could be socket, file, buffer or blob
+            
+            var bytesWritten = outStream.write(outBuffer);  // writes entire buffer to stream
+            Ti.API.info("Bytes written:" + bytesWritten);  // should be 8
+            
+            bytesWritten = outStream.write(outBuffer, 2, 5);  // only writes "ite m" to stream
+            Ti.API.info("Bytes written:" + bytesWritten);  // should be 5
 
-      var outBuffer = Ti.createBuffer({data: "write me"});
-      var outStream = // stream object could be socket, file, buffer or blob
-
-      var bytesWritten = outStream.write(outBuffer);  // writes entire buffer to stream
-      Ti.API.info("Bytes written:" + bytesWritten);  // should be 8
-
-      bytesWritten = outStream.write(outBuffer, 2, 5);  // only writes "ite m" to stream
-      Ti.API.info("Bytes written:" + bytesWritten);  // should be 5
-
-    ## read data from stream
-
-      var inBuffer = Ti.createBuffer({length: 1024});
-
-      // assume the inStream contains the string "hello world"
-      var inStream = // stream object could be socket, file, buffer or blob
-
-      var bytesRead = inStream.read(inBuffer);  // reads "hello world" from stream
-      Ti.API.info("Bytes read:" + bytesRead);  // should be 11
-
-      bytesRead = inStream.read(inBuffer, 2, 5);  // only reads "llo w" from stream
-      Ti.API.info("Bytes read:" + bytesRead);  // should be 5
+  - title: read data from stream
+    example: |
+        
+            var inBuffer = Ti.createBuffer({length: 1024});
+            
+            // assume the inStream contains the string "hello world"
+            var inStream = // stream object could be socket, file, buffer or blob
+            
+            var bytesRead = inStream.read(inBuffer);  // reads "hello world" from stream
+            Ti.API.info("Bytes read:" + bytesRead);  // should be 11
+            
+            bytesRead = inStream.read(inBuffer, 2, 5);  // only reads "llo w" from stream
+            Ti.API.info("Bytes read:" + bytesRead);  // should be 5
 

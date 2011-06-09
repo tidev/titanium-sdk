@@ -1,0 +1,47 @@
+---
+name: Titanium.UI.ProgressBar
+description: A Progress Bar is created by the method <Titanium.UI.createProgressBar>.
+extends: Titanium.Proxy
+since: "0.8"
+properties:
+  - name: color
+    description: the color of the progress bar text
+    type: String
+  - name: font
+    description: the font object for the progress bar text
+    type: Object
+  - name: max
+    description: the maximum value of the progress bar
+    type: Number
+  - name: message
+    description: the progress bar message
+    type: String
+  - name: min
+    description: the minimum value of the progress bar
+    type: Number
+  - name: style
+    description: the style of the progress bar
+    type: Number
+  - name: value
+    description: the current value of the progress bar
+    type: Number
+notes: |
+    For iPhone, progress bar styles are constants defined in [Titanium.UI.iPhone.ProgressBarStyle](Titanium.UI.iPhone.ProgressBarStyle).
+examples:
+  - title: Simple Progress Bar
+    example: |
+        
+        In this example we create a progress bar with the min value of `0` and the max value of `10` and the current value of `0`.  The change the value of the progress bar to cause it to move, we would set the `value` property to a value between `min` and `max`.
+        
+            var pb=Titanium.UI.createProgressBar({
+            	width:250,
+            	min:0,
+            	max:10,
+            	value:0,
+            	color:'#fff',
+            	message:'Downloading 0 of 10',
+            	font:{fontSize:14, fontWeight:'bold'},
+            	style:Titanium.UI.iPhone.ProgressBarStyle.PLAIN,
+            });
+        
+        

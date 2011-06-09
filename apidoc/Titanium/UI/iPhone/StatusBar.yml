@@ -1,0 +1,19 @@
+---
+name: Titanium.UI.iPhone.StatusBar
+description: A set of constants for the status bar style.
+extends: Titanium.Proxy
+since: "0.9"
+platforms: [iphone, ipad]
+properties:
+  - name: DEFAULT
+    description: The default status bar style
+    type: Number
+  - name: GRAY
+    description: The gray colored status bar style
+    type: Number
+  - name: OPAQUE_BLACK
+    description: The opaque black status bar style.
+    type: Number
+  - name: TRANSLUCENT_BLACK
+    description: The translucent black status bar style. This style provides some level of transparency to the device background.
+    type: Number

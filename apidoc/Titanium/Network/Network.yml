@@ -1,0 +1,189 @@
+---
+name: Titanium.Network
+description: The top level Network module.  The Network module is used accessing Networking related functionality, including [Titanium.Network.Socket](Titanium.Network.Socket-module.html)
+extends: Titanium.Module
+since: "0.1"
+methods:
+  - name: addConnectivityListener
+    description: adds a connectivity listener to listen for network changes. This method has been deprecated in favor of listening for a `change` event.
+    deprecated:
+        since: "1.7.0"
+    parameters:
+      - name: callback
+        description: callback function to invoke upon network connectivity changes
+        type: Callback<Object>
+  - name: createBonjourBrowser
+    description: create and return an instance of <Titanium.Network.BonjourBrowser>
+    platforms: [iphone, ipad]
+    returns:
+        type: Titanium.Network.BonjourBrowser
+    parameters:
+      - name: serviceType
+        description: service to search for, must include the protocol type suffix (._tcp)
+        type: String
+      - name: domain
+        description: the Bonjour service domain to conduct the search in.  Default value is 'local.'
+        default: local.
+        type: String
+      - name: parameters
+        optional: true
+        description: A dictionary object of properties defined in <Titanium.Network.BonjourBrowser>
+        type: Dictionary<Titanium.Network.BonjourBrowser>
+  - name: createBonjourService
+    description: create and return an instance of <Titanium.Network.BonjourService>
+    platforms: [iphone, ipad]
+    returns:
+        type: Titanium.Network.BonjourService
+    parameters:
+      - name: name
+        description: the name of the service.  Must be a unique identifier for this service type and domain.
+        type: String
+      - name: type
+        description: the type of service.  Must include the protocol identifier (._tcp)
+        type: String
+      - name: domain
+        description: the domain to publish the service in.  Default value is 'local.'
+        default: local.
+        type: String
+      - name: parameters
+        description: A dictionary object with properties defined in <Titanium.Network.BonjourService>
+        optional: true
+        type: Dictionary<Titanium.Network.BonjourService>
+  - name: createTCPSocket
+    description: create and return an instance of <Titanium.Network.TCPSocket>
+    platforms: [iphone, ipad]
+    deprecated:
+        since: "1.7.0"
+    returns:
+        type: Titanium.Network.TCPSocket
+    parameters:
+      - name: hostName
+        description: the host name to connect to/listen on
+        type: String
+      - name: port
+        description: the port for the socket
+        type: Number
+      - name: mode
+        description: the socket's mode; one of <Titanium.Network.READ_MODE>, <Titanium.Network.WRITE_MODE>, <Titanium.Network.READ_WRITE_MODE>
+        type: Number
+      - name: parameters
+        description: A dictionary object with properties defined in <Titanium.Network.TCPSocket>
+        type: Object
+  - name: decodeURIComponent
+    description: decode a URI component part using URI encoding
+    returns:
+        type: String
+    parameters:
+      - name: value
+        description: input value to be decoded
+        type: String
+  - name: encodeURIComponent
+    description: encode a URI component part using URI encoding
+    returns:
+        type: String
+    parameters:
+      - name: value
+        description: input value to be encoded
+        type: String
+  - name: registerForPushNotifications
+    description: register for push notifications with the Apple Push Notification Service. Only available on iPhone.
+    parameters:
+      - name: config
+        description: |
+            dictionary of the following: `types` is an array of type constants that the application would like to receive, `success` is a callback function that is called when the push registration is successfully completed, `error` is a callback function that is called when an error is received during registration and `callback` is a callback function that is invoked upon receiving a new push notification. This method should be called at application startup.
+        type: Object
+  - name: removeConnectivityListener
+    description: removes a connectivity listener. This method has been deprecated in favor of listening for a `change` event.
+    deprecated:
+        since: "1.7.0"
+    parameters:
+      - name: callback
+        description: callback function to remove
+        type: Callback<Object>
+events:
+  - name: change
+    description: fired upon a network connectivity change
+    properties:
+      - name: networkTypeName
+        description: the new network type as a string
+      - name: source
+        description: the source object that fired the event
+      - name: online
+        description: boolean to indicate if the network is online
+      - name: type
+        description: the name of the event fired
+      - name: networkType
+        description: the new network type
+properties:
+  - name: INADDR_ANY
+    description: constant value representing the ability for sockets to listen on any locally available network device
+    type: String
+  - name: NETWORK_LAN
+    description: constant value to indicate that the network is LAN
+    type: Number
+  - name: NETWORK_MOBILE
+    description: constant value to indicate that the network is MOBILE
+    type: Number
+  - name: NETWORK_NONE
+    description: constant value to indicate that the network is not available
+    type: Number
+  - name: NETWORK_UNKNOWN
+    description: constant value to indicate that the network is not known
+    type: Number
+  - name: NETWORK_WIFI
+    description: constant value to indicate that the network is WIFI
+    type: Number
+  - name: NOTIFICATION_TYPE_ALERT
+    description: constant value for the push notification alert type
+    type: Number
+  - name: NOTIFICATION_TYPE_BADGE
+    description: constant value for the push notification badge type
+    type: Number
+  - name: NOTIFICATION_TYPE_SOUND
+    description: constant value for the push notification sound type
+    type: Number
+  - name: READ_MODE
+    description: constant value specifying read-only mode for sockets
+    type: Number
+  - name: READ_WRITE_MODE
+    description: constant value specifying read-write mode for sockets
+    type: Number
+  - name: SOCKET_CLOSED
+    description: constant value representing a socket in the CLOSED state
+    type: Number
+  - name: SOCKET_CONNECTED
+    description: constant value representing a socket in the CONNECTED state
+    type: Number
+  - name: SOCKET_ERROR
+    description: constant value representing a socket in the ERROR state
+    type: Number
+  - name: SOCKET_INITIALIZED
+    description: constant value representing a socket in the INITIALIZED state
+    type: Number
+  - name: SOCKET_LISTENING
+    description: constant value representing a socket in the LISTENING state
+    type: Number
+  - name: WRITE_MODE
+    description: constant value specifying write-only mode for sockets
+    type: Number
+  - name: networkType
+    description: the network type value as a constant.
+    type: Number
+  - name: networkTypeName
+    description: the network type name constant. Returns one of `NONE`, `WIFI`, `LAN` or `MOBILE`.
+    type: String
+  - name: online
+    description: readonly boolean value that indicates if the network is reachable to the Internet either via WIFI or Carrier network
+    type: Boolean
+  - name: remoteDeviceUUID
+    description: the remote device UUID if the device was registered with the Apple Push Notification Service or null if not set. Only available on iPhone.
+    platforms: [iphone, ipad]
+    type: String
+  - name: remoteNotificationTypes
+    description: returns an array of network type constants enabled for the application. Only available on iPhone.
+    platforms: [iphone, ipad]
+    type: Array<Object>
+  - name: remoteNotificationsEnabled
+    description: returns true if remote notifications have been enabled. Only available on iPhone.
+    platforms: [iphone, ipad]
+    type: Boolean

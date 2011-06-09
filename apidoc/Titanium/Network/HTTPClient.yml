@@ -1,0 +1,114 @@
+---
+name: Titanium.Network.HTTPClient
+description: The HttpClient instance returned from <Titanium.Network.createHTTPClient>. This object (mostly) implements the XMLHttpRequest specification.
+extends: Titanium.Proxy
+since: "0.1"
+methods:
+  - name: abort
+    description: abort a pending request
+  - name: getResponseHeader
+    description: return the response header.
+    returns:
+        type: String
+    parameters:
+      - name: name
+        description: the header name
+        type: String
+  - name: open
+    description: open the request and ready the connection
+    parameters:
+      - name: method
+        description: the HTTP method
+        type: String
+      - name: url
+        description: the URL for the request
+        type: String
+      - name: async
+        description: optional property to indicate if asynchronous (default) or not
+        type: Boolean
+        default: true
+  - name: send
+    description: send the request (Only async is currently supported)
+    parameters:
+      - name: data
+        description: the data to send in the request. can either be null, dictionary, string, File object or Blob.
+        type: Object
+  - name: setRequestHeader
+    description: set the request header. Must be called after `open` but before `send`.
+    parameters:
+      - name: name
+        description: name of the header
+        type: String
+      - name: value
+        description: value of the header. May be null to clearing out a property, such as X-Requested-With
+        type: String
+  - name: setTimeout
+    description: set the request timeout
+    parameters:
+      - name: timeout
+        description: the timeout in milliseconds
+        type: Number
+properties:
+  - name: DONE
+    description: the DONE readyState constant
+    type: Number
+  - name: HEADERS_RECEIVED
+    description: the HEADERS_RECEIVED readyState constant
+    type: Number
+  - name: LOADING
+    description: the LOADING readyState constant
+    type: Number
+  - name: OPENED
+    description: the OPENED readyState constant
+    type: Number
+  - name: UNSENT
+    description: the UNSET readyState constant
+    type: Number
+  - name: connected
+    description: boolean to indicate that the response was successful
+    type: Boolean
+  - name: connectionType
+    description: the connection type, normally either `GET` or `POST`.
+    type: String
+  - name: file
+    description: file to download contents to.  Can only be set after calling open.  iOS only
+    type: String
+  - name: location
+    description: the absolute URL of the request
+    type: String
+  - name: ondatastream
+    description: set this to a function before calling open to cause the function to be called at regular intervals as the request data is being received. the `progress` property of the event will contain a value from 0.0-1.0 with the progress.
+    type: Callback<Object>
+  - name: onerror
+    description: set this to a function before calling open to cause the function to be called upon a error response
+    type: Callback<Object>
+  - name: onload
+    description: set this to a function before calling open to cause the function to be called upon a successful response
+    type: Callback<Object>
+  - name: onreadystatechange
+    description: set this to a function before calling open to cause the function to be called for each readyState change
+    type: Callback<Object>
+  - name: onsendstream
+    description: set this to a function before calling open to cause the function to be called at regular intervals as the request data is being transmitted. the `progress` property of the event will contain a value from 0.0-1.0 with the progress.
+    type: Callback<Object>
+  - name: readyState
+    description: the readyState value
+    type: Number
+  - name: responseData
+    description: the response data as a Blob object.
+    type: Object
+  - name: responseText
+    description: the response as text or null if an error was received or no data was returned
+    type: String
+  - name: responseXML
+    description: the response object as an XML DOMDocument object. returns null if the content type returned by the server was not XML or the content could not be parsed
+    type: Object
+  - name: status
+    description: the response HTTP status code
+    type: Number
+  - name: timeout
+    description: timeout is milliseconds when the connection should be aborted
+    type: Number
+  - name: validatesSecureCertificate
+    description: set this to control how SSL certification validation is performed on connection.  defaults to false if in simulator or device testing and true if release for distribution mode.
+    type: Boolean

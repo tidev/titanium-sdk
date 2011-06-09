@@ -1,0 +1,51 @@
+---
+name: Titanium.UI.DashboardItem
+description: An item that represents a visual icon in the <Titanium.UI.DashboardView>. The Dashboard Item is created by the method <Titanium.UI.createDashboardItem>.
+extends: Titanium.Proxy
+since: "1.2"
+platforms: [iphone, ipad]
+events:
+  - name: click
+    description: fired when a <Titanium.UI.DashboardItem> is clicked
+    properties:
+      - name: source
+        description: the source object that fired the event
+      - name: type
+        description: the name of the event fired
+      - name: location
+        description: the location object with the properties `x` and `y` of where in the parent view the click was
+      - name: item
+        description: the <Titanium.UI.DashboardItem> that was clicked
+  - name: delete
+    description: fired when a  <Titanium.UI.DashboardItem> is deleted during editings
+    properties:
+      - name: source
+        description: the source object that fired the event
+      - name: type
+        description: the name of the event fired
+      - name: item
+        description: the <Titanium.UI.DashboardItem> that was deleted
+  - name: move
+    description: fired when a  <Titanium.UI.DashboardItem> is moved during editing
+    properties:
+      - name: source
+        description: the source object that fired the event
+      - name: items
+        description: the pending data array in the new order (uncommitted)
+      - name: type
+        description: the name of the event fired
+      - name: item
+        description: the <Titanium.UI.DashboardItem> that was moved
+properties:
+  - name: badge
+    description: the badge value or `0` to remove the badge
+    type: Number
+  - name: canDelete
+    description: a boolean to indicate if this item can be deleted when it edit mode
+    type: Boolean
+  - name: image
+    description: the URL to the image
+    type: String
+  - name: selectedImage
+    description: the URL to the image to display when the item is depressed (clicked)
+    type: String

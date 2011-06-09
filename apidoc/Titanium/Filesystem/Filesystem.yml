@@ -1,0 +1,55 @@
+---
+name: Titanium.Filesystem
+description: The top level Filesystem module.  The Filesystem module is used for reading and saving files and 
+    directories on the device.
+extends: Titanium.Module
+since: "0.1"
+methods:
+  - name: createTempDirectory
+    description: create temp file and return a <Titanium.Filesystem.File>
+    returns:
+        type: Titanium.Filesystem.File
+  - name: createTempFile
+    description: create a temp file and return a <Titanium.Filesystem.File>
+    returns:
+        type: Titanium.Filesystem.File
+  - name: getFile
+    description: return a fully formed file path as a <Titanium.Filesystem.File> object
+    returns:
+        type: Titanium.Filesystem.File
+    parameters:
+      - name: path
+        description: one or more path arguments to form the full path joined together with the platform specific path separator. if a relative path is passed, the full path will be relative to the application resource folder.
+        type: String
+  - name: isExternalStoragePresent
+    description: returns true if the android device supports external storage such as an SD card. Returns false on iOS.
+    returns:
+        type: Boolean
+properties:
+  - name: MODE_APPEND
+    description: constant for append mode for file operations
+    type: Number
+  - name: MODE_READ
+    description: constant for read mode for file operations
+    type: Number
+  - name: MODE_WRITE
+    description: constant for write mode for file operations
+    type: Number
+  - name: applicationDataDirectory
+    description: readonly constant where your application data directory is located. this directory should be used to place applications-specific files. on iPhone, this directory is also backed up.
+    type: String
+  - name: applicationDirectory
+    description: readonly constant where your application is located
+    type: String
+  - name: lineEnding
+    description: readonly platform specific line ending constant
+    type: String
+  - name: resourcesDirectory
+    description: readonly constant where your application resources are located
+    type: String
+  - name: separator
+    description: readonly path separator constant
+    type: String
+  - name: tempDirectory
+    description: readonly constant where your application can place temporary files
+    type: String
