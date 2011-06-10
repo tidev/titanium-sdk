@@ -11,7 +11,7 @@ describe("Ti.Media tests", {
 	soundAPIs: function() {
 		valueOf(Ti.Media.createSound).shouldBeFunction();
 		
-		var sound = Ti.Media.createSound("sound.wav");
+		var sound = Ti.Media.createSound({ url : "sound.wav" });
 		valueOf(sound).shouldNotBeNull();
 		valueOf(sound.getTime).shouldBeFunction();
 		valueOf(sound.setTime).shouldBeFunction();
@@ -65,5 +65,27 @@ describe("Ti.Media tests", {
 		valueOf(player.getMediaControlStyle).shouldBeFunction();
 		valueOf(player.getScalingMode).shouldBeFunction();
 		valueOf(player.setScalingMode).shouldBeFunction();
-	}
+	},
+	audioTimeValidation: asyncTest({
+		start: function() {
+			var sound = Ti.Media.createSound({ url : "sound.wav" });
+			var initial_pos = 3.0;
+			sound.time = initial_pos;
+			sound.setTime(initial_pos);
+			valueOf(sound.getTime()).shouldBe(initial_pos);
+			valueOf(sound.time).shouldBe(initial_pos);
+			sound.play();
+			setTimeout(this.async(function(e) {
+				var time = sound.getTime();
+				Ti.API.info("PROGRESS: " + time);
+				valueOf(time).shouldBeGreaterThan(initial_pos);
+				// assume we get an event in < 2 seconds.
+				valueOf(time).shouldBeLessThan(initial_pos + 2.0); 
+				sound.stop();
+				sound = null;
+				}), 1000);
+		},
+		timeout: 5000,
+		timeoutError: "Timed out waiting for sound to play."
+	})
 })
