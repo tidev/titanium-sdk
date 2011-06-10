@@ -236,7 +236,13 @@ $(window).ready(function()
 		drillbitSuite=document.getElementsByClassName('suites')[0],
 		startHeightConsole = $(drillbitConsole).height(),
 		resizerHeight = 12,
-		spaceBuffer = 85;	
+		spaceBuffer = 85;
+		
+	window.moveTo(Titanium.App.Properties.getInt("windowX",400),Titanium.App.Properties.getInt("windowY", 600));
+	window.resizeTo(Titanium.App.Properties.getInt("width", 600),Titanium.App.Properties.getInt("height", 800));
+	$(drillbitConsole).height(Titanium.App.Properties.getInt("consoleHeight", 275));
+	$(drillbitSuite).height(window.innerHeight - spaceBuffer - $(drillbitConsole).height());
+	drillbitResize.style.bottom = $(drillbitConsole).height() + resizerHeight;	
 
 	if ('webConsole' in Drillbit.argv) {
 		Titanium.UI.currentWindow.showInspector(true);
