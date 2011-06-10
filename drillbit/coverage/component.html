@@ -36,7 +36,7 @@ columns = len(categories) + 1
 			<tr>
 				<th class="totals">Totals</td>
 				% for category in categories:
-					<th class="totals">${countCoverage(components, component, category)}</th>
+					<th class="totals">${countCoverage(components, component, category)[0]}</th>
 				% endfor
 			</tr>
 			% if "properties" in components[component]:
