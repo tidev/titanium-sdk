@@ -70,8 +70,6 @@ Drillbit = function() {
 	this.logPath = ti.fs.getFile(this.resultsDir, 'drillbitConsole.log');
 	this.logStream = this.logPath.open(ti.fs.MODE_WRITE);
 	
-	this.settingsPath = ti.fs.getFile(this.resultsDir, 'settings.txt');
-	this.settingsStream = this.settingsPath.open(ti.fs.MODE_WRITE | ti.fs.MODE_READ);	
 };
 
 Drillbit.prototype.processArgv = function() {

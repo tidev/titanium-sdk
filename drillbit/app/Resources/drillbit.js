@@ -245,6 +245,9 @@ $(window).ready(function()
 	Drillbit.window = window;
 	initUI();	
 	
+	var suitesStatus = JSON.parse(Titanium.App.Properties.getString("suitesStatus", "{ }"));
+	loopThroughSuites(suitesStatus, "setup");
+	
 	var runLink = $('#run-link');
 	$('#toggle-link').click(function() {
 		toggleTestIncludes();
@@ -299,6 +302,49 @@ $(window).ready(function()
 		$(drillbitConsole).height(window.innerHeight-$(drillbitSuite).height()-spaceBuffer);
 		drillbitResize.style.bottom = $(drillbitConsole).height() + resizerHeight;
 	});
+	function loopThroughSuites(suitesStatus, setupOrSave) {
+		Drillbit.testNames.forEach(function(name) {
+			var suiteId = genSuiteId(name);
+			var suiteDiv = $('#' + suiteId);
+			var entry = Drillbit.tests[name];
+			if (setupOrSave == "save") {
+				suitesStatus[name] = {};
+			}
+			entry.platforms.forEach(function(platform) {
+				var platformCheck = suiteDiv.find('img.' + platform + '-check');
+				if (setupOrSave == "save") {
+					if ($(platformCheck).attr('src').indexOf('check_on') == -1) {
+						suitesStatus[name][platform] = false;
+					}
+					else {
+						suitesStatus[name][platform] = true;
+					}
+				}
+				else {
+					if (name in suitesStatus && platform in suitesStatus[name]) {
+						var checked = suitesStatus[name][platform];
+						if (!checked) {
+							platformCheck.attr('src', 'images/check_off.png');
+						}
+						else {
+							platformCheck.attr('src', 'images/check_on.png');
+						}
+					}
+				}
+			});
+		});
+		Titanium.App.Properties.setString("suitesStatus", JSON.stringify(suitesStatus));
+	};
+	function saveSettings() {
+		var bounds = Titanium.UI.currentWindow.getBounds();
+		Titanium.App.Properties.setInt("windowX", bounds.x);
+		Titanium.App.Properties.setInt("windowY", bounds.y);
+		Titanium.App.Properties.setInt("height", bounds.height);
+		Titanium.App.Properties.setInt("width", bounds.width);
+		var suitesStatus = {};
+		loopThroughSuites(suitesStatus, "save");
+	};
+	Titanium.UI.currentWindow.addEventListener("close", saveSettings);
 	runLink.click(function () {
 		if (!runLinkDisabled)
 		{
