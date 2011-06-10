@@ -122,21 +122,22 @@ methods:
       - name: value
         description: value
         type: String
-examples: |
-    Store a property:
+examples:
+  - title: Store a property
+    example: |
     
-    In this example, we store a string property:
-    
-        Titanium.App.Properties.setString("my_prop","cool");
-    
-    Enumerate over saved properties:
-    
-    In this example, we print out all the saved properties to the console:
-    
-        var props = Titanium.App.Properties.listProperties();
-        for (var c=0;c<props.length;c++)
-        {
-            var value = Titanium.App.Properties.getString(props[c]);
-            Titanium.API.info(props[c]+" = "+value);
-        }
-    
+        In this example, we store a string property:
+        
+            Titanium.App.Properties.setString("my_prop","cool");
+        
+  - title: Enumerate over saved properties
+    example: |
+        In this example, we print out all the saved properties to the console:
+        
+            var props = Titanium.App.Properties.listProperties();
+            for (var c=0;c<props.length;c++)
+            {
+                var value = Titanium.App.Properties.getString(props[c]);
+                Titanium.API.info(props[c]+" = "+value);
+            }
+        

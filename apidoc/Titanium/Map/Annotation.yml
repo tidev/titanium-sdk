@@ -19,8 +19,7 @@ properties:
   - name: pinImage
     description: Android only. *DEPRECATED* use <Titanium.Map.Annotation.image> property instead.
     deprecated:
-        android:
-            since: "1.4"
+        since: "1.4"
     platforms: [android]
     type: String
   - name: pincolor

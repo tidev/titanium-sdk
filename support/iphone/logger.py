@@ -69,6 +69,16 @@ def main(args):
         		path = "~/Library/Application Support/iPhone Simulator/%s" % v
         		break
 
+	if iphone_version == '5.0':
+	    # i dunno, how many of these will they do?
+	    for v in ('5.0.9','5.0.8','5.0.7','5.0.6','5.0.5','5.0.4','5.0.3','5.0.2','5.0.1','5.0'):
+	        if os.path.exists(os.path.expanduser("~/Library/Application Support/iPhone Simulator/%s"%v)):
+        		# Apple broke version in 4.0.x where they return 4.0 instead so we need to try and see if they 
+        		# have the patch installed
+        		print "[INFO] Found %s patch installed" % v
+        		path = "~/Library/Application Support/iPhone Simulator/%s" % v
+        		break
+
 	logfile_dir = os.path.expanduser(path)
 
 	logfile = None

@@ -19,4 +19,4 @@ methods:
     parameters:
       - name: node
         description: the XML DOMNode or DOMDocument to serialize
-        type: DOMNode
+        type: Object

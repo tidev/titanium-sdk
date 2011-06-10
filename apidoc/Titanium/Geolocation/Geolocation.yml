@@ -12,19 +12,19 @@ methods:
         type: String
       - name: callback
         description: function to invoke on success or failure. The event object contains the properties described as the `place` dictionary in <Titanium.Geolocation.reverseGeocoder>.
-        type: Callback
+        type: Callback<Object>
   - name: getCurrentHeading
     description: retrieve the current compass heading.
     parameters:
       - name: callback
         description: function to invoke on success or failure of obtaining the current heading. See heading event in <Titanium.Geolocation>.
-        type: Callback
+        type: Callback<Object>
   - name: getCurrentPosition
     description: retrieve the last known location from the device. On Android, the radios are not turned on to update the location. On iOS the radios MAY be used if the location is too "old".
     parameters:
       - name: callback
         description: function to invoke on success or failure of obtaining the current location. See location event in <Titanium.Geolocation>.
-        type: Callback
+        type: Callback<Object>
   - name: reverseGeocoder
     description: tries to resolve a location to an address.
     parameters:
@@ -37,7 +37,7 @@ methods:
       - name: callback
         description: |
             function to invoke on success or failure. The event object passed contains a `places` array of zero or more place dictionaries. Each `place` dictionary contains the following properties: `street`, `street1`, `city`, `region1`, `region2`, `postalCode`, `country`, `countryCode`, `longitude`, `latitude`, `displayAddress`, `address`.
-        type: Callback
+        type: Callback<Object>
   - name: setShowCalibration
     description: configure the calibration UI. set the false to disable the calibration display. (iOS only)
 events:

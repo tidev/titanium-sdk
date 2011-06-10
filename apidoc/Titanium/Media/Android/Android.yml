@@ -16,7 +16,7 @@ methods:
         type: Array<String>
       - name: callback
         description: A function that will be called when each file is finished being scanned.  Check the callback argument's "path" and "uri" properties to see the path that was scanned and the resulting content uri.
-        type: Callback
+        type: Callback<Object>
   - name: setSystemWallpaper
     description: Set the system homescreen wallpaper
     parameters:

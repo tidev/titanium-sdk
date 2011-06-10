@@ -109,7 +109,7 @@ public class TiHTTPClient
 	private static final String ON_DATA_STREAM = "ondatastream";
 	private static final String ON_SEND_STREAM = "onsendstream";
 
-	private static DefaultHttpClient client;
+	private DefaultHttpClient client;
 	
 	private KrollProxy proxy;
 	private int readyState;
@@ -234,33 +234,28 @@ public class TiHTTPClient
 					if (DBG) {
 						Log.d(LCAT, "Available: " + is.available());
 					}
-					if (aborted) {
-						if (entity != null) {
+
+					if (entity != null) {
+						charset = EntityUtils.getContentCharSet(entity);
+					}
+					while((count = is.read(buf)) != -1) {
+						totalSize += count;
+						try {
+							handleEntityData(buf, count, totalSize, contentLength);
+						} catch (IOException e) {
+							Log.e(LCAT, "Error handling entity data", e);
+							Context.throwAsScriptRuntimeEx(e);
+						}
+					}
+					if (entity != null) {
+						try {
 							entity.consumeContent();
+						} catch (IOException e) {
+							e.printStackTrace();
 						}
-					} else {
-						if (entity != null) {
-							charset = EntityUtils.getContentCharSet(entity);
-						}
-						while((count = is.read(buf)) != -1) {
-							totalSize += count;
-							try {
-								handleEntityData(buf, count, totalSize, contentLength);
-							} catch (IOException e) {
-								Log.e(LCAT, "Error handling entity data", e);
-								Context.throwAsScriptRuntimeEx(e);
-							}
-						}
-						if (entity != null) {
-							try {
-								entity.consumeContent();
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
-						}
-						if (totalSize > 0) {
-							finishedReceivingEntityData(totalSize);
-						}
+					}
+					if (totalSize > 0) {
+						finishedReceivingEntityData(totalSize);
 					}
 				}
 			}
@@ -432,21 +427,6 @@ public class TiHTTPClient
 		this.parts = new HashMap<String,ContentBody>();
 		this.maxBufferSize = proxy.getTiContext().getTiApp()
 			.getSystemProperties().getInt(PROPERTY_MAX_BUFFER_SIZE, DEFAULT_MAX_BUFFER_SIZE);
-
-		if (client == null) {
-			SchemeRegistry registry = new SchemeRegistry();
-			registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
-
-			HttpParams params = new BasicHttpParams();
-			ConnManagerParams.setMaxTotalConnections(params, 200);
-			ConnPerRouteBean connPerRoute = new ConnPerRouteBean(20);
-			ConnManagerParams.setMaxConnectionsPerRoute(params, connPerRoute);
-
-			HttpProtocolParams.setUseExpectContinue(params, false);
-			HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
-
-			client = new DefaultHttpClient(new ThreadSafeClientConnManager(params, registry), params);
-		}
 	}
 
 	public int getReadyState() {
@@ -606,30 +586,10 @@ public class TiHTTPClient
 
 	public void abort() {
 		if (readyState > READY_STATE_UNSENT && readyState < READY_STATE_DONE) {
+			aborted = true;
 			if (client != null) {
-				if (DBG) {
-					Log.d(LCAT, "Calling shutdown on clientConnectionManager");
-				}
-				aborted = true;
-				if(handler != null) {
-					handler.client = null;
-					if (handler.is != null) {
-						try {
-							if (handler.entity.isStreaming()) {
-								handler.entity.consumeContent();
-							}
-							handler.is.close();
-						} catch (IOException e) {
-							Log.i(LCAT, "Force closing HTTP content input stream", e);
-						} finally {
-							handler.is = null;
-						}
-					}
-				}
-				if (client != null) {
-					client.getConnectionManager().shutdown();
-					client = null;
-				}
+				client.getConnectionManager().shutdown();
+				client = null;
 			}
 		}
 	}
@@ -841,6 +801,22 @@ public class TiHTTPClient
 	public void send(Object userData)
 		throws MethodNotSupportedException
 	{
+		if (client == null) {
+			SchemeRegistry registry = new SchemeRegistry();
+			registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
+
+			HttpParams params = new BasicHttpParams();
+			ConnManagerParams.setMaxTotalConnections(params, 200);
+			ConnPerRouteBean connPerRoute = new ConnPerRouteBean(20);
+			ConnManagerParams.setMaxConnectionsPerRoute(params, connPerRoute);
+
+			HttpProtocolParams.setUseExpectContinue(params, false);
+			HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+
+			client = new DefaultHttpClient(new ThreadSafeClientConnManager(params, registry), params);
+		}
+		aborted = false;
+
 		// TODO consider using task manager
 		double totalLength = 0;
 		needMultipart = false;
@@ -1013,7 +989,14 @@ public class TiHTTPClient
 				if (DBG) {
 					Log.d(LCAT, "Preparing to execute request");
 				}
-				String result = client.execute(host, request, handler);
+				String result = null;
+				try {
+					result = client.execute(host, request, handler);
+				} catch (IOException e) {
+					if (!aborted) {
+						throw new IOException(e);
+					}
+				}
 				if(result != null) {
 					Log.d(LCAT, "Have result back from request len=" + result.length());
 				}

@@ -64,7 +64,7 @@ methods:
     parameters:
       - name: callback
         description: function that will be called upon capture. the event property `media` will contain an image Blob object of the screenshot
-        type: Callback
+        type: Callback<Object>
   - name: vibrate
     description: play a device vibration
 events:

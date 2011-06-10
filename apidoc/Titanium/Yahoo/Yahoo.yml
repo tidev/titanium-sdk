@@ -12,4 +12,4 @@ methods:
         type: String
       - name: callback
         description: the function to execute when the query completes. The event will contain the boolean property `success` if successful. If `success` is false, the `message` property will contain the error message. If `success` is true, the `data` property will contain the data payload received from the YQL.
-        type: Callback
+        type: Callback<Object>

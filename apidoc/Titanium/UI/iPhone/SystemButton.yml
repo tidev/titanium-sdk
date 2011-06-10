@@ -1,0 +1,85 @@
+---
+name: Titanium.UI.iPhone.SystemButton
+description: A set of constants for the system button style for buttons.
+extends: Titanium.Proxy
+since: "0.8"
+platforms: [iphone, ipad]
+properties:
+  - name: ACTION
+    description: action icon. Usable in nav bars and toolbars only.
+    type: Number
+  - name: ACTIVITY
+    description: special style that shows an activity indicator. when visible, the activity indicator is already started.
+    type: Number
+  - name: ADD
+    description: add icon. Usable in nav bars and toolbars only.
+    type: Number
+  - name: BOOKMARKS
+    description: bookmarks icon. Usable in nav bars and toolbars only.
+    type: Number
+  - name: CAMERA
+    description: camera icon. Usable in nav bars and toolbars only.
+    type: Number
+  - name: CANCEL
+    description: cancel icon. localized. Usable in nav bars and toolbars only.
+    type: Number
+  - name: COMPOSE
+    description: compose icon. Usable in nav bars and toolbars only.
+    type: Number
+  - name: CONTACT_ADD
+    description: green style plus (+) icon
+    type: Number
+  - name: DISCLOSURE
+    description: disclosure style icon
+    type: Number
+  - name: DONE
+    description: done icon. localized. Usable in nav bars and toolbars only.
+    type: Number
+  - name: EDIT
+    description: edit icon. localized. Usable in nav bars and toolbars only.
+    type: Number
+  - name: FAST_FORWARD
+    description: fast forward icon. Usable in nav bars and toolbars only.
+    type: Number
+  - name: FIXED_SPACE
+    description: Blank space to add between other items. Only the `width` property is used when this value is set.
+    type: Number
+  - name: FLEXIBLE_SPACE
+    description: Blank space to add between other items. The space is distributed equally between the other items. Other item properties are ignored when this value is set.
+    type: Number
+  - name: INFO_DARK
+    description: a dark style info circle icon
+    type: Number
+  - name: INFO_LIGHT
+    description: a light style info circle icon
+    type: Number
+  - name: ORGANIZE
+    description: organize icon. Usable in nav bars and toolbars only.
+    type: Number
+  - name: PAUSE
+    description: pause icon. Usable in nav bars and toolbars only.
+    type: Number
+  - name: PLAY
+    description: play icon. Usable in nav bars and toolbars only.
+    type: Number
+  - name: REFRESH
+    description: refresh icon. Usable in nav bars and toolbars only.
+    type: Number
+  - name: REPLY
+    description: reply icon. Usable in nav bars and toolbars only.
+    type: Number
+  - name: REWIND
+    description: rewind icon. Usable in nav bars and toolbars only.
+    type: Number
+  - name: SAVE
+    description: save icon. localized. Usable in nav bars and toolbars only.
+    type: Number
+  - name: SPINNER
+    description: same as ACTIVITY
+    type: Number
+  - name: STOP
+    description: stop icon. Usable in nav bars and toolbars only.
+    type: Number
+  - name: TRASH
+    description: trash icon. Usable in nav bars and toolbars only.
+    type: Number

@@ -8,7 +8,7 @@ Convert old .tdoc docs to new .yml format.
 
 import os, sys, traceback, re
 import optparse, yaml, markdown
-import docgen
+import docgen, StringIO
 try:
 	import json
 except:
@@ -39,20 +39,15 @@ def clean_type(t):
 def skip_property(p, t):
 	if p['name'] in skip_properties:
 		return True
-	if is_view(t) and t['name'] != 'Titanium.UI.View':
-		return p['name'] in view_properties
-	return False
+	return is_view(t) and t['name'] != 'Titanium.UI.View' and is_view_property(p['name'])
 
 def skip_method(m, t):
 	if m['name'] in skip_methods:
 		return True
-	if is_view(t) and t['name'] != 'Titanium.UI.View':
-		return m['name'] in view_methods
-	return False
+	return is_view(t) and t['name'] != 'Titanium.UI.View' and is_view_method(m['name'])
 
 def skip_event(e, t):
-	if is_view(t) and t['name'] != 'Titanium.UI.View':
-		return e['name'] in view_events
+	return is_view(t) and t['name'] != 'Titanium.UI.View' and is_view_event(e['name'])
 
 def err(msg, exit=False):
 	print >> sys.stderr, "[ERROR] %s" % msg
@@ -85,7 +80,7 @@ def fetch_view_attributes():
 	global view_properties
 	global view_events
 	view_type = [t for t in types if t['name'] == 'Titanium.UI.View'][0]
-	view_methods = [m['name'] for m in view_type['methods']]
+	view_methods = [m['name'] for m in view_type['functions']]
 	view_properties = [p['name'] for p in view_type['properties']]
 	view_events = [e['name'] for e in view_type['events']]
 
@@ -104,7 +99,7 @@ def is_view_property(property_name):
 		fetch_view_attributes()
 	return property_name in view_properties
 
-def prepare_free_text(s, indent_level=0):
+def prepare_free_text(s, indent_level=0, preserve_indents=False):
 	ind = ''
 	for i in range(indent_level + 1):
 		ind += indent
@@ -128,16 +123,36 @@ def prepare_free_text(s, indent_level=0):
 	if prog.search(s):
 		s = prog.sub('\n%s' % ind, s)
 
-	# test it
-	y = 'description: %s' % s
-	try:
-		test = yaml.load(y)
-	except:
-		# Break the line with YAML-recognized vertical bar, which forces the whole
-		# thing to be treated as string and probably gets rid of parse error.
+	if preserve_indents:
 		s = '|\n%s%s' % (ind, s)
+	else:
+		# test it
+		y = 'description: %s' % s
+		try:
+			test = yaml.load(y)
+		except:
+			# Break the line with YAML-recognized vertical bar, which forces the whole
+			# thing to be treated as string and probably gets rid of parse error.
+			s = '|\n%s%s' % (ind, s)
 	return s
 
+def prepare_example(s):
+	text = prepare_free_text(s, indent_level=1, preserve_indents=True)
+	in_code_block = False
+	io = StringIO.StringIO(text)
+	orig_lines = io.readlines()
+	io.close()
+	new_lines = []
+	for line in orig_lines:
+		if line.strip().startswith('~~~'):
+			in_code_block = not in_code_block
+			continue
+		if in_code_block:
+			new_lines.append(indent + line)
+		else:
+			new_lines.append(line)
+	return ''.join(new_lines)
+	
 
 def build_output_path(t):
 	path = OUTPUT_DIR_OVERRIDE or doc_dir
@@ -278,12 +293,14 @@ def convert_type(t):
 		convert_events(t, f)
 		convert_properties(t, f)
 		if 'remarks' in t and len(t['remarks'])>0:
-			wl(f, 'notes: %s' % prepare_free_text(t['remarks'][0].strip()))
+			wl(f, 'notes: %s' % prepare_free_text(t['remarks'][0].strip(), preserve_indents=True))
 		if 'examples' in t and len(t['examples'])>0:
+			wl(f, 'examples:')
 			examples = ''
 			for example in t['examples']:
-				examples += example['name'] + '\n\n' + example['code']
-			wl(f, 'examples: %s' % prepare_free_text(examples))
+				print 'WRITING EXAMPLE'
+				wl(f, "  - title: " + example['name'].strip())
+				wl(f, indent + "example: %s" % prepare_example(example["code"]))
 
 	finally:
 		f.close()

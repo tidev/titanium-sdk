@@ -51,7 +51,7 @@ methods:
         type: Titanium.Android.Intent
       - name: callback
         description: A callback function that is executed when the Activity has set it's result. See example in <Titanium.Android.Activity>.
-        type: Callback
+        type: Callback<Object>
 events:
   - name: create
     description: Fired from the Activity's [onCreate](http://developer.android.com/reference/android/app/Activity.html#onCreate(android.os.Bundle))
@@ -110,23 +110,25 @@ properties:
     type: Titanium.Android.Intent
   - name: onCreateOptionsMenu
     description: A callback function that is called to initially create an Android [Options Menu](http://developer.android.com/guide/topics/ui/menus.html#options-menu) for this Activity when the user presses the Menu button. See the menu examples in <Titanium.Android.Menu>
-    type: Callback
+    type: Callback<Object>
   - name: onPrepareOptionsMenu
     description: A callback function that is called to prepare an [Options Menu](http://developer.android.com/guide/topics/ui/menus.html#options-menu) for displaying on this Activity when the user presses the Menu button. See the menu examples in <Titanium.Android.Menu>
-    type: Callback
+    type: Callback<Object>
   - name: requestedOrientation
     description: The requested orientation of this Activity. See possible constant values that begin with SCREEN_ORIENTATION in the <Titanium.Android> module.
     type: Number
-examples: Callback example
-    
-        activity.startActivityForResult(intent, function(e) {
-            // The request code used to start this Activity
-            var requestCode = e.requestCode;
-            // The result code returned from the Activity (http://developer.android.com/reference/android/app/Activity.html#StartingActivities)
-            var resultCode = e.resultCode;
-            // A Titanium.Android.Intent filled with data returned from the Activity
-            var intent = e.intent;
-            // The Activity the received the result
-            var source = e.source;
-        });
-    
+examples:
+  - title: Callback example
+    example: |
+        
+            activity.startActivityForResult(intent, function(e) {
+                // The request code used to start this Activity
+                var requestCode = e.requestCode;
+                // The result code returned from the Activity (http://developer.android.com/reference/android/app/Activity.html#StartingActivities)
+                var resultCode = e.resultCode;
+                // A Titanium.Android.Intent filled with data returned from the Activity
+                var intent = e.intent;
+                // The Activity the received the result
+                var source = e.source;
+            });
+        

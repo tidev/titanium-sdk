@@ -1,0 +1,34 @@
+---
+name: Titanium.UI.PickerRow
+description: The picker row object created by [Titanium.UI.createPickerRow](Titanium.UI.createPickerRow).
+extends: Titanium.UI.View
+since: "0.9"
+properties:
+  - name: fontSize
+    description: the font size when displaying the text. ignored when using a custom view
+    type: Number
+  - name: selected
+    description: when used in the constructor, set the row to selected on initial display
+    type: Boolean
+  - name: title
+    description: the display text
+    type: String
+examples:
+  - title: Custom Views for a picker row
+    example: |
+        
+        Since the row object is itself a view, you can add views and widgets to it to customize the 
+        the rows display. In the example below, we create a custom label for the row.
+        
+            var row = Ti.UI.createPickerRow();
+            var label = Ti.UI.createLabel({
+            	text:text,
+            	font:{fontSize:24,fontWeight:'bold'},
+            	color:text,
+            	width:'auto',
+            	height:'auto'
+            });
+            row.add(label);
+            picker.add(row);
+        
+        

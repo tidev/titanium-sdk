@@ -82,7 +82,7 @@ methods:
         type: Number
       - name: pendingIntent
         description: The PendingIntent to execute when this view is clicked
-        type: Ti.Android.PendingIntent
+        type: Titanium.Android.PendingIntent
   - name: setProgressBar
     description: Sets the progress, max value, and indeterminate flag of a ProgressBar. See Android's documentation for [setProgressBar](http://developer.android.com/reference/android/widget/RemoteViews.html#setProgressBar(int, int, int, boolean))
     parameters:
@@ -149,8 +149,9 @@ methods:
       - name: visibility
         description: The visibility, one of <Titanium.Android.VISIBLE>, <Titanium.Android.INVISIBLE>, or <Titanium.Android.GONE>
         type: Number
-examples: Create a RemoteViews based on a custom layout called "custom_layout.xml", and set a label's text.
-    
-        var AppR = Ti.App.Android.R;
-        var customLayout = Ti.Android.createRemoteViews(AppR.layout.custom_layout);
-        customLayout.setTextViewText(AppR.id.custom_text, "Hello World");
+examples:
+  - title: Create a RemoteViews based on a custom layout called "custom_layout.xml", and set a label's text.
+    example: |
+            var AppR = Ti.App.Android.R;
+            var customLayout = Ti.Android.createRemoteViews(AppR.layout.custom_layout);
+            customLayout.setTextViewText(AppR.id.custom_text, "Hello World");

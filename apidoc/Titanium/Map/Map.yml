@@ -13,31 +13,31 @@ properties:
   - name: STANDARD_TYPE
     description: Displays a street map that shows the position of all roads and some road names.
     type: Number
-examples: |
-    Map Example
-    
-    This is a basic map example that uses a custom annotation on the map.
-    
-        var mountainView = Titanium.Map.createAnnotation({
-        	latitude:37.390749,
-        	longitude:-122.081651,
-        	title:"Appcelerator Headquarters",
-        	subtitle:'Mountain View, CA',
-        	pincolor:Titanium.Map.ANNOTATION_RED,
-        	animate:true,
-        	leftButton: '../images/appcelerator_small.png',
-        	myid:1 // CUSTOM ATTRIBUTE THAT IS PASSED INTO EVENT OBJECTS
-        });
+examples:
+  - title: Map Example
+    example: |
+        This is a basic map example that uses a custom annotation on the map.
         
-        var mapview = Titanium.Map.createView({
-        	mapType: Titanium.Map.STANDARD_TYPE,
-        	region: {latitude:33.74511, longitude:-84.38993, 
-        			latitudeDelta:0.01, longitudeDelta:0.01},
-        	animate:true,
-        	regionFit:true,
-        	userLocation:true,
-        	annotations:[mountainView]
-        });
+            var mountainView = Titanium.Map.createAnnotation({
+            	latitude:37.390749,
+            	longitude:-122.081651,
+            	title:"Appcelerator Headquarters",
+            	subtitle:'Mountain View, CA',
+            	pincolor:Titanium.Map.ANNOTATION_RED,
+            	animate:true,
+            	leftButton: '../images/appcelerator_small.png',
+            	myid:1 // CUSTOM ATTRIBUTE THAT IS PASSED INTO EVENT OBJECTS
+            });
+            
+            var mapview = Titanium.Map.createView({
+            	mapType: Titanium.Map.STANDARD_TYPE,
+            	region: {latitude:33.74511, longitude:-84.38993, 
+            			latitudeDelta:0.01, longitudeDelta:0.01},
+            	animate:true,
+            	regionFit:true,
+            	userLocation:true,
+            	annotations:[mountainView]
+            });
+            
+            win.add(mapview);
         
-        win.add(mapview);
-    

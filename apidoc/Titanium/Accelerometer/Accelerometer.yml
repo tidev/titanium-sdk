@@ -27,18 +27,17 @@ notes: You'll want to be selective about turning on and off the device accelerom
     back on by re-adding the same function with `addEventListener`.
     
         Titanium.Accelerometer.removeEventListener('update',myFunction);
-examples: |
-    Basic Accelerometer Event
-    
-    
-    Adds an accelerometer update event listener which prints out the x, y and z axis as the 
-    device is moved.  You should generally remove the event when not used to conserve device 
-    resources.  If you do not have an active event listener, the accelerometer is turned off to 
-    conserve device resources.
-    
-        Titanium.Accelerometer.addEventListener('update',function(e)
-        {
-            Ti.API.debug("accelerometer - x:"+e.x+",y:"+e.y+",z:"+e.z);
-        });
-    
-    
+examples:
+  - title: Basic Accelerometer Event
+    example: |
+        Adds an accelerometer update event listener which prints out the x, y and z axis as the 
+        device is moved.  You should generally remove the event when not used to conserve device 
+        resources.  If you do not have an active event listener, the accelerometer is turned off to 
+        conserve device resources.
+        
+            Titanium.Accelerometer.addEventListener('update',function(e)
+            {
+                Ti.API.debug("accelerometer - x:"+e.x+",y:"+e.y+",z:"+e.z);
+            });
+        
+        
