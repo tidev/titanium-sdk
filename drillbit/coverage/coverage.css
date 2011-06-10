@@ -1,0 +1,41 @@
+body {
+	font-family: Tahoma, sans-serif;
+}
+
+table {
+	border-width: 0px 0px 1px 1px;
+	border-style: solid;
+	border-color: black;
+	border-spacing: 0px;
+	border-collapse: collapse;
+}
+
+td, th {
+	border-width: 1px 1px 0px 0px;
+	border-style: solid;
+	border-color: black;
+	margin: 0px;
+	padding: 4px;
+}
+
+th {
+	background-color: #ccc;
+}
+
+.properties, .functions {
+	text-align: center;
+	background-color: #ccc;
+	font-weight: bold;
+}
+
+.Yes, .more {
+	background-color: #9f9;
+}
+
+.No, .less {
+	background-color: #f99;
+}
+
+.less-warn {
+	background-color: #E3D242;
+}

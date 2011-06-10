@@ -1,0 +1,52 @@
+<%
+columns = len(categories) + 1
+%>
+
+<%def name="apiRows(apis)">
+	<%
+		ak = apis.keys()
+		ak.sort()
+	%>
+	% for api in ak:
+		<tr>
+			<td class="api">${api}</td>
+			% for category in categories:
+				<%
+				yesno="No"
+				if category in apis[api]: yesno = "Yes"
+				%>
+				<td class="${yesno}">${yesno}</td>
+			% endfor
+		</tr>
+	% endfor
+</%def>
+
+<html>
+	<head><link rel="stylesheet" href="coverage.css" type="text/css"/></head>
+	<body>
+		<h2>${label} ${component}</h2>
+		<a href="index.html">&lt;&lt; Back to Coverage Summary</a><br/>
+		<table id="coverage_matrix">
+			<tr>
+				<th>API</th>
+				% for category in categories:
+					<th>${categoryDesc[category]}</th>
+				% endfor
+			</tr>
+			<tr>
+				<th class="totals">Totals</td>
+				% for category in categories:
+					<th class="totals">${countCoverage(components, component, category)}</th>
+				% endfor
+			</tr>
+			% if "properties" in components[component]:
+				<tr><td class="properties" colspan="${columns}">Properties</td></tr>
+				${apiRows(components[component]["properties"])}
+			% endif
+			% if "functions" in components[component]:
+				<tr><td class="functions" colspan="${columns}">Functions</td></tr>
+				${apiRows(components[component]["functions"])}
+			% endif
+		</table>
+	</body>
+</html>

@@ -1,0 +1,90 @@
+<%
+counts = {}
+totalCounts = {}
+%>
+
+<%def name="percent(c1, c2)">\
+${"%.2f" % (100 * (c1 / float(c2)))}\
+</%def>
+
+<%def name="componentSummary(components, prefix, header=None)">
+	% if len(components) > 0:
+		<tr><th class="header">${header or upperFirst(prefix)}</th>
+		% for category in categories:
+			<th class="header ${category}">${categoryDesc[category]}</th>
+		% endfor
+		</tr>
+	% endif
+
+	<%
+	ck = components.keys()
+	ck.sort()
+	%>
+	% for component in ck:
+		<% totalCounts[component] = 0 %>
+		<tr><td class="component"><a href="${prefix}-${component}.html">${component}</a></td>
+		<% categoryCount = {} %>
+		% for category in categories:
+			<%
+			countYes, countNo = countCoverage(components, component, category)
+			totalCounts[component] = countYes + countNo
+			if category not in counts:
+				counts[category] = countYes
+			else:
+				counts[category] += countYes
+			categoryCount[category] = countYes
+			%>
+		% endfor
+		<%
+		c = dict(categoryCount)
+		ci = c.items()
+		ci.sort(lambda a, b: b[1] - a[1])
+		biggest = ci[0][1]
+		%>
+		% for category in categories:
+			<%
+			className = "less"
+			if categoryCount[category] == biggest:
+				className = "more"
+			elif (categoryCount[category] / float(biggest)) > 0.70:
+				className = "less-warn"
+			%> 
+			<td class="count ${category} ${className}">${categoryCount[category]}</td>
+		% endfor
+		</tr>
+	% endfor
+</%def>
+
+<html>
+	<head><link rel="stylesheet" href="coverage.css" type="text/css"/></head>
+	<body>
+		<h2>Coverage Summary</h2>
+		<b>Android Total API Count</b>: <span id="android-apis"></span> APIs<br/>
+		<b>Android TDoc Coverage</b>: <span id="android-doc-coverage"></span> (<span id="android-doc-apis"></span> Documented APIs) <br/>
+		<b>Android Binding Coverage</b>: <span id="android-binding-coverage"></span> (<span id="android-binding-apis"></span> Bound APIs) <br/>
+		<b>Android Drillbit Coverage</b>: <span id="android-test-coverage"></span> (<span id="android-test-apis"></span> Unit Tested APIs) <br/><br/>
+		<h4>Key</h4>
+		<table>
+			<tr><td class="more">Best Coverage</td><td class="less-warn">&gt;= 70% parity w/ Best Coverage</td><td class="less">&lt; 70% parity w/ Best Coverage</td></tr>
+		</table><br/>
+
+		<table>
+		${componentSummary(topLevel, "topLevel", "Top Level Name")}
+		${componentSummary(modules, "module")}
+		${componentSummary(proxies, "proxy")}
+		</table>
+		<script>
+		<%
+		biggest = reduce(lambda x, y: x + y, totalCounts.values())
+		%>
+		function $(id) { return document.getElementById(id); }
+		$("android-apis").innerText = "${biggest}";
+		$("android-doc-coverage").innerText = "${percent(counts["androidTDoc"], biggest)}%";
+		$("android-binding-coverage").innerText = "${percent(counts["androidBinding"], biggest)}%";
+		$("android-test-coverage").innerText = " ${percent(counts["androidDrillbit"], biggest)}%";
+		$("android-doc-apis").innerText = "${counts["androidTDoc"]}";
+		$("android-binding-apis").innerText = "${counts["androidBinding"]}";
+		$("android-test-apis").innerText = "${counts["androidDrillbit"]}";
+		</script>
+	</body>
+</html>

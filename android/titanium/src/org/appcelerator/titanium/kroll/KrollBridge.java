@@ -10,13 +10,12 @@ import java.io.IOException;
 
 import org.appcelerator.kroll.KrollConverter;
 import org.appcelerator.kroll.KrollInvocation;
+import org.appcelerator.kroll.KrollMethod;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiContext;
 import org.mozilla.javascript.Scriptable;
-
-import android.content.Context;
 
 import ti.modules.titanium.TitaniumModule;
 
@@ -80,17 +79,26 @@ public class KrollBridge
 		}
 
 		Scriptable parent = kroll.getScope();
+		String parentName = null;
 		String name = topLevelName;
 		if (topLevelName.contains(".")) {
 			// Support for setting named properties on existing top level objects
 			int lastDot = topLevelName.lastIndexOf(".");
-			String parentName = topLevelName.substring(0, lastDot);
+			parentName = topLevelName.substring(0, lastDot);
 			parent = getObject(kroll.getScope(), parentName.split("\\."));
 			if (parent == null) {
 				parent = kroll.getScope();
 			} else {
 				name = topLevelName.substring(lastDot+1);
 			}
+		}
+		if (coverageEnabled && value instanceof KrollMethod) {
+			KrollMethod method = (KrollMethod) value;
+			if (parentName == null) {
+				parentName = KrollCoverage.TOP_LEVEL;
+			}
+			value = new KrollCoverage.KrollMethodCoverage(name, (KrollMethod)value,
+				KrollCoverage.OTHER, parentName);
 		}
 		parent.put(name, parent, value);
 	}
