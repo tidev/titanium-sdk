@@ -638,7 +638,7 @@
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
 {
 	[self flushPendingAnnotation];
-	if (routeViews!=nil)
+	if (![TiUtils isIOS4OrGreater] && routeViews!=nil)
 	{
 		// re-enable and re-poosition the route display. 
 		for(NSObject* key in [routeViews allKeys])
