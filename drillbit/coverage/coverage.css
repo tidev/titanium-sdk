@@ -1,8 +1,9 @@
 body {
 	font-family: Tahoma, sans-serif;
+	font-size: 14px;
 }
 
-table {
+table.bordered {
 	border-width: 0px 0px 1px 1px;
 	border-style: solid;
 	border-color: black;
@@ -10,16 +11,37 @@ table {
 	border-collapse: collapse;
 }
 
-td, th {
+td.bordered, th.bordered {
 	border-width: 1px 1px 0px 0px;
 	border-style: solid;
 	border-color: black;
 	margin: 0px;
+}
+
+.left-cell {
+	text-align: left;
+	width: 75px;
+}
+
+.right-cell {
+	border-width: 0px 0px 0px 1px;
+	border-style: solid;
+	border-color: black;
+	text-align: right;
+	width: 75px;
+}
+
+td, th {
 	padding: 4px;
+	font-size: 12px;
 }
 
 th {
 	background-color: #ccc;
+}
+
+.small-text {
+	font-size: 12px;
 }
 
 .properties, .functions {
@@ -28,14 +50,14 @@ th {
 	font-weight: bold;
 }
 
-.Yes, .more {
+.good, .yes {
 	background-color: #9f9;
 }
 
-.No, .less {
-	background-color: #f99;
+.warn {
+	background-color: #E3D242;
 }
 
-.less-warn {
-	background-color: #E3D242;
+.bad, .no {
+	background-color: #f99;
 }

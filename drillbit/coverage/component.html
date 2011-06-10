@@ -1,3 +1,7 @@
+<%def name="percent(c1, c2)">\
+${"%.2f" % (100 * (c1 / float(c2)))}\
+</%def>
+
 <%
 columns = len(categories) + 1
 %>
@@ -9,42 +13,67 @@ columns = len(categories) + 1
 	%>
 	% for api in ak:
 		<tr>
-			<td class="api">${api}</td>
+			<td class="api bordered">${api}</td>
 			% for category in categories:
 				<%
-				yesno="No"
-				if category in apis[api]: yesno = "Yes"
+				yesno="no"
+				if category in apis[api]: yesno = "yes"
 				%>
-				<td class="${yesno}">${yesno}</td>
+				<td class="${yesno} bordered">${upperFirst(yesno)}</td>
 			% endfor
 		</tr>
 	% endfor
+</%def>
+
+<%def name="categoryColumns(label)">
+	<tr>
+		<th class="bordered">${label}</th>
+		% for category in categories:
+			<th class="bordered">${categoryDesc[category]}</th>
+		% endfor
+	</tr>
 </%def>
 
 <html>
 	<head><link rel="stylesheet" href="coverage.css" type="text/css"/></head>
 	<body>
 		<h2>${label} ${component}</h2>
-		<a href="index.html">&lt;&lt; Back to Coverage Summary</a><br/>
-		<table id="coverage_matrix">
-			<tr>
-				<th>API</th>
-				% for category in categories:
-					<th>${categoryDesc[category]}</th>
-				% endfor
-			</tr>
-			<tr>
-				<th class="totals">Totals</td>
-				% for category in categories:
-					<th class="totals">${countCoverage(components, component, category)[0]}</th>
-				% endfor
-			</tr>
+		<%
+		totalCount = 0
+		categoryYes = {}
+		for category in categories:
+			yes, no = countCoverage(components, component, category)
+			totalCount = yes + no
+			categoryYes[category] = yes
+		%>
+		<b>Total API Count</b>:
+			<span id="android-apis">${totalCount}</span> APIs<br/>
+
+		<b>Android TDoc Coverage</b>:
+			<span id="android-doc-coverage">
+				${percent(categoryYes["androidTDoc"], totalCount)}%
+			</span>
+			(<span id="android-doc-apis">${categoryYes["androidTDoc"]}</span> Documented APIs)<br/>
+
+		<b>Android Binding Coverage</b>:
+			<span id="android-binding-coverage">
+				${percent(categoryYes["androidBinding"], totalCount)}%
+			</span> (<span id="android-binding-apis">${categoryYes["androidBinding"]}</span> Bound APIs)<br/>
+
+		<b>Android Drillbit Coverage</b>:
+		<span id="android-test-coverage">
+			${percent(categoryYes["androidDrillbit"], totalCount)}%
+		</span> (<span id="android-test-apis">${categoryYes["androidDrillbit"]}</span> Unit Tested APIs)<br/><br/>
+
+		<a href="index.html">&lt;&lt; Back to Coverage Summary</a><br/><br/>
+
+		<table class="bordered">
 			% if "properties" in components[component]:
-				<tr><td class="properties" colspan="${columns}">Properties</td></tr>
+				${categoryColumns("Property")}
 				${apiRows(components[component]["properties"])}
 			% endif
 			% if "functions" in components[component]:
-				<tr><td class="functions" colspan="${columns}">Functions</td></tr>
+				${categoryColumns("Function")}
 				${apiRows(components[component]["functions"])}
 			% endif
 		</table>

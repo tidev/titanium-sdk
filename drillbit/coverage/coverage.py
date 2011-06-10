@@ -99,8 +99,22 @@ class CoverageData(object):
 		self.topLevel = {}
 		self.category = None
 
+		self.categoryCount = {}
+		for category in self.categories:
+			self.categoryCount[category] = 0
+
+		self.totalAPICount = {}
+		for platform in ["android", "iphone"]:
+			self.totalAPICount[platform] = 0
+
 	def getCategoryDesc(self, category):
 		return self.categoryDesc[category]
+
+	def getCategoryPlatform(self, category=None):
+		if not category: category = self.category
+		if category in [self.ANDROID_BINDING,
+			self.ANDROID_DRILLBIT, self.ANDROID_TDOC]: return "android"
+		return "iphone"
 
 	def setCategory(self, category):
 		self.category = category
@@ -131,18 +145,29 @@ class CoverageData(object):
 			fns = self.lazyGetFunctions(self.topLevel, component)
 		else:
 			fns = self.lazyGetFunctions(self.proxies, component)
+
 		if not fn in fns:
 			fns[fn] = set()
-		fns[fn].add(self.category)
+			self.totalAPICount[self.getCategoryPlatform()] += 1
+
+		if self.category not in fns[fn]:
+			fns[fn].add(self.category)
+			self.categoryCount[self.category] += 1
 
 	def addProperty(self, property, component, isModule=False, getter=False, setter=False):
 		if isModule:
 			properties = self.lazyGetProperties(self.modules, component)
 		else:
 			properties = self.lazyGetProperties(self.proxies, component)
+
 		if not property in properties:
 			properties[property] = set()
-		properties[property].add(self.category)
+			self.totalAPICount[self.getCategoryPlatform()] += 1
+
+		if self.category not in properties[property]:
+			properties[property].add(self.category)
+			self.categoryCount[self.category] += 1
+
 		upper = upperFirst(property)
 		if getter:
 			self.addFunction("get" + upper, component, isModule)
@@ -152,7 +177,10 @@ class CoverageData(object):
 	def toJSON(self):
 		return CoverageEncoder().encode({
 			"modules": self.modules,
-			"proxies": self.proxies
+			"proxies": self.proxies,
+			"topLevel": self.topLevel,
+			"categoryCount": self.categoryCount,
+			"totalAPICount": self.totalAPICount
 		})
 
 class CoverageEncoder(json.JSONEncoder):
@@ -420,11 +448,15 @@ class CoverageMatrix(object):
 				proxies = self.data.proxies,
 				topLevel = self.data.topLevel,
 				countCoverage = self.countCoverage,
-				upperFirst = upperFirst)
+				categoryCount = self.data.categoryCount,
+				totalAPICount = self.data.totalAPICount,
+				upperFirst = upperFirst,
+				getCategoryPlatform = self.data.getCategoryPlatform)
 			indexPath = os.path.join(outDir, "index.html")
 			open(indexPath, "w").write(indexPage)
 		except:
 			print exceptions.text_error_template().render()
+			sys.exit(1)
 
 		def toComponentHTML(components, prefix):
 			for component in components:
@@ -441,20 +473,21 @@ class CoverageMatrix(object):
 					open(componentPath, "w").write(componentPage)
 				except:
 					print exceptions.text_error_template().render()
+					sys.exit(1)
 
 
 		toComponentHTML(self.data.modules, "module")
 		toComponentHTML(self.data.proxies, "proxy")
 		toComponentHTML(self.data.topLevel, "topLevel")
 
-		stylesheet = os.path.join(coverageDir, "coverage.css")
-		shutil.copy(stylesheet, outDir)
+		copyFiles = ["coverage.css"]
+		for copyFile in copyFiles:
+			path = os.path.join(coverageDir, copyFile)
+			shutil.copy(path, outDir)
 
 def main():
 	matrix = CoverageMatrix()
 	matrix.toHTML(sys.argv[1])
-	#print matrix.genMatrixJSON()
-	#print matrix.toHTML()
 
 if __name__ == "__main__":
 	main()
