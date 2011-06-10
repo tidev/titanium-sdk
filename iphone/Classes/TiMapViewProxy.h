@@ -28,6 +28,8 @@
 -(void)zoom:(id)args;
 -(void)addRoute:(id)args;
 -(void)removeRoute:(id)args;
+-(void)addPoint:(id)args;
+-(void)moveToPoint:(id)args;
 
 @end
 
