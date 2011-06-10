@@ -571,7 +571,6 @@ Drillbit.prototype.readLine = function(data, platform)
 	var eventIndex = data.indexOf(eventPrefix);
 	if (eventIndex == -1) {
 		this.frontendDo('process_data', data);
-		this.logStream.write(data + "\n");
 		return;
 	}
 	
@@ -813,7 +812,7 @@ Drillbit.prototype.generateFinalResults = function()
 	
 	drillbitJsonStream.write(JSON.stringify(finalResults));
 	drillbitJsonStream.close();
-	logPath.close();
+	this.logStream.close();
 };
 
 Drillbit.prototype.handleTestError = function(suite)

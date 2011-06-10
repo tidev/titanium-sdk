@@ -91,18 +91,20 @@ var frontend = {
 	
 	process_data: function(data)
 	{
-		var drillbit_console = $('#console');		
+		var drillbit_console = $('#console');
 		drillbit_console.append(data+"\n");
 		drillbit_console.scrollTop(drillbit_console[0].scrollHeight);
-		
+		Drillbit.logStream.write(data+"\n");
 	},
 	
 	all_finished: function()
 	{
+		var drillbit_console = $('#console');
 		$("#run-link").removeClass("disabled");
 		runLinkDisabled = false;
 		$('#current-test').html('<b>Finished.</b> Took ' + Drillbit.testDuration + 's');
 		$("#log-link").removeClass("disabled");
+		drillbit_console.append("**********************FINISHED LOGGING**********************\n");
 	}
 };
 

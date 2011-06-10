@@ -91,9 +91,15 @@ def findType(tracker, typeName, name):
 	containerRegex = r'(Dictionary|Callback|Array)\<([^\>]+)\>'
 	match = re.match(containerRegex, typeName)
 	if match:
-		elementType = match.group(2)
-		findType(tracker, elementType, name)
-		return
+		if not typeName.endswith('>>'):
+			elementType = match.group(2)
+			findType(tracker, elementType, name)
+			return
+		else:
+			# We've got something like Array<Dictionary<Titanium.Map.Annotation>>
+			pos = typeName.index('<')
+			findType(tracker, typeName[pos+1:-1], name)
+			return
 
 	found = False
 	for tdocPath, tdocTypes in types.iteritems():
@@ -120,7 +126,6 @@ def validateCommon(tracker, map):
 
 def validateMethod(typeTracker, method):
 	tracker = ErrorTracker(method['name'], typeTracker)
-
 	validateRequired(tracker, method, ['name'])
 	validateCommon(tracker, method)
 
@@ -167,7 +172,8 @@ def validateType(typeDoc):
 		validateMarkdown(tracker, typeDoc['notes'], 'notes')
 
 	if 'examples' in typeDoc:
-		validateMarkdown(tracker, typeDoc['examples'], 'examples')
+		for example in typeDoc['examples']:
+			validateMarkdown(tracker, example['example'], 'example')
 
 	if 'methods' in typeDoc:
 		for method in typeDoc['methods']:
@@ -184,6 +190,8 @@ def validateType(typeDoc):
 
 def validateTDoc(tdocPath):
 	tdocTypes = [type for type in yaml.load_all(codecs.open(tdocPath, 'r', 'utf8').read())]
+	if options.parseonly:
+		return
 
 	for type in tdocTypes:
 		validateType(type)
@@ -234,6 +242,7 @@ def validateRefs():
 
 
 def validateDir(dir):
+	to_validate = []
 	for root, dirs, files in os.walk(dir):
 		for file in files:
 			if file.endswith(".yml"):
@@ -241,11 +250,15 @@ def validateDir(dir):
 				try:
 					validateTDoc(absolutePath)
 				except Exception, e:
-					printError("Error parsing, %s:" % str(e))
+					printError("Error parsing %s: %s:" % (os.path.join(root,file), str(e)))
 	validateRefs()
 
 def printStatus(dir=None):
-	for tdocPath, tdocTypes in types.iteritems():
+	keys = types.keys()
+	keys.sort()
+	for key in keys:
+		tdocPath = key
+		tdocTypes = types[key]
 		if dir: tdocPath = tdocPath[len(dir)+1:]
 		print '%s:' % tdocPath
 		for type in tdocTypes:
@@ -259,6 +272,8 @@ def main(args):
 		default=None, help='directory to recursively validate *.yml TDoc2 files')
 	parser.add_option('-f', '--file', dest='file',
 		default=None, help='specific TDoc2 file to validate (overrides -d/--dir)')
+	parser.add_option('-p', '--parseonly', dest='parseonly',
+		action='store_true', default=False, help='only check yaml parse-ability')
 	global options
 	(options, args) = parser.parse_args(args)
 
