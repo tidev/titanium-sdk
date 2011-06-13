@@ -8,6 +8,7 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
@@ -18,19 +19,24 @@ import android.app.Activity;
 @Kroll.proxy(creatableInModule=UIModule.class)
 public class LabelProxy extends TiViewProxy
 {
-	public LabelProxy(TiContext tiContext) {
+	public LabelProxy(TiContext tiContext)
+	{
 		super(tiContext);
+
+		setProperty(TiC.PROPERTY_TEXT, "");
 	}
 
 	@Override
-	protected KrollDict getLangConversionTable() {
+	protected KrollDict getLangConversionTable()
+	{
 		KrollDict table = new KrollDict();
 		table.put("text", "textid");
 		return table;
 	}
 
 	@Override
-	public TiUIView createView(Activity activity) {
+	public TiUIView createView(Activity activity)
+	{
 		return new TiUILabel(this);
 	}
 }
