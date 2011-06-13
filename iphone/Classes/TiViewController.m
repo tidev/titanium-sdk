@@ -88,12 +88,4 @@
 	VerboseLog(@"%@:%@%@",self,proxy,CODELOCATION);
 }
 
--(UINavigationItem*)navigationItem
-{
-	if ([self navigationController] != nil) {
-		return [super navigationItem];
-	}
-	return nil;
-}
-
 @end
