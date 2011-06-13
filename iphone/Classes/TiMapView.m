@@ -580,11 +580,13 @@
 	ENSURE_DICT(args);
 	NSString *name = [TiUtils stringValue:@"name" properties:args];
 	NSMutableArray *locations = [routePoints valueForKey:name];
+	if (!locations) [self throwException:@"route doesn't exist" subreason:nil location:CODELOCATION];
 	double lat = [TiUtils doubleValue:@"latitude" properties:args];
 	double lon = [TiUtils doubleValue:@"longitude" properties:args];
 	[locations addObject:[[CLLocation alloc] initWithLatitude:lat longitude:lon]];
 	BOOL shouldScroll = [TiUtils boolValue:@"shouldScroll" properties:args];
 	MKPolyline *existingRoute = [routes valueForKey:name];
+	if(!existingRoute) [self throwException:@"route doesn't exist" subreason:nil location:CODELOCATION];
 	MKMapPoint newPoint = MKMapPointForCoordinate(CLLocationCoordinate2DMake(lat, lon));
 	MKMapPoint *points = malloc(sizeof(MKMapPoint)*(existingRoute.pointCount+1));
 	for (int index = 0; index < existingRoute.pointCount; index++) {
