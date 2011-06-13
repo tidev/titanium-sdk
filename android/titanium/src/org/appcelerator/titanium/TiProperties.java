@@ -79,10 +79,11 @@ public class TiProperties
 		if (DBG) {
 			Log.d(LCAT,"getDouble called with key:"+key+", def:"+def);
 		}
-		if( !this.hasProperty(key) )
+		if (!hasProperty(key)) {
 			return def;
-		
-		String stringValue = preferences.getString(key,"");
+		}
+
+		String stringValue = preferences.getString(key, "");
 		try {
 			return Double.parseDouble(stringValue);
 		} catch (NumberFormatException e) {
