@@ -254,7 +254,9 @@ $(window).ready(function()
 	initUI();	
 	
 	var suitesStatus = JSON.parse(Titanium.App.Properties.getString("suitesStatus", "{ }"));
-	loopThroughSuites(suitesStatus, "setup");
+	if (!('tests' in Drillbit.argv)) {
+		loopThroughSuites(suitesStatus, "setup");
+	}
 	
 	var runLink = $('#run-link');
 	$('#toggle-link').click(function() {
@@ -349,8 +351,11 @@ $(window).ready(function()
 		Titanium.App.Properties.setInt("windowY", bounds.y);
 		Titanium.App.Properties.setInt("height", bounds.height);
 		Titanium.App.Properties.setInt("width", bounds.width);
-		var suitesStatus = {};
-		loopThroughSuites(suitesStatus, "save");
+		Titanium.App.Properties.setInt("consoleHeight", $(drillbitConsole).height());
+		if (!('tests' in Drillbit.argv)) {
+			var suitesStatus = {};
+			loopThroughSuites(suitesStatus, "save");
+		}
 	};
 	Titanium.UI.currentWindow.addEventListener("close", saveSettings);
 	runLink.click(function () {
