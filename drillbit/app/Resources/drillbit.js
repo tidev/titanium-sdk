@@ -352,10 +352,8 @@ $(window).ready(function()
 		Titanium.App.Properties.setInt("height", bounds.height);
 		Titanium.App.Properties.setInt("width", bounds.width);
 		Titanium.App.Properties.setInt("consoleHeight", $(drillbitConsole).height());
-		if (!('tests' in Drillbit.argv)) {
-			var suitesStatus = {};
-			loopThroughSuites(suitesStatus, "save");
-		}
+		var suitesStatus = {};
+		loopThroughSuites(suitesStatus, "save");
 	};
 	Titanium.UI.currentWindow.addEventListener("close", saveSettings);
 	runLink.click(function () {
