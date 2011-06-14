@@ -235,7 +235,8 @@ $(window).ready(function()
 		drillbitResize= document.getElementById('resize-bar'), 
 		drillbitSuite=document.getElementsByClassName('suites')[0],
 		startHeightConsole = $(drillbitConsole).height(),
-		resizerHeight = 12;
+		resizerHeight = 12,
+		spaceBuffer = 85;
 
 	var windowWidth = Titanium.App.Properties.getInt("width", 600);
 	var windowHeight = Titanium.App.Properties.getInt("height", 800);
@@ -248,7 +249,7 @@ $(window).ready(function()
 	var consoleHeight = Titanium.App.Properties.getInt("consoleHeight", 275);
 	$(drillbitConsole).height(consoleHeight);
 	var newHeight = $(drillbitConsole).height();
-	var suiteHeight = windowHeight - resizerHeight - newHeight;
+	var suiteHeight = windowHeight - spaceBuffer - newHeight;
 	$(drillbitConsole).height(consoleHeight);
 	$(drillbitSuite).height(suiteHeight);
 	drillbitResize.style.bottom = $(drillbitConsole).height() + resizerHeight;
@@ -308,7 +309,7 @@ $(window).ready(function()
 			mouseY = event.clientY;
 			var windowHeight = Titanium.UI.currentWindow.getHeight();
 			$(drillbitConsole).height((startY - mouseY) + startHeightConsole);
-			$(drillbitSuite).height(windowHeight - resizerHeight - $(drillbitConsole).height());
+			$(drillbitSuite).height(windowHeight - spaceBuffer - $(drillbitConsole).height());
 			drillbitResize.style.bottom = (startY - mouseY) + startHeightConsole + resizerHeight;
 			
 		}
