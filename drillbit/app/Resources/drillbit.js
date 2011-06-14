@@ -235,8 +235,7 @@ $(window).ready(function()
 		drillbitResize= document.getElementById('resize-bar'), 
 		drillbitSuite=document.getElementsByClassName('suites')[0],
 		startHeightConsole = $(drillbitConsole).height(),
-		resizerHeight = 12,
-		spaceBuffer = 85;
+		resizerHeight = 12;
 
 	var windowWidth = Titanium.App.Properties.getInt("width", 600);
 	var windowHeight = Titanium.App.Properties.getInt("height", 800);
@@ -245,18 +244,11 @@ $(window).ready(function()
 	var bounds = { x: windowX, y: windowY, width: windowWidth, height: windowHeight };
 
 	Titanium.UI.currentWindow.setBounds(bounds);
-	//window.moveTo();
-	//window.resizeTo(windowWidth, windowHeight);
 
 	var consoleHeight = Titanium.App.Properties.getInt("consoleHeight", 275);
 	$(drillbitConsole).height(consoleHeight);
-
 	var newHeight = $(drillbitConsole).height();
-
 	var suiteHeight = windowHeight - resizerHeight - newHeight;
-	Titanium.API.debug("windowHeight = " + windowHeight + ", resizerHeight = " + resizerHeight + ", newHeight = " +  newHeight);
-	Titanium.API.debug('suiteHeight = ' + suiteHeight);
-
 	$(drillbitConsole).height(consoleHeight);
 	$(drillbitSuite).height(suiteHeight);
 	drillbitResize.style.bottom = $(drillbitConsole).height() + resizerHeight;
@@ -357,8 +349,6 @@ $(window).ready(function()
 		Titanium.App.Properties.setInt("windowY", bounds.y);
 		Titanium.App.Properties.setInt("height", bounds.height);
 		Titanium.App.Properties.setInt("width", bounds.width);
-
-		Titanium.API.debug("saving window height = " + bounds.height);
 		Titanium.App.Properties.setInt("consoleHeight", $(drillbitConsole).height());
 		eachPlatformCheck(function(name, platform, platformCheck, suitesStatus) {
 			suitesStatus[name][platform] = $(platformCheck).attr('src').indexOf('check_on') != -1;
