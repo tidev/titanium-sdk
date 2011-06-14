@@ -320,13 +320,13 @@ $(window).ready(function()
 			mouseY = event.clientY;
 			var windowHeight = Titanium.UI.currentWindow.getHeight();
 			$(drillbitConsole).height((startY - mouseY) + startHeightConsole);
-			$(drillbitSuite).height(windowHeight - resizerHeight - $(drillbitConsole).height());
+			$(drillbitSuite).height(windowHeight - spaceBuffer - $(drillbitConsole).height());
 			drillbitResize.style.bottom = (startY - mouseY) + startHeightConsole + resizerHeight;
 		}
 	});
 	$(window).resize(function() {
 		var windowHeight = Titanium.UI.currentWindow.getHeight();
-		$(drillbitConsole).height(windowHeight-$(drillbitSuite).height()-resizerHeight);
+		$(drillbitConsole).height(windowHeight-$(drillbitSuite).height()-spaceBuffer);
 		drillbitResize.style.bottom = $(drillbitConsole).height() + resizerHeight;
 	});
 	
