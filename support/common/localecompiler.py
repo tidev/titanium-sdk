@@ -60,7 +60,7 @@ class LocaleCompiler(object):
 		lproj_dir = os.path.join(build_dir,'%s.lproj' % locale)
 		if not os.path.exists(lproj_dir): os.makedirs(lproj_dir)
 		locale_file = os.path.join(lproj_dir,self.localization_file_name_ios(file))
-		f = codecs.open(locale_file,'w','utf-16')
+		f = codecs.open(locale_file,'w','UTF-8')
 		f.write(u'/**\n * Appcelerator Titanium\n * this is a generated file - DO NOT EDIT\n */\n\n')
 		dom = parse(file)
 		appkeys = { 'appname' : 'CFBundleDisplayName' }
