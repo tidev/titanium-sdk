@@ -68,8 +68,8 @@ Drillbit = function() {
 	this.setupTestHarness(manifestHarness);
 	
 	this.logPath = ti.fs.getFile(this.resultsDir, 'drillbitConsole.log');
-	this.logStream = this.logPath.open(ti.fs.MODE_WRITE);
-	
+	this.logPath.deleteFile();
+	this.logStream = null;
 };
 
 Drillbit.prototype.processArgv = function() {
@@ -813,6 +813,7 @@ Drillbit.prototype.generateFinalResults = function()
 	drillbitJsonStream.write(JSON.stringify(finalResults));
 	drillbitJsonStream.close();
 	this.logStream.close();
+	this.logStream = null;
 };
 
 Drillbit.prototype.handleTestError = function(suite)
