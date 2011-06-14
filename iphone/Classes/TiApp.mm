@@ -209,8 +209,10 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	}
 	else //iPhone: 320*480, placing behind the statusBar.
 	{
-		destRect = [controllerView convertRect:[[UIScreen mainScreen] bounds] fromView:nil];
-		destRect.origin.y -= [[UIApplication sharedApplication] statusBarFrame].size.height;
+    // varju hack: force into landscape mode
+    //		destRect = [controllerView convertRect:[[UIScreen mainScreen] bounds] fromView:nil];
+    //		destRect.origin.y -= [[UIApplication sharedApplication] statusBarFrame].size.height;
+		destRect = [controllerView bounds];
 	}
 
 	loadView = [[UIImageView alloc] initWithFrame:destRect];
