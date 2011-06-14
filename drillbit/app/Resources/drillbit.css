@@ -46,7 +46,7 @@ a.disabled {
 	padding:0px;
 	margin-top: 5px;
 	overflow: auto;
-	width: 98%;
+	width: 99%;
 	position: absolute;
 	top: 55px;
 	bottom: 300px;
@@ -137,6 +137,7 @@ a.disabled {
 
 #resize-bar{
 	height: 12px;
+	width: 99%;
 	position: absolute;
 	background-color: #555;
 	bottom: 285px;
@@ -147,6 +148,7 @@ a.disabled {
 
 #console {
 	height: 275px;
+	width: 99%;
 	font-family: monospace;
 	background-color: black;
 	color: #ccc;
