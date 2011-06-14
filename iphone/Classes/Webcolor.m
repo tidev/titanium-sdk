@@ -55,7 +55,6 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
 					   [UIColor clearColor],@"transparent",
 					   [UIColor groupTableViewBackgroundColor],@"stripped",
                        [UIColor scrollViewTexturedBackgroundColor],@"linen",
-                       [UIColor underPageBackgroundColor],@"light_linen",
 					   
 					   // these are also defined by the W3C HTML spec so we support them
 					   [Webcolor colorForHex:@"#0ff"],@"aqua",
