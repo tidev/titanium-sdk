@@ -94,7 +94,9 @@ var frontend = {
 		var drillbit_console = $('#console');
 		drillbit_console.append(data+"\n");
 		drillbit_console.scrollTop(drillbit_console[0].scrollHeight);
-		Drillbit.logStream.write(data+"\n");
+		if (Drillbit.logStream != null){
+			Drillbit.logStream.write(data+"\n");
+		}
 	},
 	
 	all_finished: function()
@@ -304,6 +306,9 @@ $(window).ready(function()
 	runLink.click(function () {
 		if (!runLinkDisabled)
 		{
+			if (Drillbit.logStream == null) {
+				Drillbit.logStream = Drillbit.logPath.open(TFS.MODE_APPEND);
+			}
 			reloadTests();
 			
 			runLinkDisabled = true;
