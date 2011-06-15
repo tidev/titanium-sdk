@@ -282,7 +282,7 @@ public class TiUIText extends TiUIView
 			if(TiConvert.toBoolean(d, TiC.PROPERTY_AUTOCORRECT)) {
 				autocorrect = InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
 			} else {
-				autocorrect = 0;
+				autocorrect = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
 			}
 		}
 
@@ -325,11 +325,19 @@ public class TiUIText extends TiUIView
 		}
 		
 		int typeModifiers = autocorrect | autoCapValue;
+		int textTypeAndClass = typeModifiers;
+		// For some reason you can't set both TYPE_CLASS_TEXT and
+		// TYPE_TEXT_FLAG_NO_SUGGESTIONS together.
+		if (autocorrect != InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS) {
+			// Go ahead and tack on text class
+			textTypeAndClass = textTypeAndClass | InputType.TYPE_CLASS_TEXT;
+		}
 		tv.setCursorVisible(true);
 		switch(type) {
-			case KEYBOARD_ASCII :
-				tv.setKeyListener(TextKeyListener.getInstance(autocorrect != 0, Capitalize.NONE));
-				tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL | typeModifiers);
+			case KEYBOARD_DEFAULT:
+			case KEYBOARD_ASCII:
+				// Don't need a key listener, inputType handles that.
+				tv.setInputType(textTypeAndClass);
 				break;
 			case KEYBOARD_NUMBERS_PUNCTUATION :
 				tv.setInputType(InputType.TYPE_CLASS_NUMBER | typeModifiers);
@@ -351,13 +359,11 @@ public class TiUIText extends TiUIView
 						};
 					}
 				});
-				//tv.setKeyListener(DigitsKeyListener.getInstance());
 				break;
 			case KEYBOARD_URL :
 				Log.i(LCAT, "Setting keyboard type URL-3");
-				//tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
 				tv.setImeOptions(EditorInfo.IME_ACTION_GO);
-				tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI | typeModifiers);
+				tv.setInputType(textTypeAndClass | InputType.TYPE_TEXT_VARIATION_URI);
 				break;
 			case KEYBOARD_DECIMAL_PAD :
 			case KEYBOARD_NUMBER_PAD :
@@ -369,11 +375,7 @@ public class TiUIText extends TiUIView
 				tv.setInputType(InputType.TYPE_CLASS_PHONE | typeModifiers);
 				break;
 			case KEYBOARD_EMAIL_ADDRESS :
-				tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS | typeModifiers);
-				break;
-			case KEYBOARD_DEFAULT :
-				tv.setKeyListener(TextKeyListener.getInstance(autocorrect != 0, Capitalize.NONE));
-				tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL | typeModifiers);
+				tv.setInputType(textTypeAndClass | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
 				break;
 		}
 		if (!editable) {
