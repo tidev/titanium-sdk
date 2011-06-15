@@ -171,8 +171,13 @@ DrillbitTest.Scope.prototype.passed = function()
 	{
 		this._completed = true;
 		if (DrillbitTest.currentSubject)
-		{
-			DrillbitTest.testPassed(this._testName,DrillbitTest.currentSubject.lineNumber);
+		{	
+			var lineNumber = 0;
+			if ("lineNumber" in DrillbitTest.currentSubject) {
+				lineNumber = DrillbitTest.currentSubject.lineNumber;
+			}
+			DrillbitTest.testPassed(this._testName, lineNumber);
+
 		}
 		else
 		{

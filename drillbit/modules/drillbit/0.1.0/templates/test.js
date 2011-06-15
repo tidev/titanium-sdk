@@ -103,6 +103,7 @@ catch (e)
 			<%= makeFunction(entry, 'before', 'xscope') %>;
 
 			try {
+				var initialAssertions = DrillbitTest.totalAssertions;
 				DrillbitTest.currentTest = '<%= f %>';
 				DrillbitTest.runningTest('<%= entry.name %>', '<%= f %>');
 				<%= makeFunction(entry, f, 'xscope') %>;
@@ -110,7 +111,17 @@ catch (e)
 				i = f.indexOf('_as_async');
 				if (i == -1 && typeof(entry.test[f].async) == 'undefined')
 				{ %>
-					DrillbitTest.testPassed('<%= f %>',DrillbitTest.currentSubject.lineNumber);
+					var finalAssertions = DrillbitTest.totalAssertions;
+					if (finalAssertions - initialAssertions == 0) {
+						Titanium.API.warn('No assertions in test function: <%= f %>');
+					}
+					var lineNumber = 0;
+					if (DrillbitTest.currentSubject) {
+						if ("lineNumber" in DrillbitTest.currentSubject) {
+							lineNumber = DrillbitTest.currentSubject.lineNumber;
+						}					
+					}
+					DrillbitTest.testPassed('<%= f %>',lineNumber);
 				<% } %>
 			}
 			catch (___e)
