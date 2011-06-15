@@ -4,10 +4,28 @@
 #
 
 import os, sys, re
-import codecs, optparse
-import yaml, markdown
-
 apiDocDir = os.path.abspath(os.path.dirname(__file__))
+
+# We package the python markdown module already in the sdk source tree,
+# namely in /support/module/support/markdown.  So go ahead and  use it
+# rather than rely on it being easy_installed.
+moduleSupportDir = os.path.abspath(os.path.join(apiDocDir, '..', 'support', 'module', 'support'))
+if os.path.exists(moduleSupportDir):
+	sys.path.append(moduleSupportDir)
+
+import codecs, optparse
+import markdown
+
+try:
+	import yaml
+except:
+	print >> sys.stderr, "You don't have pyyaml!\n"
+	print >> sys.stderr, "You can install it with:\n"
+	print >> sys.stderr, ">  sudo easy_install pyyaml\n"
+	print >> sys.stderr, ""
+	sys.exit(1)
+
+
 types = {}
 errorTrackers = {}
 options = None
@@ -242,7 +260,6 @@ def validateRefs():
 
 
 def validateDir(dir):
-	to_validate = []
 	for root, dirs, files in os.walk(dir):
 		for file in files:
 			if file.endswith(".yml"):
