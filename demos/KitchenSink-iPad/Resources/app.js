@@ -1,4 +1,4 @@
-Ti.include( 'split_view_nav.js','split_view_plain.js', 'nav_controller.js','main_tests.js','split_view_features.js');
+Ti.include( 'split_view_nav.js','split_view_plain.js', 'nav_controller.js','main_tests.js','3298.js','split_view_features.js');
 
 var win = Ti.UI.createWindow();
 
@@ -81,6 +81,18 @@ b5.addEventListener('click', function()
 });
 win.add(b5);
 
+var b6 = Ti.UI.createButton({
+	title:'Bug 3298',
+	width:300,
+	height:50,
+	top:380
+});
+b6.addEventListener('click', function()
+{
+	Test3298.open();
+});
+win.add(b6);
+
 var b7 = Ti.UI.createButton({
 	title: 'Split view features',
 	width:300,
@@ -92,5 +104,7 @@ b7.addEventListener('click', function()
 	SplitFeatures.open();
 });
 win.add(b7);
+
+
 
 win.open();
