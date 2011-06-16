@@ -300,7 +300,7 @@ void TiAudioSessionInputAvailableCallback(void* inUserData, AudioSessionProperty
 		AudioSessionSetActive(false);
 	}
 #ifdef DEBUG	
-	NSAssert(count >= 0, @"stopAudioSession called too many times");
+	NSAssert(count < 0, @"stopAudioSession called too many times");
 #endif
 	[lock unlock];
 }
