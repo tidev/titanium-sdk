@@ -1,17 +1,24 @@
-<%def name="percent(c1, c2)">\
-${"%.2f" % (100 * (c1 / float(c2)))}\
-</%def>
+<%
+def coverageClass(percent):
+	className = "bad"
+	if percent >= 0.9:
+		className = "good"
+	elif percent >= 0.7:
+		className = "warn"
+	return className
+%>
 
 <%def name="componentSummary(components, prefix, header=None)">
 	% if len(components) > 0:
 		<tr><th class="header bordered">${header or upperFirst(prefix)}</th>
-		% for category in categories:
+		% for category in data.ALL_CATEGORIES:
 			<th class="header bordered ${category}">
-				${categoryDesc[category]}
-				<table>
-					<tr>
-						<td class="left-cell small-text">% Cvg</td>
-						<td class="right-cell small-text"># APIs</td>
+				${data.categoryDesc[category]}
+				<table width="100%" class="count-table">
+					<tr class="platforms">
+					% for platform in data.ALL_PLATFORMS:
+						<td class="small-text inner-cell">${data.platformDesc[platform]}</td>
+					% endfor
 					</tr>
 				</table>
 			</th>
@@ -25,22 +32,24 @@ ${"%.2f" % (100 * (c1 / float(c2)))}\
 	%>
 	% for component in ck:
 		<tr><td class="component bordered"><a href="${prefix}-${component}.html">${component}</a></td>
-		% for category in categories:
-			<%
-			countYes, countNo = countCoverage(components, component, category)
-			platform = getCategoryPlatform(category)
-			coveragePercent = countYes/float(countYes + countNo)
-			className = "bad"
-			if coveragePercent >= 0.9:
-				className = "good"
-			elif coveragePercent >= 0.7:
-				className = "warn"
-			%> 
-			<td class="count bordered ${category} ${className}">
-				<table width="100%">
-					<tr>
-						<td class="left-cell">${"%.2f" % (100 *coveragePercent)}%</td>
-						<td class="right-cell">${countYes}</td>
+		% for category in data.ALL_CATEGORIES:
+			<td class="count bordered ${category}">
+				<table width="100%" class="count-table">
+					<tr class="platforms">
+					% for platform in data.ALL_PLATFORMS:
+						<%
+						countYes, countNo, countNa = countCoverage(components, component, category, platform)
+						total = float(countYes + countNo)
+						if total == 0:
+							className = data.STATUS_NA
+							count = data.statusDesc[data.STATUS_NA]
+						else:
+							coveragePercent = countYes / total
+							className = coverageClass(coveragePercent)
+							count = "%.2f%%" % (100 * coveragePercent)
+						%>
+							<td class="small-text inner-cell ${className}">${count}</td>
+					% endfor
 					</tr>
 				</table>
 			</td>
@@ -54,25 +63,6 @@ ${"%.2f" % (100 * (c1 / float(c2)))}\
 	<body>
 		<h2>Coverage Summary</h2>
 
-		<b>Android Total API Count</b>:
-			<span id="android-apis">${totalAPICount["android"]}</span> APIs<br/>
-
-		<b>Android TDoc Coverage</b>:
-			<span id="android-doc-coverage">
-				${percent(categoryCount["androidTDoc"], totalAPICount["android"])}%
-			</span>
-			(<span id="android-doc-apis">${categoryCount["androidTDoc"]}</span> Documented APIs)<br/>
-
-		<b>Android Binding Coverage</b>:
-			<span id="android-binding-coverage">
-				${percent(categoryCount["androidBinding"], totalAPICount["android"])}%
-			</span> (<span id="android-binding-apis">${categoryCount["androidBinding"]}</span> Bound APIs)<br/>
-
-		<b>Android Drillbit Coverage</b>:
-		<span id="android-test-coverage">
-			${percent(categoryCount["androidDrillbit"], totalAPICount["android"])}%
-		</span> (<span id="android-test-apis">${categoryCount["androidDrillbit"]}</span> Unit Tested APIs)<br/><br/>
-
 		<h4>Key</h4>
 		<table class="bordered">
 			<tr>
@@ -83,9 +73,64 @@ ${"%.2f" % (100 * (c1 / float(c2)))}\
 		</table><br/>
 
 		<table class="bordered">
-		${componentSummary(topLevel, "topLevel", "Top Level Name")}
-		${componentSummary(modules, "module")}
-		${componentSummary(proxies, "proxy")}
+			<tr>
+				<th class="header bordered">Coverage Type</th>
+				% for platform in data.ALL_PLATFORMS:
+					<th class="header bordered">
+						${data.platformDesc[platform]}
+						<table width="100%" class="count-table">
+							<tr>
+								<td class="small-text inner-cell">% Cvg</td>
+								<td class="small-text inner-cell"># APIs</td>
+							</tr>
+						</table>
+					</th>
+				% endfor
+			</tr>
+
+			% for category in data.ALL_CATEGORIES:
+			<tr>
+				<td class="bordered">${data.categoryDesc[category]}</td>
+				% for platform in data.ALL_PLATFORMS:
+				<%
+				apiCount = float(data.getPlatformAPICount(platform))
+				yes = data.apiCount[category][platform][data.STATUS_YES]
+				
+				percent = yes / apiCount
+				className = coverageClass(percent)
+				%>
+					<td class="bordered ${className}">
+						<table width="100%" class="count-table">
+							<tr>
+								<td class="small-text inner-cell">${"%.2f" % (100 * percent)}%</td>
+								<td class="small-text inner-cell">${yes}</td>
+							</tr>
+						</table>
+					</td>
+				% endfor
+			</tr>
+			% endfor
+			
+			<tr>
+				<th class="component bordered">Total APIs</td>
+				% for platform in data.ALL_PLATFORMS:
+					<th class="bordered">
+						<table width="100%" class="count-table">
+							<tr>
+								<th class="small-text inner-cell"> - </td>
+								<th class="small-text inner-cell">${data.getPlatformAPICount(platform)}</td>
+							</tr>
+						</table>
+					</th>
+				% endfor
+			</tr>
+		</table>
+		<br/>
+
+		<table class="bordered">
+		${componentSummary(data.topLevel, "topLevel", "Top Level Name")}
+		${componentSummary(data.modules, "module")}
+		${componentSummary(data.proxies, "proxy")}
 		</table>
 	</body>
 </html>

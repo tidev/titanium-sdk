@@ -1,6 +1,6 @@
 body {
 	font-family: Tahoma, sans-serif;
-	font-size: 14px;
+	font-size: 16px;
 }
 
 table.bordered {
@@ -18,22 +18,30 @@ td.bordered, th.bordered {
 	margin: 0px;
 }
 
-.left-cell {
-	text-align: left;
-	width: 75px;
+
+td.count {
+	padding: 0px
 }
 
-.right-cell {
+table.count-table {
+	border-collapse: collapse;
+}
+
+.inner-cell {
+	width: 100px;
+	text-align: center;
+	margin: 0px;
+}
+
+.inner-cell:nth-child(even) {
 	border-width: 0px 0px 0px 1px;
 	border-style: solid;
 	border-color: black;
-	text-align: right;
-	width: 75px;
 }
 
 td, th {
 	padding: 4px;
-	font-size: 12px;
+	font-size: 14px;
 }
 
 th {
@@ -41,7 +49,7 @@ th {
 }
 
 .small-text {
-	font-size: 12px;
+	font-size: 14px;
 }
 
 .properties, .functions {
@@ -60,4 +68,9 @@ th {
 
 .bad, .no {
 	background-color: #f99;
+}
+
+.na {
+	background-color: #eee;
+	color: #ccc;
 }

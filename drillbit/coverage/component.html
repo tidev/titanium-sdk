@@ -1,9 +1,5 @@
-<%def name="percent(c1, c2)">\
-${"%.2f" % (100 * (c1 / float(c2)))}\
-</%def>
-
 <%
-columns = len(categories) + 1
+columns = len(data.ALL_CATEGORIES) + 1
 %>
 
 <%def name="apiRows(apis)">
@@ -14,12 +10,20 @@ columns = len(categories) + 1
 	% for api in ak:
 		<tr>
 			<td class="api bordered">${api}</td>
-			% for category in categories:
-				<%
-				yesno="no"
-				if category in apis[api]: yesno = "yes"
-				%>
-				<td class="${yesno} bordered">${upperFirst(yesno)}</td>
+			% for category in data.ALL_CATEGORIES:
+				<td class="count bordered">
+					<table width="100%" class="count-table">
+						<tr class="platforms">
+						% for platform in data.ALL_PLATFORMS:
+							<%
+							status = apis[api][category][platform]
+							statusDesc = data.statusDesc[status]
+							%>
+							<td class="small-text inner-cell ${status}">${statusDesc}</td>
+						% endfor
+						</tr>
+					</table>
+				</td>
 			% endfor
 		</tr>
 	% endfor
@@ -28,8 +32,17 @@ columns = len(categories) + 1
 <%def name="categoryColumns(label)">
 	<tr>
 		<th class="bordered">${label}</th>
-		% for category in categories:
-			<th class="bordered">${categoryDesc[category]}</th>
+		% for category in data.ALL_CATEGORIES:
+			<th class="bordered">
+				${data.categoryDesc[category]}
+				<table width="100%" class="count-table">
+					<tr class="platforms">
+					% for platform in data.ALL_PLATFORMS:
+						<td class="small-text inner-cell">${data.platformDesc[platform]}</td>
+					% endfor
+					</tr>
+				</table>
+			</th>
 		% endfor
 	</tr>
 </%def>
@@ -40,41 +53,41 @@ columns = len(categories) + 1
 		<h2>${label} ${component}</h2>
 		<%
 		totalCount = 0
-		categoryYes = {}
-		for category in categories:
-			yes, no = countCoverage(components, component, category)
-			totalCount = yes + no
-			categoryYes[category] = yes
+		categoryCount = {}
+		for category in data.ALL_CATEGORIES:
+			yes, no, na = countCoverage(components, component, category)
+			totalCount = yes + no + na
+			categoryCount[category] = { "yes": yes, "no": no, "na": na, "total": yes + no }
 		%>
 		<b>Total API Count</b>:
-			<span id="android-apis">${totalCount}</span> APIs<br/>
+			<span id="api-count">${totalCount}</span> APIs,
+			<span id="binding-count">${categoryCount["binding"]["yes"]} bindings</span><br/>
 
-		<b>Android TDoc Coverage</b>:
-			<span id="android-doc-coverage">
-				${percent(categoryYes["androidTDoc"], totalCount)}%
+		<b>TDoc Coverage</b>:
+			<span id="tdoc-coverage">
+				${data.formatPercent(categoryCount["tdoc"]["yes"], categoryCount["tdoc"]["total"])}%
 			</span>
-			(<span id="android-doc-apis">${categoryYes["androidTDoc"]}</span> Documented APIs)<br/>
+			(<span id="android-doc-apis">${categoryCount["tdoc"]["yes"]}</span> Documented APIs)<br/>
 
-		<b>Android Binding Coverage</b>:
-			<span id="android-binding-coverage">
-				${percent(categoryYes["androidBinding"], totalCount)}%
-			</span> (<span id="android-binding-apis">${categoryYes["androidBinding"]}</span> Bound APIs)<br/>
-
-		<b>Android Drillbit Coverage</b>:
+		<b>Drillbit Coverage</b>:
 		<span id="android-test-coverage">
-			${percent(categoryYes["androidDrillbit"], totalCount)}%
-		</span> (<span id="android-test-apis">${categoryYes["androidDrillbit"]}</span> Unit Tested APIs)<br/><br/>
+			${data.formatPercent(categoryCount["drillbit"]["yes"], categoryCount["drillbit"]["total"])}%
+		</span> (<span id="android-test-apis">${categoryCount["drillbit"]["yes"]}</span> Unit Tested APIs)<br/><br/>
 
 		<a href="index.html">&lt;&lt; Back to Coverage Summary</a><br/><br/>
 
 		<table class="bordered">
 			% if "properties" in components[component]:
-				${categoryColumns("Property")}
-				${apiRows(components[component]["properties"])}
+				% if len(components[component]["properties"]) > 0:
+					${categoryColumns("Property")}
+					${apiRows(components[component]["properties"])}
+				% endif
 			% endif
 			% if "functions" in components[component]:
-				${categoryColumns("Function")}
-				${apiRows(components[component]["functions"])}
+				% if len(components[component]["functions"]) > 0:
+					${categoryColumns("Function")}
+					${apiRows(components[component]["functions"])}
+				% endif
 			% endif
 		</table>
 	</body>

@@ -18,7 +18,7 @@ try:
 except ImportError, e:
 	import simplejson as json
 
-coverageDir = os.path.dirname(sys._getframe(0).f_code.co_filename)
+coverageDir = os.path.dirname(os.path.abspath(__file__))
 drillbitDir = os.path.dirname(coverageDir)
 mobileDir = os.path.dirname(drillbitDir)
 supportAndroidDir = os.path.join(mobileDir, "support", "android") 
@@ -37,6 +37,8 @@ def upperFirst(str):
 def lowerFirst(str):
 	return str[0:1].lower() + str[1:]
 
+"""A map that normalizes type names that are slightly different
+between the different sources"""
 mapTypes = {
 	"Titanium.Activity": "Titanium.Android.Activity",
 	"Titanium.Intent": "Titanium.Android.Intent",
@@ -63,34 +65,48 @@ mapTypes = {
 	"Titanium.Document": "Titanium.XML.Document",
 	"Titanium.Element": "Titanium.XML.Element",
 	"Titanium.NamedNodeMap": "Titanium.XML.NamedNodeMap",
+	"Titanium.Node": "Titanium.XML.Node",
 	"Titanium.NodeList": "Titanium.XML.NodeList",
 	"Titanium.String": "String",
 	"Titanium.Text": "Titanium.XML.Text",
-	"Titanium.XPathNodeList": "Titanium.XML.XPathNodeList"
+	"Titanium.XPathNodeList": "Titanium.XML.XPathNodeList",
+	"Titanium.Kroll.Kroll": "Titanium.Proxy"
 }
+
 def mapType(type):
-	"""Normalizes types that are slightly
-	different between the different sources"""
 	if type in mapTypes: return mapTypes[type]
 	return type
 
 class CoverageData(object):
-	ANDROID_TDOC = "androidTDoc"
-	IOS_TDOC = "iosTDoc"
-	ANDROID_BINDING = "androidBinding"
-	IOS_BINDING = "iosBinding"
-	ANDROID_DRILLBIT = "androidDrillbit"
-	IOS_DRILLBIT = "iosDrillbit"
+	CATEGORY_TDOC = "tdoc"
+	CATEGORY_BINDING = "binding"
+	CATEGORY_DRILLBIT = "drillbit"
 	TOP_LEVEL = "[Top Level]"
+	TOTAL = "total"
 
-	categories = [ANDROID_TDOC, ANDROID_BINDING, ANDROID_DRILLBIT]
+	ALL_CATEGORIES = [CATEGORY_TDOC, CATEGORY_BINDING, CATEGORY_DRILLBIT]
 	categoryDesc = {
-		ANDROID_TDOC: "Android TDoc",
-		IOS_TDOC: "iOS TDoc",
-		ANDROID_BINDING: "Android Bindings",
-		IOS_BINDING: "iOS Bindings",
-		ANDROID_DRILLBIT: "Android Drillbit",
-		IOS_DRILLBIT: "iOS Drillbit"
+		CATEGORY_TDOC: "API Docs (TDoc)",
+		CATEGORY_BINDING: "API Bindings",
+		CATEGORY_DRILLBIT: "Drillbit Tests"
+	}
+
+	PLATFORM_ANDROID = "android"
+	PLATFORM_IOS = "ios"
+	ALL_PLATFORMS = [PLATFORM_ANDROID, PLATFORM_IOS]
+	platformDesc = {
+		PLATFORM_ANDROID: "Android",
+		PLATFORM_IOS: "iOS"
+	}
+
+	STATUS_YES = "yes"
+	STATUS_NO = "no"
+	STATUS_NA = "na"
+
+	statusDesc = {
+		STATUS_YES: "Yes",
+		STATUS_NO: "No",
+		STATUS_NA: "N/A"
 	}
 
 	def __init__(self):
@@ -99,22 +115,19 @@ class CoverageData(object):
 		self.topLevel = {}
 		self.category = None
 
-		self.categoryCount = {}
-		for category in self.categories:
-			self.categoryCount[category] = 0
-
-		self.totalAPICount = {}
-		for platform in ["android", "iphone"]:
-			self.totalAPICount[platform] = 0
+		self.apiCount = { self.TOTAL: 0 }
+		for category in self.ALL_CATEGORIES:
+			self.apiCount[category] = { self.TOTAL : 0 }
+			for platform in self.ALL_PLATFORMS:
+				self.apiCount[category][platform] = {
+					self.STATUS_YES: 0,
+					self.STATUS_NO: 0,
+					self.STATUS_NA: 0,
+					self.TOTAL: 0
+				}
 
 	def getCategoryDesc(self, category):
 		return self.categoryDesc[category]
-
-	def getCategoryPlatform(self, category=None):
-		if not category: category = self.category
-		if category in [self.ANDROID_BINDING,
-			self.ANDROID_DRILLBIT, self.ANDROID_TDOC]: return "android"
-		return "iphone"
 
 	def setCategory(self, category):
 		self.category = category
@@ -135,10 +148,43 @@ class CoverageData(object):
 	def lazyGetProperties(self, map, key):
 		return self.lazyGet(map, key)["properties"]
 
-	def addCreateFunction(self, module, proxy):
-		self.addFunction("create" + proxy, module, True)
+	def addCreateFunction(self, module, proxy, platforms):
+		self.addFunction("create" + proxy, module, platforms, isModule=True)
 
-	def addFunction(self, fn, component, isModule=False, isTopLevel=False):
+	def countAPI(self, map, key, platforms):
+		if key not in map:
+			map[key] = {}
+			for category in self.ALL_CATEGORIES:
+				map[key][category] = {}
+				for platform in self.ALL_PLATFORMS:
+					if platform not in platforms:
+						map[key][category][platform] = self.STATUS_NA
+					else:
+						map[key][category][platform] = self.STATUS_NO
+
+		for platform in platforms:
+			if platform in platforms:
+				map[key][self.category][platform] = self.STATUS_YES
+
+	def countAPIs(self):
+		for componentType in [self.modules, self.proxies, self.topLevel]:
+			for componentName in componentType.keys():
+				component = componentType[componentName]
+				for apiType in component.keys():
+					apiTypeMap = component[apiType]
+					for api in apiTypeMap.keys():
+						apiMap = apiTypeMap[api]
+						for category in apiMap.keys():
+							categoryMap = apiMap[category]
+							for platform in categoryMap.keys():
+								status = categoryMap[platform]
+								self.apiCount[category][platform][status] += 1
+								if status != self.STATUS_NA:
+									self.apiCount[category][platform][self.TOTAL] += 1
+							self.apiCount[category][self.TOTAL] += 1
+					self.apiCount[self.TOTAL] += 1
+
+	def addFunction(self, fn, component, platforms, isModule=False, isTopLevel=False):
 		if isModule:
 			fns = self.lazyGetFunctions(self.modules, component)
 		elif isTopLevel:
@@ -146,41 +192,44 @@ class CoverageData(object):
 		else:
 			fns = self.lazyGetFunctions(self.proxies, component)
 
-		if not fn in fns:
-			fns[fn] = set()
-			self.totalAPICount[self.getCategoryPlatform()] += 1
+		self.countAPI(fns, fn, platforms)
 
-		if self.category not in fns[fn]:
-			fns[fn].add(self.category)
-			self.categoryCount[self.category] += 1
-
-	def addProperty(self, property, component, isModule=False, getter=False, setter=False):
+	def addProperty(self, property, component, platforms, isModule=False, getter=False, setter=False):
 		if isModule:
 			properties = self.lazyGetProperties(self.modules, component)
 		else:
 			properties = self.lazyGetProperties(self.proxies, component)
 
-		if not property in properties:
-			properties[property] = set()
-			self.totalAPICount[self.getCategoryPlatform()] += 1
-
-		if self.category not in properties[property]:
-			properties[property].add(self.category)
-			self.categoryCount[self.category] += 1
+		self.countAPI(properties, property, platforms)
 
 		upper = upperFirst(property)
 		if getter:
-			self.addFunction("get" + upper, component, isModule)
+			self.addFunction("get" + upper, component, platforms, isModule=isModule)
 		if setter:
-			self.addFunction("set" + upper, component, isModule)
+			self.addFunction("set" + upper, component, platforms, isModule=isModule)
+
+	def getPlatformAPICount(self, platform):
+		apiCount = 0
+		for category in self.apiCount:
+			if category == self.TOTAL: continue
+			apiCount = max(apiCount, self.apiCount[category][platform][self.TOTAL])
+		return apiCount
+
+	def getPlatformCategoryPercent(self, category, platform):
+		return self.formatPercent(
+			self.apiCount[category][platform][self.TOTAL],
+			self.getPlatformAPICount(platform))
+
+	def formatPercent(self, n1, n2):
+		if n2 == 0: return "100.00%"
+		return "%.2f" % (100 * (n1 / float(n2)))
 
 	def toJSON(self):
 		return CoverageEncoder().encode({
 			"modules": self.modules,
 			"proxies": self.proxies,
 			"topLevel": self.topLevel,
-			"categoryCount": self.categoryCount,
-			"totalAPICount": self.totalAPICount
+			"apiCount": self.apiCount
 		})
 
 class CoverageEncoder(json.JSONEncoder):
@@ -194,13 +243,20 @@ class CoverageEncoder(json.JSONEncoder):
 		return json.JSONEncoder.default(self, o)
 
 class CoverageMatrix(object):
-	def __init__(self):
+	def __init__(self, seedData=None):
 		self.data = CoverageData()
+		if seedData:
+			self.androidBindings = seedData["androidBindings"]
+			self.drillbitCoverage = seedData["drillbitCoverage"]
+			self.tdocTypes = seedData["tdocTypes"]
+		else:
+			self.initSources()
+
+	def initSources(self):
 		# TODO Add iOS binding metadata
 		self.initAndroidBindings()
 		self.initDrillbitCoverage()
 		self.initTDocData()
-		self.genData()
 
 	def initAndroidBindings(self):
 		log.info("Initializing Android bindings")
@@ -255,10 +311,19 @@ class CoverageMatrix(object):
 		remove = {
 			"modules": {
 				"Titanium": ["a", "x", "testFunction", "dumpCoverage"],
-				"Titanium.Android.OptionMenu": ["__noSuchMethod__"],
-				"Titanium.Database": ["__noSuchMethod__"],
+				"Titanium.Android.OptionMenu": ["__noSuchMethod__", "createMenu"],
+				"Titanium.Database": ["__noSuchMethod__", "execute"],
 				"Titanium.UI": ["addView", "removeView"],
 				"Titanium.UI.Android": ["OptionMenu"]
+			},
+			"proxies": {
+				"Titanium.Filesystem.File": ["customMethod"],
+				"Titanium.Network.HTTPClient": ["reponseText"],
+				"Titanium.UI.PickerRow": ["custom"],
+				"Titanium.UI.ScrollableView": ["Array"],
+				"Titanium.UI.TableView": ["Array", "Object"],
+				"Titanium.UI.TableViewRow": ["_dateObj", "_noDateObj", "_testDate", "button", "x"],
+				"Titanium.UI.View": ["customObj"]
 			}
 		}
 		for platform in self.drillbitCoverage.keys():
@@ -269,6 +334,7 @@ class CoverageMatrix(object):
 						component = platformMap[apiType][componentName]
 						for api in remove[apiType][componentName]:
 							if api in component:
+								log.warn("Removing %s.%s from drillbit coverage" % (componentName, api))
 								del component[api]
 
 	def initTDocData(self):
@@ -298,8 +364,12 @@ class CoverageMatrix(object):
 
 	def genAndroidBindingData(self):
 		log.info("Generating coverage for Android bindings")
-		self.data.setCategory(self.data.ANDROID_BINDING)
+		self.data.setCategory(self.data.CATEGORY_BINDING)
+
 		proxyDefault = "org.appcelerator.kroll.annotations.Kroll.proxy.DEFAULT"
+		platforms = [self.data.PLATFORM_ANDROID]
+		allowModuleTopLevelMethods = ["decodeURIComponent", "encodeURIComponent"]
+
 		for binding in self.androidBindings:
 			for proxyClass in binding["proxies"].keys():
 				proxy = binding["proxies"][proxyClass]
@@ -309,7 +379,7 @@ class CoverageMatrix(object):
 					moduleClass = proxy["proxyAttrs"]["creatableInModule"]
 					if moduleClass != proxyDefault:
 						moduleAPI = self.findAndroidBinding(moduleClass)["proxyAttrs"]["fullAPIName"]
-						self.data.addCreateFunction(moduleAPI, proxy["proxyAttrs"]["name"])
+						self.data.addCreateFunction(moduleAPI, proxy["proxyAttrs"]["name"], platforms)
 					elif not isModule:
 						# Proxies w/o "creatableInModule" need a namespace fix
 						module = self.findAndroidModuleForPackage(proxy["packageName"])
@@ -317,10 +387,11 @@ class CoverageMatrix(object):
 							proxyFullAPI = module["proxyAttrs"]["fullAPIName"] + "." + proxyFullAPI
 				if "propertyAccessors" in proxy["proxyAttrs"]:
 					for accessor in proxy["proxyAttrs"]["propertyAccessors"]:
-						self.data.addProperty(accessor, proxyFullAPI, isModule, getter=True, setter=True)
+						self.data.addProperty(accessor, proxyFullAPI, platforms, isModule=isModule, getter=True, setter=True)
 				if "methods" in proxy:
 					for method in proxy["methods"].keys():
 						methodName = proxy["methods"][method]["apiName"]
+						topLevel = False
 						if "topLevelMethods" in proxy and method in proxy["topLevelMethods"]:
 							for topLevelName in proxy["topLevelMethods"][method]:
 								parent = self.data.TOP_LEVEL
@@ -330,47 +401,122 @@ class CoverageMatrix(object):
 									name = parts[-1]
 								else:
 									name = topLevelName
-							self.data.addFunction(name, parent, isTopLevel=True)
-						else:
+							topLevel = True
+							self.data.addFunction(name, parent, platforms, isTopLevel=True)
+						if not topLevel or methodName in allowModuleTopLevelMethods:
 							# For the sake of coverage, we only add a top level method once
 							# even though technically it may be bound in two places
-							self.data.addFunction(methodName, proxyFullAPI, isModule)
+							self.data.addFunction(methodName, proxyFullAPI, platforms, isModule=isModule)
 				if "dynamicProperties" in proxy:
 					for dynProp in proxy["dynamicProperties"].keys():
 						property = proxy["dynamicProperties"][dynProp]["name"]
 						getter = proxy["dynamicProperties"][dynProp]["get"]
 						setter = proxy["dynamicProperties"][dynProp]["set"]
-						self.data.addProperty(property, proxyFullAPI, isModule, getter=getter, setter=setter)
+						self.data.addProperty(property, proxyFullAPI, platforms, isModule=isModule, getter=getter, setter=setter)
 				if "constants" in proxy:
 					for constant in proxy["constants"].keys():
-						self.data.addProperty(constant, proxyFullAPI, isModule)
+						self.data.addProperty(constant, proxyFullAPI, platforms, isModule=isModule)
+
+	def proxyHasAPI(self, proxy, api):
+		# try to find an API point in the component itself first
+		if "propertyAccessors" in proxy["proxyAttrs"]:
+			for accessor in proxy["proxyAttrs"]["propertyAccessors"]:
+				if accessor == api:
+					return True
+				if ("get" + upperFirst(accessor)) == api:
+					return True
+				if  ("set" + upperFirst(accessor)) == api:
+					return True
+		if "methods" in proxy:
+			for method in proxy["methods"].keys():
+				methodName = proxy["methods"][method]["apiName"]
+				if methodName == api:
+					return True
+		if "dynamicProperties" in proxy:
+			for dynProp in proxy["dynamicProperties"].keys():
+				property = proxy["dynamicProperties"][dynProp]["name"]
+				getter = proxy["dynamicProperties"][dynProp]["get"]
+				setter = proxy["dynamicProperties"][dynProp]["set"]
+				if property == api:
+					return True
+				if getter and ("get" + upperFirst(property)) == api:
+					return True
+				if setter and ("set" + upperFirst(property)) == api:
+					return True
+		if "constants" in proxy:
+			for constant in proxy["constants"].keys():
+				if constant == api:
+					return True
+		return False
+
+	def findSuperProxyBinding(self, proxy):
+		className = proxy["superProxyBindingClassName"]
+		className = className.replace("BindingGen", "")
+
+		for binding in self.androidBindings:
+			if className in binding["proxies"]:
+				return binding["proxies"][className]
+		return None
+
+	def getProxyAPIName(self, proxy):
+		apiName = proxy["proxyAttrs"]["fullAPIName"]
+		if not apiName.startswith("Titanium"):
+			apiName = "Titanium." + apiName
+		return mapType(apiName)
+
+	def getComponentNameForAPI(self, component, api):
+		# Walk the android bindings (our best data set?) to see where an api is originally defined
+		component = mapType(component)
+		for binding in self.androidBindings:
+			for proxyClass in binding["proxies"].keys():
+				proxy = binding["proxies"][proxyClass]
+				apiName = self.getProxyAPIName(proxy)
+
+				if apiName == component:
+					# try to find an API point in the component itself first
+					if self.proxyHasAPI(proxy, api):
+						return component
+					elif "superProxyBindingClassName" in proxy:
+						superProxy = self.findSuperProxyBinding(proxy)
+						while superProxy != None:
+							superAPIName = self.getProxyAPIName(superProxy)
+							if self.proxyHasAPI(superProxy, api):
+								return superAPIName
+							if "superProxyBindingClassName" not in superProxy:
+								return None
+							superProxy = self.findSuperProxyBinding(superProxy)
+		return None
 
 	def genDrillbitCoverageData(self, platform):
-		if platform == "android": self.data.setCategory(self.data.ANDROID_DRILLBIT)
-		elif platform == "iphone": self.data.setCategory(self.data.IOS_DRILLBIT)
+		self.data.setCategory(self.data.CATEGORY_DRILLBIT)
 
+		platforms = [platform]
 		log.info("Generating coverage for Drillbit / %s" % platform)
 		for apiType in self.drillbitCoverage[platform].keys():
-			isModule = apiType == "modules"
 			isTopLevel = apiType == "other"
 			for component in self.drillbitCoverage[platform][apiType].keys():
 				for api in self.drillbitCoverage[platform][apiType][component].keys():
 					apiCount = self.drillbitCoverage[platform][apiType][component][api]
 					if "propertyGet" in apiCount or "propertySet" in apiCount or "functionCall" in apiCount:
-						fullName = component + "." + api
-						if fullName in self.drillbitCoverage[platform]["modules"]:
-							log.warn("Skipping module as property accessor %s" % fullName)
+						isModule = apiType == "modules"
+						componentName = self.getComponentNameForAPI(component, api) or component
+						if componentName == "Titanium.Kroll":
+							componentName = "Titanium.Proxy"
+							isModule = False
+						sourceName = component + "." + api
+						if sourceName in self.drillbitCoverage[platform]["modules"]:
+							log.warn("Skipping module as property accessor %s" % sourceName)
 							continue
 						if apiCount["_type"] == "function":
 							if isTopLevel:
 								c = component
 								if component == "TOP_LEVEL":
 									c = self.data.TOP_LEVEL
-								self.data.addFunction(api, c, isTopLevel=True)
+								self.data.addFunction(api, c, platforms, isTopLevel=True)
 							else:
-								self.data.addFunction(api, component, isModule)
+								self.data.addFunction(api, componentName, platforms, isModule=isModule)
 						else:
-							self.data.addProperty(api, component, isModule)
+							self.data.addProperty(api, componentName, platforms, isModule=isModule)
 
 	def hasAnyPlatform(self, obj, platforms):
 		if "platforms" in obj:
@@ -381,14 +527,23 @@ class CoverageMatrix(object):
 		# No explict platforms -> all platforms
 		return True
 
-	def genTDocData(self, platforms, category):
-		log.info("Generating coverage for TDoc / %s" % platforms)
-		self.data.setCategory(category)
+	def tdocPlatforms(self, tdocObj):
+		if "platforms" not in tdocObj:
+			return self.data.ALL_PLATFORMS
+		platforms = []
+		for platform in tdocObj["platforms"]:
+			if platform in ["ios", "iphone", "ipad"]:
+				platforms.append(self.data.PLATFORM_IOS)
+			elif platform == "android":
+				platforms.append(self.data.PLATFORM_ANDROID)
+		return platforms
+
+	def genTDocData(self):
+		self.data.setCategory(self.data.CATEGORY_TDOC)
+		log.info("Generating coverage for TDoc")
 		for tdocType in self.tdocTypes:
 			component = tdocType["name"]
-			if not self.hasAnyPlatform(tdocType, platforms):
-				log.warn("Skipping TDoc type %s for platforms %s" % (component, platforms))
-				continue
+			typePlatforms = self.tdocPlatforms(tdocType)
 			if "extends" not in tdocType and component != "Titanium.Proxy":
 				log.warn("Skipping TDoc type %s (no 'extends')" % component)
 				continue
@@ -397,42 +552,68 @@ class CoverageMatrix(object):
 			if "extends" in tdocType and tdocType["extends"] == "Titanium.Module": isModule = True
 			if "methods" in tdocType:
 				for method in tdocType["methods"]:
-					if not self.hasAnyPlatform(method, platforms):
-						log.warn("Skipping TDoc method %s.%s for platforms %s" % (component, method["name"], platforms))
-						continue
-					self.data.addFunction(method["name"], component, isModule)
+					methodPlatforms = self.tdocPlatforms(method)
+					if methodPlatforms == self.data.ALL_PLATFORMS:
+						methodPlatforms = typePlatforms
+					self.data.addFunction(method["name"], component, methodPlatforms, isModule=isModule)
 			if "properties" in tdocType:
 				for property in tdocType["properties"]:
-					if not self.hasAnyPlatform(property, platforms):
-						log.warn("Skipping TDoc property %s.%s for platforms %s" % (component, property["name"], platforms))
-						continue
-					self.data.addProperty(property["name"], component, isModule)
+					propertyPlatforms = self.tdocPlatforms(property)
+					if propertyPlatforms == self.data.ALL_PLATFORMS:
+						propertyPlatforms = typePlatforms
+					self.data.addProperty(property["name"], component, propertyPlatforms, isModule=isModule)
 
-	def genData(self):
+	def genMatrix(self, outDir):
 		self.genAndroidBindingData()
-		#self.genIOSBindingData()
+		#TODO self.genIOSBindingData()
 		self.genDrillbitCoverageData("android")
-		#self.genDrillbitCoverageData("iphone")
-		self.genTDocData(["android"], self.data.ANDROID_TDOC)
-		#self.genTDocData(["iphone"], self.data.IOS_TDOC)
+		#TODO self.genDrillbitCoverageData("iphone")
+		self.genTDocData()
+		self.data.countAPIs()
 
-	def countCoverage(self, components, name, category):
-		countYes = 0
-		countNo = 0
+		self.genJSON(outDir)
+		self.genHTML(outDir)
+
+
+	def countCoverage(self, components, name, category, platform=None):
+		class count: pass
+		count.yes = 0
+		count.no = 0
+		count.na = 0
+		def countStatus(status):
+			if status == self.data.STATUS_YES:
+				count.yes += 1
+			elif status == self.data.STATUS_NO:
+				count.no += 1
+			else:
+				count.na += 1
+
 		for type in components[name].keys():
 			typeMap = components[name][type]
 			for typeName in typeMap.keys():
-				categorySet = typeMap[typeName]
-				if category in categorySet:
-					countYes += 1
+				categoryMap = typeMap[typeName][category]
+				if platform == None:
+					for p in self.data.ALL_PLATFORMS:
+						countStatus(categoryMap[p])
 				else:
-					countNo += 1
-		return countYes, countNo
+					countStatus(categoryMap[platform])
 
-	def toJSON(self):
-		return self.data.toJSON()
+		return count.yes, count.no, count.na
 
-	def toHTML(self, outDir):
+	def genJSON(self, outDir):
+		mdFile = open(os.path.join(outDir, "matrixData.json"), "w")
+		mdFile.write(self.data.toJSON())
+		mdFile.close()
+
+		seedFile = open(os.path.join(outDir, "seed.json"), "w")
+		seedFile.write(json.dumps({
+			"androidBindings": self.androidBindings,
+			"drillbitCoverage": self.drillbitCoverage,
+			"tdocTypes": self.tdocTypes
+		}))
+		seedFile.close()
+
+	def genHTML(self, outDir):
 		from mako.template import Template
 		from mako import exceptions
 		indexTemplate = Template(filename=os.path.join(coverageDir, "index.html"),
@@ -442,16 +623,9 @@ class CoverageMatrix(object):
 
 		try:
 			indexPage = indexTemplate.render(
-				categories = self.data.categories,
-				categoryDesc = self.data.categoryDesc,
-				modules = self.data.modules,
-				proxies = self.data.proxies,
-				topLevel = self.data.topLevel,
+				data = self.data,
 				countCoverage = self.countCoverage,
-				categoryCount = self.data.categoryCount,
-				totalAPICount = self.data.totalAPICount,
-				upperFirst = upperFirst,
-				getCategoryPlatform = self.data.getCategoryPlatform)
+				upperFirst = upperFirst)
 			indexPath = os.path.join(outDir, "index.html")
 			open(indexPath, "w").write(indexPage)
 		except:
@@ -462,8 +636,7 @@ class CoverageMatrix(object):
 			for component in components:
 				try:
 					componentPage = componentTemplate.render(
-						categories = self.data.categories,
-						categoryDesc = self.data.categoryDesc,
+						data = self.data,
 						components = components,
 						component = component,
 						label = upperFirst(prefix),
@@ -486,8 +659,17 @@ class CoverageMatrix(object):
 			shutil.copy(path, outDir)
 
 def main():
-	matrix = CoverageMatrix()
-	matrix.toHTML(sys.argv[1])
+	parser = optparse.OptionParser()
+	parser.add_option("-s", "--seed", dest="seedFile",
+		default=None, help="Seed the matrix with pre-initialized JSON data")
+	(options, args) = parser.parse_args()
+
+	seedData = None
+	if options.seedFile != None:
+		seedData = json.loads(open(options.seedFile, "r").read())
+
+	matrix = CoverageMatrix(seedData)
+	matrix.genMatrix(args[0])
 
 if __name__ == "__main__":
 	main()
