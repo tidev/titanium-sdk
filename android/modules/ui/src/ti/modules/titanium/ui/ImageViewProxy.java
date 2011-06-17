@@ -56,6 +56,8 @@ public class ImageViewProxy extends ViewProxy {
 	public void onImageSourcesChanged(TiUIImageView imageView, ArrayList<TiDrawableReference> imageSources)
 	{
 		setProperty(PROPERTY_INTERNAL_SOURCES, imageSources);
+		// The current cached bitmap, if any, can't be trusted now
+		onBitmapChanged(imageView, null);
 	}
 
 	public void onBitmapChanged(TiUIImageView imageView, Bitmap bitmap)

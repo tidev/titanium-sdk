@@ -647,10 +647,10 @@ public class TiHTTPClient
 	}
 
 	private static Uri getCleanUri(String uri)
-    {
-    	Uri base = Uri.parse(uri);
-    	
-    	Uri.Builder builder = base.buildUpon();
+	{
+		Uri base = Uri.parse(uri);
+
+		Uri.Builder builder = base.buildUpon();
 		builder.encodedQuery(Uri.encode(Uri.decode(base.getQuery()), "&="));
 		String encodedAuthority = Uri.encode(Uri.decode(base.getAuthority()),"/:@");
 		int firstAt = encodedAuthority.indexOf('@');
@@ -668,12 +668,25 @@ public class TiHTTPClient
 		builder.encodedAuthority(encodedAuthority);
 		builder.encodedPath(Uri.encode(Uri.decode(base.getPath()), "/"));
 		return builder.build();
-    }
-	
+	}
+
 	public void open(String method, String url)
 	{
 		if (DBG) {
 			Log.d(LCAT, "open request method=" + method + " url=" + url);
+		}
+
+		if (url == null)
+		{
+			Log.e(LCAT, "unable to open a null URL");
+			throw new IllegalArgumentException("URL cannot be null");
+		}
+
+		// if the url is not prepended with either http or 
+		// https, then default to http and prepend the protocol
+		// to the url
+		if (!url.startsWith("http://") && !url.startsWith("https://")) {
+			url = "http://" + url;
 		}
 
 		if (autoEncodeUrl) {
