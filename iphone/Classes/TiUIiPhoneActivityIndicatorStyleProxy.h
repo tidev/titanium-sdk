@@ -8,7 +8,7 @@
 
 #import "TiProxy.h"
 
-@interface TiUIActivityIndicatorStyleProxy : TiProxy {
+@interface TiUIiPhoneActivityIndicatorStyleProxy : TiProxy {
 
 }
 

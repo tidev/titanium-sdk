@@ -6,10 +6,10 @@
  */
 #ifdef USE_TI_UIIPHONEANIMATIONSTYLE
 
-#import "TiUIAnimationStyleProxy.h"
+#import "TiUIiPhoneAnimationStyleProxy.h"
 
 
-@implementation TiUIAnimationStyleProxy
+@implementation TiUIiPhoneAnimationStyleProxy
 
 MAKE_SYSTEM_PROP(NONE,UIViewAnimationTransitionNone);
 MAKE_SYSTEM_PROP(CURL_UP,UIViewAnimationTransitionCurlUp);

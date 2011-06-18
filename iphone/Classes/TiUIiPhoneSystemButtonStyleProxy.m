@@ -6,10 +6,10 @@
  */
 #ifdef USE_TI_UIIPHONESYSTEMBUTTONSTYLE
 
-#import "TiUISystemButtonStyleProxy.h"
+#import "TiUIiPhoneSystemButtonStyleProxy.h"
 
 
-@implementation TiUISystemButtonStyleProxy
+@implementation TiUIiPhoneSystemButtonStyleProxy
 
 
 MAKE_SYSTEM_PROP(DONE,UIBarButtonItemStyleDone);

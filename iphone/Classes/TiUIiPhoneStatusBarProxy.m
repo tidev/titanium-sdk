@@ -6,10 +6,10 @@
  */
 #ifdef USE_TI_UIIPHONESTATUSBAR
 
-#import "TiUIStatusBarProxy.h"
+#import "TiUIiPhoneStatusBarProxy.h"
 
 
-@implementation TiUIStatusBarProxy
+@implementation TiUIiPhoneStatusBarProxy
 
 MAKE_SYSTEM_PROP(DEFAULT,UIStatusBarStyleDefault);
 MAKE_SYSTEM_PROP(GRAY,UIStatusBarStyleDefault);

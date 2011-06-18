@@ -6,11 +6,11 @@
  */
 #ifdef USE_TI_UIIPHONESCROLLINDICATORSTYLE
 
-#import "TiUIScrollIndicatorStyleProxy.h"
+#import "TiUIiPhoneScrollIndicatorStyleProxy.h"
 
 #import "TiUtils.h"
 
-@implementation TiUIScrollIndicatorStyleProxy
+@implementation TiUIiPhoneScrollIndicatorStyleProxy
 
 MAKE_SYSTEM_PROP(DEFAULT,UIScrollViewIndicatorStyleDefault);
 MAKE_SYSTEM_PROP(BLACK,UIScrollViewIndicatorStyleBlack);

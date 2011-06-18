@@ -12,6 +12,7 @@ import codecs
 import zipfile
 import shutil
 import yaml
+import re
 
 try:
 	import json
@@ -255,6 +256,7 @@ class CoverageMatrix(object):
 	def initSources(self):
 		# TODO Add iOS binding metadata
 		self.initAndroidBindings()
+		self.initIOSBindings()
 		self.initDrillbitCoverage()
 		self.initTDocData()
 
@@ -268,6 +270,22 @@ class CoverageMatrix(object):
 			moduleBindings = bindings.get_module_bindings(zipfile.ZipFile(jarPath))
 			if moduleBindings != None:
 				self.androidBindings.append(moduleBindings)
+
+	def initIOSBindings(self):
+		log.info("Initializing iOS bindings")
+		self.iosBindings = []
+		self.iosSubmodules = ['iOS', 'iPhone', 'iPad', 'Socket']
+		self.iosInternals = ['Proxy', 'Module', 'Animation', 'Toolbar', 
+							 'Window', 'View', 'File', 'Stream', 'DataStream',
+							 'Rect', 'TextWidget']
+		
+		distIOSDir = os.path.join(mobileDir, "dist", "ios")
+		for file in os.listdir(distIOSDir):
+			if not file.endswith('.json'): continue
+			abspath = os.path.join(distIOSDir, file)
+			data = open(abspath,"r").read()
+			if data != '': self.iosBindings.append(json.loads(data))
+		
 
 	def initDrillbitCoverage(self):
 		log.info("Initializing Drillbit coverage")
@@ -417,6 +435,97 @@ class CoverageMatrix(object):
 					for constant in proxy["constants"].keys():
 						self.data.addProperty(constant, proxyFullAPI, platforms, isModule=isModule)
 
+	def genIOSBindingData(self):
+		log.info("Generating coverage for iOS...")
+		platforms = [self.data.PLATFORM_IOS]
+		for binding in self.iosBindings:
+			for iosClass in binding.keys():
+				superclass = binding[iosClass]["super"] #TODO: load superclass props, etc.
+				isModule = (superclass == "TiModule")
+				
+				# Easy detection for API space for modules
+				if isModule:
+					match = re.search('^(.*)Module$', iosClass)
+					if match: # better match
+						moduleName = match.group(1)
+						if moduleName == "TopTi":
+							fullAPI = "Titanium"
+						else:
+							fullAPI = "Titanium." + match.group(1)
+				else:
+					# Trim Ti(.*)Proxy if necessary
+					match = re.search('^Ti(.*?)(Proxy)?$', iosClass)
+					canCreate = False
+					if match:
+						relevant = match.group(1)
+						if match.group(2) == 'Proxy':
+							canCreate = True
+						# These are the modules with names which don't 
+						match = re.search('^((?:API)|(?:UI)|(?:XML))(.*)', relevant)
+						if match:
+							moduleName = match.group(1)
+							proxyName = match.group(2)
+						else:
+							split = re.split('([A-Z])', relevant, maxsplit=2)
+							if len(split) > 4:
+								moduleName = split[1] + split[2]
+								proxyName = split[3] + split[4]
+							else:
+								moduleName = None
+								proxyName = relevant
+							
+						# 1. Are we a submodule?
+						if proxyName in self.iosSubmodules:
+							isModule = True
+						else:
+							# 2. Are we located in a submodule namespace?
+							for submodule in self.iosSubmodules:
+								pos = proxyName.find(submodule)
+								if pos != -1:
+									if canCreate:
+										subproxy = proxyName[pos+len(submodule):]
+										self.data.addFunction("create%s" % subproxy, 
+															  "Titanium.%s.%s" % (moduleName, submodule),
+															  platforms,
+															  isModule=True)
+										#Short circuit later canCreate check
+										canCreate = False
+									proxyName = "%s.%s" % (submodule, subproxy)
+									break
+						
+						# Skip internal classes
+						if proxyName in self.iosInternals and moduleName is None:
+							log.warn("Class %s is internal to iOS, pruning" % iosClass)
+							continue
+						
+						if moduleName is None:
+							fullAPI = "Titanium.%s" % proxyName
+						else:
+							if canCreate:
+								self.data.addFunction("create%s" % proxyName,
+													  "Titanium.%s" % moduleName,
+													  platforms,
+													  isModule=True)
+							fullAPI = "Titanium.%s.%s" % (moduleName, proxyName)
+						
+				for method in binding[iosClass]["methods"]:
+					self.data.addFunction(method, fullAPI, platforms, isModule=isModule)
+					
+				for property in binding[iosClass]["properties"]:
+					# If we have an all-uppercase name, consider it a constant -
+					# by naming convention
+					if property.isupper():
+						self.data.addProperty(property, fullAPI, platforms, 
+												isModule=isModule)
+					else:
+						# NOTE: We ignore 'getter' because iOS autogenerates
+						# getX() functions for every property x, meaning
+						# this screws with our coverage
+						propInfo = binding[iosClass]["properties"][property]
+						self.data.addProperty(property, fullAPI, platforms, 
+												isModule=isModule, 
+												setter=propInfo["set"])
+
 	def proxyHasAPI(self, proxy, api):
 		# try to find an API point in the component itself first
 		if "propertyAccessors" in proxy["proxyAttrs"]:
@@ -565,7 +674,7 @@ class CoverageMatrix(object):
 
 	def genMatrix(self, outDir):
 		self.genAndroidBindingData()
-		#TODO self.genIOSBindingData()
+		self.genIOSBindingData()
 		self.genDrillbitCoverageData("android")
 		#TODO self.genDrillbitCoverageData("iphone")
 		self.genTDocData()

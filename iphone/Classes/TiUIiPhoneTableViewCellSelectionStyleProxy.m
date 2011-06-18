@@ -6,11 +6,11 @@
  */
 #ifdef USE_TI_UIIPHONETABLEVIEWCELLSELECTIONSTYLE
 
-#import "TiUITableViewCellSelectionStyleProxy.h"
+#import "TiUIiPhoneTableViewCellSelectionStyleProxy.h"
 
 #import "TiUtils.h"
 
-@implementation TiUITableViewCellSelectionStyleProxy
+@implementation TiUIiPhoneTableViewCellSelectionStyleProxy
 
 MAKE_SYSTEM_PROP(NONE,UITableViewCellSelectionStyleNone);
 MAKE_SYSTEM_PROP(BLUE,UITableViewCellSelectionStyleBlue);

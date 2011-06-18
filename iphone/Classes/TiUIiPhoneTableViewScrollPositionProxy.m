@@ -6,9 +6,9 @@
  */
 #ifdef USE_TI_UIIPHONETABLEVIEWSCROLLPOSITION
 
-#import "TiUITableViewScrollPositionProxy.h"
+#import "TiUIiPhoneTableViewScrollPositionProxy.h"
 
-@implementation TiUITableViewScrollPositionProxy
+@implementation TiUIiPhoneTableViewScrollPositionProxy
 
 
 MAKE_SYSTEM_PROP(NONE,UITableViewScrollPositionNone);

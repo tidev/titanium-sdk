@@ -6,15 +6,14 @@
  */
 #ifdef USE_TI_UIIPHONEPROGRESSBARSTYLE
 
-#import "TiProxy.h"
+#import "TiUIiPhoneProgressBarStyleProxy.h"
 
-@interface TiUIProgressBarStyleProxy : TiProxy {
 
-}
+@implementation TiUIiPhoneProgressBarStyleProxy
 
-@property(nonatomic,readonly) NSNumber *DEFAULT;
-@property(nonatomic,readonly) NSNumber *PLAIN;
-@property(nonatomic,readonly) NSNumber *BAR;
+MAKE_SYSTEM_PROP(PLAIN,UIProgressViewStyleDefault);
+MAKE_SYSTEM_PROP(DEFAULT,UIProgressViewStyleDefault);
+MAKE_SYSTEM_PROP(BAR,UIProgressViewStyleBar);
 
 @end
 

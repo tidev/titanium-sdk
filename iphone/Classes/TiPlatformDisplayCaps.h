@@ -4,19 +4,19 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UIIPHONETABLEVIEWCELLSELECTIONSTYLE
+#ifdef USE_TI_PLATFORM
 
 #import "TiProxy.h"
 
-@interface TiUITableViewCellSelectionStyleProxy : TiProxy {
 
-@private
+@interface TiPlatformDisplayCaps : TiProxy {
 
 }
 
-@property(nonatomic,readonly) NSNumber* NONE;
-@property(nonatomic,readonly) NSNumber* BLUE;
-@property(nonatomic,readonly) NSNumber* GRAY;
+@property(nonatomic,readonly) NSNumber* platformHeight;
+@property(nonatomic,readonly) NSNumber* platformWidth;
+@property(nonatomic,readonly) NSNumber* density;
+@property(nonatomic,readonly) NSString* dpi;
 
 @end
 

@@ -6,10 +6,10 @@
  */
 #ifdef USE_TI_UIIPHONESYSTEMICON
 
-#import "TiUISystemIconProxy.h"
+#import "TiUIiPhoneSystemIconProxy.h"
 
 
-@implementation TiUISystemIconProxy
+@implementation TiUIiPhoneSystemIconProxy
 
 MAKE_SYSTEM_PROP(BOOKMARKS,UITabBarSystemItemBookmarks);
 MAKE_SYSTEM_PROP(CONTACTS,UITabBarSystemItemContacts);

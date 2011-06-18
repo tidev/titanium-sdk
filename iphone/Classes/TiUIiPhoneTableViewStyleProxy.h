@@ -8,7 +8,7 @@
 
 #import "TiProxy.h"
 
-@interface TiUITableViewStyleProxy : TiProxy {
+@interface TiUIiPhoneTableViewStyleProxy : TiProxy {
 }
 
 @property(nonatomic,readonly) NSNumber *PLAIN;

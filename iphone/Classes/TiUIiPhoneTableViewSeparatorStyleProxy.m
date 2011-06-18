@@ -6,9 +6,9 @@
  */
 #ifdef USE_TI_UIIPHONETABLEVIEWSEPARATORSTYLE
 
-#import "TiUITableViewSeparatorStyleProxy.h"
+#import "TiUIiPhoneTableViewSeparatorStyleProxy.h"
 
-@implementation TiUITableViewSeparatorStyleProxy
+@implementation TiUIiPhoneTableViewSeparatorStyleProxy
 
 MAKE_SYSTEM_PROP(NONE,UITableViewCellSeparatorStyleNone);
 MAKE_SYSTEM_PROP(SINGLE_LINE,UITableViewCellSeparatorStyleSingleLine);

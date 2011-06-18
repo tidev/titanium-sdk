@@ -4,19 +4,17 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UIIPHONESCROLLINDICATORSTYLE
+#ifdef USE_TI_UIIPHONEPROGRESSBARSTYLE
 
 #import "TiProxy.h"
 
-@interface TiUIScrollIndicatorStyleProxy : TiProxy {
-
-@private
+@interface TiUIiPhoneProgressBarStyleProxy : TiProxy {
 
 }
 
 @property(nonatomic,readonly) NSNumber *DEFAULT;
-@property(nonatomic,readonly) NSNumber *BLACK;
-@property(nonatomic,readonly) NSNumber *WHITE;
+@property(nonatomic,readonly) NSNumber *PLAIN;
+@property(nonatomic,readonly) NSNumber *BAR;
 
 @end
 

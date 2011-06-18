@@ -9,7 +9,7 @@
 #import "TiProxy.h"
 
 
-@interface TiUIStatusBarProxy : TiProxy {
+@interface TiUIiPhoneStatusBarProxy : TiProxy {
 
 }
 

@@ -6,10 +6,10 @@
  */
 #ifdef USE_TI_UIIPHONEROWANIMATIONSTYLE
 
-#import "TiUIRowAnimationStyleProxy.h"
+#import "TiUIiPhoneRowAnimationStyleProxy.h"
 
 
-@implementation TiUIRowAnimationStyleProxy
+@implementation TiUIiPhoneRowAnimationStyleProxy
 
 MAKE_SYSTEM_PROP(NONE,UITableViewRowAnimationNone);
 MAKE_SYSTEM_PROP(LEFT,UITableViewRowAnimationLeft);

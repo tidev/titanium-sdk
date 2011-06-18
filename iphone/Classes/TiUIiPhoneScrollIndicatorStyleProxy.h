@@ -4,16 +4,19 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UIIPHONETABLEVIEWSEPARATORSTYLE
+#ifdef USE_TI_UIIPHONESCROLLINDICATORSTYLE
 
 #import "TiProxy.h"
 
-@interface TiUITableViewSeparatorStyleProxy : TiProxy {
+@interface TiUIiPhoneScrollIndicatorStyleProxy : TiProxy {
+
+@private
 
 }
 
-@property(nonatomic,readonly) NSNumber *NONE;
-@property(nonatomic,readonly) NSNumber *SINGLE_LINE;
+@property(nonatomic,readonly) NSNumber *DEFAULT;
+@property(nonatomic,readonly) NSNumber *BLACK;
+@property(nonatomic,readonly) NSNumber *WHITE;
 
 @end
 

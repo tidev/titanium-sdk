@@ -8,7 +8,7 @@
 
 #import "TiProxy.h"
 
-@interface TiUISystemButtonProxy : TiProxy {
+@interface TiUIiPhoneSystemButtonProxy : TiProxy {
 
 }
 

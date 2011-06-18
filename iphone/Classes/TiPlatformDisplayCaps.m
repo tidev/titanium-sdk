@@ -6,10 +6,10 @@
  */
 #ifdef USE_TI_PLATFORM
 
-#import "PlatformModuleDisplayCapsProxy.h"
+#import "TiPlatformDisplayCaps.h"
 #import "TiUtils.h"
 
-@implementation PlatformModuleDisplayCapsProxy
+@implementation TiPlatformDisplayCaps
 
 
 

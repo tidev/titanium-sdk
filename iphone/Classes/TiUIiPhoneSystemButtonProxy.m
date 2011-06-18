@@ -6,9 +6,9 @@
  */
 #ifdef USE_TI_UIIPHONESYSTEMBUTTON
 
-#import "TiUISystemButtonProxy.h"
+#import "TiUIiPhoneSystemButtonProxy.h"
 
-@implementation TiUISystemButtonProxy
+@implementation TiUIiPhoneSystemButtonProxy
 
 MAKE_SYSTEM_PROP(ACTION,UIBarButtonSystemItemAction);
 MAKE_SYSTEM_PROP(CAMERA,UIBarButtonSystemItemCamera);

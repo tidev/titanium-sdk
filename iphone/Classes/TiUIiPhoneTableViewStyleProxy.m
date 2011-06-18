@@ -6,9 +6,9 @@
  */
 #ifdef USE_TI_UIIPHONETABLEVIEWSTYLE
 
-#import "TiUITableViewStyleProxy.h"
+#import "TiUIiPhoneTableViewStyleProxy.h"
 
-@implementation TiUITableViewStyleProxy
+@implementation TiUIiPhoneTableViewStyleProxy
 
 MAKE_SYSTEM_PROP(PLAIN,UITableViewStylePlain);
 MAKE_SYSTEM_PROP(GROUPED,UITableViewStyleGrouped);

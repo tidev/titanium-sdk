@@ -6,10 +6,10 @@
  */
 #ifdef USE_TI_UIIPHONEACTIVITYINDICATORSTYLE
 
-#import "TiUIActivityIndicatorStyleProxy.h"
+#import "TiUIiPhoneActivityIndicatorStyleProxy.h"
 
 
-@implementation TiUIActivityIndicatorStyleProxy
+@implementation TiUIiPhoneActivityIndicatorStyleProxy
 
 MAKE_SYSTEM_PROP(PLAIN,UIActivityIndicatorViewStyleWhite);
 MAKE_SYSTEM_PROP(BIG,UIActivityIndicatorViewStyleWhiteLarge);

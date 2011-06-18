@@ -7,7 +7,7 @@
 #ifdef USE_TI_PLATFORM
 
 #import "TiModule.h"
-#import "PlatformModuleDisplayCapsProxy.h"
+#import "TiPlatformDisplayCaps.h"
 
 @interface PlatformModule : TiModule 
 {
@@ -21,7 +21,7 @@
 	NSString *address;
 	NSString *ostype;
 	NSNumber *availableMemory;
-	PlatformModuleDisplayCapsProxy *capabilities;
+	TiPlatformDisplayCaps *capabilities;
 	BOOL batteryEnabled;
 }
 
@@ -36,7 +36,7 @@
 @property(readonly,nonatomic) NSString *address;
 @property(readonly,nonatomic) NSString *ostype;
 @property(readonly,nonatomic) NSNumber *availableMemory;
-@property(readonly,nonatomic) PlatformModuleDisplayCapsProxy *displayCaps;
+@property(readonly,nonatomic) TiPlatformDisplayCaps *displayCaps;
 @property(readonly,nonatomic) NSNumber *batteryState;
 @property(readonly,nonatomic) NSNumber *batteryLevel;
 @property(readonly,nonatomic) NSString *locale;
