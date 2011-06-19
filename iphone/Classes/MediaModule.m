@@ -13,6 +13,7 @@
 #import "TiApp.h"
 #import "Mimetypes.h"
 #import "TiViewProxy.h"
+#import "TiUIButtonProxy.h"
 #import "Ti2DMatrix.h"
 #import "SCListener.h"
 #import "TiMediaAudioSession.h"
@@ -188,11 +189,17 @@ enum
 	{
 		RELEASE_TO_NIL(popover);
 		UIView *poView = [tiApp controller].view;
+        UIBarButtonItem *button = nil; 
 		CGRect poFrame;
 		TiViewProxy* popoverViewProxy = [args objectForKey:@"popoverView"];
+        TiUIButtonProxy* buttonProxy = [args objectForKey:@"barButton"];
 		UIPopoverArrowDirection arrow = [TiUtils intValue:@"arrowDirection" properties:args def:UIPopoverArrowDirectionAny];
 
-		if (popoverViewProxy!=nil)
+        if (buttonProxy!=nil)
+        {
+            button = [buttonProxy barButtonItem];
+        }
+		else if (popoverViewProxy!=nil)
 		{
 			poView = [popoverViewProxy view];
 			poFrame = [poView frame];
@@ -206,7 +213,13 @@ enum
 
 		popover = [[UIPopoverController alloc] initWithContentViewController:picker_];
 		[popover setDelegate:self];
-		[popover presentPopoverFromRect:poFrame inView:poView permittedArrowDirections:arrow animated:animatedPicker];
+        if (button) {
+            [popover presentPopoverFromBarButtonItem:button
+                            permittedArrowDirections:arrow
+                                            animated:animatedPicker];
+        } else {
+            [popover presentPopoverFromRect:poFrame inView:poView permittedArrowDirections:arrow animated:animatedPicker];
+        }
 	}
 #endif
 }
