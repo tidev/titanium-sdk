@@ -152,7 +152,7 @@
 -(void)shutdown:(id)sender
 {
 	VerboseLog(@"[DEBUG] facebook shutdown");
-
+    
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[super shutdown:sender];
 }
@@ -324,6 +324,36 @@
  * JS example:
  *
  * var facebook = require('facebook');
+ * facebook.uid = '1234';
+ * alert(facebook.uid);
+ * 
+ */
+-(void)setUid:(id)arg
+{
+	RELEASE_TO_NIL(uid);
+	uid = [arg copy];
+    //[self _save];
+}
+
+/**
+ * JS example:
+ *
+ * var facebook = require('facebook');
+ * facebook.accessToken = '1234';
+ * alert(facebook.accessToken);
+ * 
+ */
+-(void)setAccessToken:(id)arg
+{
+	RELEASE_TO_NIL(facebook.accessToken);
+	facebook.accessToken = [arg copy];
+    //[self _save];
+}
+
+/**
+ * JS example:
+ *
+ * var facebook = require('facebook');
  * facebook.permissions = ['publish_stream'];
  * alert(facebook.permissions);
  * 
@@ -378,7 +408,7 @@
 	ENSURE_UI_THREAD(authorize, args);
 	
 	VerboseLog(@"[DEBUG] facebook authorize");
-
+    
 	if ([self isLoggedIn])
 	{
 		// if already authorized, this should do nothing
@@ -431,7 +461,7 @@
 -(void)requestWithGraphPath:(id)args
 {
 	VerboseLog(@"[DEBUG] facebook requestWithGraphPath");
-
+    
 	ENSURE_ARG_COUNT(args,4);
 	ENSURE_UI_THREAD_1_ARG(args);
 	
@@ -439,7 +469,7 @@
 	NSMutableDictionary* params = [args objectAtIndex:1];
 	NSString* httpMethod = [args objectAtIndex:2];
 	KrollCallback* callback = [args objectAtIndex:3];
-
+    
 	[self convertParams:params];
 	
 	TiFacebookRequest* delegate = [[[TiFacebookRequest alloc] initWithPath:path callback:callback module:self graph:YES] autorelease];
@@ -464,7 +494,7 @@
 -(void)request:(id)args
 {
 	VerboseLog(@"[DEBUG] facebook request");
-
+    
 	ENSURE_ARG_COUNT(args,3);
 	ENSURE_UI_THREAD_1_ARG(args);
 	
@@ -497,9 +527,9 @@
 {
 	ENSURE_ARG_COUNT(args,3);
 	ENSURE_UI_THREAD_1_ARG(args);
-
+    
 	VerboseLog(@"[DEBUG] facebook dialog");
-
+    
 	NSString* action = [args objectAtIndex:0];
 	NSMutableDictionary* params = [args objectAtIndex:1];
 	KrollCallback* callback = [args objectAtIndex:2];
@@ -552,7 +582,7 @@
 - (void)fbDidLogin
 {
 	VerboseLog(@"[DEBUG] facebook fbDidLogin");
-
+    
 	[facebook requestWithGraphPath:@"me" andDelegate:self];
 }
 
