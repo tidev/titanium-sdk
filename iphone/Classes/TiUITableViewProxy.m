@@ -297,7 +297,7 @@ NSArray * tableKeySequence;
 
 -(void)insertRowBefore:(id)args
 {
-//	ENSURE_UI_THREAD(insertRowBefore,args);
+	ENSURE_UI_THREAD(insertRowBefore,args);
 	
 	int index = [TiUtils intValue:[args objectAtIndex:0]];
 	NSDictionary *data = [args objectAtIndex:1];
@@ -376,7 +376,7 @@ NSArray * tableKeySequence;
 
 -(void)insertRowAfter:(id)args
 {
-//	ENSURE_UI_THREAD(insertRowAfter,args);
+	ENSURE_UI_THREAD(insertRowAfter,args);
 	
 	int index = [TiUtils intValue:[args objectAtIndex:0]];
 	NSDictionary *data = [args objectAtIndex:1];
