@@ -536,8 +536,11 @@ public class TiUIWindow extends TiUIView
 		}
 		props = resolver.findProperty(TiC.PROPERTY_MODAL);
 		if (props != null && props.containsKey(TiC.PROPERTY_MODAL)) {
-			intent.setClass(activity, TiModalActivity.class);
-			intent.putExtra(TiC.PROPERTY_MODAL, TiConvert.toBoolean(props, TiC.PROPERTY_MODAL));
+			boolean modal = TiConvert.toBoolean(props, TiC.PROPERTY_MODAL);
+			intent.putExtra(TiC.PROPERTY_MODAL, modal);
+			if (modal) {
+				intent.setClass(activity, TiModalActivity.class);
+			}
 		}
 		props = resolver.findProperty(TiC.PROPERTY_URL);
 		if (props != null && props.containsKey(TiC.PROPERTY_URL)) {
