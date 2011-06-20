@@ -63,6 +63,8 @@ def coverageClass(percent):
 	<body>
 		<h2>Coverage Summary</h2>
 
+		<h4>Drillbit Tests: ${drillbitTests["total"]} total, ${drillbitTests["android"]} Android, ${drillbitTests["ios"]} iOS</h4>
+
 		<h4>Key</h4>
 		<table class="bordered">
 			<tr>
@@ -112,13 +114,13 @@ def coverageClass(percent):
 			% endfor
 			
 			<tr>
-				<th class="component bordered">Total APIs</td>
+				<th class="component bordered">Total APIs</th>
 				% for platform in data.ALL_PLATFORMS:
 					<th class="bordered">
 						<table width="100%" class="count-table">
 							<tr>
-								<th class="small-text inner-cell"> - </td>
-								<th class="small-text inner-cell">${data.getPlatformAPICount(platform)}</td>
+								<th class="small-text inner-cell"> - </th>
+								<th class="small-text inner-cell">${data.getPlatformAPICount(platform)}</th>
 							</tr>
 						</table>
 					</th>

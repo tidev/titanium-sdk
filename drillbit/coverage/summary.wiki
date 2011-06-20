@@ -1,0 +1,29 @@
+h5. Test count summary
+|| Test type || Count || Delta ||
+| Functional | *Thomas insert numbers here* | |
+| Drillbit | ${drillbitTests["total"]} unit tests, Android ${data.getPlatformCategoryPercent("drillbit", "android")}% cvg, iOS ${data.getPlatformCategoryPercent("drillbit", "ios")}% cvg | {color:green}*insert delta*{color} |
+
+h5. Parity summary
+|| Coverage Type\
+% for platform in data.ALL_PLATFORMS:
+	|| ${data.platformDesc[platform]} \
+% endfor
+||
+% for category in data.ALL_CATEGORIES:
+| ${data.categoryDesc[category]} \
+% for platform in data.ALL_PLATFORMS:
+<%
+apiCount = float(data.getPlatformAPICount(platform))
+yes = data.apiCount[category][platform][data.STATUS_YES]
+
+percent = yes / apiCount
+%>\
+	| ${"%.2f" % (100 * percent)}%, ${yes} APIs\
+% endfor
+|
+% endfor
+|| Total APIs \
+% for platform in data.ALL_PLATFORMS:
+|| ${data.getPlatformAPICount(platform)} \
+% endfor
+||

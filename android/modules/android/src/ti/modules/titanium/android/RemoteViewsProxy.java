@@ -81,6 +81,7 @@ public class RemoteViewsProxy extends KrollProxy {
 		remoteViews.setString(viewId, methodName, value);
 	}
 
+	@Kroll.method
 	public void setUri(int viewId, String methodName, String value)
 	{
 		remoteViews.setUri(viewId, methodName, Uri.parse(value));

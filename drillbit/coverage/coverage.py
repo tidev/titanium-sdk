@@ -4,7 +4,9 @@
 # - Existing API points (Android, iOS)
 # - TDoc2
 
-import os, sys
+import os
+import sys
+import re
 import platform
 import optparse
 import logging
@@ -12,7 +14,7 @@ import codecs
 import zipfile
 import shutil
 import yaml
-import re
+import subprocess
 
 try:
 	import json
@@ -46,6 +48,7 @@ mapTypes = {
 	"Titanium.Service": "Titanium.Android.Service",
 	"Titanium.Menu": "Titanium.Android.Menu",
 	"Titanium.MenuItem": "Titanium.Android.MenuItem",
+	"Titanium.R": "Titanium.Android.R",
 	"Android.Notification": "Titanium.Android.Notification",
 	"Analytics": "Titanium.Analytics",
 	"Titanium.Database.TiDatabase": "Titanium.Database.DB",
@@ -71,7 +74,25 @@ mapTypes = {
 	"Titanium.String": "String",
 	"Titanium.Text": "Titanium.XML.Text",
 	"Titanium.XPathNodeList": "Titanium.XML.XPathNodeList",
-	"Titanium.Kroll.Kroll": "Titanium.Proxy"
+	"Titanium.Kroll.Kroll": "Titanium.Proxy",
+	"Titanium.Map.View": "Titanium.Map.MapView",
+	# iOS mappings
+	"Titanium.Appi.OS": "Titanium.App.iOS",
+	"Titanium.Appi.OSBackgroundService": "Titanium.App.iOS.BackgroundService",
+	"Titanium.Appi.OSLocalNotification": "Titanium.App.iOS.LocalNotification",
+	"Titanium.D.OMAttr": "Titanium.XML.Attr",
+	"Titanium.D.OMDocument": "Titanium.XML.Document",
+	"Titanium.D.OMElement": "Titanium.XML.Element",
+	"Titanium.D.OMNamedNodeMap": "Titanium.XML.NamedNodeMap",
+	"Titanium.D.OMNode": "Titanium.XML.Node",
+	"Titanium.D.OMNodeList": "Titanium.XML.NodeList",
+	"Titanium.D.OMTextNode": "Titanium.XML.Text",
+	"Titanium.Data.Stream": "Titanium.IOStream",
+	"Titanium.Database": "Titanium.Database.DB",
+	"Titanium.Network.Socket.": "Titanium.Network.TCPSocket",
+	# This type does both buffers and blobs, we're missing part of the coverage
+	"Titanium.Data.Stream": "Titanium.Stream.BufferStream",
+	"Titanium.": "Titanium.Proxy"
 }
 
 def mapType(type):
@@ -218,7 +239,7 @@ class CoverageData(object):
 
 	def getPlatformCategoryPercent(self, category, platform):
 		return self.formatPercent(
-			self.apiCount[category][platform][self.TOTAL],
+			self.apiCount[category][platform][self.STATUS_YES],
 			self.getPlatformAPICount(platform))
 
 	def formatPercent(self, n1, n2):
@@ -247,17 +268,19 @@ class CoverageMatrix(object):
 	def __init__(self, seedData=None):
 		self.data = CoverageData()
 		if seedData:
+			self.drillbitTests = seedData["drillbitTests"]
 			self.androidBindings = seedData["androidBindings"]
+			self.iosBindings = seedData["iosBindings"]
 			self.drillbitCoverage = seedData["drillbitCoverage"]
 			self.tdocTypes = seedData["tdocTypes"]
 		else:
 			self.initSources()
 
 	def initSources(self):
-		# TODO Add iOS binding metadata
 		self.initAndroidBindings()
 		self.initIOSBindings()
 		self.initDrillbitCoverage()
+		self.initDrillbitTests()
 		self.initTDocData()
 
 	def initAndroidBindings(self):
@@ -274,18 +297,13 @@ class CoverageMatrix(object):
 	def initIOSBindings(self):
 		log.info("Initializing iOS bindings")
 		self.iosBindings = []
-		self.iosSubmodules = ['iOS', 'iPhone', 'iPad', 'Socket']
-		self.iosInternals = ['Proxy', 'Module', 'Animation', 'Toolbar', 
-							 'Window', 'View', 'File', 'Stream', 'DataStream',
-							 'Rect', 'TextWidget']
 		
 		distIOSDir = os.path.join(mobileDir, "dist", "ios")
 		for file in os.listdir(distIOSDir):
 			if not file.endswith('.json'): continue
 			abspath = os.path.join(distIOSDir, file)
-			data = open(abspath,"r").read()
+			data = open(abspath, "r").read()
 			if data != '': self.iosBindings.append(json.loads(data))
-		
 
 	def initDrillbitCoverage(self):
 		log.info("Initializing Drillbit coverage")
@@ -354,6 +372,16 @@ class CoverageMatrix(object):
 							if api in component:
 								log.warn("Removing %s.%s from drillbit coverage" % (componentName, api))
 								del component[api]
+			if platform == "android":
+				for yahooMethod in ["b64_hmac_sha1", "oauthRequest",\
+					"percentEscape", "setOAuthParameters", "yql", "yqlO"]:
+					platformMap["modules"]["Titanium.Yahoo"][yahooMethod]["_type"] = "function"
+
+	def initDrillbitTests(self):
+		os.chdir(drillbitDir)
+		rhinoJar = os.path.join(mobileDir, "android", "titanium", "lib", "js.jar")
+		self.drillbitTests = json.loads(subprocess.Popen(
+			["java", "-jar", rhinoJar, "drillbit.js"], stdout=subprocess.PIPE).communicate()[0])
 
 	def initTDocData(self):
 		log.info("Initializing TDoc data")
@@ -425,24 +453,43 @@ class CoverageMatrix(object):
 							# For the sake of coverage, we only add a top level method once
 							# even though technically it may be bound in two places
 							self.data.addFunction(methodName, proxyFullAPI, platforms, isModule=isModule)
+				if "properties" in proxy:
+					for prop in proxy["properties"].keys():
+						property = proxy["properties"][prop]["name"]
+						# ignore getter/setter here for now
+						#getter = proxy["properties"][prop]["get"]
+						#setter = proxy["properties"][prop]["set"]
+						self.data.addProperty(property, proxyFullAPI, platforms, isModule=isModule)
 				if "dynamicProperties" in proxy:
 					for dynProp in proxy["dynamicProperties"].keys():
 						property = proxy["dynamicProperties"][dynProp]["name"]
 						getter = proxy["dynamicProperties"][dynProp]["get"]
 						setter = proxy["dynamicProperties"][dynProp]["set"]
 						self.data.addProperty(property, proxyFullAPI, platforms, isModule=isModule, getter=getter, setter=setter)
+				if "dynamicApis" in proxy:
+					if "properties" in proxy["dynamicApis"]:
+						for property in proxy["dynamicApis"]["properties"]:
+							self.data.addProperty(property, proxyFullAPI, platforms, isModule=isModule)
+					if "methods" in proxy["dynamicApis"]:
+						for method in proxy["dynamicApis"]["methods"]:
+							self.data.addFunction(method, proxyFullAPI, platforms, isModule=isModule)
 				if "constants" in proxy:
 					for constant in proxy["constants"].keys():
 						self.data.addProperty(constant, proxyFullAPI, platforms, isModule=isModule)
 
 	def genIOSBindingData(self):
+		iosSubmodules = ['iOS', 'iPhone', 'iPad', 'Socket', 'Properties']
+		iosInternals = ['Proxy', 'Module', 'Animation', 'Toolbar', 
+			'Window', 'View', 'File', 'Stream', 'DataStream',
+			'Rect', 'TextWidget']
+
 		log.info("Generating coverage for iOS...")
 		platforms = [self.data.PLATFORM_IOS]
 		for binding in self.iosBindings:
 			for iosClass in binding.keys():
 				superclass = binding[iosClass]["super"] #TODO: load superclass props, etc.
 				isModule = (superclass == "TiModule")
-				
+
 				# Easy detection for API space for modules
 				if isModule:
 					match = re.search('^(.*)Module$', iosClass)
@@ -473,31 +520,30 @@ class CoverageMatrix(object):
 							else:
 								moduleName = None
 								proxyName = relevant
-							
+
 						# 1. Are we a submodule?
-						if proxyName in self.iosSubmodules:
+						if proxyName in iosSubmodules:
 							isModule = True
 						else:
 							# 2. Are we located in a submodule namespace?
-							for submodule in self.iosSubmodules:
+							for submodule in iosSubmodules:
 								pos = proxyName.find(submodule)
 								if pos != -1:
 									if canCreate:
 										subproxy = proxyName[pos+len(submodule):]
 										self.data.addFunction("create%s" % subproxy, 
-															  "Titanium.%s.%s" % (moduleName, submodule),
-															  platforms,
-															  isModule=True)
-										#Short circuit later canCreate check
+											"Titanium.%s.%s" % (moduleName, submodule),
+											platforms, isModule=True)
+										# Short circuit later canCreate check
 										canCreate = False
 									proxyName = "%s.%s" % (submodule, subproxy)
 									break
-						
+
 						# Skip internal classes
-						if proxyName in self.iosInternals and moduleName is None:
+						if proxyName in iosInternals and moduleName is None:
 							log.warn("Class %s is internal to iOS, pruning" % iosClass)
 							continue
-						
+
 						if moduleName is None:
 							fullAPI = "Titanium.%s" % proxyName
 						else:
@@ -507,24 +553,23 @@ class CoverageMatrix(object):
 													  platforms,
 													  isModule=True)
 							fullAPI = "Titanium.%s.%s" % (moduleName, proxyName)
-						
+
 				for method in binding[iosClass]["methods"]:
 					self.data.addFunction(method, fullAPI, platforms, isModule=isModule)
-					
+
 				for property in binding[iosClass]["properties"]:
 					# If we have an all-uppercase name, consider it a constant -
 					# by naming convention
 					if property.isupper():
 						self.data.addProperty(property, fullAPI, platforms, 
-												isModule=isModule)
+							isModule=isModule)
 					else:
 						# NOTE: We ignore 'getter' because iOS autogenerates
 						# getX() functions for every property x, meaning
 						# this screws with our coverage
 						propInfo = binding[iosClass]["properties"][property]
 						self.data.addProperty(property, fullAPI, platforms, 
-												isModule=isModule, 
-												setter=propInfo["set"])
+							isModule=isModule, setter=propInfo["set"])
 
 	def proxyHasAPI(self, proxy, api):
 		# try to find an API point in the component itself first
@@ -717,7 +762,9 @@ class CoverageMatrix(object):
 		seedFile = open(os.path.join(outDir, "seed.json"), "w")
 		seedFile.write(json.dumps({
 			"androidBindings": self.androidBindings,
+			"iosBindings": self.iosBindings,
 			"drillbitCoverage": self.drillbitCoverage,
+			"drillbitTests": self.drillbitTests,
 			"tdocTypes": self.tdocTypes
 		}))
 		seedFile.close()
@@ -729,10 +776,13 @@ class CoverageMatrix(object):
 			output_encoding='utf-8', encoding_errors='replace')
 		componentTemplate = Template(filename=os.path.join(coverageDir, "component.html"),
 			output_encoding='utf-8', encoding_errors='replace')
+		summaryTemplate = Template(filename=os.path.join(coverageDir, "summary.wiki"),
+			output_encoding="utf-8", encoding_errors="replace")
 
 		try:
 			indexPage = indexTemplate.render(
 				data = self.data,
+				drillbitTests = self.drillbitTests,
 				countCoverage = self.countCoverage,
 				upperFirst = upperFirst)
 			indexPath = os.path.join(outDir, "index.html")
@@ -766,6 +816,17 @@ class CoverageMatrix(object):
 		for copyFile in copyFiles:
 			path = os.path.join(coverageDir, copyFile)
 			shutil.copy(path, outDir)
+
+		try:
+			summaryWiki = summaryTemplate.render(
+				data = self.data,
+				drillbitTests = self.drillbitTests,
+				countCoverage = self.countCoverage,
+				upperFirst = upperFirst)
+			open(os.path.join(outDir, "summary.wiki"), "w").write(summaryWiki)
+		except:
+			print exceptions.text_error_template().render()
+			sys.exit(1)
 
 def main():
 	parser = optparse.OptionParser()

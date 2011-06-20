@@ -51,29 +51,6 @@ columns = len(data.ALL_CATEGORIES) + 1
 	<head><link rel="stylesheet" href="coverage.css" type="text/css"/></head>
 	<body>
 		<h2>${label} ${component}</h2>
-		<%
-		totalCount = 0
-		categoryCount = {}
-		for category in data.ALL_CATEGORIES:
-			yes, no, na = countCoverage(components, component, category)
-			totalCount = yes + no + na
-			categoryCount[category] = { "yes": yes, "no": no, "na": na, "total": yes + no }
-		%>
-		<b>Total API Count</b>:
-			<span id="api-count">${totalCount}</span> APIs,
-			<span id="binding-count">${categoryCount["binding"]["yes"]} bindings</span><br/>
-
-		<b>TDoc Coverage</b>:
-			<span id="tdoc-coverage">
-				${data.formatPercent(categoryCount["tdoc"]["yes"], categoryCount["tdoc"]["total"])}%
-			</span>
-			(<span id="android-doc-apis">${categoryCount["tdoc"]["yes"]}</span> Documented APIs)<br/>
-
-		<b>Drillbit Coverage</b>:
-		<span id="android-test-coverage">
-			${data.formatPercent(categoryCount["drillbit"]["yes"], categoryCount["drillbit"]["total"])}%
-		</span> (<span id="android-test-apis">${categoryCount["drillbit"]["yes"]}</span> Unit Tested APIs)<br/><br/>
-
 		<a href="index.html">&lt;&lt; Back to Coverage Summary</a><br/><br/>
 
 		<table class="bordered">

@@ -97,7 +97,7 @@ public class KrollBridge
 			if (parentName == null) {
 				parentName = KrollCoverage.TOP_LEVEL;
 			}
-			value = new KrollCoverage.KrollMethodCoverage(name, (KrollMethod)value,
+			value = new KrollCoverage.KrollFunctionCoverage(name, (KrollMethod)value,
 				KrollCoverage.OTHER, parentName);
 		}
 		parent.put(name, parent, value);

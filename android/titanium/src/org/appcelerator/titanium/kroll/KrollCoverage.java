@@ -150,11 +150,10 @@ public class KrollCoverage extends KrollObject
 	public Object get(String name, Scriptable start)
 	{
 		Object o = super.get(name, start);
-		if (o instanceof KrollMethod)
-		{
-			KrollMethod method = (KrollMethod) o;
+		if (o instanceof Function) {
+			Function fn = (Function) o;
 			incrementCoverage(name, PROPERTY_GET, FUNCTION);
-			return new KrollMethodCoverage(name, method, this);
+			return new KrollFunctionCoverage(name, fn, this);
 		}
 		incrementCoverage(name, PROPERTY_GET, PROPERTY);
 		return o;
@@ -167,24 +166,25 @@ public class KrollCoverage extends KrollObject
 		super.put(name, start, value);
 	}
 
-	public static class KrollMethodCoverage
+	@SuppressWarnings("serial")
+	public static class KrollFunctionCoverage
 		extends BaseFunction implements Function
 	{
 		protected String name;
-		protected KrollMethod method;
+		protected Function fn;
 		protected String componentType;
 		protected String parentName;
 
-		public KrollMethodCoverage(String name, KrollMethod method, KrollCoverage parent)
+		public KrollFunctionCoverage(String name, Function fn, KrollCoverage parent)
 		{
-			this(name, method, parent.componentType, parent.name);
+			this(name, fn, parent.componentType, parent.name);
 		}
 
-		public KrollMethodCoverage(String name, KrollMethod method, String componentType, String parentName)
+		public KrollFunctionCoverage(String name, Function fn, String componentType, String parentName)
 		{
 			super();
 			this.name = name;
-			this.method = method;
+			this.fn = fn;
 			this.componentType = componentType;
 			this.parentName = parentName;
 		}
@@ -192,25 +192,28 @@ public class KrollCoverage extends KrollObject
 		public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 		{
 			incrementCoverage(componentType, parentName, name, FUNCTION_CALL, FUNCTION);
-			return method.call(cx, scope, thisObj, args);
+			return fn.call(cx, scope, thisObj, args);
 		}
 
 		@Override
 		public String getClassName()
 		{
-			return method.getClassName();
+			return fn.getClassName();
 		}
 
 		@Override
 		public Object getDefaultValue(Class<?> typeHint)
 		{
-			return method.getDefaultValue(typeHint);
+			return fn.getDefaultValue(typeHint);
 		}
 
 		@Override
 		protected Object equivalentValues(Object value)
 		{
-			return method.isEquivalentValue(value);
+			if (fn instanceof KrollMethod) {
+				return ((KrollMethod)fn).isEquivalentValue(value);
+			}
+			return fn.equals(value);
 		}
 	}
 
