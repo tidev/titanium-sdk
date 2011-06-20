@@ -575,8 +575,9 @@ public class TiUIWindow extends TiUIView
 			intent.putExtra(TiC.PROPERTY_NAV_BAR_HIDDEN, TiConvert.toBoolean(props, TiC.PROPERTY_NAV_BAR_HIDDEN));
 		}
 		props = resolver.findProperty(TiC.PROPERTY_MODAL);
-		boolean modal = TiConvert.toBoolean(props, TiC.PROPERTY_MODAL);
+		boolean modal = false;
 		if (props != null && props.containsKey(TiC.PROPERTY_MODAL)) {
+			modal = TiConvert.toBoolean(props, TiC.PROPERTY_MODAL);
 			intent.putExtra(TiC.PROPERTY_MODAL, modal);
 			if (modal) {
 				intent.setClass(activity, TiModalActivity.class);
