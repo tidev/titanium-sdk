@@ -247,6 +247,10 @@ enum
 		RELEASE_TO_NIL(musicPicker);
 	}
 	
+	if([popoverController contentViewController] == picker) {
+		RELEASE_TO_NIL(picker);
+	}
+    
 	RELEASE_TO_NIL(popover);
 }
 
