@@ -239,12 +239,11 @@ public abstract class TiBaseActivity extends Activity
 		int softInputMode = getIntentInt(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, -1);
 		boolean hasSoftInputMode = softInputMode != -1;
 		
-		if (!modal) {
-			setFullscreen(fullscreen);
-			setNavBarHidden(navBarHidden);
-		} else {
-			int flags = WindowManager.LayoutParams.FLAG_BLUR_BEHIND;
-			getWindow().setFlags(flags, flags);
+		setFullscreen(fullscreen);
+		setNavBarHidden(navBarHidden);
+		if (modal) {
+			getWindow().setFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND,
+					WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
 		}
 
 		if (hasSoftInputMode) {

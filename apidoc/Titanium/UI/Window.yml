@@ -183,7 +183,12 @@ properties:
     platforms: [iphone, ipad]
     type: Object
   - name: modal
-    description: boolean to indicate if the window should be opened modal in front of other windows
+    description: |
+        boolean to indicate if the window should be opened modal in front of other windows.  Android note: the
+        combination of `fullscreen:true` and `modal:true` will not work as expected.  Android modal windows are translucent,
+        and, in Android, the contents of a translucent window cannot appear above the status bar.  I.e., even though
+        you say `fullscreen:true`, the status bar will still be visible *if* it was visible in the previous window.  `navBarHidden` and
+        `modal` do work fine together, however.
     type: Boolean
     default: false
   - name: navBarHidden
