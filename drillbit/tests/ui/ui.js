@@ -97,5 +97,29 @@ describe("Ti.UI tests", {
 				callback.passed();
 			}, 1000);
 		},1000);
+	},
+	// http://jira.appcelerator.org/browse/TIMOB-2853
+	opacityCrash_as_async: function(callback) {
+		var failureTimeout = null;
+		var w = Ti.UI.createWindow();
+		var btn = Ti.UI.createImageView({
+			opacity: 1,
+			image: 'KS_nav_ui.png',
+			top: 1, width: 50, left: 1, height: 40
+		});
+		w.add( btn );
+		w.addEventListener('open', function() {
+			setTimeout(function(){
+				if (failureTimeout !== null) {
+					clearTimeout(failureTimeout);
+				}
+				callback.passed();
+			}, 1000);
+		});
+		failureTimeout = setTimeout(function(){
+			callback.failed("Test may have crashed app.  Was never able to read back tableview dimensions.");
+		},3000);
+		w.open();
+
 	}
 });
