@@ -24,7 +24,7 @@ except ImportError, e:
 coverageDir = os.path.dirname(os.path.abspath(__file__))
 drillbitDir = os.path.dirname(coverageDir)
 mobileDir = os.path.dirname(drillbitDir)
-supportAndroidDir = os.path.join(mobileDir, "support", "android") 
+supportAndroidDir = os.path.join(mobileDir, "support", "android")
 sys.path.append(supportAndroidDir)
 
 import bindings
@@ -299,6 +299,9 @@ class CoverageMatrix(object):
 		self.iosBindings = []
 		
 		distIOSDir = os.path.join(mobileDir, "dist", "ios")
+		if not os.path.exists(distIOSDir):
+			log.warn("Skipping iOS bindings, dist/ios not found")
+			return
 		for file in os.listdir(distIOSDir):
 			if not file.endswith('.json'): continue
 			abspath = os.path.join(distIOSDir, file)
