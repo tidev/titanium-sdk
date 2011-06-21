@@ -287,6 +287,8 @@ public abstract class TiBaseActivity extends Activity
 			}
 		};
 
+		TiPlatformHelper.initializeRhinoDateFormats(this);
+
 		layout = createLayout();
 		super.onCreate(savedInstanceState);
 		getTiApp().setWindowHandler(this);
