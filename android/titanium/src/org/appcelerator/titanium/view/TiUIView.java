@@ -848,7 +848,7 @@ public abstract class TiUIView
 	{
 		Drawable d = view.getBackground();
 		if (d != null) {
-			view.getBackground().clearColorFilter();
+			d.clearColorFilter();
 		}
 	}
 
