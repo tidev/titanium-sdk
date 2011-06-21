@@ -14,11 +14,11 @@
 
 @interface MediaModule : TiModule
 <
-	UINavigationControllerDelegate,
-	UIImagePickerControllerDelegate, 
-	MPMediaPickerControllerDelegate
+UINavigationControllerDelegate,
+UIImagePickerControllerDelegate, 
+MPMediaPickerControllerDelegate
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-	,UIVideoEditorControllerDelegate
+,UIVideoEditorControllerDelegate
 #endif
 > {
 @private
@@ -26,7 +26,7 @@
 	UIImagePickerController *picker;
 	BOOL autoHidePicker;
 	BOOL saveToRoll;
-
+    
 	// Music picker
 	MPMediaPickerController* musicPicker;
 	
@@ -39,6 +39,7 @@
 	KrollCallback *pickerSuccessCallback;
 	KrollCallback *pickerErrorCallback;
 	KrollCallback *pickerCancelCallback;
+	KrollCallback *pickerCloseCallback;
 	
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	id popover;
@@ -84,7 +85,7 @@
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 @property(nonatomic,readonly) NSNumber* QUALITY_640x480;
 #endif 
- 
+
 @property(nonatomic,readonly) NSArray* availableCameraMediaTypes;
 @property(nonatomic,readonly) NSArray* availablePhotoMediaTypes;
 @property(nonatomic,readonly) NSArray* availablePhotoGalleryMediaTypes;
