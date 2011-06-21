@@ -5,7 +5,7 @@
 # the application on the device via iTunes
 # 
 
-import os, sys, uuid, subprocess, shutil, signal, string, traceback, imp
+import os, sys, uuid, subprocess, shutil, signal, string, traceback, imp, filecmp
 import platform, time, re, run, glob, codecs, hashlib, datetime, plistlib
 from compiler import Compiler
 from projector import Projector
@@ -700,9 +700,20 @@ def main(args):
 				else:
 					plist = plist.replace('__DEBUGGER_HOST__','')
 					plist = plist.replace('__DEBUGGER_PORT__','')
-				pf = codecs.open(debuggerplist,'w', encoding='utf-8')
+
+				tempfile = debuggerplist+'.tmp'
+				pf = codecs.open(tempfile,'w',encoding='utf-8')
 				pf.write(plist)
 				pf.close()
+				
+				if os.path.exists(debuggerplist):
+					changed = not filecmp.cmp(tempfile, debuggerplist, shallow=False)
+				else:
+					changed = True
+					
+				shutil.move(tempfile, debuggerplist)
+				
+				return changed
 				
 				
 # TODO:				
@@ -883,13 +894,9 @@ def main(args):
 
 			# compile debugger file
 			debug_plist = os.path.join(iphone_dir,'Resources','debugger.plist')
-			write_debugger_plist(debug_plist)
-			# With debugger support, we actually have to force a rebuild
-			# ALWAYS - this is because when you swap from debug back to run,
-			# the stale debugger.plist is still there.
-			# Note that this only forces a relink (and recompile of plists) -
-			# so it's relatively fast.
-			force_xcode = True
+			
+			# Force an xcodebuild if the debugger.plist has changed
+			force_xcode = write_debugger_plist(debug_plist)
 
 			if command!='simulator':
 				# compile plist into binary format so it's faster to load
