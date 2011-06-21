@@ -884,10 +884,12 @@ def main(args):
 			# compile debugger file
 			debug_plist = os.path.join(iphone_dir,'Resources','debugger.plist')
 			write_debugger_plist(debug_plist)
-			# Every time the debugger changes, we need to relink so that the new
-			# host/port gets picked up
-			if debughost:
-				force_xcode = True
+			# With debugger support, we actually have to force a rebuild
+			# ALWAYS - this is because when you swap from debug back to run,
+			# the stale debugger.plist is still there.
+			# Note that this only forces a relink (and recompile of plists) -
+			# so it's relatively fast.
+			force_xcode = True
 
 			if command!='simulator':
 				# compile plist into binary format so it's faster to load
