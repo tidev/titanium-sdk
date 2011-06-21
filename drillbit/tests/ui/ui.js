@@ -117,7 +117,7 @@ describe("Ti.UI tests", {
 			}, 1000);
 		});
 		failureTimeout = setTimeout(function(){
-			callback.failed("Test may have crashed app.  Was never able to read back tableview dimensions.");
+			callback.failed("Test may have crashed app.  Opacity of 1 test.");
 		},3000);
 		w.open();
 
