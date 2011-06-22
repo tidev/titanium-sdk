@@ -20,7 +20,11 @@ var l = Titanium.UI.createLabel({
 
 a.addEventListener('click', function(e)
 {
-	l.text = 'You clicked ' + e.index;
+	if (Ti.Platform.osname === 'android' && a.buttonNames === null) {
+		l.text = '(There was no button to click)';
+	} else {
+		l.text = 'You clicked ' + e.index;
+	}
 });
 
 //
@@ -41,7 +45,11 @@ var button1 = Titanium.UI.createButton({
 button1.addEventListener('click', function()
 {
 	a.buttonNames = null; // unset in case you did 2/3rd and then back to 1st
-	a.message = 'One Button';
+	if (Ti.Platform.osname === 'android') {
+		a.message = 'Basic Alert';
+	} else {
+		a.message = 'One Button';
+	}
 	a.show();
 });
 
