@@ -22,16 +22,6 @@
 #import "AudioStreamer.h"
 #include <pthread.h>
 #include <AudioToolbox/AudioToolbox.h>
-								
-#define kAQBufSize 2048			// Number of bytes in each audio queue buffer
-								// Needs to be big enough to hold a packet of
-								// audio from the audio file. If number is too
-								// large, queuing of audio before playback starts
-								// will take too long.
-								// Highly compressed files can use smaller
-								// numbers (512 or less). 2048 should hold all
-								// but the largest packets. A buffer size error
-								// will occur if this number is too small.
 
 @interface AudioStreamerBC : NSObject<AudioStreamerProtocol>
 {
@@ -53,6 +43,7 @@
 	size_t packetsFilled;			// how many packets have been filled
 	bool inuse[kNumAQBufs];			// flags to indicate that a buffer is still in use
 	NSInteger buffersUsed;
+    NSUInteger bufferSize;      // Dynamic size of the buffer (buffer is default size of 2k if unspec'd)
 	
 	TI_AudioStreamerState state;
 	TI_AudioStreamerStopReason stopReason;
@@ -79,6 +70,7 @@
 @property (readonly) TI_AudioStreamerState state;
 @property (readonly) double progress;
 @property (readwrite) UInt32 bitRate;
+@property (nonatomic,readwrite,assign) NSUInteger bufferSize;
 
 - (id)initWithURL:(NSURL *)aURL;
 - (void)start;
