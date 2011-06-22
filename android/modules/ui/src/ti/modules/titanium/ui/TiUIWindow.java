@@ -19,8 +19,8 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.TiModalActivity;
+import org.appcelerator.titanium.TiTranslucentActivity;
 import org.appcelerator.titanium.proxy.ActivityProxy;
-import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiBindingHelper;
@@ -387,33 +387,63 @@ public class TiUIWindow extends TiUIView
 		}
 	}
 
+	private void handleBackground(Drawable drawable, Object opacityValue, boolean post)
+	{
+		if (drawable != null) {
+			if (opacityValue != null && !lightWeight) { // lightweight opacity will get handled via super because nativeView won't be null.
+				setActivityOpacity(drawable, TiConvert.toFloat(opacityValue), true);
+			}
+			if (lightWeight) {
+				nativeView.setBackgroundDrawable(drawable);
+			} else {
+				setActivityBackground(drawable, post);
+			}
+		}
+	}
 	private void handleBackgroundColor(Object value, boolean post)
+	{
+		KrollDict d = resolver.findProperty(TiC.PROPERTY_OPACITY);
+		if (d != null && d.containsKey(TiC.PROPERTY_OPACITY)) {
+			handleBackgroundColor(value, d.get(TiC.PROPERTY_OPACITY), post);
+		} else {
+			handleBackgroundColor(value, null, post);
+		}
+	}
+	private void setActivityOpacity(Drawable background, float opacity, boolean firstTime)
+	{
+		int alpha = Math.round(opacity * 255);
+		if (alpha > 254 && firstTime) {
+			alpha = 254; // why? seems if there is no transparency when window first displayed, Android won't allow it later either
+		} else if (alpha < 0) {
+			alpha = 0;
+		}
+		background.setAlpha(alpha);
+	}
+	private void handleBackgroundColor(Object value, Object opacityValue, boolean post)
 	{
 		if (value != null) {
 			Drawable cd = TiConvert.toColorDrawable(TiConvert.toString(value));
-			if (lightWeight) {
-				nativeView.setBackgroundDrawable(cd);
-			} else {
-				setActivityBackground(cd, post);
-			}
+			handleBackground(cd, opacityValue, post);
 		} else {
 			Log.w(LCAT, "Unable to set opacity w/o a backgroundColor");
 		}
 	}
-
 	private void handleBackgroundImage(Object value, boolean post)
+	{
+		KrollDict d = resolver.findProperty(TiC.PROPERTY_OPACITY);
+		if (d != null && d.containsKey(TiC.PROPERTY_OPACITY)) {
+			handleBackgroundImage(value, d.get(TiC.PROPERTY_OPACITY), post);
+		} else {
+			handleBackgroundImage(value, null, post);
+		}
+	}
+	private void handleBackgroundImage(Object value, Object opacityValue, boolean post)
 	{
 		if (value != null) {
 			String path = proxy.getTiContext().resolveUrl(null, TiConvert.toString(value));
 			TiFileHelper tfh = new TiFileHelper(proxy.getContext().getApplicationContext());
 			Drawable bd = tfh.loadDrawable(proxy.getTiContext(), path, false);
-			if (bd != null) {
-				if (lightWeight) {
-					nativeView.setBackgroundDrawable(bd);
-				} else {
-					setActivityBackground(bd, post);
-				}
-			}
+			handleBackground(bd, opacityValue, post);
 		}
 	}
 
@@ -422,9 +452,17 @@ public class TiUIWindow extends TiUIView
 	{
 		// Prefer image to color.
 		if (d.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE)) {
-			handleBackgroundImage(d.get(TiC.PROPERTY_BACKGROUND_IMAGE), true);
+			if (d.containsKey(TiC.PROPERTY_OPACITY)) {
+				handleBackgroundImage(d.get(TiC.PROPERTY_BACKGROUND_IMAGE), d.get(TiC.PROPERTY_OPACITY), true);
+			} else {
+				handleBackgroundImage(d.get(TiC.PROPERTY_BACKGROUND_IMAGE), true);
+			}
 		} else if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			handleBackgroundColor(d.get(TiC.PROPERTY_BACKGROUND_COLOR), true);
+			if (d.containsKey(TiC.PROPERTY_OPACITY)) {
+				handleBackgroundColor(d.get(TiC.PROPERTY_BACKGROUND_COLOR), d.get(TiC.PROPERTY_OPACITY), true);
+			} else {
+				handleBackgroundColor(d.get(TiC.PROPERTY_BACKGROUND_COLOR), true);
+			}
 		}
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
 			String title = TiConvert.toString(d, TiC.PROPERTY_TITLE);
@@ -503,6 +541,8 @@ public class TiUIWindow extends TiUIView
 					layout.setLayoutArrangement(TiConvert.toString(newValue));
 				}
 			}
+		} else if (key.equals(TiC.PROPERTY_OPACITY)) {
+			setOpacity(TiConvert.toFloat(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -535,12 +575,17 @@ public class TiUIWindow extends TiUIView
 			intent.putExtra(TiC.PROPERTY_NAV_BAR_HIDDEN, TiConvert.toBoolean(props, TiC.PROPERTY_NAV_BAR_HIDDEN));
 		}
 		props = resolver.findProperty(TiC.PROPERTY_MODAL);
+		boolean modal = false;
 		if (props != null && props.containsKey(TiC.PROPERTY_MODAL)) {
-			boolean modal = TiConvert.toBoolean(props, TiC.PROPERTY_MODAL);
+			modal = TiConvert.toBoolean(props, TiC.PROPERTY_MODAL);
 			intent.putExtra(TiC.PROPERTY_MODAL, modal);
 			if (modal) {
 				intent.setClass(activity, TiModalActivity.class);
 			}
+		}
+		props = resolver.findProperty(TiC.PROPERTY_OPACITY);
+		if (props != null && props.containsKey(TiC.PROPERTY_OPACITY) && !modal) { // modal already translucent
+			intent.setClass(activity, TiTranslucentActivity.class);
 		}
 		props = resolver.findProperty(TiC.PROPERTY_URL);
 		if (props != null && props.containsKey(TiC.PROPERTY_URL)) {
@@ -573,14 +618,12 @@ public class TiUIWindow extends TiUIView
 	@Override
 	public void setOpacity(float opacity)
 	{
-		View view = null;
-		if (!lightWeight) {
-			view = windowActivity.getWindow().getDecorView();
+		if (lightWeight) {
+			super.setOpacity(nativeView, opacity);
 		} else {
-			view = nativeView;
+			setActivityOpacity(windowActivity.getWindow().getDecorView().getBackground(), opacity, false);
+			windowActivity.getWindow().getDecorView().invalidate();
 		}
-		
-		super.setOpacity(view, opacity);
 	}
 
 	@Override
