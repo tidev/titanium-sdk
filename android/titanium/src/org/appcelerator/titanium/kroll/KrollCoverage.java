@@ -16,6 +16,7 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiConfig;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.BaseFunction;
@@ -35,7 +36,7 @@ import org.mozilla.javascript.Scriptable;
 public class KrollCoverage extends KrollObject
 {
 	private static final String TAG = "KrollCoverage";
-	private static final boolean TRACE = true;
+	private static final boolean TRACE = TiConfig.LOGV;
 
 	public static JSONMap<JSONMap<JSONMap<APICount>>> coverageCount =
 		new JSONMap<JSONMap<JSONMap<APICount>>>();
