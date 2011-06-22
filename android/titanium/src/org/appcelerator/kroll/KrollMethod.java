@@ -6,8 +6,6 @@
  */
 package org.appcelerator.kroll;
 
-import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
@@ -24,17 +22,11 @@ public abstract class KrollMethod
 
 	protected String name;
 	protected boolean runOnUiThread = false;
-	protected boolean coverageEnabled = false;
 
 	public KrollMethod(String name)
 	{
 		super();
 		this.name = name;
-
-		TiApplication app = TiApplication.getInstance();
-		if (app != null) {
-			coverageEnabled = app.isCoverageEnabled();
-		}
 	}
 
 	@Override
@@ -54,9 +46,6 @@ public abstract class KrollMethod
 		Object methodResult = null;
 		Exception exception = null;
 		KrollInvocation inv = KrollInvocation.createMethodInvocation(scope, thisObj, name, this, proxy);
-		if (coverageEnabled) {
-			
-		}
 		try {
 			if (!runOnUiThread) {
 				return invoke(inv, args);

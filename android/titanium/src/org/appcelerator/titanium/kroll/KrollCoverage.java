@@ -23,6 +23,15 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 
+/**
+ * This class serves as a stand-in replacement for KrollObject
+ * when counting coverage.
+ * 
+ * Coverage is currently counted for property gets, sets,
+ * and function calls.
+ *
+ */
+@SuppressWarnings("serial")
 public class KrollCoverage extends KrollObject
 {
 	private static final String TAG = "KrollCoverage";
@@ -109,6 +118,14 @@ public class KrollCoverage extends KrollObject
 		}
 	}
 
+	/**
+	 * Increment coverage on a property or function
+	 * @param componentType The component type, i.e {@link MODULES}, {@link PROXIES}, or {@link OTHER}
+	 * @param component The fully-qualified component name, i.e. "Titanium.UI"
+	 * @param name The API name that is being covered
+	 * @param type The type of coverage, i.e {@link PROPERTY_GET}, {@link PROPERTY_SET}, or {@link FUNCTION_CALL}
+	 * @param apiType The API type, i.e. {@link FUNCTION} or {@link PROPERTY}
+	 */
 	public static void incrementCoverage(String componentType, String component,
 		String name, String type, String apiType)
 	{
@@ -150,7 +167,7 @@ public class KrollCoverage extends KrollObject
 	public Object get(String name, Scriptable start)
 	{
 		Object o = super.get(name, start);
-		if (o instanceof Function) {
+		if (o instanceof Function && !(o instanceof KrollObject)) {
 			Function fn = (Function) o;
 			incrementCoverage(name, PROPERTY_GET, FUNCTION);
 			return new KrollFunctionCoverage(name, fn, this);

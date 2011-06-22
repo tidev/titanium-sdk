@@ -273,20 +273,25 @@ class CoverageMatrix(object):
 			self.iosBindings = seedData["iosBindings"]
 			self.drillbitCoverage = seedData["drillbitCoverage"]
 			self.tdocTypes = seedData["tdocTypes"]
-		else:
-			self.initSources()
 
-	def initSources(self):
-		self.initAndroidBindings()
-		self.initIOSBindings()
-		self.initDrillbitCoverage()
+	def initSources(self, options):
+		self.initAndroidBindings(options.distAndroidDir)
+		self.initIOSBindings(options.distIOSDir)
+		self.initDrillbitCoverage(options.drillbitResultsDir)
 		self.initDrillbitTests()
-		self.initTDocData()
+		self.initTDocData(options.tdocDir)
 
-	def initAndroidBindings(self):
+	def initAndroidBindings(self, distAndroidDir=None):
 		log.info("Initializing Android bindings")
 		self.androidBindings = []
-		distAndroidDir = os.path.join(mobileDir, "dist", "android")
+
+		if distAndroidDir == None:
+			distAndroidDir = os.path.join(mobileDir, "dist", "android")
+
+		if not os.path.exists(distAndroidDir):
+			log.warn("Skipping Android bindings, %s not found" % distAndroidDir)
+			return
+
 		for jar in os.listdir(distAndroidDir):
 			if not jar.endswith('.jar'): continue
 			jarPath = os.path.join(distAndroidDir, jar)
@@ -294,29 +299,39 @@ class CoverageMatrix(object):
 			if moduleBindings != None:
 				self.androidBindings.append(moduleBindings)
 
-	def initIOSBindings(self):
+	def initIOSBindings(self, distIOSDir=None):
 		log.info("Initializing iOS bindings")
 		self.iosBindings = []
-		
-		distIOSDir = os.path.join(mobileDir, "dist", "ios")
+
+		if distIOSDir == None:
+			distIOSDir = os.path.join(mobileDir, "dist", "ios")
+
 		if not os.path.exists(distIOSDir):
-			log.warn("Skipping iOS bindings, dist/ios not found")
+			log.warn("Skipping iOS bindings, %s not found" % distIOSDir)
 			return
+
 		for file in os.listdir(distIOSDir):
 			if not file.endswith('.json'): continue
 			abspath = os.path.join(distIOSDir, file)
 			data = open(abspath, "r").read()
 			if data != '': self.iosBindings.append(json.loads(data))
 
-	def initDrillbitCoverage(self):
+	def initDrillbitCoverage(self, drillbitResultsDir=None):
 		log.info("Initializing Drillbit coverage")
-		drillbitBuildDir = os.path.join(mobileDir, "build", "drillbit")
-		if platform.system() == "Darwin":
-			drillbitContentsDir = os.path.join(drillbitBuildDir, "Drillbit.app", "Contents")
-		else:
-			drillbitContentDir = os.path.join(drillbitBuildDir, "Drillbit")
-		drillbitResultsDir = os.path.join(drillbitContentsDir, "Resources", "test_results")
 		self.drillbitCoverage = {}
+
+		if drillbitResultsDir == None:
+			drillbitBuildDir = os.path.join(mobileDir, "build", "drillbit")
+			if platform.system() == "Darwin":
+				drillbitContentsDir = os.path.join(drillbitBuildDir, "Drillbit.app", "Contents")
+			else:
+				drillbitContentDir = os.path.join(drillbitBuildDir, "Drillbit")
+			drillbitResultsDir = os.path.join(drillbitContentsDir, "Resources", "test_results")
+
+		if not os.path.exists(drillbitResultsDir):
+			log.warn("Skipping Drillbit Test Coverage, %s not found" % drillbitResultsDir)
+			return
+
 		for f in os.listdir(drillbitResultsDir):
 			if f.endswith("Coverage.json"):
 				data = json.loads(open(os.path.join(drillbitResultsDir, f), "r").read())
@@ -386,11 +401,18 @@ class CoverageMatrix(object):
 		self.drillbitTests = json.loads(subprocess.Popen(
 			["java", "-jar", rhinoJar, "drillbit.js"], stdout=subprocess.PIPE).communicate()[0])
 
-	def initTDocData(self):
+	def initTDocData(self, tdocDir=None):
 		log.info("Initializing TDoc data")
 		self.tdocTypes = []
-		apiDocDir = os.path.join(mobileDir, "apidoc")
-		for root, dirs, files in os.walk(apiDocDir):
+
+		if tdocDir == None:
+			tdocDir = os.path.join(mobileDir, "apidoc")
+
+		if not os.path.exists(tdocDir):
+			log.warn("Skipping TDoc data, %s not found" % tdocDir)
+			return
+
+		for root, dirs, files in os.walk(tdocDir):
 			for file in files:
 				if file.endswith(".yml"):
 					absolutePath = os.path.join(root, file)
@@ -644,36 +666,40 @@ class CoverageMatrix(object):
 							superProxy = self.findSuperProxyBinding(superProxy)
 		return None
 
-	def genDrillbitCoverageData(self, platform):
+	def countDrillbitCoverage(self, platform, apiType, component, api):
+		platforms = [platform]
+		apiCount = self.drillbitCoverage[platform][apiType][component][api]
+		if "propertyGet" in apiCount or "propertySet" in apiCount or "functionCall" in apiCount:
+			isModule = apiType == "modules"
+			isTopLevel = apiType == "other"
+			componentName = self.getComponentNameForAPI(component, api) or component
+			if componentName == "Titanium.Kroll":
+				componentName = "Titanium.Proxy"
+				isModule = False
+			sourceName = component + "." + api
+			if sourceName in self.drillbitCoverage[platform]["modules"]:
+				log.warn("Skipping module as property accessor %s" % sourceName)
+				return
+			if apiCount["_type"] == "function":
+				if isTopLevel:
+					c = component
+					if component == "TOP_LEVEL":
+						c = self.data.TOP_LEVEL
+					self.data.addFunction(api, c, platforms, isTopLevel=True)
+				else:
+					self.data.addFunction(api, componentName, platforms, isModule=isModule)
+			else:
+				self.data.addProperty(api, componentName, platforms, isModule=isModule)
+
+	def genDrillbitCoverageData(self):
 		self.data.setCategory(self.data.CATEGORY_DRILLBIT)
 
-		platforms = [platform]
-		log.info("Generating coverage for Drillbit / %s" % platform)
-		for apiType in self.drillbitCoverage[platform].keys():
-			isTopLevel = apiType == "other"
-			for component in self.drillbitCoverage[platform][apiType].keys():
-				for api in self.drillbitCoverage[platform][apiType][component].keys():
-					apiCount = self.drillbitCoverage[platform][apiType][component][api]
-					if "propertyGet" in apiCount or "propertySet" in apiCount or "functionCall" in apiCount:
-						isModule = apiType == "modules"
-						componentName = self.getComponentNameForAPI(component, api) or component
-						if componentName == "Titanium.Kroll":
-							componentName = "Titanium.Proxy"
-							isModule = False
-						sourceName = component + "." + api
-						if sourceName in self.drillbitCoverage[platform]["modules"]:
-							log.warn("Skipping module as property accessor %s" % sourceName)
-							continue
-						if apiCount["_type"] == "function":
-							if isTopLevel:
-								c = component
-								if component == "TOP_LEVEL":
-									c = self.data.TOP_LEVEL
-								self.data.addFunction(api, c, platforms, isTopLevel=True)
-							else:
-								self.data.addFunction(api, componentName, platforms, isModule=isModule)
-						else:
-							self.data.addProperty(api, componentName, platforms, isModule=isModule)
+		for platform in self.drillbitCoverage.keys():
+			log.info("Generating coverage for Drillbit / %s" % platform)
+			for apiType in self.drillbitCoverage[platform].keys():
+				for component in self.drillbitCoverage[platform][apiType].keys():
+					for api in self.drillbitCoverage[platform][apiType][component].keys():
+						self.countDrillbitCoverage(platform, apiType, component, api)
 
 	def hasAnyPlatform(self, obj, platforms):
 		if "platforms" in obj:
@@ -723,13 +749,17 @@ class CoverageMatrix(object):
 	def genMatrix(self, outDir):
 		self.genAndroidBindingData()
 		self.genIOSBindingData()
-		self.genDrillbitCoverageData("android")
-		#TODO self.genDrillbitCoverageData("iphone")
+		self.genDrillbitCoverageData()
+		# TODO self.genDrillbitCoverageData("iphone")
 		self.genTDocData()
 		self.data.countAPIs()
 
 		self.genJSON(outDir)
 		self.genHTML(outDir)
+		log.info("Coverage report generated")
+		log.info("  HTML: %s" % os.path.join(outDir, "index.html"))
+		log.info("  JSON: %s" % os.path.join(outDir, "matrixData.json"))
+		log.info("  Seed JSON: %s" % os.path.join(outDir, "seed.json"))
 
 
 	def countCoverage(self, components, name, category, platform=None):
@@ -782,34 +812,31 @@ class CoverageMatrix(object):
 		summaryTemplate = Template(filename=os.path.join(coverageDir, "summary.wiki"),
 			output_encoding="utf-8", encoding_errors="replace")
 
-		try:
-			indexPage = indexTemplate.render(
-				data = self.data,
-				drillbitTests = self.drillbitTests,
-				countCoverage = self.countCoverage,
-				upperFirst = upperFirst)
-			indexPath = os.path.join(outDir, "index.html")
-			open(indexPath, "w").write(indexPage)
-		except:
-			print exceptions.text_error_template().render()
-			sys.exit(1)
+		def renderTemplate(tmpl, relativePath, **kwargs):
+			try:
+				content = tmpl.render(**kwargs)
+				outPath = os.path.join(outDir, relativePath)
+				open(outPath, "w").write(content)
+			except:
+				print exceptions.text_error_template().render()
+				sys.exit(1)
+
+		renderTemplate(indexTemplate, "index.html",
+			data = self.data,
+			drillbitTests = self.drillbitTests,
+			countCoverage = self.countCoverage,
+			upperFirst = upperFirst)
 
 		def toComponentHTML(components, prefix):
 			for component in components:
-				try:
-					componentPage = componentTemplate.render(
-						data = self.data,
-						components = components,
-						component = component,
-						label = upperFirst(prefix),
-						countCoverage = self.countCoverage,
-						upperFirst = upperFirst)
-					componentPath = os.path.join(outDir, "%s-%s.html" % (prefix, component))
-					open(componentPath, "w").write(componentPage)
-				except:
-					print exceptions.text_error_template().render()
-					sys.exit(1)
-
+				renderTemplate(componentTemplate,
+					"%s-%s.html" % (prefix, component),
+					data = self.data,
+					components = components,
+					component = component,
+					label = upperFirst(prefix),
+					countCoverage = self.countCoverage,
+					upperFirst = upperFirst)
 
 		toComponentHTML(self.data.modules, "module")
 		toComponentHTML(self.data.proxies, "proxy")
@@ -820,29 +847,42 @@ class CoverageMatrix(object):
 			path = os.path.join(coverageDir, copyFile)
 			shutil.copy(path, outDir)
 
-		try:
-			summaryWiki = summaryTemplate.render(
-				data = self.data,
-				drillbitTests = self.drillbitTests,
-				countCoverage = self.countCoverage,
-				upperFirst = upperFirst)
-			open(os.path.join(outDir, "summary.wiki"), "w").write(summaryWiki)
-		except:
-			print exceptions.text_error_template().render()
-			sys.exit(1)
+		renderTemplate(summaryTemplate, "summary.wiki",
+			data = self.data,
+			drillbitTests = self.drillbitTests,
+			countCoverage = self.countCoverage,
+			upperFirst = upperFirst)
 
 def main():
 	parser = optparse.OptionParser()
 	parser.add_option("-s", "--seed", dest="seedFile",
 		default=None, help="Seed the matrix with pre-initialized JSON data")
+	parser.add_option("-o", "--output", dest="outDir",
+		default=None, help="The output directory that the coverage report is generated to")
+	parser.add_option("-a", "--dist-android-dir", dest="distAndroidDir",
+		default=None, help="The directory that contains all of the built Android module and runtime JARs (default: dist/android)")
+	parser.add_option("-i", "--dist-ios-dir", dest="distIOSDir",
+		default=None, help="The directory that contains the iOS binding JSON (default: dist/ios)")
+	parser.add_option("-d", "--drillbit-results-dir", dest="drillbitResultsDir",
+		default=None, help="The directory that contains Drillbit's test results JSON (default: build/drillbit/Drillbit.app/Contents/Resources/test_results")
+	parser.add_option("-t", "--tdoc-dir", dest="tdocDir",
+		default=None, help="The directory that contains TDoc2 YML files (default: apidoc)")
 	(options, args) = parser.parse_args()
 
 	seedData = None
 	if options.seedFile != None:
 		seedData = json.loads(open(options.seedFile, "r").read())
 
+	outDir = options.outDir
+	if options.outDir == None:
+		outDir = os.path.join(mobileDir, "dist", "coverage")
+
+	if not os.path.exists(outDir):
+		os.makedirs(outDir)
+
 	matrix = CoverageMatrix(seedData)
-	matrix.genMatrix(args[0])
+	matrix.initSources(options)
+	matrix.genMatrix(outDir)
 
 if __name__ == "__main__":
 	main()
