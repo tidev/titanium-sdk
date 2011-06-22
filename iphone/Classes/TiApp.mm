@@ -220,8 +220,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	if (!loaded) {
 		[self attachSplash];
 	}
-	[window addSubview:controller.view];
-
+	[window setRootViewController:controller];
     [window makeKeyAndVisible];
 }
 
