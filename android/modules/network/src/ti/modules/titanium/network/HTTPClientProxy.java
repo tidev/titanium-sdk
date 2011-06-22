@@ -124,4 +124,18 @@ public class HTTPClientProxy extends KrollProxy {
 	{
 		client.setAutoEncodeUrl(value);
 	}
+
+	@Kroll.getProperty @Kroll.method
+	public boolean getAutoRedirect()
+	{
+		return client.getAutoRedirect();
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setAutoRedirect(boolean value)
+	{
+		client.setAutoRedirect(value);
+	}
+
+	
 }

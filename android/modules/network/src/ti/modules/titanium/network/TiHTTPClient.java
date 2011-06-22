@@ -141,6 +141,7 @@ public class TiHTTPClient
 	private boolean aborted;
 	private int timeout = -1;
 	private boolean autoEncodeUrl = true;
+	private boolean autoRedirect = true;
 	
 	class RedirectHandler extends DefaultRedirectHandler {
 		@Override
@@ -165,6 +166,14 @@ public class TiHTTPClient
 			
 			return super.getLocationURI(response, context);
 		}
+		@Override
+    public boolean isRedirectRequested(HttpResponse response, HttpContext context) {
+      if (autoRedirect) {
+         return super.isRedirectRequested(response,context);
+      } else {
+         return false;
+      }
+    }   
 	}
 	
 	class LocalResponseHandler implements ResponseHandler<String>
@@ -1090,5 +1099,15 @@ public class TiHTTPClient
 	protected boolean getAutoEncodeUrl()
 	{
 		return autoEncodeUrl;
+	}
+
+		protected void setAutoRedirect(boolean value)
+	{
+		autoRedirect = value;
+	}
+
+	protected boolean getAutoRedirect()
+	{
+		return autoRedirect;
 	}
 }
