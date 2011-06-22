@@ -1018,11 +1018,6 @@ DEFINE_EXCEPTIONS
 		handlesSwipes = YES;
 	}
 	
-	if (handlesTouches || handlesTaps || handlesSwipes)
-	{
-		self.userInteractionEnabled = YES;
-	}
-	
 	if (handlesTaps)
 	{
 		self.multipleTouchEnabled = YES;
@@ -1034,7 +1029,6 @@ DEFINE_EXCEPTIONS
 	ENSURE_UI_THREAD_1_ARG(event);
 	// unfortunately on a remove, we have to check all of them
 	// since we might be removing one but we still have others
-	BOOL needsUpdate = NO;
 	
 	if (handlesTouches && 
 		[self.proxy _hasListeners:@"touchstart"]==NO &&
@@ -1044,7 +1038,6 @@ DEFINE_EXCEPTIONS
 		[self.proxy _hasListeners:@"click"]==NO &&
 		[self.proxy _hasListeners:@"dblclick"]==NO)
 	{
-		needsUpdate = YES;
 		handlesTouches = NO;
 	}
 	if (handlesTaps &&
@@ -1052,20 +1045,12 @@ DEFINE_EXCEPTIONS
 		[self.proxy _hasListeners:@"doubletap"]==NO &&
 		[self.proxy _hasListeners:@"twofingertap"]==NO)
 	{
-		needsUpdate = YES;
 		handlesTaps = NO;
 	}
 	if (handlesSwipes &&
 		[event isEqualToString:@"swipe"])
 	{
-		needsUpdate = YES;
 		handlesSwipes = NO;
-	}
-	
-	if (needsUpdate && handlesTaps == NO && handlesTouches == NO)
-	{
-		self.userInteractionEnabled = NO;
-		self.multipleTouchEnabled = NO;
 	}
 }
 
