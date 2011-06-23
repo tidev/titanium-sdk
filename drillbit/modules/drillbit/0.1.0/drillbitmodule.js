@@ -461,7 +461,7 @@ Drillbit.prototype.handleAssertionEvent = function(event, platform) {
 
 Drillbit.prototype.handleCompleteEvent = function(results, platform) {
 	var suite = results.suite;
-	this.frontendDo('process_data', '==========End Test Suite ' + suite);
+	this.frontendDo('process_data', '==========End Test Suite : ' + suite);
 	this.platformStatus[platform][suite].completed = true;
 	try {
 		if (this.window) this.window.clearInterval(this.currentTimer);
