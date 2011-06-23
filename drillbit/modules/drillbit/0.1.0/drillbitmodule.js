@@ -461,7 +461,7 @@ Drillbit.prototype.handleAssertionEvent = function(event, platform) {
 
 Drillbit.prototype.handleCompleteEvent = function(results, platform) {
 	var suite = results.suite;
-	this.frontendDo('process_data', 'End of ' + suite);
+	this.frontendDo('process_data', '==========End Test Suite ' + suite);
 	this.platformStatus[platform][suite].completed = true;
 	try {
 		if (this.window) this.window.clearInterval(this.currentTimer);
@@ -725,7 +725,7 @@ Drillbit.prototype.stageTest = function(entry) {
 
 Drillbit.prototype.runTest = function(entry)
 {
-	this.frontendDo("process_data", "Starting test suite : " + entry.name);
+	this.frontendDo("process_data", "==========Start Test Suite : " + entry.name);
 	var data = {entry: entry, Titanium: Titanium, excludes: this.excludes, Drillbit: this, AsyncTest: AsyncTest};
 	var testScript = this.renderTemplate(ti.path.join(this.templatesDir, 'test.js'), data);
 
