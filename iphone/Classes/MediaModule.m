@@ -235,10 +235,13 @@ enum
 
 -(void)showPicker:(NSDictionary*)args isCamera:(BOOL)isCamera
 {
-	if (picker!=nil)
+	if (picker!=nil && picker.sourceType != UIImagePickerControllerSourceTypePhotoLibrary)
 	{
 		[self sendPickerError:MediaModuleErrorBusy];
 		return;
+	} else if(picker!=nil && picker.sourceType == UIImagePickerControllerSourceTypePhotoLibrary) {
+		[picker release];
+		picker = nil;
 	}
 	
 	picker = [[UIImagePickerController alloc] init];
