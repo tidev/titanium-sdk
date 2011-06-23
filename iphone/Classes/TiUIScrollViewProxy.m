@@ -115,6 +115,24 @@
 	}
 }
 
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+	if ([self _hasListeners:@"dragStart"])
+	{
+		[self fireEvent:@"dragStart" withObject:nil];
+	}
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+{
+	if ([self _hasListeners:@"dragEnd"])
+	{
+		[self fireEvent:@"dragEnd" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
+											  [NSNumber numberWithBool:decelerate],@"decelerate",
+											  nil]];
+	}
+}
+
 @end
 
 #endif
