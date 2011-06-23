@@ -225,6 +225,16 @@
 	[(id<UIScrollViewDelegate>)[self proxy] scrollViewDidEndZooming:scrollView withView:(UIView*)view atScale:scale];
 }
 
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView_
+{
+	[(id<UIScrollViewDelegate>)[self proxy] scrollViewWillBeginDragging:scrollView_];
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView_ willDecelerate:(BOOL)decelerate
+{
+	[(id<UIScrollViewDelegate>)[self proxy] scrollViewDidEndDragging:scrollView_ willDecelerate: decelerate];
+}
+
 #pragma mark Keyboard delegate stuff
 
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
