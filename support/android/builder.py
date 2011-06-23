@@ -380,7 +380,7 @@ class Builder(object):
 		for device in devices:
 			if device.is_emulator() and device.get_port() == 5560:
 				info("Emulator is running.")
-				sys.exit(0)
+				sys.exit()
 		
 		# this will create an AVD on demand or re-use existing one if already created
 		avd_name = self.create_avd(avd_id,avd_skin)
@@ -1375,7 +1375,7 @@ class Builder(object):
 			os.rename(app_apk+'z',app_apk)
 
 		if self.dist_dir:
-			sys.exit(0)
+			sys.exit()
 
 		if self.build_only:
 			return (False, False)
@@ -1945,5 +1945,3 @@ if __name__ == "__main__":
 		for line in e.splitlines():
 			error(line)
 		sys.exit(1)
-		
-	sys.exit(0)
