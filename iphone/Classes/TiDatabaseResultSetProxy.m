@@ -50,27 +50,58 @@
 	return self;
 }
 
+// TODO: Need to move this logic to our general int translation... but right now it would screw so much up, we should avoid it.
+-(BOOL)isParseableString:(NSString*)str ofType:(DatabaseFieldType)type
+{
+    NSScanner* scanner = [NSScanner scannerWithString:str];
+    switch (type) {
+        case FieldTypeInt: {
+            int v;
+            return ([scanner scanInt:&v] && [scanner isAtEnd]);
+            break;
+        }
+        case FieldTypeDouble: {
+            double v;
+            return ([scanner scanDouble:&v] && [scanner isAtEnd]);
+            break;
+        }
+        case FieldTypeFloat: {
+            float v;
+            return ([scanner scanFloat:&v] && [scanner isAtEnd]);
+            break;
+        }
+        default:
+            return YES;
+    }
+}
+
 -(id) _transformObject:(id) obj toType:(DatabaseFieldType) type {
 	
 	if(FieldTypeString == type) {
 		return [TiUtils stringValue:obj];		
 	}
-	
-	if(FieldTypeInt == type) {
-		int value = [TiUtils intValue:obj def:NSNotFound];
-		if(NSNotFound != value) {
-			return NUMINT(value);
-		}
-		[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"Couldn't cast from %@ to int", [obj class]] location:CODELOCATION];
-	}
-	
+
 	id result = nil;
+    
+	if(FieldTypeInt == type) {
+        BOOL valid = NO;
+        BOOL isString = [obj isKindOfClass:[NSString class]];
+        if (!isString || (isString && [self isParseableString:obj ofType:type])) {
+            result = NUMINT([TiUtils intValue:obj def:NSNotFound valid:&valid]);
+        }
+        if (!valid) {
+            [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"Couldn't cast from %@ to int", [obj class]] location:CODELOCATION];
+        }
+	}
 	
 	if(FieldTypeFloat == type ||
 	   FieldTypeDouble == type) {
 		BOOL valid = NO;
-		result = (FieldTypeFloat == type) ? NUMFLOAT([TiUtils floatValue:obj def:0.0 valid:&valid]) 
-		                                  : NUMDOUBLE([TiUtils doubleValue:obj def:0.0 valid:&valid]);
+        BOOL isString = [obj isKindOfClass:[NSString class]];
+        if (!isString || (isString && [self isParseableString:obj ofType:type])) {
+            result = (FieldTypeFloat == type) ? NUMFLOAT([TiUtils floatValue:obj def:0.0 valid:&valid]) 
+                                              : NUMDOUBLE([TiUtils doubleValue:obj def:0.0 valid:&valid]);
+        }
 		if(!valid) {
 			[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"Couldn't cast from %@ to %@", [obj class], (FieldTypeFloat == type) ? @"float" : @"double"] location:CODELOCATION];
 		}		
