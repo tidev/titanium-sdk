@@ -243,7 +243,7 @@ var harnessBuildTriggers = [
 	ti.path.join('build', 'android', 'AndroidManifest.custom.xml'),
 	
 	// Directory triggers (any file under these dirs)
-	'modules',
+	'modules', 'Resources',
 	ti.path.join('build', 'android', 'src'),
 	ti.path.join('build', 'android', 'res')
 ];
