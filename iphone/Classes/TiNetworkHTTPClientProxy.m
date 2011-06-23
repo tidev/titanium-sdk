@@ -375,10 +375,17 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 }
 -(void)clearCookies:(id)args
 {
+    ENSURE_ARG_COUNT(args,1);
+
+    NSString *host = [TiUtils stringValue:[args objectAtIndex:0]];
+    
     NSHTTPCookie *cookie;
     NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-    for (cookie in [storage cookies]) {
-        [storage deleteCookie:cookie];
+    NSArray* targetCookies = [storage cookiesForURL:[NSURL URLWithString:host]];
+    if ([targetCookies count] > 0) {
+      for (cookie in targetCookies) {
+          [storage deleteCookie:cookie];
+      }
     }
 }
 -(void)setRequestHeader:(id)args

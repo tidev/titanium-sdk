@@ -89,8 +89,8 @@ public class HTTPClientProxy extends KrollProxy {
 	}
 
   @Kroll.method
-	public void clearCookies() {
-		client.clearCookies();
+	public void clearCookies(String host) {
+		client.clearCookies(host);
 	}
 
 	@Kroll.method
