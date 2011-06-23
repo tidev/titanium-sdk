@@ -57,8 +57,11 @@
 	}
 	
 	CFStringRef nameRef = ABRecordCopyValue([self record], kABGroupNameProperty);
-	NSString* name = [NSString stringWithString:(NSString*)nameRef];
-	CFRelease(nameRef);
+    NSString* name = @"<unnamed group>";
+    if (nameRef != NULL) {
+        name = [NSString stringWithString:(NSString*)nameRef];
+        CFRelease(nameRef);
+    }
 	
 	[returnCache setObject:name forKey:@"name"];
 	return name;
