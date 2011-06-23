@@ -24,16 +24,6 @@
 #include <pthread.h>
 #include <AudioToolbox/AudioToolbox.h>
 								
-#define kAQDefaultBufSize 2048	// Number of bytes in each audio queue buffer
-								// Needs to be big enough to hold a packet of
-								// audio from the audio file. If number is too
-								// large, queuing of audio before playback starts
-								// will take too long.
-								// Highly compressed files can use smaller
-								// numbers (512 or less). 2048 should hold all
-								// but the largest packets. A buffer size error
-								// will occur if this number is too small.
-
 @interface AudioStreamerCUR : NSObject<AudioStreamerProtocol>
 {
 	NSURL *url;
@@ -79,6 +69,7 @@
 	UInt64 audioDataByteCount;  // Used when the actual number of audio bytes in
 								// the file is known (more accurate than assuming
 								// the whole file is audio)
+    NSUInteger bufferSize;      // Dynamic size of the buffer (buffer is default size of 2k if unspec'd)
 
 	UInt64 processedPacketsCount;		// number of packets accumulated for bitrate estimation
 	UInt64 processedPacketsSizeTotal;	// byte size of accumulated estimation packets
@@ -99,6 +90,7 @@
 @property (readonly) double duration;
 @property (readwrite) UInt32 bitRate;
 @property (readonly) NSDictionary *httpHeaders;
+@property (nonatomic,readwrite,assign) NSUInteger bufferSize;
 
 - (id)initWithURL:(NSURL *)aURL;
 - (void)start;

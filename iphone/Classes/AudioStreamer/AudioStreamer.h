@@ -38,6 +38,16 @@
 								// increase. Min 3, typical 8-24.
 
 #define kAQMaxPacketDescs 512	// Number of packet descriptions in our array
+#define kAQDefaultBufSize 2048	// Number of bytes in each audio queue buffer
+                                // Needs to be big enough to hold a packet of
+                                // audio from the audio file. If number is too
+                                // large, queuing of audio before playback starts
+                                // will take too long.
+                                // Highly compressed files can use smaller
+                                // numbers (512 or less). 2048 should hold all
+                                // but the largest packets. A buffer size error
+                                // will occur if this number is too small.
+
 
 typedef enum
 {
@@ -101,6 +111,7 @@ extern NSString * const ASStatusChangedNotification;
 @property (readonly) double progress;
 @property (readwrite) UInt32 bitRate;
 @property (readwrite,assign) id<AudioStreamerDelegate> delegate;
+@property (nonatomic,readwrite,assign) NSUInteger bufferSize;
 
 - (void)start;
 - (void)stop;

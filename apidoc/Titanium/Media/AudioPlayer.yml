@@ -102,3 +102,7 @@ properties:
   - name: waiting
     description: returns boolean indicating if the playback is waiting for audio data from the network
     type: Boolean
+  - name: bufferSize
+    description: the size of the buffer used for streaming, in bytes
+    type: Number
+    platforms: [iphone, ipad]
