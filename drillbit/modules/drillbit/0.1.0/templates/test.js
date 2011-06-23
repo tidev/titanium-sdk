@@ -9,6 +9,7 @@
  */
 
 var testName = "<%= entry.name %>";
+
 <%
 methodWrap = typeof(methodWrap) == 'undefined' ? false : methodWrap;
 autoRun = typeof(autoRun) == 'undefined' ? true : autoRun;
