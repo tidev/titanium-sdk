@@ -685,6 +685,10 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 		[spinner autorelease];
 		spinner = nil;
 	}
+    [url release];
+    url = [[[webview request] URL] retain];
+	[[self proxy] replaceValue:[url absoluteString] forKey:@"url" notification:NO];
+	
 	if ([self.proxy _hasListeners:@"load"])
 	{
 		NSDictionary *event = url == nil ? nil : [NSDictionary dictionaryWithObject:[self url] forKey:@"url"];

@@ -650,7 +650,6 @@ class Builder(object):
 			
 			# MEDIA
 			'Media.vibrate' : VIBRATE_PERMISSION,
-			'Media.createVideoPlayer' : CAMERA_PERMISSION,
 			'Media.showCamera' : CAMERA_PERMISSION,
 			
 			# CONTACTS
@@ -1020,12 +1019,15 @@ class Builder(object):
 			# that user put in <activity> entries that duplicate our own,
 			# such as if they want a custom theme on TiActivity.  So we should delete any dupes.
 			dom = parseString(default_manifest_contents)
+			package_name = dom.documentElement.getAttribute('package')
 			manifest_activities = dom.getElementsByTagName('activity')
 			activity_names = []
 			nodes_to_delete = []
 			for manifest_activity in manifest_activities:
 				if manifest_activity.hasAttribute('android:name'):
 					activity_name = manifest_activity.getAttribute('android:name')
+					if activity_name.startswith('.'):
+						activity_name = package_name + activity_name
 					if activity_name in activity_names:
 						nodes_to_delete.append(manifest_activity)
 					else:

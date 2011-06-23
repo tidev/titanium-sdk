@@ -112,7 +112,7 @@
 	UIView *view = nil;
 	if (dialogView==nil)
 	{
-		view = [[TiApp controller] view];
+		view = [[[[TiApp app] window] subviews] lastObject];
 	}
 	else 
 	{

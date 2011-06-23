@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,9 +9,11 @@ package ti.modules.titanium.map;
 import java.lang.ref.WeakReference;
 
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -35,8 +37,8 @@ public class TiOverlayItemView extends FrameLayout
 	}
 
 	private RelativeLayout layout;
-	private ImageView leftImage;
-	private ImageView rightImage;
+	private TiCompositeLayout leftPane;
+	private TiCompositeLayout rightPane;
 	private TextView title;
 	private TextView snippet;
 	private int lastIndex;
@@ -62,16 +64,16 @@ public class TiOverlayItemView extends FrameLayout
 
 		RelativeLayout.LayoutParams params = null;
 
-		leftImage = new ImageView(context);
-		leftImage.setId(100);
-		leftImage.setTag("leftButton");
+		leftPane = new TiCompositeLayout(tiContext.getActivity());
+		leftPane.setId(100);
+		leftPane.setTag("leftPane");
 		params = createBaseParams();
 		params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 		if (Integer.parseInt(Build.VERSION.SDK) > 3) {
 			params.addRule(RelativeLayout.CENTER_VERTICAL);
 		}
 		params.setMargins(0, 0, 5, 0);
-		layout.addView(leftImage, params);
+		layout.addView(leftPane, params);
 
 		RelativeLayout textLayout = new RelativeLayout(getContext());
 		textLayout.setGravity(Gravity.NO_GRAVITY);
@@ -111,22 +113,22 @@ public class TiOverlayItemView extends FrameLayout
 		params.addRule(RelativeLayout.ALIGN_TOP);
 		layout.addView(textLayout, params);
 
-		rightImage = new ImageView(context);
-		rightImage.setId(103);
-		rightImage.setTag("rightButton");
+		rightPane = new TiCompositeLayout(tiContext.getActivity());
+		rightPane.setId(103);
+		rightPane.setTag("rightPane");
 		params = createBaseParams();
 		if (Integer.parseInt(Build.VERSION.SDK) > 3) {
 			params.addRule(RelativeLayout.CENTER_VERTICAL);
 		}
 		params.addRule(RelativeLayout.RIGHT_OF, 101);
 		params.setMargins(5, 0, 0, 0);
-		layout.addView(rightImage, params);
+		layout.addView(rightPane, params);
 
 		FrameLayout.LayoutParams fparams = new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		fparams.gravity = Gravity.NO_GRAVITY;
 		addView(layout, fparams);
 
-		hitTestList = new View[] { leftImage, title, snippet, rightImage };
+		hitTestList = new View[] { leftPane, title, snippet, rightPane };
 	}
 
 	private RelativeLayout.LayoutParams createBaseParams() {
@@ -139,37 +141,63 @@ public class TiOverlayItemView extends FrameLayout
 		Drawable d = null;
 
 		lastIndex = index;
-		
-		if(item.getLeftButton() != null) {
-			try {
-				d = tfh.loadDrawable(weakTiContext.get(), item.getLeftButton(), false);
-				leftImage.setImageDrawable(d);
-				leftImage.setVisibility(VISIBLE);
-			} catch (Exception e) {
-				leftImage.setVisibility(GONE);
-				Log.e(LCAT, "Error loading left button - " + item.getLeftButton() + ": " + e.getMessage());
+
+		leftPane.removeAllViews();
+		rightPane.removeAllViews();
+
+		String leftButton = item.getLeftButton();
+		TiViewProxy leftView = item.getLeftView();
+		if((leftButton != null) || (leftView != null)) {
+			if (leftButton != null) {
+				try {
+					ImageView leftImage = new ImageView(getContext());
+					d = tfh.loadDrawable(weakTiContext.get(), leftButton, false);
+					leftImage.setImageDrawable(d);
+					leftPane.addView(leftImage);
+
+				} catch (Exception e) {
+					Log.e(LCAT, "Error loading left button - " + leftButton + ": " + e.getMessage());
+
+				}
+			} else if (leftView != null) {
+				leftPane.addView(leftView.getView(leftView.getTiContext().getActivity()).getNativeView());
 			}
+			leftPane.setVisibility(VISIBLE);
+
 		} else {
-			leftImage.setVisibility(GONE);
+			leftPane.setVisibility(GONE);
 		}
-		if(item.getRightButton() != null) {
-			try {
-				d = tfh.loadDrawable(weakTiContext.get(), item.getRightButton(), false);
-				rightImage.setImageDrawable(d);
-				rightImage.setVisibility(VISIBLE);
-			} catch (Exception e) {
-				rightImage.setVisibility(GONE);
-				Log.e(LCAT, "Error loading right button - " + item.getRightButton() + ": " + e.getMessage());
+
+		String rightButton = item.getRightButton();
+		TiViewProxy rightView = item.getRightView();
+		if((rightButton != null) || (rightView != null)) {
+			if (rightButton != null) {
+				try {
+					ImageView rightImage = new ImageView(getContext());
+					d = tfh.loadDrawable(weakTiContext.get(), rightButton, false);
+					rightImage.setImageDrawable(d);
+					rightPane.addView(rightImage);
+
+				} catch (Exception e) {
+					Log.e(LCAT, "Error loading right button - " + rightButton + ": " + e.getMessage());
+
+				}
+			} else if (rightView != null) {
+				rightPane.addView(rightView.peekView().getNativeView());
 			}
+			rightPane.setVisibility(VISIBLE);
+
 		} else {
-			rightImage.setVisibility(GONE);
+			rightPane.setVisibility(GONE);
 		}
+
 		if(item.getTitle() != null) {
 			title.setVisibility(VISIBLE);
 			title.setText(item.getTitle());
 		} else {
 			title.setVisibility(GONE);
 		}
+
 		if(item.getSnippet() != null) {
 			snippet.setVisibility(VISIBLE);
 			snippet.setText(item.getSnippet());

@@ -1,0 +1,136 @@
+---
+name: Titanium.Android.Intent
+description: The Titanium binding of an [Android Intent](http://developer.android.com/reference/android/content/Intent.html)
+extends: Titanium.Proxy
+platforms: [android]
+since: "1.5"
+methods:
+  - name: addCategory
+    description: Add a category to this Intent. See the category constants in <Titanium.Android>.
+    parameters:
+      - name: name
+        description: The category name. See the category constants in <Titanium.Android>
+        type: String
+  - name: addFlags
+    description: augment the existing flags on the Intent.
+    parameters:
+      - name: flags
+        description: the flags to add to the existing set.
+        type: Number
+  - name: getBooleanExtra
+    description: Get a boolean property from this Intent
+    returns:
+        type: Boolean
+    parameters:
+      - name: name
+        description: The boolean property to get
+        type: String
+  - name: getData
+    description: Get the Data URI from this Intent
+  - name: getDoubleExtra
+    description: Get a double property from this Intent
+    returns:
+        type: Number
+    parameters:
+      - name: name
+        description: The double property to get
+        type: String
+  - name: getIntExtra
+    description: Get a int property from this Intent
+    returns:
+        type: Number
+    parameters:
+      - name: name
+        description: The int property to get
+        type: String
+  - name: getLongExtra
+    description: Get a long property from this Intent
+    returns:
+        type: Number
+    parameters:
+      - name: name
+        description: The long property to get
+        type: String
+  - name: getStringExtra
+    description: Get a string property from this Intent
+    returns:
+        type: String
+    parameters:
+      - name: name
+        description: The string property to get
+        type: String
+  - name: hasExtra
+    description: Returns whether or not this Intent has a property
+    returns:
+        type: Boolean
+    parameters:
+      - name: name
+        description: The property name to check for
+        type: String
+  - name: putExtra
+    description: Put an extra property on this Intent
+    parameters:
+      - name: name
+        description: The property name
+        type: String
+      - name: value
+        description: The property value
+        type: Object
+  - name: putExtraUri
+    description: Put a URI property on this Intent (useful for <Titanium.Android.EXTRA_STREAM>)
+    parameters:
+      - name: name
+        description: The property name
+        type: String
+      - name: value
+        description: The URI string
+        type: String
+properties:
+  - name: action
+    description: An action constant from <Titanium.Android>
+    type: String
+  - name: className
+    description: The Java class name of the activity (packageName must also be set)
+    type: String
+  - name: data
+    description: The Intent's Data URI. See also Android's [Intent.setData](http://developer.android.com/reference/android/content/Intent.html#setData(android.net.Uri))
+    type: String
+  - name: flags
+    description: Intent flags. See the flags constants in <Titanium.Android>.
+    type: Number
+  - name: packageName
+    description: The fully-qualified Java package name of the activity
+    type: String
+  - name: type
+    description: The mime type for this Intent. See also Android's [Intent.setType](http://developer.android.com/reference/android/content/Intent.html#setType(java.lang.String))
+    type: String
+  - name: url
+    description: The URL to a Titanium Javascript Activity
+    type: String
+examples:
+  - title: Create an Intent for Launching an Activity
+    example: |
+        
+            var intent = Ti.Android.createIntent({
+                action: Ti.Android.ACTION_MAIN,
+                url: 'activity1.js'
+            });
+            intent.addCategory(Ti.Android.CATEGORY_LAUNCHER);
+            Ti.Android.currentActivity.startActivity(intent);
+        
+  - title: Create an Intent to get a Contact URI from the user's contacts
+    example: |
+        
+            var intent = Ti.Android.createIntent({
+                action: Ti.Android.ACTION_GET_CONTENT,
+                type: "vnd.android.cursor.item/phone"
+            });
+    
+  - title: Pick a Photo from the Photo Gallery
+    example: |
+        
+            var intent = Ti.Android.createIntent({
+                action: Ti.Android.ACTION_PICK,
+                type: "image/*"
+            });
+            intent.addCategory(Ti.Android.CATEGORY_DEFAULT);
