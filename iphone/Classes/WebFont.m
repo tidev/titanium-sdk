@@ -148,6 +148,10 @@
 				result = [UIFont systemFontOfSize:self.size];
 			}
 		}
+        // Last-ditch attempt; if we can't find a font, we need to supply one. Required for iOS 3, which apparently chokes on 'nil' fonts.
+        if (result == nil) {
+            result = [UIFont systemFontOfSize:self.size];
+        }
 		font = [result retain];
 	}
 	return font;
@@ -185,7 +189,13 @@
 	id familyObject = [fontDict objectForKey:@"fontFamily"];
 	if ([familyObject isKindOfClass:[NSString class]])
 	{
-		self.family = familyObject;
+        // HACK FOR COMPATBILITY WITH ANDROID - APPRENTLY THIS IS OK.
+        if ([familyObject isEqual:@"monospace"] || [familyObject isEqual:@"monospaced"]) {
+            self.family = @"Courier";
+        }
+        else {
+            self.family = familyObject;
+        }
 		didChange = YES;
 	}
 	else if (inheritedFont!=nil && inheritedFont.family!=nil)
