@@ -22,6 +22,7 @@
 
 	UIInterfaceOrientation lastOrientation;
 	UIInterfaceOrientation windowOrientation;
+	BOOL ignoreRotations;
 
 	NSMutableArray * viewControllerStack;
 	BOOL isCurrentlyVisible;
@@ -64,5 +65,7 @@
 
 - (void)openWindow:(TiWindowProxy *)window withObject:(id)args;
 - (void)closeWindow:(TiWindowProxy *)window withObject:(id)args;
+
+-(UIInterfaceOrientation)mostRecentlyAllowedOrientation;
 
 @end
