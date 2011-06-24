@@ -634,6 +634,11 @@ What this does mean is that any
 
 #pragma mark Keyboard handling
 
+-(UIView *)viewForKeyboardAccessory;
+{
+	return [[[[TiApp app] window] subviews] lastObject];
+}
+
 -(void)extractKeyboardInfo:(NSDictionary *)userInfo
 {
 	NSValue *v = nil;
@@ -684,7 +689,7 @@ What this does mean is that any
 		startingFrame.origin.y = startingCenter.y - startingFrame.size.height/2.0;
 	}
 
-	UIView * ourView = [self view];
+	UIView * ourView = [self viewForKeyboardAccessory];
 
 	startFrame = [ourView convertRect:startingFrame fromView:nil];
 	endFrame = [ourView convertRect:endingFrame fromView:nil];
@@ -775,10 +780,10 @@ What this does mean is that any
 	if (enteringAccessoryView != nil)
 	{
 		//Start animation to put it into place.
-		if([enteringAccessoryView superview] != [self view])
+		if([enteringAccessoryView superview] != [self viewForKeyboardAccessory])
 		{
 			[self placeView:enteringAccessoryView nearTopOfRect:startFrame aboveTop:NO];
-			[[self view] addSubview:enteringAccessoryView];
+			[[self viewForKeyboardAccessory] addSubview:enteringAccessoryView];
 		}
 		targetedFrame = endFrame;
 		[UIView beginAnimations:@"enter" context:enteringAccessoryView];
