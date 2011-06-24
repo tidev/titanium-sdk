@@ -199,7 +199,13 @@
 
 - (void) viewDidAppear:(BOOL)animated
 {
+	ignoreRotations = NO;
 	[self.view becomeFirstResponder];
+	CGFloat duration = 0.0;
+	if (animated) {
+		duration = [[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
+	}
+	[self manuallyRotateToOrientation:[self mostRecentlyAllowedOrientation] duration:duration];
     [super viewDidAppear:animated];
 	VerboseLog(@"%@%@",self,CODELOCATION);
 	[[viewControllerStack lastObject] viewDidAppear:animated];
@@ -207,6 +213,7 @@
 
 - (void) viewDidDisappear:(BOOL)animated
 {
+	ignoreRotations = YES;
 	isCurrentlyVisible = NO;
 	[self.view resignFirstResponder];
     [super viewDidDisappear:animated];
@@ -238,18 +245,16 @@
 
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration
 {
+	if (ignoreRotations) {
+		return;
+	}
+	
 	UIApplication * ourApp = [UIApplication sharedApplication];
 	if (newOrientation != [ourApp statusBarOrientation])
 	{
 		[keyboardFocusedProxy blur:nil];
 		[ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
 		[keyboardFocusedProxy focus:nil];
-	}
-	
-	// if already in the orientation, don't do it again
-	if (lastOrientation==newOrientation)
-	{
-		return;
 	}
 
 	CGAffineTransform transform;
