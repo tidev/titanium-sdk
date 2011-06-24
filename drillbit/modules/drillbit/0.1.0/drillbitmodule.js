@@ -118,6 +118,9 @@ Drillbit.prototype.processArgv = function() {
 };
 
 Drillbit.prototype.initPlatforms = function() {
+	if (!('platforms' in this.argv)) {
+		this.argv.platforms = Titanium.Properties.getString('testsPlatforms', null);
+	}
 	var platformsArg = 'platforms' in this.argv ? this.argv.platforms.split(',') : null;
 	
 	if (ti.Platform.isOSX()) {

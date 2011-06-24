@@ -356,6 +356,9 @@ $(window).ready(function()
 		eachPlatformCheck(function(name, platform, platformCheck, suitesStatus) {
 			suitesStatus[name][platform] = $(platformCheck).attr('src').indexOf('check_on') != -1;
 		});
+		if (Drillbit.argv.platforms != null) {
+			Titanium.App.Properties.setString("testsPlatforms", Drillbit.argv.platforms);
+		}
 	};
 	Titanium.UI.currentWindow.addEventListener("close", saveSettings);
 	runLink.click(function () {
