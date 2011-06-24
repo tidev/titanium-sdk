@@ -357,6 +357,10 @@ AndroidEmulator.prototype.runTestHarness = function(suite, stagedFiles) {
 			});
 		});
 		process.setOnExit(function(e) {
+			if (process.getExitCode() != 0) {
+				self.drillbit.handleTestError(suite);
+				return;
+			}
 			if (needsInstall) {
 				self.installTestHarness(true);
 			} else if (needsLaunch) {
