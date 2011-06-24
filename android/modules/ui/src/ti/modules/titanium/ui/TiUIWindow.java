@@ -118,6 +118,7 @@ public class TiUIWindow extends TiUIView
 	public TiUIWindow(TiWindowProxy proxy, Activity activity)
 	{
 		super(proxy);
+		resolver = new TiPropertyResolver(proxy.getProperties());
 		if (idGenerator == null) {
 			idGenerator = new AtomicInteger(0);
 		}
