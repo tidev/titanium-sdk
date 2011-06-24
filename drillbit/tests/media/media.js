@@ -48,6 +48,8 @@ describe("Ti.Media tests", {
 		if (!isAndroid) valueOf(player.state).shouldBeNumber();
 		valueOf(player.paused).shouldBeBoolean();
 		if (!isAndroid) valueOf(player.waiting).shouldBeBoolean();
+		if (!isAndroid) valueOf(player.bufferSize).shouldBeInteger();
+		
 	},
 	videoPlayerAPIs: function() {
 		var isAndroid = (Ti.Platform.osname === 'android');
@@ -88,4 +90,5 @@ describe("Ti.Media tests", {
 		timeout: 5000,
 		timeoutError: "Timed out waiting for sound to play."
 	})
+	// TODO: Need a player streaming test for validating some of those features
 })
