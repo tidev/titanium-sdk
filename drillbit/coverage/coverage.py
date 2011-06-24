@@ -135,6 +135,7 @@ class CoverageData(object):
 		self.modules = {}
 		self.proxies = {}
 		self.topLevel = {}
+		self.disabledCategories = []
 		self.category = None
 
 		self.apiCount = { self.TOTAL: 0 }
@@ -150,6 +151,9 @@ class CoverageData(object):
 
 	def getCategoryDesc(self, category):
 		return self.categoryDesc[category]
+
+	def disableCategory(self, category, platform):
+		self.disabledCategories.append((category, platform))
 
 	def setCategory(self, category):
 		self.category = category
@@ -179,7 +183,8 @@ class CoverageData(object):
 			for category in self.ALL_CATEGORIES:
 				map[key][category] = {}
 				for platform in self.ALL_PLATFORMS:
-					if platform not in platforms:
+					disabled = (category, platform) in self.disabledCategories
+					if platform not in platforms or disabled:
 						map[key][category][platform] = self.STATUS_NA
 					else:
 						map[key][category][platform] = self.STATUS_NO
@@ -290,6 +295,7 @@ class CoverageMatrix(object):
 
 		if not os.path.exists(distAndroidDir):
 			log.warn("Skipping Android bindings, %s not found" % distAndroidDir)
+			self.data.disableCategory(self.data.CATEGORY_BINDING, self.data.PLATFORM_ANDROID)
 			return
 
 		for jar in os.listdir(distAndroidDir):
@@ -308,6 +314,7 @@ class CoverageMatrix(object):
 
 		if not os.path.exists(distIOSDir):
 			log.warn("Skipping iOS bindings, %s not found" % distIOSDir)
+			self.data.disableCategory(self.data.CATEGORY_BINDING, self.data.PLATFORM_IOS)
 			return
 
 		for file in os.listdir(distIOSDir):
@@ -330,6 +337,8 @@ class CoverageMatrix(object):
 
 		if not os.path.exists(drillbitResultsDir):
 			log.warn("Skipping Drillbit Test Coverage, %s not found" % drillbitResultsDir)
+			for p in self.data.ALL_PLATFORMS:
+				self.data.disableCategory(self.data.CATEGORY_DRILLBIT, p)
 			return
 
 		for f in os.listdir(drillbitResultsDir):
@@ -338,6 +347,11 @@ class CoverageMatrix(object):
 				self.mergeDrillbitCoverage(data)
 
 		self.pruneDrillbitCoverage()
+
+		for p in self.data.ALL_PLATFORMS:
+			if p not in self.drillbitCoverage:
+				log.warn("Skipping Drillbit Test Coverage for %s platform, no data was found" % p)
+				self.data.disableCategory(self.data.CATEGORY_DRILLBIT, p)
 
 	def mergeDrillbitCoverage(self, data):
 		for platform in data.keys():
@@ -410,6 +424,8 @@ class CoverageMatrix(object):
 
 		if not os.path.exists(tdocDir):
 			log.warn("Skipping TDoc data, %s not found" % tdocDir)
+			for platform in self.data.ALL_PLATFORMS:
+				self.data.disabledCategory(self.data.CATEGORY_TDOC, platform)
 			return
 
 		for root, dirs, files in os.walk(tdocDir):
@@ -669,6 +685,10 @@ class CoverageMatrix(object):
 	def countDrillbitCoverage(self, platform, apiType, component, api):
 		platforms = [platform]
 		apiCount = self.drillbitCoverage[platform][apiType][component][api]
+		if component == "Titanium.Yahoo" and "propertySet" in apiCount:
+			# prune when the Titanium.Yahoo APIs are set from the module JS
+			del apiCount["propertySet"]
+
 		if "propertyGet" in apiCount or "propertySet" in apiCount or "functionCall" in apiCount:
 			isModule = apiType == "modules"
 			isTopLevel = apiType == "other"
