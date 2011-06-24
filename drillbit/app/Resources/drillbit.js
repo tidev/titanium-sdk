@@ -226,6 +226,15 @@ function reloadTests() {
 
 $(window).ready(function()
 {
+	var mouseDown = false,
+		startY = 0,
+		drillbitConsole= document.getElementById('console'),
+		drillbitResize= document.getElementById('resize-bar'), 
+		drillbitSuite=document.getElementsByClassName('suites')[0],
+		startHeightSuite=$(drillbitSuite).height(),
+		startHeightConsole = $(drillbitConsole).height(),
+		resizerHeight = 12;	
+
 	if ('webConsole' in Drillbit.argv) {
 		Titanium.UI.currentWindow.showInspector(true);
 	}
@@ -233,7 +242,7 @@ $(window).ready(function()
 	Drillbit.runTestsAsync = true;
 	Drillbit.frontend = frontend;
 	Drillbit.window = window;
-	initUI();
+	initUI();	
 	
 	var runLink = $('#run-link');
 	$('#toggle-link').click(function() {
@@ -254,9 +263,32 @@ $(window).ready(function()
 			Drillbit.emulators.android.needsBuild = $(this).is(':checked');
 		}	
 	});
-	
-	runLink.click(function ()
-	{
+	$("#resize-bar").mousedown(function() {
+		mouseDown = true;
+		startHeightConsole = $(drillbitConsole).height();
+		startHeightSuite = $(drillbitSuite).height();		
+		startY = event.clientY;
+	});
+	$("body").mousemove(function() {
+		if (mouseDown)
+		{
+			mouseY = event.clientY;
+			$(drillbitConsole).height((startY - mouseY) + startHeightConsole);
+			$(drillbitSuite).height(window.innerHeight - 85 - $(drillbitConsole).height());
+			drillbitResize.style.bottom = (startY - mouseY) + startHeightConsole + resizerHeight;
+		}
+	});
+	$("body").mouseup(function() {
+		if (mouseDown) {
+			mouseDown = false;
+			mouseY = event.clientY;
+			$(drillbitConsole).height((startY - mouseY) + startHeightConsole);
+			$(drillbitSuite).height(window.innerHeight - 85 - $(drillbitConsole).height());
+			drillbitResize.style.bottom = (startY - mouseY) + startHeightConsole + resizerHeight;
+		}
+		
+	});
+	runLink.click(function () {
 		if (!runLinkDisabled)
 		{
 			reloadTests();
