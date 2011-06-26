@@ -98,10 +98,10 @@
 			return NO;
 		}
 	}
-    [_spinner sizeToFit];
-    [_spinner startAnimating];
-    _spinner.center = _webView.center;
     _spinner.hidden = NO;
+    [_spinner sizeToFit];
+    _spinner.center = _webView.center;
+    [_spinner startAnimating];
 	return YES;
 }
 
