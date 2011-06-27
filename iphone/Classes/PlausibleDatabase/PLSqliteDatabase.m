@@ -32,6 +32,33 @@
 /* Keep trying for up to 5 seconds */
 #define SQLITE_BUSY_TIMEOUT 5000
 
+/**
+ * An SQLite Distance function
+ *
+ * Extracted from http://www.thismuchiknow.co.uk/?p=71
+ */
+#define DEG2RAD(degrees) (degrees * 0.01745327) // degrees * pi over 180
+
+static void distanceFunc(sqlite3_context *context, int argc, sqlite3_value **argv) {
+
+  assert(argc == 4);
+
+  if (sqlite3_value_type(argv[0]) == SQLITE_NULL || sqlite3_value_type(argv[1]) == SQLITE_NULL || sqlite3_value_type(argv[2]) == SQLITE_NULL || sqlite3_value_type(argv[3]) == SQLITE_NULL) {
+    sqlite3_result_null(context);
+    return;
+  }
+
+  double lat1 = sqlite3_value_double(argv[0]);
+  double lon1 = sqlite3_value_double(argv[1]);
+  double lat2 = sqlite3_value_double(argv[2]);
+  double lon2 = sqlite3_value_double(argv[3]);
+
+  double lat1rad = DEG2RAD(lat1);
+  double lat2rad = DEG2RAD(lat2);
+
+  sqlite3_result_double(context, acos(sin(lat1rad) * sin(lat2rad) + cos(lat1rad) * cos(lat2rad) * cos(DEG2RAD(lon2) - DEG2RAD(lon1))) * 6378.1);
+}
+
 
 /** A generic SQLite exception. */
 NSString *PLSqliteException = @"PLSqliteException";
@@ -151,6 +178,9 @@ NSString *PLSqliteException = @"PLSqliteException";
                 queryString: nil];
         return NO;
     }
+    
+    /* add distance function to sqlite instance */
+    sqlite3_create_function(_sqlite, "distance", 4, SQLITE_UTF8, NULL, &distanceFunc, NULL, NULL);
     
     /* Success */
     return YES;

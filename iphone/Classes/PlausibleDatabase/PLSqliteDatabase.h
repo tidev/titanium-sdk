@@ -64,6 +64,8 @@ extern NSString *PLSqliteException;
 - (BOOL) populateError: (NSError **) result withErrorCode: (PLDatabaseError) errorCode
            description: (NSString *) localizedDescription queryString: (NSString *) queryString;
 
+-(void)distanceFunc:(id)args;
+
 @end
 
 #endif
