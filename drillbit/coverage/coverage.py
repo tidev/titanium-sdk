@@ -15,11 +15,14 @@ import zipfile
 import shutil
 import yaml
 import subprocess
+from mako.template import Template
+from mako import exceptions
 
 try:
 	import json
 except ImportError, e:
 	import simplejson as json
+
 
 coverageDir = os.path.dirname(os.path.abspath(__file__))
 drillbitDir = os.path.dirname(coverageDir)
@@ -105,6 +108,7 @@ class CoverageData(object):
 	CATEGORY_DRILLBIT = "drillbit"
 	TOP_LEVEL = "[Top Level]"
 	TOTAL = "total"
+	TOTAL_YES = "totalYes"
 
 	ALL_CATEGORIES = [CATEGORY_TDOC, CATEGORY_BINDING, CATEGORY_DRILLBIT]
 	categoryDesc = {
@@ -140,7 +144,7 @@ class CoverageData(object):
 
 		self.apiCount = { self.TOTAL: 0 }
 		for category in self.ALL_CATEGORIES:
-			self.apiCount[category] = { self.TOTAL : 0 }
+			self.apiCount[category] = { self.TOTAL : 0, self.TOTAL_YES: 0 }
 			for platform in self.ALL_PLATFORMS:
 				self.apiCount[category][platform] = {
 					self.STATUS_YES: 0,
@@ -203,12 +207,17 @@ class CoverageData(object):
 						apiMap = apiTypeMap[api]
 						for category in apiMap.keys():
 							categoryMap = apiMap[category]
+							hasYes = False
 							for platform in categoryMap.keys():
 								status = categoryMap[platform]
 								self.apiCount[category][platform][status] += 1
 								if status != self.STATUS_NA:
 									self.apiCount[category][platform][self.TOTAL] += 1
+								if status == self.STATUS_YES:
+									hasYes = True
 							self.apiCount[category][self.TOTAL] += 1
+							if hasYes:
+								self.apiCount[category][self.TOTAL_YES] += 1
 					self.apiCount[self.TOTAL] += 1
 
 	def addFunction(self, fn, component, platforms, isModule=False, isTopLevel=False):
@@ -272,12 +281,15 @@ class CoverageEncoder(json.JSONEncoder):
 class CoverageMatrix(object):
 	def __init__(self, seedData=None):
 		self.data = CoverageData()
+		self.delta = None
 		if seedData:
 			self.drillbitTests = seedData["drillbitTests"]
 			self.androidBindings = seedData["androidBindings"]
 			self.iosBindings = seedData["iosBindings"]
 			self.drillbitCoverage = seedData["drillbitCoverage"]
 			self.tdocTypes = seedData["tdocTypes"]
+			if "delta" in seedData:
+				self.delta = seedData["delta"]
 
 	def initSources(self, options):
 		self.initAndroidBindings(options.distAndroidDir)
@@ -766,7 +778,21 @@ class CoverageMatrix(object):
 						propertyPlatforms = typePlatforms
 					self.data.addProperty(property["name"], component, propertyPlatforms, isModule=isModule)
 
-	def genMatrix(self, outDir):
+	def genDelta(self, deltaSeedFile):
+		otherData = open(deltaSeedFile, "r").read()
+		other = CoverageMatrix(json.loads(otherData))
+		other.genData()
+
+		self.delta = {"apis": {}, "tests": {}}
+		for category in self.data.ALL_CATEGORIES:
+			self.delta["apis"][category] = \
+				self.data.apiCount[category][self.data.TOTAL_YES] - \
+					other.data.apiCount[category][self.data.TOTAL_YES]
+
+		self.delta["tests"][self.data.CATEGORY_DRILLBIT] = \
+			self.drillbitTests[self.data.TOTAL] - other.drillbitTests[self.data.TOTAL]
+
+	def genData(self):
 		self.genAndroidBindingData()
 		self.genIOSBindingData()
 		self.genDrillbitCoverageData()
@@ -774,10 +800,18 @@ class CoverageMatrix(object):
 		self.genTDocData()
 		self.data.countAPIs()
 
+	def genMatrix(self, options):
+		outDir = options.outDir
+
 		self.genJSON(outDir)
 		self.genHTML(outDir)
+		if options.genWiki:
+			self.genWiki(outDir)
+
 		log.info("Coverage report generated")
 		log.info("  HTML: %s" % os.path.join(outDir, "index.html"))
+		if options.genWiki:
+			log.info("  Wiki: %s" % os.path.join(outDir, "summary.wiki"))
 		log.info("  JSON: %s" % os.path.join(outDir, "matrixData.json"))
 		log.info("  Seed JSON: %s" % os.path.join(outDir, "seed.json"))
 
@@ -813,44 +847,46 @@ class CoverageMatrix(object):
 		mdFile.close()
 
 		seedFile = open(os.path.join(outDir, "seed.json"), "w")
-		seedFile.write(json.dumps({
+		data = {
 			"androidBindings": self.androidBindings,
 			"iosBindings": self.iosBindings,
 			"drillbitCoverage": self.drillbitCoverage,
 			"drillbitTests": self.drillbitTests,
 			"tdocTypes": self.tdocTypes
-		}))
+		}
+
+		if self.delta != None:
+			data["delta"] = self.delta
+
+		seedFile.write(json.dumps(data))
 		seedFile.close()
 
+	def renderTemplate(self, tmpl, outPath, **kwargs):
+		try:
+			content = tmpl.render(**kwargs)
+			open(outPath, "w").write(content)
+		except:
+			print exceptions.text_error_template().render()
+			sys.exit(1)
+
 	def genHTML(self, outDir):
-		from mako.template import Template
-		from mako import exceptions
 		indexTemplate = Template(filename=os.path.join(coverageDir, "index.html"),
 			output_encoding='utf-8', encoding_errors='replace')
 		componentTemplate = Template(filename=os.path.join(coverageDir, "component.html"),
 			output_encoding='utf-8', encoding_errors='replace')
-		summaryTemplate = Template(filename=os.path.join(coverageDir, "summary.wiki"),
-			output_encoding="utf-8", encoding_errors="replace")
 
-		def renderTemplate(tmpl, relativePath, **kwargs):
-			try:
-				content = tmpl.render(**kwargs)
-				outPath = os.path.join(outDir, relativePath)
-				open(outPath, "w").write(content)
-			except:
-				print exceptions.text_error_template().render()
-				sys.exit(1)
-
-		renderTemplate(indexTemplate, "index.html",
+		self.renderTemplate(indexTemplate,
+			os.path.join(outDir, "index.html"),
 			data = self.data,
 			drillbitTests = self.drillbitTests,
+			delta = self.delta,
 			countCoverage = self.countCoverage,
 			upperFirst = upperFirst)
 
 		def toComponentHTML(components, prefix):
 			for component in components:
-				renderTemplate(componentTemplate,
-					"%s-%s.html" % (prefix, component),
+				self.renderTemplate(componentTemplate,
+					os.path.join(outDir, "%s-%s.html" % (prefix, component)),
 					data = self.data,
 					components = components,
 					component = component,
@@ -867,9 +903,15 @@ class CoverageMatrix(object):
 			path = os.path.join(coverageDir, copyFile)
 			shutil.copy(path, outDir)
 
-		renderTemplate(summaryTemplate, "summary.wiki",
+	def genWiki(self, outDir):
+		summaryTemplate = Template(filename=os.path.join(coverageDir, "summary.wiki"),
+			output_encoding="utf-8", encoding_errors="replace")
+
+		self.renderTemplate(summaryTemplate,
+			os.path.join(outDir, "summary.wiki"),
 			data = self.data,
 			drillbitTests = self.drillbitTests,
+			delta = self.delta,
 			countCoverage = self.countCoverage,
 			upperFirst = upperFirst)
 
@@ -877,6 +919,8 @@ def main():
 	parser = optparse.OptionParser()
 	parser.add_option("-s", "--seed", dest="seedFile",
 		default=None, help="Seed the matrix with pre-initialized JSON data")
+	parser.add_option("--delta-seed", dest="deltaSeedFile",
+		default=None, help="Generate delta information from a previous coverage report with a path to the report's seed.json")
 	parser.add_option("-o", "--output", dest="outDir",
 		default=None, help="The output directory that the coverage report is generated to")
 	parser.add_option("-a", "--dist-android-dir", dest="distAndroidDir",
@@ -887,6 +931,8 @@ def main():
 		default=None, help="The directory that contains Drillbit's test results JSON (default: build/drillbit/Drillbit.app/Contents/Resources/test_results")
 	parser.add_option("-t", "--tdoc-dir", dest="tdocDir",
 		default=None, help="The directory that contains TDoc2 YML files (default: apidoc)")
+	parser.add_option("-w", "--gen-wiki", dest="genWiki", action="store_true",
+		default=False, help="Generate wiki data (requires a delta seed, default: no)")
 	(options, args) = parser.parse_args()
 
 	seedData = None
@@ -895,14 +941,26 @@ def main():
 
 	outDir = options.outDir
 	if options.outDir == None:
-		outDir = os.path.join(mobileDir, "dist", "coverage")
+		options.outDir = os.path.join(mobileDir, "dist", "coverage")
 
-	if not os.path.exists(outDir):
+	if not os.path.exists(options.outDir):
 		os.makedirs(outDir)
 
 	matrix = CoverageMatrix(seedData)
-	matrix.initSources(options)
-	matrix.genMatrix(outDir)
+	if seedData == None:
+		matrix.initSources(options)
+
+	matrix.genData()
+
+	if options.deltaSeedFile != None:
+		matrix.genDelta(options.deltaSeedFile)
+
+	if options.genWiki:
+		if options.deltaSeedFile == None:
+			log.error("Wiki generation requires a delta seed file be supplied with --delta-seed")
+			sys.exit(1)
+	
+	matrix.genMatrix(options)
 
 if __name__ == "__main__":
 	main()
