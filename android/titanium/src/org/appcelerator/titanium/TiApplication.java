@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -32,6 +32,7 @@ import org.appcelerator.titanium.analytics.TiAnalyticsModel;
 import org.appcelerator.titanium.analytics.TiAnalyticsService;
 import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiCacheHelper;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
@@ -85,6 +86,7 @@ public abstract class TiApplication extends Application
 	private String buildVersion = "", buildTimestamp = "", buildHash = "";
 	protected ArrayList<KrollModule> modules = new ArrayList<KrollModule>();
 	protected TiDeployData deployData;
+	protected TiCacheHelper cacheHelper;
 
 	public TiApplication() {
 		Log.checkpoint(LCAT, "checkpoint, app created.");
@@ -209,6 +211,7 @@ public abstract class TiApplication extends Application
 		if (getDeployType().equals(DEPLOY_TYPE_DEVELOPMENT)) {
 			deployData = new TiDeployData();
 		}
+		cacheHelper = new TiCacheHelper(this);
 		//systemProperties.setString("ti.version", buildVersion); // was always setting "1.0"
 	}
 
@@ -273,6 +276,7 @@ public abstract class TiApplication extends Application
 			needsStartEvent = false;
 			Log.i(LCAT, "Analytics have been disabled");
 		}
+		cacheHelper.scheduleCleanCacheDirs();
 	}
 
 	public TiRootActivity getRootActivity() {
@@ -566,5 +570,10 @@ public abstract class TiApplication extends Application
 		if (getRootActivity() != null) {
 			getRootActivity().restartActivity(delay);
 		}
+	}
+
+	public TiCacheHelper getCacheHelper()
+	{
+		return cacheHelper;
 	}
 }

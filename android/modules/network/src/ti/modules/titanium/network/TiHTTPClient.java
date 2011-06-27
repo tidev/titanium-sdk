@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2010-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -77,6 +77,7 @@ import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiCacheHelper;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
@@ -263,14 +264,21 @@ public class TiHTTPClient
 		}
 
 		private TiFile createFileResponseData(boolean dumpResponseOut) throws IOException {
-			File outFile = File.createTempFile("tihttp", "tmp");
+			File outFile;
+			TiApplication app = TiApplication.getInstance();
+			if (app != null) {
+				TiCacheHelper helper = app.getCacheHelper();
+				outFile = helper.createExternalTempFile("tihttp", "tmp");
+			} else {
+				outFile = File.createTempFile("tihttp", "tmp");
+			}
+
 			TiFile tiFile = new TiFile(proxy.getTiContext(), outFile, outFile.getAbsolutePath(), false);
-			
 			if (dumpResponseOut) {
 				ByteArrayOutputStream byteStream = (ByteArrayOutputStream) responseOut;
 				tiFile.write(TiBlob.blobFromData(proxy.getTiContext(), byteStream.toByteArray()), false);
 			}
-			
+
 			responseOut = new FileOutputStream(outFile, dumpResponseOut);
 			responseData = TiBlob.blobFromFile(proxy.getTiContext(), tiFile, contentType);
 			return tiFile;
@@ -1007,7 +1015,7 @@ public class TiHTTPClient
 					result = client.execute(host, request, handler);
 				} catch (IOException e) {
 					if (!aborted) {
-						throw new IOException(e);
+						throw e;
 					}
 				}
 				if(result != null) {
