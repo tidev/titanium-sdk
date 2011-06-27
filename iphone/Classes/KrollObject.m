@@ -55,35 +55,6 @@ BOOL IsDateLike(TiContextRef jsContext, TiObjectRef object, TiValueRef *v)
 }
 
 //
-// function to determine if the object passed is a JS Array 
-//
-BOOL IsArrayLike(TiContextRef jsContext, TiObjectRef object)
-{
-	//TODO: this has got to be slow since we have to dip into the object 3 times
-	//can we get smarter here?
-	
-	BOOL isArrayLike = YES;
-	
-	TiStringRef pop = TiStringCreateWithUTF8CString("pop");
-	isArrayLike = isArrayLike && TiObjectHasProperty(jsContext, object, pop);
-	TiStringRelease(pop);
-	
-	if (!IsArrayLike) return NO;
-	
-	TiStringRef concat = TiStringCreateWithUTF8CString("concat");
-	isArrayLike = isArrayLike && TiObjectHasProperty(jsContext, object, concat);
-	TiStringRelease(concat);
-
-	if (!IsArrayLike) return NO;
-
-	TiStringRef length = TiStringCreateWithUTF8CString("length");
-	isArrayLike = isArrayLike && TiObjectHasProperty(jsContext, object, length);
-	TiStringRelease(length);
-	
-	return isArrayLike;
-}
-
-//
 // function for converting a TiValueRef into a NSDictionary*
 //
 NSDictionary* TiValueToDict(KrollContext *context, TiValueRef value)
@@ -100,18 +71,11 @@ NSDictionary* TiValueToDict(KrollContext *context, TiValueRef value)
 	{
 		TiStringRef jsString = TiPropertyNameArrayGetNameAtIndex(props, i);
 		TiValueRef v = TiObjectGetProperty(jsContext, obj, jsString, NULL);
-		
-		size_t size = TiStringGetMaximumUTF8CStringSize(jsString);
-		char* cstring = (char*) malloc(size);
-		TiStringGetUTF8CString(jsString, cstring, size);
-		NSString *jsonkey = [NSString stringWithUTF8String:cstring];
+		NSString* jsonkey = [NSString stringWithCharacters:TiStringGetCharactersPtr(jsString) length:TiStringGetLength(jsString)];
 		id jsonvalue = TiValueToId(context,v);
-		if (jsonkey!=nil && jsonvalue!=nil)
-		{
+		if (jsonvalue && jsonkey) {
 			[dict setObject:jsonvalue forKey:jsonkey];
 		}
-		free(cstring);
-		TiStringRelease(jsString);
 	}
 	
 	TiPropertyNameArrayRelease(props);
@@ -162,68 +126,73 @@ NSString* TiStringToNSString(TiContextRef jsContext, TiValueRef value)
 //
 id TiValueToId(KrollContext *context, TiValueRef v)
 {
-	if (v == NULL)
-	{
-		//As opposed to null, this really is a case of no value.
-		//TODO: Right? Or should this be a NSNull?
-		return nil;
-	}
-	TiContextRef jsContext = [context context];
-	if (TiValueIsString(jsContext,v))
-	{
-		return TiStringToNSString(jsContext, v);
-	}
-	else if (TiValueIsNumber(jsContext,v))
-	{
-		return [NSNumber numberWithDouble:TiValueToNumber(jsContext, v, NULL)];
-	}
-	else if (TiValueIsBoolean(jsContext, v))
-	{
-		return [NSNumber numberWithBool:TiValueToBoolean(jsContext, v)];
-	}
-	else if (TiValueIsNull(jsContext,v) || TiValueIsUndefined(jsContext, v))
-	{
-		// we can't use nil since that would prevent the value from being placed
-		// in a dictionary (for example) so we need to use the special NSNull class
-		// to indicate that this is an *explicit* null vs. not found
-		return [NSNull null];
-	}
-	else if (TiValueIsObject(jsContext, v))
-	{
-		TiObjectRef obj = TiValueToObject(jsContext, v, NULL);
-		id privateObject = (id)TiObjectGetPrivate(obj);
-		if ([privateObject isKindOfClass:[KrollObject class]])
-		{
-			return [privateObject target];
-		}
-		if (IsArrayLike(jsContext,obj))
-		{
-			TiStringRef lengthProp = TiStringCreateWithUTF8CString("length");
-			TiValueRef length = TiObjectGetProperty(jsContext, obj, lengthProp, NULL);
-			TiStringRelease(lengthProp);
-			double len = TiValueToNumber(jsContext, length, NULL);
-			NSMutableArray *result = [[NSMutableArray alloc] initWithCapacity:len];
-			for (size_t c=0;c<len;c++)
-			{
-				TiValueRef valueRef = TiObjectGetPropertyAtIndex(jsContext, obj, c, NULL);
-				id value = TiValueToId(context,valueRef);
-				[result addObject:value];
+	id result = nil;
+	if (v) {
+		TiContextRef jsContext = [context context];
+		TiType tt = TiValueGetType(jsContext, v);
+		switch (tt) {
+			case kTITypeUndefined:
+			case kTITypeNull: {
+				result = [NSNull null];
+				break;
 			}
-			return [result autorelease];
+			case kTITypeBoolean: {
+				result = [NSNumber numberWithBool:TiValueToBoolean(jsContext, v)];
+				break;
+			}
+			case kTITypeNumber: {
+				result = [NSNumber numberWithDouble:TiValueToNumber(jsContext, v, NULL)];
+				break;
+			}
+			case kTITypeString: {
+				result = TiStringToNSString(jsContext, v);
+				break;
+			}
+			case kTITypeObject: {
+				TiObjectRef obj = TiValueToObject(jsContext, v, NULL);
+				id privateObject = (id)TiObjectGetPrivate(obj);
+				if ([privateObject isKindOfClass:[KrollObject class]]) {
+					result = [privateObject target];
+					break;
+				}
+				if (TiValueIsArray(jsContext,obj)) {
+					TiStringRef lengthProp = TiStringCreateWithUTF8CString("length");
+					TiValueRef length = TiObjectGetProperty(jsContext, obj, lengthProp, NULL);
+					TiStringRelease(lengthProp);
+					double len = TiValueToNumber(jsContext, length, NULL);
+					NSMutableArray* resultArray = [[NSMutableArray alloc] initWithCapacity:len];
+					for (size_t c=0; c<len; ++c)
+					{
+						TiValueRef valueRef = TiObjectGetPropertyAtIndex(jsContext, obj, c, NULL);
+						id value = TiValueToId(context,valueRef);
+						[resultArray addObject:value];
+					}
+					result = [resultArray autorelease];
+					break;
+				}
+				if (TiValueIsDate(jsContext, obj)) {
+					TiStringRef jsString = TiStringCreateWithUTF8CString("getTime");
+					TiValueRef fn = TiObjectGetProperty(jsContext, obj, jsString, NULL);
+					TiObjectRef fnObj = TiValueToObject(jsContext, fn, NULL);
+					TiValueRef resultDate = TiObjectCallAsFunction(jsContext,fnObj,obj,0,NULL,NULL);
+					TiStringRelease(jsString);
+					double value = TiValueToNumber(jsContext, resultDate, NULL);
+					result = [NSDate dateWithTimeIntervalSince1970:value/1000]; // ms for JS, sec for Obj-C
+					break;
+				}
+				if (TiObjectIsFunction(jsContext,obj)) {
+					result = [[[KrollCallback alloc] initWithCallback:obj thisObject:TiContextGetGlobalObject(jsContext) context:context] autorelease];
+				} else {
+					result = TiValueToDict(context,v);
+				}
+				break;
+			}
+			default: {
+				break;
+			}
 		}
-		TiValueRef result;
-		if (IsDateLike(jsContext,obj,&result))
-		{
-			double value = TiValueToNumber(jsContext, result, NULL);
-			return [NSDate dateWithTimeIntervalSince1970:value/1000]; // ms for JS, sec for Obj-C
-		}
-		if (TiObjectIsFunction(jsContext,obj))
-		{
-			return [[[KrollCallback alloc] initWithCallback:obj thisObject:TiContextGetGlobalObject(jsContext) context:context] autorelease];
-		}
-		return TiValueToDict(context,v);
 	}
-	return nil;
+	return result;
 }
 
 //
