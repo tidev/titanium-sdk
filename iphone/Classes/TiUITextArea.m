@@ -31,6 +31,7 @@
 		textWidgetView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
 		((UITextView *)textWidgetView).delegate = self;
 		[self addSubview:textWidgetView];
+		[(UITextView *)textWidgetView setContentInset:UIEdgeInsetsZero];
 		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 	}
 	return textWidgetView;
