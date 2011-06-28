@@ -594,7 +594,7 @@ NSArray * tableKeySequence;
 
 	if (sections == nil || [sections count]==0)
 	{
-		[self setData:[NSArray arrayWithObject:data] withObject:anim];
+		[self setData:[NSArray arrayWithObject:data] withObject:anim immediate:YES];
 		return;
 	}
 	else
@@ -623,7 +623,7 @@ NSArray * tableKeySequence;
 	}	
 }
 
--(void)setData:(id)args withObject:(id)properties
+-(void)setData:(id)args withObject:(id)properties immediate:(BOOL)immediate
 {
 	ENSURE_TYPE_OR_NIL(args,NSArray);
 	
@@ -684,7 +684,12 @@ NSArray * tableKeySequence;
 	}
 	
 	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithObject:data animation:properties type:TiUITableViewActionSetData] autorelease];
-	[self makeViewPerformSelector:@selector(dispatchAction:) withObject:action createIfNeeded:YES waitUntilDone:NO];
+	[self makeViewPerformSelector:@selector(dispatchAction:) withObject:action createIfNeeded:YES waitUntilDone:immediate];
+}
+
+-(void)setData:(id)args withObject:(id)properties
+{
+    [self setData:args withObject:properties immediate:NO];
 }
 
 -(void)setData:(id)args
