@@ -94,7 +94,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 
 @implementation TiNetworkHTTPClientProxy
 
-@synthesize timeout, validatesSecureCertificate;
+@synthesize timeout, validatesSecureCertificate, autoRedirect;
 
 -(id)init
 {
@@ -102,6 +102,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	{
 		readyState = NetworkClientStateUnsent;
 		validatesSecureCertificate = NO;
+		autoRedirect = YES;
 	}
 	return self;
 }
@@ -368,7 +369,8 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	[request setShouldUseRFC2616RedirectBehaviour:YES];
 	BOOL keepAlive = [TiUtils boolValue:[self valueForKey:@"enableKeepAlive"] def:YES];
 	[request setShouldAttemptPersistentConnection:keepAlive];
-	[request setShouldRedirect:YES];
+	//handled in send, as now optional
+	//[request setShouldRedirect:YES];
 	[request setShouldPerformCallbacksOnMainThread:NO];
 	[self _fireReadyStateChange:NetworkClientStateOpened failed:NO];
 	[self _fireReadyStateChange:NetworkClientStateHeaders failed:NO];
@@ -496,6 +498,9 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	
 	// allow self-signed certs (NO) or required valid SSL (YES)
 	[request setValidatesSecureCertificate:validatesSecureCertificate];
+
+	// should it automatically redirect
+	[request setShouldRedirect:autoRedirect];
 	
 	if (async)
 	{
