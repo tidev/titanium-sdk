@@ -101,7 +101,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	if (self = [super init])
 	{
 		readyState = NetworkClientStateUnsent;
-		validatesSecureCertificate = NO;
+		validatesSecureCertificate = [[NSNumber alloc] initWithBool:NO];
 	}
 	return self;
 }
@@ -144,6 +144,8 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	}
 	RELEASE_TO_NIL(url);
 	RELEASE_TO_NIL(request);
+    RELEASE_TO_NIL(timeout);
+    RELEASE_TO_NIL(validatesSecureCertificate);
 	[super _destroy];
 }
 
@@ -495,7 +497,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	[request setAllowCompressedResponse:YES];
 	
 	// allow self-signed certs (NO) or required valid SSL (YES)
-	[request setValidatesSecureCertificate:validatesSecureCertificate];
+	[request setValidatesSecureCertificate:[validatesSecureCertificate boolValue]];
 	
 	if (async)
 	{
