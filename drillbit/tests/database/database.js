@@ -359,6 +359,11 @@ describe("Ti.Database tests", {
 			
 				db.execute('CREATE TABLE IF NOT EXISTS stuff (id INTEGER, val TEXT)');
 				db.execute('INSERT INTO stuff (id, val) values (1, "One")');
+				
+				valueOf( function() {
+					db.execute('SELECT * FROM idontexist');
+				}).shouldThrowException();
+				
 				var rs = db.execute("SELECT id FROM stuff WHERE id = 1");
 				
 				valueOf( function() {
