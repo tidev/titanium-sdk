@@ -1,7 +1,7 @@
 var win = Titanium.UI.currentWindow;
 
 var url = Titanium.UI.createTextField({
-	value:'http://202.6.74.107:8060/triplej.mp3',
+	value:'http://watoo.net:8000/INTRODUCTION.mp3',
 	color:'#336699',
 	returnKeyType:Titanium.UI.RETURNKEY_GO,
 	keyboardType:Titanium.UI.KEYBOARD_URL,

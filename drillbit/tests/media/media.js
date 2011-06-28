@@ -11,7 +11,7 @@ describe("Ti.Media tests", {
 	soundAPIs: function() {
 		valueOf(Ti.Media.createSound).shouldBeFunction();
 		
-		var sound = Ti.Media.createSound("sound.wav");
+		var sound = Ti.Media.createSound({ url : "sound.wav" });
 		valueOf(sound).shouldNotBeNull();
 		valueOf(sound.getTime).shouldBeFunction();
 		valueOf(sound.setTime).shouldBeFunction();
