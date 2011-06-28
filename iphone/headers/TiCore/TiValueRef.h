@@ -118,6 +118,24 @@ JS_EXPORT bool TiValueIsString(TiContextRef ctx, TiValueRef value);
 
 /*!
 @function
+@abstract       Tests whether a Ti value's type is the array type.
+@param ctx  The execution context to use.
+@param value    The TiValue to test.
+@result         true if value's type is the string type, otherwise false.
+*/
+JS_EXPORT bool TiValueIsArray(TiContextRef ctx, TiValueRef value);
+
+/*!
+@function
+@abstract       Tests whether a Ti value's type is the date type.
+@param ctx  The execution context to use.
+@param value    The TiValue to test.
+@result         true if value's type is the string type, otherwise false.
+*/
+JS_EXPORT bool TiValueIsDate(TiContextRef ctx, TiValueRef value);
+
+/*!
+@function
 @abstract       Tests whether a Ti value's type is the object type.
 @param ctx  The execution context to use.
 @param value    The TiValue to test.

@@ -33,6 +33,7 @@ progress[double]: returns the current playback progress. Will return zero if sam
 state[int]: returns int for the current state of playback
 url[string]: returns the url for the current playback
 allowBackground[boolean]: boolean to indicate if audio should continue playing even if Activity is paused (Android only as of 1.3.0)
+bufferSize[int]: the buffer size used for streaming, in bytes. iOS only.
 
 STATE_INITIALIZED[int]: current playback is in the initialization state
 STATE_STARTING[int]: current playback is in the starting playback state
