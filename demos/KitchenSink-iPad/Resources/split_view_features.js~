@@ -6,7 +6,7 @@ SplitFeatures.detailWindow = Ti.UI.createWindow({backgroundColor:'#336699'});
 
 SplitFeatures.masterDisplayButton = Ti.UI.createButton({
 	title:'Display master (portrait)',
-	width:300,
+	width:150,
 	height:40
 });
 SplitFeatures.detailWindow.add(SplitFeatures.masterDisplayButton);
