@@ -98,7 +98,7 @@ public class TiProperties
 		}
 
 		SharedPreferences.Editor editor = preferences.edit();
-		editor.putFloat(key,(float)value);
+		editor.putString(key,value + "");
 		editor.commit();
 	}
 	public boolean getBool(String key, boolean def)
