@@ -1968,17 +1968,15 @@ if(ourTableView != tableview)	\
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {	
-	if (scrollView.isDragging) 
-	{
-		if ([self.proxy _hasListeners:@"scroll"])
-		{
-			NSMutableDictionary *event = [NSMutableDictionary dictionary];
-			[event setObject:[TiUtils pointToDictionary:scrollView.contentOffset] forKey:@"contentOffset"];
-			[event setObject:[TiUtils sizeToDictionary:scrollView.contentSize] forKey:@"contentSize"];
-			[event setObject:[TiUtils sizeToDictionary:tableview.bounds.size] forKey:@"size"];
-			[self.proxy fireEvent:@"scroll" withObject:event];
-		}
-	}
+    if ([self.proxy _hasListeners:@"scroll"])
+    {
+        NSMutableDictionary *event = [NSMutableDictionary dictionary];
+        [event setObject:NUMBOOL([scrollView isDragging]) forKey:@"dragging"];
+        [event setObject:[TiUtils pointToDictionary:scrollView.contentOffset] forKey:@"contentOffset"];
+        [event setObject:[TiUtils sizeToDictionary:scrollView.contentSize] forKey:@"contentSize"];
+        [event setObject:[TiUtils sizeToDictionary:tableview.bounds.size] forKey:@"size"];
+        [self.proxy fireEvent:@"scroll" withObject:event];
+    }
 }
 
 
