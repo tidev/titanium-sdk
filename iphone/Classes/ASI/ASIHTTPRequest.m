@@ -1819,11 +1819,17 @@ static BOOL isiPhoneOS2;
 
 				// Perhaps there are other headers we should be preserving, but it's hard to know what we need to keep and what to throw away.
 				NSString *userAgent = [[self requestHeaders] objectForKey:@"User-Agent"];
-				if (userAgent) {
-					[self setRequestHeaders:[NSMutableDictionary dictionaryWithObject:userAgent forKey:@"User-Agent"]];
-				} else {
-					[self setRequestHeaders:nil];
-				}
+                NSString* authorization = [[self requestHeaders] objectForKey:@"Authorization"];
+                
+                NSMutableDictionary* newHeaders = [NSMutableDictionary dictionary];
+                if (userAgent != nil) {
+                    [newHeaders setValue:userAgent forKey:@"User-Agent"];
+                }
+                if (authorization != nil) {
+                    [newHeaders setValue:authorization forKey:@"Authorization"];
+                }
+                
+                [self setRequestHeaders:newHeaders];
 				[self setHaveBuiltRequestHeaders:NO];
 			} else {
 			
