@@ -188,7 +188,7 @@
 @property(nonatomic,readonly) NSNumber* VIDEO_LOAD_STATE_PLAYTHROUGH_OK;
 @property(nonatomic,readonly) NSNumber* VIDEO_LOAD_STATE_STALLED;
 
-@property(nonatomic,readonly) NSNumber* VIDEO_REPEAT_MODE_NONE;
+@property(nonatomic,readonly) NSNumber* VIDEO_REPEAT_MODE_INFINITE;
 @property(nonatomic,readonly) NSNumber* VIDEO_REPEAT_MODE_ONE;
 
 @property(nonatomic,readonly) NSNumber* VIDEO_TIME_OPTION_NEAREST_KEYFRAME;
