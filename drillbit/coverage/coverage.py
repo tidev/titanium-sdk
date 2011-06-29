@@ -793,11 +793,12 @@ class CoverageMatrix(object):
 			self.drillbitTests[self.data.TOTAL] - other.drillbitTests[self.data.TOTAL]
 
 	def genData(self):
+		# Order is important here
+		self.genTDocData()
 		self.genAndroidBindingData()
 		self.genIOSBindingData()
 		self.genDrillbitCoverageData()
 		# TODO self.genDrillbitCoverageData("iphone")
-		self.genTDocData()
 		self.data.countAPIs()
 
 	def genMatrix(self, options):
