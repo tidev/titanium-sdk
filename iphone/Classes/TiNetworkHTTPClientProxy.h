@@ -33,7 +33,7 @@ typedef enum {
 	long long downloadProgress;
 	long long downloadLength;
 	long long uploadLength;
-	BOOL validatesSecureCertificate;
+	NSNumber* validatesSecureCertificate;
     NSNumber* timeout;
     NSNumber* autoRedirect;
 	
@@ -63,7 +63,7 @@ typedef enum {
 @property(nonatomic,readonly) TiBlob* responseData;	
 @property(nonatomic,readonly) NSString* connectionType;
 @property(nonatomic,readonly) NSString* location;
-@property(nonatomic,readwrite) BOOL validatesSecureCertificate;
+@property(nonatomic,retain,readwrite) NSNumber* validatesSecureCertificate;
 @property(nonatomic,retain,readwrite) NSNumber* timeout;
 @property(nonatomic,retain,readwrite) NSNumber* autoRedirect;
 
