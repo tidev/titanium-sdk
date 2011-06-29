@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2010-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -473,5 +473,29 @@ public @interface Kroll {
 		 * @default The method name or module name
 		 */
 		String[] value() default DEFAULT_NAME;
+	}
+
+	/**
+	 * Declare dynamic APIs that have some sort of specialized
+	 * binding outside of Kroll source generation.<br>
+	 * 
+	 * This annotation is mostly a marker that's used
+	 * to generate more accurate data in the Kroll binding JSON.<br>
+	 * 
+	 * <b>Examples</b>:<br>
+	 * <pre>
+	 * &#064;Kroll.dynamicApis(properties = { "title" })
+	 * public void processProperties(KrollDict d) {
+	 *     if (d.containsKey("title")) { ... }
+	 * }
+	 * &#064;Kroll.dynamicApis(methods = { "yql" })
+	 * public class YahooModule {
+	 *     // yql is defined in JS source somewhere..
+	 * }
+	 * </pre>
+	 */
+	public @interface dynamicApis {
+		String[] properties() default DEFAULT_NAME;
+		String[] methods() default DEFAULT_NAME;
 	}
 }

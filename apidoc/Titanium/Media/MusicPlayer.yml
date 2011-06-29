@@ -3,6 +3,7 @@ name: Titanium.Media.MusicPlayer
 description: The MusicPlayer instance returned from <Titanium.Media.createMusicPlayer>.  This object represents a music controller.
 extends: Titanium.Proxy
 since: "1.4.0"
+platforms: [iphone, ipad]
 methods:
   - name: pause
     description: pause playback

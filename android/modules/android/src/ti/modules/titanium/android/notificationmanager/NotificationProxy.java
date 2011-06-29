@@ -29,6 +29,10 @@ import android.content.Context;
 import android.net.Uri;
 
 @Kroll.proxy(creatableInModule=AndroidModule.class)
+@Kroll.dynamicApis(properties = {
+	TiC.PROPERTY_CONTENT_TEXT,
+	TiC.PROPERTY_CONTENT_TITLE
+})
 public class NotificationProxy extends KrollProxy 
 {
 	private static final String LCAT = "TiNotification";

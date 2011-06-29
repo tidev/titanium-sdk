@@ -63,15 +63,19 @@ properties:
   - name: disableBounce
     description: disable view bouncing.  iOS only.
     type: Boolean
+    platforms: [iphone, ipad]
   - name: horizontalBounce
     description: boolean to control the horizontal bounce during scrolling
     type: Boolean
+    platforms: [iphone, ipad]
   - name: maxZoomScale
     description: the maximum scale of the content
     type: Number
+    platforms: [iphone, ipad]
   - name: minZoomScale
     description: the minimum scale of the content
     type: Number
+    platforms: [iphone, ipad]
   - name: scrollType
     description: |
         (Android only) the type of ScrollView: "vertical" or "horizontal"
@@ -86,9 +90,11 @@ properties:
   - name: verticalBounce
     description: boolean to control the vertical bounce during scrolling
     type: Boolean
+    platforms: [iphone, ipad]
   - name: zoomScale
     description: set the zoom scale for the current content area
     type: Number
+    platforms: [iphone, ipad]
 notes: |
     If your scrollable region fits within the size of the content area the scroll view will not scroll.
 examples:
