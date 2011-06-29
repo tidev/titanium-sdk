@@ -21,6 +21,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -49,6 +50,7 @@ import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.scheme.SocketFactory;
 import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
@@ -626,6 +628,17 @@ public class TiHTTPClient
 	protected HashMap<String,String> headers = new HashMap<String,String>();
 	private Uri uri;
 	private String url;
+
+  public void clearCookies(String url) {
+    List<Cookie> cookies = new ArrayList(client.getCookieStore().getCookies());
+    client.getCookieStore().clear();
+    String lower_url = url.toLowerCase();
+    for (Cookie cookie : cookies) {
+      if (!lower_url.contains(cookie.getDomain().toLowerCase())) {
+        client.getCookieStore().addCookie(cookie);
+      }  
+    } 
+  }
 	
 	public void setRequestHeader(String header, String value)
 	{

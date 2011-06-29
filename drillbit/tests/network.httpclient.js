@@ -80,6 +80,67 @@ describe("Ti.Network.HTTPClient tests", {
 		},
 		timeout: 30000,
 		timeoutError: "Timed out waiting for HTTP onload"
-	})
+	}),
+
+	     //Confirms that only the selected cookie is deleted
+    clearCookiePositiveTest: asyncTest({
+        start: function() {
+          var second_cookie_fn = this.async(function(e) {
+            var second_cookie_string = this.getResponseHeader('Set-Cookie').split(';')[0];
+            // New Cookie should be different.
+                valueOf(cookie_string == second_cookie_string).shouldBeFalse();
+          });
+
+            var xhr = Ti.Network.createHTTPClient();
+            var done = false;
+            var cookie_string;
+            xhr.setTimeout(30000);
+            xhr.onload = function(e) {
+        cookie_string = this.getResponseHeader('Set-Cookie').split(';')[0];
+                xhr.clearCookies("https://my.appcelerator.com");
+                xhr.onload=second_cookie_fn;
+                xhr.open('GET', 'https://my.appcelerator.com/auth/login');
+                xhr.send();
+            };
+            xhr.onerror = function(e) {
+                throw e.error;
+            };
+            xhr.open('GET','https://my.appcelerator.com/auth/login');
+            xhr.send();
+        },
+        timeout: 30000,
+        timeoutError: "Timed out waiting for HTTP onload"
+    }),
+
+  //Confirms that only the selected cookie is deleted
+  clearCookieUnaffectedCheck: asyncTest({
+        start: function() {
+          var second_cookie_fn = this.async(function(e) {
+            Ti.API.info("Second Load");
+            var second_cookie_string = this.getResponseHeader('Set-Cookie').split(';')[0];
+            // Cookie should be the same
+                valueOf(cookie_string == second_cookie_string).shouldBeTrue();
+          });
+
+            var xhr = Ti.Network.createHTTPClient();
+            var done = false;
+            var cookie_string;
+            xhr.setTimeout(30000);
+            xhr.onload = function(e) {
+        cookie_string = this.getResponseHeader('Set-Cookie').split(';')[0];
+                xhr.clearCookies("http://www.microsoft.com");
+                xhr.onload=second_cookie_fn;
+                xhr.open('GET', 'https://my.appcelerator.com/auth/login');
+                xhr.send();
+            };
+            xhr.onerror = function(e) {
+                throw e.error;
+            };
+            xhr.open('GET','https://my.appcelerator.com/auth/login');
+            xhr.send();
+        },
+        timeout: 30000,
+        timeoutError: "Timed out waiting for HTTP onload"
+    })
 
 });

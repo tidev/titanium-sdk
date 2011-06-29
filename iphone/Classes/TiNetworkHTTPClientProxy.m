@@ -378,7 +378,21 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	[self _fireReadyStateChange:NetworkClientStateOpened failed:NO];
 	[self _fireReadyStateChange:NetworkClientStateHeaders failed:NO];
 }
+-(void)clearCookies:(id)args
+{
+    ENSURE_ARG_COUNT(args,1);
 
+    NSString *host = [TiUtils stringValue:[args objectAtIndex:0]];
+    
+    NSHTTPCookie *cookie;
+    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    NSArray* targetCookies = [storage cookiesForURL:[NSURL URLWithString:host]];
+    if ([targetCookies count] > 0) {
+      for (cookie in targetCookies) {
+          [storage deleteCookie:cookie];
+      }
+    }
+}
 -(void)setRequestHeader:(id)args
 {
 	ENSURE_ARG_COUNT(args,2);

@@ -79,6 +79,7 @@ typedef enum {
 -(void)open:(id)args;
 -(void)setRequestHeader:(id)args;
 -(void)send:(id)args;
+-(void)clearCookies:(id)args;
 -(id)getResponseHeader:(id)args;
 
 @end
