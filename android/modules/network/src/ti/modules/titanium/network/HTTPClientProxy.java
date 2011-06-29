@@ -88,6 +88,11 @@ public class HTTPClientProxy extends KrollProxy {
 		client.send(data);
 	}
 
+  @Kroll.method
+	public void clearCookies(String host) {
+		client.clearCookies(host);
+	}
+
 	@Kroll.method
 	public void setRequestHeader(String header, String value) {
 		client.setRequestHeader(header, value);
@@ -124,4 +129,18 @@ public class HTTPClientProxy extends KrollProxy {
 	{
 		client.setAutoEncodeUrl(value);
 	}
+
+	@Kroll.getProperty @Kroll.method
+	public boolean getAutoRedirect()
+	{
+		return client.getAutoRedirect();
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setAutoRedirect(boolean value)
+	{
+		client.setAutoRedirect(value);
+	}
+
+	
 }
