@@ -76,6 +76,7 @@ DrillbitTest.NAME = "<%= entry.name %>";
 DrillbitTest.SOURCE = "<%= entry.sourceFile.nativePath().replace(/\\/g, "\\\\") %>";
 DrillbitTest.autoRun = <%= autoRun %>;
 
+
 <% if (methodWrap) { %>
 DrillbitTest.BEFORE_ALL = function() {
 <% } %>
@@ -153,7 +154,6 @@ catch (e)
 		}
 		DrillbitTest.complete();
 	};
-
     <% if (autoRun) { %>
 	DrillbitTest.runNextTest();
 	<% } %>

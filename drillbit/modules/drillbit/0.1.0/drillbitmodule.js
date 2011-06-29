@@ -461,7 +461,7 @@ Drillbit.prototype.handleAssertionEvent = function(event, platform) {
 
 Drillbit.prototype.handleCompleteEvent = function(results, platform, coverage) {
 	var suite = results.suite;
-	
+	this.frontendDo('process_data', '==========End Test Suite : ' + suite);
 	this.platformStatus[platform][suite].completed = true;
 	try {
 		if (this.window) this.window.clearInterval(this.currentTimer);
@@ -730,6 +730,7 @@ Drillbit.prototype.stageTest = function(entry) {
 
 Drillbit.prototype.runTest = function(entry)
 {
+	this.frontendDo("process_data", "==========Start Test Suite : " + entry.name);
 	var data = {entry: entry, Titanium: Titanium, excludes: this.excludes, Drillbit: this, AsyncTest: AsyncTest};
 	var testScript = this.renderTemplate(ti.path.join(this.templatesDir, 'test.js'), data);
 
@@ -737,10 +738,9 @@ Drillbit.prototype.runTest = function(entry)
 	entry.platforms.forEach(function(platform) {
 		var emulator = self.emulators[platform];
 		if (!emulator) return;
-		
 		emulator.pushTestJS(testScript);
 	});
-	
+
 	var stagedFiles = this.stageTest(entry);
 	/*if (typeof(this.mobileRepository) != 'undefined') {
 		stagedFiles = stagedFiles.concat(this.stageSDK());
@@ -753,14 +753,14 @@ Drillbit.prototype.runTest = function(entry)
 	this.currentPassed = 0;
 	this.currentFailed = 0;
 	this.currentTimer = null;
-	
+
 	entry.platforms.forEach(function(platform) {
 		var emulator = self.emulators[platform];
 		if (!emulator) return;
 		
 		emulator.runTestHarness(entry, stagedFiles);
 	});
-	
+
 	this.checkForTimeout();
 };
 
