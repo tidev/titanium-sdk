@@ -147,4 +147,10 @@ public class HTTPClientProxy extends KrollProxy {
 	{
 		return client.validatesSecureCertificate();
 	}
+
+	@Kroll.setProperty @Kroll.method
+	void setValidatesSecureCertificate(boolean value)
+	{
+		this.setProperty("validatesSecureCertificate", value);
+	}
 }
