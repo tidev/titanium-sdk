@@ -33,6 +33,7 @@ import android.os.Environment;
 public class TiTempFileHelper
 {
 	private static final String TAG = "TiTempFileHelper";
+	private static final boolean DBG = TiConfig.DEBUG;
 
 	public static final String TEMPDIR = "_tmp";
 	public static final int DEFAULT_CLEAN_TIMEOUT = 5; // The number of seconds the async cleanup method uses for scheduling
@@ -151,7 +152,9 @@ public class TiTempFileHelper
 		}
 		for (File file : tempDir.listFiles())
 		{
-			Log.i(TAG, "Deleting temporary file " + file.getAbsolutePath());
+			if (DBG) {
+				Log.d(TAG, "Deleting temporary file " + file.getAbsolutePath());
+			}
 			file.delete();
 		}
 	}
