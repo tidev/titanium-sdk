@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -19,6 +19,12 @@ import android.os.Handler;
 import android.os.Message;
 
 @Kroll.proxy(creatableInModule=UIModule.class)
+@Kroll.dynamicApis(properties = {
+	"contentHeight", "contentWidth",
+	"showHorizontalScrollIndicator",
+	"showVerticalScrollIndicator",
+	"scrollType"
+})
 public class ScrollViewProxy extends TiViewProxy
 	implements Handler.Callback
 {

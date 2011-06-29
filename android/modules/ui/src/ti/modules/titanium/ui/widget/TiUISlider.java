@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -66,8 +66,8 @@ public class TiUISlider extends TiUIView
 
 		SeekBar seekBar = (SeekBar) getNativeView();
 		
-		if (d.containsKey("value")) {
-			pos = TiConvert.toInt(d, "value");
+		if (d.containsKey(TiC.PROPERTY_VALUE)) {
+			pos = TiConvert.toInt(d, TiC.PROPERTY_VALUE);
 		}
 		if (d.containsKey("min")) {
 			min = TiConvert.toInt(d, "min");
@@ -161,7 +161,7 @@ public class TiUISlider extends TiUIView
 				seekBar.setProgressDrawable(ld);
 			} else {
 				if (leftDrawable == null) {
-					Log.e(LCAT, "Unable to locate left image for progress bar: " + leftUrl);					
+					Log.e(LCAT, "Unable to locate left image for progress bar: " + leftUrl);
 				}
 				if (rightDrawable == null) {
 					Log.e(LCAT, "Unable to locate right image for progress bar: " + rightUrl);

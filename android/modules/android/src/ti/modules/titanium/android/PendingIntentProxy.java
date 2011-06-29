@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -21,6 +21,10 @@ import android.app.PendingIntent;
 import android.content.Context;
 
 @Kroll.proxy(creatableInModule=AndroidModule.class)
+@Kroll.dynamicApis(properties = {
+	TiC.PROPERTY_FLAGS,
+	TiC.PROPERTY_INTENT
+})
 public class PendingIntentProxy extends KrollProxy 
 {
 	private static final String TAG = "TiPendingIntent";

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,14 +8,22 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIDialog;
 import android.app.Activity;
 
 @Kroll.proxy(creatableInModule=UIModule.class)
+@Kroll.dynamicApis(properties = {
+	TiC.PROPERTY_ANDROID_VIEW,
+	TiC.PROPERTY_CANCEL,
+	TiC.PROPERTY_OPTIONS,
+	TiC.PROPERTY_SELECTED_INDEX,
+	TiC.PROPERTY_TITLE,
+	TiC.PROPERTY_TITLEID
+})
 public class OptionDialogProxy extends TiDialogProxy
 {
 	public OptionDialogProxy(TiContext tiContext)
@@ -26,7 +34,7 @@ public class OptionDialogProxy extends TiDialogProxy
 	@Override
 	protected KrollDict getLangConversionTable() {
 		KrollDict table = new KrollDict();
-		table.put("title","titleid");
+		table.put(TiC.PROPERTY_TITLE, TiC.PROPERTY_TITLEID);
 		return table;
 	}
 	

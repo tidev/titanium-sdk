@@ -151,18 +151,23 @@ properties:
   - name: SOCKET_CLOSED
     description: constant value representing a socket in the CLOSED state
     type: Number
+    platforms: [iphone, ipad]
   - name: SOCKET_CONNECTED
     description: constant value representing a socket in the CONNECTED state
     type: Number
+    platforms: [iphone, ipad]
   - name: SOCKET_ERROR
     description: constant value representing a socket in the ERROR state
     type: Number
+    platforms: [iphone, ipad]
   - name: SOCKET_INITIALIZED
     description: constant value representing a socket in the INITIALIZED state
     type: Number
+    platforms: [iphone, ipad]
   - name: SOCKET_LISTENING
     description: constant value representing a socket in the LISTENING state
     type: Number
+    platforms: [iphone, ipad]
   - name: WRITE_MODE
     description: constant value specifying write-only mode for sockets
     type: Number
