@@ -101,12 +101,8 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	if (self = [super init])
 	{
 		readyState = NetworkClientStateUnsent;
-<<<<<<< HEAD
-		validatesSecureCertificate = NO;
 		autoRedirect = [[NSNumber alloc] initWithBool:YES];
-=======
 		validatesSecureCertificate = [[NSNumber alloc] initWithBool:NO];
->>>>>>> 31ef260f93c5ca32e492bc5c78bde84c9a0133a9
 	}
 	return self;
 }
@@ -149,12 +145,9 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	}
 	RELEASE_TO_NIL(url);
 	RELEASE_TO_NIL(request);
-<<<<<<< HEAD
 	RELEASE_TO_NIL(autoRedirect);
-=======
     RELEASE_TO_NIL(timeout);
     RELEASE_TO_NIL(validatesSecureCertificate);
->>>>>>> 31ef260f93c5ca32e492bc5c78bde84c9a0133a9
 	[super _destroy];
 }
 
