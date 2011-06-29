@@ -1,4 +1,4 @@
-Ti.include( 'split_view_nav.js','split_view_plain.js', 'nav_controller.js','main_tests.js' );
+Ti.include( 'split_view_nav.js','split_view_plain.js', 'nav_controller.js','main_tests.js','split_view_features.js');
 
 var win = Ti.UI.createWindow();
 
@@ -66,7 +66,7 @@ var b5= Ti.UI.createButton({
 	title:'Fixed Orientation',
 	width:300,
 	height:50,
-	top:310
+	top:380
 });
 b5.addEventListener('click', function()
 {
@@ -80,4 +80,17 @@ b5.addEventListener('click', function()
 	w.open();
 });
 win.add(b5);
+
+var b7 = Ti.UI.createButton({
+	title: 'Split view features',
+	width:300,
+	height:50,
+	top:520
+});
+b7.addEventListener('click', function()
+{
+	SplitFeatures.open();
+});
+win.add(b7);
+
 win.open();

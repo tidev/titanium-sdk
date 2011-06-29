@@ -29,6 +29,7 @@ ipad
 
 masterView[object]: view for the master view section of the SplitWindow
 detailView[object]: view for the detail view section of the SplitWindow
+showMasterInPortrait[boolean]: whether or not to show the master view in portrait. Default is 'false'
 
 - events
 

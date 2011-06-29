@@ -145,7 +145,14 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 	}
 }
 
-
+-(void)setShowMasterInPortrait_:(id)value
+{
+    BOOL showMaster = [TiUtils boolValue:value def:NO];
+    MGSplitViewController* splitController = (MGSplitViewController*)[self controller];
+    [splitController setShowsMasterInPortrait:showMaster];
+    
+    [[self proxy] replaceValue:value forKey:@"showMasterInPortrait" notification:NO];
+}
 
 #pragma mark Delegate 
 
