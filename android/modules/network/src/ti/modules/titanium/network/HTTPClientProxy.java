@@ -88,6 +88,11 @@ public class HTTPClientProxy extends KrollProxy {
 		client.send(data);
 	}
 
+  @Kroll.method
+	public void clearCookies(String host) {
+		client.clearCookies(host);
+	}
+
 	@Kroll.method
 	public void setRequestHeader(String header, String value) {
 		client.setRequestHeader(header, value);
