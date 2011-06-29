@@ -27,7 +27,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 		data.push({title:'Record Video', hasChild:true, test:'../examples/record_video.js'});
 	}
 	data.push({title:'Music', hasChild:true, test:'../examples/music.js'});
-	data.push({title:'Proximity Events', hasChild:true, test:'../todo.js'});
+	data.push({title:'Proximity Events', hasChild:true, test:'../examples/proximity.js'});
 	data.push({title:'App Badge', hasChild:true, test:'../examples/app_badge.js'});
 	data.push({title:'Status Bar', hasChild:true, test:'../examples/statusbar.js'});
 	data.push({title:'Push Notifications', hasChild:true, test:'../examples/push_notification.js'});
