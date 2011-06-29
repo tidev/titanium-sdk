@@ -812,7 +812,7 @@ public class TiHTTPClient
 			} else if (value instanceof TiBlob) {
 				TiBlob blob = (TiBlob) value;
 				String mimeType = blob.getMimeType();
-				File tmpFile = File.createTempFile("tixhr", TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, ".txt"));
+				File tmpFile = File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
 				FileOutputStream fos = new FileOutputStream(tmpFile);
 				fos.write(blob.getBytes());
 				fos.close();
