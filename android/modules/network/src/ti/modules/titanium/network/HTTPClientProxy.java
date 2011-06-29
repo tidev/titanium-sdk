@@ -124,4 +124,16 @@ public class HTTPClientProxy extends KrollProxy {
 	{
 		client.setAutoEncodeUrl(value);
 	}
+
+	@Kroll.getProperty @Kroll.method
+	public boolean getValidatesSecureCertificate()
+	{
+		return client.validatesSecureCertificate();
+	}
+
+	@Kroll.setProperty @Kroll.method
+	void setValidatesSecureCertificate(boolean value)
+	{
+		this.setProperty("validatesSecureCertificate", value);
+	}
 }
