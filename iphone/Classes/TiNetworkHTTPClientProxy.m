@@ -102,7 +102,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	{
 		readyState = NetworkClientStateUnsent;
 		validatesSecureCertificate = NO;
-		autoRedirect = YES;
+		autoRedirect = [[NSNumber alloc] initWithBool:YES];
 	}
 	return self;
 }
@@ -145,6 +145,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	}
 	RELEASE_TO_NIL(url);
 	RELEASE_TO_NIL(request);
+	RELEASE_TO_NIL(autoRedirect);
 	[super _destroy];
 }
 
@@ -500,7 +501,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	[request setValidatesSecureCertificate:validatesSecureCertificate];
 
 	// should it automatically redirect
-	[request setShouldRedirect:autoRedirect];
+	[request setShouldRedirect:[autoRedirect boolValue]];
 	
 	if (async)
 	{
