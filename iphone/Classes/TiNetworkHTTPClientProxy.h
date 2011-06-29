@@ -35,6 +35,7 @@ typedef enum {
 	long long uploadLength;
 	BOOL validatesSecureCertificate;
     NSNumber* timeout;
+    NSNumber* autoRedirect;
 	
 	// callbacks are now in the JS object
 	BOOL hasOnload;
@@ -64,6 +65,7 @@ typedef enum {
 @property(nonatomic,readonly) NSString* location;
 @property(nonatomic,readwrite) BOOL validatesSecureCertificate;
 @property(nonatomic,retain,readwrite) NSNumber* timeout;
+@property(nonatomic,retain,readwrite) NSNumber* autoRedirect;
 
 // constants
 @property(nonatomic,readonly) NSInteger UNSENT;
