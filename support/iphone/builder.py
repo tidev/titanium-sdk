@@ -1050,6 +1050,14 @@ def main(args):
 					if devicefamily == 'universal':
 						device_target="TARGETED_DEVICE_FAMILY=1,2"
 
+				if ti.has_app_property("ti.ios.enablecoverage"):
+					enable_coverage = ti.get_app_property("ti.ios.enablecoverage")
+					if ti.to_bool(enable_coverage):
+						if extra_args == None:
+							extra_args = ["KROLL_COVERAGE=1"]
+						else:
+							extra_args.append("KROLL_COVERAGE=1")
+
 				def execute_xcode(sdk,extras,print_output=True):
 
 					config = name

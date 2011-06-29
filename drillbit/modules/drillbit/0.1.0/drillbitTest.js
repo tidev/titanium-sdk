@@ -88,6 +88,7 @@ var DrillbitTest =
 					Titanium.API.debug('TestHarnessRunner not defined, skipping automated finish');
 				}
 			} else {
+				results.coverage = Ti.dumpCoverage();
 				this.fireEvent("complete", results);
 			}
 		} catch (e) {

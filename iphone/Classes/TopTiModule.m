@@ -11,6 +11,10 @@
 #import "TiUtils.h"
 #import "TiBuffer.h"
 
+#ifdef KROLL_COVERAGE
+# include "KrollCoverage.h"
+#endif
+
 @implementation TopTiModule
 
 -(id)version
@@ -177,5 +181,12 @@
     
     return buffer;
 }
+
+#ifdef KROLL_COVERAGE
+-(NSString*)dumpCoverage
+{
+	return [KrollCoverageObject dumpCoverage];
+}
+#endif
 
 @end
