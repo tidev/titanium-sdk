@@ -1130,8 +1130,12 @@ NSArray* moviePlayerKeys = nil;
 		if ([TiUtils isiPhoneOS3_2OrGreater] && [self viewAttached]) {
 			TiMediaVideoPlayer *vp = (TiMediaVideoPlayer*)[self view];
 			[vp movieLoaded];
-		}
-        else {
+			if (player.loadState == MPMovieLoadStatePlayable) {
+				if ([self _hasListeners:@"load"]) {
+					[self fireEvent:@"load" withObject:nil];
+				}
+			}
+		} else {
             loaded = YES;
         }
 	}
