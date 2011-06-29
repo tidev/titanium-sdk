@@ -212,7 +212,6 @@ public abstract class TiApplication extends Application
 			deployData = new TiDeployData();
 		}
 		tempFileHelper = new TiTempFileHelper(this);
-		//systemProperties.setString("ti.version", buildVersion); // was always setting "1.0"
 	}
 
 	public void postAppInfo() {

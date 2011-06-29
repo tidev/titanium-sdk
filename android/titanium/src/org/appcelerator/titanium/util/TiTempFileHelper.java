@@ -8,19 +8,13 @@ package org.appcelerator.titanium.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiProperties;
 
 import android.os.Environment;
 
@@ -48,15 +42,6 @@ public class TiTempFileHelper
 		File dataDir = new File(new File(extStorage, "Android"), "data");
 		File externalCacheDir = new File(new File(dataDir, app.getPackageName()), "cache");
 		tempDir = new File(externalCacheDir, TEMPDIR);
-	}
-
-	protected File getFile(File parent, String... parts)
-	{
-		File f = parent;
-		for (String part : parts) {
-			f = new File(f, part);
-		}
-		return f;
 	}
 
 	/**
@@ -155,7 +140,11 @@ public class TiTempFileHelper
 			if (DBG) {
 				Log.d(TAG, "Deleting temporary file " + file.getAbsolutePath());
 			}
-			file.delete();
+			try {
+				file.delete();
+			} catch (Exception e) {
+				Log.w(TAG, "Exception trying to delete " + file.getAbsolutePath() + ", skipping", e);
+			}
 		}
 	}
 }
