@@ -79,10 +79,10 @@ import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiCacheHelper;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
+import org.appcelerator.titanium.util.TiTempFileHelper;
 import org.mozilla.javascript.Context;
 
 import ti.modules.titanium.xml.DocumentProxy;
@@ -278,8 +278,8 @@ public class TiHTTPClient
 			File outFile;
 			TiApplication app = TiApplication.getInstance();
 			if (app != null) {
-				TiCacheHelper helper = app.getCacheHelper();
-				outFile = helper.createExternalTempFile("tihttp", "tmp");
+				TiTempFileHelper helper = app.getTempFileHelper();
+				outFile = helper.createTempFile("tihttp", "tmp");
 			} else {
 				outFile = File.createTempFile("tihttp", "tmp");
 			}

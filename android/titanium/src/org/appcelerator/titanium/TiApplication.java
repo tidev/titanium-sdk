@@ -32,11 +32,11 @@ import org.appcelerator.titanium.analytics.TiAnalyticsModel;
 import org.appcelerator.titanium.analytics.TiAnalyticsService;
 import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiCacheHelper;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiResponseCache;
+import org.appcelerator.titanium.util.TiTempFileHelper;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 
 import android.app.Activity;
@@ -86,7 +86,7 @@ public abstract class TiApplication extends Application
 	private String buildVersion = "", buildTimestamp = "", buildHash = "";
 	protected ArrayList<KrollModule> modules = new ArrayList<KrollModule>();
 	protected TiDeployData deployData;
-	protected TiCacheHelper cacheHelper;
+	protected TiTempFileHelper tempFileHelper;
 
 	public TiApplication() {
 		Log.checkpoint(LCAT, "checkpoint, app created.");
@@ -211,7 +211,7 @@ public abstract class TiApplication extends Application
 		if (getDeployType().equals(DEPLOY_TYPE_DEVELOPMENT)) {
 			deployData = new TiDeployData();
 		}
-		cacheHelper = new TiCacheHelper(this);
+		tempFileHelper = new TiTempFileHelper(this);
 		//systemProperties.setString("ti.version", buildVersion); // was always setting "1.0"
 	}
 
@@ -276,7 +276,7 @@ public abstract class TiApplication extends Application
 			needsStartEvent = false;
 			Log.i(LCAT, "Analytics have been disabled");
 		}
-		cacheHelper.scheduleCleanCacheDirs();
+		tempFileHelper.scheduleCleanTempDir();
 	}
 
 	public TiRootActivity getRootActivity() {
@@ -572,8 +572,8 @@ public abstract class TiApplication extends Application
 		}
 	}
 
-	public TiCacheHelper getCacheHelper()
+	public TiTempFileHelper getTempFileHelper()
 	{
-		return cacheHelper;
+		return tempFileHelper;
 	}
 }
