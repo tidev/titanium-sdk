@@ -81,6 +81,7 @@
 		[self makeMethod:@selector(setRequestHeader:) args:YES key:@"setRequestHeader"];
 		[self makeMethod:@selector(setTimeout:) args:YES key:@"setTimeout"];
 		[self makeMethod:@selector(getResponseHeader:) args:YES key:@"getResponseHeader"];
+		[self makeMethod:@selector(clearCookies:) args:YES key:@"clearCookies"];
 		
 		[self makeDynamicProperty:@selector(responseText) key:@"responseText"];
 		// responseXML is special!

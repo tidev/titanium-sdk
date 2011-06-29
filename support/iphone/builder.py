@@ -5,7 +5,7 @@
 # the application on the device via iTunes
 # 
 
-import os, sys, uuid, subprocess, shutil, signal, string, traceback, imp
+import os, sys, uuid, subprocess, shutil, signal, string, traceback, imp, filecmp
 import platform, time, re, run, glob, codecs, hashlib, datetime, plistlib
 from compiler import Compiler
 from projector import Projector
@@ -41,6 +41,17 @@ def version_sort(a,b):
 	if x < y:
 		return 1
 	return 0
+
+# Find the SDK file path
+def find_sdk_path(version):
+	sdk_path = os.path.join(os.path.expanduser("~/Library/Application Support/Titanium"),"mobilesdk","osx",version)
+	if os.path.exists(sdk_path):
+		return sdk_path
+	sdk_path = os.path.join("/Library","Application Support","Titanium","mobilesdk","osx",version)
+	if os.path.exists(sdk_path):
+		return sdk_path
+	print "Is Titanium installed? I can't find it"
+	sys.exit(1)
 
 # this will return the version of the iOS SDK that we have installed
 def check_iphone_sdk(s):
@@ -700,9 +711,20 @@ def main(args):
 				else:
 					plist = plist.replace('__DEBUGGER_HOST__','')
 					plist = plist.replace('__DEBUGGER_PORT__','')
-				pf = codecs.open(debuggerplist,'w', encoding='utf-8')
+
+				tempfile = debuggerplist+'.tmp'
+				pf = codecs.open(tempfile,'w',encoding='utf-8')
 				pf.write(plist)
 				pf.close()
+				
+				if os.path.exists(debuggerplist):
+					changed = not filecmp.cmp(tempfile, debuggerplist, shallow=False)
+				else:
+					changed = True
+					
+				shutil.move(tempfile, debuggerplist)
+				
+				return changed
 				
 				
 # TODO:				
@@ -883,11 +905,9 @@ def main(args):
 
 			# compile debugger file
 			debug_plist = os.path.join(iphone_dir,'Resources','debugger.plist')
-			write_debugger_plist(debug_plist)
-			# Every time the debugger changes, we need to relink so that the new
-			# host/port gets picked up
-			if debughost:
-				force_xcode = True
+			
+			# Force an xcodebuild if the debugger.plist has changed
+			force_xcode = write_debugger_plist(debug_plist)
 
 			if command!='simulator':
 				# compile plist into binary format so it's faster to load
@@ -999,6 +1019,7 @@ def main(args):
 
 				# copy Default.png and appicon each time so if they're 
 				# changed they'll stick get picked up	
+				# If Default.png is not found in the project, copy it from the SDK's default path
 				app_icon_path = os.path.join(project_dir,'Resources','iphone',applogo)
 				if not os.path.exists(app_icon_path):
 					app_icon_path = os.path.join(project_dir,'Resources',applogo)
@@ -1007,8 +1028,10 @@ def main(args):
 				defaultpng_path = os.path.join(project_dir,'Resources','iphone','Default.png')
 				if not os.path.exists(defaultpng_path):
 					defaultpng_path = os.path.join(project_dir,'Resources','Default.png')
+				if not os.path.exists(defaultpng_path):
+					defaultpng_path = os.path.join(find_sdk_path(sdk_version),'iphone','resources','Default.png')
 				if os.path.exists(defaultpng_path):
-					shutil.copy(defaultpng_path,app_dir)
+					shutil.copy(defaultpng_path,iphone_resources_dir)
 
 				extra_args = None
 

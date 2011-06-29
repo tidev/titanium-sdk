@@ -33,8 +33,9 @@ typedef enum {
 	long long downloadProgress;
 	long long downloadLength;
 	long long uploadLength;
-	BOOL validatesSecureCertificate;
+	NSNumber* validatesSecureCertificate;
     NSNumber* timeout;
+    NSNumber* autoRedirect;
 	
 	// callbacks are now in the JS object
 	BOOL hasOnload;
@@ -62,8 +63,9 @@ typedef enum {
 @property(nonatomic,readonly) TiBlob* responseData;	
 @property(nonatomic,readonly) NSString* connectionType;
 @property(nonatomic,readonly) NSString* location;
-@property(nonatomic,readwrite) BOOL validatesSecureCertificate;
+@property(nonatomic,retain,readwrite) NSNumber* validatesSecureCertificate;
 @property(nonatomic,retain,readwrite) NSNumber* timeout;
+@property(nonatomic,retain,readwrite) NSNumber* autoRedirect;
 
 // constants
 @property(nonatomic,readonly) NSInteger UNSENT;
@@ -77,6 +79,7 @@ typedef enum {
 -(void)open:(id)args;
 -(void)setRequestHeader:(id)args;
 -(void)send:(id)args;
+-(void)clearCookies:(id)args;
 -(id)getResponseHeader:(id)args;
 
 @end

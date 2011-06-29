@@ -195,6 +195,10 @@ properties:
     description: for modal windows, hide the nav bar (true) or show the nav bar (false, default).
     default: false
     type: Boolean
+  - name: opacity
+    description: |
+        The opacity from 0.0-1.0.  Android Notes: If you set any of `windowSoftInputMode`, `fullscreen`, or `navBarHidden`, *and* you wish to use the `opacity` property at any time during the window's lifetime, be sure to set an `opacity` value before opening the window.  You can later change that value -- and you can set it to 1 for full opacity if you wish -- but the important thing is that you set it to a value before opening the window if you will want to set it at any time during the window's lifetime.  The technical reason for this is that if the opacity property is present (i.e., has been set to something) and a new Android Activity will be created for the window, then a translucent theme will be used for the Activity.  Window transparency (opacity values below 1) will only work in Android if the Activity's theme is translucent, and we will only use a translucent theme for an Activity if you set an opacity property before opening the window.  Additionally, do not use `opacity` and `fullscreen: true` together, because translucent themes in Android cannot hide the status bar.  Finally, if you do set the `opacity` property, be sure to also set a `backgroundImage` or `backgroundColor` property as well, unless you want the window to be completely transparent.
+    type: Number
   - name: orientationModes
     description: array of orientation mode constants defined in [Titanium.UI]
     type: Array<Object>
