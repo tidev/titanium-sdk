@@ -33,6 +33,10 @@ properties:
   - name: masterView
     description: view for the master view section of the SplitWindow
     type: Object
+  - name: showMasterInPortrait
+    description: Whether or not to show the master view in portrait. Default is 'false'.
+    type: Boolean
+    since: 1.7.2
 notes: |
     The SplitWindow inherits its methods and properties from <Titanium.UI.Window>.
     
