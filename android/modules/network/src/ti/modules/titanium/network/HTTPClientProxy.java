@@ -142,5 +142,9 @@ public class HTTPClientProxy extends KrollProxy {
 		client.setAutoRedirect(value);
 	}
 
-	
+	@Kroll.getProperty @Kroll.method
+	public boolean getValidatesSecureCertificate()
+	{
+		return client.validatesSecureCertificate();
+	}
 }
