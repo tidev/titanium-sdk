@@ -72,10 +72,10 @@ var DrillbitTest =
 		this.completed = true;
 		try {
 			var results = this.getResults();
+			results.suite = DrillbitTest.NAME;
 			// logcat has a character limit in Android, so we save to the sdcard and pull down from Drillbit
 			if (Ti.Platform.osname == "android") {
 				var resultsFile = Ti.Filesystem.getFile("appdata://results.json");
-				results.suite = DrillbitTest.NAME;
 				resultsFile.write(JSON.stringify(results));
 				Ti.dumpCoverage();
 				this.fireEvent("completeAndroid", {});
@@ -88,8 +88,10 @@ var DrillbitTest =
 					Titanium.API.debug('TestHarnessRunner not defined, skipping automated finish');
 				}
 			} else {
-				results.coverage = Ti.dumpCoverage();
-				this.fireEvent("complete", results);
+				var resultInfo = {};
+				resultInfo.results = results;
+				resultInfo.coverage = Ti.dumpCoverage();
+				this.fireEvent("iosComplete", resultInfo);
 			}
 		} catch (e) {
 			Titanium.API.error("Exception on completion: "+e);

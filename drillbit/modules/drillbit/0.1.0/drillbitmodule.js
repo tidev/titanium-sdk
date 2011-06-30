@@ -477,7 +477,12 @@ Drillbit.prototype.handleCompleteEvent = function(results, platform, coverage) {
 			}
 			this.currentTest.results[platform] = results;
 			if (coverage) {
-				this.currentTest.coverage[platform] = coverage;
+				var coverage_platform = platform;
+				// Hack to avoid renaming a bunch of stuff
+				if (coverage_platform == 'iphone') {
+					coverage_platform = 'ios';
+				}
+				this.currentTest.coverage[coverage_platform] = coverage;
 			}
 			this.frontendDo('test_platform_status', suite, status, platform);
 			this.frontendDo('update_status', suite + ' complete ... ' + results.passed + ' passed, ' + results.failed + ' failed');

@@ -42,6 +42,12 @@ iPhoneSimulator.prototype.pushTestJS = function(testScript) {
 iPhoneSimulator.prototype.stageSDK = function(sdkTimestamp) {
 };
 
+iPhoneSimulator.prototype.handleIosCompleteEvent = function(e) {
+	var coverage = e.coverage;
+	var results = e.results;
+	this.drillbit.handleCompleteEvent(results, 'iphone', coverage);
+};
+
 iPhoneSimulator.prototype.runTestHarness = function(suite, stagedFiles) {
 	if (this.simulatorProcess != null) {
 		this.simulatorProcess.terminate();

@@ -1051,12 +1051,11 @@ def main(args):
 						device_target="TARGETED_DEVICE_FAMILY=1,2"
 
 				if ti.has_app_property("ti.ios.enablecoverage"):
-					enable_coverage = ti.get_app_property("ti.ios.enablecoverage")
-					if ti.to_bool(enable_coverage):
-						if extra_args == None:
-							extra_args = ["KROLL_COVERAGE=1"]
-						else:
-							extra_args.append("KROLL_COVERAGE=1")
+					enable_coverage = ti.to_bool(ti.get_app_property("ti.ios.enablecoverage"))
+					if enable_coverage:
+						kroll_coverage = "KROLL_COVERAGE=1"
+					else:
+						kroll_coverage = ""
 
 				def execute_xcode(sdk,extras,print_output=True):
 
@@ -1167,7 +1166,7 @@ def main(args):
 						debugstr = 'DEBUGGER_ENABLED=1'
 					
 					if force_rebuild or force_xcode or not os.path.exists(binary):
-						execute_xcode("iphonesimulator%s" % link_version,["GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development TI_DEVELOPMENT=1 DEBUG=1 TI_VERSION=%s %s" % (log_id,sdk_version,debugstr)],False)
+						execute_xcode("iphonesimulator%s" % link_version,["GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development TI_DEVELOPMENT=1 DEBUG=1 TI_VERSION=%s %s %s" % (log_id,sdk_version,debugstr,kroll_coverage)],False)
 
 					# first make sure it's not running
 					kill_simulator()
@@ -1319,7 +1318,7 @@ def main(args):
 						debugstr = 'DEBUGGER_ENABLED=1'
 						
 					args += [
-						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=test TI_TEST=1 %s" % debugstr,
+						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=test TI_TEST=1 %s %s" % (debugstr, kroll_coverage),
 						"PROVISIONING_PROFILE=%s" % appuuid,
 						"CODE_SIGN_IDENTITY=iPhone Developer: %s" % dist_name,
 						"DEPLOYMENT_POSTPROCESSING=YES"
