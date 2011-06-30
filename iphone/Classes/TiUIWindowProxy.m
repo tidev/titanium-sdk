@@ -110,6 +110,7 @@
         [self performSelectorOnMainThread:@selector(close:) withObject:nil waitUntilDone:YES];
     }
     
+	[barImageView performSelectorOnMainThread:@selector(removeFromSuperview) withObject:nil waitUntilDone:NO];
 	RELEASE_TO_NIL(barImageView);
 	if (context!=nil)
 	{
@@ -775,7 +776,7 @@ else{\
 
 -(void)_tabBeforeBlur
 {
-//	[barImageView removeFromSuperview];
+	[barImageView removeFromSuperview];
 	[super _tabBeforeBlur];
 }
 

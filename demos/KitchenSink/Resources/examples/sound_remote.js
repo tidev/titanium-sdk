@@ -1,7 +1,7 @@
 var win = Titanium.UI.currentWindow;
 
 var url = Titanium.UI.createTextField({
-	value:'http://202.6.74.107:8060/triplej.mp3',
+	value:'http://watoo.net:8000/INTRODUCTION.mp3',
 	color:'#336699',
 	returnKeyType:Titanium.UI.RETURNKEY_GO,
 	keyboardType:Titanium.UI.KEYBOARD_URL,
@@ -47,11 +47,38 @@ var stateLabel = Titanium.UI.createLabel({
 	color:'#555'
 });
 
+var streamSize1 = Ti.UI.createButton({
+	title:'Small buffer',
+	top:240,
+	left:10,
+	width:100,
+	height:40
+});
+var streamSize2 = Ti.UI.createButton({
+	title:'Default buffer',
+	top:240,
+	left:110,
+	width:100,
+	height:40
+});
+var streamSize3 = Ti.UI.createButton({
+	title:'Large buffer',
+	top:240,
+	right:10,
+	width:100,
+	height:40	
+});
+
 Ti.UI.currentWindow.add(url);
 Ti.UI.currentWindow.add(streamButton);
 Ti.UI.currentWindow.add(pauseButton);
 Ti.UI.currentWindow.add(progressLabel);
 Ti.UI.currentWindow.add(stateLabel);
+if (Ti.Platform.name != 'android') {
+	Ti.UI.currentWindow.add(streamSize1);
+	Ti.UI.currentWindow.add(streamSize2);
+	Ti.UI.currentWindow.add(streamSize3);
+}
 var streamer = Ti.Media.createAudioPlayer();
 
 streamButton.addEventListener('click',function()
@@ -61,6 +88,9 @@ streamButton.addEventListener('click',function()
 		progressLabel.text = 'Stopped';
 		streamer.stop();
 		pauseButton.enabled = false;
+		streamSize1.enabled = true;
+		streamSize2.enabled = true;
+		streamSize3.enabled = true;
 		pauseButton.title = 'Pause Streaming';
 		streamButton.title = "Start Streaming";
 	}
@@ -70,6 +100,10 @@ streamButton.addEventListener('click',function()
 		streamer.url = url.value;
 		streamer.start();
 		pauseButton.enabled = true;
+		streamSize1.enabled = false;
+		streamSize2.enabled = false;
+		streamSize3.enabled = false;
+
 		pauseButton.title = 'Pause Streaming';
 		streamButton.title = "Stop Stream";
 	}
@@ -84,6 +118,22 @@ pauseButton.addEventListener('click', function()
 	else {
 		pauseButton.title = 'Pause Streaming';
 	}
+});
+
+streamSize1.addEventListener('click', function()
+{
+	streamer.bufferSize = 512;
+	Ti.API.log('Set streamer buffer size to ' + streamer.bufferSize);
+});
+streamSize2.addEventListener('click', function()
+{
+	streamer.bufferSize = 2048;
+	Ti.API.log('Set streamer buffer size to ' + streamer.bufferSize);
+});
+streamSize3.addEventListener('click', function()
+{
+	streamer.bufferSize = 4096;
+	Ti.API.log('Set streamer buffer size to ' + streamer.bufferSize);
 });
 
 streamer.addEventListener('progress',function(e)

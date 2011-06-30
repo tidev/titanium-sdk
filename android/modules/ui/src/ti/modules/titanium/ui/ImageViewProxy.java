@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiDrawableReference;
@@ -20,6 +21,16 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 
 @Kroll.proxy(creatableInModule=UIModule.class)
+@Kroll.dynamicApis(properties = {
+	"decodeRetries",
+	TiC.PROPERTY_DEFAULT_IMAGE,
+	TiC.PROPERTY_DURATION,
+	TiC.PROPERTY_ENABLE_ZOOM_CONTROLS,
+	TiC.PROPERTY_IMAGE,
+	TiC.PROPERTY_IMAGES,
+	TiC.PROPERTY_REPEAT_COUNT,
+	TiC.PROPERTY_URL
+})
 public class ImageViewProxy extends ViewProxy {
 
 	// We use these property to key an existing bitmap / sources when views and proxies are being swapped inside a TableView
@@ -56,6 +67,8 @@ public class ImageViewProxy extends ViewProxy {
 	public void onImageSourcesChanged(TiUIImageView imageView, ArrayList<TiDrawableReference> imageSources)
 	{
 		setProperty(PROPERTY_INTERNAL_SOURCES, imageSources);
+		// The current cached bitmap, if any, can't be trusted now
+		onBitmapChanged(imageView, null);
 	}
 
 	public void onBitmapChanged(TiUIImageView imageView, Bitmap bitmap)

@@ -342,12 +342,16 @@ class Builder(object):
 		name = name.replace(' ', '_')
 		if not os.path.exists(self.home_dir):
 			os.makedirs(self.home_dir)
-		if not os.path.exists(self.sdcard):
-			info("Creating shared 64M SD card for use in Android emulator(s)")
-			run.run([self.sdk.get_mksdcard(), '64M', self.sdcard])
-
 		avd_path = os.path.join(self.android_home_dir, 'avd')
 		my_avd = os.path.join(avd_path,"%s.avd" % name)
+		own_sdcard = os.path.join(self.home_dir, '%s.sdcard' % name)
+		if not os.path.exists(my_avd) or os.path.exists(own_sdcard):
+			# starting with 1.7.2, when we create a new avd, give it its own
+			# SDCard as well.
+			self.sdcard = own_sdcard
+		if not os.path.exists(self.sdcard):
+			info("Creating 64M SD card for use in Android emulator")
+			run.run([self.sdk.get_mksdcard(), '64M', self.sdcard])
 		if not os.path.exists(my_avd):
 			info("Creating new Android Virtual Device (%s %s)" % (avd_id,avd_skin))
 			inputgen = os.path.join(template_dir,'input.py')
@@ -650,7 +654,6 @@ class Builder(object):
 			
 			# MEDIA
 			'Media.vibrate' : VIBRATE_PERMISSION,
-			'Media.createVideoPlayer' : CAMERA_PERMISSION,
 			'Media.showCamera' : CAMERA_PERMISSION,
 			
 			# CONTACTS
@@ -1020,12 +1023,15 @@ class Builder(object):
 			# that user put in <activity> entries that duplicate our own,
 			# such as if they want a custom theme on TiActivity.  So we should delete any dupes.
 			dom = parseString(default_manifest_contents)
+			package_name = dom.documentElement.getAttribute('package')
 			manifest_activities = dom.getElementsByTagName('activity')
 			activity_names = []
 			nodes_to_delete = []
 			for manifest_activity in manifest_activities:
 				if manifest_activity.hasAttribute('android:name'):
 					activity_name = manifest_activity.getAttribute('android:name')
+					if activity_name.startswith('.'):
+						activity_name = package_name + activity_name
 					if activity_name in activity_names:
 						nodes_to_delete.append(manifest_activity)
 					else:
@@ -1208,8 +1214,12 @@ class Builder(object):
 		src_list_file.close()
 		
 		javac_command.append('@' + src_list_filename)
-		out = run.run(javac_command)
+		(out, err, javac_process) = run.run(javac_command, ignore_error=True, return_error=True, return_process=True)
 		os.remove(src_list_filename)
+		if javac_process.returncode != 0:
+			error("Error(s) compiling generated Java code")
+			error(str(err))
+			sys.exit(1)
 		return True
 
 	def create_unsigned_apk(self, resources_zip_file):

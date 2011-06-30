@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -194,6 +194,7 @@ public class TiC
 	public static final String PROPERTY_LEFT = "left";
 	public static final String PROPERTY_LEFT_BUTTON = "leftButton";
 	public static final String PROPERTY_LEFT_IMAGE = "leftImage";
+	public static final String PROPERTY_LEFT_VIEW = "leftView";
 	public static final String PROPERTY_LENGTH = "length";
 	public static final String PROPERTY_LEVEL = "level";
 	public static final String PROPERTY_LOCATION = "location";
@@ -239,6 +240,7 @@ public class TiC
 	public static final String PROPERTY_RIGHT = "right";
 	public static final String PROPERTY_RIGHT_BUTTON = "rightButton";
 	public static final String PROPERTY_RIGHT_IMAGE = "rightImage";
+	public static final String PROPERTY_RIGHT_VIEW = "rightView";
 	public static final String PROPERTY_ROTATE = "rotate";
 	public static final String PROPERTY_ROW_DATA = "rowData";
 	public static final String PROPERTY_ROW_HEIGHT = "rowHeight";
@@ -264,17 +266,21 @@ public class TiC
 	public static final String PROPERTY_STATUS = "status";
 	public static final String PROPERTY_STREET = "street";
 	public static final String PROPERTY_STREET1 = "street1";
+	public static final String PROPERTY_STYLE = "style";
 	public static final String PROPERTY_SUBTITLE = "subtitle";
 	public static final String PROPERTY_SUCCESS = "success";
 	public static final String PROPERTY_TAB_OPEN = "tabOpen";
 	public static final String PROPERTY_TAG = "tag";
 	public static final String PROPERTY_TEXT = "text";
+	public static final String PROPERTY_TEXTID = "textid";
 	public static final String PROPERTY_TEXT_ALIGN = "textAlign";
 	public static final String PROPERTY_TICKER_TEXT = "tickerText";
 	public static final String PROPERTY_TIME = "time";
 	public static final String PROPERTY_TIMESTAMP = "timestamp";
 	public static final String PROPERTY_TITLE = "title";
 	public static final String PROPERTY_TITLEID = "titleid";
+	public static final String PROPERTY_TITLE_ON = "titleOn";
+	public static final String PROPERTY_TITLE_OFF = "titleOff";
 	public static final String PROPERTY_TOP = "top";
 	public static final String PROPERTY_TOUCH_ENABLED = "touchEnabled";
 	public static final String PROPERTY_TRANSFORM = "transform";

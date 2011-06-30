@@ -1018,11 +1018,6 @@ DEFINE_EXCEPTIONS
 		handlesSwipes = YES;
 	}
 	
-	if (handlesTouches || handlesTaps || handlesSwipes)
-	{
-		self.userInteractionEnabled = YES;
-	}
-	
 	if (handlesTaps)
 	{
 		self.multipleTouchEnabled = YES;
@@ -1056,12 +1051,6 @@ DEFINE_EXCEPTIONS
 		[event isEqualToString:@"swipe"])
 	{
 		handlesSwipes = NO;
-	}
-	
-	if (handlesTaps == NO && handlesTouches == NO)
-	{
-		self.userInteractionEnabled = NO;
-		self.multipleTouchEnabled = NO;
 	}
 }
 

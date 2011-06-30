@@ -111,7 +111,7 @@ var b5Label = Ti.UI.createLabel({
 b5.add(b5Label);
 
 var b5ImageView = Ti.UI.createImageView({
-	url:'../images/camera.png',
+	image:'../images/camera.png',
 	left:10,
 	height:33,
 	width:33

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2010-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,6 +17,10 @@ import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.util.Log;
 
 @Kroll.module
+@Kroll.dynamicApis(methods = {
+	"b64_hmac_sha1", "percentEscape", "oauthRequest",
+	"setOAuthParameters", "yql", "yqlO"
+})
 public class YahooModule extends KrollModule
 {
 	private static final String LCAT = "YahooModule";

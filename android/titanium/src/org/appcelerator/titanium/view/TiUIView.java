@@ -846,7 +846,10 @@ public abstract class TiUIView
 
 	public void clearOpacity(View view)
 	{
-		view.getBackground().clearColorFilter();
+		Drawable d = view.getBackground();
+		if (d != null) {
+			d.clearColorFilter();
+		}
 	}
 
 	protected void registerForKeyClick(View clickable) 

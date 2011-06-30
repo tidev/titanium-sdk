@@ -1,0 +1,43 @@
+---
+name: Titanium.UI.iPhone.SystemIcon
+description: A set of constants for the system icon styles that can be used on a tab group tab.
+extends: Titanium.Proxy
+platforms: [iphone, ipad]
+since: "0.8"
+properties:
+  - name: BOOKMARKS
+    description: Bookmark style icon
+    type: Number
+  - name: CONTACTS
+    description: Contacts style icon
+    type: Number
+  - name: DOWNLOADS
+    description: Downloads style icon
+    type: Number
+  - name: FAVORITES
+    description: Favorites style icon
+    type: Number
+  - name: FEATURED
+    description: Featured style icon
+    type: Number
+  - name: HISTORY
+    description: History style icon
+    type: Number
+  - name: MORE
+    description: More style icon
+    type: Number
+  - name: MOST_RECENT
+    description: Most recent style icon
+    type: Number
+  - name: MOST_VIEWED
+    description: Most viewed style icon
+    type: Number
+  - name: RECENTS
+    description: Recents style icon
+    type: Number
+  - name: SEARCH
+    description: Search style icon
+    type: Number
+  - name: TOP_RATED
+    description: Top rated style icon
+    type: Number

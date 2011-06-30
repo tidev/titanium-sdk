@@ -92,16 +92,21 @@ var frontend = {
 	process_data: function(data)
 	{
 		var drillbit_console = $('#console');
-		
 		drillbit_console.append(data+"\n");
 		drillbit_console.scrollTop(drillbit_console[0].scrollHeight);
+		if (Drillbit.logStream != null){
+			Drillbit.logStream.write(data+"\n");
+		}
 	},
 	
 	all_finished: function()
 	{
+		var drillbit_console = $('#console');
 		$("#run-link").removeClass("disabled");
 		runLinkDisabled = false;
 		$('#current-test').html('<b>Finished.</b> Took ' + Drillbit.testDuration + 's');
+		$("#log-link").removeClass("disabled");
+		drillbit_console.append("**********************FINISHED LOGGING**********************\n");
 	}
 };
 
@@ -226,6 +231,31 @@ function reloadTests() {
 
 $(window).ready(function()
 {
+	var mouseDown = false,
+		startY = 0,
+		drillbitConsole= document.getElementById('console'),
+		drillbitResize= document.getElementById('resize-bar'), 
+		drillbitSuite=document.getElementsByClassName('suites')[0],
+		startHeightConsole = $(drillbitConsole).height(),
+		resizerHeight = 12,
+		spaceBuffer = 85;
+
+	var windowWidth = Titanium.App.Properties.getInt("width", 600);
+	var windowHeight = Titanium.App.Properties.getInt("height", 800);
+	var windowX = Titanium.App.Properties.getInt("windowX",400);
+	var windowY = Titanium.App.Properties.getInt("windowY", 600);
+	var bounds = { x: windowX, y: windowY, width: windowWidth, height: windowHeight };
+
+	Titanium.UI.currentWindow.setBounds(bounds);
+
+	var consoleHeight = Titanium.App.Properties.getInt("consoleHeight", 275);
+	$(drillbitConsole).height(consoleHeight);
+	var newHeight = $(drillbitConsole).height();
+	var suiteHeight = windowHeight - spaceBuffer - newHeight;
+	$(drillbitConsole).height(consoleHeight);
+	$(drillbitSuite).height(suiteHeight);
+	drillbitResize.style.bottom = $(drillbitConsole).height() + resizerHeight;
+
 	if ('webConsole' in Drillbit.argv) {
 		Titanium.UI.currentWindow.showInspector(true);
 	}
@@ -233,8 +263,17 @@ $(window).ready(function()
 	Drillbit.runTestsAsync = true;
 	Drillbit.frontend = frontend;
 	Drillbit.window = window;
-	initUI();
+	initUI();	
 	
+	if (!('tests' in Drillbit.argv)) {	
+		eachPlatformCheck(function(name, platform, platformCheck, suitesStatus) {
+			if (name in suitesStatus && platform in suitesStatus[name]) {
+				var checked = suitesStatus[name][platform];
+				platformCheck.attr('src', 'images/check_' + (checked ? 'on' : 'off') + '.png');
+			}
+		});
+	}
+		
 	var runLink = $('#run-link');
 	$('#toggle-link').click(function() {
 		toggleTestIncludes();
@@ -254,11 +293,77 @@ $(window).ready(function()
 			Drillbit.emulators.android.needsBuild = $(this).is(':checked');
 		}	
 	});
+	$('#log-link').click(function() {
+		
+		if(!$("#log-link").hasClass("disabled")){
+			Titanium.Platform.openApplication(Drillbit.logPath.nativePath());
+		}
+	});
 	
-	runLink.click(function ()
-	{
+	$("#resize-bar").mousedown(function() {
+		mouseDown = true;
+		startHeightConsole = $(drillbitConsole).height();
+		startY = event.clientY;
+	});
+	$("body").mousemove(function() {
+		if (mouseDown)
+		{
+			mouseY = event.clientY;
+			var windowHeight = Titanium.UI.currentWindow.getHeight();
+			$(drillbitConsole).height((startY - mouseY) + startHeightConsole);
+			$(drillbitSuite).height(windowHeight - spaceBuffer - $(drillbitConsole).height());
+			drillbitResize.style.bottom = (startY - mouseY) + startHeightConsole + resizerHeight;
+			
+		}
+	});
+	$("body").mouseup(function() {
+		if (mouseDown) {
+			mouseDown = false;
+			mouseY = event.clientY;
+			var windowHeight = Titanium.UI.currentWindow.getHeight();
+			$(drillbitConsole).height((startY - mouseY) + startHeightConsole);
+			$(drillbitSuite).height(windowHeight - spaceBuffer - $(drillbitConsole).height());
+			drillbitResize.style.bottom = (startY - mouseY) + startHeightConsole + resizerHeight;
+		}
+	});
+	$(window).resize(function() {
+		var windowHeight = Titanium.UI.currentWindow.getHeight();
+		$(drillbitConsole).height(windowHeight-$(drillbitSuite).height()-spaceBuffer);
+		drillbitResize.style.bottom = $(drillbitConsole).height() + resizerHeight;
+	});
+	
+	function eachPlatformCheck(fn) {
+		var suitesStatus = JSON.parse(Titanium.App.Properties.getString("suitesStatus", "{ }"));
+		Drillbit.testNames.forEach(function(name) {
+			var suiteId = genSuiteId(name);
+			var suiteDiv = $('#' + suiteId);
+			var entry = Drillbit.tests[name];
+			entry.platforms.forEach(function(platform) {
+				var platformCheck = suiteDiv.find('img.' + platform + '-check');
+				fn(name, platform, platformCheck,suitesStatus);
+			});
+		});
+		Titanium.App.Properties.setString("suitesStatus", JSON.stringify(suitesStatus));
+	};
+
+	function saveSettings() {
+		var bounds = Titanium.UI.currentWindow.getBounds();
+		Titanium.App.Properties.setInt("windowX", bounds.x);
+		Titanium.App.Properties.setInt("windowY", bounds.y);
+		Titanium.App.Properties.setInt("height", bounds.height);
+		Titanium.App.Properties.setInt("width", bounds.width);
+		Titanium.App.Properties.setInt("consoleHeight", $(drillbitConsole).height());
+		eachPlatformCheck(function(name, platform, platformCheck, suitesStatus) {
+			suitesStatus[name][platform] = $(platformCheck).attr('src').indexOf('check_on') != -1;
+		});
+	};
+	Titanium.UI.currentWindow.addEventListener("close", saveSettings);
+	runLink.click(function () {
 		if (!runLinkDisabled)
 		{
+			if (Drillbit.logStream == null) {
+				Drillbit.logStream = Drillbit.logPath.open(TFS.MODE_APPEND);
+			}
 			reloadTests();
 			
 			runLinkDisabled = true;
