@@ -452,6 +452,11 @@ public class TiUIImageView extends TiUIView
 			}
 
 			int duration = (int) getDuration();
+			if (duration == 0)
+			{
+				duration = 1;
+			}
+
 			fireStart();
 			timer.schedule(animator, duration, duration);
 		} else {

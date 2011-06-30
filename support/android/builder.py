@@ -342,12 +342,16 @@ class Builder(object):
 		name = name.replace(' ', '_')
 		if not os.path.exists(self.home_dir):
 			os.makedirs(self.home_dir)
-		if not os.path.exists(self.sdcard):
-			info("Creating shared 64M SD card for use in Android emulator(s)")
-			run.run([self.sdk.get_mksdcard(), '64M', self.sdcard])
-
 		avd_path = os.path.join(self.android_home_dir, 'avd')
 		my_avd = os.path.join(avd_path,"%s.avd" % name)
+		own_sdcard = os.path.join(self.home_dir, '%s.sdcard' % name)
+		if not os.path.exists(my_avd) or os.path.exists(own_sdcard):
+			# starting with 1.7.2, when we create a new avd, give it its own
+			# SDCard as well.
+			self.sdcard = own_sdcard
+		if not os.path.exists(self.sdcard):
+			info("Creating 64M SD card for use in Android emulator")
+			run.run([self.sdk.get_mksdcard(), '64M', self.sdcard])
 		if not os.path.exists(my_avd):
 			info("Creating new Android Virtual Device (%s %s)" % (avd_id,avd_skin))
 			inputgen = os.path.join(template_dir,'input.py')
