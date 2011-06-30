@@ -1,13 +1,14 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
 package ti.modules.titanium.gesture;
 
-import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollInvocation;
@@ -16,16 +17,13 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.TiBaseActivity.ConfigurationChangedListener;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiProperties;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiOrientationHelper;
 import org.appcelerator.titanium.util.TiSensorHelper;
-import org.appcelerator.titanium.util.TiUIHelper;
-import org.appcelerator.titanium.util.TiWeakList;
 
-import android.app.Activity;
 import android.content.res.Configuration;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -34,14 +32,13 @@ import android.hardware.SensorManager;
 
 @Kroll.module @ContextSpecific
 public class GestureModule extends KrollModule
-	implements ConfigurationChangedListener, SensorEventListener
+	implements SensorEventListener
 {
 	private static final String LCAT = "GestureModule";
 	private static final boolean DBG = TiConfig.LOGD;
 	private static final String EVENT_ORIENTATION_CHANGE = "orientationchange";
 	private static final String EVENT_SHAKE = "shake";
 
-	private TiWeakList<TiBaseActivity> configChangeActivities = new TiWeakList<TiBaseActivity>();
 	private boolean shakeRegistered = false;
 	private long firstEventInShake;
 	private long lastEventInShake;
@@ -51,11 +48,13 @@ public class GestureModule extends KrollModule
 	private double shakeFactor;
 	private int postShakePeriod;
 	private int inShakePeriod;
+	private List<Object> orientationConfigListeners = new ArrayList<Object>();
+
 
 	public GestureModule(TiContext tiContext)
 	{
 		super(tiContext);
-		
+
 		TiProperties props = TiApplication.getInstance().getAppProperties();
 		shakeFactor = props.getDouble("ti.android.shake.factor", 1.3d);
 		postShakePeriod = props.getInt("ti.android.shake.quiet.milliseconds", 500);
@@ -72,52 +71,62 @@ public class GestureModule extends KrollModule
 	@Override
 	public int addEventListener(KrollInvocation invocation, String eventName, Object listener)
 	{
-		if (EVENT_ORIENTATION_CHANGE.equals(eventName)) {
-			Activity activity = invocation.getTiContext().getActivity();
-			if (!configChangeActivities.contains(activity)) {
-				if (activity instanceof TiBaseActivity) {
-					TiBaseActivity tiActivity = (TiBaseActivity) activity;
-					tiActivity.enableOrientationListener();
-					tiActivity.addConfigurationChangedListener(this);
-					configChangeActivities.add(new WeakReference<TiBaseActivity>(tiActivity));
-				}
+		if (EVENT_ORIENTATION_CHANGE.equals (eventName))
+		{
+			if (orientationConfigListeners.size() == 0)
+			{
+				TiBaseActivity.registerOrientationListener (new TiBaseActivity.OrientationChangedListener()
+				{
+					@Override
+					public void onOrientationChanged (int configOrientationMode)
+					{
+						KrollDict data = new KrollDict();
+						data.put("orientation", TiOrientationHelper.convertConfigToTiOrientationMode (configOrientationMode));
+						fireEvent(EVENT_ORIENTATION_CHANGE, data);
+					}
+				});
 			}
-		} else if (EVENT_SHAKE.equals(eventName)) {
+
+			orientationConfigListeners.add (listener);
+		}
+		else if (EVENT_SHAKE.equals(eventName))
+		{
 			if (!shakeRegistered) {
 				TiSensorHelper.registerListener(Sensor.TYPE_ACCELEROMETER, this, SensorManager.SENSOR_DELAY_UI);
 				shakeRegistered = true;
 			}
 		}
+
 		return super.addEventListener(invocation, eventName, listener);
 	}
 
 	@Override
 	public void removeEventListener(KrollInvocation invocation, String eventName, Object listener)
 	{
-		if (EVENT_ORIENTATION_CHANGE.equals(eventName) && configChangeActivities.size() > 0) {
-			Activity activity = invocation.getTiContext().getActivity();
-			if (configChangeActivities.contains(activity)) {
-				if (activity instanceof TiBaseActivity) {
-					TiBaseActivity tiActivity = (TiBaseActivity) activity;
-					tiActivity.removeConfigurationChangedListener(this);
-					configChangeActivities.remove(tiActivity);
+		if (EVENT_ORIENTATION_CHANGE.equals (eventName))
+		{
+			if (orientationConfigListeners.contains (listener))
+			{
+				orientationConfigListeners.remove (listener);
+				if (orientationConfigListeners.size() == 0)
+				{
+					TiBaseActivity.deregisterOrientationListener();
 				}
 			}
-		} else if (EVENT_SHAKE.equals(eventName)) {
+			else
+			{
+				Log.e (LCAT, "unable to remove orientation config listener, does not exist");
+			}
+		}
+		else if (EVENT_SHAKE.equals(eventName))
+		{
 			if (shakeRegistered) {
 				TiSensorHelper.unregisterListener(Sensor.TYPE_ACCELEROMETER, this);
 				shakeRegistered = false;
 			}
 		}
-		super.removeEventListener(invocation, eventName, listener);
-	}
 
-	@Override
-	public void onConfigurationChanged(TiBaseActivity activity, Configuration newConfig)
-	{
-		KrollDict data = new KrollDict();
-		data.put("orientation", TiUIHelper.convertToTiOrientation(newConfig.orientation, activity.getOrientationDegrees()));
-		fireEvent(EVENT_ORIENTATION_CHANGE, data);
+		super.removeEventListener(invocation, eventName, listener);
 	}
 
 	public void onAccuracyChanged(Sensor sensor, int accuracy)
@@ -182,25 +191,7 @@ public class GestureModule extends KrollModule
 	@Kroll.getProperty @Kroll.method
 	public int getOrientation(KrollInvocation invocation)
 	{
-		return TiUIHelper.convertToTiOrientation(invocation.getActivity().getResources().getConfiguration().orientation);
-	}
-
-	@Override
-	public void onResume(Activity activity)
-	{
-		super.onResume(activity);
-		if (configChangeActivities.contains(activity)) {
-			((TiBaseActivity)activity).addConfigurationChangedListener(this);
-		}
-	}
-
-	@Override
-	public void onPause(Activity activity)
-	{
-		super.onPause(activity);
-		if (configChangeActivities.contains(activity)) {
-			((TiBaseActivity)activity).removeConfigurationChangedListener(this);
-		}
+		return TiOrientationHelper.convertConfigToTiOrientationMode(invocation.getActivity().getResources().getConfiguration().orientation);
 	}
 }
 

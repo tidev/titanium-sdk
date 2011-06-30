@@ -133,6 +133,11 @@ public class TiUIWindow extends TiUIView
 		handleBooted();
 	}
 
+	public boolean isLightweight()
+	{
+		return lightWeight;
+	}
+
 	protected void initContext()
 	{
 		// if url, create a new context.
