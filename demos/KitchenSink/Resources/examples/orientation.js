@@ -109,21 +109,18 @@ b2.addEventListener('click', function()
 
 
 
-var landscape = Titanium.UI.createButton({
-	title:'Allow Landscape Only',
+var reset = Titanium.UI.createButton({
+	title:'Reset orientation',
 	width:200,
 	height:40,
 	top:140
 });
-landscape.addEventListener('click', function()
+reset.addEventListener('click', function()
 {
-	// set and enforce landscape for this window
-	win.orientationModes = [
-		Titanium.UI.LANDSCAPE_LEFT,
-		Titanium.UI.LANDSCAPE_RIGHT
-	]; 
-	Titanium.UI.orientation = Titanium.UI.LANDSCAPE_LEFT;
+	// give empty array of modes to reset orientation
+	win.orientationModes = [];
 });
+win.add(reset);
 
 //
 // open a new window
@@ -165,6 +162,5 @@ b3.addEventListener('click', function()
 	});
 	win.open();
 });
-win.add(landscape);
 
 

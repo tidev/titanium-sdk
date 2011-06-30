@@ -97,6 +97,13 @@ public class WindowProxy extends TiWindowProxy
 
 		Messenger messenger = new Messenger(getUIHandler());
 		view = new TiUIWindow(this, options, messenger, MSG_FINISH_OPEN);
+
+		// make sure the window opens according to any orientation modes 
+		// set on it before the window actually opened
+		//if (((TiUIWindow) view).lightWeight)
+		//{
+		//	updateOrientation();
+		//}
 	}
 
 	public void fillIntentForTab(Intent intent)
