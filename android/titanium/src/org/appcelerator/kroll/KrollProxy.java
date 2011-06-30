@@ -18,6 +18,7 @@ import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.bridge.OnEventListenerChange;
 import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.kroll.KrollCallback;
+import org.appcelerator.titanium.kroll.KrollCoverage;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -62,6 +63,7 @@ public class KrollProxy
 	protected KrollModule createdInModule;
 	protected KrollProxyBinding binding;
 	protected KrollObject krollObject;
+	protected boolean coverageEnabled;
 
 	@Kroll.inject
 	protected KrollInvocation currentInvocation;
@@ -79,6 +81,7 @@ public class KrollProxy
 			Log.d(TAG, "New: " + getClass().getSimpleName());
 		}
 		this.proxyId = PROXY_ID_PREFIX + proxyCounter.incrementAndGet();
+		coverageEnabled = context.getTiApp().isCoverageEnabled();
 
 		uiHandler = new Handler(Looper.getMainLooper(), this);
 		if (!context.isUIThread()) {
@@ -149,7 +152,11 @@ public class KrollProxy
 	public KrollObject getKrollObject()
 	{
 		if (krollObject == null) {
-			krollObject = new KrollObject(this);
+			if (coverageEnabled) {
+				krollObject = new KrollCoverage(this);
+			} else {
+				krollObject = new KrollObject(this);
+			}
 		}
 		return krollObject;
 	}

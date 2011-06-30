@@ -9,10 +9,16 @@ describe("Ti.Network.HTTPClient tests", {
 		var xhr = Ti.Network.createHTTPClient();
 		valueOf(xhr).shouldBeObject();
 		valueOf(xhr.validatesSecureCertificate).shouldBeFalse();
+		
 		xhr.validatesSecureCertificate = true;
 		valueOf(xhr.validatesSecureCertificate).shouldBeTrue();
 		xhr.validatesSecureCertificate = false;
 		valueOf(xhr.validatesSecureCertificate).shouldBeFalse();
+
+		xhr.setValidatesSecureCertificate(true);
+		valueOf(xhr.getValidatesSecureCertificate()).shouldBeTrue();
+		xhr.setValidatesSecureCertificate(false);
+		valueOf(xhr.getValidatesSecureCertificate()).shouldBeFalse();
 	},
 	
 	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/2156-android-invalid-redirect-alert-on-xhr-file-download

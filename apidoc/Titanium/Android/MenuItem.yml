@@ -5,7 +5,7 @@ extends: Titanium.Proxy
 platforms: [android]
 since: "1.5"
 methods:
-  - name: getCondensedTitle
+  - name: getTitleCondensed
     description: retrieve the condensed title of the item
     returns:
         type: String
@@ -33,7 +33,7 @@ methods:
     description: retrieve the visible state of the menu
     returns:
         type: Boolean
-  - name: setCondensedTitle
+  - name: setTitleCondensed
     description: set the condensed title for the item
     parameters:
       - name: condensedTitle

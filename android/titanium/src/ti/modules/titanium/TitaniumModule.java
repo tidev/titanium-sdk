@@ -1,11 +1,13 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -19,8 +21,10 @@ import java.util.Stack;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollModuleInfo;
+import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
@@ -29,6 +33,7 @@ import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.kroll.KrollContext;
+import org.appcelerator.titanium.kroll.KrollCoverage;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -41,6 +46,7 @@ import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
 import android.app.Service;
+import android.os.Environment;
 import android.os.Handler;
 
 @Kroll.module @Kroll.topLevel({"Ti", "Titanium"})
@@ -460,6 +466,26 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 		return null;
 	}
 
+	@Kroll.method
+	public void dumpCoverage()
+	{
+		TiApplication app = getTiContext().getTiApp();
+		if (app == null || !app.isCoverageEnabled()) {
+			Log.w(LCAT, "Coverage is not enabled, no coverage data will be generated");
+			return;
+		}
+
+		try {
+			File extStorage = Environment.getExternalStorageDirectory();
+			File reportFile = new File(new File(extStorage, app.getPackageName()), "coverage.json");
+			FileOutputStream reportOut = new FileOutputStream(reportFile);
+			KrollCoverage.writeCoverageReport(reportOut);
+			reportOut.close();
+		} catch (IOException e) {
+			Log.e(LCAT, e.getMessage(), e);
+		}
+	}
+
 	@Override
 	public void onDestroy(Activity activity) {
 		if (activity instanceof TiBaseActivity) {
@@ -469,15 +495,16 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 	}
 
 	@Override
-	public void onStop(Activity activity) {
-		if (activity instanceof TiBaseActivity) {
-			cancelTimers((TiBaseActivity) activity);
-		}
-		super.onStop(activity);
+	public void onDestroy(Service service)
+	{
 	}
 
 	@Override
-	public void onDestroy(Service service)
+	public KrollObject getKrollObject()
 	{
+		if (krollObject == null && coverageEnabled) {
+			krollObject = new KrollCoverage("Titanium", this, null);
+		}
+		return super.getKrollObject();
 	}
 }

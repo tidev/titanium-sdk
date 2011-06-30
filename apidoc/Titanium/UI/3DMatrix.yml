@@ -3,6 +3,7 @@ name: Titanium.UI.3DMatrix
 description: The 3DMatrix is created by <Titanium.UI.create3DMatrix>.  The 3D Matrix is an object for holding values for an affine transformation matrix. A 3D matrix is used to rotate, scale, translate, or skew the objects in a three-dimensional space. A 3D matrix is represented by a 4 by 4 matrix. Because the forth column is always (0,0,1), the data structure contains values for only the first three columns.
 extends: Titanium.Proxy
 since: "0.9"
+platforms: [iphone, ipad]
 methods:
   - name: invert
     description: Returns a matrix constructed by inverting an existing matrix

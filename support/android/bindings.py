@@ -1,9 +1,18 @@
 # Functions for reading the generated binding JSON data
-import os, sys, simplejson, zipfile
+import os, sys
+import zipfile
+
+try:
+	import simplejson as json
+except ImportError, e:
+	import json
 
 android_dir = os.path.dirname(sys._getframe(0).f_code.co_filename)
 android_modules_dir = os.path.abspath(os.path.join(android_dir, 'modules'))
-module_jars = simplejson.loads(open(os.path.join(android_dir, 'modules.json'), 'r').read())
+modules_json = os.path.join(android_dir, 'modules.json')
+module_jars = None
+if os.path.exists(modules_json):
+	module_jars = json.loads(open(modules_json, 'r').read())
 
 def get_module_bindings(jar):
 	bindings_path = None
@@ -14,7 +23,7 @@ def get_module_bindings(jar):
 	
 	if bindings_path is None: return None
 	
-	return simplejson.loads(jar.read(bindings_path))
+	return json.loads(jar.read(bindings_path))
 
 def get_all_module_names():
 	module_names = []
@@ -31,7 +40,10 @@ def find_module_jar(module):
 				else: return os.path.join(android_modules_dir, module_jar)
 	return None
 
-def get_all_module_bindings():
+def get_all_module_bindings(dir=None):
+	if dir == None:
+		dir = android_modules_dir
+
 	modules = {}
 	external_child_modules = {}
 	for jar in os.listdir(android_modules_dir):

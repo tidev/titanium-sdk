@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,6 +15,10 @@ import org.appcelerator.titanium.TiContext;
 import ti.modules.titanium.xml.DocumentProxy;
 
 @Kroll.proxy(creatableInModule=NetworkModule.class)
+@Kroll.dynamicApis(properties = {
+	"ondatastream", "onerror", "onload",
+	"onreadystatechange", "onsendstream"
+})
 public class HTTPClientProxy extends KrollProxy {
 	
 	@Kroll.constant public static final int UNSENT = TiHTTPClient.READY_STATE_UNSENT;
@@ -142,5 +146,15 @@ public class HTTPClientProxy extends KrollProxy {
 		client.setAutoRedirect(value);
 	}
 
-	
+	@Kroll.getProperty @Kroll.method
+	public boolean getValidatesSecureCertificate()
+	{
+		return client.validatesSecureCertificate();
+	}
+
+	@Kroll.setProperty @Kroll.method
+	void setValidatesSecureCertificate(boolean value)
+	{
+		this.setProperty("validatesSecureCertificate", value);
+	}
 }
