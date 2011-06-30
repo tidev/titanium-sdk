@@ -176,6 +176,13 @@ class AndroidSDK:
 		return self.get_sdk_tool('zipalign')
 
 	def get_aapt(self):
+		# for aapt (and maybe eventually for others) we
+		# want to favor platform-tools over android-x/tools
+		# because of new resource qualifiers for honeycomb
+		sdk_platform_tools_dir = self.get_sdk_platform_tools_dir()
+		if not sdk_platform_tools_dir is None and os.path.exists(os.path.join(sdk_platform_tools_dir, 'aapt')):
+			return os.path.join(sdk_platform_tools_dir, 'aapt')
+
 		return self.get_platform_tool('aapt')
 
 	def get_apkbuilder(self):
