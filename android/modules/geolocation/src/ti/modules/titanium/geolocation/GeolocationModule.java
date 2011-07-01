@@ -100,9 +100,9 @@ public class GeolocationModule extends KrollModule
 	}
 	
 	@Kroll.method
-	public boolean isLocationProviderEnabled(KrollInvocation invocation, String requestedProvider, Integer requestedAccuracy)
+	public boolean isLocationProviderEnabled(KrollInvocation invocation, String requestedProvider)
 	{
-		return tiLocation.getHasLocationProvider(invocation, requestedProvider, requestedAccuracy);
+		return tiLocation.isLocationProviderEnabled(invocation, requestedProvider);
 	}
 
 	@Kroll.method @Kroll.getProperty

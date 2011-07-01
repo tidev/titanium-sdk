@@ -124,7 +124,7 @@ public class TiLocationHelper
 		}
 	}
 
-	protected static boolean isLocationProviderEnabled(String name)
+	public static boolean isLocationProviderEnabled(String name)
 	{
 		try {
 			return getLocationManager().isProviderEnabled(name);

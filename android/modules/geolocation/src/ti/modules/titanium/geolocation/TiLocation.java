@@ -189,9 +189,9 @@ public class TiLocation
 		return TiLocationHelper.isLocationEnabled();
 	}
 	
-	public boolean getHasLocationProvider(KrollInvocation invocation, String requestedProvider, Integer requestedAccuracy)
+	public boolean isLocationProviderEnabled(KrollInvocation invocation, String requestedProvider)
 	{
-		return (TiLocationHelper.fetchProvider(requestedProvider, requestedAccuracy) != null);
+		return TiLocationHelper.isLocationProviderEnabled(requestedProvider);
 	}
 	
 	public void getCurrentPosition(KrollInvocation invocation, final KrollCallback listener)
