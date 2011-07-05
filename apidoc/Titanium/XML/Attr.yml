@@ -1,0 +1,4 @@
+---
+name: Titanium.XML.Attr
+extends: Titanium.Proxy
+description: A proxy
