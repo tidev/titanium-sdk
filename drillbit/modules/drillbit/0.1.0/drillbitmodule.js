@@ -176,6 +176,9 @@ Drillbit.prototype.initPlatforms = function() {
 		//this.emulators.android = new Titanium.AndroidEmulator(this, androidSdk, apiLevel, platform, googleApis);
 		this.emulators.android = ti.createAndroidEmulator(this, androidSdk, apiLevel, platform, googleApis);
 	}
+	if (this.argv.platforms != null) {
+		Titanium.App.Properties.setString("testsPlatforms", this.argv.platforms);
+	}
 };
 
 Drillbit.prototype.initPython = function() {
