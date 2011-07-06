@@ -617,10 +617,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	NSArray* cellSubviews = [[cell contentView] subviews];
 	// Clear out the old cell view
 	for (UIView* view in cellSubviews) {
-		if ([view isKindOfClass:[TiUITableViewRowContainer class]]) {
-			[view removeFromSuperview];
-			break;
-		}
+		[view removeFromSuperview];
 	}
 }
 
@@ -634,15 +631,20 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	{
 		UIView *contentView = cell.contentView;
 		CGRect rect = [contentView frame];
-		CGFloat rowWidth = [self sizeWidthForDecorations:rect.size.width forceResizing:NO];
-		CGFloat rowHeight = [self rowHeight:rowWidth];
-		rowHeight = [table tableRowHeight:rowHeight];
+        CGSize cellSize = [(TiUITableViewCell*)cell computeCellSize];
+		CGFloat rowWidth = cellSize.width;
+		CGFloat rowHeight = cellSize.height;
+
 		if (rowHeight < rect.size.height || rowWidth < rect.size.width)
 		{
 			rect.size.height = rowHeight;
 			rect.size.width = rowWidth;
 			contentView.frame = rect;
 		}
+        else if (CGSizeEqualToSize(rect.size, CGSizeZero)) {
+            rect.size = CGSizeMake(rowWidth, rowHeight);
+            [contentView setFrame:rect];
+        }
 		rect.origin = CGPointZero;
 		[rowContainerView release];
 		rowContainerView = [[TiUITableViewRowContainer alloc] initWithFrame:rect];
