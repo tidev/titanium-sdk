@@ -245,7 +245,6 @@ $(window).ready(function()
 	}
 
 	if ('resetConfig' in Drillbit.argv) {
-		Titanium.API.debug('**************************Inside resetConfig**************************');
 		Titanium.App.Properties.removeProperty("windowX");
 		Titanium.App.Properties.removeProperty("windowY");
 		Titanium.App.Properties.removeProperty("height");
@@ -342,7 +341,6 @@ $(window).ready(function()
 			});
 		});
 		Titanium.App.Properties.setString("suitesStatus", JSON.stringify(suitesStatus));
-		Titanium.API.debug(JSON.stringify(suitesStatus));
 	};
 	
 	function setupConfig() {
