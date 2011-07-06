@@ -1,0 +1,4 @@
+---
+name: Titanium.XML.DOMImplementation
+extends: Titanium.Proxy
+description: A proxy

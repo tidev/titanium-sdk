@@ -1,0 +1,4 @@
+---
+name: Titanium.XML.Entity
+extends: Titanium.Proxy
+description: A proxy
