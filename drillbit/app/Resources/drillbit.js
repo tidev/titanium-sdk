@@ -376,7 +376,6 @@ $(window).ready(function()
 			suitesStatus[name][platform] = $(platformCheck).attr('src').indexOf('check_on') != -1;
 		});
 	};
-	window.saveSettings = saveSettings;
 	Titanium.UI.currentWindow.addEventListener("close", saveSettings);
 	runLink.click(function () {
 		if (!runLinkDisabled)
