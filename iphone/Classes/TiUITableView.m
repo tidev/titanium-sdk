@@ -994,7 +994,7 @@
 	[[searchField view] resignFirstResponder];
 	[self makeRootViewFirstResponder];
 	[searchTableView removeFromSuperview];
-	[tableview setScrollEnabled:[self isScrollable]];
+//	[tableview setScrollEnabled:[self isScrollable]];
 	[self.proxy replaceValue:NUMBOOL(YES) forKey:@"searchHidden" notification:NO];
 	[searchController setActive:NO animated:YES];
 	
@@ -1026,7 +1026,7 @@
 		[tableview scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]
 						 atScrollPosition:UITableViewScrollPositionBottom animated:NO];
 	}
-	[tableview setScrollEnabled:NO];
+//	[tableview setScrollEnabled:NO];
 	
 	CGRect screenRect = [TiUtils viewPositionRect:tableview];
 	CGFloat searchHeight = [[tableview tableHeaderView] bounds].size.height;
