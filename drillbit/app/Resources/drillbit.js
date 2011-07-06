@@ -248,31 +248,21 @@ $(window).ready(function()
 	Drillbit.frontend = frontend;
 	Drillbit.window = window;
 	initUI();	
-		
-	Titanium.API.debug("Checking for reset-config\n");
-	if ('reset-config' in Drillbit.argv) {
-		Titanium.API.debug("************************************Inside reset-config\n");
-		if (Titanium.App.Properties.removeProperty("windowX")) {
-			Titanium.API.debug("Removed windowX\n");
-		}
-		if (Titanium.App.Properties.removeProperty("windowY")) {
-			Titanium.API.debug("Removed windowY\n");
-		}
-		if (Titanium.App.Properties.removeProperty("height")) {
-			Titanium.API.debug("Removed height\n");
-		}
-		if (Titanium.App.Properties.removeProperty("width")) {
-			Titanium.API.debug("Removed width\n");
-		}
-		if (Titanium.App.Properties.removeProperty("consoleHeight")) {
-			Titanium.API.debug("Removed consoleHeight\n");
-		}
-		if (Titanium.App.Properties.removeProperty("suitesStatus")) {
-			Titanium.API.debug("Removed suitesStatus\n");
-		}
-	}	
+
+	if ('resetConfig' in Drillbit.argv) {
+		Titanium.API.debug('**************************Inside resetConfig**************************');
+		Titanium.App.Properties.removeProperty("windowX");
+		Titanium.App.Properties.removeProperty("windowY");
+		Titanium.App.Properties.removeProperty("height");
+		Titanium.App.Properties.removeProperty("width");
+		Titanium.App.Properties.removeProperty("consoleHeight");
+		Titanium.App.Properties.removeProperty("suitesStatus");
+	}
+	Titanium.API.debug('\nsuitesStatus = ' + suitesStatus + '\n');
 	setupConfig();
-		
+	
+
+	
 	var runLink = $('#run-link');
 	$('#toggle-link').click(function() {
 		toggleTestIncludes();
@@ -292,8 +282,7 @@ $(window).ready(function()
 			Drillbit.emulators.android.needsBuild = $(this).is(':checked');
 		}	
 	});
-	$('#log-link').click(function() {
-		
+	$('#log-link').click(function() {		
 		if(!$("#log-link").hasClass("disabled")){
 			Titanium.Platform.openApplication(Drillbit.logPath.nativePath());
 		}
@@ -346,10 +335,15 @@ $(window).ready(function()
 	};
 	
 	function setupConfig() {
-		var windowWidth = Titanium.App.Properties.getInt("width", 800);
-		var windowHeight = Titanium.App.Properties.getInt("height", 600);
-		var windowX = Titanium.App.Properties.getInt("windowX", 200);
-		var windowY = Titanium.App.Properties.getInt("windowY", 100);
+		var defaultWidth = Titanium.UI.currentWindow.getWidth();
+		var defaultHeight = Titanium.UI.currentWindow.getHeight();
+		var defaultX = Titanium.UI.currentWindow.getX();
+		var defaultY = Titanium.UI.currentWindow.getY();
+		
+		var windowWidth = Titanium.App.Properties.getInt("width", defaultWidth);
+		var windowHeight = Titanium.App.Properties.getInt("height", defaultHeight);
+		var windowX = Titanium.App.Properties.getInt("windowX", defaultX);
+		var windowY = Titanium.App.Properties.getInt("windowY", defaultY);
 		var bounds = { x: windowX, y: windowY, width: windowWidth, height: windowHeight };
 	
 		Titanium.UI.currentWindow.setBounds(bounds);
@@ -441,6 +435,5 @@ $(window).ready(function()
 	if ('autorun' in Drillbit.argv) {
 		runLink.click();
 	}
-
 });
 
