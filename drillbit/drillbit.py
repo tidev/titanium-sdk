@@ -63,7 +63,7 @@ def usage():
     --autorun                       Start running tests as soon as Drillibit starts
     --autoclose                     Close Drillbit as soon as all tests are finished running
     --web-console                   Launch Drillbit with the Web / Javascript Console showing (for debugging Drillbit itself)
-   	--reset-config					Resets current configuration of window and tests to default
+    --reset-config					Resets current configuration of window and tests to default
 
 
     iPhone Specific Arguments
