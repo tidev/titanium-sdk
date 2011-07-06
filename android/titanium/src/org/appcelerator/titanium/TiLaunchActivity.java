@@ -9,6 +9,7 @@ package org.appcelerator.titanium;
 import java.io.IOException;
 import java.util.Set;
 
+import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiBindingHelper;
@@ -241,6 +242,10 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	{
 		if (tiContext != null) {
 			tiContext.fireLifecycleEvent(this, TiContext.LIFECYCLE_ON_DESTROY);
+			TiApplication tiApp = tiContext.getTiApp();
+			if (tiApp != null) {
+				tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppEndEvent());
+			}
 		}
 		super.onDestroy();
 	}
