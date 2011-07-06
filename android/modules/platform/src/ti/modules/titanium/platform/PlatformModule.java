@@ -122,9 +122,9 @@ public class PlatformModule extends KrollModule
 		return TiPlatformHelper.getNetmask();
 	}
 	
-	@Kroll.getProperty @Kroll.method
-	public boolean getIs24TimeFormat() {
-		return TiPlatformHelper.is24HourFormat( getTiContext().getActivity().getApplicationContext() );
+	@Kroll.method
+	public boolean is24HourTimeFormat() {
+		return TiPlatformHelper.is24HourTimeFormat( getTiContext().getActivity().getApplicationContext() );
 	}
 	
 	@Kroll.method
@@ -166,6 +166,11 @@ public class PlatformModule extends KrollModule
 		} else if (!monitor && batteryStateReceiver != null) {
 			unregisterBatteryStateReceiver();
 		}
+	}
+	@Kroll.getProperty @Kroll.method
+	public boolean getBatteryMonitoring()
+	{
+		return batteryStateReceiver != null;
 	}
 
 	@Kroll.getProperty @Kroll.method

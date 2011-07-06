@@ -22,6 +22,10 @@ methods:
       - name: url
         description: the url to open
         type: String
+  - name: is24HourTimeFormat
+    description: Whether device settings are set to show times in 24-hour format.
+    returns:
+        type: Boolean
 events:
   - name: battery
     description: fired when the battery state changes.  the battery state changes are only tracked on iPhone/iPad at 5% increments.
