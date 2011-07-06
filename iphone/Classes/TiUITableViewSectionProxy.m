@@ -16,7 +16,7 @@
 
 @synthesize rows, table, section;
 
-#pragma mark Internal 
+#pragma mark Internal
 
 -(void)_destroy
 {
@@ -36,7 +36,8 @@
 {
 	[super _initWithProperties:properties];
 	self.modelDelegate = self;
-}	
+	rows = [[NSMutableArray array] retain];
+}
 
 -(void)reorderRows
 {
@@ -79,21 +80,16 @@
 {
 	ENSURE_SINGLE_ARG(proxy,TiUITableViewRowProxy);
 	[self rememberProxy:proxy];
-	if (rows==nil) 
-	{
-		rows = [[NSMutableArray array] retain];
-	}
 	[rows addObject:proxy];
+	[self triggerSectionUpdate];
 }
 
 -(void)remove:(id)proxy
 {
 	ENSURE_SINGLE_ARG(proxy,TiUITableViewRowProxy);
 	[self forgetProxy:proxy];
-	if (rows!=nil)
-	{
-		[rows removeObject:proxy];
-	}
+	[rows removeObject:proxy];
+	[self triggerSectionUpdate];
 }
 
 -(UIView*)view
@@ -118,7 +114,7 @@
 	return [super valueForUndefinedKey:@"footerTitle"];
 }
 
-#pragma mark Delegate 
+#pragma mark Delegate
 
 -(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy
 {
@@ -131,8 +127,8 @@
 								  @"headerView", @"footerView",
 								  nil];
 	}
-	
-	
+
+
 	if ([TableViewSectionProperties member:key]!=nil && table!=nil)
 	{
 		[self triggerSectionUpdate];
