@@ -122,6 +122,11 @@ public class PlatformModule extends KrollModule
 		return TiPlatformHelper.getNetmask();
 	}
 	
+	@Kroll.getProperty @Kroll.method
+	public boolean getIs24TimeFormat() {
+		return TiPlatformHelper.is24HourFormat( getTiContext().getActivity().getApplicationContext() );
+	}
+	
 	@Kroll.method
 	public String createUUID() {
 		return TiPlatformHelper.createUUID();
