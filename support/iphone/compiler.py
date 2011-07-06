@@ -393,8 +393,11 @@ class Compiler(object):
 					if name in dirs:
 						dirs.remove(name)	# don't visit ignored directories			  
 				for file in files:
+					if file[-7:] == '.coffee': # don't copy .coffee script files
+						coffee_file = os.path.join(root, file)
+						ignoreFiles.append(file)
 					if file in ignoreFiles:
-						continue					
+						continue
 					prefix = root[len(source):]
 					from_ = os.path.join(root, file)			  
 					to_ = os.path.expanduser(from_.replace(source, target, 1))
