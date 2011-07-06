@@ -338,10 +338,10 @@ properties:
     description: playback has stopped
     type: Number
   - name: VIDEO_REPEAT_MODE_NONE
-    description: the video will not repeat
+    description: constant for repeating no videos (IE, the one video will NOT repeat) during playback
     type: Number
   - name: VIDEO_REPEAT_MODE_ONE
-    description: the video will repeat once
+    description: constant for repeating one video (IE, the one video will repeat constantly) during playback
     type: Number
   - name: VIDEO_SCALING_ASPECT_FILL
     description: constant for video aspect where the movie will be scaled until the movie fills the entire screen. Content at the edges of the larger of the two dimensions is clipped so that the other dimension fits the screen exactly. The aspect ratio of the movie is preserved.
