@@ -33,11 +33,11 @@ function getOrientation(o)
 		case Titanium.UI.PORTRAIT:
 			return 'portrait';
 		case Titanium.UI.UPSIDE_PORTRAIT:
-			return 'upside portrait';
+			return 'reverse portrait';
 		case Titanium.UI.LANDSCAPE_LEFT:
-			return 'landscape left';
+			return 'landscape';
 		case Titanium.UI.LANDSCAPE_RIGHT:
-			return 'landscape right';
+			return 'reverse landscape';
 		case Titanium.UI.FACE_UP:
 			return 'face up';
 		case Titanium.UI.FACE_DOWN:
@@ -84,12 +84,11 @@ var b1 = Titanium.UI.createButton({
 	height:40,
 	top:40
 });
-win.add(b1);
-
 b1.addEventListener('click', function()
 {
 	Titanium.UI.orientation = Titanium.UI.LANDSCAPE_LEFT;
 });
+win.add(b1);
 
 //
 // set orientation - landscape portrait
@@ -100,50 +99,62 @@ var b2 = Titanium.UI.createButton({
 	height:40,
 	top:90
 });
-win.add(b2);
-
 b2.addEventListener('click', function()
 {
-	Titanium.UI.orientation = Titanium.UI.PORTRAIT;
+	win.orientationModes = [Titanium.UI.PORTRAIT];
 });
+win.add(b2);
 
-
-
-var landscape = Titanium.UI.createButton({
-	title:'Allow Landscape Only',
+var b3 = Titanium.UI.createButton({
+	title:'Reset orientation',
 	width:200,
 	height:40,
 	top:140
 });
-landscape.addEventListener('click', function()
+b3.addEventListener('click', function()
 {
-	// set and enforce landscape for this window
-	win.orientationModes = [
-		Titanium.UI.LANDSCAPE_LEFT,
-		Titanium.UI.LANDSCAPE_RIGHT
-	]; 
-	Titanium.UI.orientation = Titanium.UI.LANDSCAPE_LEFT;
+	Ti.API.info("resetting orientation modes");
+	win.orientationModes = [];
 });
+win.add(b3);
+
+if (Titanium.Platform.name == 'iPhone OS')
+{
+	var landscape = Titanium.UI.createButton({
+		title:'Allow Landscape Only',
+		width:200,
+		height:40,
+		top:190
+	});
+	landscape.addEventListener('click', function()
+	{
+		// set and enforce landscape for this window
+		win.orientationModes = [
+			Titanium.UI.LANDSCAPE_LEFT,
+			Titanium.UI.LANDSCAPE_RIGHT
+		]; 
+		Titanium.UI.orientation = Titanium.UI.LANDSCAPE_LEFT;
+	});
+	win.add(landscape);
+}
 
 //
 // open a new window
 //
-var b3 = Titanium.UI.createButton({
+var b4 = Titanium.UI.createButton({
 	title:'Open A Window',
 	width:200,
 	height:40,
-	top:190
+	top:240
 });
-win.add(b3);
-
-b3.addEventListener('click', function()
+b4.addEventListener('click', function()
 {
-	var win = Ti.UI.createWindow({
+	var subwin = Ti.UI.createWindow({
 		url:'vibrate.js',
 		backgroundColor:'purple'
 	});
-	
-	win.orientationModes = [ 
+
+	subwin.orientationModes = [ 
 		Titanium.UI.PORTRAIT, 
 		Titanium.UI.UPSIDE_PORTRAIT, 
 		Titanium.UI.LANDSCAPE_LEFT, 
@@ -151,20 +162,26 @@ b3.addEventListener('click', function()
 		Titanium.UI.FACE_UP, 
 		Titanium.UI.FACE_DOWN
 	];
-	
+
 	var close = Titanium.UI.createButton({
 		title:'close',
 		width:200,
 		height:40,
 		top:60
 	});
-	win.add(close);
+	subwin.add(close);
 	close.addEventListener('click', function()
 	{
-		win.close();
+		if (Titanium.Platform.osname == 'android')
+		{
+			// reset the orientation modes on the parent to ensure the orientation gets reset on the previous window
+			win.orientationModes = win.orientationModes;
+		}
+		subwin.close();
 	});
-	win.open();
+	subwin.open();
 });
-win.add(landscape);
+win.add(b4);
+
 
 
