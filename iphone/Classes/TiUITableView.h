@@ -35,6 +35,7 @@
 -(void) setSelectedBackgroundGradient_:(TiGradient *)newGradient;
 
 -(void) updateGradientLayer:(BOOL)useSelected;
+-(CGSize)computeCellSize;
 
 @end
 
@@ -83,7 +84,7 @@
 -(IBAction)hideSearchScreen:(id)sender;
 -(UITableView*)searchTableView;
 -(UITableView*)tableView;
-
+-(CGFloat)tableRowHeight:(CGFloat)height;
 
 @end
 
