@@ -564,6 +564,13 @@ AsyncTest.prototype.start = function(callback) {
 	}
 };
 
+AsyncTest.prototype.failed = function(e) {
+	if (this.timer != null) {
+		clearTimeout(this.timer);
+	}
+	this.callback.failed(e);
+};
+
 function asyncTest(args) {
 	args = typeof(args) == 'function' ? {start: args} : args;
 	return new AsyncTest(args);

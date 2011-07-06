@@ -27,6 +27,7 @@ iPhoneSimulator.prototype.createTestHarnessBuilderProcess = function(command, ar
 };
 
 iPhoneSimulator.prototype.getTestJSInclude = function() {
+	Titanium.API.debug("drillbit test.js -> " + this.testJSFile.nativePath());
 	return "Ti.includeAbsolute(\"" + this.testJSFile.nativePath() + "\")";
 };
 

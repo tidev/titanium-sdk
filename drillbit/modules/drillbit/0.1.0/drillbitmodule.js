@@ -195,7 +195,6 @@ Drillbit.prototype.initHTTP = function() {
 	var self = this;
 	httpServer.bind(9999, function(request, response) {
 		var data = request.read();
-		Ti.API.debug("in httpserver request handler, data: " + data.toString());
 		try {
 			if (data != null) {
 				var event = JSON.parse(data.toString());
