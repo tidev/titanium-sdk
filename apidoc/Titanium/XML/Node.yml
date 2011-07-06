@@ -1,0 +1,4 @@
+---
+name: Titanium.XML.Node
+extends: Titanium.Proxy
+description: A proxy

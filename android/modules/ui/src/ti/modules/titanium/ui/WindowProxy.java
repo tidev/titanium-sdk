@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -29,6 +29,15 @@ import android.os.Message;
 import android.os.Messenger;
 
 @Kroll.proxy(creatableInModule=UIModule.class)
+@Kroll.dynamicApis(properties = {
+	TiC.PROPERTY_TITLEID,
+	TiC.PROPERTY_URL,
+	TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE,
+	TiC.PROPERTY_NAV_BAR_HIDDEN,
+	TiC.PROPERTY_MODAL,
+	TiC.PROPERTY_FULLSCREEN,
+	TiC.PROPERTY_EXIT_ON_CLOSE
+})
 public class WindowProxy extends TiWindowProxy
 {
 	private static final String LCAT = "WindowProxy";
@@ -97,6 +106,13 @@ public class WindowProxy extends TiWindowProxy
 
 		Messenger messenger = new Messenger(getUIHandler());
 		view = new TiUIWindow(this, options, messenger, MSG_FINISH_OPEN);
+
+		// make sure the window opens according to any orientation modes 
+		// set on it before the window actually opened
+		//if (((TiUIWindow) view).lightWeight)
+		//{
+		//	updateOrientation();
+		//}
 	}
 
 	public void fillIntentForTab(Intent intent)

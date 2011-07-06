@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,6 +9,7 @@ package org.appcelerator.titanium.proxy;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -16,6 +17,12 @@ import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.mozilla.javascript.Scriptable;
 
+@Kroll.proxy
+@Kroll.dynamicApis(properties = {
+	"anim", "array", "attr", "color",
+	"dimen", "drawable", "id", "integer",
+	"layout", "string", "style", "styleable"
+})
 public class RProxy extends KrollProxy {
 	private static final String TAG = "TiAndroidRProxy";
 	private static final boolean DBG = TiConfig.LOGD;

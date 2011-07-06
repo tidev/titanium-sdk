@@ -3,6 +3,7 @@ name: Titanium.Media.Item
 description: A representation of a media item returned by the music picker as part of the `items` array in the dictionary passed to its `success` function.
 extends: Titanium.Proxy
 since: "1.4.0"
+platforms: [iphone, ipad]
 properties:
   - name: albumArtist
     description: the artist for the album of the item

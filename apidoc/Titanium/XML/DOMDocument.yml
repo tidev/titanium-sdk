@@ -1,5 +1,0 @@
----
-name: Titanium.XML.DOMDocument
-description: The DOMDocument returned from <Titanium.XML.parseString>. The result is an object that implementes the DOM Level 2 API.
-extends: Titanium.Proxy
-since: "0.9"

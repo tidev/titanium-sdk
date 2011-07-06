@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.widget;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
@@ -48,8 +49,8 @@ public class TiUIProgressBar extends TiUIView {
 	public void processProperties(KrollDict d) {
 		super.processProperties(d);
 		
-		if (d.containsKey("message")) {
-			handleSetMessage(TiConvert.toString(d, "message"));
+		if (d.containsKey(TiC.PROPERTY_MESSAGE)) {
+			handleSetMessage(TiConvert.toString(d, TiC.PROPERTY_MESSAGE));
 		}
 		updateProgress();
 	}
@@ -59,7 +60,7 @@ public class TiUIProgressBar extends TiUIView {
 			KrollProxy proxy) {
 		super.propertyChanged(key, oldValue, newValue, proxy);
 		
-		if (key.equals("value") || key.equals("min") || key.equals("max")) {
+		if (key.equals(TiC.PROPERTY_VALUE) || key.equals("min") || key.equals("max")) {
 			updateProgress();
 		}
 	}
@@ -83,7 +84,7 @@ public class TiUIProgressBar extends TiUIView {
 	}
 	
 	private double getValue() {
-		Object value = proxy.getProperty("value");
+		Object value = proxy.getProperty(TiC.PROPERTY_VALUE);
 		if (value == null) {
 			return 0;
 		}

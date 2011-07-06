@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -24,6 +24,13 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 @Kroll.proxy
+@Kroll.dynamicApis(properties = {
+	TiC.PROPERTY_ACTION,
+	TiC.PROPERTY_CLASS_NAME,
+	TiC.PROPERTY_PACKAGE_NAME,
+	TiC.PROPERTY_TYPE,
+	TiC.PROPERTY_URL
+})
 public class IntentProxy extends KrollProxy 
 {
 	private static final String TAG = "TiIntent";

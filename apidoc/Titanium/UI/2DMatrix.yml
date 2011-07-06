@@ -48,20 +48,26 @@ properties:
   - name: a
     description: The entry at position [1,1] in the matrix.
     type: Number
+    platforms: [iphone, ipad]
   - name: b
     description: The entry at position [1,2] in the matrix.
     type: Number
+    platforms: [iphone, ipad]
   - name: c
     description: The entry at position [2,1] in the matrix.
     type: Number
+    platforms: [iphone, ipad]
   - name: d
     description: The entry at position [2,2] in the matrix.
     type: Number
+    platforms: [iphone, ipad]
   - name: tx
     description: The entry at position [3,1] in the matrix.
     type: Number
+    platforms: [iphone, ipad]
   - name: ty
     description: The entry at position [3,2] in the matrix.
     type: Number
+    platforms: [iphone, ipad]
 notes: |
     You create an `identity matrix` by creating a 2D Matrix with an empty constructor.

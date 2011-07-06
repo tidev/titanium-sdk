@@ -3,6 +3,7 @@ name: Titanium.UI.iOS.AdView
 description: The AdView is a view for display Apple iAds. The View is created by the method <Titanium.UI.iOS.createAdView>.
 extends: Titanium.UI.View
 since: "1.4"
+platforms: ["iphone", "ipad"]
 methods:
   - name: cancelAction
     description: A banner view action can cover your application's user interface. However, your application continues to run, and receives events normally. If your application receives an event that requires the user's attention, it can programmatically cancel the action and uncover its interface by calling cancelAction. Canceling actions frequently can cause a loss of revenue for your application.

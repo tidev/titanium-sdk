@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,6 +17,18 @@ import ti.modules.titanium.ui.widget.TiUILabel;
 import android.app.Activity;
 
 @Kroll.proxy(creatableInModule=UIModule.class)
+@Kroll.dynamicApis(properties = {
+	TiC.PROPERTY_AUTO_LINK,
+	TiC.PROPERTY_COLOR,
+	TiC.PROPERTY_ELLIPSIZE,
+	TiC.PROPERTY_FONT,
+	TiC.PROPERTY_HIGHLIGHTED_COLOR,
+	TiC.PROPERTY_HTML,
+	TiC.PROPERTY_TEXT,
+	TiC.PROPERTY_TEXT_ALIGN,
+	TiC.PROPERTY_TEXTID,
+	TiC.PROPERTY_WORD_WRAP
+})
 public class LabelProxy extends TiViewProxy
 {
 	public LabelProxy(TiContext tiContext)
@@ -30,7 +42,7 @@ public class LabelProxy extends TiViewProxy
 	protected KrollDict getLangConversionTable()
 	{
 		KrollDict table = new KrollDict();
-		table.put("text", "textid");
+		table.put(TiC.PROPERTY_TEXT, TiC.PROPERTY_TEXTID);
 		return table;
 	}
 

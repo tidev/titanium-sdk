@@ -11,7 +11,7 @@ properties:
         The [ASCII Character Set](http://en.wikipedia.org/wiki/ASCII)
     value: "ascii"
     permission: read-only
-  - name: CHARSET_ISO_LATIN1
+  - name: CHARSET_ISO_LATIN_1
     type: String
     description: |
         The [ISO 8859-1 (LATIN-1) Character Set](http://en.wikipedia.org/wiki/ISO/IEC_8859-1)

@@ -234,11 +234,11 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 	return NUMBOOL([[UIApplication sharedApplication] canOpenURL:url]);
 }
 
--(PlatformModuleDisplayCapsProxy*)displayCaps
+-(TiPlatformDisplayCaps*)displayCaps
 {
 	if (capabilities == nil)
 	{
-		return [[[PlatformModuleDisplayCapsProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+		return [[[TiPlatformDisplayCaps alloc] _initWithPageContext:[self executionContext]] autorelease];
 	}
 	return capabilities;
 }
