@@ -244,11 +244,6 @@ $(window).ready(function()
 		Titanium.UI.currentWindow.showInspector(true);
 	}
 
-	Drillbit.runTestsAsync = true;
-	Drillbit.frontend = frontend;
-	Drillbit.window = window;
-	initUI();	
-
 	if ('resetConfig' in Drillbit.argv) {
 		Titanium.API.debug('**************************Inside resetConfig**************************');
 		Titanium.App.Properties.removeProperty("windowX");
@@ -258,10 +253,21 @@ $(window).ready(function()
 		Titanium.App.Properties.removeProperty("consoleHeight");
 		Titanium.App.Properties.removeProperty("suitesStatus");
 	}
-	Titanium.API.debug('\nsuitesStatus = ' + suitesStatus + '\n');
 	setupConfig();
-	
 
+	Drillbit.runTestsAsync = true;
+	Drillbit.frontend = frontend;
+	Drillbit.window = window;
+	initUI();	
+	
+	if (!('tests' in Drillbit.argv)) {	
+		eachPlatformCheck(function(name, platform, platformCheck, suitesStatus) {
+			if (name in suitesStatus && platform in suitesStatus[name]) {
+				var checked = suitesStatus[name][platform];
+				platformCheck.attr('src', 'images/check_' + (checked ? 'on' : 'off') + '.png');
+			}
+		});
+	}
 	
 	var runLink = $('#run-link');
 	$('#toggle-link').click(function() {
@@ -322,16 +328,21 @@ $(window).ready(function()
 	
 	function eachPlatformCheck(fn) {
 		var suitesStatus = JSON.parse(Titanium.App.Properties.getString("suitesStatus", "{ }"));
+		Titanium.API.debug(Drillbit.testNames);
 		Drillbit.testNames.forEach(function(name) {
 			var suiteId = genSuiteId(name);
 			var suiteDiv = $('#' + suiteId);
 			var entry = Drillbit.tests[name];
+			if (!(name in suitesStatus)) {
+				suitesStatus[name] = {};
+			}
 			entry.platforms.forEach(function(platform) {
 				var platformCheck = suiteDiv.find('img.' + platform + '-check');
 				fn(name, platform, platformCheck,suitesStatus);
 			});
 		});
 		Titanium.App.Properties.setString("suitesStatus", JSON.stringify(suitesStatus));
+		Titanium.API.debug(JSON.stringify(suitesStatus));
 	};
 	
 	function setupConfig() {
@@ -354,15 +365,6 @@ $(window).ready(function()
 		var suiteHeight = windowHeight - spaceBuffer - newHeight;
 		$(drillbitSuite).height(suiteHeight);
 		drillbitResize.style.bottom = $(drillbitConsole).height() + resizerHeight;
-		
-		if (!('tests' in Drillbit.argv)) {	
-			eachPlatformCheck(function(name, platform, platformCheck, suitesStatus) {
-				if (name in suitesStatus && platform in suitesStatus[name]) {
-					var checked = suitesStatus[name][platform];
-					platformCheck.attr('src', 'images/check_' + (checked ? 'on' : 'off') + '.png');
-				}
-			});
-		}
 	};
 
 	function saveSettings() {
@@ -376,6 +378,7 @@ $(window).ready(function()
 			suitesStatus[name][platform] = $(platformCheck).attr('src').indexOf('check_on') != -1;
 		});
 	};
+	window.saveSettings = saveSettings;
 	Titanium.UI.currentWindow.addEventListener("close", saveSettings);
 	runLink.click(function () {
 		if (!runLinkDisabled)
