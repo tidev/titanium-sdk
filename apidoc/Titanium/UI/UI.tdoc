@@ -128,6 +128,7 @@ NOTIFICATION_DURATION_SHORT[int]: Duration of the notification
 backgroundColor[string]: this sets the background color of the master UIView (when there are no windows/tab groups on it)
 backgroundImage[string]: path/url to an image file for setting a background for the master UIView (when there are no windows/tab groups on it).
 currentWindow[`Titanium.UI.Window`]: The active window associated with the executing Javascript context.
+orientation[int]: when set, this will update the orientation of the current window to the specified orientation value
 
 - notes
 
