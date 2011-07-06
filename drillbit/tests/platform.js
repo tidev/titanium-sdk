@@ -1,5 +1,5 @@
 describe("Ti.Platform tests", {
-    apipoints: function() {
+    apiPoints: function() {
        valueOf(Ti.Platform.createUUID).shouldBeFunction();
        valueOf(Ti.Platform.openURL).shouldBeFunction();
        valueOf(Ti.Platform.is24HourTimeFormat).shouldBeFunction();

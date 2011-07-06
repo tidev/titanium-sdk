@@ -433,9 +433,9 @@ public class TiPlatformHelper
 		return netmask;
 	}
 	
-	public static boolean is24HourTimeFormat( Context c )
+	public static boolean is24HourTimeFormat(Context c)
 	{
-		return android.text.format.DateFormat.is24HourFormat( c );
+		return android.text.format.DateFormat.is24HourFormat(c);
 	}
 	
 	public static String getNetworkTypeName() {

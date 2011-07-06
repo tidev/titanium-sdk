@@ -123,8 +123,9 @@ public class PlatformModule extends KrollModule
 	}
 	
 	@Kroll.method
-	public boolean is24HourTimeFormat() {
-		return TiPlatformHelper.is24HourTimeFormat( getTiContext().getActivity().getApplicationContext() );
+	public boolean is24HourTimeFormat()
+	{
+		return TiPlatformHelper.is24HourTimeFormat(getTiContext().getActivity().getApplicationContext());
 	}
 	
 	@Kroll.method
