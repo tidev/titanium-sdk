@@ -200,6 +200,20 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 	return [TiUtils createUUID];
 }
 
+-(NSNumber*) is24HourTimeFormat: (id) unused
+{
+	NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+	[dateFormatter setLocale:[self locale]];
+	[dateFormatter setTimeStyle:kCFDateFormatterShortStyle];
+	NSString *dateInStringForm = [formatter stringFromDate:[NSDate date]];
+	NSRange amRange = [dateInStringForm rangeOfString:[dateFormatter AMSymbol]];
+	NSRange pmRange = [dateInStringForm rangeOfString:[dateFormatter PMSymbol]];
+	[dateFormatter release];
+	return NUMBOOL(amRange.location == NSNotFound && pmRange.location == NSNotFound);
+	
+}
+
+
 - (NSNumber*)availableMemory
 {
 	vm_statistics_data_t vmStats;
