@@ -327,7 +327,6 @@ $(window).ready(function()
 	
 	function eachPlatformCheck(fn) {
 		var suitesStatus = JSON.parse(Titanium.App.Properties.getString("suitesStatus", "{ }"));
-		Titanium.API.debug(Drillbit.testNames);
 		Drillbit.testNames.forEach(function(name) {
 			var suiteId = genSuiteId(name);
 			var suiteDiv = $('#' + suiteId);
