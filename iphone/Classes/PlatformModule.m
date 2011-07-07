@@ -203,9 +203,9 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 -(NSNumber*) is24HourTimeFormat: (id) unused
 {
 	NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-	[dateFormatter setLocale:[self locale]];
+	[dateFormatter setLocale:[NSLocale currentLocale]];
 	[dateFormatter setTimeStyle:kCFDateFormatterShortStyle];
-	NSString *dateInStringForm = [formatter stringFromDate:[NSDate date]];
+	NSString *dateInStringForm = [dateFormatter stringFromDate:[NSDate date]];
 	NSRange amRange = [dateInStringForm rangeOfString:[dateFormatter AMSymbol]];
 	NSRange pmRange = [dateInStringForm rangeOfString:[dateFormatter PMSymbol]];
 	[dateFormatter release];
