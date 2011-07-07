@@ -1,6 +1,11 @@
 #
-# A custom server that speeds up development time in Android significantly
+# Appcelerator Titanium Mobile
+# Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+# Licensed under the terms of the Apache Public License
+# Please see the LICENSE included with this distribution for details.
 #
+# A custom server that speeds up development time in Android significantly
+
 import os, sys, time, optparse, logging
 import urllib, simplejson, threading
 import SocketServer, socket, struct, codecs
@@ -32,7 +37,7 @@ def send_tokens(socket, *tokens):
 	for token in tokens:
 		buffer += pack_int(len(token))
 		buffer += token
-	socket.send(buffer)
+	socket.sendall(buffer)
 
 def read_int(socket):
 	data = socket.recv(4)
