@@ -10,6 +10,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
@@ -125,7 +126,11 @@ public class PlatformModule extends KrollModule
 	@Kroll.method
 	public boolean is24HourTimeFormat()
 	{
-		return TiPlatformHelper.is24HourTimeFormat();
+		TiApplication app = TiApplication.getInstance();
+		if (app != null) {
+			return android.text.format.DateFormat.is24HourFormat(app.getApplicationContext());
+		}
+		return false;
 	}
 
 	@Kroll.method

@@ -432,16 +432,7 @@ public class TiPlatformHelper
 
 		return netmask;
 	}
-	
-	public static boolean is24HourTimeFormat()
-	{
-		TiApplication app = TiApplication.getInstance();
-		if (app != null) {
-			return android.text.format.DateFormat.is24HourFormat(app.getApplicationContext());
-		}
-		return false;
-	}
-	
+
 	public static String getNetworkTypeName() {
 		return networkTypeToTypeName(getNetworkType());
 	}
