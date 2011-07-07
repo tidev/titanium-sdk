@@ -238,6 +238,7 @@ properties:
         3) <Titanium.UI.LANDSCAPE_LEFT> OR <Titanium.UI.LANDSCAPE_RIGHT> - Enables sensor landscape mode on Android 2.3 and above.  Sensor landscape mode on Android means the screen will shift between both landscape modes according to the sensor inside the device.  If the Android version is less than 2.3, then normal landscape mode is locked.
         4) <Titanium.UI.PORTRAIT> - Locks screen orientation to portrait mode
         5) <Titanium.UI.LANDSCAPE> - Locks screen orientation to landscape mode
+        6) empty array - resets the orientation to default sensor control
     type: Array<Number>
     
   - name: rightNavButton
