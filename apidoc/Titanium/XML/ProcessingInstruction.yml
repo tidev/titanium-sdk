@@ -1,0 +1,4 @@
+---
+name: Titanium.XML.ProcessingInstruction
+extends: Titanium.Proxy
+description: A proxy

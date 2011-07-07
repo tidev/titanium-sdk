@@ -43,6 +43,21 @@
 	[super dealloc];
 }
 
+-(CGSize)computeCellSize
+{
+    CGFloat width = [proxy sizeWidthForDecorations:[[proxy table] tableView].bounds.size.width forceResizing:YES];
+	CGFloat height = [proxy rowHeight:width];
+	height = [[proxy table] tableRowHeight:height];
+    
+    // If there is a separator, then it's included as part of the row height as the system, so remove the pixel for it
+    // from our cell size
+    if ([[[proxy table] tableView] separatorStyle] == UITableViewCellSeparatorStyleSingleLine) {
+        height -= 1;
+    }
+    
+    return CGSizeMake(width, height);
+}
+
 -(void)prepareForReuse
 {
 	[super prepareForReuse];
@@ -52,9 +67,10 @@
 	// and if its frame is too big... the view system allocates way too much memory/pixels and doesn't appear to let
 	// them go.
 
-	// Until we can properly revisit this... just size the cell to 320x44.  The standard size.
 	CGRect oldFrame = [[self contentView] frame];
-	[[self contentView] setFrame:CGRectMake(oldFrame.origin.x, oldFrame.origin.y, 320, 44)];
+    CGSize cellSize = [self computeCellSize];
+    
+	[[self contentView] setFrame:CGRectMake(oldFrame.origin.x, oldFrame.origin.y, cellSize.width, cellSize.height)];
 }
 
 - (UIView *)hitTest:(CGPoint) point withEvent:(UIEvent *)event 
@@ -978,7 +994,7 @@
 	[[searchField view] resignFirstResponder];
 	[self makeRootViewFirstResponder];
 	[searchTableView removeFromSuperview];
-	[tableview setScrollEnabled:[self isScrollable]];
+//	[tableview setScrollEnabled:[self isScrollable]];
 	[self.proxy replaceValue:NUMBOOL(YES) forKey:@"searchHidden" notification:NO];
 	[searchController setActive:NO animated:YES];
 	
@@ -1010,7 +1026,7 @@
 		[tableview scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]
 						 atScrollPosition:UITableViewScrollPositionBottom animated:NO];
 	}
-	[tableview setScrollEnabled:NO];
+//	[tableview setScrollEnabled:NO];
 	
 	CGRect screenRect = [TiUtils viewPositionRect:tableview];
 	CGFloat searchHeight = [[tableview tableHeaderView] bounds].size.height;
@@ -1493,7 +1509,9 @@ if(ourTableView != tableview)	\
 	if (cell == nil)
 	{
 		cell = [[[TiUITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:row.tableClass row:row] autorelease];
-		[cell setBounds:CGRectMake(0, 0, [tableview bounds].size.width,44)];
+        CGSize cellSize = [(TiUITableViewCell*)cell computeCellSize];
+		[cell setBounds:CGRectMake(0, 0, cellSize.width,cellSize.height)];
+        [[cell contentView] setBounds:[cell bounds]];
 	}
 	else
 	{
@@ -1501,7 +1519,11 @@ if(ourTableView != tableview)	\
 		// So what we're going to do with this cell is clear its contents out, then redraw it as if it were a new cell.
 		// Keeps the cell pool small and reusable.
 		[TiUITableViewRowProxy clearTableRowCell:cell];
-		
+        
+        // Have to reset the proxy on the cell, and the row's callback cell, as it may have been cleared in reuse operations (or reassigned)
+        [(TiUITableViewCell*)cell setProxy:row];
+        [row setCallbackCell:(TiUITableViewCell*)cell];
+        
 		/*
 		 * Old-school style:
 		// in the case of a reuse, we need to tell the row proxy to update the data

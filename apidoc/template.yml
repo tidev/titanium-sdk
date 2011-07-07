@@ -1,0 +1,26 @@
+---
+name: Titanium.Namespace.Name
+extends: Titanium.Proxy
+description: A proxy
+since: "1.7.0"
+properties:
+  - name: exampleProperty
+    description: A property
+    type: String
+methods:
+  - name: exampleMethod
+    description: A method
+events:
+  - name: exampleEvent
+    description: An event
+    properties:
+      - name: eventProperty
+        description: An event property
+notes: |
+    An example note
+examples:
+  - title: Example
+    example: |
+        Hello World Example.
+        
+          Ti.API.debug('Hello World')
