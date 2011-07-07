@@ -29,5 +29,5 @@ describe("Ti.Platform tests", {
        valueOf(Ti.Platform.processorCount).shouldBeNumber();
        valueOf(Ti.Platform.version).shouldBeString();
     }
-       
+
 });
