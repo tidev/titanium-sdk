@@ -118,6 +118,9 @@ Drillbit.prototype.processArgv = function() {
 };
 
 Drillbit.prototype.initPlatforms = function() {
+	if (Titanium.App.Properties.hasProperty('testsPlatforms') && !('platforms' in this.argv)) {
+		this.argv['platforms'] = Titanium.App.Properties.getString('testsPlatforms');		
+	}
 	var platformsArg = 'platforms' in this.argv ? this.argv.platforms.split(',') : null;
 	
 	if (ti.Platform.isOSX()) {
@@ -172,6 +175,9 @@ Drillbit.prototype.initPlatforms = function() {
 		this.platforms.push('android');
 		//this.emulators.android = new Titanium.AndroidEmulator(this, androidSdk, apiLevel, platform, googleApis);
 		this.emulators.android = ti.createAndroidEmulator(this, androidSdk, apiLevel, platform, googleApis);
+	}
+	if (this.argv.platforms != null) {
+		Titanium.App.Properties.setString("testsPlatforms", this.argv.platforms);
 	}
 };
 

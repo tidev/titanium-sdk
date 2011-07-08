@@ -262,7 +262,7 @@ def validateRefs():
 def validateDir(dir):
 	for root, dirs, files in os.walk(dir):
 		for file in files:
-			if file.endswith(".yml"):
+			if file.endswith(".yml") and file != "template.yml":
 				absolutePath = os.path.join(root, file)
 				try:
 					validateTDoc(absolutePath)

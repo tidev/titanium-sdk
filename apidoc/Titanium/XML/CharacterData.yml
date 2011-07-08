@@ -1,0 +1,4 @@
+---
+name: Titanium.XML.CharacterData
+extends: Titanium.Proxy
+description: A proxy

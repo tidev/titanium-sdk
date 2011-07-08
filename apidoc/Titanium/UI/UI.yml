@@ -294,6 +294,10 @@ properties:
   - name: currentWindow
     description: The active window associated with the executing Javascript context.
     type: Titanium.UI.Window
+  - name: orientation
+    deprecated: {since: "1.7.2"}
+    description: DEPRECATED.  To set an orientation, it is suggested to instead set <Titanium.Window.orientationModes> to the specific orientation desired.  When set, this will update the orientation of the current window to the specified orientation value.
+    type: Number
 notes: |
     ### Design
     
