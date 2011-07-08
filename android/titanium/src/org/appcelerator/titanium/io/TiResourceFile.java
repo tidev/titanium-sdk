@@ -188,25 +188,29 @@ public class TiResourceFile extends TiBaseFile
 		return TiC.URL_ANDROID_ASSET_RESOURCES + path;
 	}
 
-	public double size()
+	public long size()
 	{
-		long length = 0;
-		InputStream is = null;
-		try {
-			is = getInputStream();
-			length = is.skip(Long.MAX_VALUE);
-		} catch (IOException e) {
-			Log.w(LCAT, "Error while trying to determine file size: " + e.getMessage());
-		} finally {
-			if (is != null) {
-				try {
-					is.close();
-				} catch (IOException e) {
-					//ignore
+		if (TiFastDev.isFastDevEnabled()) {
+			return TiFastDev.getInstance().getLength(path);
+		} else {
+			long length = 0;
+			InputStream is = null;
+			try {
+				is = getInputStream();
+				length = is.available();
+			} catch (IOException e) {
+				Log.w(LCAT, "Error while trying to determine file size: " + e.getMessage(), e);
+			} finally {
+				if (is != null) {
+					try {
+						is.close();
+					} catch (IOException e) {
+						Log.w(LCAT, e.getMessage(), e);
+					}
 				}
 			}
+			return length;
 		}
-		return length;
 	}
 
 	@Override

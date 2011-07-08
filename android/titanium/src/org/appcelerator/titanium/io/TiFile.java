@@ -185,7 +185,7 @@ public class TiFile extends TiBaseFile
 	}
 
 	@Override
-	public double size()
+	public long size()
 	{
 		return file.length();
 	}
