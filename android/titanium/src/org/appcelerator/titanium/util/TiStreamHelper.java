@@ -98,7 +98,12 @@ public class TiStreamHelper
 
 	public static byte[] toByteArray(InputStream in)
 	{
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		return toByteArray(in, 32);
+	}
+
+	public static byte[] toByteArray(InputStream in, int size)
+	{
+		ByteArrayOutputStream out = new ByteArrayOutputStream(size);
 		pump(in, out);
 		return out.toByteArray();
 	}

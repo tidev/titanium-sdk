@@ -44,6 +44,7 @@ public class TiFastDev
 	private static final String TEMP_FILE_PREFIX = "tifastdev";
 	private static final String TEMP_FILE_SUFFIX = "tmp";
 
+	public static final String COMMAND_LENGTH = "length";
 	public static final String COMMAND_GET = "get";
 	public static final String COMMAND_HANDSHAKE = "handshake";
 	public static final String COMMAND_KILL = "kill";
@@ -150,6 +151,15 @@ public class TiFastDev
 	public String toURL(String relativePath)
 	{
 		return urlPrefix + "/" + relativePath;
+	}
+
+	public int getLength(String relativePath)
+	{
+		byte result[][] = session.sendMessage(COMMAND_LENGTH);
+		if (result != null && result.length > 0) {
+			return session.toInt(result[0]);
+		}
+		return -1;
 	}
 
 	public InputStream openInputStream(String relativePath)
