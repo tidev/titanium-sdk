@@ -432,7 +432,7 @@ public class TiPlatformHelper
 
 		return netmask;
 	}
-	
+
 	public static String getNetworkTypeName() {
 		return networkTypeToTypeName(getNetworkType());
 	}
