@@ -1,10 +1,9 @@
 ---
 name: Titanium.XML.Text
 extends: Titanium.Proxy
-description: A key-value paired map that maps String objects to 
-   <Titanium.XML.Node> objects. This conforms to the 
-   [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html)
-   defintion of a DOM Text.
+description: Represents the textual content of an Element or Attr.
+	 This conforms to the [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html)
+	 defintion of a DOM Text.
    
 methods:
  	- name: splitText
