@@ -54,7 +54,7 @@ def generate_doc(config):
 	import markdown
 	documentation = []
 	for file in os.listdir(docdir):
-		if file in ignoreFiles:
+		if file in ignoreFiles or os.path.isdir(os.path.join(docdir, file)):
 			continue
 		md = open(os.path.join(docdir,file)).read()
 		html = markdown.markdown(md)
