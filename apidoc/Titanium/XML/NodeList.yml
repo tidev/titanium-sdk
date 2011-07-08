@@ -8,8 +8,10 @@ since: "0.9"
 methods:
   - name: item
     description: Returns the <Titanium.XML.Node> object at the specified index.
-      Returns `null` for invalid indices.
-    returns: Titanium.XML.Node
+    returns: {
+      type: Titanium.XML.Node,
+      description: The node at the index, or `null` if the index is out of bounds.
+      }
     parameters:
       - name: index
         description: The index of the node to retrieve. Indexing starts at 0.
