@@ -6,6 +6,10 @@ since: "0.9"
 methods:
   - name: addTab
     description: add a tab to the tab group
+    parameters:
+      - name: tab
+        description: The tab to add
+        type: Titanium.UI.Tab
   - name: close
     description: close the tab group and remove it from the UI
   - name: open
