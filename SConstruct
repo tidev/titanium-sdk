@@ -27,8 +27,8 @@ elif ARGUMENTS.get('PRODUCT_VERSION', 0):
 # get the githash for the build so we can always pull this build from a specific
 # commit.  We're getting it here so we can pass it to android's ant build
 # in order to get it into build.properties
-p = subprocess.Popen(["git","show","--abbrev-commit"],stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-githash = p.communicate()[0][8:].split('\n')[0]
+p = subprocess.Popen(["git","log","--oneline","--max-count=1"],stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+githash = p.communicate()[0][0:7].split('\n')[0]
 	
 #
 # this is messy, but i don't care, scons makes it too
