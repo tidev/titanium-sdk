@@ -82,7 +82,7 @@ describe("Ti.Media tests", {
 				Ti.API.info("PROGRESS: " + time);
 				valueOf(time).shouldBeGreaterThan(initial_pos);
 				// assume we get an event in < 2 seconds.
-				valueOf(time).shouldBeLessThan(initial_pos + 2.0); 
+				valueOf(time).shouldBeLessThan(initial_pos + 3.0); 
 				sound.stop();
 				sound = null;
 				}), 1000);
