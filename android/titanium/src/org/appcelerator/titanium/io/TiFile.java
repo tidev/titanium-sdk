@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -185,7 +185,7 @@ public class TiFile extends TiBaseFile
 	}
 
 	@Override
-	public double size()
+	public long size()
 	{
 		return file.length();
 	}
@@ -330,7 +330,7 @@ public class TiFile extends TiBaseFile
 			if (!stream) {
 				try {
 					open(append ? MODE_APPEND : MODE_WRITE, true);
-					outstream.write(blob.getBytes());
+					copyStream(blob.getInputStream(), outstream);
 				} finally {
 					close();
 				}
@@ -341,7 +341,7 @@ public class TiFile extends TiBaseFile
 				}
 
 				if (binary) {
-					outstream.write(blob.getBytes());
+					copyStream(blob.getInputStream(), outstream);
 				} else {
 					outwriter.write(new String(blob.getBytes(),"UTF-8"));
 				}
