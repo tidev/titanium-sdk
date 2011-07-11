@@ -1,7 +1,8 @@
 ---
 name: Titanium.XML.Attr
 extends: Titanium.XML.Node
-description: Proxy representing an attribute of an [Element|Titanium.XML.Element], as defined in the [DOM Level 2 specification|http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-637646024].
+description: Proxy representing an attribute of an [Element](Titanium.XML.Element), as defined
+    in the [DOM Level 2 specification](http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-637646024).
 properties:
   - name: name
     type: String
@@ -9,7 +10,7 @@ properties:
     permission: read-only
   - name: ownerElement
     type: Titanium.XML.Element
-    description: The [Element|Titanium.XML.Element] to which the attribute belongs.
+    description: The <Titanium.XML.Element> to which the attribute belongs.
     permission: read-only
   - name: specified
     type: Boolean
