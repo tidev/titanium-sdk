@@ -200,5 +200,88 @@ describe("Ti.XML tests", {
 			// Make sure we can round-trip from source to DOM to source and back to DOM...
 			matchXmlTrees(a, b);
 		}
+	},
+
+	apiXmlNode: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+
+		var nodesList = doc.getElementsByTagName("nodes");
+		valueOf(nodesList).shouldNotBeNull();
+		valueOf(nodesList.length).shouldBe(1);
+
+		var node = nodesList.item(0);
+
+		// verify properties
+		valueOf(node.ELEMENT_NODE).shouldBeNumber();
+		valueOf(node.ATTRIBUTE_NODE).shouldBeNumber();
+		valueOf(node.TEXT_NODE).shouldBeNumber();
+		valueOf(node.CDATA_SECTION_NODE).shouldBeNumber();
+		valueOf(node.ENTITY_REFERENCE_NODE).shouldBeNumber();
+		valueOf(node.ENTITY_NODE).shouldBeNumber();
+		valueOf(node.PROCESSING_INSTRUCTION_NODE).shouldBeNumber();
+		valueOf(node.COMMENT_NODE).shouldBeNumber();
+		valueOf(node.DOCUMENT_NODE).shouldBeNumber();
+		valueOf(node.DOCUMENT_TYPE_NODE).shouldBeNumber();
+		valueOf(node.DOCUMENT_FRAGMENT_NODE).shouldBeNumber();
+		valueOf(node.NOTATION_NODE).shouldBeNumber();
+		valueOf(node.nodeName).shouldBeString();
+		valueOf(node.nodeValue).shouldNotBeUndefined(); // null is a valid return, what is the expected behavior when null?
+		valueOf(node.nodeType).shouldBeNumber();
+		valueOf(node.parentNode).shouldBeObject();
+		valueOf(node.childNodes).shouldBeObject();
+		valueOf(node.firstChild).shouldBeObject();
+		valueOf(node.lastChild).shouldBeObject();
+		valueOf(node.previousSibling).shouldBeObject();
+		valueOf(node.nextSibling).shouldBeObject();
+		valueOf(node.attributes).shouldBeObject();
+		valueOf(node.ownerDocument).shouldBeObject();
+		valueOf(node.namespaceURI).shouldNotBeUndefined(); // null is a valid return, what is the expected behavior when null?
+		valueOf(node.prefix).shouldNotBeUndefined(); // null is a valid return, what is the expected behavior when null?
+		valueOf(node.localName).shouldNotBeUndefined(); // null is a valid return, what is the expected behavior when null?
+
+
+		// verify methods
+		valueOf(node.appendChild).shouldBeFunction();
+		var appendChildResults = null;
+		valueOf(function() { appendChildResults = node.appendChild(node.firstChild); }).shouldNotThrowException();
+		valueOf(appendChildResults).shouldBe(node.firstChild);
+
+		valueOf(node.cloneNode).shouldBeFunction();
+		var clonedNode = null;
+		valueOf(function() { clonedNode = node.cloneNode(false); }).shouldNotThrowException();
+		valueOf(clonedNode).shouldBeObject();
+		valueOf(function() { clonedNode = node.cloneNode(true); }).shouldNotThrowException();
+		valueOf(clonedNode).shouldBeObject();
+
+		valueOf(node.hasAttributes).shouldBeFunction();
+		valueOf(function() { node.hasAttributes(); }).shouldNotThrowException();
+
+		valueOf(node.hasChildNodes).shouldBeFunction();
+		valueOf(function() { node.hasChildNodes(); }).shouldNotThrowException();
+
+		valueOf(node.insertBefore).shouldBeFunction();
+		var insertBeforeResults = null;
+		valueOf(function() { insertBeforeResults = node.insertBefore(node.lastChild, node.firstChild); }).shouldNotThrowException();
+		valueOf(insertBeforeResults).shouldBe(node.lastChild);
+
+		valueOf(node.isSupported).shouldBeFunction();
+		var isSupportedResults = null;
+		valueOf(function() { isSupportedResults = node.isSupported("XML", "1.0"); }).shouldNotThrowException();
+		valueOf(isSupportedResults).shouldBeBoolean();
+
+		valueOf(node.normalize).shouldBeFunction();
+		valueOf(function() { node.normalize(); }).shouldNotThrowException();
+
+		valueOf(node.removeChild).shouldBeFunction();
+		var nodeToRemove = node.firstChild;
+		var removeChildResults = null;
+		valueOf(function() { removeChildResults = node.removeChild(node.firstChild); }).shouldNotThrowException();
+		valueOf(removeChildResults).shouldBe(nodeToRemove);
+
+		valueOf(node.replaceChild).shouldBeFunction();
+		var nodeToReplace = node.firstChild;
+		var replaceChildResults = null;
+		valueOf(function() { replaceChildResults = node.replaceChild(nodeToRemove, node.firstChild); }).shouldNotThrowException();
+		valueOf(replaceChildResults).shouldBe(nodeToReplace);
 	}
 });
