@@ -399,7 +399,7 @@ class Builder(object):
 			'-sdcard',
 			self.sdcard,
 			'-logcat',
-			"'*:d *'",
+			'*:d,*',
 			'-no-boot-anim',
 			'-partition-size',
 			'128' # in between nexusone and droid
