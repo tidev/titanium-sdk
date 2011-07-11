@@ -8,15 +8,14 @@ since: "0.9"
 methods:
   - name: item
     description: Returns the <Titanium.XML.Node> object at the specified index.
-    returns: {
-      type: Titanium.XML.Node,
-      description: The node at the index, or `null` if the index is out of bounds.
-      }
+    returns:
+        type: Titanium.XML.Node
+        description: The node at the index, or `null` if the index is out of bounds.
     parameters:
       - name: index
         description: The index of the node to retrieve. Indexing starts at 0.
         type: Number
-propeties:
+properties:
   - name: length
     description: The length of the node list.
     type: Number
