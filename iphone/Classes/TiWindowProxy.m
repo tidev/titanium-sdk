@@ -113,6 +113,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 
 -(void)_configure
 {	
+    orientationFlags = [[[TiApp app] controller] allowedOrientations];
 	[self replaceValue:nil forKey:@"orientationModes" notification:NO];
 	[super _configure];
 }
@@ -715,6 +716,11 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 
 	[self fireEvent:newFocused?@"focus":@"blur" withObject:nil propagate:NO];
 	focused = newFocused;
+}
+
+-(BOOL)allowsOrientation:(UIInterfaceOrientation)orientation
+{
+    return TI_ORIENTATION_ALLOWED(orientationFlags, orientation);
 }
 
 #pragma mark Animation Delegates
