@@ -2,25 +2,25 @@
 name: Titanium.XML.Entity
 extends: Titanium.XML.Node
 description: This interface represents an entity, either parsed or unparsed, in 
-  an XML document. Note that this models the entity itself not the entity
-  declaration. The nodeName attribute that is inherited from Node contains the
-  name of the entity. An Entity node does not have any parent. This conforms to
-  the [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html)
-  defintion of a DOM Entity.
+    an XML document. Note that this models the entity itself not the entity
+    declaration. The nodeName attribute that is inherited from Node contains the
+    name of the entity. An Entity node does not have any parent. This conforms to
+    the [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html)
+    defintion of a DOM Entity.
 since: "0.9"
 properties:
   - name: notationName
     description: For unparsed entities, the name of the notation for the entity. 
-      For parsed entities, this is `null`.
+        For parsed entities, this is `null`.
     type: String
     permission: read-only
   - name: publicId
     description: The public identifier associated with the entity, if specified. 
-      If the public identifier was not specified, this is `null`.
+        If the public identifier was not specified, this is `null`.
     type: String
     permission: read-only
   - name: systemId
-    description: The system identifier of the external subset.
+    description: The system identifier associated with the entity, if specified. If the system identifier was not specified, this is null.
     type: String
     permission: read-only
 
