@@ -10,13 +10,12 @@ methods:
     description: Breaks this node into two nodes at the specified by offset,
       and returns a new node of the same type, which contains all the content 
       at and after the offset point.Throws an exception if the specified offset 
-      is negative or greater than the number of 16-bit units in data or if this 
-      node is readonly.
+      is negative or if this node is readonly.
     returns: { 
       type: Titanium.XML.Text,
       description: The new node, of the same type as this node
       }
     parameters: 
       - name: offset
-        description: The 16-bit unit offset at which to split, starting from 0.
+        description: The 8 bit offset at which to split, starting from 0.
         type: Number 
