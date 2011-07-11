@@ -31,9 +31,9 @@ methods:
         type: String
       - name: value
         description: >
-          The value of the attribute. This is value is __not__ parsed
-          as part of the assignment. Any markup is treated as literal text, and
-          needs to be escaped.
+            The value of the attribute. This is value is __not__ parsed
+            as part of the assignment. Any markup is treated as literal text, and
+            needs to be escaped.
         type: String
   - name: removeAttribute
     description: >
