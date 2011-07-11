@@ -1,12 +1,14 @@
 ---
 name: Titanium.XML.Document
-description: The DOM Document returned from <Titanium.XML.parseString> or <Titanium.XML.parse>. Implements the [DOM Level 2 API|http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#i-Document].
+description: The DOM Document returned from <Titanium.XML.parseString> or <Titanium.XML.parse>.
+    Implements the [DOM Level 2 API](http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#i-Document).
 extends: Titanium.XML.Node
 since: "0.9"
 properties:
   - name: doctype
     type: Titanium.XML.DocumentType
-    description: An interface to the list of entities that are defined for the document, such as via a Document Type Definition (DTD).
+    description: An interface to the list of entities that are defined for the
+        document, such as via a Document Type Definition (DTD).
     permission: read-only
   - name: documentElement
     type: Titanium.XML.Element
@@ -15,7 +17,7 @@ properties:
   - name: implementation
     type: Titanium.XML.DOMImplementation
     permission: read-only
-    description: the [DOMImplementation|Titanium.XML.DOMImplementation] that handles this document
+    description: the [DOMImplementation](Titanium.XML.DOMImplementation) that handles this document
 methods:
   - name: createAttribute
     description: Creates an attribute with the given name.
@@ -36,7 +38,7 @@ methods:
         type: String
         description: Name for the new attribute.
   - name: createCDATASection
-    description: Creates and returns a [CDATA section|http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-667469212].
+    description: Creates and returns a <Titanium.XML.CDATASection>.
     parameters:
       - name: data
         type: String
@@ -45,7 +47,7 @@ methods:
         type: Titanium.XML.CDATASection
         description: A CDATA section with the given data, ready to be applied to an element.
   - name: createComment
-    description: Creates a comment as described in the [DOM Level 2 Specification|http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-1728279322].
+    description: Creates a <Titanium.XML.Comment> with the supplied string data.
     parameters:
       - name: data
         type: String
@@ -80,7 +82,7 @@ methods:
         type: Titanium.XML.Element
         description: the new namespace-qualified element.
   - name: createEntityReference
-    description: Creates an [EntityReference|Titanium.XML.EntityReference] object.
+    description: Creates an <Titanium.XML.EntityReference> with the given name.
     returns:
         type: Titanium.XML.EntityReference
         description: The created entity reference.
@@ -110,7 +112,7 @@ methods:
         type: String
         description: The string value for the text node.
   - name: getElementById
-    description: Returns an [Element|Titanium.XML.Element] that has an ID attribute with the given value.
+    description: Returns an <Titanium.XML.Element> that has an ID attribute with the given value.
     parameters:
       - name: elementId
         type: String
@@ -128,10 +130,12 @@ methods:
         type: String
         description: the tag name to search for.
   - name: getElementsByTagNameNS
-    description: Return a node list of elements in the document which belong to the given namespace and have the given tag name.
+    description: Return a node list of elements in the document which belong
+        to the given namespace and have the given tag name.
     returns:
         type: Titanium.XML.NodeList
-        description: The NodeList of elements in the document which belong to the given namespace and have the given tag name.
+        description: The NodeList of elements in the document which belong to
+            the given namespace and have the given tag name.
     parameters:
       - name: namespaceURI
         type: String
@@ -140,7 +144,9 @@ methods:
         type: String
         description: The tag name to search for.
   - name: importNode
-    description: Imports a node from another document to this document, without altering or removing the source node from the original document; this method creates a new copy of the source node. The returned node has no parent.
+    description: Imports a node from another document to this document,
+        without altering or removing the source node from the original document; this method
+        creates a new copy of the source node. The returned node has no parent.
     returns:
         type: Titanium.XML.Node
         description: the imported Node that belongs now to this document.
@@ -150,4 +156,5 @@ methods:
         type: Titanium.XML.Node
       - name: deep
         type: Boolean
-        description: If true, recursively import the subtree under the specified node; if false, import only the node itself, as explained above.
+        description: If true, recursively import the subtree under the
+            specified node; if false, import only the node itself.
