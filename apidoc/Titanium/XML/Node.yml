@@ -130,7 +130,7 @@ methods:
       - name: newChild
         type: Titanium.XML.Node
         description: The new node to append
-    returns: 
+    returns:
         type: Titanium.XML.Node
         description: The appended node
   - name: cloneNode
