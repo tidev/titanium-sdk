@@ -86,7 +86,7 @@ static NSString* kSDKVersion = @"ios";
 
   [params setValue:@"json" forKey:@"format"];
   [params setValue:kSDKVersion forKey:@"sdk"];
-  if ([self isSessionValid]) {
+  if ([self isSessionValid] && ([params objectForKey:@"access_token"] == nil)) {
     [params setValue:self.accessToken forKey:@"access_token"];
   }
 
