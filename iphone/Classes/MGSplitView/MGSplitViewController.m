@@ -603,7 +603,6 @@
 		// I know this looks strange, but it fixes a bizarre issue with UIPopoverController leaving masterViewController's views in disarray.
 		if ([[self view] window] != nil)
 		{
-            [(MGSplitView*)[self view] setSingleLayout];
 			[_hiddenPopoverController presentPopoverFromRect:CGRectZero inView:self.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:NO];
 		}
 		
