@@ -761,7 +761,10 @@
 
 	[eventObject setObject:NUMFLOAT(point.x) forKey:@"x"];
 	[eventObject setObject:NUMFLOAT(point.y) forKey:@"y"];
-	
+
+	CGPoint globalPoint = [thisCell convertPoint:point toView:nil];
+	[eventObject setObject:[TiUtils pointToDictionary:globalPoint] forKey:@"globalPoint"];
+
 	if ([target _hasListeners:name])
 	{
 		[target fireEvent:name withObject:eventObject];
