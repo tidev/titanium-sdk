@@ -7,14 +7,17 @@
 package ti.modules.titanium.media;
 
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.media.MediaPlayer;
@@ -27,6 +30,8 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.View;
 import android.widget.MediaController;
 import android.widget.TiVideoView4;
@@ -44,6 +49,7 @@ public class TiVideoActivity extends Activity
 	public static final int MSG_MEDIA_CONTROL_STYLE_CHANGE = 10004;
 	public static final int MSG_PAUSE_PLAYBACK = 10005;
 	public static final int MSG_START_PLAYBACK = 10006;
+	public static final int MSG_SCALING_MODE_CHANGE = 10007;
 
 	private Handler handler;
 	private String contentUrl;
@@ -69,11 +75,87 @@ public class TiVideoActivity extends Activity
 		}
 		handler = new Handler(this);
 
-		Intent intent = getIntent();
+		final Intent intent = getIntent();
 
-		contentUrl = intent.getStringExtra("contentURL");
-		boolean play = intent.getBooleanExtra("play", false);
-		videoView = new TiVideoView4(this);
+		contentUrl = intent.getStringExtra(TiC.PROPERTY_CONTENT_URL);
+		boolean play = intent.getBooleanExtra(TiC.PROPERTY_PLAY, false);
+		videoView = new TiVideoView4(this) {
+
+			@Override
+			protected void measureVideo(int videoWidth, int videoHeight,
+					int widthMeasureSpec, int heightMeasureSpec) 
+			{
+				if (DBG) {
+					Log.e(LCAT, "******* mVideoWidth: " + videoWidth + " mVideoHeight: " + videoHeight +
+		    			" width: " + MeasureSpec.getSize(widthMeasureSpec) + " height: " + MeasureSpec.getSize(heightMeasureSpec));
+				}
+
+		        int width = getDefaultSize(videoWidth, widthMeasureSpec);
+		        int height = getDefaultSize(videoHeight, heightMeasureSpec);
+		        if (videoWidth > 0 && videoHeight > 0) {
+		        	int mode = intent.getIntExtra(TiC.PROPERTY_SCALING_MODE, MediaModule.VIDEO_SCALING_ASPECT_FIT);
+		        	
+		        	switch(mode) {
+			        	case MediaModule.VIDEO_SCALING_NONE : {
+			        		width = videoWidth;
+			        		height = videoHeight;
+			        		break;
+			        	}
+			        	case MediaModule.VIDEO_SCALING_ASPECT_FILL : {
+				            if ( videoWidth * height  > width * videoHeight ) {
+				                width = height * videoWidth / videoHeight;
+				            } else if ( videoWidth * height  < width * videoHeight ) {
+				                height = width * videoHeight / videoWidth;
+				            }
+			        		break;
+			        	}
+			        	case MediaModule.VIDEO_SCALING_ASPECT_FIT : {
+				            if ( videoWidth * height  > width * videoHeight ) {
+				                height = width * videoHeight / videoWidth;
+				            } else if ( videoWidth * height  < width * videoHeight ) {
+				                width = height * videoWidth / videoHeight;
+				            }
+				            break;
+			        	}
+			        	case MediaModule.VIDEO_SCALING_MODE_FILL : {
+			        		width = MeasureSpec.getSize(widthMeasureSpec);
+			        		height = MeasureSpec.getSize(heightMeasureSpec);
+			        		break;
+			        	}
+		        	}
+		        }
+		        String model = TiPlatformHelper.getModel();
+		        if (model != null && model.equals("SPH-P100")) {
+			        Display d = getWindowManager().getDefaultDisplay();
+			        if (d != null) {
+			        	DisplayMetrics dm = new DisplayMetrics();
+			        	d.getMetrics(dm);
+			        	if (TiPlatformHelper.applicationLogicalDensity != dm.densityDpi) {
+				        	int maxScaledWidth = (int) Math.floor((d.getWidth() - 1) * TiPlatformHelper.applicationScaleFactor);
+				        	int maxScaledHeight = (int) Math.floor((d.getHeight() - 1) * TiPlatformHelper.applicationScaleFactor);
+				        	if (width * TiPlatformHelper.applicationScaleFactor > maxScaledWidth) {
+				        		int oldWidth = width;		        	
+				        		width = d.getWidth() - 1;
+						        if (DBG) {
+						        	Log.d(LCAT, "TOO WIDE: " + oldWidth + " changed to " + width);
+						        }
+				        	}
+				        	if (height * TiPlatformHelper.applicationScaleFactor >  maxScaledHeight) {
+				        		int oldHeight = height;
+				        		height = d.getHeight() - 1;
+						        if (DBG) {
+						        	Log.d(LCAT, "TOO HIGH: " + oldHeight + " changed to " + height);
+						        }
+				        	}
+			        	}
+			        }
+		        }
+		        if (DBG) {
+		        	Log.i(LCAT, "setting size: " + width + 'x' + height);
+		        }
+		        setMeasuredDimension(width, height);
+			}			
+		};
 	
 		if (play) {
 			Thread t = new Thread(new Runnable(){
@@ -90,11 +172,11 @@ public class TiVideoActivity extends Activity
 			t.start();
 		}
 
-		proxyMessenger = intent.getParcelableExtra("messenger");
-		messengerReceiver = intent.getParcelableExtra("messengerReceiver");
+		proxyMessenger = intent.getParcelableExtra(TiC.PROPERTY_MESSENGER);
+		messengerReceiver = intent.getParcelableExtra(TiC.PROPERTY_MESSENGER_RECEIVER);
 		
-		if (intent.hasExtra("backgroundColor")) {
-			ColorDrawable d = new ColorDrawable(intent.getIntExtra("backgroundColor", Color.RED));
+		if (intent.hasExtra(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			ColorDrawable d = new ColorDrawable(intent.getIntExtra(TiC.PROPERTY_BACKGROUND_COLOR, Color.RED));
 			getWindow().setBackgroundDrawable(d);
 		}
 
@@ -118,8 +200,8 @@ public class TiVideoActivity extends Activity
 
 		int style = MediaModule.VIDEO_CONTROL_DEFAULT;
 		
-		if (intent.hasExtra("mediaControlStyle")) {
-			style = intent.getIntExtra("mediaControlStyle", MediaModule.VIDEO_CONTROL_DEFAULT);
+		if (intent.hasExtra(TiC.PROPERTY_MEDIA_CONTROL_STYLE)) {
+			style = intent.getIntExtra(TiC.PROPERTY_MEDIA_CONTROL_STYLE, MediaModule.VIDEO_CONTROL_DEFAULT);
 			handleControlVisibility(style);
 		}
 		videoView.requestFocus();
@@ -127,8 +209,8 @@ public class TiVideoActivity extends Activity
 		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
 //		params.autoFillsHeight = true;
 //		params.autoFillsWidth = true;
-		params.autoHeight = true;
-		params.autoWidth = true;
+//		params.autoHeight = true;
+//		params.autoWidth = true;
 		layout.addView(videoView, params);
 
 		setContentView(layout);
@@ -199,6 +281,12 @@ public class TiVideoActivity extends Activity
 				handleControlVisibility(style);
 				return true;
 			}
+			case MSG_SCALING_MODE_CHANGE : {
+				int mode = msg.arg1;
+				getIntent().putExtra(TiC.PROPERTY_SCALING_MODE, mode);
+				layout.requestLayout();
+				return true;
+			}
 		}
 		return false;
 	}
@@ -229,6 +317,14 @@ public class TiVideoActivity extends Activity
 		}
 	}
 	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		if (mediaController != null && mediaController.isShowing()) {
+			mediaController.hide();
+		}
+	}
+
 	@Override
 	protected void onStart() {
 		super.onStart();

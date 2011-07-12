@@ -200,6 +200,20 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 	return [TiUtils createUUID];
 }
 
+-(NSNumber*) is24HourTimeFormat: (id) unused
+{
+	NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+	[dateFormatter setLocale:[NSLocale currentLocale]];
+	[dateFormatter setTimeStyle:kCFDateFormatterShortStyle];
+	NSString *dateInStringForm = [dateFormatter stringFromDate:[NSDate date]];
+	NSRange amRange = [dateInStringForm rangeOfString:[dateFormatter AMSymbol]];
+	NSRange pmRange = [dateInStringForm rangeOfString:[dateFormatter PMSymbol]];
+	[dateFormatter release];
+	return NUMBOOL(amRange.location == NSNotFound && pmRange.location == NSNotFound);
+	
+}
+
+
 - (NSNumber*)availableMemory
 {
 	vm_statistics_data_t vmStats;
@@ -234,11 +248,11 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 	return NUMBOOL([[UIApplication sharedApplication] canOpenURL:url]);
 }
 
--(PlatformModuleDisplayCapsProxy*)displayCaps
+-(TiPlatformDisplayCaps*)displayCaps
 {
 	if (capabilities == nil)
 	{
-		return [[[PlatformModuleDisplayCapsProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+		return [[[TiPlatformDisplayCaps alloc] _initWithPageContext:[self executionContext]] autorelease];
 	}
 	return capabilities;
 }

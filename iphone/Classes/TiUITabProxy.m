@@ -73,6 +73,18 @@
 
 -(void)setTabGroup:(TiUITabGroupProxy*)proxy
 {
+	if (proxy == tabGroup)
+	{
+		return;
+	}
+	for (TiViewController * thisController in [controller viewControllers])
+	{
+		if (![thisController isKindOfClass:[TiViewController class]])
+		{
+			continue;
+		}
+		[(TiWindowProxy *)[thisController proxy] _associateTab:nil navBar:nil tab:nil];
+	}
 	RELEASE_TO_NIL(tabGroup);
 	tabGroup = [proxy retain];
 }
@@ -196,6 +208,7 @@
 {
 	TiWindowProxy *window = [args objectAtIndex:0];
 	ENSURE_TYPE(window,TiWindowProxy);
+	[window rememberSelf];
 	// since the didShow notification above happens on both a push and pop, i need to keep a flag
 	// to let me know which state i'm in so i only close the current window on a pop
 	opening = YES;

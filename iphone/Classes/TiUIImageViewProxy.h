@@ -11,8 +11,9 @@
 
 @interface TiUIImageViewProxy : TiViewProxy<ImageLoaderDelegate> {
 	ImageLoaderRequest *urlRequest;
-
+    NSURL* imageURL;
 }
+@property (nonatomic,retain) NSURL* imageURL;
 
 -(void)cancelPendingImageLoads;
 -(void)startImageLoad:(NSURL *)url;

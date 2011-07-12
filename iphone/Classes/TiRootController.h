@@ -29,4 +29,6 @@
 -(void)didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy;
 -(void)didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)blurredProxy;
 
+-(TiOrientationFlags)allowedOrientations;
+
 @end

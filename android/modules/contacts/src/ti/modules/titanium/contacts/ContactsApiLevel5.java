@@ -175,7 +175,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	@Override
 	protected PersonProxy[] getPeopleWithName(String name)
 	{
-		return getPeople(Integer.MAX_VALUE, "display_name = ?" , new String[]{name});
+		return getPeople(Integer.MAX_VALUE, "display_name like ? or display_name like ?" , new String[]{name + '%', "% " + name + '%'});
 	}
 
 	@Override

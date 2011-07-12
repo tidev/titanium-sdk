@@ -2,7 +2,7 @@ var win = Ti.UI.currentWindow;
 
 function formatDate()
 {
-	var date = new Date;
+	var date = new Date();
 	var datestr = date.getMonth()+'/'+date.getDate()+'/'+date.getFullYear();
 	if (date.getHours()>=12)
 	{

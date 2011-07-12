@@ -1,7 +1,8 @@
 {\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf350
-{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
-{\colortbl;\red255\green255\blue255;}
-\margl1440\margr1440\vieww19400\viewh17120\viewkind0
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fswiss\fcharset0 ArialMT;}
+{\colortbl;\red255\green255\blue255;\red255\green0\blue0;\red0\green128\blue128;\red63\green128\blue127;
+\red127\green0\blue127;}
+\margl1440\margr1440\vieww23600\viewh18000\viewkind0
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
 
 \f0\b\fs24 \cf0 For Android and iPhone:
@@ -89,10 +90,24 @@ results: view moves back to view 4, no bad behavior occurs\
 Android:\
 1.Scrollable View loads on View 2\
 2.Tap Label\
-results:  E/TiUIView( 3297): (main) [20323,117444] TAP, TAP, TAP on [Ti.UI.Label]\
+results:  E/TiUIView( 3297): (main) [20323,117444] TAP, TAP, TAP on [Ti.UI.Label] \
+(\cf2 NOTE\cf0 : The "TAP, TAP, TAP" message has been suppressed except for when the app is running with\
+\pard\pardeftab720\ql\qnatural
+
+\f1 \cf3 <\cf4 property \cf5 type\cf0 ="bool" \cf5 name\cf0 ="ti.android.debug"\cf3 >\cf0 true\cf3 </\cf4 property\cf3 >
+\f0 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+\cf0 in the tiapp.xml)\
 \
 3.Tap the view outside the label\
 results: E/TiUIView( 3297): (main) [9162,126606] TAP, TAP, TAP on [Ti.UI.View]\
+(\cf2 NOTE\cf0 : The "TAP, TAP, TAP" message has been suppressed except for when the app is running with\
+\pard\pardeftab720\ql\qnatural
+
+\f1 \cf3 <\cf4 property \cf5 type\cf0 ="bool" \cf5 name\cf0 ="ti.android.debug"\cf3 >\cf0 true\cf3 </\cf4 property\cf3 >
+\f0 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+\cf0 in the tiapp.xml)\
 \
 4.Tap "Change"\
 results: the View changes color to yellow, label says "View (Changed) 2"\
@@ -643,6 +658,16 @@ results: log in webview is loaded\
 2.enter valid credentials and log in\
 results: view disappears, values on screen show you to be logged in.\
 \
+
+\b Mashups > Facebook >Query\
+
+\b0 1.load test, tap "connect with facebook button"\
+results: log in webview is loaded\
+2.enter valid credentials and log in\
+results: view disappears, values on screen Run Query button.\
+3. Press the Run Query Button\
+results: load your friends messages\
+\
 \
 
 \b iPhone only\
@@ -658,10 +683,14 @@ results: verify the image loads, no bad visual behavior occurs\
 \b0 1.Load test\
 results: verify the text "appcelerator ftw!" appears in comic zine OT font \
 \
-\strike \strikec0 controls>Picker>basic picker\
-\strike0\striked0 \
-\strike \strikec0 Phone>save to gallery>background image\
-\strike0\striked0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+\cf0 \strike \strikec0 controls>Picker>basic picker\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+\cf0 \strike0\striked0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+\cf0 \strike \strikec0 Phone>save to gallery>background image\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+\cf0 \strike0\striked0 \
 \
 \
 \

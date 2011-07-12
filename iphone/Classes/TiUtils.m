@@ -30,6 +30,10 @@
 extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 #endif
 
+NSDictionary* encodingMap = nil;
+NSDictionary* typeMap = nil;
+NSDictionary* sizeMap = nil;
+
 @implementation TiUtils
 
 +(BOOL)isRetinaDisplay
@@ -222,15 +226,23 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 
 +(NSString*)stringValue:(id)value
 {
+	if(value == nil) {
+		return nil;
+	}
+	
 	if ([value isKindOfClass:[NSString class]])
 	{
 		return (NSString*)value;
+	}
+	if ([value isKindOfClass:[NSURL class]])
+	{
+		return [(NSURL *)value absoluteString];
 	}
 	else if ([value isKindOfClass:[NSNull class]])
 	{
 		return nil;
 	}
-	else if ([value respondsToSelector:@selector(stringValue)])
+	if ([value respondsToSelector:@selector(stringValue)])
 	{
 		return [value stringValue];
 	}
@@ -253,11 +265,21 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 
 +(double)doubleValue:(id)value
 {
+	return [self doubleValue:value def:0];
+}
+
++(double)doubleValue:(id)value def:(double) def
+{
+	return [self doubleValue:value def:def valid:NULL];
+}
+
++(double)doubleValue:(id)value def:(double) def valid:(BOOL *) isValid {
 	if ([value respondsToSelector:@selector(doubleValue)])
 	{
-		return [value doubleValue];
+	   if(isValid != NULL) *isValid = YES;
+	   return [value doubleValue];
 	}
-	return 0;
+	return def;	
 }
 
 +(UIEdgeInsets)contentInsets:(id)value
@@ -335,29 +357,54 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 	return CGPointMake(result.x + bounds.origin.x,result.y + bounds.origin.y);
 }
 
++(NSNumber *) numberFromObject:(id) obj {
+	if([obj isKindOfClass:[NSNumber class]]) {
+		return obj;
+	}
+	
+	NSNumberFormatter *formatter = [[[NSNumberFormatter alloc] init] autorelease];
 
+	return [formatter numberFromString:[self stringValue:obj]];
+}
 
 +(CGFloat)floatValue:(id)value def:(CGFloat) def
 {
-	if ([value respondsToSelector:@selector(floatValue)])
-	{
+	return [self floatValue:value def:def valid:NULL];
+}
+
++(CGFloat) floatValue:(id)value def:(CGFloat) def valid:(BOOL *) isValid {
+	if([value respondsToSelector:@selector(floatValue)]) {
+		if(isValid != NULL) *isValid = YES;
 		return [value floatValue];
 	}
+    if (isValid != NULL) {
+        *isValid = NO;
+    }
 	return def;
 }
 
 +(CGFloat)floatValue:(id)value
 {
-	return [self floatValue:value def:0];
+	return [self floatValue:value def:NSNotFound];
+}
+
++(int)intValue:(id)value def:(int)def valid:(BOOL *) isValid {
+	if ([value respondsToSelector:@selector(intValue)])
+	{	
+		if(isValid != NULL) {
+			*isValid = YES;			
+		}
+		return [value intValue];
+	}
+    if (isValid != NULL) {
+        *isValid = NO;
+    }
+	return def;	
 }
 
 +(int)intValue:(id)value def:(int)def
 {
-	if ([value respondsToSelector:@selector(intValue)])
-	{
-		return [value intValue];
-	}
-	return def;
+	return [self intValue:value def:def valid:NULL];
 }
 
 +(int)intValue:(id)value
@@ -464,102 +511,202 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 
 +(NSURL*)checkFor2XImage:(NSURL*)url
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-	if ([url isFileURL] && [TiUtils isRetinaDisplay])
+	NSString * path = nil;
+	
+	if([url isFileURL])
 	{
-		NSString *path = [url path];
-		if ([path hasSuffix:@".png"] || [path hasSuffix:@".jpg"])
+		path = [url path];
+	}
+	
+	if([[url scheme] isEqualToString:@"app"])
+	{ //Technically, this will have an extra /, but iOS ignores this.
+		path = [url resourceSpecifier];
+	}
+
+	NSString *ext = [path pathExtension];
+
+	if(![ext isEqualToString:@"png"] && ![ext isEqualToString:@"jpg"])
+	{ //It's not an image.
+		return url;
+	}
+
+	//NOTE; I'm not sure the order here.. the docs don't necessarily 
+	//specify the exact order 
+	NSFileManager *fm = [NSFileManager defaultManager];
+	NSString *partial = [path stringByDeletingPathExtension];
+
+	NSString *os = [TiUtils isIPad] ? @"~ipad" : @"~iphone";
+
+	if([TiUtils isRetinaDisplay]){
+		// first try 2x device specific
+		NSString *testpath = [NSString stringWithFormat:@"%@@2x%@.%@",partial,os,ext];
+		if ([fm fileExistsAtPath:testpath])
 		{
-			//NOTE; I'm not sure the order here.. the docs don't necessarily 
-			//specify the exact order 
-			NSFileManager *fm = [NSFileManager defaultManager];
-			NSString *partial = [path substringToIndex:[path length]-4];
-			NSString *ext = [path substringFromIndex:[path length]-4];
-			NSString *os = [TiUtils isIPad] ? @"~ipad" : @"~iphone";
-			// first try 2x device specific
-			NSString *testpath = [NSString stringWithFormat:@"%@@2x%@%@",partial,os,ext];
-			if ([fm fileExistsAtPath:testpath])
-			{
-				return [NSURL fileURLWithPath:testpath];
-			}
-			// second try plain 2x
-			testpath = [NSString stringWithFormat:@"%@@2x%@",partial,ext];
-			if ([fm fileExistsAtPath:testpath])
-			{
-				return [NSURL fileURLWithPath:testpath];
-			}
-			// third try just device specific normal res
-			testpath = [NSString stringWithFormat:@"%@%@%@",partial,os,ext];
-			if ([fm fileExistsAtPath:testpath])
-			{
-				return [NSURL fileURLWithPath:testpath];
-			}
+			return [NSURL fileURLWithPath:testpath];
+		}
+		// second try plain 2x
+		testpath = [NSString stringWithFormat:@"%@@2x.%@",partial,ext];
+		if ([fm fileExistsAtPath:testpath])
+		{
+			return [NSURL fileURLWithPath:testpath];
 		}
 	}
-#endif
+	// third try just device specific normal res
+	NSString *testpath = [NSString stringWithFormat:@"%@%@.%@",partial,os,ext];
+	if ([fm fileExistsAtPath:testpath])
+	{
+		return [NSURL fileURLWithPath:testpath];
+	}
+
 	return url;
 }
 
 const CFStringRef charactersThatNeedEscaping = NULL;
-const CFStringRef charactersToNotEscape = CFSTR(":[]@!$ '()*+,;\"<>%{}|\\^~`#");
+const CFStringRef charactersToNotEscape = CFSTR(":[]@!$' ()*+,;\"<>%{}|\\^~`#");
 
-+(NSURL*)toURL:(id)object proxy:(TiProxy*)proxy
++(NSURL*)toURL:(NSString *)relativeString relativeToURL:(NSURL *)rootPath
 {
-	NSURL *url = nil;
+/*
+Okay, behavior: Bad values are either converted or ejected.
+sms:, tel:, mailto: are all done
+
+If the new path is HTTP:// etc, then punt and massage the code.
+
+If the new path starts with / and the base url is app://..., we have to massage the url.
+
+
+*/
+	if((relativeString == nil) || (relativeString == [NSNull null]))
+	{
+		return nil;
+	}
+
+	if(![relativeString isKindOfClass:[NSString class]])
+	{
+		//NSLog(@"[WARN] <%@> was an %@, not an NSString. Converting.",relativeString,[relativeString class]);
+		relativeString = [TiUtils stringValue:relativeString];
+	}
+
+	if ([relativeString hasPrefix:@"sms:"] || 
+		[relativeString hasPrefix:@"tel:"] ||
+		[relativeString hasPrefix:@"mailto:"])
+	{
+		return [NSURL URLWithString:relativeString];
+	}
+
+	NSURL *result = nil;
+		
+	// don't bother if we don't at least have a path and it's not remote
+	//TODO: What is this mess? -BTH
+	if ([relativeString hasPrefix:@"http://"] || [relativeString hasPrefix:@"https://"])
+	{
+		NSRange range = [relativeString rangeOfString:@"/" options:0 range:NSMakeRange(7, [relativeString length]-7)];
+		if (range.location!=NSNotFound)
+		{
+			NSString *firstPortion = [relativeString substringToIndex:range.location];
+			NSString *pathPortion = [relativeString substringFromIndex:range.location];
+			CFStringRef escapedPath = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
+					(CFStringRef)pathPortion, charactersToNotEscape,charactersThatNeedEscaping,
+					kCFStringEncodingUTF8);
+			relativeString = [firstPortion stringByAppendingString:(NSString *)escapedPath];
+			if(escapedPath != NULL)
+			{
+				CFRelease(escapedPath);
+			}
+		}
+	}
+
+	result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
+
+	//TODO: Make this less ugly.
+	if ([relativeString hasPrefix:@"/"])
+	{
+		NSString * rootScheme = [rootPath scheme];
+		NSString * resourcePath = [TiHost resourcePath];
+		BOOL usesApp = [rootScheme isEqualToString:@"app"];
+		if(!usesApp && [rootScheme isEqualToString:@"file"])
+		{
+			usesApp = [[rootPath path] hasPrefix:resourcePath];
+		}
+		if(usesApp)
+		{
+			result = [NSURL fileURLWithPath:[resourcePath stringByAppendingPathComponent:relativeString]];
+		}
+	}
+
 	
-	if ([object isKindOfClass:[NSString class]])
+	if (result==nil)
 	{
-		if ([object hasPrefix:@"/"])
+		//encoding problem - fail fast and make sure we re-escape
+		NSRange range = [relativeString rangeOfString:@"?"];
+		if (range.location != NSNotFound)
 		{
-			return [TiUtils checkFor2XImage:[NSURL fileURLWithPath:object]];
-		}
-		if ([object hasPrefix:@"sms:"] || 
-			[object hasPrefix:@"tel:"] ||
-			[object hasPrefix:@"mailto:"])
-		{
-			return [NSURL URLWithString:object];
-		}
-		
-		// don't bother if we don't at least have a path and it's not remote
-		///TODO: This looks ugly and klugy.
-		NSString *urlString = [TiUtils stringValue:object];
-		if ([urlString hasPrefix:@"http"])
-		{
-			NSRange range = [urlString rangeOfString:@"/" options:0 range:NSMakeRange(7, [urlString length]-7)];
-			if (range.location!=NSNotFound)
-			{
-				NSString *firstPortion = [urlString substringToIndex:range.location];
-				NSString *pathPortion = [urlString substringFromIndex:range.location];
-				CFStringRef escapedPath = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-						(CFStringRef)pathPortion, charactersToNotEscape,charactersThatNeedEscaping,
-						kCFStringEncodingUTF8);
-				urlString = [firstPortion stringByAppendingString:(NSString *)escapedPath];
-				if(escapedPath != NULL)
-				{
-					CFRelease(escapedPath);
-				}
-			}
-		}
-		
-		url = [NSURL URLWithString:urlString relativeToURL:[proxy _baseURL]];
-		
-		if (url==nil)
-		{
-			//encoding problem - fail fast and make sure we re-escape
-			NSRange range = [object rangeOfString:@"?"];
-			if (range.location != NSNotFound)
-			{
-				NSString *qs = [TiUtils encodeURIParameters:[object substringFromIndex:range.location+1]];
-				NSString *newurl = [NSString stringWithFormat:@"%@?%@",[object substringToIndex:range.location],qs];
-				return [TiUtils checkFor2XImage:[NSURL URLWithString:newurl]];
-			}
+			NSString *qs = [TiUtils encodeURIParameters:[relativeString substringFromIndex:range.location+1]];
+			NSString *newurl = [NSString stringWithFormat:@"%@?%@",[relativeString substringToIndex:range.location],qs];
+			return [TiUtils checkFor2XImage:[NSURL URLWithString:newurl]];
 		}
 	}
-	else if ([object isKindOfClass:[NSURL class]])
-	{
-		return [TiUtils checkFor2XImage:[NSURL URLWithString:[object absoluteString] relativeToURL:[proxy _baseURL]]];
-	}
-	return [TiUtils checkFor2XImage:url];			  
+	return [TiUtils checkFor2XImage:result];			  
+}
+
++(NSURL*)toURL:(NSString *)object proxy:(TiProxy*)proxy
+{
+	return [self toURL:object relativeToURL:[proxy _baseURL]];
+//	NSURL *url = nil;
+//	
+//	if ([object isKindOfClass:[NSString class]])
+//	{
+//		if ([object hasPrefix:@"/"])
+//		{
+//			return [TiUtils checkFor2XImage:[NSURL fileURLWithPath:object]];
+//		}
+//		if ([object hasPrefix:@"sms:"] || 
+//			[object hasPrefix:@"tel:"] ||
+//			[object hasPrefix:@"mailto:"])
+//		{
+//			return [NSURL URLWithString:object];
+//		}
+//		
+//		// don't bother if we don't at least have a path and it's not remote
+//		///TODO: This looks ugly and klugy.
+//		NSString *urlString = [TiUtils stringValue:object];
+//		if ([urlString hasPrefix:@"http"])
+//		{
+//			NSRange range = [urlString rangeOfString:@"/" options:0 range:NSMakeRange(7, [urlString length]-7)];
+//			if (range.location!=NSNotFound)
+//			{
+//				NSString *firstPortion = [urlString substringToIndex:range.location];
+//				NSString *pathPortion = [urlString substringFromIndex:range.location];
+//				CFStringRef escapedPath = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
+//						(CFStringRef)pathPortion, charactersToNotEscape,charactersThatNeedEscaping,
+//						kCFStringEncodingUTF8);
+//				urlString = [firstPortion stringByAppendingString:(NSString *)escapedPath];
+//				if(escapedPath != NULL)
+//				{
+//					CFRelease(escapedPath);
+//				}
+//			}
+//		}
+//		
+//		url = [NSURL URLWithString:urlString relativeToURL:[proxy _baseURL]];
+//		
+//		if (url==nil)
+//		{
+//			//encoding problem - fail fast and make sure we re-escape
+//			NSRange range = [object rangeOfString:@"?"];
+//			if (range.location != NSNotFound)
+//			{
+//				NSString *qs = [TiUtils encodeURIParameters:[object substringFromIndex:range.location+1]];
+//				NSString *newurl = [NSString stringWithFormat:@"%@?%@",[object substringToIndex:range.location],qs];
+//				return [TiUtils checkFor2XImage:[NSURL URLWithString:newurl]];
+//			}
+//		}
+//	}
+//	else if ([object isKindOfClass:[NSURL class]])
+//	{
+//		return [TiUtils checkFor2XImage:[NSURL URLWithString:[(NSURL *)object absoluteString] relativeToURL:[proxy _baseURL]]];
+//	}
+//	return [TiUtils checkFor2XImage:url];			  
 }
 
 +(UIImage *)stretchableImage:(id)object proxy:(TiProxy*)proxy
@@ -1057,6 +1204,11 @@ if ([str isEqualToString:@#orientation]) return orientation;
 	return [view frame];
 #endif
 
+	if(view == nil)
+	{
+		return CGRectZero;
+	}
+	
 	CGPoint anchorPoint = [[view layer] anchorPoint];
 	CGRect bounds = [view bounds];
 	CGPoint center = [view center];
@@ -1193,6 +1345,203 @@ if ([str isEqualToString:@#orientation]) return orientation;
 	}
 
 	return [[string componentsSeparatedByCharactersInSet:characterSet] componentsJoinedByString:replacementString];
+}
+
++(NSStringEncoding)charsetToEncoding:(NSString*)type
+{
+    if (encodingMap == nil) {
+        encodingMap = [[NSDictionary alloc] initWithObjectsAndKeys:
+                       NUMLONGLONG(NSASCIIStringEncoding),kTiASCIIEncoding,
+                       NUMLONGLONG(NSISOLatin1StringEncoding),kTiISOLatin1Encoding,
+                       NUMLONGLONG(NSUTF8StringEncoding),kTiUTF8Encoding,
+                       NUMLONGLONG(NSUTF16StringEncoding),kTiUTF16Encoding,
+                       NUMLONGLONG(NSUTF16BigEndianStringEncoding),kTiUTF16BEEncoding,
+                       NUMLONGLONG(NSUTF16LittleEndianStringEncoding),kTiUTF16LEEncoding,
+                       nil];
+    }
+    return [[encodingMap valueForKey:type] longLongValue];
+}
+
++(TiDataType)constantToType:(NSString *)type
+{
+    if (typeMap == nil) {
+        typeMap = [[NSDictionary alloc] initWithObjectsAndKeys:
+                   NUMINT(TI_BYTE),kTiByteTypeName,
+                   NUMINT(TI_SHORT),kTiShortTypeName,
+                   NUMINT(TI_INT),kTiIntTypeName,
+                   NUMINT(TI_LONG),kTiLongTypeName,
+                   NUMINT(TI_FLOAT),kTiFloatTypeName,
+                   NUMINT(TI_DOUBLE),kTiDoubleTypeName,
+                   nil];
+    }
+    return [[typeMap valueForKey:type] intValue];
+}
+
++(size_t)dataSize:(TiDataType)type
+{
+    if (sizeMap == nil) {
+        sizeMap = [[NSDictionary alloc] initWithObjectsAndKeys:
+                   NUMINT(sizeof(char)), NUMINT(TI_BYTE),
+                   NUMINT(sizeof(uint16_t)), NUMINT(TI_SHORT),
+                   NUMINT(sizeof(uint32_t)), NUMINT(TI_INT),
+                   NUMINT(sizeof(uint64_t)), NUMINT(TI_LONG),
+                   NUMINT(sizeof(Float32)), NUMINT(TI_FLOAT),
+                   NUMINT(sizeof(Float64)), NUMINT(TI_DOUBLE),
+                   nil];
+    }
+    return [[sizeMap objectForKey:NUMINT(type)] intValue];
+}
+
++(int)encodeString:(NSString *)string toBuffer:(TiBuffer *)dest charset:(NSString*)charset offset:(int)destPosition sourceOffset:(int)srcPosition length:(int)srcLength
+{
+    // TODO: Define standardized behavior.. but for now:
+    // 1. Throw exception if destPosition extends past [dest length]
+    // 2. Throw exception if srcPosition > [string length]
+    // 3. Use srcLength as a HINT (as in all other buffer ops)
+    
+    if (destPosition >= [[dest data] length]) {
+        return BAD_DEST_OFFSET;
+    }
+    if (srcPosition >= [string length]) {
+        return BAD_SRC_OFFSET;
+    }
+    
+    NSStringEncoding encoding = [TiUtils charsetToEncoding:charset];
+    
+    if (encoding == 0) {
+        return BAD_ENCODING;
+    }
+    
+    int length = MIN(srcLength, [string length] - srcPosition);
+    NSData* encodedString = [[string substringWithRange:NSMakeRange(srcPosition, length)] dataUsingEncoding:encoding];
+    int encodeLength = MIN([encodedString length], [[dest data] length] - destPosition);
+    
+    void* bufferBytes = [[dest data] mutableBytes];
+    const void* stringBytes = [encodedString bytes];
+    
+    memcpy(bufferBytes+destPosition, stringBytes, encodeLength);
+    
+    return destPosition+encodeLength;
+}
+
++(int)encodeNumber:(NSNumber *)data toBuffer:(TiBuffer *)dest offset:(int)position type:(NSString *)type endianness:(CFByteOrder)byteOrder
+{
+    switch (byteOrder) {
+        case CFByteOrderBigEndian:
+        case CFByteOrderLittleEndian:
+            break;
+        default:
+            return BAD_ENDIAN;
+    }
+    
+    if (position >= [[dest data] length]) {
+        return BAD_DEST_OFFSET;
+    }
+    
+    void* bytes = [[dest data] mutableBytes];
+    TiDataType dataType = [TiUtils constantToType:type];
+    size_t size = [TiUtils dataSize:dataType];
+    
+    if (size > MIN([[dest data] length], [[dest data] length] - position)) {
+        return TOO_SMALL;
+    }
+    
+    switch ([self constantToType:type]) {
+        case TI_BYTE: {
+            char byte = [data charValue];
+            memcpy(bytes+position, &byte, size);
+            break;
+        }
+        case TI_SHORT: {
+            uint16_t val = [data shortValue];
+            switch (byteOrder) {
+                case CFByteOrderLittleEndian: {
+                    val = CFSwapInt16HostToLittle(val);
+                    break;
+                }
+                case CFByteOrderBigEndian: {
+                    val = CFSwapInt16HostToBig(val);
+                    break;
+                }
+            }
+            memcpy(bytes+position, &val, size);
+            break;
+        }
+        case TI_INT: {
+            uint32_t val = [data intValue];
+            switch (byteOrder) {
+                case CFByteOrderLittleEndian: {
+                    val = CFSwapInt32HostToLittle(val);
+                    break;
+                }
+                case CFByteOrderBigEndian: {
+                    val = CFSwapInt32HostToBig(val);
+                    break;
+                }
+            }
+            memcpy(bytes+position, &val, size);
+            break;
+        }
+        case TI_LONG: {
+            uint64_t val = [data longLongValue];
+            switch (byteOrder) {
+                case CFByteOrderLittleEndian: {
+                    val = CFSwapInt64HostToLittle(val);
+                    break;
+                }
+                case CFByteOrderBigEndian: {
+                    val = CFSwapInt64HostToBig(val);
+                    break;
+                }
+            }
+            memcpy(bytes+position, &val, size);
+            break;
+        }
+        case TI_FLOAT: {
+            // To prevent type coercion, we use a union where we assign the floatVaue as a Float32, and then access the integer byte representation off of the CFSwappedFloat struct.
+            union {
+                Float32 f;
+                CFSwappedFloat32 sf;
+            } val;
+            val.f = [data floatValue];
+            switch (byteOrder) {
+                case CFByteOrderLittleEndian: {
+                    val.sf.v = CFSwapInt32HostToLittle(val.sf.v);
+                    break;
+                }
+                case CFByteOrderBigEndian: {
+                    val.sf.v = CFSwapInt32HostToBig(val.sf.v);
+                    break;
+                }
+            }
+            memcpy(bytes+position, &(val.sf.v), size);
+            break;
+        }
+        case TI_DOUBLE: {
+            // See above for why we do union encoding.
+            union {
+                Float64 f;
+                CFSwappedFloat64 sf;
+            } val;
+            val.f = [data doubleValue];
+            switch (byteOrder) {
+                case CFByteOrderLittleEndian: {
+                    val.sf.v = CFSwapInt64HostToLittle(val.sf.v);
+                    break;
+                }
+                case CFByteOrderBigEndian: {
+                    val.sf.v = CFSwapInt64HostToBig(val.sf.v);
+                    break;
+                }
+            }
+            memcpy(bytes+position, &(val.sf.v), size);
+            break;
+        }
+        default:
+            return BAD_TYPE;
+    }
+    
+    return (position+size);
 }
 
 @end

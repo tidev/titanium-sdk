@@ -41,6 +41,6 @@ if __name__ == '__main__':
 		print "Usage: %s <directory>" % os.path.basename(sys.argv[0])
 		sys.exit(1)
 
-	sdk = AndroidSDK(os.path.expanduser(dequote(sys.argv[1])), 7)
+	sdk = AndroidSDK(os.path.expanduser(dequote(sys.argv[1])))
 	print get_avds(sdk)
 

@@ -236,7 +236,7 @@ MAKE_SYSTEM_PROP_IOS4(AUTODETECT_CALENDAR,UIDataDetectorTypeCalendarEvent,UIData
 			return a;
 		}
 	}
-	return [[[TiAnimation alloc] _initWithPageContext:[self pageContext]] autorelease];
+	return [[[TiAnimation alloc] _initWithPageContext:[self executionContext]] autorelease];
 }
 #endif
 
@@ -278,7 +278,7 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 	if (iphone==nil)
 	{
 		// cache it since it's used alot
-		iphone = [[TiUIiPhoneProxy alloc] _initWithPageContext:[self pageContext]];
+		iphone = [[TiUIiPhoneProxy alloc] _initWithPageContext:[self executionContext]];
 	}
 	return iphone;
 }
@@ -292,7 +292,7 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 		if ([TiUtils isiPhoneOS3_2OrGreater] && [TiUtils isIPad])
 		{
-			ipad = [[TiUIiPadProxy alloc] _initWithPageContext:[self pageContext]];
+			ipad = [[TiUIiPadProxy alloc] _initWithPageContext:[self executionContext]];
 		}
 #endif
 	}
@@ -308,7 +308,7 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 		if ([TiUtils isiPhoneOS3_2OrGreater])
 		{
-			ios = [[TiUIiOSProxy alloc] _initWithPageContext:[self pageContext]];
+			ios = [[TiUIiOSProxy alloc] _initWithPageContext:[self executionContext]];
 		}
 #endif
 	}
@@ -321,7 +321,7 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 {
 	if (clipboard==nil)
 	{
-		clipboard = [[TiUIClipboardProxy alloc] _initWithPageContext:[self pageContext]];
+		clipboard = [[TiUIClipboardProxy alloc] _initWithPageContext:[self executionContext]];
 	}
 	return clipboard;
 }

@@ -9,6 +9,7 @@
 #import "FilesystemModule.h"
 #import "TiFilesystemFileProxy.h"
 #import "TiFilesystemBlobProxy.h"
+#import "TiFilesystemFileStreamProxy.h"
 
 #if TARGET_IPHONE_SIMULATOR 
 extern NSString * TI_APPLICATION_RESOURCE_DIR;
@@ -16,6 +17,46 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 
 @implementation FilesystemModule
 
+// internal
+-(id)resolveFile:(id)arg
+{
+	if ([arg isKindOfClass:[TiFilesystemFileProxy class]])
+	{
+		return [arg path];
+	}
+	return [TiUtils stringValue:arg];
+}
+
+-(NSString*)pathFromComponents:(NSArray*)args
+{
+	NSString * newpath;
+	id first = [args objectAtIndex:0];
+	if ([first hasPrefix:@"file://localhost/"])
+	{
+		NSURL * fileUrl = [NSURL URLWithString:first];
+		//Why not just crop? Because the url may have some things escaped that need to be unescaped.
+		newpath =[fileUrl path];
+	}
+	else if ([first characterAtIndex:0]!='/')
+	{
+		NSURL* url = [NSURL URLWithString:[self resourcesDirectory]];
+        newpath = [[url path] stringByAppendingPathComponent:[self resolveFile:first]];
+	}
+	else 
+	{
+		newpath = [self resolveFile:first];
+	}
+	
+	if ([args count] > 1)
+	{
+		for (int c=1;c<[args count];c++)
+		{
+			newpath = [newpath stringByAppendingPathComponent:[self resolveFile:[args objectAtIndex:c]]];
+		}
+	}
+    
+    return [newpath stringByStandardizingPath];
+}
 
 -(id)createTempFile:(id)args
 {
@@ -27,19 +68,40 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 	return [TiFilesystemFileProxy makeTemp:YES];
 }
 
+-(id)openStream:(id) args {
+	NSNumber *fileMode;
+	
+	ENSURE_ARG_AT_INDEX(fileMode, args, 0, NSNumber);
+	ENSURE_VALUE_RANGE([fileMode intValue], TI_READ, TI_APPEND);
+
+	if([args count] < 2) {
+		[self throwException:TiExceptionNotEnoughArguments
+				   subreason:nil
+					location:CODELOCATION];
+	}
+	
+	//allow variadic file components to be passed
+	NSArray *pathComponents = [args subarrayWithRange:NSMakeRange(1, [args count] - 1 )];
+	NSString *path = [self pathFromComponents:pathComponents];
+    
+	NSArray *payload = [NSArray arrayWithObjects:path, fileMode, nil];
+
+	return [[[TiFilesystemFileStreamProxy alloc] _initWithPageContext:[self executionContext] args:payload] autorelease];
+}
+
 -(id)MODE_APPEND
 {
-	return NUMINT((int)'A');
+	return NUMINT(TI_APPEND);
 }
 
 -(id)MODE_READ
 {
-	return NUMINT((int)'R');
+	return NUMINT(TI_READ);
 }
 
 -(id)MODE_WRITE
 {
-	return NUMINT((int)'W');
+	return NUMINT(TI_WRITE);
 }
 
 -(id)isExternalStoragePresent:(id)unused
@@ -49,39 +111,31 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 	return NUMBOOL(NO);
 }
 
+#define fileURLify(foo)	[[NSURL fileURLWithPath:foo isDirectory:YES] absoluteString]
+
 -(NSString*)resourcesDirectory
 {
-#if TARGET_IPHONE_SIMULATOR 
-	if (TI_APPLICATION_RESOURCE_DIR!=nil && [TI_APPLICATION_RESOURCE_DIR isEqualToString:@""]==NO)
-	{
-		// if the .local file exists and we're in the simulator, then force load from resources bundle
-		if (![[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithFormat:@"%@/.local",[[NSBundle mainBundle] resourcePath]]])
-		{
-			return TI_APPLICATION_RESOURCE_DIR;
-		}
-	}
-#endif
-	return [[NSBundle mainBundle] resourcePath];
+	return fileURLify([TiHost resourcePath]);
 }
 
 -(NSString*)applicationDirectory
 {
-	return [NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+	return fileURLify([NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSUserDomainMask, YES) objectAtIndex:0]);
 }
 
 -(NSString*)applicationSupportDirectory
 {
-	return [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+	return fileURLify([NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0]);
 }
 
 -(NSString*)applicationDataDirectory
 {
-	return [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+	return fileURLify([NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]);
 }
 
 -(NSString*)tempDirectory
 {
-	return NSTemporaryDirectory();
+	return fileURLify(NSTemporaryDirectory());
 }
 
 -(NSString*)separator
@@ -94,37 +148,10 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 	return @"\n";
 }
 
-// internal
--(id)resolveFile:(id)arg
-{
-	if ([arg isKindOfClass:[TiFilesystemFileProxy class]])
-	{
-		return [arg path];
-	}
-	return [TiUtils stringValue:arg];
-}
-
 -(id)getFile:(id)args
 {
-	NSMutableString *newpath = [[[NSMutableString alloc] init] autorelease];
-	id first = [args objectAtIndex:0];
-	if ([first characterAtIndex:0]!='/')
-	{
-		[newpath appendFormat:@"%@/%@",[self resourcesDirectory],[self resolveFile:first]];
-	}
-	else 
-	{
-		[newpath appendString:[self resolveFile:first]];
-	}
-	
-	if ([args count] > 1)
-	{
-		for (int c=1;c<[args count];c++)
-		{
-			[newpath appendFormat:@"/%@",[self resolveFile:[args objectAtIndex:c]]];
-		}
-	}
-	
+	NSString* newpath = [self pathFromComponents:args];
+    
 	if ([newpath hasPrefix:[self resourcesDirectory]] &&
 		([newpath hasSuffix:@".html"]||
 		 [newpath hasSuffix:@".js"]||

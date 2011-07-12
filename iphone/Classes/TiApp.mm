@@ -100,6 +100,23 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	return [sharedApp controller];
 }
 
+-(TiContextGroupRef)contextGroup
+{
+	if(contextGroup == nil)
+	{
+		contextGroup = TiContextGroupCreate();
+		TiContextGroupRetain(contextGroup);
+	}
+	return contextGroup;
+}
+
+
++(TiContextGroupRef)contextGroup
+{
+	return [sharedApp contextGroup];
+}
+
+
 -(void)startNetwork
 {
 	ENSURE_UI_THREAD_0_ARGS;
@@ -203,8 +220,13 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	if (!loaded) {
 		[self attachSplash];
 	}
-	[window addSubview:controller.view];
-
+	if ([window respondsToSelector:@selector(setRootViewController:)]) {
+		[window setRootViewController:controller];
+	}
+	else
+	{
+		[window addSubview:[controller view]];
+	}
     [window makeKeyAndVisible];
 }
 
@@ -276,6 +298,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
             [self setDebugMode:YES];
             TiDebuggerStart(host,[port intValue]);
         }
+        [params release];
     }
 	
 	kjsBridge = [[KrollBridge alloc] initWithHost:self];
@@ -507,6 +530,8 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 #pragma mark Push Notification Delegates
 
+#ifdef USE_TI_NETWORKREGISTERFORPUSHNOTIFICATIONS
+
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
 {
 	// NOTE: this is called when the app is *running* after receiving a push notification
@@ -554,6 +579,8 @@ void MyUncaughtExceptionHandler(NSException *exception)
 		[remoteNotificationDelegate performSelector:@selector(application:didFailToRegisterForRemoteNotificationsWithError:) withObject:application withObject:error];
 	}
 }
+
+#endif
 
 //TODO: this should be compiled out in production mode
 -(void)showModalError:(NSString*)message

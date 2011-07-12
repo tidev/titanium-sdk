@@ -20,6 +20,8 @@ if os.path.exists(module_support_dir):
 # in case this is running in Python < 2.6, in which case standard python json
 # module is not available
 sitescons_dir = os.path.abspath(os.path.join(this_dir, '..', 'site_scons'))
+
+suppress_htmlerize = False
 if os.path.exists(sitescons_dir):
 	sys.path.append(sitescons_dir)
 
@@ -258,14 +260,17 @@ class API(object):
 			'object' : '{}',
 			'function' : 'function(){}',
 			'float' : '0.0',
-			'float,string' : "''",
-			'int,string' : "''",
-			'string,int' : "''",
+			'float,string' : "[0.0,'']",
+			'int,string' : "[0,'']",
+			'string,int' : "['',0]",
+			'date, int' : '[new Date(),0]',
+			'int, string' : "[0, '']",
 			'date' : 'new Date()',
 			'long' : '0',
 			'callback' : 'function(){}',
 			'Intent' : 'Titanium.Android.Intent',
-			'Titanium.App.Android.R':"function(){return Titanium.App.Android.R;}"
+			'Titanium.App.Android.R':"{}",
+			'Number, String': '[Number, String]'
 		}
 		return retTypes.get(str,str)
 	
@@ -615,6 +620,8 @@ def tokenize_keyvalues(buf):
 	return array
 	
 def tickerize(line):
+	if suppress_htmlerize:
+		return line
 	idx = line.find('`')
 	if idx == -1:
 		return line
@@ -631,6 +638,8 @@ def tickerize(line):
 	return tickerize(line[0:idx] + content + line[idx2+1:])
 
 def anchorize(line):
+	if suppress_htmlerize:
+		return line
 	idx = line.find('[[')
 	if idx == -1:
 		return line
@@ -642,6 +651,8 @@ def anchorize(line):
 	return anchorize(result)
 	
 def htmlerize(content):
+	if suppress_htmlerize:
+		return content
 	begin = 0
 	end = len(content)
 	idx = content.find('\\')
@@ -1157,7 +1168,7 @@ def produce_vsdoc(config):
 def produce_vsdoc_output(config,outdir,theobj):
 	lookupDir = TemplateLookup(directories=[os.path.join(template_dir,'templates')])
 	
-	filename = os.path.join(outdir,'Titanium-vsdoc.js')
+	filename = os.path.join(outdir,'Ti-vsdoc.js')
 	f = open(filename,'w+')
 	
 	for name in sorted(theobj.iterkeys()):

@@ -24,6 +24,8 @@
 -(NSString*)appID;
 -(NSURL*)baseURL;
 -(NSURL*)startURL;
++(NSString *)resourcePath;
+
 -(TiStylesheet*)stylesheet;
 
 +(NSURL*)resourceBasedURL:(NSString*)fn baseURL:(NSString**)base;

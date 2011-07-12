@@ -2,16 +2,25 @@ var win = Titanium.UI.currentWindow;
 
 var connectedSockets = [];
 
-function readCallback(e) {
-	if (e.errorDescription == null) {
-		readLabel.text = e.buffer.toString();
+function removeSocket(sock) {
+	var index = connectedSockets.indexOf(sock);
+	if (index != -1) {
+		connectedSockets.splice(index,1);
+	}	
+}
+
+function pumpCallback(e) {
+	if (e.bytesProcessed == -1) { // EOF
+		readLabel.text = "<EOF> - Closing the remote socket!";
+		e.source.close();
+		removeSocket(e.source);
+	}
+	else if (e.errorDescription == null || e.errorDescription == "") {
+		readLabel.text = "DATA: "+e.buffer.toString();
 	}
 	else {
-		messageLabel.text = "READ ERROR: "+e.errorDescription;
+		readLabel.text = "READ ERROR: "+e.errorDescription;
 	}
-	
-	e.buffer.clear();
-	Ti.Stream.read(e.source,e.buffer,readCallback);
 }
 
 var acceptedCallbacks = {
@@ -20,10 +29,7 @@ var acceptedCallbacks = {
 			title:"Socket error: "+e.socket.host,
 			message:e.error
 		}).show();
-		var index = connectedSockets.indexOf(e.socket);
-		if (index != -1) {
-			connectedSockets.splice(index,1); // Removes socket
-		}
+		removeSocket(e.socket);
 	}
 };
 
@@ -34,8 +40,7 @@ var socket = Titanium.Network.Socket.createTCP({
 		var sock = e.inbound;
 		connectedSockets.push(sock);
 		messageLabel.text = 'ACCEPTED: '+sock.host+':'+sock.port;
-		var readBuffer = Ti.createBuffer({length:1024});
-		Ti.Stream.read(sock, readBuffer, readCallback);
+		Ti.Stream.pump(sock, pumpCallback, 1024, true);
 		socket.accept(acceptedCallbacks);
 	},
 	closed: function(e) {
@@ -148,11 +153,11 @@ var writeButton = Titanium.UI.createButton({
 win.add(writeButton);
 writeButton.addEventListener('click', function() {
 	var plBlob = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'paradise_lost.txt').read();
-	var buff = Ti.createBuffer({data:plBlob});
+	var input = Ti.Stream.createStream({source:plBlob, mode:Ti.Stream.MODE_READ});
 
 	for (var index in connectedSockets) {
 		var sock = connectedSockets[index];
-		sock.write(buff);
+		Ti.Stream.writeStream(input, sock, 4096);
 	}
 	messageLabel.text = "I'm a writer!";
 });

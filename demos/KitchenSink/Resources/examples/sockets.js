@@ -1,7 +1,8 @@
 // create table view data object
 var data = [
 	{title:'Connecting socket', hasChild:true, test:'../examples/socket_connect.js'},
-	{title:'Listening socket', hasChild:true, test:'../examples/socket_listener.js'}
+	{title:'Listening socket', hasChild:true, test:'../examples/socket_listener.js'},
+	{title:'Server and client example', hasChild:true, test:'../examples/socket_server_client.js'}
 ];
 
 if (Titanium.Platform.name == 'iPhone OS')

@@ -32,7 +32,7 @@ class ScriptProcessor(SGMLParser):
 					self.scripts.append(attr[1])
 
 class Compiler(object):
-	def __init__(self,tiapp,project_dir,java,classes_dir,root_dir):
+	def __init__(self,tiapp,project_dir,java,classes_dir,root_dir, include_all_modules=False):
 		self.tiapp = tiapp
 		self.java = java
 		self.appname = tiapp.properties['name']
@@ -53,10 +53,12 @@ class Compiler(object):
 		
 		if (tiapp.has_app_property('ti.android.include_all_modules')):
 			if tiapp.to_bool(tiapp.get_app_property('ti.android.include_all_modules')):
-				print '[INFO] Force including all modules...'
-				sys.stdout.flush()
-				for module in bindings.get_all_module_names():
-					self.add_required_module(module)
+				include_all_modules = True
+		if include_all_modules:
+			print '[INFO] Force including all modules...'
+			sys.stdout.flush()
+			for module in bindings.get_all_module_names():
+				self.add_required_module(module)
 
 		self.module_methods = set()
 		self.js_files = {}
@@ -137,7 +139,7 @@ class Compiler(object):
 
 		# chop off '.js'
 		js_class_name = resource_relative_path[:-3]
-		escape_chars = ['\\', '/', ' ', '.']
+		escape_chars = ['\\', '/', ' ', '.','-']
 		for escape_char in escape_chars:
 			js_class_name = js_class_name.replace(escape_char, '_')
 		
@@ -149,7 +151,11 @@ class Compiler(object):
 
 		print "[INFO] Compiling javascript: %s" % resource_relative_path
 		sys.stdout.flush()
-		run.run(jsc_args)
+		so, se = run.run(jsc_args, ignore_error=True, return_error=True)
+		if not se is None and len(se):
+			sys.stderr.write("[ERROR] %s\n" % se)
+			sys.stderr.flush()
+			sys.exit(1)
 
 	def compile_into_bytecode(self, paths):
 		compile_js = False

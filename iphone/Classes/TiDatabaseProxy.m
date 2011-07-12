@@ -77,7 +77,7 @@
 	database = [[PLSqliteDatabase alloc] initWithPath:path];
 	if (![database open])
 	{
-		[self throwException:@"couldn't open database" subreason:nil location:CODELOCATION];
+		[self throwException:@"couldn't open database" subreason:name_ location:CODELOCATION];
 	}
 }
 
@@ -120,8 +120,6 @@
 		[statements removeObject:statement];
 	}
 }
-
-#pragma mark Public APIs
 
 -(id)execute:(id)args
 {

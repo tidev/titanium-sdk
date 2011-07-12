@@ -77,7 +77,7 @@
 
 - (BOOL)isLandscape
 {
-	return UIInterfaceOrientationIsLandscape(self.interfaceOrientation);
+	return UIInterfaceOrientationIsLandscape(currentOrientation);
 }
 
 
@@ -90,7 +90,7 @@
 
 - (BOOL)shouldShowMaster
 {
-	return [self shouldShowMasterForInterfaceOrientation:self.interfaceOrientation];
+	return [self shouldShowMasterForInterfaceOrientation:currentOrientation];
 }
 
 
@@ -179,6 +179,7 @@
 {
 	[self.masterViewController willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
 	[self.detailViewController willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    currentOrientation = toInterfaceOrientation;
 }
 
 
@@ -203,6 +204,7 @@
 	// Re-tile views.
 	_reconfigurePopup = YES;
 	[self layoutSubviewsForInterfaceOrientation:toInterfaceOrientation withAnimation:YES];
+    currentOrientation = toInterfaceOrientation;
 }
 
 
@@ -488,13 +490,13 @@
 
 - (void)layoutSubviewsWithAnimation:(BOOL)animate
 {
-	[self layoutSubviewsForInterfaceOrientation:self.interfaceOrientation withAnimation:animate];
+	[self layoutSubviewsForInterfaceOrientation:currentOrientation withAnimation:animate];
 }
 
 
 - (void)layoutSubviews
 {
-	[self layoutSubviewsForInterfaceOrientation:self.interfaceOrientation withAnimation:YES];
+	[self layoutSubviewsForInterfaceOrientation:currentOrientation withAnimation:YES];
 }
 
 
@@ -860,7 +862,7 @@
 	// Check to see if delegate wishes to constrain the position.
 	float newPosn = posn;
 	BOOL constrained = NO;
-	CGSize fullSize = [self splitViewSizeForOrientation:self.interfaceOrientation];
+	CGSize fullSize = [self splitViewSizeForOrientation:currentOrientation];
 	if (_delegate && [_delegate respondsToSelector:@selector(splitViewController:constrainSplitPosition:splitViewSize:)]) {
 		newPosn = [_delegate splitViewController:self constrainSplitPosition:newPosn splitViewSize:fullSize];
 		constrained = YES; // implicitly trust delegate's response.

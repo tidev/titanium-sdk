@@ -2,16 +2,16 @@ var win = Ti.UI.currentWindow;
 
 var connectingSocket = null;
 
-function readCallback(e) {
-	if (e.errorDescription == null) {
+function pumpCallback(e) {
+	if (e.bytesProcessed == -1) { // EOF
+		statusArea.value = "<EOF> - Can't perform any more operations on connected socket";
+	}
+	else if (e.errorDescription == null || e.errorDescription == "") {
 		statusArea.value = "DATA: "+e.buffer.toString();
 	}
 	else {
 		statusArea.value = "READ ERROR: "+e.errorDescription;
 	}
-	
-	e.buffer.clear();
-	Ti.Stream.read(e.source,e.buffer,readCallback);
 }
 
 var hostField = Ti.UI.createTextField({
@@ -82,9 +82,8 @@ connectButton.addEventListener('click', function() {
 				host:hostField.value,
 				port:portField.value,
 				connected:function(e) {
-					e.socket.write(Ti.createBuffer({data:"Well, hello there!"}));
-					var readBuffer = Ti.createBuffer({length:1024});
-					Ti.Stream.read(e.socket,readBuffer,readCallback);
+					e.socket.write(Ti.createBuffer({value:"Well, hello there!"}));
+					Ti.Stream.pump(e.socket,pumpCallback,1024, true);
 				},
 				error:function(e) {
 					statusArea.value = "ERROR ("+e.errorCode+"): "+e.error;
@@ -117,6 +116,7 @@ disconnectButton.addEventListener('click', function() {
 		try {
 			connectingSocket.close();
 			connectingSocket = null;
+			statusArea.value = 'Disconnected';
 		}
 		catch (e) {
 			statusArea.value = "EXCEPTION (close): "+e.toString();
@@ -137,7 +137,7 @@ var writeButton = Ti.UI.createButton({
 });
 writeButton.addEventListener('click', function() {
 	if (connectingSocket != null && connectingSocket.isWritable()) {
-		connectingSocket.write(Ti.createBuffer({data:writeArea.value}));
+		connectingSocket.write(Ti.createBuffer({value:writeArea.value}));
 	}
 });
 win.add(writeButton);

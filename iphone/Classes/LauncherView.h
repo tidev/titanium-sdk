@@ -54,6 +54,7 @@
 	CGPoint touchOrigin;
 	BOOL editing;
 	BOOL springing;	
+    BOOL editable;
 }
 
 @property(nonatomic) NSInteger columnCount;
@@ -61,6 +62,7 @@
 @property(nonatomic) NSInteger currentPageIndex;
 @property(nonatomic,assign) id<LauncherViewDelegate> delegate;
 @property(nonatomic,readonly) BOOL editing;
+@property(nonatomic,assign) BOOL editable;
 
 - (void)addItem:(LauncherItem*)item animated:(BOOL)animated;
 - (void)removeItem:(LauncherItem*)item animated:(BOOL)animated;

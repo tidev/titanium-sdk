@@ -101,6 +101,7 @@
 	}
 	else
 	{
+		[self rememberProxy:arg];
 		pthread_rwlock_wrlock(&childrenLock);
 		if (windowOpened)
 		{
@@ -127,15 +128,20 @@
 	ENSURE_UI_THREAD_1_ARG(arg);
 
 	pthread_rwlock_wrlock(&childrenLock);
-	BOOL viewIsInChildren = [children containsObject:arg];
-	if (viewIsInChildren==NO)
+	if ([children containsObject:arg])
+	{
+		[children removeObject:arg];
+	}
+	else if ([pendingAdds containsObject:arg])
+	{
+		[pendingAdds removeObject:arg];
+	}
+	else
 	{
 		pthread_rwlock_unlock(&childrenLock);
 		NSLog(@"[WARN] called remove for %@ on %@, but %@ isn't a child or has already been removed",arg,self,arg);
 		return;
 	}
-
-	[children removeObject:arg];
 
 	[self contentsWillChange];
 	if(parentVisible && !hidden)
@@ -172,6 +178,8 @@
 			}
 		}
 	}
+	//Yes, we're being really lazy about letting this go. This is intentional.
+	[self forgetProxy:arg];
 }
 
 -(void)show:(id)arg
@@ -188,9 +196,14 @@
 
 -(void)animate:(id)arg
 {
-	ENSURE_UI_THREAD(animate,arg);
-	[parent contentsWillChange];
+	TiAnimation * newAnimation = [TiAnimation animationFromArg:arg context:[self executionContext] create:NO];
+	[self rememberProxy:newAnimation];
+	[self performSelectorOnMainThread:@selector(animateOnUIThread:) withObject:newAnimation waitUntilDone:NO];
+}
 
+-(void)animateOnUIThread:(TiAnimation *)newAnimation
+{
+	[parent contentsWillChange];
 	if ([view superview]==nil)
 	{
 		VerboseLog(@"Entering animation without a superview Parent is %@, props are %@",parent,dynprops);
@@ -198,7 +211,14 @@
 	}
 	[self windowWillOpen]; // we need to manually attach the window if you're animating
 	[parent layoutChildrenIfNeeded];
-	[[self view] animate:arg];
+	[[self view] animate:newAnimation];
+}
+
+-(void)setAnimation:(id)arg
+{	//We don't actually store the animation this way.
+	//Because the setter doesn't have the argument array, we will be passing a nonarray to animate:
+	//In this RARE case, this is okay, because TiAnimation animationFromArg handles with or without array.
+	[self animate:arg];
 }
 
 #define LAYOUTPROPERTIES_SETTER(methodName,layoutName,converter,postaction)	\
@@ -551,7 +571,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		[self viewDidAttach];
 
 		// make sure we do a layout of ourselves
-		if(CGRectIsEmpty(sandboxBounds)){
+		if(CGRectIsEmpty(sandboxBounds) && (view != nil)){
 			[self setSandboxBounds:view.bounds];
 		}
 		[self relayout];
@@ -825,7 +845,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		NSString *basename = [[self pageContext] basename];
 		NSString *density = [TiUtils isRetinaDisplay] ? @"high" : @"medium";
 
-		if (objectId!=nil || className != nil || classNames != nil || [stylesheet basename:basename density:density hasClass:type])
+		if (objectId!=nil || className != nil || classNames != nil || [stylesheet basename:basename density:density hasTag:type])
 		{
 			// get classes from proxy
 			NSString *className = [properties objectForKey:@"className"];
@@ -838,11 +858,9 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 			{
 				[classNames addObject:className];
 			}
-			// add the widget type as a class
-			// TODO: What takes prescedence here?  Other specified class names, or the widget class name?  That will change where
-			// the type gets inserted into the array.
-			[classNames addObject:type];
-			NSDictionary *merge = [stylesheet stylesheet:objectId density:density basename:basename classes:classNames];
+
+		    
+		    NSDictionary *merge = [stylesheet stylesheet:objectId density:density basename:basename classes:classNames tags:[NSArray arrayWithObject:type]];
 			if (merge!=nil)
 			{
 				// incoming keys take precendence over existing stylesheet keys
@@ -885,8 +903,6 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(void)dealloc
 {
-	[self _destroy];
-	
 	RELEASE_TO_NIL(pendingAdds);
 	RELEASE_TO_NIL(destroyLock);
 	pthread_rwlock_destroy(&childrenLock);
@@ -894,6 +910,11 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	//Dealing with children is in _destroy, which is called by super dealloc.
 	
 	[super dealloc];
+}
+
+-(BOOL)retainsJsObjectForKey:(NSString *)key
+{
+	return ![key isEqualToString:@"animation"];
 }
 
 -(void)firePropertyChanges
@@ -970,6 +991,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 
 	pthread_rwlock_wrlock(&childrenLock);
+	[children makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
 	RELEASE_TO_NIL(children);
 	pthread_rwlock_unlock(&childrenLock);
 	[super _destroy];
@@ -1095,6 +1117,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(void)animationCompleted:(TiAnimation*)animation
 {
+	[self forgetProxy:animation];
 	[[self view] animationCompleted];
 }
 
@@ -1401,7 +1424,16 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		CGRect oldFrame = [[self view] frame];
 		if(![self suppressesRelayout])
 		{
-			sandboxBounds = [[[self view] superview] bounds];
+			UIView * ourSuperview = [[self view] superview];
+			if(ourSuperview == nil)
+			{
+				//TODO: Should we even be relaying out? I guess so.
+				sandboxBounds = CGRectZero;
+			}
+			else
+			{
+				sandboxBounds = [ourSuperview bounds];
+			}
 			[self relayout];
 		}
 		[self layoutChildren:NO];
@@ -1638,7 +1670,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		return;
 	}
 	if ([NSThread isMainThread])
-	{	//NOTE: This will cause problems with ScrollableView, or is a new wrapper needed?		
+	{	//NOTE: This will cause problems with ScrollableView, or is a new wrapper needed?
 		[self willChangeSize];
 		[self willChangePosition];
 	

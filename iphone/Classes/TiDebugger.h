@@ -7,9 +7,22 @@
 
 #include "TiBase.h"
 
-extern "C" void* TiDebuggerCreate(KrollContext*,TiObjectRef);
-extern "C" void  TiDebuggerDestroy(KrollContext*,TiObjectRef,void*);
-extern "C" void  TiDebuggerStart(NSString*,int);
-extern "C" void  TiDebuggerStop();
-extern "C" void  TiDebuggerBeginScript(KrollContext*,const char*);
-extern "C" void  TiDebuggerEndScript(KrollContext*);
+typedef enum {
+    OUT,
+    WARN,
+    ERR
+} DebuggerLogLevel;
+
+#ifdef __cplusplus
+#define EXTERN_FUNC extern "C"
+#else
+#define EXTERN_FUNC extern
+#endif
+
+EXTERN_FUNC void* TiDebuggerCreate(KrollContext*,TiObjectRef);
+EXTERN_FUNC void  TiDebuggerDestroy(KrollContext*,TiObjectRef,void*);
+EXTERN_FUNC void  TiDebuggerStart(NSString*,int);
+EXTERN_FUNC void  TiDebuggerStop();
+EXTERN_FUNC void  TiDebuggerBeginScript(KrollContext*,const char*);
+EXTERN_FUNC void  TiDebuggerEndScript(KrollContext*);
+EXTERN_FUNC void  TiDebuggerLogMessage(DebuggerLogLevel level,NSString* message);

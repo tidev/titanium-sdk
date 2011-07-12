@@ -23,6 +23,7 @@ import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
 import android.app.Service;
+import android.content.Context;
 import android.content.ContextWrapper;
 import android.os.Looper;
 import android.os.Message;
@@ -286,22 +287,22 @@ public class TiContext implements ErrorReporter
 	@Override
 	public void error(String message, String sourceName, int line, String lineSource, int lineOffset)
 	{
-		TiJSErrorDialog.openErrorDialog(getActivity(),
+		TiJSErrorDialog.openErrorDialog(this, getActivity(),
 			"Error", message, sourceName, line, lineSource, lineOffset);
 	}
 
 	@Override
 	public EvaluatorException runtimeError(String message, String sourceName, int line, String lineSource, int lineOffset)
 	{
-		TiJSErrorDialog.openErrorDialog(getActivity(),
+		TiJSErrorDialog.openErrorDialog(this, getActivity(),
 			"Runtime Error", message, sourceName, line, lineSource, lineOffset);
-		return null;
+		return new EvaluatorException(message, sourceName, line, lineSource, lineOffset);
 	}
 
 	@Override
 	public void warning(String message, String sourceName, int line, String lineSource, int lineOffset)
 	{
-		TiJSErrorDialog.openErrorDialog(getActivity(),
+		TiJSErrorDialog.openErrorDialog(this, getActivity(),
 			"Warning", message, sourceName, line, lineSource, lineOffset);
 	}
 

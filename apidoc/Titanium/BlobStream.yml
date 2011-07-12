@@ -1,0 +1,6 @@
+---
+name: Titanium.BlobStream
+extends: Titanium.IOStream
+description: Wrapper around `Titanium.Blob` that implements the `Titanium.IOStream` interface
+since: "1.7"
+

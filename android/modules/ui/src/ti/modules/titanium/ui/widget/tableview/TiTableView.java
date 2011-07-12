@@ -361,6 +361,7 @@ public class TiTableView extends FrameLayout
 
 		if(item.proxy != null && item.proxy instanceof TableViewRowProxy) {
 			TableViewRowProxy rp = (TableViewRowProxy) item.proxy;
+			event.put(TiC.EVENT_PROPERTY_SOURCE, rp);
 			if (rp.hasListeners(TiC.EVENT_CLICK)) {
 				rp.fireEvent(TiC.EVENT_CLICK, event);
 			}

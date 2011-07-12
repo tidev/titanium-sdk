@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2010-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -71,6 +71,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 	protected static final String Kroll_proxy_DEFAULT = Kroll_proxy+ ".DEFAULT";
 	protected static final String Kroll_setProperty = Kroll_annotation + ".setProperty";
 	protected static final String Kroll_topLevel = Kroll_annotation + ".topLevel";
+	protected static final String Kroll_dynamicApis = Kroll_annotation + ".dynamicApis";
 	
 	protected static final String KrollInvocation = "org.appcelerator.kroll.KrollInvocation";
 	protected static final String KrollConverter = "org.appcelerator.kroll.KrollConverter";
@@ -225,14 +226,16 @@ public class KrollBindingGenerator extends AbstractProcessor {
 				if (proxyAttrs.containsKey("creatableInModule")) {
 					String createInModuleClass = (String) proxyAttrs.get("creatableInModule");
 					if (!createInModuleClass.equals(Kroll_proxy_DEFAULT)) {
-						jsonUtils.appendUnique(getModule(createInModuleClass), "createProxies", proxyAttrs);
+						jsonUtils.appendUniqueObject(getModule(createInModuleClass), "createProxies",
+							"proxyClassName", proxyAttrs);
 					}
 				}
 				
 				if (proxyAttrs.containsKey("parentModule")) {
 					String parentModuleClass = (String) proxyAttrs.get("parentModule");
 					if (!parentModuleClass.equals(Kroll_module_DEFAULT)) {
-						jsonUtils.appendUnique(getModule(parentModuleClass), "childModules", proxyAttrs);
+						jsonUtils.appendUniqueObject(getModule(parentModuleClass), "childModules",
+							"proxyClassName", proxyAttrs);
 					} else {
 						proxyAttrs.remove("parentModule");
 					}
@@ -249,7 +252,19 @@ public class KrollBindingGenerator extends AbstractProcessor {
 					
 					proxyAttrs.put("topLevelNames", topLevelNames);
 				}
-				
+
+				BindingVisitor visitor = new BindingVisitor();
+				final BindingVisitor fVisitor = visitor;
+				if (utils.hasAnnotation(element, Kroll_dynamicApis)) {
+					utils.acceptAnnotations(element, Kroll_dynamicApis, new KrollVisitor<AnnotationMirror>() {
+						@Override
+						public boolean visit(AnnotationMirror annotation, Object arg) {
+							fVisitor.visitDynamicApis(annotation);
+							return true;
+						}
+					});
+				}
+
 				TypeElement type = (TypeElement) element;
 				Element superType = processingEnv.getTypeUtils().asElement(type.getSuperclass());
 				
@@ -270,7 +285,6 @@ public class KrollBindingGenerator extends AbstractProcessor {
 					getModule(packageName+"."+proxyClassName).put("apiName", apiName);
 				}
 				
-				BindingVisitor visitor = new BindingVisitor();
 				for (Element e : element.getEnclosedElements()) {
 					e.accept(visitor, null);
 				}
@@ -307,6 +321,8 @@ public class KrollBindingGenerator extends AbstractProcessor {
 					visitInject(annotation, element, true);
 				} else if (utils.annotationTypeIs(annotation, Kroll_topLevel)) {
 					visitTopLevel(annotation, element);
+				} else if (utils.annotationTypeIs(annotation, Kroll_dynamicApis)) {
+					visitDynamicApis(annotation);
 				} else {
 					visitMethod(annotation, element);
 				}
@@ -522,6 +538,23 @@ public class KrollBindingGenerator extends AbstractProcessor {
 			}
 			
 			topLevelMethods.put(utils.getName(element), topLevelNames);
+		}
+		
+		protected void visitDynamicApis(AnnotationMirror annotation) {
+			Map<Object, Object> dynamicApis = jsonUtils.getOrCreateMap(proxyProperties, "dynamicApis");
+			HashMap<String, Object> attrs = utils.getAnnotationParams(annotation);
+			List<Object> properties = (List<Object>) attrs.get("properties");
+			List<Object> methods = (List<Object>) attrs.get("methods");
+			for (Object p : properties) {
+				if (!p.equals(DEFAULT_NAME)) {
+					jsonUtils.getOrCreateList(dynamicApis, "properties").add(p);
+				}
+			}
+			for (Object m : methods) {
+				if (!m.equals(DEFAULT_NAME)) {
+					jsonUtils.getOrCreateList(dynamicApis, "methods").add(m);
+				}
+			}
 		}
 	}
 	

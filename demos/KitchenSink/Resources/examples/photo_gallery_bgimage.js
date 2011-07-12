@@ -27,9 +27,9 @@ add.addEventListener('click',function()
 			{
 				bgImage.deleteFile();
 			}
- 			bgImage = Titanium.Filesystem.getFile(filename);
+			bgImage = Titanium.Filesystem.getFile(filename);
 			bgImage.write(image);
-						
+			
 			win.backgroundImage = null;
 			win.backgroundImage = bgImage.nativePath;	
 		},

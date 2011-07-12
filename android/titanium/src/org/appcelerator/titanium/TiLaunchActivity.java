@@ -9,6 +9,7 @@ package org.appcelerator.titanium;
 import java.io.IOException;
 import java.util.Set;
 
+import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiBindingHelper;
@@ -55,7 +56,12 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	 * This happens before the script is loaded.
 	 */
 	protected void contextCreated() { }
-	
+
+	public TiContext getTiContext()
+	{
+		return tiContext;
+	}
+
 	protected void loadActivityScript()
 	{
 		try {
@@ -78,6 +84,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		getTiApp().setCurrentActivity(this, this);
 		Intent intent = getIntent();
 		if (intent != null) {
 			if (checkMissingLauncher(intent, savedInstanceState)) {
@@ -99,6 +106,9 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void windowCreated()
 	{
+		ITiAppInfo appInfo = getTiApp().getAppInfo();
+		getIntent().putExtra(TiC.PROPERTY_FULLSCREEN, appInfo.isFullscreen());
+		getIntent().putExtra(TiC.PROPERTY_NAV_BAR_HIDDEN, appInfo.isNavBarHidden());
 		super.windowCreated();
 		loadActivityScript();
 		scriptLoaded();
@@ -232,6 +242,10 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	{
 		if (tiContext != null) {
 			tiContext.fireLifecycleEvent(this, TiContext.LIFECYCLE_ON_DESTROY);
+			TiApplication tiApp = tiContext.getTiApp();
+			if (tiApp != null) {
+				tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppEndEvent());
+			}
 		}
 		super.onDestroy();
 	}

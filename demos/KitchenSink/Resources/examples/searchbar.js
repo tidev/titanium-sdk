@@ -54,7 +54,7 @@ var b3 = Titanium.UI.createButton({
 win.add(b3);
 b3.addEventListener('click', function()
 {
-	search.showCancel = (search.showCancel==true)?false:true;
+	search.showCancel = (search.showCancel === true)?false:true;
 });
 
 //

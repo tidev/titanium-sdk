@@ -5,12 +5,18 @@
 
 import os, sys, platform, glob, subprocess, types, re
 
+DEFAULT_API_LEVEL = 7
+
 android_api_levels = {
 	3: 'android-1.5',
 	4: 'android-1.6',
 	5: 'android-2.0',
 	6: 'android-2.0.1',
-	7: 'android-2.1'
+	7: 'android-2.1',
+	8: 'android-2.2',
+	9: 'android-2.3',
+	10: 'android-2.3.3',
+	11: 'android-3.0'
 }
 
 class Device:
@@ -36,7 +42,7 @@ class Device:
 		return self.offline
 
 class AndroidSDK:
-	def __init__(self, android_sdk, api_level):
+	def __init__(self, android_sdk, api_level=DEFAULT_API_LEVEL):
 		self.android_sdk = self.find_sdk(android_sdk)
 		if self.android_sdk is None:
 			raise Exception('No Android SDK directory found')
@@ -170,6 +176,13 @@ class AndroidSDK:
 		return self.get_sdk_tool('zipalign')
 
 	def get_aapt(self):
+		# for aapt (and maybe eventually for others) we
+		# want to favor platform-tools over android-x/tools
+		# because of new resource qualifiers for honeycomb
+		sdk_platform_tools_dir = self.get_sdk_platform_tools_dir()
+		if not sdk_platform_tools_dir is None and os.path.exists(os.path.join(sdk_platform_tools_dir, 'aapt')):
+			return os.path.join(sdk_platform_tools_dir, 'aapt')
+
 		return self.get_platform_tool('aapt')
 
 	def get_apkbuilder(self):
@@ -305,7 +318,7 @@ if __name__ == "__main__":
 	if sdk_path == '-':
 		sdk_path = None
 
-	api_level = 7
+	api_level = DEFAULT_API_LEVEL
 	if len(sys.argv) > 2:
 		api_level = int(sys.argv[2])
 	try:

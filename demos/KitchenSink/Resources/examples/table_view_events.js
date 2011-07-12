@@ -63,11 +63,11 @@ tableView.addEventListener('click', function(e)
 });
 tableView.addEventListener('swipe', function(e)
 {
-	tvLabel2.text = 'table view swipe at ' + new Date().getSeconds();
+	tv2Label.text = 'table view swipe at ' + new Date().getSeconds();
 });
 tableView.addEventListener('dblckick', function(e)
 {
-	tvLabel2.text = 'table view dblclick at '  +new Date().getSeconds();
+	tv2Label.text = 'table view dblclick at '  +new Date().getSeconds();
 });
 win.add(tableView);
 
@@ -83,7 +83,7 @@ for (var i=0;i<10;i++)
 	});
 	
 	var imageView = Ti.UI.createImageView({
-		url:'../images/apple_logo.jpg',
+		image:'../images/apple_logo.jpg',
 		left:0,
 		width:30
 	});

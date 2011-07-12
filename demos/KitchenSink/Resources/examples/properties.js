@@ -49,6 +49,7 @@ Titanium.API.debug('String: ' + resultHelper(Ti.App.Properties.getString('whatev
 
 // First StringList Test
 var defaultString = new Array("testOne","testTwo");
+
 Titanium.API.debug('StringList-1: ' + resultHelper(Ti.App.Properties.getList('whatever',defaultString),defaultString));
 // Second StringList Test
 defaultString = new Array();

@@ -40,7 +40,7 @@ win.add(label);
 
 picker.addEventListener('change',function(e)
 {
-	label.text = e.value;
+	label.text = e.value.toLocaleString();
 });
 
 var locale = false;

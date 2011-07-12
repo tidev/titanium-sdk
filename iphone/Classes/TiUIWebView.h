@@ -18,10 +18,16 @@
 	NSString *pageToken;
 	BOOL scalingOverride;
 	NSString *basicCredentials;
+	
+	//TODO: make more elegant
+	BOOL ignoreNextRequest;
+	id reloadData;
+	SEL reloadMethod;
 }
 
 @property(nonatomic,readonly) id url;
 @property(nonatomic,readonly) id loading;
+@property(nonatomic,readwrite,retain) id reloadData;
 
 -(void)evalJS:(NSArray*)args;
 -(id)evalJSAndWait:(NSString *)code;

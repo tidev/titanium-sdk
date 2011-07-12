@@ -36,7 +36,7 @@ Titanium.Media.openPhotoGallery({
 		}
 		else
 		{
-
+			// is this necessary?
 		}
 
 		Titanium.API.info('PHOTO GALLERY SUCCESS cropRect.x ' + cropRect.x + ' cropRect.y ' + cropRect.y  + ' cropRect.height ' + cropRect.height + ' cropRect.width ' + cropRect.width);

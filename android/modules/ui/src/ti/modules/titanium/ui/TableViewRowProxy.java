@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -24,7 +24,16 @@ import android.app.Activity;
 import android.os.Message;
 import android.test.IsolatedContext;
 
-@Kroll.proxy(creatableInModule=UIModule.class)
+@Kroll.proxy(creatableInModule=UIModule.class,
+propertyAccessors = {
+	TiC.PROPERTY_HAS_CHECK,
+	TiC.PROPERTY_HAS_CHILD,
+	TiC.PROPERTY_CLASS_NAME,
+	TiC.PROPERTY_LAYOUT,
+	TiC.PROPERTY_LEFT_IMAGE,
+	TiC.PROPERTY_RIGHT_IMAGE,
+	TiC.PROPERTY_TITLE
+})
 public class TableViewRowProxy extends TiViewProxy
 {
 	private static final String LCAT = "TableViewRowProxy";

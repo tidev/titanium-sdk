@@ -68,6 +68,15 @@ describe("Ti.Properties tests", {
 		valueOf(Ti.App.Properties.getString('String')).shouldBeNull();
 		Titanium.App.Properties.removeProperty('Int');
 		valueOf(Ti.App.Properties.getString('Int')).shouldBeNull();
+	},
+
+	doublePrecision: function() {
+		var now = new Date();
+		var time = now.getTime();
+		Ti.App.Properties.setDouble('time', time);
+
+		var value = Ti.App.Properties.getDouble('time');
+		valueOf(value).shouldBe(time);
 	}
 });
 

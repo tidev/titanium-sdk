@@ -62,6 +62,35 @@ win.add(l);
 
 // test to make sure we can still access compiled JS files
 var jsfile = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory,'app.js');
-Ti.API.info("app.js exists? " + f.exists());
-Ti.API.info("app.js size? " + f.size);
+Ti.API.info("app.js exists? " + jsfile.exists());
+Ti.API.info("app.js size? " + jsfile.size);
 
+// test to make sure that #3385 is resolved - we can append files, blobs or strings to a file
+// this will go away once Streams are fully integrated into the Filesystem API.
+
+var testfile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'text.txt');
+Ti.API.info('text.txt exists? ' + testfile.exists());
+Ti.API.info('text.txt size: ' + testfile.size + ' bytes');
+
+if(!testfile.write("text written via write()\n")) {
+	Ti.API.info("could not write string to file.");
+}
+
+if(!testfile.write(Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'text_two.txt'), true)) {
+	Ti.API.info("could not append File object to file via write method.");
+}
+
+if(!testfile.write("\nText appended via write()", true)) {
+	Ti.API.info("could not append string to file via write method.");
+}
+
+Ti.API.info("------------");
+Ti.API.info("Test file contents:\n" + (testfile.read()).text);
+
+//these should all fail
+var bad_params = [10000, true, {}];
+for(var i = 0, j = bad_params.length; i < j; i++) {
+	if(!testfile.write(bad_params[i])) {
+		Ti.API.info('Expected failure: (first parameter is "' + (typeof bad_params[i]) + '")');
+	}
+}

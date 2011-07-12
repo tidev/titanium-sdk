@@ -61,7 +61,7 @@ if __name__ == "__main__":
 		print 'Usage: %s <path/to/android-sdk> (device|emulator)' % sys.argv[0]
 		sys.exit(-1)
 
-	sdk = androidsdk.AndroidSDK(sys.argv[1], 4)
+	sdk = androidsdk.AndroidSDK(sys.argv[1])
 
 	hard_timeout = 20
 	type = "e"

@@ -17,7 +17,7 @@ var items = [
 	{title:'Date Picker', hasChild:true, test:'../examples/picker_date1.js'},
 	{title:'Time Picker', hasChild:true, test:'../examples/picker_date2.js'},
 	{title:'Date/Time Picker', hasChild:true, test:'../examples/picker_date3.js', noandroid:true},
-	{title:'Countdown Picker', hasChild:true, test:'../examples/picker_date4.js', noandroid:true},
+	{title:'Countdown Picker', hasChild:true, test:'../examples/picker_date4.js', noandroid:true}
 ];
 
 var data = items;

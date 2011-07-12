@@ -125,7 +125,7 @@ tb4.addEventListener('click', function(e)
 var buttonObjects = [
 	{title:'Toggle Style', width:110, enabled:false},
 	{image:'../images/slider_thumb.png', width:50},
-	{title:'Toggle Enabled', width:140},
+	{title:'Toggle Enabled', width:140}
 ];
 var tb4 = Titanium.UI.createTabbedBar({
 	labels:buttonObjects,
@@ -158,7 +158,7 @@ tb4.addEventListener('click', function(e)
 	// toggle enabled
 	else if (e.index == 2)
 	{
-		buttonObjects[0].enabled = (buttonObjects[0].enabled==false)?true:false;
+		buttonObjects[0].enabled = (buttonObjects[0].enabled === false)?true:false;
 		tb4.labels = buttonObjects;
 	}
 	l.text = 'You clicked index = ' + e.index;

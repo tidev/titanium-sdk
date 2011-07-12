@@ -14,9 +14,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -36,7 +39,6 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Environment;
 import android.webkit.URLUtil;
 
@@ -144,6 +146,14 @@ public class TiFileHelper
 					Log.e(LCAT, "Unknown section identifier: " + section);
 				}
 			} else if (URLUtil.isNetworkUrl(path)) {
+				try {
+					URI uri = new URI(path);
+					if (TiResponseCache.peek(uri)) {
+						return TiResponseCache.openCachedStream(uri);
+					}
+				} catch (URISyntaxException uriException) {
+				}
+
 				URL u = new URL(path);
 				InputStream lis = u.openStream();
 				ByteArrayOutputStream bos = null;
@@ -236,7 +246,7 @@ public class TiFileHelper
 		if (context == null) {
 			return loadDrawable(path, report, checkForNinePatch);
 		}
-		
+
 		// getResourceDrawable wants a resolved url
 		String url = path;
 		if (!url.startsWith("file:")) {

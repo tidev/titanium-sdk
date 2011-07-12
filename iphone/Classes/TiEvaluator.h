@@ -21,6 +21,8 @@
 
 - (void)evalFile:(NSString*)file;
 
+- (BOOL)evaluationError;
+
 // NOTE: this must only be called on a thread JS thread or an exception will occur
 - (id)evalJSAndWait:(NSString*)code;
 
@@ -30,9 +32,16 @@
 
 - (KrollContext*)krollContext;
 
-- (void)registerProxy:(id)proxy;
+//Creates a kroll object to be used with the proxy.
+- (id)registerProxy:(id)proxy;
 
+//Removes the kroll object and the proxy.
 - (void)unregisterProxy:(id)proxy;
 
+//Returns YES if and only iff the proxy has been registered.
+- (BOOL)usesProxy:(id)proxy;
+
+//Returns the kroll object created iff the proxy has been registered. Otherwise, returns nil.
+- (id)krollObjectForProxy:(id)proxy;
 
 @end

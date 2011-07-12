@@ -50,13 +50,21 @@ public class TabGroupProxy extends TiWindowProxy
 	String windowId;
 	Object initialActiveTab; // this can be index or tab object
 
-	public TabGroupProxy(TiContext tiContext) {
+	public TabGroupProxy(TiContext tiContext)
+	{
 		super(tiContext);
 		initialActiveTab = null;
 	}
 
 	@Override
-	public TiUIView getView(Activity activity) {
+	public boolean requiresNewActivity(KrollDict extraOptions)
+	{
+		return true;
+	}
+
+	@Override
+	public TiUIView getView(Activity activity)
+	{
 		throw new IllegalStateException("call to getView on a Window");
 	}
 
@@ -90,7 +98,8 @@ public class TabGroupProxy extends TiWindowProxy
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public TabProxy[] getTabs() {
+	public TabProxy[] getTabs()
+	{
 		TabProxy[] tps = null;
 
 		if (tabs != null) {
@@ -189,7 +198,8 @@ public class TabGroupProxy extends TiWindowProxy
 	public void handleRemoveTab(TabProxy tab) { }
 
 	@Kroll.setProperty(runOnUiThread=true) @Kroll.method(runOnUiThread=true)
-	public void setActiveTab(Object tab) {
+	public void setActiveTab(Object tab)
+	{
 		if (peekView() != null) {
 			TiUITabGroup tg = (TiUITabGroup) peekView();
 			tg.changeActiveTab(tab);
@@ -201,7 +211,8 @@ public class TabGroupProxy extends TiWindowProxy
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public TabProxy getActiveTab() {
+	public TabProxy getActiveTab()
+	{
 		TabProxy activeTab = null;
 		
 		if (peekView() != null) {
@@ -267,11 +278,13 @@ public class TabGroupProxy extends TiWindowProxy
 		tg.changeActiveTab(initialActiveTab);
 
 		opened = true;
+		super.handlePostOpen();
 		fireEvent(TiC.EVENT_OPEN, null);
 	}
 
 	@Override
-	protected void handleClose(KrollDict options) {
+	protected void handleClose(KrollDict options)
+	{
 		if (DBG) {
 			Log.d(LCAT, "handleClose: " + options);
 		}
@@ -316,7 +329,8 @@ public class TabGroupProxy extends TiWindowProxy
 		return e;
 	}
 
-	private int indexForId(String id) {
+	private int indexForId(String id)
+	{
 		int index = -1;
 
 		int i = 0;
@@ -357,9 +371,10 @@ public class TabGroupProxy extends TiWindowProxy
 		intent.putExtra(TiC.INTENT_PROPERTY_MESSENGER, messenger);
 		intent.putExtra(TiC.INTENT_PROPERTY_MSG_ID, MSG_FINISH_OPEN);
 	}
-	
+
 	@Override
-	public KrollDict handleToImage() {
+	public KrollDict handleToImage()
+	{
 		return TiUIHelper.viewToImage(getTiContext(), this.properties, getTiContext().getActivity().getWindow().getDecorView());
 	}
 
@@ -380,7 +395,8 @@ public class TabGroupProxy extends TiWindowProxy
 	}
 
 	@Override
-	protected Activity handleGetActivity() {
+	protected Activity handleGetActivity()
+	{
 		return weakActivity.get();
 	}
 }

@@ -188,15 +188,25 @@ enum
 	{
 		RELEASE_TO_NIL(popover);
 		UIView *poView = [tiApp controller].view;
+		CGRect poFrame;
 		TiViewProxy* popoverViewProxy = [args objectForKey:@"popoverView"];
+		UIPopoverArrowDirection arrow = [TiUtils intValue:@"arrowDirection" properties:args def:UIPopoverArrowDirectionAny];
+
 		if (popoverViewProxy!=nil)
 		{
 			poView = [popoverViewProxy view];
+			poFrame = [poView frame];
 		}
-		UIPopoverArrowDirection arrow = [TiUtils intValue:@"arrowDirection" properties:args def:UIPopoverArrowDirectionAny];
+		else
+		{
+			arrow = UIPopoverArrowDirectionAny;
+			poFrame = [poView bounds];
+			poFrame.size.height = 50;
+		}
+
 		popover = [[UIPopoverController alloc] initWithContentViewController:picker_];
 		[popover setDelegate:self];
-		[popover presentPopoverFromRect:poView.frame inView:poView permittedArrowDirections:arrow animated:animatedPicker];
+		[popover presentPopoverFromRect:poFrame inView:poView permittedArrowDirections:arrow animated:animatedPicker];
 	}
 #endif
 }
@@ -220,6 +230,10 @@ enum
 
 - (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController
 {
+	if([popoverController contentViewController] == musicPicker) {
+		RELEASE_TO_NIL(musicPicker);
+	}
+	
 	RELEASE_TO_NIL(popover);
 }
 

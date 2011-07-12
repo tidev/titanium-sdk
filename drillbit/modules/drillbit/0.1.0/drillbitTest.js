@@ -13,7 +13,8 @@ var DrillbitTest =
 	failed:0,
 	totalAssertions:0,
 	autoRun: true,
-	
+	completed: false,
+
 	fireEvent: function(name, event) {
 		event.name = name;
 		event.suite = DrillbitTest.NAME;
@@ -68,6 +69,7 @@ var DrillbitTest =
 	},
 	
 	complete: function() {
+		this.completed = true;
 		try {
 			var results = this.getResults();
 			// logcat has a character limit in Android, so we save to the sdcard and pull down from Drillbit
@@ -75,7 +77,16 @@ var DrillbitTest =
 				var resultsFile = Ti.Filesystem.getFile("appdata://results.json");
 				results.suite = DrillbitTest.NAME;
 				resultsFile.write(JSON.stringify(results));
+				Ti.dumpCoverage();
 				this.fireEvent("completeAndroid", {});
+				try {
+					if (TestHarnessRunner) {
+						var bundle = new (Packages.android.os.Bundle)();
+						TestHarnessRunner.finish(Ti.Android.RESULT_OK, bundle);
+					}
+				} catch (e) {
+					Titanium.API.debug('TestHarnessRunner not defined, skipping automated finish');
+				}
 			} else {
 				this.fireEvent("complete", results);
 			}
@@ -119,6 +130,11 @@ function valueOf(obj)
 	return subject;
 }
 
+function fail(message, lineNumber)
+{
+	throw new DrillbitTest.Error(message, lineNumber);
+}
+
 DrillbitTest.Error = function(message,line)
 {
 	this.message = message;
@@ -156,8 +172,13 @@ DrillbitTest.Scope.prototype.passed = function()
 	{
 		this._completed = true;
 		if (DrillbitTest.currentSubject)
-		{
-			DrillbitTest.testPassed(this._testName,DrillbitTest.currentSubject.lineNumber);
+		{	
+			var lineNumber = 0;
+			if ("lineNumber" in DrillbitTest.currentSubject) {
+				lineNumber = DrillbitTest.currentSubject.lineNumber;
+			}
+			DrillbitTest.testPassed(this._testName, lineNumber);
+
 		}
 		else
 		{
@@ -427,6 +448,18 @@ DrillbitTest.Subject.prototype.shouldBeLessThanEqual = function(expected, lineNu
 
 DrillbitTest.Subject.prototype.shouldThrowException = function(expected,lineNumber)
 {
+	if (Titanium.Platform.name == 'iPhone OS' || Titanium.Platform.name == 'iOS')
+	{
+		// iOS 4.0+ Simulator doesn't correctly propagate exceptions, so we ignore
+		// for iOS and issue a warning. Ticket:
+		// http://jira.appcelerator.org/browse/TIMOB-3561
+		Ti.API.warn("Not running test: ignoring shouldThrowException on line " + lineNumber + " in iOS, see http://jira.appcelerator.org/browse/TIMOB-3561");
+		
+		this.lineNumber = lineNumber;
+		DrillbitTest.assertion(this);
+		return;
+	}
+
 	this.lineNumber = lineNumber;
 	DrillbitTest.assertion(this);
 	if (typeof(this.target) == 'function')

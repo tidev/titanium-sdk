@@ -13,6 +13,7 @@
 	#import "XHRBridge.h"
 #endif
 #import "TiRootViewController.h"
+#import <TiCore/TiContextRef.h>
 
 @interface TiApp : TiHost <UIApplicationDelegate> 
 {
@@ -21,7 +22,8 @@
 	BOOL splashAttached;
 	BOOL loaded;
 	BOOL handledModal;
-	
+
+	TiContextGroupRef contextGroup;
 	KrollBridge *kjsBridge;
 
 #ifdef USE_TI_UIWEBVIEW
@@ -54,10 +56,11 @@
 @property (nonatomic, assign) id remoteNotificationDelegate;
 @property (nonatomic, readonly) NSDictionary* remoteNotification;
 @property (nonatomic, retain) UIViewController<TiRootController>* controller;
-
+@property (nonatomic, readonly) TiContextGroupRef contextGroup;
 +(TiApp*)app;
 //Convenience method
 +(UIViewController<TiRootController>*)controller;
++(TiContextGroupRef)contextGroup;
 
 -(void)attachXHRBridgeIfRequired;
 

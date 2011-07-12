@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,7 +9,6 @@ package ti.modules.titanium.ui;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIActivityIndicator;
@@ -17,7 +16,13 @@ import android.app.Activity;
 
 @Kroll.proxy(creatableInModule=UIModule.class,
 	propertyAccessors={"message", "value"})
-public class ActivityIndicatorProxy extends TiViewProxy
+@Kroll.dynamicApis(properties = {
+	"location", "min", "max",
+	"messageid", "type"
+}, methods = {
+	"hide", "show"
+})
+public class ActivityIndicatorProxy extends TiDialogProxy
 {
 	public ActivityIndicatorProxy(TiContext tiContext)
 	{
@@ -27,7 +32,7 @@ public class ActivityIndicatorProxy extends TiViewProxy
 	@Override
 	protected KrollDict getLangConversionTable() {
 		KrollDict table = new KrollDict();
-		table.put("message","messageid");
+		table.put("message", "messageid");
 		return table;
 	}
 

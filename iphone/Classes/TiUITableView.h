@@ -25,7 +25,7 @@
 	CGPoint hitPoint;
 }
 @property (nonatomic,readonly) CGPoint hitPoint;
-@property (nonatomic,readonly) TiUITableViewRowProxy* proxy;
+@property (nonatomic,readwrite) TiUITableViewRowProxy* proxy;
 
 -(id)initWithStyle:(UITableViewCellStyle)style_ reuseIdentifier:(NSString *)reuseIdentifier_ row:(TiUITableViewRowProxy*)row_;
 
@@ -35,13 +35,13 @@
 -(void) setSelectedBackgroundGradient_:(TiGradient *)newGradient;
 
 -(void) updateGradientLayer:(BOOL)useSelected;
+-(CGSize)computeCellSize;
 
 @end
 
 @interface TiUITableView : TiUIView<UISearchDisplayDelegate,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate,TiUIScrollView> {
 @private
 	UITableView *tableview;
-	NSMutableArray *sections;
 	BOOL moving;
 	BOOL editing;
 	BOOL searchHidden;
@@ -75,9 +75,7 @@
 -(NSInteger)indexForRow:(TiUITableViewRowProxy*)row;
 -(TiUITableViewRowProxy*)rowForIndex:(NSInteger)index section:(NSInteger*)section;
 -(void)updateSearchView;
--(NSMutableArray*)sections;
 -(void)replaceData:(NSArray*)data animation:(UITableViewRowAnimation)animation;
--(void)detachContents;
 
 -(void)dispatchAction:(TiUITableViewAction*)action;
 -(void)scrollToIndex:(NSInteger)index position:(UITableViewScrollPosition)position animated:(BOOL)animated;
@@ -86,7 +84,7 @@
 -(IBAction)hideSearchScreen:(id)sender;
 -(UITableView*)searchTableView;
 -(UITableView*)tableView;
-
+-(CGFloat)tableRowHeight:(CGFloat)height;
 
 @end
 

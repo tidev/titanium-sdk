@@ -31,12 +31,10 @@ public class TiRootActivity extends TiLaunchActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		getTiApp().setCurrentActivity(this, this);
 		Log.checkpoint(LCAT, "checkpoint, on root activity create, savedInstanceState: " + savedInstanceState);
 		TiApplication app = getTiApp();
 		app.setRootActivity(this);
-
-		setFullscreen(app.getAppInfo().isFullscreen());
-		setNavBarHidden(app.getAppInfo().isNavBarHidden());
 		super.onCreate(savedInstanceState);
 	}
 
@@ -55,11 +53,13 @@ public class TiRootActivity extends TiLaunchActivity
 		super.onConfigurationChanged(newConfig);
 		try {
 			int backgroundId = TiRHelper.getResource("drawable.background");
-			Drawable d = this.getResources().getDrawable(backgroundId);
-			if (d != null) {
-				Drawable bg = getWindow().getDecorView().getBackground();
-				getWindow().setBackgroundDrawable(d);
-				bg.setCallback(null);
+			if (backgroundId != 0) {
+				Drawable d = this.getResources().getDrawable(backgroundId);
+				if (d != null) {
+					Drawable bg = getWindow().getDecorView().getBackground();
+					getWindow().setBackgroundDrawable(d);
+					bg.setCallback(null);
+				}
 			}
 		} catch (Exception e) {
 			Log.e(LCAT, "Resource not found 'drawable.background': " + e.getMessage());
@@ -80,6 +80,7 @@ public class TiRootActivity extends TiLaunchActivity
 			}
 			tiContext.release();
 		}
+		TiFastDev.onDestroy();
 	}
 
 	public TiContext getTiContext()

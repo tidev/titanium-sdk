@@ -31,6 +31,7 @@
 	if (timer!=nil)
 	{
 		[timer invalidate];
+		RELEASE_TO_NIL(timer);
 	}
 	if (player!=nil)
 	{
@@ -71,6 +72,7 @@
 		}
 		player = [[AudioStreamer alloc] initWithURL:url];
 		[player setDelegate:self];
+        [player setBufferSize:bufferSize];
 		
 		if (progress)
 		{
@@ -164,8 +166,25 @@ PLAYER_PROP_DOUBLE(bitRate,bitRate);
 PLAYER_PROP_DOUBLE(progress,progress);
 PLAYER_PROP_DOUBLE(state,state);
 
+-(void)setBufferSize:(NSNumber*)bufferSize_
+{
+    bufferSize = [bufferSize_ unsignedIntegerValue];
+    if (player != nil) {
+        [player setBufferSize:bufferSize];
+    }
+}
+
+-(NSNumber*)bufferSize
+{
+    return [NSNumber numberWithUnsignedInteger:((bufferSize) ? bufferSize : kAQDefaultBufSize)];
+}
+
 -(void)setUrl:(id)args
 {
+	if (![NSThread isMainThread]) {
+		[self performSelectorOnMainThread:@selector(setUrl:) withObject:args waitUntilDone:YES];
+		return;
+	}
 	RELEASE_TO_NIL(url);
 	ENSURE_SINGLE_ARG(args,NSString);
 	url = [[TiUtils toURL:args proxy:self] retain];
@@ -203,6 +222,10 @@ PLAYER_PROP_DOUBLE(state,state);
 
 -(void)stop:(id)args
 {
+	if (![NSThread isMainThread]) {
+		[self performSelectorOnMainThread:@selector(stop:) withObject:args waitUntilDone:YES];
+		return;
+	}
 	if (player!=nil)
 	{		
 		if ([player isPlaying] || [player isPaused] || [player isWaiting])
@@ -215,6 +238,10 @@ PLAYER_PROP_DOUBLE(state,state);
 
 -(void)pause:(id)args
 {
+	if (![NSThread isMainThread]) {
+		[self performSelectorOnMainThread:@selector(pause:) withObject:args waitUntilDone:YES];
+		return;
+	}
 	if (player!=nil)
 	{
 		[player pause];

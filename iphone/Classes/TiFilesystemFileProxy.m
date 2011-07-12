@@ -4,19 +4,18 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiFilesystemFileProxy.h"
 
 #ifdef USE_TI_FILESYSTEM
 
 #import "TiUtils.h"
 #import "TiBlob.h"
-
+#import "TiFilesystemFileProxy.h"
+#import "TiFilesystemFileStreamProxy.h"
 
 #define FILE_TOSTR(x) \
 	([x isKindOfClass:[TiFilesystemFileProxy class]]) ? [(TiFilesystemFileProxy*)x nativePath] : [TiUtils stringValue:x]
 
 @implementation TiFilesystemFileProxy
-
 
 -(id)initWithFile:(NSString*)path_
 {
@@ -36,7 +35,7 @@
 
 -(id)nativePath
 {
-	return path;
+	return [[NSURL fileURLWithPath:path] absoluteString];
 }
 
 -(id)exists:(id)args
@@ -153,6 +152,16 @@ FILENOOP(setHidden:(id)x);
 	return NUMBOOL(result);
 }
 
+-(TiFilesystemFileStreamProxy *) open:(id) args {
+	NSNumber *mode;
+	ENSURE_ARG_AT_INDEX(mode, args, 0, NSNumber);
+	ENSURE_VALUE_RANGE([mode intValue], TI_READ, TI_APPEND);
+	
+	NSArray *payload = [NSArray arrayWithObjects:[self path], mode, nil];
+	
+	return [[[TiFilesystemFileStreamProxy alloc] _initWithPageContext:[self executionContext] args:payload] autorelease];
+}
+
 -(id)createFile:(id)args
 {
 	BOOL result = NO;
@@ -212,6 +221,10 @@ FILENOOP(setHidden:(id)x);
 -(NSString *)_grabFirstArgumentAsFileName_:(id)args {
     NSString * arg = [args objectAtIndex:0];
     NSString * file = FILE_TOSTR(arg);
+	NSURL * fileUrl = [NSURL URLWithString:file];
+	if([fileUrl isFileURL]){
+		file = [fileUrl path];
+	}
     NSString * dest = [file stringByStandardizingPath];
 
     return dest;
@@ -260,28 +273,82 @@ FILENOOP(setHidden:(id)x);
 {
 	ENSURE_TYPE(args,NSArray);
 	id arg = [args objectAtIndex:0];
-	if ([arg isKindOfClass:[TiBlob class]]) {
-            TiBlob *blob = (TiBlob*)arg;
-            NSFileHandle *file = [[NSFileHandle fileHandleForUpdatingAtPath:path] retain];
-            if (file) {
-                [file seekToEndOfFile];
-                [file writeData:[blob data]];
-                [file closeFile];
-                [file release];
-                return NUMBOOL(YES);
-            } else {
-                NSLog(@"[ERROR] Can't open file for appending");
-            }
+
+	if([arg isKindOfClass:[TiFile class]]) {
+		//allow the ability to append files to another file
+		//e.g. file.append(Ti.Filesystem.getFile('somewhere'));
+		
+		TiFile *file_arg = (TiFile *) arg;
+		NSError *err = nil;
+		NSString *contents = [NSString stringWithContentsOfFile:[file_arg path] encoding:NSUTF8StringEncoding error:&err];
+		if(contents != nil && err == nil) {
+			arg = contents;
+		} else {
+			NSLog(@"[ERROR] Can't open file (%@) for reading!\n%@", [file_arg path], err);
+			return NUMBOOL(NO);
+		}
+	}		
+
+	if ([arg isKindOfClass:[TiBlob class]] ||
+		[arg isKindOfClass:[NSString class]]) {
+		
+		NSData *data = nil;
+		if([arg isKindOfClass:[NSString class]]) {
+			data = [arg dataUsingEncoding:NSUTF8StringEncoding];
+		} else {
+			data = [(TiBlob*) arg data];
+		}
+		
+		if(data == nil) {
+			return NUMBOOL(NO);
+		}
+				
+		if(![fm fileExistsAtPath:path]) {
+			//create the file if it doesn't exist already
+			NSError *writeError = nil;
+			[data writeToFile:path options:NSDataWritingAtomic error:&writeError];
+			if(writeError != nil) {
+				NSLog(@"[ERROR] Could not write data to file at path \"%@\"", path);
+			}
+			return NUMBOOL(writeError == nil);
+		}	
+		
+		NSFileHandle *handle = [NSFileHandle fileHandleForUpdatingAtPath:path];
+
+		unsigned long long offset = [handle seekToEndOfFile];
+		[handle writeData:data];
+		
+		BOOL success = ([handle offsetInFile] - offset) == [data length];		
+		[handle closeFile];
+		
+		return NUMBOOL(success);
 	} else {
-            NSLog(@"[ERROR] Can only append blobs");
-        }
-        return NUMBOOL(NO);
-}            
+		NSLog(@"[ERROR] Can only append blobs and strings");
+	}
+	return NUMBOOL(NO);
+}
 
 -(id)write:(id)args
 {
-	ENSURE_TYPE(args,NSArray);
+	ENSURE_TYPE(args,NSArray);	
 	id arg = [args objectAtIndex:0];
+
+	//Short-circuit against non-supported types
+	if(!([arg isKindOfClass:[TiFile class]] || [arg isKindOfClass:[TiBlob class]] 
+		 || [arg isKindOfClass:[NSString class]])) {
+		return NUMBOOL(NO);
+	}
+	
+	if([args count] > 1) {
+		ENSURE_TYPE([args objectAtIndex:1], NSNumber);
+		
+		//We have a second argument, is it truthy?
+		//If yes, we'll hand the args to -append:
+		NSNumber *append = [args objectAtIndex:1];
+		if([append boolValue] == YES) {
+			return [self append:[args subarrayWithRange:NSMakeRange(0, 1)]];
+		}
+	}
 	if ([arg isKindOfClass:[TiBlob class]])
 	{
 		TiBlob *blob = (TiBlob*)arg;
@@ -299,11 +366,13 @@ FILENOOP(setHidden:(id)x);
 		}
 		return NUMBOOL(error==nil);
 	}
-	else
-	{
-		NSString *data = [TiUtils stringValue:arg];
-		return NUMBOOL([data writeToFile:path atomically:YES encoding:NSUTF8StringEncoding error:nil]);
+	NSString *data = [TiUtils stringValue:arg];
+	NSError *err = nil;
+	[data writeToFile:path atomically:YES encoding:NSUTF8StringEncoding error:&err];
+	if(err != nil) {
+		NSLog(@"[ERROR] Could not write data to file at path \"%@\" - details: %@", path, err);
 	}
+	return NUMBOOL(err == nil);
 }
 
 -(id)extension:(id)args

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,7 +15,6 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
@@ -23,10 +22,17 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.app.Activity;
 import android.app.LocalActivityManager;
 import android.content.Intent;
-import android.os.Message;
 import android.view.Window;
 
 @Kroll.proxy(creatableInModule=MapModule.class)
+@Kroll.dynamicApis(properties = {
+	TiC.PROPERTY_ANIMATE,
+	TiC.PROPERTY_ANNOTATIONS,
+	TiC.PROPERTY_MAP_TYPE,
+	TiC.PROPERTY_REGION,
+	TiC.PROPERTY_REGION_FIT,
+	TiC.PROPERTY_USER_LOCATION
+})
 public class ViewProxy extends TiViewProxy 
 	implements OnLifecycleEvent 
 {
@@ -159,27 +165,48 @@ public class ViewProxy extends TiViewProxy
 	public void selectAnnotation(Object[] args)
 	{
 		String title = null;
+		boolean animate = false;
+		boolean center = true; // keep existing default behavior
 
-		if (args.length > 0) {
-			if (args[0] instanceof AnnotationProxy) {
-				title = TiConvert.toString(((AnnotationProxy) args[0]).getProperty("title"));
-			} else if (args[0] instanceof String) {
-				title = TiConvert.toString(args[0]);
+		if (args != null && args.length > 0) {
+			if (args[0] instanceof KrollDict) {
+				KrollDict params = (KrollDict)args[0];
+
+				Object selectedAnnotation = params.get(TiC.PROPERTY_ANNOTATION);
+				if(selectedAnnotation instanceof AnnotationProxy) {
+					title = TiConvert.toString(((AnnotationProxy) selectedAnnotation).getProperty(TiC.PROPERTY_TITLE));
+				} else {
+					title = params.getString(TiC.PROPERTY_TITLE);
+				}
+
+				if (params.containsKeyAndNotNull(TiC.PROPERTY_ANIMATE)) {
+					animate = params.getBoolean(TiC.PROPERTY_ANIMATE);
+				}
+				if (params.containsKeyAndNotNull(TiC.PROPERTY_CENTER)) {
+					center = params.getBoolean(TiC.PROPERTY_CENTER);
+				}
+
+			} else {
+				if (args[0] instanceof AnnotationProxy) {
+					title = TiConvert.toString(((AnnotationProxy) args[0]).getProperty(TiC.PROPERTY_TITLE));
+
+				} else if (args[0] instanceof String) {
+					title = TiConvert.toString(args[0]);
+				}
+
+				if (args.length > 1) {
+					animate = TiConvert.toBoolean(args[1]);
+				}
 			}
 		}
+
 		if (title != null) {
-			boolean animate = false;
-
-			if (args.length > 1) {
-				animate = TiConvert.toBoolean(args[1]);
-			}
-
 			if (mapView == null) {
 				Log.e(LCAT, "calling selectedAnnotations.add");
-				selectedAnnotations.add(new TiMapView.SelectedAnnotation(title, animate));
+				selectedAnnotations.add(new TiMapView.SelectedAnnotation(title, animate, center));
 			} else {
 				Log.e(LCAT, "calling selectedAnnotations.add2");
-				mapView.selectAnnotation(true, title, animate);
+				mapView.selectAnnotation(true, title, animate, center);
 			}
 		}
 	}
@@ -211,7 +238,7 @@ public class ViewProxy extends TiViewProxy
 					}
 				}
 			} else {
-				mapView.selectAnnotation(false, title, animate);
+				mapView.selectAnnotation(false, title, animate, false);
 			}
 		}
 	}

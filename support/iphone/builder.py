@@ -5,7 +5,7 @@
 # the application on the device via iTunes
 # 
 
-import os, sys, uuid, subprocess, shutil, signal, string, traceback, imp
+import os, sys, uuid, subprocess, shutil, signal, string, traceback, imp, filecmp
 import platform, time, re, run, glob, codecs, hashlib, datetime, plistlib
 from compiler import Compiler
 from projector import Projector
@@ -41,6 +41,17 @@ def version_sort(a,b):
 	if x < y:
 		return 1
 	return 0
+
+# Find the SDK file path
+def find_sdk_path(version):
+	sdk_path = os.path.join(os.path.expanduser("~/Library/Application Support/Titanium"),"mobilesdk","osx",version)
+	if os.path.exists(sdk_path):
+		return sdk_path
+	sdk_path = os.path.join("/Library","Application Support","Titanium","mobilesdk","osx",version)
+	if os.path.exists(sdk_path):
+		return sdk_path
+	print "Is Titanium installed? I can't find it"
+	sys.exit(1)
 
 # this will return the version of the iOS SDK that we have installed
 def check_iphone_sdk(s):
@@ -511,6 +522,7 @@ def main(args):
 			output_dir = os.path.expanduser(dequote(args[8].decode("utf-8")))
 			if argc > 9:
 				devicefamily = dequote(args[9].decode("utf-8"))
+			print "[INFO] Switching to production mode for distribution"
 			deploytype = 'production'
 		elif command == 'simulator':
 			link_version = check_iphone_sdk(iphone_version)
@@ -547,6 +559,7 @@ def main(args):
 					debughost=None
 				else:
 					debughost,debugport = debughost.split(":")
+			target = 'Debug'
 			deploytype = 'test'
 		
 		# setup up the useful directories we need in the script
@@ -698,14 +711,20 @@ def main(args):
 				else:
 					plist = plist.replace('__DEBUGGER_HOST__','')
 					plist = plist.replace('__DEBUGGER_PORT__','')
-				pf = codecs.open(debuggerplist,'w', encoding='utf-8')
+
+				tempfile = debuggerplist+'.tmp'
+				pf = codecs.open(tempfile,'w',encoding='utf-8')
 				pf.write(plist)
-				pf.close()	
-				o.write("+ writing debugger plist:\n\n")
-				pf = codecs.open(debuggerplist,'r', encoding='utf-8')
-				o.write(pf.read())
 				pf.close()
-				o.write("\n\n")
+				
+				if os.path.exists(debuggerplist):
+					changed = not filecmp.cmp(tempfile, debuggerplist, shallow=False)
+				else:
+					changed = True
+					
+				shutil.move(tempfile, debuggerplist)
+				
+				return changed
 				
 				
 # TODO:				
@@ -815,8 +834,8 @@ def main(args):
 				contents="TI_VERSION=%s\n"% sdk_version
 				contents+="TI_SDK_DIR=%s\n" % template_dir.replace(sdk_version,'$(TI_VERSION)')
 				contents+="TI_APPID=%s\n" % appid
-				contents+="OTHER_LDFLAGS[sdk=iphoneos4*]=$(inherited) -weak_framework iAd\n"
-				contents+="OTHER_LDFLAGS[sdk=iphonesimulator4*]=$(inherited) -weak_framework iAd\n"
+				contents+="OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) -weak_framework iAd\n"
+				contents+="OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) -weak_framework iAd\n"
 				contents+="#include \"module\"\n"
 				xcconfig = open(project_xcconfig,'w+')
 				xccontents = xcconfig.read()
@@ -886,18 +905,10 @@ def main(args):
 
 			# compile debugger file
 			debug_plist = os.path.join(iphone_dir,'Resources','debugger.plist')
-			write_debugger_plist(debug_plist)
+			
+			# Force an xcodebuild if the debugger.plist has changed
+			force_xcode = write_debugger_plist(debug_plist)
 
-			if command=='simulator':
-				debug_sim_dir = os.path.join(iphone_dir,'build','Debug-iphonesimulator','%s.app' % name)
-				if os.path.exists(debug_sim_dir):
-					app_stylesheet = os.path.join(iphone_dir,'build','Debug-iphonesimulator','%s.app' % name,'stylesheet.plist')
-					asf = codecs.open(app_stylesheet,'w','utf-8')
-					asf.write(cssc.code)
-					asf.close()
-					
-					shutil.copy(debug_plist,os.path.join(iphone_dir,'build','Debug-iphonesimulator','%s.app' % name, 'debugger.plist'))
-					
 			if command!='simulator':
 				# compile plist into binary format so it's faster to load
 				# we can be slow on simulator
@@ -987,7 +998,7 @@ def main(args):
 
 				# compile localization files
 				# Using app_name here will cause the locale to be put in the WRONG bundle!!
-				localecompiler.LocaleCompiler(name,project_dir,devicefamily,command).compile()
+				localecompiler.LocaleCompiler(name,project_dir,devicefamily,deploytype).compile()
 				
 				# copy any module resources
 				if len(module_asset_dirs)>0:
@@ -1008,6 +1019,7 @@ def main(args):
 
 				# copy Default.png and appicon each time so if they're 
 				# changed they'll stick get picked up	
+				# If Default.png is not found in the project, copy it from the SDK's default path
 				app_icon_path = os.path.join(project_dir,'Resources','iphone',applogo)
 				if not os.path.exists(app_icon_path):
 					app_icon_path = os.path.join(project_dir,'Resources',applogo)
@@ -1016,8 +1028,10 @@ def main(args):
 				defaultpng_path = os.path.join(project_dir,'Resources','iphone','Default.png')
 				if not os.path.exists(defaultpng_path):
 					defaultpng_path = os.path.join(project_dir,'Resources','Default.png')
+				if not os.path.exists(defaultpng_path):
+					defaultpng_path = os.path.join(find_sdk_path(sdk_version),'iphone','resources','Default.png')
 				if os.path.exists(defaultpng_path):
-					shutil.copy(defaultpng_path,app_dir)
+					shutil.copy(defaultpng_path,iphone_resources_dir)
 
 				extra_args = None
 
@@ -1140,7 +1154,6 @@ def main(args):
 
 				# this is a simulator build
 				if command == 'simulator':
-
 					debugstr = ''
 					if debughost:
 						debugstr = 'DEBUGGER_ENABLED=1'

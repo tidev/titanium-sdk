@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.widget;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
@@ -31,7 +32,8 @@ public class TiUIDialog extends TiUIView
 	protected AlertDialog dialog;
 	protected TiUIView view;
 
-	protected class ClickHandler implements DialogInterface.OnClickListener {
+	protected class ClickHandler implements DialogInterface.OnClickListener
+	{
 		private int result;
 		public ClickHandler(int id) {
 			this.result = id;
@@ -42,7 +44,8 @@ public class TiUIDialog extends TiUIView
 		}
 	}
 
-	public TiUIDialog(TiViewProxy proxy) {
+	public TiUIDialog(TiViewProxy proxy)
+	{
 		super(proxy);
 		if (DBG) {
 			Log.d(LCAT, "Creating a dialog");
@@ -50,7 +53,8 @@ public class TiUIDialog extends TiUIView
 		createBuilder();
 	}
 
-	private Activity getCurrentActivity() {
+	private Activity getCurrentActivity()
+	{
 		Activity currentActivity = proxy.getTiContext().getTiApp().getCurrentActivity();
 		if (currentActivity == null) {
 			currentActivity = proxy.getTiContext().getActivity();
@@ -58,7 +62,8 @@ public class TiUIDialog extends TiUIView
 		return currentActivity;
 	}
 	
-	private Builder getBuilder() {
+	private Builder getBuilder()
+	{
 		if (builder == null) {
 			createBuilder();
 		}
@@ -66,7 +71,8 @@ public class TiUIDialog extends TiUIView
 	}
 	
 	@Override
-	public void processProperties(KrollDict d) {
+	public void processProperties(KrollDict d)
+	{
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
 			getBuilder().setTitle(d.getString(TiC.PROPERTY_TITLE));
 		}
@@ -95,28 +101,33 @@ public class TiUIDialog extends TiUIView
 		super.processProperties(d);
 	}
 
-	private void processOptions(String[] optionText) {
-		getBuilder().setSingleChoiceItems(optionText, -1 , new DialogInterface.OnClickListener() {
+	private void processOptions(String[] optionText,int selectedIndex)
+	{
+		getBuilder().setSingleChoiceItems(optionText, selectedIndex , new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
 				handleEvent(which);
-				dialog.dismiss();
+				hide(null);
 			}
 		});
 	}
 
-	private void processOptions(String[] optionText,int selectedIndex) {
-		getBuilder().setSingleChoiceItems(optionText, selectedIndex , new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				handleEvent(which);
-				dialog.dismiss();
-			}
-		});
-	}
-	
-	private void processButtons(String[] buttonText) {
+	private void processButtons(String[] buttonText)
+	{
 		getBuilder().setPositiveButton(null, null);
 		getBuilder().setNegativeButton(null, null);
 		getBuilder().setNeutralButton(null, null);
+		getBuilder().setOnCancelListener(new OnCancelListener() {
+			@Override
+			public void onCancel(DialogInterface dialog)
+			{
+				dialog = null;
+				if (view != null)
+				{
+					view.getProxy().releaseViews();
+					view = null;
+				}
+			}
+		});
 
 		for (int id = 0; id < buttonText.length; id++) {
 			String text = buttonText[id];
@@ -137,7 +148,8 @@ public class TiUIDialog extends TiUIView
 		}
 	}
 
-	private void processView(TiViewProxy proxy) {
+	private void processView(TiViewProxy proxy)
+	{
 		if (proxy != null) {
 			view = proxy.getView(getCurrentActivity());
 			getBuilder().setView(view.getNativeView());
@@ -204,7 +216,8 @@ public class TiUIDialog extends TiUIView
 		}
 	}
 
-	public void show(KrollDict options) {
+	public void show(KrollDict options)
+	{
 		if (dialog == null) {
 			processProperties(proxy.getProperties());
 			getBuilder().setOnCancelListener(new OnCancelListener() {
@@ -224,11 +237,12 @@ public class TiUIDialog extends TiUIView
 		try {
 			dialog.show();
 		} catch (Throwable t) {
-			Log.w(LCAT, "Window must have gone away.");
+			Log.w(LCAT, "Context must have gone away: " + t.getMessage(), t);
 		}
 	}
 
-	public void hide(KrollDict options) {
+	public void hide(KrollDict options)
+	{
 		if (dialog != null) {
 			dialog.dismiss();
 			dialog = null;
@@ -239,29 +253,29 @@ public class TiUIDialog extends TiUIView
 		}
 	}
 
-	private void createBuilder()  {
+	private void createBuilder()
+	{
 		Activity currentActivity = getCurrentActivity();
-		
 		this.builder = new AlertDialog.Builder(currentActivity);
 		this.builder.setCancelable(true);
 	}
-	
-	public void handleEvent(int id) {
+
+	public void handleEvent(int id)
+	{
 		int cancelIndex = (proxy.hasProperty(TiC.PROPERTY_CANCEL)) ?
 			TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_CANCEL)) : -1;
 		KrollDict data = new KrollDict();
 		if ((id & BUTTON_MASK) != 0) {
-			data.put("button", true);
+			data.put(TiC.PROPERTY_BUTTON, true);
 			id &= ~BUTTON_MASK;
 		} else {
-			data.put("button", false);
+			data.put(TiC.PROPERTY_BUTTON, false);
 			// If an option was selected and the user accepted it, update the proxy.
 			if (proxy.hasProperty(TiC.PROPERTY_OPTIONS)) {
 				proxy.setProperty(TiC.PROPERTY_SELECTED_INDEX, id, false);
 			}
 		}
 		data.put(TiC.EVENT_PROPERTY_INDEX, id);
-		
 		data.put(TiC.PROPERTY_CANCEL, id == cancelIndex);
 		proxy.fireEvent(TiC.EVENT_CLICK, data);
 	}

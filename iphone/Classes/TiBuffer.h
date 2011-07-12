@@ -14,7 +14,7 @@
     NSMutableData* data;
     
 }
-@property(nonatomic, assign) NSMutableData* data;
+@property(nonatomic, retain) NSMutableData* data;
  
 // Public API
 -(NSNumber*)append:(id)args;
@@ -23,13 +23,16 @@
 -(TiBuffer*)clone:(id)args;
 -(void)fill:(id)args;
 
--(NSNumber*)clear:(id)_void;
--(NSNumber*)release:(id)_void;
+-(void)clear:(id)_void;
+-(void)release:(id)_void;
 
 -(TiBlob*)toBlob:(id)_void;
 -(NSString*)toString:(id)_void;
 
 @property(nonatomic,assign) NSNumber* length;
 
+// SPECIAL NOTES:
+// Ti.Buffer objects have an 'overloaded' Ti.Buffer[x] operation for x==int (making them behave like arrays).
+// See the code for how this works.
 
 @end

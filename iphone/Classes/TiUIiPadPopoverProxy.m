@@ -19,6 +19,7 @@
 #pragma mark Setup
 -(void)dealloc
 {
+	[viewController setProxy:nil];
 	RELEASE_TO_NIL(viewController);
 	RELEASE_TO_NIL(navigationController);
 	RELEASE_TO_NIL(popoverController);
@@ -179,6 +180,7 @@
 -(void)show:(id)args
 {
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+	[self rememberSelf];
 	ENSURE_UI_THREAD_1_ARG(args);
 	
 	NSDictionary *rectProps = [args objectForKey:@"rect"];
@@ -282,6 +284,7 @@
 	[self fireEvent:@"hide" withObject:nil]; //Checking for listeners are done by fireEvent anyways.
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
 	[self windowDidClose];
+	[self forgetSelf];
 	RELEASE_TO_NIL(viewController);
 	RELEASE_TO_NIL_AUTORELEASE(popoverController);
 	RELEASE_TO_NIL(navigationController);

@@ -33,3 +33,32 @@
 +(void)shutdownContext:(KrollContext*)context;
 
 @end
+
+// 
+// KrollCallback has one fatal flaw: It can lead to retention loops. So when a
+// function is to be a property of a proxy, we store this on the JS object. But
+// if the proxy spans multiple contexts, we need to take a rain check on other
+// contexts.
+
+// In the mean time, for functions passed as a property between contexts, we
+// need a lightweight wrapper. This is probably not the best way, but this
+// should be sufficient for 1.7 in the edge case of one context needing to call
+// another context's function.
+
+// Until KrollObjectProperty and such are addressed in the future, this is an object that is never
+// made explicitly by TiIdToValue; instead, all JS functions become KrollCallbacks, and both
+// KrollCallbacks and KrollObjectProperties will be converted into functions (or TiObjectRefs at
+// any rate)
+
+@class KrollBridge;
+
+@interface KrollFunction : NSObject
+{
+	TiObjectRef remoteFunction;
+	KrollBridge * remoteBridge;
+}
+
+@property (nonatomic,readwrite,assign)	TiObjectRef remoteFunction;
+@property (nonatomic,readwrite,assign)	KrollBridge * remoteBridge;
+
+@end

@@ -18,6 +18,7 @@ import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.bridge.OnEventListenerChange;
 import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.kroll.KrollCallback;
+import org.appcelerator.titanium.kroll.KrollCoverage;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -62,6 +63,7 @@ public class KrollProxy
 	protected KrollModule createdInModule;
 	protected KrollProxyBinding binding;
 	protected KrollObject krollObject;
+	protected boolean coverageEnabled;
 
 	@Kroll.inject
 	protected KrollInvocation currentInvocation;
@@ -79,6 +81,7 @@ public class KrollProxy
 			Log.d(TAG, "New: " + getClass().getSimpleName());
 		}
 		this.proxyId = PROXY_ID_PREFIX + proxyCounter.incrementAndGet();
+		coverageEnabled = context.getTiApp().isCoverageEnabled();
 
 		uiHandler = new Handler(Looper.getMainLooper(), this);
 		if (!context.isUIThread()) {
@@ -149,7 +152,11 @@ public class KrollProxy
 	public KrollObject getKrollObject()
 	{
 		if (krollObject == null) {
-			krollObject = new KrollObject(this);
+			if (coverageEnabled) {
+				krollObject = new KrollCoverage(this);
+			} else {
+				krollObject = new KrollObject(this);
+			}
 		}
 		return krollObject;
 	}
@@ -157,6 +164,11 @@ public class KrollProxy
 	public boolean has(Scriptable scope, String name)
 	{
 		return hasBinding(name) || properties.containsKey(name);
+	}
+
+	public boolean has(Scriptable scope, int index)
+	{
+		return false;
 	}
 
 	public Object get(Scriptable scope, String name)
@@ -180,6 +192,11 @@ public class KrollProxy
 		return UNDEFINED;
 	}
 
+	public Object get(Scriptable scope, int index)
+	{
+		return UNDEFINED;
+	}
+
 	public void set(Scriptable scope, String name, Object value)
 		throws NoSuchFieldException
 	{
@@ -196,6 +213,11 @@ public class KrollProxy
 		
 		// the value that comes from KrollObject should already be converted
 		setProperty(name, value, true);
+	}
+
+	public void set(Scriptable scope, int index, Object value)
+	{
+		// no-op
 	}
 
 	public Object call(Scriptable scope, String name, Object[] args)
@@ -401,6 +423,24 @@ public class KrollProxy
 	public KrollProperty getBoundProperty(String name)
 	{
 		return (KrollProperty) getBinding(name);
+	}
+
+	/**
+	 * Handle the raw "create" method
+	 * @param invocation The KrollInvocation
+	 * @param args The arguments passed to the create method
+	 */
+	public Object handleCreate(KrollInvocation invocation, Object[] args)
+	{
+		KrollModule createdInModule = (KrollModule) invocation.getProxy();
+		Object createArgs[] = new Object[args.length];
+		for (int i = 0; i < args.length; i++) {
+			createArgs[i] = KrollConverter.getInstance().convertJavascript(
+				invocation, args[i], Object.class);
+		}
+		
+		handleCreationArgs(createdInModule, createArgs);
+		return KrollConverter.getInstance().convertNative(invocation, this);
 	}
 
 	/**

@@ -13,6 +13,7 @@
 #import "ImageLoader.h"
 #import "TiProxy.h"
 #import "TiViewProxy.h"
+#import "TiUITableViewProxy.h"
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
 
@@ -26,8 +27,9 @@
 -(id)initWithStyle:(UITableViewCellStyle)style_ reuseIdentifier:(NSString *)reuseIdentifier_ row:(TiUITableViewRowProxy *)row_
 {
 	if (self = [super initWithStyle:style_ reuseIdentifier:reuseIdentifier_]) {
-		proxy = [row_ retain];
+		proxy = row_;
 		[proxy setCallbackCell:self];
+		self.exclusiveTouch = YES;
 	}
 	
 	return self;
@@ -35,11 +37,25 @@
 
 -(void)dealloc
 {
-	RELEASE_TO_NIL(proxy);
 	RELEASE_TO_NIL(gradientLayer);
 	RELEASE_TO_NIL(backgroundGradient);
 	RELEASE_TO_NIL(selectedBackgroundGradient);
 	[super dealloc];
+}
+
+-(CGSize)computeCellSize
+{
+    CGFloat width = [proxy sizeWidthForDecorations:[[proxy table] tableView].bounds.size.width forceResizing:YES];
+	CGFloat height = [proxy rowHeight:width];
+	height = [[proxy table] tableRowHeight:height];
+    
+    // If there is a separator, then it's included as part of the row height as the system, so remove the pixel for it
+    // from our cell size
+    if ([[[proxy table] tableView] separatorStyle] == UITableViewCellSeparatorStyleSingleLine) {
+        height -= 1;
+    }
+    
+    return CGSizeMake(width, height);
 }
 
 -(void)prepareForReuse
@@ -51,9 +67,10 @@
 	// and if its frame is too big... the view system allocates way too much memory/pixels and doesn't appear to let
 	// them go.
 
-	// Until we can properly revisit this... just size the cell to 320x44.  The standard size.
 	CGRect oldFrame = [[self contentView] frame];
-	[[self contentView] setFrame:CGRectMake(oldFrame.origin.x, oldFrame.origin.y, 320, 44)];
+    CGSize cellSize = [self computeCellSize];
+    
+	[[self contentView] setFrame:CGRectMake(oldFrame.origin.x, oldFrame.origin.y, cellSize.width, cellSize.height)];
 }
 
 - (UIView *)hitTest:(CGPoint) point withEvent:(UIEvent *)event 
@@ -138,6 +155,7 @@
 
 -(void)setSelected:(BOOL)yn
 {
+    [super setSelected:yn];
 	[super setHighlighted:yn];
 	[self updateGradientLayer:yn|[self isHighlighted]];
 }
@@ -183,7 +201,6 @@
 {
 	if (self = [super init])
 	{
-		sections = [[NSMutableArray array] retain];
 		filterCaseInsensitive = YES; // defaults to true on search
 	}
 	return self;
@@ -191,7 +208,6 @@
 
 -(void)dealloc
 {
-    [self detachContents];
 	if (searchField!=nil)
 	{
 		[searchField setDelegate:nil];
@@ -199,7 +215,6 @@
 	}
 	RELEASE_TO_NIL(tableController);
 	RELEASE_TO_NIL(searchController);
-	RELEASE_TO_NIL(sections);
 	RELEASE_TO_NIL(tableview);
 	RELEASE_TO_NIL(sectionIndex);
 	RELEASE_TO_NIL(sectionIndexMap);
@@ -211,16 +226,6 @@
 	RELEASE_TO_NIL(initialSelection);
 	RELEASE_TO_NIL(tableHeaderPullView);
 	[super dealloc];
-}
-
--(void)detachContents
-{
-    for (TiUITableViewSectionProxy* section in sections) {
-        for (TiUITableViewRowProxy* row in [section rows]) {
-            [row detachView];
-        }
-        [section detachView];
-    }
 }
 
 -(BOOL)isScrollable
@@ -300,88 +305,22 @@
 
 -(NSInteger)indexForRow:(TiUITableViewRowProxy*)row
 {
-	int index = 0;
-	for (TiUITableViewSectionProxy * thisSection in sections)
-	{
-		if (thisSection == row.section)
-		{
-			return index + row.row;
-		}
-		index+=[thisSection rowCount];
-	}
-	return index;
+	return [(TiUITableViewProxy *)[self proxy] indexForRow:row];
 }
 
 -(NSInteger)sectionIndexForIndex:(NSInteger)theindex
 {
-	int index = 0;
-	int section = 0;
-	
-	for (TiUITableViewSectionProxy * thisSection in sections)
-	{
-		index+=[thisSection rowCount];
-		if (theindex < index)
-		{
-			return section;
-		}
-		section++;
-	}
-	
-	return 0;
+	return [(TiUITableViewProxy *)[self proxy] sectionIndexForIndex:theindex];
 }
 
 -(TiUITableViewRowProxy*)rowForIndex:(NSInteger)index section:(NSInteger*)section
 {
-	int current = 0;
-	int row = index;
-	int sectionIdx = 0;
-	
-	for (TiUITableViewSectionProxy *sectionProxy in sections)
-	{
-		int rowCount = [sectionProxy rowCount];
-		if (rowCount + current > index)
-		{
-			if (section!=nil)
-			{
-				*section = sectionIdx;
-			}
-			return [sectionProxy rowAtIndex:row];
-		}
-		row -= rowCount;
-		current += rowCount;
-		sectionIdx++;
-	}
-
-	return nil;
-}
-
--(NSArray*)sections
-{
-	return sections;
+	return [(TiUITableViewProxy *)[self proxy] rowForIndex:index section:section];
 }
 
 -(NSIndexPath *)indexPathFromInt:(NSInteger)index
 {
-	if(index < 0)
-	{
-		return nil;
-	}
-	int section = 0;
-	int current = 0;
-	int row = index;
-	
-	for (TiUITableViewSectionProxy * thisSection in sections)
-	{
-		int rowCount = [thisSection rowCount];
-		if (rowCount + current > index)
-		{
-			return [NSIndexPath indexPathForRow:row inSection:section];
-		}
-		section++;
-		row -= rowCount;
-		current += rowCount;
-	}
-	return nil;
+	return [(TiUITableViewProxy *)[self proxy] indexPathFromInt:index];
 }
 
 -(void)reloadDataFromCount:(int)oldCount toCount:(int)newCount animation:(UITableViewRowAnimation)animation
@@ -432,24 +371,25 @@
 { 
 	//Technically, we should assert that sections is non-nil, but this code
 	//won't have any problems in the case that it is actually nil.	
-	TiProxy * ourProxy = [self proxy];
+	TiUITableViewProxy * ourProxy = (TiUITableViewProxy *)[self proxy];
 
-	int oldCount = [sections count];
+	int oldCount = [(TiUITableViewProxy *)[self proxy] sectionCount];
 	
-	for (TiUITableViewSectionProxy *section in sections)
+	for (TiUITableViewSectionProxy *section in [(TiUITableViewProxy *)[self proxy] sections])
 	{
 		if ([section parent] == ourProxy)
 		{
 			[section setTable:nil];
 			[section setParent:nil];
+			[self.proxy forgetProxy:section];
 		}
 	}
-	RELEASE_TO_NIL(sections);
+	
+	[ourProxy setSections:data];
 
-	sections = [data retain];
 	int newCount = 0;	//Since we're iterating anyways, we might as well not get count.
 
-	for (TiUITableViewSectionProxy *section in sections)
+	for (TiUITableViewSectionProxy *section in [(TiUITableViewProxy *)[self proxy] sections])
 	{
 		[section setTable:self];
 		[section setParent:ourProxy];
@@ -461,33 +401,45 @@
 			row.section = section;
 			row.parent = section;
 		}
+		[self.proxy rememberProxy:section];
+
 	}
 
 	[self reloadDataFromCount:oldCount toCount:newCount animation:animation];
 }
 
+//Assertions no longer are needed; we ensure that the sections are not nil.
 -(void)updateRow:(TiUITableViewRowProxy*)row
 {
-	NSAssert(sections!=nil,@"sections was nil");
 	row.table = self;
 	NSMutableArray *rows = [row.section rows];
+	
+	if ([rows count] > row.row) {
+		TiUITableViewRowProxy* oldRow = [rows objectAtIndex:row.row];
+		[oldRow retain];
+		oldRow.table = nil;
+		oldRow.section = nil;
+		oldRow.parent = nil;
+		[row.section forgetProxy:oldRow];
+		[oldRow release];
+	}	
+	[row.section rememberProxy:row];
 	[rows replaceObjectAtIndex:row.row withObject:row];
 	[row.section reorderRows];
 }
 
 -(void)insertRow:(TiUITableViewRowProxy*)row before:(TiUITableViewRowProxy*)before 
 {
-	NSAssert(sections!=nil,@"sections was nil");
 	row.table = self;
 	row.section = before.section;
 	NSMutableArray *rows = [row.section rows];
 	[rows insertObject:row atIndex:row.row];
+	[row.section rememberProxy:row];
 	[row.section reorderRows];
 }
 
 -(void)insertRow:(TiUITableViewRowProxy*)row after:(TiUITableViewRowProxy*)after 
 {
-	NSAssert(sections!=nil,@"sections was nil");
 	row.table = self;
 	row.section = after.section;
 	NSMutableArray *rows = [row.section rows];
@@ -499,27 +451,28 @@
 	{
 		[rows insertObject:row atIndex:after.row+1];
 	}
+	[row.section rememberProxy:row];
 	[row.section reorderRows];
 }
 
 -(void)deleteRow:(TiUITableViewRowProxy*)row
 {
-	NSAssert(sections!=nil,@"sections was nil");
 	[[row retain] autorelease];
 	NSMutableArray *rows = [row.section rows];
 #ifdef DEBUG
 	ENSURE_VALUE_CONSISTENCY([rows containsObject:row],YES);
 #endif
 	[rows removeObject:row];
+	[row.section forgetProxy:row];
 	[row.section reorderRows];
 }
 
 -(void)appendRow:(TiUITableViewRowProxy*)row 
 {
-	NSAssert(sections!=nil,@"sections was nil");
 	row.table = self;
 	TiUITableViewSectionProxy *section = row.section;
     [section add:row];
+	[row.section rememberProxy:row];
 	[row.section reorderRows];
 }
 
@@ -527,6 +480,7 @@
 {
 	ENSURE_UI_THREAD(dispatchAction,action);
 	
+	NSMutableArray * sections = [(TiUITableViewProxy *)[self proxy] sections];
 	switch (action.type)
 	{
 		case TiUITableViewActionRowReload:
@@ -568,10 +522,9 @@
             int rowIndex = row.row;
             row.row = 0;
             TiUITableViewSectionProxy* newSection = row.section;
-            
-			
+
 			int updateSectionIndex = (rowIndex == 0) ? newSectionIndex : newSectionIndex - 1;
-            TiUITableViewSectionProxy* updateSection = [sections objectAtIndex:updateSectionIndex];
+            TiUITableViewSectionProxy* updateSection = [self sectionForIndex:updateSectionIndex];;
             
             NSMutableArray* addRows = [NSMutableArray array];
 			
@@ -723,6 +676,7 @@
 //for this protection.
 -(TiUITableViewSectionProxy *)sectionForIndex:(NSInteger) index
 {
+	NSArray * sections = [(TiUITableViewProxy *)[self proxy] sections];
 	if(index >= [sections count])
 	{
 		return nil;
@@ -750,20 +704,7 @@
 
 -(NSInteger)indexForIndexPath:(NSIndexPath *)path
 {
-	int index = 0;
-	int section = 0;
-	
-	for (TiUITableViewSectionProxy * thisSection in sections)
-	{
-		if (section == [path section])
-		{
-			return index + [path row];
-		}
-		section++;
-		index+=[thisSection rowCount];
-	}
-	
-	return 0;
+	return [(TiUITableViewProxy *)[self proxy] indexForIndexPath:path];
 }
 
 - (void)triggerActionForIndexPath:(NSIndexPath *)indexPath fromPath:(NSIndexPath*)fromPath tableView:(UITableView*)ourTableView wasAccessory: (BOOL)accessoryTapped search:(BOOL)viaSearch name:(NSString*)name
@@ -773,6 +714,7 @@
 		index = [self indexPathFromSearchIndex:[indexPath row]];
 	}
 	int sectionIdx = [index section];
+	NSArray * sections = [(TiUITableViewProxy *)[self proxy] sections];
 	TiUITableViewSectionProxy *section = [self sectionForIndex:sectionIdx];
 	
 	int rowIndex = [index row];
@@ -831,6 +773,17 @@
 }
 
 #pragma mark Overloaded view handling
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+{
+	UIView * result = [super hitTest:point withEvent:event];
+	if(result == self)
+	{	//There is no valid reason why the TiUITableView will get an
+		//touch event; it should ALWAYS be a child view.
+		return nil;
+	}
+	return result;
+}
+
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event 
 {
 	// iOS idiom seems to indicate that you should never be able to interact with a table
@@ -901,7 +854,7 @@
 	NSEnumerator * searchResultIndexEnumerator;
 	if(searchResultIndexes == nil)
 	{
-		searchResultIndexes = [[NSMutableArray alloc] initWithCapacity:[sections count]];
+		searchResultIndexes = [[NSMutableArray alloc] initWithCapacity:[(TiUITableViewProxy *)[self proxy] sectionCount]];
 		searchResultIndexEnumerator = nil;
 	} 
 	else 
@@ -919,7 +872,7 @@
 	
 	NSStringCompareOptions searchOpts = (filterCaseInsensitive ? NSCaseInsensitiveSearch : 0);
 	
-	for (TiUITableViewSectionProxy * thisSection in sections) 
+	for (TiUITableViewSectionProxy * thisSection in [(TiUITableViewProxy *)[self proxy] sections]) 
 	{
 		NSMutableIndexSet * thisIndexSet = [searchResultIndexEnumerator nextObject];
 		if (thisIndexSet == nil)
@@ -1041,7 +994,7 @@
 	[[searchField view] resignFirstResponder];
 	[self makeRootViewFirstResponder];
 	[searchTableView removeFromSuperview];
-	[tableview setScrollEnabled:[self isScrollable]];
+//	[tableview setScrollEnabled:[self isScrollable]];
 	[self.proxy replaceValue:NUMBOOL(YES) forKey:@"searchHidden" notification:NO];
 	[searchController setActive:NO animated:YES];
 	
@@ -1068,12 +1021,12 @@
 
 - (IBAction) showSearchScreen: (id) sender
 {
-	if ([sections count]>0)
+	if ([(TiUITableViewProxy *)[self proxy] sectionCount]>0)
 	{
 		[tableview scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]
 						 atScrollPosition:UITableViewScrollPositionBottom animated:NO];
 	}
-	[tableview setScrollEnabled:NO];
+//	[tableview setScrollEnabled:NO];
 	
 	CGRect screenRect = [TiUtils viewPositionRect:tableview];
 	CGFloat searchHeight = [[tableview tableHeaderView] bounds].size.height;
@@ -1533,12 +1486,8 @@ if(ourTableView != tableview)	\
 		return rowCount;
 	}
 	
-	if (sections!=nil)
-	{
-		TiUITableViewSectionProxy *sectionProxy = [self sectionForIndex:section];
-		return sectionProxy.rowCount;
-	}
-	return 0;
+	TiUITableViewSectionProxy *sectionProxy = [self sectionForIndex:section];
+	return sectionProxy.rowCount;
 }
 
 // Row display. Implementers should *always* try to reuse cells by setting each cell's reuseIdentifier and querying for available reusable cells with dequeueReusableCellWithIdentifier:
@@ -1560,6 +1509,9 @@ if(ourTableView != tableview)	\
 	if (cell == nil)
 	{
 		cell = [[[TiUITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:row.tableClass row:row] autorelease];
+        CGSize cellSize = [(TiUITableViewCell*)cell computeCellSize];
+		[cell setBounds:CGRectMake(0, 0, cellSize.width,cellSize.height)];
+        [[cell contentView] setBounds:[cell bounds]];
 	}
 	else
 	{
@@ -1567,7 +1519,11 @@ if(ourTableView != tableview)	\
 		// So what we're going to do with this cell is clear its contents out, then redraw it as if it were a new cell.
 		// Keeps the cell pool small and reusable.
 		[TiUITableViewRowProxy clearTableRowCell:cell];
-		
+        
+        // Have to reset the proxy on the cell, and the row's callback cell, as it may have been cleared in reuse operations (or reassigned)
+        [(TiUITableViewCell*)cell setProxy:row];
+        [row setCallbackCell:(TiUITableViewCell*)cell];
+        
 		/*
 		 * Old-school style:
 		// in the case of a reuse, we need to tell the row proxy to update the data
@@ -1585,7 +1541,8 @@ if(ourTableView != tableview)	\
 {
 	RETURN_IF_SEARCH_TABLE_VIEW(1);
 // One quirk of UITableView is that it really hates having 0 sections. Instead, supply 1 section, no rows.
-	return sections!=nil ? MAX(1,[sections count]) : 1;
+	int result = [(TiUITableViewProxy *)[self proxy] sectionCount];
+	return MAX(1,result);
 }
 
 - (NSString *)tableView:(UITableView *)ourTableView titleForHeaderInSection:(NSInteger)section
@@ -1621,14 +1578,14 @@ if(ourTableView != tableview)	\
         // If the section is empty, we want to remove it as well.
         BOOL emptySection = ([[section rows] count] == 0);
         if (emptySection) {
-            [sections removeObjectAtIndex:[indexPath section]];
+            [[(TiUITableViewProxy *)[self proxy] sections] removeObjectAtIndex:[indexPath section]];
         }
 
 		[table beginUpdates];
         if (emptySection)
 		{
 			NSIndexSet * thisSectionSet = [NSIndexSet indexSetWithIndex:[indexPath section]];
-			if([sections count] > 0)
+			if([(TiUITableViewProxy *)[self proxy] sectionCount] > 0)
 			{
 				[table deleteSections:thisSectionSet withRowAnimation:UITableViewRowAnimationFade];
 			}
@@ -1830,7 +1787,7 @@ if(ourTableView != tableview)	\
 	
 	if (tableview == ourTableView) {
 		TiUITableViewSectionProxy *section = [self sectionForIndex:[indexPath section]];
-		if (initiallyDisplayed==NO && [indexPath section]==[sections count]-1 && [indexPath row]==[section rowCount]-1)
+		if (initiallyDisplayed==NO && [indexPath section]==[(TiUITableViewProxy *)[self proxy] sectionCount]-1 && [indexPath row]==[section rowCount]-1)
 		{
 			// we need to track when we've initially rendered the last row
 			initiallyDisplayed = YES;
@@ -1996,7 +1953,7 @@ if(ourTableView != tableview)	\
 
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
 {
-	int lastSectionIndex = [sections count]-1;
+	int lastSectionIndex = [(TiUITableViewProxy *)[self proxy] sectionCount]-1;
 	ENSURE_CONSISTENCY(lastSectionIndex>=0);
 	CGRect minimumContentRect = [tableview rectForSection:lastSectionIndex];
 	InsetScrollViewForKeyboard(tableview,keyboardTop,minimumContentRect.size.height + minimumContentRect.origin.y);
@@ -2004,7 +1961,7 @@ if(ourTableView != tableview)	\
 
 -(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
 {
-	int lastSectionIndex = [sections count]-1;
+	int lastSectionIndex = [(TiUITableViewProxy *)[self proxy] sectionCount]-1;
 	ENSURE_CONSISTENCY(lastSectionIndex>=0);
 	CGRect minimumContentRect = [tableview rectForSection:lastSectionIndex];
 
@@ -2018,7 +1975,7 @@ if(ourTableView != tableview)	\
 
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop forView:(TiUIView *)firstResponderView
 {
-	int lastSectionIndex = [sections count]-1;
+	int lastSectionIndex = [(TiUITableViewProxy *)[self proxy] sectionCount]-1;
 	ENSURE_CONSISTENCY(lastSectionIndex>=0);
 
 	lastFocusedView = firstResponderView;

@@ -31,6 +31,7 @@
 -(void)show:(id)args
 {
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+	[self rememberSelf];
 	ENSURE_UI_THREAD(show,args);
 	
 	NSMutableArray *options = [self valueForKey:@"options"];
@@ -95,6 +96,7 @@
 		[self fireEvent:@"click" withObject:event];
 	}
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+	[self forgetSelf];
 	[self release];
 }
 
@@ -110,7 +112,7 @@
 	UIView *view = nil;
 	if (dialogView==nil)
 	{
-		view = [[TiApp controller] view];
+		view = [[[[TiApp app] window] subviews] lastObject];
 	}
 	else 
 	{
@@ -144,7 +146,15 @@
 		CGRect rect;
 		if (CGRectIsEmpty(dialogRect))
 		{
-			rect = [view bounds];
+			if(view == nil)
+			{
+				rect = CGRectZero;
+			}
+			else
+			{
+				rect = [view bounds];
+			}
+
 		}
 		else
 		{

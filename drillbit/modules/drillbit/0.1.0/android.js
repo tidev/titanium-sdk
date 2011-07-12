@@ -40,13 +40,35 @@ function AndroidEmulator(drillbit, androidSdk, apiLevel, platform, googleApis) {
 	this.testHarnessRunning = false;
 	
 	this.needsBuild = 'androidForceBuild' in drillbit.argv;
+
+	var androidGenDir = ti.path.join(this.drillbit.resourcesDir, 'android', 'gen');
+	var androidSrcDir = ti.path.join(this.drillbit.resourcesDir, 'android', 'src');
+	var self = this;
+	ti.path.recurse(androidGenDir, function(file) {
+		var relativePath = ti.path.relpath(file.nativePath(), androidGenDir);
+		ti.api.debug("relativePath="+relativePath);
+		var destFile = ti.fs.getFile(self.drillbit.testHarnessDir, 'platform', 'android', 'gen', relativePath);
+		ti.api.debug("destFileParentExists="+destFile.parent().exists());
+		if (!destFile.parent().exists()) {
+			destFile.parent().createDirectory(true);
+		}
+		file.copy(destFile);
+	});
+	ti.path.recurse(androidSrcDir, function(file) {
+		var relativePath = ti.path.relpath(file.nativePath(), androidSrcDir);
+		var destFile = ti.fs.getFile(self.drillbit.testHarnessDir, 'platform', 'android', 'src', relativePath);
+		if (!destFile.parent().exists()) {
+			destFile.parent().createDirectory(true);
+		}
+		file.copy(destFile);
+	});
 };
 
 AndroidEmulator.prototype.createADBProcess = function(args) {
 	var adbArgs = [this.adb];
 	if (this.device == 'emulator') {
 		adbArgs.push('-e');
-	} else if (this.device == 'usb') {
+	} else if (this.device == 'device') {
 		adbArgs.push('-d');
 	} else {
 		adbArgs = adbArgs.concat(['-s', this.device]);
@@ -74,9 +96,11 @@ AndroidEmulator.prototype.createTestHarnessBuilderProcess = function(command, ar
 };
 
 AndroidEmulator.prototype.getTestHarnessPID = function() {
-	var processes = this.runADB(['shell', 'ps']).split(/\r?\n/);
+	var processes = this.runADB(['shell', 'ps']).split(/[\r\n]+/);
 
 	for (var i = 0; i < processes.length; i++) {
+		if (processes[i] == "") continue;
+
 		var columns = processes[i].split(/\s+/);
 		var pid = columns[1];
 		var id = columns[columns.length-1];
@@ -137,14 +161,14 @@ AndroidEmulator.prototype.run = function(readLineCb) {
 
 	if (!emulatorRunning) {
 		this.drillbit.frontendDo('status', 'pre-building initial APK', true);
-		var prebuildLaunchProcess = this.createTestHarnessBuilderProcess('simulator', [this.avdId, 'HVGA']);
+		var waitProcess = this.drillbit.createPythonProcess([this.waitForDevice, this.androidSdk, 'emulator']);
 		var self = this;
-		prebuildLaunchProcess.setOnExit(function(e) {
+		waitProcess.setOnExit(function(e) {
 			ti.api.info("==> Finished waiting for android emualtor to boot");
-			
+
 			// wipe appdata://test.js if it already exists
 			self.removeTestJS();
-			
+
 			self.drillbit.frontendDo('status', 'unlocking android screen...', true);
 			var unlockScreenAPK = ti.path.join(self.drillbit.resourcesDir, 'android', 'UnlockScreen', 'dist', 'UnlockScreen.apk');
 			self.runADB(['install', '-r', unlockScreenAPK]);
@@ -153,8 +177,12 @@ AndroidEmulator.prototype.run = function(readLineCb) {
 			self.drillbit.frontendDo('status', 'screen unlocked, ready to run tests');
 			self.drillbit.frontendDo('setup_finished');
 		});
-		prebuildLaunchProcess.launch();
+		waitProcess.launch();
 	} else {
+		if (this.testHarnessRunning) {
+			// Kill the test harness on bootup if it's still running
+			this.killTestHarness()
+		}
 		this.drillbit.frontendDo('status', 'ready to run tests');
 		this.drillbit.frontendDo('setup_finished');
 	}
@@ -165,7 +193,10 @@ AndroidEmulator.prototype.handleCompleteAndroidEvent = function(event)
 	var suite = event.suite;
 	var resultsData = this.runADB(['shell', 'cat', '/sdcard/' + this.drillbit.testHarnessId + '/results.json']);
 	var results = JSON.parse(resultsData);
-	this.drillbit.handleCompleteEvent(results, 'android');
+
+	var coverageData = this.runADB(['shell', 'cat', '/sdcard/' + this.drillbit.testHarnessId + '/coverage.json']);
+	var coverage = JSON.parse(coverageData);
+	this.drillbit.handleCompleteEvent(results, 'android', coverage);
 };
 
 AndroidEmulator.prototype.removeTestJS = function(testScript) {
@@ -215,7 +246,7 @@ var harnessBuildTriggers = [
 	ti.path.join('build', 'android', 'AndroidManifest.custom.xml'),
 	
 	// Directory triggers (any file under these dirs)
-	'modules',
+	'modules', 'Resources',
 	ti.path.join('build', 'android', 'src'),
 	ti.path.join('build', 'android', 'res')
 ];
@@ -276,27 +307,51 @@ AndroidEmulator.prototype.testHarnessNeedsBuild = function(stagedFiles) {
 	return false;
 };
 
+AndroidEmulator.prototype.installTestHarness = function(launch) {
+	this.runADB(['install', '-r', ti.path.join(this.drillbit.testHarnessDir, 'build', 'android', 'bin', 'app.apk')]);
+	if (launch)
+	{
+		this.launchTestHarness();
+	}
+};
+
 AndroidEmulator.prototype.launchTestHarness = function() {
-	this.runADB(['shell', 'am', 'start',
-		'-a', 'android.intent.action.MAIN',
-		'-c', 'android.intent.category.LAUNCHER',
-		'-n', this.drillbit.testHarnessId + '/.Test_harnessActivity']);
+	this.runADB(['shell', 'am', 'instrument',
+		'-e', 'class', this.drillbit.testHarnessId + '.Test_harnessActivity',
+		this.drillbit.testHarnessId + '/org.appcelerator.titanium.drillbit.TestHarnessRunner']);
+};
+
+AndroidEmulator.prototype.killTestHarness = function() {
+	if (this.device.indexOf('emulator') == 0) {
+		var pid = this.getTestHarnessPID();
+		if (pid != null && pid.length > 0) {
+			this.runADB(['shell', 'kill', pid]);
+		}
+	} else {
+		var jdwpKill = ti.path.join(this.drillbit.mobileSdk, 'android', 'jdwp_kill.py');
+		var jdwpKillProcess = this.drillbit.createPythonProcess([jdwpKill, this.androidSdk, this.device, this.drillbit.testHarnessId]);
+		jdwpKillProcess();
+	}
+	this.testHarnessRunning = false;
 };
 
 AndroidEmulator.prototype.runTestHarness = function(suite, stagedFiles) {
 	var forceBuild = 'forceBuild' in suite.options && suite.options.forceBuild;
 	if (!this.testHarnessRunning || this.needsBuild || this.testHarnessNeedsBuild(stagedFiles) || forceBuild) {
-		var command = 'simulator';
-		var commandArgs = [this.avdId, 'HVGA'];
+		var command = 'build';
+		var commandArgs = [];
+		var needsInstall = true;
 		var needsLaunch = false;
+
 		if (this.device.indexOf('emulator') != 0) {
 			command = 'install';
 			commandArgs = [this.avdId, this.device];
 			needsLaunch = true;
+			needsInstall = false;
 		}
 		var process = this.createTestHarnessBuilderProcess(command, commandArgs);
 		this.drillbit.frontendDo('building_test_harness', suite.name, 'android');
-		
+
 		var self = this;
 		process.setOnReadLine(function(data) {
 			var lines = data.split("\n");
@@ -305,7 +360,13 @@ AndroidEmulator.prototype.runTestHarness = function(suite, stagedFiles) {
 			});
 		});
 		process.setOnExit(function(e) {
-			if (needsLaunch) {
+			if (process.getExitCode() != 0) {
+				self.drillbit.handleTestError(suite);
+				return;
+			}
+			if (needsInstall) {
+				self.installTestHarness(true);
+			} else if (needsLaunch) {
 				self.launchTestHarness();
 			}
 			self.testHarnessRunning = true;
@@ -315,17 +376,7 @@ AndroidEmulator.prototype.runTestHarness = function(suite, stagedFiles) {
 	} else {
 		// restart the app
 		this.drillbit.frontendDo('running_test_harness', suite.name, 'android');
-		if (this.device.indexOf('emulator') == 0) {
-			var pid = this.getTestHarnessPID();
-			if (pid != null && pid.length > 0) {
-				this.runADB(['shell', 'kill', pid]);
-			}
-		} else {
-			var jdwpKill = ti.path.join(this.drillbit.mobileSdk, 'android', 'jdwp_kill.py');
-			var jdwpKillProcess = this.drillbit.createPythonProcess([jdwpKill, this.androidSdk, this.device, this.drillbit.testHarnessId]);
-			jdwpKillProcess();
-		}
-		
+
 		// wait a few seconds after kill, every now and then the proc will still
 		// be hanging up when we try to start it after kill returns
 		var self = this;

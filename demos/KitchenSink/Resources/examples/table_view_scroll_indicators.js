@@ -1,7 +1,10 @@
 var win = Ti.UI.currentWindow;
 
+var showScrollIndicators = false;
+
 var tv = Ti.UI.createTableView({
-	style:Titanium.UI.iPhone.TableViewStyle.GROUPED
+	style:Titanium.UI.iPhone.TableViewStyle.GROUPED,
+	showVerticalScrollIndicator:showScrollIndicators
 });
 
 function setData()
@@ -12,7 +15,7 @@ function setData()
 		var row = Ti.UI.createTableViewRow({height:50});
 		var l1 = Ti.UI.createLabel({text:'Label ' +  i, font:{fontSize:14}, color:'#888', left:5});
 		row.add(l1);
-		var image1 = Ti.UI.createImageView({url:'../images/chat.png', right:5,height:23, width:29});
+		var image1 = Ti.UI.createImageView({image:'../images/chat.png', right:5,height:23, width:29});
 		row.add(image1);
 		data.push(row);
 	}
@@ -24,6 +27,8 @@ var refresh = Titanium.UI.createButton({
 });
 refresh.addEventListener('click', function()
 {
+	showScrollIndicators = !showScrollIndicators;
+	tv.setShowVerticalScrollIndicator(showScrollIndicators);
 	tv.setData([]);
 	setTimeout(function()
 	{

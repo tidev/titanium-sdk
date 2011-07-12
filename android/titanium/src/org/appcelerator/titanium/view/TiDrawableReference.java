@@ -18,9 +18,12 @@ import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.TiFastDev;
 import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiBackgroundImageLoadTask;
 import org.appcelerator.titanium.util.TiConvert;
@@ -324,7 +327,7 @@ public class TiDrawableReference
 	/**
 	 * Gets the bitmap, scaled to a specific width, with the height matching the
 	 * original aspect ratio.
-	 * @parm destWidth Width in pixels of resulting bitmap
+	 * @param destWidth Width in pixels of resulting bitmap
 	 * @return Bitmap, or null if any problem getting it.  Check logcat if null.
 	 */
 	public Bitmap getBitmap(int destWidth)
@@ -509,7 +512,14 @@ public class TiDrawableReference
 		if (isTypeUrl() && url != null) {
 			if (context != null) {
 				try {
-					stream = getTiFileHelper().openInputStream(context.resolveUrl(null, url), false);
+					String resolved = context.resolveUrl(null, url);
+					if (resolved.startsWith(TiC.URL_ANDROID_ASSET_RESOURCES)
+						&& TiFastDev.isFastDevEnabled()) {
+						TiBaseFile tbf = TiFileFactory.createTitaniumFile(context, new String[] { resolved }, false);
+						stream = tbf.getInputStream();
+					} else {
+						stream = getTiFileHelper().openInputStream(resolved, false);
+					}
 				} catch (IOException e) {
 					Log.e(LCAT, "Problem opening stream with url " + url + ": " + e.getMessage(), e);
 				}

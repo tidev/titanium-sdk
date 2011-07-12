@@ -67,8 +67,10 @@ public class MediaModule extends KrollModule
 	@Kroll.constant public static final int NO_CAMERA = 2;
 	@Kroll.constant public static final int NO_VIDEO = 3;
 
-	@Kroll.constant public static final int VIDEO_SCALING_ASPECT_FILL = 0;
-	@Kroll.constant public static final int VIDEO_SCALING_MODE_FILL = 1;
+	@Kroll.constant public static final int VIDEO_SCALING_NONE = 0;
+	@Kroll.constant public static final int VIDEO_SCALING_ASPECT_FILL = 1;
+	@Kroll.constant public static final int VIDEO_SCALING_ASPECT_FIT = 2;
+	@Kroll.constant public static final int VIDEO_SCALING_MODE_FILL = 3;
 
 	@Kroll.constant public static final int VIDEO_CONTROL_DEFAULT = 0;
 	@Kroll.constant public static final int VIDEO_CONTROL_EMBEDDED = 1;
@@ -210,7 +212,7 @@ public class MediaModule extends KrollModule
 
 		if (!isHTCCameraApp) {
 			cameraIntent.getIntent().putExtra(MediaStore.EXTRA_OUTPUT, Uri.parse(imageUrl));
-		} 
+		}
 
 		CameraResultHandler resultHandler = new CameraResultHandler();
 		resultHandler.imageFile = imageFile;
@@ -270,7 +272,7 @@ public class MediaModule extends KrollModule
 					Uri imageUri = activity.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
 
 					// puts newly captured photo into the gallery
-					MediaScannerClient mediaScanner = new MediaScannerClient(getTiContext(), new String[] {imageFile.getAbsolutePath()}, null);
+					MediaScannerClient mediaScanner = new MediaScannerClient(getTiContext(), new String[] {imageUrl}, null);
 					mediaScanner.scan();
 
 					try {

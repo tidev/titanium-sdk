@@ -31,10 +31,10 @@ def check_android_sdk():
 	failed = False
 	status = "OK"
 	try:
-		sdk = AndroidSDK(None, 7)
+		sdk = AndroidSDK(None)
 		status = sdk.get_android_sdk()
 	except Exception, e:
-		status = "Missing Android 2.1 SDK: %s" % e
+		status = "Missing default Android SDK: %s" % e
 		failed = True
 	
 	return (failed, status)

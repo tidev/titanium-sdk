@@ -85,6 +85,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 @property(nonatomic,retain,readwrite)	id<TiProxyDelegate> modelDelegate;
 
++(BOOL)shouldRegisterOnInit;
 
 #pragma mark Private 
 
@@ -94,7 +95,6 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(BOOL)_hasListeners:(NSString*)type;
 -(void)_fireEventToListener:(NSString*)type withObject:(id)obj listener:(KrollCallback*)listener thisObject:(TiProxy*)thisObject_;
 -(id)_proxy:(TiProxyBridgeType)type;
--(void)_contextDestroyed;
 -(void)contextWasShutdown:(id<TiEvaluator>)context;
 -(TiHost*)_host;
 -(NSURL*)_baseURL;
@@ -110,6 +110,21 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(BOOL)destroyed;
 -(void)setReproxying:(BOOL)yn;
 -(BOOL)inReproxy;
+
+#pragma mark Utility
+-(KrollObject *)krollObjectForContext:(KrollContext *)context;
+
+-(BOOL)retainsJsObjectForKey:(NSString *)key;
+
+//TODO: Find everywhere were we retain a proxy in a non-assignment way, and do remember/forget properly.
+-(void)rememberProxy:(TiProxy *)rememberedProxy;
+-(void)forgetProxy:(TiProxy *)forgottenProxy;
+//These are when, say, a window is opened, so you want to do tiValueProtect to make SURE it doesn't go away.
+-(void)rememberSelf;
+-(void)forgetSelf;
+
+//SetCallback is done internally by setValue:forUndefinedKey:
+-(void)fireCallback:(NSString*)type withArg:(NSDictionary *)argDict withSource:(id)source;
 
 #pragma mark Public 
 -(id<NSFastEnumeration>)allKeys;

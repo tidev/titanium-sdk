@@ -7,10 +7,19 @@
 #ifdef USE_TI_UISCROLLABLEVIEW
 
 #import "TiViewProxy.h"
+#import <libkern/OSAtomic.h>
 
 @interface TiUIScrollableViewProxy : TiViewProxy 
 {
+	pthread_rwlock_t viewsLock;
+	NSMutableArray *viewProxies;
 }
+
+@property(nonatomic,readonly)	NSArray * viewProxies;
+-(TiViewProxy *)viewAtIndex:(int)index;
+-(void)lockViews;
+-(void)unlockViews;
+-(int)viewCount;
 
 @end
 

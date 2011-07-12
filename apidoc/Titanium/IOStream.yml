@@ -1,0 +1,102 @@
+---
+name: Titanium.IOStream
+description: IOStream is the interface that all stream types implement
+since: "1.7"
+extends: Titanium.Proxy
+
+methods:
+  - name: read
+    returns:
+        type: Number
+        description: Number of bytes read.
+    description: reads data from stream into a buffer
+    parameters:
+      - name: buffer
+        description: buffer to read stream data into
+        type: Titanium.Buffer
+
+  - name: read
+    returns:
+        type: Number
+        description: Number of bytes read.
+    description: reads data from stream into a buffer
+    parameters:
+      - name: buffer
+        description: buffer to read stream data into
+        type: Titanium.Buffer
+      - name: offset
+        description: offset to start reading buffer data from
+        type: Number
+      - name: length
+        description: length of data to read from buffer
+        type: Number
+
+  - name: write
+    returns:
+        type: Number
+        description: Number of bytes written.
+    description: writes data from buffer to stream
+    parameters:
+      - name: buffer
+        description: buffer to write to stream
+        type: Titanium.Buffer
+
+  - name: write
+    returns:
+        type: Number
+        description: Number of bytes written.
+    description: reads data from stream into a buffer
+    parameters:
+      - name: buffer
+        description: buffer to write to stream
+        type: Titanium.Buffer
+      - name: offset
+        description: offset to start writing buffer data from
+        type: Number
+      - name: length
+        description: length of data to write from buffer
+        type: Number
+
+  - name: isWriteable
+    returns:
+        type: Boolean
+        description: true if stream is writeable, false otherwise
+    description: Whether stream is writeable.
+
+  - name: isReadable
+    description: Whether stream is readable.
+    returns:
+        type: Boolean
+        description: true if stream is readable, false otherwise
+
+  - name: close
+    description: closes stream and throws exception on error
+
+
+examples:
+  - title: write data to stream
+    example: |
+        
+            var outBuffer = Ti.createBuffer({data: "write me"});
+            var outStream = // stream object could be socket, file, buffer or blob
+            
+            var bytesWritten = outStream.write(outBuffer);  // writes entire buffer to stream
+            Ti.API.info("Bytes written:" + bytesWritten);  // should be 8
+            
+            bytesWritten = outStream.write(outBuffer, 2, 5);  // only writes "ite m" to stream
+            Ti.API.info("Bytes written:" + bytesWritten);  // should be 5
+
+  - title: read data from stream
+    example: |
+        
+            var inBuffer = Ti.createBuffer({length: 1024});
+            
+            // assume the inStream contains the string "hello world"
+            var inStream = // stream object could be socket, file, buffer or blob
+            
+            var bytesRead = inStream.read(inBuffer);  // reads "hello world" from stream
+            Ti.API.info("Bytes read:" + bytesRead);  // should be 11
+            
+            bytesRead = inStream.read(inBuffer, 2, 5);  // only reads "llo w" from stream
+            Ti.API.info("Bytes read:" + bytesRead);  // should be 5
+

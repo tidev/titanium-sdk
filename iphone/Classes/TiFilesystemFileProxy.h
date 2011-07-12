@@ -10,12 +10,16 @@
 
 #import "TiFile.h"
 
+@class TiFilesystemFileStreamProxy;
+
 @interface TiFilesystemFileProxy : TiFile {
 @private
 	NSFileManager *fm;
 }
 
 -(id)initWithFile:(NSString*)path;
+
+-(TiFilesystemFileStreamProxy *) open:(id) args;
 
 +(id)makeTemp:(BOOL)isDirectory;
 

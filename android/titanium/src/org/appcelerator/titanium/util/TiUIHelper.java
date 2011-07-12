@@ -21,10 +21,17 @@ import java.util.regex.Pattern;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.TiFastDev;
+import org.appcelerator.titanium.TiMessageQueue;
+import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFileFactory;
+import org.appcelerator.titanium.proxy.TiWindowProxy;
+import org.appcelerator.titanium.proxy.TiWindowProxy.PostOpenListener;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -33,9 +40,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.content.pm.ActivityInfo;
 import android.content.res.AssetManager;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
@@ -48,14 +53,17 @@ import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
+import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Process;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.OrientationEventListener;
 import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.inputmethod.InputMethodManager;
@@ -118,18 +126,55 @@ public class TiUIHelper
 			.setCancelable(false).create().show();
 	}
 
-	public static void doOkDialog(Context context, String title, String message, OnClickListener listener) {
+	public static interface CurrentActivityListener
+	{
+		public void onCurrentActivityReady(Activity activity);
+	}
+
+	public static void waitForCurrentActivity(final CurrentActivityListener l)
+	{
+		// Some window opens are async, so we need to make sure we don't
+		// sandwich ourselves in between windows when transitioning
+		// between activities TIMOB-3644
+		TiWindowProxy waitingForOpen = TiWindowProxy.getWaitingForOpen();
+		if (waitingForOpen != null) {
+			waitingForOpen.setPostOpenListener(new PostOpenListener() {
+				@Override
+				public void onPostOpen(TiWindowProxy window)
+				{
+					TiApplication app = TiApplication.getInstance();
+					Activity activity = app.getCurrentActivity();
+					if (activity != null) {
+						l.onCurrentActivityReady(activity);
+					}
+				}
+			});
+		} else {
+			TiApplication app = TiApplication.getInstance();
+			Activity activity = app.getCurrentActivity();
+			if (activity != null) {
+				l.onCurrentActivityReady(activity);
+			}
+		}
+	}
+
+	public static void doOkDialog(final String title, final String message, OnClickListener listener) {
 		if (listener == null) {
 			listener = new OnClickListener() {
-
 				public void onClick(DialogInterface dialog, int which) {
 					// Do nothing.
 				}};
 		}
-		
-		new AlertDialog.Builder(context).setTitle(title).setMessage(message)
-			.setPositiveButton(android.R.string.ok, listener)
-			.setCancelable(false).create().show();
+		final OnClickListener fListener = listener;
+		waitForCurrentActivity(new CurrentActivityListener() {
+			@Override
+			public void onCurrentActivityReady(Activity activity)
+			{
+				new AlertDialog.Builder(activity).setTitle(title).setMessage(message)
+					.setPositiveButton(android.R.string.ok, fListener)
+					.setCancelable(false).create().show();
+			}
+		});
 	}
 
 	public static int toTypefaceStyle(String fontWeight) {
@@ -290,6 +335,8 @@ public class TiUIHelper
 				Log.e(LCAT, "Unable to load 'fonts' assets. Perhaps doesn't exist? " + e.getMessage());
 			}
 		}
+
+		mCustomTypeFaces.put(fontFamily, null);
 		return null;
 	}
 
@@ -686,9 +733,29 @@ public class TiUIHelper
 		}
 		return bitmap;
 	}
-	
+
+	public static Drawable loadFastDevDrawable(TiContext context, String url)
+	{
+		try {
+			TiBaseFile tbf = TiFileFactory.createTitaniumFile(context, new String[] { url }, false);
+			InputStream stream = tbf.getInputStream();
+			Drawable d = BitmapDrawable.createFromStream(stream, url);
+			stream.close();
+			return d;
+		} catch (IOException e) {
+			Log.w(LCAT, e.getMessage(), e);
+		}
+		return null;
+	}
+
 	public static Drawable getResourceDrawable(TiContext context, String url)
 	{
+		if (TiFastDev.isFastDevEnabled()) {
+			Drawable d = loadFastDevDrawable(context, url);
+			if (d != null) {
+				return d;
+			}
+		}
 		int id = getResourceId(url);
 		if (id == 0) {
 			return null;
@@ -791,58 +858,43 @@ public class TiUIHelper
 		}
 	}
 
-	public static int convertConfigToActivityOrientation(int orientation)
+	/**
+	 * Run the Runnable "delayed" by using an AsyncTask to first require a new
+	 * thread and only then, in onPostExecute, run the Runnable on the UI thread.
+	 * @param runnable Runnable to run on UI thread.
+	 */
+	public static void runUiDelayed(final Runnable runnable)
 	{
-		switch(orientation) {
-			case Configuration.ORIENTATION_PORTRAIT:
-				return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-			case Configuration.ORIENTATION_LANDSCAPE:
-				return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-			default:
-				return -1;
-		}
+		(new AsyncTask<Void, Void, Void>()
+		{
+			@Override
+			protected Void doInBackground(Void... arg0)
+			{
+				return null;
+			}
+			/**
+			 * Always invoked on UI thread.
+			 */
+			@Override
+			protected void onPostExecute(Void result)
+			{
+				Handler handler = new Handler(Looper.getMainLooper());
+				handler.post(runnable);
+			}
+		}).execute();
 	}
 
-	public static int convertTiToActivityOrientation(int orientation) {
-		switch (orientation) {
-			case LANDSCAPE_LEFT :
-			case LANDSCAPE_RIGHT :
-				return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-			case PORTRAIT :
-			case UPSIDE_PORTRAIT :
-				return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+	/**
+	 * If there is a block on the UI message queue, run the Runnable "delayed".
+	 * @param runnable Runnable to run on UI thread.
+	 */
+	public static void runUiDelayedIfBlock(final Runnable runnable)
+	{
+		if (TiMessageQueue.getMainMessageQueue().isBlocking()) {
+			runUiDelayed(runnable);
+		} else {
+			Handler handler = new Handler(Looper.getMainLooper());
+			handler.post(runnable);
 		}
-		return ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
-	}
-	
-	public static int convertToTiOrientation(int orientation) {
-		switch(orientation)
-		{
-			case Configuration.ORIENTATION_LANDSCAPE:
-			case ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:
-				return LANDSCAPE_LEFT;
-			case Configuration.ORIENTATION_PORTRAIT:
-			// == case ActivityInfo.SCREEN_ORIENTATION_PORTRAIT:
-				return PORTRAIT;
-		}
-		return UNKNOWN;
-	}
-	
-	public static int convertToTiOrientation(int orientation, int degrees) {
-		if (degrees == OrientationEventListener.ORIENTATION_UNKNOWN) {
-			return convertToTiOrientation(orientation);
-		}
-		switch (orientation) {
-		case Configuration.ORIENTATION_LANDSCAPE:
-		case ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:
-			if (degrees >= 270 && degrees <= 360) {
-				return LANDSCAPE_LEFT;
-			} else {
-				return LANDSCAPE_RIGHT;
-			}
-		case Configuration.ORIENTATION_PORTRAIT:
-			return PORTRAIT;
-		}
-		return UNKNOWN;
 	}
 }

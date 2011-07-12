@@ -6,6 +6,7 @@
  */
 #ifdef USE_TI_DATABASE
 
+#import "DatabaseModule.h"
 #import "TiDatabaseResultSetProxy.h"
 #import "TiDatabaseProxy.h"
 #import "TiUtils.h"
@@ -49,6 +50,67 @@
 	return self;
 }
 
+// TODO: Need to move this logic to our general int translation... but right now it would screw so much up, we should avoid it.
+-(BOOL)isParseableString:(NSString*)str ofType:(DatabaseFieldType)type
+{
+    NSScanner* scanner = [NSScanner scannerWithString:str];
+    switch (type) {
+        case FieldTypeInt: {
+            int v;
+            return ([scanner scanInt:&v] && [scanner isAtEnd]);
+            break;
+        }
+        case FieldTypeDouble: {
+            double v;
+            return ([scanner scanDouble:&v] && [scanner isAtEnd]);
+            break;
+        }
+        case FieldTypeFloat: {
+            float v;
+            return ([scanner scanFloat:&v] && [scanner isAtEnd]);
+            break;
+        }
+        default:
+            return YES;
+    }
+}
+
+-(id) _transformObject:(id) obj toType:(DatabaseFieldType) type {
+	
+	if(FieldTypeString == type) {
+		return [TiUtils stringValue:obj];		
+	}
+
+	id result = nil;
+    
+	if(FieldTypeInt == type) {
+        BOOL valid = NO;
+        BOOL isString = [obj isKindOfClass:[NSString class]];
+        if (!isString || (isString && [self isParseableString:obj ofType:type])) {
+            result = NUMINT([TiUtils intValue:obj def:NSNotFound valid:&valid]);
+        }
+        if (!valid) {
+            [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"Couldn't cast from %@ to int", [obj class]] location:CODELOCATION];
+        }
+	}
+	
+	if(FieldTypeFloat == type ||
+	   FieldTypeDouble == type) {
+		BOOL valid = NO;
+        BOOL isString = [obj isKindOfClass:[NSString class]];
+        if (!isString || (isString && [self isParseableString:obj ofType:type])) {
+            result = (FieldTypeFloat == type) ? NUMFLOAT([TiUtils floatValue:obj def:0.0 valid:&valid]) 
+                                              : NUMDOUBLE([TiUtils doubleValue:obj def:0.0 valid:&valid]);
+        }
+		if(!valid) {
+			[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"Couldn't cast from %@ to %@", [obj class], (FieldTypeFloat == type) ? @"float" : @"double"] location:CODELOCATION];
+		}		
+	}
+	return result;
+}
+
+#pragma mark Public API
+
 -(void)close:(id)args
 {
 	if (database!=nil && results!=nil)
@@ -81,12 +143,18 @@
 
 -(id)field:(id)args
 {
-	ENSURE_SINGLE_ARG(args,NSObject);
+	ENSURE_ARRAY(args);
 	if (results!=nil)
 	{
-		id result = [results objectForColumnIndex:[TiUtils intValue:args]];
+	    id result = [results objectForColumnIndex:[TiUtils intValue:[args objectAtIndex:0]]];
 		if ([result isKindOfClass:[NSData class]]) {
 			result = [[[TiBlob alloc] initWithData:result mimetype:@"application/octet-stream"] autorelease];
+		}
+
+		if([args count] > 1) {
+			//cast result on the way out if type constant was passed
+			NSNumber *type = (NSNumber *) [args objectAtIndex:1];
+			result = [self _transformObject:result toType:[type intValue]];
 		}
 		return result;
 	}
@@ -95,13 +163,18 @@
 
 -(id)fieldByName:(id)args
 {
-	ENSURE_SINGLE_ARG(args,NSObject);
+	ENSURE_ARRAY(args);
 	if (results!=nil)
 	{
-		id result = [results objectForColumn:[TiUtils stringValue:args]];
+		id result = [results objectForColumn:[TiUtils stringValue:[args objectAtIndex:0]]];
 		if ([result isKindOfClass:[NSData class]]) {
 			result = [[[TiBlob alloc] initWithData:result mimetype:@"application/octet-stream"] autorelease];
 		}
+ 	    if([args count] > 1) {
+		   //cast result on the way out if type constant was passed
+		   NSNumber *type = (NSNumber *) [args objectAtIndex:1];
+		   result = [self _transformObject:result toType:[type intValue]];
+	    } 
 		return result;
 	}
 	return nil;
@@ -170,42 +243,6 @@
 {
 	return [self validRow];
 }
-
-- (id) dynamicField:(id) args {
-	ENSURE_ARG_COUNT(args, 1)
-
-	id arg = [args objectAtIndex:0],
-	   ret = nil;
-	
-	if([arg isKindOfClass:[NSString class]]) {
-		ret = [self fieldByName:arg];
-	} else if([arg isKindOfClass:[NSNumber class]]) {
-		ret = [self field:arg];
-	} else {
-		[self throwException:@"Invalid parameter type passed to " subreason:nil location:CODELOCATION];
-	}
-	return ret;
-}
-
-#pragma mark -
-#pragma mark Public API - Typed Getters
-
-- (id) getString:(id) args {
-	return [TiUtils stringValue:[self dynamicField:args]];
-}
-
-- (id) getInt:(id) args {
-	return NUMINT([TiUtils intValue:[self dynamicField:args]]);
-}
-
-- (id) getFloat: (id) args {
-	return NUMFLOAT([TiUtils floatValue:[self dynamicField:args]]);
-}
-
-- (id) getDouble: (id) args {
-	return NUMDOUBLE([TiUtils doubleValue:[self dynamicField:args]]);
-}
-
 
 @end
 

@@ -75,6 +75,8 @@ typedef enum {
 					   delegate:(NSObject<ImageLoaderDelegate>*)delegate 
 					   userInfo:(NSDictionary*)userInfo;
 
+-(BOOL)purgeEntry:(NSURL*)url;
+
 -(void)suspend;
 -(void)resume;
 -(void)cancel;

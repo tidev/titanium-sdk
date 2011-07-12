@@ -25,7 +25,7 @@ def check_and_print_err(err, warning_regex):
 		sys.stderr.flush()
 	return errored
 
-def run(args, ignore_error=False, debug=True, ignore_output=False, warning_regex=None, return_error=False):
+def run(args, ignore_error=False, debug=True, ignore_output=False, warning_regex=None, return_error=False, return_process=False):
 	if debug:
 		print "[DEBUG] %s" % (subprocess.list2cmdline(args))
 		sys.stdout.flush()
@@ -33,8 +33,9 @@ def run(args, ignore_error=False, debug=True, ignore_output=False, warning_regex
 		subprocess.Popen(args, stderr=subprocess.PIPE, stdout=subprocess.PIPE).wait()
 		return None
 
-	(so,se) = subprocess.Popen(args, stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()
-	
+	process = subprocess.Popen(args, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+	(so, se) = process.communicate()
+
 	if type(se) != types.NoneType and len(se) > 0:
 		if not ignore_error:
 			err = str(se)
@@ -44,7 +45,13 @@ def run(args, ignore_error=False, debug=True, ignore_output=False, warning_regex
 			else:
 				if (check_and_print_err(err, warning_regex)):
 					return None
+
 	if return_error:
-		return so, se
+		if return_process:
+			return so, se, process
+		else:
+			return so, se
+	elif return_process:
+		return so, process
 	else:
 		return so

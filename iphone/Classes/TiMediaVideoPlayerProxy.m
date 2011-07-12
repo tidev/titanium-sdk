@@ -425,14 +425,14 @@ NSArray* moviePlayerKeys = nil;
 {
 	if ([media_ isKindOfClass:[TiFile class]])
 	{
-		[self setUrl:[media_ path]];
+		[self setUrl:[NSURL fileURLWithPath:[media_ path]]];
 	}
 	else if ([media_ isKindOfClass:[TiBlob class]])
 	{
 		TiBlob *blob = (TiBlob*)media_;
 		if ([blob type] == TiBlobTypeFile)
 		{
-			[self setUrl:[blob path]];
+			[self setUrl:[blob nativePath]];
 		}
 		else if ([blob type] == TiBlobTypeData)
 		{
@@ -842,16 +842,8 @@ NSArray* moviePlayerKeys = nil;
 -(void)stop:(id)args
 {
 	ENSURE_UI_THREAD(stop, args);
-	
-	if (!playing) {
-		return;
-	}
-	
 	playing = NO;
-	if (movie!=nil)
-	{
-		[movie stop];
-	}
+	[movie stop];
 	RELEASE_TO_NIL_AUTORELEASE(movie);
 }
 
@@ -868,11 +860,6 @@ NSArray* moviePlayerKeys = nil;
 		[self throwException:TiExceptionInvalidType
 				subreason:@"Tried to play movie player without a valid url, media, or contentURL property"
 				location:CODELOCATION];
-	}
-	
-	if (playing)
-	{
-		[self stop:nil];
 	}
 	
 	playing = YES;
@@ -892,9 +879,8 @@ NSArray* moviePlayerKeys = nil;
 		return;
 	}
 	
-	// For the purposes of cleanup, we're still playing, so don't toggle that.
-	if ([[self player] respondsToSelector:@selector(pause)])
-	{
+	if ([[self player] respondsToSelector:@selector(pause)]) {
+		playing = NO;
 		[[self player] performSelector:@selector(pause)];
 	}
 }
@@ -1144,8 +1130,12 @@ NSArray* moviePlayerKeys = nil;
 		if ([TiUtils isiPhoneOS3_2OrGreater] && [self viewAttached]) {
 			TiMediaVideoPlayer *vp = (TiMediaVideoPlayer*)[self view];
 			[vp movieLoaded];
-		}
-        else {
+			if (player.loadState == MPMovieLoadStatePlayable) {
+				if ([self _hasListeners:@"load"]) {
+					[self fireEvent:@"load" withObject:nil];
+				}
+			}
+		} else {
             loaded = YES;
         }
 	}
@@ -1173,6 +1163,7 @@ NSArray* moviePlayerKeys = nil;
 		[self fireEvent:@"playbackState" withObject:event];
 	}
 	switch ([movie playbackState]) {
+		case MPMoviePlaybackStatePaused:
 		case MPMoviePlaybackStateStopped:
 			playing = NO;
 			break;

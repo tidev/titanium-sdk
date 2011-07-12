@@ -11,6 +11,7 @@
 #import "TiUtils.h"
 
 @implementation TiDOMAttrProxy
+@synthesize document;
 
 -(void)dealloc
 {
@@ -43,6 +44,7 @@
 -(id)ownerElement
 {
 	TiDOMElementProxy *proxy = [[[TiDOMElementProxy alloc] _initWithPageContext:[self pageContext]] autorelease];
+	[proxy setDocument:[self document]];
 	[proxy setElement:owner];
 	return proxy;
 }

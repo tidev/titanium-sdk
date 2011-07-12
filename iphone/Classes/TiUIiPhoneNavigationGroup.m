@@ -18,8 +18,7 @@
 	{
 		return;
 	}
-	[visibleProxy _tabBeforeBlur];
-	[visibleProxy _tabBlur];
+    // NOTE: We don't need to blur the currently visible proxy, because it gets closed out by the close: call.
 	[visibleProxy autorelease];
 
 	visibleProxy = [newVisibleProxy retain];
@@ -86,12 +85,14 @@
 				[win retain];
 				[[win view] removeFromSuperview];
 				[win close:nil];
+				[[self proxy] forgetProxy:win];
 				[win autorelease];
 			}
 		}
 		[controller.view removeFromSuperview];
 		[controller resignFirstResponder];
 		RELEASE_TO_NIL(controller);
+		[visibleProxy autorelease];
 		visibleProxy = nil; // close/release handled by view removal
 	}
 }
@@ -112,11 +113,9 @@
 	NSMutableArray* newControllers = [NSMutableArray arrayWithArray:controller.viewControllers];
 	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:(windowController == [newControllers lastObject])];
 	[newControllers removeObject:windowController];
+	closingProxy = [window retain];
 	[controller setViewControllers:newControllers animated:animated];
 	
-	[window retain];
-	[window close:nil];
-	[window autorelease];
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
@@ -141,12 +140,16 @@
 	
 	if (newWindow!=visibleProxy)
 	{
-		if (visibleProxy!=root && opening==NO)
+		if (visibleProxy != nil && visibleProxy!=root && opening==NO)
 		{
-			[self close:visibleProxy withObject:nil];
+			//TODO: This is a hideous hack, but NavGroup needs rewriting anyways
+			[[self proxy] close:[NSArray arrayWithObject:visibleProxy]];
 		}
 		[self setVisibleProxy:newWindow];
 	}
+	[closingProxy close:nil];
+	[closingProxy release];
+	closingProxy = nil;
 	opening = NO;
 	[newWindow windowDidOpen];
 }

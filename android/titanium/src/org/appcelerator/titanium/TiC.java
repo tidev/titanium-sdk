@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -115,10 +115,13 @@ public class TiC
 	public static final String PROPERTY_BORDER_RADIUS = "borderRadius";
 	public static final String PROPERTY_BORDER_WIDTH = "borderWidth";
 	public static final String PROPERTY_BOTTOM = "bottom";
+	public static final String PROPERTY_BUTTON = "button";
 	public static final String PROPERTY_BUTTON_NAMES = "buttonNames";
+	public static final String PROPERTY_BYTE_ORDER = "byteOrder";
 	public static final String PROPERTY_CAN_SCALE = "canScale";
 	public static final String PROPERTY_CANCEL = "cancel";
 	public static final String PROPERTY_CENTER = "center";
+	public static final String PROPERTY_CHARSET = "charset";
 	public static final String PROPERTY_CITY = "city";
 	public static final String PROPERTY_CLASS_NAME = "className";
 	public static final String PROPERTY_CLASS_NAMES = "classNames";
@@ -128,6 +131,7 @@ public class TiC
 	public static final String PROPERTY_CONTENT_INTENT = "contentIntent";
 	public static final String PROPERTY_CONTENT_TEXT = "contentText";
 	public static final String PROPERTY_CONTENT_TITLE = "contentTitle";
+	public static final String PROPERTY_CONTENT_URL = "contentURL";
 	public static final String PROPERTY_CONTENT_VIEW = "contentView";
 	public static final String PROPERTY_COUNTRY = "country";
 	public static final String PROPERTY_COUNTRY_CODE = "countryCode";
@@ -136,6 +140,8 @@ public class TiC
 	public static final String PROPERTY_DEFAULTS = "defaults";
 	public static final String PROPERTY_DELAY = "delay";
 	public static final String PROPERTY_DELETE_INTENT = "deleteIntent";
+	public static final String PROPERTY_DEST = "dest";
+	public static final String PROPERTY_DEST_POSITION = "destPosition";
 	public static final String PROPERTY_DIRECTION = "direction";
 	public static final String PROPERTY_DISPLAY_ADDRESS = "displayAddress";
 	public static final String PROPERTY_DURATION = "duration";
@@ -188,14 +194,19 @@ public class TiC
 	public static final String PROPERTY_LEFT = "left";
 	public static final String PROPERTY_LEFT_BUTTON = "leftButton";
 	public static final String PROPERTY_LEFT_IMAGE = "leftImage";
+	public static final String PROPERTY_LEFT_VIEW = "leftView";
+	public static final String PROPERTY_LENGTH = "length";
 	public static final String PROPERTY_LEVEL = "level";
 	public static final String PROPERTY_LOCATION = "location";
 	public static final String PROPERTY_LONGITUDE = "longitude";
 	public static final String PROPERTY_LONGITUDE_DELTA = "longitudeDelta";
 	public static final String PROPERTY_MAGNETIC_HEADING = "magneticHeading";
 	public static final String PROPERTY_MAP_TYPE = "mapType";
+	public static final String PROPERTY_MEDIA_CONTROL_STYLE = "mediaControlStyle";
 	public static final String PROPERTY_MENU = EVENT_PROPERTY_MENU;
 	public static final String PROPERTY_MESSAGE = "message";
+	public static final String PROPERTY_MESSENGER = "messenger";
+	public static final String PROPERTY_MESSENGER_RECEIVER = "messengerReceiver";
 	public static final String PROPERTY_MIN_ROW_HEIGHT = "minRowHeight";
 	public static final String PROPERTY_MINUTE_INTERVAL = "minuteInterval";
 	public static final String PROPERTY_MODAL = "modal";
@@ -213,6 +224,8 @@ public class TiC
 	public static final String PROPERTY_PIN_IMAGE = "pinImage";
 	public static final String PROPERTY_PINCOLOR = "pincolor";
 	public static final String PROPERTY_PLACES = "places";
+	public static final String PROPERTY_PLAY = "play";
+	public static final String PROPERTY_POSITION = "position";
 	public static final String PROPERTY_POSTAL_CODE = "postalCode";
 	public static final String PROPERTY_POWER = "power";
 	public static final String PROPERTY_PREFERRED_PROVIDER = "preferredProvider";
@@ -227,10 +240,12 @@ public class TiC
 	public static final String PROPERTY_RIGHT = "right";
 	public static final String PROPERTY_RIGHT_BUTTON = "rightButton";
 	public static final String PROPERTY_RIGHT_IMAGE = "rightImage";
+	public static final String PROPERTY_RIGHT_VIEW = "rightView";
 	public static final String PROPERTY_ROTATE = "rotate";
 	public static final String PROPERTY_ROW_DATA = "rowData";
 	public static final String PROPERTY_ROW_HEIGHT = "rowHeight";
 	public static final String PROPERTY_SCALE = "scale";
+	public static final String PROPERTY_SCALING_MODE = "scalingMode";
 	public static final String PROPERTY_SCALES_PAGE_TO_FIT = "scalesPageToFit";
 	public static final String PROPERTY_SCROLL_ENABLED = "scrollEnabled";
 	public static final String PROPERTY_SEARCH = "search";
@@ -244,21 +259,28 @@ public class TiC
 	public static final String PROPERTY_SOFT_KEYBOARD_ON_FOCUS = "softKeyboardOnFocus";
 	public static final String PROPERTY_SOUND = "sound";
 	public static final String PROPERTY_SPEED = "speed";
+	public static final String PROPERTY_SOURCE = EVENT_PROPERTY_SOURCE;
+	public static final String PROPERTY_SOURCE_LENGTH = "sourceLength";
+	public static final String PROPERTY_SOURCE_POSITION = "sourcePosition";
 	public static final String PROPERTY_STATE = "state";
 	public static final String PROPERTY_STATUS = "status";
 	public static final String PROPERTY_STREET = "street";
 	public static final String PROPERTY_STREET1 = "street1";
+	public static final String PROPERTY_STYLE = "style";
 	public static final String PROPERTY_SUBTITLE = "subtitle";
 	public static final String PROPERTY_SUCCESS = "success";
 	public static final String PROPERTY_TAB_OPEN = "tabOpen";
 	public static final String PROPERTY_TAG = "tag";
 	public static final String PROPERTY_TEXT = "text";
+	public static final String PROPERTY_TEXTID = "textid";
 	public static final String PROPERTY_TEXT_ALIGN = "textAlign";
 	public static final String PROPERTY_TICKER_TEXT = "tickerText";
 	public static final String PROPERTY_TIME = "time";
 	public static final String PROPERTY_TIMESTAMP = "timestamp";
 	public static final String PROPERTY_TITLE = "title";
 	public static final String PROPERTY_TITLEID = "titleid";
+	public static final String PROPERTY_TITLE_ON = "titleOn";
+	public static final String PROPERTY_TITLE_OFF = "titleOff";
 	public static final String PROPERTY_TOP = "top";
 	public static final String PROPERTY_TOUCH_ENABLED = "touchEnabled";
 	public static final String PROPERTY_TRANSFORM = "transform";
@@ -285,4 +307,5 @@ public class TiC
 	public static final String URL_APP_PREFIX = "app://";
 	public static final String URL_APP_SCHEME = "app";
 	public static final String URL_APP_JS = "app://app.js";
+	public static final String URL_ANDROID_ASSET_RESOURCES = "file:///android_asset/Resources/";
 }

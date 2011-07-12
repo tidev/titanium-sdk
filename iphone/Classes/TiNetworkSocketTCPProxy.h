@@ -12,7 +12,7 @@
 
 // Used to determine the type of processing 
 typedef enum {
-    TO_BUFFER,
+    TO_BUFFER = 1,
     TO_STREAM,
     TO_CALLBACK,
 } ReadDestination;
@@ -33,13 +33,18 @@ typedef enum {
     // complete.
     NSCondition* ioCondition;
     NSUInteger readDataLength;
+    NSError* socketError;
     
     // In order to put the accepted socket on the right run loop, and make sure it's constructed
     // properly, we need THESE as well...
     NSMutableDictionary* acceptArgs;
     NSRunLoop* acceptRunLoop;
-    NSCondition* acceptCondition;
     BOOL accepting;
+
+    // And, last but not least, in order to make sure that socket run loops are configured AND ACTIVE before performing any work on them,
+    // we need to be able to signal that they're 
+    NSCondition* readyCondition;
+    BOOL socketReady;
     
     // Information used to hash callbacks and asynch ops to tags.
     int asynchTagCount;

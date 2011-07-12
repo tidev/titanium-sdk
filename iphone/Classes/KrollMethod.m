@@ -9,6 +9,8 @@
 #import "KrollContext.h"
 #import "TiBase.h"
 
+#import "KrollBridge.h"
+
 TiClassRef KrollMethodClassRef = NULL;
 
 TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjectRef thisObj, size_t argCount, const TiValueRef arguments[], TiValueRef* exception)
@@ -55,6 +57,7 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 }
 
 @implementation KrollMethod
+@synthesize propertyKey, selector,argcount,type,name,updatesProperty;
 
 -(id)init
 {
@@ -75,6 +78,11 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 	return self;
 }
 
++(TiClassRef)jsClassRef
+{
+	return KrollMethodClassRef;
+}
+
 #ifdef DEBUG
 -(id)description
 {
@@ -82,9 +90,19 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 }
 #endif
 
--(id)initWithTarget:(id)target_ selector:(SEL)selector_ argcount:(int)argcount_ type:(KrollMethodType)type_ name:(id)name_ context:(KrollContext*)context_;
+-(id)initWithTarget:(id)target_ context:(KrollContext*)context_;
 {
 	if (self = [super initWithTarget:target_ context:context_])
+	{
+		[target_ release];
+	}
+	return self;
+}
+
+
+-(id)initWithTarget:(id)target_ selector:(SEL)selector_ argcount:(int)argcount_ type:(KrollMethodType)type_ name:(id)name_ context:(KrollContext*)context_;
+{
+	if (self = [self initWithTarget:target_ context:context_])
 	{
 		selector = selector_;
 		argcount = argcount_;
@@ -96,24 +114,54 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 
 -(void)dealloc
 {
+	target = nil;
 	[name release];
 	name = nil;
+	[propertyKey release];
 	[super dealloc];
 }
+
+-(void)updateJSObjectWithValue:(id)value forKey:(NSString *)key
+{
+	if (!updatesProperty)
+	{
+		return;
+	}
+	KrollBridge * ourBridge = [context delegate];
+	KrollObject * targetKrollObject = [ourBridge krollObjectForProxy:target];
+	TiStringRef keyString = TiStringCreateWithCFString((CFStringRef) key);
+
+	if ((value != target) && [value isKindOfClass:[TiProxy class]] && [ourBridge usesProxy:value])
+	{
+		KrollObject *valueKrollObject = [ourBridge krollObjectForProxy:value];
+		[targetKrollObject noteObject:[valueKrollObject jsobject] forTiString:keyString context:[context context]];
+	}
+	else
+	{
+		[targetKrollObject forgetObjectForTiString:keyString context:[context context]];
+	}
+	
+	TiStringRelease(keyString);
+}
+
 
 -(id)call:(NSArray*)args
 {
 	// special property setter delegator against the target
 	if (type == KrollMethodPropertySetter && [args count]==1)
 	{
-		[target setValue:[KrollObject nonNull:[args objectAtIndex:0]] forKey:name];
+		id newValue = [KrollObject nonNull:[args objectAtIndex:0]];
+		[self updateJSObjectWithValue:newValue forKey:name];
+		[target setValue:newValue forKey:name];
 		return self;
 	}
 	// special property getter delegator against the target
 	if (type == KrollMethodPropertyGetter)
 	{
 		// hold, see below
-		return [target valueForKey:name];
+		id result = [target valueForKey:name];
+		[self updateJSObjectWithValue:result forKey:name];		
+		return result;
 	}
 	
 	// special generic factory for creating proxy objects for modules
@@ -163,6 +211,11 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 			id arg2 = [KrollObject nonNull:[args count] > 1 ? [args objectAtIndex:1] : nil];
 			[invoker setArgument:&arg1 atIndex:2];
 			[invoker setArgument:&arg2 atIndex:3];
+			if (type == KrollMethodSetter)
+			{
+				[self updateJSObjectWithValue:arg1 forKey:propertyKey];
+			}
+			
 		}
 		else
 		{
@@ -174,6 +227,7 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 			else if (type == KrollMethodSetter)
 			{
 				id arg = [KrollObject nonNull:[args count] == 1 ? [args objectAtIndex:0] : args];
+				[self updateJSObjectWithValue:arg forKey:propertyKey];
 				[invoker setArgument:&arg atIndex:2];
 			}
 			else if (args!=nil)

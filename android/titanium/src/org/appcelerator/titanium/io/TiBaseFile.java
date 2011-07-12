@@ -305,7 +305,7 @@ public abstract class TiBaseFile
 		return false;
 	}
 
-	public double size() {
+	public long size() {
 		logNotSupported("size");
 		return 0;
 	}
@@ -335,13 +335,13 @@ public abstract class TiBaseFile
 		logNotSupported("writeLine");
 	}
 
-	public void close() {
+	public void close() throws IOException {
 		if (opened) {
 			if (instream != null) {
 				try {
 					instream.close();
 				} catch (IOException e) {
-					//Ignore
+					throw new IOException("Error closing file");
 				}
 				instream = null;
 			}
@@ -350,7 +350,7 @@ public abstract class TiBaseFile
 				try {
 					inreader.close();
 				} catch (IOException e) {
-					//Ignore
+					throw new IOException("Error closing file");
 				}
 				inreader = null;
 			}
@@ -358,7 +358,7 @@ public abstract class TiBaseFile
 				try {
 					outstream.close();
 				} catch (IOException e) {
-					// Ignore
+					throw new IOException("Error closing file");
 				}
 				outstream = null;
 			}
@@ -367,7 +367,7 @@ public abstract class TiBaseFile
 				try {
 					outwriter.close();
 				} catch (IOException e) {
-					// Ignore
+					throw new IOException("Error closing file");
 				}
 				outwriter = null;
 			}
@@ -408,6 +408,16 @@ public abstract class TiBaseFile
 		while((count = r.read(buf, 0, count)) != -1) {
 			w.write(buf, 0, count);
 		}
+	}
+
+	public InputStream getExistingInputStream()
+	{
+		return instream;
+	}
+
+	public OutputStream getExistingOutputStream()
+	{
+		return outstream;
 	}
 
 	public abstract InputStream getInputStream() throws IOException;
