@@ -45,17 +45,29 @@
 -(TiBlob*)base64encode:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSObject);
-	
-	NSString *str = [self convertToString:args];
 
-	const char *data = [str UTF8String];
-	size_t len = [str length];
+	const char *data;
+	size_t len;
+	if ([args isKindOfClass:[NSString class]])
+	{
+		data = [args UTF8String];
+		len = [args length];
+	}
+	else if ([args isKindOfClass:[TiBlob class]])
+	{
+		data = [[(TiBlob*)args data] bytes];
+		len = [[(TiBlob*)args data] length];
+	}
+	else
+	{
+		THROW_INVALID_ARG(@"invalid type");
+	}
 	
 	size_t outsize = EstimateBas64EncodedDataSize(len);
 	char *base64Result = malloc(sizeof(char)*outsize);
-    size_t theResultLength = outsize;
+	size_t theResultLength = outsize;
 	
-    bool result = Base64EncodeData(data, len, base64Result, &theResultLength);
+	bool result = Base64EncodeData(data, len, base64Result, &theResultLength);
 	if (result)
 	{
 		NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
@@ -68,23 +80,38 @@
 
 -(TiBlob*)base64decode:(id)args
 {
-	ENSURE_SINGLE_ARG(args,NSObject);
-	
-	NSString *str = [self convertToString:args];
+	if ([args count] < 1 || [args count] > 2)
+	{
+		[self throwException:@"invalid number of arguments, expected at between 1 and 2" subreason:nil location:CODELOCATION];
+		return;
+	}
+	NSString *str = [self convertToString:[args objectAtIndex:0]];
+	BOOL image = NO;
+	if ([args count] == 2)
+	{
+		image = [TiUtils boolValue:[args objectAtIndex:1] def:NO];
+	}
 	
 	const char *data = [str UTF8String];
 	size_t len = [str length];
 	
 	size_t outsize = EstimateBas64DecodedDataSize(len);
 	char *base64Result = malloc(sizeof(char)*outsize);
-    size_t theResultLength = outsize;
+	size_t theResultLength = outsize;
 	
-    bool result = Base64DecodeData(data, len, base64Result, &theResultLength);
+	bool result = Base64DecodeData(data, len, base64Result, &theResultLength);
 	if (result)
 	{
 		NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
 		free(base64Result);
-		return [[[TiBlob alloc] initWithData:theData mimetype:@"application/octet-stream"] autorelease];
+		if (image)
+		{
+			return [[[TiBlob alloc] initWithImage:[UIImage imageWithData:theData]] autorelease];
+		}
+		else
+		{
+			return [[[TiBlob alloc] initWithData:theData mimetype:@"application/octet-stream"] autorelease];
+		}
 	}    
 	free(base64Result);
 	return nil;
