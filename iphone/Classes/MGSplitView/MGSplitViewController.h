@@ -87,6 +87,7 @@ typedef enum _MGSplitViewDividerStyle {
  */
 
 - (void)layoutSubviewsForInterfaceOrientation:(UIInterfaceOrientation)theOrientation withAnimation:(BOOL)animate;
+- (void)layoutSubviews;
 
 @end
 

@@ -14,6 +14,7 @@
 #import "MGSplitViewController.h"
 #import "MGSplitDividerView.h"
 #import "MGSplitCornersView.h"
+#import "MGSplitView.h"
 
 #define MG_DEFAULT_SPLIT_POSITION		320.0	// default width of master view in UISplitViewController.
 #define MG_DEFAULT_SPLIT_WIDTH			1.0		// default width of split-gutter in UISplitViewController.
@@ -266,6 +267,7 @@
         return;
     }
     
+    [(MGSplitView*)[self view] setLayingOut:YES];
 	if (_reconfigurePopup) {
 		[self reconfigureForMasterInPopover:![self shouldShowMasterForInterfaceOrientation:theOrientation]];
 	}
@@ -331,6 +333,7 @@
 			theView = controller.view;
 			if (theView) {
 				theView.frame = masterRect;
+                theView.bounds = CGRectMake(0, 0, masterRect.size.width, masterRect.size.height);
 				if (!theView.superview) {
 					[controller viewWillAppear:NO];
 					[self.view addSubview:theView];
@@ -352,6 +355,7 @@
 			theView = controller.view;
 			if (theView) {
 				theView.frame = detailRect;
+                theView.bounds = CGRectMake(0, 0, detailRect.size.width, detailRect.size.height);
 				if (!theView.superview) {
 					[self.view insertSubview:theView aboveSubview:self.masterViewController.view];
 				} else {
@@ -493,6 +497,7 @@
 		[self.view bringSubviewToFront:leadingCorners];
 		[self.view bringSubviewToFront:trailingCorners];
 	}
+    [(MGSplitView*)[self view] setLayingOut:NO];
 }
 
 
@@ -554,6 +559,10 @@
 	[self.detailViewController viewDidDisappear:animated];
 }
 
+-(void)loadView
+{
+    [self setView:[[MGSplitView alloc] initWithFrame:CGRectZero controller:self]];
+}
 
 #pragma mark -
 #pragma mark Popover handling
@@ -594,6 +603,7 @@
 		// I know this looks strange, but it fixes a bizarre issue with UIPopoverController leaving masterViewController's views in disarray.
 		if ([[self view] window] != nil)
 		{
+            [(MGSplitView*)[self view] setSingleLayout];
 			[_hiddenPopoverController presentPopoverFromRect:CGRectZero inView:self.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:NO];
 		}
 		
@@ -732,6 +742,7 @@
 		}
 		
 		// Show popover.
+        [(MGSplitView*)[self view] setSingleLayout];
 		[_hiddenPopoverController presentPopoverFromBarButtonItem:_barButtonItem permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
 	}
 }
@@ -741,6 +752,7 @@
 	if (!_hiddenPopoverController || (_hiddenPopoverController.popoverVisible)) {
 		// TODO: Does this alert the delegate? More importantly, will this have ramifications in terms of race conditions if someone rotates while this
 		// is hiding? Hope this works.
+        [(MGSplitView*)[self view] setSingleLayout];
 		[_hiddenPopoverController dismissPopoverAnimated:YES];
 	}
 }
