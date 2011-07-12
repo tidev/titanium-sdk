@@ -169,7 +169,7 @@ var l12 = Titanium.UI.createLabel({
 win.add(l12);
 
 var l13 = Titanium.UI.createLabel({
-	text:'display width:' + Titanium.Platform.displayCaps.platformWidth,
+	text:'display width-x-height:' + Titanium.Platform.displayCaps.platformWidth + 'x' + Titanium.Platform.displayCaps.platformHeight,
 	top:230,
 	left:10,
 	width:300,
@@ -180,21 +180,9 @@ var l13 = Titanium.UI.createLabel({
 
 win.add(l13);
 
-var l14 = Titanium.UI.createLabel({
-	text:'display height:' + Titanium.Platform.displayCaps.platformHeight,
-	top:250,
-	left:10,
-	width:300,
-	height:'auto',
-	font:{fontSize:14},
-	color:'#777'
-});
-
-win.add(l14);
-
 var l15 = Titanium.UI.createLabel({
 	text:'display density:' + Titanium.Platform.displayCaps.density,
-	top:270,
+	top:250,
 	left:10,
 	width:300,
 	height:'auto',
@@ -206,7 +194,7 @@ win.add(l15);
 
 var l16 = Titanium.UI.createLabel({
 	text:'display dpi:' + Titanium.Platform.displayCaps.dpi,
-	top:290,
+	top:270,
 	left:10,
 	width:300,
 	height:'auto',
@@ -218,7 +206,7 @@ win.add(l16);
 
 var l17 = Titanium.UI.createLabel({
 	text:'available memory:' + Titanium.Platform.availableMemory,
-	top:310,
+	top:290,
 	left:10,
 	width:300,
 	height:'auto',
@@ -227,6 +215,19 @@ var l17 = Titanium.UI.createLabel({
 });
 
 win.add(l17);
+
+var l18 = Titanium.UI.createLabel({
+	text:'is24HourTimeFormat:' + Titanium.Platform.is24HourTimeFormat(),
+	top:310,
+	left:10,
+	width:300,
+	height:'auto',
+	font:{fontSize:14},
+	color:'#777'
+});
+
+win.add(l18);
+
 var b = Titanium.UI.createButton({
 	title:'Open URL',
 	height:30,

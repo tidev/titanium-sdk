@@ -1,6 +1,6 @@
 var win = Titanium.UI.currentWindow;
 
-var url = "http://www.nch.com.au/acm/8kmp38.wav";
+var url = "http://www.archive.org/download/CelebrationWav/1.wav";
 
 // load from remote url
 var sound = Titanium.Media.createSound({url:url,preload:true});
