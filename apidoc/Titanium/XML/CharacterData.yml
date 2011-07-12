@@ -50,7 +50,7 @@ methods:
         description: The offset from which to start replacing.
         type: Number
       - name: count
-        description: TThe number of characters to replace. If the sum of offset
+        description: The number of characters to replace. If the sum of offset
             and count exceeds length, then all characters to the end of the data 
             are replaced; (i.e., the effect is the same as a remove method call with the same range, followed by an append method invocation).
         type: Number
