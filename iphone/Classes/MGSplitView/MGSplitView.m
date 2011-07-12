@@ -6,7 +6,7 @@
  */
 
 #import "MGSplitView.h"
-
+#ifdef USE_TI_UIIPADSPLITWINDOW
 
 @implementation MGSplitView
 @synthesize layingOut;
@@ -48,3 +48,5 @@
 }
 
 @end
+
+#endif
