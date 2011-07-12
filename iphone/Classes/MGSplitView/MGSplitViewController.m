@@ -233,6 +233,9 @@
 {
 	UIScreen *screen = [UIScreen mainScreen];
 	CGRect fullScreenRect = screen.bounds; // always implicitly in Portrait orientation.
+    
+    // Because we may 'force' rotation, the status bar isn't oriented yet when this value is retrieved, and it could
+    // very well be wrong. 
 	CGRect appFrame = screen.applicationFrame;
 	
 	// Find status bar height by checking which dimension of the applicationFrame is narrower than screen bounds.
@@ -258,6 +261,11 @@
 
 - (void)layoutSubviewsForInterfaceOrientation:(UIInterfaceOrientation)theOrientation withAnimation:(BOOL)animate
 {
+    // Not ready to begin drawing yet!
+    if (theOrientation == 0) {
+        return;
+    }
+    
 	if (_reconfigurePopup) {
 		[self reconfigureForMasterInPopover:![self shouldShowMasterForInterfaceOrientation:theOrientation]];
 	}

@@ -86,6 +86,8 @@ typedef enum _MGSplitViewDividerStyle {
 	2. Change their .cornerRadius
  */
 
+- (void)layoutSubviewsForInterfaceOrientation:(UIInterfaceOrientation)theOrientation withAnimation:(BOOL)animate;
+
 @end
 
 
