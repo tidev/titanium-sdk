@@ -246,13 +246,14 @@ public class ViewProxy extends TiViewProxy
 			mapView.doSetLocation(location);
 		}
 	}
-
+        
 	@Kroll.method
 	public void setMapType(int mapType)
 	{
 		this.setProperty(TiC.PROPERTY_MAP_TYPE, mapType, true);
 	}
 
+        @Kroll.method
 	public void onDestroy(Activity activity) {
 		if (lam != null && !destroyed) {
 			destroyed = true;
