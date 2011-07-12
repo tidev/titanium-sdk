@@ -59,7 +59,15 @@
 
 -(TiOrientationFlags)orientationFlags
 {
-	return [detailView orientationFlags];
+    // Not even WE follow this convention in the documentation, so we need to make sure
+    // there's a failsafe. Note that because of how orienting works (views pick up their
+    // parent's orientation) we need to query the splitview's orientation FIRST.
+    
+    TiOrientationFlags orientations = [super orientationFlags];
+    if (orientations == TiOrientationNone) {
+        orientations = [detailView orientationFlags];
+    }
+	return orientations;
 }
 
 -(BOOL)_handleClose:(id)args
@@ -68,6 +76,14 @@
 	[(TiUIiPadSplitWindow*)[self view] setMasterPopupVisible_:NO];
     
     return [super _handleClose:args];
+}
+
+// Prevents dumb visual glitches - see 4619
+-(void)ignoringRotationToOrientation:(UIInterfaceOrientation)orientation
+{
+    if (![[[TiApp app] controller] isTopWindow:self]) {
+        [(MGSplitViewController*)[(TiUIiPadSplitWindow*)[self view] controller] layoutSubviewsForInterfaceOrientation:orientation withAnimation:NO];
+    }
 }
 
 @end

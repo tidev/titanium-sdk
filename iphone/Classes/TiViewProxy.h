@@ -216,6 +216,7 @@ enum
 
 #pragma mark Layout commands that need refactoring out
 
+-(void)determineSandboxBounds;
 -(void)layoutChildren:(BOOL)optimize;
 -(void)layoutChildrenIfNeeded;
 -(void)layoutChild:(TiViewProxy*)child optimize:(BOOL)optimize;
