@@ -12,8 +12,10 @@
 @interface TiDOMNamedNodeMapProxy : TiProxy {
 @private
 	GDataXMLElement *element;
+	GDataXMLDocument *document;
 }
 
+@property(nonatomic,retain)	GDataXMLDocument *document;
 @property(nonatomic,readonly) NSNumber* length;
 
 -(void)setElement:(GDataXMLElement*)element;

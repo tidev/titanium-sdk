@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -28,28 +28,17 @@ import android.net.Uri;
 public class FileProxy extends TiFileProxy
 {
 	private static final String LCAT = "FileProxy";
-	String path;
-	TiBaseFile tbf; // The base file object.
 
-	public static <T>
-	String join(final Collection<T> objs, final String delimiter) {
-	    if (objs == null || objs.isEmpty())
-	        return "";
-	    Iterator<T> iter = objs.iterator();
-	    // remove the following two lines, if you expect the Collection will behave well
-	    if (!iter.hasNext())
-	        return "";
-	    StringBuffer buffer = new StringBuffer(String.valueOf(iter.next()));
-	    while (iter.hasNext())
-	        buffer.append(delimiter).append(String.valueOf(iter.next()));
-	    return buffer.toString();
-	}
+	protected String path;
+	protected TiBaseFile tbf; // The base file object.
 
-	public FileProxy(TiContext tiContext, String[] parts) {
+	public FileProxy(TiContext tiContext, String[] parts)
+	{
 		this(tiContext, parts, true);
 	}
 	
-	public FileProxy(TiContext tiContext, String[] parts, boolean resolve) {
+	public FileProxy(TiContext tiContext, String[] parts, boolean resolve)
+	{
 		super(tiContext);
 
 		//String path = getTiContext().resolveUrl(join(Arrays.asList(parts), "/"));
@@ -82,42 +71,72 @@ public class FileProxy extends TiFileProxy
 		tbf = TiFileFactory.createTitaniumFile(tiContext, new String[] { path }, false);
 	}
 
-	private FileProxy(TiContext tiContext, TiBaseFile tbf) {
+	private FileProxy(TiContext tiContext, TiBaseFile tbf)
+	{
 		super(tiContext);
 		this.tbf = tbf;
 	}
 
-	public TiBaseFile getBaseFile() {
+	public static <T>
+	String join(final Collection<T> objs, final String delimiter)
+	{
+		if (objs == null || objs.isEmpty()) {
+			return "";
+		}
+
+		Iterator<T> iter = objs.iterator();
+		// remove the following two lines, if you expect the Collection will behave well
+		if (!iter.hasNext()) {
+			return "";
+		}
+
+		StringBuffer buffer = new StringBuffer(String.valueOf(iter.next()));
+		while (iter.hasNext()) {
+			buffer.append(delimiter).append(String.valueOf(iter.next()));
+		}
+
+		return buffer.toString();
+	}
+
+	public TiBaseFile getBaseFile()
+	{
 		return tbf;
 	}
 
 	@Kroll.method
-	public boolean isFile() {
+	public boolean isFile()
+	{
 		return tbf.isFile();
 	}
 
 	@Kroll.method
-	public boolean isDirectory() {
+	public boolean isDirectory()
+	{
 		return tbf.isDirectory();
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public boolean getReadonly() {
+	public boolean getReadonly()
+	{
 		return tbf.isReadonly();
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public boolean getWritable() {
+	public boolean getWritable()
+	{
 		return tbf.isWriteable();
 	}
 
 	@Kroll.method
-	public boolean copy (String destination) throws IOException {
+	public boolean copy (String destination)
+		throws IOException
+	{
 		return tbf.copy(destination);
 	}
 
 	@Kroll.method
-	public boolean createDirectory(@Kroll.argument(optional=true) Object arg) {
+	public boolean createDirectory(@Kroll.argument(optional=true) Object arg)
+	{
 		boolean recursive = true;
 
 		if (arg != null) {
@@ -127,7 +146,8 @@ public class FileProxy extends TiFileProxy
 	}
 
 	@Kroll.method
-	public boolean deleteDirectory(@Kroll.argument(optional=true) Object arg) {
+	public boolean deleteDirectory(@Kroll.argument(optional=true) Object arg)
+	{
 		boolean recursive = false;
 
 		if (arg != null) {
@@ -137,32 +157,38 @@ public class FileProxy extends TiFileProxy
 	}
 
 	@Kroll.method
-	public boolean deleteFile() {
+	public boolean deleteFile()
+	{
 		return tbf.deleteFile();
 	}
 
 	@Kroll.method
-	public boolean exists() {
+	public boolean exists()
+	{
 		return tbf.exists();
 	}
 
 	@Kroll.method
-	public String extension() {
+	public String extension()
+	{
 		return tbf.extension();
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public boolean getSymbolicLink() {
+	public boolean getSymbolicLink()
+	{
 		return tbf.isSymbolicLink();
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public boolean getExecutable() {
+	public boolean getExecutable()
+	{
 		return tbf.isExecutable();
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public boolean getHidden() {
+	public boolean getHidden()
+	{
 		return tbf.isHidden();
 	}
 
@@ -188,12 +214,14 @@ public class FileProxy extends TiFileProxy
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public String getName() {
+	public String getName()
+	{
 		return tbf.name();
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public String getNativePath() {
+	public String getNativePath()
+	{
 		return tbf.nativePath();
 	}
 
@@ -218,17 +246,20 @@ public class FileProxy extends TiFileProxy
 	}
 
 	@Kroll.method
-	public TiBaseFile resolve() {
+	public TiBaseFile resolve()
+	{
 		return tbf.resolve();
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public double getSize() {
+	public double getSize()
+	{
 		return tbf.size();
 	}
 
 	@Kroll.method
-	public double spaceAvailable() {
+	public double spaceAvailable()
+	{
 		return tbf.spaceAvailable();
 	}
 
