@@ -280,21 +280,26 @@
             }
             [thisNavCon willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
         }
+        else {
+            [thisProxy ignoringRotationToOrientation:newOrientation];
+        }
 	}
     
     if (newOrientation != [ourApp statusBarOrientation] && isCurrentlyVisible)
-	{
-		[keyboardFocusedProxy blur:nil];
-		[ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
-		[keyboardFocusedProxy focus:nil];
-	}
+    {
+        [keyboardFocusedProxy blur:nil];
+        [ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
+        [keyboardFocusedProxy focus:nil];
+    }
     
-	[[self view] setTransform:transform];
+    [[self view] setTransform:transform];
+    [self resizeView];
+    
+    //Propigate this to everyone else. This has to be done INSIDE the animation.
+    [self repositionSubviews];
+    
 	lastOrientation = newOrientation;
-	[self resizeView];
 
-	//Propigate this to everyone else. This has to be done INSIDE the animation.
-	[self repositionSubviews];
 	
 	if (duration > 0.0)
 	{
@@ -537,6 +542,11 @@ What this does mean is that any
 -(UIViewController *)focusedViewController
 {
 	return [windowViewControllers lastObject];
+}
+
+-(BOOL)isTopWindow:(TiWindowProxy *)window
+{
+    return [[windowProxies lastObject] isEqual:window];
 }
 
 #pragma mark Remote Control Notifications
