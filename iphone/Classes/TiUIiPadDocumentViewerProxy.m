@@ -41,6 +41,11 @@
 
 -(void)show:(id)args
 {
+    [self performSelectorOnMainThread:@selector(showOnMainThread:) withObject:args waitUntilDone:NO];
+}
+
+-(void)showOnMainThread:(id)args
+{
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
 	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
 
