@@ -154,7 +154,11 @@ def build_and_run(args=None):
 	
 	shutil.copytree(os.path.join(drillbit_dir, 'modules'), app_modules_dir)
 	shutil.copytree(os.path.join(drillbit_dir, 'tests'), app_tests_dir)
-	
+
+	installed_file = os.path.join(app.get_contents_dir(), '.installed')
+	if not os.path.exists(installed_file):
+		open(installed_file, "w").write('installed')
+
 	drillbit_args = [app.executable_path, '--debug', '--mobile-sdk=%s' % mobilesdk_dir, '--mobile-repository=%s' % mobile_dir]
 	if args != None:
 		drillbit_args.extend(args)
