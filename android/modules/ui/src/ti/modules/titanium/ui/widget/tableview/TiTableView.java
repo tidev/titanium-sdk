@@ -72,7 +72,7 @@ public class TiTableView extends FrameLayout
 	}
 
 	public interface OnItemLongClickedListener {
-		public void onLongClick(KrollDict item);
+		public boolean onLongClick(KrollDict item);
 	}
 
 	class TTVListAdapter extends BaseAdapter {
@@ -350,8 +350,7 @@ public class TiTableView extends FrameLayout
 				if (TiTableView.this.proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
 					position -= 1;
 				}
-				rowClicked((TiBaseTableViewItem)view, position, true);
-				return false; // mimics longpress gesture listener behavior, which always bubbles.
+				return rowClicked((TiBaseTableViewItem)view, position, true);
 			}
 		});
 		addView(listView);
@@ -369,7 +368,7 @@ public class TiTableView extends FrameLayout
 		return viewModel.getViewModel().get(adapter.index.get(position));
 	}
 
-	protected void rowClicked(TiBaseTableViewItem rowView, int position, boolean longClick) {
+	protected boolean rowClicked(TiBaseTableViewItem rowView, int position, boolean longClick) {
 		String viewClicked = rowView.getLastClickedViewName();
 		Item item = getItemAtPosition(position);
 		KrollDict event = new KrollDict();
@@ -388,9 +387,9 @@ public class TiTableView extends FrameLayout
 			}
 		}
 		if (longClick) {
-			itemLongClickListener.onLongClick(event);
+			return itemLongClickListener.onLongClick(event);
 		} else {
-			itemClickListener.onClick(event);
+			return false; // standard (not-long) click handling has no return value.
 		}
 	}
 

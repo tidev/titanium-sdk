@@ -812,6 +812,9 @@ public abstract class TiUIView
 							// is to call performClick() which leads to invoking the click
 							// listener.  If we return true, that won't run, so we're doing it
 							// here instead.
+							if (DBG) {
+								Log.d(LCAT, "performClick() called directly on " + proxy + " because ACTION_UP handled in code.");
+							}
 							touchable.performClick();
 						}
 						return handled;

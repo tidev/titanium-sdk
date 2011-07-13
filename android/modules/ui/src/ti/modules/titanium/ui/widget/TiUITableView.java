@@ -50,9 +50,9 @@ public class TiUITableView extends TiUIView
 	}
 
 	@Override
-	public void onLongClick(KrollDict data)
+	public boolean onLongClick(KrollDict data)
 	{
-		proxy.fireEvent(TiC.EVENT_LONGCLICK, data);
+		return proxy.fireEvent(TiC.EVENT_LONGCLICK, data);
 	}
 
 	public void setModelDirty()
