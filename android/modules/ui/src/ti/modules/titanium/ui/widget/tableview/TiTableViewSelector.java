@@ -35,11 +35,12 @@ public class TiTableViewSelector extends Drawable
 	class TouchListener implements OnTouchListener
 	{
 		@Override
-		public boolean onTouch (View view, MotionEvent event)
+		public boolean onTouch(View view, MotionEvent event)
 		{
 			if (event.getAction() == MotionEvent.ACTION_DOWN)
 			{
-				selectedDrawable = getRowDrawable (listView.getChildAt (listView.pointToPosition((int) event.getX(), (int) event.getY()) - listView.getFirstVisiblePosition()));
+				int touchPosition = listView.pointToPosition((int) event.getX(), (int) event.getY());
+				selectedDrawable = getRowDrawable (listView.getChildAt (touchPosition - listView.getFirstVisiblePosition()));
 			}
 			else if (event.getAction() == MotionEvent.ACTION_UP)
 			{
@@ -51,7 +52,7 @@ public class TiTableViewSelector extends Drawable
 	}
 
 
-	public TiTableViewSelector (ListView listView)
+	public TiTableViewSelector(ListView listView)
 	{
 		this.listView = listView;
 
@@ -71,17 +72,19 @@ public class TiTableViewSelector extends Drawable
 		}
 		selectedDrawable = defaultDrawable;
 
-		listView.setOnTouchListener (new TouchListener());
+		listView.setOnTouchListener(new TouchListener());
 	}
 
 
-	public Drawable getRowDrawable (View row)
+	public Drawable getRowDrawable(View row)
 	{
 		Drawable rowDrawable = null;
 
-		if (row instanceof TiBaseTableViewItem) {
+		if (row instanceof TiBaseTableViewItem)
+		{
 			TiBaseTableViewItem rowView = (TiBaseTableViewItem) row;
-			if (rowView.hasSelector()) {
+			if (rowView.hasSelector())
+			{
 				rowDrawable = rowView.getSelectorDrawable();
 			}
 		}
@@ -95,36 +98,36 @@ public class TiTableViewSelector extends Drawable
 	}
 
 
-	public void draw (Canvas canvas)
+	public void draw(Canvas canvas)
 	{
 		if (!(listView.isInTouchMode()))
 		{
-			selectedDrawable = getRowDrawable (listView.getSelectedView());
+			selectedDrawable = getRowDrawable(listView.getSelectedView());
 			selectedDrawable.setBounds(getBounds());
 		}
 
-		selectedDrawable.draw (canvas);
+		selectedDrawable.draw(canvas);
 	}
 
 
 	public boolean setState(int[] stateSet)
 	{
-		super.setState (stateSet);
-		return selectedDrawable.setState (stateSet);
+		super.setState(stateSet);
+		return selectedDrawable.setState(stateSet);
 	}
 
 
-	public void setBounds (int left, int top, int right, int bottom)
+	public void setBounds(int left, int top, int right, int bottom)
 	{
 		super.setBounds(left, top, right, bottom);
 		selectedDrawable.setBounds(left, top, right, bottom);
 	}
 
 
-	public void setBounds (Rect bounds)
+	public void setBounds(Rect bounds)
 	{
 		super.setBounds(bounds);
-		selectedDrawable.setBounds (bounds);
+		selectedDrawable.setBounds(bounds);
 	}
 
 
@@ -134,15 +137,15 @@ public class TiTableViewSelector extends Drawable
 	}
 
 
-	public void setAlpha (int alpha)
+	public void setAlpha(int alpha)
 	{
-		selectedDrawable.setAlpha (alpha);
+		selectedDrawable.setAlpha(alpha);
 	}
 
 
-	public void setColorFilter (ColorFilter colorFilter)
+	public void setColorFilter(ColorFilter colorFilter)
 	{
-		selectedDrawable.setColorFilter (colorFilter);
+		selectedDrawable.setColorFilter(colorFilter);
 	}
 }
 
