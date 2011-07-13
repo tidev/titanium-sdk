@@ -726,6 +726,11 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
     return TI_ORIENTATION_ALLOWED(orientationFlags, orientation);
 }
 
+-(void)ignoringRotationToOrientation:(UIInterfaceOrientation)orientation
+{
+    // For subclasses
+}
+
 #pragma mark Animation Delegates
 
 - (void)viewDidAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing

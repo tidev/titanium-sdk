@@ -872,6 +872,9 @@
 		DAC9D36C138DB65C004917F8 /* debugger.plist in Resources */ = {isa = PBXBuildFile; fileRef = DAC9D36B138DB65C004917F8 /* debugger.plist */; };
 		DAC9D36D138DB678004917F8 /* debugger.plist in Resources */ = {isa = PBXBuildFile; fileRef = DAC9D36B138DB65C004917F8 /* debugger.plist */; };
 		DAC9D36E138DB67F004917F8 /* debugger.plist in Resources */ = {isa = PBXBuildFile; fileRef = DAC9D36B138DB65C004917F8 /* debugger.plist */; };
+		DADD76E913CCF4FF00CD03AC /* MGSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = DADD76E813CCF4FF00CD03AC /* MGSplitView.m */; };
+		DADD76EA13CCF4FF00CD03AC /* MGSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = DADD76E813CCF4FF00CD03AC /* MGSplitView.m */; };
+		DADD76EB13CCF4FF00CD03AC /* MGSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = DADD76E813CCF4FF00CD03AC /* MGSplitView.m */; };
 		DAE541E313577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
 		DAE541E413577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
 		DAE541E513577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
@@ -1475,6 +1478,8 @@
 		DABF3EDA134D2E4300836137 /* TiStreamProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiStreamProxy.h; sourceTree = "<group>"; };
 		DABF3EDB134D2E4300836137 /* TiStreamProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiStreamProxy.m; sourceTree = "<group>"; };
 		DAC9D36B138DB65C004917F8 /* debugger.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = debugger.plist; path = ../Resources/debugger.plist; sourceTree = "<group>"; };
+		DADD76E713CCF4FF00CD03AC /* MGSplitView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MGSplitView.h; sourceTree = "<group>"; };
+		DADD76E813CCF4FF00CD03AC /* MGSplitView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MGSplitView.m; sourceTree = "<group>"; };
 		DAE541E113577BEC00A65123 /* TiDataStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDataStream.h; sourceTree = "<group>"; };
 		DAE541E213577BEC00A65123 /* TiDataStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDataStream.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -2766,6 +2771,8 @@
 				B440EF7B1209DC400045FEAE /* MGSplitDividerView.m */,
 				B440EF7C1209DC400045FEAE /* MGSplitViewController.h */,
 				B440EF7D1209DC400045FEAE /* MGSplitViewController.m */,
+				DADD76E713CCF4FF00CD03AC /* MGSplitView.h */,
+				DADD76E813CCF4FF00CD03AC /* MGSplitView.m */,
 			);
 			name = MGSplitView;
 			path = ../Classes/MGSplitView;
@@ -3329,6 +3336,7 @@
 				DAE541E313577BEC00A65123 /* TiDataStream.m in Sources */,
 				4D3033A3136239B30034640F /* TiFilesystemFileStreamProxy.m in Sources */,
 				ABD472F413BB73BF00502912 /* KrollCoverage.m in Sources */,
+				DADD76E913CCF4FF00CD03AC /* MGSplitView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3598,6 +3606,7 @@
 				DAE541E413577BEC00A65123 /* TiDataStream.m in Sources */,
 				B415067A136745E20084074A /* TiFilesystemFileStreamProxy.m in Sources */,
 				ABD472F513BB73BF00502912 /* KrollCoverage.m in Sources */,
+				DADD76EA13CCF4FF00CD03AC /* MGSplitView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3867,6 +3876,7 @@
 				DAE541E513577BEC00A65123 /* TiDataStream.m in Sources */,
 				B415067D136745FE0084074A /* TiFilesystemFileStreamProxy.m in Sources */,
 				ABD472F613BB73BF00502912 /* KrollCoverage.m in Sources */,
+				DADD76EB13CCF4FF00CD03AC /* MGSplitView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
