@@ -42,17 +42,6 @@ def version_sort(a,b):
 		return 1
 	return 0
 
-# Find the SDK file path
-def find_sdk_path(version):
-	sdk_path = os.path.join(os.path.expanduser("~/Library/Application Support/Titanium"),"mobilesdk","osx",version)
-	if os.path.exists(sdk_path):
-		return sdk_path
-	sdk_path = os.path.join("/Library","Application Support","Titanium","mobilesdk","osx",version)
-	if os.path.exists(sdk_path):
-		return sdk_path
-	print "Is Titanium installed? I can't find it"
-	sys.exit(1)
-
 # this will return the version of the iOS SDK that we have installed
 def check_iphone_sdk(s):
 	found = []
@@ -1029,7 +1018,7 @@ def main(args):
 				if not os.path.exists(defaultpng_path):
 					defaultpng_path = os.path.join(project_dir,'Resources','Default.png')
 				if not os.path.exists(defaultpng_path):
-					defaultpng_path = os.path.join(find_sdk_path(sdk_version),'iphone','resources','Default.png')
+					defaultpng_path = os.path.join(template_dir,'resources','Default.png')
 				if os.path.exists(defaultpng_path):
 					shutil.copy(defaultpng_path,iphone_resources_dir)
 
