@@ -241,10 +241,11 @@ describe("Ti.XML tests", {
 
 
 		// verify methods
+		var newNode1 = doc.createElement("newNode1");
 		valueOf(node.appendChild).shouldBeFunction();
 		var appendChildResults = null;
-		valueOf(function() { appendChildResults = node.appendChild(node.firstChild); }).shouldNotThrowException();
-		valueOf(appendChildResults).shouldBe(node.firstChild);
+		valueOf(function() { appendChildResults = node.appendChild(newNode1); }).shouldNotThrowException();
+		valueOf(appendChildResults).shouldBe(newNode1);
 
 		valueOf(node.cloneNode).shouldBeFunction();
 		var clonedNode = null;
@@ -259,10 +260,11 @@ describe("Ti.XML tests", {
 		valueOf(node.hasChildNodes).shouldBeFunction();
 		valueOf(function() { node.hasChildNodes(); }).shouldNotThrowException();
 
+		var newNode2 = doc.createElement("newNode2");
 		valueOf(node.insertBefore).shouldBeFunction();
 		var insertBeforeResults = null;
-		valueOf(function() { insertBeforeResults = node.insertBefore(node.lastChild, node.firstChild); }).shouldNotThrowException();
-		valueOf(insertBeforeResults).shouldBe(node.lastChild);
+		valueOf(function() { insertBeforeResults = node.insertBefore(newNode2, node.firstChild); }).shouldNotThrowException();
+		valueOf(insertBeforeResults).shouldBe(newNode2);
 
 		valueOf(node.isSupported).shouldBeFunction();
 		var isSupportedResults = null;
@@ -275,13 +277,14 @@ describe("Ti.XML tests", {
 		valueOf(node.removeChild).shouldBeFunction();
 		var nodeToRemove = node.firstChild;
 		var removeChildResults = null;
-		valueOf(function() { removeChildResults = node.removeChild(node.firstChild); }).shouldNotThrowException();
+		valueOf(function() { removeChildResults = node.removeChild(nodeToRemove); }).shouldNotThrowException();
 		valueOf(removeChildResults).shouldBe(nodeToRemove);
 
+		var newNode3 = doc.createElement("newNode3");
 		valueOf(node.replaceChild).shouldBeFunction();
 		var nodeToReplace = node.firstChild;
 		var replaceChildResults = null;
-		valueOf(function() { replaceChildResults = node.replaceChild(nodeToRemove, node.firstChild); }).shouldNotThrowException();
-		valueOf(replaceChildResults).shouldBe(nodeToReplace);
+		valueOf(function() { replaceChildResults = node.replaceChild(newNode3, nodeToReplace); }).shouldNotThrowException();
+		valueOf(replaceChildResults).shouldBe(newNode3);
 	}
 });
