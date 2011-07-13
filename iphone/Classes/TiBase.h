@@ -55,18 +55,12 @@ extern "C" {
 
 #define TI_INLINE static __inline__
 
+// We need to overload NSLog as a macro so that we capture system messages as well. 
+// It has to be a wrapper because the debugger itself uses TiBase's NSLog, and can't
+// spoof TiApp without symbol conflicts and other issues
+    
 #define NSLog(...) {\
-const char *__s = [[NSString stringWithFormat:__VA_ARGS__] UTF8String];\
-if (__s[0]=='[')\
-{\
-fprintf(stderr,"%s\n", __s);\
-fflush(stderr);\
-}\
-else\
-{\
-fprintf(stderr,"[DEBUG] %s\n", __s);\
-fflush(stderr);\
-}\
+TiLogMessage(__VA_ARGS__);\
 }
 
 // create a mutable array that doesn't retain internal references to objects
@@ -76,7 +70,8 @@ NSMutableArray* TiCreateNonRetainingArray();
 NSMutableDictionary* TiCreateNonRetainingDictionary();
 
 CGPoint midpointBetweenPoints(CGPoint a, CGPoint b);
-
+void TiLogMessage(NSString* str, ...);
+    
 #define degreesToRadians(x) (M_PI * x / 180.0)
 #define radiansToDegrees(x) (x * (180.0 / M_PI))
 
