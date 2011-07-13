@@ -40,7 +40,7 @@ public class TiTableViewSelector extends Drawable
 			if (event.getAction() == MotionEvent.ACTION_DOWN)
 			{
 				int touchPosition = listView.pointToPosition((int) event.getX(), (int) event.getY());
-				selectedDrawable = getRowDrawable (listView.getChildAt (touchPosition - listView.getFirstVisiblePosition()));
+				selectedDrawable = getRowDrawable(listView.getChildAt(touchPosition - listView.getFirstVisiblePosition()));
 			}
 			else if (event.getAction() == MotionEvent.ACTION_UP)
 			{
