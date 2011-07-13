@@ -69,7 +69,12 @@ public class ViewProxy extends TiViewProxy
 	{
 		destroyed = false;
 		if (lam == null) {
-			final TiRootActivity rootActivity = getTiContext().getRootActivity();
+			TiContext tiContext = getTiContext();
+			if (tiContext == null) {
+				Log.w(LCAT, "MapView proxy context is no longer valid.  Unable to create MapView.");
+				return null;
+			}
+			final TiRootActivity rootActivity = tiContext.getRootActivity();
 			if (rootActivity == null) {
 				Log.w(LCAT, "Application's root activity has been destroyed.  Unable to create MapView.");
 				return null;
