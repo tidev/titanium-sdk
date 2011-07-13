@@ -784,8 +784,15 @@ public abstract class TiUIView
 					// called via Handler in GestureDetector. <-- See its Java source.
 					return handledTap;// || handledClick;
 				}
+				@Override
+				public void onLongPress(MotionEvent e)
+				{
+					if (DBG){
+						Log.d(LCAT, "LONGPRESS on " + proxy);
+					}
+					proxy.fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e));
+				}
 			});
-
 		touchable.setOnTouchListener(new OnTouchListener() {
 			public boolean onTouch(View view, MotionEvent event) {
 				if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -815,7 +822,6 @@ public abstract class TiUIView
 				return handled;
 			}
 		});
-
 		// Previously, we used the single tap handling above to fire our click event.  It doesn't
 		// work: a single tap is not the same as a click.  A click can be held for a while before
 		// lifting the finger; a single-tap is only generated from a quick tap (which will also cause

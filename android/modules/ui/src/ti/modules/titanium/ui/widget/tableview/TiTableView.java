@@ -22,7 +22,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.LabelProxy;
 import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
@@ -36,6 +35,7 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ListView;
@@ -54,6 +54,7 @@ public class TiTableView extends FrameLayout
 	private ListView listView;
 	private TTVListAdapter adapter;
 	private OnItemClickedListener itemClickListener;
+	private OnItemLongClickedListener itemLongClickListener;
 
 	private HashMap<String, Integer> rowTypes;
 	private AtomicInteger rowTypeCounter;
@@ -68,6 +69,10 @@ public class TiTableView extends FrameLayout
 
 	public interface OnItemClickedListener {
 		public void onClick(KrollDict item);
+	}
+
+	public interface OnItemLongClickedListener {
+		public void onLongClick(KrollDict item);
 	}
 
 	class TTVListAdapter extends BaseAdapter {
@@ -330,8 +335,23 @@ public class TiTableView extends FrameLayout
 					if (TiTableView.this.proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
 						position -= 1;
 					}
-					rowClicked((TiBaseTableViewItem)view, position);
+					rowClicked((TiBaseTableViewItem)view, position, false);
 				}
+			}
+		});
+		listView.setOnItemLongClickListener(new OnItemLongClickListener() {
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+				if (itemLongClickListener == null) {
+					return false;
+				}
+				if (!(view instanceof TiBaseTableViewItem)) {
+					return false;
+				}
+				if (TiTableView.this.proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
+					position -= 1;
+				}
+				rowClicked((TiBaseTableViewItem)view, position, true);
+				return false; // mimics longpress gesture listener behavior, which always bubbles.
 			}
 		});
 		addView(listView);
@@ -349,10 +369,11 @@ public class TiTableView extends FrameLayout
 		return viewModel.getViewModel().get(adapter.index.get(position));
 	}
 
-	protected void rowClicked(TiBaseTableViewItem rowView, int position) {
+	protected void rowClicked(TiBaseTableViewItem rowView, int position, boolean longClick) {
 		String viewClicked = rowView.getLastClickedViewName();
 		Item item = getItemAtPosition(position);
 		KrollDict event = new KrollDict();
+		String eventName = longClick ? TiC.EVENT_LONGCLICK : TiC.EVENT_CLICK;
 		TableViewRowProxy.fillClickEvent(event, viewModel, item);
 		if (viewClicked != null) {
 			event.put(TiC.EVENT_PROPERTY_LAYOUT_NAME, viewClicked);
@@ -362,11 +383,15 @@ public class TiTableView extends FrameLayout
 		if(item.proxy != null && item.proxy instanceof TableViewRowProxy) {
 			TableViewRowProxy rp = (TableViewRowProxy) item.proxy;
 			event.put(TiC.EVENT_PROPERTY_SOURCE, rp);
-			if (rp.hasListeners(TiC.EVENT_CLICK)) {
-				rp.fireEvent(TiC.EVENT_CLICK, event);
+			if (rp.hasListeners(eventName)) {
+				rp.fireEvent(eventName, event);
 			}
 		}
-		itemClickListener.onClick(event);
+		if (longClick) {
+			itemLongClickListener.onLongClick(event);
+		} else {
+			itemClickListener.onClick(event);
+		}
 	}
 
 	private View layoutHeaderOrFooter(TiViewProxy viewProxy)
@@ -404,6 +429,10 @@ public class TiTableView extends FrameLayout
 
 	public void setOnItemClickListener(OnItemClickedListener listener) {
 		this.itemClickListener = listener;
+	}
+
+	public void setOnItemLongClickListener(OnItemLongClickedListener listener) {
+		this.itemLongClickListener = listener;
 	}
 
 	public void setSeparatorColor(String colorstring) {
