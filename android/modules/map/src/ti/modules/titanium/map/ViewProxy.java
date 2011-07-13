@@ -11,8 +11,10 @@ import java.util.ArrayList;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
@@ -38,6 +40,7 @@ public class ViewProxy extends TiViewProxy
 {
 	private static LocalActivityManager lam;
 	private static Window mapWindow;
+	private static OnLifecycleEvent rootLifecycleListener;
 	private static final String LCAT = "TiMapViewProxy";
 	
 	/*
@@ -66,7 +69,43 @@ public class ViewProxy extends TiViewProxy
 	{
 		destroyed = false;
 		if (lam == null) {
-			lam = new LocalActivityManager(getTiContext().getRootActivity(), true);
+			TiContext tiContext = getTiContext();
+			if (tiContext == null) {
+				Log.w(LCAT, "MapView proxy context is no longer valid.  Unable to create MapView.");
+				return null;
+			}
+			final TiRootActivity rootActivity = tiContext.getRootActivity();
+			if (rootActivity == null) {
+				Log.w(LCAT, "Application's root activity has been destroyed.  Unable to create MapView.");
+				return null;
+			}
+			TiContext rootContext = rootActivity.getTiContext();
+			if (rootContext == null) {
+				Log.w(LCAT, "Application's root context is no longer valid.  Unable to create MapView.");
+				return null;
+			}
+			// We need to know when root activity destroys, since this lam is
+			// based on its context;
+			rootLifecycleListener = new OnLifecycleEvent()
+			{
+				@Override
+				public void onStop(Activity activity){}
+				@Override
+				public void onStart(Activity activity){}
+				@Override
+				public void onResume(Activity activity){}
+				@Override
+				public void onPause(Activity activity){}
+				@Override
+				public void onDestroy(Activity activity)
+				{
+					if (activity != null && activity.equals(rootActivity)) {
+						lam = null;
+					}
+				}
+			};
+			rootContext.addOnLifecycleEventListener(rootLifecycleListener);
+			lam = new LocalActivityManager(rootActivity, true);
 			lam.dispatchCreate(null);
 		}
 
@@ -124,9 +163,6 @@ public class ViewProxy extends TiViewProxy
 
 			if (t != null) {
 				if (title.equals(t)) {
-					//if (DBG) {
-					//	Log.d(LCAT, "Annotation found at index: " + " with title: " + title);
-					//}
 					existsIndex = i;
 					break;
 				}
