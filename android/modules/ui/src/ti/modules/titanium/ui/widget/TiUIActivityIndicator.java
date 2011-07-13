@@ -61,6 +61,7 @@ public class TiUIActivityIndicator extends TiUIView
 		switch (msg.what) {
 			case MSG_SHOW : {
 				handleShow();
+				
 				return true;
 			}
 			case MSG_PROGRESS : {
@@ -173,9 +174,17 @@ public class TiUIActivityIndicator extends TiUIView
 		} else if (location == DIALOG) {
 			incrementFactor = 1;
 			if (progressDialog == null) {
-				Context a = proxy.getTiContext().getTiApp().getCurrentActivity();
+				Activity a = proxy.getTiContext().getTiApp().getCurrentActivity();
 				if (a == null) {
 					a = proxy.getTiContext().getRootActivity();
+				}
+				if (a==null || a.isFinishing())
+				{
+					Log.w(LCAT,"Skipping show "+(a==null?"act is null":"act isFinishing"));
+					return;
+				}
+				else{
+					Log.w(LCAT,"Doing Show");
 				}
 				progressDialog = new ProgressDialog(a);
 			}
