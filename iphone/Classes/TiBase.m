@@ -5,6 +5,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiBase.h"
+#import "TiApp.h"
+#import "TiDebugger.h"
+
+#include <stdarg.h>
 
 NSMutableArray* TiCreateNonRetainingArray() 
 {
@@ -28,6 +32,31 @@ CGPoint midpointBetweenPoints(CGPoint a, CGPoint b)
     CGFloat x = (a.x + b.x) / 2.0;
     CGFloat y = (a.y + b.y) / 2.0;
     return CGPointMake(x, y);
+}
+
+void TiLogMessage(NSString* str, ...) {
+    va_list args;
+    va_start(args, str);
+    
+    NSString* message = [[NSString alloc] initWithFormat:str arguments:args];
+    if ([[TiApp app] debugMode]) {
+        TiDebuggerLogMessage(OUT, message);
+    }
+    else {
+        const char* s = [message UTF8String];
+        if (s[0]=='[')
+        {
+            fprintf(stderr,"%s\n", s);
+            fflush(stderr);
+        }
+        else
+        {
+            fprintf(stderr,"[DEBUG] %s\n", s);
+            fflush(stderr);
+        }
+    }
+
+    [message release];
 }
 
 NSString * const kTiASCIIEncoding = @"ascii";
