@@ -28,6 +28,13 @@ SplitViewPlain.modalButton.addEventListener('click', function() {
         modal:true
     });
     
+    modal.orientationModes = [
+    	Titanium.UI.PORTRAIT,
+    	Titanium.UI.UPSIDE_PORTRAIT,
+    	Titanium.UI.LANDSCAPE_LEFT,
+    	Titanium.UI.LANDSCAPE_RIGHT
+    ];
+    
     var flexSpace = Titanium.UI.createButton({
         systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
     });

@@ -1,4 +1,23 @@
 ---
 name: Titanium.XML.NodeList
 extends: Titanium.Proxy
-description: A proxy
+description: A list of <Titanium.XML.Node> objects. This conforms to the 
+    [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html) 
+    definition of a DOM NodeList.
+since: "0.9"
+methods:
+  - name: item
+    description: Returns the <Titanium.XML.Node> object at the specified index.
+    returns:
+        type: Titanium.XML.Node
+        description: The node at the index, or `null` if the index is out of bounds.
+    parameters:
+      - name: index
+        description: The index of the node to retrieve. Indexing starts at 0.
+        type: Number
+properties:
+  - name: length
+    description: The length of the node list.
+    type: Number
+    permission: read-only
+    

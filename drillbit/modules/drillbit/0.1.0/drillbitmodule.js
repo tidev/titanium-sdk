@@ -118,7 +118,7 @@ Drillbit.prototype.processArgv = function() {
 };
 
 Drillbit.prototype.initPlatforms = function() {
-	if (Titanium.App.Properties.hasProperty('testsPlatforms') && !('platforms' in this.argv)) {
+	if (Titanium.App.Properties.hasProperty('testsPlatforms') && !('resetConfig' in this.argv) && !('platforms' in this.argv)) {
 		this.argv['platforms'] = Titanium.App.Properties.getString('testsPlatforms');		
 	}
 	var platformsArg = 'platforms' in this.argv ? this.argv.platforms.split(',') : null;
