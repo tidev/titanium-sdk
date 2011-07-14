@@ -53,7 +53,14 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 	{
 		TiViewProxy* masterProxy = [self.proxy valueForUndefinedKey:@"masterView"];
 		TiViewProxy* detailProxy = [self.proxy valueForUndefinedKey:@"detailView"];
-		
+        
+        if ([masterProxy viewAttached]) {
+            [[masterProxy view] performSelectorOnMainThread:@selector(removeFromSuperview) withObject:nil waitUntilDone:YES];
+        }
+        if ([detailProxy viewAttached]) {
+            [[detailProxy view] performSelectorOnMainThread:@selector(removeFromSuperview) withObject:nil waitUntilDone:YES];
+        }
+        
 		controller = [[MGSplitViewController alloc] init];		
 		[controller setViewControllers:[NSArray arrayWithObjects:
 				ControllerForProxy(masterProxy),ControllerForProxy(detailProxy),nil]];

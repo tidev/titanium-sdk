@@ -31,12 +31,6 @@
 	[self reposition];
 }
 
--(void)windowDidClose
-{
-	//TODO: reattach the root controller?
-	[super windowDidClose];
-}
-
 -(void)setToolbar:(id)items withObject:(id)properties
 {
 	ENSURE_UI_THREAD_WITH_OBJ(setToolbar,items,properties);
