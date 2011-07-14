@@ -267,6 +267,7 @@ public class TiTableViewSelector extends StateListDrawable implements Drawable.C
 	public void scheduleDrawable(Drawable drawable, Runnable runnable, long when)
 	{
 		super.scheduleDrawable(drawable, runnable, when);
+		selectedDrawable.scheduleSelf(runnable, when);
 	}
 
 
@@ -274,6 +275,7 @@ public class TiTableViewSelector extends StateListDrawable implements Drawable.C
 	public void unscheduleDrawable(Drawable drawable, Runnable runnable)
 	{
 		super.unscheduleDrawable(drawable, runnable);
+		selectedDrawable.unscheduleSelf(runnable);
 	}
 }
 
