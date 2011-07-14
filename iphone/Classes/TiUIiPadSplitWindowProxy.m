@@ -31,6 +31,13 @@
 	[self reposition];
 }
 
+-(void)windowWillClose
+{
+    if ([self viewAttached]) {
+        [(TiUIiPadSplitWindow*)[self view] splitViewController:nil willShowViewController:nil invalidatingBarButtonItem:nil];
+    }
+}
+
 -(void)setToolbar:(id)items withObject:(id)properties
 {
 	ENSURE_UI_THREAD_WITH_OBJ(setToolbar,items,properties);
