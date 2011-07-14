@@ -320,7 +320,7 @@ public class TiTableView extends FrameLayout
 	public void enableCustomSelector() {
 		Drawable currentSelector = listView.getSelector();
 		if (currentSelector != selector) {
-			selector = new TiTableViewSelector (listView);
+			selector = new TiTableViewSelector(listView);
 			listView.setSelector(selector);
 		}
 	}
