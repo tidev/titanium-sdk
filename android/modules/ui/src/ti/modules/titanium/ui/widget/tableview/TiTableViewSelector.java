@@ -9,20 +9,19 @@ package ti.modules.titanium.ui.widget.tableview;
 import org.appcelerator.titanium.util.TiConfig;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Rect;
-import android.graphics.drawable.ColorDrawable;
+import android.graphics.Region;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.DrawableContainer;
 import android.graphics.drawable.StateListDrawable;
-import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.ListView;
 
 
-public class TiTableViewSelector extends Drawable
+public class TiTableViewSelector extends StateListDrawable implements Drawable.Callback
 {
 	private static final String LCAT = "TiTableViewSelector";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -56,20 +55,7 @@ public class TiTableViewSelector extends Drawable
 	{
 		this.listView = listView;
 
-		// on Android 3.0 and up, the default ListView selector does not correctly 
-		// respond to the 0 (off) state and leaves the highlight for a ListView 
-		// item "stuck".  Create a default StateListDrawable in order to support the 
-		// "off" mode.
-		if (Build.VERSION.SDK_INT >= 11)
-		{
-			defaultDrawable = new StateListDrawable();
-			((StateListDrawable) defaultDrawable).addState(new int[] {android.R.attr.state_pressed},  new ColorDrawable(Color.WHITE));
-			((StateListDrawable) defaultDrawable).addState(new int[0], new ColorDrawable(Color.TRANSPARENT));
-		}
-		else
-		{
-			defaultDrawable = listView.getSelector();
-		}
+		defaultDrawable = listView.getSelector();
 		selectedDrawable = defaultDrawable;
 
 		listView.setOnTouchListener(new TouchListener());
@@ -100,6 +86,7 @@ public class TiTableViewSelector extends Drawable
 
 	public void draw(Canvas canvas)
 	{
+		super.draw(canvas);
 		if (!(listView.isInTouchMode()))
 		{
 			selectedDrawable = getRowDrawable(listView.getSelectedView());
@@ -107,6 +94,44 @@ public class TiTableViewSelector extends Drawable
 		}
 
 		selectedDrawable.draw(canvas);
+	}
+
+
+	public boolean onLevelChange(int level)
+	{
+		return super.onLevelChange(level);
+	}
+
+	public void setConstantState(DrawableContainer.DrawableContainerState state)
+	{
+		super.setConstantState(state);
+	}
+
+
+	public boolean selectDrawable (int idx)
+	{
+		if (selectedDrawable instanceof DrawableContainer)
+		{
+			return ((DrawableContainer) selectedDrawable).selectDrawable(idx);
+		}
+		else
+		{
+			return super.selectDrawable(idx);
+		}
+	}
+
+
+	public boolean setVisible (boolean visible, boolean restart)
+	{
+		super.setVisible(visible, restart);
+		return selectedDrawable.setVisible(visible, restart);
+	}
+
+
+	public void setChangingConfigurations (int configs)
+	{
+		super.setChangingConfigurations(configs);
+		selectedDrawable.setChangingConfigurations(configs);
 	}
 
 
@@ -139,13 +164,118 @@ public class TiTableViewSelector extends Drawable
 
 	public void setAlpha(int alpha)
 	{
+		super.setAlpha(alpha);
 		selectedDrawable.setAlpha(alpha);
 	}
 
 
 	public void setColorFilter(ColorFilter colorFilter)
 	{
+		super.setColorFilter(colorFilter);
 		selectedDrawable.setColorFilter(colorFilter);
+	}
+
+
+	public void invalidateSelf ()
+	{
+		super.invalidateSelf();
+		selectedDrawable.invalidateSelf();
+	}
+
+
+	public void scheduleSelf (Runnable runnable, long when)
+	{
+		super.scheduleSelf(runnable, when);
+		selectedDrawable.scheduleSelf(runnable, when);
+	}
+
+
+	public Drawable mutate()
+	{
+		return selectedDrawable.mutate();
+	}
+
+
+	public boolean isStateful()
+	{
+		return selectedDrawable.isStateful();
+	}
+
+
+	public int[] getState()
+	{
+		if (selectedDrawable != null)
+		{
+			return selectedDrawable.getState();
+		}
+
+		return new int[0];
+	}
+
+
+	public boolean getPadding(Rect padding)
+	{
+		return selectedDrawable.getPadding(padding);
+	}
+
+
+	public Region getTransparentRegion()
+	{
+		return selectedDrawable.getTransparentRegion();
+	}
+
+
+	public int getMinimumWidth()
+	{
+		return selectedDrawable.getMinimumWidth();
+	}
+
+
+	public int getMinimumHeight()
+	{
+		return selectedDrawable.getMinimumHeight();
+	}
+
+
+	public int getIntrinsicHeight()
+	{
+		return selectedDrawable.getIntrinsicHeight();
+	}
+
+
+	public int getIntrinsicWidth()
+	{
+		return selectedDrawable.getIntrinsicWidth();
+	}
+
+
+	public Drawable getCurrent()
+	{
+		return selectedDrawable.getCurrent();
+	}
+
+
+	@Override
+	public void invalidateDrawable(Drawable who)
+	{
+		super.invalidateDrawable(who);
+		selectedDrawable.invalidateSelf();
+	}
+
+
+	@Override
+	public void scheduleDrawable(Drawable drawable, Runnable runnable, long when)
+	{
+		super.scheduleDrawable(drawable, runnable, when);
+		selectedDrawable.scheduleSelf(runnable, when);
+	}
+
+
+	@Override
+	public void unscheduleDrawable(Drawable drawable, Runnable runnable)
+	{
+		super.unscheduleDrawable(drawable, runnable);
+		selectedDrawable.unscheduleSelf(runnable);
 	}
 }
 
