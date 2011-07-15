@@ -910,6 +910,7 @@ public abstract class TiUIView
 			// n.b.: AdapterView throws if click listener set.
 			// n.b.: setting onclicklistener automatically sets clickable to true.
 			setOnClickListener(view);
+			view.setLongClickable(true); // enables itemlongclick in ListView if the view is added to a ListView
 		}
 	}
 	private void doSetClickable(boolean clickable)

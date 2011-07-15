@@ -31,6 +31,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
@@ -344,16 +345,34 @@ public class TiTableView extends FrameLayout
 				if (itemLongClickListener == null) {
 					return false;
 				}
-				if (!(view instanceof TiBaseTableViewItem)) {
+				TiBaseTableViewItem tvItem = null;
+				if (view instanceof TiBaseTableViewItem) {
+					tvItem = (TiBaseTableViewItem)view;
+				} else {
+					tvItem = getParentTableViewItem(view);
+				}
+				if (tvItem == null) {
 					return false;
 				}
 				if (TiTableView.this.proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
 					position -= 1;
 				}
-				return rowClicked((TiBaseTableViewItem)view, position, true);
+				return rowClicked(tvItem, position, true);
 			}
 		});
 		addView(listView);
+	}
+
+	private TiBaseTableViewItem getParentTableViewItem(View view)
+	{
+		ViewParent parent = view.getParent();
+		while (parent != null) {
+			if (parent instanceof TiBaseTableViewItem) {
+				return (TiBaseTableViewItem)parent;
+			}
+			parent = parent.getParent();
+		}
+		return null;
 	}
 
 	public void enableCustomSelector() {
