@@ -15,10 +15,57 @@ describe("Ti.XML tests", {
 		};
 		
 		var testFiles = ["soap.xml", "xpath.xml", "nodes.xml", "nodeCount.xml", "cdata.xml", "cdataEntities.xml"];
+		var invalidFiles = [ "mismatched_tag.xml", "no_toplevel.xml", "no_end.xml"];
 		this.testSource = {};
+		this.invalidSource = {};
 		for (var i = 0; i < testFiles.length; i++) {
 			this.testSource[testFiles[i]] = Ti.Filesystem.getFile(testFiles[i]).read().toString();
 		}
+		
+		for (var i = 0; i < invalidFiles.length; i++) {
+			this.invalidSource[invalidFiles[i]] = Ti.Filesystem.getFile(invalidFiles[i]).read().toString();
+		}
+	},
+	
+	documentParsing: function() {
+		var localSources = this.testSource;
+		var localInvalid = this.invalidSource;
+		// Parse valid documents
+		valueOf(function() {
+			Ti.XML.parseString(localSources["soap.xml"]);
+		}).shouldNotThrowException();
+		valueOf(function() {
+			Ti.XML.parseString(localSources["xpath.xml"]);
+		}).shouldNotThrowException();
+		valueOf(function() {
+			Ti.XML.parseString(localSources["nodes.xml"]);
+		}).shouldNotThrowException();
+		valueOf(function() {
+			Ti.XML.parseString(localSources["nodeCount.xml"]);
+		}).shouldNotThrowException();
+		valueOf(function() {
+			Ti.XML.parseString(localSources["cdata.xml"]);
+		}).shouldNotThrowException();
+		valueOf(function() {
+			Ti.XML.parseString(localSources["cdataEntities.xml"]);
+		}).shouldNotThrowException();
+		
+		// Parse empty document - spec specifies that a valid XML doc
+		// must have a root element (empty string doesn't)
+		valueOf(function() {
+			Ti.XML.parseString('');
+		}).shouldThrowException();
+		
+		// Parse (some types of) invalid documents
+		valueOf(function() {
+			Ti.XML.parseString(localInvalid["mismatched_tag.xml"]);
+		}).shouldThrowException();
+		valueOf(function() {
+			Ti.XML.parseString(localInvalid["no_end.xml"]);
+		}).shouldThrowException();
+		valueOf(function() {
+			Ti.XML.parseString(localInvalid["no_toplevel.xml"]);
+		}).shouldThrowException();
 	},
 	
 	// These 6 tests are adapted from the KitchenSink xml_dom test
