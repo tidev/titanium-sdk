@@ -200,5 +200,34 @@ describe("Ti.XML tests", {
 			// Make sure we can round-trip from source to DOM to source and back to DOM...
 			matchXmlTrees(a, b);
 		}
+	},
+
+	apiXMLTextSplitText: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+		var textValue = "this is some test";
+
+		valueOf(doc.createTextNode).shouldBeFunction();
+		var textNode = doc.createTextNode(textValue);
+
+		var originalElement = textNode;
+		var splitTextResults = null;
+		valueOf(function() { splitTextResults = textNode.splitText(3); }).shouldNotThrowException();
+		valueOf(splitTextResults).shouldBe(originalElement);
+	},
+
+	apiXMLTextGetText: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+		var textValue = "this is some test";
+
+		valueOf(doc.createTextNode).shouldBeFunction();
+		var textNode = doc.createTextNode(textValue);
+
+		var getTextResults = null;
+		var getTextResults = null;
+		valueOf(function() { getTextResults = textNode.getText(); }).shouldNotThrowException();
+		valueOf(getTextResults).shouldBe(textValue);
+		valueOf(function() { getTextResults2 = textNode.text; }).shouldNotThrowException();
+		valueOf(getTextResults2).shouldBe(textValue);
 	}
 });
+
