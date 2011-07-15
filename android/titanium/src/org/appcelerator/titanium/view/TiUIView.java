@@ -40,6 +40,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
+import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -905,12 +906,14 @@ public abstract class TiUIView
 		}
 		if (!clickable) {
 			view.setOnClickListener(null); // This will set clickable to true in the view, so make sure it stays here so the next line turns it off.
-			view.setClickable(false);			
+			view.setClickable(false);
+			view.setOnLongClickListener(null);
+			view.setLongClickable(false);
 		} else if ( ! (view instanceof AdapterView) ){
 			// n.b.: AdapterView throws if click listener set.
 			// n.b.: setting onclicklistener automatically sets clickable to true.
 			setOnClickListener(view);
-			view.setLongClickable(true); // enables itemlongclick in ListView if the view is added to a ListView
+			setOnLongClickListener(view);
 		}
 	}
 	private void doSetClickable(boolean clickable)
@@ -951,6 +954,17 @@ public abstract class TiUIView
 			public void onClick(View view)
 			{
 				proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(lastUpEvent));
+			}
+		});
+	}
+	protected void setOnLongClickListener(View view)
+	{
+		view.setOnLongClickListener(new OnLongClickListener()
+		{
+			@Override
+			public boolean onLongClick(View view)
+			{
+				return proxy.fireEvent(TiC.EVENT_LONGCLICK, null);
 			}
 		});
 	}
