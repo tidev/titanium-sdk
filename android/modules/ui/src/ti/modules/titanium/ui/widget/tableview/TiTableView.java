@@ -256,26 +256,7 @@ public class TiTableView extends FrameLayout
 		rowTypes.put(TableViewProxy.CLASSNAME_DEFAULT, rowTypeCounter.incrementAndGet());
 
 		this.viewModel = new TableViewModel(tiContext, proxy);
-		this.listView = new ListView(getContext()) {
-			public boolean onKeyDown(int keyCode, android.view.KeyEvent event) {
-				if (selector != null) {
-					selector.keyEvent(keyCode, 1, event);
-				}
-				return super.onKeyDown(keyCode, event);
-			}
-			public boolean onKeyMultiple(int keyCode, int repeatCount, android.view.KeyEvent event) {
-				if (selector != null) {
-					selector.keyEvent(keyCode, repeatCount, event);
-				}
-				return super.onKeyMultiple(keyCode, repeatCount, event);
-			}
-			public boolean onKeyUp(int keyCode, android.view.KeyEvent event) {
-				if (selector != null) {
-					selector.keyEvent(keyCode, 1, event);
-				}
-				return super.onKeyUp(keyCode, event);
-			}
-		};
+		this.listView = new ListView(getContext());
 		listView.setId(TI_TABLE_VIEW_ID);
 
 		listView.setFocusable(true);
@@ -378,7 +359,7 @@ public class TiTableView extends FrameLayout
 	public void enableCustomSelector() {
 		Drawable currentSelector = listView.getSelector();
 		if (currentSelector != selector) {
-			selector = new TiTableViewSelector(this);
+			selector = new TiTableViewSelector (listView);
 			listView.setSelector(selector);
 		}
 	}
