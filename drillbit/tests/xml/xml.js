@@ -202,7 +202,7 @@ describe("Ti.XML tests", {
 		}
 	},
 
-	apiXmlNode: function() {
+	apiXmlProperties: function() {
 		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
 
 		var nodesList = doc.getElementsByTagName("nodes");
@@ -238,53 +238,108 @@ describe("Ti.XML tests", {
 		valueOf(node.namespaceURI).shouldNotBeUndefined(); // null is a valid return, what is the expected behavior when null?
 		valueOf(node.prefix).shouldNotBeUndefined(); // null is a valid return, what is the expected behavior when null?
 		valueOf(node.localName).shouldNotBeUndefined(); // null is a valid return, what is the expected behavior when null?
+	},
 
+	apiXmlAppendChild: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
 
-		// verify methods
-		var newNode1 = doc.createElement("newNode1");
-		valueOf(node.appendChild).shouldBeFunction();
+		var newNode = doc.createElement("newNode");
+		valueOf(newNode.appendChild).shouldBeFunction();
+
 		var appendChildResults = null;
-		valueOf(function() { appendChildResults = node.appendChild(newNode1); }).shouldNotThrowException();
-		valueOf(appendChildResults).shouldBe(newNode1);
+		valueOf(function() { appendChildResults = node.appendChild(newNode); }).shouldNotThrowException();
+		valueOf(appendChildResults).shouldBe(newNode);
+	},
 
-		valueOf(node.cloneNode).shouldBeFunction();
+	apiXmlCloneNode: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+
+		var newNode = doc.createElement("newNode");
+		valueOf(newNode.cloneNode).shouldBeFunction();
+
 		var clonedNode = null;
-		valueOf(function() { clonedNode = node.cloneNode(false); }).shouldNotThrowException();
+		valueOf(function() { clonedNode = newNode.cloneNode(false); }).shouldNotThrowException();
 		valueOf(clonedNode).shouldBeObject();
-		valueOf(function() { clonedNode = node.cloneNode(true); }).shouldNotThrowException();
+		valueOf(function() { clonedNode = newNode.cloneNode(true); }).shouldNotThrowException();
 		valueOf(clonedNode).shouldBeObject();
+	},
 
-		valueOf(node.hasAttributes).shouldBeFunction();
-		valueOf(function() { node.hasAttributes(); }).shouldNotThrowException();
+	apiXmlHasAttributes: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
 
-		valueOf(node.hasChildNodes).shouldBeFunction();
-		valueOf(function() { node.hasChildNodes(); }).shouldNotThrowException();
+		var newNode = doc.createElement("newNode");
+		valueOf(newNode.hasAttributes).shouldBeFunction();
 
+		valueOf(function() { newNode.hasAttributes(); }).shouldNotThrowException();
+	},
+
+	apiXmlHasChildNodes: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+
+		var newNode = doc.createElement("newNode");
+		valueOf(newNode.hasChildNodes).shouldBeFunction();
+
+		valueOf(function() { newNode.hasChildNodes(); }).shouldNotThrowException();
+	},
+
+	apiXmlInsertBefore: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+
+		var newNode = doc.createElement("newNode");
 		var newNode2 = doc.createElement("newNode2");
-		valueOf(node.insertBefore).shouldBeFunction();
+		valueOf(newNode.insertBefore).shouldBeFunction();
+
 		var insertBeforeResults = null;
-		valueOf(function() { insertBeforeResults = node.insertBefore(newNode2, node.firstChild); }).shouldNotThrowException();
+		valueOf(function() { insertBeforeResults = newNode.insertBefore(newNode2, newNode.firstChild); }).shouldNotThrowException();
 		valueOf(insertBeforeResults).shouldBe(newNode2);
+	},
 
-		valueOf(node.isSupported).shouldBeFunction();
+	apiXmlIsSupported: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+
+		var newNode = doc.createElement("newNode");
+		valueOf(newNode.isSupported).shouldBeFunction();
+
 		var isSupportedResults = null;
-		valueOf(function() { isSupportedResults = node.isSupported("XML", "1.0"); }).shouldNotThrowException();
+		valueOf(function() { isSupportedResults = newNode.isSupported("XML", "1.0"); }).shouldNotThrowException();
 		valueOf(isSupportedResults).shouldBeBoolean();
+	},
 
-		valueOf(node.normalize).shouldBeFunction();
-		valueOf(function() { node.normalize(); }).shouldNotThrowException();
+	apiXmlNormalize: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
 
-		valueOf(node.removeChild).shouldBeFunction();
-		var nodeToRemove = node.firstChild;
+		var newNode = doc.createElement("newNode");
+		valueOf(newNode.normalize).shouldBeFunction();
+
+		valueOf(function() { newNode.normalize(); }).shouldNotThrowException();
+	},
+
+	apiXmlRemoveChild: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+
+		var parentNode = doc.createElement("parentNode");
+		var childNode = doc.createElement("childNode");
+		parentNode.appendChild(childNode);
+
+		valueOf(parentNode.removeChild).shouldBeFunction();
+
 		var removeChildResults = null;
-		valueOf(function() { removeChildResults = node.removeChild(nodeToRemove); }).shouldNotThrowException();
-		valueOf(removeChildResults).shouldBe(nodeToRemove);
+		valueOf(function() { removeChildResults = parentNode.removeChild(childNode); }).shouldNotThrowException();
+		valueOf(removeChildResults).shouldBe(childNode);
+	},
 
-		var newNode3 = doc.createElement("newNode3");
-		valueOf(node.replaceChild).shouldBeFunction();
-		var nodeToReplace = node.firstChild;
+	apiXmlReplaceChild: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+
+		var parentNode = doc.createElement("parentNode");
+		var childNode = doc.createElement("childNode");
+		var replacementNode = doc.createElement("replacementNode");
+		parentNode.appendChild(childNode);
+
+		valueOf(parentNode.replaceChild).shouldBeFunction();
+
 		var replaceChildResults = null;
-		valueOf(function() { replaceChildResults = node.replaceChild(newNode3, nodeToReplace); }).shouldNotThrowException();
-		valueOf(replaceChildResults).shouldBe(newNode3);
+		valueOf(function() { replaceChildResults = parentNode.replaceChild(replacementNode, childNode); }).shouldNotThrowException();
+		valueOf(replaceChildResults).shouldBe(replacementNode);
 	}
 });
