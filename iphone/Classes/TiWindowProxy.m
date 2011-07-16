@@ -97,7 +97,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 -(void) dealloc {
 	RELEASE_TO_NIL(navController);
 	[self releaseController];
-	
+
 	[super dealloc];
 }
 
@@ -112,12 +112,12 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 
 	RELEASE_TO_NIL(openAnimation);
 	RELEASE_TO_NIL(closeAnimation);
-	
+
 	[super _destroy];
 }
 
 -(void)_configure
-{	
+{
     orientationFlags = [[[TiApp app] controller] allowedOrientations];
 	[self replaceValue:nil forKey:@"orientationModes" notification:NO];
 	[super _configure];
@@ -158,7 +158,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 -(void)windowDidOpen
 {
 	[super windowDidOpen];
-	
+
 	opening = NO;
 	[self forgetProxy:openAnimation];
 	RELEASE_TO_NIL(openAnimation);
@@ -167,7 +167,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	{
 		[self fireEvent:@"open" withObject:nil];
 	}
-	
+
 	// we do it here in case we have a window that
 	// neither has tabs nor JS
 	if (focused==NO && [self handleFocusEvents])
@@ -194,8 +194,8 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		return;
 	}
 	opened = YES;
-	
-	if (!navWindow) 
+
+	if (!navWindow)
 	{
 		[self attachViewToTopLevelWindow];
 	}
@@ -211,7 +211,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	ENSURE_UI_THREAD_0_ARGS
 
 	[(TiRootViewController *)[[TiApp app] controller] closeWindow:self withObject:nil];
-	
+
 	if (opened==NO)
 	{
 		return;
@@ -229,7 +229,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	attached = NO;
 	opening = NO;
 	closing = NO;
-	
+
 	//TODO: Since windowDidClose also calls detachView, is this necessary?
 	[self detachView];
 	// notify our child that his window is closing
@@ -237,10 +237,10 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	{
 		[child windowDidClose];
 	}
-	
+
 	RELEASE_TO_NIL(navController);
 	[self releaseController];
-	
+
 	[self windowDidClose];
 	[self forgetSelf];
 }
@@ -313,19 +313,19 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 
 // called to associate a Tab UIViewController with this window when it's connected
 // to a tab or nil to disassociate
--(void)_associateTab:(UIViewController*)controller_ navBar:(UINavigationController*)navbar_ tab:(TiProxy<TiTab>*)tab_ 
+-(void)_associateTab:(UIViewController*)controller_ navBar:(UINavigationController*)navbar_ tab:(TiProxy<TiTab>*)tab_
 {
 	[self releaseController];
 	RELEASE_TO_NIL(navController);
 	RELEASE_TO_NIL(tab);
-	
+
 	if (tab_!=nil)
 	{
 		navController = [navbar_ retain];
 		controller = [controller_ retain];
 		[(TiViewController *)controller setProxy:self];
 		tab = [tab_ retain];
-		
+
 		[self _tabAttached];
 	}
 	else
@@ -379,7 +379,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	}
 
 	[self rememberSelf];
-	
+
 	//First, we need to get our arguments in order. Perhaps in Opening.
 
 	if (opening==NO)
@@ -402,8 +402,8 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 {
 	navWindow = NO;
 	BOOL rootViewAttached = [self isRootViewAttached];
-	
-	// give it to our subclass. he'll either return true to continue with open state and animation or 
+
+	// give it to our subclass. he'll either return true to continue with open state and animation or
 	// false to delay for some other action
 	if ([self _handleOpen:args])
 	{
@@ -411,7 +411,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		[self view];
 		[self windowWillOpen];
 		[self windowReady];
-		
+
 		if (openAnimation!=nil)
 		{
 			if (rootViewAttached)
@@ -464,7 +464,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 				    [nc setModalPresentationStyle:style];
 				}
 			}
-#endif		
+#endif
 //			[self setController:wc];
 			[self setNavController:nc];
 			BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
@@ -498,15 +498,15 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 -(void)prepareForNavView:(UINavigationController*)navController_
 {
 	ENSURE_UI_THREAD_1_ARG(navController_)
-	
+
 	if (opened) {
 		return;
 	}
-	
+
 	if (!opening) {
 		opening = YES;
 	}
-	
+
 	self.navController = navController_;
 	navWindow = YES;
 	[self view];
@@ -531,11 +531,11 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	{
 		return;
 	}
-	if ([self _isChildOfTab]) 
+	if ([self _isChildOfTab])
 	{
 		if (![args isKindOfClass:[NSArray class]] ||
 			([args isKindOfClass:[NSArray class]] &&
-			 [args count] > 0 && 
+			 [args count] > 0 &&
 			 ![TiUtils boolValue:@"closeByTab" properties:[args objectAtIndex:0] def:NO]))
 		{
 			NSMutableArray* closeArgs = [NSMutableArray arrayWithObject:self];
@@ -573,7 +573,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			[tempController.view removeFromSuperview];
 			RELEASE_TO_NIL(tempController);
 		}
-		else 
+		else
 		{
 			[self performSelector:@selector(removeTempController:) withObject:nil afterDelay:0.3];
 		}
@@ -582,7 +582,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	else
 	{
 		UIViewController *vc = [self controller];
-		
+
 		[[[TiApp app] controller] windowClosed:vc];
 
 		if (modalFlag)
@@ -592,24 +592,21 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			if (animated)
 			{
 				// if animated, we don't want to immediately remove our view but instead need
-				// to wait until the modal dialog is dismissed before we remove our view 
+				// to wait until the modal dialog is dismissed before we remove our view
 				// otherwise, you'll see the view popup as the window is lowering
 				modalFlag = NO;
 				[self performSelector:@selector(close:) withObject:nil afterDelay:0.3];
 				return;
 			}
 		}
-	}	
-	
+	}
+
 	opening = NO;
 	UIView *myview = nil;
 	if([self viewAttached]) {
 		myview = [self view];
 	}
 	[[myview retain] autorelease];
-	
-	// hold ourself during close
-	[[self retain] autorelease];
 
 	[[[TiApp app] controller] willHideViewController:controller animated:YES];
 	VerboseLog(@"%@ (modal:%d)%@",self,modalFlag,CODELOCATION);
@@ -648,18 +645,18 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			closeView = [myview retain];
 			[closeAnimation animate:self];
 		}
-		  
+
 		if (fullscreenFlag)
 		{
 			[[UIApplication sharedApplication] setStatusBarHidden:restoreFullscreen];
 			self.view.frame = [[[TiApp app] controller] resizeView];
-		} 
- 
+		}
+
 		if (closeAnimation!=nil)
 		{
 			[self performSelector:@selector(windowClosed) withObject:nil afterDelay:0.8];
 		}
-		else 
+		else
 		{
 			[self windowClosed];
 		}
@@ -673,11 +670,11 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		return;
 	}
 	attached = YES;
-	
+
 	UIView *rootView = [[TiApp app] controller].view;
-	
+
 	TiUIView *view_ = [self view];
-	
+
 	if (![self _isChildOfTab])
 	{
 		//TEMP hack for splitview until we can get things worked out
@@ -688,7 +685,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			[[self _window] addSubview:rootView];
 		}
 		[rootView addSubview:view_];
-		
+
 		[self controller];
 
 		[(TiRootViewController *)[[TiApp app] controller] openWindow:self withObject:nil];
@@ -747,7 +744,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	[UIView setAnimationTransition:transitionAnimation
 						   forView:rootView
 							 cache:NO];
-	
+
 	if (opening)
 	{
 		if (splashTransitionAnimation)
@@ -774,7 +771,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		}
 		[self attachViewToTopLevelWindow];
 	}
-	else 
+	else
 	{
 		if (reattachWindows!=nil)
 		{
@@ -800,7 +797,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			if ([[TiApp app] isSplashVisible])
 			{
 				[[TiApp app] splash].alpha = 0;
-			}	
+			}
 			[self attachViewToTopLevelWindow];
 		}
 	}
@@ -838,7 +835,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 -(void)setOrientationModes:(id)value
 {
 	[self replaceValue:value forKey:@"orientationModes" notification:YES];
-	
+
 	TiOrientationFlags newFlags = TiOrientationFlagsFromObject(value);
 	if (newFlags == orientationFlags)
 	{
