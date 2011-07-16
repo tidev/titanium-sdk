@@ -54,7 +54,9 @@ def generate_doc(config):
 	import markdown
 	documentation = []
 	for file in os.listdir(docdir):
-		md = open(os.path.join(docdir,file)).read()
+		path = os.path.join(docdir,file)
+		if not os.path.isfile(path): continue
+		md = open(path).read()
 		html = markdown.markdown(md)
 		documentation.append({file:html});
 	return documentation
