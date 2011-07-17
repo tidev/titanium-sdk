@@ -271,4 +271,28 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 	}
 	return retVal;
 }
+
+- (BOOL) isReachable {
+	
+	NSAssert(reachabilityRef, @"isReachable called with NULL reachabilityRef");
+	
+	SCNetworkReachabilityFlags flags = 0;
+	NetworkStatus status = NotReachable;
+	
+	if (SCNetworkReachabilityGetFlags(reachabilityRef, &flags)) {
+		
+//		logReachabilityFlags(flags);
+
+		status = [self networkStatusForFlags: flags];
+
+//		logNetworkStatus(status);
+		
+		return (NotReachable != status);
+		
+	}
+	
+	return NO;
+	
+} // isReachable
+
 @end
