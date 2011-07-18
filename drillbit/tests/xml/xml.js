@@ -200,5 +200,50 @@ describe("Ti.XML tests", {
 			// Make sure we can round-trip from source to DOM to source and back to DOM...
 			matchXmlTrees(a, b);
 		}
+	},
+	xmlNodeListElementsByTagName : function() {
+		var xml = Ti.XML.parseString(this.testSource["nodes.xml"]);
+		valueOf(xml).shouldNotBeNull();
+		
+		var nodes = xml.getElementsByTagName("node");
+		valueOf(nodes).shouldNotBeNull();
+		valueOf(nodes.length).shouldBeNumber();
+		valueOf(nodes.item).shouldBeFunction();
+		
+		valueOf(nodes.length).shouldBe(13);
+		
+		var n = nodes.item(0);
+		valueOf(n).shouldNotBeNull();
+		valueOf(n.getAttribute("id")).shouldBe("node 1");
+		
+		n = nodes.item(1);
+		valueOf(n).shouldNotBeNull();
+		valueOf(n.getAttribute("id")).shouldBe("node 2");
+	},
+	xmlNodeListChildren : function() {
+		var xml = Ti.XML.parseString(this.testSource["nodes.xml"]);
+		valueOf(xml).shouldNotBeNull();
+		
+		var e = xml.documentElement;
+		valueOf(e).shouldNotBeNull();
+		
+		var nodes = e.childNodes;
+		valueOf(nodes).shouldNotBeNull();
+		var count = 0;
+		for (var i = 0; i < nodes.length; i++) {
+			var node = nodes.item(i);
+			if (node.nodeType == node.ELEMENT_NODE) {
+				count++;
+			}
+		}
+		valueOf(count).shouldBe(1);
+	},
+	xmlNodeListRange : function() {
+		var xml = Ti.XML.parseString(this.testSource["nodes.xml"]);
+		valueOf(xml).shouldNotBeNull();
+		
+		var nodes = xml.getElementsByTagName("node");
+		valueOf(nodes.item(nodes.length)).shouldBeNull();
+		valueOf(nodes.item(100)).shouldBeNull();
 	}
 });
