@@ -214,14 +214,16 @@ var l10 = Titanium.UI.createLabel({
 
 win.add(l10);
 
-var l11 = Titanium.UI.createLabel({
-	text:'longpress not fired',
-	top:290,
-	left:10,
-	width:300,
-	height:'auto',
-	font:{fontSize:13,fontFamily:'Helvetica Neue'}
-});
+if (Ti.Platform.osname === 'android') {
+	var l11 = Titanium.UI.createLabel({
+		text:'longpress not fired',
+		top:290,
+		left:10,
+		width:300,
+		height:'auto',
+		font:{fontSize:13,fontFamily:'Helvetica Neue'}
+	});
+}
 
 win.add(l11);
 
@@ -363,12 +365,14 @@ win.addEventListener('dblclick', function(e)
 		l10.color = '#333';
 	},200);
 });
-win.addEventListener('longpress', function(e)
-{
-	l11.color = 'red';
-	l11.text = 'longpress fired x ' + e.x + ' y ' + e.y;
-	setTimeout(function()
+if (Ti.Platform.osname === 'android') {
+	win.addEventListener('longpress', function(e)
 	{
-		l11.color = '#333';
-	},200);
-});
+		l11.color = 'red';
+		l11.text = 'longpress fired x ' + e.x + ' y ' + e.y;
+		setTimeout(function()
+		{
+			l11.color = '#333';
+		},200);
+	});
+}

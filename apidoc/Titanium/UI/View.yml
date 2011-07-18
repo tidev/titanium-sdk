@@ -77,6 +77,33 @@ events:
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
+  - name: longclick
+    description: fired when the device detects a long click, which is a touch-and-hold or,
+        in the case of a trackball, holding down the button.  The event occurs before the
+        finger/button is lifted up again.  If you have a longclick listener then the click
+        event will not occur when you lift the finger/button after a longpress.
+    properties:
+      - name: source
+        description: the source object that fired the event
+      - name: type
+        description: the name of the event fired
+    platforms: [android]
+  - name: longpress
+    description: fired when the device detects a long press, which is a touch-and-hold with
+        the finger.  The event occurs before the finger is lifted again.  Both a longpress
+        and a longclick can occur together.  The differences are that longclick can occur also
+        with the trackball whereas longpress is a touch-only event, and longpress includes
+        x and y coordinates.
+    platforms: [android]
+    properties:
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: source
+        description: the source object that fired the event
+      - name: type
+        description: the name of the event fired
+      - name: x
+        description: the x point of the event in receiving view coordiantes
   - name: singletap
     description: fired when the device detects a single tap against the view
     properties:
