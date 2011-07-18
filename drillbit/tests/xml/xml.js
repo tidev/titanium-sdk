@@ -216,7 +216,7 @@ describe("Ti.XML tests", {
 		valueOf(attr.name).shouldBeString();
 		valueOf(attr.name).shouldBe("id");
 		valueOf(attr.ownerElement).shouldBeObject();
-		valueOf(attr.ownerElement).shouldBe(node); // For some reason this doesn't work
+		valueOf(attr.ownerElement).shouldBe(node); // For some reason this doesn't work on android TIMOB-4703
 		valueOf(attr.specified).shouldBeBoolean();
 		valueOf(attr.specified).shouldBeTrue();
 		valueOf(attr.value).shouldBeString();
@@ -231,14 +231,13 @@ describe("Ti.XML tests", {
 		valueOf(attr.name).shouldBeString();
 		valueOf(attr.name).shouldBe("newattr");
 		valueOf(attr.specified).shouldBeBoolean();
-		valueOf(attr.specified).shouldBeTrue(); // See spec.  If owner element has not yet been set, then specified is always true.
-		var addedAttr = node.setAttributeNode(attr); // NPE for some reason
+		var addedAttr = node.setAttributeNode(attr); // NPE for some reason in Android. TIMOB-4704
 		valueOf(addedAttr).shouldNotBeNull();
 		valueOf(addedAttr).shouldBeObject();
 		valueOf(addedAttr).shouldBe(attr);
 		valueOf(attr.ownerElement).shouldNotBeNull();
-		valueOf(attr.ownerElement).shouldBe(node); // For some reason this doesn't work
-		valueOf(attr.specified).shouldBeFalse(); // No value set yet.
+		valueOf(attr.ownerElement).shouldBe(node); // For some reason this doesn't work on android TIMOB-4703
+		valueOf(attr.specified).shouldBeFalse();
 		valueOf(attr.value).shouldBeNull();
 		attr.value = "new value";
 		valueOf(attr.value).shouldBe("new value");
