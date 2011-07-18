@@ -200,5 +200,47 @@ describe("Ti.XML tests", {
 			// Make sure we can round-trip from source to DOM to source and back to DOM...
 			matchXmlTrees(a, b);
 		}
+	},
+
+	apiXmlAttr: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+		var node = doc.getElementsByTagName("node").item(0);
+		var attr;
+		// First a known attribute
+		valueOf(function(){
+			attr = node.attributes.item(0);
+		}).shouldNotThrowException();
+		valueOf(attr).shouldNotBeUndefined();
+		valueOf(attr).shouldNotBeNull();
+		valueOf(attr).shouldBeObject();
+		valueOf(attr.name).shouldBeString();
+		valueOf(attr.name).shouldBe("id");
+		valueOf(attr.ownerElement).shouldBeObject();
+		valueOf(attr.ownerElement).shouldBe(node); // For some reason this doesn't work on android TIMOB-4703
+		valueOf(attr.specified).shouldBeBoolean();
+		valueOf(attr.specified).shouldBeTrue();
+		valueOf(attr.value).shouldBeString();
+		valueOf(attr.value).shouldBe("node 1");
+		// Now new attribute
+		valueOf(function(){
+			attr = doc.createAttribute("newattr");
+		}).shouldNotThrowException();
+		valueOf(attr).shouldNotBeUndefined();
+		valueOf(attr).shouldNotBeNull();
+		valueOf(attr).shouldBeObject();
+		valueOf(attr.name).shouldBeString();
+		valueOf(attr.name).shouldBe("newattr");
+		valueOf(attr.specified).shouldBeBoolean();
+		var addedAttr = node.setAttributeNode(attr); // NPE for some reason in Android. TIMOB-4704
+		valueOf(addedAttr).shouldNotBeNull();
+		valueOf(addedAttr).shouldBeObject();
+		valueOf(addedAttr).shouldBe(attr);
+		valueOf(attr.ownerElement).shouldNotBeNull();
+		valueOf(attr.ownerElement).shouldBe(node); // For some reason this doesn't work on android TIMOB-4703
+		valueOf(attr.specified).shouldBeFalse();
+		valueOf(attr.value).shouldBeNull();
+		attr.value = "new value";
+		valueOf(attr.value).shouldBe("new value");
+		valueOf(attr.specified).shouldBeTrue();
 	}
 });
