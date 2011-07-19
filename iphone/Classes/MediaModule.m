@@ -841,14 +841,52 @@ if (![TiUtils isIOS4OrGreater]) { \
 {
 	ENSURE_UI_THREAD(takeScreenshot,arg);
 	ENSURE_SINGLE_ARG(arg,KrollCallback);
-	
-	// we take the shot of the whole window, not just the active view
-	UIWindow *screenWindow = [[UIApplication sharedApplication] keyWindow];
-	UIGraphicsBeginImageContext(screenWindow.bounds.size);
-	[screenWindow.layer renderInContext:UIGraphicsGetCurrentContext()];
-	UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-	UIGraphicsEndImageContext();
-	
+
+    // Create a graphics context with the target size
+    // On iOS 4 and later, use UIGraphicsBeginImageContextWithOptions to take the scale into consideration
+    // On iOS prior to 4, fall back to use UIGraphicsBeginImageContext
+
+    float systemVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
+
+ 	CGSize imageSize = [[UIScreen mainScreen] bounds].size;
+
+ 	if (systemVersion >= 4.0f)
+		UIGraphicsBeginImageContextWithOptions(imageSize, NO, 0);
+	else
+		UIGraphicsBeginImageContext(imageSize);
+
+	CGContextRef context = UIGraphicsGetCurrentContext();
+
+    // Iterate over every window from back to front
+    for (UIWindow *window in [[UIApplication sharedApplication] windows])
+    {
+        if (![window respondsToSelector:@selector(screen)] || [window screen] == [UIScreen mainScreen])
+        {
+            // -renderInContext: renders in the coordinate space of the layer,
+            // so we must first apply the layer's geometry to the graphics context
+            CGContextSaveGState(context);
+            // Center the context around the window's anchor point
+            CGContextTranslateCTM(context, [window center].x, [window center].y);
+            // Apply the window's transform about the anchor point
+            CGContextConcatCTM(context, [window transform]);
+            // Offset by the portion of the bounds left of and above the anchor point
+            CGContextTranslateCTM(context,
+                                  -[window bounds].size.width * [[window layer] anchorPoint].x,
+                                  -[window bounds].size.height * [[window layer] anchorPoint].y);
+
+            // Render the layer hierarchy to the current context
+            [[window layer] renderInContext:context];
+
+            // Restore the context
+            CGContextRestoreGState(context);
+        }
+    }
+
+    // Retrieve the screenshot image
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+
+    UIGraphicsEndImageContext();
+
 	TiBlob *blob = [[[TiBlob alloc] initWithImage:image] autorelease];
 	NSDictionary *event = [NSDictionary dictionaryWithObject:blob forKey:@"media"];
 	[self _fireEventToListener:@"screenshot" withObject:event listener:arg thisObject:nil];
