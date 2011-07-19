@@ -349,7 +349,7 @@ public class TiTableView extends FrameLayout
 		ViewParent parent = view.getParent();
 		while (parent != null) {
 			if (parent instanceof TiBaseTableViewItem) {
-				return (TiBaseTableViewItem)parent;
+				return (TiBaseTableViewItem) parent;
 			}
 			parent = parent.getParent();
 		}
@@ -431,7 +431,8 @@ public class TiTableView extends FrameLayout
 		this.itemClickListener = listener;
 	}
 
-	public void setOnItemLongClickListener(OnItemLongClickedListener listener) {
+	public void setOnItemLongClickListener(OnItemLongClickedListener listener)
+	{
 		this.itemLongClickListener = listener;
 	}
 
