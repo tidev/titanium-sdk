@@ -22,13 +22,14 @@ import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel;
 import ti.modules.titanium.ui.widget.tableview.TiTableView;
 import ti.modules.titanium.ui.widget.tableview.TiTableView.OnItemClickedListener;
+import ti.modules.titanium.ui.widget.tableview.TiTableView.OnItemLongClickedListener;
 import android.app.Activity;
 import android.view.Gravity;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
 public class TiUITableView extends TiUIView
-	implements OnItemClickedListener, OnLifecycleEvent
+	implements OnItemClickedListener, OnItemLongClickedListener, OnLifecycleEvent
 {
 	private static final String LCAT = "TitaniumTableView";	
 	private static final boolean DBG = TiConfig.LOGD;
@@ -46,6 +47,12 @@ public class TiUITableView extends TiUIView
 	public void onClick(KrollDict data)
 	{
 		proxy.fireEvent(TiC.EVENT_CLICK, data);
+	}
+
+	@Override
+	public boolean onLongClick(KrollDict data)
+	{
+		return proxy.fireEvent(TiC.EVENT_LONGCLICK, data);
 	}
 
 	public void setModelDirty()
@@ -90,6 +97,7 @@ public class TiUITableView extends TiUIView
 		proxy.getTiContext().addOnLifecycleEventListener(this);
 
 		tableView.setOnItemClickListener(this);
+		tableView.setOnItemLongClickListener(this);
 
 		if (d.containsKey(TiC.PROPERTY_SEARCH)) {
 			RelativeLayout layout = new RelativeLayout(proxy.getTiContext().getActivity());
