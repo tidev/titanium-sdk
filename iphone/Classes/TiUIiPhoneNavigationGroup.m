@@ -21,6 +21,7 @@
     // NOTE: We don't need to blur the currently visible proxy, because it gets closed out by the close: call.
 	TiWindowProxy * oldProxy = visibleProxy;
 	visibleProxy = [newVisibleProxy retain];
+
 	[oldProxy _tabBeforeBlur];
 	[newVisibleProxy _tabBeforeFocus];
 
