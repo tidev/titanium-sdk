@@ -1,29 +1,27 @@
 ---
 name: Titanium.UI.iPad.DocumentViewer
 description: A DocumentViewer provides in-app support for managing user interactions with files in the local system. For example, an email program might use this class to allow the user to preview attachments and open them in other apps. Use this class to present an appropriate user interface for previewing or printing a specified file. The DocumentViewere is created by the method <Titanium.UI.iPad.createDocumentViewer>.
-    
-    ![splitview](http://img.skitch.com/20100406-1f85bm9cx8t768xgsjqax1ng6y.png)
 extends: Titanium.UI.View
 platforms: [ipad]
 since: "1.8"
 methods:
   - name: show
-    description: To display the document viewer over the current view.
+    description: to display the document viewer over the current view.
     parameters:
-      - name: callback
-        description: callback function to invoke upon network connectivity changes
-        type: Callback<Object>
+      - name: animated
+        description: is a boolean indicating if the showing of the viewer should be animated.
+        type: Boolean
+      - name: view
+        description: The view property would specify the view relative to where the viewer should display.
+        type: Object
+  - name: setUrl
+    description: change the url of the document viewer
+    parameters:
+      - name: url
+        description: the new url
+        type: String
 examples:
-  - title: Simple DocumentViewer
-    example: |
-        In this example, we create a simple popover and position it near the button
-        
-            var popover = Ti.UI.iPad.createPopover({height:100,width:100});
-            popover.add(view);
-            popover.show({view:button});
-        
-        
-  - title: Popover with title and nav button
+  - title: Document Viewer Example
     example: |
         In this example, we create a documentviwere with a window button and right navigation button.
         
@@ -56,6 +54,8 @@ examples:
            	 win1.add(b1t);
            	 //Setting up the documentviewer
            	 z = Ti.UI.iPad.createDocumentViewer({url:'Example.pdf'});
-           	 b1t.addEventListener('click', function(){z.show();});
+           	 //documentviewer with animation set on and a quicklook view poping up next to a view
+           	 b1t.addEventListener('click', function(){z.show({animated:false,view:b2t});});
+           	 //documentviewer with animation set off
            	 b2t.addEventListener('click', function(){z.show();});
            	 win1.open();

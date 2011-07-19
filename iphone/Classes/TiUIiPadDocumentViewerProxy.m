@@ -42,7 +42,7 @@
 -(void)show:(id)args
 {
 	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(show:) withObject:nil waitUntilDone:YES];
+		[self performSelectorOnMainThread:@selector(show:) withObject:args waitUntilDone:YES];
 		return;
 	}	
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
