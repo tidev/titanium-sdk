@@ -32,6 +32,11 @@ extern const TiDimension TiDimensionUndefined;
 
 TI_INLINE TiDimension TiDimensionMake(TiDimensionType type, CGFloat value)
 {
+	if ((value!=0)&&(!isnormal(value))) {
+		NSLog(@"[FATAL] Invalid dimension value (%f) requested. Making the dimension undefined instead.",value);
+		type = TiDimensionTypeUndefined;
+		value = 0;
+	}
 	TiDimension dimension;
 	dimension.type = type;
 	dimension.value = value;
