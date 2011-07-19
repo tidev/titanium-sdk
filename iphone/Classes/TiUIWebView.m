@@ -93,6 +93,28 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 }
 
 
+- (void) tap:(NSObject *) sender {
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
+  if ([self.proxy _hasListeners:@"gestureTap"])
+  {
+    [self.proxy fireEvent:@"gestureTap" withObject:nil];
+  }
+  return YES;
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch{
+    return YES;
+}
+
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
+    return YES;
+}
+
+
+
 -(UIWebView*)webview 
 {
 	if (webview==nil)
@@ -106,6 +128,13 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 		webview.backgroundColor = [UIColor whiteColor];
 		webview.contentMode = UIViewContentModeRedraw;
 		[self addSubview:webview];
+		
+		// support detecting tap events for the web view without interfering the normal touch/JS events
+		UITapGestureRecognizer *tgr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tap:)];
+    tgr.delegate = self;
+    [webview addGestureRecognizer:tgr];
+    [tgr autorelease];
+		
 		
 		// only show the loading indicator if it's a remote URL
 		if ([self isURLRemote])
