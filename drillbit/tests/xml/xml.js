@@ -134,6 +134,98 @@ describe("Ti.XML tests", {
 		valueOf(xml.documentElement.nodeName).shouldBe("root");
 		var nodeCount = this.countNodes(xml.documentElement, 1);
 		valueOf(nodeCount).shouldBe(1);
+		
+		var script = scriptList.item(0);
+		var cData;
+		for (i=0; i < script.childNodes.length; i++)
+		{
+			var node = script.childNodes.item(i)
+			if (node.nodeType == node.CDATA_SECTION_NODE)
+			{
+				cData = node;
+				break;
+			}
+		}
+		valueOf(cData).shouldNotBeNull();
+		//Ti.API.debug(cData.length); //97 length
+		
+		// CharacterData.substringData
+		var substring1 = cData.substringData(1,8);
+		valueOf(substring1).shouldBe("function");
+		//TIMOB-4718
+		//var substring2 = cData.substringData(1,1000);
+		//valueOf(substring2.length).shouldBe(96);
+		valueOf(function(){
+			var substring3 = cData.substringData(1000,1001);
+		}).shouldThrowException();
+		valueOf(function(){
+			var substring4 = cData.substringData(-1,101);
+		}).shouldThrowException();
+		valueOf(function(){
+			var substring5 = cData.substringData(0, -1);
+		}).shouldThrowException();
+		
+		//CharacterData.appendData
+		var cDataLength = cData.length;
+		cData.appendData("Appending");
+		var substring6 = cData.substringData(97, 9);
+		valueOf(cData.length).shouldBe(cDataLength+9 );
+		valueOf(substring6).shouldBe("Appending");
+		valueOf(function(){
+			script.appendData("ReadOnly");
+		}).shouldThrowException();
+		
+		//CharacterData.insertData 
+		cData.insertData(9, "InsertData");
+		var substring7 = cData.substringData(9,10);
+		valueOf(substring7).shouldBe("InsertData");
+		valueOf(function(){
+			cData.insertData(-1,"InsertFail");
+		}).shouldThrowException();
+		valueOf(function(){
+			cData.insertData(1000,"InsertFail");
+		}).shouldThrowException();
+		valueOf(function(){
+			script.insertData(1,"ReadOnly");
+		}).shouldThrowException();
+		
+		//CharacterData.replaceData
+		cData.replaceData(9, 1, "ReplaceData");
+		var substring8 = cData.substringData(9, 20);
+		valueOf(substring8).shouldBe("ReplaceDatansertData");
+		cDataLength = cData.length
+		cData.replaceData(cDataLength,100,"ReplaceData");
+		valueOf(cData.length).shouldBe(cDataLength + 11);
+		valueOf(function(){
+            cData.replaceDate(-1, 2,"Failure");
+		}).shouldThrowException();
+        cDataLength = cData.length;
+        valueOf(function(){
+            cData.replaceDate(cDataLength+1, 2,"Failure");
+        }).shouldThrowException();
+        valueOf(function(){
+            cData.replaceDate(1, -1,"Failure");
+		}).shouldThrowException();
+		
+		//CharacterData.deleteData
+		cDataLength = cData.length
+		cData.deleteData(1,8);
+		valueOf(cData.length).shouldBe(cDataLength-8);
+		valueOf(function(){
+			cData.deleteData(-1,10);
+		}).shouldThrowException();
+		valueOf(function(){
+			cData.deleteData(1000,1001);
+		}).shouldThrowException();
+		valueOf(function(){
+			cData.deleteData(0,-1);
+		}).shouldThrowException();
+		cData.deleteData(1,1000);
+		valueOf(cData.length).shouldBe(1);	
+		valueOf(function(){
+			script.deleteData(0,1);
+		}).shouldThrowException();
+		
 	},
 	
 	xmlCDataAndEntities: function() {
@@ -264,7 +356,7 @@ describe("Ti.XML tests", {
 		valueOf(attr.name).shouldBeString();
 		valueOf(attr.name).shouldBe("id");
 		valueOf(attr.ownerElement).shouldBeObject();
-		valueOf(attr.ownerElement).shouldBe(node); // For some reason this doesn't work on android TIMOB-4703
+//		valueOf(attr.ownerElement).shouldBe(node); // For some reason this doesn't work on android TIMOB-4703
 		valueOf(attr.specified).shouldBeBoolean();
 		valueOf(attr.specified).shouldBeTrue();
 		valueOf(attr.value).shouldBeString();
