@@ -1014,24 +1014,13 @@
 		24CA89B51111615D0084E2DE /* KrollPropertyDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = KrollPropertyDelegate.m; path = ../Classes/KrollPropertyDelegate.m; sourceTree = SOURCE_ROOT; };
 		24CA89B61111615D0084E2DE /* KrollTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KrollTimer.h; path = ../Classes/KrollTimer.h; sourceTree = SOURCE_ROOT; };
 		24CA89B71111615D0084E2DE /* KrollTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = KrollTimer.m; path = ../Classes/KrollTimer.m; sourceTree = SOURCE_ROOT; };
-		24CA89F41111618F0084E2DE /* APICast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APICast.h; sourceTree = "<group>"; };
-		24CA89F51111618F0084E2DE /* OpaqueTiString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpaqueTiString.h; sourceTree = "<group>"; };
 		24CA89F61111618F0084E2DE /* Ti.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ti.h; sourceTree = "<group>"; };
 		24CA89F71111618F0084E2DE /* TiBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiBase.h; sourceTree = "<group>"; };
-		24CA89F81111618F0084E2DE /* TiBasePrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiBasePrivate.h; sourceTree = "<group>"; };
-		24CA89F91111618F0084E2DE /* TiCallbackConstructor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCallbackConstructor.h; sourceTree = "<group>"; };
-		24CA89FA1111618F0084E2DE /* TiCallbackFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCallbackFunction.h; sourceTree = "<group>"; };
-		24CA89FB1111618F0084E2DE /* TiCallbackObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCallbackObject.h; sourceTree = "<group>"; };
-		24CA89FC1111618F0084E2DE /* TiCallbackObjectFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCallbackObjectFunctions.h; sourceTree = "<group>"; };
-		24CA89FD1111618F0084E2DE /* TiClassRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiClassRef.h; sourceTree = "<group>"; };
 		24CA89FE1111618F0084E2DE /* TiContextRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiContextRef.h; sourceTree = "<group>"; };
 		24CA89FF1111618F0084E2DE /* TiContextRefPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiContextRefPrivate.h; sourceTree = "<group>"; };
 		24CA8A001111618F0084E2DE /* TiCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCore.h; sourceTree = "<group>"; };
 		24CA8A011111618F0084E2DE /* TiObjectRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiObjectRef.h; sourceTree = "<group>"; };
-		24CA8A021111618F0084E2DE /* TiProfilerPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiProfilerPrivate.h; sourceTree = "<group>"; };
-		24CA8A031111618F0084E2DE /* TiRetainPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiRetainPtr.h; sourceTree = "<group>"; };
 		24CA8A041111618F0084E2DE /* TiStringRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiStringRef.h; sourceTree = "<group>"; };
-		24CA8A051111618F0084E2DE /* TiStringRefBSTR.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiStringRefBSTR.h; sourceTree = "<group>"; };
 		24CA8A061111618F0084E2DE /* TiStringRefCF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiStringRefCF.h; sourceTree = "<group>"; };
 		24CA8A071111618F0084E2DE /* TiValueRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiValueRef.h; sourceTree = "<group>"; };
 		24CA8A081111618F0084E2DE /* WebKitAvailability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebKitAvailability.h; sourceTree = "<group>"; };
@@ -1835,24 +1824,13 @@
 		24CA89F31111618F0084E2DE /* TiCore */ = {
 			isa = PBXGroup;
 			children = (
-				24CA89F41111618F0084E2DE /* APICast.h */,
-				24CA89F51111618F0084E2DE /* OpaqueTiString.h */,
 				24CA89F61111618F0084E2DE /* Ti.h */,
 				24CA89F71111618F0084E2DE /* TiBase.h */,
-				24CA89F81111618F0084E2DE /* TiBasePrivate.h */,
-				24CA89F91111618F0084E2DE /* TiCallbackConstructor.h */,
-				24CA89FA1111618F0084E2DE /* TiCallbackFunction.h */,
-				24CA89FB1111618F0084E2DE /* TiCallbackObject.h */,
-				24CA89FC1111618F0084E2DE /* TiCallbackObjectFunctions.h */,
-				24CA89FD1111618F0084E2DE /* TiClassRef.h */,
 				24CA89FE1111618F0084E2DE /* TiContextRef.h */,
 				24CA89FF1111618F0084E2DE /* TiContextRefPrivate.h */,
 				24CA8A001111618F0084E2DE /* TiCore.h */,
 				24CA8A011111618F0084E2DE /* TiObjectRef.h */,
-				24CA8A021111618F0084E2DE /* TiProfilerPrivate.h */,
-				24CA8A031111618F0084E2DE /* TiRetainPtr.h */,
 				24CA8A041111618F0084E2DE /* TiStringRef.h */,
-				24CA8A051111618F0084E2DE /* TiStringRefBSTR.h */,
 				24CA8A061111618F0084E2DE /* TiStringRefCF.h */,
 				24CA8A071111618F0084E2DE /* TiValueRef.h */,
 				24CA8A081111618F0084E2DE /* WebKitAvailability.h */,
