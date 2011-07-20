@@ -80,7 +80,7 @@ class CSSCompiler(object):
 	def is_platform_ios(self):
 		return self.platform in ["iphone", "ipad", "ios", "universal"]
 
-	def is_platform_dir(self, dir,):
+	def is_platform_dir(self, dir):
 		platform_dirs = [os.path.join(self.dir, p) for p in ["iphone", "android", "blackberry"]]
 
 		if dir in platform_dirs:
@@ -89,7 +89,10 @@ class CSSCompiler(object):
 				return True
 			elif self.platform == basename:
 				return True
-		return False
+			# Only return false if this is actually a platform directory, but *NOT* the specified platform
+			# We still want to copy from directories that are non-platform (hence the "return True" catch all)
+			return False
+		return True
 
 	def __init__(self, dir, platform, appid):
 		self.dir = dir
@@ -103,7 +106,8 @@ class CSSCompiler(object):
 
 			for name in ignoreDirs:
 				if name in dirs:
-					dirs.remove(name)	# don't visit ignored directories			  
+					# don't visit ignored directories
+					dirs.remove(name)
 			for f in files:
 				if f in ignoreFiles: continue
 				if not f.endswith('.jss'): continue
