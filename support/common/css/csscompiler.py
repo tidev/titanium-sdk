@@ -84,12 +84,13 @@ class CSSCompiler(object):
 		platform_dirs = [os.path.join(self.dir, p) for p in ["iphone", "android", "blackberry"]]
 
 		if dir in platform_dirs:
-			basename = os.path.basename(dir)
-			if self.is_platform_ios() and basename == "iphone":
-				return True
-			elif self.platform == basename:
-				return True
-		return False
+				basename = os.path.basename(dir)
+				if self.is_platform_ios() and basename == "iphone":
+					return True
+				elif self.platform == basename:
+					return True
+				return False
+		return True
 
 	def __init__(self, dir, platform, appid):
 		self.dir = dir
