@@ -186,10 +186,9 @@
 {
 #ifdef KROLL_COVERAGE
     NSDictionary* coverage = [KrollCoverageObject dumpCoverage];
-//    NSLog(@"COVERAGE: %@", coverage);
-	return coverage;
+    return coverage;
 #else
-    NSLog(@"Attempt to get coverage without KROLL_COVERAGE enabled");
+    NSLog(@"[WARN] Attempt to get coverage without KROLL_COVERAGE enabled");
     return [NSDictionary dictionary];
 #endif
 }
