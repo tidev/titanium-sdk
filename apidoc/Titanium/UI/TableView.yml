@@ -120,6 +120,29 @@ events:
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
       - name: row
         description: table view row object
+  - name: longclick
+    description: fired when the device detects that a table view row has been clicked and held (i.e., pressed
+        without lifting the finger or trackpad).
+    platforms: [android]
+    properties:
+      - name: index
+        description: table view row index
+        type: Number
+      - name: section
+        description: table view section object
+        type: Titanium.UI.TableViewSection
+      - name: source
+        description: The source object that fired the event.
+        type: Object
+      - name: rowData
+        description: table view row data object
+        type: Object
+      - name: row
+        description: table view row that was longclicked.
+        type: Titanium.UI.TableViewRow
+      - name: type
+        description: the name of the event fired
+        type: String
   - name: move
     description: fired when a table row is moved by the user
     properties:

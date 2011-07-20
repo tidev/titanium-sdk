@@ -60,6 +60,15 @@ tableview.addEventListener('click', function(e)
 	}
 
 });
+tableview.addEventListener('longclick', function(e){
+	var index = e.index;
+	var section = e.section;
+	var row = e.row;
+	var rowdata = e.rowData;
+	var msg = 'LONGCLICK row ' + row + ' index ' + index + ' section ' + section  + ' row data ' + rowdata;
+	Titanium.UI.createAlertDialog({title:'Table View',message:msg}).show();
+});
+
 
 // add table view to the window
 Titanium.UI.currentWindow.add(tableview);
