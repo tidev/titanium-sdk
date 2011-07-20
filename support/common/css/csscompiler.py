@@ -101,6 +101,8 @@ class CSSCompiler(object):
 		self.files = {}
 		
 		for dirname,dirs,files in os.walk(dir):
+			if not self.is_platform_dir(root):
+				continue
 			for name in ignoreDirs:
 				if name in dirs:
 					# don't visit ignored directories
