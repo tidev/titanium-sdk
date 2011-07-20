@@ -31,10 +31,11 @@
 	[self reposition];
 }
 
--(void)windowDidClose
+-(void)windowWillClose
 {
-	//TODO: reattach the root controller?
-	[super windowDidClose];
+    if ([self viewAttached]) {
+        [(TiUIiPadSplitWindow*)[self view] splitViewController:nil willShowViewController:nil invalidatingBarButtonItem:nil];
+    }
 }
 
 -(void)setToolbar:(id)items withObject:(id)properties

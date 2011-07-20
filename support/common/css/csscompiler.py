@@ -99,11 +99,8 @@ class CSSCompiler(object):
 		self.platform = platform
 		self.appid = appid
 		self.files = {}
-
-		for root, dirs, files in os.walk(dir):
-			if not self.is_platform_dir(root):
-				continue
-
+		
+		for dirname,dirs,files in os.walk(dir):
 			for name in ignoreDirs:
 				if name in dirs:
 					# don't visit ignored directories
@@ -111,7 +108,6 @@ class CSSCompiler(object):
 			for f in files:
 				if f in ignoreFiles: continue
 				if not f.endswith('.jss'): continue
-				path = os.path.join(root, f)
 				tok = f[0:-4].split('.')
 				count = len(tok)
 				if count > 1:
@@ -122,11 +118,11 @@ class CSSCompiler(object):
 				if self.files.has_key(tok[0]):
 					dict = self.files[tok[0]]
 				if count == 1:
-					dict['base'] = path
+					dict['base'] = os.path.join(dirname,f)
 				elif count == 2:
-					dict['platform'] = path
+					dict['platform'] = os.path.join(dirname,f)
 				elif count == 3:
-					dict['density'][tok[2]] = path
+					dict['density'][tok[2]] = os.path.join(dirname,f)
 				
 				self.files[tok[0]] = dict
 		
@@ -167,7 +163,7 @@ class CSSCompiler(object):
 		
 		self.transform_properties()
 		
-		if self.is_platform_ios():
+		if self.platform == 'iphone' or self.platform == 'ipad' or self.platform == 'ios' or self.platform == 'universal':
 			self.code = self.generate_ios_code(self.classes,self.classes_density,self.ids,self.ids_density,self.tags,self.tags_density)
 		elif self.platform == 'android':
 			#merge classes and tags for backward compatibility with current Android implementation
