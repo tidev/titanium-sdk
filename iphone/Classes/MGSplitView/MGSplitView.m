@@ -15,7 +15,7 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        controller = [controller_ retain];
+        controller = controller_;
         layingOut = NO;
         singleLayout = NO;
     }
@@ -24,7 +24,6 @@
 
 - (void)dealloc
 {
-    RELEASE_TO_NIL(controller);
     [super dealloc];
 }
 

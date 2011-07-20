@@ -863,14 +863,17 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 -(void)invoke:(id)object
 {
+	pthread_rwlock_rdlock(&KrollGarbageCollectionLock);
 	//Mwahahaha! Pre-emptively putting in NSOperations before the Queue.
 	if([object isKindOfClass:[NSOperation class]])
 	{
 		[(NSOperation *)object start];
+		pthread_rwlock_unlock(&KrollGarbageCollectionLock);
 		return;
 	}
 
 	[object invoke:self];
+	pthread_rwlock_unlock(&KrollGarbageCollectionLock);
 }
 
 -(void)enqueue:(id)obj

@@ -334,7 +334,7 @@
 			if (theView) {
 				theView.frame = masterRect;
                 theView.bounds = CGRectMake(0, 0, masterRect.size.width, masterRect.size.height);
-				if (!theView.superview) {
+				if (theView.superview != self.view) {
 					[controller viewWillAppear:NO];
 					[self.view addSubview:theView];
 					[controller viewDidAppear:NO];
@@ -356,7 +356,7 @@
 			if (theView) {
 				theView.frame = detailRect;
                 theView.bounds = CGRectMake(0, 0, detailRect.size.width, detailRect.size.height);
-				if (!theView.superview) {
+				if (theView.superview != self.view) {
 					[self.view insertSubview:theView aboveSubview:self.masterViewController.view];
 				} else {
 					[self.view bringSubviewToFront:theView];
@@ -566,7 +566,6 @@
 
 #pragma mark -
 #pragma mark Popover handling
-
 
 - (void)reconfigureForMasterInPopover:(BOOL)inPopover
 {

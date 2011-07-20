@@ -177,6 +177,7 @@ def validateProperty(typeTracker, property):
 def validateEvent(typeTracker, event):
 	tracker = ErrorTracker(event['name'], typeTracker)
 	validateRequired(tracker, event, ['name', 'description'])
+	validateCommon(tracker, event)
 
 def validateType(typeDoc):
 	typeName = typeDoc['name']
