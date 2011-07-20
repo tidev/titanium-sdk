@@ -84,7 +84,7 @@ var frontend = {
 		$('#current-test').html('<b>'+suite_name + '</b>:&nbsp;&nbsp;' + test_name);
 	},
 	
-	add_assertion: function(test_name, line_number)
+	update_assertions: function()
 	{
 		$('#assertion-count').html(Drillbit.totalAssertions+' assertions');
 	},

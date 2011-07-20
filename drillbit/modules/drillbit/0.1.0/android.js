@@ -196,7 +196,13 @@ AndroidEmulator.prototype.handleCompleteAndroidEvent = function(event)
 
 	var coverageData = this.runADB(['shell', 'cat', '/sdcard/' + this.drillbit.testHarnessId + '/coverage.json']);
 	var coverage = JSON.parse(coverageData);
-	this.drillbit.handleCompleteEvent(results, 'android', coverage);
+
+	var resultsInfo = {
+		results: results,
+		coverage: coverage,
+		suite: suite
+	}
+	this.drillbit.handleCompleteEvent(resultsInfo, 'android');
 };
 
 AndroidEmulator.prototype.removeTestJS = function(testScript) {
