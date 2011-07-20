@@ -67,6 +67,6 @@ function appendMessage(msg, type) {
 		message += ">" + msg + "</font><br>";
 		harnessConsole.html += message;
 	} else {
-		harnessConsole.text += message + "\n";
+		harnessConsole.text += msg + "\n";
 	}
 }
