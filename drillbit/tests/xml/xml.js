@@ -147,14 +147,22 @@ describe("Ti.XML tests", {
 			}
 		}
 		valueOf(cData).shouldNotBeNull();
-		//Ti.API.debug(cData.length); //97 length
 		
+		//CharacterDataAttributes
+		var fullString = cData.data;
+		valueOf(fullString).shouldBe("\nfunction matchwo(a,b)\n{\nif (a < b && a < 0) then\n  {\n  return 1;\n  }\nelse\n  {\n  return 0;\n  }\n}\n");
+		cData.data = ("Test Assignment");
+		valueOf(cData.data).shouldBe("Test Assignment");
+		cData.data = ("\nfunction matchwo(a,b)\n{\nif (a < b && a < 0) then\n  {\n  return 1;\n  }\nelse\n  {\n  return 0;\n  }\n}\n");
+		var fullLength = cData.length;
+		valueOf(fullLength).shouldBe(97);
+        
 		// CharacterData.substringData
 		var substring1 = cData.substringData(1,8);
 		valueOf(substring1).shouldBe("function");
 		//TIMOB-4718
-		//var substring2 = cData.substringData(1,1000);
-		//valueOf(substring2.length).shouldBe(96);
+		var substring2 = cData.substringData(1,1000);
+		valueOf(substring2.length).shouldBe(96);
 		valueOf(function(){
 			var substring3 = cData.substringData(1000,1001);
 		}).shouldThrowException();
@@ -197,14 +205,14 @@ describe("Ti.XML tests", {
 		cData.replaceData(cDataLength,100,"ReplaceData");
 		valueOf(cData.length).shouldBe(cDataLength + 11);
 		valueOf(function(){
-            cData.replaceDate(-1, 2,"Failure");
+			cData.replaceDate(-1, 2,"Failure");
 		}).shouldThrowException();
-        cDataLength = cData.length;
-        valueOf(function(){
-            cData.replaceDate(cDataLength+1, 2,"Failure");
-        }).shouldThrowException();
-        valueOf(function(){
-            cData.replaceDate(1, -1,"Failure");
+		cDataLength = cData.length;
+		valueOf(function(){
+			cData.replaceDate(cDataLength+1, 2,"Failure");
+		}).shouldThrowException();
+		valueOf(function(){
+			cData.replaceDate(1, -1,"Failure");
 		}).shouldThrowException();
 		
 		//CharacterData.deleteData
