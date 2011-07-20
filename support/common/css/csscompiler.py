@@ -100,7 +100,7 @@ class CSSCompiler(object):
 		self.appid = appid
 		self.files = {}
 		
-		for dirname,dirs,files in os.walk(dir):
+		for root, dirs, files in os.walk(dir):
 			if not self.is_platform_dir(root):
 				continue
 			for name in ignoreDirs:
@@ -120,11 +120,11 @@ class CSSCompiler(object):
 				if self.files.has_key(tok[0]):
 					dict = self.files[tok[0]]
 				if count == 1:
-					dict['base'] = os.path.join(dirname,f)
+					dict['base'] = os.path.join(root, f)
 				elif count == 2:
-					dict['platform'] = os.path.join(dirname,f)
+					dict['platform'] = os.path.join(root, f)
 				elif count == 3:
-					dict['density'][tok[2]] = os.path.join(dirname,f)
+					dict['density'][tok[2]] = os.path.join(root, f)
 				
 				self.files[tok[0]] = dict
 		
