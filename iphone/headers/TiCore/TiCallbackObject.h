@@ -40,6 +40,84 @@
 
 namespace TI {
 
+struct TiCallbackObjectData {
+    TiCallbackObjectData(void* privateData, TiClassRef jsClass)
+        : privateData(privateData)
+        , jsClass(jsClass)
+    {
+        TiClassRetain(jsClass);
+    }
+    
+    ~TiCallbackObjectData()
+    {
+        TiClassRelease(jsClass);
+    }
+    
+    TiValue getPrivateProperty(const Identifier& propertyName) const
+    {
+        if (!m_privateProperties)
+            return TiValue();
+        return m_privateProperties->getPrivateProperty(propertyName);
+    }
+    
+    void setPrivateProperty(const Identifier& propertyName, TiValue value)
+    {
+        if (!m_privateProperties)
+            m_privateProperties.set(new JSPrivatePropertyMap);
+        m_privateProperties->setPrivateProperty(propertyName, value);
+    }
+    
+    void deletePrivateProperty(const Identifier& propertyName)
+    {
+        if (!m_privateProperties)
+            return;
+        m_privateProperties->deletePrivateProperty(propertyName);
+    }
+
+    void markChildren(MarkStack& markStack)
+    {
+        if (!m_privateProperties)
+            return;
+        m_privateProperties->markChildren(markStack);
+    }
+
+    void* privateData;
+    TiClassRef jsClass;
+    struct JSPrivatePropertyMap {
+        TiValue getPrivateProperty(const Identifier& propertyName) const
+        {
+            PrivatePropertyMap::const_iterator location = m_propertyMap.find(propertyName.ustring().rep());
+            if (location == m_propertyMap.end())
+                return TiValue();
+            return location->second;
+        }
+        
+        void setPrivateProperty(const Identifier& propertyName, TiValue value)
+        {
+            m_propertyMap.set(propertyName.ustring().rep(), value);
+        }
+        
+        void deletePrivateProperty(const Identifier& propertyName)
+        {
+            m_propertyMap.remove(propertyName.ustring().rep());
+        }
+
+        void markChildren(MarkStack& markStack)
+        {
+            for (PrivatePropertyMap::iterator ptr = m_propertyMap.begin(); ptr != m_propertyMap.end(); ++ptr) {
+                if (ptr->second)
+                    markStack.append(ptr->second);
+            }
+        }
+
+    private:
+        typedef HashMap<RefPtr<UString::Rep>, TiValue, IdentifierRepHash> PrivatePropertyMap;
+        PrivatePropertyMap m_propertyMap;
+    };
+    OwnPtr<JSPrivatePropertyMap> m_privateProperties;
+};
+
+    
 template <class Base>
 class TiCallbackObject : public Base {
 public:
@@ -57,7 +135,22 @@ public:
 
     static PassRefPtr<Structure> createStructure(TiValue proto) 
     { 
-        return Structure::create(proto, TypeInfo(ObjectType, StructureFlags)); 
+        return Structure::create(proto, TypeInfo(ObjectType, StructureFlags), Base::AnonymousSlotCount); 
+    }
+    
+    TiValue getPrivateProperty(const Identifier& propertyName) const
+    {
+        return m_callbackObjectData->getPrivateProperty(propertyName);
+    }
+    
+    void setPrivateProperty(const Identifier& propertyName, TiValue value)
+    {
+        m_callbackObjectData->setPrivateProperty(propertyName, value);
+    }
+    
+    void deletePrivateProperty(const Identifier& propertyName)
+    {
+        m_callbackObjectData->deletePrivateProperty(propertyName);
     }
 
 protected:
@@ -68,6 +161,7 @@ private:
 
     virtual bool getOwnPropertySlot(TiExcState*, const Identifier&, PropertySlot&);
     virtual bool getOwnPropertySlot(TiExcState*, unsigned, PropertySlot&);
+    virtual bool getOwnPropertyDescriptor(TiExcState*, const Identifier&, PropertyDescriptor&);
     
     virtual void put(TiExcState*, const Identifier&, TiValue, PutPropertySlot&);
 
@@ -76,7 +170,7 @@ private:
 
     virtual bool hasInstance(TiExcState* exec, TiValue value, TiValue proto);
 
-    virtual void getOwnPropertyNames(TiExcState*, PropertyNameArray&);
+    virtual void getOwnPropertyNames(TiExcState*, PropertyNameArray&, EnumerationMode mode = ExcludeDontEnumProperties);
 
     virtual double toNumber(TiExcState*) const;
     virtual UString toString(TiExcState*) const;
@@ -85,6 +179,12 @@ private:
     virtual CallType getCallData(CallData&);
     virtual const ClassInfo* classInfo() const { return &info; }
 
+    virtual void markChildren(MarkStack& markStack)
+    {
+        Base::markChildren(markStack);
+        m_callbackObjectData->markChildren(markStack);
+    }
+
     void init(TiExcState*);
  
     static TiCallbackObject* asCallbackObject(TiValue);
@@ -92,27 +192,10 @@ private:
     static TiValue JSC_HOST_CALL call(TiExcState*, TiObject* functionObject, TiValue thisValue, const ArgList&);
     static TiObject* construct(TiExcState*, TiObject* constructor, const ArgList&);
    
-    static TiValue staticValueGetter(TiExcState*, const Identifier&, const PropertySlot&);
-    static TiValue staticFunctionGetter(TiExcState*, const Identifier&, const PropertySlot&);
-    static TiValue callbackGetter(TiExcState*, const Identifier&, const PropertySlot&);
+    static TiValue staticValueGetter(TiExcState*, TiValue, const Identifier&);
+    static TiValue staticFunctionGetter(TiExcState*, TiValue, const Identifier&);
+    static TiValue callbackGetter(TiExcState*, TiValue, const Identifier&);
 
-    struct TiCallbackObjectData {
-        TiCallbackObjectData(void* privateData, TiClassRef jsClass)
-            : privateData(privateData)
-            , jsClass(jsClass)
-        {
-            TiClassRetain(jsClass);
-        }
-        
-        ~TiCallbackObjectData()
-        {
-            TiClassRelease(jsClass);
-        }
-        
-        void* privateData;
-        TiClassRef jsClass;
-    };
-    
     OwnPtr<TiCallbackObjectData> m_callbackObjectData;
 };
 

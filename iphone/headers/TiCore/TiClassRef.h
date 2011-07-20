@@ -38,6 +38,7 @@
 #include <runtime/TiObject.h>
 #include <runtime/Protect.h>
 #include <runtime/UString.h>
+#include <runtime/WeakGCPtr.h>
 #include <wtf/HashMap.h>
 #include <wtf/RefCounted.h>
 
@@ -83,7 +84,7 @@ struct OpaqueTiClassContextData : Noncopyable {
 
     OpaqueTiClassStaticValuesTable* staticValues;
     OpaqueTiClassStaticFunctionsTable* staticFunctions;
-    TI::TiObject* cachedPrototype;
+    TI::WeakGCPtr<TI::TiObject> cachedPrototype;
 };
 
 struct OpaqueTiClass : public ThreadSafeShared<OpaqueTiClass> {
