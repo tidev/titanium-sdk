@@ -33,6 +33,8 @@ public class TiC
 	public static final String EVENT_HEADING = "heading";
 	public static final String EVENT_LOAD = "load";
 	public static final String EVENT_LOCATION = "location";
+	public static final String EVENT_LONGCLICK = "longclick";
+	public static final String EVENT_LONGPRESS = "longpress";
 	public static final String EVENT_NEW_INTENT = "newIntent";
 	public static final String EVENT_OPEN = "open";
 	public static final String EVENT_PAUSE = "pause";

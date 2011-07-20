@@ -11,6 +11,10 @@
 #import "TiUtils.h"
 #import "TiBuffer.h"
 
+#ifdef KROLL_COVERAGE
+# include "KrollCoverage.h"
+#endif
+
 @implementation TopTiModule
 
 -(id)version
@@ -176,6 +180,17 @@
     }
     
     return buffer;
+}
+
+-(NSDictionary*)dumpCoverage:(id)unused_
+{
+#ifdef KROLL_COVERAGE
+    NSDictionary* coverage = [KrollCoverageObject dumpCoverage];
+    return coverage;
+#else
+    NSLog(@"[WARN] Attempt to get coverage without KROLL_COVERAGE enabled");
+    return [NSDictionary dictionary];
+#endif
 }
 
 @end

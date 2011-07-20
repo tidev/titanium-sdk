@@ -82,7 +82,7 @@ DrillbitTest.BEFORE_ALL = function() {
 <% } %>
 try
 {
-	appendMessage('running suite <span class="suite">' + DrillbitTest.NAME + '</span> before_all');
+	appendMessage('running suite ' + DrillbitTest.NAME + ' before_all');
 	<%= makeFunction(entry, 'before_all', 'DrillbitTest.gscope') %>
 }
 catch (e)
@@ -147,14 +147,14 @@ catch (e)
 
 	DrillbitTest.AFTER_ALL = DrillbitTest.onComplete = function() {
 		try {
-			appendMessage('running suite <span class="suite">' + DrillbitTest.NAME + '</span> after_all');
+			appendMessage('running suite ' + DrillbitTest.NAME + ' after_all');
 			<%= makeFunction(entry, 'after_all', 'DrillbitTest.gscope') %>;
 		} catch (e) {
 			Titanium.API.error('after_all caught error:'+e+' at line: '+e.line);
 		}
 		DrillbitTest.complete();
 	};
-    <% if (autoRun) { %>
+	<% if (autoRun) { %>
 	DrillbitTest.runNextTest();
 	<% } %>
 

@@ -80,7 +80,7 @@ class CSSCompiler(object):
 	def is_platform_ios(self):
 		return self.platform in ["iphone", "ipad", "ios", "universal"]
 
-	def is_platform_dir(self, dir,):
+	def is_platform_dir(self, dir):
 		platform_dirs = [os.path.join(self.dir, p) for p in ["iphone", "android", "blackberry"]]
 
 		if dir in platform_dirs:
@@ -89,25 +89,27 @@ class CSSCompiler(object):
 				return True
 			elif self.platform == basename:
 				return True
-		return False
+			# Only return false if this is actually a platform directory, but *NOT* the specified platform
+			# We still want to copy from directories that are non-platform (hence the "return True" catch all)
+			return False
+		return True
 
 	def __init__(self, dir, platform, appid):
 		self.dir = dir
 		self.platform = platform
 		self.appid = appid
 		self.files = {}
-
+		
 		for root, dirs, files in os.walk(dir):
 			if not self.is_platform_dir(root):
 				continue
-
 			for name in ignoreDirs:
 				if name in dirs:
-					dirs.remove(name)	# don't visit ignored directories			  
+					# don't visit ignored directories
+					dirs.remove(name)
 			for f in files:
 				if f in ignoreFiles: continue
 				if not f.endswith('.jss'): continue
-				path = os.path.join(root, f)
 				tok = f[0:-4].split('.')
 				count = len(tok)
 				if count > 1:
@@ -118,11 +120,11 @@ class CSSCompiler(object):
 				if self.files.has_key(tok[0]):
 					dict = self.files[tok[0]]
 				if count == 1:
-					dict['base'] = path
+					dict['base'] = os.path.join(root, f)
 				elif count == 2:
-					dict['platform'] = path
+					dict['platform'] = os.path.join(root, f)
 				elif count == 3:
-					dict['density'][tok[2]] = path
+					dict['density'][tok[2]] = os.path.join(root, f)
 				
 				self.files[tok[0]] = dict
 		
@@ -163,7 +165,7 @@ class CSSCompiler(object):
 		
 		self.transform_properties()
 		
-		if self.is_platform_ios():
+		if self.platform == 'iphone' or self.platform == 'ipad' or self.platform == 'ios' or self.platform == 'universal':
 			self.code = self.generate_ios_code(self.classes,self.classes_density,self.ids,self.ids_density,self.tags,self.tags_density)
 		elif self.platform == 'android':
 			#merge classes and tags for backward compatibility with current Android implementation

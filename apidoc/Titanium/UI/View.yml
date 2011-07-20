@@ -50,7 +50,7 @@ events:
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        description: the x point of the event in receiving view coordinates
   - name: dblclick
     description: fired when the device detects a double click against the view
     properties:
@@ -63,7 +63,7 @@ events:
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        description: the x point of the event in receiving view coordinates
   - name: doubletap
     description: fired when the device detects a double tap against the view
     properties:
@@ -76,7 +76,34 @@ events:
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        description: the x point of the event in receiving view coordinates
+  - name: longclick
+    description: fired when the device detects a long click, which is a touch-and-hold or,
+        in the case of a trackball, holding down the button.  The event occurs before the
+        finger/button is lifted up again.  If you have a longclick listener then the click
+        event will not occur when you lift the finger/button after a longpress.
+    properties:
+      - name: source
+        description: the source object that fired the event
+      - name: type
+        description: the name of the event fired
+    platforms: [android]
+  - name: longpress
+    description: fired when the device detects a long press, which is a touch-and-hold with
+        the finger.  The event occurs before the finger is lifted again.  Both a longpress
+        and a longclick can occur together.  The differences are that longclick can occur also
+        with the trackball whereas longpress is a touch-only event, and longpress includes
+        x and y coordinates.
+    platforms: [android]
+    properties:
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: source
+        description: the source object that fired the event
+      - name: type
+        description: the name of the event fired
+      - name: x
+        description: the x point of the event in receiving view coordinates
   - name: singletap
     description: fired when the device detects a single tap against the view
     properties:
@@ -89,7 +116,7 @@ events:
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        description: the x point of the event in receiving view coordinates
   - name: swipe
     description: fired when the device detects a swipe (left or right) against the view
     properties:
@@ -100,7 +127,7 @@ events:
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        description: the x point of the event in receiving view coordinates
       - name: type
         description: the name of the event fired
       - name: globalPoint
@@ -117,7 +144,7 @@ events:
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        description: the x point of the event in receiving view coordinates
   - name: touchend
     description: fired when a touch event is completed
     properties:
@@ -130,7 +157,7 @@ events:
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        description: the x point of the event in receiving view coordinates
   - name: touchmove
     description: fired as soon as the device detects movement of a touch.  Event coordinates are always relative to the view in which the initial touch occurred
     properties:
@@ -143,7 +170,7 @@ events:
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        description: the x point of the event in receiving view coordinates
   - name: touchstart
     description: fired as soon as the device detects a gesture
     properties:
@@ -156,7 +183,7 @@ events:
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        description: the x point of the event in receiving view coordinates
   - name: twofingertap
     description: fired when the device detects a two-finger tap against the view
     properties:
@@ -169,7 +196,7 @@ events:
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        description: the x point of the event in receiving view coordinates
 properties:
   - name: anchorPoint
     description: a dictionary with properties x and y to indicate the anchor point value. anchor specifies the position by which animation should occur. center is 0.5, 0.5
