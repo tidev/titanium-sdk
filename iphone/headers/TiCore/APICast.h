@@ -36,7 +36,6 @@
 #include "TiAPIValueWrapper.h"
 #include "TiGlobalObject.h"
 #include "TiValue.h"
-#include <wtf/Platform.h>
 #include <wtf/UnusedParam.h>
 
 namespace TI {
@@ -58,22 +57,40 @@ typedef struct OpaqueTiValue* TiObjectRef;
 
 inline TI::TiExcState* toJS(TiContextRef c)
 {
+    ASSERT(c);
     return reinterpret_cast<TI::TiExcState*>(const_cast<OpaqueTiContext*>(c));
 }
 
 inline TI::TiExcState* toJS(TiGlobalContextRef c)
 {
+    ASSERT(c);
     return reinterpret_cast<TI::TiExcState*>(c);
 }
 
-inline TI::TiValue toJS(TI::TiExcState*, TiValueRef v)
+inline TI::TiValue toJS(TI::TiExcState* exec, TiValueRef v)
 {
+    ASSERT_UNUSED(exec, exec);
+    ASSERT(v);
 #if USE(JSVALUE32_64)
     TI::TiCell* jsCell = reinterpret_cast<TI::TiCell*>(const_cast<OpaqueTiValue*>(v));
     if (!jsCell)
         return TI::TiValue();
     if (jsCell->isAPIValueWrapper())
         return static_cast<TI::TiAPIValueWrapper*>(jsCell)->value();
+    return jsCell;
+#else
+    return TI::TiValue::decode(reinterpret_cast<TI::EncodedTiValue>(const_cast<OpaqueTiValue*>(v)));
+#endif
+}
+
+inline TI::TiValue toJSForGC(TI::TiExcState* exec, TiValueRef v)
+{
+    ASSERT_UNUSED(exec, exec);
+    ASSERT(v);
+#if USE(JSVALUE32_64)
+    TI::TiCell* jsCell = reinterpret_cast<TI::TiCell*>(const_cast<OpaqueTiValue*>(v));
+    if (!jsCell)
+        return TI::TiValue();
     return jsCell;
 #else
     return TI::TiValue::decode(reinterpret_cast<TI::EncodedTiValue>(const_cast<OpaqueTiValue*>(v)));

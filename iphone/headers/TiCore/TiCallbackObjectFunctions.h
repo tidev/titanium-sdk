@@ -31,6 +31,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
+#include "APIShims.h"
 #include "APICast.h"
 #include "Error.h"
 #include "TiCallbackFunction.h"
@@ -86,7 +87,7 @@ void TiCallbackObject<Base>::init(TiExcState* exec)
     
     // initialize from base to derived
     for (int i = static_cast<int>(initRoutines.size()) - 1; i >= 0; i--) {
-        TiLock::DropAllLocks dropAllLocks(exec);
+        APICallbackShim callbackShim(exec);
         TiObjectInitializeCallback initialize = initRoutines[i];
         initialize(toRef(exec), toRef(this));
     }
@@ -124,7 +125,7 @@ bool TiCallbackObject<Base>::getOwnPropertySlot(TiExcState* exec, const Identifi
         if (TiObjectHasPropertyCallback hasProperty = jsClass->hasProperty) {
             if (!propertyNameRef)
                 propertyNameRef = OpaqueTiString::create(propertyName.ustring());
-            TiLock::DropAllLocks dropAllLocks(exec);
+            APICallbackShim callbackShim(exec);
             if (hasProperty(ctx, thisRef, propertyNameRef.get())) {
                 slot.setCustom(this, callbackGetter);
                 return true;
@@ -135,16 +136,16 @@ bool TiCallbackObject<Base>::getOwnPropertySlot(TiExcState* exec, const Identifi
             TiValueRef exception = 0;
             TiValueRef value;
             {
-                TiLock::DropAllLocks dropAllLocks(exec);
+                APICallbackShim callbackShim(exec);
                 value = getProperty(ctx, thisRef, propertyNameRef.get(), &exception);
             }
-            exec->setException(toJS(exec, exception));
-            if (value) {
-                slot.setValue(toJS(exec, value));
+            if (exception) {
+                exec->setException(toJS(exec, exception));
+                slot.setValue(jsUndefined());
                 return true;
             }
-            if (exception) {
-                slot.setValue(jsUndefined());
+            if (value) {
+                slot.setValue(toJS(exec, value));
                 return true;
             }
         }
@@ -174,6 +175,25 @@ bool TiCallbackObject<Base>::getOwnPropertySlot(TiExcState* exec, unsigned prope
 }
 
 template <class Base>
+bool TiCallbackObject<Base>::getOwnPropertyDescriptor(TiExcState* exec, const Identifier& propertyName, PropertyDescriptor& descriptor)
+{
+    PropertySlot slot;
+    if (getOwnPropertySlot(exec, propertyName, slot)) {
+        // Ideally we should return an access descriptor, but returning a value descriptor is better than nothing.
+        TiValue value = slot.getValue(exec, propertyName);
+        if (!exec->hadException())
+            descriptor.setValue(value);
+        // We don't know whether the property is configurable, but assume it is.
+        descriptor.setConfigurable(true);
+        // We don't know whether the property is enumerable (we could call getOwnPropertyNames() to find out), but assume it isn't.
+        descriptor.setEnumerable(false);
+        return true;
+    }
+
+    return Base::getOwnPropertyDescriptor(exec, propertyName, descriptor);
+}
+
+template <class Base>
 void TiCallbackObject<Base>::put(TiExcState* exec, const Identifier& propertyName, TiValue value, PutPropertySlot& slot)
 {
     TiContextRef ctx = toRef(exec);
@@ -188,10 +208,11 @@ void TiCallbackObject<Base>::put(TiExcState* exec, const Identifier& propertyNam
             TiValueRef exception = 0;
             bool result;
             {
-                TiLock::DropAllLocks dropAllLocks(exec);
+                APICallbackShim callbackShim(exec);
                 result = setProperty(ctx, thisRef, propertyNameRef.get(), valueRef, &exception);
             }
-            exec->setException(toJS(exec, exception));
+            if (exception)
+                exec->setException(toJS(exec, exception));
             if (result || exception)
                 return;
         }
@@ -206,10 +227,11 @@ void TiCallbackObject<Base>::put(TiExcState* exec, const Identifier& propertyNam
                     TiValueRef exception = 0;
                     bool result;
                     {
-                        TiLock::DropAllLocks dropAllLocks(exec);
+                        APICallbackShim callbackShim(exec);
                         result = setProperty(ctx, thisRef, propertyNameRef.get(), valueRef, &exception);
                     }
-                    exec->setException(toJS(exec, exception));
+                    if (exception)
+                        exec->setException(toJS(exec, exception));
                     if (result || exception)
                         return;
                 } else
@@ -244,10 +266,11 @@ bool TiCallbackObject<Base>::deleteProperty(TiExcState* exec, const Identifier& 
             TiValueRef exception = 0;
             bool result;
             {
-                TiLock::DropAllLocks dropAllLocks(exec);
+                APICallbackShim callbackShim(exec);
                 result = deleteProperty(ctx, thisRef, propertyNameRef.get(), &exception);
             }
-            exec->setException(toJS(exec, exception));
+            if (exception)
+                exec->setException(toJS(exec, exception));
             if (result || exception)
                 return true;
         }
@@ -305,10 +328,11 @@ TiObject* TiCallbackObject<Base>::construct(TiExcState* exec, TiObject* construc
             TiValueRef exception = 0;
             TiObject* result;
             {
-                TiLock::DropAllLocks dropAllLocks(exec);
+                APICallbackShim callbackShim(exec);
                 result = toJS(callAsConstructor(execRef, constructorRef, argumentCount, arguments.data(), &exception));
             }
-            exec->setException(toJS(exec, exception));
+            if (exception)
+                exec->setException(toJS(exec, exception));
             return result;
         }
     }
@@ -329,10 +353,11 @@ bool TiCallbackObject<Base>::hasInstance(TiExcState* exec, TiValue value, TiValu
             TiValueRef exception = 0;
             bool result;
             {
-                TiLock::DropAllLocks dropAllLocks(exec);
+                APICallbackShim callbackShim(exec);
                 result = hasInstance(execRef, thisRef, valueRef, &exception);
             }
-            exec->setException(toJS(exec, exception));
+            if (exception)
+                exec->setException(toJS(exec, exception));
             return result;
         }
     }
@@ -367,10 +392,11 @@ TiValue TiCallbackObject<Base>::call(TiExcState* exec, TiObject* functionObject,
             TiValueRef exception = 0;
             TiValue result;
             {
-                TiLock::DropAllLocks dropAllLocks(exec);
+                APICallbackShim callbackShim(exec);
                 result = toJS(exec, callAsFunction(execRef, functionRef, thisObjRef, argumentCount, arguments.data(), &exception));
             }
-            exec->setException(toJS(exec, exception));
+            if (exception)
+                exec->setException(toJS(exec, exception));
             return result;
         }
     }
@@ -380,14 +406,14 @@ TiValue TiCallbackObject<Base>::call(TiExcState* exec, TiObject* functionObject,
 }
 
 template <class Base>
-void TiCallbackObject<Base>::getOwnPropertyNames(TiExcState* exec, PropertyNameArray& propertyNames)
+void TiCallbackObject<Base>::getOwnPropertyNames(TiExcState* exec, PropertyNameArray& propertyNames, EnumerationMode mode)
 {
     TiContextRef execRef = toRef(exec);
     TiObjectRef thisRef = toRef(this);
     
     for (TiClassRef jsClass = classRef(); jsClass; jsClass = jsClass->parentClass) {
         if (TiObjectGetPropertyNamesCallback getPropertyNames = jsClass->getPropertyNames) {
-            TiLock::DropAllLocks dropAllLocks(exec);
+            APICallbackShim callbackShim(exec);
             getPropertyNames(execRef, thisRef, toRef(&propertyNames));
         }
         
@@ -397,7 +423,7 @@ void TiCallbackObject<Base>::getOwnPropertyNames(TiExcState* exec, PropertyNameA
             for (iterator it = staticValues->begin(); it != end; ++it) {
                 UString::Rep* name = it->first.get();
                 StaticValueEntry* entry = it->second;
-                if (entry->getProperty && !(entry->attributes & kTiPropertyAttributeDontEnum))
+                if (entry->getProperty && (!(entry->attributes & kTiPropertyAttributeDontEnum) || (mode == IncludeDontEnumProperties)))
                     propertyNames.add(Identifier(exec, name));
             }
         }
@@ -408,13 +434,13 @@ void TiCallbackObject<Base>::getOwnPropertyNames(TiExcState* exec, PropertyNameA
             for (iterator it = staticFunctions->begin(); it != end; ++it) {
                 UString::Rep* name = it->first.get();
                 StaticFunctionEntry* entry = it->second;
-                if (!(entry->attributes & kTiPropertyAttributeDontEnum))
+                if (!(entry->attributes & kTiPropertyAttributeDontEnum) || (mode == IncludeDontEnumProperties))
                     propertyNames.add(Identifier(exec, name));
             }
         }
     }
     
-    Base::getOwnPropertyNames(exec, propertyNames);
+    Base::getOwnPropertyNames(exec, propertyNames, mode);
 }
 
 template <class Base>
@@ -433,7 +459,7 @@ double TiCallbackObject<Base>::toNumber(TiExcState* exec) const
             TiValueRef exception = 0;
             TiValueRef value;
             {
-                TiLock::DropAllLocks dropAllLocks(exec);
+                APICallbackShim callbackShim(exec);
                 value = convertToType(ctx, thisRef, kTITypeNumber, &exception);
             }
             if (exception) {
@@ -442,7 +468,8 @@ double TiCallbackObject<Base>::toNumber(TiExcState* exec) const
             }
 
             double dValue;
-            return toJS(exec, value).getNumber(dValue) ? dValue : NaN;
+            if (value)
+                return toJS(exec, value).getNumber(dValue) ? dValue : NaN;
         }
             
     return Base::toNumber(exec);
@@ -459,14 +486,15 @@ UString TiCallbackObject<Base>::toString(TiExcState* exec) const
             TiValueRef exception = 0;
             TiValueRef value;
             {
-                TiLock::DropAllLocks dropAllLocks(exec);
+                APICallbackShim callbackShim(exec);
                 value = convertToType(ctx, thisRef, kTITypeString, &exception);
             }
             if (exception) {
                 exec->setException(toJS(exec, exception));
                 return "";
             }
-            return toJS(exec, value).getString();
+            if (value)
+                return toJS(exec, value).getString(exec);
         }
             
     return Base::toString(exec);
@@ -495,9 +523,9 @@ bool TiCallbackObject<Base>::inherits(TiClassRef c) const
 }
 
 template <class Base>
-TiValue TiCallbackObject<Base>::staticValueGetter(TiExcState* exec, const Identifier& propertyName, const PropertySlot& slot)
+TiValue TiCallbackObject<Base>::staticValueGetter(TiExcState* exec, TiValue slotBase, const Identifier& propertyName)
 {
-    TiCallbackObject* thisObj = asCallbackObject(slot.slotBase());
+    TiCallbackObject* thisObj = asCallbackObject(slotBase);
     
     TiObjectRef thisRef = toRef(thisObj);
     RefPtr<OpaqueTiString> propertyNameRef;
@@ -511,23 +539,24 @@ TiValue TiCallbackObject<Base>::staticValueGetter(TiExcState* exec, const Identi
                     TiValueRef exception = 0;
                     TiValueRef value;
                     {
-                        TiLock::DropAllLocks dropAllLocks(exec);
+                        APICallbackShim callbackShim(exec);
                         value = getProperty(toRef(exec), thisRef, propertyNameRef.get(), &exception);
                     }
-                    exec->setException(toJS(exec, exception));
+                    if (exception) {
+                        exec->setException(toJS(exec, exception));
+                        return jsUndefined();
+                    }
                     if (value)
                         return toJS(exec, value);
-                    if (exception)
-                        return jsUndefined();
                 }
-                    
+
     return throwError(exec, ReferenceError, "Static value property defined with NULL getProperty callback.");
 }
 
 template <class Base>
-TiValue TiCallbackObject<Base>::staticFunctionGetter(TiExcState* exec, const Identifier& propertyName, const PropertySlot& slot)
+TiValue TiCallbackObject<Base>::staticFunctionGetter(TiExcState* exec, TiValue slotBase, const Identifier& propertyName)
 {
-    TiCallbackObject* thisObj = asCallbackObject(slot.slotBase());
+    TiCallbackObject* thisObj = asCallbackObject(slotBase);
     
     // Check for cached or override property.
     PropertySlot slot2(thisObj);
@@ -550,9 +579,9 @@ TiValue TiCallbackObject<Base>::staticFunctionGetter(TiExcState* exec, const Ide
 }
 
 template <class Base>
-TiValue TiCallbackObject<Base>::callbackGetter(TiExcState* exec, const Identifier& propertyName, const PropertySlot& slot)
+TiValue TiCallbackObject<Base>::callbackGetter(TiExcState* exec, TiValue slotBase, const Identifier& propertyName)
 {
-    TiCallbackObject* thisObj = asCallbackObject(slot.slotBase());
+    TiCallbackObject* thisObj = asCallbackObject(slotBase);
     
     TiObjectRef thisRef = toRef(thisObj);
     RefPtr<OpaqueTiString> propertyNameRef;
@@ -564,14 +593,15 @@ TiValue TiCallbackObject<Base>::callbackGetter(TiExcState* exec, const Identifie
             TiValueRef exception = 0;
             TiValueRef value;
             {
-                TiLock::DropAllLocks dropAllLocks(exec);
+                APICallbackShim callbackShim(exec);
                 value = getProperty(toRef(exec), thisRef, propertyNameRef.get(), &exception);
             }
-            exec->setException(toJS(exec, exception));
+            if (exception) {
+                exec->setException(toJS(exec, exception));
+                return jsUndefined();
+            }
             if (value)
                 return toJS(exec, value);
-            if (exception)
-                return jsUndefined();
         }
             
     return throwError(exec, ReferenceError, "hasProperty callback returned true for a property that doesn't exist.");
