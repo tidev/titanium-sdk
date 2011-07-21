@@ -113,6 +113,7 @@
 	NSMutableArray* newControllers = [NSMutableArray arrayWithArray:controller.viewControllers];
 	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:(windowController == [newControllers lastObject])];
 	[newControllers removeObject:windowController];
+	[closingProxy autorelease];
 	closingProxy = [window retain];
 	[controller setViewControllers:newControllers animated:animated];
 	
