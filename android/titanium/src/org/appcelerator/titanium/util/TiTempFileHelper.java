@@ -8,6 +8,7 @@ package org.appcelerator.titanium.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -33,6 +34,7 @@ public class TiTempFileHelper
 	public static final int DEFAULT_CLEAN_TIMEOUT = 5; // The number of seconds the async cleanup method uses for scheduling
 
 	protected File tempDir;
+	protected ArrayList<String> createdThisSession = new ArrayList<String>();
 
 	public TiTempFileHelper(TiApplication app)
 	{
@@ -57,7 +59,12 @@ public class TiTempFileHelper
 			if (!tempDir.exists()) {
 				tempDir.mkdirs();
 			}
-			return File.createTempFile(prefix, suffix, tempDir);
+
+			File tempFile = File.createTempFile(prefix, suffix, tempDir);
+			synchronized (createdThisSession) {
+				createdThisSession.add(tempFile.getAbsolutePath());
+			}
+			return tempFile;
 		} else {
 			throw new IOException("External storage not mounted for writing");
 		}
@@ -137,13 +144,20 @@ public class TiTempFileHelper
 		}
 		for (File file : tempDir.listFiles())
 		{
+			String absolutePath = file.getAbsolutePath();
+			synchronized (createdThisSession) {
+				if (createdThisSession.contains(absolutePath)) {
+					continue;
+				}
+			}
+
 			if (DBG) {
-				Log.d(TAG, "Deleting temporary file " + file.getAbsolutePath());
+				Log.d(TAG, "Deleting temporary file " + absolutePath);
 			}
 			try {
 				file.delete();
 			} catch (Exception e) {
-				Log.w(TAG, "Exception trying to delete " + file.getAbsolutePath() + ", skipping", e);
+				Log.w(TAG, "Exception trying to delete " + absolutePath + ", skipping", e);
 			}
 		}
 	}

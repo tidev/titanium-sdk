@@ -23,6 +23,10 @@
 
 NSArray * tableKeySequence;
 
+@interface TiUITableViewProxy ()
+-(void)setData:(id)args withObject:(id)properties immediate:(BOOL)immediate;
+@end
+
 @implementation TiUITableViewProxy
 @synthesize sections;
 
@@ -186,7 +190,11 @@ NSArray * tableKeySequence;
 
 -(TiUITableViewRowProxy*)makeTableViewRowFromDict:(NSDictionary*)data
 {
-	TiUITableViewRowProxy *proxy = [[[TiUITableViewRowProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+    id<TiEvaluator> context = [self executionContext];
+    if (context == nil) {
+        context = [self pageContext];
+    }
+	TiUITableViewRowProxy *proxy = [[[TiUITableViewRowProxy alloc] _initWithPageContext:context] autorelease];
 	[proxy _initWithProperties:data];
 	return proxy;
 }
@@ -367,6 +375,7 @@ NSArray * tableKeySequence;
 		return;
 	}
 	
+	[rowProxy.section rememberProxy:newrow];	//If we wait until the main thread, it'll be too late!
 	newrow.section = rowProxy.section;
 	newrow.row = rowProxy.row;
 	newrow.parent = newrow.section;
@@ -477,6 +486,7 @@ NSArray * tableKeySequence;
         }
         
         // Configure the new row
+		[newSection rememberProxy:newrow];	//If we wait until the main thread, it'll be too late!
         newrow.section = newSection;
         newrow.parent = newSection;      
         newrow.row = row.row; // HACK: Used to determine the row we're being placed before in the old section
@@ -486,6 +496,7 @@ NSArray * tableKeySequence;
         actionSection = newSection;
     }
     else {
+		[section rememberProxy:newrow];	//If we wait until the main thread, it'll be too late!
         newrow.section = section;
         // TODO: Should we be updating every row after this one...?
         newrow.row = row.row == 0 ? 0 : row.row - 1;
@@ -552,6 +563,7 @@ NSArray * tableKeySequence;
         }
         
         // Configure the new row
+		[newSection rememberProxy:newrow];	//If we wait until the main thread, it'll be too late!
         newrow.section = newSection;
         newrow.parent = newSection;   
         newrow.row = row.row+1; // HACK: Used to determine the row we're being placed after in the previous section; will be set to 0 later
@@ -561,6 +573,7 @@ NSArray * tableKeySequence;
         actionSection = newSection;
     }
     else {
+		[section rememberProxy:newrow];	//If we wait until the main thread, it'll be too late!
         newrow.section = section;
         // TODO: Should we be updating every row index of the rows which appear after this row...?
         newrow.row = row.row+1;
@@ -612,6 +625,7 @@ NSArray * tableKeySequence;
 		row.parent = section;
 		
 		if(table != nil){
+			[section rememberProxy:row];	//If we wait until the main thread, it'll be too late!
 			TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithObject:row animation:anim type:actionType] autorelease];
 			[table dispatchAction:action];
 		}

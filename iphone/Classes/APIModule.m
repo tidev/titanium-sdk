@@ -27,6 +27,12 @@
                  [lcSeverity isEqualToString:@"fatal"]) {
             level = ERR;
         }
+        else if ([lcSeverity isEqualToString:@"trace"]) {
+            level = TRACE;
+        }
+        else if ([lcSeverity isEqualToString:@"debug"]) {
+            level = LOG_DEBUG;
+        }
         TiDebuggerLogMessage(level, message);
     }
     else {

@@ -177,6 +177,7 @@ def validateProperty(typeTracker, property):
 def validateEvent(typeTracker, event):
 	tracker = ErrorTracker(event['name'], typeTracker)
 	validateRequired(tracker, event, ['name', 'description'])
+	validateCommon(tracker, event)
 
 def validateType(typeDoc):
 	typeName = typeDoc['name']
@@ -262,7 +263,7 @@ def validateRefs():
 def validateDir(dir):
 	for root, dirs, files in os.walk(dir):
 		for file in files:
-			if file.endswith(".yml"):
+			if file.endswith(".yml") and file != "template.yml":
 				absolutePath = os.path.join(root, file)
 				try:
 					validateTDoc(absolutePath)

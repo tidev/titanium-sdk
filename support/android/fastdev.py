@@ -1,6 +1,11 @@
 #
-# A custom server that speeds up development time in Android significantly
+# Appcelerator Titanium Mobile
+# Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+# Licensed under the terms of the Apache Public License
+# Please see the LICENSE included with this distribution for details.
 #
+# A custom server that speeds up development time in Android significantly
+
 import os, sys, time, optparse, logging
 import urllib, simplejson, threading
 import SocketServer, socket, struct, codecs
@@ -32,7 +37,7 @@ def send_tokens(socket, *tokens):
 	for token in tokens:
 		buffer += pack_int(len(token))
 		buffer += token
-	socket.send(buffer)
+	socket.sendall(buffer)
 
 def read_int(socket):
 	data = socket.recv(4)
@@ -134,7 +139,10 @@ class FastDevHandler(SocketServer.BaseRequestHandler):
 				if not self.valid_handshake:
 					self.send_tokens("Invalid Handshake")
 					break
-				if command == "get":
+				if command == "length":
+					request_count += 1
+					self.handle_length(tokens[1])
+				elif command == "get":
 					request_count += 1
 					self.handle_get(tokens[1])
 				elif command == "kill-app":
@@ -159,13 +167,29 @@ class FastDevHandler(SocketServer.BaseRequestHandler):
 			logging.warn("handshake: invalid handshake sent, rejecting")
 			self.send_tokens("Invalid Handshake")
 
-	def handle_get(self, relative_path):
+	def get_resource_path(self, relative_path):
 		android_path = os.path.join(self.resources_dir, 'android', relative_path)
 		path = os.path.join(self.resources_dir, relative_path)
 		if os.path.exists(android_path):
-			logging.info("get %s: %s" % (relative_path, android_path))
-			self.send_file(android_path)
+			return android_path
 		elif os.path.exists(path):
+			return path
+		else:
+			return None
+
+	def handle_length(self, relative_path):
+		path = self.get_resource_path(relative_path)
+		if path != None:
+			length = os.path.getsize(path)
+			logging.info("length %s: %d" % (relative_path, length))
+			self.send_tokens(pack_int(length))
+		else:
+			logging.info("length %s: path not found" % relative_path)
+			self.send_tokens(pack_int(-1))
+
+	def handle_get(self, relative_path):
+		path = self.get_resource_path(relative_path)
+		if path != None:
 			logging.info("get %s: %s" % (relative_path, path))
 			self.send_file(path)
 		else:

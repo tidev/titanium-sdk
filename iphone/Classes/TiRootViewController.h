@@ -22,7 +22,6 @@
 
 	UIInterfaceOrientation lastOrientation;
 	UIInterfaceOrientation windowOrientation;
-	BOOL ignoreRotations;
 
 	NSMutableArray * viewControllerStack;
 	BOOL isCurrentlyVisible;

@@ -247,6 +247,9 @@ public class EmailDialogProxy extends TiViewProxy {
 
 	private ArrayList<Uri> getAttachmentUris()
 	{
+		if (attachments == null) {
+			return null;
+		}
 		ArrayList<Uri>  uris = new ArrayList<Uri>();
 		for (Object attachment : attachments) {
 			Uri uri = getAttachmentUri(attachment);

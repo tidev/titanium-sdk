@@ -1,0 +1,216 @@
+---
+name: Titanium.XML.Element
+extends: Titanium.XML.Node
+description: >
+    Represents an element in a DOM document, a <Titanium.XML.Node> 
+    defined by a start-tag and end-tag (or an empty tag). Elements may have
+    [attributes](Titanium.XML.Attr) associated with them.
+    This conforms to the 
+    [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html)
+    definition of a DOM Element.
+methods:
+  - name: getAttribute
+    description: Retrieves an attribute value by name, returning it as a string.
+    parameters:
+      - name: name
+        description: The name of the attribute
+        type: String
+    returns:
+        type: String
+        description: >
+            The <Titanium.XML.Attr> value as a string, or empty string
+            if the attribute has no specified or default value.
+  - name: setAttribute
+    description: >
+        Adds a new attribute. Any attribute with the same name is replaced.
+        Throws an exception if the element is read-only, or if the name contains
+        an illegal character.
+    parameters:
+      - name: name
+        description: The name of the attribute.
+        type: String
+      - name: value
+        description: >
+            The value of the attribute. This is value is __not__ parsed
+            as part of the assignment. Any markup is treated as literal text, and
+            needs to be escaped.
+        type: String
+  - name: removeAttribute
+    description: >
+        Removes an attribute by name. If the attribute has a default
+        value, it is immediately replaced with this default, including namespace URI
+        and local name.
+        Throws an exception if the element is read-only.
+    parameters:
+      - name: name
+        description: The name of the attribute to remove.
+        type: String
+  - name: getAttributeNode
+    description: >
+        Retrieves an attribute value by name, returning it as a <Titanium.XML.Attr> object.
+    parameters:
+      - name: name
+        description: The name of the attribute
+        type: String
+    returns:
+        type: Titanium.XML.Attr
+        description: The <Titanium.XML.Attr> value, or null if there is no such attribute.
+  - name: setAttributeNode
+    description: >
+        Adds a new attribute. Any attribute with the same `nodeName` as
+        the argument is replaced.
+        Throws an exception if the element is read-only, if `newAttr` is
+        from a different document, or if `newAttr` is already an attribute of
+        another element.
+    parameters:
+      - name: newAttr
+        description: The attribute node to add to the element.
+        type: Titanium.XML.Attr
+    returns:
+        type: Titanium.XML.Attr
+        description: The attribute that was replaced, or `null` otherwise.
+  - name: removeAttributeNode
+    description: >
+        Removes the specified attribute node. If the removed attribute
+        has a default value, it is replaced immediately, with the same namespace
+        and local name as the removed attribute, if applicable.
+        Throws an exception if the element is read-only, or the attribute is 
+        not an attribute of the element.
+    parameters:
+      - name: oldAttr
+        description: The attribute to remove.
+        type: Titanium.XML.Attr
+  - name: getElementsByTagName
+    description: >
+        Retrieves a <Titanium.XML.NodeList> of all descendant elements
+        with a given tag name, in preorder traversal.
+    parameters:
+      - name: name
+        description: The name of the element. The value `*` matches all tags.
+        type: String
+    returns: Titanium.XML.NodeList
+  - name: getAttributeNS
+    description: >
+        Retrieves an attribute value by local name and namespace URI,
+        returning it as a string.
+    parameters:
+      - name: namespaceURI
+        description: The namespace URI of the attribute to retrieve.
+        type: String
+      - name: localName
+        description: The local name of the attribute to retrieve.
+        type: String
+    returns:
+      type: String
+      description: >
+          The <Titanium.XML.Attr> value as a string, or empty string
+          if the attribute has no specified or default value.
+  - name: setAttributeNS
+    description: >
+        Adds a new attribute. Any attribute with the same local name
+        and namespace URI is present on the element is replaced, with its prefix
+        changed to that of the `qualifiedName` parameter. 
+        Throws an exception if the element is read-only, if the name contains
+        an illegal character, or if the qualified name contains an error.
+    parameters:
+      - name: namespaceURI
+        description: The namespace URI of the attribute.
+        type: String
+      - name: qualifiedName
+        description: >
+            The qualified name of the attribute. If it is malformed,
+            has a prefix and namespaceURI is `null`, or if the prefix is `xml` or
+            `xmlns` but does not correspond to a property defined in the 
+            [XML](http://www.w3.org/XML/1998/namespace) or
+            [XMLNS](http://www.w3.org/2000/xmlns/) specifications, then it contains
+            an error.
+        type: String
+      - name: value
+        description: >
+            The value of the attribute. This is value is __not__ parsed
+            as part of the assignment. Any markup is treated as literal text, and
+            needs to be escaped.
+        type: String
+  - name: removeAttributeNS
+    description: >
+        Removes an attribute by local name and namespace URI. If the
+        attribute has a default value, it is immediately replaced with this default,
+        including namespace URI and local name.
+        Throws an exception if the element is read-only.
+    parameters:
+      - name: namespaceURI
+        description: The namespace URI of the attribute to remove.
+        type: String
+      - name: localName
+        description: The local name of the attribute to remove.
+        type: String
+  - name: getAttributeNodeNS
+    description: >
+        Retrieves an attribute value by local name and namespace URI, 
+        returning it as a <Titanium.XML.Attr> object.
+    parameters:
+      - name: namespaceURI
+        description: The namespace URI of the attribute to retrieve.
+        type: String
+      - name: localName
+        description: The local name of the attribute to retrieve.
+        type: String
+    returns:
+        type: Titanium.XML.Attr
+        description: The <Titanium.XML.Attr> value, or null if there is no such attribute.
+  - name: setAttributeNodeNS
+    description: >
+        Adds a new attribute. Any attribute with the same local name and
+        namespace URI is replaced.
+        Throws an exception if the element is read-only, if `newAttr` is
+        from a different document, or if `newAttr` is already an attribute of
+        another element.
+    parameters:
+      - name: newAttr
+        description: The attribute node to add to the element.
+        type: Titanium.XML.Attr
+    returns:
+        type: Titanium.XML.Attr
+        description: The attribute that was replaced, or `null` otherwise.
+  - name: getElementsByTagNameNS
+    description: >
+        Retrieves a <Titanium.XML.NodeList> of all descendant elements
+        with a given local name and namespace URI, in preorder traversal.
+    parameters:
+      - name: namespaceURI
+        description: The namespace URI of the element. The value `*` matches all namespaces.
+        type: String
+      - name: localName
+        description: The local name of the element. The value `*` matches all local names.
+        type: String
+    returns: Titanium.XML.NodeList
+  - name: hasAttribute
+    description: >
+        Determines whether or not an attribute with the given name is
+        available in the element, or has a default value.
+    parameters:
+      - name: name
+        description: The name of the attribute to search for.
+        type: String
+    returns: Boolean
+  - name: hasAttributeNS
+    description: >
+        Determines whether or not an attribute with the given name is
+        available in the element, or has a default value.
+    parameters:
+      - name: namespaceURI
+        description: The namespace URI of the attribute to search for.
+        type: String
+      - name: localName
+        description: The local name of the attribute to search for.
+        type: String
+    returns: Boolean
+properties:
+  - name: tagName
+    description: The name of the element, as defined by its tag.
+    type: String
+    permission: read-only
+  - name: text
+    description: Retrieves all child text nodes as one String
+    type: String
+    permission: read-only

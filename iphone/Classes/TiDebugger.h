@@ -9,6 +9,8 @@
 
 typedef enum {
     OUT,
+    LOG_DEBUG, // Have to distinguish from the DEBUG macro
+    TRACE,
     WARN,
     ERR
 } DebuggerLogLevel;

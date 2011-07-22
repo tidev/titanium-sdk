@@ -188,7 +188,6 @@
 - (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
 {
 	VerboseLog(@"%@%@",self,CODELOCATION);
-	isCurrentlyVisible = YES;
 	[[viewControllerStack lastObject] viewWillAppear:animated];
 }
 - (void)viewWillDisappear:(BOOL)animated; // Called when the view is dismissed, covered or otherwise hidden. Default does nothing
@@ -199,7 +198,7 @@
 
 - (void) viewDidAppear:(BOOL)animated
 {
-	ignoreRotations = NO;
+   	isCurrentlyVisible = YES;
 	[self.view becomeFirstResponder];
 	CGFloat duration = 0.0;
 	if (animated) {
@@ -213,7 +212,6 @@
 
 - (void) viewDidDisappear:(BOOL)animated
 {
-	ignoreRotations = YES;
 	isCurrentlyVisible = NO;
 	[self.view resignFirstResponder];
     [super viewDidDisappear:animated];
@@ -245,17 +243,7 @@
 
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration
 {
-	if (ignoreRotations) {
-		return;
-	}
-	
 	UIApplication * ourApp = [UIApplication sharedApplication];
-	if (newOrientation != [ourApp statusBarOrientation])
-	{
-		[keyboardFocusedProxy blur:nil];
-		[ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
-		[keyboardFocusedProxy focus:nil];
-	}
 
 	CGAffineTransform transform;
 
@@ -275,29 +263,43 @@
 			break;
 	}
 
-	for (TiWindowProxy * thisProxy in windowProxies)
-	{
-		UIViewController * thisNavCon = [thisProxy navController];
-		if (thisNavCon == nil)
-		{
-			thisNavCon = [thisProxy controller];
-		}
-		[thisNavCon willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
-	}
-
-
-	if (duration > 0.0)
+    // Have to batch all of the animations together, so that it doesn't look funky
+    if (duration > 0.0)
 	{
 		[UIView beginAnimations:@"orientation" context:nil];
 		[UIView setAnimationDuration:duration];
 	}
-
-	[[self view] setTransform:transform];
+    
+	for (TiWindowProxy * thisProxy in windowProxies)
+	{
+        if ([thisProxy allowsOrientation:newOrientation]) {
+            UIViewController * thisNavCon = [thisProxy navController];
+            if (thisNavCon == nil)
+            {
+                thisNavCon = [thisProxy controller];
+            }
+            [thisNavCon willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
+        }
+        else {
+            [thisProxy ignoringRotationToOrientation:newOrientation];
+        }
+	}
+    
+    if (newOrientation != [ourApp statusBarOrientation] && isCurrentlyVisible)
+    {
+        [keyboardFocusedProxy blur:nil];
+        [ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
+        [keyboardFocusedProxy focus:nil];
+    }
+    
+    [[self view] setTransform:transform];
+    [self resizeView];
+    
+    //Propigate this to everyone else. This has to be done INSIDE the animation.
+    [self repositionSubviews];
+    
 	lastOrientation = newOrientation;
-	[self resizeView];
 
-	//Propigate this to everyone else. This has to be done INSIDE the animation.
-	[self repositionSubviews];
 	
 	if (duration > 0.0)
 	{
@@ -342,6 +344,11 @@
 	}
 	
 	return defaultFlags;
+}
+
+-(TiOrientationFlags)allowedOrientations
+{
+    return allowedOrientations;
 }
 
 -(void)setOrientationModes:(NSArray *)newOrientationModes
@@ -535,6 +542,11 @@ What this does mean is that any
 -(UIViewController *)focusedViewController
 {
 	return [windowViewControllers lastObject];
+}
+
+-(BOOL)isTopWindow:(TiWindowProxy *)window
+{
+    return [[windowProxies lastObject] isEqual:window];
 }
 
 #pragma mark Remote Control Notifications
