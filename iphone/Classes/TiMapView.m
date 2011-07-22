@@ -63,7 +63,7 @@
 
 -(void)didFirePropertyChanges
 {
-	[self performSelectorOnMainThread:@selector(render) withObject:nil waitUntilDone:NO];
+	[self performSelectorOnMainThread:@selector(render) withObject:nil waitUntilDone:YES];
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
