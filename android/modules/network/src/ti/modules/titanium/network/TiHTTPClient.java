@@ -657,28 +657,27 @@ public class TiHTTPClient
 		}
 	}
 
-	public String getResponseHeader(String header) {
+	public String getResponseHeader(String headerName) {
 		String result = "";
 
 		if (readyState > READY_STATE_OPENED) {
 			String delimiter = "";
 			boolean firstPass = true;
 
-			Header[] headers = new Header[0];
-			headers = response.getHeaders(header);
-			for (Header h : headers)
+			Header[] headers = response.getHeaders(headerName);
+			for (Header header : headers)
 			{
 				if (!firstPass)
 				{
 					delimiter = ", ";
 				}
-				result += delimiter + h.getValue();
+				result += delimiter + header.getValue();
 				firstPass = false;
 			}
 
 			if (headers.length == 0)
 			{
-				Log.w(LCAT, "No value for respose header: " + header);
+				Log.w(LCAT, "No value for respose header: " + headerName);
 			}
 		} else {
 			throw new IllegalStateException("getResponseHeader can only be called when readyState > 1");
