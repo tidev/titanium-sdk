@@ -284,7 +284,7 @@ describe("Ti.UI.Android tests", {
 		});
 		failureTimeout = setTimeout(function(){
 			callback.failed("Test may have crashed app.  Was never able to read back tableview dimensions.");
-		},5000);
+		},10000);
 		w.open();
 
 	}

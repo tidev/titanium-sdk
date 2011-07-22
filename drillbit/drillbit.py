@@ -106,25 +106,18 @@ def build_and_run(args=None):
 	# use the latest version in the system
 	versions.sort()
 	use_version = versions[-1]
-	
-	try:
-		# temporary hack to avoid using Desktop version >= 1.2.0 - we don't play nice with it...yet.
-		if version(use_version) >= version("1.2.0"):
-			use_version = versions[-2]
-	except: pass
-	
+
 	print 'Using Desktop version %s' % use_version
-	
-	
+
 	desktop_sdk = os.path.join(base_sdk, use_version)
 	tibuild = os.path.join(desktop_sdk, 'tibuild.py')
 	drillbit_build_dir = os.path.join(mobile_dir, 'build', 'drillbit')
 	mobile_dist_dir = os.path.join(mobile_dir, 'dist')
-	
+
 	sys.path.append(mobile_dist_dir)
 	sys.path.append(os.path.join(mobile_dir, 'build'))
 	import titanium_version
-	
+
 	mobilesdk_dir = os.path.join(mobile_dist_dir, 'mobilesdk', platform_name, titanium_version.version)
 	mobilesdk_zipfile = os.path.join(mobile_dist_dir, 'mobilesdk-%s-%s.zip' % (titanium_version.version, platform_name))
 	if platform.system() == 'Darwin':
@@ -134,10 +127,10 @@ def build_and_run(args=None):
 		mobilesdk_zip = zipfile.ZipFile(mobilesdk_zipfile)
 		mobilesdk_zip.extractall(mobile_dist_dir)
 		mobilesdk_zip.close()
-	
+
 	if not os.path.exists(drillbit_build_dir):
 		os.makedirs(drillbit_build_dir)
-	
+
 	sys.path.append(desktop_sdk)
 	import env
 	
@@ -145,9 +138,11 @@ def build_and_run(args=None):
 	environment = env.PackagingEnvironment(platform_name, False)
 	app = environment.create_app(drillbit_app_dir)
 	stage_dir = os.path.join(drillbit_build_dir, app.name)
-	app.stage(stage_dir, bundle=False)
-	app.install()
-	
+
+	# Desktop 1.2 doesn't pass on named-args for app subclasses
+	# stage(stage_dir, bundle=False, no_install=True, js_obfuscate=False
+	app.stage(stage_dir, False, True, False)
+
 	app_modules_dir = os.path.join(app.get_contents_dir(), 'modules')
 	app_tests_dir = os.path.join(app.get_contents_dir(), 'Resources', 'tests')
 	
@@ -159,7 +154,11 @@ def build_and_run(args=None):
 	
 	shutil.copytree(os.path.join(drillbit_dir, 'modules'), app_modules_dir)
 	shutil.copytree(os.path.join(drillbit_dir, 'tests'), app_tests_dir)
-	
+
+	installed_file = os.path.join(app.get_contents_dir(), '.installed')
+	if not os.path.exists(installed_file):
+		open(installed_file, "w").write('installed')
+
 	drillbit_args = [app.executable_path, '--debug', '--mobile-sdk=%s' % mobilesdk_dir, '--mobile-repository=%s' % mobile_dir]
 	if args != None:
 		drillbit_args.extend(args)
