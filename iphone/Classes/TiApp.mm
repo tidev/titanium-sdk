@@ -403,6 +403,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 {
 	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsURLKey];	
 	[launchOptions setObject:[url absoluteString] forKey:@"url"];
+    return YES;
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
