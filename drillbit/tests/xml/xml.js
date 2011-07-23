@@ -352,10 +352,17 @@ describe("Ti.XML tests", {
 	apiXmlNormalize: function() {
 		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
 
-		var newNode = doc.createElement("newNode");
-		valueOf(newNode.normalize).shouldBeFunction();
+		var parentNode = doc.createElement("parentNode");
+		parentNode.appendChild(doc.createTextNode("My "));
+		parentNode.appendChild(doc.createTextNode("name "));
+		parentNode.appendChild(doc.createTextNode("is "));
+		parentNode.appendChild(doc.createTextNode("Opie."));
 
-		valueOf(function() { newNode.normalize(); }).shouldNotThrowException();
+		valueOf(parentNode.normalize).shouldBeFunction();
+
+		valueOf(function() { parentNode.normalize(); }).shouldNotThrowException();
+		valueOf(parentNode.getText()).shouldBe("My name is Opie.");
+		valueOf(parentNode.getChildNodes().length).shouldBe(1);
 	},
 
 	apiXmlRemoveChild: function() {
