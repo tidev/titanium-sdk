@@ -225,7 +225,34 @@ describe("Ti.XML tests", {
 		valueOf(node.DOCUMENT_FRAGMENT_NODE).shouldBeNumber();
 		valueOf(node.NOTATION_NODE).shouldBeNumber();
 		valueOf(node.nodeName).shouldBeString();
-		valueOf(node.nodeValue).shouldNotBeUndefined(); // null is a valid return, what is the expected behavior when null?
+
+		var attrName = "attr";
+		var attrValue = "value";
+		node.setAttribute(attrName, attrValue);
+		var attrNode = node.getAttributeNode(attrName);
+		valueOf(attrNode.nodeValue).shouldBe(attrValue);
+
+		var CDATANodeContents = "this CDATA contents";
+		var CDATANode = doc.createCDATASection(CDATANodeContents);
+		valueOf(CDATANode.nodeValue).shouldBe(CDATANodeContents);
+
+		var commentNodeContents = "this is a comment";
+		var commentNode = doc.createComment(commentNodeContents);
+		valueOf(commentNode.nodeValue).shouldBe(commentNodeContents);
+
+		valueOf(doc.nodeValue).shouldBe(null);
+		valueOf(doc.createDocumentFragment().nodeValue).shouldBe(null);
+		valueOf(doc.getDoctype().nodeValue).shouldBe(null);
+		valueOf(node.nodeValue).shouldBe(null);
+		valueOf(doc.createEntityReference("blah").nodeValue).shouldBe(null);
+
+		var processingInstructionData = "data";
+		valueOf(doc.createProcessingInstruction("target", processingInstructionData).nodeValue).shouldBe(processingInstructionData);
+
+		var textNodeContents = "this is some text";
+		var textNode = doc.createTextNode(textNodeContents);
+		valueOf(textNode.nodeValue).shouldBe(textNodeContents);
+
 		valueOf(node.nodeType).shouldBeNumber();
 		valueOf(node.parentNode).shouldBeObject();
 		valueOf(node.childNodes).shouldBeObject();
@@ -235,74 +262,91 @@ describe("Ti.XML tests", {
 		valueOf(node.nextSibling).shouldBeObject();
 		valueOf(node.attributes).shouldBeObject();
 		valueOf(node.ownerDocument).shouldBeObject();
-		valueOf(node.namespaceURI).shouldNotBeUndefined(); // null is a valid return, what is the expected behavior when null?
-		valueOf(node.prefix).shouldNotBeUndefined(); // null is a valid return, what is the expected behavior when null?
-		valueOf(node.localName).shouldNotBeUndefined(); // null is a valid return, what is the expected behavior when null?
+		valueOf(node.namespaceURI).shouldNotBeUndefined();
+		valueOf(node.prefix).shouldNotBeUndefined();
+		valueOf(node.localName).shouldNotBeUndefined();
 	},
 
 	apiXmlAppendChild: function() {
 		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
 
-		var newNode = doc.createElement("newNode");
-		valueOf(newNode.appendChild).shouldBeFunction();
+		var parentNode = doc.createElement("parentNode");
+		valueOf(parentNode.appendChild).shouldBeFunction();
 
-		var appendChildResults = null;
-		valueOf(function() { appendChildResults = node.appendChild(newNode); }).shouldNotThrowException();
-		valueOf(appendChildResults).shouldBe(newNode);
+		var childNode = doc.createElement("childNode");
+		valueOf(function() { parentNode.appendChild(childNode); }).shouldNotThrowException();
+		valueOf(parentNode.firstChild).shouldBeExactly(childNode);
 	},
 
 	apiXmlCloneNode: function() {
 		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
 
-		var newNode = doc.createElement("newNode");
-		valueOf(newNode.cloneNode).shouldBeFunction();
+		var node = doc.createElement("node");
+		valueOf(node.cloneNode).shouldBeFunction();
 
 		var clonedNode = null;
-		valueOf(function() { clonedNode = newNode.cloneNode(false); }).shouldNotThrowException();
-		valueOf(clonedNode).shouldBeObject();
-		valueOf(function() { clonedNode = newNode.cloneNode(true); }).shouldNotThrowException();
-		valueOf(clonedNode).shouldBeObject();
+		valueOf(function() { clonedNode = node.cloneNode(false); }).shouldNotThrowException();
+		valueOf(clonedNode).shouldBe(node);
+		valueOf(function() { clonedNode = node.cloneNode(true); }).shouldNotThrowException();
+		valueOf(clonedNode).shouldBe(node);
 	},
 
 	apiXmlHasAttributes: function() {
 		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
 
-		var newNode = doc.createElement("newNode");
-		valueOf(newNode.hasAttributes).shouldBeFunction();
+		var node = doc.createElement("node");
+		var node2 = doc.createElement("node2");
+		node2.setAttribute("attr1", "value1");
 
-		valueOf(function() { newNode.hasAttributes(); }).shouldNotThrowException();
+		valueOf(node.hasAttributes).shouldBeFunction();
+
+		var results;
+		valueOf(function() { results = node.hasAttributes(); }).shouldNotThrowException();
+		valueOf(results).shouldBe(false);
+		valueOf(function() { results = node2.hasAttributes(); }).shouldNotThrowException();
+		valueOf(results).shouldBe(true);
 	},
 
 	apiXmlHasChildNodes: function() {
 		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
 
-		var newNode = doc.createElement("newNode");
-		valueOf(newNode.hasChildNodes).shouldBeFunction();
+		var parentNode = doc.createElement("parentNode");
+		var parentNode2 = doc.createElement("parentNode2");
+		parentNode2.appendChild(doc.createElement("childNode"));
 
-		valueOf(function() { newNode.hasChildNodes(); }).shouldNotThrowException();
+		valueOf(parentNode.hasChildNodes).shouldBeFunction();
+
+		var results;
+		valueOf(function() { results = parentNode.hasChildNodes(); }).shouldNotThrowException();
+		valueOf(results).shouldBe(false);
+		valueOf(function() { results = parentNode2.hasChildNodes(); }).shouldNotThrowException();
+		valueOf(results).shouldBe(true);
 	},
 
 	apiXmlInsertBefore: function() {
 		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
 
-		var newNode = doc.createElement("newNode");
-		var newNode2 = doc.createElement("newNode2");
-		valueOf(newNode.insertBefore).shouldBeFunction();
+		var parentNode = doc.createElement("parentNode");
+		parentNode.appendChild(doc.createElement("childNode"));
+		parentNode.appendChild(doc.createElement("childNode2"));
 
-		var insertBeforeResults = null;
-		valueOf(function() { insertBeforeResults = newNode.insertBefore(newNode2, newNode.firstChild); }).shouldNotThrowException();
-		valueOf(insertBeforeResults).shouldBe(newNode2);
+		valueOf(parentNode.insertBefore).shouldBeFunction();
+
+		var childNode3 = doc.createElement("childNode3");
+		valueOf(function() { parentNode.insertBefore(childNode3, parentNode.firstChild); }).shouldNotThrowException();
+		valueOf(parentNode.firstChild).shouldBeExactly(childNode3);
 	},
 
 	apiXmlIsSupported: function() {
 		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
 
-		var newNode = doc.createElement("newNode");
-		valueOf(newNode.isSupported).shouldBeFunction();
+		valueOf(doc.isSupported).shouldBeFunction();
 
-		var isSupportedResults = null;
-		valueOf(function() { isSupportedResults = newNode.isSupported("XML", "1.0"); }).shouldNotThrowException();
-		valueOf(isSupportedResults).shouldBeBoolean();
+		var results;
+		valueOf(function() { results = doc.isSupported("XML", "1.0"); }).shouldNotThrowException();
+		valueOf(results).shouldBe(true);
+		valueOf(function() { results = doc.isSupported("IDONTEXIST", "1.0"); }).shouldNotThrowException();
+		valueOf(results).shouldBe(false);
 	},
 
 	apiXmlNormalize: function() {
@@ -323,9 +367,11 @@ describe("Ti.XML tests", {
 
 		valueOf(parentNode.removeChild).shouldBeFunction();
 
-		var removeChildResults = null;
-		valueOf(function() { removeChildResults = parentNode.removeChild(childNode); }).shouldNotThrowException();
-		valueOf(removeChildResults).shouldBe(childNode);
+		var results = null;
+		valueOf(function() { results = parentNode.removeChild(childNode); }).shouldNotThrowException();
+		valueOf(results).shouldBe(childNode);
+
+		valueOf(parentNode.hasChildNodes()).shouldBe(false);
 	},
 
 	apiXmlReplaceChild: function() {
@@ -333,13 +379,14 @@ describe("Ti.XML tests", {
 
 		var parentNode = doc.createElement("parentNode");
 		var childNode = doc.createElement("childNode");
-		var replacementNode = doc.createElement("replacementNode");
+		var childNode2 = doc.createElement("childNode2");
 		parentNode.appendChild(childNode);
+		parentNode.appendChild(childNode2);
 
 		valueOf(parentNode.replaceChild).shouldBeFunction();
 
-		var replaceChildResults = null;
-		valueOf(function() { replaceChildResults = parentNode.replaceChild(replacementNode, childNode); }).shouldNotThrowException();
-		valueOf(replaceChildResults).shouldBe(replacementNode);
+		var replacementNode = doc.createElement("replacementNode");
+		valueOf(function() { parentNode.replaceChild(replacementNode, childNode); }).shouldNotThrowException();
+		valueOf(parentNode.firstChild).shouldBe(replacementNode);
 	}
 });
