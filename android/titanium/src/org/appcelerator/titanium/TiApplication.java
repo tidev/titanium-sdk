@@ -42,10 +42,13 @@ import org.appcelerator.titanium.view.ITiWindowHandler;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Handler.Callback;
 import android.util.DisplayMetrics;
 
 // Naming TiHost to more closely match other implementations
-public abstract class TiApplication extends Application
+public abstract class TiApplication extends Application implements Callback
 {
 	public static final String DEPLOY_TYPE_DEVELOPMENT = "development";
 	public static final String DEPLOY_TYPE_TEST = "test";
@@ -63,6 +66,8 @@ public abstract class TiApplication extends Application
 	private static final String LCAT = "TiApplication";
 	private static final boolean DBG = TiConfig.LOGD;
 	private static final long STATS_WAIT = 300000;
+	private static final int MSG_SEND_ANALYTICS = 100;
+	private static final long SEND_ANALYTICS_DELAY = 30000; // Time analytics send request sits in queue before starting service.
 
 	protected static TiApplication _instance = null;
 
@@ -83,6 +88,7 @@ public abstract class TiApplication extends Application
 	private boolean needsEnrollEvent;
 	protected TiAnalyticsModel analyticsModel;
 	protected Intent analyticsIntent;
+	protected Handler analyticsHandler;
 	private static long lastAnalyticsTriggered = 0;
 	private String buildVersion = "", buildTimestamp = "", buildHash = "";
 	protected ArrayList<KrollModule> modules = new ArrayList<KrollModule>();
@@ -93,6 +99,7 @@ public abstract class TiApplication extends Application
 		Log.checkpoint(LCAT, "checkpoint, app created.");
 		_instance = this;
 		
+		analyticsHandler = new Handler(this);
 		needsEnrollEvent = false; // test is after DB is available
 		needsStartEvent = true;
 		loadBuildProperties();
@@ -509,10 +516,24 @@ public abstract class TiApplication extends Application
 		}
 	}
 
-	public void sendAnalytics() {
-		if (analyticsIntent != null) {
+	
+	@Override
+	public boolean handleMessage(Message msg) 
+	{
+		if (msg.what == MSG_SEND_ANALYTICS) {
 			if (startService(analyticsIntent) == null) {
 				Log.w(LCAT, "Analytics service not found.");
+			}
+			return true;
+		}
+		return false;
+	}
+
+	public void sendAnalytics() {
+		if (analyticsIntent != null) {
+			synchronized(this) {
+				analyticsHandler.removeMessages(MSG_SEND_ANALYTICS);
+				analyticsHandler.sendEmptyMessageDelayed(MSG_SEND_ANALYTICS, SEND_ANALYTICS_DELAY);
 			}
 		}
 	}
