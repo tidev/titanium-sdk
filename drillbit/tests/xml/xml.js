@@ -326,10 +326,16 @@ describe("Ti.XML tests", {
 		valueOf(attr.name).shouldBeString();
 		valueOf(attr.name).shouldBe("newattr");
 		valueOf(attr.specified).shouldBeBoolean();
-		var addedAttr = node.setAttributeNode(attr); // NPE for some reason in Android. TIMOB-4704
-		valueOf(addedAttr).shouldNotBeNull();
-		valueOf(addedAttr).shouldBeObject();
-		valueOf(addedAttr).shouldBe(attr);
+		// Per spec, when you set an attribute that doesn't exist yet,
+		// null is returned.
+		var addedAttr = node.setAttributeNode(attr);
+		valueOf(addedAttr).shouldBeNull();
+		// Per spec, when you set a new attribute of same name as one that
+		// already exists, it replaces that existing one AND returns that existing one.
+		var secondNewAttr = doc.createAttribute("newattr");
+		var replacedAttr = node.setAttributeNode(secondNewAttr);
+		valueOf(replacedAttr).shouldNotBeNull();
+		valueOf(replacedAttr).shouldBe(attr); // For some reason this doesn't work on android TIMOB-4703
 		valueOf(attr.ownerElement).shouldNotBeNull();
 		valueOf(attr.ownerElement).shouldBe(node); // For some reason this doesn't work on android TIMOB-4703
 		valueOf(attr.specified).shouldBeFalse();
