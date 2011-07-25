@@ -14,9 +14,9 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
-import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
+import android.R;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -133,28 +133,45 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 		String url = tiContext.resolveUrl(null, path);
 		return loadDrawable(url);
 	}
-	
-	public void setBackgroundDrawable(KrollDict d, Drawable drawable) {
+
+	public void setBackgroundDrawable(KrollDict d, Drawable drawable)
+	{
+		StateListDrawable stateDrawable = new StateListDrawable();
+
 		if (d.containsKey(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE)
-			|| d.containsKey(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)) {
-			StateListDrawable stateDrawable = new StateListDrawable();
+		|| d.containsKey(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)) {
+			// use transparent highlight selector drawable is visible over background
 			ColorDrawable transparent = new ColorDrawable(Color.TRANSPARENT);
 			stateDrawable.addState(new int[] {
 				android.R.attr.state_window_focused,
 				android.R.attr.state_enabled,
 				android.R.attr.state_pressed }, transparent);
 			stateDrawable.addState(new int[] { android.R.attr.state_selected }, transparent);
-			stateDrawable.addState(new int[] {
-				android.R.attr.state_focused,
-				android.R.attr.state_window_focused,
-				android.R.attr.state_enabled }, drawable);
-			stateDrawable.addState(new int[0], drawable);
-			setBackgroundDrawable(stateDrawable);
-		} else {
-			setBackgroundDrawable(drawable);
 		}
+		else
+		{
+			// set default drawable to system default manually so it works with custom background
+			Drawable defaultDrawable = getResources().getDrawable(R.drawable.list_selector_background);
+			stateDrawable.addState(new int[] {
+				android.R.attr.state_window_focused,
+				android.R.attr.state_enabled,
+				android.R.attr.state_pressed }, defaultDrawable);
+			stateDrawable.addState(new int[] { android.R.attr.state_selected }, defaultDrawable);
+		}
+
+		stateDrawable.addState(new int[] {
+			android.R.attr.state_focused,
+			android.R.attr.state_window_focused,
+			android.R.attr.state_enabled }, drawable);
+		stateDrawable.addState(new int[0], drawable);
+
+		if (d.containsKey(TiC.PROPERTY_OPACITY))
+		{
+			stateDrawable.setAlpha(Math.round(TiConvert.toFloat(d, TiC.PROPERTY_OPACITY) * 255));
+		}
+		setBackgroundDrawable(stateDrawable);
 	}
-	
+
 	public void setBackgroundFromProperties(KrollDict props) {
 		Drawable background = null;
 		if (props.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE)) {
@@ -163,9 +180,7 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 			Integer bgColor = TiConvert.toColor(props, TiC.PROPERTY_BACKGROUND_COLOR);
 			background = new ColorDrawable(bgColor);
 		}
-		if (props.containsKey(TiC.PROPERTY_OPACITY)) {
-			TiUIHelper.setDrawableOpacity(background, TiConvert.toFloat(props, TiC.PROPERTY_OPACITY));
-		}
+
 		setBackgroundDrawable(props, background);
 	}
 	
