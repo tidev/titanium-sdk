@@ -202,7 +202,7 @@ describe("Ti.XML tests", {
 		}
 	},
 
-	apiXmlProperties: function() {
+	apiXmlNodeProperties: function() {
 		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
 
 		var nodesList = doc.getElementsByTagName("nodes");
@@ -267,7 +267,7 @@ describe("Ti.XML tests", {
 		valueOf(node.localName).shouldNotBeUndefined();
 	},
 
-	apiXmlAppendChild: function() {
+	apiXmlNodeAppendChild: function() {
 		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
 
 		var parentNode = doc.createElement("parentNode");
@@ -275,23 +275,38 @@ describe("Ti.XML tests", {
 
 		var childNode = doc.createElement("childNode");
 		valueOf(function() { parentNode.appendChild(childNode); }).shouldNotThrowException();
-		valueOf(parentNode.firstChild).shouldBeExactly(childNode);
+		valueOf(parentNode.firstChild).shouldBeExactly(childNode); // fails - opened ticket #4769
 	},
 
-	apiXmlCloneNode: function() {
+	apiXmlNodeCloneNode: function() {
 		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
 
-		var node = doc.createElement("node");
-		valueOf(node.cloneNode).shouldBeFunction();
+		var parentNode = doc.createElement("parent");
+		parentNode.setAttribute("myattr", "attr value");
+		var childText = doc.createTextNode("child text");
+		var childElement = doc.createElement("childelement");
+		parentNode.appendChild(childText);
+		parentNode.appendChild(childElement);
+
+		valueOf(parentNode.cloneNode).shouldBeFunction();
 
 		var clonedNode = null;
-		valueOf(function() { clonedNode = node.cloneNode(false); }).shouldNotThrowException();
-		valueOf(clonedNode).shouldBe(node);
-		valueOf(function() { clonedNode = node.cloneNode(true); }).shouldNotThrowException();
-		valueOf(clonedNode).shouldBe(node);
+		
+		// exception is thrown - opened ticket #4771
+		valueOf(function() { clonedNode = parentNode.cloneNode(false); }).shouldNotThrowException();
+		valueOf(clonedNode.nodeName).shouldBe(parentNode.nodeName);
+		valueOf(clonedNode.getAttribute("myattr")).shouldBe("attr value");
+		valueOf(clonedNode.firstChild.nodeValue).shouldBe(parentNode.firstChild.nodeValue);
+		valueOf(clonedNode.lastChild.nodeName).shouldBe(parentNode.lastChild.nodeName);
+
+		valueOf(function() { clonedNode = parentNode.cloneNode(true); }).shouldNotThrowException();
+		valueOf(clonedNode.nodeName).shouldBe(parentNode.nodeName);
+		valueOf(clonedNode.getAttribute("myattr")).shouldBe("attr value");
+		valueOf(clonedNode.firstChild.nodeValue).shouldBe(parentNode.firstChild.nodeValue);
+		valueOf(clonedNode.lastChild.nodeName).shouldBe(parentNode.lastChild.nodeName);
 	},
 
-	apiXmlHasAttributes: function() {
+	apiXmlNodeHasAttributes: function() {
 		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
 
 		var node = doc.createElement("node");
@@ -307,7 +322,7 @@ describe("Ti.XML tests", {
 		valueOf(results).shouldBe(true);
 	},
 
-	apiXmlHasChildNodes: function() {
+	apiXmlNodeHasChildNodes: function() {
 		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
 
 		var parentNode = doc.createElement("parentNode");
@@ -323,7 +338,7 @@ describe("Ti.XML tests", {
 		valueOf(results).shouldBe(true);
 	},
 
-	apiXmlInsertBefore: function() {
+	apiXmlNodeInsertBefore: function() {
 		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
 
 		var parentNode = doc.createElement("parentNode");
@@ -334,10 +349,10 @@ describe("Ti.XML tests", {
 
 		var childNode3 = doc.createElement("childNode3");
 		valueOf(function() { parentNode.insertBefore(childNode3, parentNode.firstChild); }).shouldNotThrowException();
-		valueOf(parentNode.firstChild).shouldBeExactly(childNode3);
+		valueOf(parentNode.firstChild).shouldBeExactly(childNode3); // fails - opened ticket #4769
 	},
 
-	apiXmlIsSupported: function() {
+	apiXmlNodeIsSupported: function() {
 		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
 
 		valueOf(doc.isSupported).shouldBeFunction();
@@ -349,7 +364,7 @@ describe("Ti.XML tests", {
 		valueOf(results).shouldBe(false);
 	},
 
-	apiXmlNormalize: function() {
+	apiXmlNodeNormalize: function() {
 		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
 
 		var parentNode = doc.createElement("parentNode");
@@ -365,7 +380,7 @@ describe("Ti.XML tests", {
 		valueOf(parentNode.getChildNodes().length).shouldBe(1);
 	},
 
-	apiXmlRemoveChild: function() {
+	apiXmlNodeRemoveChild: function() {
 		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
 
 		var parentNode = doc.createElement("parentNode");
@@ -376,12 +391,12 @@ describe("Ti.XML tests", {
 
 		var results = null;
 		valueOf(function() { results = parentNode.removeChild(childNode); }).shouldNotThrowException();
-		valueOf(results).shouldBe(childNode);
+		valueOf(results).shouldBe(childNode); // fails - opened ticket #4770
 
 		valueOf(parentNode.hasChildNodes()).shouldBe(false);
 	},
 
-	apiXmlReplaceChild: function() {
+	apiXmlNodeReplaceChild: function() {
 		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
 
 		var parentNode = doc.createElement("parentNode");
@@ -394,6 +409,6 @@ describe("Ti.XML tests", {
 
 		var replacementNode = doc.createElement("replacementNode");
 		valueOf(function() { parentNode.replaceChild(replacementNode, childNode); }).shouldNotThrowException();
-		valueOf(parentNode.firstChild).shouldBe(replacementNode);
+		valueOf(parentNode.firstChild).shouldBe(replacementNode); // fails - opened ticket #4769
 	}
 });
