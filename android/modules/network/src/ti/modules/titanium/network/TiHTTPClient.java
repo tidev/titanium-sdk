@@ -664,6 +664,7 @@ public class TiHTTPClient
 			String delimiter = "";
 			boolean firstPass = true;
 
+			// headers will be an empty array if none can be found
 			Header[] headers = response.getHeaders(headerName);
 			for (Header header : headers)
 			{
@@ -677,7 +678,7 @@ public class TiHTTPClient
 
 			if (headers.length == 0)
 			{
-				Log.w(LCAT, "No value for respose header: " + headerName);
+				Log.w(LCAT, "No value for response header: " + headerName);
 			}
 		} else {
 			throw new IllegalStateException("getResponseHeader can only be called when readyState > 1");
