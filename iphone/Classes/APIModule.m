@@ -14,7 +14,7 @@
 
 @implementation APIModule
 
--(void)logMessage:(NSString*)message severity:(NSString*)severity
+-(void)logMessage:(id)messageObj severity:(NSString*)severity
 {
     if ([[TiApp app] debugMode]) {
         NSString* lcSeverity = [severity lowercaseString];
@@ -33,10 +33,10 @@
         else if ([lcSeverity isEqualToString:@"debug"]) {
             level = LOG_DEBUG;
         }
-        TiDebuggerLogMessage(level, message);
+        TiDebuggerLogMessage(level, messageObj);
     }
     else {
-        NSLog(@"[%@] %@", [severity uppercaseString], message);
+        NSLog(@"[%@] %@", [severity uppercaseString], messageObj);
         fflush(stderr);
     }
 }
