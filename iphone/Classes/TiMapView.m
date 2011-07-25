@@ -35,6 +35,10 @@
 
 -(void)render
 {
+	if (![NSThread isMainThread]) {
+		[self performSelectorOnMainThread:@selector(render) withObject:nil waitUntilDone:NO];
+		return;
+	}  	  
 	if (region.center.latitude!=0 && region.center.longitude!=0)
 	{
 		[map setRegion:[map regionThatFits:region] animated:animate];
@@ -63,7 +67,7 @@
 
 -(void)didFirePropertyChanges
 {
-	[self performSelectorOnMainThread:@selector(render) withObject:nil waitUntilDone:YES];
+	[self render];
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
