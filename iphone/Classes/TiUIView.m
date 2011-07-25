@@ -13,7 +13,9 @@
 #ifdef USE_TI_UI2DMATRIX	
 	#import "Ti2DMatrix.h"
 #endif
-#import "TiUIiOS3DMatrix.h"
+#ifdef USE_TI_UIIOS3DMATRIX
+	#import "TiUIiOS3DMatrix.h"
+#endif
 #import "TiViewProxy.h"
 #import "TiApp.h"
 #import "UIImage+Resize.h"
