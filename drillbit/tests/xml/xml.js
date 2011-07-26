@@ -360,7 +360,7 @@ describe("Ti.XML tests", {
 		valueOf(doc.doctype).shouldBeObject();
 		// File without DTD, to be sure doc.doctype is null as spec says
 		doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
-		valueOf(function(){
+		valueOf(function() {
 			valueOf(doc.doctype).shouldBeNull(); // Causes NPE for some reason in Android. TIMOB-4705
 		}).shouldNotThrowException();
 	},
@@ -461,7 +461,7 @@ describe("Ti.XML tests", {
 		valueOf(node).shouldNotBeNull();
 		valueOf(node).shouldBeObject();
 		valueOf(node.nodeName).shouldBe("node");
-		valueOf(function(){
+		valueOf(function() {
 			node = doc.getElementById("no_such_element"); // Causes NPE in Android, shouldn't. TIMOB-4707
 		}).shouldNotThrowException();
 		valueOf(node).shouldBeNull();
