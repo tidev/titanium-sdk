@@ -85,19 +85,25 @@ def build_and_run(args=None):
 	# first we need to find the desktop SDK for tibuild.py
 	if platform.system() == 'Darwin':
 		base_sdk = '/Library/Application Support/Titanium/sdk/osx'
+		alternate_sdk = os.path.expanduser("~/Library/Application Support/Titanium/sdk/osx")
 		platform_name = 'osx'
 	elif platform.system() == 'Windows':
 		if platform.release() == 'XP':
 			base_sdk = 'C:\\Documents and Settings\\All Users\\Application Data\\Titanium\\sdk\\win32'
 		else:
 			base_sdk = 'C:\\ProgramData\\Titanium\\sdk\\win32'
+		alternate_sdk = None
 		platform_name = 'win32'
 	elif platform.system() == 'Linux':
 		base_sdk = os.path.expanduser("~/.titanium/sdk/linux")
+		alternate_sdk = None
 		platform_name = 'linux'
 	
 	if not os.path.exists(base_sdk):
-		error_no_desktop_sdk()
+		if os.path.exists(alternate_sdk):
+			base_sdk = alternate_sdk
+		else:
+			error_no_desktop_sdk()
 	
 	versions = [dir for dir in os.listdir(base_sdk) if not dir.startswith(".")]
 	if len(versions) == 0:
