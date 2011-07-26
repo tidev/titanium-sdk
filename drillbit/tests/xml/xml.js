@@ -598,7 +598,7 @@ describe("Ti.XML tests", {
 		var node = doc.getElementsByTagName("node").item(0);
 		var attr;
 		// First a known attribute
-		valueOf(function(){
+		valueOf(function() {
 			attr = node.attributes.item(0);
 		}).shouldNotThrowException();
 		valueOf(attr).shouldNotBeUndefined();
@@ -613,7 +613,7 @@ describe("Ti.XML tests", {
 		valueOf(attr.value).shouldBeString();
 		valueOf(attr.value).shouldBe("node 1");
 		// Now new attribute
-		valueOf(function(){
+		valueOf(function() {
 			attr = doc.createAttribute("newattr");
 		}).shouldNotThrowException();
 		valueOf(attr).shouldNotBeUndefined();
