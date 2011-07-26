@@ -345,7 +345,7 @@ describe("Ti.XML tests", {
 			matchXmlTrees(a, b);
 		}
 	},
-	apiXmlDocumentProperties: function(){
+	apiXmlDocumentProperties: function() {
 		// File with DTD
 		var doc = Ti.XML.parseString(this.testSource["with_dtd.xml"]);
 		valueOf(doc.documentElement).shouldNotBeUndefined();
@@ -478,7 +478,7 @@ describe("Ti.XML tests", {
 			valueOf(checkelem.nodeName).shouldBe("node");
 		}
 		// test bogus tagname
-		valueOf(function(){
+		valueOf(function() {
 			elements = doc.getElementsByTagName("bogus");
 		}).shouldNotThrowException();
 		valueOf(elements).shouldNotBeNull();
@@ -498,21 +498,21 @@ describe("Ti.XML tests", {
 			valueOf(checkelem.namespaceURI).shouldBe("http://example.com");
 		}
 		// test real namespace and bogus tagname
-		valueOf(function(){
+		valueOf(function() {
 			elements = doc.getElementsByTagNameNS("http://example.com", "bogus");
 		}).shouldNotThrowException();
 		valueOf(elements).shouldNotBeNull();
 		valueOf(elements).shouldBeObject();
 		valueOf(elements.length).shouldBeExactly(0);
 		// test bogus namespace and real tagname
-		valueOf(function(){
+		valueOf(function() {
 			elements = doc.getElementsByTagNameNS("http://bogus.com", "pie");
 		}).shouldNotThrowException();
 		valueOf(elements).shouldNotBeNull();
 		valueOf(elements).shouldBeObject();
 		valueOf(elements.length).shouldBeExactly(0);
 		// test bogus namespace and bogus tagname
-		valueOf(function(){
+		valueOf(function() {
 			elements = doc.getElementsByTagNameNS("http://bogus.com", "bogus");
 		}).shouldNotThrowException();
 		valueOf(elements).shouldNotBeNull();
@@ -525,7 +525,7 @@ describe("Ti.XML tests", {
 		valueOf(doc.importNode).shouldBeFunction();
 		// test deep import
 		var importedNode;
-		valueOf(function(){
+		valueOf(function() {
 			importedNode = doc.importNode(otherDoc.documentElement.firstChild, true);
 		}).shouldNotThrowException();
 		valueOf(importedNode.ownerDocument).shouldNotBeNull();
@@ -536,7 +536,7 @@ describe("Ti.XML tests", {
 		valueOf(importedNode.childNodes.length).shouldBeGreaterThan(0);
 		valueOf(importedNode.namespaceURI).shouldBe("http://example.com");
 		// test shallow import
-		valueOf(function(){
+		valueOf(function() {
 			importedNode = doc.importNode(otherDoc.documentElement.firstChild, false);
 		}).shouldNotThrowException();
 		valueOf(importedNode.hasChildNodes()).shouldBeFalse();
