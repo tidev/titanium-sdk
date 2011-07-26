@@ -52,9 +52,10 @@ public class NodeProxy extends KrollProxy {
 		return node;
 	}
 	
-	// We cache node proxies so we're not constructing new ones on every single call
-	// on node finalize we have to go back through and remove each proxy
 	public static NodeProxy getNodeProxy(TiContext context, Node node) {
+		if (node == null) {
+			return null;
+		}
 		NodeProxy proxy;
 		switch (node.getNodeType()) {
 			case Node.ATTRIBUTE_NODE:
