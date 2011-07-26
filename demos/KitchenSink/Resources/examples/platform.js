@@ -11,6 +11,7 @@ win.addEventListener('close',function()
 {
 	// turn it off, no need to waste the battery
 	Titanium.Platform.batteryMonitoring = false;
+	Titanium.Platform.removeEventListener('battery');
 });
 
 function batteryStateToString(state)

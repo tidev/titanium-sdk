@@ -190,7 +190,11 @@ NSArray * tableKeySequence;
 
 -(TiUITableViewRowProxy*)makeTableViewRowFromDict:(NSDictionary*)data
 {
-	TiUITableViewRowProxy *proxy = [[[TiUITableViewRowProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+    id<TiEvaluator> context = [self executionContext];
+    if (context == nil) {
+        context = [self pageContext];
+    }
+	TiUITableViewRowProxy *proxy = [[[TiUITableViewRowProxy alloc] _initWithPageContext:context] autorelease];
 	[proxy _initWithProperties:data];
 	return proxy;
 }
