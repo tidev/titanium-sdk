@@ -34,8 +34,10 @@ TI_INLINE TiDimension TiDimensionMake(TiDimensionType type, CGFloat value)
 {
 	if ((value!=0)&&(!isnormal(value))) {
 		NSLog(@"[FATAL] Invalid dimension value (%f) requested. Making the dimension undefined instead.",value);
-		type = TiDimensionTypeUndefined;
-		value = 0;
+		return TiDimensionUndefined;
+	}
+	if (!((value > -1e5)&&(value < 1e5))) {
+		NSLog(@"[FATAL] Extreme dimension value (%f) requested. Allowing, just in case this is intended.",value);
 	}
 	TiDimension dimension;
 	dimension.type = type;
