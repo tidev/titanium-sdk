@@ -311,7 +311,7 @@ describe("Ti.XML tests", {
 		valueOf(attr.name).shouldBeString();
 		valueOf(attr.name).shouldBe("id");
 		valueOf(attr.ownerElement).shouldBeObject();
-		valueOf(attr.ownerElement).shouldBe(node); // For some reason this doesn't work on android TIMOB-4703
+		valueOf(attr.ownerElement).shouldBe(node);
 		valueOf(attr.specified).shouldBeBoolean();
 		valueOf(attr.specified).shouldBeTrue();
 		valueOf(attr.value).shouldBeString();
@@ -331,7 +331,7 @@ describe("Ti.XML tests", {
 		valueOf(addedAttr).shouldBeObject();
 		valueOf(addedAttr).shouldBe(attr);
 		valueOf(attr.ownerElement).shouldNotBeNull();
-		valueOf(attr.ownerElement).shouldBe(node); // For some reason this doesn't work on android TIMOB-4703
+		valueOf(attr.ownerElement).shouldBe(node);
 		valueOf(attr.specified).shouldBeFalse();
 		valueOf(attr.value).shouldBeNull();
 		attr.value = "new value";
