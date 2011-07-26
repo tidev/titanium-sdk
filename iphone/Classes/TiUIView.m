@@ -749,11 +749,17 @@ DEFINE_EXCEPTIONS
 		return nil;
 	}
 	
+    // OK, this is problematic because of the situation where:
+    // touchDelegate --> view --> button
+    // The touch never reaches the button, because the touchDelegate is as deep as the touch goes.
+    
+    /*
 	// delegate to our touch delegate if we're hit but it's not for us
 	if (hasTouchListeners==NO && touchDelegate!=nil)
 	{
 		return touchDelegate;
 	}
+     */
 	
     return [super hitTest:point withEvent:event];
 }
