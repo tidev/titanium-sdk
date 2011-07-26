@@ -298,9 +298,29 @@ class TiAppXML(object):
 						continue
 					self.iphone['requires'].append(feature)
 		
+		def parse_type(node):
+			valid_tags = ['name', 'icon', 'uti', 'owner']
+			type_info = { 'name':'', 'icon':'', 'uti':[], 'owner':False }
+			for child in node.childNodes:
+				if child.nodeName in valid_tags:
+					value = getText(child.childNodes)
+					if child.nodeName == 'uti':
+						value = value.split(',')
+					elif child.nodeName == 'owner':
+						value = self.to_bool(value)
+					type_info[child.nodeName] = value
+						
+			self.iphone['types'].append(type_info)
+		
+		def parse_fileTypes(node):
+			self.iphone['types'] = []
+			for child in node.childNodes:
+				if child.nodeName == 'type':
+					parse_type(child)
+		
 		
 		local_objects = locals()
-		parse_tags = ['orientations', 'backgroundModes', 'requires']
+		parse_tags = ['orientations', 'backgroundModes', 'requires', 'fileTypes']
 		for child in node.childNodes:
 			if child.nodeName in parse_tags:
 				local_objects['parse_'+child.nodeName](child)
@@ -384,6 +404,23 @@ class TiAppXML(object):
 				for feature in self.iphone[prop]:
 					propertyValue += "	<string>%s</string>\n" % feature
 				propertyValue += '	</array>'
+				self.infoplist_properties[propertyName]=propertyValue
+			if prop == 'types':
+				propertyName = 'CFBundleDocumentTypes'
+				propertyValue = '<array>\n'
+				for type in self.iphone[prop]:
+					propertyValue += '<dict>\n'
+					propertyValue += "<key>CFBundleTypeName</key><string>%s</string>\n" % type['name']
+					propertyValue += "<key>CFBundleTypeIconFiles</key><array><string>%s</string></array>\n" % type['icon']
+					propertyValue += '<key>LSItemContentTypes</key><array>'
+					for uti in type['uti']:
+						propertyValue += "<string>%s</string>" % uti
+					propertyValue += '</array>\n'
+					owner = 'Owner' if type['owner'] else 'Alternate'
+					propertyValue += "<key>LSHandlerRank</key><string>%s</string>\n" % owner
+					propertyValue += '</dict>\n'
+				propertyValue += '</array>'
+				
 				self.infoplist_properties[propertyName]=propertyValue
 		
 		plist = codecs.open(file,'r','utf-8','replace').read()

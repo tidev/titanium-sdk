@@ -17,6 +17,10 @@
 
 #import "TiDebugger.h"
 
+#ifdef KROLL_COVERAGE
+# include "KrollCoverage.h"
+#endif
+
 extern BOOL const TI_APPLICATION_ANALYTICS;
 
 @implementation TitaniumObject
@@ -643,8 +647,12 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		[proxies addObject:proxy];
 	}
 	[proxyLock unlock];
-	
+
+#ifdef KROLL_COVERAGE
+	ourKrollObject = [[KrollCoverageObject alloc] initWithTarget:proxy context:context];
+#else
 	ourKrollObject = [[KrollObject alloc] initWithTarget:proxy context:context];
+#endif
 
 	[self registerProxy:proxy krollObject:ourKrollObject];
 	return [ourKrollObject autorelease];

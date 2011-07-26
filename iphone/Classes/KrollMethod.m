@@ -11,6 +11,10 @@
 
 #import "KrollBridge.h"
 
+#ifdef KROLL_COVERAGE
+# import "KrollCoverage.h"
+#endif
+
 TiClassRef KrollMethodClassRef = NULL;
 
 TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjectRef thisObj, size_t argCount, const TiValueRef arguments[], TiValueRef* exception)
