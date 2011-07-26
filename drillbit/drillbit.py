@@ -135,24 +135,43 @@ def build_and_run(args=None):
 	import env
 	
 	# use the desktop SDK API to stage and run drillbit (along w/ its custom modules)
-	environment = env.PackagingEnvironment(platform_name, False)
+	appstore = False
+	bundle = False
+
+	# if we're in OSX Lion, package against the system webkit (using --appstore)
+	if platform.system() == "Darwin" and platform.release() == "11.0.0":
+		appstore = True
+		bundle = True
+
+	environment = env.PackagingEnvironment(platform_name, False, appstore)
 	app = environment.create_app(drillbit_app_dir)
 	stage_dir = os.path.join(drillbit_build_dir, app.name)
 
-	# Desktop 1.2 doesn't pass on named-args for app subclasses
-	# stage(stage_dir, bundle=False, no_install=True, js_obfuscate=False
-	app.stage(stage_dir, False, True, False)
+	# This isn't set internally until stage() is set, but by then it's too
+	# late for module resolving
+	app.stage_dir = stage_dir
+
+	# We need this to resolve our custom modules
+	app.env.components_dir = app.get_contents_dir()
 
 	app_modules_dir = os.path.join(app.get_contents_dir(), 'modules')
-	app_tests_dir = os.path.join(app.get_contents_dir(), 'Resources', 'tests')
-	
 	if os.path.exists(app_modules_dir):
 		shutil.rmtree(app_modules_dir)
-	
+	else:
+		os.makedirs(os.path.basename(app_modules_dir))
+
+	print 'Copying modules to %s' % app_modules_dir
+	shutil.copytree(os.path.join(drillbit_dir, 'modules'), app_modules_dir)
+
+	# Desktop 1.2 doesn't pass on named-args for app subclasses
+	# stage(stage_dir, bundle=False, no_install=True, js_obfuscate=False
+	app.stage(stage_dir, bundle, True, False)
+
+	app_tests_dir = os.path.join(app.get_contents_dir(), 'Resources', 'tests')
 	if os.path.exists(app_tests_dir):
 		shutil.rmtree(app_tests_dir)
-	
-	shutil.copytree(os.path.join(drillbit_dir, 'modules'), app_modules_dir)
+
+	print 'Copying tests to %s' % app_tests_dir
 	shutil.copytree(os.path.join(drillbit_dir, 'tests'), app_tests_dir)
 
 	installed_file = os.path.join(app.get_contents_dir(), '.installed')
