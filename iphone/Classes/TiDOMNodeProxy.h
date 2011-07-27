@@ -12,10 +12,14 @@
 @interface TiDOMNodeProxy : TiProxy {
 @protected
 	GDataXMLNode *node;
+	GDataXMLDocument *document;
 }
 
 -(void)setNode:(GDataXMLNode*)node_;
+@property(nonatomic,retain)	GDataXMLDocument *document;
+
 -(NSString *)XMLString;
+-(id)makeNode:(id)child context:(id<TiEvaluator>)context;
 +(id)makeNode:(id)child context:(id<TiEvaluator>)context;
 
 @property(nonatomic,readonly) id nodeName;

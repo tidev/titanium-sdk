@@ -19,6 +19,10 @@
 
 #import <libkern/OSAtomic.h>
 
+#ifdef KROLL_COVERAGE
+# import "KrollCoverage.h"
+#endif
+
 TiApp* sharedApp;
 
 int TiDebugPort = 2525;
@@ -399,6 +403,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 {
 	[launchOptions removeObjectForKey:UIApplicationLaunchOptionsURLKey];	
 	[launchOptions setObject:[url absoluteString] forKey:@"url"];
+    return YES;
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
@@ -414,6 +419,9 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	[xhrBridge shutdown:nil];
 #endif	
 
+#ifdef KROLL_COVERAGE
+	[KrollCoverageObject releaseCoverage];
+#endif
 	//These shutdowns return immediately, yes, but the main will still run the close that's in their queue.	
 	[kjsBridge shutdown:condition];
 

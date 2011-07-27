@@ -49,6 +49,7 @@ only_package = False
 if ARGUMENTS.get("package",0):
 	only_package = True
 
+install = "install" in COMMAND_LINE_TARGETS or ARGUMENTS.get("install", 0)
 clean = "clean" in COMMAND_LINE_TARGETS or ARGUMENTS.get("clean", 0)
 run_drillbit = "drillbit" in COMMAND_LINE_TARGETS or ARGUMENTS.get("drillbit",0)
 
@@ -114,6 +115,15 @@ if build_type in ['full', 'iphone', 'ipad'] and not only_package \
 	finally:
 		os.chdir(d)
 
+def install_mobilesdk(version_tag):
+	if (platform.system() == "Darwin"):
+		os_names = { "Windows":"win32", "Linux":"linux", "Darwin":"osx" }
+		os_name = os_names[platform.system()]
+		mobilesdk_zipfile = os.path.join(os.path.abspath('dist'), 'mobilesdk-%s-%s.zip' % (version_tag, os_name))
+		print "Installing %s..." % mobilesdk_zipfile
+		installation_directory = '/Library/Application Support/Titanium'
+		os.system('/usr/bin/unzip -q -o -d "%s" "%s"' % (installation_directory, mobilesdk_zipfile))
+
 def package_sdk(target, source, env):
 	android = build_type in ['full', 'android']
 	iphone = build_type in ['full', 'iphone']
@@ -125,6 +135,8 @@ def package_sdk(target, source, env):
 		package.Packager().build_all_platforms(os.path.abspath('dist'), version, android, iphone, ipad, version_tag)
 	else:
 		package.Packager().build(os.path.abspath('dist'), version, android, iphone, ipad, version_tag)
+	if install and not clean:
+		install_mobilesdk(version_tag)
 
 def drillbit_builder(target, source, env):
 	sys.path.append("drillbit")

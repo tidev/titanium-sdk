@@ -5,18 +5,21 @@ extends: Titanium.Module
 since: "0.9"
 methods:
   - name: parseString
-    description: parse an XML string into a DOMDocument
+    description: > 
+        Parses an XML string into a <Titanium.XML.Document> object.
+        Throws an exception if the string is unable to be parsed into a valid
+        document.
     returns:
-        type: Object
+        type: Titanium.XML.Document
     parameters:
       - name: xml
         description: the XML content as a string
         type: String
   - name: serializeToString
-    description: serialize a DOMDocument or DOMNode and its descendants into an XML string
+    description: Serializes a <Titanium.XML.Document> object into a string.
     returns:
         type: String
     parameters:
       - name: node
-        description: the XML DOMNode or DOMDocument to serialize
-        type: Object
+        description: The XML DOMNode or DOMDocument to serialize
+        type: Titanium.XML.Node

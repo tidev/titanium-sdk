@@ -2,7 +2,7 @@
 || Test type || Count || Delta ||
 | Functional tests | *???* functional tests | {color:green}*+??? functional tests*{color} |
 | Drillbit tests | ${drillbitTests["total"]} unit tests | {color:green}*+${delta["tests"]["drillbit"]} unit tests, +${delta["apis"]["drillbit"]} APIs*{color} |
-| API Docs | ${data.apiCount["tdoc"]["totalYes"]} documented APIs | {color:green}*+${delta["apis"]["tdoc"]} APIs{color} |
+| API Docs | ${data.apiCount["tdoc"]["totalYes"]} documented APIs | {color:green}*+${delta["apis"]["tdoc"]} APIs*{color} |
 
 h5. Parity summary
 || Coverage Type\

@@ -15,10 +15,57 @@ describe("Ti.XML tests", {
 		};
 		
 		var testFiles = ["soap.xml", "xpath.xml", "nodes.xml", "nodeCount.xml", "cdata.xml", "cdataEntities.xml"];
+		var invalidFiles = [ "mismatched_tag.xml", "no_toplevel.xml", "no_end.xml"];
 		this.testSource = {};
+		this.invalidSource = {};
 		for (var i = 0; i < testFiles.length; i++) {
 			this.testSource[testFiles[i]] = Ti.Filesystem.getFile(testFiles[i]).read().toString();
 		}
+		
+		for (var i = 0; i < invalidFiles.length; i++) {
+			this.invalidSource[invalidFiles[i]] = Ti.Filesystem.getFile(invalidFiles[i]).read().toString();
+		}
+	},
+	
+	documentParsing: function() {
+		var localSources = this.testSource;
+		var localInvalid = this.invalidSource;
+		// Parse valid documents
+		valueOf(function() {
+			Ti.XML.parseString(localSources["soap.xml"]);
+		}).shouldNotThrowException();
+		valueOf(function() {
+			Ti.XML.parseString(localSources["xpath.xml"]);
+		}).shouldNotThrowException();
+		valueOf(function() {
+			Ti.XML.parseString(localSources["nodes.xml"]);
+		}).shouldNotThrowException();
+		valueOf(function() {
+			Ti.XML.parseString(localSources["nodeCount.xml"]);
+		}).shouldNotThrowException();
+		valueOf(function() {
+			Ti.XML.parseString(localSources["cdata.xml"]);
+		}).shouldNotThrowException();
+		valueOf(function() {
+			Ti.XML.parseString(localSources["cdataEntities.xml"]);
+		}).shouldNotThrowException();
+		
+		// Parse empty document - spec specifies that a valid XML doc
+		// must have a root element (empty string doesn't)
+		valueOf(function() {
+			Ti.XML.parseString('');
+		}).shouldThrowException();
+		
+		// Parse (some types of) invalid documents
+		valueOf(function() {
+			Ti.XML.parseString(localInvalid["mismatched_tag.xml"]);
+		}).shouldThrowException();
+		valueOf(function() {
+			Ti.XML.parseString(localInvalid["no_end.xml"]);
+		}).shouldThrowException();
+		valueOf(function() {
+			Ti.XML.parseString(localInvalid["no_toplevel.xml"]);
+		}).shouldThrowException();
 	},
 	
 	// These 6 tests are adapted from the KitchenSink xml_dom test
@@ -130,10 +177,107 @@ describe("Ti.XML tests", {
 		var xml = Ti.XML.parseString(this.testSource["cdata.xml"]);
 		var scriptList = xml.documentElement.getElementsByTagName("script");
 		valueOf(scriptList.length).shouldBe(1);
-		
+
 		valueOf(xml.documentElement.nodeName).shouldBe("root");
 		var nodeCount = this.countNodes(xml.documentElement, 1);
 		valueOf(nodeCount).shouldBe(1);
+
+		var script = scriptList.item(0);
+		var cData;
+		for (i = 0; i < script.childNodes.length; i++) {
+			var node = script.childNodes.item(i);
+			if (node.nodeType == node.CDATA_SECTION_NODE) {
+				cData = node;
+				break;
+			}
+		}
+		valueOf(cData).shouldNotBeNull();
+
+		//CharacterDataAttributes
+		var fullString = cData.data;
+		valueOf(fullString).shouldBe("\nfunction matchwo(a,b)\n{\nif (a < b && a < 0) then\n  {\n  return 1;\n  }\nelse\n  {\n  return 0;\n  }\n}\n");
+		cData.data = "Test Assignment";
+		valueOf(cData.data).shouldBe("Test Assignment");
+		cData.data = "\nfunction matchwo(a,b)\n{\nif (a < b && a < 0) then\n  {\n  return 1;\n  }\nelse\n  {\n  return 0;\n  }\n}\n";
+		var fullLength = cData.length;
+		valueOf(fullLength).shouldBe(97);
+
+		// CharacterData.substringData
+		var substring1 = cData.substringData(1, 8);
+		valueOf(substring1).shouldBe("function");
+		//TIMOB-4718
+		var substring2 = cData.substringData(1, 1000);
+		valueOf(substring2.length).shouldBe(96);
+		valueOf(function() {
+			var substring3 = cData.substringData(1000, 1001);
+		}).shouldThrowException();
+		valueOf(function() {
+			var substring4 = cData.substringData(-1, 101);
+		}).shouldThrowException();
+		valueOf(function() {
+			var substring5 = cData.substringData(0, -1);
+		}).shouldThrowException();
+
+		//CharacterData.appendData
+		var cDataLength = cData.length;
+		cData.appendData("Appending");
+		var substring6 = cData.substringData(97, 9);
+		valueOf(cData.length).shouldBe(cDataLength + 9);
+		valueOf(substring6).shouldBe("Appending");
+		valueOf(function() {
+			script.appendData("ReadOnly");
+		}).shouldThrowException();
+
+		//CharacterData.insertData
+		cData.insertData(9, "InsertData");
+		var substring7 = cData.substringData(9, 10);
+		valueOf(substring7).shouldBe("InsertData");
+		valueOf(function() {
+			cData.insertData(-1, "InsertFail");
+		}).shouldThrowException();
+		valueOf(function() {
+			cData.insertData(1000, "InsertFail");
+		}).shouldThrowException();
+		valueOf(function() {
+			script.insertData(1, "ReadOnly");
+		}).shouldThrowException();
+
+		//CharacterData.replaceData
+		cData.replaceData(9, 1, "ReplaceData");
+		var substring8 = cData.substringData(9, 20);
+		valueOf(substring8).shouldBe("ReplaceDatansertData");
+		cDataLength = cData.length;
+		cData.replaceData(cDataLength,100,"ReplaceData");
+		valueOf(cData.length).shouldBe(cDataLength + 11);
+		valueOf(function() {
+			cData.replaceDate(-1, 2, "Failure");
+		}).shouldThrowException();
+		cDataLength = cData.length;
+		valueOf(function() {
+			cData.replaceDate(cDataLength + 1, 2, "Failure");
+		}).shouldThrowException();
+		valueOf(function() {
+			cData.replaceDate(1, -1, "Failure");
+		}).shouldThrowException();
+
+		//CharacterData.deleteData
+		cDataLength = cData.length;
+		cData.deleteData(1, 8);
+		valueOf(cData.length).shouldBe(cDataLength - 8);
+		valueOf(function() {
+			cData.deleteData(-1, 10);
+		}).shouldThrowException();
+		valueOf(function() {
+			cData.deleteData(1000, 1001);
+		}).shouldThrowException();
+		valueOf(function() {
+			cData.deleteData(0, -1);
+		}).shouldThrowException();
+		cData.deleteData(1, 1000);
+		valueOf(cData.length).shouldBe(1);
+		valueOf(function() {
+			script.deleteData(0, 1);
+		}).shouldThrowException();
 	},
 	
 	xmlCDataAndEntities: function() {
@@ -424,5 +568,95 @@ describe("Ti.XML tests", {
 		var replacementNode = doc.createElement("replacementNode");
 		valueOf(function() { parentNode.replaceChild(replacementNode, childNode); }).shouldNotThrowException();
 		valueOf(parentNode.firstChild).shouldBe(replacementNode); // fails - opened ticket #4769
+	},
+
+	xmlNodeListElementsByTagName : function() {
+		var xml = Ti.XML.parseString(this.testSource["nodes.xml"]);
+		valueOf(xml).shouldNotBeNull();
+		
+		var nodes = xml.getElementsByTagName("node");
+		valueOf(nodes).shouldNotBeNull();
+		valueOf(nodes.length).shouldBeNumber();
+		valueOf(nodes.item).shouldBeFunction();
+		
+		valueOf(nodes.length).shouldBe(13);
+		
+		var n = nodes.item(0);
+		valueOf(n).shouldNotBeNull();
+		valueOf(n.getAttribute("id")).shouldBe("node 1");
+		
+		n = nodes.item(1);
+		valueOf(n).shouldNotBeNull();
+		valueOf(n.getAttribute("id")).shouldBe("node 2");
+	},
+
+	xmlNodeListChildren : function() {
+		var xml = Ti.XML.parseString(this.testSource["nodes.xml"]);
+		valueOf(xml).shouldNotBeNull();
+		
+		var e = xml.documentElement;
+		valueOf(e).shouldNotBeNull();
+		
+		var nodes = e.childNodes;
+		valueOf(nodes).shouldNotBeNull();
+		var count = 0;
+		for (var i = 0; i < nodes.length; i++) {
+			var node = nodes.item(i);
+			if (node.nodeType == node.ELEMENT_NODE) {
+				count++;
+			}
+		}
+		valueOf(count).shouldBe(1);
+	},
+
+	xmlNodeListRange : function() {
+		var xml = Ti.XML.parseString(this.testSource["nodes.xml"]);
+		valueOf(xml).shouldNotBeNull();
+		
+		var nodes = xml.getElementsByTagName("node");
+		valueOf(nodes.item(nodes.length)).shouldBeNull();
+		valueOf(nodes.item(100)).shouldBeNull();
+	},
+
+	apiXmlAttr: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+		var node = doc.getElementsByTagName("node").item(0);
+		var attr;
+		// First a known attribute
+		valueOf(function(){
+			attr = node.attributes.item(0);
+		}).shouldNotThrowException();
+		valueOf(attr).shouldNotBeUndefined();
+		valueOf(attr).shouldNotBeNull();
+		valueOf(attr).shouldBeObject();
+		valueOf(attr.name).shouldBeString();
+		valueOf(attr.name).shouldBe("id");
+		valueOf(attr.ownerElement).shouldBeObject();
+//		valueOf(attr.ownerElement).shouldBe(node); // For some reason this doesn't work on android TIMOB-4703
+		valueOf(attr.specified).shouldBeBoolean();
+		valueOf(attr.specified).shouldBeTrue();
+		valueOf(attr.value).shouldBeString();
+		valueOf(attr.value).shouldBe("node 1");
+		// Now new attribute
+		valueOf(function(){
+			attr = doc.createAttribute("newattr");
+		}).shouldNotThrowException();
+		valueOf(attr).shouldNotBeUndefined();
+		valueOf(attr).shouldNotBeNull();
+		valueOf(attr).shouldBeObject();
+		valueOf(attr.name).shouldBeString();
+		valueOf(attr.name).shouldBe("newattr");
+		valueOf(attr.specified).shouldBeBoolean();
+		var addedAttr = node.setAttributeNode(attr); // NPE for some reason in Android. TIMOB-4704
+		valueOf(addedAttr).shouldNotBeNull();
+		valueOf(addedAttr).shouldBeObject();
+		valueOf(addedAttr).shouldBe(attr);
+		valueOf(attr.ownerElement).shouldNotBeNull();
+		valueOf(attr.ownerElement).shouldBe(node); // For some reason this doesn't work on android TIMOB-4703
+		valueOf(attr.specified).shouldBeFalse();
+		valueOf(attr.value).shouldBeNull();
+		attr.value = "new value";
+		valueOf(attr.value).shouldBe("new value");
+		valueOf(attr.specified).shouldBeTrue();
 	}
 });

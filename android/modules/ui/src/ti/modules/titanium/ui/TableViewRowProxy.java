@@ -162,7 +162,7 @@ public class TableViewRowProxy extends TiViewProxy
 
 	@Override
 	public boolean fireEvent(String eventName, KrollDict data) {
-		if (eventName.equals(TiC.EVENT_CLICK)) {
+		if (eventName.equals(TiC.EVENT_CLICK) || eventName.equals(TiC.EVENT_LONGCLICK)) {
 			// inject row click data for events coming from row children
 			TableViewProxy table = getTable();
 			Item item = tableViewItem.getRowData();
