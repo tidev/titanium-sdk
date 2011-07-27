@@ -205,9 +205,20 @@ describe("Ti.XML tests", {
 		// CharacterData.substringData
 		var substring1 = cData.substringData(1, 8);
 		valueOf(substring1).shouldBe("function");
-		//TIMOB-4718
-		var substring2 = cData.substringData(1, 1000);
+		// asking for more than there is should not throw exception
+		// according to spec, rather just return up to end.
+		var substring2 = null;
+		valueOf(function() {
+			substring2 = cData.substringData(1, 1000);
+		}).shouldNotThrowException();
 		valueOf(substring2.length).shouldBe(96);
+		// check edge cases
+		substring2 = cData.substringData(0, fullLength);
+		valueOf(substring2.length).shouldBe(fullLength);
+		substring2 = cData.substringData(1, fullLength);
+		valueOf(substring2.length).shouldBe(fullLength - 1);
+		substring2 = cData.substringData(0, fullLength + 1);
+		valueOf(substring2.length).shouldBe(fullLength);
 		valueOf(function() {
 			var substring3 = cData.substringData(1000, 1001);
 		}).shouldThrowException();
