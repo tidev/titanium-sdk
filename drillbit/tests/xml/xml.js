@@ -358,11 +358,9 @@ describe("Ti.XML tests", {
 		valueOf(doc.doctype).shouldNotBeUndefined();
 		valueOf(doc.doctype).shouldNotBeNull();
 		valueOf(doc.doctype).shouldBeObject();
-		// File without DTD, to be sure doc.doctype is null as spec says
-		doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
-		valueOf(function() {
-			valueOf(doc.doctype).shouldBeNull(); // Causes NPE for some reason in Android. TIMOB-4705
-		}).shouldNotThrowException();
+		// Document without DTD, to be sure doc.doctype is null as spec says
+		doc = Ti.XML.parseString("<a/>");
+		valueOf(doc.doctype).shouldBeNull();
 	},
 	apiXmlDocumentCreateAttribute: function() {
 		var doc = Ti.XML.parseString("<test/>");
@@ -491,7 +489,7 @@ describe("Ti.XML tests", {
 		var elements = doc.getElementsByTagNameNS("http://example.com", "cake");
 		valueOf(elements).shouldNotBeNull();
 		valueOf(elements).shouldBeObject();
-		valueOf(elements.length).shouldBeGreaterThan(0); // Fails in Android. TIMOB-4709
+		valueOf(elements.length).shouldBeGreaterThan(0);
 		for (var i = 0; i < elements.length; i++) {
 			var checkelem = elements.item(i);
 			valueOf(checkelem.localName).shouldBe("cake");
