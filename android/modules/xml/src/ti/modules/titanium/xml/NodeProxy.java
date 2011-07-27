@@ -40,7 +40,7 @@ public class NodeProxy extends KrollProxy {
 	@Kroll.constant public static final int PROCESSING_INSTRUCTION_NODE = Node.PROCESSING_INSTRUCTION_NODE;
 	@Kroll.constant public static final int TEXT_NODE = Node.TEXT_NODE;
 
-	private Node node;
+	protected Node node;
 	
 	public NodeProxy(TiContext context, Node node)
 	{
@@ -52,9 +52,10 @@ public class NodeProxy extends KrollProxy {
 		return node;
 	}
 	
-	// We cache node proxies so we're not constructing new ones on every single call
-	// on node finalize we have to go back through and remove each proxy
 	public static NodeProxy getNodeProxy(TiContext context, Node node) {
+		if (node == null) {
+			return null;
+		}
 		NodeProxy proxy;
 		switch (node.getNodeType()) {
 			case Node.ATTRIBUTE_NODE:
@@ -243,4 +244,23 @@ public class NodeProxy extends KrollProxy {
 	public XPathNodeListProxy evaluate(String xpath) {
 		return XPathUtil.evaluate(this, xpath);
 	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this.node == null || !(o instanceof NodeProxy)) {
+			return super.equals(o);
+		}
+		return this.node.equals(((NodeProxy) o).node);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		if (this.node == null) {
+			return super.hashCode();
+		}
+		return this.node.hashCode();
+	}
+
 }

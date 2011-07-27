@@ -223,9 +223,9 @@ if (Ti.Platform.osname === 'android') {
 		height:'auto',
 		font:{fontSize:13,fontFamily:'Helvetica Neue'}
 	});
-}
 
-win.add(l11);
+	win.add(l11);
+}
 
 function pad (x)
 {

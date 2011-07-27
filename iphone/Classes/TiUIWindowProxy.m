@@ -225,7 +225,7 @@
 		BOOL animate = args!=nil && [args count]>0 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
 		[tab windowClosing:self animated:animate];
 	}
-	else
+	else if(focused)
 	{
 		// if we don't have a tab, we need to fire blur
 		// events ourselves
@@ -798,7 +798,9 @@ else{\
 	if (focused)
 	{
 		[self fireFocus:NO];
-		[barImageView removeFromSuperview];
+		if ([navController topViewController] != controller) {
+			[barImageView removeFromSuperview];
+		}
 	}
 	[super _tabBlur];
 }
