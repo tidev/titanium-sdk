@@ -16,6 +16,8 @@
 
 #endif
 
+
+
 @interface TiUIiOSProxy : TiProxy {
 @private
 
@@ -26,6 +28,10 @@
 -(id)createAdView:(id)args;
 #endif
 #endif
+#ifdef USE_TI_UIIOS3DMATRIX
+-(id)create3DMatrix:(id)args;
+#endif
+
 
 @end
 
