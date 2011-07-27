@@ -279,31 +279,45 @@ describe("Ti.XML tests", {
 	},
 
 	apiXmlNodeCloneNode: function() {
-		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+		var shouldRun = true;
+		if (Ti.Platform.osname === 'android') {
+			// this check exists to deal with the bug mentioned in TIMOB-4771
+			valueOf( isNaN(parseInt(Ti.Platform.version)) ).shouldBeFalse();
+			if (parseInt(Ti.Platform.version) < 3) {
+				Ti.API.info("Less than 3.0, not running apiXmlNodeCloneNode test");
+				shouldRun = false;
+			} else {
+				Ti.API.info("3.0 or greater, running apiXmlNodeCloneNode test");
+			}
+		}
 
-		var parentNode = doc.createElement("parent");
-		parentNode.setAttribute("myattr", "attr value");
-		var childText = doc.createTextNode("child text");
-		var childElement = doc.createElement("childelement");
-		parentNode.appendChild(childText);
-		parentNode.appendChild(childElement);
+		if (shouldRun)
+		{
+			var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
 
-		valueOf(parentNode.cloneNode).shouldBeFunction();
+			var parentNode = doc.createElement("parent");
+			parentNode.setAttribute("myattr", "attr value");
+			var childText = doc.createTextNode("child text");
+			var childElement = doc.createElement("childelement");
+			parentNode.appendChild(childText);
+			parentNode.appendChild(childElement);
 
-		var clonedNode = null;
+			valueOf(parentNode.cloneNode).shouldBeFunction();
+
+			var clonedNode = null;
 		
-		// exception is thrown - opened ticket #4771
-		valueOf(function() { clonedNode = parentNode.cloneNode(false); }).shouldNotThrowException();
-		valueOf(clonedNode.nodeName).shouldBe(parentNode.nodeName);
-		valueOf(clonedNode.getAttribute("myattr")).shouldBe("attr value");
-		valueOf(clonedNode.firstChild.nodeValue).shouldBe(parentNode.firstChild.nodeValue);
-		valueOf(clonedNode.lastChild.nodeName).shouldBe(parentNode.lastChild.nodeName);
+			valueOf(function() { clonedNode = parentNode.cloneNode(false); }).shouldNotThrowException();
+			valueOf(clonedNode.nodeName).shouldBe(parentNode.nodeName);
+			valueOf(clonedNode.getAttribute("myattr")).shouldBe("attr value");
+			valueOf(clonedNode.firstChild.nodeValue).shouldBe(parentNode.firstChild.nodeValue);
+			valueOf(clonedNode.lastChild.nodeName).shouldBe(parentNode.lastChild.nodeName);
 
-		valueOf(function() { clonedNode = parentNode.cloneNode(true); }).shouldNotThrowException();
-		valueOf(clonedNode.nodeName).shouldBe(parentNode.nodeName);
-		valueOf(clonedNode.getAttribute("myattr")).shouldBe("attr value");
-		valueOf(clonedNode.firstChild.nodeValue).shouldBe(parentNode.firstChild.nodeValue);
-		valueOf(clonedNode.lastChild.nodeName).shouldBe(parentNode.lastChild.nodeName);
+			valueOf(function() { clonedNode = parentNode.cloneNode(true); }).shouldNotThrowException();
+			valueOf(clonedNode.nodeName).shouldBe(parentNode.nodeName);
+			valueOf(clonedNode.getAttribute("myattr")).shouldBe("attr value");
+			valueOf(clonedNode.firstChild.nodeValue).shouldBe(parentNode.firstChild.nodeValue);
+			valueOf(clonedNode.lastChild.nodeName).shouldBe(parentNode.lastChild.nodeName);
+		}
 	},
 
 	apiXmlNodeHasAttributes: function() {
