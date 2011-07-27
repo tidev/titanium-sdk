@@ -225,7 +225,7 @@ DrillbitTest.Scope.prototype.failed = function(ex)
 	}
 }
 
-DrillbitTest.Subject.prototype.shouldBeEqual = DrillbitTest.Subject.prototype.shouldBe = function(expected,lineNumber)
+DrillbitTest.Subject.prototype.shouldBe = function(expected,lineNumber)
 {
 	this.lineNumber = lineNumber;
 	DrillbitTest.assertion(this);
@@ -234,8 +234,9 @@ DrillbitTest.Subject.prototype.shouldBeEqual = DrillbitTest.Subject.prototype.sh
 		throw new DrillbitTest.Error('should be: "'+expected+'", was: "'+this.target+'"',lineNumber);
 	}
 };
+DrillbitTest.Subject.prototype.shouldBeEqual = DrillbitTest.Subject.prototype.shouldBe;
 
-DrillbitTest.Subject.prototype.shouldNotBeEqual = DrillbitTest.Subject.prototype.shouldNotBe = function(expected,lineNumber)
+DrillbitTest.Subject.prototype.shouldNotBe = function(expected,lineNumber)
 {
 	this.lineNumber = lineNumber;
 	DrillbitTest.assertion(this);
@@ -244,6 +245,7 @@ DrillbitTest.Subject.prototype.shouldNotBeEqual = DrillbitTest.Subject.prototype
 		throw new DrillbitTest.Error('should not be: '+expected+', was: '+this.target,lineNumber);
 	}
 };
+DrillbitTest.Subject.prototype.shouldNotBeEqual = DrillbitTest.Subject.prototype.shouldNotBe;
 
 DrillbitTest.Subject.prototype.shouldNotBeNull = function(expected,lineNumber)
 {
