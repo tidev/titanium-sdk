@@ -46,7 +46,8 @@ public class XMLModule extends KrollModule {
 	}
 	
 	@Kroll.method
-	public DocumentProxy parseString(String xml) throws SAXException, IOException
+	public DocumentProxy parseString(String xml)
+		throws SAXException, IOException
 	{
 		return parse(getTiContext(), xml);
 	}
