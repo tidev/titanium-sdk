@@ -8,6 +8,7 @@ package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
+import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
@@ -154,7 +155,15 @@ public class ElementProxy extends NodeProxy {
 	public AttrProxy setAttributeNode(AttrProxy newAttr)
 		throws DOMException
 	{
-		return getProxy(element.setAttributeNode(newAttr.getAttr()));
+		// Per spec, setAttributeNode returns null if an attribute
+		// with the same name did NOT already exist.  If it did, it
+		// returns the replaced attribute.
+		Attr replacedAttr = element.setAttributeNode(newAttr.getAttr());
+		if (replacedAttr != null) {
+			return getProxy(replacedAttr);
+		} else {
+			return null;
+		}
 	}
 
 	@Kroll.method

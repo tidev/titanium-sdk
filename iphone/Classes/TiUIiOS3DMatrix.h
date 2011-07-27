@@ -4,13 +4,13 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiProxy.h"
+#import "TiUIiOSProxy.h"
 
-#ifdef USE_TI_UI3DMATRIX
+#ifdef USE_TI_UIIOS3DMATRIX
 
 #import <QuartzCore/QuartzCore.h>
 
-@interface Ti3DMatrix : TiProxy {
+@interface TiUIiOS3DMatrix : TiUIiOSProxy {
 @protected
 	CATransform3D matrix;
 }
@@ -19,11 +19,11 @@
 -(id)initWithMatrix:(CATransform3D)matrix_;
 
 -(CATransform3D)matrix;
--(Ti3DMatrix*)translate:(id)args;
--(Ti3DMatrix*)scale:(id)args;
--(Ti3DMatrix*)rotate:(id)args;
--(Ti3DMatrix*)invert:(id)args;
--(Ti3DMatrix*)multiply:(id)args;
+-(TiUIiOS3DMatrix*)translate:(id)args;
+-(TiUIiOS3DMatrix*)scale:(id)args;
+-(TiUIiOS3DMatrix*)rotate:(id)args;
+-(TiUIiOS3DMatrix*)invert:(id)args;
+-(TiUIiOS3DMatrix*)multiply:(id)args;
 
 @property(nonatomic,readwrite,retain) NSNumber* m11;
 @property(nonatomic,readwrite,retain) NSNumber* m12;
