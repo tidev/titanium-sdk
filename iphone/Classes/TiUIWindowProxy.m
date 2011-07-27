@@ -798,7 +798,9 @@ else{\
 	if (focused)
 	{
 		[self fireFocus:NO];
-		[barImageView removeFromSuperview];
+		if ([navController topViewController] != controller) {
+			[barImageView removeFromSuperview];
+		}
 	}
 	[super _tabBlur];
 }

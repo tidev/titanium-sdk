@@ -875,6 +875,9 @@
 		DADD76E913CCF4FF00CD03AC /* MGSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = DADD76E813CCF4FF00CD03AC /* MGSplitView.m */; };
 		DADD76EA13CCF4FF00CD03AC /* MGSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = DADD76E813CCF4FF00CD03AC /* MGSplitView.m */; };
 		DADD76EB13CCF4FF00CD03AC /* MGSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = DADD76E813CCF4FF00CD03AC /* MGSplitView.m */; };
+		DADE76D413D65C590079FC75 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DADE76D313D65C590079FC75 /* libicucore.dylib */; };
+		DADE76D613D65C6F0079FC75 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DADE76D313D65C590079FC75 /* libicucore.dylib */; };
+		DADE76D713D65C7D0079FC75 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DADE76D313D65C590079FC75 /* libicucore.dylib */; };
 		DAE541E313577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
 		DAE541E413577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
 		DAE541E513577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
@@ -1014,24 +1017,13 @@
 		24CA89B51111615D0084E2DE /* KrollPropertyDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = KrollPropertyDelegate.m; path = ../Classes/KrollPropertyDelegate.m; sourceTree = SOURCE_ROOT; };
 		24CA89B61111615D0084E2DE /* KrollTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KrollTimer.h; path = ../Classes/KrollTimer.h; sourceTree = SOURCE_ROOT; };
 		24CA89B71111615D0084E2DE /* KrollTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = KrollTimer.m; path = ../Classes/KrollTimer.m; sourceTree = SOURCE_ROOT; };
-		24CA89F41111618F0084E2DE /* APICast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APICast.h; sourceTree = "<group>"; };
-		24CA89F51111618F0084E2DE /* OpaqueTiString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpaqueTiString.h; sourceTree = "<group>"; };
 		24CA89F61111618F0084E2DE /* Ti.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ti.h; sourceTree = "<group>"; };
 		24CA89F71111618F0084E2DE /* TiBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiBase.h; sourceTree = "<group>"; };
-		24CA89F81111618F0084E2DE /* TiBasePrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiBasePrivate.h; sourceTree = "<group>"; };
-		24CA89F91111618F0084E2DE /* TiCallbackConstructor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCallbackConstructor.h; sourceTree = "<group>"; };
-		24CA89FA1111618F0084E2DE /* TiCallbackFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCallbackFunction.h; sourceTree = "<group>"; };
-		24CA89FB1111618F0084E2DE /* TiCallbackObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCallbackObject.h; sourceTree = "<group>"; };
-		24CA89FC1111618F0084E2DE /* TiCallbackObjectFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCallbackObjectFunctions.h; sourceTree = "<group>"; };
-		24CA89FD1111618F0084E2DE /* TiClassRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiClassRef.h; sourceTree = "<group>"; };
 		24CA89FE1111618F0084E2DE /* TiContextRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiContextRef.h; sourceTree = "<group>"; };
 		24CA89FF1111618F0084E2DE /* TiContextRefPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiContextRefPrivate.h; sourceTree = "<group>"; };
 		24CA8A001111618F0084E2DE /* TiCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCore.h; sourceTree = "<group>"; };
 		24CA8A011111618F0084E2DE /* TiObjectRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiObjectRef.h; sourceTree = "<group>"; };
-		24CA8A021111618F0084E2DE /* TiProfilerPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiProfilerPrivate.h; sourceTree = "<group>"; };
-		24CA8A031111618F0084E2DE /* TiRetainPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiRetainPtr.h; sourceTree = "<group>"; };
 		24CA8A041111618F0084E2DE /* TiStringRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiStringRef.h; sourceTree = "<group>"; };
-		24CA8A051111618F0084E2DE /* TiStringRefBSTR.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiStringRefBSTR.h; sourceTree = "<group>"; };
 		24CA8A061111618F0084E2DE /* TiStringRefCF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiStringRefCF.h; sourceTree = "<group>"; };
 		24CA8A071111618F0084E2DE /* TiValueRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiValueRef.h; sourceTree = "<group>"; };
 		24CA8A081111618F0084E2DE /* WebKitAvailability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebKitAvailability.h; sourceTree = "<group>"; };
@@ -1480,6 +1472,7 @@
 		DAC9D36B138DB65C004917F8 /* debugger.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = debugger.plist; path = ../Resources/debugger.plist; sourceTree = "<group>"; };
 		DADD76E713CCF4FF00CD03AC /* MGSplitView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MGSplitView.h; sourceTree = "<group>"; };
 		DADD76E813CCF4FF00CD03AC /* MGSplitView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MGSplitView.m; sourceTree = "<group>"; };
+		DADE76D313D65C590079FC75 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
 		DAE541E113577BEC00A65123 /* TiDataStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDataStream.h; sourceTree = "<group>"; };
 		DAE541E213577BEC00A65123 /* TiDataStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDataStream.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1489,6 +1482,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DADE76D413D65C590079FC75 /* libicucore.dylib in Frameworks */,
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
 				288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */,
@@ -1543,6 +1537,7 @@
 				242E8E3211BA39FE0046A0D0 /* libTiCore.a in Frameworks */,
 				24D5C75A11E6364F00F097E2 /* libtiverify.a in Frameworks */,
 				DAA4B2AF134E3DBD00AB6011 /* libti_ios_debugger.a in Frameworks */,
+				DADE76D613D65C6F0079FC75 /* libicucore.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1573,6 +1568,7 @@
 				DABB37B612E8CB280026A6EA /* libTiCore.a in Frameworks */,
 				DABB37B712E8CB280026A6EA /* libtiverify.a in Frameworks */,
 				DAA4B2B0134E3DBD00AB6011 /* libti_ios_debugger.a in Frameworks */,
+				DADE76D713D65C7D0079FC75 /* libicucore.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1835,24 +1831,13 @@
 		24CA89F31111618F0084E2DE /* TiCore */ = {
 			isa = PBXGroup;
 			children = (
-				24CA89F41111618F0084E2DE /* APICast.h */,
-				24CA89F51111618F0084E2DE /* OpaqueTiString.h */,
 				24CA89F61111618F0084E2DE /* Ti.h */,
 				24CA89F71111618F0084E2DE /* TiBase.h */,
-				24CA89F81111618F0084E2DE /* TiBasePrivate.h */,
-				24CA89F91111618F0084E2DE /* TiCallbackConstructor.h */,
-				24CA89FA1111618F0084E2DE /* TiCallbackFunction.h */,
-				24CA89FB1111618F0084E2DE /* TiCallbackObject.h */,
-				24CA89FC1111618F0084E2DE /* TiCallbackObjectFunctions.h */,
-				24CA89FD1111618F0084E2DE /* TiClassRef.h */,
 				24CA89FE1111618F0084E2DE /* TiContextRef.h */,
 				24CA89FF1111618F0084E2DE /* TiContextRefPrivate.h */,
 				24CA8A001111618F0084E2DE /* TiCore.h */,
 				24CA8A011111618F0084E2DE /* TiObjectRef.h */,
-				24CA8A021111618F0084E2DE /* TiProfilerPrivate.h */,
-				24CA8A031111618F0084E2DE /* TiRetainPtr.h */,
 				24CA8A041111618F0084E2DE /* TiStringRef.h */,
-				24CA8A051111618F0084E2DE /* TiStringRefBSTR.h */,
 				24CA8A061111618F0084E2DE /* TiStringRefCF.h */,
 				24CA8A071111618F0084E2DE /* TiValueRef.h */,
 				24CA8A081111618F0084E2DE /* WebKitAvailability.h */,
@@ -2747,6 +2732,7 @@
 				24EB0A57111E1BAE001DC2D1 /* libxml2.dylib */,
 				24597034118FF66300519F79 /* StoreKit.framework */,
 				242EA11511BD956F0046A0D0 /* ExternalAccessory.framework */,
+				DADE76D313D65C590079FC75 /* libicucore.dylib */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -3895,6 +3881,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
 				INFOPLIST_FILE = Titanium.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
@@ -3935,6 +3922,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
 				INFOPLIST_FILE = Titanium.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
@@ -3969,7 +3957,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
 				INFOPLIST_FILE = Titanium.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 3.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
@@ -4006,7 +3994,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
 				INFOPLIST_FILE = Titanium.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 3.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
@@ -4121,7 +4109,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
 				INFOPLIST_FILE = Titanium.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
@@ -4163,7 +4151,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
 				INFOPLIST_FILE = Titanium.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
