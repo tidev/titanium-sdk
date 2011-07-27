@@ -491,7 +491,7 @@ describe("Ti.XML tests", {
 		var elements = doc.getElementsByTagNameNS("http://example.com", "cake");
 		valueOf(elements).shouldNotBeNull();
 		valueOf(elements).shouldBeObject();
-		valueOf(elements.length).shouldBeGreaterThan(0); // Fails in Android. TIMOB-4709
+		valueOf(elements.length).shouldBeGreaterThan(0);
 		for (var i = 0; i < elements.length; i++) {
 			var checkelem = elements.item(i);
 			valueOf(checkelem.localName).shouldBe("cake");
