@@ -51,17 +51,19 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 
 -(void)blur:(id)args
 {
+	ENSURE_UI_THREAD_1_ARG(args)
 	if ([self viewAttached])
 	{
-		[[self view] performSelectorOnMainThread:@selector(resignFirstResponder) withObject:nil waitUntilDone:NO];
+		[[self view] resignFirstResponder];
 	}
 }
 
 -(void)focus:(id)args
 {
+	ENSURE_UI_THREAD_1_ARG(args)
 	if ([self viewAttached])
 	{
-		[[self view] performSelectorOnMainThread:@selector(becomeFirstResponder) withObject:nil waitUntilDone:NO];
+		[[self view] becomeFirstResponder];
 	}
 }
 
