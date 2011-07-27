@@ -6,39 +6,12 @@
  */
 #ifdef USE_TI_MEDIA
 #import "TiMediaItem.h"
+#import "MediaModule.h"
 
-static NSDictionary* itemProperties;
 
 @implementation TiMediaItem
 
 #pragma mark Internal
-
-+(NSDictionary*)itemProperties
-{
-	if (itemProperties == nil) {
-		itemProperties = 
-		[[NSDictionary alloc] initWithObjectsAndKeys:MPMediaItemPropertyMediaType, @"mediaType",
-															 MPMediaItemPropertyTitle, @"title",
-															 MPMediaItemPropertyAlbumTitle, @"albumTitle",
-															 MPMediaItemPropertyArtist, @"artist",
-															 MPMediaItemPropertyAlbumArtist, @"albumArtist",
-															 MPMediaItemPropertyGenre, @"genre",
-															 MPMediaItemPropertyComposer, @"composer",
-															 MPMediaItemPropertyPlaybackDuration, @"playbackDuration",
-															 MPMediaItemPropertyAlbumTrackNumber, @"albumTrackNumber",
-															 MPMediaItemPropertyAlbumTrackCount, @"albumTrackCount",
-															 MPMediaItemPropertyDiscNumber, @"discNumber",
-															 MPMediaItemPropertyDiscCount, @"discCount",
-															 MPMediaItemPropertyLyrics, @"lyrics",
-															 MPMediaItemPropertyIsCompilation, @"isCompilation",
-															 MPMediaItemPropertyPodcastTitle, @"podcastTitle",
-															 MPMediaItemPropertyPlayCount, @"playCount",
-															 MPMediaItemPropertySkipCount, @"skipCount",
-															 MPMediaItemPropertyRating, @"rating",
-															 nil	];		
-	}
-	return itemProperties;
-}
 
 -(id)_initWithPageContext:(id<TiEvaluator>)context item:(MPMediaItem*)item_
 {
@@ -73,9 +46,12 @@ static NSDictionary* itemProperties;
 // This is a sleazy way of getting properties so that I don't have to write 15 functions.
 -(id)valueForUndefinedKey:(NSString *)key
 {
-	id propertyName = [[TiMediaItem itemProperties] objectForKey:key];
+	id propertyName = [[MediaModule itemProperties] objectForKey:key];
 	if (propertyName == nil) {
-		return [super valueForUndefinedKey:key];
+        propertyName = [[MediaModule filterableItemProperties] objectForKey:key];
+        if (propertyName == nil) {
+            return [super valueForUndefinedKey:key];
+        }
 	}
 	return [item valueForProperty:propertyName];
 }

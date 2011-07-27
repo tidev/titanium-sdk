@@ -52,6 +52,9 @@
 #endif
 }
 
++(NSDictionary*)itemProperties;
++(NSDictionary*)filterableItemProperties;
+
 @property(nonatomic,readonly) CGFloat volume;
 @property(nonatomic,readonly) CGFloat peakMicrophonePower;
 @property(nonatomic,readonly) CGFloat averageMicrophonePower;
@@ -144,6 +147,15 @@
 @property(nonatomic,readonly) NSNumber* MUSIC_MEDIA_TYPE_ANY_AUDIO;
 @property(nonatomic,readonly) NSNumber* MUSIC_MEDIA_TYPE_ALL;
 
+@property(nonatomic,readonly) NSNumber* MUSIC_MEDIA_GROUP_TITLE;
+@property(nonatomic,readonly) NSNumber* MUSIC_MEDIA_GROUP_ALBUM;
+@property(nonatomic,readonly) NSNumber* MUSIC_MEDIA_GROUP_ARTIST;
+@property(nonatomic,readonly) NSNumber* MUSIC_MEDIA_GROUP_ALBUM_ARTIST;
+@property(nonatomic,readonly) NSNumber* MUSIC_MEDIA_GROUP_COMPOSER;
+@property(nonatomic,readonly) NSNumber* MUSIC_MEDIA_GROUP_GENRE;
+@property(nonatomic,readonly) NSNumber* MUSIC_MEDIA_GROUP_PLAYLIST;
+@property(nonatomic,readonly) NSNumber* MUSIC_MEDIA_GROUP_PODCAST_TITLE;
+
 @property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_STATE_STOPPED;
 @property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_STATE_PLAYING;
 @property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_STATE_PAUSED;
@@ -160,6 +172,8 @@
 @property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_SHUFFLE_NONE;
 @property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_SHUFFLE_SONGS;
 @property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_SHUFFLE_ALBUMS;
+
+
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 
