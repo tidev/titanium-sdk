@@ -14,9 +14,7 @@
 #ifdef USE_TI_UI2DMATRIX
 	#import "Ti2DMatrix.h"
 #endif
-#ifdef USE_TI_UI3DMATRIX
-	#import "Ti3DMatrix.h"
-#endif
+
 #ifdef USE_TI_UIANIMATION
 	#import "TiAnimation.h"
 #endif
@@ -209,18 +207,6 @@ MAKE_SYSTEM_PROP_IOS4(AUTODETECT_CALENDAR,UIDataDetectorTypeCalendarEvent,UIData
 }
 #endif
 
-#ifdef USE_TI_UI3DMATRIX
--(id)create3DMatrix:(id)args
-{
-	if (args==nil || [args count] == 0)
-	{
-		return [[[Ti3DMatrix alloc] init] autorelease];
-	}
-	ENSURE_SINGLE_ARG(args,NSDictionary);
-	Ti3DMatrix *matrix = [[Ti3DMatrix alloc] initWithProperties:args];
-	return [matrix autorelease];
-}
-#endif
 
 #ifdef USE_TI_UIANIMATION
 -(id)createAnimation:(id)args

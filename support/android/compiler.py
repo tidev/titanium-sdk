@@ -90,7 +90,8 @@ class Compiler(object):
 					self.add_required_module(depend)
 
 	def is_module(self, name):
-		if name.isupper(): return False # completely upper case signifies a constant
+		ucase_module_names = ("XML", "API", "JSON", "UI")
+		if name.isupper() and name not in ucase_module_names: return False # completely upper case signifies a constant
 		if not name[0].isupper() and name != "iPhone": return False
 		if 'iPhone.' in name: return False
 		

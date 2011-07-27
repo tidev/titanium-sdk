@@ -795,7 +795,19 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	// we found data, now create the common js module proxy
 	if (data!=nil)
 	{
+        NSString* urlPath = (filepath != nil) ? filepath : path;
+		NSURL *url_ = [TiHost resourceBasedURL:urlPath baseURL:NULL];
+       	const char *urlCString = [[url_ absoluteString] UTF8String];
+        if ([[self host] debugMode]) {
+            TiDebuggerBeginScript([self krollContext],urlCString);
+        }
+        
 		module = [self loadCommonJSModule:[[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease] withPath:path];
+        
+        if ([[self host] debugMode]) {
+            TiDebuggerEndScript([self krollContext]);
+        }
+        
 		if (filepath!=nil && module!=nil)
 		{
 			// uri is optional but we point it to where we loaded it

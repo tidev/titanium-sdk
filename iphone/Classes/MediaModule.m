@@ -49,9 +49,47 @@ enum
 	MediaModuleErrorNoMusicPlayer
 };
 
+// Have to distinguish between filterable and nonfilterable properties
+static NSDictionary* TI_itemProperties;
+static NSDictionary* TI_filterableItemProperties;
+
 @implementation MediaModule
 
 #pragma mark Internal
+
++(NSDictionary*)filterableItemProperties
+{
+    if (TI_filterableItemProperties == nil) {
+        TI_filterableItemProperties = [[NSDictionary alloc] initWithObjectsAndKeys:MPMediaItemPropertyMediaType, @"mediaType", // Filterable
+                                                                                   MPMediaItemPropertyTitle, @"title", // Filterable
+                                                                                   MPMediaItemPropertyAlbumTitle, @"albumTitle", // Filterable
+                                                                                   MPMediaItemPropertyArtist, @"artist", // Filterable
+                                                                                   MPMediaItemPropertyAlbumArtist, @"albumArtist", //Filterable
+                                                                                   MPMediaItemPropertyGenre, @"genre", // Filterable
+                                                                                   MPMediaItemPropertyComposer, @"composer", // Filterable
+                                                                                   MPMediaItemPropertyIsCompilation, @"isCompilation", // Filterable
+                                                                                   nil];
+    }
+    return TI_filterableItemProperties;
+}
+
++(NSDictionary*)itemProperties
+{
+	if (TI_itemProperties == nil) {
+		TI_itemProperties = [[NSDictionary alloc] initWithObjectsAndKeys:MPMediaItemPropertyPlaybackDuration, @"playbackDuration",
+                                                                         MPMediaItemPropertyAlbumTrackNumber, @"albumTrackNumber",
+                                                                         MPMediaItemPropertyAlbumTrackCount, @"albumTrackCount",
+                                                                         MPMediaItemPropertyDiscNumber, @"discNumber",
+                                                                         MPMediaItemPropertyDiscCount, @"discCount",
+                                                                         MPMediaItemPropertyLyrics, @"lyrics",
+                                                                         MPMediaItemPropertyPodcastTitle, @"podcastTitle",
+                                                                         MPMediaItemPropertyPlayCount, @"playCount",
+                                                                         MPMediaItemPropertySkipCount, @"skipCount",
+                                                                         MPMediaItemPropertyRating, @"rating",
+                                                                         nil	];		
+	}
+	return TI_itemProperties;
+}
 
 -(void)destroyPickerCallbacks
 {
@@ -511,6 +549,15 @@ MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_PODCAST, MPMediaTypePodcast);
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_AUDIOBOOK, MPMediaTypeAudioBook);
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_ANY_AUDIO, MPMediaTypeAnyAudio);
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_ALL, MPMediaTypeAny);
+
+MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_TITLE, MPMediaGroupingTitle);
+MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_ALBUM, MPMediaGroupingAlbum);
+MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_ARTIST, MPMediaGroupingArtist);
+MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_ALBUM_ARTIST, MPMediaGroupingAlbumArtist);
+MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_COMPOSER, MPMediaGroupingComposer);
+MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_GENRE, MPMediaGroupingGenre);
+MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_PLAYLIST, MPMediaGroupingPlaylist);
+MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_PODCAST_TITLE, MPMediaGroupingPodcastTitle);
 
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_STOPPED, MPMusicPlaybackStateStopped);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_PLAYING, MPMusicPlaybackStatePlaying);
@@ -1068,6 +1115,39 @@ if (![TiUtils isIOS4OrGreater]) { \
 		[[TiApp app] hideModalController:musicPicker animated:animatedPicker];
 		[self destroyPicker];
 	}
+}
+
+-(NSArray*)queryMusicLibrary:(id)arg
+{
+    ENSURE_SINGLE_ARG(arg, NSDictionary);
+    MPMediaGrouping grouping = [TiUtils intValue:[arg valueForKey:@"grouping"] def:MPMediaGroupingTitle];
+    
+    NSMutableSet* predicates = [NSMutableSet set];
+    for (NSString* prop in [MediaModule filterableItemProperties]) {
+        id value = [arg valueForKey:prop];
+        if (value != nil) {
+            if ([value isKindOfClass:[NSDictionary class]]) {
+                id propVal = [value objectForKey:@"value"];
+                bool exact = [TiUtils boolValue:[value objectForKey:@"exact"] def:YES];
+                MPMediaPredicateComparison comparison = (exact) ? MPMediaPredicateComparisonEqualTo : MPMediaPredicateComparisonContains;
+                [predicates addObject:[MPMediaPropertyPredicate predicateWithValue:propVal 
+                                                                       forProperty:[[MediaModule filterableItemProperties] valueForKey:prop]
+                                                                    comparisonType:comparison]];
+            }
+            else {
+                [predicates addObject:[MPMediaPropertyPredicate predicateWithValue:value
+                                                                       forProperty:[[MediaModule filterableItemProperties] valueForKey:prop]]];
+            }
+        }
+    }
+    
+    MPMediaQuery* query = [[[MPMediaQuery alloc] initWithFilterPredicates:predicates] autorelease];
+    NSMutableArray* result = [NSMutableArray arrayWithCapacity:[[query items] count]];
+    for (MPMediaItem* item in [query items]) {
+        TiMediaItem* newItem = [[[TiMediaItem alloc] _initWithPageContext:[self pageContext] item:item] autorelease];
+        [result addObject:newItem];
+    }
+    return result;
 }
 
 -(TiMediaMusicPlayer*)systemMusicPlayer
