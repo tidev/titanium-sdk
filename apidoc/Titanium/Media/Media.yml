@@ -222,27 +222,35 @@ properties:
     type: Number
   - name: MUSIC_MEDIA_GROUP_TITLE
     description: The constant for grouping query results by title
+    value: 0
     type: Number
   - name: MUSIC_MEDIA_GROUP_ALBUM
     description: The constant for grouping query results by album
+    value: 1
     type: Number
   - name: MUSIC_MEDIA_GROUP_ARTIST
     description: The constant for grouping query results by artist
+    value: 2
     type: Number
   - name: MUSIC_MEDIA_GROUP_ALBUM_ARTIST
     description: The constant for grouping query results by album artist  
+    value: 3
     type: Number
   - name: MUSIC_MEDIA_GROUP_COMPOSER
     description: The constant for grouping query results by composer  
+    value: 4
     type: Number
   - name: MUSIC_MEDIA_GROUP_GENRE
     description: The constant for grouping query results by genre  
+    value: 5
     type: Number
   - name: MUSIC_MEDIA_GROUP_PLAYLIST
     description: The constant for grouping query results by playlist  
+    value: 6
     type: Number    
   - name: MUSIC_MEDIA_GROUP_PODCAST_TITLE
     description: The constant for grouping query results by podcast title  
+    value: 7
     type: Number
   - name: MUSIC_PLAYER_REPEAT_ALL
     description: constant for repeating all setting
@@ -446,7 +454,8 @@ properties:
 # Pseudo-type for queryMediaLibrary argument
 ---
 name: MediaQueryType
-description: A specifier for a media library query.
+description: A specifier for a media library query. By default, filters
+    perform an exact match.
 platforms: [iphone, ipad]
 since: "1.8"
 properties:
@@ -458,29 +467,29 @@ properties:
   - name: mediaType
     description: The media type to filter on. Value should be one of the
         `MUSIC_MEDIA_TYPE_` constants on <Titanium.Media>.
-    type: [Object<MediaQueryInfoType>,Number]
+    type: [Object<MediaQueryInfoType>, Number]
   - name: title
     description: The title to filter on. Value should be a String.
-    type: [Object<MediaQueryInfoType>,String]
+    type: [Object<MediaQueryInfoType>, String]
   - name: albumTitle
     description: The album title to filter on. Value should be a String.
-    type: [Object<MediaQueryInfoType>,String]
+    type: [Object<MediaQueryInfoType>, String]
   - name: artist
     description: The artist to filter on. Value should be a String.
-    type: [Object<MediaQueryInfoType>,String]
+    type: [Object<MediaQueryInfoType>, String]
   - name: albumArtist
     description: The album artist to filter on. Value should be a String.
-    type: [Object<MediaQueryInfoType>,String]
+    type: [Object<MediaQueryInfoType>, String]
   - name: genre
     description: The genre to filter on. Value should be a String.
-    type: [Object<MediaQueryInfoType>,String]
+    type: [Object<MediaQueryInfoType>, String]
   - name: composer
     description: The composer to filter on. Value should be a String.
-    type: [Object<MediaQueryInfoType>,String]
+    type: [Object<MediaQueryInfoType>, String]
   - name: isCompilation
     description: Filter by whether or not the item is a compilation.
         Value should be a Boolean.
-    type: [Object<MediaQueryInfoType>,Boolean]
+    type: [Object<MediaQueryInfoType>, Boolean]
     
 # Pseudo-type for query arguments
 ---
@@ -493,7 +502,7 @@ properties:
     description: The value for the given predicate. See the descriptions
         in <MediaQueryType> for information about which properties
         require which values.
-    type: [Number,String,Boolean]
+    type: [Number, String, Boolean]
   - name: exact
     description: Whether or not the predicate is for an exact match.  The
       default is `true`.
