@@ -40,7 +40,7 @@ public class NodeProxy extends KrollProxy {
 	@Kroll.constant public static final int PROCESSING_INSTRUCTION_NODE = Node.PROCESSING_INSTRUCTION_NODE;
 	@Kroll.constant public static final int TEXT_NODE = Node.TEXT_NODE;
 
-	private Node node;
+	protected Node node;
 	
 	public NodeProxy(TiContext context, Node node)
 	{
@@ -243,4 +243,23 @@ public class NodeProxy extends KrollProxy {
 	public XPathNodeListProxy evaluate(String xpath) {
 		return XPathUtil.evaluate(this, xpath);
 	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this.node == null || !(o instanceof NodeProxy)) {
+			return super.equals(o);
+		}
+		return this.node.equals(((NodeProxy) o).node);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		if (this.node == null) {
+			return super.hashCode();
+		}
+		return this.node.hashCode();
+	}
+
 }
