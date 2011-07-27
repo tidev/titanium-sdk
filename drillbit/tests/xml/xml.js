@@ -14,7 +14,7 @@ describe("Ti.XML tests", {
 			return nodeCount;
 		};
 		
-		var testFiles = ["soap.xml", "xpath.xml", "nodes.xml", "nodeCount.xml", "cdata.xml", "cdataEntities.xml"];
+		var testFiles = ["soap.xml", "xpath.xml", "nodes.xml", "nodeCount.xml", "cdata.xml", "cdataEntities.xml", "with_dtd.xml", "with_ns.xml"];
 		var invalidFiles = [ "mismatched_tag.xml", "no_toplevel.xml", "no_end.xml"];
 		this.testSource = {};
 		this.invalidSource = {};
@@ -345,6 +345,206 @@ describe("Ti.XML tests", {
 			matchXmlTrees(a, b);
 		}
 	},
+	apiXmlDocumentProperties: function() {
+		// File with DTD
+		var doc = Ti.XML.parseString(this.testSource["with_dtd.xml"]);
+		valueOf(doc.documentElement).shouldNotBeUndefined();
+		valueOf(doc.documentElement).shouldNotBeNull();
+		valueOf(doc.documentElement).shouldBeObject();
+		valueOf(doc.documentElement.nodeName).shouldBe("letter");
+		valueOf(doc.implementation).shouldNotBeUndefined();
+		valueOf(doc.implementation).shouldNotBeNull();
+		valueOf(doc.implementation).shouldBeObject();
+		valueOf(doc.doctype).shouldNotBeUndefined();
+		valueOf(doc.doctype).shouldNotBeNull();
+		valueOf(doc.doctype).shouldBeObject();
+		// File without DTD, to be sure doc.doctype is null as spec says
+		doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+		valueOf(function() {
+			valueOf(doc.doctype).shouldBeNull(); // Causes NPE for some reason in Android. TIMOB-4705
+		}).shouldNotThrowException();
+	},
+	apiXmlDocumentCreateAttribute: function() {
+		var doc = Ti.XML.parseString("<test/>");
+		valueOf(doc.createAttribute).shouldBeFunction();
+		var attr = doc.createAttribute("myattr");
+		valueOf(attr).shouldNotBeNull();
+		valueOf(attr).shouldBeObject();
+		valueOf(attr.name).shouldBe("myattr");
+
+		attr = null;
+		valueOf(doc.createAttributeNS).shouldBeFunction();
+		attr = doc.createAttributeNS("http://example.com", "prefix:myattr");
+		valueOf(attr).shouldNotBeNull();
+		valueOf(attr).shouldBeObject();
+		valueOf(attr.name).shouldBe("prefix:myattr");
+		valueOf(attr.namespaceURI).shouldBe("http://example.com");
+		valueOf(attr.prefix).shouldBe("prefix");
+	},
+	apiXmlDocumentCreateCDATASection: function() {
+		var doc = Ti.XML.parseString("<test/>");
+		valueOf(doc.createCDATASection).shouldBeFunction();
+		var data = "This is my CDATA section";
+		var section = doc.createCDATASection(data);
+		valueOf(section).shouldNotBeNull();
+		valueOf(section).shouldBeObject();
+		valueOf(section.text).shouldBe(data);
+	},
+	apiXmlDocumentCreateComment: function() {
+		var doc = Ti.XML.parseString("<test/>");
+		valueOf(doc.createComment).shouldBeFunction();
+		var data = "This is my comment";
+		var comment = doc.createComment(data);
+		valueOf(comment).shouldNotBeNull();
+		valueOf(comment).shouldBeObject();
+		valueOf(comment.data).shouldBe(data);
+	},
+	apiXmlDocumentCreateDocumentFragment: function() {
+		var doc = Ti.XML.parseString("<test/>");
+		valueOf(doc.createDocumentFragment).shouldBeFunction();
+		var frag = doc.createDocumentFragment();
+		valueOf(frag).shouldNotBeNull();
+		valueOf(frag).shouldBeObject();
+	},
+	apiXmlDocumentCreateElement: function() {
+		var doc = Ti.XML.parseString("<test/>");
+		valueOf(doc.createElement).shouldBeFunction();
+		var elem = doc.createElement("myelement");
+		valueOf(elem).shouldNotBeNull();
+		valueOf(elem).shouldBeObject();
+		valueOf(elem.nodeName).shouldBe("myelement");
+		valueOf(elem.localName).shouldBeNull();
+		valueOf(elem.prefix).shouldBeNull();
+		valueOf(elem.namespaceURI).shouldBeNull();
+	},
+	apiXmlDocumentCreateElementNS: function() {
+		var doc = Ti.XML.parseString("<test/>");
+		valueOf(doc.createElementNS).shouldBeFunction();
+		var elem = doc.createElementNS("http://example.com", "prefix:myelement");
+		valueOf(elem).shouldNotBeNull();
+		valueOf(elem).shouldBeObject();
+		valueOf(elem.nodeName).shouldBe("prefix:myelement");
+		valueOf(elem.localName).shouldBe("myelement");
+		valueOf(elem.prefix).shouldBe("prefix");
+		valueOf(elem.namespaceURI).shouldBe("http://example.com");
+	},
+	apiXmlDocumentCreateEntityReference: function() {
+		var doc = Ti.XML.parseString("<test/>");
+		valueOf(doc.createEntityReference).shouldBeFunction();
+		var entity = doc.createEntityReference("myentity");
+		valueOf(entity).shouldNotBeNull();
+		valueOf(entity).shouldBeObject();
+		valueOf(entity.nodeName).shouldBe("myentity");
+	},
+	apiXmlDocumentCreateProcessingInstruction: function() {
+		var doc = Ti.XML.parseString("<test/>");
+		valueOf(doc.createProcessingInstruction).shouldBeFunction();
+		var instruction = doc.createProcessingInstruction("a", "b");
+		valueOf(instruction).shouldNotBeNull();
+		valueOf(instruction).shouldBeObject();
+		valueOf(instruction.target).shouldBe("a");
+		valueOf(instruction.data).shouldBe("b");
+	},
+	apiXmlDocumentCreateTextNode: function() {
+		var doc = Ti.XML.parseString("<test/>");
+		valueOf(doc.createTextNode).shouldBeFunction();
+		var value = "This is some text";
+		var text = doc.createTextNode(value);
+		valueOf(text).shouldNotBeNull();
+		valueOf(text).shouldBeObject();
+		valueOf(text.data).shouldBe(value);
+	},
+	apiXmlDocumentGetElementById: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+		valueOf(doc.getElementById).shouldBeFunction();
+		var node = doc.getElementById("node 1");
+		valueOf(node).shouldNotBeNull();
+		valueOf(node).shouldBeObject();
+		valueOf(node.nodeName).shouldBe("node");
+		valueOf(function() {
+			node = doc.getElementById("no_such_element"); // Causes NPE in Android, shouldn't. TIMOB-4707
+		}).shouldNotThrowException();
+		valueOf(node).shouldBeNull();
+	},
+	apiXmlDocumentGetElementsByTagName: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+		valueOf(doc.getElementsByTagName).shouldBeFunction();
+		var elements = doc.getElementsByTagName("node");
+		valueOf(elements).shouldNotBeNull();
+		valueOf(elements).shouldBeObject();
+		valueOf(elements.length).shouldBeGreaterThan(0);
+		for (var i = 0; i < elements.length; i++) {
+			var checkelem = elements.item(i);
+			valueOf(checkelem.nodeName).shouldBe("node");
+		}
+		// test bogus tagname
+		valueOf(function() {
+			elements = doc.getElementsByTagName("bogus");
+		}).shouldNotThrowException();
+		valueOf(elements).shouldNotBeNull();
+		valueOf(elements).shouldBeObject();
+		valueOf(elements.length).shouldBeExactly(0);
+	},
+	apiXmlDocumentGetElementsByTagNameNS: function() {
+		var doc = Ti.XML.parseString(this.testSource["with_ns.xml"]);
+		valueOf(doc.getElementsByTagNameNS).shouldBeFunction();
+		var elements = doc.getElementsByTagNameNS("http://example.com", "cake");
+		valueOf(elements).shouldNotBeNull();
+		valueOf(elements).shouldBeObject();
+		valueOf(elements.length).shouldBeGreaterThan(0); // Fails in Android. TIMOB-4709
+		for (var i = 0; i < elements.length; i++) {
+			var checkelem = elements.item(i);
+			valueOf(checkelem.localName).shouldBe("cake");
+			valueOf(checkelem.namespaceURI).shouldBe("http://example.com");
+		}
+		// test real namespace and bogus tagname
+		valueOf(function() {
+			elements = doc.getElementsByTagNameNS("http://example.com", "bogus");
+		}).shouldNotThrowException();
+		valueOf(elements).shouldNotBeNull();
+		valueOf(elements).shouldBeObject();
+		valueOf(elements.length).shouldBeExactly(0);
+		// test bogus namespace and real tagname
+		valueOf(function() {
+			elements = doc.getElementsByTagNameNS("http://bogus.com", "pie");
+		}).shouldNotThrowException();
+		valueOf(elements).shouldNotBeNull();
+		valueOf(elements).shouldBeObject();
+		valueOf(elements.length).shouldBeExactly(0);
+		// test bogus namespace and bogus tagname
+		valueOf(function() {
+			elements = doc.getElementsByTagNameNS("http://bogus.com", "bogus");
+		}).shouldNotThrowException();
+		valueOf(elements).shouldNotBeNull();
+		valueOf(elements).shouldBeObject();
+		valueOf(elements.length).shouldBeExactly(0);
+	},
+	apiXmlDocumentImportNode: function() {
+		var doc = Ti.XML.parseString("<a/>");
+		var otherDoc = Ti.XML.parseString(this.testSource["with_ns.xml"]);
+		valueOf(doc.importNode).shouldBeFunction();
+		// test deep import
+		var importedNode;
+		valueOf(function() {
+			importedNode = doc.importNode(otherDoc.documentElement.firstChild, true);
+		}).shouldNotThrowException();
+		valueOf(importedNode.ownerDocument).shouldNotBeNull();
+		valueOf(importedNode.ownerDocument).shouldBeObject();
+		valueOf(importedNode.ownerDocument).shouldBe(doc); // fails in Android TIMOB-4703
+		valueOf(importedNode.parentNode).shouldBeNull();
+		valueOf(importedNode.hasChildNodes()).shouldBeTrue();
+		valueOf(importedNode.childNodes.length).shouldBeGreaterThan(0);
+		valueOf(importedNode.namespaceURI).shouldBe("http://example.com");
+		// test shallow import
+		valueOf(function() {
+			importedNode = doc.importNode(otherDoc.documentElement.firstChild, false);
+		}).shouldNotThrowException();
+		valueOf(importedNode.hasChildNodes()).shouldBeFalse();
+		valueOf(importedNode.ownerDocument).shouldNotBeNull();
+		valueOf(importedNode.ownerDocument).shouldBeObject();
+		valueOf(importedNode.ownerDocument).shouldBe(doc); // fails in Android TIMOB-4703
+		valueOf(importedNode.parentNode).shouldBeNull();
+	},
 
 	apiXmlNodeProperties: function() {
 		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
@@ -623,7 +823,7 @@ describe("Ti.XML tests", {
 		var node = doc.getElementsByTagName("node").item(0);
 		var attr;
 		// First a known attribute
-		valueOf(function(){
+		valueOf(function() {
 			attr = node.attributes.item(0);
 		}).shouldNotThrowException();
 		valueOf(attr).shouldNotBeUndefined();
@@ -632,13 +832,13 @@ describe("Ti.XML tests", {
 		valueOf(attr.name).shouldBeString();
 		valueOf(attr.name).shouldBe("id");
 		valueOf(attr.ownerElement).shouldBeObject();
-//		valueOf(attr.ownerElement).shouldBe(node); // For some reason this doesn't work on android TIMOB-4703
+		valueOf(attr.ownerElement).shouldBe(node);
 		valueOf(attr.specified).shouldBeBoolean();
 		valueOf(attr.specified).shouldBeTrue();
 		valueOf(attr.value).shouldBeString();
 		valueOf(attr.value).shouldBe("node 1");
 		// Now new attribute
-		valueOf(function(){
+		valueOf(function() {
 			attr = doc.createAttribute("newattr");
 		}).shouldNotThrowException();
 		valueOf(attr).shouldNotBeUndefined();
@@ -647,12 +847,18 @@ describe("Ti.XML tests", {
 		valueOf(attr.name).shouldBeString();
 		valueOf(attr.name).shouldBe("newattr");
 		valueOf(attr.specified).shouldBeBoolean();
-		var addedAttr = node.setAttributeNode(attr); // NPE for some reason in Android. TIMOB-4704
-		valueOf(addedAttr).shouldNotBeNull();
-		valueOf(addedAttr).shouldBeObject();
-		valueOf(addedAttr).shouldBe(attr);
+		// Per spec, when you set an attribute that doesn't exist yet,
+		// null is returned.
+		var addedAttr = node.setAttributeNode(attr);
+		valueOf(addedAttr).shouldBeNull();
+		// Per spec, when you set a new attribute of same name as one that
+		// already exists, it replaces that existing one AND returns that existing one.
+		var secondNewAttr = doc.createAttribute("newattr");
+		var replacedAttr = node.setAttributeNode(secondNewAttr);
+		valueOf(replacedAttr).shouldNotBeNull();
+		valueOf(replacedAttr).shouldBe(attr); // For some reason this doesn't work on android TIMOB-4703
 		valueOf(attr.ownerElement).shouldNotBeNull();
-		valueOf(attr.ownerElement).shouldBe(node); // For some reason this doesn't work on android TIMOB-4703
+		valueOf(attr.ownerElement).shouldBe(node);
 		valueOf(attr.specified).shouldBeFalse();
 		valueOf(attr.value).shouldBeNull();
 		attr.value = "new value";
