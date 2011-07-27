@@ -190,10 +190,7 @@ class Compiler(object):
 		main_template = main_template.replace('__APP_DESCRIPTION__',ti.properties['description'])
 		main_template = main_template.replace('__APP_COPYRIGHT__',ti.properties['copyright'])
 		main_template = main_template.replace('__APP_GUID__',ti.properties['guid'])
-		if deploytype=='development':
-			main_template = main_template.replace('__APP_RESOURCE_DIR__',os.path.abspath(os.path.join(project_dir,'Resources')))
-		else:
-			main_template = main_template.replace('__APP_RESOURCE_DIR__','')
+		main_template = main_template.replace('__APP_RESOURCE_DIR__','')
 
 		if not silent:
 			print "[INFO] Titanium SDK version: %s" % sdk_version
@@ -328,7 +325,10 @@ class Compiler(object):
 			
 		else:
 			print "[INFO] Skipping JS compile, running from simulator"
-	
+		
+		if deploytype=='development':
+			self.softlink_resources(resources_dir,app_dir)
+			self.softlink_resources(iphone_resources_dir,app_dir)
 	
 	def add_symbol(self,api):
 		print "[DEBUG] detected symbol: %s" % api
@@ -419,6 +419,27 @@ class Compiler(object):
 		data = str(file_contents).encode("hex")
 		method = "dataWithHexString(@\"%s\")" % data
 		return {'method':method,'path':path}
+	
+	def softlink_resources(self,source,target):
+		for root, dirs, files in os.walk(source):
+			for name in ignoreDirs:
+				if name in dirs:
+					dirs.remove(name)	# don't visit ignored directories			  
+			for file in files:
+				if file in ignoreFiles:
+					continue
+				prefix = root[len(source):]
+				from_ = os.path.join(root, file)			  
+				to_ = os.path.expanduser(from_.replace(source, target, 1))
+				to_directory = os.path.expanduser(os.path.split(to_)[0])
+				if not os.path.exists(to_directory):
+					os.makedirs(to_directory)
+				fp = os.path.splitext(file)
+				ext = fp[1]
+				# only copy if different filesize or doesn't exist
+				if not os.path.exists(to_) or os.path.getsize(from_)!=os.path.getsize(to_):
+					print "[DEBUG] linking: %s to %s" % (from_,to_)
+					os.symlink(from_, to_)
 	
 	def copy_resources(self,sources,target,write_routing=True):
 		
