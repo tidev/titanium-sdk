@@ -34,6 +34,7 @@
 #define TiValueRef_h
 
 #include <TiCore/TiBase.h>
+#include <TiCore/WebKitAvailability.h>
 
 #ifndef __cplusplus
 #include <stdbool.h>
@@ -232,6 +233,28 @@ JS_EXPORT TiValueRef TiValueMakeNumber(TiContextRef ctx, double number);
 @result         A TiValue of the string type, representing the value of string.
 */
 JS_EXPORT TiValueRef TiValueMakeString(TiContextRef ctx, TiStringRef string);
+
+/* Converting to and from JSON formatted strings */
+
+/*!
+ @function
+ @abstract       Creates a Ti value from a JSON formatted string.
+ @param ctx      The execution context to use.
+ @param string   The TiString containing the JSON string to be parsed.
+ @result         A TiValue containing the parsed value, or NULL if the input is invalid.
+ */
+JS_EXPORT TiValueRef TiValueMakeFromJSONString(TiContextRef ctx, TiStringRef string) AVAILABLE_AFTER_WEBKIT_VERSION_4_0;
+
+/*!
+ @function
+ @abstract       Creates a Ti string containing the JSON serialized representation of a JS value.
+ @param ctx      The execution context to use.
+ @param value    The value to serialize.
+ @param indent   The number of spaces to indent when nesting.  If 0, the resulting JSON will not contains newlines.  The size of the indent is clamped to 10 spaces.
+ @param exception A pointer to a TiValueRef in which to store an exception, if any. Pass NULL if you do not care to store an exception.
+ @result         A TiString with the result of serialization, or NULL if an exception is thrown.
+ */
+JS_EXPORT TiStringRef TiValueCreateJSONString(TiContextRef ctx, TiValueRef value, unsigned indent, TiValueRef* exception) AVAILABLE_AFTER_WEBKIT_VERSION_4_0;
 
 /* Converting to primitive values */
 
