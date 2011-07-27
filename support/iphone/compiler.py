@@ -447,12 +447,18 @@ class Compiler(object):
 			print "[DEBUG] copy resources from %s to %s" % (source,target)
 			compiled_targets = {}
 			for root, dirs, files in os.walk(source):
+				for name in dirs:	# don't walk through .bundle directories to avoid detecting media files within them and copying the same ressources in 3 places instead of one
+					if name.find(".bundle"):
+					        dirs.remove(name)
 				for name in ignoreDirs:
 					if name in dirs:
 						dirs.remove(name)	# don't visit ignored directories			  
 				for file in files:
+					if file[-7:] == '.coffee': # don't copy .coffee script files
+						coffee_file = os.path.join(root, file)
+						ignoreFiles.append(file)
 					if file in ignoreFiles:
-						continue					
+						continue
 					prefix = root[len(source):]
 					from_ = os.path.join(root, file)			  
 					to_ = os.path.expanduser(from_.replace(source, target, 1))

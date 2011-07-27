@@ -2,3 +2,5 @@
 dist
 .sconsign.dblite
 .DS_Store
+build/*
+*.orig
