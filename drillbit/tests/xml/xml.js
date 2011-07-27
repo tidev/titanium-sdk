@@ -275,7 +275,7 @@ describe("Ti.XML tests", {
 
 		var childNode = doc.createElement("childNode");
 		valueOf(function() { parentNode.appendChild(childNode); }).shouldNotThrowException();
-		valueOf(parentNode.firstChild).shouldBeExactly(childNode); // fails - opened ticket #4769
+		valueOf(parentNode.firstChild).shouldBe(childNode); // fails - opened ticket #4769
 	},
 
 	apiXmlNodeCloneNode: function() {
@@ -349,7 +349,7 @@ describe("Ti.XML tests", {
 
 		var childNode3 = doc.createElement("childNode3");
 		valueOf(function() { parentNode.insertBefore(childNode3, parentNode.firstChild); }).shouldNotThrowException();
-		valueOf(parentNode.firstChild).shouldBeExactly(childNode3); // fails - opened ticket #4769
+		valueOf(parentNode.firstChild).shouldBe(childNode3); // fails - opened ticket #4769
 	},
 
 	apiXmlNodeIsSupported: function() {
@@ -391,7 +391,7 @@ describe("Ti.XML tests", {
 
 		var results = null;
 		valueOf(function() { results = parentNode.removeChild(childNode); }).shouldNotThrowException();
-		valueOf(results).shouldBe(childNode); // fails - opened ticket #4770
+		valueOf(results).shouldBe(childNode); // fails - opened ticket #4703
 
 		valueOf(parentNode.hasChildNodes()).shouldBe(false);
 	},
