@@ -250,7 +250,7 @@ public class NodeProxy extends KrollProxy {
 		if (this.node == null || !(o instanceof NodeProxy)) {
 			return super.equals(o);
 		}
-		return this.node.equals(((NodeProxy)o).node);
+		return this.node.equals(((NodeProxy) o).node);
 	}
 
 	@Override
