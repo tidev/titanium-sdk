@@ -21,6 +21,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiOrientationHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -175,7 +176,15 @@ public class WindowProxy extends TiWindowProxy
 	{
 		Log.w(LCAT, "setLeftNavButton not supported in Android");
 	}
-	
+
+	@Kroll.method @Kroll.getProperty
+	public int getOrientation()
+	{
+		Activity activity = getTiContext().getActivity();
+
+		return TiOrientationHelper.convertConfigToTiOrientationMode(activity.getResources().getConfiguration().orientation);
+	}
+
 	@Override
 	protected Activity handleGetActivity() 
 	{
