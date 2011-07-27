@@ -35,7 +35,9 @@ public class XMLModule extends KrollModule {
 	
 	static {
 		try {
-			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			factory.setNamespaceAware(true);
+			builder = factory.newDocumentBuilder();
 		} catch (ParserConfigurationException e) {
 			Log.e(LCAT, "Error finding DOM implementation", e);
 		}
