@@ -4,13 +4,14 @@ import subprocess, logging
 import shutil, zipfile
 
 logging.basicConfig(
-	format = '[%(asctime)s] [%(levelname)s] %(message)s',
-	datefmt = '%m/%d/%Y %I:%M:%S %p',
+	format = "[%(asctime)s] [%(levelname)s] %(message)s",
+	datefmt = "%m/%d/%Y %I:%M:%S %p",
 	level = logging.INFO)
 log = logging.getLogger("drillbit_sdk")
 
 class MobileSDKTest(unittest.TestCase):
 	CONFIG_ANDROID_SDK = "androidSdk"
+	CONFIG_IOS_VERSION = "iosVersion"
 	CONFIG_AUTO_DELETE_PROJECTS = "autoDeleteProjects"
 	CONFIG_RUN_WITH_PDB = "runWithPdb"
 	CONFIG_SUPPRESS_OUTPUT = "suppressOutput"
@@ -28,7 +29,7 @@ class MobileSDKTest(unittest.TestCase):
 	def setUpClass(cls):
 		cls.sdkTestsDir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 		cls.mobileDir = os.path.dirname(os.path.dirname(cls.sdkTestsDir))
-		sys.path.append(os.path.join(cls.mobileDir, 'build'))
+		sys.path.append(os.path.join(cls.mobileDir, "build"))
 		import titanium_version
 
 		sdkConfigScript = os.path.join(cls.sdkTestsDir, "sdkconfig.py")
@@ -38,7 +39,7 @@ class MobileSDKTest(unittest.TestCase):
 			sys.exit(1)
 
 		cls.tiVersion = titanium_version.version
-		cls.platformName = {'Darwin': 'osx', 'Windows': 'win32', 'Linux': 'linux'}[platform.system()]
+		cls.platformName = {"Darwin": "osx", "Windows": "win32", "Linux": "linux"}[platform.system()]
 		mobileSdkZip = cls.getSdkConfig(cls.CONFIG_MOBILE_SDK_ZIP)
 		mobileSdkDir = cls.getSdkConfig(cls.CONFIG_MOBILE_SDK_DIR)
 
@@ -66,16 +67,21 @@ class MobileSDKTest(unittest.TestCase):
 			log.info("Using MobileSDK at %s" % cls.mobileSdkDir)
 
 	def setUp(self):
-		self.projectScript = os.path.join(self.mobileSdkDir, 'project.py')
-		self.titaniumScript = os.path.join(self.mobileSdkDir, 'titanium.py')
-		self.androidDir = os.path.join(self.mobileSdkDir, 'android')
-		self.androidBuilderScript = os.path.join(self.androidDir, 'builder.py')
-		self.iphoneDir = os.path.join(self.mobileSdkDir, 'iphone')
-		self.iphoneBuilderScript = os.path.join(self.iphoneDir, 'builder.py')
-		if 'ANDROID_SDK' in os.environ:
-			self.androidSdk = os.environ['ANDROID_SDK']
+		import sdkconfig
+		self.projectScript = os.path.join(self.mobileSdkDir, "project.py")
+		self.titaniumScript = os.path.join(self.mobileSdkDir, "titanium.py")
+		self.androidDir = os.path.join(self.mobileSdkDir, "android")
+		self.androidBuilderScript = os.path.join(self.androidDir, "builder.py")
+		self.iphoneDir = os.path.join(self.mobileSdkDir, "iphone")
+		self.iphoneBuilderScript = os.path.join(self.iphoneDir, "builder.py")
+		if "ANDROID_SDK" in os.environ:
+			self.androidSdk = os.environ["ANDROID_SDK"]
 		elif hasattr(sdkconfig, "androidSdk"):
 			self.androidSdk = sdkconfig.androidSdk
+		if "IOS_VERSION" in os.environ:
+			self.iosVersion = os.environ["IOS_VERSION"]
+		elif hasattr(sdkconfig, "iosVersion"):
+			self.iosVersion = sdkconfig.iosVersion
 		self.testDir = tempfile.mkdtemp()
 
 	def pythonProcess(self, *args, **kwargs):
@@ -102,6 +108,8 @@ class MobileSDKTest(unittest.TestCase):
 
 		if sdk == None and platform == "android":
 			args.append(self.androidSdk)
+		elif sdk == None and platform in ("iphone", "ios", "ipad"):
+			args.append(self.iosVersion)
 		elif sdk != None:
 			args.append(sdk)
 

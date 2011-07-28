@@ -16,6 +16,9 @@ mobileSdkDir = "%(mobileDir)s/dist/mobilesdk/%(platform)s/%(version)s"
 # The absolute path the Android SDK on your system
 androidSdk = "/path/to/android-sdk"
 
+# The version of the iPhone Simulator to run
+iosVersion = "4.0"
+
 # Whether or not to automatically delete temporary project folders after they
 # are created in the test suite. It's useful to turn this off when debugging
 autoDeleteProjects = True
