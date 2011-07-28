@@ -14,7 +14,12 @@
 #import "KrollObject.h"
 #import "TiModule.h"
 
+#ifdef KROLL_COVERAGE
+# import "KrollCoverage.h"
+@interface TitaniumObject : KrollCoverageObject {
+#else
 @interface TitaniumObject : KrollObject {
+#endif
 @private
 	NSMutableDictionary *modules;
 	TiHost *host;

@@ -49,9 +49,47 @@ enum
 	MediaModuleErrorNoMusicPlayer
 };
 
+// Have to distinguish between filterable and nonfilterable properties
+static NSDictionary* TI_itemProperties;
+static NSDictionary* TI_filterableItemProperties;
+
 @implementation MediaModule
 
 #pragma mark Internal
+
++(NSDictionary*)filterableItemProperties
+{
+    if (TI_filterableItemProperties == nil) {
+        TI_filterableItemProperties = [[NSDictionary alloc] initWithObjectsAndKeys:MPMediaItemPropertyMediaType, @"mediaType", // Filterable
+                                                                                   MPMediaItemPropertyTitle, @"title", // Filterable
+                                                                                   MPMediaItemPropertyAlbumTitle, @"albumTitle", // Filterable
+                                                                                   MPMediaItemPropertyArtist, @"artist", // Filterable
+                                                                                   MPMediaItemPropertyAlbumArtist, @"albumArtist", //Filterable
+                                                                                   MPMediaItemPropertyGenre, @"genre", // Filterable
+                                                                                   MPMediaItemPropertyComposer, @"composer", // Filterable
+                                                                                   MPMediaItemPropertyIsCompilation, @"isCompilation", // Filterable
+                                                                                   nil];
+    }
+    return TI_filterableItemProperties;
+}
+
++(NSDictionary*)itemProperties
+{
+	if (TI_itemProperties == nil) {
+		TI_itemProperties = [[NSDictionary alloc] initWithObjectsAndKeys:MPMediaItemPropertyPlaybackDuration, @"playbackDuration",
+                                                                         MPMediaItemPropertyAlbumTrackNumber, @"albumTrackNumber",
+                                                                         MPMediaItemPropertyAlbumTrackCount, @"albumTrackCount",
+                                                                         MPMediaItemPropertyDiscNumber, @"discNumber",
+                                                                         MPMediaItemPropertyDiscCount, @"discCount",
+                                                                         MPMediaItemPropertyLyrics, @"lyrics",
+                                                                         MPMediaItemPropertyPodcastTitle, @"podcastTitle",
+                                                                         MPMediaItemPropertyPlayCount, @"playCount",
+                                                                         MPMediaItemPropertySkipCount, @"skipCount",
+                                                                         MPMediaItemPropertyRating, @"rating",
+                                                                         nil	];		
+	}
+	return TI_itemProperties;
+}
 
 -(void)destroyPickerCallbacks
 {
@@ -512,6 +550,15 @@ MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_AUDIOBOOK, MPMediaTypeAudioBook);
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_ANY_AUDIO, MPMediaTypeAnyAudio);
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_ALL, MPMediaTypeAny);
 
+MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_TITLE, MPMediaGroupingTitle);
+MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_ALBUM, MPMediaGroupingAlbum);
+MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_ARTIST, MPMediaGroupingArtist);
+MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_ALBUM_ARTIST, MPMediaGroupingAlbumArtist);
+MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_COMPOSER, MPMediaGroupingComposer);
+MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_GENRE, MPMediaGroupingGenre);
+MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_PLAYLIST, MPMediaGroupingPlaylist);
+MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_PODCAST_TITLE, MPMediaGroupingPodcastTitle);
+
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_STOPPED, MPMusicPlaybackStateStopped);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_PLAYING, MPMusicPlaybackStatePlaying);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_PAUSED, MPMusicPlaybackStatePaused);
@@ -841,14 +888,52 @@ if (![TiUtils isIOS4OrGreater]) { \
 {
 	ENSURE_UI_THREAD(takeScreenshot,arg);
 	ENSURE_SINGLE_ARG(arg,KrollCallback);
-	
-	// we take the shot of the whole window, not just the active view
-	UIWindow *screenWindow = [[UIApplication sharedApplication] keyWindow];
-	UIGraphicsBeginImageContext(screenWindow.bounds.size);
-	[screenWindow.layer renderInContext:UIGraphicsGetCurrentContext()];
-	UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-	UIGraphicsEndImageContext();
-	
+
+    // Create a graphics context with the target size
+    // On iOS 4 and later, use UIGraphicsBeginImageContextWithOptions to take the scale into consideration
+    // On iOS prior to 4, fall back to use UIGraphicsBeginImageContext
+
+    float systemVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
+
+ 	CGSize imageSize = [[UIScreen mainScreen] bounds].size;
+
+ 	if (systemVersion >= 4.0f)
+		UIGraphicsBeginImageContextWithOptions(imageSize, NO, 0);
+	else
+		UIGraphicsBeginImageContext(imageSize);
+
+	CGContextRef context = UIGraphicsGetCurrentContext();
+
+    // Iterate over every window from back to front
+    for (UIWindow *window in [[UIApplication sharedApplication] windows])
+    {
+        if (![window respondsToSelector:@selector(screen)] || [window screen] == [UIScreen mainScreen])
+        {
+            // -renderInContext: renders in the coordinate space of the layer,
+            // so we must first apply the layer's geometry to the graphics context
+            CGContextSaveGState(context);
+            // Center the context around the window's anchor point
+            CGContextTranslateCTM(context, [window center].x, [window center].y);
+            // Apply the window's transform about the anchor point
+            CGContextConcatCTM(context, [window transform]);
+            // Offset by the portion of the bounds left of and above the anchor point
+            CGContextTranslateCTM(context,
+                                  -[window bounds].size.width * [[window layer] anchorPoint].x,
+                                  -[window bounds].size.height * [[window layer] anchorPoint].y);
+
+            // Render the layer hierarchy to the current context
+            [[window layer] renderInContext:context];
+
+            // Restore the context
+            CGContextRestoreGState(context);
+        }
+    }
+
+    // Retrieve the screenshot image
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+
+    UIGraphicsEndImageContext();
+
 	TiBlob *blob = [[[TiBlob alloc] initWithImage:image] autorelease];
 	NSDictionary *event = [NSDictionary dictionaryWithObject:blob forKey:@"media"];
 	[self _fireEventToListener:@"screenshot" withObject:event listener:arg thisObject:nil];
@@ -1030,6 +1115,39 @@ if (![TiUtils isIOS4OrGreater]) { \
 		[[TiApp app] hideModalController:musicPicker animated:animatedPicker];
 		[self destroyPicker];
 	}
+}
+
+-(NSArray*)queryMusicLibrary:(id)arg
+{
+    ENSURE_SINGLE_ARG(arg, NSDictionary);
+    MPMediaGrouping grouping = [TiUtils intValue:[arg valueForKey:@"grouping"] def:MPMediaGroupingTitle];
+    
+    NSMutableSet* predicates = [NSMutableSet set];
+    for (NSString* prop in [MediaModule filterableItemProperties]) {
+        id value = [arg valueForKey:prop];
+        if (value != nil) {
+            if ([value isKindOfClass:[NSDictionary class]]) {
+                id propVal = [value objectForKey:@"value"];
+                bool exact = [TiUtils boolValue:[value objectForKey:@"exact"] def:YES];
+                MPMediaPredicateComparison comparison = (exact) ? MPMediaPredicateComparisonEqualTo : MPMediaPredicateComparisonContains;
+                [predicates addObject:[MPMediaPropertyPredicate predicateWithValue:propVal 
+                                                                       forProperty:[[MediaModule filterableItemProperties] valueForKey:prop]
+                                                                    comparisonType:comparison]];
+            }
+            else {
+                [predicates addObject:[MPMediaPropertyPredicate predicateWithValue:value
+                                                                       forProperty:[[MediaModule filterableItemProperties] valueForKey:prop]]];
+            }
+        }
+    }
+    
+    MPMediaQuery* query = [[[MPMediaQuery alloc] initWithFilterPredicates:predicates] autorelease];
+    NSMutableArray* result = [NSMutableArray arrayWithCapacity:[[query items] count]];
+    for (MPMediaItem* item in [query items]) {
+        TiMediaItem* newItem = [[[TiMediaItem alloc] _initWithPageContext:[self pageContext] item:item] autorelease];
+        [result addObject:newItem];
+    }
+    return result;
 }
 
 -(TiMediaMusicPlayer*)systemMusicPlayer
