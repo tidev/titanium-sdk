@@ -83,33 +83,55 @@ def build_and_run(args=None):
 		usage()
 
 	# first we need to find the desktop SDK for tibuild.py
+	sdk_dirs = []
 	if platform.system() == 'Darwin':
-		base_sdk = '/Library/Application Support/Titanium/sdk/osx'
+		system_sdk = '/Library/Application Support/Titanium/sdk/osx'
+		if os.path.exists(system_sdk):
+			sdk_dirs.append(system_sdk)
+		user_sdk = os.path.expanduser('~/Library/Application Support/Titanium/sdk/osx')
+		if os.path.exists(user_sdk):
+			sdk_dirs.append(user_sdk)
 		platform_name = 'osx'
 	elif platform.system() == 'Windows':
 		if platform.release() == 'XP':
-			base_sdk = 'C:\\Documents and Settings\\All Users\\Application Data\\Titanium\\sdk\\win32'
+			system_sdk = 'C:\\Documents and Settings\\All Users\\Application Data\\Titanium\\sdk\\win32'
 		else:
-			base_sdk = 'C:\\ProgramData\\Titanium\\sdk\\win32'
+			system_sdk = 'C:\\ProgramData\\Titanium\\sdk\\win32'
+		if os.path.exists(system_sdk):
+			sdk_dirs.append(system_sdk)
+		# TODO: support User SDK installs in win32
 		platform_name = 'win32'
 	elif platform.system() == 'Linux':
-		base_sdk = os.path.expanduser("~/.titanium/sdk/linux")
+		user_sdk = os.path.expanduser("~/.titanium/sdk/linux")
+		if os.path.exists(user_sdk):
+			sdk_dirs.append(user_sdk)
+		# TODO: support System SDK installs in linux
 		platform_name = 'linux'
 	
-	if not os.path.exists(base_sdk):
+	if len(sdk_dirs) == 0:
 		error_no_desktop_sdk()
-	
-	versions = [dir for dir in os.listdir(base_sdk) if not dir.startswith(".")]
-	if len(versions) == 0:
+
+	version_dirs = []
+	for sdk_dir in sdk_dirs:
+		for dir in os.listdir(sdk_dir):
+			if dir.startswith("."): continue
+			version_dirs.append(os.path.join(sdk_dir, dir))
+
+	if len(version_dirs) == 0:
 		error_no_desktop_sdk()
-	
+
+	version_map = {}
+	for version_dir in version_dirs:
+		version_map[os.path.basename(version_dir)] = version_dir
+
 	# use the latest version in the system
+	versions = version_map.keys()
 	versions.sort()
 	use_version = versions[-1]
 
-	print 'Using Desktop version %s' % use_version
+	print 'Using Desktop version %s in %s' % (use_version, version_map[use_version])
 
-	desktop_sdk = os.path.join(base_sdk, use_version)
+	desktop_sdk = version_map[use_version]
 	tibuild = os.path.join(desktop_sdk, 'tibuild.py')
 	drillbit_build_dir = os.path.join(mobile_dir, 'build', 'drillbit')
 	mobile_dist_dir = os.path.join(mobile_dir, 'dist')
@@ -135,24 +157,45 @@ def build_and_run(args=None):
 	import env
 	
 	# use the desktop SDK API to stage and run drillbit (along w/ its custom modules)
-	environment = env.PackagingEnvironment(platform_name, False)
+	appstore = False
+	bundle = False
+
+	# if we're in OSX Lion, package against the system webkit (using --appstore)
+	if platform.system() == "Darwin" and platform.release() == "11.0.0":
+		appstore = True
+		bundle = True
+
+	environment = env.PackagingEnvironment(platform_name, False, appstore)
 	app = environment.create_app(drillbit_app_dir)
 	stage_dir = os.path.join(drillbit_build_dir, app.name)
 
-	# Desktop 1.2 doesn't pass on named-args for app subclasses
-	# stage(stage_dir, bundle=False, no_install=True, js_obfuscate=False
-	app.stage(stage_dir, False, True, False)
+	# This isn't set internally until stage() is set, but by then it's too
+	# late for module resolving
+	app.stage_dir = stage_dir
+	if platform.system() == 'Darwin':
+		app.stage_dir += '.app'
+
+	# We need this to resolve our custom modules
+	app.env.components_dir = app.get_contents_dir()
 
 	app_modules_dir = os.path.join(app.get_contents_dir(), 'modules')
-	app_tests_dir = os.path.join(app.get_contents_dir(), 'Resources', 'tests')
-	
 	if os.path.exists(app_modules_dir):
 		shutil.rmtree(app_modules_dir)
-	
+	elif not os.path.exists(app.get_contents_dir()):
+		os.makedirs(app.get_contents_dir())
+
+	print 'Copying modules to %s' % app_modules_dir
+	shutil.copytree(os.path.join(drillbit_dir, 'modules'), app_modules_dir)
+
+	# Desktop 1.2 doesn't pass on named-args for app subclasses
+	# stage(stage_dir, bundle=False, no_install=True, js_obfuscate=False
+	app.stage(stage_dir, bundle, True, False)
+
+	app_tests_dir = os.path.join(app.get_contents_dir(), 'Resources', 'tests')
 	if os.path.exists(app_tests_dir):
 		shutil.rmtree(app_tests_dir)
-	
-	shutil.copytree(os.path.join(drillbit_dir, 'modules'), app_modules_dir)
+
+	print 'Copying tests to %s' % app_tests_dir
 	shutil.copytree(os.path.join(drillbit_dir, 'tests'), app_tests_dir)
 
 	installed_file = os.path.join(app.get_contents_dir(), '.installed')
