@@ -348,15 +348,24 @@ describe("Ti.XML tests", {
 
 	apiXMLTextSplitText: function() {
 		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
-		var textValue = "this is some test";
+		var firstString = "first part|";
+		var secondString = "second part";
+		var completeString = firstString + secondString;
 
 		valueOf(doc.createTextNode).shouldBeFunction();
-		var textNode = doc.createTextNode(textValue);
 
-		var originalElement = textNode;
-		var splitTextResults = null;
-		valueOf(function() { splitTextResults = textNode.splitText(3); }).shouldNotThrowException();
-		valueOf(splitTextResults).shouldBe(originalElement);
+		var parentNode = doc.createElement("parentNode");
+		var childNode = doc.createTextNode(completeString);
+		parentNode.appendChild(childNode);
+		valueOf(parentNode.childNodes.length).shouldBe(1);
+
+		// incorrect split behavior - opened #4816
+		valueOf(function() { splitTextResults = parentNode.firstChild.splitText(firstString.length); }).shouldNotThrowException();
+
+		valueOf(parentNode.childNodes.length).shouldBe(2);
+		valueOf(splitTextResults.nodeValue).shouldBe(parentNode.firstChild.nodeValue);
+		valueOf(firstString).shouldBe(parentNode.firstChild.nodeValue);
+		valueOf(secondString).shouldBe(parentNode.lastChild.nodeValue);
 	},
 
 	apiXMLTextGetText: function() {
@@ -365,8 +374,8 @@ describe("Ti.XML tests", {
 
 		valueOf(doc.createTextNode).shouldBeFunction();
 		var textNode = doc.createTextNode(textValue);
+		valueOf(textNode.nodeValue).shouldBe(textValue);
 
-		var getTextResults = null;
 		var getTextResults = null;
 		valueOf(function() { getTextResults = textNode.getText(); }).shouldNotThrowException();
 		valueOf(getTextResults).shouldBe(textValue);
