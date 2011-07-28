@@ -145,7 +145,7 @@ def remove_orphaned_files(source_folder, target_folder):
 				os.remove(full)
 
 def is_resource_drawable(path):
-	if re.search("android/images/(high|medium|low|res-[^/]+)/", path.replace("\\", "/")):
+	if re.search("android/images/(high|medium|low|res-[^/]+)/", path.replace(os.sep, "/")):
 		return True
 	else:
 		return False
@@ -155,7 +155,7 @@ def resource_drawable_folder(path):
 		return None
 	else:
 		pattern = r'/android/images/(high|medium|low|res-[^/]+)/'
-		match = re.search(pattern, path.replace("\\", "/"))
+		match = re.search(pattern, path.replace(os.sep, "/"))
 		if not match.groups():
 			return None
 		folder = match.groups()[0]
@@ -342,12 +342,16 @@ class Builder(object):
 		name = name.replace(' ', '_')
 		if not os.path.exists(self.home_dir):
 			os.makedirs(self.home_dir)
-		if not os.path.exists(self.sdcard):
-			info("Creating shared 64M SD card for use in Android emulator(s)")
-			run.run([self.sdk.get_mksdcard(), '64M', self.sdcard])
-
 		avd_path = os.path.join(self.android_home_dir, 'avd')
 		my_avd = os.path.join(avd_path,"%s.avd" % name)
+		own_sdcard = os.path.join(self.home_dir, '%s.sdcard' % name)
+		if not os.path.exists(my_avd) or os.path.exists(own_sdcard):
+			# starting with 1.7.2, when we create a new avd, give it its own
+			# SDCard as well.
+			self.sdcard = own_sdcard
+		if not os.path.exists(self.sdcard):
+			info("Creating 64M SD card for use in Android emulator")
+			run.run([self.sdk.get_mksdcard(), '64M', self.sdcard])
 		if not os.path.exists(my_avd):
 			info("Creating new Android Virtual Device (%s %s)" % (avd_id,avd_skin))
 			inputgen = os.path.join(template_dir,'input.py')
@@ -395,7 +399,7 @@ class Builder(object):
 			'-sdcard',
 			self.sdcard,
 			'-logcat',
-			"'*:d *'",
+			'*:d,*',
 			'-no-boot-anim',
 			'-partition-size',
 			'128' # in between nexusone and droid
@@ -482,7 +486,7 @@ class Builder(object):
 		debug('Processing Android resource drawables')
 
 		def make_resource_drawable_filename(orig):
-			normalized = orig.replace("\\", "/")
+			normalized = orig.replace(os.sep, "/")
 			matches = re.search("/android/images/(high|medium|low|res-[^/]+)/(?P<chopped>.*$)", normalized)
 			if matches and matches.groupdict() and 'chopped' in matches.groupdict():
 				chopped = matches.groupdict()['chopped'].lower()
@@ -589,7 +593,7 @@ class Builder(object):
 
 		for delta in self.project_deltas:
 			path = delta.get_path()
-			if re.search("android/images/(high|medium|low|res-[^/]+)/", path.replace("\\", "/")):
+			if re.search("android/images/(high|medium|low|res-[^/]+)/", path.replace(os.sep, "/")):
 				continue # density images are handled later
 
 			if delta.get_status() == Delta.DELETED and path.startswith(android_resources_dir):
@@ -868,7 +872,7 @@ class Builder(object):
 			for root, dirs, files in os.walk(android_images_dir):
 				for f in files:
 					path = os.path.join(root, f)
-					if re.search(pattern, path):
+					if re.search(pattern, path.replace(os.sep, "/")):
 						res_folder = resource_drawable_folder(path)
 						debug('found %s splash screen at %s' % (res_folder, path))
 						dest_path = os.path.join(self.res_dir, res_folder)

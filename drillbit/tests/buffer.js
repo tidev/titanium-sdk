@@ -291,6 +291,7 @@ describe("Ti.Buffer tests", {
 		}
 		
 		valueOf(buffer.length).shouldBe(length);
+		valueOf(buffer.byteOrder).shouldBe(Ti.Codec.getNativeByteOrder());
 		valueOf(buffer[start+1]).shouldBe(97); // a
 		valueOf(buffer[start+3]).shouldBe(112); // p
 		valueOf(buffer[start+5]).shouldBe(112); // p
@@ -306,6 +307,7 @@ describe("Ti.Buffer tests", {
 
 		// 8 Byte long in Big Endian (most significant byte first)
 		buffer = Ti.createBuffer({ value: 0x12345678, type: Ti.Codec.TYPE_LONG, byteOrder: Ti.Codec.BIG_ENDIAN });
+		valueOf(buffer.byteOrder).shouldBe(Ti.Codec.BIG_ENDIAN);
 		valueOf(buffer.length).shouldBe(8);
 		for (var i = 0; i < 4; i++) {
 			valueOf(buffer[i]).shouldBe(0);
@@ -317,6 +319,7 @@ describe("Ti.Buffer tests", {
 
 		// 4 byte int in Little Endian (least significant byte first)
 		buffer = Ti.createBuffer({ value: 0x12345678, type: Ti.Codec.TYPE_INT, byteOrder: Ti.Codec.LITTLE_ENDIAN });
+		valueOf(buffer.byteOrder).shouldBe(Ti.Codec.LITTLE_ENDIAN);		
 		valueOf(buffer[0]).shouldBe(0x78);
 		valueOf(buffer[1]).shouldBe(0x56);
 		valueOf(buffer[2]).shouldBe(0x34);

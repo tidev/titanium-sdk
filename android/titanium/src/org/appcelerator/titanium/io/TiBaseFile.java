@@ -305,7 +305,7 @@ public abstract class TiBaseFile
 		return false;
 	}
 
-	public double size() {
+	public long size() {
 		logNotSupported("size");
 		return 0;
 	}

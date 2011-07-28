@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -36,15 +36,19 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiResponseCache;
+import org.appcelerator.titanium.util.TiTempFileHelper;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 
 import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Handler.Callback;
 import android.util.DisplayMetrics;
 
 // Naming TiHost to more closely match other implementations
-public abstract class TiApplication extends Application
+public abstract class TiApplication extends Application implements Callback
 {
 	public static final String DEPLOY_TYPE_DEVELOPMENT = "development";
 	public static final String DEPLOY_TYPE_TEST = "test";
@@ -57,10 +61,13 @@ public abstract class TiApplication extends Application
 	private static final String PROPERTY_THREAD_STACK_SIZE = "ti.android.threadstacksize";
 	private static final String PROPERTY_COMPILE_JS = "ti.android.compilejs";
 	public static final String PROPERTY_FASTDEV = "ti.android.fastdev";
+	private static final String PROPERTY_ENABLE_COVERAGE = "ti.android.enablecoverage";
 	
 	private static final String LCAT = "TiApplication";
 	private static final boolean DBG = TiConfig.LOGD;
 	private static final long STATS_WAIT = 300000;
+	private static final int MSG_SEND_ANALYTICS = 100;
+	private static final long SEND_ANALYTICS_DELAY = 30000; // Time analytics send request sits in queue before starting service.
 
 	protected static TiApplication _instance = null;
 
@@ -81,15 +88,18 @@ public abstract class TiApplication extends Application
 	private boolean needsEnrollEvent;
 	protected TiAnalyticsModel analyticsModel;
 	protected Intent analyticsIntent;
+	protected Handler analyticsHandler;
 	private static long lastAnalyticsTriggered = 0;
 	private String buildVersion = "", buildTimestamp = "", buildHash = "";
 	protected ArrayList<KrollModule> modules = new ArrayList<KrollModule>();
 	protected TiDeployData deployData;
+	protected TiTempFileHelper tempFileHelper;
 
 	public TiApplication() {
 		Log.checkpoint(LCAT, "checkpoint, app created.");
 		_instance = this;
 		
+		analyticsHandler = new Handler(this);
 		needsEnrollEvent = false; // test is after DB is available
 		needsStartEvent = true;
 		loadBuildProperties();
@@ -209,7 +219,7 @@ public abstract class TiApplication extends Application
 		if (getDeployType().equals(DEPLOY_TYPE_DEVELOPMENT)) {
 			deployData = new TiDeployData();
 		}
-		//systemProperties.setString("ti.version", buildVersion); // was always setting "1.0"
+		tempFileHelper = new TiTempFileHelper(this);
 	}
 
 	public void postAppInfo() {
@@ -273,6 +283,7 @@ public abstract class TiApplication extends Application
 			needsStartEvent = false;
 			Log.i(LCAT, "Analytics have been disabled");
 		}
+		tempFileHelper.scheduleCleanTempDir();
 	}
 
 	public TiRootActivity getRootActivity() {
@@ -505,10 +516,24 @@ public abstract class TiApplication extends Application
 		}
 	}
 
-	public void sendAnalytics() {
-		if (analyticsIntent != null) {
+	
+	@Override
+	public boolean handleMessage(Message msg) 
+	{
+		if (msg.what == MSG_SEND_ANALYTICS) {
 			if (startService(analyticsIntent) == null) {
 				Log.w(LCAT, "Analytics service not found.");
+			}
+			return true;
+		}
+		return false;
+	}
+
+	public void sendAnalytics() {
+		if (analyticsIntent != null) {
+			synchronized(this) {
+				analyticsHandler.removeMessages(MSG_SEND_ANALYTICS);
+				analyticsHandler.sendEmptyMessageDelayed(MSG_SEND_ANALYTICS, SEND_ANALYTICS_DELAY);
 			}
 		}
 	}
@@ -556,6 +581,15 @@ public abstract class TiApplication extends Application
 			getDeployType().equals(TiApplication.DEPLOY_TYPE_DEVELOPMENT));
 	}
 
+	public boolean isCoverageEnabled()
+	{
+		if (!getDeployType().equals(TiApplication.DEPLOY_TYPE_PRODUCTION))
+		{
+			return getSystemProperties().getBool(TiApplication.PROPERTY_ENABLE_COVERAGE, false);
+		}
+		return false;
+	}
+
 	public void scheduleRestart(int delay)
 	{
 		Log.w(LCAT, "Scheduling application restart");
@@ -566,5 +600,10 @@ public abstract class TiApplication extends Application
 		if (getRootActivity() != null) {
 			getRootActivity().restartActivity(delay);
 		}
+	}
+
+	public TiTempFileHelper getTempFileHelper()
+	{
+		return tempFileHelper;
 	}
 }

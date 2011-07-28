@@ -94,14 +94,15 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 
 @implementation TiNetworkHTTPClientProxy
 
-@synthesize timeout, validatesSecureCertificate;
+@synthesize timeout, validatesSecureCertificate, autoRedirect;
 
 -(id)init
 {
 	if (self = [super init])
 	{
 		readyState = NetworkClientStateUnsent;
-		validatesSecureCertificate = NO;
+		autoRedirect = [[NSNumber alloc] initWithBool:YES];
+		validatesSecureCertificate = [[NSNumber alloc] initWithBool:NO];
 	}
 	return self;
 }
@@ -144,6 +145,9 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	}
 	RELEASE_TO_NIL(url);
 	RELEASE_TO_NIL(request);
+	RELEASE_TO_NIL(autoRedirect);
+    RELEASE_TO_NIL(timeout);
+    RELEASE_TO_NIL(validatesSecureCertificate);
 	[super _destroy];
 }
 
@@ -368,12 +372,27 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	[request setShouldUseRFC2616RedirectBehaviour:YES];
 	BOOL keepAlive = [TiUtils boolValue:[self valueForKey:@"enableKeepAlive"] def:YES];
 	[request setShouldAttemptPersistentConnection:keepAlive];
-	[request setShouldRedirect:YES];
+	//handled in send, as now optional
+	//[request setShouldRedirect:YES];
 	[request setShouldPerformCallbacksOnMainThread:NO];
 	[self _fireReadyStateChange:NetworkClientStateOpened failed:NO];
 	[self _fireReadyStateChange:NetworkClientStateHeaders failed:NO];
 }
+-(void)clearCookies:(id)args
+{
+    ENSURE_ARG_COUNT(args,1);
 
+    NSString *host = [TiUtils stringValue:[args objectAtIndex:0]];
+    
+    NSHTTPCookie *cookie;
+    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    NSArray* targetCookies = [storage cookiesForURL:[NSURL URLWithString:host]];
+    if ([targetCookies count] > 0) {
+      for (cookie in targetCookies) {
+          [storage deleteCookie:cookie];
+      }
+    }
+}
 -(void)setRequestHeader:(id)args
 {
 	ENSURE_ARG_COUNT(args,2);
@@ -494,8 +513,11 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	[self _fireReadyStateChange:NetworkClientStateLoading failed:NO];
 	[request setAllowCompressedResponse:YES];
 	
-	// allow self-signed certs (NO) or required valid SSL (YES)
-	[request setValidatesSecureCertificate:validatesSecureCertificate];
+	// should it automatically redirect
+	[request setShouldRedirect:[autoRedirect boolValue]];
+
+	// allow self-signed certs (NO) or required valid SSL (YES)    
+	[request setValidatesSecureCertificate:[validatesSecureCertificate boolValue]];
 	
 	if (async)
 	{

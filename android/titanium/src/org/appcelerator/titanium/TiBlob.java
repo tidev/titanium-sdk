@@ -20,6 +20,7 @@ import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
+import org.appcelerator.titanium.util.TiStreamHelper;
 
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
@@ -68,7 +69,8 @@ public class TiBlob extends KrollProxy
 		return new TiBlob(tiContext, TYPE_FILE, file, mimeType);
 	}
 
-	public static TiBlob blobFromImage(TiContext tiContext, Bitmap image) {
+	public static TiBlob blobFromImage(TiContext tiContext, Bitmap image)
+	{
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		byte data[] = new byte[0];
 		if (image.compress(CompressFormat.PNG, 100, bos)) {
@@ -81,18 +83,21 @@ public class TiBlob extends KrollProxy
 		return blob;
 	}
 
-	public static TiBlob blobFromData(TiContext tiContext, byte[] data) {
+	public static TiBlob blobFromData(TiContext tiContext, byte[] data)
+	{
 		return blobFromData(tiContext, data, "application/octet-stream");
 	}
 
-	public static TiBlob blobFromData(TiContext tiContext, byte[] data, String mimetype) {
+	public static TiBlob blobFromData(TiContext tiContext, byte[] data, String mimetype)
+	{
 		if (mimetype == null || mimetype.length() == 0) {
 			return new TiBlob(tiContext, TYPE_DATA, data, "application/octet-stream");
 		}
 		return new TiBlob(tiContext, TYPE_DATA, data, mimetype);
 	}
 
-	public byte[] getBytes() {
+	public byte[] getBytes()
+	{
 		byte[] bytes = null;
 
 		switch(type) {
@@ -112,10 +117,7 @@ public class TiBlob extends KrollProxy
 				InputStream stream = getInputStream();
 				if (stream != null) {
 					try {
-						bytes = new byte[getLength()];
-						stream.read(bytes);
-					} catch(IOException e) {
-						Log.w(LCAT, e.getMessage(), e);
+						bytes = TiStreamHelper.toByteArray(stream, getLength());
 					} finally {
 						try {
 							stream.close();
@@ -133,10 +135,11 @@ public class TiBlob extends KrollProxy
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public int getLength() {
+	public int getLength()
+	{
 		switch (type) {
 			case TYPE_FILE:
-				return (int) ((TiBaseFile)data).getNativeFile().length();
+				return (int) ((TiBaseFile)data).size();
 			case TYPE_DATA:
 			case TYPE_IMAGE:
 				return ((byte[])data).length;
@@ -162,7 +165,8 @@ public class TiBlob extends KrollProxy
 	}
 
 	@Kroll.method
-	public void append(TiBlob blob) {
+	public void append(TiBlob blob)
+	{
 		switch(type) {
 			case TYPE_STRING :
 				try {
@@ -191,7 +195,8 @@ public class TiBlob extends KrollProxy
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public String getText() {
+	public String getText()
+	{
 		String result = null;
 
 		// Only support String and Data. Same as iPhone
@@ -219,26 +224,31 @@ public class TiBlob extends KrollProxy
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public String getMimeType() {
+	public String getMimeType()
+	{
 		return mimetype;
 	}
 
-	public Object getData() {
+	public Object getData()
+	{
 		return data;
 	}
 	
 	@Kroll.getProperty @Kroll.method
-	public int getType() {
+	public int getType()
+	{
 		return type;
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public int getWidth() {
+	public int getWidth()
+	{
 		return width;
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public int getHeight() {
+	public int getHeight()
+	{
 		return height;
 	}
 
@@ -247,8 +257,7 @@ public class TiBlob extends KrollProxy
 		// blob should return the text value on toString 
 		// if it's not null
 		String text = getText();
-		if (text!=null)
-		{
+		if (text != null) {
 			return text;
 		}
 		return "[object TiBlob]";

@@ -89,6 +89,7 @@ Titanium.UI.currentWindow.add(tableview);
 Titanium.UI.currentWindow.addEventListener('focus', function()
 {
 	Ti.API.info('FOCUS RECEIVED IN base_ui');
+	Ti.API.info(Ti.dumpCoverage());
 });
 //
 //  ADD EVENT LISTENERS FOR CUSTOM EVENTS

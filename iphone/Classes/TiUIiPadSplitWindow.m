@@ -53,7 +53,7 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 	{
 		TiViewProxy* masterProxy = [self.proxy valueForUndefinedKey:@"masterView"];
 		TiViewProxy* detailProxy = [self.proxy valueForUndefinedKey:@"detailView"];
-		
+        
 		controller = [[MGSplitViewController alloc] init];		
 		[controller setViewControllers:[NSArray arrayWithObjects:
 				ControllerForProxy(masterProxy),ControllerForProxy(detailProxy),nil]];
@@ -145,7 +145,14 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 	}
 }
 
-
+-(void)setShowMasterInPortrait_:(id)value
+{
+    BOOL showMaster = [TiUtils boolValue:value def:NO];
+    MGSplitViewController* splitController = (MGSplitViewController*)[self controller];
+    [splitController setShowsMasterInPortrait:showMaster];
+    
+    [[self proxy] replaceValue:value forKey:@"showMasterInPortrait" notification:NO];
+}
 
 #pragma mark Delegate 
 

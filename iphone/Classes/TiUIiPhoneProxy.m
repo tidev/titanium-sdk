@@ -12,43 +12,43 @@
 
 
 #ifdef USE_TI_UIIPHONEANIMATIONSTYLE
-	#import "TiUIAnimationStyleProxy.h"
+	#import "TiUIiPhoneAnimationStyleProxy.h"
 #endif
 #ifdef USE_TI_UIIPHONESTATUSBAR
-	#import "TiUIStatusBarProxy.h"
+	#import "TiUIiPhoneStatusBarProxy.h"
 #endif
 #ifdef USE_TI_UIIPHONEROWANIMATIONSTYLE
-	#import "TiUIRowAnimationStyleProxy.h"
+	#import "TiUIiPhoneRowAnimationStyleProxy.h"
 #endif
 #ifdef USE_TI_UIIPHONESYSTEMBUTTONSTYLE
-	#import "TiUISystemButtonStyleProxy.h"
+	#import "TiUIiPhoneSystemButtonStyleProxy.h"
 #endif
 #ifdef USE_TI_UIIPHONESYSTEMBUTTON
-	#import "TiUISystemButtonProxy.h"
+	#import "TiUIiPhoneSystemButtonProxy.h"
 #endif
 #ifdef USE_TI_UIIPHONEPROGRESSBARSTYLE
-	#import "TiUIProgressBarStyleProxy.h"
+	#import "TiUIiPhoneProgressBarStyleProxy.h"
 #endif
 #ifdef USE_TI_UIIPHONEACTIVITYINDICATORSTYLE
-	#import "TiUIActivityIndicatorStyleProxy.h"
+	#import "TiUIiPhoneActivityIndicatorStyleProxy.h"
 #endif
 #ifdef USE_TI_UIIPHONESYSTEMICON
-	#import "TiUISystemIconProxy.h"
+	#import "TiUIiPhoneSystemIconProxy.h"
 #endif
 #ifdef USE_TI_UIIPHONESCROLLINDICATORSTYLE
-	#import "TiUIScrollIndicatorStyleProxy.h"
+	#import "TiUIiPhoneScrollIndicatorStyleProxy.h"
 #endif
 #ifdef USE_TI_UIIPHONETABLEVIEWSTYLE
-	#import "TiUITableViewStyleProxy.h"
+	#import "TiUIiPhoneTableViewStyleProxy.h"
 #endif
 #ifdef USE_TI_UIIPHONETABLEVIEWSEPARATORSTYLE
-	#import "TiUITableViewSeparatorStyleProxy.h"
+	#import "TiUIiPhoneTableViewSeparatorStyleProxy.h"
 #endif
 #ifdef USE_TI_UIIPHONETABLEVIEWSCROLLPOSITION
-	#import "TiUITableViewScrollPositionProxy.h"
+	#import "TiUIiPhoneTableViewScrollPositionProxy.h"
 #endif
 #ifdef USE_TI_UIIPHONETABLEVIEWCELLSELECTIONSTYLE
-	#import "TiUITableViewCellSelectionStyleProxy.h"
+	#import "TiUIiPhoneTableViewCellSelectionStyleProxy.h"
 #endif
 #ifdef USE_TI_UIIPHONENAVIGATIONGROUP
 	#import "TiUIiPhoneNavigationGroupProxy.h"
@@ -114,7 +114,7 @@
 {	\
 	if (ivarName==nil)	\
 	{	\
-		ivarName = [[TiUI##methodName##Proxy alloc] _initWithPageContext:[self executionContext]];	\
+		ivarName = [[TiUIiPhone##methodName##Proxy alloc] _initWithPageContext:[self executionContext]];	\
 	}	\
 	return ivarName;	\
 }	\

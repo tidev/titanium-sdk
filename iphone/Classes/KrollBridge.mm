@@ -17,6 +17,10 @@
 
 #import "TiDebugger.h"
 
+#ifdef KROLL_COVERAGE
+# include "KrollCoverage.h"
+#endif
+
 extern BOOL const TI_APPLICATION_ANALYTICS;
 
 @implementation TitaniumObject
@@ -643,8 +647,12 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		[proxies addObject:proxy];
 	}
 	[proxyLock unlock];
-	
+
+#ifdef KROLL_COVERAGE
+	ourKrollObject = [[KrollCoverageObject alloc] initWithTarget:proxy context:context];
+#else
 	ourKrollObject = [[KrollObject alloc] initWithTarget:proxy context:context];
+#endif
 
 	[self registerProxy:proxy krollObject:ourKrollObject];
 	return [ourKrollObject autorelease];
@@ -787,7 +795,19 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	// we found data, now create the common js module proxy
 	if (data!=nil)
 	{
+        NSString* urlPath = (filepath != nil) ? filepath : path;
+		NSURL *url_ = [TiHost resourceBasedURL:urlPath baseURL:NULL];
+       	const char *urlCString = [[url_ absoluteString] UTF8String];
+        if ([[self host] debugMode]) {
+            TiDebuggerBeginScript([self krollContext],urlCString);
+        }
+        
 		module = [self loadCommonJSModule:[[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease] withPath:path];
+        
+        if ([[self host] debugMode]) {
+            TiDebuggerEndScript([self krollContext]);
+        }
+        
 		if (filepath!=nil && module!=nil)
 		{
 			// uri is optional but we point it to where we loaded it

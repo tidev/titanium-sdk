@@ -81,6 +81,8 @@ typedef enum {
 
 +(int)intValue:(id)value def:(int)def;
 
++(int)intValue:(id)value def:(int)def valid:(BOOL*)isValid;
+
 +(TiColor*)colorValue:(id)value;
 
 +(TiDimension)dimensionValue:(id)value;

@@ -50,8 +50,6 @@ public class TiStreamHelper
 		return length;
 	}
 
-	// TODO old stuff begins here - remove everything below this once stream
-	// module if finished
 	public static void pump(InputStream in, OutputStream out)
 	{
 		pump(in, out, DEFAULT_BUFFER_SIZE);
@@ -62,7 +60,33 @@ public class TiStreamHelper
 		byte buffer[] = new byte[bufferSize];
 		int count = 0;
 		try {
-			while((count = in.read(buffer)) != -1) {
+			while ((count = in.read(buffer)) != -1) {
+				if (out != null) {
+					out.write(buffer, 0, count);
+				}
+			}
+		} catch (IOException e) {
+			Log.e(LCAT, "IOException pumping streams", e);
+		}
+	}
+
+	public static void pumpCount(InputStream in, OutputStream out, int byteCount)
+	{
+		pumpCount(in, out, byteCount, DEFAULT_BUFFER_SIZE);
+	}
+
+	public static void pumpCount(InputStream in, OutputStream out, int byteCount, int bufferSize)
+	{
+		byte buffer[] = new byte[bufferSize];
+		int totalCount = 0;
+		try {
+			while (totalCount < byteCount) {
+				int count = in.read(buffer);
+				if (count == -1) {
+					break;
+				}
+
+				totalCount += count;
 				if (out != null) {
 					out.write(buffer, 0, count);
 				}
@@ -74,7 +98,12 @@ public class TiStreamHelper
 
 	public static byte[] toByteArray(InputStream in)
 	{
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		return toByteArray(in, 32);
+	}
+
+	public static byte[] toByteArray(InputStream in, int size)
+	{
+		ByteArrayOutputStream out = new ByteArrayOutputStream(size);
 		pump(in, out);
 		return out.toByteArray();
 	}

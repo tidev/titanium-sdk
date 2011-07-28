@@ -54,9 +54,11 @@ properties:
   - name: maxZoomScale
     description: the maximum zoom scale for the view
     type: Number
+    platforms: [iphone, ipad]
   - name: minZoomScale
     description: the minimum zoom scale for the view
     type: Number
+    platforms: [iphone, ipad]
   - name: pagingControlColor
     description: the color of the paging control. defaults to black.
     type: String

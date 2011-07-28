@@ -29,6 +29,11 @@ import ti.modules.titanium.codec.CodecModule;
 
 
 @Kroll.proxy(creatableInModule=TitaniumModule.class)
+@Kroll.dynamicApis(properties = {
+	TiC.PROPERTY_BYTE_ORDER,
+	TiC.PROPERTY_TYPE,
+	TiC.PROPERTY_VALUE
+})
 public class BufferProxy extends KrollProxy
 {
 	private static final String LCAT = "BufferProxy";

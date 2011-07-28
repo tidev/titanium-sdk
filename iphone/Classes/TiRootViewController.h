@@ -65,4 +65,6 @@
 - (void)openWindow:(TiWindowProxy *)window withObject:(id)args;
 - (void)closeWindow:(TiWindowProxy *)window withObject:(id)args;
 
+-(UIInterfaceOrientation)mostRecentlyAllowedOrientation;
+
 @end

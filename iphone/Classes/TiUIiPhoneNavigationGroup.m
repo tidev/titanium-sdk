@@ -19,11 +19,15 @@
 		return;
 	}
     // NOTE: We don't need to blur the currently visible proxy, because it gets closed out by the close: call.
-	[visibleProxy autorelease];
-
+	TiWindowProxy * oldProxy = visibleProxy;
 	visibleProxy = [newVisibleProxy retain];
+	[oldProxy _tabBeforeBlur];
 	[newVisibleProxy _tabBeforeFocus];
+
+	[oldProxy _tabBlur];
 	[newVisibleProxy _tabFocus];
+
+	[oldProxy release];
 }
 
 -(void)dealloc
@@ -113,11 +117,10 @@
 	NSMutableArray* newControllers = [NSMutableArray arrayWithArray:controller.viewControllers];
 	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:(windowController == [newControllers lastObject])];
 	[newControllers removeObject:windowController];
+	[closingProxy autorelease];
+	closingProxy = [window retain];
 	[controller setViewControllers:newControllers animated:animated];
 	
-	[window retain];
-	[window close:nil];
-	[window autorelease];
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
@@ -149,6 +152,9 @@
 		}
 		[self setVisibleProxy:newWindow];
 	}
+	[closingProxy close:nil];
+	[closingProxy release];
+	closingProxy = nil;
 	opening = NO;
 	[newWindow windowDidOpen];
 }

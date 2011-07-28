@@ -193,7 +193,16 @@ AndroidEmulator.prototype.handleCompleteAndroidEvent = function(event)
 	var suite = event.suite;
 	var resultsData = this.runADB(['shell', 'cat', '/sdcard/' + this.drillbit.testHarnessId + '/results.json']);
 	var results = JSON.parse(resultsData);
-	this.drillbit.handleCompleteEvent(results, 'android');
+
+	var coverageData = this.runADB(['shell', 'cat', '/sdcard/' + this.drillbit.testHarnessId + '/coverage.json']);
+	var coverage = JSON.parse(coverageData);
+
+	var resultsInfo = {
+		results: results,
+		coverage: coverage,
+		suite: suite
+	}
+	this.drillbit.handleCompleteEvent(resultsInfo, 'android');
 };
 
 AndroidEmulator.prototype.removeTestJS = function(testScript) {
@@ -243,7 +252,7 @@ var harnessBuildTriggers = [
 	ti.path.join('build', 'android', 'AndroidManifest.custom.xml'),
 	
 	// Directory triggers (any file under these dirs)
-	'modules',
+	'modules', 'Resources',
 	ti.path.join('build', 'android', 'src'),
 	ti.path.join('build', 'android', 'res')
 ];
