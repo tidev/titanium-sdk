@@ -205,7 +205,6 @@ describe("Ti.XML tests", {
 		// CharacterData.substringData
 		var substring1 = cData.substringData(1, 8);
 		valueOf(substring1).shouldBe("function");
-		//TIMOB-4718
 		var substring2 = cData.substringData(1, 1000);
 		valueOf(substring2.length).shouldBe(96);
 		valueOf(function() {
@@ -460,7 +459,7 @@ describe("Ti.XML tests", {
 		valueOf(node).shouldBeObject();
 		valueOf(node.nodeName).shouldBe("node");
 		valueOf(function() {
-			node = doc.getElementById("no_such_element"); // Causes NPE in Android, shouldn't. TIMOB-4707
+			node = doc.getElementById("no_such_element");
 		}).shouldNotThrowException();
 		valueOf(node).shouldBeNull();
 	},
@@ -617,7 +616,7 @@ describe("Ti.XML tests", {
 
 		var childNode = doc.createElement("childNode");
 		valueOf(function() { parentNode.appendChild(childNode); }).shouldNotThrowException();
-		valueOf(parentNode.firstChild).shouldBe(childNode); // fails - opened ticket #4703
+		valueOf(parentNode.firstChild).shouldBe(childNode);
 	},
 
 	apiXmlNodeCloneNode: function() {
@@ -705,7 +704,7 @@ describe("Ti.XML tests", {
 
 		var childNode3 = doc.createElement("childNode3");
 		valueOf(function() { parentNode.insertBefore(childNode3, parentNode.firstChild); }).shouldNotThrowException();
-		valueOf(parentNode.firstChild).shouldBe(childNode3); // fails - opened ticket #4703
+		valueOf(parentNode.firstChild).shouldBe(childNode3);
 	},
 
 	apiXmlNodeIsSupported: function() {
@@ -747,7 +746,7 @@ describe("Ti.XML tests", {
 
 		var results = null;
 		valueOf(function() { results = parentNode.removeChild(childNode); }).shouldNotThrowException();
-		valueOf(results).shouldBe(childNode); // fails - opened ticket #4703
+		valueOf(results).shouldBe(childNode);
 
 		valueOf(parentNode.hasChildNodes()).shouldBe(false);
 	},
@@ -765,7 +764,7 @@ describe("Ti.XML tests", {
 
 		var replacementNode = doc.createElement("replacementNode");
 		valueOf(function() { parentNode.replaceChild(replacementNode, childNode); }).shouldNotThrowException();
-		valueOf(parentNode.firstChild).shouldBe(replacementNode); // fails - opened ticket #4703
+		valueOf(parentNode.firstChild).shouldBe(replacementNode);
 	},
 
 	xmlNodeListElementsByTagName : function() {
@@ -854,7 +853,7 @@ describe("Ti.XML tests", {
 		var secondNewAttr = doc.createAttribute("newattr");
 		var replacedAttr = node.setAttributeNode(secondNewAttr);
 		valueOf(replacedAttr).shouldNotBeNull();
-		valueOf(replacedAttr).shouldBe(attr); // For some reason this doesn't work on android TIMOB-4703
+		valueOf(replacedAttr).shouldBe(attr);
 		valueOf(attr.ownerElement).shouldNotBeNull();
 		valueOf(attr.ownerElement).shouldBe(node);
 		valueOf(attr.specified).shouldBeFalse();
