@@ -165,7 +165,11 @@ def build_and_run(args=None):
 		appstore = True
 		bundle = True
 
-	environment = env.PackagingEnvironment(platform_name, False, appstore)
+	# the win32 env.py doesn't have the appstore flag for some reason
+	if platform.system() == "Windows":
+		environment = env.PackagingEnvironment(platform_name, False)
+	else:
+		environment = env.PackagingEnvironment(platform_name, False, appstore)
 	app = environment.create_app(drillbit_app_dir)
 	stage_dir = os.path.join(drillbit_build_dir, app.name)
 
