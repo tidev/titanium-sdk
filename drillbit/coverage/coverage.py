@@ -68,6 +68,7 @@ mapTypes = {
 	"Titanium.TiWindow": "Titanium.UI.Window",
 	"Titanium.Ti2DMatrix": "Titanium.UI.2DMatrix",
 	"Titanium.Attr": "Titanium.XML.Attr",
+	"Titanium.CharacterData": "Titanium.XML.CharacterData",
 	"Titanium.CDATASection": "Titanium.XML.CDATASection",
 	"Titanium.Document": "Titanium.XML.Document",
 	"Titanium.Element": "Titanium.XML.Element",
@@ -101,6 +102,24 @@ mapTypes = {
 def mapType(type):
 	if type in mapTypes: return mapTypes[type]
 	return type
+
+# lazily initialize a hierarchy of map of maps, and returns the final map
+def lazyInitMap(root, *mapKeys):
+	top = root
+	for mapKey in mapKeys:
+		if mapKey not in top:
+			top[mapKey] = {}
+		top = top[mapKey]
+	return top
+
+# iterate N levels of a map-of-map-of...N maps
+def mapDeepIter(deepMap, nLevels, *mapKeys):
+	if nLevels == 0:
+		yield tuple(mapKeys)
+	for key in deepMap.keys():
+		obj = deepMap[key]
+		if isinstance(obj, dict):
+			mapDeepIter(obj, nLevels - 1)
 
 class CoverageData(object):
 	CATEGORY_TDOC = "tdoc"
@@ -783,7 +802,7 @@ class CoverageMatrix(object):
 		other = CoverageMatrix(json.loads(otherData))
 		other.genData()
 
-		self.delta = {"apis": {}, "tests": {}}
+		self.delta = {"apis": {}, "tests": {}, "added": {}, "removed": {}}
 		for category in self.data.ALL_CATEGORIES:
 			self.delta["apis"][category] = \
 				self.data.apiCount[category][self.data.TOTAL_YES] - \
@@ -791,6 +810,47 @@ class CoverageMatrix(object):
 
 		self.delta["tests"][self.data.CATEGORY_DRILLBIT] = \
 			self.drillbitTests[self.data.TOTAL] - other.drillbitTests[self.data.TOTAL]
+
+		def deltaApiIsYes(componentType, componentName, apiType, api, category, platform):
+			if componentType == self.data.modules: deltaComponentType = other.data.modules
+			elif componentType == self.data.proxies: deltaComponentType = other.data.proxies
+			else: deltaComponentType = other.data.topLevel
+
+			if componentName not in deltaComponentType: return False
+			if apiType not in deltaComponentType[componentName]: return False
+			if api not in deltaComponentType[componentName][apiType]: return False
+			if category not in deltaComponentType[componentName][apiType][api]: return False
+			if platform not in deltaComponentType[componentName][apiType][api][category]: return False
+			return deltaComponentType[componentName][apiType][api][category][platform] == other.data.STATUS_YES
+
+		def logApiDelta(componentName, apiType, api, category, platform, added):
+			deltaMap = self.delta["added"]
+			apiName = "%s.%s" % (componentName, api)
+			if not added:
+				deltaMap = self.delta["removed"]
+
+			apiTypeMap = lazyInitMap(deltaMap, category, apiType)
+			if apiName not in apiTypeMap:
+				apiTypeMap[apiName] = []
+			apiTypeMap[apiName].append(platform)
+
+		for componentType in (self.data.modules, self.data.proxies, self.data.topLevel):
+			for componentName in componentType.keys():
+				component = componentType[componentName]
+				for apiType in component.keys():
+					apiTypeMap = component[apiType]
+					for api in apiTypeMap.keys():
+						apiMap = apiTypeMap[api]
+						for category in apiMap.keys():
+							categoryMap = apiMap[category]
+							for platform in categoryMap.keys():
+								status = categoryMap[platform]
+								if status == self.data.STATUS_YES:
+									if not deltaApiIsYes(componentType, componentName, apiType, api, category, platform):
+										logApiDelta(componentName, apiType, api, category, platform, True)
+								else:
+									if deltaApiIsYes(componentType, componentName, apiType, api, category, platform):
+										logApiDelta(componentName, apiType, api, category, platform, False)
 
 	def genData(self):
 		# Order is important here
@@ -872,9 +932,11 @@ class CoverageMatrix(object):
 
 	def genHTML(self, outDir):
 		indexTemplate = Template(filename=os.path.join(coverageDir, "index.html"),
-			output_encoding='utf-8', encoding_errors='replace')
+			output_encoding="utf-8", encoding_errors="replace")
 		componentTemplate = Template(filename=os.path.join(coverageDir, "component.html"),
-			output_encoding='utf-8', encoding_errors='replace')
+			output_encoding="utf-8", encoding_errors="replace")
+		deltaTemplate = Template(filename=os.path.join(coverageDir, "delta.html"),
+			output_encoding="utf-8", encoding_errors="replace")
 
 		self.renderTemplate(indexTemplate,
 			os.path.join(outDir, "index.html"),
@@ -883,6 +945,12 @@ class CoverageMatrix(object):
 			delta = self.delta,
 			countCoverage = self.countCoverage,
 			upperFirst = upperFirst)
+
+		if self.delta != None:
+			self.renderTemplate(deltaTemplate,
+				os.path.join(outDir, "delta.html"),
+				data = self.data,
+				delta = self.delta)
 
 		def toComponentHTML(components, prefix):
 			for component in components:
