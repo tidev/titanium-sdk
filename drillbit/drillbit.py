@@ -4,18 +4,31 @@ import os, sys, re, platform, subprocess, shutil, zipfile
 drillbit_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 drillbit_app_dir = os.path.join(drillbit_dir, 'app')
 mobile_dir = os.path.dirname(drillbit_dir)
+
 # first we need to find the desktop SDK for tibuild.py
+sdk_dirs = []
 if platform.system() == 'Darwin':
-	base_sdk = '/Library/Application Support/Titanium/sdk/osx'
+	system_sdk = '/Library/Application Support/Titanium/sdk/osx'
+	if os.path.exists(system_sdk):
+		sdk_dirs.append(system_sdk)
+	user_sdk = os.path.expanduser('~/Library/Application Support/Titanium/sdk/osx')
+	if os.path.exists(user_sdk):
+		sdk_dirs.append(user_sdk)
 	platform_name = 'osx'
 elif platform.system() == 'Windows':
 	if platform.release() == 'XP':
-		base_sdk = 'C:\\Documents and Settings\\All Users\\Application Data\\Titanium\\sdk\\win32'
+		system_sdk = 'C:\\Documents and Settings\\All Users\\Application Data\\Titanium\\sdk\\win32'
 	else:
-		base_sdk = 'C:\\ProgramData\\Titanium\\sdk\\win32'
+		system_sdk = 'C:\\ProgramData\\Titanium\\sdk\\win32'
+	if os.path.exists(system_sdk):
+		sdk_dirs.append(system_sdk)
+	# TODO: support User SDK installs in win32
 	platform_name = 'win32'
 elif platform.system() == 'Linux':
-	base_sdk = os.path.expanduser("~/.titanium/sdk/linux")
+	user_sdk = os.path.expanduser("~/.titanium/sdk/linux")
+	if os.path.exists(user_sdk):
+		sdk_dirs.append(user_sdk)
+	# TODO: support System SDK installs in linux
 	platform_name = 'linux'
 
 def error_no_desktop_sdk():
@@ -112,32 +125,6 @@ def build_and_run(args=None):
 	if len(args) == 1 and args[0] in ["--help", "-h"]:
 		usage()
 
-	# first we need to find the desktop SDK for tibuild.py
-	sdk_dirs = []
-	if platform.system() == 'Darwin':
-		system_sdk = '/Library/Application Support/Titanium/sdk/osx'
-		if os.path.exists(system_sdk):
-			sdk_dirs.append(system_sdk)
-		user_sdk = os.path.expanduser('~/Library/Application Support/Titanium/sdk/osx')
-		if os.path.exists(user_sdk):
-			sdk_dirs.append(user_sdk)
-		platform_name = 'osx'
-	elif platform.system() == 'Windows':
-		if platform.release() == 'XP':
-			system_sdk = 'C:\\Documents and Settings\\All Users\\Application Data\\Titanium\\sdk\\win32'
-		else:
-			system_sdk = 'C:\\ProgramData\\Titanium\\sdk\\win32'
-		if os.path.exists(system_sdk):
-			sdk_dirs.append(system_sdk)
-		# TODO: support User SDK installs in win32
-		platform_name = 'win32'
-	elif platform.system() == 'Linux':
-		user_sdk = os.path.expanduser("~/.titanium/sdk/linux")
-		if os.path.exists(user_sdk):
-			sdk_dirs.append(user_sdk)
-		# TODO: support System SDK installs in linux
-		platform_name = 'linux'
-	
 	if len(sdk_dirs) == 0:
 		error_no_desktop_sdk()
 
