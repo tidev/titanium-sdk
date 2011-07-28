@@ -13,9 +13,10 @@ def countDelta(which):
 	% for apiType in delta[which][category].keys():
 		% for apiName in delta[which][category][apiType].keys():
 			<% type = "function" %>
+			<% plusMinus = {"added": "+", "removed": "-"}[which] %>
 			<% if apiType == "properties": type = "property" %>
 			<span class="${which} smallText">
-				<b>+ ${apiName} ${type}</b> ${which}
+				<b>${plusMinus} ${apiName} ${type}</b> ${which}
 				<% platforms = delta[which][category][apiType][apiName] %>
 				<% platforms = [data.platformDesc[p] for p in platforms] %>
 				(${", ".join(platforms)})
