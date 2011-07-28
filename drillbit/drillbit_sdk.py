@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 import os, sys, subprocess
-import unittest, drillbit, drillbit_sdk
-import optparse, types
+import drillbit, optparse, types
 
 drillbitDir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 mobileSdkDir = drillbit.extract_mobilesdk()
 
 sdkTestsDir = os.path.join(drillbitDir, "sdk_tests")
 sys.path.append(sdkTestsDir)
+import unittest2
 
 def main():
 	parser = optparse.OptionParser()
@@ -15,21 +15,21 @@ def main():
 		help="Tests to run (default: all)")
 	(options, args) = parser.parse_args()
 
-	runner = unittest.TextTestRunner(verbosity=2)
-	loader = unittest.TestLoader()
+	runner = unittest2.TextTestRunner(verbosity=2)
+	loader = unittest2.TestLoader()
 
 	if options.tests == None:
 		import android, iphone
 		androidSuite = loader.loadTestsFromModule(android)
 		iphoneSuite = loader.loadTestsFromModule(iphone)
-		allSuites = unittest.TestSuite([androidSuite, iphoneSuite])
+		allSuites = unittest2.TestSuite([androidSuite, iphoneSuite])
 		runner.run(allSuites)
 	else:
 		tests = options.tests.split(",")
-		suite = unittest.TestSuite()
+		suite = unittest2.TestSuite()
 		for test in tests:
 			t = __import__(test)
-			if isinstance(t, unittest.TestCase):
+			if isinstance(t, unittest2.TestCase):
 				suite.addTest(t)
 			elif type(t) == types.MethodType:
 				suite.addTest(t.im_class(t.__name__))

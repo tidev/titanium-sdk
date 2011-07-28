@@ -1,5 +1,5 @@
 import os, sys, tempfile
-import platform, unittest
+import platform, unittest2
 import subprocess, logging
 import shutil, zipfile
 
@@ -9,7 +9,7 @@ logging.basicConfig(
 	level = logging.INFO)
 log = logging.getLogger("drillbit_sdk")
 
-class MobileSDKTest(unittest.TestCase):
+class MobileSDKTest(unittest2.TestCase):
 	CONFIG_ANDROID_SDK = "androidSdk"
 	CONFIG_IOS_VERSION = "iosVersion"
 	CONFIG_AUTO_DELETE_PROJECTS = "autoDeleteProjects"
