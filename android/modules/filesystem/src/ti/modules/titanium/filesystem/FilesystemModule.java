@@ -11,10 +11,12 @@ import java.io.IOException;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiTempFileHelper;
 
 @Kroll.module
 public class FilesystemModule extends KrollModule
@@ -89,6 +91,11 @@ public class FilesystemModule extends KrollModule
 	@Kroll.getProperty @Kroll.method
 	public String getExternalStorageDirectory() {
 		return "appdata://";
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public String getTempDirectory() {
+		return getTiContext().getTiApp().getTempFileHelper().getTempDirectory().getAbsolutePath();
 	}
 
 	@Kroll.getProperty @Kroll.method

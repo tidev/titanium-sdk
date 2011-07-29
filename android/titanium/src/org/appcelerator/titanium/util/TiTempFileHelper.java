@@ -161,4 +161,9 @@ public class TiTempFileHelper
 			}
 		}
 	}
+
+	public File getTempDirectory()
+	{
+		return tempDir;
+	}
 }
