@@ -1,0 +1,9 @@
+% if len(data.examples_html) > 0:
+    <h3>Code Examples</h3>
+
+    % for example in data.examples_html :
+        <h4 class="code_example_title">${example["title"]}</h4>
+        <div class="code_example">${example["example"]}</div>
+    % endfor
+
+% endif

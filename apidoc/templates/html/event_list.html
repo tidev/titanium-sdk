@@ -1,0 +1,27 @@
+<h3>Events</h3>
+% if data.events is not None and len(data.events) > 0:
+<table>
+<tr>
+	<th>Name</th>
+	<th>Description</th>
+</tr> 
+% for event in data.events:
+<tr>
+    <td class="name">${event.name}</td>
+    <td class="description">${event.description_html}
+        % if event.properties is not None and len(event.properties) > 0:
+            <h4>Event properties</h4>
+            <table class="event">
+            % for prop in event.properties:
+                <tr><td class="name">${prop.name}</td><td>${prop.description_html}</td></tr>
+            % endfor
+            </table>
+        % endif
+    </td>
+</tr>
+% endfor
+</table>
+
+% else:
+    This type has no events.
+% endif

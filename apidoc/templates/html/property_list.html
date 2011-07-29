@@ -1,0 +1,20 @@
+<h3>Properties</h3>
+% if data.properties is not None and len(data.properties) > 0:
+<table>
+<tr>
+	<th>Name</th>
+	<th>Type</th>
+	<th>Description</th>
+</tr> 
+% for prop in data.properties:
+<tr>
+    <td class="name">${prop.name}</td>
+    <td class="type">${prop.type_html}</td>
+    <td class="description">${prop.description_html}</td>
+</tr>
+% endfor
+</table>
+
+% else:
+    This type has no properties.
+% endif
