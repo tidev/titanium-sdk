@@ -345,6 +345,44 @@ describe("Ti.XML tests", {
 			matchXmlTrees(a, b);
 		}
 	},
+
+	apiXMLTextSplitText: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+		var firstString = "first part|";
+		var secondString = "second part";
+		var completeString = firstString + secondString;
+
+		valueOf(doc.createTextNode).shouldBeFunction();
+
+		var parentNode = doc.createElement("parentNode");
+		var childNode = doc.createTextNode(completeString);
+		parentNode.appendChild(childNode);
+		valueOf(parentNode.childNodes.length).shouldBe(1);
+
+		// incorrect split behavior - opened #4816
+		valueOf(function() { splitTextResults = parentNode.firstChild.splitText(firstString.length); }).shouldNotThrowException();
+
+		valueOf(parentNode.childNodes.length).shouldBe(2);
+		valueOf(splitTextResults.nodeValue).shouldBe(parentNode.lastChild.nodeValue);
+		valueOf(firstString).shouldBe(parentNode.firstChild.nodeValue);
+		valueOf(secondString).shouldBe(parentNode.lastChild.nodeValue);
+	},
+
+	apiXMLTextGetText: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+		var textValue = "this is some test";
+
+		valueOf(doc.createTextNode).shouldBeFunction();
+		var textNode = doc.createTextNode(textValue);
+		valueOf(textNode.nodeValue).shouldBe(textValue);
+
+		var getTextResults = null;
+		valueOf(function() { getTextResults = textNode.getText(); }).shouldNotThrowException();
+		valueOf(getTextResults).shouldBe(textValue);
+		valueOf(function() { getTextResults2 = textNode.text; }).shouldNotThrowException();
+		valueOf(getTextResults2).shouldBe(textValue);
+	},
+
 	apiXmlDocumentProperties: function() {
 		// File with DTD
 		var doc = Ti.XML.parseString(this.testSource["with_dtd.xml"]);
@@ -864,3 +902,4 @@ describe("Ti.XML tests", {
 		valueOf(attr.specified).shouldBeTrue();
 	}
 });
+
