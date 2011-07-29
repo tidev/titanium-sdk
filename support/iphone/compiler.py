@@ -421,25 +421,20 @@ class Compiler(object):
 		return {'method':method,'path':path}
 	
 	def softlink_resources(self,source,target):
-		for root, dirs, files in os.walk(source):
-			for name in ignoreDirs:
-				if name in dirs:
-					dirs.remove(name)	# don't visit ignored directories			  
-			for file in files:
-				if file in ignoreFiles:
-					continue
-				prefix = root[len(source):]
-				from_ = os.path.join(root, file)			  
-				to_ = os.path.expanduser(from_.replace(source, target, 1))
-				to_directory = os.path.expanduser(os.path.split(to_)[0])
-				if not os.path.exists(to_directory):
-					os.makedirs(to_directory)
-				fp = os.path.splitext(file)
-				ext = fp[1]
-				# only copy if different filesize or doesn't exist
-				if not os.path.exists(to_) or os.path.getsize(from_)!=os.path.getsize(to_):
-					print "[DEBUG] linking: %s to %s" % (from_,to_)
+		if not os.path.exists(target):
+			os.makedirs(target)
+		for file in os.listdir(source):
+			if (file in ignoreDirs) or (file in ignoreFiles):
+				continue
+			from_ = os.path.join(source, file)
+			to_ = os.path.join(target, file)
+			print "[DEBUG] linking: %s to %s" % (from_,to_)
+			if os.path.exists(to_):
+				if os.path.islink(to_):
+					os.remove(to_)
 					os.symlink(from_, to_)
+			else:
+				os.symlink(from_, to_)
 	
 	def copy_resources(self,sources,target,write_routing=True):
 		
