@@ -201,7 +201,7 @@ describe("Ti.XML tests", {
 
 		cData.data = fullString;
 		var fullLength = cData.length;
-		valueOf(fullLength).shouldBe(97);
+		valueOf(fullLength).shouldBe(fullString.length);
 
 		// CharacterData.substringData
 		var substring1 = cData.substringData(1, 8);
