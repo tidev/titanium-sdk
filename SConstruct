@@ -27,9 +27,16 @@ elif ARGUMENTS.get('PRODUCT_VERSION', 0):
 # get the githash for the build so we can always pull this build from a specific
 # commit.  We're getting it here so we can pass it to android's ant build
 # in order to get it into build.properties
-p = subprocess.Popen(["git","show","--abbrev-commit"],stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-githash = p.communicate()[0][8:].split('\n')[0]
-	
+p = subprocess.Popen(["git", "rev-parse", "HEAD"], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+out, err = p.communicate()
+if err:
+	print >>sys.stderr, err
+	print >>sys.stderr, "Error executing git rev-parse, is git in your PATH?"
+	sys.exit(1)
+
+githash = out.strip()[:7]
+print "Building MobileSDK version %s, githash %s" % (version, githash)
+
 #
 # this is messy, but i don't care, scons makes it too
 # hard to include python after an external SConscript
