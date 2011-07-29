@@ -198,27 +198,32 @@ describe("Ti.XML tests", {
 		valueOf(fullString).shouldBe("\nfunction matchwo(a,b)\n{\nif (a < b && a < 0) then\n  {\n  return 1;\n  }\nelse\n  {\n  return 0;\n  }\n}\n");
 		cData.data = "Test Assignment";
 		valueOf(cData.data).shouldBe("Test Assignment");
-		cData.data = "\nfunction matchwo(a,b)\n{\nif (a < b && a < 0) then\n  {\n  return 1;\n  }\nelse\n  {\n  return 0;\n  }\n}\n";
+
+		cData.data = fullString;
 		var fullLength = cData.length;
 		valueOf(fullLength).shouldBe(97);
 
 		// CharacterData.substringData
 		var substring1 = cData.substringData(1, 8);
-		valueOf(substring1).shouldBe("function");
+		valueOf(substring1).shouldBe(fullString.substr(1, 8));
 		// asking for more than there is should not throw exception
 		// according to spec, rather just return up to end.
 		var substring2 = null;
 		valueOf(function() {
 			substring2 = cData.substringData(1, 1000);
 		}).shouldNotThrowException();
-		valueOf(substring2.length).shouldBe(96);
+		valueOf(substring2.length).shouldBe(fullLength - 1);
+		valueOf(substring2).shouldBe(fullString.substr(1, 1000));
 		// check edge cases
 		substring2 = cData.substringData(0, fullLength);
 		valueOf(substring2.length).shouldBe(fullLength);
+		valueOf(substring2).shouldBe(fullString);
 		substring2 = cData.substringData(1, fullLength);
 		valueOf(substring2.length).shouldBe(fullLength - 1);
+		valueOf(substring2).shouldBe(fullString.substr(1, fullLength));
 		substring2 = cData.substringData(0, fullLength + 1);
 		valueOf(substring2.length).shouldBe(fullLength);
+		valueOf(substring2).shouldBe(fullString.substr(0, fullLength + 1));
 		valueOf(function() {
 			var substring3 = cData.substringData(1000, 1001);
 		}).shouldThrowException();
