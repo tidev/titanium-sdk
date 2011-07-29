@@ -363,7 +363,7 @@ describe("Ti.XML tests", {
 		valueOf(function() { splitTextResults = parentNode.firstChild.splitText(firstString.length); }).shouldNotThrowException();
 
 		valueOf(parentNode.childNodes.length).shouldBe(2);
-		valueOf(splitTextResults.nodeValue).shouldBe(parentNode.firstChild.nodeValue);
+		valueOf(splitTextResults.nodeValue).shouldBe(parentNode.lastChild.nodeValue);
 		valueOf(firstString).shouldBe(parentNode.firstChild.nodeValue);
 		valueOf(secondString).shouldBe(parentNode.lastChild.nodeValue);
 	},
