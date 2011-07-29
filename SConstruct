@@ -121,7 +121,7 @@ def install_mobilesdk(version_tag):
 		os_name = os_names[platform.system()]
 		mobilesdk_zipfile = os.path.join(os.path.abspath('dist'), 'mobilesdk-%s-%s.zip' % (version_tag, os_name))
 		print "Installing %s..." % mobilesdk_zipfile
-		installation_directory = '/Library/Application Support/Titanium'
+		installation_directory = os.path.expanduser('~/Library/Application Support/Titanium')
 		os.system('/usr/bin/unzip -q -o -d "%s" "%s"' % (installation_directory, mobilesdk_zipfile))
 
 def package_sdk(target, source, env):
