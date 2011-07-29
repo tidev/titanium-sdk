@@ -1,5 +1,5 @@
 describe("Ti.UI.2DMatrix tests", {
-	testInvert: function(){
+	testInvert: function() {
 		var matrix1 = Ti.UI.create2DMatrix();
 		var matrix2 = Ti.UI.create2DMatrix();
 		valueOf(matrix1.invert()).shouldBeObject();
@@ -13,14 +13,14 @@ describe("Ti.UI.2DMatrix tests", {
 		valueOf(matrix1.invert()).shouldBeObject();
 	},
 	
-	testMultiply: function(){
+	testMultiply: function() {
 		var matrix1 = Ti.UI.create2DMatrix();
 		var matrix2 = Ti.UI.create2DMatrix();
 		valueOf(matrix1.multiply(matrix2)).shouldBeObject();
 		valueOf(matrix1.multiply(matrix1)).shouldBeObject();
 	},
 	
-	testRotate: function(){
+	testRotate: function() {
 		var matrix1 = Ti.UI.create2DMatrix();
 		valueOf(matrix1.rotate(0)).shouldBeObject();
 		valueOf(matrix1.rotate(90)).shouldBeObject();
@@ -30,7 +30,7 @@ describe("Ti.UI.2DMatrix tests", {
 		valueOf(matrix1.rotate(-0)).shouldBeObject();
 	},
 	
-	testScale: function(){
+	testScale: function() {
 		var matrix1 = Ti.UI.create2DMatrix();
 		valueOf(matrix1.scale()).shouldBeObject();
 		valueOf(matrix1.scale(-1.0)).shouldBeObject();
@@ -39,7 +39,7 @@ describe("Ti.UI.2DMatrix tests", {
 		valueOf(matrix1.scale(-100, -100.0)).shouldBeObject();
 	},
 	
-	testTranslate: function(){
+	testTranslate: function() {
 		var matrix1 = Ti.UI.create2DMatrix();
 		valueOf(matrix1.translate(-1.0, 0)).shouldBeObject();
 		valueOf(matrix1.translate(50.0, 50)).shouldBeObject();

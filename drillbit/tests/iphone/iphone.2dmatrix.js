@@ -1,5 +1,5 @@
 describe("iPhone.UI.2DMatrix tests", {
-	testCreate2DMatrixValue: function(){
+	testCreate2DMatrixValue: function() {
 		var matrix1 = Ti.UI.create2DMatrix();
 		valueOf(matrix1.a).shouldBe(1);
 		valueOf(matrix1.b).shouldBe(0);
@@ -9,7 +9,7 @@ describe("iPhone.UI.2DMatrix tests", {
 		valueOf(matrix1.ty).shouldBe(0);
 	},
 	
-	testInvertValue: function(){
+	testInvertValue: function() {
 		var matrix1 = Ti.UI.create2DMatrix();
 		matrix1.invert();
 		valueOf(matrix1.a).shouldBe(1);
@@ -20,7 +20,7 @@ describe("iPhone.UI.2DMatrix tests", {
 		valueOf(matrix1.ty).shouldBe(0);
 	},
 	
-	testMultiplyValue: function(){
+	testMultiplyValue: function() {
 		var matrix1 = Ti.UI.create2DMatrix();
 		var matrix2 = Ti.UI.create2DMatrix();
 		matrix1 = matrix1.multiply(matrix1);
@@ -41,7 +41,7 @@ describe("iPhone.UI.2DMatrix tests", {
 		valueOf(matrix1.ty).shouldBe(0);
 	},
 	
-	testRotateValue: function(){
+	testRotateValue: function() {
 		var matrix1 = Ti.UI.create2DMatrix();
 		matrix1 = matrix1.rotate(-180);
 		valueOf(matrix1.a).shouldBe(-1);
@@ -52,7 +52,7 @@ describe("iPhone.UI.2DMatrix tests", {
 		valueOf(matrix1.ty).shouldBe(0);
 	},
 	
-	testScaleValue: function(){
+	testScaleValue: function() {
 		var matrix1 = Ti.UI.create2DMatrix();
 		matrix1 = matrix1.scale(5, -5);
 		valueOf(matrix1.a).shouldBe(5);
@@ -63,7 +63,7 @@ describe("iPhone.UI.2DMatrix tests", {
 		valueOf(matrix1.ty).shouldBe(0);
 	},
 	
-	testTranslateValue: function(){
+	testTranslateValue: function() {
 		var matrix1 = Ti.UI.create2DMatrix();
 		matrix1 = matrix1.translate(5, -10);
 		valueOf(matrix1.a).shouldBe(1);
