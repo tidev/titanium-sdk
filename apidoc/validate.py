@@ -148,11 +148,11 @@ def validateMethod(typeTracker, method):
 	validateCommon(tracker, method)
 
 	if 'returns' in method:
-		if type(method['returns']) not in [str, dict]:
-			tracker.trackError('"returns" must be either a String or Object: %s' % method['returns'])
-		if type(method['returns']) == dict:
-			if 'type' not in method['returns']:
-				tracker.trackError('Required property "type" missing in "returns": %s' % method["returns"])
+		if type(method['returns']) != dict:
+			tracker.trackError('"returns" must be an Object: %s' % method['returns'])
+			return
+		if 'type' not in method['returns']:
+			tracker.trackError('Required property "type" missing in "returns": %s' % method["returns"])
 
 
 	if 'parameters' in method:

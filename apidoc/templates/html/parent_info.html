@@ -1,0 +1,18 @@
+<div class="namespace_type">
+% if data.typestr == "module" and data.parent is None:
+	module
+% else:
+	<%
+		typestr = ""
+		if data.typestr == "module":
+			typestr = "submodule"
+		elif data.typestr == "proxy":
+			typestr = "object"
+		elif data.typestr == "method":
+			typestr = "function"
+	%>
+	% if len(typestr) > 0:
+		${typestr} of <a href="${data.parent.get_filename_html()}.html">${data.parent.name}</a>
+	% endif 
+% endif
+</div>

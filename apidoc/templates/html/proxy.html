@@ -4,67 +4,15 @@
 <div class="apidoc_container apidoc_object">
 % endif
 
-<h1 class="namespace">${data.name}</h1>
-
-% if data.typestr == "module":
-	% if data.parent:
-		<div class="namespace_type">
-			submodule of <a href="${data.parent.get_filename_html()}.html">${data.parent.name}</a>
-		</div>
-	% else: 
-		<div class="namespace_type">module</div>
-	% endif 
-% else:
-	<div class="namespace_type">
-		object of <a href="${data.parent.get_filename_html()}.html">${data.parent.name}</a>
-	</div>
-% endif
-
-
-<div class="platforms">
-	% for p in data.platforms:
-		<span class="${p["name"]}">&nbsp;&nbsp;&nbsp;</span>
-	% endfor
-
-	<div class="clear"></div>
-
-	<span class="since">
-		<table>
-			<tr>
-				<th>Platform</th>
-				<th>Since</th>
-			</tr>
-			% for p in data.platforms:
-				<tr>
-					<td class="name">${p["pretty_name"]}</td>
-					<td class="description">${p["since"]}</td>
-				</tr>
-			% endfor
-		</table>
-	</span>
-</div>
-
-<div class="description">${data.description_html}</div>
+<%include file="header.html"/>
 
 % if data.typestr == "module" and data.member_proxies and len(data.member_proxies)>0:
-	<h3>Objects</h3>
-	<table>
-	<tr>
-		<th>Name</th>
-		<th>Description</th>
-	</tr> 
-	% for o in data.member_proxies:
-		<tr>
-			<td class="name"><a href="${o.get_filename_html()}.html">${o.name}</a></td>
-			<td class="description">${o.description_html}</td>
-		</tr>
-	% endfor
-	</table>
+	<%include file="member_proxy_list.html"/>
 % endif
+
 <%include file="method_list.html"/>
 <%include file="property_list.html"/>
 <%include file="event_list.html"/>
-<%include file="notes.html"/>
-<%include file="examples.html"/>
+<%include file="footer.html"/>
 
 </div>

@@ -1,0 +1,13 @@
+<h3>Objects</h3>
+<table>
+<tr>
+	<th>Name</th>
+	<th>Description</th>
+</tr> 
+% for o in data.member_proxies:
+	<tr>
+		<td class="name"><a href="${o.get_filename_html()}.html">${o.name}</a></td>
+		<td class="description">${o.description_html}</td>
+	</tr>
+% endfor
+</table>

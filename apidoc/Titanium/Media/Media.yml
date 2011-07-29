@@ -60,7 +60,8 @@ methods:
       - name: query
         description: The query object to extract information from.
         type: Dictionary<MediaQueryType>
-    returns: Array<MediaItemType>
+    returns:
+        type: Array<MediaItemType>
         
   - name: startMicrophoneMonitor
     description: start the monitoring of microphone sound level
@@ -467,29 +468,29 @@ properties:
   - name: mediaType
     description: The media type to filter on. Value should be one of the
         `MUSIC_MEDIA_TYPE_` constants on <Titanium.Media>.
-    type: [Object<MediaQueryInfoType>, Number]
+    type: [Dictionary<MediaQueryInfoType>, Number]
   - name: title
     description: The title to filter on. Value should be a String.
-    type: [Object<MediaQueryInfoType>, String]
+    type: [Dictionary<MediaQueryInfoType>, String]
   - name: albumTitle
     description: The album title to filter on. Value should be a String.
-    type: [Object<MediaQueryInfoType>, String]
+    type: [Dictionary<MediaQueryInfoType>, String]
   - name: artist
     description: The artist to filter on. Value should be a String.
-    type: [Object<MediaQueryInfoType>, String]
+    type: [Dictionary<MediaQueryInfoType>, String]
   - name: albumArtist
     description: The album artist to filter on. Value should be a String.
-    type: [Object<MediaQueryInfoType>, String]
+    type: [Dictionary<MediaQueryInfoType>, String]
   - name: genre
     description: The genre to filter on. Value should be a String.
-    type: [Object<MediaQueryInfoType>, String]
+    type: [Dictionary<MediaQueryInfoType>, String]
   - name: composer
     description: The composer to filter on. Value should be a String.
-    type: [Object<MediaQueryInfoType>, String]
+    type: [Dictionary<MediaQueryInfoType>, String]
   - name: isCompilation
     description: Filter by whether or not the item is a compilation.
         Value should be a Boolean.
-    type: [Object<MediaQueryInfoType>, Boolean]
+    type: [Dictionary<MediaQueryInfoType>, Boolean]
     
 # Pseudo-type for query arguments
 ---
