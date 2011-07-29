@@ -558,27 +558,32 @@ describe("Ti.XML tests", {
 	apiXmlDocumentImportNode: function() {
 		var doc = Ti.XML.parseString("<a/>");
 		var otherDoc = Ti.XML.parseString(this.testSource["with_ns.xml"]);
+		var cakeNodes = otherDoc.documentElement.getElementsByTagNameNS("http://example.com", "cake");
+		valueOf(cakeNodes).shouldNotBeNull();
+		valueOf(cakeNodes.length).shouldBeGreaterThan(0);
+		var cakeNode = cakeNodes.item(0);
+		valueOf(cakeNode).shouldNotBeNull();
 		valueOf(doc.importNode).shouldBeFunction();
 		// test deep import
 		var importedNode;
 		valueOf(function() {
-			importedNode = doc.importNode(otherDoc.documentElement.firstChild, true);
+			importedNode = doc.importNode(cakeNode, true);
 		}).shouldNotThrowException();
 		valueOf(importedNode.ownerDocument).shouldNotBeNull();
 		valueOf(importedNode.ownerDocument).shouldBeObject();
-		valueOf(importedNode.ownerDocument).shouldBe(doc); // fails in Android TIMOB-4703
+		valueOf(importedNode.ownerDocument).shouldBe(doc);
 		valueOf(importedNode.parentNode).shouldBeNull();
 		valueOf(importedNode.hasChildNodes()).shouldBeTrue();
 		valueOf(importedNode.childNodes.length).shouldBeGreaterThan(0);
 		valueOf(importedNode.namespaceURI).shouldBe("http://example.com");
 		// test shallow import
 		valueOf(function() {
-			importedNode = doc.importNode(otherDoc.documentElement.firstChild, false);
+			importedNode = doc.importNode(cakeNode, false);
 		}).shouldNotThrowException();
 		valueOf(importedNode.hasChildNodes()).shouldBeFalse();
 		valueOf(importedNode.ownerDocument).shouldNotBeNull();
 		valueOf(importedNode.ownerDocument).shouldBeObject();
-		valueOf(importedNode.ownerDocument).shouldBe(doc); // fails in Android TIMOB-4703
+		valueOf(importedNode.ownerDocument).shouldBe(doc);
 		valueOf(importedNode.parentNode).shouldBeNull();
 	},
 
