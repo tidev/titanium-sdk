@@ -520,7 +520,11 @@ describe("Ti.XML tests", {
 	apiXmlDocumentImportNode: function() {
 		var doc = Ti.XML.parseString("<a/>");
 		var otherDoc = Ti.XML.parseString(this.testSource["with_ns.xml"]);
-		var cakeNode = otherDoc.documentElement.getElementsByTagNameNS("http://example.com", "cake").item(0);
+		var cakeNodes = otherDoc.documentElement.getElementsByTagNameNS("http://example.com", "cake");
+		valueOf(cakeNodes).shouldNotBeNull();
+		valueOf(cakeNodes.length).shouldBeGreaterThan(0);
+		var cakeNode = cakeNodes.item(0);
+		valueOf(cakeNode).shouldNotBeNull();
 		valueOf(doc.importNode).shouldBeFunction();
 		// test deep import
 		var importedNode;
