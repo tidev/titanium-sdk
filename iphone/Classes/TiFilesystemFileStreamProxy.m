@@ -116,7 +116,7 @@ if(fileHandle == nil) {\
 	if([[buffer data] length] == 0 && length != 0) {
 		NSString *errorMessage = @"Buffer length is zero"; 
 		if(callback != nil) {
-			NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(0), @"bytesProcessed", errorMessage, @"errorMessage", NUMINT(0), @"errorCode"];
+			NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(0), @"bytesProcessed", errorMessage, @"errorMessage", NUMINT(0), @"errorCode", nil];
 			[self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
 		} else {
 			[self throwException:TiExceptionRangeError
