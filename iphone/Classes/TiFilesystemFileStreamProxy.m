@@ -50,7 +50,7 @@
 					//If the file exists and the mode is TI_WRITE, truncate the file.
 					if(mode == TI_WRITE) {
 						NSError *error = nil;
-						[@"" writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:&error];
+                        [[NSData data] writeToFile:filePath options:NSDataWritingFileProtectionComplete | NSDataWritingAtomic error:&error];
 						if(error != nil) {
 							[NSException raise:NSInternalInconsistencyException format:@"%@", error, nil];
 						}
