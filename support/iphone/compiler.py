@@ -276,7 +276,7 @@ class Compiler(object):
 				xcconfig.write(xcconfig_c)
 				xcconfig.close()
 
-		if deploytype=='simulator':
+		if deploytype=='simulator' or deploytype=='export':
 			shutil.copy(os.path.join(template_dir,'Classes','defines.h'),os.path.join(self.classes_dir,'defines.h'))
 		
 		if deploytype!='development' or has_modules:
@@ -289,7 +289,7 @@ class Compiler(object):
 				if os.path.exists(debugger_plist):
 					os.remove(debugger_plist)
 					
-			if deploytype!='development':	
+			if deploytype!='development' and deploytype!='export':	
 				defines_file = os.path.join(self.classes_dir,'defines.h')
 				defines_header = open(defines_file,'w+')
 				defines_content = "// Warning: this is generated file. Do not modify!\n\n"

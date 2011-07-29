@@ -10,7 +10,6 @@ import platform, time, re, run, glob, codecs, hashlib, datetime, plistlib
 from compiler import Compiler
 from projector import Projector
 from xml.dom.minidom import parseString
-from pbxproj import PBXProj
 from os.path import join, splitext, split, exists
 
 # the template_dir is the path where this file lives on disk
@@ -26,6 +25,7 @@ from tiapp import *
 from css import csscompiler
 import localecompiler
 from module import ModuleDetector
+from tools import *
 
 ignoreFiles = ['.gitignore', '.cvsignore']
 ignoreDirs = ['.git','.svn', 'CVS']
@@ -79,16 +79,6 @@ def write_project_property(f,prop,val):
 		fx = open(f,'w')
 		fx.write("%s=%s\n"%(prop,val))
 		fx.close()
-	
-def read_config(f):
-	props = {}
-	if os.path.exists(f):
-		contents = open(f).read()
-		for line in contents.splitlines(False):
-			if line[0:1]=='#': continue
-			(k,v) = line.split("=")
-			props[k]=v
-	return props
 			
 def read_project_property(f,prop):
 	if os.path.exists(f):
@@ -532,6 +522,7 @@ def main(args):
 				debughost = dequote(args[8].decode("utf-8"))
 				if debughost=='':
 					debughost = None
+					debugport = None
 				else:
 					debughost,debugport = debughost.split(":")
 		elif command == 'install':
@@ -546,6 +537,7 @@ def main(args):
 				debughost = dequote(args[9].decode("utf-8"))
 				if debughost=='':
 					debughost=None
+					debugport=None
 				else:
 					debughost,debugport = debughost.split(":")
 			target = 'Debug'
@@ -615,47 +607,13 @@ def main(args):
 
 			detector = ModuleDetector(project_dir)
 			missing_modules, modules = detector.find_app_modules(ti, 'iphone')
-			module_lib_search_path = []
-			module_asset_dirs = []
+			module_lib_search_path, module_asset_dirs = locate_modules(modules, project_dir, app_dir, log)
 			
-			# search for modules that the project is using
-			# and make sure we add them to the compile
-			for module in modules:
-				module_id = module.manifest.moduleid.lower()
-				module_version = module.manifest.version
-				module_lib_name = ('lib%s.a' % module_id).lower()
-				# check first in the local project
-				local_module_lib = os.path.join(project_dir, 'modules', 'iphone', module_lib_name)
-				local = False
-				if os.path.exists(local_module_lib):
-					module_lib_search_path.append([module_lib_name, local_module_lib])
-					local = True
-					log("[INFO] Detected third-party module: %s" % (local_module_lib))
-				else:
-					if module.lib is None:
-						module_lib_path = module.get_resource(module_lib_name)
-						log("[ERROR] Third-party module: %s/%s missing library at %s" % (module_id, module_version, module_lib_path))
-						sys.exit(1)
-					module_lib_search_path.append([module_lib_name, os.path.abspath(module.lib).rsplit('/',1)[0]])
-					log("[INFO] Detected third-party module: %s/%s" % (module_id, module_version))
-				force_xcode = True
-
-				if not local:
-					# copy module resources
-					img_dir = module.get_resource('assets', 'images')
-					if os.path.exists(img_dir):
-						dest_img_dir = os.path.join(app_dir, 'modules', module_id, 'images')
-						if not os.path.exists(dest_img_dir):
-							os.makedirs(dest_img_dir)
-						module_asset_dirs.append([img_dir, dest_img_dir])
-
-					# copy in any module assets
-					module_assets_dir = module.get_resource('assets')
-					if os.path.exists(module_assets_dir): 
-						module_dir = os.path.join(app_dir, 'modules', module_id)
-						module_asset_dirs.append([module_assets_dir, module_dir])
-
-
+			for search_path in module_lib_search_path:
+				if os.path.commonprefix([project_dir, search_path]) != project_dir:
+					force_xcode = True
+					break
+	
 			print "[INFO] Titanium SDK version: %s" % sdk_version
 			print "[INFO] iPhone Device family: %s" % devicefamily
 			print "[INFO] iPhone SDK version: %s" % iphone_version
@@ -689,60 +647,8 @@ def main(args):
 				ti.properties['version']=version
 				pp = os.path.expanduser("~/Library/MobileDevice/Provisioning Profiles/%s.mobileprovision" % appuuid)
 				provisioning_profile = read_provisioning_profile(pp,o)
-			
-			
-			def write_debugger_plist(debuggerplist):
-				debugger_tmpl = os.path.join(template_dir,'debugger.plist')
-				plist = codecs.open(debugger_tmpl, encoding='utf-8').read()
-				if debughost:
-					plist = plist.replace('__DEBUGGER_HOST__',debughost)
-					plist = plist.replace('__DEBUGGER_PORT__',debugport)
-				else:
-					plist = plist.replace('__DEBUGGER_HOST__','')
-					plist = plist.replace('__DEBUGGER_PORT__','')
-
-				tempfile = debuggerplist+'.tmp'
-				pf = codecs.open(tempfile,'w',encoding='utf-8')
-				pf.write(plist)
-				pf.close()
-				
-				if os.path.exists(debuggerplist):
-					changed = not filecmp.cmp(tempfile, debuggerplist, shallow=False)
-				else:
-					changed = True
-					
-				shutil.move(tempfile, debuggerplist)
-				
-				return changed
-				
-				
-# TODO:				
-# This code is used elsewhere, as well.  We should move stuff like this to
-# a common file.
-			def write_info_plist(infoplist_tmpl):
-				plist = codecs.open(infoplist_tmpl, encoding='utf-8').read()
-				plist = plist.replace('__PROJECT_NAME__',name)
-				plist = plist.replace('__PROJECT_ID__',appid)
-				plist = plist.replace('__URL__',appid)
-				urlscheme = name.replace('.','_').replace(' ','').lower()
-				plist = plist.replace('__URLSCHEME__',urlscheme)
-				if ti.has_app_property('ti.facebook.appid'):
-					fbid = ti.get_app_property('ti.facebook.appid')
-					plist = plist.replace('__ADDITIONAL_URL_SCHEMES__', '<string>fb%s</string>' % fbid)
-				else:
-					plist = plist.replace('__ADDITIONAL_URL_SCHEMES__','')
-				pf = codecs.open(infoplist,'w', encoding='utf-8')
-				pf.write(plist)
-				pf.close()			
-
-			# if the user has a Info.plist in their project directory, consider
-			# that a custom override
-			infoplist_tmpl = os.path.join(project_dir,'Info.plist')
-			if os.path.exists(infoplist_tmpl):
-				shutil.copy(infoplist_tmpl,infoplist)
-			else:
-				infoplist_tmpl = os.path.join(template_dir,'Info.plist')
-				write_info_plist(infoplist_tmpl)
+	
+			create_info_plist(ti, template_dir, project_dir, infoplist)
 
 			applogo = None
 			clean_build = False
@@ -815,7 +721,7 @@ def main(args):
 				force_xcode = True
 				if os.path.exists(app_dir): shutil.rmtree(app_dir)
 				# we have to re-copy if we have a custom version
-				write_info_plist(infoplist_tmpl)
+				create_info_plist(ti, template_dir, project_dir, infoplist)
 				# since compiler will generate the module dependencies, we need to 
 				# attempt to compile to get it correct for the first time.
 				compiler = Compiler(project_dir,appid,name,deploytype,xcode_build,devicefamily,iphone_version,True)
@@ -838,18 +744,7 @@ def main(args):
 
 			# write out any modules into the xcode project
 			# this must be done after project create above or this will be overriden
-			if len(module_lib_search_path)>0:
-				proj = PBXProj()
-				xcode_proj = os.path.join(iphone_dir,'%s.xcodeproj'%name,'project.pbxproj')
-				current_xcode = open(xcode_proj).read()
-				for tp in module_lib_search_path:
-					proj.add_static_library(tp[0],tp[1])
-				out = proj.parse(xcode_proj)
-				# since xcode changes can be destructive, only write as necessary (if changed)
-				if current_xcode!=out:
-					xo = open(xcode_proj,'w')
-					xo.write(out)
-					xo.close()
+			link_modules(module_lib_search_path, name, iphone_dir)
 
 			cwd = os.getcwd()
 
@@ -896,7 +791,7 @@ def main(args):
 			debug_plist = os.path.join(iphone_dir,'Resources','debugger.plist')
 			
 			# Force an xcodebuild if the debugger.plist has changed
-			force_xcode = write_debugger_plist(debug_plist)
+			force_xcode = write_debugger_plist(debughost, debugport, template_dir, debug_plist)
 
 			if command!='simulator':
 				# compile plist into binary format so it's faster to load
@@ -912,10 +807,6 @@ def main(args):
 				applogo = ti.generate_infoplist(infoplist,appid,devicefamily,project_dir,iphone_version)
 			else:
 				applogo = ti.generate_infoplist(infoplist,appid,'iphone',project_dir,iphone_version)
-
-			# copy over the appicon
-			if applogo==None and ti.properties.has_key('icon'):
-				applogo = ti.properties['icon']
 				
 			# attempt to load any compiler plugins
 			if len(ti.properties['plugins']) > 0:
@@ -1006,21 +897,8 @@ def main(args):
 					dump_resources_listing(project_dir,o)
 					dump_infoplist(infoplist,o)
 
-				# copy Default.png and appicon each time so if they're 
-				# changed they'll stick get picked up	
-				# If Default.png is not found in the project, copy it from the SDK's default path
-				app_icon_path = os.path.join(project_dir,'Resources','iphone',applogo)
-				if not os.path.exists(app_icon_path):
-					app_icon_path = os.path.join(project_dir,'Resources',applogo)
-				if os.path.exists(app_icon_path):
-					shutil.copy(app_icon_path,app_dir)
-				defaultpng_path = os.path.join(project_dir,'Resources','iphone','Default.png')
-				if not os.path.exists(defaultpng_path):
-					defaultpng_path = os.path.join(project_dir,'Resources','Default.png')
-				if not os.path.exists(defaultpng_path):
-					defaultpng_path = os.path.join(template_dir,'resources','Default.png')
-				if os.path.exists(defaultpng_path):
-					shutil.copy(defaultpng_path,iphone_resources_dir)
+				install_logo(ti, applogo, project_dir, template_dir, app_dir)
+				install_defaults(project_dir, template_dir, iphone_resources_dir)
 
 				extra_args = None
 
@@ -1146,6 +1024,8 @@ def main(args):
 					f = open(version_file,'w+')
 					f.write("%s,%s,%s,%s" % (template_dir,log_id,lib_hash,githash))
 					f.close()
+
+# ----- BEGIN RUNS FOR SPECIFIC COMMANDS -----
 
 				# this is a simulator build
 				if command == 'simulator':
