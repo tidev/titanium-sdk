@@ -375,7 +375,6 @@ describe("Ti.XML tests", {
 		parentNode.appendChild(childNode);
 		valueOf(parentNode.childNodes.length).shouldBe(1);
 
-		// incorrect split behavior - opened #4816
 		valueOf(function() { splitTextResults = parentNode.firstChild.splitText(firstString.length); }).shouldNotThrowException();
 
 		valueOf(parentNode.childNodes.length).shouldBe(2);
