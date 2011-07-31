@@ -381,6 +381,16 @@ describe("Ti.XML tests", {
 		valueOf(splitTextResults.nodeValue).shouldBe(parentNode.lastChild.nodeValue);
 		valueOf(firstString).shouldBe(parentNode.firstChild.nodeValue);
 		valueOf(secondString).shouldBe(parentNode.lastChild.nodeValue);
+
+		// Out-of-bounds exceptions are in the spec:
+		completeString = "New text node";
+		childNode = doc.createTextNode(completeString);
+		valueOf(function() {
+			childNode.splitText(-1);
+		}).shouldThrowException();
+		valueOf(function() {
+			childNode.splitText(completeString.length + 1);
+		}).shouldThrowException();
 	},
 
 	apiXMLTextGetText: function() {
