@@ -352,5 +352,27 @@ describe("Ti.Filesystem tests", {
 		}
 
 		valueOf(newFile.move(Titanium.Filesystem.applicationDataDirectory+'/moved.txt')).shouldBeTrue();
+	},
+
+	tempDirTest:function() {
+		var filename = "drillbit_temp_file.txt";
+		valueOf(Ti.Filesystem.getTempDirectory).shouldBeFunction();
+
+		var outBuffer = Ti.createBuffer({value:"huray for data, lets have a party for data1 huray for data, lets have a party for data2 huray for data, lets have a party for data3"});
+		valueOf(outBuffer).shouldBeObject();
+
+		// fails due to file not found exception on Android - opened ticket #4843
+		var tempFileOutStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_WRITE, Ti.Filesystem.tempDirectory, filename);
+		tempFileOutStream.write(outBuffer); //write inBuffer to outfile
+		tempFileOutStream.close();
+
+		var inBuffer = Ti.createBuffer({length:200}); // have to set length on read buffer or no data will be read
+		var tempFileInStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_READ, Ti.Filesystem.tempDirectory, filename);
+		bytesRead = tempFileInStream.read(inBuffer); //read 200 byes of data from outfile into outBuffer
+		tempFileInStream.close();
+
+		for (var i=0; i < bytesRead; i++) {
+			valueOf(inBuffer[i]).shouldBeExactly(outBuffer[i]);
+		}
 	}
 });
