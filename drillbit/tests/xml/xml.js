@@ -375,13 +375,22 @@ describe("Ti.XML tests", {
 		parentNode.appendChild(childNode);
 		valueOf(parentNode.childNodes.length).shouldBe(1);
 
-		// incorrect split behavior - opened #4816
 		valueOf(function() { splitTextResults = parentNode.firstChild.splitText(firstString.length); }).shouldNotThrowException();
 
 		valueOf(parentNode.childNodes.length).shouldBe(2);
 		valueOf(splitTextResults.nodeValue).shouldBe(parentNode.lastChild.nodeValue);
 		valueOf(firstString).shouldBe(parentNode.firstChild.nodeValue);
 		valueOf(secondString).shouldBe(parentNode.lastChild.nodeValue);
+
+		// Out-of-bounds exceptions are in the spec:
+		completeString = "New text node";
+		childNode = doc.createTextNode(completeString);
+		valueOf(function() {
+			childNode.splitText(-1);
+		}).shouldThrowException();
+		valueOf(function() {
+			childNode.splitText(completeString.length + 1);
+		}).shouldThrowException();
 	},
 
 	apiXMLTextGetText: function() {
