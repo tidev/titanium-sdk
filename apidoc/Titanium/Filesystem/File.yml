@@ -49,7 +49,7 @@ methods:
   - name: getParent
     description: return the file parent
     returns:
-        type: Titanium.Filesystem.File
+        type: String
   - name: hidden
     description: returns true if the file is hidden
     returns:
