@@ -35,7 +35,9 @@ public class XMLModule extends KrollModule {
 	
 	static {
 		try {
-			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			factory.setNamespaceAware(true);
+			builder = factory.newDocumentBuilder();
 		} catch (ParserConfigurationException e) {
 			Log.e(LCAT, "Error finding DOM implementation", e);
 		}
@@ -47,24 +49,29 @@ public class XMLModule extends KrollModule {
 	
 	@Kroll.method
 	public DocumentProxy parseString(String xml)
+		throws SAXException, IOException
 	{
 		return parse(getTiContext(), xml);
 	}
 	
 	public static DocumentProxy parse(TiContext context, String xml)
+		throws SAXException, IOException
 	{
 		return parse(context, xml, System.getProperty("file.encoding", "UTF-8"));
 	}
 	
 	public static DocumentProxy parse(TiContext context, String xml, String encoding)
+		throws SAXException, IOException
 	{
 		if (builder != null) {
 			try {
 				return new DocumentProxy(context, builder.parse(new ByteArrayInputStream(xml.getBytes(encoding))));
 			} catch (SAXException e) {
 				Log.e(LCAT, "Error parsing XML", e);
+				throw e;
 			} catch (IOException e) {
 				Log.e(LCAT, "Error reading XML", e);
+				throw e;
 			}
 		}
 		return null;

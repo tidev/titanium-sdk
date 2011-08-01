@@ -12,15 +12,10 @@ tiapp:
 tifilesystem:
 tiplatform:
 tiui:
-python:
-ruby:
-php:
 timedia:
-timonkey:
 tinetwork:
 tiprocess:
 tidatabase:
-tiworker:
 ticodec:
 tiextras:0.1.0
 drillbit:0.1.0

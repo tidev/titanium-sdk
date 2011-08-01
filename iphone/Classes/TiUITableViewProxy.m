@@ -499,7 +499,7 @@ NSArray * tableKeySequence;
 		[section rememberProxy:newrow];	//If we wait until the main thread, it'll be too late!
         newrow.section = section;
         // TODO: Should we be updating every row after this one...?
-        newrow.row = row.row == 0 ? 0 : row.row - 1;
+        newrow.row = row.row == 0 ? 0 : row.row;
         newrow.parent = section;
     }
 	

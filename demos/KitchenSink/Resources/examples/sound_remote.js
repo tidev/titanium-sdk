@@ -138,7 +138,7 @@ streamSize3.addEventListener('click', function()
 
 streamer.addEventListener('progress',function(e)
 {
-	progressLabel.text = 'Time Played: ' + Math.round(e.progress) + ' seconds';
+	progressLabel.text = 'Time Played: ' + Math.round(e.progress) + ' milliseconds';
 });
 
 streamer.addEventListener('change',function(e)

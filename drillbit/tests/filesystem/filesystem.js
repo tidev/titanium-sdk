@@ -373,5 +373,16 @@ describe("Ti.Filesystem tests", {
 		for (var i=0; i < bytesRead; i++) {
 			valueOf(inBuffer[i]).shouldBeExactly(outBuffer[i]);
 		}
+	},
+
+	emptyFile: function() {
+		var emptyFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, "empty.txt");
+		valueOf(emptyFile).shouldNotBeNull();
+		valueOf(emptyFile.size).shouldBe(0);
+
+		var blob = emptyFile.read();
+		valueOf(blob.length).shouldBe(0);
+		valueOf(blob.text).shouldBe("");
+		valueOf(blob.toString()).shouldBe("");
 	}
 });

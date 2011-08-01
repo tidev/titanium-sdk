@@ -879,7 +879,7 @@ cleanup:
 		{
 			if (state != AS_PLAYING && state != AS_PAUSED && state != AS_BUFFERING)
 			{
-				return lastProgress;
+				return lastProgress * 1000;
 			}
 
 			AudioTimeStamp queueTime;
@@ -889,7 +889,7 @@ cleanup:
 			const OSStatus AudioQueueStopped = 0x73746F70; // 0x73746F70 is 'stop'
 			if (err == AudioQueueStopped)
 			{
-				return lastProgress;
+				return lastProgress * 1000;
 			}
 			else if (err)
 			{
@@ -903,11 +903,10 @@ cleanup:
 			}
 			
 			lastProgress = progress;
-			return progress;
 		}
 	}
 	
-	return lastProgress;
+	return lastProgress * 1000;
 }
 
 //
