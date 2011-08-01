@@ -6,7 +6,11 @@ import os, sys
 
 this_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.abspath(os.path.join(this_dir, '..')))
-from common import info, err, warn, msg
+module_support_dir = os.path.abspath(os.path.join(this_dir, '..', 'support', 'module', 'support'))
+if os.path.exists(module_support_dir):
+	sys.path.append(module_support_dir)
+import markdown # we package it under support/module/support
+from common import info, err, warn, msg, dict_has_non_empty_member
 
 default_colorize_language = "javascript"
 
@@ -45,6 +49,10 @@ def generate(raw_apis, annotated_apis, options):
 			
 	if not os.path.exists(options.output):
 		os.makedirs(options.output)
+
+	# Add html-specific annotations
+	for api in annotated_apis.values():
+		annotate(api, annotated_apis)
 		
 	for name in annotated_apis:
 		if not name.startswith("Titanium"):
@@ -61,8 +69,45 @@ def generate(raw_apis, annotated_apis, options):
 def annotate(annotated_obj, all_annotated_objects):
 	if annotated_obj.is_annotated_for_format("html"):
 		return
-	# TODO move html-specific stuff from docgen.py to here
+	setattr(annotated_obj, "description_html", "")
+	setattr(annotated_obj, "notes_html", "")
+	setattr(annotated_obj, "examples_html", [])
+	if dict_has_non_empty_member(annotated_obj.api_obj, "description"):
+		setattr(annotated_obj, "description_html", markdown_to_html(annotated_obj.api_obj["description"]))
+	if dict_has_non_empty_member(annotated_obj.api_obj, "notes"):
+		annotated_obj.notes_html = markdown_to_html(annotated_obj.api_obj["notes"])
+	if dict_has_non_empty_member(annotated_obj.api_obj, "examples"):
+		for example in annotated_obj.api_obj["examples"]:
+			one_example = {"title": "", "example": ""}
+			if dict_has_non_empty_member(example, "title"):
+				one_example["title"] = example["title"]
+			if dict_has_non_empty_member(example, "example"):
+				one_example["example"] = markdown_to_html(example["example"])
+			annotated_obj.examples_html.append(one_example)
+	if annotated_obj.typestr in ("parameter", "property"):
+		setattr(annotated_obj, "type_html", "")
+		if dict_has_non_empty_member(annotated_obj.api_obj, "type"):
+			annotated_obj.type_html = data_type_to_html(annotated_obj.api_obj["type"])
+	if annotated_obj.typestr == "method":
+		setattr(annotated_obj, "return_type_html", "")
+		if dict_has_non_empty_member(annotated_obj.api_obj, "returns"):
+			annotated_obj.return_type_html = data_type_to_html(annotated_obj.api_obj["returns"])
+		setattr(annotated_obj, "template_html", "method")
+		setattr(annotated_obj, "filename_html", "%s.%s-%s" % (annotated_obj.parent.name, annotated_obj.name, "method"))
+	if annotated_obj.typestr in ("proxy", "module"):
+		setattr(annotated_obj, "template_html", "proxy")
+	if annotated_obj.typestr == "module":
+		setattr(annotated_obj, "filename_html", "%s-module" % annotated_obj.name)
+	if annotated_obj.typestr == "proxy":
+		setattr(annotated_obj, "filename_html", "%s-object" % annotated_obj.name)
+	for list_type in ("methods", "properties", "events", "parameters"):
+		annotate_member_list(annotated_obj, list_type, all_annotated_objects)
 	annotated_obj.set_annotation_complete("html")
+
+def annotate_member_list(annotated_obj, member_list_name, all_annotated_objects):
+	if hasattr(annotated_obj, member_list_name) and len(getattr(annotated_obj, member_list_name)) > 0:
+		for m in getattr(annotated_obj, member_list_name):
+			annotate(m, all_annotated_objects)
 
 def render_template(annotated_obj, all_annotated_objects, options):
 	annotate(annotated_obj, all_annotated_objects)
@@ -74,7 +119,7 @@ def render_template(annotated_obj, all_annotated_objects, options):
 		template = template_lookup.get_template("%s.html" % annotated_obj.template_html)
 		template_cache[annotated_obj.template_html] = template
 	output = template.render(config=options, data=annotated_obj)
-	filename = os.path.join(options.output,'%s.html' % annotated_obj.get_filename_html())
+	filename = os.path.join(options.output,'%s.html' % annotated_obj.filename_html)
 	f = open(filename,'w+')
 	if options.css is not None:
 		f.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">\n" % options.css)
@@ -99,3 +144,26 @@ def colorize_code(line):
 	after = line[idx2+7:]
 	content = before + result + after
 	return colorize_code(content)
+
+def markdown_to_html(s):
+	# TODO lots more fun
+	return markdown.markdown(s)
+
+def data_type_to_html(type_spec):
+	# TODO lots of stuff like link to types, resolve Dictionary<>, etc.
+	result = ""
+	type_specs = []
+	if hasattr(type_spec, "append"):
+		type_specs = type_spec
+	else:
+		type_specs = [type_spec]
+	for one_spec in type_specs:
+		if type(one_spec) is dict:
+			one_type = one_spec["type"]
+		else:
+			one_type = one_spec
+		if len(result) > 0:
+			result += " or "
+		result += one_type
+	return result.replace("<", "&lt;").replace(">", "&gt;")
+

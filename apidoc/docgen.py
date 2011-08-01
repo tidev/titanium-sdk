@@ -46,7 +46,6 @@ annotated_apis = {} # made friendlier for templates, etc.
 current_api = None
 ignore_dirs = ('.git','.svn', 'CVS')
 
-
 def has_ancestor(one_type, ancestor_name):
 	if "extends" in one_type and one_type["extends"] == ancestor_name:
 		return True
@@ -79,24 +78,6 @@ def pretty_platform_name(name):
 	if name.lower() == "android":
 		return "Android"
 
-def data_type_to_html(type_spec):
-	# TODO lots of stuff like link to types, resolve Dictionary<>, etc.
-	result = ""
-	type_specs = []
-	if hasattr(type_spec, "append"):
-		type_specs = type_spec
-	else:
-		type_specs = [type_spec]
-	for one_spec in type_specs:
-		if type(one_spec) is dict:
-			one_type = one_spec["type"]
-		else:
-			one_type = one_spec
-		if len(result) > 0:
-			result += " or "
-		result += one_type
-	return result.replace("<", "&lt;").replace(">", "&gt;")
-
 # obj can be a type, method, property or event from the yaml
 def combine_platforms_and_since(obj):
 	result = []
@@ -118,10 +99,6 @@ def combine_platforms_and_since(obj):
 				one_platform["since"] = DEFAULT_SINCE
 		result.append(one_platform)
 	return result
-
-def markdown_to_html(s):
-	# TODO lots more fun
-	return markdown.markdown(s)
 
 def load_one_yaml(filepath):
 	f = None
@@ -206,17 +183,9 @@ class AnnotatedApi(object):
 		self.api_obj = api_obj
 		self.name = api_obj["name"]
 		self.parent = None
-		self.template_html = None
 		self.typestr = None
 		self.platforms = combine_platforms_and_since(api_obj)
-		self.description_html = ""
 		self.completed_annotations = []
-
-		if dict_has_non_empty_member(self.api_obj, "description"):
-			self.description_html = markdown_to_html(api_obj["description"])
-
-	def get_filename_html(self):
-		return "%s-%s" % (self.api_obj["name"], self.typestr)
 
 	def is_annotated_for_format(self, output_format):
 		return output_format in self.completed_annotations
@@ -225,31 +194,10 @@ class AnnotatedApi(object):
 		if not output_format in self.completed_annotations:
 			self.completed_annotations.append(output_format)
 
-	@lazyproperty
-	def notes_html(self):
-		notes = ""
-		if dict_has_non_empty_member(self.api_obj, "notes"):
-			notes = markdown_to_html(self.api_obj["notes"])
-		return notes
-
-	@lazyproperty
-	def examples_html(self):
-		examples = []
-		if dict_has_non_empty_member(self.api_obj, "examples"):
-			for example in self.api_obj["examples"]:
-				one_example = {"title": "", "example": ""}
-				if dict_has_non_empty_member(example, "title"):
-					one_example["title"] = example["title"]
-				if dict_has_non_empty_member(example, "example"):
-					one_example["example"] = markdown_to_html(example["example"])
-				examples.append(one_example)
-		return examples
-
-
 class AnnotatedProxy(AnnotatedApi):
 	def __init__(self, api_obj):
 		AnnotatedApi.__init__(self, api_obj)
-		self.template_html = self.typestr = "proxy"
+		self.typestr = "proxy"
 
 	def build_method_list(self):
 		methods = []
@@ -257,9 +205,6 @@ class AnnotatedProxy(AnnotatedApi):
 			methods = [AnnotatedMethod(m, self) for m in self.api_obj["methods"]]
 		self.append_inherited_methods(methods)
 		return sorted(methods, key=lambda item: item.name)
-
-	def get_filename_html(self):
-		return "%s-object" % self.api_obj["name"]
 
 	@lazyproperty
 	def methods(self):
@@ -295,9 +240,6 @@ class AnnotatedModule(AnnotatedProxy):
 		AnnotatedProxy.__init__(self, api_obj)
 		self.typestr = "module"
 
-	def get_filename_html(self):
-		return "%s-module" % self.api_obj["name"]
-
 	def append_creation_methods(self, methods):
 		proxies = self.member_proxies
 		for proxy in proxies:
@@ -330,11 +272,8 @@ class AnnotatedModule(AnnotatedProxy):
 class AnnotatedMethod(AnnotatedApi):
 	def __init__(self, api_obj, annotated_parent):
 		AnnotatedApi.__init__(self, api_obj)
-		self.template_html = self.typestr = "method"
+		self.typestr = "method"
 		self.parent = annotated_parent
-
-	def get_filename_html(self):
-		return "%s.%s-%s" % (self.parent.name, self.name, self.typestr)
 
 	@lazyproperty
 	def parameters(self):
@@ -343,12 +282,6 @@ class AnnotatedMethod(AnnotatedApi):
 			parameters = [AnnotatedMethodParameter(p, self.api_obj) for p in self.api_obj["parameters"]]
 		return parameters
 
-	@lazyproperty
-	def return_type_html(self):
-		result = ""
-		if dict_has_non_empty_member(self.api_obj, "returns"):
-			result = data_type_to_html(self.api_obj["returns"])
-		return result
 
 class AnnotatedMethodParameter(AnnotatedApi):
 	def __init__(self, api_obj, annotated_parent):
@@ -356,26 +289,11 @@ class AnnotatedMethodParameter(AnnotatedApi):
 		self.parent = annotated_parent
 		self.typestr = "parameter"
 
-	@lazyproperty
-	def type_html(self):
-		if dict_has_non_empty_member(self.api_obj, "type"):
-			return data_type_to_html(self.api_obj["type"])
-		else:
-			return ""
-
 class AnnotatedProperty(AnnotatedApi):
 	def __init__(self, api_obj, annotated_parent):
 		AnnotatedApi.__init__(self, api_obj)
 		self.typestr = "property"
 		self.parent = annotated_parent
-
-	@lazyproperty
-	def type_html(self):
-		# TODO make link to titanium types, etc.
-		if dict_has_non_empty_member(self.api_obj, "type"):
-			return data_type_to_html(self.api_obj["type"])
-		else:
-			return ""
 
 class AnnotatedEvent(AnnotatedApi):
 	def __init__(self, api_obj, annotated_parent):
