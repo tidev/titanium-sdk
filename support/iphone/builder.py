@@ -5,7 +5,7 @@
 # the application on the device via iTunes
 # 
 
-import os, sys, uuid, subprocess, shutil, signal, string, traceback, imp, filecmp
+import os, sys, uuid, subprocess, shutil, signal, string, traceback, imp
 import platform, time, re, run, glob, codecs, hashlib, datetime, plistlib
 from compiler import Compiler
 from projector import Projector
