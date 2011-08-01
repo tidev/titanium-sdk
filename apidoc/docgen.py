@@ -185,6 +185,7 @@ class AnnotatedApi(object):
 		self.parent = None
 		self.typestr = None
 		self.platforms = combine_platforms_and_since(api_obj)
+		self.yaml_source_folder = ""
 		self.completed_annotations = []
 
 	def is_annotated_for_format(self, output_format):
@@ -239,6 +240,7 @@ class AnnotatedModule(AnnotatedProxy):
 	def __init__(self, api_obj):
 		AnnotatedProxy.__init__(self, api_obj)
 		self.typestr = "module"
+		self.yaml_source_folder = os.path.join(this_dir, self.name.replace(".", os.sep))
 
 	def append_creation_methods(self, methods):
 		proxies = self.member_proxies
@@ -260,6 +262,7 @@ class AnnotatedModule(AnnotatedProxy):
 		proxies = []
 		for one_annotated_type in annotated_apis.values():
 			if one_annotated_type.parent is self and one_annotated_type.typestr == "proxy":
+				one_annotated_type.yaml_source_folder = self.yaml_source_folder
 				proxies.append(one_annotated_type)
 		return sorted(proxies, key=lambda item: item.name)
 
@@ -274,12 +277,13 @@ class AnnotatedMethod(AnnotatedApi):
 		AnnotatedApi.__init__(self, api_obj)
 		self.typestr = "method"
 		self.parent = annotated_parent
+		self.yaml_source_folder = self.parent.yaml_source_folder
 
 	@lazyproperty
 	def parameters(self):
 		parameters = []
 		if dict_has_non_empty_member(self.api_obj, "parameters"):
-			parameters = [AnnotatedMethodParameter(p, self.api_obj) for p in self.api_obj["parameters"]]
+			parameters = [AnnotatedMethodParameter(p, self) for p in self.api_obj["parameters"]]
 		return parameters
 
 
@@ -288,24 +292,27 @@ class AnnotatedMethodParameter(AnnotatedApi):
 		AnnotatedApi.__init__(self, api_obj)
 		self.parent = annotated_parent
 		self.typestr = "parameter"
+		self.yaml_source_folder = self.parent.yaml_source_folder
 
 class AnnotatedProperty(AnnotatedApi):
 	def __init__(self, api_obj, annotated_parent):
 		AnnotatedApi.__init__(self, api_obj)
 		self.typestr = "property"
 		self.parent = annotated_parent
+		self.yaml_source_folder = self.parent.yaml_source_folder
 
 class AnnotatedEvent(AnnotatedApi):
 	def __init__(self, api_obj, annotated_parent):
 		AnnotatedApi.__init__(self, api_obj)
 		self.typestr = "event"
 		self.parent = annotated_parent
+		self.yaml_source_folder = self.parent.yaml_source_folder
 
 	@lazyproperty
 	def properties(self):
 		properties = []
 		if dict_has_non_empty_member(self.api_obj, "properties"):
-			properties = [AnnotatedProperty(p, self.api_obj) for p in self.api_obj["properties"]]
+			properties = [AnnotatedProperty(p, self) for p in self.api_obj["properties"]]
 		return sorted(properties, key=lambda item: item.name)
 
 def main():

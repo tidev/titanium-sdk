@@ -73,16 +73,16 @@ def annotate(annotated_obj, all_annotated_objects):
 	setattr(annotated_obj, "notes_html", "")
 	setattr(annotated_obj, "examples_html", [])
 	if dict_has_non_empty_member(annotated_obj.api_obj, "description"):
-		setattr(annotated_obj, "description_html", markdown_to_html(annotated_obj.api_obj["description"]))
+		setattr(annotated_obj, "description_html", markdown_to_html(annotated_obj.api_obj["description"], obj=annotated_obj))
 	if dict_has_non_empty_member(annotated_obj.api_obj, "notes"):
-		annotated_obj.notes_html = markdown_to_html(annotated_obj.api_obj["notes"])
+		annotated_obj.notes_html = markdown_to_html(annotated_obj.api_obj["notes"], obj=annotated_obj)
 	if dict_has_non_empty_member(annotated_obj.api_obj, "examples"):
 		for example in annotated_obj.api_obj["examples"]:
 			one_example = {"title": "", "example": ""}
 			if dict_has_non_empty_member(example, "title"):
 				one_example["title"] = example["title"]
 			if dict_has_non_empty_member(example, "example"):
-				one_example["example"] = markdown_to_html(example["example"])
+				one_example["example"] = markdown_to_html(example["example"], obj=annotated_obj)
 			annotated_obj.examples_html.append(one_example)
 	if annotated_obj.typestr in ("parameter", "property"):
 		setattr(annotated_obj, "type_html", "")
@@ -145,8 +145,23 @@ def colorize_code(line):
 	content = before + result + after
 	return colorize_code(content)
 
-def markdown_to_html(s):
-	# TODO lots more fun
+def load_file_markdown(file_specifier, obj):
+	if obj is None or not hasattr(obj, "yaml_source_folder"):
+		return ""
+	filename = file_specifier.strip()[len("file:"):].strip()
+	if len(filename) == 0:
+		return ""
+	filename = os.path.join(obj.yaml_source_folder, filename)
+	if not os.path.exists(filename):
+		return ""
+	else:
+		return open(filename, "r").read()
+
+def markdown_to_html(s, obj=None):
+	if s is None or len(s) == 0:
+		return ""
+	if s.startswith("file:") and obj is not None:
+		return markdown_to_html(load_file_markdown(s, obj))
 	return markdown.markdown(s)
 
 def data_type_to_html(type_spec):
