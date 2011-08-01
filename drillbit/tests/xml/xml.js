@@ -198,16 +198,32 @@ describe("Ti.XML tests", {
 		valueOf(fullString).shouldBe("\nfunction matchwo(a,b)\n{\nif (a < b && a < 0) then\n  {\n  return 1;\n  }\nelse\n  {\n  return 0;\n  }\n}\n");
 		cData.data = "Test Assignment";
 		valueOf(cData.data).shouldBe("Test Assignment");
-		cData.data = "\nfunction matchwo(a,b)\n{\nif (a < b && a < 0) then\n  {\n  return 1;\n  }\nelse\n  {\n  return 0;\n  }\n}\n";
+
+		cData.data = fullString;
 		var fullLength = cData.length;
-		valueOf(fullLength).shouldBe(97);
+		valueOf(fullLength).shouldBe(fullString.length);
 
 		// CharacterData.substringData
 		var substring1 = cData.substringData(1, 8);
-		valueOf(substring1).shouldBe("function");
-		//TIMOB-4718
-		var substring2 = cData.substringData(1, 1000);
-		valueOf(substring2.length).shouldBe(96);
+		valueOf(substring1).shouldBe(fullString.substr(1, 8));
+		// asking for more than there is should not throw exception
+		// according to spec, rather just return up to end.
+		var substring2 = null;
+		valueOf(function() {
+			substring2 = cData.substringData(1, 1000);
+		}).shouldNotThrowException();
+		valueOf(substring2.length).shouldBe(fullLength - 1);
+		valueOf(substring2).shouldBe(fullString.substr(1, 1000));
+		// check edge cases
+		substring2 = cData.substringData(0, fullLength);
+		valueOf(substring2.length).shouldBe(fullLength);
+		valueOf(substring2).shouldBe(fullString);
+		substring2 = cData.substringData(1, fullLength);
+		valueOf(substring2.length).shouldBe(fullLength - 1);
+		valueOf(substring2).shouldBe(fullString.substr(1, fullLength));
+		substring2 = cData.substringData(0, fullLength + 1);
+		valueOf(substring2.length).shouldBe(fullLength);
+		valueOf(substring2).shouldBe(fullString.substr(0, fullLength + 1));
 		valueOf(function() {
 			var substring3 = cData.substringData(1000, 1001);
 		}).shouldThrowException();
@@ -345,6 +361,44 @@ describe("Ti.XML tests", {
 			matchXmlTrees(a, b);
 		}
 	},
+
+	apiXMLTextSplitText: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+		var firstString = "first part|";
+		var secondString = "second part";
+		var completeString = firstString + secondString;
+
+		valueOf(doc.createTextNode).shouldBeFunction();
+
+		var parentNode = doc.createElement("parentNode");
+		var childNode = doc.createTextNode(completeString);
+		parentNode.appendChild(childNode);
+		valueOf(parentNode.childNodes.length).shouldBe(1);
+
+		// incorrect split behavior - opened #4816
+		valueOf(function() { splitTextResults = parentNode.firstChild.splitText(firstString.length); }).shouldNotThrowException();
+
+		valueOf(parentNode.childNodes.length).shouldBe(2);
+		valueOf(splitTextResults.nodeValue).shouldBe(parentNode.lastChild.nodeValue);
+		valueOf(firstString).shouldBe(parentNode.firstChild.nodeValue);
+		valueOf(secondString).shouldBe(parentNode.lastChild.nodeValue);
+	},
+
+	apiXMLTextGetText: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+		var textValue = "this is some test";
+
+		valueOf(doc.createTextNode).shouldBeFunction();
+		var textNode = doc.createTextNode(textValue);
+		valueOf(textNode.nodeValue).shouldBe(textValue);
+
+		var getTextResults = null;
+		valueOf(function() { getTextResults = textNode.getText(); }).shouldNotThrowException();
+		valueOf(getTextResults).shouldBe(textValue);
+		valueOf(function() { getTextResults2 = textNode.text; }).shouldNotThrowException();
+		valueOf(getTextResults2).shouldBe(textValue);
+	},
+
 	apiXmlDocumentProperties: function() {
 		// File with DTD
 		var doc = Ti.XML.parseString(this.testSource["with_dtd.xml"]);
@@ -520,27 +574,32 @@ describe("Ti.XML tests", {
 	apiXmlDocumentImportNode: function() {
 		var doc = Ti.XML.parseString("<a/>");
 		var otherDoc = Ti.XML.parseString(this.testSource["with_ns.xml"]);
+		var cakeNodes = otherDoc.documentElement.getElementsByTagNameNS("http://example.com", "cake");
+		valueOf(cakeNodes).shouldNotBeNull();
+		valueOf(cakeNodes.length).shouldBeGreaterThan(0);
+		var cakeNode = cakeNodes.item(0);
+		valueOf(cakeNode).shouldNotBeNull();
 		valueOf(doc.importNode).shouldBeFunction();
 		// test deep import
 		var importedNode;
 		valueOf(function() {
-			importedNode = doc.importNode(otherDoc.documentElement.firstChild, true);
+			importedNode = doc.importNode(cakeNode, true);
 		}).shouldNotThrowException();
 		valueOf(importedNode.ownerDocument).shouldNotBeNull();
 		valueOf(importedNode.ownerDocument).shouldBeObject();
-		valueOf(importedNode.ownerDocument).shouldBe(doc); // fails in Android TIMOB-4703
+		valueOf(importedNode.ownerDocument).shouldBe(doc);
 		valueOf(importedNode.parentNode).shouldBeNull();
 		valueOf(importedNode.hasChildNodes()).shouldBeTrue();
 		valueOf(importedNode.childNodes.length).shouldBeGreaterThan(0);
 		valueOf(importedNode.namespaceURI).shouldBe("http://example.com");
 		// test shallow import
 		valueOf(function() {
-			importedNode = doc.importNode(otherDoc.documentElement.firstChild, false);
+			importedNode = doc.importNode(cakeNode, false);
 		}).shouldNotThrowException();
 		valueOf(importedNode.hasChildNodes()).shouldBeFalse();
 		valueOf(importedNode.ownerDocument).shouldNotBeNull();
 		valueOf(importedNode.ownerDocument).shouldBeObject();
-		valueOf(importedNode.ownerDocument).shouldBe(doc); // fails in Android TIMOB-4703
+		valueOf(importedNode.ownerDocument).shouldBe(doc);
 		valueOf(importedNode.parentNode).shouldBeNull();
 	},
 
@@ -864,3 +923,4 @@ describe("Ti.XML tests", {
 		valueOf(attr.specified).shouldBeTrue();
 	}
 });
+
