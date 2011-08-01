@@ -59,6 +59,13 @@ public class CharacterDataProxy extends NodeProxy {
 	
 	@Kroll.method
 	public String substringData(int offset, int count) throws DOMException {
+		// Android (Harmony) appears to be non-compliant in that if you try
+		// to ask for more than there is, an exception occurs. Spec says to just
+		// return data up to the end. So we adjust count here if needed so as to
+		// avoid an exception that shouldn't be happening.
+		if ((offset + count) > data.getLength()) {
+			count = data.getLength() - offset;
+		}
 		return data.substringData(offset, count);
 	}
 }

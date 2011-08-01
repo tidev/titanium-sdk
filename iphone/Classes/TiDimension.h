@@ -29,6 +29,11 @@ extern const TiDimension TiDimensionZero;
 extern const TiDimension TiDimensionAuto;
 extern const TiDimension TiDimensionUndefined;
 
+// isnormal is placed into the std:: namespace in C++, quite "helpfully", which messes with
+// any C++ files which (however inadvertantly) include TiDimension.
+#ifdef __cplusplus
+using namespace std;
+#endif
 
 TI_INLINE TiDimension TiDimensionMake(TiDimensionType type, CGFloat value)
 {

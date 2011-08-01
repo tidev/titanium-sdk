@@ -5,6 +5,32 @@ drillbit_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filena
 drillbit_app_dir = os.path.join(drillbit_dir, 'app')
 mobile_dir = os.path.dirname(drillbit_dir)
 
+# first we need to find the desktop SDK for tibuild.py
+sdk_dirs = []
+if platform.system() == 'Darwin':
+	system_sdk = '/Library/Application Support/Titanium/sdk/osx'
+	if os.path.exists(system_sdk):
+		sdk_dirs.append(system_sdk)
+	user_sdk = os.path.expanduser('~/Library/Application Support/Titanium/sdk/osx')
+	if os.path.exists(user_sdk):
+		sdk_dirs.append(user_sdk)
+	platform_name = 'osx'
+elif platform.system() == 'Windows':
+	if platform.release() == 'XP':
+		system_sdk = 'C:\\Documents and Settings\\All Users\\Application Data\\Titanium\\sdk\\win32'
+	else:
+		system_sdk = 'C:\\ProgramData\\Titanium\\sdk\\win32'
+	if os.path.exists(system_sdk):
+		sdk_dirs.append(system_sdk)
+	# TODO: support User SDK installs in win32
+	platform_name = 'win32'
+elif platform.system() == 'Linux':
+	user_sdk = os.path.expanduser("~/.titanium/sdk/linux")
+	if os.path.exists(user_sdk):
+		sdk_dirs.append(user_sdk)
+	# TODO: support System SDK installs in linux
+	platform_name = 'linux'
+
 def error_no_desktop_sdk():
 	print >>sys.stderr, "ERROR: Couldn't find Titanium Desktop SDK, which is needed for running Drillbit"
 	sys.exit(-1)
@@ -50,6 +76,23 @@ class version(object):
 					return other.parts[2]
 				else: return 0
 
+def extract_mobilesdk():
+	mobile_dist_dir = os.path.join(mobile_dir, 'dist')
+	sys.path.append(mobile_dist_dir)
+	sys.path.append(os.path.join(mobile_dir, 'build'))
+	import titanium_version
+	
+	mobilesdk_dir = os.path.join(mobile_dist_dir, 'mobilesdk', platform_name, titanium_version.version)
+	mobilesdk_zipfile = os.path.join(mobile_dist_dir, 'mobilesdk-%s-%s.zip' % (titanium_version.version, platform_name))
+	if platform.system() == 'Darwin':
+		subprocess.Popen(['/usr/bin/unzip', '-q', '-o', '-d', mobile_dist_dir, mobilesdk_zipfile])
+	else:
+		# extract the mobilesdk zip so we can use it for testing
+		mobilesdk_zip = zipfile.ZipFile(mobilesdk_zipfile)
+		mobilesdk_zip.extractall(mobile_dist_dir)
+		mobilesdk_zip.close()
+	return mobilesdk_dir
+
 def usage():
 	print """
 %s [--platforms=PLATFORMS] [--tests-dir=DIR] [--results-dir=DIR] [--tests=TESTS] [platform specific args..]
@@ -82,32 +125,6 @@ def build_and_run(args=None):
 	if len(args) == 1 and args[0] in ["--help", "-h"]:
 		usage()
 
-	# first we need to find the desktop SDK for tibuild.py
-	sdk_dirs = []
-	if platform.system() == 'Darwin':
-		system_sdk = '/Library/Application Support/Titanium/sdk/osx'
-		if os.path.exists(system_sdk):
-			sdk_dirs.append(system_sdk)
-		user_sdk = os.path.expanduser('~/Library/Application Support/Titanium/sdk/osx')
-		if os.path.exists(user_sdk):
-			sdk_dirs.append(user_sdk)
-		platform_name = 'osx'
-	elif platform.system() == 'Windows':
-		if platform.release() == 'XP':
-			system_sdk = 'C:\\Documents and Settings\\All Users\\Application Data\\Titanium\\sdk\\win32'
-		else:
-			system_sdk = 'C:\\ProgramData\\Titanium\\sdk\\win32'
-		if os.path.exists(system_sdk):
-			sdk_dirs.append(system_sdk)
-		# TODO: support User SDK installs in win32
-		platform_name = 'win32'
-	elif platform.system() == 'Linux':
-		user_sdk = os.path.expanduser("~/.titanium/sdk/linux")
-		if os.path.exists(user_sdk):
-			sdk_dirs.append(user_sdk)
-		# TODO: support System SDK installs in linux
-		platform_name = 'linux'
-	
 	if len(sdk_dirs) == 0:
 		error_no_desktop_sdk()
 
@@ -134,28 +151,15 @@ def build_and_run(args=None):
 	desktop_sdk = version_map[use_version]
 	tibuild = os.path.join(desktop_sdk, 'tibuild.py')
 	drillbit_build_dir = os.path.join(mobile_dir, 'build', 'drillbit')
-	mobile_dist_dir = os.path.join(mobile_dir, 'dist')
 
-	sys.path.append(mobile_dist_dir)
-	sys.path.append(os.path.join(mobile_dir, 'build'))
-	import titanium_version
-
-	mobilesdk_dir = os.path.join(mobile_dist_dir, 'mobilesdk', platform_name, titanium_version.version)
-	mobilesdk_zipfile = os.path.join(mobile_dist_dir, 'mobilesdk-%s-%s.zip' % (titanium_version.version, platform_name))
-	if platform.system() == 'Darwin':
-		subprocess.Popen(['/usr/bin/unzip', '-q', '-o', '-d', mobile_dist_dir, mobilesdk_zipfile])
-	else:
-		# extract the mobilesdk zip so we can use it for testing
-		mobilesdk_zip = zipfile.ZipFile(mobilesdk_zipfile)
-		mobilesdk_zip.extractall(mobile_dist_dir)
-		mobilesdk_zip.close()
+	mobilesdk_dir = extract_mobilesdk()
 
 	if not os.path.exists(drillbit_build_dir):
 		os.makedirs(drillbit_build_dir)
 
 	sys.path.append(desktop_sdk)
 	import env
-	
+
 	# use the desktop SDK API to stage and run drillbit (along w/ its custom modules)
 	appstore = False
 	bundle = False
@@ -165,7 +169,11 @@ def build_and_run(args=None):
 		appstore = True
 		bundle = True
 
-	environment = env.PackagingEnvironment(platform_name, False, appstore)
+	# the win32 env.py doesn't have the appstore flag for some reason
+	if platform.system() == "Windows":
+		environment = env.PackagingEnvironment(platform_name, False)
+	else:
+		environment = env.PackagingEnvironment(platform_name, False, appstore)
 	app = environment.create_app(drillbit_app_dir)
 	stage_dir = os.path.join(drillbit_build_dir, app.name)
 
@@ -205,7 +213,7 @@ def build_and_run(args=None):
 	drillbit_args = [app.executable_path, '--debug', '--mobile-sdk=%s' % mobilesdk_dir, '--mobile-repository=%s' % mobile_dir]
 	if args != None:
 		drillbit_args.extend(args)
-	
+
 	app.env.run(drillbit_args)
 
 if __name__ == "__main__":
