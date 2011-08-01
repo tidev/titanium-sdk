@@ -352,5 +352,16 @@ describe("Ti.Filesystem tests", {
 		}
 
 		valueOf(newFile.move(Titanium.Filesystem.applicationDataDirectory+'/moved.txt')).shouldBeTrue();
+	},
+
+	emptyFile: function() {
+		var emptyFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, "empty.txt");
+		valueOf(emptyFile).shouldNotBeNull();
+		valueOf(emptyFile.size).shouldBe(0);
+
+		var blob = emptyFile.read();
+		valueOf(blob.length).shouldBe(0);
+		valueOf(blob.text).shouldBe("");
+		valueOf(blob.toString()).shouldBe("");
 	}
 });

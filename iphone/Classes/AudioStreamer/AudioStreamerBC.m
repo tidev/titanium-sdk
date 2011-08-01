@@ -781,7 +781,7 @@ cleanup:
 		{
 			if (state != AS_PLAYING && state != AS_PAUSED && state != AS_BUFFERING)
 			{
-				return lastProgress;
+				return lastProgress * 1000;
 			}
 
 			AudioTimeStamp queueTime;
@@ -799,11 +799,10 @@ cleanup:
 			}
 			
 			lastProgress = progress;
-			return progress;
 		}
 	}
 	
-	return lastProgress;
+	return lastProgress * 1000;
 }
 
 //
