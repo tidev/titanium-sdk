@@ -187,7 +187,7 @@ public class WindowProxy extends TiWindowProxy
 			return TiOrientationHelper.convertConfigToTiOrientationMode(activity.getResources().getConfiguration().orientation);
 		}
 		Log.e(LCAT, "unable to get orientation, activity not found for window");
-		return -1;
+		return TiOrientationHelper.ORIENTATION_UNKNOWN;
 	}
 
 	@Override

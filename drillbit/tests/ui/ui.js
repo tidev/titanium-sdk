@@ -125,6 +125,6 @@ describe("Ti.UI tests", {
 
 	windowOrientation: function() {
 		var w = Ti.UI.createWindow();
-		valueOf(w.orientation).shouldBeOneOf([Ti.UI.PORTRAIT, Ti.UI.LANDSCAPE_LEFT])
+		valueOf(w.orientation).shouldBeOneOf([Ti.UI.PORTRAIT, Ti.UI.LANDSCAPE_LEFT]);
 	}
 });
