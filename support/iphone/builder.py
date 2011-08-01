@@ -481,6 +481,7 @@ def main(args):
 		debug_host = None
 		debug_port = None
 		debughost = None
+		debugport = None
 		
 		# starting in 1.4, you don't need to actually keep the build/iphone directory
 		# if we don't find it, we'll just simply re-generate it
