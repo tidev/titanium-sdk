@@ -9,6 +9,7 @@ package ti.modules.titanium.xml;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.util.Log;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Comment;
@@ -23,6 +24,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Notation;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
+
+import android.os.Build;
 
 @Kroll.proxy
 public class NodeProxy extends KrollProxy {
@@ -39,8 +42,9 @@ public class NodeProxy extends KrollProxy {
 	@Kroll.constant public static final int NOTATION_NODE = Node.NOTATION_NODE;
 	@Kroll.constant public static final int PROCESSING_INSTRUCTION_NODE = Node.PROCESSING_INSTRUCTION_NODE;
 	@Kroll.constant public static final int TEXT_NODE = Node.TEXT_NODE;
+	public static final String TAG = "TiNodeProxy";
 
-	private Node node;
+	protected Node node;
 	
 	public NodeProxy(TiContext context, Node node)
 	{
@@ -52,9 +56,10 @@ public class NodeProxy extends KrollProxy {
 		return node;
 	}
 	
-	// We cache node proxies so we're not constructing new ones on every single call
-	// on node finalize we have to go back through and remove each proxy
 	public static NodeProxy getNodeProxy(TiContext context, Node node) {
+		if (node == null) {
+			return null;
+		}
 		NodeProxy proxy;
 		switch (node.getNodeType()) {
 			case Node.ATTRIBUTE_NODE:
@@ -119,6 +124,10 @@ public class NodeProxy extends KrollProxy {
 
 	@Kroll.method
 	public NodeProxy cloneNode(boolean deep) {
+		if (Build.VERSION.SDK_INT < 11) {
+			// TIMOB-4771, android harmony implementation bug fixed in Honeycomb.
+			Log.w(TAG, "cloneNode will often throw exception in versions prior to Honeycomb.");
+		}
 		return getProxy(node.cloneNode(deep));
 	}
 
@@ -243,4 +252,23 @@ public class NodeProxy extends KrollProxy {
 	public XPathNodeListProxy evaluate(String xpath) {
 		return XPathUtil.evaluate(this, xpath);
 	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this.node == null || !(o instanceof NodeProxy)) {
+			return super.equals(o);
+		}
+		return this.node.equals(((NodeProxy) o).node);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		if (this.node == null) {
+			return super.hashCode();
+		}
+		return this.node.hashCode();
+	}
+
 }

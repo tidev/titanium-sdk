@@ -14,7 +14,7 @@ describe("Ti.XML tests", {
 			return nodeCount;
 		};
 		
-		var testFiles = ["soap.xml", "xpath.xml", "nodes.xml", "nodeCount.xml", "cdata.xml", "cdataEntities.xml"];
+		var testFiles = ["soap.xml", "xpath.xml", "nodes.xml", "nodeCount.xml", "cdata.xml", "cdataEntities.xml", "with_dtd.xml", "with_ns.xml"];
 		var invalidFiles = [ "mismatched_tag.xml", "no_toplevel.xml", "no_end.xml"];
 		this.testSource = {};
 		this.invalidSource = {};
@@ -198,16 +198,32 @@ describe("Ti.XML tests", {
 		valueOf(fullString).shouldBe("\nfunction matchwo(a,b)\n{\nif (a < b && a < 0) then\n  {\n  return 1;\n  }\nelse\n  {\n  return 0;\n  }\n}\n");
 		cData.data = "Test Assignment";
 		valueOf(cData.data).shouldBe("Test Assignment");
-		cData.data = "\nfunction matchwo(a,b)\n{\nif (a < b && a < 0) then\n  {\n  return 1;\n  }\nelse\n  {\n  return 0;\n  }\n}\n";
+
+		cData.data = fullString;
 		var fullLength = cData.length;
-		valueOf(fullLength).shouldBe(97);
+		valueOf(fullLength).shouldBe(fullString.length);
 
 		// CharacterData.substringData
 		var substring1 = cData.substringData(1, 8);
-		valueOf(substring1).shouldBe("function");
-		//TIMOB-4718
-		var substring2 = cData.substringData(1, 1000);
-		valueOf(substring2.length).shouldBe(96);
+		valueOf(substring1).shouldBe(fullString.substr(1, 8));
+		// asking for more than there is should not throw exception
+		// according to spec, rather just return up to end.
+		var substring2 = null;
+		valueOf(function() {
+			substring2 = cData.substringData(1, 1000);
+		}).shouldNotThrowException();
+		valueOf(substring2.length).shouldBe(fullLength - 1);
+		valueOf(substring2).shouldBe(fullString.substr(1, 1000));
+		// check edge cases
+		substring2 = cData.substringData(0, fullLength);
+		valueOf(substring2.length).shouldBe(fullLength);
+		valueOf(substring2).shouldBe(fullString);
+		substring2 = cData.substringData(1, fullLength);
+		valueOf(substring2.length).shouldBe(fullLength - 1);
+		valueOf(substring2).shouldBe(fullString.substr(1, fullLength));
+		substring2 = cData.substringData(0, fullLength + 1);
+		valueOf(substring2.length).shouldBe(fullLength);
+		valueOf(substring2).shouldBe(fullString.substr(0, fullLength + 1));
 		valueOf(function() {
 			var substring3 = cData.substringData(1000, 1001);
 		}).shouldThrowException();
@@ -346,6 +362,480 @@ describe("Ti.XML tests", {
 		}
 	},
 
+	apiXMLTextSplitText: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+		var firstString = "first part|";
+		var secondString = "second part";
+		var completeString = firstString + secondString;
+
+		valueOf(doc.createTextNode).shouldBeFunction();
+
+		var parentNode = doc.createElement("parentNode");
+		var childNode = doc.createTextNode(completeString);
+		parentNode.appendChild(childNode);
+		valueOf(parentNode.childNodes.length).shouldBe(1);
+
+		valueOf(function() { splitTextResults = parentNode.firstChild.splitText(firstString.length); }).shouldNotThrowException();
+
+		valueOf(parentNode.childNodes.length).shouldBe(2);
+		valueOf(splitTextResults.nodeValue).shouldBe(parentNode.lastChild.nodeValue);
+		valueOf(firstString).shouldBe(parentNode.firstChild.nodeValue);
+		valueOf(secondString).shouldBe(parentNode.lastChild.nodeValue);
+
+		// Out-of-bounds exceptions are in the spec:
+		completeString = "New text node";
+		childNode = doc.createTextNode(completeString);
+		valueOf(function() {
+			childNode.splitText(-1);
+		}).shouldThrowException();
+		valueOf(function() {
+			childNode.splitText(completeString.length + 1);
+		}).shouldThrowException();
+	},
+
+	apiXMLTextGetText: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+		var textValue = "this is some test";
+
+		valueOf(doc.createTextNode).shouldBeFunction();
+		var textNode = doc.createTextNode(textValue);
+		valueOf(textNode.nodeValue).shouldBe(textValue);
+
+		var getTextResults = null;
+		valueOf(function() { getTextResults = textNode.getText(); }).shouldNotThrowException();
+		valueOf(getTextResults).shouldBe(textValue);
+		valueOf(function() { getTextResults2 = textNode.text; }).shouldNotThrowException();
+		valueOf(getTextResults2).shouldBe(textValue);
+	},
+
+	apiXmlDocumentProperties: function() {
+		// File with DTD
+		var doc = Ti.XML.parseString(this.testSource["with_dtd.xml"]);
+		valueOf(doc.documentElement).shouldNotBeUndefined();
+		valueOf(doc.documentElement).shouldNotBeNull();
+		valueOf(doc.documentElement).shouldBeObject();
+		valueOf(doc.documentElement.nodeName).shouldBe("letter");
+		valueOf(doc.implementation).shouldNotBeUndefined();
+		valueOf(doc.implementation).shouldNotBeNull();
+		valueOf(doc.implementation).shouldBeObject();
+		valueOf(doc.doctype).shouldNotBeUndefined();
+		valueOf(doc.doctype).shouldNotBeNull();
+		valueOf(doc.doctype).shouldBeObject();
+		// Document without DTD, to be sure doc.doctype is null as spec says
+		doc = Ti.XML.parseString("<a/>");
+		valueOf(doc.doctype).shouldBeNull();
+	},
+	apiXmlDocumentCreateAttribute: function() {
+		var doc = Ti.XML.parseString("<test/>");
+		valueOf(doc.createAttribute).shouldBeFunction();
+		var attr = doc.createAttribute("myattr");
+		valueOf(attr).shouldNotBeNull();
+		valueOf(attr).shouldBeObject();
+		valueOf(attr.name).shouldBe("myattr");
+
+		attr = null;
+		valueOf(doc.createAttributeNS).shouldBeFunction();
+		attr = doc.createAttributeNS("http://example.com", "prefix:myattr");
+		valueOf(attr).shouldNotBeNull();
+		valueOf(attr).shouldBeObject();
+		valueOf(attr.name).shouldBe("prefix:myattr");
+		valueOf(attr.namespaceURI).shouldBe("http://example.com");
+		valueOf(attr.prefix).shouldBe("prefix");
+	},
+	apiXmlDocumentCreateCDATASection: function() {
+		var doc = Ti.XML.parseString("<test/>");
+		valueOf(doc.createCDATASection).shouldBeFunction();
+		var data = "This is my CDATA section";
+		var section = doc.createCDATASection(data);
+		valueOf(section).shouldNotBeNull();
+		valueOf(section).shouldBeObject();
+		valueOf(section.text).shouldBe(data);
+	},
+	apiXmlDocumentCreateComment: function() {
+		var doc = Ti.XML.parseString("<test/>");
+		valueOf(doc.createComment).shouldBeFunction();
+		var data = "This is my comment";
+		var comment = doc.createComment(data);
+		valueOf(comment).shouldNotBeNull();
+		valueOf(comment).shouldBeObject();
+		valueOf(comment.data).shouldBe(data);
+	},
+	apiXmlDocumentCreateDocumentFragment: function() {
+		var doc = Ti.XML.parseString("<test/>");
+		valueOf(doc.createDocumentFragment).shouldBeFunction();
+		var frag = doc.createDocumentFragment();
+		valueOf(frag).shouldNotBeNull();
+		valueOf(frag).shouldBeObject();
+	},
+	apiXmlDocumentCreateElement: function() {
+		var doc = Ti.XML.parseString("<test/>");
+		valueOf(doc.createElement).shouldBeFunction();
+		var elem = doc.createElement("myelement");
+		valueOf(elem).shouldNotBeNull();
+		valueOf(elem).shouldBeObject();
+		valueOf(elem.nodeName).shouldBe("myelement");
+		valueOf(elem.localName).shouldBeNull();
+		valueOf(elem.prefix).shouldBeNull();
+		valueOf(elem.namespaceURI).shouldBeNull();
+	},
+	apiXmlDocumentCreateElementNS: function() {
+		var doc = Ti.XML.parseString("<test/>");
+		valueOf(doc.createElementNS).shouldBeFunction();
+		var elem = doc.createElementNS("http://example.com", "prefix:myelement");
+		valueOf(elem).shouldNotBeNull();
+		valueOf(elem).shouldBeObject();
+		valueOf(elem.nodeName).shouldBe("prefix:myelement");
+		valueOf(elem.localName).shouldBe("myelement");
+		valueOf(elem.prefix).shouldBe("prefix");
+		valueOf(elem.namespaceURI).shouldBe("http://example.com");
+	},
+	apiXmlDocumentCreateEntityReference: function() {
+		var doc = Ti.XML.parseString("<test/>");
+		valueOf(doc.createEntityReference).shouldBeFunction();
+		var entity = doc.createEntityReference("myentity");
+		valueOf(entity).shouldNotBeNull();
+		valueOf(entity).shouldBeObject();
+		valueOf(entity.nodeName).shouldBe("myentity");
+	},
+	apiXmlDocumentCreateProcessingInstruction: function() {
+		var doc = Ti.XML.parseString("<test/>");
+		valueOf(doc.createProcessingInstruction).shouldBeFunction();
+		var instruction = doc.createProcessingInstruction("a", "b");
+		valueOf(instruction).shouldNotBeNull();
+		valueOf(instruction).shouldBeObject();
+		valueOf(instruction.target).shouldBe("a");
+		valueOf(instruction.data).shouldBe("b");
+	},
+	apiXmlDocumentCreateTextNode: function() {
+		var doc = Ti.XML.parseString("<test/>");
+		valueOf(doc.createTextNode).shouldBeFunction();
+		var value = "This is some text";
+		var text = doc.createTextNode(value);
+		valueOf(text).shouldNotBeNull();
+		valueOf(text).shouldBeObject();
+		valueOf(text.data).shouldBe(value);
+	},
+	apiXmlDocumentGetElementById: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+		valueOf(doc.getElementById).shouldBeFunction();
+		var node = doc.getElementById("node 1");
+		valueOf(node).shouldNotBeNull();
+		valueOf(node).shouldBeObject();
+		valueOf(node.nodeName).shouldBe("node");
+		valueOf(function() {
+			node = doc.getElementById("no_such_element"); // Causes NPE in Android, shouldn't. TIMOB-4707
+		}).shouldNotThrowException();
+		valueOf(node).shouldBeNull();
+	},
+	apiXmlDocumentGetElementsByTagName: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+		valueOf(doc.getElementsByTagName).shouldBeFunction();
+		var elements = doc.getElementsByTagName("node");
+		valueOf(elements).shouldNotBeNull();
+		valueOf(elements).shouldBeObject();
+		valueOf(elements.length).shouldBeGreaterThan(0);
+		for (var i = 0; i < elements.length; i++) {
+			var checkelem = elements.item(i);
+			valueOf(checkelem.nodeName).shouldBe("node");
+		}
+		// test bogus tagname
+		valueOf(function() {
+			elements = doc.getElementsByTagName("bogus");
+		}).shouldNotThrowException();
+		valueOf(elements).shouldNotBeNull();
+		valueOf(elements).shouldBeObject();
+		valueOf(elements.length).shouldBeExactly(0);
+	},
+	apiXmlDocumentGetElementsByTagNameNS: function() {
+		var doc = Ti.XML.parseString(this.testSource["with_ns.xml"]);
+		valueOf(doc.getElementsByTagNameNS).shouldBeFunction();
+		var elements = doc.getElementsByTagNameNS("http://example.com", "cake");
+		valueOf(elements).shouldNotBeNull();
+		valueOf(elements).shouldBeObject();
+		valueOf(elements.length).shouldBeGreaterThan(0);
+		for (var i = 0; i < elements.length; i++) {
+			var checkelem = elements.item(i);
+			valueOf(checkelem.localName).shouldBe("cake");
+			valueOf(checkelem.namespaceURI).shouldBe("http://example.com");
+		}
+		// test real namespace and bogus tagname
+		valueOf(function() {
+			elements = doc.getElementsByTagNameNS("http://example.com", "bogus");
+		}).shouldNotThrowException();
+		valueOf(elements).shouldNotBeNull();
+		valueOf(elements).shouldBeObject();
+		valueOf(elements.length).shouldBeExactly(0);
+		// test bogus namespace and real tagname
+		valueOf(function() {
+			elements = doc.getElementsByTagNameNS("http://bogus.com", "pie");
+		}).shouldNotThrowException();
+		valueOf(elements).shouldNotBeNull();
+		valueOf(elements).shouldBeObject();
+		valueOf(elements.length).shouldBeExactly(0);
+		// test bogus namespace and bogus tagname
+		valueOf(function() {
+			elements = doc.getElementsByTagNameNS("http://bogus.com", "bogus");
+		}).shouldNotThrowException();
+		valueOf(elements).shouldNotBeNull();
+		valueOf(elements).shouldBeObject();
+		valueOf(elements.length).shouldBeExactly(0);
+	},
+	apiXmlDocumentImportNode: function() {
+		var doc = Ti.XML.parseString("<a/>");
+		var otherDoc = Ti.XML.parseString(this.testSource["with_ns.xml"]);
+		var cakeNodes = otherDoc.documentElement.getElementsByTagNameNS("http://example.com", "cake");
+		valueOf(cakeNodes).shouldNotBeNull();
+		valueOf(cakeNodes.length).shouldBeGreaterThan(0);
+		var cakeNode = cakeNodes.item(0);
+		valueOf(cakeNode).shouldNotBeNull();
+		valueOf(doc.importNode).shouldBeFunction();
+		// test deep import
+		var importedNode;
+		valueOf(function() {
+			importedNode = doc.importNode(cakeNode, true);
+		}).shouldNotThrowException();
+		valueOf(importedNode.ownerDocument).shouldNotBeNull();
+		valueOf(importedNode.ownerDocument).shouldBeObject();
+		valueOf(importedNode.ownerDocument).shouldBe(doc);
+		valueOf(importedNode.parentNode).shouldBeNull();
+		valueOf(importedNode.hasChildNodes()).shouldBeTrue();
+		valueOf(importedNode.childNodes.length).shouldBeGreaterThan(0);
+		valueOf(importedNode.namespaceURI).shouldBe("http://example.com");
+		// test shallow import
+		valueOf(function() {
+			importedNode = doc.importNode(cakeNode, false);
+		}).shouldNotThrowException();
+		valueOf(importedNode.hasChildNodes()).shouldBeFalse();
+		valueOf(importedNode.ownerDocument).shouldNotBeNull();
+		valueOf(importedNode.ownerDocument).shouldBeObject();
+		valueOf(importedNode.ownerDocument).shouldBe(doc);
+		valueOf(importedNode.parentNode).shouldBeNull();
+	},
+
+	apiXmlNodeProperties: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+
+		var nodesList = doc.getElementsByTagName("nodes");
+		valueOf(nodesList).shouldNotBeNull();
+		valueOf(nodesList.length).shouldBe(1);
+
+		var node = nodesList.item(0);
+
+		// verify properties
+		valueOf(node.ELEMENT_NODE).shouldBeNumber();
+		valueOf(node.ATTRIBUTE_NODE).shouldBeNumber();
+		valueOf(node.TEXT_NODE).shouldBeNumber();
+		valueOf(node.CDATA_SECTION_NODE).shouldBeNumber();
+		valueOf(node.ENTITY_REFERENCE_NODE).shouldBeNumber();
+		valueOf(node.ENTITY_NODE).shouldBeNumber();
+		valueOf(node.PROCESSING_INSTRUCTION_NODE).shouldBeNumber();
+		valueOf(node.COMMENT_NODE).shouldBeNumber();
+		valueOf(node.DOCUMENT_NODE).shouldBeNumber();
+		valueOf(node.DOCUMENT_TYPE_NODE).shouldBeNumber();
+		valueOf(node.DOCUMENT_FRAGMENT_NODE).shouldBeNumber();
+		valueOf(node.NOTATION_NODE).shouldBeNumber();
+		valueOf(node.nodeName).shouldBeString();
+
+		var attrName = "attr";
+		var attrValue = "value";
+		node.setAttribute(attrName, attrValue);
+		var attrNode = node.getAttributeNode(attrName);
+		valueOf(attrNode.nodeValue).shouldBe(attrValue);
+
+		var CDATANodeContents = "this CDATA contents";
+		var CDATANode = doc.createCDATASection(CDATANodeContents);
+		valueOf(CDATANode.nodeValue).shouldBe(CDATANodeContents);
+
+		var commentNodeContents = "this is a comment";
+		var commentNode = doc.createComment(commentNodeContents);
+		valueOf(commentNode.nodeValue).shouldBe(commentNodeContents);
+
+		valueOf(doc.nodeValue).shouldBe(null);
+		valueOf(doc.createDocumentFragment().nodeValue).shouldBe(null);
+		valueOf(doc.getDoctype().nodeValue).shouldBe(null);
+		valueOf(node.nodeValue).shouldBe(null);
+		valueOf(doc.createEntityReference("blah").nodeValue).shouldBe(null);
+
+		var processingInstructionData = "data";
+		valueOf(doc.createProcessingInstruction("target", processingInstructionData).nodeValue).shouldBe(processingInstructionData);
+
+		var textNodeContents = "this is some text";
+		var textNode = doc.createTextNode(textNodeContents);
+		valueOf(textNode.nodeValue).shouldBe(textNodeContents);
+
+		valueOf(node.nodeType).shouldBeNumber();
+		valueOf(node.parentNode).shouldBeObject();
+		valueOf(node.childNodes).shouldBeObject();
+		valueOf(node.firstChild).shouldBeObject();
+		valueOf(node.lastChild).shouldBeObject();
+		valueOf(node.previousSibling).shouldBeObject();
+		valueOf(node.nextSibling).shouldBeObject();
+		valueOf(node.attributes).shouldBeObject();
+		valueOf(node.ownerDocument).shouldBeObject();
+		valueOf(node.namespaceURI).shouldNotBeUndefined();
+		valueOf(node.prefix).shouldNotBeUndefined();
+		valueOf(node.localName).shouldNotBeUndefined();
+	},
+
+	apiXmlNodeAppendChild: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+
+		var parentNode = doc.createElement("parentNode");
+		valueOf(parentNode.appendChild).shouldBeFunction();
+
+		var childNode = doc.createElement("childNode");
+		valueOf(function() { parentNode.appendChild(childNode); }).shouldNotThrowException();
+		valueOf(parentNode.firstChild).shouldBe(childNode); // fails - opened ticket #4703
+	},
+
+	apiXmlNodeCloneNode: function() {
+		var shouldRun = true;
+		if (Ti.Platform.osname === 'android') {
+			// this check exists to deal with the bug mentioned in TIMOB-4771
+			valueOf( isNaN(parseInt(Ti.Platform.version)) ).shouldBeFalse();
+			if (parseInt(Ti.Platform.version) < 3) {
+				Ti.API.info("Less than 3.0, not running apiXmlNodeCloneNode test");
+				shouldRun = false;
+			} else {
+				Ti.API.info("3.0 or greater, running apiXmlNodeCloneNode test");
+			}
+		}
+
+		if (shouldRun)
+		{
+			var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+
+			var parentNode = doc.createElement("parent");
+			parentNode.setAttribute("myattr", "attr value");
+			var childText = doc.createTextNode("child text");
+			var childElement = doc.createElement("childelement");
+			parentNode.appendChild(childText);
+			parentNode.appendChild(childElement);
+
+			valueOf(parentNode.cloneNode).shouldBeFunction();
+
+			var clonedNode = null;
+		
+			valueOf(function() { clonedNode = parentNode.cloneNode(false); }).shouldNotThrowException();
+			valueOf(clonedNode.nodeName).shouldBe(parentNode.nodeName);
+			valueOf(clonedNode.getAttribute("myattr")).shouldBe("attr value");
+			valueOf(clonedNode.firstChild.nodeValue).shouldBe(parentNode.firstChild.nodeValue);
+			valueOf(clonedNode.lastChild.nodeName).shouldBe(parentNode.lastChild.nodeName);
+
+			valueOf(function() { clonedNode = parentNode.cloneNode(true); }).shouldNotThrowException();
+			valueOf(clonedNode.nodeName).shouldBe(parentNode.nodeName);
+			valueOf(clonedNode.getAttribute("myattr")).shouldBe("attr value");
+			valueOf(clonedNode.firstChild.nodeValue).shouldBe(parentNode.firstChild.nodeValue);
+			valueOf(clonedNode.lastChild.nodeName).shouldBe(parentNode.lastChild.nodeName);
+		}
+	},
+
+	apiXmlNodeHasAttributes: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+
+		var node = doc.createElement("node");
+		var node2 = doc.createElement("node2");
+		node2.setAttribute("attr1", "value1");
+
+		valueOf(node.hasAttributes).shouldBeFunction();
+
+		var results;
+		valueOf(function() { results = node.hasAttributes(); }).shouldNotThrowException();
+		valueOf(results).shouldBe(false);
+		valueOf(function() { results = node2.hasAttributes(); }).shouldNotThrowException();
+		valueOf(results).shouldBe(true);
+	},
+
+	apiXmlNodeHasChildNodes: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+
+		var parentNode = doc.createElement("parentNode");
+		var parentNode2 = doc.createElement("parentNode2");
+		parentNode2.appendChild(doc.createElement("childNode"));
+
+		valueOf(parentNode.hasChildNodes).shouldBeFunction();
+
+		var results;
+		valueOf(function() { results = parentNode.hasChildNodes(); }).shouldNotThrowException();
+		valueOf(results).shouldBe(false);
+		valueOf(function() { results = parentNode2.hasChildNodes(); }).shouldNotThrowException();
+		valueOf(results).shouldBe(true);
+	},
+
+	apiXmlNodeInsertBefore: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+
+		var parentNode = doc.createElement("parentNode");
+		parentNode.appendChild(doc.createElement("childNode"));
+		parentNode.appendChild(doc.createElement("childNode2"));
+
+		valueOf(parentNode.insertBefore).shouldBeFunction();
+
+		var childNode3 = doc.createElement("childNode3");
+		valueOf(function() { parentNode.insertBefore(childNode3, parentNode.firstChild); }).shouldNotThrowException();
+		valueOf(parentNode.firstChild).shouldBe(childNode3); // fails - opened ticket #4703
+	},
+
+	apiXmlNodeIsSupported: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+
+		valueOf(doc.isSupported).shouldBeFunction();
+
+		var results;
+		valueOf(function() { results = doc.isSupported("XML", "1.0"); }).shouldNotThrowException();
+		valueOf(results).shouldBe(true);
+		valueOf(function() { results = doc.isSupported("IDONTEXIST", "1.0"); }).shouldNotThrowException();
+		valueOf(results).shouldBe(false);
+	},
+
+	apiXmlNodeNormalize: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+
+		var parentNode = doc.createElement("parentNode");
+		parentNode.appendChild(doc.createTextNode("My "));
+		parentNode.appendChild(doc.createTextNode("name "));
+		parentNode.appendChild(doc.createTextNode("is "));
+		parentNode.appendChild(doc.createTextNode("Opie."));
+
+		valueOf(parentNode.normalize).shouldBeFunction();
+
+		valueOf(function() { parentNode.normalize(); }).shouldNotThrowException();
+		valueOf(parentNode.getText()).shouldBe("My name is Opie.");
+		valueOf(parentNode.getChildNodes().length).shouldBe(1);
+	},
+
+	apiXmlNodeRemoveChild: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+
+		var parentNode = doc.createElement("parentNode");
+		var childNode = doc.createElement("childNode");
+		parentNode.appendChild(childNode);
+
+		valueOf(parentNode.removeChild).shouldBeFunction();
+
+		var results = null;
+		valueOf(function() { results = parentNode.removeChild(childNode); }).shouldNotThrowException();
+		valueOf(results).shouldBe(childNode); // fails - opened ticket #4703
+
+		valueOf(parentNode.hasChildNodes()).shouldBe(false);
+	},
+
+	apiXmlNodeReplaceChild: function() {
+		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
+
+		var parentNode = doc.createElement("parentNode");
+		var childNode = doc.createElement("childNode");
+		var childNode2 = doc.createElement("childNode2");
+		parentNode.appendChild(childNode);
+		parentNode.appendChild(childNode2);
+
+		valueOf(parentNode.replaceChild).shouldBeFunction();
+
+		var replacementNode = doc.createElement("replacementNode");
+		valueOf(function() { parentNode.replaceChild(replacementNode, childNode); }).shouldNotThrowException();
+		valueOf(parentNode.firstChild).shouldBe(replacementNode); // fails - opened ticket #4703
+	},
+
 	xmlNodeListElementsByTagName : function() {
 		var xml = Ti.XML.parseString(this.testSource["nodes.xml"]);
 		valueOf(xml).shouldNotBeNull();
@@ -399,7 +889,7 @@ describe("Ti.XML tests", {
 		var node = doc.getElementsByTagName("node").item(0);
 		var attr;
 		// First a known attribute
-		valueOf(function(){
+		valueOf(function() {
 			attr = node.attributes.item(0);
 		}).shouldNotThrowException();
 		valueOf(attr).shouldNotBeUndefined();
@@ -408,13 +898,13 @@ describe("Ti.XML tests", {
 		valueOf(attr.name).shouldBeString();
 		valueOf(attr.name).shouldBe("id");
 		valueOf(attr.ownerElement).shouldBeObject();
-//		valueOf(attr.ownerElement).shouldBe(node); // For some reason this doesn't work on android TIMOB-4703
+		valueOf(attr.ownerElement).shouldBe(node);
 		valueOf(attr.specified).shouldBeBoolean();
 		valueOf(attr.specified).shouldBeTrue();
 		valueOf(attr.value).shouldBeString();
 		valueOf(attr.value).shouldBe("node 1");
 		// Now new attribute
-		valueOf(function(){
+		valueOf(function() {
 			attr = doc.createAttribute("newattr");
 		}).shouldNotThrowException();
 		valueOf(attr).shouldNotBeUndefined();
@@ -423,12 +913,18 @@ describe("Ti.XML tests", {
 		valueOf(attr.name).shouldBeString();
 		valueOf(attr.name).shouldBe("newattr");
 		valueOf(attr.specified).shouldBeBoolean();
-		var addedAttr = node.setAttributeNode(attr); // NPE for some reason in Android. TIMOB-4704
-		valueOf(addedAttr).shouldNotBeNull();
-		valueOf(addedAttr).shouldBeObject();
-		valueOf(addedAttr).shouldBe(attr);
+		// Per spec, when you set an attribute that doesn't exist yet,
+		// null is returned.
+		var addedAttr = node.setAttributeNode(attr);
+		valueOf(addedAttr).shouldBeNull();
+		// Per spec, when you set a new attribute of same name as one that
+		// already exists, it replaces that existing one AND returns that existing one.
+		var secondNewAttr = doc.createAttribute("newattr");
+		var replacedAttr = node.setAttributeNode(secondNewAttr);
+		valueOf(replacedAttr).shouldNotBeNull();
+		valueOf(replacedAttr).shouldBe(attr); // For some reason this doesn't work on android TIMOB-4703
 		valueOf(attr.ownerElement).shouldNotBeNull();
-		valueOf(attr.ownerElement).shouldBe(node); // For some reason this doesn't work on android TIMOB-4703
+		valueOf(attr.ownerElement).shouldBe(node);
 		valueOf(attr.specified).shouldBeFalse();
 		valueOf(attr.value).shouldBeNull();
 		attr.value = "new value";
@@ -436,3 +932,4 @@ describe("Ti.XML tests", {
 		valueOf(attr.specified).shouldBeTrue();
 	}
 });
+
