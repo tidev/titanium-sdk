@@ -8,11 +8,10 @@
 
 #import "ASINetworkQueue.h"
 #import "ASIHTTPRequest.h"
-#import "ASIHTTPRequestConfig.h"
 
 // Private stuff
 @interface ASINetworkQueue ()
-	- (void)resetProgressDelegate:(id)progressDelegate;
+	- (void)resetProgressDelegate:(id *)progressDelegate;
 	@property (assign) int requestsCount;
 @end
 
@@ -43,22 +42,9 @@
 	[super dealloc];
 }
 
-- (BOOL)isNetworkActive
-{
-	return ([self requestsCount] > 0 && ![self isSuspended]);
-}
-
-- (void)updateNetworkActivityIndicator
-{
-#if defined(TARGET_OS_IPHONE) && ASI_AUTOUPDATE_NETWORK_INDICATOR==1
-	[[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:[self isNetworkActive]];
-#endif
-}
-
 - (void)setSuspended:(BOOL)suspend
 {
 	[super setSuspended:suspend];
-	[self updateNetworkActivityIndicator];
 }
 
 - (void)reset
@@ -88,41 +74,40 @@
 	[self setBytesDownloadedSoFar:0];
 	[self setTotalBytesToDownload:0];
 	[super cancelAllOperations];
-	[self updateNetworkActivityIndicator];
 }
 
 - (void)setUploadProgressDelegate:(id)newDelegate
 {
 	uploadProgressDelegate = newDelegate;
-	[self resetProgressDelegate:newDelegate];
+	[self resetProgressDelegate:&uploadProgressDelegate];
 
 }
 
 - (void)setDownloadProgressDelegate:(id)newDelegate
 {
 	downloadProgressDelegate = newDelegate;
-	[self resetProgressDelegate:newDelegate];
+	[self resetProgressDelegate:&downloadProgressDelegate];
 }
 
-- (void)resetProgressDelegate:(id)progressDelegate
+- (void)resetProgressDelegate:(id *)progressDelegate
 {
 #if !TARGET_OS_IPHONE
 	// If the uploadProgressDelegate is an NSProgressIndicator, we set its MaxValue to 1.0 so we can treat it similarly to UIProgressViews
 	SEL selector = @selector(setMaxValue:);
-	if ([progressDelegate respondsToSelector:selector]) {
+	if ([*progressDelegate respondsToSelector:selector]) {
 		double max = 1.0;
-		[ASIHTTPRequest performSelector:selector onTarget:progressDelegate withObject:nil amount:&max mainThread:shouldPerformCallbacksOnMainThread];
+		[ASIHTTPRequest performSelector:selector onTarget:progressDelegate withObject:nil amount:&max callerToRetain:nil];
 	}
 	selector = @selector(setDoubleValue:);
-	if ([progressDelegate respondsToSelector:selector]) {
+	if ([*progressDelegate respondsToSelector:selector]) {
 		double value = 0.0;
-		[ASIHTTPRequest performSelector:selector onTarget:progressDelegate withObject:nil amount:&value mainThread:shouldPerformCallbacksOnMainThread];
+		[ASIHTTPRequest performSelector:selector onTarget:progressDelegate withObject:nil amount:&value callerToRetain:nil];
 	}
 #else
 	SEL selector = @selector(setProgress:);
-	if ([progressDelegate respondsToSelector:selector]) {
+	if ([*progressDelegate respondsToSelector:selector]) {
 		float value = 0.0f;
-		[ASIHTTPRequest performSelector:selector onTarget:progressDelegate withObject:nil amount:&value mainThread:shouldPerformCallbacksOnMainThread];
+		[ASIHTTPRequest performSelector:selector onTarget:progressDelegate withObject:nil amount:&value callerToRetain:nil];
 	}
 #endif
 }
@@ -168,7 +153,7 @@
 				[self addHEADOperation:HEADRequest];
 				[request addDependency:HEADRequest];
 				if ([request shouldResetDownloadProgress]) {
-					[self resetProgressDelegate:[request downloadProgressDelegate]];
+					[self resetProgressDelegate:&downloadProgressDelegate];
 					[request setShouldResetDownloadProgress:NO];
 				}
 			}
@@ -183,7 +168,7 @@
 	}
 	// Tell the request not to increment the upload size when it starts, as we've already added its length
 	if ([request shouldResetUploadProgress]) {
-		[self resetProgressDelegate:[request uploadProgressDelegate]];
+		[self resetProgressDelegate:&uploadProgressDelegate];
 		[request setShouldResetUploadProgress:NO];
 	}
 	
@@ -191,7 +176,6 @@
 	
 	[request setQueue:self];
 	[super addOperation:request];
-	[self updateNetworkActivityIndicator];
 
 }
 
@@ -202,18 +186,23 @@
 	}
 }
 
-- (void)requestReceivedResponseHeaders:(ASIHTTPRequest *)request
+- (void)request:(ASIHTTPRequest *)request didReceiveResponseHeaders:(NSDictionary *)responseHeaders
 {
 	if ([self requestDidReceiveResponseHeadersSelector]) {
-		[[self delegate] performSelector:[self requestDidReceiveResponseHeadersSelector] withObject:request];
-	}	
+		[[self delegate] performSelector:[self requestDidReceiveResponseHeadersSelector] withObject:request withObject:responseHeaders];
+	}
 }
 
+- (void)request:(ASIHTTPRequest *)request willRedirectToURL:(NSURL *)newURL
+{
+	if ([self requestWillRedirectSelector]) {
+		[[self delegate] performSelector:[self requestWillRedirectSelector] withObject:request withObject:newURL];
+	}
+}
 
 - (void)requestFinished:(ASIHTTPRequest *)request
 {
 	[self setRequestsCount:[self requestsCount]-1];
-	[self updateNetworkActivityIndicator];
 	if ([self requestDidFinishSelector]) {
 		[[self delegate] performSelector:[self requestDidFinishSelector] withObject:request];
 	}
@@ -227,7 +216,6 @@
 - (void)requestFailed:(ASIHTTPRequest *)request
 {
 	[self setRequestsCount:[self requestsCount]-1];
-	[self updateNetworkActivityIndicator];
 	if ([self requestDidFailSelector]) {
 		[[self delegate] performSelector:[self requestDidFailSelector] withObject:request];
 	}
@@ -247,7 +235,7 @@
 {
 	[self setBytesDownloadedSoFar:[self bytesDownloadedSoFar]+bytes];
 	if ([self downloadProgressDelegate]) {
-		[ASIHTTPRequest updateProgressIndicator:[self downloadProgressDelegate] withProgress:[self bytesDownloadedSoFar] ofTotal:[self totalBytesToDownload] mainThread:shouldPerformCallbacksOnMainThread];
+		[ASIHTTPRequest updateProgressIndicator:&downloadProgressDelegate withProgress:[self bytesDownloadedSoFar] ofTotal:[self totalBytesToDownload]];
 	}
 }
 
@@ -255,7 +243,7 @@
 {
 	[self setBytesUploadedSoFar:[self bytesUploadedSoFar]+bytes];
 	if ([self uploadProgressDelegate]) {
-		[ASIHTTPRequest updateProgressIndicator:[self uploadProgressDelegate] withProgress:[self bytesUploadedSoFar] ofTotal:[self totalBytesToUpload] mainThread:shouldPerformCallbacksOnMainThread];
+		[ASIHTTPRequest updateProgressIndicator:&uploadProgressDelegate withProgress:[self bytesUploadedSoFar] ofTotal:[self totalBytesToUpload]];
 	}
 }
 
@@ -288,13 +276,25 @@
 
 - (BOOL)respondsToSelector:(SEL)selector
 {
+	// We handle certain methods differently because whether our delegate implements them or not can affect how the request should behave
+
+	// If the delegate implements this, the request will stop to wait for credentials
 	if (selector == @selector(authenticationNeededForRequest:)) {
 		if ([[self delegate] respondsToSelector:@selector(authenticationNeededForRequest:)]) {
 			return YES;
 		}
 		return NO;
+
+	// If the delegate implements this, the request will to wait for credentials
 	} else if (selector == @selector(proxyAuthenticationNeededForRequest:)) {
 		if ([[self delegate] respondsToSelector:@selector(proxyAuthenticationNeededForRequest:)]) {
+			return YES;
+		}
+		return NO;
+
+	// If the delegate implements requestWillRedirectSelector, the request will stop to allow the delegate to change the url
+	} else if (selector == @selector(request:willRedirectToURL:)) {
+		if ([self requestWillRedirectSelector] && [[self delegate] respondsToSelector:[self requestWillRedirectSelector]]) {
 			return YES;
 		}
 		return NO;
@@ -309,6 +309,8 @@
 	ASINetworkQueue *newQueue = [[[self class] alloc] init];
 	[newQueue setDelegate:[self delegate]];
 	[newQueue setRequestDidStartSelector:[self requestDidStartSelector]];
+	[newQueue setRequestWillRedirectSelector:[self requestWillRedirectSelector]];
+	[newQueue setRequestDidReceiveResponseHeadersSelector:[self requestDidReceiveResponseHeadersSelector]];
 	[newQueue setRequestDidFinishSelector:[self requestDidFinishSelector]];
 	[newQueue setRequestDidFailSelector:[self requestDidFailSelector]];
 	[newQueue setQueueDidFinishSelector:[self queueDidFinishSelector]];
@@ -327,11 +329,11 @@
 @synthesize bytesDownloadedSoFar;
 @synthesize totalBytesToDownload;
 @synthesize shouldCancelAllRequestsOnFailure;
-@synthesize shouldPerformCallbacksOnMainThread;
 @synthesize uploadProgressDelegate;
 @synthesize downloadProgressDelegate;
 @synthesize requestDidStartSelector;
 @synthesize requestDidReceiveResponseHeadersSelector;
+@synthesize requestWillRedirectSelector;
 @synthesize requestDidFinishSelector;
 @synthesize requestDidFailSelector;
 @synthesize queueDidFinishSelector;

@@ -8,171 +8,407 @@
 
 #import "ASIAuthenticationDialog.h"
 #import "ASIHTTPRequest.h"
+#import <QuartzCore/QuartzCore.h>
 
-ASIAuthenticationDialog *sharedDialog = nil;
-NSLock *dialogLock = nil;
+static ASIAuthenticationDialog *sharedDialog = nil;
+BOOL isDismissing = NO;
+static NSMutableArray *requestsNeedingAuthentication = nil;
+
+static const NSUInteger kUsernameRow = 0;
+static const NSUInteger kUsernameSection = 0;
+static const NSUInteger kPasswordRow = 1;
+static const NSUInteger kPasswordSection = 0;
+static const NSUInteger kDomainRow = 0;
+static const NSUInteger kDomainSection = 1;
+
+
+@implementation ASIAutorotatingViewController
+
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
+{
+	return YES;
+}
+
+@end
+
 
 @interface ASIAuthenticationDialog ()
+- (void)showTitle;
 - (void)show;
+- (NSArray *)requestsRequiringTheseCredentials;
+- (void)presentNextDialog;
+- (void)keyboardWillShow:(NSNotification *)notification;
+- (void)orientationChanged:(NSNotification *)notification;
+- (void)cancelAuthenticationFromDialog:(id)sender;
+- (void)loginWithCredentialsFromDialog:(id)sender;
+@property (retain) UITableView *tableView;
 @end
 
 @implementation ASIAuthenticationDialog
 
+#pragma mark init / dealloc
+
 + (void)initialize
 {
 	if (self == [ASIAuthenticationDialog class]) {
-		dialogLock = [[NSLock alloc] init];
+		requestsNeedingAuthentication = [[NSMutableArray array] retain];
 	}
 }
 
-+ (void)presentProxyAuthenticationDialogForRequest:(ASIHTTPRequest *)request
++ (void)presentAuthenticationDialogForRequest:(ASIHTTPRequest *)theRequest
 {
-	[dialogLock lock];
-	[sharedDialog release];
-	sharedDialog = [[self alloc] init];
-	[sharedDialog setRequest:request];
-	[sharedDialog setType:ASIProxyAuthenticationType];
-	[sharedDialog show];
-	[dialogLock unlock];	
+	// No need for a lock here, this will always be called on the main thread
+	if (!sharedDialog) {
+		sharedDialog = [[self alloc] init];
+		[sharedDialog setRequest:theRequest];
+		if ([theRequest authenticationNeeded] == ASIProxyAuthenticationNeeded) {
+			[sharedDialog setType:ASIProxyAuthenticationType];
+		} else {
+			[sharedDialog setType:ASIStandardAuthenticationType];
+		}
+		[sharedDialog show];
+	} else {
+		[requestsNeedingAuthentication addObject:theRequest];
+	}
 }
 
-+ (void)presentAuthenticationDialogForRequest:(ASIHTTPRequest *)request
+- (id)init
 {
-	[dialogLock lock];
-	[sharedDialog release];
-	sharedDialog = [[self alloc] init];
-	[sharedDialog setRequest:request];
-	[sharedDialog show];
-	[dialogLock unlock];
+	if ((self = [self initWithNibName:nil bundle:nil])) {
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+		if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
+#endif
+			if (![UIDevice currentDevice].generatesDeviceOrientationNotifications) {
+				[[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+				[self setDidEnableRotationNotifications:YES];
+			}
+			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:UIDeviceOrientationDidChangeNotification object:nil];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+		}
+#endif
+	}
+	return self;
+}
+
+- (void)dealloc
+{
+	if ([self didEnableRotationNotifications]) {
+		[[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
+	}
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
+
+	[request release];
+	[tableView release];
+	[presentingController.view removeFromSuperview];
+	[presentingController release];
+	[super dealloc];
+}
+
+#pragma mark keyboard notifications
+
+- (void)keyboardWillShow:(NSNotification *)notification
+{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
+#endif
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_3_2
+		NSValue *keyboardBoundsValue = [[notification userInfo] objectForKey:UIKeyboardFrameEndUserInfoKey];
+#else
+		NSValue *keyboardBoundsValue = [[notification userInfo] objectForKey:UIKeyboardBoundsUserInfoKey];
+#endif
+		CGRect keyboardBounds;
+		[keyboardBoundsValue getValue:&keyboardBounds];
+		UIEdgeInsets e = UIEdgeInsetsMake(0, 0, keyboardBounds.size.height, 0);
+		[[self tableView] setScrollIndicatorInsets:e];
+		[[self tableView] setContentInset:e];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+	}
+#endif
+}
+
+// Manually handles orientation changes on iPhone
+- (void)orientationChanged:(NSNotification *)notification
+{
+	[self showTitle];
 	
+	UIInterfaceOrientation o = [[UIApplication sharedApplication] statusBarOrientation];
+	CGFloat angle = 0;
+	switch (o) {
+		case UIDeviceOrientationLandscapeLeft: angle = 90; break;
+		case UIDeviceOrientationLandscapeRight: angle = -90; break;
+		case UIDeviceOrientationPortraitUpsideDown: angle = 180; break;
+		default: break;
+	}
+
+	CGRect f = [[UIScreen mainScreen] applicationFrame];
+
+	// Swap the frame height and width if necessary
+ 	if (UIDeviceOrientationIsLandscape(o)) {
+		CGFloat t;
+		t = f.size.width;
+		f.size.width = f.size.height;
+		f.size.height = t;
+	}
+
+	CGAffineTransform previousTransform = self.view.layer.affineTransform;
+	CGAffineTransform newTransform = CGAffineTransformMakeRotation((CGFloat)(angle * M_PI / 180.0));
+
+	// Reset the transform so we can set the size
+	self.view.layer.affineTransform = CGAffineTransformIdentity;
+	self.view.frame = (CGRect){ { 0, 0 }, f.size};
+
+	// Revert to the previous transform for correct animation
+	self.view.layer.affineTransform = previousTransform;
+
+	[UIView beginAnimations:nil context:NULL];
+	[UIView setAnimationDuration:0.3];
+
+	// Set the new transform
+	self.view.layer.affineTransform = newTransform;
+
+	// Fix the view origin
+	self.view.frame = (CGRect){ { f.origin.x, f.origin.y },self.view.frame.size};
+    [UIView commitAnimations];
+}
+		 
+#pragma mark utilities
+
+- (UIViewController *)presentingController
+{
+	if (!presentingController) {
+		presentingController = [[ASIAutorotatingViewController alloc] initWithNibName:nil bundle:nil];
+
+		// Attach to the window, but don't interfere.
+		UIWindow *window = [[[UIApplication sharedApplication] windows] objectAtIndex:0];
+		[window addSubview:[presentingController view]];
+		[[presentingController view] setFrame:CGRectZero];
+		[[presentingController view] setUserInteractionEnabled:NO];
+	}
+
+	return presentingController;
+}
+
+- (UITextField *)textFieldInRow:(NSUInteger)row section:(NSUInteger)section
+{
+	return [[[[[self tableView] cellForRowAtIndexPath:
+			   [NSIndexPath indexPathForRow:row inSection:section]]
+			  contentView] subviews] objectAtIndex:0];
+}
+
+- (UITextField *)usernameField
+{
+	return [self textFieldInRow:kUsernameRow section:kUsernameSection];
+}
+
+- (UITextField *)passwordField
+{
+	return [self textFieldInRow:kPasswordRow section:kPasswordSection];
+}
+
+- (UITextField *)domainField
+{
+	return [self textFieldInRow:kDomainRow section:kDomainSection];
+}
+
+#pragma mark show / dismiss
+
++ (void)dismiss
+{
+	[[sharedDialog parentViewController] dismissModalViewControllerAnimated:YES];
+}
+
+- (void)viewDidDisappear:(BOOL)animated
+{
+	[self retain];
+	[sharedDialog release];
+	sharedDialog = nil;
+	[self performSelector:@selector(presentNextDialog) withObject:nil afterDelay:0];
+	[self release];
+}
+
+- (void)dismiss
+{
+	if (self == sharedDialog) {
+		[[self class] dismiss];
+	} else {
+		[[self parentViewController] dismissModalViewControllerAnimated:YES];
+	}
+}
+
+- (void)showTitle
+{
+	UINavigationBar *navigationBar = [[[self view] subviews] objectAtIndex:0];
+	UINavigationItem *navItem = [[navigationBar items] objectAtIndex:0];
+	if (UIInterfaceOrientationIsPortrait([[UIDevice currentDevice] orientation])) {
+		// Setup the title
+		if ([self type] == ASIProxyAuthenticationType) {
+			[navItem setPrompt:@"Login to this secure proxy server."];
+		} else {
+			[navItem setPrompt:@"Login to this secure server."];
+		}
+	} else {
+		[navItem setPrompt:nil];
+	}
+	[navigationBar sizeToFit];
+	CGRect f = [[self view] bounds];
+	f.origin.y = [navigationBar frame].size.height;
+	f.size.height -= f.origin.y;
+	[[self tableView] setFrame:f];
 }
 
 - (void)show
 {
-	// Create an action sheet to show the login dialog
-	[self setLoginDialog:[[[UIActionSheet alloc] init] autorelease]];
-	[[self loginDialog] setActionSheetStyle:UIActionSheetStyleBlackOpaque];
-	[[self loginDialog] setDelegate:self];
-	
+	// Remove all subviews
+	UIView *v;
+	while ((v = [[[self view] subviews] lastObject])) {
+		[v removeFromSuperview];
+	}
+
+	// Setup toolbar
+	UINavigationBar *bar = [[[UINavigationBar alloc] init] autorelease];
+	[bar setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
+
+	UINavigationItem *navItem = [[[UINavigationItem alloc] init] autorelease];
+	bar.items = [NSArray arrayWithObject:navItem];
+
+	[[self view] addSubview:bar];
+
+	[self showTitle];
+
+	// Setup toolbar buttons
+	if ([self type] == ASIProxyAuthenticationType) {
+		[navItem setTitle:[[self request] proxyHost]];
+	} else {
+		[navItem setTitle:[[[self request] url] host]];
+	}
+
+	[navItem setLeftBarButtonItem:[[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelAuthenticationFromDialog:)] autorelease]];
+	[navItem setRightBarButtonItem:[[[UIBarButtonItem alloc] initWithTitle:@"Login" style:UIBarButtonItemStyleDone target:self action:@selector(loginWithCredentialsFromDialog:)] autorelease]];
+
 	// We show the login form in a table view, similar to Safari's authentication dialog
-	UITableView *table = [[[UITableView alloc] initWithFrame:CGRectMake(0,80,320,480) style:UITableViewStyleGrouped] autorelease];
-	[table setDelegate:self];
-	[table setDataSource:self];
-	[[self loginDialog] addSubview:table];
-	[[self loginDialog] showInView:[[[UIApplication sharedApplication] windows] objectAtIndex:0]];
-	[[self loginDialog] setFrame:CGRectMake(0,0,320,480)];
-	
-	// Setup the title (Couldn't figure out how to put this in the same toolbar as the buttons)
-	UIToolbar *titleBar = [[[UIToolbar alloc] initWithFrame:CGRectMake(0,0,320,30)] autorelease];
-	UILabel *label = [[[UILabel alloc] initWithFrame:CGRectMake(10,0,300,30)] autorelease];
-	if ([self type] == ASIProxyAuthenticationType) {
-		[label setText:@"Login to this secure proxy server."];
-	} else {
-		[label setText:@"Login to this secure server."];
-	}
-	[label setTextColor:[UIColor blackColor]];
-	[label setFont:[UIFont systemFontOfSize:13.0]];
-	[label setShadowColor:[UIColor colorWithRed:1 green:1 blue:1 alpha:0.5]];
-	[label setShadowOffset:CGSizeMake(0, 1.0)];
-	[label setOpaque:NO];
-	[label setBackgroundColor:nil];
-	[label setTextAlignment:UITextAlignmentCenter];
-	
-	[titleBar addSubview:label];
-	[[self loginDialog] addSubview:titleBar];
-	
-	// Setup the toolbar 
-	UIToolbar *toolbar = [[[UIToolbar alloc] initWithFrame:CGRectMake(0,30,320,50)] autorelease];
+	[bar sizeToFit];
+	CGRect f = [[self view] bounds];
+	f.origin.y = [bar frame].size.height;
+	f.size.height -= f.origin.y;
 
-	NSMutableArray *items = [[[NSMutableArray alloc] init] autorelease];
-	UIBarButtonItem *backButton = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelAuthenticationFromDialog:)] autorelease];
-	[items addObject:backButton];
-	
-	label = [[[UILabel alloc] initWithFrame:CGRectMake(0,0,170,50)] autorelease];
-	if ([self type] == ASIProxyAuthenticationType) {
-		[label setText:[[self request] proxyHost]];
-	} else {
-		[label setText:[[[self request] url] host]];
-	}
-	[label setTextColor:[UIColor whiteColor]];
-	[label setFont:[UIFont boldSystemFontOfSize:22.0]];
-	[label setShadowColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:0.5]];
-	[label setShadowOffset:CGSizeMake(0, -1.0)];
-	[label setOpaque:NO];
-	[label setBackgroundColor:nil];
-	[label setTextAlignment:UITextAlignmentCenter];
-	
-	[toolbar addSubview:label];
+	[self setTableView:[[[UITableView alloc] initWithFrame:f style:UITableViewStyleGrouped] autorelease]];
+	[[self tableView] setDelegate:self];
+	[[self tableView] setDataSource:self];
+	[[self tableView] setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
+	[[self view] addSubview:[self tableView]];
 
-	UIBarButtonItem *labelButton = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:nil action:nil] autorelease];
-	[labelButton setCustomView:label];
-	[items addObject:labelButton];
-	[items addObject:[[[UIBarButtonItem alloc] initWithTitle:@"Login" style:UIBarButtonItemStyleDone target:self action:@selector(loginWithCredentialsFromDialog:)] autorelease]];
-	[toolbar setItems:items];
-	
-	[[self loginDialog] addSubview:toolbar];
-	
 	// Force reload the table content, and focus the first field to show the keyboard
-	[table reloadData];
-	[[[[table cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]] subviews] objectAtIndex:2] becomeFirstResponder];
-	
+	[[self tableView] reloadData];
+	[[[[[self tableView] cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]].contentView subviews] objectAtIndex:0] becomeFirstResponder];
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+		[self setModalPresentationStyle:UIModalPresentationFormSheet];
+	}
+#endif
+
+	[[self presentingController] presentModalViewController:self animated:YES];
 }
+
+#pragma mark button callbacks
 
 - (void)cancelAuthenticationFromDialog:(id)sender
 {
-	[[self request] cancelAuthentication];
-	[[self loginDialog] dismissWithClickedButtonIndex:0 animated:YES];
+	for (ASIHTTPRequest *theRequest in [self requestsRequiringTheseCredentials]) {
+		[theRequest cancelAuthentication];
+		[requestsNeedingAuthentication removeObject:theRequest];
+	}
+	[self dismiss];
 }
+
+- (NSArray *)requestsRequiringTheseCredentials
+{
+	NSMutableArray *requestsRequiringTheseCredentials = [NSMutableArray array];
+	NSURL *requestURL = [[self request] url];
+	for (ASIHTTPRequest *otherRequest in requestsNeedingAuthentication) {
+		NSURL *theURL = [otherRequest url];
+		if (([otherRequest authenticationNeeded] == [[self request] authenticationNeeded]) && [[theURL host] isEqualToString:[requestURL host]] && ([theURL port] == [requestURL port] || ([requestURL port] && [[theURL port] isEqualToNumber:[requestURL port]])) && [[theURL scheme] isEqualToString:[requestURL scheme]] && ((![otherRequest authenticationRealm] && ![[self request] authenticationRealm]) || ([otherRequest authenticationRealm] && [[self request] authenticationRealm] && [[[self request] authenticationRealm] isEqualToString:[otherRequest authenticationRealm]]))) {
+			[requestsRequiringTheseCredentials addObject:otherRequest];
+		}
+	}
+	[requestsRequiringTheseCredentials addObject:[self request]];
+	return requestsRequiringTheseCredentials;
+}
+
+- (void)presentNextDialog
+{
+	if ([requestsNeedingAuthentication count]) {
+		ASIHTTPRequest *nextRequest = [requestsNeedingAuthentication objectAtIndex:0];
+		[requestsNeedingAuthentication removeObjectAtIndex:0];
+		[[self class] presentAuthenticationDialogForRequest:nextRequest];
+	}
+}
+
 
 - (void)loginWithCredentialsFromDialog:(id)sender
 {
-	NSString *username = [[[[[[[self loginDialog] subviews] objectAtIndex:0] cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]] subviews] objectAtIndex:2] text];
-	NSString *password = [[[[[[[self loginDialog] subviews] objectAtIndex:0] cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]] subviews] objectAtIndex:2] text];
-	
-	if ([self type] == ASIProxyAuthenticationType) {
-		[[self request] setProxyUsername:username];
-		[[self request] setProxyPassword:password];
-	} else {
-		[[self request] setUsername:username];
-		[[self request] setPassword:password];		
-	}
-	
-	// Handle NTLM domains
-	NSString *scheme = ([self type] == ASIStandardAuthenticationType) ? [[self request] authenticationScheme] : [[self request] proxyAuthenticationScheme];
-	if ([scheme isEqualToString:(NSString *)kCFHTTPAuthenticationSchemeNTLM]) {
-		NSString *domain = [[[[[[[self loginDialog] subviews] objectAtIndex:0] cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:2]] subviews] objectAtIndex:2] text];
+	for (ASIHTTPRequest *theRequest in [self requestsRequiringTheseCredentials]) {
+
+		NSString *username = [[self usernameField] text];
+		NSString *password = [[self passwordField] text];
+
+		if (username == nil) { username = @""; }
+		if (password == nil) { password = @""; }
+
 		if ([self type] == ASIProxyAuthenticationType) {
-			[[self request] setProxyDomain:domain];
+			[theRequest setProxyUsername:username];
+			[theRequest setProxyPassword:password];
 		} else {
-			[[self request] setDomain:domain];
+			[theRequest setUsername:username];
+			[theRequest setPassword:password];
 		}
+
+		// Handle NTLM domains
+		NSString *scheme = ([self type] == ASIStandardAuthenticationType) ? [[self request] authenticationScheme] : [[self request] proxyAuthenticationScheme];
+		if ([scheme isEqualToString:(NSString *)kCFHTTPAuthenticationSchemeNTLM]) {
+			NSString *domain = [[self domainField] text];
+			if ([self type] == ASIProxyAuthenticationType) {
+				[theRequest setProxyDomain:domain];
+			} else {
+				[theRequest setDomain:domain];
+			}
+		}
+
+		[theRequest retryUsingSuppliedCredentials];
+		[requestsNeedingAuthentication removeObject:theRequest];
 	}
-	
-	[[self loginDialog] dismissWithClickedButtonIndex:1 animated:YES];
-	[[self request] retryUsingSuppliedCredentials];	
+	[self dismiss];
 }
 
+#pragma mark table view data source
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)aTableView
 {
 	NSString *scheme = ([self type] == ASIStandardAuthenticationType) ? [[self request] authenticationScheme] : [[self request] proxyAuthenticationScheme];
 	if ([scheme isEqualToString:(NSString *)kCFHTTPAuthenticationSchemeNTLM]) {
-		return 3;
+		return 2;
 	}
-	return 2;
+	return 1;
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
+- (CGFloat)tableView:(UITableView *)aTableView heightForFooterInSection:(NSInteger)section
 {
-	if (section == [self numberOfSectionsInTableView:tableView]-1) {
+	if (section == [self numberOfSectionsInTableView:aTableView]-1) {
 		return 30;
 	}
 	return 0;
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+- (CGFloat)tableView:(UITableView *)aTableView heightForHeaderInSection:(NSInteger)section
 {
 	if (section == 0) {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+		if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+			return 54;
+		}
+#endif
 		return 30;
 	}
 	return 0;
@@ -191,34 +427,45 @@ NSLock *dialogLock = nil;
 #if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_3_0
 	UITableViewCell *cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil] autorelease];
 #else
-	UITableViewCell *cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:nil] autorelease];
+	UITableViewCell *cell = [[[UITableViewCell alloc] initWithFrame:CGRectMake(0,0,0,0) reuseIdentifier:nil] autorelease];
 #endif
 
 	[cell setSelectionStyle:UITableViewCellSelectionStyleNone];
-	UITextField *textField = [[[UITextField alloc] initWithFrame:CGRectMake(20,12,260,25)] autorelease];
+
+	CGRect f = CGRectInset([cell bounds], 10, 10);
+	UITextField *textField = [[[UITextField alloc] initWithFrame:f] autorelease];
+	[textField setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
 	[textField setAutocapitalizationType:UITextAutocapitalizationTypeNone];
-	if ([indexPath section] == 0) {
+	[textField setAutocorrectionType:UITextAutocorrectionTypeNo];
+
+	NSUInteger s = [indexPath section];
+	NSUInteger r = [indexPath row];
+
+	if (s == kUsernameSection && r == kUsernameRow) {
 		[textField setPlaceholder:@"User"];
-	} else if ([indexPath section] == 1) {
+	} else if (s == kPasswordSection && r == kPasswordRow) {
 		[textField setPlaceholder:@"Password"];
 		[textField setSecureTextEntry:YES];
-	} else if ([indexPath section] == 2) {
+	} else if (s == kDomainSection && r == kDomainRow) {
 		[textField setPlaceholder:@"Domain"];
-	}	
-	[cell addSubview:textField];
-	
+	}
+	[cell.contentView addSubview:textField];
+
 	return cell;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+- (NSInteger)tableView:(UITableView *)aTableView numberOfRowsInSection:(NSInteger)section
 {
-	return 1;
+	if (section == 0) {
+		return 2;
+	} else {
+		return 1;
+	}
 }
 
-
-- (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
+- (NSString *)tableView:(UITableView *)aTableView titleForFooterInSection:(NSInteger)section
 {
-	if (section == [self numberOfSectionsInTableView:tableView]-1) {
+	if (section == [self numberOfSectionsInTableView:aTableView]-1) {
 		// If we're using Basic authentication and the connection is not using SSL, we'll show the plain text message
 		if ([[[self request] authenticationScheme] isEqualToString:(NSString *)kCFHTTPAuthenticationSchemeBasic] && ![[[[self request] url] scheme] isEqualToString:@"https"]) {
 			return @"Password will be sent in the clear.";
@@ -230,7 +477,11 @@ NSLock *dialogLock = nil;
 	return nil;
 }
 
+#pragma mark -
+
 @synthesize request;
-@synthesize loginDialog;
 @synthesize type;
+@synthesize tableView;
+@synthesize didEnableRotationNotifications;
+@synthesize presentingController;
 @end
