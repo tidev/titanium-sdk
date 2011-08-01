@@ -107,5 +107,63 @@ describe("Kroll tests",
 		Ti.x = [1, 2, 3, 4, 5];
 		valueOf(Ti.x.constructor).shouldNotBeUndefined();
 		valueOf(Ti.x.constructor.toString()).shouldContain("Array");
+	},
+	
+	iteration: function() {
+	   // Function that simulates "x in ['a','b','c']"
+		function oc(a)
+		{
+		  if (a == undefined || a == null) {
+			return {};
+		  }
+		  var o = {};
+		  for(var i=0;i<a.length;i++)
+		  {
+			o[a[i]]='';
+		  }
+		  return o;
+		}
+	
+		// Iteration over native JS objects
+		var x = {a:'b', b:'c', c:'d'};
+		var results = {}
+		
+		var i = 0;
+		for (var y in x) {
+			valueOf(y in oc(Object.keys(x))).shouldBeTrue();
+			// JS spec specifies x in y returns keys in the same order as
+			// Object.keys()
+			valueOf(y).shouldBe(Object.keys(x)[i]);
+			results[x[y]] = y;
+			i++;
+		}
+		valueOf(i).shouldBe(Object.keys(x).length);
+		// Perform a reverse lookup to check we got the right values
+		valueOf(results['b']).shouldBe('a');
+		valueOf(results['c']).shouldBe('b');
+		valueOf(results['d']).shouldBe('c');
+		
+		// Iteration over proxies, including custom props & props
+		// we know are KVC on iOS. Note that we MAY, on proxies, have
+		// additional values which were not defined by the user.
+		var b = Ti.UI.createButton({
+			title:'xyz',
+			backgroundImage:'foo.jpg',
+			custom:'sup'
+		});
+		
+		i = 0;
+		for (var y in b) {
+			valueOf(y in oc(Object.keys(b))).shouldBeTrue();
+			valueOf(y).shouldBe(Object.keys(b)[i]);
+			results[b[y]] = y;
+			i++;
+		}
+		valueOf(i).shouldBe(Object.keys(b).length);
+		// Only check the values we explicitly set; other values
+		// retrieved are gravy
+		valueOf(results['xyz']).shouldBe('title');
+		valueOf(results['foo.jpg']).shouldBe('backgroundImage');
+		valueOf(results['sup']).shouldBe('custom');
 	}
 });
