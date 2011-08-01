@@ -361,7 +361,6 @@ describe("Ti.Filesystem tests", {
 		var outBuffer = Ti.createBuffer({value:"huray for data, lets have a party for data1 huray for data, lets have a party for data2 huray for data, lets have a party for data3"});
 		valueOf(outBuffer).shouldBeObject();
 
-		// fails due to file not found exception on Android - opened ticket #4843
 		var tempFileOutStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_WRITE, Ti.Filesystem.tempDirectory, filename);
 		tempFileOutStream.write(outBuffer); //write inBuffer to outfile
 		tempFileOutStream.close();
