@@ -30,7 +30,8 @@ public class FilesystemModule extends KrollModule
 
 	private static String[] RESOURCES_DIR = { "app://" };
 	
-	public FilesystemModule(TiContext tiContext) {
+	public FilesystemModule(TiContext tiContext)
+	{
 		super(tiContext);
 	}
 
@@ -60,7 +61,8 @@ public class FilesystemModule extends KrollModule
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public boolean isExternalStoragePresent() {
+	public boolean isExternalStoragePresent()
+	{
 		return android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
 	}
 
@@ -78,7 +80,8 @@ public class FilesystemModule extends KrollModule
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public String getApplicationDataDirectory() {
+	public String getApplicationDataDirectory()
+	{
 		return "appdata-private://";
 	}
 
@@ -89,22 +92,27 @@ public class FilesystemModule extends KrollModule
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public String getExternalStorageDirectory() {
+	public String getExternalStorageDirectory()
+	{
 		return "appdata://";
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public String getTempDirectory() {
-		return getTiContext().getTiApp().getTempFileHelper().getTempDirectory().getAbsolutePath();
+	public String getTempDirectory()
+	{
+		TiApplication tiApplication = TiApplication.getInstance();
+		return "file://" + tiApplication.getTempFileHelper().getTempDirectory().getAbsolutePath();
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public String getSeparator() {
+	public String getSeparator()
+	{
 		return File.separator;
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public String getLineEnding() {
+	public String getLineEnding()
+	{
 		return System.getProperty("line.separator");
 	}
 
