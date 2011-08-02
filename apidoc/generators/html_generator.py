@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2011 Appcelerator, Inc. All Rights Reserved.
 # Licensed under the Apache Public License (version 2)
-import os, sys
+import os, sys, re
 
 this_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.abspath(os.path.join(this_dir, '..')))
@@ -13,6 +13,7 @@ import markdown # we package it under support/module/support
 from common import info, err, warn, msg, dict_has_non_empty_member
 
 default_colorize_language = "javascript"
+all_annotated_apis = None
 
 try:
 	from mako.template import Template
@@ -40,6 +41,8 @@ template_dir = os.path.abspath(os.path.join(this_dir, '..', 'templates', 'html')
 template_lookup = TemplateLookup(directories=[template_dir])
 
 def generate(raw_apis, annotated_apis, options):
+	global all_annotated_apis
+	all_annotated_apis = annotated_apis
 	if not hasattr(options, "output") or options.output is None or len(options.output) == 0:
 		err("'output' option not provided")
 		sys.exit(1)
@@ -50,25 +53,25 @@ def generate(raw_apis, annotated_apis, options):
 	if not os.path.exists(options.output):
 		os.makedirs(options.output)
 
-	# Add html-specific annotations
-	for api in annotated_apis.values():
-		annotate(api, annotated_apis)
-		
+	# Add html-specific annotations. Do it twice because the
+	# api objects can cross-reference each other.
+	for x in range(2):
+		for api in annotated_apis.values():
+			annotate(api)
+
 	for name in annotated_apis:
 		if not name.startswith("Titanium"):
 			continue
 		one_type = annotated_apis[name]
 		info("Producing html output for %s" % name)
-		render_template(one_type, annotated_apis, options)
+		render_template(one_type, options)
 		if hasattr(one_type, "methods"):
 			for m in one_type.methods:
 				info("Producing html output for %s.%s" % (name, m.name))
-				render_template(m, annotated_apis, options)
+				render_template(m, options)
 
 # Annotations specific to this output format
-def annotate(annotated_obj, all_annotated_objects):
-	if annotated_obj.is_annotated_for_format("html"):
-		return
+def annotate(annotated_obj):
 	setattr(annotated_obj, "description_html", "")
 	setattr(annotated_obj, "notes_html", "")
 	setattr(annotated_obj, "examples_html", [])
@@ -101,16 +104,14 @@ def annotate(annotated_obj, all_annotated_objects):
 	if annotated_obj.typestr == "proxy":
 		setattr(annotated_obj, "filename_html", "%s-object" % annotated_obj.name)
 	for list_type in ("methods", "properties", "events", "parameters"):
-		annotate_member_list(annotated_obj, list_type, all_annotated_objects)
-	annotated_obj.set_annotation_complete("html")
+		annotate_member_list(annotated_obj, list_type)
 
-def annotate_member_list(annotated_obj, member_list_name, all_annotated_objects):
+def annotate_member_list(annotated_obj, member_list_name):
 	if hasattr(annotated_obj, member_list_name) and len(getattr(annotated_obj, member_list_name)) > 0:
 		for m in getattr(annotated_obj, member_list_name):
-			annotate(m, all_annotated_objects)
+			annotate(m)
 
-def render_template(annotated_obj, all_annotated_objects, options):
-	annotate(annotated_obj, all_annotated_objects)
+def render_template(annotated_obj, options):
 	template = None
 	if template_cache.has_key(annotated_obj.template_html):
 		template = template_cache[annotated_obj.template_html]
@@ -157,11 +158,61 @@ def load_file_markdown(file_specifier, obj):
 	else:
 		return open(filename, "r").read()
 
+def anchor_for_object_or_method(obj_specifier, text=None):
+	label = text or ("`" + obj_specifier + "`")
+	result = "[%s](#)" % label
+	if obj_specifier in all_annotated_apis:
+		obj = all_annotated_apis[obj_specifier]
+		if hasattr(obj, "filename_html"):
+			result = result.replace("#", "%s.html" % obj.filename_html)
+	else:
+		# Maybe a method
+		parts = obj_specifier.split('.')
+		if len(parts) > 0:
+			parent = ".".join(parts[:-1])
+			method_name = parts[-1]
+			if parent in all_annotated_apis:
+				obj = all_annotated_apis[parent]
+				if hasattr(obj, "methods"):
+					for m in obj.methods:
+						if m.name == method_name and hasattr(m, "filename_html"):
+							result = result.replace("#", "%s.html" % m.filename_html)
+							break
+	return result
+
+def replace_with_link(full_string, link_info):
+	s = full_string
+	obj_specifier = link_info
+	if obj_specifier.startswith("<"):
+		obj_specifier = obj_specifier[1:-1]
+		return s.replace(link_info, anchor_for_object_or_method(obj_specifier))
+
+	pattern = r"\[([^\]]+)\]\((Ti[^\)]+)\)"
+	prog = re.compile(pattern)
+	match = prog.match(link_info)
+	if match:
+		return s.replace(link_info, anchor_for_object_or_method(match.groups()[1], text=match.groups()[0]))
+	# fallback
+	return s
+
+def process_markdown_links(s):
+	new_string = s
+	patterns = (r"(\[[^\]]+\]\(Ti[^\)]+\))", r"(\<Ti[^\>]+\>)")
+	for pattern in patterns:
+		prog = re.compile(pattern, re.MULTILINE)
+		results = prog.findall(new_string)
+		if results is not None and len(results) > 0:
+			for r in results:
+				new_string = replace_with_link(new_string, r)
+	return new_string
+
 def markdown_to_html(s, obj=None):
 	if s is None or len(s) == 0:
 		return ""
 	if s.startswith("file:") and obj is not None:
 		return markdown_to_html(load_file_markdown(s, obj))
+	if "<" in s or "[" in s:
+		s = process_markdown_links(s)
 	return markdown.markdown(s)
 
 def data_type_to_html(type_spec):

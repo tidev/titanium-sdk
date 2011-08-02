@@ -186,14 +186,6 @@ class AnnotatedApi(object):
 		self.typestr = None
 		self.platforms = combine_platforms_and_since(api_obj)
 		self.yaml_source_folder = ""
-		self.completed_annotations = []
-
-	def is_annotated_for_format(self, output_format):
-		return output_format in self.completed_annotations
-
-	def set_annotation_complete(self, output_format):
-		if not output_format in self.completed_annotations:
-			self.completed_annotations.append(output_format)
 
 class AnnotatedProxy(AnnotatedApi):
 	def __init__(self, api_obj):
