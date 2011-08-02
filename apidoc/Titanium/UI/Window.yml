@@ -241,6 +241,10 @@ properties:
         6) empty array - resets the orientation to default sensor control
     type: Array<Number>
     
+  - name: orientation
+    description: Current orientation of the window.  Value will be one of the orientation constants defined in <Titanium.UI>.
+    type: Array<Number>
+
   - name: rightNavButton
     description: view to show in the right nav bar area. only available in iPhone.
     platforms: [iphone, ipad]

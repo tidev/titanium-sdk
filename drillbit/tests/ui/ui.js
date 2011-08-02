@@ -121,5 +121,10 @@ describe("Ti.UI tests", {
 		},3000);
 		w.open();
 
+	},
+
+	windowOrientation: function() {
+		var w = Ti.UI.createWindow();
+		valueOf(w.orientation).shouldBeOneOf([Ti.UI.PORTRAIT, Ti.UI.LANDSCAPE_LEFT]);
 	}
 });
