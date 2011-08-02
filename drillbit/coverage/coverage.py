@@ -96,7 +96,9 @@ mapTypes = {
 	"Titanium.Network.Socket.": "Titanium.Network.TCPSocket",
 	# This type does both buffers and blobs, we're missing part of the coverage
 	"Titanium.Data.Stream": "Titanium.Stream.BufferStream",
-	"Titanium.": "Titanium.Proxy"
+	"Titanium.": "Titanium.Proxy",
+	"Titanium.2.DMatrix": "Titanium.UI.2DMatrix",
+	"Titanium.D.Matrix": "Titanium.UI.2DMatrix"
 }
 
 def mapType(type):
@@ -573,6 +575,9 @@ class CoverageMatrix(object):
 							fullAPI = "Titanium." + match.group(1)
 				else:
 					# Trim Ti(.*)Proxy if necessary
+					actualClass = iosClass
+					if iosClass == "TiUIiOS3DMatrix":
+						actualClass = "TiUIiOS3DMatrixProxy"
 					match = re.search('^Ti(.*?)(Proxy)?$', iosClass)
 					canCreate = False
 					if match:
@@ -601,8 +606,8 @@ class CoverageMatrix(object):
 							for submodule in iosSubmodules:
 								pos = proxyName.find(submodule)
 								if pos != -1:
+									subproxy = proxyName[pos+len(submodule):]
 									if canCreate:
-										subproxy = proxyName[pos+len(submodule):]
 										self.data.addFunction("create%s" % subproxy, 
 											"Titanium.%s.%s" % (moduleName, submodule),
 											platforms, isModule=True)
