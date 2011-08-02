@@ -716,16 +716,45 @@ describe("Ti.XML tests", {
 
 			var clonedNode = null;
 		
+			// Shallow
 			valueOf(function() { clonedNode = parentNode.cloneNode(false); }).shouldNotThrowException();
 			valueOf(clonedNode.nodeName).shouldBe(parentNode.nodeName);
-			valueOf(clonedNode.getAttribute("myattr")).shouldBe("attr value");
-			valueOf(clonedNode.firstChild.nodeValue).shouldBe(parentNode.firstChild.nodeValue);
-			valueOf(clonedNode.lastChild.nodeName).shouldBe(parentNode.lastChild.nodeName);
+			// Though shallow, attributes should be there.
+			var attrs = clonedNode.attributes;
+			valueOf(attrs).shouldNotBeNull();
+			valueOf(attrs.length).shouldBeExactly(1);
+			var attr = attrs.getNamedItem("myattr");
+			valueOf(attr).shouldNotBeNull();
+			valueOf(attr.nodeValue).shouldBeExactly("attr value");
+			// Fetch a different way
+			var attrValue = clonedNode.getAttribute("myattr");
+			valueOf(attrValue).shouldNotBeNull();
+			valueOf(attrValue).shouldBeExactly("attr value");
+			// Per spec, clone should have no parent and no children
+			valueOf(clonedNode.parentNode).shouldBeNull();
+			valueOf(clonedNode.hasChildNodes()).shouldBeBoolean();
+			valueOf(clonedNode.hasChildNodes()).shouldBeFalse();
 
+			// Deep
 			valueOf(function() { clonedNode = parentNode.cloneNode(true); }).shouldNotThrowException();
 			valueOf(clonedNode.nodeName).shouldBe(parentNode.nodeName);
+			valueOf(clonedNode.parentNode).shouldBeNull();
+			attrs = clonedNode.attributes;
+			valueOf(attrs).shouldNotBeNull();
+			valueOf(attrs.length).shouldBeExactly(1);
+			attr = attrs.getNamedItem("myattr");
+			valueOf(attr).shouldNotBeNull();
+			valueOf(attr.nodeValue).shouldBeExactly("attr value");
 			valueOf(clonedNode.getAttribute("myattr")).shouldBe("attr value");
+			attrValue = clonedNode.getAttribute("myattr");
+			valueOf(attrValue).shouldNotBeNull();
+			valueOf(attrValue).shouldBeExactly("attr value");
+			// this one should have children since it's deep.
+			valueOf(clonedNode.hasChildNodes()).shouldBeBoolean();
+			valueOf(clonedNode.hasChildNodes()).shouldBeTrue();
+			valueOf(clonedNode.firstChild).shouldNotBeNull();
 			valueOf(clonedNode.firstChild.nodeValue).shouldBe(parentNode.firstChild.nodeValue);
+			valueOf(clonedNode.lastChild).shouldNotBeNull();
 			valueOf(clonedNode.lastChild.nodeName).shouldBe(parentNode.lastChild.nodeName);
 		}
 	},
