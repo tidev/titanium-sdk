@@ -14,6 +14,7 @@ from common import info, err, warn, msg, dict_has_non_empty_member
 
 default_colorize_language = "javascript"
 all_annotated_apis = None
+ignore_for_inheritance_mention = ("Titanium.Proxy", "Titanium.Module", "Titanium.Event")
 
 try:
 	from mako.template import Template
@@ -76,7 +77,10 @@ def annotate(annotated_obj):
 	setattr(annotated_obj, "notes_html", "")
 	setattr(annotated_obj, "examples_html", [])
 	if dict_has_non_empty_member(annotated_obj.api_obj, "description"):
-		setattr(annotated_obj, "description_html", markdown_to_html(annotated_obj.api_obj["description"], obj=annotated_obj))
+		desc = annotated_obj.api_obj["description"]
+		if hasattr(annotated_obj, "inherited_from") and len(annotated_obj.inherited_from) > 0 and annotated_obj.inherited_from not in ignore_for_inheritance_mention:
+			desc += (" (Inherited from <%s>.)" % annotated_obj.inherited_from)
+		setattr(annotated_obj, "description_html", markdown_to_html(desc, obj=annotated_obj))
 	if dict_has_non_empty_member(annotated_obj.api_obj, "notes"):
 		annotated_obj.notes_html = markdown_to_html(annotated_obj.api_obj["notes"], obj=annotated_obj)
 	if dict_has_non_empty_member(annotated_obj.api_obj, "examples"):
@@ -161,14 +165,14 @@ def load_file_markdown(file_specifier, obj):
 def anchor_for_object_or_method(obj_specifier, text=None, language="markdown"):
 	if language == "markdown":
 		label = text or ("`%s`" % obj_specifier)
-		result = "[%s](#)" % label
+		template = "[%s](#)" % label
 	else:
 		label = text or ("<code>%s</code>" % obj_specifier)
-		result = '<a href="#">%s</a>' % label
+		template = '<a href="#">%s</a>' % label
 	if obj_specifier in all_annotated_apis:
 		obj = all_annotated_apis[obj_specifier]
 		if hasattr(obj, "filename_html"):
-			result = result.replace("#", "%s.html" % obj.filename_html)
+			return template.replace("#", "%s.html" % obj.filename_html)
 	else:
 		# Maybe a method
 		parts = obj_specifier.split('.')
@@ -180,9 +184,12 @@ def anchor_for_object_or_method(obj_specifier, text=None, language="markdown"):
 				if hasattr(obj, "methods"):
 					for m in obj.methods:
 						if m.name == method_name and hasattr(m, "filename_html"):
-							result = result.replace("#", "%s.html" % m.filename_html)
-							break
-	return result
+							return template.replace("#", "%s.html" % m.filename_html)
+	# Didn't find it. At least return code-styled specifier
+	if language == "markdown":
+		return "`%s`" % obj_specifier
+	else:
+		return "<code>%s</code>" % obj_specifier
 
 def replace_with_link(full_string, link_info):
 	s = full_string

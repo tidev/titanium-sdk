@@ -219,14 +219,37 @@ class AnnotatedProxy(AnnotatedApi):
 		self.append_inherited_events(events)
 		return sorted(events, key=lambda item: item.name)
 
+	def append_inherited_attributes(self, att_list, att_list_name):
+		if not "extends" in self.api_obj:
+			return
+		super_type_name = self.api_obj["extends"]
+		class_type = {"properties": AnnotatedProperty, "methods": AnnotatedMethod, "events": AnnotatedEvent}[att_list_name]
+		existing_names = [item.name for item in att_list]
+		while super_type_name is not None and len(super_type_name) > 0 and super_type_name in apis:
+			super_type = apis[super_type_name]
+			if dict_has_non_empty_member(super_type, att_list_name):
+				for new_item in super_type[att_list_name]:
+					if new_item["name"] in existing_names:
+						continue
+					new_instance = class_type(new_item, self)
+					setattr(new_instance, "inherited_from", super_type_name)
+					att_list.append(new_instance)
+					existing_names.append(new_item["name"])
+			# Keep going up supertypes
+			if "extends" in super_type:
+				super_type_name = super_type["extends"]
+			else:
+				super_type_name = None
+
+
 	def append_inherited_methods(self, methods):
-		pass # TODO
+		self.append_inherited_attributes(methods, "methods")
 
 	def append_inherited_properties(self, properties):
-		pass # TODO
+		self.append_inherited_attributes(properties, "properties")
 
 	def append_inherited_events(self, events):
-		pass # TODO
+		self.append_inherited_attributes(events, "events")
 
 class AnnotatedModule(AnnotatedProxy):
 	def __init__(self, api_obj):
@@ -236,9 +259,15 @@ class AnnotatedModule(AnnotatedProxy):
 
 	def append_creation_methods(self, methods):
 		proxies = self.member_proxies
+		if proxies is None or len(proxies) == 0:
+			return
+		existing_names = [m.name for m in methods]
 		for proxy in proxies:
+			method_name = "create%s" % proxy.name.split(".")[-1]
+			if method_name in existing_names:
+				continue
 			method_obj = {}
-			method_obj["name"] = "create%s" % proxy.name.split(".")[-1]
+			method_obj["name"] = method_name
 			method_obj["description"] = "Create and return an instance of <%s>." % proxy.name
 			param_obj = {}
 			param_obj["name"] = "parameters"
