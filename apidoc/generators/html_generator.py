@@ -158,9 +158,13 @@ def load_file_markdown(file_specifier, obj):
 	else:
 		return open(filename, "r").read()
 
-def anchor_for_object_or_method(obj_specifier, text=None):
-	label = text or ("`" + obj_specifier + "`")
-	result = "[%s](#)" % label
+def anchor_for_object_or_method(obj_specifier, text=None, language="markdown"):
+	if language == "markdown":
+		label = text or ("`%s`" % obj_specifier)
+		result = "[%s](#)" % label
+	else:
+		label = text or ("<code>%s</code>" % obj_specifier)
+		result = '<a href="#">%s</a>' % label
 	if obj_specifier in all_annotated_apis:
 		obj = all_annotated_apis[obj_specifier]
 		if hasattr(obj, "filename_html"):
@@ -216,9 +220,10 @@ def markdown_to_html(s, obj=None):
 	return markdown.markdown(s)
 
 def data_type_to_html(type_spec):
-	# TODO lots of stuff like link to types, resolve Dictionary<>, etc.
 	result = ""
 	type_specs = []
+	pattern = r"(Dictionary|Array|Callback)\<(Ti[^\>]+)\>"
+	link_placeholder = "||link here||"
 	if hasattr(type_spec, "append"):
 		type_specs = type_spec
 	else:
@@ -228,8 +233,22 @@ def data_type_to_html(type_spec):
 			one_type = one_spec["type"]
 		else:
 			one_type = one_spec
+		one_type = one_type.strip()
+		one_type_html = one_type
+		if one_type.startswith("Ti"):
+			one_type_html = anchor_for_object_or_method(one_type, language="html")
+		else:
+			match = re.match(pattern, one_type)
+			if match is not None and match.groups() is not None and len(match.groups()) == 2:
+				raw_type = match.groups()[1]
+				type_link = anchor_for_object_or_method(raw_type, language="html")
+				one_type_html = one_type_html.replace("<%s>" % raw_type, link_placeholder)
+				one_type_html = one_type_html.replace("<", "&lt;").replace(">", "&gt;")
+				one_type_html = one_type_html.replace(link_placeholder, type_link)
+			else:
+				one_type_html = one_type_html.replace("<", "&lt;").replace(">", "&gt;")
 		if len(result) > 0:
 			result += " or "
-		result += one_type
-	return result.replace("<", "&lt;").replace(">", "&gt;")
+		result += one_type_html
+	return result
 
