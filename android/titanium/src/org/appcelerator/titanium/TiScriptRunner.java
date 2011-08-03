@@ -18,20 +18,22 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
 // This class provides an API for running pre-compiled javascript from Rhino
-public class TiScriptRunner {
-
+public class TiScriptRunner
+{
 	private static final String TAG = "TiScriptRunner";
 	private static TiScriptRunner _instance;
-	
-	public static TiScriptRunner getInstance() {
+
+	public static TiScriptRunner getInstance()
+	{
 		if (_instance == null) {
 			_instance = new TiScriptRunner();
 		}
 		return _instance;
 	}
-	
+
 	// Called by the compiled JS class, we pass it 1 argument: the script class name
-	public static void main(Script script, String[] args) {
+	public static void main(Script script, String[] args)
+	{
 		TiScriptRunner runner = getInstance();
 		String scriptClassName = args[0];
 		
@@ -39,20 +41,22 @@ public class TiScriptRunner {
 		tiScript.script = script;
 		tiScript.returnValue = runner.executeScript(tiScript);
 	}
-	
-	protected class TiScript {
+
+	protected class TiScript
+	{
 		public Context context;
 		public Scriptable scope;
 		public String name;
 		public Script script;
 		public Object returnValue;
 	}
-	
+
 	protected String appPackageName;
 	protected HashMap<String, TiScript> scripts = new HashMap<String, TiScript>();
 	private TiScriptRunner() {}
-	
-	protected Object executeScript(TiScript script) {
+
+	protected Object executeScript(TiScript script)
+	{
 		Log.d(TAG, "Executing script: " + script.name);
 		Object returnValue = Scriptable.NOT_FOUND;
 		try {
@@ -67,20 +71,25 @@ public class TiScriptRunner {
 		
 		return returnValue;
 	}
-	
-	protected String getScriptClassName(String relativePath) {
+
+	protected String getScriptClassName(String relativePath)
+	{
 		String scriptClassName = new String(relativePath);
 		scriptClassName = scriptClassName.replace(".js","").
 			replace("/","_").replace("\\", "_").replace(" ","_").replace(".","_").replace("-","_");
 		
 		return appPackageName + ".js." + scriptClassName;
 	}
-	
-	public void setAppPackageName(String packageName) {
+
+	public void setAppPackageName(String packageName)
+	{
 		appPackageName = packageName;
 	}
-	
-	public Object runScript(Context context, Scriptable scope, String relativePath) throws ClassNotFoundException {
+
+
+	public Object runScript(Context context, Scriptable scope, String relativePath)
+		throws ClassNotFoundException
+	{
 		String scriptClassName = getScriptClassName(relativePath);
 		if (scripts.containsKey(scriptClassName)) {
 			TiScript script = scripts.get(scriptClassName);
@@ -88,19 +97,24 @@ public class TiScriptRunner {
 			script.scope = scope;
 			return executeScript(script);
 		}
-		
+
+		Class<?> scriptClass = Class.forName(scriptClassName);
+		return runScript(context, scope, scriptClass);
+	}
+
+	public Object runScript(Context context, Scriptable scope, Class<?> scriptClass)
+	{
 		TiScript script = new TiScript();
 		script.context = context;
 		script.scope = scope;
-		script.name = scriptClassName;
-		
-		Class<?> scriptClass = Class.forName(scriptClassName);
+		script.name = scriptClass.getName();
+
 		try {
 			Method mainMethod = scriptClass.getMethod("main", String[].class);
 			if (mainMethod != null) {
 				// The generated class will delegate back to us in our static "main"
-				scripts.put(scriptClassName, script);
-				mainMethod.invoke(null, new Object[] { new String[] { scriptClassName } });
+				scripts.put(script.name, script);
+				mainMethod.invoke(null, new Object[] { new String[] { script.name } });
 				Object returnValue = script.returnValue;
 				script.returnValue = null;
 				return returnValue;
