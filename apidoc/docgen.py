@@ -84,15 +84,34 @@ def pretty_platform_name(name):
 	if name.lower() == "android":
 		return "Android"
 
-# obj can be a type, method, property or event from the yaml
-def combine_platforms_and_since(obj):
+def combine_platforms_and_since(annotated_obj):
+	obj = annotated_obj.api_obj
 	result = []
-	platforms = DEFAULT_PLATFORMS
+	platforms = None
 	since = DEFAULT_SINCE
-	if "platforms" in obj and len(obj["platforms"]) > 0:
+	if dict_has_non_empty_member(obj, "platforms"):
 		platforms = obj["platforms"]
+	# Method/property/event can't have more platforms than the types they belong to.
+	if (platforms is None or
+			isinstance(annotated_obj, AnnotatedMethod) or isinstance(annotated_obj, AnnotatedProperty) or
+			isinstance(annotated_obj, AnnotatedEvent)):
+		if annotated_obj.parent is not None:
+			if dict_has_non_empty_member(annotated_obj.parent.api_obj, "platforms"):
+				if platforms is None or len(annotated_obj.parent.api_obj["platforms"]) < len(platforms):
+					platforms = annotated_obj.parent.api_obj["platforms"]
+	# Last resort is the default list of platforms
+	if platforms is None:
+		platforms = DEFAULT_PLATFORMS
 	if "since" in obj and len(obj["since"]) > 0:
 		since = obj["since"]
+	else:
+		# If a method/event/property we can check type's "since"
+		if (isinstance(annotated_obj, AnnotatedMethod) or isinstance(annotated_obj, AnnotatedProperty) or
+				isinstance(annotated_obj, AnnotatedEvent)):
+			if (annotated_obj.parent is not None and
+					dict_has_non_empty_member(annotated_obj.parent.api_obj, "since")):
+				since = annotated_obj.parent.api_obj["since"]
+
 	since_is_dict = isinstance(since, dict)
 	for name in platforms:
 		one_platform = {"name": name, "pretty_name": pretty_platform_name(name)}
@@ -104,6 +123,7 @@ def combine_platforms_and_since(obj):
 			else:
 				one_platform["since"] = DEFAULT_SINCE
 		result.append(one_platform)
+
 	return result
 
 def load_one_yaml(filepath):
@@ -200,13 +220,16 @@ class AnnotatedApi(object):
 		self.name = api_obj["name"]
 		self.parent = None
 		self.typestr = "object"
-		self.platforms = combine_platforms_and_since(api_obj)
 		self.yaml_source_folder = ""
 		self.inherited_from = ""
 		if "deprecated" in api_obj:
 			self.deprecated = api_obj["deprecated"]
 		else:
 			self.deprecated = None
+
+	@lazyproperty
+	def platforms(self):
+		return combine_platforms_and_since(self)
 
 class AnnotatedProxy(AnnotatedApi):
 	def __init__(self, api_obj):
@@ -297,6 +320,10 @@ class AnnotatedModule(AnnotatedProxy):
 			param_obj["description"] = "(Optional) A dictionary object with properties defined in <%s>" % proxy.name
 			method_obj["parameters"] = [param_obj]
 			method_obj["returns"] = {"type": proxy.name}
+			if "platforms" in proxy.api_obj:
+				method_obj["platforms"] = proxy.api_obj["platforms"]
+			if "since" in proxy.api_obj:
+				method_obj["since"] = proxy.api_obj["since"]
 			methods.append(AnnotatedMethod(method_obj, self))
 
 	@lazyproperty

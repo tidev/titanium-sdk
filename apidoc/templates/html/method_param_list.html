@@ -1,20 +1,6 @@
 <h3>Arguments</h3>
 % if data.parameters is not None and len(data.parameters) > 0:
-<table>
-<tr>
-	<th>Name</th>
-	<th>Type</th>
-	<th>Description</th>
-</tr> 
-% for p in data.parameters:
-<tr>
-    <td class="name">${p.name}</td>
-    <td class="type">${p.type_html}</td>
-    <td class="description">${p.description_html}</td>
-</tr>
-% endfor
-</table>
-
+	<%include file="member_list.html" args="platform_count=0, is_property_list=True, item_list=data.parameters"/>
 % else:
     This function takes no arguments.
 % endif
