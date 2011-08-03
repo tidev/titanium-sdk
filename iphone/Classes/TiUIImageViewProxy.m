@@ -201,6 +201,14 @@ USE_VIEW_FOR_AUTO_HEIGHT
 {
 	if (request == urlRequest)
 	{
+        //AWL_START
+        if ([self _hasListeners:@"error"])
+        {
+            NSDictionary *event = [NSDictionary dictionaryWithObject:[request url] forKey:@"url"];
+            [self fireEvent:@"error" withObject:event];
+        }
+        //AWL_END
+        
 		NSLog(@"[ERROR] Failed to load image: %@, Error: %@",[request url], error);
 		RELEASE_TO_NIL(urlRequest);
 	}
