@@ -45,6 +45,9 @@
 -(void)setIcon:(id)title;
 -(void)setBadge:(id)title;
 -(void)setActive:(id)value;
+//AWL_START
+-(void)setDisablePop:(id)value;
+//AWL_END
 
 - (void)handleWillBlur;
 - (void)handleDidBlur:(NSDictionary *)event;

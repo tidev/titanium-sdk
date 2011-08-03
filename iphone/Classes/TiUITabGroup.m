@@ -223,6 +223,15 @@ DEFINE_EXCEPTIONS
 	else
 	{
 		target = (TiUITabProxy *)[(UINavigationController *)viewController delegate];
+        
+        //AWL_START
+        BOOL disablePop = [TiUtils boolValue:[target valueForKey:@"disablePop"]];
+        if (disablePop) {
+            if ([tabBarController.viewControllers objectAtIndex:tabBarController.selectedIndex] == viewController) {
+                return NO;
+            }
+        }
+        //AWL_END
 	}
 
 	[self handleWillShowTab:target];

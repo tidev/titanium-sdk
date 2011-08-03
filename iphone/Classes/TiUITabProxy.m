@@ -44,6 +44,9 @@
 	[self replaceValue:nil forKey:@"title" notification:NO];
 	[self replaceValue:nil forKey:@"icon" notification:NO];
 	[self replaceValue:nil forKey:@"badge" notification:NO];
+    //AWL_START
+	[self replaceValue:nil forKey:@"disablePop" notification:NO];
+    //AWL_END
 	[super _configure];
 }
 
@@ -67,6 +70,9 @@
 		[self setTitle:[self valueForKey:@"title"]];
 		[self setIcon:[self valueForKey:@"icon"]];
 		[self setBadge:[self valueForKey:@"badge"]];
+        //AWL_START
+		[self setDisablePop:[self valueForKey:@"disablePop"]];
+        //AWL_END
 	}
 	return controller;
 }
@@ -403,6 +409,12 @@
 	[self updateTabBarItem];
 }
 
+//AWL_START
+-(void)setDisablePop:(id)value
+{
+	[self replaceValue:value forKey:@"disablePop" notification:NO];
+}
+//AWL_END
 
 
 - (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
