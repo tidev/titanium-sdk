@@ -7,10 +7,11 @@
 	<th>Description</th>
 </tr> 
 % for prop in data.properties:
+<% append_class = " deprecated" if prop.deprecated else "" %>
 <tr>
-    <td class="name">${prop.name}</td>
-    <td class="type">${prop.type_html}</td>
-    <td class="description">${prop.description_html}</td>
+	<td class="name${append_class}">${prop.name}</td>
+	<td class="type${append_class}">${prop.type_html}</td>
+	<td class="description${append_class}">${prop.description_html}</td>
 </tr>
 % endfor
 </table>

@@ -203,6 +203,10 @@ class AnnotatedApi(object):
 		self.platforms = combine_platforms_and_since(api_obj)
 		self.yaml_source_folder = ""
 		self.inherited_from = ""
+		if "deprecated" in api_obj:
+			self.deprecated = api_obj["deprecated"]
+		else:
+			self.deprecated = None
 
 class AnnotatedProxy(AnnotatedApi):
 	def __init__(self, api_obj):

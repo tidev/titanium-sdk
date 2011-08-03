@@ -6,9 +6,10 @@
 			<th>Description</th>
 		</tr>
 		% for m in data.methods:
+			<% append_class = " deprecated" if m.deprecated else "" %>
 			<tr>
-				<td class="name"><a href="${m.filename_html}.html">${m.name}</a></td>
-				<td class="description">${m.description_html}</td>
+				<td class="name${append_class}"><a href="${m.filename_html}.html">${m.name}</a></td>
+				<td class="description${append_class}">${m.description_html}</td>
 			</tr>
 		% endfor
 	</table>

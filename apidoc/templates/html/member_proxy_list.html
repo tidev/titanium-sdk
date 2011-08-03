@@ -5,9 +5,10 @@
 	<th>Description</th>
 </tr> 
 % for o in data.member_proxies:
+	<% append_class = " deprecated" if o.deprecated else "" %>
 	<tr>
-		<td class="name"><a href="${o.filename_html}.html">${o.name}</a></td>
-		<td class="description">${o.description_html}</td>
+		<td class="name${append_class}"><a href="${o.filename_html}.html">${o.name}</a></td>
+		<td class="description${append_class}">${o.description_html}</td>
 	</tr>
 % endfor
 </table>
