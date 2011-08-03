@@ -100,7 +100,14 @@ def annotate(annotated_obj):
 			if dict_has_non_empty_member(example, "title"):
 				one_example["title"] = example["title"]
 			if dict_has_non_empty_member(example, "example"):
-				one_example["example"] = markdown_to_html(example["example"], obj=annotated_obj)
+				html_example = markdown_to_html(example["example"], obj=annotated_obj)
+				# Suspicious if the example has content (beyond the <p></p>) but not <code>.
+				# This can happen if in the .yml the example starts off immediately with code,
+				# because the yaml parser interprets the leading four spaces (which the programmer
+				# put in there to tip off markdown that it's a code block) as indentatioin.
+				if len(html_example) > len("<p></p>") and "<code>" not in html_example:
+					html_example = "<pre><code>%s</code></pre>" % html_example
+				one_example["example"] = html_example
 			annotated_obj.examples_html.append(one_example)
 	if annotated_obj.typestr in ("parameter", "property"):
 		setattr(annotated_obj, "type_html", "")
