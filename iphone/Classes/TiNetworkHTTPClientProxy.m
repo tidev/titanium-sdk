@@ -153,6 +153,12 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	return @"[object TiNetworkClient]";
 }
 
+//AWL_START
+-(bool)hideActivity {
+	return [TiUtils boolValue:[self valueForKey:@"hideNetworkActivity"] def:NO];
+}
+//AWL_END
+
 -(NSInteger)status
 {
 	if (request!=nil)
@@ -309,7 +315,9 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	if (request!=nil && connected)
 	{
 		connected = NO;
-		[[TiApp app] stopNetwork];
+        //AWL_START
+		if (![self hideActivity]) [[TiApp app] stopNetwork];
+        //AWL_END
 		[request cancel];
 		[self forgetSelf];
 	}
@@ -490,7 +498,9 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	connected = YES;
 	downloadProgress = 0;
 	uploadProgress = 0;
-	[[TiApp app] startNetwork];
+    //AWL_START
+    if (![self hideActivity]) [[TiApp app] startNetwork];
+    //AWL_END
 	[self _fireReadyStateChange:NetworkClientStateLoading failed:NO];
 	[request setAllowCompressedResponse:YES];
 	
@@ -503,9 +513,13 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	}
 	else
 	{
-		[[TiApp app] startNetwork];
+        //AWL_START
+		if (![self hideActivity]) [[TiApp app] startNetwork];
+        //AWL_END
 		[request startSynchronous];
-		[[TiApp app] stopNetwork];
+        //AWL_START
+		if (![self hideActivity]) [[TiApp app] stopNetwork];
+        //AWL_END
 	}
 }
 
@@ -552,12 +566,16 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	[self _fireReadyStateChange:NetworkClientStateDone failed:NO];
 	connected = NO;
 	[self forgetSelf];
-	[[TiApp app] stopNetwork];
+    //AWL_START
+	if (![self hideActivity]) [[TiApp app] stopNetwork];
+    //AWL_END
 }
 
 -(void)requestFailed:(ASIHTTPRequest *)request_
 {
-	[[TiApp app] stopNetwork];
+    //AWL_START
+	if (![self hideActivity]) [[TiApp app] stopNetwork];
+    //AWL_END
 	connected=NO;
 	
 	NSError *error = [request error];
