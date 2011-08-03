@@ -7,18 +7,26 @@
 #
 
 import sys
+WARN = 1
+INFO = 2
+VERBOSE = 3
+log_level = INFO
 
-def log(severity, message):
-	print >> sys.stderr, "[%s] %s" % (severity, message)
+def log(severity, message, level):
+	if log_level >= level:
+		print >> sys.stderr, "[%s] %s" % (severity, message)
 
 def err(s):
-	log("ERROR", s)
+	log("ERROR", s, WARN)
 
 def warn(s):
-	log("WARN", s)
+	log("WARN", s, WARN)
 
 def info(s):
-	log("INFO", s)
+	log("INFO", s, INFO)
+
+def vinfo(s):
+	log("INFO", s, VERBOSE)
 
 def msg(s):
 	print >> sys.stderr, s
@@ -42,3 +50,6 @@ def lazyproperty(func):
     return property(_get)
 ## end of http://code.activestate.com/recipes/576720/ }}}
 
+def set_log_level(v):
+	global log_level
+	log_level = v

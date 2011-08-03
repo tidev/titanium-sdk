@@ -5,16 +5,18 @@
 import os, sys, re
 
 this_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
-sys.path.append(os.path.abspath(os.path.join(this_dir, '..')))
-module_support_dir = os.path.abspath(os.path.join(this_dir, '..', 'support', 'module', 'support'))
+sys.path.append(os.path.abspath(os.path.join(this_dir, "..")))
+module_support_dir = os.path.abspath(os.path.join(this_dir, "..", "support", "module", "support"))
 if os.path.exists(module_support_dir):
 	sys.path.append(module_support_dir)
 import markdown # we package it under support/module/support
-from common import info, err, warn, msg, dict_has_non_empty_member
+from common import info, err, warn, msg, dict_has_non_empty_member, vinfo
+from common import VERBOSE, set_log_level
 
 default_colorize_language = "javascript"
 all_annotated_apis = None
 ignore_for_inheritance_mention = ("Titanium.Proxy", "Titanium.Module", "Titanium.Event")
+files_written = []
 
 try:
 	from mako.template import Template
@@ -38,10 +40,12 @@ except:
 	sys.exit(1)
 
 template_cache = {} # cache templates so we don't need to load them each time
-template_dir = os.path.abspath(os.path.join(this_dir, '..', 'templates', 'html'))
+template_dir = os.path.abspath(os.path.join(this_dir, "..", "templates", "html"))
 template_lookup = TemplateLookup(directories=[template_dir])
 
 def generate(raw_apis, annotated_apis, options):
+	if options.verbose:
+		set_log_level(VERBOSE)
 	global all_annotated_apis
 	all_annotated_apis = annotated_apis
 	if not hasattr(options, "output") or options.output is None or len(options.output) == 0:
@@ -56,19 +60,27 @@ def generate(raw_apis, annotated_apis, options):
 
 	# Add html-specific annotations. Do it twice because the
 	# api objects can cross-reference each other.
+	info("Annotating api objects with html-specific attributes")
 	for x in range(2):
 		for api in annotated_apis.values():
+			if api.typestr in ("method", "property", "event"):
+				vinfo ("html-annotating %s.%s" % (api.parent.name, api.name))
+			elif api.typestr == "parameter":
+				vinfo ("html-annotating %s.%s.%s" % (api.parent.parent.name,
+					api.parent.name, api.name))
+			else:
+				vinfo("html-annotating %s" % api.name)
 			annotate(api)
 
+	# Write the output files
+	info("Creating html files in %s" % options.output)
 	for name in annotated_apis:
-		if not name.startswith("Titanium"):
-			continue
 		one_type = annotated_apis[name]
-		info("Producing html output for %s" % name)
+		vinfo("Producing html output for %s" % name)
 		render_template(one_type, options)
 		if hasattr(one_type, "methods"):
 			for m in one_type.methods:
-				info("Producing html output for %s.%s" % (name, m.name))
+				vinfo("Producing html output for %s.%s" % (name, m.name))
 				render_template(m, options)
 
 # Annotations specific to this output format
@@ -76,11 +88,10 @@ def annotate(annotated_obj):
 	setattr(annotated_obj, "description_html", "")
 	setattr(annotated_obj, "notes_html", "")
 	setattr(annotated_obj, "examples_html", [])
+	setattr(annotated_obj, "inherited_from_obj", None)
 	if dict_has_non_empty_member(annotated_obj.api_obj, "description"):
 		desc = annotated_obj.api_obj["description"]
-		if hasattr(annotated_obj, "inherited_from") and len(annotated_obj.inherited_from) > 0 and annotated_obj.inherited_from not in ignore_for_inheritance_mention:
-			desc += (" (Inherited from <%s>.)" % annotated_obj.inherited_from)
-		setattr(annotated_obj, "description_html", markdown_to_html(desc, obj=annotated_obj))
+		annotated_obj.description_html = markdown_to_html(desc, obj=annotated_obj)
 	if dict_has_non_empty_member(annotated_obj.api_obj, "notes"):
 		annotated_obj.notes_html = markdown_to_html(annotated_obj.api_obj["notes"], obj=annotated_obj)
 	if dict_has_non_empty_member(annotated_obj.api_obj, "examples"):
@@ -105,17 +116,34 @@ def annotate(annotated_obj):
 		setattr(annotated_obj, "template_html", "proxy")
 	if annotated_obj.typestr == "module":
 		setattr(annotated_obj, "filename_html", "%s-module" % annotated_obj.name)
-	if annotated_obj.typestr == "proxy":
+	if annotated_obj.typestr in ("proxy"):
 		setattr(annotated_obj, "filename_html", "%s-object" % annotated_obj.name)
+	if hasattr(annotated_obj, "inherited_from") and len(annotated_obj.inherited_from) > 0:
+		if annotated_obj.inherited_from in all_annotated_apis:
+			annotated_obj.inherited_from_obj = all_annotated_apis[annotated_obj.inherited_from]
 	for list_type in ("methods", "properties", "events", "parameters"):
 		annotate_member_list(annotated_obj, list_type)
+	if hasattr(annotated_obj, "methods"):
+		set_overloaded_method_filenames(annotated_obj)
 
 def annotate_member_list(annotated_obj, member_list_name):
 	if hasattr(annotated_obj, member_list_name) and len(getattr(annotated_obj, member_list_name)) > 0:
 		for m in getattr(annotated_obj, member_list_name):
 			annotate(m)
 
+def set_overloaded_method_filenames(obj):
+	filenames = []
+	for m in obj.methods:
+		counter = 1
+		test_filename = m.filename_html
+		while test_filename in filenames:
+			test_filename = "%s-%s" % (m.filename_html, counter)
+			counter += 1
+		m.filename_html = test_filename
+		filenames.append(test_filename)
+
 def render_template(annotated_obj, options):
+	global files_written
 	template = None
 	if template_cache.has_key(annotated_obj.template_html):
 		template = template_cache[annotated_obj.template_html]
@@ -124,8 +152,13 @@ def render_template(annotated_obj, options):
 		template = template_lookup.get_template("%s.html" % annotated_obj.template_html)
 		template_cache[annotated_obj.template_html] = template
 	output = template.render(config=options, data=annotated_obj)
-	filename = os.path.join(options.output,'%s.html' % annotated_obj.filename_html)
-	f = open(filename,'w+')
+	base_filename = annotated_obj.filename_html
+	if base_filename in files_written:
+		warn("File %s.html has already been written. Duplicate type?" % base_filename)
+	else:
+		files_written.append(base_filename)
+	full_filename = os.path.join(options.output, "%s.html" % base_filename)
+	f = open(full_filename,"w+")
 	if options.css is not None:
 		f.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">\n" % options.css)
 	if options.colorize:
@@ -172,10 +205,10 @@ def anchor_for_object_or_method(obj_specifier, text=None, language="markdown"):
 	if obj_specifier in all_annotated_apis:
 		obj = all_annotated_apis[obj_specifier]
 		if hasattr(obj, "filename_html"):
-			return template.replace("#", "%s.html" % obj.filename_html)
+			return template.replace("#", "%s.html" % obj.filename_html), True
 	else:
 		# Maybe a method
-		parts = obj_specifier.split('.')
+		parts = obj_specifier.split(".")
 		if len(parts) > 0:
 			parent = ".".join(parts[:-1])
 			method_name = parts[-1]
@@ -184,31 +217,34 @@ def anchor_for_object_or_method(obj_specifier, text=None, language="markdown"):
 				if hasattr(obj, "methods"):
 					for m in obj.methods:
 						if m.name == method_name and hasattr(m, "filename_html"):
-							return template.replace("#", "%s.html" % m.filename_html)
+							return template.replace("#", "%s.html" % m.filename_html), True
 	# Didn't find it. At least return code-styled specifier
 	if language == "markdown":
-		return "`%s`" % obj_specifier
+		return "`%s`" % obj_specifier, False
 	else:
-		return "<code>%s</code>" % obj_specifier
+		return "<code>%s</code>" % obj_specifier, False
 
 def replace_with_link(full_string, link_info):
 	s = full_string
 	obj_specifier = link_info
 	if obj_specifier.startswith("<"):
 		obj_specifier = obj_specifier[1:-1]
-		return s.replace(link_info, anchor_for_object_or_method(obj_specifier))
+		anchor, found_type = anchor_for_object_or_method(obj_specifier)
+		return s.replace(link_info, anchor)
 
-	pattern = r"\[([^\]]+)\]\((Ti[^\)]+)\)"
+	pattern = r"\[([^\]]+)\]\(([^\)]+)\)"
 	prog = re.compile(pattern)
 	match = prog.match(link_info)
 	if match:
-		return s.replace(link_info, anchor_for_object_or_method(match.groups()[1], text=match.groups()[0]))
+		anchor, found_type = anchor_for_object_or_method(match.groups()[1], text=match.groups()[0])
+		if found_type:
+			return s.replace(link_info, anchor)
 	# fallback
 	return s
 
 def process_markdown_links(s):
 	new_string = s
-	patterns = (r"(\[[^\]]+\]\(Ti[^\)]+\))", r"(\<Ti[^\>]+\>)")
+	patterns = (r"(\[[^\]]+\]\([^\)]+\))", r"(\<[^\>]+\>)")
 	for pattern in patterns:
 		prog = re.compile(pattern, re.MULTILINE)
 		results = prog.findall(new_string)
@@ -229,7 +265,7 @@ def markdown_to_html(s, obj=None):
 def data_type_to_html(type_spec):
 	result = ""
 	type_specs = []
-	pattern = r"(Dictionary|Array|Callback)\<(Ti[^\>]+)\>"
+	pattern = r"(Dictionary|Array|Callback)\<([^\>]+)\>"
 	link_placeholder = "||link here||"
 	if hasattr(type_spec, "append"):
 		type_specs = type_spec
@@ -242,18 +278,20 @@ def data_type_to_html(type_spec):
 			one_type = one_spec
 		one_type = one_type.strip()
 		one_type_html = one_type
-		if one_type.startswith("Ti"):
-			one_type_html = anchor_for_object_or_method(one_type, language="html")
+		if one_type in all_annotated_apis:
+			one_type_html, found_type = anchor_for_object_or_method(one_type, language="html")
+		elif "." in one_type and ".".join(one_type.split(".")[:-1]) in all_annotated_apis:
+			one_type_html, found_type = anchor_for_object_or_method(one_type, language="html")
 		else:
 			match = re.match(pattern, one_type)
-			if match is not None and match.groups() is not None and len(match.groups()) == 2:
+			if match is None or match.groups() is None or len(match.groups()) != 2:
+				one_type_html = one_type_html.replace("<", "&lt;").replace(">", "&gt;")
+			else:
 				raw_type = match.groups()[1]
-				type_link = anchor_for_object_or_method(raw_type, language="html")
+				type_link, found_type = anchor_for_object_or_method(raw_type, language="html")
 				one_type_html = one_type_html.replace("<%s>" % raw_type, link_placeholder)
 				one_type_html = one_type_html.replace("<", "&lt;").replace(">", "&gt;")
-				one_type_html = one_type_html.replace(link_placeholder, type_link)
-			else:
-				one_type_html = one_type_html.replace("<", "&lt;").replace(">", "&gt;")
+				one_type_html = one_type_html.replace(link_placeholder, "<%s>" % type_link)
 		if len(result) > 0:
 			result += " or "
 		result += one_type_html
