@@ -10,8 +10,14 @@ import android.app.Activity;
 import android.app.Instrumentation;
 import android.util.Log;
 import android.os.Bundle;
+import android.os.Environment;
+
+import dalvik.system.DexClassLoader;
+
+import java.io.File;
 
 import org.appcelerator.titanium.TiRootActivity;
+import org.appcelerator.titanium.TiScriptRunner;
 import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.drillbit.InstrumentedActivity;
@@ -96,5 +102,25 @@ public final class Test_harnessActivity extends TiRootActivity
 				}
 			}
 		});
+	}
+
+	public void loadTest(Scriptable scope)
+	{
+		Context context = Context.enter();
+		try {
+			File extDir = Environment.getExternalStorageDirectory();
+			File harnessDir = new File(extDir, getPackageName());
+			File testJar = new File(harnessDir, "test.jar");
+			DexClassLoader loader = new DexClassLoader(testJar.getAbsolutePath(),
+				getCacheDir().getAbsolutePath(), null, getClassLoader());
+			try {
+				Class<?> scriptClass = loader.loadClass(getPackageName() + ".js.test");
+				TiScriptRunner.getInstance().runScript(context, scope, scriptClass);
+			} catch (ClassNotFoundException e) {
+				Log.e(TAG, e.getMessage(), e);
+			}
+		} finally {
+			Context.exit();
+		}
 	}
 }
