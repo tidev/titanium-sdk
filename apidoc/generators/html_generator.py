@@ -97,8 +97,6 @@ def generate(raw_apis, annotated_apis, options):
 	}
 	search_json = []
 	module_names = []
-	method_names = [] # just for debugging TODO REMOVE
-	property_names = [] # just for debugging TODO REMOVE
 	for api in all_annotated_apis.values():
 		if api.name in not_real_titanium_types or not api.name.startswith("Titanium"):
 			continue
@@ -120,17 +118,10 @@ def generate(raw_apis, annotated_apis, options):
 			stats["objects"] += 1
 		stats["methods"] += len(api.methods)
 		stats["properties"] += len(api.properties)
-		method_names.extend(["%s.%s" % (m.parent.name, m.name) for m in api.methods]) #TODO remove
-		property_names.extend(["%s.%s" % (p.parent.name, p.name) for p in api.properties]) #TODO remove
 	module_names.sort()
 	json_to_file(module_names, os.path.join(options.output, "toc.json"))
 	json_to_file(search_json, os.path.join(options.output, "search.json"))
 	json_to_file(stats, os.path.join(options.output, "stats.json"))
-	method_names.sort() # TODO remove
-	property_names.sort() # TODO remove
-	json_to_file(method_names, os.path.join(options.output, "methods.json")) # TODO remove
-	json_to_file(property_names, os.path.join(options.output, "properties.json")) # TODO remove
-
 
 def content_for_search_index(annotated_obj):
 	contents = []
@@ -247,8 +238,6 @@ def colorize_code(line):
 		return line
 	idx2 = line.find("</code>",idx)
 	code = line[idx+6:idx2]
-	# TODO: we need a way to override the source code language
-	# Using guess_lexer doesn't seem to be consistent
 	lexer = get_lexer_by_name(default_colorize_language)
 	formatter = HtmlFormatter()
 	result = highlight(code, lexer, formatter)

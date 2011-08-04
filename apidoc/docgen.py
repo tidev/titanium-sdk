@@ -181,7 +181,7 @@ def process_yaml():
 
 def annotate_apis():
 	global apis, annotated_apis
-	info("Annotating api objects")
+	vinfo("Annotating api objects")
 	for name in apis:
 		vinfo("annotating %s" % name)
 		one_api = apis[name]
