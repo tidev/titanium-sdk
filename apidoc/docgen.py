@@ -11,7 +11,7 @@ import os, sys, traceback
 import re, optparse
 import generators
 from common import log, msg, err, info, vinfo, warn, lazyproperty, dict_has_non_empty_member
-from common import WARN, VERBOSE, set_log_level
+from common import WARN, VERBOSE, set_log_level, not_real_titanium_types
 
 try:
 	import yaml
@@ -183,8 +183,6 @@ def annotate_apis():
 	global apis, annotated_apis
 	info("Annotating api objects")
 	for name in apis:
-		"""if not name.startswith("Titanium"):
-			continue""" # TODO get rid of commented out
 		vinfo("annotating %s" % name)
 		one_api = apis[name]
 		one_annotated_api = None
@@ -308,6 +306,10 @@ class AnnotatedModule(AnnotatedProxy):
 			return
 		existing_names = [m.name for m in methods]
 		for proxy in proxies:
+			if proxy.name in not_real_titanium_types:
+				continue
+			if "createable" in proxy.api_obj and not proxy.api_obj["createable"]:
+				continue
 			method_name = "create%s" % proxy.name.split(".")[-1]
 			if method_name in existing_names:
 				continue

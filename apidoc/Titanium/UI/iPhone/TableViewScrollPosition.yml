@@ -4,6 +4,7 @@ description: A set of constants for the position value that can be used for the 
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [iphone, ipad]
+createable: false
 properties:
   - name: BOTTOM
     description: The table view scrolls the row of interest to the bottom of the visible table view.

@@ -11,11 +11,10 @@ if os.path.exists(module_support_dir):
 	sys.path.append(module_support_dir)
 import markdown # we package it under support/module/support
 from common import info, err, warn, msg, dict_has_non_empty_member, vinfo
-from common import VERBOSE, set_log_level
+from common import VERBOSE, set_log_level, strip_tags, not_real_titanium_types
 
 default_colorize_language = "javascript"
 all_annotated_apis = None
-ignore_for_inheritance_mention = ("Titanium.Proxy", "Titanium.Module", "Titanium.Event")
 files_written = []
 
 try:
@@ -38,6 +37,11 @@ except:
 	msg(">  easy_install Pygments")
 	msg("")
 	sys.exit(1)
+
+try:
+	import json
+except:
+	import simplejson as json
 
 template_cache = {} # cache templates so we don't need to load them each time
 template_dir = os.path.abspath(os.path.join(this_dir, "..", "templates", "html"))
@@ -82,6 +86,69 @@ def generate(raw_apis, annotated_apis, options):
 			for m in one_type.methods:
 				vinfo("Producing html output for %s.%s" % (name, m.name))
 				render_template(m, options)
+
+	# Create the special .json files that the webserver uses.
+	info("Creating json files for server")
+	stats = {
+		'modules':0,
+		'objects':0,
+		'properties':0,
+		'methods':0
+	}
+	search_json = []
+	module_names = []
+	method_names = [] # just for debugging TODO REMOVE
+	property_names = [] # just for debugging TODO REMOVE
+	for api in all_annotated_apis.values():
+		if api.name in not_real_titanium_types or not api.name.startswith("Titanium"):
+			continue
+		search_item = {"filename": api.name,
+				"type": "module" if api.typestr == "module" else "object",
+				"content": content_for_search_index(api)}
+		search_json.append(search_item)
+		if api.typestr == "module":
+			module_names.append(api.name)
+			stats["modules"] += 1
+			toc = {}
+			toc["methods"] = [m.name for m in api.methods]
+			toc["objects"] = [p.name.split(".")[-1] for p in api.member_proxies]
+			toc["properties"] = [p.name for p in api.properties]
+			for l in toc.values():
+				l.sort()
+			json_to_file(toc, os.path.join(options.output, "toc_%s.json" % api.name))
+		else:
+			stats["objects"] += 1
+		stats["methods"] += len(api.methods)
+		stats["properties"] += len(api.properties)
+		method_names.extend(["%s.%s" % (m.parent.name, m.name) for m in api.methods]) #TODO remove
+		property_names.extend(["%s.%s" % (p.parent.name, p.name) for p in api.properties]) #TODO remove
+	module_names.sort()
+	json_to_file(module_names, os.path.join(options.output, "toc.json"))
+	json_to_file(search_json, os.path.join(options.output, "search.json"))
+	json_to_file(stats, os.path.join(options.output, "stats.json"))
+	method_names.sort() # TODO remove
+	property_names.sort() # TODO remove
+	json_to_file(method_names, os.path.join(options.output, "methods.json")) # TODO remove
+	json_to_file(property_names, os.path.join(options.output, "properties.json")) # TODO remove
+
+
+def content_for_search_index(annotated_obj):
+	contents = []
+	contents.append(annotated_obj.name)
+	contents.append(" ".join(annotated_obj.name.split('.')))
+	contents.append(annotated_obj.description_html)
+	contents.extend([e.name for e in annotated_obj.events])
+	contents.extend([m.name for m in annotated_obj.methods])
+	contents.extend([p.name for p in annotated_obj.properties])
+	contents.extend([e["title"] for e in annotated_obj.examples_html])
+	if len(annotated_obj.notes_html) > 0:
+		contents.append(annotated_obj.notes_html)
+	return strip_tags(" ".join(contents))
+
+def json_to_file(obj, filename):
+	out = open(filename, "w+")
+	out.write(json.dumps(obj, indent=4))
+	out.close()
 
 # Annotations specific to this output format
 def annotate(annotated_obj):

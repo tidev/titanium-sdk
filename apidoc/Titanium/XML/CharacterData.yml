@@ -7,6 +7,7 @@ description: An interface extending <Titanium.XML.Node> with a set of
     defintion of a DOM CharacterData. Unlike the DOM, for reasons of compatibility 
     with the javascript engine, text is represented by UTF-8 instead of UTF-16.
 since: "0.9"
+createable: false
 methods:
   - name: appendData
     description: Append the string to the end of the character data of the node. 

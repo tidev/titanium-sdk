@@ -6,6 +6,7 @@ description: The <Titanium.XML.DOMImplementation> interface provides a number of
     model. This conforms to the [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html)
     defintion of a DOM DOMImplementation.
 since: "1.8"
+createable: false
 methods:
   - name: createDocument
     description: Creates an <Titanium.XML.Document> object of the specified type with its document

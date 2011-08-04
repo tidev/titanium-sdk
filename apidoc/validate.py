@@ -86,6 +86,10 @@ def validateSince(tracker, since):
 	if type(since) not in [str, dict]:
 		tracker.trackError('"since" should either be a version inside a string, or a dictionary of platform to version: %s, %s' % (since, type(since)))
 
+def validateCreateable(tracker, createable):
+	if not isinstance(createable, bool):
+		tracker.trackError('"createable" should either be true or false: %s, %s' % (createable, type(createable)))
+
 def validateDeprecated(tracker, deprecated):
 	if type(deprecated) != dict or 'since' not in deprecated:
 			tracker.trackError('"deprecated" should be a dictionary with "since" and optional "removed" versions: %s' % deprecated)
@@ -141,6 +145,9 @@ def validateCommon(tracker, map):
 
 	if 'osver' in map:
 		validateOsVer(tracker, map['osver'])
+
+	if 'createable' in map:
+		validateCreateable(tracker, map['createable'])
 
 def validateMethod(typeTracker, method):
 	tracker = ErrorTracker(method['name'], typeTracker)

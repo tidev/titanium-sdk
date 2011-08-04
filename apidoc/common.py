@@ -6,11 +6,14 @@
 # Portions (c) 2009 Sridhar Ratnakumar
 #
 
-import sys
+import sys, re
 WARN = 1
 INFO = 2
 VERBOSE = 3
 log_level = INFO
+simple_tag_pattern = re.compile(r"<[^>]*?>")
+not_real_titanium_types = ("Titanium.Proxy", "Titanium.Module", "Titanium.Event")
+
 
 def log(severity, message, level):
 	if log_level >= level:
@@ -53,3 +56,6 @@ def lazyproperty(func):
 def set_log_level(v):
 	global log_level
 	log_level = v
+
+def strip_tags(value):
+	return simple_tag_pattern.sub("", value)
