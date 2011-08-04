@@ -6,7 +6,11 @@
 
 <h3>Return Type</h3>
 <div>
-${data.return_type_html}
+    % if len(data.return_type_html) > 0:
+        ${data.return_type_html}
+    % else:
+        void
+    % endif
 </div>
 
 <%include file="footer.html"/>

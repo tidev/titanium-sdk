@@ -53,11 +53,11 @@ notes: |
 
     #### Alert
 
-    Titanium has a built-in convenience function `alert` which can be used as a shortcut to [[Titanium.UI.createAlertDialog]] for creating a message box.  Note that unlike a web browser-based version of `alert`, the method is asynchronous. However, only one alert dialog will be visible and modal at a time.
+    Titanium has a built-in convenience function `alert` which can be used as a shortcut to <Titanium.UI.createAlertDialog> for creating a message box.  Note that unlike a web browser-based version of `alert`, the method is asynchronous. However, only one alert dialog will be visible and modal at a time.
 
     #### Locale
 
-    The macro `L` can also be used which aliases the method [[Titanium.Locale.getString]].
+    The macro `L` can also be used which aliases the method <Titanium.Locale.getString>.
 
     #### String formatting
 

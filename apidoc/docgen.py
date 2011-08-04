@@ -318,7 +318,7 @@ class AnnotatedModule(AnnotatedProxy):
 			method_obj["description"] = "Create and return an instance of <%s>." % proxy.name
 			param_obj = {}
 			param_obj["name"] = "parameters"
-			param_obj["type"] = "Object"
+			param_obj["type"] = "Dictionary<%s>" % proxy.name
 			param_obj["description"] = "(Optional) A dictionary object with properties defined in <%s>" % proxy.name
 			method_obj["parameters"] = [param_obj]
 			method_obj["returns"] = {"type": proxy.name}

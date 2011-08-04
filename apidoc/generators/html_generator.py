@@ -292,7 +292,7 @@ def anchor_for_object_or_method(obj_specifier, text=None, language="markdown"):
 					for m in obj.methods:
 						if m.name == method_name and hasattr(m, "filename_html"):
 							return template.replace("#", "%s.html" % m.filename_html), True
-	# Didn't find it. At least return code-styled specifier
+	# Didn't find it. At least send it back styled like code.
 	if language == "markdown":
 		return "`%s`" % obj_specifier, False
 	else:
@@ -304,9 +304,15 @@ def replace_with_link(full_string, link_info):
 	if obj_specifier.startswith("<"):
 		obj_specifier = obj_specifier[1:-1]
 		anchor, found_type = anchor_for_object_or_method(obj_specifier)
-		return s.replace(link_info, anchor)
+		if found_type:
+			return s.replace(link_info, anchor)
+		else:
+			# if it at least looks like a Titanium type (but perhaps one
+			# that is not documented), return the styled result from anchor_for_object_or_method.
+			if obj_specifier.startswith("Ti") and "." in obj_specifier and not " " in obj_specifier:
+				return s.replace(link_info, anchor)
 
-	pattern = r"\[([^\]]+)\]\(([^\)]+)\)"
+	pattern = r"\[([^\]]+)\]\(([^\)\s]+)\)"
 	prog = re.compile(pattern)
 	match = prog.match(link_info)
 	if match:
@@ -318,7 +324,7 @@ def replace_with_link(full_string, link_info):
 
 def process_markdown_links(s):
 	new_string = s
-	patterns = (r"(\[[^\]]+\]\([^\)]+\))", r"(\<[^\>]+\>)")
+	patterns = (r"(\[[^\]]+\]\([^\)\s]+\))", r"(\<[^\>\s]+\>)")
 	for pattern in patterns:
 		prog = re.compile(pattern, re.MULTILINE)
 		results = prog.findall(new_string)
