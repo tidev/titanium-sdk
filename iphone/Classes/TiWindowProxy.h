@@ -77,6 +77,8 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args);
 
 -(void)fireFocus:(BOOL)newFocused;
 
+@property(nonatomic,readonly)	BOOL opening;
+
 #pragma mark Public APIs
 
 @property(nonatomic,readonly)	NSNumber *opened;
