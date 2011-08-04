@@ -349,7 +349,8 @@ public class TiLocation
 		address.put(TiC.PROPERTY_REGION2, ""); // SubAdminArea
 		address.put(TiC.PROPERTY_POSTAL_CODE, place.optString("zipcode", ""));
 		address.put(TiC.PROPERTY_COUNTRY, place.optString(TiC.PROPERTY_COUNTRY, ""));
-		address.put(TiC.PROPERTY_COUNTRY_CODE, place.optString("country_code", ""));
+		address.put("countryCode", place.optString(TiC.PROPERTY_COUNTRY_CODE, "")); // TIMOB-4478, remove this later, was old android name
+		address.put(TiC.PROPERTY_COUNTRY_CODE, place.optString(TiC.PROPERTY_COUNTRY_CODE, ""));		
 		address.put(TiC.PROPERTY_LONGITUDE, place.optString(TiC.PROPERTY_LONGITUDE, ""));
 		address.put(TiC.PROPERTY_LATITUDE, place.optString(TiC.PROPERTY_LATITUDE, ""));
 		address.put(TiC.PROPERTY_DISPLAY_ADDRESS, place.optString(TiC.PROPERTY_ADDRESS));
