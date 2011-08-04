@@ -309,7 +309,8 @@
 
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation) newOrientation
 {
-	[self manuallyRotateToOrientation:newOrientation duration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+	NSTimeInterval animation = ([self focusedViewController]==nil)?0.0:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
+	[self manuallyRotateToOrientation:newOrientation duration:animation];
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
