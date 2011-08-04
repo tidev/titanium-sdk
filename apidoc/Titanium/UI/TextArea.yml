@@ -117,7 +117,8 @@ properties:
     description: value of the field
     type: String
   - name: scrollable
-    description: true (default) if textarea can be scrolled
+    description: true (default) if textarea can be scrolled.  iOS only.
+    platforms: [iphone, ipad]
     type: Boolean
 notes: |
     Both Text Areas and Text Fields can control the buttons displayed in a button bar above the keyboard when it's visible.
