@@ -4,7 +4,7 @@
 # Android Simulator for building a project and launching
 # the Android Emulator or on the device
 #
-import os, sys, subprocess, shutil, time, signal, string, platform, re, glob, hashlib, imp
+import os, sys, subprocess, shutil, time, signal, string, platform, re, glob, hashlib, imp, inspect
 import run, avd, prereq, zipfile, tempfile, fnmatch, codecs, traceback, simplejson
 from os.path import splitext
 from compiler import Compiler
@@ -1381,6 +1381,7 @@ class Builder(object):
 			os.rename(app_apk+'z',app_apk)
 
 		if self.dist_dir:
+			self.post_build()
 			sys.exit()
 
 		if self.build_only:
@@ -1510,6 +1511,7 @@ class Builder(object):
 		deploy_type = 'development'
 		self.build_only = build_only
 		self.device_args = device_args
+		self.postbuild_modules = [];
 		if install:
 			if self.device_args == None:
 				self.device_args = ['-d']
@@ -1567,6 +1569,10 @@ class Builder(object):
 				m.update(open(code_path,'rb').read()) 
 				code_hash = m.hexdigest()
 				p = imp.load_source(code_hash, code_path, fin)
+				module_functions = dict(inspect.getmembers(p, inspect.isfunction))
+				if module_functions.has_key('postbuild'):
+					debug("plugin contains a postbuild function. Will execute after project is built and packaged")
+					self.postbuild_modules.append((plugin['name'], p))
 				p.compile(compiler_config)
 				fin.close()
 			
@@ -1835,6 +1841,8 @@ class Builder(object):
 				if relaunched:
 					info("Relaunched %s ... Application should be running." % self.name)
 
+			self.post_build()
+
 			#intermediary code for on-device debugging (later)
 			#if debugger_host != None:
 				#import debugger
@@ -1844,6 +1852,15 @@ class Builder(object):
 			os.chdir(curdir)
 			sys.stdout.flush()
 			
+	def post_build(self):
+		try:
+			if self.postbuild_modules:
+				for p in self.postbuild_modules:
+					info("Running postbuild function in %s plugin" % p[0])
+					p[1].postbuild()
+		except Exception,e:
+			error("Error performing post-build steps: %s" % e)
+
 
 if __name__ == "__main__":
 	def usage():
