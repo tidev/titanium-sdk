@@ -247,7 +247,7 @@ properties:
   - name: rightNavButton
     description: view to show in the right nav bar area. only available in iPhone.
     platforms: [iphone, ipad]
-    type: Object
+    type: Titanium.UI.View
     
   - name: tabBarHidden
     description: boolean to indicate if the tab bar should be hidden. this is only valid when the window is a child of a tab.
@@ -260,7 +260,7 @@ properties:
   - name: titleControl
     description: view to show in the title area. only available in iPhone.
     platforms: [iphone, ipad]
-    type: Object
+    type: Titanium.UI.View
     
   - name: titleImage
     description: url to a image that show in the title area. only available in iPhone.
