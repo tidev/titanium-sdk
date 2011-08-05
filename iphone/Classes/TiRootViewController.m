@@ -148,7 +148,10 @@
 		// FIRST!  We know the orientation now, so attach the splash!
 		UIInterfaceOrientation oldOrientation = [[UIApplication sharedApplication] statusBarOrientation];
 		windowOrientation = oldOrientation;
-		[self manuallyRotateToOrientation:newOrientation duration:0];
+
+        [self shouldAutorotateToInterfaceOrientation:newOrientation];	// side effect, retag timestamp on old orientation
+		
+        [self manuallyRotateToOrientation:newOrientation duration:0];
 		if (![[TiApp app] isSplashVisible]) {
 			[[TiApp app] loadSplash];
 		}
@@ -404,7 +407,7 @@
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
 {
 	orientationRequestTimes[interfaceOrientation] = [NSDate timeIntervalSinceReferenceDate];
-	return TI_ORIENTATION_ALLOWED(allowedOrientations,interfaceOrientation);
+	return TI_ORIENTATION_ALLOWED(allowedOrientations,interfaceOrientation) ? YES : NO;
 }
 
 
