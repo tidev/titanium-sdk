@@ -9,7 +9,7 @@ methods:
     parameters:
       - name: view
         description: the view to add to this views hiearchy
-        type: Object
+        type: Titanium.UI.View
   - name: animate
     description: animate the view
     parameters:
@@ -26,7 +26,7 @@ methods:
     parameters:
       - name: view
         description: the view to remove from this views hiearchy
-        type: Object
+        type: Titanium.UI.View
   - name: show
     description: make the view visible
   - name: toImage
