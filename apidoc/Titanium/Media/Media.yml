@@ -505,7 +505,7 @@ properties:
     type: [Number, String, Boolean]
   - name: exact
     description: Whether or not the predicate is for an exact match.  The
-      default is `true`.
+        default is `true`.
     type: Boolean
     
 # Pseudo-type for media library results
