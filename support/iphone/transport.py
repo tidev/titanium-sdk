@@ -113,8 +113,12 @@ def main(args):
 		applogo = tiapp.generate_infoplist(plist_out, app_id, 'iphone', project_dir, None)
 		
 		# Run the compiler to autogenerate .m files
-		info("Creating generated .m files...")
+		info("Copying classes, creating generated .m files...")
 		compiler = Compiler(project_dir,app_id,app_name,'export',False,None,None,silent=True)
+		
+		#... But we still have to nuke the stuff that gets built that we don't want
+		# to bundle.
+		shutil.rmtree(os.path.join(project_dir,'build'))
 		
 		# Install applogo/splash/etc.
 		info("Copying icons and splash...")
@@ -164,11 +168,15 @@ def main(args):
 		
 		# Migrate compile scripts
 		info("Copying custom Titanium compiler scripts...")
-		common_dir = os.path.join(sdk_dir, 'common')
-		shutil.copytree(common_dir,titanium_local)
+		shutil.copytree(os.path.join(sdk_dir,'common'),titanium_local)
+		shutil.copy(os.path.join(sdk_dir,'tiapp.py'),titanium_local)
 		
-		tiapp_compiler = os.path.join(sdk_dir, 'tiapp.py')
-		shutil.copy(tiapp_compiler,titanium_local)
+		iphone_script_dir = os.path.join(titanium_local,'iphone')
+		os.mkdir(iphone_script_dir)
+		shutil.copy(os.path.join(sdk_dir,'iphone','compiler.py'),iphone_script_dir)
+		shutil.copy(os.path.join(sdk_dir,'iphone','run.py'),iphone_script_dir)
+		shutil.copy(os.path.join(sdk_dir,'iphone','csspacker.py'),iphone_script_dir)
+		shutil.copy(os.path.join(sdk_dir,'iphone','jspacker.py'),iphone_script_dir)
 		
 		# Add compilation to the build script in project
 		info("Modifying pre-compile stage...")
@@ -176,7 +184,9 @@ def main(args):
 		contents = codecs.open(xcodeproj,'r',encoding='utf-8').read()
 
 		css_compiler = os.path.join('titanium','css','csscompiler.py')
-		script = 'cp -Rf \\"$PROJECT_DIR/Resources/.\\" \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\\" \\n%s . ios Resources' % css_compiler
+		ti_compiler = os.path.join('titanium','iphone','compiler.py')
+		script = """%s . ios Resources
+%s . export-build $TARGETED_DEVICE_FAMILY $SDKROOT %s""" % (css_compiler, ti_compiler, version)
 		contents = fix_xcode_script(contents,"Pre-Compile",script)
 
 		# write our new project
@@ -184,7 +194,7 @@ def main(args):
 		f.write(contents)
 		f.close()		
 		
-		info("Finished!")
+		info("Finished! Share and Enjoy.")
 
 
 if __name__ == "__main__":
