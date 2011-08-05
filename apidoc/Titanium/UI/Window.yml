@@ -12,15 +12,14 @@ methods:
       - name: options
         description: close the window with optional animation or display properties
         type: Object
-
+        optional: true
   - name: open
     description: open the window
     parameters:
       - name: options
         description: open the window with optional animation or display properties
         type: Object
-
-
+        optional: true
 events:
   - name: android:back
     platforms: [android]
