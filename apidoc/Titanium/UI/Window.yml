@@ -242,7 +242,7 @@ properties:
     
   - name: orientation
     description: Current orientation of the window.  Value will be one of the orientation constants defined in <Titanium.UI>.
-    type: Array<Number>
+    type: Number
 
   - name: rightNavButton
     description: view to show in the right nav bar area. only available in iPhone.
