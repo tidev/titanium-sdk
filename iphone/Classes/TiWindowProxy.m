@@ -56,6 +56,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 
 @implementation TiWindowProxy
 @synthesize navController, controller;
+@synthesize opening;
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {

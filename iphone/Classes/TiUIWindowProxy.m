@@ -787,7 +787,10 @@ else{\
 		// we can't fire focus here since we 
 		// haven't yet wired up the JS context at this point
 		// and listeners wouldn't be ready
-		[self fireFocus:YES];
+		if(![self opening])
+		{
+			[self fireFocus:YES];
+		}
 		[self setupWindowDecorations];
 	}
 	[super _tabFocus];

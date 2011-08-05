@@ -427,6 +427,7 @@
 - (void)textFieldDidBeginEditing:(UITextField *)tf
 {
 	[self textWidget:tf didFocusWithText:[tf text]];
+	[self performSelector:@selector(textFieldDidChange:) onThread:[NSThread currentThread] withObject:nil waitUntilDone:NO];
 }
 
 
