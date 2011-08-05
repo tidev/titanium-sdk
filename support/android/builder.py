@@ -1511,7 +1511,7 @@ class Builder(object):
 		deploy_type = 'development'
 		self.build_only = build_only
 		self.device_args = device_args
-		self.postbuild_modules = [];
+		self.postbuild_modules = []
 		if install:
 			if self.device_args == None:
 				self.device_args = ['-d']
