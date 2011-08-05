@@ -89,7 +89,7 @@ methods:
         description: The name of the element. The value `*` matches all tags.
         type: String
     returns:
-      type: Titanium.XML.NodeList
+        type: Titanium.XML.NodeList
   - name: getAttributeNS
     description: >
         Retrieves an attribute value by local name and namespace URI,
@@ -184,7 +184,7 @@ methods:
       - name: localName
         description: The local name of the element. The value `*` matches all local names.
         type: String
-    returns: 
+    returns:
         type: Titanium.XML.NodeList
   - name: hasAttribute
     description: >
