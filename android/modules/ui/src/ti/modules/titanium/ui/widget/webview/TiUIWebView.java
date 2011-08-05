@@ -339,6 +339,14 @@ public class TiUIWebView extends TiUIView {
 		client.setBasicAuthentication(username, password);
 	}
 
+	public String getUserAgentString(){
+		return getWebView().getSettings().getUserAgentString();
+	}
+
+	public void setUserAgentString(String userAgentString) {
+		getWebView().getSettings().setUserAgentString(userAgentString);
+	}
+
 	public boolean canGoBack() {
 		return getWebView().canGoBack();
 	}
