@@ -174,22 +174,14 @@ def main(args):
 		info("Modifying pre-compile stage...")
 		xcodeproj = os.path.join(build_dir,'%s.xcodeproj' % app_name, 'project.pbxproj')
 		contents = codecs.open(xcodeproj,'r',encoding='utf-8').read()
-		new_contents = u''
 
 		css_compiler = os.path.join('titanium','css','csscompiler.py')
-		insertScript = False
-		for line in contents.splitlines(True):
-			if line.find('name = "Pre-Compile"')!=-1:
-				insertScript = True
-			elif line.find('shellScript =')==-1:
-				new_contents+=line
-			elif insertScript:
-				new_contents+=' shellScript = "cp -Rf \\"$PROJECT_DIR/Resources/.\\" \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\\" \\n%s . ios Resources";\n' % css_compiler
-				insertScript = False
+		script = 'cp -Rf \\"$PROJECT_DIR/Resources/.\\" \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\\" \\n%s . ios Resources' % css_compiler
+		contents = fix_xcode_script(contents,"Pre-Compile",script)
 
 		# write our new project
 		f = codecs.open(xcodeproj,'w',encoding='utf-8')
-		f.write(new_contents)
+		f.write(contents)
 		f.close()		
 		
 		info("Finished!")

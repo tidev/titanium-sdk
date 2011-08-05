@@ -4,7 +4,7 @@
 # Project Compiler
 #
 
-import os, sys, re, shutil, time, base64, run, sgmllib, codecs
+import os, sys, re, shutil, time, run, sgmllib, codecs
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.join(template_dir,'../'))

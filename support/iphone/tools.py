@@ -150,3 +150,20 @@ def install_logo(tiapp, applogo, project_dir, template_dir, dest):
 def install_defaults(project_dir, template_dir, dest):
 	for graphic in os.listdir(os.path.join(template_dir, 'resources')):
 		install_default(graphic, project_dir, template_dir, dest)
+
+def fix_xcode_script(content,script_name,script_contents):
+	# fix up xcode compile scripts in build phase
+	start = 0
+	while start >= 0:
+		start = content.find("name = \"%s\";" % script_name, start)	
+		if start > 0:
+			begin = content.find("shellScript = ",start)
+			if begin > 0:
+				end = content.find("};",begin+1)
+				if end > 0:
+					before = content[0:begin+15]
+					after = content[end:]
+					script = "%s\";\n                " % script_contents
+					content = before + script + after
+					start = begin
+	return content
