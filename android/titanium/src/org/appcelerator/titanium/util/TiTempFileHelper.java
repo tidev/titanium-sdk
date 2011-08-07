@@ -8,6 +8,7 @@ package org.appcelerator.titanium.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.channels.FileLockInterruptionException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -48,7 +49,7 @@ public class TiTempFileHelper
 
 	/**
 	 * Create a temporary file inside the external cache directory
-	 * @see {@link java.io.File#createTempFile(String, String)}
+	 * @see File#createTempFile(String, String)
 	 * @throws IOException when the external storage state is either unmounted or read only 
 	 */
 	public File createTempFile(String prefix, String suffix)
