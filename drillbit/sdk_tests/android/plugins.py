@@ -4,6 +4,7 @@ import shutil, time, json
 import xml.dom.minidom
 
 class PluginsTest(mobilesdk.MobileSDKTest):
+	# Tests TIMOB-4903, and "compile" for external build plugins
 	def testPluginFunctions(self):
 		self.createProject("pluginTest", "android")
 
