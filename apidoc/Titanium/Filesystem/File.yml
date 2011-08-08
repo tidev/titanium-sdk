@@ -118,5 +118,6 @@ methods:
         type: Boolean
 properties:
   - name: nativePath
-    description: readonly returns the fully resolved native path
+    description: returns the fully resolved native path
     type: String
+    permission: read-only
