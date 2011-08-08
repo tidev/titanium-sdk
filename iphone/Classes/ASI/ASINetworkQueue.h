@@ -18,9 +18,14 @@
 	// Will be called when a request starts with the request as the argument
 	SEL requestDidStartSelector;
 	
-	// Will be called when a request receives response headers with the request as the argument
+	// Will be called when a request receives response headers
+	// Should take the form request:didRecieveResponseHeaders:, where the first argument is the request, and the second the headers dictionary
 	SEL requestDidReceiveResponseHeadersSelector;
 	
+	// Will be called when a request is about to redirect
+	// Should take the form request:willRedirectToURL:, where the first argument is the request, and the second the new url
+	SEL requestWillRedirectSelector;
+
 	// Will be called when a request completes with the request as the argument
 	SEL requestDidFinishSelector;
 	
@@ -65,7 +70,6 @@
 	// Storage container for additional queue information.
 	NSDictionary *userInfo;
 	
-	BOOL shouldPerformCallbacksOnMainThread;
 }
 
 // Convenience constructor
@@ -81,24 +85,16 @@
 // This method will start the queue
 - (void)go;
 
-// Used on iPhone platform to show / hide the network activity indicator (in the status bar)
-// On mac, you could subclass to do something else
-- (void)updateNetworkActivityIndicator;
-
-// Returns YES if the queue is in progress
-- (BOOL)isNetworkActive;
-
-
-@property (assign,setter=setUploadProgressDelegate:) id uploadProgressDelegate;
-@property (assign,setter=setDownloadProgressDelegate:) id downloadProgressDelegate;
+@property (assign, nonatomic, setter=setUploadProgressDelegate:) id uploadProgressDelegate;
+@property (assign, nonatomic, setter=setDownloadProgressDelegate:) id downloadProgressDelegate;
 
 @property (assign) SEL requestDidStartSelector;
 @property (assign) SEL requestDidReceiveResponseHeadersSelector;
+@property (assign) SEL requestWillRedirectSelector;
 @property (assign) SEL requestDidFinishSelector;
 @property (assign) SEL requestDidFailSelector;
 @property (assign) SEL queueDidFinishSelector;
 @property (assign) BOOL shouldCancelAllRequestsOnFailure;
-@property (assign) BOOL shouldPerformCallbacksOnMainThread;
 @property (assign) id delegate;
 @property (assign) BOOL showAccurateProgress;
 @property (assign, readonly) int requestsCount;

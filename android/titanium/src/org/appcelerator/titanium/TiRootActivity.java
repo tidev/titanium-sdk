@@ -12,6 +12,7 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -36,6 +37,16 @@ public class TiRootActivity extends TiLaunchActivity
 		TiApplication app = getTiApp();
 		app.setRootActivity(this);
 		super.onCreate(savedInstanceState);
+	}
+
+	@Override
+	protected void windowCreated()
+	{
+		// Use settings from tiapp.xml
+		ITiAppInfo appInfo = getTiApp().getAppInfo();
+		getIntent().putExtra(TiC.PROPERTY_FULLSCREEN, appInfo.isFullscreen());
+		getIntent().putExtra(TiC.PROPERTY_NAV_BAR_HIDDEN, appInfo.isNavBarHidden());
+		super.windowCreated();
 	}
 
 	// Lifecyle
