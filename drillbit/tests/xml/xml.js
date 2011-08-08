@@ -1060,12 +1060,18 @@ describe("Ti.XML tests", {
 		valueOf(newAttr2).shouldBe(newAttr);
 		valueOf(newAttr2.value).shouldBe(newAttr.value);
 
+		// Setting an attr with an existing, should return the original
+		newAttr3 = xml.createAttributeNS("http://www.test.com/namespace", "newAttr2");
+		newAttr3.value = "value3";
+		valueOf(attrs.setNamedItemNS(newAttr3)).shouldBe(newAttr2);
+		valueOf(test.getAttributeNS("http://www.test.com/namespace", "newAttr2")).shouldBe("value3");
+
 		// removeNamedItemNS
 		valueOf(function() {
 			removedAttr = attrs.removeNamedItemNS("http://www.test.com/namespace", "newAttr2");
 		}).shouldNotThrowException();
 
-		valueOf(removedAttr).shouldBe(newAttr);
+		valueOf(removedAttr).shouldBe(newAttr3);
 
 		// Removing an attr that doesn't exist throws an exception
 		valueOf(function() {
