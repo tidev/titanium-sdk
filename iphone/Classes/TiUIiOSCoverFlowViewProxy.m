@@ -4,15 +4,15 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UICOVERFLOWVIEW
+#ifdef USE_TI_UIIOSCOVERFLOWVIEW
 
-#import "TiUICoverFlowViewProxy.h"
+#import "TiUIiOSCoverFlowViewProxy.h"
 #import "TiBase.h"
-#import "TiUICoverFlowView.h"
+#import "TiUIiOSCoverFlowView.h"
 
 NSArray* coverflowKeySequence;
 
-@implementation TiUICoverFlowViewProxy
+@implementation TiUIiOSCoverFlowViewProxy
 
 DEFINE_DEF_INT_PROP(selected, 0);
 
@@ -30,7 +30,7 @@ DEFINE_DEF_INT_PROP(selected, 0);
 	ENSURE_UI_THREAD(setImage,args);
 	int index = [TiUtils intValue:[args objectAtIndex:0]];
 	id image = [args objectAtIndex:1];
-	[(TiUICoverFlowView*)[self view] setImage:image forIndex:index];
+	[(TiUIiOSCoverFlowView*)[self view] setImage:image forIndex:index];
 }
 
 @end
