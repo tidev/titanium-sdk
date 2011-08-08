@@ -93,8 +93,10 @@ var frontend = {
 	process_data: function(data)
 	{
 		var drillbit_console = $('#console');
-		var search = $('filter').val();
-		drillbit_console.append(data+"\n");
+		var search = ($('#filter').val()).toUpperCase();
+		if ((data.toUpperCase()).indexOf(search) >= 0) {
+			drillbit_console.append(data+"\n");
+		}
 		drillbit_console.scrollTop(drillbit_console[0].scrollHeight);
 		consoleData.push(data);
 		if (Drillbit.logStream != null){
@@ -240,7 +242,6 @@ $(window).ready(function()
 		drillbitFilter = document.getElementById('filter');
 		drillbitResize = document.getElementById('resize-bar'), 
 		drillbitSuite = document.getElementsByClassName('suites')[0],
-		startHeightConsoleConatiner = $(drillbitConsoleContainer).height(),
 		filterHeight = $(drillbitFilter).height(),
 		resizerHeight = $(drillbitResize).height(),
 		spaceBuffer = 85;
@@ -297,8 +298,8 @@ $(window).ready(function()
 			Titanium.Platform.openApplication(Drillbit.logPath.nativePath());
 		}
 	});
-	$(window).keyup(function() {
-		var searchVal = $('#filter').val();
+	$(drillbitFilter).keyup(function() {
+		var searchVal = $(drillbitFilter).val();
 		var searchConsoleData = '';
 		consoleData.forEach(function(line) {
 			if ((line.toUpperCase()).indexOf(searchVal.toUpperCase()) >= 0) {
@@ -336,7 +337,7 @@ $(window).ready(function()
 	$(window).resize(function() {
 		var windowHeight = Titanium.UI.currentWindow.getHeight();
 		$(drillbitConsoleContainer).height(windowHeight-$(drillbitSuite).height()-spaceBuffer);
-		drillbitResize.style.bottom = $(drillbitConsoleContainer).height() + resizerHeight;
+		drillbitResize.style.bottom = $(drillbitConsoleContainer).height() + resizerHeight + filterHeight;
 	});
 	
 	function eachPlatformCheck(fn) {
@@ -375,7 +376,7 @@ $(window).ready(function()
 		var newHeight = $(drillbitConsoleContainer).height();
 		var suiteHeight = windowHeight - spaceBuffer - newHeight;
 		$(drillbitSuite).height(suiteHeight);
-		drillbitResize.style.bottom = $(drillbitConsoleContainer).height() + resizerHeight;
+		drillbitResize.style.bottom = $(drillbitConsoleContainer).height() + resizerHeight + filterHeight;
 	};
 
 	function saveSettings() {
