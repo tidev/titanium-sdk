@@ -41,6 +41,10 @@ properties:
     platforms: [iphone, ipad]
     permission: read-only
 methods:
+  - name: toString
+    returns:
+        type: String
+    description: Converts this blob to a String
   - name: append
     description: Appends the data from another blob to this blob.
     platforms: [android]
