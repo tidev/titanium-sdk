@@ -9,6 +9,7 @@ var TA  = Titanium.App;
 var Drillbit = Titanium.Drillbit;
 
 var runLinkDisabled = false;
+var consoleData = [];
 var frontend = {
 	passed: 0, failed: 0,
 	
@@ -92,8 +93,12 @@ var frontend = {
 	process_data: function(data)
 	{
 		var drillbit_console = $('#console');
-		drillbit_console.append(data+"\n");
+		var search = ($('#filter').val()).toUpperCase();
+		if ((data.toUpperCase()).indexOf(search) >= 0) {
+			drillbit_console.append(data+"\n");
+		}
 		drillbit_console.scrollTop(drillbit_console[0].scrollHeight);
+		consoleData.push(data);
 		if (Drillbit.logStream != null){
 			Drillbit.logStream.write(data+"\n");
 		}
@@ -233,11 +238,12 @@ $(window).ready(function()
 {
 	var mouseDown = false,
 		startY = 0,
-		drillbitConsole = document.getElementById('console'),
+		drillbitConsoleContainer = document.getElementById('console-container'),
+		drillbitFilter = document.getElementById('filter');
 		drillbitResize = document.getElementById('resize-bar'), 
 		drillbitSuite = document.getElementsByClassName('suites')[0],
-		startHeightConsole = $(drillbitConsole).height(),
-		resizerHeight = 12,
+		filterHeight = $(drillbitFilter).height(),
+		resizerHeight = $(drillbitResize).height(),
 		spaceBuffer = 85;
 		
 	if ('webConsole' in Drillbit.argv) {
@@ -249,7 +255,7 @@ $(window).ready(function()
 		Titanium.App.Properties.removeProperty("windowY");
 		Titanium.App.Properties.removeProperty("height");
 		Titanium.App.Properties.removeProperty("width");
-		Titanium.App.Properties.removeProperty("consoleHeight");
+		Titanium.App.Properties.removeProperty("consoleContainerHeight");
 		Titanium.App.Properties.removeProperty("suitesStatus");
 	}
 	setupConfig();
@@ -292,10 +298,19 @@ $(window).ready(function()
 			Titanium.Platform.openApplication(Drillbit.logPath.nativePath());
 		}
 	});
-	
+	$(drillbitFilter).keyup(function() {
+		var searchVal = $(drillbitFilter).val();
+		var searchConsoleData = '';
+		consoleData.forEach(function(line) {
+			if ((line.toUpperCase()).indexOf(searchVal.toUpperCase()) >= 0) {
+				searchConsoleData += line + '\n';
+			}
+		});
+		$('#console').html(searchConsoleData);
+	});
 	$("#resize-bar").mousedown(function() {
 		mouseDown = true;
-		startHeightConsole = $(drillbitConsole).height();
+		startHeightConsoleContainer = $(drillbitConsoleContainer).height();
 		startY = event.clientY;
 	});
 	$("body").mousemove(function() {
@@ -303,9 +318,9 @@ $(window).ready(function()
 		{
 			mouseY = event.clientY;
 			var windowHeight = Titanium.UI.currentWindow.getHeight();
-			$(drillbitConsole).height((startY - mouseY) + startHeightConsole);
-			$(drillbitSuite).height(windowHeight - spaceBuffer - $(drillbitConsole).height());
-			drillbitResize.style.bottom = (startY - mouseY) + startHeightConsole + resizerHeight;
+			$(drillbitConsoleContainer).height((startY - mouseY) + startHeightConsoleContainer);
+			$(drillbitSuite).height(windowHeight - spaceBuffer - $(drillbitConsoleContainer).height());
+			drillbitResize.style.bottom = (startY - mouseY) + startHeightConsoleContainer + resizerHeight + filterHeight;
 			
 		}
 	});
@@ -314,15 +329,15 @@ $(window).ready(function()
 			mouseDown = false;
 			mouseY = event.clientY;
 			var windowHeight = Titanium.UI.currentWindow.getHeight();
-			$(drillbitConsole).height((startY - mouseY) + startHeightConsole);
-			$(drillbitSuite).height(windowHeight - spaceBuffer - $(drillbitConsole).height());
-			drillbitResize.style.bottom = (startY - mouseY) + startHeightConsole + resizerHeight;
+			$(drillbitConsoleContainer).height((startY - mouseY) + startHeightConsoleContainer);
+			$(drillbitSuite).height(windowHeight - spaceBuffer - $(drillbitConsoleContainer).height());
+			drillbitResize.style.bottom = (startY - mouseY) + startHeightConsoleContainer + resizerHeight + filterHeight;
 		}
 	});
 	$(window).resize(function() {
 		var windowHeight = Titanium.UI.currentWindow.getHeight();
-		$(drillbitConsole).height(windowHeight-$(drillbitSuite).height()-spaceBuffer);
-		drillbitResize.style.bottom = $(drillbitConsole).height() + resizerHeight;
+		$(drillbitConsoleContainer).height(windowHeight-$(drillbitSuite).height()-spaceBuffer);
+		drillbitResize.style.bottom = $(drillbitConsoleContainer).height() + resizerHeight + filterHeight;
 	});
 	
 	function eachPlatformCheck(fn) {
@@ -356,12 +371,12 @@ $(window).ready(function()
 	
 		Titanium.UI.currentWindow.setBounds(bounds);
 	
-		var consoleHeight = Titanium.App.Properties.getInt("consoleHeight", 275);
-		$(drillbitConsole).height(consoleHeight);
-		var newHeight = $(drillbitConsole).height();
+		var consoleContainerHeight = Titanium.App.Properties.getInt("consoleContainerHeight", 275);
+		$(drillbitConsoleContainer).height(consoleContainerHeight);
+		var newHeight = $(drillbitConsoleContainer).height();
 		var suiteHeight = windowHeight - spaceBuffer - newHeight;
 		$(drillbitSuite).height(suiteHeight);
-		drillbitResize.style.bottom = $(drillbitConsole).height() + resizerHeight;
+		drillbitResize.style.bottom = $(drillbitConsoleContainer).height() + resizerHeight + filterHeight;
 	};
 
 	function saveSettings() {
@@ -370,7 +385,7 @@ $(window).ready(function()
 		Titanium.App.Properties.setInt("windowY", bounds.y);
 		Titanium.App.Properties.setInt("height", bounds.height);
 		Titanium.App.Properties.setInt("width", bounds.width);
-		Titanium.App.Properties.setInt("consoleHeight", $(drillbitConsole).height());
+		Titanium.App.Properties.setInt("consoleContainerHeight", $(drillbitConsoleContainer).height());
 		eachPlatformCheck(function(name, platform, platformCheck, suitesStatus) {
 			suitesStatus[name][platform] = $(platformCheck).attr('src').indexOf('check_on') != -1;
 		});
