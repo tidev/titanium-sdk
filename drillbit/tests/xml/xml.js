@@ -925,11 +925,22 @@ describe("Ti.XML tests", {
 		valueOf(replacedAttr).shouldBe(attr); // For some reason this doesn't work on android TIMOB-4703
 		valueOf(attr.ownerElement).shouldNotBeNull();
 		valueOf(attr.ownerElement).shouldBe(node);
-		valueOf(attr.specified).shouldBeFalse();
 		valueOf(attr.value).shouldBeNull();
+		// Per spec, changing the value of an attribute automatically sets
+		// specified to true.
 		attr.value = "new value";
+		valueOf(attr.value).shouldNotBeNull();
 		valueOf(attr.value).shouldBe("new value");
+		valueOf(attr.specified).shouldBeBoolean();
 		valueOf(attr.specified).shouldBeTrue();
+		// Per spec, an attribute with no owner element (i.e., it has just
+		// been created and not yet put on to an element) will have
+		// "true" for specified.
+		var thirdNewAttr = doc.createAttribute("anotherattr");
+		valueOf(thirdNewAttr).shouldNotBeNull();
+		valueOf(thirdNewAttr.ownerElement).shouldBeNull();
+		valueOf(thirdNewAttr.specified).shouldBeBoolean();
+		valueOf(thirdNewAttr.specified).shouldBeTrue();
 	}
 });
 
