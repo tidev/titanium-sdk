@@ -48,6 +48,23 @@ describe("Ti.Filesystem tests", {
 		var readphrase = file.read().text;
 		valueOf(readphrase).shouldBe(testphrase);
 	},
+	blobPath: function() {
+		var filename = 'blobtest';
+		var testphrase = 'Revenge of the Blob';
+		var file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, filename);
+
+		if (file.exists()) {
+			file.deleteFile();
+		}
+		file.write(testphrase);
+		var blob = file.read();
+		file = null;
+		var path = blob.path;
+		file = Ti.Filesystem.getFile("file://" + path);
+		valueOf(file.exists()).shouldBeTrue();
+		var readphrase = file.read().text;
+		valueOf(readphrase).shouldBe(testphrase);
+	},
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2443-android-paths-beginning-with-are-not-recognised#ticket-2443-6
 	dotSlash: function() {
 		var f;
