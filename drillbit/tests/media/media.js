@@ -71,7 +71,7 @@ describe("Ti.Media tests", {
 	audioTimeValidation: asyncTest({
 		start: function() {
 			var sound = Ti.Media.createSound({ url : "sound.wav" });
-			var initial_pos = 3.0;
+			var initial_pos = 3000;
 			sound.time = initial_pos;
 			sound.setTime(initial_pos);
 			valueOf(sound.getTime()).shouldBe(initial_pos);
@@ -82,7 +82,7 @@ describe("Ti.Media tests", {
 				Ti.API.info("PROGRESS: " + time);
 				valueOf(time).shouldBeGreaterThan(initial_pos);
 				// assume we get an event in < 2 seconds.
-				valueOf(time).shouldBeLessThan(initial_pos + 3.0); 
+				valueOf(time).shouldBeLessThan(initial_pos + 3000); 
 				sound.stop();
 				sound = null;
 				}), 1000);

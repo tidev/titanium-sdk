@@ -14,7 +14,7 @@ describe("Ti.XML tests", {
 			return nodeCount;
 		};
 		
-		var testFiles = ["soap.xml", "xpath.xml", "nodes.xml", "nodeCount.xml", "cdata.xml", "cdataEntities.xml", "with_dtd.xml", "with_ns.xml"];
+		var testFiles = ["soap.xml", "xpath.xml", "nodes.xml", "nodeCount.xml", "cdata.xml", "cdataEntities.xml", "with_dtd.xml", "with_ns.xml", "attrs.xml"];
 		var invalidFiles = [ "mismatched_tag.xml", "no_toplevel.xml", "no_end.xml"];
 		this.testSource = {};
 		this.invalidSource = {};
@@ -925,11 +925,168 @@ describe("Ti.XML tests", {
 		valueOf(replacedAttr).shouldBe(attr); // For some reason this doesn't work on android TIMOB-4703
 		valueOf(attr.ownerElement).shouldNotBeNull();
 		valueOf(attr.ownerElement).shouldBe(node);
-		valueOf(attr.specified).shouldBeFalse();
 		valueOf(attr.value).shouldBeNull();
+		// Per spec, changing the value of an attribute automatically sets
+		// specified to true.
 		attr.value = "new value";
+		valueOf(attr.value).shouldNotBeNull();
 		valueOf(attr.value).shouldBe("new value");
+		valueOf(attr.specified).shouldBeBoolean();
 		valueOf(attr.specified).shouldBeTrue();
+		// Per spec, an attribute with no owner element (i.e., it has just
+		// been created and not yet put on to an element) will have
+		// "true" for specified.
+		var thirdNewAttr = doc.createAttribute("anotherattr");
+		valueOf(thirdNewAttr).shouldNotBeNull();
+		valueOf(thirdNewAttr.ownerElement).shouldBeNull();
+		valueOf(thirdNewAttr.specified).shouldBeBoolean();
+		valueOf(thirdNewAttr.specified).shouldBeTrue();
+	},
+	xmlNamedNodeMap: function() {
+		var xml = Ti.XML.parseString(this.testSource["attrs.xml"]);
+		var otherDoc = Ti.XML.parseString("<dummy/>");
+		var doc = xml.documentElement;
+		valueOf(doc.nodeName).shouldBe("doc");
+
+		var nodes = doc.getElementsByTagName("test");
+		valueOf(nodes.length).shouldBe(1);
+
+		var test = nodes.item(0);
+		valueOf(test).shouldNotBeNull();
+
+		nodes = test.getElementsByTagNameNS("http://www.test.com/namespace", "child");
+		valueOf(nodes.length).shouldBe(1);
+
+		var child = nodes.item(0);
+		valueOf(child).shouldNotBeNull();
+
+		var attrs = test.attributes;
+
+		// length
+		valueOf(attrs.length).shouldBe(3);
+
+		// item
+		var item0 = attrs.item(0);
+		var item1 = attrs.item(1);
+		var item2 = attrs.item(2);
+		valueOf(item0).shouldNotBeNull();
+		valueOf(item1).shouldNotBeNull();
+		valueOf(item2).shouldNotBeNull();
+		valueOf(item0.nodeName).shouldBe("attr1");
+		valueOf(item0.value).shouldBe("value1");
+		valueOf(item1.nodeName).shouldBe("test:attr2");
+		valueOf(item1.value).shouldBe("value2");
+		valueOf(item2.nodeName).shouldBe("attr3");
+		valueOf(item2.value).shouldBe("hello world");
+
+		valueOf(attrs.item(3)).shouldBeNull();
+
+		// getNamedItem
+		var attr1 = attrs.getNamedItem("attr1");
+		valueOf(attr1).shouldNotBeNull();
+		valueOf(attr1.value).shouldBe("value1");
+		valueOf(attrs.getNamedItem("idontexist")).shouldBe(null);
+
+		// getNamedItemNS
+		var attr2 = attrs.getNamedItemNS("http://www.test.com/namespace", "attr2")
+		valueOf(attr2).shouldNotBeNull();
+		valueOf(attr2.value).shouldBe("value2");
+		valueOf(attrs.getNamedItemNS(null, "fakeattr")).shouldBe(null);
+
+		var attr3 = attrs.getNamedItem("attr3");
+		valueOf(attr3).shouldNotBeNull();
+		valueOf(attr3.value).shouldBe("hello world");
+
+		var newAttr = xml.createAttribute("newAttr");
+		newAttr.value = "newValue";
+
+		// setNamedItem
+		// Initial set, return value is null
+		valueOf(attrs.setNamedItem(newAttr)).shouldBe(null);
+		valueOf(test.getAttribute("newAttr")).shouldBe("newValue");
+
+		var otherDocAttr = otherDoc.createAttribute("otherAttr");
+		otherDocAttr.value = "otherValue";
+		// Adding an attr from another doc throws an exception
+		valueOf(function() {
+			attrs.setNamedItem(otherDocAttr);
+		}).shouldThrowException();
+
+		// Reusing an existing attr node throws an exception
+		valueOf(function() {
+			attrs.setNamedItem(child.getNamedItemNS("http://www.test.com/namespace", "name"));
+		}).shouldThrowException();
+
+		var newAttr2 = xml.createAttribute("newAttr");
+		newAttr2.value = "value2";
+
+		// Setting an attr with an existing, should return the original
+		valueOf(attrs.setNamedItem(newAttr2)).shouldBe(newAttr);
+		valueOf(test.getAttribute("newAttr")).shouldBe("value2");
+
+		var newAttr3 = attrs.getNamedItem("newAttr");
+		valueOf(newAttr3).shouldBe(newAttr2);
+		valueOf(newAttr3.value).shouldBe(newAttr2.value);
+
+		// removeNamedItem
+		var removedAttr;
+		valueOf(function() {
+			removedAttr = attrs.removeNamedItem("newAttr");
+		}).shouldNotThrowException();
+
+		valueOf(removedAttr).shouldBe(newAttr3);
+
+		// Removing an attr that doesn't exist throws an exception
+		valueOf(function() {
+			attrs.removeNamedItem("idontexist");
+		}).shouldThrowException();
+
+		// setNamedItemNS
+		newAttr = xml.createAttributeNS("http://www.test.com/namespace", "newAttr2");
+		newAttr.value = "newValue2";
+		valueOf(attrs.setNamedItemNS(newAttr)).shouldBe(null);
+
+		// Adding an attr from another doc throws an exception
+		valueOf(function() {
+			attrs.setNamedItemNS(otherDocAttr);
+		}).shouldThrowException();
+
+		// Reusing an existing attr node throws an exception
+		valueOf(function() {
+			attrs.setNamedItemNS(child.getNamedItemNS("http://www.test.com/namespace", "name"));
+		}).shouldThrowException();
+
+		newAttr2 = attrs.getNamedItemNS("http://www.test.com/namespace", "newAttr2");
+		valueOf(newAttr2).shouldBe(newAttr);
+		valueOf(newAttr2.value).shouldBe(newAttr.value);
+
+		// Setting an attr with an existing, should return the original
+		newAttr3 = xml.createAttributeNS("http://www.test.com/namespace", "newAttr2");
+		newAttr3.value = "value3";
+		valueOf(attrs.setNamedItemNS(newAttr3)).shouldBe(newAttr2);
+		valueOf(test.getAttributeNS("http://www.test.com/namespace", "newAttr2")).shouldBe("value3");
+
+		// removeNamedItemNS
+		valueOf(function() {
+			removedAttr = attrs.removeNamedItemNS("http://www.test.com/namespace", "newAttr2");
+		}).shouldNotThrowException();
+
+		valueOf(removedAttr).shouldBe(newAttr3);
+
+		// Removing an attr that doesn't exist throws an exception
+		valueOf(function() {
+			attrs.removeNamedItemNS("http://www.test.com/namespace", "fakeattr");
+		}).shouldThrowException();
+
+		// Ensure structure after modifications
+		valueOf(attrs.item(0)).shouldBe(attr1);
+		valueOf(attrs.item(1)).shouldBe(attr2);
+		valueOf(attrs.item(2)).shouldBe(attr3);
+
+		attrs = child.attributes;
+		var name = attrs.getNamedItemNS("http://www.test.com/namespace", "name");
+		valueOf(name).shouldNotBeNull();
+		valueOf(name.nodeName).shouldBe("test:name");
+		valueOf(name.value).shouldBe("value");
 	}
 });
-

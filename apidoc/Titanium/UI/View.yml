@@ -9,7 +9,7 @@ methods:
     parameters:
       - name: view
         description: the view to add to this views hiearchy
-        type: Object
+        type: Titanium.UI.View
   - name: animate
     description: animate the view
     parameters:
@@ -26,7 +26,7 @@ methods:
     parameters:
       - name: view
         description: the view to remove from this views hiearchy
-        type: Object
+        type: Titanium.UI.View
   - name: show
     description: make the view visible
   - name: toImage
@@ -37,6 +37,7 @@ methods:
       - name: f
         description: function to be invoked upon completion. if non-null, this method will be performed asynchronously. if null, it will be performed immediately
         type: Callback<Object>
+        optional: true
 events:
   - name: click
     description: fired when the device detects a click (longer than touch) against the view

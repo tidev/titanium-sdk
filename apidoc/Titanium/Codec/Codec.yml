@@ -99,7 +99,7 @@ methods:
     parameters:
       - name: options
         description: encodeNumber named options
-        type: EncodeNumberSpec
+        type: Dictionary<EncodeNumberDict>
     returns:
         type: Number
         description: The position after the encoded number in `dest`.
@@ -130,7 +130,7 @@ methods:
     parameters:
       - name: options
         description: decodeNumber named options
-        type: DecodeNumberSpec
+        type: Dictionary<DecodeNumberDict>
     returns:
         type: Number
         description: The Number decoded from `source`.
@@ -161,7 +161,7 @@ methods:
     parameters:
       - name: options
         description: encodeString named options
-        type: EncodeStringSpec
+        type: Dictionary<EncodeStringDict>
     returns:
         type: Number
         description: The position after the encoded String inside `dest`.
@@ -194,7 +194,7 @@ methods:
     parameters:
       - name: options
         description: decodeString named options
-        type: DecodeStringSpec
+        type: Dictionary<DecodeStringDict>
     returns:
         type: String
         description: The decoded string
@@ -210,8 +210,8 @@ methods:
               charset: Ti.Codec.CHARSET_UTF16
             });
 ---
-name: EncodeNumberSpec
-description: Specification for <Titanium.Codec.encodeNumber>
+name: EncodeNumberDict
+description: Options for <Titanium.Codec.encodeNumber>
 properties:
   - name: source
     type: Number
@@ -240,8 +240,8 @@ properties:
     default: Return value of <Titanium.Codec.getNativeByteOrder>
 
 ---
-name: DecodeNumberSpec
-description: Specification for <Titanium.Codec.decodeNumber>
+name: DecodeNumberDict
+description: Options for <Titanium.Codec.decodeNumber>
 properties:
   - name: source
     type: Titanium.Buffer
@@ -266,8 +266,8 @@ properties:
     default: Return value of <Titanium.Codec.getNativeByteOrder>
 
 ---
-name: EncodeStringSpec
-description: Specification for <Titanium.Codec.encodeString>
+name: EncodeStringDict
+description: Options for <Titanium.Codec.encodeString>
 properties:
   - name: source
     type: String
@@ -299,8 +299,8 @@ properties:
     default: <Titanium.Codec.CHARSET_UTF8>
 
 ---
-name: DecodeStringSpec
-description: Specification for <Titanium.Codec.decodeString>
+name: DecodeStringDict
+description: Options for <Titanium.Codec.decodeString>
 properties:
   - name: source
     type: Titanium.Buffer
