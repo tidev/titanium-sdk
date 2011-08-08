@@ -96,16 +96,20 @@ properties:
     type: Number
   - name: responseData
     description: the response data as a Blob object.
-    type: Object
+    type: Titanium.Blob
+    permission: read-only
   - name: responseText
     description: the response as text or null if an error was received or no data was returned
     type: String
+    permission: read-only
   - name: responseXML
     description: the response object as an XML DOMDocument object. returns null if the content type returned by the server was not XML or the content could not be parsed
-    type: Object
+    type: Titanium.XML.Document
+    permission: read-only
   - name: status
     description: the response HTTP status code
     type: Number
+    permission: read-only
   - name: timeout
     description: timeout is milliseconds when the connection should be aborted
     type: Number
