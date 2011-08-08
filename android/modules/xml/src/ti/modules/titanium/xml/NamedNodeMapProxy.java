@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,53 +13,72 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.NamedNodeMap;
 
 @Kroll.proxy
-public class NamedNodeMapProxy extends KrollProxy {
-
+public class NamedNodeMapProxy extends KrollProxy
+{
 	private NamedNodeMap map;
-	public NamedNodeMapProxy(TiContext context, NamedNodeMap map) {
+	public NamedNodeMapProxy(TiContext context, NamedNodeMap map)
+	{
 		super(context);
 		this.map = map;
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
-	public int getLength() {
+	public int getLength()
+	{
 		return map.getLength();
 	}
-	
+
 	@Kroll.method
-	public NodeProxy getNamedItem(String name) {
+	public NodeProxy getNamedItem(String name)
+	{
 		return NodeProxy.getNodeProxy(getTiContext(), map.getNamedItem(name));
 	}
-	
+
 	@Kroll.method
 	public NodeProxy getNamedItemNS(String namespaceURI, String localName)
-			throws DOMException {
+			throws DOMException
+	{
 		return NodeProxy.getNodeProxy(getTiContext(), map.getNamedItemNS(namespaceURI, localName));
 	}
-	
+
 	@Kroll.method
-	public NodeProxy item(int index) {
+	public NodeProxy item(int index)
+	{
+		if (index >= getLength()) {
+			// DOM specifies that item() must return null
+			// if the index is >= length, but the harmony
+			// impl. will throw an exception, so we short
+			// circuit that here.
+			return null;
+		}
 		return NodeProxy.getNodeProxy(getTiContext(), map.item(index));
 	}
-	
+
 	@Kroll.method
-	public NodeProxy removeNamedItem(String name) throws DOMException {
+	public NodeProxy removeNamedItem(String name)
+		throws DOMException
+	{
 		return NodeProxy.getNodeProxy(getTiContext(), map.removeNamedItem(name));
 	}
-	
+
 	@Kroll.method
 	public NodeProxy removeNamedItemNS(String namespaceURI, String localName)
-			throws DOMException {
+		throws DOMException
+	{
 		return NodeProxy.getNodeProxy(getTiContext(), map.removeNamedItemNS(namespaceURI, localName));
 	}
-	
+
 	@Kroll.method
-	public NodeProxy setNamedItem(NodeProxy arg) throws DOMException {
+	public NodeProxy setNamedItem(NodeProxy arg)
+		throws DOMException
+	{
 		return NodeProxy.getNodeProxy(getTiContext(), map.setNamedItem(arg.getNode()));
 	}
-	
+
 	@Kroll.method
-	public NodeProxy setNamedItemNS(NodeProxy arg) throws DOMException {
+	public NodeProxy setNamedItemNS(NodeProxy arg)
+		throws DOMException
+	{
 		return NodeProxy.getNodeProxy(getTiContext(), map.setNamedItemNS(arg.getNode()));
 	}
 }
