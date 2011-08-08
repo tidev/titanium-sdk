@@ -23,3 +23,7 @@ methods:
         description: The radius of the thumbnail's corners.
         optional: true
         default: 0
+  - name: toString
+    returns:
+        type: String
+    description: Converts this blob to a String

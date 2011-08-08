@@ -60,8 +60,8 @@ methods:
       - name: query
         description: The query object to extract information from.
         type: Dictionary<MediaQueryType>
-    returns: Array<MediaItemType>
-        
+    returns:
+        type: Array<MediaItemType>
   - name: startMicrophoneMonitor
     description: start the monitoring of microphone sound level
   - name: stopMicrophoneMonitor
@@ -505,7 +505,7 @@ properties:
     type: [Number, String, Boolean]
   - name: exact
     description: Whether or not the predicate is for an exact match.  The
-      default is `true`.
+        default is `true`.
     type: Boolean
     
 # Pseudo-type for media library results

@@ -49,7 +49,7 @@ methods:
   - name: getParent
     description: return the file parent
     returns:
-        type: Titanium.Filesystem.File
+        type: String
   - name: hidden
     description: returns true if the file is hidden
     returns:
@@ -68,10 +68,6 @@ methods:
         type: [String,Object]
   - name: name
     description: the name of the file
-    returns:
-        type: String
-  - name: nativePath
-    description: returns the fully resolved native path
     returns:
         type: String
   - name: read
@@ -115,7 +111,13 @@ methods:
       - name: append
         description: (optional) append the string to the end of the file.
         type: Boolean
+        optional: true
   - name: writeable
     description: returns true if the file is writeable
     returns:
         type: Boolean
+properties:
+  - name: nativePath
+    description: returns the fully resolved native path
+    type: String
+    permission: read-only
