@@ -44,6 +44,18 @@ public class TiTempFileHelper
 		File dataDir = new File(new File(extStorage, "Android"), "data");
 		File externalCacheDir = new File(new File(dataDir, app.getPackageName()), "cache");
 		tempDir = new File(externalCacheDir, TEMPDIR);
+
+		// go ahead and make sure the temp directory exists
+		String extState = Environment.getExternalStorageState();
+		if (Environment.MEDIA_MOUNTED.equals(extState)) {
+			if (!tempDir.exists()) {
+				tempDir.mkdirs();
+			}
+		} else {
+			// TODO this needs further discussion regarding what to do with temp files 
+			// when SD card is removed
+			Log.e(TAG, "External storage not mounted for writing");
+		}
 	}
 
 	/**
@@ -56,10 +68,6 @@ public class TiTempFileHelper
 	{
 		String extState = Environment.getExternalStorageState();
 		if (Environment.MEDIA_MOUNTED.equals(extState)) {
-			if (!tempDir.exists()) {
-				tempDir.mkdirs();
-			}
-
 			File tempFile = File.createTempFile(prefix, suffix, tempDir);
 			synchronized (createdThisSession) {
 				createdThisSession.add(tempFile.getAbsolutePath());
@@ -160,5 +168,10 @@ public class TiTempFileHelper
 				Log.w(TAG, "Exception trying to delete " + absolutePath + ", skipping", e);
 			}
 		}
+	}
+
+	public File getTempDirectory()
+	{
+		return tempDir;
 	}
 }
