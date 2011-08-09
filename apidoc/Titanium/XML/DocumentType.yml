@@ -23,7 +23,7 @@ properties:
     permission: read-only
   - name: name
     description: >
-      The name of DTD; i.e., the name immediately following the `DOCTYPE` keyword.
+        The name of DTD; i.e., the name immediately following the `DOCTYPE` keyword.
     type: String
     permission: read-only
   - name: notations

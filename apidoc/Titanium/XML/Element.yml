@@ -103,8 +103,8 @@ methods:
         description: The local name of the attribute to retrieve.
         type: String
     returns:
-      type: String
-      description: >
+        type: String
+        description: >
           The <Titanium.XML.Attr> value as a string, or empty string
           if the attribute has no specified or default value.
   - name: setAttributeNS

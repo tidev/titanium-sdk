@@ -27,6 +27,9 @@ methods:
       - name: params
         description: creation arguments
         type: CreateBufferArgs
+    returns:
+        type: Titanium.Buffer
+        description: The new buffer.
     examples:
       - title: Create a buffer with 1K bytes
         example: |

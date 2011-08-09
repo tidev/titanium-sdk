@@ -49,6 +49,7 @@ methods:
       - name: hint
         description: the text to use if no key found in the localization file
         type: String
+        optional: true
 properties:
   - name: currentCountry
     description: return the current (default) ISO 2-letter country code for the device.
