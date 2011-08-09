@@ -4,38 +4,35 @@
 # Licensed under the Apache Public License (version 2)
 import os, sys, re
 
-this_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
+this_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(this_dir, "..")))
-module_support_dir = os.path.abspath(os.path.join(this_dir, "..", "support", "module", "support"))
-if os.path.exists(module_support_dir):
-	sys.path.append(module_support_dir)
-import markdown # we package it under support/module/support
-from common import info, err, warn, msg, dict_has_non_empty_member, vinfo
-from common import VERBOSE, set_log_level, strip_tags, not_real_titanium_types
 
-default_colorize_language = "javascript"
-all_annotated_apis = None
-files_written = []
+from common import dict_has_non_empty_member, strip_tags, not_real_titanium_types
 
-try:
-	from mako.template import Template
-	from mako.lookup import TemplateLookup
-except:
-	msg("You don't have mako!\n")
-	msg("You can install it with:\n")
-	msg(">  easy_install Mako")
-	msg("")
-	sys.exit(1)
+# We package mako already in support/android/mako.
+android_support_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "support", "android"))
+sys.path.append(android_support_dir)
+from mako.template import Template
+from mako.lookup import TemplateLookup
+
+# TiLogger is also in support/android
+from tilogger import *
+log = None
+
+# We package the python markdown module already in /support/module/support/markdown.
+module_support_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "support", "module", "support"))
+sys.path.append(module_support_dir)
+import markdown
 
 try:
 	from pygments import highlight
 	from pygments.formatters import HtmlFormatter
 	from pygments.lexers import get_lexer_by_name
 except:
-	msg("You don't have Pygments!\n")
-	msg("You can install it with:\n")
-	msg(">  easy_install Pygments")
-	msg("")
+	print >> sys.stderr, "You don't have Pygments!\n"
+	print >> sys.stderr, "You can install it with:\n"
+	print >> sys.stderr, ">  easy_install Pygments"
+	print ""
 	sys.exit(1)
 
 try:
@@ -43,20 +40,25 @@ try:
 except:
 	import simplejson as json
 
+default_colorize_language = "javascript"
+all_annotated_apis = None
+files_written = []
 template_cache = {} # cache templates so we don't need to load them each time
 template_dir = os.path.abspath(os.path.join(this_dir, "..", "templates", "html"))
 template_lookup = TemplateLookup(directories=[template_dir])
 
 def generate(raw_apis, annotated_apis, options):
+	log_level = TiLogger.INFO
 	if options.verbose:
-		set_log_level(VERBOSE)
-	global all_annotated_apis
+		log_level = TiLogger.TRACE
+	global all_annotated_apis, log
 	all_annotated_apis = annotated_apis
+	log = TiLogger(None, level=log_level, output_stream=sys.stderr)
 	if not hasattr(options, "output") or options.output is None or len(options.output) == 0:
-		err("'output' option not provided")
+		log.error("'output' option not provided")
 		sys.exit(1)
 	if not hasattr(options, "version") or options.version is None or len(options.version) == 0:
-		err("'version' option not provided")
+		log.error("'version' option not provided")
 		sys.exit(1)
 			
 	if not os.path.exists(options.output):
@@ -64,31 +66,31 @@ def generate(raw_apis, annotated_apis, options):
 
 	# Add html-specific annotations. Do it twice because the
 	# api objects can cross-reference each other.
-	info("Annotating api objects with html-specific attributes")
+	log.info("Annotating api objects with html-specific attributes")
 	for x in range(2):
 		for api in annotated_apis.values():
 			if api.typestr in ("method", "property", "event"):
-				vinfo ("html-annotating %s.%s" % (api.parent.name, api.name))
+				log.trace ("html-annotating %s.%s" % (api.parent.name, api.name))
 			elif api.typestr == "parameter":
-				vinfo ("html-annotating %s.%s.%s" % (api.parent.parent.name,
+				log.trace ("html-annotating %s.%s.%s" % (api.parent.parent.name,
 					api.parent.name, api.name))
 			else:
-				vinfo("html-annotating %s" % api.name)
+				log.trace("html-annotating %s" % api.name)
 			annotate(api)
 
 	# Write the output files
-	info("Creating html files in %s" % options.output)
+	log.info("Creating html files in %s" % options.output)
 	for name in annotated_apis:
 		one_type = annotated_apis[name]
-		vinfo("Producing html output for %s" % name)
+		log.trace("Producing html output for %s" % name)
 		render_template(one_type, options)
 		if hasattr(one_type, "methods"):
 			for m in one_type.methods:
-				vinfo("Producing html output for %s.%s" % (name, m.name))
+				log.trace("Producing html output for %s.%s" % (name, m.name))
 				render_template(m, options)
 
 	# Create the special .json files that the webserver uses.
-	info("Creating json files for server")
+	log.info("Creating json files for server")
 	stats = {
 		'modules':0,
 		'objects':0,
@@ -122,6 +124,23 @@ def generate(raw_apis, annotated_apis, options):
 	json_to_file(module_names, os.path.join(options.output, "toc.json"))
 	json_to_file(search_json, os.path.join(options.output, "search.json"))
 	json_to_file(stats, os.path.join(options.output, "stats.json"))
+	# Generate an index.html, mostly for developers who run docgen and want
+	# to see a table of modules.
+	index_template = template_lookup.get_template("index.html")
+	index_output = index_template.render(config=options, data=all_annotated_apis)
+	index_file = open(os.path.join(options.output, "index.html"), "w")
+	index_file.write(index_output)
+	index_file.close()
+	log.info("An index.html file has been written to %s and contains links to all modules." % os.path.abspath(options.output))
+
+	changelog_mdoc = os.path.abspath(os.path.join(this_dir, "..", "Titanium", "CHANGELOG", "%s.mdoc" % options.version))
+	if not os.path.exists(changelog_mdoc):
+		log.warn("%s wasn't found, skipping changelog.html generation." % changelog_mdoc)
+	else:
+		changelog = open(changelog_mdoc).read()
+		out = open(os.path.join(options.output, "changelog.html"), "w+")
+		out.write(markdown.markdown(changelog))
+		out.close()
 
 def content_for_search_index(annotated_obj):
 	contents = []
@@ -143,10 +162,10 @@ def json_to_file(obj, filename):
 
 # Annotations specific to this output format
 def annotate(annotated_obj):
-	setattr(annotated_obj, "description_html", "")
-	setattr(annotated_obj, "notes_html", "")
-	setattr(annotated_obj, "examples_html", [])
-	setattr(annotated_obj, "inherited_from_obj", None)
+	annotated_obj.description_html = ""
+	annotated_obj.notes_html = ""
+	annotated_obj.examples_html = []
+	annotated_obj.inherited_from_obj = None
 	if dict_has_non_empty_member(annotated_obj.api_obj, "description"):
 		desc = annotated_obj.api_obj["description"]
 		annotated_obj.description_html = markdown_to_html(desc, obj=annotated_obj)
@@ -162,27 +181,27 @@ def annotate(annotated_obj):
 				# Suspicious if the example has content (beyond the <p></p>) but not <code>.
 				# This can happen if in the .yml the example starts off immediately with code,
 				# because the yaml parser interprets the leading four spaces (which the programmer
-				# put in there to tip off markdown that it's a code block) as indentatioin.
+				# put in there to tip off markdown that it's a code block) as indentation.
 				if len(html_example) > len("<p></p>") and "<code>" not in html_example:
 					html_example = "<pre><code>%s</code></pre>" % html_example
 				one_example["example"] = html_example
 			annotated_obj.examples_html.append(one_example)
 	if annotated_obj.typestr in ("parameter", "property"):
-		setattr(annotated_obj, "type_html", "")
+		annotated_obj.type_html = ""
 		if dict_has_non_empty_member(annotated_obj.api_obj, "type"):
 			annotated_obj.type_html = data_type_to_html(annotated_obj.api_obj["type"])
 	if annotated_obj.typestr == "method":
-		setattr(annotated_obj, "return_type_html", "")
+		annotated_obj.return_type_html = ""
 		if dict_has_non_empty_member(annotated_obj.api_obj, "returns"):
 			annotated_obj.return_type_html = data_type_to_html(annotated_obj.api_obj["returns"])
-		setattr(annotated_obj, "template_html", "method")
-		setattr(annotated_obj, "filename_html", "%s.%s-%s" % (annotated_obj.parent.name, annotated_obj.name, "method"))
+		annotated_obj.template_html = "method"
+		annotated_obj.filename_html = "%s.%s-%s" % (annotated_obj.parent.name, annotated_obj.name, "method")
 	if annotated_obj.typestr in ("proxy", "module"):
-		setattr(annotated_obj, "template_html", "proxy")
+		annotated_obj.template_html = "proxy"
 	if annotated_obj.typestr == "module":
-		setattr(annotated_obj, "filename_html", "%s-module" % annotated_obj.name)
-	if annotated_obj.typestr in ("proxy"):
-		setattr(annotated_obj, "filename_html", "%s-object" % annotated_obj.name)
+		annotated_obj.filename_html = "%s-module" % annotated_obj.name
+	if annotated_obj.typestr == "proxy":
+		annotated_obj.filename_html = "%s-object" % annotated_obj.name
 	if hasattr(annotated_obj, "inherited_from") and len(annotated_obj.inherited_from) > 0:
 		if annotated_obj.inherited_from in all_annotated_apis:
 			annotated_obj.inherited_from_obj = all_annotated_apis[annotated_obj.inherited_from]
@@ -219,7 +238,7 @@ def render_template(annotated_obj, options):
 	output = template.render(config=options, data=annotated_obj)
 	base_filename = annotated_obj.filename_html
 	if base_filename in files_written:
-		warn("File %s.html has already been written. Duplicate type?" % base_filename)
+		log.warn("File %s.html has already been written. Duplicate type?" % base_filename)
 	else:
 		files_written.append(base_filename)
 	full_filename = os.path.join(options.output, "%s.html" % base_filename)

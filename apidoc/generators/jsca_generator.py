@@ -4,7 +4,6 @@
 # Licensed under the Apache Public License (version 2)
 
 import sys, os
-from common import info, err, warn, msg
 
 try:
 	import json
@@ -12,7 +11,7 @@ except:
 	import simplejson as json
 
 def generate(raw_apis, annotated_apis, options):
-	warn("JSCA is not yet supported. A skeleton api.jsca will be created.")
+	print >> sys.stderr, "[WARN] JSCA is not yet supported. A skeleton api.jsca will be created."
 	out_path = os.path.join(options.output, "api.jsca")
 	api = {"types": [], "aliases": [{"type": "Titanium", "name": "Ti"}]}
 	f = open(out_path, "w")

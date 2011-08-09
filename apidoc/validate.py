@@ -170,7 +170,7 @@ def validateMethod(typeTracker, method):
 			validateRequired(pTracker, param, ['name', 'description', 'type'])
 
 	if 'examples' in method:
-		validateMarkdown(tracker, method['examples'], 'examples')
+		validateExamples(tracker, method['examples'])
 
 def validateProperty(typeTracker, property):
 	tracker = ErrorTracker(property['name'], typeTracker)
@@ -179,12 +179,22 @@ def validateProperty(typeTracker, property):
 	validateCommon(tracker, property)
 
 	if 'examples' in property:
-		validateMarkdown(tracker, property['examples'], 'examples')
+		validateExamples(tracker, property['examples'])
 
 def validateEvent(typeTracker, event):
 	tracker = ErrorTracker(event['name'], typeTracker)
 	validateRequired(tracker, event, ['name', 'description'])
 	validateCommon(tracker, event)
+
+def validateExamples(tracker, examples):
+	if not isinstance(examples, list):
+		tracker.trackError('"examples" must be a list: %s' % examples)
+		return
+	for example in examples:
+		if not isinstance(example, dict) or 'title' not in example or 'example' not in example:
+			tracker.trackError('each example must be a dict with "title" and "example" members: %s' % example)
+			continue
+		validateMarkdown(tracker, example['example'], 'example')
 
 def validateType(typeDoc):
 	typeName = typeDoc['name']
@@ -198,8 +208,7 @@ def validateType(typeDoc):
 		validateMarkdown(tracker, typeDoc['notes'], 'notes')
 
 	if 'examples' in typeDoc:
-		for example in typeDoc['examples']:
-			validateMarkdown(tracker, example['example'], 'example')
+		validateExamples(tracker, typeDoc['examples'])
 
 	if 'methods' in typeDoc:
 		for method in typeDoc['methods']:

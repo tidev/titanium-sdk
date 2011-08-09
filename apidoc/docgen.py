@@ -10,8 +10,7 @@
 import os, sys, traceback
 import re, optparse
 import generators
-from common import log, msg, err, info, vinfo, warn, lazyproperty, dict_has_non_empty_member
-from common import WARN, VERBOSE, set_log_level, not_real_titanium_types
+from common import lazyproperty, dict_has_non_empty_member, not_real_titanium_types
 
 try:
 	import yaml
@@ -22,23 +21,21 @@ except:
 	print >> sys.stderr, ""
 	sys.exit(1)
 
-this_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
+this_dir = os.path.dirname(os.path.abspath(__file__))
 
-# We package the python markdown module already in the sdk source tree,
-# namely in /support/module/support/markdown.  So go ahead and  use it
-# rather than rely on it being easy_installed.
+# We package mako already in support/android/mako.
+android_support_dir = os.path.abspath(os.path.join(this_dir, "..", "support", "android"))
+sys.path.append(android_support_dir)
+from mako.template import Template
+
+# TiLogger is also in support/android
+from tilogger import *
+log = None
+
+# We package the python markdown module already in /support/module/support/markdown.
 module_support_dir = os.path.abspath(os.path.join(this_dir, "..", "support", "module", "support"))
-if os.path.exists(module_support_dir):
-	sys.path.append(module_support_dir)
-try:
-	import markdown
-except:
-	msg("You don't have markdown!\n")
-	msg("You can install it with:\n")
-	msg(">  easy_install ElementTree\n")
-	msg(">  easy_install Markdown\n")
-	msg("")
-	sys.exit(1)
+sys.path.append(module_support_dir)
+import markdown
 
 DEFAULT_PLATFORMS = ["android", "iphone", "ipad"]
 DEFAULT_SINCE = "0.8"
@@ -61,7 +58,7 @@ def has_ancestor(one_type, ancestor_name):
 				parent_type_name.lower() == "object"):
 			return False
 		if not parent_type_name in apis:
-			warn("%s extends %s but %s type information not found" % (one_type["name"],
+			log.warn("%s extends %s but %s type information not found" % (one_type["name"],
 				parent_type_name, parent_type_name))
 			return False
 		return has_ancestor(apis[parent_type_name], ancestor_name)
@@ -134,9 +131,9 @@ def load_one_yaml(filepath):
 		return types
 	except:
 		e = traceback.format_exc()
-		err("Exception occured while processing %s:" % filepath)
+		log.error("Exception occured while processing %s:" % filepath)
 		for line in e.splitlines():
-			err(line)
+			log.error(line)
 		return None
 	finally:
 		if f is not None:
@@ -150,7 +147,7 @@ def generate_output(options):
 		try:
 			__import__("generators.%s_generator" % output_type)
 		except:
-			err("Output format %s is not recognized" % output_type)
+			log.error("Output format %s is not recognized" % output_type)
 			sys.exit(1)
 		if annotated_apis is None or len(annotated_apis) == 0:
 			annotate_apis()
@@ -159,7 +156,7 @@ def generate_output(options):
 
 def process_yaml():
 	global apis
-	info("Parsing YAML files")
+	log.info("Parsing YAML files")
 	for root, dirs, files in os.walk(this_dir):
 		for name in ignore_dirs:
 			if name in dirs:
@@ -168,22 +165,22 @@ def process_yaml():
 			if os.path.splitext(filename)[-1] != ".yml" or filename in ignore_files:
 				continue
 			filepath = os.path.join(root, filename)
-			vinfo("Processing: %s" % filepath)
+			log.trace("Processing: %s" % filepath)
 			types = None
 			types = load_one_yaml(filepath)
 			if types is None:
-				vinfo("%s skipped" % filepath)
+				log.trace("%s skipped" % filepath)
 			else:
 				for one_type in types:
 					if one_type["name"] in apis:
-						warn("%s has a duplicate" % one_type["name"])
+						log.warn("%s has a duplicate" % one_type["name"])
 					apis[one_type["name"]] = one_type
 
 def annotate_apis():
 	global apis, annotated_apis
-	vinfo("Annotating api objects")
+	log.trace("Annotating api objects")
 	for name in apis:
-		vinfo("annotating %s" % name)
+		log.trace("annotating %s" % name)
 		one_api = apis[name]
 		one_annotated_api = None
 		if is_titanium_module(one_api):
@@ -192,7 +189,7 @@ def annotate_apis():
 			annotated_apis[name] = AnnotatedProxy(one_api)
 		else:
 			if one_api["name"].startswith("Ti"):
-				warn("%s not being annotated as a Titanium type. Is its 'extends' property not set correctly?" % one_api["name"])
+				log.warn("%s not being annotated as a Titanium type. Is its 'extends' property not set correctly?" % one_api["name"])
 			else:
 				# Types that are not true Titanium proxies and modules (like pseudo-types)
 				# are treated as proxies for documentation generation purposes so that
@@ -205,7 +202,7 @@ def annotate_apis():
 		else:
 			parent_name = ".".join(name.split(".")[:-1])
 			if parent_name not in annotated_apis:
-				warn("%s's parent, %s, cannot be located" % (name, parent_name))
+				log.warn("%s's parent, %s, cannot be located" % (name, parent_name))
 			else:
 				annotated_apis[name].parent = annotated_apis[parent_name]
 
@@ -276,7 +273,7 @@ class AnnotatedProxy(AnnotatedApi):
 					if new_item["name"] in existing_names:
 						continue
 					new_instance = class_type(new_item, self)
-					setattr(new_instance, "inherited_from", super_type_name)
+					new_instance.inherited_from = super_type_name
 					att_list.append(new_instance)
 					existing_names.append(new_item["name"])
 			# Keep going up supertypes
@@ -295,6 +292,15 @@ class AnnotatedProxy(AnnotatedApi):
 		self.append_inherited_attributes(events, "events")
 
 class AnnotatedModule(AnnotatedProxy):
+	__create_proxy_template = None
+	@classmethod
+	def render_create_proxy_method(cls, method_template_obj):
+		if cls.__create_proxy_template is None:
+			template_text = open(os.path.join(this_dir, "templates", "create_proxy_method.yml.mako"), "r").read()
+			cls.__create_proxy_template = Template(template_text)
+		rendered = cls.__create_proxy_template.render(data=method_template_obj)
+		return rendered
+
 	def __init__(self, api_obj):
 		AnnotatedProxy.__init__(self, api_obj)
 		self.typestr = "module"
@@ -313,20 +319,13 @@ class AnnotatedModule(AnnotatedProxy):
 			method_name = "create%s" % proxy.name.split(".")[-1]
 			if method_name in existing_names:
 				continue
-			method_obj = {}
-			method_obj["name"] = method_name
-			method_obj["description"] = "Create and return an instance of <%s>." % proxy.name
-			param_obj = {}
-			param_obj["name"] = "parameters"
-			param_obj["type"] = "Dictionary<%s>" % proxy.name
-			param_obj["description"] = "(Optional) A dictionary object with properties defined in <%s>" % proxy.name
-			method_obj["parameters"] = [param_obj]
-			method_obj["returns"] = {"type": proxy.name}
+			method_template_obj = {"proxy_name": proxy.name}
 			if "platforms" in proxy.api_obj:
-				method_obj["platforms"] = proxy.api_obj["platforms"]
+				method_template_obj["platforms"] = yaml.dump(proxy.api_obj["platforms"])
 			if "since" in proxy.api_obj:
-				method_obj["since"] = proxy.api_obj["since"]
-			methods.append(AnnotatedMethod(method_obj, self))
+				method_template_obj["since"] = yaml.dump(proxy.api_obj["since"])
+			generated_method = yaml.load(AnnotatedModule.render_create_proxy_method(method_template_obj))
+			methods.append(AnnotatedMethod(generated_method, self))
 
 	@lazyproperty
 	def member_proxies(self):
@@ -388,7 +387,7 @@ class AnnotatedEvent(AnnotatedApi):
 		return sorted(properties, key=lambda item: item.name)
 
 def main():
-	global this_dir
+	global this_dir, log
 	titanium_dir = os.path.dirname(this_dir)
 	dist_apidoc_dir = os.path.join(titanium_dir, "dist", "apidoc")
 	sys.path.append(os.path.join(titanium_dir, "build"))
@@ -422,12 +421,14 @@ def main():
 			help="Display verbose info messages",
 			default=False)
 	(options, args) = parser.parse_args()
+	log_level = TiLogger.INFO
 	if options.verbose:
-		set_log_level(VERBOSE)
+		log_level = TiLogger.TRACE
+	log = TiLogger(None, level=log_level, output_stream=sys.stderr)
 	process_yaml()
 	generate_output(options)
 	titanium_apis = [ta for ta in apis.values() if ta["name"].startswith("Ti")]
-	info("%s Titanium types processed" % len(titanium_apis))
+	log.info("%s Titanium types processed" % len(titanium_apis))
 
 if __name__ == "__main__":
 	main()

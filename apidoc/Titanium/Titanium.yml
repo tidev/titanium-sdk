@@ -27,18 +27,21 @@ methods:
       - name: params
         description: creation arguments
         type: CreateBufferArgs
-    examples: |
-        Create a buffer with 1K bytes
+    examples:
+      - title: Create a buffer with 1K bytes
+        example: |
             
-            var buffer = Ti.createBuffer({ length: 1024 });
-
-        Create a buffer with the string "hello world" encoded in UTF-8
-
-            var buffer = Ti.createBuffer({ value: "hello world" });
-
-        Create a buffer with the encoded value of the double-precision floating point number 1.234567 in Big Endian (network) byte order
-
-            var buffer = Ti.createBuffer({ value: 1.234567, type: Ti.Codec.TYPE_DOUBLE, byteOrder: Ti.Codec.BIG_ENDIAN });
+                var buffer = Ti.createBuffer({ length: 1024 });
+      - title: Create a buffer with string
+        example: |
+            Create a buffer with the string "hello world" encoded in UTF-8
+            
+                var buffer = Ti.createBuffer({ value: "hello world" });
+      - title: Create a buffer with encoded float
+        example: |
+            Create a buffer with the encoded value of the double-precision floating point number 1.234567 in Big Endian (network) byte order
+            
+                var buffer = Ti.createBuffer({ value: 1.234567, type: Ti.Codec.TYPE_DOUBLE, byteOrder: Ti.Codec.BIG_ENDIAN });
 
 notes: |
     Titanium provides a number of built-in objects in the Javascript that are not part of the Titanium namespace.  Specifically, the following are available.

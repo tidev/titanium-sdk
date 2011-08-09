@@ -4,8 +4,7 @@
 # Licensed under the Apache Public License (version 2)
 
 import sys
-from common import info, err, warn, msg
 
 def generate(raw_apis, annotated_apis, options):
-	err("VSDOC is not yet supported")
+	print >> sys.stderr, "VSDOC is not yet supported"
 	sys.exit(1)
