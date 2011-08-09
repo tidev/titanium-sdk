@@ -47,6 +47,15 @@ events:
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
       - name: decelerating
         description: boolean to indicate if the scroll is decelerating
+  - name: dragStart
+    description: fired when the scroll view is about to start scrolling the content.
+    platforms: [iphone, ipad]
+  - name: dragEnd
+    description: fired when when dragging ended in the scroll view.
+    platforms: [iphone, ipad]
+    properties:
+      - name: decelerate
+        description: boolean. YES if the scrolling movement will continue, but decelerate, after a touch-up gesture during a dragging operation. If the value is NO, scrolling stops immediately upon touch-up.    
 properties:
   - name: canCancelEvents
     description: (iPhone only) boolean to indicate if the scroll view can cancel subview touches in order to scroll instead. Default of true
