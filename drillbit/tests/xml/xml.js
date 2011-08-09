@@ -432,6 +432,9 @@ describe("Ti.XML tests", {
 		valueOf(attr).shouldNotBeNull();
 		valueOf(attr).shouldBeObject();
 		valueOf(attr.name).shouldBe("myattr");
+		// Per spec, value in new attribute should be empty string
+		valueOf(attr.value).shouldNotBeNull();
+		valueOf(attr.value).shouldBeExactly("");
 
 		attr = null;
 		valueOf(doc.createAttributeNS).shouldBeFunction();
@@ -441,6 +444,8 @@ describe("Ti.XML tests", {
 		valueOf(attr.name).shouldBe("prefix:myattr");
 		valueOf(attr.namespaceURI).shouldBe("http://example.com");
 		valueOf(attr.prefix).shouldBe("prefix");
+		valueOf(attr.value).shouldNotBeNull();
+		valueOf(attr.value).shouldBeExactly("");
 	},
 	apiXmlDocumentCreateCDATASection: function() {
 		var doc = Ti.XML.parseString("<test/>");
@@ -942,19 +947,21 @@ describe("Ti.XML tests", {
 		valueOf(attr.name).shouldBeString();
 		valueOf(attr.name).shouldBe("newattr");
 		valueOf(attr.specified).shouldBeBoolean();
+		// Per spec, the default value in an attribute is empty string not null.
+		valueOf(attr.value).shouldNotBeNull();
+		valueOf(attr.value).shouldBeExactly("");
 		// Per spec, when you set an attribute that doesn't exist yet,
 		// null is returned.
 		var addedAttr = node.setAttributeNode(attr);
 		valueOf(addedAttr).shouldBeNull();
+		valueOf(attr.ownerElement).shouldNotBeNull();
+		valueOf(attr.ownerElement).shouldBe(node);
 		// Per spec, when you set a new attribute of same name as one that
 		// already exists, it replaces that existing one AND returns that existing one.
 		var secondNewAttr = doc.createAttribute("newattr");
 		var replacedAttr = node.setAttributeNode(secondNewAttr);
 		valueOf(replacedAttr).shouldNotBeNull();
 		valueOf(replacedAttr).shouldBe(attr);
-		valueOf(attr.ownerElement).shouldNotBeNull();
-		valueOf(attr.ownerElement).shouldBe(node);
-		valueOf(attr.value).shouldBeNull();
 		// Per spec, changing the value of an attribute automatically sets
 		// specified to true.
 		attr.value = "new value";
