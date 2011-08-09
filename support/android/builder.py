@@ -1101,9 +1101,14 @@ class Builder(object):
 			update_stylesheet = True
 		else:
 			for root, dirs, files in os.walk(resources_dir):
-				for file in files:
-					if file.endswith(".jss"):
-						absolute_path = os.path.join(root, file)
+				for d in dirs:
+					if d in ignoreDirs:
+						dirs.remove(d)
+				for f in files:
+					if f in ignoreFiles:
+						continue
+					if f.endswith(".jss"):
+						absolute_path = os.path.join(root, f)
 						if Deltafy.needs_update(absolute_path, app_stylesheet):
 							update_stylesheet = True
 							break
@@ -1129,10 +1134,10 @@ class Builder(object):
 			for d in dirs:
 				if d in ignoreDirs:
 					dirs.remove(d)
-			for f in files:
-				if f in ignoreFiles or not f.endswith('.xml'):
+			for filename in files:
+				if filename in ignoreFiles or not filename.endswith('.xml'):
 					continue
-				full_path = os.path.join(root, f)
+				full_path = os.path.join(root, filename)
 				f = codecs.open(full_path, 'r', 'utf-8')
 				contents = f.read()
 				f.close()
@@ -1169,7 +1174,12 @@ class Builder(object):
 		
 		for path in paths:
 			for root, dirs, files in os.walk(path):
+				for d in dirs:
+					if d in ignoreDirs:
+						dirs.remove(d)
 				for filename in files:
+					if filename in ignoreFiles:
+						continue
 					if file_glob != None:
 						if not fnmatch.fnmatch(filename, file_glob): continue
 					yield os.path.join(root, filename)
@@ -1291,14 +1301,19 @@ class Builder(object):
 		
 		# add all resource files from the project
 		for root, dirs, files in os.walk(self.project_src_dir):
-			for file in files:
-				if os.path.splitext(file)[1] != '.java':
-					absolute_path = os.path.join(root, file)
-					relative_path = os.path.join(root[len(self.project_src_dir)+1:], file)
+			for d in dirs:
+				if d in ignoreDirs:
+					dirs.remove(d)
+			for f in files:
+				if f in ignoreFiles:
+					continue
+				if os.path.splitext(f)[1] != '.java':
+					absolute_path = os.path.join(root, f)
+					relative_path = os.path.join(root[len(self.project_src_dir)+1:], f)
 					if is_modified(absolute_path):
 						self.apk_updated = True
 						debug("resource file => " + relative_path)
-						apk_zip.write(os.path.join(root, file), relative_path, compression_type(file))
+						apk_zip.write(os.path.join(root, f), relative_path, compression_type(f))
 		
 		def add_resource_jar(jar_file):
 			jar = zipfile.ZipFile(jar_file)
