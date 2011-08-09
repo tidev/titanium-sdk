@@ -71,7 +71,7 @@ properties:
     type: Number
   - name: displayCaps
     description: return the DisplayCaps object for platform
-    type: Object
+    type: Titanium.Platform.DisplayCaps
   - name: id
     description: the unique id of the device
     type: String

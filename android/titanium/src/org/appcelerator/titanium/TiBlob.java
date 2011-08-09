@@ -290,7 +290,6 @@ public class TiBlob extends KrollProxy
 		}
 	}
 
-	@Kroll.method
 	public String toBase64()
 	{
 		return new String(Base64.encodeBase64(getBytes()));
