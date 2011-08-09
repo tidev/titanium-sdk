@@ -542,7 +542,12 @@ class Builder(object):
 		if self.force_rebuild or self.deploy_type == 'production' or \
 			(self.js_changed and not self.fastdev):
 			for root, dirs, files in os.walk(os.path.join(self.top_dir, "Resources")):
+				for d in dirs:
+					if d in ignoreDirs:
+						dirs.remove(d)
 				for f in files:
+					if f in ignoreFiles:
+						continue
 					path = os.path.join(root, f)
 					if is_resource_drawable(path) and f != 'default.png':
 						fileset.append(path)
@@ -870,7 +875,12 @@ class Builder(object):
 		if os.path.exists(android_images_dir):
 			pattern = r'/android/images/(high|medium|low|res-[^/]+)/default.png'
 			for root, dirs, files in os.walk(android_images_dir):
+				for d in dirs:
+					if d in ignoreDirs:
+						dirs.remove(d)
 				for f in files:
+					if f in ignoreFiles:
+						continue
 					path = os.path.join(root, f)
 					if re.search(pattern, path.replace(os.sep, "/")):
 						res_folder = resource_drawable_folder(path)
@@ -1116,8 +1126,11 @@ class Builder(object):
 		# fix un-escaped single-quotes and full-quotes
 		offending_pattern = '[^\\\\][\'"]'
 		for root, dirs, files in os.walk(self.res_dir):
+			for d in dirs:
+				if d in ignoreDirs:
+					dirs.remove(d)
 			for f in files:
-				if not f.endswith('.xml'):
+				if f in ignoreFiles or not f.endswith('.xml'):
 					continue
 				full_path = os.path.join(root, f)
 				f = codecs.open(full_path, 'r', 'utf-8')
