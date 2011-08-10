@@ -11,7 +11,7 @@ properties:
     description: default color of the row when not selected
     type: String
   - name: editable
-    description: the row can be deleted
+    description: wether or not the row can be deleted
     type: Boolean
     platforms: [iphone, ipad]
   - name: hasCheck
