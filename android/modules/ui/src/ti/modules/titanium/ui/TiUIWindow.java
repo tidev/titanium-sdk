@@ -185,9 +185,11 @@ public class TiUIWindow extends TiUIView
 				windowId = TiActivityWindows.addWindow(this);
 			}
 			TiBindingHelper.bindCurrentWindowAndActivity(windowContext, proxy, activityProxy);
-			bindProxies();
 		} else {
 			bindWindowActivity(proxy.getTiContext(), proxy.getTiContext().getActivity());
+		}
+		if (!lightWeight) {
+			bindProxies();
 		}
 		if (!newActivity && !lightWeight) {
 			proxy.switchContext(windowContext);
