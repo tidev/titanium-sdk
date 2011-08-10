@@ -320,6 +320,13 @@
 	{
 		url = [[NSURL fileURLWithPath:[(TiFile*)url_ path]] retain];
 	}
+	[self configurationSet];
+}
+
+-(void)setPreload:(id)yesno
+{
+	[self replaceValue:yesno forKey:@"preload" notification:NO];
+	[self configurationSet];
 }
 
 // For backwards compatibility
