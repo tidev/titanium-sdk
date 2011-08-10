@@ -474,9 +474,6 @@ class Builder(object):
 				warn('You have both an android/images/%s folder and an android/images/res-%sdpi folder. Files from both of these folders will end up in res/drawable-%sdpi.  If two files are named the same, there is no guarantee which one will be copied last and therefore be the one the application uses.  You should use just one of these folders to avoid conflicts.' % (check, check[0], check[0]))
 
 	def copy_module_platform_folders(self):
-		module_dir = os.path.join(self.top_dir, 'modules', 'android')
-		if not os.path.exists(module_dir):
-			return
 		for module in self.modules:
 			platform_folder = os.path.join(module.path, 'platform', 'android')
 			if os.path.exists(platform_folder):
