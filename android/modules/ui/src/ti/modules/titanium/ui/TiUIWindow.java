@@ -140,11 +140,13 @@ public class TiUIWindow extends TiUIView
 
 	protected void initContext()
 	{
+		boolean hasUrl = proxy.hasProperty(TiC.PROPERTY_URL);
+		if (newActivity) {
+			windowId = TiActivityWindows.addWindow(this);
+		}
+		ActivityProxy activityProxy = null;
 		// if url, create a new context.
-		if (proxy.hasProperty(TiC.PROPERTY_URL)) {
-			if (newActivity) {
-				windowId = TiActivityWindows.addWindow(this);
-			}
+		if (hasUrl) {
 			String url = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_URL));
 			String baseUrl = proxy.getTiContext().getBaseUrl();
 			TiUrl tiUrl = TiUrl.normalizeWindowUrl(baseUrl, url);
@@ -161,35 +163,26 @@ public class TiUIWindow extends TiUIView
 			// if LW window, use the existing activityProxy from the activity rather than
 			// creating a new one which will cause the listeners on the duplicate activityProxy
 			// to not fire
-			ActivityProxy activityProxy = null;
 			if (!newActivity) {
 				if (activity instanceof TiBaseActivity) {
 					activityProxy = ((TiBaseActivity)activity).getActivityProxy();
 				}
 			}
-			if (activityProxy == null) {
-				activityProxy = ((TiWindowProxy) proxy).getActivity(windowContext);
-			}
-			if (windowActivity != null) {
-				bindWindowActivity(windowContext, windowActivity);
-			}
-			TiBindingHelper.bindCurrentWindowAndActivity(windowContext, proxy, activityProxy);
 		} else if (!lightWeight) {
 			windowContext = TiContext.createTiContext(windowActivity, proxy.getTiContext().getBaseUrl(), proxy.getTiContext().getCurrentUrl());
 			newContext = true;
-			ActivityProxy activityProxy = ((TiWindowProxy) proxy).getActivity(windowContext);
-			if (windowActivity != null) {
-				bindWindowActivity(windowContext, windowActivity);
-			}
-			if (newActivity) {
-				windowId = TiActivityWindows.addWindow(this);
+		}
+		if (windowActivity != null || hasUrl) {
+			if (activityProxy == null) {
+				activityProxy = ((TiWindowProxy) proxy).getActivity(windowContext);
 			}
 			TiBindingHelper.bindCurrentWindowAndActivity(windowContext, proxy, activityProxy);
+			if (windowActivity != null) {
+				bindWindowActivity(windowContext, windowActivity);
+				bindProxies();
+			}
 		} else {
 			bindWindowActivity(proxy.getTiContext(), proxy.getTiContext().getActivity());
-		}
-		if (!lightWeight) {
-			bindProxies();
 		}
 		if (!newActivity && !lightWeight) {
 			proxy.switchContext(windowContext);
