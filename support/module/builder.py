@@ -210,6 +210,29 @@ def main(args):
 					print "[ERROR] Build Failed."
 		
 		stage(platform, project_dir, manifest, run_callback)
+	elif command == 'install':
+		def install_callback(gen_project_dir):
+
+			if is_ios(platform):
+				print "[ERROR] Build Failed. Install module to device not supported on iOS."
+				return
+
+			tiapp_xml = os.path.join(gen_project_dir,'tiapp.xml')
+
+			script = os.path.abspath(os.path.join(template_dir,'..',platform,'builder.py'))
+			script_args = [script, "install", manifest.name, android_sdk.get_android_sdk(), gen_project_dir, manifest.moduleid, "Necessary argument, but unused."]
+
+			rc = run_python(script_args)
+
+			# install the project
+			if rc==1:
+				if is_ios(platform):
+					error = os.path.join(gen_project_dir,'build','iphone','build','build.log')
+					print "[ERROR] Build Failed. See: %s" % os.path.abspath(error)
+				else:
+					print "[ERROR] Build Failed."
+
+		stage(platform, project_dir, manifest, install_callback)
 	elif command == 'run-emulator':
 		if is_android(platform):
 			def run_emulator_callback(gen_project_dir):
