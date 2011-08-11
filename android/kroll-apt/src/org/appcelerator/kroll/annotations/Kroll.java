@@ -1,23 +1,17 @@
+package org.appcelerator.kroll.annotations;
 /**
  * Appcelerator Titanium Mobile
  * Copyright (c) 2010-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-package org.appcelerator.kroll.annotations;
+
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import org.appcelerator.kroll.KrollConverter;
-import org.appcelerator.kroll.KrollDefaultValueProvider;
-import org.appcelerator.kroll.KrollInvocation;
-import org.appcelerator.kroll.KrollNativeConverter;
-import org.appcelerator.kroll.KrollJavascriptConverter;
-import org.appcelerator.kroll.KrollProxy;
 
 /**
  * The top level Kroll annotation.<br>
@@ -35,10 +29,11 @@ import org.appcelerator.kroll.KrollProxy;
  * @author Marshall Culpepper
  */
 @Documented
-public @interface Kroll {
-	/** Testing */
+public @interface Kroll
+{
 	public static final String DEFAULT_NAME = "__default_name__";
-	
+	public static final class DEFAULT {};
+
 	/**
 	 * An optional annotation for arguments of a {@link method Kroll method}.
 	 * This annotation is retained at runtime so dynamic properties can check for optional arguments in their setters.
@@ -56,7 +51,8 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.PARAMETER)
-	public @interface argument {
+	public static @interface argument
+	{
 		/**
 		 * The argument's name used in error messages and source code generation.<br>
 		 * @default The argument's name from Java source
@@ -77,16 +73,16 @@ public @interface Kroll {
 		 * The class must also implement a static instance getter called getInstance().</p>
 		 * @see KrollJavascriptConverter
 		 */
-		Class<? extends KrollJavascriptConverter> converter() default KrollConverter.class;
+		Class<?> converter() default DEFAULT.class;
 		/**
 		 * Provider of default values when an optional argument isn't passed in.<br>
 		 * <p>The value should be the fully qualified name of a class that implements {@link KrollDefaultValueProvider}.
 		 * The class must also implement a static instance getter called getInstance().</p>
 		 * @see KrollDefaultValueProvider
 		 */
-		Class<? extends KrollDefaultValueProvider> defaultValueProvider() default KrollConverter.class;
+		Class<?> defaultValueProvider() default DEFAULT.class;
 	}
-	
+
 	/**
 	 * Marks a static final field as a constant for this {@link module} or {@link proxy}.
 	 * <b>Note</b>: This only works on static final fields (the value is pulled directly when generating source)
@@ -97,14 +93,15 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.FIELD)
-	public @interface constant {
+	public static @interface constant
+	{
 		/**
 		 * The name that this constant is bound to.<br>
 		 * @default The name in Java source.
 		 */
 		String name() default DEFAULT_NAME;
 	}
-	
+
 	/**
 	 * Injects a value by {@link inject#type() type} or {@link inject#name() name} directly into a field or by calling a setter method.
 	 * The currently supported injectable values are:
@@ -122,7 +119,8 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target({ElementType.METHOD, ElementType.FIELD})
-	public @interface inject {
+	public static @interface inject
+	{
 		/**
 		 * <b>Warning</b>: This is reserved for future use, and not implemented yet
 		 * The name of an object to inject.
@@ -134,9 +132,8 @@ public @interface Kroll {
 		 * @default The type of the field or first argument of the method
 		 */
 		Class<?> type() default DEFAULT.class;
-		public static final class DEFAULT {};
 	}
-	
+
 	/**
 	 * Declares a method to be exposed as part of this {@link proxy} or {@link module}.
 	 * <p>Methods may optionally make their first argument a {@link KrollInvocation} object,
@@ -156,7 +153,8 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.METHOD)
-	public @interface method {
+	public static @interface method
+	{
 		/**
 		 * The method's name in the API.<br>
 		 * @default The method's name in Java source.
@@ -168,7 +166,7 @@ public @interface Kroll {
 		 * The class must also implement a static instance getter called getInstance().</p>
 		 * @see KrollNativeConverter
 		 */
-		Class<? extends KrollNativeConverter> converter() default KrollConverter.class;
+		Class<?> converter() default DEFAULT.class;
 		/**
 		 * <p>When set to true, this method will run on the UI thread, blocking the current thread until it finishes executing.
 		 * If the current thread is the UI thread, then this simply calls the method directly.
@@ -189,7 +187,7 @@ public @interface Kroll {
 		 */
 		boolean runOnUiThread() default false;
 	}
-	
+
 	/**
 	 * Declares a Kroll module.<br>
 	 * Modules differ from {@link proxy proxies} by being statically bound to an API point, and by only having a singleton instance (by default).<br>
@@ -208,7 +206,8 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.TYPE)
-	public @interface module {
+	public static @interface module
+	{
 		/**
 		 * <p>The name of this module in the API.
 		 * If this module has a {@link module#parentModule parent module}, this name will be relative to the parent.
@@ -233,7 +232,6 @@ public @interface Kroll {
 		 * @default No parent module (binds directly to <pre>Titanium</pre>)
 		 */
 		Class<?> parentModule() default DEFAULT.class;
-		public static final class DEFAULT {};
 		
 		/**
 		 * <b>Warning</b>: This is reserved for future use, and not implemented yet
@@ -250,7 +248,7 @@ public @interface Kroll {
 		 */
 		String[] propertyAccessors() default {};
 	}
-	
+
 	/**
 	 * Declares a property to be exposed as part of this {@link proxy} or {@link module}.<br>
 	 * Standard properties are automatically written and read into instance fields on the {@link proxy} object.<br>
@@ -273,7 +271,8 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.FIELD)
-	public @interface property {
+	public static @interface property
+	{
 		/**
 		 * Whether or not this property has "get" or read access
 		 */
@@ -293,14 +292,14 @@ public @interface Kroll {
 		 * The class must also implement a static instance getter called getInstance().</p>
 		 * @see KrollNativeConverter
 		 */
-		Class<? extends KrollNativeConverter> nativeConverter() default KrollConverter.class;
+		Class<?> nativeConverter() default DEFAULT.class;
 		/**
 		 * Converter of Rhino/Javascript objects to Java objects suitable for use in Titanium<br>
 		 * <p>The value should be the fully qualified name of a class that implements {@link KrollJavascriptConverter}.
 		 * The class must also implement a static instance getter called getInstance().</p>
 		 * @see KrollJavascriptConverter
 		 */
-		Class<? extends KrollJavascriptConverter> javascriptConverter() default KrollConverter.class;
+		Class<?> javascriptConverter() default DEFAULT.class;
 	}
 
 	/**
@@ -319,7 +318,8 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.METHOD)
-	public @interface getProperty {
+	public static @interface getProperty
+	{
 		/**
 		 * The name of this property in the API.
 		 * @default The method name stripped of "get", and lower-camel-cased or the method name itself.
@@ -331,20 +331,20 @@ public @interface Kroll {
 		 * The class must also implement a static instance getter called getInstance().</p>
 		 * @see KrollNativeConverter
 		 */
-		Class<? extends KrollNativeConverter> nativeConverter() default KrollConverter.class;
+		Class<?> nativeConverter() default DEFAULT.class;
 		/**
 		 * Converter of Rhino/Javascript objects to Java objects suitable for use in Titanium<br>
 		 * <p>The value should be the fully qualified name of a class that implements {@link KrollJavascriptConverter}.
 		 * The class must also implement a static instance getter called getInstance().</p>
 		 * @see KrollJavascriptConverter
 		 */
-		Class<? extends KrollJavascriptConverter> javascriptConverter() default KrollConverter.class;
+		Class<?> javascriptConverter() default DEFAULT.class;
 		/**
 		 * When set to true, this property getter will only be executed on the UI thread.<br>
 		 */
 		boolean runOnUiThread() default false;
 	}
-	
+
 	/**
 	 * Declares a method as a property setter of this {@link proxy} or {@link module}.<br>
 	 * <p>Setter methods must have at least one argument: The value to set. Optionally, setter methods may also have a
@@ -364,7 +364,8 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.METHOD)
-	public @interface setProperty {
+	public static @interface setProperty
+	{
 		/**
 		 * The name of this property in the API.<br>
 		 * @default The method name stripped of "set", and lower-camel-cased or the method name itself.
@@ -376,14 +377,14 @@ public @interface Kroll {
 		 * The class must also implement a static instance getter called getInstance().</p>
 		 * @see KrollNativeConverter
 		 */
-		Class<? extends KrollNativeConverter> nativeConverter() default KrollConverter.class;
+		Class<?> nativeConverter() default DEFAULT.class;
 		/**
 		 * Converter of Rhino/Javascript objects to Java objects suitable for use in Titanium<br>
 		 * <p>The value should be the fully qualified name of a class that implements {@link KrollJavascriptConverter}.
 		 * The class must also implement a static instance getter called getInstance().</p>
 		 * @see KrollJavascriptConverter
 		 */
-		Class<? extends KrollJavascriptConverter> javascriptConverter() default KrollConverter.class;
+		Class<?> javascriptConverter() default DEFAULT.class;
 		/**
 		 * When set to true, the value of this property is retained in the internal property map of this {@link proxy}
 		 */
@@ -393,7 +394,7 @@ public @interface Kroll {
 		 */
 		boolean runOnUiThread() default false;
 	}
-	
+
 	/**
 	 * Declares a Kroll proxy.<br>
 	 * <p>Proxies are the API interface between Javascript (Rhino) and Java.
@@ -415,7 +416,8 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target(ElementType.TYPE)
-	public @interface proxy {
+	public static @interface proxy
+	{
 		/**
 		 * The name of this proxy. Used in debugging, toString(), and {@link proxy#creatableInModule()}.<br>
 		 * @default The name of the proxy class with the "Proxy" suffix removed.
@@ -433,7 +435,6 @@ public @interface Kroll {
 		 * @see KrollProxy#handleCreationDict(org.appcelerator.kroll.KrollDict)
 		 */
 		Class<?> creatableInModule() default DEFAULT.class;
-		public static final class DEFAULT {};
 		/**
 		 * Declares a list of dynamic property accessors for this proxy.<br>
 		 * <b>Example</b>:<br>
@@ -444,7 +445,7 @@ public @interface Kroll {
 		 */
 		String[] propertyAccessors() default {};
 	}
-	
+
 	/**
 	 * Declares a module or proxy method as "top level".<br>
 	 * <p>
@@ -467,7 +468,8 @@ public @interface Kroll {
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
 	@Target({ElementType.METHOD, ElementType.TYPE})
-	public @interface topLevel {
+	public static @interface topLevel
+	{
 		/**
 		 * An array of top level names to expose this {@link method} or {@link module} as.<br>
 		 * @default The method name or module name
@@ -494,7 +496,8 @@ public @interface Kroll {
 	 * }
 	 * </pre>
 	 */
-	public @interface dynamicApis {
+	public static @interface dynamicApis
+	{
 		String[] properties() default DEFAULT_NAME;
 		String[] methods() default DEFAULT_NAME;
 	}
