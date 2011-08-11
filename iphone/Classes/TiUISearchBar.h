@@ -18,6 +18,7 @@
 @interface TiUISearchBar : TiUIView<UISearchBarDelegate> {
 @private
 	UISearchBar *searchView;
+	CALayer * backgroundLayer;
 	id<UISearchBarDelegate> delegate;
 }
 
