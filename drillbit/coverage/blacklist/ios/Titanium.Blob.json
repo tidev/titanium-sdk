@@ -1,0 +1,16 @@
+{
+ "functions": [
+  "initWithFile", 
+  "setImage", 
+  "initWithImage", 
+  "toString", 
+  "setData"
+ ], 
+ "properties": [
+  "description", 
+  "image", 
+  "isImageMimeType", 
+  "data", 
+  "size"
+ ]
+}

@@ -123,6 +123,14 @@ def mapDeepIter(deepMap, nLevels, *mapKeys):
 		if isinstance(obj, dict):
 			mapDeepIter(obj, nLevels - 1)
 
+# load up JSON blacklists for API sets
+def loadBlacklist(apiname, platform):
+	blacklistPath = os.path.join(coverageDir,'blacklist',platform.lower(),'%s.json' % apiname)
+	if not os.path.isfile(blacklistPath):
+		return { "functions":[], "properties":[] }
+
+	return json.load(open(blacklistPath))
+
 class CoverageData(object):
 	CATEGORY_TDOC = "tdoc"
 	CATEGORY_BINDING = "binding"
@@ -630,11 +638,17 @@ class CoverageMatrix(object):
 													  platforms,
 													  isModule=True)
 							fullAPI = "Titanium.%s.%s" % (moduleName, proxyName)
+							
+				blacklist = loadBlacklist(fullAPI, self.data.PLATFORM_IOS)
 
 				for method in binding[iosClass]["methods"]:
-					self.data.addFunction(method, fullAPI, platforms, isModule=isModule)
+					if not method in blacklist["functions"]:
+						self.data.addFunction(method, fullAPI, platforms, isModule=isModule)
 
 				for property in binding[iosClass]["properties"]:
+					if property in blacklist["properties"]:
+						continue
+						
 					# If we have an all-uppercase name, consider it a constant -
 					# by naming convention
 					if property.isupper():
