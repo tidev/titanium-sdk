@@ -4,12 +4,6 @@ description: The VideoPlayer object is returned by <Titanium.Media.createVideoPl
 extends: Titanium.UI.View
 since: "0.9"
 methods:
-  - name: add
-    description: add a child to the view hierarchy
-    parameters:
-      - name: view
-        description: the view to add to this views hiearchy
-        type: Object
   - name: animate
     description: animate the view
     parameters:
@@ -29,12 +23,6 @@ methods:
     description: start playing the video
   - name: release
     description: release the internal video resources immediately.  this is not usually necessary but can help if you no longer need to use the player after it is used to help converse memory.
-  - name: remove
-    description: remove a previously add view from the view hiearchy
-    parameters:
-      - name: view
-        description: the view to remove from this views hiearchy
-        type: Object
   - name: requestThumbnailImagesAtTimes
     description: Asynchronously request thumbnails for one or more times, provided as an array of numbers (double). Fires a `thumbnail` event on completion. Optionally invokes the callback function passed in the method.
     parameters:
@@ -503,6 +491,10 @@ properties:
   - name: contentURL
     description: deprecated. use url property instead.
     type: String
+  - name: currentPlaybackTime
+    description: the current playback time of the now playing item in seconds.
+    type: Number
+    platforms: [iphone, ipad]
   - name: duration
     description: The duration of the movie, or 0.0 if not known.
     type: Number
