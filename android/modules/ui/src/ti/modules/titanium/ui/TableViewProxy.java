@@ -63,10 +63,13 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	private ArrayList<TableViewSectionProxy> localSections;
+	private boolean separatorVisible = true;
+	private int originalDividerHeight = -1;
 
 	public TableViewProxy(TiContext tiContext) {
 		super(tiContext);
-		
+
+		setProperty(TiC.PROPERTY_SEPARATOR_VISIBLE, true);
 		eventManager.addOnEventChangeListener(this);
 	}
 	
@@ -457,6 +460,29 @@ public class TableViewProxy extends TiViewProxy
 		Message msg = getUIHandler().obtainMessage(MSG_SCROLL_TO_TOP);
 		msg.arg1 = index;
 		msg.sendToTarget();
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setSeparatorVisible(boolean visible)
+	{
+		setProperty(TiC.PROPERTY_SEPARATOR_VISIBLE, visible);
+
+		TiUITableView tableView = getTableView();
+		if(tableView != null)
+		{
+			tableView.getTableView().setSeparatorVisibility(visible);
+		}
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public boolean getSeparatorVisible()
+	{
+		Object separatorVisible = getProperty(TiC.PROPERTY_SEPARATOR_VISIBLE);
+		if (separatorVisible != null)
+		{
+			return TiConvert.toBoolean(separatorVisible);
+		}
+		return true;
 	}
 
 	@Override
