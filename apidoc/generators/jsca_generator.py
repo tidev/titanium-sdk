@@ -12,8 +12,11 @@ except:
 
 def generate(raw_apis, annotated_apis, options):
 	print >> sys.stderr, "[WARN] JSCA is not yet supported. A skeleton api.jsca will be created."
+	if not os.path.exists(options.output):
+		os.makedirs(options.output)
 	out_path = os.path.join(options.output, "api.jsca")
 	api = {"types": [], "aliases": [{"type": "Titanium", "name": "Ti"}]}
+
 	f = open(out_path, "w")
 	json.dump(api, f, indent=4)
 	print json.dumps(api, indent=4)
