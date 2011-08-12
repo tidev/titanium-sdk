@@ -1,0 +1,54 @@
+<div class="page-nav">
+	<ul>
+		% if data.typestr in ("object", "module", "proxy"):
+			<li>
+				% if data.notes_html and len(data.notes_html) > 0:
+					<a href="#notes">Notes</a>
+				% else:
+					Notes
+				% endif
+			</li>
+			% if data.typestr == "module":
+				<li>
+				% if data.member_proxies and len(data.member_proxies)>0:
+					<a href="#objects">Objects</a>
+				% else:
+					Objects
+				% endif
+				</li>
+			% endif
+			<li>
+				<a href="#methods">Methods</a>
+			</li>
+			<li>
+				<a href="#properties">Properties</a>
+			</li>
+			<li>
+				<a href="#events">Events</a>
+			</li>
+		% endif
+		% if data.typestr == "method":
+			<li>
+				<a href="#arguments">Arguments</a>
+			</li>
+			<li>
+				<a href="#returns">Return Type</a>
+			</li>
+			<li>
+				% if data.notes_html and len(data.notes_html) > 0:
+					<a href="#notes">Notes</a>
+				% else:
+					Notes
+				% endif
+			</li>
+		% endif
+
+		<li>
+			% if data.examples_html and len(data.examples_html) > 0:
+				<a href="#examples">Examples</a>
+			% else:
+				Examples
+			% endif
+		</li>
+	</ul>
+</div>
