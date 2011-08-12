@@ -4,13 +4,13 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UICOVERFLOWVIEW
+#ifdef USE_TI_UIIOSCOVERFLOWVIEW
 
 #import "TiUIView.h"
 #import "AFOpenFlow/AFOpenFlowView.h"
 #import "ImageLoader.h"
 
-@interface TiUICoverFlowView : TiUIView <AFOpenFlowViewDataSource,AFOpenFlowViewDelegate,ImageLoaderDelegate>
+@interface TiUIiOSCoverFlowView : TiUIView <AFOpenFlowViewDataSource,AFOpenFlowViewDelegate,ImageLoaderDelegate>
 {
 @private
 	AFOpenFlowView *view;
