@@ -129,6 +129,8 @@ def load_one_yaml(filepath):
 		f = open(filepath, "r")
 		types = [the_type for the_type in yaml.load_all(f)]
 		return types
+	except KeyboardInterrupt:
+		raise
 	except:
 		e = traceback.format_exc()
 		log.error("Exception occured while processing %s:" % filepath)
