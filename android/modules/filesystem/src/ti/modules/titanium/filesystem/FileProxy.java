@@ -29,6 +29,17 @@ public class FileProxy extends TiFileProxy
 {
 	private static final String LCAT = "FileProxy";
 
+	public FileProxy(TiContext tiContext, String[] parts)
+	{
+		super(tiContext, parts, true);
+	}
+	
+	public FileProxy(TiContext tiContext, String[] parts, boolean resolve)
+	{
+		super(tiContext, parts, resolve);
+	}
+
+	/*
 	protected String path;
 	protected TiBaseFile tbf; // The base file object.
 
@@ -321,4 +332,5 @@ public class FileProxy extends TiFileProxy
 		}
 		return new FileStreamProxy(this);
 	}
+	*/
 }

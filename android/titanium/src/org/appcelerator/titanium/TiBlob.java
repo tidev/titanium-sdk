@@ -291,7 +291,7 @@ public class TiBlob extends KrollProxy
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public String getPath()
+	public TiFileProxy getFile()
 	{
 		if (data == null) {
 			return null;
@@ -303,13 +303,7 @@ public class TiBlob extends KrollProxy
 			Log.w(LCAT, "getPath unable to return value: underlying data is not file, rather " + data.getClass().getName());
 			return null;
 		} else {
-			File nativeFile = ((TiBaseFile)data).getNativeFile();
-			if(nativeFile != null)
-			{
-				return nativeFile.getAbsolutePath();
-			}
-			Log.e(LCAT, "unable to find a valid file that can used to acquire blob path.");
-			return null;
+			return new TiFileProxy(context, (TiBaseFile)data);
 		}
 	}
 
