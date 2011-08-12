@@ -1018,7 +1018,7 @@ def main():
 		options.outDir = os.path.join(mobileDir, "dist", "coverage")
 
 	if not os.path.exists(options.outDir):
-		os.makedirs(outDir)
+		os.makedirs(options.outDir)
 
 	matrix = CoverageMatrix(seedData)
 	if seedData == None:
