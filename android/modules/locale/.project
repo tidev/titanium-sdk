@@ -1,22 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>titanium-i18n</name>
+	<name>titanium-locale</name>
 	<comment></comment>
 	<projects>
 	</projects>
 	<buildSpec>
 		<buildCommand>
-			<name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
-			<triggers>full,incremental,</triggers>
+			<name>com.android.ide.eclipse.adt.ResourceManagerBuilder</name>
 			<arguments>
-				<dictionary>
-					<key>LaunchConfigHandle</key>
-					<value>&lt;project&gt;/.externalToolBuilders/org.eclipse.jdt.core.javabuilder (11).launch</value>
-				</dictionary>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>com.android.ide.eclipse.adt.PreCompilerBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>com.android.ide.eclipse.adt.ApkBuilder</name>
+			<arguments>
 			</arguments>
 		</buildCommand>
 	</buildSpec>
 	<natures>
+		<nature>com.android.ide.eclipse.adt.AndroidNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
 </projectDescription>

@@ -432,6 +432,9 @@ describe("Ti.XML tests", {
 		valueOf(attr).shouldNotBeNull();
 		valueOf(attr).shouldBeObject();
 		valueOf(attr.name).shouldBe("myattr");
+		// Per spec, value in new attribute should be empty string
+		valueOf(attr.value).shouldNotBeNull();
+		valueOf(attr.value).shouldBeExactly("");
 
 		attr = null;
 		valueOf(doc.createAttributeNS).shouldBeFunction();
@@ -441,6 +444,8 @@ describe("Ti.XML tests", {
 		valueOf(attr.name).shouldBe("prefix:myattr");
 		valueOf(attr.namespaceURI).shouldBe("http://example.com");
 		valueOf(attr.prefix).shouldBe("prefix");
+		valueOf(attr.value).shouldNotBeNull();
+		valueOf(attr.value).shouldBeExactly("");
 	},
 	apiXmlDocumentCreateCDATASection: function() {
 		var doc = Ti.XML.parseString("<test/>");
@@ -523,7 +528,7 @@ describe("Ti.XML tests", {
 		valueOf(node).shouldBeObject();
 		valueOf(node.nodeName).shouldBe("node");
 		valueOf(function() {
-			node = doc.getElementById("no_such_element"); // Causes NPE in Android, shouldn't. TIMOB-4707
+			node = doc.getElementById("no_such_element");
 		}).shouldNotThrowException();
 		valueOf(node).shouldBeNull();
 	},
@@ -685,7 +690,7 @@ describe("Ti.XML tests", {
 
 		var childNode = doc.createElement("childNode");
 		valueOf(function() { parentNode.appendChild(childNode); }).shouldNotThrowException();
-		valueOf(parentNode.firstChild).shouldBe(childNode); // fails - opened ticket #4703
+		valueOf(parentNode.firstChild).shouldBe(childNode);
 	},
 
 	apiXmlNodeCloneNode: function() {
@@ -716,16 +721,45 @@ describe("Ti.XML tests", {
 
 			var clonedNode = null;
 		
+			// Shallow
 			valueOf(function() { clonedNode = parentNode.cloneNode(false); }).shouldNotThrowException();
 			valueOf(clonedNode.nodeName).shouldBe(parentNode.nodeName);
-			valueOf(clonedNode.getAttribute("myattr")).shouldBe("attr value");
-			valueOf(clonedNode.firstChild.nodeValue).shouldBe(parentNode.firstChild.nodeValue);
-			valueOf(clonedNode.lastChild.nodeName).shouldBe(parentNode.lastChild.nodeName);
+			// Though shallow, attributes should be there.
+			var attrs = clonedNode.attributes;
+			valueOf(attrs).shouldNotBeNull();
+			valueOf(attrs.length).shouldBeExactly(1);
+			var attr = attrs.getNamedItem("myattr");
+			valueOf(attr).shouldNotBeNull();
+			valueOf(attr.nodeValue).shouldBeExactly("attr value");
+			// Fetch a different way
+			var attrValue = clonedNode.getAttribute("myattr");
+			valueOf(attrValue).shouldNotBeNull();
+			valueOf(attrValue).shouldBeExactly("attr value");
+			// Per spec, clone should have no parent and no children
+			valueOf(clonedNode.parentNode).shouldBeNull();
+			valueOf(clonedNode.hasChildNodes()).shouldBeBoolean();
+			valueOf(clonedNode.hasChildNodes()).shouldBeFalse();
 
+			// Deep
 			valueOf(function() { clonedNode = parentNode.cloneNode(true); }).shouldNotThrowException();
 			valueOf(clonedNode.nodeName).shouldBe(parentNode.nodeName);
+			valueOf(clonedNode.parentNode).shouldBeNull();
+			attrs = clonedNode.attributes;
+			valueOf(attrs).shouldNotBeNull();
+			valueOf(attrs.length).shouldBeExactly(1);
+			attr = attrs.getNamedItem("myattr");
+			valueOf(attr).shouldNotBeNull();
+			valueOf(attr.nodeValue).shouldBeExactly("attr value");
 			valueOf(clonedNode.getAttribute("myattr")).shouldBe("attr value");
+			attrValue = clonedNode.getAttribute("myattr");
+			valueOf(attrValue).shouldNotBeNull();
+			valueOf(attrValue).shouldBeExactly("attr value");
+			// this one should have children since it's deep.
+			valueOf(clonedNode.hasChildNodes()).shouldBeBoolean();
+			valueOf(clonedNode.hasChildNodes()).shouldBeTrue();
+			valueOf(clonedNode.firstChild).shouldNotBeNull();
 			valueOf(clonedNode.firstChild.nodeValue).shouldBe(parentNode.firstChild.nodeValue);
+			valueOf(clonedNode.lastChild).shouldNotBeNull();
 			valueOf(clonedNode.lastChild.nodeName).shouldBe(parentNode.lastChild.nodeName);
 		}
 	},
@@ -773,7 +807,7 @@ describe("Ti.XML tests", {
 
 		var childNode3 = doc.createElement("childNode3");
 		valueOf(function() { parentNode.insertBefore(childNode3, parentNode.firstChild); }).shouldNotThrowException();
-		valueOf(parentNode.firstChild).shouldBe(childNode3); // fails - opened ticket #4703
+		valueOf(parentNode.firstChild).shouldBe(childNode3);
 	},
 
 	apiXmlNodeIsSupported: function() {
@@ -815,7 +849,7 @@ describe("Ti.XML tests", {
 
 		var results = null;
 		valueOf(function() { results = parentNode.removeChild(childNode); }).shouldNotThrowException();
-		valueOf(results).shouldBe(childNode); // fails - opened ticket #4703
+		valueOf(results).shouldBe(childNode);
 
 		valueOf(parentNode.hasChildNodes()).shouldBe(false);
 	},
@@ -833,7 +867,7 @@ describe("Ti.XML tests", {
 
 		var replacementNode = doc.createElement("replacementNode");
 		valueOf(function() { parentNode.replaceChild(replacementNode, childNode); }).shouldNotThrowException();
-		valueOf(parentNode.firstChild).shouldBe(replacementNode); // fails - opened ticket #4703
+		valueOf(parentNode.firstChild).shouldBe(replacementNode);
 	},
 
 	xmlNodeListElementsByTagName : function() {
@@ -913,19 +947,21 @@ describe("Ti.XML tests", {
 		valueOf(attr.name).shouldBeString();
 		valueOf(attr.name).shouldBe("newattr");
 		valueOf(attr.specified).shouldBeBoolean();
+		// Per spec, the default value in an attribute is empty string not null.
+		valueOf(attr.value).shouldNotBeNull();
+		valueOf(attr.value).shouldBeExactly("");
 		// Per spec, when you set an attribute that doesn't exist yet,
 		// null is returned.
 		var addedAttr = node.setAttributeNode(attr);
 		valueOf(addedAttr).shouldBeNull();
+		valueOf(attr.ownerElement).shouldNotBeNull();
+		valueOf(attr.ownerElement).shouldBe(node);
 		// Per spec, when you set a new attribute of same name as one that
 		// already exists, it replaces that existing one AND returns that existing one.
 		var secondNewAttr = doc.createAttribute("newattr");
 		var replacedAttr = node.setAttributeNode(secondNewAttr);
 		valueOf(replacedAttr).shouldNotBeNull();
-		valueOf(replacedAttr).shouldBe(attr); // For some reason this doesn't work on android TIMOB-4703
-		valueOf(attr.ownerElement).shouldNotBeNull();
-		valueOf(attr.ownerElement).shouldBe(node);
-		valueOf(attr.value).shouldBeNull();
+		valueOf(replacedAttr).shouldBe(attr);
 		// Per spec, changing the value of an attribute automatically sets
 		// specified to true.
 		attr.value = "new value";
