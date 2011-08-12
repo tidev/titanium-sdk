@@ -1,0 +1,37 @@
+<!doctype html>
+<%
+	# This index.html is mostly for developers who generate the apidocs and want a module index.
+	# Not used for production.
+	modules = [m for m in data.values() if m.typestr == "module"]
+	modules = sorted(modules, key=lambda item: item.name)
+%>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+		<title>Titanium Mobile SDK ${config.version}</title>
+		<style type="text/css">
+			li {margin-bottom: 5px;}
+		</style>
+    </head>
+    <body>
+        <div id="container">
+            <div id="header">
+				<h1>Titanium Mobile SDK ${config.version}</h1>
+            </div>
+            <div id="main">
+				<h3>Modules</h3>
+				<ul>
+				% for m in modules:
+					<li>
+						<a href="${m.filename_html}.html">${m.name}</a>
+					</li>
+				% endfor
+				</ul>
+            </div>
+        </div>
+    </body>
+</html>
+
+
+
+

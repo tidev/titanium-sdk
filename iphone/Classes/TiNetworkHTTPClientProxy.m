@@ -164,10 +164,13 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	{
 		return [request responseStatusCode];
 	}
-	else 
-	{
-		return -1;
-	}
+	return -1;
+}
+
+-(NSString *)statusText
+{
+	//In the event request is nil, we get nil back anyways.
+	return [request responseStatusMessage];
 }
 
 -(NSInteger)readyState
@@ -274,7 +277,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 		thisPointer = [[[TiNetworkHTTPClientResultProxy alloc] initWithDelegate:self] autorelease];
 		[self fireCallback:@"onreadystatechange" withArg:[NSDictionary dictionaryWithObject:@"readystatechange" forKey:@"type"] withSource:thisPointer];
 	}
-	if (hasOnload && state==NetworkClientStateDone && !failed)
+	if (state==NetworkClientStateDone && !failed)
 	{
 		thisPointer = [[[TiNetworkHTTPClientResultProxy alloc] initWithDelegate:self] autorelease];		
 		if (hasOndatastream && downloadProgress>0)
@@ -305,7 +308,22 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 				[thisPointer release];
 			}
 		}
-		[self fireCallback:@"onload" withArg:[NSDictionary dictionaryWithObject:@"load" forKey:@"type"] withSource:thisPointer];
+		
+		/**
+		 *	Per customer request, successful communications that resulted in an
+		 *	4xx or 5xx response is treated as an error instead of an onload.
+		 *	For backwards compatibility, if no error handler is provided, even
+		 *	an 4xx or 5xx response will fall back onto an onload.
+		 */
+		int responseCode = [request responseStatusCode];
+		if (hasOnerror && (responseCode >= 400) && (responseCode <= 599))
+		{
+			[self fireCallback:@"onerror" withArg:[NSDictionary dictionaryWithObject:@"error" forKey:@"type"] withSource:thisPointer];
+		}
+		else if(hasOnload)
+		{
+			[self fireCallback:@"onload" withArg:[NSDictionary dictionaryWithObject:@"load" forKey:@"type"] withSource:thisPointer];
+		}		
 	}
 }
 

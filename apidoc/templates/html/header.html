@@ -1,0 +1,24 @@
+<%include file="page_nav.html"/>
+
+<%
+    name = data.name
+    if data.typestr == "method":
+        name = "%s.%s" % (data.parent.name, name)
+%>
+<h1 class="namespace">${name}</h1>
+% if data.deprecated:
+    <div class="deprecation_warning">Deprecated
+        % if "since" in data.deprecated:
+            since ${data.deprecated["since"]}
+        % endif
+        % if "removed" in data.deprecated:
+            - Removed in ${data.deprecated["removed"]}
+        % endif
+    </div>
+% endif
+
+<%include file="parent_info.html"/>
+<%include file="platforms.html"/>
+
+<div class="description">${data.description_html}</div>
+

@@ -1,0 +1,9 @@
+<h3 id="properties">Properties</h3>
+
+% if data.properties is not None and len(data.properties) > 0:
+
+	<%include file="member_list.html" args="item_list=data.properties, platform_count=len(data.platforms), is_property_list=True"/>
+
+% else:
+	This type has no properties.
+% endif
