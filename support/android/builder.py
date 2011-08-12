@@ -542,7 +542,10 @@ class Builder(object):
 		if self.force_rebuild or self.deploy_type == 'production' or \
 			(self.js_changed and not self.fastdev):
 			for root, dirs, files in os.walk(os.path.join(self.top_dir, "Resources")):
+				for name in ignoreDirs:
+					if name in dirs: dirs.remove(name)
 				for f in files:
+					if f in ignoreFiles: continue
 					path = os.path.join(root, f)
 					if is_resource_drawable(path) and f != 'default.png':
 						fileset.append(path)
