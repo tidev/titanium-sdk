@@ -15,6 +15,10 @@
 	#import "Ti2DMatrix.h"
 #endif
 
+#ifdef USE_TI_UI3DMATRIX
+    #import "TiUIiOS3DMatrix.h"
+#endif
+
 #ifdef USE_TI_UIANIMATION
 	#import "TiAnimation.h"
 #endif
@@ -299,6 +303,20 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 #endif
 	}
 	return ios;
+}
+#endif
+
+#ifdef USE_TI_UI3DMATRIX
+-(id)create3DMatrix:(id)args
+{
+    DEPRECATED_REPLACED(@"UI.create3DMatrix()", @"1.8.0", @"1.9.0", @"UI.iOS.create3DMatrix()");
+	if (args==nil || [args count] == 0)
+	{
+		return [[[TiUIiOS3DMatrix alloc] init] autorelease];
+	}
+	ENSURE_SINGLE_ARG(args,NSDictionary);
+	TiUIiOS3DMatrix *matrix = [[TiUIiOS3DMatrix alloc] initWithProperties:args];
+	return [matrix autorelease];
 }
 #endif
 
