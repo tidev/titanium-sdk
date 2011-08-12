@@ -4,6 +4,7 @@ description: A set of constants for the system icon styles that can be used on a
 extends: Titanium.Proxy
 platforms: [iphone, ipad]
 since: "0.8"
+createable: false
 properties:
   - name: BOOKMARKS
     description: Bookmark style icon

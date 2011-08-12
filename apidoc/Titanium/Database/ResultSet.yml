@@ -3,6 +3,7 @@ name: Titanium.Database.ResultSet
 description: The ResultSet instance returned by invoking a database SQL `execute`.
 extends: Titanium.Proxy
 since: "0.1"
+createable: false
 methods:
   - name: close
     description: close the result set and release resources. once closed, this result set must no longer be used
