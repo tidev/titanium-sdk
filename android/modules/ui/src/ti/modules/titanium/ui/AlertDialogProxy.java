@@ -22,7 +22,6 @@ import android.app.Activity;
 		"buttonNames",
 		"cancel",
 		"message",
-		"messageid",
 		"title"
 	}
 )

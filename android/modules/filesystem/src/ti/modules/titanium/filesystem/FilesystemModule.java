@@ -11,10 +11,12 @@ import java.io.IOException;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiTempFileHelper;
 
 @Kroll.module
 public class FilesystemModule extends KrollModule
@@ -28,7 +30,8 @@ public class FilesystemModule extends KrollModule
 
 	private static String[] RESOURCES_DIR = { "app://" };
 	
-	public FilesystemModule(TiContext tiContext) {
+	public FilesystemModule(TiContext tiContext)
+	{
 		super(tiContext);
 	}
 
@@ -58,7 +61,8 @@ public class FilesystemModule extends KrollModule
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public boolean isExternalStoragePresent() {
+	public boolean isExternalStoragePresent()
+	{
 		return android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
 	}
 
@@ -76,7 +80,8 @@ public class FilesystemModule extends KrollModule
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public String getApplicationDataDirectory() {
+	public String getApplicationDataDirectory()
+	{
 		return "appdata-private://";
 	}
 
@@ -87,17 +92,27 @@ public class FilesystemModule extends KrollModule
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public String getExternalStorageDirectory() {
+	public String getExternalStorageDirectory()
+	{
 		return "appdata://";
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public String getSeparator() {
+	public String getTempDirectory()
+	{
+		TiApplication tiApplication = TiApplication.getInstance();
+		return "file://" + tiApplication.getTempFileHelper().getTempDirectory().getAbsolutePath();
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public String getSeparator()
+	{
 		return File.separator;
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public String getLineEnding() {
+	public String getLineEnding()
+	{
 		return System.getProperty("line.separator");
 	}
 

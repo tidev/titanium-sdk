@@ -7,6 +7,7 @@ description: An interface extending <Titanium.XML.Node> with a set of
     defintion of a DOM CharacterData. Unlike the DOM, for reasons of compatibility 
     with the javascript engine, text is represented by UTF-8 instead of UTF-16.
 since: "0.9"
+createable: false
 methods:
   - name: appendData
     description: Append the string to the end of the character data of the node. 
@@ -61,10 +62,10 @@ methods:
     description: Extracts a range of data from the node.
         Throws an exception if offset is negative, offset is beyond the data's length, or if count is negative.
     returns:
-      type: String
-      description: The specified substring. If the sum of offset and count
-          exceeds the length, then all 16-bit units to the end of the data
-          are returned.
+        type: String
+        description: The specified substring. If the sum of offset and count
+            exceeds the length, then all 16-bit units to the end of the data
+            are returned.
     parameters:
       - name: offset
         description: Start offset of substring to extract.

@@ -436,6 +436,9 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
 		cell.accessoryView = [[[UIImageView alloc] initWithImage:image] autorelease];
 	}
+    else {
+        cell.accessoryView = nil;
+    }
 }
 
 -(void)configureBackground:(UITableViewCell*)cell

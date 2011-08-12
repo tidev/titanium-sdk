@@ -120,7 +120,7 @@ public class TiSound
 
 			setVolume(volume);
 			if (proxy.hasProperty(TiC.PROPERTY_TIME)) {
-				setTime(secondsToMillis(TiConvert.toDouble(proxy.getProperty(TiC.PROPERTY_TIME))));
+				setTime(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_TIME)));
 			}
 		} catch (Throwable t) {
 			Log.w(LCAT, "Issue while initializing : " , t);
@@ -294,7 +294,7 @@ public class TiSound
 		if (mp != null) {
 			time = mp.getCurrentPosition();
 		} else {
-			time = secondsToMillis(TiConvert.toDouble(proxy.getProperty(TiC.PROPERTY_TIME)));
+			time = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_TIME));
 		}
 
 		return time;
@@ -315,7 +315,7 @@ public class TiSound
 			mp.seekTo(position);
 		}
 
-		proxy.setProperty(TiC.PROPERTY_TIME, millisToSeconds(position));
+		proxy.setProperty(TiC.PROPERTY_TIME, position);
 	}
 
 	private void setState(int state)
@@ -474,7 +474,7 @@ public class TiSound
 				if (mp != null && mp.isPlaying()) {
 					int position = mp.getCurrentPosition();
 					KrollDict event = new KrollDict();
-					event.put("progress", millisToSeconds(position));
+					event.put("progress", position);
 					proxy.fireEvent(EVENT_PROGRESS, event);
 				}
 			}
@@ -534,7 +534,7 @@ public class TiSound
 		}
 
 		if (d.containsKey(TiC.PROPERTY_TIME)) {
-			setTime(secondsToMillis(TiConvert.toDouble(d, TiC.PROPERTY_TIME)));
+			setTime(TiConvert.toInt(d, TiC.PROPERTY_TIME));
 		}
 	}
 
@@ -544,7 +544,7 @@ public class TiSound
 		if (SoundProxy.PROPERTY_VOLUME.equals(key)) {
 			setVolume(TiConvert.toFloat(newValue));
 		} else if (TiC.PROPERTY_TIME.equals(key)) {
-			setTime(secondsToMillis(TiConvert.toDouble(newValue)));
+			setTime(TiConvert.toInt(newValue));
 		}
 	}
 
@@ -554,14 +554,5 @@ public class TiSound
 		for (KrollPropertyChange change : changes) {
 			propertyChanged(change.getName(), change.getOldValue(), change.getNewValue(), proxy);
 		}
-	}
-	
-	public static double millisToSeconds(int millis) {
-		return (millis <= 0) ? 0.0d : ((double) millis / 1000.0d); 
-		
-	}
-	
-	public static int secondsToMillis(double seconds) {
-		return (seconds <= 0.0d) ? 0 : (int)(seconds * 1000.0d);
-	}
+	}	
 }

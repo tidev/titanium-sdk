@@ -18,13 +18,13 @@ methods:
     returns:
         type: Titanium.Android.Intent
   - name: createNotification
-    description: Crate a <Titanium.Android.Notification>. Used to notify the user of an event.
+    description: Create a <Titanium.Android.Notification>. Used to notify the user of an event.
     returns:
         type: Titanium.Android.Notification
     parameters:
       - name: options
         description: Options dictionary
-        type: Titanium.Android.Notification
+        type: Dictionary<Titanium.Android.Notification>
   - name: createPendingIntent
     description: Create a <Titanium.Android.PendingIntent> to be used inside a <Titanium.Android.Notification>
     returns:
