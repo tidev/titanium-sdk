@@ -397,6 +397,11 @@ DEFINE_EXCEPTIONS
 	self.alpha = [TiUtils floatValue:opacity];
 }
 
+-(CALayer *)backgroundImageLayer
+{
+	return [self layer];
+}
+
 -(void)setBackgroundImage_:(id)image
 {
 	NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
@@ -412,8 +417,8 @@ DEFINE_EXCEPTIONS
 							 interpolationQuality:kCGInterpolationNone image:resultImage hires:NO];
 	}
 
-	self.layer.contents = (id)resultImage.CGImage;
-	self.layer.contentsCenter = TiDimensionLayerContentCenter(topCap, leftCap, topCap, leftCap, [resultImage size]);
+	[self backgroundImageLayer].contents = (id)resultImage.CGImage;
+	[self backgroundImageLayer].contentsCenter = TiDimensionLayerContentCenter(topCap, leftCap, topCap, leftCap, [resultImage size]);
 	self.clipsToBounds = image!=nil;
     self.backgroundImage = image;
 }
