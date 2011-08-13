@@ -53,6 +53,15 @@ methods:
         description: |
             pass a dictionary with the following supported keys: `success` a function that will be called when the camera is completed, `error` a function that will be called upon receiving an error, `cancel` a function that will be called if the user presses the cancel button, `autohide` boolean if the library listing should auto hide after selection is completed (defaults to true), `animated` boolean if the dialog should be animated (defaults to true) upon showing and hiding, `mediaTypes` an array of media type constants defining selectable media (see MUSIC_MEDIA_TYPE_* properties below) as either an array or a bitwise-or single value, `allowMultipleSelections` boolean whether or not more than one media selection is allowed
         type: Object
+  - name: queryMusicLibrary
+    description: run a search for music library items matching the specified search predicates.
+    platforms: [iphone, ipad]
+    parameters:
+      - name: query
+        description: The query object to extract information from.
+        type: Dictionary<MediaQueryType>
+    returns:
+        type: Array<MediaItemType>
   - name: startMicrophoneMonitor
     description: start the monitoring of microphone sound level
   - name: stopMicrophoneMonitor
@@ -210,6 +219,38 @@ properties:
     type: Number
   - name: MUSIC_MEDIA_TYPE_PODCAST
     description: media containing podcast content
+    type: Number
+  - name: MUSIC_MEDIA_GROUP_TITLE
+    description: The constant for grouping query results by title
+    value: 0
+    type: Number
+  - name: MUSIC_MEDIA_GROUP_ALBUM
+    description: The constant for grouping query results by album
+    value: 1
+    type: Number
+  - name: MUSIC_MEDIA_GROUP_ARTIST
+    description: The constant for grouping query results by artist
+    value: 2
+    type: Number
+  - name: MUSIC_MEDIA_GROUP_ALBUM_ARTIST
+    description: The constant for grouping query results by album artist  
+    value: 3
+    type: Number
+  - name: MUSIC_MEDIA_GROUP_COMPOSER
+    description: The constant for grouping query results by composer  
+    value: 4
+    type: Number
+  - name: MUSIC_MEDIA_GROUP_GENRE
+    description: The constant for grouping query results by genre  
+    value: 5
+    type: Number
+  - name: MUSIC_MEDIA_GROUP_PLAYLIST
+    description: The constant for grouping query results by playlist  
+    value: 6
+    type: Number    
+  - name: MUSIC_MEDIA_GROUP_PODCAST_TITLE
+    description: The constant for grouping query results by podcast title  
+    value: 7
     type: Number
   - name: MUSIC_PLAYER_REPEAT_ALL
     description: constant for repeating all setting
@@ -408,4 +449,125 @@ properties:
     type: Object
   - name: volume
     description: the current volume of the playback device
+    type: Number
+
+# Pseudo-type for queryMediaLibrary argument
+---
+name: MediaQueryType
+description: A specifier for a media library query. By default, filters
+    perform an exact match.
+platforms: [iphone, ipad]
+since: "1.8"
+properties:
+  - name: grouping
+    description: A constant that specifies the ordering of the result array.
+        One of the `MUSIC_MEDIA_GROUP_*` constants specified on the
+        <Titanium.Media> module.
+    type: Number
+  - name: mediaType
+    description: The media type to filter on. Value should be one of the
+        `MUSIC_MEDIA_TYPE_` constants on <Titanium.Media>.
+    type: [Dictionary<MediaQueryInfoType>, Number]
+  - name: title
+    description: The title to filter on. Value should be a String.
+    type: [Dictionary<MediaQueryInfoType>, String]
+  - name: albumTitle
+    description: The album title to filter on. Value should be a String.
+    type: [Dictionary<MediaQueryInfoType>, String]
+  - name: artist
+    description: The artist to filter on. Value should be a String.
+    type: [Dictionary<MediaQueryInfoType>, String]
+  - name: albumArtist
+    description: The album artist to filter on. Value should be a String.
+    type: [Dictionary<MediaQueryInfoType>, String]
+  - name: genre
+    description: The genre to filter on. Value should be a String.
+    type: [Dictionary<MediaQueryInfoType>, String]
+  - name: composer
+    description: The composer to filter on. Value should be a String.
+    type: [Dictionary<MediaQueryInfoType>, String]
+  - name: isCompilation
+    description: Filter by whether or not the item is a compilation.
+        Value should be a Boolean.
+    type: [Dictionary<MediaQueryInfoType>, Boolean]
+    
+# Pseudo-type for query arguments
+---
+name: MediaQueryInfoType
+description: A full query descriptor for a filtering predicate.
+platforms: [iphone, ipad]
+since: "1.8"
+properties:
+  - name: value
+    description: The value for the given predicate. See the descriptions
+        in <MediaQueryType> for information about which properties
+        require which values.
+    type: [Number, String, Boolean]
+  - name: exact
+    description: Whether or not the predicate is for an exact match.  The
+        default is `true`.
+    type: Boolean
+    
+# Pseudo-type for media library results
+---
+name: MediaItemType
+description: An object representing an entry in the iPod's music library.
+platforms: [iphone, ipad]
+since: "1.5"
+properties:
+  - name: mediaType
+    description: The type of the media. One of the `MUSIC_MEDIA_TYPE_*`
+        constants on <Titanium.Media>.
+    type: Number
+  - name: title
+    description: The title ID3 tag contents.
+    type: String
+  - name: albumTitle
+    description: The album title ID3 tag contents.
+    type: String
+  - name: artist
+    description: The artist ID3 tag contents.
+    type: String
+  - name: albumArtist
+    description: The album artist ID3 tag contents.
+    type: String
+  - name: genre
+    description: The genre ID3 tag contents.
+    type: String
+  - name: composer
+    description: The composer ID3 tag contents.
+    type: String
+  - name: isCompilation
+    description: Whether or not the media is part of a compilation album.
+    type: Boolean
+  - name: playbackDuration
+    description: The playback length.
+    type: Number
+  - name: albumTrackNumber
+    description: The track number of the album.
+    type: Number
+  - name: albumTrackCount
+    description: The total number of tracks on the album.
+    type: Number
+  - name: discNumber
+    description: The disc number of the album.
+    type: Number
+  - name: discCount
+    description: The total number of discs comprising the album.
+    type: Number
+  - name: lyrics
+    description: The lyrics ID3 tag contents.
+    type: String
+  - name: podcastTitle
+    description: The podcast title. Only valid for media of type
+        `MUSIC_MEDIA_TYPE_PODCAST`.
+    type: String
+  - name: playCount
+    description: The total number of plays.
+    type: Number
+  - name: skipCount
+    description: The total number of skips.
+    type: Number
+  - name: rating
+    description: The user rating.
     type: Number

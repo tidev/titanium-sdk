@@ -1996,7 +1996,7 @@ if(ourTableView != tableview)	\
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {	
-	if (scrollView.isDragging) 
+	if (scrollView.isDragging || scrollView.isDecelerating) 
 	{
 		if ([self.proxy _hasListeners:@"scroll"])
 		{

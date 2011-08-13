@@ -3,12 +3,13 @@ name: Titanium.XML.Document
 description: The DOM Document returned from <Titanium.XML.parseString> or <Titanium.XML.parse>.
     Implements the [DOM Level 2 API](http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#i-Document).
 extends: Titanium.XML.Node
+createable: false
 since: "0.9"
 properties:
   - name: doctype
     type: Titanium.XML.DocumentType
     description: An interface to the list of entities that are defined for the
-        document, such as via a Document Type Definition (DTD).
+        document, such as via a Document Type Definition (DTD). See note about Android and DTDs.
     permission: read-only
   - name: documentElement
     type: Titanium.XML.Element
@@ -158,3 +159,6 @@ methods:
         type: Boolean
         description: If true, recursively import the subtree under the
             specified node; if false, import only the node itself.
+notes: As of version 3.1, Android still does not truly support DTDs.  A document with a DTD can be
+    parsed, however it is not validated, none of its default attributes will automatically be put
+    into the tree, etc.  [Google is aware of the issue](http://code.google.com/p/android/issues/detail?id=7395).

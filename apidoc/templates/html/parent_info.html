@@ -1,0 +1,23 @@
+<div class="namespace_type">
+% if data.typestr == "module" and data.parent is None:
+	Module
+% else:
+	<%
+		typestr = ""
+		if data.typestr == "module":
+			typestr = "Submodule"
+		elif data.typestr == "proxy":
+			typestr = "Object"
+		elif data.typestr == "method":
+			typestr = "Function"
+	%>
+	% if len(typestr) > 0 and data.parent is not None:
+		${typestr} of <a href="${data.parent.filename_html}.html">${data.parent.name}</a>.
+	% else:
+		${typestr}
+	% endif 
+	% if not (data.inherited_from_obj is None):
+		Inherited from <a href="${data.inherited_from_obj.filename_html}.html">${data.inherited_from_obj.name}</a>.
+	% endif
+% endif
+</div>

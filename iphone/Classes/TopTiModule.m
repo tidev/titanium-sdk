@@ -114,7 +114,7 @@
         // Just put the string data directly into the buffer, if we can.
         if (!hasLength){
             NSStringEncoding encoding = [TiUtils charsetToEncoding:charset];
-            [buffer setData:[data dataUsingEncoding:encoding]];
+            [buffer setData:[NSMutableData dataWithData:[data dataUsingEncoding:encoding]]];
         }
         else {
             switch ([TiUtils encodeString:data toBuffer:buffer charset:charset offset:0 sourceOffset:0 length:encodeLength]) {
@@ -145,6 +145,7 @@
         }
         
         byteOrder = (hasByteOrder) ? byteOrder : CFByteOrderGetCurrent();
+        [buffer setByteOrder:byteOrder];
         switch ([TiUtils encodeNumber:data toBuffer:buffer offset:0 type:type endianness:byteOrder]) {
             case BAD_ENDIAN: {
                 [self throwException:[NSString stringWithFormat:@"Invalid endianness: %d", byteOrder]

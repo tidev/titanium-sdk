@@ -136,7 +136,7 @@ public class TiC
 	public static final String PROPERTY_CONTENT_URL = "contentURL";
 	public static final String PROPERTY_CONTENT_VIEW = "contentView";
 	public static final String PROPERTY_COUNTRY = "country";
-	public static final String PROPERTY_COUNTRY_CODE = "countryCode";
+	public static final String PROPERTY_COUNTRY_CODE = "country_code"; // TIMOB-4478
 	public static final String PROPERTY_DATA = "data";
 	public static final String PROPERTY_DEFAULT_IMAGE = "defaultImage";
 	public static final String PROPERTY_DEFAULTS = "defaults";

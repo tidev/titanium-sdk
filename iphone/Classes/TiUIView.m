@@ -13,8 +13,8 @@
 #ifdef USE_TI_UI2DMATRIX	
 	#import "Ti2DMatrix.h"
 #endif
-#ifdef USE_TI_UI3DMATRIX	
-	#import "Ti3DMatrix.h"
+#ifdef USE_TI_UIIOS3DMATRIX
+	#import "TiUIiOS3DMatrix.h"
 #endif
 #import "TiViewProxy.h"
 #import "TiApp.h"
@@ -342,10 +342,10 @@ DEFINE_EXCEPTIONS
 		return;
 	}
 #endif
-#ifdef USE_TI_UI3DMATRIX	
-	if ([transformMatrix isKindOfClass:[Ti3DMatrix class]])
+#ifdef USE_TI_UIIOS3DMATRIX	
+	if ([transformMatrix isKindOfClass:[TiUIiOS3DMatrix class]])
 	{
-		self.layer.transform = CATransform3DConcat(CATransform3DMakeAffineTransform(virtualParentTransform),[(Ti3DMatrix*)transformMatrix matrix]);
+		self.layer.transform = CATransform3DConcat(CATransform3DMakeAffineTransform(virtualParentTransform),[(TiUIiOS3DMatrix*)transformMatrix matrix]);
 		return;
 	}
 #endif
@@ -397,6 +397,11 @@ DEFINE_EXCEPTIONS
 	self.alpha = [TiUtils floatValue:opacity];
 }
 
+-(CALayer *)backgroundImageLayer
+{
+	return [self layer];
+}
+
 -(void)setBackgroundImage_:(id)image
 {
 	NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
@@ -412,8 +417,8 @@ DEFINE_EXCEPTIONS
 							 interpolationQuality:kCGInterpolationNone image:resultImage hires:NO];
 	}
 
-	self.layer.contents = (id)resultImage.CGImage;
-	self.layer.contentsCenter = TiDimensionLayerContentCenter(topCap, leftCap, topCap, leftCap, [resultImage size]);
+	[self backgroundImageLayer].contents = (id)resultImage.CGImage;
+	[self backgroundImageLayer].contentsCenter = TiDimensionLayerContentCenter(topCap, leftCap, topCap, leftCap, [resultImage size]);
 	self.clipsToBounds = image!=nil;
     self.backgroundImage = image;
 }
@@ -749,11 +754,17 @@ DEFINE_EXCEPTIONS
 		return nil;
 	}
 	
+    // OK, this is problematic because of the situation where:
+    // touchDelegate --> view --> button
+    // The touch never reaches the button, because the touchDelegate is as deep as the touch goes.
+    
+    /*
 	// delegate to our touch delegate if we're hit but it's not for us
 	if (hasTouchListeners==NO && touchDelegate!=nil)
 	{
 		return touchDelegate;
 	}
+     */
 	
     return [super hitTest:point withEvent:event];
 }

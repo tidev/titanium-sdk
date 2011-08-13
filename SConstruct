@@ -27,9 +27,20 @@ elif ARGUMENTS.get('PRODUCT_VERSION', 0):
 # get the githash for the build so we can always pull this build from a specific
 # commit.  We're getting it here so we can pass it to android's ant build
 # in order to get it into build.properties
-p = subprocess.Popen(["git","log","--oneline","--max-count=1"],stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-githash = p.communicate()[0][0:7].split('\n')[0]
-	
+gitCmd = "git"
+if platform.system() == "Windows":
+	gitCmd += ".cmd"
+
+p = subprocess.Popen([gitCmd, "rev-parse", "HEAD"], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+out, err = p.communicate()
+if err:
+	print >>sys.stderr, err
+	print >>sys.stderr, "Error executing git rev-parse, is git in your PATH?"
+	sys.exit(1)
+
+githash = out.strip()[:7]
+print "Building MobileSDK version %s, githash %s" % (version, githash)
+
 #
 # this is messy, but i don't care, scons makes it too
 # hard to include python after an external SConscript
@@ -49,6 +60,7 @@ only_package = False
 if ARGUMENTS.get("package",0):
 	only_package = True
 
+install = "install" in COMMAND_LINE_TARGETS or ARGUMENTS.get("install", 0)
 clean = "clean" in COMMAND_LINE_TARGETS or ARGUMENTS.get("clean", 0)
 run_drillbit = "drillbit" in COMMAND_LINE_TARGETS or ARGUMENTS.get("drillbit",0)
 
@@ -114,6 +126,15 @@ if build_type in ['full', 'iphone', 'ipad'] and not only_package \
 	finally:
 		os.chdir(d)
 
+def install_mobilesdk(version_tag):
+	if (platform.system() == "Darwin"):
+		os_names = { "Windows":"win32", "Linux":"linux", "Darwin":"osx" }
+		os_name = os_names[platform.system()]
+		mobilesdk_zipfile = os.path.join(os.path.abspath('dist'), 'mobilesdk-%s-%s.zip' % (version_tag, os_name))
+		print "Installing %s..." % mobilesdk_zipfile
+		installation_directory = os.path.expanduser('~/Library/Application Support/Titanium')
+		os.system('/usr/bin/unzip -q -o -d "%s" "%s"' % (installation_directory, mobilesdk_zipfile))
+
 def package_sdk(target, source, env):
 	android = build_type in ['full', 'android']
 	iphone = build_type in ['full', 'iphone']
@@ -125,6 +146,8 @@ def package_sdk(target, source, env):
 		package.Packager().build_all_platforms(os.path.abspath('dist'), version, android, iphone, ipad, version_tag)
 	else:
 		package.Packager().build(os.path.abspath('dist'), version, android, iphone, ipad, version_tag)
+	if install and not clean:
+		install_mobilesdk(version_tag)
 
 def drillbit_builder(target, source, env):
 	sys.path.append("drillbit")

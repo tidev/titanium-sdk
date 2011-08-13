@@ -98,7 +98,7 @@ public class TiBlob extends KrollProxy
 
 	public byte[] getBytes()
 	{
-		byte[] bytes = null;
+		byte[] bytes = new byte[0];
 
 		switch(type) {
 			case TYPE_STRING :
@@ -290,7 +290,6 @@ public class TiBlob extends KrollProxy
 		}
 	}
 
-	@Kroll.method
 	public String toBase64()
 	{
 		return new String(Base64.encodeBase64(getBytes()));

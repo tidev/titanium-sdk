@@ -17,7 +17,9 @@
 #endif
 
 #endif
-
+#ifdef USE_TI_UIIOS3DMATRIX
+#import "TiUIiOS3DMatrix.h"
+#endif
 
 @implementation TiUIiOSProxy
 
@@ -30,6 +32,18 @@
 }
 
 #endif
+#endif
+#ifdef USE_TI_UIIOS3DMATRIX
+-(id)create3DMatrix:(id)args
+{
+	if (args==nil || [args count] == 0)
+	{
+		return [[[TiUIiOS3DMatrix alloc] init] autorelease];
+	}
+	ENSURE_SINGLE_ARG(args,NSDictionary);
+	TiUIiOS3DMatrix *matrix = [[TiUIiOS3DMatrix alloc] initWithProperties:args];
+	return [matrix autorelease];
+}
 #endif
 
 @end

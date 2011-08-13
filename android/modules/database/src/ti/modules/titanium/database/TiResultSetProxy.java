@@ -6,7 +6,6 @@
  */
 package ti.modules.titanium.database;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollProxy;
@@ -19,6 +18,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import android.database.AbstractWindowedCursor;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.os.Build;
 
 @Kroll.proxy
 public class TiResultSetProxy extends KrollProxy
@@ -26,26 +26,6 @@ public class TiResultSetProxy extends KrollProxy
 	private static final String LCAT = "TiResultSet";
 	private static final boolean DBG = TiConfig.LOGD;
 	
-	private static Method isFloat;
-	private static Method isLong;
-	private static Method isNull;
-	private static Class  args[];
-	static {
-		isFloat = null;
-		isLong  = null;
-		isNull  = null;
-		if (android.os.Build.VERSION.SDK_INT > 4) {
-			args = new Class[1];
-			args[0] = Integer.TYPE;
-			
-			try {
-				isFloat = AbstractWindowedCursor.class.getMethod("isFloat", args);
-				isLong  = AbstractWindowedCursor.class.getMethod("isLong",  args);
-				isNull  = AbstractWindowedCursor.class.getMethod("isNull",  args);
-			} catch (Exception e) {}
-		}
-	}
-
 	protected Cursor rs;
 	protected String lastException;
 	protected HashMap<String, Integer> columnNames; // workaround case-sensitive matching in Google's implementation
@@ -112,63 +92,69 @@ public class TiResultSetProxy extends KrollProxy
 
 	private Object internalGetField(int index, int type)
 	{
+		if (rs == null) {
+			Log.w(LCAT, "Attempted to get field value when no result set available.");
+			return null;
+		}
+		boolean outOfBounds = (index >= rs.getColumnCount());
 		Object result = null;
-		if (rs != null) {
-			try {
-				boolean fromString = true;
-				if (isNull != null && rs instanceof AbstractWindowedCursor) {
-					AbstractWindowedCursor awc = (AbstractWindowedCursor) rs;
-					Object arguments[] = new Object[] { index };
-					try {
-						
-						if (((Boolean) isFloat.invoke(awc, arguments)).booleanValue()) {
-							result = awc.getDouble(index);
-							fromString = false;
-						} else if (((Boolean) isLong.invoke(awc, arguments)).booleanValue()) {
-							result = awc.getLong(index);
-							fromString = false;
-						} else if (((Boolean) isNull.invoke(awc, arguments)).booleanValue()) {
-							result = null;
-							fromString = false;
-						}
-					} catch (Exception e) {
-						Log.e(LCAT, "Error querying type from cursor", e);
-					}
-				}
+		boolean fromString = false;
 
-				if (fromString) {
-					result = rs.getString(index);
+		try {
+			if (rs instanceof AbstractWindowedCursor) {
+				AbstractWindowedCursor cursor = (AbstractWindowedCursor) rs;
+				if (cursor.isFloat(index)) {
+					result = cursor.getDouble(index);
+				} else if (cursor.isLong(index)) {
+					result = cursor.getLong(index);
+				} else if (cursor.isNull(index)) {
+					result = null;
+				} else {
+					fromString = true;
 				}
-			} catch (SQLException e) {
-				String msg = "No field at index " + index + ". msg=" + e.getMessage();
-				Log.e(LCAT, msg, e);
-				throw e;
+			} else {
+				fromString = true;
 			}
-			
-			switch(type) {
-				case DatabaseModule.FIELD_TYPE_STRING :
-					if (! (result instanceof String)) {
-						result = TiConvert.toString(result);
-					}
-					break;
-				case DatabaseModule.FIELD_TYPE_INT :
-					if (! (result instanceof Integer)) {
-						result = TiConvert.toInt(result);
-					}
-					break;
-				case DatabaseModule.FIELD_TYPE_FLOAT :
-					if (! (result instanceof Float)) {
-						result = TiConvert.toFloat(result);
-					}
-					break;
-				case DatabaseModule.FIELD_TYPE_DOUBLE :
-					if (! (result instanceof Double)) {
-						result = TiConvert.toDouble(result);
-					}
-					break;					
+			if (fromString) {
+				result = rs.getString(index);
 			}
+			if (outOfBounds && Build.VERSION.SDK_INT >= 11) {
+				// TIMOB-4515: Column number doesn't exist, yet no exception
+				// occurred. This is known to happen in Honeycomb. So
+				// we'll throw instead. We throw the same exception type that
+				// Android would.
+				throw new IllegalStateException("Requested column number " + index + " does not exist");
+			}
+		} catch (RuntimeException e) {
+			// Both SQLException and IllegalStateException (exceptions known to occur
+			// in this block) are RuntimeExceptions and since we anyway re-throw
+			// and log the same error message, we're just catching all RuntimeExceptions.
+			Log.e(LCAT, "Exception getting value for column " + index + ": " + e.getMessage(), e);
+			throw e;
 		}
 
+		switch(type) {
+			case DatabaseModule.FIELD_TYPE_STRING :
+				if (!(result instanceof String)) {
+					result = TiConvert.toString(result);
+				}
+				break;
+			case DatabaseModule.FIELD_TYPE_INT :
+				if (!(result instanceof Integer) && !(result instanceof Long)) {
+					result = TiConvert.toInt(result);
+				}
+				break;
+			case DatabaseModule.FIELD_TYPE_FLOAT :
+				if (!(result instanceof Float)) {
+					result = TiConvert.toFloat(result);
+				}
+				break;
+			case DatabaseModule.FIELD_TYPE_DOUBLE :
+				if (!(result instanceof Double)) {
+					result = TiConvert.toDouble(result);
+				}
+				break;
+		}
 		return result;
 	}
 

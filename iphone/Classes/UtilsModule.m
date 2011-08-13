@@ -45,12 +45,21 @@
 -(TiBlob*)base64encode:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSObject);
-	
-	NSString *str = [self convertToString:args];
+	const char *data;
+	size_t len;
 
-	const char *data = [str UTF8String];
-	size_t len = [str length];
-	
+	if ([args isKindOfClass:[TiBlob class]]) {
+		NSData * blobData = [(TiBlob*)args data];
+		data = (char *)[blobData bytes];
+		len = [blobData length];
+	}
+	else
+	{
+		NSString *str = [self convertToString:args];
+		data = (char *)[str UTF8String];
+		len = [str length];
+	}
+
 	size_t outsize = EstimateBas64EncodedDataSize(len);
 	char *base64Result = malloc(sizeof(char)*outsize);
     size_t theResultLength = outsize;

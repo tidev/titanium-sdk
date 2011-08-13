@@ -1,0 +1,6 @@
+<h3 id="methods">Methods</h3>
+% if data.methods and len(data.methods)>0:
+	<%include file="member_list.html" args="platform_count=len(data.platforms), item_list=data.methods"/>
+% else:
+	This type has no methods.
+% endif

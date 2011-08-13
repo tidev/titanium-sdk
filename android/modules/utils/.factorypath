@@ -1,0 +1,5 @@
+<factorypath>
+    <factorypathentry kind="WKSPJAR" id="/kroll-apt/lib/freemarker.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="WKSPJAR" id="/kroll-apt/lib/json_simple-1.1.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="WKSPJAR" id="/titanium-dist/lib/kroll-apt.jar" enabled="true" runInBatchMode="false"/>
+</factorypath>

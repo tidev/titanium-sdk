@@ -12,15 +12,14 @@ methods:
       - name: options
         description: close the window with optional animation or display properties
         type: Object
-
+        optional: true
   - name: open
     description: open the window
     parameters:
       - name: options
         description: open the window with optional animation or display properties
         type: Object
-
-
+        optional: true
 events:
   - name: android:back
     platforms: [android]
@@ -241,10 +240,14 @@ properties:
         6) empty array - resets the orientation to default sensor control
     type: Array<Number>
     
+  - name: orientation
+    description: Current orientation of the window.  Value will be one of the orientation constants defined in <Titanium.UI>.
+    type: Number
+
   - name: rightNavButton
     description: view to show in the right nav bar area. only available in iPhone.
     platforms: [iphone, ipad]
-    type: Object
+    type: Titanium.UI.View
     
   - name: tabBarHidden
     description: boolean to indicate if the tab bar should be hidden. this is only valid when the window is a child of a tab.
@@ -257,7 +260,7 @@ properties:
   - name: titleControl
     description: view to show in the title area. only available in iPhone.
     platforms: [iphone, ipad]
-    type: Object
+    type: Titanium.UI.View
     
   - name: titleImage
     description: url to a image that show in the title area. only available in iPhone.

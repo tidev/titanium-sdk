@@ -81,5 +81,6 @@
 
 #define USE_TI_UIIOS
 #define USE_TI_UIIOSADVIEW
+#define USE_TI_UIIOS3DMATRIX
 
 #define USE_TI_APPIOS

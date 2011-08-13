@@ -50,6 +50,7 @@
 -(void)addRoute:(id)args;
 -(void)removeRoute:(id)args;
 
+-(void)sendRouteToBack;
 #pragma mark Framework
 -(void)refreshAnnotation:(TiMapAnnotationProxy*)proxy readd:(BOOL)yn;
 
