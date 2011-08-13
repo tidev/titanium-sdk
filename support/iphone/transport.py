@@ -119,7 +119,7 @@ def main(args):
 		#... But we still have to nuke the stuff that gets built that we don't want
 		# to bundle.
 		ios_build = os.path.join(build_dir,'build')
-		if os.isdir(ios_build):
+		if os.path.isdir(ios_build):
 			shutil.rmtree(os.path.join(build_dir,'build'))
 		
 		# Install applogo/splash/etc.
