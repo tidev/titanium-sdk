@@ -126,5 +126,25 @@ describe("Ti.UI tests", {
 	windowOrientation: function() {
 		var w = Ti.UI.createWindow();
 		valueOf(w.orientation).shouldBeOneOf([Ti.UI.PORTRAIT, Ti.UI.LANDSCAPE_LEFT]);
+	},
+	
+	windowPixelFormat: function() {
+		if (Ti.Platform.name === 'android') {
+			var w = Ti.UI.createWindow();
+			valueOf(w.getWindowPixelFormat).shouldBeFunction();
+			valueOf(w.setWindowPixelFormat).shouldBeFunction();
+			valueOf("windowPixelFormat" in w).shouldBeTrue();
+			
+			valueOf(w.windowPixelFormat).shouldBe(Ti.UI.Android.PIXEL_FORMAT_UNKNOWN);
+			valueOf(w.getWindowPixelFormat()).shouldBe(Ti.UI.Android.PIXEL_FORMAT_UNKNOWN);
+			
+			w.windowPixelFormat = Ti.UI.Android.PIXEL_FORMAT_RGB_565;
+			valueOf(w.windowPixelFormat).shouldBe(Ti.UI.Android.PIXEL_FORMAT_RGB_565);
+			valueOf(w.getWindowPixelFormat).shouldBe(Ti.UI.Android.PIXEL_FORMAT_RGB_565);
+			
+			w.setWindowPixelFormat(Ti.UI.Android.PIXEL_FORMAT_RGBA_8888);
+			valueOf(w.windowPixelFormat).shouldBe(Ti.UI.Android.PIXEL_FORMAT_RGBA_8888);
+			valueOf(w.getWindowPixelFormat()).shouldBe(Ti.UI.Android.PIXEL_FORMAT_RGBA_8888);
+		}
 	}
 });

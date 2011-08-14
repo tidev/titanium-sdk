@@ -298,6 +298,7 @@ public class TiC
 	public static final String PROPERTY_WHEN = "when";
 	public static final String PROPERTY_WIDTH = "width";
 	public static final String PROPERTY_WINDOW = "window";
+	public static final String PROPERTY_WINDOW_PIXEL_FORMAT = "windowPixelFormat";
 	public static final String PROPERTY_WINDOW_SOFT_INPUT_MODE = "windowSoftInputMode";
 	public static final String PROPERTY_WORD_WRAP = "wordWrap";
 	public static final String PROPERTY_X = "x";

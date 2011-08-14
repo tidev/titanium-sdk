@@ -287,6 +287,23 @@ describe("Ti.UI.Android tests", {
 		},10000);
 		w.open();
 
+	},
+	pixelFormats : function() {
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_A_8).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_LA_88).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_L_8).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_OPAQUE).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_RGBA_4444).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_RGBA_5551).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_RGBA_8888).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_RGBX_8888).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_RGB_332).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_RGB_565).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_RGB_888).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_TRANSLUCENT).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_TRANSPARENT).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_UNKNOWN).shouldBeNumber();		
 	}
+	
 })
 

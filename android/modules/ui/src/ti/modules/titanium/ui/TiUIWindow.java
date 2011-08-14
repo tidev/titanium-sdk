@@ -489,6 +489,18 @@ public class TiUIWindow extends TiUIView
 				}
 			}
 		}
+		if (d.containsKey(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
+			if (!lightWeight) {
+				if (windowActivity != null) {
+					windowActivity.getWindow().setFormat(TiConvert.toInt(d, TiC.PROPERTY_WINDOW_PIXEL_FORMAT));
+					windowActivity.getWindow().getDecorView().invalidate();
+				} else {
+					Log.w(LCAT, "Activity is null. windowPixelFormat not set.");
+				}
+			} else {
+				Log.w(LCAT, "Setting windowPixelFormat on lightweight windows is not supported.");
+			}
+		}
 
 		// Don't allow default processing.
 		d.remove(TiC.PROPERTY_BACKGROUND_IMAGE);
@@ -549,6 +561,17 @@ public class TiUIWindow extends TiUIView
 			}
 		} else if (key.equals(TiC.PROPERTY_OPACITY)) {
 			setOpacity(TiConvert.toFloat(newValue));
+		} else if (key.equals(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
+			if (!lightWeight) {
+				if (windowActivity != null) {
+					windowActivity.getWindow().setFormat(TiConvert.toInt(newValue));
+					windowActivity.getWindow().getDecorView().invalidate();
+				} else {
+					Log.w(LCAT, "Activity is null. windowPixelFormat not set.");
+				}
+			} else {
+				Log.w(LCAT, "Setting windowPixelFormat on lightweight windows is not supported.");
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -605,7 +628,11 @@ public class TiUIWindow extends TiUIView
 		if (props != null && props.containsKey(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)) {
 			intent.putExtra(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, TiConvert.toInt(props, TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE));
 		}
-
+		props = resolver.findProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT);
+		if (props != null && props.containsKey(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
+			intent.putExtra(TiC.PROPERTY_WINDOW_PIXEL_FORMAT, TiConvert.toInt(props, TiC.PROPERTY_WINDOW_PIXEL_FORMAT));
+		}
+		
 		boolean finishRoot = false;
 		props = resolver.findProperty(TiC.PROPERTY_EXIT_ON_CLOSE);
 		if (props != null && props.containsKey(TiC.PROPERTY_EXIT_ON_CLOSE)) {
@@ -631,7 +658,7 @@ public class TiUIWindow extends TiUIView
 			windowActivity.getWindow().getDecorView().invalidate();
 		}
 	}
-
+	
 	@Override
 	public void release()
 	{
