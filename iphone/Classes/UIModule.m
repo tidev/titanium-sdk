@@ -14,7 +14,9 @@
 #ifdef USE_TI_UI2DMATRIX
 	#import "Ti2DMatrix.h"
 #endif
-
+#ifdef USE_TI_UI3DMATRIX
+    #import "TiUIiOS3DMatrix.h"
+#endif
 #ifdef USE_TI_UIANIMATION
 	#import "TiAnimation.h"
 #endif
@@ -304,6 +306,7 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 	return ios;
 }
 #endif
+
 #ifdef USE_TI_UICOVERFLOWVIEW
 -(id)createCoverFlowView:(id)args
 {
@@ -311,6 +314,21 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 	return [[[TiUIiOSCoverFlowViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
+
+#ifdef USE_TI_UI3DMATRIX
+ -(id)create3DMatrix:(id)args
+{
+    DEPRECATED_REPLACED(@"UI.create3DMatrix()", @"1.8.0", @"1.9.0", @"UI.iOS.create3DMatrix()");
+    if (args==nil || [args count] == 0)
+	{
+	    return [[[TiUIiOS3DMatrix alloc] init] autorelease];
+	}
+ 	ENSURE_SINGLE_ARG(args,NSDictionary);
+ 	TiUIiOS3DMatrix *matrix = [[TiUIiOS3DMatrix alloc] initWithProperties:args];
+ 	return [matrix autorelease];
+}
+#endif
+
 #ifdef USE_TI_UICLIPBOARD
 -(id)Clipboard
 {
