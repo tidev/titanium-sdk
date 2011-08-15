@@ -307,14 +307,6 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 }
 #endif
 
-#ifdef USE_TI_UICOVERFLOWVIEW
--(id)createCoverFlowView:(id)args
-{
-	DEPRECATED_REPLACED(@"UI.createCoverFlowView()",@"1.8.0",@"1.9.0",@"UI.iOS.createCoverFlowView()");
-	return [[[TiUIiOSCoverFlowViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
-#endif
-
 #ifdef USE_TI_UI3DMATRIX
  -(id)create3DMatrix:(id)args
 {
@@ -337,6 +329,14 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 		clipboard = [[TiUIClipboardProxy alloc] _initWithPageContext:[self executionContext]];
 	}
 	return clipboard;
+}
+#endif
+
+#ifdef USE_TI_UICOVERFLOWVIEW
+-(id)createCoverFlowView:(id)args
+{
+	DEPRECATED_REPLACED(@"UI.createCoverFlowView()",@"1.8.0",@"1.9.0",@"UI.iOS.createCoverFlowView()");
+	return [[[TiUIiOSCoverFlowViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
