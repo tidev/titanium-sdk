@@ -44,7 +44,8 @@ import android.app.Service;
 import android.os.Handler;
 
 @Kroll.module @Kroll.topLevel({"Ti", "Titanium"})
-public class TitaniumModule extends KrollModule implements TiContext.OnLifecycleEvent, TiContext.OnServiceLifecycleEvent
+public class TitaniumModule extends KrollModule
+	implements TiContext.OnLifecycleEvent, TiContext.OnServiceLifecycleEvent
 {
 	private static final String LCAT = "TitaniumModule";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -68,7 +69,7 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 	@Kroll.getProperty @Kroll.method
 	public String getUserAgent()
 	{
-		return System.getProperties().getProperty("http.agent")+" Titanium/"+getVersion();
+		return System.getProperties().getProperty("http.agent") + " Titanium/" + getVersion();
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -389,7 +390,8 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 		}
 	}
 
-	protected KrollModule requireNativeModule(TiContext context, String path) {
+	protected KrollModule requireNativeModule(TiContext context, String path)
+	{
 		Log.d(LCAT, "Attempting to include native module: " + path);
 		KrollModuleInfo info = KrollModule.getModuleInfo(path);
 		if (info == null) return null;
