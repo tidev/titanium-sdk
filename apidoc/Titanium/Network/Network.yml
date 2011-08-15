@@ -87,6 +87,7 @@ methods:
         type: String
   - name: registerForPushNotifications
     description: register for push notifications with the Apple Push Notification Service. Only available on iPhone.
+    platforms: [iphone, ipad]
     parameters:
       - name: config
         description: |
@@ -135,13 +136,16 @@ properties:
     type: Number
   - name: NOTIFICATION_TYPE_ALERT
     description: constant value for the push notification alert type
+    platforms: [iphone, ipad]
     type: Number
   - name: NOTIFICATION_TYPE_BADGE
     description: constant value for the push notification badge type
     type: Number
+    platforms: [iphone, ipad]
   - name: NOTIFICATION_TYPE_SOUND
     description: constant value for the push notification sound type
     type: Number
+    platforms: [iphone, ipad]
   - name: READ_MODE
     description: constant value specifying read-only mode for sockets
     type: Number
