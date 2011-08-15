@@ -491,6 +491,10 @@ properties:
   - name: contentURL
     description: deprecated. use url property instead.
     type: String
+  - name: currentPlaybackTime
+    description: the current playback time of the now playing item in seconds.
+    type: Number
+    platforms: [iphone, ipad]
   - name: duration
     description: The duration of the movie, or 0.0 if not known.
     type: Number

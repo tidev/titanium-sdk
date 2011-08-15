@@ -6,7 +6,7 @@
  */
 #import "TiUIiOS3DMatrix.h"
 
-#ifdef USE_TI_UIIOS3DMATRIX
+#if defined(USE_TI_UIIOS3DMATRIX) || defined(USE_TI_UI3DMATRIX)
 
 @implementation TiUIiOS3DMatrix
 

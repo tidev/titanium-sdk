@@ -86,6 +86,10 @@ def validateSince(tracker, since):
 	if type(since) not in [str, dict]:
 		tracker.trackError('"since" should either be a version inside a string, or a dictionary of platform to version: %s, %s' % (since, type(since)))
 
+def validateCreateable(tracker, createable):
+	if not isinstance(createable, bool):
+		tracker.trackError('"createable" should either be true or false: %s, %s' % (createable, type(createable)))
+
 def validateDeprecated(tracker, deprecated):
 	if type(deprecated) != dict or 'since' not in deprecated:
 			tracker.trackError('"deprecated" should be a dictionary with "since" and optional "removed" versions: %s' % deprecated)
@@ -142,17 +146,20 @@ def validateCommon(tracker, map):
 	if 'osver' in map:
 		validateOsVer(tracker, map['osver'])
 
+	if 'createable' in map:
+		validateCreateable(tracker, map['createable'])
+
 def validateMethod(typeTracker, method):
 	tracker = ErrorTracker(method['name'], typeTracker)
 	validateRequired(tracker, method, ['name'])
 	validateCommon(tracker, method)
 
 	if 'returns' in method:
-		if type(method['returns']) not in [str, dict]:
-			tracker.trackError('"returns" must be either a String or Object: %s' % method['returns'])
-		if type(method['returns']) == dict:
-			if 'type' not in method['returns']:
-				tracker.trackError('Required property "type" missing in "returns": %s' % method["returns"])
+		if type(method['returns']) != dict:
+			tracker.trackError('"returns" must be an Object: %s' % method['returns'])
+			return
+		if 'type' not in method['returns']:
+			tracker.trackError('Required property "type" missing in "returns": %s' % method["returns"])
 
 
 	if 'parameters' in method:
@@ -163,7 +170,7 @@ def validateMethod(typeTracker, method):
 			validateRequired(pTracker, param, ['name', 'description', 'type'])
 
 	if 'examples' in method:
-		validateMarkdown(tracker, method['examples'], 'examples')
+		validateExamples(tracker, method['examples'])
 
 def validateProperty(typeTracker, property):
 	tracker = ErrorTracker(property['name'], typeTracker)
@@ -172,12 +179,22 @@ def validateProperty(typeTracker, property):
 	validateCommon(tracker, property)
 
 	if 'examples' in property:
-		validateMarkdown(tracker, property['examples'], 'examples')
+		validateExamples(tracker, property['examples'])
 
 def validateEvent(typeTracker, event):
 	tracker = ErrorTracker(event['name'], typeTracker)
 	validateRequired(tracker, event, ['name', 'description'])
 	validateCommon(tracker, event)
+
+def validateExamples(tracker, examples):
+	if not isinstance(examples, list):
+		tracker.trackError('"examples" must be a list: %s' % examples)
+		return
+	for example in examples:
+		if not isinstance(example, dict) or 'title' not in example or 'example' not in example:
+			tracker.trackError('each example must be a dict with "title" and "example" members: %s' % example)
+			continue
+		validateMarkdown(tracker, example['example'], 'example')
 
 def validateType(typeDoc):
 	typeName = typeDoc['name']
@@ -191,8 +208,7 @@ def validateType(typeDoc):
 		validateMarkdown(tracker, typeDoc['notes'], 'notes')
 
 	if 'examples' in typeDoc:
-		for example in typeDoc['examples']:
-			validateMarkdown(tracker, example['example'], 'example')
+		validateExamples(tracker, typeDoc['examples'])
 
 	if 'methods' in typeDoc:
 		for method in typeDoc['methods']:
