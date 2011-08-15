@@ -115,7 +115,7 @@ def stage(platform, project_dir, manifest, callback):
 		tiapp = os.path.join(gen_project_dir, 'tiapp.xml')
 		xml = open(tiapp).read()
 		tiappf = open(tiapp,'w')
-		idx = xml.find('</guid>')
+		xml = xml.replace('<guid/>','<guid></guid>')
 		xml = xml.replace('</guid>','</guid>\n<modules>\n<module version="%s">%s</module>\n</modules>\n' % (version,moduleid))
 		# generate a guid since this is currently done by developer
 		guid = str(uuid.uuid4())
