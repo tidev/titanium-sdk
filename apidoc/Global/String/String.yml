@@ -1,0 +1,9 @@
+---
+name: Global.String
+description: The Javascript built-in String type. The APIs here are Titanium specific extensions. TODO this is just a placeholder
+methods:
+  - name: format
+  - name: formatCurrency
+  - name: formatDate
+  - name: formatDecimal
+  - name: formatTime
