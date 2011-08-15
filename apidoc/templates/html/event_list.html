@@ -1,0 +1,6 @@
+<h3 id="events">Events</h3>
+% if data.events is not None and len(data.events) > 0:
+	<%include file="member_list.html" args="platform_count=len(data.platforms), item_list=data.events"/>
+% else:
+    This type has no events.
+% endif

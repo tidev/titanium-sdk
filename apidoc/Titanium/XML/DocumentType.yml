@@ -8,6 +8,7 @@ description: >
     conforms to the [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html)
     defintion of a DOM DocumentType.
 since: "0.9"
+createable: false
 properties:
   - name: entities
     description: >

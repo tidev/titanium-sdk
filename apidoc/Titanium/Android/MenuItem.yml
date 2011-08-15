@@ -3,6 +3,7 @@ name: Titanium.Android.MenuItem
 description: The Titanium binding of an [Android MenuItem](http://developer.android.com/reference/android/view/MenuItem.html)
 extends: Titanium.Proxy
 platforms: [android]
+createable: false
 since: "1.5"
 methods:
   - name: getTitleCondensed
