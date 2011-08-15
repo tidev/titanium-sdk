@@ -394,6 +394,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 		[self generateNotification:notification];
 	}
 	
+	[self loadSplash];
 	[self boot];
 	
 	return YES;
