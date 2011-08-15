@@ -4,6 +4,7 @@ description: A set of constants for the styles available for <Titanium.UI.Activi
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [iphone, ipad]
+createable: false
 properties:
   - name: BLACK
     description: A style of indicator which is black smaller than the default style. This style is good against a white content background.

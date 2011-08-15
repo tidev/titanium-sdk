@@ -1,0 +1,65 @@
+<%page args="item_list, platform_count, is_property_list=False"/>
+<table>
+<tr>
+	<th>Name</th>
+	% if is_property_list:
+	<th>Type</th>
+	% endif
+	<th>Description</th>
+</tr> 
+% for item in item_list:
+    % if item.name not in ("Titanium.Proxy", "Titanium.Module"):
+	<% row_class = " ".join(["in_" + p["name"].lower() for p in item.platforms]) %>
+	<% platform_names = ", ".join([p["pretty_name"] for p in item.platforms]) %>
+	<% append_cell_class = " deprecated" if item.deprecated else "" %>
+	<%
+		description = item.description_html
+		was_para_close = False
+		if description.endswith("</p>"):
+			description = description[:-4] # we'll put it back later, promise
+			was_para_close = True
+	%>
+
+	<tr class="${row_class}">
+		% if is_property_list or item.typestr == "event":
+			<td class="name${append_cell_class}">${item.name}</td>
+		% else:
+			<td class="name${append_cell_class}"><a href="${item.filename_html}.html">${item.name}</a></td>
+		% endif
+		% if is_property_list:
+			<td class="type${append_cell_class}">${item.type_html}</td>
+		% endif
+			<td class="description${append_cell_class}">${description}
+				% if len(item.platforms) < platform_count:
+					<span class="platform_warning">(${platform_names} only.)</span>
+				% endif
+                % if item.deprecated is not None:
+                    <%
+                        deprecation_info = ""
+                        if "since" in item.deprecated:
+                            deprecation_info = " since %s" % item.deprecated["since"]
+                        if "removed" in item.deprecated:
+                            if len(deprecation_info) > 0:
+                                deprecation_info += ", "
+                            else:
+                                deprecation_info += " and "
+                            deprecation_info += ("removed in %s" % item.deprecated["removed"])
+                    %>
+                    <span class="deprecation_warning">(Deprecated${deprecation_info}.)</span>
+                % endif
+				% if was_para_close:
+					</p>
+				% endif
+				% if item.typestr == "event" and item.properties is not None and len(item.properties)>0:
+					<h4>Event properties</h4>
+					<table class="event">
+					% for prop in item.properties:
+						<tr><td class="name">${prop.name}</td><td>${prop.description_html}</td></tr>
+					% endfor
+					</table>
+				% endif
+			</td>
+	</tr>
+    % endif
+% endfor
+</table>

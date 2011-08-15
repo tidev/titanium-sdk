@@ -4,6 +4,7 @@ description: A set of constants for the status bar style.
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [iphone, ipad]
+createable: false
 properties:
   - name: DEFAULT
     description: The default status bar style
