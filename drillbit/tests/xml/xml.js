@@ -1124,5 +1124,86 @@ describe("Ti.XML tests", {
 		valueOf(name).shouldNotBeNull();
 		valueOf(name.nodeName).shouldBe("test:name");
 		valueOf(name.value).shouldBe("value");
+	},
+	apiXmlDOMImplementation: function() {
+		var baseDoc = Ti.XML.parseString("<a/>");
+		valueOf(baseDoc).shouldNotBeNull();
+		var impl = null;
+		valueOf(function() {
+			impl = baseDoc.implementation;
+		}).shouldNotThrowException();
+		valueOf(impl).shouldNotBeNull();
+
+		// createDocument
+		valueOf(impl.createDocument).shouldBeFunction();
+		var testDoc = null;
+		// Basic: no namespace, no doctype
+		valueOf(function() {
+			testDoc = impl.createDocument(null, "the_root", null);
+		}).shouldNotThrowException()
+		valueOf(testDoc).shouldNotBeNull();
+		valueOf(testDoc.documentElement).shouldNotBeNull();
+		valueOf(testDoc.documentElement.namespaceURI).shouldBeNull();
+		valueOf(testDoc.documentElement.nodeName).shouldBe("the_root");
+		valueOf(testDoc.documentElement.localName).shouldBe("the_root");
+		valueOf(testDoc.doctype).shouldBeNull();
+		// Create a doctype (which is useless in dom level 2)
+		valueOf(impl.createDocumentType).shouldBeFunction();
+		var doctype = null;
+		valueOf(function() {
+			doctype = impl.createDocumentType("qname", "pid", "sid");
+		}).shouldNotThrowException();
+		// Document with doctype
+		testDoc = null;
+		valueOf(function() {
+			testDoc = impl.createDocument(null, "the_root", doctype);
+		}).shouldNotThrowException()
+		valueOf(testDoc).shouldNotBeNull();
+		valueOf(testDoc.documentElement).shouldNotBeNull();
+		valueOf(testDoc.documentElement.namespaceURI).shouldBeNull();
+		valueOf(testDoc.documentElement.nodeName).shouldBe("the_root");
+		valueOf(testDoc.documentElement.localName).shouldBe("the_root");
+		valueOf(testDoc.doctype).shouldNotBeNull();
+		// Document with namespace but no doctype
+		testDoc = null;
+		valueOf(function() {
+			testDoc = impl.createDocument("http://test", "test:the_root", null);
+		}).shouldNotThrowException()
+		valueOf(testDoc).shouldNotBeNull();
+		valueOf(testDoc.documentElement).shouldNotBeNull();
+		valueOf(testDoc.documentElement.namespaceURI).shouldNotBeNull();
+		valueOf(testDoc.documentElement.namespaceURI).shouldBe("http://test");
+		valueOf(testDoc.documentElement.nodeName).shouldBe("test:the_root");
+		valueOf(testDoc.documentElement.localName).shouldBe("the_root");
+		valueOf(testDoc.doctype).shouldBeNull();
+		// Document with both namespace and doctype
+		valueOf(function() {
+			doctype = impl.createDocumentType("qname", "pid", "sid");
+		}).shouldNotThrowException();
+		testDoc = null;
+		valueOf(function() {
+			testDoc = impl.createDocument("http://test", "test:the_root", doctype);
+		}).shouldNotThrowException()
+		valueOf(testDoc).shouldNotBeNull();
+		valueOf(testDoc.documentElement).shouldNotBeNull();
+		valueOf(testDoc.documentElement.namespaceURI).shouldNotBeNull();
+		valueOf(testDoc.documentElement.namespaceURI).shouldBe("http://test");
+		valueOf(testDoc.documentElement.nodeName).shouldBe("test:the_root");
+		valueOf(testDoc.documentElement.localName).shouldBe("the_root");
+		valueOf(testDoc.doctype).shouldNotBeNull();
+		// hasFeature
+		valueOf(impl.hasFeature).shouldBeFunction();
+		var testResult;
+		valueOf(function() {
+			testResult = impl.hasFeature("Core", "2.0");
+		}).shouldNotThrowException();
+		valueOf(testResult).shouldBeBoolean();
+		valueOf(testResult).shouldBeExactly(true);
+		valueOf(function() {
+			testResult = impl.hasFeature("Fred", "Flinstone");
+		}).shouldNotThrowException();
+		valueOf(testResult).shouldBeBoolean();
+		valueOf(testResult).shouldBeExactly(false);
 	}
+
 });
