@@ -4,7 +4,9 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UIIOSCOVERFLOWVIEW
+#if defined(USE_TI_UIIOSCOVERFLOWVIEW) || defined(USE_TI_UICOVERFLOWVIEW)
+	
+	
 
 #import "TiUIiOSCoverFlowView.h"
 #import "ImageLoader.h"
@@ -12,6 +14,7 @@
 #import "AFOpenFlow/UIImageExtras.h"
 
 @implementation TiUIiOSCoverFlowView
+
 
 #pragma mark Framework
 

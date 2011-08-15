@@ -30,6 +30,9 @@
 #ifdef USE_TI_UICLIPBOARD
 #import "TiUIClipboardProxy.h"
 #endif
+#ifdef USE_TI_UICOVERFLOWVIEW
+	#import "TiUIiOSCoverFlowViewProxy.h"
+#endif
 #import "TiApp.h"
 #import "ImageLoader.h"
 #import "Webcolor.h"
@@ -301,7 +304,13 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 	return ios;
 }
 #endif
-
+#ifdef USE_TI_UICOVERFLOWVIEW
+-(id)createCoverFlowView:(id)args
+{
+	DEPRECATED_REPLACED(@"UI.createCoverFlowView()",@"1.8.0",@"1.9.0",@"UI.iOS.createCoverFlowView()");
+	return [[[TiUIiOSCoverFlowViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
 #ifdef USE_TI_UICLIPBOARD
 -(id)Clipboard
 {
