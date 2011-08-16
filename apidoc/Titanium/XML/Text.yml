@@ -2,8 +2,9 @@
 name: Titanium.XML.Text
 extends: Titanium.XML.CharacterData
 description: Represents the textual content of an <Titanium.XML.Element> or <Titanium.XML.Attr>
-    This conforms to the [DOM Level 2] (http://www.w3.org/TR/DOM-Level-2-Core/core.html)
+    This conforms to the [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html)
     defintion of a DOM Text.
+createable: false
 methods:
   - name: splitText
     description: Breaks this node into two nodes at the specified by offset,
@@ -11,8 +12,8 @@ methods:
         at and after the offset point. Throws an exception if the specified offset 
         is negative or if this node is read only.
     returns: 
-      type: Titanium.XML.Text
-      description: The new node, of the same type as this node
+        type: Titanium.XML.Text
+        description: The new node, of the same type as this node
     parameters: 
       - name: offset
         description: The offset at which to split, starting from 0.

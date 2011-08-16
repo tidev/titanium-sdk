@@ -225,6 +225,18 @@
 	[(id<UIScrollViewDelegate>)[self proxy] scrollViewDidEndZooming:scrollView withView:(UIView*)view atScale:scale];
 }
 
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView_  
+{
+	// Tells the delegate when the scroll view is about to start scrolling the content.
+	[(id<UIScrollViewDelegate>)[self proxy] scrollViewWillBeginDragging:scrollView_];
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView_ willDecelerate:(BOOL)decelerate
+{
+	//Tells the delegate when dragging ended in the scroll view.
+	[(id<UIScrollViewDelegate>)[self proxy] scrollViewDidEndDragging:scrollView_ willDecelerate:decelerate];
+}
+
 #pragma mark Keyboard delegate stuff
 
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop

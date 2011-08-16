@@ -172,7 +172,7 @@ public class SoundProxy extends KrollProxy
 	public double getTime() {
 		TiSound s = getSound();
 		if (s != null) {
-			double time = TiSound.millisToSeconds(s.getTime());
+			int time = s.getTime();
 			setProperty(TiC.PROPERTY_TIME, time);
 		} 
 		return TiConvert.toDouble(getProperty(TiC.PROPERTY_TIME));
@@ -183,7 +183,7 @@ public class SoundProxy extends KrollProxy
 		if (pos != null) {
 			TiSound s = getSound();
 			if (s != null) {
-				s.setTime(TiSound.secondsToMillis(TiConvert.toDouble(pos)));
+				s.setTime(TiConvert.toInt(pos));
 			} else {
 				setProperty(TiC.PROPERTY_TIME, TiConvert.toDouble(pos));
 			}

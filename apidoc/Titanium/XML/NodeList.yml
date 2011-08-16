@@ -5,6 +5,7 @@ description: A list of <Titanium.XML.Node> objects. This conforms to the
     [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html) 
     definition of a DOM NodeList.
 since: "0.9"
+createable: false
 methods:
   - name: item
     description: Returns the <Titanium.XML.Node> object at the specified index.

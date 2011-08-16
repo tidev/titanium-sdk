@@ -3,6 +3,10 @@ name: Titanium.UI.TableViewRow
 description: A TableView row object created by the method <Titanium.UI.createTableViewRow>.
 extends: Titanium.UI.View
 since: "0.9"
+excludes:
+    properties: []
+    methods: [animate]
+    events: []
 properties:
   - name: className
     description: the class name of the table. each table view cell must have a unique class name if the cell layout is different. however, use the same name for rows that have the same structural layout (even if the content is different) to provide maximum rendering performance.
@@ -10,6 +14,10 @@ properties:
   - name: color
     description: default color of the row when not selected
     type: String
+  - name: editable
+    description: whether or not the row can be deleted
+    type: Boolean
+    platforms: [iphone, ipad]
   - name: hasCheck
     description: render a system provided check mark in the right image area of the row cell
     type: Boolean

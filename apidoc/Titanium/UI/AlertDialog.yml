@@ -33,6 +33,17 @@ properties:
   - name: messageid
     description: the key in the locale file to use for the message property
     type: String
+  - name: titleid
+    description: the key in the locale file to use for the title property
+    type: String
+  - name: ok
+    description: Text for the OK button.  Useful for when you only want one button and therefore don't want to
+        use the `buttonNames` property.  If you do use `buttonNames`, this property will be ignored.
+    type: String
+  - name: okid
+    description: the key in the locale file to use for the `ok` property.  Note that if you use the `buttonNames`
+        property to set the button titles, this will be ignored.
+    type: String
   - name: title
     description: the title of the dialog
     type: String
