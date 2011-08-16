@@ -133,8 +133,6 @@
 		24CA8B9C111161FE0084E2DE /* TiUIImageViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A78111161FD0084E2DE /* TiUIImageViewProxy.m */; };
 		24CA8B9D111161FE0084E2DE /* TiUIImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A7A111161FD0084E2DE /* TiUIImageView.m */; };
 		24CA8BA1111161FE0084E2DE /* TiUIEmailDialogProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A82111161FD0084E2DE /* TiUIEmailDialogProxy.m */; };
-		24CA8BA3111161FE0084E2DE /* TiUICoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A86111161FD0084E2DE /* TiUICoverFlowViewProxy.m */; };
-		24CA8BA4111161FE0084E2DE /* TiUICoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A88111161FD0084E2DE /* TiUICoverFlowView.m */; };
 		24CA8BA5111161FE0084E2DE /* TiUICanvasViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8A111161FD0084E2DE /* TiUICanvasViewProxy.m */; };
 		24CA8BA6111161FE0084E2DE /* TiUICanvasView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8C111161FD0084E2DE /* TiUICanvasView.m */; };
 		24CA8BA7111161FE0084E2DE /* TiUIButtonProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8E111161FD0084E2DE /* TiUIButtonProxy.m */; };
@@ -301,8 +299,6 @@
 		24D8E416119B9D8A00F8CAA6 /* TiUIImageViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A78111161FD0084E2DE /* TiUIImageViewProxy.m */; };
 		24D8E417119B9D8A00F8CAA6 /* TiUIImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A7A111161FD0084E2DE /* TiUIImageView.m */; };
 		24D8E418119B9D8A00F8CAA6 /* TiUIEmailDialogProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A82111161FD0084E2DE /* TiUIEmailDialogProxy.m */; };
-		24D8E419119B9D8A00F8CAA6 /* TiUICoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A86111161FD0084E2DE /* TiUICoverFlowViewProxy.m */; };
-		24D8E41A119B9D8A00F8CAA6 /* TiUICoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A88111161FD0084E2DE /* TiUICoverFlowView.m */; };
 		24D8E41B119B9D8A00F8CAA6 /* TiUICanvasViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8A111161FD0084E2DE /* TiUICanvasViewProxy.m */; };
 		24D8E41C119B9D8A00F8CAA6 /* TiUICanvasView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8C111161FD0084E2DE /* TiUICanvasView.m */; };
 		24D8E41D119B9D8A00F8CAA6 /* TiUIButtonProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8E111161FD0084E2DE /* TiUIButtonProxy.m */; };
@@ -499,6 +495,12 @@
 		2B301A8513DA2E290046529F /* TiUIiOS3DMatrix.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B301A8413DA2E290046529F /* TiUIiOS3DMatrix.m */; };
 		2B301A8613DA2E290046529F /* TiUIiOS3DMatrix.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B301A8413DA2E290046529F /* TiUIiOS3DMatrix.m */; };
 		2B301A8713DA2E290046529F /* TiUIiOS3DMatrix.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B301A8413DA2E290046529F /* TiUIiOS3DMatrix.m */; };
+		2B94603613F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603313F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m */; };
+		2B94603713F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603513F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m */; };
+		2B94603813F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603313F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m */; };
+		2B94603913F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603513F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m */; };
+		2B94603A13F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603313F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m */; };
+		2B94603B13F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603513F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m */; };
 		4D3033A3136239B30034640F /* TiFilesystemFileStreamProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D3033A2136239B30034640F /* TiFilesystemFileStreamProxy.m */; };
 		ABD472F413BB73BF00502912 /* KrollCoverage.m in Sources */ = {isa = PBXBuildFile; fileRef = ABD472F313BB73BF00502912 /* KrollCoverage.m */; };
 		ABD472F513BB73BF00502912 /* KrollCoverage.m in Sources */ = {isa = PBXBuildFile; fileRef = ABD472F313BB73BF00502912 /* KrollCoverage.m */; };
@@ -663,8 +665,6 @@
 		DABB36F112E8CB280026A6EA /* TiUIImageViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A78111161FD0084E2DE /* TiUIImageViewProxy.m */; };
 		DABB36F212E8CB280026A6EA /* TiUIImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A7A111161FD0084E2DE /* TiUIImageView.m */; };
 		DABB36F312E8CB280026A6EA /* TiUIEmailDialogProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A82111161FD0084E2DE /* TiUIEmailDialogProxy.m */; };
-		DABB36F412E8CB280026A6EA /* TiUICoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A86111161FD0084E2DE /* TiUICoverFlowViewProxy.m */; };
-		DABB36F512E8CB280026A6EA /* TiUICoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A88111161FD0084E2DE /* TiUICoverFlowView.m */; };
 		DABB36F612E8CB280026A6EA /* TiUICanvasViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8A111161FD0084E2DE /* TiUICanvasViewProxy.m */; };
 		DABB36F712E8CB280026A6EA /* TiUICanvasView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8C111161FD0084E2DE /* TiUICanvasView.m */; };
 		DABB36F812E8CB280026A6EA /* TiUIButtonProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8E111161FD0084E2DE /* TiUIButtonProxy.m */; };
@@ -1128,10 +1128,6 @@
 		24CA8A7B111161FD0084E2DE /* TiUIImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUIImageView.h; path = ../Classes/TiUIImageView.h; sourceTree = SOURCE_ROOT; };
 		24CA8A82111161FD0084E2DE /* TiUIEmailDialogProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUIEmailDialogProxy.m; path = ../Classes/TiUIEmailDialogProxy.m; sourceTree = SOURCE_ROOT; };
 		24CA8A83111161FD0084E2DE /* TiUIEmailDialogProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUIEmailDialogProxy.h; path = ../Classes/TiUIEmailDialogProxy.h; sourceTree = SOURCE_ROOT; };
-		24CA8A86111161FD0084E2DE /* TiUICoverFlowViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUICoverFlowViewProxy.m; path = ../Classes/TiUICoverFlowViewProxy.m; sourceTree = SOURCE_ROOT; };
-		24CA8A87111161FD0084E2DE /* TiUICoverFlowViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUICoverFlowViewProxy.h; path = ../Classes/TiUICoverFlowViewProxy.h; sourceTree = SOURCE_ROOT; };
-		24CA8A88111161FD0084E2DE /* TiUICoverFlowView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUICoverFlowView.m; path = ../Classes/TiUICoverFlowView.m; sourceTree = SOURCE_ROOT; };
-		24CA8A89111161FD0084E2DE /* TiUICoverFlowView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUICoverFlowView.h; path = ../Classes/TiUICoverFlowView.h; sourceTree = SOURCE_ROOT; };
 		24CA8A8A111161FD0084E2DE /* TiUICanvasViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUICanvasViewProxy.m; path = ../Classes/TiUICanvasViewProxy.m; sourceTree = SOURCE_ROOT; };
 		24CA8A8B111161FD0084E2DE /* TiUICanvasViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUICanvasViewProxy.h; path = ../Classes/TiUICanvasViewProxy.h; sourceTree = SOURCE_ROOT; };
 		24CA8A8C111161FD0084E2DE /* TiUICanvasView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUICanvasView.m; path = ../Classes/TiUICanvasView.m; sourceTree = SOURCE_ROOT; };
@@ -1376,6 +1372,10 @@
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		2B301A8313DA2E290046529F /* TiUIiOS3DMatrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOS3DMatrix.h; sourceTree = "<group>"; };
 		2B301A8413DA2E290046529F /* TiUIiOS3DMatrix.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOS3DMatrix.m; sourceTree = "<group>"; };
+		2B94603213F0A2AE000C5BEA /* TiUIiOSCoverFlowView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSCoverFlowView.h; sourceTree = "<group>"; };
+		2B94603313F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSCoverFlowView.m; sourceTree = "<group>"; };
+		2B94603413F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSCoverFlowViewProxy.h; sourceTree = "<group>"; };
+		2B94603513F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSCoverFlowViewProxy.m; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* Titanium_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Titanium_Prefix.pch; sourceTree = "<group>"; };
 		4D3033A1136239B30034640F /* TiFilesystemFileStreamProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiFilesystemFileStreamProxy.h; sourceTree = "<group>"; };
 		4D3033A2136239B30034640F /* TiFilesystemFileStreamProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiFilesystemFileStreamProxy.m; sourceTree = "<group>"; };
@@ -2064,7 +2064,6 @@
 				24CA8C62111165840084E2DE /* Tabgroup */,
 				24CA8C60111165780084E2DE /* Alert */,
 				24CA8C5F111165720084E2DE /* Option Dialog */,
-				24CA8C5D111165550084E2DE /* Coverflow */,
 				24CA8C5C111165510084E2DE /* View */,
 				24CA8C5B111165470084E2DE /* Window */,
 				24CA8C66111166550084E2DE /* Webview */,
@@ -2285,10 +2284,10 @@
 		24CA8C5D111165550084E2DE /* Coverflow */ = {
 			isa = PBXGroup;
 			children = (
-				24CA8A86111161FD0084E2DE /* TiUICoverFlowViewProxy.m */,
-				24CA8A87111161FD0084E2DE /* TiUICoverFlowViewProxy.h */,
-				24CA8A88111161FD0084E2DE /* TiUICoverFlowView.m */,
-				24CA8A89111161FD0084E2DE /* TiUICoverFlowView.h */,
+				2B94603213F0A2AE000C5BEA /* TiUIiOSCoverFlowView.h */,
+				2B94603313F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m */,
+				2B94603413F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.h */,
+				2B94603513F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m */,
 			);
 			name = Coverflow;
 			sourceTree = "<group>";
@@ -2541,6 +2540,7 @@
 		24D06FDE11D020E600F615D8 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
+				24CA8C5D111165550084E2DE /* Coverflow */,
 				24D06FE311D0216100F615D8 /* iAd */,
 				24CA8C5E1111655E0084E2DE /* iPhone */,
 				24FB4ECF115C8120001AAF99 /* iPad */,
@@ -3161,8 +3161,6 @@
 				24CA8B9C111161FE0084E2DE /* TiUIImageViewProxy.m in Sources */,
 				24CA8B9D111161FE0084E2DE /* TiUIImageView.m in Sources */,
 				24CA8BA1111161FE0084E2DE /* TiUIEmailDialogProxy.m in Sources */,
-				24CA8BA3111161FE0084E2DE /* TiUICoverFlowViewProxy.m in Sources */,
-				24CA8BA4111161FE0084E2DE /* TiUICoverFlowView.m in Sources */,
 				24CA8BA5111161FE0084E2DE /* TiUICanvasViewProxy.m in Sources */,
 				24CA8BA6111161FE0084E2DE /* TiUICanvasView.m in Sources */,
 				24CA8BA7111161FE0084E2DE /* TiUIButtonProxy.m in Sources */,
@@ -3344,6 +3342,8 @@
 				EF8339D313E3643C001F2A97 /* ASIDownloadCache.m in Sources */,
 				EF03EFF313E3665100BD4FF7 /* ASIDataCompressor.m in Sources */,
 				EF03EFF613E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */,
+				2B94603613F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
+				2B94603713F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3433,8 +3433,6 @@
 				24D8E416119B9D8A00F8CAA6 /* TiUIImageViewProxy.m in Sources */,
 				24D8E417119B9D8A00F8CAA6 /* TiUIImageView.m in Sources */,
 				24D8E418119B9D8A00F8CAA6 /* TiUIEmailDialogProxy.m in Sources */,
-				24D8E419119B9D8A00F8CAA6 /* TiUICoverFlowViewProxy.m in Sources */,
-				24D8E41A119B9D8A00F8CAA6 /* TiUICoverFlowView.m in Sources */,
 				24D8E41B119B9D8A00F8CAA6 /* TiUICanvasViewProxy.m in Sources */,
 				24D8E41C119B9D8A00F8CAA6 /* TiUICanvasView.m in Sources */,
 				24D8E41D119B9D8A00F8CAA6 /* TiUIButtonProxy.m in Sources */,
@@ -3616,6 +3614,8 @@
 				EF8339D413E3643C001F2A97 /* ASIDownloadCache.m in Sources */,
 				EF03EFF413E3665100BD4FF7 /* ASIDataCompressor.m in Sources */,
 				EF03EFF713E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */,
+				2B94603813F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
+				2B94603913F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3705,8 +3705,6 @@
 				DABB36F112E8CB280026A6EA /* TiUIImageViewProxy.m in Sources */,
 				DABB36F212E8CB280026A6EA /* TiUIImageView.m in Sources */,
 				DABB36F312E8CB280026A6EA /* TiUIEmailDialogProxy.m in Sources */,
-				DABB36F412E8CB280026A6EA /* TiUICoverFlowViewProxy.m in Sources */,
-				DABB36F512E8CB280026A6EA /* TiUICoverFlowView.m in Sources */,
 				DABB36F612E8CB280026A6EA /* TiUICanvasViewProxy.m in Sources */,
 				DABB36F712E8CB280026A6EA /* TiUICanvasView.m in Sources */,
 				DABB36F812E8CB280026A6EA /* TiUIButtonProxy.m in Sources */,
@@ -3888,6 +3886,8 @@
 				EF8339D513E3643C001F2A97 /* ASIDownloadCache.m in Sources */,
 				EF03EFF513E3665100BD4FF7 /* ASIDataCompressor.m in Sources */,
 				EF03EFF813E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */,
+				2B94603A13F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
+				2B94603B13F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
