@@ -59,12 +59,29 @@ def to_jsca_examples(api):
 
 def to_jsca_type_name(type_info):
 	if isinstance(type_info, list) or isinstance(type_info, tuple) and len(type_info) > 0:
-		return to_jsca_type_name(type_info[0])
+		# Currently the JSCA spec allows for just one type per parameter/property/returnType.
+		# We have to choose one.
+		# We'll take "Object" if it's one of the possible types, else we'll just take the first one.
+		if "object" in [t.lower() for t in type_info]:
+			return "Object"
+		else:
+			return to_jsca_type_name(type_info[0])
 	type_test = type_info
 	if type_test.startswith("Callback"):
 		type_test ="Function"
 	elif type_test.startswith("Array"):
 		type_test = "Array"
+	# for jsca we're setting Dictionary<XX> to just XX as we did in the old jsca generator when
+	# setting the parameter type of createXX methods to XX in order to get rich documentation
+	# for what's expected in that parameter.
+	elif type_test.startswith("Dictionary<"):
+		import pdb
+		pdb.set_trace
+		match = re.findall(r"<([^>]+)>", type_test)
+		if match is not None and len(match) > 0:
+			type_test = match[0]
+	elif type_test == "Dictionary":
+		type_test = "Object"
 	return clean_namespace(type_test)
 
 def to_jsca_property(prop, for_event=False):
@@ -97,19 +114,18 @@ def to_jsca_return_types(return_types):
 		} for t in orig_types]
 
 def to_jsca_method_parameter(p):
-	type_spec = p.api_obj["type"]
-	if isinstance(type_spec,str) or isinstance(type_spec,unicode):
-		if type_spec.lower().startswith("dictionary<") and p.parent.name.startswith("create"):
-			# jsca wants the parameter type for createXXXX to be the type that is created by it.
-			if "returns" in p.parent.api_obj:
-				method_return_type = p.parent.api_obj["returns"]["type"]
-				if method_return_type in type_spec:
-					type_spec = method_return_type
-
+	data_type = to_jsca_type_name(p.api_obj["type"])
+	if data_type.lower() == "object" and p.parent.name.startswith("create"):
+		if "returns" in p.parent.api_obj:
+			method_return_type = p.parent.api_obj["returns"]["type"]
+			if method_return_type in all_annotated_apis:
+				type_in_method_name = p.parent.name.replace("create","")
+				if len(type_in_method_name) > 0 and type_in_method_name == method_return_type.split(".")[-1]:
+					data_type = to_jsca_type_name(method_return_type)
 	result = {
 			"name": p.name,
 			"description": to_jsca_description(p.api_obj["description"]),
-			"type": to_jsca_type_name(type_spec),
+			"type": data_type,
 			"usage": "optional" if "optional" in p.api_obj and p.api_obj["optional"] else "required"
 			}
 	return to_ordered_dict(result, ('name',))

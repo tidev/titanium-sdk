@@ -434,7 +434,7 @@ def main():
 	log = TiLogger(None, level=log_level, output_stream=sys.stderr)
 	if options.output is None and "html" in options.formats:
 		log.trace("Setting output folder to %s because html files will be generated and now --output folder was specified" % dist_apidoc_dir)
-		parser.output = dist_apidoc_dir
+		options.output = dist_apidoc_dir
 	process_yaml()
 	generate_output(options)
 	titanium_apis = [ta for ta in apis.values() if ta["name"].startswith("Ti")]
