@@ -478,8 +478,6 @@ def main(args):
 		version_file = None
 		log_id = None
 		provisioning_profile = None
-		debug_host = None
-		debug_port = None
 		debughost = None
 		debugport = None
 		
