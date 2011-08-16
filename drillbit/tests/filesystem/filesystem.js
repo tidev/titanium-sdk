@@ -48,7 +48,7 @@ describe("Ti.Filesystem tests", {
 		var readphrase = file.read().text;
 		valueOf(readphrase).shouldBe(testphrase);
 	},
-	blobFile2: function() {
+	blobFile: function() {
 		var filename = 'blobtest';
 		var testphrase = 'Revenge of the Blob';
 		var file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, filename);
@@ -58,7 +58,6 @@ describe("Ti.Filesystem tests", {
 		}
 		file.write(testphrase);
 		var blob = file.read();
-		//file = xyz;
 		var blobFile = blob.file;
 		valueOf(blobFile.nativePath).shouldBe(file.nativePath);
 		valueOf(blobFile.exists()).shouldBeTrue();
