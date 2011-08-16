@@ -53,6 +53,10 @@ properties:
         property to set the button titles, this will be ignored.
     type: String
 
+  - name: androidView
+    description: Titanium view that should be loaded inside the alert dialog
+    type: Titanium.UI.View
+
 notes: |
     the global method `alert` is aliased to this object and can be invoked with a single message. For example:
     
