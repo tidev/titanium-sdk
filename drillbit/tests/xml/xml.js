@@ -14,7 +14,7 @@ describe("Ti.XML tests", {
 			return nodeCount;
 		};
 		
-		var testFiles = ["soap.xml", "xpath.xml", "nodes.xml", "nodeCount.xml", "cdata.xml", "cdataEntities.xml", "with_dtd.xml", "with_ns.xml", "attrs.xml"];
+		var testFiles = ["soap.xml", "xpath.xml", "nodes.xml", "nodeCount.xml", "cdata.xml", "cdataEntities.xml", "with_dtd.xml", "with_ns.xml", "attrs.xml", "element.xml", "elementNS.xml"];
 		var invalidFiles = [ "mismatched_tag.xml", "no_toplevel.xml", "no_end.xml"];
 		this.testSource = {};
 		this.invalidSource = {};
@@ -1124,5 +1124,141 @@ describe("Ti.XML tests", {
 		valueOf(name).shouldNotBeNull();
 		valueOf(name.nodeName).shouldBe("test:name");
 		valueOf(name.value).shouldBe("value");
+	},
+
+	xmlElement: function() {
+		var xml = Ti.XML.parseString(this.testSource["element.xml"]);
+		var xml2 = Ti.XML.parseString(this.testSource["with_ns.xml"]);
+		
+		 // Test element.getElementsByTagName
+		var elements = xml.getElementsByTagName("dessert");
+		//Need to file bug
+		valueOf(elements.item(0).tagName).shouldBe("dessert");
+		valueOf(elements).shouldBeObject();
+		valueOf(elements.length).shouldBe(3);
+		
+		// Test element.getAttribute
+		var attribute = elements.item(0).getAttribute("category");
+		valueOf(attribute).shouldBe("icecream");
+			
+		// Test element.getAttributeNode
+		var attributeNode= elements.item(1).getAttributeNode("category"); //Fails on iOS TIMOB-4867
+		valueOf(attributeNode.name).shouldBe('category');
+		valueOf(attributeNode.value).shouldBe('pie');
+		
+		// Test element.hasAttribute
+		var attributeTrue = elements.item(2).hasAttribute("category"); //Fails on iOS TIMOB-5024
+		var attributeFalse = elements.item(2).hasAttribute("food");
+		valueOf(attributeTrue).shouldBeTrue();
+		valueOf(attributeFalse).shouldBeFalse();
+		
+		// Test element.removeAttribute
+		var attributeRemove = elements.item(0).removeAttribute("category"); //Fails on iOS TIMOB-4868
+		attribute = elements.item(0).getAttribute("category");
+		valueOf(attribute).shouldBe("");
+		
+		// Test element.removeAttributeNode
+		var dessertNode = elements.item(1).getAttributeNode("category");
+		var errorNode = elements.item(1).getAttributeNode("error");
+		var attributeNodeRemove = elements.item(1).removeAttributeNode(dessertNode);
+		valueOf(attributeNodeRemove.name).shouldBe("category");
+		valueOf(function() {
+			elements.item(1).removeAttributeNode(errorNode);
+		}).shouldThrowException();
+		
+		// Test element.setAttribute
+		elements.item(0).setAttribute("rating","taste yummy");
+		elements = xml.getElementsByTagName("title");
+		valueOf(elements.item(0).childNodes.item(0).nodeValue).shouldBe("Banana Split");
+		valueOf(elements.item(0).parentNode.getAttribute("rating")).shouldBe("taste yummy");
+		valueOf(function() {
+			elements.item(0).setAttribute("?","*");
+		}).shouldThrowException();
+		
+		// Test element.setAttributeNode
+		elements = xml.getElementsByTagName("dessert"); //Fails on iOS TIMOB-5027
+		var newAttributeNode = xml.createAttribute("rating");
+		newAttributeNode.value = "taste good";
+		elements.item(1).setAttributeNode(newAttributeNode);
+		elements = xml.getElementsByTagName("title");
+		valueOf(elements.item(1).childNodes.item(0).nodeValue).shouldBe("Banana Cream Pie");
+		valueOf(elements.item(1).parentNode.getAttribute("rating")).shouldBe("taste good");
+		valueOf(function() {
+			elements.item(1).setAttributeNode(newAttributeNode);
+		}).shouldThrowException();
+		var newAttributeWrong = xml2.createAttribute("testing");
+		newAttributeWrong.value = "exception";
+		valueOf(function() {
+			elements.item(1).setAttributeNode(newAttributeWrong);
+		}).shouldThrowException();
+	},
+	
+	xmlElementNS: function() {
+		var xml = Ti.XML.parseString(this.testSource["elementNS.xml"]);
+		var xml2 = Ti.XML.parseString(this.testSource["with_ns.xml"]);
+		var namespace1 = "http://candystore.com";
+		var namespace2 = "http://toystore.com";
+		
+		
+		// Test element.getElementsByTagNameNS
+		var elementsNS = xml.getElementsByTagNameNS(namespace1, "ingredient");
+		var elementsNS2 = xml.getElementsByTagNameNS(namespace2, "material");
+		valueOf(elementsNS.item(0).tagName).shouldBe("candy:ingredient"); 
+		valueOf(elementsNS).shouldBeObject();
+		valueOf(elementsNS.length).shouldBe(3);
+		valueOf(elementsNS2.item(0).tagName).shouldBe("toy:material");
+		valueOf(elementsNS2).shouldBeObject();
+		valueOf(elementsNS2.length).shouldBe(3);
+		
+		// Test element.getAttributeNS
+		var attributeNS = elementsNS.item(0).getAttributeNS(namespace1, "amount");
+		valueOf(attributeNS).shouldBe("one cup");
+		
+		// Test element.getAttributeNodeNS
+		var attributeNodeNS= elementsNS.item(1).getAttributeNodeNS(namespace1, "amount");
+		valueOf(attributeNodeNS.nodeName).shouldBe("candy:amount");
+		valueOf(attributeNodeNS.nodeValue).shouldBe("two cup");
+		
+		// Test element.hasAttributeNS
+		var attributeNSTrue = elementsNS.item(2).hasAttributeNS(namespace1, "amount");
+		var attributeNSFalse = elementsNS.item(2).hasAttributeNS(namespace1, "food");
+		valueOf(attributeNSTrue).shouldBeTrue();
+		valueOf(attributeNSFalse).shouldBeFalse();
+		
+		// Test element.removeAttributeNS
+		var attributeNSRemove = elementsNS2.item(0).removeAttributeNS(namespace2, "content");
+		attributeNS = elementsNS2.item(0).getAttributeNS(namespace2, "content");
+		valueOf(attributeNS).shouldBe("");
+		
+		// Test element.setAttributeNS
+		elementsNS2.item(1).setAttributeNS(namespace2, "toy:color","white");
+		valueOf(elementsNS2.item(1).getAttributeNS(namespace2, "color")).shouldBe("white");
+		valueOf(elementsNS2.item(1).childNodes.item(0).nodeValue).shouldBe("polyester");
+		valueOf(function() {
+			elementsNS2.item(1).setAttributeNS(namespace2, "?","*");
+		}).shouldThrowException();
+		valueOf(function() {
+			elementsNS2.item(1).setAttributeNS(namespace2, "malform:name:test","test");
+		}).shouldThrowException();
+		valueOf(function() {
+			elementsNS2.item(1).setAttributeNS(namespace3, "name:test","namespace failure");
+		}).shouldThrowException();
+		
+		// Test element.setAttributeNodeNS
+		var newAttributeNodeNS = xml.createAttributeNS(namespace2, "toy:color");
+		newAttributeNodeNS.nodeValue = "blue";
+		elementsNS2.item(2).setAttributeNodeNS(newAttributeNodeNS);
+		valueOf(elementsNS2.item(2).getAttributeNS(namespace2, "color")).shouldBe("blue");
+		valueOf(elementsNS2.item(2).childNodes.item(0).nodeValue).shouldBe("buttons");
+		
+		valueOf(function() {
+			elementsNS.item(1).setAttributeNode(newAttributeNodeNS);
+		}).shouldThrowException();
+		
+		var newAttributeNSWrong = xml2.createAttributeNS(namespace2, "toy:color");
+		newAttributeNSWrong.value = "exception";
+		valueOf(function() {
+			elementsNS2.item(1).setAttributeNode(newAttributeNSWrong);
+		}).shouldThrowException();
 	}
 });
