@@ -23,6 +23,7 @@ import org.appcelerator.titanium.util.TiAnimationBuilder;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -75,36 +76,82 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 	protected TiUIView view;
 	protected TiAnimationBuilder pendingAnimation;
+	private KrollDict langConversionTable;
 
 	public TiViewProxy(TiContext tiContext) {
 		super(tiContext);
+		langConversionTable = getLangConversionTable();
+	}
+
+	/**
+	 * Returns true if idPropertyName is an id field for a localized
+	 * text lookup (i.e., the right/value side of an entry in
+	 * langConversionTable).
+	 */
+	public boolean isLocalizedTextId(String idPropertyName)
+	{
+		if (langConversionTable != null && langConversionTable.containsValue(idPropertyName)) {
+			return true;
+		}
+		return false;
+	}
+
+	public void setLocalizedText(String idPropertyName, String idPropertyValue)
+	{
+		if (langConversionTable == null) {
+			return;
+		}
+		for (String propertyName : langConversionTable.keySet()) {
+			String thisIdPropertyName = langConversionTable.getString(propertyName);
+			if (idPropertyName.equals(thisIdPropertyName)) {
+				try {
+					String localText = getLocalizedText(idPropertyValue);
+					setProperty(propertyName, localText, true);
+				} catch (ResourceNotFoundException e) {
+					Log.w(LCAT, "Localized text key '" + idPropertyValue + "' is invalid.");
+				}
+				break;
+			}
+		}
+	}
+
+	private String getLocalizedText(String lookupId)
+		throws TiRHelper.ResourceNotFoundException
+	{
+		Context androidContext = context.getAndroidContext();
+		int resid = TiRHelper.getResource("string." + lookupId);
+		if (resid != 0) {
+			return androidContext.getString(resid);
+		} else {
+			// Actually won't get here because getResource will throw
+			// if invalid key.
+			Log.w(LCAT, "Localized text key '" + lookupId + "' is invalid.");
+			return null;
+		}
 	}
 
 	@Override
-	public void handleCreationDict(KrollDict options) {
+	public void handleCreationDict(KrollDict options)
+	{
 		options = handleStyleOptions(options);
-		// lang conversion table
-		KrollDict langTable = getLangConversionTable();
-		if (langTable != null) {
-			Activity activity = context.getActivity();
-			for (String key : langTable.keySet()) {
+		if (langConversionTable != null) {
+			for (String key : langConversionTable.keySet()) {
 				// if we have it already, ignore
-				if (options.containsKey(key) == false) {
-					String convertKey = (String) langTable.get(key);
+				if (!options.containsKey(key)) {
+					String convertKey = (String) langConversionTable.get(key);
 					String langKey = (String) options.get(convertKey);
 					if (langKey != null) {
 						try {
-							int resid = TiRHelper.getResource("string." + langKey);
-							if (resid != 0) {
-								options.put(key, activity.getString(resid));
-							}
+							String localText = getLocalizedText(langKey);
+							options.put(key, localText);
 						}
-						catch (TiRHelper.ResourceNotFoundException e) {}
+						catch (TiRHelper.ResourceNotFoundException e) {
+							Log.w(LCAT, "Localized text key '" + langKey + "' is invalid.");
+						}
 					}
 				}
 			}
 		}
-
 		options = handleStyleOptions(options);
 		super.handleCreationDict(options);
 		
