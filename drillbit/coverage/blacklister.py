@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Takes a coverage matrix, and form it, generates a "blacklist"
+# Takes a coverage matrix, and from it, generates a "blacklist"
 # of stuff that is (probably) private to the iOS internals. This
 # check is essentially:
 #   if 'yes' iOS AND 'na' Android AND 'no' TDoc then blacklist
@@ -28,10 +28,11 @@ class Blacklister(object):
 		self.coverage = None
 		self.blacklist = {}
 		
-		datapath = os.path.join(input_dir,'matrixData.json')
+		datapath = os.path.join(input_dir, 'matrixData.json')
 		try:
 			matrix = open(datapath)
 			self.coverage = json.load(matrix)
+			matrix.close()
 		except IOError as (errno, errstr):
 			print "Error opening %s: %s (%s)" % (datapath, errstr, errno)
 			return
@@ -67,9 +68,9 @@ class Blacklister(object):
 	def writeBlacklist(self,output_dir):
 		if os.path.isdir(output_dir):
 			for api in self.blacklist.keys():
-				path = os.path.join(output_dir,'%s.json' % api)
+				path = os.path.join(output_dir, '%s.json' % api)
 				output = open(path,'w')
-				json.dump(self.blacklist[api], output,indent=1)
+				json.dump(self.blacklist[api], output, indent=1)
 		else:
 			print "Cannot write output to %s; not a directory" % output_dir
 
@@ -77,9 +78,9 @@ class Blacklister(object):
 # it's easy to maintain good coverage lists.
 def main():
 	parser = optparse.OptionParser()
-	parser.add_option('-d','--dir',dest="dir",default=None,
+	parser.add_option('-d', '--dir', dest="dir", default=None,
 		help="Directory containing coverage output")
-	parser.add_option('-o','--output',dest="out",default=None,
+	parser.add_option('-o', '--output' ,dest="out", default=None,
 		help="Output directory for blacklist")
 	(options, args) = parser.parse_args()
 	

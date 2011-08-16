@@ -125,7 +125,7 @@ def mapDeepIter(deepMap, nLevels, *mapKeys):
 
 # load up JSON blacklists for API sets
 def loadBlacklist(apiname, platform):
-	blacklistPath = os.path.join(coverageDir,'blacklist',platform.lower(),'%s.json' % apiname)
+	blacklistPath = os.path.join(coverageDir, 'blacklist', platform.lower(), '%s.json' % apiname)
 	if not os.path.isfile(blacklistPath):
 		return { "functions":[], "properties":[] }
 
