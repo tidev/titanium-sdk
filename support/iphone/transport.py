@@ -8,9 +8,9 @@
 import os, sys, shutil, codecs, glob
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 
-sys.path.append(os.path.abspath(os.path.join(template_dir,'../')))
-sys.path.append(os.path.abspath(os.path.join(template_dir,'../module')))
-sys.path.append(os.path.abspath(os.path.join(template_dir,'../common')))
+sys.path.append(os.path.abspath(os.path.dirname(template_dir)))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(template_dir),'module')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(template_dir),'common')))
 
 from tiapp import *
 from module import ModuleDetector
