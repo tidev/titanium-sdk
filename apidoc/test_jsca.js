@@ -330,7 +330,7 @@ function sanityChecks(api) {
 	assert.ok(eventCount > 400, 'Expected well over 400 event definitions, found only ' + eventCount);
 }
 
-var docgen = spawn('python', ['docgen.py', '-f', 'jsca']);
+var docgen = spawn('python', ['docgen.py', '--stdout', '-f', 'jsca']);
 docgen.stdout.on('data', function(data) {
 	jsca += data;
 });

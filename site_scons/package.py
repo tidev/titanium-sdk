@@ -39,7 +39,7 @@ def ignore(file):
 			return True
 	 return False
 def generate_jsca():
-	 process_args = ['python', os.path.join(doc_dir, 'docgen.py'), '-f', 'jsca']
+	 process_args = ['python', os.path.join(doc_dir, 'docgen.py'), '-f', 'jsca', '--stdout']
 	 jsca_temp_file = tempfile.TemporaryFile()
 	 try:
 		 process = subprocess.Popen(process_args, stdout=jsca_temp_file, stderr=subprocess.PIPE)
