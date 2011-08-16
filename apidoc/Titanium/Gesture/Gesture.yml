@@ -7,15 +7,18 @@ since: "0.8"
 properties:
   - name: portrait
     type: Boolean
-    description: Read only.  True if current window is considered portrait by the device, false otherwise
+    description: True if current window is considered portrait by the device, false otherwise
+    permission: read-only
 
   - name: landscape
     type: Boolean
-    description: Read only.  True if current window is considered landscape by the device, false otherwise
+    description: True if current window is considered landscape by the device, false otherwise
+    permission: read-only
 
   - name: orientation
     type: Number
-    description: Read only.  Orientation of the current window.  Value will be one of the following - <Titanium.UI.PORTRAIT>, <Titanium.UI.UPSIDE_PORTRAIT>, <Titanium.UI.LANDSCAPE_LEFT>, <Titanium.UI.LANDSCAPE_RIGHT> or <Titanium.UI.UNKNOWN>
+    description: Orientation of the current window.  Value will be one of the following - <Titanium.UI.PORTRAIT>, <Titanium.UI.UPSIDE_PORTRAIT>, <Titanium.UI.LANDSCAPE_LEFT>, <Titanium.UI.LANDSCAPE_RIGHT> or <Titanium.UI.UNKNOWN>
+    permission: read-only
 
 events:
   - name: orientationchange
@@ -34,6 +37,9 @@ events:
         type: Object
         description: the source object that fired the event
       - name: type
+        type: String
+        description: the name of the event fired
+      - name: value
         type: String
         description: "shake"
       - name: timestamp
