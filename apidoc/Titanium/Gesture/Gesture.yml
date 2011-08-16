@@ -5,36 +5,17 @@ extends: Titanium.Module
 since: "0.8"
 
 properties:
-  - name: isPortrait
+  - name: portrait
     type: Boolean
     description: Read only.  True if current window is considered portrait by the device, false otherwise
 
-  - name: islandscape
+  - name: landscape
     type: Boolean
     description: Read only.  True if current window is considered landscape by the device, false otherwise
 
   - name: orientation
     type: Number
     description: Read only.  Orientation of the current window.  Value will be one of the following - <Titanium.UI.PORTRAIT>, <Titanium.UI.UPSIDE_PORTRAIT>, <Titanium.UI.LANDSCAPE_LEFT>, <Titanium.UI.LANDSCAPE_RIGHT> or <Titanium.UI.UNKNOWN>
-
-methods:
-  - name: isPortrait
-    description: Returns true if current window is considered portrait by the device, false otherwise
-    returns:
-        type: Boolean
-        description: True if current window is considered portrait by the device, false otherwise
-
-  - name: isLandscape
-    description: Returns true if current window is considered landscape by the device, false otherwise
-    returns:
-        type: Boolean
-        description: True if current window is considered landscape by the device, false otherwise
-
-  - name: getOrientation
-    description: Returns orientation of the current window
-    returns:
-        type: Number
-        description: Orientation of the current window.  Value will be one of the following - <Titanium.UI.PORTRAIT>, <Titanium.UI.UPSIDE_PORTRAIT>, <Titanium.UI.LANDSCAPE_LEFT>, <Titanium.UI.LANDSCAPE_RIGHT> or <Titanium.UI.UNKNOWN>
 
 events:
   - name: orientationchange
