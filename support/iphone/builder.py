@@ -607,13 +607,56 @@ def main(args):
 			detector = ModuleDetector(project_dir)
 			missing_modules, modules = detector.find_app_modules(ti, 'iphone')
 			module_lib_search_path, module_asset_dirs = locate_modules(modules, project_dir, app_dir, log)
-			
-			for search_path in module_lib_search_path:
-				if os.path.commonprefix([project_dir, search_path]) != project_dir:
-					force_xcode = True
-					break
-	
-			print "[INFO] Titanium SDK version: %s" % sdk_version
+
+			# search for modules that the project is using
+			# and make sure we add them to the compile
+			for module in modules:
+				module_id = module.manifest.moduleid.lower()
+				module_version = module.manifest.version
+				module_lib_name = ('lib%s.a' % module_id).lower()
+				# check first in the local project
+				local_module_lib = os.path.join(project_dir, 'modules', 'iphone', module_lib_name)
+				local = False
+				if os.path.exists(local_module_lib):
+					module_lib_search_path.append([module_lib_name, local_module_lib])
+					local = True
+					log("[INFO] Detected third-party module: %s" % (local_module_lib))
+				else:
+					if module.lib is None:
+						module_lib_path = module.get_resource(module_lib_name)
+						log("[ERROR] Third-party module: %s/%s missing library at %s" % (module_id, module_version, module_lib_path))
+						sys.exit(1)
+					module_lib_search_path.append([module_lib_name, os.path.abspath(module.lib).rsplit('/',1)[0]])
+					log("[INFO] Detected third-party module: %s/%s" % (module_id, module_version))
+				force_xcode = True
+
+				if not local:
+					# copy module resources
+					img_dir = module.get_resource('assets', 'images')
+					if os.path.exists(img_dir):
+						dest_img_dir = os.path.join(app_dir, 'modules', module_id, 'images')
+						if not os.path.exists(dest_img_dir):
+							os.makedirs(dest_img_dir)
+						module_asset_dirs.append([img_dir, dest_img_dir])
+
+					# copy in any module assets
+					module_assets_dir = module.get_resource('assets')
+					if os.path.exists(module_assets_dir): 
+						module_dir = os.path.join(app_dir, 'modules', module_id)
+						module_asset_dirs.append([module_assets_dir, module_dir])
+
+			full_version = sdk_version
+			if 'version' in versions_txt:
+				full_version = versions_txt['version']
+				if 'timestamp' in versions_txt or 'githash' in versions_txt:
+					full_version += ' ('
+					if 'timestamp' in versions_txt:
+						full_version += '%s' % versions_txt['timestamp']
+					if 'githash' in versions_txt:
+						full_version += ' %s' % versions_txt['githash']
+					full_version += ')'
+
+			print "[INFO] Titanium SDK version: %s" % full_version
 			print "[INFO] iPhone Device family: %s" % devicefamily
 			print "[INFO] iPhone SDK version: %s" % iphone_version
 			
