@@ -207,6 +207,7 @@ public class TiC
 	public static final String PROPERTY_MEDIA_CONTROL_STYLE = "mediaControlStyle";
 	public static final String PROPERTY_MENU = EVENT_PROPERTY_MENU;
 	public static final String PROPERTY_MESSAGE = "message";
+	public static final String PROPERTY_MESSAGEID = "messageid";
 	public static final String PROPERTY_MESSENGER = "messenger";
 	public static final String PROPERTY_MESSENGER_RECEIVER = "messengerReceiver";
 	public static final String PROPERTY_MIN_ROW_HEIGHT = "minRowHeight";
@@ -215,6 +216,8 @@ public class TiC
 	public static final String PROPERTY_NAME = "name";
 	public static final String PROPERTY_NAV_BAR_HIDDEN = "navBarHidden";
 	public static final String PROPERTY_NUMBER = "number";
+	public static final String PROPERTY_OK = "ok";
+	public static final String PROPERTY_OKID = "okid";
 	public static final String PROPERTY_ON_CREATE_OPTIONS_MENU = "onCreateOptionsMenu";
 	public static final String PROPERTY_ON_PREPARE_OPTIONS_MENU = "onPrepareOptionsMenu";
 	public static final String PROPERTY_OPACITY = "opacity";
