@@ -8,11 +8,8 @@ events:
   - name: click
     description: fired when a button in the dialog is clicked
     properties:
-      - name: source
-        type: Object
-        description: the source object that fired the event
       - name: cancel
-        type: Number
+        type: Boolean
         description: boolean to indicate if the cancel button was pressed
       - name: index
         type: Number
@@ -23,7 +20,7 @@ methods:
     description: shows the alert dialog and blocks the background view like a modal window
 
   - name: hide
-    description: hides the alert dialog ad unblocks the background view
+    description: hides the alert dialog and unblocks the background view
 
 properties:
   - name: buttonNames
