@@ -18,6 +18,13 @@ events:
         type: Number
         description: the button index that was pressed
 
+methods:
+  - name: show
+    description: shows the alert dialog and blocks the background view like a modal window
+
+  - name: hide
+    description: hides the alert dialog ad unblocks the background view
+
 properties:
   - name: buttonNames
     description: array of button names as strings
