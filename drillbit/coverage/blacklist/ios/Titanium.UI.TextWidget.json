@@ -1,0 +1,15 @@
+{
+ "functions": [
+  "noteValueChange", 
+  "focus", 
+  "blur"
+ ], 
+ "properties": [
+  "keyboardAccessoryView", 
+  "suppressReturn", 
+  "keyboardUIToolbar", 
+  "hasText", 
+  "focused", 
+  "keyboardAccessoryHeight"
+ ]
+}

@@ -1,0 +1,14 @@
+{
+ "functions": [
+  "initWithObject", 
+  "setPoint", 
+  "initWithPoint", 
+  "setXDimension", 
+  "setYDimension"
+ ], 
+ "properties": [
+  "yDimension", 
+  "xDimension", 
+  "point"
+ ]
+}

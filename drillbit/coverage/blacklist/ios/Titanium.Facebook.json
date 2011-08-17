@@ -1,0 +1,14 @@
+{
+ "functions": [
+  "shutdown", 
+  "convertParams", 
+  "resumed", 
+  "fbDidNotLogin"
+ ], 
+ "properties": [
+  "restore", 
+  "handleRelaunch", 
+  "facebook", 
+  "isLoggedIn"
+ ]
+}
