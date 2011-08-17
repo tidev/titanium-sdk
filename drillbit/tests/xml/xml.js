@@ -1164,6 +1164,7 @@ describe("Ti.XML tests", {
 		valueOf(testDoc.documentElement.nodeName).shouldBe("the_root");
 		valueOf(testDoc.documentElement.localName).shouldBe("the_root");
 		valueOf(testDoc.doctype).shouldNotBeNull();
+		valueOf(testDoc.doctype).shouldBe(doctype);
 		// Document with namespace but no doctype
 		testDoc = null;
 		valueOf(function() {
@@ -1191,6 +1192,7 @@ describe("Ti.XML tests", {
 		valueOf(testDoc.documentElement.nodeName).shouldBe("test:the_root");
 		valueOf(testDoc.documentElement.localName).shouldBe("the_root");
 		valueOf(testDoc.doctype).shouldNotBeNull();
+		valueOf(testDoc.doctype).shouldBe(doctype);
 		// hasFeature
 		valueOf(impl.hasFeature).shouldBeFunction();
 		var testResult;
@@ -1198,12 +1200,12 @@ describe("Ti.XML tests", {
 			testResult = impl.hasFeature("Core", "2.0");
 		}).shouldNotThrowException();
 		valueOf(testResult).shouldBeBoolean();
-		valueOf(testResult).shouldBeExactly(true);
+		valueOf(testResult).shouldBeTrue();
 		valueOf(function() {
 			testResult = impl.hasFeature("Fred", "Flinstone");
 		}).shouldNotThrowException();
 		valueOf(testResult).shouldBeBoolean();
-		valueOf(testResult).shouldBeExactly(false);
+		valueOf(testResult).shouldBeFalse();
 	}
 
 });
