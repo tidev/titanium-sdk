@@ -1,0 +1,11 @@
+{
+ "functions": [
+  "sync_statusBarHidden", 
+  "sync_statusBarStyle", 
+  "didReceiveMemoryWarning", 
+  "sync_appSupportsShakeToEdit", 
+  "sync_appBadge"
+ ], 
+ "properties": [
+ ]
+}

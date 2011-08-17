@@ -1,0 +1,10 @@
+{
+ "functions": [
+  "didReceiveMemoryWarning", 
+  "batteryStateChanged"
+ ], 
+ "properties": [
+  "init", 
+  "dataAddress"
+ ]
+}
