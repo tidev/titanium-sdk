@@ -48,6 +48,11 @@ uncompressed_types = [
 
 MIN_API_LEVEL = 7
 
+def remove_ignored_dirs(dirs):
+	for d in dirs:
+		if d in ignoreDirs:
+			dirs.remove(d)
+
 # ZipFile.extractall introduced in Python 2.6, so this is workaround for earlier
 # versions
 def zip_extractall(zfile, target_dir):
@@ -542,9 +547,7 @@ class Builder(object):
 		if self.force_rebuild or self.deploy_type == 'production' or \
 			(self.js_changed and not self.fastdev):
 			for root, dirs, files in os.walk(os.path.join(self.top_dir, "Resources")):
-				for d in dirs:
-					if d in ignoreDirs:
-						dirs.remove(d)
+				remove_ignored_dirs(dirs)
 				for f in files:
 					if f in ignoreFiles:
 						continue
@@ -875,9 +878,7 @@ class Builder(object):
 		if os.path.exists(android_images_dir):
 			pattern = r'/android/images/(high|medium|low|res-[^/]+)/default.png'
 			for root, dirs, files in os.walk(android_images_dir):
-				for d in dirs:
-					if d in ignoreDirs:
-						dirs.remove(d)
+				remove_ignored_dirs(dirs)
 				for f in files:
 					if f in ignoreFiles:
 						continue
@@ -1101,9 +1102,7 @@ class Builder(object):
 			update_stylesheet = True
 		else:
 			for root, dirs, files in os.walk(resources_dir):
-				for d in dirs:
-					if d in ignoreDirs:
-						dirs.remove(d)
+				remove_ignored_dirs(dirs)
 				for f in files:
 					if f in ignoreFiles:
 						continue
@@ -1131,9 +1130,7 @@ class Builder(object):
 		# fix un-escaped single-quotes and full-quotes
 		offending_pattern = '[^\\\\][\'"]'
 		for root, dirs, files in os.walk(self.res_dir):
-			for d in dirs:
-				if d in ignoreDirs:
-					dirs.remove(d)
+			remove_ignored_dirs(dirs)
 			for filename in files:
 				if filename in ignoreFiles or not filename.endswith('.xml'):
 					continue
@@ -1174,9 +1171,7 @@ class Builder(object):
 		
 		for path in paths:
 			for root, dirs, files in os.walk(path):
-				for d in dirs:
-					if d in ignoreDirs:
-						dirs.remove(d)
+				remove_ignored_dirs(dirs)
 				for filename in files:
 					if filename in ignoreFiles:
 						continue
@@ -1301,9 +1296,7 @@ class Builder(object):
 		
 		# add all resource files from the project
 		for root, dirs, files in os.walk(self.project_src_dir):
-			for d in dirs:
-				if d in ignoreDirs:
-					dirs.remove(d)
+			remove_ignored_dirs(dirs)
 			for f in files:
 				if f in ignoreFiles:
 					continue
