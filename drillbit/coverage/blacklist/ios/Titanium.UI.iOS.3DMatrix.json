@@ -1,0 +1,11 @@
+{
+ "functions": [
+  "initWithMatrix", 
+  "initWithProperties"
+ ], 
+ "properties": [
+  "description", 
+  "init", 
+  "matrix"
+ ]
+}

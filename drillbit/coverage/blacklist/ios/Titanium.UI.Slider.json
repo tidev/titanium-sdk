@@ -1,0 +1,9 @@
+{
+ "functions": [
+  "verifyHeight", 
+  "verifyAutoresizing"
+ ], 
+ "properties": [
+  "keySequence"
+ ]
+}
