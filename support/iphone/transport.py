@@ -57,10 +57,11 @@ def main(args):
 		
 		if len(args) == 3:
 			version = args[2]
+			sdk_dir = find_sdk(version)
 		else:
-			version = os.path.basename(os.path.abspath(os.path.join(template_dir,'../')))
+			sdk_dir = os.path.abspath(os.path.dirname(template_dir))
+			version = os.path.basename(sdk_dir)			
 
-		sdk_dir = find_sdk(version)
 		tiappxml = os.path.join(project_dir, 'tiapp.xml')
 		tiapp = TiAppXML(tiappxml)
 		
