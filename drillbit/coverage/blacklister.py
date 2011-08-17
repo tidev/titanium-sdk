@@ -24,7 +24,7 @@ except ImportError, e:
 	import simplejson as json
 
 class Blacklister(object):
-	def __init__(self,input_dir):
+	def __init__(self, input_dir):
 		self.coverage = None
 		self.blacklist = {}
 		
@@ -37,7 +37,7 @@ class Blacklister(object):
 			print "Error opening %s: %s (%s)" % (datapath, errstr, errno)
 			return
 	
-	def blacklistAPIs(self,apiset):
+	def blacklistAPIs(self, apiset):
 		for (api, coverage) in apiset.items():
 			self.blacklist[api] = {"functions":[], "properties":[]}
 		
@@ -65,7 +65,7 @@ class Blacklister(object):
 			self.blacklistAPIs(self.coverage['modules'])
 			self.blacklistAPIs(self.coverage['proxies'])
 		
-	def writeBlacklist(self,output_dir):
+	def writeBlacklist(self, output_dir):
 		if os.path.isdir(output_dir):
 			for api in self.blacklist.keys():
 				path = os.path.join(output_dir, '%s.json' % api)
@@ -80,7 +80,7 @@ def main():
 	parser = optparse.OptionParser()
 	parser.add_option('-d', '--dir', dest="dir", default=None,
 		help="Directory containing coverage output")
-	parser.add_option('-o', '--output' ,dest="out", default=None,
+	parser.add_option('-o', '--output', dest="out", default=None,
 		help="Output directory for blacklist")
 	(options, args) = parser.parse_args()
 	
