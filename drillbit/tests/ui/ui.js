@@ -140,7 +140,7 @@ describe("Ti.UI tests", {
 			
 			w.windowPixelFormat = Ti.UI.Android.PIXEL_FORMAT_RGB_565;
 			valueOf(w.windowPixelFormat).shouldBe(Ti.UI.Android.PIXEL_FORMAT_RGB_565);
-			valueOf(w.getWindowPixelFormat).shouldBe(Ti.UI.Android.PIXEL_FORMAT_RGB_565);
+			valueOf(w.getWindowPixelFormat()).shouldBe(Ti.UI.Android.PIXEL_FORMAT_RGB_565);
 			
 			w.setWindowPixelFormat(Ti.UI.Android.PIXEL_FORMAT_RGBA_8888);
 			valueOf(w.windowPixelFormat).shouldBe(Ti.UI.Android.PIXEL_FORMAT_RGBA_8888);
