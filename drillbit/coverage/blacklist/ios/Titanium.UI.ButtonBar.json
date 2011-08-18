@@ -1,0 +1,10 @@
+{
+ "functions": [
+  "autoHeightForWidth", 
+  "autoWidthForWidth"
+ ], 
+ "properties": [
+  "newView", 
+  "keySequence"
+ ]
+}

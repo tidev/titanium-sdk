@@ -1,0 +1,13 @@
+{
+ "functions": [
+  "setParentOrientationController", 
+  "childOrientationControllerChangedFlags"
+ ], 
+ "properties": [
+  "childViewController", 
+  "orientationFlags", 
+  "controller", 
+  "init", 
+  "parentOrientationController"
+ ]
+}
