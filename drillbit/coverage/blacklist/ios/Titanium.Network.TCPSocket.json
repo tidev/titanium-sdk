@@ -1,0 +1,17 @@
+{
+ "functions": [
+  "initializeReadStream", 
+  "readFromStream", 
+  "handleError", 
+  "initializeWriteStream", 
+  "getHandleFromStream", 
+  "setHostName", 
+  "configureSocketForHandle", 
+  "writeToStream", 
+  "closeRemoteSocket"
+ ], 
+ "properties": [
+  "createAddressData", 
+  "valid"
+ ]
+}

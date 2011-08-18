@@ -1,0 +1,9 @@
+{
+ "functions": [
+  "getData_", 
+  "hasData_", 
+  "addHasDataToArray_", 
+  "addDataToArray_"
+ ], 
+ "properties": []
+}
