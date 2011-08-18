@@ -1,0 +1,24 @@
+{
+ "functions": [
+  "handleDidFocus", 
+  "childOrientationControllerChangedFlags", 
+  "handleDidBlur", 
+  "viewWillAppear", 
+  "viewDidDisappear", 
+  "openOnUIThread", 
+  "viewDidAppear", 
+  "setParentOrientationController", 
+  "setTabGroup", 
+  "handleDidShowViewController", 
+  "viewWillDisappear", 
+  "handleWillShowViewController"
+ ], 
+ "properties": [
+  "orientationFlags", 
+  "rootController", 
+  "controller", 
+  "tabGroup", 
+  "langConversionTable", 
+  "parentOrientationController"
+ ]
+}

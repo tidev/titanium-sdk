@@ -1,0 +1,11 @@
+{
+ "functions": [
+  "setMode", 
+  "setData"
+ ], 
+ "properties": [
+  "init", 
+  "data", 
+  "mode"
+ ]
+}

@@ -1,0 +1,10 @@
+{
+ "functions": [
+  "remoteControlEvent", 
+  "audioPlayerEndInterruption", 
+  "audioPlayerBeginInterruption"
+ ], 
+ "properties": [
+  "player"
+ ]
+}
