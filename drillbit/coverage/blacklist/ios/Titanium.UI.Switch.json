@@ -1,0 +1,8 @@
+{
+ "functions": [
+  "verifyHeight", 
+  "verifyWidth", 
+  "verifyAutoresizing"
+ ], 
+ "properties": []
+}

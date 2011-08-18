@@ -1,0 +1,11 @@
+{
+ "functions": [
+  "scrollViewDidEndDecelerating", 
+  "childWillResize", 
+  "initWithProperties", 
+  "parentViewForChild", 
+  "layoutChildren", 
+  "scrollViewDidScroll"
+ ], 
+ "properties": []
+}
