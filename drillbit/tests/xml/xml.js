@@ -1132,34 +1132,42 @@ describe("Ti.XML tests", {
 		
 		 // Test element.getElementsByTagName
 		var elements = xml.getElementsByTagName("dessert");
-		//Need to file bug
-		valueOf(elements.item(0).tagName).shouldBe("dessert");
-		valueOf(elements).shouldBeObject();
+		valueOf(elements).shouldNotBeNull();
 		valueOf(elements.length).shouldBe(3);
+		valueOf(elements).shouldBeObject();
+		valueOf(elements.item(0).tagName).shouldBe("dessert");
 		
 		// Test element.getAttribute
 		var attribute = elements.item(0).getAttribute("category");
 		valueOf(attribute).shouldBe("icecream");
-			
+		var attributeFail = elements.item(0).getAttribute("categories");
+		valueOf(attributeFail).shouldBe("");
+		
 		// Test element.getAttributeNode
 		var attributeNode= elements.item(1).getAttributeNode("category"); //Fails on iOS TIMOB-4867
+		valueOf(attributeNode).shouldNotBeNull();
 		valueOf(attributeNode.name).shouldBe('category');
 		valueOf(attributeNode.value).shouldBe('pie');
+		var attributeNodeFail = elements.item(1).getAttributeNode("categories");
+		valueOf(attributeNodeFail).shouldBeNull();
 		
 		// Test element.hasAttribute
-		var attributeTrue = elements.item(2).hasAttribute("category"); //Fails on iOS TIMOB-5024
-		var attributeFalse = elements.item(2).hasAttribute("food");
+		var attributeTrue = null;
+		var attributeFalse = null;
+		valueOf(function() {attributeTrue = elements.item(2).hasAttribute("category");}).shouldNotThrowException(); //Fails on iOS TIMOB-5024
+		valueOf(function() {attributeFalse = elements.item(2).hasAttribute("food");}).shouldNotThrowException(); 
 		valueOf(attributeTrue).shouldBeTrue();
 		valueOf(attributeFalse).shouldBeFalse();
 		
 		// Test element.removeAttribute
-		var attributeRemove = elements.item(0).removeAttribute("category"); //Fails on iOS TIMOB-4868
+		elements.item(0).removeAttribute("category"); //Fails on iOS TIMOB-4868
 		attribute = elements.item(0).getAttribute("category");
 		valueOf(attribute).shouldBe("");
 		
 		// Test element.removeAttributeNode
 		var dessertNode = elements.item(1).getAttributeNode("category");
 		var errorNode = elements.item(1).getAttributeNode("error");
+		valueOf(errorNode).shouldBeNull();
 		var attributeNodeRemove = elements.item(1).removeAttributeNode(dessertNode);
 		valueOf(attributeNodeRemove.name).shouldBe("category");
 		valueOf(function() {
@@ -1167,22 +1175,29 @@ describe("Ti.XML tests", {
 		}).shouldThrowException();
 		
 		// Test element.setAttribute
-		elements.item(0).setAttribute("rating","taste yummy");
 		elements = xml.getElementsByTagName("title");
+		elements.item(0).setAttribute("rating","taste yummy");
 		valueOf(elements.item(0).childNodes.item(0).nodeValue).shouldBe("Banana Split");
-		valueOf(elements.item(0).parentNode.getAttribute("rating")).shouldBe("taste yummy");
+		valueOf(elements.item(0).getAttribute("rating")).shouldBe("taste yummy");
+		elements.item(0).setAttribute("rating","cookie");
+		valueOf(elements.item(0).getAttribute("rating")).shouldBe("cookie");
 		valueOf(function() {
 			elements.item(0).setAttribute("?","*");
 		}).shouldThrowException();
 		
 		// Test element.setAttributeNode
-		elements = xml.getElementsByTagName("dessert"); //Fails on iOS TIMOB-5027
+		elements = xml.getElementsByTagName("title"); //Fails on iOS TIMOB-5027
 		var newAttributeNode = xml.createAttribute("rating");
 		newAttributeNode.value = "taste good";
-		elements.item(1).setAttributeNode(newAttributeNode);
-		elements = xml.getElementsByTagName("title");
+		var newAttr = elements.item(1).setAttributeNode(newAttributeNode);
+		valueOf(newAttr).shouldBeNull();
 		valueOf(elements.item(1).childNodes.item(0).nodeValue).shouldBe("Banana Cream Pie");
-		valueOf(elements.item(1).parentNode.getAttribute("rating")).shouldBe("taste good");
+		valueOf(elements.item(1).getAttribute("rating")).shouldBe("taste good");
+		var existAttributeNode = xml.createAttribute("rating");
+		existAttributeNode.value = "tasty";
+		var existAttr = elements.item(1).setAttributeNode(existAttributeNode);
+		valueOf(elements.item(1).getAttribute("rating")).shouldBe("tasty");
+		valueOf(existAttr.value).shouldBe("taste good");
 		valueOf(function() {
 			elements.item(1).setAttributeNode(newAttributeNode);
 		}).shouldThrowException();
@@ -1203,37 +1218,48 @@ describe("Ti.XML tests", {
 		// Test element.getElementsByTagNameNS
 		var elementsNS = xml.getElementsByTagNameNS(namespace1, "ingredient");
 		var elementsNS2 = xml.getElementsByTagNameNS(namespace2, "material");
-		valueOf(elementsNS.item(0).tagName).shouldBe("candy:ingredient"); 
+		valueOf(elementsNS).shouldNotBeNull();
 		valueOf(elementsNS).shouldBeObject();
 		valueOf(elementsNS.length).shouldBe(3);
-		valueOf(elementsNS2.item(0).tagName).shouldBe("toy:material");
+		valueOf(elementsNS.item(0).tagName).shouldBe("candy:ingredient"); 
+		valueOf(elementsNS2).shouldNotBeNull();
 		valueOf(elementsNS2).shouldBeObject();
 		valueOf(elementsNS2.length).shouldBe(3);
+		valueOf(elementsNS2.item(0).tagName).shouldBe("toy:material");
+		
 		
 		// Test element.getAttributeNS
 		var attributeNS = elementsNS.item(0).getAttributeNS(namespace1, "amount");
 		valueOf(attributeNS).shouldBe("one cup");
+		var attributeFailNS = elementsNS.item(0).getAttributeNS(namespace1, "amounts");
+		valueOf(attributeFailNS).shouldBe("");
 		
 		// Test element.getAttributeNodeNS
 		var attributeNodeNS= elementsNS.item(1).getAttributeNodeNS(namespace1, "amount");
 		valueOf(attributeNodeNS.nodeName).shouldBe("candy:amount");
 		valueOf(attributeNodeNS.nodeValue).shouldBe("two cup");
+		var attributeNodeFailNS = elementsNS.item(1).getAttributeNodeNS(namespace1, "amounts");
+		valueOf(attributeNodeFailNS).shouldBeNull();
 		
 		// Test element.hasAttributeNS
-		var attributeNSTrue = elementsNS.item(2).hasAttributeNS(namespace1, "amount");
-		var attributeNSFalse = elementsNS.item(2).hasAttributeNS(namespace1, "food");
+		var attributeNSTrue = null;
+		var attributeNSFalse = null;
+		valueOf(function() {attributeNSTrue = elementsNS.item(2).hasAttributeNS(namespace1, "amount");}).shouldNotThrowException();
+		valueOf(function() {attributeNSFalse = elementsNS.item(2).hasAttributeNS(namespace1, "food");}).shouldNotThrowException();
 		valueOf(attributeNSTrue).shouldBeTrue();
 		valueOf(attributeNSFalse).shouldBeFalse();
 		
 		// Test element.removeAttributeNS
-		var attributeNSRemove = elementsNS2.item(0).removeAttributeNS(namespace2, "content");
+		elementsNS2.item(0).removeAttributeNS(namespace2, "content");
 		attributeNS = elementsNS2.item(0).getAttributeNS(namespace2, "content");
 		valueOf(attributeNS).shouldBe("");
 		
 		// Test element.setAttributeNS
 		elementsNS2.item(1).setAttributeNS(namespace2, "toy:color","white");
-		valueOf(elementsNS2.item(1).getAttributeNS(namespace2, "color")).shouldBe("white");
 		valueOf(elementsNS2.item(1).childNodes.item(0).nodeValue).shouldBe("polyester");
+		valueOf(elementsNS2.item(1).getAttributeNS(namespace2, "color")).shouldBe("white");
+		elementsNS2.item(1).setAttributeNS(namespace2, "toy:color","black");
+		valueOf(elementsNS2.item(1).getAttributeNS(namespace2, "color")).shouldBe("black");
 		valueOf(function() {
 			elementsNS2.item(1).setAttributeNS(namespace2, "?","*");
 		}).shouldThrowException();
@@ -1247,9 +1273,15 @@ describe("Ti.XML tests", {
 		// Test element.setAttributeNodeNS
 		var newAttributeNodeNS = xml.createAttributeNS(namespace2, "toy:color");
 		newAttributeNodeNS.nodeValue = "blue";
-		elementsNS2.item(2).setAttributeNodeNS(newAttributeNodeNS);
-		valueOf(elementsNS2.item(2).getAttributeNS(namespace2, "color")).shouldBe("blue");
+		var newAttrNS = elementsNS2.item(2).setAttributeNodeNS(newAttributeNodeNS);
+		valueOf(newAttrNS).shouldBeNull();
 		valueOf(elementsNS2.item(2).childNodes.item(0).nodeValue).shouldBe("buttons");
+		valueOf(elementsNS2.item(2).getAttributeNS(namespace2, "color")).shouldBe("blue");
+		var existAttributeNodeNS = xml.createAttributeNS(namespace2, "toy:color");
+		existAttributeNodeNS.nodeValue = "pink";
+		var existAttrNS = elementsNS2.item(2).setAttributeNodeNS(existAttributeNodeNS);
+		valueOf(elementsNS2.item(2).getAttributeNS(namespace2, "color")).shouldBe("pink");
+		valueOf(existAttrNS.value).shouldBe("blue");
 		
 		valueOf(function() {
 			elementsNS.item(1).setAttributeNode(newAttributeNodeNS);
