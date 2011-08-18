@@ -1,0 +1,9 @@
+{
+ "functions": [
+  "audioInterruptionEnd", 
+  "audioInterruptionBegin"
+ ], 
+ "properties": [
+  "recorder"
+ ]
+}

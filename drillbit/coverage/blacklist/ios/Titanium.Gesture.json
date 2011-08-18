@@ -1,0 +1,9 @@
+{
+ "functions": [
+  "unregisterForNotificationNamed", 
+  "rotateEvent", 
+  "shakeEvent"
+ ], 
+ "properties": [
+ ]
+}

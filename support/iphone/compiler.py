@@ -278,7 +278,7 @@ class Compiler(object):
 		
 		if deploytype!='development' or has_modules:
 
-			if os.path.exists(app_dir) and deploytype=='production':
+			if os.path.exists(app_dir) and deploytype != 'development':
 				self.copy_resources([resources_dir],app_dir)
 				
 			if deploytype == 'production':
