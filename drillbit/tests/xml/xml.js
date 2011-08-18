@@ -1282,7 +1282,6 @@ describe("Ti.XML tests", {
 		var existAttrNS = elementsNS2.item(2).setAttributeNodeNS(existAttributeNodeNS);
 		valueOf(elementsNS2.item(2).getAttributeNS(namespace2, "color")).shouldBe("pink");
 		valueOf(existAttrNS.value).shouldBe("blue");
-		
 		valueOf(function() {
 			elementsNS.item(1).setAttributeNode(newAttributeNodeNS);
 		}).shouldThrowException();
