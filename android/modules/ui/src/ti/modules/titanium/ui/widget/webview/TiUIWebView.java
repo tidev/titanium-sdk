@@ -113,11 +113,12 @@ public class TiUIWebView extends TiUIView {
 	{
 		try 
 		{
-			Class<?> webSettings = Class.forName("android.webkit.WebSettings");
-			Class<?> pluginState = Class.forName("android.webkit.WebSettings$PluginState");
 			synchronized(this.getClass()) {
 				// Initialize
 				if (enumPluginStateOff == null) {
+					Class<?> webSettings = Class.forName("android.webkit.WebSettings");
+					Class<?> pluginState = Class.forName("android.webkit.WebSettings$PluginState");
+					
 					Field f = pluginState.getDeclaredField("OFF");
 					enumPluginStateOff = (Enum<?>) f.get(null);
 					f = pluginState.getDeclaredField("ON");
@@ -405,17 +406,17 @@ public class TiUIWebView extends TiUIView {
 			if (webView != null) {
 				try {
 					switch(pluginState) {
-					case PLUGIN_STATE_OFF : 
-						internalSetPluginState.invoke(webSettings, enumPluginStateOff);
-						break;
-					case PLUGIN_STATE_ON : 
-						internalSetPluginState.invoke(webSettings, enumPluginStateOn);
-						break;
-					case PLUGIN_STATE_ON_DEMAND : 
-						internalSetPluginState.invoke(webSettings, enumPluginStateOnDemand);
-						break;
-					default :
-						Log.w(LCAT, "Not a valid plugin state. Ignoring setPluginState request");
+						case PLUGIN_STATE_OFF : 
+							internalSetPluginState.invoke(webSettings, enumPluginStateOff);
+							break;
+						case PLUGIN_STATE_ON : 
+							internalSetPluginState.invoke(webSettings, enumPluginStateOn);
+							break;
+						case PLUGIN_STATE_ON_DEMAND : 
+							internalSetPluginState.invoke(webSettings, enumPluginStateOnDemand);
+							break;
+						default :
+							Log.w(LCAT, "Not a valid plugin state. Ignoring setPluginState request");
 					}
 				} catch (InvocationTargetException e) {
 					Log.e(LCAT, "Method not supported", e);

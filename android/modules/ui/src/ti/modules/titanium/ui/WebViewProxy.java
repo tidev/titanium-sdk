@@ -141,13 +141,13 @@ public class WebViewProxy extends ViewProxy
 	public void setPluginState(int pluginState) 
 	{
 		switch(pluginState) {
-		case TiUIWebView.PLUGIN_STATE_OFF :
-		case TiUIWebView.PLUGIN_STATE_ON :
-		case TiUIWebView.PLUGIN_STATE_ON_DEMAND :
-			setProperty(TiC.PROPERTY_PLUGIN_STATE, pluginState, true);
-			break;
-		default:
-			setProperty(TiC.PROPERTY_PLUGIN_STATE, TiUIWebView.PLUGIN_STATE_OFF, true);
+			case TiUIWebView.PLUGIN_STATE_OFF :
+			case TiUIWebView.PLUGIN_STATE_ON :
+			case TiUIWebView.PLUGIN_STATE_ON_DEMAND :
+				setProperty(TiC.PROPERTY_PLUGIN_STATE, pluginState, true);
+				break;
+			default:
+				setProperty(TiC.PROPERTY_PLUGIN_STATE, TiUIWebView.PLUGIN_STATE_OFF, true);
 		}
 	}
 	
