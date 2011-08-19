@@ -138,7 +138,8 @@ public class WebViewProxy extends ViewProxy
 	}
 	
 	@Kroll.method @Kroll.setProperty
-	public void setPluginState(int pluginState) {
+	public void setPluginState(int pluginState) 
+	{
 		switch(pluginState) {
 		case TiUIWebView.PLUGIN_STATE_OFF :
 		case TiUIWebView.PLUGIN_STATE_ON :

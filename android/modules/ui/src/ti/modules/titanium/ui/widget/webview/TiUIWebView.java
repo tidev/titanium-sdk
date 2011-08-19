@@ -88,7 +88,7 @@ public class TiUIWebView extends TiUIView {
 		settings.setLightTouchEnabled(true);
 		
 		// We can only support webview settings for plugin/flash in API 8 and higher.
-		if (Build.VERSION.SDK_INT > 7) {
+		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
 			initializePluginAPI(webView);
 		}
 
@@ -109,8 +109,10 @@ public class TiUIWebView extends TiUIView {
 		return (WebView)getNativeView();
 	}
 
-	private void initializePluginAPI(TiWebView webView) {
-		try {
+	private void initializePluginAPI(TiWebView webView) 
+	{
+		try 
+		{
 			Class<?> webSettings = Class.forName("android.webkit.WebSettings");
 			Class<?> pluginState = Class.forName("android.webkit.WebSettings$PluginState");
 			synchronized(this.getClass()) {
@@ -397,7 +399,7 @@ public class TiUIWebView extends TiUIView {
 	
 	public void setPluginState(int pluginState) 
 	{
-		if (Build.VERSION.SDK_INT > 7) {
+		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
 			TiWebView webView = (TiWebView) getNativeView();
 			WebSettings webSettings = webView.getSettings();
 			if (webView != null) {
@@ -426,7 +428,7 @@ public class TiUIWebView extends TiUIView {
 	
 	public void pauseWebView()
 	{
-		if (Build.VERSION.SDK_INT > 7) {
+		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
 			View v = getNativeView();
 			if (v != null) {
 				try {
@@ -442,7 +444,7 @@ public class TiUIWebView extends TiUIView {
 	
 	public void resumeWebView()
 	{
-		if (Build.VERSION.SDK_INT > 7) {
+		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
 			View v = getNativeView();
 			if (v != null) {
 				try {
