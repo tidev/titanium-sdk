@@ -2333,7 +2333,15 @@ static NSOperationQueue *sharedQueue = nil;
 	}
 
 	// Force the redirected request to rebuild the request headers (if not a 303, it will re-use old ones, and add any new ones)
-	[self setRedirectURL:[[NSURL URLWithString:[responseHeaders valueForKey:@"Location"] relativeToURL:[self url]] absoluteURL]];
+    // SPT -- Documentation says that +[NSURL URLWithString:relativeToURL:] requires all characters to be %-encoded. So we
+    // "helpfully" have to perform this.
+    NSString* encodedLocation = (NSString*)CFURLCreateStringByAddingPercentEscapes(NULL, 
+                                                                                   (CFStringRef)[responseHeaders valueForKey:@"Location"], 
+                                                                                   NULL,
+                                                                                   NULL, 
+                                                                                   kCFStringEncodingUTF8 );
+    [encodedLocation autorelease];
+	[self setRedirectURL:[[NSURL URLWithString:encodedLocation relativeToURL:[self url]] absoluteURL]];
 	[self setNeedsRedirect:YES];
 
 	// Clear the request cookies
