@@ -76,7 +76,14 @@ public class TitaniumModule extends KrollModule
 	@Kroll.getProperty @Kroll.method
 	public String getUserAgent()
 	{
-		return System.getProperties().getProperty("http.agent") + " Titanium/" + getVersion();
+		StringBuilder builder = new StringBuilder();
+		String httpAgent = System.getProperty("http.agent");
+		if (httpAgent != null) {
+			builder.append(httpAgent);
+		}
+		builder.append(" Titanium/")
+			.append(getVersion());
+		return builder.toString();
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -414,14 +421,24 @@ public class TitaniumModule extends KrollModule
 		// 3. then attempt to load from resources
 		TiContext ctx = invocation.getTiContext().getRootActivity().getTiContext();
 		KrollModule module = requireNativeModule(ctx, path);
+		StringBuilder builder = new StringBuilder();
+
 		if (module != null) {
 			KrollModuleInfo info = module.getModuleInfo();
-			Log.d(LCAT, "Succesfully loaded module: " + info.getName() + "/" + info.getVersion());
+			builder.append("Succesfully loaded module: ")
+				.append(info.getName())
+				.append("/")
+				.append(info.getVersion());
+			Log.i(LCAT, builder.toString());
 			return module;
 		}
 
 		// NOTE: CommonJS modules load absolute to app:// in Titanium
-		String fileUrl = "app://" + path + ".js";
+		builder.setLength(0);
+		builder.append(TiC.URL_APP_PREFIX)
+			.append(path)
+			.append(".js");
+		String fileUrl = builder.toString();
 		TiBaseFile tbf = TiFileFactory.createTitaniumFile(ctx, new String[]{ fileUrl }, false);
 		if (tbf == null) {
 			//the spec says we are required to throw an exception
@@ -442,16 +459,21 @@ public class TitaniumModule extends KrollModule
 
 			// create the CommonJS exporter
 			KrollProxy proxy = new KrollProxy(ctx);
-			StringBuilder buf = new StringBuilder();
-			buf.append("(function(exports){");
-			buf.append(blob.getText());
-			buf.append("return exports;");
-			buf.append("})({})");
+			builder.setLength(0);
+			builder.append("(function(exports){")
+				.append(blob.getText())
+				.append("return exports;")
+				.append("})({})");
 
-			Object result = ctx.evalJS(buf.toString());
+			Object result = ctx.evalJS(builder.toString());
 
 			if (!(result instanceof Scriptable)) {
-				Context.throwAsScriptRuntimeEx(new Exception("Module did not correctly return an exports object: " + path + ", result: " + result));
+				builder.setLength(0);
+				builder.append("Module did not correctly return an exports object: ")
+					.append(path)
+					.append(", result: ")
+					.append(result);
+				Context.throwAsScriptRuntimeEx(new Exception(builder.toString()));
 				return null;
 			}
 
@@ -460,8 +482,7 @@ public class TitaniumModule extends KrollModule
 			// properties of the special exports object provided
 			for (Object key : exports.getIds()) {
 				String propName = key.toString();
-				Scriptable propValue = (Scriptable) exports.get(propName, exports);
-				proxy.setProperty(propName, propValue);
+				proxy.setProperty(propName, exports.get(propName, exports));
 			}
 
 			// spec says you must have a read-only id property - we don't
