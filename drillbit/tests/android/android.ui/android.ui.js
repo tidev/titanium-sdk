@@ -294,9 +294,7 @@ describe("Ti.UI.Android tests", {
 
 	},
 	webViewPluginMethods: function() {
-		var wv = Ti.UI.createWebView({
-			
-		});
+		var wv = Ti.UI.createWebView();
 		
 		valueOf(wv).shouldNotBeNull();
 		valueOf(wv.getPluginState).shouldBeFunction();
