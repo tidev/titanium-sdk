@@ -199,5 +199,30 @@ describe("Ti.Network.HTTPClient tests", {
 		setTimeout(function(e) {
 			callback.failed("Timed out waiting for HTTP onload");
 		}, 30000);
-	}
+	},
+    
+    requestHeaderMethods: asyncTest({
+		start: function() {
+			var xhr = Ti.Network.createHTTPClient();
+			xhr.setTimeout(30000);
+			xhr.onload = this.async(function(e) {
+					//TODO: set up a server that parrots back the request headers so
+					//that we can verfiy what we actually send.
+				valueOf(1).shouldBe(1);
+			});
+			xhr.onerror = this.async(function(e) {
+				throw e.error;
+			});
+			xhr.open('GET','http://www.appcelerator.com');
+			xhr.setRequestHeader('adhocHeader','notcleared');
+			xhr.setRequestHeader('clearedHeader','notcleared');
+			valueOf(function() {
+				xhr.setRequestHeader('clearedHeader',null);
+			}).shouldNotThrowException();
+			xhr.send();
+		},
+		timeout: 30000,
+		timeoutError: "Timed out waiting for HTTP onload"
+	})
+    
 });
