@@ -125,8 +125,12 @@ public class ViewProxy extends TiViewProxy
 			{
 				mapView.doSetLocation((KrollDict) location);
 			}
-			Log.e(LCAT, "location is set, but the structure is not correct");
+			else
+			{
+				Log.e(LCAT, "location is set, but the structure is not correct");
+			}
 		}
+
 		mapView.updateAnnotations();
 
 		return mapView;
