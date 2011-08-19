@@ -655,8 +655,18 @@ def main(args):
 						module_dir = os.path.join(app_dir, 'modules', module_id)
 						module_asset_dirs.append([module_assets_dir, module_dir])
 
+			full_version = sdk_version
+			if 'version' in versions_txt:
+				full_version = versions_txt['version']
+				if 'timestamp' in versions_txt or 'githash' in versions_txt:
+					full_version += ' ('
+					if 'timestamp' in versions_txt:
+						full_version += '%s' % versions_txt['timestamp']
+					if 'githash' in versions_txt:
+						full_version += ' %s' % versions_txt['githash']
+					full_version += ')'
 
-			print "[INFO] Titanium SDK version: %s" % sdk_version
+			print "[INFO] Titanium SDK version: %s" % full_version
 			print "[INFO] iPhone Device family: %s" % devicefamily
 			print "[INFO] iPhone SDK version: %s" % iphone_version
 			
