@@ -69,7 +69,14 @@ public class TitaniumModule extends KrollModule
 	@Kroll.getProperty @Kroll.method
 	public String getUserAgent()
 	{
-		return System.getProperties().getProperty("http.agent") + " Titanium/" + getVersion();
+		StringBuilder builder = new StringBuilder();
+		String httpAgent = System.getProperty("http.agent");
+		if (httpAgent != null) {
+			builder.append(httpAgent);
+		}
+		builder.append(" Titanium/")
+			.append(getVersion());
+		return builder.toString();
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -407,9 +414,15 @@ public class TitaniumModule extends KrollModule
 		// 3. then attempt to load from resources
 		TiContext ctx = invocation.getTiContext().getRootActivity().getTiContext();
 		KrollModule module = requireNativeModule(ctx, path);
+		StringBuilder builder = new StringBuilder();
+
 		if (module != null) {
 			KrollModuleInfo info = module.getModuleInfo();
-			Log.d(LCAT, "Succesfully loaded module: " + info.getName() + "/" + info.getVersion());
+			builder.append("Succesfully loaded module: ")
+				.append(info.getName())
+				.append("/")
+				.append(info.getVersion());
+			Log.i(LCAT, builder.toString());
 			return module;
 		}
 
@@ -420,7 +433,6 @@ public class TitaniumModule extends KrollModule
 		try {
 			return ctx.getKrollContext().callCommonJsRequire(path);
 		} catch (Exception e) {
-			StringBuilder builder = new StringBuilder();
 			builder.setLength(0);
 			builder.append("require(\"")
 				.append(path)
