@@ -164,13 +164,11 @@ public class TableViewProxy extends TiViewProxy
 
 		if (rows instanceof Object[])
 		{
-			Object[] localRows = (Object[])rows;
-			rowList = localRows;
+			rowList = (Object[])rows;
 		}
 		else
 		{
-			Object[] localRows = { rows };
-			rowList = localRows;
+			rowList = new Object[] { rows };
 		}
 
 		ArrayList<TableViewSectionProxy> sections = getSections();
