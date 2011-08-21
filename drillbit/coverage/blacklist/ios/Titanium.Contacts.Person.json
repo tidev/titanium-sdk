@@ -1,0 +1,12 @@
+{
+ "functions": [
+  "valueForUndefinedKey"
+ ], 
+ "properties": [
+  "multiValueLabels", 
+  "multiValueTypes", 
+  "contactProperties", 
+  "record", 
+  "multiValueProperties"
+ ]
+}

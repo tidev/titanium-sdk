@@ -1,0 +1,11 @@
+{
+ "functions": [
+  "autoHeightForWidth", 
+  "verifyHeight", 
+  "verifyWidth", 
+  "autoWidthForWidth"
+ ], 
+ "properties": [
+  "langConversionTable"
+ ]
+}
