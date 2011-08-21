@@ -1178,11 +1178,12 @@ def main(args):
 						print "[DEBUG] finding old log files"
 						sys.stdout.flush()
 						# on OSX Snow Leopard, we can use spotlight for faster searching of log files
-						results = run.run(['mdfind',
-								'-onlyin',
-								os.path.expanduser('~/Library/Application Support/iPhone Simulator/%s'%iphone_version),
-								'-name',
-								'%s.log'%log_id],True)
+						# results = run.run(['mdfind',
+						# 		'-onlyin',
+						# 		os.path.expanduser('~/Library/Application Support/iPhone Simulator/%s'%iphone_version),
+						# 		'-name',
+						# 		'%s.log'%log_id],True)
+						results = None # I don't like MDS, so command times out
 						if results == None: # probably not Snow Leopard
 							def find_all_log_files(folder, fname):
 								results = []
