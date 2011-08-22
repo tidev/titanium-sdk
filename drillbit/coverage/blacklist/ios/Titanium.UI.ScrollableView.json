@@ -1,0 +1,11 @@
+{
+ "functions": [
+  "childWillResize", 
+  "initWithProperties", 
+  "parentViewForChild"
+ ], 
+ "properties": [
+  "viewProxies", 
+  "viewCount"
+ ]
+}
