@@ -108,10 +108,7 @@ def validateMarkdown(tracker, mdData, name):
 		tracker.trackError('Error parsing markdown block "%s": %s' % (name, e))
 
 def findType(tracker, typeName, name):
-	if typeName == "Callback" and tracker.parent is not None and tracker.parent.name in ("setInterval", "setTimeout"):
-		# Special case: those two functions are the only allowed to have just "Callback" properties.
-		return
-	if typeName in ['Boolean', 'Number', 'String', 'Date', 'Object']: return
+	if typeName in ['Boolean', 'Number', 'String', 'Date', 'Object', 'Callback']: return
 
 	containerRegex = r'(Dictionary|Callback|Array)\<([^\>]+)\>'
 	match = re.match(containerRegex, typeName)
