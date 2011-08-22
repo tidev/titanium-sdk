@@ -48,12 +48,8 @@ events:
         description: the column object
       - name: value
         description: (date/time pickers only) the selected date/time value.
-      - name: source
-        description: the source object that fired the event
       - name: row
         description: the row object
-      - name: type
-        description: the name of the event fired
       - name: selectedValue
         description: (plain picker only) the array of selected values, one element per column in the picker.
 properties:

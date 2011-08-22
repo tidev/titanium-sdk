@@ -30,12 +30,8 @@ events:
   - name: battery
     description: fired when the battery state changes.  the battery state changes are only tracked on iPhone/iPad at 5% increments.
     properties:
-      - name: source
-        description: the source object that fired the event
       - name: state
         description: the new battery state
-      - name: type
-        description: the name of the event fired
       - name: level
         description: the new battery level
 properties:

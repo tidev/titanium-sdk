@@ -7,18 +7,10 @@ events:
   - name: orientationchange
     description: fired when the device orientation changes
     properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: orientation
         description: the orientation constant
   - name: shake
     description: fired when the device is shaken
     properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: timestamp
         description: timestamp reference since previous shake
