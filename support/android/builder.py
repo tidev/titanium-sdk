@@ -6,6 +6,7 @@
 #
 import os, sys, subprocess, shutil, time, signal, string, platform, re, glob, hashlib, imp, inspect
 import run, avd, prereq, zipfile, tempfile, fnmatch, codecs, traceback, simplejson
+from mako.template import Template
 from os.path import splitext
 from compiler import Compiler
 from os.path import join, splitext, split, exists
@@ -47,6 +48,10 @@ uncompressed_types = [
 
 
 MIN_API_LEVEL = 7
+
+def render_template_with_tiapp(template_text, tiapp_obj):
+	t = Template(template_text)
+	return t.render(tiapp=tiapp_obj)
 
 def remove_ignored_dirs(dirs):
 	for d in dirs:
@@ -930,24 +935,33 @@ class Builder(object):
 			custom_manifest_contents = open(android_manifest_to_read,'r').read()
 
 		manifest_xml = ''
-		def get_manifest_xml(tiapp):
+		def get_manifest_xml(tiapp, template_obj=None):
 			xml = ''
 			if 'manifest' in tiapp.android_manifest:
 				for manifest_el in tiapp.android_manifest['manifest']:
 					# since we already track permissions in another way, go ahead and us e that
 					if manifest_el.nodeName == 'uses-permission' and manifest_el.hasAttribute('android:name'):
 						if manifest_el.getAttribute('android:name').split('.')[-1] not in permissions_required:
-							permissions_required.append(manifest_el.getAttribute('android:name'))
+							perm_val = manifest_el.getAttribute('android:name')
+							if template_obj is not None and "${" in perm_val:
+								perm_val = render_template_with_tiapp(perm_val, template_obj)
+							permissions_required.append(perm_val)
 					elif manifest_el.nodeName not in ('supports-screens', 'uses-sdk'):
-						xml += manifest_el.toprettyxml()
+						this_xml = manifest_el.toprettyxml()
+						if template_obj is not None and "${" in this_xml:
+							this_xml = render_template_with_tiapp(this_xml, template_obj)
+						xml += this_xml
 			return xml
 		
 		application_xml = ''
-		def get_application_xml(tiapp):
+		def get_application_xml(tiapp, template_obj=None):
 			xml = ''
 			if 'application' in tiapp.android_manifest:
 				for app_el in tiapp.android_manifest['application']:
-					xml += app_el.toxml()
+					this_xml = app_el.toxml()
+					if template_obj is not None and "${" in this_xml:
+						this_xml = render_template_with_tiapp(this_xml, template_obj)
+					xml += this_xml
 			return xml
 		
 		# add manifest / application entries from tiapp.xml
@@ -957,8 +971,8 @@ class Builder(object):
 		# add manifest / application entries from modules
 		for module in self.modules:
 			if module.xml == None: continue
-			manifest_xml += get_manifest_xml(module.xml)
-			application_xml += get_application_xml(module.xml)
+			manifest_xml += get_manifest_xml(module.xml, self.tiapp)
+			application_xml += get_application_xml(module.xml, self.tiapp)
 
 		# build the permissions XML based on the permissions detected
 		permissions_required = set(permissions_required)
