@@ -190,7 +190,9 @@ def annotate_apis():
 		elif is_titanium_proxy(one_api):
 			annotated_apis[name] = AnnotatedProxy(one_api)
 		else:
-			if one_api["name"].startswith("Ti"):
+			if one_api["name"].startswith("Ti") and one_api["name"] != "Titanium.Event":
+				# Titanium.Event is an exception because it doesn't extend anything and doesn't need
+				# to be annotated as a Titanium type.
 				log.warn("%s not being annotated as a Titanium type. Is its 'extends' property not set correctly?" % one_api["name"])
 			else:
 				# Types that are not true Titanium proxies and modules (like pseudo-types)
