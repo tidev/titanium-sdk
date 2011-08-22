@@ -386,6 +386,16 @@ class AnnotatedEvent(AnnotatedApi):
 		properties = []
 		if dict_has_non_empty_member(self.api_obj, "properties"):
 			properties = [AnnotatedProperty(p, self) for p in self.api_obj["properties"]]
+		# Append properties from Titanium.Event.yml
+		existing_names = [p.name for p in properties]
+		event_super_type = apis.get("Titanium.Event")
+		if event_super_type is not None and dict_has_non_empty_member(event_super_type, "properties"):
+			for prop in event_super_type["properties"]:
+				if prop["name"] in existing_names:
+					continue
+				new_prop = AnnotatedProperty(prop, self)
+				new_prop.inherited_from = "Titanium.Event"
+				properties.append(new_prop)
 		return sorted(properties, key=lambda item: item.name)
 
 def main():
