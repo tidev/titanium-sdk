@@ -31,7 +31,7 @@ public final class ${config['classname']}Application extends TiApplication
 		stylesheet = new ApplicationStylesheet();
 		postOnCreate();
 
-		<%def name="onAppCreate(module)">
+		<%def name="onAppCreate(module)" filter="trim">
 			% if module['on_app_create'] != None:
 			try {
 				${module['class_name']}.${module['on_app_create']}(this);
@@ -48,11 +48,11 @@ public final class ${config['classname']}Application extends TiApplication
 		</%def>
 
 		% for module in app_modules:
-			${onAppCreate(module)}
+		${onAppCreate(module)} \
 		% endfor
 
 		% for module in custom_modules:
-			${onAppCreate(module)}
+		${onAppCreate(module)} \
 		% endfor
 	}
 

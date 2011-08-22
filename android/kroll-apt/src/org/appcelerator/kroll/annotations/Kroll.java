@@ -509,12 +509,12 @@ public @interface Kroll
 	 * onCreate is called (before the first Activity is started).
 	 * 
 	 * Methods with this annotation must be public, static, and accept
-	 * a single argument of the type Application.
+	 * a single argument of the type TiApplication.
 	 * 
 	 * <b>Examples</b>:<br>
 	 * <pre>
 	 * &#064;Kroll.onAppCreate
-	 * public static void onAppCreate(Application app)
+	 * public static void onAppCreate(TiApplication app)
 	 * {
 	 *     // do something with app
 	 * }
