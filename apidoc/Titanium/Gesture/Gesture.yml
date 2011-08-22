@@ -31,11 +31,6 @@ events:
   - name: shake
     description: fired when the device is shaken
     properties:
-      - name: value
-        type: String
-        description: the name of the event fired
-        value: shake
-        permission: read-only
       - name: timestamp
         type: Number
         description: timestamp reference since previous shake
