@@ -24,8 +24,6 @@ events:
   - name: orientationchange
     description: fired when the device orientation changes
     properties:
-      - name: source
-        description: the source object that fired the event
       - name: orientation
         type: Number
         description: Orientation of the current window.  Value will be one of the following - <Titanium.UI.PORTRAIT>, <Titanium.UI.UPSIDE_PORTRAIT>, <Titanium.UI.LANDSCAPE_LEFT>, <Titanium.UI.LANDSCAPE_RIGHT> or <Titanium.UI.UNKNOWN>
@@ -33,15 +31,11 @@ events:
   - name: shake
     description: fired when the device is shaken
     properties:
-      - name: source
-        type: Object
-        description: the source object that fired the event
-      - name: type
-        type: String
-        description: the name of the event fired
       - name: value
         type: String
-        description: "shake"
+        description: the name of the event fired
+        value: shake
+        permission: read-only
       - name: timestamp
         type: Number
         description: timestamp reference since previous shake
