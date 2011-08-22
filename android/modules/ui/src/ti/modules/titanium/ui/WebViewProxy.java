@@ -10,6 +10,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.AsyncResult;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.webview.TiUIWebView;
@@ -122,6 +123,44 @@ public class WebViewProxy extends ViewProxy
 	public void stopLoading() {
 		getUIHandler().sendEmptyMessage(MSG_STOP_LOADING);
 
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public int getPluginState()
+	{
+		int pluginState = TiUIWebView.PLUGIN_STATE_OFF;
+		
+		if (hasProperty(TiC.PROPERTY_PLUGIN_STATE)) {
+			pluginState = TiConvert.toInt(getProperty(TiC.PROPERTY_PLUGIN_STATE));
+		}
+		
+		return pluginState;
+	}
+	
+	@Kroll.method @Kroll.setProperty
+	public void setPluginState(int pluginState) 
+	{
+		switch(pluginState) {
+			case TiUIWebView.PLUGIN_STATE_OFF :
+			case TiUIWebView.PLUGIN_STATE_ON :
+			case TiUIWebView.PLUGIN_STATE_ON_DEMAND :
+				setProperty(TiC.PROPERTY_PLUGIN_STATE, pluginState, true);
+				break;
+			default:
+				setProperty(TiC.PROPERTY_PLUGIN_STATE, TiUIWebView.PLUGIN_STATE_OFF, true);
+		}
+	}
+	
+	@Kroll.method
+	public void pause() 
+	{
+		getWebView().pauseWebView();
+	}
+	
+	@Kroll.method
+	public void resume()
+	{
+		getWebView().resumeWebView();
 	}
 	
 	@Override
