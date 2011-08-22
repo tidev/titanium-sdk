@@ -56,17 +56,17 @@ def locate_modules(modules, project_dir, assets_dest_dir, log):
 	
 	return module_lib_search_path, module_asset_dirs
 	
-def link_modules(modules, name, proj_dir):
+def link_modules(modules, name, proj_dir, relative=False):
 	if len(modules)>0:
 		proj = PBXProj()
 		xcode_proj = os.path.join(proj_dir,'%s.xcodeproj'%name,'project.pbxproj')
 		current_xcode = open(xcode_proj).read()
 		for tp in modules:
-			proj.add_static_library(tp[0],tp[1])
+			proj.add_static_library(tp[0], tp[1], relative)
 		out = proj.parse(xcode_proj)
 		# since xcode changes can be destructive, only write as necessary (if changed)
 		if current_xcode!=out:
-			xo = open(xcode_proj,'w')
+			xo = open(xcode_proj, 'w')
 			xo.write(out)
 			xo.close()
 			

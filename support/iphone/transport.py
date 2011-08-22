@@ -154,8 +154,16 @@ def main(args):
 				
 			# Note: The module link information has to be added to
 			# the xcodeproj after it's created.
+			# We also have to mod the module_search_path to reference
+			# the local 'lib' directory instead of the original
+			# module install location
 			info("Linking modules...")
-			link_modules(module_search_path, app_name, build_dir)		
+			local_modules = []
+			for module in module_search_path:
+				name = module[0]
+				newpath = os.path.join('lib',name)
+				local_modules.append([name, newpath])
+			link_modules(local_modules, app_name, build_dir, relative=True)		
 		
 		# Copy libraries
 		info("Copying libraries...")
