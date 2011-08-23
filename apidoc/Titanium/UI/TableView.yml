@@ -5,10 +5,10 @@ extends: Titanium.UI.View
 since: "0.8"
 methods:
   - name: appendRow
-    description: append a row to the table, optionally with animation
+    description: append one or more rows to the table, optionally with animation
     parameters:
       - name: row
-        description: row to append
+        description: if appending a single row, this should contain only the row being appended.  if appending multiple rows, this should be an array of the rows being appended
         type: Object
       - name: properties
         description: animation properties
