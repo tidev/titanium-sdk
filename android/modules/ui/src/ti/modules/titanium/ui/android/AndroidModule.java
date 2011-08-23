@@ -14,6 +14,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.UIModule;
+import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 import android.app.Activity;
 import android.content.Intent;
 import android.text.util.Linkify;
@@ -50,6 +51,10 @@ public class AndroidModule extends KrollModule
 	
 	@Kroll.constant public static final int SWITCH_STYLE_CHECKBOX     = 0;
 	@Kroll.constant public static final int SWITCH_STYLE_TOGGLEBUTTON = 1;
+	
+	@Kroll.constant public static final int WEBVIEW_PLUGINS_OFF = TiUIWebView.PLUGIN_STATE_OFF;
+	@Kroll.constant public static final int WEBVIEW_PLUGINS_ON = TiUIWebView.PLUGIN_STATE_ON;
+	@Kroll.constant public static final int WEBVIEW_PLUGINS_ON_DEMAND = TiUIWebView.PLUGIN_STATE_ON_DEMAND;
 	
 	public AndroidModule(TiContext tiContext) 
 	{

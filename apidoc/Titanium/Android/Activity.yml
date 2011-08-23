@@ -56,55 +56,21 @@ methods:
 events:
   - name: create
     description: Fired from the Activity's [onCreate](http://developer.android.com/reference/android/app/Activity.html#onCreate(android.os.Bundle))
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
   - name: destroy
     description: Fired from the Activity's [onDestroy](http://developer.android.com/reference/android/app/Activity.html#onDestroy())
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
   - name: newIntent
     description: Fired when the application is already running and certain flags are set in the Intent. Fired from the Activity's [onNewIntent](http://developer.android.com/reference/android/app/Activity.html#onNewIntent(android.content.Intent))
     properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: intent
         description: the <Titanium.Android.Intent> passed to the native `onNewIntent` method.
   - name: pause
     description: Fired from the Activity's [onPause](http://developer.android.com/reference/android/app/Activity.html#onPause())
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
   - name: resume
     description: Fired from the Activity's [onResume](http://developer.android.com/reference/android/app/Activity.html#onResume())
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
   - name: start
     description: Fired from the Activity's [onStart](http://developer.android.com/reference/android/app/Activity.html#onStart())
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
   - name: stop
     description: Fired from the Activity's [onStop](http://developer.android.com/reference/android/app/Activity.html#onStop())
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
 properties:
   - name: intent
     description: The Intent that was used to start this Activity
