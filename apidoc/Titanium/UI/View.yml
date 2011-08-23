@@ -44,10 +44,6 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
       - name: x
@@ -57,10 +53,6 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
       - name: x
@@ -70,10 +62,6 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
       - name: x
@@ -83,11 +71,6 @@ events:
         in the case of a trackball, holding down the button.  The event occurs before the
         finger/button is lifted up again.  If you have a longclick listener then the click
         event will not occur when you lift the finger/button after a longpress.
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
     platforms: [android]
   - name: longpress
     description: fired when the device detects a long press, which is a touch-and-hold with
@@ -99,10 +82,6 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: x
         description: the x point of the event in receiving view coordinates
   - name: singletap
@@ -110,10 +89,6 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
       - name: x
@@ -123,14 +98,10 @@ events:
     properties:
       - name: direction
         description: direction of the swipe - either left or right
-      - name: source
-        description: the source object that fired the event
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordinates
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
   - name: touchcancel
@@ -138,10 +109,6 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
       - name: x
@@ -151,10 +118,6 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
       - name: x
@@ -164,10 +127,6 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
       - name: x
@@ -177,10 +136,6 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
       - name: x
@@ -190,10 +145,6 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
       - name: x

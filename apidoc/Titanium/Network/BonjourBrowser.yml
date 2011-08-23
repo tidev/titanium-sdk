@@ -15,10 +15,6 @@ events:
     properties:
       - name: services
         description: An array of BonjourService objects corresponding to currently available services.  If you cache this value, including using it as table data, be aware that it could become out of date at any time due to the asynchronous nature of Bonjour service discovery.
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
 properties:
   - name: domain
     description: The domain the browser is searching in

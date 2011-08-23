@@ -43,12 +43,8 @@ events:
         removed: "2.0.0"
     description: new data was read off the socket
     properties:
-      - name: source
-        description: the source object that fired the event
       - name: from
         description: the reference for the socket that data was retrieved from
-      - name: type
-        description: the name of the event fired
       - name: data
         description: a blob representing the data read, can be interpreted via toString
   - name: readError
@@ -57,12 +53,8 @@ events:
         removed: "2.0.0"
     description: an error occured when reading
     properties:
-      - name: source
-        description: the source object that fired the event
       - name: code
         description: the BSD socket error code
-      - name: type
-        description: the name of the event fired
       - name: error
         description: a description of the error
   - name: writeError
@@ -71,12 +63,8 @@ events:
         removed: "2.0.0"
     description: an error occured when writing
     properties:
-      - name: source
-        description: the source object that fired the event
       - name: code
         description: the BSD socket error code
-      - name: type
-        description: the name of the event fired
       - name: error
         description: a description of the error
 properties:
