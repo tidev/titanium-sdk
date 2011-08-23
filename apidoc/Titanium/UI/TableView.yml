@@ -9,7 +9,7 @@ methods:
     parameters:
       - name: row
         description: if appending a single row, this should contain only the row being appended.  if appending multiple rows, this should be an array of the rows being appended
-        type: Object
+        type: [Titanium.UI.TableViewRow, Array<Titanium.UI.TableViewRow>]
       - name: properties
         description: animation properties
         type: Object
