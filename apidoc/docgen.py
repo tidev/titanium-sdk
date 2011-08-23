@@ -190,7 +190,9 @@ def annotate_apis():
 		elif is_titanium_proxy(one_api):
 			annotated_apis[name] = AnnotatedProxy(one_api)
 		else:
-			if one_api["name"].startswith("Ti"):
+			if one_api["name"].startswith("Ti") and one_api["name"] != "Titanium.Event":
+				# Titanium.Event is an exception because it doesn't extend anything and doesn't need
+				# to be annotated as a Titanium type.
 				log.warn("%s not being annotated as a Titanium type. Is its 'extends' property not set correctly?" % one_api["name"])
 			else:
 				# Types that are not true Titanium proxies and modules (like pseudo-types)
@@ -386,6 +388,16 @@ class AnnotatedEvent(AnnotatedApi):
 		properties = []
 		if dict_has_non_empty_member(self.api_obj, "properties"):
 			properties = [AnnotatedProperty(p, self) for p in self.api_obj["properties"]]
+		# Append properties from Titanium.Event.yml
+		existing_names = [p.name for p in properties]
+		event_super_type = apis.get("Titanium.Event")
+		if event_super_type is not None and dict_has_non_empty_member(event_super_type, "properties"):
+			for prop in event_super_type["properties"]:
+				if prop["name"] in existing_names:
+					continue
+				new_prop = AnnotatedProperty(prop, self)
+				new_prop.inherited_from = "Titanium.Event"
+				properties.append(new_prop)
 		return sorted(properties, key=lambda item: item.name)
 
 def main():
