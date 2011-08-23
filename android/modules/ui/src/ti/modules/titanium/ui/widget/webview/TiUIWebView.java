@@ -459,6 +459,14 @@ public class TiUIWebView extends TiUIView {
 		}
 	}
 
+	public void setUserAgentString(String userAgentString) {
+		getWebView().getSettings().setUserAgentString(userAgentString);
+	}
+
+	public String getUserAgentString(){
+		return getWebView().getSettings().getUserAgentString();
+	}	
+	
 	public boolean canGoBack() {
 		return getWebView().canGoBack();
 	}

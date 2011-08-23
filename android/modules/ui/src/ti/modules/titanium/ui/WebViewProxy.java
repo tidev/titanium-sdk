@@ -94,6 +94,16 @@ public class WebViewProxy extends ViewProxy
 	}
 	
 	@Kroll.method
+	public void setUserAgentString(String userAgentString) {
+		getWebView().setUserAgentString(userAgentString);	
+	}
+	
+	@Kroll.method
+	public String getUserAgentString() {
+		return getWebView().getUserAgentString();
+	}	
+	
+	@Kroll.method
 	public boolean canGoBack() {
 		return getWebView().canGoBack();
 	}
