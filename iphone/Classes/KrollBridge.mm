@@ -200,7 +200,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 #if KROLLBRIDGE_MEMORY_DEBUG==1
 		NSLog(@"INIT: %@",self);
 #endif		
-		proxyLock = [[NSRecursiveLock alloc] init];
+		proxyLock = OS_SPINLOCK_INIT;
 		OSSpinLockLock(&krollBridgeRegistryLock);
 		CFSetAddValue(krollBridgeRegistry, self);
 		OSSpinLockUnlock(&krollBridgeRegistryLock);
@@ -256,12 +256,11 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 -(void)removeProxies
 {
-	[proxyLock lock];
-
+	OSSpinLockLock(&proxyLock);
 	CFDictionaryRef oldProxies = registeredProxies;
 	registeredProxies = nil;
 	RELEASE_TO_NIL(proxies);
-	[proxyLock unlock];
+	OSSpinLockUnlock(&proxyLock);
 	
 	for (id thisProxy in (NSDictionary *)oldProxies)
 	{
@@ -290,7 +289,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	RELEASE_TO_NIL(context);
 	RELEASE_TO_NIL(titanium);
 	RELEASE_TO_NIL(modules);
-	RELEASE_TO_NIL(proxyLock);
 	OSSpinLockLock(&krollBridgeRegistryLock);
 	CFSetRemoveValue(krollBridgeRegistry, self);
 	OSSpinLockUnlock(&krollBridgeRegistryLock);
@@ -611,7 +609,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 -(void)registerProxy:(id)proxy krollObject:(KrollObject *)ourKrollObject
 {
-	[proxyLock lock];
+	OSSpinLockLock(&proxyLock);
 	if (registeredProxies==NULL)
 	{
 		registeredProxies = CFDictionaryCreateMutable(NULL, 10, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
@@ -620,7 +618,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	//CFMutableDictionaryRefs only retain keys, which lets them work with proxies properly.
 
 	CFDictionaryAddValue(registeredProxies, proxy, ourKrollObject);	
-	[proxyLock unlock];
+	OSSpinLockUnlock(&proxyLock);
 }
 
 - (id)registerProxy:(id)proxy 
@@ -637,7 +635,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		return nil;
 	}
 
-	[proxyLock lock];
+	OSSpinLockLock(&proxyLock);
 	if (proxies==nil)
 	{
 		proxies = TiCreateNonRetainingArray();
@@ -646,7 +644,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	{
 		[proxies addObject:proxy];
 	}
-	[proxyLock unlock];
+	OSSpinLockUnlock(&proxyLock);
 
 #ifdef KROLL_COVERAGE
 	ourKrollObject = [[KrollCoverageObject alloc] initWithTarget:proxy context:context];
@@ -660,7 +658,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 - (void)unregisterProxy:(id)proxy
 {
-	[proxyLock lock];
+	OSSpinLockLock(&proxyLock);
 	if (proxies!=nil)
 	{
 		[proxies removeObject:proxy];
@@ -674,7 +672,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		CFDictionaryRemoveValue(registeredProxies, proxy);
 		//Don't bother with removing the empty registry. It's small and leaves on dealloc anyways.
 	}
-	[proxyLock unlock];
+	OSSpinLockUnlock(&proxyLock);
 }
 
 - (BOOL)usesProxy:(id)proxy
@@ -684,24 +682,25 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		return NO;
 	}
 	BOOL result=NO;
-	[proxyLock lock];
+	OSSpinLockLock(&proxyLock);
+	
 	if (registeredProxies != NULL)
 	{
 		result = (CFDictionaryGetCountOfKey(registeredProxies, proxy) != 0);
 	}
-	[proxyLock unlock];
+	OSSpinLockUnlock(&proxyLock);
 	return result;
 }
 
 - (id)krollObjectForProxy:(id)proxy
 {
 	id result=nil;
-	[proxyLock lock];
+	OSSpinLockLock(&proxyLock);
 	if (registeredProxies != NULL)
 	{
 		result = (id)CFDictionaryGetValue(registeredProxies, proxy);
 	}
-	[proxyLock unlock];
+	OSSpinLockUnlock(&proxyLock);
 	return result;
 }
 

@@ -312,14 +312,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 			[self _initWithCallback:[args objectAtIndex:1]];
 		}
 		
-		if (![NSThread isMainThread] && [self _propertyInitRequiresUIThread])
-		{
-			[self performSelectorOnMainThread:@selector(_initWithProperties:) withObject:a waitUntilDone:NO];
-		}		
-		else 
-		{
-			[self _initWithProperties:a];
-		}
+		[self _initWithProperties:a];
 	}
 	return self;
 }
@@ -530,7 +523,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 	if(![ourBridge usesProxy:self])
 	{
-		NSLog(@"[ERROR] Adding an event listener to a proxy that isn't already in the context!!!");
+		NSLog(@"[ERROR] Adding an event listener to a proxy that isn't already in the context");
 	}
 
 	return [ourBridge krollObjectForProxy:self];
@@ -791,13 +784,6 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
  
 DEFINE_EXCEPTIONS
 
-
--(BOOL)_propertyInitRequiresUIThread
-{
-	// tell our constructor not to place _initWithProperties on UI thread by default
-	return NO;
-}
-
 - (id) valueForUndefinedKey: (NSString *) key
 {
 	if ([key isEqualToString:@"toString"] || [key isEqualToString:@"valueOf"])
@@ -831,6 +817,11 @@ DEFINE_EXCEPTIONS
 	// used for replacing a value and controlling model delegate notifications
 	if (value==nil)
 	{
+		if (!notify && (dynprops == nil)) {
+			//Don't bother to create a dictionary if it's
+			//going to be a waste.
+			return;
+		}
 		value = [NSNull null];
 	}
 	id current = nil;

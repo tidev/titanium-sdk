@@ -48,7 +48,7 @@
 	//CFMutableDictionaryRefs only retain keys, which lets them work with proxies properly.
 	CFMutableDictionaryRef registeredProxies;
 	NSCondition *shutdownCondition;
-	NSRecursiveLock *proxyLock;
+	OSSpinLock proxyLock;
 }
 - (void)boot:(id)callback url:(NSURL*)url_ preload:(NSDictionary*)preload_;
 - (void)evalJSWithoutResult:(NSString*)code;
