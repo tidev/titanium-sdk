@@ -3,6 +3,7 @@ name: Titanium.Android.MenuItem
 description: The Titanium binding of an [Android MenuItem](http://developer.android.com/reference/android/view/MenuItem.html)
 extends: Titanium.Proxy
 platforms: [android]
+createable: false
 since: "1.5"
 methods:
   - name: getTitleCondensed
@@ -66,11 +67,6 @@ methods:
 events:
   - name: click
     description: fired when the user presses the button
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
 properties:
   - name: enabled
     description: set the enabled state of the item

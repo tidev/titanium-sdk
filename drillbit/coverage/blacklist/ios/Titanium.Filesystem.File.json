@@ -1,0 +1,10 @@
+{
+ "functions": [
+  "makeTemp", 
+  "grabFirstArgumentAsFileName_", 
+  "initWithFile"
+ ], 
+ "properties": [
+  "description"
+ ]
+}

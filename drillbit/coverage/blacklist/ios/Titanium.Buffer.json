@@ -1,0 +1,11 @@
+{
+ "functions": [
+  "valueForUndefinedKey", 
+  "setData"
+ ], 
+ "properties": [
+  "init", 
+  "keySequence", 
+  "data"
+ ]
+}

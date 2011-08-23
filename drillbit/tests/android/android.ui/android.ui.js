@@ -2,6 +2,11 @@
 describe("Ti.UI.Android tests", {
 	androidUIAPIs: function() {
 		valueOf(Ti.UI.Android).shouldNotBeNull();
+		
+		// constants
+		valueOf(Ti.UI.Android.WEBVIEW_PLUGINS_OFF).shouldBeNumber();
+		valueOf(Ti.UI.Android.WEBVIEW_PLUGINS_ON).shouldBeNumber();
+		valueOf(Ti.UI.Android.WEBVIEW_PLUGINS_ON_DEMAND).shouldBeNumber();
 	}, 
 	testModuleNameCollision: function() {
 		// Make sure both Ti.UI.Android and Ti.Android are properly accessible.
@@ -287,6 +292,30 @@ describe("Ti.UI.Android tests", {
 		},10000);
 		w.open();
 
+	},
+	webViewPluginMethods: function() {
+		var wv = Ti.UI.createWebView();
+		
+		valueOf(wv).shouldNotBeNull();
+		valueOf(wv.getPluginState).shouldBeFunction();
+		valueOf(wv.setPluginState).shouldBeFunction();
+		valueOf(wv.pause).shouldBeFunction();
+		valueOf(wv.resume).shouldBeFunction();
+		
+		valueOf(wv.pluginState).shouldBe(Ti.UI.Android.WEBVIEW_PLUGINS_OFF);
+		wv.pluginState = Ti.UI.Android.WEBVIEW_PLUGINS_ON;
+		valueOf(wv.pluginState).shouldBe(Ti.UI.Android.WEBVIEW_PLUGINS_ON);
+		wv.setPluginState(Ti.UI.Android.WEBVIEW_PLUGINS_ON_DEMAND);
+		valueOf(wv.getPluginState()).shouldBe(Ti.UI.Android.WEBVIEW_PLUGINS_ON_DEMAND);
+		
+		wv = Ti.UI.createWebView({
+			pluginState: Ti.UI.Android.WEBVIEW_PLUGINS_ON
+		});
+		valueOf(wv.pluginState).shouldBe(Ti.UI.Android.WEBVIEW_PLUGINS_ON);
+		
+		// set invalid state, should default to OFF
+		wv.pluginState = 5;
+		valueOf(wv.pluginState).shouldBe(Ti.UI.Android.WEBVIEW_PLUGINS_OFF);
 	}
 })
 

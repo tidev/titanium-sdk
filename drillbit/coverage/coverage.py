@@ -123,6 +123,14 @@ def mapDeepIter(deepMap, nLevels, *mapKeys):
 		if isinstance(obj, dict):
 			mapDeepIter(obj, nLevels - 1)
 
+# load up JSON blacklists for API sets
+def loadBlacklist(apiname, platform):
+	blacklistPath = os.path.join(coverageDir, 'blacklist', platform.lower(), '%s.json' % apiname)
+	if not os.path.isfile(blacklistPath):
+		return { "functions":[], "properties":[] }
+
+	return json.load(open(blacklistPath))
+
 class CoverageData(object):
 	CATEGORY_TDOC = "tdoc"
 	CATEGORY_BINDING = "binding"
@@ -486,7 +494,7 @@ class CoverageMatrix(object):
 		log.info("Generating coverage for Android bindings")
 		self.data.setCategory(self.data.CATEGORY_BINDING)
 
-		proxyDefault = "org.appcelerator.kroll.annotations.Kroll.proxy.DEFAULT"
+		proxyDefault = "org.appcelerator.kroll.annotations.Kroll.DEFAULT"
 		platforms = [self.data.PLATFORM_ANDROID]
 		allowModuleTopLevelMethods = ["decodeURIComponent", "encodeURIComponent"]
 
@@ -630,11 +638,17 @@ class CoverageMatrix(object):
 													  platforms,
 													  isModule=True)
 							fullAPI = "Titanium.%s.%s" % (moduleName, proxyName)
+							
+				blacklist = loadBlacklist(fullAPI, self.data.PLATFORM_IOS)
 
 				for method in binding[iosClass]["methods"]:
-					self.data.addFunction(method, fullAPI, platforms, isModule=isModule)
+					if not method in blacklist["functions"]:
+						self.data.addFunction(method, fullAPI, platforms, isModule=isModule)
 
 				for property in binding[iosClass]["properties"]:
+					if property in blacklist["properties"]:
+						continue
+						
 					# If we have an all-uppercase name, consider it a constant -
 					# by naming convention
 					if property.isupper():
@@ -783,18 +797,24 @@ class CoverageMatrix(object):
 		for tdocType in self.tdocTypes:
 			component = tdocType["name"]
 			typePlatforms = self.tdocPlatforms(tdocType)
-			if "extends" not in tdocType and component != "Titanium.Proxy":
+			if "extends" not in tdocType and component != "Titanium.Proxy" and not component.startswith("Global"):
 				log.warn("Skipping TDoc type %s (no 'extends')" % component)
 				continue
 			isModule = False
+			isTopLevel = False
 			if component == "Titanium.Module": isModule = True
+			if component.startswith("Global"):
+				isTopLevel = True
+				component = re.sub(r"Global\.?", "", component)
+				if component == "":
+					component = self.data.TOP_LEVEL
 			if "extends" in tdocType and tdocType["extends"] == "Titanium.Module": isModule = True
 			if "methods" in tdocType:
 				for method in tdocType["methods"]:
 					methodPlatforms = self.tdocPlatforms(method)
 					if methodPlatforms == self.data.ALL_PLATFORMS:
 						methodPlatforms = typePlatforms
-					self.data.addFunction(method["name"], component, methodPlatforms, isModule=isModule)
+					self.data.addFunction(method["name"], component, methodPlatforms, isModule=isModule, isTopLevel=isTopLevel)
 			if "properties" in tdocType:
 				for property in tdocType["properties"]:
 					propertyPlatforms = self.tdocPlatforms(property)
@@ -1018,7 +1038,7 @@ def main():
 		options.outDir = os.path.join(mobileDir, "dist", "coverage")
 
 	if not os.path.exists(options.outDir):
-		os.makedirs(outDir)
+		os.makedirs(options.outDir)
 
 	matrix = CoverageMatrix(seedData)
 	if seedData == None:

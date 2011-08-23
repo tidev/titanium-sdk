@@ -1,0 +1,20 @@
+{
+ "functions": [
+  "suspend", 
+  "shutdown", 
+  "willShutdownContext", 
+  "createProperties", 
+  "willShutdown", 
+  "didReceiveMemoryWarning", 
+  "arguments", 
+  "proximityDetectionChanged", 
+  "garbageCollect", 
+  "resume", 
+  "setIdleTimerDisabled", 
+  "fireEvent", 
+  "resumed", 
+  "hasListeners"
+ ], 
+ "properties": [
+ ]
+}

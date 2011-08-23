@@ -1,0 +1,16 @@
+{
+ "functions": [
+  "netServiceDidPublish", 
+  "netServiceBrowserDidStopSearch", 
+  "netServiceDidStop", 
+  "stringForErrorCode", 
+  "netServiceDidResolveAddress", 
+  "netServiceBrowserWillSearch", 
+  "isEqual"
+ ], 
+ "properties": [
+  "service", 
+  "init", 
+  "local"
+ ]
+}
