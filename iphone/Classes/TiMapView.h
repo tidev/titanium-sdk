@@ -31,6 +31,7 @@
 	TiMapAnnotationProxy * pendingAnnotationSelection;
 	NSMutableDictionary *routes;
 	NSMutableDictionary *routeViews;
+	NSMutableDictionary *routePoints;
 	
 	// Click detection
 	id<MKAnnotation> hitAnnotation;
@@ -48,13 +49,18 @@
 -(void)deselectAnnotation:(id)args;
 -(void)zoom:(id)args;
 -(void)addRoute:(id)args;
+-(void)addRouteOverlay:(id)args;
+-(void)addRouteAnnotation:(id)args;
 -(void)removeRoute:(id)args;
+-(void)moveToPoint:(id)args;
+-(void)addPoint:(id)args;
 
 -(void)sendRouteToBack;
 #pragma mark Framework
 -(void)refreshAnnotation:(TiMapAnnotationProxy*)proxy readd:(BOOL)yn;
 
 -(void)fireClickEvent:(MKAnnotationView *) pinview source:(NSString *)source;
+
 
 @end
 

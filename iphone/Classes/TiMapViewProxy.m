@@ -245,6 +245,21 @@
 	}
 }
 
+-(void)addPoint:(id)args{
+	ENSURE_SINGLE_ARG(args,NSDictionary)
+	if ([self viewAttached]) 
+	{
+		VIEW_METHOD_ON_UI_THREAD(addPoint,args)
+	}
+}
+
+-(void)moveToPoint:(id)args{
+	ENSURE_SINGLE_ARG(args, NSDictionary);
+	if ([self viewAttached]) {
+		VIEW_METHOD_ON_UI_THREAD(moveToPoint, args);
+	}
+}
+
 -(void)removeRoute:(id)arg
 {
 	ENSURE_SINGLE_ARG(arg,NSDictionary)

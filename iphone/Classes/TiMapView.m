@@ -431,7 +431,7 @@
 	[self render];
 }
 
--(void)addRoute:(id)args
+-(void)addRouteAnnotation:(id)args
 {
 	ENSURE_DICT(args);
 	
@@ -476,6 +476,81 @@
 	[route release];
 }
 
+-(void)addRouteOverlay:(id)args{
+	ENSURE_DICT(args);
+	if(!routePoints) {
+		routePoints = [[NSMutableDictionary alloc] init];
+		[routePoints retain];
+	}
+	NSArray *points = [args objectForKey:@"points"];
+	NSMutableArray *locationPoints = [[NSMutableArray alloc] init];
+	[locationPoints retain];
+	if (!points)
+	{
+		[self throwException:@"missing required points key" subreason:nil location:CODELOCATION];
+	}
+	NSString *name = [TiUtils stringValue:@"name" properties:args];
+	if (!routes)
+	{
+		routes = [[NSMutableDictionary dictionary] retain];
+	}
+	if (!routeViews)
+	{
+		routeViews = [[NSMutableDictionary dictionary] retain];
+	}
+	
+	id namedRoute = [routes objectForKey:name];
+	if (namedRoute!=nil)
+	{
+		[map removeAnnotation:namedRoute];
+		[routes removeObjectForKey:name];
+		[routeViews removeObjectForKey:name];
+	}
+	
+	CLLocationCoordinate2D *coordinates = malloc(sizeof(CLLocationCoordinate2D)*points.count);
+	for(int index = 0; index < points.count; index++)
+	{
+		NSDictionary *entry = [points objectAtIndex:index];
+		CLLocationDegrees lat = [TiUtils doubleValue:[entry objectForKey:@"latitude"]];
+		CLLocationDegrees lon = [TiUtils doubleValue:[entry objectForKey:@"longitude"]];
+		coordinates[index] = CLLocationCoordinate2DMake(lat, lon);
+		CLLocation *location = [[CLLocation alloc] initWithLatitude:lat longitude:lon];
+		[location retain];
+		[locationPoints addObject:location];
+	}
+	[routePoints setValue:locationPoints forKey:name];
+	MKPolyline *route = [MKPolyline polylineWithCoordinates:coordinates count:points.count];
+	route.title = name;
+	[map addOverlay:route];
+	[routes setObject:route forKey:name];
+	free(coordinates);
+	
+	MKPolylineView *routeView = [[MKPolylineView alloc] initWithPolyline:route];
+	TiColor *color = [TiUtils colorValue:@"color" properties:args];
+	
+	if (color){
+		routeView.opaque = NO;
+		UIColor *regular = [color _color];
+		routeView.backgroundColor = regular;
+		routeView.strokeColor = regular;
+	}
+	
+	//Someone could add additional parameters to customize the looks of these if desired
+	routeView.lineWidth = [TiUtils floatValue:@"width" properties:args def:2];
+	routeView.lineJoin = kCGLineJoinRound;
+	routeView.lineCap = kCGLineCapRound;
+	[routeViews setValue:routeView forKey:name];
+}
+
+-(void)addRoute:(id)args{
+	if([TiUtils isIOS4OrGreater]){
+		[self addRouteOverlay:args];
+	} else {
+		[self addRouteAnnotation:args];
+	}
+}
+
+
 -(void)removeRoute:(id)args
 {
 	ENSURE_DICT(args);
@@ -484,20 +559,74 @@
 	{
 		routes = [[NSMutableDictionary dictionary] retain];
 	}
-	id<MKAnnotation> ann = [routes objectForKey:name];
+	id ann = [routes objectForKey:name];
 	if (ann!=nil)
 	{
-		[map removeAnnotation:ann];
+		if([TiUtils isIOS4OrGreater]){
+			[map removeOverlay:ann];
+		} else {
+			[map removeAnnotation:ann];
+		}
 		[routes removeObjectForKey:name];
 		[routeViews removeObjectForKey:name];
 	}
 }
 
+-(void)moveToPoint:(id)args{
+	ENSURE_DICT(args);
+	double lat = [TiUtils doubleValue:@"latitude" properties:args];
+	double lon = [TiUtils doubleValue:@"longitude" properties:args];
+	[map setCenterCoordinate:CLLocationCoordinate2DMake(lat, lon) animated:YES];
+}
+
+-(void)addPoint:(id)args{
+	if(![TiUtils isIOS4OrGreater]) return;
+	ENSURE_DICT(args);
+	NSString *name = [TiUtils stringValue:@"name" properties:args];
+	NSMutableArray *locations = [routePoints valueForKey:name];
+	if (!locations) [self throwException:@"route doesn't exist" subreason:nil location:CODELOCATION];
+	double lat = [TiUtils doubleValue:@"latitude" properties:args];
+	double lon = [TiUtils doubleValue:@"longitude" properties:args];
+	[locations addObject:[[CLLocation alloc] initWithLatitude:lat longitude:lon]];
+	BOOL shouldScroll = [TiUtils boolValue:@"shouldScroll" properties:args];
+	MKPolyline *existingRoute = [routes valueForKey:name];
+	if(!existingRoute) [self throwException:@"route doesn't exist" subreason:nil location:CODELOCATION];
+	MKMapPoint newPoint = MKMapPointForCoordinate(CLLocationCoordinate2DMake(lat, lon));
+	MKMapPoint *points = malloc(sizeof(MKMapPoint)*(existingRoute.pointCount+1));
+	for (int index = 0; index < existingRoute.pointCount; index++) {
+		points[index] = MKMapPointMake(existingRoute.points[index].x, existingRoute.points[index].y);
+	}
+	//memcpy(points, existingRoute.points, sizeof(MKMapPoint)*existingRoute.pointCount);
+	points[existingRoute.pointCount] = MKMapPointMake(newPoint.x, newPoint.y);
+	MKPolyline *newRoute = [MKPolyline polylineWithPoints:points count:(existingRoute.pointCount+1)];
+	newRoute.title = existingRoute.title;
+	[routes setValue:newRoute forKey:name];
+	MKPolylineView *oldView = [routeViews valueForKey:name];
+	MKPolylineView *newView = [[MKPolylineView alloc] initWithPolyline:newRoute];
+	newView.lineWidth = oldView.lineWidth;
+	newView.lineJoin = oldView.lineJoin;
+	newView.lineCap = oldView.lineCap;
+	newView.opaque = oldView.opaque;
+	newView.backgroundColor = oldView.backgroundColor;
+	newView.strokeColor = oldView.strokeColor;
+	[routeViews setValue:newView forKey:name];
+	
+	[map addOverlay:newRoute];
+	[map removeOverlay:existingRoute];
+	
+	if(shouldScroll) [map setCenterCoordinate:CLLocationCoordinate2DMake(lat, lon) animated:YES];
+}
 
 #pragma mark Delegates
 
+- (MKOverlayView *)mapView:(MKMapView *)mapView viewForOverlay:(id)overlay
+{	
+	return [routeViews valueForKey:[overlay title]];
+}
+
 - (void)mapView:(MKMapView *)mapView regionWillChangeAnimated:(BOOL)animated
 {
+	if([TiUtils isIOS4OrGreater]) return; //unnecessary for iOS 4
 	if (routeViews!=nil)
 	{
 		// turn off the view of the route as the map is chaning regions. This prevents
@@ -515,7 +644,7 @@
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
 {
 	[self flushPendingAnnotation];
-	if (routeViews!=nil)
+	if (![TiUtils isIOS4OrGreater] && routeViews!=nil)
 	{
 		// re-enable and re-poosition the route display. 
 		for(NSObject* key in [routeViews allKeys])
