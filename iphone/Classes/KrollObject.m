@@ -1178,13 +1178,13 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 	char result[10];
 	result[0]='_';
 	result[1]='_';
-	result[1]=':';
-	result[3]='<' + value & 0x3F;
-	result[4]='<' + (value >> 6) & 0x3F;
-	result[5]='<' + (value >> 12) & 0x3F;
-	result[6]='<' + (value >> 18) & 0x3F;
-	result[7]='<' + (value >> 24) & 0x3F;
-	result[8]='<' + (value >> 30) & 0x3F;
+	result[2]=':';
+	result[3]='<' + (value & 0x3F);
+	result[4]='<' + ((value >> 6) & 0x3F);
+	result[5]='<' + ((value >> 12) & 0x3F);
+	result[6]='<' + ((value >> 18) & 0x3F);
+	result[7]='<' + ((value >> 24) & 0x3F);
+	result[8]='<' + ((value >> 30) & 0x3F);
 	result[9]=0;
 	return TiStringCreateWithUTF8CString(result);
 }

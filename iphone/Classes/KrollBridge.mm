@@ -211,32 +211,31 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 -(void)didReceiveMemoryWarning:(NSNotification*)notification
 {
-	SEL sel = @selector(didReceiveMemoryWarning:);
-	BOOL keepWarning = YES;
-	int proxiesCount = [proxies count];
-
-	//During a memory panic, we may not get the chance to copy proxies.
-	while (keepWarning)
-	{
-		keepWarning = NO;
-		for (id proxy in proxies)
+	if (registeredProxies != NULL) {
+		BOOL keepWarning = YES;
+		int proxiesCount = CFDictionaryGetCount(registeredProxies);
+		
+		//During a memory panic, we may not get the chance to copy proxies.
+		while (keepWarning)
 		{
-			if (![proxy respondsToSelector:sel])
+			keepWarning = NO;
+			for (id proxy in (NSDictionary *)registeredProxies)
 			{
-				continue;
-			}
-
-			[proxy didReceiveMemoryWarning:notification];
-			int newCount = [proxies count];
-			if (newCount != proxiesCount)
-			{
-				proxiesCount = newCount;
-				keepWarning = YES;
-				break;
+				[proxy didReceiveMemoryWarning:notification];
+				if (registeredProxies == NULL) {
+					break;
+				}
+				int newCount = CFDictionaryGetCount(registeredProxies);
+				if (newCount != proxiesCount)
+				{
+					proxiesCount = newCount;
+					keepWarning = YES;
+					break;
+				}
 			}
 		}
 	}
-
+	
 	[self gc];
 }
 
@@ -259,16 +258,12 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	OSSpinLockLock(&proxyLock);
 	CFDictionaryRef oldProxies = registeredProxies;
 	registeredProxies = nil;
-	RELEASE_TO_NIL(proxies);
 	OSSpinLockUnlock(&proxyLock);
 	
 	for (id thisProxy in (NSDictionary *)oldProxies)
 	{
 		KrollObject * thisKrollObject = (id)CFDictionaryGetValue(oldProxies, thisProxy);
-			if ([thisProxy respondsToSelector:@selector(contextShutdown:)])
-			{
-				[thisProxy contextShutdown:self];
-			}
+		[thisProxy contextShutdown:self];
 		[thisKrollObject unprotectJsobject];
 	}
 
@@ -619,6 +614,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 	CFDictionaryAddValue(registeredProxies, proxy, ourKrollObject);	
 	OSSpinLockUnlock(&proxyLock);
+	[proxy boundBridge:self withKrollObject:ourKrollObject];
 }
 
 - (id)registerProxy:(id)proxy 
@@ -635,17 +631,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		return nil;
 	}
 
-	OSSpinLockLock(&proxyLock);
-	if (proxies==nil)
-	{
-		proxies = TiCreateNonRetainingArray();
-	}
-	if (![proxies containsObject:proxy])
-	{
-		[proxies addObject:proxy];
-	}
-	OSSpinLockUnlock(&proxyLock);
-
 #ifdef KROLL_COVERAGE
 	ourKrollObject = [[KrollCoverageObject alloc] initWithTarget:proxy context:context];
 #else
@@ -659,20 +644,13 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 - (void)unregisterProxy:(id)proxy
 {
 	OSSpinLockLock(&proxyLock);
-	if (proxies!=nil)
-	{
-		[proxies removeObject:proxy];
-		if ([proxies count]==0)
-		{
-			RELEASE_TO_NIL(proxies);
-		}
-	}
 	if (registeredProxies != NULL)
 	{
 		CFDictionaryRemoveValue(registeredProxies, proxy);
 		//Don't bother with removing the empty registry. It's small and leaves on dealloc anyways.
 	}
 	OSSpinLockUnlock(&proxyLock);
+	[proxy unboundBridge:self];
 }
 
 - (BOOL)usesProxy:(id)proxy
@@ -706,14 +684,11 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 -(id)loadCommonJSModule:(NSString*)code withPath:(NSString*)path
 {
-	NSMutableString *js = [NSMutableString string];
-	
-	[js appendString:@"(function(exports){"];
-	[js appendString:code];
-	[js appendString:@"return exports;"];
-	[js appendString:@"})({})"];
+	NSString *js = [[NSString alloc] initWithFormat:
+					@"(function(exports){%@;return exports;})({})",code];
 	
 	NSDictionary *result = [self evalJSAndWait:js];
+	[js release];
 	TiProxy *proxy = [[TiProxy alloc] _initWithPageContext:self];
 	for (id key in result)
 	{
@@ -823,31 +798,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	}
 	
 	@throw [NSException exceptionWithName:@"org.appcelerator.kroll" reason:[NSString stringWithFormat:@"Couldn't find module: %@",path] userInfo:nil];
-}
-
-+ (int)countOfKrollBridgesUsingProxy:(id)proxy
-{
-	int result = 0;
-
-	OSSpinLockLock(&krollBridgeRegistryLock);
-	int bridgeCount = CFSetGetCount(krollBridgeRegistry);
-	KrollBridge * registryObjects[bridgeCount];
-	CFSetGetValues(krollBridgeRegistry, (const void **)registryObjects);
-	
-	for (int currentBridgeIndex = 0; currentBridgeIndex < bridgeCount; currentBridgeIndex++)
-	{
-		KrollBridge * currentBridge = registryObjects[currentBridgeIndex];
-		if (![currentBridge usesProxy:proxy])
-		{
-			continue;
-		}
-		result ++;
-	}
-
-	//Why do we wait so long? In case someone tries to dealloc the krollBridge while we're looking at it.
-	//registryObjects nor the registry does a retain here!
-	OSSpinLockUnlock(&krollBridgeRegistryLock);
-	return result;
 }
 
 + (NSArray *)krollBridgesUsingProxy:(id)proxy
