@@ -255,6 +255,10 @@ properties:
   - name: zIndex
     description: the z index position relative to other sibling views
     type: Number
+  - name: keepScreenOn
+    description: when `true` will request the screen not power down. Note, enabling this feature will use more power thereby adversely affecting run time when on battery.
+    type: Boolean
+    platforms: [android]
 examples:
   - title: Round View Example
     example: |

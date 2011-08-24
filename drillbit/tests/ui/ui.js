@@ -126,5 +126,28 @@ describe("Ti.UI tests", {
 	windowOrientation: function() {
 		var w = Ti.UI.createWindow();
 		valueOf(w.orientation).shouldBeOneOf([Ti.UI.PORTRAIT, Ti.UI.LANDSCAPE_LEFT]);
+	},
+	
+	keepScreenOn: function() {
+		if (Ti.Platform.name == 'android') {
+			var v = Ti.UI.createView();
+			valueOf(v).shouldNotBeNull();
+			valueOf(v.getKeepScreenOn).shouldBeFunction();
+			valueOf(v.setKeepScreenOn).shouldBeFunction();
+			
+			v.keepScreenOn = true;
+			valueOf(v.keepScreenOn).shouldBeTrue();
+			valueOf(v.getKeepScreenOn()).shouldBeTrue();
+			v.keepScreenOn = false;
+			valueOf(v.keepScreenOn).shouldBeFalse();
+			valueOf(v.getKeepScreenOn()).shouldBeFalse();
+			
+			v.setKeepScreenOn(false);
+			valueOf(v.keepScreenOn).shouldBeFalse();
+			valueOf(v.getKeepScreenOn()).shouldBeFalse();
+			v.setKeepScreenOn(true);
+			valueOf(v.keepScreenOn).shouldBeTrue();
+			valueOf(v.getKeepScreenOn()).shouldBeTrue();
+		}
 	}
 });
