@@ -26,7 +26,8 @@ public class DOMImplementationProxy extends KrollProxy {
 	public DocumentProxy createDocument(String namespaceURI, String qualifiedName,
 			DocumentTypeProxy doctype) throws DOMException {
 		return (DocumentProxy)NodeProxy.getNodeProxy(getTiContext(),
-				impl.createDocument(namespaceURI, qualifiedName, doctype.getDocumentType()));
+				impl.createDocument(namespaceURI, qualifiedName,
+						doctype == null ? null : doctype.getDocumentType()));
 	}
 	
 	@Kroll.method

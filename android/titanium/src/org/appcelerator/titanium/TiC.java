@@ -230,6 +230,7 @@ public class TiC
 	public static final String PROPERTY_PINCOLOR = "pincolor";
 	public static final String PROPERTY_PLACES = "places";
 	public static final String PROPERTY_PLAY = "play";
+	public static final String PROPERTY_PLUGIN_STATE = "pluginState";
 	public static final String PROPERTY_POSITION = "position";
 	public static final String PROPERTY_POSTAL_CODE = "postalCode";
 	public static final String PROPERTY_POWER = "power";

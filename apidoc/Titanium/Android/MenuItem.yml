@@ -67,11 +67,6 @@ methods:
 events:
   - name: click
     description: fired when the user presses the button
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
 properties:
   - name: enabled
     description: set the enabled state of the item
