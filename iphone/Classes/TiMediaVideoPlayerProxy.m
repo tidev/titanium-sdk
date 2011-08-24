@@ -262,7 +262,7 @@ NSArray* moviePlayerKeys = nil;
 	if (movie) {
 		double ourTime = [TiUtils doubleValue:time];
 		if (ourTime > 0 || isnan(ourTime)) { 
-            ourTime *= 1000.0f; // convert from milliseconds to seconds
+            ourTime /= 1000.0f; // convert from milliseconds to seconds
 			[[self player] setInitialPlaybackTime:ourTime];
 		}
 	} else {
