@@ -12,45 +12,26 @@ events:
   - name: proximity
     description: fired when a proximity state changes
     properties:
-      - name: source
-        description: the source object that fired the event
       - name: state
         description: the proximity state value
-      - name: type
-        description: the name of the event fired
   - name: resume
     description: fired when an iOS application will enter the foreground due to iOS 4's multitasking.
         This does not include pauses due to notifications or calls. See
         [applicationWillEnterForeground](http://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIApplication_Class/Reference/Reference.html#//apple_ref/doc/uid/TP40006728-CH3-SW108) for
         the exact behavior that triggers this event.
     platforms: [iphone, ipad]
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
   - name: resumed
     description: fired when an iOS application will return to being the focus. This does include not
         only the events that trigger resume, but pauses due to notifications or calls. See
         [applicationDidBecomeActive](http://developer.apple.com/library/ios/documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW10) for
         the exact behavior that triggers this event.
     platforms: [iphone, ipad]
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
   - name: pause
     description: fired when an iOS application will stop being the focus. This does include not
         only the user leaving the application, but pauses due to notifications or calls. See
         [applicationWillResignActive](http://developer.apple.com/library/ios/documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW10) for
         the exact behavior that triggers this event.
     platforms: [iphone, ipad]
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
 properties:
   - name: copyright
     description: the application's copyright
