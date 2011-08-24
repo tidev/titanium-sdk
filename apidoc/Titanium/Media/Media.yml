@@ -79,29 +79,16 @@ methods:
 events:
   - name: linechange
     description: fired when a audio line type change is detected
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
   - name: recordinginput
     description: fired when availablity of recording input changes
     properties:
       - name: available
         description: bool indicating availability of recording device
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
   - name: volume
     description: fired when the volume output changes
     properties:
       - name: volume
         description: float of the new volume in dB
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
 properties:
   - name: AUDIO_FILEFORMAT_3GP2
     description: audio file format 3GPP-2

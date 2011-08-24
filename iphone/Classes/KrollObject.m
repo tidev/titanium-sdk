@@ -796,7 +796,8 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 	//TODO: need to consult property_getAttributes to make sure we're not hitting readonly, etc. but do this
 	//only for non-production builds
 	
-	if ([key hasPrefix:@"set"])
+	if ([key hasPrefix:@"set"] && ([key length]>=4) &&
+			[[NSCharacterSet uppercaseLetterCharacterSet] characterIsMember:[key characterAtIndex:3]])
 	{
 		// this is a request for a setter method
 		// a.setFoo('bar')
