@@ -99,30 +99,33 @@ methods:
     parameters:
       - name: options
         description: encodeNumber named options
-        type: EncodeNumberSpec
+        type: Dictionary<EncodeNumberDict>
     returns:
         type: Number
         description: The position after the encoded number in `dest`.
-    examples: |
-        Encode a double-precision floating point value in 8 bytes using the OS byte order
-        
-            var buffer = Ti.createBuffer({ length: 8 });
-            Ti.Codec.encodeNumber({
-              source: 1.23456789,
-              dest: buffer,
-              type: Ti.Codec.TYPE_DOUBLE
-            });
-        
-        Encode a 4 byte integer to position 10 using BIG_ENDIAN encoding
-        
-            var buffer = Ti.createBuffer({ length: 100 });
-            Ti.Codec.encodeNumber({
-                source: 0x3456789a,
-                dest: buffer,
-                position: 10,
-                type: Ti.Codec.TYPE_INT,
-                byteOrder: Ti.Codec.BIG_ENDIAN
-            });
+    examples:
+      - title: Encode a double-precision floating point value
+        example: |
+            Encode a double-precision floating point value in 8 bytes using the OS byte order
+            
+                var buffer = Ti.createBuffer({ length: 8 });
+                Ti.Codec.encodeNumber({
+                  source: 1.23456789,
+                  dest: buffer,
+                  type: Ti.Codec.TYPE_DOUBLE
+                });
+
+      - title: Encode a 4 byte integer to position 10 using BIG_ENDIAN encoding
+        example: |
+            
+                var buffer = Ti.createBuffer({ length: 100 });
+                Ti.Codec.encodeNumber({
+                    source: 0x3456789a,
+                    dest: buffer,
+                    position: 10,
+                    type: Ti.Codec.TYPE_INT,
+                    byteOrder: Ti.Codec.BIG_ENDIAN
+                });
   - name: decodeNumber
     description: |
         Decodes the `source` buffer (starting at the optional `position`) using the passed in data `type`.
@@ -130,28 +133,31 @@ methods:
     parameters:
       - name: options
         description: decodeNumber named options
-        type: DecodeNumberSpec
+        type: Dictionary<DecodeNumberDict>
     returns:
         type: Number
         description: The Number decoded from `source`.
-    examples: |
-        Decode an 8 byte double-precision floating point number using the OS byte order
+    examples:
+      - title: Decode an 8 byte double-precision floating point number 
+        example: |
+            Decode an 8 byte double-precision floating point number using the OS byte order
+            
+                var buffer = //...
+                var value = Ti.Codec.decodeNumber({
+                    source: buffer,
+                    type: Ti.Codec.TYPE_DOUBLE
+                });
         
-            var buffer = //...
-            var value = Ti.Codec.decodeNumber({
-                source: buffer,
-                type: Ti.Codec.TYPE_DOUBLE
-            });
-        
-        Decode a 4 byte integer from position 10 using BIG_ENDIAN encoding
-        
-          var buffer = //...
-          var value = Ti.Codec.decodeNumber({
-              source: buffer,
-              position: 10,
-              type: Ti.Codec.TYPE_INT,
-              byteOrder: Ti.Codec.BIG_ENDIAN
-          });
+      - title: Decode a 4 byte integer from position 10 using BIG_ENDIAN encoding
+        example: |
+            
+                var buffer = //...
+                var value = Ti.Codec.decodeNumber({
+                      source: buffer,
+                      position: 10,
+                      type: Ti.Codec.TYPE_INT,
+                      byteOrder: Ti.Codec.BIG_ENDIAN
+                });
   - name: encodeString
     description: |
         Encodes the String `source` into `dest` using `charset`.
@@ -161,30 +167,33 @@ methods:
     parameters:
       - name: options
         description: encodeString named options
-        type: EncodeStringSpec
+        type: Dictionary<EncodeStringDict>
     returns:
         type: Number
         description: The position after the encoded String inside `dest`.
-    examples: |
-        Encode and trim a simple String using the UTF-8 (default) charset
+    examples:
+      - title: Encode and trim a simple String using the UTF-8 (default) charset
+        example: |
+            
+                var buffer = Ti.createBuffer({ length: 1024 });
+                var length = Ti.Codec.encodeString({
+                    source: "hello world",
+                    dest: buffer
+                });
+                buffer.length = length;
         
-            var buffer = Ti.createBuffer({ length: 1024 });
-            var length = Ti.Codec.encodeString({
-                source: "hello world",
-                dest: buffer
-            });
-            buffer.length = length;
-        
-        Encode the first 10 characters of a String using the UTF-16 charset
-        
-            // (10 * 2) + BOM = 22
-            var buffer = Ti.createBuffer({ length: 22 });
-            Ti.Codec.encodeString({
-                source: "jack jumped over the candle stick",
-                sourceLength: 10,
-                dest: buffer,
-                charset: Ti.Codec.CHARSET_UTF16
-            });
+      - title: Encode the first 10 characters of a String using the UTF-16 charset
+        example: |
+            
+                // (10 * 2) + BOM = 22
+                var buffer = Ti.createBuffer({ length: 22 });
+                Ti.Codec.encodeString({
+                    source: "jack jumped over the candle stick",
+                    sourceLength: 10,
+                    dest: buffer,
+                    charset: Ti.Codec.CHARSET_UTF16
+                });
+
   - name: decodeString
     description: |
         Decodes the `source` buffer into a String starting at `position`, with `length` bytes,
@@ -194,24 +203,28 @@ methods:
     parameters:
       - name: options
         description: decodeString named options
-        type: DecodeStringSpec
+        type: Dictionary<DecodeStringDict>
     returns:
         type: String
         description: The decoded string
-    examples: |
-        Decode a String using the UTF-8 (default) charset
-            var buffer = //...
-            var string = Ti.Codec.decodeString({ source: buffer });
-        
-        Decode a string using the UTF-16 charset
-            var buffer = //...
-            var string = Ti.Codec.decodeString({
-              source: buffer,
-              charset: Ti.Codec.CHARSET_UTF16
-            });
+    examples:
+      - title: Decode a String using the UTF-8 (default) charset
+        example: |
+            
+                var buffer = //...
+                var string = Ti.Codec.decodeString({ source: buffer });
+
+      - title: Decode a string using the UTF-16 charset
+        example: |
+            
+                var buffer = //...
+                var string = Ti.Codec.decodeString({
+                  source: buffer,
+                  charset: Ti.Codec.CHARSET_UTF16
+                });
 ---
-name: EncodeNumberSpec
-description: Specification for <Titanium.Codec.encodeNumber>
+name: EncodeNumberDict
+description: Options for <Titanium.Codec.encodeNumber>
 properties:
   - name: source
     type: Number
@@ -240,8 +253,8 @@ properties:
     default: Return value of <Titanium.Codec.getNativeByteOrder>
 
 ---
-name: DecodeNumberSpec
-description: Specification for <Titanium.Codec.decodeNumber>
+name: DecodeNumberDict
+description: Options for <Titanium.Codec.decodeNumber>
 properties:
   - name: source
     type: Titanium.Buffer
@@ -266,8 +279,8 @@ properties:
     default: Return value of <Titanium.Codec.getNativeByteOrder>
 
 ---
-name: EncodeStringSpec
-description: Specification for <Titanium.Codec.encodeString>
+name: EncodeStringDict
+description: Options for <Titanium.Codec.encodeString>
 properties:
   - name: source
     type: String
@@ -299,8 +312,8 @@ properties:
     default: <Titanium.Codec.CHARSET_UTF8>
 
 ---
-name: DecodeStringSpec
-description: Specification for <Titanium.Codec.decodeString>
+name: DecodeStringDict
+description: Options for <Titanium.Codec.decodeString>
 properties:
   - name: source
     type: Titanium.Buffer

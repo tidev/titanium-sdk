@@ -4,6 +4,7 @@ description: A set of constants for the system button style for buttons.
 extends: Titanium.Proxy
 since: "0.8"
 platforms: [iphone, ipad]
+createable: false
 properties:
   - name: ACTION
     description: action icon. Usable in nav bars and toolbars only.
