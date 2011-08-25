@@ -420,21 +420,25 @@ class Compiler(object):
 		method = "dataWithHexString(@\"%s\")" % data
 		return {'method':method,'path':path}
 	
-	def softlink_resources(self,source,target):
+	def softlink_resources(self,source,target,use_ignoreDirs=True):
 		if not os.path.exists(target):
 			os.makedirs(target)
 		for file in os.listdir(source):
-			if (file in ignoreDirs) or (file in ignoreFiles):
+			if use_ignoreDirs and ((file in ignoreDirs) or (file in ignoreFiles)):
 				continue
 			from_ = os.path.join(source, file)
 			to_ = os.path.join(target, file)
-			print "[DEBUG] linking: %s to %s" % (from_,to_)
-			if os.path.exists(to_):
-				if os.path.islink(to_):
-					os.remove(to_)
-					os.symlink(from_, to_)
+			if os.path.isdir(from_):
+				print "[DEBUG] creating: %s" % (to_)
+				self.softlink_resources(from_,to_,False)
 			else:
-				os.symlink(from_, to_)
+				print "[DEBUG] linking: %s to %s" % (from_,to_)
+				if os.path.exists(to_):
+					if os.path.islink(to_):
+						os.remove(to_)
+						os.symlink(from_, to_)
+				else:
+					os.symlink(from_, to_)
 	
 	def copy_resources(self,sources,target,write_routing=True):
 		
