@@ -29,11 +29,6 @@ properties:
     type: String
     description: When this blob represents a <Titanium.File>, this is the file URL that represents it
     permission: read-only
-  - name: path
-    type: String
-    description: When this blob represents a <Titanium.File>, this is the absolute path to the file.
-    platforms: [iphone, ipad]
-    permission: read-only
   - name: size
     type: Number
     description: When this blob represents an image, this is the total number of pixels in the image.
