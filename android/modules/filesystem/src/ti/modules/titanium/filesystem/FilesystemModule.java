@@ -18,6 +18,8 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiTempFileHelper;
 
+import ti.modules.titanium.stream.FileStreamProxy;
+
 @Kroll.module
 public class FilesystemModule extends KrollModule
 {
@@ -121,7 +123,7 @@ public class FilesystemModule extends KrollModule
 	{
 		String[] sparts = TiConvert.toStringArray(parts);
 		FileProxy fileProxy = new FileProxy(getTiContext(), sparts);
-		fileProxy.tbf.open(mode, true);
+		fileProxy.getBaseFile().open(mode, true);
 
 		return new FileStreamProxy(fileProxy);
 	}
