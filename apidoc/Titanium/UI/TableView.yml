@@ -265,6 +265,7 @@ properties:
     type: String
   - name: separatorStyle
     description: the separator style constant. For iPhone, Titanium.UI.iPhone.TableViewSeparatorStyle
+    platforms: [iphone, ipad]
     type: Number
   - name: showVerticalScrollIndicator
     description: whether tableview displays vertical scroll indicator (iOS Only)
