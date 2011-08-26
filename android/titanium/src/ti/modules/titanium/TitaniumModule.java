@@ -165,7 +165,15 @@ public class TitaniumModule extends KrollModule
 		public void run()
 		{
 			if (canceled) return;
-			Log.d(LCAT, "calling " + (interval?"interval":"timeout") + " timer " + id + " @" + new Date().getTime());
+			if (DBG) {
+				StringBuilder message = new StringBuilder("calling ")
+					.append(interval ? "interval" : "timeout")
+					.append(" timer ")
+					.append(id)
+					.append(" @")
+					.append(new Date().getTime());
+				Log.d(LCAT, message.toString());
+			}
 			long start = System.currentTimeMillis();
 			callback.callSync(args);
 			if (interval && !canceled) {
@@ -399,7 +407,9 @@ public class TitaniumModule extends KrollModule
 
 	protected KrollModule requireNativeModule(TiContext context, String path)
 	{
-		Log.d(LCAT, "Attempting to include native module: " + path);
+		if (DBG) {
+			Log.d(LCAT, "Attempting to include native module: " + path);
+		}
 		KrollModuleInfo info = KrollModule.getModuleInfo(path);
 		if (info == null) return null;
 
@@ -458,4 +468,5 @@ public class TitaniumModule extends KrollModule
 	public void onDestroy(Service service)
 	{
 	}
+
 }
