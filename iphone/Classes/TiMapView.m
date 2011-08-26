@@ -35,6 +35,10 @@
 
 -(void)render
 {
+	if (![NSThread isMainThread]) {
+		[self performSelectorOnMainThread:@selector(render) withObject:nil waitUntilDone:NO];
+		return;
+	}  	  
 	if (region.center.latitude!=0 && region.center.longitude!=0)
 	{
 		[map setRegion:[map regionThatFits:region] animated:animate];
@@ -63,7 +67,7 @@
 
 -(void)didFirePropertyChanges
 {
-	[self performSelectorOnMainThread:@selector(render) withObject:nil waitUntilDone:NO];
+	[self render];
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
@@ -715,6 +719,7 @@
 // Use the current positions of the annotation views as the destinations of the animation.
 - (void)mapView:(MKMapView *)mapView didAddAnnotationViews:(NSArray *)views
 {
+	[self sendRoutesToBack];
 	for (MKAnnotationView<TiMapAnnotation> *thisView in views)
 	{
 		if(![thisView conformsToProtocol:@protocol(TiMapAnnotation)])
@@ -723,6 +728,23 @@
 		}
 		TiMapAnnotationProxy * thisProxy = [self proxyForAnnotation:thisView];
 		[thisProxy setPlaced:YES];
+	}
+}
+-(void) mapView:(MKMapView *)mapView didDeselectAnnotationView:(MKAnnotationView *) views
+{
+	[self sendRoutesToBack];
+}
+//Send all Routes to the back so that annotations stay on top.
+-(void) sendRoutesToBack
+{
+	if (routeViews!=nil)
+	{
+		for(NSObject* key in [routeViews allKeys])
+		{
+			TiMapRouteAnnotationView* routeView = [routeViews objectForKey:key];
+			[[routeView superview] sendSubviewToBack:routeView];
+			[routeView regionChanged]; 
+		}
 	}
 }
 

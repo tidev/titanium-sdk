@@ -42,17 +42,6 @@ def version_sort(a,b):
 		return 1
 	return 0
 
-# Find the SDK file path
-def find_sdk_path(version):
-	sdk_path = os.path.join(os.path.expanduser("~/Library/Application Support/Titanium"),"mobilesdk","osx",version)
-	if os.path.exists(sdk_path):
-		return sdk_path
-	sdk_path = os.path.join("/Library","Application Support","Titanium","mobilesdk","osx",version)
-	if os.path.exists(sdk_path):
-		return sdk_path
-	print "Is Titanium installed? I can't find it"
-	sys.exit(1)
-
 # this will return the version of the iOS SDK that we have installed
 def check_iphone_sdk(s):
 	found = []
@@ -666,8 +655,18 @@ def main(args):
 						module_dir = os.path.join(app_dir, 'modules', module_id)
 						module_asset_dirs.append([module_assets_dir, module_dir])
 
+			full_version = sdk_version
+			if 'version' in versions_txt:
+				full_version = versions_txt['version']
+				if 'timestamp' in versions_txt or 'githash' in versions_txt:
+					full_version += ' ('
+					if 'timestamp' in versions_txt:
+						full_version += '%s' % versions_txt['timestamp']
+					if 'githash' in versions_txt:
+						full_version += ' %s' % versions_txt['githash']
+					full_version += ')'
 
-			print "[INFO] Titanium SDK version: %s" % sdk_version
+			print "[INFO] Titanium SDK version: %s" % full_version
 			print "[INFO] iPhone Device family: %s" % devicefamily
 			print "[INFO] iPhone SDK version: %s" % iphone_version
 			
@@ -1029,7 +1028,7 @@ def main(args):
 				if not os.path.exists(defaultpng_path):
 					defaultpng_path = os.path.join(project_dir,'Resources','Default.png')
 				if not os.path.exists(defaultpng_path):
-					defaultpng_path = os.path.join(find_sdk_path(sdk_version),'iphone','resources','Default.png')
+					defaultpng_path = os.path.join(template_dir,'resources','Default.png')
 				if os.path.exists(defaultpng_path):
 					shutil.copy(defaultpng_path,iphone_resources_dir)
 
@@ -1049,6 +1048,12 @@ def main(args):
 					# Additionally, if we're universal, change the device family target
 					if devicefamily == 'universal':
 						device_target="TARGETED_DEVICE_FAMILY=1,2"
+
+				kroll_coverage = ""
+				if ti.has_app_property("ti.ios.enablecoverage"):
+					enable_coverage = ti.to_bool(ti.get_app_property("ti.ios.enablecoverage"))
+					if enable_coverage:
+						kroll_coverage = "KROLL_COVERAGE=1"
 
 				def execute_xcode(sdk,extras,print_output=True):
 
@@ -1159,7 +1164,7 @@ def main(args):
 						debugstr = 'DEBUGGER_ENABLED=1'
 					
 					if force_rebuild or force_xcode or not os.path.exists(binary):
-						execute_xcode("iphonesimulator%s" % link_version,["GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development TI_DEVELOPMENT=1 DEBUG=1 TI_VERSION=%s %s" % (log_id,sdk_version,debugstr)],False)
+						execute_xcode("iphonesimulator%s" % link_version,["GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development TI_DEVELOPMENT=1 DEBUG=1 TI_VERSION=%s %s %s" % (log_id,sdk_version,debugstr,kroll_coverage)],False)
 
 					# first make sure it's not running
 					kill_simulator()
@@ -1311,7 +1316,7 @@ def main(args):
 						debugstr = 'DEBUGGER_ENABLED=1'
 						
 					args += [
-						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=test TI_TEST=1 %s" % debugstr,
+						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=test TI_TEST=1 %s %s" % (debugstr, kroll_coverage),
 						"PROVISIONING_PROFILE=%s" % appuuid,
 						"CODE_SIGN_IDENTITY=iPhone Developer: %s" % dist_name,
 						"DEPLOYMENT_POSTPROCESSING=YES"

@@ -4,7 +4,7 @@
 # Android Simulator for building a project and launching
 # the Android Emulator or on the device
 #
-import os, sys, subprocess, shutil, time, signal, string, platform, re, glob, hashlib, imp
+import os, sys, subprocess, shutil, time, signal, string, platform, re, glob, hashlib, imp, inspect
 import run, avd, prereq, zipfile, tempfile, fnmatch, codecs, traceback, simplejson
 from os.path import splitext
 from compiler import Compiler
@@ -47,6 +47,11 @@ uncompressed_types = [
 
 
 MIN_API_LEVEL = 7
+
+def remove_ignored_dirs(dirs):
+	for d in dirs:
+		if d in ignoreDirs:
+			dirs.remove(d)
 
 # ZipFile.extractall introduced in Python 2.6, so this is workaround for earlier
 # versions
@@ -145,7 +150,7 @@ def remove_orphaned_files(source_folder, target_folder):
 				os.remove(full)
 
 def is_resource_drawable(path):
-	if re.search("android/images/(high|medium|low|res-[^/]+)/", path.replace("\\", "/")):
+	if re.search("android/images/(high|medium|low|res-[^/]+)/", path.replace(os.sep, "/")):
 		return True
 	else:
 		return False
@@ -155,7 +160,7 @@ def resource_drawable_folder(path):
 		return None
 	else:
 		pattern = r'/android/images/(high|medium|low|res-[^/]+)/'
-		match = re.search(pattern, path.replace("\\", "/"))
+		match = re.search(pattern, path.replace(os.sep, "/"))
 		if not match.groups():
 			return None
 		folder = match.groups()[0]
@@ -384,7 +389,7 @@ class Builder(object):
 		for device in devices:
 			if device.is_emulator() and device.get_port() == 5560:
 				info("Emulator is running.")
-				sys.exit(0)
+				sys.exit()
 		
 		# this will create an AVD on demand or re-use existing one if already created
 		avd_name = self.create_avd(avd_id,avd_skin)
@@ -469,9 +474,6 @@ class Builder(object):
 				warn('You have both an android/images/%s folder and an android/images/res-%sdpi folder. Files from both of these folders will end up in res/drawable-%sdpi.  If two files are named the same, there is no guarantee which one will be copied last and therefore be the one the application uses.  You should use just one of these folders to avoid conflicts.' % (check, check[0], check[0]))
 
 	def copy_module_platform_folders(self):
-		module_dir = os.path.join(self.top_dir, 'modules', 'android')
-		if not os.path.exists(module_dir):
-			return
 		for module in self.modules:
 			platform_folder = os.path.join(module.path, 'platform', 'android')
 			if os.path.exists(platform_folder):
@@ -486,7 +488,7 @@ class Builder(object):
 		debug('Processing Android resource drawables')
 
 		def make_resource_drawable_filename(orig):
-			normalized = orig.replace("\\", "/")
+			normalized = orig.replace(os.sep, "/")
 			matches = re.search("/android/images/(high|medium|low|res-[^/]+)/(?P<chopped>.*$)", normalized)
 			if matches and matches.groupdict() and 'chopped' in matches.groupdict():
 				chopped = matches.groupdict()['chopped'].lower()
@@ -542,7 +544,10 @@ class Builder(object):
 		if self.force_rebuild or self.deploy_type == 'production' or \
 			(self.js_changed and not self.fastdev):
 			for root, dirs, files in os.walk(os.path.join(self.top_dir, "Resources")):
+				remove_ignored_dirs(dirs)
 				for f in files:
+					if f in ignoreFiles:
+						continue
 					path = os.path.join(root, f)
 					if is_resource_drawable(path) and f != 'default.png':
 						fileset.append(path)
@@ -593,7 +598,7 @@ class Builder(object):
 
 		for delta in self.project_deltas:
 			path = delta.get_path()
-			if re.search("android/images/(high|medium|low|res-[^/]+)/", path.replace("\\", "/")):
+			if re.search("android/images/(high|medium|low|res-[^/]+)/", path.replace(os.sep, "/")):
 				continue # density images are handled later
 
 			if delta.get_status() == Delta.DELETED and path.startswith(android_resources_dir):
@@ -870,9 +875,12 @@ class Builder(object):
 		if os.path.exists(android_images_dir):
 			pattern = r'/android/images/(high|medium|low|res-[^/]+)/default.png'
 			for root, dirs, files in os.walk(android_images_dir):
+				remove_ignored_dirs(dirs)
 				for f in files:
+					if f in ignoreFiles:
+						continue
 					path = os.path.join(root, f)
-					if re.search(pattern, path):
+					if re.search(pattern, path.replace(os.sep, "/")):
 						res_folder = resource_drawable_folder(path)
 						debug('found %s splash screen at %s' % (res_folder, path))
 						dest_path = os.path.join(self.res_dir, res_folder)
@@ -1091,9 +1099,12 @@ class Builder(object):
 			update_stylesheet = True
 		else:
 			for root, dirs, files in os.walk(resources_dir):
-				for file in files:
-					if file.endswith(".jss"):
-						absolute_path = os.path.join(root, file)
+				remove_ignored_dirs(dirs)
+				for f in files:
+					if f in ignoreFiles:
+						continue
+					if f.endswith(".jss"):
+						absolute_path = os.path.join(root, f)
 						if Deltafy.needs_update(absolute_path, app_stylesheet):
 							update_stylesheet = True
 							break
@@ -1116,10 +1127,11 @@ class Builder(object):
 		# fix un-escaped single-quotes and full-quotes
 		offending_pattern = '[^\\\\][\'"]'
 		for root, dirs, files in os.walk(self.res_dir):
-			for f in files:
-				if not f.endswith('.xml'):
+			remove_ignored_dirs(dirs)
+			for filename in files:
+				if filename in ignoreFiles or not filename.endswith('.xml'):
 					continue
-				full_path = os.path.join(root, f)
+				full_path = os.path.join(root, filename)
 				f = codecs.open(full_path, 'r', 'utf-8')
 				contents = f.read()
 				f.close()
@@ -1156,7 +1168,10 @@ class Builder(object):
 		
 		for path in paths:
 			for root, dirs, files in os.walk(path):
+				remove_ignored_dirs(dirs)
 				for filename in files:
+					if filename in ignoreFiles:
+						continue
 					if file_glob != None:
 						if not fnmatch.fnmatch(filename, file_glob): continue
 					yield os.path.join(root, filename)
@@ -1278,14 +1293,17 @@ class Builder(object):
 		
 		# add all resource files from the project
 		for root, dirs, files in os.walk(self.project_src_dir):
-			for file in files:
-				if os.path.splitext(file)[1] != '.java':
-					absolute_path = os.path.join(root, file)
-					relative_path = os.path.join(root[len(self.project_src_dir)+1:], file)
+			remove_ignored_dirs(dirs)
+			for f in files:
+				if f in ignoreFiles:
+					continue
+				if os.path.splitext(f)[1] != '.java':
+					absolute_path = os.path.join(root, f)
+					relative_path = os.path.join(root[len(self.project_src_dir)+1:], f)
 					if is_modified(absolute_path):
 						self.apk_updated = True
 						debug("resource file => " + relative_path)
-						apk_zip.write(os.path.join(root, file), relative_path, compression_type(file))
+						apk_zip.write(os.path.join(root, f), relative_path, compression_type(f))
 		
 		def add_resource_jar(jar_file):
 			jar = zipfile.ZipFile(jar_file)
@@ -1350,19 +1368,6 @@ class Builder(object):
 			'-S', 'res', '-I', self.android_jar, '-I', self.titanium_jar, '-F', ap_], warning_regex=r'skipping')
 
 		unsigned_apk = self.create_unsigned_apk(ap_)
-		#unsigned_apk = os.path.join(self.project_dir, 'bin', 'app-unsigned.apk')
-		#apk_build_cmd = [self.apkbuilder, unsigned_apk, '-u', '-z', ap_, '-f', self.classes_dex, '-rf', self.project_src_dir]
-		#for jar in self.android_jars:
-		#	apk_build_cmd += ['-rj', jar]
-		#for jar in self.module_jars:
-		#	apk_build_cmd += ['-rj', jar]
-		
-		#output, err_output = run.run(apk_build_cmd, ignore_error=True, return_error=True)
-		#if err_output:
-		#	if 'THIS TOOL IS DEPRECATED' in err_output:
-		#		debug('apkbuilder deprecation warning received')
-		#	else:
-		#		run.check_and_print_err(err_output, None)
 
 		if self.dist_dir:
 			app_apk = os.path.join(self.dist_dir, self.name + '.apk')	
@@ -1394,7 +1399,8 @@ class Builder(object):
 			os.rename(app_apk+'z',app_apk)
 
 		if self.dist_dir:
-			sys.exit(0)
+			self.post_build()
+			sys.exit()
 
 		if self.build_only:
 			return (False, False)
@@ -1523,6 +1529,7 @@ class Builder(object):
 		deploy_type = 'development'
 		self.build_only = build_only
 		self.device_args = device_args
+		self.postbuild_modules = []
 		if install:
 			if self.device_args == None:
 				self.device_args = ['-d']
@@ -1580,6 +1587,10 @@ class Builder(object):
 				m.update(open(code_path,'rb').read()) 
 				code_hash = m.hexdigest()
 				p = imp.load_source(code_hash, code_path, fin)
+				module_functions = dict(inspect.getmembers(p, inspect.isfunction))
+				if module_functions.has_key('postbuild'):
+					debug("plugin contains a postbuild function. Will execute after project is built and packaged")
+					self.postbuild_modules.append((plugin['name'], p))
 				p.compile(compiler_config)
 				fin.close()
 			
@@ -1687,7 +1698,6 @@ class Builder(object):
 				self.debugger_port = int(hostport[1])
 			debugger_enabled = self.debugger_host != None and len(self.debugger_host) > 0
 
-			# self.enable_debugger(debugger_host)
 			self.copy_project_resources()
 
 			last_build_info = None
@@ -1815,23 +1825,7 @@ class Builder(object):
 				else:
 					dex_built = True
 					debug("Android classes.dex built")
-			
-			"""if self.sdcard_copy and not build_only and \
-				(not self.resources_installed or not self.app_installed) and \
-				(self.deploy_type == 'development' or self.deploy_type == 'test'):
-				
-					if self.install: self.wait_for_device('e')
-					else: self.wait_for_device('d')
-				
-					trace("Performing full copy to SDCARD -> %s" % self.sdcard_resources)
-					output = self.run_adb('push', os.path.join(self.top_dir, 'Resources'), self.sdcard_resources)
-					trace("result: %s" % output)
-			
-					android_resources_dir = os.path.join(self.top_dir, 'Resources', 'android')
-					if os.path.exists(android_resources_dir):
-						output = self.run_adb('push', android_resources_dir, self.sdcard_resources)
-						trace("result: %s" % output)"""
-						
+
 			if dex_built or generated_classes_built or self.tiapp_changed or self.manifest_changed or not self.app_installed or not self.fastdev:
 				# metadata has changed, we need to do a full re-deploy
 				launched, launch_failed = self.package_and_deploy()
@@ -1865,6 +1859,8 @@ class Builder(object):
 				if relaunched:
 					info("Relaunched %s ... Application should be running." % self.name)
 
+			self.post_build()
+
 			#intermediary code for on-device debugging (later)
 			#if debugger_host != None:
 				#import debugger
@@ -1874,6 +1870,15 @@ class Builder(object):
 			os.chdir(curdir)
 			sys.stdout.flush()
 			
+	def post_build(self):
+		try:
+			if self.postbuild_modules:
+				for p in self.postbuild_modules:
+					info("Running postbuild function in %s plugin" % p[0])
+					p[1].postbuild()
+		except Exception,e:
+			error("Error performing post-build steps: %s" % e)
+
 
 if __name__ == "__main__":
 	def usage():
@@ -1981,5 +1986,3 @@ if __name__ == "__main__":
 		for line in e.splitlines():
 			error(line)
 		sys.exit(1)
-		
-	sys.exit(0)

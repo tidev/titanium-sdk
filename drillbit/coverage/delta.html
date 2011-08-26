@@ -1,0 +1,43 @@
+<%
+def countDelta(which):
+	deltaCount = 0
+	if category in delta[which]:
+		for apiType in delta[which][category]:
+			for apiName in delta[which][category][apiType]:
+				deltaCount += 1
+	return deltaCount
+%>
+
+<%def name="categoryDelta(which, category)">
+% if category in delta[which]:
+	% for apiType in delta[which][category].keys():
+		% for apiName in delta[which][category][apiType].keys():
+			<% type = "function" %>
+			<% plusMinus = {"added": "+", "removed": "-"}[which] %>
+			<% if apiType == "properties": type = "property" %>
+			<span class="${which} smallText">
+				<b>${plusMinus} ${apiName} ${type}</b> ${which}
+				<% platforms = delta[which][category][apiType][apiName] %>
+				<% platforms = [data.platformDesc[p] for p in platforms] %>
+				(${", ".join(platforms)})
+			</span><br/>
+		% endfor
+	% endfor
+% endif
+</%def>
+
+<html>
+	<head><link rel="stylesheet" href="coverage.css" type="text/css"/></head>
+	<body>
+		<h1>Delta Summary</h1>
+		% for category in data.ALL_CATEGORIES:
+			<%
+				added = countDelta("added")
+				removed = countDelta("removed")
+			%>
+			<h3>${data.categoryDesc[category]} delta: ${added} added, ${removed} removed</h3>
+			${categoryDelta("added", category)}
+			${categoryDelta("removed", category)}
+		% endfor
+	</body>
+</html>

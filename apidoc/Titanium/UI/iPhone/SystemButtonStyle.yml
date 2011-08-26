@@ -4,6 +4,7 @@ description: A set of constants for the system button styles that can be used fo
 extends: Titanium.Proxy
 since: "0.8"
 platforms: [iphone, ipad]
+createable: false
 properties:
   - name: BAR
     description: Used by tabbed bar and button bar only to use the more condensed style used in nav bars and tool bars.

@@ -19,11 +19,15 @@
 		return;
 	}
     // NOTE: We don't need to blur the currently visible proxy, because it gets closed out by the close: call.
-	[visibleProxy autorelease];
-
+	TiWindowProxy * oldProxy = visibleProxy;
 	visibleProxy = [newVisibleProxy retain];
+	[oldProxy _tabBeforeBlur];
 	[newVisibleProxy _tabBeforeFocus];
+
+	[oldProxy _tabBlur];
 	[newVisibleProxy _tabFocus];
+
+	[oldProxy release];
 }
 
 -(void)dealloc
@@ -52,7 +56,7 @@
 		[windowProxy prepareForNavView:controller];
 		
 		root = windowProxy;
-		[self setVisibleProxy:windowProxy];
+//		[self setVisibleProxy:windowProxy];
 	}
 	return controller;
 }
@@ -113,6 +117,7 @@
 	NSMutableArray* newControllers = [NSMutableArray arrayWithArray:controller.viewControllers];
 	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:(windowController == [newControllers lastObject])];
 	[newControllers removeObject:windowController];
+	[closingProxy autorelease];
 	closingProxy = [window retain];
 	[controller setViewControllers:newControllers animated:animated];
 	

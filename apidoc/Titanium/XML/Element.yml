@@ -8,6 +8,7 @@ description: >
     This conforms to the 
     [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html)
     definition of a DOM Element.
+createable: false
 methods:
   - name: getAttribute
     description: Retrieves an attribute value by name, returning it as a string.
@@ -88,7 +89,8 @@ methods:
       - name: name
         description: The name of the element. The value `*` matches all tags.
         type: String
-    returns: Titanium.XML.NodeList
+    returns:
+        type: Titanium.XML.NodeList
   - name: getAttributeNS
     description: >
         Retrieves an attribute value by local name and namespace URI,
@@ -101,8 +103,8 @@ methods:
         description: The local name of the attribute to retrieve.
         type: String
     returns:
-      type: String
-      description: >
+        type: String
+        description: >
           The <Titanium.XML.Attr> value as a string, or empty string
           if the attribute has no specified or default value.
   - name: setAttributeNS
@@ -183,7 +185,8 @@ methods:
       - name: localName
         description: The local name of the element. The value `*` matches all local names.
         type: String
-    returns: Titanium.XML.NodeList
+    returns:
+        type: Titanium.XML.NodeList
   - name: hasAttribute
     description: >
         Determines whether or not an attribute with the given name is
@@ -192,7 +195,8 @@ methods:
       - name: name
         description: The name of the attribute to search for.
         type: String
-    returns: Boolean
+    returns:
+        type: Boolean
   - name: hasAttributeNS
     description: >
         Determines whether or not an attribute with the given name is
@@ -204,7 +208,8 @@ methods:
       - name: localName
         description: The local name of the attribute to search for.
         type: String
-    returns: Boolean
+    returns:
+        type: Boolean
 properties:
   - name: tagName
     description: The name of the element, as defined by its tag.

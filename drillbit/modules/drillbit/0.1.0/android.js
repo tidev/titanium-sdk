@@ -116,7 +116,7 @@ AndroidEmulator.prototype.isTestHarnessRunning = function() {
 };
 
 AndroidEmulator.prototype.isEmulatorRunning = function() {
-	var devices = this.runADB(['devices'])
+	var devices = this.runADB(['devices']);
 	if (devices.indexOf('emulator') >= 0) {
 		return true;
 	}
@@ -124,7 +124,8 @@ AndroidEmulator.prototype.isEmulatorRunning = function() {
 };
 
 AndroidEmulator.prototype.getTestJSInclude = function() {
-	return "Ti.include(\"appdata://test.js\")";
+	return "TestHarnessActivity.loadTest(this);";
+	//return "Ti.include(\"appdata://test.js\")";
 };
 
 AndroidEmulator.prototype.run = function(readLineCb) {
@@ -196,7 +197,13 @@ AndroidEmulator.prototype.handleCompleteAndroidEvent = function(event)
 
 	var coverageData = this.runADB(['shell', 'cat', '/sdcard/' + this.drillbit.testHarnessId + '/coverage.json']);
 	var coverage = JSON.parse(coverageData);
-	this.drillbit.handleCompleteEvent(results, 'android', coverage);
+
+	var resultsInfo = {
+		results: results,
+		coverage: coverage,
+		suite: suite
+	}
+	this.drillbit.handleCompleteEvent(resultsInfo, 'android');
 };
 
 AndroidEmulator.prototype.removeTestJS = function(testScript) {
@@ -209,12 +216,40 @@ AndroidEmulator.prototype.removeTestJS = function(testScript) {
 };
 
 AndroidEmulator.prototype.pushTestJS = function(testScript) {
-	var testJS = ti.fs.createTempFile();
+	var tempDir = ti.fs.createTempDirectory();
+	var testJS = ti.fs.getFile(tempDir.nativePath(), "test.js");
 	var stream = testJS.open(ti.fs.MODE_WRITE);
 	stream.write(testScript);
 	stream.close();
-	
-	this.runADB(['push', testJS.nativePath(), '/sdcard/' + this.drillbit.testHarnessId + '/test.js']);
+
+	var rhinoJar = ti.path.join(this.drillbit.mobileSdk, 'android', 'js.jar');
+	var dx = ti.path.join(this.androidSdk, "platform-tools", "dx");
+	if (Ti.Platform.isWin32()) {
+		dx += ".bat";
+	}
+
+	var java = "java";
+	var compileArgs = [java, "-classpath", rhinoJar,
+		"org.mozilla.javascript.tools.jsc.Main", "-opt", "9", "-g",
+		"-main-method-class", "org.appcelerator.titanium.TiScriptRunner",
+		"-package", "org.appcelerator.titanium.testharness.js",
+		"-o", "test", "-encoding", "utf8", "-d", tempDir,
+		testJS.nativePath()
+	];
+
+	var compileProcess = Ti.Process.createProcess(compileArgs);
+	Ti.API.debug(compileArgs.join(" "));
+	var out = compileProcess()
+	Ti.API.debug(out.toString());
+
+	var testOutJar = ti.path.join(tempDir.nativePath(), "test.jar");
+	var dxArgs = [dx, "--dex", "--output=" + testOutJar, tempDir.nativePath()];
+	var dxProcess = Ti.Process.createProcess(dxArgs);
+	Ti.API.debug(dxArgs.join(" "));
+	out = dxProcess();
+	Ti.API.debug(out.toString());
+
+	this.runADB(['push', testOutJar, '/sdcard/' + this.drillbit.testHarnessId + '/test.jar']);
 };
 
 AndroidEmulator.prototype.stageSDK = function(sdkTimestamp) {

@@ -1,0 +1,12 @@
+{
+ "functions": [
+  "setSection", 
+  "initWithProperties", 
+  "setTable"
+ ], 
+ "properties": [
+  "section", 
+  "table", 
+  "view"
+ ]
+}

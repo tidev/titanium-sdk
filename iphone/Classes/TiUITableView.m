@@ -45,7 +45,10 @@
 
 -(CGSize)computeCellSize
 {
-    CGFloat width = [proxy sizeWidthForDecorations:[[proxy table] tableView].bounds.size.width forceResizing:YES];
+    CGFloat width = 0;
+    if ([proxy table] != nil) {
+        width = [proxy sizeWidthForDecorations:[[proxy table] tableView].bounds.size.width forceResizing:YES];        
+    }
 	CGFloat height = [proxy rowHeight:width];
 	height = [[proxy table] tableRowHeight:height];
     
@@ -1993,7 +1996,7 @@ if(ourTableView != tableview)	\
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {	
-	if (scrollView.isDragging) 
+	if (scrollView.isDragging || scrollView.isDecelerating) 
 	{
 		if ([self.proxy _hasListeners:@"scroll"])
 		{

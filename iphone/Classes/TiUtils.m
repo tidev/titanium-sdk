@@ -30,9 +30,9 @@
 extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 #endif
 
-NSDictionary* encodingMap = nil;
-NSDictionary* typeMap = nil;
-NSDictionary* sizeMap = nil;
+static NSDictionary* encodingMap = nil;
+static NSDictionary* typeMap = nil;
+static NSDictionary* sizeMap = nil;
 
 @implementation TiUtils
 

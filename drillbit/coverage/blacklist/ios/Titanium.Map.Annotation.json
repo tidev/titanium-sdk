@@ -1,0 +1,16 @@
+{
+ "functions": [
+  "setNeedsRefreshingWithSelection", 
+  "setPlaced", 
+  "setDelegate"
+ ], 
+ "properties": [
+  "langConversionTable", 
+  "rightViewAccessory", 
+  "leftViewAccessory", 
+  "needsRefreshingWithSelection", 
+  "placed", 
+  "delegate", 
+  "coordinate"
+ ]
+}

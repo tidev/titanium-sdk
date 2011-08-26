@@ -190,7 +190,11 @@ NSArray * tableKeySequence;
 
 -(TiUITableViewRowProxy*)makeTableViewRowFromDict:(NSDictionary*)data
 {
-	TiUITableViewRowProxy *proxy = [[[TiUITableViewRowProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+    id<TiEvaluator> context = [self executionContext];
+    if (context == nil) {
+        context = [self pageContext];
+    }
+	TiUITableViewRowProxy *proxy = [[[TiUITableViewRowProxy alloc] _initWithPageContext:context] autorelease];
 	[proxy _initWithProperties:data];
 	return proxy;
 }
@@ -495,7 +499,7 @@ NSArray * tableKeySequence;
 		[section rememberProxy:newrow];	//If we wait until the main thread, it'll be too late!
         newrow.section = section;
         // TODO: Should we be updating every row after this one...?
-        newrow.row = row.row == 0 ? 0 : row.row - 1;
+        newrow.row = row.row == 0 ? 0 : row.row;
         newrow.parent = section;
     }
 	

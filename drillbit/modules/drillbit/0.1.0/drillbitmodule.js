@@ -70,6 +70,7 @@ Drillbit = function() {
 	this.logPath = ti.fs.getFile(this.resultsDir, 'drillbitConsole.log');
 	this.logPath.deleteFile();
 	this.logStream = null;
+	this.jsonBuffer = null;
 };
 
 Drillbit.prototype.processArgv = function() {
@@ -193,6 +194,31 @@ Drillbit.prototype.initPython = function() {
 		}
 	}
 	this.python = python;
+};
+
+Drillbit.prototype.initHTTP = function() {
+	var httpServer = Titanium.Network.createHTTPServer();
+	var self = this;
+	httpServer.bind(9999, function(request, response) {
+		var len = request.getContentLength();
+		var data = request.read(len);
+		try {
+			if (data != null) {
+				var event = JSON.parse(data.toString());
+				self.handleEvent(event);
+
+				response.setContentType("text/plain");
+				response.setContentLength(1);
+				response.setStatusAndReason("200", "OK");
+				response.write("#");
+				if (event.name == "complete") {
+					httpServer.close();
+				}
+			}
+		} catch (e) {
+			Ti.API.error(e);
+		}
+	});
 };
 
 Drillbit.prototype.eachEmulator = function(fn) {
@@ -460,14 +486,12 @@ Drillbit.prototype.handleTestEvent = function(event, platform) {
 	this.frontendDo('show_current_test', event.suite, event.test);
 };
 
-Drillbit.prototype.handleAssertionEvent = function(event, platform) {
-	this.totalAssertions++;
-	this.frontendDo('add_assertion', event.test, event.lineNumber);
-};
+Drillbit.prototype.handleCompleteEvent = function(event, platform) {
+	var suite = event.suite;
+	var results = event.results;
+	var coverage = event.coverage;
 
-Drillbit.prototype.handleCompleteEvent = function(results, platform, coverage) {
-	var suite = results.suite;
-	this.frontendDo('process_data', '==========End Test Suite : ' + suite);
+	this.frontendDo('process_data', '==========End Test Suite : ' + suite + ", platform: " + platform);
 	this.platformStatus[platform][suite].completed = true;
 	try {
 		if (this.window) this.window.clearInterval(this.currentTimer);
@@ -483,7 +507,12 @@ Drillbit.prototype.handleCompleteEvent = function(results, platform, coverage) {
 			}
 			this.currentTest.results[platform] = results;
 			if (coverage) {
-				this.currentTest.coverage[platform] = coverage;
+				var coverage_platform = platform;
+				// Hack to avoid renaming a bunch of stuff
+				if (coverage_platform == 'iphone') {
+					coverage_platform = 'ios';
+				}
+				this.currentTest.coverage[coverage_platform] = coverage;
 			}
 			this.frontendDo('test_platform_status', suite, status, platform);
 			this.frontendDo('update_status', suite + ' complete ... ' + results.passed + ' passed, ' + results.failed + ' failed');
@@ -538,7 +567,10 @@ Drillbit.prototype.handleTestStatusEvent = function(event, platform) {
 		testStatus = suiteStatus.testStatus[test] = {passed: event.passed, completed: true};
 	}
 	testStatus.passed = event.passed;
-	
+
+	this.totalAssertions += event.assertions;
+	this.frontendDo("update_assertions");
+
 	var completed = true;
 	var passedAll = true;
 	var self = this;
@@ -578,15 +610,33 @@ Drillbit.prototype.handleTestStatusEvent = function(event, platform) {
 
 Drillbit.prototype.readLine = function(data, platform)
 {
-	var eventPrefix = 'DRILLBIT_EVENT: ';
-	var eventIndex = data.indexOf(eventPrefix);
-	if (eventIndex == -1) {
-		this.frontendDo('process_data', data);
-		return;
+	var jsonData = null;
+	if (this.jsonBuffer == null) {
+		var eventPrefix = 'DRILLBIT_EVENT: ';
+		var eventIndex = data.indexOf(eventPrefix);
+		if (eventIndex == -1) {
+			this.frontendDo('process_data', data);
+			return;
+		}
+		jsonData = data.substring(eventIndex + eventPrefix.length);
+	} else {
+		jsonData = this.jsonBuffer + data;
+		this.jsonBuffer = null;
 	}
-	
-	var event = JSON.parse(data.substring(eventIndex + eventPrefix.length));
-	
+
+	try {
+		var event = JSON.parse(jsonData);
+		this.handleEvent(event, platform);
+	} catch (e) {
+		// JSON parse failed, buffer the data and try again with the new data next time
+		this.jsonBuffer = jsonData;
+	}
+};
+
+Drillbit.prototype.handleEvent = function(event) {
+	Ti.API.debug("handling event: " + JSON.stringify(event));
+
+	var platform = event.platform;
 	var upperEventName = event.name.substring(0, 1).toUpperCase() + event.name.substring(1);
 	var eventHandler = 'handle' + upperEventName + 'Event';
 	if (eventHandler in this) {
@@ -736,6 +786,7 @@ Drillbit.prototype.stageTest = function(entry) {
 
 Drillbit.prototype.runTest = function(entry)
 {
+	this.initHTTP();
 	this.frontendDo("process_data", "==========Start Test Suite : " + entry.name);
 	var data = {entry: entry, Titanium: Titanium, excludes: this.excludes, Drillbit: this, AsyncTest: AsyncTest};
 	var testScript = this.renderTemplate(ti.path.join(this.templatesDir, 'test.js'), data);

@@ -6,19 +6,20 @@
  */
 package ti.modules.titanium.ui.widget.tableview;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
+
+import ti.modules.titanium.ui.TableViewRowProxy;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.ColorFilter;
+import android.graphics.PixelFormat;
 import android.graphics.Rect;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.StateListDrawable;
-import android.os.Build;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.widget.ListView;
 
 
@@ -30,122 +31,127 @@ public class TiTableViewSelector extends Drawable
 	private ListView listView;
 	private Drawable defaultDrawable;
 	private Drawable selectedDrawable;
-
-
-	class TouchListener implements OnTouchListener
-	{
-		@Override
-		public boolean onTouch(View view, MotionEvent event)
-		{
-			if (event.getAction() == MotionEvent.ACTION_DOWN)
-			{
-				int touchPosition = listView.pointToPosition((int) event.getX(), (int) event.getY());
-				selectedDrawable = getRowDrawable(listView.getChildAt(touchPosition - listView.getFirstVisiblePosition()));
-			}
-			else if (event.getAction() == MotionEvent.ACTION_UP)
-			{
-				selectedDrawable = defaultDrawable;
-			}
-
-			return false;
-		}
-	}
+	private TableViewRowProxy selectedRowProxy;
+	private int alpha = 255;
+	private boolean dither = false;
+	private ColorFilter colorFilter;
 
 
 	public TiTableViewSelector(ListView listView)
 	{
 		this.listView = listView;
 
-		// on Android 3.0 and up, the default ListView selector does not correctly 
-		// respond to the 0 (off) state and leaves the highlight for a ListView 
-		// item "stuck".  Create a default StateListDrawable in order to support the 
-		// "off" mode.
-		if (Build.VERSION.SDK_INT >= 11)
-		{
-			defaultDrawable = new StateListDrawable();
-			((StateListDrawable) defaultDrawable).addState(new int[] {android.R.attr.state_pressed},  new ColorDrawable(Color.WHITE));
-			((StateListDrawable) defaultDrawable).addState(new int[0], new ColorDrawable(Color.TRANSPARENT));
-		}
-		else
-		{
-			defaultDrawable = listView.getSelector();
-		}
+		defaultDrawable = listView.getSelector();
 		selectedDrawable = defaultDrawable;
-
-		listView.setOnTouchListener(new TouchListener());
 	}
 
 
-	public Drawable getRowDrawable(View row)
+	@Override
+	protected boolean onStateChange(int[] state)
 	{
-		Drawable rowDrawable = null;
-
-		if (row instanceof TiBaseTableViewItem)
+		if (selectedDrawable != null)
 		{
-			TiBaseTableViewItem rowView = (TiBaseTableViewItem) row;
+			invalidateSelf();
+			return true;
+		}
+		return false;
+	}
+
+
+	public void getRowDrawable(View row)
+	{
+		if (row instanceof TiTableViewRowProxyItem)
+		{
+			TiTableViewRowProxyItem rowView = (TiTableViewRowProxyItem) row;
 			if (rowView.hasSelector())
 			{
-				rowDrawable = rowView.getSelectorDrawable();
+				selectedDrawable = rowView.getSelectorDrawable();
+				selectedRowProxy = rowView.getRowProxy();
+
+				return;
 			}
 		}
 
-		if (rowDrawable == null)
-		{
-			rowDrawable = defaultDrawable;
-		}
-
-		return rowDrawable;
+		selectedDrawable = defaultDrawable;
+		selectedRowProxy = null;
 	}
 
 
+	@Override
 	public void draw(Canvas canvas)
 	{
-		if (!(listView.isInTouchMode()))
+		Rect currentBounds = getBounds();
+		int currentPosition = listView.pointToPosition(currentBounds.centerX(), currentBounds.centerY());
+
+		getRowDrawable(listView.getChildAt(currentPosition - listView.getFirstVisiblePosition()));
+		if (selectedDrawable != null)
 		{
-			selectedDrawable = getRowDrawable(listView.getSelectedView());
-			selectedDrawable.setBounds(getBounds());
+			selectedDrawable.setVisible(isVisible(), true);
+
+			if (selectedRowProxy != null)
+			{
+				Object opacity = selectedRowProxy.getProperty(TiC.PROPERTY_OPACITY);
+				if (opacity != null)
+				{
+					selectedDrawable.setAlpha(Math.round(TiConvert.toFloat(opacity) * 255));
+				}
+			}
+			else
+			{
+				selectedDrawable.setAlpha(alpha);
+			}
+
+			selectedDrawable.setDither(dither);
+			selectedDrawable.setColorFilter(colorFilter);
+			selectedDrawable.setState(getState());
+			selectedDrawable.setLevel(getLevel());
+			selectedDrawable.setBounds(currentBounds);
+			selectedDrawable.getCurrent().draw(canvas); // have to use getCurrent() otherwise image can "stick" when state changes
 		}
-
-		selectedDrawable.draw(canvas);
 	}
 
 
-	public boolean setState(int[] stateSet)
+	@Override
+	public Drawable getCurrent()
 	{
-		super.setState(stateSet);
-		return selectedDrawable.setState(stateSet);
+		if (selectedDrawable != null)
+		{
+			return selectedDrawable;
+		}
+		return null;
 	}
 
 
-	public void setBounds(int left, int top, int right, int bottom)
-	{
-		super.setBounds(left, top, right, bottom);
-		selectedDrawable.setBounds(left, top, right, bottom);
-	}
-
-
-	public void setBounds(Rect bounds)
-	{
-		super.setBounds(bounds);
-		selectedDrawable.setBounds(bounds);
-	}
-
-
+	@Override
 	public int getOpacity()
 	{
-		return selectedDrawable.getOpacity();
+		if (selectedDrawable != null)
+		{
+			return selectedDrawable.getOpacity();
+		}
+		return PixelFormat.UNKNOWN;
 	}
 
 
+	@Override
 	public void setAlpha(int alpha)
 	{
-		selectedDrawable.setAlpha(alpha);
+		this.alpha = alpha;
 	}
 
 
+	@Override
 	public void setColorFilter(ColorFilter colorFilter)
 	{
-		selectedDrawable.setColorFilter(colorFilter);
+		this.colorFilter = colorFilter;
+	}
+
+
+	@Override
+	public void setDither(boolean dither)
+	{
+		super.setDither(dither);
+		this.dither = dither;
 	}
 }
 

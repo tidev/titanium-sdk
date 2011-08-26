@@ -64,3 +64,12 @@ properties:
   - name: SWITCH_STYLE_TOGGLEBUTTON
     description: Display Switch as an Android Toggle Button (default)
     type: Number
+  - name: WEBVIEW_PLUGINS_OFF
+    description: Disable plugins in <Titanium.UI.WebView>.
+    type: Number
+  - name: WEBVIEW_PLUGINS_ON
+    description: Enable plugins in <Titanium.UI.WebView>.
+    type: Number
+  - name: WEBVIEW_PLUGINS_OFF
+    description: Display a placeholder and only load plugins when user selects placeholder.
+    type: Number

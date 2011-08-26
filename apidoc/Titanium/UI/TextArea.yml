@@ -16,14 +16,10 @@ events:
     properties:
       - name: value
         description: the value of the field upon blur
-      - name: source
-        description: the source object that fired the event
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
   - name: change
@@ -31,14 +27,10 @@ events:
     properties:
       - name: value
         description: the value of the field upon change
-      - name: source
-        description: the source object that fired the event
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
   - name: focus
@@ -46,14 +38,10 @@ events:
     properties:
       - name: value
         description: the value of the field upon focus
-      - name: source
-        description: the source object that fired the event
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
   - name: return
@@ -61,34 +49,26 @@ events:
     properties:
       - name: value
         description: the value of the field upon return
-      - name: source
-        description: the source object that fired the event
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
   - name: selected
     description: fired when the text in the field is selected
     properties:
-      - name: source
-        description: the source object that fired the event
       - name: range
         description: the range of text. range is an object with the properties `location` and `length`.
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
 properties:
   - name: autoLink
-    description: whether or not to convert text within this area to clickable links.  iOS only.
+    description: whether or not to convert text within this area to clickable links.
     platforms: [iphone, ipad]
     type: Number
   - name: autocapitalization
@@ -117,7 +97,8 @@ properties:
     description: value of the field
     type: String
   - name: scrollable
-    description: true (default) if textarea can be scrolled
+    description: true (default) if textarea can be scrolled.
+    platforms: [iphone, ipad]
     type: Boolean
 notes: |
     Both Text Areas and Text Fields can control the buttons displayed in a button bar above the keyboard when it's visible.

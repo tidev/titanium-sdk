@@ -190,10 +190,7 @@ class Compiler(object):
 		main_template = main_template.replace('__APP_DESCRIPTION__',ti.properties['description'])
 		main_template = main_template.replace('__APP_COPYRIGHT__',ti.properties['copyright'])
 		main_template = main_template.replace('__APP_GUID__',ti.properties['guid'])
-		if deploytype=='development':
-			main_template = main_template.replace('__APP_RESOURCE_DIR__',os.path.abspath(os.path.join(project_dir,'Resources')))
-		else:
-			main_template = main_template.replace('__APP_RESOURCE_DIR__','')
+		main_template = main_template.replace('__APP_RESOURCE_DIR__','')
 
 		if not silent:
 			print "[INFO] Titanium SDK version: %s" % sdk_version
@@ -281,7 +278,7 @@ class Compiler(object):
 		
 		if deploytype!='development' or has_modules:
 
-			if os.path.exists(app_dir):
+			if os.path.exists(app_dir) and deploytype != 'development':
 				self.copy_resources([resources_dir],app_dir)
 				
 			if deploytype == 'production':
@@ -328,7 +325,10 @@ class Compiler(object):
 			
 		else:
 			print "[INFO] Skipping JS compile, running from simulator"
-	
+		
+		if deploytype=='development':
+			self.softlink_resources(resources_dir,app_dir)
+			self.softlink_resources(iphone_resources_dir,app_dir)
 	
 	def add_symbol(self,api):
 		print "[DEBUG] detected symbol: %s" % api
@@ -419,6 +419,22 @@ class Compiler(object):
 		data = str(file_contents).encode("hex")
 		method = "dataWithHexString(@\"%s\")" % data
 		return {'method':method,'path':path}
+	
+	def softlink_resources(self,source,target):
+		if not os.path.exists(target):
+			os.makedirs(target)
+		for file in os.listdir(source):
+			if (file in ignoreDirs) or (file in ignoreFiles):
+				continue
+			from_ = os.path.join(source, file)
+			to_ = os.path.join(target, file)
+			print "[DEBUG] linking: %s to %s" % (from_,to_)
+			if os.path.exists(to_):
+				if os.path.islink(to_):
+					os.remove(to_)
+					os.symlink(from_, to_)
+			else:
+				os.symlink(from_, to_)
 	
 	def copy_resources(self,sources,target,write_routing=True):
 		

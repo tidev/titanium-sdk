@@ -115,7 +115,7 @@ def stage(platform, project_dir, manifest, callback):
 		tiapp = os.path.join(gen_project_dir, 'tiapp.xml')
 		xml = open(tiapp).read()
 		tiappf = open(tiapp,'w')
-		idx = xml.find('</guid>')
+		xml = xml.replace('<guid/>','<guid></guid>')
 		xml = xml.replace('</guid>','</guid>\n<modules>\n<module version="%s">%s</module>\n</modules>\n' % (version,moduleid))
 		# generate a guid since this is currently done by developer
 		guid = str(uuid.uuid4())
@@ -157,7 +157,7 @@ def docgen(module_dir, dest_dir):
 		return
 
 	for file in os.listdir(doc_dir):
-		if file in ignoreFiles:
+		if file in ignoreFiles or os.path.isdir(os.path.join(doc_dir, file)):
 			continue
 		md = open(os.path.join(doc_dir, file), 'r').read()
 		html = markdown.markdown(md)

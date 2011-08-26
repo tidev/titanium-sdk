@@ -40,6 +40,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
+import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -425,8 +426,13 @@ public abstract class TiUIView
 				applyTransform((Ti2DMatrix)newValue);
 			}
 		} else {
-			if (DBG) {
-				Log.d(LCAT, "Unhandled property key: " + key);
+			TiViewProxy viewProxy = getProxy();
+			if (viewProxy != null && viewProxy.isLocalizedTextId(key)) {
+				viewProxy.setLocalizedText(key, TiConvert.toString(newValue));
+			} else {
+				if (DBG) {
+					Log.d(LCAT, "Unhandled property key: " + key);
+				}
 			}
 		}
 	}
@@ -784,8 +790,15 @@ public abstract class TiUIView
 					// called via Handler in GestureDetector. <-- See its Java source.
 					return handledTap;// || handledClick;
 				}
+				@Override
+				public void onLongPress(MotionEvent e)
+				{
+					if (DBG){
+						Log.d(LCAT, "LONGPRESS on " + proxy);
+					}
+					proxy.fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e));
+				}
 			});
-
 		touchable.setOnTouchListener(new OnTouchListener() {
 			public boolean onTouch(View view, MotionEvent event) {
 				if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -815,7 +828,6 @@ public abstract class TiUIView
 				return handled;
 			}
 		});
-
 		// Previously, we used the single tap handling above to fire our click event.  It doesn't
 		// work: a single tap is not the same as a click.  A click can be held for a while before
 		// lifting the finger; a single-tap is only generated from a quick tap (which will also cause
@@ -896,11 +908,14 @@ public abstract class TiUIView
 		}
 		if (!clickable) {
 			view.setOnClickListener(null); // This will set clickable to true in the view, so make sure it stays here so the next line turns it off.
-			view.setClickable(false);			
+			view.setClickable(false);
+			view.setOnLongClickListener(null);
+			view.setLongClickable(false);
 		} else if ( ! (view instanceof AdapterView) ){
 			// n.b.: AdapterView throws if click listener set.
 			// n.b.: setting onclicklistener automatically sets clickable to true.
 			setOnClickListener(view);
+			setOnLongClickListener(view);
 		}
 	}
 	private void doSetClickable(boolean clickable)
@@ -941,6 +956,17 @@ public abstract class TiUIView
 			public void onClick(View view)
 			{
 				proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(lastUpEvent));
+			}
+		});
+	}
+	protected void setOnLongClickListener(View view)
+	{
+		view.setOnLongClickListener(new OnLongClickListener()
+		{
+			@Override
+			public boolean onLongClick(View view)
+			{
+				return proxy.fireEvent(TiC.EVENT_LONGCLICK, null);
 			}
 		});
 	}

@@ -164,7 +164,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 				compiler.args="@{compiler.args}">
 
 				<javac.args>
-					<compilerarg line="-s @{apt.src.dir} -Akroll.jsonFile=@{kroll.jsonFile} -Akroll.jsonPackage=@{kroll.jsonPackage} -proc:only"/>
+					<compilerarg line="-s &quot;@{apt.src.dir}&quot; -Akroll.jsonFile=@{kroll.jsonFile} -Akroll.jsonPackage=@{kroll.jsonPackage} -proc:only"/>
 					<extra.args/>
 				</javac.args>
 				<javac.classpath>
@@ -331,6 +331,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			
 			<classpath refid="android"/>
 			<classpath refid="titanium.path"/>
+			<classpath refid="kroll.apt.path"/>
 			
 			<doctitle>${javadoc.docTitle}</doctitle>
 			<bottom>${javadoc.bottom}</bottom>

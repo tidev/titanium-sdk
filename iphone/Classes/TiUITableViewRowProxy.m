@@ -273,9 +273,11 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 -(void)_destroy
 {
 	RELEASE_TO_NIL(tableClass);
-	RELEASE_TO_NIL(rowContainerView);
+	[rowContainerView performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
+	rowContainerView = nil;
 	[callbackCell setProxy:nil];
-	RELEASE_TO_NIL(callbackCell);
+	[callbackCell performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
+	callbackCell = nil;
 	[super _destroy];
 }
 
@@ -436,6 +438,9 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
 		cell.accessoryView = [[[UIImageView alloc] initWithImage:image] autorelease];
 	}
+    else {
+        cell.accessoryView = nil;
+    }
 }
 
 -(void)configureBackground:(UITableViewCell*)cell
@@ -1017,7 +1022,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 					@"title", @"backgroundImage",
 					@"leftImage",@"hasDetail",@"hasCheck",@"hasChild",	
 					@"indentionLevel",@"selectionStyle",@"color",@"selectedColor",
-					@"height",@"width",@"backgroundColor",
+					@"height",@"width",@"backgroundColor",@"rightImage",
 					nil];
 	}
 	

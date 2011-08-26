@@ -14,14 +14,10 @@ events:
         description: the button index that was pressed
       - name: button
         description: boolean to indicate that the index refers to a button on the dialog and not an item. (Android)
-      - name: source
-        description: the source object that fired the event
       - name: cancel
         description: the index of the cancel button
       - name: destructive
         description: the index of the destructive button
-      - name: type
-        description: the name of the event fired
 properties:
   - name: androidView
     description: A Titanium.UI.View. Allows for arbitrary contents inside a native dialog. Works for any dialog. (Android)
