@@ -98,6 +98,25 @@ describe("Ti.UI tests", {
 			}, 1000);
 		},1000);
 	},
+
+	appendRowAsArray: asyncTest(function(callback) {
+		var w = Ti.UI.createWindow();
+		var tv = Ti.UI.createTableView();
+		w.add(tv);
+
+		var listener = this.async(function(){
+			var rows = [];
+			rows.push(Ti.UI.createTableViewRow({title:'title 1'}));
+			rows.push(Ti.UI.createTableViewRow({title:'title 2'}));
+			rows.push(Ti.UI.createTableViewRow({title:'title 3'}));
+
+			valueOf(function(){tv.appendRow(rows);}).shouldNotThrowException();
+			valueOf(tv.data[0].rowCount).shouldBe(rows.length);
+		});
+		w.addEventListener("open", listener);
+		w.open();
+	}),
+
 	// http://jira.appcelerator.org/browse/TIMOB-2853
 	opacityCrash_as_async: function(callback) {
 		var failureTimeout = null;

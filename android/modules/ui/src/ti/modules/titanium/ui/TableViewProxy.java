@@ -7,6 +7,8 @@
 package ti.modules.titanium.ui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -139,36 +141,58 @@ public class TableViewProxy extends TiViewProxy
 		}
 	}
 
+	// options argument exists in order to maintain parity with iOS, do not remove
 	@Kroll.method
-	public void appendRow(Object row, @Kroll.argument(optional=true) KrollDict options) {
+	public void appendRow(Object rows, @Kroll.argument(optional=true) KrollDict options)
+	{
 		TiContext ctx = getTiContext();
 		if (ctx == null) {
 			Log.w(LCAT, "Context has been GC'd, not appending row");
 			return;
 		}
 		if (ctx.isUIThread()) {
-			handleAppendRow(row);
+			handleAppendRow(rows);
 			return;
 		}
 
-		sendBlockingUiMessage(MSG_APPEND_ROW, row);
+		sendBlockingUiMessage(MSG_APPEND_ROW, rows);
 	}
 
-	private void handleAppendRow(Object row) {
-		TableViewRowProxy rowProxy = rowProxyFor(row);
-		ArrayList<TableViewSectionProxy> sections = getSections();
-		if (sections.size() == 0) {
-			Object[] data = { rowProxy };
-			processData(data);
-		} else {
-			TableViewSectionProxy lastSection = sections.get(sections.size() - 1);
-			TableViewSectionProxy addedToSection = addRowToSection(rowProxy, lastSection);
-			if (lastSection == null || !lastSection.equals(addedToSection)) {
-				sections.add(addedToSection);
-			}
-			rowProxy.setProperty(TiC.PROPERTY_SECTION, addedToSection);
-			rowProxy.setProperty(TiC.PROPERTY_PARENT, addedToSection);
+	private void handleAppendRow(Object rows)
+	{
+		Object[] rowList = null;
+
+		if (rows instanceof Object[])
+		{
+			rowList = (Object[])rows;
 		}
+		else
+		{
+			rowList = new Object[] { rows };
+		}
+
+		ArrayList<TableViewSectionProxy> sections = getSections();
+		if (sections.size() == 0)
+		{
+			processData(rowList);
+		}
+		else
+		{
+			for (int i = 0; i < rowList.length; i++)
+			{
+				TableViewRowProxy rowProxy = rowProxyFor(rowList[i]);
+
+				TableViewSectionProxy lastSection = sections.get(sections.size() - 1);
+				TableViewSectionProxy addedToSection = addRowToSection(rowProxy, lastSection);
+				if (lastSection == null || !lastSection.equals(addedToSection))
+				{
+					sections.add(addedToSection);
+				}
+				rowProxy.setProperty(TiC.PROPERTY_SECTION, addedToSection);
+				rowProxy.setProperty(TiC.PROPERTY_PARENT, addedToSection);
+			}
+		}
+
 		getTableView().setModelDirty();
 		updateView();
 	}
