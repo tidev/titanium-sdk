@@ -8,10 +8,6 @@ events:
   - name: click
     description: fired when a <Titanium.UI.DashboardItem> is clicked
     properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: location
         description: the location object with the properties `x` and `y` of where in the parent view the click was
       - name: item
@@ -19,21 +15,13 @@ events:
   - name: delete
     description: fired when a  <Titanium.UI.DashboardItem> is deleted during editings
     properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: item
         description: the <Titanium.UI.DashboardItem> that was deleted
   - name: move
     description: fired when a  <Titanium.UI.DashboardItem> is moved during editing
     properties:
-      - name: source
-        description: the source object that fired the event
       - name: items
         description: the pending data array in the new order (uncommitted)
-      - name: type
-        description: the name of the event fired
       - name: item
         description: the <Titanium.UI.DashboardItem> that was moved
 properties:

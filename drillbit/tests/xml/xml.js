@@ -14,7 +14,7 @@ describe("Ti.XML tests", {
 			return nodeCount;
 		};
 		
-		var testFiles = ["soap.xml", "xpath.xml", "nodes.xml", "nodeCount.xml", "cdata.xml", "cdataEntities.xml", "with_dtd.xml", "with_ns.xml", "attrs.xml"];
+		var testFiles = ["soap.xml", "xpath.xml", "nodes.xml", "nodeCount.xml", "cdata.xml", "cdataEntities.xml", "with_dtd.xml", "with_ns.xml", "attrs.xml", "element.xml", "elementNS.xml"];
 		var invalidFiles = [ "mismatched_tag.xml", "no_toplevel.xml", "no_end.xml"];
 		this.testSource = {};
 		this.invalidSource = {};
@@ -1124,5 +1124,253 @@ describe("Ti.XML tests", {
 		valueOf(name).shouldNotBeNull();
 		valueOf(name.nodeName).shouldBe("test:name");
 		valueOf(name.value).shouldBe("value");
+	},
+	apiXmlDOMImplementation: function() {
+		var baseDoc = Ti.XML.parseString("<a/>");
+		valueOf(baseDoc).shouldNotBeNull();
+		var impl = null;
+		valueOf(function() {
+			impl = baseDoc.implementation;
+		}).shouldNotThrowException();
+		valueOf(impl).shouldNotBeNull();
+
+		// createDocument
+		valueOf(impl.createDocument).shouldBeFunction();
+		var testDoc = null;
+		// Basic: no namespace, no doctype
+		valueOf(function() {
+			testDoc = impl.createDocument(null, "the_root", null);
+		}).shouldNotThrowException()
+		valueOf(testDoc).shouldNotBeNull();
+		valueOf(testDoc.documentElement).shouldNotBeNull();
+		valueOf(testDoc.documentElement.namespaceURI).shouldBeNull();
+		valueOf(testDoc.documentElement.nodeName).shouldBe("the_root");
+		valueOf(testDoc.documentElement.localName).shouldBe("the_root");
+		valueOf(testDoc.doctype).shouldBeNull();
+		// Create a doctype (which is useless in dom level 2)
+		valueOf(impl.createDocumentType).shouldBeFunction();
+		var doctype = null;
+		valueOf(function() {
+			doctype = impl.createDocumentType("qname", "pid", "sid");
+		}).shouldNotThrowException();
+		// Document with doctype
+		testDoc = null;
+		valueOf(function() {
+			testDoc = impl.createDocument(null, "the_root", doctype);
+		}).shouldNotThrowException()
+		valueOf(testDoc).shouldNotBeNull();
+		valueOf(testDoc.documentElement).shouldNotBeNull();
+		valueOf(testDoc.documentElement.namespaceURI).shouldBeNull();
+		valueOf(testDoc.documentElement.nodeName).shouldBe("the_root");
+		valueOf(testDoc.documentElement.localName).shouldBe("the_root");
+		valueOf(testDoc.doctype).shouldNotBeNull();
+		valueOf(testDoc.doctype).shouldBe(doctype);
+		// Document with namespace but no doctype
+		testDoc = null;
+		valueOf(function() {
+			testDoc = impl.createDocument("http://test", "test:the_root", null);
+		}).shouldNotThrowException()
+		valueOf(testDoc).shouldNotBeNull();
+		valueOf(testDoc.documentElement).shouldNotBeNull();
+		valueOf(testDoc.documentElement.namespaceURI).shouldNotBeNull();
+		valueOf(testDoc.documentElement.namespaceURI).shouldBe("http://test");
+		valueOf(testDoc.documentElement.nodeName).shouldBe("test:the_root");
+		valueOf(testDoc.documentElement.localName).shouldBe("the_root");
+		valueOf(testDoc.doctype).shouldBeNull();
+		// Document with both namespace and doctype
+		valueOf(function() {
+			doctype = impl.createDocumentType("qname", "pid", "sid");
+		}).shouldNotThrowException();
+		testDoc = null;
+		valueOf(function() {
+			testDoc = impl.createDocument("http://test", "test:the_root", doctype);
+		}).shouldNotThrowException()
+		valueOf(testDoc).shouldNotBeNull();
+		valueOf(testDoc.documentElement).shouldNotBeNull();
+		valueOf(testDoc.documentElement.namespaceURI).shouldNotBeNull();
+		valueOf(testDoc.documentElement.namespaceURI).shouldBe("http://test");
+		valueOf(testDoc.documentElement.nodeName).shouldBe("test:the_root");
+		valueOf(testDoc.documentElement.localName).shouldBe("the_root");
+		valueOf(testDoc.doctype).shouldNotBeNull();
+		valueOf(testDoc.doctype).shouldBe(doctype);
+		// hasFeature
+		valueOf(impl.hasFeature).shouldBeFunction();
+		var testResult;
+		valueOf(function() {
+			testResult = impl.hasFeature("Core", "2.0");
+		}).shouldNotThrowException();
+		valueOf(testResult).shouldBeBoolean();
+		valueOf(testResult).shouldBeTrue();
+		valueOf(function() {
+			testResult = impl.hasFeature("Fred", "Flinstone");
+		}).shouldNotThrowException();
+		valueOf(testResult).shouldBeBoolean();
+		valueOf(testResult).shouldBeFalse();
+	},
+	xmlElement: function() {
+		var xml = Ti.XML.parseString(this.testSource["element.xml"]);
+		var xml2 = Ti.XML.parseString(this.testSource["with_ns.xml"]);
+		
+		 // Test element.getElementsByTagName
+		var elements = xml.getElementsByTagName("dessert");
+		valueOf(elements).shouldNotBeNull();
+		valueOf(elements.length).shouldBe(3);
+		valueOf(elements).shouldBeObject();
+		valueOf(elements.item(0).tagName).shouldBe("dessert");
+		
+		// Test element.getAttribute
+		var attribute = elements.item(0).getAttribute("category");
+		valueOf(attribute).shouldBe("icecream");
+		var attributeFail = elements.item(0).getAttribute("categories");
+		valueOf(attributeFail).shouldBe("");
+		
+		// Test element.getAttributeNode
+		var attributeNode= elements.item(1).getAttributeNode("category"); //Fails on iOS TIMOB-4867
+		valueOf(attributeNode).shouldNotBeNull();
+		valueOf(attributeNode.name).shouldBe('category');
+		valueOf(attributeNode.value).shouldBe('pie');
+		var attributeNodeFail = elements.item(1).getAttributeNode("categories");
+		valueOf(attributeNodeFail).shouldBeNull();
+		
+		// Test element.hasAttribute
+		var attributeTrue = null;
+		var attributeFalse = null;
+		valueOf(function() {attributeTrue = elements.item(2).hasAttribute("category");}).shouldNotThrowException(); //Fails on iOS TIMOB-5024
+		valueOf(function() {attributeFalse = elements.item(2).hasAttribute("food");}).shouldNotThrowException(); 
+		valueOf(attributeTrue).shouldBeTrue();
+		valueOf(attributeFalse).shouldBeFalse();
+		
+		// Test element.removeAttribute
+		elements.item(0).removeAttribute("category"); //Fails on iOS TIMOB-4868
+		attribute = elements.item(0).getAttribute("category");
+		valueOf(attribute).shouldBe("");
+		
+		// Test element.removeAttributeNode
+		var dessertNode = elements.item(1).getAttributeNode("category");
+		var errorNode = elements.item(1).getAttributeNode("error");
+		valueOf(errorNode).shouldBeNull();
+		var attributeNodeRemove = elements.item(1).removeAttributeNode(dessertNode);
+		valueOf(attributeNodeRemove.name).shouldBe("category");
+		valueOf(function() {
+			elements.item(1).removeAttributeNode(errorNode);
+		}).shouldThrowException();
+		
+		// Test element.setAttribute
+		elements = xml.getElementsByTagName("title");
+		elements.item(0).setAttribute("rating","taste yummy");
+		valueOf(elements.item(0).childNodes.item(0).nodeValue).shouldBe("Banana Split");
+		valueOf(elements.item(0).getAttribute("rating")).shouldBe("taste yummy");
+		elements.item(0).setAttribute("rating","cookie");
+		valueOf(elements.item(0).getAttribute("rating")).shouldBe("cookie");
+		valueOf(function() {
+			elements.item(0).setAttribute("?","*");
+		}).shouldThrowException();
+		
+		// Test element.setAttributeNode
+		elements = xml.getElementsByTagName("title"); //Fails on iOS TIMOB-5027
+		var newAttributeNode = xml.createAttribute("rating");
+		newAttributeNode.value = "taste good";
+		var newAttr = elements.item(1).setAttributeNode(newAttributeNode);
+		valueOf(newAttr).shouldBeNull();
+		valueOf(elements.item(1).childNodes.item(0).nodeValue).shouldBe("Banana Cream Pie");
+		valueOf(elements.item(1).getAttribute("rating")).shouldBe("taste good");
+		var existAttributeNode = xml.createAttribute("rating");
+		existAttributeNode.value = "tasty";
+		var existAttr = elements.item(1).setAttributeNode(existAttributeNode);
+		valueOf(elements.item(1).getAttribute("rating")).shouldBe("tasty");
+		valueOf(existAttr.value).shouldBe("taste good");
+		valueOf(function() {
+			elements.item(1).setAttributeNode(newAttributeNode);
+		}).shouldThrowException();
+		var newAttributeWrong = xml2.createAttribute("testing");
+		newAttributeWrong.value = "exception";
+		valueOf(function() {
+			elements.item(1).setAttributeNode(newAttributeWrong);
+		}).shouldThrowException();
+	},
+	
+	xmlElementNS: function() {
+		var xml = Ti.XML.parseString(this.testSource["elementNS.xml"]);
+		var xml2 = Ti.XML.parseString(this.testSource["with_ns.xml"]);
+		var namespace1 = "http://candystore.com";
+		var namespace2 = "http://toystore.com";
+		
+		
+		// Test element.getElementsByTagNameNS
+		var elementsNS = xml.getElementsByTagNameNS(namespace1, "ingredient");
+		var elementsNS2 = xml.getElementsByTagNameNS(namespace2, "material");
+		valueOf(elementsNS).shouldNotBeNull();
+		valueOf(elementsNS).shouldBeObject();
+		valueOf(elementsNS.length).shouldBe(3);
+		valueOf(elementsNS.item(0).tagName).shouldBe("candy:ingredient"); 
+		valueOf(elementsNS2).shouldNotBeNull();
+		valueOf(elementsNS2).shouldBeObject();
+		valueOf(elementsNS2.length).shouldBe(3);
+		valueOf(elementsNS2.item(0).tagName).shouldBe("toy:material");
+		
+		
+		// Test element.getAttributeNS
+		var attributeNS = elementsNS.item(0).getAttributeNS(namespace1, "amount");
+		valueOf(attributeNS).shouldBe("one cup");
+		var attributeFailNS = elementsNS.item(0).getAttributeNS(namespace1, "amounts");
+		valueOf(attributeFailNS).shouldBe("");
+		
+		// Test element.getAttributeNodeNS
+		var attributeNodeNS= elementsNS.item(1).getAttributeNodeNS(namespace1, "amount");
+		valueOf(attributeNodeNS.nodeName).shouldBe("candy:amount");
+		valueOf(attributeNodeNS.nodeValue).shouldBe("two cup");
+		var attributeNodeFailNS = elementsNS.item(1).getAttributeNodeNS(namespace1, "amounts");
+		valueOf(attributeNodeFailNS).shouldBeNull();
+		
+		// Test element.hasAttributeNS
+		var attributeNSTrue = null;
+		var attributeNSFalse = null;
+		valueOf(function() {attributeNSTrue = elementsNS.item(2).hasAttributeNS(namespace1, "amount");}).shouldNotThrowException();
+		valueOf(function() {attributeNSFalse = elementsNS.item(2).hasAttributeNS(namespace1, "food");}).shouldNotThrowException();
+		valueOf(attributeNSTrue).shouldBeTrue();
+		valueOf(attributeNSFalse).shouldBeFalse();
+		
+		// Test element.removeAttributeNS
+		elementsNS2.item(0).removeAttributeNS(namespace2, "content");
+		attributeNS = elementsNS2.item(0).getAttributeNS(namespace2, "content");
+		valueOf(attributeNS).shouldBe("");
+		
+		// Test element.setAttributeNS
+		elementsNS2.item(1).setAttributeNS(namespace2, "toy:color","white");
+		valueOf(elementsNS2.item(1).childNodes.item(0).nodeValue).shouldBe("polyester");
+		valueOf(elementsNS2.item(1).getAttributeNS(namespace2, "color")).shouldBe("white");
+		elementsNS2.item(1).setAttributeNS(namespace2, "toy:color","black");
+		valueOf(elementsNS2.item(1).getAttributeNS(namespace2, "color")).shouldBe("black");
+		valueOf(function() {
+			elementsNS2.item(1).setAttributeNS(namespace2, "?","*");
+		}).shouldThrowException();
+		valueOf(function() {
+			elementsNS2.item(1).setAttributeNS(namespace2, "malform:name:test","test");
+		}).shouldThrowException();
+		valueOf(function() {
+			elementsNS2.item(1).setAttributeNS(namespace3, "name:test","namespace failure");
+		}).shouldThrowException();
+		
+		// Test element.setAttributeNodeNS
+		var newAttributeNodeNS = xml.createAttributeNS(namespace2, "toy:color");
+		newAttributeNodeNS.nodeValue = "blue";
+		var newAttrNS = elementsNS2.item(2).setAttributeNodeNS(newAttributeNodeNS);
+		valueOf(newAttrNS).shouldBeNull();
+		valueOf(elementsNS2.item(2).childNodes.item(0).nodeValue).shouldBe("buttons");
+		valueOf(elementsNS2.item(2).getAttributeNS(namespace2, "color")).shouldBe("blue");
+		var existAttributeNodeNS = xml.createAttributeNS(namespace2, "toy:color");
+		existAttributeNodeNS.nodeValue = "pink";
+		var existAttrNS = elementsNS2.item(2).setAttributeNodeNS(existAttributeNodeNS);
+		valueOf(elementsNS2.item(2).getAttributeNS(namespace2, "color")).shouldBe("pink");
+		valueOf(existAttrNS.value).shouldBe("blue");
+		valueOf(function() {
+			elementsNS.item(1).setAttributeNode(newAttributeNodeNS);
+		}).shouldThrowException();
+		
+		var newAttributeNSWrong = xml2.createAttributeNS(namespace2, "toy:color");
+		newAttributeNSWrong.value = "exception";
+		valueOf(function() {
+			elementsNS2.item(1).setAttributeNode(newAttributeNSWrong);
+		}).shouldThrowException();
 	}
 });
