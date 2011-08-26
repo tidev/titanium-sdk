@@ -43,6 +43,9 @@ events:
         type: Number
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: previousTab
         description: the previous tab object
         type: Titanium.UI.Tab
@@ -54,6 +57,9 @@ events:
         type: Number
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
         type: Number
@@ -77,6 +83,9 @@ events:
         type: Number
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: previousTab
         description: the previous tab object
         type: Titanium.UI.Tab
@@ -88,6 +97,9 @@ events:
         type: Number
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
         type: Number
