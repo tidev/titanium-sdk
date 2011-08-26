@@ -140,14 +140,15 @@ public class TiUIWindow extends TiUIView
 
 	protected void initContext()
 	{
-		boolean hasUrl = proxy.hasProperty(TiC.PROPERTY_URL);
+		KrollDict urlPropertyHolder = resolver.findProperty(TiC.PROPERTY_URL);
+		boolean hasUrl = (urlPropertyHolder != null);
 		if (newActivity) {
 			windowId = TiActivityWindows.addWindow(this);
 		}
 		ActivityProxy activityProxy = null;
 		// if url, create a new context.
 		if (hasUrl) {
-			String url = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_URL));
+			String url = TiConvert.toString(urlPropertyHolder, TiC.PROPERTY_URL);
 			String baseUrl = proxy.getTiContext().getBaseUrl();
 			TiUrl tiUrl = TiUrl.normalizeWindowUrl(baseUrl, url);
 			windowUrl = tiUrl.url;
