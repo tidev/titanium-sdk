@@ -94,6 +94,8 @@ events:
         description: the announce source object
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        deprecated:
+            since: "1.8.0"
   - name: complete
     description: fired when the map completes loading
     properties:
@@ -101,6 +103,8 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
   - name: error
@@ -114,6 +118,8 @@ events:
         description: the error message
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        deprecated:
+            since: "1.8.0"
   - name: loading
     description: fired when the map begins loading
     properties:
@@ -121,6 +127,8 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
   - name: regionChanged
@@ -140,6 +148,8 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        deprecated:
+            since: "1.8.0"
 properties:
   - name: animate
     description: boolean is mapping actions should be animated

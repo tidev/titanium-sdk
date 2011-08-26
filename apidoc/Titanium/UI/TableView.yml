@@ -114,6 +114,8 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        deprecated:
+            since: "1.8.0"
       - name: row
         description: table view row object
   - name: longclick
@@ -152,6 +154,8 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        deprecated:
+            since: "1.8.0"
       - name: row
         description: table view row object
   - name: scroll
@@ -178,6 +182,8 @@ events:
         platforms: [iphone, ipad]
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        deprecated:
+            since: "1.8.0"
       - name: size
         description: dictionary with `width` and `height` properties containing the size of the visible table view
   - name: scrollEnd
@@ -195,6 +201,8 @@ events:
         platforms: [iphone, ipad]
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        deprecated:
+            since: "1.8.0"
       - name: size
         description: dictionary with `width` and `height` properties containing the size of the visible table view
 properties:

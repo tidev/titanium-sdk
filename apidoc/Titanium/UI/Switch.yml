@@ -15,6 +15,8 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        deprecated:
+            since: "1.8.0"
 properties:
   - name: enabled
     description: boolean for the state of the switch

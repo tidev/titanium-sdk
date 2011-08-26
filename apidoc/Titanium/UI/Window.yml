@@ -28,6 +28,8 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
         
@@ -39,6 +41,8 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
         
@@ -50,6 +54,8 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
         
@@ -61,6 +67,8 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
         
@@ -72,6 +80,8 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
         
@@ -83,6 +93,8 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
         
@@ -93,6 +105,8 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
         
@@ -103,6 +117,8 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
         
@@ -113,6 +129,8 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
         
@@ -123,6 +141,8 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
 
