@@ -98,6 +98,7 @@ public class IntentProxy extends KrollProxy
 
 	public void handleCreationDict(KrollDict dict)
 	{
+		super.handleCreationDict(dict);
 		intent = new Intent();
 		
 		// See which set of options we have to work with.
