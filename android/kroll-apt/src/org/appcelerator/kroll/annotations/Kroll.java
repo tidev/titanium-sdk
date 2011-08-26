@@ -6,7 +6,6 @@ package org.appcelerator.kroll.annotations;
  * Please see the LICENSE included with this distribution for details.
  */
 
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -496,9 +495,36 @@ public @interface Kroll
 	 * }
 	 * </pre>
 	 */
+	@Documented
+	@Retention(RetentionPolicy.SOURCE)
+	@Target({ElementType.TYPE})
 	public static @interface dynamicApis
 	{
 		String[] properties() default DEFAULT_NAME;
 		String[] methods() default DEFAULT_NAME;
+	}
+
+	/**
+	 * A special module method that gets called when the application's
+	 * onCreate is called (before the first Activity is started).
+	 * 
+	 * Methods with this annotation must be public, static, and accept
+	 * a single argument of the type TiApplication.
+	 * 
+	 * <b>Examples</b>:<br>
+	 * <pre>
+	 * &#064;Kroll.onAppCreate
+	 * public static void onAppCreate(TiApplication app)
+	 * {
+	 *     // do something with app
+	 * }
+	 * </pre>
+	 *
+	 */
+	@Documented
+	@Retention(RetentionPolicy.SOURCE)
+	@Target({ElementType.METHOD})
+	public static @interface onAppCreate
+	{
 	}
 }
