@@ -404,7 +404,6 @@ public class KrollBindingGenerator extends AbstractProcessor {
 			List<Object> args = new ArrayList<Object>();
 			jsonUtils.updateObjectFromAnnotation(methodAttrs, annotation);
 
-			//HashMap<String, Object> attrs = utils.getAnnotationParams(annotation);
 			methodAttrs.put("hasInvocation", false);
 
 			for (VariableElement var: element.getParameters()) {
