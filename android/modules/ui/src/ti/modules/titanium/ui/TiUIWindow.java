@@ -140,6 +140,7 @@ public class TiUIWindow extends TiUIView
 
 	protected void initContext()
 	{
+		TiContext proxyContext = proxy.getTiContext();
 		KrollDict urlPropertyHolder = resolver.findProperty(TiC.PROPERTY_URL);
 		boolean hasUrl = (urlPropertyHolder != null);
 		if (newActivity) {
@@ -149,14 +150,14 @@ public class TiUIWindow extends TiUIView
 		// if url, create a new context.
 		if (hasUrl) {
 			String url = TiConvert.toString(urlPropertyHolder, TiC.PROPERTY_URL);
-			String baseUrl = proxy.getTiContext().getBaseUrl();
+			String baseUrl = proxyContext.getBaseUrl();
 			TiUrl tiUrl = TiUrl.normalizeWindowUrl(baseUrl, url);
 			windowUrl = tiUrl.url;
 			Activity activity = null;
 			if (!newActivity) {
 				activity = windowActivity;
 				if (activity == null) {
-					activity = proxy.getTiContext().getActivity();
+					activity = proxyContext.getActivity();
 				}
 			}
 			windowContext = TiContext.createTiContext(activity, tiUrl.baseUrl, tiUrl.url);
@@ -170,7 +171,7 @@ public class TiUIWindow extends TiUIView
 				}
 			}
 		} else if (!lightWeight) {
-			windowContext = TiContext.createTiContext(windowActivity, proxy.getTiContext().getBaseUrl(), proxy.getTiContext().getCurrentUrl());
+			windowContext = TiContext.createTiContext(windowActivity, proxyContext.getBaseUrl(), proxyContext.getCurrentUrl());
 			newContext = true;
 		}
 		if (windowActivity != null || hasUrl) {
@@ -183,7 +184,7 @@ public class TiUIWindow extends TiUIView
 				bindProxies();
 			}
 		} else {
-			bindWindowActivity(proxy.getTiContext(), proxy.getTiContext().getActivity());
+			bindWindowActivity(proxyContext, proxyContext.getActivity());
 		}
 		if (!newActivity && !lightWeight) {
 			proxy.switchContext(windowContext);
