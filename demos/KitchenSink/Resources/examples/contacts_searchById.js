@@ -1,22 +1,21 @@
 var win = Ti.UI.currentWindow;	
 var tf1 = Titanium.UI.createTextField({
-	color:'#336699',
-	top:20,
-	width:250,
-	height:40,
-	hintText:'RecordID Number',
-	keyboardType:Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION,
+	color: '#336699',
+	top: 20,
+	width: 250,
+	height: 40,
+	hintText: 'RecordID Number',
+	keyboardType: Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION,
 	returnKeyType: Titanium.UI.RETURNKEY_DONE,
-	clearOnEdit:'true',
-	returnKeyType:Titanium.UI.RETURNKEY_DEFAULT,
-	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED
+	clearOnEdit: 'true',
+	returnKeyType: Titanium.UI.RETURNKEY_DEFAULT,
+	borderStyle: Titanium.UI.INPUT_BORDERSTYLE_ROUNDED
 });
 var b1 = Titanium.UI.createButton({
-	title:'FIND RECORD BY ID',
-	height:40,
-	width:250,
-	
-	top:65
+	title: 'FIND RECORD BY ID',
+	height: 40,
+	width: 250,
+	top: 65
 });
 b1.addEventListener('click', function()
 {
@@ -33,23 +32,23 @@ b1.addEventListener('click', function()
 	}
 });
 var tf2 = Titanium.UI.createTextField({
-	color:'#336699',
-	top:120,
-	width:250,
-	height:40,
-	hintText:'Contact GroupID Number',
-	keyboardType:Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION,
+	color: '#336699',
+	top: 120,
+	width: 250,
+	height: 40,
+	hintText: 'Contact GroupID Number',
+	keyboardType: Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION,
 	returnKeyType: Titanium.UI.RETURNKEY_DONE,
 	clearOnEdit:'true',
-	returnKeyType:Titanium.UI.RETURNKEY_DEFAULT,
-	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED
+	returnKeyType: Titanium.UI.RETURNKEY_DEFAULT,
+	borderStyle: Titanium.UI.INPUT_BORDERSTYLE_ROUNDED
 });
 win.add(tf2);
 var b2 = Titanium.UI.createButton({
-	title:'FIND GROUP BY ID',
-	height:40,
-	width:250,
-	top:165
+	title: 'FIND GROUP BY ID',
+	height: 40,
+	width: 250,
+	top: 165
 });
 win.add(b2);
 b2.addEventListener('click', function()

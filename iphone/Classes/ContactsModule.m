@@ -151,13 +151,14 @@
 	__block BOOL validId = NO;	
 	dispatch_sync(dispatch_get_main_queue(),^{
 		ABRecordRef record = NULL;
-		record = ABAddressBookGetPersonWithRecordID(addressBook,idNum);
-		if (record != NULL) 
+		record = ABAddressBookGetPersonWithRecordID(addressBook, idNum);
+		if (record != NULL)
+		{
 			validId = YES;
-		
+		}
 	});
-	if(validId ==YES)
-	{	
+	if(validId == YES)
+	{
 		return [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] recordId:idNum module:self] autorelease];
 	}
 	return NULL;
@@ -170,12 +171,13 @@
 	__block BOOL validId = NO;	
 	dispatch_sync(dispatch_get_main_queue(),^{
 		ABRecordRef record = NULL;
-		record = ABAddressBookGetGroupWithRecordID(addressBook,idNum);
+		record = ABAddressBookGetGroupWithRecordID(addressBook, idNum);
 		if (record != NULL) 
+		{
 			validId = YES;
-		
+		}
 	});
-	if(validId ==YES)
+	if(validId == YES)
 	{	
 		return [[[TiContactsGroup alloc] _initWithPageContext:[self executionContext] recordId:idNum module:self] autorelease];
 	}
@@ -185,7 +187,7 @@
 
 -(NSArray*)getPeopleWithName:(id)arg
 {
-	ENSURE_SINGLE_ARG(arg,NSString)
+	ENSURE_SINGLE_ARG(arg, NSString)
 	
 	if (![NSThread isMainThread]) {
 		[self performSelectorOnMainThread:@selector(getPeopleWithName:) withObject:arg waitUntilDone:YES];
