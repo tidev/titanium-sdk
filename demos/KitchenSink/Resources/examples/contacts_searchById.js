@@ -7,7 +7,7 @@ var tf1 = Titanium.UI.createTextField({
 	hintText: 'RecordID Number',
 	keyboardType: Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION,
 	returnKeyType: Titanium.UI.RETURNKEY_DONE,
-	clearOnEdit: 'true',
+	clearOnEdit: true,
 	returnKeyType: Titanium.UI.RETURNKEY_DEFAULT,
 	borderStyle: Titanium.UI.INPUT_BORDERSTYLE_ROUNDED
 });
@@ -39,7 +39,7 @@ var tf2 = Titanium.UI.createTextField({
 	hintText: 'Contact GroupID Number',
 	keyboardType: Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION,
 	returnKeyType: Titanium.UI.RETURNKEY_DONE,
-	clearOnEdit:'true',
+	clearOnEdit:true,
 	returnKeyType: Titanium.UI.RETURNKEY_DEFAULT,
 	borderStyle: Titanium.UI.INPUT_BORDERSTYLE_ROUNDED
 });
