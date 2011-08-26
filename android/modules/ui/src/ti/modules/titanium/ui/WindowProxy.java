@@ -204,7 +204,7 @@ public class WindowProxy extends TiWindowProxy
 		return pixelFormat;
 	}
 	
-	@Kroll.method @Kroll.setProperty
+	@Kroll.method @Kroll.setProperty(retain=false)
 	public void setWindowPixelFormat(int pixelFormat)
 	{
 		setProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT, pixelFormat, true);

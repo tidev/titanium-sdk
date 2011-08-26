@@ -490,16 +490,7 @@ public class TiUIWindow extends TiUIView
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
-			if (!lightWeight) {
-				if (windowActivity != null) {
-					windowActivity.getWindow().setFormat(TiConvert.toInt(d, TiC.PROPERTY_WINDOW_PIXEL_FORMAT));
-					windowActivity.getWindow().getDecorView().invalidate();
-				} else {
-					Log.w(LCAT, "Activity is null. windowPixelFormat not set.");
-				}
-			} else {
-				Log.w(LCAT, "Setting windowPixelFormat on lightweight windows is not supported.");
-			}
+			handleWindowPixelFormat(TiConvert.toInt(d, TiC.PROPERTY_WINDOW_PIXEL_FORMAT));
 		}
 
 		// Don't allow default processing.
@@ -562,21 +553,26 @@ public class TiUIWindow extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_OPACITY)) {
 			setOpacity(TiConvert.toFloat(newValue));
 		} else if (key.equals(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
-			if (!lightWeight) {
-				if (windowActivity != null) {
-					windowActivity.getWindow().setFormat(TiConvert.toInt(newValue));
-					windowActivity.getWindow().getDecorView().invalidate();
-				} else {
-					Log.w(LCAT, "Activity is null. windowPixelFormat not set.");
-				}
-			} else {
-				Log.w(LCAT, "Setting windowPixelFormat on lightweight windows is not supported.");
-			}
+			handleWindowPixelFormat(TiConvert.toInt(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
 
+	protected void handleWindowPixelFormat(int format)
+	{
+		if (!lightWeight) {
+			if (windowActivity != null) {
+				windowActivity.getWindow().setFormat(format);
+				windowActivity.getWindow().getDecorView().invalidate();
+			} else {
+				Log.w(LCAT, "Activity is null. windowPixelFormat not set.");
+			}
+		} else {
+			Log.w(LCAT, "Setting windowPixelFormat on lightweight windows is not supported.");
+		}
+	}
+	
 	protected LayoutArrangement getLayoutArrangement()
 	{
 		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
