@@ -22,6 +22,9 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: change
     description: fired when the field value changes
     properties:
@@ -33,6 +36,9 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: focus
     description: fired when the field gains focus
     properties:
@@ -44,6 +50,9 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: return
     description: fired when the field return key is pressed on the keyboard
     properties:
@@ -51,6 +60,9 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
 properties:
