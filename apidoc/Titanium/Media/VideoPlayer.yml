@@ -81,6 +81,7 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
@@ -96,6 +97,7 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
   - name: dblclick
@@ -105,6 +107,7 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
@@ -116,6 +119,7 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
@@ -131,6 +135,7 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
   - name: error
@@ -144,6 +149,7 @@ events:
         description: reason for error as string
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
   - name: fullscreen
@@ -157,6 +163,7 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
   - name: load
@@ -166,6 +173,7 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
@@ -181,6 +189,7 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
   - name: mediaTypesAvailable
@@ -194,6 +203,7 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
   - name: naturalSizeAvailable
@@ -207,6 +217,7 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
   - name: playbackState
@@ -220,6 +231,7 @@ events:
         description: playbackState
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
   - name: playing
@@ -233,6 +245,7 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
   - name: preload
@@ -242,6 +255,7 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
@@ -253,6 +267,7 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
@@ -264,6 +279,7 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
@@ -279,6 +295,7 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
   - name: swipe
@@ -292,6 +309,7 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
   - name: thumbnail
@@ -311,6 +329,7 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
   - name: touchcancel
@@ -320,6 +339,7 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
@@ -331,6 +351,7 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
@@ -342,6 +363,7 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
@@ -353,6 +375,7 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
@@ -364,6 +387,7 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x

@@ -51,6 +51,7 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
   - name: error
@@ -66,6 +67,7 @@ events:
         description: the error message
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
   - name: load
@@ -79,6 +81,7 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
   - name: pause
