@@ -43,11 +43,6 @@ methods:
 events:
   - name: calibration
     description: fired only on iPhone/iPad when the device detects interface and requires calibration. when this event is fired, the calibration UI is being displayed to the end user.
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
   - name: heading
     description: fired when a heading event is received
     properties:
@@ -56,12 +51,8 @@ events:
         platforms: [iphone, ipad]
       - name: success
         description: boolean to indicate if the heading event was successfully received or an error occurred
-      - name: source
-        description: the source object that fired the event
       - name: error
         description: if success is false, returns a string of the error description
-      - name: type
-        description: the name of the event fired
       - name: heading
         description: |
                 heading results dictionary with the following sub-properties: `magneticHeading`, `trueHeading`, `accuracy`, `x`, `y`, `z`, `timestamp`.
@@ -77,15 +68,11 @@ events:
         platforms: [android]
         description: |
                 (Android only) location provider dictionary with the following sub-properties: `name`, `accuracy`, `power`, and `provider`.
-      - name: source
-        description: the source object that fired the event
       - name: coords
         description: |
                 location coordinates dictionary with the following sub-properties: `latitude`, `longitude`, `altitude`, `accuracy`, `altitudeAccuracy`, `heading`, `speed`, `timestamp`.
       - name: error
         description: if success is false, returns a string of the error description
-      - name: type
-        description: the name of the event fired
 properties:
   - name: ACCURACY_BEST
     description: accuracy constant

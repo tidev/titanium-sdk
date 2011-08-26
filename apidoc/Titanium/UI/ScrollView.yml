@@ -20,31 +20,29 @@ events:
     properties:
       - name: scale
         description: the new scale as a float
-      - name: source
-        description: the source object that fired the event
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: scroll
     description: fired when the view is scrolled
     properties:
-      - name: source
-        description: the source object that fired the event
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
       - name: dragging
         description: boolean to indicate if the scroll is based on a dragging gesture
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: decelerating
         description: boolean to indicate if the scroll is decelerating
   - name: dragStart

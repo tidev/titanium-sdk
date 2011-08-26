@@ -109,8 +109,9 @@
 			{
 				[(id<TiToolbarButton>)thisProxy setToolbar:(TiToolbar*)self.proxy];
 			}
+            [thisProxy windowWillOpen];
 			[result addObject:[thisProxy barButtonItem]];
-			
+            [thisProxy windowDidOpen];
 		}
 		[[self toolBar] setItems:result];
 	}
