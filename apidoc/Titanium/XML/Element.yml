@@ -8,6 +8,7 @@ description: >
     This conforms to the 
     [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html)
     definition of a DOM Element.
+createable: false
 methods:
   - name: getAttribute
     description: Retrieves an attribute value by name, returning it as a string.
@@ -207,7 +208,7 @@ methods:
       - name: localName
         description: The local name of the attribute to search for.
         type: String
-    returns: 
+    returns:
         type: Boolean
 properties:
   - name: tagName

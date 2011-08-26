@@ -9,8 +9,6 @@ events:
     properties:
       - name: value
         description: the new value of the slider
-      - name: source
-        description: the source object that fired the event
       - name: thumbSize
         description: a dictionary with properties width and height of the size of the thumb. Available with custom thumb image.  (Android)
       - name: y
@@ -19,10 +17,11 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: thumbOffset
         description: a dictionary with properties x and y of the thumbs left-top corner in the control Available with custom thumb image. (Android)
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
 properties:
   - name: disabledLeftTrackImage
     description: the image url of the slider left track when in the disabled state

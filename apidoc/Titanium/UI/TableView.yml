@@ -106,18 +106,17 @@ events:
         description: boolean to indicate if the right area was clicked
       - name: searchMode
         description: boolean to indicate if the table is in search mode
-      - name: source
-        description: the source object that fired the event
       - name: rowData
         description: table view row data object
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: row
         description: table view row object
   - name: longclick
@@ -131,18 +130,12 @@ events:
       - name: section
         description: table view section object
         type: Titanium.UI.TableViewSection
-      - name: source
-        description: The source object that fired the event.
-        type: Object
       - name: rowData
         description: table view row data object
         type: Object
       - name: row
         description: table view row that was longclicked.
         type: Titanium.UI.TableViewRow
-      - name: type
-        description: the name of the event fired
-        type: String
   - name: move
     description: fired when a table row is moved by the user
     properties:
@@ -154,18 +147,17 @@ events:
         description: boolean to indicate if the right area was clicked
       - name: searchMode
         description: boolean to indicate if the table is in search mode
-      - name: source
-        description: the source object that fired the event
       - name: rowData
         description: table view row data object
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: row
         description: table view row object
   - name: scroll
@@ -177,8 +169,6 @@ events:
       - name: visibleItemCount
         description: the number of rows currently visible in the view (Android only)
         platforms: [android]
-      - name: source
-        description: the source object that fired the event
       - name: contentOffset
         description: dictionary with `x` and `y` properties containing the content offset (iOS only)
         platforms: [iphone, ipad]
@@ -192,17 +182,16 @@ events:
       - name: contentSize
         description: dictionary with `width` and `height` properties containing the size of the content (regardless of the display size in the case of scrolling) (iOS only)
         platforms: [iphone, ipad]
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: size
         description: dictionary with `width` and `height` properties containing the size of the visible table view
   - name: scrollEnd
     description: fired when the table view stops scrolling
     properties:
-      - name: source
-        description: the source object that fired the event
       - name: contentOffset
         description: dictionary with `x` and `y` properties containing the content offset (iOS only)
         platforms: [iphone, ipad]
@@ -213,10 +202,11 @@ events:
       - name: contentSize
         description: dictionary with `width` and `height` properties containing the size of the content (regardless of the display size in the case of scrolling) (iOS only)
         platforms: [iphone, ipad]
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: size
         description: dictionary with `width` and `height` properties containing the size of the visible table view
 properties:
@@ -287,6 +277,7 @@ properties:
     type: String
   - name: separatorStyle
     description: the separator style constant. For iPhone, Titanium.UI.iPhone.TableViewSeparatorStyle
+    platforms: [iphone, ipad]
     type: Number
   - name: showVerticalScrollIndicator
     description: whether tableview displays vertical scroll indicator (iOS Only)

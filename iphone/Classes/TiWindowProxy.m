@@ -361,10 +361,6 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 -(BOOL)isRootViewAttached
 {
 	BOOL result = ([[[[TiApp app] controller] view] superview]!=nil);
-	if (!result)
-	{
-		NSLog(@"[WARN] We still care about isRootViewAttached!!!!!!!");
-	}
 	return result;
 }
 
@@ -396,7 +392,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		}
 		opening = YES;
 	}
-	[self performSelectorOnMainThread:@selector(openOnUIThread:) withObject:args waitUntilDone:NO];
+	[self performSelectorOnMainThread:@selector(openOnUIThread:) withObject:args waitUntilDone:YES];
 }
 
 -(void)openOnUIThread:(NSArray*)args

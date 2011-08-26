@@ -3,6 +3,7 @@ name: Titanium.Android.R
 description: The Titanium binding of [android.R](http://developer.android.com/reference/android/R.html).  Note that this accesses Android system-wide resources, not your application's resources.  To access your application's resources, you want <Titanium.App.Android.R>.
 extends: Titanium.Proxy
 platforms: [android]
+createable: false
 since: "1.5"
 properties:
   - name: anim
