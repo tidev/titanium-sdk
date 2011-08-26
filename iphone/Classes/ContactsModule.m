@@ -157,7 +157,7 @@
 			validId = YES;
 		}
 	});
-	if(validId == YES)
+	if (validId == YES)
 	{
 		return [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] recordId:idNum module:self] autorelease];
 	}
@@ -177,7 +177,7 @@
 			validId = YES;
 		}
 	});
-	if(validId == YES)
+	if (validId == YES)
 	{	
 		return [[[TiContactsGroup alloc] _initWithPageContext:[self executionContext] recordId:idNum module:self] autorelease];
 	}
