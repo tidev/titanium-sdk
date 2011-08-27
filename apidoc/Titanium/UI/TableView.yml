@@ -5,11 +5,11 @@ extends: Titanium.UI.View
 since: "0.8"
 methods:
   - name: appendRow
-    description: append a row to the table, optionally with animation
+    description: append one or more rows to the table, optionally with animation
     parameters:
       - name: row
-        description: row to append
-        type: Object
+        description: if appending a single row, this should contain only the row being appended.  if appending multiple rows, this should be an array of the rows being appended
+        type: [Titanium.UI.TableViewRow, Array<Titanium.UI.TableViewRow>]
       - name: properties
         description: animation properties
         type: Object
@@ -114,6 +114,9 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: row
         description: table view row object
   - name: longclick
@@ -152,6 +155,9 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: row
         description: table view row object
   - name: scroll
@@ -178,6 +184,9 @@ events:
         platforms: [iphone, ipad]
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: size
         description: dictionary with `width` and `height` properties containing the size of the visible table view
   - name: scrollEnd
@@ -195,6 +204,9 @@ events:
         platforms: [iphone, ipad]
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: size
         description: dictionary with `width` and `height` properties containing the size of the visible table view
 properties:
@@ -265,6 +277,7 @@ properties:
     type: String
   - name: separatorStyle
     description: the separator style constant. For iPhone, Titanium.UI.iPhone.TableViewSeparatorStyle
+    platforms: [iphone, ipad]
     type: Number
   - name: showVerticalScrollIndicator
     description: whether tableview displays vertical scroll indicator (iOS Only)
