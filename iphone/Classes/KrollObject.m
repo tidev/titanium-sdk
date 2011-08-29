@@ -25,18 +25,6 @@ TiClassRef JSObjectClassRef = NULL;
 
 id TiValueToId(KrollContext* context, TiValueRef v);
 
-@implementation KrollUndefined
-+(KrollUndefined*)undefined
-{
-	static KrollUndefined *undef;
-	if (undef==nil)
-	{
-		undef = [[KrollUndefined alloc] init];
-	}
-	return undef;
-}
-@end
-
 //
 // function to determine if the object passed is a JS Date
 //
@@ -135,7 +123,10 @@ id TiValueToId(KrollContext *context, TiValueRef v)
 		TiContextRef jsContext = [context context];
 		TiType tt = TiValueGetType(jsContext, v);
 		switch (tt) {
-			case kTITypeUndefined:
+			case kTITypeUndefined:{
+				result = nil;
+				break;
+			}
 			case kTITypeNull: {
 				result = [NSNull null];
 				break;
@@ -205,11 +196,11 @@ id TiValueToId(KrollContext *context, TiValueRef v)
 TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
 {
 	TiContextRef jsContext = [context context];
-	if (obj == nil || [obj isKindOfClass:[NSNull class]])
+	if ([obj isKindOfClass:[NSNull class]])
 	{
 		return TiValueMakeNull(jsContext);
 	}
-	else if ([obj isKindOfClass:[KrollUndefined class]])
+	else if (obj == nil)
 	{
 		return TiValueMakeUndefined(jsContext);
 	}
@@ -1014,7 +1005,7 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 			}
 		}
 	}
-	return [KrollUndefined undefined];
+	return nil;
 }
 
 -(id)valueForKey:(NSString *)key
