@@ -79,8 +79,6 @@ def to_jsca_type_name(type_info):
 	# setting the parameter type of createXX methods to XX in order to get rich documentation
 	# for what's expected in that parameter.
 	elif type_test.startswith("Dictionary<"):
-		import pdb
-		pdb.set_trace
 		match = re.findall(r"<([^>]+)>", type_test)
 		if match is not None and len(match) > 0:
 			type_test = match[0]
@@ -123,7 +121,7 @@ def to_jsca_method_parameter(p):
 		if "returns" in p.parent.api_obj:
 			method_return_type = p.parent.api_obj["returns"]["type"]
 			if method_return_type in all_annotated_apis:
-				type_in_method_name = p.parent.name.replace("create","")
+				type_in_method_name = p.parent.name.replace("create", "")
 				if len(type_in_method_name) > 0 and type_in_method_name == method_return_type.split(".")[-1]:
 					data_type = to_jsca_type_name(method_return_type)
 	result = {
