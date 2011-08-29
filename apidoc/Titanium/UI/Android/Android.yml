@@ -29,6 +29,76 @@ properties:
   - name: LINKIFY_WEB_URLS
     description: Auto link web urls.
     type: Number
+  - name: PIXEL_FORMAT_A_8
+    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    type: Number
+    permission: read-only
+    since: "1.8.0"
+  - name: PIXEL_FORMAT_LA_88
+    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    type: Number
+    permission: read-only
+    since: "1.8.0"
+  - name: PIXEL_FORMAT_L_8
+    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    type: Number
+    permission: read-only
+    since: "1.8.0"
+  - name: PIXEL_FORMAT_OPAQUE
+    description: System chooses an opaque format (no alpha bits required) [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    type: Number
+    permission: read-only
+    since: "1.8.0"
+  - name: PIXEL_FORMAT_RGBA_4444
+    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    type: Number
+    permission: read-only
+    since: "1.8.0"
+  - name: PIXEL_FORMAT_RGBA_5551
+    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    type: Number
+    permission: read-only
+    since: "1.8.0"
+  - name: PIXEL_FORMAT_RGBA_8888
+    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    type: Number
+    permission: read-only
+    since: "1.8.0"
+  - name: PIXEL_FORMAT_RGBX_8888
+    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    type: Number
+    permission: read-only
+    since: "1.8.0"
+  - name: PIXEL_FORMAT_RGB_332
+    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    type: Number
+    permission: read-only
+    since: "1.8.0"
+  - name: PIXEL_FORMAT_RGB_565
+    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    type: Number
+    permission: read-only
+    since: "1.8.0"
+  - name: PIXEL_FORMAT_RGB_888
+    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    type: Number
+    permission: read-only
+    since: "1.8.0"
+  - name: PIXEL_FORMAT_TRANSLUCENT
+    description: System chooses a format that supports translucency (many alpha bits). [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    type: Number
+    permission: read-only
+    since: "1.8.0"
+  - name: PIXEL_FORMAT_TRANSPARENT
+    description: System chooses a format that supports transparency (at least 1 alpha bit). [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    type: Number
+    permission: read-only
+    since: "1.8.0"
+  - name: PIXEL_FORMAT_UNKNOWN
+    description: Allow the Window to select the format. [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    type: Number
+    permission: read-only
+    since: "1.8.0"
   - name: SOFT_INPUT_ADJUST_PAN
     description: Pan contents when soft keyboard is visible. Use on Activity ("heavy weight window") to suggest how the virtual keyboard should treat the window contents. Must be specified in creation options.
     type: Number
