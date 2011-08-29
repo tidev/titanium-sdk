@@ -140,20 +140,24 @@ public class TiUIWindow extends TiUIView
 
 	protected void initContext()
 	{
+		TiContext proxyContext = proxy.getTiContext();
+		KrollDict urlPropertyHolder = resolver.findProperty(TiC.PROPERTY_URL);
+		boolean hasUrl = (urlPropertyHolder != null);
+		if (newActivity) {
+			windowId = TiActivityWindows.addWindow(this);
+		}
+		ActivityProxy activityProxy = null;
 		// if url, create a new context.
-		if (proxy.hasProperty(TiC.PROPERTY_URL)) {
-			if (newActivity) {
-				windowId = TiActivityWindows.addWindow(this);
-			}
-			String url = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_URL));
-			String baseUrl = proxy.getTiContext().getBaseUrl();
+		if (hasUrl) {
+			String url = TiConvert.toString(urlPropertyHolder, TiC.PROPERTY_URL);
+			String baseUrl = proxyContext.getBaseUrl();
 			TiUrl tiUrl = TiUrl.normalizeWindowUrl(baseUrl, url);
 			windowUrl = tiUrl.url;
 			Activity activity = null;
 			if (!newActivity) {
 				activity = windowActivity;
 				if (activity == null) {
-					activity = proxy.getTiContext().getActivity();
+					activity = proxyContext.getActivity();
 				}
 			}
 			windowContext = TiContext.createTiContext(activity, tiUrl.baseUrl, tiUrl.url);
@@ -161,33 +165,26 @@ public class TiUIWindow extends TiUIView
 			// if LW window, use the existing activityProxy from the activity rather than
 			// creating a new one which will cause the listeners on the duplicate activityProxy
 			// to not fire
-			ActivityProxy activityProxy = null;
 			if (!newActivity) {
 				if (activity instanceof TiBaseActivity) {
 					activityProxy = ((TiBaseActivity)activity).getActivityProxy();
 				}
 			}
+		} else if (!lightWeight) {
+			windowContext = TiContext.createTiContext(windowActivity, proxyContext.getBaseUrl(), proxyContext.getCurrentUrl());
+			newContext = true;
+		}
+		if (windowActivity != null || hasUrl) {
 			if (activityProxy == null) {
 				activityProxy = ((TiWindowProxy) proxy).getActivity(windowContext);
 			}
+			TiBindingHelper.bindCurrentWindowAndActivity(windowContext, proxy, activityProxy);
 			if (windowActivity != null) {
 				bindWindowActivity(windowContext, windowActivity);
+				bindProxies();
 			}
-			TiBindingHelper.bindCurrentWindowAndActivity(windowContext, proxy, activityProxy);
-		} else if (!lightWeight) {
-			windowContext = TiContext.createTiContext(windowActivity, proxy.getTiContext().getBaseUrl(), proxy.getTiContext().getCurrentUrl());
-			newContext = true;
-			ActivityProxy activityProxy = ((TiWindowProxy) proxy).getActivity(windowContext);
-			if (windowActivity != null) {
-				bindWindowActivity(windowContext, windowActivity);
-			}
-			if (newActivity) {
-				windowId = TiActivityWindows.addWindow(this);
-			}
-			TiBindingHelper.bindCurrentWindowAndActivity(windowContext, proxy, activityProxy);
-			bindProxies();
 		} else {
-			bindWindowActivity(proxy.getTiContext(), proxy.getTiContext().getActivity());
+			bindWindowActivity(proxyContext, proxyContext.getActivity());
 		}
 		if (!newActivity && !lightWeight) {
 			proxy.switchContext(windowContext);
