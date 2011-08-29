@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Android Simulator for building a project and launching
-# the Android Emulator or on the device
+# Appcelerator Titanium Mobile
+# Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+# Licensed under the terms of the Apache Public License
+# Please see the LICENSE included with this distribution for details.
 #
-import os, sys, subprocess, shutil, time, signal, string, platform, re, glob, hashlib, imp
+# General builder script for staging, packaging, deploying,
+# and debugging Titanium Mobile applications on Android
+#
+import os, sys, subprocess, shutil, time, signal, string, platform, re, glob, hashlib, imp, inspect
 import run, avd, prereq, zipfile, tempfile, fnmatch, codecs, traceback, simplejson
 from os.path import splitext
 from compiler import Compiler
@@ -47,6 +52,11 @@ uncompressed_types = [
 
 
 MIN_API_LEVEL = 7
+
+def remove_ignored_dirs(dirs):
+	for d in dirs:
+		if d in ignoreDirs:
+			dirs.remove(d)
 
 # ZipFile.extractall introduced in Python 2.6, so this is workaround for earlier
 # versions
@@ -469,9 +479,6 @@ class Builder(object):
 				warn('You have both an android/images/%s folder and an android/images/res-%sdpi folder. Files from both of these folders will end up in res/drawable-%sdpi.  If two files are named the same, there is no guarantee which one will be copied last and therefore be the one the application uses.  You should use just one of these folders to avoid conflicts.' % (check, check[0], check[0]))
 
 	def copy_module_platform_folders(self):
-		module_dir = os.path.join(self.top_dir, 'modules', 'android')
-		if not os.path.exists(module_dir):
-			return
 		for module in self.modules:
 			platform_folder = os.path.join(module.path, 'platform', 'android')
 			if os.path.exists(platform_folder):
@@ -542,7 +549,10 @@ class Builder(object):
 		if self.force_rebuild or self.deploy_type == 'production' or \
 			(self.js_changed and not self.fastdev):
 			for root, dirs, files in os.walk(os.path.join(self.top_dir, "Resources")):
+				remove_ignored_dirs(dirs)
 				for f in files:
+					if f in ignoreFiles:
+						continue
 					path = os.path.join(root, f)
 					if is_resource_drawable(path) and f != 'default.png':
 						fileset.append(path)
@@ -870,7 +880,10 @@ class Builder(object):
 		if os.path.exists(android_images_dir):
 			pattern = r'/android/images/(high|medium|low|res-[^/]+)/default.png'
 			for root, dirs, files in os.walk(android_images_dir):
+				remove_ignored_dirs(dirs)
 				for f in files:
+					if f in ignoreFiles:
+						continue
 					path = os.path.join(root, f)
 					if re.search(pattern, path.replace(os.sep, "/")):
 						res_folder = resource_drawable_folder(path)
@@ -1091,9 +1104,12 @@ class Builder(object):
 			update_stylesheet = True
 		else:
 			for root, dirs, files in os.walk(resources_dir):
-				for file in files:
-					if file.endswith(".jss"):
-						absolute_path = os.path.join(root, file)
+				remove_ignored_dirs(dirs)
+				for f in files:
+					if f in ignoreFiles:
+						continue
+					if f.endswith(".jss"):
+						absolute_path = os.path.join(root, f)
 						if Deltafy.needs_update(absolute_path, app_stylesheet):
 							update_stylesheet = True
 							break
@@ -1116,10 +1132,11 @@ class Builder(object):
 		# fix un-escaped single-quotes and full-quotes
 		offending_pattern = '[^\\\\][\'"]'
 		for root, dirs, files in os.walk(self.res_dir):
-			for f in files:
-				if not f.endswith('.xml'):
+			remove_ignored_dirs(dirs)
+			for filename in files:
+				if filename in ignoreFiles or not filename.endswith('.xml'):
 					continue
-				full_path = os.path.join(root, f)
+				full_path = os.path.join(root, filename)
 				f = codecs.open(full_path, 'r', 'utf-8')
 				contents = f.read()
 				f.close()
@@ -1156,7 +1173,10 @@ class Builder(object):
 		
 		for path in paths:
 			for root, dirs, files in os.walk(path):
+				remove_ignored_dirs(dirs)
 				for filename in files:
+					if filename in ignoreFiles:
+						continue
 					if file_glob != None:
 						if not fnmatch.fnmatch(filename, file_glob): continue
 					yield os.path.join(root, filename)
@@ -1201,13 +1221,20 @@ class Builder(object):
 				self.module_jars.append(jar)
 				classpath = os.pathsep.join([classpath, jar])
 
+		if len(self.module_jars) > 0:
+			# kroll-apt.jar is needed for modules
+			classpath = os.pathsep.join([classpath, self.kroll_apt_jar])
+
 		if self.deploy_type != 'production':
 			classpath = os.pathsep.join([classpath,
 				os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'),
 				os.path.join(self.support_dir, 'lib', 'titanium-debug.jar')])
 
 		debug("Building Java Sources: " + " ".join(src_list))
-		javac_command = [self.javac, '-encoding', 'utf8', '-classpath', classpath, '-d', self.classes_dir, '-sourcepath', self.project_src_dir, '-sourcepath', self.project_gen_dir]
+		javac_command = [self.javac, '-encoding', 'utf8',
+			'-classpath', classpath, '-d', self.classes_dir, '-proc:none',
+			'-sourcepath', self.project_src_dir,
+			'-sourcepath', self.project_gen_dir]
 		(src_list_osfile, src_list_filename) = tempfile.mkstemp()
 		src_list_file = os.fdopen(src_list_osfile, 'w')
 		src_list_file.write("\n".join(src_list))
@@ -1278,14 +1305,17 @@ class Builder(object):
 		
 		# add all resource files from the project
 		for root, dirs, files in os.walk(self.project_src_dir):
-			for file in files:
-				if os.path.splitext(file)[1] != '.java':
-					absolute_path = os.path.join(root, file)
-					relative_path = os.path.join(root[len(self.project_src_dir)+1:], file)
+			remove_ignored_dirs(dirs)
+			for f in files:
+				if f in ignoreFiles:
+					continue
+				if os.path.splitext(f)[1] != '.java':
+					absolute_path = os.path.join(root, f)
+					relative_path = os.path.join(root[len(self.project_src_dir)+1:], f)
 					if is_modified(absolute_path):
 						self.apk_updated = True
 						debug("resource file => " + relative_path)
-						apk_zip.write(os.path.join(root, file), relative_path, compression_type(file))
+						apk_zip.write(os.path.join(root, f), relative_path, compression_type(f))
 		
 		def add_resource_jar(jar_file):
 			jar = zipfile.ZipFile(jar_file)
@@ -1381,6 +1411,7 @@ class Builder(object):
 			os.rename(app_apk+'z',app_apk)
 
 		if self.dist_dir:
+			self.post_build()
 			sys.exit()
 
 		if self.build_only:
@@ -1510,6 +1541,7 @@ class Builder(object):
 		deploy_type = 'development'
 		self.build_only = build_only
 		self.device_args = device_args
+		self.postbuild_modules = []
 		if install:
 			if self.device_args == None:
 				self.device_args = ['-d']
@@ -1567,6 +1599,10 @@ class Builder(object):
 				m.update(open(code_path,'rb').read()) 
 				code_hash = m.hexdigest()
 				p = imp.load_source(code_hash, code_path, fin)
+				module_functions = dict(inspect.getmembers(p, inspect.isfunction))
+				if module_functions.has_key('postbuild'):
+					debug("plugin contains a postbuild function. Will execute after project is built and packaged")
+					self.postbuild_modules.append((plugin['name'], p))
 				p.compile(compiler_config)
 				fin.close()
 			
@@ -1606,6 +1642,8 @@ class Builder(object):
 		self.aapt = self.sdk.get_aapt()
 		self.android_jar = self.sdk.get_android_jar()
 		self.titanium_jar = os.path.join(self.support_dir,'titanium.jar')
+		self.kroll_apt_jar = os.path.join(self.support_dir, 'kroll-apt.jar')
+
 		dx = self.sdk.get_dx()
 		self.apkbuilder = self.sdk.get_apkbuilder()
 		self.sdcard_resources = '/sdcard/Ti.debug/%s/Resources' % self.app_id
@@ -1835,6 +1873,8 @@ class Builder(object):
 				if relaunched:
 					info("Relaunched %s ... Application should be running." % self.name)
 
+			self.post_build()
+
 			#intermediary code for on-device debugging (later)
 			#if debugger_host != None:
 				#import debugger
@@ -1844,6 +1884,15 @@ class Builder(object):
 			os.chdir(curdir)
 			sys.stdout.flush()
 			
+	def post_build(self):
+		try:
+			if self.postbuild_modules:
+				for p in self.postbuild_modules:
+					info("Running postbuild function in %s plugin" % p[0])
+					p[1].postbuild()
+		except Exception,e:
+			error("Error performing post-build steps: %s" % e)
+
 
 if __name__ == "__main__":
 	def usage():

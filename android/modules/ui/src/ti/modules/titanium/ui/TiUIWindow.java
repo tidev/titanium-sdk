@@ -140,20 +140,24 @@ public class TiUIWindow extends TiUIView
 
 	protected void initContext()
 	{
+		TiContext proxyContext = proxy.getTiContext();
+		KrollDict urlPropertyHolder = resolver.findProperty(TiC.PROPERTY_URL);
+		boolean hasUrl = (urlPropertyHolder != null);
+		if (newActivity) {
+			windowId = TiActivityWindows.addWindow(this);
+		}
+		ActivityProxy activityProxy = null;
 		// if url, create a new context.
-		if (proxy.hasProperty(TiC.PROPERTY_URL)) {
-			if (newActivity) {
-				windowId = TiActivityWindows.addWindow(this);
-			}
-			String url = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_URL));
-			String baseUrl = proxy.getTiContext().getBaseUrl();
+		if (hasUrl) {
+			String url = TiConvert.toString(urlPropertyHolder, TiC.PROPERTY_URL);
+			String baseUrl = proxyContext.getBaseUrl();
 			TiUrl tiUrl = TiUrl.normalizeWindowUrl(baseUrl, url);
 			windowUrl = tiUrl.url;
 			Activity activity = null;
 			if (!newActivity) {
 				activity = windowActivity;
 				if (activity == null) {
-					activity = proxy.getTiContext().getActivity();
+					activity = proxyContext.getActivity();
 				}
 			}
 			windowContext = TiContext.createTiContext(activity, tiUrl.baseUrl, tiUrl.url);
@@ -161,33 +165,26 @@ public class TiUIWindow extends TiUIView
 			// if LW window, use the existing activityProxy from the activity rather than
 			// creating a new one which will cause the listeners on the duplicate activityProxy
 			// to not fire
-			ActivityProxy activityProxy = null;
 			if (!newActivity) {
 				if (activity instanceof TiBaseActivity) {
 					activityProxy = ((TiBaseActivity)activity).getActivityProxy();
 				}
 			}
+		} else if (!lightWeight) {
+			windowContext = TiContext.createTiContext(windowActivity, proxyContext.getBaseUrl(), proxyContext.getCurrentUrl());
+			newContext = true;
+		}
+		if (windowActivity != null || hasUrl) {
 			if (activityProxy == null) {
 				activityProxy = ((TiWindowProxy) proxy).getActivity(windowContext);
 			}
+			TiBindingHelper.bindCurrentWindowAndActivity(windowContext, proxy, activityProxy);
 			if (windowActivity != null) {
 				bindWindowActivity(windowContext, windowActivity);
+				bindProxies();
 			}
-			TiBindingHelper.bindCurrentWindowAndActivity(windowContext, proxy, activityProxy);
-		} else if (!lightWeight) {
-			windowContext = TiContext.createTiContext(windowActivity, proxy.getTiContext().getBaseUrl(), proxy.getTiContext().getCurrentUrl());
-			newContext = true;
-			ActivityProxy activityProxy = ((TiWindowProxy) proxy).getActivity(windowContext);
-			if (windowActivity != null) {
-				bindWindowActivity(windowContext, windowActivity);
-			}
-			if (newActivity) {
-				windowId = TiActivityWindows.addWindow(this);
-			}
-			TiBindingHelper.bindCurrentWindowAndActivity(windowContext, proxy, activityProxy);
-			bindProxies();
 		} else {
-			bindWindowActivity(proxy.getTiContext(), proxy.getTiContext().getActivity());
+			bindWindowActivity(proxyContext, proxyContext.getActivity());
 		}
 		if (!newActivity && !lightWeight) {
 			proxy.switchContext(windowContext);
@@ -489,6 +486,9 @@ public class TiUIWindow extends TiUIView
 				}
 			}
 		}
+		if (d.containsKey(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
+			handleWindowPixelFormat(TiConvert.toInt(d, TiC.PROPERTY_WINDOW_PIXEL_FORMAT));
+		}
 
 		// Don't allow default processing.
 		d.remove(TiC.PROPERTY_BACKGROUND_IMAGE);
@@ -549,11 +549,27 @@ public class TiUIWindow extends TiUIView
 			}
 		} else if (key.equals(TiC.PROPERTY_OPACITY)) {
 			setOpacity(TiConvert.toFloat(newValue));
+		} else if (key.equals(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
+			handleWindowPixelFormat(TiConvert.toInt(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
 
+	protected void handleWindowPixelFormat(int format)
+	{
+		if (!lightWeight) {
+			if (windowActivity != null) {
+				windowActivity.getWindow().setFormat(format);
+				windowActivity.getWindow().getDecorView().invalidate();
+			} else {
+				Log.w(LCAT, "Activity is null. windowPixelFormat not set.");
+			}
+		} else {
+			Log.w(LCAT, "Setting windowPixelFormat on lightweight windows is not supported.");
+		}
+	}
+	
 	protected LayoutArrangement getLayoutArrangement()
 	{
 		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
@@ -605,7 +621,11 @@ public class TiUIWindow extends TiUIView
 		if (props != null && props.containsKey(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)) {
 			intent.putExtra(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, TiConvert.toInt(props, TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE));
 		}
-
+		props = resolver.findProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT);
+		if (props != null && props.containsKey(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
+			intent.putExtra(TiC.PROPERTY_WINDOW_PIXEL_FORMAT, TiConvert.toInt(props, TiC.PROPERTY_WINDOW_PIXEL_FORMAT));
+		}
+		
 		boolean finishRoot = false;
 		props = resolver.findProperty(TiC.PROPERTY_EXIT_ON_CLOSE);
 		if (props != null && props.containsKey(TiC.PROPERTY_EXIT_ON_CLOSE)) {
@@ -631,7 +651,7 @@ public class TiUIWindow extends TiUIView
 			windowActivity.getWindow().getDecorView().invalidate();
 		}
 	}
-
+	
 	@Override
 	public void release()
 	{

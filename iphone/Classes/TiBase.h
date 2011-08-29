@@ -346,6 +346,12 @@ return [NSNumber numberWithUnsignedInt:map];\
 return map;\
 }\
 
+#define DEPRECATED(api,in,removed) \
+NSLog(@"[WARN] Ti%@.%@ DEPRECATED in %@: REMOVED in %@",@"tanium",api,in,removed);
+    
+#define DEPRECATED_REPLACED(api,in,removed,newapi) \
+NSLog(@"[WARN] Ti%@.%@ DEPRECATED in %@, in favor of %@: REMOVED in %@",@"tanium",api,in,newapi,removed);
+
 #define NUMBOOL(x) \
 [NSNumber numberWithBool:x]\
 

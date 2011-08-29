@@ -9,7 +9,7 @@ methods:
     parameters:
       - name: view
         description: the view to add to this views hiearchy
-        type: Object
+        type: Titanium.UI.View
   - name: animate
     description: animate the view
     parameters:
@@ -26,7 +26,7 @@ methods:
     parameters:
       - name: view
         description: the view to remove from this views hiearchy
-        type: Object
+        type: Titanium.UI.View
   - name: show
     description: make the view visible
   - name: toImage
@@ -37,18 +37,18 @@ methods:
       - name: f
         description: function to be invoked upon completion. if non-null, this method will be performed asynchronously. if null, it will be performed immediately
         type: Callback<Object>
+        optional: true
 events:
   - name: click
     description: fired when the device detects a click (longer than touch) against the view
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordinates
   - name: dblclick
@@ -56,12 +56,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordinates
   - name: doubletap
@@ -69,12 +68,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordinates
   - name: longclick
@@ -82,11 +80,6 @@ events:
         in the case of a trackball, holding down the button.  The event occurs before the
         finger/button is lifted up again.  If you have a longclick listener then the click
         event will not occur when you lift the finger/button after a longpress.
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
     platforms: [android]
   - name: longpress
     description: fired when the device detects a long press, which is a touch-and-hold with
@@ -98,10 +91,6 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: x
         description: the x point of the event in receiving view coordinates
   - name: singletap
@@ -109,12 +98,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordinates
   - name: swipe
@@ -122,27 +110,25 @@ events:
     properties:
       - name: direction
         description: direction of the swipe - either left or right
-      - name: source
-        description: the source object that fired the event
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordinates
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: touchcancel
     description: fired when a touch event is interrupted by the device. this happens in circumenstances such as an incoming call to allow the UI to clean up state.
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordinates
   - name: touchend
@@ -150,12 +136,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordinates
   - name: touchmove
@@ -163,12 +148,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordinates
   - name: touchstart
@@ -176,12 +160,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordinates
   - name: twofingertap
@@ -189,12 +172,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordinates
 properties:

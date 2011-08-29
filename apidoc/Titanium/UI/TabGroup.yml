@@ -6,6 +6,10 @@ since: "0.9"
 methods:
   - name: addTab
     description: add a tab to the tab group
+    parameters:
+      - name: tab
+        description: The tab to add
+        type: Titanium.UI.Tab
   - name: close
     description: close the tab group and remove it from the UI
   - name: open
@@ -24,69 +28,81 @@ events:
     properties:
       - name: index
         description: the tab index
-      - name: source
-        description: the source object that fired the event
+        type: Number
       - name: previousIndex
         description: the previous tab index
+        type: Number
       - name: tab
         description: the tab object
+        type: Titanium.UI.Tab
       - name: y
         description: the y point of the event, in receiving view coordinates
+        type: Number
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
+        type: Number
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: previousTab
         description: the previous tab object
+        type: Titanium.UI.Tab
   - name: close
     description: fired when the tab group is closed
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
+        type: Number
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
+        type: Number
   - name: focus
     description: fired when the tab group gains focus
     properties:
       - name: index
         description: the tab index
-      - name: source
-        description: the source object that fired the event
+        type: Number
       - name: previousIndex
         description: the previous tab index
+        type: Number
       - name: tab
         description: the tab object
+        type: Titanium.UI.Tab
       - name: y
         description: the y point of the event, in receiving view coordinates
+        type: Number
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
+        type: Number
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: previousTab
         description: the previous tab object
+        type: Titanium.UI.Tab
   - name: open
     description: fired when the tab group is opened
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
+        type: Number
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
+        type: Number
 properties:
   - name: activeTab
     description: the active tab

@@ -1,0 +1,55 @@
+---
+name: Titanium.UI.CoverFlowView
+description: The Cover Flow view is container for showing  animated, three dimensional images in a nice UI. The Cover Flow view is created by the method <Titanium.UI.iOS.createCoverFlowView>.
+extends: Titanium.UI.View
+since: "0.8"
+platforms: [iphone, ipad]
+methods:
+  - name: setImage
+    description: change an image for a index
+    parameters:
+      - name: index
+        description: index to change
+        type: Number
+      - name: image
+        description: the image to set the index to. May be a TiBlob, TiFile, URL, or dictionary with 'image' (may be any of TiBlob, TiFile, URL), 'width', 'height' keys.  'auto' is not allowed, only exact sizes (although a size may be omitted to keep the image at that size).  If passed as a TiFile or URL, will perform a check for '@2x' on Retina displays
+        type: Object
+events:
+  - name: change
+    description: fired when the user changes the image using a gesture
+    properties:
+      - name: index
+        description: the index of the image that is now visible
+      - name: y
+        description: the y point of the event, in receiving view coordinates
+      - name: x
+        description: the x point of the event in receiving view coordiantes
+      - name: globalPoint
+        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
+      - name: previous
+        description: the previous index of the image that was visible
+properties:
+  - name: images
+    description: array of images to display in the view
+    type: Array<Object>
+  - name: selected
+    description: index to make selected
+    type: Number
+notes: |
+    
+examples:
+  - title: Simple 3 image cover flow example
+    example: |
+        
+        Create a rounded view.
+        
+            var view = Titanium.UI.createCoverFlowView({
+            	images:['a.png','b.png','c.png'],
+            	backgroundColor:'#000'
+            });
+            window.add(view);
+        
+        

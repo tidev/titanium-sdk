@@ -29,6 +29,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
@@ -275,7 +276,6 @@ public abstract class TiBaseActivity extends Activity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		getTiApp().setCurrentActivity(this, this);
 		messageQueue = TiMessageQueue.getMessageQueue();
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onCreate");
@@ -287,6 +287,10 @@ public abstract class TiBaseActivity extends Activity
 				messenger = (Messenger) intent.getParcelableExtra(TiC.INTENT_PROPERTY_MESSENGER);
 				msgActivityCreatedId = intent.getIntExtra(TiC.INTENT_PROPERTY_MSG_ACTIVITY_CREATED_ID, -1);
 				msgId = intent.getIntExtra(TiC.INTENT_PROPERTY_MSG_ID, -1);
+			}
+			
+			if (intent.hasExtra(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
+				getWindow().setFormat(intent.getIntExtra(TiC.PROPERTY_WINDOW_PIXEL_FORMAT, PixelFormat.UNKNOWN));
 			}
 		}
 
@@ -301,7 +305,17 @@ public abstract class TiBaseActivity extends Activity
 		windowCreated();
 
 		if (activityProxy != null) {
+			// we only want to set the current activity for good in the resume state but we need it right now.
+			// save off the existing current activity, set ourselves to be the new current activity temporarily 
+			// so we don't run into problems when we give the proxy the event
+			TiApplication tiApp = getTiApp();
+			Activity tempCurrentActivity = tiApp.getCurrentActivity();
+			tiApp.setCurrentActivity(this, this);
+
 			activityProxy.fireSyncEvent(TiC.EVENT_CREATE, null);
+
+			// set the current activity back to what it was originally
+			tiApp.setCurrentActivity(this, tempCurrentActivity);
 		}
 
 		setContentView(layout);
@@ -550,7 +564,17 @@ public abstract class TiBaseActivity extends Activity
 			mustFireInitialFocus = true;
 		}
 		if (activityProxy != null) {
+			// we only want to set the current activity for good in the resume state but we need it right now.
+			// save off the existing current activity, set ourselves to be the new current activity temporarily 
+			// so we don't run into problems when we give the proxy the event
+			TiApplication tiApp = getTiApp();
+			Activity tempCurrentActivity = tiApp.getCurrentActivity();
+			tiApp.setCurrentActivity(this, this);
+
 			activityProxy.fireSyncEvent(TiC.EVENT_START, null);
+
+			// set the current activity back to what it was originally
+			tiApp.setCurrentActivity(this, tempCurrentActivity);
 		}
 	}
 
@@ -577,7 +601,17 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onRestart");
 		}
 		if (activityProxy != null) {
+			// we only want to set the current activity for good in the resume state but we need it right now.
+			// save off the existing current activity, set ourselves to be the new current activity temporarily 
+			// so we don't run into problems when we give the proxy the event
+			TiApplication tiApp = getTiApp();
+			Activity tempCurrentActivity = tiApp.getCurrentActivity();
+			tiApp.setCurrentActivity(this, this);
+
 			activityProxy.fireSyncEvent(TiC.EVENT_RESTART, null);
+
+			// set the current activity back to what it was originally
+			tiApp.setCurrentActivity(this, tempCurrentActivity);
 		}
 	}
 

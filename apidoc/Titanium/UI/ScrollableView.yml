@@ -26,18 +26,17 @@ events:
   - name: scroll
     description: fired when the scroll view is scrolled
     properties:
-      - name: source
-        description: the source object that fired the event
       - name: currentPage
         description: the current page index
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: view
         description: the current page view
 properties:
@@ -51,14 +50,6 @@ properties:
     description: disable view bouncing.  iOS only.
     platforms: [iphone, ipad]
     type: Boolean
-  - name: maxZoomScale
-    description: the maximum zoom scale for the view
-    type: Number
-    platforms: [iphone, ipad]
-  - name: minZoomScale
-    description: the minimum zoom scale for the view
-    type: Number
-    platforms: [iphone, ipad]
   - name: pagingControlColor
     description: the color of the paging control. defaults to black.
     type: String

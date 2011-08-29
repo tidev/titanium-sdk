@@ -18,6 +18,7 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -84,7 +85,6 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		getTiApp().setCurrentActivity(this, this);
 		Intent intent = getIntent();
 		if (intent != null) {
 			if (checkMissingLauncher(intent, savedInstanceState)) {
@@ -98,7 +98,19 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		if (activityProxy == null) {
 			setActivityProxy(new ActivityProxy(tiContext, this));
 		}
+
+		// we only want to set the current activity for good in the resume state but we need it right now.
+		// save off the existing current activity, set ourselves to be the new current activity temporarily 
+		// so we don't run into problems when we bind the current activity
+		TiApplication tiApp = getTiApp();
+		Activity tempCurrentActivity = tiApp.getCurrentActivity();
+		tiApp.setCurrentActivity(this, this);
+
 		TiBindingHelper.bindCurrentActivity(tiContext, activityProxy);
+
+		// set the current activity back to what it was originally
+		tiApp.setCurrentActivity(this, tempCurrentActivity);
+
 		contextCreated();
 		super.onCreate(savedInstanceState);
 	}
@@ -106,9 +118,6 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void windowCreated()
 	{
-		ITiAppInfo appInfo = getTiApp().getAppInfo();
-		getIntent().putExtra(TiC.PROPERTY_FULLSCREEN, appInfo.isFullscreen());
-		getIntent().putExtra(TiC.PROPERTY_NAV_BAR_HIDDEN, appInfo.isNavBarHidden());
 		super.windowCreated();
 		loadActivityScript();
 		scriptLoaded();

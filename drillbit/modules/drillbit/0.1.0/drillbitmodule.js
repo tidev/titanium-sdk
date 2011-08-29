@@ -200,7 +200,8 @@ Drillbit.prototype.initHTTP = function() {
 	var httpServer = Titanium.Network.createHTTPServer();
 	var self = this;
 	httpServer.bind(9999, function(request, response) {
-		var data = request.read();
+		var len = request.getContentLength();
+		var data = request.read(len);
 		try {
 			if (data != null) {
 				var event = JSON.parse(data.toString());

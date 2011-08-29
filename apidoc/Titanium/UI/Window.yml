@@ -4,7 +4,6 @@ description: The Window is an empty drawing surface or container. The Window is 
 extends: Titanium.UI.View
 since: "0.9"
 
-
 methods:
   - name: close
     description: close the window
@@ -12,15 +11,14 @@ methods:
       - name: options
         description: close the window with optional animation or display properties
         type: Object
-
+        optional: true
   - name: open
     description: open the window
     parameters:
       - name: options
         description: open the window with optional animation or display properties
         type: Object
-
-
+        optional: true
 events:
   - name: android:back
     platforms: [android]
@@ -28,12 +26,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
         
@@ -43,12 +40,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
         
@@ -58,12 +54,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
         
@@ -73,12 +68,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
         
@@ -88,12 +82,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
         
@@ -103,12 +96,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
         
@@ -117,12 +109,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
         
@@ -131,12 +122,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
         
@@ -145,12 +135,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
         
@@ -159,17 +148,22 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
 
 
 properties:
+  - name: activity
+    description: |
+      For heavyweight windows, this property contains a reference to the Android Activity object associated with this window.
+    platforms: [android]
+    type: Titanium.Android.Activity
+    
   - name: backButtonTitle
     description: title for the back button. only available in iPhone. this is only valid when the window is a child of a tab.
     platforms: [iphone, ipad]
@@ -243,12 +237,12 @@ properties:
     
   - name: orientation
     description: Current orientation of the window.  Value will be one of the orientation constants defined in <Titanium.UI>.
-    type: Array<Number>
+    type: Number
 
   - name: rightNavButton
     description: view to show in the right nav bar area. only available in iPhone.
     platforms: [iphone, ipad]
-    type: Object
+    type: Titanium.UI.View
     
   - name: tabBarHidden
     description: boolean to indicate if the tab bar should be hidden. this is only valid when the window is a child of a tab.
@@ -261,7 +255,7 @@ properties:
   - name: titleControl
     description: view to show in the title area. only available in iPhone.
     platforms: [iphone, ipad]
-    type: Object
+    type: Titanium.UI.View
     
   - name: titleImage
     description: url to a image that show in the title area. only available in iPhone.
@@ -299,7 +293,13 @@ properties:
         One of Ti.UI.Android.SOFT_INPUT_ADJUST_PAN, Ti.UI.Android.SOFT_INPUT_ADJUST_RESIZE, or Ti.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED. Note: MUST be passed in the creation options. (Android Only) [Android Doc: Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int))
     platforms: [android]
     type: Number
-
+  - name: windowPixelFormat
+    description: |
+        Set the pixel format for the Activity's Window. The property is ignored on a Titanium "lightweight" Window. Use one of the <Ti.UI.Android>.PIXEL_FORMAT constants to set the format. 
+        See [Android SDK Window.setFormat](http://developer.android.com/reference/android/view/Window.html#setFormat(int))
+    platforms: [android]
+    type: Number
+    since: "1.8.0"
 
 notes: |
     ### Sub-contexts

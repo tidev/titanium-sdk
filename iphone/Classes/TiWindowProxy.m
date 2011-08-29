@@ -56,6 +56,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 
 @implementation TiWindowProxy
 @synthesize navController, controller;
+@synthesize opening;
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
@@ -360,10 +361,6 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 -(BOOL)isRootViewAttached
 {
 	BOOL result = ([[[[TiApp app] controller] view] superview]!=nil);
-	if (!result)
-	{
-		NSLog(@"[WARN] We still care about isRootViewAttached!!!!!!!");
-	}
 	return result;
 }
 
@@ -395,7 +392,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		}
 		opening = YES;
 	}
-	[self performSelectorOnMainThread:@selector(openOnUIThread:) withObject:args waitUntilDone:NO];
+	[self performSelectorOnMainThread:@selector(openOnUIThread:) withObject:args waitUntilDone:YES];
 }
 
 -(void)openOnUIThread:(NSArray*)args
@@ -731,15 +728,55 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
     // For subclasses
 }
 
-#pragma mark Animation Delegates
 
-- (void)viewDidAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
+#pragma mark TIUIViewController methods
+/*
+ *	Over time, we should move focus and blurs to be triggered by standard
+ *	Cocoa conventions instead of second-guessing iOS. This will be a slow
+ *	transition, and in the meantime, verbose debug statements of focus being
+ *	already set/cleared should not be a need for panic.
+ */
+
+- (void)viewDidAppear:(BOOL)animated
 {
 	[[self parentOrientationController]
 			childOrientationControllerChangedFlags:self];
+
+	if (!focused)
+	{
+		[self fireFocus:YES];
+	}
+#ifdef VERBOSE
+	else
+	{
+		NSLog(@"[DEBUG] Focused was already set while in viewDidAppear.");
+	}
+#endif	
 }
 
+-(void)viewWillDisappear:(BOOL)animated
+{
+	if (focused)
+	{
+		[self fireFocus:NO];
+	}
+#ifdef VERBOSE
+	else
+	{
+		NSLog(@"[DEBUG] Focused was already cleared while in viewWillDisappear.");
+	}
+#endif
+}
 
+-(void)viewWillAppear:(BOOL)animated
+{
+}
+
+- (void)viewDidDisappear:(BOOL)animated
+{
+}
+
+#pragma mark Animation Delegates
 
 -(BOOL)animationShouldTransition:(id)sender
 {

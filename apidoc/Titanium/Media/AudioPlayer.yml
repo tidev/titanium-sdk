@@ -30,21 +30,13 @@ events:
   - name: change
     description: fired when the state of the playback changes
     properties:
-      - name: source
-        description: the source object that fired the event
       - name: state
         description: current state of playback
-      - name: type
-        description: the name of the event fired
       - name: description
         description: textual description of the state of playback
   - name: progress
     description: fired once per second with the current progress during playback
     properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: progress
         description: current progress value
 properties:
