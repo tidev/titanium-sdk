@@ -158,6 +158,12 @@ events:
 
 
 properties:
+  - name: activity
+    description: |
+      For heavyweight windows, this property contains a reference to the Android Activity object associated with this window.
+    platforms: [android]
+    type: Titanium.Android.Activity
+    
   - name: backButtonTitle
     description: title for the back button. only available in iPhone. this is only valid when the window is a child of a tab.
     platforms: [iphone, ipad]
