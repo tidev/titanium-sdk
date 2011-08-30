@@ -292,6 +292,7 @@ public class TiC
 	public static final String PROPERTY_TRANSFORM = "transform";
 	public static final String PROPERTY_TRUE_HEADING = "trueHeading";
 	public static final String PROPERTY_TYPE = "type";
+	public static final String PROPERTY_URI = "uri";
 	public static final String PROPERTY_URL = "url";
 	public static final String PROPERTY_USER_LOCATION = "userLocation";
 	public static final String PROPERTY_VALUE = "value";
@@ -302,6 +303,7 @@ public class TiC
 	public static final String PROPERTY_WHEN = "when";
 	public static final String PROPERTY_WIDTH = "width";
 	public static final String PROPERTY_WINDOW = "window";
+	public static final String PROPERTY_WINDOW_PIXEL_FORMAT = "windowPixelFormat";
 	public static final String PROPERTY_WINDOW_SOFT_INPUT_MODE = "windowSoftInputMode";
 	public static final String PROPERTY_WORD_WRAP = "wordWrap";
 	public static final String PROPERTY_X = "x";

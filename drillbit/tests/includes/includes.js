@@ -35,6 +35,12 @@ describe("Ti.include tests", {
 			Ti.include('l2/../l2/./l3/lotsofdots.js');
 		}).shouldNotThrowException();
 		valueOf(testval).shouldBeTrue();
-	}
+	},
+	simpleRequire: function() {
+		valueOf(require).shouldBeFunction();
 
+		var module = require("module");
+		valueOf(module).shouldBeObject();
+		valueOf(module.message).shouldBe("test required module");
+	}
 });
