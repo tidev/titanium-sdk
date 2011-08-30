@@ -29,27 +29,36 @@ properties:
   - name: MODE_APPEND
     description: constant for append mode for file operations
     type: Number
+    permission: read-only
   - name: MODE_READ
     description: constant for read mode for file operations
     type: Number
+    permission: read-only
   - name: MODE_WRITE
     description: constant for write mode for file operations
     type: Number
+    permission: read-only
   - name: applicationDataDirectory
-    description: readonly constant where your application data directory is located. this directory should be used to place applications-specific files. on iPhone, this directory is also backed up.
+    description: constant where your application data directory is located. this directory should be used to place applications-specific files. on iPhone, this directory is also backed up.
     type: String
+    permission: read-only
   - name: applicationDirectory
-    description: readonly constant where your application is located
+    description: constant where your application is located
     type: String
+    permission: read-only
   - name: lineEnding
-    description: readonly platform specific line ending constant
+    description: platform specific line ending constant
     type: String
+    permission: read-only
   - name: resourcesDirectory
-    description: readonly constant where your application resources are located
+    description: constant where your application resources are located
     type: String
+    permission: read-only
   - name: separator
-    description: readonly path separator constant
+    description: path separator constant
     type: String
+    permission: read-only
   - name: tempDirectory
-    description: readonly constant where your application can place temporary files
+    description: constant where your application can place temporary files
     type: String
+    permission: read-only
