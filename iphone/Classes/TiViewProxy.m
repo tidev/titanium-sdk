@@ -317,6 +317,24 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	return blob;
 }
 
+-(TiPoint*)convertPointToView:(id)args
+{
+    NSDictionary* arg1 = nil;
+    TiViewProxy* arg2 = nil;
+    ENSURE_ARG_AT_INDEX(arg1, args, 0, NSDictionary);
+    ENSURE_ARG_AT_INDEX(arg2, args, 1, TiViewProxy);
+    // validate that both views are currently attached, otherwise throw an exception
+    if (![self viewAttached] || ![arg2 viewAttached]) {
+        [self throwException:@"convertPointToView views must be attached" subreason:nil location:CODELOCATION];
+    }
+    
+    CGFloat x = [TiUtils floatValue:@"x" properties:arg1 def:0];
+    CGFloat y = [TiUtils floatValue:@"y" properties:arg1 def:0];
+    CGPoint oldPoint = CGPointMake(x, y);
+    CGPoint p = [self.view convertPoint:oldPoint toView:arg2.view];
+    TiPoint* result = [[[TiPoint alloc] initWithPoint:p] autorelease];
+    return result;
+}
 
 #pragma mark nonpublic accessors not related to Housecleaning
 
