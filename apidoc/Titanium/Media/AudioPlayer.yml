@@ -43,33 +43,43 @@ properties:
   - name: STATE_BUFFERING
     description: current playback is in the buffering from the network state
     type: Number
+    permission: read-only
   - name: STATE_INITIALIZED
     description: current playback is in the initialization state
     type: Number
+    permission: read-only
   - name: STATE_PAUSED
     description: current playback is in the paused state
     type: Number
+    permission: read-only
   - name: STATE_PLAYING
     description: current playback is in the playing state
     type: Number
+    permission: read-only
   - name: STATE_STARTING
     description: current playback is in the starting playback state
     type: Number
+    permission: read-only
   - name: STATE_STOPPED
     description: current playback is in the stopped state
     type: Number
+    permission: read-only
   - name: STATE_STOPPING
     description: current playback is in the stopping state
     type: Number
+    permission: read-only
   - name: STATE_WAITING_FOR_DATA
     description: current playback is in the waiting for audio data from the network state
     type: Number
+    permission: read-only
   - name: STATE_WAITING_FOR_QUEUE
     description: current playback is in the waiting for audio data to fill the queue state
     type: Number
+    permission: read-only
   - name: allowBackground
-    description: boolean to indicate if audio should continue playing even if Activity is paused (Android only as of 1.3.0)
+    description: boolean to indicate if audio should continue playing even if Activity is paused
     type: Boolean
+    platforms: [android]
   - name: bitRate
     description: bit rate of the current playback stream
     type: Number

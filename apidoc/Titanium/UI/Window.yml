@@ -22,7 +22,7 @@ methods:
 events:
   - name: android:back
     platforms: [android]
-    description: fired when the back button is released. Setting a listener is interpreted as the handler for that button. To restore default behavior, remove the listener. It is recommended that you only have one handler per heavyweight window (Android Only)
+    description: fired when the back button is released. Setting a listener is interpreted as the handler for that button. To restore default behavior, remove the listener. It is recommended that you only have one handler per heavyweight window
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
@@ -35,7 +35,7 @@ events:
         description: the x point of the event in receiving view coordiantes
         
   - name: android:camera
-    description: fired when the camera button is released. Setting a listener is interpreted as the handler for that button. To restore default behavior, remove the listener. It is recommended that you only have one handler per heavyweight window (Android Only)
+    description: fired when the camera button is released. Setting a listener is interpreted as the handler for that button. To restore default behavior, remove the listener. It is recommended that you only have one handler per heavyweight window
     platforms: [android]
     properties:
       - name: y
@@ -49,7 +49,7 @@ events:
         description: the x point of the event in receiving view coordiantes
         
   - name: android:focus
-    description: fired when the camera button is half-pressed then released. Setting a listener is interpreted as the handler for that button. To restore default behavior, remove the listener. It is recommended that you only have one handler per heavyweight window (Android Only)
+    description: fired when the camera button is half-pressed then released. Setting a listener is interpreted as the handler for that button. To restore default behavior, remove the listener. It is recommended that you only have one handler per heavyweight window
     platforms: [android]
     properties:
       - name: y
@@ -63,7 +63,7 @@ events:
         description: the x point of the event in receiving view coordiantes
         
   - name: android:search
-    description: fired when the search button is released. Setting a listener is interpreted as the handler for that button. To restore default behavior, remove the listener. It is recommended that you only have one handler per heavyweight window (Android Only)
+    description: fired when the search button is released. Setting a listener is interpreted as the handler for that button. To restore default behavior, remove the listener. It is recommended that you only have one handler per heavyweight window
     platforms: [android]
     properties:
       - name: y
@@ -77,7 +77,7 @@ events:
         description: the x point of the event in receiving view coordiantes
         
   - name: android:voldown
-    description: fired when the volume down button is released. Setting a listener is interpreted as the handler for that button. To restore default behavior, remove the listener. It is recommended that you only have one handler per heavyweight window (Android Only)
+    description: fired when the volume down button is released. Setting a listener is interpreted as the handler for that button. To restore default behavior, remove the listener. It is recommended that you only have one handler per heavyweight window
     platforms: [android]
     properties:
       - name: y
@@ -91,7 +91,7 @@ events:
         description: the x point of the event in receiving view coordiantes
         
   - name: android:volup
-    description: fired when the volume up button is released. Setting a listener is interpreted as the handler for that button. To restore default behavior, remove the listener. It is recommended that you only have one handler per heavyweight window (Android Only)
+    description: fired when the volume up button is released. Setting a listener is interpreted as the handler for that button. To restore default behavior, remove the listener. It is recommended that you only have one handler per heavyweight window
     platforms: [android]
     properties:
       - name: y
@@ -165,27 +165,27 @@ properties:
     type: Titanium.Android.Activity
     
   - name: backButtonTitle
-    description: title for the back button. only available in iPhone. this is only valid when the window is a child of a tab.
+    description: title for the back button. This is only valid when the window is a child of a tab.
     platforms: [iphone, ipad]
     type: String
     
   - name: backButtonTitleImage
-    description: url to an image to show as the back button.  only available in iPhone. this is only valid when the window is a child of a tab.
+    description: url to an image to show as the back button.This is only valid when the window is a child of a tab.
     platforms: [iphone, ipad]
     type: String
     
   - name: barColor
-    description: web named color or hex value for the color of the nav bar. only available in iPhone.
+    description: web named color or hex value for the color of the nav bar.
     platforms: [iphone, ipad]
     type: String
     
   - name: barImage
-    description: url to a local image to place as the background of the nav bar. only available in iPhone.
+    description: url to a local image to place as the background of the nav bar.
     platforms: [iphone, ipad]
     type: String
     
   - name: exitOnClose
-    description: (Android only.) Boolean indicates if the application should exit when the Android back button is pressed while the window is being shown.  You can only set this as a createWindow({...}) option.  Setting it after window creation will no effect.
+    description: Boolean indicates if the application should exit when the Android back button is pressed while the window is being shown.  You can only set this as a createWindow({...}) option.  Setting it after window creation will no effect.
     platforms: [android]
     default: false
     type: Boolean
@@ -195,7 +195,7 @@ properties:
     type: Boolean
     
   - name: leftNavButton
-    description: view to show in the left nav bar area. only available in iPhone.
+    description: view to show in the left nav bar area.
     platforms: [iphone, ipad]
     type: Object
     
@@ -240,7 +240,7 @@ properties:
     type: Number
 
   - name: rightNavButton
-    description: view to show in the right nav bar area. only available in iPhone.
+    description: view to show in the right nav bar area.
     platforms: [iphone, ipad]
     type: Titanium.UI.View
     
@@ -253,17 +253,17 @@ properties:
     type: String
     
   - name: titleControl
-    description: view to show in the title area. only available in iPhone.
+    description: view to show in the title area.
     platforms: [iphone, ipad]
     type: Titanium.UI.View
     
   - name: titleImage
-    description: url to a image that show in the title area. only available in iPhone.
+    description: url to a image that show in the title area.
     platforms: [iphone, ipad]
     type: String
     
   - name: titlePrompt
-    description: title prompt for the window. only available in iPhone.
+    description: title prompt for the window.
     type: String
     
   - name: titleid
@@ -275,12 +275,12 @@ properties:
     type: String
     
   - name: toolbar
-    description: array of button objects to show in the toolbar of the window. only available in iPhone. this is only valid when the window is a child of a tab.
+    description: array of button objects to show in the toolbar of the window. This is only valid when the window is a child of a tab.
     platforms: [iphone, ipad]
     type: Array<Object>
     
   - name: translucent
-    description: boolean to indicate if the nav bar is translucent. only available in iPhone.
+    description: boolean to indicate if the nav bar is translucent.
     platforms: [iphone, ipad]
     type: Boolean
     
@@ -290,7 +290,7 @@ properties:
     
   - name: windowSoftInputMode
     description: |
-        One of Ti.UI.Android.SOFT_INPUT_ADJUST_PAN, Ti.UI.Android.SOFT_INPUT_ADJUST_RESIZE, or Ti.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED. Note: MUST be passed in the creation options. (Android Only) [Android Doc: Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int))
+        One of <Ti.UI.Android.SOFT_INPUT_ADJUST_PAN>, <Ti.UI.Android.SOFT_INPUT_ADJUST_RESIZE>, or <Ti.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED>. Note: MUST be passed in the creation options. (Android Only) [Android Doc: Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int))
     platforms: [android]
     type: Number
   - name: windowPixelFormat

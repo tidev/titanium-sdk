@@ -23,19 +23,19 @@ properties:
     description: boolean for the state of the switch
     type: Boolean
   - name: style
-    description: one of Ti.UI.Android.SWITCH_STYLE_CHECKBOX or Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON (default). (Android only)
+    description: one of <Ti.UI.Android.SWITCH_STYLE_CHECKBOX> or <Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON> (default).
     type: Number
     platforms: [android]
   - name: title
-    description: text to display with checkbox. Used if style is Ti.UI.Android.SWITCH_STYLE_CHECKBOX (Android only)
+    description: text to display with checkbox. Used if style is <Ti.UI.Android.SWITCH_STYLE_CHECKBOX>
     type: String
     platforms: [android]
   - name: titleOff
-    description: text to display when value is `false`. used if style is Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON (Android only)
+    description: text to display when value is `false`. used if style is <Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>
     type: String
     platforms: [android]
   - name: titleOn
-    description: text to display when value is `true`. used if style is Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON (Android only)
+    description: text to display when value is `true`. used if style is <Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>
     type: String
     platforms: [android]
   - name: value
