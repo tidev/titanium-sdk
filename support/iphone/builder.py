@@ -5,7 +5,7 @@
 # the application on the device via iTunes
 # 
 
-import os, sys, uuid, subprocess, shutil, signal, string, traceback, imp
+import os, sys, uuid, subprocess, shutil, signal, string, traceback, imp, filecmp, inspect
 import platform, time, re, run, glob, codecs, hashlib, datetime, plistlib
 from compiler import Compiler
 from projector import Projector
@@ -480,6 +480,7 @@ def main(args):
 		provisioning_profile = None
 		debughost = None
 		debugport = None
+		postbuild_modules = []
 		
 		# starting in 1.4, you don't need to actually keep the build/iphone directory
 		# if we don't find it, we'll just simply re-generate it
@@ -897,6 +898,11 @@ def main(args):
 					m.update(open(code_path,'rb').read()) 
 					code_hash = m.hexdigest()
 					p = imp.load_source(code_hash, code_path, fin)
+					module_functions = dict(inspect.getmembers(p, inspect.isfunction))
+					if module_functions.has_key('postbuild'):
+						print "[DBEUG] Plugin has postbuild"
+						o.write("+ Plugin has postbuild")
+						postbuild_modules.append((plugin['name'], p))
 					p.compile(compiler_config)
 					fin.close()
 					
@@ -1039,6 +1045,18 @@ def main(args):
 						print "[ERROR] Code sign error: %s" % error[0].strip()
 						sys.stdout.flush()
 						sys.exit(1)
+					
+				def run_postbuild():
+					try:
+						if postbuild_modules:
+							for p in postbuild_modules:
+								o.write("Running postbuild %s" % p[0])
+								print "[INFO] Running postbuild %s..." % p[0]
+								p[1].postbuild()
+					except Exception,e:
+						o.write("Error in post-build: %s" % e)
+						print "[ERROR] Error in post-build: %s" % e
+						
 
 				# build the final release distribution
 				args = []
@@ -1077,7 +1095,9 @@ def main(args):
 					
 					if force_rebuild or force_xcode or not os.path.exists(binary):
 						execute_xcode("iphonesimulator%s" % link_version,["GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development TI_DEVELOPMENT=1 DEBUG=1 TI_VERSION=%s %s %s" % (log_id,sdk_version,debugstr,kroll_coverage)],False)
-
+						
+					run_postbuild()
+					
 					# first make sure it's not running
 					kill_simulator()
 
@@ -1278,6 +1298,8 @@ def main(args):
 					sys.stdout.flush()
 					script_ok = True
 					
+					run_postbuild()
+					
 				###########################################################################	
 				# END OF INSTALL COMMAND	
 				###########################################################################	
@@ -1316,6 +1338,8 @@ def main(args):
 					
 					o.write("Finishing build\n")
 					script_ok = True
+					
+					run_postbuild()
 
 				###########################################################################	
 				# END OF DISTRIBUTE COMMAND	

@@ -463,10 +463,6 @@
 		24EB0B74111E7EE8001DC2D1 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0B73111E7EE8001DC2D1 /* NSData+Additions.m */; };
 		24F1584611D72A23000DD736 /* TiMapImageAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F1584511D72A23000DD736 /* TiMapImageAnnotationView.m */; };
 		24F1584711D72A23000DD736 /* TiMapImageAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F1584511D72A23000DD736 /* TiMapImageAnnotationView.m */; };
-		24F158E111D73330000DD736 /* TiMapRouteAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F158E011D73330000DD736 /* TiMapRouteAnnotation.m */; };
-		24F158E211D73330000DD736 /* TiMapRouteAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F158E011D73330000DD736 /* TiMapRouteAnnotation.m */; };
-		24F1591D11D7356D000DD736 /* TiMapRouteAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F1591C11D7356D000DD736 /* TiMapRouteAnnotationView.m */; };
-		24F1591E11D7356D000DD736 /* TiMapRouteAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F1591C11D7356D000DD736 /* TiMapRouteAnnotationView.m */; };
 		24F29E2E12209C920099351D /* TiStylesheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F29E2D12209C920099351D /* TiStylesheet.m */; };
 		24F29E2F12209C920099351D /* TiStylesheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F29E2D12209C920099351D /* TiStylesheet.m */; };
 		24F29E3712209E6F0099351D /* stylesheet.plist in Resources */ = {isa = PBXBuildFile; fileRef = 24F29E3612209E6F0099351D /* stylesheet.plist */; };
@@ -796,8 +792,6 @@
 		DABB377912E8CB280026A6EA /* TiUIiOSAdView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24D06FE711D0219B00F615D8 /* TiUIiOSAdView.m */; };
 		DABB377A12E8CB280026A6EA /* TiUIiOSProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24D0700511D0253D00F615D8 /* TiUIiOSProxy.m */; };
 		DABB377B12E8CB280026A6EA /* TiMapImageAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F1584511D72A23000DD736 /* TiMapImageAnnotationView.m */; };
-		DABB377C12E8CB280026A6EA /* TiMapRouteAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F158E011D73330000DD736 /* TiMapRouteAnnotation.m */; };
-		DABB377D12E8CB280026A6EA /* TiMapRouteAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F1591C11D7356D000DD736 /* TiMapRouteAnnotationView.m */; };
 		DABB377E12E8CB280026A6EA /* Webcolor.m in Sources */ = {isa = PBXBuildFile; fileRef = 2467310611E2549300D39AF7 /* Webcolor.m */; };
 		DABB377F12E8CB280026A6EA /* TiFilesystemBlobProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2465592311E5862F0059BBF4 /* TiFilesystemBlobProxy.m */; };
 		DABB378012E8CB280026A6EA /* TiUIDashboardItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 243AAFB411FCE62600E37D8B /* TiUIDashboardItem.m */; };
@@ -1324,10 +1318,6 @@
 		24EB0BA9111F7959001DC2D1 /* TiMapPinAnnotationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMapPinAnnotationView.m; sourceTree = "<group>"; };
 		24F1584411D72A23000DD736 /* TiMapImageAnnotationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMapImageAnnotationView.h; sourceTree = "<group>"; };
 		24F1584511D72A23000DD736 /* TiMapImageAnnotationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMapImageAnnotationView.m; sourceTree = "<group>"; };
-		24F158DF11D73330000DD736 /* TiMapRouteAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMapRouteAnnotation.h; sourceTree = "<group>"; };
-		24F158E011D73330000DD736 /* TiMapRouteAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMapRouteAnnotation.m; sourceTree = "<group>"; };
-		24F1591B11D7356D000DD736 /* TiMapRouteAnnotationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMapRouteAnnotationView.h; sourceTree = "<group>"; };
-		24F1591C11D7356D000DD736 /* TiMapRouteAnnotationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMapRouteAnnotationView.m; sourceTree = "<group>"; };
 		24F29E2C12209C920099351D /* TiStylesheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiStylesheet.h; sourceTree = "<group>"; };
 		24F29E2D12209C920099351D /* TiStylesheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiStylesheet.m; sourceTree = "<group>"; };
 		24F29E3612209E6F0099351D /* stylesheet.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = stylesheet.plist; path = ../Resources/stylesheet.plist; sourceTree = SOURCE_ROOT; };
@@ -2174,10 +2164,6 @@
 				24EB0BA9111F7959001DC2D1 /* TiMapPinAnnotationView.m */,
 				24F1584411D72A23000DD736 /* TiMapImageAnnotationView.h */,
 				24F1584511D72A23000DD736 /* TiMapImageAnnotationView.m */,
-				24F158DF11D73330000DD736 /* TiMapRouteAnnotation.h */,
-				24F158E011D73330000DD736 /* TiMapRouteAnnotation.m */,
-				24F1591B11D7356D000DD736 /* TiMapRouteAnnotationView.h */,
-				24F1591C11D7356D000DD736 /* TiMapRouteAnnotationView.m */,
 			);
 			name = Map;
 			sourceTree = "<group>";
@@ -3292,8 +3278,6 @@
 				24D06FE811D0219B00F615D8 /* TiUIiOSAdView.m in Sources */,
 				24D0700611D0253D00F615D8 /* TiUIiOSProxy.m in Sources */,
 				24F1584711D72A23000DD736 /* TiMapImageAnnotationView.m in Sources */,
-				24F158E211D73330000DD736 /* TiMapRouteAnnotation.m in Sources */,
-				24F1591E11D7356D000DD736 /* TiMapRouteAnnotationView.m in Sources */,
 				2467310811E2549300D39AF7 /* Webcolor.m in Sources */,
 				2465592411E5862F0059BBF4 /* TiFilesystemBlobProxy.m in Sources */,
 				243AAFB511FCE62600E37D8B /* TiUIDashboardItem.m in Sources */,
@@ -3564,8 +3548,6 @@
 				24D06FE911D0219B00F615D8 /* TiUIiOSAdView.m in Sources */,
 				24D0700711D0253D00F615D8 /* TiUIiOSProxy.m in Sources */,
 				24F1584611D72A23000DD736 /* TiMapImageAnnotationView.m in Sources */,
-				24F158E111D73330000DD736 /* TiMapRouteAnnotation.m in Sources */,
-				24F1591D11D7356D000DD736 /* TiMapRouteAnnotationView.m in Sources */,
 				2467310711E2549300D39AF7 /* Webcolor.m in Sources */,
 				2465592511E5862F0059BBF4 /* TiFilesystemBlobProxy.m in Sources */,
 				243AAFB611FCE62600E37D8B /* TiUIDashboardItem.m in Sources */,
@@ -3836,8 +3818,6 @@
 				DABB377912E8CB280026A6EA /* TiUIiOSAdView.m in Sources */,
 				DABB377A12E8CB280026A6EA /* TiUIiOSProxy.m in Sources */,
 				DABB377B12E8CB280026A6EA /* TiMapImageAnnotationView.m in Sources */,
-				DABB377C12E8CB280026A6EA /* TiMapRouteAnnotation.m in Sources */,
-				DABB377D12E8CB280026A6EA /* TiMapRouteAnnotationView.m in Sources */,
 				DABB377E12E8CB280026A6EA /* Webcolor.m in Sources */,
 				DABB377F12E8CB280026A6EA /* TiFilesystemBlobProxy.m in Sources */,
 				DABB378012E8CB280026A6EA /* TiUIDashboardItem.m in Sources */,

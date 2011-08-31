@@ -32,7 +32,7 @@
 #define GETPROP \
 ENSURE_TYPE(args,NSArray);\
 NSString *key = [args objectAtIndex:0];\
-id defaultValue = [args count] > 1 ? [args objectAtIndex:1] : nil;\
+id defaultValue = [args count] > 1 ? [args objectAtIndex:1] : [NSNull null];\
 if (![self propertyExists:key]) return defaultValue; \
 
 -(id)getBool:(id)args

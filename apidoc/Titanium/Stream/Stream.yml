@@ -8,12 +8,15 @@ properties:
   - name: MODE_READ
     type: Number
     description: read only mode value
+    permission: read-only
   - name: MODE_WRITE
     type: Number
     description: write mode value
+    permission: read-only
   - name: MODE_APPEND
     type: Number
     description: append mode value. 
+    permission: read-only
 
 methods:
   - name: createStream
@@ -24,7 +27,7 @@ methods:
       - name: params
         description: creation arguments
         type: CreateStreamArgs
-
+        
   - name: read
     description: Async version of read on `Titanium.IOStream`
     parameters:
