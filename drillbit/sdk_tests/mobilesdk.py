@@ -127,6 +127,13 @@ class MobileSDKTest(unittest2.TestCase):
 		p.communicate()
 		self.assertEqual(p.returncode, 0)
 
+	# TODO: simulator is the only way to "build" in iOS right now
+	def buildIOSProject(self):
+		p = self.pythonProcess([self.iphoneBuilderScript, "simulator",
+			self.iosVersion, self.projectDir, self.projectId, self.projectName])
+		p.communicate()
+		self.assertEqual(p.returncode, 0)
+
 	def tearDown(self):
 		if self.getSdkConfig(self.CONFIG_AUTO_DELETE_PROJECTS):
 			shutil.rmtree(self.testDir)
