@@ -71,8 +71,9 @@ properties:
     description: the connection type, normally either `GET` or `POST`.
     type: String
   - name: file
-    description: file to download contents to.  Can only be set after calling open.  iOS only
+    description: file to download contents to.  Can only be set after calling open.
     type: String
+    platforms: [iphone, ipad]
   - name: location
     description: the absolute URL of the request
     type: String
