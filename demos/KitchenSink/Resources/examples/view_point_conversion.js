@@ -73,8 +73,12 @@ yellowView.addEventListener('click',function(ev)
 	try {
 		var localPoint = {x:ev.x, y:ev.y}
 		var convPoint = yellowView.convertPointToView(localPoint, redView);
-		label1.text = "localPoint: " + localPoint.x + " " + localPoint.y;
-		label2.text = "convPoint: " + convPoint.x + " " + convPoint.y;
+		if (convPoint) {
+			label1.text = "localPoint: " + localPoint.x + " " + localPoint.y;
+			label2.text = "convPoint: " + convPoint.x + " " + convPoint.y;
+		} else {
+			throw "null object correctly returned";
+		}
 	} catch (e) {
 		label1.text = "" + e;
 		label2.text = "";
