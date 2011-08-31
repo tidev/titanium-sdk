@@ -8,18 +8,23 @@ properties:
   - name: INITIALIZED
     type: Number
     description: state representing the initialized state of a socket
+    permission: read-only
   - name: CONNECTED
     type: Number
     description: state representing the connected state of a socket
+    permission: read-only
   - name: LISTENING
     type: Number
     description: state representing the listening state of a socket
+    permission: read-only
   - name: CLOSED
     type: Number
     description: state representing the closed state of a socket
+    permission: read-only
   - name: ERROR
     type: Number
     description: state representing the error state of a socket
+    permission: read-only
 
 methods:
   - name: createTCP
