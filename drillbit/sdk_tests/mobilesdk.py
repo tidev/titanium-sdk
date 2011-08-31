@@ -127,9 +127,8 @@ class MobileSDKTest(unittest2.TestCase):
 		p.communicate()
 		self.assertEqual(p.returncode, 0)
 
-	# TODO: simulator is the only way to "build" in iOS right now
 	def buildIOSProject(self):
-		p = self.pythonProcess([self.iphoneBuilderScript, "simulator",
+		p = self.pythonProcess([self.iphoneBuilderScript, "build",
 			self.iosVersion, self.projectDir, self.projectId, self.projectName])
 		p.communicate()
 		self.assertEqual(p.returncode, 0)

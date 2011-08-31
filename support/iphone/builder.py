@@ -503,6 +503,7 @@ def main(args):
 	deploytype = 'development'
 	devicefamily = 'iphone'
 	debug = False
+	build_only = False
 	simulator = False
 	xcode_build = False
 	force_xcode = False
@@ -608,11 +609,12 @@ def main(args):
 				devicefamily = dequote(args[9].decode("utf-8"))
 			print "[INFO] Switching to production mode for distribution"
 			deploytype = 'production'
-		elif command == 'simulator':
+		elif command in ['simulator', 'build']:
 			link_version = check_iphone_sdk(iphone_version)
 			deploytype = 'development'
 			debug = True
-			simulator = True
+			simulator = command == 'simulator'
+			build_only = command == 'build'
 			target = 'Debug'
 			ostype = 'simulator'
 			if argc > 6:
@@ -765,7 +767,7 @@ def main(args):
 			print "[INFO] iPhone Device family: %s" % devicefamily
 			print "[INFO] iPhone SDK version: %s" % iphone_version
 			
-			if simulator:
+			if simulator or build_only:
 				print "[INFO] iPhone simulated device: %s" % simtype
 				# during simulator we need to copy in standard built-in module files
 				# since we might not run the compiler on subsequent launches
@@ -787,7 +789,7 @@ def main(args):
 						custom_fonts.append(f)
 					
 
-			if not simulator:
+			if not (simulator or build_only):
 				version = ti.properties['version']
 				# we want to make sure in debug mode the version always changes
 				version = "%s.%d" % (version,time.time())
@@ -1003,7 +1005,7 @@ def main(args):
 			# Force an xcodebuild if the debugger.plist has changed
 			force_xcode = write_debugger_plist(debug_plist)
 
-			if command!='simulator':
+			if command not in ['simulator', 'build']:
 				# compile plist into binary format so it's faster to load
 				# we can be slow on simulator
 				os.system("/usr/bin/plutil -convert binary1 \"%s\"" % app_stylesheet)
@@ -1112,7 +1114,7 @@ def main(args):
 						shutil.copy(f,app_dir)
 
 				# dump out project file info
-				if command!='simulator':
+				if command not in ['simulator', 'build']:
 					dump_resources_listing(project_dir,o)
 					dump_infoplist(infoplist,o)
 
@@ -1245,7 +1247,7 @@ def main(args):
 				# build the final release distribution
 				args = []
 
-				if command!='simulator':		
+				if command not in ['simulator', 'build']:
 					# allow the project to have its own custom entitlements
 					custom_entitlements = os.path.join(project_dir,"Entitlements.plist")
 					entitlements_contents = None
@@ -1269,8 +1271,8 @@ def main(args):
 					f.write("%s,%s,%s,%s" % (template_dir,log_id,lib_hash,githash))
 					f.close()
 					
-				# this is a simulator build
-				if command == 'simulator':
+				# both simulator and build require an xcodebuild
+				if command in ['simulator', 'build']:
 					debugstr = ''
 					if debughost:
 						debugstr = 'DEBUGGER_ENABLED=1'
@@ -1280,10 +1282,11 @@ def main(args):
 						
 					run_postbuild()
 					
+					o.write("Finishing build\n")
+
+				if command == 'simulator':
 					# first make sure it's not running
 					kill_simulator()
-
-					o.write("Finishing build\n")
 
 					# sometimes the simulator doesn't remove old log files
 					# in which case we get our logging jacked - we need to remove
