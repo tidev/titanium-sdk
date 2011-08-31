@@ -376,6 +376,100 @@ def distribute_xc4(name, icon, log):
 	os.rename(archive_bundle,temp)
 	os.rename(temp,archive_bundle)
 
+def is_indexing_enabled(tiapp, simulator_dir, **kwargs):
+	# darwin versions:
+	# - 9.x: Leopard (10.5)
+	# - 10.x: Snow Leopard (10.6)
+	# - 11.x: Lion (10.7)
+
+	# for testing purposes
+	platform_release = kwargs.get("platform_release", platform.release())
+	darwin_version = [int(n) for n in platform_release.split(".")]
+
+	enable_mdfind = True
+	if tiapp.has_app_property('ti.ios.enablemdfind'):
+		enable_mdfind = tiapp.to_bool(tiapp.get_app_property('ti.ios.enablemdfind'))
+
+	# mdfind is specifically disabled, so don't use it
+	if not enable_mdfind:
+		return False
+
+	# pre-Leopard, mdfind / mdutil don't exist
+	if darwin_version[0] < 10:
+		return False
+
+	# for testing purposes
+	indexer_status = kwargs.get("indexer_status")
+	if indexer_status == None:
+		indexer_status = run.run(['mdutil', '-a', '-s'], True)
+
+	# An error occurred running mdutil, play it safe
+	if indexer_status == None:
+		return False
+
+	lines = indexer_status.splitlines()
+	mount_point_status = {}
+	for i in range(0, len(lines), 2):
+		mount_point = lines[i].rstrip(':')
+		status = lines[i+1].strip('\t.')
+		# Only add mount points that the simulator_dir starts with
+		if simulator_dir.startswith(mount_point):
+			mount_point_status[mount_point] = status
+
+	if len(mount_point_status) > 0:
+		# There may be multiple volumes that have a mount point that the
+		# simulator_dir matches, so the one with the longest length
+		# *should* be the most specific / correct mount point.
+		mount_points = mount_point_status.keys()
+		mount_points.sort(lambda a, b: cmp(len(b), len(a)))
+		status = mount_point_status[mount_points[0]]
+
+		if 'Indexing enabled' in status:
+			return True
+
+	return False
+
+def cleanup_app_logfiles(tiapp, log_id, iphone_version):
+	print "[DEBUG] finding old log files"
+	sys.stdout.flush()
+	simulator_dir = os.path.expanduser('~/Library/Application Support/iPhone Simulator/%s' % iphone_version)
+
+	# No need to clean if the directory doesn't exist
+	if not os.path.exists(simulator_dir):
+		return
+
+	results = None
+
+	# If the indexer is enabled, we can use spotlight for faster searching
+	if is_indexer_enabled(tiapp, simulator_dir):
+		print "[DEBUG] Searching for old log files with mdfind..."
+		sys.stdout.flush()
+		results = run.run(['mdfind',
+			'-onlyin', simulator_dir,
+			'-name', '%s.log' % log_id
+		], True)
+
+	# Indexer is disabled, revert to manual crawling
+	if results == None:
+		print "[DEBUG] Searching for log files without mdfind..."
+		sys.stdout.flush()
+		def find_all_log_files(folder, fname):
+			results = []
+			for root, dirs, files in os.walk(os.path.expanduser(folder)):
+				for file in files:
+					if fname==file:
+						fullpath = os.path.join(root, file)
+						results.append(fullpath)
+			return results
+		for f in find_all_log_files(simulator_dir, '%s.log' % log_id):
+			print "[DEBUG] removing old log file: %s" % f
+			sys.stdout.flush()
+			os.remove(f)
+	else:
+		for i in results.splitlines(False):
+			print "[DEBUG] removing old log file: %s" % i
+			os.remove(i)
+
 #
 # this script is invoked from our tooling but you can run from command line too if 
 # you know the arguments
@@ -1174,47 +1268,8 @@ def main(args):
 					# sometimes the simulator doesn't remove old log files
 					# in which case we get our logging jacked - we need to remove
 					# them before running the simulator
-					def cleanup_app_logfiles():
-						print "[DEBUG] finding old log files"
-						sys.stdout.flush()
-						simulator_dir = os.path.expanduser('~/Library/Application Support/iPhone Simulator/%s' % iphone_version)
-						# darwin versions:
-						#    9.x: Leopard (10.5)
-						#    10.x: Snow Leopard (10.6)
-						#    11.x: Lion (10.7)
-						darwin_version = [int(n) for n in platform.release().split(".")]
 
-						results = None
-						enable_mdfind = True
-						if ti.has_app_property("ti.ios.enablemdfind"):
-							enable_mdfind = ti.to_bool(ti.get_app_property("ti.ios.enablemdfind"))
-						if enable_mdfind and os.path.exists(simulator_dir) and darwin_version[0] >= 10:
-							indexer_status = run.run(['mdutil', '-a', '-s'], True)
-							if indexer_status != None and 'Indexing enabled' in indexer_status:
-								# The indexer is enabled, we can use spotlight for faster searching
-								results = run.run(['mdfind',
-									'-onlyin', simulator_dir,
-									'-name', '%s.log' % log_id
-								], True)
-						if results == None: # probably not Snow Leopard
-							def find_all_log_files(folder, fname):
-								results = []
-								for root, dirs, files in os.walk(os.path.expanduser(folder)):
-									for file in files:
-										if fname==file:
-											fullpath = os.path.join(root, file)
-											results.append(fullpath)
-								return results
-							for f in find_all_log_files(simulator_dir, '%s.log' % log_id):
-								print "[DEBUG] removing old log file: %s" % f
-								sys.stdout.flush()
-								os.remove(f)
-						else:
-							for i in results.splitlines(False):
-								print "[DEBUG] removing old log file: %s" % i
-								os.remove(i)	
-
-					cleanup_app_logfiles()
+					cleanup_app_logfiles(ti, log_id, iphone_version)
 
 					sim = None
 
