@@ -319,21 +319,28 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(TiPoint*)convertPointToView:(id)args
 {
-    NSDictionary* arg1 = nil;
+    id arg1 = nil;
     TiViewProxy* arg2 = nil;
-    ENSURE_ARG_AT_INDEX(arg1, args, 0, NSDictionary);
+    ENSURE_ARG_AT_INDEX(arg1, args, 0, NSObject);
     ENSURE_ARG_AT_INDEX(arg2, args, 1, TiViewProxy);
-    // validate that both views are currently attached, otherwise throw an exception
-    if (![self viewAttached] || ![arg2 viewAttached]) {
-        [self throwException:@"convertPointToView views must be attached" subreason:nil location:CODELOCATION];
+    BOOL validPoint;
+    CGPoint oldPoint = [TiUtils pointValue:arg1 valid:&validPoint];
+    if (!validPoint) {
+        [self throwException:TiExceptionInvalidType subreason:@"Parameter is not convertable to a TiPoint" location:CODELOCATION];
     }
     
-    CGFloat x = [TiUtils floatValue:@"x" properties:arg1 def:0];
-    CGFloat y = [TiUtils floatValue:@"y" properties:arg1 def:0];
-    CGPoint oldPoint = CGPointMake(x, y);
-    CGPoint p = [self.view convertPoint:oldPoint toView:arg2.view];
-    TiPoint* result = [[[TiPoint alloc] initWithPoint:p] autorelease];
-    return result;
+    __block BOOL validView = NO;
+    __block CGPoint p;
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        if ([self viewAttached] && self.view.window && [arg2 viewAttached] && arg2.view.window) {
+            validView = YES;
+            p = [self.view convertPoint:oldPoint toView:arg2.view];
+        }
+    });
+    if (!validView) {
+        return (TiPoint*)[NSNull null];
+    }
+    return [[[TiPoint alloc] initWithPoint:p] autorelease];
 }
 
 #pragma mark nonpublic accessors not related to Housecleaning
