@@ -19,9 +19,6 @@ methods:
     description: hide the view
   - name: pause
     description: pause playing the video.
-    osver:
-        ios:
-            min: "3.2"
   - name: play
     description: start playing the video
   - name: release
