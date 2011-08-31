@@ -2,14 +2,25 @@ var win = Titanium.UI.currentWindow;
 win.backgroundColor = 'blue';
 win.name = "window";
 
+var redView = Ti.UI.createView({
+	borderColor:'black',
+	borderWidth:6,
+	borderRadius:2,
+	backgroundColor:'red',
+	width:200,
+	height:50,
+	top:0,
+	name:"view 1"
+});
+
 var greenView = Ti.UI.createView({
 	borderColor:'black',
 	borderWidth:6,
 	borderRadius:2,
 	backgroundColor:'green',
 	width:200,
-	height:100,
-	top:40,
+	height:50,
+	top:50,
 	name:"view 1"
 });
 
@@ -19,19 +30,30 @@ var yellowView = Ti.UI.createView({
 	borderRadius:2,
 	backgroundColor:'yellow',
 	width:200,
-	height:100,
-	top:140,
+	height:50,
+	top:100,
 	name:"view 1"
 });
 
-var redView = Ti.UI.createView({
+var magentaView = Ti.UI.createView({
 	borderColor:'black',
 	borderWidth:6,
 	borderRadius:2,
-	backgroundColor:'red',
+	backgroundColor:'magenta',
 	width:200,
-	height:100,
-	top:240,
+	height:50,
+	top:150,
+	name:"view 1"
+});
+
+var purpleView = Ti.UI.createView({
+	borderColor:'black',
+	borderWidth:6,
+	borderRadius:2,
+	backgroundColor:'purple',
+	width:200,
+	height:50,
+	top:200,
 	name:"view 1"
 });
 
@@ -57,6 +79,8 @@ var label2 = Ti.UI.createLabel({
 
 win.add(greenView);
 win.add(yellowView);
+win.add(magentaView);
+win.add(purpleView);
 win.add(label1);
 win.add(label2);
 
@@ -73,6 +97,40 @@ yellowView.addEventListener('click',function(ev)
 	try {
 		var localPoint = {x:ev.x, y:ev.y}
 		var convPoint = yellowView.convertPointToView(localPoint, redView);
+		if (convPoint) {
+			label1.text = "localPoint: " + localPoint.x + " " + localPoint.y;
+			label2.text = "convPoint: " + convPoint.x + " " + convPoint.y;
+		} else {
+			throw "null object correctly returned";
+		}
+	} catch (e) {
+		label1.text = "" + e;
+		label2.text = "";
+	}
+}); 
+
+magentaView.addEventListener('click',function(ev)
+{
+	try {
+		var localPoint = {y:ev.y}
+		var convPoint = magentaView.convertPointToView(localPoint, win);
+		if (convPoint) {
+			label1.text = "localPoint: " + localPoint.x + " " + localPoint.y;
+			label2.text = "convPoint: " + convPoint.x + " " + convPoint.y;
+		} else {
+			throw "null object correctly returned";
+		}
+	} catch (e) {
+		label1.text = "" + e;
+		label2.text = "";
+	}
+}); 
+
+purpleView.addEventListener('click',function(ev)
+{
+	try {
+		var localPoint = {x:ev.x, y:ev.y}
+		var convPoint = purpleView.convertPointToView(localPoint, win);
 		if (convPoint) {
 			label1.text = "localPoint: " + localPoint.x + " " + localPoint.y;
 			label2.text = "convPoint: " + convPoint.x + " " + convPoint.y;
