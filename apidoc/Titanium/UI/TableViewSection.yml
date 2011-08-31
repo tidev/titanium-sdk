@@ -17,7 +17,7 @@ properties:
     description: a view to use instead of the default label when rendering the section header
     type: Object
   - name: rowCount
-    description: the (readonly) number of rows in the section
+    description: the number of rows in the section
     type: Number
     permission: read-only
 examples:
