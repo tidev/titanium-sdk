@@ -196,7 +196,53 @@ describe("Ti.UI tests", {
 		});
 
 		var detachedWin = Ti.UI.createWindow();
-		var listener = this.async(function(e) {
+
+		var scrollView = Ti.UI.createScrollView({
+			contentWidth: 200,
+			scrollType: "horizontal",
+			top: 1, left: 1, width: 50, height: 50
+		});
+		win.add(scrollView);
+
+		var sView1 = Ti.UI.createView({
+			top: 0, left: 10, width: 50, height: 50
+		});
+		scrollView.add(sView1);
+
+		var sView2 = Ti.UI.createView({
+			top: 0, left: 100, width: 50, height: 50
+		});
+		scrollView.add(sView2);
+
+		var scrolledTests = this.async(function() {
+			// scrollRelative should also take into account scroll position
+			scrollRelative = sView1.convertPointToView({ x: 5, y: 5 }, scrollView);
+			valueOf(scrollRelative).shouldNotBeNull();
+			valueOf(scrollRelative).shouldBeObject();
+			valueOf(scrollRelative.x).shouldBe(-5);
+			valueOf(scrollRelative.y).shouldBe(5);
+
+			// scroll view "off-screen" point -> scrollView
+			var scrollRelative2 = sView2.convertPointToView({ x: -10, y: 20 }, scrollView);
+			valueOf(scrollRelative2).shouldNotBeNull();
+			valueOf(scrollRelative2).shouldBeObject();
+			valueOf(scrollRelative2.x).shouldBe(70);
+			valueOf(scrollRelative2.y).shouldBe(20);
+
+			winRelative = scrollView.convertPointToView(scrollRelative2, win);
+			valueOf(winRelative).shouldNotBeNull();
+			valueOf(winRelative).shouldBeObject();
+			valueOf(winRelative.x).shouldBe(71);
+			valueOf(winRelative.y).shouldBe(21);
+
+			var sView2Relative = win.convertPointToView(winRelative, sView2);
+			valueOf(sView2Relative).shouldNotBeNull();
+			valueOf(sView2Relative).shouldBeObject();
+			valueOf(sView2Relative.x).shouldBe(-10);
+			valueOf(sView2Relative.y).shouldBe(20);
+		});
+
+		var listener = function(e) {
 			// view1 -> win relative
 			var winRelative = view1.convertPointToView({ x: 1, y: 1 }, win);
 			valueOf(winRelative).shouldNotBeNull();
@@ -239,24 +285,80 @@ describe("Ti.UI tests", {
 			valueOf(view1Relative.x).shouldBe(5);
 			valueOf(view1Relative.y).shouldBe(-10);
 
+			// ScrollView testing, same pattern as above
+
+			// scroll view "on-screen" point -> scrollView
+			var scrollRelative = sView1.convertPointToView({ x: 5, y: 5 }, scrollView);
+			valueOf(scrollRelative).shouldNotBeNull();
+			valueOf(scrollRelative).shouldBeObject();
+			valueOf(scrollRelative.x).shouldBe(15);
+			valueOf(scrollRelative.y).shouldBe(5);
+
+			// scrollView relative -> win relative
+			winRelative = scrollView.convertPointToView(scrollRelative, win);
+			valueOf(winRelative).shouldNotBeNull();
+			valueOf(winRelative).shouldBeObject();
+			valueOf(winRelative.x).shouldBe(16);
+			valueOf(winRelative.y).shouldBe(6);
+
+			// back to sView1 coords
+			var sView1Relative = win.convertPointToView(winRelative, sView1);
+			valueOf(sView1Relative).shouldNotBeNull();
+			valueOf(sView1Relative).shouldBeObject();
+			valueOf(sView1Relative.x).shouldBe(5);
+			valueOf(sView1Relative.y).shouldBe(5);
+
 			// view is detached, dest is attached -> null
 			valueOf(detachedView.convertPointToView({ x: 10, y: 10 }, win)).shouldBeNull();
 
 			// view is attached, dest is detached -> null
 			valueOf(view1.convertPointToView({ x: 10, y: 10 }, detachedWin)).shouldBeNull();
 
-			// null point -> null
-			valueOf(view1.convertPointToView(null, win)).shouldBeNull();
+			// null point -> throw exception
+			valueOf(function() {
+				view1.convertPointToView(null, win);
+			}).shouldThrowException();
 
-			// null x -> null
-			valueOf(view1.convertPointToView({ x: null, y: 0 }, win)).shouldBeNull();
+			// no X property -> throw exception
+			valueOf(function() {
+				view1.convertPointToView({ y: 0 }, win);
+			}).shouldThrowException();
 
-			// null y -> null
-			valueOf(view1.convertPointToView({ x: 0, y: null }, win)).shouldBeNull();
 
-			// null destView -> null
-			valueOf(view1.convertPointToView({ x: 0, y: 0 }, null)).shouldBeNull();
-		});
+			// no Y property -> throw exception
+			valueOf(function() {
+				view1.convertPointToView({ x: 0 }, win);
+			}).shouldThrowException();
+
+			// null x -> throw exception
+			valueOf(function() {
+				view1.convertPointToView({ x: null, y: 0 }, win);
+			}).shouldThrowException();
+
+			// null y -> throw exception
+			valueOf(function() {
+				view1.convertPointToView({ x: 0, y: null }, win);
+			});
+
+			// null destView -> throw exception
+			valueOf(function() {
+				view1.convertPointToView({ x: 0, y: 0 }, null);
+			});
+
+			// non-View destView -> throw exception
+			valueOf(function() {
+				view1.convertPointToView({ x: 0, y: 0 }, "crashplz");
+			}).shouldThrowException();
+
+			// Finally do our async scroll tests, leaving sView1 clipped.
+			scrollView.addEventListener("scroll", function(e) {
+				// Android doesn't have a scrollEnd event, so this should work in both
+				if (e.x == 20) {
+					setTimeout(scrolledTests, 1);
+				}
+			});
+			scrollView.scrollTo(20, 0);
+		};
 
 		win.addEventListener("open", function() {
 			setTimeout(listener, 1000);

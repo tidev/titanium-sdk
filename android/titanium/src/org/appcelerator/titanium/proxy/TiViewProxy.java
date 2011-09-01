@@ -745,32 +745,48 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	@Kroll.method
 	public KrollDict convertPointToView(KrollDict point, TiViewProxy dest)
 	{
-		if (point == null || dest == null) {
-			return null;
+		if (point == null) {
+			throw new IllegalArgumentException("convertPointToView: point must not be null");
 		}
 
-		Object xProperty = point.get(TiC.PROPERTY_X);
-		if (xProperty == null) {
-			return null;
+		if (dest == null) {
+			throw new IllegalArgumentException("convertPointToView: destinationView must not be null");
 		}
 
-		Object yProperty = point.get(TiC.PROPERTY_Y);
-		if (yProperty == null) {
-			return null;
+		if (!point.containsKey(TiC.PROPERTY_X)) {
+			throw new IllegalArgumentException("convertPointToView: required property \"x\" not found in point");
 		}
 
-		int x = TiConvert.toInt(xProperty);
-		int y = TiConvert.toInt(yProperty);
+		if (!point.containsKey(TiC.PROPERTY_Y)) {
+			throw new IllegalArgumentException("convertPointToView: required property \"y\" not found in point");
+		}
+
+		// The spec says to throw an exception if x or y cannot be converted to numbers.
+		// TiConvert does that automatically for us.
+		int x = TiConvert.toInt(point, TiC.PROPERTY_X);
+		int y = TiConvert.toInt(point, TiC.PROPERTY_Y);
 
 		TiUIView view = peekView();
 		TiUIView destView = dest.peekView();
-		if (view == null || destView == null) {
+		if (view == null) {
+			Log.w(LCAT, "convertPointToView: view has not been attached, cannot convert point");
+			return null;
+		}
+
+		if (destView == null) {
+			Log.w(LCAT, "convertPointToView: destinationView has not been attached, cannot convert point");
 			return null;
 		}
 
 		View nativeView = view.getNativeView();
 		View destNativeView = destView.getNativeView();
-		if (nativeView == null) {
+		if (nativeView == null || nativeView.getParent() == null) {
+			Log.w(LCAT, "convertPointToView: view has not been attached, cannot convert point");
+			return null;
+		}
+
+		if (destNativeView == null || destNativeView.getParent() == null) {
+			Log.w(LCAT, "convertPointToView: destinationView has not been attached, cannot convert point");
 			return null;
 		}
 
@@ -778,6 +794,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		int destLocation[] = new int[2];
 		nativeView.getLocationInWindow(viewLocation);
 		destNativeView.getLocationInWindow(destLocation);
+
+		if (DBG) {
+			Log.d(LCAT, "nativeView location in window, x: " + viewLocation[0] + ", y: " + viewLocation[1]);
+			Log.d(LCAT, "destNativeView location in window, x: " + destLocation[0] + ", y: " + destLocation[1]);
+		}
 
 		int pointWindowX = viewLocation[0] + x;
 		int pointWindowY = viewLocation[1] + y;
