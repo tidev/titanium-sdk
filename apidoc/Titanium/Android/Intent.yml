@@ -89,24 +89,30 @@ properties:
   - name: action
     description: An action constant from <Titanium.Android>
     type: String
+    availability: creation
   - name: className
     description: The Java class name of the activity (packageName must also be set)
     type: String
+    availability: creation
   - name: data
     description: The Intent's Data URI. See also Android's [Intent.setData](http://developer.android.com/reference/android/content/Intent.html#setData(android.net.Uri))
     type: String
+    permission: read-only
   - name: flags
     description: Intent flags. See the flags constants in <Titanium.Android>.
     type: Number
   - name: packageName
     description: The fully-qualified Java package name of the activity
     type: String
+    availability: creation
   - name: type
     description: The mime type for this Intent. See also Android's [Intent.setType](http://developer.android.com/reference/android/content/Intent.html#setType(java.lang.String))
     type: String
+    availability: creation
   - name: url
     description: The URL to a Titanium Javascript Activity
     type: String
+    availability: creation
 examples:
   - title: Create an Intent for Launching an Activity
     example: |

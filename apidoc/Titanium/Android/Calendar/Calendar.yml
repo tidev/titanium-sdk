@@ -4,6 +4,7 @@ description: The Android.Calendar module provides proxies and methods for access
 extends: Titanium.Module
 platforms: [android]
 since: "1.5"
+createable: false
 methods:
   - name: getCalendarById
     description: Returns the <Titanium.Android.Calendar.Calendar> object specified by the given integer id.
@@ -59,12 +60,15 @@ properties:
   - name: allAlerts
     description: Array of <Titanium.Android.Calendar.Alert> objects representing all alerts.
     type: Array<Titanium.Android.Calendar.Alert>
+    permission: read-only
   - name: allCalendars
     description: Array of <Titanium.Android.Calendar.Calendar> objects representing all the calendars known to the native calendar app.
     type: Array<Titanium.Android.Calendar.Calendar>
+    permission: read-only
   - name: selectableCalendars
     description: Array of <Titanium.Android.Calendar.Calendar> objects representing calendars selected within the native calendar app. This may be a subset of allCalendars; for example, the native calendar application may know -- via your Gooogle account -- about calendars that you have access to but have not selected to be displayed in the native calendar app.
     type: Array<Titanium.Android.Calendar.Calendar>
+    permission: read-only
 notes: The API supports retrieving information about existing events and creating new events.  However, modifying or deleting existing events is not yet supported.  Additionally, recurring events are not yet supported.
 examples:
   - title: All Calendars vs Selectable Calendars

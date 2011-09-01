@@ -4,6 +4,7 @@ description: The blob is an abstract data type that represents binary informatio
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [android, iphone, ipad]
+createable: false
 properties:
   - name: length
     type: Number

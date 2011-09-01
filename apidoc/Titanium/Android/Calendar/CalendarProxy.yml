@@ -4,6 +4,7 @@ description: An object which represents a single calendar in Android.
 extends: Titanium.Proxy
 platforms: [android]
 since: "1.5"
+createable: false
 methods:
   - name: createEvent
     description: Add an event to the calendar. Returns the created <Titanium.Android.Calendar.Event>.
@@ -69,14 +70,18 @@ properties:
   - name: hidden
     description: Whether the calendar is hidden.
     type: Boolean
+    permission: read-only
   - name: id
     description: The id of the calendar.
     type: String
+    permission: read-only
   - name: name
     description: The display name of the calendar.
     type: String
+    permission: read-only
   - name: selected
     description: Whether the calendar is selected.
     type: Boolean
+    permission: read-only
 notes: See <Titanium.Android.Calendar> for examples.
     

@@ -8,9 +8,11 @@ properties:
   - name: flags
     description: Flags used for creating the Pending Intent. Possible values are <Titanium.Android.FLAG_CANCEL_CURRENT>, <Titanium.Android.FLAG_NO_CREATE>, <Titanium.Android.FLAG_ONE_SHOT>, and <Titanium.Android.FLAG_UPDATE_CURRENT>.
     type: Number
+    availability: creation
   - name: intent
     description: The intent data to pass to the Activity launched by this PendingIntent
     type: Titanium.Android.Intent
+    availability: creation
 notes: |
     The type of Intent you choose will effect what kind of PendingIntent is created. Each type corresponds directly with a get method on Android's PendingIntent:
     
