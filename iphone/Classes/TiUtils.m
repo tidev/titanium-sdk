@@ -323,6 +323,29 @@ static NSDictionary* sizeMap = nil;
 	return CGPointMake(0,0);
 }
 
++(CGPoint)pointValue:(id)value valid:(BOOL*)isValid
+{
+	if ([value isKindOfClass:[TiPoint class]]) {
+        if (isValid) {
+            *isValid = YES;
+        }
+		return [value point];
+	} else if ([value isKindOfClass:[NSDictionary class]]) {
+        id xVal = [value objectForKey:@"x"];
+        id yVal = [value objectForKey:@"y"];
+        if (xVal && yVal) {
+            if (isValid) {
+                *isValid = YES;
+            }
+            return CGPointMake([xVal floatValue], [yVal floatValue]);
+        }
+	}
+    if (isValid) {
+        *isValid = NO;
+    }
+	return CGPointMake(0,0);
+}
+
 +(CGPoint)pointValue:(id)value bounds:(CGRect)bounds defaultOffset:(CGPoint)defaultOffset;
 {
 	TiDimension xDimension;
