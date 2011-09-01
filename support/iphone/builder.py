@@ -441,7 +441,7 @@ def cleanup_app_logfiles(tiapp, log_id, iphone_version):
 	results = None
 
 	# If the indexer is enabled, we can use spotlight for faster searching
-	if is_indexer_enabled(tiapp, simulator_dir):
+	if is_indexing_enabled(tiapp, simulator_dir):
 		print "[DEBUG] Searching for old log files with mdfind..."
 		sys.stdout.flush()
 		results = run.run(['mdfind',
