@@ -3,3 +3,4 @@ dist
 .sconsign.dblite
 .DS_Store
 *~
+*.swp
