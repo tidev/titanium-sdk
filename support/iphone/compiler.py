@@ -328,7 +328,15 @@ class Compiler(object):
 		
 		if deploytype=='development':
 			self.softlink_resources(resources_dir,app_dir)
-			self.softlink_resources(iphone_resources_dir,app_dir)
+			if(os.path.exists(iphone_resources_dir)):
+				self.softlink_resources(iphone_resources_dir,app_dir)
+			dest_mod_dir = os.path.join(app_dir,'modules')
+			src_mod_dir = os.path.join(project_dir,'modules')
+			if(os.path.exists(src_mod_dir)):
+				self.softlink_resources(src_mod_dir,dest_mod_dir)
+				src_mod_iphone_dir = os.path.join(src_mod_dir,'iphone')
+				if(os.path.exists(src_mod_iphone_dir)):
+					self.softlink_resources(os.path.join(project_dir,'modules','iphone'),dest_mod_dir)
 	
 	def add_symbol(self,api):
 		print "[DEBUG] detected symbol: %s" % api
@@ -424,7 +432,7 @@ class Compiler(object):
 		if not os.path.exists(target):
 			os.makedirs(target)
 		for file in os.listdir(source):
-			if use_ignoreDirs and ((file in ignoreDirs) or (file in ignoreFiles)):
+			if (use_ignoreDirs and (file in ignoreDirs)) or (file in ignoreFiles):
 				continue
 			from_ = os.path.join(source, file)
 			to_ = os.path.join(target, file)
