@@ -10,21 +10,27 @@ properties:
   - name: POPOVER_ARROW_DIRECTION_ANY
     description: An arrow that points in any direction.
     type: Number
+    permission: read-only
   - name: POPOVER_ARROW_DIRECTION_DOWN
     description: An arrow that points downward.
     type: Number
+    permission: read-only
   - name: POPOVER_ARROW_DIRECTION_LEFT
     description: An arrow that points toward the left.
     type: Number
+    permission: read-only
   - name: POPOVER_ARROW_DIRECTION_RIGHT
     description: An arrow that points toward the right.
     type: Number
+    permission: read-only
   - name: POPOVER_ARROW_DIRECTION_UNKNOWN
     description: The status of the arrow is currently unknown.
     type: Number
+    permission: read-only
   - name: POPOVER_ARROW_DIRECTION_UP
     description: An arrow that points upward.
     type: Number
+    permission: read-only
 notes: |
     ### Custom Fonts
     

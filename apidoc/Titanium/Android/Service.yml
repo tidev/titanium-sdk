@@ -26,11 +26,13 @@ events:
     description: Fired when the bound Service instance stops, meaning <Titanium.Android.Service.stop> or <Titanium.Android.stopService> has been called and there are no more bound, un-stopped clients.
 properties:
   - name: intent
-    description: (read-only) The <Titanium.Android.Intent> used to start or bind to the Service.
+    description: The <Titanium.Android.Intent> used to start or bind to the Service.
     type: Titanium.Android.Intent
+    permission: read-only
   - name: serviceInstanceId
-    description: (read-only) A service can be started more than once -- this number (based on an incrementing integer) indicates which "start number" in the sequence the current service instance is.
+    description: A service can be started more than once -- this number (based on an incrementing integer) indicates which "start number" in the sequence the current service instance is.
     type: Number
+    permission: read-only
 examples:
   - title: Hello World Service
     example: |

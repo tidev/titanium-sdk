@@ -98,6 +98,25 @@ describe("Ti.UI tests", {
 			}, 1000);
 		},1000);
 	},
+
+	appendRowAsArray: asyncTest(function(callback) {
+		var w = Ti.UI.createWindow();
+		var tv = Ti.UI.createTableView();
+		w.add(tv);
+
+		var listener = this.async(function(){
+			var rows = [];
+			rows.push(Ti.UI.createTableViewRow({title:'title 1'}));
+			rows.push(Ti.UI.createTableViewRow({title:'title 2'}));
+			rows.push(Ti.UI.createTableViewRow({title:'title 3'}));
+
+			valueOf(function(){tv.appendRow(rows);}).shouldNotThrowException();
+			valueOf(tv.data[0].rowCount).shouldBe(rows.length);
+		});
+		w.addEventListener("open", listener);
+		w.open();
+	}),
+
 	// http://jira.appcelerator.org/browse/TIMOB-2853
 	opacityCrash_as_async: function(callback) {
 		var failureTimeout = null;
@@ -126,5 +145,25 @@ describe("Ti.UI tests", {
 	windowOrientation: function() {
 		var w = Ti.UI.createWindow();
 		valueOf(w.orientation).shouldBeOneOf([Ti.UI.PORTRAIT, Ti.UI.LANDSCAPE_LEFT]);
+	},
+	
+	windowPixelFormat: function() {
+		if (Ti.Platform.name === 'android') {
+			var w = Ti.UI.createWindow();
+			valueOf(w.getWindowPixelFormat).shouldBeFunction();
+			valueOf(w.setWindowPixelFormat).shouldBeFunction();
+			valueOf("windowPixelFormat" in w).shouldBeTrue();
+			
+			valueOf(w.windowPixelFormat).shouldBe(Ti.UI.Android.PIXEL_FORMAT_UNKNOWN);
+			valueOf(w.getWindowPixelFormat()).shouldBe(Ti.UI.Android.PIXEL_FORMAT_UNKNOWN);
+			
+			w.windowPixelFormat = Ti.UI.Android.PIXEL_FORMAT_RGB_565;
+			valueOf(w.windowPixelFormat).shouldBe(Ti.UI.Android.PIXEL_FORMAT_RGB_565);
+			valueOf(w.getWindowPixelFormat()).shouldBe(Ti.UI.Android.PIXEL_FORMAT_RGB_565);
+			
+			w.setWindowPixelFormat(Ti.UI.Android.PIXEL_FORMAT_RGBA_8888);
+			valueOf(w.windowPixelFormat).shouldBe(Ti.UI.Android.PIXEL_FORMAT_RGBA_8888);
+			valueOf(w.getWindowPixelFormat()).shouldBe(Ti.UI.Android.PIXEL_FORMAT_RGBA_8888);
+		}
 	}
 });

@@ -74,6 +74,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 	protected static final String Kroll_setProperty = Kroll_annotation + ".setProperty";
 	protected static final String Kroll_topLevel = Kroll_annotation + ".topLevel";
 	protected static final String Kroll_dynamicApis = Kroll_annotation + ".dynamicApis";
+	protected static final String Kroll_onAppCreate = Kroll_annotation + ".onAppCreate"; 
 
 	protected static final String KrollInvocation = Kroll_package + ".KrollInvocation";
 	protected static final String KrollConverter = Kroll_package + ".KrollConverter";
@@ -313,55 +314,64 @@ public class KrollBindingGenerator extends AbstractProcessor {
 
 				TypeElement type = (TypeElement) element;
 				Element superType = processingEnv.getTypeUtils().asElement(type.getSuperclass());
-				
+
 				String superTypeName = utils.getName(superType);
 				if (!superTypeName.equals("Object")) {
 					proxyProperties.put(
 						"superProxyBindingClassName", String.format("%s.%sBindingGen", utils.getPackage(superType), superTypeName));
 				}
-				
+
 				proxyProperties.put("isModule", utils.annotationTypeIs(annotation, Kroll_module));
 				proxyProperties.put("packageName", packageName);
 				proxyProperties.put("proxyClassName", proxyClassName);
 				proxyProperties.put("genClassName", genClassName);
 				proxyProperties.put("sourceName", sourceName);
 				proxyProperties.put("proxyAttrs", proxyAttrs);
-				
+
 				if (utils.annotationTypeIs(annotation, Kroll_module)) {
-					getModule(packageName+"."+proxyClassName).put("apiName", apiName);
+					StringBuilder b = new StringBuilder();
+					b.append(packageName)
+						.append(".")
+						.append(proxyClassName);
+					Map<Object, Object> module = getModule(b.toString());
+					module.put("apiName", apiName);
 				}
-				
+
 				for (Element e : element.getEnclosedElements()) {
 					e.accept(visitor, null);
 				}
-				
+
 				return true;
 			}
 		});
 	}
-	
+
 	protected class BindingVisitor extends SimpleElementVisitor6<Object, Object> implements KrollVisitor<AnnotationMirror>
-	{	
+	{
 		@Override
-		public String visitExecutable(ExecutableElement e, Object p) {
+		public String visitExecutable(ExecutableElement e, Object p)
+		{
 			utils.acceptAnnotations(e, new String[] {
-				Kroll_method, Kroll_getProperty, Kroll_setProperty, Kroll_inject, Kroll_topLevel }, this, e);
+				Kroll_method, Kroll_getProperty, Kroll_setProperty,
+				Kroll_inject, Kroll_topLevel, Kroll_onAppCreate }, this, e);
 			return null;
 		}
-		
+
 		@Override
-		public Object visitVariable(VariableElement e, Object p) {
+		public Object visitVariable(VariableElement e, Object p)
+		{
 			utils.acceptAnnotations(e, new String[] {
 				Kroll_property, Kroll_constant, Kroll_inject }, this, e);
 			return null;
 		}
-		
-		public boolean visit(AnnotationMirror annotation, Object arg) {
+
+		public boolean visit(AnnotationMirror annotation, Object arg)
+		{
 			if (arg instanceof ExecutableElement) {
 				ExecutableElement element = (ExecutableElement)arg;
 				if (utils.annotationTypeIsOneOf(annotation, new String[]{
 					Kroll_getProperty, Kroll_setProperty})) {
-					
+
 					visitDynamicProperty(annotation, element);
 				} else if (utils.annotationTypeIs(annotation, Kroll_inject)) {
 					visitInject(annotation, element, true);
@@ -369,6 +379,8 @@ public class KrollBindingGenerator extends AbstractProcessor {
 					visitTopLevel(annotation, element);
 				} else if (utils.annotationTypeIs(annotation, Kroll_dynamicApis)) {
 					visitDynamicApis(annotation);
+				} else if (utils.annotationTypeIs(annotation, Kroll_onAppCreate)) {
+					visitOnAppCreate(annotation, element);
 				} else {
 					visitMethod(annotation, element);
 				}
@@ -382,32 +394,32 @@ public class KrollBindingGenerator extends AbstractProcessor {
 			}
 			return true;
 		}
-		
-		protected void visitMethod(AnnotationMirror annotation, ExecutableElement element) {
+
+		protected void visitMethod(AnnotationMirror annotation, ExecutableElement element)
+		{
 			String methodName = element.getSimpleName().toString();
-			
+
 			Map<Object,Object> methods = jsonUtils.getOrCreateMap(proxyProperties, "methods");
 			Map<Object,Object> methodAttrs = jsonUtils.getOrCreateMap(methods, methodName);
 			List<Object> args = new ArrayList<Object>();
 			jsonUtils.updateObjectFromAnnotation(methodAttrs, annotation);
-			
-			//HashMap<String, Object> attrs = utils.getAnnotationParams(annotation);
+
 			methodAttrs.put("hasInvocation", false);
-			
+
 			for (VariableElement var: element.getParameters()) {
 				String paramType = utils.getType(var);
 				if (paramType.equals(KrollInvocation)) {
 					methodAttrs.put("hasInvocation", true);
 					continue;
 				}
-				
+
 				String paramName = utils.getName(var);
-				
+
 				Map<Object,Object> argParams = new HashMap<Object,Object>();
 				argParams.put("sourceName", paramName);
 				argParams.put("type", paramType);
 				jsonUtils.updateObjectFromAnnotationParams(argParams, utils.getAnnotationParams(var, Kroll_argument));
-				
+
 				String name = (String) argParams.get("name");
 				if (name == null || name.equals(DEFAULT_NAME)) {
 					argParams.put("name", paramName);
@@ -437,11 +449,11 @@ public class KrollBindingGenerator extends AbstractProcessor {
 			if (methodAttrs.get("name").equals(DEFAULT_NAME)) {
 				methodAttrs.put("apiName", methodName);
 			}
-			
+
 			methodAttrs.put("args", args);
 			methodAttrs.put("returnType", element.getReturnType().toString());
 		}
-		
+
 		protected void visitProperty(AnnotationMirror annotation, VariableElement element)
 		{
 			boolean isConstant = utils.annotationTypeIs(annotation, Kroll_constant);
@@ -472,8 +484,9 @@ public class KrollBindingGenerator extends AbstractProcessor {
 			}
 			propertyMap.put(name, property);
 		}
-		
-		protected void visitDynamicProperty(AnnotationMirror annotation, ExecutableElement element) {
+
+		protected void visitDynamicProperty(AnnotationMirror annotation, ExecutableElement element)
+		{
 			Map<Object,Object> dynamicProperties = jsonUtils.getOrCreateMap(proxyProperties, "dynamicProperties");
 			HashMap<String, Object> params = utils.getAnnotationParams(annotation);
 			Map<Object,Object> dynamicProperty = new HashMap<Object,Object>(params);
@@ -485,7 +498,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 			} else if (defaultName.startsWith("is")) {
 				defaultName = Character.toLowerCase(defaultName.charAt(2)) + defaultName.substring(3);
 			}
-			
+
 			String name = (String)dynamicProperty.get("name");
 			if (name.equals(DEFAULT_NAME)) {
 				dynamicProperty.put("name", defaultName);
@@ -518,14 +531,14 @@ public class KrollBindingGenerator extends AbstractProcessor {
 					}
 					continue;
 				}
-				
+
 				String paramName = utils.getName(var);
-				
+
 				Map<Object,Object> argParams = new HashMap<Object,Object>();
 				argParams.put("sourceName", paramName);
 				argParams.put("type", paramType);
 				jsonUtils.updateObjectFromAnnotationParams(argParams, utils.getAnnotationParams(var, Kroll_argument));
-				
+
 				String argName = (String) argParams.get("name");
 				if (argName == null || argName.equals(DEFAULT_NAME)) {
 					argParams.put("name", paramName);
@@ -541,7 +554,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 				}
 				args.add(argParams);
 			}
-			
+
 			ArrayList<String> defaultProviders = new ArrayList<String>();
 			for (VariableElement var: element.getParameters()) {
 				if (utils.hasAnnotation(var, Kroll_argument)) {
@@ -551,7 +564,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 					defaultProviders.add(KrollConverter);
 				}
 			}
-			
+
 			if (utils.annotationTypeIs(annotation, Kroll_getProperty)) {
 				dynamicProperty.put("get", true);
 				dynamicProperty.put("getMethodName", methodName);
@@ -566,14 +579,15 @@ public class KrollBindingGenerator extends AbstractProcessor {
 				dynamicProperty.put("setMethodArgs", args);
 				dynamicProperty.put("setReturnType", element.getReturnType().toString());
 			}
-			
+
 			dynamicProperties.put(name, dynamicProperty);
 		}
-		
-		protected void visitInject(AnnotationMirror annotation, Element element, boolean isMethod) {
+
+		protected void visitInject(AnnotationMirror annotation, Element element, boolean isMethod)
+		{
 			List<Object> injectList = jsonUtils.getOrCreateList(proxyProperties, isMethod ? "injectMethods" : "injectFields");
 			HashMap<String, Object> attrs = utils.getAnnotationParams(annotation);
-			
+
 			String type = (String)attrs.get("type");
 			String defaultType = null;
 			if (isMethod) {
@@ -581,7 +595,6 @@ public class KrollBindingGenerator extends AbstractProcessor {
 				if (params.size() > 0) {
 					VariableElement firstParam = params.get(0);
 					defaultType = utils.getType(firstParam);
-					
 				} else {
 					warn("Skipping injection into method %s, at least one argument is required in a setter", utils.getName(element));
 					return;
@@ -589,20 +602,21 @@ public class KrollBindingGenerator extends AbstractProcessor {
 			} else {
 				defaultType = utils.getType((VariableElement)element);
 			}
-			
+
 			if (type.equals(Kroll_DEFAULT)) {
 				attrs.put("type", defaultType);
 			}
-			
+
 			String name = (String)attrs.get("name");
 			if (name.equals(DEFAULT_NAME)) {
 				attrs.put("name", utils.getName(element));
 			}
-			
+
 			injectList.add(attrs);
 		}
-		
-		protected void visitTopLevel(AnnotationMirror annotation, Element element) {
+
+		protected void visitTopLevel(AnnotationMirror annotation, Element element)
+		{
 			Map<Object,Object> topLevelMethods = jsonUtils.getOrCreateMap(proxyProperties, "topLevelMethods");
 			HashMap<String, Object> attrs = utils.getAnnotationParams(annotation);
 			List<Object> topLevelNames = (List<Object>)attrs.get("value");
@@ -612,8 +626,9 @@ public class KrollBindingGenerator extends AbstractProcessor {
 			
 			topLevelMethods.put(utils.getName(element), topLevelNames);
 		}
-		
-		protected void visitDynamicApis(AnnotationMirror annotation) {
+
+		protected void visitDynamicApis(AnnotationMirror annotation)
+		{
 			Map<Object, Object> dynamicApis = jsonUtils.getOrCreateMap(proxyProperties, "dynamicApis");
 			HashMap<String, Object> attrs = utils.getAnnotationParams(annotation);
 			List<Object> properties = (List<Object>) attrs.get("properties");
@@ -628,6 +643,11 @@ public class KrollBindingGenerator extends AbstractProcessor {
 					jsonUtils.getOrCreateList(dynamicApis, "methods").add(m);
 				}
 			}
+		}
+
+		protected void visitOnAppCreate(AnnotationMirror annotation, Element element)
+		{
+			proxyProperties.put("onAppCreate", utils.getName(element));
 		}
 	}
 	

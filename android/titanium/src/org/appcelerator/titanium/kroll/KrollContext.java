@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -69,11 +69,12 @@ public class KrollContext implements Handler.Callback
 		this.sourceUrl = sourceUrl;
 		this.krollThreadId = getInstanceCounter().incrementAndGet();
 
-		StringBuilder threadName= new StringBuilder();
+		StringBuilder threadName = new StringBuilder();
 		threadName.append("kroll$").append(krollThreadId);
 		if (sourceUrl != null) {
 			threadName.append(": ").append(sourceUrl);
 		}
+
 		// allow a configurable stack size to avoid StackOverflowErrors in some larger apps
 		thread = new KrollHandlerThread(
 			threadName.toString(),
