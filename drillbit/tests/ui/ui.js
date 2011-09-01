@@ -165,5 +165,102 @@ describe("Ti.UI tests", {
 			valueOf(w.windowPixelFormat).shouldBe(Ti.UI.Android.PIXEL_FORMAT_RGBA_8888);
 			valueOf(w.getWindowPixelFormat()).shouldBe(Ti.UI.Android.PIXEL_FORMAT_RGBA_8888);
 		}
-	}
+	},
+
+	convertPointToView: asyncTest(function() {
+		var win = Ti.UI.createWindow({
+			width: 100, height: 100
+		});
+
+		var view1 = Ti.UI.createView({
+			top: 30, left: 30, width: 30, height: 30
+		});
+		win.add(view1);
+
+		// view1 isn't realized yet -> null
+		valueOf(view1.convertPointToView({ x: 0, y: 0 }, win)).shouldBeNull();
+
+		var view2 = Ti.UI.createView({
+			bottom: 10, height: 10,
+			right: 10, width: 50,
+			borderWidth: 5,
+			borderColor: "black"
+		});
+		win.add(view2);
+
+		// view2 isn't realized yet -> null
+		valueOf(view2.convertPointToView({ x: 0, y: 0 }, win)).shouldBeNull();
+
+		var detachedView = Ti.UI.createView({
+			top: 0, left: 0, width: 50, height: 50
+		});
+
+		var detachedWin = Ti.UI.createWindow();
+		var listener = this.async(function(e) {
+			// view1 -> win relative
+			var winRelative = view1.convertPointToView({ x: 1, y: 1 }, win);
+			valueOf(winRelative).shouldNotBeNull();
+			valueOf(winRelative).shouldBeObject();
+			valueOf(winRelative.x).shouldBe(31);
+			valueOf(winRelative.y).shouldBe(31);
+
+			// convert back, x/y should be 1 again
+			var view1Relative = win.convertPointToView(winRelative, view1);
+			valueOf(view1Relative).shouldNotBeNull();
+			valueOf(view1Relative).shouldBeObject();
+			valueOf(view1Relative.x).shouldBe(1);
+			valueOf(view1Relative.y).shouldBe(1);
+
+			// negative x / y should still work
+			var winRelative2 = view2.convertPointToView({ x: -20, y: -20 }, win);
+			valueOf(winRelative2).shouldNotBeNull();
+			valueOf(winRelative2).shouldBeObject();
+			valueOf(winRelative2.x).shouldBe(20);
+			valueOf(winRelative2.y).shouldBe(60);
+
+			// ... and back again
+			var view2Relative = win.convertPointToView(winRelative2, view2);
+			valueOf(view2Relative).shouldNotBeNull();
+			valueOf(view2Relative).shouldBeObject();
+			valueOf(view2Relative.x).shouldBe(-20);
+			valueOf(view2Relative.y).shouldBe(-20);
+
+			// siblings test view1 point -> view2
+			view2Relative = view1.convertPointToView({ x: 5, y: -10 }, view2);
+			valueOf(view2Relative).shouldNotBeNull();
+			valueOf(view2Relative).shouldBeObject();
+			valueOf(view2Relative.x).shouldBe(-5);
+			valueOf(view2Relative.y).shouldBe(-60);
+
+			// once more, with feeling
+			view1Relative = view2.convertPointToView(view2Relative, view1);
+			valueOf(view1Relative).shouldNotBeNull();
+			valueOf(view1Relative).shouldBeObject();
+			valueOf(view1Relative.x).shouldBe(5);
+			valueOf(view1Relative.y).shouldBe(-10);
+
+			// view is detached, dest is attached -> null
+			valueOf(detachedView.convertPointToView({ x: 10, y: 10 }, win)).shouldBeNull();
+
+			// view is attached, dest is detached -> null
+			valueOf(view1.convertPointToView({ x: 10, y: 10 }, detachedWin)).shouldBeNull();
+
+			// null point -> null
+			valueOf(view1.convertPointToView(null, win)).shouldBeNull();
+
+			// null x -> null
+			valueOf(view1.convertPointToView({ x: null, y: 0 }, win)).shouldBeNull();
+
+			// null y -> null
+			valueOf(view1.convertPointToView({ x: 0, y: null }, win)).shouldBeNull();
+
+			// null destView -> null
+			valueOf(view1.convertPointToView({ x: 0, y: 0 }, null)).shouldBeNull();
+		});
+
+		win.addEventListener("open", function() {
+			setTimeout(listener, 1000);
+		});
+		win.open();
+	})
 });
