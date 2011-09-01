@@ -86,7 +86,9 @@ properties:
     platforms: [iphone, ipad]
   - name: scrollType
     description: |
-        the type of ScrollView: "vertical" or "horizontal"
+        For explicitly setting the direction -- "vertical" or "horizontal" -- in which the ScrollView will scroll.
+        See also the documentation notes for more information concerning how Android deduces the scroll
+        direction when this property is *not* set.
     type: String
     platforms: [android]
   - name: showHorizontalScrollIndicator
@@ -105,6 +107,18 @@ properties:
     platforms: [iphone, ipad]
 notes: |
     If your scrollable region fits within the size of the content area the scroll view will not scroll.
+    
+    **Android Note**: Android ScrollViews can only scroll in one direction,
+    vertical or horizontal.  We provide the `scrollType` property so you can
+    explicitly set the scroll direction.  If that property is *not* set, we
+    attempt to deduce the scroll direction based on some of the other
+    properties that have been set.  Specifically, if `contentWidth` and `width`
+    are both set and are equal to each other, or if they are both set *and*
+    `showVerticalScrollIndicator` is set to `true`, then the scroll direction
+    is set to "vertical".  If `contentHeight` and `height` are both set and are
+    equal, or if they are both set and `showHorizontalScrollIndicator` is set
+    to `true`, then the scroll direction is set to "horizontal".  If
+    `scrollType` is set, it overrides the deduced setting.
 examples:
   - title: Simple Scroll View
     example: |
