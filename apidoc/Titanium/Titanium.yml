@@ -12,7 +12,14 @@ properties:
   - name: version
     type: Number
     description: the version of Titanium that is executing
-
+    permission: read-only
+  - name: buildDate
+    type: String
+    description: The date of the Titanium build
+    permission: read-only
+  - name: buildHash
+    type: String
+    description: The git hash of the Titanium build
 methods:
   - name: include
     description: a filename to include as if the Javascript code was written in place.  This is similar to a C `#include` function.

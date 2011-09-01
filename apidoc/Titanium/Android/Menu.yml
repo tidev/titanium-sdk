@@ -76,6 +76,7 @@ properties:
   - name: items
     description: array of <Titanium.Android.MenuItem>
     type: Array<Titanium.Android.MenuItem>
+    permission: read-only
 examples:
   - title: Simple menu create
     example: |
