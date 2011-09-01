@@ -317,6 +317,31 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	return blob;
 }
 
+-(TiPoint*)convertPointToView:(id)args
+{
+    id arg1 = nil;
+    TiViewProxy* arg2 = nil;
+    ENSURE_ARG_AT_INDEX(arg1, args, 0, NSObject);
+    ENSURE_ARG_AT_INDEX(arg2, args, 1, TiViewProxy);
+    BOOL validPoint;
+    CGPoint oldPoint = [TiUtils pointValue:arg1 valid:&validPoint];
+    if (!validPoint) {
+        [self throwException:TiExceptionInvalidType subreason:@"Parameter is not convertable to a TiPoint" location:CODELOCATION];
+    }
+    
+    __block BOOL validView = NO;
+    __block CGPoint p;
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        if ([self viewAttached] && self.view.window && [arg2 viewAttached] && arg2.view.window) {
+            validView = YES;
+            p = [self.view convertPoint:oldPoint toView:arg2.view];
+        }
+    });
+    if (!validView) {
+        return (TiPoint*)[NSNull null];
+    }
+    return [[[TiPoint alloc] initWithPoint:p] autorelease];
+}
 
 #pragma mark nonpublic accessors not related to Housecleaning
 
