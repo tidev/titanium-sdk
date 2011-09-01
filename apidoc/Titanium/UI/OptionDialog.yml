@@ -13,14 +13,15 @@ events:
       - name: index
         description: the button index that was pressed
       - name: button
-        description: boolean to indicate that the index refers to a button on the dialog and not an item. (Android)
+        description: boolean to indicate that the index refers to a button on the dialog and not an item.
+        platforms: [android]
       - name: cancel
         description: the index of the cancel button
       - name: destructive
         description: the index of the destructive button
 properties:
   - name: androidView
-    description: A Titanium.UI.View. Allows for arbitrary contents inside a native dialog. Works for any dialog. (Android)
+    description: A Titanium.UI.View. Allows for arbitrary contents inside a native dialog. Works for any dialog.
     platforms: [android]
     type: Object
   - name: cancel
@@ -33,7 +34,7 @@ properties:
     description: array of button names as strings
     type: Array<Object>
   - name: selectedIndex
-    description: set an initially selected option. Only valid when options has been specified. (Android only)
+    description: set an initially selected option. Only valid when options has been specified.
     platforms: [android]
     type: Number
   - name: title

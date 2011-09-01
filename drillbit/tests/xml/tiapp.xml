@@ -27,8 +27,10 @@
 		</manifest>
 	</android>
 	<property name="ti.android.enablecoverage" type="bool">true</property>
-	<property name="ti.ios.enablecoverage" type="bool">true</property>
 	<property name="ti.android.include_all_modules" type="bool">true</property>
 	<property name="ti.android.fastdev" type="bool">false</property>
 	<property name="ti.android.threadstacksize" type="int">32768</property>
+
+	<property name="ti.ios.enablecoverage" type="bool">true</property>
+	<property name="ti.ios.enablemdfind" type="bool">false</property>
 </ti:app>

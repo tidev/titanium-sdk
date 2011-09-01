@@ -8,6 +8,7 @@ def compile(config):
 	config['android_builder'] = None
 	config['tiapp'] = None
 	config['logger'] = None
+	config['plugin'] = None
 	outfile = os.path.join(project_dir, 'plugin_compile.json')
 	open(outfile, "w").write(json.encode(config))
 

@@ -29,6 +29,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
@@ -286,6 +287,10 @@ public abstract class TiBaseActivity extends Activity
 				messenger = (Messenger) intent.getParcelableExtra(TiC.INTENT_PROPERTY_MESSENGER);
 				msgActivityCreatedId = intent.getIntExtra(TiC.INTENT_PROPERTY_MSG_ACTIVITY_CREATED_ID, -1);
 				msgId = intent.getIntExtra(TiC.INTENT_PROPERTY_MSG_ID, -1);
+			}
+			
+			if (intent.hasExtra(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
+				getWindow().setFormat(intent.getIntExtra(TiC.PROPERTY_WINDOW_PIXEL_FORMAT, PixelFormat.UNKNOWN));
 			}
 		}
 
