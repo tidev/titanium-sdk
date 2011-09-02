@@ -93,13 +93,13 @@ public class WebViewProxy extends ViewProxy
 		getWebView().setBasicAuthentication(username, password);
 	}
 	
-	@Kroll.method
-	public void setUserAgentString(String userAgentString) {
-		getWebView().setUserAgentString(userAgentString);	
+	@Kroll.method @Kroll.setProperty
+	public void setUserAgent(String userAgent) {
+		getWebView().setUserAgentString(userAgent);	
 	}
 	
-	@Kroll.method
-	public String getUserAgentString() {
+	@Kroll.method @Kroll.getProperty
+	public String getUserAgent() {
 		return getWebView().getUserAgentString();
 	}	
 	
