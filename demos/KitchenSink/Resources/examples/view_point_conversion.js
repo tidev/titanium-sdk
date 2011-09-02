@@ -111,23 +111,25 @@ yellowView.addEventListener('click',function(ev)
 
 magentaView.addEventListener('click',function(ev)
 {
+	if (Ti.Platform.model == "iPhone Simulator") {
+		// Until the iOS simulator exception issue is resolved
+		// this needs to be conditional
+		Ti.API.debug("Skipping exception test in simulator");
+		return;
+	}
+
 	try {
 		var localPoint = {y:ev.y}
 		var convPoint = magentaView.convertPointToView(localPoint, win);
-		if (convPoint) {
-			label1.text = "localPoint: " + localPoint.x + " " + localPoint.y;
-			label2.text = "convPoint: " + convPoint.x + " " + convPoint.y;
-		} else {
-			throw "null object correctly returned";
-		}
 	} catch (e) {
-		label1.text = "" + e;
-		label2.text = "";
+		label1.text = "exception correctly thrown";
+		label2.text = "" + String(e).substring(0, 30) + "...";
 	}
 }); 
 
 purpleView.addEventListener('click',function(ev)
 {
+	Ti.API.debug("purple view");
 	try {
 		var localPoint = {x:ev.x, y:ev.y}
 		var convPoint = purpleView.convertPointToView(localPoint, win);
