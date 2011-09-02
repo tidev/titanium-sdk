@@ -184,7 +184,18 @@ public class TiUIWindow extends TiUIView
 				bindProxies();
 			}
 		} else {
-			bindWindowActivity(proxyContext, proxyContext.getActivity());
+			Activity proxyActivity = proxyContext.getActivity();
+			bindWindowActivity(proxyContext, proxyActivity);
+
+			// set this so that if the LW window is created on top of the root activity 
+			// it can still be accessed via the activity
+			if (lightWeight)
+			{
+				if (proxyActivity instanceof TiBaseActivity)
+				{
+					((TiBaseActivity)proxyActivity).lwWindow = (TiWindowProxy)proxy;
+				}
+			}
 		}
 		if (!newActivity && !lightWeight) {
 			proxy.switchContext(windowContext);
@@ -328,6 +339,14 @@ public class TiUIWindow extends TiUIView
 				}
 				lightWindow.removeAllViews();
 				lightWindow = null;
+			}
+
+			// set the lightweight window reference on the activity to null when the window closes
+			TiContext proxyContext = proxy.getTiContext();
+			Activity proxyActivity = proxyContext.getActivity();
+			if (proxyActivity instanceof TiBaseActivity)
+			{
+				((TiBaseActivity)proxyActivity).lwWindow = null;
 			}
 		}
 	}
