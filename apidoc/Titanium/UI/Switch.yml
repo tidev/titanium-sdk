@@ -15,24 +15,27 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
 properties:
   - name: enabled
     description: boolean for the state of the switch
     type: Boolean
   - name: style
-    description: one of Ti.UI.Android.SWITCH_STYLE_CHECKBOX or Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON (default). (Android only)
+    description: one of <Ti.UI.Android.SWITCH_STYLE_CHECKBOX> or <Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON> (default).
     type: Number
     platforms: [android]
   - name: title
-    description: text to display with checkbox. Used if style is Ti.UI.Android.SWITCH_STYLE_CHECKBOX (Android only)
+    description: text to display with checkbox. Used if style is <Ti.UI.Android.SWITCH_STYLE_CHECKBOX>
     type: String
     platforms: [android]
   - name: titleOff
-    description: text to display when value is `false`. used if style is Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON (Android only)
+    description: text to display when value is `false`. used if style is <Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>
     type: String
     platforms: [android]
   - name: titleOn
-    description: text to display when value is `true`. used if style is Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON (Android only)
+    description: text to display when value is `true`. used if style is <Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>
     type: String
     platforms: [android]
   - name: value

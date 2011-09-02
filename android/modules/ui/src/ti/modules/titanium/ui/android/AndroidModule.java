@@ -17,6 +17,7 @@ import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.PixelFormat;
 import android.text.util.Linkify;
 import android.util.Log;
 import android.view.WindowManager;
@@ -28,6 +29,21 @@ import android.view.WindowManager;
 public class AndroidModule extends KrollModule
 {
 	private static final String LCAT = "UIAndroidModule";
+	
+	@Kroll.constant public static final int PIXEL_FORMAT_A_8 = PixelFormat.A_8;
+	@Kroll.constant public static final int PIXEL_FORMAT_LA_88 = PixelFormat.LA_88;
+	@Kroll.constant public static final int PIXEL_FORMAT_L_8 = PixelFormat.L_8;
+	@Kroll.constant public static final int PIXEL_FORMAT_OPAQUE = PixelFormat.OPAQUE;
+	@Kroll.constant public static final int PIXEL_FORMAT_RGBA_4444 = PixelFormat.RGBA_4444;
+	@Kroll.constant public static final int PIXEL_FORMAT_RGBA_5551 = PixelFormat.RGBA_5551;
+	@Kroll.constant public static final int PIXEL_FORMAT_RGBA_8888 = PixelFormat.RGBA_8888;
+	@Kroll.constant public static final int PIXEL_FORMAT_RGBX_8888 = PixelFormat.RGBX_8888;
+	@Kroll.constant public static final int PIXEL_FORMAT_RGB_332 = PixelFormat.RGB_332;
+	@Kroll.constant public static final int PIXEL_FORMAT_RGB_565 = PixelFormat.RGB_565;
+	@Kroll.constant public static final int PIXEL_FORMAT_RGB_888 = PixelFormat.RGB_888;
+	@Kroll.constant public static final int PIXEL_FORMAT_TRANSLUCENT = PixelFormat.TRANSLUCENT;
+	@Kroll.constant public static final int PIXEL_FORMAT_TRANSPARENT = PixelFormat.TRANSPARENT;
+	@Kroll.constant public static final int PIXEL_FORMAT_UNKNOWN = PixelFormat.UNKNOWN;
 	
 	@Kroll.constant public static final int SOFT_INPUT_ADJUST_PAN = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN;
 	@Kroll.constant public static final int SOFT_INPUT_ADJUST_RESIZE = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE;

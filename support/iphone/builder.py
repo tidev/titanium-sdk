@@ -5,7 +5,7 @@
 # the application on the device via iTunes
 # 
 
-import os, sys, uuid, subprocess, shutil, signal, string, traceback, imp, filecmp
+import os, sys, uuid, subprocess, shutil, signal, string, traceback, imp, filecmp, inspect
 import platform, time, re, run, glob, codecs, hashlib, datetime, plistlib
 from compiler import Compiler
 from projector import Projector
@@ -376,6 +376,100 @@ def distribute_xc4(name, icon, log):
 	os.rename(archive_bundle,temp)
 	os.rename(temp,archive_bundle)
 
+def is_indexing_enabled(tiapp, simulator_dir, **kwargs):
+	# darwin versions:
+	# - 9.x: Leopard (10.5)
+	# - 10.x: Snow Leopard (10.6)
+	# - 11.x: Lion (10.7)
+
+	# for testing purposes
+	platform_release = kwargs.get("platform_release", platform.release())
+	darwin_version = [int(n) for n in platform_release.split(".")]
+
+	enable_mdfind = True
+	if tiapp.has_app_property('ti.ios.enablemdfind'):
+		enable_mdfind = tiapp.to_bool(tiapp.get_app_property('ti.ios.enablemdfind'))
+
+	# mdfind is specifically disabled, so don't use it
+	if not enable_mdfind:
+		return False
+
+	# pre-Leopard, mdfind / mdutil don't exist
+	if darwin_version[0] < 10:
+		return False
+
+	# for testing purposes
+	indexer_status = kwargs.get("indexer_status")
+	if indexer_status == None:
+		indexer_status = run.run(['mdutil', '-a', '-s'], True)
+
+	# An error occurred running mdutil, play it safe
+	if indexer_status == None:
+		return False
+
+	lines = indexer_status.splitlines()
+	mount_point_status = {}
+	for i in range(0, len(lines), 2):
+		mount_point = lines[i].rstrip(':')
+		status = lines[i+1].strip('\t.')
+		# Only add mount points that the simulator_dir starts with
+		if simulator_dir.startswith(mount_point):
+			mount_point_status[mount_point] = status
+
+	if len(mount_point_status) > 0:
+		# There may be multiple volumes that have a mount point that the
+		# simulator_dir matches, so the one with the longest length
+		# *should* be the most specific / correct mount point.
+		mount_points = mount_point_status.keys()
+		mount_points.sort(lambda a, b: cmp(len(b), len(a)))
+		status = mount_point_status[mount_points[0]]
+
+		if 'Indexing enabled' in status:
+			return True
+
+	return False
+
+def cleanup_app_logfiles(tiapp, log_id, iphone_version):
+	print "[DEBUG] finding old log files"
+	sys.stdout.flush()
+	simulator_dir = os.path.expanduser('~/Library/Application Support/iPhone Simulator/%s' % iphone_version)
+
+	# No need to clean if the directory doesn't exist
+	if not os.path.exists(simulator_dir):
+		return
+
+	results = None
+
+	# If the indexer is enabled, we can use spotlight for faster searching
+	if is_indexing_enabled(tiapp, simulator_dir):
+		print "[DEBUG] Searching for old log files with mdfind..."
+		sys.stdout.flush()
+		results = run.run(['mdfind',
+			'-onlyin', simulator_dir,
+			'-name', '%s.log' % log_id
+		], True)
+
+	# Indexer is disabled, revert to manual crawling
+	if results == None:
+		print "[DEBUG] Searching for log files without mdfind..."
+		sys.stdout.flush()
+		def find_all_log_files(folder, fname):
+			results = []
+			for root, dirs, files in os.walk(os.path.expanduser(folder)):
+				for file in files:
+					if fname==file:
+						fullpath = os.path.join(root, file)
+						results.append(fullpath)
+			return results
+		for f in find_all_log_files(simulator_dir, '%s.log' % log_id):
+			print "[DEBUG] removing old log file: %s" % f
+			sys.stdout.flush()
+			os.remove(f)
+	else:
+		for i in results.splitlines(False):
+			print "[DEBUG] removing old log file: %s" % i
+			os.remove(i)
+
 #
 # this script is invoked from our tooling but you can run from command line too if 
 # you know the arguments
@@ -409,6 +503,7 @@ def main(args):
 	deploytype = 'development'
 	devicefamily = 'iphone'
 	debug = False
+	build_only = False
 	simulator = False
 	xcode_build = False
 	force_xcode = False
@@ -491,6 +586,7 @@ def main(args):
 		debug_host = None
 		debug_port = None
 		debughost = None
+		postbuild_modules = []
 		
 		# starting in 1.4, you don't need to actually keep the build/iphone directory
 		# if we don't find it, we'll just simply re-generate it
@@ -513,11 +609,12 @@ def main(args):
 				devicefamily = dequote(args[9].decode("utf-8"))
 			print "[INFO] Switching to production mode for distribution"
 			deploytype = 'production'
-		elif command == 'simulator':
+		elif command in ['simulator', 'build']:
 			link_version = check_iphone_sdk(iphone_version)
 			deploytype = 'development'
 			debug = True
-			simulator = True
+			simulator = command == 'simulator'
+			build_only = command == 'build'
 			target = 'Debug'
 			ostype = 'simulator'
 			if argc > 6:
@@ -670,7 +767,7 @@ def main(args):
 			print "[INFO] iPhone Device family: %s" % devicefamily
 			print "[INFO] iPhone SDK version: %s" % iphone_version
 			
-			if simulator:
+			if simulator or build_only:
 				print "[INFO] iPhone simulated device: %s" % simtype
 				# during simulator we need to copy in standard built-in module files
 				# since we might not run the compiler on subsequent launches
@@ -692,7 +789,7 @@ def main(args):
 						custom_fonts.append(f)
 					
 
-			if not simulator:
+			if not (simulator or build_only):
 				version = ti.properties['version']
 				# we want to make sure in debug mode the version always changes
 				version = "%s.%d" % (version,time.time())
@@ -908,7 +1005,7 @@ def main(args):
 			# Force an xcodebuild if the debugger.plist has changed
 			force_xcode = write_debugger_plist(debug_plist)
 
-			if command!='simulator':
+			if command not in ['simulator', 'build']:
 				# compile plist into binary format so it's faster to load
 				# we can be slow on simulator
 				os.system("/usr/bin/plutil -convert binary1 \"%s\"" % app_stylesheet)
@@ -974,6 +1071,11 @@ def main(args):
 					m.update(open(code_path,'rb').read()) 
 					code_hash = m.hexdigest()
 					p = imp.load_source(code_hash, code_path, fin)
+					module_functions = dict(inspect.getmembers(p, inspect.isfunction))
+					if module_functions.has_key('postbuild'):
+						print "[DBEUG] Plugin has postbuild"
+						o.write("+ Plugin has postbuild")
+						postbuild_modules.append((plugin['name'], p))
 					p.compile(compiler_config)
 					fin.close()
 					
@@ -1012,7 +1114,7 @@ def main(args):
 						shutil.copy(f,app_dir)
 
 				# dump out project file info
-				if command!='simulator':
+				if command not in ['simulator', 'build']:
 					dump_resources_listing(project_dir,o)
 					dump_infoplist(infoplist,o)
 
@@ -1129,11 +1231,23 @@ def main(args):
 						print "[ERROR] Code sign error: %s" % error[0].strip()
 						sys.stdout.flush()
 						sys.exit(1)
+					
+				def run_postbuild():
+					try:
+						if postbuild_modules:
+							for p in postbuild_modules:
+								o.write("Running postbuild %s" % p[0])
+								print "[INFO] Running postbuild %s..." % p[0]
+								p[1].postbuild()
+					except Exception,e:
+						o.write("Error in post-build: %s" % e)
+						print "[ERROR] Error in post-build: %s" % e
+						
 
 				# build the final release distribution
 				args = []
 
-				if command!='simulator':		
+				if command not in ['simulator', 'build']:
 					# allow the project to have its own custom entitlements
 					custom_entitlements = os.path.join(project_dir,"Entitlements.plist")
 					entitlements_contents = None
@@ -1156,52 +1270,29 @@ def main(args):
 					f = open(version_file,'w+')
 					f.write("%s,%s,%s,%s" % (template_dir,log_id,lib_hash,githash))
 					f.close()
-
-				# this is a simulator build
-				if command == 'simulator':
+					
+				# both simulator and build require an xcodebuild
+				if command in ['simulator', 'build']:
 					debugstr = ''
 					if debughost:
 						debugstr = 'DEBUGGER_ENABLED=1'
 					
 					if force_rebuild or force_xcode or not os.path.exists(binary):
 						execute_xcode("iphonesimulator%s" % link_version,["GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development TI_DEVELOPMENT=1 DEBUG=1 TI_VERSION=%s %s %s" % (log_id,sdk_version,debugstr,kroll_coverage)],False)
+						
+					run_postbuild()
+					
+					o.write("Finishing build\n")
 
+				if command == 'simulator':
 					# first make sure it's not running
 					kill_simulator()
-
-					o.write("Finishing build\n")
 
 					# sometimes the simulator doesn't remove old log files
 					# in which case we get our logging jacked - we need to remove
 					# them before running the simulator
-					def cleanup_app_logfiles():
-						print "[DEBUG] finding old log files"
-						sys.stdout.flush()
-						# on OSX Snow Leopard, we can use spotlight for faster searching of log files
-						results = run.run(['mdfind',
-								'-onlyin',
-								os.path.expanduser('~/Library/Application Support/iPhone Simulator/%s'%iphone_version),
-								'-name',
-								'%s.log'%log_id],True)
-						if results == None: # probably not Snow Leopard
-							def find_all_log_files(folder, fname):
-								results = []
-								for root, dirs, files in os.walk(os.path.expanduser(folder)):
-									for file in files:
-										if fname==file:
-											fullpath = os.path.join(root, file)
-											results.append(fullpath)
-								return results
-							for f in find_all_log_files("~/Library/Application Support/iPhone Simulator/%s"%iphone_version,'%s.log' % log_id):
-								print "[DEBUG] removing old log file: %s" % f
-								sys.stdout.flush()
-								os.remove(f)
-						else:
-							for i in results.splitlines(False):
-								print "[DEBUG] removing old log file: %s" % i
-								os.remove(i)	
 
-					cleanup_app_logfiles()
+					cleanup_app_logfiles(ti, log_id, iphone_version)
 
 					sim = None
 
@@ -1366,6 +1457,8 @@ def main(args):
 					sys.stdout.flush()
 					script_ok = True
 					
+					run_postbuild()
+					
 				###########################################################################	
 				# END OF INSTALL COMMAND	
 				###########################################################################	
@@ -1404,6 +1497,8 @@ def main(args):
 					
 					o.write("Finishing build\n")
 					script_ok = True
+					
+					run_postbuild()
 
 				###########################################################################	
 				# END OF DISTRIBUTE COMMAND	

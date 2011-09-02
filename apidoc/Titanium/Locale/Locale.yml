@@ -13,7 +13,8 @@ methods:
         description: the phone number to format
         type: String
   - name: getCurrencyCode
-    description: return a currency code for a given locale. (Android only)
+    description: return a currency code for a given locale.
+    platforms: [android]
     returns:
         type: String
     parameters:
@@ -21,7 +22,7 @@ methods:
         description: the locale for which you want to the currency code, e.g. getCurrencyCode('en-US') -> 'USD'
         type: String
   - name: getCurrencySymbol
-    description: return a currency symbol for the given currency code. (Android only)
+    description: return a currency symbol for the given currency code.
     platforms: [android]
     returns:
         type: String
@@ -30,7 +31,7 @@ methods:
         description: the currency for which you want the symbol, e.g. getCurrencySymbol('USD') -> '$'
         type: String
   - name: getLocaleCurrencySymbol
-    description: return a currency symbol for the given locale. (Android only)
+    description: return a currency symbol for the given locale.
     platforms: [android]
     returns:
         type: String
@@ -55,10 +56,12 @@ properties:
     description: return the current (default) ISO 2-letter country code for the device.
     type: String
   - name: currentLanguage
-    description: return the current language for the device based on the user's settings (readonly)
+    description: return the current language for the device based on the user's settings
     type: String
+    permission: read-only
   - name: currentLocale
-    description: return the current locale string for the device based on the user's settings (e.g., en-US).  (readonly) (Android only)
+    description: return the current locale string for the device based on the user's settings (e.g., en-US).
     platforms: [android]
     type: String
+    permission: read-only
 notes: The macro `L` can also be used which aliases the method <Titanium.Locale.getString>.
