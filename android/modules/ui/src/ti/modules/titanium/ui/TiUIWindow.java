@@ -486,6 +486,15 @@ public class TiUIWindow extends TiUIView
 				}
 			}
 		}
+		if (d.containsKey(TiC.PROPERTY_KEEP_SCREEN_ON)) {
+			if (!lightWeight) {
+				if (windowActivity != null) {
+					windowActivity.getWindow().getDecorView().setKeepScreenOn(TiConvert.toBoolean(d, TiC.PROPERTY_KEEP_SCREEN_ON));
+				}
+				// skip default processing
+				d.remove(TiC.PROPERTY_KEEP_SCREEN_ON);
+			}
+		}
 		if (d.containsKey(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
 			handleWindowPixelFormat(TiConvert.toInt(d, TiC.PROPERTY_WINDOW_PIXEL_FORMAT));
 		}
@@ -549,6 +558,15 @@ public class TiUIWindow extends TiUIView
 			}
 		} else if (key.equals(TiC.PROPERTY_OPACITY)) {
 			setOpacity(TiConvert.toFloat(newValue));
+		} else if (key.equals(TiC.PROPERTY_KEEP_SCREEN_ON)) {
+			if (!lightWeight) {
+				if (windowActivity != null) {
+					windowActivity.getWindow().getDecorView().setKeepScreenOn(TiConvert.toBoolean(newValue));
+				}
+			} else {
+				// Pass up to view if lightweight
+				super.propertyChanged(key, oldValue, newValue, proxy); 
+			}
 		} else if (key.equals(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
 			handleWindowPixelFormat(TiConvert.toInt(newValue));
 		} else {
@@ -612,6 +630,10 @@ public class TiUIWindow extends TiUIView
 		props = resolver.findProperty(TiC.PROPERTY_URL);
 		if (props != null && props.containsKey(TiC.PROPERTY_URL)) {
 			intent.putExtra(TiC.PROPERTY_URL, TiConvert.toString(props, TiC.PROPERTY_URL));
+		}
+		props = resolver.findProperty(TiC.PROPERTY_KEEP_SCREEN_ON);
+		if (props != null && props.containsKey(TiC.PROPERTY_KEEP_SCREEN_ON)) {
+			intent.putExtra(TiC.PROPERTY_KEEP_SCREEN_ON, TiConvert.toBoolean(props, TiC.PROPERTY_KEEP_SCREEN_ON));
 		}
 		props = resolver.findProperty(TiC.PROPERTY_LAYOUT);
 		if (props != null && props.containsKey(TiC.PROPERTY_LAYOUT)) {
