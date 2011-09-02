@@ -5,3 +5,4 @@ dist
 *~
 project.xcworkspace
 xcuserdata
+*.swp
