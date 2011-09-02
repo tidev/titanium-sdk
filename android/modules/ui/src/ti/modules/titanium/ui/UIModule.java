@@ -158,12 +158,12 @@ public class UIModule extends KrollModule
 			}
 
 			// this should only be entered if a LW window is created on top of the root activity
-			if (((TiBaseActivity) activity).getWindowProxy() == null)
+			TiBaseActivity tiBaseActivity = (TiBaseActivity)activity;
+			if (tiBaseActivity.getWindowProxy() == null)
 			{
-				TiWindowProxy lwWindow = ((TiBaseActivity) activity).lwWindow;
-				if (lwWindow != null)
+				if (tiBaseActivity.lwWindow != null)
 				{
-					lwWindow.setOrientationModes(orientationModes);
+					tiBaseActivity.lwWindow.setOrientationModes(orientationModes);
 				}
 				else
 				{
