@@ -188,6 +188,7 @@ public class TiC
 	public static final String PROPERTY_IMAGES = "images";
 	public static final String PROPERTY_INTENT = "intent";
 	public static final String PROPERTY_ITEM_ID = "itemId";
+	public static final String PROPERTY_KEEP_SCREEN_ON = "keepScreenOn";
 	public static final String PROPERTY_KEYBOARD_TYPE = "keyboardType";
 	public static final String PROPERTY_LATITUDE = "latitude";
 	public static final String PROPERTY_LATITUDE_DELTA = "latitudeDelta";

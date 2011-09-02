@@ -64,6 +64,8 @@ public abstract class TiBaseActivity extends Activity
 	protected int msgActivityCreatedId = -1;
 	protected int msgId = -1;
 
+	public TiWindowProxy lwWindow;
+
 
 	// could use a normal ConfigurationChangedListener but since only orientation changes are
 	// forwarded, create a separate interface in order to limit scope and maintain clarity 
@@ -300,6 +302,9 @@ public abstract class TiBaseActivity extends Activity
 		TiPlatformHelper.initializeRhinoDateFormats(this);
 
 		layout = createLayout();
+		if (intent != null && intent.hasExtra(TiC.PROPERTY_KEEP_SCREEN_ON)) {
+			layout.setKeepScreenOn(intent.getBooleanExtra(TiC.PROPERTY_KEEP_SCREEN_ON, layout.getKeepScreenOn()));
+		}
 		super.onCreate(savedInstanceState);
 		getTiApp().setWindowHandler(this);
 		windowCreated();
