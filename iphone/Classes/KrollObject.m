@@ -18,7 +18,7 @@
 # import "KrollCoverage.h"
 #endif
 
-#define LOG_FINALIZE	0
+#import "TiApp.h"
 
 TiClassRef KrollObjectClassRef = NULL;
 TiClassRef JSObjectClassRef = NULL;
@@ -303,30 +303,12 @@ TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
 	return TiValueMakeNull(jsContext);
 }
 
-#if LOG_FINALIZE
-void quickLogger(KrollContext * ourContext, TiObjectRef ref, TiProxy * ourTarget, KrollBridge * ourBridge, KrollObject * o)
-{
-	NSString * ourTargetDesc = [ourTarget description];
-	if ([ourTargetDesc length] > 40)
-	{
-		ourTargetDesc = [[ourTargetDesc substringToIndex:30] stringByAppendingString:@"..."];
-	}
-	NSString * textString = [[ourTarget valueForKey:@"text"] description];
-	if ([textString length] > 40)
-	{
-		textString = [[textString substringToIndex:30] stringByAppendingString:@"..."];
-	}
-	
-	NSLog(@"FINALIZING %@[%X]->%@[%@==%@]->%@ %X (%@:%@)",ourContext,ref,ourBridge,o,[ourBridge krollObjectForProxy:ourTarget],
-			ourTargetDesc,ourTarget,[ourTarget valueForKey:@"title"],textString);
-}
-#endif
-
 //
 // callback for handling finalization (in JS land)
 //
 void KrollFinalizer(TiObjectRef ref)
 {
+    waitForMemoryPanicCleared();
 	id o = (KrollObject*)TiObjectGetPrivate(ref);
 
 	if ((o==nil) || [o isKindOfClass:[KrollContext class]])
@@ -349,9 +331,6 @@ void KrollFinalizer(TiObjectRef ref)
 		if ([KrollBridge krollBridgeExists:ourBridge])
 		{
 			TiProxy * ourTarget = [o target];
-#if LOG_FINALIZE
-			quickLogger(ourContext,ref,ourTarget,ourBridge,o);
-#endif
 			if ((ourTarget != nil) && ([ourBridge krollObjectForProxy:ourTarget] == o))
 			{
 				[ourBridge unregisterProxy:ourTarget];
@@ -365,6 +344,7 @@ void KrollFinalizer(TiObjectRef ref)
 
 bool KrollDeleteProperty(TiContextRef ctx, TiObjectRef object, TiStringRef propertyName, TiValueRef* exception)
 {
+    waitForMemoryPanicCleared();
 	KrollObject* o = (KrollObject*) TiObjectGetPrivate(object);
 	if ([o isKindOfClass:[KrollObject class]])
 	{
@@ -382,6 +362,7 @@ bool KrollDeleteProperty(TiContextRef ctx, TiObjectRef object, TiStringRef prope
 //
 void KrollInitializer(TiContextRef ctx, TiObjectRef object)
 {
+    waitForMemoryPanicCleared();
 	KrollObject * o = (KrollObject*)TiObjectGetPrivate(object);
 	if ([o isKindOfClass:[KrollContext class]])
 	{
@@ -411,6 +392,7 @@ void KrollInitializer(TiContextRef ctx, TiObjectRef object)
 //TODO: We should fetch from the props object and shortcut some of this. Especially now that callbacks are CURRENTLY write-only.
 TiValueRef KrollGetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef prop, TiValueRef* exception)
 {
+    waitForMemoryPanicCleared();
 	KrollObject* o = (KrollObject*) TiObjectGetPrivate(object);
 	@try 
 	{
@@ -478,6 +460,7 @@ TiValueRef KrollGetProperty(TiContextRef jsContext, TiObjectRef object, TiString
 //
 bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef prop, TiValueRef value, TiValueRef* exception)
 {
+    waitForMemoryPanicCleared();
 	KrollObject* o = (KrollObject*) TiObjectGetPrivate(object);
 	@try 
 	{

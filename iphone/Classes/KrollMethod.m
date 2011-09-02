@@ -15,10 +15,13 @@
 # import "KrollCoverage.h"
 #endif
 
+#import "TiApp.h"
+
 TiClassRef KrollMethodClassRef = NULL;
 
 TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjectRef thisObj, size_t argCount, const TiValueRef arguments[], TiValueRef* exception)
 {
+    waitForMemoryPanicCleared();
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	KrollMethod* o = (KrollMethod*) TiObjectGetPrivate(func);
 	@try
