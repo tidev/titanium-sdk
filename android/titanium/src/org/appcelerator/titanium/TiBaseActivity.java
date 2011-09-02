@@ -300,6 +300,9 @@ public abstract class TiBaseActivity extends Activity
 		TiPlatformHelper.initializeRhinoDateFormats(this);
 
 		layout = createLayout();
+		if (intent != null && intent.hasExtra(TiC.PROPERTY_KEEP_SCREEN_ON)) {
+			layout.setKeepScreenOn(intent.getBooleanExtra(TiC.PROPERTY_KEEP_SCREEN_ON, layout.getKeepScreenOn()));
+		}
 		super.onCreate(savedInstanceState);
 		getTiApp().setWindowHandler(this);
 		windowCreated();

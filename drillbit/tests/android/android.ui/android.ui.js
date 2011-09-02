@@ -332,6 +332,26 @@ describe("Ti.UI.Android tests", {
 		// set invalid state, should default to OFF
 		wv.pluginState = 5;
 		valueOf(wv.pluginState).shouldBe(Ti.UI.Android.WEBVIEW_PLUGINS_OFF);
-	}	
+	},
+	keepScreenOn: function() {
+		var v = Ti.UI.createView();
+		valueOf(v).shouldNotBeNull();
+		valueOf(v.getKeepScreenOn).shouldBeFunction();
+		valueOf(v.setKeepScreenOn).shouldBeFunction();
+
+		v.keepScreenOn = true;
+		valueOf(v.keepScreenOn).shouldBeTrue();
+		valueOf(v.getKeepScreenOn()).shouldBeTrue();
+		v.keepScreenOn = false;
+		valueOf(v.keepScreenOn).shouldBeFalse();
+		valueOf(v.getKeepScreenOn()).shouldBeFalse();
+
+		v.setKeepScreenOn(false);
+		valueOf(v.keepScreenOn).shouldBeFalse();
+		valueOf(v.getKeepScreenOn()).shouldBeFalse();
+		v.setKeepScreenOn(true);
+		valueOf(v.keepScreenOn).shouldBeTrue();
+		valueOf(v.getKeepScreenOn()).shouldBeTrue();
+	}
 })
 
