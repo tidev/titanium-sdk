@@ -40,6 +40,7 @@ import ti.modules.titanium.ui.ImageViewProxy;
 import ti.modules.titanium.ui.widget.TiImageView.OnSizeChangeListener;
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -126,6 +127,20 @@ public class TiUIImageView extends TiUIView
 			
 			@Override
 			public void sizeChanged(int w, int h, int oldWidth, int oldHeight) {
+				// By the time this hits, we've already set the drawable in the view.
+				// And this runs even the first time the view is drawn (in which
+				// case oldWidth and oldHeight are 0.)  This was leading to
+				// setImage running twice unnecessarily, so the if block here
+				// will avoid a second, unnecessary call to setImage.
+				if (oldWidth == 0 && oldHeight == 0) {
+					TiImageView view = getView();
+					if (view != null) {
+						Drawable drawable = view.getImageDrawable();
+						if (drawable != null && drawable.getIntrinsicHeight() == h && drawable.getIntrinsicWidth() == w) {
+							return;
+						}
+					}
+				}
 				setImage(true);
 			}
 		});
