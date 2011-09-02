@@ -64,6 +64,8 @@ public abstract class TiBaseActivity extends Activity
 	protected int msgActivityCreatedId = -1;
 	protected int msgId = -1;
 
+	public TiWindowProxy lwWindow;
+
 
 	// could use a normal ConfigurationChangedListener but since only orientation changes are
 	// forwarded, create a separate interface in order to limit scope and maintain clarity 
