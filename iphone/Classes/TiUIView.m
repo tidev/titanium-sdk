@@ -200,7 +200,14 @@ DEFINE_EXCEPTIONS
 	self = [super init];
 	if (self != nil)
 	{
-		
+		UIPinchGestureRecognizer* pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedPinch:)];
+        [self addGestureRecognizer:pinchRecognizer];
+        [pinchRecognizer release];
+        
+        UILongPressGestureRecognizer* longPressRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedLongPress:)];
+        [self addGestureRecognizer:longPressRecognizer];
+        [longPressRecognizer release];
+
 	}
 	return self;
 }
@@ -675,6 +682,31 @@ DEFINE_EXCEPTIONS
 {
 	[[[TiApp controller] view] becomeFirstResponder];
 }
+
+#pragma mark Recognizers
+
+-(void)recognizedPinch:(UIPinchGestureRecognizer*)recognizer 
+{ 
+    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                           NUMDOUBLE(recognizer.scale), @"scale", 
+                           NUMDOUBLE(recognizer.velocity), @"velocity", 
+                           nil]; 
+    NSLog(@"recognizedPinch %@", event);
+    [self.proxy fireEvent:@"pinch" withObject:event]; 
+}
+
+-(void)recognizedLongPress:(UILongPressGestureRecognizer*)recognizer 
+{ 
+    CGPoint p = [recognizer locationInView:self];
+	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+						   NUMFLOAT(p.x), @"x",
+						   NUMFLOAT(p.y), @"y",
+						   nil];
+    NSLog(@"recognizedLongPress %@", event);
+    [self.proxy fireEvent:@"longpress" withObject:event]; 
+}
+
+
 
 #pragma mark Touch Events
 
