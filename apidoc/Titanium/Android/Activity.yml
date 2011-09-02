@@ -69,7 +69,7 @@ events:
     description: Fired from the Activity's [onStop](http://developer.android.com/reference/android/app/Activity.html#onStop())
 properties:
   - name: intent
-    description: The <Ti.Android.Intent> that was used to start this Activity
+    description: The <Titanium.Android.Intent> that was used to start this Activity
     type: Titanium.Android.Intent
     permission: read-only
   - name: onCreateOptionsMenu
