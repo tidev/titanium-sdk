@@ -90,7 +90,18 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	insideException=NO;
 }
 
+BOOL applicationInMemoryPanic = NO;
+
+TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
+
+
 @implementation TiApp
+
+
+-(void)clearMemoryPanic
+{
+    applicationInMemoryPanic = NO;
+}
 
 @synthesize window, remoteNotificationDelegate, controller;
 
@@ -448,11 +459,13 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 - (void)applicationDidReceiveMemoryWarning:(UIApplication *)application
 {
+    applicationInMemoryPanic = YES;
 	[Webcolor flushCache];
 	// don't worry about KrollBridge since he's already listening
 #ifdef USE_TI_UIWEBVIEW
 	[xhrBridge gc];
 #endif 
+    [self performSelector:@selector(clearMemoryPanic) withObject:nil afterDelay:0.0];
 }
 
 -(void)applicationWillResignActive:(UIApplication *)application
