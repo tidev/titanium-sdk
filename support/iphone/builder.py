@@ -1174,35 +1174,40 @@ def main(args):
 					# sometimes the simulator doesn't remove old log files
 					# in which case we get our logging jacked - we need to remove
 					# them before running the simulator
-					def cleanup_app_logfiles():
-						print "[DEBUG] finding old log files"
-						sys.stdout.flush()
-						# on OSX Snow Leopard, we can use spotlight for faster searching of log files
-						# results = run.run(['mdfind',
-						# 		'-onlyin',
-						# 		os.path.expanduser('~/Library/Application Support/iPhone Simulator/%s'%iphone_version),
-						# 		'-name',
-						# 		'%s.log'%log_id],True)
-						results = None # I don't like MDS, so command times out
-						if results == None: # probably not Snow Leopard
-							def find_all_log_files(folder, fname):
-								results = []
-								for root, dirs, files in os.walk(os.path.expanduser(folder)):
-									for file in files:
-										if fname==file:
-											fullpath = os.path.join(root, file)
-											results.append(fullpath)
-								return results
-							for f in find_all_log_files("~/Library/Application Support/iPhone Simulator/%s"%iphone_version,'%s.log' % log_id):
-								print "[DEBUG] removing old log file: %s" % f
-								sys.stdout.flush()
-								os.remove(f)
-						else:
-							for i in results.splitlines(False):
-								print "[DEBUG] removing old log file: %s" % i
-								os.remove(i)	
+					# def cleanup_app_logfiles():
+					# 	print "[DEBUG] finding old log files"
+					# 	sys.stdout.flush()
+					# 	# on OSX Snow Leopard, we can use spotlight for faster searching of log files
+					# 	results = run.run(['mdfind',
+					# 			'-onlyin',
+					# 			os.path.expanduser('~/Library/Application Support/iPhone Simulator/%s'%iphone_version),
+					# 			'-name',
+					# 			'%s.log'%log_id],True)
+					# 	results = None # I don't like MDS, so command times out
+					# 	if results == None: # probably not Snow Leopard
+					# 		def find_all_log_files(folder, fname):
+					# 			results = []
+					# 			for root, dirs, files in os.walk(os.path.expanduser(folder)):
+					# 				for file in files:
+					# 					if fname==file:
+					# 						fullpath = os.path.join(root, file)
+					# 						results.append(fullpath)
+					# 			return results
+					# 		for f in find_all_log_files("~/Library/Application Support/iPhone Simulator/%s"%iphone_version,'%s.log' % log_id):
+					# 			print "[DEBUG] removing old log file: %s" % f
+					# 			sys.stdout.flush()
+					# 			os.remove(f)
+					# 	else:
+					# 		for i in results.splitlines(False):
+					# 			print "[DEBUG] removing old log file: %s" % i
+					# 			os.remove(i)	
 
-					cleanup_app_logfiles()
+					#cleanup_app_logfiles()
+					print "[DEBUG] Resetting iOS Simulator"
+					sys.stdout.flush()
+					results = run.run(['rm', '-Rf', os.path.expanduser('~/Library/Application Support/iPhone Simulator/%s'%iphone_version)],True)
+
+
 
 					sim = None
 
