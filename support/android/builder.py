@@ -653,11 +653,15 @@ class Builder(object):
 		# NOTE: these are built-in permissions we need -- we probably need to refine when these are needed too
 		permissions_required = ['INTERNET','ACCESS_WIFI_STATE','ACCESS_NETWORK_STATE', 'WRITE_EXTERNAL_STORAGE']
 		
-		GEO_PERMISSION = [ 'ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION', 'ACCESS_MOCK_LOCATION']
+		GEO_PERMISSION = [ 'ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION']
 		CONTACTS_PERMISSION = ['READ_CONTACTS']
 		VIBRATE_PERMISSION = ['VIBRATE']
 		CAMERA_PERMISSION = ['CAMERA']
 		WALLPAPER_PERMISSION = ['SET_WALLPAPER']
+
+		# Enable mock location if in development or test mode.
+		if self.deploy_type == 'development' or self.deploy_type == 'test':
+			GEO_PERMISSION.append('ACCESS_MOCK_LOCATION')
 		
 		# this is our module method to permission(s) trigger - for each method on the left, require the permission(s) on the right
 		permission_mapping = {
