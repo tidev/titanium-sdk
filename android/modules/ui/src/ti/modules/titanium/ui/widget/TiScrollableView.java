@@ -92,7 +92,7 @@ public class TiScrollableView extends TiCompositeLayout
 		this.proxy = proxy;
 		this.handler = handler;
 		me = this;
-		showPagingControl = true;
+		showPagingControl = false;
 		views = new ArrayList<TiViewProxy>();
 		
 		//below this was in "doOpen"
