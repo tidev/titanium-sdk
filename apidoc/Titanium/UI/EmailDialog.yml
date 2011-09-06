@@ -24,10 +24,6 @@ events:
   - name: complete
     description: fired when the email dialog has completed sending the email
     properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: result
         description: |
                 result status either as SENT, SAVED, CANCELLED or FAILED. (Note: Android result will be SENT even if user discards or saves the message.  SAVED and CANCELLED are not supported on Android.)
@@ -39,15 +35,19 @@ properties:
   - name: CANCELLED
     description: constant for the CANCELLED status result
     type: Number
+    permission: read-only
   - name: FAILED
     description: constant for the FAILED status result
     type: Number
+    permission: read-only
   - name: SAVED
     description: constant for the SAVED status result
     type: Number
+    permission: read-only
   - name: SENT
     description: constant for the SENT status result
     type: Number
+    permission: read-only
   - name: barColor
     description: the bar color of the email dialog window when opened
     type: String

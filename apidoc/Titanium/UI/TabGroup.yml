@@ -29,8 +29,6 @@ events:
       - name: index
         description: the tab index
         type: Number
-      - name: source
-        description: the source object that fired the event
       - name: previousIndex
         description: the previous tab index
         type: Number
@@ -43,10 +41,11 @@ events:
       - name: x
         description: the x point of the event in receiving view coordiantes
         type: Number
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: previousTab
         description: the previous tab object
         type: Titanium.UI.Tab
@@ -56,12 +55,11 @@ events:
       - name: y
         description: the y point of the event, in receiving view coordinates
         type: Number
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
         type: Number
@@ -71,8 +69,6 @@ events:
       - name: index
         description: the tab index
         type: Number
-      - name: source
-        description: the source object that fired the event
       - name: previousIndex
         description: the previous tab index
         type: Number
@@ -85,10 +81,11 @@ events:
       - name: x
         description: the x point of the event in receiving view coordiantes
         type: Number
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: previousTab
         description: the previous tab object
         type: Titanium.UI.Tab
@@ -98,12 +95,11 @@ events:
       - name: y
         description: the y point of the event, in receiving view coordinates
         type: Number
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
         type: Number
@@ -112,14 +108,14 @@ properties:
     description: the active tab
     type: Object
   - name: allowUserCustomization
-    description: whether or not the user can configure the tab group via the 'More' tab's edit functionality.  iPhone/iPad only
+    description: whether or not the user can configure the tab group via the 'More' tab's edit functionality.
     platforms: [iphone, ipad]
     type: Boolean
   - name: barColor
     description: the default navigation bar color (typically for the "More" tab)
     type: String
   - name: editButtonTitle
-    description: the title for the 'More' tab edit button.  iPhone/iPad only
+    description: the title for the 'More' tab edit button.
     platforms: [iphone, ipad]
     type: String
   - name: tabs
@@ -127,7 +123,7 @@ properties:
     type: Array<Object>
   - name: windowSoftInputMode
     description: |
-        One of Ti.UI.Android.SOFT_INPUT_ADJUST_PAN, Ti.UI.Android.SOFT_INPUT_ADJUST_RESIZE, or Ti.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED. Note: MUST be passed in the creation options. (Android Only) [Android Doc: Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int))
+        One of Ti.UI.Android.SOFT_INPUT_ADJUST_PAN, Ti.UI.Android.SOFT_INPUT_ADJUST_RESIZE, or Ti.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED. Note: MUST be passed in the creation options. [Android Doc: Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int))
     type: Number
     platforms: [android]
 notes: |

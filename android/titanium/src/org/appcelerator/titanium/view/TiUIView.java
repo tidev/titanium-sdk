@@ -425,6 +425,10 @@ public abstract class TiUIView
 			if (nativeView != null) {
 				applyTransform((Ti2DMatrix)newValue);
 			}
+		} else if (key.equals(TiC.PROPERTY_KEEP_SCREEN_ON)) {
+			if (nativeView != null) {
+				nativeView.setKeepScreenOn(TiConvert.toBoolean(newValue));
+			}
 		} else {
 			TiViewProxy viewProxy = getProxy();
 			if (viewProxy != null && viewProxy.isLocalizedTextId(key)) {
@@ -492,6 +496,10 @@ public abstract class TiUIView
 			if (matrix != null) {
 				applyTransform(matrix);
 			}
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_KEEP_SCREEN_ON)) {
+			nativeView.setKeepScreenOn(TiConvert.toBoolean(d, TiC.PROPERTY_KEEP_SCREEN_ON));
 		}
 	}
 

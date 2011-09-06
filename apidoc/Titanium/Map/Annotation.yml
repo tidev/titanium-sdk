@@ -17,7 +17,7 @@ properties:
     description: a left view that is displayed on the annotation
     type: Object
   - name: pinImage
-    description: Android only. *DEPRECATED* use <Titanium.Map.Annotation.image> property instead.
+    description: Use <Titanium.Map.Annotation.image> property instead.
     deprecated:
         since: "1.4"
     platforms: [android]

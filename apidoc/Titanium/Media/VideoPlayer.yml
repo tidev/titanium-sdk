@@ -18,7 +18,7 @@ methods:
   - name: hide
     description: hide the view
   - name: pause
-    description: pause playing the video. On iOS only available under 3.2 and later
+    description: pause playing the video.
   - name: play
     description: start playing the video
   - name: release
@@ -79,40 +79,37 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
   - name: complete
     description: fired when movie playback ends or a user exits playback
     properties:
-      - name: source
-        description: the source object that fired the event
       - name: reason
         description: the completion reason. One of <Titanium.Media.VIDEO_FINISH_REASON_PLAYBACK_ENDED>, <Titanium.Media.VIDEO_FINISH_REASON_PLAYBACK_ERROR> or <Titanium.Media.VIDEO_FINISH_REASON_USER_EXITED>.
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: dblclick
     description: fired when the device detects a double click against the view
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
   - name: doubletap
@@ -120,12 +117,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
   - name: durationAvailable
@@ -133,57 +129,53 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
       - name: duration
         description: duration
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: error
     description: fired when movie playback encounters an error
     properties:
-      - name: source
-        description: the source object that fired the event
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
       - name: message
         description: reason for error as string
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: fullscreen
     description: fired when a movie changes from fullscreen view
     properties:
-      - name: source
-        description: the source object that fired the event
       - name: entering
         description: true to indicate entering fullscreen, false to indicate leaving fullscreen
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: load
     description: fired when the movie play loads
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
   - name: loadstate
@@ -191,87 +183,81 @@ events:
     properties:
       - name: loadState
         description: loadState
-      - name: source
-        description: the source object that fired the event
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: mediaTypesAvailable
     description: fired when the media types is available
     properties:
-      - name: source
-        description: the source object that fired the event
       - name: mediaTypes
         description: media types
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: naturalSizeAvailable
     description: fired when the natural size is available
     properties:
       - name: naturalSize
         description: natural size as a dictionary. see `naturalSize` property.
-      - name: source
-        description: the source object that fired the event
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: playbackState
     description: fired when the playbackState changes
     properties:
-      - name: source
-        description: the source object that fired the event
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
       - name: playbackState
         description: playbackState
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: playing
     description: fired when the currently playing movie changes
     properties:
       - name: url
         description: url of the media
-      - name: source
-        description: the source object that fired the event
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: preload
     description: fired when the movie has preloaded and is ready to play
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
   - name: resize
@@ -279,12 +265,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
   - name: singletap
@@ -292,12 +277,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
   - name: sourceChange
@@ -305,31 +289,29 @@ events:
     properties:
       - name: sourceChange
         description: the new sourceType
-      - name: source
-        description: the source object that fired the event
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: swipe
     description: fired when the device detects a swipe (left or right) against the view
     properties:
       - name: direction
         description: direction of the swipe - either left or right
-      - name: source
-        description: the source object that fired the event
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: thumbnail
     description: fired when a movie thumbnail is available from `requestThumbnailImagesAtTimes`
     properties:
@@ -339,29 +321,27 @@ events:
         description: blob of the thumbnail image
       - name: time
         description: time
-      - name: source
-        description: the source object that fired the event
       - name: error
         description: if success is `false`, error message as string for reason
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: touchcancel
     description: fired when a touch event is interrupted by the device. this happens in circumenstances such as an incoming call to allow the UI to clean up state.
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
   - name: touchend
@@ -369,12 +349,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
   - name: touchmove
@@ -382,12 +361,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
   - name: touchstart
@@ -395,12 +373,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
   - name: twofingertap
@@ -408,17 +385,16 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
 properties:
   - name: allowsAirPlay
-    description: Whether or not the movie can be played on a remote device.  iOS 4.3+ only.
+    description: Whether or not the movie can be played on a remote device.
     type: Boolean
     platforms: [iphone, ipad]
     osver:
@@ -428,7 +404,8 @@ properties:
     description: a dictionary with properties x and y to indicate the anchor point value. anchor specifies the position by which animation should occur. center is 0.5, 0.5
     type: Object
   - name: animatedCenterPoint
-    description: read-only object with x and y properties of where the view is during animation
+    description: object with x and y properties of where the view is during animation
+    permission: read-only
     type: Object
   - name: autoplay
     description: indicates if a movie should automatically start playback when it is likely to finish uninterrupted based on e.g. network conditions. Defaults to true.
@@ -437,19 +414,19 @@ properties:
     description: the background color of the view
     type: String
   - name: backgroundDisabledColor
-    description: the disabled background color of the view. (Android)
+    description: the disabled background color of the view.
     platforms: [android]
     type: String
   - name: backgroundDisabledImage
-    description: the disabled background image url of the view. (Android)
+    description: the disabled background image url of the view.
     platforms: [android]
     type: String
   - name: backgroundFocusedColor
-    description: the focused background color of the view. focusable must be true for normal views. (Android)
+    description: the focused background color of the view. focusable must be true for normal views.
     platforms: [android]
     type: String
   - name: backgroundFocusedImage
-    description: the focused background image url of the view. focusable must be true for normal views. (Android)
+    description: the focused background image url of the view. focusable must be true for normal views.
     platforms: [android]
     type: String
   - name: backgroundGradient
@@ -461,17 +438,19 @@ properties:
     type: String
   - name: backgroundLeftCap
     description: End caps specify the portion of an image that should not be resized when an image is stretched. This technique is used to implement buttons and other resizable image-based interface elements. When a button with end caps is resized, the resizing occurs only in the middle of the button, in the region between the end caps. The end caps themselves keep their original size and appearance. This property specifies the size of the left end cap. The middle (stretchable) portion is assumed to be 1 pixel wide. The right end cap is therefore computed by adding the size of the left end cap and the middle portion together and then subtracting that value from the width of the image
+    platforms: [iphone, ipad]
     type: Number
   - name: backgroundSelectedColor
-    description: the selected background color of the view. focusable must be true for normal views. (Android)
+    description: the selected background color of the view. focusable must be true for normal views.
     platforms: [android]
     type: String
   - name: backgroundSelectedImage
-    description: the selected background image url of the view. focusable must be true for normal views. (Android)
+    description: the selected background image url of the view. focusable must be true for normal views.
     platforms: [android]
     type: String
   - name: backgroundTopCap
     description: End caps specify the portion of an image that should not be resized when an image is stretched. This technique is used to implement buttons and other resizable image-based interface elements. When a button with end caps is resized, the resizing occurs only in the middle of the button, in the region between the end caps. The end caps themselves keep their original size and appearance. This property specifies the size of the top end cap. The middle (stretchable) portion is assumed to be 1 pixel wide. The bottom end cap is therefore computed by adding the size of the top end cap and the middle portion together and then subtracting that value from the height of the image
+    platforms: [iphone, ipad]
     type: Number
   - name: borderColor
     description: the border color of the view
@@ -489,8 +468,10 @@ properties:
     description: a dictionary with properties x and y to indicate the center of the views position relative to the parent view
     type: Object
   - name: contentURL
-    description: deprecated. use url property instead.
+    description: use url property instead.
     type: String
+    deprecated:
+        since: "1.4.0"
   - name: currentPlaybackTime
     description: the current playback time of the now playing item in seconds.
     type: Number
@@ -503,8 +484,9 @@ properties:
     type: Number
   - name: focusable
     description: |
-        Set true if you want a view to be focusable when navigating with the trackball or D-Pad. Default: false. (Android Only)
+        Set true if you want a view to be focusable when navigating with the trackball or D-Pad. Default: false.
     type: Boolean
+    platforms: [android]
   - name: fullscreen
     description: Determines if the movie is presented in the entire screen (obscuring all other application content). Default is false. Setting this property to true before the movie player's view is visible will have no effect.
     type: Boolean
@@ -532,6 +514,9 @@ properties:
   - name: movieControlMode
     description: deprecated in 3.2+ of the iPhone SDK - use `mediaControlStyle`. Provides the ability to set the control mode of the movie player. Defaults to <Titanium.Media.VIDEO_CONTROL_DEFAULT>.
     type: Number
+    osver:
+        ios:
+            max: "3.1"
   - name: naturalSize
     description: returns a dictionary with properties `width` and `height`. Returns the natural size of the movie or 0 for both properties if not known or applicable.
     type: Object
@@ -560,7 +545,7 @@ properties:
     description: the size of the view as a dictionary of width and height properties
     type: Object
   - name: softKeyboardOnFocus
-    description: One of Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS, Titanium.UI.Android.SOFT_KEYBOARD_HIDE_ON_FOCUS, or Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS. (Android only)
+    description: One of Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS, Titanium.UI.Android.SOFT_KEYBOARD_HIDE_ON_FOCUS, or Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS.
     platforms: [android]
     type: Number
   - name: sourceType
