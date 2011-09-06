@@ -464,7 +464,7 @@ class Compiler(object):
 			compiled_targets = {}
 			for root, dirs, files in os.walk(source):
 				for name in dirs:	# don't walk through .bundle directories to avoid detecting media files within them and copying the same ressources in 3 places instead of one
-					if name.find(".bundle"):
+					if name.find(".bundle")>0:
 					        dirs.remove(name)
 				for name in ignoreDirs:
 					if name in dirs:
