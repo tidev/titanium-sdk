@@ -40,17 +40,18 @@ methods:
         optional: true
   - name: convertPointToView
     description: translates a point from the receiver's view coordinate system to another view's coordinate system. If both views
-      are connected in the native view heirarchies, will return the converted point in the form of an object with x and y properties.
-      If either view is not in the view heirarchy, a null is returned. Keep in mind that views may be removed from the view heirarchy
-      if their window is blurred or if the view is offscreen (such as in some situations with <Titanium.UI.ScrollableView>).
+        are connected in the native view hierarchies, will return the converted point in the form of an object with x and y properties.
+        If either view is not in the view hierarchy, a null is returned. Keep in mind that views may be removed from the view hierarchy
+        if their window is blurred or if the view is offscreen (such as in some situations with <Titanium.UI.ScrollableView>).
+        If this view is a <Titanium.UI.ScrollView>, the view's x and y offsets are subtracted from the return value.
     returns:
-        type: Object
+        type: Point
     parameters:
       - name: point
         description: an object with properties of x and y describing a point within the receiver's coordinate system. If this argument is missing an x or y property, or the properties can not be converted into numbers, an exception will be raised.
-        type: Object
+        type: Point
       - name: destinationView
-        description: the view whose coordinate system to which the point will be converted. If this argument is not a view that is attached, an exception will be raised.
+        description: the view whose coordinate system to which the point will be converted. If this argument is not a view, an exception will be raised.
         type: Titanium.UI.View
 events:
   - name: click
@@ -305,6 +306,10 @@ properties:
   - name: zIndex
     description: the z index position relative to other sibling views
     type: Number
+  - name: keepScreenOn
+    description: when `true` the screen will not power down. Note, enabling this feature will use more power thereby adversely affecting run time when on battery.
+    type: Boolean
+    platforms: [android]
 examples:
   - title: Round View Example
     example: |
@@ -319,3 +324,14 @@ examples:
             window.add(view);
         
         
+---
+name: Point
+description: A pair of coordinates used to describe the location of a <Titanium.UI.View>
+since: "1.8.0"
+properties:
+  - name: x
+    type: Number
+    description: The x-axis coordinate of this point
+  - name: y
+    type: Number
+    description: The y-axis coordinate of this point
