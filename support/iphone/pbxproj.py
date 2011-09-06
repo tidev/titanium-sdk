@@ -18,10 +18,10 @@ class PBXProj(object):
 		genid = genid[0:24]
 		return genid
 	
-	def add_static_library(self,name,path):
+	def add_static_library(self,name,path,relative=False):
 		if path.find(name)==-1:
 			path = os.path.abspath(os.path.join(path,name))
-		self.static_libs.append((name,path,os.path.dirname(path)))
+		self.static_libs.append((name,path,os.path.dirname(path),relative))
 		
 	def parse(self,f):
 		contents = open(os.path.expanduser(f)).read()
@@ -60,6 +60,7 @@ class PBXProj(object):
 			libname = lib[0]
 			libpath = lib[1]
 			libdir = lib[2]
+			isRelative = lib[3]
 			new_group_uuid = self.gen_uuid()
 			for fm in file_markers:
 				begin = contents.find(fm)
@@ -78,7 +79,8 @@ class PBXProj(object):
 				line = contents[begin:end]
 				line = line.replace('lib/libTiCore.a',"\"%s\""%libpath)
 				line = line.replace('libTiCore.a',libname)
-				line = line.replace("SOURCE_ROOT","\"<absolute>\"")
+				if not isRelative:
+					line = line.replace("SOURCE_ROOT","\"<absolute>\"")
 				m = re.search(r'([0-9a-zA-Z]+) /*',rm)
 				uuid = m.group(1).strip()
 				line = line.replace(uuid,new_group_uuid)
