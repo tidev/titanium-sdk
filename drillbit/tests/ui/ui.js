@@ -368,7 +368,6 @@ describe("Ti.UI tests", {
 	
 	// http://jira.appcelerator.org/browse/TIMOB-1333
 	imageLoadEvent: asyncTest(function(callback) {
-		var failureTimeout = null;
 		var w = Ti.UI.createWindow();
 		var btn = Ti.UI.createImageView({
 			image: 'KS_nav_ui.png',
