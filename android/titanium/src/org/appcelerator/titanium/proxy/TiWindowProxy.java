@@ -232,11 +232,8 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 		if (modes != null)
 		{
-			// update orientation modes that get exposed
-			orientationModes = modes;
-		
-			// look through modes and determine what has been set
-			for (int i = 0; i < modes.length; i++)
+			// look through orientation modes and determine what has been set
+			for (int i = 0; i < orientationModes.length; i++)
 			{
 				if (orientationModes [i] == TiOrientationHelper.ORIENTATION_PORTRAIT)
 				{
@@ -304,10 +301,14 @@ public abstract class TiWindowProxy extends TiViewProxy
 				activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
 			}
 
-			if (activityOrientationMode != -1)
+			Activity activity = getTiContext().getActivity();
+			if (activity != null)
 			{
-				Activity activity = getTiContext().getActivity();
-				if (activity != null)
+				if (activityOrientationMode != -1)
+				{
+					activity.setRequestedOrientation(activityOrientationMode);
+				}
+				else
 				{
 					activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 				}
@@ -329,22 +330,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Kroll.method @Kroll.getProperty
 	public int[] getOrientationModes()
 	{
-		if (orientationModes != null)
-		{
-			return orientationModes;
-		}
-		else
-		{
-			Activity activity = getTiContext().getActivity();
-			if (activity != null)
-			{
-				if (activity instanceof TiBaseActivity)
-				{
-					return new int[] {((TiBaseActivity)activity).getOriginalOrientationMode()};
-				}
-			}
-			return null;
-		}
+		return orientationModes;
 	}
 
 	@Kroll.method @Kroll.getProperty
