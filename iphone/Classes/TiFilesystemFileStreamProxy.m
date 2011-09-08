@@ -22,7 +22,7 @@
 
 #pragma mark Internal
 
--(id) _initWithPageContext:(id <TiEvaluator>)context args:(NSArray *)args {
+-(id) _initWithPageContext:(id <TiEvaluator>)context args:(NSArray *)args protect:(int)protectFlags {
 	if(self = [super _initWithPageContext:context args:args]) {
 		if([args count] > 0) {
 			NSString *filePath = [args objectAtIndex:0];
@@ -50,7 +50,7 @@
 					//If the file exists and the mode is TI_WRITE, truncate the file.
 					if(mode == TI_WRITE) {
 						NSError *error = nil;
-                        [[NSData data] writeToFile:filePath options:NSDataWritingFileProtectionComplete | NSDataWritingAtomic error:&error];
+                        [[NSData data] writeToFile:filePath options:protectFlags | NSDataWritingAtomic error:&error];
 						if(error != nil) {
 							[NSException raise:NSInternalInconsistencyException format:@"%@", error, nil];
 						}
@@ -138,7 +138,7 @@ if(fileHandle == nil) {\
 	
 	if(length == 0) {
 		[buffer setData:[NSMutableData dataWithData:[fileHandle availableData]]];
-		return [buffer length];
+		return [[buffer length] intValue];
 	}
 	
 	fileData = [fileHandle readDataOfLength:length];

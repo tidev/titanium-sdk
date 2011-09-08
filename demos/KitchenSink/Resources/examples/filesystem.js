@@ -89,6 +89,36 @@ if(!testfile.write("\nText appended via write()", true)) {
 Ti.API.info("------------");
 Ti.API.info("Test file contents:\n" + (testfile.read()).text);
 
+if (Ti.Platform.name == 'iPhone OS') {
+	Ti.API.info("file protection test finished started.");
+	// test to make sure that the file written is not available when the device is locked, timob-4840
+	var protectedFile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'protected.txt');
+	protectedFile.protectFile = true;
+	Ti.API.info('protectedFile.protectFile: ' + protectedFile.protectFile);
+	Ti.API.info('text.txt exists? ' + protectedFile.exists());
+	Ti.API.info('text.txt size: ' + protectedFile.size + ' bytes');
+	
+	Ti.API.info('writing to file');
+	if(!protectedFile.write("text written via write()\n")) {
+		Ti.API.info("could not write string to file.");
+	}
+	
+	Ti.API.info('appending file object to file');
+	if(!protectedFile.write(Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'text_two.txt'), true)) {
+		Ti.API.info("could not append File object to file via write method.");
+	}
+	
+	Ti.API.info('appending string to file');
+	if(!protectedFile.write("\nText appended to protected file via write()", true)) {
+		Ti.API.info("could not append string to file via write method.");
+	}
+
+	Ti.API.info("------------");
+	Ti.API.info("Test file contents:\n" + (protectedFile.read()).text);
+
+	Ti.API.info("file protection test finished.");
+}
+
 //these should all fail
 var bad_params = [10000, true, {}];
 for(var i = 0, j = bad_params.length; i < j; i++) {

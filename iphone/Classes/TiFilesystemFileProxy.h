@@ -15,6 +15,7 @@
 @interface TiFilesystemFileProxy : TiFile {
 @private
 	NSFileManager *fm;
+    NSNumber* protectFile;
 }
 
 -(id)initWithFile:(NSString*)path;
@@ -30,8 +31,7 @@
 @property(nonatomic,readonly) id symbolicLink;
 @property(nonatomic,readonly) id executable;
 @property(nonatomic,readonly) id hidden;
-
-
+@property(nonatomic,retain) NSNumber* protectFile;
 
 @end
 

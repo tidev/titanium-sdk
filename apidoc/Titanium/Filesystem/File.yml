@@ -121,3 +121,7 @@ properties:
     description: returns the fully resolved native path
     type: String
     permission: read-only
+  - name: protectFile
+    description: enable file protection when the device is locked
+    type: Boolean
+    platforms: [iphone, ipad]
