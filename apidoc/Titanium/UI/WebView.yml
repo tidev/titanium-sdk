@@ -37,6 +37,12 @@ methods:
       - name: password
         description: the password
         type: String
+  - name: setZoomControls
+    description: set the enablement of zoom controls in web view
+    parameters:
+      - name: enabled
+        description: boolean to enable or disable zoom controls
+        type: Boolean
   - name: stopLoading
     description: stop loading a currently loading page
 events:
