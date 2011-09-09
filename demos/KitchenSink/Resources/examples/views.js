@@ -19,7 +19,6 @@ var data = [
 if (Titanium.Platform.name == 'iPhone OS')
 {
 	// Android team, implement the following then move this entry above
-	data.push({title:'Point Conversion', hasChild:true, test:'../examples/view_point_conversion.js'});
 	data.push({title:'View Gestures', hasChild:true, test:'../examples/view_gestures.js'});
 	//
 	data.push({title:'Map View with Routing', hasChild:true, test:'../examples/map_view2.js'});

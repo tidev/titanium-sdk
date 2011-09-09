@@ -200,13 +200,6 @@ DEFINE_EXCEPTIONS
 	self = [super init];
 	if (self != nil)
 	{
-		UIPinchGestureRecognizer* pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedPinch:)];
-        [self addGestureRecognizer:pinchRecognizer];
-        [pinchRecognizer release];
-        
-        UILongPressGestureRecognizer* longPressRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedLongPress:)];
-        [self addGestureRecognizer:longPressRecognizer];
-        [longPressRecognizer release];
 
 	}
 	return self;
@@ -1065,6 +1058,27 @@ DEFINE_EXCEPTIONS
 	{
 		self.multipleTouchEnabled = YES;
 	}
+    
+    if ([event isEqualToString:@"pinch"]) {
+        UIPinchGestureRecognizer* pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedPinch:)];
+        [self addGestureRecognizer:pinchRecognizer];
+        [pinchRecognizer release];
+    } else if ([event isEqualToString:@"longpress"]) {
+        UILongPressGestureRecognizer* longPressRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedLongPress:)];
+        [self addGestureRecognizer:longPressRecognizer];
+        [longPressRecognizer release];
+    }
+}
+
+-(void)removeGestureRecognizerOfClass:(Class)c
+{
+    NSArray* recognizers = [NSArray arrayWithArray:[self gestureRecognizers]];
+    for (UIGestureRecognizer* r in recognizers) {
+        if ([r isKindOfClass:c]) {
+            [self removeGestureRecognizer:r];
+            break;
+        }
+    }
 }
 
 -(void)handleListenerRemovedWithEvent:(NSString *)event
@@ -1095,8 +1109,13 @@ DEFINE_EXCEPTIONS
 	{
 		handlesSwipes = NO;
 	}
-}
 
+    if ([event isEqualToString:@"pinch"]) {
+        [self removeGestureRecognizerOfClass:[UIPinchGestureRecognizer class]];
+    } else if ([event isEqualToString:@"longpress"]) {
+        [self removeGestureRecognizerOfClass:[UILongPressGestureRecognizer class]];
+    }
+}
 
 -(void)listenerAdded:(NSString*)event count:(int)count
 {

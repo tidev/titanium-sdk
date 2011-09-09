@@ -1227,7 +1227,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	{
 		[self.modelDelegate listenerAdded:type count:count];
 	}
-	else if(view!=nil)  // don't create the view if not already realized
+	else
 	{
 		[self.view listenerAdded:type count:count];
 	}

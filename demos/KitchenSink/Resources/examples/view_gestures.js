@@ -8,10 +8,27 @@ var view = Ti.UI.createView({
 
 win.add(view);
 
-view.addEventListener('pinch', function(e){
+function pinchHandler(e) {
   Ti.API.info('pinch:' + JSON.stringify(e));
-});
+}
 
-view.addEventListener('longpress', function(e){
+function longpressHandler(e) {
   Ti.API.info('longpress:' + JSON.stringify(e));
+}
+
+view.addEventListener('pinch', pinchHandler);
+view.addEventListener('longpress', longpressHandler);
+
+var b1 = Titanium.UI.createButton({
+	title:'Remove Pinch',
+	height:40,
+	width:200,
+	top:70
 });
+win.add(b1);
+
+function buttonHandler(e) {
+	view.removeEventListener('pinch', pinchHandler);
+}
+
+b1.addEventListener('click', buttonHandler);
