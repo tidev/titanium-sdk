@@ -197,6 +197,10 @@
 		<titanium command="run"/>
 	</target>
 
+	<target name="install" depends="clean,dist" description="Install the module's test project to device">
+		<titanium command="install"/>
+	</target>
+
 	<target name="pre.docgen">
 	</target>
 
