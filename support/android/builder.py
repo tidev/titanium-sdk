@@ -575,8 +575,10 @@ class Builder(object):
 		self.js_changed = False
 		tiapp_delta = self.project_deltafy.scan_single_file(self.project_tiappxml)
 		self.tiapp_changed = tiapp_delta is not None
-		if self.tiapp_changed or self.force_rebuild:
-			info("Detected tiapp.xml change, forcing full re-build...")
+		full_copy = not os.path.exists(self.assets_resources_dir)
+
+		if self.tiapp_changed or self.force_rebuild or full_copy:
+			info("Detected tiapp.xml change (or assets deleted), forcing full re-build...")
 			# force a clean scan/copy when the tiapp.xml has changed
 			self.project_deltafy.clear_state()
 			self.project_deltas = self.project_deltafy.scan()
@@ -801,20 +803,20 @@ class Builder(object):
 
 		self.use_maps = False
 		self.res_changed = False
-		iconname = self.tiapp.properties['icon']
-		iconpath = os.path.join(self.assets_resources_dir, iconname)
-		iconext = os.path.splitext(iconpath)[1]
+		icon_name = self.tiapp.properties['icon']
+		icon_path = os.path.join(self.assets_resources_dir, icon_name)
+		icon_ext = os.path.splitext(icon_path)[1]
 
-		res_drawable_dest = os.path.join(self.project_dir, 'res','drawable')
+		res_drawable_dest = os.path.join(self.project_dir, 'res', 'drawable')
 		if not os.path.exists(res_drawable_dest):
 			os.makedirs(res_drawable_dest)
 
 		default_icon = os.path.join(self.support_resources_dir, 'default.png')
-		dest_icon = os.path.join(res_drawable_dest, 'appicon%s' % iconext)
-		if Deltafy.needs_update(iconpath, dest_icon):
+		dest_icon = os.path.join(res_drawable_dest, 'appicon%s' % icon_ext)
+		if Deltafy.needs_update(icon_path, dest_icon):
 			self.res_changed = True
-			debug("copying app icon: %s" % iconpath)
-			shutil.copy(iconpath, dest_icon)
+			debug("copying app icon: %s" % icon_path)
+			shutil.copy(icon_path, dest_icon)
 		elif Deltafy.needs_update(default_icon, dest_icon):
 			self.res_changed = True
 			debug("copying default app icon")
