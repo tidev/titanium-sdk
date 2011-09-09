@@ -73,7 +73,7 @@ public class AnalyticsModule extends KrollModule
 		if (stop instanceof Number) {
 			payload.put(TiC.PROPERTY_STOP, ((Number) stop).longValue());			
 		} else if (stop instanceof KrollDate) {
-			payload.put(TiC.PROPERTY_STOP, ((KrollDate) start).getTime());
+			payload.put(TiC.PROPERTY_STOP, ((KrollDate) stop).getTime());
 		} else {
 			throw new IllegalArgumentException("stop must be a long or Date.");
 		}
