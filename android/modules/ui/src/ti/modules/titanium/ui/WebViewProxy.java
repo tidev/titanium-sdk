@@ -163,12 +163,6 @@ public class WebViewProxy extends ViewProxy
 		getWebView().resumeWebView();
 	}
 	
-	@Kroll.method
-	public void showZoomControls(boolean enabled)
-	{
-		getWebView().showZoomControls(enabled);
-	}
-	
 	@Override
 	public void releaseViews()
 	{
