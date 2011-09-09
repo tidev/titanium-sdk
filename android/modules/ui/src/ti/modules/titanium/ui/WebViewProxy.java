@@ -163,10 +163,21 @@ public class WebViewProxy extends ViewProxy
 		getWebView().resumeWebView();
 	}
 	
-	@Kroll.method
-	public void showZoomControls(boolean enabled)
+	@Kroll.method(runOnUiThread=true) @Kroll.setProperty(runOnUiThread=true)
+	public void setEnableZoomControls(boolean enabled)
 	{
-		getWebView().showZoomControls(enabled);
+		setProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS, enabled, true);
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public boolean getEnableZoomControls()
+	{
+		boolean enabled = true;
+		
+		if(hasProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
+			enabled = TiConvert.toBoolean(getProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS));
+		}
+		return enabled;
 	}
 	
 	@Override
