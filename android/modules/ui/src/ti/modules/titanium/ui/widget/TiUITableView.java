@@ -152,6 +152,19 @@ public class TiUITableView extends TiUIView
 			filterCaseInsensitive = TiConvert.toBoolean(d, TiC.PROPERTY_FILTER_CASE_INSENSITIVE);
 		}
 		tableView.setFilterCaseInsensitive(filterCaseInsensitive);
+
+		if (d.containsKey(TiC.PROPERTY_SEPARATOR_VISIBLE))
+		{
+			boolean separatorVisible = TiConvert.toBoolean(d, TiC.PROPERTY_SEPARATOR_VISIBLE);
+
+			proxy.setProperty(TiC.PROPERTY_SEPARATOR_VISIBLE, separatorVisible);
+			tableView.setSeparatorVisibility(separatorVisible);
+		}
+		else if (proxy.hasProperty(TiC.PROPERTY_SEPARATOR_VISIBLE))
+		{
+			tableView.setSeparatorVisibility(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_SEPARATOR_VISIBLE)));
+		}
+
 		super.processProperties(d);
 	}
 

@@ -67,6 +67,7 @@ public class TiTableView extends FrameLayout
 	private TableViewProxy proxy;
 	private boolean filterCaseInsensitive = true;
 	private TiTableViewSelector selector;
+	private int originalDividerHeight = -1;
 
 	public interface OnItemClickedListener {
 		public void onClick(KrollDict item);
@@ -469,6 +470,23 @@ public class TiTableView extends FrameLayout
 
 	public void setFilterCaseInsensitive(boolean filterCaseInsensitive) {
 		this.filterCaseInsensitive  = filterCaseInsensitive;
+	}
+
+	public void setSeparatorVisibility(boolean visible)
+	{
+		// store the original divider height in case the toggle gets reversed
+		if (originalDividerHeight == -1)
+		{
+			originalDividerHeight = listView.getDividerHeight();
+		}
+
+		// determine desired divider height
+		int dividerHeight = 0;
+		if (visible)
+		{
+			dividerHeight = originalDividerHeight;
+		}
+		listView.setDividerHeight(dividerHeight);
 	}
 
 	public void release() {
