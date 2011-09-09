@@ -468,11 +468,6 @@ public class TiUIWebView extends TiUIView {
 			}
 		}
 	}
-	
-	public void setEnableZoomControls(boolean enabled)
-	{
-		getWebView().getSettings().setBuiltInZoomControls(enabled);
-	}
 
 	public boolean canGoBack() {
 		return getWebView().canGoBack();
