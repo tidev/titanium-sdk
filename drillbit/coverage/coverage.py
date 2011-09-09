@@ -15,8 +15,6 @@ import zipfile
 import shutil
 import yaml
 import subprocess
-from mako.template import Template
-from mako import exceptions
 from itertools import chain
 
 try:
@@ -29,6 +27,9 @@ drillbitDir = os.path.dirname(coverageDir)
 mobileDir = os.path.dirname(drillbitDir)
 supportAndroidDir = os.path.join(mobileDir, "support", "android")
 sys.path.append(supportAndroidDir)
+
+from mako.template import Template
+from mako import exceptions
 
 import bindings
 import mappings
