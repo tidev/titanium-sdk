@@ -64,6 +64,8 @@
 
 -(void)attachXHRBridgeIfRequired;
 
+- (UIImage*)defaultImageForOrientation:(UIDeviceOrientation) orientation;
+
 -(BOOL)isSplashVisible;
 -(void)hideSplash:(id)event;
 -(UIView*)splash;

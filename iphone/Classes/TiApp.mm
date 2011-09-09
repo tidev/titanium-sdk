@@ -146,11 +146,9 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	return launchOptions;
 }
 
-- (UIImage*)loadAppropriateSplash
-{
-	UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
-	
-	UIImage* image = nil;
+- (UIImage*)defaultImageForOrientation:(UIDeviceOrientation) orientation
+{	
+	UIImage* image;
 
 	if([TiUtils isIPad])
 	{
@@ -168,6 +166,8 @@ void MyUncaughtExceptionHandler(NSException *exception)
 			case UIDeviceOrientationLandscapeRight:
 				image = [UIImage imageNamed:@"Default-LandscapeRight.png"];
 				break;
+			default:
+				image = nil;
 		}
 		if (image != nil) {
 			return image;
@@ -210,28 +210,10 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 	loadView = [[UIImageView alloc] initWithFrame:destRect];
 	[loadView setContentMode:UIViewContentModeScaleAspectFill];
-	loadView.image = [self loadAppropriateSplash];
+	loadView.image = [self defaultImageForOrientation:[[UIDevice currentDevice] orientation]];
 	[controller.view addSubview:loadView];
 	splashAttached = YES;
 	return loadView;
-}
-
-- (void)loadSplash
-{
-	sharedApp = self;
-	
-	// attach our main view controller... IF we haven't already loaded the main window.
-	if (!loaded) {
-		[self attachSplash];
-	}
-	if ([window respondsToSelector:@selector(setRootViewController:)]) {
-		[window setRootViewController:controller];
-	}
-	else
-	{
-		[window addSubview:[controller view]];
-	}
-    [window makeKeyAndVisible];
 }
 
 - (BOOL)isSplashVisible
@@ -266,12 +248,12 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	// attach our main view controller
 	controller = [[TiRootViewController alloc] init];
 	
-	// Force view load
-	controller.view.backgroundColor = [UIColor clearColor];
-	
-	if (![TiUtils isiPhoneOS3_2OrGreater]) {
-		[self loadSplash];
+	// attach our main view controller... IF we haven't already loaded the main window.
+	if (!loaded) {
+		[self attachSplash];
 	}
+	[window setRootViewController:controller];
+    [window makeKeyAndVisible];
 }
 
 -(void)attachXHRBridgeIfRequired
