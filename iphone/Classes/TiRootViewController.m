@@ -65,32 +65,42 @@
 	self = [super init];
 	if (self != nil)
 	{
+//View controller and orientation initialization
 		windowProxies = [[NSMutableArray alloc] init];
 		viewControllerStack = [[NSMutableArray alloc] init];
-		WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
-		NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
-		[nc addObserver:self selector:@selector(keyboardDidHide:) name:UIKeyboardDidHideNotification object:nil];
-		[nc addObserver:self selector:@selector(keyboardDidShow:) name:UIKeyboardDidShowNotification object:nil];
-		[nc addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
-		[nc addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+		// Set up the initial orientation modes
+		[self setOrientationModes:nil];
+		orientationHistory[0] = UIInterfaceOrientationPortrait;
+		orientationHistory[1] = UIInterfaceOrientationLandscapeLeft;
+		
+//Keyboard initialization
 		leaveCurve = UIViewAnimationCurveEaseIn;
 		enterCurve = UIViewAnimationCurveEaseIn;
 		leaveDuration = 0.3;
 		enterDuration = 0.3;
+
+/*
+ *	Default image view -- Since this goes away after startup, it's made here and
+ *	nowhere else. We don't do this during loadView because it's possible that
+ *	the view will be unloaded (by, perhaps a Memory warning while a modal view
+ *	controller and loaded at a later time.
+ */
+		defaultImageView = [[UIImageView alloc] init];
+		[defaultImageView setAutoresizingMask:UIViewAutoresizingFlexibleHeight
+				 | UIViewAutoresizingFlexibleWidth];
 		
-		// Set up the initial orientation modes
-		[self setOrientationModes:nil];
+//Notifications
+		WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
+		[[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+		NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
+		[nc addObserver:self selector:@selector(didOrientNotify:) name:UIDeviceOrientationDidChangeNotification object:nil];
+
+		[nc addObserver:self selector:@selector(keyboardDidHide:) name:UIKeyboardDidHideNotification object:nil];
+		[nc addObserver:self selector:@selector(keyboardDidShow:) name:UIKeyboardDidShowNotification object:nil];
+		[nc addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+		[nc addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
 	}
 	return self;
-}
-
--(CGRect)resizeView
-{
-	CGRect rect = [[UIScreen mainScreen] applicationFrame];
-	VerboseLog(@"(%f,%f),(%fx%f)",rect.origin.x,rect.origin.y,rect.size.width,rect.size.height);
-	[[self view] setFrame:rect];
-	//Because of the transition in landscape orientation, TiUtils can't be used here... SetFrame compensates for it.
-	return [[self view] bounds];
 }
 
 -(void)setBackgroundColor:(UIColor *)newColor
@@ -99,12 +109,12 @@
 	{
 		return;
 	}
-
+	
 	[backgroundColor release];
 	backgroundColor = [newColor retain];
 	
 	[self performSelectorOnMainThread:@selector(updateBackground) withObject:nil
-		waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+						waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 	//The runloopcommonmodes ensures that it'll happen even during tracking.
 }
 
@@ -114,12 +124,12 @@
 	{
 		return;
 	}
-
+	
 	[backgroundImage release];
 	backgroundImage = [newImage retain];
 	
 	[self performSelectorOnMainThread:@selector(updateBackground) withObject:nil
-		waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+						waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 	//The runloopcommonmodes ensures that it'll happen even during tracking.
 }
 
@@ -139,60 +149,155 @@
 	}
 }
 
--(void)didOrientNotify:(NSNotification *)notification
-{
-	UIInterfaceOrientation newOrientation = [[UIDevice currentDevice] orientation];
-	if (lastOrientation == 0)
-	{ //This is when the application first starts. statusBarOrientation lies at the beginning,
-	//And device orientation is 0 until this notification.
-		// FIRST!  We know the orientation now, so attach the splash!
-		UIInterfaceOrientation oldOrientation = [[UIApplication sharedApplication] statusBarOrientation];
-		windowOrientation = oldOrientation;
-		[self manuallyRotateToOrientation:newOrientation duration:0];
-		if (![[TiApp app] isSplashVisible]) {
-			[[TiApp app] loadSplash];
-		}
-		return;
-	}
-
-	if ((newOrientation==windowOrientation)&&(lastOrientation!=newOrientation) &&
-			[self shouldAutorotateToInterfaceOrientation:newOrientation])
-	{ //This is for when we've forced an orientation that was not what the device was, and
-	//Now we want to return to it. Because newOrientation and windowOrientation are identical
-	//The iPhone OS wouldn't send this method.
-		[self willAnimateRotationToInterfaceOrientation:newOrientation duration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
-	}
-}
-
-
 -(void)loadView
 {
-	[[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didOrientNotify:) name:UIDeviceOrientationDidChangeNotification object:nil];
-
 	TiRootView *rootView = [[TiRootView alloc] init];
 	self.view = rootView;
 	[self updateBackground];
-	[self resizeView];
-	// we have to make a copy since this code can cause a mutation
-	for (TiWindowProxy * thisProxy in windowProxies)
-	{
-		UIView * thisView = [thisProxy view];
-		[rootView addSubview:thisView];
-		[thisProxy reposition];
+	if (defaultImageView != nil) {
+		[defaultImageView setFrame:[rootView bounds]];
+		[rootView addSubview:defaultImageView];
 	}
 	[rootView release];
 }
 
+-(void)updateOrientationIfNeeded
+{
+	UIInterfaceOrientation newOrientation = (UIInterfaceOrientation)
+			[[UIDevice currentDevice] orientation];
+
+	if (newOrientation == windowOrientation)
+	{
+		return;
+	}
+	//By now, we should check to see if we actually should rotate into position
+	
+	if (![self shouldAutorotateToInterfaceOrientation:newOrientation]) {
+		return;
+	}
+	
+	[self manuallyRotate];
+	//If so, we force a rotation.
+}
+
+-(void)didOrientNotify:(NSNotification *)notification
+{
+	/*
+	 *	The new behavior is that we give iOS a chance to do it right instead.
+	 *	Then, during the callback, see if we need to manually override.
+	 */
+	UIInterfaceOrientation newOrientation =
+			(UIInterfaceOrientation)[[UIDevice currentDevice] orientation];
+	
+	if (!UIDeviceOrientationIsValidInterfaceOrientation(newOrientation)) {
+		return;
+	}
+
+	/*
+	 *	And now, to push the orientation onto the history stack. This could be
+	 *	expressed as a for loop, but the loop is so small that it might as well
+	 *	be unrolled. The end result of this push is that only other orientations
+	 *	are copied back, ensuring the newOrientation will be unique when it's
+	 *	placed at the top of the stack.
+	 */
+	if (orientationHistory[2] != newOrientation) {
+		orientationHistory[3] = orientationHistory[2];
+	}
+	if (orientationHistory[1] != newOrientation) {
+		orientationHistory[2] = orientationHistory[1];
+	}
+	if (orientationHistory[0] != newOrientation) {
+		orientationHistory[1] = orientationHistory[0];
+	}
+	orientationHistory[0] = newOrientation;
+	
+	[self performSelector:@selector(updateOrientationIfNeeded) withObject:nil afterDelay:0.0];
+	
+//	if (lastOrientation == 0)
+//	{ //This is when the application first starts. statusBarOrientation lies at the beginning,
+//		//And device orientation is 0 until this notification.
+//		// FIRST!  We know the orientation now, so attach the splash!
+//		UIInterfaceOrientation oldOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+//		windowOrientation = oldOrientation;
+//		
+//        [self shouldAutorotateToInterfaceOrientation:newOrientation];	// side effect, retag timestamp on old orientation
+//		
+//        [self manuallyRotateToOrientation:newOrientation duration:0];
+//		if (![[TiApp app] isSplashVisible]) {
+//			[[TiApp app] loadSplash];
+//		}
+//		return;
+//	}
+//	
+//	if ((newOrientation==windowOrientation)&&(lastOrientation!=newOrientation) &&
+//		[self shouldAutorotateToInterfaceOrientation:newOrientation])
+//	{ //This is for when we've forced an orientation that was not what the device was, and
+//		//Now we want to return to it. Because newOrientation and windowOrientation are identical
+//		//The iPhone OS wouldn't send this method.
+//		[self willAnimateRotationToInterfaceOrientation:newOrientation duration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+//	}
+}
+
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
+{
+	return TI_ORIENTATION_ALLOWED(allowedOrientations,interfaceOrientation) ? YES : NO;
+}
+
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+
+	for (TiWindowProxy * thisProxy in windowProxies)
+	{
+        if ([thisProxy allowsOrientation:toInterfaceOrientation]) {
+            UIViewController * thisNavCon = [thisProxy navController];
+            if (thisNavCon == nil)
+            {
+                thisNavCon = [thisProxy controller];
+            }
+            [thisNavCon willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+        }
+        else {
+            [thisProxy ignoringRotationToOrientation:toInterfaceOrientation];
+        }
+	}
+}
+
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration;
+{
+	windowOrientation = toInterfaceOrientation;
+	if (defaultImageView != nil)
+	{
+		[defaultImageView setFrame:[[self view] bounds]];
+		[defaultImageView setImage:[[TiApp app] defaultImageForOrientation:
+				(UIDeviceOrientation)toInterfaceOrientation]];
+	}
+	[super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+}
+
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation;
+{
+	[super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+}
+
+
+
+
+-(CGRect)resizeView
+{
+//	CGRect rect = [[UIScreen mainScreen] applicationFrame];
+//	VerboseLog(@"(%f,%f),(%fx%f)",rect.origin.x,rect.origin.y,rect.size.width,rect.size.height);
+//	[[self view] setFrame:rect];
+	//Because of the transition in landscape orientation, TiUtils can't be used here... SetFrame compensates for it.
+	return [[self view] bounds];
+}
+
 - (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
 {
-	VerboseLog(@"%@%@",self,CODELOCATION);
 	[[viewControllerStack lastObject] viewWillAppear:animated];
 }
 - (void)viewWillDisappear:(BOOL)animated; // Called when the view is dismissed, covered or otherwise hidden. Default does nothing
 {
-	VerboseLog(@"%@%@",self,CODELOCATION);
 	[[viewControllerStack lastObject] viewWillDisappear:animated];
 }
 
@@ -200,13 +305,14 @@
 {
    	isCurrentlyVisible = YES;
 	[self.view becomeFirstResponder];
-	CGFloat duration = 0.0;
-	if (animated) {
-		duration = [[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
+	if (![self shouldAutorotateToInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]]) {
+		CGFloat duration = 0.0;
+		if (animated) {
+			duration = [[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
+		}
+		[self manuallyRotate];
 	}
-	[self manuallyRotateToOrientation:[self mostRecentlyAllowedOrientation] duration:duration];
-    [super viewDidAppear:animated];
-	VerboseLog(@"%@%@",self,CODELOCATION);
+	[super viewDidAppear:animated];
 	[[viewControllerStack lastObject] viewDidAppear:animated];
 }
 
@@ -215,7 +321,6 @@
 	isCurrentlyVisible = NO;
 	[self.view resignFirstResponder];
     [super viewDidDisappear:animated];
-	VerboseLog(@"%@%@",self,CODELOCATION);
 	[[viewControllerStack lastObject] viewDidDisappear:animated];
 }
 
@@ -244,7 +349,7 @@
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration
 {
 	UIApplication * ourApp = [UIApplication sharedApplication];
-
+	UIInterfaceOrientation oldOrientation = [ourApp statusBarOrientation];
 	CGAffineTransform transform;
 
 	switch (newOrientation)
@@ -263,6 +368,8 @@
 			break;
 	}
 
+	[self willRotateToInterfaceOrientation:newOrientation duration:duration];
+	
     // Have to batch all of the animations together, so that it doesn't look funky
     if (duration > 0.0)
 	{
@@ -270,31 +377,27 @@
 		[UIView setAnimationDuration:duration];
 	}
     
-	for (TiWindowProxy * thisProxy in windowProxies)
-	{
-        if ([thisProxy allowsOrientation:newOrientation]) {
-            UIViewController * thisNavCon = [thisProxy navController];
-            if (thisNavCon == nil)
-            {
-                thisNavCon = [thisProxy controller];
-            }
-            [thisNavCon willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
-        }
-        else {
-            [thisProxy ignoringRotationToOrientation:newOrientation];
-        }
-	}
     
-    if (newOrientation != [ourApp statusBarOrientation] && isCurrentlyVisible)
+    if (newOrientation != oldOrientation && isCurrentlyVisible)
     {
         [keyboardFocusedProxy blur:nil];
         [ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
         [keyboardFocusedProxy focus:nil];
     }
-    
-    [[self view] setTransform:transform];
-    [self resizeView];
-    
+
+	UIView * ourView = [self view];
+	CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
+	[ourView setCenter:CGPointMake(viewFrame.origin.x + viewFrame.size.width/2.0, viewFrame.origin.y + viewFrame.size.height/2.0)];
+	if (UIInterfaceOrientationIsLandscape(newOrientation)) {
+		viewFrame.size = CGSizeMake(viewFrame.size.height, viewFrame.size.width);
+	}
+    [ourView setTransform:transform];
+	viewFrame.origin=CGPointZero;
+	[ourView setBounds:viewFrame];
+	[self resizeView];
+
+	[self willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
+
     //Propigate this to everyone else. This has to be done INSIDE the animation.
     [self repositionSubviews];
     
@@ -305,6 +408,8 @@
 	{
 		[UIView commitAnimations];
 	}
+	
+	[self didRotateFromInterfaceOrientation:oldOrientation];
 }
 
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation) newOrientation
@@ -312,30 +417,38 @@
 	[self manuallyRotateToOrientation:newOrientation duration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
 }
 
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+-(void)manuallyRotate
 {
-	VerboseLog(@"Rotating to %d (Landscape? %d)",toInterfaceOrientation,UIInterfaceOrientationIsLandscape(toInterfaceOrientation));
-	windowOrientation = toInterfaceOrientation;
-	[self manuallyRotateToOrientation:toInterfaceOrientation duration:duration];
-	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+	for (int i = 0; i<4; i++) {
+		if ([self shouldAutorotateToInterfaceOrientation:orientationHistory[i]]) {
+			[self manuallyRotateToOrientation:orientationHistory[i]];
+			return;
+		}
+	}
 }
+
 
 -(TiOrientationFlags)getDefaultOrientations
 {
 	// Read the orientation values from the plist - if they exist.
+	NSArray* orientations = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UISupportedInterfaceOrientations"];
 	TiOrientationFlags defaultFlags = TiOrientationPortrait;
-	NSString* property = @"UISupportedInterfaceOrientations";
-	if ([TiUtils isIPad]) {
+	
+	if ([TiUtils isIPad])
+	{
 		defaultFlags = TiOrientationAny;
-		property = [property stringByAppendingString:@"~ipad"];
+		NSArray * ipadOrientations = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UISupportedInterfaceOrientations~ipad"];
+		if ([ipadOrientations respondsToSelector:@selector(count)] && ([ipadOrientations count] > 0))
+		{
+			orientations = ipadOrientations;
+		}
 	}
-	NSArray* orientations = [[NSBundle mainBundle] objectForInfoDictionaryKey:property];
-	if (orientations == nil || [orientations count] == 0) {
-		return defaultFlags;
-	}
-	else {
+
+	if ([orientations respondsToSelector:@selector(count)] && ([orientations count] > 0))
+	{
 		defaultFlags = TiOrientationNone;
-		for (NSString* orientationString in orientations) {
+		for (NSString* orientationString in orientations)
+		{
 			UIInterfaceOrientation orientation = [TiUtils orientationValue:orientationString def:-1];
 			if (orientation != -1) {
 				TI_ORIENTATION_SET(defaultFlags, orientation);
@@ -378,32 +491,6 @@
 	{
 		allowedOrientations = [self getDefaultOrientations];
 	}
-}
-
--(UIInterfaceOrientation)mostRecentlyAllowedOrientation
-{
-	UIInterfaceOrientation requestedOrientation = [[UIApplication sharedApplication] statusBarOrientation];
-	NSTimeInterval latestRequest = 0.0;
-	if(!TI_ORIENTATION_ALLOWED(allowedOrientations,requestedOrientation))
-	{
-		latestRequest = -1.0;
-	}
-	for (int i=0; i<MAX_ORIENTATIONS; i++)
-	{
-		if (TI_ORIENTATION_ALLOWED(allowedOrientations,i) && (orientationRequestTimes[i]>latestRequest))
-		{
-			requestedOrientation = i;
-			latestRequest = orientationRequestTimes[i];
-		}
-	}
-	return requestedOrientation;
-}
-
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
-{
-	orientationRequestTimes[interfaceOrientation] = [NSDate timeIntervalSinceReferenceDate];
-	return TI_ORIENTATION_ALLOWED(allowedOrientations,interfaceOrientation);
 }
 
 
@@ -459,6 +546,10 @@ What this does mean is that any
 
 - (void)didShowViewController:(UIViewController *)focusedViewController animated:(BOOL)animated
 {
+	if (defaultImageView != nil) {
+		[defaultImageView removeFromSuperview];
+		RELEASE_TO_NIL(defaultImageView);
+	}
 	if (!isCurrentlyVisible || [viewControllerStack containsObject:focusedViewController])
 	{
 		return;
@@ -614,14 +705,14 @@ What this does mean is that any
 	}
 
 	allowedOrientations = newFlags;
-	if (TI_ORIENTATION_ALLOWED(allowedOrientations,lastOrientation))
+	if ([self shouldAutorotateToInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]])
 	{
 		//We're still good. No need to rotate. Skip.
 		return;
 	}
 
 	//Force a rotate to accomodate.
-	[self manuallyRotateToOrientation:[self mostRecentlyAllowedOrientation]];
+	[self manuallyRotate];
 }
 
 -(void)setParentOrientationController:(id <TiOrientationController>)newParent

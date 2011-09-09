@@ -8,26 +8,35 @@
 #import "TiRootController.h"
 #import "TiWindowProxy.h"
 
-#define MAX_ORIENTATIONS	7
-
 @interface TiRootViewController : UIViewController<UIApplicationDelegate,TiRootController,TiOrientationController> {
 @private
-	NSMutableArray *windowViewControllers;	
-	
+//Presentation: background image and color.
 	UIColor * backgroundColor;
 	UIImage * backgroundImage;
 
+//View Controller stack:
+	/*
+	 *	Due to historical reasons, there are three arrays that track views/
+	 *	windows/viewcontrollers that are 'opened' on the rootViewController.
+	 *	For best results, this should be realigned with a traditional container-
+	 *	style view controller, perhaps even something proxy-agnostic in the
+	 *	future. TODO: Refactor viewController arrays.
+	 */
+	NSMutableArray *windowViewControllers;	
+	NSMutableArray * viewControllerStack;
+	NSMutableArray * windowProxies;
+
+//While no windows are onscreen, present default.png
+	UIImageView * defaultImageView;
+	
+//Orientation handling:
 	TiOrientationFlags	allowedOrientations;
-	NSTimeInterval	orientationRequestTimes[MAX_ORIENTATIONS];
+	UIInterfaceOrientation orientationHistory[4];
 
 	UIInterfaceOrientation lastOrientation;
 	UIInterfaceOrientation windowOrientation;
 
-	NSMutableArray * viewControllerStack;
 	BOOL isCurrentlyVisible;
-	
-	//TiOrientationController variables.
-	NSMutableArray * windowProxies;
 
 //Keyboard handling -- This can probably be done in a better way.
 	BOOL updatingAccessoryView;
@@ -64,7 +73,5 @@
 
 - (void)openWindow:(TiWindowProxy *)window withObject:(id)args;
 - (void)closeWindow:(TiWindowProxy *)window withObject:(id)args;
-
--(UIInterfaceOrientation)mostRecentlyAllowedOrientation;
 
 @end
