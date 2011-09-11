@@ -92,8 +92,9 @@ public class TiScrollableView extends TiCompositeLayout
 		this.proxy = proxy;
 		this.handler = handler;
 		me = this;
-		showPagingControl = true;
 		views = new ArrayList<TiViewProxy>();
+
+		showPagingControl = proxy.getProperty(TiC.PROPERTY_SHOW_PAGING_CONTROL);
 		
 		//below this was in "doOpen"
 		//setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));

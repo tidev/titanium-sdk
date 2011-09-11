@@ -15,6 +15,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiEventHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -51,6 +52,8 @@ public class ScrollableViewProxy extends TiViewProxy
 		super(context);
 		inAnimation = new AtomicBoolean(false);
 		inScroll = new AtomicBoolean(false);
+
+		setProperty(TiC.PROPERTY_SHOW_PAGING_CONTROL, false);
 	}
 
 	@Override
