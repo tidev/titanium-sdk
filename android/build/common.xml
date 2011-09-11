@@ -1,29 +1,28 @@
 <!-- 
 Appcelerator Titanium Mobile
 
-Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+Copyright (c) 2010, 2011 by Appcelerator, Inc. All Rights Reserved.
 Licensed under the terms of the Apache Public License
 Please see the LICENSE included with this distribution for details.
 
 Common ant tasks and macros for building Android-based Titanium modules and projects
 -->
 <project name="titanium-common" default="dont.run.me">
-
 	<property file="build.properties"/>
 	<property name="ti.android.root" location="${basedir}/.." />
 	<property name="ti.build.dir" value="${ti.android.root}/build"/>
 	<property file="${ti.build.dir}/build.properties"/>
-	
+
 	<taskdef resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
 			<pathelement location="${ti.build.dir}/lib/ant-contrib-1.0b3.jar" />
 		</classpath>
 	</taskdef>
-	
+
 	<path id="ti.build.lib.path">
 		<fileset dir="${ti.build.dir}/lib" includes="**/*.jar"/>
 	</path>
-	
+
 	<path id="ti.build.path">
 		<path refid="ti.build.lib.path"/>
 		<path path="${ti.build.dir}/bin"/>
@@ -377,6 +376,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<target name="build.all">
 		<build.ti.ant.tasks/>
 		<define.ti.ant.tasks/>
+		<antcall target="update.libv8"/>
 		<antcall target="build.kroll.apt.jar"/>
 		<antcall target="build.titanium.jar"/>
 		<antcall target="build.all.modules"/>
@@ -415,6 +415,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			<taskdef classname="org.appcelerator.titanium.ant.ModulePathTask" name="ti.modulePath" classpathref="ti.build.path"/>
 			<taskdef classname="org.appcelerator.titanium.ant.StringTask" name="ti.string" classpathref="ti.build.path"/>
 			<taskdef classname="org.appcelerator.titanium.ant.UpdateModulesJSONTask" name="ti.updateModulesJSON" classpathref="ti.build.path"/>
+			<taskdef classname="org.appcelerator.titanium.ant.JSONMap" name="ti.jsonMap" classpathref="ti.build.path"/>
 		</sequential>
 	</macrodef>
 	
@@ -448,6 +449,26 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<delete includeemptydirs="true">
 			<fileset dir="${dist.dir}" includes="**/*" defaultexcludes="false"/>
 		</delete>
+	</target>
+
+	<target name="update.libv8">
+		<property file="${ti.build.dir}/libv8.properties"/>
+		<property name="dist.libv8.dir" location="${dist.dir}/libv8/${libv8.version}"/>
+		<property name="libv8.archive" value="libv8-${libv8.version}.tar.bz2"/>
+		<mkdir dir="${dist.libv8.dir}"/>
+
+		<ti.jsonMap file="${dist.libv8.dir}/libv8.json" prefix="libv8.current"/>
+
+		<condition property="libv8.latest">
+			<equals arg1="${libv8.current.version}" arg2="${libv8.version}"/>
+		</condition>
+		<antcall target="download.libv8"/>
+	</target>
+
+	<target name="download.libv8" unless="libv8.latest">
+		<get src="http://timobile.appcelerator.com.s3.amazonaws.com/libv8/${libv8.archive}"
+			dest="${dist.libv8.dir}" verbose="true" usetimestamp="true"/>
+		<untar compression="bzip2" src="${dist.libv8.dir}/${libv8.archive}" dest="${dist.libv8.dir}"/>
 	</target>
 
 	<target name="dont.run.me">
