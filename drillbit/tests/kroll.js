@@ -178,5 +178,8 @@ describe("Kroll tests",
 		valueOf(function() {
 			getList("key");
 		}).shouldNotThrowException();
+		//TIMOB-5276
+		valueOf(getList("key")).shouldBeNull();
+		
 	}
 });
