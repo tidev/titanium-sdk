@@ -34,10 +34,12 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 			{
 				id value = [KrollObject toID:[o context] value:arguments[c]];
 				//TODO: This is a temprorary workaround for the time being. We have to properly take care of [undefined] objects.
-				if(value == nil)
+				if(value == nil){
 					[args addObject:[NSNull null]];
-				else
+				}
+				else{
 					[args addObject:value];
+				}
 			}
 		}
 #if KMETHOD_DEBUG == 1
