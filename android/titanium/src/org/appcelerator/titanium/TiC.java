@@ -62,6 +62,7 @@ public class TiC
 	public static final String EVENT_REGION_CHANGED = "regionChanged";
 	public static final String EVENT_RESTART = "restart";
 	public static final String EVENT_RESUME = "resume";
+	public static final String EVENT_SCROLL = "scroll";
 	public static final String EVENT_SINGLE_TAP = "singletap";
 	public static final String EVENT_START = "start";
 	public static final String EVENT_STOP = "stop";
@@ -130,11 +131,13 @@ public class TiC
 	public static final String PROPERTY_CODE = "code";
 	public static final String PROPERTY_COLOR = "color";
 	public static final String PROPERTY_COORDS = "coords";
+	public static final String PROPERTY_CONTENT_HEIGHT = "contentHeight";
 	public static final String PROPERTY_CONTENT_INTENT = "contentIntent";
 	public static final String PROPERTY_CONTENT_TEXT = "contentText";
 	public static final String PROPERTY_CONTENT_TITLE = "contentTitle";
 	public static final String PROPERTY_CONTENT_URL = "contentURL";
 	public static final String PROPERTY_CONTENT_VIEW = "contentView";
+	public static final String PROPERTY_CONTENT_WIDTH = "contentWidth";
 	public static final String PROPERTY_COUNTRY = "country";
 	public static final String PROPERTY_COUNTRY_CODE = "country_code"; // TIMOB-4478
 	public static final String PROPERTY_DATA = "data";
@@ -185,6 +188,7 @@ public class TiC
 	public static final String PROPERTY_IMAGES = "images";
 	public static final String PROPERTY_INTENT = "intent";
 	public static final String PROPERTY_ITEM_ID = "itemId";
+	public static final String PROPERTY_KEEP_SCREEN_ON = "keepScreenOn";
 	public static final String PROPERTY_KEYBOARD_TYPE = "keyboardType";
 	public static final String PROPERTY_LATITUDE = "latitude";
 	public static final String PROPERTY_LATITUDE_DELTA = "latitudeDelta";
@@ -224,6 +228,7 @@ public class TiC
 	public static final String PROPERTY_OPTIONS = "options";
 	public static final String PROPERTY_ORDER = "order";
 	public static final String PROPERTY_PACKAGE_NAME = "packageName";
+	public static final String PROPERTY_PAGING_CONTROL_TIMEOUT = "pagingControlTimeout";
 	public static final String PROPERTY_PARENT = "parent";
 	public static final String PROPERTY_PASSWORD_MASK = "passwordMask";
 	public static final String PROPERTY_PIN_IMAGE = "pinImage";
@@ -254,6 +259,7 @@ public class TiC
 	public static final String PROPERTY_SCALING_MODE = "scalingMode";
 	public static final String PROPERTY_SCALES_PAGE_TO_FIT = "scalesPageToFit";
 	public static final String PROPERTY_SCROLL_ENABLED = "scrollEnabled";
+	public static final String PROPERTY_SCROLL_TYPE = "scrollType";
 	public static final String PROPERTY_SEARCH = "search";
 	public static final String PROPERTY_SECTION = "section";
 	public static final String PROPERTY_SELECTED_BACKGROUND_COLOR = "selectedBackgroundColor";
@@ -292,6 +298,7 @@ public class TiC
 	public static final String PROPERTY_TRANSFORM = "transform";
 	public static final String PROPERTY_TRUE_HEADING = "trueHeading";
 	public static final String PROPERTY_TYPE = "type";
+	public static final String PROPERTY_URI = "uri";
 	public static final String PROPERTY_URL = "url";
 	public static final String PROPERTY_USER_LOCATION = "userLocation";
 	public static final String PROPERTY_VALUE = "value";
@@ -302,6 +309,7 @@ public class TiC
 	public static final String PROPERTY_WHEN = "when";
 	public static final String PROPERTY_WIDTH = "width";
 	public static final String PROPERTY_WINDOW = "window";
+	public static final String PROPERTY_WINDOW_PIXEL_FORMAT = "windowPixelFormat";
 	public static final String PROPERTY_WINDOW_SOFT_INPUT_MODE = "windowSoftInputMode";
 	public static final String PROPERTY_WORD_WRAP = "wordWrap";
 	public static final String PROPERTY_X = "x";

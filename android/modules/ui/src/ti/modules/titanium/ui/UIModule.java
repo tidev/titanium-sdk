@@ -12,6 +12,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiOrientationHelper;
@@ -155,7 +156,26 @@ public class UIModule extends KrollModule
 			{
 				orientationModes = new int[] {tiOrientationMode};
 			}
-			((TiBaseActivity) activity).getWindowProxy().setOrientationModes (orientationModes);
+
+			// this should only be entered if a LW window is created on top of the root activity
+			TiBaseActivity tiBaseActivity = (TiBaseActivity)activity;
+			TiWindowProxy windowProxy = tiBaseActivity.getWindowProxy();
+
+			if (windowProxy == null)
+			{
+				if (tiBaseActivity.lwWindow != null)
+				{
+					tiBaseActivity.lwWindow.setOrientationModes(orientationModes);
+				}
+				else
+				{
+					Log.e(LCAT, "no window has been associated with activity, unable to set orientation");
+				}
+			}
+			else
+			{
+				windowProxy.setOrientationModes(orientationModes);
+			}
 		}
 	}
 }

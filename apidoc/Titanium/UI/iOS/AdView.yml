@@ -15,6 +15,9 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
   - name: error
@@ -28,6 +31,9 @@ events:
         description: the error message
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: load
     description: called when a banner is loaded and displayed
     properties:
@@ -35,12 +41,17 @@ events:
         description: the y point of the event, in receiving view coordinates
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
 properties:
   - name: SIZE_320x50
     description: constant for 320x50 ad sizes
     type: String
+    permission: read-only
   - name: SIZE_480x32
     description: constant for 480x32 ad sizes
     type: String
+    permission: read-only
