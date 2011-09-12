@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -25,8 +25,6 @@ import android.text.method.DialerKeyListener;
 import android.text.method.DigitsKeyListener;
 import android.text.method.NumberKeyListener;
 import android.text.method.PasswordTransformationMethod;
-import android.text.method.TextKeyListener;
-import android.text.method.TextKeyListener.Capitalize;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -75,7 +73,8 @@ public class TiUIText extends TiUIView
 
 	protected EditText tv;
 
-	public TiUIText(TiViewProxy proxy, boolean field) {
+	public TiUIText(TiViewProxy proxy, boolean field)
+	{
 		super(proxy);
 		if (DBG) {
 			Log.d(LCAT, "Creating a text field");
@@ -90,16 +89,13 @@ public class TiUIText extends TiUIView
 		tv.setOnEditorActionListener(this);
 		tv.setOnFocusChangeListener(this); // TODO refactor to TiUIView?
 		tv.setIncludeFontPadding(true); 
-		//tv.setPadding(5, 0, 5, 0);
 		if (field) {
 			tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 		} else {
 			tv.setGravity(Gravity.TOP | Gravity.LEFT);
 		}
 		setNativeView(tv);
-
 	}
-
 
 	@Override
 	public void processProperties(KrollDict d)
@@ -195,16 +191,17 @@ public class TiUIText extends TiUIView
 		}
 	}
 
-
-	public void afterTextChanged(Editable tv) {
+	@Override
+	public void afterTextChanged(Editable tv)
+	{
 	}
 
-
-	public void beforeTextChanged(CharSequence s, int start, int before, int count) {
-
+	@Override
+	public void beforeTextChanged(CharSequence s, int start, int before, int count)
+	{
 	}
 
-
+	@Override
 	public void onTextChanged(CharSequence s, int start, int before, int count)
 	{
 		String value = tv.getText().toString();
@@ -216,7 +213,9 @@ public class TiUIText extends TiUIView
 	}
 
 
-	public void onFocusChange(View v, boolean hasFocus) {
+	@Override
+	public void onFocusChange(View v, boolean hasFocus)
+	{
 		if (hasFocus) {
 			Boolean clearOnEdit = (Boolean) proxy.getProperty("clearOnEdit");
 			if (clearOnEdit != null && clearOnEdit) {
@@ -238,6 +237,7 @@ public class TiUIText extends TiUIView
 		return event;
 	}
 
+	@Override
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent keyEvent)
 	{
 		String value = tv.getText().toString();
@@ -246,7 +246,7 @@ public class TiUIText extends TiUIView
 
 		proxy.setProperty("value", value);
 		if (DBG) {
-			Log.e(LCAT, "ActionID: " + actionId + " KeyEvent: " + (keyEvent != null ? keyEvent.getKeyCode() : null));
+			Log.d(LCAT, "ActionID: " + actionId + " KeyEvent: " + (keyEvent != null ? keyEvent.getKeyCode() : null));
 		}
 		if (actionId != EditorInfo.IME_ACTION_GO && actionId != EditorInfo.IME_ACTION_SEND) {
 			proxy.fireEvent("return", data);
@@ -277,7 +277,7 @@ public class TiUIText extends TiUIView
 		boolean editable = true;
 		int autocorrect = InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
 		int autoCapValue = 0;
-		
+
 		if (d.containsKey(TiC.PROPERTY_AUTOCORRECT)) {
 			if(TiConvert.toBoolean(d, TiC.PROPERTY_AUTOCORRECT)) {
 				autocorrect = InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
@@ -291,7 +291,7 @@ public class TiUIText extends TiUIView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION)) {
-			
+
 			switch (TiConvert.toInt(d,TiC.PROPERTY_AUTOCAPITALIZATION)) {
 				case TEXT_AUTOCAPITALIZATION_NONE:
 					autoCapValue = 0;
@@ -309,21 +309,20 @@ public class TiUIText extends TiUIView
 				case TEXT_AUTOCAPITALIZATION_WORDS:
 					autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_WORDS;
 					break;
-	
 				default:
 					Log.w(LCAT, "Unknown AutoCapitalization Value ["+d.getString(TiC.PROPERTY_AUTOCAPITALIZATION)+"]");
 				break;
 			}
 		}
-				
+
 		if (d.containsKey(TiC.PROPERTY_PASSWORD_MASK)) {
 			passwordMask = TiConvert.toBoolean(d, TiC.PROPERTY_PASSWORD_MASK);
-		}		
+		}
 
 		if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE)) {
 			type = TiConvert.toInt(d, TiC.PROPERTY_KEYBOARD_TYPE);
 		}
-		
+
 		int typeModifiers = autocorrect | autoCapValue;
 		int textTypeAndClass = typeModifiers;
 		// For some reason you can't set both TYPE_CLASS_TEXT and
@@ -337,17 +336,16 @@ public class TiUIText extends TiUIView
 			case KEYBOARD_DEFAULT:
 			case KEYBOARD_ASCII:
 				// Don't need a key listener, inputType handles that.
-				tv.setInputType(textTypeAndClass);
 				break;
-			case KEYBOARD_NUMBERS_PUNCTUATION :
-				tv.setInputType(InputType.TYPE_CLASS_NUMBER | typeModifiers);
-				tv.setKeyListener(new NumberKeyListener() {
-					
+			case KEYBOARD_NUMBERS_PUNCTUATION:
+				textTypeAndClass |= InputType.TYPE_CLASS_NUMBER;
+				tv.setKeyListener(new NumberKeyListener()
+				{
 					@Override
 					public int getInputType() {
 						return InputType.TYPE_CLASS_NUMBER;
 					}
-					
+
 					@Override
 					protected char[] getAcceptedChars() {
 						return new char[] {
@@ -360,75 +358,79 @@ public class TiUIText extends TiUIView
 					}
 				});
 				break;
-			case KEYBOARD_URL :
-				Log.i(LCAT, "Setting keyboard type URL-3");
+			case KEYBOARD_URL:
+				if (DBG) {
+					Log.d(LCAT, "Setting keyboard type URL-3");
+				}
 				tv.setImeOptions(EditorInfo.IME_ACTION_GO);
-				tv.setInputType(textTypeAndClass | InputType.TYPE_TEXT_VARIATION_URI);
+				textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_URI;
 				break;
-			case KEYBOARD_DECIMAL_PAD :
-			case KEYBOARD_NUMBER_PAD :
+			case KEYBOARD_DECIMAL_PAD:
+			case KEYBOARD_NUMBER_PAD:
 				tv.setKeyListener(DigitsKeyListener.getInstance(true,true));
-				tv.setInputType(InputType.TYPE_CLASS_NUMBER | typeModifiers);
+				textTypeAndClass |= InputType.TYPE_CLASS_NUMBER;
 				break;
-			case KEYBOARD_PHONE_PAD :
+			case KEYBOARD_PHONE_PAD:
 				tv.setKeyListener(DialerKeyListener.getInstance());
-				tv.setInputType(InputType.TYPE_CLASS_PHONE | typeModifiers);
+				textTypeAndClass |= InputType.TYPE_CLASS_PHONE;
 				break;
-			case KEYBOARD_EMAIL_ADDRESS :
-				tv.setInputType(textTypeAndClass | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+			case KEYBOARD_EMAIL_ADDRESS:
+				textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
 				break;
-		}
-		if (!editable) {
-			tv.setKeyListener(null);
-			tv.setCursorVisible(false);
 		}
 		if (passwordMask) {
 			tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
-			tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+			textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_PASSWORD;
 		} else {
 			if (tv.getTransformationMethod() instanceof PasswordTransformationMethod) {
 				tv.setTransformationMethod(null);
 			}
 		}
+		tv.setInputType(textTypeAndClass);
+		if (!editable) {
+			tv.setKeyListener(null);
+			tv.setCursorVisible(false);
+		}
+
 		if (!field) {
 			tv.setSingleLine(false);
 		}
 	}
-	
+
 	public void handleReturnKeyType(int type)
 	{
 		switch(type) {
-			case RETURNKEY_GO :
+			case RETURNKEY_GO:
 				tv.setImeOptions(EditorInfo.IME_ACTION_GO);
 				break;
-			case RETURNKEY_GOOGLE :
+			case RETURNKEY_GOOGLE:
 				tv.setImeOptions(EditorInfo.IME_ACTION_GO);
 				break;
-			case RETURNKEY_JOIN :
+			case RETURNKEY_JOIN:
 				tv.setImeOptions(EditorInfo.IME_ACTION_DONE);
 				break;
-			case RETURNKEY_NEXT :
+			case RETURNKEY_NEXT:
 				tv.setImeOptions(EditorInfo.IME_ACTION_NEXT);
 				break;
-			case RETURNKEY_ROUTE :
+			case RETURNKEY_ROUTE:
 				tv.setImeOptions(EditorInfo.IME_ACTION_DONE);
 				break;
-			case RETURNKEY_SEARCH :
+			case RETURNKEY_SEARCH:
 				tv.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
 				break;
-			case RETURNKEY_YAHOO :
+			case RETURNKEY_YAHOO:
 				tv.setImeOptions(EditorInfo.IME_ACTION_GO);
 				break;
-			case RETURNKEY_DONE :
+			case RETURNKEY_DONE:
 				tv.setImeOptions(EditorInfo.IME_ACTION_DONE);
 				break;
-			case RETURNKEY_EMERGENCY_CALL :
+			case RETURNKEY_EMERGENCY_CALL:
 				tv.setImeOptions(EditorInfo.IME_ACTION_GO);
 				break;
-			case RETURNKEY_DEFAULT :
+			case RETURNKEY_DEFAULT:
 				tv.setImeOptions(EditorInfo.IME_ACTION_UNSPECIFIED);
 				break;
-			case RETURNKEY_SEND :
+			case RETURNKEY_SEND:
 				tv.setImeOptions(EditorInfo.IME_ACTION_SEND);
 				break;
 		}
