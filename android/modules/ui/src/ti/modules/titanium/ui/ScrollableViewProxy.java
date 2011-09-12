@@ -12,9 +12,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
+import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiEventHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -42,6 +45,8 @@ public class ScrollableViewProxy extends TiViewProxy
 	public static final int MSG_SET_CURRENT = MSG_FIRST_ID + 107;
 	public static final int MSG_REMOVE_VIEW = MSG_FIRST_ID + 108;
 	public static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
+	
+	private static final int DEFAULT_PAGING_CONTROL_TIMEOUT = 3000;
 
 	protected AtomicBoolean inAnimation;
 	protected AtomicBoolean inScroll;
@@ -176,7 +181,15 @@ public class ScrollableViewProxy extends TiViewProxy
 
 	public void setPagerTimeout() {
 		getUIHandler().removeMessages(MSG_HIDE_PAGER);
-		getUIHandler().sendEmptyMessageDelayed(MSG_HIDE_PAGER, 3000);
+		int timeout = DEFAULT_PAGING_CONTROL_TIMEOUT;
+		Object o = getProperty(TiC.PROPERTY_PAGING_CONTROL_TIMEOUT);
+		if (o != null) {
+			timeout = TiConvert.toInt(o);
+		}
+
+		if (timeout > 0) {
+			getUIHandler().sendEmptyMessageDelayed(MSG_HIDE_PAGER, timeout);
+		}
 	}
 
 	@Kroll.setProperty @Kroll.method
