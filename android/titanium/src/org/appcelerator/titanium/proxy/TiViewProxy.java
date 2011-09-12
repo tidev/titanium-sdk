@@ -741,7 +741,48 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		KrollDict options = getTiContext().getTiApp().getStylesheet(baseUrl, classes, null);
 		extend(options);
 	}
-
+	
+	@Kroll.method @Kroll.getProperty
+	public boolean getKeepScreenOn()
+	{
+		Boolean keepScreenOn = null;
+		TiUIView v = peekView();
+		if (v != null) {
+			View nv = v.getNativeView();
+			if (nv != null) {
+				keepScreenOn = nv.getKeepScreenOn();				
+			}
+		}
+		
+		//Keep the proxy in the correct state
+		Object current = getProperty(TiC.PROPERTY_KEEP_SCREEN_ON);
+		if (current != null) {
+			boolean currentValue = TiConvert.toBoolean(current);
+			if (keepScreenOn == null) {
+				keepScreenOn = currentValue;
+			} else {
+				if (currentValue != keepScreenOn) {
+					setProperty(TiC.PROPERTY_KEEP_SCREEN_ON, keepScreenOn, false);
+				} else {
+					keepScreenOn = currentValue;
+				}
+			}
+		} else {
+			if (keepScreenOn == null) {
+				keepScreenOn = false; // Android default
+			}
+			setProperty(TiC.PROPERTY_KEEP_SCREEN_ON, keepScreenOn, false);			
+		}
+	
+		return keepScreenOn;
+	}
+	
+	@Kroll.method @Kroll.setProperty(retain=false)
+	public void setKeepScreenOn(boolean keepScreenOn)
+	{
+		setProperty(TiC.PROPERTY_KEEP_SCREEN_ON, keepScreenOn, true);
+	}
+	
 	@Kroll.method
 	public KrollDict convertPointToView(KrollDict point, TiViewProxy dest)
 	{

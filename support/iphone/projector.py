@@ -10,6 +10,8 @@ from os.path import join, splitext, split, exists
 from datetime import date
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
+
+from tools import *
 	
 fileTargets = ['.c','.cpp','.h','.m','.mm','.pbxproj']
 ignoreFiles = ['.gitignore', '.cvsignore','bridge.txt','libTitanium.a']
@@ -118,23 +120,6 @@ class Projector(object):
 				 	if os.path.exists(to_): os.remove(to_)
 					print "[DEBUG] copying: %s => %s" % (from_,to_)
 				 	copyfile(from_, to_)
-
-	def fix_xcode_script(self,content,script_name,script_contents):
-		# fix up xcode compile scripts in build phase
-		start = 0
-		while start >= 0:
-			start = content.find("name = \"%s\";" % script_name, start)	
-			if start > 0:
-				begin = content.find("shellScript = ",start)
-				if begin > 0:
-					end = content.find("};",begin+1)
-					if end > 0:
-						before = content[0:begin+15]
-						after = content[end:]
-						script = "%s\";\n                " % script_contents
-						content = before + script + after
-						start = begin
-		return content
 	
 	def process_xcode(self,content):
 		content = content.replace('../Classes','Classes')
@@ -163,8 +148,8 @@ class Projector(object):
 		builder_py = os.path.abspath(os.path.join(self.sdk_root,"builder.py"))
 		pre_compile_script = "\\\"%s\\\" xcode\\nexit $?" % (builder_py)
 		
-		content = self.fix_xcode_script(content,"Pre-Compile",pre_compile_script)
-		content = self.fix_xcode_script(content,"Post-Compile","echo 'post-compile'")
+		content = fix_xcode_script(content,"Pre-Compile",pre_compile_script)
+		content = fix_xcode_script(content,"Post-Compile","echo 'post-compile'")
 		return content
 	
 	def create(self,in_dir,out_dir):
