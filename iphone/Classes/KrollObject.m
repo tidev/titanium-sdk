@@ -143,7 +143,11 @@ id TiValueToId(KrollContext *context, TiValueRef v)
 					{
 						TiValueRef valueRef = TiObjectGetPropertyAtIndex(jsContext, obj, c, NULL);
 						id value = TiValueToId(context,valueRef);
-						[resultArray addObject:value];
+						//TODO: This is a temprorary workaround for the time being. We have to properly take care of [undefined] objects.
+						if(value == nil)
+							[resultArray addObject:[NSNull null]];
+						else
+							[resultArray addObject:value];
 					}
 					result = [resultArray autorelease];
 					break;
