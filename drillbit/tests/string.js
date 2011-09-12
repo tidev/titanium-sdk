@@ -98,7 +98,7 @@ describe("String extensions tests", {
 		valueOf(newDate.getFullYear()).shouldBe(d.getFullYear());
 
 		// not 100% sure this is true in every locale, but would
-		// expect a couple of spaces in the medium format.  medium format
+		// expect a couple of spaces in the medium format. Medium format
 		// Android en-US is "Jun 6, 2015".
 		match = mediumValTest.match(/\s/g);
 		valueOf(match).shouldBeArray();
@@ -185,7 +185,7 @@ describe("String extensions tests", {
 
 	stringFormatDecimal: function() {
 		// Our documentation (the notes of the Titanium module documentation)
-		// doesn't indicate any arguments whatsoever.  However, the Android
+		// doesn't indicate any arguments whatsoever. However, the Android
 		// implementation allows any of these three formats:
 		//		String.formatDecimal(2.0);
 		//		String.formatDecimal(2.0, "#0"); // i.e., pattern as second arg
@@ -228,7 +228,7 @@ describe("String extensions tests", {
 		// Two arguments -- locale
 		valTest = String.formatDecimal(d, "en-US");
 		valueOf(valTest).shouldBe("5,123.33");
-		// Do all devices we test on have de-DE avail? I'm taking a chance here.  Could
+		// Do all devices we test on have de-DE avail? I'm taking a chance here. Could
 		// be we need to rip this out.
 		valTest = null;
 		valueOf(function() {
@@ -263,47 +263,47 @@ describe("String extensions tests", {
 		}
 
 		// Three arguments
-		// Again, assuming de-DE is available on device/simulator/emulator.  If we find
+		// Again, assuming de-DE is available on device/simulator/emulator. If we find
 		// that it's not always available, may need to rip this out.
 		valTest = null;
-        valTest = String.formatDecimal(d, "de-DE", "#.00");
-        valueOf(valTest).shouldBe("5123,33");
-        valTest = String.formatDecimal(d, "de-DE", "00,000.0");
-        valueOf(valTest).shouldBe("05.123,3");
-        valTest = String.formatDecimal(d, "en-US", "0.00");
-        valueOf(valTest).shouldBe("5123.33");
-        valTest = String.formatDecimal(d, "en-US", "00,000.0");
-        valueOf(valTest).shouldBe("05,123.3");
+		valTest = String.formatDecimal(d, "de-DE", "#.00");
+		valueOf(valTest).shouldBe("5123,33");
+		valTest = String.formatDecimal(d, "de-DE", "00,000.0");
+		valueOf(valTest).shouldBe("05.123,3");
+		valTest = String.formatDecimal(d, "en-US", "0.00");
+		valueOf(valTest).shouldBe("5123.33");
+		valTest = String.formatDecimal(d, "en-US", "00,000.0");
+		valueOf(valTest).shouldBe("05,123.3");
 	},
 
-    stringFormatCurrency: function() {
+	stringFormatCurrency: function() {
 		// Our documentation (the notes of the Titanium module documentation)
 		// doesn't indicate any arguments other than the value to be formatted.
-        // And, unlike String.formatDecimal, the Android implementation also does
-        // not support any argument other than the value to be formatted.
+		// And, unlike String.formatDecimal, the Android implementation also does
+		// not support any argument other than the value to be formatted.
 		valueOf(String).shouldBeFunction();
 		valueOf(String.formatCurrency).shouldBeFunction();
-        var d = 555123.2323;
-        var valTest = String.formatCurrency(d);
+		var d = 555123.2323;
+		var valTest = String.formatCurrency(d);
 		var country;
 		valueOf(function() {
 			country = Ti.Locale.currentCountry;
 		}).shouldNotThrowException();
 		valueOf(country).shouldBeString();
-        if (country.toLowerCase() === "us") {
-            valueOf(valTest).shouldBe("$555,123.23");
-        }
+		if (country.toLowerCase() === "us") {
+			valueOf(valTest).shouldBe("$555,123.23");
+		}
 
-        // A few Euro ones for fun, especially so Bill can test
-        // on a real phone in Austria. :)
-        if (["de", "at", "fr", "it", "es", "pt"].indexOf(country.toLowerCase()) >= 0) {
-            valueOf(valTest.substr(0, 1)).shouldBe("€");
-        }
+		// A few Euro ones for fun, especially so Bill can test
+		// on a real phone in Austria. :)
+		if (["de", "at", "fr", "it", "es", "pt"].indexOf(country.toLowerCase()) >= 0) {
+			valueOf(valTest.substr(0, 1)).shouldBe("€");
+		}
 
-        // In all cases, there should only be two decimal digits
-        // and a thousands separator.
-        var pattern = /555[.,]123[.,]23/;
-        valueOf(valTest.search(pattern)).shouldBeGreaterThanEqual(0);
-    }
+		// In all cases, there should only be two decimal digits
+		// and a thousands separator.
+		var pattern = /555[.,]123[.,]23/;
+		valueOf(valTest.search(pattern)).shouldBeGreaterThanEqual(0);
+	}
 
 });
