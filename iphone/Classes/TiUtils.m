@@ -122,12 +122,7 @@ static void getAddrInternal(char* macAddress, const char* ifName) {
 
 +(BOOL)isIPad
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-	if ([TiUtils isiPhoneOS3_2OrGreater]) {
-		return UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad;
-	}
-#endif
-	return NO;
+	return [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad;
 }
 
 +(BOOL)isIPhone4
@@ -1259,7 +1254,7 @@ if ([str isEqualToString:@#orientation]) return orientation;
 	BOOL app = [[url scheme] hasPrefix:@"app"];
 	if ([url isFileURL] || app)
 	{
-		BOOL had_splash_removed = NO;
+		BOOL leadingSlashRemoved = NO;
 		NSString *urlstring = [[url standardizedURL] path];
 		NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
 		NSRange range = [urlstring rangeOfString:resourceurl];
@@ -1270,11 +1265,11 @@ if ([str isEqualToString:@#orientation]) return orientation;
 		}
 		if ([appurlstr hasPrefix:@"/"])
 		{
-			had_splash_removed = YES;
+			leadingSlashRemoved = YES;
 			appurlstr = [appurlstr substringFromIndex:1];
 		}
 #if TARGET_IPHONE_SIMULATOR
-		if (app==YES && had_splash_removed)
+		if (app==YES && leadingSlashRemoved)
 		{
 			// on simulator we want to keep slash since it's coming from file
 			appurlstr = [@"/" stringByAppendingString:appurlstr];
