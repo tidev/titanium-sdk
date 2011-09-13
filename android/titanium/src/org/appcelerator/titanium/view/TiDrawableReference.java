@@ -536,7 +536,12 @@ public class TiDrawableReference
 			stream = blob.getInputStream();
 			
 		} else if (isTypeResourceId() && resourceId != UNKNOWN && context != null) {
-			stream = context.getTiApp().getResources().openRawResource(resourceId);
+			try {
+				stream = context.getTiApp().getResources().openRawResource(resourceId);
+			} catch (Resources.NotFoundException e) {
+				Log.e(LCAT, "Drawable resource could not be opened. Are you sure you have the resource for the current device configuration (orientation, screen size, etc.)?");
+				throw e;
+			}
 		}
 
 		return stream;
