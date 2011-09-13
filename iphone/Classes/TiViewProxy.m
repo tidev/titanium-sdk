@@ -14,6 +14,7 @@
 #import "TiAction.h"
 #import "TiStylesheet.h"
 #import "TiLocale.h"
+#import "TiUIView.h"
 
 #import <QuartzCore/QuartzCore.h>
 #import <libkern/OSAtomic.h>
@@ -556,6 +557,29 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	return barButtonView;
 }
 
+#pragma mark Recognizers
+
+-(void)recognizedPinch:(UIPinchGestureRecognizer*)recognizer 
+{ 
+    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                           NUMDOUBLE(recognizer.scale), @"scale", 
+                           NUMDOUBLE(recognizer.velocity), @"velocity", 
+                           nil]; 
+    [self fireEvent:@"pinch" withObject:event]; 
+}
+
+-(void)recognizedLongPress:(UILongPressGestureRecognizer*)recognizer 
+{ 
+    if ([recognizer state] == UIGestureRecognizerStateBegan) {
+        CGPoint p = [recognizer locationInView:self.view];
+        NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                               NUMFLOAT(p.x), @"x",
+                               NUMFLOAT(p.y), @"y",
+                               nil];
+        [self fireEvent:@"longpress" withObject:event]; 
+    }
+}
+
 -(TiUIView*)view
 {
 	if (view == nil)
@@ -570,7 +594,19 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		// on open we need to create a new view
 		[self viewWillAttach];
 		view = [self newView];
-		
+
+        // check listeners dictionary to see if we need gesture recognizers
+        if ([self _hasListeners:@"pinch"]) {
+            UIPinchGestureRecognizer* r = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedPinch:)];
+            [view addGestureRecognizer:r];
+            [r release];
+        }
+        if ([self _hasListeners:@"longpress"]) {
+            UILongPressGestureRecognizer* r = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedLongPress:)];
+            [view addGestureRecognizer:r];
+            [r release];
+        }
+        
 		view.proxy = self;
 		view.layer.transform = CATransform3DIdentity;
 		view.transform = CGAffineTransformIdentity;
@@ -1227,7 +1263,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	{
 		[self.modelDelegate listenerAdded:type count:count];
 	}
-	else
+	else if(view!=nil) // don't create the view if not already realized
 	{
 		[self.view listenerAdded:type count:count];
 	}

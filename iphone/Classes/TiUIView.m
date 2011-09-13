@@ -699,8 +699,6 @@ DEFINE_EXCEPTIONS
     }
 }
 
-
-
 #pragma mark Touch Events
 
 - (void)handleSwipeLeft
@@ -1038,6 +1036,16 @@ DEFINE_EXCEPTIONS
 
 #pragma mark Listener management
 
+-(void)removeGestureRecognizerOfClass:(Class)c
+{
+    for (UIGestureRecognizer* r in [self gestureRecognizers]) {
+        if ([r isKindOfClass:c]) {
+            [self removeGestureRecognizer:r];
+            break;
+        }
+    }
+}
+
 -(void)handleListenerAddedWithEvent:(NSString *)event
 {
 	ENSURE_UI_THREAD_1_ARG(event);
@@ -1060,24 +1068,15 @@ DEFINE_EXCEPTIONS
 	}
     
     if ([event isEqualToString:@"pinch"]) {
+        [self removeGestureRecognizerOfClass:[UIPinchGestureRecognizer class]];
         UIPinchGestureRecognizer* pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedPinch:)];
         [self addGestureRecognizer:pinchRecognizer];
         [pinchRecognizer release];
     } else if ([event isEqualToString:@"longpress"]) {
+        [self removeGestureRecognizerOfClass:[UILongPressGestureRecognizer class]];
         UILongPressGestureRecognizer* longPressRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedLongPress:)];
         [self addGestureRecognizer:longPressRecognizer];
         [longPressRecognizer release];
-    }
-}
-
--(void)removeGestureRecognizerOfClass:(Class)c
-{
-    NSArray* recognizers = [NSArray arrayWithArray:[self gestureRecognizers]];
-    for (UIGestureRecognizer* r in recognizers) {
-        if ([r isKindOfClass:c]) {
-            [self removeGestureRecognizer:r];
-            break;
-        }
     }
 }
 
