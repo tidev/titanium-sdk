@@ -15,6 +15,15 @@
 #import "TiRootViewController.h"
 #import <TiCore/TiContextRef.h>
 
+extern BOOL applicationInMemoryPanic;
+
+TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
+{
+    while (applicationInMemoryPanic) {
+        [NSThread sleepForTimeInterval:0.01];
+    }
+}
+
 @interface TiApp : TiHost <UIApplicationDelegate> 
 {
 	UIWindow *window;
@@ -24,7 +33,7 @@
 
 	TiContextGroupRef contextGroup;
 	KrollBridge *kjsBridge;
-
+    
 #ifdef USE_TI_UIWEBVIEW
 	XHRBridge *xhrBridge;
 #endif

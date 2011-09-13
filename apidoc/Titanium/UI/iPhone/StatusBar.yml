@@ -9,12 +9,16 @@ properties:
   - name: DEFAULT
     description: The default status bar style
     type: Number
+    permission: read-only
   - name: GRAY
     description: The gray colored status bar style
     type: Number
+    permission: read-only
   - name: OPAQUE_BLACK
     description: The opaque black status bar style.
     type: Number
+    permission: read-only
   - name: TRANSLUCENT_BLACK
     description: The translucent black status bar style. This style provides some level of transparency to the device background.
     type: Number
+    permission: read-only

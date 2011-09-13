@@ -9,9 +9,12 @@ properties:
   - name: BLACK
     description: A style of indicator which is black smaller than the default style. This style is good against a white content background.
     type: Number
+    permission: read-only
   - name: DEFAULT
     description: The default style of scroll indicator, which is black with a white border. This style is good against any content background.
     type: Number
+    permission: read-only
   - name: WHITE
     description: A style of indicator is white and smaller than the default style. This style is good against a black content background.
     type: Number
+    permission: read-only
