@@ -405,6 +405,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		[self generateNotification:notification];
 	}
 	
+	[self loadSplash];
 	[self boot];
 	
 	return YES;
