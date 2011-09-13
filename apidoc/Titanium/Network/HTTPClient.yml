@@ -52,18 +52,23 @@ properties:
   - name: DONE
     description: the DONE readyState constant
     type: Number
+    permission: read-only
   - name: HEADERS_RECEIVED
     description: the HEADERS_RECEIVED readyState constant
     type: Number
+    permission: read-only
   - name: LOADING
     description: the LOADING readyState constant
     type: Number
+    permission: read-only
   - name: OPENED
     description: the OPENED readyState constant
     type: Number
+    permission: read-only
   - name: UNSENT
     description: the UNSET readyState constant
     type: Number
+    permission: read-only
   - name: connected
     description: boolean to indicate that the response was successful
     type: Boolean
