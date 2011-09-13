@@ -50,7 +50,7 @@
 	NSError *error = nil; 
 	NSDictionary * resultDict = [fm attributesOfItemAtPath:path error:&error];
 	id resultType = [resultDict objectForKey:NSFileType];
-	if (resultType == NSFileTypeSymbolicLink)
+	if ([resultType isEqualToString:NSFileTypeSymbolicLink])
 	{
 		resultDict = [fm attributesOfFileSystemForPath:path error:&error];
 	}
