@@ -452,7 +452,7 @@ DEFINE_EXCEPTIONS
 				}
 			}
 #endif
-		    result = [self setImage:resultImage forKey:url cache:NO];
+		    result = [self setImage:resultImage forKey:url cache:YES];
 			[result setIsLocalImage:YES];
 		}
 	}
