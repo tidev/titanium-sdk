@@ -50,7 +50,37 @@
 	[[proxy childViewController] willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 
-- (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+	[super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+	if ([proxy respondsToSelector:@selector(willRotateToInterfaceOrientation:duration:)])
+	{
+		[proxy willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+	}
+	[[proxy childViewController] willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+}
+
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+{
+	[super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+	if ([proxy respondsToSelector:@selector(didRotateFromInterfaceOrientation:)])
+	{
+		[proxy didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+	}
+	[[proxy childViewController] didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+}
+
+
+/*
+ *	As of this commit, TiUIViewController protocol, of which proxy should honor,
+ *	requires the viewWill/DidAppear/Disappear method. As such, we could possibly
+ *	remove the respondsToSelector check. The checks are being left currently
+ *	in case a proxy is not honoring the protocol, but once it's determined that
+ *	all the classes are behaving properly, this should be streamlined.
+ *	In other words, TODO: Codecleanup
+ */
+
+- (void)viewWillAppear:(BOOL)animated
 {
 	if ([proxy respondsToSelector:@selector(viewWillAppear:)])
 	{

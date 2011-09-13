@@ -42,7 +42,109 @@
 
 
 @implementation TiRootViewController
-@synthesize backgroundColor, backgroundImage;
+@synthesize backgroundColor, backgroundImage, defaultImageView;
+
+- (UIImage*)defaultImageForOrientation:(UIDeviceOrientation) orientation resultingOrientation:(UIDeviceOrientation *)imageOrientation idiom:(UIUserInterfaceIdiom*) imageIdiom
+{	
+	UIImage* image;
+	
+	if([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
+	{
+		*imageOrientation = orientation;
+		*imageIdiom = UIUserInterfaceIdiomPad;
+		// Specific orientation check
+		switch (orientation) {
+			case UIDeviceOrientationPortrait:
+				image = [UIImage imageNamed:@"Default-Portrait.png"];
+				break;
+			case UIDeviceOrientationPortraitUpsideDown:
+				image = [UIImage imageNamed:@"Default-PortraitUpsideDown.png"];
+				break;
+			case UIDeviceOrientationLandscapeLeft:
+				image = [UIImage imageNamed:@"Default-LandscapeLeft.png"];
+				break;
+			case UIDeviceOrientationLandscapeRight:
+				image = [UIImage imageNamed:@"Default-LandscapeRight.png"];
+				break;
+			default:
+				image = nil;
+		}
+		if (image != nil) {
+			return image;
+		}
+		
+		// Generic orientation check
+		if (UIDeviceOrientationIsPortrait(orientation)) {
+			image = [UIImage imageNamed:@"Default-Portrait.png"];
+		}
+		else if (UIDeviceOrientationIsLandscape(orientation)) {
+			image = [UIImage imageNamed:@"Default-Landscape.png"];
+		}
+		
+		if (image != nil) {
+			return image;
+		}
+	}
+	*imageOrientation = UIDeviceOrientationPortrait;
+	*imageIdiom = UIUserInterfaceIdiomPhone;
+	// Default 
+	return [UIImage imageNamed:@"Default.png"];
+}
+
+-(void)dismissDefaultImageView
+{
+	if (defaultImageView == nil)
+	{
+		return;
+	}
+	[defaultImageView removeFromSuperview];
+	RELEASE_TO_NIL(defaultImageView);
+}
+
+-(void)rotateDefaultImageViewToOrientation: (UIInterfaceOrientation )newOrientation;
+{
+	if (defaultImageView == nil)
+	{
+		return;
+	}
+	UIDeviceOrientation imageOrientation;
+	UIUserInterfaceIdiom imageIdiom;
+	
+	UIImage * defaultImage = [self defaultImageForOrientation:
+			(UIDeviceOrientation)newOrientation
+			resultingOrientation:&imageOrientation idiom:&imageIdiom];
+
+	CGFloat imageScale = [defaultImage scale];
+	CGRect newFrame = [[self view] bounds];
+	CGSize imageSize = [defaultImage size];
+	
+	if (imageOrientation == UIDeviceOrientationPortrait) {
+		if (newOrientation == UIInterfaceOrientationLandscapeLeft) {
+			defaultImage = [UIImage imageWithCGImage:[defaultImage CGImage] scale:imageScale orientation:UIImageOrientationLeft];
+			imageSize = CGSizeMake(imageSize.height, imageSize.width);
+		}
+		else if(newOrientation == UIInterfaceOrientationLandscapeRight)
+		{
+			defaultImage = [UIImage imageWithCGImage:[defaultImage CGImage] scale:imageScale orientation:UIImageOrientationLeft];
+			imageSize = CGSizeMake(imageSize.height, imageSize.width);
+		}
+	}
+		
+	if((imageSize.width / imageScale) == newFrame.size.width)
+	{
+		CGFloat overheight;
+		overheight = (imageSize.height / imageScale) - newFrame.size.height;
+		if (overheight > 0.0) {
+			newFrame.origin.y -= overheight;
+			newFrame.size.height += overheight;
+		}
+	}
+	
+	[defaultImageView setImage:defaultImage];
+	[defaultImageView setFrame:newFrame];
+}
+
+
 
 -(void)dealloc
 {
@@ -88,6 +190,7 @@
 		defaultImageView = [[UIImageView alloc] init];
 		[defaultImageView setAutoresizingMask:UIViewAutoresizingFlexibleHeight
 				 | UIViewAutoresizingFlexibleWidth];
+		[defaultImageView setContentMode:UIViewContentModeScaleToFill];
 		
 //Notifications
 		WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
@@ -151,11 +254,11 @@
 
 -(void)loadView
 {
-	TiRootView *rootView = [[TiRootView alloc] init];
+	TiRootView *rootView = [[TiRootView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]];
 	self.view = rootView;
 	[self updateBackground];
 	if (defaultImageView != nil) {
-		[defaultImageView setFrame:[rootView bounds]];
+		[self rotateDefaultImageViewToOrientation:UIInterfaceOrientationPortrait];
 		[rootView addSubview:defaultImageView];
 	}
 	[rootView release];
@@ -212,30 +315,6 @@
 	orientationHistory[0] = newOrientation;
 	
 	[self performSelector:@selector(updateOrientationIfNeeded) withObject:nil afterDelay:0.0];
-	
-//	if (lastOrientation == 0)
-//	{ //This is when the application first starts. statusBarOrientation lies at the beginning,
-//		//And device orientation is 0 until this notification.
-//		// FIRST!  We know the orientation now, so attach the splash!
-//		UIInterfaceOrientation oldOrientation = [[UIApplication sharedApplication] statusBarOrientation];
-//		windowOrientation = oldOrientation;
-//		
-//        [self shouldAutorotateToInterfaceOrientation:newOrientation];	// side effect, retag timestamp on old orientation
-//		
-//        [self manuallyRotateToOrientation:newOrientation duration:0];
-//		if (![[TiApp app] isSplashVisible]) {
-//			[[TiApp app] loadSplash];
-//		}
-//		return;
-//	}
-//	
-//	if ((newOrientation==windowOrientation)&&(lastOrientation!=newOrientation) &&
-//		[self shouldAutorotateToInterfaceOrientation:newOrientation])
-//	{ //This is for when we've forced an orientation that was not what the device was, and
-//		//Now we want to return to it. Because newOrientation and windowOrientation are identical
-//		//The iPhone OS wouldn't send this method.
-//		[self willAnimateRotationToInterfaceOrientation:newOrientation duration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
-//	}
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
@@ -266,12 +345,7 @@
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration;
 {
 	windowOrientation = toInterfaceOrientation;
-	if (defaultImageView != nil)
-	{
-		[defaultImageView setFrame:[[self view] bounds]];
-		[defaultImageView setImage:[[TiApp app] defaultImageForOrientation:
-				(UIDeviceOrientation)toInterfaceOrientation]];
-	}
+	[self rotateDefaultImageViewToOrientation:toInterfaceOrientation];
 	[super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 
@@ -546,10 +620,6 @@ What this does mean is that any
 
 - (void)didShowViewController:(UIViewController *)focusedViewController animated:(BOOL)animated
 {
-	if (defaultImageView != nil) {
-		[defaultImageView removeFromSuperview];
-		RELEASE_TO_NIL(defaultImageView);
-	}
 	if (!isCurrentlyVisible || [viewControllerStack containsObject:focusedViewController])
 	{
 		return;
@@ -560,9 +630,9 @@ What this does mean is that any
 	[focusedViewController viewDidAppear:animated];
 }
 
-
 -(void)windowFocused:(UIViewController*)focusedViewController
 {
+	[self dismissDefaultImageView];
 	if ([focusedViewController isKindOfClass:[UINavigationController class]] && ![focusedViewController isKindOfClass:[MFMailComposeViewController class]])
 	{
 		UIViewController * topViewController = [(UINavigationController *)focusedViewController topViewController];
