@@ -1,0 +1,32 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+
+/** This code is generated, do not edit by hand. **/
+
+<#import "CommonMacros.fm" as common>
+
+#include "${proxyClassName}.h"
+
+using namespace v8;
+
+namespace Titanium {
+
+void ${proxyClassName}::Initialize(Handle<Object> ti)
+{
+	HandleScope scope;
+}
+
+Handle<Value> ${proxyClassName}::Constructor(const Arguments& args)
+{
+	ProxyClass* proxy = new ProxyClass;
+	proxy->Wrap(args.Holder());
+
+	return args.This();
+}
+
+} // namespace Titanium
+
