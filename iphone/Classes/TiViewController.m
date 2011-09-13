@@ -49,6 +49,27 @@
 	[[proxy childViewController] willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+	[super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+	if ([proxy respondsToSelector:@selector(willRotateToInterfaceOrientation:duration:)])
+	{
+		[proxy willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+	}
+	[[proxy childViewController] willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+}
+
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+{
+	[super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+	if ([proxy respondsToSelector:@selector(didRotateFromInterfaceOrientation:)])
+	{
+		[proxy didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+	}
+	[[proxy childViewController] didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+}
+
+
 /*
  *	As of this commit, TiUIViewController protocol, of which proxy should honor,
  *	requires the viewWill/DidAppear/Disappear method. As such, we could possibly

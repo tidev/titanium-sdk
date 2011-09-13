@@ -55,6 +55,9 @@
 	CGFloat leaveDuration;
 }
 
+@property(nonatomic,readonly) UIImageView * defaultImageView;
+-(void)dismissDefaultImageView;
+
 @property(nonatomic,readwrite,retain)	UIColor * backgroundColor;
 @property(nonatomic,readwrite,retain)	UIImage * backgroundImage;
 
