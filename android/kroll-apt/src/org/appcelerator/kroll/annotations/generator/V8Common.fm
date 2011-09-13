@@ -1,0 +1,35 @@
+<#macro validateAndConvertValue v8Value expectedType>
+	<#-- Lookup V8 and Java types given the annotated type expected. -->
+	<#switch expectedType>
+		<#case "java.lang.String">
+			<#local v8Type="String" javaType="String">
+			<#break>
+		<#case "int">
+			<#local v8Type="Number" javaType="Int">
+			<#break>
+		<#case "short">
+			<#local v8Type="Number" javaType="Short">
+			<#break>
+		<#case "long">
+			<#local v8Type="Number" javaType="Long">
+			<#break>
+		<#case "float">
+			<#local v8Type="Number" javaType="Float">
+			<#break>
+		<#case "double">
+			<#local v8Type="Number" javaType="Double">
+			<#break>
+		<#case "bool">
+			<#local v8Type="Boolean" javaType="Boolean">
+			<#break>
+		<#-- TODO: array -->
+	</#switch>
+
+	<#-- Generate the expression to test if the V8 value is what we expect. -->
+	<#local valid="${v8Value}->Is${v8Type}()">
+
+	<#-- Generate the expression to convert value V8 to Java. -->
+	<#local convertedValue="TypeConverter::js${v8Type}ToJava${javaType}(${v8Value});">
+
+	<nested valid convertedValue>
+</#macro>

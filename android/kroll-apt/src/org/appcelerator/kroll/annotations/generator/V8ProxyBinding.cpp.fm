@@ -7,7 +7,8 @@
 
 /** This code is generated, do not edit by hand. **/
 
-<#import "CommonMacros.fm" as common>
+<#import "Common.fm" as common>
+<#import "V8Common.fm" as v8>
 
 #include "${proxyClassName}.h"
 
@@ -32,6 +33,35 @@ Handle<Value> ${proxyClassName}::Constructor(const Arguments& args)
 <@common.listMethods ; isFirst, name, method>
 Handle<Value> ${proxyClassName}::${name}(const Arguments& args)
 {
+	<#if hasArgArray>
+		<#local requiredArgs = common.countRequiredArguments(args)>
+		<#if requiredArgs &gt; 0>
+	if (args.Length() != ${requiredArgs})
+		ThrowException(Error(MISSING_REQUIRED_ARGS_ERROR));
+		</#if>
+	</#if>
+
+	<#local jniArgCount = args?size>
+	jvalue jniArgs[${jniArgCount}];
+
+	<#list args as arg>
+		<#if arg.type == "java.lang.Object[]" && arg_index = args?size - 1>
+			<#-- TODO: handle variable arguments -->
+			// Variable args not implemented yet!!!
+		<#else>
+			<@v8.validateAndConvertValue v8Value="args[${arg_index}]" expectedType=arg.type ;
+				valid, convertedValue>
+			if (!valid) {
+				// TODO: invalid value provided, throw an exception here.
+				return;
+			}
+
+			jniArgs[${arg_index}] = ${convertedValue};
+			</@v8.validateAndConvertValue>
+		</#if>
+	</#list>
+
+	<#-- TODO: call Java class method here -->
 }
 
 </@common.listMethods>

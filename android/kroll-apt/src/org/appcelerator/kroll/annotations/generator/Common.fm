@@ -1,0 +1,25 @@
+<#function countRequiredArguments args>
+	<#local count = 0>
+	<#list args as arg>
+		<#if arg?keys?seq_contains("optional")>
+			<#if !arg.optional>
+				<#local count = count + 1>
+			</#if>
+		<#elseif arg.type = "java.lang.Object[]">
+			<#break>
+		<#else>
+			<#local count = count + 1>
+		</#if>
+	</#list>
+	<#return count>
+</#function>
+
+<#macro listMethods>
+	<#if methods??>
+		<#list methods?keys as methodName>
+			<#local method = methods[methodName]>
+			<#nested methodName_index==0, methodName, method>
+		</#list>
+	</#if>
+</#macro>
+
