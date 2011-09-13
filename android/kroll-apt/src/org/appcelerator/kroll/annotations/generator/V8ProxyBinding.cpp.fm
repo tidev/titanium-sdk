@@ -28,5 +28,13 @@ Handle<Value> ${proxyClassName}::Constructor(const Arguments& args)
 	return args.This();
 }
 
+// Methods ---------------------------------------------------------------
+<@common.listMethods ; isFirst, name, method>
+Handle<Value> ${proxyClassName}::${name}(const Arguments& args)
+{
+}
+
+</@common.listMethods>
+
 } // namespace Titanium
 
