@@ -92,7 +92,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 	protected static final String DEFAULT_JSON_PACKAGE = "org.appcelerator.titanium.gen";
 	protected static final String DEFAULT_JSON_FILE = "bindings.json";
 
-	protected Template bindingTemplate;
+	protected Template headerTemplate, sourceTemplate;
 	// we make these generic because they may be initialized by JSON
 	protected Map<Object, Object> properties = new HashMap<Object, Object>();
 	protected Map<Object, Object> proxyProperties = new HashMap<Object, Object>();
@@ -106,6 +106,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 		super();
 		fmConfig = new Configuration();
 		fmConfig.setObjectWrapper(new DefaultObjectWrapper());
+		fmConfig.setClassForTemplateLoading(getClass(), "");
 	}
 
 	protected boolean initialized = false;
@@ -158,11 +159,12 @@ public class KrollBindingGenerator extends AbstractProcessor {
 	{
 		try {
 			String projectDir = processingEnv.getOptions().get(PROPERTY_PROJECT_DIR);
-			InputStream stream = null;
-			if (projectDir == null) {
-				stream = getClass().getClassLoader().getResourceAsStream(
-					"org/appcelerator/kroll/annotations/generator/ProxyBinding.fm");
-			} else {
+			InputStream headerStream, sourceStream = null;
+			ClassLoader loader = getClass().getClassLoader();
+			headerStream = loader.getResourceAsStream("org/appcelerator/kroll/annotations/generator/V8ProxyBinding.h.fm");
+			sourceStream = loader.getResourceAsStream("org/appcelerator/kroll/annotations/generator/V8ProxyBinding.cpp.fm");
+
+			/*  Disable eclipse for now...
 				// Special case for Eclipse -- using the classpath to load
 				// the freemarker template causes a Zip exception, so we pass
 				// on each project's directory so we can get the template
@@ -175,8 +177,14 @@ public class KrollBindingGenerator extends AbstractProcessor {
 				File proxyBinding = new File(mobileRoot,
 					"android/kroll-apt/src/org/appcelerator/kroll/annotations/generator/ProxyBinding.fm");
 				stream = new FileInputStream(proxyBinding);
-			}
-			bindingTemplate = new Template("ProxyBinding.fm", new InputStreamReader(stream), fmConfig);
+			*/
+
+			headerTemplate = new Template("V8ProxyBinding.h.fm",
+										  new InputStreamReader(headerStream),
+										  fmConfig);
+			sourceTemplate = new Template("V8ProxyBinding.cpp.fm",
+										  new InputStreamReader(sourceStream),
+										  fmConfig);
 		} catch (IOException e) {
 			exception(e);
 		}
@@ -651,12 +659,15 @@ public class KrollBindingGenerator extends AbstractProcessor {
 		}
 	}
 	
-	protected void saveTypeTemplate(Template template, String type, Map<Object,Object> root) {
+	protected void saveTypeTemplate(Template template, String outFile, Map<Object,Object> root) {
 		Writer writer = null;
 		try {
-			JavaFileObject jfo = processingEnv.getFiler().createSourceFile(type);
-			debug("Generating %s", type);
-			writer = jfo.openWriter();
+			FileObject fo = processingEnv.getFiler().createResource(
+				StandardLocation.SOURCE_OUTPUT,
+				"",
+				outFile);
+			debug("Generating %s", outFile);
+			writer = fo.openWriter();
 			template.process(root, writer);
 		} catch (Exception e) {
 			exception(e);
@@ -765,7 +776,8 @@ public class KrollBindingGenerator extends AbstractProcessor {
 			root.put("allModules", properties.get("modules"));
 			root.put("hashCode", hashCodeMethod);
 			
-			saveTypeTemplate(bindingTemplate, proxy.get("packageName")+"."+proxy.get("genClassName"), root);
+			saveTypeTemplate(headerTemplate, proxyName + ".h", root);
+			saveTypeTemplate(sourceTemplate, proxyName + ".cpp", root);
 		}
 	}
 
