@@ -29,6 +29,8 @@ import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.WebViewProxy;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.net.Uri;
@@ -102,6 +104,15 @@ public class TiUIWebView extends TiUIView {
 		client = new TiWebViewClient(this, webView);
 		webView.setWebViewClient(client);
 		webView.client = client;
+
+		WebViewProxy webProxy = (WebViewProxy) proxy;
+		String username = webProxy.getBasicAuthenticationUserName();
+		String password = webProxy.getBasicAuthenticationPassword();
+		if( username!= null && password != null)
+		{
+			setBasicAuthentication(username, password);
+		}
+		webProxy.clearBasicAuthentication();
 
 		TiCompositeLayout.LayoutParams params = getLayoutParams();
 		params.autoFillsHeight = true;
@@ -178,10 +189,6 @@ public class TiUIWebView extends TiUIView {
 		
 		if (d.containsKey(TiC.PROPERTY_PLUGIN_STATE)) {
 			setPluginState(TiConvert.toInt(d, TiC.PROPERTY_PLUGIN_STATE));
-		}
-		
-		if(d.containsKey(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
-			setEnableZoomControls(TiConvert.toBoolean(d,TiC.PROPERTY_ENABLE_ZOOM_CONTROLS));
 		}
 	}
 

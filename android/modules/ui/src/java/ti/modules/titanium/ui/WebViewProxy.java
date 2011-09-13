@@ -34,7 +34,8 @@ public class WebViewProxy extends ViewProxy
 	private static final int MSG_GO_FORWARD = MSG_FIRST_ID + 102;
 	private static final int MSG_RELOAD = MSG_FIRST_ID + 103;
 	private static final int MSG_STOP_LOADING = MSG_FIRST_ID + 104;
-
+	private static String fusername;
+	private static String fpassword;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	public WebViewProxy()
@@ -88,6 +89,7 @@ public class WebViewProxy extends ViewProxy
 			case MSG_STOP_LOADING:
 				getWebView().stopLoading();
 				return true;
+			}
 		}
 		return super.handleMessage(msg);
 	}
@@ -95,19 +97,31 @@ public class WebViewProxy extends ViewProxy
 	@Kroll.method
 	public void setBasicAuthentication(String username, String password)
 	{
+		if (peekView() == null) {
+			// if the view is null, we cache the username/password
+			fusername = username;
+			fpassword = password;
+			return;
+		}
+		clearBasicAuthentication();
 		getWebView().setBasicAuthentication(username, password);
 	}
 
 	@Kroll.method
-	public boolean canGoBack()
-	{
-		return getWebView().canGoBack();
+	public boolean canGoBack() {
+		if (peekView() != null) {
+			return getWebView().canGoBack();
+		}
+		return false;
 	}
 
 	@Kroll.method
-	public boolean canGoForward()
+	public boolean canGoForward() 
 	{
-		return getWebView().canGoForward();
+		if (peekView() != null) {
+			return getWebView().canGoForward();
+		}
+		return false;
 	}
 	
 	@Kroll.method
@@ -163,13 +177,17 @@ public class WebViewProxy extends ViewProxy
 	@Kroll.method
 	public void pause() 
 	{
-		getWebView().pauseWebView();
+		if (peekView() != null) {
+			getWebView().pauseWebView();
+		}
 	}
 
 	@Kroll.method
 	public void resume()
 	{
-		getWebView().resumeWebView();
+		if (peekView() != null) {
+			getWebView().resumeWebView();
+		}
 	}
 	
 
@@ -198,6 +216,22 @@ public class WebViewProxy extends ViewProxy
 		// to refer back to it in GC and freak out (crash the app)
 		// if it's not there.
 		// So we're just overriding and not calling super.
+	}
+
+	public void clearBasicAuthentication()
+	{
+		fusername = null;
+		fpassword = null;
+	}
+	
+	public String getBasicAuthenticationUserName()
+	{
+		return fusername;
+	}
+	
+	public String getBasicAuthenticationPassword()
+	{
+		return fpassword;
 	}
 
 }
