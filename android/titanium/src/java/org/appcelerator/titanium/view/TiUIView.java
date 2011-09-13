@@ -37,16 +37,16 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
-import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.inputmethod.InputMethodManager;
@@ -74,7 +74,6 @@ public abstract class TiUIView
 	protected ArrayList<TiUIView> children = new ArrayList<TiUIView>();
 
 	protected LayoutParams layoutParams;
-	protected int zIndex;
 	protected TiAnimationBuilder animBuilder;
 	protected TiBackgroundDrawable background;
 
@@ -105,6 +104,7 @@ public abstract class TiUIView
 						((ViewGroup) nv).addView(cv, child.getLayoutParams());
 					}
 					children.add(child);
+					child.parent = proxy;
 				}
 			}
 		}
@@ -119,6 +119,7 @@ public abstract class TiUIView
 				if (nv instanceof ViewGroup) {
 					((ViewGroup) nv).removeView(cv);
 					children.remove(child);
+					child.parent = null;
 				}
 			}
 		}
@@ -154,11 +155,6 @@ public abstract class TiUIView
 		return layoutParams;
 	}
 
-	public int getZIndex()
-	{
-		return zIndex;
-	}
-
 	public View getNativeView()
 	{
 		return nativeView;
@@ -182,11 +178,6 @@ public abstract class TiUIView
 	protected void setLayoutParams(LayoutParams layoutParams)
 	{
 		this.layoutParams = layoutParams;
-	}
-
-	protected void setZIndex(int index)
-	{
-		zIndex = index;
 	}
 
 	public void animate()
@@ -252,11 +243,27 @@ public abstract class TiUIView
 
 	protected void layoutNativeView()
 	{
+		layoutNativeView(false);
+	}
+	
+	protected void layoutNativeView(boolean informParent)
+	{
 		if (nativeView != null) {
 			Animation a = nativeView.getAnimation();
 			if (a != null && a instanceof TiMatrixAnimation) {
 				TiMatrixAnimation matrixAnimation = (TiMatrixAnimation) a;
 				matrixAnimation.invalidateWithMatrix(nativeView);
+			}
+			if (informParent) {				
+				if (parent != null) {
+					TiUIView uiv = parent.peekView();
+					if (uiv != null) {
+						View v = uiv.getNativeView();
+						if (v instanceof TiCompositeLayout) {
+							((TiCompositeLayout) v).resort();
+						}
+					}
+				}
 			}
 			nativeView.requestLayout();
 		}
@@ -331,11 +338,11 @@ public abstract class TiUIView
 			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_ZINDEX)) {
 			if (newValue != null) {
-				layoutParams.optionZIndex = TiConvert.toInt(TiConvert.toString(newValue));
+				layoutParams.optionZIndex = TiConvert.toInt(newValue);
 			} else {
 				layoutParams.optionZIndex = 0;
 			}
-			layoutNativeView();
+			layoutNativeView(true);
 		} else if (key.equals(TiC.PROPERTY_FOCUSABLE)) {
 			boolean focusable = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_FOCUSABLE));
 			nativeView.setFocusable(focusable);

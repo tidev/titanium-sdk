@@ -109,6 +109,13 @@ public class TiCompositeLayout extends ViewGroup
 	private String viewToString(View view) {
 		return view.getClass().getSimpleName() + "@" + Integer.toHexString(view.hashCode());
 	}
+	
+	public void resort()
+	{
+		needsSort = true;
+		requestLayout();
+		invalidate();
+	}
 
 	public void onChildViewAdded(View parent, View child) {
 		needsSort = true;
