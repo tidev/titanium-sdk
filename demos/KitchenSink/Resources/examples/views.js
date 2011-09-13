@@ -18,6 +18,9 @@ var data = [
 
 if (Titanium.Platform.name == 'iPhone OS')
 {
+	// Android team, implement the following then move this entry above
+	data.push({title:'View Gestures', hasChild:true, test:'../examples/view_gestures.js'});
+	//
 	data.push({title:'Map View with Routing', hasChild:true, test:'../examples/map_view2.js'});
 	data.push({title:'Events', hasChild:true, test:'../examples/view_events.js'});
 	data.push({title:'Events with Views', hasChild:true, test:'../examples/view_events_2.js'});
