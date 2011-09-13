@@ -102,12 +102,17 @@ events:
         and a longclick can occur together.  The differences are that longclick can occur also
         with the trackball whereas longpress is a touch-only event, and longpress includes
         x and y coordinates.
-    platforms: [android]
+  - name: pinch
+    description: fired when the device detects a pinch, which is a touch and expand or contract 
+        with two fingers.  The event occurs continuously until a finger is lifted again.  
+        Returns an event with 'velocity' and 'scale' properties.
     properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordinates
+      - name: scale
+        description: The scale factor relative to the points of the two touches in screen coordinates.
+        type: Number
+      - name: velocity
+        description: The velocity of the pinch in scale factor per second.
+        type: Number
   - name: singletap
     description: fired when the device detects a single tap against the view
     properties:

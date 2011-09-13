@@ -1,6 +1,12 @@
 
 var win = Ti.UI.currentWindow;
-
+var scrollview = Ti.UI.createScrollView({
+	contentWidth:'auto',
+	contentHeight:'auto',
+	top:0,
+	showVerticalScrollIndicator:true,
+	showHorizontalScrollIndicator:false
+});
 var v1 = Ti.UI.createView({
 	top:10,
 	left:10,
@@ -126,7 +132,26 @@ var f6 = Ti.UI.createTextField({
 });
 v6.add(l6);
 v6.add(f6);
-
+var v7 = Ti.UI.createView({
+	top:250,
+	left:10,
+	width:300,
+	height:30
+});
+var l7 = Ti.UI.createLabel({
+	text:'URL:',
+	top:0,
+	left:0
+});
+var f7 = Ti.UI.createTextField({
+	text:'',
+	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
+	top:0,
+	right:0,
+	width:200
+});
+v7.add(l7);
+v7.add(f7);
 var b1 = Ti.UI.createButton({
 	title:'Add contact',
 	width:100,
@@ -139,18 +164,25 @@ b1.addEventListener('click', function() {
 	address.City = f4.value;
 	address.State = f5.value;
 	address.ZIP = f6.value;
-
+	
+	var weburl = {};
+	weburl = f7.value;
+	
 	var contact = Titanium.Contacts.createPerson({
 		firstName:f1.value,
 		lastName:f2.value,
-		address:{"home":[address]}
+		address:{"home":[address]},
+		url:{"home":[weburl]}
 	});
+	
 });
 
-win.add(v1);
-win.add(v2);
-win.add(v3);
-win.add(v4);
-win.add(v5);
-win.add(v6);
-win.add(b1);
+scrollview.add(v1);
+scrollview.add(v2);
+scrollview.add(v3);
+scrollview.add(v4);
+scrollview.add(v5);
+scrollview.add(v6);
+scrollview.add(v7);
+scrollview.add(b1);
+win.add(scrollview);

@@ -91,7 +91,7 @@ static NSDictionary* multiValueLabels;
 			 NUMINT(kABPersonInstantMessageProperty),@"instantMessage",
 			 NUMINT(kABPersonRelatedNamesProperty),@"relatedNames",
 			 NUMINT(kABPersonDateProperty),@"date",
-			 NUMINT(kABPersonURLProperty),@"URL",
+			 NUMINT(kABPersonURLProperty),@"url",
 			 nil];
 	}
 	return multiValueProperties;
