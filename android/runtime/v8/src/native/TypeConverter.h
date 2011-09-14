@@ -1,12 +1,8 @@
 #ifndef TYPECONVERTER_H
 #define TYPECONVERTER_H
 
-#include <string>
-
 #include <jni.h>
 #include <v8/v8.h>
-
-using namespace std;
 
 
 class TypeConverter
@@ -16,50 +12,44 @@ class TypeConverter
 
 		static void initEnv (JNIEnv *env);
 
-		static jclass getJavaClass (string className);
-		static jmethodID getJavaMethodId (jclass javaClass, string methodName, string methodSignature);
-
 		// javascript to java convert methods
 		static jshort jsNumberToJavaShort (v8::Handle<v8::Number> jsNumber);
-		static v8::Handle<v8::Number> javaShortToJsNumber(jshort javaShort);
+		static v8::Handle<v8::Number> javaShortToJsNumber (jshort javaShort);
 
 		static jint jsNumberToJavaInt (v8::Handle<v8::Number> jsNumber);
-		static v8::Handle<v8::Number> javaIntToJsNumber(jint javaInt);
+		static v8::Handle<v8::Number> javaIntToJsNumber (jint javaInt);
 
 		static jlong jsNumberToJavaLong (v8::Handle<v8::Number> jsNumber);
-		static v8::Handle<v8::Number> javaLongToJsNumber(jlong javaLong);
+		static v8::Handle<v8::Number> javaLongToJsNumber (jlong javaLong);
 
 		static jfloat jsNumberToJavaFloat (v8::Handle<v8::Number> jsNumber);
-		static v8::Handle<v8::Number> javaFloatToJsNumber(jfloat javaFloat);
+		static v8::Handle<v8::Number> javaFloatToJsNumber (jfloat javaFloat);
 
 		static jdouble jsNumberToJavaDouble (v8::Handle<v8::Number> jsNumber);
-		static v8::Handle<v8::Number> javaDoubleToJsNumber(jdouble javaDouble);
+		static v8::Handle<v8::Number> javaDoubleToJsNumber (jdouble javaDouble);
 
 		static jboolean jsBooleanToJavaBoolean (v8::Handle<v8::Boolean> jsBoolean);
-		static v8::Handle<v8::Boolean> javaBooleanToJsBoolean(jboolean javaBoolean);
+		static v8::Handle<v8::Boolean> javaBooleanToJsBoolean (jboolean javaBoolean);
 
 		static jstring jsStringToJavaString (v8::Handle<v8::String> jsString);
-		static v8::Handle<v8::String> javaStringToJsString(jstring javaString);
+		static v8::Handle<v8::String> javaStringToJsString (jstring javaString);
 
 		static jarray jsArrayToJavaArray (v8::Handle<v8::Array>);
+		static v8::Handle<v8::Array> javaArrayToJsArray (jbooleanArray javaBooleanArray);
+		static v8::Handle<v8::Array> javaArrayToJsArray (jshortArray javaShortArray);
+		static v8::Handle<v8::Array> javaArrayToJsArray (jintArray javaIntArray);
+		static v8::Handle<v8::Array> javaArrayToJsArray (jlongArray javaLongArray);
+		static v8::Handle<v8::Array> javaArrayToJsArray (jfloatArray javaFloatArray);
+		static v8::Handle<v8::Array> javaArrayToJsArray (jdoubleArray javaDoubleArray);
+		static v8::Handle<v8::Array> javaArrayToJsArray (jobjectArray javaObjectArray);
 
-		//static  jsDateToJavaDate (v8::Date);
-		//static jlong jsDateToJavextern aLong (v8::????);
-		//static ? jsUndefinedToJavaUndefined();
+		static jobject jsDateToJavaDate (v8::Handle<v8::Date> jsDate);
+		static jlong jsDateToJavaLong (v8::Handle<v8::Date> jsDate);
 
-		// java to javascript convert methods
-/*		static v8::Handle<v8::Number> javaShortToJsNumber (jshort);
-		static v8::Handle<v8::Number> javaIntToJsNumber (jint);
-		static v8::Handle<v8::Number> javaLongToJsNumber (jlong);
-		static v8::Handle<v8::Number> javaFloatToJsNumber (jfloat);
-		static v8::Handle<v8::Number> javaDoubleToJsNumber (jdouble);
-		static v8::Handle<v8::Boolean> jboolean javaBooleanToJsBoolean (jboolean);
-		static v8::Handle<v8::String> javaStringToJsString (jstring);
-		static v8::Handle<v8::Array> javaArrayJsArray (jarray);
-*/
-		//static ? javaDateToJsDate (v8::????);
-		//static jlong javaLongToJsDate (v8::????);
-		//static ? javaUndefinedToJsUndefined();
+		static v8::Handle<v8::Date> javaDateToJsDate (jobject);
+		static v8::Handle<v8::Date> javaLongToJsDate (jlong);
+
+		static jobject getJavaUndefined();
 };
 
 

@@ -1,12 +1,16 @@
-#include <string>
 #include <jni.h>
 
 #include <TypeConverter.h>
 
-using namespace std;
 
-
+// declare static members
 JNIEnv *TypeConverter::env;
+
+// declare utility methods we dont want exposed via the header
+jclass getJavaClass (char *className);
+jmethodID getJavaMethodId (jclass javaClass, char *methodName, char *methodSignature);
+jobject jsValueToJavaObject (v8::Local<v8::Value> jsValue);
+v8::Handle<v8::Array> javaDoubleArrayToJsNumberArray (jdoubleArray javaDoubleArray);
 
 void TypeConverter::initEnv(JNIEnv *env)
 {
@@ -14,7 +18,7 @@ void TypeConverter::initEnv(JNIEnv *env)
 }
 
 
-jclass TypeConverter::getJavaClass (String className)
+jclass getJavaClass (const char *className)
 {
 	jclass javaClass = TypeConverter::env->FindClass (className);
 	if (javaClass == NULL)
@@ -26,7 +30,7 @@ jclass TypeConverter::getJavaClass (String className)
 }
 
 
-jmethodID TypeConverter::getJavaMethodId (jclass javaClass, String methodName, String methodSignature)
+jmethodID getJavaMethodId (jclass javaClass, const char *methodName, const char *methodSignature)
 {
 	jmethodID javaMethodId = TypeConverter::env->GetMethodID (javaClass, methodName, methodSignature);
 	if (javaMethodId == NULL)
@@ -35,6 +39,69 @@ jmethodID TypeConverter::getJavaMethodId (jclass javaClass, String methodName, S
 	}
 
 	return javaMethodId;
+}
+
+
+jobject jsValueToJavaObject (v8::Local<v8::Value> jsValue)
+{
+	if (jsValue->IsNumber())
+	{
+		jdouble javaDouble = TypeConverter::jsNumberToJavaDouble (jsValue->ToNumber());
+		jclass javaDoubleClass = getJavaClass ("java/lang/Double");
+		jmethodID javaDoubleConstructor = getJavaMethodId (javaDoubleClass, "<init>", "(D)V");
+		return TypeConverter::env->NewObject (javaDoubleClass, javaDoubleConstructor, javaDouble);
+	}
+	else if (jsValue->IsBoolean())
+	{
+		jboolean javaBoolean = TypeConverter::jsBooleanToJavaBoolean (jsValue->ToBoolean());
+		jclass javaBooleanClass = getJavaClass ("java/lang/Boolean");
+		jmethodID javaBooleanConstructor = getJavaMethodId (javaBooleanClass, "<init>", "(Z)V");
+		return TypeConverter::env->NewObject (javaBooleanClass, javaBooleanConstructor, javaBoolean);
+	}
+	else if (jsValue->IsString())
+	{
+		return TypeConverter::jsStringToJavaString (jsValue->ToString());
+	}
+	else if (jsValue->IsDate())
+	{
+		jlong javaLong = TypeConverter::jsDateToJavaLong (v8::Handle<v8::Date>::Cast (jsValue));
+		jclass javaLongClass = getJavaClass ("java/lang/Long");
+		jmethodID javaLongConstructor = getJavaMethodId (javaLongClass, "<init>", "(J)V");
+		return TypeConverter::env->NewObject (javaLongClass, javaLongConstructor, javaLong);
+	}
+	else if (jsValue->IsArray())
+	{
+		return TypeConverter::jsArrayToJavaArray (v8::Handle<v8::Array>::Cast (jsValue));
+	}
+	else if (jsValue->IsObject())
+	{
+		/*
+		// check for proxy type here?
+		if (is proxy)
+		{
+
+		}
+		else // use the KrollV8Dict
+		{
+
+		}
+		*/
+	}
+}
+
+
+v8::Handle<v8::Array> javaDoubleArrayToJsNumberArray (jdoubleArray javaDoubleArray)
+{
+	int arrayLength = TypeConverter::env->GetArrayLength (javaDoubleArray);
+	v8::Handle<v8::Array> jsArray = v8::Array::New (arrayLength);
+
+	jdouble *arrayElements = TypeConverter::env->GetDoubleArrayElements (javaDoubleArray, 0);
+	for (int i = 0; i < arrayLength; i++)
+	{
+		jsArray->Set ((uint32_t)i, v8::Number::New (arrayElements [i]));
+	}
+
+	return jsArray;
 }
 
 
@@ -129,142 +196,114 @@ v8::Handle<v8::String> TypeConverter::javaStringToJsString(jstring javaString)
 }
 
 
-jobject TypeConverter::jsValueToJavaObject (v8::Local<v8::Value> jsValue)
-{
-	jobject javaObject;
-
-	if (value->IsNumber())
-	{
-		jdouble jsNumber = jsNumberToJavaDouble (jsValue->ToNumber());
-		jclass javaDoubleClass = TypeConverter::getJavaClass ("java/lang/Double");
-		jmethodID javaDoubleConstructor = TypeConverter::getJavaMethodId (javaDoubleClass, "<init>", "(D)V");
-		javaObject = TypeConverter::env->NewObject (javaDoubleClass, javaDoubleConstructor, jsNumber);
-	}
-	else if (element->IsBoolean())
-	{
-		jboolean jsBoolean = jsBooleanToJavaBoolean (jsValue->ToBoolean());
-		jclass javaBooleanClass = TypeConverter::getJavaClass ("java/lang/Boolean");
-		jmethodID javaBooleanConstructor = TypeConverter::getJavaMethodId (javaBooleanClass, "<init>", "(Z)V");
-		javaObject = TypeConverter::env->NewObject (javaBooleanClass, javaBooleanConstructor, jsBoolean);
-	}
-	else if (element->IsString())
-	{
-		jstring jsString = jsStringToJavaString (jsValue->ToString());
-		jclass javaStringClass = TypeConverter::getJavaClass ("java/lang/String");
-		jmethodID javaStringConstructor = TypeConverter::getJavaMethodId (javaStringClass, "<init>", "([C)V");
-		javaObject = TypeConverter::env->NewObject (javaStringClass, javaStringConstructor, jsString);
-	}
-	else if (element->IsDate())
-	{
-
-	}
-	else if (element->IsArray())
-	{
-
-	}
-	else if (element->IsObject())
-	{
-		/*
-		// check for proxy type here?
-		if (is proxy)
-		{
-
-		}
-		else // use the KrollV8Dict
-		{
-
-		}
-		*/
-	}
-}
-
-
 jarray TypeConverter::jsArrayToJavaArray (v8::Handle<v8::Array> jsArray)
 {
-	// store array length from v8
 	int arrayLength = jsArray->Length();
-
-	// get the class needed
-	jclass javaObjectClass = TypeConverter::env->FindClass ("java/lang/object");
-	if (javaObjectClass == NULL)
-	{
-		return NULL; // exception thrown
-	}
-
-	// create the jni array
+	jclass javaObjectClass = getJavaClass ("java/lang/object");
 	jobjectArray javaArray = TypeConverter::env->NewObjectArray (arrayLength, javaObjectClass, NULL);
-	if (javaArray == NULL)
-	{
-		return NULL; // out of memory
-	}
 
 	for (int i = 0; i < arrayLength; i++)
 	{
-		v8::Local<v8::Value> element = jsArray->Get(i);
+		v8::Local<v8::Value> element = jsArray->Get (i);
 		jobject javaObject = jsValueToJavaObject (element);
 		TypeConverter::env->SetObjectArrayElement (javaArray, i, javaObject);
-/*
-		if (element->IsNumber())
-		{
-			jdouble jsNumber = jsNumberToJavaDouble (element->ToNumber());
-
-			// get class
-			jclass javaDoubleClass = TypeConverter::env->FindClass ("java/lang/Double");
-			if (javaDoubleClass == NULL)
-			{
-				return NULL; // exception thrown
-			}
-
-			// get constructor
-			jmethodID javaDoubleConstructor = TypeConverter::env->GetMethodID (javaDoubleClass, "<init>", "(D)V");
-			if (javaDoubleConstructor == NULL)
-			{
-				return NULL;
-			}
-
-			jobject javaDouble = TypeConverter::env->NewObject(javaDoubleClass, javaDoubleConstructor, jsNumber);
-			TypeConverter::env->SetObjectArrayElement (javaArray, i, javaDouble);
-			
-		}
-		else if (element->IsBoolean())
-		{
-		
-		}
-		else if (element->IsString())
-		{
-		
-		}
-		else if (element->IsDate())
-		{
-		
-		}
-		else if (element->IsArray())
-		{
-		
-		}
-		else if (element->IsObject())
-		{
-			/*
-			// check for proxy type here?
-			if (is proxy)
-			{
-
-			}
-			else // use the KrollV8Dict
-			{
-
-			}
-			*/
-		}
-*/
 	}
 
 	return javaArray;
 }
 
 
-//? TypeConverter::jsDateToJavaDate();
-//jlong TypeConverter::jsDateToJavaLong();
-//? TypeConverter::jsUndefinedToJavaUndefined();
+v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray (jbooleanArray javaBooleanArray)
+{
+	int arrayLength = TypeConverter::env->GetArrayLength (javaBooleanArray);
+	v8::Handle<v8::Array> jsArray = v8::Array::New (arrayLength);
 
+	jboolean *arrayElements = TypeConverter::env->GetBooleanArrayElements (javaBooleanArray, 0);
+	for (int i = 0; i < arrayLength; i++)
+	{
+		jsArray->Set ((uint32_t)i, v8::Boolean::New (arrayElements [i]));
+	}
+
+	return jsArray;
+}
+
+
+v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray (jshortArray javaShortArray)
+{
+	return javaDoubleArrayToJsNumberArray ((jdoubleArray) javaShortArray);
+}
+
+
+v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray (jintArray javaIntArray)
+{
+	return javaDoubleArrayToJsNumberArray ((jdoubleArray)javaIntArray);
+}
+
+
+v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray (jlongArray javaLongArray)
+{
+	return javaDoubleArrayToJsNumberArray ((jdoubleArray) javaLongArray);
+}
+
+
+v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray (jfloatArray javaFloatArray)
+{
+	return javaDoubleArrayToJsNumberArray ((jdoubleArray) javaFloatArray);
+}
+
+
+v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray (jdoubleArray javaDoubleArray)
+{
+	return javaDoubleArrayToJsNumberArray ((jdoubleArray) javaDoubleArray);
+}
+
+
+v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray (jobjectArray javaObjectArray)
+{
+	int arrayLength = TypeConverter::env->GetArrayLength (javaObjectArray);
+	v8::Handle<v8::Array> jsArray = v8::Array::New (arrayLength);
+
+	for (int i = 0; i < arrayLength; i++)
+	{
+		//jsArray->Set ((uint32_t)i, v8::Value::New (TypeConverter::env->GetObjectArrayElement (javaObjectArray, i)));
+	}
+
+	return jsArray;
+}
+
+
+jobject TypeConverter::jsDateToJavaDate(v8::Handle<v8::Date> jsDate)
+{
+	jclass javaDateClass = getJavaClass ("java/util/Date");
+	jmethodID javaDateConstructor = getJavaMethodId (javaDateClass, "<init>", "(J)V");
+	return TypeConverter::env->NewObject (javaDateClass, javaDateConstructor, (jlong)jsDate->NumberValue());
+}
+
+
+jlong TypeConverter::jsDateToJavaLong(v8::Handle<v8::Date> jsDate)
+{
+	(jlong) jsDate->NumberValue();
+}
+
+
+
+v8::Handle<v8::Date> TypeConverter::javaDateToJsDate (jobject javaDate)
+{
+	jclass javaDateClass = TypeConverter::env->GetObjectClass (javaDate);
+	jmethodID javaDateGetTimeMethod = getJavaMethodId (javaDateClass, "getTime", "()J");
+	jlong epochTime = TypeConverter::env->CallLongMethod (javaDate, javaDateGetTimeMethod);
+	return v8::Handle<v8::Date>::Cast (v8::Date::New ((double) epochTime));
+}
+
+
+v8::Handle<v8::Date> TypeConverter::javaLongToJsDate (jlong javaLong)
+{
+	return v8::Handle<v8::Date>::Cast (v8::Date::New ((double) javaLong));
+}
+
+
+jobject TypeConverter::getJavaUndefined()
+{
+	
+}
 
