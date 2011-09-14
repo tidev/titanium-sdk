@@ -6,8 +6,7 @@
  */
 
 /** This is generated, do not edit by hand. **/
-
-<#import "Common.fm" as common>
+<#import "ProxyBinding.fm" as Proxy>
 
 #include "NativeObject.h"
 
@@ -19,9 +18,9 @@ public:
     static v8::Handle<v8::Value> Constructor(const v8::Arguments& args);
 
     // Methods -----------------------------------------------------------
-    <@common.listMethods ; isFirst, name, method>
+    <@Proxy.listMethods ; isFirst, name, method>
 	static v8::Handle<v8::Value> ${name}(const v8::Arguments&);
-    </@common.listMethods>
+    </@Proxy.listMethods>
 
     static v8::Persistent<v8::FunctionTemplate> template;
 };

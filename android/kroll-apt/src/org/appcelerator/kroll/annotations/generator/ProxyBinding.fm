@@ -1,4 +1,4 @@
-<#function countRequiredArguments args>
+<#macro getRequiredArgumentCount args>
 	<#local count = 0>
 	<#list args as arg>
 		<#if arg?keys?seq_contains("optional")>
@@ -11,8 +11,8 @@
 			<#local count = count + 1>
 		</#if>
 	</#list>
-	<#return count>
-</#function>
+	<#nested count>
+</#macro>
 
 <#macro listMethods>
 	<#if methods??>
@@ -23,39 +23,52 @@
 	</#if>
 </#macro>
 
-<#macro validateAndConvertValue v8Value expectedType>
-	<#-- Lookup V8 and Java types given the annotated type expected. -->
-	<#switch expectedType>
-		<#case "java.lang.String">
-			<#local v8Type="String" javaType="String">
-			<#break>
-		<#case "int">
-			<#local v8Type="Number" javaType="Int">
-			<#break>
-		<#case "short">
-			<#local v8Type="Number" javaType="Short">
-			<#break>
-		<#case "long">
-			<#local v8Type="Number" javaType="Long">
-			<#break>
-		<#case "float">
-			<#local v8Type="Number" javaType="Float">
-			<#break>
-		<#case "double">
-			<#local v8Type="Number" javaType="Double">
-			<#break>
-		<#case "bool">
-			<#local v8Type="Boolean" javaType="Boolean">
-			<#break>
-		<#-- TODO: array -->
-	</#switch>
+<#assign typeInfo = {
+	"java.lang.String":{
+		"jsType":"String",
+		"converter":"jsStringToJavaString",
+		"jvalue":"l"
+	},
+	"java.lang.Object":{
+		"jsType":"Object",
+		"converter":"jsObjectToJavaObject",
+		"jvalue":"l"
+	},
+	"int":{
+		"jsType":"Number",
+		"converter":"jsNumberToJavaInt",
+		"jvalue":"i"
+	},
+	"short":{
+		"jsType":"Number",
+		"converter":"jsNumberToJavaShort",
+		"jvalue":"s"
+	},
+	"long":{
+		"jsType":"Number",
+		"converter":"jsNumberToJavaLong",
+		"jvalue":"j"
+	},
+	"float":{
+		"jsType":"Number",
+		"converter":"jsNumberToJavaFloat",
+		"jvalue":"f"
+	},
+	"double":{
+		"jsType":"Number",
+		"converter":"jsNumberToDouble",
+		"jvalue":"d"
+	},
+	"bool":{
+		"jsType":"Boolean",
+		"converter":"jsBooleanToJavaBoolean",
+		"jvalue":"z"
+	}
+}>
 
-	<#-- Generate the expression to test if the V8 value is what we expect. -->
-	<#local valid="${v8Value}->Is${v8Type}()">
-
-	<#-- Generate the expression to convert value V8 to Java. -->
-	<#local convertedValue="TypeConverter::js${v8Type}ToJava${javaType}(${v8Value});">
-
-	<nested valid convertedValue>
+<#macro listMethodArguments args>
+	<#list args as arg>
+		<#nested arg_index, typeInfo[arg.type]!typeInfo["java.lang.Object"]>
+	</#list>
 </#macro>
 
