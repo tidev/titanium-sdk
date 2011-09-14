@@ -27,6 +27,8 @@
 	UIPopoverArrowDirection directions;
 	
 	BOOL isShowing;
+    BOOL isDismissing;
+    NSCondition* closingCondition;
 }
 
 //Because the Popover isn't meant to be placed in anywhere specific, 
