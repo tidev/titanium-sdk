@@ -28,7 +28,6 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 {
 	UIWindow *window;
 	UIImageView *loadView;
-	BOOL splashAttached;
 	BOOL loaded;
 	BOOL handledModal;
 
@@ -44,7 +43,7 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 	
 	int networkActivityCount; //We now can use atomic increment/decrement instead. This value is 0 upon initialization anyways.
 	
-	UIViewController<TiRootController> *controller;
+	TiRootViewController *controller;
 	NSString *userAgent;
 	NSString *remoteDeviceUUID;
 	
@@ -53,31 +52,24 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 	
 	NSString *sessionId;
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 	UIBackgroundTaskIdentifier bgTask;
 	NSMutableArray *backgroundServices;
 	NSMutableArray *runningServices;
 	UILocalNotification *localNotification;
-#endif	
 }
 
 @property (nonatomic, retain) IBOutlet UIWindow *window;
 @property (nonatomic, assign) id remoteNotificationDelegate;
 @property (nonatomic, readonly) NSDictionary* remoteNotification;
-@property (nonatomic, retain) UIViewController<TiRootController>* controller;
+@property (nonatomic, retain) TiRootViewController* controller;
 @property (nonatomic, readonly) TiContextGroupRef contextGroup;
 +(TiApp*)app;
 //Convenience method
-+(UIViewController<TiRootController>*)controller;
++(TiRootViewController*)controller;
 +(TiContextGroupRef)contextGroup;
 
 -(void)attachXHRBridgeIfRequired;
 
--(BOOL)isSplashVisible;
--(void)hideSplash:(id)event;
--(UIView*)splash;
--(void)loadSplash;
--(UIView*)attachSplash;
 -(NSDictionary*)launchOptions;
 -(NSString*)remoteDeviceUUID;
 
