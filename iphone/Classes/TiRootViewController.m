@@ -109,6 +109,13 @@
 	}
 	UIDeviceOrientation imageOrientation;
 	UIUserInterfaceIdiom imageIdiom;
+	UIUserInterfaceIdiom deviceIdiom = [[UIDevice currentDevice] userInterfaceIdiom];
+/*
+ *	This code could stand for some refinement, but it is rarely called during
+ *	an application's lifetime and is meant to recreate the quirks and edge cases
+ *	that iOS uses during application startup, including Apple's own
+ *	inconsistencies between iPad and iPhone.
+ */
 	
 	UIImage * defaultImage = [self defaultImageForOrientation:
 			(UIDeviceOrientation)newOrientation
@@ -117,29 +124,53 @@
 	CGFloat imageScale = [defaultImage scale];
 	CGRect newFrame = [[self view] bounds];
 	CGSize imageSize = [defaultImage size];
+	UIViewContentMode contentMode = UIViewContentModeScaleToFill;
 	
 	if (imageOrientation == UIDeviceOrientationPortrait) {
 		if (newOrientation == UIInterfaceOrientationLandscapeLeft) {
-			defaultImage = [UIImage imageWithCGImage:[defaultImage CGImage] scale:imageScale orientation:UIImageOrientationLeft];
+			UIImageOrientation imageOrientation;
+			if (deviceIdiom == UIUserInterfaceIdiomPad)
+			{
+				imageOrientation = UIImageOrientationLeft;
+			}
+			else
+			{
+				imageOrientation = UIImageOrientationRight;
+			}
+			defaultImage = [
+							UIImage imageWithCGImage:[defaultImage CGImage] scale:imageScale orientation:imageOrientation];
 			imageSize = CGSizeMake(imageSize.height, imageSize.width);
+			if (imageScale > 1.5) {
+				contentMode = UIViewContentModeCenter;
+			}
 		}
 		else if(newOrientation == UIInterfaceOrientationLandscapeRight)
 		{
 			defaultImage = [UIImage imageWithCGImage:[defaultImage CGImage] scale:imageScale orientation:UIImageOrientationLeft];
 			imageSize = CGSizeMake(imageSize.height, imageSize.width);
+			if (imageScale > 1.5) {
+				contentMode = UIViewContentModeCenter;
+			}
+		}
+		else if((newOrientation == UIInterfaceOrientationPortraitUpsideDown) && (deviceIdiom == UIUserInterfaceIdiomPhone))
+		{
+			defaultImage = [UIImage imageWithCGImage:[defaultImage CGImage] scale:imageScale orientation:UIImageOrientationDown];			
+			if (imageScale > 1.5) {
+				contentMode = UIViewContentModeCenter;
+			}
 		}
 	}
 		
-	if((imageSize.width / imageScale) == newFrame.size.width)
+	if(imageSize.width == newFrame.size.width)
 	{
 		CGFloat overheight;
-		overheight = (imageSize.height / imageScale) - newFrame.size.height;
+		overheight = imageSize.height - newFrame.size.height;
 		if (overheight > 0.0) {
 			newFrame.origin.y -= overheight;
 			newFrame.size.height += overheight;
 		}
 	}
-	
+	[defaultImageView setContentMode:contentMode];
 	[defaultImageView setImage:defaultImage];
 	[defaultImageView setFrame:newFrame];
 }
@@ -340,12 +371,12 @@
             [thisProxy ignoringRotationToOrientation:toInterfaceOrientation];
         }
 	}
+	[self rotateDefaultImageViewToOrientation:toInterfaceOrientation];
 }
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration;
 {
 	windowOrientation = toInterfaceOrientation;
-	[self rotateDefaultImageViewToOrientation:toInterfaceOrientation];
 	[super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 
