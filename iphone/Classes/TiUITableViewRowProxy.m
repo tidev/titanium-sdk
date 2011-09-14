@@ -273,6 +273,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 -(void)_destroy
 {
 	RELEASE_TO_NIL(tableClass);
+    [rowContainerView performSelectorOnMainThread:@selector(removeFromSuperview) withObject:nil waitUntilDone:NO];
 	[rowContainerView performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
 	rowContainerView = nil;
 	[callbackCell setProxy:nil];
@@ -651,6 +652,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
             [contentView setFrame:rect];
         }
 		rect.origin = CGPointZero;
+        [rowContainerView removeFromSuperview];
 		[rowContainerView release];
 		rowContainerView = [[TiUITableViewRowContainer alloc] initWithFrame:rect];
 		[rowContainerView setBackgroundColor:[UIColor clearColor]];
@@ -762,7 +764,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 				return;
 			}
 			
-			UIView* oldContainerView = [rowContainerView retain];
 			if (rowContainerView != aview) {
 				[rowContainerView release];
 				rowContainerView = [aview retain];
