@@ -474,6 +474,14 @@ public class TiUIWebView extends TiUIView {
 		getWebView().getSettings().setBuiltInZoomControls(enabled);
 	}
 
+	public void setUserAgentString(String userAgentString) {
+		getWebView().getSettings().setUserAgentString(userAgentString);
+	}
+
+	public String getUserAgentString(){
+		return getWebView().getSettings().getUserAgentString();
+	}	
+	
 	public boolean canGoBack() {
 		return getWebView().canGoBack();
 	}
