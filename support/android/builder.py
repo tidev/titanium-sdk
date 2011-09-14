@@ -52,7 +52,7 @@ uncompressed_types = [
 ]
 
 
-MIN_API_LEVEL = 7
+MIN_API_LEVEL = 8
 
 def render_template_with_tiapp(template_text, tiapp_obj):
 	t = Template(template_text)
