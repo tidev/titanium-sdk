@@ -1,4 +1,5 @@
 {
+	"min_api_level": "7",
 	"dependencies":
 	{
 		"accelerometer":[],
