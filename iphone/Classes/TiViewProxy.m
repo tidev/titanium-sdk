@@ -276,16 +276,19 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(void)setCenter:(id)value
 {
-	if (![value isKindOfClass:[NSDictionary class]])
-	{
-		layoutProperties.centerX = TiDimensionUndefined;
-		layoutProperties.centerY = TiDimensionUndefined;
-	}
-	else
+	if ([value isKindOfClass:[NSDictionary class]])
 	{
 		layoutProperties.centerX = TiDimensionFromObject([value objectForKey:@"x"]);
 		layoutProperties.centerY = TiDimensionFromObject([value objectForKey:@"y"]);
+	} else if ([value isKindOfClass:[TiPoint class]]) {
+        CGPoint p = [value point];
+		layoutProperties.centerX = TiDimensionPixels(p.x);
+		layoutProperties.centerY = TiDimensionPixels(p.y);
+    } else {
+		layoutProperties.centerX = TiDimensionUndefined;
+		layoutProperties.centerY = TiDimensionUndefined;
 	}
+
 	[self willChangePosition];
 }
 
