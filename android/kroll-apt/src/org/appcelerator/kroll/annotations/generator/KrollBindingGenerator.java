@@ -161,7 +161,6 @@ public class KrollBindingGenerator extends AbstractProcessor {
 			String projectDir = processingEnv.getOptions().get(PROPERTY_PROJECT_DIR);
 			InputStream headerStream, sourceStream = null;
 			ClassLoader loader = getClass().getClassLoader();
-
 			headerStream = loader.getResourceAsStream("org/appcelerator/kroll/annotations/generator/ProxyBindingV8.h.fm");
 			sourceStream = loader.getResourceAsStream("org/appcelerator/kroll/annotations/generator/ProxyBindingV8.cpp.fm");
 

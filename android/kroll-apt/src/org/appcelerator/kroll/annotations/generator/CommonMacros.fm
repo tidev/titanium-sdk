@@ -1,9 +1,0 @@
-<#macro listMethods>
-	<#if methods??>
-		<#list methods?keys as methodName>
-			<#local method = methods[methodName]>
-			<#nested methodName_index==0, methodName, method>
-		</#list>
-	</#if>
-</#macro>
-
