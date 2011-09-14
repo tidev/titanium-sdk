@@ -161,8 +161,9 @@ public class KrollBindingGenerator extends AbstractProcessor {
 			String projectDir = processingEnv.getOptions().get(PROPERTY_PROJECT_DIR);
 			InputStream headerStream, sourceStream = null;
 			ClassLoader loader = getClass().getClassLoader();
-			headerStream = loader.getResourceAsStream("org/appcelerator/kroll/annotations/generator/V8ProxyBinding.h.fm");
-			sourceStream = loader.getResourceAsStream("org/appcelerator/kroll/annotations/generator/V8ProxyBinding.cpp.fm");
+
+			headerStream = loader.getResourceAsStream("org/appcelerator/kroll/annotations/generator/ProxyBindingV8.h.fm");
+			sourceStream = loader.getResourceAsStream("org/appcelerator/kroll/annotations/generator/ProxyBindingV8.cpp.fm");
 
 			/*  Disable eclipse for now...
 				// Special case for Eclipse -- using the classpath to load
@@ -179,10 +180,10 @@ public class KrollBindingGenerator extends AbstractProcessor {
 				stream = new FileInputStream(proxyBinding);
 			*/
 
-			headerTemplate = new Template("V8ProxyBinding.h.fm",
+			headerTemplate = new Template("ProxyBindingV8.h.fm",
 										  new InputStreamReader(headerStream),
 										  fmConfig);
-			sourceTemplate = new Template("V8ProxyBinding.cpp.fm",
+			sourceTemplate = new Template("ProxyBindingV8.cpp.fm",
 										  new InputStreamReader(sourceStream),
 										  fmConfig);
 		} catch (IOException e) {

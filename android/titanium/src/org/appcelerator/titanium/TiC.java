@@ -228,6 +228,7 @@ public class TiC
 	public static final String PROPERTY_OPTIONS = "options";
 	public static final String PROPERTY_ORDER = "order";
 	public static final String PROPERTY_PACKAGE_NAME = "packageName";
+	public static final String PROPERTY_PAGING_CONTROL_TIMEOUT = "pagingControlTimeout";
 	public static final String PROPERTY_PARENT = "parent";
 	public static final String PROPERTY_PASSWORD_MASK = "passwordMask";
 	public static final String PROPERTY_PIN_IMAGE = "pinImage";

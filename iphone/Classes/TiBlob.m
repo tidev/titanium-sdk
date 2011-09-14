@@ -224,7 +224,7 @@
 	 */
 #ifdef USE_TI_FILESYSTEM
 	if (path != nil) {
-		return [[[TiFilesystemFileProxy alloc] initWithPath:path] autorelease];	
+		return [[[TiFilesystemFileProxy alloc] initWithFile:path] autorelease];	
 	}
 #else
 	NSLog(@"[FATAL] Blob.file property requested but the Filesystem module was never requested.")

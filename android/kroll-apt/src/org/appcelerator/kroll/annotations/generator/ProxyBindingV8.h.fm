@@ -1,0 +1,29 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+
+/** This is generated, do not edit by hand. **/
+<#import "ProxyBinding.fm" as Proxy>
+
+#include "NativeObject.h"
+
+namespace Titanium {
+
+class ${proxyClassName} : public NativeObject {
+public:
+	static void Initialize(v8::Handle<v8::Object> ti);
+    static v8::Handle<v8::Value> Constructor(const v8::Arguments& args);
+
+    // Methods -----------------------------------------------------------
+    <@Proxy.listMethods ; isFirst, name, method>
+	static v8::Handle<v8::Value> ${name}(const v8::Arguments&);
+    </@Proxy.listMethods>
+
+    static v8::Persistent<v8::FunctionTemplate> template;
+};
+
+} // namespace Titanium
+
