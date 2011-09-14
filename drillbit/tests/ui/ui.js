@@ -364,5 +364,20 @@ describe("Ti.UI tests", {
 			setTimeout(listener, 1000);
 		});
 		win.open();
+	}),
+	
+	// http://jira.appcelerator.org/browse/TIMOB-1333
+	imageLoadEvent: asyncTest(function(callback) {
+		var w = Ti.UI.createWindow();
+		var btn = Ti.UI.createImageView({
+			image: 'KS_nav_ui.png',
+			top: 1, width: 50, left: 1, height: 40
+		});
+		var listener = this.async(function() {
+		 	Ti.API.debug("load event fired.");
+		});
+		btn.addEventListener("load", listener)
+		w.add( btn );
+		w.open();
 	})
 });

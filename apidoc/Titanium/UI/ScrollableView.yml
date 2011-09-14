@@ -60,6 +60,11 @@ properties:
   - name: showPagingControl
     description: boolean to indicate whether the paging control UI is visible
     type: Boolean
+  - name: pagingControlTimeout
+    description: number of milliseconds to wait before hiding the paging control. Less than or equal to 0 disables timeout keeping controls displayed.
+    platforms: [android]
+    availability: creation
+    type: Number
   - name: views
     description: array of view objects to place in the view
     type: Array<Object>
