@@ -51,6 +51,9 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: error
     description: fired when the webview cannot load the content
     properties:
@@ -64,6 +67,9 @@ events:
         description: the error message
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: load
     description: fired when the webview is loaded
     properties:
@@ -75,6 +81,9 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: pause
     description: Pause native webview plugins. Add a `pause` handler to your <Titanium.UI.Android.Activity> and invoke
         this method to pause native plugins. This is important with Flash content as it will continue in the background
@@ -104,6 +113,12 @@ properties:
     platforms: [android]
     since: "1.8.0"
     default: <Titanium.UI.Android.WEBVIEW_PLUGINS_OFF>
+  - name: enableZoomControls
+    description: sets whether the zoom controls are enabled
+    type: Boolean
+    platforms: [android]
+    since: "1.8.0"
+    default: true
   - name: scalesPageToFit
     description: whether the webview should scale it's contents or not
     type: Boolean

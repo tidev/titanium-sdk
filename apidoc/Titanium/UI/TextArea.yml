@@ -22,6 +22,9 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: change
     description: fired when the field value changes
     properties:
@@ -33,6 +36,9 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: focus
     description: fired when the field gains focus
     properties:
@@ -44,6 +50,9 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: return
     description: fired when the field return key is pressed on the keyboard
     properties:
@@ -55,6 +64,9 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: selected
     description: fired when the text in the field is selected
     properties:
@@ -66,13 +78,16 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
 properties:
   - name: autoLink
     description: whether or not to convert text within this area to clickable links.
     platforms: [iphone, ipad]
     type: Number
   - name: autocapitalization
-    description: One of <Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE>, <Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS>, <Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES>, or <Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL> to indicate how the field should be capitalized during typing. (only Android)
+    description: One of <Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE>, <Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS>, <Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES>, or <Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL> to indicate how the field should be capitalized during typing.
     platforms: [android]
     type: Number
   - name: editable

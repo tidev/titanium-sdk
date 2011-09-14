@@ -9,9 +9,12 @@ properties:
   - name: BLUE
     description: The cell when selected has a blue background. This is the default value.
     type: Number
+    permission: read-only
   - name: GRAY
     description: Then cell when selected has a gray background.
     type: Number
+    permission: read-only
   - name: NONE
     description: The cell has no distinct style for when it is selected.
     type: Number
+    permission: read-only

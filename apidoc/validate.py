@@ -180,6 +180,15 @@ def validateProperty(typeTracker, property):
 
 	if 'examples' in property:
 		validateExamples(tracker, property['examples'])
+	
+	constantRegex = r'[A-Z]+[A-Z_]*'
+	match = re.match(constantRegex, property['name'])
+	if match:
+		if not 'permission' in property:
+			tracker.trackError('Required property for constant "permission" not found')
+		else:
+			if not property['permission'] == 'read-only':
+				tracker.trackError('Constant should have "read-only" permission.')
 
 def validateEvent(typeTracker, event):
 	tracker = ErrorTracker(event['name'], typeTracker)
