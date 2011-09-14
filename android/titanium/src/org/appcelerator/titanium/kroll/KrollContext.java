@@ -313,7 +313,7 @@ public class KrollContext implements Handler.Callback
 		Object result = null;
 
 		try {
-			if (useOptimization) {
+			if (false && useOptimization) {
 				result = runCompiledScript(filename);
 			} else {
 				result = evaluateScript(filename);

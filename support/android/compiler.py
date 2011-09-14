@@ -40,6 +40,7 @@ class Compiler(object):
 		self.template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 		self.appid = tiapp.properties['id']
 		self.root_dir = root_dir
+		self.use_bytecode = False
 		self.project_dir = os.path.abspath(os.path.expanduser(project_dir))
 		self.modules = set()
 		self.jar_libraries = set()
@@ -144,11 +145,14 @@ class Compiler(object):
 		for escape_char in escape_chars:
 			js_class_name = js_class_name.replace(escape_char, '_')
 		
-		# TODO: add closure compiling too?
-		jsc_args = [self.java, '-classpath', js_jar, 'org.mozilla.javascript.tools.jsc.Main',
-			'-main-method-class', 'org.appcelerator.titanium.TiScriptRunner',
-			'-nosource', '-package', self.appid + '.js', '-encoding', 'utf8',
-			'-o', js_class_name, '-d', self.classes_dir, fullpath]
+		if self.use_bytecode:
+			jsc_args = [self.java, '-classpath', js_jar, 'org.mozilla.javascript.tools.jsc.Main',
+				'-main-method-class', 'org.appcelerator.titanium.TiScriptRunner',
+				'-nosource', '-package', self.appid + '.js', '-encoding', 'utf8',
+				'-o', js_class_name, '-d', self.classes_dir, fullpath]
+		else:
+			jsc_args = [self.java, '-jar', os.path.join(self.template_dir, 'lib/closure-compiler.jar'),
+				'--js', fullpath, '--js_output_file', fullpath + '-compiled', '--jscomp_off=internetExplorerChecks']
 
 		print "[INFO] Compiling javascript: %s" % resource_relative_path
 		sys.stdout.flush()
@@ -157,6 +161,8 @@ class Compiler(object):
 			sys.stderr.write("[ERROR] %s\n" % se)
 			sys.stderr.flush()
 			sys.exit(1)
+		os.unlink(fullpath)
+		os.rename(fullpath+'-compiled',fullpath)
 
 	def compile_into_bytecode(self, paths):
 		compile_js = False
