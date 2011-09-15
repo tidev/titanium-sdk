@@ -14,6 +14,10 @@ namespace titanium
 		static void initCache(JNIEnv *env);
 
 		static jobjectArray newObjectArray(int length, jobject initial = NULL);
+		static void throwException(jclass clazz, const char *message);
+		static void throwException(const char *className, const char *message);
+		static void throwOutOfMemoryError(const char *message);
+		static void throwNullPointerException(const char *message);
 
 		static jclass objectClass;
 		static jclass stringClass;
@@ -27,6 +31,8 @@ namespace titanium
 		static jclass hashMapClass;
 		static jclass dateClass;
 		static jclass setClass;
+		static jclass outOfMemoryError;
+		static jclass nullPointerException;
 
 		static jclass krollProxyClass;
 		static jclass v8ObjectClass;

@@ -17,6 +17,8 @@ namespace titanium
 	jclass JNIUtil::hashMapClass = NULL;
 	jclass JNIUtil::dateClass = NULL;
 	jclass JNIUtil::setClass = NULL;
+	jclass JNIUtil::outOfMemoryError = NULL;
+	jclass JNIUtil::nullPointerException = NULL;
 
 	jclass JNIUtil::krollProxyClass = NULL;
 	jclass JNIUtil::v8ObjectClass = NULL;
@@ -53,6 +55,34 @@ namespace titanium
 		return NULL;
 	}
 
+	void JNIUtil::throwException(jclass clazz, const char *message)
+	{
+		JNIEnv* env = getJNIEnv();
+		if (!env || !clazz) {
+			return;
+		}
+		env->ExceptionClear();
+		env->ThrowNew(clazz, message);
+	}
+
+	void JNIUtil::throwException(const char *className, const char *message)
+	{
+		JNIEnv* env = getJNIEnv();
+		if (!env) {
+			return;
+		}
+		throwException(env->FindClass(className), message);
+	}
+
+	void JNIUtil::throwOutOfMemoryError(const char *message)
+	{
+		throwException(outOfMemoryError, message);
+	}
+	void JNIUtil::throwNullPointerException(const char *message)
+	{
+		throwException(nullPointerException, message);
+	}
+
 	void JNIUtil::initCache(JNIEnv* env)
 	{
 		objectClass = env->FindClass("java/lang/Object");
@@ -67,6 +97,8 @@ namespace titanium
 		hashMapClass = env->FindClass("java/util/HashMap");
 		dateClass = env->FindClass("java/util/Date");
 		setClass = env->FindClass("java/util/Set");
+		outOfMemoryError = env->FindClass("java/lang/OutOfMemoryError");
+		nullPointerException = env->FindClass("java/lang/NullPointerException");
 		krollProxyClass = env->FindClass("org/appcelerator/kroll/KrollProxy");
 		v8ObjectClass = env->FindClass("org/appcelerator/kroll/runtime/v8/V8Object");
 
