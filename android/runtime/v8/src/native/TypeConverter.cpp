@@ -2,6 +2,7 @@
 
 #include <TypeConverter.h>
 
+using namespace titanium;
 
 // declare static members
 JNIEnv *TypeConverter::env;
@@ -42,7 +43,7 @@ jmethodID getJavaMethodId (jclass javaClass, const char *methodName, const char 
 }
 
 
-jobject jsValueToJavaObject (v8::Local<v8::Value> jsValue)
+jobject TypeConverter::jsValueToJavaObject (v8::Local<v8::Value> jsValue)
 {
 	if (jsValue->IsNumber())
 	{
@@ -102,6 +103,45 @@ v8::Handle<v8::Array> javaDoubleArrayToJsNumberArray (jdoubleArray javaDoubleArr
 	}
 
 	return jsArray;
+}
+
+
+v8::Handle<v8::Object> javaObjectToJsObject (jobject javaObject)
+{
+	
+	jclass hashMapClass;
+	jclass proxyClass;
+	jclass javaObjectClass = TypeConverter::env->GetObjectClass (javaObject);
+
+	hashMapClass = getJavaClass ("java/util/HashMap");
+	if (TypeConverter::env->IsInstanceOf (javaObjectClass, hashMapClass))
+	{
+/*
+		// get the set off the HasMap
+		jmethodID hashMapGet = TypeConverter::env->GetMethodID (hashMapClass, "get", "(Ljava/lang/Object;)Ljava/lang/Object;");
+		jmethodID hashMapKeySet = TypeConverter::env->GetMethodID (hashMapClass, "keySet", "()Ljava/util/Set;");
+		jobject hashMapSet = TypeConverter::env->CallObjectMethod (javaObject, hashMapKeySet);
+
+		// key the array of keys off the HashMap set
+		jclass setClass = getJavaClass ("java/util/Set");
+		jmethodID setToArray = TypeConverter::env->GetMethodID (setClass, "toArray", "()[Ljava/lang/Object;");
+		jobjectArray keys = TypeConverter::env->CallObjectMethod (hashMapSet, setToArray);
+		int keysLength = TypeConverter::env->GetArrayLength (keys);
+
+		for (int i = 0; i < keysLength; i++)
+		{
+			
+		}
+*/
+	}
+
+	proxyClass = getJavaClass ("org/appcelerator/kroll/KrollProxy");
+	if (TypeConverter::env->IsInstanceOf (javaObjectClass, proxyClass))
+	{
+		v8::Handle<v8::Object> jsObject = v8::Object::New();
+
+		
+	}
 }
 
 
@@ -265,6 +305,9 @@ v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray (jobjectArray javaObject
 
 	for (int i = 0; i < arrayLength; i++)
 	{
+		javaObjectToJsObject (TypeConverter::env->GetObjectArrayElement (javaObjectArray, i));
+
+		// will insert Handle<Object>
 		//jsArray->Set ((uint32_t)i, v8::Value::New (TypeConverter::env->GetObjectArrayElement (javaObjectArray, i)));
 	}
 
