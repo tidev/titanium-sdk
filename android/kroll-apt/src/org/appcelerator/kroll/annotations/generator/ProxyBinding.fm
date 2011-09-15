@@ -30,47 +30,77 @@
 	"java.lang.String":{
 		"jsType":"String",
 		"converter":"jsStringToJavaString",
-		"jvalue":"l"
+		"jvalue":"l",
+		"javaCallMethodType":"Object",
+		"javaReturnType":"jobject"
 	},
 	"java.lang.Object":{
 		"jsType":"Object",
 		"converter":"jsObjectToJavaObject",
-		"jvalue":"l"
+		"jvalue":"l",
+		"javaCallMethodType":"Object",
+		"javaReturnType":"jobject"
 	},
 	"int":{
 		"jsType":"Number",
 		"converter":"jsNumberToJavaInt",
-		"jvalue":"i", "signature":"I"
+		"jvalue":"i", "signature":"I",
+		"javaCallMethodType":"Int",
+		"javaReturnType":"jint"
 	},
 	"short":{
 		"jsType":"Number",
 		"converter":"jsNumberToJavaShort",
-		"jvalue":"s", "signature":"S"
+		"jvalue":"s", "signature":"S",
+		"javaCallMethodType":"Short",
+		"javaReturnType":"jshort"
 	},
 	"long":{
 		"jsType":"Number",
 		"converter":"jsNumberToJavaLong",
-		"jvalue":"j", "signature":"J"
+		"jvalue":"j", "signature":"J",
+		"javaCallMethodType":"Long",
+		"javaReturnType":"jlong"
 	},
 	"float":{
 		"jsType":"Number",
 		"converter":"jsNumberToJavaFloat",
-		"jvalue":"f", "signature":"F"
+		"jvalue":"f", "signature":"F",
+		"javaCallMethodType":"Float",
+		"javaReturnType":"jfloat"
 	},
 	"double":{
 		"jsType":"Number",
 		"converter":"jsNumberToDouble",
-		"jvalue":"d", "signature":"D"
+		"jvalue":"d", "signature":"D",
+		"javaCallMethodType":"Double",
+		"javaReturnType":"jdouble"
 	},
 	"boolean":{
 		"jsType":"Boolean",
 		"converter":"jsBooleanToJavaBoolean",
-		"jvalue":"z", "signature":"Z"
+		"jvalue":"z", "signature":"Z",
+		"javaCallMethodType":"Boolean",
+		"javaReturnType":"jboolean"
 	},
 	"void":{
-		"signature":"V"
+		"signature":"V",
+		"javaCallMethodType":"Void",
+		"javaReturnType":"void"
 	}
 }>
+
+<#function getTypeInfo type>
+	<#if typeInfo?keys?seq_contains(type)>
+		<#return typeInfo[type]>
+	</#if>
+
+	<#if type?contains(".")>
+		<#return typeInfo["java.lang.Object"]>
+	</#if>
+
+	<#stop "Unknown type info requested: ${type}">
+</#function>
 
 <#macro listMethodArguments args>
 	<#list args as arg>
@@ -97,6 +127,12 @@
 </#macro>
 
 <#macro getMethodSignature args returnType>
-	(<@getArgumentsSignature args ; s>${s}</@getArgumentsSignature>)>${getTypeSignature(returnType)}<#t>
+	(<@getArgumentsSignature args ; s>${s}</@getArgumentsSignature>)${getTypeSignature(returnType)}<#t>
+</#macro>
+
+<#macro generateJNICall returnType>
+	<#local info = getTypeInfo(returnType)>
+	<#local callMethod = "Call${info.javaCallMethodType}MethodA">
+	<#nested info.javaReturnType callMethod>
 </#macro>
 
