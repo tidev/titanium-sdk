@@ -2,8 +2,7 @@
 #define TYPECONVERTER_H
 
 #include <jni.h>
-#include <v8/v8.h>
-
+#include <v8.h>
 
 namespace titanium
 {
@@ -15,6 +14,7 @@ namespace titanium
 			// util methods
 			static void initEnv (JNIEnv *env);
 			static jobject jsValueToJavaObject (v8::Local<v8::Value> jsValue);
+			static v8::Handle<v8::Object> javaObjectToJsObject (jobject javaObject);
 
 			// javascript to java convert methods
 			static jshort jsNumberToJavaShort (v8::Handle<v8::Number> jsNumber);

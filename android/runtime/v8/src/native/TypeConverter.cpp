@@ -106,7 +106,7 @@ v8::Handle<v8::Array> javaDoubleArrayToJsNumberArray (jdoubleArray javaDoubleArr
 }
 
 
-v8::Handle<v8::Object> javaObjectToJsObject (jobject javaObject)
+v8::Handle<v8::Object> TypeConverter::javaObjectToJsObject (jobject javaObject)
 {
 	
 	jclass hashMapClass;

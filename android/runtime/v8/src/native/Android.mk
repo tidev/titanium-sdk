@@ -15,18 +15,12 @@ SWIG_INTERFACE := mapTest
 LOCAL_MODULE := kroll-v8
 LOCAL_CFLAGS := -I$(LIBV8_DIR)/include -g
 LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -L$(LIBV8_DIR)/lib -ldl -llog -L$(TARGET_OUT)
-#LOCAL_SRC_FILES += ../../generated/jav8_wrap.cpp
 LOCAL_SRC_FILES += \
-	main.cpp \
-	NativeMap.cpp \
-	CopyMap.cpp \
-	#../../generated/$(SWIG_INTERFACE)_wrap.cpp
-#LOCAL_SRC_FILES += main.cpp
-LOCAL_STATIC_LIBRARIES := libv8
+	JNIUtil.cpp \
+	TypeConverter.cpp \
+	V8Runtime.cpp
 
-$(GENERATED_DIR)/$(SWIG_INTERFACE)_wrap.cpp:
-	mkdir -p $(GENERATED_DIR)/org/appcelerator/kroll/runtime/v8 || echo
-	swig -java -c++ -package org.appcelerator.kroll.runtime.v8 -O -outdir $(GENERATED_DIR)/org/appcelerator/kroll/runtime/v8 -o $(GENERATED_DIR)/$(SWIG_INTERFACE)_wrap.cpp -oh $(GENERATED_DIR)/$(SWIG_INTERFACE)_wrap.h -I$(ABS_LIBV8_DIR)/include $(THIS_DIR)/$(SWIG_INTERFACE).i
+LOCAL_STATIC_LIBRARIES := libv8
 
 include $(BUILD_SHARED_LIBRARY)
 
