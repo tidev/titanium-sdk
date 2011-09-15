@@ -38,9 +38,15 @@ static jmethodID ${name}_methodID = JNIUtil::getJNIEnv()->GetMethodID(${proxyCla
 
 Handle<Value> ${proxyClassName}::${name}(const Arguments& args)
 {
+	<#------------------------------------------------------->
+	<#-- If method has arguments, verify and convert them. -->
+	<#------------------------------------------------------->
+	<#if method.args?size &gt; 0>
 	<@Proxy.getRequiredArgumentCount args=method.args ; requiredCount>
+	<#if requiredCount &gt; 0>
 	if (args.Length() != ${requiredCount})
 		JSException::MissingRequiredArguments(args.Length(), ${requiredCount});
+	</#if>
 	</@Proxy.getRequiredArgumentCount>
 
 	jvalue jniArgs[${method.args?size}];
@@ -54,7 +60,14 @@ Handle<Value> ${proxyClassName}::${name}(const Arguments& args)
 	jniArgs[${index}].${info.jvalue} = TypeConverter::${info.converter}(arg->To${info.jsType}());
 	</@Proxy.listMethodArguments>
 
-	<#-- TODO: call Java class method here -->
+	</#if>
+	<#------------------------>
+	<#-- Generate JNI Call  -->
+	<#------------------------>
+	<@Proxy.generateJNICall returnType=method.returnType ; resultType, callMethod>
+	<#if resultType != "void">${resultType} result = </#if><#rt>
+	${callMethod}(javaObject, ${name}_methodID, <#if method.args?size &gt; 0>jniArgs<#else>0</#if>);<#lt>
+	</@Proxy.generateJNICall>
 }
 
 </@Proxy.listMethods>
