@@ -359,7 +359,7 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue (jobject javaObject)
 
 // used mainly by the array conversion methods when converting java numeric types 
 // arrays to to the generic js number type 
-v8::Handle<v8::Array> javaDoubleArrayToJsNumberArray (jdoubleArray javaDoubleArray)
+v8::Handle<v8::Array> TypeConverter::javaDoubleArrayToJsNumberArray (jdoubleArray javaDoubleArray)
 {
 	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL)

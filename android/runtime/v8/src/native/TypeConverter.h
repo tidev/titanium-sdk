@@ -44,7 +44,7 @@ namespace titanium
 			static v8::Handle<v8::Date> javaDateToJsDate (jobject);
 			static v8::Handle<v8::Date> javaLongToJsDate (jlong);
 
-			// array convert methodsv8::Handle<v8::Array> javaDoubleArrayToJsNumberArray (jdoubleArray javaDoubleArray);
+			// array convert methods
 			static jarray jsArrayToJavaArray (v8::Handle<v8::Array>);
 			static v8::Handle<v8::Array> javaArrayToJsArray (jbooleanArray javaBooleanArray);
 			static v8::Handle<v8::Array> javaArrayToJsArray (jshortArray javaShortArray);
