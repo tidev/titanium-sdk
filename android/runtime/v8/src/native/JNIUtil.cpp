@@ -25,7 +25,11 @@ namespace titanium
 	jmethodID JNIUtil::hashMapGetMethod = NULL;
 	jmethodID JNIUtil::hashMapKeySetMethod = NULL;
 	jmethodID JNIUtil::setToArrayMethod = NULL;
+	jmethodID JNIUtil::dateInitMethod = NULL;
 	jmethodID JNIUtil::dateGetTimeMethod = NULL;
+	jmethodID doubleInitMethod = NULL;
+	jmethodID booleanInitMethod = NULL;
+	jmethodID longInitMethod = NULL;
 	jmethodID JNIUtil::numberDoubleValueMethod = NULL;
 
 	/* static */
@@ -66,11 +70,18 @@ namespace titanium
 		krollProxyClass = env->FindClass("org/appcelerator/kroll/KrollProxy");
 		v8ObjectClass = env->FindClass("org/appcelerator/kroll/runtime/v8/V8Object");
 
-		v8ObjectInitMethod = env->GetMethodID(v8ObjectClass, "<init>", "()V");
 		hashMapGetMethod = env->GetMethodID(hashMapClass, "get", "(Ljava/lang/Object;);Ljava/lang/Object;");
 		hashMapKeySetMethod = env->GetMethodID(hashMapClass, "keySet", "();Ljava/util/Set;");
 		setToArrayMethod = env->GetMethodID(setClass, "toArray", "();[Ljava/lang/Object;");
+
+		dateInitMethod = env->GetMethodID(dateClass, "<init>", "(J)V");
 		dateGetTimeMethod = env->GetMethodID(dateClass,  "getTime", "()J");
+
+		doubleInitMethod = env->GetMethodID(doubleClass, "<init>", "(D)V");
+		booleanInitMethod = env->GetMethodID(booleanClass, "<init>", "(Z)V");
+		longInitMethod = env->GetMethodID(longClass, "<init>", "(J)V");
+
 		numberDoubleValueMethod = env->GetMethodID(numberClass, "doubleValue", "()J");
+		v8ObjectInitMethod = env->GetMethodID(v8ObjectClass, "<init>", "()V");
 	}
 }
