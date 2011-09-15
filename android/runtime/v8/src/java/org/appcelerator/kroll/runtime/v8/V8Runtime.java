@@ -8,5 +8,11 @@ public class V8Runtime
 		nativeInit();
 	}
 
+	public static void initModuleTemplate(Class<?> moduleClass)
+	{
+		nativeInitModuleTemplate(moduleClass);
+	}
+
 	private static native void nativeInit();
+	private static native void nativeInitModuleTemplate(Class<?> moduleClass);
 }
