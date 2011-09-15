@@ -21,7 +21,8 @@
 			<#local signature>
 				<@getMethodSignature method.args, method.returnType />
 			</#local>
-			<#nested methodName_index==0, methodName, method, signature>
+			<#local hasArgs = (method.args?size > 0)>
+			<#nested methodName_index==0, methodName, method, signature, hasArgs>
 		</#list>
 	</#if>
 </#macro>
@@ -29,56 +30,72 @@
 <#assign typeInfo = {
 	"java.lang.String":{
 		"jsType":"String",
-		"converter":"jsStringToJavaString",
+		"jsToJavaConverter":"jsStringToJavaString",
+		"javaToJsConverter":"javaStringToJsString",
 		"jvalue":"l",
 		"javaCallMethodType":"Object",
 		"javaReturnType":"jobject"
 	},
 	"java.lang.Object":{
 		"jsType":"Object",
-		"converter":"jsObjectToJavaObject",
+		"jsToJavaConverter":"jsObjectToJavaObject",
+		"javaToJsConverter":"javaObjectToJsObject",
 		"jvalue":"l",
 		"javaCallMethodType":"Object",
 		"javaReturnType":"jobject"
 	},
+	"java.lang.Object[]":{
+		"jsType":"Array",
+		"jsToJavaConverter":"jsArrayToJavaArray",
+		"javaToJsConverter":"javaArrayToJsArray",
+		"jvalue":"l",
+		"javaCallMethodType":"Object",
+		"javaReturnType":"jobjectArray"
+	},
 	"int":{
 		"jsType":"Number",
-		"converter":"jsNumberToJavaInt",
+		"jsToJavaConverter":"jsNumberToJavaInt",
+		"javaToJsConverter":"javaIntToJsNumber",
 		"jvalue":"i", "signature":"I",
 		"javaCallMethodType":"Int",
 		"javaReturnType":"jint"
 	},
 	"short":{
 		"jsType":"Number",
-		"converter":"jsNumberToJavaShort",
+		"jsToJavaConverter":"jsNumberToJavaShort",
+		"javaToJsConverter":"javaShortToJsNumber",
 		"jvalue":"s", "signature":"S",
 		"javaCallMethodType":"Short",
 		"javaReturnType":"jshort"
 	},
 	"long":{
 		"jsType":"Number",
-		"converter":"jsNumberToJavaLong",
+		"jsToJavaConverter":"jsNumberToJavaLong",
+		"javaToJsConverter":"javaLongToJsNumber",
 		"jvalue":"j", "signature":"J",
 		"javaCallMethodType":"Long",
 		"javaReturnType":"jlong"
 	},
 	"float":{
 		"jsType":"Number",
-		"converter":"jsNumberToJavaFloat",
+		"jsToJavaConverter":"jsNumberToJavaFloat",
+		"javaToJsConverter":"javaFloatToJsNumber",
 		"jvalue":"f", "signature":"F",
 		"javaCallMethodType":"Float",
 		"javaReturnType":"jfloat"
 	},
 	"double":{
 		"jsType":"Number",
-		"converter":"jsNumberToDouble",
+		"jsToJavaConverter":"jsNumberToJavaDouble",
+		"javaToJsConverter":"javaDoubleToJsNumber",
 		"jvalue":"d", "signature":"D",
 		"javaCallMethodType":"Double",
 		"javaReturnType":"jdouble"
 	},
 	"boolean":{
 		"jsType":"Boolean",
-		"converter":"jsBooleanToJavaBoolean",
+		"jsToJavaConverter":"jsBooleanToJavaBoolean",
+		"javaToJsConverter":"javaBoolToJsBoolean",
 		"jvalue":"z", "signature":"Z",
 		"javaCallMethodType":"Boolean",
 		"javaReturnType":"jboolean"
