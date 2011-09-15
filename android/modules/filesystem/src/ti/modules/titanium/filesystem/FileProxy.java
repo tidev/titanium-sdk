@@ -6,23 +6,9 @@
  */
 package ti.modules.titanium.filesystem;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiFileProxy;
-import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.io.TiFileFactory;
-import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiFileHelper2;
-
-import android.net.Uri;
 
 @Kroll.proxy
 public class FileProxy extends TiFileProxy
