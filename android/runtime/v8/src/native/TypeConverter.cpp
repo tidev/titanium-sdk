@@ -98,7 +98,7 @@ v8::Handle<v8::String> TypeConverter::javaStringToJsString(jstring javaString)
 	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL)
 	{
-		return v8::Null(); // log error
+		return v8::Handle<v8::String>();
 	}
 
 	const char *nativeString = env->GetStringUTFChars (javaString, 0);
@@ -134,7 +134,7 @@ v8::Handle<v8::Date> TypeConverter::javaDateToJsDate (jobject javaDate)
 	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL)
 	{
-		return v8::Null(); // log error
+		return v8::Handle<v8::Date>();
 	}
 
 	jlong epochTime = env->CallLongMethod (javaDate, JNIUtil::dateGetTimeMethod);
@@ -181,7 +181,7 @@ v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray (jbooleanArray javaBoole
 	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL)
 	{
-		return v8::Null(); // log error
+		return v8::Handle<v8::Array>();
 	}
 
 	int arrayLength = env->GetArrayLength (javaBooleanArray);
@@ -232,7 +232,7 @@ v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray (jobjectArray javaObject
 	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL)
 	{
-		return v8::Null(); // log error
+		return v8::Handle<v8::Array>();
 	}
 
 	int arrayLength = env->GetArrayLength (javaObjectArray);
@@ -240,7 +240,7 @@ v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray (jobjectArray javaObject
 
 	for (int i = 0; i < arrayLength; i++)
 	{
-		javaObjectToJsObject (env->GetObjectArrayElement (javaObjectArray, i));
+		TypeConverter::javaObjectToJsValue (env->GetObjectArrayElement (javaObjectArray, i));
 
 		// will insert Handle<Object>
 		//jsArray->Set ((uint32_t)i, v8::Value::New (env->GetObjectArrayElement (javaObjectArray, i)));
@@ -300,26 +300,26 @@ jobject TypeConverter::jsValueToJavaObject (v8::Local<v8::Value> jsValue)
 }
 
 
-// converts java object to js object and recursively converts sub objects if this
+// converts java object to js value and recursively converts sub objects if this
 // object is a container type
-v8::Handle<v8::Object> TypeConverter::javaObjectToJsObject (jobject javaObject)
+v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue (jobject javaObject)
 {
 	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL)
 	{
-		return v8::Null(); // log error
+		return v8::Handle<v8::Object>();
 	}
 
 	jclass javaObjectClass = env->GetObjectClass (javaObject);
 	
 	if (env->IsInstanceOf (javaObjectClass, JNIUtil::numberClass))
 	{
-		jdouble javaDouble = env->callDoubleMethod (javaObject, JNIUtil::numberDoubleValue);
-		return v8::Number::New (javaDouble);
+		jdouble javaDouble = env->CallDoubleMethod (javaObject, JNIUtil::numberDoubleValueMethod);
+		return v8::Number::New ((double) javaDouble);
 	}
 	else if (env->IsInstanceOf (javaObject, JNIUtil::stringClass))
 	{
-		return v8::String::New ( env->GetStringChars ((jstring) javaString, 0));
+		return v8::String::New ( env->GetStringChars ((jstring) javaObject, 0));
 	}
 	else if (env->IsInstanceOf (javaObjectClass, JNIUtil::dateClass))
 	{
@@ -336,13 +336,13 @@ v8::Handle<v8::Object> TypeConverter::javaObjectToJsObject (jobject javaObject)
 
 		for (int i = 0; i < hashMapKeysLength; i++)
 		{
-			jobject pairKey = env->GetObjectArrayElement (hashMapKeys, i);
-			jclass pairKeyClass = env->GetObjectClass (pairKey);
+			jobject javaPairKey = env->GetObjectArrayElement (hashMapKeys, i);
+			v8::Handle<v8::Value> v8PairKey = TypeConverter::javaObjectToJsValue (javaPairKey);
 
-			if (env->IsInstanceOf (pairKeyClass, JNIUtil::stringClass))
+			if (v8PairKey->IsNull())
 			{
-				jobject pairValue = env->CallObjectMethod (javaObject, JNIUtil::hashMapGetMethod, pairKey);
-				jsObject->Set (TypeConverter::javaStringToJsString ((jstring) pairKey), pairValue);
+				jobject javaPairValue = env->CallObjectMethod (javaObject, JNIUtil::hashMapGetMethod, javaPairKey);
+				jsObject->Set (v8PairKey, TypeConverter::javaObjectToJsValue (javaPairValue));
 			}
 		}
 
@@ -364,7 +364,7 @@ v8::Handle<v8::Array> javaDoubleArrayToJsNumberArray (jdoubleArray javaDoubleArr
 	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL)
 	{
-		return v8::Null(); // log error
+		return v8::Handle<v8::Array>();
 	}
 
 	int arrayLength = env->GetArrayLength (javaDoubleArray);

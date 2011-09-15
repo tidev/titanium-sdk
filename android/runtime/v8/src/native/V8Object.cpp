@@ -47,7 +47,7 @@ void Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetObject(JNIEnv *env
 	jint nameLen = env->GetStringLength(name);
 
 	(*jsObject)->Set(String::New(nameChars, nameLen),
-		TypeConverter::javaObjectToJsObject(value));
+		TypeConverter::javaObjectToJsValue(value));
 
 	env->ReleaseStringChars(name, nameChars);
 }
