@@ -11,11 +11,17 @@
 #include <v8.h>
 #include <assert.h>
 
-namespace Titanium {
+namespace titanium {
 
 class NativeObject {
 public:
-	NativeObject() { }
+	// Creates a new V8 proxy for a Java object.
+	// This proxy keeps a reference to the Java object
+	// and provides a bridge between Dalvik and V8.
+	NativeObject(jobject javaObject)
+		: javaObject_(javaObject)
+	{
+	}
 
 	virtual ~NativeObject() {
 		if (!handle_.IsEmpty()) {
@@ -50,6 +56,7 @@ protected:
 
 private:
 	v8::Persistent<v8::Object> handle_;
+	jobject javaObject_;
 
 	static void WeakCallback(v8::Persistent<v8::Value> value, void *data) {
 		NativeObject *obj = static_cast<NativeObject*>(data);
@@ -59,6 +66,6 @@ private:
 	}
 };
 
-} // namespace Titanium
+} // namespace titanium
 
 #endif

@@ -8,7 +8,7 @@
 /** This code is generated, do not edit by hand. **/
 <#import "ProxyBinding.fm" as Proxy>
 
-#include "${proxyClassName}.h"
+#include "${packageName}.${proxyClassName}.h"
 
 #include "JNIUtil.h"
 
@@ -19,6 +19,10 @@ namespace titanium {
 // JNI class reference for the KrollProxy in Java for this native proxy.
 jclass ${proxyClassName}::javaClass = JNIUtil::getJNIEnv()->FindClass("${packageName?replace('.','/')}/${proxyClassName}");
 
+${proxyClassName}::${proxyClassName}(jobject javaObject) : NativeObject(javaObject)
+{
+}
+
 void ${proxyClassName}::Initialize(Handle<Object> ti)
 {
 	HandleScope scope;
@@ -26,7 +30,12 @@ void ${proxyClassName}::Initialize(Handle<Object> ti)
 
 Handle<Value> ${proxyClassName}::Constructor(const Arguments& args)
 {
-	ProxyClass* proxy = new ProxyClass;
+	<#-- TODO: validate and convert arguments to jvalue array -->
+
+	<#-- TODO: Call constructor on Java class for the type we are proxying -->
+
+	<#-- Create proxy object and wrap into the V8 Object's internal field -->
+	${proxyClassName}* proxy = new ${proxyClassName};
 	proxy->Wrap(args.Holder());
 
 	return args.This();
