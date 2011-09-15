@@ -11,15 +11,32 @@ namespace titanium
 	public:
 		static JavaVM *javaVm;
 		static JNIEnv* getJNIEnv();
+		static void initCache(JNIEnv *env);
 
 		static jobjectArray newObjectArray(int length, jobject initial = NULL);
 
-		static jclass getObjectClass(JNIEnv* env = NULL);
-		static jclass getStringClass(JNIEnv* env = NULL);
-		static jclass getHashMapClass(JNIEnv* env = NULL);
-		static jclass getV8ObjectClass(JNIEnv* env = NULL);
+		static jclass objectClass;
+		static jclass stringClass;
+		static jclass numberClass;
+		static jclass shortClass;
+		static jclass integerClass;
+		static jclass longClass;
+		static jclass floatClass;
+		static jclass doubleClass;
+		static jclass booleanClass;
+		static jclass hashMapClass;
+		static jclass dateClass;
+		static jclass setClass;
 
-		static jmethodID getV8ObjectInitMethod(JNIEnv* env = NULL);
+		static jclass krollProxyClass;
+		static jclass v8ObjectClass;
+
+		static jmethodID v8ObjectInitMethod;
+		static jmethodID hashMapGetMethod;
+		static jmethodID hashMapKeySetMethod;
+		static jmethodID setToArrayMethod;
+		static jmethodID dateGetTimeMethod;
+		static jmethodID numberDoubleValueMethod;
 	};
 }
 

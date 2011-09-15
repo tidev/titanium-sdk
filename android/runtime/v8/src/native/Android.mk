@@ -18,7 +18,8 @@ LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -L$(LIBV8_DIR)/lib -ldl -llog -L$(TARGET_OU
 LOCAL_SRC_FILES += \
 	JNIUtil.cpp \
 	TypeConverter.cpp \
-	V8Runtime.cpp
+	V8Runtime.cpp \
+	V8Object.cpp
 
 LOCAL_STATIC_LIBRARIES := libv8
 

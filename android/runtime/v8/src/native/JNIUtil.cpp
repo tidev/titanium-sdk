@@ -5,6 +5,28 @@
 namespace titanium
 {
 	JavaVM* JNIUtil::javaVm = NULL;
+	jclass JNIUtil::objectClass = NULL;
+	jclass JNIUtil::stringClass = NULL;
+	jclass JNIUtil::numberClass = NULL;
+	jclass JNIUtil::shortClass = NULL;
+	jclass JNIUtil::integerClass = NULL;
+	jclass JNIUtil::longClass = NULL;
+	jclass JNIUtil::floatClass = NULL;
+	jclass JNIUtil::doubleClass = NULL;
+	jclass JNIUtil::booleanClass = NULL;
+	jclass JNIUtil::hashMapClass = NULL;
+	jclass JNIUtil::dateClass = NULL;
+	jclass JNIUtil::setClass = NULL;
+
+	jclass JNIUtil::krollProxyClass = NULL;
+	jclass JNIUtil::v8ObjectClass = NULL;
+
+	jmethodID JNIUtil::v8ObjectInitMethod = NULL;
+	jmethodID JNIUtil::hashMapGetMethod = NULL;
+	jmethodID JNIUtil::hashMapKeySetMethod = NULL;
+	jmethodID JNIUtil::setToArrayMethod = NULL;
+	jmethodID JNIUtil::dateGetTimeMethod = NULL;
+	jmethodID JNIUtil::numberDoubleValueMethod = NULL;
 
 	/* static */
 	JNIEnv* JNIUtil::getJNIEnv()
@@ -22,51 +44,33 @@ namespace titanium
 		JNIEnv* env = getJNIEnv();
 		if (env)
 		{
-			return env->NewObjectArray(length, getObjectClass(env), initial);
+			return env->NewObjectArray(length, objectClass, initial);
 		}
 		return NULL;
 	}
 
-#define CLASS_GETTER(name, fqName) \
-	jclass JNIUtil::get ## name ## Class(JNIEnv* env) \
-	{ \
-		static jclass clazz = NULL; \
-		if (!clazz) \
-		{ \
-			if (!env) env = getJNIEnv(); \
-			if (env) \
-			{ \
-				clazz = env->FindClass(fqName); \
-				return clazz; \
-			} \
-		} \
-		return NULL; \
+	void JNIUtil::initCache(JNIEnv* env)
+	{
+		objectClass = env->FindClass("java/lang/Object");
+		numberClass = env->FindClass("java/lang/Number");
+		stringClass = env->FindClass("java/lang/String");
+		shortClass = env->FindClass("java/lang/Short");
+		integerClass = env->FindClass("java/lang/Integer");
+		longClass = env->FindClass("java/lang/Long");
+		floatClass = env->FindClass("java/lang/Float");
+		doubleClass = env->FindClass("java/lang/Double");
+		booleanClass = env->FindClass("java/lang/Boolean");
+		hashMapClass = env->FindClass("java/util/HashMap");
+		dateClass = env->FindClass("java/util/Date");
+		setClass = env->FindClass("java/util/Set");
+		krollProxyClass = env->FindClass("org/appcelerator/kroll/KrollProxy");
+		v8ObjectClass = env->FindClass("org/appcelerator/kroll/runtime/v8/V8Object");
+
+		v8ObjectInitMethod = env->GetMethodID(v8ObjectClass, "<init>", "()V");
+		hashMapGetMethod = env->GetMethodID(hashMapClass, "get", "(Ljava/lang/Object;);Ljava/lang/Object;");
+		hashMapKeySetMethod = env->GetMethodID(hashMapClass, "keySet", "();Ljava/util/Set;");
+		setToArrayMethod = env->GetMethodID(setClass, "toArray", "();[Ljava/lang/Object;");
+		dateGetTimeMethod = env->GetMethodID(dateClass,  "getTime", "()J");
+		numberDoubleValueMethod = env->GetMethodID(numberClass, "doubleValue", "()J");
 	}
-
-	CLASS_GETTER(Object, "java/lang/Object")
-	CLASS_GETTER(String, "java/lang/String")
-	CLASS_GETTER(HashMap, "java/util/HashMap")
-	CLASS_GETTER(V8Object, "org/appcelerator/kroll/runtime/v8/V8Object")
-
-#define METHOD_GETTER(name, className, methodName, signature) \
-	jmethodID JNIUtil::get ## name ## Method(JNIEnv* env) \
-	{ \
-		static jmethodID method = NULL; \
-		if (!method) \
-		{ \
-			if (!env) env = getJNIEnv(); \
-			if (env) \
-			{ \
-				jclass clazz = get ## className ## Class(env); \
-				if (clazz) \
-				{ \
-					method = env->GetMethodID(clazz, methodName, signature); \
-					return method; \
-				} \
-			} \
-		} \
-		return NULL; \
-	}
-
-	METHOD_GETTER(V8ObjectInit, V8Object, "<init>", "()V")
 }
