@@ -33,8 +33,8 @@ Handle<Value> ${proxyClassName}::Constructor(const Arguments& args)
 }
 
 // Methods ---------------------------------------------------------------
-<@Proxy.listMethods ; isFirst, name, method>
-static const char* ${name}_signature = "<@Proxy.getMethodSignature method.args, method.returnType/>";
+<@Proxy.listMethods ; isFirst, name, method, signature>
+static jmethodID ${name}_methodID = JNIUtil::getJNIEnv()->GetMethodID(${proxyClassName}::javaClass, "${name}", "${signature}");
 
 Handle<Value> ${proxyClassName}::${name}(const Arguments& args)
 {

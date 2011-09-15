@@ -18,7 +18,10 @@
 	<#if methods??>
 		<#list methods?keys as methodName>
 			<#local method = methods[methodName]>
-			<#nested methodName_index==0, methodName, method>
+			<#local signature>
+				<@getMethodSignature method.args, method.returnType />
+			</#local>
+			<#nested methodName_index==0, methodName, method, signature>
 		</#list>
 	</#if>
 </#macro>
