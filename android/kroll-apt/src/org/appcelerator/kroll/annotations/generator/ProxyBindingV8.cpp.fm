@@ -29,6 +29,8 @@ Handle<Value> ${proxyClassName}::Constructor(const Arguments& args)
 
 // Methods ---------------------------------------------------------------
 <@Proxy.listMethods ; isFirst, name, method>
+static const char* ${name}_signature = "<@Proxy.getMethodSignature method.args, method.returnType/>";
+
 Handle<Value> ${proxyClassName}::${name}(const Arguments& args)
 {
 	<@Proxy.getRequiredArgumentCount args=method.args ; requiredCount>

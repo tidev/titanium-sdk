@@ -37,32 +37,35 @@
 	"int":{
 		"jsType":"Number",
 		"converter":"jsNumberToJavaInt",
-		"jvalue":"i"
+		"jvalue":"i", "signature":"I"
 	},
 	"short":{
 		"jsType":"Number",
 		"converter":"jsNumberToJavaShort",
-		"jvalue":"s"
+		"jvalue":"s", "signature":"S"
 	},
 	"long":{
 		"jsType":"Number",
 		"converter":"jsNumberToJavaLong",
-		"jvalue":"j"
+		"jvalue":"j", "signature":"J"
 	},
 	"float":{
 		"jsType":"Number",
 		"converter":"jsNumberToJavaFloat",
-		"jvalue":"f"
+		"jvalue":"f", "signature":"F"
 	},
 	"double":{
 		"jsType":"Number",
 		"converter":"jsNumberToDouble",
-		"jvalue":"d"
+		"jvalue":"d", "signature":"D"
 	},
-	"bool":{
+	"boolean":{
 		"jsType":"Boolean",
 		"converter":"jsBooleanToJavaBoolean",
-		"jvalue":"z"
+		"jvalue":"z", "signature":"Z"
+	},
+	"void":{
+		"signature":"V"
 	}
 }>
 
@@ -70,5 +73,27 @@
 	<#list args as arg>
 		<#nested arg_index, typeInfo[arg.type]!typeInfo["java.lang.Object"]>
 	</#list>
+</#macro>
+
+<#function getTypeSignature type>
+	<#-- Look up the type's signature. If it does not exist, this
+		 type is a Java object. Object signatures take a special format
+		 which has the full class name in it (ex: Ljava.lang.Object;) -->
+	<#if typeInfo?keys?seq_contains(type) && typeInfo[type]?keys?seq_contains("signature")>
+		<#return typeInfo[type].signature>
+	<#else>
+		<#return "L${type?replace('.', '/')};">
+	</#if>
+</#function>
+
+<#macro getArgumentsSignature args>
+	<#list args as arg>
+		<#local signature = getTypeSignature(arg.type)>
+		<#nested "${signature}">
+	</#list>
+</#macro>
+
+<#macro getMethodSignature args returnType>
+	(<@getArgumentsSignature args ; s>${s}</@getArgumentsSignature>)>${getTypeSignature(returnType)}<#t>
 </#macro>
 
