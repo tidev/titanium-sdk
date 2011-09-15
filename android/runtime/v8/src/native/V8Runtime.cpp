@@ -1,6 +1,10 @@
 #include <V8Runtime.h>
+
+#include <AndroidUtil.h>
 #include <JNIUtil.h>
 #include <TypeConverter.h>
+
+#define TAG "V8Runtime"
 
 namespace titanium
 {
@@ -17,15 +21,18 @@ namespace titanium
 	jobject V8Runtime::newObject(Handle<Object> object)
 	{
 		HandleScope scope;
+		LOGI(TAG, "Creating new object...");
 
-		Persistent<Object> *persistent = new Persistent<Object>(object);
 		JNIEnv *env = JNIUtil::getJNIEnv();
 		if (!env) return NULL;
 
+		jlong ptr = reinterpret_cast<jlong>(*Persistent<Object>::New(object));
 		jobject v8Object = env->NewGlobalRef(env->NewObject(JNIUtil::v8ObjectClass,
-			JNIUtil::v8ObjectInitMethod, reinterpret_cast<jlong>(persistent)));
+			JNIUtil::v8ObjectInitMethod, ptr));
 
-		persistent->MakeWeak(reinterpret_cast<void*>(v8Object), V8Runtime::collectWeakRef);
+		// make a 2nd persistent weakref so we can be informed of GC
+		Persistent<Object> weak = Persistent<Object>::New(object);
+		weak.MakeWeak(reinterpret_cast<void*>(v8Object), V8Runtime::collectWeakRef);
 		return v8Object;
 	}
 }
