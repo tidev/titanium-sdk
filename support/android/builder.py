@@ -1370,6 +1370,9 @@ class Builder(object):
 		for module in self.modules:
 			add_native_libs(module.get_resource('libs'))
 
+		# add sdk runtime native libraries
+		add_native_libs(os.path.join(template_dir,'lib'))
+
 		apk_zip.close()
 		return unsigned_apk
 
