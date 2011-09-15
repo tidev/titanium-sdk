@@ -27,9 +27,9 @@ namespace titanium
 	jmethodID JNIUtil::setToArrayMethod = NULL;
 	jmethodID JNIUtil::dateInitMethod = NULL;
 	jmethodID JNIUtil::dateGetTimeMethod = NULL;
-	jmethodID doubleInitMethod = NULL;
-	jmethodID booleanInitMethod = NULL;
-	jmethodID longInitMethod = NULL;
+	jmethodID JNIUtil::doubleInitMethod = NULL;
+	jmethodID JNIUtil::booleanInitMethod = NULL;
+	jmethodID JNIUtil::longInitMethod = NULL;
 	jmethodID JNIUtil::numberDoubleValueMethod = NULL;
 
 	/* static */
