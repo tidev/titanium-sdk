@@ -26,6 +26,7 @@ LOCAL_SRC_FILES += \
 	JNIUtil.cpp \
 	KrollJavaScript.cpp \
 	KrollProxy.cpp \
+	V8Util.cpp \
 	TypeConverter.cpp \
 	V8Object.cpp \
 	V8Runtime.cpp \
