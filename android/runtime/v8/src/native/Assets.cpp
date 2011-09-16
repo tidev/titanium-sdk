@@ -21,8 +21,8 @@ using namespace titanium;
  * Signature: (Lorg/appcelerator/kroll/runtime/Assets;)V
  */
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_Assets_assign
-  (JNIEnv *env, jclass clazz, jobject assets)
-{	
+(JNIEnv *env, jclass clazz, jobject assets)
+{
 	if (gAssets) {
 		env->DeleteGlobalRef(gAssets);
 		gAssets = 0;
@@ -34,7 +34,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_Assets_assign
 }
 
 namespace assets {
-	
+
 v8::Handle<v8::Primitive> readResource(v8::Handle<v8::String> path)
 {
 	JNIEnv *env = JNIUtil::getJNIEnv();
@@ -42,7 +42,7 @@ v8::Handle<v8::Primitive> readResource(v8::Handle<v8::String> path)
 		return v8::Null();
 	}
 	jstring jpath = TypeConverter::jsStringToJavaString(path);
-	jcharArray jarray = (jcharArray)env->CallObjectMethod(gAssets, gReadResourceMethod, jpath);
+	jcharArray jarray = (jcharArray) env->CallObjectMethod(gAssets, gReadResourceMethod, jpath);
 	jthrowable exc = env->ExceptionOccurred();
 	if (exc) {
 		env->ExceptionClear();
@@ -53,11 +53,11 @@ v8::Handle<v8::Primitive> readResource(v8::Handle<v8::String> path)
 		return v8::Null();
 	}
 	jint len = env->GetArrayLength(jarray);
-	jchar *pchars = (jchar*)env->GetPrimitiveArrayCritical(jarray, 0);
+	jchar *pchars = (jchar*) env->GetPrimitiveArrayCritical(jarray, 0);
 	if (!pchars) {
 		return v8::Null();
 	}
-	v8::Handle<v8::String> jsString = v8::String::New (pchars, len);
+	v8::Handle < v8::String > jsString = v8::String::New(pchars, len);
 	env->ReleasePrimitiveArrayCritical(jarray, pchars, 0);
 	return jsString;
 }

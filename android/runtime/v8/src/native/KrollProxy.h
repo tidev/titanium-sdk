@@ -11,9 +11,8 @@
 
 using namespace v8;
 
-namespace titanium
-{
-	void initKrollProxy();
+namespace titanium {
+void initKrollProxy();
 }
 
 #endif

@@ -9,13 +9,12 @@
 
 #include <v8.h>
 
-namespace titanium
+namespace titanium {
+class KrollJavaScript
 {
-	class KrollJavaScript
-	{
-	public:
-		static v8::Handle<v8::Value> initNativeModule(const char *moduleName);
-	};
+public:
+	static v8::Handle<v8::Value> initNativeModule(const char *moduleName);
+};
 }
 
 #endif

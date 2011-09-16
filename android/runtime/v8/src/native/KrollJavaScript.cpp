@@ -10,21 +10,18 @@
 #include "KrollJavaScript.h"
 #include "../../generated/KrollNatives.h"
 
-namespace titanium
-{
-	using namespace v8;
+namespace titanium {
+using namespace v8;
 
-	Handle<Value> KrollJavaScript::initNativeModule(const char *moduleName)
-	{
-		HandleScope scope;
-		for (const struct _native* native = natives; native->name != NULL; ++native)
-		{
-			if (strcmp(moduleName, native->name) == 0)
-			{
-				Local<Script> script = Script::Compile(String::New(native->source), String::New(native->name));
-				return script->Run();
-			}
+Handle<Value> KrollJavaScript::initNativeModule(const char *moduleName)
+{
+	HandleScope scope;
+	for (const struct _native* native = natives; native->name != NULL; ++native) {
+		if (strcmp(moduleName, native->name) == 0) {
+			Local < Script > script = Script::Compile(String::New(native->source), String::New(native->name));
+			return script->Run();
 		}
-		return Undefined();
 	}
+	return Undefined();
+}
 }
