@@ -11,10 +11,13 @@
 
 #define IMMUTABLE_STRING_LITERAL(string_literal)                                \
   ::titanium::ImmutableAsciiStringLiteral::CreateFromLiteral(                   \
-      string_literal, sizeof(string_literal) - 1)
+      string_literal "", sizeof(string_literal) - 1)
 #define IMMUTABLE_STRING_LITERAL_FROM_ARRAY(string_literal, length)             \
   ::titanium::ImmutableAsciiStringLiteral::CreateFromLiteral(                   \
       string_literal, length)
+
+#define SYMBOL_LITERAL(string_literal)											\
+	v8::Persistent<v8::String>::New(v8::String::NewSymbol(string_literal ""));
 
 namespace titanium {
 
@@ -51,6 +54,7 @@ private:
 
 Handle<Value> ExecuteString(Handle<String> source, Handle<Value> filename);
 void ReportException(TryCatch &try_catch, bool show_line);
+void FatalException(TryCatch &try_catch);
 
 }
 

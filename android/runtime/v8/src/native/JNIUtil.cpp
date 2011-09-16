@@ -55,6 +55,11 @@ JNIEnv* JNIUtil::getJNIEnv()
 	return env;
 }
 
+void JNIUtil::terminateVM()
+{
+	javaVm->DestroyJavaVM();
+}
+
 jobjectArray JNIUtil::newObjectArray(int length, jobject initial)
 {
 	JNIEnv* env = getJNIEnv();

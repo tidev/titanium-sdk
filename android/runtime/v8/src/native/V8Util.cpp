@@ -6,6 +6,7 @@
  */
 #include <v8.h>
 #include "V8Util.h"
+#include "JNIUtil.h"
 #include "AndroidUtil.h"
 
 namespace titanium {
@@ -51,9 +52,9 @@ void ReportException(TryCatch &try_catch, bool show_line)
 		Handle<Message> message = try_catch.Message();
 		if (!message.IsEmpty()) {
 			String::Utf8Value filename(message->GetScriptResourceName());
-		    const char* filename_string = *filename;
-		    int linenum = message->GetLineNumber();
-		    LOGE("%s:%i\n", filename_string, linenum);
+			const char* filename_string = *filename;
+			int linenum = message->GetLineNumber();
+			LOGE("%s:%i\n", filename_string, linenum);
 		}
 	}
 
@@ -74,6 +75,20 @@ void ReportException(TryCatch &try_catch, bool show_line)
 			!isErrorObject ? er->ToString() : er->ToObject()->Get(String::New("message"))->ToString());
 		LOGE("%s\n", *msg);
 	}
+}
+
+static int uncaught_exception_counter = 0;
+
+void FatalException(TryCatch &try_catch)
+{
+	HandleScope scope;
+	// Check if uncaught_exception_counter indicates a recursion
+	if (uncaught_exception_counter > 0) {
+		ReportException(try_catch, true);
+		LOGF(TAG, "Double exception fault");
+		JNIUtil::terminateVM();
+	}
+	ReportException(try_catch, true);
 }
 
 }
