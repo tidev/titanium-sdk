@@ -39,6 +39,7 @@ import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -56,6 +57,7 @@ import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.DefaultHttpRequestFactory;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectHandler;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
@@ -110,6 +112,7 @@ public class TiHTTPClient
 	private static final String ON_DATA_STREAM = "ondatastream";
 	private static final String ON_SEND_STREAM = "onsendstream";
 
+	private static CookieStore sharedCookieStore;
 	private DefaultHttpClient client;
 	
 	private KrollProxy proxy;
@@ -625,7 +628,19 @@ public class TiHTTPClient
 	protected HashMap<String,String> headers = new HashMap<String,String>();
 	private Uri uri;
 	private String url;
-	
+
+	public void clearCookies(String url) {
+		List<Cookie> cookies = new ArrayList<Cookie>(
+				sharedCookieStore.getCookies());
+		sharedCookieStore.clear();
+		String lower_url = url.toLowerCase();
+		for (Cookie cookie : cookies) {
+			if (!lower_url.contains(cookie.getDomain().toLowerCase())) {
+				sharedCookieStore.addCookie(cookie);
+			}
+		}
+	}
+  	
 	public void setRequestHeader(String header, String value)
 	{
 		if (readyState == READY_STATE_OPENED) {
@@ -822,6 +837,13 @@ public class TiHTTPClient
 			HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
 
 			client = new DefaultHttpClient(new ThreadSafeClientConnManager(params, registry), params);
+			
+			if(sharedCookieStore == null)
+			{
+				sharedCookieStore = new BasicCookieStore();
+			}
+			client.setCookieStore(sharedCookieStore);
+
 		}
 		aborted = false;
 
