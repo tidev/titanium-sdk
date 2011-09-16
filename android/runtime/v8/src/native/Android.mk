@@ -27,7 +27,7 @@ include $(ABS_TITANIUM_APT_GEN_DIR)/sources.mk
 TITANIUM_GEN_SOURCES := $(addprefix $(TITANIUM_APT_GEN_DIR)/,$(GEN_SOURCES))
 
 LOCAL_MODULE := kroll-v8
-LOCAL_CFLAGS := -I$(LIBV8_DIR)/include -I$(ABS_TITANIUM_APT_GEN_DIR) -I$(GENERATED_DIR) -g
+LOCAL_CFLAGS := -I$(LIBV8_DIR)/include -I$(ABS_TITANIUM_APT_GEN_DIR) -I$(GENERATED_DIR) -I${LOCAL_PATH}/modules -g
 LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -L$(LIBV8_DIR)/lib -ldl -llog -L$(TARGET_OUT)
 LOCAL_SRC_FILES += \
 	../../generated/KrollNatives.h \
@@ -40,6 +40,7 @@ LOCAL_SRC_FILES += \
 	TypeConverter.cpp \
 	V8Object.cpp \
 	V8Runtime.cpp \
+	modules/APIModule.cpp \
 	$(TITANIUM_GEN_SOURCES)
 
 LOCAL_JS_FILES := \
