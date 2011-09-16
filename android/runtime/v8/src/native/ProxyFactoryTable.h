@@ -12,21 +12,16 @@
 
 #include "ProxyFactory.h"
 
-
-namespace titanium
+namespace titanium {
+class ProxyFactoryTable
 {
-        class ProxyFactoryTable
-        {
-                public:
-			static ProxyFactory * lookup (jclass javaClass);
+public:
+	static ProxyFactory * lookup(jclass javaClass);
 
-
-            	private:
-		// stub out shit here
-	};
+private:
+	// stub out shit here
+};
 }
 
-
 #endif
-
 

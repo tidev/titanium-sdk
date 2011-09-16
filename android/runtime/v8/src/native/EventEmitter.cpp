@@ -19,12 +19,12 @@ static Persistent<String> eventsSymbol;
 void EventEmitter::Initialize(Handle<Object> global)
 {
 	HandleScope scope;
-	Handle < String > emitterSymbol = String::NewSymbol("EventEmitter");
-	constructorTemplate = Persistent < FunctionTemplate > ::New(FunctionTemplate::New());
+	Handle<String> emitterSymbol = String::NewSymbol("EventEmitter");
+	constructorTemplate = Persistent<FunctionTemplate>::New(FunctionTemplate::New());
 	constructorTemplate->SetClassName(emitterSymbol);
 	global->Set(emitterSymbol, constructorTemplate->GetFunction());
 
-	eventsSymbol = Persistent < String > ::New(String::NewSymbol("_events"));
+	eventsSymbol = Persistent<String>::New(String::NewSymbol("_events"));
 }
 
 bool EventEmitter::Emit(Handle<String> event, int argc, Handle<Value> argv[])
@@ -32,17 +32,17 @@ bool EventEmitter::Emit(Handle<String> event, int argc, Handle<Value> argv[])
 	HandleScope scope;
 	// HandleScope not needed here because only called from one of the two
 	// functions below
-	Local < Value > eventsValue = handle_->Get(eventsSymbol);
+	Local<Value> eventsValue = handle_->Get(eventsSymbol);
 	if (!eventsValue->IsObject()) return false;
-	Local < Object > events = eventsValue->ToObject();
+	Local<Object> events = eventsValue->ToObject();
 
-	Local < Value > listenersValue = events->Get(event);
+	Local<Value> listenersValue = events->Get(event);
 
 	TryCatch tryCatch;
 
 	if (listenersValue->IsFunction()) {
 		// Optimized one-listener case
-		Local < Function > listener = Local < Function > ::Cast(listenersValue);
+		Local<Function> listener = Local<Function>::Cast(listenersValue);
 
 		listener->Call(handle_, argc, argv);
 
@@ -52,12 +52,12 @@ bool EventEmitter::Emit(Handle<String> event, int argc, Handle<Value> argv[])
 		}
 
 	} else if (listenersValue->IsArray()) {
-		Local < Array > listeners = Local < Array > ::Cast(listenersValue->ToObject()->Clone());
+		Local<Array> listeners = Local<Array>::Cast(listenersValue->ToObject()->Clone());
 
 		for (uint32_t i = 0; i < listeners->Length(); i++) {
-			Local < Value > listenerValue = listeners->Get(i);
+			Local<Value> listenerValue = listeners->Get(i);
 			if (!listenerValue->IsFunction()) continue;
-			Local < Function > listener = Local < Function > ::Cast(listenerValue);
+			Local<Function> listener = Local<Function>::Cast(listenerValue);
 
 			listener->Call(handle_, argc, argv);
 

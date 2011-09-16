@@ -11,20 +11,16 @@
 #include <jni.h>
 #include <v8.h>
 
-
-namespace titanium
+namespace titanium {
+class ProxyFactory
 {
-        class ProxyFactory
-        {
-                public:
-			v8::Handle<v8::Object> create (jobject javaObject);
+public:
+	v8::Handle<v8::Object> create(jobject javaObject);
 
-
-                private:
-                // stub out shit here
-        };
+private:
+	// stub out shit here
+};
 }
-
 
 #endif
 

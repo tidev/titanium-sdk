@@ -48,7 +48,7 @@ protected:
 	{
 		assert(handle_.IsEmpty());
 		assert(handle->InternalFieldCount() > 0);
-		handle_ = v8::Persistent < v8::Object > ::New(handle);
+		handle_ = v8::Persistent<v8::Object>::New(handle);
 		handle_->SetPointerInInternalField(0, this);
 		MakeWeak();
 	}
