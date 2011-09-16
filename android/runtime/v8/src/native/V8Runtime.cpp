@@ -104,23 +104,52 @@ void V8Runtime::bootstrap()
 
 }
 
-extern "C" void Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jclass clazz,
-	jobject undefined)
+static jobject jruntime;
+static Persistent<Context> context;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Runtime
+ * Method:    init
+ * Signature: (Lorg/appcelerator/kroll/runtime/v8/V8Runtime;)V
+ */
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_init(JNIEnv *env, jclass clazz, jobject self)
 {
-	titanium::JNIUtil::initCache(env, undefined);
+	jruntime = env->NewGlobalRef(self);
+	titanium::JNIUtil::initCache(env);
 
 	V8::Initialize();
 	HandleScope scope;
 
-	Persistent<Context> context = Context::New();
+	context = Context::New();
 	Context::Scope context_scope(context);
 
 	titanium::V8Runtime::bootstrap();
 	titanium::initKrollProxy();
 }
 
-extern "C" jint JNI_OnLoad(JavaVM *vm, void *reserved)
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Runtime
+ * Method:    dispose
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_dispose(JNIEnv *env, jclass clazz)
+{
+	context.Dispose();
+	V8::Dispose();
+	env->DeleteGlobalRef(jruntime);
+	jruntime = NULL;
+}
+
+jint JNI_OnLoad(JavaVM *vm, void *reserved)
 {
 	titanium::JNIUtil::javaVm = vm;
 	return JNI_VERSION_1_4;
 }
+
+#ifdef __cplusplus
+}
+#endif
