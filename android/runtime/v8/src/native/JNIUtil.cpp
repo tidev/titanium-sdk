@@ -10,40 +10,40 @@
 
 namespace titanium {
 
-static JavaVM* JNIUtil::javaVm = NULL;
-static jclass JNIUtil::objectClass = NULL;
-static jclass JNIUtil::stringClass = NULL;
-static jclass JNIUtil::numberClass = NULL;
-static jclass JNIUtil::shortClass = NULL;
-static jclass JNIUtil::integerClass = NULL;
-static jclass JNIUtil::longClass = NULL;
-static jclass JNIUtil::floatClass = NULL;
-static jclass JNIUtil::doubleClass = NULL;
-static jclass JNIUtil::booleanClass = NULL;
-static jclass JNIUtil::hashMapClass = NULL;
-static jclass JNIUtil::dateClass = NULL;
-static jclass JNIUtil::setClass = NULL;
-static jclass JNIUtil::outOfMemoryError = NULL;
-static jclass JNIUtil::nullPointerException = NULL;
+JavaVM* JNIUtil::javaVm = NULL;
+jclass JNIUtil::objectClass = NULL;
+jclass JNIUtil::stringClass = NULL;
+jclass JNIUtil::numberClass = NULL;
+jclass JNIUtil::shortClass = NULL;
+jclass JNIUtil::integerClass = NULL;
+jclass JNIUtil::longClass = NULL;
+jclass JNIUtil::floatClass = NULL;
+jclass JNIUtil::doubleClass = NULL;
+jclass JNIUtil::booleanClass = NULL;
+jclass JNIUtil::hashMapClass = NULL;
+jclass JNIUtil::dateClass = NULL;
+jclass JNIUtil::setClass = NULL;
+jclass JNIUtil::outOfMemoryError = NULL;
+jclass JNIUtil::nullPointerException = NULL;
 
-static jclass JNIUtil::krollProxyClass = NULL;
-static jclass JNIUtil::v8ObjectClass = NULL;
+jclass JNIUtil::krollProxyClass = NULL;
+jclass JNIUtil::v8ObjectClass = NULL;
 
-static jmethodID JNIUtil::krollProxyGetV8ObjectPointerMethod = NULL;
-static jmethodID JNIUtil::v8ObjectInitMethod = NULL;
-static jmethodID JNIUtil::hashMapInitMethod = NULL;
-static jmethodID JNIUtil::hashMapGetMethod = NULL;
-static jmethodID JNIUtil::hashMapPutMethod = NULL;
-static jmethodID JNIUtil::hashMapKeySetMethod = NULL;
-static jmethodID JNIUtil::setToArrayMethod = NULL;
-static jmethodID JNIUtil::dateInitMethod = NULL;
-static jmethodID JNIUtil::dateGetTimeMethod = NULL;
-static jmethodID JNIUtil::doubleInitMethod = NULL;
-static jmethodID JNIUtil::booleanInitMethod = NULL;
-static jmethodID JNIUtil::longInitMethod = NULL;
-static jmethodID JNIUtil::numberDoubleValueMethod = NULL;
+jmethodID JNIUtil::krollProxyGetV8ObjectPointerMethod = NULL;
+jmethodID JNIUtil::v8ObjectInitMethod = NULL;
+jmethodID JNIUtil::hashMapInitMethod = NULL;
+jmethodID JNIUtil::hashMapGetMethod = NULL;
+jmethodID JNIUtil::hashMapPutMethod = NULL;
+jmethodID JNIUtil::hashMapKeySetMethod = NULL;
+jmethodID JNIUtil::setToArrayMethod = NULL;
+jmethodID JNIUtil::dateInitMethod = NULL;
+jmethodID JNIUtil::dateGetTimeMethod = NULL;
+jmethodID JNIUtil::doubleInitMethod = NULL;
+jmethodID JNIUtil::booleanInitMethod = NULL;
+jmethodID JNIUtil::longInitMethod = NULL;
+jmethodID JNIUtil::numberDoubleValueMethod = NULL;
 
-static jobject JNIUtil::undefined = NULL;
+jobject JNIUtil::undefined = NULL;
 
 /* static */
 JNIEnv* JNIUtil::getJNIEnv()
