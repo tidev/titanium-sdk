@@ -34,11 +34,11 @@ jobject V8Runtime::newObject(Handle<Object> object)
 	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (!env) return NULL;
 
-	jlong ptr = reinterpret_cast<jlong>(*Persistent < Object > ::New(object));jobject
+	jlong ptr = reinterpret_cast<jlong>(*Persistent<Object>::New(object));jobject
 	v8Object = env->NewGlobalRef(env->NewObject(JNIUtil::v8ObjectClass, JNIUtil::v8ObjectInitMethod, ptr));
 
 	// make a 2nd persistent weakref so we can be informed of GC
-	Persistent < Object > weak = Persistent < Object > ::New(object);
+	Persistent<Object> weak = Persistent<Object>::New(object);
 	weak.MakeWeak(reinterpret_cast<void*>(v8Object), V8Runtime::collectWeakRef);
 	return v8Object;
 }
@@ -58,8 +58,8 @@ extern "C" void Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIE
 
 	titanium::JNIUtil::initCache(env, undefined);
 
-	Handle < ObjectTemplate > globalTemplate = ObjectTemplate::New();
-	Persistent < Context > context = Context::New(NULL, globalTemplate);
+	Handle<ObjectTemplate> globalTemplate = ObjectTemplate::New();
+	Persistent<Context> context = Context::New(NULL, globalTemplate);
 	Context::Scope contextScope(context);
 
 	titanium::V8Runtime::initNativeModules(context->Global());

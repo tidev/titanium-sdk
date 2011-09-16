@@ -57,7 +57,7 @@ v8::Handle<v8::Primitive> readResource(v8::Handle<v8::String> path)
 	if (!pchars) {
 		return v8::Null();
 	}
-	v8::Handle < v8::String > jsString = v8::String::New(pchars, len);
+	v8::Handle<v8::String> jsString = v8::String::New(pchars, len);
 	env->ReleasePrimitiveArrayCritical(jarray, pchars, 0);
 	return jsString;
 }
