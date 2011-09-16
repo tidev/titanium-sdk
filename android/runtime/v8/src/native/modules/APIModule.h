@@ -14,7 +14,7 @@ namespace titanium {
 class APIModule
 {
 public:
-	static void init(v8::Handle<v8::Object> global);
+	static v8::Handle<v8::Object> init();
 	static v8::Handle<v8::Value> logDebug(const v8::Arguments& args);
 	static v8::Handle<v8::Value> logInfo(const v8::Arguments& args);
 	static v8::Handle<v8::Value> logWarn(const v8::Arguments& args);

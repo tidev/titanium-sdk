@@ -8,6 +8,7 @@
 #include <string.h>
 #include "V8Runtime.h"
 
+#include "APIModule.h"
 #include "AndroidUtil.h"
 #include "EventEmitter.h"
 #include "JNIUtil.h"
@@ -77,9 +78,11 @@ void V8Runtime::bootstrap()
 {
 	Local<FunctionTemplate> global_template = FunctionTemplate::New();
 	EventEmitter::Initialize(global_template);
+
 	global = Persistent<Object>::New(global_template->GetFunction()->NewInstance());
 	global->Set(String::NewSymbol("binding"), FunctionTemplate::New(binding)->GetFunction());
 	global->Set(String::NewSymbol("EventEmitter"), EventEmitter::constructorTemplate->GetFunction());
+	global->Set(String::NewSymbol("API"), APIModule::init());
 
 	TryCatch try_catch;
 	Handle<Value> result = ExecuteString(KrollJavaScript::MainSource(), IMMUTABLE_STRING_LITERAL("kroll.js"));

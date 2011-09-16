@@ -28,20 +28,23 @@ using namespace titanium;
 #define LCAT "TiAPI"
 
 
-void APIModule::init(v8::Handle<v8::Object> global)
+v8::Handle<v8::Object> APIModule::init()
 {
 	v8::Handle<v8::FunctionTemplate> apiModule = v8::FunctionTemplate::New();
-	apiModule->Set(v8::String::New("debug"), v8::FunctionTemplate::New(logDebug)->GetFunction());
-	apiModule->Set(v8::String::New("info"), v8::FunctionTemplate::New(logInfo)->GetFunction());
-	apiModule->Set(v8::String::New("warn"), v8::FunctionTemplate::New(logWarn)->GetFunction());
-	apiModule->Set(v8::String::New("error"), v8::FunctionTemplate::New(logError)->GetFunction());
-	apiModule->Set(v8::String::New("trace"), v8::FunctionTemplate::New(logTrace)->GetFunction());
-	apiModule->Set(v8::String::New("notice"), v8::FunctionTemplate::New(logNotice)->GetFunction());
-	apiModule->Set(v8::String::New("critical"), v8::FunctionTemplate::New(logCritical)->GetFunction());
-	apiModule->Set(v8::String::New("fatal"), v8::FunctionTemplate::New(logFatal)->GetFunction());
-	apiModule->Set(v8::String::New("log"), v8::FunctionTemplate::New(log)->GetFunction());
+	v8::Handle<v8::ObjectTemplate> apiModulePrototype = apiModule->PrototypeTemplate();
+	apiModulePrototype->Set(v8::String::New("debug"), v8::FunctionTemplate::New(logDebug)->GetFunction());
+	apiModulePrototype->Set(v8::String::New("info"), v8::FunctionTemplate::New(logInfo)->GetFunction());
+	apiModulePrototype->Set(v8::String::New("warn"), v8::FunctionTemplate::New(logWarn)->GetFunction());
+	apiModulePrototype->Set(v8::String::New("error"), v8::FunctionTemplate::New(logError)->GetFunction());
+	apiModulePrototype->Set(v8::String::New("trace"), v8::FunctionTemplate::New(logTrace)->GetFunction());
+	apiModulePrototype->Set(v8::String::New("notice"), v8::FunctionTemplate::New(logNotice)->GetFunction());
+	apiModulePrototype->Set(v8::String::New("critical"), v8::FunctionTemplate::New(logCritical)->GetFunction());
+	apiModulePrototype->Set(v8::String::New("fatal"), v8::FunctionTemplate::New(logFatal)->GetFunction());
+	apiModulePrototype->Set(v8::String::New("log"), v8::FunctionTemplate::New(log)->GetFunction());
 
-	global->Set(v8::String::New("API"), apiModule->GetFunction());
+	v8::Handle<v8::Value> arguments[] = {};
+
+	return apiModule->GetFunction()->NewInstance(0, arguments);
 }
 
 
