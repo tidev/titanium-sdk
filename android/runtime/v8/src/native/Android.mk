@@ -41,6 +41,9 @@ LOCAL_JS_FILES := \
 	$(SRC_JS_DIR)/kroll.js \
 	$(SRC_JS_DIR)/events.js
 
+$(LOCAL_PATH)/KrollJavaScript.cpp: $(GENERATED_DIR)/KrollNatives.h
+
+
 $(GENERATED_DIR)/KrollNatives.h: $(LOCAL_JS_FILES)
 	mkdir $(GENERATED_DIR) || echo
 	python $(JS2C) $(GENERATED_DIR)/KrollNatives.h $(LOCAL_JS_FILES)

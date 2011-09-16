@@ -223,13 +223,14 @@ namespace titanium {
 struct _native {
   const char* name;
   const char* source;
+  size_t source_length;
 };
 
 static const struct _native natives[] = {
 
 %(native_lines)s\
 
-  { NULL, NULL } /* sentinel */
+  { NULL, NULL, 0 } /* sentinel */
 
 };
 
@@ -239,7 +240,7 @@ static const struct _native natives[] = {
 
 
 NATIVE_DECLARATION = """\
-  { "%(id)s", %(id)s_native },
+  { "%(id)s", %(id)s_native, sizeof(%(id)s_native) - 1 },
 """
 
 SOURCE_DECLARATION = """\
