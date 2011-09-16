@@ -19,10 +19,8 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+var EventEmitter = exports.EventEmitter = kroll.EventEmitter;
 var isArray = Array.isArray;
-
-function EventEmitter() { }
-exports.EventEmitter = EventEmitter;
 
 // By default EventEmitters will print a warning if more than
 // 10 listeners are added to it. This is a useful default which
@@ -37,8 +35,7 @@ EventEmitter.prototype.setMaxListeners = function(n) {
 };
 
 
-EventEmitter.prototype.emit = function() {
-  var type = arguments[0];
+EventEmitter.prototype.emit = function(type) {
   // If there is no 'error' event listener then throw.
   if (type === 'error') {
     if (!this._events || !this._events.error ||
@@ -71,17 +68,13 @@ EventEmitter.prototype.emit = function() {
         break;
       // slower
       default:
-        var l = arguments.length;
-        var args = new Array(l - 1);
-        for (var i = 1; i < l; i++) args[i - 1] = arguments[i];
+        var args = Array.prototype.slice.call(arguments, 1);
         handler.apply(this, args);
     }
     return true;
 
   } else if (isArray(handler)) {
-    var l = arguments.length;
-    var args = new Array(l - 1);
-    for (var i = 1; i < l; i++) args[i - 1] = arguments[i];
+    var args = Array.prototype.slice.call(arguments, 1);
 
     var listeners = handler.slice();
     for (var i = 0, l = listeners.length; i < l; i++) {
@@ -144,10 +137,6 @@ EventEmitter.prototype.addListener = function(type, listener) {
 EventEmitter.prototype.on = EventEmitter.prototype.addListener;
 
 EventEmitter.prototype.once = function(type, listener) {
-  if ('function' !== typeof listener) {
-    throw new Error('.once only takes instances of Function');
-  }
-
   var self = this;
   function g() {
     self.removeListener(type, g);
@@ -195,11 +184,6 @@ EventEmitter.prototype.removeListener = function(type, listener) {
 };
 
 EventEmitter.prototype.removeAllListeners = function(type) {
-  if (arguments.length === 0) {
-    this._events = {};
-    return this;
-  }
-
   // does not use listeners(), so no side effect of creating _events[type]
   if (type && this._events && this._events[type]) this._events[type] = null;
   return this;

@@ -2,7 +2,14 @@
   global = this;
 
   function startup() {
+  	startup.globalVariables();
   }
+
+  startup.globalVariables = function() {
+    global.kroll = self;
+    global.global = global;
+    global.GLOBAL = global;
+  };
 
   var runInThisContext = self.binding('evals').Script.runInThisContext;
 
