@@ -6,8 +6,9 @@
  */
 #include <jni.h>
 #include <v8.h>
+#include <string.h>
 
-#include <KrollProxy.h>
+#include "KrollProxy.h"
 #include "org.appcelerator.kroll.KrollProxy.h"
 
 namespace titanium {
@@ -46,7 +47,7 @@ static Handle<Value> KrollProxy_binding(const Arguments& args)
 		exports = binding_cache->Get(module)->ToObject();
 	} else if (!strcmp(*module_v, "natives")) {
 		exports = Object::New();
-		DefineNatives(exports);
+		//DefineNatives(exports);
 		binding_cache->Set(module, exports);
 	} else {
 		return ThrowException(Exception::Error(String::New("No such module")));
