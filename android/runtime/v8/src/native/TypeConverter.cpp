@@ -115,7 +115,7 @@ jobject TypeConverter::jsDateToJavaDate(v8::Handle<v8::Date> jsDate)
 
 jlong TypeConverter::jsDateToJavaLong(v8::Handle<v8::Date> jsDate)
 {
-	(jlong) jsDate->NumberValue();
+	return (jlong) jsDate->NumberValue();
 }
 
 v8::Handle<v8::Date> TypeConverter::javaDateToJsDate(jobject javaDate)
@@ -264,6 +264,7 @@ jobject TypeConverter::jsValueToJavaObject(v8::Local<v8::Value> jsValue)
 			return javaHashMap;
 		}
 	}
+	return NULL;
 }
 
 // converts java object to js value and recursively converts sub objects if this
@@ -317,6 +318,7 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 			return proxyHandle;
 		}
 	}
+	return v8::Handle<v8::Value>();
 }
 
 /****************************** private methods ******************************/
