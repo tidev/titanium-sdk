@@ -1,4 +1,4 @@
-/**
+/*
  * Appcelerator Titanium Mobile
  * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
@@ -10,6 +10,7 @@
 
 #include <jni.h>
 #include <v8.h>
+
 
 namespace titanium
 {
@@ -71,6 +72,7 @@ namespace titanium
 		
 	};
 }
+
 
 #endif
 

@@ -366,7 +366,6 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue (jobject javaObject)
 	}
 	else if (env->IsInstanceOf (javaObjectClass, JNIUtil::krollProxyClass))
 	{
-		/*
 		jlong v8ObjectPointer = env->CallLongMethod (javaObject, JNIUtil::krollProxyGetV8ObjectPointerMethod);
 		if (v8ObjectPointer > 0)
 		{
@@ -374,11 +373,10 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue (jobject javaObject)
 		}
 		else
 		{
-			?? proxyFactory = ProxyFactoryTable::lookup (env->GetObjectClass (javaObject));
+			ProxyFactory *proxyFactory = ProxyFactoryTable::lookup (env->GetObjectClass (javaObject));
 			v8::Handle<v8::Object> proxyHandle = proxyFactory.create (javaObject);
 			return proxyHandle;
 		}
-		*/
 	}
 }
 
