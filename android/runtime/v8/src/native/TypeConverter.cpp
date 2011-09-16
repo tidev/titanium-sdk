@@ -238,29 +238,28 @@ jobject TypeConverter::jsValueToJavaObject(v8::Local<v8::Value> jsValue)
 		return TypeConverter::jsArrayToJavaArray(v8::Handle < v8::Array > ::Cast(jsValue));
 	} else if (jsValue->IsObject()) {
 		v8::Handle < v8::Object > jsObject = jsValue->ToObject();
-		v8::Handle < v8::Array > objectKeys = jsObject->GetOwnPropertyNames();
-		int numKeys = objectKeys->Length();
 
-		jobject javaHashMap = env->NewObject(JNIUtil::hashMapClass, JNIUtil::hashMapInitMethod, numKeys);
+		if (NativeObject::isNativeObject(jsObject)) {
+			NativeObject *nativeObject =  NativeObject::Unwrap<NativeObject>(jsObject);
+	
+			return nativeObject->getJavaObject();
+		} else {
+			v8::Handle < v8::Array > objectKeys = jsObject->GetOwnPropertyNames();
+			int numKeys = objectKeys->Length();
 
-		for (int i = 0; i < numKeys; i++) {
-			v8::Local < v8::Value > jsObjectPropertyKey = objectKeys->Get((uint32_t) i);
-			jobject javaObjectPropertyKey = TypeConverter::jsValueToJavaObject(jsObjectPropertyKey);
-			v8::Local < v8::Value > jsObjectPropertyValue = jsObject->Get(jsObjectPropertyKey);
-			jobject javaObjectPropertyValue = TypeConverter::jsValueToJavaObject(jsObjectPropertyValue);
+			jobject javaHashMap = env->NewObject(JNIUtil::hashMapClass, JNIUtil::hashMapInitMethod, numKeys);
 
-			env->CallObjectMethod(javaHashMap, JNIUtil::hashMapPutMethod, javaObjectPropertyKey,
-				javaObjectPropertyValue);
+			for (int i = 0; i < numKeys; i++) {
+				v8::Local < v8::Value > jsObjectPropertyKey = objectKeys->Get((uint32_t) i);
+				jobject javaObjectPropertyKey = TypeConverter::jsValueToJavaObject(jsObjectPropertyKey);
+				v8::Local < v8::Value > jsObjectPropertyValue = jsObject->Get(jsObjectPropertyKey);
+				jobject javaObjectPropertyValue = TypeConverter::jsValueToJavaObject(jsObjectPropertyValue);
+
+				env->CallObjectMethod(javaHashMap, JNIUtil::hashMapPutMethod, javaObjectPropertyKey, javaObjectPropertyValue);
+			}
+
+			return javaHashMap;
 		}
-
-		return javaHashMap;
-
-		/*
-		 -> v8::Handle<v8::Object> blah
-		 v8::Handle<v8::Value> field = blah->GetInternalField (0)
-		 NativeObject *no =  NativeObject::Unwrap<NativeObject>(field);
-		 jobject = no->getJavaObject();
-		 */
 	}
 }
 
