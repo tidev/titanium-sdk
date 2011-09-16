@@ -42,41 +42,20 @@ Handle<Value> ${proxyClassName}::Constructor(const Arguments& args)
 }
 
 // Methods ---------------------------------------------------------------
-<@Proxy.listMethods ; isFirst, name, method, signature, hasArgs>
+<@Proxy.listMethods ; isFirst, name, method, signature>
 static jmethodID ${name}_methodID = JNIUtil::getJNIEnv()->GetMethodID(${proxyClassName}::javaClass, "${name}", "${signature}");
 
 Handle<Value> ${proxyClassName}::${name}(const Arguments& args)
 {
-	<#-- If method has arguments, verify and convert them. -->
-	<#if hasArgs>
-	<@Proxy.getRequiredArgumentCount args=method.args ; requiredCount>
-	<#if requiredCount &gt; 0>
-	if (args.Length() != ${requiredCount})
-		JSException::MissingRequiredArguments(args.Length(), ${requiredCount});
-	</#if>
-	</@Proxy.getRequiredArgumentCount>
-
-	jvalue jniArgs[${method.args?size}];
-
-	<@Proxy.listMethodArguments args=method.args ; index, info>
-	Local<Value> arg = args[${index}];
-	if (!arg->Is${info.jsType}()) {
-			JSException::InvalidArgument(${index}, ${info.jsType});
-			return;
-	}
-	jniArgs[${index}].${info.jvalue} = TypeConverter::${info.jsToJavaConverter}(arg->To${info.jsType}());
-	</@Proxy.listMethodArguments>
-
-	</#if>
-	<#-- Generate JNI Call  -->
-	<@Proxy.generateJNICall returnType=method.returnType ; resultType, callMethod>
-	<#if resultType == "void">
-	${callMethod}(javaObject, ${name}_methodID, <#if hasArgs>jniArgs<#else>0</#if>);
+	<@Proxy.verifyAndConvertArguments method.args />
+	<@Proxy.callJNIMethod method.returnType, "${name}_methodID", "${proxyClassName}::javaClass", "jArguments" ;
+		hasResult, resultVar>
+	<#if hasResult>
+	return ${resultVar}
 	<#else>
-	${resultType} result = ${callMethod}(javaObject, ${name}_methodID, <#if hasArgs>jniArgs<#else>0</#if>);
-	return TypeConverter::${Proxy.getTypeInfo(method.returnType).javaToJsConverter}(result);
+	return v8::Undefined();
 	</#if>
-	</@Proxy.generateJNICall>
+	</@Proxy.callJNIMethod>
 }
 
 </@Proxy.listMethods>
