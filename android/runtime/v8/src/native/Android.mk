@@ -9,6 +9,7 @@ ABS_LIBV8_DIR := $(TI_DIST_DIR)/android/libv8/3.6.2
 THIS_DIR := $(LOCAL_PATH)
 GENERATED_DIR := $(LOCAL_PATH)/../../generated
 SRC_JS_DIR := $(LOCAL_PATH)/../js
+TITANIUM_APT_GEN_DIR := $(LOCAL_PATH)/../../../../titanium/.apt_generated
 
 TOOLS_DIR := $(THIS_DIR)/../../tools
 JS2C := $(TOOLS_DIR)/js2c.py
@@ -16,12 +17,12 @@ JS2C := $(TOOLS_DIR)/js2c.py
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := kroll-v8
-LOCAL_CFLAGS := -I$(LIBV8_DIR)/include -g
+LOCAL_CFLAGS := -I$(LIBV8_DIR)/include -I$(TITANIUM_APT_GEN_DIR) -g
 LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -L$(LIBV8_DIR)/lib -ldl -llog -L$(TARGET_OUT)
 LOCAL_SRC_FILES += \
+	Assets.cpp \
 	JNIUtil.cpp \
 	TypeConverter.cpp \
-	Assets.cpp \
 	V8Runtime.cpp \
 	V8Object.cpp \
 	../../generated/KrollNatives.cpp
