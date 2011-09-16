@@ -57,8 +57,6 @@ namespace titanium
 			// object convert methods
 			static jobject jsValueToJavaObject (v8::Local<v8::Value> jsValue);
 			static v8::Handle<v8::Value> javaObjectToJsValue (jobject javaObject);
-			
-			static jobject getJavaUndefined();
 
 
 		private:

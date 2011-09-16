@@ -148,12 +148,6 @@ v8::Handle<v8::Date> TypeConverter::javaLongToJsDate (jlong javaLong)
 }
 
 
-jobject TypeConverter::getJavaUndefined()
-{
-	
-}
-
-
 jarray TypeConverter::jsArrayToJavaArray (v8::Handle<v8::Array> jsArray)
 {
 	JNIEnv *env = JNIUtil::getJNIEnv();
@@ -340,13 +334,10 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue (jobject javaObject)
 		for (int i = 0; i < hashMapKeysLength; i++)
 		{
 			jobject javaPairKey = env->GetObjectArrayElement (hashMapKeys, i);
-			v8::Handle<v8::Value> v8PairKey = TypeConverter::javaObjectToJsValue (javaPairKey);
+			v8::Handle<v8::Value> jsPairKey = TypeConverter::javaObjectToJsValue (javaPairKey);
 
-			if (v8PairKey->IsNull())
-			{
-				jobject javaPairValue = env->CallObjectMethod (javaObject, JNIUtil::hashMapGetMethod, javaPairKey);
-				jsObject->Set (v8PairKey, TypeConverter::javaObjectToJsValue (javaPairValue));
-			}
+			jobject javaPairValue = env->CallObjectMethod (javaObject, JNIUtil::hashMapGetMethod, javaPairKey);
+			jsObject->Set (jsPairKey, TypeConverter::javaObjectToJsValue (javaPairValue));
 		}
 
 		return jsObject;
