@@ -4,8 +4,20 @@
 	<dict>
 		<key>classes</key>
 		<dict>
+<key>label_basic</key>
+<dict>
+</dict>
 <key>app</key>
 <dict>
+<key>win1</key>
+<dict>
+<key>url</key>
+<string>main_windows/base_ui.js</string>
+<key>titleImage</key>
+<string>images/appcelerator_small.png</string>
+<key>titleid</key>
+<string>base_ui_title</string>
+</dict>
 </dict>
 <key>common</key>
 <dict>
@@ -14,6 +26,9 @@
 
 		<key>classes_density</key>
 		<dict>
+<key>label_basic</key>
+<dict>
+</dict>
 <key>app</key>
 <dict>
 </dict>
@@ -24,21 +39,37 @@
 
 		<key>ids</key>
 		<dict>
+<key>label_basic</key>
+<dict>
+<key>font_label_test</key>
+<dict>
+<key>color</key>
+<string>#369</string>
+<key>top</key>
+<string>10</string>
+<key>height</key>
+<string>150px</string>
+<key>width</key>
+<string>200px</string>
+<key>font</key>
+<dict>
+<key>fontWeight</key>
+<string>normal</string>
+<key>fontSize</key>
+<string>15px</string>
+</dict>
+<key>textAlign</key>
+<string>center</string>
+</dict>
+</dict>
 <key>app</key>
 <dict>
 <key>tab1</key>
 <dict>
-<key>title</key>
-<string>Base UI</string>
+<key>titleid</key>
+<string>base_ui_title</string>
 <key>icon</key>
 <string>images/tabs/KS_nav_views.png</string>
-</dict>
-<key>win1</key>
-<dict>
-<key>url</key>
-<string>main_windows/base_ui.js</string>
-<key>titleImage</key>
-<string>images/appcelerator_small.png</string>
 </dict>
 <key>tabGroup1</key>
 <dict>
@@ -53,6 +84,35 @@
 
 		<key>ids_density</key>
 		<dict>
+<key>label_basic</key>
+<dict>
+</dict>
+<key>app</key>
+<dict>
+</dict>
+<key>common</key>
+<dict>
+</dict>
+</dict>
+
+		<key>tags</key>
+		<dict>
+<key>label_basic</key>
+<dict>
+</dict>
+<key>app</key>
+<dict>
+</dict>
+<key>common</key>
+<dict>
+</dict>
+</dict>
+
+		<key>tags_density</key>
+		<dict>
+<key>label_basic</key>
+<dict>
+</dict>
 <key>app</key>
 <dict>
 </dict>
