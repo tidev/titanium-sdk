@@ -240,10 +240,9 @@ v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray (jobjectArray javaObject
 
 	for (int i = 0; i < arrayLength; i++)
 	{
-		TypeConverter::javaObjectToJsValue (env->GetObjectArrayElement (javaObjectArray, i));
-
-		// will insert Handle<Object>
-		//jsArray->Set ((uint32_t)i, v8::Value::New (env->GetObjectArrayElement (javaObjectArray, i)));
+		jobject javaArrayElement = env->GetObjectArrayElement (javaObjectArray, i);
+		v8::Handle<v8::Value> jsArrayElement = TypeConverter::javaObjectToJsValue (javaArrayElement);
+		jsArray->Set ((uint32_t)i, jsArrayElement);
 	}
 
 	return jsArray;
@@ -285,17 +284,21 @@ jobject TypeConverter::jsValueToJavaObject (v8::Local<v8::Value> jsValue)
 	}
 	else if (jsValue->IsObject())
 	{
-		/*
-		// check for proxy type here?
-		if (is proxy)
-		{
+		v8::Handle<v8::Object> jsObject = jsValue->ToObject();
+		v8::Handle<v8::Array> objectKeys = jsObject->GetOwnPropertyNames();
+		int numKeys = objectKeys->Length();
 
-		}
-		else // use the KrollV8Dict
-		{
+		jobject javaHashMap = env->NewObject (JNIUtil::hashMapClass, JNIUtil::hashMapInitMethod, numKeys);
 
+		for (int i = 0; i < numKeys; i++)
+		{
+			v8::Local<v8::Value> jsObjectPropertyKey = objectKeys->Get ((uint32_t)i);
+			jobject javaObjectPropertyKey = TypeConverter::jsValueToJavaObject (jsObjectPropertyKey);
+			v8::Local<v8::Value> jsObjectPropertyValue = jsObject->Get (jsObjectPropertyKey);
+			jobject javaObjectPropertyValue = TypeConverter::jsValueToJavaObject (jsObjectPropertyValue);
+
+			env->CallObjectMethod (javaHashMap, JNIUtil::hashMapPutMethod, javaObjectPropertyKey, javaObjectPropertyValue);
 		}
-		*/
 	}
 }
 
@@ -307,7 +310,7 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue (jobject javaObject)
 	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (env == NULL)
 	{
-		return v8::Handle<v8::Object>();
+		return v8::Handle<v8::Value>();
 	}
 
 	jclass javaObjectClass = env->GetObjectClass (javaObject);
