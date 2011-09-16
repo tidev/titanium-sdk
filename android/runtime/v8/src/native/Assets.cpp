@@ -20,8 +20,7 @@ using namespace titanium;
  * Method:    assign
  * Signature: (Lorg/appcelerator/kroll/runtime/Assets;)V
  */
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_Assets_assign
-(JNIEnv *env, jclass clazz, jobject assets)
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_Assets_assign(JNIEnv *env, jclass clazz, jobject assets)
 {
 	if (gAssets) {
 		env->DeleteGlobalRef(gAssets);

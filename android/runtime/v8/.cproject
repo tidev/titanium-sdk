@@ -26,7 +26,7 @@
 								<option id="gnu.c.compiler.option.include.paths.1056336559" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/Users/max/Applications/android-ndk/platforms/android-8/arch-arm/usr/include"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../dist/android/libv8/3.6.2/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../titanium/.apt_generated/&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../titanium/.apt_generated/&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1161967888" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -36,7 +36,7 @@
 								<option id="gnu.cpp.compiler.option.include.paths.1375569031" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../dist/android/libv8/3.6.2/include&quot;"/>
 									<listOptionValue builtIn="false" value="/Users/max/Applications/android-ndk/platforms/android-8/arch-arm/usr/include"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../titanium/.apt_generated/&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../titanium/.apt_generated/&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1586512537" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -76,7 +76,7 @@
 								<option id="gnu.c.compiler.option.include.paths.394133260" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/Users/max/Applications/android-ndk/platforms/android-8/arch-arm/usr/include"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../dist/android/libv8/3.6.2/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../titanium/.apt_generated/&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../titanium/.apt_generated/&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1387068327" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -86,7 +86,7 @@
 								<option id="gnu.cpp.compiler.option.include.paths.286562196" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../dist/android/libv8/3.6.2/include&quot;"/>
 									<listOptionValue builtIn="false" value="/Users/max/Applications/android-ndk/platforms/android-8/arch-arm/usr/include"/>
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../../../titanium/.apt_generated/&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../titanium/.apt_generated/&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1332175857" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
