@@ -36,6 +36,8 @@ namespace titanium
 	jmethodID JNIUtil::longInitMethod = NULL;
 	jmethodID JNIUtil::numberDoubleValueMethod = NULL;
 
+	jobject JNIUtil::undefined = NULL;
+
 	/* static */
 	JNIEnv* JNIUtil::getJNIEnv()
 	{
@@ -87,8 +89,10 @@ namespace titanium
 		throwException(nullPointerException, message);
 	}
 
-	void JNIUtil::initCache(JNIEnv* env)
+	void JNIUtil::initCache(JNIEnv* env, jobject undefinedObj)
 	{
+		undefined = env->NewGlobalRef(undefinedObj);
+
 		objectClass = env->FindClass("java/lang/Object");
 		numberClass = env->FindClass("java/lang/Number");
 		stringClass = env->FindClass("java/lang/String");

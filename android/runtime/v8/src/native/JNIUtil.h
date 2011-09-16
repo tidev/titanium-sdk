@@ -11,7 +11,7 @@ namespace titanium
 	public:
 		static JavaVM *javaVm;
 		static JNIEnv* getJNIEnv();
-		static void initCache(JNIEnv *env);
+		static void initCache(JNIEnv *env, jobject undefined);
 
 		static jobjectArray newObjectArray(int length, jobject initial = NULL);
 		static void throwException(jclass clazz, const char *message);
@@ -49,6 +49,8 @@ namespace titanium
 		static jmethodID longInitMethod;
 		static jmethodID numberDoubleValueMethod;
 		static jmethodID v8ObjectInitMethod;
+
+		static jobject undefined;
 	};
 }
 
