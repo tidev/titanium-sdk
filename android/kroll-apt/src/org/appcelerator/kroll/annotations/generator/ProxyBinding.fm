@@ -21,8 +21,7 @@
 			<#local signature>
 				<@getMethodSignature method.args, method.returnType />
 			</#local>
-			<#local hasArgs = (method.args?size > 0)>
-			<#nested methodName_index==0, methodName, method, signature, hasArgs>
+			<#nested methodName_index==0, methodName, method, signature>
 		</#list>
 	</#if>
 </#macro>
@@ -148,8 +147,56 @@
 </#macro>
 
 <#macro generateJNICall returnType>
-	<#local info = getTypeInfo(returnType)>
-	<#local callMethod = "Call${info.javaCallMethodType}MethodA">
-	<#nested info.javaReturnType callMethod>
+</#macro>
+
+<#--------------------------------------------------------------
+Verify and convert V8 values into JNI values inside a V8
+invocation callback. The converted values are stored into an
+jvalue array named "jArguments". If validation or conversion
+fails, a JS exception is returned.
+---------------------------------------------------------------->
+<#macro verifyAndConvertArguments args>
+	<#if args?size == 0><#return></#if>
+	<@Proxy.getRequiredArgumentCount args=args ; requiredCount>
+	<#if requiredCount &gt; 0>
+	if (args.Length() != ${requiredCount})
+		return JSException::MissingRequiredArguments(args.Length(), ${requiredCount});
+	</#if>
+	</@Proxy.getRequiredArgumentCount>
+
+	jvalue jArguments[${args?size}];
+
+	<@Proxy.listMethodArguments args=args ; index, info>
+	Local<Value> arg = args[${index}];
+	if (!arg->Is${info.jsType}()) {
+			return JSException::InvalidArgument(${index}, ${info.jsType});
+	}
+	jArguments[${index}].${info.jvalue} = TypeConverter::${info.jsToJavaConverter}(arg->To${info.jsType}());
+
+	</@Proxy.listMethodArguments>
+</#macro>
+
+<#--------------------------------------------------------------
+Generate a JNI method call with the given return type, method ID,
+and jobject reference. This macro also expects a jvalue array
+already exists in the scope name provided in "argsVar".
+Outputs the complete statement that performs the JNI call and
+stores the return value in "result". A nested section can
+beprovided to handle the result.
+---------------------------------------------------------------->
+<#macro callJNIMethod returnType methodID jobjectVar argsVar>
+	<#local info = getTypeInfo(returnType)
+			callExpr = "Call${info.javaCallMethodType}MethodA"
+			argExpr = "${jobjectVar}, ${methodID}, ${argsVar}"
+			resultExpr = "${info.javaReturnType} jResult = "
+			hasResult = info.javaReturnType != "void">
+	<#if hasResult>
+	${resultExpr}${callExpr}(${argExpr});
+	Handle<${info.jsType}> v8Result = TypeConverter::${info.javaToJsConverter}(jResult);
+	<#else>
+	${callExpr}(${argExpr});
+	</#if>
+
+	<#nested hasResult "v8Result">
 </#macro>
 
