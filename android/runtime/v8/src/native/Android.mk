@@ -23,6 +23,7 @@ LOCAL_SRC_FILES += \
 	Assets.cpp \
 	JNIUtil.cpp \
 	KrollProxy.cpp \
+	V8Util.cpp \
 	TypeConverter.cpp \
 	V8Runtime.cpp \
 	V8Object.cpp \
