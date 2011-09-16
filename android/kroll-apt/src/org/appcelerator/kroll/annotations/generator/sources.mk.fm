@@ -1,0 +1,4 @@
+GEN_SOURCES = \
+<#list sourceFiles as sourceFile>
+${sourceFile}<#if sourceFile_has_next>\</#if>
+</#list>
