@@ -17,20 +17,16 @@ import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiJSErrorDialog;
 import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.util.TiWeakList;
-import org.mozilla.javascript.ErrorReporter;
-import org.mozilla.javascript.EvaluatorException;
-import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
 import android.app.Service;
-import android.content.Context;
 import android.content.ContextWrapper;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 
-public class TiContext implements ErrorReporter
+public class TiContext
 {
 	private static final String LCAT = "TiContext";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -219,7 +215,7 @@ public class TiContext implements ErrorReporter
 		return krollBridge.evalJS(src);
 	}
 
-	public Scriptable getScope()
+	public V8Object getScope()
 	{
 		if (krollBridge != null) {
 			return krollBridge.getScope();

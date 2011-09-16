@@ -542,13 +542,4 @@ public class TitaniumModule extends KrollModule
 	public void onDestroy(Service service)
 	{
 	}
-
-	@Override
-	public KrollObject getKrollObject()
-	{
-		if (krollObject == null && coverageEnabled) {
-			krollObject = new KrollCoverage("Titanium", this, null);
-		}
-		return super.getKrollObject();
-	}
 }
