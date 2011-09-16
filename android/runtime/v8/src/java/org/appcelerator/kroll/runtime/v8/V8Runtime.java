@@ -2,6 +2,8 @@ package org.appcelerator.kroll.runtime.v8;
 
 public class V8Runtime
 {
+	public static final Object UNDEFINED = new Object();
+
 	public static void init()
 	{
 		System.loadLibrary("kroll-v8");
