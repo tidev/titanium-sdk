@@ -4,14 +4,18 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifndef ASSETS_H
-#define ASSETS_H
+#ifndef KROLL_JAVASCRIPT_H
+#define KROLL_JAVASCRIPT_H
 
 #include <v8.h>
 
-namespace assets
+namespace titanium
 {
-	v8::Handle<v8::Primitive> readResource(v8::Handle<v8::String> path);
+	class KrollJavaScript
+	{
+	public:
+		static v8::Handle<v8::Value> initNativeModule(const char *moduleName);
+	};
 }
 
 #endif

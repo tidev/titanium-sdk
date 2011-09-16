@@ -1,3 +1,9 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 #ifndef V8_RUNTIME_H
 #define V8_RUNTIME_H
 
@@ -13,6 +19,7 @@ namespace titanium
 	public:
 		static jobject newObject(Handle<Object> object);
 		static void collectWeakRef(Persistent<Value> ref, void *parameter);
+		static void initNativeModules(Handle<Object> global);
 	};
 };
 
