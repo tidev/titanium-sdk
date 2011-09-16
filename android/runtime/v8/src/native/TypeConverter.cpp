@@ -164,6 +164,7 @@ jarray TypeConverter::jsArrayToJavaArray (v8::Handle<v8::Array> jsArray)
 		v8::Local<v8::Value> element = jsArray->Get (i);
 		jobject javaObject = jsValueToJavaObject (element);
 		env->SetObjectArrayElement (javaArray, i, javaObject);
+		env->DeleteLocalRef (javaObject);
 	}
 
 	return javaArray;
@@ -237,6 +238,7 @@ v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray (jobjectArray javaObject
 		jobject javaArrayElement = env->GetObjectArrayElement (javaObjectArray, i);
 		v8::Handle<v8::Value> jsArrayElement = TypeConverter::javaObjectToJsValue (javaArrayElement);
 		jsArray->Set ((uint32_t)i, jsArrayElement);
+		env->DeleteLocalRef (javaArrayElement);
 	}
 
 	return jsArray;
@@ -293,6 +295,8 @@ jobject TypeConverter::jsValueToJavaObject (v8::Local<v8::Value> jsValue)
 
 			env->CallObjectMethod (javaHashMap, JNIUtil::hashMapPutMethod, javaObjectPropertyKey, javaObjectPropertyValue);
 		}
+
+		return javaHashMap;
 	}
 }
 
@@ -320,7 +324,7 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue (jobject javaObject)
 	}
 	else if (env->IsInstanceOf (javaObjectClass, JNIUtil::dateClass))
 	{
-		
+		return TypeConverter::javaDateToJsDate (javaObject);
 	}
 	else if (env->IsInstanceOf (javaObjectClass, JNIUtil::hashMapClass))
 	{
@@ -329,6 +333,7 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue (jobject javaObject)
 		jobject hashMapSet = env->CallObjectMethod (javaObject, JNIUtil::hashMapKeySetMethod);
 
 		jobjectArray hashMapKeys = (jobjectArray) env->CallObjectMethod (hashMapSet, JNIUtil::setToArrayMethod);
+		env->DeleteLocalRef (hashMapSet);
 		int hashMapKeysLength = env->GetArrayLength (hashMapKeys);
 
 		for (int i = 0; i < hashMapKeysLength; i++)
@@ -337,8 +342,12 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue (jobject javaObject)
 			v8::Handle<v8::Value> jsPairKey = TypeConverter::javaObjectToJsValue (javaPairKey);
 
 			jobject javaPairValue = env->CallObjectMethod (javaObject, JNIUtil::hashMapGetMethod, javaPairKey);
+			env->DeleteLocalRef (javaPairKey);
 			jsObject->Set (jsPairKey, TypeConverter::javaObjectToJsValue (javaPairValue));
+			env->DeleteLocalRef (javaPairValue);
 		}
+
+		env->DeleteLocalRef (hashMapKeys);
 
 		return jsObject;
 	}
