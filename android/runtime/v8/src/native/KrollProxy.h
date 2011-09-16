@@ -12,7 +12,9 @@
 using namespace v8;
 
 namespace titanium {
+
 void initKrollProxy();
+
 }
 
 #endif
