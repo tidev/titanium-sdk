@@ -1,3 +1,10 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+
 #include <jni.h>
 #include <v8.h>
 
@@ -6,7 +13,7 @@
 
 namespace titanium
 {
-	static Handle<Value> KrollProxy_extend(const Arguments& args)
+	static Handle<Value> KrollProxyExtend(const Arguments& args)
 	{
 		HandleScope scope;
 		if (args.Length() == 0) return Undefined();
@@ -25,10 +32,10 @@ namespace titanium
 		return Undefined();
 	}
 
-	void KrollProxy_init()
+	void initKrollProxy()
 	{
 		HandleScope scope;
 		Handle<ObjectTemplate> prototype = KrollProxy::proxyTemplate->PrototypeTemplate();
-		prototype->Set(String::NewSymbol("extend"), FunctionTemplate::New(KrollProxy_extend)->GetFunction());
+		prototype->Set(String::NewSymbol("extend"), FunctionTemplate::New(KrollProxyExtend)->GetFunction());
 	}
 }

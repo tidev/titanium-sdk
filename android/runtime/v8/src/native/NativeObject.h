@@ -8,8 +8,9 @@
 #ifndef TI_KROLL_NATIVE_OBJECT_H
 #define TI_KROLL_NATIVE_OBJECT_H
 
-#include <v8.h>
 #include <assert.h>
+#include <jni.h>
+#include <v8.h>
 
 namespace titanium {
 
@@ -54,9 +55,10 @@ protected:
 		handle_.MarkIndependent();
 	}
 
-private:
 	v8::Persistent<v8::Object> handle_;
 	jobject javaObject_;
+
+private:
 
 	static void WeakCallback(v8::Persistent<v8::Value> value, void *data) {
 		NativeObject *obj = static_cast<NativeObject*>(data);

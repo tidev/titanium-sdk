@@ -4,17 +4,18 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
-#ifndef KROLL_PROXY_H
-#define KROLL_PROXY_H
+#ifndef KROLL_JAVASCRIPT_H
+#define KROLL_JAVASCRIPT_H
 
 #include <v8.h>
 
-using namespace v8;
-
 namespace titanium
 {
-	void initKrollProxy();
+	class KrollJavaScript
+	{
+	public:
+		static v8::Handle<v8::Value> initNativeModule(const char *moduleName);
+	};
 }
 
 #endif
