@@ -15,7 +15,10 @@ namespace titanium {
 class ProxyFactory
 {
 public:
-	v8::Handle<v8::Object> create(jobject javaObject);
+	v8::Handle<v8::Object> create(jobject javaObject)
+	{
+		return v8::Object::New();
+	};
 
 private:
 	// stub out shit here

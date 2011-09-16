@@ -16,7 +16,11 @@ namespace titanium {
 class ProxyFactoryTable
 {
 public:
-	static ProxyFactory * lookup(jclass javaClass);
+	static ProxyFactory * lookup(jclass javaClass)
+	{
+		ProxyFactory *pf = new ProxyFactory();
+		return pf;
+	};
 
 private:
 	// stub out shit here

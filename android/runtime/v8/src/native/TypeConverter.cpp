@@ -9,6 +9,9 @@
 
 #include "TypeConverter.h"
 #include "JNIUtil.h"
+#include "NativeObject.h"
+#include "ProxyFactoryTable.h"
+#include "ProxyFactory.h"
 
 using namespace titanium;
 
@@ -306,10 +309,11 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 	} else if (env->IsInstanceOf(javaObjectClass, JNIUtil::krollProxyClass)) {
 		jlong v8ObjectPointer = env->CallLongMethod(javaObject, JNIUtil::krollProxyGetV8ObjectPointerMethod);
 		if (v8ObjectPointer > 0) {
-			return v8::Handle < v8::Object > v8ObjectPointerHandle((v8::Object*) v8ObjectPointer);
+			v8::Handle < v8::Object > v8ObjectPointerHandle((v8::Object*) v8ObjectPointer);
+			return v8ObjectPointerHandle;
 		} else {
 			ProxyFactory *proxyFactory = ProxyFactoryTable::lookup(env->GetObjectClass(javaObject));
-			v8::Handle < v8::Object > proxyHandle = proxyFactory.create(javaObject);
+			v8::Handle < v8::Object > proxyHandle = proxyFactory->create(javaObject);
 			return proxyHandle;
 		}
 	}
