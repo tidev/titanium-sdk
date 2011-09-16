@@ -6,24 +6,19 @@
  */
 package org.appcelerator.kroll;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.runtime.v8.V8Object;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.bridge.OnEventListenerChange;
-import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.kroll.KrollCallback;
-import org.appcelerator.titanium.kroll.KrollCoverage;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
-import org.mozilla.javascript.Function;
-import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
 import android.os.Handler;
@@ -43,17 +38,9 @@ public class KrollProxy
 	protected static final int MSG_MODEL_PROPERTIES_CHANGED = 103;
 	protected static final int MSG_LAST_ID = 999;
 	protected static AtomicInteger proxyCounter = new AtomicInteger();
-	protected static HashMap<Class<? extends KrollProxy>, KrollProxyBinding> proxyBindings = new HashMap<Class<? extends KrollProxy>, KrollProxyBinding>();
 
 	public static final String PROXY_ID_PREFIX = "proxy$";
-	public static final String BINDING_SUFFIX = "BindingGen";
-	public static final Object UNDEFINED = new Object() {
-		public String toString() {
-			return "undefined";
-		}
-	};
 
-	protected KrollDict properties = new KrollDict();
 	protected TiContext context, creatingContext;
 
 	protected Handler uiHandler;
@@ -61,9 +48,9 @@ public class KrollProxy
 	protected KrollProxyListener modelListener;
 	protected KrollEventManager eventManager;
 	protected KrollModule createdInModule;
-	protected KrollProxyBinding binding;
-	protected KrollObject krollObject;
+	protected V8Object v8Object;
 	protected boolean coverageEnabled;
+	protected KrollDict creationDict = null;
 
 	@Kroll.inject
 	protected KrollInvocation currentInvocation;
@@ -95,198 +82,25 @@ public class KrollProxy
 		}
 	}
 
-	public static KrollProxyBinding getBinding(Class<? extends KrollProxy> proxyClass)
+	// direct accessors (these circumvent programmatic accessors and go straight to the internal map)
+	public V8Object getV8Object()
 	{
-		if (!proxyBindings.containsKey(proxyClass)) {
-			String bindingClassName = proxyClass.getName() + BINDING_SUFFIX;
-			try {
-				Class<?> bindingClass = Class.forName(bindingClassName);
-				KrollProxyBinding bindingInstance = (KrollProxyBinding) bindingClass.newInstance();
-				proxyBindings.put(proxyClass, bindingInstance);
-				return bindingInstance;
-			} catch (ClassNotFoundException e) {
-				Log.e(TAG, "Couldn't find binding class for proxy " + proxyClass.getName(), e);
-			} catch (IllegalAccessException e) {
-				Log.e(TAG, "Couldn't access constructor for binding class " + bindingClassName, e);
-			} catch (InstantiationException e) {
-				Log.e(TAG, "Couldn't insantiate binding class " + bindingClassName, e);
-			}
-		}
-		return proxyBindings.get(proxyClass);
+		return v8Object;
 	}
 
-	public KrollProxyBinding getBinding()
+	protected long getV8ObjectPointer()
 	{
-		if (binding == null) {
-			binding = getBinding(getClass());
-		}
-		return binding;
-	}
-
-	public boolean hasBinding(String name)
-	{
-		return getBinding().hasBinding(name);
-	}
-
-	public Object getBinding(String name)
-	{
-		return getBinding().getBinding(name);
-	}
-
-	public void bindContextSpecific(KrollBridge bridge)
-	{
-		KrollProxyBinding binding = getBinding();
-		binding.bindContextSpecific(bridge, this);
-	}
-
-	public String getAPIName()
-	{
-		return getBinding().getAPIName();
-	}
-
-	public String getShortAPIName()
-	{
-		return getBinding().getShortAPIName();
-	}
-
-	public KrollObject getKrollObject()
-	{
-		if (krollObject == null) {
-			if (coverageEnabled) {
-				krollObject = new KrollCoverage(this);
-			} else {
-				krollObject = new KrollObject(this);
-			}
-		}
-		return krollObject;
-	}
-
-	public boolean has(Scriptable scope, String name)
-	{
-		return hasBinding(name) || properties.containsKey(name);
-	}
-
-	public boolean has(Scriptable scope, int index)
-	{
-		return false;
-	}
-
-	public Object get(Scriptable scope, String name)
-		throws NoSuchFieldException
-	{
-		if (hasBinding(name)) {
-			Object value = getBinding(name);
-			if (value instanceof KrollProperty) {
-				KrollProperty property = (KrollProperty)value;
-				if (property.supportsGet(name)) {
-					return getDynamicProperty(scope, name, property);
-				} // else fall through to properties
-			} else {
-				return value;
-			}
-		}
-
-		if (properties.containsKey(name)) {
-			return properties.get(name);
-		}
-		return UNDEFINED;
-	}
-
-	public Object get(Scriptable scope, int index)
-	{
-		return UNDEFINED;
-	}
-
-	public void set(Scriptable scope, String name, Object value)
-		throws NoSuchFieldException
-	{
-		if (hasBinding(name)) {
-			Object currentValue = getBinding(name);
-			if (currentValue instanceof KrollProperty) {
-				KrollProperty property = (KrollProperty) currentValue;
-				if (property.supportsSet(name)) {
-					setDynamicProperty(scope, name, property, value);
-					return;
-				} // else fall through to properties
-			}
-		}
-		
-		// the value that comes from KrollObject should already be converted
-		setProperty(name, value, true);
-	}
-
-	public void set(Scriptable scope, int index, Object value)
-	{
-		// no-op
-	}
-
-	public Object call(Scriptable scope, String name, Object[] args)
-		throws Exception
-	{
-		Object value = UNDEFINED;
-		try {
-			value = get(scope, name);
-		} catch (NoSuchFieldException e) {}
-
-		if (value != UNDEFINED && value instanceof KrollMethod) {
-			KrollMethod method = (KrollMethod) value;
-			KrollInvocation inv = KrollInvocation.createMethodInvocation(
-				TiContext.getCurrentTiContext(), scope, getKrollObject(), name, method, this);
-
-			Object result = method.invoke(inv, args);
-			inv.recycle();
-			return result;
-		} else
-			throw new NoSuchMethodException("method \"" + name
-				+ "\" of proxy \"" + getAPIName() + "\" wasn't found");
-	}
-
-	protected Object getDynamicProperty(Scriptable scope, String name, KrollProperty dynprop)
-		throws NoSuchFieldException
-	{
-		if (dynprop.supportsGet(name)) {
-			KrollInvocation inv = KrollInvocation.createPropertyGetInvocation(
-				TiContext.getCurrentTiContext(), scope, getKrollObject(), name, dynprop, this);
-			Object result = dynprop.get(inv, name);
-			inv.recycle();
-			return result;
-		} else {
-			throw new NoSuchFieldException("dynamic property \"" + name
-				+ "\" of proxy \"" + getAPIName()
-				+ "\" doesn't have read support");
-		}
-	}
-
-	protected void setDynamicProperty(Scriptable scope, String name, KrollProperty dynprop, Object value)
-		throws NoSuchFieldException
-	{
-		if (dynprop.supportsSet(name)) {
-			KrollInvocation inv = KrollInvocation.createPropertySetInvocation(
-				TiContext.getCurrentTiContext(), scope, getKrollObject(), name, dynprop, this);
-			dynprop.set(inv, name, value);
-			inv.recycle();
-		} else {
-			throw new NoSuchFieldException("dynamic property \"" + name
-				+ "\" of proxy \"" + getAPIName()
-				+ "\" doesn't have write support");
-		}
-	}
-
-	// direct accessors (these circumvent programmatic accessors and go straight
-	// to the internal map)
-	public KrollDict getProperties()
-	{
-		return properties;
+		return v8Object.getPointer();
 	}
 
 	public boolean hasProperty(String name)
 	{
-		return properties.containsKey(name);
+		return v8Object.has(name);
 	}
 
 	public Object getProperty(String name)
 	{
-		return properties.get(name);
+		return v8Object.get(name);
 	}
 
 	public void setProperty(String name, Object value)
@@ -321,35 +135,16 @@ public class KrollProxy
 
 	public void setProperty(String name, Object value, boolean fireChange)
 	{
-		Object current = properties.get(name);
-		properties.put(name, value);
-
-		if (fireChange && shouldFireChange(current, value)) {
-			firePropertyChanged(name, current, value);
-		}
-	}
-
-	// native extending support allows us to whole-sale apply properties and only fire one event / job
-	@Kroll.method
-	public void extend(KrollDict options)
-	{
-		ArrayList<KrollPropertyChange> propertyChanges = new ArrayList<KrollPropertyChange>();
-		for (String name : options.keySet()) {
-			Object oldValue = properties.get(name);
-			Object value = options.get(name);
-			properties.put(name, value);
-			
-			if (shouldFireChange(oldValue, value)) {
-				KrollPropertyChange pch = new KrollPropertyChange(name, oldValue, value);
-				propertyChanges.add(pch);
-			}
-		}
-
-		if (context.isUIThread()) {
-			firePropertiesChanged(propertyChanges);
+		if (!fireChange) {
+			v8Object.set(name, value);
+			return;
 		} else {
-			Message msg = getUIHandler().obtainMessage(MSG_MODEL_PROPERTIES_CHANGED, propertyChanges);
-			msg.sendToTarget();
+			Object current = v8Object.get(name);
+			v8Object.set(name, value);
+
+			if (shouldFireChange(current, value)) {
+				firePropertyChanged(name, current, value);
+			}
 		}
 	}
 
@@ -358,89 +153,6 @@ public class KrollProxy
 		if (modelListener != null) {
 			modelListener.propertiesChanged(changes, this);
 		}
-	}
-
-	public boolean hasBoundMethod(String methodName)
-	{
-		if (hasBinding(methodName)) {
-			return getBinding(methodName) instanceof Function;
-		}
-		return false;
-	}
-
-	public boolean hasBoundProperty(String propertyName)
-	{
-		if (hasBinding(propertyName)) {
-			Object property = getBinding(propertyName);
-			if (property instanceof KrollProperty) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public KrollMethod getBoundMethod(String name)
-	{
-		return (KrollMethod) getBinding(name);
-	}
-
-	@SuppressWarnings("serial")
-	public class ThisMethod extends KrollMethod
-	{
-		protected String name;
-		protected KrollMethod delegate;
-		
-		public ThisMethod(String name, KrollMethod delegate) {
-			super(name);
-			this.name = name;
-			this.delegate = delegate;
-		}
-		
-		@Override
-		public Object invoke(KrollInvocation invocation, Object[] args)
-				throws Exception {
-			invocation.proxy = KrollProxy.this;
-			invocation.thisObj = KrollProxy.this.getKrollObject();
-			return delegate.invoke(invocation, args);
-		}
-		
-		public KrollMethod getDelegate() {
-			return delegate;
-		}
-	}
-
-	public KrollMethod getBoundMethodForThis(String name)
-	{
-		// This generates a wrapper that always invokes the given bound method
-		// using this proxy as the "thisObj"
-		final KrollMethod delegate = getBoundMethod(name);
-		if (delegate != null) {
-			return new ThisMethod(name, delegate);
-		}
-		return null;
-	}
-
-	public KrollProperty getBoundProperty(String name)
-	{
-		return (KrollProperty) getBinding(name);
-	}
-
-	/**
-	 * Handle the raw "create" method
-	 * @param invocation The KrollInvocation
-	 * @param args The arguments passed to the create method
-	 */
-	public Object handleCreate(KrollInvocation invocation, Object[] args)
-	{
-		KrollModule createdInModule = (KrollModule) invocation.getProxy();
-		Object createArgs[] = new Object[args.length];
-		for (int i = 0; i < args.length; i++) {
-			createArgs[i] = KrollConverter.getInstance().convertJavascript(
-				invocation, args[i], Object.class);
-		}
-		
-		handleCreationArgs(createdInModule, createArgs);
-		return KrollConverter.getInstance().convertNative(invocation, this);
 	}
 
 	/**
@@ -456,7 +168,6 @@ public class KrollProxy
 		}
 	}
 
-	protected KrollDict creationDict = null;
 	/**
 	 * Handle the creation {@link KrollDict} passed into the create method for this proxy.
 	 * This is usually the first (and sometimes only) argument to the proxy's create method.
@@ -523,7 +234,8 @@ public class KrollProxy
 		if (this.modelListener != null && this.modelListener.equals(modelListener)) { return; }
 		this.modelListener = modelListener;
 		if (modelListener != null) {
-			modelListener.processProperties((KrollDict) properties.clone());
+			modelListener.processProperties(creationDict);
+			creationDict = null;
 		}
 	}
 
@@ -586,11 +298,6 @@ public class KrollProxy
 		return context;
 	}
 
-	public KrollBridge getKrollBridge()
-	{
-		return context.getKrollBridge();
-	}
-
 	public String getProxyId()
 	{
 		return proxyId;
@@ -648,20 +355,6 @@ public class KrollProxy
 		return eventManager.dispatchEvent(eventName, data, false);
 	}
 
-	// Convenience for internal code
-	public KrollInvocation createEventInvocation(String eventName)
-	{
-		if (DBG) {
-			Log.d(TAG, "creating event invocation, context: " + getTiContext() + ", js context: " + getTiContext().getKrollBridge());
-		}
-		KrollInvocation inv = KrollInvocation.createMethodInvocation(
-			getTiContext(),
-			getTiContext().getKrollBridge().getScope(),
-			null,
-			getAPIName() + ":event:" + eventName, null, this);
-		return inv;
-	}
-
 	@Kroll.method
 	public void fireSingleEvent(String eventName, Object listener, KrollDict data, boolean asyncCallback)
 	{
@@ -703,23 +396,23 @@ public class KrollProxy
 	{
 		return currentInvocation;
 	}
-	
+
 	@Kroll.method
 	public String toString()
 	{
-		return "[Ti."+getAPIName() + "]";
+		return "[Ti." + getAPIName() + "]";
 	}
-	
+
 	public Object getDefaultValue(Class<?> typeHint)
 	{
 		return toString();
 	}
-	
+
 	public Object getJavascriptValue()
 	{
-		return getKrollObject();
+		return v8Object;
 	}
-	
+
 	public Object getNativeValue()
 	{
 		return this;

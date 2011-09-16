@@ -6,7 +6,7 @@
 
 using namespace v8;
 
-#define LOG_TAG "MapTest"
+#define LOG_TAG "V8Runtime"
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__) 
 
 Handle<Value> Log(const Arguments& args)
@@ -17,7 +17,7 @@ Handle<Value> Log(const Arguments& args)
 	return Undefined();
 }
 
-extern "C" JNIEXPORT void JNICALL Java_org_appcelerator_testv8_TestV8Activity_test(JNIEnv *env, jclass clazz)
+extern "C" JNIEXPORT void JNICALL Java_org_appcelerator_kroll_testv8_TestV8Activity_test(JNIEnv *env, jclass clazz)
 {
 	HandleScope scope;
 

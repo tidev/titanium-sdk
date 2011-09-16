@@ -51,6 +51,14 @@
 		"javaCallMethodType":"Object",
 		"javaReturnType":"jobjectArray"
 	},
+	"int[]":{
+		"jsType":"Array",
+		"jsToJavaConverter":"jsArrayToJavaArray",
+		"javaToJsConverter":"javaArrayToJsArray",
+		"jvalue":"l", "signature":"[I",
+		"javaCallMethodType":"Object",
+		"javaReturnType":"jintArray"
+	},
 	"int":{
 		"jsType":"Number",
 		"jsToJavaConverter":"jsNumberToJavaInt",

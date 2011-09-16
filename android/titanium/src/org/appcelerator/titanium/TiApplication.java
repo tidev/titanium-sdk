@@ -13,24 +13,17 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Properties;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollInvocation;
-import org.appcelerator.kroll.KrollModule;
-import org.appcelerator.kroll.KrollModuleInfo;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.analytics.TiAnalyticsModel;
 import org.appcelerator.titanium.analytics.TiAnalyticsService;
-import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiFileHelper;
@@ -44,12 +37,13 @@ import android.app.Application;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Handler.Callback;
 import android.util.DisplayMetrics;
 
-// Naming TiHost to more closely match other implementations
-public abstract class TiApplication extends Application implements Callback
+public class TiApplication extends Application implements Handler.Callback
 {
+	private static final String LCAT = "TiApplication";
+	private static final boolean DBG = TiConfig.LOGD;
+
 	public static final String DEPLOY_TYPE_DEVELOPMENT = "development";
 	public static final String DEPLOY_TYPE_TEST = "test";
 	public static final String DEPLOY_TYPE_PRODUCTION = "production";
@@ -62,9 +56,7 @@ public abstract class TiApplication extends Application implements Callback
 	private static final String PROPERTY_COMPILE_JS = "ti.android.compilejs";
 	public static final String PROPERTY_FASTDEV = "ti.android.fastdev";
 	private static final String PROPERTY_ENABLE_COVERAGE = "ti.android.enablecoverage";
-	
-	private static final String LCAT = "TiApplication";
-	private static final boolean DBG = TiConfig.LOGD;
+
 	private static final long STATS_WAIT = 300000;
 	private static final int MSG_SEND_ANALYTICS = 100;
 	private static final long SEND_ANALYTICS_DELAY = 30000; // Time analytics send request sits in queue before starting service.
@@ -91,14 +83,14 @@ public abstract class TiApplication extends Application implements Callback
 	protected Handler analyticsHandler;
 	private static long lastAnalyticsTriggered = 0;
 	private String buildVersion = "", buildTimestamp = "", buildHash = "";
-	protected ArrayList<KrollModule> modules = new ArrayList<KrollModule>();
 	protected TiDeployData deployData;
 	protected TiTempFileHelper tempFileHelper;
 
-	public TiApplication() {
+	public TiApplication()
+	{
 		Log.checkpoint(LCAT, "checkpoint, app created.");
 		_instance = this;
-		
+
 		analyticsHandler = new Handler(this);
 		needsEnrollEvent = false; // test is after DB is available
 		needsStartEvent = true;
@@ -106,64 +98,13 @@ public abstract class TiApplication extends Application implements Callback
 		Log.i(LCAT, "Titanium " + buildVersion + " (" + buildTimestamp + " " + buildHash + ")");
 	}
 
-	public void bindModules(KrollBridge bridge, KrollProxy parent) {
-		if (modules.isEmpty()) {
-			bootModules(bridge.getKrollContext().getTiContext());
-			for (KrollModule module : modules) {
-				module.bindToParent(parent);
-			}
-		}
-		for (KrollModule module : modules) {
-			module.bindContextSpecific(bridge);
-		}
-	}
-
-	protected abstract void bootModules(TiContext context);
-
-	// Apps with custom modules will override this with their own creation logic
-	public KrollModule requireModule(TiContext context, KrollModuleInfo info) {
-		return getModuleById(info.getId());
-	}
-
-	public List<KrollModule> getModules() {
-		return modules;
-	}
-
-	public KrollModule getModuleById(String id) {
-		for (KrollModule module : modules) {
-			if (module.getId().equals(id)) {
-				return module;
-			}
-		}
-		
-		return null;
-	}
-
-	@SuppressWarnings("unchecked")
-	public <T extends KrollModule> T getModuleByClass(Class<T> moduleClass) {
-		for (KrollModule module : modules) {
-			if (module.getClass().equals(moduleClass)) {
-				return (T)module;
-			}
-		}
-		
-		return null;
-	}
-
-	public void releaseModules() {
-		modules.clear();
-	}
-
-	public String[] getFilteredBindings(String moduleName) {
-		// TODO: re-enable filtered bindings when our compiler can better detect methods and properties
-		return null;
-	}
-
-	public static TiApplication getInstance() {
+	public static TiApplication getInstance()
+	{
 		return _instance;
 	}
 
-	protected void loadBuildProperties() {
+	protected void loadBuildProperties()
+	{
 		buildVersion = "1.0";
 		buildTimestamp = "N/A";
 		buildHash = "N/A";
@@ -189,17 +130,15 @@ public abstract class TiApplication extends Application implements Callback
 	public void onCreate()
 	{
 		super.onCreate();
-		TiScriptRunner.getInstance().setAppPackageName(getPackageName());
 		if (DBG) {
 			Log.d(LCAT, "Application onCreate");
 		}
 
 		final UncaughtExceptionHandler defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-
 			public void uncaughtException(Thread t, Throwable e) {
 				String tiVer = buildVersion + "," + buildTimestamp + "," + buildHash ;
-				Log.e("TiUncaughtHandler", "Sending event: exception on thread: " + t.getName() + " msg:" + e.toString() + "; Titanium " + tiVer, e);
+				Log.e(LCAT, "Sending event: exception on thread: " + t.getName() + " msg:" + e.toString() + "; Titanium " + tiVer, e);
 				postAnalyticsEvent(TiAnalyticsEventFactory.createErrorEvent(t, e, tiVer));
 				defaultHandler.uncaughtException(t, e);
 			}
@@ -327,48 +266,6 @@ public abstract class TiApplication extends Application implements Callback
 		return defaultStartFile;
 	}
 
-	public synchronized Method methodFor(Class<?> source, String name)
-	{
-		HashMap<String, Method> classMethods = methodMap.get(source);
-		if (classMethods == null) {
-			Method[] methods = source.getMethods();
-			classMethods = new HashMap<String, Method>(methods.length);
-			methodMap.put(source, classMethods);
-
-			// we need to sort methods by their implementation order
-			// i.e. subClass > superClass precedence
-			final HashMap<Class<?>, Integer> hierarchy = new HashMap<Class<?>, Integer>();
-			int i = 0;
-			hierarchy.put(source, 0);
-			for (Class<?> superClass = source.getSuperclass(); superClass != null;
-				superClass = superClass.getSuperclass())
-			{
-				hierarchy.put(superClass, ++i);
-			}
-
-			Comparator<Method> comparator = new Comparator<Method>()
-			{
-				public int compare(Method o1, Method o2) {
-					int h1 = hierarchy.get(o1.getDeclaringClass());
-					int h2 = hierarchy.get(o2.getDeclaringClass());
-					return h1-h2;
-				}
-			};
-
-			List<Method> methodList = Arrays.asList(methods);
-			Collections.sort(methodList, comparator);
-			Collections.reverse(methodList);
-
-			for(Method method : methodList) {
-				// TODO filter?
-				//Log.e(LCAT, "Obj: " + source.getSimpleName() + " Method: " + method.getName());
-				classMethods.put(method.getName(), method);
-			}
-		}
-
-		return classMethods.get(name);
-	}
-
 	private ArrayList<KrollProxy> appEventProxies = new ArrayList<KrollProxy>();
 	public void addAppEventProxy(KrollProxy appEventProxy)
 	{
@@ -393,14 +290,6 @@ public abstract class TiApplication extends Application implements Callback
 		}
 		return handled;
 	}
-	
-	/*public void removeEventListenersFromContext(TiContext listeningContext)
-	{
-		for (KrollProxy appEventProxy : appEventProxies)
-		{
-			//appEventProxy.removeEventListenersFromContext(listeningContext);
-		}
-	}*/
 
 	public TiProperties getAppProperties()
 	{
@@ -412,25 +301,29 @@ public abstract class TiApplication extends Application implements Callback
 		return systemProperties;
 	}
 
-	public ITiAppInfo getAppInfo() {
+	public ITiAppInfo getAppInfo()
+	{
 		return appInfo;
 	}
 	
-	public KrollDict getStylesheet(String basename, Collection<String> classes, String objectId) {
+	public KrollDict getStylesheet(String basename, Collection<String> classes, String objectId)
+	{
 		if (stylesheet != null) {
 			return stylesheet.getStylesheet(objectId, classes, density, basename);
 		}
 		return new KrollDict();
 	}
 
-	public void registerProxy(KrollProxy proxy) {
+	public void registerProxy(KrollProxy proxy)
+	{
 		String proxyId = proxy.getProxyId();
 		if (!proxyMap.containsKey(proxyId)) {
 			proxyMap.put(proxyId, new SoftReference<KrollProxy>(proxy));
 		}
 	}
 
-	public KrollProxy unregisterProxy(String proxyId) {
+	public KrollProxy unregisterProxy(String proxyId)
+	{
 		KrollProxy proxy = null;
 
 		SoftReference<KrollProxy> ref = proxyMap.remove(proxyId);
@@ -441,26 +334,18 @@ public abstract class TiApplication extends Application implements Callback
 		return proxy;
 	}
 
-	@Override
-	public void onLowMemory()
+	public synchronized boolean needsStartEvent()
 	{
-		super.onLowMemory();
-	}
-
-	@Override
-	public void onTerminate() {
-		super.onTerminate();
-	}
-
-	public synchronized boolean needsStartEvent() {
 		return needsStartEvent;
 	}
 
-	public synchronized boolean needsEnrollEvent() {
+	public synchronized boolean needsEnrollEvent()
+	{
 		return needsEnrollEvent;
 	}
 
-	private boolean collectAnalytics() {
+	private boolean collectAnalytics()
+	{
 		return getAppInfo().isAnalyticsEnabled();
 	}
 

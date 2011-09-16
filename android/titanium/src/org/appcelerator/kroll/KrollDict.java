@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.appcelerator.titanium.util.TiConvert;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,6 +20,7 @@ import android.util.Log;
 public class KrollDict
 	extends HashMap<String, Object>
 {
+	private static final String TAG = "KrollDict";
 	private static final long serialVersionUID = 1L;
 	private static final int INITIAL_SIZE = 5;
 
@@ -49,7 +51,7 @@ public class KrollDict
 				return values;
 			}
 		} catch (JSONException e) {
-			Log.e("KrollDict", "Error parsing JSON", e);
+			Log.e(TAG, "Error parsing JSON", e);
 		}
 		return value;
 	}
@@ -78,7 +80,7 @@ public class KrollDict
 	}
 	
 	public boolean getBoolean(String key) {
-		return KrollConverter.toBoolean(get(key));
+		return TiConvert.toBoolean(get(key));
 	}
 
 	public boolean optBoolean(String key, boolean defaultValue) {
@@ -91,7 +93,7 @@ public class KrollDict
 	}
 
 	public String getString(String key) {
-		return KrollConverter.toString(get(key));
+		return TiConvert.toString(get(key));
 	}
 
 	public String optString(String key, String defalt) {
@@ -102,7 +104,7 @@ public class KrollDict
 	}
 
 	public Integer getInt(String key) {
-		return KrollConverter.toInt(get(key));
+		return TiConvert.toInt(get(key));
 	}
 
 	public Integer optInt(String key, Integer defaultValue) {
@@ -115,11 +117,11 @@ public class KrollDict
 	}
 
 	public Double getDouble(String key) {
-		return KrollConverter.toDouble(get(key));
+		return TiConvert.toDouble(get(key));
 	}
 
 	public String[] getStringArray(String key) {
-		return KrollConverter.toStringArray((Object[])get(key));
+		return TiConvert.toStringArray((Object[])get(key));
 	}
 
 	public KrollDict getKrollDict(String key) {
