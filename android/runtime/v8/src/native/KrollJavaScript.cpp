@@ -4,24 +4,28 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#include <string.h>
 #include <v8.h>
 
+#include "V8Util.h"
 #include "KrollJavaScript.h"
 #include "../../generated/KrollNatives.h"
 
 namespace titanium {
 using namespace v8;
 
-Handle<Value> KrollJavaScript::initNativeModule(const char *moduleName)
+void KrollJavaScript::DefineNatives(Handle<Object> target)
 {
 	HandleScope scope;
-	for (const struct _native* native = natives; native->name != NULL; ++native) {
-		if (strcmp(moduleName, native->name) == 0) {
-			Local<Script> script = Script::Compile(String::New(native->source), String::New(native->name));
-			return script->Run();
-		}
+	for (int i = 0; natives[i].name; ++i) {
+		if (natives[i].source == kroll_native) continue;
+		Local<String> name = String::New(natives[i].name);
+		Handle<String> source = IMMUTABLE_STRING_LITERAL_FROM_ARRAY(natives[i].source, natives[i].source_length);
+		target->Set(name, source);
 	}
-	return Undefined();
 }
+
+Handle<String> KrollJavaScript::MainSource() {
+  return IMMUTABLE_STRING_LITERAL_FROM_ARRAY(kroll_native, sizeof(kroll_native)-1);
+}
+
 }

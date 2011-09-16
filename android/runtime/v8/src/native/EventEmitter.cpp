@@ -12,18 +12,15 @@ namespace titanium {
 
 using namespace v8;
 
-Persistent<FunctionTemplate> EventEmitter::constructorTemplate;
+Persistent<FunctionTemplate> EventEmitter::constructor_template;
 
 static Persistent<String> eventsSymbol;
 
-void EventEmitter::Initialize(Handle<Object> global)
+void EventEmitter::Initialize(Local<FunctionTemplate> global_template)
 {
 	HandleScope scope;
-	Handle<String> emitterSymbol = String::NewSymbol("EventEmitter");
-	constructorTemplate = Persistent<FunctionTemplate>::New(FunctionTemplate::New());
-	constructorTemplate->SetClassName(emitterSymbol);
-	global->Set(emitterSymbol, constructorTemplate->GetFunction());
-
+	constructor_template = Persistent<FunctionTemplate>::New(global_template);
+	constructor_template->SetClassName(String::NewSymbol("EventEmitter"));
 	eventsSymbol = Persistent<String>::New(String::NewSymbol("_events"));
 }
 

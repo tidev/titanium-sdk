@@ -13,7 +13,8 @@ namespace titanium {
 class KrollJavaScript
 {
 public:
-	static v8::Handle<v8::Value> initNativeModule(const char *moduleName);
+	static void DefineNatives(v8::Handle<v8::Object> target);
+	static v8::Handle<v8::String> MainSource();
 };
 }
 
