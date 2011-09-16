@@ -73,7 +73,9 @@ namespace titanium
 		if (!env) {
 			return;
 		}
-		throwException(env->FindClass(className), message);
+		jclass clazz = env->FindClass(className);
+		throwException(clazz, message);
+		env->DeleteLocalRef(clazz);
 	}
 
 	void JNIUtil::throwOutOfMemoryError(const char *message)
