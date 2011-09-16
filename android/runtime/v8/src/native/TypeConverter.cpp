@@ -297,6 +297,13 @@ jobject TypeConverter::jsValueToJavaObject (v8::Local<v8::Value> jsValue)
 		}
 
 		return javaHashMap;
+
+		/*
+		-> v8::Handle<v8::Object> blah
+		v8::Handle<v8::Value> field = blah->GetInternalField (0)
+		NativeObject *no =  NativeObject::Unwrap<NativeObject>(field);
+		jobject = no->getJavaObject();
+		*/
 	}
 }
 
@@ -312,7 +319,7 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue (jobject javaObject)
 	}
 
 	jclass javaObjectClass = env->GetObjectClass (javaObject);
-	
+
 	if (env->IsInstanceOf (javaObjectClass, JNIUtil::numberClass))
 	{
 		jdouble javaDouble = env->CallDoubleMethod (javaObject, JNIUtil::numberDoubleValueMethod);
@@ -353,7 +360,19 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue (jobject javaObject)
 	}
 	else if (env->IsInstanceOf (javaObjectClass, JNIUtil::krollProxyClass))
 	{
-		v8::Handle<v8::Object> jsObject = v8::Object::New();
+		/*
+		jlong v8ObjectPointer = env->CallLongMethod (javaObject, JNIUtil::krollProxyGetV8ObjectPointerMethod);
+		if (v8ObjectPointer > 0)
+		{
+			return v8::Handle<v8::Object> v8ObjectPointerHandle ((v8::Object*) v8ObjectPointer);
+		}
+		else
+		{
+			?? proxyFactory = ProxyFactoryTable::lookup (env->GetObjectClass (javaObject));
+			v8::Handle<v8::Object> proxyHandle = proxyFactory.create (javaObject);
+			return proxyHandle;
+		}
+		*/
 	}
 }
 
