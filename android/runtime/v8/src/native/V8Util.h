@@ -12,7 +12,7 @@
 #define IMMUTABLE_STRING_LITERAL(string_literal)                                \
   ::titanium::ImmutableAsciiStringLiteral::CreateFromLiteral(                   \
       string_literal, sizeof(string_literal) - 1)
-#define IMMUTABLE_STRING_LITERAL_FROM_ARRAY(string_literal, length)                        \
+#define IMMUTABLE_STRING_LITERAL_FROM_ARRAY(string_literal, length)             \
   ::titanium::ImmutableAsciiStringLiteral::CreateFromLiteral(                   \
       string_literal, length)
 
@@ -30,7 +30,7 @@ public:
 	{
 	}
 
-	~ImmutableAsciiStringLiteral()
+	virtual ~ImmutableAsciiStringLiteral()
 	{
 	}
 
@@ -48,6 +48,9 @@ private:
 	const char *buffer_;
 	size_t buf_len_;
 };
+
+Handle<Value> ExecuteString(Handle<String> source, Handle<Value> filename);
+void ReportException(TryCatch &try_catch, bool show_line);
 
 }
 

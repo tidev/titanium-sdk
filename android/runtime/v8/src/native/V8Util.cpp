@@ -6,14 +6,74 @@
  */
 #include <v8.h>
 #include "V8Util.h"
+#include "AndroidUtil.h"
 
 namespace titanium {
+using namespace v8;
 
-v8::Handle<v8::String> ImmutableAsciiStringLiteral::CreateFromLiteral(const char *string_literal, size_t length)
+#define TAG "V8Util"
+
+Handle<String> ImmutableAsciiStringLiteral::CreateFromLiteral(const char *string_literal, size_t length)
 {
 	HandleScope scope;
-	v8::Local<v8::String> result = v8::String::NewExternal(new ImmutableAsciiStringLiteral(string_literal, length));
+	Local<String> result = String::NewExternal(new ImmutableAsciiStringLiteral(string_literal, length));
 	return scope.Close(result);
+}
+
+Handle<Value> ExecuteString(Handle<String> source, Handle<Value> filename)
+{
+	HandleScope scope;
+	TryCatch try_catch;
+
+	Local<Script> script = Script::Compile(source, filename);
+	if (script.IsEmpty()) {
+		LOGF(TAG, "Script source is empty");
+		ReportException(try_catch, true);
+		return Undefined();
+	}
+
+	Local<Value> result = script->Run();
+	if (result.IsEmpty()) {
+		LOGF(TAG, "Script result is empty");
+		ReportException(try_catch, true);
+		return Undefined();
+	}
+
+	return scope.Close(result);
+}
+
+void ReportException(TryCatch &try_catch, bool show_line)
+{
+	HandleScope scope;
+	Handle<Message> message = try_catch.Message();
+
+	if (show_line) {
+		Handle<Message> message = try_catch.Message();
+		if (!message.IsEmpty()) {
+			String::Utf8Value filename(message->GetScriptResourceName());
+		    const char* filename_string = *filename;
+		    int linenum = message->GetLineNumber();
+		    LOGE("%s:%i\n", filename_string, linenum);
+		}
+	}
+
+	String::Utf8Value trace(try_catch.StackTrace());
+	if (trace.length() > 0 && !try_catch.StackTrace()->IsUndefined()) {
+		LOGE("%s\n", *trace);
+	} else {
+		Local<Value> er = try_catch.Exception();
+		bool isErrorObject = er->IsObject() && !(er->ToObject()->Get(String::New("message"))->IsUndefined())
+			&& !(er->ToObject()->Get(String::New("name"))->IsUndefined());
+
+		if (isErrorObject) {
+			String::Utf8Value name(er->ToObject()->Get(String::New("name")));
+			LOGE("%s: ", *name);
+		}
+
+		String::Utf8Value msg(
+			!isErrorObject ? er->ToString() : er->ToObject()->Get(String::New("message"))->ToString());
+		LOGE("%s\n", *msg);
+	}
 }
 
 }
