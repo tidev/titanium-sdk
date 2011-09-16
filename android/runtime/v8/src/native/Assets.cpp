@@ -24,7 +24,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_Assets_assign(JNIEnv 
 {
 	if (gAssets) {
 		env->DeleteGlobalRef(gAssets);
-		gAssets = 0;
+		gAssets = NULL;
 	}
 	if (assets) {
 		gAssets = env->NewGlobalRef(assets);

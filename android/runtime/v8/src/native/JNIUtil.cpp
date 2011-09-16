@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #include <jni.h>
+#include <stdio.h>
 
 #include "JNIUtil.h"
 
@@ -42,8 +43,6 @@ jmethodID JNIUtil::doubleInitMethod = NULL;
 jmethodID JNIUtil::booleanInitMethod = NULL;
 jmethodID JNIUtil::longInitMethod = NULL;
 jmethodID JNIUtil::numberDoubleValueMethod = NULL;
-
-jobject JNIUtil::undefined = NULL;
 
 /* static */
 JNIEnv* JNIUtil::getJNIEnv()
@@ -95,10 +94,8 @@ void JNIUtil::throwNullPointerException(const char *message)
 	throwException(nullPointerException, message);
 }
 
-void JNIUtil::initCache(JNIEnv* env, jobject undefinedObj)
+void JNIUtil::initCache(JNIEnv* env)
 {
-	undefined = env->NewGlobalRef(undefinedObj);
-
 	objectClass = env->FindClass("java/lang/Object");
 	numberClass = env->FindClass("java/lang/Number");
 	stringClass = env->FindClass("java/lang/String");
