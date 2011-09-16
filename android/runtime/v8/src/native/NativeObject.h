@@ -43,6 +43,20 @@ public:
 		return static_cast<T*>(handle->GetPointerFromInternalField(0));
 	}
 
+	static bool isNativeObject(v8::Handle<v8::Object> jsObject)
+	{
+		if (jsObject->InternalFieldCount() > 0) {
+			return true;
+		}
+		return false;
+	}
+
+	jobject getJavaObject()
+	{
+		return javaObject_;
+	}
+
+
 protected:
 	inline void Wrap(v8::Handle<v8::Object> handle)
 	{
