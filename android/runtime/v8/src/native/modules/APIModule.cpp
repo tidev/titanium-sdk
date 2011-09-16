@@ -41,7 +41,7 @@ void APIModule::init(v8::Handle<v8::Object> global)
 	apiModule->Set(v8::String::New("fatal"), v8::FunctionTemplate::New(logFatal)->GetFunction());
 	apiModule->Set(v8::String::New("log"), v8::FunctionTemplate::New(log)->GetFunction());
 
-	global->Set(v8::String::New("Ti.API"), apiModule->GetFunction());
+	global->Set(v8::String::New("API"), apiModule->GetFunction());
 }
 
 
@@ -111,7 +111,7 @@ v8::Handle<v8::Value> APIModule::logFatal(const v8::Arguments& args)
 
 void APIModule::logInternal(int logLevel, const char *messageTag, const char *message)
 {
-	if(logLevel == LOG_LEVEL_TRACE) {
+	if (logLevel == LOG_LEVEL_TRACE) {
 		LOGV(messageTag, message);
 	} else if (logLevel < LOG_LEVEL_INFO) {
 		LOGD(messageTag, message);
@@ -132,19 +132,19 @@ v8::Handle<v8::Value> APIModule::log(const v8::Arguments& args)
 
 	if (strcasecmp(*level, "TRACE")) {
 		APIModule::logInternal(LOG_LEVEL_TRACE, LCAT, *message);
-	} else if(strcasecmp(*level, "DEBUG")) {
+	} else if (strcasecmp(*level, "DEBUG")) {
 		APIModule::logInternal(LOG_LEVEL_DEBUG, LCAT, *message);
-	} else if(strcasecmp(*level, "INFO")) {
+	} else if (strcasecmp(*level, "INFO")) {
 		APIModule::logInternal(LOG_LEVEL_INFO, LCAT, *message);
-	} else if(strcasecmp(*level, "NOTICE")) {
+	} else if (strcasecmp(*level, "NOTICE")) {
 		APIModule::logInternal(LOG_LEVEL_NOTICE, LCAT, *message);
-	} else if(strcasecmp(*level, "WARN")) {
+	} else if (strcasecmp(*level, "WARN")) {
 		APIModule::logInternal(LOG_LEVEL_WARN, LCAT, *message);
-	} else if(strcasecmp(*level, "ERROR")) {
+	} else if (strcasecmp(*level, "ERROR")) {
 		APIModule::logInternal(LOG_LEVEL_ERROR, LCAT, *message);
-	} else if(strcasecmp(*level, "CRITICAL")) {
+	} else if (strcasecmp(*level, "CRITICAL")) {
 		APIModule::logInternal(LOG_LEVEL_CRITICAL, LCAT, *message);
-	} else if(strcasecmp(*level, "FATAL")) {
+	} else if (strcasecmp(*level, "FATAL")) {
 		APIModule::logInternal(LOG_LEVEL_FATAL, LCAT, *message);
 	} else {
 		APIModule::logInternal(LOG_LEVEL_INFO, LCAT, *message);
