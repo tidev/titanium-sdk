@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 #ifndef KROLL_PROXY_H
 #define KROLL_PROXY_H
 

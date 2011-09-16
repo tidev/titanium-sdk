@@ -4,16 +4,14 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
-#ifndef _ASSETS_H_
-#define _ASSETS_H_
+#ifndef ASSETS_H
+#define ASSETS_H
 
 #include <v8.h>
 
-namespace assets {
-	
+namespace assets
+{
 	v8::Handle<v8::Primitive> readResource(v8::Handle<v8::String> path);
-
 }
 
 #endif

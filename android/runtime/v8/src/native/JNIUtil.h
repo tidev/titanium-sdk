@@ -1,8 +1,14 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 #ifndef JNI_UTIL_H
 #define JNI_UTIL_H
 
-#include <stdint.h>
 #include <jni.h>
+#include <stdint.h>
 
 namespace titanium
 {

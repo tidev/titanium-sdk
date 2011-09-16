@@ -4,10 +4,9 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 #include <jni.h>
 #include <v8.h>
-#include "org_appcelerator_kroll_runtime_Assets.h"
+
 #include "JNIUtil.h"
 #include "TypeConverter.h"
 
