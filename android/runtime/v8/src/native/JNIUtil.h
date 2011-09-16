@@ -54,6 +54,7 @@ namespace titanium
 		static jmethodID booleanInitMethod;
 		static jmethodID longInitMethod;
 		static jmethodID numberDoubleValueMethod;
+		static jmethodID krollProxyGetV8ObjectPointerMethod;
 		static jmethodID v8ObjectInitMethod;
 
 		static jobject undefined;

@@ -29,6 +29,7 @@ namespace titanium
 	jclass JNIUtil::krollProxyClass = NULL;
 	jclass JNIUtil::v8ObjectClass = NULL;
 
+	jmethodID JNIUtil::krollProxyGetV8ObjectPointerMethod = NULL;
 	jmethodID JNIUtil::v8ObjectInitMethod = NULL;
 	jmethodID JNIUtil::hashMapInitMethod = NULL;
 	jmethodID JNIUtil::hashMapGetMethod = NULL;
@@ -131,5 +132,6 @@ namespace titanium
 
 		numberDoubleValueMethod = env->GetMethodID(numberClass, "doubleValue", "()J");
 		v8ObjectInitMethod = env->GetMethodID(v8ObjectClass, "<init>", "()V");
+		krollProxyGetV8ObjectPointerMethod = env->GetMethodID(krollProxyClass, "getV8ObjectPointer","()J");
 	}
 }
