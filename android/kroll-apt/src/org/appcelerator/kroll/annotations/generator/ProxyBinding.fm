@@ -33,12 +33,12 @@
 		"javaToJsConverter":"javaStringToJsString",
 		"jvalue":"l",
 		"javaCallMethodType":"Object",
-		"javaReturnType":"jobject"
+		"javaReturnType":"jstring"
 	},
 	"java.lang.Object":{
 		"jsType":"Object",
-		"jsToJavaConverter":"jsObjectToJavaObject",
-		"javaToJsConverter":"javaObjectToJsObject",
+		"jsToJavaConverter":"jsValueToJavaObject",
+		"javaToJsConverter":"javaObjectToJsValue",
 		"jvalue":"l",
 		"javaCallMethodType":"Object",
 		"javaReturnType":"jobject"
@@ -94,7 +94,7 @@
 	"boolean":{
 		"jsType":"Boolean",
 		"jsToJavaConverter":"jsBooleanToJavaBoolean",
-		"javaToJsConverter":"javaBoolToJsBoolean",
+		"javaToJsConverter":"javaBooleanToJsBoolean",
 		"jvalue":"z", "signature":"Z",
 		"javaCallMethodType":"Boolean",
 		"javaReturnType":"jboolean"
@@ -156,22 +156,27 @@ jvalue array named "jArguments". If validation or conversion
 fails, a JS exception is returned.
 ---------------------------------------------------------------->
 <#macro verifyAndConvertArguments args>
-	<#if args?size == 0><#return></#if>
+	<#if args?size == 0>
+		jvalue jArguments[0];
+		<#return>
+	</#if>
 	<@Proxy.getRequiredArgumentCount args=args ; requiredCount>
 	<#if requiredCount &gt; 0>
 	if (args.Length() != ${requiredCount})
-		return JSException::MissingRequiredArguments(args.Length(), ${requiredCount});
+		//return JSException::MissingRequiredArguments(args.Length(), ${requiredCount});
+		return ThrowException(Exception::Error(String::New("")));
 	</#if>
 	</@Proxy.getRequiredArgumentCount>
 
 	jvalue jArguments[${args?size}];
 
 	<@Proxy.listMethodArguments args=args ; index, info>
-	Local<Value> arg = args[${index}];
-	if (!arg->Is${info.jsType}()) {
-			return JSException::InvalidArgument(${index}, ${info.jsType});
+	Local<Value> arg_${index} = args[${index}];
+	if (!arg_${index}->Is${info.jsType}()) {
+		//return JSException::InvalidArgument(${index}, ${info.jsType});
+		return ThrowException(Exception::Error(String::New("")));
 	}
-	jArguments[${index}].${info.jvalue} = TypeConverter::${info.jsToJavaConverter}(arg->To${info.jsType}());
+	jArguments[${index}].${info.jvalue} = TypeConverter::${info.jsToJavaConverter}(arg_${index}->To${info.jsType}());
 
 	</@Proxy.listMethodArguments>
 </#macro>
@@ -188,13 +193,13 @@ beprovided to handle the result.
 	<#local info = getTypeInfo(returnType)
 			callExpr = "Call${info.javaCallMethodType}MethodA"
 			argExpr = "${jobjectVar}, ${methodID}, ${argsVar}"
-			resultExpr = "${info.javaReturnType} jResult = "
+			resultExpr = "${info.javaReturnType} jResult = (${info.javaReturnType})"
 			hasResult = info.javaReturnType != "void">
 	<#if hasResult>
-	${resultExpr}${callExpr}(${argExpr});
+	${resultExpr}env->${callExpr}(${argExpr});
 	Handle<${info.jsType}> v8Result = TypeConverter::${info.javaToJsConverter}(jResult);
 	<#else>
-	${callExpr}(${argExpr});
+	env->${callExpr}(${argExpr});
 	</#if>
 
 	<#nested hasResult "v8Result">

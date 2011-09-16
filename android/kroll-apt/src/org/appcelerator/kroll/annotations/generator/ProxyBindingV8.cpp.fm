@@ -11,6 +11,7 @@
 #include "${packageName}.${proxyClassName}.h"
 
 #include "JNIUtil.h"
+#include "TypeConverter.h"
 
 using namespace v8;
 
@@ -18,6 +19,7 @@ namespace titanium {
 
 // JNI class reference for the KrollProxy in Java for this native proxy.
 jclass ${proxyClassName}::javaClass = JNIUtil::getJNIEnv()->FindClass("${packageName?replace('.','/')}/${proxyClassName}");
+Persistent<FunctionTemplate> ${proxyClassName}::proxyTemplate = Persistent<FunctionTemplate>();
 
 ${proxyClassName}::${proxyClassName}(jobject javaObject) : NativeObject(javaObject)
 {
@@ -35,7 +37,7 @@ Handle<Value> ${proxyClassName}::Constructor(const Arguments& args)
 	<#-- TODO: Call constructor on Java class for the type we are proxying -->
 
 	<#-- Create proxy object and wrap into the V8 Object's internal field -->
-	${proxyClassName}* proxy = new ${proxyClassName};
+	${proxyClassName}* proxy = new ${proxyClassName}(NULL);
 	proxy->Wrap(args.Holder());
 
 	return args.This();
@@ -47,11 +49,15 @@ static jmethodID ${name}_methodID = JNIUtil::getJNIEnv()->GetMethodID(${proxyCla
 
 Handle<Value> ${proxyClassName}::${name}(const Arguments& args)
 {
+	HandleScope scope;
+	JNIEnv *env = JNIUtil::getJNIEnv();
+	if (!env) return ThrowException(Exception::Error(String::New("couldn't init JNIEnv")));
+
 	<@Proxy.verifyAndConvertArguments method.args />
 	<@Proxy.callJNIMethod method.returnType, "${name}_methodID", "${proxyClassName}::javaClass", "jArguments" ;
 		hasResult, resultVar>
 	<#if hasResult>
-	return ${resultVar}
+	return ${resultVar};
 	<#else>
 	return v8::Undefined();
 	</#if>
