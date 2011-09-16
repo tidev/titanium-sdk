@@ -7,7 +7,7 @@ public class V8Runtime
 	public static void init()
 	{
 		System.loadLibrary("kroll-v8");
-		nativeInit();
+		nativeInit(UNDEFINED);
 	}
 
 	public static void initModuleTemplate(Class<?> moduleClass)
@@ -15,6 +15,6 @@ public class V8Runtime
 		nativeInitModuleTemplate(moduleClass);
 	}
 
-	private static native void nativeInit();
+	private static native void nativeInit(Object undefined);
 	private static native void nativeInitModuleTemplate(Class<?> moduleClass);
 }

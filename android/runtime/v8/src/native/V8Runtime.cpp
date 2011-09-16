@@ -2,6 +2,7 @@
 
 #include <AndroidUtil.h>
 #include <JNIUtil.h>
+#include <KrollProxy.h>
 #include <TypeConverter.h>
 
 #define TAG "V8Runtime"
@@ -39,9 +40,10 @@ namespace titanium
 
 
 extern "C" void
-Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jclass clazz)
+Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jclass clazz, jobject undefined)
 {
-	titanium::JNIUtil::initCache(env);
+	titanium::JNIUtil::initCache(env, undefined);
+	titanium::KrollProxy_init();
 }
 
 extern "C" jint JNI_OnLoad(JavaVM *vm, void *reserved)

@@ -22,9 +22,11 @@ LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -L$(LIBV8_DIR)/lib -ldl -llog -L$(TARGET_OU
 LOCAL_SRC_FILES += \
 	Assets.cpp \
 	JNIUtil.cpp \
+	KrollProxy.cpp \
 	TypeConverter.cpp \
 	V8Runtime.cpp \
 	V8Object.cpp \
+	../../../../titanium/.apt_generated/org.appcelerator.kroll.KrollProxy.cpp \
 	../../generated/KrollNatives.cpp
 
 LOCAL_JS_FILES := \
