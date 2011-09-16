@@ -92,7 +92,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 	protected static final String DEFAULT_JSON_PACKAGE = "org.appcelerator.titanium.gen";
 	protected static final String DEFAULT_JSON_FILE = "bindings.json";
 
-	protected Template headerTemplate, sourceTemplate;
+	protected Template headerTemplate, sourceTemplate, androidMakeTemplate;
 	// we make these generic because they may be initialized by JSON
 	protected Map<Object, Object> properties = new HashMap<Object, Object>();
 	protected Map<Object, Object> proxyProperties = new HashMap<Object, Object>();
@@ -159,10 +159,11 @@ public class KrollBindingGenerator extends AbstractProcessor {
 	{
 		try {
 			String projectDir = processingEnv.getOptions().get(PROPERTY_PROJECT_DIR);
-			InputStream headerStream, sourceStream = null;
+			InputStream headerStream, sourceStream, androidMakeStream = null;
 			ClassLoader loader = getClass().getClassLoader();
 			headerStream = loader.getResourceAsStream("org/appcelerator/kroll/annotations/generator/ProxyBindingV8.h.fm");
 			sourceStream = loader.getResourceAsStream("org/appcelerator/kroll/annotations/generator/ProxyBindingV8.cpp.fm");
+			androidMakeStream = loader.getResourceAsStream("org/appcelerator/kroll/annotations/generator/sources.mk.fm");
 
 			/*  Disable eclipse for now...
 				// Special case for Eclipse -- using the classpath to load
@@ -184,6 +185,9 @@ public class KrollBindingGenerator extends AbstractProcessor {
 										  fmConfig);
 			sourceTemplate = new Template("ProxyBindingV8.cpp.fm",
 										  new InputStreamReader(sourceStream),
+										  fmConfig);
+			androidMakeTemplate = new Template("sources.mk.fm",
+										  new InputStreamReader(androidMakeStream),
 										  fmConfig);
 		} catch (IOException e) {
 			exception(e);
@@ -770,15 +774,25 @@ public class KrollBindingGenerator extends AbstractProcessor {
 	protected void generateProxies() {
 		Map<String,Object> proxies = (Map<String,Object>) properties.get("proxies");
 		HashCodeMethod hashCodeMethod = new HashCodeMethod();
+		ArrayList<String> generatedSourceFiles = new ArrayList<String>();
 		for (String proxyName : proxies.keySet()) {
 			Map<Object,Object> proxy = (Map<Object,Object>)proxies.get(proxyName);
 			HashMap<Object,Object> root = new HashMap<Object,Object>(proxy);
 			root.put("allModules", properties.get("modules"));
 			root.put("hashCode", hashCodeMethod);
+
+			String proxyHeader = proxyName + ".h";
+			String proxySource = proxyName + ".cpp";
 			
-			saveTypeTemplate(headerTemplate, proxyName + ".h", root);
-			saveTypeTemplate(sourceTemplate, proxyName + ".cpp", root);
+			saveTypeTemplate(headerTemplate, proxyHeader, root);
+			saveTypeTemplate(sourceTemplate, proxySource, root);
+			generatedSourceFiles.add(proxySource);
 		}
+
+		// Generate Android.mk file to compile generated sources.
+		HashMap<Object,Object> makeRoot = new HashMap<Object,Object>();
+		makeRoot.put("sourceFiles", generatedSourceFiles);
+		saveTypeTemplate(androidMakeTemplate, "sources.mk", makeRoot);
 	}
 
 	protected class HashCodeMethod implements TemplateMethodModel {
