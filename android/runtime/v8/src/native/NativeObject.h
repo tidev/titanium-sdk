@@ -56,7 +56,6 @@ public:
 		return javaObject_;
 	}
 
-
 protected:
 	inline void Wrap(v8::Handle<v8::Object> handle)
 	{
