@@ -10,22 +10,17 @@
 
 #include <jni.h>
 
-#include "ProxyFactory.h"
-
 namespace titanium {
+
+class ProxyFactory;
+
 class ProxyFactoryTable
 {
 public:
-	static ProxyFactory * lookup(jclass javaClass)
-	{
-		ProxyFactory *pf = new ProxyFactory();
-		return pf;
-	};
-
-private:
-	// stub out shit here
+	static ProxyFactory* lookup(jclass javaClass);
+	static void registerForClass(const char* className, ProxyFactory* factory);
 };
+
 }
 
 #endif
-

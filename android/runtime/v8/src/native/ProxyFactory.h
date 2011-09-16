@@ -12,18 +12,13 @@
 #include <v8.h>
 
 namespace titanium {
+
 class ProxyFactory
 {
 public:
-	v8::Handle<v8::Object> create(jobject javaObject)
-	{
-		return v8::Object::New();
-	};
-
-private:
-	// stub out shit here
+	virtual v8::Handle<v8::Object> create(jobject javaObject) = 0;
 };
+
 }
 
 #endif
-
