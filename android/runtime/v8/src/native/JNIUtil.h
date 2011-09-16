@@ -37,7 +37,9 @@ namespace titanium
 		static jclass krollProxyClass;
 		static jclass v8ObjectClass;
 
+		static jmethodID hashMapInitMethod;
 		static jmethodID hashMapGetMethod;
+		static jmethodID hashMapPutMethod;
 		static jmethodID hashMapKeySetMethod;
 		static jmethodID setToArrayMethod;
 		static jmethodID dateInitMethod;

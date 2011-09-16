@@ -24,7 +24,9 @@ namespace titanium
 	jclass JNIUtil::v8ObjectClass = NULL;
 
 	jmethodID JNIUtil::v8ObjectInitMethod = NULL;
+	jmethodID JNIUtil::hashMapInitMethod = NULL;
 	jmethodID JNIUtil::hashMapGetMethod = NULL;
+	jmethodID JNIUtil::hashMapPutMethod = NULL;
 	jmethodID JNIUtil::hashMapKeySetMethod = NULL;
 	jmethodID JNIUtil::setToArrayMethod = NULL;
 	jmethodID JNIUtil::dateInitMethod = NULL;
@@ -102,7 +104,9 @@ namespace titanium
 		krollProxyClass = env->FindClass("org/appcelerator/kroll/KrollProxy");
 		v8ObjectClass = env->FindClass("org/appcelerator/kroll/runtime/v8/V8Object");
 
+		hashMapInitMethod = env->GetMethodID(hashMapClass, "put", "(I)V");
 		hashMapGetMethod = env->GetMethodID(hashMapClass, "get", "(Ljava/lang/Object;);Ljava/lang/Object;");
+		hashMapPutMethod = env->GetMethodID(hashMapClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;);Ljava/lang/Object;");
 		hashMapKeySetMethod = env->GetMethodID(hashMapClass, "keySet", "();Ljava/util/Set;");
 		setToArrayMethod = env->GetMethodID(setClass, "toArray", "();[Ljava/lang/Object;");
 
