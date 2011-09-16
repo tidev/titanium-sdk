@@ -37,6 +37,12 @@ v8::Handle<v8::Primitive> readResource(v8::Handle<v8::String> path)
 	}
 	jstring jpath = TypeConverter::jsStringToJavaString(path);
 	jcharArray jarray = (jcharArray)env->CallObjectMethod(gAssets, gReadResourceMethod, jpath);
+	jthrowable exc = env->ExceptionOccurred();
+	if (exc) {
+		env->ExceptionClear();
+		// TODO: throw JS exception
+		return v8::Null();
+	}
 	if (!jarray) {
 		return v8::Null();
 	}
