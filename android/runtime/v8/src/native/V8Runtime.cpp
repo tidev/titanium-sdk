@@ -79,7 +79,7 @@ void V8Runtime::bootstrap()
 	EventEmitter::Initialize(global_template);
 	global = Persistent<Object>::New(global_template->GetFunction()->NewInstance());
 	global->Set(String::NewSymbol("binding"), FunctionTemplate::New(binding)->GetFunction());
-	global->Set(String::NewSymbol("EventEmitter"), EventEmitter::constructor_template->GetFunction());
+	global->Set(String::NewSymbol("EventEmitter"), EventEmitter::constructorTemplate->GetFunction());
 
 	TryCatch try_catch;
 	Handle<Value> result = ExecuteString(KrollJavaScript::MainSource(), IMMUTABLE_STRING_LITERAL("kroll.js"));
