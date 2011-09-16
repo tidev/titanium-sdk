@@ -85,12 +85,12 @@ void V8Runtime::bootstrap()
 	Handle<Value> result = ExecuteString(KrollJavaScript::MainSource(), IMMUTABLE_STRING_LITERAL("kroll.js"));
 	if (try_catch.HasCaught()) {
 		ReportException(try_catch, true);
-		return;
+		JNIUtil::terminateVM();
 	}
 	if (!result->IsFunction()) {
 		LOGF(TAG, "kroll.js result is not a function");
 		ReportException(try_catch, true);
-		return;
+		JNIUtil::terminateVM();
 	}
 	Handle<Function> mainFunction = Handle<Function>::Cast(result);
 	Local<Object> global = v8::Context::GetCurrent()->Global();
@@ -98,7 +98,7 @@ void V8Runtime::bootstrap()
 	mainFunction->Call(global, 1, args);
 	if (try_catch.HasCaught()) {
 		ReportException(try_catch, true);
-		return;
+		JNIUtil::terminateVM();
 	}
 }
 

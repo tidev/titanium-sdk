@@ -16,6 +16,7 @@ class JNIUtil
 public:
 	static JavaVM *javaVm;
 	static JNIEnv* getJNIEnv();
+	static void terminateVM();
 	static void initCache(JNIEnv *env);
 
 	static jobjectArray newObjectArray(int length, jobject initial = NULL);
