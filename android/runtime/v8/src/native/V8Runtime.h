@@ -18,7 +18,7 @@ class V8Runtime
 public:
 	static jobject newObject(Handle<Object> object);
 	static void collectWeakRef(Persistent<Value> ref, void *parameter);
-	static void initNativeModules(Handle<Object> global);
+	static void bootstrap();
 };
 }
 ;

@@ -4,11 +4,15 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#include <v8.h>
+#include <string.h>
 #include "V8Runtime.h"
 
+#include "APIModule.h"
 #include "AndroidUtil.h"
 #include "EventEmitter.h"
 #include "JNIUtil.h"
+#include "V8Util.h"
 #include "KrollJavaScript.h"
 #include "KrollProxy.h"
 #include "TypeConverter.h"
@@ -43,31 +47,112 @@ jobject V8Runtime::newObject(Handle<Object> object)
 	return v8Object;
 }
 
-/* static */
-void V8Runtime::initNativeModules(Handle<Object> global)
+static Persistent<Object> global;
+
+static Handle<Value> binding(const Arguments& args)
 {
-	EventEmitter::Initialize(global);
-	KrollJavaScript::initNativeModule("events");
-}
+	static Persistent<Object> binding_cache;
+
+	HandleScope scope;
+	Local<String> module = args[0]->ToString();
+	String::Utf8Value module_v(module);
+
+	if (binding_cache.IsEmpty()) {
+		binding_cache = Persistent<Object>::New(Object::New());
+	}
+	Local<Object> exports;
+	if (binding_cache->Has(module)) {
+		exports = binding_cache->Get(module)->ToObject();
+	} else if (!strcmp(*module_v, "natives")) {
+		exports = Object::New();
+		KrollJavaScript::DefineNatives(exports);
+		binding_cache->Set(module, exports);
+	} else {
+		return ThrowException(Exception::Error(String::New("No such module")));
+	}
+	return scope.Close(exports);
 }
 
-extern "C" void Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jclass clazz,
-	jobject undefined)
+/* static */
+void V8Runtime::bootstrap()
 {
+	Local<FunctionTemplate> global_template = FunctionTemplate::New();
+	EventEmitter::Initialize(global_template);
+
+	global = Persistent<Object>::New(global_template->GetFunction()->NewInstance());
+	global->Set(String::NewSymbol("binding"), FunctionTemplate::New(binding)->GetFunction());
+	global->Set(String::NewSymbol("EventEmitter"), EventEmitter::constructorTemplate->GetFunction());
+	global->Set(String::NewSymbol("API"), APIModule::init());
+
+	TryCatch try_catch;
+	Handle<Value> result = ExecuteString(KrollJavaScript::MainSource(), IMMUTABLE_STRING_LITERAL("kroll.js"));
+	if (try_catch.HasCaught()) {
+		ReportException(try_catch, true);
+		JNIUtil::terminateVM();
+	}
+	if (!result->IsFunction()) {
+		LOGF(TAG, "kroll.js result is not a function");
+		ReportException(try_catch, true);
+		JNIUtil::terminateVM();
+	}
+	Handle<Function> mainFunction = Handle<Function>::Cast(result);
+	Local<Object> global = v8::Context::GetCurrent()->Global();
+	Local<Value> args[] = { Local<Value>::New(global) };
+	mainFunction->Call(global, 1, args);
+	if (try_catch.HasCaught()) {
+		ReportException(try_catch, true);
+		JNIUtil::terminateVM();
+	}
+}
+
+}
+
+static jobject jruntime;
+static Persistent<Context> context;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Runtime
+ * Method:    init
+ * Signature: (Lorg/appcelerator/kroll/runtime/v8/V8Runtime;)V
+ */
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_init(JNIEnv *env, jclass clazz, jobject self)
+{
+	jruntime = env->NewGlobalRef(self);
+	titanium::JNIUtil::initCache(env);
+
+	V8::Initialize();
 	HandleScope scope;
 
-	titanium::JNIUtil::initCache(env, undefined);
+	context = Context::New();
+	Context::Scope context_scope(context);
 
-	Handle<ObjectTemplate> globalTemplate = ObjectTemplate::New();
-	Persistent<Context> context = Context::New(NULL, globalTemplate);
-	Context::Scope contextScope(context);
-
-	titanium::V8Runtime::initNativeModules(context->Global());
+	titanium::V8Runtime::bootstrap();
 	titanium::initKrollProxy();
 }
 
-extern "C" jint JNI_OnLoad(JavaVM *vm, void *reserved)
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Runtime
+ * Method:    dispose
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_dispose(JNIEnv *env, jclass clazz)
+{
+	context.Dispose();
+	V8::Dispose();
+	env->DeleteGlobalRef(jruntime);
+	jruntime = NULL;
+}
+
+jint JNI_OnLoad(JavaVM *vm, void *reserved)
 {
 	titanium::JNIUtil::javaVm = vm;
 	return JNI_VERSION_1_4;
 }
+
+#ifdef __cplusplus
+}
+#endif

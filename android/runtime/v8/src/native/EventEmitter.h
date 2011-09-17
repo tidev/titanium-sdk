@@ -19,8 +19,10 @@ namespace titanium {
 class EventEmitter: public NativeObject
 {
 public:
-	static void Initialize(v8::Handle<v8::Object> global);
+	static void Initialize(v8::Local<v8::FunctionTemplate> globalTemplate);
 	static v8::Persistent<v8::FunctionTemplate> constructorTemplate;
+
+	bool Emit(v8::Handle<v8::String> event, int argc, v8::Handle<v8::Value> argv[]);
 
 protected:
 	EventEmitter(jobject object)

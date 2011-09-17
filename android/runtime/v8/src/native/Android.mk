@@ -22,7 +22,7 @@ include $(CLEAR_VARS)
 include $(LOCAL_PATH)/genSources.mk
 
 LOCAL_MODULE := kroll-v8
-LOCAL_CFLAGS := -I$(LIBV8_DIR)/include $(PROXY_CFLAGS) -I$(GENERATED_DIR) -g
+LOCAL_CFLAGS := -I$(LIBV8_DIR)/include $(PROXY_CFLAGS) -I$(GENERATED_DIR) -I$(LOCAL_PATH)/modules -g
 LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -L$(LIBV8_DIR)/lib -ldl -llog -L$(TARGET_OUT)
 LOCAL_SRC_FILES += \
 	../../generated/KrollNatives.h \
@@ -35,6 +35,7 @@ LOCAL_SRC_FILES += \
 	V8Object.cpp \
 	V8Runtime.cpp \
 	V8Util.cpp \
+	modules/APIModule.cpp \
 	$(PROXY_SOURCES)
 
 LOCAL_JS_FILES := \

@@ -16,7 +16,8 @@ class JNIUtil
 public:
 	static JavaVM *javaVm;
 	static JNIEnv* getJNIEnv();
-	static void initCache(JNIEnv *env, jobject undefined);
+	static void terminateVM();
+	static void initCache(JNIEnv *env);
 
 	static jobjectArray newObjectArray(int length, jobject initial = NULL);
 	static void throwException(jclass clazz, const char *message);
@@ -56,7 +57,6 @@ public:
 	static jmethodID krollProxyGetV8ObjectPointerMethod;
 	static jmethodID v8ObjectInitMethod;
 
-	static jobject undefined;
 };
 }
 
