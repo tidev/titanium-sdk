@@ -108,7 +108,7 @@ public class TitaniumModule extends KrollModule
 	{
 		TiContext tiContext = invocation.getTiContext();
 		for(Object filename : files) {
-			try {
+			//try {
 				// we need to make sure paths included from sub-js files are actually relative
 				boolean popContext = false;
 				if (!basePath.contains(tiContext.getBaseUrl())) {
@@ -123,9 +123,9 @@ public class TitaniumModule extends KrollModule
 				if (popContext) {
 					basePath.pop();
 				}
-			} catch (IOException e) {
-				Log.e(LCAT, "Error while evaluating: " + filename, e);
-			}
+			//} catch (IOException e) {
+			//	Log.e(LCAT, "Error while evaluating: " + filename, e);
+			//}
 		}
 	}
 

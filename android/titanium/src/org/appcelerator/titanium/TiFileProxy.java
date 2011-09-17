@@ -22,7 +22,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper2;
 
 import ti.modules.titanium.stream.FileStreamProxy;
-
 import android.net.Uri;
 
 @Kroll.proxy

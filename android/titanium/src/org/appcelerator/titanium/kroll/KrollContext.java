@@ -14,7 +14,6 @@ import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
-import android.os.Handler;
 import android.os.Process;
 
 public class KrollContext // implements Handler.Callback

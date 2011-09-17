@@ -6,7 +6,6 @@
  */
 package org.appcelerator.titanium;
 
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 
 import org.appcelerator.kroll.runtime.v8.V8Object;
@@ -153,7 +152,7 @@ public class TiContext
 	// Javascript Support
 
 	public Object evalFile(String filename, Messenger messenger, int messageId)
-		throws IOException
+	//	throws IOException
 	{
 		Object result = null;
 		String setUrlBackTo = null;
@@ -189,7 +188,7 @@ public class TiContext
 	}
 
 	public Object evalFile(String filename)
-		throws IOException
+	//	throws IOException
 	{
 		return evalFile(filename, null, -1);
 	}
@@ -270,7 +269,11 @@ public class TiContext
 
 	public static TiContext createTiContext(Activity activity, String baseUrl, String loadFile)
 	{
-		return new TiContext(activity, baseUrl);
+		TiContext ctx = new TiContext(activity, baseUrl);
+		if (loadFile != null) {
+			ctx.evalFile(loadFile);
+		}
+		return ctx;
 	}
 
 	/*public static TiContext getCurrentTiContext()
