@@ -12,14 +12,27 @@
 
 #include "JNIUtil.h"
 #include "TypeConverter.h"
+#include "ProxyFactory.h"
 
 using namespace v8;
 
 namespace titanium {
 
-// JNI class reference for the KrollProxy in Java for this native proxy.
-jclass ${proxyClassName}::javaClass = JNIUtil::getJNIEnv()->FindClass("${packageName?replace('.','/')}/${proxyClassName}");
 Persistent<FunctionTemplate> ${proxyClassName}::proxyTemplate = Persistent<FunctionTemplate>();
+jclass ${proxyClassName}::javaClass = NULL;
+
+// Proxy Factory ---------------------------------------------------------
+
+class ${proxyClassName}Factory : public ProxyFactory
+{
+public:
+	virtual Handle<Object> create(jobject javaobject)
+	{
+		// TODO: call NewInstance() on template and return new object.
+		HandleScope scope;
+		return Object::New();
+	}
+};
 
 ${proxyClassName}::${proxyClassName}(jobject javaObject) : JavaObject(javaObject)
 {
@@ -28,6 +41,15 @@ ${proxyClassName}::${proxyClassName}(jobject javaObject) : JavaObject(javaObject
 void ${proxyClassName}::Initialize(Handle<Object> ti)
 {
 	HandleScope scope;
+
+	Local<FunctionTemplate> t = FunctionTemplate::New(${proxyClassName}::Constructor);
+	proxyTemplate = Persistent<FunctionTemplate>::New(t);
+	proxyTemplate->InstanceTemplate()->SetInternalFieldCount(1);
+	proxyTemplate->SetClassName(String::NewSymbol("${proxyAttrs.name}"));
+
+	<#-- TODO: bind methods to prototype template. -->
+
+	ti->Set(String::NewSymbol("${proxyAttrs.name}"), proxyTemplate->GetFunction());
 }
 
 Handle<Value> ${proxyClassName}::Constructor(const Arguments& args)
