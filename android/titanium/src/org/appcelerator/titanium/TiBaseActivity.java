@@ -203,7 +203,6 @@ public abstract class TiBaseActivity extends Activity
 			if (!newTitle.equals(oldTitle)) {
 				final String fnewTitle = newTitle;
 				runOnUiThread(new Runnable(){
-					@Override
 					public void run() {
 						setTitle(fnewTitle);
 					}
@@ -356,7 +355,6 @@ public abstract class TiBaseActivity extends Activity
 		// fire an async message on this thread's queue
 		// so we don't block onCreate() from returning
 		messageQueue.post(new Runnable() {
-			@Override
 			public void run() {
 				handleSendMessage(msgId);
 			}
@@ -403,13 +401,13 @@ public abstract class TiBaseActivity extends Activity
 		getSupportHelper().onActivityResult(requestCode, resultCode, data);
 	}
 
-	@Override
+	// TODO @Override
 	public void addWindow(View v, TiCompositeLayout.LayoutParams params)
 	{
 		layout.addView(v, params);
 	}
 
-	@Override
+	// TODO @Override
 	public void removeWindow(View v)
 	{
 		layout.removeView(v);

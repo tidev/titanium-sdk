@@ -157,7 +157,7 @@ public class TitaniumModule extends KrollModule
 			handler.postDelayed(this, timeout);
 		}
 
-		@Override
+		// TODO @Override
 		public void run()
 		{
 			if (canceled) return;
@@ -530,7 +530,7 @@ public class TitaniumModule extends KrollModule
 		super.onDestroy(activity);
 	}
 
-	@Override
+	// TODO @Override
 	public void onDestroy(Service service)
 	{
 	}

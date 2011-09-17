@@ -402,7 +402,7 @@ public class TiApplication extends Application implements Handler.Callback
 	}
 
 	
-	@Override
+	
 	public boolean handleMessage(Message msg) 
 	{
 		if (msg.what == MSG_SEND_ANALYTICS) {

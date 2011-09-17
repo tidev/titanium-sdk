@@ -114,7 +114,7 @@ public class TiWeakList<T> extends ArrayList<WeakReference<T>> {
 			return -1;
 		}
 
-		@Override
+		// TODO @Override
 		public boolean hasNext() {
 			if (synchronizedList != null) {
 				synchronized (synchronizedList) {
@@ -125,7 +125,7 @@ public class TiWeakList<T> extends ArrayList<WeakReference<T>> {
 			}
 		}
 
-		@Override
+		// TODO @Override
 		public T next() {
 			if (synchronizedList != null) {
 				synchronized (synchronizedList) {
@@ -142,7 +142,7 @@ public class TiWeakList<T> extends ArrayList<WeakReference<T>> {
 			}
 		}
 
-		@Override
+		// TODO @Override
 		public void remove() {
 			if (synchronizedList != null) {
 				synchronized (synchronizedList) {

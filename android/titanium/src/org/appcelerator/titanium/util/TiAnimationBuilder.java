@@ -389,7 +389,7 @@ public class TiAnimationBuilder
 	}
 
 	protected class AnimationListener implements Animation.AnimationListener {
-		@Override
+		// TODO @Override
 		public void onAnimationEnd(Animation a)
 		{
 			if (relayoutChild) {
@@ -424,11 +424,11 @@ public class TiAnimationBuilder
 			}
 		}
 
-		@Override
+		// TODO @Override
 		public void onAnimationRepeat(Animation a) {
 		}
 
-		@Override
+		// TODO @Override
 		public void onAnimationStart(Animation a)
 		{
 			if (animationProxy != null) {

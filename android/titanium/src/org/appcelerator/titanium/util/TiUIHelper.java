@@ -139,7 +139,7 @@ public class TiUIHelper
 		TiWindowProxy waitingForOpen = TiWindowProxy.getWaitingForOpen();
 		if (waitingForOpen != null) {
 			waitingForOpen.setPostOpenListener(new PostOpenListener() {
-				@Override
+				// TODO @Override
 				public void onPostOpen(TiWindowProxy window)
 				{
 					TiApplication app = TiApplication.getInstance();
@@ -167,7 +167,7 @@ public class TiUIHelper
 		}
 		final OnClickListener fListener = listener;
 		waitForCurrentActivity(new CurrentActivityListener() {
-			@Override
+			// TODO @Override
 			public void onCurrentActivityReady(Activity activity)
 			{
 				new AlertDialog.Builder(activity).setTitle(title).setMessage(message)

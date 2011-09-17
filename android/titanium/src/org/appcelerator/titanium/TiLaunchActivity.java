@@ -161,7 +161,6 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		layout.setBackgroundColor(TiColorHelper.parseColor(backgroundColor));
 
 		OnClickListener restartListener = new OnClickListener() {	
-			@Override
 			public void onClick(DialogInterface arg0, int arg1) {
 				restartActivity(500);
 			}

@@ -212,7 +212,7 @@ public class TiMessageQueue implements Handler.Callback
 		this.callback = callback;
 	}
 
-	@Override
+	// TODO @Override
 	public boolean handleMessage(Message msg)
 	{
 		if (msg.what == MSG_RUN) {
