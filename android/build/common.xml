@@ -42,7 +42,9 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<property name="build.version" value="1.0.0"/>
 	<property name="dependency.json" location="${ti.android.root}/dependency.json"/>
 	<property environment="env"/>
-	
+
+	<property name="android.ndk" value="${env.ANDROID_NDK}"/>
+
 	<if>
 		<isset property="env.ANDROID_PLATFORM"/>
 		<then>
@@ -302,6 +304,14 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		</sequential>
 	</macrodef>
 
+	<target name="build.kroll.v8.so">
+		<property name="ndk.build" value="${kroll.v8.project.dir}/ndk-build.sh"/>
+
+		<exec executable="${ndk.build}" dir="${kroll.v8.project.dir}" failonerror="true">
+			<env key="ANDROID_NDK" file="${android.ndk}"/>
+		</exec>
+	</target>
+
 	<target name="build.kroll.v8.jar">
 		<javac srcdir="${kroll.v8.project.dir}/src/java" destdir="${kroll.v8.project.dir}/bin"/>
 		<property name="kroll.v8.dest" value="${dist.dir}/kroll-v8.jar"/>
@@ -392,6 +402,9 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<antcall target="build.kroll.apt.jar"/>
 		<antcall target="build.titanium.jar"/>
 		<!-- TODO re-enable me antcall target="build.all.modules"/-->
+
+		<!-- the shared library needs to be last so we can build all the generated native bindings -->
+		<antcall target="build.kroll.v8.so"/>
 	</target>
 	
 	<macrodef name="clean.project">
