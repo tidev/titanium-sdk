@@ -26,11 +26,14 @@ jclass ${proxyClassName}::javaClass = NULL;
 class ${proxyClassName}Factory : public ProxyFactory
 {
 public:
-	virtual Handle<Object> create(jobject javaobject)
+	virtual Handle<Object> create(jobject javaObject)
 	{
-		// TODO: call NewInstance() on template and return new object.
 		HandleScope scope;
-		return Object::New();
+
+		Local<Function> creator = ${proxyClassName}::proxyTemplate->GetFunction();
+		Local<Value> external = External::New(javaObject);
+		Local<Object> proxyObject = creator->NewInstance(1, &external);
+		return proxyObject;
 	}
 };
 
@@ -62,12 +65,32 @@ void ${proxyClassName}::Initialize(Handle<Object> ti, JNIEnv* env)
 
 Handle<Value> ${proxyClassName}::Constructor(const Arguments& args)
 {
-	<#-- TODO: validate and convert arguments to jvalue array -->
+	assert(args.IsConstructCall());
+	HandleScope scope;
+	jobject javaObject = NULL;
 
-	<#-- TODO: Call constructor on Java class for the type we are proxying -->
+	// If this constructor is called from the proxy factory,
+	// the first argument will be an External that wraps
+	// the pre-created jobject.
+	if (args.Length() == 1)
+	{
+		Local<Value> firstArg = args[0];
+		if (firstArg->IsExternal())
+			javaObject = (jobject)External::Unwrap(firstArg);
+	}
 
-	<#-- Create proxy object and wrap into the V8 Object's internal field -->
-	${proxyClassName}* proxy = new ${proxyClassName}(NULL);
+	// If this constructor is called from JavaScript land,
+	// we must construct the Java object before returning
+	// a new proxy object to V8.
+	if (!javaObject)
+	{
+		<#-- TODO: validate and convert arguments to jvalue array -->
+
+		<#-- TODO: Call constructor on Java class for the type we are proxying -->
+	}
+
+	// Create proxy and set internal field.
+	${proxyClassName}* proxy = new ${proxyClassName}(javaObject);
 	proxy->Wrap(args.Holder());
 
 	return args.This();
