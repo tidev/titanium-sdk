@@ -15,7 +15,6 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
-import org.mozilla.javascript.Scriptable;
 
 @Kroll.proxy
 @Kroll.dynamicApis(properties = {
@@ -44,7 +43,8 @@ public class RProxy extends KrollProxy {
 		this.name = name;
 	}
 	
-	@Override
+	// FIXME implement me for V8
+	/*@Override
 	public Object get(Scriptable scope, String name)
 			throws NoSuchFieldException {
 		if (!subResources.containsKey(name)) {
@@ -52,7 +52,7 @@ public class RProxy extends KrollProxy {
 			subResources.put(name, new RProxy(getTiContext(), resourceType, childName));
 		}
 		return subResources.get(name);
-	}
+	}*/
 	
 	public String getName() {
 		return this.name;

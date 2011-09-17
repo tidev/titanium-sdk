@@ -139,6 +139,32 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_init(JNI
 	titanium::initKrollProxy();
 }
 
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_evalData(JNIEnv *env, jclass clazz, jcharArray buffer, jstring filename)
+{
+	HandleScope scope;
+
+	if (!buffer) {
+		// TODO throw exception
+		return;
+	}
+
+	jint len = env->GetArrayLength(buffer);
+	jchar *pchars = (jchar*) env->GetPrimitiveArrayCritical(buffer, 0);
+	if (!pchars) {
+		// TODO throw exception
+		return;
+	}
+
+	Handle<String> jsFilename = titanium::TypeConverter::javaStringToJsString(filename);
+	ScriptOrigin origin(jsFilename);
+
+	v8::Handle<v8::String> jsString = v8::String::New(pchars, len);
+	v8::Handle<v8::Script> script = Script::New(jsString, &origin);
+	env->ReleasePrimitiveArrayCritical(buffer, pchars, 0);
+
+	script->Run();
+}
+
 /*
  * Class:     org_appcelerator_kroll_runtime_v8_V8Runtime
  * Method:    dispose

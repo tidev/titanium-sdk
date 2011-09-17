@@ -9,13 +9,30 @@
 
 #include <JNIUtil.h>
 #include <TypeConverter.h>
-
-//// JNI Methods
+#include "V8Util.h"
 
 using namespace titanium;
 using namespace v8;
 
+#ifdef __cplusplus
 extern "C" {
+#endif
+
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_ManagedV8Object
+ * Method:    release
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_ManagedV8Object_release(JNIEnv *env, jclass clazz,
+	jlong ptr)
+{
+	if (ptr) {
+		V8Isolate isolate;
+		if (isolate.IsAlive()) {
+			Persistent<Object>((Object *) ptr).Dispose();
+		}
+	}
+}
 
 jobject Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeGet(JNIEnv *env, jobject map, jlong ptr, jstring name)
 {
@@ -110,4 +127,6 @@ jobjectArray Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeKeys(JNIEnv *
 	return keys;
 }
 
-} // extern "C"
+#ifdef __cplusplus
+}
+#endif

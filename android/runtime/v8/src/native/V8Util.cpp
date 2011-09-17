@@ -43,6 +43,21 @@ Handle<Value> ExecuteString(Handle<String> source, Handle<Value> filename)
 	return scope.Close(result);
 }
 
+Handle<Value> NewInstanceFromConstructorTemplate(Persistent<FunctionTemplate>& t, const Arguments& args)
+{
+	HandleScope scope;
+	const int argc = args.Length();
+	Local<Value>* argv = new Local<Value> [argc];
+
+	for (int i = 0; i < argc; ++i) {
+		argv[i] = args[i];
+	}
+
+	Local<Object> instance = t->GetFunction()->NewInstance(argc, argv);
+	delete[] argv;
+	return scope.Close(instance);
+}
+
 void ReportException(TryCatch &try_catch, bool show_line)
 {
 	HandleScope scope;

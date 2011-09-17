@@ -12,7 +12,6 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -86,9 +85,9 @@ public class TiRootActivity extends TiLaunchActivity
 		}
 		if (tiContext != null) {
 			TiApplication app = tiContext.getTiApp();
-			if (app != null) {
+			/*if (app != null) {
 				app.releaseModules();
-			}
+			}*/
 			tiContext.release();
 		}
 		TiFastDev.onDestroy();

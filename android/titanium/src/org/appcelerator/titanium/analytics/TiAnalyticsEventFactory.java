@@ -10,8 +10,8 @@ import java.util.GregorianCalendar;
 
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiDatabaseHelper;
+import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 

@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
-import org.apache.commons.codec.binary.Base64;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.io.TiBaseFile;
@@ -310,6 +309,7 @@ public class TiBlob extends KrollProxy
 	@Kroll.method
 	public String toBase64()
 	{
-		return new String(Base64.encodeBase64(getBytes()));
+		// TODO return new String(Base64.encodeBase64(getBytes()));
+		return "";
 	}
 }

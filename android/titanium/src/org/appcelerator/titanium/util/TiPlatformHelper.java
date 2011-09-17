@@ -10,12 +10,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.text.DateFormat;
-import java.text.FieldPosition;
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
 import java.util.Currency;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -24,7 +19,6 @@ import java.util.UUID;
 
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
-import org.mozilla.javascript.NativeDate;
 
 import android.Manifest;
 import android.app.Activity;
@@ -132,6 +126,7 @@ public class TiPlatformHelper
 		}
 	}
 
+	/*
 	public static void initializeRhinoDateFormats(Context context)
 	{
 		// http://jira.appcelerator.org/browse/TIMOB-3742
@@ -155,7 +150,7 @@ public class TiPlatformHelper
 		}
 
 		NativeDate.localeDateTimeFormatter = timeFormat;
-	}
+	}*/
 
 	public static ITiAppInfo getAppInfo() {
 		return TiApplication.getInstance().getAppInfo();

@@ -15,7 +15,6 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.bridge.OnEventListenerChange;
-import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -46,7 +45,7 @@ public class KrollProxy
 	protected Handler uiHandler;
 	protected String proxyId;
 	protected KrollProxyListener modelListener;
-	protected KrollEventManager eventManager;
+	//protected KrollEventManager eventManager;
 	protected KrollModule createdInModule;
 	protected V8Object v8Object;
 	protected boolean coverageEnabled;
@@ -63,7 +62,7 @@ public class KrollProxy
 	public KrollProxy(TiContext context, boolean autoBind)
 	{
 		this.context = context;
-		this.eventManager = new KrollEventManager(this);
+		//this.eventManager = new KrollEventManager(this);
 		if (DBG) {
 			Log.d(TAG, "New: " + getClass().getSimpleName());
 		}
@@ -309,18 +308,18 @@ public class KrollProxy
 	public int addEventListener(KrollInvocation invocation, String eventName, Object listener)
 	{
 		int listenerId = -1;
-		if (DBG) {
+		/*if (DBG) {
 			Log.i(TAG, "Adding listener for \"" + eventName + "\": "
 					+ listener.getClass().getName());
 		}
-		listenerId = eventManager.addEventListener(eventName, listener);
+		listenerId = eventManager.addEventListener(eventName, listener);*/
 		return listenerId;
 	}
 
 	@Kroll.method
 	public void removeEventListener(KrollInvocation invocation, String eventName, Object listener)
 	{
-		eventManager.removeEventListener(eventName, listener);
+		//eventManager.removeEventListener(eventName, listener);
 	}
 
 	public void eventListenerAdded(String eventName, int count, KrollProxy proxy)
@@ -346,19 +345,19 @@ public class KrollProxy
 	@Kroll.method
 	public boolean fireEvent(String eventName, @Kroll.argument(optional=true) KrollDict data)
 	{
-		return eventManager.dispatchEvent(eventName, data);
+		return false;//return eventManager.dispatchEvent(eventName, data);
 	}
 
 	@Kroll.method
 	public boolean fireSyncEvent(String eventName, @Kroll.argument(optional=true) KrollDict data)
 	{
-		return eventManager.dispatchEvent(eventName, data, false);
+		return false;//return eventManager.dispatchEvent(eventName, data, false);
 	}
 
 	@Kroll.method
 	public void fireSingleEvent(String eventName, Object listener, KrollDict data, boolean asyncCallback)
 	{
-		if (listener != null) {
+		/*if (listener != null) {
 			KrollInvocation invocation = currentInvocation == null ?
 				createEventInvocation(eventName) : currentInvocation;
 			KrollMethod method = (KrollMethod) listener;
@@ -375,12 +374,12 @@ public class KrollProxy
 				Log.e(TAG, e.getMessage(), e);
 			}
 			invocation.recycle();
-		}
+		}*/
 	}
 
 	public boolean hasListeners(String eventName)
 	{
-		return eventManager.hasAnyEventListener(eventName);
+		return false;//return eventManager.hasAnyEventListener(eventName);
 	}
 
 	protected KrollDict createErrorResponse(int code, String message)
@@ -400,7 +399,8 @@ public class KrollProxy
 	@Kroll.method
 	public String toString()
 	{
-		return "[Ti." + getAPIName() + "]";
+		return "FIXME";
+		//return "[Ti." + getAPIName() + "]";
 	}
 
 	public Object getDefaultValue(Class<?> typeHint)

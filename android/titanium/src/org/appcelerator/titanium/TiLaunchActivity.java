@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.Set;
 
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
+import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiBindingHelper;
@@ -71,9 +72,9 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 				Log.d(TAG, "Eval JS Activity:" + fullUrl);
 			}
 			tiContext.evalFile(fullUrl);
-		} catch (IOException e) {
+		/*} catch (IOException e) {
 			e.printStackTrace();
-			finish();
+			finish();*/
 		} finally {
 			if (DBG) {
 				Log.d(TAG, "Signal JS loaded");
@@ -93,6 +94,8 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		}
 
 		url = TiUrl.normalizeWindowUrl(getUrl());
+
+		KrollContext.getKrollContext();
 		tiContext = TiContext.createTiContext(this, url.baseUrl, url.url);
 		tiContext.setLaunchContext(true);
 		if (activityProxy == null) {

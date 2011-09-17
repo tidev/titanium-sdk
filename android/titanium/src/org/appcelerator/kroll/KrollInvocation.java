@@ -37,12 +37,7 @@ public class KrollInvocation
 		}
 		return new KrollInvocation();
 	}
-	
-	public static KrollInvocation createMethodInvocation(V8Object scope, V8Object thisObj, String name, KrollProxy proxy)
-	{
-		return createMethodInvocation(TiContext.getCurrentTiContext(), scope, thisObj, name, proxy);
-	}
-	
+
 	public static KrollInvocation createMethodInvocation(TiContext tiContext, V8Object scope, V8Object thisObj, String name, KrollProxy proxy)
 	{
 		KrollInvocation invocation = obtainInvocation();
@@ -54,12 +49,7 @@ public class KrollInvocation
 		invocation.proxy = proxy;
 		return invocation;
 	}
-	
-	public static KrollInvocation createPropertyGetInvocation(V8Object scope, V8Object thisObj, String name, KrollProxy proxy)
-	{
-		return createPropertyGetInvocation(TiContext.getCurrentTiContext(), scope, thisObj, name, proxy);
-	}
-	
+
 	public static KrollInvocation createPropertyGetInvocation(TiContext tiContext, V8Object scope, V8Object thisObj, String name, KrollProxy proxy)
 	{
 		KrollInvocation invocation = obtainInvocation();
@@ -71,12 +61,7 @@ public class KrollInvocation
 		invocation.proxy = proxy;
 		return invocation;
 	}
-	
-	public static KrollInvocation createPropertySetInvocation(V8Object scope, V8Object thisObj, String name, KrollProxy proxy)
-	{
-		return createPropertySetInvocation(TiContext.getCurrentTiContext(), scope, thisObj, name, proxy);
-	}
-	
+
 	public static KrollInvocation createPropertySetInvocation(TiContext tiContext, V8Object scope, V8Object thisObj, String name, KrollProxy proxy)
 	{
 		KrollInvocation invocation = obtainInvocation();
@@ -88,7 +73,7 @@ public class KrollInvocation
 		invocation.proxy = proxy;
 		return invocation;
 	}
-	
+
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		if (isPropertyGet) {
@@ -99,9 +84,9 @@ public class KrollInvocation
 			sb.append("[callMethod ");
 		}
 		
-		if (proxy != null) {
+		/*if (proxy != null) {
 			sb.append(proxy.getAPIName()).append(".");
-		}
+		}*/
 		
 		sb.append(name).append("]");
 		return sb.toString();

@@ -16,7 +16,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiAnimationBuilder;
@@ -155,7 +154,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		options = handleStyleOptions(options);
 		super.handleCreationDict(options);
 		
-		eventManager.addOnEventChangeListener(this);
+		//TODO eventManager.addOnEventChangeListener(this);
 	}
 
 	protected String getBaseUrlForStylesheet()
@@ -176,7 +175,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	{
 		String viewId = getProxyId();
 		TreeSet<String> styleClasses = new TreeSet<String>();
-		styleClasses.add(getShortAPIName().toLowerCase());
+		// TODO styleClasses.add(getShortAPIName().toLowerCase());
 		
 		if (options.containsKey(TiC.PROPERTY_ID)) {
 			viewId = TiConvert.toString(options, TiC.PROPERTY_ID);
@@ -558,16 +557,16 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	}
 
 	@Kroll.method
-	public void animate(Object arg, @Kroll.argument(optional=true) KrollCallback callback)
+	public void animate(Object arg /*, @Kroll.argument(optional=true) KrollCallback callback*/)
 	{
 		if (arg instanceof KrollDict) {
 			KrollDict options = (KrollDict) arg;
 
 			pendingAnimation = new TiAnimationBuilder();
 			pendingAnimation.applyOptions(options);
-			if (callback != null) {
+			/*if (callback != null) {
 				pendingAnimation.setCallback(callback);
-			}
+			}*/
 		} else if (arg instanceof TiAnimation) {
 			TiAnimation anim = (TiAnimation) arg;
 			pendingAnimation = new TiAnimationBuilder();
@@ -738,8 +737,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		for (Object c : classNames) {
 			classes.add(TiConvert.toString(c));
 		}
-		KrollDict options = getTiContext().getTiApp().getStylesheet(baseUrl, classes, null);
-		extend(options);
+		//KrollDict options = getTiContext().getTiApp().getStylesheet(baseUrl, classes, null);
+		//TODO extend(options);
 	}
 	
 	@Kroll.method @Kroll.getProperty

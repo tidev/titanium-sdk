@@ -6,9 +6,7 @@
  */
 package org.appcelerator.titanium.util;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.MenuItemProxy;
 import org.appcelerator.titanium.proxy.MenuProxy;
@@ -16,10 +14,6 @@ import org.appcelerator.titanium.proxy.MenuProxy;
 import android.view.Menu;
 import android.view.MenuItem;
 
-/**
- * @author dthorp
- *
- */
 public class TiMenuSupport 
 {
 	protected MenuProxy menuProxy;
@@ -32,7 +26,7 @@ public class TiMenuSupport
 
 	public boolean onCreateOptionsMenu(boolean created, Menu menu) 
 	{
-		KrollCallback onCreate = (KrollCallback) activityProxy.getProperty(TiC.PROPERTY_ON_CREATE_OPTIONS_MENU);
+		/*KrollCallback onCreate = (KrollCallback) activityProxy.getProperty(TiC.PROPERTY_ON_CREATE_OPTIONS_MENU);
 		KrollCallback onPrepare = (KrollCallback) activityProxy.getProperty(TiC.PROPERTY_ON_PREPARE_OPTIONS_MENU);
 		if (onCreate != null) {
 			KrollDict event = new KrollDict();
@@ -51,7 +45,8 @@ public class TiMenuSupport
 		if (onCreate != null || onPrepare != null) {
 			created = true;
 		}
-		return created;
+		return created;*/
+		return true;
 	}
 	
 	public boolean onOptionsItemSelected(MenuItem item) 
@@ -66,7 +61,7 @@ public class TiMenuSupport
 	
 	public boolean onPrepareOptionsMenu(boolean prepared, Menu menu)
 	{
-		KrollCallback onPrepare = (KrollCallback) activityProxy.getProperty(TiC.PROPERTY_ON_PREPARE_OPTIONS_MENU);
+		/*KrollCallback onPrepare = (KrollCallback) activityProxy.getProperty(TiC.PROPERTY_ON_PREPARE_OPTIONS_MENU);
 		if (onPrepare != null) {
 			KrollDict event = new KrollDict();
 			if (menuProxy != null) {
@@ -80,7 +75,8 @@ public class TiMenuSupport
 			onPrepare.callSync(activityProxy.getTiContext(), new Object[] { event });
 		}
 		prepared = true;
-		return prepared;	
+		return prepared;*/
+		return false;
 	}
 	
 	public void destroy()

@@ -11,6 +11,7 @@
 #include "JNIUtil.h"
 #include "JavaObject.h"
 #include "ProxyFactory.h"
+#include "V8Runtime.h"
 
 using namespace titanium;
 
@@ -314,9 +315,14 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 		} else {
 			ProxyFactory *proxyFactory = ProxyFactory::factoryForClass(javaObjectClass);
 			v8::Handle<v8::Object> proxyHandle = proxyFactory->create(javaObject);
+
+			// set the pointer back on the java proxy
+			V8Runtime::newObject(proxyHandle);
+
 			return proxyHandle;
 		}
 	}
+
 	return v8::Handle<v8::Value>();
 }
 
@@ -341,4 +347,5 @@ v8::Handle<v8::Array> TypeConverter::javaDoubleArrayToJsNumberArray(jdoubleArray
 
 	return jsArray;
 }
+
 

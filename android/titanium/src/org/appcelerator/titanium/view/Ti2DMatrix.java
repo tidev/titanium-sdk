@@ -142,7 +142,7 @@ public class Ti2DMatrix extends KrollProxy
 			// scale(scaleFactor)
 			newMatrix.op.scaleToX = newMatrix.op.scaleToY = TiConvert.toFloat(args[0]);
 		}
-		newMatrix.handleAnchorPoint(newMatrix.getProperties());
+		// TODO newMatrix.handleAnchorPoint(newMatrix.getProperties());
 		return newMatrix;
 	}
 
@@ -158,7 +158,7 @@ public class Ti2DMatrix extends KrollProxy
 			newMatrix.op.rotateFrom = TiConvert.toFloat(args[0]);
 			newMatrix.op.rotateTo = TiConvert.toFloat(args[1]);
 		}
-		newMatrix.handleAnchorPoint(newMatrix.getProperties());
+		// TODO newMatrix.handleAnchorPoint(newMatrix.getProperties());
 		return newMatrix;
 	}
 

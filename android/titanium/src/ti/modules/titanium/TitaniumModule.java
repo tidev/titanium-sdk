@@ -20,21 +20,12 @@ import java.util.Stack;
 
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
-import org.appcelerator.kroll.KrollModuleInfo;
-import org.appcelerator.kroll.KrollObject;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiLaunchActivity;
-import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.io.TiFileFactory;
-import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.kroll.KrollContext;
-import org.appcelerator.titanium.kroll.KrollCoverage;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -42,8 +33,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
 import android.app.Service;
@@ -119,7 +108,7 @@ public class TitaniumModule extends KrollModule
 	{
 		TiContext tiContext = invocation.getTiContext();
 		for(Object filename : files) {
-			try {
+			//try {
 				// we need to make sure paths included from sub-js files are actually relative
 				boolean popContext = false;
 				if (!basePath.contains(tiContext.getBaseUrl())) {
@@ -134,9 +123,9 @@ public class TitaniumModule extends KrollModule
 				if (popContext) {
 					basePath.pop();
 				}
-			} catch (IOException e) {
-				Log.e(LCAT, "Error while evaluating: " + filename, e);
-			}
+			//} catch (IOException e) {
+			//	Log.e(LCAT, "Error while evaluating: " + filename, e);
+			//}
 		}
 	}
 
@@ -148,16 +137,16 @@ public class TitaniumModule extends KrollModule
 		protected long timeout;
 		protected boolean interval;
 		protected Object[] args;
-		protected KrollCallback callback;
+		//protected KrollCallback callback;
 		protected Handler handler;
 		protected int id;
 		protected boolean canceled;
 	
-		public Timer(int id, Handler handler, KrollCallback callback, long timeout, Object[] args, boolean interval)
+		public Timer(int id, Handler handler, /*KrollCallback callback, */long timeout, Object[] args, boolean interval)
 		{
 			this.id = id;
 			this.handler = handler;
-			this.callback = callback;
+			//this.callback = callback;
 			this.timeout = timeout;
 			this.args = args;
 			this.interval = interval;
@@ -182,7 +171,7 @@ public class TitaniumModule extends KrollModule
 				Log.d(LCAT, message.toString());
 			}
 			long start = System.currentTimeMillis();
-			callback.callSync(args);
+			// TODO callback.callSync(args);
 			if (interval && !canceled) {
 				handler.postDelayed(this, timeout - (System.currentTimeMillis() - start));
 			}
@@ -199,7 +188,7 @@ public class TitaniumModule extends KrollModule
 		throws IllegalArgumentException
 	{
 		// TODO: we should handle evaluatable code eventually too..
-		if (fn instanceof KrollCallback) {
+		/*TODO if (fn instanceof KrollCallback) {
 			KrollCallback callback = (KrollCallback) fn;
 			int timerId = currentTimerId++;
 			Handler handler = context.getMessageQueue().getHandler();
@@ -215,14 +204,15 @@ public class TitaniumModule extends KrollModule
 			timer.schedule();
 			return timerId;
 		}
-		else throw new IllegalArgumentException("Don't know how to call callback of type: " + fn.getClass().getName());
+		else throw new IllegalArgumentException("Don't know how to call callback of type: " + fn.getClass().getName());*/
+		return -1;
 	}
 
 	@Kroll.method @Kroll.topLevel
 	public int setTimeout(KrollInvocation invocation, Object fn, long timeout, final Object[] args)
 		throws IllegalArgumentException
 	{
-		return createTimer(invocation.getTiContext().getKrollContext(), fn, timeout, args, false);
+		return createTimer(KrollContext.getKrollContext(), fn, timeout, args, false);
 	}
 
 	@Kroll.method @Kroll.topLevel
@@ -242,7 +232,7 @@ public class TitaniumModule extends KrollModule
 	public int setInterval(KrollInvocation invocation, Object fn, long timeout, final Object[] args)
 		throws IllegalArgumentException
 	{
-		return createTimer(invocation.getTiContext().getKrollContext(), fn, timeout, args, true);
+		return createTimer(KrollContext.getKrollContext(), fn, timeout, args, true);
 	}
 
 	@Kroll.method @Kroll.topLevel
@@ -267,12 +257,13 @@ public class TitaniumModule extends KrollModule
 	{
 		TiWindowProxy window = activity.getWindowProxy();
 		Thread thread = null;
+		// FIXME this used to look at the activity / tiContext, but we don't care now
 		if (window != null) {
-			thread = getKrollBridge().getKrollContext().getThread();
+			thread = KrollContext.getKrollContext().getThread();
 		} else {
 			if (activity instanceof TiLaunchActivity) {
 				TiLaunchActivity launchActivity = (TiLaunchActivity) activity;
-				thread = launchActivity.getTiContext().getKrollContext().getThread();
+				thread = KrollContext.getKrollContext().getThread();
 			}
 		}
 		if (thread != null) {
@@ -412,6 +403,7 @@ public class TitaniumModule extends KrollModule
 		}
 	}
 
+	/*
 	protected KrollModule requireNativeModule(TiContext context, String path)
 	{
 		if (DBG) {
@@ -508,7 +500,7 @@ public class TitaniumModule extends KrollModule
 			Context.throwAsScriptRuntimeEx(ex);
 			return null;
 		}
-	}
+	}*/
 
 	@Kroll.method
 	public void dumpCoverage()
@@ -523,7 +515,7 @@ public class TitaniumModule extends KrollModule
 			File extStorage = Environment.getExternalStorageDirectory();
 			File reportFile = new File(new File(extStorage, app.getPackageName()), "coverage.json");
 			FileOutputStream reportOut = new FileOutputStream(reportFile);
-			KrollCoverage.writeCoverageReport(reportOut);
+			// TODO KrollCoverage.writeCoverageReport(reportOut);
 			reportOut.close();
 		} catch (IOException e) {
 			Log.e(LCAT, e.getMessage(), e);

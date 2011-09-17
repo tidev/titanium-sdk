@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.runtime.v8.V8Runtime;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 
@@ -28,10 +27,10 @@ public class KrollModule extends KrollProxy
 		super(context);
 
 		Class<? extends KrollModule> moduleClass = getClass();
-		if (!initializedTemplates.contains(moduleClass)) {
+		/*if (!initializedTemplates.contains(moduleClass)) {
 			V8Runtime.initModuleTemplate(moduleClass);
 			initializedTemplates.add(moduleClass);
-		}
+		}*/
 
 		context.addOnLifecycleEventListener(this);
 		modelListener = this;

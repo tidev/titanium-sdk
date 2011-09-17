@@ -23,16 +23,19 @@ public final class Assets {
 	 * @param assetManager
 	 */
 	public static void init(AssetManager assetManager) {
-		assign(assetManager != null ? new Assets(assetManager) : null);
+		assign(new Assets(assetManager));
 	}
 
 	private final AssetManager assetManager;
+	
+	public static Assets instance;
 
 	private Assets(AssetManager assetManager) {
 		this.assetManager = assetManager;
+		instance = this;
 	}
 	
-	private char[] readResource(String path) throws IOException {
+	public char[] readResource(String path) throws IOException {
 		AssetFileDescriptor fd = assetManager.openFd(path);
 		try {
 			long length = fd.getDeclaredLength();

@@ -11,12 +11,10 @@ import java.io.IOException;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.io.TiStream;
-import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.TiConfig;
 
 import ti.modules.titanium.BufferProxy;
@@ -76,7 +74,7 @@ public class StreamModule extends KrollModule
 		BufferProxy buffer = null;
 		int offset = 0;
 		int length = 0;
-		KrollCallback resultsCallback = null;
+		//KrollCallback resultsCallback = null;
 
 		if(args.length == 3 || args.length == 5) {
 			if(args[0] instanceof TiStream) {
@@ -95,12 +93,12 @@ public class StreamModule extends KrollModule
 			}
 
 			if(args.length == 3) {
-				if(args[2] instanceof KrollCallback) {
+				/*TODO if(args[2] instanceof KrollCallback) {
 					resultsCallback = (KrollCallback) args[2];
 
 				} else {
 					throw new IllegalArgumentException("Invalid callback argument");
-				}
+				}*/
 
 			} else if(args.length == 5) {
 				if(args[2] instanceof Double) {
@@ -117,12 +115,12 @@ public class StreamModule extends KrollModule
 					throw new IllegalArgumentException("Invalid length argument");
 				}
 
-				if(args[4] instanceof KrollCallback) {
+				/*TODO if(args[4] instanceof KrollCallback) {
 					resultsCallback = (KrollCallback) args[4];
 
 				} else {
 					throw new IllegalArgumentException("Invalid callback argument");
-				}
+				}*/
 			}
 
 		} else {
@@ -133,7 +131,7 @@ public class StreamModule extends KrollModule
 		final BufferProxy fbuffer = buffer;
 		final int foffset = offset;
 		final int flength = length;
-		final KrollCallback fresultsCallback = resultsCallback;
+		//final KrollCallback fresultsCallback = resultsCallback;
 
 		new Thread(new Runnable() {
 			public void run()
@@ -152,7 +150,7 @@ public class StreamModule extends KrollModule
 					errorDescription = e.getMessage();
 				}
 
-				fresultsCallback.callAsync(buildRWCallbackArgs(fsourceStream, bytesRead, errorState, errorDescription));
+				//fresultsCallback.callAsync(buildRWCallbackArgs(fsourceStream, bytesRead, errorState, errorDescription));
 			}
 		}) {}.start();
 	}
@@ -164,7 +162,7 @@ public class StreamModule extends KrollModule
 	{
 		TiStream sourceStream = null;
 		BufferProxy bufferArg = null;
-		KrollCallback resultsCallback = null;
+		//KrollCallback resultsCallback = null;
 
 		if(args.length == 1 || args.length == 3) {
 			if(args[0] instanceof TiStream) {
@@ -182,12 +180,12 @@ public class StreamModule extends KrollModule
 					throw new IllegalArgumentException("Invalid buffer argument");
 				}
 
-				if(args[2] instanceof KrollCallback) {
+				/* TODO if(args[2] instanceof KrollCallback) {
 					resultsCallback = (KrollCallback) args[2];
 
 				} else {
 					throw new IllegalArgumentException("Invalid callback argument");
-				}
+				}*/
 			}
 
 		} else {
@@ -205,7 +203,7 @@ public class StreamModule extends KrollModule
 		} else {
 			final TiStream fsourceStream = sourceStream;
 			final BufferProxy fbuffer = bufferArg;
-			final KrollCallback fresultsCallback = resultsCallback;
+			//final KrollCallback fresultsCallback = resultsCallback;
 
 			new Thread(new Runnable() {
 				public void run()
@@ -226,11 +224,11 @@ public class StreamModule extends KrollModule
 						errorDescription = e.getMessage();
 					}
 
-					fresultsCallback.callAsync(buildRWCallbackArgs(fsourceStream, fbuffer.getLength(), errorState, errorDescription));
+					//fresultsCallback.callAsync(buildRWCallbackArgs(fsourceStream, fbuffer.getLength(), errorState, errorDescription));
 				}
 			}) {}.start();
 
-			return KrollProxy.UNDEFINED;
+			return null; // TODO KrollProxy.UNDEFINED;
 		}
 	}
 
@@ -261,7 +259,7 @@ public class StreamModule extends KrollModule
 		BufferProxy buffer = null;
 		int offset = 0;
 		int length = 0;
-		KrollCallback resultsCallback = null;
+		//KrollCallback resultsCallback = null;
 
 		if(args.length == 3 || args.length == 5) {
 			if(args[0] instanceof TiStream) {
@@ -280,12 +278,12 @@ public class StreamModule extends KrollModule
 			}
 
 			if(args.length == 3) {
-				if(args[2] instanceof KrollCallback) {
+				/*if(args[2] instanceof KrollCallback) {
 					resultsCallback = (KrollCallback) args[2];
 
 				} else {
 					throw new IllegalArgumentException("Invalid callback argument");
-				}
+				}*/
 
 			} else if(args.length == 5) {
 				if(args[2] instanceof Double) {
@@ -302,12 +300,12 @@ public class StreamModule extends KrollModule
 					throw new IllegalArgumentException("Invalid length argument");
 				}
 
-				if(args[4] instanceof KrollCallback) {
+				/*if(args[4] instanceof KrollCallback) {
 					resultsCallback = (KrollCallback) args[4];
 
 				} else {
 					throw new IllegalArgumentException("Invalid callback argument");
-				}
+				}*/
 			}
 
 		} else {
@@ -318,7 +316,7 @@ public class StreamModule extends KrollModule
 		final BufferProxy fbuffer = buffer;
 		final int foffset = offset;
 		final int flength = length;
-		final KrollCallback fresultsCallback = resultsCallback;
+		//final KrollCallback fresultsCallback = resultsCallback;
 
 		new Thread(
 				new Runnable()
@@ -338,7 +336,7 @@ public class StreamModule extends KrollModule
 							errorDescription = e.getMessage();
 						}
 
-						fresultsCallback.callAsync(buildRWCallbackArgs(foutputStream, bytesWritten, errorState, errorDescription));
+						// TODO fresultsCallback.callAsync(buildRWCallbackArgs(foutputStream, bytesWritten, errorState, errorDescription));
 					}
 				}
 			) {}.start();
@@ -352,7 +350,7 @@ public class StreamModule extends KrollModule
 		TiStream inputStream = null;
 		TiStream outputStream = null;
 		int maxChunkSize = 0;
-		KrollCallback resultsCallback = null;
+		//KrollCallback resultsCallback = null;
 
 		if(args.length == 3 || args.length == 4) {
 			if(args[0] instanceof TiStream) {
@@ -377,12 +375,12 @@ public class StreamModule extends KrollModule
 			}
 
 			if(args.length == 4) {
-				if(args[3] instanceof KrollCallback) {
+				/*if(args[3] instanceof KrollCallback) {
 					resultsCallback = (KrollCallback) args[3];
 
 				} else {
 					throw new IllegalArgumentException("Invalid callback argument");
-				}
+				}*/
 			}
 
 		} else {
@@ -396,7 +394,7 @@ public class StreamModule extends KrollModule
 			final TiStream finputStream = inputStream;
 			final TiStream foutputStream = outputStream;
 			final int fmaxChunkSize = maxChunkSize;
-			final KrollCallback fresultsCallback = resultsCallback;
+			//final KrollCallback fresultsCallback = resultsCallback;
 
 			new Thread(new Runnable() {
 				public void run()
@@ -413,7 +411,7 @@ public class StreamModule extends KrollModule
 						errorDescription = e.getMessage();
 					}
 
-					fresultsCallback.callAsync(buildWriteStreamCallbackArgs(finputStream, foutputStream, totalBytesWritten, errorState, errorDescription));
+					//TODO fresultsCallback.callAsync(buildWriteStreamCallbackArgs(finputStream, foutputStream, totalBytesWritten, errorState, errorDescription));
 				}
 			}) {}.start();
 
@@ -440,7 +438,7 @@ public class StreamModule extends KrollModule
 		return totalBytesWritten;
 	}
 
-	@Kroll.method
+	/* TODO @Kroll.method
 	//public void pump(TiStream inputStream, KrollCallback handler, int maxChunkSize)
 	//public void pump(TiStream inputStream, KrollCallback handler, int maxChunkSize, boolean isAsync)
 	public void pump(Object args[])
@@ -488,7 +486,7 @@ public class StreamModule extends KrollModule
 		if(isAsync)
 		{
 			final TiStream finputStream = inputStream;
-			final KrollCallback fhandler = handler;
+			//final KrollCallback fhandler = handler;
 			final int fmaxChunkSize = maxChunkSize;
 
 			new Thread(
@@ -540,7 +538,7 @@ public class StreamModule extends KrollModule
 			errorDescription = e.getMessage();
 			handler.callSync(buildPumpCallbackArgs(inputStream, new BufferProxy(getTiContext()), 0, totalBytesRead, errorState, errorDescription));
 		}
-	}
+	}*/
 
 	private KrollDict buildRWCallbackArgs(TiStream sourceStream, int bytesProcessed, int errorState, String errorDescription)
 	{

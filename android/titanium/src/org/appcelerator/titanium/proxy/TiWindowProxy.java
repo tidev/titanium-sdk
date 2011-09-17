@@ -17,18 +17,14 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.AsyncResult;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiOrientationHelper;
-import org.appcelerator.titanium.util.TiPropertyResolver;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
-import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.Message;
 
@@ -108,8 +104,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	public boolean requiresNewActivity(KrollDict extraOptions)
 	{
-		TiPropertyResolver resolver = new TiPropertyResolver(getProperties(), extraOptions);
-		return resolver.hasAnyOf(NEW_ACTIVITY_REQUIRED_KEYS);
+		/*TiPropertyResolver resolver = new TiPropertyResolver(getProperties(), extraOptions);
+		return resolver.hasAnyOf(NEW_ACTIVITY_REQUIRED_KEYS);*/
+		return true;
 	}
 
 	@Kroll.method
@@ -208,7 +205,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	public KrollDict handleToImage()
 	{
-		return TiUIHelper.viewToImage(getTiContext(), properties, getTiContext().getActivity().getWindow().getDecorView());
+		return TiUIHelper.viewToImage(getTiContext(), new KrollDict(), getTiContext().getActivity().getWindow().getDecorView());
 	}
 
 	// only exists to expose a way for the activity to update the orientation based on
