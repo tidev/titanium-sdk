@@ -19,9 +19,26 @@
 #define SYMBOL_LITERAL(string_literal)											\
 	v8::Persistent<v8::String>::New(v8::String::NewSymbol(string_literal ""));
 
-namespace titanium {
+#define DEFINE_CONSTANT(target, constant)                            \
+  (target)->Set(v8::String::NewSymbol(#constant),                         \
+                v8::Integer::New(constant),                               \
+                static_cast<v8::PropertyAttribute>(v8::ReadOnly|v8::DontDelete))
 
-using namespace v8;
+#define DEFINE_METHOD(obj, name, callback)                                \
+  obj->Set(v8::String::NewSymbol(name),                                   \
+           v8::FunctionTemplate::New(callback)->GetFunction())
+
+#define DEFINE_PROTOTYPE_METHOD(templ, name, callback)                    \
+{                                                                         \
+  v8::Local<v8::Signature> __callback##_SIG = v8::Signature::New(templ);  \
+  v8::Local<v8::FunctionTemplate> __callback##_TEM =                      \
+    v8::FunctionTemplate::New(callback, v8::Handle<v8::Value>(),          \
+                          __callback##_SIG);                              \
+  templ->PrototypeTemplate()->Set(v8::String::NewSymbol(name),            \
+                                  __callback##_TEM);                      \
+}
+
+namespace titanium {
 
 class ImmutableAsciiStringLiteral: public v8::String::ExternalAsciiStringResource
 {
@@ -52,9 +69,10 @@ private:
 	size_t buf_len_;
 };
 
-Handle<Value> ExecuteString(Handle<String> source, Handle<Value> filename);
-void ReportException(TryCatch &try_catch, bool show_line);
-void FatalException(TryCatch &try_catch);
+v8::Handle<v8::Value> ExecuteString(v8::Handle<v8::String> source, v8::Handle<v8::Value> filename);
+v8::Handle<v8::Value> NewInstanceFromConstructorTemplate(v8::Persistent<v8::FunctionTemplate>& t, const v8::Arguments& args);
+void ReportException(v8::TryCatch &try_catch, bool show_line);
+void FatalException(v8::TryCatch &try_catch);
 
 }
 
