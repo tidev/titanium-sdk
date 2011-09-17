@@ -16,6 +16,9 @@ namespace titanium {
 class ProxyFactory
 {
 public:
+	static ProxyFactory* factoryForClass(jclass javaClass);
+	static void setFactoryForClass(ProxyFactory* factory, jclass javaClass);
+
 	virtual v8::Handle<v8::Object> create(jobject javaObject) = 0;
 };
 
