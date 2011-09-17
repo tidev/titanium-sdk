@@ -8,7 +8,6 @@
 #include <string.h>
 #include "V8Runtime.h"
 
-#include "APIModule.h"
 #include "AndroidUtil.h"
 #include "EventEmitter.h"
 #include "JNIUtil.h"
@@ -16,6 +15,8 @@
 #include "KrollJavaScript.h"
 #include "KrollProxy.h"
 #include "TypeConverter.h"
+#include "APIModule.h"
+#include "ScriptsModule.h"
 
 #define TAG "V8Runtime"
 
@@ -66,6 +67,10 @@ static Handle<Value> binding(const Arguments& args)
 	} else if (!strcmp(*module_v, "natives")) {
 		exports = Object::New();
 		KrollJavaScript::DefineNatives(exports);
+		binding_cache->Set(module, exports);
+	} else if (!strcmp(*module_v, "evals")) {
+		exports = Object::New();
+		ScriptsModule::Initialize(exports);
 		binding_cache->Set(module, exports);
 	} else {
 		return ThrowException(Exception::Error(String::New("No such module")));

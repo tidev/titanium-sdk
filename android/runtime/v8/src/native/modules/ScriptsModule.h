@@ -1,26 +1,20 @@
-/*
+/**
  * Appcelerator Titanium Mobile
  * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifndef SCRIPTS_H
+#define SCRIPTS_H
 
-#ifndef PROXY_FACTORY_TABLE_H
-#define PROXY_FACTORY_TABLE_H
-
-#include <jni.h>
+#include <v8.h>
 
 namespace titanium {
-
-class ProxyFactory;
-
-class ProxyFactoryTable
+class ScriptsModule
 {
 public:
-	static ProxyFactory* lookup(jclass javaClass);
-	static void registerForClass(const char* className, ProxyFactory* factory);
+	static void Initialize(v8::Handle<v8::Object> target);
 };
-
 }
 
 #endif

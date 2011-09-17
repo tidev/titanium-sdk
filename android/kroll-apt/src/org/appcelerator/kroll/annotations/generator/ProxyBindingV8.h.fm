@@ -10,11 +10,11 @@
 
 #include <jni.h>
 
-#include "NativeObject.h"
+#include "JavaObject.h"
 
 namespace titanium {
 
-class ${proxyClassName} : public NativeObject {
+class ${proxyClassName} : public JavaObject {
 public:
 	explicit ${proxyClassName}(jobject javaObject);
 
