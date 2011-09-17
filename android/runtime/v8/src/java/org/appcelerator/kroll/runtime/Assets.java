@@ -18,26 +18,21 @@ import android.content.res.AssetManager;
  */
 public final class Assets {
 
-	private static Assets instance_;
-
 	/**
 	 * Initialize Assets with AssetManager
 	 * @param assetManager
 	 */
 	public static void init(AssetManager assetManager) {
-		instance_ = assetManager != null ? new Assets(assetManager) : null;
-		assign(instance_);
-	}
-
-	public static Assets getInstance()
-	{
-		return instance_;
+		assign(new Assets(assetManager));
 	}
 
 	private final AssetManager assetManager;
+	
+	public static Assets instance;
 
 	private Assets(AssetManager assetManager) {
 		this.assetManager = assetManager;
+		instance = this;
 	}
 	
 	public char[] readResource(String path) throws IOException {

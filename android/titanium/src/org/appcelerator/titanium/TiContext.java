@@ -196,9 +196,7 @@ public class TiContext
 
 	public Object evalJS(String src)
 	{
-		V8Runtime.evalString(scope, src, "<eval>");
-		// TODO this needs to return an object
-		return null;
+		return V8Runtime.evalString(scope, src, "<eval>");
 	}
 
 	public V8Object getScope()
