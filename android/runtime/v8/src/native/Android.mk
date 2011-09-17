@@ -36,6 +36,7 @@ LOCAL_SRC_FILES += \
 	V8Runtime.cpp \
 	V8Util.cpp \
 	modules/APIModule.cpp \
+	modules/ScriptsModule.cpp \
 	$(PROXY_SOURCES)
 
 LOCAL_JS_FILES := \
