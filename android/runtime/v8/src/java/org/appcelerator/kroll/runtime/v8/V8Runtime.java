@@ -19,7 +19,7 @@ public final class V8Runtime
 		try {
 			char[] chars = Assets.instance.readResource(filename);
 			if (chars != null && chars.length > 0) {
-				V8Script.runInContext(new String(chars), scope, filename);				
+				V8Script.runInContext(new String(chars), scope, filename);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

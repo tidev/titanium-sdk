@@ -23,7 +23,6 @@ import org.appcelerator.titanium.util.TiStreamHelper;
 
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
-import android.util.Base64;
 
 @Kroll.proxy
 public class TiBlob extends KrollProxy
