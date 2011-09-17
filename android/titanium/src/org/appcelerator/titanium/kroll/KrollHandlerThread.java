@@ -30,7 +30,8 @@ import android.os.Process;
  * 
  * Adopted from Android source and modified for integration w/ Rhino
  */
-public class KrollHandlerThread extends Thread {
+public class KrollHandlerThread extends Thread
+{
 	private static final String TAG = "KrollHandlerThread";
 	private static final boolean DBG = TiConfig.DEBUG;
 

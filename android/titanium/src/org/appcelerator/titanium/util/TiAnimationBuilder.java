@@ -6,11 +6,9 @@
  */
 package org.appcelerator.titanium.util;
 
-import org.appcelerator.kroll.KrollConverter;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
-import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.Ti2DMatrix;
 import org.appcelerator.titanium.view.TiAnimation;
@@ -28,8 +26,6 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.LinearInterpolator;
-import android.view.animation.RotateAnimation;
-import android.view.animation.ScaleAnimation;
 import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
 
@@ -54,7 +50,7 @@ public class TiAnimationBuilder
 	
 	protected TiAnimation animationProxy;
 
-	protected KrollCallback callback;
+	//protected KrollCallback callback;
 	protected boolean relayoutChild = false, applyOpacity = false;
 	protected KrollDict options;
 	protected View view;
@@ -74,45 +70,45 @@ public class TiAnimationBuilder
 
 		if (options.containsKey(TiC.PROPERTY_ANCHOR_POINT)) {
 			KrollDict point = (KrollDict) options.get(TiC.PROPERTY_ANCHOR_POINT);
-			anchorX = KrollConverter.toFloat(point, TiC.PROPERTY_X);
-			anchorY = KrollConverter.toFloat(point, TiC.PROPERTY_Y);
+			anchorX = TiConvert.toFloat(point, TiC.PROPERTY_X);
+			anchorY = TiConvert.toFloat(point, TiC.PROPERTY_Y);
 		}
 
 		if (options.containsKey(TiC.PROPERTY_TRANSFORM)) {
 			tdm = (Ti2DMatrix) options.get(TiC.PROPERTY_TRANSFORM);
 		}
 		if (options.containsKey(TiC.PROPERTY_DELAY)) {
-			delay = KrollConverter.toDouble(options, TiC.PROPERTY_DELAY);
+			delay = TiConvert.toDouble(options, TiC.PROPERTY_DELAY);
 		}
 		if (options.containsKey(TiC.PROPERTY_DURATION)) {
-			duration = KrollConverter.toDouble(options, TiC.PROPERTY_DURATION);
+			duration = TiConvert.toDouble(options, TiC.PROPERTY_DURATION);
 		}
 		if (options.containsKey(TiC.PROPERTY_OPACITY)) {
-			toOpacity = KrollConverter.toDouble(options, TiC.PROPERTY_OPACITY);
+			toOpacity = TiConvert.toDouble(options, TiC.PROPERTY_OPACITY);
 		}
 		if (options.containsKey(TiC.PROPERTY_REPEAT)) {
-			repeat = KrollConverter.toDouble(options, TiC.PROPERTY_REPEAT);
+			repeat = TiConvert.toDouble(options, TiC.PROPERTY_REPEAT);
 		}
 		if (options.containsKey(TiC.PROPERTY_AUTOREVERSE)) {
-			autoreverse = KrollConverter.toBoolean(options, TiC.PROPERTY_AUTOREVERSE);
+			autoreverse = TiConvert.toBoolean(options, TiC.PROPERTY_AUTOREVERSE);
 		}
 		if (options.containsKey(TiC.PROPERTY_TOP)) {
-			top = KrollConverter.toInt(options, TiC.PROPERTY_TOP);
+			top = TiConvert.toInt(options, TiC.PROPERTY_TOP);
 		}
 		if (options.containsKey(TiC.PROPERTY_BOTTOM)) {
-			bottom = KrollConverter.toInt(options, TiC.PROPERTY_BOTTOM);
+			bottom = TiConvert.toInt(options, TiC.PROPERTY_BOTTOM);
 		}
 		if (options.containsKey(TiC.PROPERTY_LEFT)) {
-			left = KrollConverter.toInt(options, TiC.PROPERTY_LEFT);
+			left = TiConvert.toInt(options, TiC.PROPERTY_LEFT);
 		}
 		if (options.containsKey(TiC.PROPERTY_RIGHT)) {
-			right = KrollConverter.toInt(options, TiC.PROPERTY_RIGHT);
+			right = TiConvert.toInt(options, TiC.PROPERTY_RIGHT);
 		}
 		if (options.containsKey(TiC.PROPERTY_CENTER)) {
 			KrollDict center = options.getKrollDict(TiC.PROPERTY_CENTER);
 			if (center != null) {
-				centerX = KrollConverter.toInt(center, TiC.PROPERTY_X);
-				centerY = KrollConverter.toInt(center, TiC.PROPERTY_Y);
+				centerX = TiConvert.toInt(center, TiC.PROPERTY_X);
+				centerY = TiConvert.toInt(center, TiC.PROPERTY_Y);
 			}
 		}
 		if (options.containsKey(TiC.PROPERTY_WIDTH)) {
@@ -128,13 +124,13 @@ public class TiAnimationBuilder
 	public void applyAnimation(TiAnimation anim)
 	{
 		this.animationProxy = anim;
-		applyOptions(anim.getProperties());
+		// TODO applyOptions(anim.getProperties());
 	}
 
-	public void setCallback(KrollCallback callback)
+	/*public void setCallback(KrollCallback callback)
 	{
 		this.callback = callback;
-	}
+	}*/
 
 	public AnimationSet render(TiViewProxy viewProxy, View view)
 	{
@@ -284,7 +280,7 @@ public class TiAnimationBuilder
 			relayoutChild = true;
 		}
 		
-		if (callback != null || animationProxy != null) {
+		if (/*callback != null || */animationProxy != null) {
 			as.setAnimationListener(listener);
 		}
 
@@ -419,9 +415,9 @@ public class TiAnimationBuilder
 				applyOpacity = false;
 			}
 			if (a instanceof AnimationSet) {
-				if (callback != null) {
+				/*if (callback != null) {
 					callback.callAsync();
-				}
+				}*/
 				if (animationProxy != null) {
 					animationProxy.fireEvent(TiC.EVENT_COMPLETE, null);
 				}

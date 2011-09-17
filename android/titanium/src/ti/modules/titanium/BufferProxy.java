@@ -10,12 +10,10 @@ package ti.modules.titanium;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
-import org.appcelerator.kroll.KrollConverter;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.KrollScriptableDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
@@ -23,7 +21,6 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
-import org.mozilla.javascript.Scriptable;
 
 import ti.modules.titanium.codec.CodecModule;
 
@@ -61,8 +58,8 @@ public class BufferProxy extends KrollProxy
 
 	// We need to handle the "raw" create call so Kroll doesn't convert
 	// the passed in arguments to an array (they have a "length" attribute)
-	@Override
-	public Object handleCreate(KrollInvocation invocation, Object[] args)
+	//@Override
+	/*TODO public Object handleCreate(KrollInvocation invocation, Object[] args)
 	{
 		this.createdInModule = (KrollModule) invocation.getProxy();
 		if (args.length > 0 && args[0] instanceof Scriptable) {
@@ -72,7 +69,7 @@ public class BufferProxy extends KrollProxy
 			buffer = new byte[0];
 		}
 		return KrollConverter.getInstance().convertNative(invocation, this);
-	}
+	}*/
 
 	@Override
 	public void handleCreationDict(KrollDict dict)
@@ -141,6 +138,7 @@ public class BufferProxy extends KrollProxy
 		return buffer;
 	}
 
+	/* TODO
 	@Override
 	public boolean has(Scriptable scope, int index)
 	{
@@ -162,6 +160,7 @@ public class BufferProxy extends KrollProxy
 			super.set(scope, index, value);
 		}
 	}
+	*/
 
 	protected byte[] copyOf(byte[] array, int newLength)
 	{

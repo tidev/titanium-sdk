@@ -108,8 +108,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	public boolean requiresNewActivity(KrollDict extraOptions)
 	{
-		TiPropertyResolver resolver = new TiPropertyResolver(getProperties(), extraOptions);
-		return resolver.hasAnyOf(NEW_ACTIVITY_REQUIRED_KEYS);
+		/*TiPropertyResolver resolver = new TiPropertyResolver(getProperties(), extraOptions);
+		return resolver.hasAnyOf(NEW_ACTIVITY_REQUIRED_KEYS);*/
+		return true;
 	}
 
 	@Kroll.method
@@ -208,7 +209,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	public KrollDict handleToImage()
 	{
-		return TiUIHelper.viewToImage(getTiContext(), properties, getTiContext().getActivity().getWindow().getDecorView());
+		return TiUIHelper.viewToImage(getTiContext(), new KrollDict(), getTiContext().getActivity().getWindow().getDecorView());
 	}
 
 	// only exists to expose a way for the activity to update the orientation based on

@@ -14,18 +14,15 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
-import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.view.Ti2DMatrix;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mozilla.javascript.Function;
 
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -74,14 +71,14 @@ public class TiConvert
 						da[i] = (Double) a[i];
 					}
 					d.put(key, da);
-				} else if (v != null && v instanceof KrollObject) {
+				} /*else if (v != null && v instanceof KrollObject) {
 					KrollProxy[] pa = new KrollProxy[len];
 					for(int i = 0; i < len; i++) {
 						KrollObject ko = (KrollObject) a[i];
 						pa[i] = (KrollProxy) ko.getProxy();
 					}
 					d.put(key, pa);
-				} else {
+				} */else {
 
 					Object[] oa = new Object[len];
 					for(int i = 0; i < len; i++) {
@@ -96,8 +93,6 @@ public class TiConvert
 		} else if (value == null) {
 			d.put(key, null);
 		} else if (value instanceof KrollProxy) {
-			d.put(key, value);
-		} else if (value instanceof KrollCallback || value instanceof Function) {
 			d.put(key, value);
 		} else if (value instanceof Map) {
 			KrollDict dict = new KrollDict();

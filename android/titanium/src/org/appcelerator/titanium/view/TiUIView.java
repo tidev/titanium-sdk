@@ -351,7 +351,7 @@ public abstract class TiUIView
 			// Update first before querying.
 			proxy.setProperty(key, newValue, false);
 
-			KrollDict d = proxy.getProperties();
+			/*TODO KrollDict d = proxy.getProperties();
 
 			boolean hasImage = hasImage(d);
 			boolean hasColorState = hasColorState(d);
@@ -418,7 +418,7 @@ public abstract class TiUIView
 			}
 			if (nativeView != null) {
 				nativeView.postInvalidate();
-			}
+			}*/
 		} else if (key.equals(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) {
 			Log.w(LCAT, "Focus state changed to " + TiConvert.toString(newValue) + " not honored until next focus event.");
 		} else if (key.equals(TiC.PROPERTY_TRANSFORM)) {
@@ -896,8 +896,10 @@ public abstract class TiUIView
 
 	public KrollDict toImage()
 	{
-		return TiUIHelper.viewToImage(proxy.getTiContext(), proxy.getProperties(), getNativeView());
+		return null;
+		//return TiUIHelper.viewToImage(proxy.getTiContext(), proxy.getProperties(), getNativeView());
 	}
+
 	private View getTouchView()
 	{
 		if (nativeView != null) {

@@ -18,12 +18,20 @@ import android.content.res.AssetManager;
  */
 public final class Assets {
 
+	private static Assets instance_;
+
 	/**
 	 * Initialize Assets with AssetManager
 	 * @param assetManager
 	 */
 	public static void init(AssetManager assetManager) {
-		assign(assetManager != null ? new Assets(assetManager) : null);
+		instance_ = assetManager != null ? new Assets(assetManager) : null;
+		assign(instance_);
+	}
+
+	public static Assets getInstance()
+	{
+		return instance_;
 	}
 
 	private final AssetManager assetManager;
@@ -32,7 +40,7 @@ public final class Assets {
 		this.assetManager = assetManager;
 	}
 	
-	private char[] readResource(String path) throws IOException {
+	public char[] readResource(String path) throws IOException {
 		AssetFileDescriptor fd = assetManager.openFd(path);
 		try {
 			long length = fd.getDeclaredLength();

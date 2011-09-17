@@ -28,10 +28,10 @@ public class KrollModule extends KrollProxy
 		super(context);
 
 		Class<? extends KrollModule> moduleClass = getClass();
-		if (!initializedTemplates.contains(moduleClass)) {
+		/*if (!initializedTemplates.contains(moduleClass)) {
 			V8Runtime.initModuleTemplate(moduleClass);
 			initializedTemplates.add(moduleClass);
-		}
+		}*/
 
 		context.addOnLifecycleEventListener(this);
 		modelListener = this;

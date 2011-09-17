@@ -86,9 +86,9 @@ public class TiRootActivity extends TiLaunchActivity
 		}
 		if (tiContext != null) {
 			TiApplication app = tiContext.getTiApp();
-			if (app != null) {
+			/*if (app != null) {
 				app.releaseModules();
-			}
+			}*/
 			tiContext.release();
 		}
 		TiFastDev.onDestroy();
