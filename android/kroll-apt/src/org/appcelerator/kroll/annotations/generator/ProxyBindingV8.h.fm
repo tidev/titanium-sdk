@@ -18,7 +18,7 @@ class ${proxyClassName} : public JavaObject {
 public:
 	explicit ${proxyClassName}(jobject javaObject);
 
-	static void Initialize(v8::Handle<v8::Object> ti);
+	static void Initialize(v8::Handle<v8::Object> ti, JNIEnv* env);
 	static v8::Handle<v8::Value> Constructor(const v8::Arguments& args);
 
 	// Methods -----------------------------------------------------------

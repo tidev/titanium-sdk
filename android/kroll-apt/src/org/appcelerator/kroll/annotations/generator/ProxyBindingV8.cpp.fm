@@ -38,8 +38,14 @@ ${proxyClassName}::${proxyClassName}(jobject javaObject) : JavaObject(javaObject
 {
 }
 
-void ${proxyClassName}::Initialize(Handle<Object> ti)
+void ${proxyClassName}::Initialize(Handle<Object> ti, JNIEnv* env)
 {
+	// Query the Java class for this proxy.
+	javaClass = env->FindClass("${packageName?replace('.','/')}/${proxyClassName}");
+
+	// Register a proxy factory for this type.
+	ProxyFactory::setFactoryForClass(new ${proxyClassName}Factory, javaClass);
+
 	HandleScope scope;
 
 	Local<FunctionTemplate> t = FunctionTemplate::New(${proxyClassName}::Constructor);
@@ -47,7 +53,9 @@ void ${proxyClassName}::Initialize(Handle<Object> ti)
 	proxyTemplate->InstanceTemplate()->SetInternalFieldCount(1);
 	proxyTemplate->SetClassName(String::NewSymbol("${proxyAttrs.name}"));
 
-	<#-- TODO: bind methods to prototype template. -->
+	<@Proxy.listMethods ; isFirst, name, method, signature>
+	V8_SET_PROTOTYPE_METHOD(proxyTemplate, "${name}", ${proxyClassName}::${name});
+	</@Proxy.listMethods>
 
 	ti->Set(String::NewSymbol("${proxyAttrs.name}"), proxyTemplate->GetFunction());
 }
