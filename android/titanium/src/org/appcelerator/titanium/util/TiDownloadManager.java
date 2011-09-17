@@ -125,7 +125,7 @@ public class TiDownloadManager implements Handler.Callback
 			this.uri = uri;
 		}
 		
-		@Override
+		// TODO // TODO @Override
 		public void run()
 		{
 			try {
@@ -144,7 +144,7 @@ public class TiDownloadManager implements Handler.Callback
 		}
 	}
 
-	@Override
+	// TODO @Override
 	public boolean handleMessage(Message msg) {
 		switch (msg.what) {
 			case MSG_FIRE_DOWNLOAD_FINISHED:

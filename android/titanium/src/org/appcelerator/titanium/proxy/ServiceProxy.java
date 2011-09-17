@@ -119,9 +119,9 @@ public class ServiceProxy extends KrollProxy
 	{
 		serviceConnection = new ServiceConnection()
 		{
-			@Override
+			// TODO @Override
 			public void onServiceDisconnected(ComponentName name) {}
-			@Override
+			// TODO @Override
 			public void onServiceConnected(ComponentName name, IBinder service)
 			{
 				if (service instanceof TiServiceBinder) {

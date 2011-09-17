@@ -183,7 +183,7 @@ public class ActivityProxy extends KrollProxy
 		}
 	}
 
-	@Override
+	// TODO @Override
 	public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
 	{
 		/*if (resultCallback == null) return;
@@ -195,7 +195,7 @@ public class ActivityProxy extends KrollProxy
 		resultCallback.callAsync(event);*/
 	}
 
-	@Override
+	// TODO @Override
 	public void onError(Activity activity, int requestCode, Exception e)
 	{
 		/*if (resultCallback == null) return;

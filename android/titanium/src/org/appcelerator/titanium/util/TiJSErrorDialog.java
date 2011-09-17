@@ -74,7 +74,7 @@ public class TiJSErrorDialog
 			dialogShowing = true;
 			final ErrorMessage fError = error;
 			TiUIHelper.waitForCurrentActivity(new CurrentActivityListener() {
-				@Override
+				// TODO @Override
 				public void onCurrentActivityReady(Activity activity)
 				{
 					createDialog(fError);

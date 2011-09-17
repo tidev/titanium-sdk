@@ -503,7 +503,7 @@ public abstract class TiUIView
 		}
 	}
 
-	@Override
+	// TODO @Override
 	public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy)
 	{
 		for (KrollPropertyChange change : changes) {
@@ -876,7 +876,7 @@ public abstract class TiUIView
 	{
 		clickable.setOnKeyListener(new OnKeyListener() {
 			
-			@Override
+			// TODO @Override
 			public boolean onKey(View view, int keyCode, KeyEvent event) 
 			{
 				if (event.getAction() == KeyEvent.ACTION_UP) {
@@ -962,7 +962,7 @@ public abstract class TiUIView
 	{
 		view.setOnClickListener(new OnClickListener()
 		{
-			@Override
+			// TODO @Override
 			public void onClick(View view)
 			{
 				proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(lastUpEvent));
@@ -973,7 +973,7 @@ public abstract class TiUIView
 	{
 		view.setOnLongClickListener(new OnLongClickListener()
 		{
-			@Override
+			// TODO @Override
 			public boolean onLongClick(View view)
 			{
 				return proxy.fireEvent(TiC.EVENT_LONGCLICK, null);
