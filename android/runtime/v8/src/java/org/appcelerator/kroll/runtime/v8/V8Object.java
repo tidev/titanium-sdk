@@ -6,10 +6,16 @@
  */
 package org.appcelerator.kroll.runtime.v8;
 
-public final class V8Object extends ManagedV8Object {
+public class V8Object
+{
+	protected long ptr;
 
-	protected V8Object(long ptr) {
-		super(ptr);
+	public V8Object(long ptr) {
+		this.ptr = ptr;
+	}
+
+	public long getPointer() {
+		return ptr;
 	}
 
 	public Object get(String name) {
@@ -56,6 +62,13 @@ public final class V8Object extends ManagedV8Object {
 		return nativeKeys(ptr);
 	}
 
+	@Override
+	protected void finalize() throws Throwable {
+		super.finalize();
+		nativeRelease(ptr);
+		ptr = 0;
+	}
+
 	private native Object nativeGet(long ptr, String name);
 
 	private native Object nativeGetIndex(long ptr, int index);
@@ -70,4 +83,5 @@ public final class V8Object extends ManagedV8Object {
 
 	private native Object[] nativeKeys(long ptr);
 
+	private static native void nativeRelease(long ptr);
 }
