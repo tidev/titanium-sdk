@@ -69,8 +69,27 @@ private:
 	size_t buf_len_;
 };
 
+class V8Isolate
+{
+public:
+	V8Isolate()
+	{
+		if (v8::Isolate::GetCurrent() == NULL)
+		{
+			v8::Isolate::New()->Enter();
+			//v8::internal::Isolate::Current()->InitializeLoggingAndCounters();
+		}
+	}
+
+	bool IsAlive()
+	{
+		return !v8::V8::IsExecutionTerminating(v8::Isolate::GetCurrent()) && !v8::V8::IsDead();
+	}
+};
+
 v8::Handle<v8::Value> ExecuteString(v8::Handle<v8::String> source, v8::Handle<v8::Value> filename);
-v8::Handle<v8::Value> NewInstanceFromConstructorTemplate(v8::Persistent<v8::FunctionTemplate>& t, const v8::Arguments& args);
+v8::Handle<v8::Value> NewInstanceFromConstructorTemplate(v8::Persistent<v8::FunctionTemplate>& t,
+	const v8::Arguments& args);
 void ReportException(v8::TryCatch &try_catch, bool show_line);
 void FatalException(v8::TryCatch &try_catch);
 
