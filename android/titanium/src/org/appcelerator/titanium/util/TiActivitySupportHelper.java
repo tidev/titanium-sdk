@@ -6,16 +6,12 @@
  */
 package org.appcelerator.titanium.util;
 
-import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.appcelerator.titanium.TiBaseActivity.ConfigurationChangedListener;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.content.res.Configuration;
 
 public class TiActivitySupportHelper
 	implements TiActivitySupport

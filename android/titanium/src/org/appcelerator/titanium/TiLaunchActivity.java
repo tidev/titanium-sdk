@@ -72,9 +72,9 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 				Log.d(TAG, "Eval JS Activity:" + fullUrl);
 			}
 			tiContext.evalFile(fullUrl);
-		} catch (IOException e) {
+		/*} catch (IOException e) {
 			e.printStackTrace();
-			finish();
+			finish();*/
 		} finally {
 			if (DBG) {
 				Log.d(TAG, "Signal JS loaded");

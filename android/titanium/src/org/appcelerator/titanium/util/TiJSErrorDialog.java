@@ -171,10 +171,10 @@ public class TiJSErrorDialog
 
 	protected static void reload(TiContext tiContext, String sourceName)
 	{
-		try {
+		//try {
 			tiContext.evalFile(sourceName);
-		} catch (IOException e) {
+		/*} catch (IOException e) {
 			Log.e(TAG, e.getMessage(), e);
-		}
+		}*/
 	}
 }
