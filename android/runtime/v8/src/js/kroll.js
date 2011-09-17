@@ -1,83 +1,82 @@
 (function(self) {
-  global = this;
+	global = this;
 
-  function startup() {
-  	startup.globalVariables();
-  }
+	function startup() {
+		startup.globalVariables();
+	}
 
-  startup.globalVariables = function() {
-    global.kroll = self;
-    global.global = global;
-    global.GLOBAL = global;
-  };
+	startup.globalVariables = function() {
+		global.kroll = self;
+		global.global = global;
+		global.GLOBAL = global;
+	};
 
-  var runInThisContext = self.binding('evals').Script.runInThisContext;
+	var runInThisContext = self.binding('evals').Script.runInThisContext;
 
-  function NativeModule(id) {
-    this.filename = id + '.js';
-    this.id = id;
-    this.exports = {};
-    this.loaded = false;
-  }
+	function NativeModule(id) {
+		this.filename = id + '.js';
+		this.id = id;
+		this.exports = {};
+		this.loaded = false;
+	}
 
-  NativeModule._source = self.binding('natives');
-  NativeModule._cache = {};
+	NativeModule._source = self.binding('natives');
+	NativeModule._cache = {};
 
-  NativeModule.require = function(id) {
-    if (id == 'native_module') {
-      return NativeModule;
-    }
+	NativeModule.require = function(id) {
+		if (id == 'native_module') {
+			return NativeModule;
+		}
 
-    var cached = NativeModule.getCached(id);
-    if (cached) {
-      return cached.exports;
-    }
+		var cached = NativeModule.getCached(id);
+		if (cached) {
+			return cached.exports;
+		}
 
-    if (!NativeModule.exists(id)) {
-      throw new Error('No such native module ' + id);
-    }
+		if (!NativeModule.exists(id)) {
+			throw new Error('No such native module ' + id);
+		}
 
-    var nativeModule = new NativeModule(id);
+		var nativeModule = new NativeModule(id);
 
-    nativeModule.compile();
-    nativeModule.cache();
+		nativeModule.compile();
+		nativeModule.cache();
 
-    return nativeModule.exports;
-  };
+		return nativeModule.exports;
+	};
 
-  NativeModule.getCached = function(id) {
-    return NativeModule._cache[id];
-  }
+	NativeModule.getCached = function(id) {
+		return NativeModule._cache[id];
+	}
 
-  NativeModule.exists = function(id) {
-    return (id in NativeModule._source);
-  }
+	NativeModule.exists = function(id) {
+		return (id in NativeModule._source);
+	}
 
-  NativeModule.getSource = function(id) {
-    return NativeModule._source[id];
-  }
+	NativeModule.getSource = function(id) {
+		return NativeModule._source[id];
+	}
 
-  NativeModule.wrap = function(script) {
-    return NativeModule.wrapper[0] + script + NativeModule.wrapper[1];
-  };
+	NativeModule.wrap = function(script) {
+		return NativeModule.wrapper[0] + script + NativeModule.wrapper[1];
+	};
 
-  NativeModule.wrapper = [
-    '(function (exports, require, module, __filename, __dirname) { ',
-    '\n});'
-  ];
+	NativeModule.wrapper = [
+		'(function (exports, require, module, __filename, __dirname) { ',
+		'\n});' ];
 
-  NativeModule.prototype.compile = function() {
-    var source = NativeModule.getSource(this.id);
-    source = NativeModule.wrap(source);
+	NativeModule.prototype.compile = function() {
+		var source = NativeModule.getSource(this.id);
+		source = NativeModule.wrap(source);
 
-    var fn = runInThisContext(source, this.filename, true);
-    fn(this.exports, NativeModule.require, this, this.filename);
-    this.loaded = true;
-  };
+		var fn = runInThisContext(source, this.filename, true);
+		fn(this.exports, NativeModule.require, this, this.filename);
+		this.loaded = true;
+	};
 
-  NativeModule.prototype.cache = function() {
-    NativeModule._cache[this.id] = this;
-  };
+	NativeModule.prototype.cache = function() {
+		NativeModule._cache[this.id] = this;
+	};
 
-  startup();
+	startup();
 });

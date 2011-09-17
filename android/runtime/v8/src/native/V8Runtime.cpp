@@ -43,8 +43,8 @@ jobject V8Runtime::newObject(Handle<Object> object)
 	v8Object = env->NewGlobalRef(env->NewObject(JNIUtil::v8ObjectClass, JNIUtil::v8ObjectInitMethod, ptr));
 
 	// make a 2nd persistent weakref so we can be informed of GC
-	Persistent<Object> weak = Persistent<Object>::New(object);
-	weak.MakeWeak(reinterpret_cast<void*>(v8Object), V8Runtime::collectWeakRef);
+	Persistent<Object> weakRef = Persistent<Object>::New(object);
+	weakRef.MakeWeak(reinterpret_cast<void*>(v8Object), V8Runtime::collectWeakRef);
 	return v8Object;
 }
 
@@ -61,6 +61,7 @@ static Handle<Value> binding(const Arguments& args)
 	if (binding_cache.IsEmpty()) {
 		binding_cache = Persistent<Object>::New(Object::New());
 	}
+
 	Local<Object> exports;
 	if (binding_cache->Has(module)) {
 		exports = binding_cache->Get(module)->ToObject();

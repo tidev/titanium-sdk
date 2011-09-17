@@ -313,6 +313,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	</target>
 
 	<target name="build.kroll.v8.jar">
+		<mkdir dir="${kroll.v8.project.dir}/bin"/>
 		<javac srcdir="${kroll.v8.project.dir}/src/java" destdir="${kroll.v8.project.dir}/bin">
 			<classpath refid="android"/>
 		</javac>
