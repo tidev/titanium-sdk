@@ -18,3 +18,6 @@ $(GENERATED_DIR)/KrollNatives.h: $(LOCAL_JS_FILES)
 	mkdir $(GENERATED_DIR) || echo
 	python $(JS2C) $(GENERATED_DIR)/KrollNatives.h $(LOCAL_JS_FILES)
 
+dummy:
+	echo $(PROXY_SOURCES)
+

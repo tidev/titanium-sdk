@@ -17,7 +17,7 @@ class ProxyFactory;
 class ProxyFactoryTable
 {
 public:
-	static ProxyFactory* lookup(jclass javaClass);
+	static ProxyFactory* lookup(jclass javaClass) { return NULL; }
 	static void registerForClass(const char* className, ProxyFactory* factory);
 };
 

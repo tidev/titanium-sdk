@@ -21,8 +21,6 @@ JS2C := $(TOOLS_DIR)/js2c.py
 include $(CLEAR_VARS)
 include $(LOCAL_PATH)/genSources.mk
 
-TITANIUM_GEN_SOURCES := $(addprefix $(TITANIUM_APT_GEN_DIR)/,$(GEN_SOURCES))
-
 LOCAL_MODULE := kroll-v8
 LOCAL_CFLAGS := -I$(LIBV8_DIR)/include $(PROXY_CFLAGS) -I$(GENERATED_DIR) -g
 LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -L$(LIBV8_DIR)/lib -ldl -llog -L$(TARGET_OUT)
