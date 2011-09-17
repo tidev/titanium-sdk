@@ -127,17 +127,26 @@ extern "C" {
  */
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_init(JNIEnv *env, jclass clazz, jobject self)
 {
+	LOGD("init", "-------1:");
 	jruntime = env->NewGlobalRef(self);
+        LOGD("init", "-------2:");
 	titanium::JNIUtil::initCache(env);
+        LOGD("init", "-------3");
 
 	V8::Initialize();
+	LOGD("init", "-------4");
 	HandleScope scope;
+	LOGD("init", "-------5");
 
 	context = Context::New();
+	LOGD("init", "-------6:");
 	Context::Scope context_scope(context);
+	LOGD("init", "-------7:");
 
 	titanium::V8Runtime::bootstrap();
+	LOGD("init", "-------8");
 	titanium::initKrollProxy();
+	LOGD("init", "-------9");
 }
 
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_evalData(JNIEnv *env, jclass clazz, jcharArray buffer, jstring filename)
