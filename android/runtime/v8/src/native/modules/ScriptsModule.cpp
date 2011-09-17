@@ -445,9 +445,12 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInNew
 	JNIEnv *env, jclass clazz, jstring source, jlong object_ptr, jstring filename)
 {
 	HandleScope scope;
-	Handle<Value> args[] = { TypeConverter::javaStringToJsString(source),
-			object_ptr != 0 ? Persistent<Object>((Object *) object_ptr) : Undefined(),
-		TypeConverter::javaStringToJsString(filename) };
+	Handle<Value> object = Undefined();
+	if (object_ptr != 0) {
+		object = Persistent<Object>((Object *) object_ptr);
+	}
+	Handle<Value> args[] = { TypeConverter::javaStringToJsString(source), object, TypeConverter::javaStringToJsString(
+		filename) };
 	Local<Function> wrappedScript = WrappedScript::constructor_template->GetFunction();
 	Local<Function> function = Local<Function>::Cast(wrappedScript->Get(v8::String::NewSymbol("runInNewContext")));
 	Local<Value> value = function->Call(function, 3, args);
