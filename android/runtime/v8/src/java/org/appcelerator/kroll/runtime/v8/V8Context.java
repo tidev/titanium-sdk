@@ -12,9 +12,13 @@ package org.appcelerator.kroll.runtime.v8;
  */
 public final class V8Context extends ManagedV8Object {
 
+	public V8Context() {
+		super(create(0));
+	}
+
 	public V8Context(V8Object object) {
-		super(create(object));
+		super(create(object.ptr));
 	}
 		
-	private static native long create(V8Object object);
+	private static native long create(long object_ptr);
 }

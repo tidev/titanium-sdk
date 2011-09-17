@@ -5,10 +5,12 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #include <v8.h>
+#include <jni.h>
 
 #include "NativeObject.h"
 #include "ScriptsModule.h"
 #include "V8Util.h"
+#include "TypeConverter.h"
 
 namespace titanium {
 using namespace v8;
@@ -22,9 +24,9 @@ public:
 	Persistent<Context> GetV8Context();
 	static Local<Object> NewInstance();
 
-protected:
-
 	static Persistent<FunctionTemplate> constructor_template;
+
+protected:
 
 	WrappedContext();
 	virtual ~WrappedContext();
@@ -55,8 +57,9 @@ public:
 	template<EvalInputFlags input_flag, EvalContextFlags context_flag, EvalOutputFlags output_flag>
 	static Handle<Value> EvalMachine(const Arguments& args);
 
-protected:
 	static Persistent<FunctionTemplate> constructor_template;
+
+protected:
 
 	WrappedScript()
 			: NativeObject()
@@ -364,3 +367,90 @@ void ScriptsModule::Initialize(Handle<Object> target)
 }
 
 }
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+using namespace v8;
+using namespace titanium;
+
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Context
+ * Method:    create
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Context_create(JNIEnv *env, jclass clazz,
+	jlong object_ptr)
+{
+	HandleScope scope;
+	// TODO: use object_ptr
+	Local<Object> context = WrappedContext::NewInstance();
+	return (jlong) *Persistent<Object>::New(context);
+}
+
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Script
+ * Method:    compile
+ * Signature: (Ljava/lang/String;)J
+ */
+JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_compile(JNIEnv *env, jclass clazz,
+	jstring string)
+{
+	HandleScope scope;
+	Handle<Value> args[] = { TypeConverter::javaStringToJsString(string) };
+	Handle<Object> script = WrappedScript::constructor_template->GetFunction()->NewInstance(1, args);
+	return (jlong) *Persistent<Object>::New(script);
+}
+
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Script
+ * Method:    runInContext
+ * Signature: (JJ)J
+ */
+JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContext__JJ(JNIEnv *env, jclass clazz,
+	jlong script_ptr, jlong context_ptr)
+{
+	return 0;
+}
+
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Script
+ * Method:    runInContext
+ * Signature: (Ljava/lang/String;J)J
+ */
+JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContext__Ljava_lang_String_2J(JNIEnv *env,
+	jclass clazz, jstring string, jlong context_ptr)
+{
+	return 0;
+}
+
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Script
+ * Method:    runInNewContext
+ * Signature: (JJ)J
+ */
+JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInNewContext__JJ(JNIEnv *env, jclass clazz,
+	jlong script_ptr, jlong object_ptr)
+{
+	return 0;
+}
+
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Script
+ * Method:    runInNewContext
+ * Signature: (Ljava/lang/String;J)J
+ */
+JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInNewContext__Ljava_lang_String_2J(
+	JNIEnv *env, jclass clazz, jstring string, jlong object_ptr)
+{
+	HandleScope scope;
+	Handle<Value> args[] = { TypeConverter::javaStringToJsString(string), Persistent<Object>((Object *) object_ptr) };
+	Local<Function> function = WrappedScript::constructor_template->GetFunction()->Get(v8::String::NewSymbol("runInNewContext"));
+	Local<Value> value = function->Call(function, object_ptr != 0 ? 2 : 1, args);
+	return (jlong) *Persistent<Object>::New(value);
+}
+
+#ifdef __cplusplus
+}
+#endif
