@@ -18,6 +18,8 @@ public:
 	static JNIEnv* getJNIEnv();
 	static void terminateVM();
 	static void initCache(JNIEnv *env);
+	static jclass findClass(const char *className, JNIEnv *env = NULL);
+	static jmethodID getMethodID(jclass javaClass, const char *methodName, const char *signature, JNIEnv *env = NULL);
 
 	static jobjectArray newObjectArray(int length, jobject initial = NULL);
 	static void throwException(jclass clazz, const char *message);

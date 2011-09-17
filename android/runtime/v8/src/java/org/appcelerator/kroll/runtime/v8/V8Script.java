@@ -10,7 +10,7 @@ package org.appcelerator.kroll.runtime.v8;
  * @author Max Stepanov
  *
  */
-public final class V8Script extends ManagedV8Object {
+public final class V8Script extends V8Object {
 
 	/**
 	 * Create precompiled script

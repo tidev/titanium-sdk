@@ -8,6 +8,9 @@
 #include <stdio.h>
 
 #include "JNIUtil.h"
+#include "AndroidUtil.h"
+
+#define TAG "JNIUtil"
 
 namespace titanium {
 
@@ -85,7 +88,7 @@ void JNIUtil::throwException(const char *className, const char *message)
 	if (!env) {
 		return;
 	}
-	jclass clazz = env->FindClass(className);
+	jclass clazz = findClass(className, env);
 	throwException(clazz, message);
 	env->DeleteLocalRef(clazz);
 }
@@ -98,42 +101,83 @@ void JNIUtil::throwNullPointerException(const char *message)
 {
 	throwException(nullPointerException, message);
 }
+jclass JNIUtil::findClass(const char *className, JNIEnv *env)
+{
+	if (!env) {
+		env = getJNIEnv();
+		if (!env) {
+			LOGE(TAG, "Couldn't initialize JNIEnv");
+			return NULL;
+		}
+	}
+
+	jclass javaClass = env->FindClass(className);
+	if (!javaClass) {
+		LOGE(TAG, "Couldn't find Java class: %s", className);
+		if (env->ExceptionCheck()) {
+			env->ExceptionDescribe();
+			env->ExceptionClear();
+		}
+	}
+	return javaClass;
+}
+
+jmethodID JNIUtil::getMethodID(jclass javaClass, const char *methodName, const char *signature, JNIEnv *env)
+{
+	if (!env) {
+		env = getJNIEnv();
+		if (!env) {
+			LOGE(TAG, "Couldn't initialize JNIEnv");
+			return NULL;
+		}
+	}
+
+	jmethodID javaMethodID = env->GetMethodID(javaClass, methodName, signature);
+	if (!javaMethodID) {
+		LOGE(TAG, "Couldn't find Java method ID: %s %s", methodName, signature);
+		if (env->ExceptionCheck()) {
+			env->ExceptionDescribe();
+			env->ExceptionClear();
+		}
+	}
+	return javaMethodID;
+}
 
 void JNIUtil::initCache(JNIEnv* env)
 {
-	objectClass = env->FindClass("java/lang/Object");
-	numberClass = env->FindClass("java/lang/Number");
-	stringClass = env->FindClass("java/lang/String");
-	shortClass = env->FindClass("java/lang/Short");
-	integerClass = env->FindClass("java/lang/Integer");
-	longClass = env->FindClass("java/lang/Long");
-	floatClass = env->FindClass("java/lang/Float");
-	doubleClass = env->FindClass("java/lang/Double");
-	booleanClass = env->FindClass("java/lang/Boolean");
-	hashMapClass = env->FindClass("java/util/HashMap");
-	dateClass = env->FindClass("java/util/Date");
-	setClass = env->FindClass("java/util/Set");
-	outOfMemoryError = env->FindClass("java/lang/OutOfMemoryError");
-	nullPointerException = env->FindClass("java/lang/NullPointerException");
-	krollProxyClass = env->FindClass("org/appcelerator/kroll/KrollProxy");
-	v8ObjectClass = env->FindClass("org/appcelerator/kroll/runtime/v8/V8Object");
+	objectClass = findClass("java/lang/Object", env);
+	numberClass = findClass("java/lang/Number", env);
+	stringClass = findClass("java/lang/String", env);
+	shortClass = findClass("java/lang/Short", env);
+	integerClass = findClass("java/lang/Integer", env);
+	longClass = findClass("java/lang/Long", env);
+	floatClass = findClass("java/lang/Float", env);
+	doubleClass = findClass("java/lang/Double", env);
+	booleanClass = findClass("java/lang/Boolean", env);
+	hashMapClass = findClass("java/util/HashMap", env);
+	dateClass = findClass("java/util/Date", env);
+	setClass = findClass("java/util/Set", env);
+	outOfMemoryError = findClass("java/lang/OutOfMemoryError", env);
+	nullPointerException = findClass("java/lang/NullPointerException", env);
+	krollProxyClass = findClass("org/appcelerator/kroll/KrollProxy", env);
+	v8ObjectClass = findClass("org/appcelerator/kroll/runtime/v8/V8Object", env);
 
-	hashMapInitMethod = env->GetMethodID(hashMapClass, "put", "(I)V");
-	hashMapGetMethod = env->GetMethodID(hashMapClass, "get", "(Ljava/lang/Object;);Ljava/lang/Object;");
-	hashMapPutMethod = env->GetMethodID(hashMapClass, "put",
-		"(Ljava/lang/Object;Ljava/lang/Object;);Ljava/lang/Object;");
-	hashMapKeySetMethod = env->GetMethodID(hashMapClass, "keySet", "();Ljava/util/Set;");
-	setToArrayMethod = env->GetMethodID(setClass, "toArray", "();[Ljava/lang/Object;");
+	hashMapInitMethod = getMethodID(hashMapClass, "<init>", "(I)V", env);
+	hashMapGetMethod = getMethodID(hashMapClass, "get", "(Ljava/lang/Object;)Ljava/lang/Object;", env);
+	hashMapPutMethod = getMethodID(hashMapClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", env);
+	hashMapKeySetMethod = getMethodID(hashMapClass, "keySet", "()Ljava/util/Set;", env);
 
-	dateInitMethod = env->GetMethodID(dateClass, "<init>", "(J)V");
-	dateGetTimeMethod = env->GetMethodID(dateClass, "getTime", "()J");
+	setToArrayMethod = getMethodID(setClass, "toArray", "()[Ljava/lang/Object;", env);
 
-	doubleInitMethod = env->GetMethodID(doubleClass, "<init>", "(D)V");
-	booleanInitMethod = env->GetMethodID(booleanClass, "<init>", "(Z)V");
-	longInitMethod = env->GetMethodID(longClass, "<init>", "(J)V");
+	dateInitMethod = getMethodID(dateClass, "<init>", "(J)V", env);
+	dateGetTimeMethod = getMethodID(dateClass, "getTime", "()J", env);
 
-	numberDoubleValueMethod = env->GetMethodID(numberClass, "doubleValue", "()J");
-	v8ObjectInitMethod = env->GetMethodID(v8ObjectClass, "<init>", "()V");
-	krollProxyGetV8ObjectPointerMethod = env->GetMethodID(krollProxyClass, "getV8ObjectPointer", "()J");
+	doubleInitMethod = getMethodID(doubleClass, "<init>", "(D)V", env);
+	booleanInitMethod = getMethodID(booleanClass, "<init>", "(Z)V", env);
+	longInitMethod = getMethodID(longClass, "<init>", "(J)V", env);
+	numberDoubleValueMethod = getMethodID(numberClass, "doubleValue", "()D", env);
+
+	v8ObjectInitMethod = getMethodID(v8ObjectClass, "<init>", "(J)V", env);
+	krollProxyGetV8ObjectPointerMethod = getMethodID(krollProxyClass, "getV8ObjectPointer", "()J", env);
 }
 }

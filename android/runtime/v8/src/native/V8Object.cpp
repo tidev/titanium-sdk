@@ -19,11 +19,11 @@ extern "C" {
 #endif
 
 /*
- * Class:     org_appcelerator_kroll_runtime_v8_ManagedV8Object
- * Method:    release
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Object
+ * Method:    nativeRelease
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_ManagedV8Object_release(JNIEnv *env, jclass clazz,
+void Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeRelease(JNIEnv *env, jclass clazz,
 	jlong ptr)
 {
 	if (ptr) {

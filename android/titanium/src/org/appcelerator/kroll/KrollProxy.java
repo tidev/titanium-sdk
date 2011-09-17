@@ -87,7 +87,7 @@ public class KrollProxy
 		return v8Object;
 	}
 
-	protected long getV8ObjectPointer()
+	public long getV8ObjectPointer()
 	{
 		return v8Object.getPointer();
 	}

@@ -98,13 +98,21 @@ Handle<Value> ${proxyClassName}::Constructor(const Arguments& args)
 
 // Methods ---------------------------------------------------------------
 <@Proxy.listMethods ; isFirst, name, method, signature>
-static jmethodID ${name}_methodID = JNIUtil::getJNIEnv()->GetMethodID(${proxyClassName}::javaClass, "${name}", "${signature}");
+static jmethodID ${name}_methodID = NULL;
 
 Handle<Value> ${proxyClassName}::${name}(const Arguments& args)
 {
 	HandleScope scope;
 	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (!env) return ThrowException(Exception::Error(String::New("couldn't init JNIEnv")));
+
+	static jmethodID ${name}_methodID = NULL;
+	if (!${name}_methodID) {
+		${name}_methodID = env->GetMethodID(${proxyClassName}::javaClass, "${name}", "${signature}");
+		if (!${name}_methodID) {
+			return ThrowException(Exception::Error(String::New("Couldn't find method: ${proxyClassName}.${name} ${signature}")));
+		}
+	}
 
 	<@Proxy.verifyAndConvertArguments method.args />
 	<@Proxy.callJNIMethod method.returnType, "${name}_methodID", "${proxyClassName}::javaClass", "jArguments" ;
