@@ -417,10 +417,10 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInCon
 /*
  * Class:     org_appcelerator_kroll_runtime_v8_V8Script
  * Method:    runInContext
- * Signature: (Ljava/lang/String;J)J
+ * Signature: (Ljava/lang/String;JLjava/lang/String;)J
  */
-JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContext__Ljava_lang_String_2J(JNIEnv *env,
-	jclass clazz, jstring string, jlong context_ptr)
+JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContext__Ljava_lang_String_2JLjava_lang_String_2(
+	JNIEnv *env, jclass clazz, jstring source, jlong context_ptr, jstring filename)
 {
 	return 0;
 }
@@ -439,17 +439,18 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInNew
 /*
  * Class:     org_appcelerator_kroll_runtime_v8_V8Script
  * Method:    runInNewContext
- * Signature: (Ljava/lang/String;J)J
+ * Signature: (Ljava/lang/String;JLjava/lang/String;)J
  */
-JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInNewContext__Ljava_lang_String_2J(
-	JNIEnv *env, jclass clazz, jstring string, jlong object_ptr)
+JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInNewContext__Ljava_lang_String_2JLjava_lang_String_2(
+	JNIEnv *env, jclass clazz, jstring source, jlong object_ptr, jstring filename)
 {
 	HandleScope scope;
-	Handle<Value> args[] = { TypeConverter::javaStringToJsString(string), Persistent<Object>((Object *) object_ptr) };
-
+	Handle<Value> args[] = { TypeConverter::javaStringToJsString(source),
+			object_ptr != 0 ? Persistent<Object>((Object *) object_ptr) : Undefined(),
+		TypeConverter::javaStringToJsString(filename) };
 	Local<Function> wrappedScript = WrappedScript::constructor_template->GetFunction();
 	Local<Function> function = Local<Function>::Cast(wrappedScript->Get(v8::String::NewSymbol("runInNewContext")));
-	Local<Value> value = function->Call(function, object_ptr != 0 ? 2 : 1, args);
+	Local<Value> value = function->Call(function, 3, args);
 	return (jlong) *Persistent<Value>::New(value);
 }
 
