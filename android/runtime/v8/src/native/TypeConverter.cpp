@@ -9,7 +9,7 @@
 
 #include "TypeConverter.h"
 #include "JNIUtil.h"
-#include "NativeObject.h"
+#include "JavaObject.h"
 #include "ProxyFactoryTable.h"
 #include "ProxyFactory.h"
 
@@ -97,7 +97,7 @@ v8::Handle<v8::String> TypeConverter::javaStringToJsString(jstring javaString)
 	const char *nativeString = env->GetStringUTFChars(javaString, 0);
 	int nativeStringLength = env->GetStringUTFLength(javaString);
 
-	v8::Handle < v8::String > jsString = v8::String::New(nativeString, nativeStringLength);
+	v8::Handle<v8::String> jsString = v8::String::New(nativeString, nativeStringLength);
 	env->ReleaseStringUTFChars(javaString, nativeString);
 
 	return jsString;
@@ -126,12 +126,12 @@ v8::Handle<v8::Date> TypeConverter::javaDateToJsDate(jobject javaDate)
 	}
 
 	jlong epochTime = env->CallLongMethod(javaDate, JNIUtil::dateGetTimeMethod);
-	return v8::Handle < v8::Date > ::Cast(v8::Date::New((double) epochTime));
+	return v8::Handle<v8::Date>::Cast(v8::Date::New((double) epochTime));
 }
 
 v8::Handle<v8::Date> TypeConverter::javaLongToJsDate(jlong javaLong)
 {
-	return v8::Handle < v8::Date > ::Cast(v8::Date::New((double) javaLong));
+	return v8::Handle<v8::Date>::Cast(v8::Date::New((double) javaLong));
 }
 
 jarray TypeConverter::jsArrayToJavaArray(v8::Handle<v8::Array> jsArray)
@@ -145,7 +145,7 @@ jarray TypeConverter::jsArrayToJavaArray(v8::Handle<v8::Array> jsArray)
 	jobjectArray javaArray = env->NewObjectArray(arrayLength, JNIUtil::objectClass, NULL);
 
 	for (int i = 0; i < arrayLength; i++) {
-		v8::Local < v8::Value > element = jsArray->Get(i);
+		v8::Local<v8::Value> element = jsArray->Get(i);
 		jobject javaObject = jsValueToJavaObject(element);
 		env->SetObjectArrayElement(javaArray, i, javaObject);
 		env->DeleteLocalRef(javaObject);
@@ -162,7 +162,7 @@ v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray(jbooleanArray javaBoolea
 	}
 
 	int arrayLength = env->GetArrayLength(javaBooleanArray);
-	v8::Handle < v8::Array > jsArray = v8::Array::New(arrayLength);
+	v8::Handle<v8::Array> jsArray = v8::Array::New(arrayLength);
 
 	jboolean *arrayElements = env->GetBooleanArrayElements(javaBooleanArray, 0);
 	for (int i = 0; i < arrayLength; i++) {
@@ -205,11 +205,11 @@ v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray(jobjectArray javaObjectA
 	}
 
 	int arrayLength = env->GetArrayLength(javaObjectArray);
-	v8::Handle < v8::Array > jsArray = v8::Array::New(arrayLength);
+	v8::Handle<v8::Array> jsArray = v8::Array::New(arrayLength);
 
 	for (int i = 0; i < arrayLength; i++) {
 		jobject javaArrayElement = env->GetObjectArrayElement(javaObjectArray, i);
-		v8::Handle < v8::Value > jsArrayElement = TypeConverter::javaObjectToJsValue(javaArrayElement);
+		v8::Handle<v8::Value> jsArrayElement = TypeConverter::javaObjectToJsValue(javaArrayElement);
 		jsArray->Set((uint32_t) i, jsArrayElement);
 		env->DeleteLocalRef(javaArrayElement);
 	}
@@ -235,30 +235,30 @@ jobject TypeConverter::jsValueToJavaObject(v8::Local<v8::Value> jsValue)
 	} else if (jsValue->IsString()) {
 		return TypeConverter::jsStringToJavaString(jsValue->ToString());
 	} else if (jsValue->IsDate()) {
-		jlong javaLong = TypeConverter::jsDateToJavaLong(v8::Handle < v8::Date > ::Cast(jsValue));
+		jlong javaLong = TypeConverter::jsDateToJavaLong(v8::Handle<v8::Date>::Cast(jsValue));
 		return env->NewObject(JNIUtil::longClass, JNIUtil::longInitMethod, javaLong);
 	} else if (jsValue->IsArray()) {
-		return TypeConverter::jsArrayToJavaArray(v8::Handle < v8::Array > ::Cast(jsValue));
+		return TypeConverter::jsArrayToJavaArray(v8::Handle<v8::Array>::Cast(jsValue));
 	} else if (jsValue->IsObject()) {
-		v8::Handle < v8::Object > jsObject = jsValue->ToObject();
+		v8::Handle<v8::Object> jsObject = jsValue->ToObject();
 
-		if (NativeObject::isNativeObject(jsObject)) {
-			NativeObject *nativeObject =  NativeObject::Unwrap<NativeObject>(jsObject);
-	
-			return nativeObject->getJavaObject();
+		if (JavaObject::isJavaObject(jsObject)) {
+			JavaObject *javaObject = JavaObject::Unwrap<JavaObject>(jsObject);
+			return javaObject->getJavaObject();
 		} else {
-			v8::Handle < v8::Array > objectKeys = jsObject->GetOwnPropertyNames();
+			v8::Handle<v8::Array> objectKeys = jsObject->GetOwnPropertyNames();
 			int numKeys = objectKeys->Length();
 
 			jobject javaHashMap = env->NewObject(JNIUtil::hashMapClass, JNIUtil::hashMapInitMethod, numKeys);
 
 			for (int i = 0; i < numKeys; i++) {
-				v8::Local < v8::Value > jsObjectPropertyKey = objectKeys->Get((uint32_t) i);
+				v8::Local<v8::Value> jsObjectPropertyKey = objectKeys->Get((uint32_t) i);
 				jobject javaObjectPropertyKey = TypeConverter::jsValueToJavaObject(jsObjectPropertyKey);
-				v8::Local < v8::Value > jsObjectPropertyValue = jsObject->Get(jsObjectPropertyKey);
+				v8::Local<v8::Value> jsObjectPropertyValue = jsObject->Get(jsObjectPropertyKey);
 				jobject javaObjectPropertyValue = TypeConverter::jsValueToJavaObject(jsObjectPropertyValue);
 
-				env->CallObjectMethod(javaHashMap, JNIUtil::hashMapPutMethod, javaObjectPropertyKey, javaObjectPropertyValue);
+				env->CallObjectMethod(javaHashMap, JNIUtil::hashMapPutMethod, javaObjectPropertyKey,
+					javaObjectPropertyValue);
 			}
 
 			return javaHashMap;
@@ -286,7 +286,7 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 	} else if (env->IsInstanceOf(javaObjectClass, JNIUtil::dateClass)) {
 		return TypeConverter::javaDateToJsDate(javaObject);
 	} else if (env->IsInstanceOf(javaObjectClass, JNIUtil::hashMapClass)) {
-		v8::Handle < v8::Object > jsObject = v8::Object::New();
+		v8::Handle<v8::Object> jsObject = v8::Object::New();
 
 		jobject hashMapSet = env->CallObjectMethod(javaObject, JNIUtil::hashMapKeySetMethod);
 
@@ -296,7 +296,7 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 
 		for (int i = 0; i < hashMapKeysLength; i++) {
 			jobject javaPairKey = env->GetObjectArrayElement(hashMapKeys, i);
-			v8::Handle < v8::Value > jsPairKey = TypeConverter::javaObjectToJsValue(javaPairKey);
+			v8::Handle<v8::Value> jsPairKey = TypeConverter::javaObjectToJsValue(javaPairKey);
 
 			jobject javaPairValue = env->CallObjectMethod(javaObject, JNIUtil::hashMapGetMethod, javaPairKey);
 			env->DeleteLocalRef(javaPairKey);
@@ -310,11 +310,11 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 	} else if (env->IsInstanceOf(javaObjectClass, JNIUtil::krollProxyClass)) {
 		jlong v8ObjectPointer = env->CallLongMethod(javaObject, JNIUtil::krollProxyGetV8ObjectPointerMethod);
 		if (v8ObjectPointer > 0) {
-			v8::Handle < v8::Object > v8ObjectPointerHandle((v8::Object*) v8ObjectPointer);
+			v8::Handle<v8::Object> v8ObjectPointerHandle((v8::Object*) v8ObjectPointer);
 			return v8ObjectPointerHandle;
 		} else {
 			ProxyFactory *proxyFactory = ProxyFactoryTable::lookup(env->GetObjectClass(javaObject));
-			v8::Handle < v8::Object > proxyHandle = proxyFactory->create(javaObject);
+			v8::Handle<v8::Object> proxyHandle = proxyFactory->create(javaObject);
 			return proxyHandle;
 		}
 	}
@@ -333,7 +333,7 @@ v8::Handle<v8::Array> TypeConverter::javaDoubleArrayToJsNumberArray(jdoubleArray
 	}
 
 	int arrayLength = env->GetArrayLength(javaDoubleArray);
-	v8::Handle < v8::Array > jsArray = v8::Array::New(arrayLength);
+	v8::Handle<v8::Array> jsArray = v8::Array::New(arrayLength);
 
 	jdouble *arrayElements = env->GetDoubleArrayElements(javaDoubleArray, 0);
 	for (int i = 0; i < arrayLength; i++) {

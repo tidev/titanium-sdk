@@ -21,7 +21,7 @@ namespace titanium {
 jclass ${proxyClassName}::javaClass = JNIUtil::getJNIEnv()->FindClass("${packageName?replace('.','/')}/${proxyClassName}");
 Persistent<FunctionTemplate> ${proxyClassName}::proxyTemplate = Persistent<FunctionTemplate>();
 
-${proxyClassName}::${proxyClassName}(jobject javaObject) : NativeObject(javaObject)
+${proxyClassName}::${proxyClassName}(jobject javaObject) : JavaObject(javaObject)
 {
 }
 
