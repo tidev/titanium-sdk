@@ -16,6 +16,8 @@ namespace titanium {
 class V8Runtime
 {
 public:
+	static Persistent<Context> globalContext;
+
 	static jobject newObject(Handle<Object> object);
 
 	static void collectWeakRef(Persistent<Value> ref, void *parameter);

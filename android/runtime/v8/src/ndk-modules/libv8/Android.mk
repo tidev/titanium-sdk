@@ -6,14 +6,22 @@ V8_VERSION=3.6.4
 LIBV8_DIR := ../../../../../../dist/android/libv8/$(V8_VERSION)
 
 LIBV8 := libv8-device
+ifeq ($(NDK_DEBUG),1)
+LIBV8 := libv8-device_g
+endif
+
 LIBV8_MODE := release
 
 ifeq ($(V8_EMULATOR),1)
 LIBV8 := libv8-emulator
+
+ifeq ($(NDK_DEBUG),1)
+LIBV8 := libv8-emulator_g
+endif
+
 endif
 
 ifeq ($(NDK_DEBUG),1)
-LIBV8 += _g
 LIBV8_MODE := debug
 endif
 

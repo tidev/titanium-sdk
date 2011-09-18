@@ -15,7 +15,6 @@
 
 using namespace titanium;
 
-
 #define LOG_LEVEL_TRACE 1
 #define LOG_LEVEL_DEBUG 2
 #define LOG_LEVEL_INFO 3

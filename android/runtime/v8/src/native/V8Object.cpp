@@ -7,9 +7,13 @@
 #include <jni.h>
 #include <v8.h>
 
+#include "AndroidUtil.h"
 #include <JNIUtil.h>
 #include <TypeConverter.h>
+#include "V8Runtime.h"
 #include "V8Util.h"
+
+#define TAG "V8Object"
 
 using namespace titanium;
 using namespace v8;
@@ -20,8 +24,8 @@ extern "C" {
 
 jlong Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCreateObject(JNIEnv *env, jobject javaObject)
 {
-	v8::HandleScope scope;
-	return (jlong) *(v8::Persistent<v8::Object>::New(v8::Object::New()));
+	HandleScope scope;
+	return (jlong) *(Persistent<Object>::New(Object::New()));
 }
 
 /*

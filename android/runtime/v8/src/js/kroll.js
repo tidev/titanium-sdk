@@ -1,13 +1,11 @@
 (function(self) {
-	global = this;
+	global = self;
 
 	function startup() {
 		startup.globalVariables();
 	}
 
 	startup.globalVariables = function() {
-		global.global = global;
-		global.GLOBAL = global;
 		global.Ti = global;
 		global.Titanium = global;
 	};

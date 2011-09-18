@@ -63,19 +63,20 @@ void ReportException(TryCatch &try_catch, bool show_line)
 	HandleScope scope;
 	Handle<Message> message = try_catch.Message();
 
+#define EXC_TAG "V8Exception"
 	if (show_line) {
 		Handle<Message> message = try_catch.Message();
 		if (!message.IsEmpty()) {
 			String::Utf8Value filename(message->GetScriptResourceName());
 			const char* filename_string = *filename;
 			int linenum = message->GetLineNumber();
-			LOGE("%s:%i\n", filename_string, linenum);
+			LOGE(EXC_TAG, "%s:%i\n", filename_string, linenum);
 		}
 	}
 
 	String::Utf8Value trace(try_catch.StackTrace());
 	if (trace.length() > 0 && !try_catch.StackTrace()->IsUndefined()) {
-		LOGE("%s\n", *trace);
+		LOGE(EXC_TAG, "%s\n", *trace);
 	} else {
 		Local<Value> er = try_catch.Exception();
 		bool isErrorObject = er->IsObject() && !(er->ToObject()->Get(String::New("message"))->IsUndefined())
@@ -83,12 +84,12 @@ void ReportException(TryCatch &try_catch, bool show_line)
 
 		if (isErrorObject) {
 			String::Utf8Value name(er->ToObject()->Get(String::New("name")));
-			LOGE("%s: ", *name);
+			LOGE(EXC_TAG, "%s: ", *name);
 		}
 
 		String::Utf8Value msg(
 			!isErrorObject ? er->ToString() : er->ToObject()->Get(String::New("message"))->ToString());
-		LOGE("%s\n", *msg);
+		LOGE(EXC_TAG, "%s\n", *msg);
 	}
 }
 

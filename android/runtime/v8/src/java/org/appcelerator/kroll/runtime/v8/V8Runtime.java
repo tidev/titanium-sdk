@@ -9,13 +9,18 @@ import android.util.Log;
 public final class V8Runtime
 {
 	private static final String TAG = "V8Runtime";
+	private static V8Context globalContext;
+
 	private V8Runtime() { }
 
 	public static V8Context init()
 	{
-		System.loadLibrary("kroll-v8");
-		long contextPtr = nativeInit(new V8Runtime());
-		return new V8Context(contextPtr);
+		if (globalContext == null) {
+			System.loadLibrary("kroll-v8");
+			long contextPtr = nativeInit(new V8Runtime());
+			globalContext = new V8Context(contextPtr);
+		}
+		return globalContext;
 	}
 
 	public static void evalFile(V8Object scope, String filename)
@@ -24,7 +29,7 @@ public final class V8Runtime
 			Log.d(TAG, "evalFile: " + filename);
 			char[] chars = Assets.readResource(filename);
 			if (chars != null && chars.length > 0) {
-				V8Script.runInContext(new String(chars), scope, filename);
+				V8Script.runInContext(new String(chars), globalContext, filename);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

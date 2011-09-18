@@ -9,21 +9,27 @@ package org.appcelerator.titanium.kroll;
 import java.util.concurrent.CountDownLatch;
 
 import org.appcelerator.kroll.runtime.v8.V8Context;
+import org.appcelerator.kroll.runtime.v8.V8Object;
 import org.appcelerator.kroll.runtime.v8.V8Runtime;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiMessageQueue;
+import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
+import android.os.Message;
 import android.os.Process;
+import android.os.Handler;
 
-public class KrollContext // implements Handler.Callback
+public class KrollContext implements Handler.Callback
 {
 	private static final String LCAT = "KrollContext";
 	private static boolean DBG = TiConfig.DEBUG;
 
 	private static final int MSG_EVAL_STRING = 1000;
 	private static final int MSG_EVAL_FILE = 1001;
+	private static final int MSG_CREATE_SCOPE = 1002;
 
 	private static final String STRING_SOURCE = "<anonymous>";
 
@@ -134,8 +140,8 @@ public class KrollContext // implements Handler.Callback
 		if (threadListener != null) {
 			threadListener.threadStarted(thread);
 		}
-		//messageQueue = TiMessageQueue.getMessageQueue();
-		//messageQueue.setCallback(this);
+		messageQueue = TiMessageQueue.getMessageQueue();
+		messageQueue.setCallback(this);
 
 		context = V8Runtime.init();
 		initialized.countDown();
@@ -148,27 +154,32 @@ public class KrollContext // implements Handler.Callback
 		}
 	}
 
-	/*
 	public boolean handleMessage(Message msg)
 	{
 		switch (msg.what)
 		{
 			case MSG_EVAL_STRING : {
-				AsyncResult result = (AsyncResult) msg.obj;
+				/*AsyncResult result = (AsyncResult) msg.obj;
 				String src = msg.getData().getString(TiC.MSG_PROPERTY_SRC);
 				result.setResult(handleEval(src));
-				return true;
+				return true;*/
 			}
 			case MSG_EVAL_FILE : {
 				AsyncResult result = (AsyncResult) msg.obj;
+				V8Object scope = (V8Object) result.getArg();
 				String filename = msg.getData().getString(TiC.MSG_PROPERTY_FILENAME);
-				result.setResult(handleEvalFile(filename));
+				result.setResult(handleEvalFile(scope, filename));
+				return true;
+			}
+			case MSG_CREATE_SCOPE: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				// this launches a native allocation
+				result.setResult(new V8Object());
 				return true;
 			}
 		}
 		return false;
 	}
-*/
 
 	public void post(Runnable r)
 	{
@@ -189,23 +200,31 @@ public class KrollContext // implements Handler.Callback
 		return thread;
 	}
 
-/*
-	public Object evalFile(String filename)
+	public Object evalFile(V8Object scope, String filename)
 	{
 		if (DBG) {
 			Log.i(LCAT, "evalFile: " + filename);
 		}
 
 		if (isOurThread()) {
-			return handleEvalFile(filename);
+			return handleEvalFile(scope, filename);
 		}
 
-		AsyncResult result = new AsyncResult();
+		AsyncResult result = new AsyncResult(scope);
 		Message msg = messageQueue.getHandler().obtainMessage(MSG_EVAL_FILE, result);
 		msg.getData().putString(TiC.MSG_PROPERTY_FILENAME, filename);
 		return TiMessageQueue.getMessageQueue().sendBlockingMessage(msg, messageQueue, result);
 	}
 
+	public V8Object createScope()
+	{
+		AsyncResult result = new AsyncResult();
+		Message msg = messageQueue.getHandler().obtainMessage(MSG_CREATE_SCOPE, result);
+
+		return (V8Object) TiMessageQueue.getMessageQueue().
+			sendBlockingMessage(msg, messageQueue, result);
+	}
+/*
 	public Object evaluateScript(String filename)
 	{
 		String[] parts = { filename };
@@ -213,30 +232,15 @@ public class KrollContext // implements Handler.Callback
 		
 		Context context = enter(false);
 		return evaluator.evaluateFile(context, jsScope, tbf, filename, 1, null);
-	}
+	}*/
 
-	public Object handleEvalFile(String filename)
+	public Object handleEvalFile(V8Object scope, String filename)
 	{
 		requireInitialized();
-		Object result = null;
-
-		try {
-			if (false && useOptimization) {
-				result = runCompiledScript(filename);
-			} else {
-				result = evaluateScript(filename);
-			}
-		} catch (EcmaError e) {
-			evaluator.handleEcmaError(e);
-		} catch (EvaluatorException e) {
-			evaluator.handleEvaluatorException(e);
-		} catch (Exception e) {
-			evaluator.handleException(e);
-		}
-
-		return result;
+		V8Runtime.evalFile(scope, filename);
+		return null;
 	}
-
+/*
 	public Object eval(String src)
 	{
 		if (isOurThread()) {

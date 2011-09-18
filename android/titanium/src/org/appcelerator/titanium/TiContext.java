@@ -12,6 +12,7 @@ import org.appcelerator.kroll.runtime.v8.V8Object;
 import org.appcelerator.kroll.runtime.v8.V8Runtime;
 import org.appcelerator.kroll.runtime.v8.V8Script;
 import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiFileHelper;
@@ -67,7 +68,7 @@ public class TiContext
 
 	public TiContext(Activity activity, String baseUrl)
 	{
-		scope = new V8Object();
+		scope = KrollContext.getKrollContext().createScope();
 
 		this.mainThreadId = Looper.getMainLooper().getThread().getId();
 		if (activity != null) {
@@ -175,7 +176,7 @@ public class TiContext
 		}*/
 
 		if (filename.startsWith("app://")) {
-			V8Runtime.evalFile(scope, filename.replaceAll("app:/", "Resources"));
+			KrollContext.getKrollContext().evalFile(scope, filename.replaceAll("app:/", "Resources"));
 		}
 
 		if (messenger != null) {

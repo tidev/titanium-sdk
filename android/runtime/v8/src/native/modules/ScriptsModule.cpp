@@ -7,10 +7,13 @@
 #include <v8.h>
 #include <jni.h>
 
+#include "AndroidUtil.h"
 #include "NativeObject.h"
 #include "ScriptsModule.h"
 #include "V8Util.h"
 #include "TypeConverter.h"
+
+#define TAG "ScriptsModule"
 
 namespace titanium {
 using namespace v8;
@@ -422,7 +425,26 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInCon
 JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContext__Ljava_lang_String_2JLjava_lang_String_2(
 	JNIEnv *env, jclass clazz, jstring source, jlong context_ptr, jstring filename)
 {
-	return 0;
+	HandleScope handleScope;
+	Handle<Context> ctx((Context *) context_ptr);
+	Context::Scope scope(ctx);
+
+	Handle<String> src = TypeConverter::javaStringToJsString(source);
+	Handle<String> fname = TypeConverter::javaStringToJsString(filename);
+	Handle<Script> script = Script::New(src, fname);
+
+	TryCatch tryCatch;
+	Handle<Value> result = script->Run();
+
+	if (tryCatch.HasCaught()) {
+		String::AsciiValue value(tryCatch.Exception());
+		LOGE(TAG, "Exception evaluating code: %s", *value);
+		return 0;
+	}
+
+	Persistent<Value> persistent = Persistent<Value>::New(result);
+
+	return (jlong) *persistent;
 }
 
 /*
@@ -449,8 +471,8 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInNew
 	if (object_ptr != 0) {
 		object = Persistent<Object>((Object *) object_ptr);
 	}
-	Handle<Value> args[] = { TypeConverter::javaStringToJsString(source), object, TypeConverter::javaStringToJsString(
-		filename) };
+
+	Handle<Value> args[] = { TypeConverter::javaStringToJsString(source), object, TypeConverter::javaStringToJsString(filename) };
 	Local<Function> wrappedScript = WrappedScript::constructor_template->GetFunction();
 	Local<Function> function = Local<Function>::Cast(wrappedScript->Get(v8::String::NewSymbol("runInNewContext")));
 	Local<Value> value = function->Call(function, 3, args);
