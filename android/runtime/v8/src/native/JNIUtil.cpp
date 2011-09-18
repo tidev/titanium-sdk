@@ -32,6 +32,7 @@ jclass JNIUtil::nullPointerException = NULL;
 
 jclass JNIUtil::krollProxyClass = NULL;
 jclass JNIUtil::v8ObjectClass = NULL;
+jclass JNIUtil::assetsClass = NULL;
 
 jmethodID JNIUtil::krollProxyGetV8ObjectPointerMethod = NULL;
 jmethodID JNIUtil::v8ObjectInitMethod = NULL;
@@ -46,6 +47,7 @@ jmethodID JNIUtil::doubleInitMethod = NULL;
 jmethodID JNIUtil::booleanInitMethod = NULL;
 jmethodID JNIUtil::longInitMethod = NULL;
 jmethodID JNIUtil::numberDoubleValueMethod = NULL;
+jmethodID JNIUtil::assetsReadResourceMethod = NULL;
 
 /* static */
 JNIEnv* JNIUtil::getJNIEnv()
@@ -161,6 +163,7 @@ void JNIUtil::initCache(JNIEnv* env)
 	nullPointerException = findClass("java/lang/NullPointerException", env);
 	krollProxyClass = findClass("org/appcelerator/kroll/KrollProxy", env);
 	v8ObjectClass = findClass("org/appcelerator/kroll/runtime/v8/V8Object", env);
+	assetsClass = findClass("org/appcelerator/kroll/runtime/Assets");
 
 	hashMapInitMethod = getMethodID(hashMapClass, "<init>", "(I)V", env);
 	hashMapGetMethod = getMethodID(hashMapClass, "get", "(Ljava/lang/Object;)Ljava/lang/Object;", env);
@@ -179,5 +182,6 @@ void JNIUtil::initCache(JNIEnv* env)
 
 	v8ObjectInitMethod = getMethodID(v8ObjectClass, "<init>", "(J)V", env);
 	krollProxyGetV8ObjectPointerMethod = getMethodID(krollProxyClass, "getV8ObjectPointer", "()J", env);
+	assetsReadResourceMethod = getMethodID(assetsClass, "readResource", "(Ljava/lang/String)[C", env);
 }
 }

@@ -7,41 +7,21 @@
 #include <jni.h>
 #include <v8.h>
 
+#include "Assets.h"
 #include "JNIUtil.h"
 #include "TypeConverter.h"
 
-static jobject gAssets;
-static jmethodID gReadResourceMethod;
-
 using namespace titanium;
 
-/*
- * Class:     org_appcelerator_kroll_runtime_Assets
- * Method:    assign
- * Signature: (Lorg/appcelerator/kroll/runtime/Assets;)V
- */
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_Assets_assign(JNIEnv *env, jclass clazz, jobject assets)
-{
-	if (gAssets) {
-		env->DeleteGlobalRef(gAssets);
-		gAssets = NULL;
-	}
-	if (assets) {
-		gAssets = env->NewGlobalRef(assets);
-		gReadResourceMethod = env->GetMethodID(clazz, "readResource", "(Ljava/lang/String;)[C");
-	}
-}
 
-namespace assets {
-
-v8::Handle<v8::Primitive> readResource(v8::Handle<v8::String> path)
+v8::Handle<v8::Primitive> Assets::readResource(v8::Handle<v8::String> path)
 {
 	JNIEnv *env = JNIUtil::getJNIEnv();
-	if (!gAssets || !env) {
+	if (!env) {
 		return v8::Null();
 	}
 	jstring jpath = TypeConverter::jsStringToJavaString(path);
-	jcharArray jarray = (jcharArray) env->CallObjectMethod(gAssets, gReadResourceMethod, jpath);
+	jcharArray jarray = (jcharArray) env->CallStaticObjectMethod(JNIUtil::assetsClass, JNIUtil::assetsReadResourceMethod, jpath);
 	jthrowable exc = env->ExceptionOccurred();
 	if (exc) {
 		env->ExceptionClear();
@@ -61,4 +41,4 @@ v8::Handle<v8::Primitive> readResource(v8::Handle<v8::String> path)
 	return jsString;
 }
 
-}
+

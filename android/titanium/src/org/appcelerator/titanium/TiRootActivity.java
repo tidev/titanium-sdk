@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium;
 
+import org.appcelerator.kroll.runtime.Assets;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiConfig;
@@ -34,8 +35,16 @@ public class TiRootActivity extends TiLaunchActivity
 		getTiApp().setCurrentActivity(this, this);
 		Log.checkpoint(LCAT, "checkpoint, on root activity create, savedInstanceState: " + savedInstanceState);
 		TiApplication app = getTiApp();
+
+		preV8Init();
+
 		app.setRootActivity(this);
 		super.onCreate(savedInstanceState);
+	}
+
+	private void preV8Init()
+	{
+		Assets.init(this);
 	}
 
 	@Override

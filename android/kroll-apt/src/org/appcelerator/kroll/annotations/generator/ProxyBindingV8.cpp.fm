@@ -33,7 +33,8 @@ public:
 		Local<Function> creator = ${proxyClassName}::proxyTemplate->GetFunction();
 		Local<Value> external = External::New(javaObject);
 		Local<Object> proxyObject = creator->NewInstance(1, &external);
-		return proxyObject;
+
+		return scope.Close(proxyObject);
 	}
 };
 
