@@ -482,8 +482,8 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 
 	<target name="update.libv8">
 		<property file="${ti.build.dir}/libv8.properties"/>
-		<property name="dist.libv8.dir" location="${dist.dir}/libv8/${libv8.version}"/>
-		<property name="libv8.archive" value="libv8-${libv8.version}.tar.bz2"/>
+		<property name="dist.libv8.dir" location="${dist.dir}/libv8/${libv8.version}/${libv8.mode}"/>
+		<property name="libv8.archive" value="libv8-${libv8.version}-${libv8.mode}.tar.bz2"/>
 		<mkdir dir="${dist.libv8.dir}"/>
 
 		<ti.jsonMap file="${dist.libv8.dir}/libv8.json" prefix="libv8.current"/>
