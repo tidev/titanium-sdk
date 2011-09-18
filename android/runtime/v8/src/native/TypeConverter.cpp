@@ -134,6 +134,28 @@ v8::Handle<v8::Date> TypeConverter::javaLongToJsDate(jlong javaLong)
 	return v8::Handle<v8::Date>::Cast(v8::Date::New((double) javaLong));
 }
 
+jobjectArray TypeConverter::jsArgumentsToJavaArray(const Arguments& args)
+{
+	JNIEnv *env = JNIUtil::getJNIEnv();
+	if (env == NULL) {
+		return NULL;
+	}
+
+	HandleScope scope;
+	int argCount = args.Length();
+	jobjectArray javaArgs = env->NewObjectArray(argCount, JNIUtil::objectClass, NULL);
+
+	for (int i = 0; i < argCount; ++i)
+	{
+		Local<Value> v8Arg = args[i];
+		jobject javaArg = jsValueToJavaObject(v8Arg);
+		env->SetObjectArrayElement(javaArgs, i, javaArg);
+		env->DeleteLocalRef(javaArg);
+	}
+
+	return javaArgs;
+}
+
 jarray TypeConverter::jsArrayToJavaArray(v8::Handle<v8::Array> jsArray)
 {
 	JNIEnv *env = JNIUtil::getJNIEnv();
