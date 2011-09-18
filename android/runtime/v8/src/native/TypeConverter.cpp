@@ -134,11 +134,13 @@ v8::Handle<v8::Date> TypeConverter::javaLongToJsDate(jlong javaLong)
 	return v8::Handle<v8::Date>::Cast(v8::Date::New((double) javaLong));
 }
 
-jobjectArray TypeConverter::jsArgumentsToJavaArray(const Arguments& args)
+jobjectArray TypeConverter::jsArgumentsToJavaArray(const Arguments& args, JNIEnv* env)
 {
-	JNIEnv *env = JNIUtil::getJNIEnv();
-	if (env == NULL) {
-		return NULL;
+	// Use the JNI environment if one is provided from the caller.
+	if (!env) {
+		env = JNIUtil::getJNIEnv();
+		if (!env)
+			return NULL;
 	}
 
 	HandleScope scope;
