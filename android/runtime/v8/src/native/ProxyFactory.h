@@ -36,7 +36,8 @@ public:
 	// jobject. This is done by passing it as an External value argument.
 	static jobject unwrapJavaProxy(const v8::Arguments& args);
 
-	static void setTemplateForClass(v8::FunctionTemplate* factory, jclass javaClass);
+	// Setup a new proxy pair for some Kroll type.
+	static void registerProxyPair(jclass javaProxyClass, v8::FunctionTemplate* factory);
 
 };
 

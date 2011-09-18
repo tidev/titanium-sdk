@@ -44,8 +44,8 @@ void ${proxyClassName}::Initialize(Handle<Object> ti, JNIEnv* env)
 
 	ti->Set(String::NewSymbol("${proxyAttrs.name}"), proxyTemplate->GetFunction());
 
-    // Register template with ProxyFactory.
-    ProxyFactory::setTemplateForClass(*proxyTemplate, javaClass);
+	// Register proxies with factory.
+    ProxyFactory::registerProxyPair(javaClass, *proxyTemplate);
 }
 
 Handle<Value> ${proxyClassName}::Constructor(const Arguments& args)
