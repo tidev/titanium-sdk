@@ -10,38 +10,26 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
+import android.app.Activity;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 
-/**
- * @author Max Stepanov
- */
+
 public final class Assets {
-
-	/**
-	 * Initialize Assets with AssetManager
-	 * @param assetManager
-	 */
-	public static void init(AssetManager assetManager) {
-		assign(new Assets(assetManager));
+	private static AssetManager assetManager = null;
+	
+	public static void init(Activity activity) {
+		assetManager = activity.getAssets();
 	}
 
-	private final AssetManager assetManager;
-	
-	public static Assets instance;
-
-	private Assets(AssetManager assetManager) {
-		this.assetManager = assetManager;
-		instance = this;
-	}
-	
-	public char[] readResource(String path) throws IOException {
+	public static char[] readResource(String path) throws IOException {
 		AssetFileDescriptor fd = assetManager.openFd(path);
 		try {
 			long length = fd.getDeclaredLength();
 			if (length > Integer.MAX_VALUE) {
 				return null;
 			}
+
 			char[] buffer = new char[(int)length];
 			Reader r = new InputStreamReader(fd.createInputStream());
 			if (r.read(buffer) > 0) {
@@ -52,7 +40,5 @@ public final class Assets {
 		}
 		return null;
 	}
-		
-	private static native void assign(Assets assets);
-
 }
+

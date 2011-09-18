@@ -429,7 +429,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<target name="clean.all">
 		<delete includeemptydirs="true" failonerror="false">
 			<fileset dir="${ti.build.dir}/bin" includes="**/*" defaultexcludes="false"/>
-			<fileset dir="${dist.dir}" includes="**/*" defaultexcludes="false"/>
+			<fileset dir="${dist.dir}" includes="**/*" excludes="libv8/**/*" defaultexcludes="false"/>
 			<fileset dir="${titanium.project.dir}/bin" includes="**/*" defaultexcludes="false"/>
 			<fileset dir="${titanium.project.dir}/.apt_generated" includes="**/*" defaultexcludes="false"/>
 			<fileset dir="${kroll.apt.project.dir}/bin" includes="**/*" defaultexcludes="false"/>

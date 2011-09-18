@@ -17,8 +17,9 @@ class V8Runtime
 {
 public:
 	static jobject newObject(Handle<Object> object);
+
 	static void collectWeakRef(Persistent<Value> ref, void *parameter);
-	static void bootstrap();
+	static void bootstrap(Local<Object> global);
 };
 }
 ;
