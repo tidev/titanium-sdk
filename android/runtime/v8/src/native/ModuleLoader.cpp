@@ -15,7 +15,7 @@ typedef void (*ModuleInit)(Handle<Object>);
 
 namespace titanium {
 
-Handle<Value> loadModule(const Arguments& args)
+Handle<Value> ModuleLoader::loadModule(const Arguments& args)
 { 
     HandleScope scope;
 

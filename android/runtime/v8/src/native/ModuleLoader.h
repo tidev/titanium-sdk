@@ -12,7 +12,11 @@
 
 namespace titanium {
 
-v8::Handle<v8::Value> loadModule(const v8::Arguments& args);
+class ModuleLoader
+{
+public:
+	static v8::Handle<v8::Value> loadModule(const v8::Arguments& args);
+};
 
 }
 
