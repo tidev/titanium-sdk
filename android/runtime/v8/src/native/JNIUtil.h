@@ -44,6 +44,7 @@ public:
 
 	static jclass krollProxyClass;
 	static jclass v8ObjectClass;
+	static jclass assetsClass;
 
 	static jmethodID hashMapInitMethod;
 	static jmethodID hashMapGetMethod;
@@ -58,6 +59,7 @@ public:
 	static jmethodID numberDoubleValueMethod;
 	static jmethodID krollProxyGetV8ObjectPointerMethod;
 	static jmethodID v8ObjectInitMethod;
+	static jmethodID assetsReadResourceMethod;
 
 };
 }

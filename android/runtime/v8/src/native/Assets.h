@@ -9,10 +9,15 @@
 
 #include <v8.h>
 
-namespace assets {
-
-v8::Handle<v8::Primitive> readResource(v8::Handle<v8::String> path);
-
+namespace titanium {
+class Assets
+{
+public:
+	static v8::Handle<v8::Primitive> readResource(v8::Handle<v8::String> path);
+};
 }
 
+
 #endif
+
+
