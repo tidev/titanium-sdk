@@ -81,6 +81,27 @@ public class KrollProxy
 		}
 	}
 
+	public KrollProxy create(Class objClass, Object[] creationArguments, long v8ObjectPointer)
+	{
+		KrollProxy proxyInstance = null;
+
+		try {
+			proxyInstance = (KrollProxy) objClass.newInstance();
+			proxyInstance.v8Object = new V8Object(v8ObjectPointer);
+			proxyInstance.handleCreationArgs(null, creationArguments);
+
+			return proxyInstance;
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
 	// direct accessors (these circumvent programmatic accessors and go straight to the internal map)
 	public V8Object getV8Object()
 	{
