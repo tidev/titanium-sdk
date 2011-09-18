@@ -86,8 +86,10 @@ Handle<Value> ${proxyClassName}::${name}(const Arguments& args)
 		}
 	}
 
+	${proxyClassName}* proxy = NativeObject::Unwrap<${proxyClassName}>(args.Holder());
+
 	<@Proxy.verifyAndConvertArguments method.args />
-	<@Proxy.callJNIMethod method.returnType, "${name}_methodID", "${proxyClassName}::javaClass", "jArguments" ;
+	<@Proxy.callJNIMethod method.returnType, "${name}_methodID", "proxy->getJavaObject()", "jArguments" ;
 		hasResult, resultVar>
 	<#if hasResult>
 	return ${resultVar};
