@@ -18,6 +18,12 @@ using namespace v8;
 extern "C" {
 #endif
 
+jlong Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCreateObject(JNIEnv *env, jobject javaObject)
+{
+	v8::HandleScope scope;
+	return (jlong) *(v8::Persistent<v8::Object>::New(v8::Object::New()));
+}
+
 /*
  * Class:     org_appcelerator_kroll_runtime_v8_V8Object
  * Method:    nativeRelease

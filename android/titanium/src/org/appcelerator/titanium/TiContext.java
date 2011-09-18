@@ -67,6 +67,8 @@ public class TiContext
 
 	public TiContext(Activity activity, String baseUrl)
 	{
+		scope = new V8Object();
+
 		this.mainThreadId = Looper.getMainLooper().getThread().getId();
 		if (activity != null) {
 			this.tiApp = (TiApplication) activity.getApplication();

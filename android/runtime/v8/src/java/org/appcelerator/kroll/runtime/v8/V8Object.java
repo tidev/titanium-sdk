@@ -14,6 +14,10 @@ public class V8Object
 		this.ptr = ptr;
 	}
 
+	public V8Object() {
+		this.ptr = nativeCreateObject();
+	}
+
 	public long getPointer() {
 		return ptr;
 	}
@@ -68,6 +72,8 @@ public class V8Object
 		nativeRelease(ptr);
 		ptr = 0;
 	}
+
+	private native long nativeCreateObject();
 
 	private native Object nativeGet(long ptr, String name);
 
