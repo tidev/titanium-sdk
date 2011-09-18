@@ -30,9 +30,10 @@ static Handle<Value> KrollProxyExtend(const Arguments& args)
 	return Undefined();
 }
 
-void initKrollProxy()
+void initKrollProxy(Handle<Object> ti, JNIEnv *env)
 {
 	HandleScope scope;
+	KrollProxy::Initialize(ti, env);
 	Handle<ObjectTemplate> prototype = KrollProxy::proxyTemplate->PrototypeTemplate();
 	prototype->Set(String::NewSymbol("extend"), FunctionTemplate::New(KrollProxyExtend)->GetFunction());
 }

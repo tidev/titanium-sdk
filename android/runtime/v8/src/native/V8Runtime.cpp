@@ -7,6 +7,7 @@
 #include <v8.h>
 #include <string.h>
 #include "V8Runtime.h"
+#include "V8Util.h"
 
 #include "AndroidUtil.h"
 #include "EventEmitter.h"
@@ -39,16 +40,14 @@ jobject V8Runtime::newObject(Handle<Object> object)
 	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (!env) return NULL;
 
-	jlong ptr = reinterpret_cast<jlong>(*Persistent<Object>::New(object));jobject
-	v8Object = env->NewGlobalRef(env->NewObject(JNIUtil::v8ObjectClass, JNIUtil::v8ObjectInitMethod, ptr));
+	jlong ptr = reinterpret_cast<jlong>(*Persistent<Object>::New(object));
+	jobject v8Object = env->NewGlobalRef(env->NewObject(JNIUtil::v8ObjectClass, JNIUtil::v8ObjectInitMethod, ptr));
 
 	// make a 2nd persistent weakref so we can be informed of GC
 	Persistent<Object> weakRef = Persistent<Object>::New(object);
 	weakRef.MakeWeak(reinterpret_cast<void*>(v8Object), V8Runtime::collectWeakRef);
 	return v8Object;
 }
-
-static Persistent<Object> global;
 
 static Handle<Value> binding(const Arguments& args)
 {
@@ -80,12 +79,10 @@ static Handle<Value> binding(const Arguments& args)
 }
 
 /* static */
-void V8Runtime::bootstrap()
+void V8Runtime::bootstrap(Local<Object> global)
 {
-	Local<FunctionTemplate> global_template = FunctionTemplate::New();
-	EventEmitter::Initialize(global_template);
+	EventEmitter::Initialize();
 
-	global = Persistent<Object>::New(global_template->GetFunction()->NewInstance());
 	global->Set(String::NewSymbol("binding"), FunctionTemplate::New(binding)->GetFunction());
 	global->Set(String::NewSymbol("EventEmitter"), EventEmitter::constructorTemplate->GetFunction());
 	global->Set(String::NewSymbol("API"), APIModule::init());
@@ -101,8 +98,8 @@ void V8Runtime::bootstrap()
 		ReportException(try_catch, true);
 		JNIUtil::terminateVM();
 	}
+
 	Handle<Function> mainFunction = Handle<Function>::Cast(result);
-	Local<Object> global = v8::Context::GetCurrent()->Global();
 	Local<Value> args[] = { Local<Value>::New(global) };
 	mainFunction->Call(global, 1, args);
 	if (try_catch.HasCaught()) {
@@ -111,10 +108,12 @@ void V8Runtime::bootstrap()
 	}
 }
 
-}
-
 static jobject jruntime;
 static Persistent<Context> context;
+static Persistent<ObjectTemplate> globalTemplate;
+
+} // namespace titanium
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -127,26 +126,23 @@ extern "C" {
  */
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_init(JNIEnv *env, jclass clazz, jobject self)
 {
-	LOGD("init", "-------1:");
-	jruntime = env->NewGlobalRef(self);
-        LOGD("init", "-------2:");
-	titanium::JNIUtil::initCache(env);
-        LOGD("init", "-------3");
-
-	V8::Initialize();
-	LOGD("init", "-------4");
 	HandleScope scope;
-	LOGD("init", "-------5");
 
-	context = Context::New();
-	LOGD("init", "-------6:");
-	Context::Scope context_scope(context);
-	LOGD("init", "-------7:");
+	titanium::jruntime = env->NewGlobalRef(self);
+	titanium::JNIUtil::initCache(env);
 
-	titanium::V8Runtime::bootstrap();
-	LOGD("init", "-------8");
-	titanium::initKrollProxy();
-	LOGD("init", "-------9");
+	if (!V8::Initialize()) {
+		LOGE(TAG, "V8 failed to initialize");
+		return;
+	}
+
+	titanium::context = Context::New();
+	Context::Scope contextScope(titanium::context);
+
+	Local<Object> global = titanium::context->Global();
+	titanium::V8Runtime::bootstrap(global);
+
+	titanium::initKrollProxy(global, env);
 }
 
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_evalData(JNIEnv *env, jclass clazz, jcharArray buffer, jstring filename)
@@ -182,10 +178,10 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_evalData
  */
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_dispose(JNIEnv *env, jclass clazz)
 {
-	context.Dispose();
+	titanium::context.Dispose();
 	V8::Dispose();
-	env->DeleteGlobalRef(jruntime);
-	jruntime = NULL;
+	env->DeleteGlobalRef(titanium::jruntime);
+	titanium::jruntime = NULL;
 }
 
 jint JNI_OnLoad(JavaVM *vm, void *reserved)

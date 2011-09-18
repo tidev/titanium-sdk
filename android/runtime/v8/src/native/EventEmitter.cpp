@@ -17,10 +17,10 @@ Persistent<FunctionTemplate> EventEmitter::constructorTemplate;
 
 static Persistent<String> eventsSymbol;
 
-void EventEmitter::Initialize(Local<FunctionTemplate> globalTemplate)
+void EventEmitter::Initialize()
 {
 	HandleScope scope;
-	constructorTemplate = Persistent<FunctionTemplate>::New(globalTemplate);
+	constructorTemplate = Persistent<FunctionTemplate>::New(FunctionTemplate::New());
 	constructorTemplate->SetClassName(String::NewSymbol("EventEmitter"));
 	eventsSymbol = SYMBOL_LITERAL("_events");
 }
