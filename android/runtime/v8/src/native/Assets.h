@@ -13,7 +13,7 @@ namespace titanium {
 class Assets
 {
 public:
-	static v8::Handle<v8::Primitive> readResource(v8::Handle<v8::String> path);
+	static v8::Handle<v8::Primitive> readResource(const char* path);
 };
 }
 

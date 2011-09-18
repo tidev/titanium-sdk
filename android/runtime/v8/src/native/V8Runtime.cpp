@@ -6,18 +6,19 @@
  */
 #include <v8.h>
 #include <string.h>
-#include "V8Runtime.h"
-#include "V8Util.h"
 
 #include "AndroidUtil.h"
+#include "APIModule.h"
+#include "Assets.h"
 #include "EventEmitter.h"
 #include "JNIUtil.h"
-#include "V8Util.h"
 #include "KrollJavaScript.h"
 #include "KrollProxy.h"
-#include "TypeConverter.h"
-#include "APIModule.h"
 #include "ScriptsModule.h"
+#include "TypeConverter.h"
+#include "V8Util.h"
+
+#include "V8Runtime.h"
 
 #define TAG "V8Runtime"
 
@@ -142,7 +143,6 @@ void V8Runtime::bootstrap(Local<Object> global)
 
 static jobject jruntime;
 static Persistent<Context> context;
-static Persistent<ObjectTemplate> globalTemplate;
 
 } // namespace titanium
 
@@ -153,10 +153,10 @@ extern "C" {
 
 /*
  * Class:     org_appcelerator_kroll_runtime_v8_V8Runtime
- * Method:    init
- * Signature: (Lorg/appcelerator/kroll/runtime/v8/V8Runtime;)V
+ * Method:    nativeInit
+ * Signature: (Lorg/appcelerator/kroll/runtime/v8/V8Runtime;)J
  */
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_init(JNIEnv *env, jclass clazz, jobject self)
+JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jclass clazz, jobject self)
 {
 	HandleScope scope;
 
@@ -165,7 +165,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_init(JNI
 
 	if (!V8::Initialize()) {
 		LOGE(TAG, "V8 failed to initialize");
-		return;
+		return 0;
 	}
 
 	titanium::context = Context::New();
@@ -174,44 +174,11 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_init(JNI
 	Local<Object> global = titanium::context->Global();
 	titanium::V8Runtime::bootstrap(global);
 
+	LOGD(TAG, "initKrollProxy");
 	titanium::initKrollProxy(global, env);
-}
 
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_evalData(JNIEnv *env, jclass clazz, jcharArray buffer, jstring filename)
-{
-	HandleScope scope;
-
-	LOGD("evalData", "-------1");
-	if (!buffer) {
-		// TODO throw exception
-		return;
-	}
-
-	LOGD("evalData", "-------2");
-	jint len = env->GetArrayLength(buffer);
-	LOGD("evalData", "-------3");
-	jchar *pchars = (jchar*) env->GetPrimitiveArrayCritical(buffer, 0);
-	LOGD("evalData", "-------4");
-	if (!pchars) {
-		// TODO throw exception
-		return;
-	}
-
-	LOGD("evalData", "-------5");
-	Handle<String> jsFilename = titanium::TypeConverter::javaStringToJsString(filename);
-	LOGD("evalData", "-------6");
-	ScriptOrigin origin(jsFilename);
-
-	LOGD("evalData", "-------7");
-	v8::Handle<v8::String> jsString = v8::String::New(pchars, len);
-	LOGD("evalData", "-------8");
-	v8::Handle<v8::Script> script = Script::New(jsString, &origin);
-	LOGD("evalData", "-------9");
-	env->ReleasePrimitiveArrayCritical(buffer, pchars, 0);
-
-	LOGD("evalData", "-------10");
-	script->Run();
-	LOGD("evalData", "-------11");
+	LOGD(TAG, "return casted context ptr");
+	return reinterpret_cast<long>(*titanium::context);
 }
 
 /*
@@ -229,9 +196,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_dispose(
 
 jint JNI_OnLoad(JavaVM *vm, void *reserved)
 {
-	LOGD("onload", "-------1");
 	titanium::JNIUtil::javaVm = vm;
-	LOGD("onload", "-------2");
 	return JNI_VERSION_1_4;
 }
 

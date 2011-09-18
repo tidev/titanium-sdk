@@ -10,6 +10,8 @@ import java.lang.ref.WeakReference;
 
 import org.appcelerator.kroll.runtime.v8.V8Object;
 import org.appcelerator.kroll.runtime.v8.V8Runtime;
+import org.appcelerator.kroll.runtime.v8.V8Script;
+import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiFileHelper;
@@ -170,7 +172,10 @@ public class TiContext
 			return null;
 		}*/
 
-		V8Runtime.evalFile(scope, filename);
+		if (filename.startsWith("app://")) {
+			V8Runtime.evalFile(scope, filename.replaceAll("app:/", "Resources"));
+		}
+
 		if (messenger != null) {
 			try {
 				Message msg = Message.obtain();
@@ -195,7 +200,7 @@ public class TiContext
 
 	public Object evalJS(String src)
 	{
-		return V8Runtime.evalString(scope, src, "<eval>");
+		return V8Script.runInContext(src, scope, "<eval>");
 	}
 
 	public V8Object getScope()

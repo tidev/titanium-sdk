@@ -9,33 +9,34 @@
 
 #include <v8.h>
 
-#define IMMUTABLE_STRING_LITERAL(string_literal)                                \
-  ::titanium::ImmutableAsciiStringLiteral::CreateFromLiteral(                   \
-      string_literal "", sizeof(string_literal) - 1)
-#define IMMUTABLE_STRING_LITERAL_FROM_ARRAY(string_literal, length)             \
-  ::titanium::ImmutableAsciiStringLiteral::CreateFromLiteral(                   \
-      string_literal, length)
+#define IMMUTABLE_STRING_LITERAL(string_literal) \
+	::titanium::ImmutableAsciiStringLiteral::CreateFromLiteral( \
+		string_literal "", sizeof(string_literal) - 1)
 
-#define SYMBOL_LITERAL(string_literal)											\
+#define IMMUTABLE_STRING_LITERAL_FROM_ARRAY(string_literal, length) \
+	::titanium::ImmutableAsciiStringLiteral::CreateFromLiteral( \
+	string_literal, length)
+
+#define SYMBOL_LITERAL(string_literal) \
 	v8::Persistent<v8::String>::New(v8::String::NewSymbol(string_literal ""));
 
-#define DEFINE_CONSTANT(target, constant)                            \
-  (target)->Set(v8::String::NewSymbol(#constant),                         \
-                v8::Integer::New(constant),                               \
-                static_cast<v8::PropertyAttribute>(v8::ReadOnly|v8::DontDelete))
+#define DEFINE_CONSTANT(target, constant) \
+	(target)->Set(v8::String::NewSymbol(#constant), \
+		v8::Integer::New(constant), \
+		static_cast<v8::PropertyAttribute>(v8::ReadOnly|v8::DontDelete))
 
-#define DEFINE_METHOD(obj, name, callback)                                \
-  obj->Set(v8::String::NewSymbol(name),                                   \
-           v8::FunctionTemplate::New(callback)->GetFunction())
+#define DEFINE_METHOD(obj, name, callback) \
+	obj->Set(v8::String::NewSymbol(name), \
+		v8::FunctionTemplate::New(callback)->GetFunction())
 
-#define DEFINE_PROTOTYPE_METHOD(templ, name, callback)                    \
-{                                                                         \
-  v8::Local<v8::Signature> __callback##_SIG = v8::Signature::New(templ);  \
-  v8::Local<v8::FunctionTemplate> __callback##_TEM =                      \
-    v8::FunctionTemplate::New(callback, v8::Handle<v8::Value>(),          \
-                          __callback##_SIG);                              \
-  templ->PrototypeTemplate()->Set(v8::String::NewSymbol(name),            \
-                                  __callback##_TEM);                      \
+#define DEFINE_PROTOTYPE_METHOD(templ, name, callback) \
+{ \
+	v8::Local<v8::Signature> __callback##_SIG = v8::Signature::New(templ); \
+	v8::Local<v8::FunctionTemplate> __callback##_TEM = \
+	v8::FunctionTemplate::New(callback, v8::Handle<v8::Value>(), \
+		__callback##_SIG); \
+	templ->PrototypeTemplate()->Set(v8::String::NewSymbol(name), \
+		__callback##_TEM); \
 }
 
 namespace titanium {

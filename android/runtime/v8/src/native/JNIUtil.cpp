@@ -124,7 +124,7 @@ jclass JNIUtil::findClass(const char *className, JNIEnv *env)
 	return javaClass;
 }
 
-jmethodID JNIUtil::getMethodID(jclass javaClass, const char *methodName, const char *signature, JNIEnv *env)
+jmethodID JNIUtil::getMethodID(jclass javaClass, const char *methodName, const char *signature, bool isStatic, JNIEnv *env)
 {
 	if (!env) {
 		env = getJNIEnv();
@@ -134,7 +134,13 @@ jmethodID JNIUtil::getMethodID(jclass javaClass, const char *methodName, const c
 		}
 	}
 
-	jmethodID javaMethodID = env->GetMethodID(javaClass, methodName, signature);
+	jmethodID javaMethodID;
+	if (isStatic) {
+		javaMethodID = env->GetStaticMethodID(javaClass, methodName, signature);
+	} else {
+		javaMethodID = env->GetMethodID(javaClass, methodName, signature);
+	}
+
 	if (!javaMethodID) {
 		LOGE(TAG, "Couldn't find Java method ID: %s %s", methodName, signature);
 		if (env->ExceptionCheck()) {
@@ -165,23 +171,23 @@ void JNIUtil::initCache(JNIEnv* env)
 	v8ObjectClass = findClass("org/appcelerator/kroll/runtime/v8/V8Object", env);
 	assetsClass = findClass("org/appcelerator/kroll/runtime/Assets");
 
-	hashMapInitMethod = getMethodID(hashMapClass, "<init>", "(I)V", env);
-	hashMapGetMethod = getMethodID(hashMapClass, "get", "(Ljava/lang/Object;)Ljava/lang/Object;", env);
-	hashMapPutMethod = getMethodID(hashMapClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", env);
-	hashMapKeySetMethod = getMethodID(hashMapClass, "keySet", "()Ljava/util/Set;", env);
+	hashMapInitMethod = getMethodID(hashMapClass, "<init>", "(I)V", false, env);
+	hashMapGetMethod = getMethodID(hashMapClass, "get", "(Ljava/lang/Object;)Ljava/lang/Object;", false, env);
+	hashMapPutMethod = getMethodID(hashMapClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", false, env);
+	hashMapKeySetMethod = getMethodID(hashMapClass, "keySet", "()Ljava/util/Set;", false, env);
 
-	setToArrayMethod = getMethodID(setClass, "toArray", "()[Ljava/lang/Object;", env);
+	setToArrayMethod = getMethodID(setClass, "toArray", "()[Ljava/lang/Object;", false, env);
 
-	dateInitMethod = getMethodID(dateClass, "<init>", "(J)V", env);
-	dateGetTimeMethod = getMethodID(dateClass, "getTime", "()J", env);
+	dateInitMethod = getMethodID(dateClass, "<init>", "(J)V", false, env);
+	dateGetTimeMethod = getMethodID(dateClass, "getTime", "()J", false, env);
 
-	doubleInitMethod = getMethodID(doubleClass, "<init>", "(D)V", env);
-	booleanInitMethod = getMethodID(booleanClass, "<init>", "(Z)V", env);
-	longInitMethod = getMethodID(longClass, "<init>", "(J)V", env);
-	numberDoubleValueMethod = getMethodID(numberClass, "doubleValue", "()D", env);
+	doubleInitMethod = getMethodID(doubleClass, "<init>", "(D)V", false, env);
+	booleanInitMethod = getMethodID(booleanClass, "<init>", "(Z)V", false, env);
+	longInitMethod = getMethodID(longClass, "<init>", "(J)V", false, env);
+	numberDoubleValueMethod = getMethodID(numberClass, "doubleValue", "()D", false, env);
 
-	v8ObjectInitMethod = getMethodID(v8ObjectClass, "<init>", "(J)V", env);
-	krollProxyGetV8ObjectPointerMethod = getMethodID(krollProxyClass, "getV8ObjectPointer", "()J", env);
-	assetsReadResourceMethod = getMethodID(assetsClass, "readResource", "(Ljava/lang/String)[C", env);
+	v8ObjectInitMethod = getMethodID(v8ObjectClass, "<init>", "(J)V", false, env);
+	krollProxyGetV8ObjectPointerMethod = getMethodID(krollProxyClass, "getV8ObjectPointer", "()J", false, env);
+	assetsReadResourceMethod = getMethodID(assetsClass, "readResource", "(Ljava/lang/String;)[C", true, env);
 }
 }

@@ -6,19 +6,11 @@
  */
 package org.appcelerator.kroll.runtime.v8;
 
-/**
- * @author Max Stepanov
- *
- */
 public final class V8Context extends V8Object {
 
-	public V8Context() {
-		super(create(0));
+	public V8Context(long contextPtr) {
+		super(contextPtr);
 	}
 
-	public V8Context(V8Object object) {
-		super(create(object.ptr));
-	}
-
-	private static native long create(long object_ptr);
+	private static native long create(long contextPtr);
 }

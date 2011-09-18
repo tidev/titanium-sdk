@@ -8,6 +8,7 @@ package org.appcelerator.titanium.kroll;
 
 import java.util.concurrent.CountDownLatch;
 
+import org.appcelerator.kroll.runtime.v8.V8Context;
 import org.appcelerator.kroll.runtime.v8.V8Runtime;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiMessageQueue;
@@ -36,6 +37,7 @@ public class KrollContext // implements Handler.Callback
 	private CountDownLatch initialized;
 	private TiMessageQueue messageQueue;
 	private boolean useOptimization;
+	private V8Context context;
 
 	public static KrollContext getKrollContext()
 	{
@@ -135,7 +137,8 @@ public class KrollContext // implements Handler.Callback
 		//messageQueue = TiMessageQueue.getMessageQueue();
 		//messageQueue.setCallback(this);
 
-		V8Runtime.init();
+		context = V8Runtime.init();
+		initialized.countDown();
 	}
 
 	protected void threadEnded()

@@ -6,9 +6,10 @@
 	}
 
 	startup.globalVariables = function() {
-		global.kroll = self;
 		global.global = global;
 		global.GLOBAL = global;
+		global.Ti = global;
+		global.Titanium = global;
 	};
 
 	var runInThisContext = self.binding('evals').Script.runInThisContext;
