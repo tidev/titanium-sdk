@@ -13,13 +13,31 @@
 
 namespace titanium {
 
+// Titanium is split accross two runtime environments: Java and V8.
+// Code must be exposed on both sides of the "bridge". To accomplish this
+// we create "proxy" objects on both sides.
+//
+//   V8 Proxy  <----> [V8-JNI bridge] <--> Java Proxy
+//
+// This factory helps in the construction of this proxy pair.
+// The creation can be started on either the V8 or Java sides.
+// Two "create" function are provided for both cases.
 class ProxyFactory
 {
 public:
-	static ProxyFactory* factoryForClass(jclass javaClass);
-	static void setFactoryForClass(ProxyFactory* factory, jclass javaClass);
+	// Creates a proxy on the V8 side given an existing Java proxy.
+	static v8::Handle<v8::Object> createV8Proxy(jclass javaClass, jobject javaProxy);
 
-	virtual v8::Handle<v8::Object> create(jobject javaObject) = 0;
+	// Creates a proxy on the Java side given an existing V8 proxy.
+	static jobject createJavaProxy(jclass javaClass, v8::Local<v8::Object> v8Proxy, const v8::Arguments& args);
+
+	// Used by createV8Proxy() which invokes the ProxyBinding::Constructor
+	// callback to create a new V8 object. We need a way to pass the Java proxy
+	// jobject. This is done by passing it as an External value argument.
+	static jobject unwrapJavaProxy(const v8::Arguments& args);
+
+	static void setTemplateForClass(v8::FunctionTemplate* factory, jclass javaClass);
+
 };
 
 }

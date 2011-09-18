@@ -11,8 +11,9 @@
 #include "${packageName}.${proxyClassName}.h"
 
 #include "JNIUtil.h"
-#include "TypeConverter.h"
+#include "JSException.h"
 #include "ProxyFactory.h"
+#include "TypeConverter.h"
 
 using namespace v8;
 
@@ -20,23 +21,6 @@ namespace titanium {
 
 Persistent<FunctionTemplate> ${proxyClassName}::proxyTemplate = Persistent<FunctionTemplate>();
 jclass ${proxyClassName}::javaClass = NULL;
-
-// Proxy Factory ---------------------------------------------------------
-
-class ${proxyClassName}Factory : public ProxyFactory
-{
-public:
-	virtual Handle<Object> create(jobject javaObject)
-	{
-		HandleScope scope;
-
-		Local<Function> creator = ${proxyClassName}::proxyTemplate->GetFunction();
-		Local<Value> external = External::New(javaObject);
-		Local<Object> proxyObject = creator->NewInstance(1, &external);
-
-		return scope.Close(proxyObject);
-	}
-};
 
 ${proxyClassName}::${proxyClassName}(jobject javaObject) : JavaObject(javaObject)
 {
@@ -46,9 +30,6 @@ void ${proxyClassName}::Initialize(Handle<Object> ti, JNIEnv* env)
 {
 	// Query the Java class for this proxy.
 	javaClass = env->FindClass("${packageName?replace('.','/')}/${proxyClassName}");
-
-	// Register a proxy factory for this type.
-	ProxyFactory::setFactoryForClass(new ${proxyClassName}Factory, javaClass);
 
 	HandleScope scope;
 
@@ -62,39 +43,29 @@ void ${proxyClassName}::Initialize(Handle<Object> ti, JNIEnv* env)
 	</@Proxy.listMethods>
 
 	ti->Set(String::NewSymbol("${proxyAttrs.name}"), proxyTemplate->GetFunction());
+
+    // Register template with ProxyFactory.
+    ProxyFactory::setTemplateForClass(*proxyTemplate, javaClass);
 }
 
 Handle<Value> ${proxyClassName}::Constructor(const Arguments& args)
 {
-	assert(args.IsConstructCall());
+    if (!args.IsConstructCall())
+        return JSException::CalledConstructor();
+
 	HandleScope scope;
-	jobject javaObject = NULL;
+    Local<Object> v8Proxy = args.This();
 
-	// If this constructor is called from the proxy factory,
-	// the first argument will be an External that wraps
-	// the pre-created jobject.
-	if (args.Length() == 1)
-	{
-		Local<Value> firstArg = args[0];
-		if (firstArg->IsExternal())
-			javaObject = (jobject)External::Unwrap(firstArg);
-	}
+    // If ProxyFactory::createV8Proxy invoked us, unwrap
+    // the pre-created Java proxy it sent.
+    jobject javaProxy = ProxyFactory::unwrapJavaProxy(args);
+    if (!javaProxy)
+        javaProxy = ProxyFactory::createJavaProxy(javaClass, v8Proxy, args);
 
-	// If this constructor is called from JavaScript land,
-	// we must construct the Java object before returning
-	// a new proxy object to V8.
-	if (!javaObject)
-	{
-		<#-- TODO: validate and convert arguments to jvalue array -->
+    ${proxyClassName}* v8ProxyNative = new ${proxyClassName}(javaProxy);
+    v8ProxyNative->Wrap(v8Proxy);
 
-		<#-- TODO: Call constructor on Java class for the type we are proxying -->
-	}
-
-	// Create proxy and set internal field.
-	${proxyClassName}* proxy = new ${proxyClassName}(javaObject);
-	proxy->Wrap(args.Holder());
-
-	return args.This();
+	return v8Proxy;
 }
 
 // Methods ---------------------------------------------------------------
