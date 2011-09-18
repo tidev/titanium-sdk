@@ -81,12 +81,12 @@ public class KrollProxy
 		}
 	}
 
-	public KrollProxy create(Class objClass, Object[] creationArguments, long v8ObjectPointer)
+	public static KrollProxy create(Class<? extends KrollProxy> objClass, Object[] creationArguments, long v8ObjectPointer)
 	{
 		KrollProxy proxyInstance = null;
 
 		try {
-			proxyInstance = (KrollProxy) objClass.newInstance();
+			proxyInstance = objClass.newInstance();
 			proxyInstance.v8Object = new V8Object(v8ObjectPointer);
 			proxyInstance.handleCreationArgs(null, creationArguments);
 

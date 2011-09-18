@@ -46,6 +46,7 @@ public:
 	static jclass v8ObjectClass;
 	static jclass assetsClass;
 
+	// Java methods
 	static jmethodID hashMapInitMethod;
 	static jmethodID hashMapGetMethod;
 	static jmethodID hashMapPutMethod;
@@ -57,7 +58,10 @@ public:
 	static jmethodID booleanInitMethod;
 	static jmethodID longInitMethod;
 	static jmethodID numberDoubleValueMethod;
+
+	// Titanium methods
 	static jmethodID krollProxyGetV8ObjectPointerMethod;
+	static jmethodID krollProxyCreateMethod;
 	static jmethodID v8ObjectInitMethod;
 	static jmethodID assetsReadResourceMethod;
 

@@ -78,7 +78,8 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 
 	// Create the java proxy using the creator static method provided.
 	// Send along a pointer to the v8 proxy so the two are linked.
-	jobject javaProxy = env->CallStaticObjectMethod(javaClass, info->javaProxyCreator, javaClass, javaArgs, pv8Proxy);
+	jobject javaProxy = env->CallStaticObjectMethod(JNIUtil::krollProxyClass,
+		info->javaProxyCreator, javaClass, javaArgs, pv8Proxy);
 
 	env->DeleteLocalRef(javaArgs);
 
@@ -103,7 +104,7 @@ void ProxyFactory::registerProxyPair(jclass javaProxyClass, FunctionTemplate* v8
 
 	ProxyInfo info;
 	info.v8ProxyTemplate = v8ProxyTemplate;
-	info.javaProxyCreator = env->GetStaticMethodID(javaProxyClass, "create", "(Ljava/lang/Class;[Ljava/lang/Object;J)Ljava/lang/Object");
+	info.javaProxyCreator = JNIUtil::krollProxyCreateMethod;
 
 	factories[javaProxyClass] = info;
 }
