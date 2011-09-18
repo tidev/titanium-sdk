@@ -313,8 +313,7 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 			v8::Handle<v8::Object> v8ObjectPointerHandle((v8::Object*) v8ObjectPointer);
 			return v8ObjectPointerHandle;
 		} else {
-			ProxyFactory *proxyFactory = ProxyFactory::factoryForClass(javaObjectClass);
-			v8::Handle<v8::Object> proxyHandle = proxyFactory->create(javaObject);
+			v8::Handle<v8::Object> proxyHandle = ProxyFactory::createV8Proxy(javaObjectClass, javaObject);
 
 			// set the pointer back on the java proxy
 			V8Runtime::newObject(proxyHandle);
