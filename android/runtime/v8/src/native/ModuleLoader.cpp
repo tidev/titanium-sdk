@@ -23,8 +23,8 @@ Handle<Value> loadModule(const Arguments& args)
 
     for (int i = 1; i < args.Length(); ++i) {
         String::Utf8Value value(args[i]);
-        ModuleInit moduleInit = lookupModuleInit(*value);
-        moduleInit(topLevelObject);
+        struct moduleInit* init = lookupModuleInit(*value, value.Length());
+        init->fn(topLevelObject);
     }
 
     return Undefined();
