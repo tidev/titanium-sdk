@@ -15,6 +15,10 @@
 #include "ProxyFactory.h"
 #include "TypeConverter.h"
 
+<@Proxy.listChildModules ; isFirst, childModule>
+#include "${childModule.proxyClassName}.h"
+</@Proxy.listChildModules>
+
 using namespace v8;
 
 namespace titanium {
@@ -42,10 +46,16 @@ void ${proxyClassName}::Initialize(Handle<Object> ti, JNIEnv* env)
 	V8_SET_PROTOTYPE_METHOD(proxyTemplate, "${name}", ${proxyClassName}::${name});
 	</@Proxy.listMethods>
 
+	Local<Function> proxyConstructor = proxyTemplate->GetFunction();
 	ti->Set(String::NewSymbol("${proxyAttrs.name}"), proxyTemplate->GetFunction());
 
+	// Initialize child proxies and modules.
+	<@Proxy.listChildModules ; isFirst, childModule>
+	${childModule.name}Module::Initialize(proxyConstructor, env);
+	</@Proxy.listChildModules>
+
 	// Register proxies with factory.
-    ProxyFactory::registerProxyPair(javaClass, *proxyTemplate);
+	ProxyFactory::registerProxyPair(javaClass, *proxyTemplate);
 }
 
 Handle<Value> ${proxyClassName}::Constructor(const Arguments& args)

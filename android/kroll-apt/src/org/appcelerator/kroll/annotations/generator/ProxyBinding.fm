@@ -14,6 +14,20 @@
 	<#nested count>
 </#macro>
 
+<#macro listChildModules>
+	<#if isModule>
+		<#list allModules?keys as module>
+			<#if module = packageName+"."+proxyClassName>
+				<#if allModules[module].childModules??>
+					<#list allModules[module].childModules as childModule>
+						<#nested childModule_index==0, childModule>
+					</#list>
+				</#if>
+			</#if>
+		</#list>
+	</#if>
+</#macro>
+
 <#macro listMethods>
 	<#if methods??>
 		<#list methods?keys as methodName>
