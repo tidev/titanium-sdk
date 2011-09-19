@@ -189,16 +189,20 @@
 
 -(void)show:(id)args
 {
-	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
-	[self rememberSelf];
-    
-    [closingCondition lock];
-    if (isDismissing) {
-        [closingCondition wait];
+    if (![NSThread isMainThread]) {
+        ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+        [self rememberSelf];
+        
+        [closingCondition lock];
+        if (isDismissing) {
+            [closingCondition wait];
+        }
+        [closingCondition unlock];
+        
+        [self performSelectorOnMainThread:@selector(show:) withObject:args waitUntilDone:NO];
+        return;
     }
-    [closingCondition unlock];
     
-	ENSURE_UI_THREAD_1_ARG(args);
 	
 	NSDictionary *rectProps = [args objectForKey:@"rect"];
 	animated = [TiUtils boolValue:@"animated" properties:args def:YES];
@@ -262,13 +266,17 @@
 
 -(void)hide:(id)args
 {
-	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
-    
-    [closingCondition lock];
-    isDismissing = YES;
-    [closingCondition unlock];
-    
-	ENSURE_UI_THREAD_1_ARG(args);
+    if (![NSThread isMainThread]) {
+        ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+        
+        [closingCondition lock];
+        isDismissing = YES;
+        [closingCondition unlock];
+        
+        [self performSelectorOnMainThread:@selector(hide:) withObject:args waitUntilDone:NO];
+        return;
+    }
+
 	BOOL animated_ = [TiUtils boolValue:@"animated" properties:args def:YES];
 	[[self popoverController] dismissPopoverAnimated:animated_];
 
@@ -304,6 +312,11 @@
 //against that.
 	if (!isShowing)
 	{
+        [closingCondition lock];
+        isDismissing = NO;
+        [closingCondition signal];
+        [closingCondition unlock];
+        
 		return;
 	}
 	[self windowWillClose];
