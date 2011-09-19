@@ -6,6 +6,7 @@
  */
 package org.appcelerator.kroll;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -53,6 +54,10 @@ public class KrollProxy
 
 	@Kroll.inject
 	protected KrollInvocation currentInvocation;
+
+	public KrollProxy()
+	{
+	}
 
 	public KrollProxy(TiContext context)
 	{
@@ -183,8 +188,13 @@ public class KrollProxy
 	public void handleCreationArgs(KrollModule createdInModule, Object[] args)
 	{
 		this.createdInModule = createdInModule;
-		if (args.length >= 1 && args[0] instanceof KrollDict) {
-			handleCreationDict((KrollDict)args[0]);
+		if (args.length >= 1 && args[0] instanceof HashMap) {
+			if (args[0] instanceof KrollDict) {
+				handleCreationDict((KrollDict)args[0]);
+			} else {
+				KrollDict d = new KrollDict((HashMap)args[0]);
+				handleCreationDict(d);
+			}
 		}
 	}
 
@@ -196,9 +206,9 @@ public class KrollProxy
 	public void handleCreationDict(KrollDict dict)
 	{
 		if (dict != null) {
-			for (String key : dict.keySet()) {
+			/*for (String key : dict.keySet()) {
 				setProperty(key, dict.get(key), true);
-			}
+			}*/
 			creationDict = (KrollDict)dict.clone();
 			if (modelListener != null) {
 				modelListener.processProperties(creationDict);

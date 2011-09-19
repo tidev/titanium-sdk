@@ -18,6 +18,7 @@
 #include "TypeConverter.h"
 #include "V8Util.h"
 
+#include "ti.modules.titanium.BufferProxy.h"
 #include "V8Runtime.h"
 
 #define TAG "V8Runtime"
@@ -145,6 +146,9 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeI
 
 	titanium::initKrollProxy(global, env);
 	titanium::V8Runtime::globalContext = context;
+
+	titanium::BufferProxy::Initialize(global, env);
+	LOGD(TAG, "BufferProxy initialized");
 
 	return reinterpret_cast<long>(*(titanium::V8Runtime::globalContext));
 }

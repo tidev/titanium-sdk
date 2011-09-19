@@ -36,6 +36,10 @@ public class BufferProxy extends KrollProxy
 
 	private byte[] buffer;
 
+	public BufferProxy()
+	{
+		super();
+	}
 
 	public BufferProxy(TiContext context)
 	{

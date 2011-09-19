@@ -7,11 +7,11 @@
 package org.appcelerator.kroll.runtime;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
 import android.app.Activity;
-import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 
 
@@ -23,20 +23,17 @@ public final class Assets {
 	}
 
 	public static char[] readResource(String path) throws IOException {
-		AssetFileDescriptor fd = assetManager.openFd(path);
+		InputStream stream = assetManager.open(path);
+		StringBuilder builder = new StringBuilder();
 		try {
-			long length = fd.getDeclaredLength();
-			if (length > Integer.MAX_VALUE) {
-				return null;
+			int length = -1;
+			byte buffer[] = new byte[1024];
+			while ((length = stream.read(buffer)) != -1) {
+				builder.append(new String(buffer, 0, length));
 			}
-
-			char[] buffer = new char[(int)length];
-			Reader r = new InputStreamReader(fd.createInputStream());
-			if (r.read(buffer) > 0) {
-				return buffer;
-			}
-		} finally {
-			fd.close();
+			return builder.toString().toCharArray();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		return null;
 	}

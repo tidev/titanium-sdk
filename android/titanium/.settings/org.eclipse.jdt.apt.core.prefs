@@ -1,8 +1,0 @@
-#Sat Sep 17 10:21:47 PDT 2011
-eclipse.preferences.version=1
-org.eclipse.jdt.apt.aptEnabled=false
-org.eclipse.jdt.apt.genSrcDir=.apt_generated
-org.eclipse.jdt.apt.processorOptions/kroll.jsonFile=titanium.json
-org.eclipse.jdt.apt.processorOptions/kroll.jsonPackage=org.appcelerator.titanium.bindings
-org.eclipse.jdt.apt.processorOptions/kroll.projectDir=%PROJECT.DIR%
-org.eclipse.jdt.apt.reconcileEnabled=false
