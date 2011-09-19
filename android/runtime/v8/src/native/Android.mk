@@ -8,24 +8,20 @@
 # Top level kroll-v8 runtime Makefile
 
 LOCAL_PATH := $(call my-dir)
-LIBV8_DIR := $(LOCAL_PATH)/../../../dist/android/libv8/3.6.2
-ABS_LIBV8_DIR := $(TI_DIST_DIR)/android/libv8/3.6.2
 
 THIS_DIR := $(LOCAL_PATH)
 GENERATED_DIR := $(LOCAL_PATH)/../../generated
 SRC_JS_DIR := $(LOCAL_PATH)/../js
 
-TOOLS_DIR := $(THIS_DIR)/../../tools
-JS2C := $(TOOLS_DIR)/js2c.py
-
 include $(CLEAR_VARS)
 include $(LOCAL_PATH)/genSources.mk
 
 LOCAL_MODULE := kroll-v8
-LOCAL_CFLAGS := -I$(LIBV8_DIR)/include $(PROXY_CFLAGS) -I$(GENERATED_DIR) -I$(LOCAL_PATH)/modules -g
-LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -L$(LIBV8_DIR)/lib -ldl -llog -L$(TARGET_OUT)
+LOCAL_CFLAGS := $(PROXY_CFLAGS) -I$(GENERATED_DIR) -I$(LOCAL_PATH)/modules -g
+LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -ldl -llog -L$(TARGET_OUT)
 LOCAL_SRC_FILES += \
 	../../generated/KrollNatives.h \
+	../../generated/ModuleInit.h \
 	Assets.cpp \
 	EventEmitter.cpp \
 	JNIUtil.cpp \
@@ -44,7 +40,7 @@ LOCAL_JS_FILES := \
 	$(SRC_JS_DIR)/kroll.js \
 	$(SRC_JS_DIR)/events.js
 
-$(LOCAL_PATH)/KrollJavaScript.cpp: $(GENERATED_DIR)/KrollNatives.h
+$(LOCAL_PATH)/KrollJavaScript.cpp: $(GENERATED_DIR)/KrollNatives.h $(GENERATED_DIR)/ModuleInit.h
 
 LOCAL_STATIC_LIBRARIES := libv8
 

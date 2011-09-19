@@ -39,18 +39,15 @@ void V8Runtime::collectWeakRef(Persistent<Value> ref, void *parameter)
 jobject V8Runtime::newObject(Handle<Object> object)
 {
 	HandleScope scope;
-	LOGI(TAG, "Creating new object...");
 
 	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (!env) return NULL;
 
-	jlong ptr = reinterpret_cast<jlong>(*Persistent<Object>::New(object));
-
+	jlong ptr = (jlong) *Persistent<Object>::New(object);
 	jobject v8Object = env->NewGlobalRef(env->NewObject(JNIUtil::v8ObjectClass, JNIUtil::v8ObjectInitMethod, ptr));
 
 	// make a 2nd persistent weakref so we can be informed of GC
 	Persistent<Object> weakRef = Persistent<Object>::New(object);
-
 	weakRef.MakeWeak(reinterpret_cast<void*>(v8Object), V8Runtime::collectWeakRef);
 
 	return v8Object;
@@ -70,11 +67,11 @@ static Handle<Value> binding(const Arguments& args)
 	Local<Object> exports;
 	if (binding_cache->Has(module)) {
 		exports = binding_cache->Get(module)->ToObject();
-	} else if (!strcmp(*module_v, "natives")) {
+	} else if (strcmp(*module_v, "natives") == 0) {
 		exports = Object::New();
 		KrollJavaScript::DefineNatives(exports);
 		binding_cache->Set(module, exports);
-	} else if (!strcmp(*module_v, "evals")) {
+	} else if (strcmp(*module_v, "evals") == 0) {
 		exports = Object::New();
 		ScriptsModule::Initialize(exports);
 		binding_cache->Set(module, exports);
@@ -150,7 +147,7 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeI
 	titanium::BufferProxy::Initialize(global, env);
 	LOGD(TAG, "BufferProxy initialized");
 
-	return reinterpret_cast<long>(*(titanium::V8Runtime::globalContext));
+	return (jlong) *titanium::V8Runtime::globalContext;
 }
 
 /*
@@ -164,6 +161,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_dispose(
 
 	titanium::V8Runtime::globalContext.Dispose();
 	V8::Dispose();
+
 	env->DeleteGlobalRef(titanium::jruntime);
 	titanium::jruntime = NULL;
 }
