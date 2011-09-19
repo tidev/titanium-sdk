@@ -263,7 +263,11 @@
 -(void)hide:(id)args
 {
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
-
+    
+    [closingCondition lock];
+    isDismissing = YES;
+    [closingCondition unlock];
+    
 	ENSURE_UI_THREAD_1_ARG(args);
 	BOOL animated_ = [TiUtils boolValue:@"animated" properties:args def:YES];
 	[[self popoverController] dismissPopoverAnimated:animated_];
@@ -275,9 +279,6 @@
     // dealloc attempts. But mixing poorly-timed hide/show calls can lead to crashes due to this delay, so we
     // have to set a flag to warn show(), and then trigger a condition when the flag is cleared.
     
-    [closingCondition lock];
-    isDismissing = YES;
-    [closingCondition unlock];
 	[self performSelector:@selector(popoverControllerDidDismissPopover:) withObject:popoverController afterDelay:0.5];
 }
 
