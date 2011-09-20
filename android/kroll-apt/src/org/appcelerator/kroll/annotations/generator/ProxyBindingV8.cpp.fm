@@ -10,6 +10,7 @@
 
 #include "${packageName}.${proxyClassName}.h"
 
+#include "AndroidUtil.h"
 #include "JNIUtil.h"
 #include "JSException.h"
 #include "ProxyFactory.h"
@@ -29,6 +30,8 @@
 #include "${superPackageName}.${superProxyClassName}.h"
 </#if>
 
+#define TAG "${proxyClassName}"
+
 using namespace v8;
 
 namespace titanium {
@@ -42,6 +45,8 @@ ${proxyClassName}::${proxyClassName}(jobject javaObject) : JavaObject(javaObject
 
 void ${proxyClassName}::Initialize(Handle<Object> ti, JNIEnv* env)
 {
+    LOGD(TAG, "Initialize");
+
 	<#-- Query the class for the Java proxy -->
 	javaClass = env->FindClass("${packageName?replace('.','/')}/${proxyClassName}");
 
@@ -82,6 +87,8 @@ void ${proxyClassName}::Initialize(Handle<Object> ti, JNIEnv* env)
 
 Handle<Value> ${proxyClassName}::Constructor(const Arguments& args)
 {
+    LOGD(TAG, "Constructor");
+
     if (!args.IsConstructCall())
         return JSException::CalledConstructor();
 
@@ -104,6 +111,8 @@ Handle<Value> ${proxyClassName}::Constructor(const Arguments& args)
 <@Proxy.listMethods ; isFirst, name, method, signature>
 Handle<Value> ${proxyClassName}::${name}(const Arguments& args)
 {
+    LOGD(TAG, "${name}()");
+
 	HandleScope scope;
 	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (!env)
