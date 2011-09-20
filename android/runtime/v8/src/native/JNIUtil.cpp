@@ -15,6 +15,7 @@
 namespace titanium {
 
 JavaVM* JNIUtil::javaVm = NULL;
+jclass JNIUtil::classClass = NULL;
 jclass JNIUtil::objectClass = NULL;
 jclass JNIUtil::stringClass = NULL;
 jclass JNIUtil::numberClass = NULL;
@@ -34,6 +35,7 @@ jclass JNIUtil::krollProxyClass = NULL;
 jclass JNIUtil::v8ObjectClass = NULL;
 jclass JNIUtil::assetsClass = NULL;
 
+jmethodID JNIUtil::classGetNameMethod = NULL;
 jmethodID JNIUtil::hashMapInitMethod = NULL;
 jmethodID JNIUtil::hashMapGetMethod = NULL;
 jmethodID JNIUtil::hashMapPutMethod = NULL;
@@ -48,6 +50,7 @@ jmethodID JNIUtil::numberDoubleValueMethod = NULL;
 
 jmethodID JNIUtil::krollProxyGetV8ObjectPointerMethod = NULL;
 jmethodID JNIUtil::krollProxyCreateMethod = NULL;
+jmethodID JNIUtil::krollProxySetV8ObjectMethod = NULL;
 jmethodID JNIUtil::v8ObjectInitMethod = NULL;
 jmethodID JNIUtil::assetsReadResourceMethod = NULL;
 
@@ -153,8 +156,24 @@ jmethodID JNIUtil::getMethodID(jclass javaClass, const char *methodName, const c
 	return javaMethodID;
 }
 
-void JNIUtil::initCache(JNIEnv* env)
+void JNIUtil::logClassName(const char *format, jclass javaClass)
 {
+	JNIEnv *env = getJNIEnv();
+	if (!env) return;
+
+	jstring jClassName = (jstring) env->CallObjectMethod(javaClass, classGetNameMethod);
+	jboolean isCopy;
+
+	const char* chars = env->GetStringUTFChars(jClassName, &isCopy);
+
+	LOGD(TAG, format, chars);
+
+	env->ReleaseStringUTFChars(jClassName, chars);
+}
+
+void JNIUtil::initCache(JNIEnv *env)
+{
+	classClass = findClass("java/lang/Class", env);
 	objectClass = findClass("java/lang/Object", env);
 	numberClass = findClass("java/lang/Number", env);
 	stringClass = findClass("java/lang/String", env);
@@ -173,6 +192,7 @@ void JNIUtil::initCache(JNIEnv* env)
 	v8ObjectClass = findClass("org/appcelerator/kroll/runtime/v8/V8Object", env);
 	assetsClass = findClass("org/appcelerator/kroll/runtime/Assets");
 
+	classGetNameMethod = getMethodID(classClass, "getName", "()Ljava/lang/String;", false, env);
 	hashMapInitMethod = getMethodID(hashMapClass, "<init>", "(I)V", false, env);
 	hashMapGetMethod = getMethodID(hashMapClass, "get", "(Ljava/lang/Object;)Ljava/lang/Object;", false, env);
 	hashMapPutMethod = getMethodID(hashMapClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", false, env);
@@ -192,6 +212,8 @@ void JNIUtil::initCache(JNIEnv* env)
 	krollProxyGetV8ObjectPointerMethod = getMethodID(krollProxyClass, "getV8ObjectPointer", "()J", false, env);
 	krollProxyCreateMethod = getMethodID(krollProxyClass, "create",
 		"(Ljava/lang/Class;[Ljava/lang/Object;J)Lorg/appcelerator/kroll/KrollProxy;", true, env);
+	krollProxySetV8ObjectMethod = getMethodID(krollProxyClass, "setV8Object",
+		"(Lorg/appcelerator/kroll/runtime/v8/V8Object;)V", false, env);
 
 	assetsReadResourceMethod = getMethodID(assetsClass, "readResource", "(Ljava/lang/String;)[C", true, env);
 }

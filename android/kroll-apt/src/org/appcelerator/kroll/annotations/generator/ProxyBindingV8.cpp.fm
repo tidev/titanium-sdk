@@ -59,7 +59,6 @@ void ${proxyClassName}::Initialize(Handle<Object> ti, JNIEnv* env)
 	<#if superProxyClassName??>
 	proxyTemplate->Inherit(${superProxyClassName?replace("BindingGen", "")}::proxyTemplate);
 	</#if>
-	Local<Function> proxyConstructor = proxyTemplate->GetFunction();
 
 	// Method bindings -----------------------------------------------------------
 	<@Proxy.listMethods ; isFirst, name, method, signature>
@@ -69,6 +68,7 @@ void ${proxyClassName}::Initialize(Handle<Object> ti, JNIEnv* env)
 	<#-- Register with the Proxy factory -->
 	ProxyFactory::registerProxyPair(javaClass, *proxyTemplate);
 
+	Local<Function> proxyConstructor = proxyTemplate->GetFunction();
 	<#if isModule>
 	Local<Object> moduleInstance = proxyConstructor->NewInstance();
 	ti->Set(String::NewSymbol("${proxyAttrs.name}"), moduleInstance);

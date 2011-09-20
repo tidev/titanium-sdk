@@ -40,6 +40,16 @@ public class TiBlob extends KrollProxy
 	private String mimetype;
 	private int width, height;
 
+	private TiBlob(int type, Object data, String mimetype)
+	{
+		super();
+		this.type = type;
+		this.data = data;
+		this.mimetype = mimetype;
+		this.width = 0;
+		this.height = 0;
+	}
+
 	private TiBlob(TiContext tiContext, int type, Object data, String mimetype)
 	{
 		super(tiContext);
@@ -48,6 +58,11 @@ public class TiBlob extends KrollProxy
 		this.mimetype = mimetype;
 		this.width = 0;
 		this.height = 0;
+	}
+
+	public static TiBlob blobFromString(String data)
+	{
+		return new TiBlob(TYPE_STRING, data, "text/plain");
 	}
 
 	public static TiBlob blobFromString(TiContext tiContext, String data)
@@ -82,9 +97,22 @@ public class TiBlob extends KrollProxy
 		return blob;
 	}
 
+	public static TiBlob blobFromData(byte[] data)
+	{
+		return blobFromData(data, "application/octet-stream");
+	}
+
 	public static TiBlob blobFromData(TiContext tiContext, byte[] data)
 	{
 		return blobFromData(tiContext, data, "application/octet-stream");
+	}
+
+	public static TiBlob blobFromData(byte[] data, String mimetype)
+	{
+		if (mimetype == null || mimetype.length() == 0) {
+			return new TiBlob(TYPE_DATA, data, "application/octet-stream");
+		}
+		return new TiBlob(TYPE_DATA, data, mimetype);
 	}
 
 	public static TiBlob blobFromData(TiContext tiContext, byte[] data, String mimetype)

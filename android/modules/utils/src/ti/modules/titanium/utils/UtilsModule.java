@@ -27,6 +27,10 @@ public class UtilsModule extends KrollModule
 {
 	private static final String LCAT = "UtilsModule";
 
+	public UtilsModule() {
+		super();
+	}
+
 	public UtilsModule(TiContext tiContext) {
 		super(tiContext);
 	}
@@ -34,7 +38,7 @@ public class UtilsModule extends KrollModule
 	@Kroll.method
 	public TiBlob base64encode(Object obj) {
 		if (obj instanceof TiBlob) {
-			return TiBlob.blobFromString(getTiContext(), ((TiBlob)obj).toBase64());
+			return TiBlob.blobFromString(((TiBlob)obj).toBase64());
 		}
 		String data;
 		try {
@@ -43,7 +47,7 @@ public class UtilsModule extends KrollModule
 			} else {
 				data = TiConvert.toString(obj);
 			}
-			return TiBlob.blobFromString(getTiContext(),new String(Base64.encodeBase64(data.getBytes("UTF-8")), "UTF-8"));
+			return TiBlob.blobFromString(new String(Base64.encodeBase64(data.getBytes("UTF-8")), "UTF-8"));
 		} catch (UnsupportedEncodingException e) {
 			Log.e(LCAT, "UTF-8 is not a supported encoding type");
 		}
@@ -54,7 +58,7 @@ public class UtilsModule extends KrollModule
 	public TiBlob base64decode(String data)
 	{
 		try {
-			return TiBlob.blobFromData(getTiContext(), Base64.decodeBase64(data.getBytes("UTF-8")));
+			return TiBlob.blobFromData(Base64.decodeBase64(data.getBytes("UTF-8")));
 		} catch (UnsupportedEncodingException e) {
 			Log.e(LCAT, "UTF-8 is not a supported encoding type");
 		}

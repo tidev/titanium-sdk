@@ -19,6 +19,7 @@ public:
 	static Persistent<Context> globalContext;
 
 	static jobject newObject(Handle<Object> object);
+	static void setKrollProxyV8Object(jobject krollProxy, jobject v8Object);
 
 	static void collectWeakRef(Persistent<Value> ref, void *parameter);
 	static void bootstrap(Local<Object> global);

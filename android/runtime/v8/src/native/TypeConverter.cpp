@@ -7,11 +7,14 @@
 #include <jni.h>
 #include <v8.h>
 
+#include "AndroidUtil.h"
 #include "TypeConverter.h"
 #include "JNIUtil.h"
 #include "JavaObject.h"
 #include "ProxyFactory.h"
 #include "V8Runtime.h"
+
+#define TAG "TypeConverter"
 
 using namespace titanium;
 
@@ -301,15 +304,19 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 	}
 
 	jclass javaObjectClass = env->GetObjectClass(javaObject);
+	JNIUtil::logClassName("javaObject className: %s", javaObjectClass);
 
-	if (env->IsInstanceOf(javaObjectClass, JNIUtil::numberClass)) {
+	if (env->IsInstanceOf(javaObject, JNIUtil::numberClass)) {
 		jdouble javaDouble = env->CallDoubleMethod(javaObject, JNIUtil::numberDoubleValueMethod);
 		return v8::Number::New((double) javaDouble);
+
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::stringClass)) {
 		return v8::String::New(env->GetStringChars((jstring) javaObject, 0));
-	} else if (env->IsInstanceOf(javaObjectClass, JNIUtil::dateClass)) {
+
+	} else if (env->IsInstanceOf(javaObject, JNIUtil::dateClass)) {
 		return TypeConverter::javaDateToJsDate(javaObject);
-	} else if (env->IsInstanceOf(javaObjectClass, JNIUtil::hashMapClass)) {
+
+	} else if (env->IsInstanceOf(javaObject, JNIUtil::hashMapClass)) {
 		v8::Handle<v8::Object> jsObject = v8::Object::New();
 
 		jobject hashMapSet = env->CallObjectMethod(javaObject, JNIUtil::hashMapKeySetMethod);
@@ -331,7 +338,7 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 		env->DeleteLocalRef(hashMapKeys);
 
 		return jsObject;
-	} else if (env->IsInstanceOf(javaObjectClass, JNIUtil::krollProxyClass)) {
+	} else if (env->IsInstanceOf(javaObject, JNIUtil::krollProxyClass)) {
 		jlong v8ObjectPointer = env->CallLongMethod(javaObject, JNIUtil::krollProxyGetV8ObjectPointerMethod);
 		if (v8ObjectPointer > 0) {
 			v8::Handle<v8::Object> v8ObjectPointerHandle((v8::Object*) v8ObjectPointer);
@@ -340,7 +347,8 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 			v8::Handle<v8::Object> proxyHandle = ProxyFactory::createV8Proxy(javaObjectClass, javaObject);
 
 			// set the pointer back on the java proxy
-			V8Runtime::newObject(proxyHandle);
+			jobject v8Object = V8Runtime::newObject(proxyHandle);
+			V8Runtime::setKrollProxyV8Object(javaObject, v8Object);
 
 			return proxyHandle;
 		}

@@ -23,6 +23,10 @@ public class KrollModule extends KrollProxy
 	protected static ArrayList<Class<? extends KrollModule>> initializedTemplates =
 		new ArrayList<Class<? extends KrollModule>>();
 
+	public KrollModule() {
+		super();
+	}
+
 	public KrollModule(TiContext context) {
 		super(context);
 

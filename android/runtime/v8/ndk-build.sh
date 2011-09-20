@@ -11,5 +11,4 @@ THIS_DIR=$(cd "$(dirname "$0")"; pwd)
 	NDK_PROJECT_PATH=$THIS_DIR \
 	NDK_MODULE_PATH=$THIS_DIR/src/ndk-modules \
 	TI_DIST_DIR=$(cd "$THIS_DIR/../../../dist"; pwd) \
-	V=1 \
 	$@

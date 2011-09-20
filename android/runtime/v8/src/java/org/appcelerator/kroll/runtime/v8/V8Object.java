@@ -8,7 +8,7 @@ package org.appcelerator.kroll.runtime.v8;
 
 public class V8Object
 {
-	protected long ptr;
+	protected long ptr = -1;
 
 	public V8Object(long ptr) {
 		this.ptr = ptr;

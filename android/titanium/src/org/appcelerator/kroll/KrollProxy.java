@@ -48,7 +48,7 @@ public class KrollProxy
 	protected KrollProxyListener modelListener;
 	//protected KrollEventManager eventManager;
 	protected KrollModule createdInModule;
-	protected V8Object v8Object;
+	protected V8Object v8Object = new V8Object(0);
 	protected boolean coverageEnabled;
 	protected KrollDict creationDict = null;
 
@@ -111,6 +111,11 @@ public class KrollProxy
 	public V8Object getV8Object()
 	{
 		return v8Object;
+	}
+
+	public void setV8Object(V8Object v8Object)
+	{
+		this.v8Object = v8Object;
 	}
 
 	public long getV8ObjectPointer()
@@ -425,13 +430,6 @@ public class KrollProxy
 	public KrollInvocation getCurrentInvocation()
 	{
 		return currentInvocation;
-	}
-
-	@Kroll.method
-	public String toString()
-	{
-		return "FIXME";
-		//return "[Ti." + getAPIName() + "]";
 	}
 
 	public Object getDefaultValue(Class<?> typeHint)

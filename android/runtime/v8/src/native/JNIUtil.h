@@ -20,6 +20,7 @@ public:
 	static void initCache(JNIEnv *env);
 	static jclass findClass(const char *className, JNIEnv *env = NULL);
 	static jmethodID getMethodID(jclass javaClass, const char *methodName, const char *signature, bool isStatic = false, JNIEnv *env = NULL);
+	static void logClassName(const char *format, jclass javaClass);
 
 	static jobjectArray newObjectArray(int length, jobject initial = NULL);
 	static void throwException(jclass clazz, const char *message);
@@ -27,6 +28,7 @@ public:
 	static void throwOutOfMemoryError(const char *message);
 	static void throwNullPointerException(const char *message);
 
+	static jclass classClass;
 	static jclass objectClass;
 	static jclass stringClass;
 	static jclass numberClass;
@@ -47,6 +49,7 @@ public:
 	static jclass assetsClass;
 
 	// Java methods
+	static jmethodID classGetNameMethod;
 	static jmethodID hashMapInitMethod;
 	static jmethodID hashMapGetMethod;
 	static jmethodID hashMapPutMethod;
@@ -62,6 +65,8 @@ public:
 	// Titanium methods
 	static jmethodID krollProxyGetV8ObjectPointerMethod;
 	static jmethodID krollProxyCreateMethod;
+	static jmethodID krollProxySetV8ObjectMethod;
+
 	static jmethodID v8ObjectInitMethod;
 	static jmethodID assetsReadResourceMethod;
 

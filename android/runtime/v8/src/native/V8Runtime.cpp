@@ -18,7 +18,10 @@
 #include "TypeConverter.h"
 #include "V8Util.h"
 
+#include "org.appcelerator.kroll.KrollModule.h"
 #include "ti.modules.titanium.BufferProxy.h"
+#include "ti.modules.titanium.utils.UtilsModule.h"
+#include "org.appcelerator.titanium.TiBlob.h"
 #include "V8Runtime.h"
 
 #define TAG "V8Runtime"
@@ -51,6 +54,22 @@ jobject V8Runtime::newObject(Handle<Object> object)
 	weakRef.MakeWeak(reinterpret_cast<void*>(v8Object), V8Runtime::collectWeakRef);
 
 	return v8Object;
+}
+
+/* static */
+void V8Runtime::setKrollProxyV8Object(jobject krollProxy, jobject v8Object)
+{
+	JNIEnv *env = JNIUtil::getJNIEnv();
+	if (!env) {
+		// TODO error message
+		return;
+	}
+
+	env->CallVoidMethod(krollProxy, JNIUtil::krollProxySetV8ObjectMethod, v8Object);
+	if (env->ExceptionCheck()) {
+		env->ExceptionDescribe();
+		env->ExceptionClear();
+	}
 }
 
 static Handle<Value> binding(const Arguments& args)
@@ -132,6 +151,7 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeI
 {
 	HandleScope scope;
 
+	LOGD(TAG, "V8Runtime_nativeInit");
 	titanium::jruntime = env->NewGlobalRef(self);
 	titanium::JNIUtil::initCache(env);
 
@@ -144,8 +164,10 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeI
 	titanium::initKrollProxy(global, env);
 	titanium::V8Runtime::globalContext = context;
 
+	titanium::KrollModule::Initialize(global, env);
 	titanium::BufferProxy::Initialize(global, env);
-	LOGD(TAG, "BufferProxy initialized");
+	titanium::UtilsModule::Initialize(global, env);
+	titanium::TiBlob::Initialize(global, env);
 
 	return (jlong) *titanium::V8Runtime::globalContext;
 }

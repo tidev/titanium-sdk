@@ -405,6 +405,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<antcall target="update.libv8"/>
 		<antcall target="build.kroll.apt.jar"/>
 		<antcall target="build.titanium.jar"/>
+		<build.module module="utils"/>
 		<!-- TODO re-enable me antcall target="build.all.modules"/-->
 
 		<!-- the shared library needs to be last so we can build all the generated native bindings -->
@@ -455,11 +456,9 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			<jar basedir="${ti.build.dir}/bin" destfile="${dist.dir}/ant-tasks.jar"/>
 		</sequential>
 	</macrodef>
-	
-	<target name="build.all.modules">
-		<ti.getModuleBuildOrder json="${dependency.json}" property="modules"/>
-		
-		<for list="${modules}" param="module" delimiter=" ">
+
+	<macrodef name="build.module">
+		<attribute name="module"/>
 		<sequential>
 			<ti.modulePath json="${dependency.json}" module="@{module}" modulesdir="${modules.dir}" pathid="dependencies"/>
 			<build.module.jar name="@{module}"/>
@@ -470,6 +469,15 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 					<zip.module.res name="@{module}"/>
 				</then>
 			</if>
+		</sequential>
+	</macrodef>
+
+	<target name="build.all.modules">
+		<ti.getModuleBuildOrder json="${dependency.json}" property="modules"/>
+
+		<for list="${modules}" param="module" delimiter=" ">
+		<sequential>
+			<build.module module="@{module}"/>
 		</sequential>
 		</for>
 	</target>
