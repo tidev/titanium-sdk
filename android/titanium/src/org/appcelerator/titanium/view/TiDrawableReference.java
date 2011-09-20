@@ -27,6 +27,7 @@ import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiBackgroundImageLoadTask;
+import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiDownloadListener;
 import org.appcelerator.titanium.util.TiDownloadManager;
@@ -45,23 +46,26 @@ import android.webkit.URLUtil;
 public class TiDrawableReference
 {
 	private static Map<Integer, Bounds> boundsCache;
-	static {
+	static
+	{
 		boundsCache = Collections.synchronizedMap(new HashMap<Integer, Bounds>());
 	}
-	
-	public enum DrawableReferenceType {
+
+	public enum DrawableReferenceType
+	{
 		NULL, URL, RESOURCE_ID, BLOB, FILE
 	}
-	
-	public class Bounds 
-	{ 
+
+	public static class Bounds
+	{
 		public static final int UNKNOWN = TiDrawableReference.UNKNOWN;
 		private int height = UNKNOWN, width = UNKNOWN;
 		public int getHeight() { return height; }
 		public int getWidth() { return width; }
 	}
-	
+
 	private static final String LCAT = "TiDrawableReference";
+	private static final boolean DBG = TiConfig.LOGD;
 	private static final int UNKNOWN = -1;
 	private static final int DEFAULT_SAMPLE_SIZE = 1;
 	private int resourceId = UNKNOWN;
@@ -347,6 +351,75 @@ public class TiDrawableReference
 		destHeight = (int) ((double)destWidth / aspectRatio);
 		return getBitmap(destWidth, destHeight);
 	}
+
+	private Bounds calcDestSize(int srcWidth, int srcHeight, TiDimension destWidthDimension,
+			TiDimension destHeightDimension, View parent)
+	{
+		Bounds bounds = new Bounds();
+		int destWidth, destHeight, containerWidth, containerHeight,
+			parentWidth, parentHeight;
+		destWidth = destHeight = parentWidth = parentHeight =
+			containerWidth = containerHeight = TiDrawableReference.UNKNOWN;
+
+		if (parent != null) {
+			parentWidth = parent.getWidth();
+			parentHeight = parent.getHeight();
+		}
+
+		// Width to fit into
+		if (destWidthDimension != null) {
+			if (destWidthDimension.isUnitAuto()) {
+				if (parentWidth >= 0) {
+					containerWidth = parentWidth;
+				}
+			} else {
+				containerWidth = destWidthDimension.getAsPixels(parent);
+			}
+		} else {
+			if (parentWidth >= 0) {
+				containerWidth = parentWidth;
+			}
+		}
+		if (containerWidth < 0) {
+			Log.w(LCAT, "Could not determine container width for image. Defaulting to source width. This shouldn't happen.");
+			containerWidth = srcWidth;
+		}
+
+		// Height to fit into
+		if (destHeightDimension != null) {
+			if (destHeightDimension.isUnitAuto()) {
+				if (parentHeight >= 0) {
+					containerHeight = parentHeight;
+				}
+			} else {
+				containerHeight = destHeightDimension.getAsPixels(parent);
+			}
+		} else {
+			if (parentHeight >= 0) {
+				containerHeight = parentHeight;
+			}
+		}
+
+		if (containerHeight < 0) {
+			Log.w(LCAT, "Could not determine container height for image. Defaulting to source height. This shouldn't happen.");
+			containerHeight = srcHeight;
+		}
+
+		float aspectRatio = (float) srcWidth / (float) srcHeight;
+
+		if (aspectRatio > 1f) {
+			destWidth = containerWidth;
+			destHeight = (int) ((float) destWidth / aspectRatio);
+		} else {
+			destHeight = containerHeight;
+			destWidth = (int) ((float) destHeight * aspectRatio);
+		}
+
+		bounds.width = destWidth;
+		bounds.height = destHeight;
+		return bounds;
+	}
+
 	/**
 	 * Gets the bitmap, scaled to a width & height specified in TiDimension params.
 	 * @param destWidthDimension (null-ok) TiDimension specifying the desired width.  If .isUnitAuto()
@@ -364,10 +437,27 @@ public class TiDrawableReference
 		Bounds bounds = peekBounds();
 		srcWidth = bounds.width;
 		srcHeight = bounds.height;
-		
+
 		if (srcWidth <= 0 || srcHeight <= 0) {
 			Log.w(LCAT, "Bitmap bounds could not be determined.  If bitmap is loaded, it won't be scaled.");
 			return getBitmap(); // fallback
+		}
+
+		if (parent == null) {
+			TiContext context = softContext.get();
+			if (context != null && context.getActivity() != null && context.getActivity().getWindow() != null) {
+				parent = context.getActivity().getWindow().getDecorView();
+			}
+		}
+
+		Bounds destBounds = calcDestSize(srcWidth, srcHeight, destWidthDimension, destHeightDimension, parent);
+		destWidth = destBounds.width;
+		destHeight = destBounds.height;
+
+		if (destWidth <= 0 || destHeight <= 0) {
+			// calcDestSize() should actually prevent this from happening, but just in case...
+			Log.w(LCAT, "Bitmap final bounds could not be determined.  If bitmap is loaded, it won't be scaled.");
+			return getBitmap();
 		}
 
 		InputStream is = getInputStream();
@@ -378,27 +468,6 @@ public class TiDrawableReference
 
 		Bitmap b = null;
 		try {
-			if (destWidthDimension == null) {
-				destWidth = srcWidth; // default, but try harder below
-				Activity activity = softActivity.get();
-				if (activity != null && activity.getWindow() != null) {
-					int parentWidth = activity.getWindow().getDecorView().getWidth();
-					if (parentWidth > 0) {
-						// the parent may not be finished laying out yet
-						// we'll take the natural width as the best guess in that case
-						destWidth = parentWidth;
-					}
-				}
-			} else {
-				destWidth = destWidthDimension.isUnitAuto() ? srcWidth : destWidthDimension.getAsPixels(parent);
-			}
-			
-			if (destHeightDimension == null) {
-				destHeight = (int)(((float) srcHeight / (float) srcWidth)*(float)destWidth);
-			} else {
-				destHeight = destHeightDimension.isUnitAuto() ? srcHeight : destHeightDimension.getAsPixels(parent);
-			}
-			
 			BitmapFactory.Options opts = new BitmapFactory.Options();
 			opts.inInputShareable = true;
 			opts.inPurgeable = true;
@@ -412,7 +481,22 @@ public class TiDrawableReference
 					Log.w(LCAT, "Decoded bitmap is null");
 					return null;
 				}
+				if (DBG) {
+					StringBuilder sb = new StringBuilder();
+					sb.append("Bitmap sampling results: inSampleSize=");
+					sb.append(opts.inSampleSize);
+					sb.append("; srcWidth=");
+					sb.append(srcWidth);
+					sb.append("; srcHeight=");
+					sb.append(srcHeight);
+					sb.append("; finalWidth=");
+					sb.append(opts.outWidth);
+					sb.append("; finalHeight=");
+					sb.append(opts.outHeight);
+					Log.d(LCAT, sb.toString());
+				}
 				b = Bitmap.createScaledBitmap(bTemp, destWidth, destHeight, true);
+				bTemp.recycle();
 			} catch (OutOfMemoryError e) {
 				oomOccurred = true;
 				Log.e(LCAT, "Unable to load bitmap. Not enough memory: " + e.getMessage(), e);
@@ -588,23 +672,11 @@ public class TiDrawableReference
 	 */
 	public int calcSampleSize(View parent, int srcWidth, int srcHeight, TiDimension destWidthDimension, TiDimension destHeightDimension) 
 	{
-		int destWidth;
-		if (destWidthDimension == null) {
-			destWidth = srcWidth; // default, but try harder below
-			Activity activity = softActivity.get();
-			if (activity != null && activity.getWindow() != null) {
-				destWidth = activity.getWindow().getDecorView().getWidth();
-			}
-		} else {
-			destWidth = destWidthDimension.isUnitAuto() ? srcWidth : destWidthDimension.getAsPixels(parent);
-		}
-		int destHeight;
-		if (destHeightDimension == null) {
-			destHeight = (int)(((float) srcHeight / (float) srcWidth)*(float)destWidth);
-		} else {
-			destHeight = destHeightDimension.isUnitAuto() ? srcHeight : destHeightDimension.getAsPixels(parent);
-		}
-
+		int destWidth, destHeight;
+		destWidth = destHeight = TiDrawableReference.UNKNOWN;
+		Bounds destBounds = calcDestSize(srcWidth, srcHeight, destWidthDimension, destHeightDimension, parent);
+		destWidth = destBounds.width;
+		destHeight = destBounds.height;
 		return calcSampleSize(srcWidth, srcHeight, destWidth, destHeight);
 	}
 	
