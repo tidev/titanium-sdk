@@ -28,6 +28,7 @@ import org.appcelerator.titanium.TiFastDev;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.TiBackgroundImageLoadTask;
+import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiDownloadListener;
 import org.appcelerator.titanium.util.TiDownloadManager;
@@ -373,7 +374,9 @@ public class TiDrawableReference
 		// Width to fit into
 		if (destWidthDimension != null) {
 			if (destWidthDimension.isUnitAuto()) {
-				containerWidth = srcWidth;
+				if (parentWidth >= 0) {
+					containerWidth = parentWidth;
+				}
 			} else {
 				containerWidth = destWidthDimension.getAsPixels(parent);
 			}
@@ -390,7 +393,9 @@ public class TiDrawableReference
 		// Height to fit into
 		if (destHeightDimension != null) {
 			if (destHeightDimension.isUnitAuto()) {
-				containerHeight = srcHeight;
+				if (parentHeight >= 0) {
+					containerHeight = parentHeight;
+				}
 			} else {
 				containerHeight = destHeightDimension.getAsPixels(parent);
 			}
@@ -405,14 +410,14 @@ public class TiDrawableReference
 			containerHeight = srcHeight;
 		}
 
-		float origAspectRatio = (float) srcWidth / (float) srcHeight;
+		float aspectRatio = (float) srcWidth / (float) srcHeight;
 
-		if (origAspectRatio > 1f) {
+		if (aspectRatio > 1f) {
 			destWidth = containerWidth;
-			destHeight = (int) ((float) destWidth / origAspectRatio);
+			destHeight = (int) ((float) destWidth / aspectRatio);
 		} else {
 			destHeight = containerHeight;
-			destWidth = (int) ((float) destHeight * origAspectRatio);
+			destWidth = (int) ((float) destHeight * aspectRatio);
 		}
 
 		bounds.width = destWidth;
@@ -495,13 +500,8 @@ public class TiDrawableReference
 					sb.append(opts.outHeight);
 					Log.d(LCAT, sb.toString());
 				}
-				if (bTemp.getNinePatchChunk() != null) {
-					// Don't scale nine-patches
-					b = bTemp;
-					bTemp = null;
-				} else {
-					b = Bitmap.createScaledBitmap(bTemp, destWidth, destHeight, true);
-				}
+				b = Bitmap.createScaledBitmap(bTemp, destWidth, destHeight, true);
+				bTemp.recycle();
 			} catch (OutOfMemoryError e) {
 				oomOccurred = true;
 				Log.e(LCAT, "Unable to load bitmap. Not enough memory: " + e.getMessage(), e);
