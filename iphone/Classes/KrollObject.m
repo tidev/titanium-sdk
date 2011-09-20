@@ -191,6 +191,14 @@ TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
 	{
 		return TiValueMakeUndefined(jsContext);
 	}
+	else if ([obj isKindOfClass:[NSURL class]])
+	{
+        NSString* urlString = [obj absoluteString];
+		TiStringRef jsString = TiStringCreateWithCFString((CFStringRef) urlString);
+		TiValueRef result = TiValueMakeString(jsContext,jsString);
+		TiStringRelease(jsString);
+		return result;
+	}
 	else if ([obj isKindOfClass:[NSString class]])
 	{
 		TiStringRef jsString = TiStringCreateWithCFString((CFStringRef) obj);

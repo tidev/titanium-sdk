@@ -291,6 +291,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		//it's no longer referenced by any contexts at all.
 		[self _destroy];
 		pageContext = nil;
+		pageKrollObject = nil;
 	}
 }
 
