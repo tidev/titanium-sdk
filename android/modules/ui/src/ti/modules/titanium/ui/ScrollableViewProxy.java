@@ -51,11 +51,13 @@ public class ScrollableViewProxy extends TiViewProxy
 	}
 
 	@Override
-	public TiUIView createView(Activity activity) {
+	public TiUIView createView(Activity activity)
+	{
 		return new TiUIScrollableView(this);
 	}
 
-	protected TiUIScrollableView getView() {
+	protected TiUIScrollableView getView()
+	{
 		return (TiUIScrollableView) getOrCreateView();
 	}
 
@@ -64,40 +66,40 @@ public class ScrollableViewProxy extends TiViewProxy
 		boolean handled = false;
 
 		switch(msg.what) {
-			case MSG_SHOW_PAGER :
+			case MSG_SHOW_PAGER:
 				getView().showPager();
 				break;
-			case MSG_HIDE_PAGER :
+			case MSG_HIDE_PAGER:
 				getView().hidePager();
 				handled = true;
 				break;
-			case MSG_MOVE_PREV :
+			case MSG_MOVE_PREV:
 				inScroll.set(true);
-				getView().doMovePrevious();
+				getView().movePrevious();
 				inScroll.set(false);
 				handled = true;
 				break;
-			case MSG_MOVE_NEXT :
+			case MSG_MOVE_NEXT:
 				inScroll.set(true);
-				getView().doMoveNext();
+				getView().moveNext();
 				inScroll.set(false);
 				handled = true;
 				break;
-			case MSG_SCROLL_TO :
+			case MSG_SCROLL_TO:
 				inScroll.set(true);
-				getView().doScrollToView(msg.obj);
+				getView().scrollTo(msg.obj);
 				inScroll.set(false);
 				handled = true;
 				break;
-			case MSG_SET_CURRENT :
-				getView().doSetCurrentPage(msg.obj);
+			case MSG_SET_CURRENT:
+				getView().setCurrentPage(msg.obj);
 				handled = true;
 				break;
 			case MSG_SET_VIEWS: {
 				AsyncResult holder = (AsyncResult) msg.obj;
 				Object views = holder.getArg(); 
 				getView().setViews(views);
-				holder.setResult(null); // signal complete.
+				holder.setResult(null);
 				handled = true;
 				break;
 			}
@@ -110,7 +112,7 @@ public class ScrollableViewProxy extends TiViewProxy
 				} else if (view != null) {
 					Log.w(TAG, "addView() ignored. Expected a Titanium view object, got " + view.getClass().getSimpleName());
 				}
-				holder.setResult(null); // signal complete.
+				holder.setResult(null);
 				break;
 			}
 			case MSG_REMOVE_VIEW: {
@@ -122,10 +124,10 @@ public class ScrollableViewProxy extends TiViewProxy
 				} else if (view != null) {
 					Log.w(TAG, "removeView() ignored. Expected a Titanium view object, got " + view.getClass().getSimpleName());
 				}
-				holder.setResult(null); // signal complete.
+				holder.setResult(null);
 				break;
 			}
-			default :
+			default:
 				handled = super.handleMessage(msg);
 		}
 
@@ -140,41 +142,48 @@ public class ScrollableViewProxy extends TiViewProxy
 	}
 
 	@Kroll.setProperty @Kroll.method
-	public void setViews(Object viewsObject) {
+	public void setViews(Object viewsObject)
+	{
 		sendBlockingUiMessage(MSG_SET_VIEWS, viewsObject);
 	}
 
 	@Kroll.method
-	public void addView(Object viewObject) {
+	public void addView(Object viewObject)
+	{
 		sendBlockingUiMessage(MSG_ADD_VIEW, viewObject); 
 	}
-	
+
 	@Kroll.method
-	public void removeView(Object viewObject) {
+	public void removeView(Object viewObject)
+	{
 		sendBlockingUiMessage(MSG_REMOVE_VIEW, viewObject); 
 	}
 
 	@Kroll.method
-	public void scrollToView(Object view) {
+	public void scrollToView(Object view)
+	{
 		if (inScroll.get()) return;
 		getUIHandler().obtainMessage(MSG_SCROLL_TO, view).sendToTarget();
 	}
 
 	@Kroll.method
-	public void movePrevious() {
+	public void movePrevious()
+	{
 		if (inScroll.get()) return;
 		getUIHandler().removeMessages(MSG_MOVE_PREV);
 		getUIHandler().sendEmptyMessage(MSG_MOVE_PREV);
 	}
 
 	@Kroll.method
-	public void moveNext() {
+	public void moveNext()
+	{
 		if (inScroll.get()) return;
 		getUIHandler().removeMessages(MSG_MOVE_NEXT);
 		getUIHandler().sendEmptyMessage(MSG_MOVE_NEXT);
 	}
 
-	public void setPagerTimeout() {
+	public void setPagerTimeout()
+	{
 		getUIHandler().removeMessages(MSG_HIDE_PAGER);
 		int timeout = DEFAULT_PAGING_CONTROL_TIMEOUT;
 		Object o = getProperty(TiC.PROPERTY_PAGING_CONTROL_TIMEOUT);
@@ -188,7 +197,8 @@ public class ScrollableViewProxy extends TiViewProxy
 	}
 
 	@Kroll.setProperty @Kroll.method
-	public void setShowPagingControl(boolean showPagingControl) {
+	public void setShowPagingControl(boolean showPagingControl)
+	{
 		getView().setShowPagingControl(showPagingControl);
 		if (!showPagingControl) {
 			getUIHandler().sendEmptyMessage(MSG_HIDE_PAGER);
@@ -209,12 +219,14 @@ public class ScrollableViewProxy extends TiViewProxy
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public int getCurrentPage() {
+	public int getCurrentPage()
+	{
 		return getView().getCurrentPage();
 	}
 
 	@Kroll.setProperty @Kroll.method
-	public void setCurrentPage(Object page) {
+	public void setCurrentPage(Object page)
+	{
 		getUIHandler().obtainMessage(MSG_SET_CURRENT, page).sendToTarget();
 	}
 
