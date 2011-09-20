@@ -56,15 +56,15 @@
 
 <#assign typeInfo = {
 	"java.lang.String":{
-		"jsType":"String",
-		"jsToJavaConverter":"jsStringToJavaString",
+		"jsType":"Value",
+		"jsToJavaConverter":"jsValueToJavaString",
 		"javaToJsConverter":"javaStringToJsString",
 		"jvalue":"l",
 		"javaCallMethodType":"Object",
 		"javaReturnType":"jstring"
 	},
 	"java.lang.Object":{
-		"jsType":"Value",
+		"jsType":"Object",
 		"jsConvertType":"Value",
 		"jsToJavaConverter":"jsValueToJavaObject",
 		"javaToJsConverter":"javaObjectToJsValue",
@@ -195,10 +195,7 @@ jvalue array named "jArguments". If validation or conversion
 fails, a JS exception is returned.
 ---------------------------------------------------------------->
 <#macro verifyAndConvertArguments args>
-	<#if args?size == 0>
-		jvalue jArguments[0];
-		<#return>
-	</#if>
+	<#-- Verify the correct argument count was provided. -->
 	<@Proxy.getRequiredArgumentCount args=args ; requiredCount>
 	<#if requiredCount &gt; 0>
 	if (args.Length() != ${requiredCount})
@@ -209,23 +206,22 @@ fails, a JS exception is returned.
 
 	jvalue jArguments[${args?size}];
 
+	<#-- Generate argument validation and conversion code -->
 	<@Proxy.listMethodArguments args=args ; index, info>
-	<#if info.jsType == "Value">
-	jArguments[${index}].l = TypeConverter::jsValueToJavaObject(args[${index}]);
-	<#else>
-	Local<Value> arg_${index} = args[${index}];
-	if (!arg_${index}->Is${info.jsType}()) {
-		//return JSException::InvalidArgument(${index}, ${info.jsType});
-		return ThrowException(Exception::Error(String::New("")));
-	}
-	jArguments[${index}].${info.jvalue} = TypeConverter::${info.jsToJavaConverter}(
-		<#if info?keys?seq_contains("jsHandleCast")>
-		Handle<${info.jsType}>::Cast(arg_${index}));
-		<#else>
-		arg_${index}->To${info.jsType}());
-		</#if>
+	<#if info.jsValidation??>
+	if (!args[${ndex}]->Is${info.jsType}())
+		return JSException::Error("Invalid argument at index ${index}. Expected type ${info.jsType}.");
 	</#if>
 
+	<#if info.jsType == "Value">
+	Local<Value> arg_${index} = args[${index}];
+	<#elseif info?keys?seq_contains("jsHandleCast")>
+	Local<${info.jsType}> arg_${index} = Local<${info.jsType}>::Cast(args[${index}]);
+	<#else>
+	Local<${info.jsType}> arg_${index} = args[${index}]->To${info.jsType}();
+	</#if>
+
+	jArguments[${index}].${info.jvalue} = TypeConverter::${info.jsToJavaConverter}(arg_${index});
 	</@Proxy.listMethodArguments>
 </#macro>
 

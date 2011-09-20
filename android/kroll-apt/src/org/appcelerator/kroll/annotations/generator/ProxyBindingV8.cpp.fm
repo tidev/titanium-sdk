@@ -118,6 +118,7 @@ Handle<Value> ${proxyClassName}::${name}(const Arguments& args)
 	if (!env)
 		return JSException::GetJNIEnvironmentError();
 
+	<#-- Lazy initialize method ID for the Java proxy. -->
 	static jmethodID methodID = NULL;
 	if (!methodID) {
 		methodID = env->GetMethodID(${proxyClassName}::javaClass, "${name}", "${signature}");
@@ -127,7 +128,12 @@ Handle<Value> ${proxyClassName}::${name}(const Arguments& args)
 
 	${proxyClassName}* proxy = NativeObject::Unwrap<${proxyClassName}>(args.Holder());
 
+	<#if method.args?size &gt; 0>
 	<@Proxy.verifyAndConvertArguments method.args />
+	<#else>
+	jvalue* jArguments = 0;
+	</#if>
+
 	<@Proxy.callJNIMethod method.returnType, "methodID", "proxy->getJavaObject()", "jArguments" ;
 		hasResult, resultVar>
 	<#if hasResult>
