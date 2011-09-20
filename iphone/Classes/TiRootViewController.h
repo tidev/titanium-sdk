@@ -55,6 +55,7 @@
 	CGFloat leaveDuration;
 }
 
+@property(nonatomic,readonly) BOOL keyboardVisible;
 @property(nonatomic,readonly) UIImageView * defaultImageView;
 -(void)dismissDefaultImageView;
 

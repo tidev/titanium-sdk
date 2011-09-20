@@ -14,6 +14,7 @@
 #import "TiProxy.h"
 #import "TiViewProxy.h"
 #import "TiUITableViewProxy.h"
+#import "TiApp.h"
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
 
@@ -2038,7 +2039,9 @@ if(ourTableView != tableview)	\
 		[self.proxy fireEvent:@"scrollEnd" withObject:event];
 	}
     // Update keyboard status to insure that any fields actively being edited remain in view
-    [[[TiApp app] controller] performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
+    if ([[[TiApp app] controller] keyboardVisible]) {
+        [[[TiApp app] controller] performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
+    }
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView 
