@@ -26,12 +26,14 @@ public:
 
 	Persistent<Context> GetV8Context();
 	static Local<Object> NewInstance();
+	static Handle<Object> WrapContext(Persistent<Context> context);
 
 	static Persistent<FunctionTemplate> constructor_template;
 
 protected:
 
 	WrappedContext();
+	WrappedContext(Persistent<Context> context);
 	virtual ~WrappedContext();
 
 	Persistent<Context> context_;
@@ -62,14 +64,6 @@ public:
 
 	static Persistent<FunctionTemplate> constructor_template;
 
-protected:
-
-	WrappedScript()
-			: NativeObject()
-	{
-	}
-	virtual ~WrappedScript();
-
 	static Handle<Value> New(const Arguments& args);
 	static Handle<Value> CreateContext(const Arguments& arg);
 	static Handle<Value> RunInContext(const Arguments& args);
@@ -78,6 +72,14 @@ protected:
 	static Handle<Value> CompileRunInContext(const Arguments& args);
 	static Handle<Value> CompileRunInThisContext(const Arguments& args);
 	static Handle<Value> CompileRunInNewContext(const Arguments& args);
+
+protected:
+
+	WrappedScript()
+			: NativeObject()
+	{
+	}
+	virtual ~WrappedScript();
 
 	Persistent<Script> script_;
 };
@@ -112,6 +114,12 @@ WrappedContext::WrappedContext()
 	context_ = Context::New();
 }
 
+WrappedContext::WrappedContext(Persistent<Context> context)
+		: NativeObject()
+{
+	context_ = context;
+}
+
 WrappedContext::~WrappedContext()
 {
 	context_.Dispose();
@@ -126,6 +134,15 @@ Local<Object> WrappedContext::NewInstance()
 Persistent<Context> WrappedContext::GetV8Context()
 {
 	return context_;
+}
+
+Handle<Object> WrappedContext::WrapContext(Persistent<Context> context)
+{
+	HandleScope scope;
+	WrappedContext *t = new WrappedContext(context);
+	Local<Object> wrappedContext = WrappedContext::NewInstance();
+	t->Wrap(wrappedContext);
+	return scope.Close(wrappedContext);
 }
 
 void WrappedScript::Initialize(Handle<Object> target)
@@ -369,6 +386,11 @@ void ScriptsModule::Initialize(Handle<Object> target)
 	WrappedScript::Initialize(target);
 }
 
+Handle<Object> ScriptsModule::WrapContext(Persistent<Context> context)
+{
+	return WrappedContext::WrapContext(context);
+}
+
 }
 
 #ifdef __cplusplus
@@ -387,8 +409,14 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Context_create(
 	jlong object_ptr)
 {
 	HandleScope scope;
-	// TODO: use object_ptr
-	Local<Object> context = WrappedContext::NewInstance();
+	Handle<Value> object = Undefined();
+	if (object_ptr != 0) {
+		object = Persistent<Object>((Object *) object_ptr);
+	}
+	Handle<Value> args[] = { object };
+	Local<Function> function = v8::FunctionTemplate::New(WrappedScript::CreateContext)->GetFunction();
+	Local<Value> value = function->Call(function, 1, args);
+	Local<Object> context = value->ToObject();
 	return (jlong) *Persistent<Object>::New(context);
 }
 
@@ -402,8 +430,8 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_compile(
 {
 	HandleScope scope;
 	Handle<Value> args[] = { TypeConverter::javaStringToJsString(string) };
-	Handle<Object> script = WrappedScript::constructor_template->GetFunction()->NewInstance(1, args);
-	return (jlong) *Persistent<Object>::New(script);
+	Handle<Object> wrappedScript = WrappedScript::constructor_template->GetFunction()->NewInstance(1, args);
+	return (jlong) *Persistent<Object>::New(wrappedScript);
 }
 
 /*
@@ -414,7 +442,14 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_compile(
 JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContext__JJ(JNIEnv *env, jclass clazz,
 	jlong script_ptr, jlong context_ptr)
 {
-	return 0;
+	HandleScope scope;
+	Handle<Object> wrappedScript = Persistent<Object>((Object *) script_ptr);
+	Handle<Object> wrappedContext = Persistent<Object>((Object *) context_ptr);
+
+	Handle<Value> args[] = { wrappedContext };
+	Local<Function> function = v8::FunctionTemplate::New(WrappedScript::RunInContext)->GetFunction();
+	Local<Value> value = function->Call(wrappedScript, 1, args);
+	return (jlong) *Persistent<Value>::New(value);
 }
 
 /*
@@ -425,26 +460,14 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInCon
 JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContext__Ljava_lang_String_2JLjava_lang_String_2(
 	JNIEnv *env, jclass clazz, jstring source, jlong context_ptr, jstring filename)
 {
-	HandleScope handleScope;
-	Handle<Context> ctx((Context *) context_ptr);
-	Context::Scope scope(ctx);
+	HandleScope scope;
+	Handle<Object> wrappedContext = Persistent<Object>((Object *) context_ptr);
 
-	Handle<String> src = TypeConverter::javaStringToJsString(source);
-	Handle<String> fname = TypeConverter::javaStringToJsString(filename);
-	Handle<Script> script = Script::New(src, fname);
-
-	TryCatch tryCatch;
-	Handle<Value> result = script->Run();
-
-	if (tryCatch.HasCaught()) {
-		String::AsciiValue value(tryCatch.Exception());
-		LOGE(TAG, "Exception evaluating code: %s", *value);
-		return 0;
-	}
-
-	Persistent<Value> persistent = Persistent<Value>::New(result);
-
-	return (jlong) *persistent;
+	Handle<Value> args[] = { TypeConverter::javaStringToJsString(source), wrappedContext,
+		TypeConverter::javaStringToJsString(filename) };
+	Local<Function> function = v8::FunctionTemplate::New(WrappedScript::CompileRunInContext)->GetFunction();
+	Local<Value> value = function->Call(function, 3, args);
+	return (jlong) *Persistent<Value>::New(value);
 }
 
 /*
@@ -455,7 +478,17 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInCon
 JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInNewContext__JJ(JNIEnv *env, jclass clazz,
 	jlong script_ptr, jlong object_ptr)
 {
-	return 0;
+	HandleScope scope;
+	Handle<Object> warppedScript = Persistent<Object>((Object *) script_ptr);
+	Handle<Value> object = Undefined();
+	if (object_ptr != 0) {
+		object = Persistent<Object>((Object *) object_ptr);
+	}
+
+	Handle<Value> args[] = { warppedScript, object };
+	Local<Function> function = v8::FunctionTemplate::New(WrappedScript::RunInNewContext)->GetFunction();
+	Local<Value> value = function->Call(function, 2, args);
+	return (jlong) *Persistent<Value>::New(value);
 }
 
 /*
@@ -472,11 +505,28 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInNew
 		object = Persistent<Object>((Object *) object_ptr);
 	}
 
-	Handle<Value> args[] = { TypeConverter::javaStringToJsString(source), object, TypeConverter::javaStringToJsString(filename) };
-	Local<Function> wrappedScript = WrappedScript::constructor_template->GetFunction();
-	Local<Function> function = Local<Function>::Cast(wrappedScript->Get(v8::String::NewSymbol("runInNewContext")));
+	Handle<Value> args[] = { TypeConverter::javaStringToJsString(source), object, TypeConverter::javaStringToJsString(
+		filename) };
+	Local<Function> function = v8::FunctionTemplate::New(WrappedScript::CompileRunInNewContext)->GetFunction();
 	Local<Value> value = function->Call(function, 3, args);
 	return (jlong) *Persistent<Value>::New(value);
+}
+
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Script
+ * Method:    runInContextNoResult
+ * Signature: (Ljava/lang/String;JLjava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContextNoResult(JNIEnv *env, jclass clazz, jstring source,
+	jlong context_ptr, jstring filename)
+{
+	HandleScope scope;
+	Handle<Object> wrappedContext = Persistent<Object>((Object *) context_ptr);
+
+	Handle<Value> args[] = { TypeConverter::javaStringToJsString(source), wrappedContext,
+		TypeConverter::javaStringToJsString(filename) };
+	Local<Function> function = v8::FunctionTemplate::New(WrappedScript::CompileRunInContext)->GetFunction();
+	Local<Value> value = function->Call(function, 3, args);
 }
 
 #ifdef __cplusplus

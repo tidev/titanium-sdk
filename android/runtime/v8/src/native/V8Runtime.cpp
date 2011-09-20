@@ -137,7 +137,6 @@ static jobject jruntime;
 
 } // namespace titanium
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -147,7 +146,8 @@ extern "C" {
  * Method:    nativeInit
  * Signature: (Lorg/appcelerator/kroll/runtime/v8/V8Runtime;)J
  */
-JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jclass clazz, jobject self)
+JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jclass clazz,
+	jobject self)
 {
 	HandleScope scope;
 
@@ -169,15 +169,16 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeI
 	titanium::UtilsModule::Initialize(global, env);
 	titanium::TiBlob::Initialize(global, env);
 
-	return (jlong) *titanium::V8Runtime::globalContext;
+	Persistent<Object> wrappedContext(titanium::ScriptsModule::WrapContext(context));
+	return (jlong) *wrappedContext;
 }
 
 /*
  * Class:     org_appcelerator_kroll_runtime_v8_V8Runtime
- * Method:    dispose
+ * Method:    nativeDispose
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_dispose(JNIEnv *env, jclass clazz)
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDispose(JNIEnv *env, jclass clazz)
 {
 	titanium::V8Runtime::globalContext->Exit();
 

@@ -22,29 +22,56 @@ using namespace v8;
 extern "C" {
 #endif
 
-jlong Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCreateObject(JNIEnv *env, jobject javaObject)
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Object
+ * Method:    nativeCreateObject
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCreateObject(JNIEnv *env, jclass clazz)
 {
 	HandleScope scope;
 	return (jlong) *(Persistent<Object>::New(Object::New()));
 }
 
 /*
- * Class:     org_appcelerator_kroll_runtime_v8_V8Object
+ * Class:     org_appcelerator_kroll_runtime_v8_ManagedV8Reference
  * Method:    nativeRelease
  * Signature: (J)V
  */
-void Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeRelease(JNIEnv *env, jclass clazz,
-	jlong ptr)
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_ManagedV8Reference_nativeRelease(JNIEnv *env,
+	jclass clazz, jlong object_ptr)
 {
-	if (ptr) {
+	if (object_ptr) {
 		V8Isolate isolate;
 		if (isolate.IsAlive()) {
-			Persistent<Object>((Object *) ptr).Dispose();
+			Persistent<Data>((Data *) object_ptr).Dispose();
 		}
 	}
 }
 
-jobject Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeGet(JNIEnv *env, jobject map, jlong ptr, jstring name)
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Value
+ * Method:    toDetailString
+ * Signature: (J)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Value_toDetailString
+  (JNIEnv *env, jclass clazz, jlong value_ptr)
+{
+	HandleScope scope;
+	Handle<String> string;
+	if (value_ptr) {
+		string = Persistent<Value>((Object *) value_ptr)->ToDetailString();
+	}
+	return TypeConverter::jsStringToJavaString(string);
+}
+
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Object
+ * Method:    nativeGet
+ * Signature: (JLjava/lang/String;)Ljava/lang/Object;
+ */
+JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeGet(JNIEnv *env, jobject map, jlong ptr,
+	jstring name)
 {
 	HandleScope scope;
 	Handle<Object> jsObject((Object *) ptr);
@@ -59,7 +86,13 @@ jobject Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeGet(JNIEnv *env, j
 	return result;
 }
 
-jobject Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeGetIndex(JNIEnv *env, jobject map, jlong ptr, jint index)
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Object
+ * Method:    nativeGetIndex
+ * Signature: (JI)Ljava/lang/Object;
+ */
+JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeGetIndex(JNIEnv *env, jobject map,
+	jlong ptr, jint index)
 {
 	HandleScope scope;
 	Handle<Object> jsObject((Object *) ptr);
@@ -68,8 +101,13 @@ jobject Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeGetIndex(JNIEnv *e
 	return TypeConverter::jsValueToJavaObject(value);
 }
 
-void Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetObject(JNIEnv *env, jobject map, jlong ptr, jstring name,
-	jobject value)
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Object
+ * Method:    nativeSetObject
+ * Signature: (JLjava/lang/String;Ljava/lang/Object;)V
+ */
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetObject(JNIEnv *env, jobject map,
+	jlong ptr, jstring name, jobject value)
 {
 	HandleScope scope;
 	Handle<Object> jsObject((Object *) ptr);
@@ -82,8 +120,13 @@ void Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetObject(JNIEnv *env
 	env->ReleaseStringChars(name, nameChars);
 }
 
-void Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetNumber(JNIEnv *env, jobject map, jlong ptr, jstring name,
-	jdouble number)
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Object
+ * Method:    nativeSetNumber
+ * Signature: (JLjava/lang/String;D)V
+ */
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetNumber(JNIEnv *env, jobject map,
+	jlong ptr, jstring name, jdouble number)
 {
 	HandleScope scope;
 	Handle<Object> jsObject((Object *) ptr);
@@ -95,8 +138,13 @@ void Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetNumber(JNIEnv *env
 	env->ReleaseStringChars(name, nameChars);
 }
 
-void Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetBoolean(JNIEnv *env, jobject map, jlong ptr, jstring name,
-	jboolean b)
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Object
+ * Method:    nativeSetBoolean
+ * Signature: (JLjava/lang/String;Z)V
+ */
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetBoolean(JNIEnv *env, jobject map,
+	jlong ptr, jstring name, jboolean b)
 {
 	HandleScope scope;
 	Handle<Object> jsObject((Object *) ptr);
@@ -108,7 +156,13 @@ void Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetBoolean(JNIEnv *en
 	env->ReleaseStringChars(name, nameChars);
 }
 
-jboolean Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeHas(JNIEnv *env, jobject map, jlong ptr, jstring name)
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Object
+ * Method:    nativeHas
+ * Signature: (JLjava/lang/String;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeHas(JNIEnv *env, jobject map,
+	jlong ptr, jstring name)
 {
 	HandleScope scope;
 	Handle<Object> jsObject((Object *) ptr);
@@ -121,7 +175,13 @@ jboolean Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeHas(JNIEnv *env, 
 	return (jboolean) hasProperty;
 }
 
-jobjectArray Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeKeys(JNIEnv *env, jobject map, jlong ptr)
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Object
+ * Method:    nativeKeys
+ * Signature: (J)[Ljava/lang/Object;
+ */
+JNIEXPORT jobjectArray JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeKeys(JNIEnv *env, jobject map,
+	jlong ptr)
 {
 	HandleScope scope;
 	Handle<Object> jsObject((Object *) ptr);
