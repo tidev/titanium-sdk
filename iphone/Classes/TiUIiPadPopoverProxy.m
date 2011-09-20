@@ -17,6 +17,15 @@
 @synthesize viewController, popoverView;
 
 #pragma mark Setup
+
+-(id)init
+{
+    if (self = [super init]) {
+        closingCondition = [[NSCondition alloc] init];
+    }
+    return self;
+}
+
 -(void)dealloc
 {
 	[viewController setProxy:nil];
@@ -24,6 +33,7 @@
 	RELEASE_TO_NIL(navigationController);
 	RELEASE_TO_NIL(popoverController);
 	RELEASE_TO_NIL(popoverView);
+    RELEASE_TO_NIL(closingCondition);
 	[super dealloc];
 }
 
@@ -179,9 +189,20 @@
 
 -(void)show:(id)args
 {
-	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
-	[self rememberSelf];
-	ENSURE_UI_THREAD_1_ARG(args);
+    if (![NSThread isMainThread]) {
+        ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+        [self rememberSelf];
+        
+        [closingCondition lock];
+        if (isDismissing) {
+            [closingCondition wait];
+        }
+        [closingCondition unlock];
+        
+        [self performSelectorOnMainThread:@selector(show:) withObject:args waitUntilDone:NO];
+        return;
+    }
+    
 	
 	NSDictionary *rectProps = [args objectForKey:@"rect"];
 	animated = [TiUtils boolValue:@"animated" properties:args def:YES];
@@ -245,13 +266,27 @@
 
 -(void)hide:(id)args
 {
-	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+    if (![NSThread isMainThread]) {
+        ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+        
+        [closingCondition lock];
+        isDismissing = YES;
+        [closingCondition unlock];
+        
+        [self performSelectorOnMainThread:@selector(hide:) withObject:args waitUntilDone:NO];
+        return;
+    }
 
-	ENSURE_UI_THREAD_1_ARG(args);
 	BOOL animated_ = [TiUtils boolValue:@"animated" properties:args def:YES];
 	[[self popoverController] dismissPopoverAnimated:animated_];
 
-//As of iPhone OS 3.2, calling dismissPopoverAnimated does NOT call didDismissPopover. So we have to do it ourselves...
+    // Manually calling dismissPopoverAnimated: does not, in fact, call the delegate's
+    // popoverControllerDidDismissPopover: callback. See documentation!
+    
+    // OK, apparently we need the delay so that the animation can finish and the popover vanish before making any
+    // dealloc attempts. But mixing poorly-timed hide/show calls can lead to crashes due to this delay, so we
+    // have to set a flag to warn show(), and then trigger a condition when the flag is cleared.
+    
 	[self performSelector:@selector(popoverControllerDidDismissPopover:) withObject:popoverController afterDelay:0.5];
 }
 
@@ -277,6 +312,11 @@
 //against that.
 	if (!isShowing)
 	{
+        [closingCondition lock];
+        isDismissing = NO;
+        [closingCondition signal];
+        [closingCondition unlock];
+        
 		return;
 	}
 	[self windowWillClose];
@@ -289,6 +329,10 @@
 	RELEASE_TO_NIL_AUTORELEASE(popoverController);
 	RELEASE_TO_NIL(navigationController);
 	[self performSelector:@selector(release) withObject:nil afterDelay:0.5];
+    [closingCondition lock];
+    isDismissing = NO;
+    [closingCondition signal];
+    [closingCondition unlock];
 }
 
 -(BOOL)suppressesRelayout
