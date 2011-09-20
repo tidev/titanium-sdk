@@ -64,7 +64,7 @@
 		"javaReturnType":"jstring"
 	},
 	"java.lang.Object":{
-		"jsType":"Object",
+		"jsType":"Value",
 		"jsConvertType":"Value",
 		"jsToJavaConverter":"jsValueToJavaObject",
 		"javaToJsConverter":"javaObjectToJsValue",
@@ -73,7 +73,7 @@
 		"javaReturnType":"jobject"
 	},
 	"java.lang.Object[]":{
-		"jsType":"Object",
+		"jsType":"Array",
 		"jsHandleCast":"Array",
 		"jsToJavaConverter":"jsArrayToJavaArray",
 		"javaToJsConverter":"javaArrayToJsArray",
@@ -82,7 +82,7 @@
 		"javaReturnType":"jobjectArray"
 	},
 	"int[]":{
-		"jsType":"Object",
+		"jsType":"Array",
 		"jsHandleCast":"Array",
 		"jsToJavaConverter":"jsArrayToJavaArray",
 		"javaToJsConverter":"javaArrayToJsArray",
@@ -210,15 +210,20 @@ fails, a JS exception is returned.
 	jvalue jArguments[${args?size}];
 
 	<@Proxy.listMethodArguments args=args ; index, info>
+	<#if info.jsType == "Value">
+	jArguments[${index}].l = TypeConverter::jsValueToJavaObject(args[${index}]);
+	<#else>
 	Local<Value> arg_${index} = args[${index}];
 	if (!arg_${index}->Is${info.jsType}()) {
 		//return JSException::InvalidArgument(${index}, ${info.jsType});
 		return ThrowException(Exception::Error(String::New("")));
 	}
-	<#if info?keys?seq_contains("jsHandleCast")>
-	jArguments[${index}].${info.jvalue} = TypeConverter::${info.jsToJavaConverter}(Handle<${info.jsHandleCast}>::Cast(arg_${index}->To${info.jsType}()));
-	<#else>
-	jArguments[${index}].${info.jvalue} = TypeConverter::${info.jsToJavaConverter}(arg_${index}->To${info.jsType}());
+	jArguments[${index}].${info.jvalue} = TypeConverter::${info.jsToJavaConverter}(
+		<#if info?keys?seq_contains("jsHandleCast")>
+		Handle<${info.jsType}>::Cast(arg_${index}));
+		<#else>
+		arg_${index}->To${info.jsType}());
+		</#if>
 	</#if>
 
 	</@Proxy.listMethodArguments>
