@@ -6,20 +6,14 @@
  */
 package org.appcelerator.kroll.runtime.v8;
 
-public class V8Object
+public class V8Object extends ManagedV8Reference
 {
-	protected long ptr;
-
 	public V8Object(long ptr) {
-		this.ptr = ptr;
+		super(ptr);
 	}
 
 	public V8Object() {
-		this.ptr = nativeCreateObject();
-	}
-
-	public long getPointer() {
-		return ptr;
+		super(nativeCreateObject());
 	}
 
 	public Object get(String name) {
@@ -65,15 +59,8 @@ public class V8Object
 	public Object[] keys() {
 		return nativeKeys(ptr);
 	}
-
-	@Override
-	protected void finalize() throws Throwable {
-		super.finalize();
-		nativeRelease(ptr);
-		ptr = 0;
-	}
-
-	private native long nativeCreateObject();
+	
+	private static native long nativeCreateObject();
 
 	private native Object nativeGet(long ptr, String name);
 
@@ -88,6 +75,4 @@ public class V8Object
 	private native boolean nativeHas(long ptr, String name);
 
 	private native Object[] nativeKeys(long ptr);
-
-	private static native void nativeRelease(long ptr);
 }

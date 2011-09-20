@@ -29,22 +29,38 @@ jlong Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCreateObject(JNIEnv 
 }
 
 /*
- * Class:     org_appcelerator_kroll_runtime_v8_V8Object
+ * Class:     org_appcelerator_kroll_runtime_v8_ManagedV8Reference
  * Method:    nativeRelease
  * Signature: (J)V
  */
-void Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeRelease(JNIEnv *env, jclass clazz,
-	jlong ptr)
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_ManagedV8Reference_nativeRelease(JNIEnv *env,
+	jclass clazz, jlong object_ptr)
 {
-	if (ptr) {
+	if (object_ptr) {
 		V8Isolate isolate;
 		if (isolate.IsAlive()) {
-			Persistent<Object>((Object *) ptr).Dispose();
+			Persistent<Data>((Data *) object_ptr).Dispose();
 		}
 	}
 }
 
 jobject Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeGet(JNIEnv *env, jobject map, jlong ptr, jstring name)
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Value
+ * Method:    toDetailString
+ * Signature: (J)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Value_toDetailString
+  (JNIEnv *env, jclass clazz, jlong value_ptr)
+{
+	HandleScope scope;
+	Handle<String> string;
+	if (value_ptr) {
+		string = Persistent<Value>((Object *) value_ptr)->ToDetailString();
+	}
+	return TypeConverter::jsStringToJavaString(string);
+}
+
 {
 	HandleScope scope;
 	Handle<Object> jsObject((Object *) ptr);

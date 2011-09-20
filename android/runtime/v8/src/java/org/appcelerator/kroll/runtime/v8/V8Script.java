@@ -10,7 +10,7 @@ package org.appcelerator.kroll.runtime.v8;
  * @author Max Stepanov
  *
  */
-public final class V8Script extends V8Object {
+public final class V8Script extends ManagedV8Reference {
 
 	/**
 	 * Create precompiled script
@@ -26,8 +26,8 @@ public final class V8Script extends V8Object {
 	 * @param context
 	 * @return
 	 */
-	public V8Object runInContext(V8Context context) {
-		return new V8Object(runInContext(ptr, context.ptr));
+	public V8Value runInContext(V8Context context) {
+		return new V8Value(runInContext(ptr, context.ptr));
 	}
 
 	/**
@@ -35,16 +35,16 @@ public final class V8Script extends V8Object {
 	 * @param object
 	 * @return
 	 */
-	public V8Object runInContext(V8Object object) {
-		return new V8Object(runInNewContext(ptr, object.ptr));
+	public V8Value runInContext(V8Object object) {
+		return new V8Value(runInNewContext(ptr, object.ptr));
 	}
 
 	/**
 	 * Run precompiled script in an empty context
 	 * @return
 	 */
-	public V8Object runInNewContext() {
-		return new V8Object(runInNewContext(ptr, 0));
+	public V8Value runInNewContext() {
+		return new V8Value(runInNewContext(ptr, 0));
 	}
 
 	/**
@@ -54,8 +54,8 @@ public final class V8Script extends V8Object {
 	 * @param filename
 	 * @return
 	 */
-	public static V8Object runInContext(String source, V8Context context, String filename) {
-		return new V8Object(runInContext(source, context.ptr, filename));
+	public static V8Value runInContext(String source, V8Context context, String filename) {
+		return new V8Value(runInContext(source, context.ptr, filename));
 	}
 
 	/**
@@ -65,8 +65,8 @@ public final class V8Script extends V8Object {
 	 * @param filename
 	 * @return
 	 */
-	public static V8Object runInContext(String source, V8Object object, String filename) {
-		return new V8Object(runInNewContext(source, object.ptr, filename));
+	public static V8Value runInContext(String source, V8Object object, String filename) {
+		return new V8Value(runInNewContext(source, object.ptr, filename));
 	}
 
 	/**
@@ -75,8 +75,8 @@ public final class V8Script extends V8Object {
 	 * @param filename
 	 * @return
 	 */
-	public static V8Object runInNewContext(String source, String filename) {
-		return new V8Object(runInNewContext(source, 0, filename));
+	public static V8Value runInNewContext(String source, String filename) {
+		return new V8Value(runInNewContext(source, 0, filename));
 	}
 
 	private static native long compile(String source, String filename);
