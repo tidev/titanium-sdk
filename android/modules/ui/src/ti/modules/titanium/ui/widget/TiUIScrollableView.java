@@ -313,24 +313,16 @@ public class TiUIScrollableView extends TiUIView
 	{
 		if (mPager != null) {
 			for (int i = mPager.getChildCount() - 1; i >=  0; i--) {
-				Object obj = mPager.getChildAt(i);
-				if (obj instanceof TiUIView) {
-					((TiUIView) obj).release();
-				}
 				mPager.removeViewAt(i);
 			}
 		}
 		if (mViews != null) {
-			for (int i = mViews.size(); i >= 0; i--) {
-				Object obj = mViews.get(i);
-				if (obj instanceof TiUIView) {
-					((TiUIView) obj).release();
-				}
+			for (TiViewProxy viewProxy : mViews) {
+				viewProxy.releaseViews();
 			}
 			mViews.clear();
 		}
 		super.release();
-		
 	}
 
 	public static class ViewPagerAdapter extends PagerAdapter
