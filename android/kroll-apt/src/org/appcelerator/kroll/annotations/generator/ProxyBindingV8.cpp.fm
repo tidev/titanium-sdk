@@ -14,10 +14,16 @@
 #include "JSException.h"
 #include "ProxyFactory.h"
 #include "TypeConverter.h"
+<#if isModule>
 
 <@Proxy.listChildModules ; isFirst, childModule>
 #include "${childModule.proxyClassName}.h"
 </@Proxy.listChildModules>
+
+<@Proxy.listCreateProxies ; isFirst, createProxy>
+#include "${createProxy.proxyClassName}.h"
+</@Proxy.listCreateProxies>
+</#if>
 
 using namespace v8;
 
@@ -32,7 +38,7 @@ ${proxyClassName}::${proxyClassName}(jobject javaObject) : JavaObject(javaObject
 
 void ${proxyClassName}::Initialize(Handle<Object> ti, JNIEnv* env)
 {
-	// Query the Java class for this proxy.
+	<#-- Query the class for the Java proxy -->
 	javaClass = env->FindClass("${packageName?replace('.','/')}/${proxyClassName}");
 
 	HandleScope scope;
@@ -41,21 +47,29 @@ void ${proxyClassName}::Initialize(Handle<Object> ti, JNIEnv* env)
 	proxyTemplate = Persistent<FunctionTemplate>::New(t);
 	proxyTemplate->InstanceTemplate()->SetInternalFieldCount(1);
 	proxyTemplate->SetClassName(String::NewSymbol("${proxyAttrs.name}"));
+	Local<Function> proxyConstructor = proxyTemplate->GetFunction();
 
+	// Method bindings -----------------------------------------------------------
 	<@Proxy.listMethods ; isFirst, name, method, signature>
 	V8_SET_PROTOTYPE_METHOD(proxyTemplate, "${name}", ${proxyClassName}::${name});
 	</@Proxy.listMethods>
 
-	Local<Function> proxyConstructor = proxyTemplate->GetFunction();
-	ti->Set(String::NewSymbol("${proxyAttrs.name}"), proxyTemplate->GetFunction());
+	<#-- Register with the Proxy factory -->
+	ProxyFactory::registerProxyPair(javaClass, *proxyTemplate);
 
-	// Initialize child proxies and modules.
+	<#if isModule>
 	<@Proxy.listChildModules ; isFirst, childModule>
 	${childModule.name}Module::Initialize(proxyConstructor, env);
 	</@Proxy.listChildModules>
 
-	// Register proxies with factory.
-	ProxyFactory::registerProxyPair(javaClass, *proxyTemplate);
+	<@Proxy.listCreateProxies ; isFirst, createProxy>
+	${createProxy.name}Proxy::Initialize(proxyConstructor, env);
+	</@Proxy.listCreateProxies>
+
+	ti->Set(String::NewSymbol("${proxyAttrs.name}"), proxyConstructor->NewInstance());
+	<#else>
+	ti->Set(String::NewSymbol("${proxyAttrs.name}"), proxyConstructor);
+	</#if>
 }
 
 Handle<Value> ${proxyClassName}::Constructor(const Arguments& args)

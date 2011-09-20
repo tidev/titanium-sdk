@@ -28,6 +28,20 @@
 	</#if>
 </#macro>
 
+<#macro listCreateProxies>
+	<#if isModule>
+		<#list allModules?keys as module>
+			<#if module = packageName+"."+proxyClassName>
+				<#if allModules[module].createProxies??>
+					<#list allModules[module].createProxies as createProxy>
+						<#nested createProxy_index==0, createProxy>
+					</#list>
+				</#if>
+			</#if>
+		</#list>
+	</#if>
+</#macro>
+
 <#macro listMethods>
 	<#if methods??>
 		<#list methods?keys as methodName>
