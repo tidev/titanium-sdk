@@ -58,15 +58,16 @@ void ${proxyClassName}::Initialize(Handle<Object> ti, JNIEnv* env)
 	ProxyFactory::registerProxyPair(javaClass, *proxyTemplate);
 
 	<#if isModule>
+	Local<Object> moduleInstance = proxyConstructor->NewInstance();
+	ti->Set(String::NewSymbol("${proxyAttrs.name}"), moduleInstance);
+
 	<@Proxy.listChildModules ; isFirst, childModule>
-	${childModule.name}Module::Initialize(proxyConstructor, env);
+	${childModule.name}Module::Initialize(moduleInstance, env);
 	</@Proxy.listChildModules>
 
 	<@Proxy.listCreateProxies ; isFirst, createProxy>
-	${createProxy.name}Proxy::Initialize(proxyConstructor, env);
+	${createProxy.name}Proxy::Initialize(moduleInstance, env);
 	</@Proxy.listCreateProxies>
-
-	ti->Set(String::NewSymbol("${proxyAttrs.name}"), proxyConstructor->NewInstance());
 	<#else>
 	ti->Set(String::NewSymbol("${proxyAttrs.name}"), proxyConstructor);
 	</#if>
