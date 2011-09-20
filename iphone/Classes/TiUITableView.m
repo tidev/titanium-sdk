@@ -14,6 +14,7 @@
 #import "TiProxy.h"
 #import "TiViewProxy.h"
 #import "TiUITableViewProxy.h"
+#import "TiApp.h"
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
 
