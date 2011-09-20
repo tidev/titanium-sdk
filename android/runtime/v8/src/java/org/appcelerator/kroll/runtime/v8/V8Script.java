@@ -59,6 +59,17 @@ public final class V8Script extends ManagedV8Reference {
 	}
 
 	/**
+	 * Run script sources in predefined context
+	 * @param source
+	 * @param context
+	 * @param filename
+	 * @return
+	 */
+	public static void runInContextNoResult(String source, V8Context context, String filename) {
+		runInContextNoResult(source, context.ptr, filename);
+	}
+
+	/**
 	 * Run script sources in context created form provided object
 	 * @param source
 	 * @param object
@@ -83,6 +94,7 @@ public final class V8Script extends ManagedV8Reference {
 
 	private static native long runInContext(long ptr, long context_ptr);
 	private static native long runInContext(String source, long context_ptr, String filename);
+	private static native void runInContextNoResult(String source, long context_ptr, String filename);
 
 	private static native long runInNewContext(long ptr, long object_ptr);
 	private static native long runInNewContext(String source, long object_ptr, String filename);

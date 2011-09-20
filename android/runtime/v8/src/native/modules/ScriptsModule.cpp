@@ -512,6 +512,23 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInNew
 	return (jlong) *Persistent<Value>::New(value);
 }
 
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Script
+ * Method:    runInContextNoResult
+ * Signature: (Ljava/lang/String;JLjava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContextNoResult(JNIEnv *env, jclass clazz, jstring source,
+	jlong context_ptr, jstring filename)
+{
+	HandleScope scope;
+	Handle<Object> wrappedContext = Persistent<Object>((Object *) context_ptr);
+
+	Handle<Value> args[] = { TypeConverter::javaStringToJsString(source), wrappedContext,
+		TypeConverter::javaStringToJsString(filename) };
+	Local<Function> function = v8::FunctionTemplate::New(WrappedScript::CompileRunInContext)->GetFunction();
+	Local<Value> value = function->Call(function, 3, args);
+}
+
 #ifdef __cplusplus
 }
 #endif

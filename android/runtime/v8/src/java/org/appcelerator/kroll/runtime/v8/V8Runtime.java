@@ -35,7 +35,7 @@ public final class V8Runtime
 			Log.d(TAG, "evalFile: " + filename);
 			char[] chars = Assets.readResource(filename);
 			if (chars != null && chars.length > 0) {
-				V8Script.runInContext(new String(chars), globalContext, filename).release();
+				V8Script.runInContextNoResult(new String(chars), globalContext, filename);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
