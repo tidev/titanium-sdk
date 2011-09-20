@@ -327,6 +327,8 @@ public class KrollBindingGenerator extends AbstractProcessor {
 				if (!superTypeName.equals("Object")) {
 					proxyProperties.put(
 						"superProxyBindingClassName", String.format("%s.%sBindingGen", utils.getPackage(superType), superTypeName));
+					proxyProperties.put("superPackageName", utils.getPackage(superType));
+					proxyProperties.put("superProxyClassName", superTypeName);
 				}
 
 				proxyProperties.put("isModule", utils.annotationTypeIs(annotation, Kroll_module));

@@ -25,6 +25,10 @@
 </@Proxy.listCreateProxies>
 </#if>
 
+<#if superProxyClassName??>
+#include "${superPackageName}.${superProxyClassName}.h"
+</#if>
+
 using namespace v8;
 
 namespace titanium {
@@ -47,6 +51,9 @@ void ${proxyClassName}::Initialize(Handle<Object> ti, JNIEnv* env)
 	proxyTemplate = Persistent<FunctionTemplate>::New(t);
 	proxyTemplate->InstanceTemplate()->SetInternalFieldCount(1);
 	proxyTemplate->SetClassName(String::NewSymbol("${proxyAttrs.name}"));
+	<#if superProxyClassName??>
+	proxyTemplate->Inherit(${superProxyClassName?replace("BindingGen", "")}::proxyTemplate);
+	</#if>
 	Local<Function> proxyConstructor = proxyTemplate->GetFunction();
 
 	// Method bindings -----------------------------------------------------------
