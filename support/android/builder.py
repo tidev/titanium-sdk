@@ -1361,7 +1361,7 @@ class Builder(object):
 							if is_modified(native_lib):
 								self.apk_updated = True
 								debug("installing native lib: %s" % native_lib)
-								apk_zip.write(native_lib, '/'.join(['lib', abi_dir, file]))
+								apk_zip.write(native_lib, '/'.join(['libs', abi_dir, file]))
 
 		# add any native libraries : libs/**/*.so -> lib/**/*.so
 		add_native_libs(os.path.join(self.project_dir, 'libs'))
@@ -1371,7 +1371,7 @@ class Builder(object):
 			add_native_libs(module.get_resource('libs'))
 
 		# add sdk runtime native libraries
-		add_native_libs(os.path.join(template_dir,'lib'))
+		add_native_libs(os.path.join(template_dir,'native/libs'))
 
 		apk_zip.close()
 		return unsigned_apk
@@ -1384,7 +1384,6 @@ class Builder(object):
 
 	def package_and_deploy(self):
 		ap_ = os.path.join(self.project_dir, 'bin', 'app.ap_')
-		rhino_jar = os.path.join(self.support_dir, 'js.jar')
 
 		# This is only to check if this has been overridden in production
 		has_compile_js = self.tiappxml.has_app_property("ti.android.compilejs")
@@ -1846,12 +1845,6 @@ class Builder(object):
 					if not has_network_jar:
 						dex_args.append(os.path.join(self.support_dir, 'modules', 'titanium-network.jar'))
 
-					# substitute for the debugging js jar in non production mode
-					for jar in self.android_jars:
-						if jar.endswith('js.jar'):
-							dex_args.remove(jar)
-							dex_args.append(os.path.join(self.support_dir, 'js-debug.jar'))
-	
 				info("Compiling Android Resources... This could take some time")
 				# TODO - Document Exit message
 				run_result = run.run(dex_args, warning_regex=r'warning: ')

@@ -90,6 +90,18 @@ jstring TypeConverter::jsStringToJavaString(v8::Handle<v8::String> jsString)
 	return env->NewString(*javaString, javaString.length());
 }
 
+jstring TypeConverter::jsValueToJavaString(v8::Handle<v8::Value> jsValue)
+{
+	JNIEnv *env = JNIUtil::getJNIEnv();
+	if (env == NULL) {
+		return NULL;
+	}
+
+	v8::Local<v8::String> jsString = jsValue->ToString();
+	v8::String::Value javaString(jsString);
+	return env->NewString(*javaString, javaString.length());
+}
+
 v8::Handle<v8::String> TypeConverter::javaStringToJsString(jstring javaString)
 {
 	JNIEnv *env = JNIUtil::getJNIEnv();
