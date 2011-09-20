@@ -6,11 +6,11 @@
  */
 package org.appcelerator.kroll.runtime.v8;
 
-/* package */abstract class ManagedV8Object {
+/* package */abstract class ManagedV8Reference {
 
 	protected long ptr;
 
-	protected ManagedV8Object(long ptr) {
+	protected ManagedV8Reference(long ptr) {
 		this.ptr = ptr;
 	}
 
@@ -21,9 +21,13 @@ package org.appcelerator.kroll.runtime.v8;
 	@Override
 	protected void finalize() throws Throwable {
 		super.finalize();
-		release(ptr);
-		ptr = 0;
+		release();
 	}
 
-	private static native void release(long ptr);
+	public synchronized void release() {
+		nativeRelease(ptr);
+		ptr = 0;		
+	}
+
+	private static native void nativeRelease(long ptr);
 }
