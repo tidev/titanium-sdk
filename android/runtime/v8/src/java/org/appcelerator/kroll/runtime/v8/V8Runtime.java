@@ -23,13 +23,19 @@ public final class V8Runtime
 		return globalContext;
 	}
 
+	public static void dispose()
+	{
+		globalContext.release();
+		nativeDispose();
+	}
+
 	public static void evalFile(V8Object scope, String filename)
 	{
 		try {
 			Log.d(TAG, "evalFile: " + filename);
 			char[] chars = Assets.readResource(filename);
 			if (chars != null && chars.length > 0) {
-				V8Script.runInContext(new String(chars), globalContext, filename);
+				V8Script.runInContext(new String(chars), globalContext, filename).release();
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -38,7 +44,7 @@ public final class V8Runtime
 	}
 
 	private static native long nativeInit(V8Runtime runtime);
-	public static native void dispose();
+	private static native void nativeDispose();
 
 	/*
 	private static native void nativeInitModuleTemplate(Class<?> moduleClass);
