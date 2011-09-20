@@ -14,6 +14,7 @@ class ScriptsModule
 {
 public:
 	static void Initialize(v8::Handle<v8::Object> target);
+	static v8::Handle<v8::Object> WrapContext(v8::Persistent<v8::Context> context);
 };
 }
 
