@@ -42,7 +42,7 @@
 
 
 @implementation TiRootViewController
-@synthesize backgroundColor, backgroundImage, defaultImageView;
+@synthesize backgroundColor, backgroundImage, defaultImageView, keyboardVisible;
 
 - (UIImage*)defaultImageForOrientation:(UIDeviceOrientation) orientation resultingOrientation:(UIDeviceOrientation *)imageOrientation idiom:(UIUserInterfaceIdiom*) imageIdiom
 {	
