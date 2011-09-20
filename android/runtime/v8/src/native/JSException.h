@@ -18,10 +18,22 @@ namespace titanium {
 class JSException
 {
 public:
-    static v8::Handle<v8::Value> CalledConstructor()
-    {
-        return THROW("Calling this constructor is not allowed.");
-    }
+	static v8::Handle<v8::Value> Error(const char* msg)
+	{
+		return THROW(msg);
+	}
+
+	// Calling a constructor as a function not allowed.
+	static v8::Handle<v8::Value> CalledConstructor()
+	{
+		return THROW("Calling this constructor is not allowed.");
+	}
+
+	// An attempt to get the current JNI environment failed.
+	static v8::Handle<v8::Value> GetJNIEnvironmentError()
+	{
+		return THROW("Failed to get current JNI environment.");
+	}
 };
 
 }

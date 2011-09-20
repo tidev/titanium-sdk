@@ -80,26 +80,24 @@ Handle<Value> ${proxyClassName}::Constructor(const Arguments& args)
 
 // Methods ---------------------------------------------------------------
 <@Proxy.listMethods ; isFirst, name, method, signature>
-static jmethodID ${name}_methodID = NULL;
-
 Handle<Value> ${proxyClassName}::${name}(const Arguments& args)
 {
 	HandleScope scope;
 	JNIEnv *env = JNIUtil::getJNIEnv();
-	if (!env) return ThrowException(Exception::Error(String::New("couldn't init JNIEnv")));
+	if (!env)
+		return JSException::GetJNIEnvironmentError();
 
-	static jmethodID ${name}_methodID = NULL;
-	if (!${name}_methodID) {
-		${name}_methodID = env->GetMethodID(${proxyClassName}::javaClass, "${name}", "${signature}");
-		if (!${name}_methodID) {
-			return ThrowException(Exception::Error(String::New("Couldn't find method: ${proxyClassName}.${name} ${signature}")));
-		}
+	static jmethodID methodID = NULL;
+	if (!methodID) {
+		methodID = env->GetMethodID(${proxyClassName}::javaClass, "${name}", "${signature}");
+		if (!methodID)
+			return JSException::Error("Couldn't find proxy method '${name}' with signature '${signature}'");
 	}
 
 	${proxyClassName}* proxy = NativeObject::Unwrap<${proxyClassName}>(args.Holder());
 
 	<@Proxy.verifyAndConvertArguments method.args />
-	<@Proxy.callJNIMethod method.returnType, "${name}_methodID", "proxy->getJavaObject()", "jArguments" ;
+	<@Proxy.callJNIMethod method.returnType, "methodID", "proxy->getJavaObject()", "jArguments" ;
 		hasResult, resultVar>
 	<#if hasResult>
 	return ${resultVar};
