@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -73,11 +73,11 @@ public class TiDrawableReference
 	private TiBaseFile file;
 	private DrawableReferenceType type;
 	private boolean oomOccurred = false;
-	
+
 	private SoftReference<TiContext> softContext = null;
-	
+
 	private TiFileHelper fileHelper = null;
-	
+
 	public TiDrawableReference(TiContext context, DrawableReferenceType type)
 	{
 		this.type = type;
@@ -109,20 +109,20 @@ public class TiDrawableReference
 		}
 		return (this.hashCode() == ((TiDrawableReference)object).hashCode());
 	}
-	public static TiDrawableReference fromResourceId(TiContext context, int resourceId) 
+	public static TiDrawableReference fromResourceId(TiContext context, int resourceId)
 	{
 		TiDrawableReference ref = new TiDrawableReference(context, DrawableReferenceType.RESOURCE_ID);
 		ref.resourceId = resourceId;
 		return ref;
 	}
-	
+
 	public static TiDrawableReference fromBlob(TiContext context, TiBlob blob)
 	{
 		TiDrawableReference ref = new TiDrawableReference(context, DrawableReferenceType.BLOB);
 		ref.blob = blob;
 		return ref;
 	}
-	
+
 	public static TiDrawableReference fromUrl(TiContext context, String url)
 	{
 		TiDrawableReference ref = new TiDrawableReference(context, DrawableReferenceType.URL);
@@ -139,14 +139,14 @@ public class TiDrawableReference
 		}
 		return ref;
 	}
-	
+
 	public static TiDrawableReference fromFile(TiContext context, TiBaseFile file)
 	{
 		TiDrawableReference ref = new TiDrawableReference(context, DrawableReferenceType.FILE);
 		ref.file = file;
 		return ref;
 	}
-	
+
 	public static TiDrawableReference fromDictionary(TiContext context, KrollDict dict)
 	{
 		if (dict.containsKey("media")) {
@@ -183,31 +183,36 @@ public class TiDrawableReference
 			return fromObject(context, null);
 		}
 	}
-	
+
 	public boolean isNetworkUrl()
 	{
 		return (type == DrawableReferenceType.URL && url != null && URLUtil.isNetworkUrl(this.url));
 	}
-	
-	public boolean isTypeUrl() {
+
+	public boolean isTypeUrl()
+	{
 		return type == DrawableReferenceType.URL;
 	}
-	
-	public boolean isTypeFile() {
+
+	public boolean isTypeFile()
+	{
 		return type == DrawableReferenceType.FILE;
 	}
 	
-	public boolean isTypeBlob() {
+	public boolean isTypeBlob()
+	{
 		return type == DrawableReferenceType.BLOB;
 	}
-	
-	public boolean isTypeResourceId() {
+
+	public boolean isTypeResourceId()
+	{
 		return type == DrawableReferenceType.RESOURCE_ID;
 	}
-	public boolean isTypeNull() {
+	public boolean isTypeNull()
+	{
 		return type == DrawableReferenceType.NULL;
 	}
-	
+
 	/**
 	 * Get the bitmap from the resource without respect to sampling/scaling.
 	 * @return Bitmap, or null if any problem getting it.  Check logcat if null.
@@ -219,14 +224,14 @@ public class TiDrawableReference
 			Log.w(LCAT, "Could not open stream to get bitmap");
 			return null;
 		}
-		
+
 		Bitmap b = null;
-		
+
 		try {
 			BitmapFactory.Options opts = new BitmapFactory.Options();
 			opts.inInputShareable = true;
 			opts.inPurgeable = true;
-			
+
 			try {
 				oomOccurred = false;
 				b = BitmapFactory.decodeStream(is, null, opts);
@@ -465,7 +470,7 @@ public class TiDrawableReference
 			opts.inInputShareable = true;
 			opts.inPurgeable = true;
 			opts.inSampleSize =  calcSampleSize(srcWidth, srcHeight, destWidth, destHeight);
-			
+
 			Bitmap bTemp = null;
 			try {
 				oomOccurred = false;
@@ -553,9 +558,9 @@ public class TiDrawableReference
 		}
 		Bounds bounds = new Bounds();
 		if (isTypeNull()) { return bounds; }
-		
+
 		InputStream stream = getInputStream();
-		
+
 		try {
 			if (stream != null) {
 				BitmapFactory.Options bfo = new BitmapFactory.Options();
@@ -578,7 +583,7 @@ public class TiDrawableReference
 		boundsCache.put(hash, bounds);
 		return bounds;
 	}
-	
+
 	/**
 	 * Based on the underlying type of reference this is, figures out how to get
 	 * an InputStream for it.  E.g., if a blob, calls blob.getInputStream, if 
@@ -593,7 +598,7 @@ public class TiDrawableReference
 			Log.w(LCAT, "TiContext has been GC'd, so opening stream may not be possible.");
 		}
 		InputStream stream = null;
-		
+
 		if (isTypeUrl() && url != null) {
 			if (context != null) {
 				try {
@@ -616,7 +621,7 @@ public class TiDrawableReference
 			} catch (IOException e) {
 				Log.e(LCAT, "Problem opening stream from file " + file.name() + ": " + e.getMessage(), e);
 			}
-			
+
 		} else if (isTypeBlob() && blob != null) {
 			stream = blob.getInputStream();
 			
@@ -631,7 +636,7 @@ public class TiDrawableReference
 
 		return stream;
 	}
-	
+
 	/**
 	 * Calculates a value for the BitmapFactory.Options .inSampleSize property.
 	 * 
@@ -649,7 +654,7 @@ public class TiDrawableReference
 		}
 		return Math.max(srcWidth / destWidth, srcHeight / destHeight);
 	}
-	
+
 	/**
 	 * Calculates a value for the BitmapFactory.Options .inSampleSize property by first calling peakBounds() 
 	 * to determine the original width & height.
@@ -665,7 +670,7 @@ public class TiDrawableReference
 		return calcSampleSize(bounds.width, bounds.height, destWidth, destHeight);
 		
 	}
-	
+
 	/**
 	 * Calculates a value for the BitmapFactory.Options .inSampleSize property.
 	 * 
@@ -687,7 +692,7 @@ public class TiDrawableReference
 		destHeight = destBounds.height;
 		return calcSampleSize(srcWidth, srcHeight, destWidth, destHeight);
 	}
-	
+
 	/**
 	 * Calculates a value for the BitmapFactory.Options .inSampleSize property by first calling peakBounds() 
 	 * to determine the source width & height.
@@ -704,11 +709,11 @@ public class TiDrawableReference
 		Bounds bounds = peekBounds();
 		int srcWidth = bounds.width;
 		int srcHeight = bounds.height;
-		
+
 		return calcSampleSize(parent, srcWidth, srcHeight, destWidthDimension, destHeightDimension);
-		
+
 	}
-	
+
 	private TiFileHelper getTiFileHelper()
 	{
 		if (fileHelper == null) {
@@ -719,15 +724,17 @@ public class TiDrawableReference
 		}
 		return fileHelper;
 	}
-	
+
 	/**
 	 * @return true if most recent attempt to getBitmap caused an OutOfMemoryError
 	 */
-	public boolean outOfMemoryOccurred() {
+	public boolean outOfMemoryOccurred()
+	{
 		return oomOccurred;
 	}
 
-	public String getUrl() {
+	public String getUrl()
+	{
 		return url;
 	}
 }
