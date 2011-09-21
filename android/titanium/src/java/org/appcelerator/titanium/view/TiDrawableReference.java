@@ -705,7 +705,6 @@ public class TiDrawableReference
 		int srcHeight = bounds.height;
 
 		return calcSampleSize(parent, srcWidth, srcHeight, destWidthDimension, destHeightDimension);
-
 	}
 
 	/**
