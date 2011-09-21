@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -76,8 +76,6 @@ public class TiDrawableReference
 	private boolean oomOccurred = false;
 	
 	private SoftReference<Activity> softActivity = null;
-	
-	private TiFileHelper fileHelper = null;
 	
 	public TiDrawableReference(Activity activity, DrawableReferenceType type)
 	{
@@ -191,31 +189,36 @@ public class TiDrawableReference
 			return fromObject(activity, null);
 		}
 	}
-	
+
 	public boolean isNetworkUrl()
 	{
 		return (type == DrawableReferenceType.URL && url != null && URLUtil.isNetworkUrl(this.url));
 	}
-	
-	public boolean isTypeUrl() {
+
+	public boolean isTypeUrl()
+	{
 		return type == DrawableReferenceType.URL;
 	}
-	
-	public boolean isTypeFile() {
+
+	public boolean isTypeFile()
+	{
 		return type == DrawableReferenceType.FILE;
 	}
 	
-	public boolean isTypeBlob() {
+	public boolean isTypeBlob()
+	{
 		return type == DrawableReferenceType.BLOB;
 	}
-	
-	public boolean isTypeResourceId() {
+
+	public boolean isTypeResourceId()
+	{
 		return type == DrawableReferenceType.RESOURCE_ID;
 	}
-	public boolean isTypeNull() {
+	public boolean isTypeNull()
+	{
 		return type == DrawableReferenceType.NULL;
 	}
-	
+
 	/**
 	 * Get the bitmap from the resource without respect to sampling/scaling.
 	 * @return Bitmap, or null if any problem getting it.  Check logcat if null.
@@ -227,14 +230,14 @@ public class TiDrawableReference
 			Log.w(LCAT, "Could not open stream to get bitmap");
 			return null;
 		}
-		
+
 		Bitmap b = null;
-		
+
 		try {
 			BitmapFactory.Options opts = new BitmapFactory.Options();
 			opts.inInputShareable = true;
 			opts.inPurgeable = true;
-			
+
 			try {
 				oomOccurred = false;
 				b = BitmapFactory.decodeStream(is, null, opts);
@@ -440,9 +443,9 @@ public class TiDrawableReference
 		}
 
 		if (parent == null) {
-			TiContext context = softContext.get();
-			if (context != null && context.getActivity() != null && context.getActivity().getWindow() != null) {
-				parent = context.getActivity().getWindow().getDecorView();
+			Activity activity = softActivity.get();
+			if (activity != null && activity.getWindow() != null) {
+				parent = activity.getWindow().getDecorView();
 			}
 		}
 
@@ -468,7 +471,7 @@ public class TiDrawableReference
 			opts.inInputShareable = true;
 			opts.inPurgeable = true;
 			opts.inSampleSize =  calcSampleSize(srcWidth, srcHeight, destWidth, destHeight);
-			
+
 			Bitmap bTemp = null;
 			try {
 				oomOccurred = false;
@@ -556,9 +559,9 @@ public class TiDrawableReference
 		}
 		Bounds bounds = new Bounds();
 		if (isTypeNull()) { return bounds; }
-		
+
 		InputStream stream = getInputStream();
-		
+
 		try {
 			if (stream != null) {
 				BitmapFactory.Options bfo = new BitmapFactory.Options();
@@ -581,7 +584,7 @@ public class TiDrawableReference
 		boundsCache.put(hash, bounds);
 		return bounds;
 	}
-	
+
 	/**
 	 * Based on the underlying type of reference this is, figures out how to get
 	 * an InputStream for it.  E.g., if a blob, calls blob.getInputStream, if 
@@ -591,7 +594,7 @@ public class TiDrawableReference
 	public InputStream getInputStream()
 	{
 		InputStream stream = null;
-		
+
 		if (isTypeUrl() && url != null) {
 			try {
 				// TODO look at resolve?
@@ -614,7 +617,7 @@ public class TiDrawableReference
 			} catch (IOException e) {
 				Log.e(LCAT, "Problem opening stream from file " + file.name() + ": " + e.getMessage(), e);
 			}
-			
+
 		} else if (isTypeBlob() && blob != null) {
 			stream = blob.getInputStream();
 			
@@ -624,7 +627,7 @@ public class TiDrawableReference
 
 		return stream;
 	}
-	
+
 	/**
 	 * Calculates a value for the BitmapFactory.Options .inSampleSize property.
 	 * 
@@ -642,7 +645,7 @@ public class TiDrawableReference
 		}
 		return Math.max(srcWidth / destWidth, srcHeight / destHeight);
 	}
-	
+
 	/**
 	 * Calculates a value for the BitmapFactory.Options .inSampleSize property by first calling peakBounds() 
 	 * to determine the original width & height.
@@ -658,7 +661,7 @@ public class TiDrawableReference
 		return calcSampleSize(bounds.width, bounds.height, destWidth, destHeight);
 		
 	}
-	
+
 	/**
 	 * Calculates a value for the BitmapFactory.Options .inSampleSize property.
 	 * 
@@ -680,7 +683,7 @@ public class TiDrawableReference
 		destHeight = destBounds.height;
 		return calcSampleSize(srcWidth, srcHeight, destWidth, destHeight);
 	}
-	
+
 	/**
 	 * Calculates a value for the BitmapFactory.Options .inSampleSize property by first calling peakBounds() 
 	 * to determine the source width & height.
@@ -697,19 +700,21 @@ public class TiDrawableReference
 		Bounds bounds = peekBounds();
 		int srcWidth = bounds.width;
 		int srcHeight = bounds.height;
-		
+
 		return calcSampleSize(parent, srcWidth, srcHeight, destWidthDimension, destHeightDimension);
-		
+
 	}
-	
+
 	/**
 	 * @return true if most recent attempt to getBitmap caused an OutOfMemoryError
 	 */
-	public boolean outOfMemoryOccurred() {
+	public boolean outOfMemoryOccurred()
+	{
 		return oomOccurred;
 	}
 
-	public String getUrl() {
+	public String getUrl()
+	{
 		return url;
 	}
 }
