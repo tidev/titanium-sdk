@@ -4,12 +4,13 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UITOOLBAR
+#if defined(USE_TI_UIIOSTOOLBAR) || defined(USE_TI_UITOOLBAR)
 
-#import "TiUIToolbarProxy.h"
-#import "TiUIToolbar.h"
 
-@implementation TiUIToolbarProxy
+#import "TiUIiOSToolbarProxy.h"
+#import "TiUIiOSToolbar.h"
+
+@implementation TiUIiOSToolbarProxy
 
 USE_VIEW_FOR_VERIFY_HEIGHT
 
@@ -20,7 +21,7 @@ USE_VIEW_FOR_VERIFY_HEIGHT
 
 -(UIToolbar*)toolbar
 {
-	TiUIToolbar *theview = (TiUIToolbar*) [self view];
+	TiUIiOSToolbar *theview = (TiUIiOSToolbar*) [self view];
 	return [theview toolBar];
 }
 

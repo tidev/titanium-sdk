@@ -43,7 +43,7 @@ send.addEventListener('click', function()
 });
 
 // create and add toolbar
-var toolbar1 = Titanium.UI.createToolbar({
+var toolbar1 = Titanium.UI.iOS.createToolbar({
 	items:[flexSpace,camera, flexSpace,tf,flexSpace, send,flexSpace],
 	bottom:0,
 	borderTop:true,
@@ -66,7 +66,7 @@ var revert = Titanium.UI.createButton({
 //
 //  Toolbar 2
 //
-var toolbar2 = Titanium.UI.createToolbar({
+var toolbar2 = Titanium.UI.iOS.createToolbar({
 	items:[change,flexSpace,revert],
 	top:130,
 	borderTop:true,
