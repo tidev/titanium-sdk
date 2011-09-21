@@ -14,13 +14,14 @@ import org.appcelerator.kroll.runtime.v8.V8Runtime;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiMessageQueue;
+import org.appcelerator.titanium.TiProperties;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
+import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
-import android.os.Handler;
 
 public class KrollContext implements Handler.Callback
 {
@@ -143,7 +144,11 @@ public class KrollContext implements Handler.Callback
 		messageQueue = TiMessageQueue.getMessageQueue();
 		messageQueue.setCallback(this);
 
-		context = V8Runtime.init();
+		TiProperties properties = TiApplication.getInstance().getAppProperties();
+		String deviceType = properties.getString("ti.devicetype", "device");
+		V8Runtime.Type runtimeType = deviceType.equals("device") ? V8Runtime.Type.Device : V8Runtime.Type.Emulator;
+		context = V8Runtime.init(runtimeType);
+
 		initialized.countDown();
 	}
 

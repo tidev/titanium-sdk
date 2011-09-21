@@ -279,6 +279,7 @@ public class TiBlob extends KrollProxy
 		return height;
 	}
 
+	@Kroll.method
 	public String toString()
 	{
 		// blob should return the text value on toString 
