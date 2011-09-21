@@ -64,9 +64,8 @@
 
 -(void)updateContentSize
 {
-	CGSize newSize = [self contentSize];
-	BOOL animated_ = [[self popoverController] isPopoverVisible];
-	[[self viewController] setContentSizeForViewInPopover:newSize];
+    CGSize newSize = [self contentSize];
+    [[self viewController] setContentSizeForViewInPopover:newSize];
 	[self layoutChildren:NO];
 }
 
