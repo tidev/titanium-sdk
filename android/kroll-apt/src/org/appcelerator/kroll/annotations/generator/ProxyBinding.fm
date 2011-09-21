@@ -57,6 +57,7 @@
 <#assign typeInfo = {
 	"java.lang.String":{
 		"jsType":"Value",
+		"jsValidation":false,
 		"jsToJavaConverter":"jsValueToJavaString",
 		"javaToJsConverter":"javaStringToJsString",
 		"jvalue":"l",
@@ -208,8 +209,8 @@ fails, a JS exception is returned.
 
 	<#-- Generate argument validation and conversion code -->
 	<@Proxy.listMethodArguments args=args ; index, info>
-	<#if info.jsValidation??>
-	if (!args[${ndex}]->Is${info.jsType}())
+	<#if info.jsValidation!true>
+	if (!args[${index}]->Is${info.jsType}())
 		return JSException::Error("Invalid argument at index ${index}. Expected type ${info.jsType}.");
 	</#if>
 
