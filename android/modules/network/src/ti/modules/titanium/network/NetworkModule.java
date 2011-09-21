@@ -72,8 +72,9 @@ public class NetworkModule extends KrollModule {
 	};
 
 	private NetInfo lastNetInfo;
+	private TiContext context;
 	private static NetworkModule thisModule;
-	private TiSynchronizedCookieStore synchronizedCookieStore;
+	private TiCookieStore synchronizedCookieStore;
 
 	private boolean isListeningForConnectivity;
 	private TiNetworkListener networkListener;
@@ -113,13 +114,13 @@ public class NetworkModule extends KrollModule {
 		}
 	};
 
-	public static TiSynchronizedCookieStore getSharedCookieStore() {
+	public static TiCookieStore getSharedCookieStore() {
 		if (thisModule.synchronizedCookieStore == null) {
-			thisModule.synchronizedCookieStore = new TiSynchronizedCookieStore();
+			thisModule.synchronizedCookieStore = new TiCookieStore(thisModule.context.getActivity());
 		}
 		return thisModule.synchronizedCookieStore;
 	}
-
+	
 	public NetworkModule(TiContext tiContext)
 	{
 		super(tiContext);
@@ -127,6 +128,7 @@ public class NetworkModule extends KrollModule {
 		this.lastNetInfo = new NetInfo();
 		this.isListeningForConnectivity = false;
 		thisModule = this;
+		context = tiContext;
 
 		setProperty("userAgent", NETWORK_USER_AGENT + " Titanium/"+tiContext.getTiApp().getTiBuildVersion());
 
