@@ -125,8 +125,12 @@ jclass JNIUtil::findClass(const char *className, JNIEnv *env)
 			env->ExceptionDescribe();
 			env->ExceptionClear();
 		}
-	}
-	return javaClass;
+        return NULL;
+	} else {
+        jclass globalClass = (jclass) env->NewGlobalRef(javaClass);
+        env->DeleteLocalRef(javaClass);
+        return globalClass;
+    }
 }
 
 jmethodID JNIUtil::getMethodID(jclass javaClass, const char *methodName, const char *signature, bool isStatic, JNIEnv *env)

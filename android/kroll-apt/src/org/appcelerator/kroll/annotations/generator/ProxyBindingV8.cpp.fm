@@ -48,7 +48,7 @@ void ${proxyClassName}::Initialize(Handle<Object> ti, JNIEnv* env)
     LOGD(TAG, "Initialize");
 
 	<#-- Query the class for the Java proxy -->
-	javaClass = env->FindClass("${packageName?replace('.','/')}/${proxyClassName}");
+	javaClass = JNIUtil::findClass("${packageName?replace('.','/')}/${proxyClassName}", env);
 
 	HandleScope scope;
 

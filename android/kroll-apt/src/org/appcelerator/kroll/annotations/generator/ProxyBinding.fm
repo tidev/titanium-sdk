@@ -65,7 +65,8 @@
 		"javaReturnType":"jstring"
 	},
 	"java.lang.Object":{
-		"jsType":"Object",
+		"jsType":"Value",
+		"jsValidation":false,
 		"jsConvertType":"Value",
 		"jsToJavaConverter":"jsValueToJavaObject",
 		"javaToJsConverter":"javaObjectToJsValue",

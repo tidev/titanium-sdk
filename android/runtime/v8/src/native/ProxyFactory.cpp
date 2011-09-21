@@ -81,9 +81,11 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 	jobject javaProxy = env->CallStaticObjectMethod(JNIUtil::krollProxyClass,
 		info->javaProxyCreator, javaClass, javaArgs, pv8Proxy);
 
+	jobject globalJavaProxy = env->NewGlobalRef(javaProxy);
+	env->DeleteLocalRef(javaProxy);
 	env->DeleteLocalRef(javaArgs);
 
-	return javaProxy;
+	return globalJavaProxy;
 }
 
 jobject ProxyFactory::unwrapJavaProxy(const Arguments& args)
