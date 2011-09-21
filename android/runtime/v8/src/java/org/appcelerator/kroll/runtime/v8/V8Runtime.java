@@ -9,25 +9,19 @@ import android.util.Log;
 public final class V8Runtime
 {
 	private static final String TAG = "V8Runtime";
-	public static enum Type {
-		Device, Emulator;
-	};
+	private static final String DEVICE_LIB = "kroll-v8-device";
+	private static final String EMULATOR_LIB = "kroll-v8-emulator";
+
+	private static final String DEFAULT_LIB = DEVICE_LIB;
 
 	private static V8Context globalContext;
 
 	private V8Runtime() { }
 
-	public static V8Context init(Type type)
+	public static V8Context init()
 	{
 		if (globalContext == null) {
-			switch (type) {
-				case Device:
-					System.loadLibrary("kroll-v8-device");
-					break;
-				case Emulator:
-					System.loadLibrary("kroll-v8-emulator");
-					break;
-			}
+			System.loadLibrary(DEFAULT_LIB);
 			long contextPtr = nativeInit(new V8Runtime());
 			globalContext = new V8Context(contextPtr);
 		}

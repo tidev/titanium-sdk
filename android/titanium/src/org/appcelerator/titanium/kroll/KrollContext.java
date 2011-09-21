@@ -144,10 +144,7 @@ public class KrollContext implements Handler.Callback
 		messageQueue = TiMessageQueue.getMessageQueue();
 		messageQueue.setCallback(this);
 
-		TiProperties properties = TiApplication.getInstance().getAppProperties();
-		String deviceType = properties.getString("ti.devicetype", "device");
-		V8Runtime.Type runtimeType = deviceType.equals("device") ? V8Runtime.Type.Device : V8Runtime.Type.Emulator;
-		context = V8Runtime.init(runtimeType);
+		context = V8Runtime.init();
 
 		initialized.countDown();
 	}
