@@ -11,7 +11,6 @@ SRC_FILES := \
 	EventEmitter.cpp \
 	JNIUtil.cpp \
 	KrollJavaScript.cpp \
-	KrollProxy.cpp \
 	ProxyFactory.cpp \
 	TypeConverter.cpp \
 	V8Object.cpp \

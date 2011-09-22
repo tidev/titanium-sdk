@@ -15,6 +15,7 @@ class KrollJavaScript
 public:
 	static void DefineNatives(v8::Handle<v8::Object> target);
 	static v8::Handle<v8::String> MainSource();
+	static void initExtend(v8::Handle<v8::ObjectTemplate> objectTemplate);
 };
 }
 

@@ -24,8 +24,32 @@ void KrollJavaScript::DefineNatives(Handle<Object> target)
 	}
 }
 
-Handle<String> KrollJavaScript::MainSource() {
-  return IMMUTABLE_STRING_LITERAL_FROM_ARRAY(kroll_native, sizeof(kroll_native)-1);
+Handle<String> KrollJavaScript::MainSource()
+{
+	return IMMUTABLE_STRING_LITERAL_FROM_ARRAY(kroll_native, sizeof(kroll_native)-1);
+}
+
+static Handle<Value> Extend(const Arguments& args)
+{
+	HandleScope scope;
+	if (args.Length() == 0) return Undefined();
+	if (!args[0]->IsObject()) return Undefined();
+
+	Local<Object> options = args[0]->ToObject();
+	Local<Array> names = options->GetPropertyNames();
+	int len = names->Length();
+
+	for (int i = 0; i < len; i++) {
+		Handle<Value> name = names->Get(i);
+		args.This()->Set(name, options->Get(name));
+	}
+	return Undefined();
+}
+
+void KrollJavaScript::initExtend(Handle<ObjectTemplate> objectTemplate)
+{
+	HandleScope scope;
+	objectTemplate->Set(String::NewSymbol("extend"), FunctionTemplate::New(Extend)->GetFunction());
 }
 
 }
