@@ -51,12 +51,4 @@ public final class V8Runtime
 	private static native long nativeInit(V8Runtime runtime);
 	private static native void nativeDispose();
 
-	/*
-	private static native void nativeInitModuleTemplate(Class<?> moduleClass);
-	public static void initModuleTemplate(Class<?> moduleClass)
-	{
-		nativeInitModuleTemplate(moduleClass);
-	}
-	*/
-
 }

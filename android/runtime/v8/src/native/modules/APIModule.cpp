@@ -12,8 +12,11 @@
 #include "AndroidUtil.h"
 
 #include "APIModule.h"
+#include "V8Util.h"
 
-using namespace titanium;
+namespace titanium {
+
+using namespace v8;
 
 #define LOG_LEVEL_TRACE 1
 #define LOG_LEVEL_DEBUG 2
@@ -26,88 +29,88 @@ using namespace titanium;
 
 #define LCAT "TiAPI"
 
+Persistent<FunctionTemplate> APIModule::constructor_template;
 
-v8::Handle<v8::Object> APIModule::init()
+
+Handle<Object> APIModule::Initialize()
 {
-	v8::Handle<v8::FunctionTemplate> apiModule = v8::FunctionTemplate::New();
-	v8::Handle<v8::ObjectTemplate> apiModulePrototype = apiModule->PrototypeTemplate();
-	apiModulePrototype->Set(v8::String::New("debug"), v8::FunctionTemplate::New(logDebug)->GetFunction());
-	apiModulePrototype->Set(v8::String::New("info"), v8::FunctionTemplate::New(logInfo)->GetFunction());
-	apiModulePrototype->Set(v8::String::New("warn"), v8::FunctionTemplate::New(logWarn)->GetFunction());
-	apiModulePrototype->Set(v8::String::New("error"), v8::FunctionTemplate::New(logError)->GetFunction());
-	apiModulePrototype->Set(v8::String::New("trace"), v8::FunctionTemplate::New(logTrace)->GetFunction());
-	apiModulePrototype->Set(v8::String::New("notice"), v8::FunctionTemplate::New(logNotice)->GetFunction());
-	apiModulePrototype->Set(v8::String::New("critical"), v8::FunctionTemplate::New(logCritical)->GetFunction());
-	apiModulePrototype->Set(v8::String::New("fatal"), v8::FunctionTemplate::New(logFatal)->GetFunction());
-	apiModulePrototype->Set(v8::String::New("log"), v8::FunctionTemplate::New(log)->GetFunction());
+	HandleScope scope;
+	constructor_template = Persistent<FunctionTemplate>::New(FunctionTemplate::New());
+	DEFINE_PROTOTYPE_METHOD(constructor_template, "debug", logDebug);
+	DEFINE_PROTOTYPE_METHOD(constructor_template, "info", logInfo);
+	DEFINE_PROTOTYPE_METHOD(constructor_template, "warn", logWarn);
+	DEFINE_PROTOTYPE_METHOD(constructor_template, "error", logError);
+	DEFINE_PROTOTYPE_METHOD(constructor_template, "trace", logTrace);
+	DEFINE_PROTOTYPE_METHOD(constructor_template, "notice", logNotice);
+	DEFINE_PROTOTYPE_METHOD(constructor_template, "critical", logCritical);
+	DEFINE_PROTOTYPE_METHOD(constructor_template, "fatal", logFatal);
+	DEFINE_PROTOTYPE_METHOD(constructor_template, "log", log);
 
-	v8::Handle<v8::Value> arguments[] = {};
-
-	return apiModule->GetFunction()->NewInstance(0, arguments);
+	return scope.Close(constructor_template->GetFunction()->NewInstance());
 }
 
 
-v8::Handle<v8::Value> APIModule::logDebug(const v8::Arguments& args)
+Handle<Value> APIModule::logDebug(const Arguments& args)
 {
-	v8::String::Utf8Value message(args[0]);
+	String::Utf8Value message(args[0]);
 	APIModule::logInternal(LOG_LEVEL_DEBUG, LCAT, *message);
-	return v8::Undefined();
+	return Undefined();
 }
 
 
-v8::Handle<v8::Value> APIModule::logInfo(const v8::Arguments& args)
+Handle<Value> APIModule::logInfo(const Arguments& args)
 {
-	v8::String::Utf8Value message(args[0]);
+	String::Utf8Value message(args[0]);
 	APIModule::logInternal(LOG_LEVEL_INFO, LCAT, *message);
-	return v8::Undefined();
+	return Undefined();
 }
 
 
-v8::Handle<v8::Value> APIModule::logWarn(const v8::Arguments& args)
+Handle<Value> APIModule::logWarn(const Arguments& args)
 {
-	v8::String::Utf8Value message(args[0]);
+	String::Utf8Value message(args[0]);
 	APIModule::logInternal(LOG_LEVEL_WARN, LCAT, *message);
-	return v8::Undefined();
+	return Undefined();
 }
 
 
-v8::Handle<v8::Value> APIModule::logError(const v8::Arguments& args)
+Handle<Value> APIModule::logError(const Arguments& args)
 {
-	v8::String::Utf8Value message(args[0]);
+	String::Utf8Value message(args[0]);
 	APIModule::logInternal(LOG_LEVEL_ERROR, LCAT, *message);
-	return v8::Undefined();
+	return Undefined();
 }
 
 
-v8::Handle<v8::Value> APIModule::logTrace(const v8::Arguments& args)
+Handle<Value> APIModule::logTrace(const Arguments& args)
 {
-	v8::String::Utf8Value message(args[0]);
+	String::Utf8Value message(args[0]);
 	APIModule::logInternal(LOG_LEVEL_TRACE, LCAT, *message);
-	return v8::Undefined();
+	return Undefined();
 }
 
 
-v8::Handle<v8::Value> APIModule::logNotice(const v8::Arguments& args)
+Handle<Value> APIModule::logNotice(const Arguments& args)
 {
-	v8::String::Utf8Value message(args[0]);
+	String::Utf8Value message(args[0]);
 	APIModule::logInternal(LOG_LEVEL_NOTICE, LCAT, *message);
-	return v8::Undefined();
+	return Undefined();
 }
 
 
-v8::Handle<v8::Value> APIModule::logCritical(const v8::Arguments& args)
+Handle<Value> APIModule::logCritical(const Arguments& args)
 {
-	v8::String::Utf8Value message(args[0]);
+	String::Utf8Value message(args[0]);
 	APIModule::logInternal(LOG_LEVEL_CRITICAL, LCAT, *message);
-	return v8::Undefined();
+	return Undefined();
 }
 
 
-v8::Handle<v8::Value> APIModule::logFatal(const v8::Arguments& args)
+Handle<Value> APIModule::logFatal(const Arguments& args)
 {
-	v8::String::Utf8Value message(args[0]);
+	String::Utf8Value message(args[0]);
 	APIModule::logInternal(LOG_LEVEL_FATAL, LCAT, *message);
-	return v8::Undefined();
+	return Undefined();
 }
 
 
@@ -127,10 +130,10 @@ void APIModule::logInternal(int logLevel, const char *messageTag, const char *me
 }
 
 
-v8::Handle<v8::Value> APIModule::log(const v8::Arguments& args)
+Handle<Value> APIModule::log(const Arguments& args)
 {
-	v8::String::Utf8Value level(args[0]);
-	v8::String::Utf8Value message(args[1]);
+	String::Utf8Value level(args[0]);
+	String::Utf8Value message(args[1]);
 
 	if (strcasecmp(*level, "TRACE")) {
 		APIModule::logInternal(LOG_LEVEL_TRACE, LCAT, *message);
@@ -152,7 +155,7 @@ v8::Handle<v8::Value> APIModule::log(const v8::Arguments& args)
 		APIModule::logInternal(LOG_LEVEL_INFO, LCAT, *message);
 	}
 
-	return v8::Undefined();
+	return Undefined();
 }
 
-
+}

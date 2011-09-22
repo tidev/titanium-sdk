@@ -11,23 +11,26 @@
 #include <v8.h>
 
 namespace titanium {
+using namespace v8;
+
 class APIModule
 {
 public:
-	static v8::Handle<v8::Object> init();
-	static v8::Handle<v8::Value> logDebug(const v8::Arguments& args);
-	static v8::Handle<v8::Value> logInfo(const v8::Arguments& args);
-	static v8::Handle<v8::Value> logWarn(const v8::Arguments& args);
-	static v8::Handle<v8::Value> logError(const v8::Arguments& args);
-	static v8::Handle<v8::Value> logTrace(const v8::Arguments& args);
-	static v8::Handle<v8::Value> logNotice(const v8::Arguments& args);
-	static v8::Handle<v8::Value> logCritical(const v8::Arguments& args);
-	static v8::Handle<v8::Value> logFatal(const v8::Arguments& args);
-	static v8::Handle<v8::Value> log(const v8::Arguments& args);
+	static Handle<Object> Initialize();
+	static Handle<Value> logDebug(const Arguments& args);
+	static Handle<Value> logInfo(const Arguments& args);
+	static Handle<Value> logWarn(const Arguments& args);
+	static Handle<Value> logError(const Arguments& args);
+	static Handle<Value> logTrace(const Arguments& args);
+	static Handle<Value> logNotice(const Arguments& args);
+	static Handle<Value> logCritical(const Arguments& args);
+	static Handle<Value> logFatal(const Arguments& args);
+	static Handle<Value> log(const Arguments& args);
 
 
 private:
 	static void logInternal(int logLevel, const char *messageTag, const char *message);
+	static Persistent<FunctionTemplate> constructor_template;
 };
 }
 
