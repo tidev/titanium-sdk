@@ -135,12 +135,12 @@ void V8Runtime::bootstrap(Local<Object> global)
 		JNIUtil::terminateVM();
 	}
 
-	titanium::initKrollProxy(global, titanium::JNIScope::getEnv());
+	titanium::initKrollProxy(global);
 
-	titanium::KrollModule::Initialize(global, titanium::JNIScope::getEnv());
-	titanium::BufferProxy::Initialize(global, titanium::JNIScope::getEnv());
-	titanium::UtilsModule::Initialize(global, titanium::JNIScope::getEnv());
-	titanium::TiBlob::Initialize(global, titanium::JNIScope::getEnv());
+	titanium::KrollModule::Initialize(global);
+	titanium::BufferProxy::Initialize(global);
+	titanium::UtilsModule::Initialize(global);
+	titanium::TiBlob::Initialize(global);
 }
 
 static jobject jruntime;

@@ -43,12 +43,12 @@ ${proxyClassName}::${proxyClassName}(jobject javaObject) : JavaObject(javaObject
 {
 }
 
-void ${proxyClassName}::Initialize(Handle<Object> ti, JNIEnv* env)
+void ${proxyClassName}::Initialize(Handle<Object> ti)
 {
     LOGD(TAG, "Initialize");
 
 	<#-- Query the class for the Java proxy -->
-	javaClass = JNIUtil::findClass("${packageName?replace('.','/')}/${proxyClassName}", env);
+	javaClass = JNIUtil::findClass("${packageName?replace('.','/')}/${proxyClassName}");
 
 	HandleScope scope;
 
@@ -74,11 +74,11 @@ void ${proxyClassName}::Initialize(Handle<Object> ti, JNIEnv* env)
 	ti->Set(String::NewSymbol("${proxyAttrs.name}"), moduleInstance);
 
 	<@Proxy.listChildModules ; isFirst, childModule>
-	${childModule.name}Module::Initialize(moduleInstance, env);
+	${childModule.name}Module::Initialize(moduleInstance);
 	</@Proxy.listChildModules>
 
 	<@Proxy.listCreateProxies ; isFirst, createProxy>
-	${createProxy.name}Proxy::Initialize(moduleInstance, env);
+	${createProxy.name}Proxy::Initialize(moduleInstance);
 	</@Proxy.listCreateProxies>
 	<#else>
 	ti->Set(String::NewSymbol("${proxyAttrs.name}"), proxyConstructor);

@@ -13,7 +13,7 @@ using namespace v8;
 
 namespace titanium {
 
-void initKrollProxy(Handle<Object> ti, JNIEnv* env);
+void initKrollProxy(Handle<Object> ti);
 
 }
 
