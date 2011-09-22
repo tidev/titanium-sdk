@@ -26,7 +26,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiLaunchActivity;
@@ -460,24 +459,13 @@ public class TitaniumModule extends KrollModule
 			Log.d(LCAT, "Attempting to include JS module: " + tbf.nativePath());
 		}
 		try {
-			TiBlob blob = (TiBlob) tbf.read();
-			if (blob == null) {
-				Log.e(LCAT, "Couldn't read required file: " + fileUrl);
-				return null;
-			}
-
 			// TODO: we need to switch to the Rhino native require()
 			// implementation, but in the meantime this will have to do
 
 			// create the CommonJS exporter
 			KrollProxy proxy = new KrollProxy(ctx);
 			builder.setLength(0);
-			builder.append("(function(exports){")
-				.append(blob.getText())
-				.append("return exports;")
-				.append("})({})");
-
-			Object result = ctx.evalJS(builder.toString());
+			Object result = ctx.evalCommonJsModule(fileUrl);
 
 			if (!(result instanceof Scriptable)) {
 				builder.setLength(0);

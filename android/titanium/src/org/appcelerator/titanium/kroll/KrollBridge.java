@@ -148,6 +148,11 @@ public class KrollBridge
 	{
 		return kroll.evalFile(filename);
 	}
+	public Object evalCommonJsModule(String filename)
+		throws IOException
+	{
+		return kroll.evalCommonJsModule(filename);
+	}
 
 	public Object evalJS(String src)
 	{
