@@ -28,6 +28,7 @@ public:
 	static void throwOutOfMemoryError(const char *message);
 	static void throwNullPointerException(const char *message);
 
+	// Java classes
 	static jclass classClass;
 	static jclass objectClass;
 	static jclass stringClass;
@@ -38,22 +39,30 @@ public:
 	static jclass floatClass;
 	static jclass doubleClass;
 	static jclass booleanClass;
+	static jclass arrayListClass;
 	static jclass hashMapClass;
 	static jclass dateClass;
 	static jclass setClass;
 	static jclass outOfMemoryError;
 	static jclass nullPointerException;
 
+	// Titanium classes
 	static jclass krollProxyClass;
 	static jclass v8ObjectClass;
 	static jclass assetsClass;
+	static jclass eventListenerClass;
 
 	// Java methods
 	static jmethodID classGetNameMethod;
+	static jmethodID arrayListInitMethod;
+	static jmethodID arrayListAddMethod;
+	static jmethodID arrayListGetMethod;
+	static jmethodID arrayListRemoveMethod;
 	static jmethodID hashMapInitMethod;
 	static jmethodID hashMapGetMethod;
 	static jmethodID hashMapPutMethod;
 	static jmethodID hashMapKeySetMethod;
+	static jmethodID hashMapRemoveMethod;
 	static jmethodID setToArrayMethod;
 	static jmethodID dateInitMethod;
 	static jmethodID dateGetTimeMethod;
@@ -63,12 +72,13 @@ public:
 	static jmethodID numberDoubleValueMethod;
 
 	// Titanium methods
-	static jmethodID krollProxyGetV8ObjectPointerMethod;
+	static jmethodID krollProxyGetPointerMethod;
+	static jmethodID krollProxySetPointerMethod;
 	static jmethodID krollProxyCreateMethod;
-	static jmethodID krollProxySetV8ObjectMethod;
 
 	static jmethodID v8ObjectInitMethod;
 	static jmethodID assetsReadResourceMethod;
+	static jmethodID eventListenerPostEventMethod;
 
 };
 }

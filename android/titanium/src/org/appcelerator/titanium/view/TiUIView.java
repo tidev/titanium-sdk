@@ -780,14 +780,15 @@ public abstract class TiUIView
 			new SimpleOnGestureListener() {
 				@Override
 				public boolean onDoubleTap(MotionEvent e) {
-					boolean handledTap = proxy.fireEvent(TiC.EVENT_DOUBLE_TAP, dictFromEvent(e));
-					boolean handledClick = proxy.fireEvent(TiC.EVENT_DOUBLE_CLICK, dictFromEvent(e));
-					return handledTap || handledClick;
+					/*TODO boolean handledTap = */proxy.fireEvent(TiC.EVENT_DOUBLE_TAP, dictFromEvent(e));
+					/*TODO boolean handledClick = */proxy.fireEvent(TiC.EVENT_DOUBLE_CLICK, dictFromEvent(e));
+					/*TODO return handledTap || handledClick;*/
+					return true;
 				}
 				@Override
 				public boolean onSingleTapConfirmed(MotionEvent e) {
 					if (DBG) { Log.d(LCAT, "TAP, TAP, TAP on " + proxy); }
-					boolean handledTap = proxy.fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
+					/*TODO boolean handledTap = */proxy.fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
 					// Moved click handling to the onTouch listener, because a single tap is not the
 					// same as a click.  A single tap is a quick tap only, whereas clicks can be held
 					// before lifting.
@@ -796,7 +797,7 @@ public abstract class TiUIView
 					// in onTouch below, when we call detector.onTouchEvent(event);  But, in fact,
 					// onSingleTapConfirmed is *not* called in the course of onTouchEvent.  It's
 					// called via Handler in GestureDetector. <-- See its Java source.
-					return handledTap;// || handledClick;
+					return true;/*TODO return handledTap;*/// || handledClick;
 				}
 				@Override
 				public void onLongPress(MotionEvent e)
@@ -819,7 +820,7 @@ public abstract class TiUIView
 						Rect r = new Rect(0, 0, view.getWidth(), view.getHeight());
 						int actualAction = r.contains((int)event.getX(), (int)event.getY())
 							? MotionEvent.ACTION_UP : MotionEvent.ACTION_CANCEL;
-						handled = proxy.fireEvent(motionEvents.get(actualAction), dictFromEvent(event));
+						/*TODO handled = */proxy.fireEvent(motionEvents.get(actualAction), dictFromEvent(event));
 						if (handled && actualAction == MotionEvent.ACTION_UP) {
 							// If this listener returns true, a click event does not occur,
 							// because part of the Android View's default ACTION_UP handling
@@ -830,7 +831,7 @@ public abstract class TiUIView
 						}
 						return handled;
 					} else {
-						handled = proxy.fireEvent(motionEvents.get(event.getAction()), dictFromEvent(event));
+						/*TODO handled = */proxy.fireEvent(motionEvents.get(event.getAction()), dictFromEvent(event));
 					}
 				}
 				return handled;
@@ -976,7 +977,8 @@ public abstract class TiUIView
 			// TODO @Override
 			public boolean onLongClick(View view)
 			{
-				return proxy.fireEvent(TiC.EVENT_LONGCLICK, null);
+				/*TODO return */proxy.fireEvent(TiC.EVENT_LONGCLICK, null);
+				return true;
 			}
 		});
 	}

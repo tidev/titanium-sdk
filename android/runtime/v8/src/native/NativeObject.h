@@ -44,6 +44,11 @@ public:
 		}
 	}
 
+	inline v8::Local<v8::Object> getHandle()
+	{
+		return v8::Local<v8::Object>::New(handle_);
+	}
+
 	template<class T>
 	static inline T* Unwrap(v8::Handle<v8::Object> handle)
 	{

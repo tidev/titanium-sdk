@@ -3,12 +3,17 @@ GENERATED_DIR := $(LOCAL_PATH)/../../generated
 SRC_JS_DIR := $(LOCAL_PATH)/../js
 
 CFLAGS := $(PROXY_CFLAGS) -I$(GENERATED_DIR) -I$(LOCAL_PATH)/modules -g
+ifeq ($(TI_DEBUG),1)
+CFLAGS += -DTI_DEBUG=1
+endif
+
 LDLIBS := -L$(SYSROOT)/usr/lib -ldl -llog -L$(TARGET_OUT)
 SRC_FILES := \
 	../../generated/KrollNatives.h \
 	../../generated/ModuleInit.h \
 	Assets.cpp \
 	EventEmitter.cpp \
+	JavaObject.cpp \
 	JNIUtil.cpp \
 	KrollJavaScript.cpp \
 	KrollProxy.cpp \

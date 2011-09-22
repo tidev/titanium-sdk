@@ -10,26 +10,19 @@
 #include <assert.h>
 #include <jni.h>
 
+#include "EventEmitter.h"
 #include "NativeObject.h"
 
 namespace titanium {
 
-class JavaObject : public NativeObject
+class JavaObject : public EventEmitter
 {
 public:
 	// Creates a new V8 proxy for a Java object.
 	// This proxy keeps a reference to the Java object
 	// and provides a bridge between Dalvik and V8.
-	JavaObject(jobject javaObject)
-		: NativeObject()
-		, javaObject_(javaObject)
-	{
-	}
-
-	virtual ~JavaObject()
-	{
-		// TODO: release jobject reference here.
-	}
+	JavaObject(jobject javaObject);
+	virtual ~JavaObject();
 
 	static bool isJavaObject(v8::Handle<v8::Object> jsObject)
 	{
@@ -39,13 +32,15 @@ public:
 		return false;
 	}
 
-	jobject getJavaObject()
-	{
-		return javaObject_;
-	}
+	jobject getJavaObject();
 
+	static bool useGlobalRefs;
 private:
 	jobject javaObject_;
+	int refIndex;
+
+	void newGlobalRef();
+	void deleteGlobalRef();
 };
 
 } // namespace titanium

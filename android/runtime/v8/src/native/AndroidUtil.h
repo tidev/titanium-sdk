@@ -12,8 +12,14 @@
 #define _LOG_LEVEL(level) ANDROID_LOG_ ## level
 #define LOG(level, tag, ...) __android_log_print(_LOG_LEVEL(level), tag, __VA_ARGS__)
 
-#define LOGV(tag, ...) LOG(VERBOSE, tag, __VA_ARGS__)
-#define LOGD(tag, ...) LOG(DEBUG, tag, __VA_ARGS__)
+#ifdef TI_DEBUG
+# define LOGV(tag, ...) LOG(VERBOSE, tag, __VA_ARGS__)
+# define LOGD(tag, ...) LOG(DEBUG, tag, __VA_ARGS__)
+#else
+# define LOGV(tag, ...)
+# define LOGD(tag, ...)
+#endif
+
 #define LOGI(tag, ...) LOG(INFO, tag, __VA_ARGS__)
 #define LOGW(tag, ...) LOG(WARN, tag, __VA_ARGS__)
 #define LOGE(tag, ...) LOG(ERROR, tag, __VA_ARGS__)

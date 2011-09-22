@@ -25,6 +25,7 @@ jclass JNIUtil::longClass = NULL;
 jclass JNIUtil::floatClass = NULL;
 jclass JNIUtil::doubleClass = NULL;
 jclass JNIUtil::booleanClass = NULL;
+jclass JNIUtil::arrayListClass = NULL;
 jclass JNIUtil::hashMapClass = NULL;
 jclass JNIUtil::dateClass = NULL;
 jclass JNIUtil::setClass = NULL;
@@ -34,12 +35,18 @@ jclass JNIUtil::nullPointerException = NULL;
 jclass JNIUtil::krollProxyClass = NULL;
 jclass JNIUtil::v8ObjectClass = NULL;
 jclass JNIUtil::assetsClass = NULL;
+jclass JNIUtil::eventListenerClass = NULL;
 
 jmethodID JNIUtil::classGetNameMethod = NULL;
+jmethodID JNIUtil::arrayListInitMethod = NULL;
+jmethodID JNIUtil::arrayListAddMethod = NULL;
+jmethodID JNIUtil::arrayListGetMethod = NULL;
+jmethodID JNIUtil::arrayListRemoveMethod = NULL;
 jmethodID JNIUtil::hashMapInitMethod = NULL;
 jmethodID JNIUtil::hashMapGetMethod = NULL;
 jmethodID JNIUtil::hashMapPutMethod = NULL;
 jmethodID JNIUtil::hashMapKeySetMethod = NULL;
+jmethodID JNIUtil::hashMapRemoveMethod = NULL;
 jmethodID JNIUtil::setToArrayMethod = NULL;
 jmethodID JNIUtil::dateInitMethod = NULL;
 jmethodID JNIUtil::dateGetTimeMethod = NULL;
@@ -48,11 +55,12 @@ jmethodID JNIUtil::booleanInitMethod = NULL;
 jmethodID JNIUtil::longInitMethod = NULL;
 jmethodID JNIUtil::numberDoubleValueMethod = NULL;
 
-jmethodID JNIUtil::krollProxyGetV8ObjectPointerMethod = NULL;
+jmethodID JNIUtil::krollProxyGetPointerMethod = NULL;
 jmethodID JNIUtil::krollProxyCreateMethod = NULL;
-jmethodID JNIUtil::krollProxySetV8ObjectMethod = NULL;
+jmethodID JNIUtil::krollProxySetPointerMethod = NULL;
 jmethodID JNIUtil::v8ObjectInitMethod = NULL;
 jmethodID JNIUtil::assetsReadResourceMethod = NULL;
+jmethodID JNIUtil::eventListenerPostEventMethod = NULL;
 
 /* static */
 JNIEnv* JNIUtil::getJNIEnv()
@@ -177,6 +185,7 @@ void JNIUtil::logClassName(const char *format, jclass javaClass)
 
 void JNIUtil::initCache(JNIEnv *env)
 {
+	LOGD(TAG, "start init cache");
 	classClass = findClass("java/lang/Class", env);
 	objectClass = findClass("java/lang/Object", env);
 	numberClass = findClass("java/lang/Number", env);
@@ -187,6 +196,7 @@ void JNIUtil::initCache(JNIEnv *env)
 	floatClass = findClass("java/lang/Float", env);
 	doubleClass = findClass("java/lang/Double", env);
 	booleanClass = findClass("java/lang/Boolean", env);
+	arrayListClass = findClass("java/util/ArrayList", env);
 	hashMapClass = findClass("java/util/HashMap", env);
 	dateClass = findClass("java/util/Date", env);
 	setClass = findClass("java/util/Set", env);
@@ -195,12 +205,18 @@ void JNIUtil::initCache(JNIEnv *env)
 	krollProxyClass = findClass("org/appcelerator/kroll/KrollProxy", env);
 	v8ObjectClass = findClass("org/appcelerator/kroll/runtime/v8/V8Object", env);
 	assetsClass = findClass("org/appcelerator/kroll/runtime/Assets");
+	eventListenerClass = findClass("org/appcelerator/kroll/runtime/v8/EventListener", env);
 
 	classGetNameMethod = getMethodID(classClass, "getName", "()Ljava/lang/String;", false, env);
+	arrayListInitMethod = getMethodID(arrayListClass, "<init>", "()V", false, env);
+	arrayListAddMethod = getMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z", false, env);
+	arrayListGetMethod = getMethodID(arrayListClass, "get", "(I)Ljava/lang/Object;", false, env);
+	arrayListRemoveMethod = getMethodID(arrayListClass, "remove", "(I)Ljava/lang/Object;", false, env);
 	hashMapInitMethod = getMethodID(hashMapClass, "<init>", "(I)V", false, env);
 	hashMapGetMethod = getMethodID(hashMapClass, "get", "(Ljava/lang/Object;)Ljava/lang/Object;", false, env);
 	hashMapPutMethod = getMethodID(hashMapClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", false, env);
 	hashMapKeySetMethod = getMethodID(hashMapClass, "keySet", "()Ljava/util/Set;", false, env);
+	hashMapRemoveMethod = getMethodID(hashMapClass, "remove", "(Ljava/lang/Object;)Ljava/lang/Object;", false, env);
 
 	setToArrayMethod = getMethodID(setClass, "toArray", "()[Ljava/lang/Object;", false, env);
 
@@ -213,12 +229,13 @@ void JNIUtil::initCache(JNIEnv *env)
 	numberDoubleValueMethod = getMethodID(numberClass, "doubleValue", "()D", false, env);
 
 	v8ObjectInitMethod = getMethodID(v8ObjectClass, "<init>", "(J)V", false, env);
-	krollProxyGetV8ObjectPointerMethod = getMethodID(krollProxyClass, "getV8ObjectPointer", "()J", false, env);
+	krollProxyGetPointerMethod = getMethodID(krollProxyClass, "getPointer", "()J", false, env);
+	krollProxySetPointerMethod = getMethodID(krollProxyClass, "setPointer", "(J)V", false, env);
 	krollProxyCreateMethod = getMethodID(krollProxyClass, "create",
 		"(Ljava/lang/Class;[Ljava/lang/Object;J)Lorg/appcelerator/kroll/KrollProxy;", true, env);
-	krollProxySetV8ObjectMethod = getMethodID(krollProxyClass, "setV8Object",
-		"(Lorg/appcelerator/kroll/runtime/v8/V8Object;)V", false, env);
 
 	assetsReadResourceMethod = getMethodID(assetsClass, "readResource", "(Ljava/lang/String;)[C", true, env);
+	eventListenerPostEventMethod = getMethodID(eventListenerClass, "postEvent", "(Ljava/lang/String;Ljava/lang/Object;)V", false, env);
+	LOGD(TAG, "finish init cache");
 }
 }

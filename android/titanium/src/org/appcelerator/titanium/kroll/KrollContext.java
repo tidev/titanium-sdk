@@ -14,7 +14,6 @@ import org.appcelerator.kroll.runtime.v8.V8Runtime;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiMessageQueue;
-import org.appcelerator.titanium.TiProperties;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -144,7 +143,8 @@ public class KrollContext implements Handler.Callback
 		messageQueue = TiMessageQueue.getMessageQueue();
 		messageQueue.setCallback(this);
 
-		context = V8Runtime.init();
+		V8Runtime.init(thread.getLooper());
+		context = V8Runtime.getInstance().getGlobalContext();
 
 		initialized.countDown();
 	}
@@ -239,7 +239,7 @@ public class KrollContext implements Handler.Callback
 	public Object handleEvalFile(V8Object scope, String filename)
 	{
 		requireInitialized();
-		V8Runtime.evalFile(scope, filename);
+		V8Runtime.getInstance().evalFile(scope, filename);
 		return null;
 	}
 /*

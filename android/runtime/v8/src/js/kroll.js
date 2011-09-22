@@ -3,6 +3,7 @@
 
 	function startup() {
 		startup.globalVariables();
+		NativeModule.require("events");
 	}
 
 	startup.globalVariables = function() {

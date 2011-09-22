@@ -405,7 +405,7 @@ using namespace titanium;
  * Method:    create
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Context_create(JNIEnv *env, jclass clazz,
+jlong Java_org_appcelerator_kroll_runtime_v8_V8Context_create(JNIEnv *env, jclass clazz,
 	jlong object_ptr)
 {
 	HandleScope scope;
@@ -425,7 +425,7 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Context_create(
  * Method:    compile
  * Signature: (Ljava/lang/String;)J
  */
-JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_compile(JNIEnv *env, jclass clazz,
+jlong Java_org_appcelerator_kroll_runtime_v8_V8Script_compile(JNIEnv *env, jclass clazz,
 	jstring string)
 {
 	HandleScope scope;
@@ -439,7 +439,7 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_compile(
  * Method:    runInContext
  * Signature: (JJ)J
  */
-JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContext__JJ(JNIEnv *env, jclass clazz,
+jlong Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContext__JJ(JNIEnv *env, jclass clazz,
 	jlong script_ptr, jlong context_ptr)
 {
 	HandleScope scope;
@@ -457,7 +457,7 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInCon
  * Method:    runInContext
  * Signature: (Ljava/lang/String;JLjava/lang/String;)J
  */
-JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContext__Ljava_lang_String_2JLjava_lang_String_2(
+jlong Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContext__Ljava_lang_String_2JLjava_lang_String_2(
 	JNIEnv *env, jclass clazz, jstring source, jlong context_ptr, jstring filename)
 {
 	HandleScope scope;
@@ -475,7 +475,7 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInCon
  * Method:    runInNewContext
  * Signature: (JJ)J
  */
-JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInNewContext__JJ(JNIEnv *env, jclass clazz,
+jlong Java_org_appcelerator_kroll_runtime_v8_V8Script_runInNewContext__JJ(JNIEnv *env, jclass clazz,
 	jlong script_ptr, jlong object_ptr)
 {
 	HandleScope scope;
@@ -496,7 +496,7 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInNew
  * Method:    runInNewContext
  * Signature: (Ljava/lang/String;JLjava/lang/String;)J
  */
-JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInNewContext__Ljava_lang_String_2JLjava_lang_String_2(
+jlong Java_org_appcelerator_kroll_runtime_v8_V8Script_runInNewContext__Ljava_lang_String_2JLjava_lang_String_2(
 	JNIEnv *env, jclass clazz, jstring source, jlong object_ptr, jstring filename)
 {
 	HandleScope scope;
@@ -517,7 +517,7 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInNew
  * Method:    runInContextNoResult
  * Signature: (Ljava/lang/String;JLjava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContextNoResult(JNIEnv *env, jclass clazz, jstring source,
+void Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContextNoResult(JNIEnv *env, jclass clazz, jstring source,
 	jlong context_ptr, jstring filename)
 {
 	HandleScope scope;
@@ -526,7 +526,17 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Script_runInCont
 	Handle<Value> args[] = { TypeConverter::javaStringToJsString(source), wrappedContext,
 		TypeConverter::javaStringToJsString(filename) };
 	Local<Function> function = v8::FunctionTemplate::New(WrappedScript::CompileRunInContext)->GetFunction();
-	Local<Value> value = function->Call(function, 3, args);
+	function->Call(function, 3, args);
+}
+
+void Java_org_appcelerator_kroll_runtime_v8_V8Script_nativeRunInThisContextNoResult(JNIEnv *env, jclass clazz, jstring source, jstring filename)
+{
+	HandleScope scope;
+	Handle<Value> args[] = { TypeConverter::javaStringToJsString(source),
+		TypeConverter::javaStringToJsString(filename) };
+	Local<Function> function = v8::FunctionTemplate::New(WrappedScript::CompileRunInThisContext)->GetFunction();
+	function->Call(function, 2, args);
+	LOGD(TAG, "done nativeRunInThisContextNoResult");
 }
 
 #ifdef __cplusplus

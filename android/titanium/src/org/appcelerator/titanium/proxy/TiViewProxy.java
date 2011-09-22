@@ -646,7 +646,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		return getView(getTiContext().getActivity()).toImage();
 	}
 
-	@Override
+	/*TODO @Override
 	public boolean fireEvent(String eventName, KrollDict data)
 	{
 		if (data == null) data = new KrollDict();
@@ -657,7 +657,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			handled = handled || parentHandled;
 		}
 		return handled;
-	}
+	}*/
 
 	@Kroll.getProperty @Kroll.method
 	public TiViewProxy getParent()

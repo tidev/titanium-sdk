@@ -11,14 +11,15 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.runtime.v8.V8Object;
+import org.appcelerator.kroll.runtime.v8.EventEmitter;
+import org.appcelerator.kroll.runtime.v8.EventListener;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiMessageQueue;
-import org.appcelerator.titanium.bridge.OnEventListenerChange;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
 
 import android.app.Activity;
 import android.os.Handler;
@@ -26,17 +27,17 @@ import android.os.Looper;
 import android.os.Message;
 
 @Kroll.proxy
-public class KrollProxy
-	implements Handler.Callback, OnEventListenerChange, KrollConvertable
+public class KrollProxy extends EventEmitter
+	implements Handler.Callback, KrollConvertable
 {
 	private static final String TAG = "KrollProxy";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	protected static final int MSG_MODEL_PROPERTY_CHANGE = 100;
-	protected static final int MSG_LISTENER_ADDED = 101;
-	protected static final int MSG_LISTENER_REMOVED = 102;
-	protected static final int MSG_MODEL_PROPERTIES_CHANGED = 103;
-	protected static final int MSG_LAST_ID = 999;
+	protected static final int MSG_MODEL_PROPERTY_CHANGE = EventEmitter.MSG_LAST_ID + 100;
+	protected static final int MSG_LISTENER_ADDED = EventEmitter.MSG_LAST_ID + 101;
+	protected static final int MSG_LISTENER_REMOVED = EventEmitter.MSG_LAST_ID + 102;
+	protected static final int MSG_MODEL_PROPERTIES_CHANGED = EventEmitter.MSG_LAST_ID + 103;
+	protected static final int MSG_LAST_ID = EventEmitter.MSG_LAST_ID + 999;
 	protected static AtomicInteger proxyCounter = new AtomicInteger();
 
 	public static final String PROXY_ID_PREFIX = "proxy$";
@@ -46,9 +47,8 @@ public class KrollProxy
 	protected Handler uiHandler;
 	protected String proxyId;
 	protected KrollProxyListener modelListener;
-	//protected KrollEventManager eventManager;
+	protected EventListener addedListener, removedListener;
 	protected KrollModule createdInModule;
-	protected V8Object v8Object = new V8Object(0);
 	protected boolean coverageEnabled;
 	protected KrollDict creationDict = null;
 
@@ -57,6 +57,7 @@ public class KrollProxy
 
 	public KrollProxy()
 	{
+		super(0);
 	}
 
 	public KrollProxy(TiContext context)
@@ -66,8 +67,8 @@ public class KrollProxy
 
 	public KrollProxy(TiContext context, boolean autoBind)
 	{
+		super(0);
 		this.context = context;
-		//this.eventManager = new KrollEventManager(this);
 		if (DBG) {
 			Log.d(TAG, "New: " + getClass().getSimpleName());
 		}
@@ -92,7 +93,7 @@ public class KrollProxy
 
 		try {
 			proxyInstance = objClass.newInstance();
-			proxyInstance.v8Object = new V8Object(v8ObjectPointer);
+			proxyInstance.setPointer(v8ObjectPointer);
 			proxyInstance.handleCreationArgs(null, creationArguments);
 
 			return proxyInstance;
@@ -107,35 +108,32 @@ public class KrollProxy
 		return null;
 	}
 
-	// direct accessors (these circumvent programmatic accessors and go straight to the internal map)
-	public V8Object getV8Object()
-	{
-		return v8Object;
-	}
-
-	public void setV8Object(V8Object v8Object)
-	{
-		this.v8Object = v8Object;
-	}
-
-	public long getV8ObjectPointer()
-	{
-		return v8Object.getPointer();
-	}
-
+	@Deprecated
 	public boolean hasProperty(String name)
 	{
-		return v8Object.has(name);
+		return has(name);
 	}
 
+	@Deprecated
 	public Object getProperty(String name)
 	{
-		return v8Object.get(name);
+		return get(name);
 	}
 
+	@Deprecated
 	public void setProperty(String name, Object value)
 	{
-		setProperty(name, value, false);
+		set(name, value);
+	}
+
+	@Deprecated
+	public void setProperty(String name, Object value, boolean fireChange)
+	{
+		if (!fireChange) {
+			set(name, value);
+		} else {
+			setAndFire(name, value);
+		}
 	}
 
 	protected void firePropertyChanged(String name, Object oldValue, Object newValue)
@@ -163,18 +161,13 @@ public class KrollProxy
 		return false;
 	}
 
-	public void setProperty(String name, Object value, boolean fireChange)
+	public void setAndFire(String name, Object value)
 	{
-		if (!fireChange) {
-			v8Object.set(name, value);
-			return;
-		} else {
-			Object current = v8Object.get(name);
-			v8Object.set(name, value);
+		Object current = get(name);
+		set(name, value);
 
-			if (shouldFireChange(current, value)) {
-				firePropertyChanged(name, current, value);
-			}
+		if (shouldFireChange(current, value)) {
+			firePropertyChanged(name, current, value);
 		}
 	}
 
@@ -211,6 +204,7 @@ public class KrollProxy
 	public void handleCreationDict(KrollDict dict)
 	{
 		if (dict != null) {
+			// TODO we need to set properties inside the proxy from the creation dict on the V8 side
 			/*for (String key : dict.keySet()) {
 				setProperty(key, dict.get(key), true);
 			}*/
@@ -231,7 +225,7 @@ public class KrollProxy
 		return createdInModule;
 	}
 
-	@SuppressWarnings("unchecked")
+	@Override @SuppressWarnings("unchecked")
 	public boolean handleMessage(Message msg)
 	{
 		switch (msg.what) {
@@ -240,18 +234,17 @@ public class KrollProxy
 				pch.fireEvent(this, modelListener);
 				return true;
 			}
-			case MSG_LISTENER_ADDED: {
-				if (modelListener != null) {
-					modelListener.listenerAdded(
-						msg.getData().getString(TiC.MSG_PROPERTY_EVENT_NAME),
-						msg.arg1, (KrollProxy) msg.obj);
-				}
-				return true;
-			}
+			case MSG_LISTENER_ADDED:
 			case MSG_LISTENER_REMOVED: {
-				if (modelListener != null) {
-					modelListener.listenerRemoved(msg.getData().getString(
-						TiC.MSG_PROPERTY_EVENT_NAME), msg.arg1, (KrollProxy) msg.obj);
+				if (modelListener == null) return true;
+
+				String event = msg.getData().getString(EventEmitter.EVENT_NAME);
+				HashMap<String, Object> map = (HashMap<String, Object>) msg.obj;
+				int count = TiConvert.toInt(map.get(TiC.PROPERTY_COUNT));
+				if (msg.what == MSG_LISTENER_ADDED) {
+					eventListenerAdded(event, count, this);
+				} else {
+					eventListenerRemoved(event, count, this);
 				}
 				return true;
 			}
@@ -260,17 +253,43 @@ public class KrollProxy
 				return true;
 			}
 		}
-		return false;
+		return super.handleMessage(msg);
+	}
+
+	protected void eventListenerAdded(String event, int count, KrollProxy proxy)
+	{
+		modelListener.listenerAdded(event, count, this);
+	}
+
+	protected void eventListenerRemoved(String event, int count, KrollProxy proxy)
+	{
+		modelListener.listenerRemoved(event, count, this);
 	}
 
 	public void setModelListener(KrollProxyListener modelListener)
 	{
 		// Double-setting the same modelListener can potentially have weird side-effects.
 		if (this.modelListener != null && this.modelListener.equals(modelListener)) { return; }
+
 		this.modelListener = modelListener;
 		if (modelListener != null) {
+			if (addedListener == null) {
+				addedListener = new EventListener(uiHandler, MSG_LISTENER_ADDED);
+				addEventListener(EventListener.EVENT_LISTENER_ADDED, addedListener);
+			}
+			if (removedListener == null) {
+				removedListener = new EventListener(uiHandler, MSG_LISTENER_REMOVED);
+				addEventListener(EventListener.EVENT_LISTENER_REMOVED, removedListener);
+			}
 			modelListener.processProperties(creationDict);
 			creationDict = null;
+		} else {
+			if (addedListener != null) {
+				removeEventListener(EventListener.EVENT_LISTENER_ADDED, addedListener);
+			}
+			if (removedListener != null) {
+				removeEventListener(EventListener.EVENT_LISTENER_REMOVED, removedListener);
+			}
 		}
 	}
 
@@ -338,86 +357,6 @@ public class KrollProxy
 		return proxyId;
 	}
 
-	// Events
-
-	@Kroll.method
-	public int addEventListener(KrollInvocation invocation, String eventName, Object listener)
-	{
-		int listenerId = -1;
-		/*if (DBG) {
-			Log.i(TAG, "Adding listener for \"" + eventName + "\": "
-					+ listener.getClass().getName());
-		}
-		listenerId = eventManager.addEventListener(eventName, listener);*/
-		return listenerId;
-	}
-
-	@Kroll.method
-	public void removeEventListener(KrollInvocation invocation, String eventName, Object listener)
-	{
-		//eventManager.removeEventListener(eventName, listener);
-	}
-
-	public void eventListenerAdded(String eventName, int count, KrollProxy proxy)
-	{
-		if (modelListener != null) {
-			Message m = getUIHandler().obtainMessage(MSG_LISTENER_ADDED, count,
-				-1, proxy);
-			m.getData().putString(TiC.MSG_PROPERTY_EVENT_NAME, eventName);
-			m.sendToTarget();
-		}
-	}
-
-	public void eventListenerRemoved(String eventName, int count, KrollProxy proxy)
-	{
-		if (modelListener != null) {
-			Message m = getUIHandler().obtainMessage(MSG_LISTENER_REMOVED,
-					count, -1, proxy);
-			m.getData().putString(TiC.MSG_PROPERTY_EVENT_NAME, eventName);
-			m.sendToTarget();
-		}
-	}
-
-	@Kroll.method
-	public boolean fireEvent(String eventName, @Kroll.argument(optional=true) KrollDict data)
-	{
-		return false;//return eventManager.dispatchEvent(eventName, data);
-	}
-
-	@Kroll.method
-	public boolean fireSyncEvent(String eventName, @Kroll.argument(optional=true) KrollDict data)
-	{
-		return false;//return eventManager.dispatchEvent(eventName, data, false);
-	}
-
-	@Kroll.method
-	public void fireSingleEvent(String eventName, Object listener, KrollDict data, boolean asyncCallback)
-	{
-		/*if (listener != null) {
-			KrollInvocation invocation = currentInvocation == null ?
-				createEventInvocation(eventName) : currentInvocation;
-			KrollMethod method = (KrollMethod) listener;
-			if (data == null) {
-				data = new KrollDict();
-			}
-			try {
-				if (method instanceof KrollCallback && !asyncCallback) {
-					((KrollCallback)method).callSync(data);
-				} else {
-					method.invoke(invocation, new Object[] { data });
-				}
-			} catch (Exception e) {
-				Log.e(TAG, e.getMessage(), e);
-			}
-			invocation.recycle();
-		}*/
-	}
-
-	public boolean hasListeners(String eventName)
-	{
-		return false;//return eventManager.hasAnyEventListener(eventName);
-	}
-
 	protected KrollDict createErrorResponse(int code, String message)
 	{
 		KrollDict error = new KrollDict();
@@ -439,7 +378,7 @@ public class KrollProxy
 
 	public Object getJavascriptValue()
 	{
-		return v8Object;
+		return this;
 	}
 
 	public Object getNativeValue()

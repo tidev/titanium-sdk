@@ -12,6 +12,7 @@
 #include "AndroidUtil.h"
 
 #include "APIModule.h"
+#include "org.appcelerator.kroll.KrollModule.h"
 
 using namespace titanium;
 
@@ -40,9 +41,9 @@ v8::Handle<v8::Object> APIModule::init()
 	apiModulePrototype->Set(v8::String::New("critical"), v8::FunctionTemplate::New(logCritical)->GetFunction());
 	apiModulePrototype->Set(v8::String::New("fatal"), v8::FunctionTemplate::New(logFatal)->GetFunction());
 	apiModulePrototype->Set(v8::String::New("log"), v8::FunctionTemplate::New(log)->GetFunction());
+	apiModule->Inherit(KrollModule::proxyTemplate);
 
 	v8::Handle<v8::Value> arguments[] = {};
-
 	return apiModule->GetFunction()->NewInstance(0, arguments);
 }
 

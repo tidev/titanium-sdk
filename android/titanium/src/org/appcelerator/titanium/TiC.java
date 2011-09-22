@@ -138,6 +138,7 @@ public class TiC
 	public static final String PROPERTY_CONTENT_URL = "contentURL";
 	public static final String PROPERTY_CONTENT_VIEW = "contentView";
 	public static final String PROPERTY_CONTENT_WIDTH = "contentWidth";
+	public static final String PROPERTY_COUNT = "count";
 	public static final String PROPERTY_COUNTRY = "country";
 	public static final String PROPERTY_COUNTRY_CODE = "country_code"; // TIMOB-4478
 	public static final String PROPERTY_DATA = "data";

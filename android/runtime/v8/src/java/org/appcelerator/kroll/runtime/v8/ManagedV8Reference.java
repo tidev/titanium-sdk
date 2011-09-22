@@ -6,27 +6,37 @@
  */
 package org.appcelerator.kroll.runtime.v8;
 
-/* package */abstract class ManagedV8Reference {
-
+/* package */abstract class ManagedV8Reference
+{
 	protected long ptr;
 
-	protected ManagedV8Reference(long ptr) {
+	protected ManagedV8Reference() {}
+	protected ManagedV8Reference(long ptr)
+	{
 		this.ptr = ptr;
 	}
 
-	public long getPointer() {
+	public long getPointer()
+	{
 		return ptr;
 	}
 
+	public void setPointer(long ptr)
+	{
+		this.ptr = ptr;
+	}
+
 	@Override
-	protected void finalize() throws Throwable {
+	protected void finalize() throws Throwable
+	{
 		super.finalize();
 		release();
 	}
 
-	public synchronized void release() {
+	public synchronized void release()
+	{
 		nativeRelease(ptr);
-		ptr = 0;		
+		ptr = 0;
 	}
 
 	private static native void nativeRelease(long ptr);

@@ -11,6 +11,7 @@
 #include "APIModule.h"
 #include "Assets.h"
 #include "EventEmitter.h"
+#include "JavaObject.h"
 #include "JNIUtil.h"
 #include "KrollJavaScript.h"
 #include "KrollProxy.h"
@@ -22,6 +23,7 @@
 #include "ti.modules.titanium.BufferProxy.h"
 #include "ti.modules.titanium.utils.UtilsModule.h"
 #include "org.appcelerator.titanium.TiBlob.h"
+#include "org.appcelerator.titanium.proxy.ActivityProxy.h"
 #include "V8Runtime.h"
 
 #define TAG "V8Runtime"
@@ -39,33 +41,19 @@ void V8Runtime::collectWeakRef(Persistent<Value> ref, void *parameter)
 }
 
 /* static */
-jobject V8Runtime::newObject(Handle<Object> object)
+void V8Runtime::setKrollProxyHandle(jobject krollProxy, Handle<Object> v8Object)
 {
 	HandleScope scope;
-
-	JNIEnv *env = JNIUtil::getJNIEnv();
-	if (!env) return NULL;
-
-	jlong ptr = (jlong) *Persistent<Object>::New(object);
-	jobject v8Object = env->NewGlobalRef(env->NewObject(JNIUtil::v8ObjectClass, JNIUtil::v8ObjectInitMethod, ptr));
-
-	// make a 2nd persistent weakref so we can be informed of GC
-	Persistent<Object> weakRef = Persistent<Object>::New(object);
-	weakRef.MakeWeak(reinterpret_cast<void*>(v8Object), V8Runtime::collectWeakRef);
-
-	return v8Object;
-}
-
-/* static */
-void V8Runtime::setKrollProxyV8Object(jobject krollProxy, jobject v8Object)
-{
 	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (!env) {
 		// TODO error message
 		return;
 	}
 
-	env->CallVoidMethod(krollProxy, JNIUtil::krollProxySetV8ObjectMethod, v8Object);
+	NativeObject *object = NativeObject::Unwrap<NativeObject>(v8Object);
+	jlong ptr = (jlong) *(object->getHandle());
+
+	env->CallVoidMethod(krollProxy, JNIUtil::krollProxySetPointerMethod, ptr);
 	if (env->ExceptionCheck()) {
 		env->ExceptionDescribe();
 		env->ExceptionClear();
@@ -103,8 +91,6 @@ static Handle<Value> binding(const Arguments& args)
 /* static */
 void V8Runtime::bootstrap(Local<Object> global)
 {
-	EventEmitter::Initialize();
-
 	global->Set(String::NewSymbol("binding"), FunctionTemplate::New(binding)->GetFunction());
 	global->Set(String::NewSymbol("EventEmitter"), EventEmitter::constructorTemplate->GetFunction());
 	global->Set(String::NewSymbol("API"), APIModule::init());
@@ -146,12 +132,12 @@ extern "C" {
  * Method:    nativeInit
  * Signature: (Lorg/appcelerator/kroll/runtime/v8/V8Runtime;)J
  */
-JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jclass clazz,
-	jobject self)
+JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jobject self, jboolean useGlobalRefs)
 {
 	HandleScope scope;
 
 	LOGD(TAG, "V8Runtime_nativeInit");
+	titanium::JavaObject::useGlobalRefs = useGlobalRefs;
 	titanium::jruntime = env->NewGlobalRef(self);
 	titanium::JNIUtil::initCache(env);
 
@@ -159,15 +145,20 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeI
 	context->Enter();
 
 	Local<Object> global = context->Global();
-	titanium::V8Runtime::bootstrap(global);
+
+	// TODO - these will be generated
+	titanium::EventEmitter::Initialize();
 
 	titanium::initKrollProxy(global, env);
-	titanium::V8Runtime::globalContext = context;
-
 	titanium::KrollModule::Initialize(global, env);
 	titanium::BufferProxy::Initialize(global, env);
 	titanium::UtilsModule::Initialize(global, env);
 	titanium::TiBlob::Initialize(global, env);
+	titanium::ActivityProxy::Initialize(global, env);
+
+	titanium::V8Runtime::bootstrap(global);
+
+	titanium::V8Runtime::globalContext = context;
 
 	Persistent<Object> wrappedContext(titanium::ScriptsModule::WrapContext(context));
 	return (jlong) *wrappedContext;
@@ -180,6 +171,7 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeI
  */
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDispose(JNIEnv *env, jclass clazz)
 {
+	LOGD(TAG, "disposing global context");
 	titanium::V8Runtime::globalContext->Exit();
 
 	titanium::V8Runtime::globalContext.Dispose();

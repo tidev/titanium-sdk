@@ -282,13 +282,14 @@ public class TiApplication extends Application implements Handler.Callback
 
 	public boolean fireAppEvent(KrollInvocation invocation, String eventName, KrollDict data)
 	{
-		boolean handled = false;
+		// TODO boolean handled = false;
 		for (KrollProxy appEventProxy : appEventProxies)
 		{
-			boolean proxyHandled = appEventProxy.fireEvent(eventName, data);
-			handled = handled || proxyHandled;
+			/*TODO boolean proxyHandled = */appEventProxy.fireEvent(eventName, data);
+			//handled = handled || proxyHandled;
 		}
-		return handled;
+		//TODO return handled;
+		return true;
 	}
 
 	public TiProperties getAppProperties()

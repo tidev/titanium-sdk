@@ -11,6 +11,7 @@
 #include "${packageName}.${proxyClassName}.h"
 
 #include "AndroidUtil.h"
+#include "EventEmitter.h"
 #include "JNIUtil.h"
 #include "JSException.h"
 #include "ProxyFactory.h"
@@ -26,7 +27,7 @@
 </@Proxy.listCreateProxies>
 </#if>
 
-<#if superProxyClassName??>
+<#if superProxyClassName != "EventEmitter">
 #include "${superPackageName}.${superProxyClassName}.h"
 </#if>
 
@@ -45,7 +46,7 @@ ${proxyClassName}::${proxyClassName}(jobject javaObject) : JavaObject(javaObject
 
 void ${proxyClassName}::Initialize(Handle<Object> ti, JNIEnv* env)
 {
-    LOGD(TAG, "Initialize");
+	LOGD(TAG, "Initialize");
 
 	<#-- Query the class for the Java proxy -->
 	javaClass = JNIUtil::findClass("${packageName?replace('.','/')}/${proxyClassName}", env);
@@ -56,8 +57,10 @@ void ${proxyClassName}::Initialize(Handle<Object> ti, JNIEnv* env)
 	proxyTemplate = Persistent<FunctionTemplate>::New(t);
 	proxyTemplate->InstanceTemplate()->SetInternalFieldCount(1);
 	proxyTemplate->SetClassName(String::NewSymbol("${proxyAttrs.name}"));
-	<#if superProxyClassName??>
+	<#if superProxyClassName != "EventEmitter">
 	proxyTemplate->Inherit(${superProxyClassName?replace("BindingGen", "")}::proxyTemplate);
+	<#else>
+	proxyTemplate->Inherit(EventEmitter::constructorTemplate);
 	</#if>
 
 	// Method bindings -----------------------------------------------------------
@@ -87,22 +90,33 @@ void ${proxyClassName}::Initialize(Handle<Object> ti, JNIEnv* env)
 
 Handle<Value> ${proxyClassName}::Constructor(const Arguments& args)
 {
-    LOGD(TAG, "Constructor");
+	LOGD(TAG, "Constructor");
 
-    if (!args.IsConstructCall())
-        return JSException::CalledConstructor();
+	if (!args.IsConstructCall()) {
+		return JSException::CalledConstructor();
+	}
 
 	HandleScope scope;
-    Local<Object> v8Proxy = args.This();
+	Local<Object> v8Proxy = args.This();
 
-    // If ProxyFactory::createV8Proxy invoked us, unwrap
-    // the pre-created Java proxy it sent.
-    jobject javaProxy = ProxyFactory::unwrapJavaProxy(args);
-    if (!javaProxy)
-        javaProxy = ProxyFactory::createJavaProxy(javaClass, v8Proxy, args);
+	// If ProxyFactory::createV8Proxy invoked us, unwrap
+	// the pre-created Java proxy it sent.
+	jobject javaProxy = ProxyFactory::unwrapJavaProxy(args);
+	bool deleteRef = false;
+	if (!javaProxy) {
+		javaProxy = ProxyFactory::createJavaProxy(javaClass, v8Proxy, args);
+		deleteRef = true;
+	}
 
-    ${proxyClassName}* v8ProxyNative = new ${proxyClassName}(javaProxy);
-    v8ProxyNative->Wrap(v8Proxy);
+	${proxyClassName}* v8ProxyNative = new ${proxyClassName}(javaProxy);
+	v8ProxyNative->Wrap(v8Proxy);
+
+	if (deleteRef) {
+		JNIEnv *env = JNIUtil::getJNIEnv();
+		if (env) {
+			env->DeleteLocalRef(javaProxy);
+		}
+	}
 
 	return v8Proxy;
 }
@@ -111,19 +125,21 @@ Handle<Value> ${proxyClassName}::Constructor(const Arguments& args)
 <@Proxy.listMethods ; isFirst, name, method, signature>
 Handle<Value> ${proxyClassName}::${name}(const Arguments& args)
 {
-    LOGD(TAG, "${name}()");
+	LOGD(TAG, "${name}()");
 
 	HandleScope scope;
 	JNIEnv *env = JNIUtil::getJNIEnv();
-	if (!env)
+	if (!env) {
 		return JSException::GetJNIEnvironmentError();
+	}
 
 	<#-- Lazy initialize method ID for the Java proxy. -->
 	static jmethodID methodID = NULL;
 	if (!methodID) {
 		methodID = env->GetMethodID(${proxyClassName}::javaClass, "${name}", "${signature}");
-		if (!methodID)
+		if (!methodID) {
 			return JSException::Error("Couldn't find proxy method '${name}' with signature '${signature}'");
+		}
 	}
 
 	${proxyClassName}* proxy = NativeObject::Unwrap<${proxyClassName}>(args.Holder());
