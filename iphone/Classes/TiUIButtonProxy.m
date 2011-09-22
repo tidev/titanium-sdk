@@ -101,6 +101,7 @@
 -(void)removeBarButtonView
 {
 	RELEASE_TO_NIL(button);
+    [super removeBarButtonView];
 }
 
 -(void)setToolbar:(TiToolbar*)toolbar_
