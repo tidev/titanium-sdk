@@ -29,6 +29,9 @@
 	obj->Set(v8::String::NewSymbol(name), \
 		v8::FunctionTemplate::New(callback)->GetFunction())
 
+#define DEFINE_TEMPLATE(obj, name, tmpl) \
+	obj->Set(v8::String::NewSymbol(name), tmpl->GetFunction())
+
 #define DEFINE_PROTOTYPE_METHOD(templ, name, callback) \
 { \
 	v8::Local<v8::Signature> __callback##_SIG = v8::Signature::New(templ); \

@@ -19,7 +19,6 @@
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 //USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var EventEmitter = exports.EventEmitter = Titanium.EventEmitter;
 var isArray = Array.isArray;
 
 //By default EventEmitters will print a warning if more than

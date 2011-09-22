@@ -46,7 +46,7 @@ void APIModule::Initialize(Handle<Object> target)
 	DEFINE_PROTOTYPE_METHOD(constructorTemplate, "critical", logCritical);
 	DEFINE_PROTOTYPE_METHOD(constructorTemplate, "fatal", logFatal);
 	DEFINE_PROTOTYPE_METHOD(constructorTemplate, "log", log);
-	apiModule->Inherit(KrollModule::proxyTemplate);
+	constructorTemplate->Inherit(KrollModule::proxyTemplate);
 
 	target->Set(String::NewSymbol("API"), constructorTemplate->GetFunction()->NewInstance());
 }

@@ -96,7 +96,7 @@ static Handle<Value> binding(const Arguments& args)
 void V8Runtime::bootstrap(Local<Object> global)
 {
 	DEFINE_METHOD(global, "binding", binding);
-	DEFINE_METHOD(global, "EventEmitter", EventEmitter::constructorTemplate->GetFunction());
+	DEFINE_TEMPLATE(global, "EventEmitter", EventEmitter::constructorTemplate);
 
 	TryCatch tryCatch;
 	Handle<Value> result = ExecuteString(KrollJavaScript::MainSource(), IMMUTABLE_STRING_LITERAL("kroll.js"));
