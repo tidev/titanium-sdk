@@ -23,7 +23,6 @@ import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
 import android.app.Service;
-import android.content.Context;
 import android.content.ContextWrapper;
 import android.os.Looper;
 import android.os.Message;
@@ -217,6 +216,12 @@ public class TiContext implements ErrorReporter
 			Log.e(LCAT,"on evalJS, evaluator is null and shouldn't be");
 		}
 		return krollBridge.evalJS(src);
+	}
+
+	public Object evalCommonJsModule(String filename)
+		throws IOException
+	{
+		return krollBridge.evalCommonJsModule(filename);
 	}
 
 	public Scriptable getScope()

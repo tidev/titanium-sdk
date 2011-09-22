@@ -43,6 +43,7 @@ public class KrollContext implements Handler.Callback
 
 	private static final int MSG_EVAL_STRING = 1000;
 	private static final int MSG_EVAL_FILE = 1001;
+	private static final int MSG_EVAL_COMMONJS = 1002;
 
 	private static final String STRING_SOURCE = "<anonymous>";
 
@@ -217,6 +218,12 @@ public class KrollContext implements Handler.Callback
 				result.setResult(handleEvalFile(filename));
 				return true;
 			}
+			case MSG_EVAL_COMMONJS : {
+				AsyncResult result = (AsyncResult) msg.obj;
+				String filename = msg.getData().getString(TiC.MSG_PROPERTY_FILENAME);
+				result.setResult(handleEvalCommonJsModule(filename));
+				return true;
+			}
 		}
 		return false;
 	}
@@ -277,6 +284,22 @@ public class KrollContext implements Handler.Callback
 		return TiMessageQueue.getMessageQueue().sendBlockingMessage(msg, messageQueue, result);
 	}
 
+	public Object evalCommonJsModule(String filename)
+	{
+		if (DBG) {
+			Log.d(LCAT, "evalCommonJsModule: " + filename);
+		}
+
+		if (isOurThread()) {
+			return handleEvalCommonJsModule(filename);
+		}
+
+		AsyncResult result = new AsyncResult();
+		Message msg = messageQueue.getHandler().obtainMessage(MSG_EVAL_COMMONJS, result);
+		msg.getData().putString(TiC.MSG_PROPERTY_FILENAME, filename);
+		return TiMessageQueue.getMessageQueue().sendBlockingMessage(msg, messageQueue, result);
+	}
+
 	protected Object runCompiledScript(String filename)
 	{
 		String relativePath = TiFileHelper2.getResourceRelativePath(filename);
@@ -297,6 +320,30 @@ public class KrollContext implements Handler.Callback
 		return ScriptableObject.NOT_FOUND;
 	}
 
+	protected Object runCompiledScriptAsModule(String filename)
+	{
+		String relativePath = TiFileHelper2.getResourceRelativePath(filename);
+		if (relativePath == null) {
+			// we can only handle pre-compiled app:// and file:///android_asset/Resources/ scripts here
+			return evaluateScript(filename);
+		}
+
+		Context context = enter(true);
+		Scriptable scope = context.newObject(jsScope);
+		Scriptable exports = context.newObject(scope);
+		scope.put("exports", scope, exports);
+		try {
+			Log.d(LCAT, "Running CommonJS module script: " + relativePath);
+			TiScriptRunner.getInstance().runScript(context, scope, relativePath);
+			return exports;
+		} catch (ClassNotFoundException e) {
+			Log.e(LCAT, "Couldn't find pre-compiled class for CommonJS module: " + relativePath, e);
+		} finally {
+			exit();
+		}
+		return ScriptableObject.NOT_FOUND;
+	}
+
 	public Object evaluateScript(String filename)
 	{
 		String[] parts = { filename };
@@ -304,6 +351,19 @@ public class KrollContext implements Handler.Callback
 		
 		Context context = enter(false);
 		return evaluator.evaluateFile(context, jsScope, tbf, filename, 1, null);
+	}
+
+	public Object evaluateScriptAsModule(String filename)
+	{
+		String[] parts = { filename };
+		TiBaseFile tbf = TiFileFactory.createTitaniumFile(tiContext, parts, false);
+
+		Context context = enter(false);
+		Scriptable scope = context.newObject(jsScope);
+		Scriptable exports = context.newObject(scope);
+		scope.put("exports", scope, exports);
+		evaluator.evaluateFile(context, scope, tbf, filename, 1, null);
+		return exports;
 	}
 
 	public Object handleEvalFile(String filename)
@@ -316,6 +376,28 @@ public class KrollContext implements Handler.Callback
 				result = runCompiledScript(filename);
 			} else {
 				result = evaluateScript(filename);
+			}
+		} catch (EcmaError e) {
+			evaluator.handleEcmaError(e);
+		} catch (EvaluatorException e) {
+			evaluator.handleEvaluatorException(e);
+		} catch (Exception e) {
+			evaluator.handleException(e);
+		}
+
+		return result;
+	}
+
+	public Object handleEvalCommonJsModule(String filename)
+	{
+		requireInitialized();
+		Object result = null;
+
+		try {
+			if (useOptimization) {
+				result = runCompiledScriptAsModule(filename);
+			} else {
+				result = evaluateScriptAsModule(filename);
 			}
 		} catch (EcmaError e) {
 			evaluator.handleEcmaError(e);
