@@ -149,11 +149,12 @@ extern "C" {
 JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jclass clazz,
 	jobject self)
 {
+	titanium::JNIScope jniScope(env);
 	HandleScope scope;
 
 	LOGD(TAG, "V8Runtime_nativeInit");
 	titanium::jruntime = env->NewGlobalRef(self);
-	titanium::JNIUtil::initCache(env);
+	titanium::JNIUtil::initCache();
 
 	Persistent<Context> context = Persistent<Context>::New(Context::New());
 	context->Enter();

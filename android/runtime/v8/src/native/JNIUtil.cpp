@@ -54,6 +54,8 @@ jmethodID JNIUtil::krollProxySetV8ObjectMethod = NULL;
 jmethodID JNIUtil::v8ObjectInitMethod = NULL;
 jmethodID JNIUtil::assetsReadResourceMethod = NULL;
 
+JNIEnv* JNIScope::current = NULL;
+
 /* static */
 JNIEnv* JNIUtil::getJNIEnv()
 {
@@ -72,7 +74,7 @@ void JNIUtil::terminateVM()
 
 jobjectArray JNIUtil::newObjectArray(int length, jobject initial)
 {
-	JNIEnv* env = getJNIEnv();
+	JNIEnv* env = JNIScope::getEnv();
 	if (env) {
 		return env->NewObjectArray(length, objectClass, initial);
 	}
@@ -81,7 +83,7 @@ jobjectArray JNIUtil::newObjectArray(int length, jobject initial)
 
 void JNIUtil::throwException(jclass clazz, const char *message)
 {
-	JNIEnv* env = getJNIEnv();
+	JNIEnv* env = JNIScope::getEnv();
 	if (!env || !clazz) {
 		return;
 	}
@@ -91,7 +93,7 @@ void JNIUtil::throwException(jclass clazz, const char *message)
 
 void JNIUtil::throwException(const char *className, const char *message)
 {
-	JNIEnv* env = getJNIEnv();
+	JNIEnv* env = JNIScope::getEnv();
 	if (!env) {
 		return;
 	}
@@ -111,7 +113,7 @@ void JNIUtil::throwNullPointerException(const char *message)
 jclass JNIUtil::findClass(const char *className, JNIEnv *env)
 {
 	if (!env) {
-		env = getJNIEnv();
+		env = JNIScope::getEnv();
 		if (!env) {
 			LOGE(TAG, "Couldn't initialize JNIEnv");
 			return NULL;
@@ -136,7 +138,7 @@ jclass JNIUtil::findClass(const char *className, JNIEnv *env)
 jmethodID JNIUtil::getMethodID(jclass javaClass, const char *methodName, const char *signature, bool isStatic, JNIEnv *env)
 {
 	if (!env) {
-		env = getJNIEnv();
+		env = JNIScope::getEnv();
 		if (!env) {
 			LOGE(TAG, "Couldn't initialize JNIEnv");
 			return NULL;
@@ -162,7 +164,7 @@ jmethodID JNIUtil::getMethodID(jclass javaClass, const char *methodName, const c
 
 void JNIUtil::logClassName(const char *format, jclass javaClass)
 {
-	JNIEnv *env = getJNIEnv();
+	JNIEnv *env = JNIScope::getEnv();
 	if (!env) return;
 
 	jstring jClassName = (jstring) env->CallObjectMethod(javaClass, classGetNameMethod);
@@ -175,8 +177,9 @@ void JNIUtil::logClassName(const char *format, jclass javaClass)
 	env->ReleaseStringUTFChars(jClassName, chars);
 }
 
-void JNIUtil::initCache(JNIEnv *env)
+void JNIUtil::initCache()
 {
+	JNIEnv *env = JNIScope::getEnv();
 	classClass = findClass("java/lang/Class", env);
 	objectClass = findClass("java/lang/Object", env);
 	numberClass = findClass("java/lang/Number", env);
