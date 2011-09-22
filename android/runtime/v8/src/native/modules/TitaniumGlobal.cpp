@@ -8,7 +8,7 @@
 #include <v8.h>
 #include <string.h>
 
-#include "TitaniumModule.h"
+#include "TitaniumGlobal.h"
 #include "V8Util.h"
 #include "AndroidUtil.h"
 #include "APIModule.h"
@@ -16,13 +16,13 @@
 namespace titanium {
 using namespace v8;
 
-#define TAG "TitaniumModule"
+#define TAG "TitaniumGlobal"
 
-Persistent<FunctionTemplate> TitaniumModule::constructor_template;
-Persistent<Object> TitaniumModule::instance;
+Persistent<FunctionTemplate> TitaniumGlobal::constructor_template;
+Persistent<Object> TitaniumGlobal::instance;
 static Persistent<Object> property_cache;
 
-Handle<Value> TitaniumModule::PrototypePropertyGetter(Local<String> property, const AccessorInfo& info)
+Handle<Value> TitaniumGlobal::PrototypePropertyGetter(Local<String> property, const AccessorInfo& info)
 {
 	HandleScope scope;
 	String::Utf8Value property_v(property);
@@ -33,7 +33,7 @@ Handle<Value> TitaniumModule::PrototypePropertyGetter(Local<String> property, co
 	Handle<Object> exports;
 	if (property_cache->Has(property)) {
 		Local<Object> value = property_cache->Get(property)->ToObject();
-		TitaniumModule::instance->ForceSet(property, value);
+		instance->ForceSet(property, value);
 		return value;
 	} else if (strcmp(*property_v, "API") == 0) {
 		exports = Object::New();
@@ -49,16 +49,16 @@ Handle<Value> TitaniumModule::PrototypePropertyGetter(Local<String> property, co
 		LOGD(TAG, "initialized Titanium.%s", *key_v);
 		Handle<Value> value = exports->Get(key);
 		if (value == exports) {
-			value = TitaniumModule::instance;
+			value = instance;
 		}
 		property_cache->Set(key, value);
-		TitaniumModule::instance->ForceSet(key, value);
+		instance->ForceSet(key, value);
 	}
 
 	return scope.Close(exports->Get(property));
 }
 
-Handle<Value> TitaniumModule::PrototypePropertySetter(Local<String> property, Local<Value> value,
+Handle<Value> TitaniumGlobal::PrototypePropertySetter(Local<String> property, Local<Value> value,
 	const AccessorInfo& info)
 {
 	String::Utf8Value key(property);
@@ -66,21 +66,21 @@ Handle<Value> TitaniumModule::PrototypePropertySetter(Local<String> property, Lo
 	return value;
 }
 
-Handle<Integer> TitaniumModule::PrototypePropertyQuery(Local<String> property, const AccessorInfo& info)
+Handle<Integer> TitaniumGlobal::PrototypePropertyQuery(Local<String> property, const AccessorInfo& info)
 {
 	String::Utf8Value key(property);
 	LOGD(TAG, "PrototypePropertyQuery %s", *key);
 	return Handle<Integer>();
 }
 
-Handle<Boolean> TitaniumModule::PrototypePropertyDeleter(Local<String> property, const AccessorInfo& info)
+Handle<Boolean> TitaniumGlobal::PrototypePropertyDeleter(Local<String> property, const AccessorInfo& info)
 {
 	String::Utf8Value key(property);
 	LOGD(TAG, "PrototypePropertyDeleter %s", *key);
 	return False();
 }
 
-Handle<Array> TitaniumModule::PrototypePropertyEnumerator(const AccessorInfo& info)
+Handle<Array> TitaniumGlobal::PrototypePropertyEnumerator(const AccessorInfo& info)
 {
 	LOGD(TAG, "PrototypePropertyEnumerator");
 	HandleScope scope;
@@ -88,7 +88,7 @@ Handle<Array> TitaniumModule::PrototypePropertyEnumerator(const AccessorInfo& in
 	return scope.Close(array);
 }
 
-void TitaniumModule::Initialize(v8::Handle<v8::Object> target)
+void TitaniumGlobal::Initialize(v8::Handle<v8::Object> target)
 {
 	HandleScope scope;
 

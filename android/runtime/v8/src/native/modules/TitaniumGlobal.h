@@ -13,7 +13,7 @@
 namespace titanium {
 using namespace v8;
 
-class TitaniumModule
+class TitaniumGlobal
 {
 public:
 	static void Initialize(Handle<Object> target);
