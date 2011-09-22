@@ -211,59 +211,43 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 -(void)didReceiveMemoryWarning:(NSNotification*)notification
 {
-	if (registeredProxies != NULL) {
-		BOOL keepWarning = YES;
-        BOOL holdingLock = NO; // Keep track of whether or not the enumeration loop holds the lock
-		
-        OSSpinLockLock(&proxyLock);
-		int proxiesCount = CFDictionaryGetCount(registeredProxies);
+    OSSpinLockLock(&proxyLock);
+    if (registeredProxies == NULL) {
         OSSpinLockUnlock(&proxyLock);
+        [self gc];
+        return;
+    }
+    
+    BOOL keepWarning = YES;    
+    int proxiesCount = CFDictionaryGetCount(registeredProxies);
+    OSSpinLockUnlock(&proxyLock);
         
-		//During a memory panic, we may not get the chance to copy proxies.
-		while (keepWarning)
-		{
-			keepWarning = NO;
+    //During a memory panic, we may not get the chance to copy proxies.
+    while (keepWarning)
+    {
+        keepWarning = NO;
+        
+        for (id proxy in (NSDictionary *)registeredProxies)
+        {
+            [proxy didReceiveMemoryWarning:notification];
             
-			for (id proxy in (NSDictionary *)registeredProxies)
-			{
-                // Have to put this here, due to how fast enumeration is unrolled... we
-                // absolutely CAN'T allow the possibility that registeredProxies was screwed
-                // with between the end of the loop statement, and the check for mutation.
-                // See http://networkpx.blogspot.com/2009/07/analyzing-objective-cs-for-in-loop-fast.html
-                // for fun details on NSFastEnumeration unrolling in GCC. Could LLVM make this less dumb?
-                
-                if (holdingLock) {
-                    OSSpinLockUnlock(&proxyLock);
-                }
-                
-				[proxy didReceiveMemoryWarning:notification];
-				if (registeredProxies == NULL) {
-                    holdingLock = NO;
-					break;
-				}
-                
-                OSSpinLockLock(&proxyLock);
-				int newCount = CFDictionaryGetCount(registeredProxies);
+            OSSpinLockLock(&proxyLock);
+            if (registeredProxies == NULL) {
                 OSSpinLockUnlock(&proxyLock);
-                
-				if (newCount != proxiesCount)
-				{
-					proxiesCount = newCount;
-					keepWarning = YES;
-                    holdingLock = NO;
-					break;
-				}
-                
-                // ... See above for why we have to spinlock here.
-                OSSpinLockLock(&proxyLock);
-                holdingLock = YES;
-			}
-            
-            if (holdingLock) {
-                OSSpinLockUnlock(&proxyLock);
+                break;
             }
-		}
-	}
+            
+            int newCount = CFDictionaryGetCount(registeredProxies);
+            OSSpinLockUnlock(&proxyLock);
+
+            if (newCount != proxiesCount)
+            {
+                proxiesCount = newCount;
+                keepWarning = YES;
+                break;
+            }
+        }
+    }
 	
 	[self gc];
 }
@@ -286,7 +270,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 {
 	OSSpinLockLock(&proxyLock);
 	CFDictionaryRef oldProxies = registeredProxies;
-	registeredProxies = nil;
+	registeredProxies = NULL;
 	OSSpinLockUnlock(&proxyLock);
 	
 	for (id thisProxy in (NSDictionary *)oldProxies)
