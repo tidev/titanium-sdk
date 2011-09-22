@@ -17,9 +17,10 @@ public:
 	static JavaVM *javaVm;
 	static JNIEnv* getJNIEnv();
 	static void terminateVM();
-	static void initCache(JNIEnv *env);
+	static void initCache();
 	static jclass findClass(const char *className, JNIEnv *env = NULL);
-	static jmethodID getMethodID(jclass javaClass, const char *methodName, const char *signature, bool isStatic = false, JNIEnv *env = NULL);
+	static jmethodID getMethodID(jclass javaClass, const char *methodName, const char *signature, bool isStatic = false,
+		JNIEnv *env = NULL);
 	static void logClassName(const char *format, jclass javaClass);
 
 	static jobjectArray newObjectArray(int length, jobject initial = NULL);
@@ -81,6 +82,33 @@ public:
 	static jmethodID eventListenerPostEventMethod;
 
 };
+
+class JNIScope
+{
+public:
+	JNIScope(JNIEnv *env)
+			: prev(current)
+	{
+		current = env;
+	}
+	~JNIScope()
+	{
+		current = prev;
+	}
+	static JNIEnv* getEnv()
+	{
+		return current != NULL ? current : JNIUtil::getJNIEnv();
+	}
+private:
+	JNIScope(const JNIScope&);
+	void operator=(const JNIScope&);
+	void* operator new(size_t size);
+	void operator delete(void*, size_t);
+
+	static JNIEnv* current;
+	JNIEnv* prev;
+};
+
 }
 
 #endif

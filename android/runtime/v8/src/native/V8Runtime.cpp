@@ -8,7 +8,7 @@
 #include <string.h>
 
 #include "AndroidUtil.h"
-#include "APIModule.h"
+#include "TitaniumGlobal.h"
 #include "Assets.h"
 #include "EventEmitter.h"
 #include "JavaObject.h"
@@ -82,6 +82,10 @@ static Handle<Value> binding(const Arguments& args)
 		exports = Object::New();
 		ScriptsModule::Initialize(exports);
 		binding_cache->Set(module, exports);
+	} else if (strcmp(*module_v, "titanium") == 0) {
+		exports = Object::New();
+		TitaniumGlobal::Initialize(exports);
+		binding_cache->Set(module, exports);
 	} else {
 		return ThrowException(Exception::Error(String::New("No such module")));
 	}
@@ -91,9 +95,8 @@ static Handle<Value> binding(const Arguments& args)
 /* static */
 void V8Runtime::bootstrap(Local<Object> global)
 {
-	global->Set(String::NewSymbol("binding"), FunctionTemplate::New(binding)->GetFunction());
-	global->Set(String::NewSymbol("EventEmitter"), EventEmitter::constructorTemplate->GetFunction());
-	global->Set(String::NewSymbol("API"), APIModule::init());
+	DEFINE_METHOD(global, "binding", binding);
+	DEFINE_METHOD(global, "EventEmitter", EventEmitter::constructorTemplate->GetFunction());
 
 	TryCatch tryCatch;
 	Handle<Value> result = ExecuteString(KrollJavaScript::MainSource(), IMMUTABLE_STRING_LITERAL("kroll.js"));
@@ -117,6 +120,13 @@ void V8Runtime::bootstrap(Local<Object> global)
 		LOGE(TAG, "has caught!!");
 		JNIUtil::terminateVM();
 	}
+
+	titanium::initKrollProxy(global);
+
+	titanium::KrollModule::Initialize(global);
+	titanium::BufferProxy::Initialize(global);
+	titanium::UtilsModule::Initialize(global);
+	titanium::TiBlob::Initialize(global);
 }
 
 static jobject jruntime;
@@ -134,27 +144,29 @@ extern "C" {
  */
 JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jobject self, jboolean useGlobalRefs)
 {
+	titanium::JNIScope jniScope(env);
 	HandleScope scope;
 
 	LOGD(TAG, "V8Runtime_nativeInit");
 	titanium::JavaObject::useGlobalRefs = useGlobalRefs;
 	titanium::jruntime = env->NewGlobalRef(self);
-	titanium::JNIUtil::initCache(env);
+	titanium::JNIUtil::initCache();
 
 	Persistent<Context> context = Persistent<Context>::New(Context::New());
 	context->Enter();
+	titanium::V8Runtime::globalContext = context;
 
 	Local<Object> global = context->Global();
 
 	// TODO - these will be generated
 	titanium::EventEmitter::Initialize();
 
-	titanium::initKrollProxy(global, env);
-	titanium::KrollModule::Initialize(global, env);
-	titanium::BufferProxy::Initialize(global, env);
-	titanium::UtilsModule::Initialize(global, env);
-	titanium::TiBlob::Initialize(global, env);
-	titanium::ActivityProxy::Initialize(global, env);
+	titanium::initKrollProxy(global);
+	titanium::KrollModule::Initialize(global);
+	titanium::BufferProxy::Initialize(global);
+	titanium::UtilsModule::Initialize(global);
+	titanium::TiBlob::Initialize(global);
+	titanium::ActivityProxy::Initialize(global);
 
 	titanium::V8Runtime::bootstrap(global);
 

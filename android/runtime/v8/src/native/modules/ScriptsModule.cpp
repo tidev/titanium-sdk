@@ -90,8 +90,7 @@ void WrappedContext::Initialize(Handle<Object> target)
 {
 	HandleScope scope;
 
-	Local<FunctionTemplate> t = FunctionTemplate::New(WrappedContext::New);
-	constructor_template = Persistent<FunctionTemplate>::New(t);
+	constructor_template = Persistent<FunctionTemplate>::New(FunctionTemplate::New(WrappedContext::New));
 	constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
 	constructor_template->SetClassName(String::NewSymbol("Context"));
 
@@ -149,8 +148,7 @@ void WrappedScript::Initialize(Handle<Object> target)
 {
 	HandleScope scope;
 
-	Local<FunctionTemplate> t = FunctionTemplate::New(WrappedScript::New);
-	constructor_template = Persistent<FunctionTemplate>::New(t);
+	constructor_template = Persistent<FunctionTemplate>::New(FunctionTemplate::New(WrappedScript::New));
 	constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
 	constructor_template->SetClassName(String::NewSymbol("Script"));
 
