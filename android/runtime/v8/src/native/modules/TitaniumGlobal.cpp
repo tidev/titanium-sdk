@@ -12,6 +12,7 @@
 #include "V8Util.h"
 #include "AndroidUtil.h"
 #include "APIModule.h"
+#include "ModuleFactory.h"
 
 namespace titanium {
 using namespace v8;
@@ -98,6 +99,7 @@ void TitaniumGlobal::Initialize(v8::Handle<v8::Object> target)
 		PrototypePropertyQuery, PrototypePropertyDeleter, PrototypePropertyEnumerator, Undefined());
 
 	instance = Persistent<Object>::New(constructor_template->GetFunction()->NewInstance());
+	ModuleFactory::InitializeModule("titanium", instance);
 	target->Set(String::NewSymbol("Titanium"), instance);
 }
 
