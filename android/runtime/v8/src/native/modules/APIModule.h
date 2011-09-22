@@ -16,7 +16,7 @@ using namespace v8;
 class APIModule
 {
 public:
-	static Handle<Object> Initialize();
+	static void Initialize(Handle<Object> target);
 	static Handle<Value> logDebug(const Arguments& args);
 	static Handle<Value> logInfo(const Arguments& args);
 	static Handle<Value> logWarn(const Arguments& args);

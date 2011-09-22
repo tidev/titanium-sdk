@@ -32,7 +32,7 @@ using namespace v8;
 Persistent<FunctionTemplate> APIModule::constructor_template;
 
 
-Handle<Object> APIModule::Initialize()
+void APIModule::Initialize(Handle<Object> target)
 {
 	HandleScope scope;
 	constructor_template = Persistent<FunctionTemplate>::New(FunctionTemplate::New());
@@ -46,7 +46,7 @@ Handle<Object> APIModule::Initialize()
 	DEFINE_PROTOTYPE_METHOD(constructor_template, "fatal", logFatal);
 	DEFINE_PROTOTYPE_METHOD(constructor_template, "log", log);
 
-	return scope.Close(constructor_template->GetFunction()->NewInstance());
+	target->Set(String::NewSymbol("API"), constructor_template->GetFunction()->NewInstance());
 }
 
 

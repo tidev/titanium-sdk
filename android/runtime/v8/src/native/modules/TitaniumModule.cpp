@@ -32,16 +32,30 @@ Handle<Value> TitaniumModule::PrototypePropertyGetter(Local<String> property, co
 	}
 	Handle<Object> exports;
 	if (property_cache->Has(property)) {
-		return property_cache->Get(property)->ToObject();
+		Local<Object> value = property_cache->Get(property)->ToObject();
+		TitaniumModule::instance->ForceSet(property, value);
+		return value;
 	} else if (strcmp(*property_v, "API") == 0) {
-		exports = APIModule::Initialize();
+		exports = Object::New();
+		APIModule::Initialize(exports);
 	} else {
 		LOGW(TAG, "No such Titanium property %s", *property_v);
 		return Undefined();
 	}
-	property_cache->Set(property, exports);
-	TitaniumModule::instance->ForceSet(property, exports);
-	return exports;
+	Local<Array> keys = exports->GetPropertyNames();
+	for (unsigned int i = 0; i < keys->Length(); ++i) {
+		Handle<String> key = keys->Get(Integer::New(i))->ToString();
+		String::Utf8Value key_v(key);
+		LOGD(TAG, "initialized Titanium.%s", *key_v);
+		Handle<Value> value = exports->Get(key);
+		if (value == exports) {
+			value = TitaniumModule::instance;
+		}
+		property_cache->Set(key, value);
+		TitaniumModule::instance->ForceSet(key, value);
+	}
+
+	return scope.Close(exports->Get(property));
 }
 
 Handle<Value> TitaniumModule::PrototypePropertySetter(Local<String> property, Local<Value> value,
