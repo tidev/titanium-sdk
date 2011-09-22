@@ -17,6 +17,7 @@ SRC_FILES := \
 	V8Object.cpp \
 	V8Runtime.cpp \
 	V8Util.cpp \
+	modules/TitaniumModule.cpp \
 	modules/APIModule.cpp \
 	modules/ScriptsModule.cpp \
 	$(PROXY_SOURCES)

@@ -8,7 +8,7 @@
 #include <string.h>
 
 #include "AndroidUtil.h"
-#include "APIModule.h"
+#include "TitaniumModule.h"
 #include "Assets.h"
 #include "EventEmitter.h"
 #include "JNIUtil.h"
@@ -94,6 +94,10 @@ static Handle<Value> binding(const Arguments& args)
 		exports = Object::New();
 		ScriptsModule::Initialize(exports);
 		binding_cache->Set(module, exports);
+	} else if (strcmp(*module_v, "titanium") == 0) {
+		exports = Object::New();
+		TitaniumModule::Initialize(exports);
+		binding_cache->Set(module, exports);
 	} else {
 		return ThrowException(Exception::Error(String::New("No such module")));
 	}
@@ -105,9 +109,8 @@ void V8Runtime::bootstrap(Local<Object> global)
 {
 	EventEmitter::Initialize();
 
-	global->Set(String::NewSymbol("binding"), FunctionTemplate::New(binding)->GetFunction());
+	DEFINE_METHOD(global, "binding", binding);
 	global->Set(String::NewSymbol("EventEmitter"), EventEmitter::constructorTemplate->GetFunction());
-	global->Set(String::NewSymbol("API"), APIModule::init());
 
 	TryCatch tryCatch;
 	Handle<Value> result = ExecuteString(KrollJavaScript::MainSource(), IMMUTABLE_STRING_LITERAL("kroll.js"));
