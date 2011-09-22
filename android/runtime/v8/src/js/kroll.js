@@ -1,16 +1,21 @@
-(function(self) {
-	global = self;
+(function(kroll) {
+	global = this;
 
 	function startup() {
 		startup.globalVariables();
+		startup.runMain();
 	}
 
 	startup.globalVariables = function() {
-		global.Ti = global;
-		global.Titanium = global;
+		global.kroll = kroll;
+		global.Ti = global.Titanium = NativeModule.require('titanium');
+		//var Module = NativeModule.require('module');
+	};
+	
+	startup.runMain = function() {
 	};
 
-	var runInThisContext = self.binding('evals').Script.runInThisContext;
+	var runInThisContext = kroll.binding('evals').Script.runInThisContext;
 
 	function NativeModule(id) {
 		this.filename = id + '.js';
@@ -19,7 +24,7 @@
 		this.loaded = false;
 	}
 
-	NativeModule._source = self.binding('natives');
+	NativeModule._source = kroll.binding('natives');
 	NativeModule._cache = {};
 
 	NativeModule.require = function(id) {

@@ -24,6 +24,9 @@ SRC_FILES := \
 
 JS_FILES := \
 	$(SRC_JS_DIR)/kroll.js \
+	$(SRC_JS_DIR)/titanium.js \
+	$(SRC_JS_DIR)/vm.js \
+	$(SRC_JS_DIR)/module.js \
 	$(SRC_JS_DIR)/events.js
 
 $(LOCAL_PATH)/KrollJavaScript.cpp: $(GENERATED_DIR)/KrollNatives.h $(GENERATED_DIR)/ModuleInit.h
