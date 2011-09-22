@@ -134,6 +134,13 @@ void V8Runtime::bootstrap(Local<Object> global)
 		LOGE(TAG, "has caught!!");
 		JNIUtil::terminateVM();
 	}
+
+	titanium::initKrollProxy(global, titanium::JNIScope::getEnv());
+
+	titanium::KrollModule::Initialize(global, titanium::JNIScope::getEnv());
+	titanium::BufferProxy::Initialize(global, titanium::JNIScope::getEnv());
+	titanium::UtilsModule::Initialize(global, titanium::JNIScope::getEnv());
+	titanium::TiBlob::Initialize(global, titanium::JNIScope::getEnv());
 }
 
 static jobject jruntime;
@@ -161,17 +168,10 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeI
 
 	Persistent<Context> context = Persistent<Context>::New(Context::New());
 	context->Enter();
+	titanium::V8Runtime::globalContext = context;
 
 	Local<Object> global = context->Global();
 	titanium::V8Runtime::bootstrap(global);
-
-	titanium::initKrollProxy(global, env);
-	titanium::V8Runtime::globalContext = context;
-
-	titanium::KrollModule::Initialize(global, env);
-	titanium::BufferProxy::Initialize(global, env);
-	titanium::UtilsModule::Initialize(global, env);
-	titanium::TiBlob::Initialize(global, env);
 
 	Persistent<Object> wrappedContext(titanium::ScriptsModule::WrapContext(context));
 	return (jlong) *wrappedContext;
