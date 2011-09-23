@@ -14,6 +14,11 @@
 namespace titanium {
 using namespace internal;
 
+bool ModuleFactory::hasModule(const char *moduleName)
+{
+	return !!ModuleHash::lookupModuleInit(moduleName, strlen(moduleName));
+}
+
 bool ModuleFactory::initModule(const char *moduleName, v8::Handle<v8::Object> target)
 {
 	moduleInit* module = ModuleHash::lookupModuleInit(moduleName, strlen(moduleName));

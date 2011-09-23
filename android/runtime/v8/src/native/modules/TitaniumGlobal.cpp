@@ -21,7 +21,6 @@ using namespace v8;
 
 Persistent<FunctionTemplate> TitaniumGlobal::constructor_template;
 Persistent<Object> TitaniumGlobal::instance;
-static Persistent<Object> property_cache;
 
 Handle<Value> TitaniumGlobal::PrototypePropertyGetter(Local<String> property, const AccessorInfo& info)
 {
@@ -33,12 +32,12 @@ Handle<Value> TitaniumGlobal::PrototypePropertyGetter(Local<String> property, co
 	if (strcmp(*propertyValue, "API") == 0) {
 		exports = Object::New();
 		APIModule::Initialize(exports);
-	} else {
+	} else if (ModuleFactory::hasModule(*propertyValue)) {
 		exports = Object::New();
-		if (!ModuleFactory::initModule(*propertyValue, exports)) {
-			LOGW(TAG, "Titanium.%s does not exist", *propertyValue);
-			return Undefined();
-		}
+		ModuleFactory::initModule(*propertyValue, exports);
+	} else {
+		LOGW(TAG, "Titanium.%s does not exist", *propertyValue);
+		return Undefined();
 	}
 	Local<Array> keys = exports->GetPropertyNames();
 	for (unsigned int i = 0; i < keys->Length(); ++i) {
