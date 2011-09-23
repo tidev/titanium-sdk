@@ -1,6 +1,7 @@
 #include <v8.h>
 
 #include "AndroidUtil.h"
+#include "JNIUtil.h"
 #include "EventListener.h"
 #include "JavaObject.h"
 #include "JSException.h"
@@ -47,6 +48,7 @@ using namespace titanium;
 
 jlong Java_org_appcelerator_kroll_runtime_v8_EventListener_nativeInit(JNIEnv *env, jobject listener)
 {
+	titanium::JNIScope jniScope(env);
 	HandleScope scope;
 
 	JavaObject *o = new JavaObject(listener);
@@ -57,6 +59,7 @@ jlong Java_org_appcelerator_kroll_runtime_v8_EventListener_nativeInit(JNIEnv *en
 
 void Java_org_appcelerator_kroll_runtime_v8_EventListener_nativeDispose(JNIEnv *env, jobject listener, jlong ptr)
 {
+	titanium::JNIScope jniScope(env);
 	HandleScope scope;
 	JavaObject *o = (JavaObject *) ptr;
 

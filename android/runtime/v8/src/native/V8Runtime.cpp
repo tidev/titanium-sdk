@@ -170,6 +170,7 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeI
  */
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDispose(JNIEnv *env, jclass clazz)
 {
+	titanium::JNIScope jniScope(env);
 	LOGD(TAG, "disposing global context");
 	titanium::V8Runtime::globalContext->Exit();
 

@@ -13,6 +13,7 @@
 #include "EventListener.h"
 #include "TypeConverter.h"
 #include "V8Util.h"
+#include "JNIUtil.h"
 #include "V8Runtime.h"
 
 #define TAG "EventEmitter"
@@ -97,6 +98,7 @@ extern "C" {
 
 jboolean Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeFireEvent(JNIEnv *env, jobject jEmitter, jlong ptr, jstring event, jobject data)
 {
+	titanium::JNIScope jniScope(env);
 	HandleScope scope;
 
 	Handle<Object> emitter = TypeConverter::javaObjectToJsValue(jEmitter)->ToObject();
@@ -122,6 +124,7 @@ jboolean Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeFireEvent(JNI
 
 void Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeAddEventListener(JNIEnv *env, jobject jEmitter, jlong ptr, jstring event, jlong listenerPtr)
 {
+	titanium::JNIScope jniScope(env);
 	HandleScope scope;
 
 	Handle<Object> emitter = TypeConverter::javaObjectToJsValue(jEmitter)->ToObject();
@@ -135,6 +138,7 @@ void Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeAddEventListener(
 
 void Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeRemoveEventListener(JNIEnv *env, jobject jEmitter, jlong ptr, jstring event, jlong listenerPtr)
 {
+	titanium::JNIScope jniScope(env);
 	HandleScope scope;
 
 	Handle<Object> emitter = TypeConverter::javaObjectToJsValue(jEmitter)->ToObject();
@@ -148,6 +152,7 @@ void Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeRemoveEventListen
 
 jboolean Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeHasListeners(JNIEnv *env, jobject jEmitter, jlong ptr, jstring event)
 {
+	titanium::JNIScope jniScope(env);
 	HandleScope scope;
 	Handle<Object> emitter = TypeConverter::javaObjectToJsValue(jEmitter)->ToObject();
 
