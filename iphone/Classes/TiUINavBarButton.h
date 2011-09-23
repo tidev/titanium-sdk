@@ -6,15 +6,16 @@
  */
 #ifdef USE_TI_UIBUTTON
 
-#import "TiProxy.h"
+#import "TiViewProxy.h"
 
 @class TiUIView;
 
 @interface TiUINavBarButton : UIBarButtonItem<TiProxyDelegate> {
 @private
-	TiProxy *proxy;
+	TiViewProxy *proxy;
 	TiUIView *activityDelegate;
 }
+@property(nonatomic,readonly) TiViewProxy* proxy;
 
 -(id)initWithProxy:(TiProxy*)proxy;
 
