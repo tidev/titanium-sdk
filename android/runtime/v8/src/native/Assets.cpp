@@ -16,7 +16,7 @@ using namespace titanium;
 
 v8::Handle<v8::Primitive> Assets::readResource(const char* path)
 {
-	JNIEnv *env = JNIUtil::getJNIEnv();
+	JNIEnv *env = JNIScope::getEnv();
 	if (!env) {
 		return v8::Null();
 	}

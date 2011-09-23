@@ -30,7 +30,7 @@ Handle<Value> EventListener::postEvent(const Arguments& args)
 	}
 
 	jobject listener = NativeObject<JavaObject>::Unwrap(args.Data())->getJavaObject();
-	JNIEnv *env = JNIUtil::getJNIEnv();
+	JNIEnv *env = JNIScope::getEnv();
 	if (!env) {
 		return JSException::GetJNIEnvironmentError();
 	}

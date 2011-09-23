@@ -81,7 +81,7 @@ v8::Handle<v8::Boolean> TypeConverter::javaBooleanToJsBoolean(jboolean javaBoole
 
 jstring TypeConverter::jsStringToJavaString(v8::Handle<v8::String> jsString)
 {
-	JNIEnv *env = JNIUtil::getJNIEnv();
+	JNIEnv *env = JNIScope::getEnv();
 	if (env == NULL) {
 		return NULL;
 	}
@@ -92,7 +92,7 @@ jstring TypeConverter::jsStringToJavaString(v8::Handle<v8::String> jsString)
 
 jstring TypeConverter::jsValueToJavaString(v8::Handle<v8::Value> jsValue)
 {
-	JNIEnv *env = JNIUtil::getJNIEnv();
+	JNIEnv *env = JNIScope::getEnv();
 	if (env == NULL) {
 		return NULL;
 	}
@@ -104,7 +104,7 @@ jstring TypeConverter::jsValueToJavaString(v8::Handle<v8::Value> jsValue)
 
 v8::Handle<v8::String> TypeConverter::javaStringToJsString(jstring javaString)
 {
-	JNIEnv *env = JNIUtil::getJNIEnv();
+	JNIEnv *env = JNIScope::getEnv();
 	if (env == NULL) {
 		return v8::Handle<v8::String>();
 	}
@@ -120,7 +120,7 @@ v8::Handle<v8::String> TypeConverter::javaStringToJsString(jstring javaString)
 
 jobject TypeConverter::jsDateToJavaDate(v8::Handle<v8::Date> jsDate)
 {
-	JNIEnv *env = JNIUtil::getJNIEnv();
+	JNIEnv *env = JNIScope::getEnv();
 	if (env == NULL) {
 		return NULL;
 	}
@@ -135,7 +135,7 @@ jlong TypeConverter::jsDateToJavaLong(v8::Handle<v8::Date> jsDate)
 
 v8::Handle<v8::Date> TypeConverter::javaDateToJsDate(jobject javaDate)
 {
-	JNIEnv *env = JNIUtil::getJNIEnv();
+	JNIEnv *env = JNIScope::getEnv();
 	if (env == NULL) {
 		return v8::Handle<v8::Date>();
 	}
@@ -149,13 +149,11 @@ v8::Handle<v8::Date> TypeConverter::javaLongToJsDate(jlong javaLong)
 	return v8::Handle<v8::Date>::Cast(v8::Date::New((double) javaLong));
 }
 
-jobjectArray TypeConverter::jsArgumentsToJavaArray(const Arguments& args, JNIEnv* env)
+jobjectArray TypeConverter::jsArgumentsToJavaArray(const Arguments& args)
 {
-	// Use the JNI environment if one is provided from the caller.
+	JNIEnv *env = JNIScope::getEnv();
 	if (!env) {
-		env = JNIUtil::getJNIEnv();
-		if (!env)
-			return NULL;
+		return NULL;
 	}
 
 	HandleScope scope;
@@ -175,7 +173,7 @@ jobjectArray TypeConverter::jsArgumentsToJavaArray(const Arguments& args, JNIEnv
 
 jarray TypeConverter::jsArrayToJavaArray(v8::Handle<v8::Array> jsArray)
 {
-	JNIEnv *env = JNIUtil::getJNIEnv();
+	JNIEnv *env = JNIScope::getEnv();
 	if (env == NULL) {
 		return NULL;
 	}
@@ -195,7 +193,7 @@ jarray TypeConverter::jsArrayToJavaArray(v8::Handle<v8::Array> jsArray)
 
 v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray(jbooleanArray javaBooleanArray)
 {
-	JNIEnv *env = JNIUtil::getJNIEnv();
+	JNIEnv *env = JNIScope::getEnv();
 	if (env == NULL) {
 		return v8::Handle<v8::Array>();
 	}
@@ -238,7 +236,7 @@ v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray(jdoubleArray javaDoubleA
 
 v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray(jobjectArray javaObjectArray)
 {
-	JNIEnv *env = JNIUtil::getJNIEnv();
+	JNIEnv *env = JNIScope::getEnv();
 	if (env == NULL) {
 		return v8::Handle<v8::Array>();
 	}
@@ -260,7 +258,7 @@ v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray(jobjectArray javaObjectA
 // object is a container type
 jobject TypeConverter::jsValueToJavaObject(v8::Local<v8::Value> jsValue)
 {
-	JNIEnv *env = JNIUtil::getJNIEnv();
+	JNIEnv *env = JNIScope::getEnv();
 	if (env == NULL) {
 		return NULL;
 	}
@@ -317,7 +315,7 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 		return v8::Null();
 	}
 
-	JNIEnv *env = JNIUtil::getJNIEnv();
+	JNIEnv *env = JNIScope::getEnv();
 	if (env == NULL) {
 		return v8::Handle<v8::Value>();
 	}
@@ -382,7 +380,7 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 // arrays to to the generic js number type 
 v8::Handle<v8::Array> TypeConverter::javaDoubleArrayToJsNumberArray(jdoubleArray javaDoubleArray)
 {
-	JNIEnv *env = JNIUtil::getJNIEnv();
+	JNIEnv *env = JNIScope::getEnv();
 	if (env == NULL) {
 		return v8::Handle<v8::Array>();
 	}
