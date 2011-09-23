@@ -100,7 +100,11 @@
 
 -(void)removeBarButtonView
 {
-	RELEASE_TO_NIL(button);
+    // If we remove the button here, it could be the case that the system
+    // sends a message to a released UIControl on the interior of the button,
+    // causing a crash. Very timing-dependent.
+    
+    //	RELEASE_TO_NIL(button);
     [super removeBarButtonView];
 }
 

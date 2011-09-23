@@ -777,12 +777,14 @@ else{\
         {
             [(TiViewProxy*)[item proxy] removeBarButtonView];
         }
+        controller.navigationItem.rightBarButtonItem = nil;
         
         item = controller.navigationItem.rightBarButtonItem;
         if ([item respondsToSelector:@selector(proxy)]) 
         {
             [(TiViewProxy*)[item proxy] removeBarButtonView];
         }
+        controller.navigationItem.rightBarButtonItem = nil;
     }
 }
 
