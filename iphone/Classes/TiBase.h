@@ -106,7 +106,7 @@ x = (t*)[x objectAtIndex:0]; \
 } \
 if (![x isKindOfClass:[t class]]) \
 {\
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[x class],[t class]] location:CODELOCATION]; \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[t class],[x class]] location:CODELOCATION]; \
 }\
 
 #define ENSURE_SINGLE_ARG_OR_NIL(x,t) \
@@ -118,7 +118,7 @@ x = (t*)[x objectAtIndex:0]; \
 } \
 if (![x isKindOfClass:[t class]]) \
 {\
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[x class],[t class]] location:CODELOCATION]; \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[t class],[x class]] location:CODELOCATION]; \
 }\
 }\
 
@@ -129,7 +129,7 @@ out = (type*)[args objectAtIndex:index]; \
 } \
 if (![out isKindOfClass:[type class]]) \
 { \
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[out class],[type class]] location:CODELOCATION]; \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[type class],[out class]] location:CODELOCATION]; \
 } \
 
 
@@ -146,7 +146,7 @@ else { \
 out = nil; \
 } \
 if (out && ![out isKindOfClass:[type class]]) { \
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[out class],[type class]] location:CODELOCATION]; \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[type class],[out class]] location:CODELOCATION]; \
 } \
 } \
 
@@ -232,7 +232,7 @@ if (IS_NULL_OR_NIL(x))	\
 }	\
 else if (![x isKindOfClass:t])	\
 { \
-	[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@ or nil, was: %@",t,[x class]] location:CODELOCATION]; \
+	[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@ or nil, was: %@",[x class],t] location:CODELOCATION]; \
 }\
 
 #define ENSURE_TYPE_OR_NIL(x,t) ENSURE_CLASS_OR_NIL(x,[t class])
