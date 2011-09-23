@@ -5,11 +5,17 @@ import os, sys, json
 GPERF_HEADER = """
 %%define lookup-function-name lookupModuleInit
 %%{
+#include <string.h>
+#include <v8.h>
 %s
-namespace titanium {
+namespace internal {
+typedef void (*ModuleInit)(v8::Handle<v8::Object> target);
+using namespace titanium;
+
+%s
 
 %%}
-struct moduleInit { const char *moduleName, ModuleInit fn };
+struct moduleInit { const char *name; ModuleInit fn; };
 %%%%
 """
 
@@ -41,17 +47,18 @@ for bindingPath in bindingPaths:
 code += "%%\n"
 
 headers = ""
+modules_code = ""
 for bindingPath in bindingPaths:
 	moduleName = os.path.basename(bindingPath).replace(".json", "")
 	binding = json.load(open(bindingPath))
-	code += "void _%s_init(Handle<Object> ti)\n{\n" % moduleName
+	modules_code += "static void _%s_init(v8::Handle<v8::Object> target)\n{\n" % moduleName
 
 	for proxy in binding["proxies"]:
 		headers += "#include \"%s.h\"\n" % proxy
-		code += "\t%s::Initialize(ti);\n" % binding["proxies"][proxy]["proxyClassName"]
-	code += "}\n"
+		modules_code += "\t%s::Initialize(target);\n" % binding["proxies"][proxy]["proxyClassName"]
+	modules_code += "}\n"
 
-print (GPERF_HEADER % headers) + code + GPERF_FOOTER
+print (GPERF_HEADER % (headers, modules_code)) + code + GPERF_FOOTER
 
 
 

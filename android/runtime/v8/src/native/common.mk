@@ -16,7 +16,7 @@ SRC_FILES := \
 	JavaObject.cpp \
 	JNIUtil.cpp \
 	KrollJavaScript.cpp \
-	KrollProxy.cpp \
+	ModuleFactory.cpp \
 	ProxyFactory.cpp \
 	TypeConverter.cpp \
 	V8Object.cpp \

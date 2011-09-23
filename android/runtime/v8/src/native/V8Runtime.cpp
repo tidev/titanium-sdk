@@ -14,16 +14,10 @@
 #include "JavaObject.h"
 #include "JNIUtil.h"
 #include "KrollJavaScript.h"
-#include "KrollProxy.h"
 #include "ScriptsModule.h"
 #include "TypeConverter.h"
 #include "V8Util.h"
 
-#include "org.appcelerator.kroll.KrollModule.h"
-#include "ti.modules.titanium.BufferProxy.h"
-#include "ti.modules.titanium.utils.UtilsModule.h"
-#include "org.appcelerator.titanium.TiBlob.h"
-#include "org.appcelerator.titanium.proxy.ActivityProxy.h"
 #include "V8Runtime.h"
 
 #define TAG "V8Runtime"
@@ -120,13 +114,6 @@ void V8Runtime::bootstrap(Local<Object> global)
 		LOGE(TAG, "has caught!!");
 		JNIUtil::terminateVM();
 	}
-
-	titanium::initKrollProxy(global);
-
-	titanium::KrollModule::Initialize(global);
-	titanium::BufferProxy::Initialize(global);
-	titanium::UtilsModule::Initialize(global);
-	titanium::TiBlob::Initialize(global);
 }
 
 static jobject jruntime;
@@ -161,12 +148,12 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeI
 	// TODO - these will be generated
 	titanium::EventEmitter::Initialize();
 
-	titanium::initKrollProxy(global);
-	titanium::KrollModule::Initialize(global);
+	//titanium::initKrollProxy(global);
+	/*titanium::KrollModule::Initialize(global);
 	titanium::BufferProxy::Initialize(global);
 	titanium::UtilsModule::Initialize(global);
 	titanium::TiBlob::Initialize(global);
-	titanium::ActivityProxy::Initialize(global);
+	titanium::ActivityProxy::Initialize(global);*/
 
 	titanium::V8Runtime::bootstrap(global);
 

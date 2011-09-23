@@ -25,4 +25,4 @@ GEN_BOOTSTRAP := $(THIS_DIR)/../../../../build/genBootstrap.py
 
 $(GENERATED_DIR)/ModuleInit.h:
 	mkdir $(GENERATED_DIR) || echo
-	python $(GEN_BOOTSTRAP) | gperf -t > $(GENERATED_DIR)/ModuleInit.h
+	python $(GEN_BOOTSTRAP) | gperf -L C++ -Z ModuleHash -t > $(GENERATED_DIR)/ModuleInit.h
