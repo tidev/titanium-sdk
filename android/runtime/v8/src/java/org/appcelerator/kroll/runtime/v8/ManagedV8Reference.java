@@ -8,7 +8,7 @@ package org.appcelerator.kroll.runtime.v8;
 
 /* package */abstract class ManagedV8Reference
 {
-	protected long ptr;
+	protected volatile long ptr;
 
 	protected ManagedV8Reference() {}
 	protected ManagedV8Reference(long ptr)

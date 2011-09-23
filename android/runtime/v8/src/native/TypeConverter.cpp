@@ -354,17 +354,16 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 
 		return jsObject;
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::krollProxyClass)) {
-		jlong v8ObjectPointer = env->CallLongMethod(javaObject, JNIUtil::krollProxyGetPointerMethod);
+		jlong v8ObjectPointer = env->GetLongField(javaObject, JNIUtil::managedV8ReferencePtrField);
 		if (v8ObjectPointer != 0) {
-			v8::Handle<v8::Object> v8ObjectPointerHandle((v8::Object*) v8ObjectPointer);
-			return v8ObjectPointerHandle;
+			return Persistent<Object>((Object *) v8ObjectPointer);
 		} else {
 			jclass javaObjectClass = env->GetObjectClass(javaObject);
 			v8::Handle<v8::Object> proxyHandle = ProxyFactory::createV8Proxy(javaObjectClass, javaObject);
 			env->DeleteLocalRef(javaObjectClass);
 
 			// set the pointer back on the java proxy
-			env->CallVoidMethod(javaObject, JNIUtil::krollProxySetPointerMethod, (jlong) *proxyHandle);
+			env->SetLongField(javaObject, JNIUtil::managedV8ReferencePtrField, (jlong) *proxyHandle);
 			return proxyHandle;
 		}
 	}

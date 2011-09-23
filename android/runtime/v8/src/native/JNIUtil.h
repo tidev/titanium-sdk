@@ -19,9 +19,9 @@ public:
 	static JNIEnv* getJNIEnv();
 	static void terminateVM();
 	static void initCache();
-	static jclass findClass(const char *className, JNIEnv *env = NULL);
-	static jmethodID getMethodID(jclass javaClass, const char *methodName, const char *signature, bool isStatic = false,
-		JNIEnv *env = NULL);
+	static jclass findClass(const char *className);
+	static jmethodID getMethodID(jclass javaClass, const char *methodName, const char *signature, bool isStatic = false);
+	static jfieldID getFieldID(jclass javaClass, const char *fieldName, const char *signature);
 	static void logClassName(const char *format, jclass javaClass, bool errorLevel = false);
 
 	static jobjectArray newObjectArray(int length, jobject initial = NULL);
@@ -51,6 +51,7 @@ public:
 	// Titanium classes
 	static jclass krollProxyClass;
 	static jclass v8ObjectClass;
+	static jclass managedV8ReferenceClass;
 	static jclass assetsClass;
 	static jclass eventListenerClass;
 
@@ -74,8 +75,7 @@ public:
 	static jmethodID numberDoubleValueMethod;
 
 	// Titanium methods
-	static jmethodID krollProxyGetPointerMethod;
-	static jmethodID krollProxySetPointerMethod;
+	static jfieldID managedV8ReferencePtrField;
 	static jmethodID krollProxyCreateMethod;
 
 	static jmethodID v8ObjectInitMethod;
@@ -91,16 +91,13 @@ public:
 			: prev(current)
 	{
 		current = env;
-		LOGD("JNIScope", "Enter prev=%p", prev);
 	}
 	~JNIScope()
 	{
-		LOGD("JNIScope", "Exit prev=%p", prev);
 		current = prev;
 	}
 	static JNIEnv* getEnv()
 	{
-		LOGD("JNIScope", "Get Env=%p", current);
 		return current != NULL ? current : JNIUtil::getJNIEnv();
 	}
 private:
