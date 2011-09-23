@@ -42,6 +42,11 @@ public class CodecModule extends KrollModule
 	@Kroll.constant public static final int BIG_ENDIAN = 0;
 	@Kroll.constant public static final int LITTLE_ENDIAN = 1;
 
+	public CodecModule()
+	{
+		super();
+	}
+
 	public CodecModule(TiContext context)
 	{
 		super(context);

@@ -7,7 +7,6 @@
 #include <v8.h>
 #include "ModuleFactory.h"
 #include "JNIUtil.h"
-#include "KrollJavaScript.h"
 
 #include "ModuleInit.h"
 
@@ -18,10 +17,6 @@ bool ModuleFactory::InitializeModule(const char *moduleName, v8::Handle<v8::Obje
 {
 	moduleInit* module = ModuleHash::lookupModuleInit(moduleName, strlen(moduleName));
 	if (module) {
-		if (strcmp(moduleName, "titanium") == 0) {
-			KrollProxy::Initialize(target);
-			KrollJavaScript::initExtend(KrollProxy::proxyTemplate->PrototypeTemplate());
-		}
 		module->fn(target);
 	}
 	return (!!module);

@@ -50,6 +50,11 @@ public class TitaniumModule extends KrollModule
 	private Map<String, NumberFormat> numberFormats = java.util.Collections.synchronizedMap(
 		new HashMap<String, NumberFormat>());
 
+	public TitaniumModule()
+	{
+		super();
+	}
+
 	public TitaniumModule(TiContext tiContext)
 	{
 		super(tiContext);

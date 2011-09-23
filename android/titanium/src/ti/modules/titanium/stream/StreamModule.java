@@ -32,6 +32,10 @@ public class StreamModule extends KrollModule
 	private static final String LCAT = "StreamModule";
 	private static final boolean DBG = TiConfig.LOGD;
 
+	public StreamModule()
+	{
+		super();
+	}
 
 	public StreamModule(TiContext tiContext)
 	{

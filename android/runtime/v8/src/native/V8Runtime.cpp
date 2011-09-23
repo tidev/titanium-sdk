@@ -20,6 +20,7 @@
 
 #include "V8Runtime.h"
 
+
 #define TAG "V8Runtime"
 
 namespace titanium {
@@ -146,11 +147,9 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeI
 	Local<Object> global = context->Global();
 
 	// TODO - these will be generated
-	titanium::EventEmitter::Initialize();
+	titanium::KrollJavaScript::initBaseTypes(global);
 
-	//titanium::initKrollProxy(global);
-	/*titanium::KrollModule::Initialize(global);
-	titanium::BufferProxy::Initialize(global);
+	/*titanium::BufferProxy::Initialize(global);
 	titanium::UtilsModule::Initialize(global);
 	titanium::TiBlob::Initialize(global);
 	titanium::ActivityProxy::Initialize(global);*/

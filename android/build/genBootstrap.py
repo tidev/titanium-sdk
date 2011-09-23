@@ -12,14 +12,12 @@ namespace internal {
 typedef void (*ModuleInit)(v8::Handle<v8::Object> target);
 using namespace titanium;
 
-%s
-
 %%}
 struct moduleInit { const char *name; ModuleInit fn; };
 %%%%
 """
 
-GPERF_KEY = "%(moduleName)s, _%(moduleName)s_init\n"
+GPERF_KEY = "%(apiName)s, %(className)s::Initialize\n"
 
 GPERF_FOOTER = """
 }
@@ -39,27 +37,18 @@ for module in os.listdir(modulesDir):
 	if os.path.exists(jsonPath):
 		bindingPaths.append(jsonPath)
 
+headers = ""
 for bindingPath in bindingPaths:
-	moduleName = os.path.basename(bindingPath).replace(".json", "")
-	modules.append(moduleName)
-	code += GPERF_KEY % {"moduleName": moduleName}
+	binding = json.load(open(bindingPath))
+	for proxy in binding["proxies"]:
+		className = binding["proxies"][proxy]["proxyClassName"]
+		apiName = binding["proxies"][proxy]["proxyAttrs"]["fullAPIName"]
+		if className in ("KrollProxy", "KrollModule"): continue
+		apiName = apiName.replace("Titanium.", "")
+
+		code += GPERF_KEY % {"apiName": apiName, "className": className }
+		headers += "#include \"%s.h\"\n" % proxy
 
 code += "%%\n"
 
-headers = ""
-modules_code = ""
-for bindingPath in bindingPaths:
-	moduleName = os.path.basename(bindingPath).replace(".json", "")
-	binding = json.load(open(bindingPath))
-	modules_code += "static void _%s_init(v8::Handle<v8::Object> target)\n{\n" % moduleName
-
-	for proxy in binding["proxies"]:
-		headers += "#include \"%s.h\"\n" % proxy
-		modules_code += "\t%s::Initialize(target);\n" % binding["proxies"][proxy]["proxyClassName"]
-	modules_code += "}\n"
-
-print (GPERF_HEADER % (headers, modules_code)) + code + GPERF_FOOTER
-
-
-
-
+print (GPERF_HEADER % headers) + code + GPERF_FOOTER

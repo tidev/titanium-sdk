@@ -6,9 +6,13 @@
  */
 #include <v8.h>
 
-#include "V8Util.h"
+#include "EventEmitter.h"
 #include "KrollJavaScript.h"
+#include "V8Util.h"
 #include "../../generated/KrollNatives.h"
+
+#include "org.appcelerator.kroll.KrollProxy.h"
+#include "org.appcelerator.kroll.KrollModule.h"
 
 namespace titanium {
 using namespace v8;
@@ -46,10 +50,12 @@ static Handle<Value> Extend(const Arguments& args)
 	return Undefined();
 }
 
-void KrollJavaScript::initExtend(Handle<ObjectTemplate> objectTemplate)
+void KrollJavaScript::initBaseTypes(Handle<Object> global)
 {
-	HandleScope scope;
-	objectTemplate->Set(String::NewSymbol("extend"), FunctionTemplate::New(Extend)->GetFunction());
+	EventEmitter::Initialize();
+	KrollProxy::Initialize(global);
+	DEFINE_METHOD(KrollProxy::proxyTemplate, "extend", Extend);
+	KrollModule::Initialize(global);
 }
 
 }
