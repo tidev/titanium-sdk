@@ -14,6 +14,7 @@ namespace titanium {
 class ModuleFactory
 {
 public:
+	static bool HasModule(const char *moduleName);
 	static bool InitializeModule(const char *moduleName, v8::Handle<v8::Object> target);
 };
 

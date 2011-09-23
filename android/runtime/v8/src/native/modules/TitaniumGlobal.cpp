@@ -39,6 +39,9 @@ Handle<Value> TitaniumGlobal::PrototypePropertyGetter(Local<String> property, co
 	} else if (strcmp(*property_v, "API") == 0) {
 		exports = Object::New();
 		APIModule::Initialize(exports);
+	} else if (ModuleFactory::HasModule(*property_v)) {
+		exports = Object::New();
+		ModuleFactory::InitializeModule(*property_v, exports);
 	} else {
 		LOGW(TAG, "No such Titanium property %s", *property_v);
 		return Undefined();
