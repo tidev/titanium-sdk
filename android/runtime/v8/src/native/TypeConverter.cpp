@@ -320,8 +320,6 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 		return v8::Handle<v8::Value>();
 	}
 
-	jclass javaObjectClass = env->GetObjectClass(javaObject);
-
 	if (env->IsInstanceOf(javaObject, JNIUtil::numberClass)) {
 		jdouble javaDouble = env->CallDoubleMethod(javaObject, JNIUtil::numberDoubleValueMethod);
 		return v8::Number::New((double) javaDouble);
@@ -357,16 +355,16 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 		return jsObject;
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::krollProxyClass)) {
 		jlong v8ObjectPointer = env->CallLongMethod(javaObject, JNIUtil::krollProxyGetPointerMethod);
-		if (v8ObjectPointer > 0) {
+		if (v8ObjectPointer != 0) {
 			v8::Handle<v8::Object> v8ObjectPointerHandle((v8::Object*) v8ObjectPointer);
 			return v8ObjectPointerHandle;
 		} else {
+			jclass javaObjectClass = env->GetObjectClass(javaObject);
 			v8::Handle<v8::Object> proxyHandle = ProxyFactory::createV8Proxy(javaObjectClass, javaObject);
+			env->DeleteLocalRef(javaObjectClass);
 
 			// set the pointer back on the java proxy
-			V8Runtime::setKrollProxyHandle(javaObject, proxyHandle);
-			env->DeleteLocalRef(javaObject);
-
+			env->CallVoidMethod(javaObject, JNIUtil::krollProxySetPointerMethod, (jlong) *proxyHandle);
 			return proxyHandle;
 		}
 	}

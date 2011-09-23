@@ -39,12 +39,13 @@ Handle<Value> EventEmitter::Constructor(const Arguments& args)
 	return args.This();
 }
 
-void EventEmitter::Initialize()
+void EventEmitter::Initialize(Handle<Object> global)
 {
 	HandleScope scope;
 	constructorTemplate = Persistent<FunctionTemplate>::New(FunctionTemplate::New(Constructor));
 	constructorTemplate->InstanceTemplate()->SetInternalFieldCount(1);
 	constructorTemplate->SetClassName(String::NewSymbol("EventEmitter"));
+	DEFINE_TEMPLATE(global, "EventEmitter", constructorTemplate);
 
 	eventsSymbol = SYMBOL_LITERAL("_events");
 	fireEventSymbol = SYMBOL_LITERAL("fireEvent");
@@ -98,16 +99,26 @@ extern "C" {
 
 jboolean Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeFireEvent(JNIEnv *env, jobject jEmitter, jlong ptr, jstring event, jobject data)
 {
+	LOGD(TAG, "jni scope");
+
 	titanium::JNIScope jniScope(env);
+	LOGD(TAG, "handle scope");
 	HandleScope scope;
 
+	LOGD(TAG, "emitter");
 	Handle<Object> emitter = TypeConverter::javaObjectToJsValue(jEmitter)->ToObject();
+	LOGD(TAG, "fireEvent");
 	Handle<Function> fireEvent = Handle<Function>::Cast(emitter->Get(fireEventSymbol));
 
+	LOGD(TAG, "jsEvent, fireEvent undef = %d", fireEvent->IsUndefined());
 	Handle<String> jsEvent = TypeConverter::javaStringToJsString(event);
+	LOGD(TAG, "jsData, jsEvent undef = %d", jsEvent->IsUndefined());
 	Handle<Value> jsData = TypeConverter::javaObjectToJsValue(data);
 
 	Handle<Value> result;
+	LOGD(TAG, "jsData->IsNull()? %d", jsData->IsNull());
+
+	TryCatch tryCatch;
 	if (jsData->IsNull()) {
 		Handle<Value> args[] = { jsEvent };
 		result = fireEvent->Call(emitter, 1, args);
@@ -116,7 +127,9 @@ jboolean Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeFireEvent(JNI
 		result = fireEvent->Call(emitter, 2, args);
 	}
 
-	if (result->IsTrue()) {
+	if (tryCatch.HasCaught()) {
+		ReportException(tryCatch, true);
+	} else if (result->IsTrue()) {
 		return JNI_TRUE;
 	}
 	return JNI_FALSE;

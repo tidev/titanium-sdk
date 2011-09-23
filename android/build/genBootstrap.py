@@ -12,12 +12,14 @@ namespace internal {
 typedef void (*ModuleInit)(v8::Handle<v8::Object> target);
 using namespace titanium;
 
+%s
+
 %%}
 struct moduleInit { const char *name; ModuleInit fn; };
 %%%%
 """
 
-GPERF_KEY = "%(apiName)s, %(className)s::Initialize\n"
+GPERF_KEY = "%(key)s, _%(moduleName)s_init\n"
 
 GPERF_FOOTER = """
 }
@@ -37,18 +39,54 @@ for module in os.listdir(modulesDir):
 	if os.path.exists(jsonPath):
 		bindingPaths.append(jsonPath)
 
-headers = ""
 for bindingPath in bindingPaths:
+	moduleName = os.path.basename(bindingPath).replace(".json", "")
+	modules.append(moduleName)
 	binding = json.load(open(bindingPath))
+	for module in binding["modules"]:
+		code += GPERF_KEY % {"key": binding["modules"][module]["apiName"], "moduleName": moduleName}
 	for proxy in binding["proxies"]:
-		className = binding["proxies"][proxy]["proxyClassName"]
-		apiName = binding["proxies"][proxy]["proxyAttrs"]["fullAPIName"]
-		if className in ("KrollProxy", "KrollModule"): continue
-		apiName = apiName.replace("Titanium.", "")
-
-		code += GPERF_KEY % {"apiName": apiName, "className": className }
-		headers += "#include \"%s.h\"\n" % proxy
+		creatableInModule = binding["proxies"][proxy]["proxyAttrs"].get("creatableInModule", None)
+		if creatableInModule and "DEFAULT" not in creatableInModule:
+			api = binding["modules"][creatableInModule]["apiName"]
+			code += GPERF_KEY % {"key": api.replace("Titanium", "") + binding["proxies"][proxy]["proxyAttrs"]["name"], "moduleName": moduleName }
 
 code += "%%\n"
 
-print (GPERF_HEADER % headers) + code + GPERF_FOOTER
+headers = ""
+modulesCode = ""
+for bindingPath in bindingPaths:
+	moduleName = os.path.basename(bindingPath).replace(".json", "")
+	binding = json.load(open(bindingPath))
+	modulesCode += "static void _%s_init(v8::Handle<v8::Object> target)\n{\n" % moduleName
+
+	initOrder = {}
+	def addProxy(proxy):
+		if proxy not in binding["proxies"]: return
+		proxyObj = binding["proxies"][proxy]
+		superPackage = proxyObj["superPackageName"]
+		superProxy = proxyObj["superProxyClassName"]
+		if "EventEmitter" not in superProxy:
+			addProxy(superPackage + "." + superProxy)
+		initOrder[proxy] = initOrder.get(proxy, 0) + 1
+
+	for proxy in binding["proxies"]:
+		addProxy(proxy)
+
+	proxies = initOrder.keys()
+	proxies.sort(lambda a, b: initOrder[a] - initOrder[b])
+	proxies.reverse()
+
+	for proxy in proxies:
+		className = binding["proxies"][proxy]["proxyClassName"]
+		if className in ("KrollProxy", "KrollModule"): continue
+
+		headers += "#include \"%s.h\"\n" % proxy
+		modulesCode += "\t%s::Initialize(target);\n" % className
+	modulesCode += "}\n"
+
+print (GPERF_HEADER % (headers, modulesCode)) + code + GPERF_FOOTER
+
+
+
+

@@ -52,7 +52,7 @@ static Handle<Value> Extend(const Arguments& args)
 
 void KrollJavaScript::initBaseTypes(Handle<Object> global)
 {
-	EventEmitter::Initialize();
+	EventEmitter::Initialize(global);
 	KrollProxy::Initialize(global);
 	DEFINE_METHOD(KrollProxy::proxyTemplate, "extend", Extend);
 	KrollModule::Initialize(global);

@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #include <v8.h>
+
 #include "ModuleFactory.h"
 #include "JNIUtil.h"
 
@@ -13,7 +14,7 @@
 namespace titanium {
 using namespace internal;
 
-bool ModuleFactory::InitializeModule(const char *moduleName, v8::Handle<v8::Object> target)
+bool ModuleFactory::initModule(const char *moduleName, v8::Handle<v8::Object> target)
 {
 	moduleInit* module = ModuleHash::lookupModuleInit(moduleName, strlen(moduleName));
 	if (module) {

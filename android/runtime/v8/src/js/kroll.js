@@ -8,8 +8,9 @@
 
 	startup.globalVariables = function() {
 		global.kroll = kroll;
+		global.kroll.Events = NativeModule.require('events');
 		global.Ti = global.Titanium = NativeModule.require('titanium');
-		global.Ti.Events = NativeModule.require("events");
+		global.Ti.API.debug("events.fireEvent="+global.kroll.Events.EventEmitter.prototype.fireEvent);
 	};
 	
 	startup.runMain = function() {

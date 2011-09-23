@@ -35,26 +35,6 @@ void V8Runtime::collectWeakRef(Persistent<Value> ref, void *parameter)
 	JNIScope::getEnv()->DeleteGlobalRef(v8Object);
 }
 
-/* static */
-void V8Runtime::setKrollProxyHandle(jobject krollProxy, Handle<Object> v8Object)
-{
-	HandleScope scope;
-	JNIEnv *env = JNIScope::getEnv();
-	if (!env) {
-		// TODO error message
-		return;
-	}
-
-	NativeObject *object = NativeObject::Unwrap<NativeObject>(v8Object);
-	jlong ptr = (jlong) *(object->getHandle());
-
-	env->CallVoidMethod(krollProxy, JNIUtil::krollProxySetPointerMethod, ptr);
-	if (env->ExceptionCheck()) {
-		env->ExceptionDescribe();
-		env->ExceptionClear();
-	}
-}
-
 static Handle<Value> binding(const Arguments& args)
 {
 	static Persistent<Object> binding_cache;
@@ -91,7 +71,6 @@ static Handle<Value> binding(const Arguments& args)
 void V8Runtime::bootstrap(Local<Object> global)
 {
 	DEFINE_METHOD(global, "binding", binding);
-	DEFINE_TEMPLATE(global, "EventEmitter", EventEmitter::constructorTemplate);
 
 	TryCatch tryCatch;
 	Handle<Value> result = ExecuteString(KrollJavaScript::MainSource(), IMMUTABLE_STRING_LITERAL("kroll.js"));
@@ -148,12 +127,6 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeI
 
 	// TODO - these will be generated
 	titanium::KrollJavaScript::initBaseTypes(global);
-
-	/*titanium::BufferProxy::Initialize(global);
-	titanium::UtilsModule::Initialize(global);
-	titanium::TiBlob::Initialize(global);
-	titanium::ActivityProxy::Initialize(global);*/
-
 	titanium::V8Runtime::bootstrap(global);
 
 	titanium::V8Runtime::globalContext = context;

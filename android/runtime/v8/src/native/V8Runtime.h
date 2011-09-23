@@ -18,8 +18,6 @@ class V8Runtime
 public:
 	static Persistent<Context> globalContext;
 
-	static void setKrollProxyHandle(jobject krollProxy, Handle<Object> v8Object);
-
 	static void collectWeakRef(Persistent<Value> ref, void *parameter);
 	static void bootstrap(Local<Object> global);
 };
