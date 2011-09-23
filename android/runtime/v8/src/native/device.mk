@@ -11,8 +11,6 @@ LOCAL_PATH := $(call my-dir)
 THIS_DIR := $(LOCAL_PATH)
 
 include $(CLEAR_VARS)
-include $(LOCAL_PATH)/genSources.mk
-include $(LOCAL_PATH)/common.mk
 
 LOCAL_MODULE := kroll-v8-device
 LOCAL_CFLAGS := $(CFLAGS)

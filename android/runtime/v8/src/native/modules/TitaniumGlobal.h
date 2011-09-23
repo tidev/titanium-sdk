@@ -19,14 +19,10 @@ public:
 	static void Initialize(Handle<Object> target);
 
 protected:
-	static Handle<Value> PrototypePropertyGetter(Local<String> property, const AccessorInfo& info);
-	static Handle<Value> PrototypePropertySetter(Local<String> property, Local<Value> value, const AccessorInfo& info);
-	static Handle<Integer> PrototypePropertyQuery(Local<String> property, const AccessorInfo& info);
-	static Handle<Boolean> PrototypePropertyDeleter(Local<String> property, const AccessorInfo& info);
-	static Handle<Array> PrototypePropertyEnumerator(const AccessorInfo& info);
+	static Handle<Value> prototypePropertyGetter(Local<String> property, const AccessorInfo& info);
 
 private:
-	static Persistent<FunctionTemplate> constructor_template;
+	static Persistent<FunctionTemplate> constructorTemplate;
 	static Persistent<Object> instance;
 
 };

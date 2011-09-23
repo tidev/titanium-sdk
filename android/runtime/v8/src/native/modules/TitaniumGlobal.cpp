@@ -20,23 +20,23 @@ using namespace v8;
 
 #define TAG "TitaniumGlobal"
 
-Persistent<FunctionTemplate> TitaniumGlobal::constructor_template;
+Persistent<FunctionTemplate> TitaniumGlobal::constructorTemplate;
 Persistent<Object> TitaniumGlobal::instance;
-static Persistent<Object> property_cache;
+static Persistent<Object> propertyCache;
 
-Handle<Value> TitaniumGlobal::PrototypePropertyGetter(Local<String> property, const AccessorInfo& info)
+Handle<Value> TitaniumGlobal::prototypePropertyGetter(Local<String> property, const AccessorInfo& info)
 {
 	HandleScope scope;
 	String::Utf8Value propertyValue(property);
 	LOGD(TAG, "PrototypePropertyGetter %s", *propertyValue);
 
-	if (property_cache.IsEmpty()) {
-		property_cache = Persistent<Object>::New(Object::New());
+	if (propertyCache.IsEmpty()) {
+		propertyCache = Persistent<Object>::New(Object::New());
 	}
 
 	Handle<Object> exports;
-	if (property_cache->Has(property)) {
-		Local<Object> value = property_cache->Get(property)->ToObject();
+	if (propertyCache->Has(property)) {
+		Local<Object> value = propertyCache->Get(property)->ToObject();
 		instance->ForceSet(property, value);
 		return value;
 	} else if (strcmp(*propertyValue, "API") == 0) {
@@ -49,6 +49,7 @@ Handle<Value> TitaniumGlobal::PrototypePropertyGetter(Local<String> property, co
 		LOGW(TAG, "Titanium.%s does not exist", *propertyValue);
 		return Undefined();
 	}
+
 	Local<Array> keys = exports->GetPropertyNames();
 	for (unsigned int i = 0; i < keys->Length(); ++i) {
 		Handle<String> key = keys->Get(Integer::New(i))->ToString();
@@ -58,7 +59,7 @@ Handle<Value> TitaniumGlobal::PrototypePropertyGetter(Local<String> property, co
 		if (value == exports) {
 			value = instance;
 		}
-		property_cache->Set(key, value);
+		propertyCache->Set(key, value);
 		instance->ForceSet(key, value);
 	}
 
@@ -69,15 +70,16 @@ void TitaniumGlobal::Initialize(v8::Handle<v8::Object> target)
 {
 	HandleScope scope;
 
-	constructor_template = Persistent<FunctionTemplate>::New(FunctionTemplate::New());
-	constructor_template->SetClassName(String::NewSymbol("Titanium"));
-	constructor_template->PrototypeTemplate()->SetNamedPropertyHandler(PrototypePropertyGetter);
+	Handle<String> titaniumSymbol = String::NewSymbol("Titanium");
+	constructorTemplate = Persistent<FunctionTemplate>::New(FunctionTemplate::New());
+	constructorTemplate->SetClassName(titaniumSymbol);
+	constructorTemplate->PrototypeTemplate()->SetNamedPropertyHandler(prototypePropertyGetter);
 
-	instance = Persistent<Object>::New(constructor_template->GetFunction()->NewInstance());
+	instance = Persistent<Object>::New(constructorTemplate->GetFunction()->NewInstance());
 	KrollJavaScript::initBaseTypes(instance);
 	ModuleFactory::initModule("Titanium", instance);
 
-	target->Set(String::NewSymbol("Titanium"), instance);
+	target->Set(titaniumSymbol, instance);
 }
 
 }

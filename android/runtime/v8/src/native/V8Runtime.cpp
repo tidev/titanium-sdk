@@ -96,7 +96,7 @@ void V8Runtime::bootstrap(Local<Object> global)
 
 	if (tryCatch.HasCaught()) {
 		ReportException(tryCatch, true);
-		LOGE(TAG, "has caught!!");
+		LOGE(TAG, "Caught exception while bootstrapping Kroll");
 		JNIUtil::terminateVM();
 	}
 }
@@ -126,12 +126,9 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeI
 
 	Persistent<Context> context = Persistent<Context>::New(Context::New());
 	context->Enter();
-	titanium::V8Runtime::globalContext = context;
 
-	Local<Object> global = context->Global();
 	titanium::V8Runtime::globalContext = context;
-
-	titanium::V8Runtime::bootstrap(global);
+	titanium::V8Runtime::bootstrap(context->Global());
 
 	Persistent<Object> wrappedContext(titanium::ScriptsModule::WrapContext(context));
 	return (jlong) *wrappedContext;

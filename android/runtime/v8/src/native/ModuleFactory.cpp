@@ -9,7 +9,7 @@
 #include "ModuleFactory.h"
 #include "JNIUtil.h"
 
-#include "ModuleInit.h"
+#include "ModuleInit.cpp"
 
 namespace titanium {
 using namespace internal;

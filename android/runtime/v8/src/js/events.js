@@ -19,6 +19,8 @@
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 //USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+// Modifications Copyright 2011 Appcelerator, Inc.
+
 var EventEmitter = exports.EventEmitter = kroll.EventEmitter;
 var isArray = Array.isArray;
 

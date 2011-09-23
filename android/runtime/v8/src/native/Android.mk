@@ -10,5 +10,8 @@
 LOCAL_PATH := $(call my-dir)
 THIS_DIR = $(LOCAL_PATH)
 
+include $(LOCAL_PATH)/genSources.mk
+include $(LOCAL_PATH)/common.mk
+
 include $(THIS_DIR)/emulator.mk
 include $(THIS_DIR)/device.mk

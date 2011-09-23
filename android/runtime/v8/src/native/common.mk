@@ -1,3 +1,10 @@
+#
+# Appcelerator Titanium Mobile
+# Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+# Licensed under the terms of the Apache Public License
+# Please see the LICENSE included with this distribution for details.
+#
+# Source files, and other common properties
 
 GENERATED_DIR := $(LOCAL_PATH)/../../generated
 SRC_JS_DIR := $(LOCAL_PATH)/../js
@@ -9,8 +16,6 @@ endif
 
 LDLIBS := -L$(SYSROOT)/usr/lib -ldl -llog -L$(TARGET_OUT)
 SRC_FILES := \
-	../../generated/KrollNatives.h \
-	../../generated/ModuleInit.h \
 	Assets.cpp \
 	EventEmitter.cpp \
 	JavaObject.cpp \
@@ -21,17 +26,26 @@ SRC_FILES := \
 	TypeConverter.cpp \
 	V8Object.cpp \
 	V8Runtime.cpp \
+	V8Script.cpp \
 	V8Util.cpp \
-	modules/TitaniumGlobal.cpp \
 	modules/APIModule.cpp \
 	modules/ScriptsModule.cpp \
+	modules/TitaniumGlobal.cpp \
 	$(PROXY_SOURCES)
 
-JS_FILES := \
+ABS_JS_FILES := \
+	$(SRC_JS_DIR)/events.js \
 	$(SRC_JS_DIR)/kroll.js \
-	$(SRC_JS_DIR)/titanium.js \
-	$(SRC_JS_DIR)/vm.js \
 	$(SRC_JS_DIR)/module.js \
-	$(SRC_JS_DIR)/events.js
+	$(SRC_JS_DIR)/titanium.js \
+	$(SRC_JS_DIR)/vm.js
 
-$(LOCAL_PATH)/KrollJavaScript.cpp: $(GENERATED_DIR)/KrollNatives.h $(GENERATED_DIR)/ModuleInit.h
+JS_FILES = $(subst $(SRC_JS_DIR),../js,$(ABS_JS_FILES))
+
+$(LOCAL_PATH)/KrollJavaScript.cpp: $(GENERATED_DIR)/KrollNatives.cpp
+$(LOCAL_PATH)/ModuleFactory.cpp: $(GENERATED_DIR)/ModuleInit.cpp
+
+clean: ti-clean
+
+ti-clean:
+	rm -f $(GENERATED_DIR)/*

@@ -9,7 +9,7 @@
 #include "EventEmitter.h"
 #include "KrollJavaScript.h"
 #include "V8Util.h"
-#include "../../generated/KrollNatives.h"
+#include "KrollNatives.cpp"
 
 #include "org.appcelerator.kroll.KrollProxy.h"
 #include "org.appcelerator.kroll.KrollModule.h"
@@ -33,27 +33,11 @@ Handle<String> KrollJavaScript::MainSource()
 	return IMMUTABLE_STRING_LITERAL_FROM_ARRAY(kroll_native, sizeof(kroll_native)-1);
 }
 
-static Handle<Value> Extend(const Arguments& args)
-{
-	HandleScope scope;
-	if (args.Length() == 0) return Undefined();
-	if (!args[0]->IsObject()) return Undefined();
-
-	Local<Object> options = args[0]->ToObject();
-	Local<Array> names = options->GetPropertyNames();
-	int len = names->Length();
-
-	for (int i = 0; i < len; i++) {
-		Handle<Value> name = names->Get(i);
-		args.This()->Set(name, options->Get(name));
-	}
-	return Undefined();
-}
-
 void KrollJavaScript::initBaseTypes(Handle<Object> target)
 {
 	KrollProxy::Initialize(target);
-	DEFINE_METHOD(KrollProxy::proxyTemplate, "extend", Extend);
+	DEFINE_TEMPLATE(target, "KrollProxy", KrollProxy::proxyTemplate);
+
 	KrollModule::Initialize(target);
 }
 
