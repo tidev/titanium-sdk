@@ -81,7 +81,7 @@ public class TiScriptRunner {
 		appPackageName = packageName;
 	}
 
-	public Script getScript(String relativePath)
+	public Script getScript(Context context, Scriptable scope, String relativePath)
 		throws ClassNotFoundException, InstantiationException, IllegalAccessException
 	{
 		String scriptClassName = getScriptClassName(relativePath);
@@ -90,10 +90,17 @@ public class TiScriptRunner {
 			return tiScript.script;
 		}
 		Class<?> scriptClass = Class.forName(scriptClassName);
+		tiScript = new TiScript();
+		tiScript.context = context;
+		tiScript.scope = scope;
 		if (scriptClass != null) {
 			@SuppressWarnings("unchecked")
 			Class<NativeFunction> scriptClaxx = (Class<NativeFunction>) scriptClass;
-			return (Script) scriptClaxx.newInstance();
+			Script script = (Script) scriptClaxx.newInstance();
+			tiScript.script = script;
+			tiScript.name = scriptClass.getName();
+			scripts.put(tiScript.name, tiScript);
+			return script;
 		} else {
 			throw new ClassNotFoundException("CommonJS module class for \"" + relativePath + "\" not found.");
 		}
