@@ -313,6 +313,11 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<exec executable="${ndk.build}" dir="${kroll.v8.project.dir}" failonerror="true">
 			<env key="ANDROID_NDK" file="${android.ndk}"/>
 		</exec>
+		<copy todir="${dist.dir}">
+			<fileset dir="${kroll.v8.project.dir}">
+				<include name="libs/**/*.so"/>
+			</fileset>
+		</copy>
 	</target>
 
 	<target name="build.kroll.v8.jar">
