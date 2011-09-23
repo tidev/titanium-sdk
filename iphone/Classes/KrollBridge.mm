@@ -211,30 +211,43 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 -(void)didReceiveMemoryWarning:(NSNotification*)notification
 {
-	if (registeredProxies != NULL) {
-		BOOL keepWarning = YES;
-		int proxiesCount = CFDictionaryGetCount(registeredProxies);
-		
-		//During a memory panic, we may not get the chance to copy proxies.
-		while (keepWarning)
-		{
-			keepWarning = NO;
-			for (id proxy in (NSDictionary *)registeredProxies)
-			{
-				[proxy didReceiveMemoryWarning:notification];
-				if (registeredProxies == NULL) {
-					break;
-				}
-				int newCount = CFDictionaryGetCount(registeredProxies);
-				if (newCount != proxiesCount)
-				{
-					proxiesCount = newCount;
-					keepWarning = YES;
-					break;
-				}
-			}
-		}
-	}
+    OSSpinLockLock(&proxyLock);
+    if (registeredProxies == NULL) {
+        OSSpinLockUnlock(&proxyLock);
+        [self gc];
+        return;
+    }
+    
+    BOOL keepWarning = YES;    
+    int proxiesCount = CFDictionaryGetCount(registeredProxies);
+    OSSpinLockUnlock(&proxyLock);
+        
+    //During a memory panic, we may not get the chance to copy proxies.
+    while (keepWarning)
+    {
+        keepWarning = NO;
+        
+        for (id proxy in (NSDictionary *)registeredProxies)
+        {
+            [proxy didReceiveMemoryWarning:notification];
+            
+            OSSpinLockLock(&proxyLock);
+            if (registeredProxies == NULL) {
+                OSSpinLockUnlock(&proxyLock);
+                break;
+            }
+            
+            int newCount = CFDictionaryGetCount(registeredProxies);
+            OSSpinLockUnlock(&proxyLock);
+
+            if (newCount != proxiesCount)
+            {
+                proxiesCount = newCount;
+                keepWarning = YES;
+                break;
+            }
+        }
+    }
 	
 	[self gc];
 }
@@ -257,7 +270,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 {
 	OSSpinLockLock(&proxyLock);
 	CFDictionaryRef oldProxies = registeredProxies;
-	registeredProxies = nil;
+	registeredProxies = NULL;
 	OSSpinLockUnlock(&proxyLock);
 	
 	for (id thisProxy in (NSDictionary *)oldProxies)
