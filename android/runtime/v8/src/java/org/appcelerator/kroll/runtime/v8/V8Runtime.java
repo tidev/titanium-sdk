@@ -82,7 +82,7 @@ public final class V8Runtime
 			Log.d(TAG, "evalFile: " + filename);
 			char[] chars = Assets.readResource(filename);
 			if (chars != null && chars.length > 0) {
-				V8Script.runInThisContextNoResult(new String(chars), filename);
+				V8Script.runInContextNoResult(new String(chars), globalContext, filename);
 			}
 			Log.d(TAG, "finished evalFile");
 		} catch (IOException e) {

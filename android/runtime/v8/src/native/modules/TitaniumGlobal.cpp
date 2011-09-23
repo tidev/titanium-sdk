@@ -13,6 +13,7 @@
 #include "AndroidUtil.h"
 #include "APIModule.h"
 #include "ModuleFactory.h"
+#include "KrollJavaScript.h"
 
 namespace titanium {
 using namespace v8;
@@ -21,6 +22,7 @@ using namespace v8;
 
 Persistent<FunctionTemplate> TitaniumGlobal::constructor_template;
 Persistent<Object> TitaniumGlobal::instance;
+static Persistent<Object> property_cache;
 
 Handle<Value> TitaniumGlobal::PrototypePropertyGetter(Local<String> property, const AccessorInfo& info)
 {
@@ -28,8 +30,16 @@ Handle<Value> TitaniumGlobal::PrototypePropertyGetter(Local<String> property, co
 	String::Utf8Value propertyValue(property);
 	LOGD(TAG, "PrototypePropertyGetter %s", *propertyValue);
 
+	if (property_cache.IsEmpty()) {
+		property_cache = Persistent<Object>::New(Object::New());
+	}
+
 	Handle<Object> exports;
-	if (strcmp(*propertyValue, "API") == 0) {
+	if (property_cache->Has(property)) {
+		Local<Object> value = property_cache->Get(property)->ToObject();
+		instance->ForceSet(property, value);
+		return value;
+	} else if (strcmp(*propertyValue, "API") == 0) {
 		exports = Object::New();
 		APIModule::Initialize(exports);
 	} else if (ModuleFactory::hasModule(*propertyValue)) {
@@ -48,6 +58,7 @@ Handle<Value> TitaniumGlobal::PrototypePropertyGetter(Local<String> property, co
 		if (value == exports) {
 			value = instance;
 		}
+		property_cache->Set(key, value);
 		instance->ForceSet(key, value);
 	}
 
@@ -63,6 +74,7 @@ void TitaniumGlobal::Initialize(v8::Handle<v8::Object> target)
 	constructor_template->PrototypeTemplate()->SetNamedPropertyHandler(PrototypePropertyGetter);
 
 	instance = Persistent<Object>::New(constructor_template->GetFunction()->NewInstance());
+	KrollJavaScript::initBaseTypes(instance);
 	ModuleFactory::initModule("Titanium", instance);
 
 	target->Set(String::NewSymbol("Titanium"), instance);

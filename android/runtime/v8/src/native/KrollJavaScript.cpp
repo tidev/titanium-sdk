@@ -50,12 +50,11 @@ static Handle<Value> Extend(const Arguments& args)
 	return Undefined();
 }
 
-void KrollJavaScript::initBaseTypes(Handle<Object> global)
+void KrollJavaScript::initBaseTypes(Handle<Object> target)
 {
-	EventEmitter::Initialize(global);
-	KrollProxy::Initialize(global);
+	KrollProxy::Initialize(target);
 	DEFINE_METHOD(KrollProxy::proxyTemplate, "extend", Extend);
-	KrollModule::Initialize(global);
+	KrollModule::Initialize(target);
 }
 
 }

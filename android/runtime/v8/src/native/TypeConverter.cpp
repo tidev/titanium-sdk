@@ -353,7 +353,7 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 		env->DeleteLocalRef(hashMapKeys);
 
 		return jsObject;
-	} else if (env->IsInstanceOf(javaObject, JNIUtil::krollProxyClass)) {
+	} else if (env->IsInstanceOf(javaObject, JNIUtil::managedV8ReferenceClass)) {
 		jlong v8ObjectPointer = env->GetLongField(javaObject, JNIUtil::managedV8ReferencePtrField);
 		if (v8ObjectPointer != 0) {
 			return Persistent<Object>((Object *) v8ObjectPointer);
@@ -361,9 +361,6 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 			jclass javaObjectClass = env->GetObjectClass(javaObject);
 			v8::Handle<v8::Object> proxyHandle = ProxyFactory::createV8Proxy(javaObjectClass, javaObject);
 			env->DeleteLocalRef(javaObjectClass);
-
-			// set the pointer back on the java proxy
-			env->SetLongField(javaObject, JNIUtil::managedV8ReferencePtrField, (jlong) *proxyHandle);
 			return proxyHandle;
 		}
 	}

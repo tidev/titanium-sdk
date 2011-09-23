@@ -26,6 +26,7 @@
 namespace titanium {
 
 Persistent<Context> V8Runtime::globalContext;
+static Persistent<Object> krollGlobalObject;
 
 /* static */
 void V8Runtime::collectWeakRef(Persistent<Value> ref, void *parameter)
@@ -70,7 +71,11 @@ static Handle<Value> binding(const Arguments& args)
 /* static */
 void V8Runtime::bootstrap(Local<Object> global)
 {
-	DEFINE_METHOD(global, "binding", binding);
+	EventEmitter::Initialize();
+	krollGlobalObject = Persistent<Object>::New(EventEmitter::constructorTemplate->GetFunction()->NewInstance());
+
+	DEFINE_METHOD(krollGlobalObject, "binding", binding);
+	DEFINE_TEMPLATE(krollGlobalObject, "EventEmitter", EventEmitter::constructorTemplate);
 
 	TryCatch tryCatch;
 	Handle<Value> result = ExecuteString(KrollJavaScript::MainSource(), IMMUTABLE_STRING_LITERAL("kroll.js"));
@@ -86,7 +91,7 @@ void V8Runtime::bootstrap(Local<Object> global)
 	}
 
 	Handle<Function> mainFunction = Handle<Function>::Cast(result);
-	Local<Value> args[] = { global };
+	Local<Value> args[] = { Local<Value>::New(krollGlobalObject) };
 	mainFunction->Call(global, 1, args);
 
 	if (tryCatch.HasCaught()) {
@@ -124,12 +129,9 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeI
 	titanium::V8Runtime::globalContext = context;
 
 	Local<Object> global = context->Global();
-
-	// TODO - these will be generated
-	titanium::KrollJavaScript::initBaseTypes(global);
-	titanium::V8Runtime::bootstrap(global);
-
 	titanium::V8Runtime::globalContext = context;
+
+	titanium::V8Runtime::bootstrap(global);
 
 	Persistent<Object> wrappedContext(titanium::ScriptsModule::WrapContext(context));
 	return (jlong) *wrappedContext;

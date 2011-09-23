@@ -117,6 +117,7 @@ Handle<Value> ${proxyClassName}::Constructor(const Arguments& args)
 			env->DeleteLocalRef(javaProxy);
 		}
 	}
+	LOGD(TAG, "Exit Constructor");
 
 	return v8Proxy;
 }

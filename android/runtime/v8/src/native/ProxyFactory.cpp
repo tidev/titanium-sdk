@@ -50,6 +50,10 @@ Handle<Object> ProxyFactory::createV8Proxy(jclass javaClass, jobject javaProxy)
 	Local<Value> external = External::New(javaProxy);
 	Local<Object> v8Proxy = creator->NewInstance(1, &external);
 
+	// set the pointer back on the java proxy
+	jlong ptr = (jlong) *Persistent<Object>::New(v8Proxy);
+	JNIScope::getEnv()->SetLongField(javaProxy, JNIUtil::managedV8ReferencePtrField, ptr);
+
 	return scope.Close(v8Proxy);
 }
 
@@ -58,6 +62,7 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 	ProxyInfo* info;
 	GET_PROXY_INFO(javaClass, info)
 	if (!info) {
+		JNIUtil::logClassName("ProxyFactory: failed to find class for %s", javaClass, true);
 		LOGE("ProxyFactory", "No proxy info found for class.");
 		return NULL;
 	}

@@ -39,13 +39,12 @@ Handle<Value> EventEmitter::Constructor(const Arguments& args)
 	return args.This();
 }
 
-void EventEmitter::Initialize(Handle<Object> global)
+void EventEmitter::Initialize()
 {
 	HandleScope scope;
 	constructorTemplate = Persistent<FunctionTemplate>::New(FunctionTemplate::New(Constructor));
 	constructorTemplate->InstanceTemplate()->SetInternalFieldCount(1);
 	constructorTemplate->SetClassName(String::NewSymbol("EventEmitter"));
-	DEFINE_TEMPLATE(global, "EventEmitter", constructorTemplate);
 
 	eventsSymbol = SYMBOL_LITERAL("_events");
 	fireEventSymbol = SYMBOL_LITERAL("fireEvent");
@@ -99,24 +98,24 @@ extern "C" {
 
 jboolean Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeFireEvent(JNIEnv *env, jobject jEmitter, jlong ptr, jstring event, jobject data)
 {
-	LOGD(TAG, "jni scope");
-
 	titanium::JNIScope jniScope(env);
-	LOGD(TAG, "handle scope");
 	HandleScope scope;
 
-	LOGD(TAG, "emitter");
-	Handle<Object> emitter = TypeConverter::javaObjectToJsValue(jEmitter)->ToObject();
-	LOGD(TAG, "fireEvent");
-	Handle<Function> fireEvent = Handle<Function>::Cast(emitter->Get(fireEventSymbol));
-
-	LOGD(TAG, "jsEvent, fireEvent undef = %d", fireEvent->IsUndefined());
+	Handle<Object> emitter;
+	if (ptr != 0) {
+		emitter = Persistent<Object>((Object *) ptr);
+	} else {
+		emitter = TypeConverter::javaObjectToJsValue(jEmitter)->ToObject();
+	}
+	Handle<Value> fireEventValue = emitter->Get(fireEventSymbol);
+	if (!fireEventValue->IsFunction()) {
+		return JNI_FALSE;
+	}
+	Handle<Function> fireEvent = Handle<Function>::Cast(fireEventValue->ToObject());
 	Handle<String> jsEvent = TypeConverter::javaStringToJsString(event);
-	LOGD(TAG, "jsData, jsEvent undef = %d", jsEvent->IsUndefined());
 	Handle<Value> jsData = TypeConverter::javaObjectToJsValue(data);
 
 	Handle<Value> result;
-	LOGD(TAG, "jsData->IsNull()? %d", jsData->IsNull());
 
 	TryCatch tryCatch;
 	if (jsData->IsNull()) {
@@ -140,7 +139,12 @@ void Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeAddEventListener(
 	titanium::JNIScope jniScope(env);
 	HandleScope scope;
 
-	Handle<Object> emitter = TypeConverter::javaObjectToJsValue(jEmitter)->ToObject();
+	Handle<Object> emitter;
+	if (ptr != 0) {
+		emitter = Persistent<Object>((Object *) ptr);
+	} else {
+		emitter = TypeConverter::javaObjectToJsValue(jEmitter)->ToObject();
+	}
 	Handle<Function> addEventListener = Handle<Function>::Cast(emitter->Get(addEventListenerSymbol));
 	Handle<String> jsEvent = TypeConverter::javaStringToJsString(event);
 	Handle<Object> listener((Object *) listenerPtr);
@@ -154,7 +158,12 @@ void Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeRemoveEventListen
 	titanium::JNIScope jniScope(env);
 	HandleScope scope;
 
-	Handle<Object> emitter = TypeConverter::javaObjectToJsValue(jEmitter)->ToObject();
+	Handle<Object> emitter;
+	if (ptr != 0) {
+		emitter = Persistent<Object>((Object *) ptr);
+	} else {
+		emitter = TypeConverter::javaObjectToJsValue(jEmitter)->ToObject();
+	}
 	Handle<Function> removeEventListener = Handle<Function>::Cast(emitter->Get(removeEventListenerSymbol));
 	Handle<String> jsEvent = TypeConverter::javaStringToJsString(event);
 	Handle<Object> listener((Object *) listenerPtr);
@@ -167,7 +176,13 @@ jboolean Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeHasListeners(
 {
 	titanium::JNIScope jniScope(env);
 	HandleScope scope;
-	Handle<Object> emitter = TypeConverter::javaObjectToJsValue(jEmitter)->ToObject();
+
+	Handle<Object> emitter;
+	if (ptr != 0) {
+		emitter = Persistent<Object>((Object *) ptr);
+	} else {
+		emitter = TypeConverter::javaObjectToJsValue(jEmitter)->ToObject();
+	}
 
 	Handle<Object> events = emitter->Get(eventsSymbol)->ToObject();
 	Handle<String> eventName = TypeConverter::javaStringToJsString(event);
