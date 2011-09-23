@@ -35,7 +35,7 @@ Handle<Value> EventListener::postEvent(const Arguments& args)
 		arg = TypeConverter::jsValueToJavaObject(args[1]);
 	}
 
-	jobject listener = NativeObject<JavaObject>::Unwrap(args.Data())->getJavaObject();
+	jobject listener = JavaObject::Unwrap<JavaObject>(args.Data())->getJavaObject();
 	JNIEnv *env = JNIScope::getEnv();
 	if (!env) {
 		return JSException::GetJNIEnvironmentError();

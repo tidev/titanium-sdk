@@ -14,7 +14,6 @@
 #include "JNIUtil.h"
 #include "TypeConverter.h"
 
-using namespace std;
 using namespace v8;
 
 namespace titanium {
@@ -24,7 +23,7 @@ typedef struct {
 	jmethodID javaProxyCreator;
 } ProxyInfo;
 
-typedef map<jclass, ProxyInfo> ProxyFactoryMap;
+typedef std::map<jclass, ProxyInfo> ProxyFactoryMap;
 static ProxyFactoryMap factories;
 
 #define GET_PROXY_INFO(jclass, info) \
