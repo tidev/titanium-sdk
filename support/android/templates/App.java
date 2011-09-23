@@ -5,7 +5,6 @@
  */
 package ${config['appid']};
 
-import org.mozilla.javascript.Scriptable;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.kroll.KrollModule;
@@ -56,6 +55,7 @@ public final class ${config['classname']}Application extends TiApplication
 		% endfor
 	}
 
+	/*
 	@Override
 	protected void bootModules(TiContext context)
 	{
@@ -117,4 +117,5 @@ public final class ${config['classname']}Application extends TiApplication
 		return null;
 	}
 	% endif
+	*/
 }

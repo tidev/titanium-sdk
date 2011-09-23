@@ -11,7 +11,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
-import org.mozilla.javascript.Scriptable;
 
 import ti.modules.titanium.ui.UIModule;
 

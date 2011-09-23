@@ -22,10 +22,6 @@ import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.drillbit.InstrumentedActivity;
 
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Function;
-import org.mozilla.javascript.Scriptable;
-
 public final class Test_harnessActivity extends TiRootActivity
 	implements InstrumentedActivity
 {
