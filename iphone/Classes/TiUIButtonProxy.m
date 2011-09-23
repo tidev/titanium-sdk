@@ -46,10 +46,12 @@
 	}
 	*/
     
-	if (button==nil)
+	if (button==nil || !isUsingBarButtonItem)
 	{
 		isUsingBarButtonItem = YES;
-		button = [[TiUINavBarButton alloc] initWithProxy:self];
+        if (button == nil) {
+            button = [[TiUINavBarButton alloc] initWithProxy:self];
+        }
 	}
 	return button;
 }
