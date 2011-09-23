@@ -112,7 +112,7 @@ Handle<Value> ${proxyClassName}::Constructor(const Arguments& args)
 	v8ProxyNative->Wrap(v8Proxy);
 
 	if (deleteRef) {
-		JNIEnv *env = JNIUtil::getJNIEnv();
+		JNIEnv *env = JNIScope::getEnv();
 		if (env) {
 			env->DeleteLocalRef(javaProxy);
 		}
@@ -128,7 +128,7 @@ Handle<Value> ${proxyClassName}::${name}(const Arguments& args)
 	LOGD(TAG, "${name}()");
 
 	HandleScope scope;
-	JNIEnv *env = JNIUtil::getJNIEnv();
+	JNIEnv *env = JNIScope::getEnv();
 	if (!env) {
 		return JSException::GetJNIEnvironmentError();
 	}

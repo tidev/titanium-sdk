@@ -11,6 +11,7 @@
 #include "NativeObject.h"
 #include "ScriptsModule.h"
 #include "V8Util.h"
+#include "JNIUtil.h"
 #include "TypeConverter.h"
 
 #define TAG "ScriptsModule"
@@ -406,6 +407,7 @@ using namespace titanium;
 jlong Java_org_appcelerator_kroll_runtime_v8_V8Context_create(JNIEnv *env, jclass clazz,
 	jlong object_ptr)
 {
+	titanium::JNIScope jniScope(env);
 	HandleScope scope;
 	Handle<Value> object = Undefined();
 	if (object_ptr != 0) {
@@ -426,6 +428,7 @@ jlong Java_org_appcelerator_kroll_runtime_v8_V8Context_create(JNIEnv *env, jclas
 jlong Java_org_appcelerator_kroll_runtime_v8_V8Script_compile(JNIEnv *env, jclass clazz,
 	jstring string)
 {
+	titanium::JNIScope jniScope(env);
 	HandleScope scope;
 	Handle<Value> args[] = { TypeConverter::javaStringToJsString(string) };
 	Handle<Object> wrappedScript = WrappedScript::constructor_template->GetFunction()->NewInstance(1, args);
@@ -440,6 +443,7 @@ jlong Java_org_appcelerator_kroll_runtime_v8_V8Script_compile(JNIEnv *env, jclas
 jlong Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContext__JJ(JNIEnv *env, jclass clazz,
 	jlong script_ptr, jlong context_ptr)
 {
+	titanium::JNIScope jniScope(env);
 	HandleScope scope;
 	Handle<Object> wrappedScript = Persistent<Object>((Object *) script_ptr);
 	Handle<Object> wrappedContext = Persistent<Object>((Object *) context_ptr);
@@ -458,6 +462,7 @@ jlong Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContext__JJ(JNIEnv *e
 jlong Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContext__Ljava_lang_String_2JLjava_lang_String_2(
 	JNIEnv *env, jclass clazz, jstring source, jlong context_ptr, jstring filename)
 {
+	titanium::JNIScope jniScope(env);
 	HandleScope scope;
 	Handle<Object> wrappedContext = Persistent<Object>((Object *) context_ptr);
 
@@ -476,6 +481,7 @@ jlong Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContext__Ljava_lang_S
 jlong Java_org_appcelerator_kroll_runtime_v8_V8Script_runInNewContext__JJ(JNIEnv *env, jclass clazz,
 	jlong script_ptr, jlong object_ptr)
 {
+	titanium::JNIScope jniScope(env);
 	HandleScope scope;
 	Handle<Object> warppedScript = Persistent<Object>((Object *) script_ptr);
 	Handle<Value> object = Undefined();
@@ -497,6 +503,7 @@ jlong Java_org_appcelerator_kroll_runtime_v8_V8Script_runInNewContext__JJ(JNIEnv
 jlong Java_org_appcelerator_kroll_runtime_v8_V8Script_runInNewContext__Ljava_lang_String_2JLjava_lang_String_2(
 	JNIEnv *env, jclass clazz, jstring source, jlong object_ptr, jstring filename)
 {
+	titanium::JNIScope jniScope(env);
 	HandleScope scope;
 	Handle<Value> object = Undefined();
 	if (object_ptr != 0) {
@@ -518,6 +525,7 @@ jlong Java_org_appcelerator_kroll_runtime_v8_V8Script_runInNewContext__Ljava_lan
 void Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContextNoResult(JNIEnv *env, jclass clazz, jstring source,
 	jlong context_ptr, jstring filename)
 {
+	titanium::JNIScope jniScope(env);
 	HandleScope scope;
 	Handle<Object> wrappedContext = Persistent<Object>((Object *) context_ptr);
 
@@ -529,6 +537,7 @@ void Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContextNoResult(JNIEnv
 
 void Java_org_appcelerator_kroll_runtime_v8_V8Script_nativeRunInThisContextNoResult(JNIEnv *env, jclass clazz, jstring source, jstring filename)
 {
+	titanium::JNIScope jniScope(env);
 	HandleScope scope;
 	Handle<Value> args[] = { TypeConverter::javaStringToJsString(source),
 		TypeConverter::javaStringToJsString(filename) };

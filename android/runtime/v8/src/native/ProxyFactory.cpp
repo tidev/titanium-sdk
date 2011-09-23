@@ -32,13 +32,14 @@ static ProxyFactoryMap factories;
 	info = i != factories.end() ? &i->second : NULL;
 
 #define LOG_JNIENV_ERROR(msgMore) \
-	LOGE("ProxyFactory", "Unable to fetch JNI Environment %s", msgMore)
+	LOGE("ProxyFactory", "Unable to find class %s", msgMore)
 
 Handle<Object> ProxyFactory::createV8Proxy(jclass javaClass, jobject javaProxy)
 {
 	ProxyInfo* info;
 	GET_PROXY_INFO(javaClass, info)
 	if (!info) {
+		JNIUtil::logClassName("ProxyFactory: failed to find class for %s", javaClass, true);
 		LOG_JNIENV_ERROR("while creating V8 Proxy.");
 		return Handle<Object>();
 	}
@@ -66,7 +67,7 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 	// a reference to the V8 proxy for later use.
 	jlong pv8Proxy = (jlong) *Persistent<Object>::New(v8Proxy);
 
-	JNIEnv* env = JNIUtil::getJNIEnv();
+	JNIEnv* env = JNIScope::getEnv();
 	if (!env) {
 		LOG_JNIENV_ERROR("while creating Java proxy.");
 		return NULL;
@@ -74,7 +75,7 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 
 	// Convert the V8 arguments into Java types so they can be
 	// passed to the Java creator method.
-	jobjectArray javaArgs = TypeConverter::jsArgumentsToJavaArray(args, env);
+	jobjectArray javaArgs = TypeConverter::jsArgumentsToJavaArray(args);
 
 	// Create the java proxy using the creator static method provided.
 	// Send along a pointer to the v8 proxy so the two are linked.
@@ -95,7 +96,7 @@ jobject ProxyFactory::unwrapJavaProxy(const Arguments& args)
 
 void ProxyFactory::registerProxyPair(jclass javaProxyClass, FunctionTemplate* v8ProxyTemplate)
 {
-	JNIEnv* env = JNIUtil::getJNIEnv();
+	JNIEnv* env = JNIScope::getEnv();
 	if (!env) {
 		LOG_JNIENV_ERROR("while registering proxy pair.");
 		return;

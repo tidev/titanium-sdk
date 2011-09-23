@@ -51,7 +51,7 @@ public:
 	static v8::Handle<v8::Date> javaLongToJsDate(jlong);
 
 	// arguments conversion
-	static jobjectArray jsArgumentsToJavaArray(const v8::Arguments& args, JNIEnv* env = NULL);
+	static jobjectArray jsArgumentsToJavaArray(const v8::Arguments& args);
 
 	// array convert methods
 	static jarray jsArrayToJavaArray(v8::Handle<v8::Array>);

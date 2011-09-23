@@ -119,15 +119,15 @@ Handle<Value> APIModule::logFatal(const Arguments& args)
 void APIModule::logInternal(int logLevel, const char *messageTag, const char *message)
 {
 	if (logLevel == LOG_LEVEL_TRACE) {
-		LOGV(messageTag, message);
+		LOG(VERBOSE, messageTag, message);
 	} else if (logLevel < LOG_LEVEL_INFO) {
-		LOGD(messageTag, message);
+		LOG(DEBUG, messageTag, message);
 	} else if (logLevel < LOG_LEVEL_WARN) {
-		LOGI(messageTag, message);
+		LOG(INFO, messageTag, message);
 	} else if (logLevel == LOG_LEVEL_WARN) {
-		LOGW(messageTag, message);
+		LOG(WARN, messageTag, message);
 	} else {
-		LOGE(messageTag, message);
+		LOG(ERROR, messageTag, message);
 	}
 }
 

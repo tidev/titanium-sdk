@@ -32,14 +32,14 @@ void V8Runtime::collectWeakRef(Persistent<Value> ref, void *parameter)
 {
 	jobject v8Object = (jobject) parameter;
 	ref.Dispose();
-	JNIUtil::getJNIEnv()->DeleteGlobalRef(v8Object);
+	JNIScope::getEnv()->DeleteGlobalRef(v8Object);
 }
 
 /* static */
 void V8Runtime::setKrollProxyHandle(jobject krollProxy, Handle<Object> v8Object)
 {
 	HandleScope scope;
-	JNIEnv *env = JNIUtil::getJNIEnv();
+	JNIEnv *env = JNIScope::getEnv();
 	if (!env) {
 		// TODO error message
 		return;
@@ -169,6 +169,7 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeI
  */
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDispose(JNIEnv *env, jclass clazz)
 {
+	titanium::JNIScope jniScope(env);
 	LOGD(TAG, "disposing global context");
 	titanium::V8Runtime::globalContext->Exit();
 
