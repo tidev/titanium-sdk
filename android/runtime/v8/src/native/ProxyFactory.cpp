@@ -32,13 +32,14 @@ static ProxyFactoryMap factories;
 	info = i != factories.end() ? &i->second : NULL;
 
 #define LOG_JNIENV_ERROR(msgMore) \
-	LOGE("ProxyFactory", "Unable to fetch JNI Environment %s", msgMore)
+	LOGE("ProxyFactory", "Unable to find class %s", msgMore)
 
 Handle<Object> ProxyFactory::createV8Proxy(jclass javaClass, jobject javaProxy)
 {
 	ProxyInfo* info;
 	GET_PROXY_INFO(javaClass, info)
 	if (!info) {
+		JNIUtil::logClassName("ProxyFactory: failed to find class for %s", javaClass, true);
 		LOG_JNIENV_ERROR("while creating V8 Proxy.");
 		return Handle<Object>();
 	}

@@ -170,7 +170,7 @@ jmethodID JNIUtil::getMethodID(jclass javaClass, const char *methodName, const c
 	return javaMethodID;
 }
 
-void JNIUtil::logClassName(const char *format, jclass javaClass)
+void JNIUtil::logClassName(const char *format, jclass javaClass, bool errorLevel)
 {
 	JNIEnv *env = JNIScope::getEnv();
 	if (!env) return;
@@ -180,7 +180,11 @@ void JNIUtil::logClassName(const char *format, jclass javaClass)
 
 	const char* chars = env->GetStringUTFChars(jClassName, &isCopy);
 
-	LOGD(TAG, format, chars);
+	if (errorLevel) {
+		LOGE(TAG, format, chars);
+	} else {
+		LOGD(TAG, format, chars);
+	}
 
 	env->ReleaseStringUTFChars(jClassName, chars);
 }

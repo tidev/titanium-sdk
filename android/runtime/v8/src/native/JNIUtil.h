@@ -9,6 +9,7 @@
 
 #include <jni.h>
 #include <stdint.h>
+#include "AndroidUtil.h"
 
 namespace titanium {
 class JNIUtil
@@ -21,7 +22,7 @@ public:
 	static jclass findClass(const char *className, JNIEnv *env = NULL);
 	static jmethodID getMethodID(jclass javaClass, const char *methodName, const char *signature, bool isStatic = false,
 		JNIEnv *env = NULL);
-	static void logClassName(const char *format, jclass javaClass);
+	static void logClassName(const char *format, jclass javaClass, bool errorLevel = false);
 
 	static jobjectArray newObjectArray(int length, jobject initial = NULL);
 	static void throwException(jclass clazz, const char *message);
@@ -90,13 +91,16 @@ public:
 			: prev(current)
 	{
 		current = env;
+		LOGD("JNIScope", "Enter prev=%p", prev);
 	}
 	~JNIScope()
 	{
+		LOGD("JNIScope", "Exit prev=%p", prev);
 		current = prev;
 	}
 	static JNIEnv* getEnv()
 	{
+		LOGD("JNIScope", "Get Env=%p", current);
 		return current != NULL ? current : JNIUtil::getJNIEnv();
 	}
 private:
