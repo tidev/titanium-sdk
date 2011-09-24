@@ -95,7 +95,7 @@
 	
 	NSString *nstr = [self convertToString:args];
     const char* data = [nstr UTF8String];
-    return [TiUtils md5:[NSData data:data length:strlen(data)]];
+    return [TiUtils md5:[NSData dataWithBytes:data length:strlen(data)]];
 }
 
 -(id)sha1:(id)args
