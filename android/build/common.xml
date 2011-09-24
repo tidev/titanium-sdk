@@ -414,6 +414,9 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<antcall target="build.kroll.apt.jar"/>
 		<antcall target="build.titanium.jar"/>
 		<build.module module="utils"/>
+		<build.module module="filesystem"/>
+		<build.module module="media"/>
+		<build.module module="ui"/>
 		<!-- TODO re-enable me antcall target="build.all.modules"/-->
 
 		<!-- the shared library needs to be last so we can build all the generated native bindings -->

@@ -202,11 +202,6 @@ public class ActivityProxy extends KrollProxy
 		return activity;
 	}
 
-	public Activity getActivity()
-	{
-		return activity;
-	}
-
 	public void release()
 	{
 		activity = null;

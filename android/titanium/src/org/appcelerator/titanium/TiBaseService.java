@@ -76,7 +76,7 @@ public class TiBaseService extends Service
 	protected ServiceProxy createProxy(Intent intent)
 	{
 		TiContext context = createTiContext(intent, null);
-		ServiceProxy proxy = new ServiceProxy(context, this, intent, proxyCounter.incrementAndGet());
+		ServiceProxy proxy = new ServiceProxy(this, intent, proxyCounter.incrementAndGet());
 		TiBindingHelper.bindCurrentService(context, proxy);
 		return proxy;
 	}

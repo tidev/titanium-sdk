@@ -32,7 +32,6 @@ public class FileStreamProxy extends KrollProxy implements TiStream
 
 	public FileStreamProxy(TiFileProxy fileProxy)
 	{
-		super(fileProxy.getTiContext());
 		this.fileProxy = fileProxy;
 		isOpen = true;
 	}

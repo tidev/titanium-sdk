@@ -101,13 +101,13 @@ public class MenuItemProxy extends KrollProxy
 				String iconPath = TiConvert.toString(icon);
 				if (iconPath != null) {
 					TiFileHelper tfh = new TiFileHelper(getActivity());
-					Drawable d = tfh.loadDrawable(context, iconPath, false);
+					Drawable d = tfh.loadDrawable(iconPath, false);
 					if (d != null) {
 						item.setIcon(d);
 					}
 				}
 			} else if (icon instanceof Number) {
-				Drawable d = TiUIHelper.getResourceDrawable(getTiContext(), TiConvert.toInt(icon));
+				Drawable d = TiUIHelper.getResourceDrawable(getActivity(), TiConvert.toInt(icon));
 				if (d != null) {
 					item.setIcon(d);
 				}

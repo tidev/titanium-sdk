@@ -15,7 +15,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -38,23 +37,15 @@ public class BufferProxy extends KrollProxy
 
 	public BufferProxy()
 	{
-		super();
 	}
 
-	public BufferProxy(TiContext context)
+	public BufferProxy(int bufferSize)
 	{
-		super(context);
-	}
-
-	public BufferProxy(TiContext context, int bufferSize)
-	{
-		super(context);
 		buffer = new byte[bufferSize];
 	}
 
-	public BufferProxy(TiContext context, byte[] existingBuffer)
+	public BufferProxy(byte[] existingBuffer)
 	{
-		super(context);
 		buffer = existingBuffer;
 	}
 
@@ -304,7 +295,7 @@ public class BufferProxy extends KrollProxy
 
 		validateOffsetAndLength(offset, length, buffer.length);
 
-		return new BufferProxy(context, copyOfRange(buffer, offset, offset+length));
+		return new BufferProxy(copyOfRange(buffer, offset, offset+length));
 	}
 
 	@Kroll.method
@@ -350,7 +341,7 @@ public class BufferProxy extends KrollProxy
 	@Kroll.method
 	public TiBlob toBlob()
 	{
-		return TiBlob.blobFromData(context, buffer);
+		return TiBlob.blobFromData(buffer);
 	}
 
 	@Kroll.getProperty @Kroll.method

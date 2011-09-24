@@ -13,13 +13,11 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.io.TiStream;
 import org.appcelerator.titanium.util.TiConfig;
 
 import ti.modules.titanium.BufferProxy;
 import ti.modules.titanium.TitaniumModule;
-
 
 @Kroll.module(parentModule=TitaniumModule.class)
 public class StreamModule extends KrollModule
@@ -28,19 +26,8 @@ public class StreamModule extends KrollModule
 	@Kroll.constant public static final int MODE_WRITE = 1;
 	@Kroll.constant public static final int MODE_APPEND = 2;
 
-
 	private static final String LCAT = "StreamModule";
 	private static final boolean DBG = TiConfig.LOGD;
-
-	public StreamModule()
-	{
-		super();
-	}
-
-	public StreamModule(TiContext tiContext)
-	{
-		super(tiContext);
-	}
 
 	@Kroll.method
 	public Object createStream(KrollDict params)
@@ -197,7 +184,7 @@ public class StreamModule extends KrollModule
 		}
 
 		if (args.length == 1) {
-			BufferProxy buffer = new BufferProxy(context, 1024);
+			BufferProxy buffer = new BufferProxy(1024);
 			int offset = 0;
 
 			readAll(sourceStream, buffer, offset);
@@ -425,7 +412,7 @@ public class StreamModule extends KrollModule
 
 	private int writeStream(TiStream inputStream, TiStream outputStream, int maxChunkSize) throws IOException
 	{
-		BufferProxy buffer = new BufferProxy(getTiContext(), maxChunkSize);
+		BufferProxy buffer = new BufferProxy(maxChunkSize);
 		int totalBytesWritten = 0;
 
 		while(true) {

@@ -187,7 +187,7 @@ public class TiAnimationBuilder
 			
 			if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY) && fromOpacity != null && toOpacity != null) {
 				if (fromOpacity > 0 && fromOpacity < 1) {
-					TiUIView uiView = viewProxy.getView(null);
+					TiUIView uiView = viewProxy.getOrCreateView();
 					uiView.setOpacity(1);
 				}
 			}

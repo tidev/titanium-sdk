@@ -136,12 +136,12 @@ public class TiContext
 
 	public String resolveUrl(String scheme, String path)
 	{
-		return baseUrl.resolve(this, baseUrl.baseUrl, path, scheme);
+		return TiUrl.resolve(baseUrl.baseUrl, path, scheme);
 	}
 
 	public String resolveUrl(String scheme, String path, String relativeTo)
 	{
-		return baseUrl.resolve(this, relativeTo, path, scheme);
+		return TiUrl.resolve(relativeTo, path, scheme);
 	}
 
 	public String getBaseUrl()
