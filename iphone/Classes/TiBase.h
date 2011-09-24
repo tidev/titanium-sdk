@@ -526,6 +526,10 @@ extern NSString * const kTiLocalNotification;
 #endif
 
 #include "TiThreading.h"
+
+	
+void TiThreadProcessPendingMainThreadBlocks(NSTimeInterval duration, BOOL untilEmpty, void (^isDoneBlock)(BOOL *) );
+
 void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish);
 
 #include "TiPublicAPI.h"

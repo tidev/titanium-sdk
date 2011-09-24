@@ -9,6 +9,7 @@
 #import "TiDebugger.h"
 
 #include <stdarg.h>
+#include <libkern/OSAtomic.h>
 
 NSMutableArray* TiCreateNonRetainingArray() 
 {
@@ -96,9 +97,52 @@ void TiExceptionThrowWithNameAndReason(NSString * exceptionName, NSString * mess
 	}	
 }
 
+NSMutableArray * TiThreadBlockQueue = nil;
+OSSpinLock TiThreadSpinLock = OS_SPINLOCK_INIT;
+
+void TiThreadProcessPendingMainThreadBlocks(NSTimeInterval duration, BOOL untilEmpty, void (^isDoneBlock)(BOOL *) )
+{
+	NSTimeInterval doneTime = [NSDate timeIntervalSinceReferenceDate] + duration;
+	BOOL shouldContinue = YES;
+	do {
+		int queueCount;
+		void (^thisAction)(void) = nil;
+
+		OSSpinLockLock(&TiThreadSpinLock);
+		queueCount = [TiThreadBlockQueue count];
+		if (queueCount > 0) {
+			thisAction = [[TiThreadBlockQueue objectAtIndex:0] retain];
+			[TiThreadBlockQueue removeObjectAtIndex:0];
+		}
+		OSSpinLockUnlock(&TiThreadSpinLock);
+		
+		if (thisAction != nil) {
+			thisAction();
+			[thisAction release];
+		}
+		
+		shouldContinue = [NSDate timeIntervalSinceReferenceDate] >= doneTime;
+		if (shouldContinue && untilEmpty) {
+			shouldContinue = queueCount > 0;
+		}
+		if (isDoneBlock != NULL) {
+			isDoneBlock(&shouldContinue);
+		}
+		if (shouldContinue && (queueCount <= 0)) {
+			/*
+			 *	If we're told to loop despite there being nothing to loop, it
+			 *	is likely we're waiting for the background thread to request
+			 *	something. In this case, we should briefly sleep.
+			 */
+			[NSThread sleepForTimeInterval:0.01];
+		}
+	} while (shouldContinue);
+}
+
 void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 {
 	__block NSException * caughtException = nil;
+	__block BOOL finished = NO;
 	void (^wrapperBlock)() = ^{
 		BOOL exceptionsWereSafe = TiExceptionIsSafeOnMainThread;
 		TiExceptionIsSafeOnMainThread = YES;
@@ -111,17 +155,34 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 			}
 		}
 		TiExceptionIsSafeOnMainThread = exceptionsWereSafe;
+		finished = YES;
 	};
 	
-	if (waitForFinish)
+	int queueCount;
+	OSSpinLockLock(&TiThreadSpinLock);
+	queueCount = [TiThreadBlockQueue count];
+	if (TiThreadBlockQueue == nil)
 	{
-		dispatch_sync(dispatch_get_main_queue(), (dispatch_block_t)wrapperBlock);
+		TiThreadBlockQueue = [[NSMutableArray alloc] initWithObjects:wrapperBlock, nil];
 	}
 	else
 	{
-		dispatch_async(dispatch_get_main_queue(), (dispatch_block_t)wrapperBlock);
+		[TiThreadBlockQueue addObject:wrapperBlock];
 	}
-	
+	OSSpinLockUnlock(&TiThreadSpinLock);
+
+	dispatch_async(dispatch_get_main_queue(), ^(){
+		if (queueCount) {
+			[NSThread sleepForTimeInterval:0.01];
+		}
+		TiThreadProcessPendingMainThreadBlocks(0.05, YES, nil);	
+	});
+
+	while(waitForFinish && !finished)
+	{
+		[NSThread sleepForTimeInterval:0.01];
+	}
+		
 	if (caughtException != nil) {
 		[caughtException autorelease];
 		[caughtException raise];
