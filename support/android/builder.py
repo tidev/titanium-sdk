@@ -1361,7 +1361,7 @@ class Builder(object):
 							if is_modified(native_lib):
 								self.apk_updated = True
 								debug("installing native lib: %s" % native_lib)
-								apk_zip.write(native_lib, '/'.join(['libs', abi_dir, file]))
+								apk_zip.write(native_lib, '/'.join(['lib', abi_dir, file]))
 
 		# add any native libraries : libs/**/*.so -> lib/**/*.so
 		add_native_libs(os.path.join(self.project_dir, 'libs'))
