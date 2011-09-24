@@ -8,8 +8,8 @@
 #include <string.h>
 
 #include "AndroidUtil.h"
+#include "AssetsModule.h"
 #include "TitaniumGlobal.h"
-#include "Assets.h"
 #include "EventEmitter.h"
 #include "JavaObject.h"
 #include "JNIUtil.h"
@@ -57,6 +57,10 @@ static Handle<Value> binding(const Arguments& args)
 	} else if (strcmp(*module_v, "evals") == 0) {
 		exports = Object::New();
 		ScriptsModule::Initialize(exports);
+		binding_cache->Set(module, exports);
+	} else if (strcmp(*module_v, "assets") == 0) {
+		exports = Object::New();
+		AssetsModule::Initialize(exports);
 		binding_cache->Set(module, exports);
 	} else if (strcmp(*module_v, "titanium") == 0) {
 		exports = Object::New();

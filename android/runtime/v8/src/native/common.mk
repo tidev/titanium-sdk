@@ -16,7 +16,6 @@ endif
 
 LDLIBS := -L$(SYSROOT)/usr/lib -ldl -llog -L$(TARGET_OUT)
 SRC_FILES := \
-	Assets.cpp \
 	EventEmitter.cpp \
 	JavaObject.cpp \
 	JNIUtil.cpp \
@@ -29,6 +28,7 @@ SRC_FILES := \
 	V8Script.cpp \
 	V8Util.cpp \
 	modules/APIModule.cpp \
+	modules/AssetsModule.cpp \
 	modules/ScriptsModule.cpp \
 	modules/TitaniumGlobal.cpp \
 	$(PROXY_SOURCES)
