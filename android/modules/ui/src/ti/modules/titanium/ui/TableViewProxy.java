@@ -95,7 +95,7 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	public TiUITableView getTableView() {
-		return (TiUITableView) getView(getActivity());
+		return (TiUITableView) getOrCreateView();
 	}
 
 	@Kroll.method

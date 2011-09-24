@@ -7,8 +7,8 @@
 package ti.modules.titanium.ui.widget.tableview;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -17,6 +17,7 @@ import org.appcelerator.titanium.util.TiPlatformHelper;
 
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.R;
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -38,14 +39,12 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 	private static Bitmap checkIndicatorBitmap = null;
 	
 	protected Handler handler;
-	protected TiContext tiContext;
 	protected TiFileHelper tfh;
 	protected String className;
 
-	public TiBaseTableViewItem(TiContext tiContext)
+	public TiBaseTableViewItem(Activity activity)
 	{
-		super(tiContext.getActivity());
-		this.tiContext = tiContext;
+		super(activity);
 		this.handler = new Handler(this);
 		
 		if (TiBaseTableViewItem.childIndicatorBitmap == null || TiBaseTableViewItem.checkIndicatorBitmap == null) {
@@ -115,9 +114,9 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 
 	public Drawable loadDrawable(String url) {
 		if (tfh == null) {
-			tfh = new TiFileHelper(tiContext.getActivity());
+			tfh = new TiFileHelper(getContext());
 		}
-		return tfh.loadDrawable(tiContext, url, false);
+		return tfh.loadDrawable(url, false);
 	}
 
 	public String getClassName() {
@@ -128,9 +127,8 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 		this.className = className;
 	}
 	
-	public Drawable getBackgroundImageDrawable(KrollDict d, String property) {
-		String path = TiConvert.toString(d, property);
-		String url = tiContext.resolveUrl(null, path);
+	public Drawable getBackgroundImageDrawable(KrollProxy proxy, String path) {
+		String url = proxy.resolveUrl(null, path);
 		return loadDrawable(url);
 	}
 
@@ -172,20 +170,19 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 		setBackgroundDrawable(stateDrawable);
 	}
 
-	public void setBackgroundFromProperties(KrollDict props) {
+	public void setBackgroundFromProxy(KrollProxy proxy) {
 		Drawable background = null;
-		if (props.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE)) {
-			background = getBackgroundImageDrawable(props, TiC.PROPERTY_BACKGROUND_IMAGE);
-		} else if (props.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			Integer bgColor = TiConvert.toColor(props, TiC.PROPERTY_BACKGROUND_COLOR);
+		if (proxy.hasProperty(TiC.PROPERTY_BACKGROUND_IMAGE)) {
+			background = getBackgroundImageDrawable(proxy, proxy.getProperty(TiC.PROPERTY_BACKGROUND_IMAGE).toString());
+		} else if (proxy.hasProperty(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			Integer bgColor = TiConvert.toColor(proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR).toString());
 			background = new ColorDrawable(bgColor);
 		}
 
-		setBackgroundDrawable(props, background);
+		// TODO setBackgroundDrawable(props, background);
 	}
 	
 	public void release() {
 		handler = null;
-		tiContext = null;
 	}
 }

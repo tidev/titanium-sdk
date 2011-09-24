@@ -52,8 +52,8 @@ public class TiUIButton extends TiUIView
 			Object value = d.get(TiC.PROPERTY_IMAGE);
 			if (value instanceof String) {
 				try {
-					String url = getProxy().getTiContext().resolveUrl(null, (String)value);
-					TiBaseFile file = TiFileFactory.createTitaniumFile(getProxy().getTiContext(), new String[] { url }, false);
+					String url = getProxy().resolveUrl(null, (String) value);
+					TiBaseFile file = TiFileFactory.createTitaniumFile(new String[] { url }, false);
 					Bitmap bitmap = TiUIHelper.createBitmap(file.getInputStream());
 
 					btn.setBackgroundDrawable(new BitmapDrawable(bitmap));

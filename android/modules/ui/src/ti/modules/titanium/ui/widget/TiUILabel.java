@@ -85,14 +85,14 @@ public class TiUILabel extends TiUIView
 			tv.setSingleLine(!TiConvert.toBoolean(d, TiC.PROPERTY_WORD_WRAP));
 		}
 		// This needs to be the last operation.
-		linkifyIfEnabled(tv, d);
+		linkifyIfEnabled(tv, d.get(TiC.PROPERTY_AUTO_LINK));
 		tv.invalidate();
 	}
 
-	private void linkifyIfEnabled(TextView tv, KrollDict d)
+	private void linkifyIfEnabled(TextView tv, Object autoLink)
 	{
-		if (d.containsKey(TiC.PROPERTY_AUTO_LINK)) {
-			Linkify.addLinks(tv,TiConvert.toInt(d, TiC.PROPERTY_AUTO_LINK));
+		if (autoLink != null) {
+			Linkify.addLinks(tv, TiConvert.toInt(autoLink));
 		}
 	}
 	
@@ -105,11 +105,11 @@ public class TiUILabel extends TiUIView
 		TextView tv = (TextView) getNativeView();
 		if (key.equals(TiC.PROPERTY_HTML)) {
 			tv.setText(Html.fromHtml(TiConvert.toString(newValue)), TextView.BufferType.SPANNABLE);
-			linkifyIfEnabled(tv, proxy.getProperties());
+			linkifyIfEnabled(tv, proxy.getProperty(TiC.PROPERTY_AUTO_LINK));
 			tv.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_TEXT) || key.equals(TiC.PROPERTY_TITLE)) {
 			tv.setText(TiConvert.toString(newValue));
-			linkifyIfEnabled(tv, proxy.getProperties());
+			linkifyIfEnabled(tv, proxy.getProperty(TiC.PROPERTY_AUTO_LINK));
 			tv.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			tv.setTextColor(TiConvert.toColor((String) newValue));

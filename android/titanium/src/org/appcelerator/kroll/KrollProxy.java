@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.runtime.v8.EventEmitter;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.util.AsyncResult;
@@ -21,7 +22,6 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUrl;
 
-import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -48,7 +48,7 @@ public class KrollProxy extends EventEmitter
 	protected KrollModule createdInModule;
 	protected boolean coverageEnabled;
 	protected KrollDict creationDict = null;
-	protected Activity activity;
+	protected TiBaseActivity activity;
 
 	@Kroll.inject
 	protected KrollInvocation currentInvocation;
@@ -274,12 +274,12 @@ public class KrollProxy extends EventEmitter
 		}
 	}
 
-	public Activity getActivity()
+	public TiBaseActivity getActivity()
 	{
 		return this.activity;
 	}
 
-	public void setActivity(Activity activity)
+	public void setActivity(TiBaseActivity activity)
 	{
 		this.activity = activity;
 	}

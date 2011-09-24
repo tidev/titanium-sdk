@@ -32,14 +32,12 @@ public abstract class TiBackgroundImageLoadTask
 	private static final String LCAT = "TiBackgroundImageLoadTask";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	protected SoftReference<TiContext> softTiContext;
 	protected SoftReference<View> parent;
 	protected TiDimension imageHeight;
 	protected TiDimension imageWidth;
 
-	public TiBackgroundImageLoadTask(TiContext tiContext, View parent, TiDimension imageWidth, TiDimension imageHeight)
+	public TiBackgroundImageLoadTask(View parent, TiDimension imageWidth, TiDimension imageHeight)
 	{
-		this.softTiContext = new SoftReference<TiContext>(tiContext);
 		this.parent = new SoftReference<View>(parent);
 		this.imageWidth = imageWidth;
 		this.imageHeight = imageHeight;
@@ -55,15 +53,14 @@ public abstract class TiBackgroundImageLoadTask
 		
 		String url = arg[0];
 		Drawable d = null;
-		TiContext context = softTiContext.get();
-		if (context == null || parent.get() == null) {
+		if (parent.get() == null) {
 			if (DBG) {
 				Log.d(LCAT, "doInBackground exiting early because context already gc'd");
 			}
 			return null;
 		}
 		
-		TiDrawableReference ref = TiDrawableReference.fromUrl(context, 	url);
+		TiDrawableReference ref = TiDrawableReference.fromUrl(url);
 		
 		boolean retry = true;
 		int retryCount = 3;

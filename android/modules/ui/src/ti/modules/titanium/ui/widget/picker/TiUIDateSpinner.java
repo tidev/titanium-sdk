@@ -83,7 +83,7 @@ public class TiUIDateSpinner extends TiUIView
 		layout.setOrientation(LinearLayout.HORIZONTAL);
 		
 		if (proxy.hasProperty("dayBeforeMonth")) {
-			dayBeforeMonth = TiConvert.toBoolean(proxy.getProperties(), "dayBeforeMonth");
+			// TODO dayBeforeMonth = TiConvert.toBoolean(proxy.getProperties(), "dayBeforeMonth");
 		}
 		
 		if (dayBeforeMonth) {

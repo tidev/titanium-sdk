@@ -182,15 +182,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 		this.postOpenListener = listener;
 	}
 
-	@Kroll.method
-	public void hideTabBar()
-	{
-		// iPhone only right now.
-	}
-
 	public KrollDict handleToImage()
 	{
-		return TiUIHelper.viewToImage(getTiContext(), new KrollDict(), getActivity().getWindow().getDecorView());
+		return TiUIHelper.viewToImage(new KrollDict(), getActivity().getWindow().getDecorView());
 	}
 
 	// only exists to expose a way for the activity to update the orientation based on

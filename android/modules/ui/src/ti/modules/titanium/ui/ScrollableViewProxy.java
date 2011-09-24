@@ -60,7 +60,7 @@ public class ScrollableViewProxy extends TiViewProxy
 	}
 
 	protected TiUIScrollableView getView() {
-		return (TiUIScrollableView)getView(getActivity());
+		return (TiUIScrollableView) getOrCreateView();
 	}
 
 	public boolean handleMessage(Message msg)

@@ -68,7 +68,7 @@ public class TiScrollableView extends TiCompositeLayout
 
 		public void doAttachView() {
 			if (view == null) {
-				view = views.get(position).getView(null).getNativeView();
+				view = views.get(position).getOrCreateView().getNativeView();
 				addView(view);
 				if (getChildCount() > 2) {
 					Log.e(LCAT, "----------------------- CHILD COUNT: " + getChildCount());

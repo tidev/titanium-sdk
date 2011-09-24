@@ -20,7 +20,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -86,8 +85,8 @@ public class TiUIImageView extends TiUIView
 	{
 		private int token;
 
-		public BgImageLoader(TiContext tiContext, TiDimension imageWidth, TiDimension imageHeight, int token) {
-			super(tiContext, getParentView(), imageWidth, imageHeight);
+		public BgImageLoader(TiDimension imageWidth, TiDimension imageHeight, int token) {
+			super(getParentView(), imageWidth, imageHeight);
 			this.token = token;
 		}
 
@@ -139,7 +138,7 @@ public class TiUIImageView extends TiUIView
 					// via the "old way" (not relying on cache).
 					synchronized (imageTokenGenerator) {
 						token = imageTokenGenerator.incrementAndGet();
-						imageSources.get(0).getBitmapAsync(new BgImageLoader(getProxy().getTiContext(), requestedWidth, requestedHeight, token));
+						imageSources.get(0).getBitmapAsync(new BgImageLoader(requestedWidth, requestedHeight, token));
 					}
 				} else {
 					firedLoad = false;
@@ -148,7 +147,7 @@ public class TiUIImageView extends TiUIView
 			}
 		};
 		setNativeView(view);
-		proxy.getTiContext().addOnLifecycleEventListener(this);
+		// TODO proxy.getActivity().addOnLifecycleEventListener(this);
 	}
 
 	@Override
@@ -529,18 +528,18 @@ public class TiUIImageView extends TiUIView
 	private TiDrawableReference makeImageSource(Object object)
 	{
 		if (object instanceof FileProxy) {
-			return TiDrawableReference.fromFile(getProxy().getTiContext(), ((FileProxy)object).getBaseFile());
+			return TiDrawableReference.fromFile(((FileProxy)object).getBaseFile());
 		} else {
-			return TiDrawableReference.fromObject(getProxy().getTiContext(), object);
+			return TiDrawableReference.fromObject(object);
 		}
 	}
 	
 	private void setDefaultImageSource(Object object)
 	{
 		if (object instanceof FileProxy) {
-			defaultImageSource = TiDrawableReference.fromFile(getProxy().getTiContext(), ((FileProxy)object).getBaseFile());
+			defaultImageSource = TiDrawableReference.fromFile(((FileProxy)object).getBaseFile());
 		} else {
-			defaultImageSource = TiDrawableReference.fromObject(getProxy().getTiContext(), object);
+			defaultImageSource = TiDrawableReference.fromObject(object);
 		}
 	}
 
@@ -622,7 +621,8 @@ public class TiUIImageView extends TiUIView
 		// fail randomly and seemingly without a cause. Retry 5 times by default w/ 250ms between each try,
 		// Usually the 2nd or 3rd try succeeds, but the "decodeRetries" property
 		// will allow users to tweak this if needed
-		final int maxRetries = proxy.getProperties().optInt(PROPERTY_DECODE_RETRIES, DEFAULT_DECODE_RETRIES);
+		Object retries = proxy.getProperty(PROPERTY_DECODE_RETRIES);
+		final int maxRetries = retries == null ? DEFAULT_DECODE_RETRIES : (Integer) retries;
 		if (decodeRetries < maxRetries) {
 			decodeRetries++;
 			proxy.getUIHandler().postDelayed(new Runnable() {
@@ -783,7 +783,7 @@ public class TiUIImageView extends TiUIView
 			Drawable drawable = view.getImageDrawable();
 			if (drawable != null && drawable instanceof BitmapDrawable) {
 				Bitmap bitmap = ((BitmapDrawable)drawable).getBitmap();
-				return TiBlob.blobFromImage(proxy.getTiContext(), bitmap);
+				return TiBlob.blobFromImage(bitmap);
 			}
 		}
 

@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
@@ -74,10 +75,9 @@ public class TiDrawableReference
 	
 	private TiFileHelper fileHelper = null;
 	
-	public TiDrawableReference(TiContext context, DrawableReferenceType type)
+	public TiDrawableReference(DrawableReferenceType type)
 	{
 		this.type = type;
-		softContext = new SoftReference<TiContext>(context);
 	}
 
 	/**
@@ -97,6 +97,7 @@ public class TiDrawableReference
 		total = total * constant + resourceId;
 		return total;
 	}
+
 	@Override
 	public boolean equals(Object object)
 	{
@@ -105,28 +106,34 @@ public class TiDrawableReference
 		}
 		return (this.hashCode() == ((TiDrawableReference)object).hashCode());
 	}
-	public static TiDrawableReference fromResourceId(TiContext context, int resourceId) 
+
+	public static TiDrawableReference fromResourceId(int resourceId) 
 	{
-		TiDrawableReference ref = new TiDrawableReference(context, DrawableReferenceType.RESOURCE_ID);
+		TiDrawableReference ref = new TiDrawableReference(DrawableReferenceType.RESOURCE_ID);
 		ref.resourceId = resourceId;
 		return ref;
 	}
-	
-	public static TiDrawableReference fromBlob(TiContext context, TiBlob blob)
+
+	public static TiDrawableReference fromBlob(TiBlob blob)
 	{
-		TiDrawableReference ref = new TiDrawableReference(context, DrawableReferenceType.BLOB);
+		TiDrawableReference ref = new TiDrawableReference(DrawableReferenceType.BLOB);
 		ref.blob = blob;
 		return ref;
 	}
-	
-	public static TiDrawableReference fromUrl(TiContext context, String url)
+
+	public static TiDrawableReference fromUrl(KrollProxy proxy, String url)
 	{
-		TiDrawableReference ref = new TiDrawableReference(context, DrawableReferenceType.URL);
+		return fromUrl(proxy.resolveUrl(null, url));
+	}
+
+	public static TiDrawableReference fromUrl(String url)
+	{
+		TiDrawableReference ref = new TiDrawableReference(DrawableReferenceType.URL);
 		ref.url = url;
-		
+
 		// Could still be a resource image file in android/images/medium|high|low. Check once.
 		if (url != null) {
-			int id =  TiUIHelper.getResourceId(context.resolveUrl(null, url));
+			int id =  TiUIHelper.getResourceId(url);
 			if (id != 0) {
 				// This is a resource so handle it as such.  Is it evil to switch up the type on someone like this? Maybe...
 				ref.type = DrawableReferenceType.RESOURCE_ID;
@@ -135,21 +142,21 @@ public class TiDrawableReference
 		}
 		return ref;
 	}
-	
-	public static TiDrawableReference fromFile(TiContext context, TiBaseFile file)
+
+	public static TiDrawableReference fromFile(TiBaseFile file)
 	{
-		TiDrawableReference ref = new TiDrawableReference(context, DrawableReferenceType.FILE);
+		TiDrawableReference ref = new TiDrawableReference(DrawableReferenceType.FILE);
 		ref.file = file;
 		return ref;
 	}
 	
-	public static TiDrawableReference fromDictionary(TiContext context, KrollDict dict)
+	public static TiDrawableReference fromDictionary(KrollDict dict)
 	{
 		if (dict.containsKey("media")) {
-			return fromBlob(context, TiConvert.toBlob(dict, "media"));
+			return fromBlob(TiConvert.toBlob(dict, "media"));
 		} else {
 			Log.w(LCAT, "Unknown drawable reference inside dictionary.  Expected key 'media' to be a blob.  Returning null drawable reference");
-			return fromObject(context, null);
+			return fromObject(null);
 		}
 	}
 	/**
@@ -158,25 +165,25 @@ public class TiDrawableReference
 	 * @param object
 	 * @return A ready instance of TiDrawableReference
 	 */
-	public static TiDrawableReference fromObject(TiContext context, Object object)
+	public static TiDrawableReference fromObject(Object object)
 	{
 		if (object == null) {
-			return new TiDrawableReference(context, DrawableReferenceType.NULL);
+			return new TiDrawableReference(DrawableReferenceType.NULL);
 		}
 		
 		if (object instanceof String) {
-			return fromUrl(context, TiConvert.toString(object));
+			return fromUrl(TiConvert.toString(object));
 		} else if (object instanceof KrollDict) {
-			return fromDictionary(context, (KrollDict)object);
+			return fromDictionary((KrollDict)object);
 		} else if (object instanceof TiBaseFile) {
-			return fromFile(context, (TiBaseFile)object);
+			return fromFile((TiBaseFile)object);
 		} else if (object instanceof TiBlob) {
-			return fromBlob(context, TiConvert.toBlob(object));
+			return fromBlob(TiConvert.toBlob(object));
 		} else if (object instanceof Number) {
-			return fromResourceId(context, ((Number)object).intValue());
+			return fromResourceId(((Number)object).intValue());
 		} else {
 			Log.w(LCAT, "Unknown image resource type: " + object.getClass().getSimpleName() + ". Returning null drawable reference");
-			return fromObject(context, null);
+			return fromObject(null);
 		}
 	}
 	
@@ -515,7 +522,7 @@ public class TiDrawableReference
 					String resolved = context.resolveUrl(null, url);
 					if (resolved.startsWith(TiC.URL_ANDROID_ASSET_RESOURCES)
 						&& TiFastDev.isFastDevEnabled()) {
-						TiBaseFile tbf = TiFileFactory.createTitaniumFile(context, new String[] { resolved }, false);
+						TiBaseFile tbf = TiFileFactory.createTitaniumFile(new String[] { resolved }, false);
 						stream = tbf.getInputStream();
 					} else {
 						stream = getTiFileHelper().openInputStream(resolved, false);

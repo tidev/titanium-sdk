@@ -182,8 +182,8 @@ public class TiUIText extends TiUIView
 			}
 			handleTextAlign(textAlign, verticalAlign);
 		} else if (key.equals(TiC.PROPERTY_KEYBOARD_TYPE) || (key.equals(TiC.PROPERTY_AUTOCORRECT) || key.equals(TiC.PROPERTY_AUTOCAPITALIZATION) || key.equals(TiC.PROPERTY_PASSWORD_MASK) || key.equals(TiC.PROPERTY_EDITABLE))) {
-			KrollDict d = proxy.getProperties();
-			handleKeyboard(d);
+			/* TODO KrollDict d = proxy.getProperties();
+			handleKeyboard(d);*/
 		} else if (key.equals(TiC.PROPERTY_RETURN_KEY_TYPE)) {
 			handleReturnKeyType(TiConvert.toInt(newValue));
 		} else if (key.equals(TiC.PROPERTY_FONT)) {

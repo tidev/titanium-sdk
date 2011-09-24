@@ -236,7 +236,7 @@ public class TiVideoActivity extends Activity
 
 				// TODO do we need to save the proxies?
 				TiViewProxy proxy = (TiViewProxy) msg.obj;
-				TiUIView tiv = proxy.getView(this);
+				TiUIView tiv = proxy.getOrCreateView();
 				View v = tiv.getNativeView();
 				if (v != null) {
 					layout.addView(v, tiv.getLayoutParams());

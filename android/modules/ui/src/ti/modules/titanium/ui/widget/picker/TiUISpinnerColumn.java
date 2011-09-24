@@ -83,7 +83,8 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 		Float fontSize = null;
 		String fontWeight = null;
 		Typeface typeface = null;
-		KrollDict d = proxy.getProperties();
+		// TODO KrollDict d = proxy.getProperties();
+		KrollDict d = new KrollDict();
 		if (d.containsKey(TiC.PROPERTY_FONT) && d.get(TiC.PROPERTY_FONT) instanceof KrollDict) {
 			KrollDict font = d.getKrollDict(TiC.PROPERTY_FONT);
 			if (font.containsKey("fontSize")) {

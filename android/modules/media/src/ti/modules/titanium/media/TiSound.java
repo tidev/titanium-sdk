@@ -15,6 +15,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollProxyListener;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -84,7 +85,7 @@ public class TiSound
 			mp = new MediaPlayer();
 			String url = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_URL));
 			if (URLUtil.isAssetUrl(url)) {
-				Context context = proxy.getTiContext().getTiApp();
+				Context context = TiApplication.getInstance();
 				String path = url.substring(TiConvert.ASSET_URL.length());
 				AssetFileDescriptor afd = null;
 				try {

@@ -8,14 +8,14 @@ var binding = kroll.binding('titanium');
 var Titanium = binding.Titanium;
 
 // assign any Titanium props/methods/aliases here
-var KrollProxy = Titanium.KrollProxy;
 
-KrollProxy.prototype.extend = function(object) {
+Object.prototype.extend = function(other) {
 	if (!object) return;
 
 	for (name in object) {
 		this[name] = object[name];
 	}
+	return this;
 }
 
 module.exports = Titanium;

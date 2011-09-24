@@ -9,6 +9,7 @@ package org.appcelerator.titanium;
 import java.lang.ref.WeakReference;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
@@ -18,11 +19,11 @@ import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiMenuSupport;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
-import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
@@ -37,12 +38,11 @@ import android.os.RemoteException;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
 public abstract class TiBaseActivity extends Activity 
-	implements TiActivitySupport, ITiWindowHandler
+	implements TiActivitySupport/*, ITiWindowHandler*/
 {
 	private static final String TAG = "TiBaseActivity";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -306,7 +306,7 @@ public abstract class TiBaseActivity extends Activity
 			layout.setKeepScreenOn(intent.getBooleanExtra(TiC.PROPERTY_KEEP_SCREEN_ON, layout.getKeepScreenOn()));
 		}
 		super.onCreate(savedInstanceState);
-		getTiApp().setWindowHandler(this);
+		// getTiApp().setWindowHandler(this);
 		windowCreated();
 
 		if (activityProxy != null) {
@@ -401,16 +401,21 @@ public abstract class TiBaseActivity extends Activity
 		getSupportHelper().onActivityResult(requestCode, resultCode, data);
 	}
 
-	// TODO @Override
-	public void addWindow(View v, TiCompositeLayout.LayoutParams params)
+	public void addOnLifecycleEventListener(OnLifecycleEvent listener)
 	{
-		layout.addView(v, params);
+		// TODO stub
 	}
 
-	// TODO @Override
-	public void removeWindow(View v)
+	public void removeOnLifecycleEventListener(OnLifecycleEvent listener)
 	{
-		layout.removeView(v);
+		// TODO stub
+	}
+
+	private TiFileHelper fileHelper = new TiFileHelper(this);
+	public TiFileHelper getTiFileHelper()
+	{
+		// TODO stub
+		return fileHelper;
 	}
 
 	@Override
@@ -558,7 +563,7 @@ public abstract class TiBaseActivity extends Activity
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onResume");
 		}
-		getTiApp().setWindowHandler(this);
+		//getTiApp().setWindowHandler(this);
 		getTiApp().setCurrentActivity(this, this);
 		if (activityProxy != null) {
 			activityProxy.fireSyncEvent(TiC.EVENT_RESUME, null);

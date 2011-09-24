@@ -30,10 +30,6 @@ import org.appcelerator.titanium.view.TiAnimation;
 })
 public class AnimationProxy extends TiAnimation {
 
-	public AnimationProxy(TiContext tiContext) {
-		super(tiContext);
-	}
-	
 	public void handleCreationDict(org.appcelerator.kroll.KrollDict dict) {
 		super.handleCreationDict(dict);
 		

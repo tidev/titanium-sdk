@@ -17,8 +17,8 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollProxyListener;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
@@ -557,7 +557,7 @@ public abstract class TiUIView
 	protected InputMethodManager getIMM()
 	{
 		InputMethodManager imm = null;
-		imm = (InputMethodManager) proxy.getTiContext().getTiApp().getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm = (InputMethodManager) TiApplication.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
 		return imm;
 	}
 
@@ -645,18 +645,17 @@ public abstract class TiUIView
 		String bgFocusedColor = d.getString(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR);
 		String bgDisabledColor = d.getString(TiC.PROPERTY_BACKGROUND_DISABLED_COLOR);
 
-		TiContext tiContext = getProxy().getTiContext();
 		if (bg != null) {
-			bg = tiContext.resolveUrl(null, bg);
+			bg = proxy.resolveUrl(null, bg);
 		}
 		if (bgSelected != null) {
-			bgSelected = tiContext.resolveUrl(null, bgSelected);
+			bgSelected = proxy.resolveUrl(null, bgSelected);
 		}
 		if (bgFocused != null) {
-			bgFocused = tiContext.resolveUrl(null, bgFocused);
+			bgFocused = proxy.resolveUrl(null, bgFocused);
 		}
 		if (bgDisabled != null) {
-			bgDisabled = tiContext.resolveUrl(null, bgDisabled);
+			bgDisabled = proxy.resolveUrl(null, bgDisabled);
 		}
 
 		if (bg != null || bgSelected != null || bgFocused != null || bgDisabled != null ||
@@ -666,7 +665,7 @@ public abstract class TiUIView
 				applyCustomBackground(false);
 			}
 
-			Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(tiContext, bg, bgColor, bgSelected, bgSelectedColor, bgDisabled, bgDisabledColor, bgFocused, bgFocusedColor);
+			Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(bg, bgColor, bgSelected, bgSelectedColor, bgDisabled, bgDisabledColor, bgFocused, bgFocusedColor);
 			background.setBackgroundDrawable(bgDrawable);
 		}
 	}
@@ -742,6 +741,7 @@ public abstract class TiUIView
 		data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
 		return data;
 	}
+
 	private KrollDict dictFromEvent(KrollDict dictToCopy){
 		KrollDict data = new KrollDict();
 		if (dictToCopy.containsKey(TiC.EVENT_PROPERTY_X)){
@@ -776,19 +776,18 @@ public abstract class TiUIView
 			return;
 		}
 		mTouchView = new WeakReference<View>(touchable);
-		final GestureDetector detector = new GestureDetector(proxy.getTiContext().getActivity(),
+		final GestureDetector detector = new GestureDetector(touchable.getContext(),
 			new SimpleOnGestureListener() {
 				@Override
 				public boolean onDoubleTap(MotionEvent e) {
-					/*TODO boolean handledTap = */proxy.fireEvent(TiC.EVENT_DOUBLE_TAP, dictFromEvent(e));
-					/*TODO boolean handledClick = */proxy.fireEvent(TiC.EVENT_DOUBLE_CLICK, dictFromEvent(e));
-					/*TODO return handledTap || handledClick;*/
-					return true;
+					boolean handledTap = proxy.fireEvent(TiC.EVENT_DOUBLE_TAP, dictFromEvent(e));
+					boolean handledClick = proxy.fireEvent(TiC.EVENT_DOUBLE_CLICK, dictFromEvent(e));
+					return handledTap || handledClick;
 				}
 				@Override
 				public boolean onSingleTapConfirmed(MotionEvent e) {
 					if (DBG) { Log.d(LCAT, "TAP, TAP, TAP on " + proxy); }
-					/*TODO boolean handledTap = */proxy.fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
+					boolean handledTap = proxy.fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
 					// Moved click handling to the onTouch listener, because a single tap is not the
 					// same as a click.  A single tap is a quick tap only, whereas clicks can be held
 					// before lifting.
@@ -797,7 +796,7 @@ public abstract class TiUIView
 					// in onTouch below, when we call detector.onTouchEvent(event);  But, in fact,
 					// onSingleTapConfirmed is *not* called in the course of onTouchEvent.  It's
 					// called via Handler in GestureDetector. <-- See its Java source.
-					return true;/*TODO return handledTap;*/// || handledClick;
+					return handledTap;// || handledClick;
 				}
 				@Override
 				public void onLongPress(MotionEvent e)
@@ -820,7 +819,7 @@ public abstract class TiUIView
 						Rect r = new Rect(0, 0, view.getWidth(), view.getHeight());
 						int actualAction = r.contains((int)event.getX(), (int)event.getY())
 							? MotionEvent.ACTION_UP : MotionEvent.ACTION_CANCEL;
-						/*TODO handled = */proxy.fireEvent(motionEvents.get(actualAction), dictFromEvent(event));
+						handled = proxy.fireEvent(motionEvents.get(actualAction), dictFromEvent(event));
 						if (handled && actualAction == MotionEvent.ACTION_UP) {
 							// If this listener returns true, a click event does not occur,
 							// because part of the Android View's default ACTION_UP handling
@@ -831,7 +830,7 @@ public abstract class TiUIView
 						}
 						return handled;
 					} else {
-						/*TODO handled = */proxy.fireEvent(motionEvents.get(event.getAction()), dictFromEvent(event));
+						handled = proxy.fireEvent(motionEvents.get(event.getAction()), dictFromEvent(event));
 					}
 				}
 				return handled;
@@ -847,8 +846,8 @@ public abstract class TiUIView
 		// so we store the last up event's x,y coordinates (see onTouch above) and use them here.
 		// Note: AdapterView throws an exception if you try to put a click listener on it.
 		doSetClickable(touchable);
-
 	}
+
 	public void setOpacity(float opacity)
 	{
 		setOpacity(nativeView, opacity);

@@ -56,7 +56,7 @@ public class EmailDialogProxy extends TiViewProxy {
 
 	public EmailDialogProxy()
 	{
-		TiBaseFile privateDataDirectory = TiFileFactory.createTitaniumFile(tiContext, "appdata-private:///", false);
+		TiBaseFile privateDataDirectory = TiFileFactory.createTitaniumFile("appdata-private:///", false);
 		privateDataDirectoryPath = privateDataDirectory.getNativeFile().getAbsolutePath();
 	}
 
@@ -169,13 +169,13 @@ public class EmailDialogProxy extends TiViewProxy {
 			
 	}
 
-	private File blobToTemp(TiBlob blob, String fileName) {
-
-		File tempFolder = new File (getTiContext().getTiFileHelper().getDataDirectory(false), "temp");
+	private File blobToTemp(TiBlob blob, String fileName)
+	{
+		File tempFolder = new File(getActivity().getTiFileHelper().getDataDirectory(false), "temp");
 		tempFolder.mkdirs();
 
 		File tempfilej = new File(tempFolder, fileName);
-		TiFile tempfile = new TiFile(getTiContext(),tempfilej, tempfilej.getPath(), false);
+		TiFile tempfile = new TiFile(tempfilej, tempfilej.getPath(), false);
 
 		if (tempfile.exists()) {
 			tempfile.deleteFile();
@@ -189,6 +189,7 @@ public class EmailDialogProxy extends TiViewProxy {
 
 		return null;
 	}
+
 	private File privateFileToTemp(FileProxy file)
 	{
 		File tempfile = null;

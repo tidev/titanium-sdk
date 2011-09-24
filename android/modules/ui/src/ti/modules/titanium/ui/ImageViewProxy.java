@@ -31,18 +31,11 @@ import android.graphics.Bitmap;
 	TiC.PROPERTY_REPEAT_COUNT,
 	TiC.PROPERTY_URL
 })
-public class ImageViewProxy extends ViewProxy {
-
-	// We use these property to key an existing bitmap / sources when views and proxies are being swapped inside a TableView
-	private static final String PROPERTY_INTERNAL_BITMAP = "_internalBitmap";
-	private static final String PROPERTY_INTERNAL_SOURCES = "_internalSources";
+public class ImageViewProxy extends ViewProxy
+{
 
 	private Bitmap bitmap;
 	private ArrayList<TiDrawableReference> imageSources;
-
-	public ImageViewProxy(TiContext tiContext) {
-		super(tiContext);
-	}
 
 	@Override
 	public TiUIView createView(Activity activity) {
@@ -90,7 +83,7 @@ public class ImageViewProxy extends ViewProxy {
 	}
 
 	private TiUIImageView getImageView() {
-		return (TiUIImageView)getView(getActivity());
+		return (TiUIImageView) getOrCreateView();
 	}
 	
 	@Kroll.method

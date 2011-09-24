@@ -22,10 +22,6 @@ public class CameraPreviewProxy extends TiViewProxy
 
 	private Camera camera;
 
-	public CameraPreviewProxy(TiContext tiContext)
-	{
-		super(tiContext);
-	}
 
 	@Override
 	public TiUIView createView(Activity activity) {

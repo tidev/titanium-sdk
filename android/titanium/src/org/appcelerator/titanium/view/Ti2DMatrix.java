@@ -64,15 +64,9 @@ public class Ti2DMatrix extends KrollProxy
 
 	protected Operation op;
 
-	public Ti2DMatrix(TiContext tiContext)
+	public Ti2DMatrix() {}
+	protected Ti2DMatrix(Ti2DMatrix prev, int opType)
 	{
-		// Default Identity Matrix
-		super(tiContext);
-	}
-
-	protected Ti2DMatrix(TiContext tiContext, Ti2DMatrix prev, int opType)
-	{
-		super(tiContext);
 		if (prev != null) {
 			this.prev = prev;
 			prev.next = this;
@@ -110,20 +104,18 @@ public class Ti2DMatrix extends KrollProxy
 	}
 
 	@Kroll.method
-	public Ti2DMatrix translate(KrollInvocation invocation, double x, double y)
+	public Ti2DMatrix translate(double x, double y)
 	{
-		Ti2DMatrix newMatrix = new Ti2DMatrix(invocation.getTiContext(),
-			this, Operation.TYPE_TRANSLATE);
+		Ti2DMatrix newMatrix = new Ti2DMatrix(this, Operation.TYPE_TRANSLATE);
 		newMatrix.op.translateX = (float) x;
 		newMatrix.op.translateY = (float) y;
 		return newMatrix;
 	}
 
 	@Kroll.method
-	public Ti2DMatrix scale(KrollInvocation invocation, Object args[])
+	public Ti2DMatrix scale(Object args[])
 	{
-		Ti2DMatrix newMatrix = new Ti2DMatrix(invocation.getTiContext(),
-			this, Operation.TYPE_SCALE);
+		Ti2DMatrix newMatrix = new Ti2DMatrix(this, Operation.TYPE_SCALE);
 		newMatrix.op.scaleFromX = newMatrix.op.scaleFromY = 1.0f;
 		newMatrix.op.scaleToX = newMatrix.op.scaleToY = 1.0f;
 		// varargs for API backwards compatibility
@@ -147,10 +139,9 @@ public class Ti2DMatrix extends KrollProxy
 	}
 
 	@Kroll.method
-	public Ti2DMatrix rotate(KrollInvocation invocation, Object[] args)
+	public Ti2DMatrix rotate(Object[] args)
 	{
-		Ti2DMatrix newMatrix = new Ti2DMatrix(invocation.getTiContext(),
-			this, Operation.TYPE_ROTATE);
+		Ti2DMatrix newMatrix = new Ti2DMatrix(this, Operation.TYPE_ROTATE);
 		if (args.length == 1) {
 			newMatrix.op.rotateFrom = 0;
 			newMatrix.op.rotateTo = TiConvert.toFloat(args[0]);
@@ -163,17 +154,15 @@ public class Ti2DMatrix extends KrollProxy
 	}
 
 	@Kroll.method
-	public Ti2DMatrix invert(KrollInvocation invocation)
+	public Ti2DMatrix invert()
 	{
-		return new Ti2DMatrix(invocation.getTiContext(),
-			this, Operation.TYPE_INVERT);
+		return new Ti2DMatrix(this, Operation.TYPE_INVERT);
 	}
 
 	@Kroll.method
-	public Ti2DMatrix multiply(KrollInvocation invocation, Ti2DMatrix other)
+	public Ti2DMatrix multiply(Ti2DMatrix other)
 	{
-		return new Ti2DMatrix(invocation.getTiContext(),
-			this, Operation.TYPE_MULTIPLY);
+		return new Ti2DMatrix(this, Operation.TYPE_MULTIPLY);
 	}
 
 	public Matrix interpolate(float interpolatedTime, int childWidth, int childHeight, float anchorX, float anchorY)

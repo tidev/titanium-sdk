@@ -40,7 +40,7 @@ public class ActivityIndicatorProxy extends TiDialogProxy
 	protected void handleShow(KrollDict options) {
 		super.handleShow(options);
 
-		TiUIActivityIndicator ai = (TiUIActivityIndicator) getView(getActivity());
+		TiUIActivityIndicator ai = (TiUIActivityIndicator) getOrCreateView();
 		ai.show(options);
 	}
 
@@ -48,7 +48,7 @@ public class ActivityIndicatorProxy extends TiDialogProxy
 	protected void handleHide(KrollDict options) {
 		super.handleHide(options);
 
-		TiUIActivityIndicator ai = (TiUIActivityIndicator) getView(getActivity());
+		TiUIActivityIndicator ai = (TiUIActivityIndicator) getOrCreateView();
 		ai.hide(options);
 	}
 }

@@ -127,8 +127,7 @@ public class UIModule extends KrollModule
 				}
 				return;
 			}
-			TiContext context = getTiContext().getRootActivity().getTiContext();
-			TiDrawableReference drawableRef = TiDrawableReference.fromObject(context, image);
+			TiDrawableReference drawableRef = TiDrawableReference.fromObject(image);
 			Drawable d = drawableRef.getDrawable();
 			if (d != null) {
 				w.setBackgroundDrawable(d);

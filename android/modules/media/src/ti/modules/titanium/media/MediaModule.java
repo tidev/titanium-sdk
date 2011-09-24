@@ -6,52 +6,22 @@
  */
 package ti.modules.titanium.media;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Date;
-import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.ContextSpecific;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
-import org.appcelerator.titanium.kroll.KrollCallback;
-import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiActivityResultHandler;
-import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiConfig;
-import org.appcelerator.titanium.util.TiFileHelper;
-import org.appcelerator.titanium.util.TiIntentWrapper;
-import org.appcelerator.titanium.util.TiUIHelper;
 
-import ti.modules.titanium.media.android.AndroidModule.MediaScannerClient;
-import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.database.Cursor;
 import android.graphics.BitmapFactory;
-import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Vibrator;
-import android.provider.MediaStore;
-import android.provider.MediaStore.Images;
-import android.view.Window;
 
 @Kroll.module @ContextSpecific
 public class MediaModule extends KrollModule
@@ -80,11 +50,6 @@ public class MediaModule extends KrollModule
 	
 	@Kroll.constant public static final String MEDIA_TYPE_PHOTO = "public.image";
 	@Kroll.constant public static final String MEDIA_TYPE_VIDEO = "public.video";
-	
-	public MediaModule(TiContext tiContext)
-	{
-		super(tiContext);
-	}
 
 	@Kroll.method
 	public void vibrate(@Kroll.argument(optional=true) long[] pattern)
@@ -92,12 +57,13 @@ public class MediaModule extends KrollModule
 		if (pattern.length == 0) {
 			pattern = DEFAULT_VIBRATE_PATTERN;
 		}
-		Vibrator vibrator = (Vibrator) getTiContext().getTiApp().getSystemService(Context.VIBRATOR_SERVICE);
+		Vibrator vibrator = (Vibrator) TiApplication.getInstance().getSystemService(Context.VIBRATOR_SERVICE);
 		if (vibrator != null) {
 			vibrator.vibrate(pattern, -1);
 		}
 	}
 
+	/* TODO
 	@Kroll.method
 	public void showCamera(KrollInvocation invocation, KrollDict options)
 	{
@@ -225,6 +191,7 @@ public class MediaModule extends KrollModule
 		resultHandler.cameraIntent = cameraIntent.getIntent();
 		activity.runOnUiThread(resultHandler);
 	}
+	
 
 	protected class CameraResultHandler implements TiActivityResultHandler, Runnable
 	{
@@ -406,9 +373,9 @@ public class MediaModule extends KrollModule
 				errorCallback.callAsync(createErrorResponse(UNKNOWN_ERROR, msg));
 			}
 		}
-	}
+	}*/
 
-	@Kroll.method
+	/* TODO @Kroll.method
 	public void openPhotoGallery(KrollInvocation invocation, KrollDict options)
 	{
 		KrollCallback successCallback = null;
@@ -478,13 +445,7 @@ public class MediaModule extends KrollModule
 					}
 				}
 			});
-	}
-
-	@Kroll.method
-	public void saveToPhotoGallery(Object object)
-	{
-		Log.w(LCAT, "saveToPhotoGallery not yet implemented in Android");
-	}
+	}*/
 
 	KrollDict createDictForImage(String path, String mimeType) {
 		KrollDict d = new KrollDict();
@@ -499,7 +460,7 @@ public class MediaModule extends KrollModule
 			}
 			BitmapFactory.Options opts = new BitmapFactory.Options();
 			opts.inJustDecodeBounds = true;
-			BitmapFactory.decodeStream(getTiContext().getActivity().getContentResolver().openInputStream(Uri.parse(fpath)),null, opts);
+			BitmapFactory.decodeStream(getActivity().getContentResolver().openInputStream(Uri.parse(fpath)),null, opts);
 			width = opts.outWidth;
 			height = opts.outHeight;
 		} catch (FileNotFoundException e) {
@@ -520,7 +481,7 @@ public class MediaModule extends KrollModule
 
 		String[] parts = { path };
 		d.put("mediaType", MEDIA_TYPE_PHOTO);
-		d.put("media", TiBlob.blobFromFile(getTiContext(), TiFileFactory.createTitaniumFile(getTiContext(), parts, false), mimeType));
+		d.put("media", TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(parts, false), mimeType));
 
 		return d;
 	}
@@ -540,12 +501,12 @@ public class MediaModule extends KrollModule
 		cropRect.put("height", height);
 		d.put("cropRect", cropRect);
 		d.put("mediaType", MEDIA_TYPE_PHOTO);
-		d.put("media", TiBlob.blobFromData(getTiContext(), data, "image/png"));
+		d.put("media", TiBlob.blobFromData(data, "image/png"));
 
 		return d;
 	}
 
-	@Kroll.method
+	/* TODO @Kroll.method
 	public void previewImage(KrollInvocation invocation, KrollDict options)
 	{
 		if (DBG) {
@@ -631,7 +592,7 @@ public class MediaModule extends KrollModule
 		if (callback != null && image != null) {
 			callback.callAsync(new Object[] { image });
 		}
-	}
+	}*/
 
 	@Kroll.method
 	public void takePicture()

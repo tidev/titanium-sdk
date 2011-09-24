@@ -156,7 +156,7 @@ public class TiUIDialog extends TiUIView
 	private void processView(TiViewProxy proxy)
 	{
 		if (proxy != null) {
-			view = proxy.getView(getCurrentActivity());
+			view = proxy.getOrCreateView();
 			getBuilder().setView(view.getNativeView());
 		}
 	}
@@ -229,7 +229,7 @@ public class TiUIDialog extends TiUIView
 	public void show(KrollDict options)
 	{
 		if (dialog == null) {
-			processProperties(proxy.getProperties());
+			// TODO processProperties(proxy.getProperties());
 			getBuilder().setOnCancelListener(new OnCancelListener() {
 				@Override
 				public void onCancel(DialogInterface dlg) {

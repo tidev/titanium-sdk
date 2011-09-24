@@ -6,7 +6,6 @@
  */
 package ti.modules.titanium.ui;
 
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
@@ -23,14 +22,10 @@ import org.appcelerator.titanium.TiTranslucentActivity;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiBindingHelper;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
-import org.appcelerator.titanium.util.TiPropertyResolver;
 import org.appcelerator.titanium.util.TiUIHelper;
-import org.appcelerator.titanium.util.TiUrl;
-import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiUIView;
@@ -48,13 +43,12 @@ import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 
-public class TiUIWindow extends TiUIView
+public class TiUIActivityWindow extends TiUIView
 	implements Handler.Callback, TiActivityWindow
 {
-	private static final String LCAT = "TiUIWindow";
+	private static final String LCAT = "TiUIActivityWindow";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	private static final int WINDOW_ZINDEX = Integer.MAX_VALUE - 2; // Arbitrary number;
 	private static final int MSG_ACTIVITY_CREATED = 1000;
 	private static final int MSG_ANIMATE = 100;
 
@@ -64,7 +58,6 @@ public class TiUIWindow extends TiUIView
 
 	protected String activityKey;
 	protected Activity windowActivity;
-	protected TiContext windowContext;
 	protected String windowUrl;
 	protected int windowId;
 
@@ -77,7 +70,7 @@ public class TiUIWindow extends TiUIView
 
 	private static AtomicInteger idGenerator;
 
-	public TiUIWindow(TiWindowProxy proxy, KrollDict options, Messenger messenger, int messageId)
+	public TiUIActivityWindow(ActivityWindowProxy proxy, KrollDict options, Messenger messenger, int messageId)
 	{
 		super(proxy);
 		animate = true;
@@ -92,51 +85,18 @@ public class TiUIWindow extends TiUIView
 		this.lastWidth = LayoutParams.FILL_PARENT;
 		this.lastHeight = LayoutParams.FILL_PARENT;
 
-		resolver = new TiPropertyResolver(options, proxy.getProperties());
-		newActivity = proxy.requiresNewActivity(options);
-		if (!newActivity && options != null && options.containsKey(TiC.PROPERTY_TAB_OPEN)) {
-			newActivity = TiConvert.toBoolean(options, TiC.PROPERTY_TAB_OPEN);
-		}
-		lightWeight = !newActivity;
-		initContext();
-		if (newActivity) {
-			createNewActivity();
-		} else {
-			lightWindow = new TiCompositeLayout(proxy.getContext(), getLayoutArrangement());
-			layoutParams.autoFillsHeight = true;
-			layoutParams.autoFillsWidth = true;
-
-			setNativeView(lightWindow);
-			proxy.setModelListener(this);
-			handleWindowCreated();
-			handleBooted();
-		}
+		createNewActivity(options);
+		TiActivityWindows.addWindow(this);
 	}
 
-	public TiUIWindow(TiWindowProxy proxy, Activity activity)
+	public TiUIActivityWindow(ActivityWindowProxy proxy, TiBaseActivity activity)
 	{
 		super(proxy);
-		resolver = new TiPropertyResolver(proxy.getProperties());
-		if (idGenerator == null) {
-			idGenerator = new AtomicInteger(0);
-		}
-
-		newActivity = false;
 		windowActivity = activity;
-		lightWeight = false;
-
-		this.handler = new Handler(Looper.getMainLooper(), this);
-		initContext();
-		handleWindowCreated();
-		handleBooted();
+		proxy.setActivity(activity);
 	}
 
-	public boolean isLightweight()
-	{
-		return lightWeight;
-	}
-
-	protected void initContext()
+	/*protected void initContext()
 	{
 		TiContext proxyContext = proxy.getTiContext();
 		KrollDict urlPropertyHolder = resolver.findProperty(TiC.PROPERTY_URL);
@@ -198,15 +158,15 @@ public class TiUIWindow extends TiUIView
 		if (!newActivity && !lightWeight) {
 			proxy.switchContext(windowContext);
 		}
-	}
+	}*/
 
-	protected void createNewActivity()
+	protected void createNewActivity(KrollDict options)
 	{
 		Activity activity = proxy.getActivity();
 		Intent intent = createIntent(activity);
-		KrollDict d = resolver.findProperty(TiC.PROPERTY_ANIMATED);
-		if (d != null) {
-			animate = TiConvert.toBoolean(d, TiC.PROPERTY_ANIMATED);
+		Object animated = options.get(TiC.PROPERTY_ANIMATED);
+		if (animated != null) {
+			animate = TiConvert.toBoolean(animated);
 		}
 		if (!animate) {
 			intent.addFlags(INTENT_FLAG_ACTIVITY_NO_ANIMATION);
@@ -216,28 +176,16 @@ public class TiUIWindow extends TiUIView
 		} else {
 			activity.startActivity(intent);
 		}
-		proxy.switchContext(windowContext);
 	}
 
 	public void windowCreated(TiBaseActivity activity)
 	{
 		windowActivity = activity;
-		windowContext.setActivity(windowActivity);
-		bindWindowActivity(windowContext, windowActivity);
-		bindProxies();
-		handleWindowCreated();
-		TiMessageQueue.getMainMessageQueue().stopBlocking();
-	}
+		proxy.setActivity(activity);
 
-	protected void handleWindowCreated()
-	{
-		if (windowUrl != null) {
-			try {
-				windowContext.evalFile(windowUrl);
-			} catch (IOException e) {
-				Log.e(LCAT, "Error opening URL: " + windowUrl, e);
-			}
-		}
+		// TODO bindWindowActivity(windowActivity);
+		bindProxies();
+		TiMessageQueue.getMainMessageQueue().stopBlocking();
 	}
 
 	protected ActivityProxy bindWindowActivity(TiContext tiContext, Activity activity)
@@ -247,8 +195,8 @@ public class TiUIWindow extends TiUIView
 			activityProxy = ((TiBaseActivity)activity).getActivityProxy();
 		}
 		if (activityProxy == null) {
-			activityProxy = ((TiWindowProxy) proxy).getActivity(tiContext);
-			activityProxy.setActivity(tiContext, activity);
+			activityProxy = ((TiWindowProxy) proxy).getActivityProxy();
+			activityProxy.setWrappedActivity(activity);
 			if (activity instanceof TiBaseActivity) {
 				((TiBaseActivity)activity).setActivityProxy(activityProxy);
 			}
@@ -261,7 +209,7 @@ public class TiUIWindow extends TiUIView
 		if (windowActivity instanceof TiBaseActivity) {
 			TiBaseActivity tiActivity = (TiBaseActivity)windowActivity;
 			TiWindowProxy windowProxy = (TiWindowProxy)proxy;
-			tiActivity.setActivityProxy(windowProxy.getActivity(proxy.getTiContext()));
+			tiActivity.setActivityProxy(windowProxy.getActivityProxy());
 			tiActivity.setWindowProxy(windowProxy);
 		}
 	}
@@ -290,15 +238,7 @@ public class TiUIWindow extends TiUIView
 				messenger = null;
 			}
 		}
-		if (lightWeight) {
-			ITiWindowHandler windowHandler = proxy.getTiContext().getTiApp().getWindowHandler();
-			if (windowHandler != null) {
-				TiCompositeLayout.LayoutParams params = getLayoutParams();
-				params.optionZIndex = WINDOW_ZINDEX;
-				windowHandler.addWindow(lightWindow, params);
-			}
-			handler.obtainMessage(MSG_ANIMATE).sendToTarget();
-		} else if (windowActivity != null && windowActivity instanceof TiActivity) {
+		if (windowActivity != null && windowActivity instanceof TiActivity) {
 			layout.requestFocus();
 			((TiActivity) windowActivity).fireInitialFocus(); 
 		}
@@ -306,47 +246,20 @@ public class TiUIWindow extends TiUIView
 
 	public void close(KrollDict options) 
 	{
-		KrollDict props = proxy.getProperties();
-		TiPropertyResolver resolver = new TiPropertyResolver(options, props);
-		props = resolver.findProperty(TiC.PROPERTY_ANIMATED);
+		Object animated = options.get(TiC.PROPERTY_ANIMATED);
 		boolean animateOnClose = animate;
-		if (props != null && props.containsKey(TiC.PROPERTY_ANIMATED)) {
-			animateOnClose = props.getBoolean(TiC.PROPERTY_ANIMATED);
+		if (animated != null) {
+			animateOnClose = TiConvert.toBoolean(animated);
 		}
 
-		if (!lightWeight) {
-			if (windowActivity != null) {
-				if (!animateOnClose) {
-					windowActivity.finish();
-					TiUIHelper.overridePendingTransition(windowActivity);
-				} else {
-					windowActivity.finish();
-				}
-				windowActivity = null;
+		if (windowActivity != null) {
+			if (!animateOnClose) {
+				windowActivity.finish();
+				TiUIHelper.overridePendingTransition(windowActivity);
+			} else {
+				windowActivity.finish();
 			}
-		} else {
-			if (lightWindow != null) {
-				// Only fire close event for lightweights.  For heavyweights, the
-				// Activity finish will result in close firing.
-				KrollDict data = new KrollDict();
-				data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
-				proxy.fireEvent(TiC.EVENT_CLOSE, data);
-				ITiWindowHandler windowHandler = proxy.getTiContext().getTiApp().getWindowHandler();
-				if (windowHandler != null) {
-					windowHandler.removeWindow(lightWindow);
-				}
-				lightWindow.removeAllViews();
-				lightWindow = null;
-			}
-
-			// set the lightweight window reference on the activity to null when the window closes
-			TiContext proxyContext = proxy.getTiContext();
-			Activity proxyActivity = proxyContext.getActivity();
-			// proxy.getActivity
-			if (proxyActivity instanceof TiBaseActivity)
-			{
-				((TiBaseActivity)proxyActivity).lwWindow = null;
-			}
+			windowActivity = null;
 		}
 	}
 
@@ -375,24 +288,16 @@ public class TiUIWindow extends TiUIView
 	@Override
 	public View getNativeView()
 	{
-		View v = super.getNativeView();
-		if (!lightWeight) {
-			v = getLayout();
-		}
-		return v;
+		return getLayout();
 	}
 
 	public View getLayout()
 	{
-		View layout = nativeView;
-		if (!lightWeight) {
-			TiActivity tia = (TiActivity) windowActivity;
-			if (tia == null) {
-				return null;
-			}
-			layout = tia.getLayout();
+		TiActivity tia = (TiActivity) windowActivity;
+		if (tia == null) {
+			return null;
 		}
-		return layout;
+		return tia.getLayout();
 	}
 
 	protected void setActivityBackground(final Drawable drawable, boolean post)
@@ -411,25 +316,19 @@ public class TiUIWindow extends TiUIView
 	private void handleBackground(Drawable drawable, Object opacityValue, boolean post)
 	{
 		if (drawable != null) {
-			if (opacityValue != null && !lightWeight) { // lightweight opacity will get handled via super because nativeView won't be null.
+			if (opacityValue != null) { // lightweight opacity will get handled via super because nativeView won't be null.
 				setActivityOpacity(drawable, TiConvert.toFloat(opacityValue), true);
 			}
-			if (lightWeight) {
-				nativeView.setBackgroundDrawable(drawable);
-			} else {
-				setActivityBackground(drawable, post);
-			}
+			setActivityBackground(drawable, post);
 		}
 	}
+
 	private void handleBackgroundColor(Object value, boolean post)
 	{
-		KrollDict d = resolver.findProperty(TiC.PROPERTY_OPACITY);
-		if (d != null && d.containsKey(TiC.PROPERTY_OPACITY)) {
-			handleBackgroundColor(value, d.get(TiC.PROPERTY_OPACITY), post);
-		} else {
-			handleBackgroundColor(value, null, post);
-		}
+		Object opacity = proxy.getProperty(TiC.PROPERTY_OPACITY);
+		handleBackgroundColor(value, opacity, post);
 	}
+
 	private void setActivityOpacity(Drawable background, float opacity, boolean firstTime)
 	{
 		int alpha = Math.round(opacity * 255);
@@ -440,6 +339,7 @@ public class TiUIWindow extends TiUIView
 		}
 		background.setAlpha(alpha);
 	}
+
 	private void handleBackgroundColor(Object value, Object opacityValue, boolean post)
 	{
 		if (value != null) {
@@ -449,22 +349,20 @@ public class TiUIWindow extends TiUIView
 			Log.w(LCAT, "Unable to set opacity w/o a backgroundColor");
 		}
 	}
+
 	private void handleBackgroundImage(Object value, boolean post)
 	{
-		KrollDict d = resolver.findProperty(TiC.PROPERTY_OPACITY);
-		if (d != null && d.containsKey(TiC.PROPERTY_OPACITY)) {
-			handleBackgroundImage(value, d.get(TiC.PROPERTY_OPACITY), post);
-		} else {
-			handleBackgroundImage(value, null, post);
-		}
+		Object opacity = proxy.getProperty(TiC.PROPERTY_OPACITY);
+		handleBackgroundImage(value, opacity, post);
 	}
+
 	private void handleBackgroundImage(Object value, Object opacityValue, boolean post)
 	{
 		if (value != null) {
 			// proxy.getCreationUrl
-			String path = proxy.getTiContext().resolveUrl(null, TiConvert.toString(value));
+			String path = proxy.resolveUrl(null, TiConvert.toString(value));
 			TiFileHelper tfh = new TiFileHelper(proxy.getContext().getApplicationContext());
-			Drawable bd = tfh.loadDrawable(proxy.getTiContext(), path, false);
+			Drawable bd = tfh.loadDrawable(path, false);
 			handleBackground(bd, opacityValue, post);
 		}
 	}
@@ -495,24 +393,20 @@ public class TiUIWindow extends TiUIView
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_LAYOUT)) {
-			if (!lightWeight) {
-				TiCompositeLayout layout = null;
-				if (windowActivity instanceof TiActivity) {
-					layout = ((TiActivity)windowActivity).getLayout();
-				}
-				if (layout != null) {
-					layout.setLayoutArrangement(TiConvert.toString(d, TiC.PROPERTY_LAYOUT));
-				}
+			TiCompositeLayout layout = null;
+			if (windowActivity instanceof TiActivity) {
+				layout = ((TiActivity)windowActivity).getLayout();
+			}
+			if (layout != null) {
+				layout.setLayoutArrangement(TiConvert.toString(d, TiC.PROPERTY_LAYOUT));
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_KEEP_SCREEN_ON)) {
-			if (!lightWeight) {
-				if (windowActivity != null) {
-					windowActivity.getWindow().getDecorView().setKeepScreenOn(TiConvert.toBoolean(d, TiC.PROPERTY_KEEP_SCREEN_ON));
-				}
-				// skip default processing
-				d.remove(TiC.PROPERTY_KEEP_SCREEN_ON);
+			if (windowActivity != null) {
+				windowActivity.getWindow().getDecorView().setKeepScreenOn(TiConvert.toBoolean(d, TiC.PROPERTY_KEEP_SCREEN_ON));
 			}
+			// skip default processing
+			d.remove(TiC.PROPERTY_KEEP_SCREEN_ON);
 		}
 		if (d.containsKey(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
 			handleWindowPixelFormat(TiConvert.toInt(d, TiC.PROPERTY_WINDOW_PIXEL_FORMAT));
@@ -566,25 +460,18 @@ public class TiUIWindow extends TiUIView
 				proxy.getActivity().setTitle(title);
 			}
 		} else if (key.equals(TiC.PROPERTY_LAYOUT)) {
-			if (!lightWeight) {
-				TiCompositeLayout layout = null;
-				if (windowActivity instanceof TiActivity) {
-					layout = ((TiActivity)windowActivity).getLayout();
-				}
-				if (layout != null) {
-					layout.setLayoutArrangement(TiConvert.toString(newValue));
-				}
+			TiCompositeLayout layout = null;
+			if (windowActivity instanceof TiActivity) {
+				layout = ((TiActivity)windowActivity).getLayout();
+			}
+			if (layout != null) {
+				layout.setLayoutArrangement(TiConvert.toString(newValue));
 			}
 		} else if (key.equals(TiC.PROPERTY_OPACITY)) {
 			setOpacity(TiConvert.toFloat(newValue));
 		} else if (key.equals(TiC.PROPERTY_KEEP_SCREEN_ON)) {
-			if (!lightWeight) {
-				if (windowActivity != null) {
-					windowActivity.getWindow().getDecorView().setKeepScreenOn(TiConvert.toBoolean(newValue));
-				}
-			} else {
-				// Pass up to view if lightweight
-				super.propertyChanged(key, oldValue, newValue, proxy); 
+			if (windowActivity != null) {
+				windowActivity.getWindow().getDecorView().setKeepScreenOn(TiConvert.toBoolean(newValue));
 			}
 		} else if (key.equals(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
 			handleWindowPixelFormat(TiConvert.toInt(newValue));
@@ -595,26 +482,23 @@ public class TiUIWindow extends TiUIView
 
 	protected void handleWindowPixelFormat(int format)
 	{
-		if (!lightWeight) {
-			if (windowActivity != null) {
-				windowActivity.getWindow().setFormat(format);
-				windowActivity.getWindow().getDecorView().invalidate();
-			} else {
-				Log.w(LCAT, "Activity is null. windowPixelFormat not set.");
-			}
+		if (windowActivity != null) {
+			windowActivity.getWindow().setFormat(format);
+			windowActivity.getWindow().getDecorView().invalidate();
 		} else {
-			Log.w(LCAT, "Setting windowPixelFormat on lightweight windows is not supported.");
+			Log.w(LCAT, "Activity is null. windowPixelFormat not set.");
 		}
 	}
-	
+
 	protected LayoutArrangement getLayoutArrangement()
 	{
 		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
-		KrollDict d = resolver.findProperty(TiC.PROPERTY_LAYOUT);
-		if (d != null) {
-			if (TiConvert.toString(d, TiC.PROPERTY_LAYOUT).equals(TiC.LAYOUT_VERTICAL)) {
+		Object layout = proxy.getProperty(TiC.PROPERTY_LAYOUT);
+		if (layout != null) {
+			String layoutString = TiConvert.toString(layout);
+			if (layoutString.equals(TiC.LAYOUT_VERTICAL)) {
 				arrangement = LayoutArrangement.VERTICAL;
-			} else if (TiConvert.toString(d, TiC.PROPERTY_LAYOUT).equals(TiC.LAYOUT_HORIZONTAL)) {
+			} else if (layoutString.equals(TiC.LAYOUT_HORIZONTAL)) {
 				arrangement = LayoutArrangement.HORIZONTAL;
 			}
 		}
@@ -625,52 +509,60 @@ public class TiUIWindow extends TiUIView
 	{
 		Intent intent = new Intent(activity, TiActivity.class);
 
-		KrollDict props = resolver.findProperty(TiC.PROPERTY_FULLSCREEN);
-		if (props != null && props.containsKey(TiC.PROPERTY_FULLSCREEN)) {
-			intent.putExtra(TiC.PROPERTY_FULLSCREEN, TiConvert.toBoolean(props, TiC.PROPERTY_FULLSCREEN));
+		Object fullscreen = proxy.getProperty(TiC.PROPERTY_FULLSCREEN);
+		if (fullscreen != null) {
+			intent.putExtra(TiC.PROPERTY_FULLSCREEN, TiConvert.toBoolean(fullscreen));
 		}
-		props = resolver.findProperty(TiC.PROPERTY_NAV_BAR_HIDDEN);
-		if (props != null && props.containsKey(TiC.PROPERTY_NAV_BAR_HIDDEN)) {
-			intent.putExtra(TiC.PROPERTY_NAV_BAR_HIDDEN, TiConvert.toBoolean(props, TiC.PROPERTY_NAV_BAR_HIDDEN));
+
+		Object navBarHidden = proxy.getProperty(TiC.PROPERTY_NAV_BAR_HIDDEN);
+		if (navBarHidden != null) {
+			intent.putExtra(TiC.PROPERTY_NAV_BAR_HIDDEN, TiConvert.toBoolean(navBarHidden));
 		}
-		props = resolver.findProperty(TiC.PROPERTY_MODAL);
+
+		Object modalProperty = proxy.getProperty(TiC.PROPERTY_MODAL);
 		boolean modal = false;
-		if (props != null && props.containsKey(TiC.PROPERTY_MODAL)) {
-			modal = TiConvert.toBoolean(props, TiC.PROPERTY_MODAL);
+		if (modalProperty != null) {
+			modal = TiConvert.toBoolean(modalProperty);
 			intent.putExtra(TiC.PROPERTY_MODAL, modal);
 			if (modal) {
 				intent.setClass(activity, TiModalActivity.class);
 			}
 		}
-		props = resolver.findProperty(TiC.PROPERTY_OPACITY);
-		if (props != null && props.containsKey(TiC.PROPERTY_OPACITY) && !modal) { // modal already translucent
+
+		Object opacity = proxy.getProperty(TiC.PROPERTY_OPACITY);
+		if (opacity != null && !modal) { // modal already translucent
 			intent.setClass(activity, TiTranslucentActivity.class);
 		}
-		props = resolver.findProperty(TiC.PROPERTY_URL);
-		if (props != null && props.containsKey(TiC.PROPERTY_URL)) {
-			intent.putExtra(TiC.PROPERTY_URL, TiConvert.toString(props, TiC.PROPERTY_URL));
+
+		Object url = proxy.getProperty(TiC.PROPERTY_URL);
+		if (url != null) {
+			intent.putExtra(TiC.PROPERTY_URL, TiConvert.toString(url));
 		}
-		props = resolver.findProperty(TiC.PROPERTY_KEEP_SCREEN_ON);
-		if (props != null && props.containsKey(TiC.PROPERTY_KEEP_SCREEN_ON)) {
-			intent.putExtra(TiC.PROPERTY_KEEP_SCREEN_ON, TiConvert.toBoolean(props, TiC.PROPERTY_KEEP_SCREEN_ON));
+
+		Object keepScreenOn = proxy.getProperty(TiC.PROPERTY_KEEP_SCREEN_ON);
+		if (keepScreenOn != null) {
+			intent.putExtra(TiC.PROPERTY_KEEP_SCREEN_ON, TiConvert.toBoolean(keepScreenOn));
 		}
-		props = resolver.findProperty(TiC.PROPERTY_LAYOUT);
-		if (props != null && props.containsKey(TiC.PROPERTY_LAYOUT)) {
-			intent.putExtra(TiC.INTENT_PROPERTY_LAYOUT, TiConvert.toString(props, TiC.PROPERTY_LAYOUT));
+
+		Object layout = proxy.getProperty(TiC.PROPERTY_LAYOUT);
+		if (layout != null) {
+			intent.putExtra(TiC.INTENT_PROPERTY_LAYOUT, TiConvert.toString(layout));
 		}
-		props = resolver.findProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE);
-		if (props != null && props.containsKey(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)) {
-			intent.putExtra(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, TiConvert.toInt(props, TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE));
+
+		Object windowSoftInputMode = proxy.getProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE);
+		if (windowSoftInputMode != null) {
+			intent.putExtra(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, TiConvert.toInt(windowSoftInputMode));
 		}
-		props = resolver.findProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT);
-		if (props != null && props.containsKey(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
-			intent.putExtra(TiC.PROPERTY_WINDOW_PIXEL_FORMAT, TiConvert.toInt(props, TiC.PROPERTY_WINDOW_PIXEL_FORMAT));
+
+		Object pixelFormat = proxy.getProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT);
+		if (pixelFormat != null) {
+			intent.putExtra(TiC.PROPERTY_WINDOW_PIXEL_FORMAT, TiConvert.toInt(pixelFormat));
 		}
-		
+
 		boolean finishRoot = false;
-		props = resolver.findProperty(TiC.PROPERTY_EXIT_ON_CLOSE);
-		if (props != null && props.containsKey(TiC.PROPERTY_EXIT_ON_CLOSE)) {
-			finishRoot = TiConvert.toBoolean(props, TiC.PROPERTY_EXIT_ON_CLOSE);
+		Object exitOnClose = proxy.getProperty(TiC.PROPERTY_EXIT_ON_CLOSE);
+		if (exitOnClose != null) {
+			finishRoot = TiConvert.toBoolean(exitOnClose);
 		}
 
 		intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, finishRoot);
@@ -685,29 +577,21 @@ public class TiUIWindow extends TiUIView
 	@Override
 	public void setOpacity(float opacity)
 	{
-		if (lightWeight) {
-			super.setOpacity(nativeView, opacity);
-		} else {
-			setActivityOpacity(windowActivity.getWindow().getDecorView().getBackground(), opacity, false);
-			windowActivity.getWindow().getDecorView().invalidate();
-		}
+		setActivityOpacity(windowActivity.getWindow().getDecorView().getBackground(), opacity, false);
+		windowActivity.getWindow().getDecorView().invalidate();
 	}
-	
+
 	@Override
 	public void release()
 	{
 		super.release();
-		if (lightWindow != null) {
-			lightWindow.removeAllViews();
-			lightWindow = null;
-		}
 		messenger = null;
 		handler = null;
 		windowActivity = null;
-		if (newContext && windowContext != null) {
+		/* TODO if (windowContext != null) {
 			windowContext.release();
 			windowContext = null;
-		}
+		}*/
 	}
 
 	public Activity getActivity()

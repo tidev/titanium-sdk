@@ -483,7 +483,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		if (settings.containsKey("value")) {
 			calendar.setTime(TiConvert.toDate(settings, "value"));
 		}
-		// TODO tie to an event in JS
+		/* TODO tie to an event in JS
 		final KrollCallback callback;
 		if (settings.containsKey("callback")) {
 			Object typeTest = settings.get("callback");
@@ -494,10 +494,10 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 			}
 		} else {
 			callback = null;
-		}
+		}*/
 		DatePickerDialog.OnDateSetListener dateSetListener = null;
 		DialogInterface.OnDismissListener dismissListener = null;
-		if (callback != null) {
+		/* TODO if (callback != null) {
 			dateSetListener = new DatePickerDialog.OnDateSetListener()
 			{
 				@Override
@@ -531,7 +531,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 					}
 				}
 			};
-		}
+		}*/
 		DatePickerDialog dialog = new DatePickerDialog(
 					invocation.getActivity(),
 					dateSetListener,
@@ -572,7 +572,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 			calendar.setTime(TiConvert.toDate(settings, "value"));
 		}
 		// TODO tie to an event in JS
-		final KrollCallback callback;
+		/* final KrollCallback callback;
 		if (settings.containsKey("callback")) {
 			Object typeTest = settings.get("callback");
 			if (typeTest instanceof KrollCallback) {
@@ -582,10 +582,10 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 			}
 		} else {
 			callback = null;
-		}
+		}*/
 		TimePickerDialog.OnTimeSetListener timeSetListener = null;
 		DialogInterface.OnDismissListener dismissListener = null;
-		if (callback != null) {
+		/* TODO if (callback != null) {
 			timeSetListener = new TimePickerDialog.OnTimeSetListener()
 			{
 				@Override
@@ -618,7 +618,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 					}
 				}
 			};
-		}
+		}*/
 		TimePickerDialog dialog = new TimePickerDialog(
 					invocation.getActivity(),
 					timeSetListener,

@@ -6,11 +6,11 @@
  */
 package ti.modules.titanium.ui.widget.tableview;
 
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Handler;
@@ -67,12 +67,12 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 	}
 
 
-	public TiTableViewHeaderItem(TiContext tiContext) {
-		super(tiContext);
+	public TiTableViewHeaderItem(Activity activity) {
+		super(activity);
 		this.handler = new Handler(this);
-		rowView = new RowView(tiContext.getActivity());
+		rowView = new RowView(activity);
 		this.addView(rowView, new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
-		setMinimumHeight((int)TiUIHelper.getRawDIPSize(18, tiContext.getActivity()));
+		setMinimumHeight((int)TiUIHelper.getRawDIPSize(18, activity));
 	}
 
 	public void setRowData(Item item) {

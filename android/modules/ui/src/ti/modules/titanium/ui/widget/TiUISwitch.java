@@ -144,7 +144,7 @@ public class TiUISwitch extends TiUIView
 		
 		if (button != null) {
 			setNativeView(button);
-			updateButton(button, proxy.getProperties());
+			// TODO updateButton(button, proxy.getProperties());
 			button.setOnCheckedChangeListener(this);
 		}
 	}

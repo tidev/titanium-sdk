@@ -50,20 +50,13 @@ public class TabGroupProxy extends TiWindowProxy
 	String windowId;
 	Object initialActiveTab; // this can be index or tab object
 
-	public TabGroupProxy(TiContext tiContext)
+	public TabGroupProxy()
 	{
-		super(tiContext);
 		initialActiveTab = null;
 	}
 
 	@Override
-	public boolean requiresNewActivity(KrollDict extraOptions)
-	{
-		return true;
-	}
-
-	@Override
-	public TiUIView getView(Activity activity)
+	public TiUIView getOrCreateView()
 	{
 		throw new IllegalStateException("call to getView on a Window");
 	}
@@ -168,12 +161,12 @@ public class TabGroupProxy extends TiWindowProxy
 				Log.w(LCAT, "Could not add tab because tab activity no longer exists");
 			}
 		}
-		Drawable icon = TiDrawableReference.fromObject(getTiContext(), tab.getProperty(TiC.PROPERTY_ICON)).getDrawable();
+		Drawable icon = TiDrawableReference.fromObject(tab.getProperty(TiC.PROPERTY_ICON)).getDrawable();
 		String tag = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TAG));
 		String title = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TITLE));
 		if (title == null) { title = ""; }
 		tab.setTabGroup(this);
-		final WindowProxy vp = (WindowProxy) tab.getProperty(TiC.PROPERTY_WINDOW);
+		final ActivityWindowProxy vp = (ActivityWindowProxy) tab.getProperty(TiC.PROPERTY_WINDOW);
 		vp.setTabGroupProxy(this);
 		vp.setTabProxy(tab);
 		if (tag != null && vp != null) {
@@ -371,7 +364,8 @@ public class TabGroupProxy extends TiWindowProxy
 	@Override
 	public KrollDict handleToImage()
 	{
-		return TiUIHelper.viewToImage(getTiContext(), this.properties, getActivity().getWindow().getDecorView());
+		// TODO we need to expose properties again as a KrollDict?
+		return TiUIHelper.viewToImage(new KrollDict(), getActivity().getWindow().getDecorView());
 	}
 
 	@Override

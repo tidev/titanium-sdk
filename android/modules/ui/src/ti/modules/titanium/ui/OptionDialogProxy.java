@@ -46,7 +46,7 @@ public class OptionDialogProxy extends TiDialogProxy
 	protected void handleShow(KrollDict options) {
 		super.handleShow(options);
 
-		TiUIDialog d = (TiUIDialog) getView(getActivity());
+		TiUIDialog d = (TiUIDialog) getOrCreateView();
 		d.show(options);
 	}
 
@@ -54,7 +54,7 @@ public class OptionDialogProxy extends TiDialogProxy
 	protected void handleHide(KrollDict options) {
 		super.handleHide(options);
 
-		TiUIDialog d = (TiUIDialog) getView(getActivity());
+		TiUIDialog d = (TiUIDialog) getOrCreateView();
 		d.hide(options);
 	}
 }

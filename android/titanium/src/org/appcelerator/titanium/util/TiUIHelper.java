@@ -24,7 +24,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiFastDev;
 import org.appcelerator.titanium.TiMessageQueue;
@@ -422,15 +421,15 @@ public class TiUIHelper
 		textView.setPadding(rawHPadding, rawVPadding, rawHPadding, rawVPadding);
 	}
 
-	public static StateListDrawable buildBackgroundDrawable(TiContext tiContext,
-			String image,
-			String color,
-			String selectedImage,
-			String selectedColor,
-			String disabledImage,
-			String disabledColor,
-			String focusedImage,
-			String focusedColor)
+	public static StateListDrawable buildBackgroundDrawable(
+		String image,
+		String color,
+		String selectedImage,
+		String selectedColor,
+		String disabledImage,
+		String disabledColor,
+		String focusedImage,
+		String focusedColor)
 	{
 		StateListDrawable sld = null;
 
@@ -438,50 +437,50 @@ public class TiUIHelper
 		Drawable bgSelectedDrawable = null;
 		Drawable bgFocusedDrawable = null;
 		Drawable bgDisabledDrawable = null;
-		
-		Context appContext = tiContext.getActivity().getApplicationContext();
+
+		Context appContext = TiApplication.getInstance().getApplicationContext();
 
 		TiFileHelper tfh = new TiFileHelper(appContext);
 
 		if (image != null) {
-			bgDrawable = tfh.loadDrawable(tiContext, image, false, true);
+			bgDrawable = tfh.loadDrawable(image, false, true);
 		} else if (color != null) {
 			bgDrawable = new ColorDrawable(TiConvert.toColor(color));
 		}
 
 		if (selectedImage != null) {
-			bgSelectedDrawable = tfh.loadDrawable(tiContext, selectedImage, false, true);
+			bgSelectedDrawable = tfh.loadDrawable(selectedImage, false, true);
 		} else if (selectedColor != null) {
 			bgSelectedDrawable = new ColorDrawable(TiConvert.toColor(selectedColor));
 		} else {
 			if (image != null) {
-				bgSelectedDrawable = tfh.loadDrawable(tiContext, image, false, true);
+				bgSelectedDrawable = tfh.loadDrawable(image, false, true);
 			} else if (color != null) {
-				bgSelectedDrawable = new ColorDrawable(TiConvert.toColor(color));				
+				bgSelectedDrawable = new ColorDrawable(TiConvert.toColor(color));
 			}			
 		}
 
 		if (focusedImage != null) {
-			bgFocusedDrawable = tfh.loadDrawable(tiContext, focusedImage, false, true);
+			bgFocusedDrawable = tfh.loadDrawable(focusedImage, false, true);
 		} else if (focusedColor != null) {
 			bgFocusedDrawable = new ColorDrawable(TiConvert.toColor(focusedColor));
 		} else {
 			if (image != null) {
-				bgFocusedDrawable = tfh.loadDrawable(tiContext, image, false, true);
+				bgFocusedDrawable = tfh.loadDrawable(image, false, true);
 			} else if (color != null) {
-				bgFocusedDrawable = new ColorDrawable(TiConvert.toColor(color));				
+				bgFocusedDrawable = new ColorDrawable(TiConvert.toColor(color));
 			}
 		}
 
 		if (disabledImage != null) {
-			bgDisabledDrawable = tfh.loadDrawable(tiContext, disabledImage, false, true);
+			bgDisabledDrawable = tfh.loadDrawable(disabledImage, false, true);
 		} else if (disabledColor != null) {
 			bgDisabledDrawable = new ColorDrawable(TiConvert.toColor(disabledColor));
 		} else {
 			if (image != null) {
-				bgDisabledDrawable = tfh.loadDrawable(tiContext, image, false, true);
+				bgDisabledDrawable = tfh.loadDrawable(image, false, true);
 			} else if (color != null) {
-				bgDisabledDrawable = new ColorDrawable(TiConvert.toColor(color));				
+				bgDisabledDrawable = new ColorDrawable(TiConvert.toColor(color));
 			}
 		}
 
@@ -539,7 +538,7 @@ public class TiUIHelper
 		return sld;
 	}
 
-	public static KrollDict createDictForImage(TiContext context, int width, int height, byte[] data)
+	public static KrollDict createDictForImage(int width, int height, byte[] data)
 	{
 		KrollDict d = new KrollDict();
 		d.put("x", 0);
@@ -553,7 +552,7 @@ public class TiUIHelper
 		cropRect.put("width", width);
 		cropRect.put("height", height);
 		d.put("cropRect", cropRect);
-		d.put("media", TiBlob.blobFromData(context, data, "image/png"));
+		d.put("media", TiBlob.blobFromData(data, "image/png"));
 
 		return d;
 	}
@@ -571,7 +570,7 @@ public class TiUIHelper
 		return null;
 	}
 
-	public static KrollDict viewToImage(TiContext context, KrollDict proxyDict, View view)
+	public static KrollDict viewToImage(KrollDict proxyDict, View view)
 	{
 		KrollDict image = new KrollDict();
 
@@ -623,7 +622,7 @@ public class TiUIHelper
 
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			if (bitmap.compress(CompressFormat.PNG, 100, bos)) {
-				image = createDictForImage(context, width, height, bos.toByteArray());
+				image = createDictForImage(width, height, bos.toByteArray());
 			}
 
 			canvas = null;
@@ -709,17 +708,17 @@ public class TiUIHelper
 		}
 	}
 	
-	public static Bitmap getResourceBitmap(TiContext context, String url)
+	public static Bitmap getResourceBitmap(Activity activity, String url)
 	{
 		int id = getResourceId(url);
 		if (id == 0) {
 			return null;
 		} else {
-			return getResourceBitmap(context, id);
+			return getResourceBitmap(activity, id);
 		}
 	}
 	
-	public static Bitmap getResourceBitmap(TiContext context, int res_id)
+	public static Bitmap getResourceBitmap(Activity activity, int res_id)
 	{
 		BitmapFactory.Options opts = new BitmapFactory.Options();
 		opts.inPurgeable = true;
@@ -727,17 +726,17 @@ public class TiUIHelper
 		
 		Bitmap bitmap = null;
 		try {
-			bitmap = BitmapFactory.decodeResource(context.getActivity().getResources(), res_id, opts);
+			bitmap = BitmapFactory.decodeResource(activity.getResources(), res_id, opts);
 		} catch (OutOfMemoryError e) {
 			Log.e(LCAT, "Unable to load bitmap. Not enough memory: " + e.getMessage());
 		}
 		return bitmap;
 	}
 
-	public static Drawable loadFastDevDrawable(TiContext context, String url)
+	public static Drawable loadFastDevDrawable(String url)
 	{
 		try {
-			TiBaseFile tbf = TiFileFactory.createTitaniumFile(context, new String[] { url }, false);
+			TiBaseFile tbf = TiFileFactory.createTitaniumFile(new String[] { url }, false);
 			InputStream stream = tbf.getInputStream();
 			Drawable d = BitmapDrawable.createFromStream(stream, url);
 			stream.close();
@@ -748,10 +747,10 @@ public class TiUIHelper
 		return null;
 	}
 
-	public static Drawable getResourceDrawable(TiContext context, String url)
+	public static Drawable getResourceDrawable(Activity activity, String url)
 	{
 		if (TiFastDev.isFastDevEnabled()) {
-			Drawable d = loadFastDevDrawable(context, url);
+			Drawable d = loadFastDevDrawable(url);
 			if (d != null) {
 				return d;
 			}
@@ -761,15 +760,14 @@ public class TiUIHelper
 			return null;
 		}
 		
-		return getResourceDrawable(context, id);
+		return getResourceDrawable(activity, id);
 	}
-	
-	public static Drawable getResourceDrawable(TiContext context, int res_id)
+
+	public static Drawable getResourceDrawable(Activity activity, int resId)
 	{
-		return context.getActivity().getResources().getDrawable(res_id);
+		return activity.getResources().getDrawable(resId);
 	}
-	
-	
+
 	public static void overridePendingTransition(Activity activity) 
 	{
 		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT) {

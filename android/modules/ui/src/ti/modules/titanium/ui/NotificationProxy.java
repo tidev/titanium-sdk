@@ -31,7 +31,7 @@ public class NotificationProxy extends TiViewProxy
 	protected void handleShow(KrollDict options) {
 		super.handleShow(options);
 
-		TiUINotification n = (TiUINotification) getView(getActivity());
+		TiUINotification n = (TiUINotification) getOrCreateView();
 		n.show(options);
 	}
 }

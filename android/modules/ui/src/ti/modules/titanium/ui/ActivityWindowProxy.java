@@ -42,38 +42,36 @@ import android.os.Messenger;
 	TiC.PROPERTY_EXIT_ON_CLOSE,
 	TiC.PROPERTY_WINDOW_PIXEL_FORMAT
 })
-public class WindowProxy extends TiWindowProxy
+public class ActivityWindowProxy extends TiWindowProxy
 {
-	private static final String LCAT = "WindowProxy";
+	private static final String LCAT = "ActivityWindowProxy";
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private static final int MSG_FIRST_ID = TiWindowProxy.MSG_LAST_ID + 1;
 	private static final int MSG_FINISH_OPEN = MSG_FIRST_ID + 100;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
-	ArrayList<TiViewProxy> views;
-	WeakReference<Activity> weakActivity;
-	String windowId;
+	protected String windowId;
 
 	@Override
 	protected KrollDict getLangConversionTable()
 	{
 		KrollDict table = new KrollDict();
-		table.put("title", "titleid");
-		table.put("titlePrompt", "titlepromptid");
+		table.put(TiC.PROPERTY_TITLE, TiC.PROPERTY_TITLEID);
+		table.put(TiC.PROPERTY_TITLE_PROMPT, TiC.PROPERTY_TITLE_PROMPTID);
 		return table;
 	}
 	
 
 	@Override
-	public TiUIView getView(Activity activity)
+	public TiUIView getOrCreateView()
 	{
-		throw new IllegalStateException("call to getView on a Window");
+		throw new IllegalStateException("call to getView on an ActivityWindow");
 	}
 
-	protected TiUIWindow getWindow()
+	protected TiUIActivityWindow getWindow()
 	{
-		return (TiUIWindow) view;
+		return (TiUIActivityWindow) view;
 	}
 
 	@Override
@@ -81,7 +79,7 @@ public class WindowProxy extends TiWindowProxy
 	{
 		switch(msg.what) {
 			case MSG_FINISH_OPEN: {
-				realizeViews(getActivity(), view);
+				realizeViews(view);
 				if (tab == null) {
 					//TODO attach window
 				}
@@ -104,14 +102,7 @@ public class WindowProxy extends TiWindowProxy
 		}
 
 		Messenger messenger = new Messenger(getUIHandler());
-		view = new TiUIWindow(this, options, messenger, MSG_FINISH_OPEN);
-
-		// make sure the window opens according to any orientation modes 
-		// set on it before the window actually opened
-		//if (((TiUIWindow) view).lightWeight)
-		//{
-		//	updateOrientation();
-		//}
+		view = new TiUIActivityWindow(this, options, messenger, MSG_FINISH_OPEN);
 	}
 
 	public void fillIntentForTab(Intent intent)
@@ -121,8 +112,8 @@ public class WindowProxy extends TiWindowProxy
 			@Override
 			public void windowCreated(TiBaseActivity activity)
 			{
-				view = new TiUIWindow(WindowProxy.this, activity);
-				realizeViews(null, view);
+				view = new TiUIActivityWindow(ActivityWindowProxy.this, activity);
+				realizeViews(view);
 				opened = true;
 				fireEvent(TiC.EVENT_OPEN, null);
 				TiMessageQueue.getMainMessageQueue().stopBlocking();
@@ -138,23 +129,12 @@ public class WindowProxy extends TiWindowProxy
 			Log.d(LCAT, "handleClose");
 		}
 
-		TiUIWindow window = getWindow();
-
-		// store before as the call to window.close will set the view to
-		// null and making checking after close is called impossible
-		boolean isLightweight = false;
-		if(window.lightWeight) {
-			isLightweight = true;
-		}
+		TiUIActivityWindow window = getWindow();
 
 		if (window != null) {
 			window.close(options);
 		}
 		releaseViews();
-
-		if(isLightweight) {
-			opened = false;
-		}
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -168,7 +148,7 @@ public class WindowProxy extends TiWindowProxy
 	{
 		return tabGroup;
 	}
-	
+
 	@Kroll.setProperty @Kroll.method
 	public void setLeftNavButton(ButtonProxy button)
 	{
@@ -198,7 +178,7 @@ public class WindowProxy extends TiWindowProxy
 		}
 		return pixelFormat;
 	}
-	
+
 	@Kroll.method @Kroll.setProperty(retain=false)
 	public void setWindowPixelFormat(int pixelFormat)
 	{
@@ -208,7 +188,6 @@ public class WindowProxy extends TiWindowProxy
 	@Override
 	protected Activity handleGetActivity() 
 	{
-		if (view == null) return null;
-		return ((TiUIWindow)view).getActivity();
+		return getActivity();
 	}
 }

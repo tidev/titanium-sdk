@@ -294,6 +294,8 @@ public class TiC
 	public static final String PROPERTY_TITLEID = "titleid";
 	public static final String PROPERTY_TITLE_ON = "titleOn";
 	public static final String PROPERTY_TITLE_OFF = "titleOff";
+	public static final String PROPERTY_TITLE_PROMPT = "titlePrompt";
+	public static final String PROPERTY_TITLE_PROMPTID = "titlepromptid";
 	public static final String PROPERTY_TOP = "top";
 	public static final String PROPERTY_TOUCH_ENABLED = "touchEnabled";
 	public static final String PROPERTY_TRANSFORM = "transform";

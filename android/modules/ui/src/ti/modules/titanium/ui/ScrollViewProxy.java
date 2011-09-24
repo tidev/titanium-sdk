@@ -38,8 +38,8 @@ public class ScrollViewProxy extends TiViewProxy
 		return new TiUIScrollView(this);
 	}
 
-	public TiUIScrollView getScrollView(Activity activity) {
-		return (TiUIScrollView)getView(activity);
+	public TiUIScrollView getScrollView() {
+		return (TiUIScrollView) getOrCreateView();
 	}
 
 	@Kroll.method
@@ -77,10 +77,10 @@ public class ScrollViewProxy extends TiViewProxy
 	}
 
 	public void handleScrollTo(int x, int y) {
-		getScrollView(getActivity()).scrollTo(x, y);
+		getScrollView().scrollTo(x, y);
 	}
 	
 	public void handleScrollToBottom() {
-		getScrollView(getActivity()).scrollToBottom();
+		getScrollView().scrollToBottom();
 	}
 }

@@ -34,7 +34,7 @@ public class TiWebViewClient extends WebViewClient
 	public TiWebViewClient(TiUIWebView tiWebView, WebView webView) {
 		super();
 		this.webView = tiWebView;
-		binding = new TiWebViewBinding(tiWebView.getProxy().getTiContext(), webView);
+		binding = new TiWebViewBinding(webView);
 	}
 
 	@Override

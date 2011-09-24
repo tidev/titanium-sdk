@@ -45,7 +45,7 @@ public class WebViewProxy extends ViewProxy
 	}
 
 	public TiUIWebView getWebView() {
-		return (TiUIWebView)getView(getActivity());
+		return (TiUIWebView) getOrCreateView();
 	}
 
 	@Kroll.method

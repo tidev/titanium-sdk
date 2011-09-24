@@ -92,7 +92,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 
 		cameraActivity = this;
 		previewLayout.addView(preview);
-		previewLayout.addView(localOverlayProxy.getView(this).getNativeView(), new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		previewLayout.addView(localOverlayProxy.getOrCreateView().getNativeView(), new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 	}
 
 	@Override
@@ -100,7 +100,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		super.onPause();
 
 		previewLayout.removeView(preview);
-		previewLayout.removeView(localOverlayProxy.getView(this).getNativeView());
+		previewLayout.removeView(localOverlayProxy.getOrCreateView().getNativeView());
 
 		try {
 			camera.release();

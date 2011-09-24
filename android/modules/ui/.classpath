@@ -11,7 +11,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/titanium"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/titanium-filesystem"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/titanium-media"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/titanium-app"/>
 	<classpathentry kind="lib" path="/titanium-dist/lib/kroll-apt.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/kroll-v8"/>
 	<classpathentry kind="output" path="bin"/>

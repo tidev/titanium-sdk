@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.concurrent.Semaphore;
 
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 
 import android.webkit.WebView;
@@ -53,7 +52,7 @@ public class TiWebViewBinding {
 	// TODO private APIBinding apiBinding;
 	// TODO private AppBinding appBinding;
 	
-	public TiWebViewBinding(TiContext context, WebView webView)
+	public TiWebViewBinding(WebView webView)
 	{
 		this.webView = webView;
 		

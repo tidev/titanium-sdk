@@ -57,7 +57,7 @@ public class AlertDialogProxy extends TiViewProxy
 			@Override
 			public void run()
 			{
-				TiUIDialog d = (TiUIDialog) getView(getActivity());
+				TiUIDialog d = (TiUIDialog) getOrCreateView();
 				d.show(fOptions);
 			}
 		});
@@ -67,7 +67,7 @@ public class AlertDialogProxy extends TiViewProxy
 	protected void handleHide(KrollDict options) {
 		super.handleHide(options);
 
-		TiUIDialog d = (TiUIDialog) getView(getActivity());
+		TiUIDialog d = (TiUIDialog) getOrCreateView();
 		d.hide(options);
 	}
 }
