@@ -50,40 +50,25 @@ public class TiBlob extends KrollProxy
 		this.height = 0;
 	}
 
-	private TiBlob(TiContext tiContext, int type, Object data, String mimetype)
-	{
-		super(tiContext);
-		this.type = type;
-		this.data = data;
-		this.mimetype = mimetype;
-		this.width = 0;
-		this.height = 0;
-	}
-
 	public static TiBlob blobFromString(String data)
 	{
 		return new TiBlob(TYPE_STRING, data, "text/plain");
 	}
 
-	public static TiBlob blobFromString(TiContext tiContext, String data)
+	public static TiBlob blobFromFile(TiBaseFile file)
 	{
-		return new TiBlob(tiContext, TYPE_STRING, data, "text/plain");
+		return blobFromFile(file, TiMimeTypeHelper.getMimeType(file.nativePath()));
 	}
 
-	public static TiBlob blobFromFile(TiContext tiContext, TiBaseFile file)
-	{
-		return blobFromFile(tiContext, file, TiMimeTypeHelper.getMimeType(file.nativePath()));
-	}
-
-	public static TiBlob blobFromFile(TiContext tiContext, TiBaseFile file, String mimeType)
+	public static TiBlob blobFromFile(TiBaseFile file, String mimeType)
 	{
 		if (mimeType == null) {
 			mimeType = TiMimeTypeHelper.getMimeType(file.nativePath());
 		}
-		return new TiBlob(tiContext, TYPE_FILE, file, mimeType);
+		return new TiBlob(TYPE_FILE, file, mimeType);
 	}
 
-	public static TiBlob blobFromImage(TiContext tiContext, Bitmap image)
+	public static TiBlob blobFromImage(Bitmap image)
 	{
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		byte data[] = new byte[0];
@@ -91,7 +76,7 @@ public class TiBlob extends KrollProxy
 			data = bos.toByteArray();
 		}
 
-		TiBlob blob = new TiBlob(tiContext, TYPE_IMAGE, data, "image/bitmap");
+		TiBlob blob = new TiBlob(TYPE_IMAGE, data, "image/bitmap");
 		blob.width = image.getWidth();
 		blob.height = image.getHeight();
 		return blob;
@@ -102,25 +87,12 @@ public class TiBlob extends KrollProxy
 		return blobFromData(data, "application/octet-stream");
 	}
 
-	public static TiBlob blobFromData(TiContext tiContext, byte[] data)
-	{
-		return blobFromData(tiContext, data, "application/octet-stream");
-	}
-
 	public static TiBlob blobFromData(byte[] data, String mimetype)
 	{
 		if (mimetype == null || mimetype.length() == 0) {
 			return new TiBlob(TYPE_DATA, data, "application/octet-stream");
 		}
 		return new TiBlob(TYPE_DATA, data, mimetype);
-	}
-
-	public static TiBlob blobFromData(TiContext tiContext, byte[] data, String mimetype)
-	{
-		if (mimetype == null || mimetype.length() == 0) {
-			return new TiBlob(tiContext, TYPE_DATA, data, "application/octet-stream");
-		}
-		return new TiBlob(tiContext, TYPE_DATA, data, mimetype);
 	}
 
 	public byte[] getBytes()
@@ -331,7 +303,7 @@ public class TiBlob extends KrollProxy
 			Log.w(LCAT, "getFile unable to return value: underlying data is not file, rather " + data.getClass().getName());
 			return null;
 		} else {
-			return new TiFileProxy(context, (TiBaseFile)data);
+			return new TiFileProxy((TiBaseFile)data);
 		}
 	}
 

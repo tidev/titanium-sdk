@@ -12,7 +12,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.runtime.v8.EventEmitter;
-import org.appcelerator.kroll.runtime.v8.EventListener;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiMessageQueue;
@@ -20,6 +19,7 @@ import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUrl;
 
 import android.app.Activity;
 import android.os.Handler;
@@ -43,7 +43,7 @@ public class KrollProxy extends EventEmitter
 	public static final String PROXY_ID_PREFIX = "proxy$";
 
 	protected String proxyId;
-	protected String creationUrl;
+	protected TiUrl creationUrl;
 	protected KrollProxyListener modelListener;
 	protected KrollModule createdInModule;
 	protected boolean coverageEnabled;
@@ -284,9 +284,14 @@ public class KrollProxy extends EventEmitter
 		this.activity = activity;
 	}
 
-	public String getCreationUrl()
+	public TiUrl getCreationUrl()
 	{
 		return creationUrl;
+	}
+
+	public String resolveUrl(String scheme, String path)
+	{
+		return TiUrl.resolve(creationUrl.baseUrl, path, scheme);
 	}
 
 	public Object sendBlockingUiMessage(int what, Object asyncArg)

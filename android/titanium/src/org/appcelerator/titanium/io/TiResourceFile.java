@@ -18,9 +18,9 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiFastDev;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -37,9 +37,9 @@ public class TiResourceFile extends TiBaseFile
 
 	private final String path;
 
-	public TiResourceFile(TiContext tiContext, String path)
+	public TiResourceFile(String path)
 	{
-		super(tiContext, TYPE_RESOURCE);
+		super(TYPE_RESOURCE);
 		this.path = path;
 	}
 
@@ -54,7 +54,7 @@ public class TiResourceFile extends TiBaseFile
 	{
 		InputStream in = null;
 
-		Context context = getTiContext().getAndroidContext();
+		Context context = TiApplication.getInstance();
 		if (context != null) {
 			String p = TiFileHelper2.joinSegments("Resources", path);
 			if (TiFastDev.isFastDevEnabled()) {
@@ -104,7 +104,7 @@ public class TiResourceFile extends TiBaseFile
 	@Override
 	public TiBlob read() throws IOException
 	{
-		return TiBlob.blobFromFile(getTiContext(), this);
+		return TiBlob.blobFromFile(this);
 	}
 
 	@Override
@@ -222,7 +222,7 @@ public class TiResourceFile extends TiBaseFile
 			if (lpath.endsWith("/")) {
 				lpath = lpath.substring(0, lpath.lastIndexOf("/"));
 			}
-			String[] names = getTiContext().getAndroidContext().getAssets().list(lpath);
+			String[] names = TiApplication.getInstance().getAssets().list(lpath);
 			if (names != null) {
 				int len = names.length;
 				for(int i = 0; i < len; i++) {

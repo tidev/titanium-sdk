@@ -159,22 +159,22 @@ public class TiUrl
 		return new TiUrl(baseUrl, url);
 	}
 
-	public String resolve(TiContext context)
+	public String resolve()
 	{
-		return resolve(context, baseUrl, url, null);
+		return resolve(baseUrl, url, null);
 	}
 
-	public String resolve(TiContext context, String path)
+	public String resolve(String path)
 	{
-		return resolve(context, baseUrl, path, null);
+		return resolve(baseUrl, path, null);
 	}
 
-	public String resolve(TiContext context, String baseUrl, String path)
+	public String resolve(String baseUrl, String path)
 	{
-		return resolve(context, baseUrl, path, null);
+		return resolve(baseUrl, path, null);
 	}
 	
-	public String resolve(TiContext context, String baseUrl, String path, String scheme)
+	public static String resolve(String baseUrl, String path, String scheme)
 	{
 		if (!TiFileFactory.isLocalScheme(path)) {
 			return path;
@@ -208,13 +208,13 @@ public class TiUrl
 
 		if (!result.startsWith("file:")) {
 			String[] p = { result };
-			TiBaseFile tbf = TiFileFactory.createTitaniumFile(context, p, false);
+			TiBaseFile tbf = TiFileFactory.createTitaniumFile(p, false);
 			result = tbf.nativePath();
 		}
 		return result;
 	}
 
-	public String absoluteUrl(String defaultScheme, String url, String baseUrl)
+	public static String absoluteUrl(String defaultScheme, String url, String baseUrl)
 	{
 		try {
 			if ((baseUrl == null || baseUrl.length() == 0) && (url == null || url.length() == 0)) {

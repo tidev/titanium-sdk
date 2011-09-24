@@ -529,7 +529,7 @@ public abstract class TiBaseActivity extends Activity
 		}
 		
 		if (activityProxy != null) {
-			IntentProxy ip = new IntentProxy(activityProxy.getTiContext(),intent);
+			IntentProxy ip = new IntentProxy(intent);
 			KrollDict data = new KrollDict();
 			data.put(TiC.PROPERTY_INTENT, ip);
 			activityProxy.fireSyncEvent(TiC.EVENT_NEW_INTENT, data);

@@ -55,11 +55,6 @@ public class WindowProxy extends TiWindowProxy
 	WeakReference<Activity> weakActivity;
 	String windowId;
 
-	public WindowProxy(TiContext tiContext)
-	{
-		super(tiContext);
-	}
-	
 	@Override
 	protected KrollDict getLangConversionTable()
 	{

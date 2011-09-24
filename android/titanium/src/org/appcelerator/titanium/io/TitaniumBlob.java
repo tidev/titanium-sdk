@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiApplication;
 
 import android.database.Cursor;
 import android.net.Uri;
@@ -24,8 +24,8 @@ public class TitaniumBlob extends TiBaseFile
 	protected String name;
 	protected String path;
 
-	public TitaniumBlob(TiContext tiContext, String url) {
-		super(tiContext, TYPE_BLOB);
+	public TitaniumBlob(String url) {
+		super(TYPE_BLOB);
 		this.url = url;
 		if (url != null) {
 			init();
@@ -39,7 +39,7 @@ public class TitaniumBlob extends TiBaseFile
 		};
 		Cursor c = null;
 		try {
-			c = getTiContext().getActivity().getContentResolver().query(Uri.parse(url), projection, null, null, null);
+			c = TiApplication.getInstance().getContentResolver().query(Uri.parse(url), projection, null, null, null);
 
 			if (c.moveToNext()) {
 				name = c.getString(0);
@@ -78,13 +78,13 @@ public class TitaniumBlob extends TiBaseFile
 	}
 
 	public String getContentType() {
-		return getTiContext().getActivity().getContentResolver().getType(Uri.parse(url));
+		return TiApplication.getInstance().getContentResolver().getType(Uri.parse(url));
 	}
 
 	public InputStream getInputStream()
 		throws IOException
 	{
-		return getTiContext().getActivity().getContentResolver().openInputStream(Uri.parse(url));
+		return TiApplication.getInstance().getContentResolver().openInputStream(Uri.parse(url));
 	}
 
 	@Override

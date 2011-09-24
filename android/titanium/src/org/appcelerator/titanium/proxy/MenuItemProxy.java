@@ -8,7 +8,6 @@ package org.appcelerator.titanium.proxy;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -21,12 +20,11 @@ public class MenuItemProxy extends KrollProxy
 {
 	private MenuItem item;
 	
-	protected MenuItemProxy(TiContext tiContext, MenuItem item) {
-		super(tiContext);
-		
+	protected MenuItemProxy(MenuItem item)
+	{
 		this.item = item;
 	}
-	
+
 	@Kroll.method @Kroll.getProperty
 	public int getGroupId() {
 		return item.getGroupId();
@@ -102,7 +100,7 @@ public class MenuItemProxy extends KrollProxy
 			if (icon instanceof String) {
 				String iconPath = TiConvert.toString(icon);
 				if (iconPath != null) {
-					TiFileHelper tfh = new TiFileHelper(getTiContext().getActivity());
+					TiFileHelper tfh = new TiFileHelper(getActivity());
 					Drawable d = tfh.loadDrawable(context, iconPath, false);
 					if (d != null) {
 						item.setIcon(d);

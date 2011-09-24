@@ -6,7 +6,6 @@
  */
 package org.appcelerator.titanium;
 
-import java.io.IOException;
 import java.util.Set;
 
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
@@ -67,7 +66,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	protected void loadActivityScript()
 	{
 		try {
-			String fullUrl = url.resolve(tiContext);
+			String fullUrl = url.resolve();
 			if (DBG) {
 				Log.d(TAG, "Eval JS Activity:" + fullUrl);
 			}
@@ -99,7 +98,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		tiContext = TiContext.createTiContext(this, url.baseUrl, url.url);
 		tiContext.setLaunchContext(true);
 		if (activityProxy == null) {
-			setActivityProxy(new ActivityProxy(tiContext, this));
+			setActivityProxy(new ActivityProxy(this));
 		}
 
 		// we only want to set the current activity for good in the resume state but we need it right now.

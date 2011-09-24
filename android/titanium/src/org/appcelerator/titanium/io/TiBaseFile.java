@@ -55,10 +55,7 @@ public abstract class TiBaseFile
 	protected boolean stream;
 	protected boolean binary;
 
-	protected WeakReference<TiContext> weakTiContext;
-
-	protected TiBaseFile(TiContext tiContext, int type) {
-		this.weakTiContext = new WeakReference<TiContext>(tiContext);
+	protected TiBaseFile(int type) {
 		this.type = type;
 		this.typeFile = true;
 		this.typeDir = false;
@@ -75,10 +72,6 @@ public abstract class TiBaseFile
 		this.outwriter = null;
 		this.stream = false;
 		this.binary = false;
-	}
-
-	protected TiContext getTiContext() {
-		return weakTiContext.get();
 	}
 
 	public boolean isFile() {
@@ -115,51 +108,48 @@ public abstract class TiBaseFile
 		OutputStream os = null;
 		boolean copied = false;
 
-		if (destination != null) {
-			TiContext tiContext = getTiContext();
-			if (tiContext != null) {
+		if (destination == null) return false;
+
+		try {
+			is = getInputStream();
+			if (is == null) return false;
+
+			String parts[] = { destination };
+			TiBaseFile bf = TiFileFactory.createTitaniumFile(parts, false);
+			if (bf == null) return false;
+
+			os = bf.getOutputStream();
+			if (os == null) return false;
+
+			byte[] buf = new byte[8096];
+			int count = 0;
+			is = new BufferedInputStream(is);
+			os = new BufferedOutputStream(os);
+
+			while((count = is.read(buf)) != -1) {
+				os.write(buf, 0, count);
+			}
+
+			copied = true;
+		} catch (IOException e) {
+			Log.e(LCAT, "Error while copying file: ", e);
+			throw e;
+		} finally {
+			if (is != null) {
 				try {
-					is = getInputStream();
-					if (is != null) {
-						String parts[] = { destination };
-						TiBaseFile bf = TiFileFactory.createTitaniumFile(tiContext, parts, false);
-						if (bf != null) {
-							os = bf.getOutputStream();
-							if (os != null) {
-								byte[] buf = new byte[8096];
-								int count = 0;
-								is = new BufferedInputStream(is);
-								os = new BufferedOutputStream(os);
-
-								while((count = is.read(buf)) != -1) {
-									os.write(buf, 0, count);
-								}
-
-								copied = true;
-							}
-						}
-					}
+					is.close();
+					is = null;
 				} catch (IOException e) {
-					Log.e(LCAT, "Error while copying file: ", e);
-					throw e;
-				} finally {
-					if (is != null) {
-						try {
-							is.close();
-							is = null;
-						} catch (IOException e) {
-							// ignore;
-						}
-					}
+					// ignore;
+				}
+			}
 
-					if (os != null) {
-						try {
-							os.close();
-							os = null;
-						} catch (IOException e) {
-							// ignore;
-						}
-					}
+			if (os != null) {
+				try {
+					os.close();
+					os = null;
+				} catch (IOException e) {
+					// ignore;
 				}
 			}
 		}
@@ -172,7 +162,7 @@ public abstract class TiBaseFile
 		return false;
 	}
 
-	public boolean createShortcut() {		// TODO Auto-generated method stub
+	public boolean createShortcut() {
 		logNotSupported("createShortcut");
 		return false;
 	}
@@ -222,30 +212,27 @@ public abstract class TiBaseFile
 		boolean moved = false;
 
 		if (destination != null) {
-			TiContext tiContext = getTiContext();
-			if (tiContext != null) {
-				String parts[] = { destination };
-				TiBaseFile bf = TiFileFactory.createTitaniumFile(tiContext, parts, false);
-				if (bf != null) {
-					if (bf.exists()) {
-						throw new IOException("Destination already exists.");
-					}
-
-					File fsrc = getNativeFile();
-					if (fsrc == null) {
-						throw new FileNotFoundException("Source is not a true file.");
-					}
-					File fdest = bf.getNativeFile();
-					if (fdest == null) {
-						throw new FileNotFoundException("Destination is not a valid location for writing");
-					}
-
-					if(copy(destination)) {
-						moved = deleteFile();
-					}
-				} else {
-					throw new FileNotFoundException("Destination not found: " + destination);
+			String parts[] = { destination };
+			TiBaseFile bf = TiFileFactory.createTitaniumFile(parts, false);
+			if (bf != null) {
+				if (bf.exists()) {
+					throw new IOException("Destination already exists.");
 				}
+
+				File fsrc = getNativeFile();
+				if (fsrc == null) {
+					throw new FileNotFoundException("Source is not a true file.");
+				}
+				File fdest = bf.getNativeFile();
+				if (fdest == null) {
+					throw new FileNotFoundException("Destination is not a valid location for writing");
+				}
+
+				if(copy(destination)) {
+					moved = deleteFile();
+				}
+			} else {
+				throw new FileNotFoundException("Destination not found: " + destination);
 			}
 		}
 

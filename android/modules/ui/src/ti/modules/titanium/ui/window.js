@@ -1,6 +1,6 @@
 var EventEmitter = require("events").EventEmitter,
-	Ti = kroll.binding("titanium").Titanium,
-	Assets = kroll.binding("assets").Assets,
+	UI = require("titanium").UI,
+	assets = require("assets"),
 	vm = require("vm"),;
 
 var newActivityRequiredKeys = ["fullscreen", "navBarHidden", "modal", "windowSoftInputMode"];
@@ -23,7 +23,7 @@ TiWindow.prototype.__defineSetter__("orientationModes", function(modes) {
 	if (this.isActivity) {
 		this.window.setOrientationModes(modes);
 	} else {
-		Ti.UI.currentWindow.setOrientationModes(modes);
+		UI.currentWindow.setOrientationModes(modes);
 	}
 });
 
@@ -43,14 +43,14 @@ TiWindow.prototype.open = function(options) {
 	}
 
 	if (this.isActivity) {
-		this.window = new Ti.ActivityWindow(this.options);
+		this.window = new UI.ActivityWindow(this.options);
 		this.attachListeners();
 		this.window.open();
 	} else {
-		this.window = new Ti.View(this.options);
+		this.window = new UI.View(this.options);
 		this.window.zIndex = Math.MAX_INT - 2;
 		this.attachListeners();
-		Ti.UI.currentWindow.add(this.window);
+		UI.currentWindow.add(this.window);
 	}
 }
 
@@ -127,7 +127,7 @@ TiWindow.prototype.close = function(options) {
 	if (this.isActivity) {
 		this.window.close();
 	} else {
-		Ti.UI.currentWindow.remove(this.window);
+		UI.currentWindow.remove(this.window);
 	}
 }
 

@@ -64,9 +64,9 @@ public class TiFileProxy extends KrollProxy
 		}
 		
 		if (resolve) {
-			path = getTiContext().resolveUrl(scheme, path);
+			path = resolveUrl(scheme, path);
 		}
-		tbf = TiFileFactory.createTitaniumFile(tiContext, new String[] { path }, false);
+		tbf = TiFileFactory.createTitaniumFile(new String[] { path }, false);
 	}
 
 	public TiFileProxy(TiBaseFile tbf)
