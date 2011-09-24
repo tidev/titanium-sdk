@@ -123,7 +123,7 @@ public class TabGroupProxy extends TiWindowProxy
 			tabs = new ArrayList<TabProxy>();
 		}
 
-		if (getTiContext().isUIThread()) {
+		if (isUIThread()) {
 			handleAddTab(tab);
 			return;
 		}
@@ -259,7 +259,7 @@ public class TabGroupProxy extends TiWindowProxy
 			initialActiveTab = getProperty(TiC.PROPERTY_ACTIVE_TAB);
 		}
 
-		Activity activity = getTiContext().getActivity();
+		Activity activity = getActivity();
 		Intent intent = new Intent(activity, TiTabActivity.class);
 		fillIntent(activity, intent);
 		activity.startActivity(intent);
@@ -347,26 +347,22 @@ public class TabGroupProxy extends TiWindowProxy
 
 	private void fillIntent(Activity activity, Intent intent)
 	{
-		KrollDict props = getProperties();
-
-		if (props != null) {
-			if (props.containsKey(TiC.PROPERTY_FULLSCREEN)) {
-				intent.putExtra(TiC.PROPERTY_FULLSCREEN, TiConvert.toBoolean(props, TiC.PROPERTY_FULLSCREEN));
-			}
-			if (props.containsKey(TiC.PROPERTY_NAV_BAR_HIDDEN)) {
-				intent.putExtra(TiC.PROPERTY_NAV_BAR_HIDDEN, TiConvert.toBoolean(props, TiC.PROPERTY_NAV_BAR_HIDDEN));
-			}
-			if (props.containsKey(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)) {
-				intent.putExtra(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, TiConvert.toInt(props, TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE));
-			}
+		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
+			intent.putExtra(TiC.PROPERTY_FULLSCREEN, TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN)));
+		}
+		if (hasProperty(TiC.PROPERTY_NAV_BAR_HIDDEN)) {
+			intent.putExtra(TiC.PROPERTY_NAV_BAR_HIDDEN, TiConvert.toBoolean(getProperty(TiC.PROPERTY_NAV_BAR_HIDDEN)));
+		}
+		if (hasProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)) {
+			intent.putExtra(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)));
 		}
 
-		if (props != null && props.containsKey(TiC.PROPERTY_EXIT_ON_CLOSE)) {
-			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, TiConvert.toBoolean(props, TiC.PROPERTY_EXIT_ON_CLOSE));
+		if (hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
+			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE)));
 		} else {
 			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, activity.isTaskRoot());
 		}
-		
+
 		Messenger messenger = new Messenger(getUIHandler());
 		intent.putExtra(TiC.INTENT_PROPERTY_MESSENGER, messenger);
 		intent.putExtra(TiC.INTENT_PROPERTY_MSG_ID, MSG_FINISH_OPEN);
@@ -375,7 +371,7 @@ public class TabGroupProxy extends TiWindowProxy
 	@Override
 	public KrollDict handleToImage()
 	{
-		return TiUIHelper.viewToImage(getTiContext(), this.properties, getTiContext().getActivity().getWindow().getDecorView());
+		return TiUIHelper.viewToImage(getTiContext(), this.properties, getActivity().getWindow().getDecorView());
 	}
 
 	@Override

@@ -15,8 +15,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiConvert;
@@ -56,11 +54,6 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	private static final int MSG_FORCE_LAYOUT = MSG_FIRST_ID + 107;
 	private boolean useSpinner = false;
 
-	public PickerProxy(TiContext tiContext)
-	{
-		super(tiContext);
-	}
-
 	@Override
 	public void handleCreationDict(KrollDict dict) {
 		super.handleCreationDict(dict);
@@ -68,7 +61,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 			useSpinner = TiConvert.toBoolean(dict, "useSpinner");
 		}
 		if (hasProperty("type")) {
-			type = getProperties().getInt("type");
+			type = TiConvert.toInt(getProperty("type"));
 		}
 		if (dict.containsKey("columns")) {
 			setColumns(dict.get("columns"));
@@ -176,7 +169,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	@Override
 	public void remove(TiViewProxy child)
 	{
-		if (getTiContext().isUIThread() || peekView() == null) {
+		if (isUIThread() || peekView() == null) {
 			handleRemoveColumn(child);
 		} else {
 			sendBlockingUiMessage(MSG_REMOVE, child);
@@ -210,7 +203,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 			Log.w(LCAT, "Attempt to add to date/time or countdown picker ignored.");
 			return;
 		}
-		if (getTiContext().isUIThread() || peekView() == null) {
+		if (isUIThread() || peekView() == null) {
 			handleAddObject(child);
 		} else {
 			sendBlockingUiMessage(MSG_ADD, child);
@@ -309,7 +302,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		}
 
 		// View exists
-		if (getTiContext().isUIThread()) {
+		if (isUIThread()) {
 			handleSelectRow(column, row, animated);
 		} else {
 			KrollDict dict = new KrollDict();
@@ -361,7 +354,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 			Log.w(LCAT, "Cannot set columns in date/time or countdown picker.");
 			return;
 		}
-		if (getTiContext().isUIThread() || peekView() == null) {
+		if (isUIThread() || peekView() == null) {
 			handleSetColumns(passedColumns);
 		} else {
 			sendBlockingUiMessage(MSG_SET_COLUMNS, passedColumns);
@@ -469,7 +462,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	{
 		PickerColumnProxy column = getColumn(0);
 		if (column == null && createIfMissing) {
-			column = new PickerColumnProxy(getTiContext());
+			column = new PickerColumnProxy();
 			add(column);
 		}
 		return column;
@@ -490,6 +483,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		if (settings.containsKey("value")) {
 			calendar.setTime(TiConvert.toDate(settings, "value"));
 		}
+		// TODO tie to an event in JS
 		final KrollCallback callback;
 		if (settings.containsKey("callback")) {
 			Object typeTest = settings.get("callback");
@@ -577,6 +571,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		if (settings.containsKey("value")) {
 			calendar.setTime(TiConvert.toDate(settings, "value"));
 		}
+		// TODO tie to an event in JS
 		final KrollCallback callback;
 		if (settings.containsKey("callback")) {
 			Object typeTest = settings.get("callback");
@@ -648,7 +643,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		if (!(peekView() instanceof TiUIPicker)) {
 			return;
 		}
-		if (getTiContext().isUIThread()) {
+		if (isUIThread()) {
 			handleFireColumnModelChange(columnIndex);
 		} else {
 			Message msg = getUIHandler().obtainMessage(MSG_FIRE_COL_CHANGE);
@@ -669,7 +664,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		if (!(peekView() instanceof TiUIPicker)) {
 			return;
 		}
-		if (getTiContext().isUIThread()) {
+		if (isUIThread()) {
 			handleFireRowChange(columnIndex, rowIndex);
 		} else {
 			Message msg = getUIHandler().obtainMessage(MSG_FIRE_ROW_CHANGE);
@@ -750,7 +745,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		if (!(peekView() instanceof TiUISpinner)) {
 			return;
 		}
-		if (getTiContext().isUIThread()) {
+		if (isUIThread()) {
 			handleForceRequestLayout();
 		} else {
 			getUIHandler().obtainMessage(MSG_FORCE_LAYOUT).sendToTarget();

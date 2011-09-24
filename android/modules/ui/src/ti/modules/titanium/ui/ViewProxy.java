@@ -7,7 +7,6 @@
 package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -17,12 +16,9 @@ import android.app.Activity;
 @Kroll.proxy(creatableInModule=UIModule.class)
 public class ViewProxy extends TiViewProxy
 {
-	public ViewProxy(TiContext tiContext) {
-		super(tiContext);
-	}
-
 	@Override
-	public TiUIView createView(Activity activity) {
+	public TiUIView createView(Activity activity)
+	{
 		TiUIView view = new TiView(this);
 		view.getLayoutParams().autoFillsHeight = true;
 		view.getLayoutParams().autoFillsWidth = true;

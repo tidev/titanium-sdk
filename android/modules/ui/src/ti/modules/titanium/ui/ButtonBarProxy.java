@@ -7,21 +7,17 @@
 package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 
 @Kroll.proxy(creatableInModule=UIModule.class)
-public class ButtonBarProxy extends TiViewProxy {
-
-	public ButtonBarProxy(TiContext tiContext) {
-		super(tiContext);
-	}
-
+public class ButtonBarProxy extends TiViewProxy
+{
 	@Override
-	public TiUIView createView(Activity activity) {
+	public TiUIView createView(Activity activity)
+	{
 		return null;
 	}
 

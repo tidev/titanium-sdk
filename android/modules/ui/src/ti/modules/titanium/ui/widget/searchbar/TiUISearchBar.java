@@ -8,14 +8,10 @@ package ti.modules.titanium.ui.widget.searchbar;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.ui.widget.TiUIText;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -52,12 +48,12 @@ public class TiUISearchBar extends TiUIText
 		{
 			public void onClick(View view)
 			{
-				try {
+				/* TODO try {
 					proxy.set(getProxy().getTiContext().getScope(), "value", "");
 				} catch (NoSuchFieldException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}
+				}*/
 				proxy.fireEvent("cancel", null);
 			}
 		});

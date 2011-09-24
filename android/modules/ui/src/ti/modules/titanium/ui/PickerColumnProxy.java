@@ -9,7 +9,6 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.view.TiUIView;
@@ -33,10 +32,6 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	private boolean useSpinner = false;
 	private boolean suppressListenerEvents = false;
 
-	public PickerColumnProxy(TiContext tiContext)
-	{
-		super(tiContext);
-	}
 	public void setColumnListener(PickerColumnListener listener)
 	{
 		columnListener = listener;
@@ -86,7 +81,7 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	@Override
 	public void add(TiViewProxy o)
 	{
-		if (getTiContext().isUIThread() || peekView() == null) {
+		if (isUIThread() || peekView() == null) {
 			handleAddRow(o);
 		} else {
 			sendBlockingUiMessage(MSG_ADD, o);
@@ -112,7 +107,7 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	@Override
 	public void remove(TiViewProxy o)
 	{
-		if (getTiContext().isUIThread() || peekView() == null) {
+		if (isUIThread() || peekView() == null) {
 			handleRemoveRow(o);
 		} else {
 			sendBlockingUiMessage(MSG_REMOVE, o);
@@ -168,7 +163,7 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	@Kroll.setProperty @Kroll.method
 	public void setRows(Object[] rows)
 	{
-		if (getTiContext().isUIThread() || peekView() == null) {
+		if (isUIThread() || peekView() == null) {
 			handleSetRows(rows);
 		} else {
 			sendBlockingUiMessage(MSG_SET_ROWS, rows);

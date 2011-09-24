@@ -61,16 +61,14 @@ public class TiUIWindow extends TiUIView
 	// Intent.FLAG_ACTIVITY_NO_ANIMATION not available in API 4
 	private static final int INTENT_FLAG_ACTIVITY_NO_ANIMATION = 65536;
 	private static final String WINDOW_ID_PREFIX = "window$";
-	
+
 	protected String activityKey;
 	protected Activity windowActivity;
 	protected TiContext windowContext;
 	protected String windowUrl;
 	protected int windowId;
-	protected TiCompositeLayout lightWindow;
 
-	protected boolean lightWeight, newActivity, animate, newContext = false;
-	protected TiPropertyResolver resolver;
+	protected boolean animate;
 	protected Handler handler;
 
 	protected Messenger messenger;
@@ -204,7 +202,7 @@ public class TiUIWindow extends TiUIView
 
 	protected void createNewActivity()
 	{
-		Activity activity = proxy.getTiContext().getActivity();
+		Activity activity = proxy.getActivity();
 		Intent intent = createIntent(activity);
 		KrollDict d = resolver.findProperty(TiC.PROPERTY_ANIMATED);
 		if (d != null) {
@@ -230,7 +228,7 @@ public class TiUIWindow extends TiUIView
 		handleWindowCreated();
 		TiMessageQueue.getMainMessageQueue().stopBlocking();
 	}
-	
+
 	protected void handleWindowCreated()
 	{
 		if (windowUrl != null) {
@@ -344,6 +342,7 @@ public class TiUIWindow extends TiUIView
 			// set the lightweight window reference on the activity to null when the window closes
 			TiContext proxyContext = proxy.getTiContext();
 			Activity proxyActivity = proxyContext.getActivity();
+			// proxy.getActivity
 			if (proxyActivity instanceof TiBaseActivity)
 			{
 				((TiBaseActivity)proxyActivity).lwWindow = null;
@@ -462,6 +461,7 @@ public class TiUIWindow extends TiUIView
 	private void handleBackgroundImage(Object value, Object opacityValue, boolean post)
 	{
 		if (value != null) {
+			// proxy.getCreationUrl
 			String path = proxy.getTiContext().resolveUrl(null, TiConvert.toString(value));
 			TiFileHelper tfh = new TiFileHelper(proxy.getContext().getApplicationContext());
 			Drawable bd = tfh.loadDrawable(proxy.getTiContext(), path, false);
@@ -491,7 +491,7 @@ public class TiUIWindow extends TiUIView
 			if (windowActivity != null) {
 				windowActivity.setTitle(title);
 			} else {
-				proxy.getTiContext().getActivity().setTitle(title);
+				proxy.getActivity().setTitle(title);
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_LAYOUT)) {
@@ -536,7 +536,7 @@ public class TiUIWindow extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
 			handleBackgroundColor(newValue, false);
 		} else if (key.equals(TiC.PROPERTY_WIDTH) || key.equals(TiC.PROPERTY_HEIGHT)) {
-			Window w = proxy.getTiContext().getActivity().getWindow();
+			Window w = proxy.getActivity().getWindow();
 			int width = lastWidth;
 			int height = lastHeight;
 
@@ -563,7 +563,7 @@ public class TiUIWindow extends TiUIView
 			if (windowActivity != null) {
 				windowActivity.setTitle(title);
 			} else {
-				proxy.getTiContext().getActivity().setTitle(title);
+				proxy.getActivity().setTitle(title);
 			}
 		} else if (key.equals(TiC.PROPERTY_LAYOUT)) {
 			if (!lightWeight) {

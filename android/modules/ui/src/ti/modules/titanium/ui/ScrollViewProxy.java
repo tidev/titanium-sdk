@@ -8,7 +8,6 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.view.TiUIView;
@@ -34,11 +33,6 @@ public class ScrollViewProxy extends TiViewProxy
 	private static final int MSG_SCROLL_TO_BOTTOM = MSG_FIRST_ID + 101;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
-	public ScrollViewProxy(TiContext context)
-	{
-		super(context);
-	}
-
 	@Override
 	public TiUIView createView(Activity activity) {
 		return new TiUIScrollView(this);
@@ -50,8 +44,8 @@ public class ScrollViewProxy extends TiViewProxy
 
 	@Kroll.method
 	public void scrollTo(int x, int y) {
-		if (!getTiContext().isUIThread()) {
-			sendBlockingUiMessage(MSG_SCROLL_TO, getTiContext().getActivity(), x, y);
+		if (!isUIThread()) {
+			sendBlockingUiMessage(MSG_SCROLL_TO, getActivity(), x, y);
 		} else {
 			handleScrollTo(x,y);
 		}
@@ -59,8 +53,8 @@ public class ScrollViewProxy extends TiViewProxy
 	
 	@Kroll.method
 	public void scrollToBottom() {
-		if (!getTiContext().isUIThread()) {
-			sendBlockingUiMessage(MSG_SCROLL_TO_BOTTOM, getTiContext().getActivity());
+		if (!isUIThread()) {
+			sendBlockingUiMessage(MSG_SCROLL_TO_BOTTOM, getActivity());
 		} else {
 			handleScrollToBottom();
 		}
@@ -83,10 +77,10 @@ public class ScrollViewProxy extends TiViewProxy
 	}
 
 	public void handleScrollTo(int x, int y) {
-		getScrollView(getTiContext().getActivity()).scrollTo(x, y);
+		getScrollView(getActivity()).scrollTo(x, y);
 	}
 	
 	public void handleScrollToBottom() {
-		getScrollView(getTiContext().getActivity()).scrollToBottom();
+		getScrollView(getActivity()).scrollToBottom();
 	}
 }

@@ -8,7 +8,6 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -24,11 +23,6 @@ import android.app.Activity;
 })
 public class SliderProxy extends TiViewProxy
 {
-	public SliderProxy(TiContext tiContext)
-	{
-		super(tiContext);
-	}
-
 	@Override
 	public TiUIView createView(Activity activity)
 	{

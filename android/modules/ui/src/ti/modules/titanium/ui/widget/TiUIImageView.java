@@ -214,7 +214,7 @@ public class TiUIImageView extends TiUIView
 	private void setImage(final Bitmap bitmap)
 	{
 		if (bitmap != null) {
-			if (!proxy.getTiContext().isUIThread()) {
+			if (!proxy.isUIThread()) {
 				AsyncResult result = new AsyncResult(bitmap);
 				proxy.sendBlockingUiMessage(handler.obtainMessage(SET_IMAGE, result), result);
 			} else {
@@ -281,11 +281,6 @@ public class TiUIImageView extends TiUIView
 		{
 			if (getProxy() == null) {
 				Log.d(LCAT, "Multi-image loader exiting early because proxy has been gc'd");
-				return;
-			}
-			TiContext context = getProxy().getTiContext();
-			if (context == null) {
-				Log.d(LCAT, "Multi-image loader exiting early because context has been gc'd");
 				return;
 			}
 			repeatIndex = 0;
@@ -423,8 +418,8 @@ public class TiUIImageView extends TiUIView
 
 	public void start()
 	{
-		if (!proxy.getTiContext().isUIThread()) {
-			proxy.getTiContext().getActivity().runOnUiThread(new Runnable() {
+		if (!proxy.isUIThread()) {
+			proxy.getActivity().runOnUiThread(new Runnable() {
 				public void run() {
 					handleStart();
 				}

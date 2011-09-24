@@ -14,7 +14,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -43,14 +42,8 @@ public class IntentProxy extends KrollProxy
 	protected Intent intent;
 	protected int type = TYPE_ACTIVITY;
 
-	public IntentProxy(TiContext tiContext)
+	public IntentProxy(Intent intent)
 	{
-		super(tiContext);
-	}
-
-	public IntentProxy(TiContext tiContext, Intent intent)
-	{
-		super(tiContext);
 		this.intent = intent;
 	}
 
@@ -151,7 +144,7 @@ public class IntentProxy extends KrollProxy
 			} else {
 				try {
 					Class<?> c = getClass().getClassLoader().loadClass(className);
-					intent.setClass(getTiContext().getActivity().getApplicationContext(), c);
+					intent.setClass(TiApplication.getInstance().getApplicationContext(), c);
 				} catch (ClassNotFoundException e) {
 					Log.e(TAG, "Unable to locate class for name: " + className);
 					throw new IllegalStateException("Missing class for name: " + className, e);

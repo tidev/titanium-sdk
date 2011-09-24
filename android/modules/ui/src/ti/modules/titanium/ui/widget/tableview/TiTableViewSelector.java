@@ -6,14 +6,11 @@
  */
 package ti.modules.titanium.ui.widget.tableview;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.ui.TableViewRowProxy;
-
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.PixelFormat;

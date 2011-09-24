@@ -32,20 +32,13 @@ public class TiFileProxy extends KrollProxy
 	protected String path;
 	protected TiBaseFile tbf; // The base file object.
 
-	public TiFileProxy(TiContext tiContext)
+	public TiFileProxy(String[] parts)
 	{
-		super(tiContext);
+		this(parts, true);
 	}
 
-	public TiFileProxy(TiContext tiContext, String[] parts)
+	public TiFileProxy(String[] parts, boolean resolve)
 	{
-		this(tiContext, parts, true);
-	}
-	
-	public TiFileProxy(TiContext tiContext, String[] parts, boolean resolve)
-	{
-		super(tiContext);
-
 		//String path = getTiContext().resolveUrl(join(Arrays.asList(parts), "/"));
 		String scheme = "appdata-private://";
 		String path = null;
@@ -76,9 +69,8 @@ public class TiFileProxy extends KrollProxy
 		tbf = TiFileFactory.createTitaniumFile(tiContext, new String[] { path }, false);
 	}
 
-	public TiFileProxy(TiContext tiContext, TiBaseFile tbf)
+	public TiFileProxy(TiBaseFile tbf)
 	{
-		super(tiContext);
 		this.tbf = tbf;
 	}
 
@@ -208,7 +200,7 @@ public class TiFileProxy extends KrollProxy
 	public TiFileProxy getParent()
 	{
 		TiBaseFile bf = tbf.getParent();
-		return bf != null ? new TiFileProxy(getTiContext(), bf) : null;
+		return bf != null ? new TiFileProxy(bf) : null;
 	}
 
 	@Kroll.method

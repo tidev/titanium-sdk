@@ -294,7 +294,7 @@ public class TiTableView extends FrameLayout
 			}
 		});
 
-		if (proxy.getProperties().containsKey(TiC.PROPERTY_SEPARATOR_COLOR)) {
+		if (proxy.hasProperty(TiC.PROPERTY_SEPARATOR_COLOR)) {
 			setSeparatorColor(TiConvert.toString(proxy.getProperty(TiC.PROPERTY_SEPARATOR_COLOR)));
 		}
 		adapter = new TTVListAdapter(viewModel);

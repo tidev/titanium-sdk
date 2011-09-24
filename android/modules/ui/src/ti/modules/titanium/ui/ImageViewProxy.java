@@ -37,6 +37,9 @@ public class ImageViewProxy extends ViewProxy {
 	private static final String PROPERTY_INTERNAL_BITMAP = "_internalBitmap";
 	private static final String PROPERTY_INTERNAL_SOURCES = "_internalSources";
 
+	private Bitmap bitmap;
+	private ArrayList<TiDrawableReference> imageSources;
+
 	public ImageViewProxy(TiContext tiContext) {
 		super(tiContext);
 	}
@@ -48,12 +51,10 @@ public class ImageViewProxy extends ViewProxy {
 
 	public Bitmap getBitmap()
 	{
-		Bitmap bitmap = (Bitmap) getProperty(PROPERTY_INTERNAL_BITMAP);
 		if (bitmap != null && bitmap.isRecycled())
 		{
 			// Cleanup after recycled bitmaps
-			properties.remove(PROPERTY_INTERNAL_BITMAP);
-			return null;
+			bitmap = null;
 		}
 		return bitmap;
 	}
@@ -61,19 +62,19 @@ public class ImageViewProxy extends ViewProxy {
 	@SuppressWarnings("unchecked")
 	public ArrayList<TiDrawableReference> getImageSources()
 	{
-		return (ArrayList<TiDrawableReference>) getProperty(PROPERTY_INTERNAL_SOURCES);
+		return imageSources;
 	}
 
 	public void onImageSourcesChanged(TiUIImageView imageView, ArrayList<TiDrawableReference> imageSources)
 	{
-		setProperty(PROPERTY_INTERNAL_SOURCES, imageSources);
+		this.imageSources = imageSources;
 		// The current cached bitmap, if any, can't be trusted now
 		onBitmapChanged(imageView, null);
 	}
 
 	public void onBitmapChanged(TiUIImageView imageView, Bitmap bitmap)
 	{
-		setProperty(PROPERTY_INTERNAL_BITMAP, bitmap);
+		this.bitmap = bitmap;
 	}
 
 	public boolean inTableView()
@@ -89,7 +90,7 @@ public class ImageViewProxy extends ViewProxy {
 	}
 
 	private TiUIImageView getImageView() {
-		return (TiUIImageView)getView(getTiContext().getActivity());
+		return (TiUIImageView)getView(getActivity());
 	}
 	
 	@Kroll.method
@@ -135,12 +136,8 @@ public class ImageViewProxy extends ViewProxy {
 	@Override
 	public void releaseViews()
 	{
-		if (hasProperty(PROPERTY_INTERNAL_BITMAP)) {
-			properties.remove(PROPERTY_INTERNAL_BITMAP);
-		}
-		if (hasProperty(PROPERTY_INTERNAL_SOURCES)) {
-			properties.remove(PROPERTY_INTERNAL_SOURCES);
-		}
+		bitmap = null;
+		imageSources = null;
 		super.releaseViews();
 	}
 }

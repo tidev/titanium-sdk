@@ -86,7 +86,7 @@ public class WindowProxy extends TiWindowProxy
 	{
 		switch(msg.what) {
 			case MSG_FINISH_OPEN: {
-				realizeViews(getTiContext().getActivity(), view);
+				realizeViews(getActivity(), view);
 				if (tab == null) {
 					//TODO attach window
 				}
@@ -183,7 +183,7 @@ public class WindowProxy extends TiWindowProxy
 	@Kroll.method @Kroll.getProperty
 	public int getOrientation()
 	{
-		Activity activity = getTiContext().getActivity();
+		Activity activity = getActivity();
 
 		if (activity != null)
 		{

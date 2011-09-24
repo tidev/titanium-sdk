@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.view.TiUIView;
@@ -21,7 +20,6 @@ import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import ti.modules.titanium.ui.widget.tableview.TiTableViewRowProxyItem;
 import android.app.Activity;
 import android.os.Message;
-import android.test.IsolatedContext;
 
 @Kroll.proxy(creatableInModule=UIModule.class,
 propertyAccessors = {
@@ -36,18 +34,15 @@ propertyAccessors = {
 public class TableViewRowProxy extends TiViewProxy
 {
 	private static final String LCAT = "TableViewRowProxy";
-	
+
 	protected ArrayList<TiViewProxy> controls;
 	protected TiTableViewRowProxyItem tableViewItem;
 
 	private static final int MSG_SET_DATA = TiViewProxy.MSG_LAST_ID + 5001;
 
-	public TableViewRowProxy(TiContext tiContext) {
-		super(tiContext);
-	}
-	
 	@Override
-	public void handleCreationDict(KrollDict options) {
+	public void handleCreationDict(KrollDict options)
+	{
 		super.handleCreationDict(options);
 		if (options.containsKey(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)) {
 			Log.w(LCAT, "selectedBackgroundColor is deprecated, use backgroundSelectedColor instead");
@@ -114,24 +109,10 @@ public class TableViewRowProxy extends TiViewProxy
 	}
 
 	@Override
-	public void set(Scriptable scope, String name, Object value)
-			throws NoSuchFieldException {
-		if (name.equals(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)) {
-			Log.w(LCAT, "selectedBackgroundColor is deprecated, use backgroundSelectedColor instead");
-			super.set(scope, TiC.PROPERTY_BACKGROUND_SELECTED_COLOR, value);
-		} else if (name.equals(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE)) {
-			Log.w(LCAT, "selectedBackgroundImage is deprecated, use backgroundSelectedImage instead");
-			super.set(scope, TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE, value);
-		} else {
-			super.set(scope, name, value);
-		}
-	}
-
-	@Override
 	public void setProperty(String name, Object value, boolean fireChange) {
 		super.setProperty(name, value, fireChange);
 		if (tableViewItem != null) {
-			if (context.isUIThread()) {
+			if (isUIThread()) {
 				tableViewItem.setRowData(this);
 			} else {
 				Message msg = getUIHandler().obtainMessage(MSG_SET_DATA);
@@ -159,8 +140,8 @@ public class TableViewRowProxy extends TiViewProxy
 		data.put(TiC.EVENT_PROPERTY_DETAIL, false);
 	}
 
-	@Override
-	public boolean fireEvent(String eventName, KrollDict data) {
+	/* TODO @Override
+	public boolean fireEvent(String eventName, Object data) {
 		if (eventName.equals(TiC.EVENT_CLICK) || eventName.equals(TiC.EVENT_LONGCLICK)) {
 			// inject row click data for events coming from row children
 			TableViewProxy table = getTable();
@@ -170,7 +151,7 @@ public class TableViewRowProxy extends TiViewProxy
 			}
 		}
 		return super.fireEvent(eventName, data);
-	}
+	}*/
 
 	public void setLabelsClickable(boolean clickable) {
 		if (controls != null) {

@@ -7,7 +7,6 @@
 package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -17,11 +16,6 @@ import android.app.Activity;
 @Kroll.proxy(creatableInModule=UIModule.class)
 public class DatePickerProxy extends TiViewProxy
 {
-	public DatePickerProxy(TiContext tiContext)
-	{
-		super(tiContext);
-	}
-
 	@Override
 	public TiUIView createView(Activity activity)
 	{

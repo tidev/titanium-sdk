@@ -13,8 +13,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.runtime.v8.EventEmitter;
 import org.appcelerator.kroll.runtime.v8.EventListener;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
@@ -42,41 +42,32 @@ public class KrollProxy extends EventEmitter
 
 	public static final String PROXY_ID_PREFIX = "proxy$";
 
-	protected TiContext context, creatingContext;
-
-	protected Handler uiHandler;
 	protected String proxyId;
+	protected String creationUrl;
 	protected KrollProxyListener modelListener;
-	protected EventListener addedListener, removedListener;
 	protected KrollModule createdInModule;
 	protected boolean coverageEnabled;
 	protected KrollDict creationDict = null;
+	protected Activity activity;
 
 	@Kroll.inject
 	protected KrollInvocation currentInvocation;
 
 	public KrollProxy()
 	{
-		super(0);
+		this(true);
 	}
 
-	public KrollProxy(TiContext context)
-	{
-		this(context, true);
-	}
-
-	public KrollProxy(TiContext context, boolean autoBind)
+	public KrollProxy(boolean autoBind)
 	{
 		super(0);
-		this.context = context;
 		if (DBG) {
 			Log.d(TAG, "New: " + getClass().getSimpleName());
 		}
 		this.proxyId = PROXY_ID_PREFIX + proxyCounter.incrementAndGet();
-		coverageEnabled = context.getTiApp().isCoverageEnabled();
+		coverageEnabled = TiApplication.getInstance().isCoverageEnabled();
 
-		uiHandler = new Handler(Looper.getMainLooper(), this);
-		if (!context.isUIThread()) {
+		/*if (!context.isUIThread()) {
 			Activity activity = context.getActivity();
 			if ((activity == null || activity.isFinishing()) && !context.isServiceContext()) {
 				if (DBG) {
@@ -84,7 +75,7 @@ public class KrollProxy extends EventEmitter
 				}
 				return;
 			}
-		}
+		}*/
 	}
 
 	public static KrollProxy create(Class<? extends KrollProxy> objClass, Object[] creationArguments, long v8ObjectPointer)
@@ -106,6 +97,11 @@ public class KrollProxy extends EventEmitter
 		}
 
 		return null;
+	}
+
+	public static boolean isUIThread()
+	{
+		return Looper.getMainLooper().getThread().getId() == Thread.currentThread().getId();
 	}
 
 	@Deprecated
@@ -139,7 +135,7 @@ public class KrollProxy extends EventEmitter
 	protected void firePropertyChanged(String name, Object oldValue, Object newValue)
 	{
 		if (modelListener != null) {
-			if (context.isUIThread()) {
+			if (isUIThread()) {
 				modelListener.propertyChanged(name, oldValue, newValue,
 					this);
 			} else {
@@ -273,51 +269,24 @@ public class KrollProxy extends EventEmitter
 
 		this.modelListener = modelListener;
 		if (modelListener != null) {
-			if (addedListener == null) {
-				addedListener = new EventListener(uiHandler, MSG_LISTENER_ADDED);
-				addEventListener(EventListener.EVENT_LISTENER_ADDED, addedListener);
-			}
-			if (removedListener == null) {
-				removedListener = new EventListener(uiHandler, MSG_LISTENER_REMOVED);
-				addEventListener(EventListener.EVENT_LISTENER_REMOVED, removedListener);
-			}
 			modelListener.processProperties(creationDict);
 			creationDict = null;
-		} else {
-			if (addedListener != null) {
-				removeEventListener(EventListener.EVENT_LISTENER_ADDED, addedListener);
-			}
-			if (removedListener != null) {
-				removeEventListener(EventListener.EVENT_LISTENER_REMOVED, removedListener);
-			}
 		}
 	}
 
-	public TiContext switchContext(TiContext tiContext)
+	public Activity getActivity()
 	{
-		TiContext oldContext = this.context;
-		this.context = tiContext;
-		if (creatingContext == null) {
-			// We'll assume for now that if we're switching contexts,
-			// it's because the creation of a window forced a new context
-			// In that case, we need to hold on to the original / creating
-			// context so that event listeners registered there still receive
-			// events.
-			creatingContext = oldContext;
-		}
-		return oldContext;
+		return this.activity;
 	}
 
-	public void switchToCreatingContext()
+	public void setActivity(Activity activity)
 	{
-		if (creatingContext != null && context != null && !creatingContext.equals(context)) {
-			switchContext(creatingContext);
-		}
+		this.activity = activity;
 	}
 
-	public Handler getUIHandler()
+	public String getCreationUrl()
 	{
-		return uiHandler;
+		return creationUrl;
 	}
 
 	public Object sendBlockingUiMessage(int what, Object asyncArg)
@@ -331,7 +300,7 @@ public class KrollProxy extends EventEmitter
 	{
 		AsyncResult result = new AsyncResult(null);
 		return sendBlockingUiMessage(
-			getUIHandler().obtainMessage(what, arg1, -1), result);		
+			getUIHandler().obtainMessage(what, arg1, -1), result);
 	}
 
 	public Object sendBlockingUiMessage(int what, Object asyncArg, int arg1, int arg2)
@@ -345,11 +314,6 @@ public class KrollProxy extends EventEmitter
 	{
 		return TiMessageQueue.getMessageQueue().sendBlockingMessage(
 			msg, TiMessageQueue.getMainMessageQueue(), result);
-	}
-
-	public TiContext getTiContext()
-	{
-		return context;
 	}
 
 	public String getProxyId()

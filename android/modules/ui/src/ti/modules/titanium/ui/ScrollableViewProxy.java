@@ -13,10 +13,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiEventHelper;
 import org.appcelerator.titanium.view.TiUIView;
@@ -31,7 +29,6 @@ import android.view.animation.Animation.AnimationListener;
 public class ScrollableViewProxy extends TiViewProxy
 	implements AnimationListener
 {
-
 	private static final String EVENT_SCROLL = "scroll";
 
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
@@ -51,9 +48,8 @@ public class ScrollableViewProxy extends TiViewProxy
 	protected AtomicBoolean inAnimation;
 	protected AtomicBoolean inScroll;
 
-	public ScrollableViewProxy(TiContext context)
+	public ScrollableViewProxy()
 	{
-		super(context);
 		inAnimation = new AtomicBoolean(false);
 		inScroll = new AtomicBoolean(false);
 	}
@@ -64,7 +60,7 @@ public class ScrollableViewProxy extends TiViewProxy
 	}
 
 	protected TiUIScrollableView getView() {
-		return (TiUIScrollableView)getView(getTiContext().getActivity());
+		return (TiUIScrollableView)getView(getActivity());
 	}
 
 	public boolean handleMessage(Message msg)

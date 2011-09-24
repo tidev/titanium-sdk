@@ -1,34 +1,48 @@
 package org.appcelerator.kroll.runtime.v8;
 
+import java.util.HashMap;
 import java.util.concurrent.Semaphore;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
 public class EventEmitter extends V8Object implements Handler.Callback
 {
+	private static final String TAG = "EventEmitter";
+	private static final int MSG_FIRE_EVENT = 100;
+	private static final int MSG_ADD_EVENT_LISTENER = 101;
+	private static final int MSG_REMOVE_EVENT_LISTENER = 102;
+	private static final int MSG_LISTENER_ADDED = 103;
+	private static final int MSG_LISTENER_REMOVED = 104;
+	public static final int MSG_LAST_ID = MSG_LISTENER_REMOVED + 1;
+
 	public static final String EVENT_NAME = "eventName";
 	public static final String EVENT_RESULT = "eventResult";
 	public static final String EVENT_SYNC = "eventSync";
 
-	private static final String TAG = "EventEmitter";
-	private static final int MSG_FIRE_EVENT = 100;
-	public static final int MSG_LAST_ID = MSG_FIRE_EVENT + 1;
-
-	private Handler eventHandler;
+	private Handler v8Handler, uiHandler;
+	private EventListener eventChangeListener;
 	private Semaphore semaphore = new Semaphore(0);
+	private HashMap<String, Integer> listenerCount = new HashMap<String, Integer>();
 
 	public EventEmitter(long ptr)
 	{
 		super(ptr);
 
-		eventHandler = new Handler(V8Runtime.getInstance().getV8Looper(), this);
+		v8Handler = new Handler(V8Runtime.getInstance().getV8Looper(), this);
+		uiHandler = new Handler(Looper.getMainLooper(), this);
+
+		eventChangeListener = new EventListener(uiHandler);
+		eventChangeListener.addEventMessage(this, EventListener.EVENT_LISTENER_ADDED, MSG_LISTENER_ADDED);
+		eventChangeListener.addEventMessage(this, EventListener.EVENT_LISTENER_REMOVED, MSG_LISTENER_REMOVED);
 	}
 
-	public void fireEvent(String event, Object data)
+	public boolean fireEvent(String event, Object data)
 	{
 		fireEvent(event, data, false);
+		return hasListeners(event);
 	}
 
 	public boolean fireSyncEvent(String event, Object data)
@@ -37,7 +51,11 @@ public class EventEmitter extends V8Object implements Handler.Callback
 	}
 
 	private boolean fireEvent(String event, Object data, boolean sync) {
-		Message msg = eventHandler.obtainMessage(MSG_FIRE_EVENT, data);
+		if (V8Runtime.getInstance().isV8Thread()) {
+			return nativeFireEvent(ptr, event, data);
+		}
+
+		Message msg = v8Handler.obtainMessage(MSG_FIRE_EVENT, data);
 		msg.getData().putString(EVENT_NAME, event);
 		msg.getData().putBoolean(EVENT_SYNC, sync);
 		msg.sendToTarget();
@@ -53,20 +71,49 @@ public class EventEmitter extends V8Object implements Handler.Callback
 		return false;
 	}
 
-
 	public void addEventListener(String event, EventListener listener)
 	{
-		nativeAddEventListener(ptr, event, listener.getPointer());
+		if (V8Runtime.getInstance().isV8Thread()) {
+			nativeAddEventListener(ptr, event, listener.getPointer());
+			return;
+		}
+
+		Message msg = v8Handler.obtainMessage(MSG_ADD_EVENT_LISTENER, listener);
+		msg.getData().putString(EVENT_NAME, event);
+		msg.sendToTarget();
 	}
 
 	public void removeEventListener(String event, EventListener listener)
 	{
-		nativeRemoveEventListener(ptr, event, listener.getPointer());
+		if (V8Runtime.getInstance().isV8Thread()) {
+			nativeRemoveEventListener(ptr, event, listener.getPointer());
+		}
+
+		Message msg = v8Handler.obtainMessage(MSG_REMOVE_EVENT_LISTENER, listener);
+		msg.getData().putString(EVENT_NAME, event);
+		msg.sendToTarget();
 	}
 
 	public boolean hasListeners(String event)
 	{
-		return nativeHasListeners(ptr, event);
+		return getListenerCount(event) > 0;
+	}
+
+	public int getListenerCount(String event)
+	{
+		Integer count = listenerCount.get(event);
+		if (count == null) return 0;
+		return count;
+	}
+
+	public Handler getUIHandler()
+	{
+		return uiHandler;
+	}
+
+	public Handler getV8Handler()
+	{
+		return v8Handler;
 	}
 
 	@Override
@@ -75,6 +122,20 @@ public class EventEmitter extends V8Object implements Handler.Callback
 		switch (msg.what) {
 			case MSG_FIRE_EVENT:
 				handleFireEvent(msg);
+				return true;
+			case MSG_ADD_EVENT_LISTENER:
+				nativeAddEventListener(ptr, msg.getData().getString(EVENT_NAME),
+					((EventListener) msg.obj).getPointer());
+				return true;
+			case MSG_REMOVE_EVENT_LISTENER:
+				nativeRemoveEventListener(ptr, msg.getData().getString(EVENT_NAME),
+					((EventListener) msg.obj).getPointer());
+				return true;
+			case MSG_LISTENER_ADDED:
+				handleListenerAdded((String) msg.obj);
+				return true;
+			case MSG_LISTENER_REMOVED:
+				handleListenerRemoved((String) msg.obj);
 				return true;
 		}
 		return false;
@@ -87,6 +148,28 @@ public class EventEmitter extends V8Object implements Handler.Callback
 		if (msg.getData().getBoolean(EVENT_SYNC, false)) {
 			semaphore.release();
 		}
+	}
+
+	private void handleListenerCountChanged(String event, int count)
+	{
+		Integer eventCount = listenerCount.get(event);
+		if (eventCount == null) {
+			eventCount = count;
+		} else {
+			eventCount += count;
+		}
+
+		listenerCount.put(event, eventCount);
+	}
+
+	protected void handleListenerAdded(String event)
+	{
+		handleListenerCountChanged(event, 1);
+	}
+
+	protected void handleListenerRemoved(String event)
+	{
+		handleListenerCountChanged(event, -1);
 	}
 
 	private native boolean nativeFireEvent(long ptr, String event, Object data);

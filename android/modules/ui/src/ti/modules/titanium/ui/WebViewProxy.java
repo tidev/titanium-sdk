@@ -8,7 +8,6 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
@@ -28,7 +27,6 @@ import android.os.Message;
 public class WebViewProxy extends ViewProxy
 	implements Handler.Callback
 {
-
 	private static final int MSG_FIRST_ID = ViewProxy.MSG_LAST_ID + 1;
 
 	private static final int MSG_EVAL_JS = MSG_FIRST_ID + 100;
@@ -36,12 +34,8 @@ public class WebViewProxy extends ViewProxy
 	private static final int MSG_GO_FORWARD = MSG_FIRST_ID + 102;
 	private static final int MSG_RELOAD = MSG_FIRST_ID + 103;
 	private static final int MSG_STOP_LOADING = MSG_FIRST_ID + 104;
-	
-	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
-	public WebViewProxy(TiContext context) {
-		super(context);
-	}
+	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	@Override
 	public TiUIView createView(Activity activity) {
@@ -51,12 +45,12 @@ public class WebViewProxy extends ViewProxy
 	}
 
 	public TiUIWebView getWebView() {
-		return (TiUIWebView)getView(getTiContext().getActivity());
+		return (TiUIWebView)getView(getActivity());
 	}
 
 	@Kroll.method
 	public Object evalJS(String code) {
-		if (getTiContext().isUIThread()) {
+		if (isUIThread()) {
 			return getWebView().getJSValue(code);
 		} else {
 			return sendBlockingUiMessage(MSG_EVAL_JS, code);

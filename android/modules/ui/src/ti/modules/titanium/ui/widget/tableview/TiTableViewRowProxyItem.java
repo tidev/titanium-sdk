@@ -85,7 +85,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		if (DBG) {
 			Log.w(LCAT, newViewProxy + " was added an old style row, reusing the title TiUILabel");
 		}
-		LabelProxy label = new LabelProxy(tiContext);
+		LabelProxy label = new LabelProxy();
 		label.handleCreationDict(titleView.getProxy().getProperties());
 		label.setView(titleView);
 		label.setModelListener(titleView);

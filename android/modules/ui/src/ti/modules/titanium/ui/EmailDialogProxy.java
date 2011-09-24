@@ -15,7 +15,6 @@ import java.util.List;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -55,8 +54,8 @@ public class EmailDialogProxy extends TiViewProxy {
 	private ArrayList<Object> attachments;
 	private String privateDataDirectoryPath = null;
 
-	public EmailDialogProxy(TiContext tiContext) {
-		super(tiContext);
+	public EmailDialogProxy()
+	{
 		TiBaseFile privateDataDirectory = TiFileFactory.createTitaniumFile(tiContext, "appdata-private:///", false);
 		privateDataDirectoryPath = privateDataDirectory.getNativeFile().getAbsolutePath();
 	}
@@ -64,7 +63,7 @@ public class EmailDialogProxy extends TiViewProxy {
 	@Kroll.method
 	public boolean isSupported() {
 		boolean supported = false;
-		Activity activity = getTiContext().getActivity();
+		Activity activity = getActivity();
 		if (activity != null) {
 			PackageManager pm = activity.getPackageManager();
 			if (pm != null) {
@@ -139,7 +138,7 @@ public class EmailDialogProxy extends TiViewProxy {
 		Intent sendIntent = buildIntent();
 		Intent choosingIntent = Intent.createChooser(sendIntent, "Send");
 
-		Activity activity = getTiContext().getActivity();
+		Activity activity = getActivity();
 		TiActivitySupport activitySupport = (TiActivitySupport) activity;
 		final int code = activitySupport.getUniqueResultCode();
 

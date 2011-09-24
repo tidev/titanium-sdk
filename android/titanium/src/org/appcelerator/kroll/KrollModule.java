@@ -27,18 +27,18 @@ public class KrollModule extends KrollProxy
 		super();
 	}
 
-	public KrollModule(TiContext context) {
+	/*TODO public KrollModule(TiContext context) {
 		super(context);
 
 		Class<? extends KrollModule> moduleClass = getClass();
 		/*if (!initializedTemplates.contains(moduleClass)) {
 			V8Runtime.initModuleTemplate(moduleClass);
 			initializedTemplates.add(moduleClass);
-		}*/
+		}
 
 		context.addOnLifecycleEventListener(this);
 		modelListener = this;
-	}
+	}*/
 
 	// TODO // TODO @Override
 	public void onResume(Activity activity) {

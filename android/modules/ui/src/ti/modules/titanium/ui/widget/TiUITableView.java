@@ -100,12 +100,12 @@ public class TiUITableView extends TiUIView
 		tableView.setOnItemLongClickListener(this);
 
 		if (d.containsKey(TiC.PROPERTY_SEARCH)) {
-			RelativeLayout layout = new RelativeLayout(proxy.getTiContext().getActivity());
+			RelativeLayout layout = new RelativeLayout(proxy.getActivity());
 			layout.setGravity(Gravity.NO_GRAVITY);
 			layout.setPadding(0, 0, 0, 0);
 
 			TiViewProxy searchView = (TiViewProxy) d.get(TiC.PROPERTY_SEARCH);
-			TiUISearchBar searchBar = (TiUISearchBar)searchView.getView(proxy.getTiContext().getActivity());
+			TiUISearchBar searchBar = (TiUISearchBar)searchView.getView(proxy.getActivity());
 			searchBar.setOnSearchChangeListener(tableView);
 			searchBar.getNativeView().setId(102);
 

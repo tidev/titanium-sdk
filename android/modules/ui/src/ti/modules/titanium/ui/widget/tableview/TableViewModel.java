@@ -8,7 +8,6 @@ package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.ArrayList;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;

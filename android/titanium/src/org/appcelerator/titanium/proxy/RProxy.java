@@ -33,16 +33,16 @@ public class RProxy extends KrollProxy {
 	protected int resourceType;
 	protected HashMap<String, RProxy> subResources = new HashMap<String, RProxy>();
 	
-	public RProxy(TiContext context, int resourceType) {
-		this(context, resourceType, null);
+	public RProxy(int resourceType) {
+		this(resourceType, null);
 	}
 	
-	protected RProxy(TiContext context, int resourceType, String name) {
-		super(context, false);
+	protected RProxy(int resourceType, String name) {
+		super(false);
 		this.resourceType = resourceType;
 		this.name = name;
 	}
-	
+
 	// FIXME implement me for V8
 	/*@Override
 	public Object get(Scriptable scope, String name)
@@ -53,15 +53,15 @@ public class RProxy extends KrollProxy {
 		}
 		return subResources.get(name);
 	}*/
-	
+
 	public String getName() {
 		return this.name;
 	}
-	
+
 	public String toString() {
 		return this.name;
 	}
-	
+
 	@Override
 	public Object getNativeValue() {
 		if (DBG) {
@@ -77,6 +77,7 @@ public class RProxy extends KrollProxy {
 			return super.getNativeValue();
 		}
 	}
+
 	public int getResourceType()
 	{
 		return this.resourceType;

@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.widget.webview;
 
 import java.lang.ref.SoftReference;
 
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiUIHelper;
 
@@ -33,7 +34,7 @@ public class TiWebChromeClient extends WebChromeClient {
 
 	public TiWebChromeClient(TiUIWebView webView, boolean isWindow, boolean showProgress) {
 		super();
-		this.softActivity = new SoftReference<Activity>(webView.getProxy().getTiContext().getRootActivity());
+		this.softActivity = new SoftReference<Activity>(TiApplication.getInstance().getRootActivity());
 		this.isWindow = isWindow;
 		this.showProgress = showProgress;
 	}

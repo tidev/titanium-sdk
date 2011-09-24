@@ -25,8 +25,6 @@ import android.text.method.DialerKeyListener;
 import android.text.method.DigitsKeyListener;
 import android.text.method.NumberKeyListener;
 import android.text.method.PasswordTransformationMethod;
-import android.text.method.TextKeyListener;
-import android.text.method.TextKeyListener.Capitalize;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
