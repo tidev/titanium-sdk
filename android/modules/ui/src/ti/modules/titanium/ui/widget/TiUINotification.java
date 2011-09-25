@@ -28,7 +28,7 @@ public class TiUINotification extends TiUIView
 		if (DBG) {
 			Log.d(LCAT, "Creating a notifier");
 		}
-		toast = Toast.makeText(proxy.getTiContext().getActivity(), "", Toast.LENGTH_SHORT);
+		toast = Toast.makeText(proxy.getActivity(), "", Toast.LENGTH_SHORT);
 	}
 
 	@Override

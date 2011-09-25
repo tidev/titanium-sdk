@@ -19,7 +19,6 @@ import org.appcelerator.titanium.util.TiConfig;
 import ti.modules.titanium.BufferProxy;
 import ti.modules.titanium.TitaniumModule;
 
-
 @Kroll.module(parentModule=TitaniumModule.class)
 public class StreamModule extends KrollModule
 {
@@ -27,14 +26,8 @@ public class StreamModule extends KrollModule
 	@Kroll.constant public static final int MODE_WRITE = 1;
 	@Kroll.constant public static final int MODE_APPEND = 2;
 
-
 	private static final String LCAT = "StreamModule";
 	private static final boolean DBG = TiConfig.LOGD;
-
-	public StreamModule()
-	{
-		super();
-	}
 
 	@Kroll.method
 	public Object createStream(KrollDict params)

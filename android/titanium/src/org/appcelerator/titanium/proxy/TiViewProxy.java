@@ -27,7 +27,6 @@ import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
@@ -78,7 +77,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 	public TiViewProxy()
 	{
-		super();
 		langConversionTable = getLangConversionTable();
 	}
 
@@ -117,11 +115,9 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	private String getLocalizedText(String lookupId)
 		throws TiRHelper.ResourceNotFoundException
 	{
-		Context androidContext = TiApplication.getInstance();
-		//Context androidContext = context.getAndroidContext();
 		int resid = TiRHelper.getResource("string." + lookupId);
 		if (resid != 0) {
-			return androidContext.getString(resid);
+			return getActivity().getString(resid);
 		} else {
 			// Actually won't get here because getResource will throw
 			// if invalid key.
@@ -160,8 +156,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 	protected String getBaseUrlForStylesheet()
 	{
-		String baseUrl = getCreationUrl();
-		//String baseUrl = getTiContext().getCurrentUrl();
+		String baseUrl = getCreationUrl().baseUrl;
 		if (baseUrl == null) {
 			baseUrl = "app://app.js";
 		}
@@ -203,7 +198,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		
 		String baseUrl = getBaseUrlForStylesheet();
 		KrollDict dict = TiApplication.getInstance().getStylesheet(baseUrl, styleClasses, viewId);
-		//KrollDict dict = context.getTiApp().getStylesheet(baseUrl, styleClasses, viewId);
 
 		if (DBG) {
 			Log.d(LCAT, "trying to get stylesheet for base:" + baseUrl + ",classes:" + styleClasses + ",id:" + viewId + ",dict:" + dict);
@@ -242,7 +236,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		switch(msg.what) {
 			case MSG_GETVIEW : {
 				AsyncResult result = (AsyncResult) msg.obj;
-				result.setResult(handleGetView((Activity) result.getArg()));
+				result.setResult(handleGetView());
 				return true;
 			}
 			case MSG_ADD_CHILD : {
@@ -329,7 +323,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	/*
 	public Context getContext()
 	{
-		return getTiContext().getActivity();
+		return getActivity();
 	}
 	*/
 
@@ -397,25 +391,26 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		this.view = view;
 	}
 
-	public TiUIView forceCreateView(Activity activity)
+	public TiUIView forceCreateView()
 	{
 		view = null;
-		return getView(activity);
+		return getOrCreateView();
 	}
 
-	public TiUIView getView(Activity activity)
+	public TiUIView getOrCreateView()
 	{
 		if (activity == null) {
-			activity = getActivity();
-		}
-		if(TiApplication.isUIThread()) {
-			return handleGetView(activity);
+			return peekView();
 		}
 
-		return (TiUIView) sendBlockingUiMessage(MSG_GETVIEW, activity);
+		if (TiApplication.isUIThread()) {
+			return handleGetView();
+		}
+
+		return (TiUIView) sendBlockingUiMessage(MSG_GETVIEW, 0);
 	}
 
-	protected TiUIView handleGetView(Activity activity)
+	protected TiUIView handleGetView()
 	{
 		if (view == null) {
 			if (DBG) {
@@ -423,13 +418,13 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			}
 
 			view = createView(activity);
-			realizeViews(activity, view);
+			realizeViews(view);
 			view.registerForTouch();
 		}
 		return view;
 	}
 
-	public void realizeViews(Activity activity, TiUIView view)
+	public void realizeViews(TiUIView view)
 	{
 		setModelListener(view);
 
@@ -437,7 +432,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		// tree. Allows defaults to be added and keys removed.
 		if (children != null) {
 			for (TiViewProxy p : children) {
-				TiUIView cv = p.getView(activity);
+				TiUIView cv = p.getOrCreateView();
 				view.add(cv);
 			}
 		}
@@ -488,7 +483,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		children.add(child);
 		child.parent = new WeakReference<TiViewProxy>(this);
 		if (view != null) {
-			TiUIView cv = child.getView(getActivity());
+			TiUIView cv = child.getOrCreateView();
 			view.add(cv);
 		}
 	}
@@ -648,11 +643,16 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 	protected KrollDict handleToImage()
 	{
-		return getView(getActivity()).toImage();
+		TiUIView view = peekView();
+		if (view == null) {
+			return null;
+		}
+
+		return view.toImage();
 	}
 
-	/*TODO @Override
-	public boolean fireEvent(String eventName, KrollDict data)
+	@Override
+	public boolean fireEvent(String eventName, Object data)
 	{
 		if (data == null) data = new KrollDict();
 		boolean handled = super.fireEvent(eventName, data);
@@ -662,7 +662,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			handled = handled || parentHandled;
 		}
 		return handled;
-	}*/
+	}
 
 	@Kroll.getProperty @Kroll.method
 	public TiViewProxy getParent()
@@ -676,19 +676,15 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		this.parent = new WeakReference<TiViewProxy>(parent);
 	}
 
-	/*
 	@Override
-	public TiContext switchContext(TiContext tiContext)
-	{
-		TiContext oldContext = super.switchContext(tiContext);
+	public void setActivity(Activity activity) {
+		super.setActivity(activity);
 		if (children != null) {
 			for (TiViewProxy child : children) {
-				child.switchContext(tiContext);
+				child.setActivity(activity);
 			}
 		}
-		return oldContext;
 	}
-	*/
 
 	@Kroll.getProperty @Kroll.method
 	public TiViewProxy[] getChildren()
@@ -723,13 +719,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 	public void setClickable(boolean clickable)
 	{
-		if (peekView() != null) {
-			TiUIView v = getView(getActivity());
-			if (v != null) {
-				View nv = v.getNativeView();
-				if (nv != null) {
-					nv.setClickable(clickable);
-				}
+		TiUIView v = peekView();
+		if (v != null) {
+			View nv = v.getNativeView();
+			if (nv != null) {
+				nv.setClickable(clickable);
 			}
 		}
 	}
@@ -747,7 +741,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		//KrollDict options = getTiContext().getTiApp().getStylesheet(baseUrl, classes, null);
 		//TODO extend(options);
 	}
-	
+
 	@Kroll.method @Kroll.getProperty
 	public boolean getKeepScreenOn()
 	{
@@ -756,7 +750,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		if (v != null) {
 			View nv = v.getNativeView();
 			if (nv != null) {
-				keepScreenOn = nv.getKeepScreenOn();				
+				keepScreenOn = nv.getKeepScreenOn();
 			}
 		}
 		
@@ -777,7 +771,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			if (keepScreenOn == null) {
 				keepScreenOn = false; // Android default
 			}
-			set(TiC.PROPERTY_KEEP_SCREEN_ON, keepScreenOn);			
+
+			setProperty(TiC.PROPERTY_KEEP_SCREEN_ON, keepScreenOn, false);
 		}
 	
 		return keepScreenOn;

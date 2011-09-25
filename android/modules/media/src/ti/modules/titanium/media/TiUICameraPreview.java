@@ -17,7 +17,6 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 public class TiUICameraPreview extends TiUIView implements SurfaceHolder.Callback
@@ -32,7 +31,7 @@ public class TiUICameraPreview extends TiUIView implements SurfaceHolder.Callbac
 		super(proxy);
 
 		this.camera = camera;
-		SurfaceView preview = new SurfaceView(proxy.getTiContext().getActivity());
+		SurfaceView preview = new SurfaceView(proxy.getActivity());
 
 		SurfaceHolder previewHolder = preview.getHolder();
 		previewHolder.addCallback(this);
@@ -40,7 +39,7 @@ public class TiUICameraPreview extends TiUIView implements SurfaceHolder.Callbac
 		// this call is deprecated but we still need it for SDK level 7 otherwise kaboom
 		previewHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
-		FrameLayout previewLayout = new FrameLayout(proxy.getTiContext().getActivity());
+		FrameLayout previewLayout = new FrameLayout(proxy.getActivity());
 		previewLayout.addView(preview, layoutParams);
 
 		//TextView tv = new TextView(proxy.getTiContext().getActivity());
@@ -48,7 +47,7 @@ public class TiUICameraPreview extends TiUIView implements SurfaceHolder.Callbac
 		//tv.setText("My overlay");
 		//previewLayout.addView(tv, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 
-		overlayLayout = new TiCompositeLayout(proxy.getTiContext().getActivity());
+		overlayLayout = new TiCompositeLayout(proxy.getActivity());
 		previewLayout.addView(overlayLayout);
 
 		setNativeView(previewLayout);

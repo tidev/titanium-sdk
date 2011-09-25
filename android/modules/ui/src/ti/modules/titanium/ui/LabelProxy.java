@@ -9,7 +9,6 @@ package ti.modules.titanium.ui;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -31,10 +30,8 @@ import android.app.Activity;
 })
 public class LabelProxy extends TiViewProxy
 {
-	public LabelProxy(TiContext tiContext)
+	public LabelProxy()
 	{
-		super(tiContext);
-
 		setProperty(TiC.PROPERTY_TEXT, "");
 	}
 

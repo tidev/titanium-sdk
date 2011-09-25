@@ -24,7 +24,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiFastDev;
 import org.appcelerator.titanium.TiMessageQueue;
@@ -423,14 +422,14 @@ public class TiUIHelper
 	}
 
 	public static StateListDrawable buildBackgroundDrawable(
-			String image,
-			String color,
-			String selectedImage,
-			String selectedColor,
-			String disabledImage,
-			String disabledColor,
-			String focusedImage,
-			String focusedColor)
+		String image,
+		String color,
+		String selectedImage,
+		String selectedColor,
+		String disabledImage,
+		String disabledColor,
+		String focusedImage,
+		String focusedColor)
 	{
 		StateListDrawable sld = null;
 
@@ -440,8 +439,6 @@ public class TiUIHelper
 		Drawable bgDisabledDrawable = null;
 
 		Context appContext = TiApplication.getInstance();
-		//Context appContext = tiContext.getActivity().getApplicationContext();
-
 		TiFileHelper tfh = new TiFileHelper(appContext);
 
 		if (image != null) {
@@ -458,7 +455,7 @@ public class TiUIHelper
 			if (image != null) {
 				bgSelectedDrawable = tfh.loadDrawable(image, false, true);
 			} else if (color != null) {
-				bgSelectedDrawable = new ColorDrawable(TiConvert.toColor(color));				
+				bgSelectedDrawable = new ColorDrawable(TiConvert.toColor(color));
 			}			
 		}
 
@@ -470,7 +467,7 @@ public class TiUIHelper
 			if (image != null) {
 				bgFocusedDrawable = tfh.loadDrawable(image, false, true);
 			} else if (color != null) {
-				bgFocusedDrawable = new ColorDrawable(TiConvert.toColor(color));				
+				bgFocusedDrawable = new ColorDrawable(TiConvert.toColor(color));
 			}
 		}
 
@@ -482,7 +479,7 @@ public class TiUIHelper
 			if (image != null) {
 				bgDisabledDrawable = tfh.loadDrawable(image, false, true);
 			} else if (color != null) {
-				bgDisabledDrawable = new ColorDrawable(TiConvert.toColor(color));				
+				bgDisabledDrawable = new ColorDrawable(TiConvert.toColor(color));
 			}
 		}
 
@@ -769,8 +766,7 @@ public class TiUIHelper
 	{
 		return TiApplication.getInstance().getResources().getDrawable(res_id);
 	}
-	
-	
+
 	public static void overridePendingTransition(Activity activity) 
 	{
 		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT) {

@@ -9,14 +9,12 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.picker.TiUISpinnerRow;
-
 import android.app.Activity;
 
 @Kroll.proxy(creatableInModule=UIModule.class)
@@ -26,15 +24,12 @@ public class PickerRowProxy extends TiViewProxy
 	private String title = "[PickerRow]";
 	private PickerRowListener rowListener = null;
 
-	public PickerRowProxy(TiContext tiContext)
-	{
-		super(tiContext);
-	}
-	
 	@Kroll.getProperty @Kroll.method
-	public String getTitle() {
+	public String getTitle()
+	{
 		return toString();
 	}
+
 	@Kroll.setProperty @Kroll.method
 	public void setTitle(String value)
 	{

@@ -43,7 +43,6 @@ public class MenuProxy extends KrollProxy
 
 	public MenuProxy(Menu menu) 
 	{
-		super();
 		this.menu = menu;
 		menuMap = new HashMap<MenuItem,MenuItemProxy>();
 	}

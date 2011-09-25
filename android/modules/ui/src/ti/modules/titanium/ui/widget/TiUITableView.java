@@ -93,19 +93,19 @@ public class TiUITableView extends TiUIView
 	@Override
 	public void processProperties(KrollDict d)
 	{
-		tableView = new TiTableView(proxy.getTiContext(), (TableViewProxy) proxy);
-		proxy.getTiContext().addOnLifecycleEventListener(this);
+		tableView = new TiTableView((TableViewProxy) proxy);
+		proxy.getActivity().addOnLifecycleEventListener(this);
 
 		tableView.setOnItemClickListener(this);
 		tableView.setOnItemLongClickListener(this);
 
 		if (d.containsKey(TiC.PROPERTY_SEARCH)) {
-			RelativeLayout layout = new RelativeLayout(proxy.getTiContext().getActivity());
+			RelativeLayout layout = new RelativeLayout(proxy.getActivity());
 			layout.setGravity(Gravity.NO_GRAVITY);
 			layout.setPadding(0, 0, 0, 0);
 
 			TiViewProxy searchView = (TiViewProxy) d.get(TiC.PROPERTY_SEARCH);
-			TiUISearchBar searchBar = (TiUISearchBar)searchView.getView(proxy.getTiContext().getActivity());
+			TiUISearchBar searchBar = (TiUISearchBar)searchView.getOrCreateView();
 			searchBar.setOnSearchChangeListener(tableView);
 			searchBar.getNativeView().setId(102);
 
@@ -174,8 +174,8 @@ public class TiUITableView extends TiUIView
 			tableView.release();
 			tableView  = null;
 		}
-		if (proxy != null && proxy.getTiContext() != null) {
-			proxy.getTiContext().removeOnLifecycleEventListener(this);
+		if (proxy != null && proxy.getActivity() != null) {
+			proxy.getActivity().removeOnLifecycleEventListener(this);
 		}
 		nativeView  = null;
 		super.release();

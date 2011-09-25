@@ -12,17 +12,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.concurrent.Semaphore;
 
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollInvocation;
-import org.appcelerator.kroll.KrollMethod;
-import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import ti.modules.titanium.api.APIModule;
-import ti.modules.titanium.app.AppModule;
 import android.webkit.WebView;
 
 public class TiWebViewBinding {
@@ -58,17 +49,17 @@ public class TiWebViewBinding {
 	}
 
 	private WebView webView;
-	private APIBinding apiBinding;
-	private AppBinding appBinding;
+	// TODO private APIBinding apiBinding;
+	// TODO private AppBinding appBinding;
 	
-	public TiWebViewBinding(TiContext context, WebView webView)
+	public TiWebViewBinding(WebView webView)
 	{
 		this.webView = webView;
 		
-		apiBinding = new APIBinding(context);
-		appBinding = new AppBinding(context);
-		webView.addJavascriptInterface(apiBinding, "TiAPI");
-		webView.addJavascriptInterface(appBinding, "TiApp");
+		//TODO apiBinding = new APIBinding(context);
+		//TODO appBinding = new AppBinding(context);
+		//TODO webView.addJavascriptInterface(apiBinding, "TiAPI");
+		//TODO webView.addJavascriptInterface(appBinding, "TiApp");
 		webView.addJavascriptInterface(new TiReturn(), "_TiReturn");
 	
 	}
@@ -131,7 +122,7 @@ public class TiWebViewBinding {
 		}
 	}
 	
-	@SuppressWarnings("serial")
+	/*TODO @SuppressWarnings("serial")
 	private class WebViewCallback extends KrollMethod
 	{
 		private int id;
@@ -149,9 +140,9 @@ public class TiWebViewBinding {
 			}
 			return KrollProxy.UNDEFINED;
 		}
-	}
+	}*/
 
-	@SuppressWarnings("unused")
+	/* TODO @SuppressWarnings("unused")
 	private class APIBinding
 	{
 		private APIModule module;
@@ -224,5 +215,5 @@ public class TiWebViewBinding {
 			module.removeEventListener(invocation, event, id);
 			invocation.recycle();
 		}
-	}
+	}*/
 }

@@ -9,7 +9,6 @@ package ti.modules.titanium.media;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 
 
 @Kroll.proxy(creatableInModule=MediaModule.class)
@@ -20,10 +19,8 @@ public class CameraProxy extends KrollProxy
 	private static TiCamera camera = null;
 	private static CameraPreviewProxy cameraPreview = null;
 
-	public CameraProxy(TiContext tiContext)
+	public CameraProxy()
 	{
-		super(tiContext);
-
 		if(camera == null) {
 			camera = new TiCamera();
 		}
@@ -33,7 +30,7 @@ public class CameraProxy extends KrollProxy
 	public CameraPreviewProxy getPreview(KrollDict options)
 	{
 		if(cameraPreview == null) {
-			cameraPreview = new CameraPreviewProxy(context);
+			cameraPreview = new CameraPreviewProxy();
 			cameraPreview.setCamera(camera.getCamera());
 			cameraPreview.handleCreationDict(options);
 		}

@@ -14,7 +14,7 @@ namespace titanium {
 class EventListener
 {
 public:
-	static v8::Handle<v8::Value> handleEvent(const v8::Arguments& args);
+	static v8::Handle<v8::Value> postEvent(const v8::Arguments& args);
 };
 
 }

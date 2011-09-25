@@ -9,7 +9,6 @@ package ti.modules.titanium.ui;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -25,22 +24,18 @@ import android.app.Activity;
 })
 public class SearchBarProxy extends TiViewProxy
 {
-
-	public SearchBarProxy(TiContext tiContext)
+	public SearchBarProxy()
 	{
-		super(tiContext);
-
 		setProperty(TiC.PROPERTY_VALUE, "");
 	}
-	
+
 	@Override
 	protected KrollDict getLangConversionTable() {
 		KrollDict table = new KrollDict();
-		table.put("prompt","promptid");
-		table.put("hintText","hinttextid");
+		table.put("prompt", "promptid");
+		table.put("hintText", "hinttextid");
 		return table;
 	}
-	
 
 	@Override
 	public TiUIView createView(Activity activity) {

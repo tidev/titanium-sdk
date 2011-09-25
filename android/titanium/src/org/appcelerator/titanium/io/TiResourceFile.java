@@ -55,7 +55,6 @@ public class TiResourceFile extends TiBaseFile
 		InputStream in = null;
 
 		Context context = TiApplication.getInstance();
-		//Context context = getTiContext().getAndroidContext();
 		if (context != null) {
 			String p = TiFileHelper2.joinSegments("Resources", path);
 			if (TiFastDev.isFastDevEnabled()) {

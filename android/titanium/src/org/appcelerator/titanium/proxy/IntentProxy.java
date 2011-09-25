@@ -14,7 +14,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-//import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -45,7 +44,6 @@ public class IntentProxy extends KrollProxy
 
 	public IntentProxy(Intent intent)
 	{
-		super();
 		this.intent = intent;
 	}
 

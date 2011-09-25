@@ -21,11 +21,11 @@ import ti.modules.titanium.ui.ScrollableViewProxy;
 import android.content.Context;
 import android.os.Handler;
 import android.view.GestureDetector;
+import android.view.GestureDetector.OnGestureListener;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.GestureDetector.OnGestureListener;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.widget.AdapterView;
@@ -68,7 +68,7 @@ public class TiScrollableView extends TiCompositeLayout
 
 		public void doAttachView() {
 			if (view == null) {
-				view = views.get(position).getView(null).getNativeView();
+				view = views.get(position).getOrCreateView().getNativeView();
 				addView(view);
 				if (getChildCount() > 2) {
 					Log.e(LCAT, "----------------------- CHILD COUNT: " + getChildCount());

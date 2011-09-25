@@ -230,11 +230,11 @@ public class TiUIWebView extends TiUIView {
 		boolean originalUrlHasScheme = (uri.getScheme() != null);
 
 		if (!originalUrlHasScheme) {
-			finalUrl = getProxy().getTiContext().resolveUrl(null, finalUrl);
+			finalUrl = getProxy().resolveUrl(null, finalUrl);
 		}
 
 		if (TiFileFactory.isLocalScheme(finalUrl) && mightBeHtml(finalUrl) ) {
-			TiBaseFile tiFile = TiFileFactory.createTitaniumFile(getProxy().getTiContext(), finalUrl, false);
+			TiBaseFile tiFile = TiFileFactory.createTitaniumFile(finalUrl, false);
 			if (tiFile != null) {
 				StringBuilder out = new StringBuilder();
 				InputStream fis = null;

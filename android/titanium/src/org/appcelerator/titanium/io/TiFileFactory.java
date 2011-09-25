@@ -52,12 +52,12 @@ public class TiFileFactory
 				path = path.substring(1);
 			}
 			File f = new File(getDataDirectory(false),path);
-			file = new TiFile(f,"appdata://"+path, stream);
+			file = new TiFile(f, "appdata://"+path, stream);
 		} else if (initial.startsWith("appdata-private://")) {
 			String path = initial.substring(18);
 			path = formPath(path,parts);
 			File f = new File(getDataDirectory(true),path);
-			file = new TiFile(f,"appdata-private://"+path, stream);
+			file = new TiFile(f, "appdata-private://"+path, stream);
 		} else if (initial.startsWith("file://")) {
 			String path = initial.substring(7);
 			path = formPath(path, parts);
@@ -75,7 +75,7 @@ public class TiFileFactory
 			String path = "";
 			path = formPath(path,insertBefore(path,parts));
 			File f = new File(getDataDirectory(true),path);
-			file = new TiFile(f,"appdata-private://"+path, stream);
+			file = new TiFile(f, "appdata-private://"+path, stream);
 		}
 
 		return file;

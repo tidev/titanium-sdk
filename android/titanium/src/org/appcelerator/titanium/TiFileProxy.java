@@ -30,18 +30,15 @@ public class TiFileProxy extends KrollProxy
 	private static final String LCAT = "TiFileProxy";
 
 	protected String path;
-	protected TiBaseFile tbf; // The base file object.
+	protected TiBaseFile tbf;
 
 	public TiFileProxy(String[] parts)
 	{
 		this(parts, true);
 	}
-	
+
 	public TiFileProxy(String[] parts, boolean resolve)
 	{
-		super();
-
-		//String path = getTiContext().resolveUrl(join(Arrays.asList(parts), "/"));
 		String scheme = "appdata-private://";
 		String path = null;
 		Uri uri = Uri.parse(parts[0]);
@@ -64,16 +61,15 @@ public class TiFileProxy extends KrollProxy
 		} else {
 			path = TiFileHelper2.joinSegments(parts);
 		}
-
-		/*if (resolve) {
-			path = getTiContext().resolveUrl(scheme, path);
-		}*/
+		
+		if (resolve) {
+			path = resolveUrl(scheme, path);
+		}
 		tbf = TiFileFactory.createTitaniumFile(new String[] { path }, false);
 	}
 
 	public TiFileProxy(TiBaseFile tbf)
 	{
-		super();
 		this.tbf = tbf;
 	}
 

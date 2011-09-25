@@ -123,8 +123,8 @@ public class TiUISlider extends TiUIView
 			if (tfh == null) {
 				tfh = new TiFileHelper(seekBar.getContext());
 			}
-			String url = proxy.getTiContext().resolveUrl(null, thumbImage);
-			Drawable thumb = tfh.loadDrawable(proxy.getTiContext(), url, false);
+			String url = proxy.resolveUrl(null, thumbImage);
+			Drawable thumb = tfh.loadDrawable(url, false);
 		 	if (thumb != null) {
 				thumbDrawable = new SoftReference<Drawable>(thumb);
 				seekBar.setThumb(thumb);
@@ -145,11 +145,11 @@ public class TiUISlider extends TiUIView
 			if (tfh == null) {
 				tfh = new TiFileHelper(seekBar.getContext());
 			}
-			String leftUrl = proxy.getTiContext().resolveUrl(null, leftImage);
-			String rightUrl = proxy.getTiContext().resolveUrl(null, rightImage);
+			String leftUrl = proxy.resolveUrl(null, leftImage);
+			String rightUrl = proxy.resolveUrl(null, rightImage);
 
-			Drawable rightDrawable = tfh.loadDrawable(proxy.getTiContext(), rightUrl, false, true);
-			Drawable leftDrawable = tfh.loadDrawable(proxy.getTiContext(), leftUrl, false, true);
+			Drawable rightDrawable = tfh.loadDrawable(rightUrl, false, true);
+			Drawable leftDrawable = tfh.loadDrawable(leftUrl, false, true);
 			if (rightDrawable != null && leftDrawable != null) {
 				Drawable[] lda = {
 					rightDrawable,

@@ -34,7 +34,7 @@ public class TiWebViewClient extends WebViewClient
 	public TiWebViewClient(TiUIWebView tiWebView, WebView webView) {
 		super();
 		this.webView = tiWebView;
-		binding = new TiWebViewBinding(tiWebView.getProxy().getTiContext(), webView);
+		binding = new TiWebViewBinding(webView);
 	}
 
 	@Override
@@ -81,12 +81,12 @@ public class TiWebViewClient extends WebViewClient
 		} else if(url.startsWith(WebView.SCHEME_TEL)) {
 			Log.i(LCAT, "Launching dialer for " + url);
 			Intent dialer = Intent.createChooser(new Intent(Intent.ACTION_DIAL, Uri.parse(url)), "Choose Dialer");
-			webView.getProxy().getTiContext().getActivity().startActivity(dialer);
+			webView.getProxy().getActivity().startActivity(dialer);
 	        return true;
 		} else if (url.startsWith(WebView.SCHEME_MAILTO)) {
 			Log.i(LCAT, "Launching mailer for " + url);
 			Intent mailer = Intent.createChooser(new Intent(Intent.ACTION_SENDTO, Uri.parse(url)), "Send Message");
-			webView.getProxy().getTiContext().getActivity().startActivity(mailer);
+			webView.getProxy().getActivity().startActivity(mailer);
 	        return true;
 		} else if (url.startsWith(WebView.SCHEME_GEO)) {
 			Log.i(LCAT, "Launching app for " + url);
@@ -96,7 +96,7 @@ public class TiWebViewClient extends WebViewClient
 			geo:0,0?q=business+near+city
 			*/
 			Intent geoviewer = Intent.createChooser(new Intent(Intent.ACTION_VIEW, Uri.parse(url)), "Choose Viewer");
-			webView.getProxy().getTiContext().getActivity().startActivity(geoviewer);
+			webView.getProxy().getActivity().startActivity(geoviewer);
 			return true;
 		} else {
 			String extension = MimeTypeMap.getFileExtensionFromUrl(url);
@@ -118,7 +118,7 @@ public class TiWebViewClient extends WebViewClient
 			intent.setClass(webView.getProxy().getContext(), TiVideoActivity.class);
 			intent.putExtra("contentURL", url);
 			intent.putExtra("play", true);
-			webView.getProxy().getTiContext().getActivity().startActivity(intent);
+			webView.getProxy().getActivity().startActivity(intent);
 			
 			return true;
 		}

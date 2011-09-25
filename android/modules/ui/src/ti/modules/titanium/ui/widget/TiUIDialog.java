@@ -8,7 +8,7 @@ package ti.modules.titanium.ui.widget;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
@@ -55,9 +55,9 @@ public class TiUIDialog extends TiUIView
 
 	private Activity getCurrentActivity()
 	{
-		Activity currentActivity = proxy.getTiContext().getTiApp().getCurrentActivity();
+		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
 		if (currentActivity == null) {
-			currentActivity = proxy.getTiContext().getActivity();
+			currentActivity = proxy.getActivity();
 		}
 		return currentActivity;
 	}
@@ -156,7 +156,7 @@ public class TiUIDialog extends TiUIView
 	private void processView(TiViewProxy proxy)
 	{
 		if (proxy != null) {
-			view = proxy.getView(getCurrentActivity());
+			view = proxy.getOrCreateView();
 			getBuilder().setView(view.getNativeView());
 		}
 	}
@@ -229,7 +229,7 @@ public class TiUIDialog extends TiUIView
 	public void show(KrollDict options)
 	{
 		if (dialog == null) {
-			processProperties(proxy.getProperties());
+			// TODO processProperties(proxy.getProperties());
 			getBuilder().setOnCancelListener(new OnCancelListener() {
 				@Override
 				public void onCancel(DialogInterface dlg) {

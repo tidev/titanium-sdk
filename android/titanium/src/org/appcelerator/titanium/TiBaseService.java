@@ -6,26 +6,13 @@
  */
 package org.appcelerator.titanium;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.appcelerator.titanium.proxy.ServiceProxy;
-import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiBindingHelper;
-import org.appcelerator.titanium.util.TiConfig;
-
 import android.app.Service;
 import android.content.Intent;
-import android.os.Binder;
 import android.os.IBinder;
 
 public class TiBaseService extends Service
 {
+	/*
 	public static final String TI_SERVICE_INTENT_ID_KEY = "$__TITANIUM_SERVICE_INTENT_ID__$";
 	private static final AtomicInteger serviceIntentIdGenerator = new AtomicInteger();
 	private Map<Integer, WeakReference<TiContext>> weakBoundContexts = null; // contexts started via bindService
@@ -38,13 +25,16 @@ public class TiBaseService extends Service
 	{
 		public Service getService() { return TiBaseService.this; }
 	}
+	 */
 
 	@Override
 	public IBinder onBind(Intent intent)
 	{
-		return new TiServiceBinder();
+		//return new TiServiceBinder();
+		return null;
 	}
-	
+
+	/*
 	public void unregisterBoundTiContext(int serviceIntentId)
 	{
 		if (DBG) {
@@ -76,7 +66,7 @@ public class TiBaseService extends Service
 	protected ServiceProxy createProxy(Intent intent)
 	{
 		TiContext context = createTiContext(intent, null);
-		ServiceProxy proxy = new ServiceProxy(context, this, intent, proxyCounter.incrementAndGet());
+		ServiceProxy proxy = new ServiceProxy(this, intent, proxyCounter.incrementAndGet());
 		TiBindingHelper.bindCurrentService(context, proxy);
 		return proxy;
 	}
@@ -120,6 +110,7 @@ public class TiBaseService extends Service
 	/**
 	 * Used only for contexts that are created from inside the service, for when the service is started "un-bound" via Android Context.startService()
 	 */
+	/*
 	protected TiContext createTiContext(Intent intent, String baseUrl)
 	{
 		TiApplication tiApp = (TiApplication) this.getApplication();
@@ -131,7 +122,7 @@ public class TiBaseService extends Service
 		weakUnboundContexts.add(new WeakReference<TiContext>(context));
 		return context;
 	}
-	
+	*/
 	/**
 	 * Used only when the context is created from outside the service, i.e., when a ServiceProxy is created and later bound
 	 * to the service.  They are keyed by a unique id given to each intent that is used to bind to the service, so that
@@ -139,6 +130,7 @@ public class TiBaseService extends Service
 	 * @return an integer id based on an incrementer indicating how many contexts have attached to the running instance of the service. 
 	 * Proxy stores that as serviceInstanceId.
 	 */
+	/*
 	public int registerBoundTiContext(int serviceIntentId, TiContext tiContext)
 	{
 		if (weakBoundContexts == null) {
@@ -160,5 +152,5 @@ public class TiBaseService extends Service
 	}
 	
 	public static int nextServiceBindingIntentId() { return serviceIntentIdGenerator.incrementAndGet(); }
-	
+	*/
 }

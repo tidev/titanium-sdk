@@ -12,13 +12,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.runtime.v8.EventEmitter;
-import org.appcelerator.kroll.runtime.v8.EventListener;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUrl;
 
 import android.app.Activity;
 import android.os.Handler;
@@ -40,44 +40,14 @@ public class KrollProxy extends EventEmitter
 
 	public static final String PROXY_ID_PREFIX = "proxy$";
 
-//	protected TiContext context, creatingContext;
 
-	private String creationUrl;
-	private Activity activity;
-
-	protected Handler uiHandler;
+	protected Activity activity;
 	protected String proxyId;
+	protected TiUrl creationUrl;
 	protected KrollProxyListener modelListener;
-	protected EventListener addedListener, removedListener;
 	protected KrollModule createdInModule;
 	protected boolean coverageEnabled;
 	protected KrollDict creationDict = null;
-
-	@Kroll.inject
-	//protected KrollInvocation currentInvocation;
-
-/*	public KrollProxy(TiContext context, boolean autoBind)
-	{
-		super(0);
-		this.context = context;
-		if (DBG) {
-			Log.d(TAG, "New: " + getClass().getSimpleName());
-		}
-		this.proxyId = PROXY_ID_PREFIX + proxyCounter.incrementAndGet();
-		coverageEnabled = context.getTiApp().isCoverageEnabled();
-
-		uiHandler = new Handler(Looper.getMainLooper(), this);
-		if (!context.isUIThread()) {
-			Activity activity = context.getActivity();
-			if ((activity == null || activity.isFinishing()) && !context.isServiceContext()) {
-				if (DBG) {
-					Log.w(TAG, "Proxy created in context with no activity and no service.  Activity finished?  Context is effectively dead.");
-				}
-				return;
-			}
-		}
-	}*/
-
 
 	// entry point for generator code
 	public static KrollProxy create(Class<? extends KrollProxy> objClass, Object[] creationArguments, long v8ObjectPointer, String creationUrl)
@@ -91,7 +61,7 @@ public class KrollProxy extends EventEmitter
 			 * object
 			 */
 			proxyInstance.setPointer(v8ObjectPointer); // TODO - rename to KrollObject pointer?  should be runtime agnostic
-			proxyInstance.creationUrl = creationUrl;
+			proxyInstance.creationUrl = new TiUrl(creationUrl);
 
 			/* associate the activity with the proxy.  if the proxy needs activity association delayed until a 
 			 * later point then initActivity should be overridden to be a no-op and then call setActivity directly
@@ -171,11 +141,11 @@ public class KrollProxy extends EventEmitter
 		return activity;
 	}
 
-	public String getCreationUrl()
+	public TiUrl getCreationUrl()
 	{
 		return creationUrl;
 	}
-/*
+
 	@Deprecated
 	public boolean hasProperty(String name)
 	{
@@ -203,7 +173,6 @@ public class KrollProxy extends EventEmitter
 			setAndFire(name, value);
 		}
 	}
-*/
 
 	protected void firePropertyChanged(String name, Object oldValue, Object newValue)
 	{
@@ -304,53 +273,14 @@ public class KrollProxy extends EventEmitter
 
 		this.modelListener = modelListener;
 		if (modelListener != null) {
-			if (addedListener == null) {
-				addedListener = new EventListener(uiHandler, MSG_LISTENER_ADDED);
-				addEventListener(EventListener.EVENT_LISTENER_ADDED, addedListener);
-			}
-			if (removedListener == null) {
-				removedListener = new EventListener(uiHandler, MSG_LISTENER_REMOVED);
-				addEventListener(EventListener.EVENT_LISTENER_REMOVED, removedListener);
-			}
 			modelListener.processProperties(creationDict);
 			creationDict = null;
-		} else {
-			if (addedListener != null) {
-				removeEventListener(EventListener.EVENT_LISTENER_ADDED, addedListener);
-			}
-			if (removedListener != null) {
-				removeEventListener(EventListener.EVENT_LISTENER_REMOVED, removedListener);
-			}
 		}
 	}
 
-/*
-	public TiContext switchContext(TiContext tiContext)
+	public String resolveUrl(String scheme, String path)
 	{
-		TiContext oldContext = this.context;
-		this.context = tiContext;
-		if (creatingContext == null) {
-			// We'll assume for now that if we're switching contexts,
-			// it's because the creation of a window forced a new context
-			// In that case, we need to hold on to the original / creating
-			// context so that event listeners registered there still receive
-			// events.
-			creatingContext = oldContext;
-		}
-		return oldContext;
-	}
-
-	public void switchToCreatingContext()
-	{
-		if (creatingContext != null && context != null && !creatingContext.equals(context)) {
-			switchContext(creatingContext);
-		}
-	}
-*/
-
-	public Handler getUIHandler()
-	{
-		return uiHandler;
+		return TiUrl.resolve(creationUrl.baseUrl, path, scheme);
 	}
 
 	public Object sendBlockingUiMessage(int what, Object asyncArg)
@@ -364,7 +294,7 @@ public class KrollProxy extends EventEmitter
 	{
 		AsyncResult result = new AsyncResult(null);
 		return sendBlockingUiMessage(
-			getUIHandler().obtainMessage(what, arg1, -1), result);		
+			getUIHandler().obtainMessage(what, arg1, -1), result);
 	}
 
 	public Object sendBlockingUiMessage(int what, Object asyncArg, int arg1, int arg2)
@@ -380,13 +310,6 @@ public class KrollProxy extends EventEmitter
 			msg, TiMessageQueue.getMainMessageQueue(), result);
 	}
 
-	/*
-	public TiContext getTiContext()
-	{
-		return context;
-	}
-	*/
-
 	public String getProxyId()
 	{
 		return proxyId;
@@ -401,26 +324,8 @@ public class KrollProxy extends EventEmitter
 		return error;
 	}
 
-/*	
-	public KrollInvocation getCurrentInvocation()
-	{
-		return currentInvocation;
-	}
-*/
 	public Object getDefaultValue(Class<?> typeHint)
 	{
 		return toString();
 	}
-
-/*
-	public Object getJavascriptValue()
-	{
-		return this;
-	}
-
-	public Object getNativeValue()
-	{
-		return this;
-	}
-*/
 }

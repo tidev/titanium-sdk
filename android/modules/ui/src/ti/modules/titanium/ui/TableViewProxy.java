@@ -7,17 +7,13 @@
 package ti.modules.titanium.ui;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
@@ -66,12 +62,6 @@ public class TableViewProxy extends TiViewProxy
 
 	private ArrayList<TableViewSectionProxy> localSections;
 
-	public TableViewProxy(TiContext tiContext) {
-		super(tiContext);
-		
-		eventManager.addOnEventChangeListener(this);
-	}
-	
 	@Override
 	public void handleCreationDict(KrollDict dict) {
 		Object data[] = null;
@@ -105,11 +95,7 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	public TiUITableView getTableView() {
-		TiContext ctx = getTiContext();
-		if (ctx != null) {
-			return (TiUITableView) getView(ctx.getActivity());
-		} 
-		return null;
+		return (TiUITableView) getOrCreateView();
 	}
 
 	@Kroll.method
@@ -145,12 +131,7 @@ public class TableViewProxy extends TiViewProxy
 	@Kroll.method
 	public void appendRow(Object rows, @Kroll.argument(optional=true) KrollDict options)
 	{
-		TiContext ctx = getTiContext();
-		if (ctx == null) {
-			Log.w(LCAT, "Context has been GC'd, not appending row");
-			return;
-		}
-		if (ctx.isUIThread()) {
+		if (isUIThread()) {
 			handleAppendRow(rows);
 			return;
 		}
@@ -199,12 +180,7 @@ public class TableViewProxy extends TiViewProxy
 
 	@Kroll.method
 	public void deleteRow(int index, @Kroll.argument(optional=true) KrollDict options) {
-		TiContext ctx = getTiContext();
-		if (ctx == null) {
-			Log.w(LCAT, "Context has been GC'd, not deleting row.");
-			return;
-		}
-		if (ctx.isUIThread()) {
+		if (isUIThread()) {
 			handleDeleteRow(index);
 			return;
 		}
@@ -250,12 +226,7 @@ public class TableViewProxy extends TiViewProxy
 
 	@Kroll.method
 	public void insertRowBefore(int index, Object data, @Kroll.argument(optional=true) KrollDict options) {
-		TiContext ctx = getTiContext();
-		if (ctx == null) {
-			Log.w(LCAT, "Context has been GC'd, not inserting row");
-			return;
-		}
-		if (ctx.isUIThread()) {
+		if (isUIThread()) {
 			handleInsertRowBefore(index, data);
 			return;
 		}
@@ -288,18 +259,13 @@ public class TableViewProxy extends TiViewProxy
 
 	@Kroll.method
 	public void insertRowAfter(int index, Object data, @Kroll.argument(optional=true) KrollDict options) {
-		TiContext ctx = getTiContext();
-		if (ctx == null) {
-			Log.w(LCAT, "Context has been GC'd, not inserting row.");
-			return;
-		}
-		if (ctx.isUIThread()) {
+		if (isUIThread()) {
 			handleInsertRowAfter(index, data);
 			return;
 		}
 		sendBlockingUiMessage(MSG_INSERT_ROW, data, INSERT_ROW_AFTER, index);
 	}
-	
+
 	private void handleInsertRowAfter(int index, Object data) {
 		RowResult rr = new RowResult();
 		if (locateIndex(index, rr)) {
@@ -333,22 +299,22 @@ public class TableViewProxy extends TiViewProxy
 	 */
 	private TableViewSectionProxy addRowToSection(TableViewRowProxy row, TableViewSectionProxy currentSection)
 	{
-		KrollDict d = row.getProperties();
 		TableViewSectionProxy addedToSection = null;
-		if (currentSection == null || d.containsKey(TiC.PROPERTY_HEADER)) {
-			addedToSection = new TableViewSectionProxy(getTiContext());
+		if (currentSection == null || row.hasProperty(TiC.PROPERTY_HEADER)) {
+			addedToSection = new TableViewSectionProxy();
 		} else {
 			addedToSection = currentSection;
 		}
-		if (d.containsKey(TiC.PROPERTY_HEADER)) {
-			addedToSection.setProperty(TiC.PROPERTY_HEADER_TITLE, d.get(TiC.PROPERTY_HEADER));
+		if (row.hasProperty(TiC.PROPERTY_HEADER)) {
+			addedToSection.setProperty(TiC.PROPERTY_HEADER_TITLE, row.getProperty(TiC.PROPERTY_HEADER));
 		}
-		if (d.containsKey(TiC.PROPERTY_FOOTER)) {
-			addedToSection.setProperty(TiC.PROPERTY_FOOTER_TITLE, d.get(TiC.PROPERTY_FOOTER));
+		if (row.hasProperty(TiC.PROPERTY_FOOTER)) {
+			addedToSection.setProperty(TiC.PROPERTY_FOOTER_TITLE, row.getProperty(TiC.PROPERTY_FOOTER));
 		}
 		addedToSection.add(row);
 		return addedToSection;
 	}
+
 	public void processData(Object[] data)
 	{
 		ArrayList<TableViewSectionProxy> sections = getSections();
@@ -356,13 +322,13 @@ public class TableViewProxy extends TiViewProxy
 
 		TableViewSectionProxy currentSection = null;
 		if (hasProperty(TiC.PROPERTY_HEADER_TITLE)) {
-			currentSection = new TableViewSectionProxy(context);
+			currentSection = new TableViewSectionProxy();
 			sections.add(currentSection);
 			currentSection.setProperty(TiC.PROPERTY_HEADER_TITLE, getProperty(TiC.PROPERTY_HEADER_TITLE));
 		}
 		if (hasProperty(TiC.PROPERTY_FOOTER_TITLE)) {
 			if (currentSection == null) {
-				currentSection = new TableViewSectionProxy(context);
+				currentSection = new TableViewSectionProxy();
 				sections.add(currentSection);
 			}
 			currentSection.setProperty(TiC.PROPERTY_FOOTER_TITLE, getProperty(TiC.PROPERTY_FOOTER_TITLE));
@@ -386,17 +352,13 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	@Kroll.setProperty @Kroll.method
-	public void setData(Object[] data, @Kroll.argument(optional=true) KrollDict options) {
-		TiContext ctx = getTiContext();
+	public void setData(Object[] data, @Kroll.argument(optional=true) KrollDict options)
+	{
 		Object[] actualData = data;
 		if (data != null && data.length > 0 && data[0] instanceof Object[]) {
 			actualData = (Object[]) data[0];
 		}
-		if (ctx == null) {
-			Log.w(LCAT, "Context has been GC'd, not setting table data.");
-			return;
-		}
-		if (ctx.isUIThread()) {
+		if (isUIThread()) {
 			handleSetData(actualData);
 		} else {
 			sendBlockingUiMessage(MSG_SET_DATA, actualData);
@@ -425,7 +387,7 @@ public class TableViewProxy extends TiViewProxy
 		TableViewRowProxy rowProxy = null;
 		if (row instanceof KrollDict) {
 			KrollDict d = (KrollDict) row;
-			rowProxy = new TableViewRowProxy(getTiContext());
+			rowProxy = new TableViewRowProxy();
 			rowProxy.handleCreationDict(d);
 			rowProxy.setProperty(TiC.PROPERTY_CLASS_NAME, CLASSNAME_NORMAL);
 			rowProxy.setProperty(TiC.PROPERTY_ROW_DATA, row);
@@ -462,7 +424,7 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	public void updateView() {
-		if (getTiContext().isUIThread()) {
+		if (isUIThread()) {
 			getTableView().updateView();
 			return;
 		}

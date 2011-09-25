@@ -30,6 +30,8 @@ import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.appcelerator.titanium.TiApplication;
+
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
@@ -60,6 +62,7 @@ public class TiFileHelper
 	private static HashSet<String> resourcePathCache;
 	private static HashSet<String> foundResourcePathCache;
 	private static HashSet<String> notFoundResourcePathCache;
+	private static TiFileHelper _instance = null;
 	
 	public TiFileHelper(Context context)
 	{
@@ -110,6 +113,14 @@ public class TiFileHelper
 				systemIcons.put("ic_menu_zoom", android.R.drawable.ic_menu_zoom);
 			}
 		}
+	}
+
+	public static TiFileHelper getInstance()
+	{
+		if (_instance == null) {
+			_instance = new TiFileHelper(TiApplication.getInstance());
+		}
+		return _instance;
 	}
 
 	public InputStream openInputStream(String path, boolean report)
@@ -250,7 +261,7 @@ public class TiFileHelper
 		
 	}*/
 
-	private Drawable loadDrawable(String path, boolean report, boolean checkForNinePatch)
+	public Drawable loadDrawable(String path, boolean report, boolean checkForNinePatch)
 	{
 		Drawable d = null;
 		InputStream is = null;

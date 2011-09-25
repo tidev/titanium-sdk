@@ -9,37 +9,28 @@ package org.appcelerator.titanium.util;
 import java.lang.ref.SoftReference;
 import java.util.concurrent.RejectedExecutionException;
 
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.view.TiDrawableReference;
 
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.view.View;
 
-/**
- *
- * @author dthorp
- *
- * Overload onPostExecution(Drawable d) to handle the result.
- *
- */
 public abstract class TiBackgroundImageLoadTask
 	extends AsyncTask<String, Long, Drawable>
 {
 	private static final String LCAT = "TiBackgroundImageLoadTask";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	protected SoftReference<TiContext> softTiContext;
 	protected SoftReference<View> parent;
 	protected TiDimension imageHeight;
 	protected TiDimension imageWidth;
 
-	public TiBackgroundImageLoadTask(TiContext tiContext, View parent, TiDimension imageWidth, TiDimension imageHeight)
+	public TiBackgroundImageLoadTask(View parent, TiDimension imageWidth, TiDimension imageHeight)
 	{
-		this.softTiContext = new SoftReference<TiContext>(tiContext);
 		this.parent = new SoftReference<View>(parent);
 		this.imageWidth = imageWidth;
 		this.imageHeight = imageHeight;
@@ -55,15 +46,15 @@ public abstract class TiBackgroundImageLoadTask
 		
 		String url = arg[0];
 		Drawable d = null;
-		TiContext context = softTiContext.get();
-		if (context == null || parent.get() == null) {
+		if (parent.get() == null) {
 			if (DBG) {
 				Log.d(LCAT, "doInBackground exiting early because context already gc'd");
 			}
 			return null;
 		}
-		
-		TiDrawableReference ref = TiDrawableReference.fromUrl(context, 	url);
+
+		// TODO - check the parent?  can View.get().getContext() ever not be an activity?
+		TiDrawableReference ref = TiDrawableReference.fromUrl(((Activity)parent.get().getContext()), url);
 		
 		boolean retry = true;
 		int retryCount = 3;

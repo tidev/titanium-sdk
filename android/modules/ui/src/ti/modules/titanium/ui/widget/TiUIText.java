@@ -25,8 +25,6 @@ import android.text.method.DialerKeyListener;
 import android.text.method.DigitsKeyListener;
 import android.text.method.NumberKeyListener;
 import android.text.method.PasswordTransformationMethod;
-import android.text.method.TextKeyListener;
-import android.text.method.TextKeyListener.Capitalize;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -184,8 +182,8 @@ public class TiUIText extends TiUIView
 			}
 			handleTextAlign(textAlign, verticalAlign);
 		} else if (key.equals(TiC.PROPERTY_KEYBOARD_TYPE) || (key.equals(TiC.PROPERTY_AUTOCORRECT) || key.equals(TiC.PROPERTY_AUTOCAPITALIZATION) || key.equals(TiC.PROPERTY_PASSWORD_MASK) || key.equals(TiC.PROPERTY_EDITABLE))) {
-			KrollDict d = proxy.getProperties();
-			handleKeyboard(d);
+			/* TODO KrollDict d = proxy.getProperties();
+			handleKeyboard(d);*/
 		} else if (key.equals(TiC.PROPERTY_RETURN_KEY_TYPE)) {
 			handleReturnKeyType(TiConvert.toInt(newValue));
 		} else if (key.equals(TiC.PROPERTY_FONT)) {

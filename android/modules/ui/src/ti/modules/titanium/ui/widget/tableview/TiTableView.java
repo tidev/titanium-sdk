@@ -13,7 +13,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiColorHelper;
@@ -63,7 +62,6 @@ public class TiTableView extends FrameLayout
 	private String filterAttribute;
 	private String filterText;
 
-	private TiContext tiContext;
 	private TableViewProxy proxy;
 	private boolean filterCaseInsensitive = true;
 	private TiTableViewSelector selector;
@@ -193,16 +191,16 @@ public class TiTableView extends FrameLayout
 			}
 			if (v == null) {
 				if (item.className.equals(TableViewProxy.CLASSNAME_HEADER)) {
-					v = new TiTableViewHeaderItem(tiContext);
+					v = new TiTableViewHeaderItem(proxy.getActivity());
 					v.setClassName(TableViewProxy.CLASSNAME_HEADER);
 				} else if (item.className.equals(TableViewProxy.CLASSNAME_NORMAL)) {
-					v = new TiTableViewRowProxyItem(tiContext);
+					v = new TiTableViewRowProxyItem(proxy.getActivity());
 					v.setClassName(TableViewProxy.CLASSNAME_NORMAL);
 				} else if (item.className.equals(TableViewProxy.CLASSNAME_DEFAULT)) {
-					v = new TiTableViewRowProxyItem(tiContext);
+					v = new TiTableViewRowProxyItem(proxy.getActivity());
 					v.setClassName(TableViewProxy.CLASSNAME_DEFAULT);
 				} else {
-					v = new TiTableViewRowProxyItem(tiContext);
+					v = new TiTableViewRowProxyItem(proxy.getActivity());
 					v.setClassName(item.className);
 				}
 				v.setLayoutParams(new AbsListView.LayoutParams(
@@ -243,10 +241,9 @@ public class TiTableView extends FrameLayout
 		}
 	}
 
-	public TiTableView(TiContext tiContext, TableViewProxy proxy)
+	public TiTableView(TableViewProxy proxy)
 	{
-		super(tiContext.getActivity());
-		this.tiContext = tiContext;
+		super(proxy.getActivity());
 		this.proxy = proxy;
 
 		rowTypes = new HashMap<String, Integer>();
@@ -255,7 +252,7 @@ public class TiTableView extends FrameLayout
 		rowTypes.put(TableViewProxy.CLASSNAME_NORMAL, rowTypeCounter.incrementAndGet());
 		rowTypes.put(TableViewProxy.CLASSNAME_DEFAULT, rowTypeCounter.incrementAndGet());
 
-		this.viewModel = new TableViewModel(tiContext, proxy);
+		this.viewModel = new TableViewModel(proxy);
 		this.listView = new ListView(getContext());
 		listView.setId(TI_TABLE_VIEW_ID);
 
@@ -294,7 +291,7 @@ public class TiTableView extends FrameLayout
 			}
 		});
 
-		if (proxy.getProperties().containsKey(TiC.PROPERTY_SEPARATOR_COLOR)) {
+		if (proxy.hasProperty(TiC.PROPERTY_SEPARATOR_COLOR)) {
 			setSeparatorColor(TiConvert.toString(proxy.getProperty(TiC.PROPERTY_SEPARATOR_COLOR)));
 		}
 		adapter = new TTVListAdapter(viewModel);
@@ -396,7 +393,7 @@ public class TiTableView extends FrameLayout
 
 	private View layoutHeaderOrFooter(TiViewProxy viewProxy)
 	{
-		TiUIView tiView = viewProxy.getView(tiContext.getActivity());
+		TiUIView tiView = viewProxy.getOrCreateView();
 		View nativeView = tiView.getNativeView();
 		TiCompositeLayout.LayoutParams params = tiView.getLayoutParams();
 
@@ -455,7 +452,7 @@ public class TiTableView extends FrameLayout
 	public void filterBy(String text) {
 		filterText = text;
 		if (adapter != null) {
-			tiContext.getActivity().runOnUiThread(new Runnable() {
+			proxy.getActivity().runOnUiThread(new Runnable() {
 				public void run() {
 					dataSetChanged();
 				}
@@ -482,6 +479,5 @@ public class TiTableView extends FrameLayout
 		}
 		viewModel = null;
 		itemClickListener = null;
-		tiContext = null;
 	}
 }

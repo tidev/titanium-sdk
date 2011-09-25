@@ -10,6 +10,7 @@ import java.lang.ref.WeakReference;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
+import org.appcelerator.titanium.TiLifecycle.OnServiceLifecycleEvent;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
@@ -23,7 +24,6 @@ import org.appcelerator.titanium.util.TiMenuSupport;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
-import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
@@ -38,12 +38,11 @@ import android.os.RemoteException;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
 public abstract class TiBaseActivity extends Activity 
-	implements TiActivitySupport, ITiWindowHandler
+	implements TiActivitySupport/*, ITiWindowHandler*/
 {
 	private static final String TAG = "TiBaseActivity";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -52,7 +51,8 @@ public abstract class TiBaseActivity extends Activity
 
 	private boolean onDestroyFired = false;
 	private int originalOrientationMode = -1;
-	private TiWeakList<TiLifecycle.OnLifecycleEvent> lifecycleListeners;
+	private TiWeakList<OnLifecycleEvent> lifecycleListeners;
+	private TiWeakList<OnServiceLifecycleEvent> serviceLifecycleListeners;
 
 	protected TiCompositeLayout layout;
 	protected TiActivitySupportHelper supportHelper;
@@ -308,7 +308,7 @@ public abstract class TiBaseActivity extends Activity
 			layout.setKeepScreenOn(intent.getBooleanExtra(TiC.PROPERTY_KEEP_SCREEN_ON, layout.getKeepScreenOn()));
 		}
 		super.onCreate(savedInstanceState);
-		getTiApp().setWindowHandler(this);
+		// getTiApp().setWindowHandler(this);
 		windowCreated();
 
 		if (activityProxy != null) {
@@ -403,17 +403,12 @@ public abstract class TiBaseActivity extends Activity
 		getSupportHelper().onActivityResult(requestCode, resultCode, data);
 	}
 
-	// TODO @Override
-	public void addWindow(View v, TiCompositeLayout.LayoutParams params)
+/*	private TiFileHelper fileHelper = new TiFileHelper(this);
+	public TiFileHelper getTiFileHelper()
 	{
-		layout.addView(v, params);
-	}
-
-	// TODO @Override
-	public void removeWindow(View v)
-	{
-		layout.removeView(v);
-	}
+		// TODO stub
+		return fileHelper;
+	}*/
 
 	@Override
 	public boolean dispatchKeyEvent(KeyEvent event) 
@@ -543,6 +538,21 @@ public abstract class TiBaseActivity extends Activity
 		lifecycleListeners.add(new WeakReference<TiLifecycle.OnLifecycleEvent>(listener));
 	}
 
+	public void removeOnLifecycleEventListener(OnLifecycleEvent listener)
+	{
+		// TODO stub
+	}
+
+	public void addOnServiceLifecycleEventListener(OnServiceLifecycleEvent listener)
+	{
+		serviceLifecycleListeners.add(new WeakReference<OnServiceLifecycleEvent>(listener));
+	}
+
+	public void removeOnServiceLifecycleEventListener(OnServiceLifecycleEvent listener)
+	{
+		serviceLifecycleListeners.remove(listener);
+	}
+
 	@Override
 	protected void onPause() 
 	{
@@ -575,7 +585,7 @@ public abstract class TiBaseActivity extends Activity
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onResume");
 		}
-		getTiApp().setWindowHandler(this);
+		//getTiApp().setWindowHandler(this);
 		getTiApp().setCurrentActivity(this, this);
 		if (activityProxy != null) {
 			activityProxy.fireSyncEvent(TiC.EVENT_RESUME, null);

@@ -33,7 +33,6 @@ public class BlobStreamProxy extends KrollProxy implements TiStream
 
 	public BlobStreamProxy(TiBlob tiBlob)
 	{
-		super();
 		this.tiBlob = tiBlob;
 		isOpen = true;
 	}

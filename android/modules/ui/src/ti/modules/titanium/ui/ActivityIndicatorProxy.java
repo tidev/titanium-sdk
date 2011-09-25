@@ -8,7 +8,6 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIActivityIndicator;
@@ -24,11 +23,6 @@ import android.app.Activity;
 })
 public class ActivityIndicatorProxy extends TiDialogProxy
 {
-	public ActivityIndicatorProxy(TiContext tiContext)
-	{
-		super(tiContext);
-	}
-
 	@Override
 	protected KrollDict getLangConversionTable() {
 		KrollDict table = new KrollDict();
@@ -46,7 +40,7 @@ public class ActivityIndicatorProxy extends TiDialogProxy
 	protected void handleShow(KrollDict options) {
 		super.handleShow(options);
 
-		TiUIActivityIndicator ai = (TiUIActivityIndicator) getView(getTiContext().getActivity());
+		TiUIActivityIndicator ai = (TiUIActivityIndicator) getOrCreateView();
 		ai.show(options);
 	}
 
@@ -54,7 +48,7 @@ public class ActivityIndicatorProxy extends TiDialogProxy
 	protected void handleHide(KrollDict options) {
 		super.handleHide(options);
 
-		TiUIActivityIndicator ai = (TiUIActivityIndicator) getView(getTiContext().getActivity());
+		TiUIActivityIndicator ai = (TiUIActivityIndicator) getOrCreateView();
 		ai.hide(options);
 	}
 }

@@ -11,7 +11,6 @@ import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -31,10 +30,10 @@ public class SoundProxy extends KrollProxy
 
 	protected TiSound snd;
 
-	public SoundProxy(TiContext tiContext)
+	public SoundProxy()
 	{
-		super(tiContext);
-		tiContext.addOnLifecycleEventListener(this);
+		// TODO needs to happen post-activity assignment
+		getActivity().addOnLifecycleEventListener(this);
 		setProperty(PROPERTY_VOLUME, 0.5, true);
 		setProperty(TiC.PROPERTY_TIME, 0d, false);
 	}
@@ -43,7 +42,7 @@ public class SoundProxy extends KrollProxy
 	public void handleCreationDict(KrollDict options) {
 		super.handleCreationDict(options);
 		if (options.containsKey(TiC.PROPERTY_URL)) {
-			setProperty(TiC.PROPERTY_URL, getTiContext().resolveUrl(null, TiConvert.toString(options, TiC.PROPERTY_URL)));
+			setProperty(TiC.PROPERTY_URL, resolveUrl(null, TiConvert.toString(options, TiC.PROPERTY_URL)));
 		} else if (options.containsKey(TiC.PROPERTY_SOUND)) {
 			FileProxy fp = (FileProxy) options.get(TiC.PROPERTY_SOUND);
 			if (fp != null) {

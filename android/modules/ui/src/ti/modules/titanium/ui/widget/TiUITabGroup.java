@@ -48,8 +48,9 @@ public class TiUITabGroup extends TiUIView
 		tabHost.setOnTabChangedListener(this);
 		tabHost.setup(activity.getLocalActivityManager());
 
-		if (proxy.hasProperty(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			tabHost.setBackgroundColor(TiConvert.toColor(proxy.getProperties(),TiC.PROPERTY_BACKGROUND_COLOR));
+		Object bgColor = proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR);
+		if (bgColor != null) {
+			tabHost.setBackgroundColor(TiConvert.toColor(bgColor.toString()));
 		} else {
 			tabHost.setBackgroundDrawable(new ColorDrawable(TiConvert.toColor("#ff1a1a1a")));
 		}

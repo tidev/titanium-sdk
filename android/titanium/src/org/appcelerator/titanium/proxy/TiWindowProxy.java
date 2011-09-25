@@ -11,7 +11,6 @@ package org.appcelerator.titanium.proxy;
 import java.lang.ref.WeakReference;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
@@ -40,10 +39,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 	private static final int MSG_CLOSE = MSG_FIRST_ID + 101;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
-	private static final String[] NEW_ACTIVITY_REQUIRED_KEYS = {
-		TiC.PROPERTY_FULLSCREEN, TiC.PROPERTY_NAV_BAR_HIDDEN,
-		TiC.PROPERTY_MODAL, TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE
-	};
 	private static WeakReference<TiWindowProxy> waitingForOpen;
 
 	protected boolean opened, opening;
@@ -71,7 +66,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	public TiWindowProxy()
 	{
-		super();
 		inTab = false;
 	}
 
@@ -101,13 +95,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 				return super.handleMessage(msg);
 			}
 		}
-	}
-
-	public boolean requiresNewActivity(KrollDict extraOptions)
-	{
-		/*TiPropertyResolver resolver = new TiPropertyResolver(getProperties(), extraOptions);
-		return resolver.hasAnyOf(NEW_ACTIVITY_REQUIRED_KEYS);*/
-		return true;
 	}
 
 	@Kroll.method
@@ -167,11 +154,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 		if (!opened) { return; }
 		releaseViews();
 		opened = false;
-		/*
-		TiContext context = getTiContext();
-		if (creatingContext != null && context != null && !creatingContext.equals(context)) {
-			switchToCreatingContext();
-		}*/
+
+		// TODO ?
+		activity = null;
 	}
 
 	public void setTabProxy(TiViewProxy tabProxy)
@@ -197,12 +182,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 	public void setPostOpenListener(PostOpenListener listener)
 	{
 		this.postOpenListener = listener;
-	}
-
-	@Kroll.method
-	public void hideTabBar()
-	{
-		// iPhone only right now.
 	}
 
 	public KrollDict handleToImage()
@@ -332,44 +311,25 @@ public abstract class TiWindowProxy extends TiViewProxy
 		return orientationModes;
 	}
 
-	@Kroll.method @Kroll.getProperty
-	public ActivityProxy getActivity(KrollInvocation invocation)
+	@Kroll.method(name="getActivity")
+	@Kroll.getProperty(name="activity")
+	public ActivityProxy getActivityProxy()
 	{
-		//return getActivity(invocation.getTiContext());
-		Object activityObject = get(TiC.PROPERTY_ACTIVITY);
+		Object activityObject = getProperty(TiC.PROPERTY_ACTIVITY);
 		ActivityProxy activityProxy = null;
 		if (activityObject == null) {
 			activityProxy = new ActivityProxy();
-			set(TiC.PROPERTY_ACTIVITY, activityProxy);
+			setProperty(TiC.PROPERTY_ACTIVITY, activityProxy);
 		} else if (activityObject instanceof KrollDict) {
 			KrollDict options = (KrollDict) activityObject;
 			activityProxy = new ActivityProxy();
 			activityProxy.handleCreationDict(options);
-			set(TiC.PROPERTY_ACTIVITY, activityProxy);
+			setProperty(TiC.PROPERTY_ACTIVITY, activityProxy);
 		} else if (activityObject instanceof ActivityProxy) {
 			activityProxy = (ActivityProxy) activityObject;
 		}
 		return activityProxy;
 	}
-
-	/*
-	public ActivityProxy getActivity(TiContext tiContext)
-	{
-		Object activityObject = getProperty(TiC.PROPERTY_ACTIVITY);
-		ActivityProxy activityProxy = null;
-		if (activityObject == null) {
-			activityProxy = new ActivityProxy(tiContext);
-			setProperty(TiC.PROPERTY_ACTIVITY, activityProxy);
-		} else if (activityObject instanceof KrollDict) {
-			KrollDict options = (KrollDict) activityObject;
-			activityProxy = new ActivityProxy(tiContext);
-			activityProxy.handleCreationDict(options);
-			setProperty(TiC.PROPERTY_ACTIVITY, activityProxy);
-		} else if (activityObject instanceof ActivityProxy) {
-			activityProxy = (ActivityProxy) activityObject;
-		}
-		return activityProxy;
-	}*/
 		
 	protected abstract void handleOpen(KrollDict options);
 	protected abstract void handleClose(KrollDict options);

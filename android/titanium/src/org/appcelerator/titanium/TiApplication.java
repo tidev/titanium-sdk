@@ -183,7 +183,7 @@ public class TiApplication extends Application implements Handler.Callback
 	{
 		//TODO consider weakRef
 		this.rootActivity = rootActivity;
-		this.windowHandler = rootActivity;
+		//this.windowHandler = rootActivity;
 
 		// calculate the display density
 		DisplayMetrics dm = new DisplayMetrics();
@@ -251,7 +251,7 @@ public class TiApplication extends Application implements Handler.Callback
 
 	public void setWindowHandler(ITiWindowHandler windowHandler) {
 		if (windowHandler == null) {
-			this.windowHandler = rootActivity;
+			//this.windowHandler = rootActivity;
 		} else {
 			this.windowHandler = windowHandler; //TODO weakRef?
 		}

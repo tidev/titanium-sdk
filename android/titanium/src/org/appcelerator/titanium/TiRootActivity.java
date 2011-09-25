@@ -11,14 +11,13 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiRHelper;
-import org.appcelerator.titanium.view.ITiWindowHandler;
 
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 public class TiRootActivity extends TiLaunchActivity
-	implements TiActivitySupport, ITiWindowHandler
+	implements TiActivitySupport
 {
 	private static final String LCAT = "TiRootActivity";
 	private static final boolean DBG = TiConfig.LOGD;

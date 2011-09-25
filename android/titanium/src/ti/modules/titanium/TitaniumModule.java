@@ -23,8 +23,9 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiLaunchActivity;
+import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
+import org.appcelerator.titanium.TiLifecycle.OnServiceLifecycleEvent;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
@@ -41,7 +42,7 @@ import android.os.Handler;
 
 @Kroll.module @Kroll.topLevel({"Ti", "Titanium"})
 public class TitaniumModule extends KrollModule
-	implements TiContext.OnLifecycleEvent, TiContext.OnServiceLifecycleEvent
+	implements OnLifecycleEvent, OnServiceLifecycleEvent
 {
 	private static final String LCAT = "TitaniumModule";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -52,19 +53,13 @@ public class TitaniumModule extends KrollModule
 
 	public TitaniumModule()
 	{
-		super();
-	}
-
-	public TitaniumModule(TiContext tiContext)
-	{
-		super(tiContext);
 		basePath = new Stack<String>();
-		basePath.push(tiContext.getBaseUrl());
-		if (tiContext.isServiceContext()) {
+		basePath.push(getCreationUrl().baseUrl);
+		/* TODO if (tiContext.isServiceContext()) {
 			tiContext.addOnServiceLifecycleEventListener(this);
 		} else {
 			tiContext.addOnLifecycleEventListener(this);
-		}
+		}*/
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -108,6 +103,7 @@ public class TitaniumModule extends KrollModule
 	@Kroll.method
 	public void testThrow(){ throw new Error("Testing throwing throwables"); }
 
+/*
 	@Kroll.method
 	public void include(KrollInvocation invocation, Object[] files)
 	{
@@ -133,6 +129,7 @@ public class TitaniumModule extends KrollModule
 			//}
 		}
 	}
+*/
 
 	private HashMap<Thread, HashMap<Integer, Timer>> timers = new HashMap<Thread, HashMap<Integer, Timer>>();
 	private int currentTimerId;
@@ -251,10 +248,13 @@ public class TitaniumModule extends KrollModule
 	{
 		String msg = (message == null? null : message.toString());
 		Log.i("ALERT", msg);
+
+		/* TODO - look at this along with the other service stuff
 		if (invocation.getTiContext().isServiceContext()) {
 			Log.w(LCAT, "alert() called inside service -- no attempt will be made to display it to user interface.");
 			return;
 		}
+		*/
 		TiUIHelper.doOkDialog("Alert", msg, null);
 	}
 

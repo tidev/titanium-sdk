@@ -26,11 +26,6 @@ public class UtilsModule extends KrollModule
 {
 	private static final String TAG = "UtilsModule";
 
-	public UtilsModule()
-	{
-		super();
-	}
-
 	@Kroll.method
 	public TiBlob base64encode(Object obj)
 	{

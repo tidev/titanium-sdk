@@ -173,7 +173,7 @@ public class TiUrl
 		return resolve(baseUrl, path, null);
 	}
 	
-	public String resolve(String baseUrl, String path, String scheme)
+	public static String resolve(String baseUrl, String path, String scheme)
 	{
 		if (!TiFileFactory.isLocalScheme(path)) {
 			return path;
@@ -213,7 +213,7 @@ public class TiUrl
 		return result;
 	}
 
-	public String absoluteUrl(String defaultScheme, String url, String baseUrl)
+	public static String absoluteUrl(String defaultScheme, String url, String baseUrl)
 	{
 		try {
 			if ((baseUrl == null || baseUrl.length() == 0) && (url == null || url.length() == 0)) {

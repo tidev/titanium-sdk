@@ -17,9 +17,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiFastDev;
 import org.appcelerator.titanium.io.TiBaseFile;
@@ -32,7 +33,7 @@ import org.appcelerator.titanium.util.TiDownloadManager;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -70,14 +71,14 @@ public class TiDrawableReference
 	private DrawableReferenceType type;
 	private boolean oomOccurred = false;
 	
-	private SoftReference<TiContext> softContext = null;
+	private SoftReference<Activity> softActivity = null;
 	
 	private TiFileHelper fileHelper = null;
 	
-	public TiDrawableReference(TiContext context, DrawableReferenceType type)
+	public TiDrawableReference(Activity activity, DrawableReferenceType type)
 	{
 		this.type = type;
-		softContext = new SoftReference<TiContext>(context);
+		softActivity = new SoftReference<Activity>(activity);
 	}
 
 	/**
@@ -97,6 +98,7 @@ public class TiDrawableReference
 		total = total * constant + resourceId;
 		return total;
 	}
+
 	@Override
 	public boolean equals(Object object)
 	{
@@ -105,28 +107,34 @@ public class TiDrawableReference
 		}
 		return (this.hashCode() == ((TiDrawableReference)object).hashCode());
 	}
-	public static TiDrawableReference fromResourceId(TiContext context, int resourceId) 
+
+	public static TiDrawableReference fromResourceId(Activity activity, int resourceId) 
 	{
-		TiDrawableReference ref = new TiDrawableReference(context, DrawableReferenceType.RESOURCE_ID);
+		TiDrawableReference ref = new TiDrawableReference(activity, DrawableReferenceType.RESOURCE_ID);
 		ref.resourceId = resourceId;
 		return ref;
 	}
-	
-	public static TiDrawableReference fromBlob(TiContext context, TiBlob blob)
+
+	public static TiDrawableReference fromBlob(Activity activity, TiBlob blob)
 	{
-		TiDrawableReference ref = new TiDrawableReference(context, DrawableReferenceType.BLOB);
+		TiDrawableReference ref = new TiDrawableReference(activity, DrawableReferenceType.BLOB);
 		ref.blob = blob;
 		return ref;
 	}
-	
-	public static TiDrawableReference fromUrl(TiContext context, String url)
+
+	public static TiDrawableReference fromUrl(KrollProxy proxy, String url)
 	{
-		TiDrawableReference ref = new TiDrawableReference(context, DrawableReferenceType.URL);
+		return fromUrl(proxy.getActivity(), proxy.resolveUrl(null, url));
+	}
+
+	public static TiDrawableReference fromUrl(Activity activity, String url)
+	{
+		TiDrawableReference ref = new TiDrawableReference(activity, DrawableReferenceType.URL);
 		ref.url = url;
-		
+
 		// Could still be a resource image file in android/images/medium|high|low. Check once.
 		if (url != null) {
-			int id =  TiUIHelper.getResourceId(context.resolveUrl(null, url));
+			int id =  TiUIHelper.getResourceId(url);
 			if (id != 0) {
 				// This is a resource so handle it as such.  Is it evil to switch up the type on someone like this? Maybe...
 				ref.type = DrawableReferenceType.RESOURCE_ID;
@@ -135,21 +143,21 @@ public class TiDrawableReference
 		}
 		return ref;
 	}
-	
-	public static TiDrawableReference fromFile(TiContext context, TiBaseFile file)
+
+	public static TiDrawableReference fromFile(Activity activity, TiBaseFile file)
 	{
-		TiDrawableReference ref = new TiDrawableReference(context, DrawableReferenceType.FILE);
+		TiDrawableReference ref = new TiDrawableReference(activity, DrawableReferenceType.FILE);
 		ref.file = file;
 		return ref;
 	}
 	
-	public static TiDrawableReference fromDictionary(TiContext context, KrollDict dict)
+	public static TiDrawableReference fromDictionary(Activity activity, KrollDict dict)
 	{
 		if (dict.containsKey("media")) {
-			return fromBlob(context, TiConvert.toBlob(dict, "media"));
+			return fromBlob(activity, TiConvert.toBlob(dict, "media"));
 		} else {
 			Log.w(LCAT, "Unknown drawable reference inside dictionary.  Expected key 'media' to be a blob.  Returning null drawable reference");
-			return fromObject(context, null);
+			return fromObject(activity, null);
 		}
 	}
 	/**
@@ -158,25 +166,25 @@ public class TiDrawableReference
 	 * @param object
 	 * @return A ready instance of TiDrawableReference
 	 */
-	public static TiDrawableReference fromObject(TiContext context, Object object)
+	public static TiDrawableReference fromObject(Activity activity, Object object)
 	{
 		if (object == null) {
-			return new TiDrawableReference(context, DrawableReferenceType.NULL);
+			return new TiDrawableReference(activity, DrawableReferenceType.NULL);
 		}
 		
 		if (object instanceof String) {
-			return fromUrl(context, TiConvert.toString(object));
+			return fromUrl(activity, TiConvert.toString(object));
 		} else if (object instanceof KrollDict) {
-			return fromDictionary(context, (KrollDict)object);
+			return fromDictionary(activity, (KrollDict)object);
 		} else if (object instanceof TiBaseFile) {
-			return fromFile(context, (TiBaseFile)object);
+			return fromFile(activity, (TiBaseFile)object);
 		} else if (object instanceof TiBlob) {
-			return fromBlob(context, TiConvert.toBlob(object));
+			return fromBlob(activity, TiConvert.toBlob(object));
 		} else if (object instanceof Number) {
-			return fromResourceId(context, ((Number)object).intValue());
+			return fromResourceId(activity, ((Number)object).intValue());
 		} else {
 			Log.w(LCAT, "Unknown image resource type: " + object.getClass().getSimpleName() + ". Returning null drawable reference");
-			return fromObject(context, null);
+			return fromObject(activity, null);
 		}
 	}
 	
@@ -240,17 +248,12 @@ public class TiDrawableReference
 		}
 		return b;
 	}
+
 	private Resources getResources()
 	{
-		TiContext tiContext = softContext.get();
-		if (tiContext != null) {
-			Context context = tiContext.getAndroidContext();
-			if (context != null) {
-				return context.getResources();
-			}
-		}
-		return null;
+		return TiApplication.getInstance().getResources();
 	}
+
 	private Drawable getResourceDrawable()
 	{
 		if (!isTypeResourceId()) {
@@ -377,9 +380,9 @@ public class TiDrawableReference
 		try {
 			if (destWidthDimension == null) {
 				destWidth = srcWidth; // default, but try harder below
-				TiContext context = softContext.get();
-				if (context != null && context.getActivity() != null && context.getActivity().getWindow() != null) {
-					int parentWidth = context.getActivity().getWindow().getDecorView().getWidth();
+				Activity activity = softActivity.get();
+				if (activity != null && activity.getWindow() != null) {
+					int parentWidth = activity.getWindow().getDecorView().getWidth();
 					if (parentWidth > 0) {
 						// the parent may not be finished laying out yet
 						// we'll take the natural width as the best guess in that case
@@ -502,27 +505,22 @@ public class TiDrawableReference
 	 */
 	public InputStream getInputStream()
 	{
-		TiContext context = softContext.get();
-		if (context == null) {
-			// Some of the types will require a context, so show a warning.
-			Log.w(LCAT, "TiContext has been GC'd, so opening stream may not be possible.");
-		}
 		InputStream stream = null;
 		
 		if (isTypeUrl() && url != null) {
-			if (context != null) {
-				try {
-					String resolved = context.resolveUrl(null, url);
-					if (resolved.startsWith(TiC.URL_ANDROID_ASSET_RESOURCES)
-						&& TiFastDev.isFastDevEnabled()) {
-						TiBaseFile tbf = TiFileFactory.createTitaniumFile(context, new String[] { resolved }, false);
-						stream = tbf.getInputStream();
-					} else {
-						stream = getTiFileHelper().openInputStream(resolved, false);
-					}
-				} catch (IOException e) {
-					Log.e(LCAT, "Problem opening stream with url " + url + ": " + e.getMessage(), e);
+			try {
+				// TODO look at resolve?
+				//String resolved = context.resolveUrl(null, url);
+				String resolved = url;
+				if (resolved.startsWith(TiC.URL_ANDROID_ASSET_RESOURCES)
+					&& TiFastDev.isFastDevEnabled()) {
+					TiBaseFile tbf = TiFileFactory.createTitaniumFile(new String[] { resolved }, false);
+					stream = tbf.getInputStream();
+				} else {
+					stream = TiFileHelper.getInstance().openInputStream(resolved, false);
 				}
+			} catch (IOException e) {
+				Log.e(LCAT, "Problem opening stream with url " + url + ": " + e.getMessage(), e);
 			}
 			
 		} else if (isTypeFile() && file != null) {
@@ -535,8 +533,8 @@ public class TiDrawableReference
 		} else if (isTypeBlob() && blob != null) {
 			stream = blob.getInputStream();
 			
-		} else if (isTypeResourceId() && resourceId != UNKNOWN && context != null) {
-			stream = context.getTiApp().getResources().openRawResource(resourceId);
+		} else if (isTypeResourceId() && resourceId != UNKNOWN) {
+			stream = TiApplication.getInstance().getResources().openRawResource(resourceId);
 		}
 
 		return stream;
@@ -593,9 +591,9 @@ public class TiDrawableReference
 		int destWidth;
 		if (destWidthDimension == null) {
 			destWidth = srcWidth; // default, but try harder below
-			TiContext context = softContext.get();
-			if (context != null && context.getActivity() != null && context.getActivity().getWindow() != null) {
-				destWidth = context.getActivity().getWindow().getDecorView().getWidth();
+			Activity activity = softActivity.get();
+			if (activity != null && activity.getWindow() != null) {
+				destWidth = activity.getWindow().getDecorView().getWidth();
 			}
 		} else {
 			destWidth = destWidthDimension.isUnitAuto() ? srcWidth : destWidthDimension.getAsPixels(parent);
@@ -629,17 +627,6 @@ public class TiDrawableReference
 		
 		return calcSampleSize(parent, srcWidth, srcHeight, destWidthDimension, destHeightDimension);
 		
-	}
-	
-	private TiFileHelper getTiFileHelper()
-	{
-		if (fileHelper == null) {
-			TiContext context = softContext.get();
-			if (context != null) {
-				fileHelper = context.getTiFileHelper();
-			}
-		}
-		return fileHelper;
 	}
 	
 	/**

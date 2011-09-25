@@ -9,7 +9,6 @@ package ti.modules.titanium.ui.android;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -71,12 +70,7 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int WEBVIEW_PLUGINS_OFF = TiUIWebView.PLUGIN_STATE_OFF;
 	@Kroll.constant public static final int WEBVIEW_PLUGINS_ON = TiUIWebView.PLUGIN_STATE_ON;
 	@Kroll.constant public static final int WEBVIEW_PLUGINS_ON_DEMAND = TiUIWebView.PLUGIN_STATE_ON_DEMAND;
-	
-	public AndroidModule(TiContext tiContext) 
-	{
-		super(tiContext);
-	}
-	
+
 	@Kroll.method
 	public void openPreferences(KrollInvocation kroll, @Kroll.argument(optional=true) String prefsName)
 	{
@@ -92,9 +86,10 @@ public class AndroidModule extends KrollModule
 			Log.w(LCAT, "Unable to open preferences. Activity is null");
 		}
 	}
-	
+
 	@Kroll.method
-	public void hideSoftKeyboard(KrollInvocation invocation) {
+	public void hideSoftKeyboard(KrollInvocation invocation)
+	{
 		Activity a = invocation.getActivity();
 		if (a != null) {
 			TiUIHelper.showSoftKeyboard(a.getWindow().getDecorView(), false);

@@ -39,11 +39,10 @@ public class AudioPlayerProxy extends KrollProxy
 	
 	protected TiSound snd;
 
-	public AudioPlayerProxy(TiContext tiContext)
+	public AudioPlayerProxy()
 	{
-		super(tiContext);
-
-		tiContext.addOnLifecycleEventListener(this);
+		// TODO this needs to happen post-set
+		getActivity().addOnLifecycleEventListener(this);
 		setProperty("volume", 0.5, true);
 	}
 
@@ -51,7 +50,7 @@ public class AudioPlayerProxy extends KrollProxy
 	public void handleCreationDict(KrollDict options) {
 		super.handleCreationDict(options);
 		if (options.containsKey(TiC.PROPERTY_URL)) {
-			setProperty(TiC.PROPERTY_URL, getTiContext().resolveUrl(null, TiConvert.toString(options, TiC.PROPERTY_URL)));
+			setProperty(TiC.PROPERTY_URL, resolveUrl(null, TiConvert.toString(options, TiC.PROPERTY_URL)));
 		} else if (options.containsKey(TiC.PROPERTY_SOUND)) {
 			FileProxy fp = (FileProxy) options.get(TiC.PROPERTY_SOUND);
 			if (fp != null) {

@@ -8,7 +8,6 @@ package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.ArrayList;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -43,8 +42,6 @@ public class TableViewModel
 		public TiViewProxy proxy;
 		public Object rowData;
 	}
-
-	private TiContext tiContext;
 	private TableViewProxy proxy;
 
 	private boolean dirty;
@@ -54,8 +51,7 @@ public class TableViewModel
 	// The unstructured set of data. Modifier operations are treated as edits to this
 	// and the section structure.
 
-	public TableViewModel(TiContext tiContext, TableViewProxy proxy) {
-		this.tiContext = tiContext;
+	public TableViewModel(TableViewProxy proxy) {
 		this.proxy = proxy;
 
 		viewModel = new ArrayList<Item>();
@@ -67,7 +63,6 @@ public class TableViewModel
 			viewModel.clear();
 			viewModel = null;
 		}
-		tiContext = null;
 		proxy = null;
 	}
 

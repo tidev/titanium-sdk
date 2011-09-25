@@ -9,7 +9,6 @@ package ti.modules.titanium.ui;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.view.TiUIView;
@@ -27,11 +26,6 @@ public class TabProxy extends TiViewProxy
 	private TiWindowProxy win;
 	private TabGroupProxy tabGroupProxy;
 
-	public TabProxy(TiContext tiContext)
-	{
-		super(tiContext);
-	}
-
 	@Override
 	protected KrollDict getLangConversionTable()
 	{
@@ -39,7 +33,6 @@ public class TabProxy extends TiViewProxy
 		table.put(TiC.PROPERTY_TITLE, TiC.PROPERTY_TITLEID);
 		return table;
 	}
-	
 
 	@Override
 	public TiUIView createView(Activity activity)

@@ -37,18 +37,15 @@ public class BufferProxy extends KrollProxy
 
 	public BufferProxy()
 	{
-		super();
 	}
 
 	public BufferProxy(int bufferSize)
 	{
-		super();
 		buffer = new byte[bufferSize];
 	}
 
 	public BufferProxy(byte[] existingBuffer)
 	{
-		super();
 		buffer = existingBuffer;
 	}
 

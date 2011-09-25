@@ -6,17 +6,18 @@
  */
 package org.appcelerator.titanium.proxy;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiConfig;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 
 @Kroll.proxy
@@ -30,24 +31,21 @@ public class ActivityProxy extends KrollProxy
 	private static final String TAG = "ActivityProxy";
 	private static boolean DBG = TiConfig.LOGD;
 
-	protected Activity activity;
+	protected Activity wrappedActivity;
 	protected IntentProxy intentProxy;
-	//protected KrollCallback resultCallback;
 
 	public ActivityProxy()
 	{
-		super();
 	}
 
 	public ActivityProxy(Activity activity)
 	{
-		super();
-		setActivity(activity);
+		setWrappedActivity(activity);
 	}
 	
-	public void setActivity(Activity activity)
+	public void setWrappedActivity(Activity activity)
 	{
-		this.activity = activity;
+		this.wrappedActivity = activity;
 		Intent intent = activity.getIntent();
 		if (intent != null) {
 			intentProxy = new IntentProxy(activity.getIntent());
@@ -56,32 +54,14 @@ public class ActivityProxy extends KrollProxy
 
 	protected Activity getWrappedActivity()
 	{
-		if (activity != null) {
-			return activity;
+		if (wrappedActivity != null) {
+			return wrappedActivity;
 		}
 		return TiApplication.getInstance().getRootActivity();
-
-		/*
-		Activity activity = this.activity;
-		if (activity != null) return activity;
-
-		if (invocation != null) {
-			activity = invocation.getTiContext().getActivity();
-			if (activity != null) return activity;
-		}
-
-		activity = getTiContext().getActivity();
-		if (activity != null) return activity;
-
-		activity = getTiContext().getRootActivity();
-		if (activity != null) return activity;
-
-		return null;
-		*/
 	}
 
 	@Kroll.method
-	public void startActivity(KrollInvocation invocation, IntentProxy intent)
+	public void startActivity(IntentProxy intent)
 	{
 		Activity activity = getWrappedActivity();
 		if (activity != null) {
@@ -90,8 +70,7 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void startActivityForResult(KrollInvocation invocation,
-		IntentProxy intent/*, KrollCallback callback*/)
+	public void startActivityForResult(IntentProxy intent)
 	{
 		Activity activity = getWrappedActivity();
 		if (activity != null) {
@@ -102,7 +81,6 @@ public class ActivityProxy extends KrollProxy
 				support = new TiActivitySupportHelper(activity);
 			}
 
-			//this.resultCallback = callback;
 			int requestCode = support.getUniqueResultCode();
 			support.launchActivityForResult(intent.getIntent(), requestCode, this);
 		}
@@ -190,47 +168,38 @@ public class ActivityProxy extends KrollProxy
 		}
 	}
 
-	// TODO @Override
 	public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
 	{
-		/*if (resultCallback == null) return;
 		KrollDict event = new KrollDict();
 		event.put(TiC.EVENT_PROPERTY_REQUEST_CODE, requestCode);
 		event.put(TiC.EVENT_PROPERTY_RESULT_CODE, resultCode);
-		event.put(TiC.EVENT_PROPERTY_INTENT, new IntentProxy(getTiContext(), data));
+		event.put(TiC.EVENT_PROPERTY_INTENT, new IntentProxy(data));
 		event.put(TiC.EVENT_PROPERTY_SOURCE, this);
-		resultCallback.callAsync(event);*/
+		fireEvent("result", event);
 	}
 
-	// TODO @Override
 	public void onError(Activity activity, int requestCode, Exception e)
 	{
-		/*if (resultCallback == null) return;
 		KrollDict event = new KrollDict();
 		event.put(TiC.EVENT_PROPERTY_REQUEST_CODE, requestCode);
 		event.put(TiC.EVENT_PROPERTY_ERROR, e.getMessage());
 		event.put(TiC.EVENT_PROPERTY_SOURCE, this);
-		resultCallback.callAsync(event);*/
+		fireEvent("error", event);
 	}
 
+	/*
 	public Context getContext()
 	{
 		if (activity == null) {
 			return TiApplication.getInstance();
-			//return getTiContext().getActivity().getApplication();
 		}
-		return activity;
-	}
-
-	/*
-	public Activity getActivity()
-	{
 		return activity;
 	}
 	*/
 
 	public void release()
 	{
-		activity = null;
+		super.release();
+		wrappedActivity = null;
 	}
 }

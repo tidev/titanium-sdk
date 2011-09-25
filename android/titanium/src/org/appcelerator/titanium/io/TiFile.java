@@ -45,6 +45,7 @@ public class TiFile extends TiBaseFile
 		this.path = path;
 		this.stream = stream;
 	}
+
 	@Override
 	public boolean isFile()
 	{

@@ -3,22 +3,21 @@ package ti.modules.titanium.app;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.ITiAppInfo;
-import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiApplication;
 
 @Kroll.module
 public class AppModule extends KrollModule
 {
 	private ITiAppInfo appInfo;
 
-	public AppModule(TiContext tiContext) {
-		super(tiContext);
-
-		getTiContext().getTiApp().addAppEventProxy(this);
-		appInfo = getTiContext().getTiApp().getAppInfo();
+	public AppModule()
+	{
+		TiApplication.getInstance().addAppEventProxy(this);
+		appInfo = TiApplication.getInstance().getAppInfo();
 	}
 
 	public void onDestroy() {
-		getTiContext().getTiApp().removeAppEventProxy(this);
+		TiApplication.getInstance().removeAppEventProxy(this);
 	}
 
 	@Kroll.getProperty(name="id") @Kroll.method

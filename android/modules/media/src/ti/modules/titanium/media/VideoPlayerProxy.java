@@ -14,7 +14,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -44,15 +43,9 @@ public class VideoPlayerProxy extends KrollProxy
 	private int mediaControlStyle = MediaModule.VIDEO_CONTROL_DEFAULT;
 	private int scalingMode = MediaModule.VIDEO_SCALING_ASPECT_FIT;
 
-	public VideoPlayerProxy(TiContext tiContext)
-	{
-		super(tiContext);
-	}
-
 	public void handleCreationDict(KrollDict options)
 	{
-		final TiContext tiContext = getTiContext();
-		final Intent intent = new Intent(tiContext.getActivity(), TiVideoActivity.class);
+		final Intent intent = new Intent(getActivity(), TiVideoActivity.class);
 
 		String url = null;
 		if (options.containsKey(TiC.PROPERTY_CONTENT_URL)) {
@@ -63,7 +56,7 @@ public class VideoPlayerProxy extends KrollProxy
 		}
 		
 		if (url != null) {
-			url = tiContext.resolveUrl(null, url);
+			url = resolveUrl(null, url);
 			if (DBG) {
 				Log.d(LCAT, "Video source: " + url);
 			}
@@ -99,7 +92,7 @@ public class VideoPlayerProxy extends KrollProxy
 			}
 		};
 		intent.putExtra(TiC.PROPERTY_MESSENGER_RECEIVER, messengerReceiver);
-		tiContext.getActivity().startActivity(intent);
+		getActivity().startActivity(intent);
 	}
 
 	protected void setActivityMessenger(Messenger messenger)

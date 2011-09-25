@@ -12,11 +12,9 @@ import java.io.IOException;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiTempFileHelper;
 
 import ti.modules.titanium.stream.FileStreamProxy;
 
@@ -31,11 +29,6 @@ public class FilesystemModule extends KrollModule
 	@Kroll.constant public static int MODE_APPEND = 2;
 
 	private static String[] RESOURCES_DIR = { "app://" };
-	
-	public FilesystemModule(TiContext tiContext)
-	{
-		super(tiContext);
-	}
 
 	// Methods
 	@Kroll.method
@@ -44,7 +37,7 @@ public class FilesystemModule extends KrollModule
 		try {
 			File f = File.createTempFile("tifile", "tmp");
 			String[] parts = { f.getAbsolutePath() };
-			return new FileProxy(getTiContext(), parts, false);
+			return new FileProxy(parts, false);
 		} catch (IOException e) {
 			Log.e(LCAT, "Unable to create tmp file: " + e.getMessage(), e);
 			return null;
@@ -59,7 +52,7 @@ public class FilesystemModule extends KrollModule
 		File f = new File(tmpdir,dir);
 		f.mkdirs();
 		String[] parts = { f.getAbsolutePath() };
-		return new FileProxy(getTiContext(), parts);
+		return new FileProxy(parts);
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -72,7 +65,7 @@ public class FilesystemModule extends KrollModule
 	public FileProxy getFile(Object[] parts)
 	{
 		String[] sparts = TiConvert.toStringArray(parts);
-		return new FileProxy(getTiContext(), sparts);
+		return new FileProxy(sparts);
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -122,7 +115,7 @@ public class FilesystemModule extends KrollModule
 	public FileStreamProxy openStream(int mode, Object[] parts) throws IOException
 	{
 		String[] sparts = TiConvert.toStringArray(parts);
-		FileProxy fileProxy = new FileProxy(getTiContext(), sparts);
+		FileProxy fileProxy = new FileProxy(sparts);
 		fileProxy.getBaseFile().open(mode, true);
 
 		return new FileStreamProxy(fileProxy);

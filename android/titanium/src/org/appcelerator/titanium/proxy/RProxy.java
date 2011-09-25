@@ -37,12 +37,11 @@ public class RProxy extends KrollProxy {
 	}
 	
 	protected RProxy(int resourceType, String name) {
-		//super(context, false);
 		super();
 		this.resourceType = resourceType;
 		this.name = name;
 	}
-	
+
 	// FIXME implement me for V8
 	/*@Override
 	public Object get(Scriptable scope, String name)
@@ -53,16 +52,17 @@ public class RProxy extends KrollProxy {
 		}
 		return subResources.get(name);
 	}*/
-	
+
 	public String getName() {
 		return this.name;
 	}
-	
+
 	public String toString() {
 		return this.name;
 	}
-	
-	// what was this overriding?
+
+
+	// TODO ?
 	public Object getNativeValue() {
 		if (DBG) {
 			Log.d(TAG, "Getting resource " + (resourceType==RESOURCE_TYPE_ANDROID ? "android.R." : "R.") + name);
@@ -78,6 +78,7 @@ public class RProxy extends KrollProxy {
 			return this;
 		}
 	}
+
 	public int getResourceType()
 	{
 		return this.resourceType;

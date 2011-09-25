@@ -20,11 +20,10 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import android.graphics.Typeface;
-
 import ti.modules.titanium.ui.PickerColumnProxy;
-import ti.modules.titanium.ui.PickerRowProxy;
 import ti.modules.titanium.ui.PickerProxy;
+import ti.modules.titanium.ui.PickerRowProxy;
+import android.graphics.Typeface;
 
 public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelectedListener
 {
@@ -84,7 +83,8 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 		Float fontSize = null;
 		String fontWeight = null;
 		Typeface typeface = null;
-		KrollDict d = proxy.getProperties();
+		// TODO KrollDict d = proxy.getProperties();
+		KrollDict d = new KrollDict();
 		if (d.containsKey(TiC.PROPERTY_FONT) && d.get(TiC.PROPERTY_FONT) instanceof KrollDict) {
 			KrollDict font = d.getKrollDict(TiC.PROPERTY_FONT);
 			if (font.containsKey("fontSize")) {

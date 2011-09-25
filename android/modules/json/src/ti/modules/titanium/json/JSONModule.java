@@ -12,8 +12,6 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.json.JsonParser;
 
 @Kroll.module @Kroll.topLevel
 public class JSONModule extends KrollModule

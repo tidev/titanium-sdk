@@ -17,7 +17,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.android.AndroidModule;
-
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -145,7 +144,7 @@ public class TiUISwitch extends TiUIView
 		
 		if (button != null) {
 			setNativeView(button);
-			updateButton(button, proxy.getProperties());
+			// TODO updateButton(button, proxy.getProperties());
 			button.setOnCheckedChangeListener(this);
 		}
 	}

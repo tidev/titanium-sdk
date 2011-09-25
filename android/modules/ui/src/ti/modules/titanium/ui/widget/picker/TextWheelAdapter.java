@@ -8,9 +8,10 @@
 package ti.modules.titanium.ui.widget.picker;
 
 
-import kankan.wheel.widget.WheelAdapter;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import kankan.wheel.widget.WheelAdapter;
 
 public class TextWheelAdapter implements WheelAdapter
 {

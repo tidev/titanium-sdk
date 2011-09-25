@@ -15,7 +15,6 @@ import java.util.List;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -55,16 +54,16 @@ public class EmailDialogProxy extends TiViewProxy {
 	private ArrayList<Object> attachments;
 	private String privateDataDirectoryPath = null;
 
-	public EmailDialogProxy(TiContext tiContext) {
-		super(tiContext);
-		TiBaseFile privateDataDirectory = TiFileFactory.createTitaniumFile(tiContext, "appdata-private:///", false);
+	public EmailDialogProxy()
+	{
+		TiBaseFile privateDataDirectory = TiFileFactory.createTitaniumFile("appdata-private:///", false);
 		privateDataDirectoryPath = privateDataDirectory.getNativeFile().getAbsolutePath();
 	}
 
 	@Kroll.method
 	public boolean isSupported() {
 		boolean supported = false;
-		Activity activity = getTiContext().getActivity();
+		Activity activity = getActivity();
 		if (activity != null) {
 			PackageManager pm = activity.getPackageManager();
 			if (pm != null) {
@@ -139,7 +138,7 @@ public class EmailDialogProxy extends TiViewProxy {
 		Intent sendIntent = buildIntent();
 		Intent choosingIntent = Intent.createChooser(sendIntent, "Send");
 
-		Activity activity = getTiContext().getActivity();
+		Activity activity = getActivity();
 		TiActivitySupport activitySupport = (TiActivitySupport) activity;
 		final int code = activitySupport.getUniqueResultCode();
 
@@ -170,13 +169,13 @@ public class EmailDialogProxy extends TiViewProxy {
 			
 	}
 
-	private File blobToTemp(TiBlob blob, String fileName) {
-
-		File tempFolder = new File (getTiContext().getTiFileHelper().getDataDirectory(false), "temp");
+	private File blobToTemp(TiBlob blob, String fileName)
+	{
+		File tempFolder = new File(getActivity().getTiFileHelper().getDataDirectory(false), "temp");
 		tempFolder.mkdirs();
 
 		File tempfilej = new File(tempFolder, fileName);
-		TiFile tempfile = new TiFile(getTiContext(),tempfilej, tempfilej.getPath(), false);
+		TiFile tempfile = new TiFile(tempfilej, tempfilej.getPath(), false);
 
 		if (tempfile.exists()) {
 			tempfile.deleteFile();
@@ -190,6 +189,7 @@ public class EmailDialogProxy extends TiViewProxy {
 
 		return null;
 	}
+
 	private File privateFileToTemp(FileProxy file)
 	{
 		File tempfile = null;

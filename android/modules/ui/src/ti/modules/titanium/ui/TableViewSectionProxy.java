@@ -9,7 +9,6 @@ package ti.modules.titanium.ui;
 import java.util.ArrayList;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -18,12 +17,7 @@ import android.app.Activity;
 @Kroll.proxy(creatableInModule=UIModule.class)
 public class TableViewSectionProxy extends TiViewProxy
 {
-	protected ArrayList<TableViewRowProxy> rows;
-
-	public TableViewSectionProxy(TiContext tiContext) {
-		super(tiContext);
-		rows = new ArrayList<TableViewRowProxy>();
-	}
+	protected ArrayList<TableViewRowProxy> rows = new ArrayList<TableViewRowProxy>();
 
 	@Override
 	public TiUIView createView(Activity activity) {

@@ -8,7 +8,6 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -30,9 +29,8 @@ propertyAccessors = {
 })
 public class SwitchProxy extends TiViewProxy
 {
-	public SwitchProxy(TiContext tiContext)
+	public SwitchProxy()
 	{
-		super(tiContext);
 		setProperty(TiC.PROPERTY_VALUE, false);
 		setProperty(TiC.PROPERTY_STYLE, AndroidModule.SWITCH_STYLE_TOGGLEBUTTON);
 	}

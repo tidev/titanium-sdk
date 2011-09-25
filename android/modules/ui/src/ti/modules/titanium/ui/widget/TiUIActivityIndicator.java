@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.widget;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -124,32 +125,31 @@ public class TiUIActivityIndicator extends TiUIView
 		handleShow();
 	}
 
-	protected void handleShow() {
-		KrollDict d = proxy.getProperties();
-
+	protected void handleShow()
+	{
 		String message = "";
-		if (d.containsKey("message")) {
-			message = d.getString("message");
+		if (proxy.hasProperty("message")) {
+			message = (String) proxy.getProperty("message");
 		}
 
 		location = DIALOG;
-		if (d.containsKey("location")) {
-			location = TiConvert.toInt(d, "location");
+		if (proxy.hasProperty("location")) {
+			location = TiConvert.toInt(proxy.getProperty("location"));
 		}
 
 		min = 0;
-		if (d.containsKey("min")) {
-			min = TiConvert.toInt(d,"min");
+		if (proxy.hasProperty("min")) {
+			min = TiConvert.toInt(proxy.getProperty("min"));
 		}
 
 		max = 100;
-		if (d.containsKey("max")) {
-			max = TiConvert.toInt(d, "max");
+		if (proxy.hasProperty("max")) {
+			max = TiConvert.toInt(proxy.getProperty("max"));
 		}
 
 		type = INDETERMINANT;
-		if (d.containsKey("type")) {
-			type = TiConvert.toInt(d, "type");
+		if (proxy.hasProperty("type")) {
+			type = TiConvert.toInt(proxy.getProperty("type"));
 		}
 
 		if (location == STATUS_BAR) {
@@ -173,9 +173,9 @@ public class TiUIActivityIndicator extends TiUIView
 		} else if (location == DIALOG) {
 			incrementFactor = 1;
 			if (progressDialog == null) {
-				Context a = proxy.getTiContext().getTiApp().getCurrentActivity();
+				Context a = TiApplication.getInstance().getCurrentActivity();
 				if (a == null) {
-					a = proxy.getTiContext().getRootActivity();
+					a = TiApplication.getInstance().getRootActivity();
 				}
 				progressDialog = new ProgressDialog(a);
 			}

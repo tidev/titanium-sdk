@@ -6,7 +6,6 @@
  */
 package org.appcelerator.titanium;
 
-import java.io.IOException;
 import java.util.Set;
 
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
