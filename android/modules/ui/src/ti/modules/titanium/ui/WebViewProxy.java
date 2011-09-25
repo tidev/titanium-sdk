@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiConvert;
@@ -50,7 +51,7 @@ public class WebViewProxy extends ViewProxy
 
 	@Kroll.method
 	public Object evalJS(String code) {
-		if (isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			return getWebView().getJSValue(code);
 		} else {
 			return sendBlockingUiMessage(MSG_EVAL_JS, code);

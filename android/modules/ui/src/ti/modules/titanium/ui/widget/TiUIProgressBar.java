@@ -28,14 +28,14 @@ public class TiUIProgressBar extends TiUIView {
 	{
 		super(proxy);
 		
-		view = new LinearLayout(proxy.getContext());
+		view = new LinearLayout(proxy.getActivity());
 		view.setOrientation(LinearLayout.VERTICAL);
-		label = new TextView(proxy.getContext());
+		label = new TextView(proxy.getActivity());
 		label.setGravity(Gravity.TOP | Gravity.LEFT);
 		label.setPadding(0, 0, 0, 0);
 		label.setSingleLine(false);
 
-		progress = new ProgressBar(proxy.getContext(), null, android.R.attr.progressBarStyleHorizontal);
+		progress = new ProgressBar(proxy.getActivity(), null, android.R.attr.progressBarStyleHorizontal);
 		progress.setIndeterminate(false);
 		progress.setMax(1000);
 		

@@ -13,9 +13,9 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiActivityWindow;
 import org.appcelerator.titanium.TiActivityWindows;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.TiModalActivity;
 import org.appcelerator.titanium.TiTranslucentActivity;
@@ -188,7 +188,7 @@ public class TiUIActivityWindow extends TiUIView
 		TiMessageQueue.getMainMessageQueue().stopBlocking();
 	}
 
-	protected ActivityProxy bindWindowActivity(TiContext tiContext, Activity activity)
+	protected ActivityProxy bindWindowActivity(Activity activity)
 	{
 		ActivityProxy activityProxy = null;
 		if (activity instanceof TiBaseActivity) {
@@ -361,7 +361,7 @@ public class TiUIActivityWindow extends TiUIView
 		if (value != null) {
 			// proxy.getCreationUrl
 			String path = proxy.resolveUrl(null, TiConvert.toString(value));
-			TiFileHelper tfh = new TiFileHelper(proxy.getContext().getApplicationContext());
+			TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
 			Drawable bd = tfh.loadDrawable(path, false);
 			handleBackground(bd, opacityValue, post);
 		}

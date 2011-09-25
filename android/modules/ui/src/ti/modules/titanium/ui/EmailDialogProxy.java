@@ -24,6 +24,7 @@ import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -171,7 +172,7 @@ public class EmailDialogProxy extends TiViewProxy {
 
 	private File blobToTemp(TiBlob blob, String fileName)
 	{
-		File tempFolder = new File(getActivity().getTiFileHelper().getDataDirectory(false), "temp");
+		File tempFolder = new File(TiFileHelper.getInstance().getDataDirectory(false), "temp");
 		tempFolder.mkdirs();
 
 		File tempfilej = new File(tempFolder, fileName);

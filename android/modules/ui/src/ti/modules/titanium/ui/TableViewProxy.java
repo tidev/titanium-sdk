@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
@@ -131,7 +132,7 @@ public class TableViewProxy extends TiViewProxy
 	@Kroll.method
 	public void appendRow(Object rows, @Kroll.argument(optional=true) KrollDict options)
 	{
-		if (isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			handleAppendRow(rows);
 			return;
 		}
@@ -180,7 +181,7 @@ public class TableViewProxy extends TiViewProxy
 
 	@Kroll.method
 	public void deleteRow(int index, @Kroll.argument(optional=true) KrollDict options) {
-		if (isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			handleDeleteRow(index);
 			return;
 		}
@@ -226,7 +227,7 @@ public class TableViewProxy extends TiViewProxy
 
 	@Kroll.method
 	public void insertRowBefore(int index, Object data, @Kroll.argument(optional=true) KrollDict options) {
-		if (isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			handleInsertRowBefore(index, data);
 			return;
 		}
@@ -259,7 +260,7 @@ public class TableViewProxy extends TiViewProxy
 
 	@Kroll.method
 	public void insertRowAfter(int index, Object data, @Kroll.argument(optional=true) KrollDict options) {
-		if (isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			handleInsertRowAfter(index, data);
 			return;
 		}
@@ -358,7 +359,7 @@ public class TableViewProxy extends TiViewProxy
 		if (data != null && data.length > 0 && data[0] instanceof Object[]) {
 			actualData = (Object[]) data[0];
 		}
-		if (isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			handleSetData(actualData);
 		} else {
 			sendBlockingUiMessage(MSG_SET_DATA, actualData);
@@ -424,7 +425,7 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	public void updateView() {
-		if (isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			getTableView().updateView();
 			return;
 		}

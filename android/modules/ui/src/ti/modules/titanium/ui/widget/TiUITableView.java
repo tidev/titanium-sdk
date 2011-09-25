@@ -8,9 +8,10 @@ package ti.modules.titanium.ui.widget;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -94,7 +95,7 @@ public class TiUITableView extends TiUIView
 	public void processProperties(KrollDict d)
 	{
 		tableView = new TiTableView((TableViewProxy) proxy);
-		proxy.getActivity().addOnLifecycleEventListener(this);
+		((TiBaseActivity)proxy.getActivity()).addOnLifecycleEventListener(this);
 
 		tableView.setOnItemClickListener(this);
 		tableView.setOnItemLongClickListener(this);
@@ -175,7 +176,7 @@ public class TiUITableView extends TiUIView
 			tableView  = null;
 		}
 		if (proxy != null && proxy.getActivity() != null) {
-			proxy.getActivity().removeOnLifecycleEventListener(this);
+			((TiBaseActivity)proxy.getActivity()).removeOnLifecycleEventListener(this);
 		}
 		nativeView  = null;
 		super.release();

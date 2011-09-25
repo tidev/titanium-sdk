@@ -14,7 +14,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.webview.TiUIWebView;
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.text.util.Linkify;
@@ -71,28 +70,28 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int WEBVIEW_PLUGINS_ON = TiUIWebView.PLUGIN_STATE_ON;
 	@Kroll.constant public static final int WEBVIEW_PLUGINS_ON_DEMAND = TiUIWebView.PLUGIN_STATE_ON_DEMAND;
 
+	// TODO - grab the activity off the invocation?
 	@Kroll.method
 	public void openPreferences(KrollInvocation kroll, @Kroll.argument(optional=true) String prefsName)
 	{
-		Activity act = kroll.getActivity();
-		if (act != null) {
+		if (activity != null) {
 			
-			Intent i = new Intent(act, TiPreferencesActivity.class);
+			Intent i = new Intent(activity, TiPreferencesActivity.class);
 			if (prefsName != null) {
 				i.putExtra("prefsName", prefsName);
 			}
-			act.startActivity(i);
+			activity.startActivity(i);
 		} else {
 			Log.w(LCAT, "Unable to open preferences. Activity is null");
 		}
 	}
 
+	// TODO grab the activity off the invocation?
 	@Kroll.method
 	public void hideSoftKeyboard(KrollInvocation invocation)
 	{
-		Activity a = invocation.getActivity();
-		if (a != null) {
-			TiUIHelper.showSoftKeyboard(a.getWindow().getDecorView(), false);
+		if (activity != null) {
+			TiUIHelper.showSoftKeyboard(activity.getWindow().getDecorView(), false);
 		}
 	}
 }

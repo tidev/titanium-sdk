@@ -325,14 +325,14 @@ public class TiUIScrollView extends TiUIView {
 				if (DBG) {
 					Log.d(LCAT, "creating horizontal scroll view");
 				}
-				view = new TiHorizontalScrollView(getProxy().getContext(), arrangement);
+				view = new TiHorizontalScrollView(getProxy().getActivity(), arrangement);
 				break;
 			case TYPE_VERTICAL:
 			default:
 				if (DBG) {
 					Log.d(LCAT, "creating vertical scroll view");
 				}
-				view = new TiVerticalScrollView(getProxy().getContext(), arrangement);
+				view = new TiVerticalScrollView(getProxy().getActivity(), arrangement);
 		}
 		setNativeView(view);
 

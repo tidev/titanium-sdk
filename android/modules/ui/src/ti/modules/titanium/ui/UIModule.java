@@ -11,7 +11,6 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
@@ -127,7 +126,8 @@ public class UIModule extends KrollModule
 				}
 				return;
 			}
-			TiDrawableReference drawableRef = TiDrawableReference.fromObject(image);
+			// TODO - current activity should work just fine in this instance - verify?
+			TiDrawableReference drawableRef = TiDrawableReference.fromObject(TiApplication.getInstance().getCurrentActivity(), image);
 			Drawable d = drawableRef.getDrawable();
 			if (d != null) {
 				w.setBackgroundDrawable(d);

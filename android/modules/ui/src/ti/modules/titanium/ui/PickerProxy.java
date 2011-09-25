@@ -9,12 +9,12 @@ package ti.modules.titanium.ui;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiConvert;
@@ -34,8 +34,6 @@ import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.os.Message;
 import android.util.Log;
-import android.widget.DatePicker;
-import android.widget.TimePicker;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={"locale"})
 public class PickerProxy extends TiViewProxy implements PickerColumnListener
@@ -169,7 +167,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	@Override
 	public void remove(TiViewProxy child)
 	{
-		if (isUIThread() || peekView() == null) {
+		if (TiApplication.isUIThread() || peekView() == null) {
 			handleRemoveColumn(child);
 		} else {
 			sendBlockingUiMessage(MSG_REMOVE, child);
@@ -203,7 +201,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 			Log.w(LCAT, "Attempt to add to date/time or countdown picker ignored.");
 			return;
 		}
-		if (isUIThread() || peekView() == null) {
+		if (TiApplication.isUIThread() || peekView() == null) {
 			handleAddObject(child);
 		} else {
 			sendBlockingUiMessage(MSG_ADD, child);
@@ -302,7 +300,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		}
 
 		// View exists
-		if (isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			handleSelectRow(column, row, animated);
 		} else {
 			KrollDict dict = new KrollDict();
@@ -354,7 +352,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 			Log.w(LCAT, "Cannot set columns in date/time or countdown picker.");
 			return;
 		}
-		if (isUIThread() || peekView() == null) {
+		if (TiApplication.isUIThread() || peekView() == null) {
 			handleSetColumns(passedColumns);
 		} else {
 			sendBlockingUiMessage(MSG_SET_COLUMNS, passedColumns);
@@ -533,7 +531,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 			};
 		}*/
 		DatePickerDialog dialog = new DatePickerDialog(
-					invocation.getActivity(),
+					activity,
 					dateSetListener,
 					calendar.get(Calendar.YEAR),
 					calendar.get(Calendar.MONTH),
@@ -620,7 +618,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 			};
 		}*/
 		TimePickerDialog dialog = new TimePickerDialog(
-					invocation.getActivity(),
+					activity,
 					timeSetListener,
 					calendar.get(Calendar.HOUR_OF_DAY),
 					calendar.get(Calendar.MINUTE),
@@ -643,7 +641,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		if (!(peekView() instanceof TiUIPicker)) {
 			return;
 		}
-		if (isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			handleFireColumnModelChange(columnIndex);
 		} else {
 			Message msg = getUIHandler().obtainMessage(MSG_FIRE_COL_CHANGE);
@@ -664,7 +662,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		if (!(peekView() instanceof TiUIPicker)) {
 			return;
 		}
-		if (isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			handleFireRowChange(columnIndex, rowIndex);
 		} else {
 			Message msg = getUIHandler().obtainMessage(MSG_FIRE_ROW_CHANGE);
@@ -745,7 +743,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		if (!(peekView() instanceof TiUISpinner)) {
 			return;
 		}
-		if (isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			handleForceRequestLayout();
 		} else {
 			getUIHandler().obtainMessage(MSG_FORCE_LAYOUT).sendToTarget();

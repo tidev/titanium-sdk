@@ -159,8 +159,8 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 		if (nativeView instanceof WheelView) {
 			view = (WheelView)nativeView;
 		} else {
-			view = new WheelView(proxy.getContext());
-			Float defaultFontSize = new Float(TiUIHelper.getSize(TiUIHelper.getDefaultFontSize(proxy.getContext())));
+			view = new WheelView(proxy.getActivity());
+			Float defaultFontSize = new Float(TiUIHelper.getSize(TiUIHelper.getDefaultFontSize(proxy.getActivity())));
 			view.setTextSize(defaultFontSize.intValue());
 			setNativeView(view);
 		}

@@ -79,7 +79,7 @@ public class TiUIText extends TiUIView
 			Log.d(LCAT, "Creating a text field");
 		}
 		this.field = field;
-		tv = new EditText(getProxy().getContext());
+		tv = new EditText(getProxy().getActivity());
 		if (field) {
 			tv.setSingleLine();
 			tv.setMaxLines(1);

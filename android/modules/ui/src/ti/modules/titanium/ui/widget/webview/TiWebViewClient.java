@@ -115,7 +115,7 @@ public class TiWebViewClient extends WebViewClient
 	private boolean shouldHandleMimeType(String mimeType, String url) {
 		if (mimeType.startsWith("video/")) {
 			Intent intent = new Intent();
-			intent.setClass(webView.getProxy().getContext(), TiVideoActivity.class);
+			intent.setClass(webView.getProxy().getActivity(), TiVideoActivity.class);
 			intent.putExtra("contentURL", url);
 			intent.putExtra("play", true);
 			webView.getProxy().getActivity().startActivity(intent);

@@ -10,8 +10,8 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -21,7 +21,7 @@ import android.app.Activity;
 
 @Kroll.proxy(creatableInModule=MediaModule.class)
 public class SoundProxy extends KrollProxy
-	implements OnLifecycleEvent
+	implements org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent
 {
 	private static final String LCAT = "SoundProxy";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -33,7 +33,7 @@ public class SoundProxy extends KrollProxy
 	public SoundProxy()
 	{
 		// TODO needs to happen post-activity assignment
-		getActivity().addOnLifecycleEventListener(this);
+		((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
 		setProperty(PROPERTY_VOLUME, 0.5, true);
 		setProperty(TiC.PROPERTY_TIME, 0d, false);
 	}
@@ -66,7 +66,7 @@ public class SoundProxy extends KrollProxy
 	@Kroll.setProperty
 	public void setUrl(KrollInvocation kroll, String url) {
 		if (url != null) {
-			setProperty(TiC.PROPERTY_URL, kroll.getTiContext().resolveUrl(null, TiConvert.toString(url)));
+			setProperty(TiC.PROPERTY_URL, resolveUrl(null, TiConvert.toString(url)));
 		}
 	}
 

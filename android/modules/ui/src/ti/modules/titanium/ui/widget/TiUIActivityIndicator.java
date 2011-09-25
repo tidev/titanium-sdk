@@ -68,7 +68,7 @@ public class TiUIActivityIndicator extends TiUIView
 				if (progressDialog != null) {
 					progressDialog.setProgress(msg.arg1);
 				} else {
-					Activity parent = (Activity) this.proxy.getContext();
+					Activity parent = (Activity) this.proxy.getActivity();
 					parent.setProgress(msg.arg1);
 				}
 				return true;
@@ -101,7 +101,7 @@ public class TiUIActivityIndicator extends TiUIView
 				if (progressDialog != null) {
 					progressDialog.setMessage((String) newValue);
 				} else {
-					Activity parent = (Activity) this.proxy.getContext();
+					Activity parent = (Activity) this.proxy.getActivity();
 					parent.setTitle((String) newValue);
 				}
 			}
@@ -154,7 +154,7 @@ public class TiUIActivityIndicator extends TiUIView
 
 		if (location == STATUS_BAR) {
 			incrementFactor = 10000 / (max - min);
-			Activity parent = (Activity) proxy.getContext();
+			Activity parent = (Activity) proxy.getActivity();
 
 			if (type == INDETERMINANT) {
 				parent.setProgressBarIndeterminate(true);
@@ -217,7 +217,7 @@ public class TiUIActivityIndicator extends TiUIView
 			progressDialog.dismiss();
 			progressDialog = null;
 		} else {
-			Activity parent = (Activity) proxy.getContext();
+			Activity parent = (Activity) proxy.getActivity();
 			parent.setProgressBarIndeterminate(false);
 			parent.setProgressBarIndeterminateVisibility(false);
 			parent.setProgressBarVisibility(false);

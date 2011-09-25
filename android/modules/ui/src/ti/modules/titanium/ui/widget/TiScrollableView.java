@@ -87,7 +87,7 @@ public class TiScrollableView extends TiCompositeLayout
 
 	public TiScrollableView(ScrollableViewProxy proxy, Handler handler)
 	{
-		super(proxy.getContext());
+		super(proxy.getActivity());
 
 		this.proxy = proxy;
 		this.handler = handler;
@@ -107,7 +107,7 @@ public class TiScrollableView extends TiCompositeLayout
 		animNext = TiAnimationFactory.getAnimationFor("slide-from-right", ANIM_DURATION);
 		animNext.setAnimationListener(proxy);
 
-		gallery = new ViewAnimator(proxy.getContext());
+		gallery = new ViewAnimator(proxy.getActivity());
 		gallery.setFocusable(false);
 		gallery.setFocusableInTouchMode(false);
 		gallery.setClickable(false);
@@ -119,11 +119,11 @@ public class TiScrollableView extends TiCompositeLayout
 		addView(gallery, p);
 		//gallery.setOnItemSelectedListener(this);
 
-		pager = new RelativeLayout(proxy.getContext());
+		pager = new RelativeLayout(proxy.getActivity());
 		pager.setFocusable(false);
 		pager.setFocusableInTouchMode(false);
 
-		TiArrowView left = new TiArrowView(proxy.getContext());
+		TiArrowView left = new TiArrowView(proxy.getActivity());
 		left.setVisibility(View.INVISIBLE);
 		left.setId(PAGE_LEFT);
 		left.setMinimumWidth(80);
@@ -137,7 +137,7 @@ public class TiScrollableView extends TiCompositeLayout
 		params.addRule(RelativeLayout.CENTER_VERTICAL);
 		pager.addView(left, params);
 
-		TiArrowView right = new TiArrowView(proxy.getContext());
+		TiArrowView right = new TiArrowView(proxy.getActivity());
 		right.setLeft(false);
 		right.setVisibility(View.INVISIBLE);
 		right.setId(PAGE_RIGHT);

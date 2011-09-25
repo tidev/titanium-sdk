@@ -74,7 +74,7 @@ public class TiUIWebView extends TiUIView {
 	{
 		super(proxy);
 
-		TiWebView webView = new TiWebView(proxy.getContext());
+		TiWebView webView = new TiWebView(proxy.getActivity());
 		webView.setVerticalScrollbarOverlay(true);
 
 		WebSettings settings = webView.getSettings();

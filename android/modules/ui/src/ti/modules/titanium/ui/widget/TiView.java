@@ -28,7 +28,7 @@ public class TiView extends TiUIView
 				arrangement = LayoutArrangement.VERTICAL;
 			}
 		}
-		setNativeView(new TiCompositeLayout(proxy.getContext(), arrangement));
+		setNativeView(new TiCompositeLayout(proxy.getActivity(), arrangement));
 	}
 
 	@Override

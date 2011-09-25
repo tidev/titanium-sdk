@@ -53,7 +53,7 @@ public class TiUISlider extends TiUIView
 		this.pos = 0;
 		
 
-		SeekBar seekBar = new SeekBar(proxy.getContext());
+		SeekBar seekBar = new SeekBar(proxy.getActivity());
 		seekBar.setOnSeekBarChangeListener(this);
 		setNativeView(seekBar);
 	}

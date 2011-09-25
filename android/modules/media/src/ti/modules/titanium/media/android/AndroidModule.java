@@ -40,7 +40,7 @@ public class AndroidModule extends KrollModule
 	{
 		Context ctx = TiApplication.getInstance().getCurrentActivity();
 		WallpaperManager wm = WallpaperManager.getInstance(ctx);
-		TiDrawableReference ref = TiDrawableReference.fromBlob(image);
+		TiDrawableReference ref = TiDrawableReference.fromBlob(getActivity(), image);
 		Bitmap b = null;
 		if (scale) {
 			b = ref.getBitmap(wm.getDesiredMinimumWidth());

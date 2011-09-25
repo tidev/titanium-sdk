@@ -8,6 +8,7 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.view.TiUIView;
@@ -44,7 +45,7 @@ public class ScrollViewProxy extends TiViewProxy
 
 	@Kroll.method
 	public void scrollTo(int x, int y) {
-		if (!isUIThread()) {
+		if (!TiApplication.isUIThread()) {
 			sendBlockingUiMessage(MSG_SCROLL_TO, getActivity(), x, y);
 		} else {
 			handleScrollTo(x,y);
@@ -53,7 +54,7 @@ public class ScrollViewProxy extends TiViewProxy
 	
 	@Kroll.method
 	public void scrollToBottom() {
-		if (!isUIThread()) {
+		if (!TiApplication.isUIThread()) {
 			sendBlockingUiMessage(MSG_SCROLL_TO_BOTTOM, getActivity());
 		} else {
 			handleScrollToBottom();

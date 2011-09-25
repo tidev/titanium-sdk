@@ -128,13 +128,13 @@ public class TiUISwitch extends TiUIView
 		switch (style) {
 		case AndroidModule.SWITCH_STYLE_CHECKBOX:
 			if (!(currentButton instanceof CheckBox)) {
-				button = new CheckBox(proxy.getContext());
+				button = new CheckBox(proxy.getActivity());
 			}
 			break;
 			
 		case AndroidModule.SWITCH_STYLE_TOGGLEBUTTON:
 			if (!(currentButton instanceof ToggleButton)) {
-				button = new ToggleButton(proxy.getContext());
+				button = new ToggleButton(proxy.getActivity());
 			}
 			break;
 

@@ -18,10 +18,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
@@ -120,7 +121,7 @@ public class TiUIImageView extends TiUIView
 			Log.d(LCAT, "Creating an ImageView");
 		}
 
-		TiImageView view = new TiImageView(proxy.getContext());
+		TiImageView view = new TiImageView(proxy.getActivity());
 		view.setOnSizeChangeListener(new OnSizeChangeListener() {
 			
 			@Override
@@ -213,7 +214,7 @@ public class TiUIImageView extends TiUIView
 	private void setImage(final Bitmap bitmap)
 	{
 		if (bitmap != null) {
-			if (!proxy.isUIThread()) {
+			if (!TiApplication.isUIThread()) {
 				AsyncResult result = new AsyncResult(bitmap);
 				proxy.sendBlockingUiMessage(handler.obtainMessage(SET_IMAGE, result), result);
 			} else {
@@ -417,7 +418,7 @@ public class TiUIImageView extends TiUIView
 
 	public void start()
 	{
-		if (!proxy.isUIThread()) {
+		if (!TiApplication.isUIThread()) {
 			proxy.getActivity().runOnUiThread(new Runnable() {
 				public void run() {
 					handleStart();
@@ -528,18 +529,18 @@ public class TiUIImageView extends TiUIView
 	private TiDrawableReference makeImageSource(Object object)
 	{
 		if (object instanceof FileProxy) {
-			return TiDrawableReference.fromFile(((FileProxy)object).getBaseFile());
+			return TiDrawableReference.fromFile(proxy.getActivity(), ((FileProxy)object).getBaseFile());
 		} else {
-			return TiDrawableReference.fromObject(object);
+			return TiDrawableReference.fromObject(proxy.getActivity(), object);
 		}
 	}
 	
 	private void setDefaultImageSource(Object object)
 	{
 		if (object instanceof FileProxy) {
-			defaultImageSource = TiDrawableReference.fromFile(((FileProxy)object).getBaseFile());
+			defaultImageSource = TiDrawableReference.fromFile(proxy.getActivity(), ((FileProxy)object).getBaseFile());
 		} else {
-			defaultImageSource = TiDrawableReference.fromObject(object);
+			defaultImageSource = TiDrawableReference.fromObject(proxy.getActivity(), object);
 		}
 	}
 

@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiActivity;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
@@ -116,7 +116,7 @@ public class TabGroupProxy extends TiWindowProxy
 			tabs = new ArrayList<TabProxy>();
 		}
 
-		if (isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			handleAddTab(tab);
 			return;
 		}
@@ -161,7 +161,7 @@ public class TabGroupProxy extends TiWindowProxy
 				Log.w(LCAT, "Could not add tab because tab activity no longer exists");
 			}
 		}
-		Drawable icon = TiDrawableReference.fromObject(tab.getProperty(TiC.PROPERTY_ICON)).getDrawable();
+		Drawable icon = TiDrawableReference.fromObject(activity, tab.getProperty(TiC.PROPERTY_ICON)).getDrawable();
 		String tag = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TAG));
 		String title = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TITLE));
 		if (title == null) { title = ""; }

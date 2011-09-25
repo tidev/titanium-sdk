@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
@@ -112,7 +113,7 @@ public class TableViewRowProxy extends TiViewProxy
 	public void setProperty(String name, Object value, boolean fireChange) {
 		super.setProperty(name, value, fireChange);
 		if (tableViewItem != null) {
-			if (isUIThread()) {
+			if (TiApplication.isUIThread()) {
 				tableViewItem.setRowData(this);
 			} else {
 				Message msg = getUIHandler().obtainMessage(MSG_SET_DATA);

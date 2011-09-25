@@ -36,7 +36,7 @@ public class TiUISearchBar extends TiUIText
 		// TODO Add Filter support
 
 		// Steal the Text's nativeView. We're going to replace it with our layout.
-		cancelBtn = new ImageButton(proxy.getContext());
+		cancelBtn = new ImageButton(proxy.getActivity());
 		cancelBtn.isFocusable();
 		cancelBtn.setId(101);
 		cancelBtn.setImageResource(android.R.drawable.ic_input_delete);
@@ -58,7 +58,7 @@ public class TiUISearchBar extends TiUIText
 			}
 		});
 
-		RelativeLayout layout = new RelativeLayout(proxy.getContext());
+		RelativeLayout layout = new RelativeLayout(proxy.getActivity());
 
 		layout.setGravity(Gravity.NO_GRAVITY);
 		layout.setPadding(0,0,0,0);

@@ -33,7 +33,7 @@ public class TiUILabel extends TiUIView
 		if (DBG) {
 			Log.d(LCAT, "Creating a text label");
 		}
-		TextView tv = new TextView(getProxy().getContext());
+		TextView tv = new TextView(getProxy().getActivity());
 		tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 		tv.setPadding(0, 0, 0, 0);
 		tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);

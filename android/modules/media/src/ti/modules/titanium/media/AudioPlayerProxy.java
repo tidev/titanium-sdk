@@ -10,9 +10,9 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
+import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -42,7 +42,7 @@ public class AudioPlayerProxy extends KrollProxy
 	public AudioPlayerProxy()
 	{
 		// TODO this needs to happen post-set
-		getActivity().addOnLifecycleEventListener(this);
+		((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
 		setProperty("volume", 0.5, true);
 	}
 
@@ -75,7 +75,7 @@ public class AudioPlayerProxy extends KrollProxy
 	@Kroll.setProperty @Kroll.method
 	public void setUrl(KrollInvocation kroll, String url) {
 		if (url != null) {
-			setProperty(TiC.PROPERTY_URL, kroll.getTiContext().resolveUrl(null, TiConvert.toString(url)));
+			setProperty(TiC.PROPERTY_URL, resolveUrl(null, TiConvert.toString(url)));
 		}
 	}
 

@@ -9,6 +9,7 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.view.TiUIView;
@@ -81,7 +82,7 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	@Override
 	public void add(TiViewProxy o)
 	{
-		if (isUIThread() || peekView() == null) {
+		if (TiApplication.isUIThread() || peekView() == null) {
 			handleAddRow(o);
 		} else {
 			sendBlockingUiMessage(MSG_ADD, o);
@@ -107,7 +108,7 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	@Override
 	public void remove(TiViewProxy o)
 	{
-		if (isUIThread() || peekView() == null) {
+		if (TiApplication.isUIThread() || peekView() == null) {
 			handleRemoveRow(o);
 		} else {
 			sendBlockingUiMessage(MSG_REMOVE, o);
@@ -163,7 +164,7 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	@Kroll.setProperty @Kroll.method
 	public void setRows(Object[] rows)
 	{
-		if (isUIThread() || peekView() == null) {
+		if (TiApplication.isUIThread() || peekView() == null) {
 			handleSetRows(rows);
 		} else {
 			sendBlockingUiMessage(MSG_SET_ROWS, rows);
