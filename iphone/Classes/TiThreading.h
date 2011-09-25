@@ -12,7 +12,9 @@
 
 #define ENSURE_UI_THREAD_1_ARG(x)	\
 if (![NSThread isMainThread]) { \
-[self performSelectorOnMainThread:_cmd withObject:x waitUntilDone:WAIT_UNTIL_DONE_ON_UI_THREAD modes:[NSArray arrayWithObject:NSRunLoopCommonModes]]; \
+TiThreadPerformOnMainThread(	\
+		^(void){[self performSelector:_cmd withObject:x];},	\
+		WAIT_UNTIL_DONE_ON_UI_THREAD); \
 return; \
 } \
 
@@ -25,7 +27,9 @@ return; \
 
 #define ENSURE_UI_THREAD(x,y) \
 if (![NSThread isMainThread]) { \
-[self performSelectorOnMainThread:@selector(x:) withObject:y waitUntilDone:WAIT_UNTIL_DONE_ON_UI_THREAD]; \
+TiThreadPerformOnMainThread(	\
+^(void){[self performSelector:@selector(x:) withObject:y];},	\
+WAIT_UNTIL_DONE_ON_UI_THREAD); \
 return; \
 } \
 
