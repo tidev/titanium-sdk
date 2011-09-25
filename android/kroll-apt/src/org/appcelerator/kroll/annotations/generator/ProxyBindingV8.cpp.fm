@@ -35,25 +35,27 @@
 
 using namespace v8;
 
-namespace titanium {
+<@Proxy.openNamespace/>
 
-Persistent<FunctionTemplate> ${proxyClassName}::proxyTemplate = Persistent<FunctionTemplate>();
-jclass ${proxyClassName}::javaClass = NULL;
+<#assign className = Proxy.className(proxyClassName)>
 
-${proxyClassName}::${proxyClassName}(jobject javaObject) : JavaObject(javaObject)
+Persistent<FunctionTemplate> ${className}::proxyTemplate = Persistent<FunctionTemplate>();
+jclass ${className}::javaClass = NULL;
+
+${className}::${className}(jobject javaObject) : JavaObject(javaObject)
 {
 }
 
-void ${proxyClassName}::Initialize(Handle<Object> ti)
+void ${className}::Initialize(Handle<Object> ti)
 {
 	LOGD(TAG, "Initialize");
 
 	<#-- Query the class for the Java proxy -->
-	javaClass = JNIUtil::findClass("${packageName?replace('.','/')}/${proxyClassName}");
+	javaClass = JNIUtil::findClass("${packageName?replace('.','/')}/${className}");
 
 	HandleScope scope;
 
-	Local<FunctionTemplate> t = FunctionTemplate::New(${proxyClassName}::Constructor);
+	Local<FunctionTemplate> t = FunctionTemplate::New(${className}::Constructor);
 	proxyTemplate = Persistent<FunctionTemplate>::New(t);
 	proxyTemplate->InstanceTemplate()->SetInternalFieldCount(1);
 	proxyTemplate->SetClassName(String::NewSymbol("${proxyAttrs.name}"));
@@ -65,7 +67,7 @@ void ${proxyClassName}::Initialize(Handle<Object> ti)
 
 	// Method bindings -----------------------------------------------------------
 	<@Proxy.listMethods ; isFirst, name, method, signature>
-	V8_SET_PROTOTYPE_METHOD(proxyTemplate, "${name}", ${proxyClassName}::${name});
+	V8_SET_PROTOTYPE_METHOD(proxyTemplate, "${name}", ${className}::${name});
 	</@Proxy.listMethods>
 
 	<#-- Register with the Proxy factory -->
@@ -77,18 +79,18 @@ void ${proxyClassName}::Initialize(Handle<Object> ti)
 	ti->Set(String::NewSymbol("${proxyAttrs.name}"), moduleInstance);
 
 	<@Proxy.listChildModules ; isFirst, childModule>
-	${childModule.name}Module::Initialize(moduleInstance);
+	<@Proxy.namespace proxy=childModule/>${Proxy.className(childModule.name)}Module::Initialize(moduleInstance);
 	</@Proxy.listChildModules>
 
 	<@Proxy.listCreateProxies ; isFirst, createProxy>
-	${createProxy.name}Proxy::Initialize(moduleInstance);
+	<@Proxy.namespace proxy=createProxy/>${Proxy.className(createProxy.name)}Proxy::Initialize(moduleInstance);
 	</@Proxy.listCreateProxies>
 	<#else>
 	ti->Set(String::NewSymbol("${proxyAttrs.name}"), proxyConstructor);
 	</#if>
 }
 
-Handle<Value> ${proxyClassName}::Constructor(const Arguments& args)
+Handle<Value> ${className}::Constructor(const Arguments& args)
 {
 	LOGD(TAG, "Constructor");
 
@@ -108,7 +110,7 @@ Handle<Value> ${proxyClassName}::Constructor(const Arguments& args)
 		deleteRef = true;
 	}
 
-	${proxyClassName}* v8ProxyNative = new ${proxyClassName}(javaProxy);
+	${className}* v8ProxyNative = new ${className}(javaProxy);
 	v8ProxyNative->Wrap(v8Proxy);
 
 	if (deleteRef) {
@@ -124,7 +126,7 @@ Handle<Value> ${proxyClassName}::Constructor(const Arguments& args)
 
 // Methods ---------------------------------------------------------------
 <@Proxy.listMethods ; isFirst, name, method, signature>
-Handle<Value> ${proxyClassName}::${name}(const Arguments& args)
+Handle<Value> ${className}::${name}(const Arguments& args)
 {
 	LOGD(TAG, "${name}()");
 
@@ -137,13 +139,13 @@ Handle<Value> ${proxyClassName}::${name}(const Arguments& args)
 	<#-- Lazy initialize method ID for the Java proxy. -->
 	static jmethodID methodID = NULL;
 	if (!methodID) {
-		methodID = env->GetMethodID(${proxyClassName}::javaClass, "${name}", "${signature}");
+		methodID = env->GetMethodID(${className}::javaClass, "${name}", "${signature}");
 		if (!methodID) {
 			return JSException::Error("Couldn't find proxy method '${name}' with signature '${signature}'");
 		}
 	}
 
-	${proxyClassName}* proxy = NativeObject::Unwrap<${proxyClassName}>(args.Holder());
+	${className}* proxy = NativeObject::Unwrap<${className}>(args.Holder());
 
 	<#if method.args?size &gt; 0>
 	<@Proxy.verifyAndConvertArguments method.args />
@@ -163,5 +165,4 @@ Handle<Value> ${proxyClassName}::${name}(const Arguments& args)
 
 </@Proxy.listMethods>
 
-} // namespace titanium
-
+<@Proxy.closeNamespace/>

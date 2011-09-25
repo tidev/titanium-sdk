@@ -54,6 +54,42 @@
 	</#if>
 </#macro>
 
+<#macro openNamespace>
+namespace titanium {
+	<#list proxyAttrs.fullAPIName?split(".") as ns>
+		<#if ns_has_next && ns?lower_case != "titanium">
+			namespace ${ns?lower_case} {
+		</#if>
+	</#list>
+</#macro>
+
+<#macro closeNamespace>
+	<#list proxyAttrs.fullAPIName?split(".")?reverse as ns>
+		<#if ns_index != 0 && ns?lower_case != "titanium">
+			} // namespace ${ns?lower_case}
+		</#if>
+	</#list>
+} // namespace titanium
+</#macro>
+
+<#macro namespace proxy>
+<#compress>
+titanium::<#list proxy.fullAPIName?split(".") as ns>
+		<#if ns_has_next && ns?lower_case != "titanium">
+			${ns?lower_case}::
+		</#if>
+	</#list>
+</#compress>
+</#macro>
+
+<#function className name>
+	<#if name?matches("^[0-9].+")>
+		<#return "_" + name>
+	<#else>
+		<#return name>
+	</#if>
+</#function>
+
 <#assign typeInfo = {
 	"java.lang.String":{
 		"jsType":"Value",

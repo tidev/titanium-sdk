@@ -12,11 +12,13 @@
 
 #include "JavaObject.h"
 
-namespace titanium {
+<@Proxy.openNamespace/>
 
-class ${proxyClassName} : public JavaObject {
+<#assign className = Proxy.className(proxyClassName)>
+
+class ${className} : public JavaObject {
 public:
-	explicit ${proxyClassName}(jobject javaObject);
+	explicit ${className}(jobject javaObject);
 
 	static void Initialize(v8::Handle<v8::Object> ti);
 	static v8::Handle<v8::Value> Constructor(const v8::Arguments& args);
@@ -30,5 +32,5 @@ public:
 	static jclass javaClass;
 };
 
-} // namespace titanium
+<@Proxy.closeNamespace/>
 

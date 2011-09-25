@@ -44,12 +44,7 @@ for bindingPath in bindingPaths:
 	modules.append(moduleName)
 	binding = json.load(open(bindingPath))
 	for module in binding["modules"]:
-		code += GPERF_KEY % {"key": binding["modules"][module]["apiName"], "moduleName": moduleName}
-	for proxy in binding["proxies"]:
-		creatableInModule = binding["proxies"][proxy]["proxyAttrs"].get("creatableInModule", None)
-		if creatableInModule and "DEFAULT" not in creatableInModule:
-			api = binding["modules"][creatableInModule]["apiName"]
-			code += GPERF_KEY % {"key": api.replace("Titanium", "") + binding["proxies"][proxy]["proxyAttrs"]["name"], "moduleName": moduleName }
+		code += GPERF_KEY % {"key": binding["proxies"][module]["proxyAttrs"]["fullAPIName"], "moduleName": moduleName}
 
 code += "%%\n"
 
@@ -78,11 +73,16 @@ for bindingPath in bindingPaths:
 	proxies.reverse()
 
 	for proxy in proxies:
+		namespace = binding["proxies"][proxy]["proxyAttrs"]["fullAPIName"]
+		namespaces = map(lambda n: n.lower(), namespace.split(".")[:-1])
+		if "titanium" not in namespaces:
+			namespaces.insert(0, "titanium")
+		namespace = "::".join(namespaces)
 		className = binding["proxies"][proxy]["proxyClassName"]
 		if className in ("KrollProxy", "KrollModule"): continue
 
 		headers += "#include \"%s.h\"\n" % proxy
-		modulesCode += "\t%s::Initialize(target);\n" % className
+		modulesCode += "\t%s::%s::Initialize(target);\n" % (namespace, className)
 	modulesCode += "}\n"
 
 print (GPERF_HEADER % (headers, modulesCode)) + code + GPERF_FOOTER
