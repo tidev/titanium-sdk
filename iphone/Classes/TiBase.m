@@ -142,7 +142,7 @@ void TiThreadProcessPendingMainThreadBlocks(NSTimeInterval duration, BOOL untilE
 
 void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 {
-	//Set up the block that actuall will be executed (Which includes exception abilities)
+	//Set up the block that actually will be executed (Which includes exception abilities)
 	__block NSException * caughtException = nil;
 	__block BOOL finished = NO;
 	void (^wrapperBlock)() = ^{
