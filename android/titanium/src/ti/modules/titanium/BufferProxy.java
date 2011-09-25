@@ -15,7 +15,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -41,20 +40,15 @@ public class BufferProxy extends KrollProxy
 		super();
 	}
 
-	public BufferProxy(TiContext context)
+	public BufferProxy(int bufferSize)
 	{
-		super(context);
-	}
-
-	public BufferProxy(TiContext context, int bufferSize)
-	{
-		super(context);
+		super();
 		buffer = new byte[bufferSize];
 	}
 
-	public BufferProxy(TiContext context, byte[] existingBuffer)
+	public BufferProxy(byte[] existingBuffer)
 	{
-		super(context);
+		super();
 		buffer = existingBuffer;
 	}
 
@@ -84,10 +78,10 @@ public class BufferProxy extends KrollProxy
 			length = TiConvert.toInt(lengthProperty);
 		}
 
-		if (!hasProperty(TiC.PROPERTY_BYTE_ORDER)) {
+		if (!has(TiC.PROPERTY_BYTE_ORDER)) {
 			// If no byte order is specified we need to default to the system byte order
 			// CodecModule.getByteOrder will return the system byte order when null is passed in.
-			setProperty(TiC.PROPERTY_BYTE_ORDER, CodecModule.getByteOrder(null));
+			set(TiC.PROPERTY_BYTE_ORDER, CodecModule.getByteOrder(null));
 		}
 
 		buffer = new byte[length];
@@ -304,7 +298,7 @@ public class BufferProxy extends KrollProxy
 
 		validateOffsetAndLength(offset, length, buffer.length);
 
-		return new BufferProxy(context, copyOfRange(buffer, offset, offset+length));
+		return new BufferProxy(copyOfRange(buffer, offset, offset+length));
 	}
 
 	@Kroll.method
@@ -350,7 +344,7 @@ public class BufferProxy extends KrollProxy
 	@Kroll.method
 	public TiBlob toBlob()
 	{
-		return TiBlob.blobFromData(context, buffer);
+		return TiBlob.blobFromData(buffer);
 	}
 
 	@Kroll.getProperty @Kroll.method

@@ -21,8 +21,8 @@ public class MenuItemProxy extends KrollProxy
 {
 	private MenuItem item;
 	
-	protected MenuItemProxy(TiContext tiContext, MenuItem item) {
-		super(tiContext);
+	protected MenuItemProxy(MenuItem item) {
+		super();
 		
 		this.item = item;
 	}

@@ -7,9 +7,6 @@
 package org.appcelerator.kroll;
 
 import org.appcelerator.kroll.runtime.v8.V8Object;
-import org.appcelerator.titanium.TiContext;
-
-import android.app.Activity;
 
 public class KrollInvocation
 {
@@ -21,7 +18,7 @@ public class KrollInvocation
 	protected V8Object scope, thisObj;
 	protected String name;
 	protected boolean isPropertyGet, isPropertySet, isMethod;
-	protected TiContext tiContext;
+	//protected TiContext tiContext;
 	protected KrollProxy proxy;
 	protected KrollInvocation next;
 	protected KrollInvocation() {}
@@ -38,10 +35,10 @@ public class KrollInvocation
 		return new KrollInvocation();
 	}
 
-	public static KrollInvocation createMethodInvocation(TiContext tiContext, V8Object scope, V8Object thisObj, String name, KrollProxy proxy)
+	public static KrollInvocation createMethodInvocation(V8Object scope, V8Object thisObj, String name, KrollProxy proxy)
 	{
 		KrollInvocation invocation = obtainInvocation();
-		invocation.tiContext = tiContext;
+		//invocation.tiContext = tiContext;
 		invocation.scope = scope;
 		invocation.thisObj = thisObj;
 		invocation.name = name;
@@ -50,10 +47,10 @@ public class KrollInvocation
 		return invocation;
 	}
 
-	public static KrollInvocation createPropertyGetInvocation(TiContext tiContext, V8Object scope, V8Object thisObj, String name, KrollProxy proxy)
+	public static KrollInvocation createPropertyGetInvocation(V8Object scope, V8Object thisObj, String name, KrollProxy proxy)
 	{
 		KrollInvocation invocation = obtainInvocation();
-		invocation.tiContext = tiContext;
+		//invocation.tiContext = tiContext;
 		invocation.scope = scope;
 		invocation.thisObj = thisObj;
 		invocation.name = name;
@@ -62,10 +59,10 @@ public class KrollInvocation
 		return invocation;
 	}
 
-	public static KrollInvocation createPropertySetInvocation(TiContext tiContext, V8Object scope, V8Object thisObj, String name, KrollProxy proxy)
+	public static KrollInvocation createPropertySetInvocation(V8Object scope, V8Object thisObj, String name, KrollProxy proxy)
 	{
 		KrollInvocation invocation = obtainInvocation();
-		invocation.tiContext = tiContext;
+		//invocation.tiContext = tiContext;
 		invocation.scope = scope;
 		invocation.thisObj = thisObj;
 		invocation.name = name;
@@ -111,7 +108,7 @@ public class KrollInvocation
 		other.proxy = proxy;
 		other.scope = scope;
 		other.thisObj = thisObj;
-		other.tiContext = tiContext;
+		//other.tiContext = tiContext;
 		return other;
 	}
 	
@@ -121,7 +118,7 @@ public class KrollInvocation
 		proxy = null;
 		scope = null;
 		thisObj = null;
-		tiContext = null;
+		//tiContext = null;
 	}
 
 	public V8Object getScope() {
@@ -144,6 +141,7 @@ public class KrollInvocation
 		return isPropertySet;
 	}
 
+	/*
 	public TiContext getTiContext() {
 		return tiContext;
 	}
@@ -154,6 +152,7 @@ public class KrollInvocation
 		}
 		return tiContext.getActivity();
 	}
+	*/
 
 	public boolean isMethod() {
 		return isMethod;

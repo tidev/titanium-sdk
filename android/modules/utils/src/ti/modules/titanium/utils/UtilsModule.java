@@ -18,7 +18,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 
@@ -30,11 +29,6 @@ public class UtilsModule extends KrollModule
 	public UtilsModule()
 	{
 		super();
-	}
-
-	public UtilsModule(TiContext tiContext)
-	{
-		super(tiContext);
 	}
 
 	@Kroll.method

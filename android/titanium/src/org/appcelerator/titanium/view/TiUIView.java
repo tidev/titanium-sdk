@@ -17,6 +17,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollProxyListener;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
@@ -164,8 +165,8 @@ public abstract class TiUIView
 		}
 		this.nativeView = view;
 		boolean clickable = true;
-		if (proxy.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
-			clickable = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED));
+		if (proxy.has(TiC.PROPERTY_TOUCH_ENABLED)) {
+			clickable = TiConvert.toBoolean(proxy.get(TiC.PROPERTY_TOUCH_ENABLED));
 		}
 		doSetClickable(nativeView, clickable);
 		nativeView.setOnFocusChangeListener(this);
@@ -329,7 +330,7 @@ public abstract class TiUIView
 			}
 			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_FOCUSABLE)) {
-			boolean focusable = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_FOCUSABLE));
+			boolean focusable = TiConvert.toBoolean(proxy.get(TiC.PROPERTY_FOCUSABLE));
 			nativeView.setFocusable(focusable);
 			if (focusable) {
 				registerForKeyClick(nativeView);
@@ -349,7 +350,7 @@ public abstract class TiUIView
 			|| key.startsWith(TiC.PROPERTY_BACKGROUND_PREFIX)
 			|| key.startsWith(TiC.PROPERTY_BORDER_PREFIX)) {
 			// Update first before querying.
-			proxy.setProperty(key, newValue, false);
+			proxy.set(key, newValue);
 
 			/*TODO KrollDict d = proxy.getProperties();
 
@@ -557,7 +558,7 @@ public abstract class TiUIView
 	protected InputMethodManager getIMM()
 	{
 		InputMethodManager imm = null;
-		imm = (InputMethodManager) proxy.getTiContext().getTiApp().getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm = (InputMethodManager) TiApplication.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
 		return imm;
 	}
 
@@ -645,7 +646,7 @@ public abstract class TiUIView
 		String bgFocusedColor = d.getString(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR);
 		String bgDisabledColor = d.getString(TiC.PROPERTY_BACKGROUND_DISABLED_COLOR);
 
-		TiContext tiContext = getProxy().getTiContext();
+		//TiContext tiContext = getProxy().getTiContext();
 		if (bg != null) {
 			bg = tiContext.resolveUrl(null, bg);
 		}

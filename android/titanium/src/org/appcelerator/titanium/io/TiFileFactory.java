@@ -8,8 +8,8 @@ package org.appcelerator.titanium.io;
 
 import java.io.File;
 
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiFileHelper;
@@ -21,14 +21,13 @@ public class TiFileFactory
 	private static final String LCAT = "TiFileFactory";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	public static TiBaseFile createTitaniumFile(TiContext tiContext, String path, boolean stream)
+	public static TiBaseFile createTitaniumFile(String path, boolean stream)
 	{
 		String[] parts = { path };
-		return createTitaniumFile(tiContext, parts, stream);
+		return createTitaniumFile(parts, stream);
 	}
 
-	public static TiBaseFile createTitaniumFile(
-		TiContext tiContext, String[] parts, boolean stream)
+	public static TiBaseFile createTitaniumFile(String[] parts, boolean stream)
 	{
 		TiBaseFile file = null;
 
@@ -40,11 +39,11 @@ public class TiFileFactory
 		if (initial.startsWith("app://")) {
 			String path = initial.substring(6);
 			path = formPath(path,parts);
-			file = new TiResourceFile(tiContext, path);
+			file = new TiResourceFile(path);
 		} else if (initial.startsWith(TiC.URL_ANDROID_ASSET_RESOURCES)) {
 			String path = initial.substring(32);
 			path = formPath(path,parts);
-			file = new TiResourceFile(tiContext, path);
+			file = new TiResourceFile(path);
 		} else if (initial.startsWith("appdata://")) {
 			String path = initial.substring(10);
 			path = formPath(path,parts);
@@ -52,31 +51,31 @@ public class TiFileFactory
 			{
 				path = path.substring(1);
 			}
-			File f = new File(getDataDirectory(tiContext, false),path);
-			file = new TiFile(tiContext, f,"appdata://"+path, stream);
+			File f = new File(getDataDirectory(false),path);
+			file = new TiFile(f,"appdata://"+path, stream);
 		} else if (initial.startsWith("appdata-private://")) {
 			String path = initial.substring(18);
 			path = formPath(path,parts);
-			File f = new File(getDataDirectory(tiContext, true),path);
-			file = new TiFile(tiContext, f,"appdata-private://"+path, stream);
+			File f = new File(getDataDirectory(true),path);
+			file = new TiFile(f,"appdata-private://"+path, stream);
 		} else if (initial.startsWith("file://")) {
 			String path = initial.substring(7);
 			path = formPath(path, parts);
-			file = new TiFile(tiContext, new File(path), "file://" + path, stream);
+			file = new TiFile(new File(path), "file://" + path, stream);
 		} else if (initial.startsWith("content://")) {
 			String path = initial.substring(10);
 			path = formPath(path, parts);
-			file = new TitaniumBlob(tiContext, "content://" + path);
+			file = new TitaniumBlob("content://" + path);
 		} else if (initial.startsWith("/")) {
 			String path = "";
 
 			path = formPath(path, insertBefore(path,parts));
-			file = new TiFile(tiContext, new File(path), "file://" + path, stream);
+			file = new TiFile(new File(path), "file://" + path, stream);
 		} else {
 			String path = "";
 			path = formPath(path,insertBefore(path,parts));
-			File f = new File(getDataDirectory(tiContext, true),path);
-			file = new TiFile(tiContext, f,"appdata-private://"+path, stream);
+			File f = new File(getDataDirectory(true),path);
+			file = new TiFile(f,"appdata-private://"+path, stream);
 		}
 
 		return file;
@@ -109,9 +108,9 @@ public class TiFileFactory
 		return path;
 	}
 
-	public static File getDataDirectory (TiContext tiContext, boolean privateStorage)
+	public static File getDataDirectory (boolean privateStorage)
 	{
-		TiFileHelper tfh = new TiFileHelper(tiContext.getTiApp());
+		TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
 		return tfh.getDataDirectory(privateStorage);
 	}
 

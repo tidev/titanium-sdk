@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
@@ -39,9 +38,9 @@ public class TiFile extends TiBaseFile
 	private final File file;
 	private final String path;
 
-	public TiFile(TiContext tiContext, File file, String path, boolean stream)
+	public TiFile(File file, String path, boolean stream)
 	{
-		super(tiContext, TiBaseFile.TYPE_FILE);
+		super(TiBaseFile.TYPE_FILE);
 		this.file = file;
 		this.path = path;
 		this.stream = stream;
@@ -259,7 +258,7 @@ public class TiFile extends TiBaseFile
 			File p = f.getParentFile();
 
 			if (p != null) {
-				parentFile = TiFileFactory.createTitaniumFile(getTiContext(), "file://" + p.getAbsolutePath(), false);
+				parentFile = TiFileFactory.createTitaniumFile("file://" + p.getAbsolutePath(), false);
 			}
 		}
 
@@ -296,7 +295,7 @@ public class TiFile extends TiBaseFile
 	@Override
 	public TiBlob read() throws IOException
 	{
-		return TiBlob.blobFromFile(getTiContext(), this);
+		return TiBlob.blobFromFile(this);
 	}
 
 	@Override
@@ -354,50 +353,47 @@ public class TiFile extends TiBaseFile
 		if (DBG) {
 			Log.d(LCAT,"write called for file = " + file);
 		}
-		TiContext tiContext = getTiContext();
-		if (tiContext != null) {
-			String[] parts = { url };
 
-			TiBaseFile f = TiFileFactory.createTitaniumFile(tiContext, parts, append);
+		String[] parts = { url };
 
-			if (f != null) {
-				if (!stream) {
+		TiBaseFile f = TiFileFactory.createTitaniumFile(parts, append);
+
+		if (f != null) {
+			if (!stream) {
+				InputStream is = null;
+				try {
+					open(append ? MODE_APPEND : MODE_WRITE, true);
+					is = f.getInputStream();
+					copyStream(is, outstream);
+				} finally {
+					if (is != null) {
+						is.close();
+					}
+					close();
+				}
+			} else {
+				if (!opened) {
+					throw new IOException("Must open before calling write");
+				}
+
+				if (binary) {
 					InputStream is = null;
 					try {
-						open(append ? MODE_APPEND : MODE_WRITE, true);
 						is = f.getInputStream();
 						copyStream(is, outstream);
 					} finally {
 						if (is != null) {
 							is.close();
 						}
-						close();
 					}
 				} else {
-
-					if (!opened) {
-						throw new IOException("Must open before calling write");
-					}
-
-					if (binary) {
-						InputStream is = null;
-						try {
-							is = f.getInputStream();
-							copyStream(is, outstream);
-						} finally {
-							if (is != null) {
-								is.close();
-							}
-						}
-					} else {
-						BufferedReader ir = null;
-						try {
-							ir = new BufferedReader(new InputStreamReader(f.getInputStream(), "utf-8"));
-							copyStream(ir, outwriter);
-						} finally {
-							if(ir != null) {
-								ir.close();
-							}
+					BufferedReader ir = null;
+					try {
+						ir = new BufferedReader(new InputStreamReader(f.getInputStream(), "utf-8"));
+						copyStream(ir, outwriter);
+					} finally {
+						if(ir != null) {
+							ir.close();
 						}
 					}
 				}

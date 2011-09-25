@@ -34,7 +34,7 @@ public class BufferStreamProxy extends KrollProxy implements TiStream
 
 	public BufferStreamProxy(BufferProxy buffer, int mode)
 	{
-		super(buffer.getTiContext());
+		super();
 
 		if (mode == StreamModule.MODE_READ) {
 			position = 0;

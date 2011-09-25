@@ -1,4 +1,5 @@
 /**
+
  * Appcelerator Titanium Mobile
  * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
@@ -13,9 +14,9 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiOrientationHelper;
@@ -68,9 +69,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 		return waitingForOpen.get();
 	}
 
-	public TiWindowProxy(TiContext tiContext)
+	public TiWindowProxy()
 	{
-		super(tiContext);
+		super();
 		inTab = false;
 	}
 
@@ -128,7 +129,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 			}
 		}
 
-		if (getTiContext().isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			handleOpen(options);
 			return;
 		}
@@ -153,7 +154,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 			}
 		}
 
-		if (getTiContext().isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			handleClose(options);
 			return;
 		}
@@ -166,10 +167,11 @@ public abstract class TiWindowProxy extends TiViewProxy
 		if (!opened) { return; }
 		releaseViews();
 		opened = false;
+		/*
 		TiContext context = getTiContext();
 		if (creatingContext != null && context != null && !creatingContext.equals(context)) {
 			switchToCreatingContext();
-		}
+		}*/
 	}
 
 	public void setTabProxy(TiViewProxy tabProxy)
@@ -205,7 +207,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	public KrollDict handleToImage()
 	{
-		return TiUIHelper.viewToImage(getTiContext(), new KrollDict(), getTiContext().getActivity().getWindow().getDecorView());
+		return TiUIHelper.viewToImage(new KrollDict(), getActivity().getWindow().getDecorView());
 	}
 
 	// only exists to expose a way for the activity to update the orientation based on
@@ -298,7 +300,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 				activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
 			}
 
-			Activity activity = getTiContext().getActivity();
+			Activity activity = getActivity();
 			if (activity != null)
 			{
 				if (activityOrientationMode != -1)
@@ -313,7 +315,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 		else
 		{
-			Activity activity = getTiContext().getActivity();
+			Activity activity = getActivity();
 			if (activity != null)
 			{
 				if (activity instanceof TiBaseActivity)
@@ -333,9 +335,24 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Kroll.method @Kroll.getProperty
 	public ActivityProxy getActivity(KrollInvocation invocation)
 	{
-		return getActivity(invocation.getTiContext());
+		//return getActivity(invocation.getTiContext());
+		Object activityObject = get(TiC.PROPERTY_ACTIVITY);
+		ActivityProxy activityProxy = null;
+		if (activityObject == null) {
+			activityProxy = new ActivityProxy();
+			set(TiC.PROPERTY_ACTIVITY, activityProxy);
+		} else if (activityObject instanceof KrollDict) {
+			KrollDict options = (KrollDict) activityObject;
+			activityProxy = new ActivityProxy();
+			activityProxy.handleCreationDict(options);
+			set(TiC.PROPERTY_ACTIVITY, activityProxy);
+		} else if (activityObject instanceof ActivityProxy) {
+			activityProxy = (ActivityProxy) activityObject;
+		}
+		return activityProxy;
 	}
 
+	/*
 	public ActivityProxy getActivity(TiContext tiContext)
 	{
 		Object activityObject = getProperty(TiC.PROPERTY_ACTIVITY);
@@ -352,7 +369,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 			activityProxy = (ActivityProxy) activityObject;
 		}
 		return activityProxy;
-	}
+	}*/
 		
 	protected abstract void handleOpen(KrollDict options);
 	protected abstract void handleClose(KrollDict options);

@@ -62,7 +62,7 @@ public class TiRootActivity extends TiLaunchActivity
 	@Override
 	protected void onResume()
 	{
-		Log.checkpoint(LCAT, "checkpoint, on root activity resume. context = " + tiContext);
+		Log.checkpoint(LCAT, "checkpoint, on root activity resume. activity = " + this);
 		super.onResume();
 	}
 
@@ -90,20 +90,24 @@ public class TiRootActivity extends TiLaunchActivity
 	{
 		super.onDestroy();
 		if (DBG) {
-			Log.d(LCAT, "root activity onDestroy, context = " + tiContext);
+			Log.d(LCAT, "root activity onDestroy, activity = " + this);
 		}
+		/*
 		if (tiContext != null) {
 			TiApplication app = tiContext.getTiApp();
-			/*if (app != null) {
+			if (app != null) {
 				app.releaseModules();
-			}*/
+			}
 			tiContext.release();
 		}
+		*/
 		TiFastDev.onDestroy();
 	}
 
+	/*
 	public TiContext getTiContext()
 	{
 		return tiContext;
 	}
+	*/
 }

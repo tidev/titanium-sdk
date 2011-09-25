@@ -8,6 +8,7 @@ package org.appcelerator.titanium.proxy;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseService;
 import org.appcelerator.titanium.TiBaseService.TiServiceBinder;
 import org.appcelerator.titanium.TiContext;
@@ -33,17 +34,17 @@ public class ServiceProxy extends KrollProxy
 	private static final boolean DBG = TiConfig.LOGD;
 	private static final String LCAT = "TiServiceProxy";
 	
-	public ServiceProxy(TiContext context)
+	public ServiceProxy()
 	{
-		super(context);
+		super();
 	}
 	
 	/**
 	 * For when a service started via startService() creates a proxy when it starts running
 	 */
-	public ServiceProxy(TiContext context, Service service, Intent intent, int serviceInstanceId)
+	public ServiceProxy(Service service, Intent intent, int serviceInstanceId)
 	{
-		super(context);
+		super();
 		this.service = service;
 		setIntent(intent);
 		this.serviceInstanceId = serviceInstanceId;
@@ -52,9 +53,9 @@ public class ServiceProxy extends KrollProxy
 	/**
 	 * For when creating a service proxy directly, for later binding using bindService()
 	 */
-	public ServiceProxy(TiContext context, IntentProxy intentProxy)
+	public ServiceProxy(IntentProxy intentProxy)
 	{
-		super(context);
+		super();
 		setIntent(intentProxy);
 		serviceIntentId =  TiBaseService.nextServiceBindingIntentId();
 		intentProxy.putExtra(TiBaseService.TI_SERVICE_INTENT_ID_KEY, serviceIntentId);
@@ -80,7 +81,7 @@ public class ServiceProxy extends KrollProxy
 	
 	public void setIntent(Intent intent)
 	{
-		setIntent(new IntentProxy(context, intent));
+		setIntent(new IntentProxy(intent));
 	}
 	
 	public void setIntent(IntentProxy intentProxy)
@@ -138,7 +139,7 @@ public class ServiceProxy extends KrollProxy
 			}
 		};
 		
-		getTiContext().getTiApp().bindService(this.getIntent().getIntent(), serviceConnection, Context.BIND_AUTO_CREATE);
+		TiApplication.getInstance().bindService(this.getIntent().getIntent(), serviceConnection, Context.BIND_AUTO_CREATE);
 	}
 	
 	private void unbindService()
@@ -146,7 +147,7 @@ public class ServiceProxy extends KrollProxy
 		if (DBG) {
 			Log.d(LCAT, "stop via unbindService for service proxy with intent id " + intentProxy.getIntExtra(TiBaseService.TI_SERVICE_INTENT_ID_KEY, -1));
 		}
-		TiContext tiContext = this.getTiContext();
+		//TiContext tiContext = this.getTiContext();
 		if (tiContext == null) {
 			Log.w(LCAT, "Cannot unbind service.  TiContext is null.");
 			return;

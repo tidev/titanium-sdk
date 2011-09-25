@@ -20,7 +20,9 @@ import org.appcelerator.titanium.util.TiConfig;
 
 import android.os.Handler;
 import android.os.Message;
+import android.os.Messenger;
 import android.os.Process;
+import android.os.RemoteException;
 
 public class KrollContext implements Handler.Callback
 {
@@ -170,7 +172,7 @@ public class KrollContext implements Handler.Callback
 				AsyncResult result = (AsyncResult) msg.obj;
 				V8Object scope = (V8Object) result.getArg();
 				String filename = msg.getData().getString(TiC.MSG_PROPERTY_FILENAME);
-				result.setResult(handleEvalFile(scope, filename));
+				result.setResult(handleEvalFile(filename));
 				return true;
 			}
 			case MSG_CREATE_SCOPE: {
@@ -202,22 +204,6 @@ public class KrollContext implements Handler.Callback
 		return thread;
 	}
 
-	public Object evalFile(V8Object scope, String filename)
-	{
-		if (DBG) {
-			Log.i(LCAT, "evalFile: " + filename);
-		}
-
-		if (isOurThread()) {
-			return handleEvalFile(scope, filename);
-		}
-
-		AsyncResult result = new AsyncResult(scope);
-		Message msg = messageQueue.getHandler().obtainMessage(MSG_EVAL_FILE, result);
-		msg.getData().putString(TiC.MSG_PROPERTY_FILENAME, filename);
-		return TiMessageQueue.getMessageQueue().sendBlockingMessage(msg, messageQueue, result);
-	}
-
 	public V8Object createScope()
 	{
 		AsyncResult result = new AsyncResult();
@@ -225,6 +211,76 @@ public class KrollContext implements Handler.Callback
 
 		return (V8Object) TiMessageQueue.getMessageQueue().
 			sendBlockingMessage(msg, messageQueue, result);
+	}
+
+	public Object evalFile(String filename)
+	//	throws IOException
+	{
+		return evalFile(filename, null, -1);
+	}
+
+	public Object evalFile(String filename, Messenger messenger, int messageId)
+	{
+		Object result = null;
+
+		/*
+		String setUrlBackTo = null;
+
+		if (this.currentUrl != null && this.currentUrl.length() > 0 && !this.currentUrl.equals(filename)) {
+			// A new file is being eval'd.  Must be from an include() statement.  Remember to set back
+			// the original url, else things like JSS which depend on context's filename will break.
+			setUrlBackTo = this.currentUrl;
+		}
+		this.currentUrl = filename;
+		*/
+
+		/*if (krollBridge == null) {
+			if (DBG) {
+				Log.w(LCAT, "Cannot eval file '" + filename + "'. Context has been released already.");
+			}
+			if (setUrlBackTo != null) { this.currentUrl = setUrlBackTo; }
+			return null;
+		}*/
+
+		if (filename.startsWith("app://")) {
+			//KrollContext.getKrollContext().evalFile(scope, filename.replaceAll("app:/", "Resources"));
+			filename = filename.replaceAll("app:/", "Resources");
+			if (DBG) {
+				Log.i(LCAT, "evalFile: " + filename);
+			}
+
+			if (isOurThread()) {
+				return handleEvalFile(filename);
+			}
+
+			AsyncResult asyncResult = new AsyncResult();
+			Message msg = messageQueue.getHandler().obtainMessage(MSG_EVAL_FILE, asyncResult);
+			msg.getData().putString(TiC.MSG_PROPERTY_FILENAME, filename);
+			TiMessageQueue.getMessageQueue().sendBlockingMessage(msg, messageQueue, asyncResult);
+		}
+
+		if (messenger != null) {
+			try {
+				Message msg = Message.obtain();
+				msg.what = messageId;
+				messenger.send(msg);
+				if (DBG) {
+					Log.d(LCAT, "Notifying caller that evalFile has completed");
+				}
+			} catch(RemoteException e) {
+				Log.w(LCAT, "Failed to notify caller that eval completed");
+			}
+		}
+
+		//if (setUrlBackTo != null) { this.currentUrl = setUrlBackTo; }
+		return result;
+	}
+
+	public Object handleEvalFile(String filename)
+	{
+		requireInitialized();
+		V8Runtime.getInstance().evalFile(filename);
+		return null;
 	}
 /*
 	public Object evaluateScript(String filename)
@@ -235,13 +291,6 @@ public class KrollContext implements Handler.Callback
 		Context context = enter(false);
 		return evaluator.evaluateFile(context, jsScope, tbf, filename, 1, null);
 	}*/
-
-	public Object handleEvalFile(V8Object scope, String filename)
-	{
-		requireInitialized();
-		V8Runtime.getInstance().evalFile(scope, filename);
-		return null;
-	}
 /*
 	public Object eval(String src)
 	{

@@ -36,6 +36,7 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.DisplayMetrics;
 
@@ -43,25 +44,25 @@ public class TiApplication extends Application implements Handler.Callback
 {
 	private static final String LCAT = "TiApplication";
 	private static final boolean DBG = TiConfig.LOGD;
+	private static final long STATS_WAIT = 300000;
+	private static final int MSG_SEND_ANALYTICS = 100;
+	private static final long SEND_ANALYTICS_DELAY = 30000; // Time analytics send request sits in queue before starting service.
+	private static final String PROPERTY_DEPLOY_TYPE = "ti.deploytype";
+	private static final String PROPERTY_THREAD_STACK_SIZE = "ti.android.threadstacksize";
+	private static final String PROPERTY_COMPILE_JS = "ti.android.compilejs";
+	private static final String PROPERTY_ENABLE_COVERAGE = "ti.android.enablecoverage";
 
 	public static final String DEPLOY_TYPE_DEVELOPMENT = "development";
 	public static final String DEPLOY_TYPE_TEST = "test";
 	public static final String DEPLOY_TYPE_PRODUCTION = "production";
 	public static final int DEFAULT_THREAD_STACK_SIZE = 16 * 1024; // 16K as a "sane" default
-
 	public static final String APPLICATION_PREFERENCES_NAME = "titanium";
-
-	private static final String PROPERTY_DEPLOY_TYPE = "ti.deploytype";
-	private static final String PROPERTY_THREAD_STACK_SIZE = "ti.android.threadstacksize";
-	private static final String PROPERTY_COMPILE_JS = "ti.android.compilejs";
 	public static final String PROPERTY_FASTDEV = "ti.android.fastdev";
-	private static final String PROPERTY_ENABLE_COVERAGE = "ti.android.enablecoverage";
 
-	private static final long STATS_WAIT = 300000;
-	private static final int MSG_SEND_ANALYTICS = 100;
-	private static final long SEND_ANALYTICS_DELAY = 30000; // Time analytics send request sits in queue before starting service.
+	private static long lastAnalyticsTriggered = 0;
+	private static long mainThreadId = 0;
 
-	protected static TiApplication _instance = null;
+	protected static TiApplication tiApp = null;
 
 	private String baseUrl;
 	private String startUrl;
@@ -72,35 +73,37 @@ public class TiApplication extends Application implements Handler.Callback
 	private TiProperties systemProperties;
 	private ITiWindowHandler windowHandler;
 	private Activity currentActivity;
-	protected ITiAppInfo appInfo;
-	protected TiStylesheet stylesheet;
 	private String density;
-
 	private boolean needsStartEvent;
 	private boolean needsEnrollEvent;
+	private String buildVersion = "", buildTimestamp = "", buildHash = "";
+
 	protected TiAnalyticsModel analyticsModel;
 	protected Intent analyticsIntent;
 	protected Handler analyticsHandler;
-	private static long lastAnalyticsTriggered = 0;
-	private String buildVersion = "", buildTimestamp = "", buildHash = "";
 	protected TiDeployData deployData;
 	protected TiTempFileHelper tempFileHelper;
+	protected ITiAppInfo appInfo;
+	protected TiStylesheet stylesheet;
 
 	public TiApplication()
 	{
 		Log.checkpoint(LCAT, "checkpoint, app created.");
-		_instance = this;
 
 		analyticsHandler = new Handler(this);
 		needsEnrollEvent = false; // test is after DB is available
 		needsStartEvent = true;
 		loadBuildProperties();
+
+		mainThreadId = Looper.getMainLooper().getThread().getId();
+		tiApp = this;
+
 		Log.i(LCAT, "Titanium " + buildVersion + " (" + buildTimestamp + " " + buildHash + ")");
 	}
 
 	public static TiApplication getInstance()
 	{
-		return _instance;
+		return tiApp;
 	}
 
 	protected void loadBuildProperties()
@@ -402,8 +405,6 @@ public class TiApplication extends Application implements Handler.Callback
 		}
 	}
 
-	
-	
 	public boolean handleMessage(Message msg) 
 	{
 		if (msg.what == MSG_SEND_ANALYTICS) {
@@ -492,4 +493,14 @@ public class TiApplication extends Application implements Handler.Callback
 	{
 		return tempFileHelper;
 	}
+
+	public static boolean isUIThread()
+	{
+		if (mainThreadId == Looper.getMainLooper().getThread().getId()) {
+			return true;
+		}
+
+		return false;
+	}
 }
+

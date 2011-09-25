@@ -30,8 +30,6 @@ import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.appcelerator.titanium.TiContext;
-
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
@@ -232,20 +230,12 @@ public class TiFileHelper
 		return is;
 	}
 
-	private Drawable loadDrawable(String path, boolean report) {
+	public Drawable loadDrawable(String path, boolean report) {
 		return loadDrawable(path, report, false);
 	}
-	
-	public Drawable loadDrawable(TiContext tiContext, String path, boolean report) {
-		return loadDrawable(tiContext, path, report, false);
-	}
-	
-	public Drawable loadDrawable(TiContext context, String path, boolean report, boolean checkForNinePatch)
-	{
-		if (context == null) {
-			return loadDrawable(path, report, checkForNinePatch);
-		}
 
+	/*public Drawable loadDrawable(String path, boolean report, boolean checkForNinePatch)
+	{
 		// getResourceDrawable wants a resolved url
 		String url = path;
 		if (!url.startsWith("file:")) {
@@ -258,7 +248,7 @@ public class TiFileHelper
 		
 		return loadDrawable(url, report, checkForNinePatch);
 		
-	}
+	}*/
 
 	private Drawable loadDrawable(String path, boolean report, boolean checkForNinePatch)
 	{
@@ -281,34 +271,6 @@ public class TiFileHelper
 							if (DBG) {
 								Log.d(LCAT, "path not found: " + apath);
 							}
-							// Let's see if there is a 9.png in the android folder.
-// Not sure what I was doing. Leaving for now.
-//							int i = path.lastIndexOf("/");
-//							if (i > 0) {
-//								apath = path.substring(i) +
-//									"android" +
-//									path.substring(i, path.lastIndexOf(".")) +
-//									".9.png";
-//							} else {
-//								apath = "android/" + path.substring(0, path.lastIndexOf(".")) + ".9.png";
-//							}
-//
-//							if (apath.startsWith("/")) {
-//								apath = "android" + apath;
-//							} else {
-//								apath = "android/" + apath;
-//							}
-//
-//							try {
-//								is = openInputStream(apath, false);
-//								if (is != null) {
-//									path = apath;
-//								}
-//							} catch (IOException e1) {
-//								if (DBG) {
-//									Log.d(LCAT, "path not found: " + apath);
-//								}
-//							}
 						}
 					}
 				}
@@ -317,7 +279,6 @@ public class TiFileHelper
 				}
 				Bitmap b = TiUIHelper.createBitmap(is);
 				d = nph.process(b);
-				//d = nph.process(Drawable.createFromStream(is, path));
 			} else {
 				is = openInputStream(path, report);
 				Bitmap b = TiUIHelper.createBitmap(is);
@@ -326,13 +287,7 @@ public class TiFileHelper
 				}
 			}
 		} catch (IOException e) {
-			Log.i(LCAT, path + " not found.");
-			if (report) {
-				Context context = softContext.get().getApplicationContext();
-				if (context != null) {
-					//TitaniumUIHelper.doOkDialog(context, "Image Not Found", path, null);
-				}
-			}
+			Log.e(LCAT, path + " not found.", e);
 		} finally {
 			if (is != null) {
 				try {
@@ -708,3 +663,4 @@ public class TiFileHelper
 		return root;
 	}
 }
+

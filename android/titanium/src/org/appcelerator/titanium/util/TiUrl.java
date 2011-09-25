@@ -10,7 +10,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 
@@ -159,22 +158,22 @@ public class TiUrl
 		return new TiUrl(baseUrl, url);
 	}
 
-	public String resolve(TiContext context)
+	public String resolve()
 	{
-		return resolve(context, baseUrl, url, null);
+		return resolve(baseUrl, url, null);
 	}
 
-	public String resolve(TiContext context, String path)
+	public String resolve(String path)
 	{
-		return resolve(context, baseUrl, path, null);
+		return resolve(baseUrl, path, null);
 	}
 
-	public String resolve(TiContext context, String baseUrl, String path)
+	public String resolve(String baseUrl, String path)
 	{
-		return resolve(context, baseUrl, path, null);
+		return resolve(baseUrl, path, null);
 	}
 	
-	public String resolve(TiContext context, String baseUrl, String path, String scheme)
+	public String resolve(String baseUrl, String path, String scheme)
 	{
 		if (!TiFileFactory.isLocalScheme(path)) {
 			return path;
@@ -208,7 +207,7 @@ public class TiUrl
 
 		if (!result.startsWith("file:")) {
 			String[] p = { result };
-			TiBaseFile tbf = TiFileFactory.createTitaniumFile(context, p, false);
+			TiBaseFile tbf = TiFileFactory.createTitaniumFile(p, false);
 			result = tbf.nativePath();
 		}
 		return result;

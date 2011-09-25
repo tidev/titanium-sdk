@@ -9,7 +9,7 @@ package org.appcelerator.titanium.proxy;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
@@ -34,28 +34,34 @@ public class ActivityProxy extends KrollProxy
 	protected IntentProxy intentProxy;
 	//protected KrollCallback resultCallback;
 
-	public ActivityProxy(TiContext tiContext)
+	public ActivityProxy()
 	{
-		super(tiContext);
+		super();
 	}
 
-	public ActivityProxy(TiContext tiContext, Activity activity)
+	public ActivityProxy(Activity activity)
 	{
-		this(tiContext);
-		setActivity(tiContext, activity);
+		super();
+		setActivity(activity);
 	}
 	
-	public void setActivity(TiContext tiContext, Activity activity)
+	public void setActivity(Activity activity)
 	{
 		this.activity = activity;
 		Intent intent = activity.getIntent();
 		if (intent != null) {
-			intentProxy = new IntentProxy(tiContext, activity.getIntent());
+			intentProxy = new IntentProxy(activity.getIntent());
 		}
 	}
 
-	protected Activity getActivity(KrollInvocation invocation)
+	protected Activity getWrappedActivity()
 	{
+		if (activity != null) {
+			return activity;
+		}
+		return TiApplication.getInstance().getRootActivity();
+
+		/*
 		Activity activity = this.activity;
 		if (activity != null) return activity;
 
@@ -71,12 +77,13 @@ public class ActivityProxy extends KrollProxy
 		if (activity != null) return activity;
 
 		return null;
+		*/
 	}
 
 	@Kroll.method
 	public void startActivity(KrollInvocation invocation, IntentProxy intent)
 	{
-		Activity activity = getActivity(invocation);
+		Activity activity = getWrappedActivity();
 		if (activity != null) {
 			activity.startActivity(intent.getIntent());
 		}
@@ -86,7 +93,7 @@ public class ActivityProxy extends KrollProxy
 	public void startActivityForResult(KrollInvocation invocation,
 		IntentProxy intent/*, KrollCallback callback*/)
 	{
-		Activity activity = getActivity(invocation);
+		Activity activity = getWrappedActivity();
 		if (activity != null) {
 			TiActivitySupport support = null;
 			if (activity instanceof TiActivitySupport) {
@@ -105,16 +112,16 @@ public class ActivityProxy extends KrollProxy
 	public void startActivityFromChild(KrollInvocation invocation,
 		ActivityProxy child, IntentProxy intent, int requestCode)
 	{
-		Activity activity = getActivity(invocation);
+		Activity activity = getWrappedActivity();
 		if (activity != null) {
-			activity.startActivityFromChild(child.getActivity(), intent.getIntent(), requestCode);
+			activity.startActivityFromChild(child.getWrappedActivity(), intent.getIntent(), requestCode);
 		}
 	}
 
 	@Kroll.method
 	public boolean startActivityIfNeeded(KrollInvocation invocation, IntentProxy intent, int requestCode)
 	{
-		Activity activity = getActivity(invocation);
+		Activity activity = getWrappedActivity();
 		if (activity != null) {
 			return activity.startActivityIfNeeded(intent.getIntent(), requestCode);
 		}
@@ -124,7 +131,7 @@ public class ActivityProxy extends KrollProxy
 	@Kroll.method
 	public boolean startNextMatchingActivity(KrollInvocation invocation, IntentProxy intent)
 	{
-		Activity activity = getActivity(invocation);
+		Activity activity = getWrappedActivity();
 		if (activity != null) {
 			return activity.startNextMatchingActivity(intent.getIntent());
 		}
@@ -134,7 +141,7 @@ public class ActivityProxy extends KrollProxy
 	@Kroll.method
 	public String getString(KrollInvocation invocation, int resId, Object[] formatArgs)
 	{
-		Activity activity = getActivity(invocation);
+		Activity activity = getWrappedActivity();
 		if (activity != null) {
 			if (formatArgs == null || formatArgs.length == 0) {
 				return activity.getString(resId);
@@ -154,7 +161,7 @@ public class ActivityProxy extends KrollProxy
 	@Kroll.method @Kroll.setProperty
 	public void setRequestedOrientation(KrollInvocation invocation, int orientation)
 	{
-		Activity activity = getActivity(invocation);
+		Activity activity = getWrappedActivity();
 		if (activity != null) {
 			activity.setRequestedOrientation(orientation);
 		}
@@ -164,7 +171,7 @@ public class ActivityProxy extends KrollProxy
 	public void setResult(KrollInvocation invocation, int resultCode,
 		@Kroll.argument(optional=true) IntentProxy intent)
 	{
-		Activity activity = getActivity(invocation);
+		Activity activity = getWrappedActivity();
 		if (activity != null) {
 			if (intent == null) {
 				activity.setResult(resultCode);
@@ -177,7 +184,7 @@ public class ActivityProxy extends KrollProxy
 	@Kroll.method
 	public void finish(KrollInvocation invocation)
 	{
-		Activity activity = getActivity(invocation);
+		Activity activity = getWrappedActivity();
 		if (activity != null) {
 			activity.finish();
 		}
@@ -209,15 +216,18 @@ public class ActivityProxy extends KrollProxy
 	public Context getContext()
 	{
 		if (activity == null) {
-			return getTiContext().getActivity().getApplication();
+			return TiApplication.getInstance();
+			//return getTiContext().getActivity().getApplication();
 		}
 		return activity;
 	}
 
+	/*
 	public Activity getActivity()
 	{
 		return activity;
 	}
+	*/
 
 	public void release()
 	{

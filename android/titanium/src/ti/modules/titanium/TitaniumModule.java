@@ -83,25 +83,25 @@ public class TitaniumModule extends KrollModule
 	@Kroll.getProperty @Kroll.method
 	public String getVersion()
 	{
-		return getTiContext().getTiApp().getTiBuildVersion();
+		return TiApplication.getInstance().getTiBuildVersion();
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public String getBuildTimestamp()
 	{
-		return getTiContext().getTiApp().getTiBuildTimestamp();
+		return TiApplication.getInstance().getTiBuildTimestamp();
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public String getBuildDate()
 	{
-		return getTiContext().getTiApp().getTiBuildTimestamp();
+		return TiApplication.getInstance().getTiBuildTimestamp();
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public String getBuildHash()
 	{
-		return getTiContext().getTiApp().getTiBuildHash();
+		return TiApplication.getInstance().getTiBuildHash();
 	}
 
 	// For testing exception handling.  Can remove after ticket 2032
@@ -111,7 +111,7 @@ public class TitaniumModule extends KrollModule
 	@Kroll.method
 	public void include(KrollInvocation invocation, Object[] files)
 	{
-		TiContext tiContext = invocation.getTiContext();
+		//TiContext tiContext = invocation.getTiContext();
 		for(Object filename : files) {
 			//try {
 				// we need to make sure paths included from sub-js files are actually relative
@@ -391,7 +391,7 @@ public class TitaniumModule extends KrollModule
 		try {
 			int resid = TiRHelper.getResource("string." + key);
 			if (resid != 0) {
-				return invocation.getTiContext().getAndroidContext().getString(resid);
+				return TiApplication.getInstance().getString(resid);
 			} else {
 				return defaultValue;
 			}
@@ -510,7 +510,7 @@ public class TitaniumModule extends KrollModule
 	@Kroll.method
 	public void dumpCoverage()
 	{
-		TiApplication app = getTiContext().getTiApp();
+		TiApplication app = TiApplication.getInstance();
 		if (app == null || !app.isCoverageEnabled()) {
 			Log.w(LCAT, "Coverage is not enabled, no coverage data will be generated");
 			return;

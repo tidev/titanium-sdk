@@ -76,7 +76,7 @@ public final class V8Runtime
 		nativeDispose();
 	}
 
-	public void evalFile(V8Object scope, String filename)
+	public void evalFile(String filename)
 	{
 		try {
 			Log.d(TAG, "evalFile: " + filename);

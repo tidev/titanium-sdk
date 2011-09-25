@@ -11,8 +11,8 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -41,9 +41,9 @@ public class MenuProxy extends KrollProxy
 	protected Menu menu;
 	protected HashMap<MenuItem, MenuItemProxy> menuMap;
 
-	public MenuProxy(TiContext tiContext, Menu menu) 
+	public MenuProxy(Menu menu) 
 	{
-		super(tiContext);
+		super();
 		this.menu = menu;
 		menuMap = new HashMap<MenuItem,MenuItemProxy>();
 	}
@@ -100,7 +100,7 @@ public class MenuProxy extends KrollProxy
 	{
 		MenuItemProxy mip = null;
 
-		if (getTiContext().isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			mip = handleAdd(d);
 			return mip;
 		}
@@ -131,7 +131,7 @@ public class MenuProxy extends KrollProxy
 		}
 		
 		MenuItem item = menu.add(groupId, itemId, order, title);
-		mip = new MenuItemProxy(getTiContext(), item);
+		mip = new MenuItemProxy(item);
 		synchronized(menuMap) {
 			menuMap.put(item, mip);
 		}
@@ -142,7 +142,7 @@ public class MenuProxy extends KrollProxy
 	@Kroll.method
 	public void clear()
 	{
-		if (getTiContext().isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			handleClear();
 			return;
 		}
@@ -162,7 +162,7 @@ public class MenuProxy extends KrollProxy
 	@Kroll.method
 	public void close()
 	{
-		if (getTiContext().isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			handleClose();
 			return;
 		}
@@ -217,7 +217,7 @@ public class MenuProxy extends KrollProxy
 	@Kroll.method
 	public void removeGroup(int groupId)
 	{
-		if (getTiContext().isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			handleRemoveGroup(groupId);
 			return;
 		}
@@ -244,7 +244,7 @@ public class MenuProxy extends KrollProxy
 	@Kroll.method
 	public void removeItem(int itemId)
 	{
-		if (getTiContext().isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			handleRemoveItem(itemId);
 			return;
 		}
@@ -277,7 +277,7 @@ public class MenuProxy extends KrollProxy
 		args.put("groupId", groupId);
 		args.put("enabled", enabled);
 
-		if (getTiContext().isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			handleSetGroupEnabled(args);
 			return;
 		}
@@ -296,7 +296,7 @@ public class MenuProxy extends KrollProxy
 		args.put("groupId", groupId);
 		args.put("visible", visible);
 
-		if (getTiContext().isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			handleSetGroupVisible(args);
 			return;
 		}

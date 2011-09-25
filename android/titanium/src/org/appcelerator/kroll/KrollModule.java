@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
+import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 
 import android.app.Activity;
 
@@ -20,43 +20,38 @@ public class KrollModule extends KrollProxy
 	implements KrollProxyListener, OnLifecycleEvent
 {
 	private static final String TAG = "KrollModule";
-	protected static ArrayList<Class<? extends KrollModule>> initializedTemplates =
-		new ArrayList<Class<? extends KrollModule>>();
+	protected static ArrayList<Class<? extends KrollModule>> initializedTemplates = new ArrayList<Class<? extends KrollModule>>();
 
 	public KrollModule() {
 		super();
-	}
 
-	public KrollModule(TiContext context) {
-		super(context);
-
-		Class<? extends KrollModule> moduleClass = getClass();
+		//Class<? extends KrollModule> moduleClass = getClass();
 		/*if (!initializedTemplates.contains(moduleClass)) {
 			V8Runtime.initModuleTemplate(moduleClass);
 			initializedTemplates.add(moduleClass);
 		}*/
 
-		context.addOnLifecycleEventListener(this);
+		((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
 		modelListener = this;
 	}
 
-	// TODO // TODO @Override
+	// TODO @Override
 	public void onResume(Activity activity) {
 	}
 
-	// TODO // TODO @Override
+	// TODO @Override
 	public void onPause(Activity activity) {
 	}
 	
-	// TODO // TODO @Override
+	// TODO @Override
 	public void onDestroy(Activity activity) {
 	}
 	
-	// TODO // TODO @Override
+	// TODO @Override
 	public void onStart(Activity activity) {
 	}
 	
-	// TODO // TODO @Override
+	// TODO @Override
 	public void onStop(Activity activity) {	
 	}
 	

@@ -6,13 +6,11 @@
  */
 package org.appcelerator.titanium.util;
 
-import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiFastDev;
+import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.util.TiUIHelper.CurrentActivityListener;
 
 import android.app.Activity;
@@ -46,12 +44,11 @@ public class TiJSErrorDialog
 
 	private static class ErrorMessage
 	{
-		WeakReference<TiContext> tiContext;
 		String title, message, sourceName, lineSource;
 		int line, lineOffset;
 	}
 
-	public static void openErrorDialog(final TiContext tiContext, final Activity activity, final String title, final String message,
+	public static void openErrorDialog(final Activity activity, final String title, final String message,
 		final String sourceName, final int line, final String lineSource, final int lineOffset)
 	{
 		printError(title, message, sourceName, line, lineSource, lineOffset);
@@ -62,7 +59,6 @@ public class TiJSErrorDialog
 		}
 
 		ErrorMessage error = new ErrorMessage();
-		error.tiContext = new WeakReference<TiContext>(tiContext);
 		error.title = title;
 		error.message = message;
 		error.sourceName = sourceName;
@@ -145,9 +141,9 @@ public class TiJSErrorDialog
 					// Continue
 				} else if (which == DialogInterface.BUTTON_NEGATIVE) {
 					// Reload (Fastdev)
-					if (error.tiContext != null && error.tiContext.get() != null) {
-						reload(error.tiContext.get(), error.sourceName);
-					}
+					//if (error.tiContext != null && error.tiContext.get() != null) {
+						reload(error.sourceName);
+					//}
 				}
 				if (!errorMessages.isEmpty()) {
 					createDialog(errorMessages.removeFirst());
@@ -169,10 +165,10 @@ public class TiJSErrorDialog
 		builder.create().show();
 	}
 
-	protected static void reload(TiContext tiContext, String sourceName)
+	protected static void reload(String sourceName)
 	{
 		//try {
-			tiContext.evalFile(sourceName);
+			KrollContext.getKrollContext().evalFile(sourceName);
 		/*} catch (IOException e) {
 			Log.e(TAG, e.getMessage(), e);
 		}*/

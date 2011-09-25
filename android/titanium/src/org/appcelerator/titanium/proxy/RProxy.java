@@ -10,7 +10,6 @@ import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -33,12 +32,13 @@ public class RProxy extends KrollProxy {
 	protected int resourceType;
 	protected HashMap<String, RProxy> subResources = new HashMap<String, RProxy>();
 	
-	public RProxy(TiContext context, int resourceType) {
-		this(context, resourceType, null);
+	public RProxy(int resourceType) {
+		this(resourceType, null);
 	}
 	
-	protected RProxy(TiContext context, int resourceType, String name) {
-		super(context, false);
+	protected RProxy(int resourceType, String name) {
+		//super(context, false);
+		super();
 		this.resourceType = resourceType;
 		this.name = name;
 	}
@@ -62,7 +62,7 @@ public class RProxy extends KrollProxy {
 		return this.name;
 	}
 	
-	@Override
+	// what was this overriding?
 	public Object getNativeValue() {
 		if (DBG) {
 			Log.d(TAG, "Getting resource " + (resourceType==RESOURCE_TYPE_ANDROID ? "android.R." : "R.") + name);
@@ -74,7 +74,8 @@ public class RProxy extends KrollProxy {
 				return TiRHelper.getApplicationResource(this.name);
 			}
 		} catch (ResourceNotFoundException e) {
-			return super.getNativeValue();
+			//return super.getNativeValue();
+			return this;
 		}
 	}
 	public int getResourceType()

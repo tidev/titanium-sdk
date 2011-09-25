@@ -37,7 +37,6 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	private static final String TAG = "TiLaunchActivity";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	protected TiContext tiContext;
 	protected TiUrl url;
 	protected AlertDialog noLaunchCategoryAlert;
 
@@ -59,19 +58,14 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	 */
 	protected void contextCreated() { }
 
-	public TiContext getTiContext()
-	{
-		return tiContext;
-	}
-
 	protected void loadActivityScript()
 	{
 		try {
-			String fullUrl = url.resolve(tiContext);
+			String fullUrl = url.resolve();
 			if (DBG) {
 				Log.d(TAG, "Eval JS Activity:" + fullUrl);
 			}
-			tiContext.evalFile(fullUrl);
+			KrollContext.getKrollContext().evalFile(fullUrl);
 		/*} catch (IOException e) {
 			e.printStackTrace();
 			finish();*/
@@ -95,11 +89,13 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 
 		url = TiUrl.normalizeWindowUrl(getUrl());
 
+		/*
 		KrollContext.getKrollContext();
 		tiContext = TiContext.createTiContext(this, url.baseUrl, url.url);
 		tiContext.setLaunchContext(true);
+		*/
 		if (activityProxy == null) {
-			setActivityProxy(new ActivityProxy(tiContext, this));
+			setActivityProxy(new ActivityProxy(this));
 		}
 
 		// we only want to set the current activity for good in the resume state but we need it right now.
@@ -109,7 +105,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		Activity tempCurrentActivity = tiApp.getCurrentActivity();
 		tiApp.setCurrentActivity(this, this);
 
-		TiBindingHelper.bindCurrentActivity(tiContext, activityProxy);
+		TiBindingHelper.bindCurrentActivity(activityProxy);
 
 		// set the current activity back to what it was originally
 		tiApp.setCurrentActivity(this, tempCurrentActivity);
@@ -207,25 +203,18 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	protected void onStart()
 	{
 		super.onStart();
-		if (tiContext != null) {
-			tiContext.fireLifecycleEvent(this, TiContext.LIFECYCLE_ON_START);
-		}
 	}
 
 	@Override
 	protected void onResume()
 	{
-		if (tiContext == null) {
-			alertMissingLauncher();
-		} else {
-			tiContext.fireLifecycleEvent(this, TiContext.LIFECYCLE_ON_RESUME);
-		}
 		super.onResume();
 	}
 
 	@Override
 	protected void onPause()
 	{
+		/*
 		if (tiContext == null) {
 			// Not in a good state. Let's get out.
 			if (noLaunchCategoryAlert != null && noLaunchCategoryAlert.isShowing()) {
@@ -236,27 +225,31 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		} else {
 			tiContext.fireLifecycleEvent(this, TiContext.LIFECYCLE_ON_PAUSE);
 		}
+		*/
 		super.onPause();
 	}
 
 	@Override
 	protected void onStop()
 	{
-		if (tiContext != null) {
-			tiContext.fireLifecycleEvent(this, TiContext.LIFECYCLE_ON_STOP);
-		}
 		super.onStop();
 	}
 
 	@Override
 	protected void onDestroy()
 	{
+		/*
 		if (tiContext != null) {
 			tiContext.fireLifecycleEvent(this, TiContext.LIFECYCLE_ON_DESTROY);
 			TiApplication tiApp = tiContext.getTiApp();
 			if (tiApp != null) {
 				tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppEndEvent());
 			}
+		}*/
+
+		TiApplication tiApp = TiApplication.getInstance();
+		if (tiApp != null) {
+			tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppEndEvent());
 		}
 		super.onDestroy();
 	}

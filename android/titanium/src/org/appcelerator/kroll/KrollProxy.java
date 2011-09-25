@@ -13,22 +13,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.runtime.v8.EventEmitter;
 import org.appcelerator.kroll.runtime.v8.EventListener;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.util.AsyncResult;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.app.Activity;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 
 @Kroll.proxy
 public class KrollProxy extends EventEmitter
-	implements Handler.Callback, KrollConvertable
+	implements Handler.Callback
 {
 	private static final String TAG = "KrollProxy";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -42,7 +40,10 @@ public class KrollProxy extends EventEmitter
 
 	public static final String PROXY_ID_PREFIX = "proxy$";
 
-	protected TiContext context, creatingContext;
+//	protected TiContext context, creatingContext;
+
+	private String creationUrl;
+	private Activity activity;
 
 	protected Handler uiHandler;
 	protected String proxyId;
@@ -53,19 +54,9 @@ public class KrollProxy extends EventEmitter
 	protected KrollDict creationDict = null;
 
 	@Kroll.inject
-	protected KrollInvocation currentInvocation;
+	//protected KrollInvocation currentInvocation;
 
-	public KrollProxy()
-	{
-		super(0);
-	}
-
-	public KrollProxy(TiContext context)
-	{
-		this(context, true);
-	}
-
-	public KrollProxy(TiContext context, boolean autoBind)
+/*	public KrollProxy(TiContext context, boolean autoBind)
 	{
 		super(0);
 		this.context = context;
@@ -85,29 +76,106 @@ public class KrollProxy extends EventEmitter
 				return;
 			}
 		}
-	}
+	}*/
 
-	public static KrollProxy create(Class<? extends KrollProxy> objClass, Object[] creationArguments, long v8ObjectPointer)
+
+	// entry point for generator code
+	public static KrollProxy create(Class<? extends KrollProxy> objClass, Object[] creationArguments, long v8ObjectPointer, String creationUrl)
 	{
 		KrollProxy proxyInstance = null;
 
 		try {
 			proxyInstance = objClass.newInstance();
-			proxyInstance.setPointer(v8ObjectPointer);
+
+			/* store reference to the native object that represents this proxy so we can drive changes to the JS 
+			 * object
+			 */
+			proxyInstance.setPointer(v8ObjectPointer); // TODO - rename to KrollObject pointer?  should be runtime agnostic
+			proxyInstance.creationUrl = creationUrl;
+
+			/* associate the activity with the proxy.  if the proxy needs activity association delayed until a 
+			 * later point then initActivity should be overridden to be a no-op and then call setActivity directly
+			 * at the appropriate time
+			 */
+			proxyInstance.initActivity(TiApplication.getInstance().getCurrentActivity());
+
+			// setup the proxy according to the creation arguments
 			proxyInstance.handleCreationArgs(null, creationArguments);
 
 			return proxyInstance;
+
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+
 		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		return null;
 	}
 
+	public KrollProxy()
+	{
+		super(0);
+	}
+
+	protected void initActivity(Activity activity)
+	{
+		this.activity = activity;
+	}
+
+	/**
+	 * Handle the arguments passed into the "create" method for this proxy.
+	 * If your proxy simply needs to handle a KrollDict, see {@link KrollProxy#handleCreationDict(KrollDict)}
+	 * @param args
+	 */
+	public void handleCreationArgs(KrollModule createdInModule, Object[] args)
+	{
+		this.createdInModule = createdInModule;
+
+		if (args.length >= 1 && args[0] instanceof HashMap) {
+			if (args[0] instanceof KrollDict) {
+				handleCreationDict((KrollDict)args[0]);
+			} else {
+				handleCreationDict(new KrollDict((HashMap)args[0]));
+			}
+		}
+	}
+
+	/**
+	 * Handle the creation {@link KrollDict} passed into the create method for this proxy.
+	 * This is usually the first (and sometimes only) argument to the proxy's create method.
+	 * @param dict
+	 */
+	public void handleCreationDict(KrollDict dict)
+	{
+		if (dict != null) {
+			// TODO we need to set properties inside the proxy from the creation dict on the V8 side
+			/*for (String key : dict.keySet()) {
+				setProperty(key, dict.get(key), true);
+			}*/
+			creationDict = (KrollDict)dict.clone();
+			if (modelListener != null) {
+				modelListener.processProperties(creationDict);
+			}
+		}
+	}
+
+	public void setActivity(Activity activity)
+	{
+		this.activity = activity;
+	}
+
+	public Activity getActivity()
+	{
+		return activity;
+	}
+
+	public String getCreationUrl()
+	{
+		return creationUrl;
+	}
+/*
 	@Deprecated
 	public boolean hasProperty(String name)
 	{
@@ -135,13 +203,13 @@ public class KrollProxy extends EventEmitter
 			setAndFire(name, value);
 		}
 	}
+*/
 
 	protected void firePropertyChanged(String name, Object oldValue, Object newValue)
 	{
 		if (modelListener != null) {
-			if (context.isUIThread()) {
-				modelListener.propertyChanged(name, oldValue, newValue,
-					this);
+			if (TiApplication.isUIThread()) {
+				modelListener.propertyChanged(name, oldValue, newValue, this);
 			} else {
 				KrollPropertyChange pch = new KrollPropertyChange(name, oldValue, newValue);
 				getUIHandler().obtainMessage(MSG_MODEL_PROPERTY_CHANGE, pch).sendToTarget();
@@ -175,43 +243,6 @@ public class KrollProxy extends EventEmitter
 	{
 		if (modelListener != null) {
 			modelListener.propertiesChanged(changes, this);
-		}
-	}
-
-	/**
-	 * Handle the arguments passed into the "create" method for this proxy.
-	 * If your proxy simply needs to handle a KrollDict, see {@link KrollProxy#handleCreationDict(KrollDict)}
-	 * @param args
-	 */
-	public void handleCreationArgs(KrollModule createdInModule, Object[] args)
-	{
-		this.createdInModule = createdInModule;
-		if (args.length >= 1 && args[0] instanceof HashMap) {
-			if (args[0] instanceof KrollDict) {
-				handleCreationDict((KrollDict)args[0]);
-			} else {
-				KrollDict d = new KrollDict((HashMap)args[0]);
-				handleCreationDict(d);
-			}
-		}
-	}
-
-	/**
-	 * Handle the creation {@link KrollDict} passed into the create method for this proxy.
-	 * This is usually the first (and sometimes only) argument to the proxy's create method.
-	 * @param dict
-	 */
-	public void handleCreationDict(KrollDict dict)
-	{
-		if (dict != null) {
-			// TODO we need to set properties inside the proxy from the creation dict on the V8 side
-			/*for (String key : dict.keySet()) {
-				setProperty(key, dict.get(key), true);
-			}*/
-			creationDict = (KrollDict)dict.clone();
-			if (modelListener != null) {
-				modelListener.processProperties(creationDict);
-			}
 		}
 	}
 
@@ -293,6 +324,7 @@ public class KrollProxy extends EventEmitter
 		}
 	}
 
+/*
 	public TiContext switchContext(TiContext tiContext)
 	{
 		TiContext oldContext = this.context;
@@ -314,6 +346,7 @@ public class KrollProxy extends EventEmitter
 			switchContext(creatingContext);
 		}
 	}
+*/
 
 	public Handler getUIHandler()
 	{
@@ -347,10 +380,12 @@ public class KrollProxy extends EventEmitter
 			msg, TiMessageQueue.getMainMessageQueue(), result);
 	}
 
+	/*
 	public TiContext getTiContext()
 	{
 		return context;
 	}
+	*/
 
 	public String getProxyId()
 	{
@@ -366,16 +401,18 @@ public class KrollProxy extends EventEmitter
 		return error;
 	}
 
+/*	
 	public KrollInvocation getCurrentInvocation()
 	{
 		return currentInvocation;
 	}
-
+*/
 	public Object getDefaultValue(Class<?> typeHint)
 	{
 		return toString();
 	}
 
+/*
 	public Object getJavascriptValue()
 	{
 		return this;
@@ -385,4 +422,5 @@ public class KrollProxy extends EventEmitter
 	{
 		return this;
 	}
+*/
 }

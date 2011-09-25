@@ -13,7 +13,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 
@@ -41,16 +40,6 @@ public class CodecModule extends KrollModule
 
 	@Kroll.constant public static final int BIG_ENDIAN = 0;
 	@Kroll.constant public static final int LITTLE_ENDIAN = 1;
-
-	public CodecModule()
-	{
-		super();
-	}
-
-	public CodecModule(TiContext context)
-	{
-		super(context);
-	}
 
 	@Kroll.method
 	public int encodeNumber(KrollDict args)

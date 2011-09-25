@@ -9,6 +9,7 @@ package org.appcelerator.titanium;
 import java.lang.ref.WeakReference;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
@@ -51,6 +52,7 @@ public abstract class TiBaseActivity extends Activity
 
 	private boolean onDestroyFired = false;
 	private int originalOrientationMode = -1;
+	private TiWeakList<TiLifecycle.OnLifecycleEvent> lifecycleListeners;
 
 	protected TiCompositeLayout layout;
 	protected TiActivitySupportHelper supportHelper;
@@ -191,9 +193,9 @@ public abstract class TiBaseActivity extends Activity
 	{
 		if (window == null) return;
 
-		if (window.hasProperty(TiC.PROPERTY_TITLE)) {
+		if (window.has(TiC.PROPERTY_TITLE)) {
 			String oldTitle = (String) getTitle();
-			String newTitle = TiConvert.toString(window.getProperty(TiC.PROPERTY_TITLE));
+			String newTitle = TiConvert.toString(window.get(TiC.PROPERTY_TITLE));
 			if (oldTitle == null) {
 				oldTitle = "";
 			}
@@ -529,11 +531,16 @@ public abstract class TiBaseActivity extends Activity
 		}
 		
 		if (activityProxy != null) {
-			IntentProxy ip = new IntentProxy(activityProxy.getTiContext(),intent);
+			IntentProxy ip = new IntentProxy(intent);
 			KrollDict data = new KrollDict();
 			data.put(TiC.PROPERTY_INTENT, ip);
 			activityProxy.fireSyncEvent(TiC.EVENT_NEW_INTENT, data);
 		}
+	}
+
+	public void addOnLifecycleEventListener(TiLifecycle.OnLifecycleEvent listener)
+	{
+		lifecycleListeners.add(new WeakReference<TiLifecycle.OnLifecycleEvent>(listener));
 	}
 
 	@Override
@@ -549,6 +556,16 @@ public abstract class TiBaseActivity extends Activity
 		if (activityProxy != null) {
 			activityProxy.fireSyncEvent(TiC.EVENT_PAUSE, null);
 		}
+
+		synchronized (lifecycleListeners.synchronizedList()) {
+			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
+				try {
+					TiLifecycle.fireLifecycleEvent(this, listener, TiLifecycle.LIFECYCLE_ON_PAUSE);
+				} catch (Throwable t) {
+					Log.e(TAG, "Error dispatching lifecycle event: " + t.getMessage(), t);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -562,6 +579,16 @@ public abstract class TiBaseActivity extends Activity
 		getTiApp().setCurrentActivity(this, this);
 		if (activityProxy != null) {
 			activityProxy.fireSyncEvent(TiC.EVENT_RESUME, null);
+		}
+
+		synchronized (lifecycleListeners.synchronizedList()) {
+			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
+				try {
+					TiLifecycle.fireLifecycleEvent(this, listener, TiLifecycle.LIFECYCLE_ON_RESUME);
+				} catch (Throwable t) {
+					Log.e(TAG, "Error dispatching lifecycle event: " + t.getMessage(), t);
+				}
+			}
 		}
 	}
 
@@ -592,6 +619,16 @@ public abstract class TiBaseActivity extends Activity
 			// set the current activity back to what it was originally
 			tiApp.setCurrentActivity(this, tempCurrentActivity);
 		}
+
+		synchronized (lifecycleListeners.synchronizedList()) {
+			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
+				try {
+					TiLifecycle.fireLifecycleEvent(this, listener, TiLifecycle.LIFECYCLE_ON_START);
+				} catch (Throwable t) {
+					Log.e(TAG, "Error dispatching lifecycle event: " + t.getMessage(), t);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -606,6 +643,16 @@ public abstract class TiBaseActivity extends Activity
 		}
 		if (activityProxy != null) {
 			activityProxy.fireSyncEvent(TiC.EVENT_STOP, null);
+		}
+
+		synchronized (lifecycleListeners.synchronizedList()) {
+			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
+				try {
+					TiLifecycle.fireLifecycleEvent(this, listener, TiLifecycle.LIFECYCLE_ON_STOP);
+				} catch (Throwable t) {
+					Log.e(TAG, "Error dispatching lifecycle event: " + t.getMessage(), t);
+				}
+			}
 		}
 	}
 
@@ -637,6 +684,17 @@ public abstract class TiBaseActivity extends Activity
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onDestroy");
 		}
+
+		synchronized (lifecycleListeners.synchronizedList()) {
+			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
+				try {
+					TiLifecycle.fireLifecycleEvent(this, listener, TiLifecycle.LIFECYCLE_ON_DESTROY);
+				} catch (Throwable t) {
+					Log.e(TAG, "Error dispatching lifecycle event: " + t.getMessage(), t);
+				}
+			}
+		}
+
 		super.onDestroy();
 		// Our Activities are currently unable to recover from Android-forced restarts,
 		// so we need to relaunch the application entirely.
