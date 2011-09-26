@@ -4,6 +4,7 @@ description: An object which represents a single event in an Android calendar.
 extends: Titanium.Proxy
 platforms: [android]
 since: "1.5"
+createable: false
 methods:
   - name: createAlert
     description: create an alert for this event.  Pass a dictionary object containing attributes corresponding to properties of <Titanium.Android.Calendar.Alert>.  Returns the created alert.
@@ -42,45 +43,59 @@ properties:
   - name: alerts
     description: An array of <Titanium.Android.Calendar.Alert> objects which are the alerts - if any - for this event.
     type: Array<Titanium.Android.Calendar.Alert>
+    permission: read-only
   - name: allDay
     description: Whether the event is all day.
     type: Boolean
+    permission: read-only
   - name: begin
     description: The date/time at which the event begins.
     type: Date
+    permission: read-only
   - name: description
     description: The event description.
     type: String
+    permission: read-only
   - name: end
     description: The date/time at which the event ends.
     type: Date
+    permission: read-only
   - name: extendedProperties
     description: An object containing extended properties of the event.
     type: Object
+    permission: read-only
   - name: hasAlarm
     description: Whether an alarm is scheduled for the event.
     type: Boolean
+    permission: read-only
   - name: hasExtendedProperties
     description: 
     type: Boolean
+    permission: read-only
   - name: id
     description: The id of the event.
     type: String
+    permission: read-only
   - name: location
     description: The event location.
     type: String
+    permission: read-only
   - name: reminders
     description: An array of <Titanium.Android.Calendar.Reminder> objects which are the reminders - if any - for this event.
     type: Array<Titanium.Android.Calendar.Reminder>
+    permission: read-only
   - name: status
     description: The status of the event.  Possible values are the STATUS constants in <Titanium.Android.Calendar>.
     type: Number
+    permission: read-only
   - name: title
     description: The title string for the event.
     type: String
+    permission: read-only
   - name: visibility
     description: The event's visibility.  Possible values are the VISIBILITY constants in <Titanium.Android.Calendar>.
     type: Number
+    permission: read-only
 notes: The API supports retrieving information about existing events and creating new events.  However, modifying or deleting existing events is not yet supported.  Additionally, recurring events are not yet supported.
     
     See <Titanium.Android.Calendar> for examples of retrieving event information and creating events.

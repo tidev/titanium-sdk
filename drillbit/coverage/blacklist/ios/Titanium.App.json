@@ -16,5 +16,10 @@
   "hasListeners"
  ], 
  "properties": [
+  "Properties",
+  "gUID",
+  "iD",
+  "iOS",
+  "uRL"
  ]
 }

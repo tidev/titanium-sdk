@@ -4,6 +4,7 @@ description: The Android.Calendar module provides proxies and methods for access
 extends: Titanium.Module
 platforms: [android]
 since: "1.5"
+createable: false
 methods:
   - name: getCalendarById
     description: Returns the <Titanium.Android.Calendar.Calendar> object specified by the given integer id.

@@ -36,33 +36,44 @@ properties:
   - name: copyright
     description: the application's copyright
     type: String
+    permission: read-only
   - name: description
     description: the application's description
     type: String
+    permission: read-only
   - name: guid
     description: the application's globally unique id (this is system generated and consistent through all versions)
     type: String
+    permission: read-only
   - name: id
     description: the application's app id as specified in Titanium Developer or Titanium Studio
     type: String
+    permission: read-only
   - name: idleTimerDisabled
     description: property for controlling whether the phone screen will be locked on idle time. Can be set to true to disable the timer
     type: Boolean
+    platforms: [iphone, ipad]
   - name: name
     description: the application's name
     type: String
+    permission: read-only
   - name: proximityDetection
     description: a boolean to indicate whether proximity detection is enabled
     type: Boolean
+    platforms: [iphone, ipad]
   - name: proximityState
     description: the state of the device's proximity detector
     type: Number
+    platforms: [iphone, ipad]
   - name: publisher
     description: the application's publisher
     type: String
+    permission: read-only
   - name: url
     description: the application url
     type: String
+    permission: read-only
   - name: version
     description: the application's version
     type: String
+    permission: read-only

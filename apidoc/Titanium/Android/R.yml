@@ -9,39 +9,63 @@ properties:
   - name: anim
     description: Animation resources, see [http://developer.android.com/reference/android/R.anim.html](http://developer.android.com/reference/android/R.anim.html)
     type: Object
+    accessors: false
+    permission: read-only
   - name: array
     description: Array resources, see [http://developer.android.com/reference/android/R.array.html](http://developer.android.com/reference/android/R.array.html)
     type: Object
+    accessors: false
+    permission: read-only
   - name: attr
     description: Attribute resources, see [http://developer.android.com/reference/android/R.attr.html](http://developer.android.com/reference/android/R.attr.html)
     type: Object
+    accessors: false
+    permission: read-only
   - name: color
     description: Color resources, see [http://developer.android.com/reference/android/R.color.html](http://developer.android.com/reference/android/R.color.html)
     type: Object
+    accessors: false
+    permission: read-only
   - name: dimen
     description: Dimension resources, see [http://developer.android.com/reference/android/R.dimen.html](http://developer.android.com/reference/android/R.dimen.html)
     type: Object
+    accessors: false
+    permission: read-only
   - name: drawable
     description: Drawable resources, see [http://developer.android.com/reference/android/R.drawable.html](http://developer.android.com/reference/android/R.drawable.html)
     type: Object
+    accessors: false
+    permission: read-only
   - name: id
     description: ID resources, see [http://developer.android.com/reference/android/R.id.html](http://developer.android.com/reference/android/R.id.html)
     type: Object
+    accessors: false
+    permission: read-only
   - name: integer
     description: Integer resources, see [http://developer.android.com/reference/android/R.integer.html](http://developer.android.com/reference/android/R.integer.html)
     type: Object
+    accessors: false
+    permission: read-only
   - name: layout
     description: Layout resources, see [http://developer.android.com/reference/android/R.layout.html](http://developer.android.com/reference/android/R.layout.html)
     type: Object
+    accessors: false
+    permission: read-only
   - name: string
     description: String resources, see [http://developer.android.com/reference/android/R.string.html](http://developer.android.com/reference/android/R.string.html)
     type: Object
+    accessors: false
+    permission: read-only
   - name: style
     description: Style resources, see [http://developer.android.com/reference/android/R.style.html](http://developer.android.com/reference/android/R.style.html)
     type: Object
+    accessors: false
+    permission: read-only
   - name: styleable
     description: Styleable reosurces, see [http://developer.android.com/reference/android/R.styleable.html](http://developer.android.com/reference/android/R.styleable.html)
     type: Object
+    accessors: false
+    permission: read-only
 notes: |
     These properties and sub-properties are queried directly against the `android.R` class, and should have the same syntax. For example, to retrieve the "OK" string in Android:
     
