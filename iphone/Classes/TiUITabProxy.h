@@ -24,6 +24,7 @@
 	TiWindowProxy *closingWindow;
 	BOOL opening;
 	BOOL systemTab;
+	BOOL transitionIsAnimating;
 	
 	id<TiOrientationController> parentOrientationController;
 }

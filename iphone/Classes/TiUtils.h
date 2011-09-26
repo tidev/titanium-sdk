@@ -217,4 +217,7 @@ typedef enum {
 
 +(int)encodeNumber:(NSNumber*)data toBuffer:(TiBuffer*)dest offset:(int)position type:(NSString*)type endianness:(CFByteOrder)byteOrder;
 
++(NSString*)md5:(NSData*)data;
+
++(NSString*)convertToHex:(unsigned char*)result length:(size_t)length;
 @end
