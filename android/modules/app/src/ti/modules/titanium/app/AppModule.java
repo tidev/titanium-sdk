@@ -67,6 +67,6 @@ public class AppModule extends KrollModule
 
 	@Kroll.method
 	public String appURLToPath(String url) {
-		return getTiContext().resolveUrl(null, url);
+		return resolveUrl(null, url);
 	}
 }
