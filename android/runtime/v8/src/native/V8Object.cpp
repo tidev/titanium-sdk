@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #include <jni.h>
+#include <stdio.h>
 #include <v8.h>
 
 #include "AndroidUtil.h"

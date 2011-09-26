@@ -57,7 +57,7 @@ void ${className}::Initialize(Handle<Object> ti)
 
 	Local<FunctionTemplate> t = FunctionTemplate::New(${className}::Constructor);
 	proxyTemplate = Persistent<FunctionTemplate>::New(t);
-	proxyTemplate->InstanceTemplate()->SetInternalFieldCount(1);
+	proxyTemplate->InstanceTemplate()->SetInternalFieldCount(ProxyFactory::kInternalFieldCount);
 	proxyTemplate->SetClassName(String::NewSymbol("${proxyAttrs.name}"));
 	<#if superProxyClassName != "EventEmitter">
 	proxyTemplate->Inherit(${superProxyClassName?replace("BindingGen", "")}::proxyTemplate);
@@ -109,6 +109,14 @@ Handle<Value> ${className}::Constructor(const Arguments& args)
 		javaProxy = ProxyFactory::createJavaProxy(javaClass, v8Proxy, args);
 		deleteRef = true;
 	}
+
+	// Initialize the internal property cache used for lazy initializing modules
+	v8Proxy->SetInternalField(ProxyFactory::kPropertyCache, Object::New());
+
+	// Set our Titanium API namespace so lazy initialization can work
+	<#assign tiNamespace = proxyAttrs.fullAPIName?replace("Titanium.", "")>
+	<#assign tiNamespace = tiNamespace?replace("Titanium", "")>
+	v8Proxy->SetInternalField(ProxyFactory::kTiNamespace, String::New("${tiNamespace}"));
 
 	${className}* v8ProxyNative = new ${className}(javaProxy);
 	v8ProxyNative->Wrap(v8Proxy);

@@ -88,9 +88,8 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 
 		url = TiUrl.normalizeWindowUrl(getUrl());
 
-		/*
 		KrollContext.getKrollContext();
-		tiContext = TiContext.createTiContext(this, url.baseUrl, url.url);
+		/*tiContext = TiContext.createTiContext(this, url.baseUrl, url.url);
 		tiContext.setLaunchContext(true);
 		*/
 		if (activityProxy == null) {

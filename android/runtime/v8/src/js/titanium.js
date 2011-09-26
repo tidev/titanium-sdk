@@ -18,4 +18,6 @@ Object.prototype.extend = function(other) {
 	return this;
 }
 
+Titanium.API = kroll.binding('api');
+
 module.exports = Titanium;

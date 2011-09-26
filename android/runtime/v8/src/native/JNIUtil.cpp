@@ -255,7 +255,7 @@ void JNIUtil::initCache()
 	v8ObjectInitMethod = getMethodID(v8ObjectClass, "<init>", "(J)V", false);
 	managedV8ReferencePtrField = getFieldID(managedV8ReferenceClass, "ptr", "J");
 	krollProxyCreateMethod = getMethodID(krollProxyClass, "create",
-		"(Ljava/lang/Class;[Ljava/lang/Object;J)Lorg/appcelerator/kroll/KrollProxy;", true);
+		"(Ljava/lang/Class;[Ljava/lang/Object;JLjava/lang/String;)Lorg/appcelerator/kroll/KrollProxy;", true);
 
 	assetsReadResourceMethod = getMethodID(assetsClass, "readResource", "(Ljava/lang/String;)[C", true);
 	eventListenerPostEventMethod = getMethodID(eventListenerClass, "postEvent",

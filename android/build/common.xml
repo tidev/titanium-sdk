@@ -31,6 +31,8 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<property name="titanium.project.dir" value="${ti.android.root}/titanium"/>
 	<property name="kroll.apt.project.dir" value="${ti.android.root}/kroll-apt"/>
 	<property name="kroll.v8.project.dir" value="${ti.android.root}/runtime/v8"/>
+	<property name="ndk.build" value="${kroll.v8.project.dir}/ndk-build.sh"/>
+
 	<property name="modules.dir" value="${ti.android.root}/modules"/>
 	<property name="ui.module.dir" value="${modules.dir}/ui"/>
 	
@@ -308,8 +310,6 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	</macrodef>
 
 	<target name="build.kroll.v8.so">
-		<property name="ndk.build" value="${kroll.v8.project.dir}/ndk-build.sh"/>
-
 		<exec executable="${ndk.build}" dir="${kroll.v8.project.dir}" failonerror="true">
 			<env key="ANDROID_NDK" file="${android.ndk}"/>
 		</exec>
@@ -448,6 +448,10 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			<fileset dir="${modules.dir}" includes="*/bin/**/*" defaultexcludes="false"/>
 			<fileset dir="${modules.dir}" includes="*/.apt_generated/**/*" defaultexcludes="false"/>
 		</delete>
+		<exec executable="${ndk.build}" dir="${kroll.v8.project.dir}" failonerror="true">
+			<env key="ANDROID_NDK" file="${android.ndk}"/>
+			<arg value="clean"/>
+		</exec>
 	</target>
 	
 	<macrodef name="define.ti.ant.tasks">

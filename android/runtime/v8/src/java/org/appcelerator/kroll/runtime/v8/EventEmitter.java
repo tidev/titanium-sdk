@@ -27,16 +27,22 @@ public class EventEmitter extends V8Object implements Handler.Callback
 	private Semaphore semaphore = new Semaphore(0);
 	private HashMap<String, Integer> listenerCount = new HashMap<String, Integer>();
 
-	public EventEmitter(long ptr)
+	public EventEmitter()
 	{
-		super(ptr);
-
+		super(0);
 		v8Handler = new Handler(V8Runtime.getInstance().getV8Looper(), this);
 		uiHandler = new Handler(Looper.getMainLooper(), this);
+	}
 
-		eventChangeListener = new EventListener(uiHandler);
-		eventChangeListener.addEventMessage(this, EventListener.EVENT_LISTENER_ADDED, MSG_LISTENER_ADDED);
-		eventChangeListener.addEventMessage(this, EventListener.EVENT_LISTENER_REMOVED, MSG_LISTENER_REMOVED);
+	@Override
+	public void setPointer(long ptr)
+	{
+		super.setPointer(ptr);
+		if (eventChangeListener == null) {
+			eventChangeListener = new EventListener(uiHandler);
+			eventChangeListener.addEventMessage(this, EventListener.EVENT_LISTENER_ADDED, MSG_LISTENER_ADDED);
+			eventChangeListener.addEventMessage(this, EventListener.EVENT_LISTENER_REMOVED, MSG_LISTENER_REMOVED);
+		}
 	}
 
 	public boolean fireEvent(String event, Object data)
@@ -74,6 +80,7 @@ public class EventEmitter extends V8Object implements Handler.Callback
 	public void addEventListener(String event, EventListener listener)
 	{
 		if (V8Runtime.getInstance().isV8Thread()) {
+			Log.d(TAG, "addEventListener, ptr: " + ptr);
 			nativeAddEventListener(ptr, event, listener.getPointer());
 			return;
 		}

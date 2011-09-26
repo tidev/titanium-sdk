@@ -138,19 +138,34 @@ void Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeAddEventListener(
 {
 	titanium::JNIScope jniScope(env);
 	HandleScope scope;
+	LOGD(TAG, "nativeAddEventListener");
 
 	Handle<Object> emitter;
 	if (ptr != 0) {
+		LOGD(TAG, "casting persistent");
 		emitter = Persistent<Object>((Object *) ptr);
 	} else {
+		LOGD(TAG, "converting");
 		emitter = TypeConverter::javaObjectToJsValue(jEmitter)->ToObject();
 	}
+
+	LOGD(TAG, "getting add event listener");
 	Handle<Function> addEventListener = Handle<Function>::Cast(emitter->Get(addEventListenerSymbol));
 	Handle<String> jsEvent = TypeConverter::javaStringToJsString(event);
-	Handle<Object> listener((Object *) listenerPtr);
+	Handle<Function> listener((Function *) listenerPtr);
+	Handle<String> className = listener->GetConstructorName();
+	String::Utf8Value cn(className);
 
 	Handle<Value> args[] = { jsEvent, listener };
+	LOGD(TAG, "calling add event listener on %s", *cn);
+
+	TryCatch tryCatch;
 	addEventListener->Call(emitter, 2, args);
+	if (tryCatch.HasCaught()) {
+		LOGD(TAG, "Caught exception");
+		ReportException(tryCatch, true);
+	}
+	LOGD(TAG, "finished adding event listener");
 }
 
 void Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeRemoveEventListener(JNIEnv *env, jobject jEmitter, jlong ptr, jstring event, jlong listenerPtr)
@@ -166,7 +181,7 @@ void Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeRemoveEventListen
 	}
 	Handle<Function> removeEventListener = Handle<Function>::Cast(emitter->Get(removeEventListenerSymbol));
 	Handle<String> jsEvent = TypeConverter::javaStringToJsString(event);
-	Handle<Object> listener((Object *) listenerPtr);
+	Handle<Function> listener((Function *) listenerPtr);
 
 	Handle<Value> args[] = { jsEvent, listener };
 	removeEventListener->Call(emitter, 2, args);

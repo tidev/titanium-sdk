@@ -4,22 +4,21 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#include <v8.h>
+#include <jni.h>
+#include <stdio.h>
 #include <string.h>
+#include <v8.h>
 
 #include "AndroidUtil.h"
-#include "AssetsModule.h"
-#include "TitaniumGlobal.h"
 #include "EventEmitter.h"
 #include "JavaObject.h"
 #include "JNIUtil.h"
-#include "KrollJavaScript.h"
+#include "KrollBindings.h"
 #include "ScriptsModule.h"
 #include "TypeConverter.h"
 #include "V8Util.h"
 
 #include "V8Runtime.h"
-
 
 #define TAG "V8Runtime"
 
@@ -36,53 +35,40 @@ void V8Runtime::collectWeakRef(Persistent<Value> ref, void *parameter)
 	JNIScope::getEnv()->DeleteGlobalRef(v8Object);
 }
 
-static Handle<Value> binding(const Arguments& args)
+// Minimalistic log function for debugging in kroll.js
+static Handle<Value> jsLog(const Arguments& args)
 {
-	static Persistent<Object> binding_cache;
-
 	HandleScope scope;
-	Local<String> module = args[0]->ToString();
-	String::Utf8Value module_v(module);
-	if (binding_cache.IsEmpty()) {
-		binding_cache = Persistent<Object>::New(Object::New());
-	}
+	if (args.Length() == 0) return Undefined();
 
-	Local<Object> exports;
-	if (binding_cache->Has(module)) {
-		exports = binding_cache->Get(module)->ToObject();
-	} else if (strcmp(*module_v, "natives") == 0) {
-		exports = Object::New();
-		KrollJavaScript::DefineNatives(exports);
-		binding_cache->Set(module, exports);
-	} else if (strcmp(*module_v, "evals") == 0) {
-		exports = Object::New();
-		ScriptsModule::Initialize(exports);
-		binding_cache->Set(module, exports);
-	} else if (strcmp(*module_v, "assets") == 0) {
-		exports = Object::New();
-		AssetsModule::Initialize(exports);
-		binding_cache->Set(module, exports);
-	} else if (strcmp(*module_v, "titanium") == 0) {
-		exports = Object::New();
-		TitaniumGlobal::Initialize(exports);
-		binding_cache->Set(module, exports);
-	} else {
-		return ThrowException(Exception::Error(String::New("No such module")));
-	}
-	return scope.Close(exports);
+	String::Utf8Value msg(args[0]);
+	LOGD(TAG, *msg);
+
+	return Undefined();
 }
 
 /* static */
 void V8Runtime::bootstrap(Local<Object> global)
 {
+	LOGD(TAG, "initialize EventEmitter");
 	EventEmitter::Initialize();
-	krollGlobalObject = Persistent<Object>::New(EventEmitter::constructorTemplate->GetFunction()->NewInstance());
 
-	DEFINE_METHOD(krollGlobalObject, "binding", binding);
+	LOGD(TAG, "initialize Kroll global object");
+	krollGlobalObject = Persistent<Object>::New(Object::New());/*
+		EventEmitter::constructorTemplate->GetFunction()->NewInstance());*/
+
+	DEFINE_METHOD(krollGlobalObject, "log", jsLog);
+
+	LOGD(TAG, "initialize binding");
+	DEFINE_METHOD(krollGlobalObject, "binding", KrollBindings::getBinding);
+
+	LOGD(TAG, "initialize EventEmitter prototype");
 	DEFINE_TEMPLATE(krollGlobalObject, "EventEmitter", EventEmitter::constructorTemplate);
 
+	LOGD(TAG, "execute kroll.js");
+
 	TryCatch tryCatch;
-	Handle<Value> result = ExecuteString(KrollJavaScript::MainSource(), IMMUTABLE_STRING_LITERAL("kroll.js"));
+	Handle<Value> result = ExecuteString(KrollBindings::getMainSource(), String::New("kroll.js"));
 
 	if (tryCatch.HasCaught()) {
 		ReportException(tryCatch, true);

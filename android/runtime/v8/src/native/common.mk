@@ -17,9 +17,10 @@ endif
 LDLIBS := -L$(SYSROOT)/usr/lib -ldl -llog -L$(TARGET_OUT)
 SRC_FILES := \
 	EventEmitter.cpp \
+	EventListener.cpp \
 	JavaObject.cpp \
 	JNIUtil.cpp \
-	KrollJavaScript.cpp \
+	KrollBindings.cpp \
 	ModuleFactory.cpp \
 	ProxyFactory.cpp \
 	TypeConverter.cpp \
@@ -30,7 +31,6 @@ SRC_FILES := \
 	modules/APIModule.cpp \
 	modules/AssetsModule.cpp \
 	modules/ScriptsModule.cpp \
-	modules/TitaniumGlobal.cpp \
 	$(PROXY_SOURCES)
 
 ABS_JS_FILES := \
@@ -42,7 +42,7 @@ ABS_JS_FILES := \
 
 JS_FILES = $(subst $(SRC_JS_DIR),../js,$(ABS_JS_FILES))
 
-$(LOCAL_PATH)/KrollJavaScript.cpp: $(GENERATED_DIR)/KrollNatives.cpp
+$(LOCAL_PATH)/KrollBindings.cpp: $(GENERATED_DIR)/KrollJS.cpp $(GENERATED_DIR)/KrollNativeBindings.cpp
 $(LOCAL_PATH)/ModuleFactory.cpp: $(GENERATED_DIR)/ModuleInit.cpp
 
 clean: ti-clean

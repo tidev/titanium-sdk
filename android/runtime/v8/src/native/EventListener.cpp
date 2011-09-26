@@ -7,12 +7,14 @@
 #include <v8.h>
 
 #include "AndroidUtil.h"
-#include "JNIUtil.h"
-#include "EventListener.h"
 #include "JavaObject.h"
+#include "JNIUtil.h"
 #include "JSException.h"
 #include "NativeObject.h"
 #include "TypeConverter.h"
+#include "V8Util.h"
+
+#include "EventListener.h"
 
 #define TAG "EventListener"
 
@@ -35,7 +37,7 @@ Handle<Value> EventListener::postEvent(const Arguments& args)
 		arg = TypeConverter::jsValueToJavaObject(args[1]);
 	}
 
-	jobject listener = JavaObject::Unwrap<JavaObject>(args.Data())->getJavaObject();
+	jobject listener = NativeObject::Unwrap<JavaObject>(args.Data()->ToObject())->getJavaObject();
 	JNIEnv *env = JNIScope::getEnv();
 	if (!env) {
 		return JSException::GetJNIEnvironmentError();
@@ -52,25 +54,41 @@ extern "C" {
 
 using namespace titanium;
 
+static Persistent<String> javaObjectSymbol;
+
 jlong Java_org_appcelerator_kroll_runtime_v8_EventListener_nativeInit(JNIEnv *env, jobject listener)
 {
+	LOGD(TAG, "nativeInit");
 	titanium::JNIScope jniScope(env);
 	HandleScope scope;
+
+	if (javaObjectSymbol.IsEmpty()) {
+		javaObjectSymbol = SYMBOL_LITERAL("javaObject");
+	}
 
 	JavaObject *o = new JavaObject(listener);
 	Local<FunctionTemplate> eventTemplate = FunctionTemplate::New(EventListener::postEvent, External::Wrap(o));
 
-	return *Persistent<Function>::New(eventTemplate->GetFunction());
+	Persistent<Function> v8Listener = Persistent<Function>::New(eventTemplate->GetFunction());
+	v8Listener->SetHiddenValue(javaObjectSymbol, External::Wrap(o));
+
+	return (jlong) *v8Listener;
 }
 
 void Java_org_appcelerator_kroll_runtime_v8_EventListener_nativeDispose(JNIEnv *env, jobject listener, jlong ptr)
 {
+	LOGD(TAG, "nativeDispose");
 	titanium::JNIScope jniScope(env);
 	HandleScope scope;
-	JavaObject *o = (JavaObject *) ptr;
 
-	env->DeleteGlobalRef(o->getJavaObject());
-	delete o;
+	Persistent<Function> v8Listener = Persistent<Function>::New(Handle<Function>((Function *) ptr));
+	JavaObject *o = NativeObject::Unwrap<JavaObject>(v8Listener->GetHiddenValue(javaObjectSymbol)->ToObject());
+	if (o) {
+		// Cleanup our global ref
+		delete o;
+	}
+
+	v8Listener.Dispose();
 }
 
 }

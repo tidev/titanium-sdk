@@ -30,9 +30,17 @@ public class KrollModule extends KrollProxy
 			V8Runtime.initModuleTemplate(moduleClass);
 			initializedTemplates.add(moduleClass);
 		}*/
-
-		((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
 		modelListener = this;
+	}
+
+	@Override
+	protected void initActivity(Activity activity)
+	{
+		super.initActivity(activity);
+
+		if (activity instanceof TiBaseActivity) {
+			((TiBaseActivity) getActivity()).addOnLifecycleEventListener(this);
+		}
 	}
 
 	// TODO @Override

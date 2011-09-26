@@ -16,6 +16,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.util.AsyncResult;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUrl;
@@ -50,17 +51,15 @@ public class KrollProxy extends EventEmitter
 	protected KrollDict creationDict = null;
 
 	// entry point for generator code
-	public static KrollProxy create(Class<? extends KrollProxy> objClass, Object[] creationArguments, long v8ObjectPointer, String creationUrl)
+	public static KrollProxy create(Class<? extends KrollProxy> objClass, Object[] creationArguments, long ptr, String creationUrl)
 	{
-		KrollProxy proxyInstance = null;
-
 		try {
-			proxyInstance = objClass.newInstance();
+			KrollProxy proxyInstance = objClass.newInstance();
 
 			/* store reference to the native object that represents this proxy so we can drive changes to the JS 
 			 * object
 			 */
-			proxyInstance.setPointer(v8ObjectPointer); // TODO - rename to KrollObject pointer?  should be runtime agnostic
+			proxyInstance.setPointer(ptr);
 			proxyInstance.creationUrl = new TiUrl(creationUrl);
 
 			/* associate the activity with the proxy.  if the proxy needs activity association delayed until a 
@@ -69,24 +68,18 @@ public class KrollProxy extends EventEmitter
 			 */
 			proxyInstance.initActivity(TiApplication.getInstance().getCurrentActivity());
 
-			// setup the proxy according to the creation arguments
+			// setup the proxy according to the creation arguments TODO - pass in createdInModule
 			proxyInstance.handleCreationArgs(null, creationArguments);
 
 			return proxyInstance;
 
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-
+			Log.e(TAG, "Error creating proxy: " + e.getMessage(), e);
 		} catch (InstantiationException e) {
-			e.printStackTrace();
+			Log.e(TAG, "Error creating proxy: " + e.getMessage(), e);
 		}
 
 		return null;
-	}
-
-	public KrollProxy()
-	{
-		super(0);
 	}
 
 	protected void initActivity(Activity activity)

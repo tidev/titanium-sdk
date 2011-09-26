@@ -25,6 +25,13 @@ namespace titanium {
 class ProxyFactory
 {
 public:
+	enum {
+		kJavaObject = 0,
+		kTiNamespace,
+		kPropertyCache,
+		kInternalFieldCount
+	};
+
 	// Creates a proxy on the V8 side given an existing Java proxy.
 	static v8::Handle<v8::Object> createV8Proxy(jclass javaClass, jobject javaProxy);
 
@@ -38,6 +45,9 @@ public:
 
 	// Setup a new proxy pair for some Kroll type.
 	static void registerProxyPair(jclass javaProxyClass, v8::FunctionTemplate* factory);
+
+	// A global property name interceptor with a cache that lazy initializes modules / submodules
+	static v8::Handle<v8::Value> proxyPropertyGetter(v8::Local<v8::String> property, const v8::AccessorInfo& info);
 
 };
 

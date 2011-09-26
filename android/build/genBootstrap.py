@@ -73,13 +73,21 @@ for bindingPath in bindingPaths:
 	proxies.reverse()
 
 	for proxy in proxies:
-		namespace = binding["proxies"][proxy]["proxyAttrs"]["fullAPIName"]
+		proxyMap = binding["proxies"][proxy]
+		proxyAttrs = proxyMap["proxyAttrs"]
+
+		# Creatable and child modules are auto initialized in generated code
+		if "creatableInModule" in proxyAttrs and \
+			proxyAttrs["creatableInModule"] != "org.appcelerator.kroll.annotations.Kroll.DEFAULT": continue
+		if "parentModule" in proxyAttrs: continue
+
+		namespace = proxyAttrs["fullAPIName"]
 		namespaces = map(lambda n: n.lower(), namespace.split(".")[:-1])
 		if "titanium" not in namespaces:
 			namespaces.insert(0, "titanium")
 		namespace = "::".join(namespaces)
-		className = binding["proxies"][proxy]["proxyClassName"]
-		if className in ("KrollProxy", "KrollModule"): continue
+		className = proxyMap["proxyClassName"]
+		#if className in ("KrollProxy", "KrollModule"): continue
 
 		headers += "#include \"%s.h\"\n" % proxy
 		modulesCode += "\t%s::%s::Initialize(target);\n" % (namespace, className)

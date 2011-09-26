@@ -8,16 +8,19 @@
 	global = this;
 
 	function startup() {
+		kroll.log("startup");
 		startup.globalVariables();
 		startup.runMain();
 	}
 
 	startup.globalVariables = function() {
+		kroll.log("global variables");
 		global.kroll = kroll;
 		var Events = NativeModule.require('events');
+		kroll.log("titanium");
 		global.Ti = global.Titanium = NativeModule.require('titanium');
 	};
-	
+
 	startup.runMain = function() {
 	};
 

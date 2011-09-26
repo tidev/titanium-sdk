@@ -70,13 +70,13 @@ void ReportException(TryCatch &try_catch, bool show_line)
 			String::Utf8Value filename(message->GetScriptResourceName());
 			const char* filename_string = *filename;
 			int linenum = message->GetLineNumber();
-			LOGE(EXC_TAG, "%s:%i\n", filename_string, linenum);
+			LOGE(EXC_TAG, "%s:%i", filename_string, linenum);
 		}
 	}
 
 	String::Utf8Value trace(try_catch.StackTrace());
 	if (trace.length() > 0 && !try_catch.StackTrace()->IsUndefined()) {
-		LOGE(EXC_TAG, "%s\n", *trace);
+		LOGE(EXC_TAG, "%s", *trace);
 	} else {
 		Local<Value> er = try_catch.Exception();
 		bool isErrorObject = er->IsObject() && !(er->ToObject()->Get(String::New("message"))->IsUndefined())
@@ -89,7 +89,7 @@ void ReportException(TryCatch &try_catch, bool show_line)
 
 		String::Utf8Value msg(
 			!isErrorObject ? er->ToString() : er->ToObject()->Get(String::New("message"))->ToString());
-		LOGE(EXC_TAG, "%s\n", *msg);
+		LOGE(EXC_TAG, "%s", *msg);
 	}
 }
 

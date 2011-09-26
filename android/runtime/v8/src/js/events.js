@@ -37,7 +37,6 @@ EventEmitter.prototype.setMaxListeners = function(n) {
 };
 
 EventEmitter.prototype.emit = function(type) {
-	require("titanium").API.debug("Called EventEmitter.prototype.emit for type="+type);
 	// If there is no 'error' event listener then throw.
 	if (type === 'error') {
 		if (!this._events || !this._events.error ||
@@ -94,6 +93,7 @@ EventEmitter.prototype.fireEvent = EventEmitter.prototype.emit;
 //EventEmitter is defined in src/node_events.cc
 //EventEmitter.prototype.emit() is also defined there.
 EventEmitter.prototype.addListener = function(type, listener) {
+	kroll.log("in addListener: " + type + ", type = " + (typeof listener));
 	if ('function' !== typeof listener) {
 		throw new Error('addListener only takes instances of Function');
 	}
