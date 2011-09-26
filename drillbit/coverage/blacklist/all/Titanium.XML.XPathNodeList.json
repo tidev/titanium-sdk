@@ -1,0 +1,9 @@
+{
+	"functions": [
+		"getLength",
+		"item"
+	],
+	"properties": [
+		"length"
+	]
+}
