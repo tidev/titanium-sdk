@@ -242,28 +242,31 @@ public class KrollContext implements Handler.Callback
 			return null;
 		}*/
 
-		if (filename.startsWith("app://")) {
+		if (filename.startsWith(TiC.URL_APP_PREFIX)) {
 			//KrollContext.getKrollContext().evalFile(scope, filename.replaceAll("app:/", "Resources"));
 			filename = filename.replaceAll("app:/", "Resources");
-			if (DBG) {
-				Log.i(LCAT, "evalFile: " + filename);
-			}
-
-			if (isOurThread()) {
-				return handleEvalFile(filename);
-			}
-
-			AsyncResult asyncResult = new AsyncResult();
-			Message msg = messageQueue.getHandler().obtainMessage(MSG_EVAL_FILE, asyncResult);
-			msg.getData().putString(TiC.MSG_PROPERTY_FILENAME, filename);
-			TiMessageQueue.getMessageQueue().sendBlockingMessage(msg, messageQueue, asyncResult);
+		} else if (filename.startsWith(TiC.URL_ANDROID_ASSET_RESOURCES)) {
+			filename = filename.replaceAll("file:///android_asset/", "");
 		}
+
+		if (DBG) {
+			Log.i(LCAT, "evalFile: " + filename);
+		}
+
+		if (isOurThread()) {
+			return handleEvalFile(filename);
+		}
+
+		AsyncResult asyncResult = new AsyncResult();
+		Message msg = messageQueue.getHandler().obtainMessage(MSG_EVAL_FILE, asyncResult);
+		msg.getData().putString(TiC.MSG_PROPERTY_FILENAME, filename);
+		TiMessageQueue.getMessageQueue().sendBlockingMessage(msg, messageQueue, asyncResult);
 
 		if (messenger != null) {
 			try {
-				Message msg = Message.obtain();
-				msg.what = messageId;
-				messenger.send(msg);
+				Message responseMsg = Message.obtain();
+				responseMsg.what = messageId;
+				messenger.send(responseMsg);
 				if (DBG) {
 					Log.d(LCAT, "Notifying caller that evalFile has completed");
 				}

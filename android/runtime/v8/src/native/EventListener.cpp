@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#include <stdio.h>
 #include <v8.h>
 
 #include "AndroidUtil.h"
@@ -22,29 +23,29 @@ using namespace v8;
 
 namespace titanium {
 
+static Persistent<String> javaObjectSymbol;
+
 Handle<Value> EventListener::postEvent(const Arguments& args)
 {
 	HandleScope scope;
+	LOGD(TAG, "postEvent");
 
 	if (args.Length() == 0) {
 		LOGW(TAG, "Called with no arguments");
 		return Undefined();
 	}
 
-	jstring event = TypeConverter::jsStringToJavaString(args[0]->ToString());
-	jobject arg = NULL;
-	if (args.Length() > 1) {
-		arg = TypeConverter::jsValueToJavaObject(args[1]);
-	}
+	jobject jEvent = TypeConverter::jsValueToJavaObject(args[0]);
 
-	jobject listener = NativeObject::Unwrap<JavaObject>(args.Data()->ToObject())->getJavaObject();
+	JavaObject *javaListener = static_cast<JavaObject *>(External::Unwrap(args.Data()));
+	jobject listener = javaListener->getJavaObject();
+
 	JNIEnv *env = JNIScope::getEnv();
 	if (!env) {
 		return JSException::GetJNIEnvironmentError();
 	}
 
-	env->CallVoidMethod(listener, JNIUtil::eventListenerPostEventMethod, event, arg);
-
+	env->CallVoidMethod(listener, JNIUtil::eventListenerPostEventMethod, jEvent);
 	return Undefined();
 }
 
@@ -54,11 +55,8 @@ extern "C" {
 
 using namespace titanium;
 
-static Persistent<String> javaObjectSymbol;
-
 jlong Java_org_appcelerator_kroll_runtime_v8_EventListener_nativeInit(JNIEnv *env, jobject listener)
 {
-	LOGD(TAG, "nativeInit");
 	titanium::JNIScope jniScope(env);
 	HandleScope scope;
 
@@ -77,7 +75,6 @@ jlong Java_org_appcelerator_kroll_runtime_v8_EventListener_nativeInit(JNIEnv *en
 
 void Java_org_appcelerator_kroll_runtime_v8_EventListener_nativeDispose(JNIEnv *env, jobject listener, jlong ptr)
 {
-	LOGD(TAG, "nativeDispose");
 	titanium::JNIScope jniScope(env);
 	HandleScope scope;
 

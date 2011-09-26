@@ -29,16 +29,22 @@ public class EventListener extends ManagedV8Reference
 		emitter.addEventListener(event, this);
 	}
 
-	public void postEvent(String event, Object data)
+	public void postEvent(HashMap<String, Object> event)
 	{
-		Integer msgId = eventMessages.get(event);
+		String type = (String) event.get(EventEmitter.PROPERTY_TYPE);
+		if (type == null) {
+			Log.w(TAG, "Received null event type, ignoring");
+			return;
+		}
+	
+		Integer msgId = eventMessages.get(type);
 		if (msgId == null) {
 			Log.w(TAG, "No msgId found for event \"" + event  + "\"");
 			return;
 		}
 
-		Message msg = handler.obtainMessage(msgId, data);
-		msg.getData().putString(EventEmitter.EVENT_NAME, event);
+		Message msg = handler.obtainMessage(msgId, event);
+		msg.getData().putString(EventEmitter.PROPERTY_TYPE, type);
 		msg.sendToTarget();
 	}
 

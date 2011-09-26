@@ -18,9 +18,9 @@ public class EventEmitter extends V8Object implements Handler.Callback
 	private static final int MSG_LISTENER_REMOVED = 104;
 	public static final int MSG_LAST_ID = MSG_LISTENER_REMOVED + 1;
 
-	public static final String EVENT_NAME = "eventName";
-	public static final String EVENT_RESULT = "eventResult";
-	public static final String EVENT_SYNC = "eventSync";
+	public static final String PROPERTY_TYPE= "type";
+	public static final String PROPERTY_RESULT = "eventResult";
+	public static final String PROPERTY_SYNC = "eventSync";
 
 	private Handler v8Handler, uiHandler;
 	private EventListener eventChangeListener;
@@ -56,14 +56,14 @@ public class EventEmitter extends V8Object implements Handler.Callback
 		return fireEvent(event, data, true);
 	}
 
-	private boolean fireEvent(String event, Object data, boolean sync) {
+	private boolean fireEvent(String type, Object data, boolean sync) {
 		if (V8Runtime.getInstance().isV8Thread()) {
-			return nativeFireEvent(ptr, event, data);
+			return nativeFireEvent(ptr, type, data);
 		}
 
 		Message msg = v8Handler.obtainMessage(MSG_FIRE_EVENT, data);
-		msg.getData().putString(EVENT_NAME, event);
-		msg.getData().putBoolean(EVENT_SYNC, sync);
+		msg.getData().putString(PROPERTY_TYPE, type);
+		msg.getData().putBoolean(PROPERTY_SYNC, sync);
 		msg.sendToTarget();
 
 		if (sync) {
@@ -72,7 +72,7 @@ public class EventEmitter extends V8Object implements Handler.Callback
 			} catch (InterruptedException e) {
 				Log.e(TAG, e.getMessage(), e);
 			}
-			return msg.getData().getBoolean(EVENT_RESULT, false);
+			return msg.getData().getBoolean(PROPERTY_RESULT, false);
 		}
 		return false;
 	}
@@ -86,7 +86,7 @@ public class EventEmitter extends V8Object implements Handler.Callback
 		}
 
 		Message msg = v8Handler.obtainMessage(MSG_ADD_EVENT_LISTENER, listener);
-		msg.getData().putString(EVENT_NAME, event);
+		msg.getData().putString(PROPERTY_TYPE, event);
 		msg.sendToTarget();
 	}
 
@@ -97,7 +97,7 @@ public class EventEmitter extends V8Object implements Handler.Callback
 		}
 
 		Message msg = v8Handler.obtainMessage(MSG_REMOVE_EVENT_LISTENER, listener);
-		msg.getData().putString(EVENT_NAME, event);
+		msg.getData().putString(PROPERTY_TYPE, event);
 		msg.sendToTarget();
 	}
 
@@ -131,18 +131,18 @@ public class EventEmitter extends V8Object implements Handler.Callback
 				handleFireEvent(msg);
 				return true;
 			case MSG_ADD_EVENT_LISTENER:
-				nativeAddEventListener(ptr, msg.getData().getString(EVENT_NAME),
+				nativeAddEventListener(ptr, msg.getData().getString(PROPERTY_TYPE),
 					((EventListener) msg.obj).getPointer());
 				return true;
 			case MSG_REMOVE_EVENT_LISTENER:
-				nativeRemoveEventListener(ptr, msg.getData().getString(EVENT_NAME),
+				nativeRemoveEventListener(ptr, msg.getData().getString(PROPERTY_TYPE),
 					((EventListener) msg.obj).getPointer());
 				return true;
 			case MSG_LISTENER_ADDED:
-				handleListenerAdded((String) msg.obj);
+				handleListenerAdded(msg.getData().getString(PROPERTY_TYPE));
 				return true;
 			case MSG_LISTENER_REMOVED:
-				handleListenerRemoved((String) msg.obj);
+				handleListenerRemoved(msg.getData().getString(PROPERTY_TYPE));
 				return true;
 		}
 		return false;
@@ -150,9 +150,9 @@ public class EventEmitter extends V8Object implements Handler.Callback
 
 	private void handleFireEvent(Message msg)
 	{
-		boolean result = nativeFireEvent(ptr, msg.getData().getString(EVENT_NAME), msg.obj);
-		msg.getData().putBoolean(EVENT_RESULT, result);
-		if (msg.getData().getBoolean(EVENT_SYNC, false)) {
+		boolean result = nativeFireEvent(ptr, msg.getData().getString(PROPERTY_TYPE), msg.obj);
+		msg.getData().putBoolean(PROPERTY_RESULT, result);
+		if (msg.getData().getBoolean(PROPERTY_SYNC, false)) {
 			semaphore.release();
 		}
 	}

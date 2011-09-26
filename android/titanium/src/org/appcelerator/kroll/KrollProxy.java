@@ -231,7 +231,7 @@ public class KrollProxy extends EventEmitter
 			case MSG_LISTENER_REMOVED: {
 				if (modelListener == null) return true;
 
-				String event = msg.getData().getString(EventEmitter.EVENT_NAME);
+				String event = msg.getData().getString(EventEmitter.PROPERTY_TYPE);
 				HashMap<String, Object> map = (HashMap<String, Object>) msg.obj;
 				int count = TiConvert.toInt(map.get(TiC.PROPERTY_COUNT));
 				if (msg.what == MSG_LISTENER_ADDED) {

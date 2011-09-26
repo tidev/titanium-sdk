@@ -6,6 +6,7 @@
  *
  * Original code Copyright 2009 Ryan Dahl <ry@tinyclouds.org>
  */
+#include <jni.h>
 #include <v8.h>
 
 #include "AndroidUtil.h"
@@ -25,9 +26,9 @@ namespace titanium {
 Persistent<FunctionTemplate> EventEmitter::constructorTemplate;
 
 static Persistent<String> eventsSymbol;
-static Persistent<String> fireEventSymbol;
-static Persistent<String> addEventListenerSymbol;
-static Persistent<String> removeEventListenerSymbol;
+static Persistent<String> emitSymbol;
+static Persistent<String> addListenerSymbol;
+static Persistent<String> removeListenerSymbol;
 
 Handle<Value> EventEmitter::Constructor(const Arguments& args)
 {
@@ -47,9 +48,9 @@ void EventEmitter::Initialize()
 	constructorTemplate->SetClassName(String::NewSymbol("EventEmitter"));
 
 	eventsSymbol = SYMBOL_LITERAL("_events");
-	fireEventSymbol = SYMBOL_LITERAL("fireEvent");
-	addEventListenerSymbol = SYMBOL_LITERAL("addEventListener");
-	removeEventListenerSymbol = SYMBOL_LITERAL("removeEventListener");
+	emitSymbol = SYMBOL_LITERAL("emit");
+	addListenerSymbol = SYMBOL_LITERAL("addListener");
+	removeListenerSymbol = SYMBOL_LITERAL("removeListener");
 }
 
 bool EventEmitter::emit(Handle<String> event, int argc, Handle<Value> *argv)
@@ -68,7 +69,7 @@ bool EventEmitter::emit(Handle<String> event, int argc, Handle<Value> *argv)
 		Handle<Function> listener = Handle<Function>::Cast(listeners_v);
 		listener->Call(handle_, argc, argv);
 		if (try_catch.HasCaught()) {
-			FatalException(try_catch);
+			V8Util::fatalException(try_catch);
 			return false;
 		}
 	} else if (listeners_v->IsArray()) {
@@ -79,7 +80,7 @@ bool EventEmitter::emit(Handle<String> event, int argc, Handle<Value> *argv)
 			Handle<Function> listener = Handle<Function>::Cast(listener_v);
 			listener->Call(handle_, argc, argv);
 			if (try_catch.HasCaught()) {
-				FatalException(try_catch);
+				V8Util::fatalException(try_catch);
 				return false;
 			}
 		}
@@ -107,7 +108,7 @@ jboolean Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeFireEvent(JNI
 	} else {
 		emitter = TypeConverter::javaObjectToJsValue(jEmitter)->ToObject();
 	}
-	Handle<Value> fireEventValue = emitter->Get(fireEventSymbol);
+	Handle<Value> fireEventValue = emitter->Get(emitSymbol);
 	if (!fireEventValue->IsFunction()) {
 		return JNI_FALSE;
 	}
@@ -127,45 +128,41 @@ jboolean Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeFireEvent(JNI
 	}
 
 	if (tryCatch.HasCaught()) {
-		ReportException(tryCatch, true);
+		V8Util::reportException(tryCatch);
 	} else if (result->IsTrue()) {
 		return JNI_TRUE;
 	}
 	return JNI_FALSE;
 }
 
+static Persistent<Function> addEventListener;
+
 void Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeAddEventListener(JNIEnv *env, jobject jEmitter, jlong ptr, jstring event, jlong listenerPtr)
 {
 	titanium::JNIScope jniScope(env);
 	HandleScope scope;
-	LOGD(TAG, "nativeAddEventListener");
 
 	Handle<Object> emitter;
 	if (ptr != 0) {
-		LOGD(TAG, "casting persistent");
-		emitter = Persistent<Object>((Object *) ptr);
+		emitter = Persistent<Object>::New(Handle<Object>((Object *) ptr));
 	} else {
-		LOGD(TAG, "converting");
 		emitter = TypeConverter::javaObjectToJsValue(jEmitter)->ToObject();
 	}
 
-	LOGD(TAG, "getting add event listener");
-	Handle<Function> addEventListener = Handle<Function>::Cast(emitter->Get(addEventListenerSymbol));
+	Local<Function> addEventListener = Local<Function>::Cast(emitter->GetRealNamedProperty(addListenerSymbol));
 	Handle<String> jsEvent = TypeConverter::javaStringToJsString(event);
 	Handle<Function> listener((Function *) listenerPtr);
+
 	Handle<String> className = listener->GetConstructorName();
 	String::Utf8Value cn(className);
 
 	Handle<Value> args[] = { jsEvent, listener };
-	LOGD(TAG, "calling add event listener on %s", *cn);
 
 	TryCatch tryCatch;
 	addEventListener->Call(emitter, 2, args);
 	if (tryCatch.HasCaught()) {
-		LOGD(TAG, "Caught exception");
-		ReportException(tryCatch, true);
+		V8Util::reportException(tryCatch);
 	}
-	LOGD(TAG, "finished adding event listener");
 }
 
 void Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeRemoveEventListener(JNIEnv *env, jobject jEmitter, jlong ptr, jstring event, jlong listenerPtr)
@@ -179,7 +176,7 @@ void Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeRemoveEventListen
 	} else {
 		emitter = TypeConverter::javaObjectToJsValue(jEmitter)->ToObject();
 	}
-	Handle<Function> removeEventListener = Handle<Function>::Cast(emitter->Get(removeEventListenerSymbol));
+	Handle<Function> removeEventListener = Handle<Function>::Cast(emitter->Get(removeListenerSymbol));
 	Handle<String> jsEvent = TypeConverter::javaStringToJsString(event);
 	Handle<Function> listener((Function *) listenerPtr);
 

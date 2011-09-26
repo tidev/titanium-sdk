@@ -37,6 +37,7 @@ EventEmitter.prototype.setMaxListeners = function(n) {
 };
 
 EventEmitter.prototype.emit = function(type) {
+
 	// If there is no 'error' event listener then throw.
 	if (type === 'error') {
 		if (!this._events || !this._events.error ||
@@ -52,6 +53,7 @@ EventEmitter.prototype.emit = function(type) {
 	}
 
 	if (!this._events) return false;
+
 	var handler = this._events[type];
 	if (!handler) return false;
 
@@ -59,18 +61,26 @@ EventEmitter.prototype.emit = function(type) {
 		switch (arguments.length) {
 		// fast cases
 		case 1:
-			handler.call(this);
+			handler.call(this, { type: type });
 			break;
 		case 2:
-			handler.call(this, arguments[1]);
+			var event = arguments[1];
+			if (event instanceof Object) {
+				event.type = type;
+			}
+			handler.call(this, event);
 			break;
 		case 3:
-			handler.call(this, arguments[1], arguments[2]);
+			var event = arguments[1];
+			if (event instanceof Object) {
+				event.type = type;
+			}
+			handler.call(this, event, arguments[2]);
 			break;
 			// slower
 		default:
 			var args = Array.prototype.slice.call(arguments, 1);
-		handler.apply(this, args);
+			handler.apply(this, args);
 		}
 		return true;
 
@@ -93,12 +103,13 @@ EventEmitter.prototype.fireEvent = EventEmitter.prototype.emit;
 //EventEmitter is defined in src/node_events.cc
 //EventEmitter.prototype.emit() is also defined there.
 EventEmitter.prototype.addListener = function(type, listener) {
-	kroll.log("in addListener: " + type + ", type = " + (typeof listener));
 	if ('function' !== typeof listener) {
 		throw new Error('addListener only takes instances of Function');
 	}
 
-	if (!this._events) this._events = {};
+	if (!this._events) {
+		this._events = {};
+	}
 
 	var id = -1;
 	// To avoid recursion in the case that type == "newListeners"! Before
@@ -114,7 +125,7 @@ EventEmitter.prototype.addListener = function(type, listener) {
 	}
 
 	// This was originally "newListener"
-	this.emit('listenerAdded', { type: type, count: id + 1 });
+	this.emit('listenerAdded', { count: id + 1 });
 
 	if (!this._events[type]) {
 		// Optimize the case of one listener. Don't need the extra array object.
@@ -209,7 +220,7 @@ EventEmitter.prototype.removeListener = function(type, listener) {
 	}
 
 	// Here we've correctly removed the listener, notify via listenerRemoved
-	this.emit('listenerRemoved', { type: type, count: count });
+	this.emit('listenerRemoved', { count: count });
 
 	return this;
 };

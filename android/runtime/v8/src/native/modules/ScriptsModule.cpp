@@ -104,7 +104,7 @@ void WrappedScript::Initialize(Handle<Object> target)
 Handle<Value> WrappedScript::New(const Arguments& args)
 {
 	if (!args.IsConstructCall()) {
-		return NewInstanceFromConstructorTemplate(constructor_template, args);
+		return V8Util::newInstanceFromConstructorTemplate(constructor_template, args);
 	}
 
 	HandleScope scope;
@@ -251,7 +251,7 @@ Handle<Value> WrappedScript::EvalMachine(const Arguments& args)
 		script = output_flag == returnResult ? Script::Compile(code, filename) : Script::New(code, filename);
 		if (script.IsEmpty()) {
 			if (display_error) {
-				ReportException(try_catch, true);
+				V8Util::reportException(try_catch, true);
 			}
 			// Hack because I can't get a proper stacktrace on SyntaxError
 			return try_catch.ReThrow();

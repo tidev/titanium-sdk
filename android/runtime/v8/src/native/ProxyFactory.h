@@ -46,9 +46,6 @@ public:
 	// Setup a new proxy pair for some Kroll type.
 	static void registerProxyPair(jclass javaProxyClass, v8::FunctionTemplate* factory);
 
-	// A global property name interceptor with a cache that lazy initializes modules / submodules
-	static v8::Handle<v8::Value> proxyPropertyGetter(v8::Local<v8::String> property, const v8::AccessorInfo& info);
-
 };
 
 }

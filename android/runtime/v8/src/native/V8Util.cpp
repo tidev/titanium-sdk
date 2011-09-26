@@ -14,36 +14,36 @@ using namespace v8;
 
 #define TAG "V8Util"
 
-Handle<String> ImmutableAsciiStringLiteral::CreateFromLiteral(const char *string_literal, size_t length)
+Handle<String> ImmutableAsciiStringLiteral::CreateFromLiteral(const char *stringLiteral, size_t length)
 {
 	HandleScope scope;
-	Local<String> result = String::NewExternal(new ImmutableAsciiStringLiteral(string_literal, length));
+	Local<String> result = String::NewExternal(new ImmutableAsciiStringLiteral(stringLiteral, length));
 	return scope.Close(result);
 }
 
-Handle<Value> ExecuteString(Handle<String> source, Handle<Value> filename)
+Handle<Value> V8Util::executeString(Handle<String> source, Handle<Value> filename)
 {
 	HandleScope scope;
-	TryCatch try_catch;
+	TryCatch tryCatch;
 
 	Local<Script> script = Script::Compile(source, filename);
 	if (script.IsEmpty()) {
 		LOGF(TAG, "Script source is empty");
-		ReportException(try_catch, true);
+		reportException(tryCatch, true);
 		return Undefined();
 	}
 
 	Local<Value> result = script->Run();
 	if (result.IsEmpty()) {
 		LOGF(TAG, "Script result is empty");
-		ReportException(try_catch, true);
+		reportException(tryCatch, true);
 		return Undefined();
 	}
 
 	return scope.Close(result);
 }
 
-Handle<Value> NewInstanceFromConstructorTemplate(Persistent<FunctionTemplate>& t, const Arguments& args)
+Handle<Value> V8Util::newInstanceFromConstructorTemplate(Persistent<FunctionTemplate>& t, const Arguments& args)
 {
 	HandleScope scope;
 	const int argc = args.Length();
@@ -58,53 +58,88 @@ Handle<Value> NewInstanceFromConstructorTemplate(Persistent<FunctionTemplate>& t
 	return scope.Close(instance);
 }
 
-void ReportException(TryCatch &try_catch, bool show_line)
+#define EXC_TAG "V8Exception"
+
+static Persistent<String> nameSymbol, messageSymbol;
+
+void V8Util::reportException(TryCatch &tryCatch, bool showLine)
 {
 	HandleScope scope;
-	Handle<Message> message = try_catch.Message();
+	Handle<Message> message = tryCatch.Message();
+	if (nameSymbol.IsEmpty()) {
+		nameSymbol = SYMBOL_LITERAL("name");
+		messageSymbol = SYMBOL_LITERAL("message");
+	}
 
-#define EXC_TAG "V8Exception"
-	if (show_line) {
-		Handle<Message> message = try_catch.Message();
+	if (showLine) {
+		Handle<Message> message = tryCatch.Message();
 		if (!message.IsEmpty()) {
 			String::Utf8Value filename(message->GetScriptResourceName());
-			const char* filename_string = *filename;
 			int linenum = message->GetLineNumber();
-			LOGE(EXC_TAG, "%s:%i", filename_string, linenum);
+			LOGE(EXC_TAG, "%s:%i", *filename, linenum);
 		}
 	}
 
-	String::Utf8Value trace(try_catch.StackTrace());
-	if (trace.length() > 0 && !try_catch.StackTrace()->IsUndefined()) {
+	String::Utf8Value trace(tryCatch.StackTrace());
+	if (trace.length() > 0 && !tryCatch.StackTrace()->IsUndefined()) {
 		LOGE(EXC_TAG, "%s", *trace);
 	} else {
-		Local<Value> er = try_catch.Exception();
-		bool isErrorObject = er->IsObject() && !(er->ToObject()->Get(String::New("message"))->IsUndefined())
-			&& !(er->ToObject()->Get(String::New("name"))->IsUndefined());
+		Local<Value> exception = tryCatch.Exception();
+		if (exception->IsObject()) {
+			Handle<Object> exceptionObj = exception->ToObject();
+			Handle<Value> message = exceptionObj->Get(messageSymbol);
+			Handle<Value> name = exceptionObj->Get(nameSymbol);
 
-		if (isErrorObject) {
-			String::Utf8Value name(er->ToObject()->Get(String::New("name")));
-			LOGE(EXC_TAG, "%s: ", *name);
+			if (!message->IsUndefined() && !name->IsUndefined()) {
+				String::Utf8Value nameValue(name);
+				String::Utf8Value messageValue(message);
+				LOGE(EXC_TAG, "%s: %s", *nameValue, *messageValue);
+			}
+		} else {
+			String::Utf8Value error(exception);
+			LOGE(EXC_TAG, *error);
 		}
-
-		String::Utf8Value msg(
-			!isErrorObject ? er->ToString() : er->ToObject()->Get(String::New("message"))->ToString());
-		LOGE(EXC_TAG, "%s", *msg);
 	}
 }
 
-static int uncaught_exception_counter = 0;
+static int uncaughtExceptionCounter = 0;
 
-void FatalException(TryCatch &try_catch)
+void V8Util::fatalException(TryCatch &tryCatch)
 {
 	HandleScope scope;
 	// Check if uncaught_exception_counter indicates a recursion
-	if (uncaught_exception_counter > 0) {
-		ReportException(try_catch, true);
+	if (uncaughtExceptionCounter > 0) {
+		reportException(tryCatch, true);
 		LOGF(TAG, "Double exception fault");
 		JNIUtil::terminateVM();
 	}
-	ReportException(try_catch, true);
+	reportException(tryCatch, true);
+}
+
+void V8Util::logValue(const char *format, Handle<Value> value)
+{
+	HandleScope scope;
+
+	if (value.IsEmpty()) {
+		LOGD(TAG, format, "empty");
+	} else if (value->IsObject()) {
+		Handle<Object> obj = value->ToObject();
+		Handle<Array> names = obj->GetPropertyNames();
+		uint32_t length = names->Length();
+		LOGD(TAG, format, "{");
+		for (uint32_t i = 0; i < length; ++i) {
+			Handle<Value> name = names->Get(i);
+			Handle<Value> value = obj->GetRealNamedProperty(name->ToString());
+			String::Utf8Value nameValue(name->ToString());
+
+			LOGD(TAG, "  \"%s\": ", *nameValue);
+			logValue("    \"%s\"", value);
+		}
+		LOGD(TAG, "}");
+	} else {
+		String::Utf8Value str(value->ToString());
+		LOGD(TAG, format, *str);
+	}
 }
 
 }

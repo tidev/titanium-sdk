@@ -10,6 +10,7 @@
 #include "AndroidUtil.h"
 #include "JNIUtil.h"
 #include "TypeConverter.h"
+#include "V8Util.h"
 #include "modules/ScriptsModule.h"
 
 #define TAG "V8Script"
@@ -37,7 +38,13 @@ jlong Java_org_appcelerator_kroll_runtime_v8_V8Context_create(JNIEnv *env, jclas
 	}
 	Handle<Value> args[] = { object };
 	Local<Function> function = v8::FunctionTemplate::New(WrappedScript::CreateContext)->GetFunction();
+
+	TryCatch tryCatch;
 	Local<Value> value = function->Call(function, 1, args);
+	if (tryCatch.HasCaught()) {
+		V8Util::reportException(tryCatch, true);
+	}
+
 	Local<Object> context = value->ToObject();
 	return (jlong) *Persistent<Object>::New(context);
 }
@@ -72,7 +79,13 @@ jlong Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContext__JJ(JNIEnv *e
 
 	Handle<Value> args[] = { wrappedContext };
 	Local<Function> function = v8::FunctionTemplate::New(WrappedScript::RunInContext)->GetFunction();
+
+	TryCatch tryCatch;
 	Local<Value> value = function->Call(wrappedScript, 1, args);
+	if (tryCatch.HasCaught()) {
+		V8Util::reportException(tryCatch, true);
+	}
+
 	return (jlong) *Persistent<Value>::New(value);
 }
 
@@ -91,7 +104,13 @@ jlong Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContext__Ljava_lang_S
 	Handle<Value> args[] = { TypeConverter::javaStringToJsString(source), wrappedContext,
 		TypeConverter::javaStringToJsString(filename) };
 	Local<Function> function = v8::FunctionTemplate::New(WrappedScript::CompileRunInContext)->GetFunction();
+
+	TryCatch tryCatch;
 	Local<Value> value = function->Call(function, 3, args);
+	if (tryCatch.HasCaught()) {
+		V8Util::reportException(tryCatch, true);
+	}
+
 	return (jlong) *Persistent<Value>::New(value);
 }
 
@@ -113,7 +132,13 @@ jlong Java_org_appcelerator_kroll_runtime_v8_V8Script_runInNewContext__JJ(JNIEnv
 
 	Handle<Value> args[] = { warppedScript, object };
 	Local<Function> function = v8::FunctionTemplate::New(WrappedScript::RunInNewContext)->GetFunction();
+
+	TryCatch tryCatch;
 	Local<Value> value = function->Call(function, 2, args);
+	if (tryCatch.HasCaught()) {
+		V8Util::reportException(tryCatch, true);
+	}
+
 	return (jlong) *Persistent<Value>::New(value);
 }
 
@@ -135,7 +160,14 @@ jlong Java_org_appcelerator_kroll_runtime_v8_V8Script_runInNewContext__Ljava_lan
 	Handle<Value> args[] = { TypeConverter::javaStringToJsString(source), object, TypeConverter::javaStringToJsString(
 		filename) };
 	Local<Function> function = v8::FunctionTemplate::New(WrappedScript::CompileRunInNewContext)->GetFunction();
+
+	TryCatch tryCatch;
 	Local<Value> value = function->Call(function, 3, args);
+
+	if (tryCatch.HasCaught()) {
+		V8Util::reportException(tryCatch, true);
+	}
+
 	return (jlong) *Persistent<Value>::New(value);
 }
 
@@ -154,17 +186,32 @@ void Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContextNoResult(JNIEnv
 	Handle<Value> args[] = { TypeConverter::javaStringToJsString(source), wrappedContext,
 		TypeConverter::javaStringToJsString(filename) };
 	Local<Function> function = v8::FunctionTemplate::New(WrappedScript::CompileRunInContext)->GetFunction();
+
+	TryCatch tryCatch;
 	function->Call(function, 3, args);
+
+	if (tryCatch.HasCaught()) {
+		V8Util::reportException(tryCatch, true);
+	}
 }
 
 void Java_org_appcelerator_kroll_runtime_v8_V8Script_nativeRunInThisContextNoResult(JNIEnv *env, jclass clazz, jstring source, jstring filename)
 {
+
 	titanium::JNIScope jniScope(env);
 	HandleScope scope;
+
 	Handle<Value> args[] = { TypeConverter::javaStringToJsString(source),
 		TypeConverter::javaStringToJsString(filename) };
+
 	Local<Function> function = v8::FunctionTemplate::New(WrappedScript::CompileRunInThisContext)->GetFunction();
+
+	TryCatch tryCatch;
 	function->Call(function, 2, args);
+
+	if (tryCatch.HasCaught()) {
+		V8Util::reportException(tryCatch, true);
+	}
 }
 
 #ifdef __cplusplus

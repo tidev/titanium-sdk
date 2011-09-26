@@ -11,16 +11,25 @@
 
 namespace titanium {
 
+namespace bindings {
+	typedef void (*BindCallback)(v8::Handle<v8::Object> exports);
+
+	struct BindEntry {
+		const char *name;
+		BindCallback bind;
+	};
+
+} // namespace bindings
+
 class KrollBindings
 {
 public:
 	static void initNatives(v8::Handle<v8::Object> target);
-	static void initTitanium(v8::Handle<v8::Object> target);
 
 	static v8::Handle<v8::String> getMainSource();
 	static v8::Handle<v8::Value> getBinding(const v8::Arguments& args);
 };
 
-}
+} // namespace titanium
 
 #endif

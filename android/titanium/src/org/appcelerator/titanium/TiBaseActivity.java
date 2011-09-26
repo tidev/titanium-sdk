@@ -51,7 +51,7 @@ public abstract class TiBaseActivity extends Activity
 
 	private boolean onDestroyFired = false;
 	private int originalOrientationMode = -1;
-	private TiWeakList<OnLifecycleEvent> lifecycleListeners;
+	private TiWeakList<OnLifecycleEvent> lifecycleListeners = new TiWeakList<OnLifecycleEvent>();
 	private TiWeakList<OnServiceLifecycleEvent> serviceLifecycleListeners;
 
 	protected TiCompositeLayout layout;

@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-var binding = kroll.binding('titanium');
+var binding = kroll.binding('Titanium');
 var Titanium = binding.Titanium;
 
 // assign any Titanium props/methods/aliases here
@@ -13,11 +13,23 @@ Object.prototype.extend = function(other) {
 	if (!object) return;
 
 	for (name in object) {
-		this[name] = object[name];
+		if (object.hasOwnProperty(name)) {
+			this[name] = object[name];
+		}
 	}
 	return this;
 }
 
-Titanium.API = kroll.binding('api');
+function defineModuleGetter(module, name) {
+	module.__defineGetter__(name, function() {
+		return kroll.binding(name)[name];
+	});	
+}
+
+defineModuleGetter(Titanium, "API");
+defineModuleGetter(Titanium, "UI");
+defineModuleGetter(Titanium, "Media");
+defineModuleGetter(Titanium, "Filesystem");
+defineModuleGetter(Titanium, "Utils");
 
 module.exports = Titanium;

@@ -259,7 +259,7 @@ void JNIUtil::initCache()
 
 	assetsReadResourceMethod = getMethodID(assetsClass, "readResource", "(Ljava/lang/String;)[C", true);
 	eventListenerPostEventMethod = getMethodID(eventListenerClass, "postEvent",
-		"(Ljava/lang/String;Ljava/lang/Object;)V", false);
+		"(Ljava/util/HashMap;)V", false);
 	LOGD(TAG, "finish init cache");
 }
 }

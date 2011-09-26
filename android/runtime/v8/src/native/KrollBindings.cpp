@@ -9,7 +9,6 @@
 
 #include "AndroidUtil.h"
 #include "EventEmitter.h"
-#include "ModuleFactory.h"
 #include "V8Util.h"
 
 #include "KrollBindings.h"
@@ -20,25 +19,23 @@
 // Generated perfect hash for native bindings
 #include "KrollNativeBindings.cpp"
 
+// Generated perfect hash for generated bindings
+#include "KrollGeneratedBindings.cpp"
+
 #define TAG "KrollBindings"
 
 namespace titanium {
 using namespace v8;
 
-void KrollBindings::initNatives(Handle<Object> target)
+void KrollBindings::initNatives(Handle<Object> exports)
 {
 	HandleScope scope;
 	for (int i = 0; natives[i].name; ++i) {
 		if (natives[i].source == kroll_native) continue;
 		Local<String> name = String::New(natives[i].name);
 		Handle<String> source = IMMUTABLE_STRING_LITERAL_FROM_ARRAY(natives[i].source, natives[i].source_length);
-		target->Set(name, source);
+		exports->Set(name, source);
 	}
-}
-
-void KrollBindings::initTitanium(v8::Handle<v8::Object> target)
-{
-	ModuleFactory::initModule("Titanium", target);
 }
 
 Handle<Value> KrollBindings::getBinding(const Arguments& args)
@@ -50,8 +47,6 @@ Handle<Value> KrollBindings::getBinding(const Arguments& args)
 	int lineNumber = args.Callee()->GetScriptLineNumber();
 	String::Utf8Value filename(resourceName);
 
-	LOGD(TAG, "getBinding called from %s line %d", *filename, lineNumber);
-
 	if (bindingCache.IsEmpty()) {
 		bindingCache = Persistent<Object>::New(Object::New());
 	}
@@ -62,14 +57,21 @@ Handle<Value> KrollBindings::getBinding(const Arguments& args)
 	}
 
 	String::Utf8Value bindingValue(binding);
-	LOGD(TAG, "getBindings: %s", *bindingValue);
+	int length = bindingValue.length();
 
-	struct bindingInit *init = KrollNativeBindings::lookupBindingInit(
-		*bindingValue, bindingValue.length());
+	struct bindings::BindEntry *native = bindings::native::lookupBindingInit(*bindingValue, length);
 
-	if (init) {
+	if (native) {
 		Local<Object> exports = Object::New();
-		init->fn(exports);
+		native->bind(exports);
+		bindingCache->Set(binding, exports);
+		return scope.Close(exports);
+	}
+
+	struct bindings::BindEntry* generated = bindings::generated::lookupGeneratedInit(*bindingValue, length);
+	if (generated) {
+		Local<Object> exports = Object::New();
+		generated->bind(exports);
 		bindingCache->Set(binding, exports);
 		return scope.Close(exports);
 	}

@@ -21,7 +21,6 @@ SRC_FILES := \
 	JavaObject.cpp \
 	JNIUtil.cpp \
 	KrollBindings.cpp \
-	ModuleFactory.cpp \
 	ProxyFactory.cpp \
 	TypeConverter.cpp \
 	V8Object.cpp \
@@ -42,8 +41,7 @@ ABS_JS_FILES := \
 
 JS_FILES = $(subst $(SRC_JS_DIR),../js,$(ABS_JS_FILES))
 
-$(LOCAL_PATH)/KrollBindings.cpp: $(GENERATED_DIR)/KrollJS.cpp $(GENERATED_DIR)/KrollNativeBindings.cpp
-$(LOCAL_PATH)/ModuleFactory.cpp: $(GENERATED_DIR)/ModuleInit.cpp
+$(LOCAL_PATH)/KrollBindings.cpp: $(GEN_SOURCES)
 
 clean: ti-clean
 

@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #include <jni.h>
+#include <stdio.h>
 #include <v8.h>
 
 #include "AndroidUtil.h"
@@ -355,7 +356,6 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 		return jsObject;
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::managedV8ReferenceClass)) {
 		jlong v8ObjectPointer = env->GetLongField(javaObject, JNIUtil::managedV8ReferencePtrField);
-		LOGD(TAG, "v8ObjectPointer: %d", v8ObjectPointer);
 		if (v8ObjectPointer != 0) {
 			return Persistent<Object>((Object *) v8ObjectPointer);
 		} else {

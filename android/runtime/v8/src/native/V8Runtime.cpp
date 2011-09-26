@@ -50,33 +50,25 @@ static Handle<Value> jsLog(const Arguments& args)
 /* static */
 void V8Runtime::bootstrap(Local<Object> global)
 {
-	LOGD(TAG, "initialize EventEmitter");
 	EventEmitter::Initialize();
-
-	LOGD(TAG, "initialize Kroll global object");
-	krollGlobalObject = Persistent<Object>::New(Object::New());/*
-		EventEmitter::constructorTemplate->GetFunction()->NewInstance());*/
+	krollGlobalObject = Persistent<Object>::New(Object::New());
 
 	DEFINE_METHOD(krollGlobalObject, "log", jsLog);
-
-	LOGD(TAG, "initialize binding");
 	DEFINE_METHOD(krollGlobalObject, "binding", KrollBindings::getBinding);
-
-	LOGD(TAG, "initialize EventEmitter prototype");
 	DEFINE_TEMPLATE(krollGlobalObject, "EventEmitter", EventEmitter::constructorTemplate);
 
 	LOGD(TAG, "execute kroll.js");
 
 	TryCatch tryCatch;
-	Handle<Value> result = ExecuteString(KrollBindings::getMainSource(), String::New("kroll.js"));
+	Handle<Value> result = V8Util::executeString(KrollBindings::getMainSource(), String::New("kroll.js"));
 
 	if (tryCatch.HasCaught()) {
-		ReportException(tryCatch, true);
+		V8Util::reportException(tryCatch, true);
 		JNIUtil::terminateVM();
 	}
 	if (!result->IsFunction()) {
 		LOGF(TAG, "kroll.js result is not a function");
-		ReportException(tryCatch, true);
+		V8Util::reportException(tryCatch, true);
 		JNIUtil::terminateVM();
 	}
 
@@ -85,7 +77,7 @@ void V8Runtime::bootstrap(Local<Object> global)
 	mainFunction->Call(global, 1, args);
 
 	if (tryCatch.HasCaught()) {
-		ReportException(tryCatch, true);
+		V8Util::reportException(tryCatch, true);
 		LOGE(TAG, "Caught exception while bootstrapping Kroll");
 		JNIUtil::terminateVM();
 	}

@@ -3,26 +3,28 @@
 import os, sys, json
 
 GPERF_HEADER = """
-%%define lookup-function-name lookupModuleInit
+%%define lookup-function-name lookupGeneratedInit
 %%{
 #include <string.h>
 #include <v8.h>
 %s
-namespace internal {
-typedef void (*ModuleInit)(v8::Handle<v8::Object> target);
+namespace titanium {
+	namespace bindings {
+typedef void (*GeneratedInit)(v8::Handle<v8::Object> exports);
 using namespace titanium;
 
 %s
 
 %%}
-struct moduleInit { const char *name; ModuleInit fn; };
+struct BindEntry;
 %%%%
 """
 
 GPERF_KEY = "%(key)s, _%(moduleName)s_init\n"
 
 GPERF_FOOTER = """
-}
+	} // namespace bindings
+} // namespace titanium
 """
 
 code = ""
@@ -53,7 +55,7 @@ modulesCode = ""
 for bindingPath in bindingPaths:
 	moduleName = os.path.basename(bindingPath).replace(".json", "")
 	binding = json.load(open(bindingPath))
-	modulesCode += "static void _%s_init(v8::Handle<v8::Object> target)\n{\n" % moduleName
+	modulesCode += "static void _%s_init(v8::Handle<v8::Object> exports)\n{\n" % moduleName
 
 	initOrder = {}
 	def addProxy(proxy):
@@ -87,10 +89,9 @@ for bindingPath in bindingPaths:
 			namespaces.insert(0, "titanium")
 		namespace = "::".join(namespaces)
 		className = proxyMap["proxyClassName"]
-		#if className in ("KrollProxy", "KrollModule"): continue
 
 		headers += "#include \"%s.h\"\n" % proxy
-		modulesCode += "\t%s::%s::Initialize(target);\n" % (namespace, className)
+		modulesCode += "\t%s::%s::Initialize(exports);\n" % (namespace, className)
 	modulesCode += "}\n"
 
 print (GPERF_HEADER % (headers, modulesCode)) + code + GPERF_FOOTER

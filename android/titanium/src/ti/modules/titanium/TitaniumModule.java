@@ -54,12 +54,18 @@ public class TitaniumModule extends KrollModule
 	public TitaniumModule()
 	{
 		basePath = new Stack<String>();
-		basePath.push(getCreationUrl().baseUrl);
 		/* TODO if (tiContext.isServiceContext()) {
 			tiContext.addOnServiceLifecycleEventListener(this);
 		} else {
 			tiContext.addOnLifecycleEventListener(this);
 		}*/
+	}
+
+	@Override
+	protected void initActivity(Activity activity)
+	{
+		super.initActivity(activity);
+		basePath.push(getCreationUrl().baseUrl);
 	}
 
 	@Kroll.getProperty @Kroll.method

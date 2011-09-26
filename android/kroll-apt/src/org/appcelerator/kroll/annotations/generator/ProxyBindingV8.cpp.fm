@@ -110,9 +110,6 @@ Handle<Value> ${className}::Constructor(const Arguments& args)
 		deleteRef = true;
 	}
 
-	// Initialize the internal property cache used for lazy initializing modules
-	v8Proxy->SetInternalField(ProxyFactory::kPropertyCache, Object::New());
-
 	// Set our Titanium API namespace so lazy initialization can work
 	<#assign tiNamespace = proxyAttrs.fullAPIName?replace("Titanium.", "")>
 	<#assign tiNamespace = tiNamespace?replace("Titanium", "")>

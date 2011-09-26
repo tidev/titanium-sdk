@@ -7,6 +7,7 @@
 #ifndef V8_UTIL_H
 #define V8_UTIL_H
 
+#include <stdio.h>
 #include <v8.h>
 
 #define IMMUTABLE_STRING_LITERAL(string_literal) \
@@ -47,7 +48,7 @@ namespace titanium {
 class ImmutableAsciiStringLiteral: public v8::String::ExternalAsciiStringResource
 {
 public:
-	static v8::Handle<v8::String> CreateFromLiteral(const char *string_literal, size_t length);
+	static v8::Handle<v8::String> CreateFromLiteral(const char *stringLiteral, size_t length);
 
 	ImmutableAsciiStringLiteral(const char *src, size_t src_len)
 			: buffer_(src), buf_len_(src_len)
@@ -91,11 +92,15 @@ public:
 	}
 };
 
-v8::Handle<v8::Value> ExecuteString(v8::Handle<v8::String> source, v8::Handle<v8::Value> filename);
-v8::Handle<v8::Value> NewInstanceFromConstructorTemplate(v8::Persistent<v8::FunctionTemplate>& t,
-	const v8::Arguments& args);
-void ReportException(v8::TryCatch &try_catch, bool show_line);
-void FatalException(v8::TryCatch &try_catch);
+class V8Util {
+public:
+	static v8::Handle<v8::Value> executeString(v8::Handle<v8::String> source, v8::Handle<v8::Value> filename);
+	static v8::Handle<v8::Value> newInstanceFromConstructorTemplate(v8::Persistent<v8::FunctionTemplate>& t,
+		const v8::Arguments& args);
+	static void reportException(v8::TryCatch &tryCatch, bool showLine = true);
+	static void fatalException(v8::TryCatch &tryCatch);
+	static void logValue(const char *format, v8::Handle<v8::Value> value);
+};
 
 }
 

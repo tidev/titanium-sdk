@@ -4,18 +4,16 @@
 #include "modules/ScriptsModule.h"
 #include "modules/AssetsModule.h"
 #include "modules/APIModule.h"
-#include "ti.modules.titanium.TitaniumModule.h"
 
 namespace titanium {
-
-typedef void (*BindingInit)(v8::Handle<v8::Object> target);
+	namespace bindings {
 %}
-struct bindingInit { const char *name; BindingInit fn; };
+struct BindEntry;
 %%
 natives, KrollBindings::initNatives
 evals, ScriptsModule::Initialize
 assets, AssetsModule::Initialize
-titanium, ModuleFactory::initTitanium
-api, APIModule::Initialize
+API, APIModule::Initialize
 %%
+	} // namespace bindings
 } // namespace titanium
