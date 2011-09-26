@@ -77,7 +77,6 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
-import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -86,6 +85,7 @@ import org.appcelerator.titanium.util.TiTempFileHelper;
 
 import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
+import android.content.Context;
 import android.net.Uri;
 
 public class TiHTTPClient
@@ -283,14 +283,14 @@ public class TiHTTPClient
 				outFile = File.createTempFile("tihttp", "tmp");
 			}
 
-			TiFile tiFile = new TiFile(proxy.getTiContext(), outFile, outFile.getAbsolutePath(), false);
+			TiFile tiFile = new TiFile(outFile, outFile.getAbsolutePath(), false);
 			if (dumpResponseOut) {
 				ByteArrayOutputStream byteStream = (ByteArrayOutputStream) responseOut;
-				tiFile.write(TiBlob.blobFromData(proxy.getTiContext(), byteStream.toByteArray()), false);
+				tiFile.write(TiBlob.blobFromData(byteStream.toByteArray()), false);
 			}
 
 			responseOut = new FileOutputStream(outFile, dumpResponseOut);
-			responseData = TiBlob.blobFromFile(proxy.getTiContext(), tiFile, contentType);
+			responseData = TiBlob.blobFromFile(tiFile, contentType);
 			return tiFile;
 		}
 		

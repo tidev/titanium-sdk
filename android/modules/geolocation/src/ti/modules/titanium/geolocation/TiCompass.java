@@ -145,7 +145,7 @@ public class TiCompass
 		if (sensorManager != null) {
 			compass = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION) != null;
 		} else {
-			compass = TiSensorHelper.hasDefaultSensor(geolocationModule.getTiContext().getActivity(), Sensor.TYPE_ORIENTATION);
+			compass = TiSensorHelper.hasDefaultSensor(geolocationModule.getActivity(), Sensor.TYPE_ORIENTATION);
 		}
 
 		return compass;

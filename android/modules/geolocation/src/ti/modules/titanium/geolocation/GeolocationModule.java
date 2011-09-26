@@ -13,15 +13,10 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
-import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiLocationHelper;
-import org.appcelerator.titanium.util.TiSensorHelper;
 
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Message;
@@ -52,45 +47,43 @@ public class GeolocationModule extends KrollModule
 	private boolean locationRegistered = false;
 
 
-	public GeolocationModule(TiContext tiContext)
+	public GeolocationModule()
 	{
-		super(tiContext);
+		super();
 		tiCompass = new TiCompass(this);
 		tiLocation = new TiLocation(this);
 	}
 
-	@Override
-	public int addEventListener(KrollInvocation invocation, String eventName, Object listener)
+	protected void eventListenerAdded(String event, int count, KrollProxy proxy)
 	{
-		if (TiC.EVENT_HEADING.equals(eventName)) {
+		if (TiC.EVENT_HEADING.equals(event)) {
 			if (!compassRegistered) {
 				tiCompass.registerListener();
 				compassRegistered = true;
 			}
-		} else if (TiC.EVENT_LOCATION.equals(eventName)) {
+		} else if (TiC.EVENT_LOCATION.equals(event)) {
 			if (!locationRegistered) {
 				tiLocation.registerListener();
 				locationRegistered = true;
 			}
 		}
-		return super.addEventListener(invocation, eventName, listener);
+		super.eventListenerAdded(event, count, proxy);
 	}
 
-	@Override
-	public void removeEventListener(KrollInvocation invocation, String eventName, Object listener)
+	protected void eventListenerRemoved(String event, int count, KrollProxy proxy)
 	{
-		if (TiC.EVENT_HEADING.equals(eventName)) {
+		if (TiC.EVENT_HEADING.equals(event)) {
 			if (compassRegistered) {
 				tiCompass.unregisterListener();
 				compassRegistered = false;
 			}
-		} else if (TiC.EVENT_LOCATION.equals(eventName)) {
+		} else if (TiC.EVENT_LOCATION.equals(event)) {
 			if (locationRegistered) {
 				tiLocation.unregisterListener();
 				locationRegistered = false;
 			}
 		}
-		super.removeEventListener(invocation, eventName, listener);
+		super.eventListenerRemoved(event, count, proxy);
 	}
 
 	@Kroll.getProperty @Kroll.method

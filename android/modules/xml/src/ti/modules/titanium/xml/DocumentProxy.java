@@ -7,7 +7,6 @@
 package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -16,9 +15,9 @@ import org.w3c.dom.Document;
 public class DocumentProxy extends NodeProxy {
 
 	private Document doc;
-	public DocumentProxy(TiContext context, Document doc)
+	public DocumentProxy(Document doc)
 	{
-		super(context, doc);
+		super(doc);
 		this.doc = doc;
 	}
 
@@ -106,17 +105,17 @@ public class DocumentProxy extends NodeProxy {
 
 	@Kroll.method
 	public NodeListProxy getElementsByTagName(String tagname) {
-		return new NodeListProxy(getTiContext(), doc.getElementsByTagName(tagname));
+		return new NodeListProxy(doc.getElementsByTagName(tagname));
 	}
 
 	@Kroll.method
 	public NodeListProxy getElementsByTagNameNS(String namespaceURI, String localName) {
-		return new NodeListProxy(getTiContext(), doc.getElementsByTagNameNS(namespaceURI, localName));
+		return new NodeListProxy(doc.getElementsByTagNameNS(namespaceURI, localName));
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public DOMImplementationProxy getImplementation() {
-		return new DOMImplementationProxy(getTiContext(), doc.getImplementation());
+		return new DOMImplementationProxy(doc.getImplementation());
 	}
 
 	@Kroll.method

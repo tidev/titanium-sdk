@@ -15,7 +15,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
+import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiProperties;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -171,26 +171,26 @@ public class TiMapView extends TiUIView
 			TiOverlayItem item = null;
 
 			AnnotationProxy p = annotations.get(i);
-			KrollDict a = p.getProperties();
-			if (a.containsKey(TiC.PROPERTY_LATITUDE) && a.containsKey(TiC.PROPERTY_LONGITUDE)) {
-				String title = a.optString(TiC.PROPERTY_TITLE, "");
-				String subtitle = a.optString(TiC.PROPERTY_SUBTITLE, "");
+			//KrollDict a = p.getProperties();
+			if (p.has(TiC.PROPERTY_LATITUDE) && p.has(TiC.PROPERTY_LONGITUDE)) {
+				String title = TiConvert.toString(p.get(TiC.PROPERTY_TITLE), "");
+				String subtitle = TiConvert.toString(p.get(TiC.PROPERTY_SUBTITLE), "");
 
-				GeoPoint location = new GeoPoint(scaleToGoogle(a.getDouble(TiC.PROPERTY_LATITUDE)), scaleToGoogle(a.getDouble(TiC.PROPERTY_LONGITUDE)));
+				GeoPoint location = new GeoPoint(scaleToGoogle(TiConvert.toDouble(p.get(TiC.PROPERTY_LATITUDE))), scaleToGoogle(TiConvert.toDouble(p.get(TiC.PROPERTY_LONGITUDE))));
 				item = new TiOverlayItem(location, title, subtitle, p);
 
 				//prefer pinImage to pincolor.
-				if (a.containsKey(TiC.PROPERTY_IMAGE) || a.containsKey(TiC.PROPERTY_PIN_IMAGE))
+				if (p.has(TiC.PROPERTY_IMAGE) || p.has(TiC.PROPERTY_PIN_IMAGE))
 				{
-					String imagePath = a.getString(TiC.PROPERTY_IMAGE);
+					String imagePath = TiConvert.toString(p.get(TiC.PROPERTY_IMAGE));
 					if (imagePath == null) {
-						imagePath = a.getString(TiC.PROPERTY_PIN_IMAGE);
+						imagePath = TiConvert.toString(p.get(TiC.PROPERTY_PIN_IMAGE));
 					}
 					Drawable marker = makeMarker(imagePath);
 					boundCenterBottom(marker);
 					item.setMarker(marker);
-				} else if (a.containsKey(TiC.PROPERTY_PINCOLOR)) {
-					Object value = a.get(TiC.PROPERTY_PINCOLOR);
+				} else if (p.has(TiC.PROPERTY_PINCOLOR)) {
+					Object value = p.get(TiC.PROPERTY_PINCOLOR);
 					
 					try {
 						if (value instanceof String) {
@@ -201,7 +201,7 @@ public class TiMapView extends TiUIView
 							item.setMarker(makeMarker(markerColor));
 						} else {
 							// Assume it's a numeric
-							switch(a.getInt(TiC.PROPERTY_PINCOLOR)) {
+							switch(TiConvert.toInt(p.get(TiC.PROPERTY_PINCOLOR))) {
 								case 1 : // RED
 									item.setMarker(makeMarker(Color.RED));
 									break;
@@ -215,18 +215,18 @@ public class TiMapView extends TiUIView
 						}
 					} catch (Exception e) {
 						// May as well catch all errors 
-						Log.w(LCAT, "Unable to parse color [" + a.getString(TiC.PROPERTY_PINCOLOR)+"] for item ["+i+"]");
+						Log.w(LCAT, "Unable to parse color [" + TiConvert.toString(p.get(TiC.PROPERTY_PINCOLOR))+"] for item ["+i+"]");
 					}
 				}
 
-				if (a.containsKey(TiC.PROPERTY_LEFT_BUTTON)) {
-					item.setLeftButton(proxy.getTiContext().resolveUrl(null, TiConvert.toString(a, TiC.PROPERTY_LEFT_BUTTON)));
+				if (p.has(TiC.PROPERTY_LEFT_BUTTON)) {
+					item.setLeftButton(proxy.resolveUrl(null, TiConvert.toString(p.get(TiC.PROPERTY_LEFT_BUTTON))));
 				}
-				if (a.containsKey(TiC.PROPERTY_RIGHT_BUTTON)) {
-					item.setRightButton(proxy.getTiContext().resolveUrl(null, TiConvert.toString(a, TiC.PROPERTY_RIGHT_BUTTON)));
+				if (p.has(TiC.PROPERTY_RIGHT_BUTTON)) {
+					item.setRightButton(proxy.resolveUrl(null, TiConvert.toString(p.get(TiC.PROPERTY_RIGHT_BUTTON))));
 				}
-				if (a.containsKey(TiC.PROPERTY_LEFT_VIEW)) {
-					Object leftView = a.get(TiC.PROPERTY_LEFT_VIEW);
+				if (p.has(TiC.PROPERTY_LEFT_VIEW)) {
+					Object leftView = p.get(TiC.PROPERTY_LEFT_VIEW);
 					if (leftView instanceof TiViewProxy) {
 						item.setLeftView((TiViewProxy)leftView);
 
@@ -234,8 +234,8 @@ public class TiMapView extends TiUIView
 						Log.e(LCAT, "invalid type for leftView");
 					}
 				}
-				if (a.containsKey(TiC.PROPERTY_RIGHT_VIEW)) {
-					Object rightView = a.get(TiC.PROPERTY_RIGHT_VIEW);
+				if (p.has(TiC.PROPERTY_RIGHT_VIEW)) {
+					Object rightView = p.get(TiC.PROPERTY_RIGHT_VIEW);
 					if (rightView instanceof TiViewProxy) {
 						item.setRightView((TiViewProxy)rightView);
 
@@ -287,7 +287,7 @@ public class TiMapView extends TiUIView
 		this.annotations = annotations;
 		this.selectedAnnotations = selectedAnnotations;
 
-		TiApplication app = proxy.getTiContext().getTiApp();
+		TiApplication app = TiApplication.getInstance();
 		TiProperties systemProperties = app.getSystemProperties();
 		String oldKey = systemProperties.getString(OLD_API_KEY, "");
 		String developmentKey = systemProperties.getString(DEVELOPMENT_API_KEY, "");
@@ -362,7 +362,7 @@ public class TiMapView extends TiUIView
 
 		final TiViewProxy fproxy = proxy;
 
-		itemView = new TiOverlayItemView(proxy.getContext(), proxy.getTiContext());
+		itemView = new TiOverlayItemView(proxy.getActivity());
 		itemView.setOnOverlayClickedListener(new TiOverlayItemView.OnOverlayClicked(){
 			public void onClick(int lastIndex, String clickedItem) {
 				TiOverlayItem item = overlay.getItem(lastIndex);
@@ -484,7 +484,7 @@ public class TiMapView extends TiUIView
 					hideAnnotation();
 					showAnnotation(index, item);
 				} else {
-					Toast.makeText(proxy.getContext(), "No information for location", Toast.LENGTH_SHORT).show();
+					Toast.makeText(proxy.getActivity(), "No information for location", Toast.LENGTH_SHORT).show();
 				}
 			}
 		}
@@ -682,7 +682,7 @@ public class TiMapView extends TiUIView
 		if (view != null) {
 			if (userLocation) {
 				if (myLocation == null) {
-					myLocation = new MyLocationOverlay(proxy.getContext(), view);
+					myLocation = new MyLocationOverlay(proxy.getActivity(), view);
 				}
 
 				List<Overlay> overlays = view.getOverlays();
@@ -725,8 +725,8 @@ public class TiMapView extends TiUIView
 
 	private Drawable makeMarker(String pinImage)
 	{
-		String url = proxy.getTiContext().resolveUrl(null, pinImage);
-		TiBaseFile file = TiFileFactory.createTitaniumFile(proxy.getTiContext(), new String[] { url }, false);
+		String url = proxy.resolveUrl(null, pinImage);
+		TiBaseFile file = TiFileFactory.createTitaniumFile(new String[] { url }, false);
 		try {
 			Drawable d = new BitmapDrawable(TiUIHelper.createBitmap(file.getInputStream()));
 			d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());

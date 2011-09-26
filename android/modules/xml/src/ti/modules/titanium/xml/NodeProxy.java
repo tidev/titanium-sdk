@@ -8,7 +8,6 @@ package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
@@ -46,9 +45,9 @@ public class NodeProxy extends KrollProxy {
 
 	protected Node node;
 	
-	public NodeProxy(TiContext context, Node node)
+	public NodeProxy(Node node)
 	{
-		super(context);
+		super();
 		this.node = node;
 	}
 	
@@ -56,65 +55,65 @@ public class NodeProxy extends KrollProxy {
 		return node;
 	}
 	
-	public static NodeProxy getNodeProxy(TiContext context, Node node) {
+	public static NodeProxy getNodeProxy(Node node) {
 		if (node == null) {
 			return null;
 		}
 		NodeProxy proxy;
 		switch (node.getNodeType()) {
 			case Node.ATTRIBUTE_NODE:
-				proxy = new AttrProxy(context, (Attr)node);
+				proxy = new AttrProxy((Attr)node);
 				break;
 			case Node.CDATA_SECTION_NODE:
-				proxy = new CDATASectionProxy(context, (CDATASection)node);
+				proxy = new CDATASectionProxy((CDATASection)node);
 				break;
 			case Node.COMMENT_NODE:
-				proxy = new CommentProxy(context, (Comment)node);
+				proxy = new CommentProxy((Comment)node);
 				break;
 			case Node.DOCUMENT_FRAGMENT_NODE:
-				proxy = new DocumentFragmentProxy(context, (DocumentFragment)node);
+				proxy = new DocumentFragmentProxy((DocumentFragment)node);
 				break;
 			case Node.DOCUMENT_NODE:
-				proxy = new DocumentProxy(context, (Document)node);
+				proxy = new DocumentProxy((Document)node);
 				break;
 			case Node.DOCUMENT_TYPE_NODE:
-				proxy = new DocumentTypeProxy(context, (DocumentType)node);
+				proxy = new DocumentTypeProxy((DocumentType)node);
 				break;
 			case Node.ELEMENT_NODE:
-				proxy = new ElementProxy(context, (Element)node);
+				proxy = new ElementProxy((Element)node);
 				break;
 			case Node.ENTITY_NODE:
-				proxy = new EntityProxy(context, (Entity)node);
+				proxy = new EntityProxy((Entity)node);
 				break;
 			case Node.ENTITY_REFERENCE_NODE:
-				proxy = new EntityReferenceProxy(context, (EntityReference)node);
+				proxy = new EntityReferenceProxy((EntityReference)node);
 				break;
 			case Node.NOTATION_NODE:
-				proxy = new NotationProxy(context, (Notation)node);
+				proxy = new NotationProxy((Notation)node);
 				break;
 			case Node.PROCESSING_INSTRUCTION_NODE:
-				proxy = new ProcessingInstructionProxy(context, (ProcessingInstruction)node);
+				proxy = new ProcessingInstructionProxy((ProcessingInstruction)node);
 				break;
 			case Node.TEXT_NODE:
-				proxy = new TextProxy(context, (Text)node);
+				proxy = new TextProxy((Text)node);
 				break;
 			default:
-				proxy = new NodeProxy(context, node);
+				proxy = new NodeProxy(node);
 				break;
 		}
 
 		return proxy;
 	}
 	
-	public static NodeProxy removeProxyForNode(TiContext context, Node node) {
+	public static NodeProxy removeProxyForNode(Node node) {
 		// if we're here then a proxy was never generated for this node
 		// just return a temporary wrapper in this case
-		return new NodeProxy(context, node);
+		return new NodeProxy(node);
 	}
 	
 	@SuppressWarnings("unchecked")
 	protected <T extends NodeProxy> T getProxy(Node node) {
-		return (T) getNodeProxy(getTiContext(), node);
+		return (T) getNodeProxy(node);
 	}
 	
 	@Kroll.method
@@ -133,12 +132,12 @@ public class NodeProxy extends KrollProxy {
 
 	@Kroll.getProperty @Kroll.method
 	public NamedNodeMapProxy getAttributes() {
-		return new NamedNodeMapProxy(getTiContext(), node.getAttributes());
+		return new NamedNodeMapProxy(node.getAttributes());
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public NodeListProxy getChildNodes() {
-		return new NodeListProxy(getTiContext(), node.getChildNodes());
+		return new NodeListProxy(node.getChildNodes());
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -183,7 +182,7 @@ public class NodeProxy extends KrollProxy {
 
 	@Kroll.getProperty @Kroll.method
 	public DocumentProxy getOwnerDocument() {
-		return new DocumentProxy(getTiContext(), node.getOwnerDocument());
+		return new DocumentProxy(node.getOwnerDocument());
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -229,13 +228,13 @@ public class NodeProxy extends KrollProxy {
 	@Kroll.method
 	public NodeProxy removeChild(NodeProxy oldChild) throws DOMException {
 		Node oldNode = node.removeChild(oldChild.node);
-		return removeProxyForNode(getTiContext(), oldNode);
+		return removeProxyForNode(oldNode);
 	}
 	
 	@Kroll.method
 	public NodeProxy replaceChild(NodeProxy newChild, NodeProxy oldChild) throws DOMException {
 		Node oldNode = node.replaceChild(newChild.node, oldChild.node);
-		return removeProxyForNode(getTiContext(), oldNode);
+		return removeProxyForNode(oldNode);
 	}
 
 	@Kroll.setProperty @Kroll.method

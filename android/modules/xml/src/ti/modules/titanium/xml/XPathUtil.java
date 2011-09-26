@@ -24,11 +24,11 @@ public class XPathUtil {
 			XPath xpath = new DOMXPath(xpathExpr);
 			List nodes= xpath.selectNodes(start.getNode());
 			
-			return new XPathNodeListProxy(start.getTiContext(), nodes);
+			return new XPathNodeListProxy(nodes);
 		} catch (JaxenException e) {
 			Log.e(LCAT, "Exception selecting nodes in XPath ("+xpathExpr+")", e);
 		}
 		
-		return new XPathNodeListProxy(start.getTiContext(), new ArrayList());
+		return new XPathNodeListProxy(new ArrayList());
 	}
 }

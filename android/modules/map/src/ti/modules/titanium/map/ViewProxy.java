@@ -13,9 +13,8 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiRootActivity;
-import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
@@ -53,11 +52,14 @@ public class ViewProxy extends TiViewProxy
 	private ArrayList<AnnotationProxy> annotations;
 	private ArrayList<TiMapView.SelectedAnnotation> selectedAnnotations;
 	
-	public ViewProxy(TiContext tiContext) {
-		super(tiContext);
+	public ViewProxy() {
+		super();
 
-		eventManager.addOnEventChangeListener(this);
-		tiContext.addOnLifecycleEventListener(this);
+		// TODO ?
+		//eventManager.addOnEventChangeListener(this);
+
+		((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
+		//tiContext.addOnLifecycleEventListener(this);
 
 		annotations = new ArrayList<AnnotationProxy>();
 		selectedAnnotations = new ArrayList<TiMapView.SelectedAnnotation>();
@@ -68,21 +70,25 @@ public class ViewProxy extends TiViewProxy
 	{
 		destroyed = false;
 		if (lam == null) {
+			/*
 			TiContext tiContext = getTiContext();
 			if (tiContext == null) {
 				Log.w(LCAT, "MapView proxy context is no longer valid.  Unable to create MapView.");
 				return null;
 			}
-			final TiRootActivity rootActivity = tiContext.getRootActivity();
+			*/
+			final TiRootActivity rootActivity = TiApplication.getInstance().getRootActivity();
 			if (rootActivity == null) {
 				Log.w(LCAT, "Application's root activity has been destroyed.  Unable to create MapView.");
 				return null;
 			}
+			/*
 			TiContext rootContext = rootActivity.getTiContext();
 			if (rootContext == null) {
 				Log.w(LCAT, "Application's root context is no longer valid.  Unable to create MapView.");
 				return null;
 			}
+			*/
 			// We need to know when root activity destroys, since this lam is
 			// based on its context;
 			rootLifecycleListener = new OnLifecycleEvent()
@@ -103,7 +109,7 @@ public class ViewProxy extends TiViewProxy
 					}
 				}
 			};
-			rootContext.addOnLifecycleEventListener(rootLifecycleListener);
+			TiApplication.getInstance().getRootActivity().addOnLifecycleEventListener(rootLifecycleListener);
 			lam = new LocalActivityManager(rootActivity, true);
 			lam.dispatchCreate(null);
 		}
@@ -112,7 +118,7 @@ public class ViewProxy extends TiViewProxy
 			throw new IllegalStateException("MapView already created. Android can support one MapView per Application.");
 		}
 
-		TiApplication tiApp = getTiContext().getTiApp();
+		TiApplication tiApp = TiApplication.getInstance();
 		Intent intent = new Intent(tiApp, TiMapActivity.class);
 		mapWindow = lam.startActivity("TIMAP", intent);
 		lam.dispatchResume();

@@ -17,9 +17,7 @@ import java.net.UnknownHostException;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.io.TiStream;
-import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -43,9 +41,9 @@ public class TCPProxy extends KrollProxy implements TiStream
 	private InputStream inputStream = null;
 
 
-	public TCPProxy(TiContext context)
+	public TCPProxy()
 	{
-		super(context);
+		super();
 		state = SocketModule.INITIALIZED;
 	}
 

@@ -13,11 +13,11 @@ import java.util.List;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiProperties;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -51,9 +51,9 @@ public class GestureModule extends KrollModule
 	private List<Object> orientationConfigListeners = new ArrayList<Object>();
 
 
-	public GestureModule(TiContext tiContext)
+	public GestureModule()
 	{
-		super(tiContext);
+		super();
 
 		TiProperties props = TiApplication.getInstance().getAppProperties();
 		shakeFactor = props.getDouble("ti.android.shake.factor", 1.3d);
@@ -68,10 +68,9 @@ public class GestureModule extends KrollModule
 		}
 	}
 
-	@Override
-	public int addEventListener(KrollInvocation invocation, String eventName, Object listener)
+	protected void eventListenerAdded(String event, int count, KrollProxy proxy)
 	{
-		if (EVENT_ORIENTATION_CHANGE.equals (eventName))
+		if (EVENT_ORIENTATION_CHANGE.equals (event))
 		{
 			if (orientationConfigListeners.size() == 0)
 			{
@@ -87,9 +86,9 @@ public class GestureModule extends KrollModule
 				});
 			}
 
-			orientationConfigListeners.add (listener);
+			orientationConfigListeners.add (proxy);
 		}
-		else if (EVENT_SHAKE.equals(eventName))
+		else if (EVENT_SHAKE.equals(event))
 		{
 			if (!shakeRegistered) {
 				TiSensorHelper.registerListener(Sensor.TYPE_ACCELEROMETER, this, SensorManager.SENSOR_DELAY_UI);
@@ -97,17 +96,16 @@ public class GestureModule extends KrollModule
 			}
 		}
 
-		return super.addEventListener(invocation, eventName, listener);
+		super.eventListenerAdded(event, count, proxy);
 	}
 
-	@Override
-	public void removeEventListener(KrollInvocation invocation, String eventName, Object listener)
+	protected void eventListenerRemoved(String event, int count, KrollProxy proxy)
 	{
-		if (EVENT_ORIENTATION_CHANGE.equals (eventName))
+		if (EVENT_ORIENTATION_CHANGE.equals (event))
 		{
-			if (orientationConfigListeners.contains (listener))
+			if (orientationConfigListeners.contains (proxy))
 			{
-				orientationConfigListeners.remove (listener);
+				orientationConfigListeners.remove (proxy);
 				if (orientationConfigListeners.size() == 0)
 				{
 					TiBaseActivity.deregisterOrientationListener();
@@ -118,7 +116,7 @@ public class GestureModule extends KrollModule
 				Log.e (LCAT, "unable to remove orientation config listener, does not exist");
 			}
 		}
-		else if (EVENT_SHAKE.equals(eventName))
+		else if (EVENT_SHAKE.equals(event))
 		{
 			if (shakeRegistered) {
 				TiSensorHelper.unregisterListener(Sensor.TYPE_ACCELEROMETER, this);
@@ -126,8 +124,9 @@ public class GestureModule extends KrollModule
 			}
 		}
 
-		super.removeEventListener(invocation, eventName, listener);
+		super.eventListenerRemoved(event, count, proxy);
 	}
+
 
 	public void onAccuracyChanged(Sensor sensor, int accuracy)
 	{
@@ -179,19 +178,19 @@ public class GestureModule extends KrollModule
 	@Kroll.getProperty @Kroll.method
 	public boolean isPortrait(KrollInvocation invocation)
 	{
-		return invocation.getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+		return TiApplication.getInstance().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public boolean isLandscape(KrollInvocation invocation)
 	{
-		return invocation.getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+		return TiApplication.getInstance().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public int getOrientation(KrollInvocation invocation)
 	{
-		return TiOrientationHelper.convertConfigToTiOrientationMode(invocation.getActivity().getResources().getConfiguration().orientation);
+		return TiOrientationHelper.convertConfigToTiOrientationMode(TiApplication.getInstance().getResources().getConfiguration().orientation);
 	}
 }
 

@@ -284,6 +284,15 @@ public class TiConvert
 		return toDouble(d.get(key));
 	}
 
+	public static String toString(Object value, String defaultString)
+	{
+		String result = toString(value);
+		if (result == null) {
+			result = defaultString;
+		}
+
+		return result;
+	}
 	public static String toString(Object value) {
 		return value == null ? null : value.toString();
 	}
