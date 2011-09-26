@@ -14,7 +14,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -40,9 +39,9 @@ public class NotificationProxy extends KrollProxy
 
 	protected Notification notification;
 
-	public NotificationProxy(TiContext tiContext) 
+	public NotificationProxy() 
 	{
-		super(tiContext);
+		super();
 		notification = new Notification(
 			android.R.drawable.stat_sys_warning, null, System.currentTimeMillis());
 		notification.flags = Notification.FLAG_AUTO_CANCEL;
@@ -113,8 +112,8 @@ public class NotificationProxy extends KrollProxy
 			notification.icon = ((Number)icon).intValue();
 		} else {
 			String iconUrl = TiConvert.toString(icon);
-			TiContext context = invocation == null ? getTiContext() : invocation.getTiContext();
-			String iconFullUrl = context.resolveUrl(iconUrl);
+			//TiContext context = invocation == null ? getTiContext() : invocation.getTiContext();
+			String iconFullUrl = resolveUrl(null, iconUrl);
 			notification.icon = TiUIHelper.getResourceId(iconFullUrl);
 			if (notification.icon == 0) {
 				Log.w(LCAT, "No image found for " + iconUrl);
@@ -207,8 +206,8 @@ public class NotificationProxy extends KrollProxy
 	@Kroll.method @Kroll.setProperty
 	public void setSound(KrollInvocation invocation, String url)
 	{
-		TiContext context = invocation == null ? getTiContext() : invocation.getTiContext();
-		notification.sound = Uri.parse(context.resolveUrl(url));
+		//TiContext context = invocation == null ? getTiContext() : invocation.getTiContext();
+		notification.sound = Uri.parse(resolveUrl(null, url));
 	}
 
 	@Kroll.method @Kroll.setProperty
@@ -240,7 +239,7 @@ public class NotificationProxy extends KrollProxy
 				PendingIntentProxy intentProxy = (PendingIntentProxy) d.get(TiC.PROPERTY_CONTENT_INTENT);
 				contentIntent = intentProxy.getPendingIntent();
 			}
-			Context c = getTiContext().getActivity();
+			Context c = getActivity();
 			if (c == null) {
 				c = TiApplication.getInstance().getApplicationContext();
 			}
@@ -252,7 +251,7 @@ public class NotificationProxy extends KrollProxy
 	public void setLatestEventInfo(KrollInvocation invocation,
 		String contentTitle, String contentText, PendingIntentProxy contentIntent)
 	{
-		Context c = invocation.getActivity();
+		Context c = getActivity();
 		if (c == null) {
 			c = TiApplication.getInstance().getApplicationContext();
 		}

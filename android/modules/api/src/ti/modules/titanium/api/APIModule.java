@@ -8,7 +8,6 @@ package ti.modules.titanium.api;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiLogger;
 
@@ -40,10 +39,6 @@ public class APIModule extends KrollModule
 	public void setLogger(TiLogger logger)
 	{
 		this.logger = logger;
-	}
-
-	public APIModule(TiContext tiContext) {
-		super(tiContext);
 	}
 
 	private String toString(Object msg) {

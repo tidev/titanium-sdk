@@ -8,7 +8,7 @@ package ti.modules.titanium.android;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiBaseService;
-import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.proxy.ServiceProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiBindingHelper;
@@ -51,10 +51,10 @@ public class TiJSService extends TiBaseService
 	
 	protected void executeServiceCode(ServiceProxy proxy)
 	{
-		final TiContext ftiContext = proxy.getTiContext();
+		//final TiContext ftiContext = proxy.getTiContext();
 		String fullUrl = url;
-		if (!fullUrl.contains("://") && !fullUrl.startsWith("/") && proxy.getTiContext().getBaseUrl() != null) {
-			fullUrl = ftiContext.getBaseUrl() + fullUrl;
+		if (!fullUrl.contains("://") && !fullUrl.startsWith("/") && proxy.getCreationUrl().baseUrl != null) {
+			fullUrl = proxy.getCreationUrl().baseUrl + fullUrl;
 		}
 		if (DBG) {
 			if (url != fullUrl) {
@@ -70,7 +70,7 @@ public class TiJSService extends TiBaseService
 			public void run() {
 				try {
 					fProxy.fireEvent("resume", new KrollDict());
-					ftiContext.evalFile(ffullUrl);
+					KrollContext.getKrollContext().evalFile(ffullUrl);
 					fProxy.fireEvent("pause", new KrollDict());
 					fProxy.fireEvent("stop", new KrollDict()); // this basic JS Service class only runs once.
 				} catch (Throwable e) {
@@ -89,9 +89,9 @@ public class TiJSService extends TiBaseService
 		if (baseUrl.length() == 0) {
 			baseUrl = null;
 		}
-		TiContext context = createTiContext(intent, baseUrl);
-		ServiceProxy proxy = new ServiceProxy(context, this, intent, proxyCounter.incrementAndGet());
-		TiBindingHelper.bindCurrentService(context, proxy);
+		//TiContext context = createTiContext(intent, baseUrl);
+		ServiceProxy proxy = new ServiceProxy(this, intent, proxyCounter.incrementAndGet());
+		TiBindingHelper.bindCurrentService(proxy);
 		return proxy;
 	}
 	
@@ -102,8 +102,10 @@ public class TiJSService extends TiBaseService
 		executeServiceCode(proxy);
 	}
 
+	// TODO
+	/*
 	@Override
-	public int registerBoundTiContext(int serviceIntentId, TiContext tiContext)
+	public int registerBoundTiContext(int serviceIntentId)
 	{
 		if (url != null) {
 			int lastSlash = url.lastIndexOf('/');
@@ -115,6 +117,5 @@ public class TiJSService extends TiBaseService
 		}
 		return super.registerBoundTiContext(serviceIntentId, tiContext);
 	}
-	
-	
+	*/
 }

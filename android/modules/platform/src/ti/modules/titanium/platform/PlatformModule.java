@@ -12,7 +12,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiPlatformHelper;
@@ -45,11 +44,10 @@ public class PlatformModule extends KrollModule
 
 	protected BroadcastReceiver batteryStateReceiver;
 
-	public PlatformModule(TiContext context)
+	public PlatformModule()
 	{
-		super(context);
+		super();
 
-		eventManager.addOnEventChangeListener(this);
 		batteryState = BATTERY_STATE_UNKNOWN;
 		batteryLevel = -1;
 	}
@@ -72,7 +70,7 @@ public class PlatformModule extends KrollModule
 	@Kroll.getProperty @Kroll.method
 	public DisplayCapsProxy getDisplayCaps() {
 		if (displayCaps == null) {
-			displayCaps = new DisplayCapsProxy(getTiContext());
+			displayCaps = new DisplayCapsProxy();
 		}
 		return displayCaps;
 	}
@@ -146,7 +144,7 @@ public class PlatformModule extends KrollModule
 		Uri uri = Uri.parse(url);
 		Intent intent = new Intent(Intent.ACTION_VIEW, uri);
 		try {
-			getTiContext().getActivity().startActivity(intent);
+			getActivity().startActivity(intent);
 			return true;
 		} catch (ActivityNotFoundException e) {
 			Log.e(LCAT,"Activity not found: " + url, e);
@@ -213,20 +211,22 @@ public class PlatformModule extends KrollModule
 
 	protected void unregisterBatteryStateReceiver()
 	{
-		getTiContext().getActivity().unregisterReceiver(batteryStateReceiver);
+		getActivity().unregisterReceiver(batteryStateReceiver);
 	}
 
 	@Override
-	public void listenerAdded(String type, int count, final KrollProxy proxy)
+	public void eventListenerAdded(String type, int count, final KrollProxy proxy)
 	{
+		super.eventListenerAdded(type, count, proxy);
 		if (TiC.EVENT_BATTERY.equals(type) && batteryStateReceiver == null) {
 			registerBatteryStateReceiver();
 		}
 	}
 
 	@Override
-	public void listenerRemoved(String type, int count, KrollProxy proxy)
+	public void eventListenerRemoved(String type, int count, KrollProxy proxy)
 	{
+		super.eventListenerRemoved(type, count, proxy);
 		if (TiC.EVENT_BATTERY.equals(type) && count == 0 && batteryStateReceiver != null) {
 			unregisterBatteryStateReceiver();
 		}
@@ -264,7 +264,7 @@ public class PlatformModule extends KrollModule
 
 	private void registerBatteryReceiver(BroadcastReceiver batteryReceiver)
 	{
-		Activity a = getTiContext().getActivity();
+		Activity a = getActivity();
 		IntentFilter batteryFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
 		a.registerReceiver(batteryReceiver, batteryFilter);
 	}

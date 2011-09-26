@@ -10,9 +10,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -35,10 +33,11 @@ public class PendingIntentProxy extends KrollProxy
 	protected Context pendingIntentContext;
 	protected int flags;
 
+	/*
 	public PendingIntentProxy(TiContext tiContext)
 	{
 		super(tiContext);
-	}
+	}*/
 
 	@Override
 	public void handleCreationArgs(KrollModule createdInModule, Object[] args)
@@ -52,13 +51,16 @@ public class PendingIntentProxy extends KrollProxy
 
 		super.handleCreationArgs(createdInModule, args);
 
-		pendingIntentContext = this.context.getActivity();
+		pendingIntentContext = activity;
+		//pendingIntentContext = this.context.getActivity();
+		/*
 		if (context == null) {
 			pendingIntentContext = this.context.getRootActivity();
 		}
 		if (context == null) {
 			pendingIntentContext = TiApplication.getInstance().getApplicationContext();
 		}
+		*/
 		if (pendingIntentContext == null || intent == null) {
 			throw new IllegalStateException("Creation arguments must contain intent");
 		}

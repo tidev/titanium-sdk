@@ -7,7 +7,7 @@ import java.util.Date;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiApplication;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
@@ -21,8 +21,8 @@ public class CalendarProxy extends KrollProxy {
 	protected String id, name;
 	protected boolean selected, hidden;
 	
-	public CalendarProxy(TiContext context, String id, String name, boolean selected, boolean hidden) {
-		super(context);
+	public CalendarProxy(String id, String name, boolean selected, boolean hidden) {
+		super();
 		
 		this.id = id;
 		this.name = name;
@@ -38,9 +38,9 @@ public class CalendarProxy extends KrollProxy {
 		return "content://calendar";
 	}
 
-	public static ArrayList<CalendarProxy> queryCalendars(TiContext context, String query, String[] queryArgs) {
+	public static ArrayList<CalendarProxy> queryCalendars(String query, String[] queryArgs) {
 		ArrayList<CalendarProxy> calendars = new ArrayList<CalendarProxy>();
-		ContentResolver contentResolver = context.getActivity().getContentResolver();
+		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 		
 		Cursor cursor = contentResolver.query(Uri.parse(getBaseCalendarUri() + "/calendars"),
 			new String[] { "_id", "displayName", "selected", "hidden" }, query, queryArgs, null);
@@ -54,7 +54,7 @@ public class CalendarProxy extends KrollProxy {
 				boolean selected = !cursor.getString(2).equals("0");
 				boolean hidden = !cursor.getString(3).equals("0");
 
-				calendars.add(new CalendarProxy(context, id, name, selected, hidden));
+				calendars.add(new CalendarProxy(id, name, selected, hidden));
 			}
 		}
 		
@@ -69,7 +69,7 @@ public class CalendarProxy extends KrollProxy {
 		
 		long date1 = jan1.getTimeInMillis();
 		long date2 = date1 + DateUtils.YEAR_IN_MILLIS;
-		ArrayList<EventProxy> events = EventProxy.queryEventsBetweenDates(getTiContext(), date1, date2, this);
+		ArrayList<EventProxy> events = EventProxy.queryEventsBetweenDates(date1, date2, this);
 		return events.toArray(new EventProxy[events.size()]);
 	}
 	
@@ -88,7 +88,7 @@ public class CalendarProxy extends KrollProxy {
 		long date1 = firstOfTheMonth.getTimeInMillis();
 		long date2 = lastOfTheMonth.getTimeInMillis();
 		
-		ArrayList<EventProxy> events = EventProxy.queryEventsBetweenDates(getTiContext(), date1, date2, this);
+		ArrayList<EventProxy> events = EventProxy.queryEventsBetweenDates(date1, date2, this);
 		return events.toArray(new EventProxy[events.size()]);
 	}
 	
@@ -104,19 +104,19 @@ public class CalendarProxy extends KrollProxy {
 		long date1 = beginningOfDay.getTimeInMillis();
 		long date2 = endOfDay.getTimeInMillis();
 		
-		ArrayList<EventProxy> events = EventProxy.queryEventsBetweenDates(getTiContext(), date1, date2, this);
+		ArrayList<EventProxy> events = EventProxy.queryEventsBetweenDates(date1, date2, this);
 		return events.toArray(new EventProxy[events.size()]);
 	}
 	
 	@Kroll.method	
 	public EventProxy[] getEventsBetweenDates(Date date1, Date date2) {
-		ArrayList<EventProxy> events = EventProxy.queryEventsBetweenDates(getTiContext(), date1.getTime(), date2.getTime(), this);
+		ArrayList<EventProxy> events = EventProxy.queryEventsBetweenDates(date1.getTime(), date2.getTime(), this);
 		return events.toArray(new EventProxy[events.size()]);
 	}
 	
 	@Kroll.method
 	public EventProxy getEventById(int id) {
-		ArrayList<EventProxy> events = EventProxy.queryEvents(getTiContext(), "_id = ?", new String[] { ""+id });
+		ArrayList<EventProxy> events = EventProxy.queryEvents("_id = ?", new String[] { ""+id });
 		if (events.size() > 0) {
 			return events.get(0);
 		} else return null;
@@ -124,7 +124,7 @@ public class CalendarProxy extends KrollProxy {
 	
 	@Kroll.method
 	public EventProxy createEvent(KrollDict data) {
-		return EventProxy.createEvent(getTiContext(), this, data);
+		return EventProxy.createEvent(this, data);
 	}
 	
 	@Kroll.getProperty @Kroll.method

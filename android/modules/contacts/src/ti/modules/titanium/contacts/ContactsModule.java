@@ -18,8 +18,7 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.ContextSpecific;
-import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.kroll.KrollCallback;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
@@ -42,12 +41,12 @@ public class ContactsModule extends KrollModule
 	
 	private final AtomicInteger requestCodeGen = new AtomicInteger();
 	private final CommonContactsApi contactsApi;
-	private Map<Integer, Map<String, KrollCallback>> requests;
+//	private Map<Integer, Map<String, KrollCallback>> requests;
 	
-	public ContactsModule(TiContext tiContext)
+	public ContactsModule()
 	{
-		super(tiContext);
-		contactsApi = CommonContactsApi.getInstance(tiContext);
+		super();
+		contactsApi = CommonContactsApi.getInstance();
 	}
 	
 	@Kroll.method
@@ -88,10 +87,13 @@ public class ContactsModule extends KrollModule
 	@Kroll.method
 	public void showContacts(KrollInvocation invocation, @Kroll.argument(optional=true) KrollDict d)
 	{
-		Activity launchingActivity = invocation.getTiContext().getActivity();
+		Activity launchingActivity = TiApplication.getInstance().getRootActivity();
+		
+		/*
 		if (launchingActivity == null) { // Not sure if that's even possible
 			launchingActivity = this.getTiContext().getActivity();
-		}
+		}*/
+
 		Intent intent = contactsApi.getIntentForContactsPicker();
 		if (DBG) {
 			Log.d(LCAT, "Launching content picker activity");
@@ -116,7 +118,7 @@ public class ContactsModule extends KrollModule
 			if (d.containsKey("proxy")) {
 				Object test = d.get("proxy");
 				if (test != null && test instanceof KrollProxy) {
-					launchingActivity = ((KrollProxy) test).getTiContext().getActivity();
+					launchingActivity = ((KrollProxy) test).getActivity();
 				}
 			}
 		}

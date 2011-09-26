@@ -30,7 +30,7 @@ public class TiUIActivityWindow extends TiUIView
 	}
 	
 	public void open() {
-		getProxy().realizeViews(activity, this);
+		getProxy().realizeViews(this);
 	}
 	
 	public void close() {

@@ -6,7 +6,7 @@ import java.util.Date;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiApplication;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -28,10 +28,12 @@ public class AlertProxy extends KrollProxy {
 	protected Date begin, end;
 	protected Date alarmTime;
 	protected int state, minutes;
-	
+
+	/*
 	public AlertProxy(TiContext context) {
 		super(context);
 	}
+	*/
 	
 	public static String getAlertsUri() {
 		return CalendarProxy.getBaseCalendarUri() + "/calendar_alerts";
@@ -41,9 +43,9 @@ public class AlertProxy extends KrollProxy {
 		return CalendarProxy.getBaseCalendarUri() + "/calendar_alerts/by_instance";
 	}
 	
-	public static ArrayList<AlertProxy> queryAlerts(TiContext context, String query, String queryArgs[], String orderBy) {
+	public static ArrayList<AlertProxy> queryAlerts(String query, String queryArgs[], String orderBy) {
 		ArrayList<AlertProxy> alerts = new ArrayList<AlertProxy>();
-		ContentResolver contentResolver = context.getActivity().getContentResolver();
+		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 		
 		Cursor cursor = contentResolver.query(Uri.parse(getAlertsUri()),
 			new String[] { "_id", "event_id", "begin", "end", "alarmTime", "state", "minutes"},
@@ -52,7 +54,7 @@ public class AlertProxy extends KrollProxy {
 		if (cursor!=null)
 		{
 			while (cursor.moveToNext()) {
-				AlertProxy alert = new AlertProxy(context);
+				AlertProxy alert = new AlertProxy();
 				alert.id = cursor.getString(0);
 				alert.eventId = cursor.getString(1);
 				alert.begin = new Date(cursor.getLong(2));
@@ -69,12 +71,12 @@ public class AlertProxy extends KrollProxy {
 		return alerts;
 	}
 	
-	public static ArrayList<AlertProxy> getAlertsForEvent(TiContext context, EventProxy event) {
-		return queryAlerts(context, "event_id = ?", new String[] { event.getId() }, "alarmTime ASC,begin ASC,title ASC");
+	public static ArrayList<AlertProxy> getAlertsForEvent(EventProxy event) {
+		return queryAlerts("event_id = ?", new String[] { event.getId() }, "alarmTime ASC,begin ASC,title ASC");
 	}
 	
-	public static AlertProxy createAlert(TiContext context, EventProxy event, int minutes) {
-		ContentResolver contentResolver = context.getActivity().getContentResolver();
+	public static AlertProxy createAlert(EventProxy event, int minutes) {
+		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 		ContentValues values = new ContentValues();
 		
 		Calendar alarmTime = Calendar.getInstance();
@@ -94,33 +96,33 @@ public class AlertProxy extends KrollProxy {
 		Uri alertUri = contentResolver.insert(Uri.parse(getAlertsUri()), values);
 		String alertId = alertUri.getLastPathSegment();
 		
-		AlertProxy alert = new AlertProxy(context);
+		AlertProxy alert = new AlertProxy();
 		alert.id = alertId;
 		alert.begin = event.getBegin();
 		alert.end = event.getEnd();
 		alert.alarmTime = alarmTime.getTime();
 		alert.state = STATE_SCHEDULED;
 		alert.minutes = minutes;
-		alert.registerAlertIntent(context);
+		alert.registerAlertIntent();
 		return alert;
 	}
 	
 	protected static final String EVENT_REMINDER_ACTION = "android.intent.action.EVENT_REMINDER";
-	protected void registerAlertIntent(TiContext context) {
+	protected void registerAlertIntent() {
 //		Uri uri = ContentUris.withAppendedId(Uri.parse(getAlertsUri()), Long.parseLong(id));
 //		Intent intent = new Intent(EVENT_REMINDER_ACTION);
-		Intent intent = new Intent(context.getActivity(), AlarmReceiver.class);
+		Intent intent = new Intent(getActivity(), AlarmReceiver.class);
 //		intent.setAction("" + Math.random());
 		// intent.setData(uri);
 		// intent.putExtra("beginTime", begin.getTime());
 		// intent.putExtra("endTime", end.getTime());
-		PendingIntent sender = PendingIntent.getBroadcast(context.getActivity(), 0, intent,
+		PendingIntent sender = PendingIntent.getBroadcast(getActivity(), 0, intent,
 			PendingIntent.FLAG_CANCEL_CURRENT);
 		// PendingIntent sender = PendingIntent.getActivity(context.getActivity(), 0, intent,
 		// 		PendingIntent.FLAG_CANCEL_CURRENT);
 
 		AlarmManager manager = (AlarmManager) 
-			getTiContext().getActivity().getSystemService(Context.ALARM_SERVICE);
+			TiApplication.getInstance().getSystemService(Context.ALARM_SERVICE);
 		
 //		manager.set(AlarmManager.RTC_WAKEUP, alarmTime.getTime()+2000, sender);
 		manager.set(AlarmManager.RTC_WAKEUP,System.currentTimeMillis(),sender);

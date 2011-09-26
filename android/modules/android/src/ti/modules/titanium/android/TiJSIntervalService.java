@@ -14,7 +14,7 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.ServiceProxy;
 import org.appcelerator.titanium.util.Log;
@@ -40,8 +40,10 @@ public class TiJSIntervalService extends TiJSService
 	protected void executeServiceCode(ServiceProxy proxy)
 	{
 		final String EXTRA_NAME = "interval";
-		
-		IntentProxy intentProxy = proxy.getIntent();
+
+		// TODO 
+		//IntentProxy intentProxy = proxy.getIntent();
+		IntentProxy intentProxy = null;
 		if (intentProxy == null || !intentProxy.hasExtra(EXTRA_NAME)) {
 			Log.w(LCAT, "The intent is missing the extra value '" + EXTRA_NAME + "', therefore the code will be executed only once.");
 			super.executeServiceCode(proxy);
@@ -67,23 +69,26 @@ public class TiJSIntervalService extends TiJSService
 		}
 		
 		String fullUrl = url;
-		if (!fullUrl.contains("://") && !fullUrl.startsWith("/") && proxy.getTiContext().getBaseUrl() != null) {
-			fullUrl = proxy.getTiContext().getBaseUrl() + fullUrl;
+		if (!fullUrl.contains("://") && !fullUrl.startsWith("/") && proxy.getCreationUrl().baseUrl != null) {
+			fullUrl = proxy.getCreationUrl().baseUrl + fullUrl;
 		}
-		
+
 		IntervalServiceRunner runner = new IntervalServiceRunner(this, proxy, interval, fullUrl);
 		runners.add(runner);
 		runner.start();
 	}
 	
-	private IntervalServiceRunner findRunnerOfContext(TiContext context)
+	private IntervalServiceRunner findRunnerOfContext()
 	{
 		if (runners != null) {
 			synchronized(runners) {
 				for (IntervalServiceRunner runner : runners) {
+					// TODO
+					/*
 					if (runner.getTiContext() == context) {
 						return runner;
 					}
+					*/
 				}
 			}
 		}
@@ -113,11 +118,13 @@ public class TiJSIntervalService extends TiJSService
 		destroyRunners();
 		super.onDestroy();
 	}
-	
+
+	// TODO
+	/*
 	@Override
-	protected void unbindContext(TiContext context)
+	protected void unbindContext()
 	{
-		IntervalServiceRunner runner = findRunnerOfContext(context);
+		IntervalServiceRunner runner = findRunnerOfContext();
 		if (runner != null) {
 			if (DBG) {
 				Log.d(LCAT, "Stopping IntervalServiceRunner because of unbind");
@@ -126,12 +133,13 @@ public class TiJSIntervalService extends TiJSService
 		}
 		runners.remove(runner);
 	}
+	*/
 	
 	private class IntervalServiceRunner
 	{
 		private long interval;
 		private ServiceProxy proxy;
-		private TiContext tiContext;
+		//private TiContext tiContext;
 		private Timer timer = null;
 		private TimerTask task = null;
 		private String serviceSimpleName;
@@ -141,16 +149,17 @@ public class TiJSIntervalService extends TiJSService
 		IntervalServiceRunner(Service service, ServiceProxy proxy, long interval, String url)
 		{
 			this.proxy = proxy;
-			this.tiContext = proxy.getTiContext();
+			//this.tiContext = proxy.getTiContext();
 			this.interval = interval;
 			this.url = url;
 			this.serviceSimpleName = service.getClass().getSimpleName();
 		}
-		
+
+		/*
 		TiContext getTiContext()
 		{
 			return tiContext;
-		}
+		}*/
 		
 		private void destroyTimer()
 		{
@@ -198,11 +207,11 @@ public class TiJSIntervalService extends TiJSService
 				{
 					int iteration = counter.incrementAndGet();
 					try {
-						TiBindingHelper.bindCurrentService(tiContext, proxy);
+						TiBindingHelper.bindCurrentService(proxy);
 						KrollDict event = new KrollDict();
 						event.put("iteration", iteration);
 						proxy.fireEvent("resume", event);
-						tiContext.evalFile(url);
+						KrollContext.getKrollContext().evalFile(url);
 						proxy.fireEvent("pause", event);
 					} catch (Throwable e) {
 						Log.e(LCAT, "Failure evaluating service JS " + url + ": " + e.getMessage(), e);
@@ -210,7 +219,9 @@ public class TiJSIntervalService extends TiJSService
 				}
 			};
 			
-			timer = new Timer(serviceSimpleName + "_Timer_" + proxy.getServiceInstanceId());
+			// TODO
+			//timer = new Timer(serviceSimpleName + "_Timer_" + proxy.getServiceInstanceId());
+			timer = new Timer("fix me!");
 			timer.schedule(task, 0, interval);
 		}
 		

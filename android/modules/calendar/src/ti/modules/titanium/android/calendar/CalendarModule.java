@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 
 import ti.modules.titanium.android.AndroidModule;
 
@@ -27,28 +26,30 @@ public class CalendarModule extends KrollModule {
 	@Kroll.constant public static final int STATE_DISMISSED = AlertProxy.STATE_DISMISSED;
 	@Kroll.constant public static final int STATE_FIRED = AlertProxy.STATE_FIRED;
 	@Kroll.constant public static final int STATE_SCHEDULED = AlertProxy.STATE_SCHEDULED;
-	
+
+	/*
 	public CalendarModule(TiContext context) {
 		super(context);
 	}
+	*/
 	
 	@Kroll.getProperty @Kroll.method
 	public CalendarProxy[] getAllCalendars() {
-		ArrayList<CalendarProxy> calendars = CalendarProxy.queryCalendars(getTiContext(), null, null);
+		ArrayList<CalendarProxy> calendars = CalendarProxy.queryCalendars(null, null);
 		return calendars.toArray(new CalendarProxy[calendars.size()]);
 	}
 	
 	@Kroll.getProperty @Kroll.method
 	public CalendarProxy[] getSelectableCalendars() {
 		// selectable calendars are "selected" && !"hidden"
-		ArrayList<CalendarProxy> calendars = CalendarProxy.queryCalendars(getTiContext(),
-			"Calendars.selected = ? AND Calendars.hidden = ?", new String[] { "1", "0" });
+		ArrayList<CalendarProxy> calendars = CalendarProxy.queryCalendars(
+				"Calendars.selected = ? AND Calendars.hidden = ?", new String[] { "1", "0" });
 		return calendars.toArray(new CalendarProxy[calendars.size()]);
 	}
 	
 	@Kroll.method
 	public CalendarProxy getCalendarById(int id) {
-		ArrayList<CalendarProxy> calendars = CalendarProxy.queryCalendars(getTiContext(),
+		ArrayList<CalendarProxy> calendars = CalendarProxy.queryCalendars(
 			"Calendars._id = ?", new String[] { ""+id });
 		
 		if (calendars.size() > 0) {
@@ -60,7 +61,7 @@ public class CalendarModule extends KrollModule {
 	
 	@Kroll.getProperty @Kroll.method
 	public AlertProxy[] getAllAlerts() {
-		ArrayList<AlertProxy> alerts = AlertProxy.queryAlerts(getTiContext(), null, null, null);
+		ArrayList<AlertProxy> alerts = AlertProxy.queryAlerts(null, null, null);
 		return alerts.toArray(new AlertProxy[alerts.size()]);
 	}
 }
