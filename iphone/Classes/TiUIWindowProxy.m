@@ -107,10 +107,20 @@
 -(void)_destroy
 {
     if (![self closing]) {
-        [self performSelectorOnMainThread:@selector(close:) withObject:nil waitUntilDone:YES];
+        // Allows us to avoid sending a 'retain' message to an object possibly in the throes of 'release'
+        __block TiUIWindowProxy* blockSelf = self;
+        TiThreadPerformOnMainThread(^{
+            [blockSelf close:nil];
+        }, YES);
     }
     
-	[barImageView performSelectorOnMainThread:@selector(removeFromSuperview) withObject:nil waitUntilDone:NO];
+    // We set barImageView to 'nil' below, and release it, so we need to maintain a reference to what gets removed.
+    UIImageView* blockBarImage = [barImageView retain];
+    TiThreadPerformOnMainThread(^{
+        [blockBarImage removeFromSuperview];
+        [blockBarImage release];
+    }, NO);
+
 	RELEASE_TO_NIL(barImageView);
 	if (context!=nil)
 	{
@@ -321,7 +331,9 @@
 	[self replaceValue:[self sanitizeURL:value] forKey:@"barImage" notification:NO];
 	if (controller!=nil)
 	{
-		[self performSelectorOnMainThread:@selector(updateBarImage) withObject:nil waitUntilDone:NO];
+        TiThreadPerformOnMainThread(^{
+            [self updateBarImage];
+        }, NO);
 	}
 }
 

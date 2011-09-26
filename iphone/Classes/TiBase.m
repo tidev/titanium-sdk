@@ -232,6 +232,15 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 		 *	write to somewhere unexpected. The deadlock break is not 100% safe,
 		 *	and is a last-ditch effort. TODO: Perhaps a stronger message than WARN?
 		 */
+
+        // This doesn't work if we're calling out to JSCore from the main thread, for a multitude
+        // of reasons (namely, the main queue never gets a chance to process the async request)
+        // and we can't manually manage the JSCore locks (see TiLock.h/.cpp for why).
+        //
+        // Solution? We can NEVER, EVER EVER call out to JS from the main thread (and if
+        // events aren't blocking/causing lockup, GC could be - there are some objects, when
+        // deallocated, which require their elements to be removed on the main thread).
+        
 		while(waitForFinish && !finished)
 		{
 			[NSThread sleepForTimeInterval:0.01];
