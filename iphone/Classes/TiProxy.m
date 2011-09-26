@@ -153,8 +153,8 @@ void DoProxyDelegateReadKeyFromProxy(UIView<TiProxyDelegate> * target, NSString 
 	}
 	else
 	{
-		[target performSelectorOnMainThread:sel withObject:value
-				waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+		TiThreadPerformOnMainThread(^(void){
+					[target performSelector:sel withObject:value];}, NO);
 	}
 }
 

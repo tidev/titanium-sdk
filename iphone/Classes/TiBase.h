@@ -527,6 +527,88 @@ extern NSString * const kTiLocalNotification;
 #endif
 
 #include "TiThreading.h"
+
+/*	
+ *	Most of the time, TiThreadPerformOnMainThread would work perfectly fine
+ *	directly calling dispatch_async or dispatch_sync onto the main queue as
+ *	needed. However, there are some cases where methods MUST be done on the
+ *	main thread, sychronously, but not waiting for the main queue to fetch
+ *	another block. In those edge cases, call
+ *	TiThreadProcessPendingMainThreadBlocks directly while on the main thread.
+ *
+ *	This function takes three arguments:
+ *	A time duration called duration.
+ *		The processing stops after this time has passed.
+ *	A boolean to stop when the queue is empty.
+ *		The processing stops if this boolean is YES and the queue is empty.
+ *	A block that takes a pointer to a bool. This block may be nil.
+ *		The processing stops if the bool specified by the pointer is set NO.
+ *
+ *	The function works processes blocks already queued up by
+ *	TiThreadPerformOnMainThread thusly:
+ *
+ *	1.	Note the current time + duration as the time when 'done'.
+ *	2.	Attempt to process a block first before checking to stop.
+ *	3.	If the current time is not after the 'done' time, plan on continuing.
+ *	4.	If the we plan on continuing, and untilEmpty is set YES, plan on
+ *		continuing ONLY if the queue is not empty.
+ *	5.	If the block is not nil, pass the 'continue' bool to it, letting the
+ *		block inspect and override the boolean to its wishes. It is the block's
+ *		responsibility to not allow for an infinite loop.
+ *	6.	If we are continuing despite not having anything in the queue, sleep for
+ *		10ms to allow background tasks to queue up blocks.
+ *	7.	If we are continuing, go back to step 2.
+ *
+ *
+ *	USE CASES:
+ *
+ *	During an an applicationWillResignActive, the application will suspend
+ *	before the main queue will process any more async or sync blocks, so we
+ *	must force the blocks to process before suspension. So we trigger the
+ *	suspend event, then call:
+ *		TiThreadProcessPendingMainThreadBlocks(1.0,NO,nil);
+ *	So that we let event listeners a full second to do main block processing,
+ *	waiting even if the queue is empty, before resigning active.
+ *
+ *	In a TableView callback, the iOS expects an answer before the main queue
+ *	will process any more async blocks. So we again must force the blocks to
+ *	process, preempting other main events/blocks. In this case, the pseudocode
+ *	would resemble thus:
+ *
+ *	- (UITableViewCell *)tableView:(UITableView *)ourTableView
+ *			cellForRowAtIndexPath:(NSIndexPath *)indexPath
+ *	{
+ *		if(![self rowCachedForIndexPath:indexPath]){
+ *			[self invokeCallbackForKey:@"rowCallback" withObject:
+ *					[self dictionaryFromIndexPath:indexPath] thisObject:nil];
+ *			TiThreadProcessPendingMainThreadBlocks(0.1,NO,^(BOOL * result){
+ *						if([self rowCachedForIndexPath:indexPath]) {
+ *							*result = NO;
+ *						}
+ *					});
+ *		}
+ *		return [self cachedRowForIndexPath:indexPath];
+ *	}
+ *
+ *	Where if a rowCallback is needed, we generate a callback event and wait up
+ *	to 100ms. If the row is cached during that time, we exit the wait early.
+ *	after 100ms, we exit processing anyways, the background task having timed
+ *	out, and cachedRowForIndexPath either returns the generated row, or creates
+ *	a blank one.
+ *
+ *	This way, the app developer is free to update any UI elements and the like
+ *	(The table proxy API would be calling TiThreadPerformOnMainThread) without
+ *	the danger of deadlocking the main thread.
+ */
+
+void TiThreadProcessPendingMainThreadBlocks(NSTimeInterval duration, BOOL untilEmpty, void (^isDoneBlock)(BOOL *) );
+
+/*
+ *	TiThreadPerformOnMainThread should replace all Titanium instances of
+ *	performSelectorOnMainThread, ESPECIALLY if wait is to be yes. That way,
+ *	exceptional-case main thread activities can process them outside of the
+ *	standard event loop.
+ */
 void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish);
 
 #include "TiPublicAPI.h"
