@@ -7,16 +7,15 @@
 package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.w3c.dom.Notation;
 
 @Kroll.proxy
 public class NotationProxy extends NodeProxy {
 
 	private Notation notation;
-	public NotationProxy(TiContext context, Notation notation)
+	public NotationProxy(Notation notation)
 	{
-		super(context, notation);
+		super(notation);
 		this.notation = notation;
 	}
 	

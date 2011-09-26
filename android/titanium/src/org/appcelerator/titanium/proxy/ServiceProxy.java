@@ -11,6 +11,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.util.TiConfig;
 
 import android.app.Service;
+import android.content.Intent;
 import android.content.ServiceConnection;
 
 @Kroll.proxy
@@ -32,26 +33,28 @@ public class ServiceProxy extends KrollProxy
 	/**
 	 * For when creating a service proxy directly, for later binding using bindService()
 	 */
-	/*
 	public ServiceProxy(IntentProxy intentProxy)
 	{
+		// TODO
+		/*
 		setIntent(intentProxy);
 		serviceIntentId =  TiBaseService.nextServiceBindingIntentId();
 		intentProxy.putExtra(TiBaseService.TI_SERVICE_INTENT_ID_KEY, serviceIntentId);
 		forBoundServices = true;
-	}*/
+		*/
+	}
 
 	/**
 	 * For when a service started via startService() creates a proxy when it starts running
 	 */
-	/*
 	public ServiceProxy(Service service, Intent intent, int serviceInstanceId)
 	{
 		this.service = service;
 		setIntent(intent);
 		this.serviceInstanceId = serviceInstanceId;
 	}
-	
+
+	/*
 	@Kroll.getProperty @Kroll.method
 	public int getServiceInstanceId()
 	{
@@ -62,7 +65,7 @@ public class ServiceProxy extends KrollProxy
 	{
 		return serviceIntentId;
 	}
-	
+	*/
 	@Kroll.getProperty @Kroll.method
 	public IntentProxy getIntent()
 	{
@@ -78,7 +81,8 @@ public class ServiceProxy extends KrollProxy
 	{
 		this.intentProxy = intentProxy;
 	}
-	
+
+	/*
 	@Kroll.method
 	public void start()
 	{

@@ -42,6 +42,10 @@ public class IntentProxy extends KrollProxy
 	protected Intent intent;
 	protected int type = TYPE_ACTIVITY;
 
+	public IntentProxy()
+	{	
+	}
+
 	public IntentProxy(Intent intent)
 	{
 		this.intent = intent;

@@ -7,7 +7,6 @@
 package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
@@ -17,9 +16,9 @@ public class TextProxy extends CharacterDataProxy
 {
 
 	private Text text;
-	public TextProxy(TiContext context, Text text)
+	public TextProxy(Text text)
 	{
-		super(context, text);
+		super(text);
 		this.text = text;
 	}
 

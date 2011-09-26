@@ -8,10 +8,9 @@
 package ti.modules.titanium.accelerometer;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiSensorHelper;
 
@@ -33,12 +32,40 @@ public class AccelerometerModule extends KrollModule
 	private long lastSensorEventTimestamp = 0;
 
 
-	public AccelerometerModule(TiContext tiContext)
+	/*
+	public AccelerometerModule()
 	{
-		super(tiContext);
+		super();
+	}
+	*/
+
+	@Override
+	public void eventListenerAdded(String type, int count, final KrollProxy proxy)
+	{
+		if (!accelerometerRegistered) {
+			if (EVENT_UPDATE.equals(type)) {
+				TiSensorHelper.registerListener(Sensor.TYPE_ACCELEROMETER, this, SensorManager.SENSOR_DELAY_UI);
+				accelerometerRegistered = true;
+			}
+		}
+		super.eventListenerAdded(type, count, proxy);
+		//return super.addEventListener(invocation, eventName, listener);
 	}
 
 	@Override
+	public void eventListenerRemoved(String type, int count, KrollProxy proxy)
+	{
+		if (accelerometerRegistered) {
+			if (EVENT_UPDATE.equals(type)) {
+				TiSensorHelper.unregisterListener(Sensor.TYPE_ACCELEROMETER, this);
+				accelerometerRegistered = false;
+			}
+		}
+		super.eventListenerRemoved(type, count, proxy);
+		//super.removeEventListener(invocation, eventName, listener);
+	}
+
+	/*
 	public int addEventListener(KrollInvocation invocation, String eventName, Object listener)
 	{
 		if (!accelerometerRegistered) {
@@ -61,6 +88,7 @@ public class AccelerometerModule extends KrollModule
 		}
 		super.removeEventListener(invocation, eventName, listener);
 	}
+	*/
 
 	public void onAccuracyChanged(Sensor sensor, int accuracy)
 	{

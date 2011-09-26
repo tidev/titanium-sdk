@@ -16,7 +16,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -42,30 +41,31 @@ public class XMLModule extends KrollModule {
 			Log.e(LCAT, "Error finding DOM implementation", e);
 		}
 	}
-	
+
+	/*
 	public XMLModule(TiContext context) {
 		super(context);
-	}
+	}*/
 	
 	@Kroll.method
 	public DocumentProxy parseString(String xml)
 		throws SAXException, IOException
 	{
-		return parse(getTiContext(), xml);
+		return parse(xml);
 	}
 	
-	public static DocumentProxy parse(TiContext context, String xml)
+	public static DocumentProxy parse(String xml)
 		throws SAXException, IOException
 	{
-		return parse(context, xml, System.getProperty("file.encoding", "UTF-8"));
+		return parse(xml, System.getProperty("file.encoding", "UTF-8"));
 	}
 	
-	public static DocumentProxy parse(TiContext context, String xml, String encoding)
+	public static DocumentProxy parse(String xml, String encoding)
 		throws SAXException, IOException
 	{
 		if (builder != null) {
 			try {
-				return new DocumentProxy(context, builder.parse(new ByteArrayInputStream(xml.getBytes(encoding))));
+				return new DocumentProxy(builder.parse(new ByteArrayInputStream(xml.getBytes(encoding))));
 			} catch (SAXException e) {
 				Log.e(LCAT, "Error parsing XML", e);
 				throw e;

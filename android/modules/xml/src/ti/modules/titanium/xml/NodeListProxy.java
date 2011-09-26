@@ -8,7 +8,6 @@ package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.w3c.dom.NodeList;
 
 @Kroll.proxy
@@ -19,14 +18,14 @@ public class NodeListProxy extends KrollProxy
 	private int offset;
 	private NodeList list;
 
-	public NodeListProxy(TiContext context, NodeList list)
+	public NodeListProxy(NodeList list)
 	{
-		this(context, list, 0);
+		this(list, 0);
 	}
 
-	public NodeListProxy(TiContext context, NodeList list, int offset)
+	public NodeListProxy(NodeList list, int offset)
 	{
-		super(context);
+		super();
 		this.list = list;
 		this.offset = offset;
 	}
@@ -40,6 +39,6 @@ public class NodeListProxy extends KrollProxy
 	@Kroll.method
 	public NodeProxy item(int index)
 	{
-		return NodeProxy.getNodeProxy(getTiContext(), list.item(index + offset));
+		return NodeProxy.getNodeProxy(list.item(index + offset));
 	}
 }

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.Log;
 
 import android.content.ContentResolver;
@@ -22,18 +22,20 @@ public class ReminderProxy extends KrollProxy {
 	
 	protected String id;
 	protected int minutes, method;
-	
-	public ReminderProxy(TiContext context) {
+
+	/*
+	public ReminderProxy() {
 		super(context);
 	}
+	*/
 	
 	public static String getRemindersUri() {
 		return CalendarProxy.getBaseCalendarUri() + "/reminders";
 	}
 	
-	public static ArrayList<ReminderProxy> getRemindersForEvent(TiContext context, EventProxy event) {
+	public static ArrayList<ReminderProxy> getRemindersForEvent(EventProxy event) {
 		ArrayList<ReminderProxy> reminders = new ArrayList<ReminderProxy>();
-		ContentResolver contentResolver = context.getActivity().getContentResolver();
+		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 		Uri uri = Uri.parse(getRemindersUri());
 		 
 		Cursor reminderCursor = contentResolver.query(uri,
@@ -41,7 +43,7 @@ public class ReminderProxy extends KrollProxy {
 			"event_id = ?", new String[] { event.getId() }, null);
 		
 		while (reminderCursor.moveToNext()) {
-			ReminderProxy reminder = new ReminderProxy(context);
+			ReminderProxy reminder = new ReminderProxy();
 			reminder.id = reminderCursor.getString(0);
 			reminder.minutes = reminderCursor.getInt(1);
 			reminder.method = reminderCursor.getInt(2);
@@ -54,8 +56,8 @@ public class ReminderProxy extends KrollProxy {
 		return reminders;
 	}
 	
-	public static ReminderProxy createReminder(TiContext context, EventProxy event, int minutes, int method) {
-		ContentResolver contentResolver = context.getActivity().getContentResolver();
+	public static ReminderProxy createReminder(EventProxy event, int minutes, int method) {
+		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 		ContentValues eventValues = new ContentValues();
 		
 		eventValues.put("minutes", minutes);
@@ -66,7 +68,7 @@ public class ReminderProxy extends KrollProxy {
 		Log.d("TiEvents", "created reminder with uri: " + reminderUri + ", minutes: " + minutes + ", method: " + method + ", event_id: " + event.getId());
 		
 		String eventId = reminderUri.getLastPathSegment();
-		ReminderProxy reminder = new ReminderProxy(context);
+		ReminderProxy reminder = new ReminderProxy();
 		reminder.id = eventId;
 		reminder.minutes = minutes;
 		reminder.method = method;

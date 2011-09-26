@@ -7,16 +7,15 @@
 package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.w3c.dom.DocumentType;
 
 @Kroll.proxy
 public class DocumentTypeProxy extends NodeProxy {
 
 	private DocumentType type;
-	public DocumentTypeProxy(TiContext context, DocumentType type)
+	public DocumentTypeProxy(DocumentType type)
 	{
-		super(context, type);
+		super(type);
 		this.type = type;
 	}
 	
@@ -27,7 +26,7 @@ public class DocumentTypeProxy extends NodeProxy {
 	
 	@Kroll.getProperty @Kroll.method
 	public NamedNodeMapProxy getEntities() {
-		return new NamedNodeMapProxy(getTiContext(), type.getEntities());
+		return new NamedNodeMapProxy(type.getEntities());
 	}
 	
 	@Kroll.getProperty @Kroll.method
@@ -42,7 +41,7 @@ public class DocumentTypeProxy extends NodeProxy {
 	
 	@Kroll.getProperty @Kroll.method
 	public NamedNodeMapProxy getNotations() {
-		return new NamedNodeMapProxy(getTiContext(), type.getNotations());
+		return new NamedNodeMapProxy(type.getNotations());
 	}
 	
 	@Kroll.getProperty @Kroll.method

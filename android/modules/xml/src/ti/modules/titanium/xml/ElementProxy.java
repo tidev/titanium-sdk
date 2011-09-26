@@ -7,7 +7,6 @@
 package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMException;
@@ -20,9 +19,9 @@ import org.w3c.dom.Text;
 public class ElementProxy extends NodeProxy {
 
 	private Element element;
-	public ElementProxy(TiContext context, Element element)
+	public ElementProxy(Element element)
 	{
-		super(context, element);
+		super(element);
 		this.element = element;
 	}
 
@@ -88,7 +87,7 @@ public class ElementProxy extends NodeProxy {
 		if (list.getLength() > 0 && list.item(0).equals(element)) {
 			offset = 1;
 		}
-		return new NodeListProxy(getTiContext(), list, offset);
+		return new NodeListProxy(list, offset);
 	}
 
 	@Kroll.method

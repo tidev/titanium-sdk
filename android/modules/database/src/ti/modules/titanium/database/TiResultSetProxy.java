@@ -10,7 +10,6 @@ import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -30,9 +29,9 @@ public class TiResultSetProxy extends KrollProxy
 	protected String lastException;
 	protected HashMap<String, Integer> columnNames; // workaround case-sensitive matching in Google's implementation
 
-	public TiResultSetProxy(TiContext tiContext, Cursor rs)
+	public TiResultSetProxy(Cursor rs)
 	{
-		super(tiContext);
+		//super();
 
 		this.rs = rs;
 		String[] names = rs.getColumnNames();

@@ -2,11 +2,10 @@ package ti.modules.titanium.contacts;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 
-import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiApplication;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -20,7 +19,7 @@ import android.util.Log;
 public class ContactsApiLevel5 extends CommonContactsApi
 {
 	protected boolean loadedOk;
-	private WeakReference<TiContext> weakContext ;
+	//private WeakReference<TiContext> weakContext ;
 	private static final String LCAT = "TiContacts5";
 	private Method openContactPhotoInputStream;
 	private static Class<?> Contacts;
@@ -102,9 +101,9 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		"('" + KIND_ADDRESS + "','" + KIND_EMAIL + "','" +
 		KIND_NAME + "','" + KIND_NOTE + "','" + KIND_PHONE + "')";
 	
-	protected ContactsApiLevel5(TiContext tiContext)
+	protected ContactsApiLevel5()
 	{
-		weakContext = new WeakReference<TiContext>(tiContext);
+		//weakContext = new WeakReference<TiContext>(tiContext);
 		loadedOk = true;
 		try {
 			DataUri = (Uri) Class.forName("android.provider.ContactsContract$Data").getField("CONTENT_URI").get(null);
@@ -127,11 +126,11 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	
 	private PersonProxy[] getPeople(int limit, String additionalCondition, String[] additionalSelectionArgs)
 	{
-		TiContext tiContext = weakContext.get();
-		if (tiContext == null) {
+		//TiContext tiContext = weakContext.get();
+		/*if (tiContext == null) {
 			Log.d(LCAT , "Could not getPeople, context is GC'd");
 			return null;
-		}
+		}*/
 		LinkedHashMap<Long, CommonContactsApi.LightPerson> persons = new LinkedHashMap<Long, LightPerson>();
 		
 		String condition = "mimetype IN " + INConditionForKinds +
@@ -141,7 +140,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			condition += " AND " + additionalCondition;
 		}
 		
-		Cursor cursor = tiContext.getActivity().managedQuery(
+		Cursor cursor = TiApplication.getInstance().getCurrentActivity().managedQuery(
 				DataUri, 
 				DATA_PROJECTION, 
 				condition, 
@@ -163,7 +162,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		
 		cursor.close();
 		
-		return proxifyPeople(persons, tiContext);
+		return proxifyPeople(persons);
 	}
 	
 	@Override
@@ -181,16 +180,18 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	@Override
 	protected PersonProxy getPersonById(long id)
 	{
+		/*
 		TiContext tiContext = weakContext.get();
 		if (tiContext == null) {
 			Log.d(LCAT , "Could not getPersonById, context is GC'd");
 			return null;
 		}
+		*/
 		
 		CommonContactsApi.LightPerson person = null;
 
 		// Basic person data.
-		Cursor cursor = tiContext.getActivity().managedQuery(
+		Cursor cursor = TiApplication.getInstance().getCurrentActivity().managedQuery(
 				ContentUris.withAppendedId(ContactsUri, id),
 				PEOPLE_PROJECTION, null, null, null);
 		
@@ -209,7 +210,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		String condition = "mimetype IN " + INConditionForKinds +
 			" AND contact_id = ?";
 		
-		cursor = tiContext.getActivity().managedQuery(
+		cursor = TiApplication.getInstance().getCurrentActivity().managedQuery(
 				DataUri, 
 				DATA_PROJECTION, 
 				condition, 
@@ -220,7 +221,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			person.addDataFromL5Cursor(cursor);
 		}
 		cursor.close();
-		return person.proxify(tiContext);
+		return person.proxify();
 	}
 
 	@Override
@@ -231,15 +232,17 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	}
 
 	@Override
-	protected Bitmap getContactImage(long id)
+	protected Bitmap getInternalContactImage(long id)
 	{
+		/*
 		TiContext tiContext = weakContext.get();
 		if (tiContext == null) {
 			Log.d(LCAT , "Could not getContactImage, context is GC'd");
 			return null;
 		}
+		*/
 		Uri uri = ContentUris.withAppendedId(ContactsUri, id);
-		ContentResolver cr = tiContext.getActivity().getContentResolver();
+		ContentResolver cr = TiApplication.getInstance().getCurrentActivity().getContentResolver();
 		InputStream stream = null;
 		try {
 			stream = (InputStream) openContactPhotoInputStream.invoke(null, cr, uri);

@@ -17,7 +17,7 @@ import java.io.OutputStream;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -40,10 +40,11 @@ public class DatabaseModule extends KrollModule
 	@Kroll.constant public static final int FIELD_TYPE_INT = 1;
 	@Kroll.constant public static final int FIELD_TYPE_FLOAT = 2;
 	@Kroll.constant public static final int FIELD_TYPE_DOUBLE = 3;
-	
+
+	/*
 	public DatabaseModule(TiContext tiContext) {
 		super(tiContext);
-	}
+	}*/
 
 	@Kroll.method
 	public TiDatabaseProxy open(Object file) {
@@ -57,11 +58,11 @@ public class DatabaseModule extends KrollModule
 				Log.d(LCAT, "Opening database from filesystem: " + absolutePath);
 				
 				SQLiteDatabase db = SQLiteDatabase.openDatabase(absolutePath, null, SQLiteDatabase.OPEN_READONLY | SQLiteDatabase.NO_LOCALIZED_COLLATORS);
-				dbp = new TiDatabaseProxy(getTiContext(), db);
+				dbp = new TiDatabaseProxy(db);
 			} else {
 				String name = TiConvert.toString(file);
-				SQLiteDatabase db = getTiContext().getTiApp().openOrCreateDatabase(name, Context.MODE_PRIVATE, null);
-				dbp = new TiDatabaseProxy(getTiContext(), name, db);
+				SQLiteDatabase db = TiApplication.getInstance().openOrCreateDatabase(name, Context.MODE_PRIVATE, null);
+				dbp = new TiDatabaseProxy(name, db);
 			}
 			
 			if (DBG) {
@@ -81,8 +82,8 @@ public class DatabaseModule extends KrollModule
 	public TiDatabaseProxy install(KrollInvocation invocation, String url, String name) throws IOException
 	{
 		try {
-			TiContext tiContext = invocation.getTiContext();
-			Context ctx = getTiContext().getTiApp();
+			//TiContext tiContext = invocation.getTiContext();
+			Context ctx = TiApplication.getInstance();
 			for (String dbname : ctx.databaseList())
 			{
 				if (dbname.equals(name))
@@ -98,8 +99,8 @@ public class DatabaseModule extends KrollModule
 				Log.d(LCAT,"db url is = "+url);
 			}
 
-			String path = tiContext.resolveUrl(null, url);
-			TiBaseFile srcDb = TiFileFactory.createTitaniumFile(getTiContext(), path, false);
+			String path = resolveUrl(null, url);
+			TiBaseFile srcDb = TiFileFactory.createTitaniumFile(path, false);
 
 			if (DBG) {
 				Log.d(LCAT,"new url is = "+url);

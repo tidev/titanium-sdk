@@ -14,7 +14,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiContext;
 
 import android.graphics.Bitmap;
 
@@ -32,11 +31,13 @@ public class PersonProxy extends KrollProxy
 	private TiBlob image = null;
 	private boolean imageFetched; // lazy load these bitmap images
 	protected boolean hasImage = false;
-	
+
+	/*
 	public PersonProxy(TiContext tiContext)
 	{
 		super(tiContext);
 	}
+	*/
 	
 	private boolean isPhotoFetchable()
 	{
@@ -49,9 +50,9 @@ public class PersonProxy extends KrollProxy
 		if (this.image != null) {
 			return this.image;
 		} else if (!imageFetched && isPhotoFetchable()) {
-			Bitmap photo = CommonContactsApi.getContactImage(getTiContext(), this.id);
+			Bitmap photo = CommonContactsApi.getContactImage(this.id);
 			if (photo != null) {
-				this.image = TiBlob.blobFromImage(getTiContext(), photo);
+				this.image = TiBlob.blobFromImage(photo);
 			}
 			imageFetched = true;
 		}

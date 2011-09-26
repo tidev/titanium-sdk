@@ -6,9 +6,6 @@
  */
 package ti.modules.titanium.map;
 
-import java.lang.ref.WeakReference;
-
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiFileHelper;
@@ -43,14 +40,14 @@ public class TiOverlayItemView extends FrameLayout
 	private TextView snippet;
 	private int lastIndex;
 	private View[] hitTestList;
-	private WeakReference<TiContext> weakTiContext;
+	//private WeakReference<TiContext> weakTiContext;
 
 	private OnOverlayClicked overlayClickedListener;
 
-	public TiOverlayItemView(Context context, TiContext tiContext)
+	public TiOverlayItemView(Context context)
 	{
 		super(context);
-		weakTiContext = new WeakReference<TiContext>(tiContext);
+		//weakTiContext = new WeakReference<TiContext>(tiContext);
 
 		lastIndex = -1;
 
@@ -64,7 +61,7 @@ public class TiOverlayItemView extends FrameLayout
 
 		RelativeLayout.LayoutParams params = null;
 
-		leftPane = new TiCompositeLayout(tiContext.getActivity());
+		leftPane = new TiCompositeLayout(context);
 		leftPane.setId(100);
 		leftPane.setTag("leftPane");
 		params = createBaseParams();
@@ -113,7 +110,7 @@ public class TiOverlayItemView extends FrameLayout
 		params.addRule(RelativeLayout.ALIGN_TOP);
 		layout.addView(textLayout, params);
 
-		rightPane = new TiCompositeLayout(tiContext.getActivity());
+		rightPane = new TiCompositeLayout(context);
 		rightPane.setId(103);
 		rightPane.setTag("rightPane");
 		params = createBaseParams();
@@ -151,7 +148,7 @@ public class TiOverlayItemView extends FrameLayout
 			if (leftButton != null) {
 				try {
 					ImageView leftImage = new ImageView(getContext());
-					d = tfh.loadDrawable(weakTiContext.get(), leftButton, false);
+					d = tfh.loadDrawable(leftButton, false);
 					leftImage.setImageDrawable(d);
 					leftPane.addView(leftImage);
 
@@ -160,7 +157,7 @@ public class TiOverlayItemView extends FrameLayout
 
 				}
 			} else if (leftView != null) {
-				leftPane.addView(leftView.getView(leftView.getTiContext().getActivity()).getNativeView());
+				leftPane.addView((leftView.getOrCreateView()).getNativeView());
 			}
 			leftPane.setVisibility(VISIBLE);
 
@@ -174,7 +171,7 @@ public class TiOverlayItemView extends FrameLayout
 			if (rightButton != null) {
 				try {
 					ImageView rightImage = new ImageView(getContext());
-					d = tfh.loadDrawable(weakTiContext.get(), rightButton, false);
+					d = tfh.loadDrawable(rightButton, false);
 					rightImage.setImageDrawable(d);
 					rightPane.addView(rightImage);
 

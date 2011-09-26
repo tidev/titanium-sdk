@@ -8,15 +8,13 @@ package org.appcelerator.titanium.proxy;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.view.TiUIActivityWindow;
 import org.appcelerator.titanium.view.TiUIView;
 
-import android.app.Activity;
-
 import ti.modules.titanium.android.AndroidModule;
+import android.app.Activity;
 
 @Kroll.proxy(creatableInModule=AndroidModule.class)
 public class TiActivityWindowProxy extends TiWindowProxy 
@@ -24,9 +22,9 @@ public class TiActivityWindowProxy extends TiWindowProxy
 	private static final String LCAT = "TiActivityWindowProxy";
 	private static final boolean DBG = TiConfig.LOGD;
 	
-	public TiActivityWindowProxy(TiContext tiContext) 
+	public TiActivityWindowProxy() 
 	{
-		super(tiContext);
+		super();
 		
 		// force to true since the window is actually opened from TiUIActivityWindow
 		// TODO make this lifecycle less weird

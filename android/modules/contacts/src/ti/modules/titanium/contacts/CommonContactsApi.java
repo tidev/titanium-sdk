@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 
 import android.content.Intent;
@@ -25,7 +24,7 @@ public abstract class CommonContactsApi
 	private static final boolean TRY_NEWER_API = (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.DONUT);
 	private static final String LCAT = "TiCommonContactsApi";
 	
-	protected static CommonContactsApi getInstance(TiContext tiContext)
+	protected static CommonContactsApi getInstance()
 	{
 		boolean useNew = false;
 		if (TRY_NEWER_API) {
@@ -39,21 +38,21 @@ public abstract class CommonContactsApi
 		} 
 		Log.d(LCAT, "Using " + (useNew ? "newer " : "older ") + "contacts api.  Android SDK level: " + android.os.Build.VERSION.SDK_INT);
 		if (useNew) {
-			ContactsApiLevel5 c = new ContactsApiLevel5(tiContext);
+			ContactsApiLevel5 c = new ContactsApiLevel5();
 			if (!c.loadedOk) {
 				Log.d(LCAT, "ContactsApiLevel5 did not load successfully.  Falling back to L4.");
-				return new ContactsApiLevel4(tiContext);
+				return new ContactsApiLevel4();
 			} else {
 				return c;
 			}
 		} else {
-			return new ContactsApiLevel4(tiContext);
+			return new ContactsApiLevel4();
 		}
 	}
 	
-	protected static Bitmap getContactImage(TiContext context, long contact_id)
+	protected static Bitmap getContactImage(long contact_id)
 	{
-		CommonContactsApi api = getInstance(context);
+		CommonContactsApi api = getInstance();
 		return api.getContactImage(contact_id);
 	}
 	
@@ -62,19 +61,19 @@ public abstract class CommonContactsApi
 	protected abstract PersonProxy[] getAllPeople(int limit);
 	protected abstract PersonProxy[] getPeopleWithName(String name);
 	protected abstract Intent getIntentForContactsPicker();
-	protected abstract Bitmap getContactImage(long id);
+	protected abstract Bitmap getInternalContactImage(long id);
 	
 	protected PersonProxy[] getAllPeople()
 	{
 		return getAllPeople(Integer.MAX_VALUE);
 	}
 	
-	protected PersonProxy[] proxifyPeople(Map<Long, LightPerson> persons, TiContext tiContext)
+	protected PersonProxy[] proxifyPeople(Map<Long, LightPerson> persons)
 	{
 		PersonProxy[] proxies = new PersonProxy[persons.size()];
 		int index = 0;
 		for (LightPerson person: persons.values()) {
-			proxies[index] = person.proxify(tiContext);
+			proxies[index] = person.proxify();
 			index++;
 		}
 		return proxies;
@@ -278,9 +277,9 @@ public abstract class CommonContactsApi
 			hasImage = true;
 		}
 		
-		PersonProxy proxify(TiContext tiContext)
+		PersonProxy proxify()
 		{
-			PersonProxy proxy = new PersonProxy(tiContext);
+			PersonProxy proxy = new PersonProxy();
 			proxy.fullName = name;
 			proxy.note = notes;
 			proxy.setEmailFromMap(emails);

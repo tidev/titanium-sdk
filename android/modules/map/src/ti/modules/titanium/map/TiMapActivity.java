@@ -6,9 +6,7 @@
  */
 package ti.modules.titanium.map;
 
-import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
-
-import android.app.Activity;
+import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 
 import com.google.android.maps.MapActivity;
 

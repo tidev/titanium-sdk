@@ -8,7 +8,6 @@ package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.NamedNodeMap;
 
@@ -16,9 +15,9 @@ import org.w3c.dom.NamedNodeMap;
 public class NamedNodeMapProxy extends KrollProxy
 {
 	private NamedNodeMap map;
-	public NamedNodeMapProxy(TiContext context, NamedNodeMap map)
+	public NamedNodeMapProxy(NamedNodeMap map)
 	{
-		super(context);
+		super();
 		this.map = map;
 	}
 
@@ -31,14 +30,14 @@ public class NamedNodeMapProxy extends KrollProxy
 	@Kroll.method
 	public NodeProxy getNamedItem(String name)
 	{
-		return NodeProxy.getNodeProxy(getTiContext(), map.getNamedItem(name));
+		return NodeProxy.getNodeProxy(map.getNamedItem(name));
 	}
 
 	@Kroll.method
 	public NodeProxy getNamedItemNS(String namespaceURI, String localName)
 			throws DOMException
 	{
-		return NodeProxy.getNodeProxy(getTiContext(), map.getNamedItemNS(namespaceURI, localName));
+		return NodeProxy.getNodeProxy(map.getNamedItemNS(namespaceURI, localName));
 	}
 
 	@Kroll.method
@@ -51,34 +50,34 @@ public class NamedNodeMapProxy extends KrollProxy
 			// circuit that here.
 			return null;
 		}
-		return NodeProxy.getNodeProxy(getTiContext(), map.item(index));
+		return NodeProxy.getNodeProxy(map.item(index));
 	}
 
 	@Kroll.method
 	public NodeProxy removeNamedItem(String name)
 		throws DOMException
 	{
-		return NodeProxy.getNodeProxy(getTiContext(), map.removeNamedItem(name));
+		return NodeProxy.getNodeProxy(map.removeNamedItem(name));
 	}
 
 	@Kroll.method
 	public NodeProxy removeNamedItemNS(String namespaceURI, String localName)
 		throws DOMException
 	{
-		return NodeProxy.getNodeProxy(getTiContext(), map.removeNamedItemNS(namespaceURI, localName));
+		return NodeProxy.getNodeProxy(map.removeNamedItemNS(namespaceURI, localName));
 	}
 
 	@Kroll.method
 	public NodeProxy setNamedItem(NodeProxy arg)
 		throws DOMException
 	{
-		return NodeProxy.getNodeProxy(getTiContext(), map.setNamedItem(arg.getNode()));
+		return NodeProxy.getNodeProxy(map.setNamedItem(arg.getNode()));
 	}
 
 	@Kroll.method
 	public NodeProxy setNamedItemNS(NodeProxy arg)
 		throws DOMException
 	{
-		return NodeProxy.getNodeProxy(getTiContext(), map.setNamedItemNS(arg.getNode()));
+		return NodeProxy.getNodeProxy(map.setNamedItemNS(arg.getNode()));
 	}
 }

@@ -7,7 +7,6 @@
 package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.ProcessingInstruction;
 
@@ -15,9 +14,9 @@ import org.w3c.dom.ProcessingInstruction;
 public class ProcessingInstructionProxy extends NodeProxy {
 
 	private ProcessingInstruction pi;
-	public ProcessingInstructionProxy(TiContext context, ProcessingInstruction pi)
+	public ProcessingInstructionProxy(ProcessingInstruction pi)
 	{
-		super(context, pi);
+		super(pi);
 		this.pi = pi;
 	}
 	

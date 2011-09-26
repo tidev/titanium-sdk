@@ -10,7 +10,8 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
@@ -111,17 +112,20 @@ public class NetworkModule extends KrollModule {
 		}
 	};
 
-	public NetworkModule(TiContext tiContext)
+	public NetworkModule()
 	{
-		super(tiContext);
+		super();
 
 		this.lastNetInfo = new NetInfo();
 		this.isListeningForConnectivity = false;
 
-		setProperty("userAgent", NETWORK_USER_AGENT + " Titanium/"+tiContext.getTiApp().getTiBuildVersion());
+		setProperty("userAgent", NETWORK_USER_AGENT + " Titanium/"+TiApplication.getInstance().getTiBuildVersion());
 
-		tiContext.addOnLifecycleEventListener(this);
-		eventManager.addOnEventChangeListener(this);
+		//tiContext.addOnLifecycleEventListener(this);
+		((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
+
+		// TODO ?
+		//eventManager.addOnEventChangeListener(this);
 	}
 
 
@@ -242,7 +246,7 @@ public class NetworkModule extends KrollModule {
 					if (networkListener == null) {
 						networkListener = new TiNetworkListener(messageHandler);
 					}
-					networkListener.attach(getTiContext().getActivity().getApplicationContext());
+					networkListener.attach(TiApplication.getInstance().getApplicationContext());
 					isListeningForConnectivity = true;
 					if (DBG) {
 						Log.d(LCAT, "Resuming: adding connectivity listener");
@@ -264,7 +268,7 @@ public class NetworkModule extends KrollModule {
 	{
 		ConnectivityManager cm = null;
 
-		Context a = getTiContext().getTiApp();
+		Context a = TiApplication.getInstance();
 		if (a != null) {
 			cm = (ConnectivityManager) a.getSystemService(Context.CONNECTIVITY_SERVICE);
 		} else {

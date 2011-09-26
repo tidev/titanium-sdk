@@ -10,16 +10,18 @@ package ti.modules.titanium.analytics;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiConvert;
 
 @Kroll.module
 public class AnalyticsModule extends KrollModule {
 
+	/*
 	public AnalyticsModule(TiContext tiContext) {
 		super(tiContext);
 	}
+	*/
 
 	@Kroll.method
 	public void addEvent(String type, String event, @Kroll.argument(optional=true) KrollDict data)
@@ -28,7 +30,7 @@ public class AnalyticsModule extends KrollModule {
 	}
 	
 	protected void localAddEvent(String type, String event, KrollDict data) {
-		getTiContext().getTiApp().postAnalyticsEvent(TiAnalyticsEventFactory.createEvent(type, event, TiConvert.toJSON(data).toString()));
+		TiApplication.getInstance().postAnalyticsEvent(TiAnalyticsEventFactory.createEvent(type, event, TiConvert.toJSON(data).toString()));
 	}
 
 	@Kroll.method

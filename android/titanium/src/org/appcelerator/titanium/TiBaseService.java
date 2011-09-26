@@ -6,8 +6,13 @@
  */
 package org.appcelerator.titanium;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.appcelerator.titanium.proxy.ServiceProxy;
+
 import android.app.Service;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.IBinder;
 
 public class TiBaseService extends Service
@@ -19,13 +24,13 @@ public class TiBaseService extends Service
 	private List<WeakReference<TiContext>> weakUnboundContexts = null; // contexts started via startService
 	private static final boolean DBG = TiConfig.LOGD;
 	private static final String LCAT = "TiBaseService";
+	*/
 	protected AtomicInteger proxyCounter = new AtomicInteger();
-	
+
 	public class TiServiceBinder extends Binder
 	{
 		public Service getService() { return TiBaseService.this; }
 	}
-	 */
 
 	@Override
 	public IBinder onBind(Intent intent)
@@ -62,15 +67,21 @@ public class TiBaseService extends Service
 		}
 		return;
 	}
-	
+	*/
+
 	protected ServiceProxy createProxy(Intent intent)
 	{
+		// TODO
+		/*
 		TiContext context = createTiContext(intent, null);
 		ServiceProxy proxy = new ServiceProxy(this, intent, proxyCounter.incrementAndGet());
 		TiBindingHelper.bindCurrentService(context, proxy);
 		return proxy;
+		*/
+		return null;
 	}
-	
+
+	/*
 	@Override
 	public void onDestroy()
 	{
@@ -140,12 +151,12 @@ public class TiBaseService extends Service
 		return proxyCounter.incrementAndGet();
 	}
 
-	
+	*/
 	public void start(ServiceProxy proxy)
 	{
 		// meant to be overridden
 	}
-	
+	/*
 	protected void unbindContext(TiContext context)
 	{
 		// meant to be overridden

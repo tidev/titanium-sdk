@@ -8,7 +8,7 @@ package ti.modules.titanium.database;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -29,9 +29,9 @@ public class TiDatabaseProxy extends KrollProxy
 	protected String name;
 	boolean statementLogging, readOnly;
 
-	public TiDatabaseProxy(TiContext tiContext, String name, SQLiteDatabase db)
+	public TiDatabaseProxy(String name, SQLiteDatabase db)
 	{
-		super(tiContext);
+		//super(tiContext);
 		this.name = name;
 		this.db = db;
 		statementLogging = false;
@@ -39,9 +39,9 @@ public class TiDatabaseProxy extends KrollProxy
 	}
 	
 	// readonly database
-	public TiDatabaseProxy(TiContext tiContext, SQLiteDatabase db)
+	public TiDatabaseProxy(SQLiteDatabase db)
 	{
-		super(tiContext);
+		//super(tiContext);
 		this.name = db.getPath();
 		this.db = db;
 		statementLogging = false;
@@ -108,7 +108,7 @@ public class TiDatabaseProxy extends KrollProxy
 					// Thanks to brion for working through the logic, based off of commit
 					// https://github.com/brion/titanium_mobile/commit/8d3251fca69e10df6a96a2a9ae513159494d17c3
 					if (c.getColumnCount() > 0) {
-						rs = new TiResultSetProxy(getTiContext(), c);
+						rs = new TiResultSetProxy(c);
 						if (rs.isValidRow()) {
 							rs.next(); // Position on first row if we have data.
 						}
@@ -120,7 +120,7 @@ public class TiDatabaseProxy extends KrollProxy
 				} else {
 					// Leaving for historical purposes, but walking through several different
 					// types of statements never hit this branch. (create, drop, select, pragma)
-					rs = new TiResultSetProxy(getTiContext(), null); // because iPhone does it this way.
+					rs = new TiResultSetProxy(null); // because iPhone does it this way.
 				}
 			} else {
 				db.execSQL(sql, newArgs);
@@ -167,7 +167,7 @@ public class TiDatabaseProxy extends KrollProxy
 			Log.w(LCAT, "Attempt to remove open database. Closing then removing " + name);
 			db.close();
 		}
-		Context ctx = getTiContext().getTiApp();
+		Context ctx = TiApplication.getInstance();
 		if (ctx != null) {
 			ctx.deleteDatabase(name);
 		} else {
