@@ -947,17 +947,6 @@ public abstract class TiUIView
 		}
 		doSetClickable(view, view.isClickable());
 	}
-	/*
-	 * Used just to setup the click listener if applicable.
-	 */
-	private void doSetClickable()
-	{
-		View view = getTouchView();
-		if (view == null) {
-			return;
-		}
-		doSetClickable(view, view.isClickable());
-	}
 
 	/**
 	 * Can be overriden by inheriting views for special click handling.  For example,
