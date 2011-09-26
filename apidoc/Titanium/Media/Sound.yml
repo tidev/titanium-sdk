@@ -88,10 +88,6 @@ properties:
   - name: volume
     description: the volume of the audio. this volume only affects the media, not the device audio.
     type: Number
-  - name: preload
-    description: causes the audio to be preloaded before `play` is invoked.  recommended if you want the audio to begin immediately when invoking `play`.
-    type: Boolean
-    platforms: [iphone, ipad]
 examples:
   - title: Simple Example
     example: |
