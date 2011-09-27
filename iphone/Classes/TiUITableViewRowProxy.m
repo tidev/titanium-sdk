@@ -273,6 +273,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 -(void)_destroy
 {
 	RELEASE_TO_NIL(tableClass);
+    [rowContainerView performSelectorOnMainThread:@selector(removeFromSuperview) withObject:nil waitUntilDone:NO];
 	[rowContainerView performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
 	rowContainerView = nil;
 	[callbackCell setProxy:nil];
@@ -620,10 +621,18 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 +(void)clearTableRowCell:(UITableViewCell *)cell
 {
 	NSArray* cellSubviews = [[cell contentView] subviews];
+    
 	// Clear out the old cell view
 	for (UIView* view in cellSubviews) {
 		[view removeFromSuperview];
 	}
+    
+    // ... But that's not enough. We need to detatch the views
+    // for all children of the row, to clean up memory.
+    NSArray* children = [[(TiUITableViewCell*)cell proxy] children];
+    for (TiViewProxy* child in children) {
+        [child detachView];
+    }
 }
 
 -(void)configureChildren:(UITableViewCell*)cell
@@ -651,6 +660,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
             [contentView setFrame:rect];
         }
 		rect.origin = CGPointZero;
+        [rowContainerView removeFromSuperview];
 		[rowContainerView release];
 		rowContainerView = [[TiUITableViewRowContainer alloc] initWithFrame:rect];
 		[rowContainerView setBackgroundColor:[UIColor clearColor]];
@@ -762,7 +772,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 				return;
 			}
 			
-			UIView* oldContainerView = [rowContainerView retain];
 			if (rowContainerView != aview) {
 				[rowContainerView release];
 				rowContainerView = [aview retain];

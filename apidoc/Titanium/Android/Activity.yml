@@ -8,10 +8,6 @@ since: "1.5"
 methods:
   - name: finish
     description: Called when the activity is done and should be closed. Also see Android's documentation for [finish](http://developer.android.com/reference/android/app/Activity.html#finish())
-  - name: getIntent
-    description: Returns the <Titanium.Android.Intent> that was used to start this Activity.
-    returns:
-        type: Titanium.Android.Intent
   - name: getString
     description: Get an Android or Application string using the passed-in Resource ID and optional format arguments. Also see Android's documentation for [getString](http://developer.android.com/reference/android/content/Context.html#getString(int)) and [String Resources](http://developer.android.com/guide/topics/resources/string-resource.html#String)
     returns:
@@ -73,17 +69,21 @@ events:
     description: Fired from the Activity's [onStop](http://developer.android.com/reference/android/app/Activity.html#onStop())
 properties:
   - name: intent
-    description: The Intent that was used to start this Activity
+    description: The <Titanium.Android.Intent> that was used to start this Activity
     type: Titanium.Android.Intent
+    permission: read-only
   - name: onCreateOptionsMenu
     description: A callback function that is called to initially create an Android [Options Menu](http://developer.android.com/guide/topics/ui/menus.html#options-menu) for this Activity when the user presses the Menu button. See the menu examples in <Titanium.Android.Menu>
     type: Callback<Object>
+    accessors: false
   - name: onPrepareOptionsMenu
     description: A callback function that is called to prepare an [Options Menu](http://developer.android.com/guide/topics/ui/menus.html#options-menu) for displaying on this Activity when the user presses the Menu button. See the menu examples in <Titanium.Android.Menu>
     type: Callback<Object>
+    accessors: false
   - name: requestedOrientation
-    description: The requested orientation of this Activity. See possible constant values that begin with SCREEN_ORIENTATION in the <Titanium.Android> module.
+    description: Can be one of <Titanium.Android.SCREEN_ORIENTATION_BEHIND>, <Titanium.Android.SCREEN_ORIENTATION_LANDSCAPE>, <Titanium.Android.SCREEN_ORIENTATION_NOSENSOR>, <Titanium.Android.SCREEN_ORIENTATION_PORTRAIT>, <Titanium.Android.SCREEN_ORIENTATION_SENSOR>, <Titanium.Android.SCREEN_ORIENTATION_UNSPECIFIED>, <Titanium.Android.SCREEN_ORIENTATION_USER>
     type: Number
+    permission: write-only
 examples:
   - title: Callback example
     example: |
