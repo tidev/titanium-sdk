@@ -94,13 +94,11 @@ public class TiScriptRunner {
 		tiScript.context = context;
 		tiScript.scope = scope;
 		if (scriptClass != null) {
-			@SuppressWarnings("unchecked")
-			Class<NativeFunction> scriptClaxx = (Class<NativeFunction>) scriptClass;
-			Script script = (Script) scriptClaxx.newInstance();
-			tiScript.script = script;
+			Object scriptObj = scriptClass.newInstance();
+			tiScript.script = (Script) scriptObj;
 			tiScript.name = scriptClass.getName();
 			scripts.put(tiScript.name, tiScript);
-			return script;
+			return tiScript.script;
 		} else {
 			throw new ClassNotFoundException("CommonJS module class for \"" + relativePath + "\" not found.");
 		}
