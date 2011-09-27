@@ -40,7 +40,8 @@ public class WebViewProxy extends ViewProxy
 	private static String fusername;
 	private static String fpassword;
 	
-	public WebViewProxy(TiContext context) {
+	public WebViewProxy(TiContext context)
+	{
 		super(context);
 	}
 
@@ -219,7 +220,7 @@ public class WebViewProxy extends ViewProxy
 	{
 		return fusername;
 	}
-	
+
 	public String getBasicAuthenticationPassword()
 	{
 		return fpassword;
