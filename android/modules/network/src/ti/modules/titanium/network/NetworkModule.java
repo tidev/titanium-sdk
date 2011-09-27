@@ -114,9 +114,11 @@ public class NetworkModule extends KrollModule {
 		}
 	};
 
-	public static TiCookieStore getSharedCookieStore() {
+	public static TiCookieStore getSharedCookieStore()
+	{
 		if (thisModule.synchronizedCookieStore == null) {
-			thisModule.synchronizedCookieStore = new TiCookieStore(thisModule.context.getActivity());
+			thisModule.synchronizedCookieStore = new TiCookieStore(
+					thisModule.context.getActivity());
 		}
 		return thisModule.synchronizedCookieStore;
 	}

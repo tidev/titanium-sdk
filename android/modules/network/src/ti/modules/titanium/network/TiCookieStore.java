@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -25,7 +25,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
-public class TiCookieStore implements CookieStore {
+public class TiCookieStore implements CookieStore
+{
 
 	private static final String LCAT = "TiCookieStore";
 
@@ -45,8 +46,7 @@ public class TiCookieStore implements CookieStore {
 			if (names != null) {
 				String[] namesArray = TextUtils.split(names, ",");
 				for (String name : namesArray) {
-					String encodedCookie = pref.getString(COOKIE_PREFIX + name,
-							null);
+					String encodedCookie = pref.getString(COOKIE_PREFIX + name, null);
 					if (encodedCookie != null) {
 						Cookie cookie = decodeCookie(encodedCookie);
 						if (cookie != null) {
@@ -59,7 +59,8 @@ public class TiCookieStore implements CookieStore {
 	}
 
 	@Override
-	public void addCookie(Cookie cookie) {
+	public void addCookie(Cookie cookie)
+	{
 		String encodedCookie = encodeCookie(cookie);
 		SharedPreferences.Editor prefWriter = pref.edit();
 
@@ -69,16 +70,15 @@ public class TiCookieStore implements CookieStore {
 			}
 
 			cookieStore.addCookie(cookie);
-			prefWriter.putString(COOKIE_NAMES_KEY,
-					TextUtils.join(",", getCookieNames()));
-			prefWriter.putString(COOKIE_PREFIX + cookie.getName(),
-					encodedCookie);
+			prefWriter.putString(COOKIE_NAMES_KEY, TextUtils.join(",", getCookieNames()));
+			prefWriter.putString(COOKIE_PREFIX + cookie.getName(), encodedCookie);
 			prefWriter.commit();
 		}
 	}
 
 	@Override
-	public void clear() {
+	public void clear()
+	{
 		SharedPreferences.Editor prefWriter = pref.edit();
 
 		synchronized (cookieStore) {
@@ -92,7 +92,8 @@ public class TiCookieStore implements CookieStore {
 	}
 
 	@Override
-	public boolean clearExpired(Date date) {
+	public boolean clearExpired(Date date)
+	{
 		synchronized (cookieStore) {
 			List<Cookie> cookies = cookieStore.getCookies();
 			boolean clearedExpired = cookieStore.clearExpired(date);
@@ -115,13 +116,15 @@ public class TiCookieStore implements CookieStore {
 	}
 
 	@Override
-	public List<Cookie> getCookies() {
+	public List<Cookie> getCookies()
+	{
 		synchronized (cookieStore) {
 			return cookieStore.getCookies();
 		}
 	}
 
-	private List<String> getCookieNames() {
+	private List<String> getCookieNames()
+	{
 		List<Cookie> cookies = cookieStore.getCookies();
 		List<String> cookieNames = new ArrayList<String>();
 
@@ -131,14 +134,14 @@ public class TiCookieStore implements CookieStore {
 		return cookieNames;
 	}
 
-	private Cookie decodeCookie(String cookieString) {
+	private Cookie decodeCookie(String cookieString)
+	{
 
 		byte[] cookieBytes = hexStringToByteArray(cookieString);
 		ByteArrayInputStream inputStream = new ByteArrayInputStream(cookieBytes);
 		BasicClientCookie cookie = null;
 		try {
-			ObjectInputStream objectInputStream = new ObjectInputStream(
-					inputStream);
+			ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
 			String name = (String) objectInputStream.readObject();
 			String value = (String) objectInputStream.readObject();
 			cookie = new BasicClientCookie(name, value);
@@ -157,13 +160,13 @@ public class TiCookieStore implements CookieStore {
 		return cookie;
 	}
 
-	private String encodeCookie(Cookie cookie) {
+	private String encodeCookie(Cookie cookie)
+	{
 
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		try {
 
-			ObjectOutputStream objectOutputStream = new ObjectOutputStream(
-					outputStream);
+			ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
 			objectOutputStream.writeObject(cookie.getName());
 			objectOutputStream.writeObject(cookie.getValue());
 			objectOutputStream.writeObject(cookie.getComment());
@@ -181,7 +184,8 @@ public class TiCookieStore implements CookieStore {
 		return new String(Hex.encodeHex(outputStream.toByteArray()));
 	}
 
-	protected byte[] hexStringToByteArray(String s) {
+	protected byte[] hexStringToByteArray(String s)
+	{
 		int len = s.length();
 		byte[] data = new byte[len / 2];
 		for (int i = 0; i < len; i += 2) {

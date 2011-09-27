@@ -626,9 +626,9 @@ public class TiHTTPClient
 	private Uri uri;
 	private String url;
 
-	public void clearCookies(String url) {
-		List<Cookie> cookies = new ArrayList<Cookie>(client.getCookieStore()
-				.getCookies());
+	public void clearCookies(String url)
+	{
+		List<Cookie> cookies = new ArrayList<Cookie>(client.getCookieStore().getCookies());
 		client.getCookieStore().clear();
 		String lower_url = url.toLowerCase();
 		for (Cookie cookie : cookies) {
@@ -835,7 +835,6 @@ public class TiHTTPClient
 
 			client = new DefaultHttpClient(new ThreadSafeClientConnManager(params, registry), params);
 			client.setCookieStore(NetworkModule.getSharedCookieStore());
-
 		}
 		aborted = false;
 
