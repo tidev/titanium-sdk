@@ -108,8 +108,7 @@ public class TiUIWebView extends TiUIView {
 		WebViewProxy webProxy = (WebViewProxy) proxy;
 		String username = webProxy.getBasicAuthenticationUserName();
 		String password = webProxy.getBasicAuthenticationPassword();
-		if( username!= null && password != null)
-		{
+		if (username != null && password != null) {
 			setBasicAuthentication(username, password);
 		}
 		webProxy.clearBasicAuthentication();
