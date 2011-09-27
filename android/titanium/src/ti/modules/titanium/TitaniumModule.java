@@ -415,18 +415,10 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 			Log.d(LCAT, "Attempting to include CommonJS module: " + path);
 		}
 
-		StringBuilder builder = new StringBuilder();
-		builder.setLength(0);
-		builder.append(TiC.URL_APP_PREFIX)
-			.append(path)
-			.append(".js");
-		String fileUrl = builder.toString();
-
-		// call the actual require() implementation.
-		Object result = null;
 		try {
-			result = ctx.getKrollContext().callCommonJsRequire(path);
+			return ctx.getKrollContext().callCommonJsRequire(path);
 		} catch (Exception e) {
+			StringBuilder builder = new StringBuilder();
 			builder.setLength(0);
 			builder.append("require(\"")
 				.append(path)
@@ -437,30 +429,7 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 			Context.throwAsScriptRuntimeEx(new Exception(msg));
 		}
 
-		// If require() request is a scriptable, go ahead and proxyize it.
-		// Else just return it.
-		if (result instanceof Scriptable) {
-			// create the CommonJS exporter
-			KrollProxy proxy = new KrollProxy(ctx);
-
-			Scriptable exports = (Scriptable) result;
-			// CommonJS modules export all functions/properties as
-			// properties of the special exports object provided
-			for (Object key : exports.getIds()) {
-				String propName = key.toString();
-				proxy.setProperty(propName, exports.get(propName, exports));
-			}
-
-			// spec says you must have a read-only id property - we don't
-			// currently support readonly in kroll so this is probably OK for now
-			proxy.setProperty(TiC.PROPERTY_ID, path);
-			// uri is optional but we point it to where we loaded it
-			proxy.setProperty("uri", fileUrl);
-			return proxy;
-		} else {
-			return result;
-		}
-
+		return Context.throwAsScriptRuntimeEx(new Exception("Cannot find module '" + path + "'"));
 	}
 
 	@Override
