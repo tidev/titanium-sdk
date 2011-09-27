@@ -99,7 +99,8 @@ public class WebViewProxy extends ViewProxy
 	}
 
 	@Kroll.method
-	public boolean canGoBack() {
+	public boolean canGoBack()
+	{
 		if (peekView() != null) {
 			return getWebView().canGoBack();
 		}
@@ -107,7 +108,7 @@ public class WebViewProxy extends ViewProxy
 	}
 
 	@Kroll.method
-	public boolean canGoForward() 
+	public boolean canGoForward()
 	{
 		if (peekView() != null) {
 			return getWebView().canGoForward();
