@@ -240,10 +240,17 @@ public class KrollContext implements Handler.Callback, ModuleScriptProvider
 			try {
 				br = new BufferedReader(new InputStreamReader(file.getInputStream()), 4000);
 				script = context.compileReader(br, uri, 1, null);
-				br.close();
 			} catch (IOException e) {
 				Log.e(LCAT, "IOException reading module file: " + uri, e);
 				Context.throwAsScriptRuntimeEx(e);
+			} finally {
+				if (br != null) {
+					try {
+						br.close();
+					} catch (IOException e) {
+						// Ignore
+					}
+				}
 			}
 		}
 
