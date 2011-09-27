@@ -36,7 +36,8 @@ public class TiCookieStore implements CookieStore
 	private CookieStore cookieStore;
 	private final SharedPreferences pref;
 
-	public TiCookieStore(Context context) {
+	public TiCookieStore(Context context)
+	{
 		cookieStore = new BasicCookieStore();
 		pref = context.getSharedPreferences(COOKIE_PREFERENCES, 0);
 
@@ -106,8 +107,7 @@ public class TiCookieStore implements CookieStore
 						prefWriter.remove(COOKIE_PREFIX + cookie.getName());
 					}
 				}
-				prefWriter.putString(COOKIE_NAMES_KEY,
-						TextUtils.join(",", getCookieNames()));
+				prefWriter.putString(COOKIE_NAMES_KEY, TextUtils.join(",", getCookieNames()));
 				prefWriter.commit();
 			}
 
@@ -189,8 +189,7 @@ public class TiCookieStore implements CookieStore
 		int len = s.length();
 		byte[] data = new byte[len / 2];
 		for (int i = 0; i < len; i += 2) {
-			data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character
-					.digit(s.charAt(i + 1), 16));
+			data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i + 1), 16));
 		}
 		return data;
 	}
