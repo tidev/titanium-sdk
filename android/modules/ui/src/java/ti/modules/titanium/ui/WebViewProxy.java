@@ -34,9 +34,9 @@ public class WebViewProxy extends ViewProxy
 	private static final int MSG_GO_FORWARD = MSG_FIRST_ID + 102;
 	private static final int MSG_RELOAD = MSG_FIRST_ID + 103;
 	private static final int MSG_STOP_LOADING = MSG_FIRST_ID + 104;
+	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 	private static String fusername;
 	private static String fpassword;
-	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	public WebViewProxy()
 	{
@@ -230,7 +230,7 @@ public class WebViewProxy extends ViewProxy
 	{
 		return fusername;
 	}
-	
+
 	public String getBasicAuthenticationPassword()
 	{
 		return fpassword;
