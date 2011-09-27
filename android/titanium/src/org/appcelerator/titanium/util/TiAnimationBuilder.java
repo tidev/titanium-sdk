@@ -28,8 +28,6 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.LinearInterpolator;
-import android.view.animation.RotateAnimation;
-import android.view.animation.ScaleAnimation;
 import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
 
@@ -404,8 +402,10 @@ public class TiAnimationBuilder
 				relayoutChild = false;
 			}
 			if (applyOpacity) {
+				//There is an android bug where animations still occur after this method. We clear it from the view to correct this.
+				view.clearAnimation();
 				if (toOpacity.floatValue() == 0) {
-					view.setVisibility(View. INVISIBLE);
+					view.setVisibility(View.INVISIBLE);
 				} else if (toOpacity.floatValue() == 1) {
 					view.setVisibility(View.VISIBLE);
 				} else {
@@ -414,6 +414,7 @@ public class TiAnimationBuilder
 					aa.setDuration(1);
 					aa.setFillAfter(true);
 					aa.setFillEnabled(true);
+					view.setLayoutParams(view.getLayoutParams());
 					view.startAnimation(aa);
 				}
 				applyOpacity = false;
