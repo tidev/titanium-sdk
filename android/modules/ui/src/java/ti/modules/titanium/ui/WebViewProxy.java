@@ -76,7 +76,8 @@ public class WebViewProxy extends ViewProxy
 	@Override
 	public boolean handleMessage(Message msg)
 	{
-		switch (msg.what) {
+		if (peekView() != null) {
+			switch (msg.what) {
 			case MSG_GO_BACK:
 				getWebView().goBack();
 				return true;
