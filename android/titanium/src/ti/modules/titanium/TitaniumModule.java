@@ -398,9 +398,9 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 	}
 
 	@Kroll.method @Kroll.topLevel
-	public KrollProxy require(KrollInvocation invocation, String path) {
-
-		// 1. look for a TiPlus module first
+	public Object require(KrollInvocation invocation, String path)
+	{
+		// 1. look for a native module first
 		// 2. then look for a cached module
 		// 3. then attempt to load from resources
 		TiContext ctx = invocation.getTiContext().getRootActivity().getTiContext();
@@ -422,9 +422,6 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 			.append(".js");
 		String fileUrl = builder.toString();
 
-		// create the CommonJS exporter
-		KrollProxy proxy = new KrollProxy(ctx);
-
 		// call the actual require() implementation.
 		Object result = null;
 		try {
@@ -440,7 +437,12 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 			Context.throwAsScriptRuntimeEx(new Exception(msg));
 		}
 
+		// If require() request is a scriptable, go ahead and proxyize it.
+		// Else just return it.
 		if (result instanceof Scriptable) {
+			// create the CommonJS exporter
+			KrollProxy proxy = new KrollProxy(ctx);
+
 			Scriptable exports = (Scriptable) result;
 			// CommonJS modules export all functions/properties as
 			// properties of the special exports object provided
@@ -448,14 +450,16 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 				String propName = key.toString();
 				proxy.setProperty(propName, exports.get(propName, exports));
 			}
-		}
 
-		// spec says you must have a read-only id property - we don't
-		// currently support readonly in kroll so this is probably OK for now
-		proxy.setProperty(TiC.PROPERTY_ID, path);
-		// uri is optional but we point it to where we loaded it
-		proxy.setProperty("uri", fileUrl);
-		return proxy;
+			// spec says you must have a read-only id property - we don't
+			// currently support readonly in kroll so this is probably OK for now
+			proxy.setProperty(TiC.PROPERTY_ID, path);
+			// uri is optional but we point it to where we loaded it
+			proxy.setProperty("uri", fileUrl);
+			return proxy;
+		} else {
+			return result;
+		}
 
 	}
 
