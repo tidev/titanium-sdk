@@ -371,33 +371,6 @@ describe("Ti.UI.Android tests", {
 		v.setKeepScreenOn(true);
 		valueOf(v.keepScreenOn).shouldBeTrue();
 		valueOf(v.getKeepScreenOn()).shouldBeTrue();
-	},
-	//http://jira.appcelerator.org/browse/TIMOB-4314
-	setBasicAuthentication: function() {
-	  // this sets the background color of the master UIView (when there are no windows/tab groups on it)
-    Titanium.UI.setBackgroundColor('#000')
-    var tabGroup = Titanium.UI.createTabGroup();
-    var win = Titanium.UI.createWindow({
-        title:'win_test'
-    });
-
-    var webView = Titanium.UI.createWebView({
-      html: '<select name="selectBox"><option value="val1">Value 1</option><option value="val2">Value 2</option><option value="val3">Value 3</option></select>'
-    });
-    webView.setBasicAuthentication('user1','user1');
-    
-    // These should be false since the view has not been created yet
-    valueOf(webView.canGoForward()).shouldBeFalse();
-    valueOf(webView.canGoBack()).shouldBeFalse();
-    
-    win.add(webView);
-    var tab = Titanium.UI.createTab({
-        icon:'',
-        title:'Test',
-        window:win       
-    });
-    tabGroup.addTab(tab);
-    tabGroup.open();
 	}
 })
 
