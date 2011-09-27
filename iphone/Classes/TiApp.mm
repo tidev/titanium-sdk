@@ -16,7 +16,7 @@
 #import "TiDebugger.h"
 #import <QuartzCore/QuartzCore.h>
 #import <AVFoundation/AVFoundation.h>
-
+#import "ApplicationDefaults.h"
 #import <libkern/OSAtomic.h>
 
 TiApp* sharedApp;
@@ -284,6 +284,18 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	}
 #endif
 }
+//To load application Defaults 
+- (void) loadUserDefaults
+{
+	[[NSUserDefaults standardUserDefaults] setPersistentDomain:[NSDictionary dictionary] forName:[[NSBundle mainBundle] bundleIdentifier]];
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	NSDictionary *appDefaults = [[NSDictionary alloc] initWithDictionary:[ApplicationDefaults copyDefaults]];
+	if(appDefaults)
+	{
+		[defaults registerDefaults:appDefaults];
+	}
+	[appDefaults release];
+}
 
 - (void)boot
 {
@@ -334,6 +346,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 {
 	NSSetUncaughtExceptionHandler(&MyUncaughtExceptionHandler);
 	[self initController];
+	[self loadUserDefaults];
 	[self boot];
 }
 
@@ -392,7 +405,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	{
 		[self generateNotification:notification];
 	}
-	
+	[self loadUserDefaults];
 	[self boot];
 	
 	return YES;
