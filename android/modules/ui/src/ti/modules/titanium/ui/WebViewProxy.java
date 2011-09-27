@@ -37,6 +37,9 @@ public class WebViewProxy extends ViewProxy
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
+	private static String fusername;
+	private static String fpassword;
+	
 	public WebViewProxy(TiContext context) {
 		super(context);
 	}
@@ -63,7 +66,8 @@ public class WebViewProxy extends ViewProxy
 	@Override
 	public boolean handleMessage(Message msg)
 	{
-		switch (msg.what) {
+		if (peekView() != null) {
+			switch (msg.what) {
 			case MSG_GO_BACK:
 				getWebView().goBack();
 				return true;
