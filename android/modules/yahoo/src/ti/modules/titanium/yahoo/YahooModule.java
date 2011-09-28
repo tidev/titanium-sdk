@@ -12,8 +12,6 @@ import java.io.InputStreamReader;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.util.Log;
 
 @Kroll.module
@@ -25,11 +23,13 @@ public class YahooModule extends KrollModule
 {
 	private static final String LCAT = "YahooModule";
 
+	/*
 	public YahooModule(TiContext tiContext)
 	{
 		super(tiContext);
-	}
-	
+	}*/
+
+	/* TODO
 	public void bindContextSpecific(KrollBridge bridge) {
 		super.bindContextSpecific(bridge);
 		// load our JS after we bind
@@ -61,7 +61,6 @@ public class YahooModule extends KrollModule
 		if (src != null) {
 			bridge.evalJS(src);
 		}
-	}
-
+	}*/
 
 }
