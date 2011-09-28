@@ -1,0 +1,15 @@
+{
+ "functions": [
+  "verifyHeight", 
+  "setToolbar", 
+  "parentViewForChild", 
+  "verifyAutoresizing", 
+  "verifyWidth"
+ ], 
+ "properties": [
+  "barButtonItem", 
+  "attachedToToolbar", 
+  "langConversionTable", 
+  "toolbar"
+ ]
+}

@@ -70,10 +70,6 @@ methods:
     description: the name of the file
     returns:
         type: String
-  - name: nativePath
-    description: returns the fully resolved native path
-    returns:
-        type: String
   - name: read
     description: return the contents of file as blob
     returns:
@@ -115,7 +111,13 @@ methods:
       - name: append
         description: (optional) append the string to the end of the file.
         type: Boolean
+        optional: true
   - name: writeable
     description: returns true if the file is writeable
     returns:
         type: Boolean
+properties:
+  - name: nativePath
+    description: returns the fully resolved native path
+    type: String
+    permission: read-only

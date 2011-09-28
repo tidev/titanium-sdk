@@ -1,0 +1,22 @@
+<div class="platforms">
+	% for p in data.platforms:
+		<span class="${p["name"]}">&nbsp;&nbsp;&nbsp;</span>
+	% endfor
+
+	<div class="clear"></div>
+
+	<span class="since">
+		<table>
+			<tr>
+				<th>Platform</th>
+				<th>Since</th>
+			</tr>
+			% for p in data.platforms:
+				<tr>
+					<td class="name">${p["pretty_name"]}</td>
+					<td class="description">${p["since"]}</td>
+				</tr>
+			% endfor
+		</table>
+	</span>
+</div>

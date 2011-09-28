@@ -57,7 +57,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args);
 	BOOL opening;
 	BOOL attached;
 	BOOL closing;
-	BOOL splashTransitionAnimation;
+	BOOL startingTransitionAnimation;
 	int transitionAnimation;
 
 
@@ -76,6 +76,8 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args);
 @property(nonatomic,readonly,assign)	TiOrientationFlags orientationFlags;
 
 -(void)fireFocus:(BOOL)newFocused;
+
+@property(nonatomic,readonly)	BOOL opening;
 
 #pragma mark Public APIs
 

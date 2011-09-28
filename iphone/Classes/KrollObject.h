@@ -17,12 +17,6 @@ TiValueRef KrollGetProperty(TiContextRef jsContext, TiObjectRef obj, TiStringRef
 bool KrollSetProperty(TiContextRef jsContext, TiObjectRef obj, TiStringRef prop, TiValueRef value, TiValueRef* exception);
 bool KrollDeleteProperty(TiContextRef ctx, TiObjectRef object, TiStringRef propertyName, TiValueRef* exception);
 
-// this is simply a marker interface that we can use 
-// to determine if a object is undefined
-@interface KrollUndefined : NSObject
-+(KrollUndefined*)undefined;
-@end
-
 
 //
 // KrollObject is a generic native wrapper around a native object exposed as a JS object 

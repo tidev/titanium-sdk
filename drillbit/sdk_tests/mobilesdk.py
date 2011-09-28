@@ -127,6 +127,12 @@ class MobileSDKTest(unittest2.TestCase):
 		p.communicate()
 		self.assertEqual(p.returncode, 0)
 
+	def buildIOSProject(self):
+		p = self.pythonProcess([self.iphoneBuilderScript, "build",
+			self.iosVersion, self.projectDir, self.projectId, self.projectName])
+		p.communicate()
+		self.assertEqual(p.returncode, 0)
+
 	def tearDown(self):
 		if self.getSdkConfig(self.CONFIG_AUTO_DELETE_PROJECTS):
 			shutil.rmtree(self.testDir)

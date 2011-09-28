@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 45;
+	objectVersion = 46;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -69,7 +69,6 @@
 		24CA8960111161050084E2DE /* ASIHTTPRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8917111161050084E2DE /* ASIHTTPRequest.m */; };
 		24CA8961111161050084E2DE /* ASIInputStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891A111161050084E2DE /* ASIInputStream.m */; };
 		24CA8962111161050084E2DE /* ASINetworkQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891C111161050084E2DE /* ASINetworkQueue.m */; };
-		24CA8963111161050084E2DE /* ASINSStringAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891E111161050084E2DE /* ASINSStringAdditions.m */; };
 		24CA8967111161050084E2DE /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8926111161050084E2DE /* Reachability.m */; };
 		24CA8968111161050084E2DE /* AudioStreamer.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8929111161050084E2DE /* AudioStreamer.m */; };
 		24CA8969111161050084E2DE /* Base64Transcoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 24CA892A111161050084E2DE /* Base64Transcoder.c */; };
@@ -134,8 +133,6 @@
 		24CA8B9C111161FE0084E2DE /* TiUIImageViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A78111161FD0084E2DE /* TiUIImageViewProxy.m */; };
 		24CA8B9D111161FE0084E2DE /* TiUIImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A7A111161FD0084E2DE /* TiUIImageView.m */; };
 		24CA8BA1111161FE0084E2DE /* TiUIEmailDialogProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A82111161FD0084E2DE /* TiUIEmailDialogProxy.m */; };
-		24CA8BA3111161FE0084E2DE /* TiUICoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A86111161FD0084E2DE /* TiUICoverFlowViewProxy.m */; };
-		24CA8BA4111161FE0084E2DE /* TiUICoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A88111161FD0084E2DE /* TiUICoverFlowView.m */; };
 		24CA8BA5111161FE0084E2DE /* TiUICanvasViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8A111161FD0084E2DE /* TiUICanvasViewProxy.m */; };
 		24CA8BA6111161FE0084E2DE /* TiUICanvasView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8C111161FD0084E2DE /* TiUICanvasView.m */; };
 		24CA8BA7111161FE0084E2DE /* TiUIButtonProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8E111161FD0084E2DE /* TiUIButtonProxy.m */; };
@@ -234,7 +231,6 @@
 		24D8E3C6119B9D8A00F8CAA6 /* ASIInputStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891A111161050084E2DE /* ASIInputStream.m */; };
 		24D8E3C7119B9D8A00F8CAA6 /* ASINetworkQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891C111161050084E2DE /* ASINetworkQueue.m */; };
 		24D8E3C8119B9D8A00F8CAA6 /* TiUITextWidgetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D5829011264FD000A6B66C /* TiUITextWidgetProxy.m */; };
-		24D8E3C9119B9D8A00F8CAA6 /* ASINSStringAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891E111161050084E2DE /* ASINSStringAdditions.m */; };
 		24D8E3CA119B9D8A00F8CAA6 /* TiUITableViewSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC5EA112617F900639DF4 /* TiUITableViewSectionProxy.m */; };
 		24D8E3CB119B9D8A00F8CAA6 /* TiUIiPhoneTableViewStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC9691126632700639DF4 /* TiUIiPhoneTableViewStyleProxy.m */; };
 		24D8E3CC119B9D8A00F8CAA6 /* TiUIiPhoneTableViewSeparatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243ECB2411267CC100639DF4 /* TiUIiPhoneTableViewSeparatorStyleProxy.m */; };
@@ -303,8 +299,6 @@
 		24D8E416119B9D8A00F8CAA6 /* TiUIImageViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A78111161FD0084E2DE /* TiUIImageViewProxy.m */; };
 		24D8E417119B9D8A00F8CAA6 /* TiUIImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A7A111161FD0084E2DE /* TiUIImageView.m */; };
 		24D8E418119B9D8A00F8CAA6 /* TiUIEmailDialogProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A82111161FD0084E2DE /* TiUIEmailDialogProxy.m */; };
-		24D8E419119B9D8A00F8CAA6 /* TiUICoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A86111161FD0084E2DE /* TiUICoverFlowViewProxy.m */; };
-		24D8E41A119B9D8A00F8CAA6 /* TiUICoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A88111161FD0084E2DE /* TiUICoverFlowView.m */; };
 		24D8E41B119B9D8A00F8CAA6 /* TiUICanvasViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8A111161FD0084E2DE /* TiUICanvasViewProxy.m */; };
 		24D8E41C119B9D8A00F8CAA6 /* TiUICanvasView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8C111161FD0084E2DE /* TiUICanvasView.m */; };
 		24D8E41D119B9D8A00F8CAA6 /* TiUIButtonProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8E111161FD0084E2DE /* TiUIButtonProxy.m */; };
@@ -469,10 +463,6 @@
 		24EB0B74111E7EE8001DC2D1 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0B73111E7EE8001DC2D1 /* NSData+Additions.m */; };
 		24F1584611D72A23000DD736 /* TiMapImageAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F1584511D72A23000DD736 /* TiMapImageAnnotationView.m */; };
 		24F1584711D72A23000DD736 /* TiMapImageAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F1584511D72A23000DD736 /* TiMapImageAnnotationView.m */; };
-		24F158E111D73330000DD736 /* TiMapRouteAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F158E011D73330000DD736 /* TiMapRouteAnnotation.m */; };
-		24F158E211D73330000DD736 /* TiMapRouteAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F158E011D73330000DD736 /* TiMapRouteAnnotation.m */; };
-		24F1591D11D7356D000DD736 /* TiMapRouteAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F1591C11D7356D000DD736 /* TiMapRouteAnnotationView.m */; };
-		24F1591E11D7356D000DD736 /* TiMapRouteAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F1591C11D7356D000DD736 /* TiMapRouteAnnotationView.m */; };
 		24F29E2E12209C920099351D /* TiStylesheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F29E2D12209C920099351D /* TiStylesheet.m */; };
 		24F29E2F12209C920099351D /* TiStylesheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F29E2D12209C920099351D /* TiStylesheet.m */; };
 		24F29E3712209E6F0099351D /* stylesheet.plist in Resources */ = {isa = PBXBuildFile; fileRef = 24F29E3612209E6F0099351D /* stylesheet.plist */; };
@@ -501,6 +491,12 @@
 		2B301A8513DA2E290046529F /* TiUIiOS3DMatrix.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B301A8413DA2E290046529F /* TiUIiOS3DMatrix.m */; };
 		2B301A8613DA2E290046529F /* TiUIiOS3DMatrix.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B301A8413DA2E290046529F /* TiUIiOS3DMatrix.m */; };
 		2B301A8713DA2E290046529F /* TiUIiOS3DMatrix.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B301A8413DA2E290046529F /* TiUIiOS3DMatrix.m */; };
+		2B94603613F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603313F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m */; };
+		2B94603713F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603513F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m */; };
+		2B94603813F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603313F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m */; };
+		2B94603913F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603513F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m */; };
+		2B94603A13F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603313F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m */; };
+		2B94603B13F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603513F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m */; };
 		4D3033A3136239B30034640F /* TiFilesystemFileStreamProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D3033A2136239B30034640F /* TiFilesystemFileStreamProxy.m */; };
 		ABD472F413BB73BF00502912 /* KrollCoverage.m in Sources */ = {isa = PBXBuildFile; fileRef = ABD472F313BB73BF00502912 /* KrollCoverage.m */; };
 		ABD472F513BB73BF00502912 /* KrollCoverage.m in Sources */ = {isa = PBXBuildFile; fileRef = ABD472F313BB73BF00502912 /* KrollCoverage.m */; };
@@ -597,7 +593,6 @@
 		DABB36AC12E8CB280026A6EA /* ASIInputStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891A111161050084E2DE /* ASIInputStream.m */; };
 		DABB36AD12E8CB280026A6EA /* ASINetworkQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891C111161050084E2DE /* ASINetworkQueue.m */; };
 		DABB36AE12E8CB280026A6EA /* TiUITextWidgetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D5829011264FD000A6B66C /* TiUITextWidgetProxy.m */; };
-		DABB36AF12E8CB280026A6EA /* ASINSStringAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891E111161050084E2DE /* ASINSStringAdditions.m */; };
 		DABB36B012E8CB280026A6EA /* TiUITableViewSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC5EA112617F900639DF4 /* TiUITableViewSectionProxy.m */; };
 		DABB36B112E8CB280026A6EA /* TiUIiPhoneTableViewStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC9691126632700639DF4 /* TiUIiPhoneTableViewStyleProxy.m */; };
 		DABB36B212E8CB280026A6EA /* TiUIiPhoneTableViewSeparatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243ECB2411267CC100639DF4 /* TiUIiPhoneTableViewSeparatorStyleProxy.m */; };
@@ -666,8 +661,6 @@
 		DABB36F112E8CB280026A6EA /* TiUIImageViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A78111161FD0084E2DE /* TiUIImageViewProxy.m */; };
 		DABB36F212E8CB280026A6EA /* TiUIImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A7A111161FD0084E2DE /* TiUIImageView.m */; };
 		DABB36F312E8CB280026A6EA /* TiUIEmailDialogProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A82111161FD0084E2DE /* TiUIEmailDialogProxy.m */; };
-		DABB36F412E8CB280026A6EA /* TiUICoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A86111161FD0084E2DE /* TiUICoverFlowViewProxy.m */; };
-		DABB36F512E8CB280026A6EA /* TiUICoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A88111161FD0084E2DE /* TiUICoverFlowView.m */; };
 		DABB36F612E8CB280026A6EA /* TiUICanvasViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8A111161FD0084E2DE /* TiUICanvasViewProxy.m */; };
 		DABB36F712E8CB280026A6EA /* TiUICanvasView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8C111161FD0084E2DE /* TiUICanvasView.m */; };
 		DABB36F812E8CB280026A6EA /* TiUIButtonProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8E111161FD0084E2DE /* TiUIButtonProxy.m */; };
@@ -799,8 +792,6 @@
 		DABB377912E8CB280026A6EA /* TiUIiOSAdView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24D06FE711D0219B00F615D8 /* TiUIiOSAdView.m */; };
 		DABB377A12E8CB280026A6EA /* TiUIiOSProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24D0700511D0253D00F615D8 /* TiUIiOSProxy.m */; };
 		DABB377B12E8CB280026A6EA /* TiMapImageAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F1584511D72A23000DD736 /* TiMapImageAnnotationView.m */; };
-		DABB377C12E8CB280026A6EA /* TiMapRouteAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F158E011D73330000DD736 /* TiMapRouteAnnotation.m */; };
-		DABB377D12E8CB280026A6EA /* TiMapRouteAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F1591C11D7356D000DD736 /* TiMapRouteAnnotationView.m */; };
 		DABB377E12E8CB280026A6EA /* Webcolor.m in Sources */ = {isa = PBXBuildFile; fileRef = 2467310611E2549300D39AF7 /* Webcolor.m */; };
 		DABB377F12E8CB280026A6EA /* TiFilesystemBlobProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2465592311E5862F0059BBF4 /* TiFilesystemBlobProxy.m */; };
 		DABB378012E8CB280026A6EA /* TiUIDashboardItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 243AAFB411FCE62600E37D8B /* TiUIDashboardItem.m */; };
@@ -881,6 +872,15 @@
 		DAE541E313577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
 		DAE541E413577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
 		DAE541E513577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
+		EF03EFF313E3665100BD4FF7 /* ASIDataCompressor.m in Sources */ = {isa = PBXBuildFile; fileRef = EF03EFF013E3665100BD4FF7 /* ASIDataCompressor.m */; };
+		EF03EFF413E3665100BD4FF7 /* ASIDataCompressor.m in Sources */ = {isa = PBXBuildFile; fileRef = EF03EFF013E3665100BD4FF7 /* ASIDataCompressor.m */; };
+		EF03EFF513E3665100BD4FF7 /* ASIDataCompressor.m in Sources */ = {isa = PBXBuildFile; fileRef = EF03EFF013E3665100BD4FF7 /* ASIDataCompressor.m */; };
+		EF03EFF613E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */ = {isa = PBXBuildFile; fileRef = EF03EFF213E3665100BD4FF7 /* ASIDataDecompressor.m */; };
+		EF03EFF713E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */ = {isa = PBXBuildFile; fileRef = EF03EFF213E3665100BD4FF7 /* ASIDataDecompressor.m */; };
+		EF03EFF813E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */ = {isa = PBXBuildFile; fileRef = EF03EFF213E3665100BD4FF7 /* ASIDataDecompressor.m */; };
+		EF8339D313E3643C001F2A97 /* ASIDownloadCache.m in Sources */ = {isa = PBXBuildFile; fileRef = EF8339D213E3643C001F2A97 /* ASIDownloadCache.m */; };
+		EF8339D413E3643C001F2A97 /* ASIDownloadCache.m in Sources */ = {isa = PBXBuildFile; fileRef = EF8339D213E3643C001F2A97 /* ASIDownloadCache.m */; };
+		EF8339D513E3643C001F2A97 /* ASIDownloadCache.m in Sources */ = {isa = PBXBuildFile; fileRef = EF8339D213E3643C001F2A97 /* ASIDownloadCache.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -980,8 +980,6 @@
 		24CA891A111161050084E2DE /* ASIInputStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIInputStream.m; sourceTree = "<group>"; };
 		24CA891B111161050084E2DE /* ASINetworkQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASINetworkQueue.h; sourceTree = "<group>"; };
 		24CA891C111161050084E2DE /* ASINetworkQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASINetworkQueue.m; sourceTree = "<group>"; };
-		24CA891D111161050084E2DE /* ASINSStringAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASINSStringAdditions.h; sourceTree = "<group>"; };
-		24CA891E111161050084E2DE /* ASINSStringAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASINSStringAdditions.m; sourceTree = "<group>"; };
 		24CA8925111161050084E2DE /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
 		24CA8926111161050084E2DE /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		24CA8928111161050084E2DE /* AudioStreamer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioStreamer.h; sourceTree = "<group>"; };
@@ -1124,10 +1122,6 @@
 		24CA8A7B111161FD0084E2DE /* TiUIImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUIImageView.h; path = ../Classes/TiUIImageView.h; sourceTree = SOURCE_ROOT; };
 		24CA8A82111161FD0084E2DE /* TiUIEmailDialogProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUIEmailDialogProxy.m; path = ../Classes/TiUIEmailDialogProxy.m; sourceTree = SOURCE_ROOT; };
 		24CA8A83111161FD0084E2DE /* TiUIEmailDialogProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUIEmailDialogProxy.h; path = ../Classes/TiUIEmailDialogProxy.h; sourceTree = SOURCE_ROOT; };
-		24CA8A86111161FD0084E2DE /* TiUICoverFlowViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUICoverFlowViewProxy.m; path = ../Classes/TiUICoverFlowViewProxy.m; sourceTree = SOURCE_ROOT; };
-		24CA8A87111161FD0084E2DE /* TiUICoverFlowViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUICoverFlowViewProxy.h; path = ../Classes/TiUICoverFlowViewProxy.h; sourceTree = SOURCE_ROOT; };
-		24CA8A88111161FD0084E2DE /* TiUICoverFlowView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUICoverFlowView.m; path = ../Classes/TiUICoverFlowView.m; sourceTree = SOURCE_ROOT; };
-		24CA8A89111161FD0084E2DE /* TiUICoverFlowView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUICoverFlowView.h; path = ../Classes/TiUICoverFlowView.h; sourceTree = SOURCE_ROOT; };
 		24CA8A8A111161FD0084E2DE /* TiUICanvasViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUICanvasViewProxy.m; path = ../Classes/TiUICanvasViewProxy.m; sourceTree = SOURCE_ROOT; };
 		24CA8A8B111161FD0084E2DE /* TiUICanvasViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUICanvasViewProxy.h; path = ../Classes/TiUICanvasViewProxy.h; sourceTree = SOURCE_ROOT; };
 		24CA8A8C111161FD0084E2DE /* TiUICanvasView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUICanvasView.m; path = ../Classes/TiUICanvasView.m; sourceTree = SOURCE_ROOT; };
@@ -1324,10 +1318,6 @@
 		24EB0BA9111F7959001DC2D1 /* TiMapPinAnnotationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMapPinAnnotationView.m; sourceTree = "<group>"; };
 		24F1584411D72A23000DD736 /* TiMapImageAnnotationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMapImageAnnotationView.h; sourceTree = "<group>"; };
 		24F1584511D72A23000DD736 /* TiMapImageAnnotationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMapImageAnnotationView.m; sourceTree = "<group>"; };
-		24F158DF11D73330000DD736 /* TiMapRouteAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMapRouteAnnotation.h; sourceTree = "<group>"; };
-		24F158E011D73330000DD736 /* TiMapRouteAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMapRouteAnnotation.m; sourceTree = "<group>"; };
-		24F1591B11D7356D000DD736 /* TiMapRouteAnnotationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMapRouteAnnotationView.h; sourceTree = "<group>"; };
-		24F1591C11D7356D000DD736 /* TiMapRouteAnnotationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMapRouteAnnotationView.m; sourceTree = "<group>"; };
 		24F29E2C12209C920099351D /* TiStylesheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiStylesheet.h; sourceTree = "<group>"; };
 		24F29E2D12209C920099351D /* TiStylesheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiStylesheet.m; sourceTree = "<group>"; };
 		24F29E3612209E6F0099351D /* stylesheet.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = stylesheet.plist; path = ../Resources/stylesheet.plist; sourceTree = SOURCE_ROOT; };
@@ -1372,6 +1362,10 @@
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		2B301A8313DA2E290046529F /* TiUIiOS3DMatrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOS3DMatrix.h; sourceTree = "<group>"; };
 		2B301A8413DA2E290046529F /* TiUIiOS3DMatrix.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOS3DMatrix.m; sourceTree = "<group>"; };
+		2B94603213F0A2AE000C5BEA /* TiUIiOSCoverFlowView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSCoverFlowView.h; sourceTree = "<group>"; };
+		2B94603313F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSCoverFlowView.m; sourceTree = "<group>"; };
+		2B94603413F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSCoverFlowViewProxy.h; sourceTree = "<group>"; };
+		2B94603513F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSCoverFlowViewProxy.m; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* Titanium_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Titanium_Prefix.pch; sourceTree = "<group>"; };
 		4D3033A1136239B30034640F /* TiFilesystemFileStreamProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiFilesystemFileStreamProxy.h; sourceTree = "<group>"; };
 		4D3033A2136239B30034640F /* TiFilesystemFileStreamProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiFilesystemFileStreamProxy.m; sourceTree = "<group>"; };
@@ -1475,6 +1469,13 @@
 		DADE76D313D65C590079FC75 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
 		DAE541E113577BEC00A65123 /* TiDataStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDataStream.h; sourceTree = "<group>"; };
 		DAE541E213577BEC00A65123 /* TiDataStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDataStream.m; sourceTree = "<group>"; };
+		EF03EFEF13E3665100BD4FF7 /* ASIDataCompressor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIDataCompressor.h; sourceTree = "<group>"; };
+		EF03EFF013E3665100BD4FF7 /* ASIDataCompressor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIDataCompressor.m; sourceTree = "<group>"; };
+		EF03EFF113E3665100BD4FF7 /* ASIDataDecompressor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIDataDecompressor.h; sourceTree = "<group>"; };
+		EF03EFF213E3665100BD4FF7 /* ASIDataDecompressor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIDataDecompressor.m; sourceTree = "<group>"; };
+		EF8339D113E3643C001F2A97 /* ASIDownloadCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIDownloadCache.h; sourceTree = "<group>"; };
+		EF8339D213E3643C001F2A97 /* ASIDownloadCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIDownloadCache.m; sourceTree = "<group>"; };
+		EF8339D713E364A0001F2A97 /* ASICacheDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASICacheDelegate.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1701,6 +1702,13 @@
 		24CA8911111161050084E2DE /* ASI */ = {
 			isa = PBXGroup;
 			children = (
+				EF03EFEF13E3665100BD4FF7 /* ASIDataCompressor.h */,
+				EF03EFF013E3665100BD4FF7 /* ASIDataCompressor.m */,
+				EF03EFF113E3665100BD4FF7 /* ASIDataDecompressor.h */,
+				EF03EFF213E3665100BD4FF7 /* ASIDataDecompressor.m */,
+				EF8339D713E364A0001F2A97 /* ASICacheDelegate.h */,
+				EF8339D113E3643C001F2A97 /* ASIDownloadCache.h */,
+				EF8339D213E3643C001F2A97 /* ASIDownloadCache.m */,
 				247FC32811CD5B6B00F97C4E /* ASIHTTPRequestDelegate.h */,
 				247FC32911CD5B6B00F97C4E /* ASIProgressDelegate.h */,
 				24CA8912111161050084E2DE /* ASIAuthenticationDialog.h */,
@@ -1714,8 +1722,6 @@
 				24CA891A111161050084E2DE /* ASIInputStream.m */,
 				24CA891B111161050084E2DE /* ASINetworkQueue.h */,
 				24CA891C111161050084E2DE /* ASINetworkQueue.m */,
-				24CA891D111161050084E2DE /* ASINSStringAdditions.h */,
-				24CA891E111161050084E2DE /* ASINSStringAdditions.m */,
 				24CA8925111161050084E2DE /* Reachability.h */,
 				24CA8926111161050084E2DE /* Reachability.m */,
 			);
@@ -2048,7 +2054,6 @@
 				24CA8C62111165840084E2DE /* Tabgroup */,
 				24CA8C60111165780084E2DE /* Alert */,
 				24CA8C5F111165720084E2DE /* Option Dialog */,
-				24CA8C5D111165550084E2DE /* Coverflow */,
 				24CA8C5C111165510084E2DE /* View */,
 				24CA8C5B111165470084E2DE /* Window */,
 				24CA8C66111166550084E2DE /* Webview */,
@@ -2159,10 +2164,6 @@
 				24EB0BA9111F7959001DC2D1 /* TiMapPinAnnotationView.m */,
 				24F1584411D72A23000DD736 /* TiMapImageAnnotationView.h */,
 				24F1584511D72A23000DD736 /* TiMapImageAnnotationView.m */,
-				24F158DF11D73330000DD736 /* TiMapRouteAnnotation.h */,
-				24F158E011D73330000DD736 /* TiMapRouteAnnotation.m */,
-				24F1591B11D7356D000DD736 /* TiMapRouteAnnotationView.h */,
-				24F1591C11D7356D000DD736 /* TiMapRouteAnnotationView.m */,
 			);
 			name = Map;
 			sourceTree = "<group>";
@@ -2269,10 +2270,10 @@
 		24CA8C5D111165550084E2DE /* Coverflow */ = {
 			isa = PBXGroup;
 			children = (
-				24CA8A86111161FD0084E2DE /* TiUICoverFlowViewProxy.m */,
-				24CA8A87111161FD0084E2DE /* TiUICoverFlowViewProxy.h */,
-				24CA8A88111161FD0084E2DE /* TiUICoverFlowView.m */,
-				24CA8A89111161FD0084E2DE /* TiUICoverFlowView.h */,
+				2B94603213F0A2AE000C5BEA /* TiUIiOSCoverFlowView.h */,
+				2B94603313F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m */,
+				2B94603413F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.h */,
+				2B94603513F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m */,
 			);
 			name = Coverflow;
 			sourceTree = "<group>";
@@ -2525,6 +2526,7 @@
 		24D06FDE11D020E600F615D8 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
+				24CA8C5D111165550084E2DE /* Coverflow */,
 				24D06FE311D0216100F615D8 /* iAd */,
 				24CA8C5E1111655E0084E2DE /* iPhone */,
 				24FB4ECF115C8120001AAF99 /* iPad */,
@@ -2853,8 +2855,8 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Titanium-KitchenSink" */;
 			buildPhases = (
-				1D60588D0D05DD3D006BFB54 /* Resources */,
 				241EAF36118E30260081A5BE /* Pre-Compile */,
+				1D60588D0D05DD3D006BFB54 /* Resources */,
 				1D60588E0D05DD3D006BFB54 /* Sources */,
 				1D60588F0D05DD3D006BFB54 /* Frameworks */,
 				24CA8D03111169070084E2DE /* Post-Compile */,
@@ -2872,8 +2874,8 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 24D8E4AE119B9D8A00F8CAA6 /* Build configuration list for PBXNativeTarget "Titanium-KitchenSink-iPad" */;
 			buildPhases = (
-				24D8E3B6119B9D8A00F8CAA6 /* Resources */,
 				24D8E3B9119B9D8A00F8CAA6 /* Pre-Compile */,
+				24D8E3B6119B9D8A00F8CAA6 /* Resources */,
 				24D8E3BA119B9D8A00F8CAA6 /* Sources */,
 				24D8E497119B9D8A00F8CAA6 /* Frameworks */,
 				24D8E4AD119B9D8A00F8CAA6 /* Post-Compile */,
@@ -2891,8 +2893,8 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = DABB37B912E8CB280026A6EA /* Build configuration list for PBXNativeTarget "Titanium-KitchenSink-universal" */;
 			buildPhases = (
-				DABB369B12E8CB280026A6EA /* Resources */,
 				DABB369F12E8CB280026A6EA /* Pre-Compile */,
+				DABB369B12E8CB280026A6EA /* Resources */,
 				DABB36A012E8CB280026A6EA /* Sources */,
 				DABB37A112E8CB280026A6EA /* Frameworks */,
 				DABB37B812E8CB280026A6EA /* Post-Compile */,
@@ -2911,8 +2913,11 @@
 /* Begin PBXProject section */
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0410;
+			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Titanium" */;
-			compatibilityVersion = "Xcode 3.1";
+			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
@@ -2981,7 +2986,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cp -Rf \"$PROJECT_DIR/../../demos/KitchenSink/Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\" \nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/facebook/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/ui/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\n\"$PROJECT_DIR/../../support/common/localecompiler.py\" \"$PROJECT_DIR/../../demos/KitchenSink\" ios simulator \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\n\"$PROJECT_DIR/../../support/common/css/csscompiler.py\" \"$PROJECT_DIR/../../demos/KitchenSink\" ios \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\n";
+			shellScript = "cp -Rf \"$PROJECT_DIR/../../demos/KitchenSink/Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\" \nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/facebook/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/ui/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\n\"$PROJECT_DIR/../../support/common/localecompiler.py\" \"$PROJECT_DIR/../../demos/KitchenSink\" ios simulator \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\n\"$PROJECT_DIR/../../support/common/css/csscompiler.py\" \"$PROJECT_DIR/../../demos/KitchenSink\" ios \"$PROJECT_DIR/../Resources\"";
 		};
 		24CA8D03111169070084E2DE /* Post-Compile */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -3074,7 +3079,6 @@
 				24CA8961111161050084E2DE /* ASIInputStream.m in Sources */,
 				24CA8962111161050084E2DE /* ASINetworkQueue.m in Sources */,
 				243ECCBE112698AA00639DF4 /* TiUITextWidgetProxy.m in Sources */,
-				24CA8963111161050084E2DE /* ASINSStringAdditions.m in Sources */,
 				243ECCAA1126981C00639DF4 /* TiUITableViewSectionProxy.m in Sources */,
 				243ECCAB1126981C00639DF4 /* TiUIiPhoneTableViewStyleProxy.m in Sources */,
 				243ECCAC1126981C00639DF4 /* TiUIiPhoneTableViewSeparatorStyleProxy.m in Sources */,
@@ -3143,8 +3147,6 @@
 				24CA8B9C111161FE0084E2DE /* TiUIImageViewProxy.m in Sources */,
 				24CA8B9D111161FE0084E2DE /* TiUIImageView.m in Sources */,
 				24CA8BA1111161FE0084E2DE /* TiUIEmailDialogProxy.m in Sources */,
-				24CA8BA3111161FE0084E2DE /* TiUICoverFlowViewProxy.m in Sources */,
-				24CA8BA4111161FE0084E2DE /* TiUICoverFlowView.m in Sources */,
 				24CA8BA5111161FE0084E2DE /* TiUICanvasViewProxy.m in Sources */,
 				24CA8BA6111161FE0084E2DE /* TiUICanvasView.m in Sources */,
 				24CA8BA7111161FE0084E2DE /* TiUIButtonProxy.m in Sources */,
@@ -3276,8 +3278,6 @@
 				24D06FE811D0219B00F615D8 /* TiUIiOSAdView.m in Sources */,
 				24D0700611D0253D00F615D8 /* TiUIiOSProxy.m in Sources */,
 				24F1584711D72A23000DD736 /* TiMapImageAnnotationView.m in Sources */,
-				24F158E211D73330000DD736 /* TiMapRouteAnnotation.m in Sources */,
-				24F1591E11D7356D000DD736 /* TiMapRouteAnnotationView.m in Sources */,
 				2467310811E2549300D39AF7 /* Webcolor.m in Sources */,
 				2465592411E5862F0059BBF4 /* TiFilesystemBlobProxy.m in Sources */,
 				243AAFB511FCE62600E37D8B /* TiUIDashboardItem.m in Sources */,
@@ -3323,6 +3323,11 @@
 				ABD472F413BB73BF00502912 /* KrollCoverage.m in Sources */,
 				DADD76E913CCF4FF00CD03AC /* MGSplitView.m in Sources */,
 				2B301A8513DA2E290046529F /* TiUIiOS3DMatrix.m in Sources */,
+				EF8339D313E3643C001F2A97 /* ASIDownloadCache.m in Sources */,
+				EF03EFF313E3665100BD4FF7 /* ASIDataCompressor.m in Sources */,
+				EF03EFF613E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */,
+				2B94603613F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
+				2B94603713F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3344,7 +3349,6 @@
 				24D8E3C6119B9D8A00F8CAA6 /* ASIInputStream.m in Sources */,
 				24D8E3C7119B9D8A00F8CAA6 /* ASINetworkQueue.m in Sources */,
 				24D8E3C8119B9D8A00F8CAA6 /* TiUITextWidgetProxy.m in Sources */,
-				24D8E3C9119B9D8A00F8CAA6 /* ASINSStringAdditions.m in Sources */,
 				24D8E3CA119B9D8A00F8CAA6 /* TiUITableViewSectionProxy.m in Sources */,
 				24D8E3CB119B9D8A00F8CAA6 /* TiUIiPhoneTableViewStyleProxy.m in Sources */,
 				24D8E3CC119B9D8A00F8CAA6 /* TiUIiPhoneTableViewSeparatorStyleProxy.m in Sources */,
@@ -3413,8 +3417,6 @@
 				24D8E416119B9D8A00F8CAA6 /* TiUIImageViewProxy.m in Sources */,
 				24D8E417119B9D8A00F8CAA6 /* TiUIImageView.m in Sources */,
 				24D8E418119B9D8A00F8CAA6 /* TiUIEmailDialogProxy.m in Sources */,
-				24D8E419119B9D8A00F8CAA6 /* TiUICoverFlowViewProxy.m in Sources */,
-				24D8E41A119B9D8A00F8CAA6 /* TiUICoverFlowView.m in Sources */,
 				24D8E41B119B9D8A00F8CAA6 /* TiUICanvasViewProxy.m in Sources */,
 				24D8E41C119B9D8A00F8CAA6 /* TiUICanvasView.m in Sources */,
 				24D8E41D119B9D8A00F8CAA6 /* TiUIButtonProxy.m in Sources */,
@@ -3546,8 +3548,6 @@
 				24D06FE911D0219B00F615D8 /* TiUIiOSAdView.m in Sources */,
 				24D0700711D0253D00F615D8 /* TiUIiOSProxy.m in Sources */,
 				24F1584611D72A23000DD736 /* TiMapImageAnnotationView.m in Sources */,
-				24F158E111D73330000DD736 /* TiMapRouteAnnotation.m in Sources */,
-				24F1591D11D7356D000DD736 /* TiMapRouteAnnotationView.m in Sources */,
 				2467310711E2549300D39AF7 /* Webcolor.m in Sources */,
 				2465592511E5862F0059BBF4 /* TiFilesystemBlobProxy.m in Sources */,
 				243AAFB611FCE62600E37D8B /* TiUIDashboardItem.m in Sources */,
@@ -3593,6 +3593,11 @@
 				ABD472F513BB73BF00502912 /* KrollCoverage.m in Sources */,
 				DADD76EA13CCF4FF00CD03AC /* MGSplitView.m in Sources */,
 				2B301A8613DA2E290046529F /* TiUIiOS3DMatrix.m in Sources */,
+				EF8339D413E3643C001F2A97 /* ASIDownloadCache.m in Sources */,
+				EF03EFF413E3665100BD4FF7 /* ASIDataCompressor.m in Sources */,
+				EF03EFF713E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */,
+				2B94603813F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
+				2B94603913F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3614,7 +3619,6 @@
 				DABB36AC12E8CB280026A6EA /* ASIInputStream.m in Sources */,
 				DABB36AD12E8CB280026A6EA /* ASINetworkQueue.m in Sources */,
 				DABB36AE12E8CB280026A6EA /* TiUITextWidgetProxy.m in Sources */,
-				DABB36AF12E8CB280026A6EA /* ASINSStringAdditions.m in Sources */,
 				DABB36B012E8CB280026A6EA /* TiUITableViewSectionProxy.m in Sources */,
 				DABB36B112E8CB280026A6EA /* TiUIiPhoneTableViewStyleProxy.m in Sources */,
 				DABB36B212E8CB280026A6EA /* TiUIiPhoneTableViewSeparatorStyleProxy.m in Sources */,
@@ -3683,8 +3687,6 @@
 				DABB36F112E8CB280026A6EA /* TiUIImageViewProxy.m in Sources */,
 				DABB36F212E8CB280026A6EA /* TiUIImageView.m in Sources */,
 				DABB36F312E8CB280026A6EA /* TiUIEmailDialogProxy.m in Sources */,
-				DABB36F412E8CB280026A6EA /* TiUICoverFlowViewProxy.m in Sources */,
-				DABB36F512E8CB280026A6EA /* TiUICoverFlowView.m in Sources */,
 				DABB36F612E8CB280026A6EA /* TiUICanvasViewProxy.m in Sources */,
 				DABB36F712E8CB280026A6EA /* TiUICanvasView.m in Sources */,
 				DABB36F812E8CB280026A6EA /* TiUIButtonProxy.m in Sources */,
@@ -3816,8 +3818,6 @@
 				DABB377912E8CB280026A6EA /* TiUIiOSAdView.m in Sources */,
 				DABB377A12E8CB280026A6EA /* TiUIiOSProxy.m in Sources */,
 				DABB377B12E8CB280026A6EA /* TiMapImageAnnotationView.m in Sources */,
-				DABB377C12E8CB280026A6EA /* TiMapRouteAnnotation.m in Sources */,
-				DABB377D12E8CB280026A6EA /* TiMapRouteAnnotationView.m in Sources */,
 				DABB377E12E8CB280026A6EA /* Webcolor.m in Sources */,
 				DABB377F12E8CB280026A6EA /* TiFilesystemBlobProxy.m in Sources */,
 				DABB378012E8CB280026A6EA /* TiUIDashboardItem.m in Sources */,
@@ -3863,6 +3863,11 @@
 				ABD472F613BB73BF00502912 /* KrollCoverage.m in Sources */,
 				DADD76EB13CCF4FF00CD03AC /* MGSplitView.m in Sources */,
 				2B301A8713DA2E290046529F /* TiUIiOS3DMatrix.m in Sources */,
+				EF8339D513E3643C001F2A97 /* ASIDownloadCache.m in Sources */,
+				EF03EFF513E3665100BD4FF7 /* ASIDataCompressor.m in Sources */,
+				EF03EFF813E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */,
+				2B94603A13F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
+				2B94603B13F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4052,7 +4057,6 @@
 					"-DTI_POST_1_2",
 				);
 				OTHER_LDFLAGS = "-ObjC";
-				PREBINDING = NO;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				RUN_CLANG_STATIC_ANALYZER = NO;
@@ -4089,7 +4093,6 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 3.1;
 				OTHER_CFLAGS = "-DTI_POST_1_2";
 				OTHER_LDFLAGS = "-ObjC";
-				PREBINDING = NO;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				RUN_CLANG_STATIC_ANALYZER = NO;

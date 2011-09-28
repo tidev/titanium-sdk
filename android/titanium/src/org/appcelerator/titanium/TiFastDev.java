@@ -36,7 +36,10 @@ import android.widget.Toast;
 public class TiFastDev
 {
 	private static final String TAG = "TiFastDev";
-	private static final boolean DBG = TiConfig.LOGD;
+
+	// To enable trace debugging for fastdev, connect via adb shell and issue this command:
+	// setprop log.tag.TiFastDev ASSERT
+	private static final boolean TRACE = android.util.Log.isLoggable(TAG, android.util.Log.ASSERT);
 
 	private static TiFastDev _instance;
 	private static final String EMULATOR_HOST = "10.0.2.2";
@@ -313,9 +316,6 @@ public class TiFastDev
 		{
 			while (connected) {
 				try {
-					if (DBG) {
-						Log.d(TAG, "checking for message? " + checkingForMessage);
-					}
 					if (checkingForMessage) {
 						if (in.available() > 0) {
 							byte message[][] = readMessage();
@@ -380,7 +380,7 @@ public class TiFastDev
 		{
 			try {
 				String command = new String(message[0], UTF8_CHARSET);
-				if (DBG) {
+				if (TRACE) {
 					Log.d(TAG, "Execute command: " + command);
 				}
 				if (COMMAND_KILL.equals(command)) {
@@ -442,11 +442,15 @@ public class TiFastDev
 			checkingForMessage = false;
 			if (sendTokens(tokens)) {
 				byte message[][] = readMessage();
-				Log.d(TAG, "sent tokens successfully");
+				if (TRACE) {
+					Log.d(TAG, "sent tokens successfully");
+				}
 				checkingForMessage = true;
 				return message;
 			}
-			Log.d(TAG, "error sending tokens");
+			if (TRACE) {
+				Log.d(TAG, "error sending tokens");
+			}
 			checkingForMessage = true;
 			return null;
 		}

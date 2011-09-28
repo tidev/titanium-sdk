@@ -1,0 +1,8 @@
+{
+ "functions": [
+  "setNotification"
+ ], 
+ "properties": [
+  "notification"
+ ]
+}

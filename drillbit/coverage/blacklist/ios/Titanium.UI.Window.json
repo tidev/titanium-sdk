@@ -1,0 +1,13 @@
+{
+ "functions": [
+  "viewWillAppear", 
+  "viewDidDisappear", 
+  "viewDidAppear", 
+  "viewWillDisappear",
+  "handleClose",
+  "handleOpen"
+ ], 
+ "properties": [
+  "langConversionTable"
+ ]
+}

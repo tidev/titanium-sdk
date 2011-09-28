@@ -152,6 +152,7 @@
 
 - (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
+	transitionIsAnimating = YES;
 	if (current==viewController)
 	{
 		return;
@@ -161,6 +162,7 @@
 
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
+	transitionIsAnimating = NO;
 	[self handleDidShowViewController:viewController];
 }
 
@@ -221,6 +223,11 @@
 
 -(void)openOnUIThread:(NSArray*)args
 {
+	if (transitionIsAnimating)
+	{
+		[self performSelector:_cmd withObject:args afterDelay:0.1];
+		return;
+	}
 	TiWindowProxy *window = [args objectAtIndex:0];
 	BOOL animated = args!=nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
 	TiUITabController *root = [[TiUITabController alloc] initWithProxy:window tab:self];

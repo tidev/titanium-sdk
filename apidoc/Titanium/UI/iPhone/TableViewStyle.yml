@@ -4,10 +4,13 @@ description: A set of constants for the style that can be used for the button `s
 extends: Titanium.Proxy
 platforms: [iphone, ipad]
 since: "0.9"
+createable: false
 properties:
   - name: GROUPED
     description: A table view whose sections present distinct groups of rows. The section headers and footers do not float.
     type: Number
+    permission: read-only
   - name: PLAIN
     description: A plain table view. Any section headers or footers are displayed as inline separators and float when the table view is scrolled.
     type: Number
+    permission: read-only

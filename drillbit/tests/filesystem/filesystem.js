@@ -48,6 +48,23 @@ describe("Ti.Filesystem tests", {
 		var readphrase = file.read().text;
 		valueOf(readphrase).shouldBe(testphrase);
 	},
+	blobFile: function() {
+		var filename = 'blobtest';
+		var testphrase = 'Revenge of the Blob';
+		var file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, filename);
+
+		if (file.exists()) {
+			file.deleteFile();
+		}
+		file.write(testphrase);
+		var blob = file.read();
+		var blobFile = blob.file;
+		valueOf(blobFile.nativePath).shouldBe(file.nativePath);
+		valueOf(blobFile.exists()).shouldBeTrue();
+		var readphrase = blobFile.read().text;
+		valueOf(readphrase).shouldBe(testphrase);
+		file = null;
+	},
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2443-android-paths-beginning-with-are-not-recognised#ticket-2443-6
 	dotSlash: function() {
 		var f;
@@ -352,6 +369,27 @@ describe("Ti.Filesystem tests", {
 		}
 
 		valueOf(newFile.move(Titanium.Filesystem.applicationDataDirectory+'/moved.txt')).shouldBeTrue();
+	},
+
+	tempDirTest:function() {
+		var filename = "drillbit_temp_file.txt";
+		valueOf(Ti.Filesystem.getTempDirectory).shouldBeFunction();
+
+		var outBuffer = Ti.createBuffer({value:"huray for data, lets have a party for data1 huray for data, lets have a party for data2 huray for data, lets have a party for data3"});
+		valueOf(outBuffer).shouldBeObject();
+
+		var tempFileOutStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_WRITE, Ti.Filesystem.tempDirectory, filename);
+		tempFileOutStream.write(outBuffer); //write inBuffer to outfile
+		tempFileOutStream.close();
+
+		var inBuffer = Ti.createBuffer({length:200}); // have to set length on read buffer or no data will be read
+		var tempFileInStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_READ, Ti.Filesystem.tempDirectory, filename);
+		bytesRead = tempFileInStream.read(inBuffer); //read 200 byes of data from outfile into outBuffer
+		tempFileInStream.close();
+
+		for (var i=0; i < bytesRead; i++) {
+			valueOf(inBuffer[i]).shouldBeExactly(outBuffer[i]);
+		}
 	},
 
 	emptyFile: function() {

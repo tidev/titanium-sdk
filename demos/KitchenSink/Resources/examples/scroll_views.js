@@ -13,6 +13,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 {
 	data.push({title:'Scrollable View w/o Clipping', hasChild:true, test:'../examples/scroll_views_without_clipping.js', barColor:'#111', bgImage:'../images/scrollable_view/bg.png'});
 	data.push({title:'Scrolling Zoom+Pinch', hasChild:true, test:'../examples/scroll_views_scaling.js'});
+    data.push({title:'Scrolling Drag Start&End', hasChild:true, test:'../examples/scroll_views_dragging.js'});
 }
 
 // create table view

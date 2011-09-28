@@ -1,0 +1,14 @@
+{
+ "functions": [
+  "dataToDictionary", 
+  "checkForEnrollment", 
+  "shutdown", 
+  "remoteDeviceUUIDChanged", 
+  "analyticsEvent"
+ ], 
+ "properties": [
+  "platform", 
+  "init", 
+  "network"
+ ]
+}

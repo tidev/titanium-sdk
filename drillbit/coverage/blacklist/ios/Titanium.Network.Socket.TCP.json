@@ -1,0 +1,11 @@
+{
+ "functions": [
+  "onSocketReadyInRunLoop", 
+  "onSocketDidDisconnect", 
+  "startAcceptedSocket", 
+  "setClosed"
+ ], 
+ "properties": [
+  "init"
+ ]
+}

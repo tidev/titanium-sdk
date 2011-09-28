@@ -114,6 +114,18 @@
 	[[self label] setHighlighted:newValue];
 }
 
+- (void)didMoveToSuperview
+{
+	/*
+	 *	Because of how we re-use the same cells in both a tableview and its
+	 *	search table, there is the chance that the label is transported between
+	 *	the two views before a selected search row is deselected. In other
+	 *	words, make sure we're not highlighted when changing superviews.
+	 */
+	[self setHighlighted:NO];
+	[super didMoveToSuperview];
+}
+
 -(BOOL)isHighlighted
 {
 	return [[self label] isHighlighted];

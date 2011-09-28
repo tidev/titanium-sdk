@@ -1,4 +1,4 @@
-body, td {
+ body, td {
 	background-color:#292929;
 	font-family:"Lucida Sans",Arial;
 	color:white;
@@ -136,26 +136,39 @@ a.disabled {
 }
 
 #resize-bar{
-	height: 12px;
+	height: 8px;
 	width: 99%;
 	position: absolute;
 	background-color: #555;
-	bottom: 285px;
+	bottom: 303px;
 	left: 5px;
 	right: 5px;
 	cursor: n-resize;
 }
 
+#filter {
+	height: 20px;
+}
+
 #console {
-	height: 275px;
-	width: 99%;
+	position: absolute;
+	top: 20px;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
 	font-family: monospace;
 	background-color: black;
 	color: #ccc;
+	overflow: auto;
+	-webkit-user-select: text;
+}
+
+#console-container {
+	height: 275px;
+	width: 99%;
+	padding: 0px;
 	position: absolute;
 	bottom: 5px;
 	left: 5px;
 	right: 5px;
-	overflow: auto;
-	-webkit-user-select: text;
 }

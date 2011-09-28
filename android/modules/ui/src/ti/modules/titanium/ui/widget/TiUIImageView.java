@@ -142,6 +142,7 @@ public class TiUIImageView extends TiUIView
 						imageSources.get(0).getBitmapAsync(new BgImageLoader(getProxy().getTiContext(), requestedWidth, requestedHeight, token));
 					}
 				} else {
+					firedLoad = false;
 					setImage(true);
 				}
 			}
@@ -558,8 +559,13 @@ public class TiUIImageView extends TiUIView
 			if (imageViewProxy.inTableView()) {
 				Bitmap currentBitmap = imageViewProxy.getBitmap();
 				if (currentBitmap != null) {
-					setImage(currentBitmap);
-					return;
+					// If the image proxy has the default image currently cached, we need to
+					// load the downloaded URL instead. TIMOB-4814
+					ArrayList<TiDrawableReference> proxySources = imageViewProxy.getImageSources();
+					if (proxySources != null && !proxySources.contains(defaultImageSource)) {
+						setImage(currentBitmap);
+						return;
+					}
 				}
 			}
 			TiDrawableReference imageref = imageSources.get(0);
@@ -586,12 +592,20 @@ public class TiUIImageView extends TiUIView
 					Bitmap bitmap = imageref.getBitmap(getParentView(), requestedWidth, requestedHeight);
 					if (bitmap != null) {
 						setImage(bitmap);
+						if (!firedLoad) {
+							fireLoad(TiC.PROPERTY_IMAGE);
+							firedLoad = true;
+						}
 					} else {
 						retryDecode(recycle);
 					}
 				}
 			} else {
 				setImage(imageref.getBitmap(getParentView(), requestedWidth, requestedHeight));
+				if (!firedLoad) {
+					fireLoad(TiC.PROPERTY_IMAGE);
+					firedLoad = true;
+				}
 			}
 		} else {
 			setImages();
@@ -684,6 +698,7 @@ public class TiUIImageView extends TiUIView
 			}
 			if (changeImage) {
 				setImageSource(source);
+				firedLoad = false;
 				setImage(false);
 			}
 		} else {
@@ -713,9 +728,11 @@ public class TiUIImageView extends TiUIView
 			view.setEnableZoomControls(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_URL)) {
 			setImageSource(newValue);
+			firedLoad = false;
 			setImage(true);
 		} else if (key.equals(TiC.PROPERTY_IMAGE)) {
 			setImageSource(newValue);
+			firedLoad = false;
 			setImage(true);
 		} else if (key.equals(TiC.PROPERTY_IMAGES)) {
 			if (newValue instanceof Object[]) {

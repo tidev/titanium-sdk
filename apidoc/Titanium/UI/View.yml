@@ -9,7 +9,7 @@ methods:
     parameters:
       - name: view
         description: the view to add to this views hiearchy
-        type: Object
+        type: Titanium.UI.View
   - name: animate
     description: animate the view
     parameters:
@@ -26,7 +26,7 @@ methods:
     parameters:
       - name: view
         description: the view to remove from this views hiearchy
-        type: Object
+        type: Titanium.UI.View
   - name: show
     description: make the view visible
   - name: toImage
@@ -37,18 +37,33 @@ methods:
       - name: f
         description: function to be invoked upon completion. if non-null, this method will be performed asynchronously. if null, it will be performed immediately
         type: Callback<Object>
+        optional: true
+  - name: convertPointToView
+    description: translates a point from the receiver's view coordinate system to another view's coordinate system. If both views
+        are connected in the native view hierarchies, will return the converted point in the form of an object with x and y properties.
+        If either view is not in the view hierarchy, a null is returned. Keep in mind that views may be removed from the view hierarchy
+        if their window is blurred or if the view is offscreen (such as in some situations with <Titanium.UI.ScrollableView>).
+        If this view is a <Titanium.UI.ScrollView>, the view's x and y offsets are subtracted from the return value.
+    returns:
+        type: Point
+    parameters:
+      - name: point
+        description: an object with properties of x and y describing a point within the receiver's coordinate system. If this argument is missing an x or y property, or the properties can not be converted into numbers, an exception will be raised.
+        type: Point
+      - name: destinationView
+        description: the view whose coordinate system to which the point will be converted. If this argument is not a view, an exception will be raised.
+        type: Titanium.UI.View
 events:
   - name: click
     description: fired when the device detects a click (longer than touch) against the view
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordinates
   - name: dblclick
@@ -56,12 +71,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordinates
   - name: doubletap
@@ -69,12 +83,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordinates
   - name: longclick
@@ -82,11 +95,6 @@ events:
         in the case of a trackball, holding down the button.  The event occurs before the
         finger/button is lifted up again.  If you have a longclick listener then the click
         event will not occur when you lift the finger/button after a longpress.
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
     platforms: [android]
   - name: longpress
     description: fired when the device detects a long press, which is a touch-and-hold with
@@ -94,27 +102,27 @@ events:
         and a longclick can occur together.  The differences are that longclick can occur also
         with the trackball whereas longpress is a touch-only event, and longpress includes
         x and y coordinates.
-    platforms: [android]
+  - name: pinch
+    description: fired when the device detects a pinch, which is a touch and expand or contract 
+        with two fingers.  The event occurs continuously until a finger is lifted again.  
+        Returns an event with 'velocity' and 'scale' properties.
     properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
-      - name: x
-        description: the x point of the event in receiving view coordinates
+      - name: scale
+        description: The scale factor relative to the points of the two touches in screen coordinates.
+        type: Number
+      - name: velocity
+        description: The velocity of the pinch in scale factor per second.
+        type: Number
   - name: singletap
     description: fired when the device detects a single tap against the view
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordinates
   - name: swipe
@@ -122,27 +130,25 @@ events:
     properties:
       - name: direction
         description: direction of the swipe - either left or right
-      - name: source
-        description: the source object that fired the event
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordinates
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: touchcancel
     description: fired when a touch event is interrupted by the device. this happens in circumenstances such as an incoming call to allow the UI to clean up state.
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordinates
   - name: touchend
@@ -150,12 +156,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordinates
   - name: touchmove
@@ -163,12 +168,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordinates
   - name: touchstart
@@ -176,12 +180,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordinates
   - name: twofingertap
@@ -189,12 +192,11 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordinates
 properties:
@@ -202,25 +204,26 @@ properties:
     description: a dictionary with properties x and y to indicate the anchor point value. anchor specifies the position by which animation should occur. center is 0.5, 0.5
     type: Object
   - name: animatedCenterPoint
-    description: read-only object with x and y properties of where the view is during animation
+    description: object with x and y properties of where the view is during animation
     type: Object
+    permission: read-only
   - name: backgroundColor
     description: the background color of the view
     type: String
   - name: backgroundDisabledColor
-    description: the disabled background color of the view. (Android)
+    description: the disabled background color of the view.
     platforms: [android]
     type: String
   - name: backgroundDisabledImage
-    description: the disabled background image url of the view. (Android)
+    description: the disabled background image url of the view.
     platforms: [android]
     type: String
   - name: backgroundFocusedColor
-    description: the focused background color of the view. focusable must be true for normal views. (Android)
+    description: the focused background color of the view. focusable must be true for normal views.
     platforms: [android]
     type: String
   - name: backgroundFocusedImage
-    description: the focused background image url of the view. focusable must be true for normal views. (Android)
+    description: the focused background image url of the view. focusable must be true for normal views.
     platforms: [android]
     type: String
   - name: backgroundGradient
@@ -233,17 +236,19 @@ properties:
   - name: backgroundLeftCap
     description: End caps specify the portion of an image that should not be resized when an image is stretched. This technique is used to implement buttons and other resizable image-based interface elements. When a button with end caps is resized, the resizing occurs only in the middle of the button, in the region between the end caps. The end caps themselves keep their original size and appearance. This property specifies the size of the left end cap. The middle (stretchable) portion is assumed to be 1 pixel wide. The right end cap is therefore computed by adding the size of the left end cap and the middle portion together and then subtracting that value from the width of the image
     type: Number
+    platforms: [iphone, ipad]
   - name: backgroundSelectedColor
-    description: the selected background color of the view. focusable must be true for normal views. (Android)
+    description: the selected background color of the view. focusable must be true for normal views.
     platforms: [android]
     type: String
   - name: backgroundSelectedImage
-    description: the selected background image url of the view. focusable must be true for normal views. (Android)
+    description: the selected background image url of the view. focusable must be true for normal views.
     platforms: [android]
     type: String
   - name: backgroundTopCap
     description: End caps specify the portion of an image that should not be resized when an image is stretched. This technique is used to implement buttons and other resizable image-based interface elements. When a button with end caps is resized, the resizing occurs only in the middle of the button, in the region between the end caps. The end caps themselves keep their original size and appearance. This property specifies the size of the top end cap. The middle (stretchable) portion is assumed to be 1 pixel wide. The bottom end cap is therefore computed by adding the size of the top end cap and the middle portion together and then subtracting that value from the height of the image
     type: Number
+    platforms: [iphone, ipad]
   - name: borderColor
     description: the border color of the view
     type: String
@@ -281,7 +286,7 @@ properties:
     description: the size of the view as a dictionary of width and height properties
     type: Object
   - name: softKeyboardOnFocus
-    description: One of Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS, Titanium.UI.Android.SOFT_KEYBOARD_HIDE_ON_FOCUS, or Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS. (Android only)
+    description: One of <Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS>, <Titanium.UI.Android.SOFT_KEYBOARD_HIDE_ON_FOCUS>, or <Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS>.
     type: Number
     platforms: [android]
   - name: top
@@ -303,6 +308,10 @@ properties:
   - name: zIndex
     description: the z index position relative to other sibling views
     type: Number
+  - name: keepScreenOn
+    description: when `true` the screen will not power down. Note, enabling this feature will use more power thereby adversely affecting run time when on battery.
+    type: Boolean
+    platforms: [android]
 examples:
   - title: Round View Example
     example: |
@@ -317,3 +326,14 @@ examples:
             window.add(view);
         
         
+---
+name: Point
+description: A pair of coordinates used to describe the location of a <Titanium.UI.View>
+since: "1.8.0"
+properties:
+  - name: x
+    type: Number
+    description: The x-axis coordinate of this point
+  - name: y
+    type: Number
+    description: The y-axis coordinate of this point

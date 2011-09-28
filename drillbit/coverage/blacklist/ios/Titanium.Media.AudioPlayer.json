@@ -1,0 +1,12 @@
+{
+ "functions": [
+  "stateToString", 
+  "initWithProperties", 
+  "updateProgress", 
+  "playbackStateChanged", 
+  "restart"
+ ], 
+ "properties": [
+  "player"
+ ]
+}

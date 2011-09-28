@@ -263,8 +263,26 @@ static TiValueRef StringFormatCallback (TiContextRef jsContext, TiObjectRef jsFu
 	
 	// convert string references to objects
 	format = [format stringByReplacingOccurrencesOfString:@"%s" withString:@"%@"];
+	format = [format stringByReplacingOccurrencesOfString:@"%1$s" withString:@"%1$@"];
+	format = [format stringByReplacingOccurrencesOfString:@"%2$s" withString:@"%2$@"];
+	format = [format stringByReplacingOccurrencesOfString:@"%3$s" withString:@"%3$@"];
+	format = [format stringByReplacingOccurrencesOfString:@"%4$s" withString:@"%4$@"];
+	format = [format stringByReplacingOccurrencesOfString:@"%5$s" withString:@"%5$@"];
+	format = [format stringByReplacingOccurrencesOfString:@"%6$s" withString:@"%6$@"];
+	format = [format stringByReplacingOccurrencesOfString:@"%7$s" withString:@"%7$@"];
+	format = [format stringByReplacingOccurrencesOfString:@"%8$s" withString:@"%8$@"];
+	format = [format stringByReplacingOccurrencesOfString:@"%9$s" withString:@"%9$@"];
 	// we're dealing with double, so convert so that it formats right 
 	format = [format stringByReplacingOccurrencesOfString:@"%d" withString:@"%1.0f"];
+	format = [format stringByReplacingOccurrencesOfString:@"%1$d" withString:@"%1$1.0f"];
+	format = [format stringByReplacingOccurrencesOfString:@"%2$d" withString:@"%2$1.0f"];
+	format = [format stringByReplacingOccurrencesOfString:@"%3$d" withString:@"%3$1.0f"];
+	format = [format stringByReplacingOccurrencesOfString:@"%4$d" withString:@"%4$1.0f"];
+	format = [format stringByReplacingOccurrencesOfString:@"%5$d" withString:@"%5$1.0f"];
+	format = [format stringByReplacingOccurrencesOfString:@"%6$d" withString:@"%6$1.0f"];
+	format = [format stringByReplacingOccurrencesOfString:@"%7$d" withString:@"%7$1.0f"];
+	format = [format stringByReplacingOccurrencesOfString:@"%8$d" withString:@"%8$1.0f"];
+	format = [format stringByReplacingOccurrencesOfString:@"%9$d" withString:@"%9$1.0f"];
 	
 	@try 
 	{

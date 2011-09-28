@@ -4,40 +4,53 @@ description: A set of constants for the system icon styles that can be used on a
 extends: Titanium.Proxy
 platforms: [iphone, ipad]
 since: "0.8"
+createable: false
 properties:
   - name: BOOKMARKS
     description: Bookmark style icon
     type: Number
+    permission: read-only
   - name: CONTACTS
     description: Contacts style icon
     type: Number
+    permission: read-only
   - name: DOWNLOADS
     description: Downloads style icon
     type: Number
+    permission: read-only
   - name: FAVORITES
     description: Favorites style icon
     type: Number
+    permission: read-only
   - name: FEATURED
     description: Featured style icon
     type: Number
+    permission: read-only
   - name: HISTORY
     description: History style icon
     type: Number
+    permission: read-only
   - name: MORE
     description: More style icon
     type: Number
+    permission: read-only
   - name: MOST_RECENT
     description: Most recent style icon
     type: Number
+    permission: read-only
   - name: MOST_VIEWED
     description: Most viewed style icon
     type: Number
+    permission: read-only
   - name: RECENTS
     description: Recents style icon
     type: Number
+    permission: read-only
   - name: SEARCH
     description: Search style icon
     type: Number
+    permission: read-only
   - name: TOP_RATED
     description: Top rated style icon
     type: Number
+    permission: read-only

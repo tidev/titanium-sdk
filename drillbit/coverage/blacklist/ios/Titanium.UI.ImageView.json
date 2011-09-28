@@ -1,0 +1,15 @@
+{
+ "functions": [
+  "imageLoadCancelled", 
+  "verifyAutoresizing", 
+  "startImageLoad", 
+  "addLoadDelegate", 
+  "setImageURL", 
+  "autoWidthForWidth", 
+  "autoHeightForWidth"
+ ], 
+ "properties": [
+  "keySequence", 
+  "imageURL"
+ ]
+}

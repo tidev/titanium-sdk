@@ -3,39 +3,67 @@ name: Titanium.UI.AlertDialog
 description: The Alert Dialog is created by <Titanium.UI.createAlertDialog> and allows you to show a modal application dialog.
 extends: Titanium.Proxy
 since: "0.8"
-methods:
-  - name: hide
-    description: cause the dialog to become hidden
-  - name: show
-    description: cause the dialog to become visible
+
 events:
   - name: click
     description: fired when a button in the dialog is clicked
     properties:
       - name: cancel
+        type: Boolean
         description: boolean to indicate if the cancel button was pressed
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: index
+        type: Number
         description: the button index that was pressed
+
+methods:
+  - name: show
+    description: shows the alert dialog and blocks the background view like a modal window
+
+  - name: hide
+    description: hides the alert dialog and unblocks the background view
+
 properties:
   - name: buttonNames
     description: array of button names as strings
     type: Array<Object>
+
   - name: cancel
     description: an index to indicate which button should be the cancel button
     type: Number
+
   - name: message
     description: the message of the dialog
     type: String
+
   - name: messageid
     description: the key in the locale file to use for the message property
     type: String
+    accessors: false
+
   - name: title
     description: the title of the dialog
     type: String
+
+  - name: titleid
+    description: the key in the locale file to use for the title property
+    type: String
+    accessors: false
+
+  - name: ok
+    description: Text for the OK button.  Useful for when you only want one button and therefore don't want to
+        use the `buttonNames` property.  If you do use `buttonNames`, this property will be ignored.
+    type: String
+
+  - name: okid
+    description: the key in the locale file to use for the `ok` property.  Note that if you use the `buttonNames`
+        property to set the button titles, this will be ignored.
+    type: String
+    accessors: false
+
+  - name: androidView
+    description: Titanium view that should be loaded inside the alert dialog
+    type: Titanium.UI.View
+
 notes: |
     the global method `alert` is aliased to this object and can be invoked with a single message. For example:
     
@@ -44,6 +72,7 @@ notes: |
     Note: you should be careful not to call alert more than once while a pending alert is visible.
     
     On iOS 4, alert dialogs will automatically be cancelled upon application suspend.
+
 examples:
   - title: Simple Alert Dialog
     example: |

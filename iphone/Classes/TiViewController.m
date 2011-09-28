@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -23,7 +23,6 @@
 
 -(void)dealloc
 {
-//    RELEASE_TO_NIL(proxy);
     [super dealloc];
 }
 
@@ -50,42 +49,70 @@
 	[[proxy childViewController] willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 
-- (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+	[super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+	if ([proxy respondsToSelector:@selector(willRotateToInterfaceOrientation:duration:)])
+	{
+		[proxy willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+	}
+	[[proxy childViewController] willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+}
+
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+{
+	[super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+	if ([proxy respondsToSelector:@selector(didRotateFromInterfaceOrientation:)])
+	{
+		[proxy didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+	}
+	[[proxy childViewController] didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+}
+
+
+/*
+ *	As of this commit, TiUIViewController protocol, of which proxy should honor,
+ *	requires the viewWill/DidAppear/Disappear method. As such, we could possibly
+ *	remove the respondsToSelector check. The checks are being left currently
+ *	in case a proxy is not honoring the protocol, but once it's determined that
+ *	all the classes are behaving properly, this should be streamlined.
+ *	In other words, TODO: Codecleanup
+ */
+
+- (void)viewWillAppear:(BOOL)animated
 {
 	if ([proxy respondsToSelector:@selector(viewWillAppear:)])
 	{
 		[proxy viewWillAppear:animated];
 	}
 	[[proxy childViewController] viewWillAppear:animated];
-	VerboseLog(@"%@:%@%@",self,proxy,CODELOCATION);
 }
-- (void)viewDidAppear:(BOOL)animated;     // Called when the view has been fully transitioned onto the screen. Default does nothing
+
+- (void)viewDidAppear:(BOOL)animated
 {
 	if ([proxy respondsToSelector:@selector(viewDidAppear:)])
 	{
 		[proxy viewDidAppear:animated];
 	}
 	[[proxy childViewController] viewDidAppear:animated];
-	VerboseLog(@"%@:%@%@",self,proxy,CODELOCATION);
 }
-- (void)viewWillDisappear:(BOOL)animated; // Called when the view is dismissed, covered or otherwise hidden. Default does nothing
+
+- (void)viewWillDisappear:(BOOL)animated
 {
 	if ([proxy respondsToSelector:@selector(viewWillDisappear:)])
 	{
 		[proxy viewWillDisappear:animated];
 	}
 	[[proxy childViewController] viewWillDisappear:animated];
-	VerboseLog(@"%@:%@%@",self,proxy,CODELOCATION);
 }
-- (void)viewDidDisappear:(BOOL)animated;  // Called after the view was dismissed, covered or otherwise hidden. Default does nothing
+
+- (void)viewDidDisappear:(BOOL)animated
 {
 	if ([proxy respondsToSelector:@selector(viewDidDisappear:)])
 	{
 		[proxy viewDidDisappear:animated];
 	}
 	[[proxy childViewController] viewDidDisappear:animated];
-
-	VerboseLog(@"%@:%@%@",self,proxy,CODELOCATION);
 }
 
 @end

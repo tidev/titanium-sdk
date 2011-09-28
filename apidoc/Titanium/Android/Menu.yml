@@ -3,6 +3,7 @@ name: Titanium.Android.Menu
 description: The Titanium binding of an [Android Menu](http://developer.android.com/reference/android/view/Menu.html)
 extends: Titanium.Proxy
 platforms: [android]
+createable: false
 since: "1.5"
 methods:
   - name: add
@@ -74,7 +75,8 @@ methods:
 properties:
   - name: items
     description: array of <Titanium.Android.MenuItem>
-    type: Array<Object>
+    type: Array<Titanium.Android.MenuItem>
+    permission: read-only
 examples:
   - title: Simple menu create
     example: |

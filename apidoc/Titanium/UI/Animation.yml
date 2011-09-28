@@ -6,18 +6,8 @@ since: "0.9"
 events:
   - name: complete
     description: fired when the animation completes
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
   - name: start
     description: fired when the animation starts
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
 properties:
   - name: autoreverse
     description: the property specifies if the animation should be replayed in reverse upon completion
@@ -25,6 +15,7 @@ properties:
   - name: backgroundColor
     description: value of the backgroundColor property to change during animation
     type: String
+    platforms: [iphone, ipad]
   - name: bottom
     description: value of the bottom property to change during animation
     type: Number
@@ -34,9 +25,11 @@ properties:
   - name: color
     description: value of the color property to change during animation
     type: String
+    platforms: [iphone, ipad]
   - name: curve
     description: the curve of the animation
     type: Number
+    platforms: [iphone, ipad]
   - name: delay
     description: the duration of time in milliseconds before starting the animation
     type: Number
@@ -55,6 +48,7 @@ properties:
   - name: opaque
     description: value of the opaque property to change during animation
     type: Boolean
+    platforms: [iphone, ipad]
   - name: repeat
     description: the number of times the animation should be performed
     type: Number
@@ -70,15 +64,18 @@ properties:
   - name: transition
     description: during a transition animation, this is the constant to the type of transition to use
     type: Number
+    platforms: [iphone, ipad]
   - name: visible
     description: value of the visible property to change during animation
     type: Boolean
+    platforms: [iphone, ipad]
   - name: width
     description: value of the width property to change during animation
     type: Number
   - name: zIndex
     description: value of the zIndex property to change during animation
     type: Number
+    platforms: [iphone, ipad]
 notes: |
     
 examples:

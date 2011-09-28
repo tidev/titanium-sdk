@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
+# Appcelerator Titanium Mobile
+# Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+# Licensed under the terms of the Apache Public License
+# Please see the LICENSE included with this distribution for details.
+#
 # Android Application Script
 #
 
@@ -166,13 +171,16 @@ class Android(object):
 			for method in compiler.module_methods:
 				if method.lower().startswith(module+'.') and '.' not in method:
 					module_bindings.append(method[len(module)+1:])
-			
+
+			module_onAppCreate = None
 			module_class = None
 			module_apiName = None
 			for m in modules.keys():
 				if modules[m]['fullAPIName'].lower() == module:
 					module_class = m
 					module_apiName = modules[m]['fullAPIName']
+					if 'onAppCreate' in modules[m]:
+						module_onAppCreate = modules[m]['onAppCreate']
 					break
 			
 			if module_apiName == None: continue # module wasn't found
@@ -186,7 +194,8 @@ class Android(object):
 					'api_name': module_apiName,
 					'class_name': module_class,
 					'bindings': module_bindings,
-					'external_child_modules': ext_modules
+					'external_child_modules': ext_modules,
+					'on_app_create': module_onAppCreate
 				})
 		
 		# discover app modules
@@ -202,13 +211,19 @@ class Android(object):
 			if module_bindings is None: continue
 			
 			for module_class in module_bindings['modules'].keys():
-				module_id = module_bindings['proxies'][module_class]['proxyAttrs']['id']
+				module_proxy = module_bindings['proxies'][module_class]
+				module_id = module_proxy['proxyAttrs']['id']
+				module_onAppCreate = None
+				if 'onAppCreate' in module_proxy:
+					module_onAppCreate = module_proxy['onAppCreate']
+
 				print '[DEBUG] module_id = %s' % module_id
 				if module_id == module.manifest.moduleid:
 					print '[DEBUG] appending module: %s' % module_class
 					self.custom_modules.append({
 						'class_name': module_class,
-						'manifest': module.manifest
+						'manifest': module.manifest,
+						'on_app_create': module_onAppCreate
 					})
 		
 	def create(self, dir, build_time=False, project_dir=None, include_all_ti_modules=False):

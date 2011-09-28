@@ -1,0 +1,8 @@
+{
+ "functions": [
+  "dumpCoverage"
+ ], 
+ "properties": [
+  "shouldRegisterOnInit"
+ ]
+}

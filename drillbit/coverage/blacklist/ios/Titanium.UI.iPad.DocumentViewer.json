@@ -1,0 +1,12 @@
+{
+ "functions": [
+  "documentInteractionControllerViewControllerForPreview", 
+  "documentInteractionControllerWillBeginPreview", 
+  "documentInteractionControllerWillPresentOptionsMenu", 
+  "documentInteractionControllerDidEndPreview", 
+  "documentInteractionControllerWillPresentOpenInMenu"
+ ], 
+ "properties": [
+  "controller"
+ ]
+}

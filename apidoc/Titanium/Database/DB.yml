@@ -3,6 +3,7 @@ name: Titanium.Database.DB
 description: The Database instance returned by <Titanium.Database.open> or <Titanium.Database.install>.
 extends: Titanium.Proxy
 since: "0.1"
+createable: false
 methods:
   - name: close
     description: close the database and release resources from memory. once closed, this instance is no longer valid and must no longer be used.

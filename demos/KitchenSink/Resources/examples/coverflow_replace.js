@@ -12,7 +12,7 @@ for (var c=15; c<30; c++) {
 }
 
 // create coverflow view with images
-var view = Titanium.UI.createCoverFlowView({
+var view = Titanium.UI.iOS.createCoverFlowView({
 	images:images1,
 	backgroundColor:'#000'
 });

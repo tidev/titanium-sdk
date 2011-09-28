@@ -30,8 +30,3 @@ events:
   - name: notification
     description: |
         fired when a local notification is received by the app.  the following event properties are available: `date`, `timezone`, `alertBody`, `alertAction`, `alertLaunchImage`, `sound`, `bound`, `userInfo`.
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired

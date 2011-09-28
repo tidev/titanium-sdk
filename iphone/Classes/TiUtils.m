@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import <QuartzCore/QuartzCore.h>
+#import <CommonCrypto/CommonDigest.h>
 
 #import "TiBase.h"
 #import "TiUtils.h"
@@ -30,9 +31,9 @@
 extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 #endif
 
-NSDictionary* encodingMap = nil;
-NSDictionary* typeMap = nil;
-NSDictionary* sizeMap = nil;
+static NSDictionary* encodingMap = nil;
+static NSDictionary* typeMap = nil;
+static NSDictionary* sizeMap = nil;
 
 @implementation TiUtils
 
@@ -86,12 +87,7 @@ NSDictionary* sizeMap = nil;
 
 +(BOOL)isIPad
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-	if ([TiUtils isiPhoneOS3_2OrGreater]) {
-		return UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad;
-	}
-#endif
-	return NO;
+	return [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad;
 }
 
 +(BOOL)isIPhone4
@@ -320,6 +316,29 @@ NSDictionary* sizeMap = nil;
 	{
 		return CGPointMake([[value objectForKey:@"x"] floatValue],[[value objectForKey:@"y"] floatValue]);
 	}
+	return CGPointMake(0,0);
+}
+
++(CGPoint)pointValue:(id)value valid:(BOOL*)isValid
+{
+	if ([value isKindOfClass:[TiPoint class]]) {
+        if (isValid) {
+            *isValid = YES;
+        }
+		return [value point];
+	} else if ([value isKindOfClass:[NSDictionary class]]) {
+        id xVal = [value objectForKey:@"x"];
+        id yVal = [value objectForKey:@"y"];
+        if (xVal && yVal) {
+            if (isValid) {
+                *isValid = YES;
+            }
+            return CGPointMake([xVal floatValue], [yVal floatValue]);
+        }
+	}
+    if (isValid) {
+        *isValid = NO;
+    }
 	return CGPointMake(0,0);
 }
 
@@ -1223,7 +1242,7 @@ if ([str isEqualToString:@#orientation]) return orientation;
 	BOOL app = [[url scheme] hasPrefix:@"app"];
 	if ([url isFileURL] || app)
 	{
-		BOOL had_splash_removed = NO;
+		BOOL leadingSlashRemoved = NO;
 		NSString *urlstring = [[url standardizedURL] path];
 		NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
 		NSRange range = [urlstring rangeOfString:resourceurl];
@@ -1234,11 +1253,11 @@ if ([str isEqualToString:@#orientation]) return orientation;
 		}
 		if ([appurlstr hasPrefix:@"/"])
 		{
-			had_splash_removed = YES;
+			leadingSlashRemoved = YES;
 			appurlstr = [appurlstr substringFromIndex:1];
 		}
 #if TARGET_IPHONE_SIMULATOR
-		if (app==YES && had_splash_removed)
+		if (app==YES && leadingSlashRemoved)
 		{
 			// on simulator we want to keep slash since it's coming from file
 			appurlstr = [@"/" stringByAppendingString:appurlstr];
@@ -1542,6 +1561,24 @@ if ([str isEqualToString:@#orientation]) return orientation;
     }
     
     return (position+size);
+}
+
++(NSString*)convertToHex:(unsigned char*)result length:(size_t)length
+{
+	NSMutableString* encoded = [[NSMutableString alloc] initWithCapacity:length];
+	for (int i=0; i < length; i++) {
+		[encoded appendFormat:@"%02x",result[i]];
+	}
+	NSString* value = [encoded lowercaseString];
+	[encoded release];
+	return value;
+}
+
++(NSString*)md5:(NSData*)data
+{
+	unsigned char result[CC_MD5_DIGEST_LENGTH];
+	CC_MD5([data bytes], [data length], result);
+	return [self convertToHex:(unsigned char*)&result length:CC_MD5_DIGEST_LENGTH];    
 }
 
 @end

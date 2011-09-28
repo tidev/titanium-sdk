@@ -52,18 +52,23 @@ properties:
   - name: DONE
     description: the DONE readyState constant
     type: Number
+    permission: read-only
   - name: HEADERS_RECEIVED
     description: the HEADERS_RECEIVED readyState constant
     type: Number
+    permission: read-only
   - name: LOADING
     description: the LOADING readyState constant
     type: Number
+    permission: read-only
   - name: OPENED
     description: the OPENED readyState constant
     type: Number
+    permission: read-only
   - name: UNSENT
     description: the UNSET readyState constant
     type: Number
+    permission: read-only
   - name: connected
     description: boolean to indicate that the response was successful
     type: Boolean
@@ -71,8 +76,9 @@ properties:
     description: the connection type, normally either `GET` or `POST`.
     type: String
   - name: file
-    description: file to download contents to.  Can only be set after calling open.  iOS only
+    description: file to download contents to.  Can only be set after calling open.
     type: String
+    platforms: [iphone, ipad]
   - name: location
     description: the absolute URL of the request
     type: String
@@ -96,16 +102,20 @@ properties:
     type: Number
   - name: responseData
     description: the response data as a Blob object.
-    type: Object
+    type: Titanium.Blob
+    permission: read-only
   - name: responseText
     description: the response as text or null if an error was received or no data was returned
     type: String
+    permission: read-only
   - name: responseXML
     description: the response object as an XML DOMDocument object. returns null if the content type returned by the server was not XML or the content could not be parsed
-    type: Object
+    type: Titanium.XML.Document
+    permission: read-only
   - name: status
     description: the response HTTP status code
     type: Number
+    permission: read-only
   - name: timeout
     description: timeout is milliseconds when the connection should be aborted
     type: Number

@@ -1,0 +1,8 @@
+{
+ "functions": [
+  "reachabilityChanged"
+ ], 
+ "properties": [
+  "Socket"
+ ]
+}

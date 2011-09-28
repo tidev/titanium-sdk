@@ -33,25 +33,10 @@ methods:
 events:
   - name: playingChange
     description: the currently playing media changed
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
   - name: stateChange
     description: the playback state changed
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
   - name: volumeChange
     description: the volume changed
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
 properties:
   - name: currentPlaybackTime
     description: the current point in song playback

@@ -58,7 +58,7 @@ th {
 	font-weight: bold;
 }
 
-.good, .yes {
+.good, .yes, .added {
 	background-color: #9f9;
 }
 
@@ -66,11 +66,15 @@ th {
 	background-color: #E3D242;
 }
 
-.bad, .no {
+.bad, .no, .removed {
 	background-color: #f99;
 }
 
 .na {
 	background-color: #eee;
 	color: #ccc;
+}
+
+.added, .removed {
+	margin-top: 5px;
 }

@@ -1,0 +1,10 @@
+{
+ "functions": [
+  "updateOptionDialog", 
+  "setDialogView"
+ ], 
+ "properties": [
+  "dialogView", 
+  "langConversionTable"
+ ]
+}

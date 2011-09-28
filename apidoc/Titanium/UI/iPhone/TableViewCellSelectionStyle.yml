@@ -4,13 +4,17 @@ description: A set of constants for the style that can be used for the `selectio
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [iphone, ipad]
+createable: false
 properties:
   - name: BLUE
     description: The cell when selected has a blue background. This is the default value.
     type: Number
+    permission: read-only
   - name: GRAY
     description: Then cell when selected has a gray background.
     type: Number
+    permission: read-only
   - name: NONE
     description: The cell has no distinct style for when it is selected.
     type: Number
+    permission: read-only

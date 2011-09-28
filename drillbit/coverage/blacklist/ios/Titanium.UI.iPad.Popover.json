@@ -1,0 +1,16 @@
+{
+ "functions": [
+  "refreshTitleBarWithObject", 
+  "setViewController", 
+  "updatePopover", 
+  "popoverControllerDidDismissPopover"
+ ], 
+ "properties": [
+  "suppressesRelayout", 
+  "viewController", 
+  "navigationController", 
+  "popoverController", 
+  "childViewController", 
+  "contentSize"
+ ]
+}

@@ -33,6 +33,9 @@
         else if ([lcSeverity isEqualToString:@"debug"]) {
             level = LOG_DEBUG;
         }
+        else if (![lcSeverity isEqualToString:@"info"]) { // Custom severity, or just a badly-formed log; either way, debugger treats it as info
+            message = [severity stringByAppendingString:message];
+        }
         TiDebuggerLogMessage(level, message);
     }
     else {

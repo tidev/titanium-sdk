@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc xmlns:test="http://www.test.com/namespace">
+	<test
+		attr1="value1"
+		test:attr2="value2"
+		attr3="hello world">
+		<test:child test:name="value"/>
+	</test>
+</doc>

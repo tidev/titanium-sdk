@@ -198,6 +198,7 @@ def create(args):
 		guid = str(uuid.uuid4())
 		if os.path.exists(tiapp):
 			xml = open(tiapp).read()
+			xml = xml.replace('<guid/>','<guid></guid>')
 			xml = xml.replace('<guid></guid>','<guid>%s</guid>' % guid)
 			fout = open(tiapp,'w')
 			fout.write(xml)
@@ -284,7 +285,7 @@ def install_project_args(args,script,project_dir,platform):
 	return [script,"install",version,project_dir,appid,name]
 
 def install_module_args(args,script,project_dir,platform):
-	pass
+	return [script,"install",platform,project_dir]
 
 def install(args):
 	dyn_run(args,install_project_args,install_module_args)

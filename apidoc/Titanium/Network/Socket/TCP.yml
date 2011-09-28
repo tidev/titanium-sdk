@@ -50,9 +50,9 @@ methods:
   - name: accept
     description: Tells a LISTENING socket to accept a connection request at the top of a listener's request queue when one becomes available. Takes an argument, a box object which assigns callbacks to the created socket. Note that the connected callback is not called (the socket does not "transition to" the CONNECTED state - it's created in the CONNECTED state) on the newly created socket.  The accepted callback is called when a new connection is accepted as a result of calling accept().  If the socket is already flagged to accept the next connection, the existing accept options will be update to use the newly specified options object. Throws an exception if the socket is not in a LISTENING state
     parameters:
-      - name: params
-        description: parameters that contain callbacks to be set on next accepted socket
-        type: AcceptParams
+      - name: options
+        description: options that contain callbacks to be set on next accepted socket
+        type: Dictionary<AcceptDict>
 
   - name: close
     description: Closes a socket. Throws exception if the socket is not in a CONNECTED or LISTENING state. Blocking
@@ -100,8 +100,8 @@ properties:
     type: Titanium.Network.Socket.TCP
 
 ---
-name: AcceptParams
-description: parameters that contain callbacks to be set on next accepted socket.
+name: AcceptDict
+description: Options for <Titanium.Network.Socket.TCP.accept> that contain callbacks to be set on the next accepted socket.
 since: "1.7"
 
 properties:

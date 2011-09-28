@@ -1,0 +1,9 @@
+{
+ "functions": [
+  "autoHeightForWidth", 
+  "autoWidthForWidth"
+ ], 
+ "properties": [
+  "newView"
+ ]
+}

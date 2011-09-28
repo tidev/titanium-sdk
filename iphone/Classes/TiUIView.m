@@ -200,7 +200,7 @@ DEFINE_EXCEPTIONS
 	self = [super init];
 	if (self != nil)
 	{
-		
+
 	}
 	return self;
 }
@@ -397,6 +397,11 @@ DEFINE_EXCEPTIONS
 	self.alpha = [TiUtils floatValue:opacity];
 }
 
+-(CALayer *)backgroundImageLayer
+{
+	return [self layer];
+}
+
 -(void)setBackgroundImage_:(id)image
 {
 	NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
@@ -412,8 +417,8 @@ DEFINE_EXCEPTIONS
 							 interpolationQuality:kCGInterpolationNone image:resultImage hires:NO];
 	}
 
-	self.layer.contents = (id)resultImage.CGImage;
-	self.layer.contentsCenter = TiDimensionLayerContentCenter(topCap, leftCap, topCap, leftCap, [resultImage size]);
+	[self backgroundImageLayer].contents = (id)resultImage.CGImage;
+	[self backgroundImageLayer].contentsCenter = TiDimensionLayerContentCenter(topCap, leftCap, topCap, leftCap, [resultImage size]);
 	self.clipsToBounds = image!=nil;
     self.backgroundImage = image;
 }
@@ -669,6 +674,29 @@ DEFINE_EXCEPTIONS
 -(void)makeRootViewFirstResponder
 {
 	[[[TiApp controller] view] becomeFirstResponder];
+}
+
+#pragma mark Recognizers
+
+-(void)recognizedPinch:(UIPinchGestureRecognizer*)recognizer 
+{ 
+    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                           NUMDOUBLE(recognizer.scale), @"scale", 
+                           NUMDOUBLE(recognizer.velocity), @"velocity", 
+                           nil]; 
+    [self.proxy fireEvent:@"pinch" withObject:event]; 
+}
+
+-(void)recognizedLongPress:(UILongPressGestureRecognizer*)recognizer 
+{ 
+    if ([recognizer state] == UIGestureRecognizerStateBegan) {
+        CGPoint p = [recognizer locationInView:self];
+        NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                               NUMFLOAT(p.x), @"x",
+                               NUMFLOAT(p.y), @"y",
+                               nil];
+        [self.proxy fireEvent:@"longpress" withObject:event]; 
+    }
 }
 
 #pragma mark Touch Events
@@ -1008,6 +1036,16 @@ DEFINE_EXCEPTIONS
 
 #pragma mark Listener management
 
+-(void)removeGestureRecognizerOfClass:(Class)c
+{
+    for (UIGestureRecognizer* r in [self gestureRecognizers]) {
+        if ([r isKindOfClass:c]) {
+            [self removeGestureRecognizer:r];
+            break;
+        }
+    }
+}
+
 -(void)handleListenerAddedWithEvent:(NSString *)event
 {
 	ENSURE_UI_THREAD_1_ARG(event);
@@ -1028,6 +1066,18 @@ DEFINE_EXCEPTIONS
 	{
 		self.multipleTouchEnabled = YES;
 	}
+    
+    if ([event isEqualToString:@"pinch"]) {
+        [self removeGestureRecognizerOfClass:[UIPinchGestureRecognizer class]];
+        UIPinchGestureRecognizer* pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedPinch:)];
+        [self addGestureRecognizer:pinchRecognizer];
+        [pinchRecognizer release];
+    } else if ([event isEqualToString:@"longpress"]) {
+        [self removeGestureRecognizerOfClass:[UILongPressGestureRecognizer class]];
+        UILongPressGestureRecognizer* longPressRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedLongPress:)];
+        [self addGestureRecognizer:longPressRecognizer];
+        [longPressRecognizer release];
+    }
 }
 
 -(void)handleListenerRemovedWithEvent:(NSString *)event
@@ -1058,8 +1108,13 @@ DEFINE_EXCEPTIONS
 	{
 		handlesSwipes = NO;
 	}
-}
 
+    if ([event isEqualToString:@"pinch"]) {
+        [self removeGestureRecognizerOfClass:[UIPinchGestureRecognizer class]];
+    } else if ([event isEqualToString:@"longpress"]) {
+        [self removeGestureRecognizerOfClass:[UILongPressGestureRecognizer class]];
+    }
+}
 
 -(void)listenerAdded:(NSString*)event count:(int)count
 {

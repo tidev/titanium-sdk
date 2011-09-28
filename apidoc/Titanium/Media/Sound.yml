@@ -46,40 +46,24 @@ events:
   - name: complete
     description: fired when the audio has completed
     properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: success
         description: boolean to indicate if the sound was successfully played
   - name: error
     description: called when an error is received playing the audio.
     properties:
-      - name: source
-        description: the source object that fired the event
       - name: message
         description: error message
-      - name: type
-        description: the name of the event fired
   - name: interrupted
     description: called when the audio is interrupted by the device. this is typically called during an interruption due to an incoming phone call.
     properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
   - name: resume
     description: called when the audio is resumed after an interruption.
     properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: interruption
         description: boolean to indicate if the resume was from an interruption
 properties:
   - name: allowBackground
-    description: boolean to indicate if audio should continue playing even if Activity is paused (Android only as of 1.3.0)
+    description: boolean to indicate if audio should continue playing even if Activity is paused
     since: "1.3.0"
     platforms: [android]
     type: Boolean
@@ -104,7 +88,6 @@ properties:
   - name: volume
     description: the volume of the audio. this volume only affects the media, not the device audio.
     type: Number
-notes: You can pass the property `preload` in the constructor as an object property to cause the audio to be preloaded before `play` is invoked.  For larger audio files, this is recommended if you want the audio to begin immediately when invoking `play`.
 examples:
   - title: Simple Example
     example: |

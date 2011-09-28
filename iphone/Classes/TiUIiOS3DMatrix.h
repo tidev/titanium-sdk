@@ -6,11 +6,11 @@
  */
 #import "TiUIiOSProxy.h"
 
-#ifdef USE_TI_UIIOS3DMATRIX
+#if defined(USE_TI_UIIOS3DMATRIX) || defined(USE_TI_UI3DMATRIX)
 
 #import <QuartzCore/QuartzCore.h>
 
-@interface TiUIiOS3DMatrix : TiUIiOSProxy {
+@interface TiUIiOS3DMatrix : TiProxy {
 @protected
 	CATransform3D matrix;
 }

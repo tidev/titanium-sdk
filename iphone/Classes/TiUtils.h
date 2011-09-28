@@ -61,6 +61,7 @@ typedef enum {
 +(BOOL)boolValue:(id)value def:(BOOL)def;
 
 +(CGPoint)pointValue:(id)value;
++(CGPoint)pointValue:(id)value valid:(BOOL*)isValid;
 +(CGPoint)pointValue:(id)value bounds:(CGRect)bounds defaultOffset:(CGPoint)defaultOffset;
 
 +(CGRect)rectValue:(id)value;
@@ -216,4 +217,7 @@ typedef enum {
 
 +(int)encodeNumber:(NSNumber*)data toBuffer:(TiBuffer*)dest offset:(int)position type:(NSString*)type endianness:(CFByteOrder)byteOrder;
 
++(NSString*)md5:(NSData*)data;
+
++(NSString*)convertToHex:(unsigned char*)result length:(size_t)length;
 @end

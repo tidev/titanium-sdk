@@ -1,0 +1,10 @@
+{
+ "functions": [
+  "add", 
+  "setItem"
+ ], 
+ "properties": [
+  "item", 
+  "ensureItem"
+ ]
+}

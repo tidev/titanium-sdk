@@ -1,0 +1,41 @@
+{
+ "functions": [
+  "setBaseURL", 
+  "didReceiveMemoryWarning", 
+  "krollObjectForContext", 
+  "setModelDelegate", 
+  "retainsJsObjectForKey", 
+  "rememberProxy", 
+  "dispatchWithObjectOnUIThread", 
+  "initWithCallback", 
+  "proxy", 
+  "sanitizeURL", 
+  "initWithProperties", 
+  "valueForUndefinedKey", 
+  "forgetProxy", 
+  "contextWasShutdown", 
+  "initWithPageContext", 
+  "setExecutionContext", 
+  "hasListeners", 
+  "contextShutdown", 
+  "deleteKey"
+ ], 
+ "properties": [
+  "init", 
+  "description", 
+  "modelDelegate", 
+  "baseURL", 
+  "destroyed", 
+  "host", 
+  "allProperties", 
+  "shouldRegisterOnInit", 
+  "allKeys", 
+  "currentWindow", 
+  "keySequence", 
+  "executionContext", 
+  "toJSON", 
+  "pageContext", 
+  "propertyInitRequiresUIThread", 
+  "inReproxy"
+ ]
+}

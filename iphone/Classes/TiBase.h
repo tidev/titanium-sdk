@@ -279,27 +279,21 @@ if ((__x<__minX) || (__x>__maxX)) \
 #define ENSURE_ARRAY(x) ENSURE_TYPE(x,NSArray)
 #define ENSURE_STRING(x) ENSURE_TYPE(x,NSString)
 
-
-
+void TiExceptionThrowWithNameAndReason(NSString * exceptionName, NSString * message);
+	
 #define DEFINE_EXCEPTIONS \
 - (void) throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location\
 {\
 	NSString * exceptionName = [@"org.appcelerator." stringByAppendingString:NSStringFromClass([self class])];\
 	NSString * message = [NSString stringWithFormat:@"%@. %@ %@",reason,(subreason!=nil?subreason:@""),(location!=nil?location:@"")];\
-	NSLog(@"[ERROR] %@",message);\
-	if ([NSThread isMainThread]==NO) {\
-		@throw [NSException exceptionWithName:exceptionName reason:message userInfo:nil];\
-	}\
+	TiExceptionThrowWithNameAndReason(exceptionName,message);\
 }\
 \
 + (void) throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location\
 {\
 	NSString * exceptionName = @"org.appcelerator";\
 	NSString * message = [NSString stringWithFormat:@"%@. %@ %@",reason,(subreason!=nil?subreason:@""),(location!=nil?location:@"")];\
-	NSLog(@"[ERROR] %@",message);\
-	if ([NSThread isMainThread]==NO) {\
-		@throw [NSException exceptionWithName:exceptionName reason:message userInfo:nil];\
-	}\
+	TiExceptionThrowWithNameAndReason(exceptionName,message);\
 }\
 
 
@@ -345,6 +339,12 @@ return [NSNumber numberWithUnsignedInt:map];\
 {\
 return map;\
 }\
+
+#define DEPRECATED(api,in,removed) \
+NSLog(@"[WARN] Ti%@.%@ DEPRECATED in %@: REMOVED in %@",@"tanium",api,in,removed);
+    
+#define DEPRECATED_REPLACED(api,in,removed,newapi) \
+NSLog(@"[WARN] Ti%@.%@ DEPRECATED in %@, in favor of %@: REMOVED in %@",@"tanium",api,in,newapi,removed);
 
 #define NUMBOOL(x) \
 [NSNumber numberWithBool:x]\
@@ -446,7 +446,8 @@ return value;\
 #define STRING(x) _QUOTEME(x)
  
 #define TI_VERSION_STR STRING(TI_VERSION)
- 
+
+//#define VERBOSE
 
 #ifdef VERBOSE
 
@@ -526,6 +527,8 @@ extern NSString * const kTiLocalNotification;
 #endif
 
 #include "TiThreading.h"
+void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish);
+
 #include "TiPublicAPI.h"
 
 #ifdef __cplusplus

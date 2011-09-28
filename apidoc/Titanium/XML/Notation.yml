@@ -4,12 +4,13 @@ extends: Titanium.Proxy
 description: > 
     represents a notation declared in the DTD. See [DOM Level 2 Spec](http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-5431D1B9)
 since: "0.9"
+createable: false
 properties:
   - name: publicId
     description: The public identifier of this notation. If the public identifier was not specified, this is `null`.
-    permissions: read-only
+    permission: read-only
     type: String
   - name: systemId
     description: The system identifier of this notation. If the system identifier was not specified, this is `null`.
-    permissions: read-only
+    permission: read-only
     type: String

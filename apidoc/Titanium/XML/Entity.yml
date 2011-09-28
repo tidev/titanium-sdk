@@ -8,6 +8,7 @@ description: This interface represents an entity, either parsed or unparsed, in
     the [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html)
     defintion of a DOM Entity.
 since: "0.9"
+createable: false
 properties:
   - name: notationName
     description: For unparsed entities, the name of the notation for the entity. 

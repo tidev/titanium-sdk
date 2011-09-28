@@ -1,0 +1,10 @@
+{
+ "functions": [
+  "dbPath", 
+  "shutdown", 
+  "removeStatement"
+ ], 
+ "properties": [
+  "database"
+ ]
+}

@@ -12,6 +12,9 @@
 #import "UIImage+Resize.h"
 #import "UIImage+RoundedCorner.h"
 
+//NOTE:FilesystemFile is conditionally compiled based on the filesystem module.
+#import "TiFilesystemFileProxy.h"
+
 @implementation TiBlob
 
 -(void)dealloc
@@ -208,6 +211,27 @@
 }
 
 // For Android compatibility
+-(TiFile *)file
+{	/**
+	 *	Having such a conditional compile deep in TiBlob may have implications
+	 *	later on if we restructure platform. This may also mean we should
+	 *	require filesystem to always be compiled in, but that seems overkill
+	 *	for now. There may be some issues with parity with Android's
+	 *	implementation in behavior when filesystem module is missing or when the
+	 *	path does not point to a valid file.
+	 *	TODO: What is expected behavior when path is valid but there's no file?
+	 *	TODO: Should file property require explicit use of filesystem module?
+	 */
+#ifdef USE_TI_FILESYSTEM
+	if (path != nil) {
+		return [[[TiFilesystemFileProxy alloc] initWithFile:path] autorelease];	
+	}
+#else
+	NSLog(@"[FATAL] Blob.file property requested but the Filesystem module was never requested.")
+#endif
+	return nil;
+}
+
 -(NSString*)nativePath
 {
 	return [[NSURL fileURLWithPath:path] absoluteString];

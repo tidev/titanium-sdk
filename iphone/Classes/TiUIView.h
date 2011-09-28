@@ -69,6 +69,8 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 @property(nonatomic,readonly)			id transformMatrix;
 @property(nonatomic,readwrite,retain) id backgroundImage;
 
+-(CALayer *)backgroundImageLayer;
+
 -(void)animate:(TiAnimation *)newAnimation;
 
 #pragma mark Framework

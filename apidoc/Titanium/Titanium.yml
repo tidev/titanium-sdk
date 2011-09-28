@@ -12,7 +12,15 @@ properties:
   - name: version
     type: Number
     description: the version of Titanium that is executing
-
+    permission: read-only
+  - name: buildDate
+    type: String
+    description: The date of the Titanium build
+    permission: read-only
+  - name: buildHash
+    type: String
+    description: The git hash of the Titanium build
+    permission: read-only
 methods:
   - name: include
     description: a filename to include as if the Javascript code was written in place.  This is similar to a C `#include` function.
@@ -27,18 +35,24 @@ methods:
       - name: params
         description: creation arguments
         type: CreateBufferArgs
-    examples: |
-        Create a buffer with 1K bytes
+    returns:
+        type: Titanium.Buffer
+        description: The new buffer.
+    examples:
+      - title: Create a buffer with 1K bytes
+        example: |
             
-            var buffer = Ti.createBuffer({ length: 1024 });
-
-        Create a buffer with the string "hello world" encoded in UTF-8
-
-            var buffer = Ti.createBuffer({ value: "hello world" });
-
-        Create a buffer with the encoded value of the double-precision floating point number 1.234567 in Big Endian (network) byte order
-
-            var buffer = Ti.createBuffer({ value: 1.234567, type: Ti.Codec.TYPE_DOUBLE, byteOrder: Ti.Codec.BIG_ENDIAN });
+                var buffer = Ti.createBuffer({ length: 1024 });
+      - title: Create a buffer with string
+        example: |
+            Create a buffer with the string "hello world" encoded in UTF-8
+            
+                var buffer = Ti.createBuffer({ value: "hello world" });
+      - title: Create a buffer with encoded float
+        example: |
+            Create a buffer with the encoded value of the double-precision floating point number 1.234567 in Big Endian (network) byte order
+            
+                var buffer = Ti.createBuffer({ value: 1.234567, type: Ti.Codec.TYPE_DOUBLE, byteOrder: Ti.Codec.BIG_ENDIAN });
 
 notes: |
     Titanium provides a number of built-in objects in the Javascript that are not part of the Titanium namespace.  Specifically, the following are available.
@@ -53,11 +67,11 @@ notes: |
 
     #### Alert
 
-    Titanium has a built-in convenience function `alert` which can be used as a shortcut to [[Titanium.UI.createAlertDialog]] for creating a message box.  Note that unlike a web browser-based version of `alert`, the method is asynchronous. However, only one alert dialog will be visible and modal at a time.
+    Titanium has a built-in convenience function `alert` which can be used as a shortcut to <Titanium.UI.createAlertDialog> for creating a message box.  Note that unlike a web browser-based version of `alert`, the method is asynchronous. However, only one alert dialog will be visible and modal at a time.
 
     #### Locale
 
-    The macro `L` can also be used which aliases the method [[Titanium.Locale.getString]].
+    The macro `L` can also be used which aliases the method <Titanium.Locale.getString>.
 
     #### String formatting
 

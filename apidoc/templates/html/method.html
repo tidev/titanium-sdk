@@ -1,0 +1,19 @@
+<div class="apidoc_container apidoc_method">
+
+<%include file="header.html"/>
+
+<%include file="method_param_list.html"/>
+
+<h3 id="returns">Return Type</h3>
+<div>
+    % if len(data.return_type_html) > 0:
+        ${data.return_type_html}
+    % else:
+        void
+    % endif
+</div>
+
+<%include file="notes.html"/>
+<%include file="footer.html"/>
+
+</div>

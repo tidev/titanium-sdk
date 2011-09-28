@@ -1,0 +1,21 @@
+{
+ "functions": [
+  "closeModalPicker", 
+  "audioInputChanged", 
+  "audioRouteChanged", 
+  "audioVolumeChanged", 
+  "videoEditorControllerDidCancel", 
+  "sendPickerSuccess", 
+  "sendPickerError", 
+  "displayCamera", 
+  "dispatchCallback", 
+  "imagePickerControllerDidCancel", 
+  "popoverControllerDidDismissPopover", 
+  "mediaPickerDidCancel", 
+  "commonPickerSetup"
+ ], 
+ "properties": [
+  "filterableItemProperties", 
+  "itemProperties" 
+ ]
+}

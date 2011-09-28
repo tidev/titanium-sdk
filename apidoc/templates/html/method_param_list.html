@@ -1,0 +1,6 @@
+<h3 id="arguments">Arguments</h3>
+% if data.parameters is not None and len(data.parameters) > 0:
+	<%include file="member_list.html" args="platform_count=0, is_property_list=True, item_list=data.parameters"/>
+% else:
+    This function takes no arguments.
+% endif

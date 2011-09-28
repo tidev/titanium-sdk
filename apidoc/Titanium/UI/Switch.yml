@@ -9,34 +9,33 @@ events:
     properties:
       - name: value
         description: the new value of the switch
-      - name: source
-        description: the source object that fired the event
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
 properties:
   - name: enabled
     description: boolean for the state of the switch
     type: Boolean
   - name: style
-    description: one of Ti.UI.Android.SWITCH_STYLE_CHECKBOX or Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON (default). (Android only)
+    description: one of <Ti.UI.Android.SWITCH_STYLE_CHECKBOX> or <Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON> (default).
     type: Number
     platforms: [android]
   - name: title
-    description: text to display with checkbox. Used if style is Ti.UI.Android.SWITCH_STYLE_CHECKBOX (Android only)
+    description: text to display with checkbox. Used if style is <Ti.UI.Android.SWITCH_STYLE_CHECKBOX>
     type: String
     platforms: [android]
   - name: titleOff
-    description: text to display when value is `false`. used if style is Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON (Android only)
+    description: text to display when value is `false`. used if style is <Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>
     type: String
     platforms: [android]
   - name: titleOn
-    description: text to display when value is `true`. used if style is Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON (Android only)
+    description: text to display when value is `true`. used if style is <Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>
     type: String
     platforms: [android]
   - name: value

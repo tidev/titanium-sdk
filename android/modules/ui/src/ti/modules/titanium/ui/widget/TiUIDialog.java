@@ -73,6 +73,7 @@ public class TiUIDialog extends TiUIView
 	@Override
 	public void processProperties(KrollDict d)
 	{
+		String[] buttonText = null;
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
 			getBuilder().setTitle(d.getString(TiC.PROPERTY_TITLE));
 		}
@@ -81,8 +82,9 @@ public class TiUIDialog extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_BUTTON_NAMES))
 		{
-			String[] buttonText = d.getStringArray(TiC.PROPERTY_BUTTON_NAMES);
-			processButtons(buttonText);
+			buttonText = d.getStringArray(TiC.PROPERTY_BUTTON_NAMES);
+		} else if (d.containsKey(TiC.PROPERTY_OK)) {
+			buttonText = new String[]{d.getString(TiC.PROPERTY_OK)};
 		}
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_ANDROID_VIEW)) {
 			processView((TiViewProxy) proxy.getProperty(TiC.PROPERTY_ANDROID_VIEW));
@@ -97,6 +99,9 @@ public class TiUIDialog extends TiUIView
 			}
 			
 			processOptions(optionText, selectedIndex);
+		}
+		if (buttonText != null) {
+			processButtons(buttonText);
 		}
 		super.processProperties(d);
 	}
@@ -176,8 +181,13 @@ public class TiUIDialog extends TiUIView
 				dialog.dismiss();
 				dialog = null;
 			}
-
 			processButtons(TiConvert.toStringArray((Object[]) newValue));
+		} else if (key.equals(TiC.PROPERTY_OK) && !proxy.hasProperty(TiC.PROPERTY_BUTTON_NAMES)) {
+			if (dialog != null) {
+				dialog.dismiss();
+				dialog = null;
+			}
+			processButtons(new String[]{TiConvert.toString(newValue)});
 		} else if (key.equals(TiC.PROPERTY_OPTIONS)) {
 			if (dialog != null) {
 				dialog.dismiss();

@@ -4,6 +4,7 @@ extends: Titanium.Proxy
 description: >
     A single node in the [Document|Titanium.XML.Document] tree. For full property and method description,
     see the [DOM Level 2 API|http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-1950641247].
+createable: false
 properties:
   - name: ELEMENT_NODE
     type: Number

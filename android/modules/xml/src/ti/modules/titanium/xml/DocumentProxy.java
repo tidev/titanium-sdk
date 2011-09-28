@@ -8,6 +8,7 @@ package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
+import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 
@@ -23,13 +24,25 @@ public class DocumentProxy extends NodeProxy {
 
 	@Kroll.method
 	public AttrProxy createAttribute(String name) throws DOMException {
-		return getProxy(doc.createAttribute(name));
+		Attr attr = doc.createAttribute(name);
+		// Harmony has a bug whereby the returned attribute
+		// has a null value, when it should be empty string.
+		if (attr.getValue() == null) {
+			attr.setValue("");
+		}
+		return getProxy(attr);
 	}
 
 	@Kroll.method
 	public AttrProxy createAttributeNS(String namespaceURI, String qualifiedName)
 			throws DOMException {
-		return getProxy(doc.createAttributeNS(namespaceURI, qualifiedName));
+		Attr attr = doc.createAttributeNS(namespaceURI, qualifiedName);
+		// Just in case the Harmony bug noted in createAttribute happens
+		// here too:
+		if (attr.getValue() == null) {
+			attr.setValue("");
+		}
+		return getProxy(attr);
 	}
 
 	@Kroll.method

@@ -20,37 +20,45 @@ events:
     properties:
       - name: scale
         description: the new scale as a float
-      - name: source
-        description: the source object that fired the event
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: scroll
     description: fired when the view is scrolled
     properties:
-      - name: source
-        description: the source object that fired the event
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
       - name: dragging
         description: boolean to indicate if the scroll is based on a dragging gesture
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: decelerating
         description: boolean to indicate if the scroll is decelerating
+  - name: dragStart
+    description: fired when the scroll view is about to start scrolling the content.
+    platforms: [iphone, ipad]
+  - name: dragEnd
+    description: fired when when dragging ended in the scroll view.
+    platforms: [iphone, ipad]
+    properties:
+      - name: decelerate
+        description: boolean. YES if the scrolling movement will continue, but decelerate, after a touch-up gesture during a dragging operation. If the value is NO, scrolling stops immediately upon touch-up.    
 properties:
   - name: canCancelEvents
-    description: (iPhone only) boolean to indicate if the scroll view can cancel subview touches in order to scroll instead. Default of true
+    description: boolean to indicate if the scroll view can cancel subview touches in order to scroll instead. Default of true
     type: Boolean
+    platforms: [iphone, ipad]
   - name: contentHeight
     description: the height of the scrollable area
     type: Number
@@ -61,7 +69,7 @@ properties:
     description: the width of the scrollable area
     type: Number
   - name: disableBounce
-    description: disable view bouncing.  iOS only.
+    description: disable view bouncing.
     type: Boolean
     platforms: [iphone, ipad]
   - name: horizontalBounce
@@ -78,7 +86,9 @@ properties:
     platforms: [iphone, ipad]
   - name: scrollType
     description: |
-        (Android only) the type of ScrollView: "vertical" or "horizontal"
+        For explicitly setting the direction -- "vertical" or "horizontal" -- in which the ScrollView will scroll.
+        See also the documentation notes for more information concerning how Android deduces the scroll
+        direction when this property is *not* set.
     type: String
     platforms: [android]
   - name: showHorizontalScrollIndicator
@@ -97,6 +107,18 @@ properties:
     platforms: [iphone, ipad]
 notes: |
     If your scrollable region fits within the size of the content area the scroll view will not scroll.
+    
+    **Android Note**: Android ScrollViews can only scroll in one direction,
+    vertical or horizontal.  We provide the `scrollType` property so you can
+    explicitly set the scroll direction.  If that property is *not* set, we
+    attempt to deduce the scroll direction based on some of the other
+    properties that have been set.  Specifically, if `contentWidth` and `width`
+    are both set and are equal to each other, or if they are both set *and*
+    `showVerticalScrollIndicator` is set to `true`, then the scroll direction
+    is set to "vertical".  If `contentHeight` and `height` are both set and are
+    equal, or if they are both set and `showHorizontalScrollIndicator` is set
+    to `true`, then the scroll direction is set to "horizontal".  If
+    `scrollType` is set, it overrides the deduced setting.
 examples:
   - title: Simple Scroll View
     example: |

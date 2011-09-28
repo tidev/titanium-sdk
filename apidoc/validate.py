@@ -97,6 +97,14 @@ def validateOsVer(tracker, osver):
 		if type(value) != dict:
 			tracker.trackError('"osver" for platform "%s" should be a dictionary with platforms mapping to dictionaries of "mix" (String), "max" (String), and/or "versions" (List)' % (key, value))
 
+def validateIsBool(tracker, name, value):
+	if not isinstance(value, bool):
+		tracker.trackError('"%s" should either be true or false: %s, %s' % (name, value, type(value)))
+
+def validateIsOneOf(tracker, name, value, validValues):
+	if value not in validValues:
+		tracker.trackError('"%s" should be one of %s, but was %s' % (name, ", ".join(validValues), value))
+
 def validateMarkdown(tracker, mdData, name):
 	try:
 		html = markdown.markdown(mdData)
@@ -104,7 +112,7 @@ def validateMarkdown(tracker, mdData, name):
 		tracker.trackError('Error parsing markdown block "%s": %s' % (name, e))
 
 def findType(tracker, typeName, name):
-	if typeName in ['Boolean', 'Number', 'String', 'Date', 'Object']: return
+	if typeName in ['Boolean', 'Number', 'String', 'Date', 'Object', 'Callback']: return
 
 	containerRegex = r'(Dictionary|Callback|Array)\<([^\>]+)\>'
 	match = re.match(containerRegex, typeName)
@@ -142,17 +150,34 @@ def validateCommon(tracker, map):
 	if 'osver' in map:
 		validateOsVer(tracker, map['osver'])
 
+	if 'createable' in map:
+		validateIsBool(tracker, 'createable', map['createable'])
+
+	if 'permission' in map:
+		validateIsOneOf(tracker, 'permission', map['permission'],
+			('read-only', 'write-only', 'read-write'))
+
+	if 'availability' in map:
+		validateIsOneOf(tracker, 'availability', map['availability'],
+			('always', 'creation', 'not-creation'))
+
+	if 'accessors' in map:
+		validateIsBool(tracker, 'accessors', map['accessors'])
+
+	if 'optional' in map:
+		validateIsBool(tracker, 'optional', map['optional'])
+
 def validateMethod(typeTracker, method):
 	tracker = ErrorTracker(method['name'], typeTracker)
 	validateRequired(tracker, method, ['name'])
 	validateCommon(tracker, method)
 
 	if 'returns' in method:
-		if type(method['returns']) not in [str, dict]:
-			tracker.trackError('"returns" must be either a String or Object: %s' % method['returns'])
-		if type(method['returns']) == dict:
-			if 'type' not in method['returns']:
-				tracker.trackError('Required property "type" missing in "returns": %s' % method["returns"])
+		if type(method['returns']) != dict:
+			tracker.trackError('"returns" must be an Object: %s' % method['returns'])
+			return
+		if 'type' not in method['returns']:
+			tracker.trackError('Required property "type" missing in "returns": %s' % method["returns"])
 
 
 	if 'parameters' in method:
@@ -163,7 +188,7 @@ def validateMethod(typeTracker, method):
 			validateRequired(pTracker, param, ['name', 'description', 'type'])
 
 	if 'examples' in method:
-		validateMarkdown(tracker, method['examples'], 'examples')
+		validateExamples(tracker, method['examples'])
 
 def validateProperty(typeTracker, property):
 	tracker = ErrorTracker(property['name'], typeTracker)
@@ -172,12 +197,31 @@ def validateProperty(typeTracker, property):
 	validateCommon(tracker, property)
 
 	if 'examples' in property:
-		validateMarkdown(tracker, property['examples'], 'examples')
+		validateExamples(tracker, property['examples'])
+	
+	constantRegex = r'[A-Z]+[A-Z_]*'
+	match = re.match(constantRegex, property['name'])
+	if match:
+		if not 'permission' in property:
+			tracker.trackError('Required property for constant "permission" not found')
+		else:
+			if not property['permission'] == 'read-only':
+				tracker.trackError('Constant should have "read-only" permission.')
 
 def validateEvent(typeTracker, event):
 	tracker = ErrorTracker(event['name'], typeTracker)
 	validateRequired(tracker, event, ['name', 'description'])
 	validateCommon(tracker, event)
+
+def validateExamples(tracker, examples):
+	if not isinstance(examples, list):
+		tracker.trackError('"examples" must be a list: %s' % examples)
+		return
+	for example in examples:
+		if not isinstance(example, dict) or 'title' not in example or 'example' not in example:
+			tracker.trackError('each example must be a dict with "title" and "example" members: %s' % example)
+			continue
+		validateMarkdown(tracker, example['example'], 'example')
 
 def validateType(typeDoc):
 	typeName = typeDoc['name']
@@ -191,8 +235,7 @@ def validateType(typeDoc):
 		validateMarkdown(tracker, typeDoc['notes'], 'notes')
 
 	if 'examples' in typeDoc:
-		for example in typeDoc['examples']:
-			validateMarkdown(tracker, example['example'], 'example')
+		validateExamples(tracker, typeDoc['examples'])
 
 	if 'methods' in typeDoc:
 		for method in typeDoc['methods']:

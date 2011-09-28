@@ -23,7 +23,11 @@ ts = buildtime.strftime("%m/%d/%y %H:%M")
 
 # get the githash for the build so we can always pull this build from a specific
 # commit
-p = subprocess.Popen(["git","show","--abbrev-commit"],stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+gitCmd = "git"
+if platform.system() == "Windows":
+	gitCmd += ".cmd"
+
+p = subprocess.Popen([gitCmd,"show","--abbrev-commit"],stderr=subprocess.PIPE, stdout=subprocess.PIPE)
 githash = p.communicate()[0][7:].split('\n')[0].strip()
 
 ignoreExtensions = ['.pbxuser','.perspectivev3','.pyc']
@@ -34,8 +38,11 @@ def ignore(file):
 		if file == f:
 			return True
 	 return False
+
 def generate_jsca():
-	 process_args = ['python', os.path.join(doc_dir, 'docgen.py'), '-f', 'jsca']
+	 process_args = [sys.executable, os.path.join(doc_dir, 'docgen.py'), '-f', 'jsca', '--stdout']
+	 print "Generating JSCA..."
+	 print " ".join(process_args)
 	 jsca_temp_file = tempfile.TemporaryFile()
 	 try:
 		 process = subprocess.Popen(process_args, stdout=jsca_temp_file, stderr=subprocess.PIPE)

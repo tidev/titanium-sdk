@@ -18,7 +18,7 @@ methods:
       - name: name
         description: name of the event
         type: String
-      - name: callbac
+      - name: callback
         description: callback function passed in addEventListener
         type: Callback<Object>
   - name: fireEvent

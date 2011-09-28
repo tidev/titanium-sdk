@@ -56,7 +56,7 @@
 		[windowProxy prepareForNavView:controller];
 		
 		root = windowProxy;
-		[self setVisibleProxy:windowProxy];
+//		[self setVisibleProxy:windowProxy];
 	}
 	return controller;
 }

@@ -3,22 +3,43 @@ name: Titanium.Gesture
 description: The top level Gestures module.  The Gesture module is responsible for high level device gestures that are device-wide.
 extends: Titanium.Module
 since: "0.8"
+
+properties:
+  - name: portrait
+    type: Boolean
+    description: True if current window is considered portrait by the device, false otherwise
+    permission: read-only
+
+  - name: landscape
+    type: Boolean
+    description: True if current window is considered landscape by the device, false otherwise
+    permission: read-only
+
+  - name: orientation
+    type: Number
+    description: Orientation of the current window.  Value will be one of the following - <Titanium.UI.PORTRAIT>, <Titanium.UI.UPSIDE_PORTRAIT>, <Titanium.UI.LANDSCAPE_LEFT>, <Titanium.UI.LANDSCAPE_RIGHT> or <Titanium.UI.UNKNOWN>
+    permission: read-only
+
 events:
   - name: orientationchange
     description: fired when the device orientation changes
     properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: orientation
-        description: the orientation constant
+        type: Number
+        description: Orientation of the current window.  Value will be one of the following - <Titanium.UI.PORTRAIT>, <Titanium.UI.UPSIDE_PORTRAIT>, <Titanium.UI.LANDSCAPE_LEFT>, <Titanium.UI.LANDSCAPE_RIGHT> or <Titanium.UI.UNKNOWN>
+
   - name: shake
     description: fired when the device is shaken
     properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: timestamp
+        type: Number
         description: timestamp reference since previous shake
+      - name: x
+        type: Number
+        description: x coordinate of the shake event
+      - name: y
+        type: Number
+        description: y coordinate of the shake event
+      - name: z
+        type: Number
+        description: z coordinate of the shake event

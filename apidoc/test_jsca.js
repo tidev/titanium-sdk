@@ -15,6 +15,9 @@
 *
 **/
 
+var documented_type_names = [];
+var not_yet_documented = ["Titanium.XML.CDATASection", "Titanium.XML.Comment", "Titanium.XML.DocumentFragment",
+"Titanium.XML.EntityReference"];
 var assert = require('assert');
 var spawn = require('child_process').spawn;
 var jsca = '';
@@ -172,11 +175,20 @@ function test_type(the_type) {
 		assert.equal(the_type.substr(0, correctCase.length), correctCase, "Proper casing seems to have screwed up a namespace. " + the_type + " should start with " + correctCase);
 	}
 
-	var pattern = /^(DOMNode|Function|RegExp|Date|Object|Boolean|Null|Number|String|Ti(tanium)?\.\S+|Array|Array<\S+>)$/;
+	var pattern = /^(Function|RegExp|Date|Object|Boolean|Null|Number|String|Array|Array<\S+>)$/;
 	var parts = the_type.split(','); // returnType can have a comma-sep list of types
 	for (var i = 0; i < parts.length; i++) {
 		var onepart = parts[i];
-		assert.ok(onepart.match(pattern) !== null, "Unknown type spec: " + the_type);
+		matched = (onepart.match(pattern) !== null)
+		if (!matched) {
+			// Is it a documented type?
+			matched = (documented_type_names.indexOf(onepart) >= 0);
+		}
+		if (!matched) {
+			// Is it a type that will be documented but hasn't been yet?
+			matched = (not_yet_documented.indexOf(onepart) >= 0);
+		}
+		assert.ok(matched, "Unknown type spec: " + the_type);
 	}
 }	
 
@@ -330,7 +342,7 @@ function sanityChecks(api) {
 	assert.ok(eventCount > 400, 'Expected well over 400 event definitions, found only ' + eventCount);
 }
 
-var docgen = spawn('python', ['docgen.py', '-f', 'jsca']);
+var docgen = spawn('python', ['docgen.py', '--stdout', '-f', 'jsca']);
 docgen.stdout.on('data', function(data) {
 	jsca += data;
 });
@@ -344,6 +356,9 @@ docgen.on('exit', function(code) {
 	}
 	breadcrumbs.push('parsing');
 	var api = JSON.parse(jsca);
+	for (var i = 0; i < api.types.length; i++) {
+		documented_type_names.push(api.types[i].name);
+	}
 	breadcrumbs.pop();
 	try {
 		breadcrumbs.push('Checking aliases');

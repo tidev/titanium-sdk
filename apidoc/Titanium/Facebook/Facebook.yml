@@ -67,21 +67,12 @@ events:
         description: true if the login was successful
       - name: data
         description: data returned by Facebook when we query for the uid (using graph path "me") after successful login.  Data is in JSON format.  Includes information such as user name, locale and gender.
-      - name: source
-        description: the source object that fired the event
       - name: error
         description: error message if success was false
       - name: cancelled
         description: true if the user cancelled the request by closing the dialog
-      - name: type
-        description: the name of the event fired
   - name: logout
     description: fired at session logout
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
 properties:
   - name: accessToken
     description: OAuth token set after a successful `authorize`.

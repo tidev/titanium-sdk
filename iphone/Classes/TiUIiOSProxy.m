@@ -20,6 +20,9 @@
 #ifdef USE_TI_UIIOS3DMATRIX
 #import "TiUIiOS3DMatrix.h"
 #endif
+#ifdef USE_TI_UIIOSCOVERFLOWVIEW
+#import "TiUIiOSCoverFlowViewProxy.h"
+#endif
 
 @implementation TiUIiOSProxy
 
@@ -45,7 +48,12 @@
 	return [matrix autorelease];
 }
 #endif
-
+#ifdef USE_TI_UIIOSCOVERFLOWVIEW
+-(id)createCoverFlowView:(id)args
+{
+		return [[[TiUIiOSCoverFlowViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
 @end
 
 #endif

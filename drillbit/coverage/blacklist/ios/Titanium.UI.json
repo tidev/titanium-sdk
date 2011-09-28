@@ -1,0 +1,19 @@
+{
+ "functions": [
+  "createiOS", 
+  "createiPad", 
+  "didReceiveMemoryWarning", 
+  "createCoverFlowView", 
+  "createiPhone", 
+  "createClipboard", 
+  "createDashboardView", 
+  "createTextWidget", 
+  "createDashboardItem", 
+  "isLandscape", 
+  "createTabbedBar", 
+  "createMaskedImage", 
+  "isPortrait"
+ ], 
+ "properties": [
+ ]
+}

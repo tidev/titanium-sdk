@@ -115,6 +115,25 @@
 	}
 }
 
+-(void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+	if([self _hasListeners:@"dragStart"])
+	{
+		[self fireEvent:@"dragStart" withObject:nil];
+	}
+}
+
+//listerner which tells when dragging ended in the scroll view.
+
+-(void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+{
+	if([self _hasListeners:@"dragEnd"])
+	{
+		[self fireEvent:@"dragEnd" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:decelerate],@"decelerate",nil]]	;
+	}
+}
+
+
 @end
 
 #endif

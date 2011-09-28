@@ -1,0 +1,19 @@
+% if data.typestr == "module":
+<div class="apidoc_container apidoc_module">
+% else:
+<div class="apidoc_container apidoc_object">
+% endif
+
+<%include file="header.html"/>
+<%include file="notes.html"/>
+
+% if data.typestr == "module" and data.member_proxies and len(data.member_proxies)>0:
+	<%include file="proxy_list.html"/>
+% endif
+
+<%include file="method_list.html"/>
+<%include file="property_list.html"/>
+<%include file="event_list.html"/>
+<%include file="footer.html"/>
+
+</div>

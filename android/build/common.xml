@@ -331,6 +331,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			
 			<classpath refid="android"/>
 			<classpath refid="titanium.path"/>
+			<classpath refid="kroll.apt.path"/>
 			
 			<doctitle>${javadoc.docTitle}</doctitle>
 			<bottom>${javadoc.bottom}</bottom>

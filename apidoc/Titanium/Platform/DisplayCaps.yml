@@ -3,6 +3,7 @@ name: Titanium.Platform.DisplayCaps
 description: The Display Caps object returned by the <Titanium.Platform.displayCaps> property.
 extends: Titanium.Proxy
 since: "0.8"
+createable: false
 properties:
   - name: density
     description: returns the density property of the display device.

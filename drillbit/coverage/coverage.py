@@ -15,14 +15,12 @@ import zipfile
 import shutil
 import yaml
 import subprocess
-from mako.template import Template
-from mako import exceptions
+from itertools import chain
 
 try:
 	import json
 except ImportError, e:
 	import simplejson as json
-
 
 coverageDir = os.path.dirname(os.path.abspath(__file__))
 drillbitDir = os.path.dirname(coverageDir)
@@ -30,7 +28,11 @@ mobileDir = os.path.dirname(drillbitDir)
 supportAndroidDir = os.path.join(mobileDir, "support", "android")
 sys.path.append(supportAndroidDir)
 
+from mako.template import Template
+from mako import exceptions
+
 import bindings
+import mappings
 
 logging.basicConfig(
 	format = '[%(asctime)s] [%(levelname)s] %(message)s',
@@ -43,64 +45,33 @@ def upperFirst(str):
 def lowerFirst(str):
 	return str[0:1].lower() + str[1:]
 
-"""A map that normalizes type names that are slightly different
-between the different sources"""
-mapTypes = {
-	"Titanium.Activity": "Titanium.Android.Activity",
-	"Titanium.Intent": "Titanium.Android.Intent",
-	"Titanium.Service": "Titanium.Android.Service",
-	"Titanium.Menu": "Titanium.Android.Menu",
-	"Titanium.MenuItem": "Titanium.Android.MenuItem",
-	"Titanium.R": "Titanium.Android.R",
-	"Android.Notification": "Titanium.Android.Notification",
-	"Analytics": "Titanium.Analytics",
-	"Titanium.Database.TiDatabase": "Titanium.Database.DB",
-	"Titanium.TiDatabase": "Titanium.Database.DB",
-	"Titanium.Database.TiResultSet": "Titanium.Database.ResultSet",
-	"Titanium.TiResultSet": "Titanium.Database.ResultSet",
-	"Titanium.File": "Titanium.Filesystem.File",
-	"Titanium.FileStream": "Titanium.Filesystem.FileStream",
-	"Titanium.Socket.TCP": "Titanium.Network.Socket.TCP",
-	"Titanium.TiBlob": "Titanium.Blob",
-	"Titanium.BlobStream": "Titanium.Stream.BlobStream",
-	"Titanium.BufferStream": "Titanium.Stream.BufferStream",
-	"Titanium.TiView": "Titanium.UI.View",
-	"Titanium.TiWindow": "Titanium.UI.Window",
-	"Titanium.Ti2DMatrix": "Titanium.UI.2DMatrix",
-	"Titanium.Attr": "Titanium.XML.Attr",
-	"Titanium.CDATASection": "Titanium.XML.CDATASection",
-	"Titanium.Document": "Titanium.XML.Document",
-	"Titanium.Element": "Titanium.XML.Element",
-	"Titanium.NamedNodeMap": "Titanium.XML.NamedNodeMap",
-	"Titanium.Node": "Titanium.XML.Node",
-	"Titanium.NodeList": "Titanium.XML.NodeList",
-	"Titanium.String": "String",
-	"Titanium.Text": "Titanium.XML.Text",
-	"Titanium.XPathNodeList": "Titanium.XML.XPathNodeList",
-	"Titanium.Kroll.Kroll": "Titanium.Proxy",
-	"Titanium.Map.View": "Titanium.Map.MapView",
-	# iOS mappings
-	"Titanium.Appi.OS": "Titanium.App.iOS",
-	"Titanium.Appi.OSBackgroundService": "Titanium.App.iOS.BackgroundService",
-	"Titanium.Appi.OSLocalNotification": "Titanium.App.iOS.LocalNotification",
-	"Titanium.D.OMAttr": "Titanium.XML.Attr",
-	"Titanium.D.OMDocument": "Titanium.XML.Document",
-	"Titanium.D.OMElement": "Titanium.XML.Element",
-	"Titanium.D.OMNamedNodeMap": "Titanium.XML.NamedNodeMap",
-	"Titanium.D.OMNode": "Titanium.XML.Node",
-	"Titanium.D.OMNodeList": "Titanium.XML.NodeList",
-	"Titanium.D.OMTextNode": "Titanium.XML.Text",
-	"Titanium.Data.Stream": "Titanium.IOStream",
-	"Titanium.Database": "Titanium.Database.DB",
-	"Titanium.Network.Socket.": "Titanium.Network.TCPSocket",
-	# This type does both buffers and blobs, we're missing part of the coverage
-	"Titanium.Data.Stream": "Titanium.Stream.BufferStream",
-	"Titanium.": "Titanium.Proxy"
-}
 
-def mapType(type):
-	if type in mapTypes: return mapTypes[type]
-	return type
+# lazily initialize a hierarchy of map of maps, and returns the final map
+def lazyInitMap(root, *mapKeys):
+	top = root
+	for mapKey in mapKeys:
+		if mapKey not in top:
+			top[mapKey] = {}
+		top = top[mapKey]
+	return top
+
+# iterate N levels of a map-of-map-of...N maps
+def mapDeepIter(deepMap, nLevels, *mapKeys):
+	if nLevels == 0:
+		yield tuple(mapKeys)
+	for key in deepMap.keys():
+		obj = deepMap[key]
+		if isinstance(obj, dict):
+			mapDeepIter(obj, nLevels - 1)
+
+# load up JSON blacklists for API sets
+def loadBlacklist(apiname, platform):
+	blacklistPath = os.path.join(coverageDir, "blacklist", platform.lower(), "%s.json" % apiname)
+	if not os.path.isfile(blacklistPath):
+		return { "functions": [], "properties": [] }
+
+	print blacklistPath
+	return json.load(open(blacklistPath))
 
 class CoverageData(object):
 	CATEGORY_TDOC = "tdoc"
@@ -165,7 +136,7 @@ class CoverageData(object):
 	def lazyGet(self, map, key):
 		if not key.startswith("Titanium") and map != self.topLevel:
 			key = "Titanium.%s" % key
-		key = mapType(key)
+		key = mappings.mapType(key)
 		if key not in map:
 			map[key] = {
 				"properties": {}, "functions": {}
@@ -388,34 +359,23 @@ class CoverageMatrix(object):
 							self.drillbitCoverage[platform][apiType][component][api][coverageType] = start + data[platform][apiType][component][api][coverageType]
 
 	def pruneDrillbitCoverage(self):
-		remove = {
-			"modules": {
-				"Titanium": ["a", "x", "testFunction", "dumpCoverage"],
-				"Titanium.Android.OptionMenu": ["__noSuchMethod__", "createMenu"],
-				"Titanium.Database": ["__noSuchMethod__", "execute"],
-				"Titanium.UI": ["addView", "removeView"],
-				"Titanium.UI.Android": ["OptionMenu"]
-			},
-			"proxies": {
-				"Titanium.Filesystem.File": ["customMethod"],
-				"Titanium.Network.HTTPClient": ["reponseText"],
-				"Titanium.UI.PickerRow": ["custom"],
-				"Titanium.UI.ScrollableView": ["Array"],
-				"Titanium.UI.TableView": ["Array", "Object"],
-				"Titanium.UI.TableViewRow": ["_dateObj", "_noDateObj", "_testDate", "button", "x"],
-				"Titanium.UI.View": ["customObj"]
-			}
-		}
 		for platform in self.drillbitCoverage.keys():
 			platformMap = self.drillbitCoverage[platform]
-			for apiType in remove.keys():
-				for componentName in remove[apiType].keys():
-					if apiType in platformMap and componentName in platformMap[apiType]:
-						component = platformMap[apiType][componentName]
-						for api in remove[apiType][componentName]:
-							if api in component:
-								log.warn("Removing %s.%s from drillbit coverage" % (componentName, api))
-								del component[api]
+			for apiType in platformMap:
+				componentMap = platformMap[apiType]
+				for componentName in componentMap:
+					allBlacklist = loadBlacklist(componentName, "all")
+					platformBlacklist = loadBlacklist(componentName, platform)
+					if apiType in platformMap and componentName in componentMap:
+						component = componentMap[componentName]
+						for fn in chain(allBlacklist["functions"], platformBlacklist["functions"]):
+							log.warn("Removing %s.%s from drillbit coverage" % (componentName, fn))
+							if fn in component:
+								del component[fn]
+						for property in chain(allBlacklist["properties"], platformBlacklist["properties"]):
+							log.warn("Removing %s.%s from drillbit coverage" % (componentName, property))
+							if property in component:
+								del component[property]
 			if platform == "android":
 				for yahooMethod in ["b64_hmac_sha1", "oauthRequest",\
 					"percentEscape", "setOAuthParameters", "yql", "yqlO"]:
@@ -442,7 +402,7 @@ class CoverageMatrix(object):
 
 		for root, dirs, files in os.walk(tdocDir):
 			for file in files:
-				if file.endswith(".yml"):
+				if file.endswith(".yml") and not file.endswith("template.yml"):
 					absolutePath = os.path.join(root, file)
 					self.tdocTypes.extend([t for t in yaml.load_all(codecs.open(absolutePath, 'r', 'utf8').read())])
 
@@ -465,7 +425,7 @@ class CoverageMatrix(object):
 		log.info("Generating coverage for Android bindings")
 		self.data.setCategory(self.data.CATEGORY_BINDING)
 
-		proxyDefault = "org.appcelerator.kroll.annotations.Kroll.proxy.DEFAULT"
+		proxyDefault = "org.appcelerator.kroll.annotations.Kroll.DEFAULT"
 		platforms = [self.data.PLATFORM_ANDROID]
 		allowModuleTopLevelMethods = ["decodeURIComponent", "encodeURIComponent"]
 
@@ -474,6 +434,12 @@ class CoverageMatrix(object):
 				proxy = binding["proxies"][proxyClass]
 				isModule = proxy['isModule']
 				proxyFullAPI = proxy["proxyAttrs"]["fullAPIName"]
+
+				allBlacklist = loadBlacklist(proxyFullAPI, "all")
+				androidBlacklist = loadBlacklist(proxyFullAPI, self.data.PLATFORM_ANDROID)
+				blacklistFns = [fn for fn in chain(allBlacklist["functions"], androidBlacklist["functions"])]
+				blacklistProps = [p for p in chain(allBlacklist["properties"], androidBlacklist["properties"])]
+
 				if "creatableInModule" in proxy["proxyAttrs"]:
 					moduleClass = proxy["proxyAttrs"]["creatableInModule"]
 					if moduleClass != proxyDefault:
@@ -501,24 +467,28 @@ class CoverageMatrix(object):
 								else:
 									name = topLevelName
 							topLevel = True
-							self.data.addFunction(name, parent, platforms, isTopLevel=True)
+							if name not in blacklistFns:
+								self.data.addFunction(name, parent, platforms, isTopLevel=True)
 						if not topLevel or methodName in allowModuleTopLevelMethods:
 							# For the sake of coverage, we only add a top level method once
 							# even though technically it may be bound in two places
-							self.data.addFunction(methodName, proxyFullAPI, platforms, isModule=isModule)
+							if methodName not in blacklistFns:
+								self.data.addFunction(methodName, proxyFullAPI, platforms, isModule=isModule)
 				if "properties" in proxy:
 					for prop in proxy["properties"].keys():
 						property = proxy["properties"][prop]["name"]
 						# ignore getter/setter here for now
 						#getter = proxy["properties"][prop]["get"]
 						#setter = proxy["properties"][prop]["set"]
-						self.data.addProperty(property, proxyFullAPI, platforms, isModule=isModule)
+						if property not in blacklistProps:
+							self.data.addProperty(property, proxyFullAPI, platforms, isModule=isModule)
 				if "dynamicProperties" in proxy:
 					for dynProp in proxy["dynamicProperties"].keys():
 						property = proxy["dynamicProperties"][dynProp]["name"]
 						getter = proxy["dynamicProperties"][dynProp]["get"]
 						setter = proxy["dynamicProperties"][dynProp]["set"]
-						self.data.addProperty(property, proxyFullAPI, platforms, isModule=isModule, getter=getter, setter=setter)
+						if property not in blacklistProps:
+							self.data.addProperty(property, proxyFullAPI, platforms, isModule=isModule, getter=getter, setter=setter)
 				if "dynamicApis" in proxy:
 					if "properties" in proxy["dynamicApis"]:
 						for property in proxy["dynamicApis"]["properties"]:
@@ -554,6 +524,9 @@ class CoverageMatrix(object):
 							fullAPI = "Titanium." + match.group(1)
 				else:
 					# Trim Ti(.*)Proxy if necessary
+					actualClass = iosClass
+					if iosClass == "TiUIiOS3DMatrix":
+						actualClass = "TiUIiOS3DMatrixProxy"
 					match = re.search('^Ti(.*?)(Proxy)?$', iosClass)
 					canCreate = False
 					if match:
@@ -582,8 +555,8 @@ class CoverageMatrix(object):
 							for submodule in iosSubmodules:
 								pos = proxyName.find(submodule)
 								if pos != -1:
+									subproxy = proxyName[pos+len(submodule):]
 									if canCreate:
-										subproxy = proxyName[pos+len(submodule):]
 										self.data.addFunction("create%s" % subproxy, 
 											"Titanium.%s.%s" % (moduleName, submodule),
 											platforms, isModule=True)
@@ -606,11 +579,17 @@ class CoverageMatrix(object):
 													  platforms,
 													  isModule=True)
 							fullAPI = "Titanium.%s.%s" % (moduleName, proxyName)
+							
+				blacklist = loadBlacklist(fullAPI, self.data.PLATFORM_IOS)
 
 				for method in binding[iosClass]["methods"]:
-					self.data.addFunction(method, fullAPI, platforms, isModule=isModule)
+					if not method in blacklist["functions"]:
+						self.data.addFunction(method, fullAPI, platforms, isModule=isModule)
 
 				for property in binding[iosClass]["properties"]:
+					if property in blacklist["properties"]:
+						continue
+						
 					# If we have an all-uppercase name, consider it a constant -
 					# by naming convention
 					if property.isupper():
@@ -622,7 +601,7 @@ class CoverageMatrix(object):
 						# this screws with our coverage
 						propInfo = binding[iosClass]["properties"][property]
 						self.data.addProperty(property, fullAPI, platforms, 
-							isModule=isModule, setter=propInfo["set"])
+							isModule=isModule, getter=True, setter=propInfo["set"])
 
 	def proxyHasAPI(self, proxy, api):
 		# try to find an API point in the component itself first
@@ -669,11 +648,11 @@ class CoverageMatrix(object):
 		apiName = proxy["proxyAttrs"]["fullAPIName"]
 		if not apiName.startswith("Titanium"):
 			apiName = "Titanium." + apiName
-		return mapType(apiName)
+		return mappings.mapType(apiName)
 
 	def getComponentNameForAPI(self, component, api):
 		# Walk the android bindings (our best data set?) to see where an api is originally defined
-		component = mapType(component)
+		component = mappings.mapType(component)
 		for binding in self.androidBindings:
 			for proxyClass in binding["proxies"].keys():
 				proxy = binding["proxies"][proxyClass]
@@ -753,37 +732,89 @@ class CoverageMatrix(object):
 				platforms.append(self.data.PLATFORM_ANDROID)
 		return platforms
 
+	def tdocTypeExtends(self, tdocType, superType):
+		while tdocType != None:
+			if "extends" in tdocType:
+				if tdocType["extends"] == superType:
+					return True
+			else:
+				return False
+
+			tdocType = self.findTDocType(tdocType["extends"])
+
+	def findTDocType(self, typeName):
+		for tdocType in self.tdocTypes:
+			if tdocType["name"] == typeName:
+				return tdocType
+		return None
+
 	def genTDocData(self):
 		self.data.setCategory(self.data.CATEGORY_TDOC)
 		log.info("Generating coverage for TDoc")
 		for tdocType in self.tdocTypes:
 			component = tdocType["name"]
 			typePlatforms = self.tdocPlatforms(tdocType)
-			if "extends" not in tdocType and component != "Titanium.Proxy":
+			if "extends" not in tdocType and component != "Titanium.Proxy" and not component.startswith("Global"):
 				log.warn("Skipping TDoc type %s (no 'extends')" % component)
 				continue
 			isModule = False
+			isTopLevel = False
 			if component == "Titanium.Module": isModule = True
+			if component.startswith("Global"):
+				isTopLevel = True
+				component = re.sub(r"Global\.?", "", component)
+				if component == "":
+					component = self.data.TOP_LEVEL
 			if "extends" in tdocType and tdocType["extends"] == "Titanium.Module": isModule = True
 			if "methods" in tdocType:
 				for method in tdocType["methods"]:
 					methodPlatforms = self.tdocPlatforms(method)
 					if methodPlatforms == self.data.ALL_PLATFORMS:
 						methodPlatforms = typePlatforms
-					self.data.addFunction(method["name"], component, methodPlatforms, isModule=isModule)
+					self.data.addFunction(method["name"], component, methodPlatforms, isModule=isModule, isTopLevel=isTopLevel)
 			if "properties" in tdocType:
 				for property in tdocType["properties"]:
 					propertyPlatforms = self.tdocPlatforms(property)
 					if propertyPlatforms == self.data.ALL_PLATFORMS:
 						propertyPlatforms = typePlatforms
-					self.data.addProperty(property["name"], component, propertyPlatforms, isModule=isModule)
+					getter = True
+					setter = True
+					if "permission" in property:
+						if property["permission"] == "read-only":
+							setter = False
+						elif property["permission"] == "write-only":
+							getter = False
+						# read-write is the default setting
+					if property["name"].upper() == property["name"]:
+						# All upper -- most likely a constant?
+						getter = False
+						setter = False
+
+					if "accessors" in property and not property["accessors"]:
+						# Explicitly requested no getter/setter method
+						getter = False
+						setter = False
+
+					if "availability" in property and property["availability"] == "creation":
+						getter = False
+						setter = False
+
+					self.data.addProperty(property["name"], component, propertyPlatforms, isModule=isModule, getter=getter, setter=setter)
+			if not isModule and self.tdocTypeExtends(tdocType, "Titanium.Proxy"):
+				createable = tdocType.get("createable", True)
+				if createable:
+					parts = tdocType["name"].split(".")
+					moduleName = ".".join(parts[:-1])
+					proxyName = parts[-1]
+					self.data.addCreateFunction(moduleName, proxyName, typePlatforms)
+
 
 	def genDelta(self, deltaSeedFile):
 		otherData = open(deltaSeedFile, "r").read()
 		other = CoverageMatrix(json.loads(otherData))
 		other.genData()
 
-		self.delta = {"apis": {}, "tests": {}}
+		self.delta = {"apis": {}, "tests": {}, "added": {}, "removed": {}}
 		for category in self.data.ALL_CATEGORIES:
 			self.delta["apis"][category] = \
 				self.data.apiCount[category][self.data.TOTAL_YES] - \
@@ -791,6 +822,47 @@ class CoverageMatrix(object):
 
 		self.delta["tests"][self.data.CATEGORY_DRILLBIT] = \
 			self.drillbitTests[self.data.TOTAL] - other.drillbitTests[self.data.TOTAL]
+
+		def deltaApiIsYes(componentType, componentName, apiType, api, category, platform):
+			if componentType == self.data.modules: deltaComponentType = other.data.modules
+			elif componentType == self.data.proxies: deltaComponentType = other.data.proxies
+			else: deltaComponentType = other.data.topLevel
+
+			if componentName not in deltaComponentType: return False
+			if apiType not in deltaComponentType[componentName]: return False
+			if api not in deltaComponentType[componentName][apiType]: return False
+			if category not in deltaComponentType[componentName][apiType][api]: return False
+			if platform not in deltaComponentType[componentName][apiType][api][category]: return False
+			return deltaComponentType[componentName][apiType][api][category][platform] == other.data.STATUS_YES
+
+		def logApiDelta(componentName, apiType, api, category, platform, added):
+			deltaMap = self.delta["added"]
+			apiName = "%s.%s" % (componentName, api)
+			if not added:
+				deltaMap = self.delta["removed"]
+
+			apiTypeMap = lazyInitMap(deltaMap, category, apiType)
+			if apiName not in apiTypeMap:
+				apiTypeMap[apiName] = []
+			apiTypeMap[apiName].append(platform)
+
+		for componentType in (self.data.modules, self.data.proxies, self.data.topLevel):
+			for componentName in componentType.keys():
+				component = componentType[componentName]
+				for apiType in component.keys():
+					apiTypeMap = component[apiType]
+					for api in apiTypeMap.keys():
+						apiMap = apiTypeMap[api]
+						for category in apiMap.keys():
+							categoryMap = apiMap[category]
+							for platform in categoryMap.keys():
+								status = categoryMap[platform]
+								if status == self.data.STATUS_YES:
+									if not deltaApiIsYes(componentType, componentName, apiType, api, category, platform):
+										logApiDelta(componentName, apiType, api, category, platform, True)
+								else:
+									if deltaApiIsYes(componentType, componentName, apiType, api, category, platform):
+										logApiDelta(componentName, apiType, api, category, platform, False)
 
 	def genData(self):
 		# Order is important here
@@ -872,9 +944,11 @@ class CoverageMatrix(object):
 
 	def genHTML(self, outDir):
 		indexTemplate = Template(filename=os.path.join(coverageDir, "index.html"),
-			output_encoding='utf-8', encoding_errors='replace')
+			output_encoding="utf-8", encoding_errors="replace")
 		componentTemplate = Template(filename=os.path.join(coverageDir, "component.html"),
-			output_encoding='utf-8', encoding_errors='replace')
+			output_encoding="utf-8", encoding_errors="replace")
+		deltaTemplate = Template(filename=os.path.join(coverageDir, "delta.html"),
+			output_encoding="utf-8", encoding_errors="replace")
 
 		self.renderTemplate(indexTemplate,
 			os.path.join(outDir, "index.html"),
@@ -883,6 +957,12 @@ class CoverageMatrix(object):
 			delta = self.delta,
 			countCoverage = self.countCoverage,
 			upperFirst = upperFirst)
+
+		if self.delta != None:
+			self.renderTemplate(deltaTemplate,
+				os.path.join(outDir, "delta.html"),
+				data = self.data,
+				delta = self.delta)
 
 		def toComponentHTML(components, prefix):
 			for component in components:
@@ -945,7 +1025,7 @@ def main():
 		options.outDir = os.path.join(mobileDir, "dist", "coverage")
 
 	if not os.path.exists(options.outDir):
-		os.makedirs(outDir)
+		os.makedirs(options.outDir)
 
 	matrix = CoverageMatrix(seedData)
 	if seedData == None:

@@ -354,9 +354,9 @@
 		{
 			// detach existing one
 			UIBarButtonItem *item = controller.navigationItem.rightBarButtonItem;
-			if (item!=nil && [item isKindOfClass:[TiViewProxy class]])
+			if ([item respondsToSelector:@selector(proxy)])
 			{
-				[(TiViewProxy*)item removeBarButtonView];
+				[(TiViewProxy*)[item proxy] removeBarButtonView];
 			}
 			if (proxy!=nil)
 			{
@@ -400,9 +400,9 @@
 		{
 			// detach existing one
 			UIBarButtonItem *item = controller.navigationItem.leftBarButtonItem;
-			if (item!=nil && [item isKindOfClass:[TiViewProxy class]])
+			if ([item respondsToSelector:@selector(proxy)])
 			{
-				[(TiViewProxy*)item removeBarButtonView];
+				[(TiViewProxy*)[item proxy] removeBarButtonView];
 			}
 			controller.navigationItem.leftBarButtonItem = nil;			
 			if (proxy!=nil)
@@ -618,9 +618,9 @@
 		{
 			for (id current in existing)
 			{
-				if ([current isKindOfClass:[TiViewProxy class]])
+				if ([current respondsToSelector:@selector(proxy)])
 				{
-					[(TiViewProxy*)current removeBarButtonView];
+					[(TiViewProxy*)[current proxy] removeBarButtonView];
 				}
 			}
 		}
@@ -710,23 +710,27 @@ else{\
 - (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
 {
 	animating = YES;
+	[super viewWillAppear:animated];
 }
 
 - (void)viewDidAppear:(BOOL)animated;     // Called when the view has been fully transitioned onto the screen. Default does nothing
 {
 	animating = NO;
 	[self updateTitleView];
+	[super viewDidAppear:animated];
 }
 
 - (void)viewWillDisappear:(BOOL)animated; // Called when the view is dismissed, covered or otherwise hidden. Default does nothing
 {
 	animating = YES;
+	[super viewWillDisappear:animated];
 }
 
 - (void)viewDidDisappear:(BOOL)animated;  // Called after the view was dismissed, covered or otherwise hidden. Default does nothing
 {
 	animating = NO;
 	[self updateTitleView];
+	[super viewDidDisappear:animated];
 }
 
 -(void)setupWindowDecorations
@@ -765,6 +769,23 @@ else{\
 	}
 }
 
+-(void)cleanupWindowDecorations
+{
+    if (controller != nil) {
+        UIBarButtonItem *item = controller.navigationItem.leftBarButtonItem;
+        if ([item respondsToSelector:@selector(proxy)])
+        {
+            [(TiViewProxy*)[item proxy] removeBarButtonView];
+        }
+        
+        item = controller.navigationItem.rightBarButtonItem;
+        if ([item respondsToSelector:@selector(proxy)]) 
+        {
+            [(TiViewProxy*)[item proxy] removeBarButtonView];
+        }
+    }
+}
+
 -(void)_tabBeforeFocus
 {
 	if (focused==NO)
@@ -776,6 +797,9 @@ else{\
 
 -(void)_tabBeforeBlur
 {
+    if (focused==YES) {
+        [self cleanupWindowDecorations];
+    }
 	[barImageView removeFromSuperview];
 	[super _tabBeforeBlur];
 }
@@ -787,7 +811,10 @@ else{\
 		// we can't fire focus here since we 
 		// haven't yet wired up the JS context at this point
 		// and listeners wouldn't be ready
-		[self fireFocus:YES];
+		if(![self opening])
+		{
+			[self fireFocus:YES];
+		}
 		[self setupWindowDecorations];
 	}
 	[super _tabFocus];

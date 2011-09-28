@@ -1,0 +1,26 @@
+{
+ "functions": [
+  "updateControlMode", 
+  "handleFullscreenExitNotification", 
+  "handleKeyWindowChanged", 
+  "handleThumbnailImageRequestFinishNotification", 
+  "handleNaturalSizeAvailableNotification", 
+  "handleRotationNotification", 
+  "handleDurationAvailableNotification", 
+  "handlePlaybackStateChangeNotification", 
+  "handleNowPlayingNotification", 
+  "initWithProperties", 
+  "handleLoadStateChangeNotification", 
+  "updateScalingMode", 
+  "handleSourceTypeNotification", 
+  "handleMediaTypesNotification", 
+  "handlePlayerNotification", 
+  "updateControlStyle", 
+  "handleFullscreenEnterNotification"
+ ], 
+ "properties": [
+  "newView", 
+  "keySequence", 
+  "player"
+ ]
+}

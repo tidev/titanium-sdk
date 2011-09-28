@@ -1,30 +1,32 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.json;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.json.JsonParser;
 
 @Kroll.module @Kroll.topLevel
-public class JSONModule extends KrollModule {
+public class JSONModule extends KrollModule
+{
 
-	public JSONModule(TiContext context) {
+	public JSONModule(TiContext context)
+	{
 		super(context);
 	}
 
 	@Kroll.method
-	public String stringify(Object data) {
+	public String stringify(Object data)
+	{
 		if (data instanceof KrollDict) {
 			return TiConvert.toJSON((KrollDict)data).toString();
 		} else if (data instanceof Object[]) {
@@ -57,31 +59,11 @@ public class JSONModule extends KrollModule {
 	}
 
 	@Kroll.method
-	public Object parse(String json)
-		throws JSONException
+	public Object parse(KrollInvocation invocation, String json)
+		throws JsonParser.ParseException
 	{
-		Object parsed = null;
-		if (json == null || json.length() == 0) {
-			return parsed;
-		}
-		
-		String trimmed = json.trim();
-		char firstChar = trimmed.charAt(0);
-
-		if (firstChar == '{') {
-			parsed = new KrollDict(new JSONObject(json));
-		} else if (firstChar == '[') {
-			JSONArray array = new JSONArray(json);
-			Object result[] = new Object[array.length()];
-			for (int i = 0; i < array.length(); i++) {
-				result[i] = KrollDict.fromJSON(array.get(i));
-			}
-			parsed = result;
-		} else {
-			parsed = new JSONTokener(json).nextValue();
-		}
-		
-		return parsed;
+		JsonParser parser = new JsonParser(Context.getCurrentContext(), invocation.getScope());
+		return parser.parseValue(json);
 	}
 
 }

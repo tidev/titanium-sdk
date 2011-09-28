@@ -1,0 +1,8 @@
+{
+ "functions": [
+  "setDocument"
+ ], 
+ "properties": [
+  "document" 
+ ]
+}

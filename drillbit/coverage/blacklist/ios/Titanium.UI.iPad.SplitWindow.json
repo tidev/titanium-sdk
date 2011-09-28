@@ -1,0 +1,11 @@
+{
+ "functions": [
+  "ignoringRotationToOrientation", 
+  "handleClose"
+ ], 
+ "properties": [
+  "newView", 
+  "orientationFlags", 
+  "childViewController"
+ ]
+}

@@ -4,16 +4,21 @@ description: A set of constants for the position value that can be used for the 
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [iphone, ipad]
+createable: false
 properties:
   - name: BOTTOM
     description: The table view scrolls the row of interest to the bottom of the visible table view.
     type: Number
+    permission: read-only
   - name: MIDDLE
     description: The table view scrolls the row of interest to the middle of the visible table view.
     type: Number
+    permission: read-only
   - name: NONE
     description: The table view scrolls the row of interest to be fully visible with a minimum of movement. If the row is already fully visible, no scrolling occurs. For example, if the row is above the visible area, the behavior is identical to that specified by `TOP`. This is the default.
     type: Number
+    permission: read-only
   - name: TOP
     description: The table view scrolls the row of interest to the top of the visible table view.
     type: Number
+    permission: read-only

@@ -4,25 +4,33 @@ description: An object which represents a single alert for an event in an Androi
 extends: Titanium.Proxy
 since: "1.5"
 platforms: [android]
+createable: false
 properties:
   - name: alarmTime
     description: The date/time at which the alert's alarm is triggered.
     type: Date
+    permission: read-only
   - name: begin
     description: The date/time at which the corresponding event begins.
     type: Date
+    permission: read-only
   - name: end
     description: The date/time at which the corresponding event ends.
     type: Date
+    permission: read-only
   - name: eventId
     description: The integer id of the event for which the alert is set.
     type: Number
+    permission: read-only
   - name: id
     description: The id of the alert.
     type: String
+    permission: read-only
   - name: minutes
     description: The minutes before the event when the alert should trigger.
     type: Number
+    permission: read-only
   - name: state
     description: The current state of the alert.  Possible values are the STATE_ constants in <Titanium.Android.Calendar>.
     type: Number
+    permission: read-only

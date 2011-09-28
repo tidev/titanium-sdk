@@ -8,6 +8,7 @@ description: >
     conforms to the [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html)
     defintion of a DOM DocumentType.
 since: "0.9"
+createable: false
 properties:
   - name: entities
     description: >
@@ -22,7 +23,7 @@ properties:
     permission: read-only
   - name: name
     description: >
-      The name of DTD; i.e., the name immediately following the `DOCTYPE` keyword.
+        The name of DTD; i.e., the name immediately following the `DOCTYPE` keyword.
     type: String
     permission: read-only
   - name: notations
@@ -40,4 +41,6 @@ properties:
     description: The system identifier of the external subset.
     type: String
     permission: read-only
-
+notes: As of version 3.1, Android still does not truly support DTDs.  A document with a DTD can be
+    parsed, however it is not validated, none of its default attributes will automatically be put
+    into the tree, etc.  [Google is aware of the issue](http://code.google.com/p/android/issues/detail?id=7395).

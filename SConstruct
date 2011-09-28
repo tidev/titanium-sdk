@@ -27,7 +27,11 @@ elif ARGUMENTS.get('PRODUCT_VERSION', 0):
 # get the githash for the build so we can always pull this build from a specific
 # commit.  We're getting it here so we can pass it to android's ant build
 # in order to get it into build.properties
-p = subprocess.Popen(["git", "rev-parse", "HEAD"], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+gitCmd = "git"
+if platform.system() == "Windows":
+	gitCmd += ".cmd"
+
+p = subprocess.Popen([gitCmd, "rev-parse", "HEAD"], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
 out, err = p.communicate()
 if err:
 	print >>sys.stderr, err

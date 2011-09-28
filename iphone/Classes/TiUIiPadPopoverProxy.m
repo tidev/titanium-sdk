@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2010-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,6 +17,15 @@
 @synthesize viewController, popoverView;
 
 #pragma mark Setup
+
+-(id)init
+{
+    if (self = [super init]) {
+        closingCondition = [[NSCondition alloc] init];
+    }
+    return self;
+}
+
 -(void)dealloc
 {
 	[viewController setProxy:nil];
@@ -24,6 +33,7 @@
 	RELEASE_TO_NIL(navigationController);
 	RELEASE_TO_NIL(popoverController);
 	RELEASE_TO_NIL(popoverView);
+    RELEASE_TO_NIL(closingCondition);
 	[super dealloc];
 }
 
@@ -64,9 +74,8 @@
 
 -(void)updateContentSize
 {
-	CGSize newSize = [self contentSize];
-	BOOL animated_ = [[self popoverController] isPopoverVisible];
-	[[self viewController] setContentSizeForViewInPopover:newSize];
+    CGSize newSize = [self contentSize];
+    [[self viewController] setContentSizeForViewInPopover:newSize];
 	[self layoutChildren:NO];
 }
 
@@ -181,11 +190,17 @@
 {
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
 	[self rememberSelf];
-	ENSURE_UI_THREAD_1_ARG(args);
 	
+	[closingCondition lock];
+	if (isDismissing) {
+		[closingCondition wait];
+	}
+	[closingCondition unlock];
+
 	NSDictionary *rectProps = [args objectForKey:@"rect"];
 	animated = [TiUtils boolValue:@"animated" properties:args def:YES];
 	directions = [TiUtils intValue:[self valueForKey:@"arrowDirection"] def:UIPopoverArrowDirectionAny];
+
 	[self setPopoverView:[args objectForKey:@"view"]];
 	
 	if (rectProps!=nil)
@@ -199,11 +214,15 @@
 
 	isShowing = YES;
 	[self retain];
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
-	[self windowWillOpen];
-	[self reposition];
-	[self updatePopoverNow];
-	[self windowDidOpen];
+
+	TiThreadPerformOnMainThread(^{
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+		[self windowWillOpen];
+		[self reposition];
+		[self updatePopoverNow];
+		[self windowDidOpen];
+	},YES);
+
 }
 
 -(void)updatePopover:(NSNotification *)notification;
@@ -217,7 +236,17 @@
 
 	if ([popoverView isUsingBarButtonItem])
 	{
-		[[self popoverController] presentPopoverFromBarButtonItem:[popoverView barButtonItem] permittedArrowDirections:directions animated:animated];
+		UIBarButtonItem * ourButtonItem = [popoverView barButtonItem];
+		@try {
+			/*
+			 *	Because buttonItems may or many not have a view, there is no way for us
+			 *	to know beforehand if the request is an invalid one.
+			 */
+			[[self popoverController] presentPopoverFromBarButtonItem: ourButtonItem permittedArrowDirections:directions animated:animated];
+		}
+		@catch (NSException *exception) {
+			NSLog(@"[WARN] Popover requested on view not attached to current window.");
+		}
 	}
 	else
 	{
@@ -245,13 +274,27 @@
 
 -(void)hide:(id)args
 {
-	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+    if (![NSThread isMainThread]) {
+        ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+        
+        [closingCondition lock];
+        isDismissing = YES;
+        [closingCondition unlock];
+        
+        [self performSelectorOnMainThread:@selector(hide:) withObject:args waitUntilDone:NO];
+        return;
+    }
 
-	ENSURE_UI_THREAD_1_ARG(args);
 	BOOL animated_ = [TiUtils boolValue:@"animated" properties:args def:YES];
 	[[self popoverController] dismissPopoverAnimated:animated_];
 
-//As of iPhone OS 3.2, calling dismissPopoverAnimated does NOT call didDismissPopover. So we have to do it ourselves...
+    // Manually calling dismissPopoverAnimated: does not, in fact, call the delegate's
+    // popoverControllerDidDismissPopover: callback. See documentation!
+    
+    // OK, apparently we need the delay so that the animation can finish and the popover vanish before making any
+    // dealloc attempts. But mixing poorly-timed hide/show calls can lead to crashes due to this delay, so we
+    // have to set a flag to warn show(), and then trigger a condition when the flag is cleared.
+    
 	[self performSelector:@selector(popoverControllerDidDismissPopover:) withObject:popoverController afterDelay:0.5];
 }
 
@@ -277,6 +320,11 @@
 //against that.
 	if (!isShowing)
 	{
+        [closingCondition lock];
+        isDismissing = NO;
+        [closingCondition signal];
+        [closingCondition unlock];
+        
 		return;
 	}
 	[self windowWillClose];
@@ -289,11 +337,10 @@
 	RELEASE_TO_NIL_AUTORELEASE(popoverController);
 	RELEASE_TO_NIL(navigationController);
 	[self performSelector:@selector(release) withObject:nil afterDelay:0.5];
-}
-
-- (UIViewController *)childViewController;
-{
-	return nil;
+    [closingCondition lock];
+    isDismissing = NO;
+    [closingCondition signal];
+    [closingCondition unlock];
 }
 
 -(BOOL)suppressesRelayout
@@ -301,6 +348,32 @@
 	return YES;
 }
 
+- (UIViewController *)childViewController;
+{
+	return nil;
+}
+
+/*	
+ *	The viewWill/DidAppear/Disappear functions are here to conform to the
+ *	TIUIViewController protocol, but currently do nothing. In the future they
+ *	may pass the events onto the children. But whether that's needed or not
+ *	requires research. TODO: Research popover actions for view transitions
+ */
+- (void)viewWillAppear:(BOOL)animated
+{
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+}
+
+- (void)viewDidDisappear:(BOOL)animated
+{
+}
 
 @end
 #endif

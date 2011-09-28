@@ -121,11 +121,11 @@ public class KrollCoverage extends KrollObject
 
 	/**
 	 * Increment coverage on a property or function
-	 * @param componentType The component type, i.e {@link MODULES}, {@link PROXIES}, or {@link OTHER}
+	 * @param componentType The component type, i.e {@link KrollCoverage#MODULES}, {@link KrollCoverage#PROXIES}, or {@link KrollCoverage#OTHER}
 	 * @param component The fully-qualified component name, i.e. "Titanium.UI"
 	 * @param name The API name that is being covered
-	 * @param type The type of coverage, i.e {@link PROPERTY_GET}, {@link PROPERTY_SET}, or {@link FUNCTION_CALL}
-	 * @param apiType The API type, i.e. {@link FUNCTION} or {@link PROPERTY}
+	 * @param type The type of coverage, i.e {@link KrollCoverage#PROPERTY_GET}, {@link KrollCoverage#PROPERTY_SET}, or {@link KrollCoverage#FUNCTION_CALL}
+	 * @param apiType The API type, i.e. {@link KrollCoverage#FUNCTION} or {@link KrollCoverage#PROPERTY}
 	 */
 	public static void incrementCoverage(String componentType, String component,
 		String name, String type, String apiType)

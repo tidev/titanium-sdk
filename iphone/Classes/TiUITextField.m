@@ -16,7 +16,7 @@
 
 @implementation TiTextField
 
-@synthesize leftButtonPadding, rightButtonPadding, paddingLeft, paddingRight, becameResponder;
+@synthesize leftButtonPadding, rightButtonPadding, paddingLeft, paddingRight, becameResponder, maxLength;
 
 -(void)configure
 {
@@ -27,6 +27,7 @@
 	rightButtonPadding = 0;
 	paddingLeft = 0;
 	paddingRight = 0;
+    maxLength = -1;
 	[super setLeftViewMode:UITextFieldViewModeAlways];
 	[super setRightViewMode:UITextFieldViewModeAlways];	
 }
@@ -414,6 +415,24 @@
 	}
 }
 
+-(void)setValue_:(id)value
+{
+    NSString* string = [TiUtils stringValue:value];
+    NSInteger maxLength = [[self textWidgetView] maxLength];
+    if (maxLength > -1 && [string length] > maxLength) {
+        string = [string substringToIndex:maxLength];
+    }
+    [super setValue_:string];
+}
+
+-(void)setMaxLength_:(id)value
+{
+    NSInteger maxLength = [TiUtils intValue:value def:-1];
+    [[self textWidgetView] setMaxLength:maxLength];
+    [self setValue_:[[self textWidgetView] text]];
+    [[self proxy] replaceValue:value forKey:@"maxLength" notification:NO];
+}
+
 #pragma mark Public Method
 
 -(BOOL)hasText
@@ -427,12 +446,11 @@
 - (void)textFieldDidBeginEditing:(UITextField *)tf
 {
 	[self textWidget:tf didFocusWithText:[tf text]];
+	[self performSelector:@selector(textFieldDidChange:) onThread:[NSThread currentThread] withObject:nil waitUntilDone:NO];
 }
 
 
 #pragma mark Keyboard Delegates
-
-
 
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField;        // return NO to disallow editing.
 {
@@ -442,6 +460,15 @@
 - (BOOL)textField:(UITextField *)tf shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
 	NSString *curText = [tf text];
+    
+    NSInteger maxLength = [[self textWidgetView] maxLength];    
+    if (maxLength > -1) {
+        NSInteger length = [curText length] + [string length] - range.length;
+        
+        if (length > maxLength) {
+            return NO;
+        }
+    }
 	
 	if ([string isEqualToString:@""])
 	{

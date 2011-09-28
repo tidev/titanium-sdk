@@ -1,0 +1,135 @@
+---
+name: Global
+description: APIs that live on the global scope.
+
+methods:
+  - name: alert
+    description: Displays a pop-up alert dialog with the passed in `message`.
+    parameters:
+      - name: message
+        type: String
+        description: The message to alert.
+  - name: clearInterval
+    description: Clear an interval timer from being fired.
+    parameters:
+      - name: timerId
+        type: Number
+        description: The timer ID returned by <Global.setInterval>
+  - name: clearTimeout
+    description: Clear a timeout timer from being fired.
+    parameters:
+      - name: timerId
+        type: Number
+        description: The timer ID returned by <Global.setTimeout>
+  - name: decodeURIComponent
+    description:
+        Replaces each URI encoded escape sequence in the passed in `encodedURI`
+        with the character that it represents. See the
+        [MDN docs for decodeURIComponent](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/decodeURIComponent).
+    parameters:
+      - name: encodedURI
+        type: String
+        description: A URI string with encoded escape sequences.
+    returns:
+        type: String
+        description: The decoded URI String.
+  - name: encodeURIComponent
+    description:
+        Replaces all URI special characters in the passed in `string` with
+        URI escape codes. See the [MDN docs for encodeURIComponent](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/encodeURIComponent)
+    parameters:
+      - name: string
+        type: String
+        description: "A URI component that needs it's special characters encoded."
+    returns:
+        type: String
+        description: An encoded URI.
+  - name: L
+    description: An alias for <Titanium.Locale.getString>
+    parameters:
+      - name: key
+        type: String
+        description: The lookup key for the localization string
+      - name: hint
+        type: String
+        description: The text to use if `key` is not found.
+        optional: true
+    returns:
+        type: String
+        description: The value of the localized string defined by `key`.
+  - name: require
+    description:
+        Loads either a native Titanium module, or a
+        [CommonJS module](http://wiki.commonjs.org/wiki/Modules/1.1).
+        Titanium modules can be loaded by using their module ID, and JS
+        can be loaded by using their `app://` relative path.
+    parameters:
+      - name: moduleId
+        type: String
+        description: The module ID or `app://` relative path.
+    returns:
+        type: Object
+        description: The `exports` object of the required module.
+    examples:
+      - title: Require a native module
+        example: |
+            Require a native module with the ID `com.mycompany.module`
+            
+                var module = require('com.mycompany.module')
+      - title: Require a javascript module
+        example: |
+            myModule.js:
+            
+                exports.message = "hello world";
+            
+            app.js:
+            
+                var myModule = require('myModule');
+                alert(myModule.message);
+  - name: setInterval
+    description:
+        Creates an interval timer that calls `function` every `delay` milliseconds.
+        See the [MDN docs for setInterval](https://developer.mozilla.org/en/DOM/window.setInterval)
+    parameters:
+      - name: function
+        type: Callback
+        description: The function that this interval timer will call.
+      - name: delay
+        type: Number
+        description: How long the timer will wait between calls to `function`.
+    returns:
+        type: Number
+        description: A unique timer ID.
+    examples:
+      - title: Update a label every second, stop updating at 10 seconds
+        example: |
+            
+                var count = 0;
+                var timer = setInterval(function() {
+                    count++;
+                    label.text = "count: " + count;
+                    if (count == 10) {
+                        clearInterval(timer);
+                    }
+                }, 1000);
+  - name: setTimeout
+    description:
+        Creates a timer that calls `function` once after `delay` milliseconds.
+        See the [MDN docs for setTimeout](https://developer.mozilla.org/en/DOM/window.setTimeout)
+    parameters:
+      - name: function
+        type: Callback
+        description: The function that the timer will call.
+      - name: delay
+        type: Number
+        description: How long the timer will wait before calling `function`.
+    returns:
+        type: Number
+        description: A unique timer ID.
+    examples:
+      - title: Execute a function in 500 milliseconds
+        example: |
+            
+                setTimeout(function() {
+                    Ti.API.debug("called from timer");
+                }, 500);

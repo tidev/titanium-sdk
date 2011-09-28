@@ -1,0 +1,16 @@
+{
+ "functions": [
+  "krollObjectForProxy", 
+  "initWithProperties", 
+  "autoHeightForWidth", 
+  "registerProxy", 
+  "unregisterProxy", 
+  "autoWidthForWidth", 
+  "usesProxy" 
+ ], 
+ "properties": [
+  "host", 
+  "shouldDetachViewForSpace", 
+  "krollContext"
+ ]
+}

@@ -1,0 +1,36 @@
+{
+ "functions": [
+  "configureSelectionStyle", 
+  "configureBackground", 
+  "clearTableRowCell", 
+  "updateRow", 
+  "setSection", 
+  "setCallbackCell", 
+  "parentViewForChild", 
+  "configureTitle", 
+  "updateChildren", 
+  "renderTableViewCell", 
+  "initWithProperties", 
+  "configureChildren", 
+  "configureIndentionLevel", 
+  "initializeTableViewCell", 
+  "rowHeight", 
+  "childWillResize", 
+  "configureLeftSide", 
+  "configureRightSide", 
+  "setTable", 
+  "createEventObject", 
+  "setRow"
+ ], 
+ "properties": [
+  "tableClass", 
+  "callbackCell", 
+  "table", 
+  "row", 
+  "canHaveControllerParent", 
+  "isAttached", 
+  "viewAttached", 
+  "section", 
+  "view"
+ ]
+}

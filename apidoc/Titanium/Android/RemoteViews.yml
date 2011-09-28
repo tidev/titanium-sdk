@@ -3,6 +3,7 @@ name: Titanium.Android.RemoteViews
 description: The Titanium binding of [Android RemoteViews](http://developer.android.com/reference/android/widget/RemoteViews.html). RemoteViews are an API for referencing and updating views that live in another process (i.e. in a <Titanium.Android.Notification>)
 extends: Titanium.Proxy
 platforms: [android]
+createable: false
 since: "1.6"
 methods:
   - name: setBoolean

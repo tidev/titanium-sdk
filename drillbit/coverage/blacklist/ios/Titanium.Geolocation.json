@@ -1,0 +1,13 @@
+{
+ "functions": [
+  "headingDictionary", 
+  "dismissHeadingCalibrationDisplay", 
+  "contextWasShutdown", 
+  "locationManagerShouldDisplayHeadingCalibration", 
+  "locationDictionary"
+ ], 
+ "properties": [
+  "tempLocationManager", 
+  "locationManager"
+ ]
+}

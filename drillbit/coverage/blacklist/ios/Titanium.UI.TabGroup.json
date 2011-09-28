@@ -1,0 +1,19 @@
+{
+ "functions": [
+  "viewWillAppear", 
+  "handleOpen", 
+  "viewDidDisappear", 
+  "initWithProperties", 
+  "handleClose", 
+  "resetTabArray", 
+  "didReceiveMemoryWarning", 
+  "viewDidAppear", 
+  "viewWillDisappear"
+ ], 
+ "properties": [
+  "handleFocusEvents", 
+  "orientationFlags", 
+  "newView", 
+  "tabbar"
+ ]
+}

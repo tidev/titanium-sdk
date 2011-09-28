@@ -1,0 +1,17 @@
+{
+ "functions": [
+  "indexForRow", 
+  "sectionIndexForIndex", 
+  "makeTableViewRowFromDict", 
+  "indexForIndexPath", 
+  "indexPathFromInt", 
+  "tableRowFromArg", 
+  "setSections"
+ ], 
+ "properties": [
+  "sectionCount", 
+  "init", 
+  "keySequence", 
+  "tableView"
+ ]
+}

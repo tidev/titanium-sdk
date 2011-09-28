@@ -3,23 +3,30 @@ name: Titanium.UI.iPhone.RowAnimationStyle
 description: A set of constants for the Animation Styles used for transition on table view rows.
 extends: Titanium.Proxy
 platforms: [iphone, ipad]
+createable: false
 since: "0.9"
 properties:
   - name: BOTTOM
     description: The inserted row or rows slides in from the bottom; the deleted row or rows slides out toward the bottom.
     type: Number
+    permission: read-only
   - name: FADE
     description: The inserted or deleted row or rows fades into or out of the table view.
     type: Number
+    permission: read-only
   - name: LEFT
     description: The inserted row or rows slides in from the left; the deleted row or rows slides out to the left.
     type: Number
+    permission: read-only
   - name: NONE
     description: No animation is performed. The new cell value appears as if the cell had just been reloaded.
     type: Number
+    permission: read-only
   - name: RIGHT
     description: The inserted row or rows slides in from the right; the deleted row or rows slides out to the right.
     type: Number
+    permission: read-only
   - name: TOP
     description: The inserted row or rows slides in from the top; the deleted row or rows slides out toward the top.
     type: Number
+    permission: read-only

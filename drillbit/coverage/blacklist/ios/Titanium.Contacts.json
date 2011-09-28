@@ -1,0 +1,8 @@
+{
+ "functions": [
+  "peoplePickerNavigationControllerDidCancel"
+ ], 
+ "properties": [
+  "addressBook"
+ ]
+}

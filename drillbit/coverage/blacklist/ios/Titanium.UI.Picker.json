@@ -1,0 +1,11 @@
+{
+ "functions": [
+  "verifyAutoresizing", 
+  "verifyHeight" 
+ ], 
+ "properties": [
+  "picker", 
+  "keySequence", 
+  "supportsNavBarPositioning"
+ ]
+}

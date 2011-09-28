@@ -12,76 +12,68 @@ events:
   - name: proximity
     description: fired when a proximity state changes
     properties:
-      - name: source
-        description: the source object that fired the event
       - name: state
         description: the proximity state value
-      - name: type
-        description: the name of the event fired
   - name: resume
     description: fired when an iOS application will enter the foreground due to iOS 4's multitasking.
         This does not include pauses due to notifications or calls. See
-        [applicationWillEnterForeground|http://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIApplication_Class/Reference/Reference.html#//apple_ref/doc/uid/TP40006728-CH3-SW108] for
+        [applicationWillEnterForeground](http://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIApplication_Class/Reference/Reference.html#//apple_ref/doc/uid/TP40006728-CH3-SW108) for
         the exact behavior that triggers this event.
     platforms: [iphone, ipad]
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
   - name: resumed
     description: fired when an iOS application will return to being the focus. This does include not
         only the events that trigger resume, but pauses due to notifications or calls. See
-        [applicationDidBecomeActive|http://developer.apple.com/library/ios/documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW10] for
+        [applicationDidBecomeActive](http://developer.apple.com/library/ios/documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW10) for
         the exact behavior that triggers this event.
     platforms: [iphone, ipad]
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
   - name: pause
     description: fired when an iOS application will stop being the focus. This does include not
         only the user leaving the application, but pauses due to notifications or calls. See
-        [applicationWillResignActive|http://developer.apple.com/library/ios/documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW10] for
+        [applicationWillResignActive](http://developer.apple.com/library/ios/documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW10) for
         the exact behavior that triggers this event.
     platforms: [iphone, ipad]
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
 properties:
   - name: copyright
     description: the application's copyright
     type: String
+    permission: read-only
   - name: description
     description: the application's description
     type: String
+    permission: read-only
   - name: guid
     description: the application's globally unique id (this is system generated and consistent through all versions)
     type: String
+    permission: read-only
   - name: id
     description: the application's app id as specified in Titanium Developer or Titanium Studio
     type: String
+    permission: read-only
   - name: idleTimerDisabled
     description: property for controlling whether the phone screen will be locked on idle time. Can be set to true to disable the timer
     type: Boolean
+    platforms: [iphone, ipad]
   - name: name
     description: the application's name
     type: String
+    permission: read-only
   - name: proximityDetection
     description: a boolean to indicate whether proximity detection is enabled
     type: Boolean
+    platforms: [iphone, ipad]
   - name: proximityState
     description: the state of the device's proximity detector
     type: Number
+    platforms: [iphone, ipad]
   - name: publisher
     description: the application's publisher
     type: String
+    permission: read-only
   - name: url
     description: the application url
     type: String
+    permission: read-only
   - name: version
     description: the application's version
     type: String
+    permission: read-only

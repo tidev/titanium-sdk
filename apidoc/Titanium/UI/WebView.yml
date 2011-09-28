@@ -45,48 +45,56 @@ events:
     properties:
       - name: url
         description: the url of the web document
-      - name: source
-        description: the source object that fired the event
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: error
     description: fired when the webview cannot load the content
     properties:
       - name: url
         description: the url of the web document
-      - name: source
-        description: the source object that fired the event
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
       - name: message
         description: the error message
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: load
     description: fired when the webview is loaded
     properties:
       - name: url
         description: the url of the web document
-      - name: source
-        description: the source object that fired the event
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
+  - name: pause
+    description: Pause native webview plugins. Add a `pause` handler to your <Titanium.UI.Android.Activity> and invoke
+        this method to pause native plugins. This is important with Flash content as it will continue in the background
+        unless this method is invoked.
+    since: "1.8.0"
+    platforms: [android]
+  - name: resume
+    description: Resume native webview plugins. Add a `resume` handler to your <Titanium.UI.Android.Activity> and invoke
+        this method to resume native plugins.
+    since: "1.8.0"
+    platforms: [android]
 properties:
   - name: data
     description: a data blob or file that is used to load the web document
@@ -97,6 +105,20 @@ properties:
   - name: loading
     description: boolean indicating if the webview is loading content
     type: Boolean
+  - name: pluginState
+    description: set how plugins are processed. Accepts one of <Titanium.UI.Android.WEBVIEW_PLUGINS_OFF>, <Titanium.UI.Android.WEBVIEW_PLUGINS_ON>, or <Titanium.UI.Android.WEBVIEW_PLUGINS_ON_DEMAND>.
+        See Android documentation for [WebSettings.PluginState](http://developer.android.com/reference/android/webkit/WebSettings.PluginState.html). Only
+        works on Android devices at API Level 8 or greater.
+    type: Number
+    platforms: [android]
+    since: "1.8.0"
+    default: <Titanium.UI.Android.WEBVIEW_PLUGINS_OFF>
+  - name: enableZoomControls
+    description: sets whether the zoom controls are enabled
+    type: Boolean
+    platforms: [android]
+    since: "1.8.0"
+    default: true
   - name: scalesPageToFit
     description: whether the webview should scale it's contents or not
     type: Boolean

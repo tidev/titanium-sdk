@@ -1,0 +1,12 @@
+{
+ "functions": [
+  "setBackfillEnd", 
+  "ensureOffsetArraySize", 
+  "setBackfillStart"
+ ], 
+ "properties": [
+  "backfillStart", 
+  "cachedGradient", 
+  "backfillEnd"
+ ]
+}

@@ -16,6 +16,9 @@ properties:
   - name: title
     description: the title for the tab group for this tab
     type: String
+  - name: titleid
+    description: the key in the locale file to use for the title property
+    type: String
   - name: window
     description: the root level tab window.  all tabs must have at least one root level tab window.
     type: Object

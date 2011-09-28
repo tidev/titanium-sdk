@@ -10,15 +10,15 @@ methods:
   - name: multiply
     description: Returns a matrix constructed by combining two existing matrix.
     returns:
-        type: Object
+        type: Titanium.UI.iOS.3DMatrix
     parameters:
       - name: t2
         description: The second matrix. This matrix is concatenated to the matrix instance against which the function is invoked.  The result of this function is the first matrix multiplied by the second matrix. You might perform several multiplications in order to create a single matrix that contains the cumulative effects of several transformations. Note that matrix operations are not commutative - the order in which you concatenate matrices is important. That is, the result of multiplying matrix t1 by matrix t2 does not necessarily equal the result of multiplying matrix t2 by matrix t1.
-        type: Object
+        type: Titanium.UI.iOS.3DMatrix
   - name: rotate
     description: Returns a matrix constructed by rotating an existing matrix
     returns:
-        type: Object
+        type: Titanium.UI.iOS.3DMatrix
     parameters:
       - name: angle
         description: The angle, in degrees, by which to rotate the matrix. A positive value specifies counterclockwise rotation and a negative value specifies clockwise rotation.
@@ -35,7 +35,7 @@ methods:
   - name: scale
     description: Returns a matrix constructed by scaling an existing matrix
     returns:
-        type: Object
+        type: Titanium.UI.iOS.3DMatrix
     parameters:
       - name: sx
         description: The value by which to scale x values of the matrix
@@ -49,7 +49,7 @@ methods:
   - name: translate
     description: Returns a matrix constructed by translating an existing matrix
     returns:
-        type: Object
+        type: Titanium.UI.iOS.3DMatrix
     parameters:
       - name: tx
         description: The value by which to move x values with the matrix

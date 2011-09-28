@@ -8,6 +8,7 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -19,11 +20,11 @@ import android.app.Activity;
 @Kroll.proxy (
 	creatableInModule=UIModule.class,
 	propertyAccessors={
-		"buttonNames",
-		"cancel",
-		"message",
-		"messageid",
-		"title"
+		TiC.PROPERTY_BUTTON_NAMES,
+		TiC.PROPERTY_CANCEL,
+		TiC.PROPERTY_MESSAGE,
+		TiC.PROPERTY_TITLE,
+		TiC.PROPERTY_OK
 	}
 )
 public class AlertDialogProxy extends TiViewProxy
@@ -36,9 +37,9 @@ public class AlertDialogProxy extends TiViewProxy
 	@Override
 	protected KrollDict getLangConversionTable() {
 		KrollDict table = new KrollDict();
-		table.put("title","titleid");
-		table.put("ok","okid");
-		table.put("message","messageid");
+		table.put(TiC.PROPERTY_TITLE, TiC.PROPERTY_TITLEID);
+		table.put(TiC.PROPERTY_OK, TiC.PROPERTY_OKID);
+		table.put(TiC.PROPERTY_MESSAGE, TiC.PROPERTY_MESSAGEID);
 		return table;
 	}
 

@@ -35,7 +35,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'HTML5 Video', auto:true, hasChild:true, url:'html5video.html'});
 	
 	// can't test youtube in simulator
-	if (Titanium.Platform.model != 'Simulator')
+	if (Titanium.Platform.model != 'iPhone Simulator')
 	{
 		data.push({title:'Youtube Video', auto:true, hasChild:true, url:'youtube.html'});
 	}
