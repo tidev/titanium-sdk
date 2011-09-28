@@ -1022,7 +1022,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		// hold the view during detachment -- but we can't release it immediately.
         // What if it (or a subview, such as a tableview) is in the middle of an animation?
         // We probably need to be even MORE careful here.
-		[[view retain] performSelector:@selector(autorelease) withObject:nil afterDelay:0.5];
+		[[view retain] performSelector:@selector(autorelease) withObject:nil afterDelay:0.5 inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 		view.proxy = nil;
 		if (self.modelDelegate!=nil && [self.modelDelegate respondsToSelector:@selector(detachProxy)])
 		{
