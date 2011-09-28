@@ -25,7 +25,7 @@ import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 
-@Kroll.proxy
+@Kroll.proxy(name="KrollProxy")
 public class KrollProxy extends EventEmitter
 	implements Handler.Callback
 {

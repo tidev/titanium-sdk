@@ -15,7 +15,7 @@ import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 
 import android.app.Activity;
 
-@Kroll.module
+@Kroll.module(name="KrollModule")
 public class KrollModule extends KrollProxy
 	implements KrollProxyListener, OnLifecycleEvent
 {
