@@ -54,6 +54,7 @@ public:
 	static jclass managedV8ReferenceClass;
 	static jclass assetsClass;
 	static jclass eventListenerClass;
+	static jclass v8FunctionClass;
 
 	// Java methods
 	static jmethodID classGetNameMethod;
@@ -81,6 +82,7 @@ public:
 	static jmethodID v8ObjectInitMethod;
 	static jmethodID assetsReadResourceMethod;
 	static jmethodID eventListenerPostEventMethod;
+	static jmethodID v8FunctionInitMethod;
 
 };
 

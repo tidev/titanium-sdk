@@ -72,6 +72,7 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.runtime.v8.V8Function;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiFileProxy;
@@ -85,7 +86,6 @@ import org.appcelerator.titanium.util.TiTempFileHelper;
 
 import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
-import android.content.Context;
 import android.net.Uri;
 
 public class TiHTTPClient
@@ -255,7 +255,9 @@ public class TiHTTPClient
 							handleEntityData(buf, count, totalSize, contentLength);
 						} catch (IOException e) {
 							Log.e(LCAT, "Error handling entity data", e);
-							Context.throwAsScriptRuntimeEx(e);
+
+							// TODO
+							// Context.throwAsScriptRuntimeEx(e);
 						}
 					}
 					if (entity != null) {
@@ -312,7 +314,7 @@ public class TiHTTPClient
 			}
 			
 			responseOut.write(data, 0, size);
-			KrollCallback onDataStreamCallback = getCallback(ON_DATA_STREAM);
+			V8Function onDataStreamCallback = getCallback(ON_DATA_STREAM);
 			if (onDataStreamCallback != null) {
 				KrollDict o = new KrollDict();
 				o.put("totalCount", contentLength);
@@ -322,11 +324,12 @@ public class TiHTTPClient
 				byte[] blobData = new byte[size];
 				System.arraycopy(data, 0, blobData, 0, size);
 
-				TiBlob blob = TiBlob.blobFromData(proxy.getTiContext(), blobData, contentType);
+				TiBlob blob = TiBlob.blobFromData(blobData, contentType);
 				o.put("blob", blob);
 				o.put("progress", ((double)totalSize)/((double)contentLength));
 
-				onDataStreamCallback.callAsync(o);
+				//onDataStreamCallback.callAsync(o);
+				onDataStreamCallback.invoke(o);
 			}
 		}
 		
@@ -335,7 +338,7 @@ public class TiHTTPClient
 		{
 			if (responseOut instanceof ByteArrayOutputStream) {
 				ByteArrayOutputStream byteStream = (ByteArrayOutputStream) responseOut;
-				responseData = TiBlob.blobFromData(proxy.getTiContext(), byteStream.toByteArray(), contentType);
+				responseData = TiBlob.blobFromData(byteStream.toByteArray(), contentType);
 			}
 			responseOut.close();
 			responseOut = null;
@@ -443,8 +446,8 @@ public class TiHTTPClient
 		connected = false;
 		this.nvPairs = new ArrayList<NameValuePair>();
 		this.parts = new HashMap<String,ContentBody>();
-		this.maxBufferSize = proxy.getTiContext().getTiApp()
-			.getSystemProperties().getInt(PROPERTY_MAX_BUFFER_SIZE, DEFAULT_MAX_BUFFER_SIZE);
+		this.maxBufferSize = TiApplication.getInstance()
+				.getSystemProperties().getInt(PROPERTY_MAX_BUFFER_SIZE, DEFAULT_MAX_BUFFER_SIZE);
 	}
 
 	public int getReadyState() {
@@ -454,12 +457,12 @@ public class TiHTTPClient
 		return readyState;
 	}
 
-	public KrollCallback getCallback(String name)
+	public V8Function getCallback(String name)
 	{
 		Object value = proxy.getProperty(name);
-		if (value != null && value instanceof KrollCallback)
+		if (value != null && value instanceof V8Function)
 		{
-			return (KrollCallback) value;
+			return (V8Function) value;
 		}
 		return null;
 	}
@@ -474,11 +477,13 @@ public class TiHTTPClient
 
 	public void fireCallback(String name, Object[] args)
 	{
-		KrollCallback cb = getCallback(name);
+		V8Function cb = getCallback(name);
 		if (cb != null)
 		{
-			cb.setThisProxy(proxy);
-			cb.callAsync(args);
+			// TODO - implement converter method for array to hashmap?
+			//cb.setThisProxy(proxy);
+			//cb.callAsync(args);
+			//cb.invoke(args);
 		}
 	}
 
@@ -486,7 +491,7 @@ public class TiHTTPClient
 		if (proxy.hasProperty("validatesSecureCertificate")) {
 			return TiConvert.toBoolean(proxy.getProperty("validatesSecureCertificate"));
 		} else {
-			if (proxy.getTiContext().getTiApp().getDeployType().equals(
+			if (TiApplication.getInstance().getDeployType().equals(
 					TiApplication.DEPLOY_TYPE_PRODUCTION)) {
 				return true;
 			}
@@ -570,9 +575,9 @@ public class TiHTTPClient
 					return null;
 				}
 				if (charset != null && charset.length() > 0) {
-					responseXml = XMLModule.parse(proxy.getTiContext(), text, charset);
+					responseXml = XMLModule.parse(text, charset);
 				} else {
-					responseXml = XMLModule.parse(proxy.getTiContext(), text);
+					responseXml = XMLModule.parse(text);
 				}
 			} catch (Exception e) {
 				Log.e(LCAT, "Error parsing XML", e);
@@ -1016,12 +1021,13 @@ public class TiHTTPClient
 
 						ProgressEntity progressEntity = new ProgressEntity(mpe, new ProgressListener() {
 							public void progress(int progress) {
-								KrollCallback cb = getCallback(ON_SEND_STREAM);
+								V8Function cb = getCallback(ON_SEND_STREAM);
 								if (cb != null) {
 									KrollDict data = new KrollDict();
 									data.put("progress", ((double)progress)/totalLength);
 									data.put("source", proxy);
-									cb.callAsync(data);
+									//cb.callAsync(data);
+									cb.invoke(data);
 								}
 							}
 						});

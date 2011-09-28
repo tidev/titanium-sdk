@@ -37,6 +37,7 @@ jclass JNIUtil::v8ObjectClass = NULL;
 jclass JNIUtil::managedV8ReferenceClass = NULL;
 jclass JNIUtil::assetsClass = NULL;
 jclass JNIUtil::eventListenerClass = NULL;
+jclass JNIUtil::v8FunctionClass = NULL;
 
 jmethodID JNIUtil::classGetNameMethod = NULL;
 jmethodID JNIUtil::arrayListInitMethod = NULL;
@@ -61,6 +62,7 @@ jmethodID JNIUtil::krollProxyCreateMethod = NULL;
 jmethodID JNIUtil::v8ObjectInitMethod = NULL;
 jmethodID JNIUtil::assetsReadResourceMethod = NULL;
 jmethodID JNIUtil::eventListenerPostEventMethod = NULL;
+jmethodID JNIUtil::v8FunctionInitMethod = NULL;
 
 JNIEnv* JNIScope::current = NULL;
 
@@ -229,6 +231,7 @@ void JNIUtil::initCache()
 	managedV8ReferenceClass = findClass("org/appcelerator/kroll/runtime/v8/ManagedV8Reference");
 	assetsClass = findClass("org/appcelerator/kroll/runtime/Assets");
 	eventListenerClass = findClass("org/appcelerator/kroll/runtime/v8/EventListener");
+	v8FunctionClass = findClass("org/appcelerator/kroll/runtime/v8/V8Function");
 
 	classGetNameMethod = getMethodID(classClass, "getName", "()Ljava/lang/String;", false);
 	arrayListInitMethod = getMethodID(arrayListClass, "<init>", "()V", false);
@@ -260,6 +263,8 @@ void JNIUtil::initCache()
 	assetsReadResourceMethod = getMethodID(assetsClass, "readResource", "(Ljava/lang/String;)[C", true);
 	eventListenerPostEventMethod = getMethodID(eventListenerClass, "postEvent",
 		"(Ljava/util/HashMap;)V", false);
+	v8FunctionInitMethod = getMethodID(v8FunctionClass, "<init>", "(j)V", false);
+
 	LOGD(TAG, "finish init cache");
 }
 }

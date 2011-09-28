@@ -11,6 +11,7 @@ import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.runtime.v8.V8Function;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
@@ -99,25 +100,25 @@ public class GeolocationModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void getCurrentHeading(KrollInvocation invocation, final KrollCallback listener)
+	public void getCurrentHeading(KrollInvocation invocation, final V8Function listener)
 	{
 		tiCompass.getCurrentHeading(invocation, listener);
 	}
 
 	@Kroll.method
-	public void getCurrentPosition(KrollInvocation invocation, KrollCallback listener)
+	public void getCurrentPosition(KrollInvocation invocation, V8Function listener)
 	{
 		tiLocation.getCurrentPosition(invocation, listener);
 	}
 
 	@Kroll.method
-	public void forwardGeocoder(String address, KrollCallback listener)
+	public void forwardGeocoder(String address, V8Function listener)
 	{
 		tiLocation.forwardGeocoder(address, listener);
 	}
 
 	@Kroll.method
-	public void reverseGeocoder(double latitude, double longitude, KrollCallback callback)
+	public void reverseGeocoder(double latitude, double longitude, V8Function callback)
 	{
 		tiLocation.reverseGeocoder(latitude, longitude, callback);
 	}
