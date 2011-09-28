@@ -63,6 +63,12 @@
 	}
 }
 
+-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+{
+	[super frameSizeChanged:frame bounds:bounds];
+	[self setCenter:[self center]];
+}
+
 -(void)setCenter:(CGPoint)center
 {
 	CGSize ourSize = [self bounds].size;
