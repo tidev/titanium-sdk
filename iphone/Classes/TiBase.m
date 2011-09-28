@@ -84,7 +84,46 @@ NSString * const kTiRemoteDeviceUUIDNotification = @"TiDeviceUUID";
 NSString * const kTiGestureShakeNotification = @"TiGestureShake";
 NSString * const kTiRemoteControlNotification = @"TiRemoteControl";
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 NSString * const kTiLocalNotification = @"TiLocalNotification";
-#endif
 
+BOOL TiExceptionIsSafeOnMainThread = NO;
+
+void TiExceptionThrowWithNameAndReason(NSString * exceptionName, NSString * message)
+{
+	NSLog(@"[ERROR] %@",message);
+	if (TiExceptionIsSafeOnMainThread || ([NSThread isMainThread]==NO)) {
+		@throw [NSException exceptionWithName:exceptionName reason:message userInfo:nil];
+	}	
+}
+
+void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
+{
+	__block NSException * caughtException = nil;
+	void (^wrapperBlock)() = ^{
+		BOOL exceptionsWereSafe = TiExceptionIsSafeOnMainThread;
+		TiExceptionIsSafeOnMainThread = YES;
+		@try {
+			mainBlock();
+		}
+		@catch (NSException *exception) {
+			if (waitForFinish) {
+				caughtException = [exception retain];
+			}
+		}
+		TiExceptionIsSafeOnMainThread = exceptionsWereSafe;
+	};
+	
+	if (waitForFinish)
+	{
+		dispatch_sync(dispatch_get_main_queue(), (dispatch_block_t)wrapperBlock);
+	}
+	else
+	{
+		dispatch_async(dispatch_get_main_queue(), (dispatch_block_t)wrapperBlock);
+	}
+	
+	if (caughtException != nil) {
+		[caughtException autorelease];
+		[caughtException raise];
+	}
+}

@@ -1,5 +1,12 @@
 {
  "functions": [
+  "createOMAttr",
+  "createOMDocument",
+  "createOMElement",
+  "createOMNamedNodeMap",
+  "createOMNode",
+  "createOMNodeList",
+  "createOMTextNode"
  ], 
  "properties": []
 }
