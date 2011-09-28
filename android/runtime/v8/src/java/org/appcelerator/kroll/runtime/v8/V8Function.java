@@ -18,9 +18,14 @@ public class V8Function extends V8Object
 
 	public void invoke(HashMap functionArgs)
 	{
+		nativeInvoke(getPointer(), new Object[]{ functionArgs });
+	}
+
+	public void invoke(Object[] functionArgs)
+	{
 		nativeInvoke(getPointer(), functionArgs);
 	}
 
-	private static native void nativeInvoke(long functionPointer, HashMap functionArgs);
+	private static native void nativeInvoke(long functionPointer, Object[] functionArgs);
 }
 

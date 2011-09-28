@@ -24,6 +24,7 @@ extern "C" {
  * Method:    nativeInvoke
  * Signature: (JLjava/lang/Object)V
  */
+/*
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeInvoke(
 	JNIEnv *env, jobject caller, jlong functionPointer, jobject functionArgument)
 {
@@ -35,6 +36,22 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeInv
 
 	// construct arguments array
 	Handle<Value> functionArguments[] = { TypeConverter::javaObjectToJsValue(functionArgument) };
+
+	// call into the JS function with the provided argument
+	jsFunction->Call(jsFunction, 1, functionArgs);
+}
+*/
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeInvoke(
+	JNIEnv *env, jobject caller, jlong functionPointer, jobjectarray functionArguments)
+{
+	titanium::JNIScope jniScope(env);
+	HandleScope scope;
+
+	// construct function from pointer
+	v8::Handle<v8::Function> jsFunction((v8::Function *) functionPointer);
+
+	// construct arguments array
+	v8::Handle<v8::Array> jsFunctionArguments = { TypeConverter::javaArrayToJsArray(functionArguments) };
 
 	// call into the JS function with the provided argument
 	jsFunction->Call(jsFunction, 1, functionArgs);
