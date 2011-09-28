@@ -292,6 +292,13 @@
 		[self rotateDefaultImageViewToOrientation:UIInterfaceOrientationPortrait];
 		[rootView addSubview:defaultImageView];
 	}
+	//In the event that we are reloading the view due to memory panic.
+	for (TiWindowProxy * thisProxy in windowProxies)
+	{
+		UIView * thisView = [thisProxy view];
+		[rootView addSubview:thisView];
+		[thisProxy reposition];
+	}
 	[rootView release];
 }
 
