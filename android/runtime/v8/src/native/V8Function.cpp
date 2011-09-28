@@ -22,25 +22,8 @@ extern "C" {
 /*
  * Class:     org_appcelerator_kroll_runtime_v8_V8Function
  * Method:    nativeInvoke
- * Signature: (JLjava/lang/Object)V
+ * Signature: (J[Ljava/lang/Object)V
  */
-/*
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeInvoke(
-	JNIEnv *env, jobject caller, jlong functionPointer, jobject functionArgument)
-{
-	titanium::JNIScope jniScope(env);
-	HandleScope scope;
-
-	// construct function from pointer
-	v8::Handle<v8::Function> jsFunction((v8::Function *) functionPointer);
-
-	// construct arguments array
-	Handle<Value> functionArguments[] = { TypeConverter::javaObjectToJsValue(functionArgument) };
-
-	// call into the JS function with the provided argument
-	jsFunction->Call(jsFunction, 1, functionArgs);
-}
-*/
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeInvoke(
 	JNIEnv *env, jobject caller, jlong functionPointer, jobjectarray functionArguments)
 {
@@ -51,10 +34,12 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeInv
 	v8::Handle<v8::Function> jsFunction((v8::Function *) functionPointer);
 
 	// construct arguments array
-	v8::Handle<v8::Array> jsFunctionArguments = { TypeConverter::javaArrayToJsArray(functionArguments) };
+	v8::Handle<v8::Array> jsFunctionArguments = TypeConverter::javaArrayToJsArray(functionArguments);
+	v8::Handle<v8::Value>[] jsFunctionArguments = TypeConverter::javaObjectArrayToJsArguments(functionArguments);
+
 
 	// call into the JS function with the provided argument
-	jsFunction->Call(jsFunction, 1, functionArgs);
+	jsFunction->Call(jsFunction, 1, jsFunctionArgs);
 }
 
 #ifdef __cplusplus

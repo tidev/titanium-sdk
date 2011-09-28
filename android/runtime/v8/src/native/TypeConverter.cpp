@@ -157,7 +157,8 @@ jobject TypeConverter::jsObjectToJavaFunction(v8::Handle<v8::Object> jsObject)
 		return NULL;
 	}
 
-	return env->NewObject(JNIUtil::v8FunctionClass, JNIUtil::v8FunctionInitMethod, &jsObject);
+	jlong pointer = (jlong) *Persistent<Object>::New(jsObject);
+	return env->NewObject(JNIUtil::v8FunctionClass, JNIUtil::v8FunctionInitMethod, pointer);
 }
 
 jobjectArray TypeConverter::jsArgumentsToJavaArray(const Arguments& args)
@@ -180,6 +181,26 @@ jobjectArray TypeConverter::jsArgumentsToJavaArray(const Arguments& args)
 	}
 
 	return javaArgs;
+}
+
+v8::Handle<v8::Value>[] TypeConverter::javaObjectArrayToJsArguments(jobjectArray javaObjectArray)
+{
+	JNIEnv *env = JNIScope::getEnv();
+	if (env == NULL) {
+		return v8::Handle<v8::Array>();
+	}
+
+	int arrayLength = env->GetArrayLength(javaObjectArray);
+	v8::Handle<v8::Value> jsArguments[];
+
+	for (int i = 0; i < arrayLength; i++) {
+		jobject javaArrayElement = env->GetObjectArrayElement(javaObjectArray, i);
+		v8::Handle<v8::Value> jsArrayElement = TypeConverter::javaObjectToJsValue(javaArrayElement);
+		jsArguments[i] = jsArrayElement;
+		env->DeleteLocalRef(javaArrayElement);
+	}
+
+	return jsArguments;
 }
 
 jarray TypeConverter::jsArrayToJavaArray(v8::Handle<v8::Array> jsArray)
