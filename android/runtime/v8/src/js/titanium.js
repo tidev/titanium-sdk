@@ -4,8 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-var binding = kroll.binding('Titanium');
-var Titanium = binding.Titanium;
+var Titanium = kroll.binding('Titanium').Titanium,
+	bootstrap = require('bootstrap');
 
 // assign any Titanium props/methods/aliases here
 
@@ -18,26 +18,24 @@ Titanium.include = function(filename) {
 }
 
 Object.prototype.extend = function(other) {
-	if (!object) return;
+	if (!other) return;
 
-	for (name in object) {
-		if (object.hasOwnProperty(name)) {
-			this[name] = object[name];
+	for (name in other) {
+		if (other.hasOwnProperty(name)) {
+			this[name] = other[name];
 		}
 	}
 	return this;
 }
 
-function defineModuleGetter(module, name) {
-	module.__defineGetter__(name, function() {
-		return kroll.binding(name)[name];
-	});	
-}
+bootstrap.defineProperties("UI", {
+	Window: { get: function() {
+		delete this.Window;
+		this.Window = require("window").Window;
+		return this.Window;
+	}}
+});
 
-defineModuleGetter(Titanium, "API");
-defineModuleGetter(Titanium, "UI");
-defineModuleGetter(Titanium, "Media");
-defineModuleGetter(Titanium, "Filesystem");
-defineModuleGetter(Titanium, "Utils");
+bootstrap.bootstrap(Titanium);
 
 module.exports = Titanium;

@@ -8,6 +8,7 @@
 
 GENERATED_DIR := $(LOCAL_PATH)/../../generated
 SRC_JS_DIR := $(LOCAL_PATH)/../js
+UI_JS_DIR := $(LOCAL_PATH)/../../../../modules/ui/src/ti/modules/titanium/ui
 
 CFLAGS := $(PROXY_CFLAGS) -I$(GENERATED_DIR) -I$(LOCAL_PATH)/modules -g
 ifeq ($(TI_DEBUG),1)
@@ -37,7 +38,8 @@ ABS_JS_FILES := \
 	$(SRC_JS_DIR)/kroll.js \
 	$(SRC_JS_DIR)/module.js \
 	$(SRC_JS_DIR)/titanium.js \
-	$(SRC_JS_DIR)/vm.js
+	$(SRC_JS_DIR)/vm.js \
+	$(UI_JS_DIR)/window.js
 
 JS_FILES = $(subst $(SRC_JS_DIR),../js,$(ABS_JS_FILES))
 

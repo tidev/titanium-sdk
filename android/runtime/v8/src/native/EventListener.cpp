@@ -28,7 +28,6 @@ static Persistent<String> javaObjectSymbol;
 Handle<Value> EventListener::postEvent(const Arguments& args)
 {
 	HandleScope scope;
-	LOGD(TAG, "postEvent");
 
 	if (args.Length() == 0) {
 		LOGW(TAG, "Called with no arguments");

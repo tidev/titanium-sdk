@@ -32,7 +32,6 @@ import android.graphics.Bitmap;
 })
 public class ImageViewProxy extends ViewProxy
 {
-
 	private Bitmap bitmap;
 	private ArrayList<TiDrawableReference> imageSources;
 

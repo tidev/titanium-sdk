@@ -1,7 +1,7 @@
 var EventEmitter = require("events").EventEmitter,
 	UI = require("titanium").UI,
 	assets = require("assets"),
-	vm = require("vm"),;
+	vm = require("vm");
 
 var newActivityRequiredKeys = ["fullscreen", "navBarHidden", "modal", "windowSoftInputMode"];
 
