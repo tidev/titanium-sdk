@@ -116,30 +116,14 @@ void V8Util::fatalException(TryCatch &tryCatch)
 	reportException(tryCatch, true);
 }
 
-void V8Util::logValue(const char *format, Handle<Value> value)
+Handle<String> V8Util::jsonStringify(Handle<Value> value)
 {
 	HandleScope scope;
 
-	if (value.IsEmpty()) {
-		LOGD(TAG, format, "empty");
-	} else if (value->IsObject()) {
-		Handle<Object> obj = value->ToObject();
-		Handle<Array> names = obj->GetPropertyNames();
-		uint32_t length = names->Length();
-		LOGD(TAG, format, "{");
-		for (uint32_t i = 0; i < length; ++i) {
-			Handle<Value> name = names->Get(i);
-			Handle<Value> value = obj->GetRealNamedProperty(name->ToString());
-			String::Utf8Value nameValue(name->ToString());
-
-			LOGD(TAG, "  \"%s\": ", *nameValue);
-			logValue("    \"%s\"", value);
-		}
-		LOGD(TAG, "}");
-	} else {
-		String::Utf8Value str(value->ToString());
-		LOGD(TAG, format, *str);
-	}
+	Handle<Object> json = Context::GetCurrent()->Global()->Get(String::New("JSON"))->ToObject();
+	Handle<Function> stringify = Handle<Function>::Cast(json->Get(String::New("stringify")));
+	Handle<Value> args[] = { value };
+	return stringify->Call(json, 1, args)->ToString();
 }
 
 }

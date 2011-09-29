@@ -24,10 +24,14 @@ namespace bindings {
 class KrollBindings
 {
 public:
-	static void initNatives(v8::Handle<v8::Object> target);
+	static void initNatives(v8::Handle<v8::Object> exports);
+	static void initTitanium(v8::Handle<v8::Object> exports);
+	static void initWindow(v8::Handle<v8::Object> exports);
 
 	static v8::Handle<v8::String> getMainSource();
+
 	static v8::Handle<v8::Value> getBinding(const v8::Arguments& args);
+	static v8::Handle<v8::Object> getBinding(v8::Handle<v8::String> binding);
 };
 
 } // namespace titanium

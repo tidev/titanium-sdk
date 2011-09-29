@@ -24,12 +24,14 @@ public class EventEmitter extends V8Object implements Handler.Callback
 
 	private Handler v8Handler, uiHandler;
 	private EventListener eventChangeListener;
+	private boolean needsRegister;
 	private Semaphore semaphore = new Semaphore(0);
 	private HashMap<String, Integer> listenerCount = new HashMap<String, Integer>();
 
 	public EventEmitter()
 	{
 		super(0);
+		needsRegister = false;
 		v8Handler = new Handler(V8Runtime.getInstance().getV8Looper(), this);
 		uiHandler = new Handler(Looper.getMainLooper(), this);
 	}
@@ -38,10 +40,22 @@ public class EventEmitter extends V8Object implements Handler.Callback
 	public void setPointer(long ptr)
 	{
 		super.setPointer(ptr);
-		if (eventChangeListener == null) {
-			eventChangeListener = new EventListener(uiHandler);
-			eventChangeListener.addEventMessage(this, EventListener.EVENT_LISTENER_ADDED, MSG_LISTENER_ADDED);
-			eventChangeListener.addEventMessage(this, EventListener.EVENT_LISTENER_REMOVED, MSG_LISTENER_REMOVED);
+		if (needsRegister) {
+			registerListenerEvents();
+		}
+	}
+
+	public void registerListenerEvents()
+	{
+		if (this.ptr != 0) {
+			if (eventChangeListener == null) {
+				eventChangeListener = new EventListener(uiHandler);
+				eventChangeListener.addEventMessage(this, EventListener.EVENT_LISTENER_ADDED, MSG_LISTENER_ADDED);
+				eventChangeListener.addEventMessage(this, EventListener.EVENT_LISTENER_REMOVED, MSG_LISTENER_REMOVED);
+				needsRegister = false;
+			}
+		} else {
+			needsRegister = true;
 		}
 	}
 

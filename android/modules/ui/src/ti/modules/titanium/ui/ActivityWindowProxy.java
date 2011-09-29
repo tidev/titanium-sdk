@@ -10,6 +10,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiActivityWindow;
 import org.appcelerator.titanium.TiActivityWindows;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiMessageQueue;
@@ -48,6 +49,18 @@ public class ActivityWindowProxy extends TiWindowProxy
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	protected String windowId;
+	protected boolean useCurrentActivity;
+
+	@Override
+	public void handleCreationDict(KrollDict options)
+	{
+		super.handleCreationDict(options);
+
+		Object useCurrentActivity = options.get("useCurrentActivity");
+		if (useCurrentActivity != null) {
+			this.useCurrentActivity = TiConvert.toBoolean(useCurrentActivity);
+		}
+	}
 
 	@Override
 	protected KrollDict getLangConversionTable()
@@ -98,7 +111,15 @@ public class ActivityWindowProxy extends TiWindowProxy
 		}
 
 		Messenger messenger = new Messenger(getUIHandler());
-		view = new TiUIActivityWindow(this, options, messenger, MSG_FINISH_OPEN);
+
+		if (useCurrentActivity) {
+			Activity activity = TiApplication.getInstance().getCurrentActivity();
+			if (activity instanceof TiBaseActivity) {
+				view = new TiUIActivityWindow(this, (TiBaseActivity) activity, messenger, MSG_FINISH_OPEN);
+			}
+		} else {
+			view = new TiUIActivityWindow(this, options, messenger, MSG_FINISH_OPEN);
+		}
 	}
 
 	public void fillIntentForTab(Intent intent)

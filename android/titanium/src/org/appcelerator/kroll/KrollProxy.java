@@ -267,7 +267,7 @@ public class KrollProxy extends EventEmitter
 		this.modelListener = modelListener;
 		if (modelListener != null) {
 			modelListener.processProperties(creationDict);
-			creationDict = null;
+			//creationDict = null;
 		}
 	}
 

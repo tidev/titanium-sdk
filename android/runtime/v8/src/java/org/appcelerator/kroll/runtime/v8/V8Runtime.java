@@ -84,7 +84,6 @@ public final class V8Runtime
 			if (chars != null && chars.length > 0) {
 				V8Script.runInThisContextNoResult(new String(chars), filename);
 			}
-			Log.d(TAG, "finished evalFile");
 		} catch (IOException e) {
 			Log.e(TAG, e.getMessage(), e);
 		}

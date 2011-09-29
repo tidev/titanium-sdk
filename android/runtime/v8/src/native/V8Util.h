@@ -99,7 +99,7 @@ public:
 		const v8::Arguments& args);
 	static void reportException(v8::TryCatch &tryCatch, bool showLine = true);
 	static void fatalException(v8::TryCatch &tryCatch);
-	static void logValue(const char *format, v8::Handle<v8::Value> value);
+	static v8::Handle<v8::String> jsonStringify(v8::Handle<v8::Value> value);
 };
 
 }

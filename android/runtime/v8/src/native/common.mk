@@ -17,6 +17,7 @@ endif
 
 LDLIBS := -L$(SYSROOT)/usr/lib -ldl -llog -L$(TARGET_OUT)
 SRC_FILES := \
+	AndroidUtil.cpp \
 	EventEmitter.cpp \
 	EventListener.cpp \
 	JavaObject.cpp \
@@ -34,6 +35,7 @@ SRC_FILES := \
 	$(PROXY_SOURCES)
 
 ABS_JS_FILES := \
+	$(GENERATED_DIR)/bootstrap.js \
 	$(SRC_JS_DIR)/events.js \
 	$(SRC_JS_DIR)/kroll.js \
 	$(SRC_JS_DIR)/module.js \

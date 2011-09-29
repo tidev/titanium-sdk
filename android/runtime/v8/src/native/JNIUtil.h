@@ -22,6 +22,7 @@ public:
 	static jclass findClass(const char *className);
 	static jmethodID getMethodID(jclass javaClass, const char *methodName, const char *signature, bool isStatic = false);
 	static jfieldID getFieldID(jclass javaClass, const char *fieldName, const char *signature);
+	static jstring getClassName(jclass javaClass);
 	static void logClassName(const char *format, jclass javaClass, bool errorLevel = false);
 
 	static jobjectArray newObjectArray(int length, jobject initial = NULL);

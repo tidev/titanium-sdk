@@ -65,9 +65,6 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 				Log.d(TAG, "Eval JS Activity:" + fullUrl);
 			}
 			KrollContext.getKrollContext().evalFile(fullUrl);
-		/*} catch (IOException e) {
-			e.printStackTrace();
-			finish();*/
 		} finally {
 			if (DBG) {
 				Log.d(TAG, "Signal JS loaded");
@@ -88,7 +85,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 
 		url = TiUrl.normalizeWindowUrl(getUrl());
 
-		KrollContext.getKrollContext().evalFile(url.resolve());
+		KrollContext.getKrollContext();
 
 		if (activityProxy == null) {
 			setActivityProxy(new ActivityProxy(this));

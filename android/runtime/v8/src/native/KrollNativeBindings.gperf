@@ -1,5 +1,6 @@
 %define lookup-function-name lookupBindingInit
 %define hash-function-name getBindingHash
+%define class-name native
 %{
 #include "modules/ScriptsModule.h"
 #include "modules/AssetsModule.h"
@@ -14,6 +15,8 @@ natives, KrollBindings::initNatives
 evals, ScriptsModule::Initialize
 assets, AssetsModule::Initialize
 API, APIModule::Initialize
+Titanium, KrollBindings::initTitanium
+Window, KrollBindings::initWindow
 %%
 	} // namespace bindings
 } // namespace titanium

@@ -54,79 +54,28 @@ void ${className}::Initialize(Handle<Object> ti)
 	javaClass = JNIUtil::findClass("${packageName?replace('.','/')}/${className}");
 
 	HandleScope scope;
-
-	Local<FunctionTemplate> t = FunctionTemplate::New(${className}::Constructor);
-	proxyTemplate = Persistent<FunctionTemplate>::New(t);
-	proxyTemplate->InstanceTemplate()->SetInternalFieldCount(ProxyFactory::kInternalFieldCount);
-	proxyTemplate->SetClassName(String::NewSymbol("${proxyAttrs.name}"));
+	Handle<FunctionTemplate> t = ProxyFactory::inheritProxyTemplate(
 	<#if superProxyClassName != "EventEmitter">
-	proxyTemplate->Inherit(${superProxyClassName?replace("BindingGen", "")}::proxyTemplate);
+		${superProxyClassName?replace("BindingGen", "")}::proxyTemplate,
 	<#else>
-	proxyTemplate->Inherit(EventEmitter::constructorTemplate);
+		EventEmitter::constructorTemplate,
 	</#if>
+		javaClass, "${proxyAttrs.name}");
+
+	proxyTemplate = Persistent<FunctionTemplate>::New(t);
 
 	// Method bindings -----------------------------------------------------------
 	<@Proxy.listMethods ; isFirst, name, method, signature>
 	V8_SET_PROTOTYPE_METHOD(proxyTemplate, "${name}", ${className}::${name});
 	</@Proxy.listMethods>
 
-	<#-- Register with the Proxy factory -->
-	ProxyFactory::registerProxyPair(javaClass, *proxyTemplate);
-
 	Local<Function> proxyConstructor = proxyTemplate->GetFunction();
 	<#if isModule>
 	Local<Object> moduleInstance = proxyConstructor->NewInstance();
 	ti->Set(String::NewSymbol("${proxyAttrs.name}"), moduleInstance);
-
-	<@Proxy.listChildModules ; isFirst, childModule>
-	<@Proxy.namespace proxy=childModule/>${Proxy.className(childModule.name)}Module::Initialize(moduleInstance);
-	</@Proxy.listChildModules>
-
-	<@Proxy.listCreateProxies ; isFirst, createProxy>
-	<@Proxy.namespace proxy=createProxy/>${Proxy.className(createProxy.name)}Proxy::Initialize(moduleInstance);
-	</@Proxy.listCreateProxies>
 	<#else>
 	ti->Set(String::NewSymbol("${proxyAttrs.name}"), proxyConstructor);
 	</#if>
-}
-
-Handle<Value> ${className}::Constructor(const Arguments& args)
-{
-	LOGD(TAG, "Constructor");
-
-	if (!args.IsConstructCall()) {
-		return JSException::CalledConstructor();
-	}
-
-	HandleScope scope;
-	Local<Object> v8Proxy = args.This();
-
-	// If ProxyFactory::createV8Proxy invoked us, unwrap
-	// the pre-created Java proxy it sent.
-	jobject javaProxy = ProxyFactory::unwrapJavaProxy(args);
-	bool deleteRef = false;
-	if (!javaProxy) {
-		javaProxy = ProxyFactory::createJavaProxy(javaClass, v8Proxy, args);
-		deleteRef = true;
-	}
-
-	// Set our Titanium API namespace so lazy initialization can work
-	<#assign tiNamespace = proxyAttrs.fullAPIName?replace("Titanium.", "")>
-	<#assign tiNamespace = tiNamespace?replace("Titanium", "")>
-	v8Proxy->SetInternalField(ProxyFactory::kTiNamespace, String::New("${tiNamespace}"));
-
-	${className}* v8ProxyNative = new ${className}(javaProxy);
-	v8ProxyNative->Wrap(v8Proxy);
-
-	if (deleteRef) {
-		JNIEnv *env = JNIScope::getEnv();
-		if (env) {
-			env->DeleteLocalRef(javaProxy);
-		}
-	}
-	LOGD(TAG, "Exit Constructor");
-
-	return v8Proxy;
 }
 
 // Methods ---------------------------------------------------------------
@@ -150,7 +99,7 @@ Handle<Value> ${className}::${name}(const Arguments& args)
 		}
 	}
 
-	${className}* proxy = NativeObject::Unwrap<${className}>(args.Holder());
+	JavaObject* proxy = NativeObject::Unwrap<JavaObject>(args.Holder());
 
 	<#if method.args?size &gt; 0>
 	<@Proxy.verifyAndConvertArguments method.args />

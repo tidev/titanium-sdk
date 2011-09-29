@@ -30,12 +30,10 @@ Handle<Value> EventListener::postEvent(const Arguments& args)
 	HandleScope scope;
 
 	if (args.Length() == 0) {
-		LOGW(TAG, "Called with no arguments");
 		return Undefined();
 	}
 
 	jobject jEvent = TypeConverter::jsValueToJavaObject(args[0]);
-
 	JavaObject *javaListener = static_cast<JavaObject *>(External::Unwrap(args.Data()));
 	jobject listener = javaListener->getJavaObject();
 

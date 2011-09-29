@@ -184,6 +184,14 @@ jfieldID JNIUtil::getFieldID(jclass javaClass, const char *fieldName, const char
 	return javaFieldID;
 }
 
+jstring JNIUtil::getClassName(jclass javaClass)
+{
+	JNIEnv *env = JNIScope::getEnv();
+	if (!env) return NULL;
+
+	return (jstring) env->CallObjectMethod(javaClass, classGetNameMethod);
+}
+
 void JNIUtil::logClassName(const char *format, jclass javaClass, bool errorLevel)
 {
 	JNIEnv *env = JNIScope::getEnv();
@@ -205,7 +213,7 @@ void JNIUtil::logClassName(const char *format, jclass javaClass, bool errorLevel
 
 void JNIUtil::initCache()
 {
-	LOGD(TAG, "start init cache");
+	LOG_TIMER(TAG, "initializing JNI cache");
 
 	JNIEnv *env = JNIScope::getEnv();
 	classClass = findClass("java/lang/Class");
@@ -260,6 +268,5 @@ void JNIUtil::initCache()
 	assetsReadResourceMethod = getMethodID(assetsClass, "readResource", "(Ljava/lang/String;)[C", true);
 	eventListenerPostEventMethod = getMethodID(eventListenerClass, "postEvent",
 		"(Ljava/util/HashMap;)V", false);
-	LOGD(TAG, "finish init cache");
 }
 }

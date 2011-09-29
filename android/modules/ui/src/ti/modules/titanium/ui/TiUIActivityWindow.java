@@ -91,9 +91,27 @@ public class TiUIActivityWindow extends TiUIView
 
 	public TiUIActivityWindow(ActivityWindowProxy proxy, TiBaseActivity activity)
 	{
+		this(proxy, activity, null, -1);
+	}
+
+	public TiUIActivityWindow(ActivityWindowProxy proxy, TiBaseActivity activity, Messenger messenger, int messageId)
+	{
 		super(proxy);
 		windowActivity = activity;
+
+		if (idGenerator == null) {
+			idGenerator = new AtomicInteger(0);
+		}
+
+		this.messenger = messenger;
+		this.messageId = messageId;
+		this.handler = new Handler(Looper.getMainLooper(), this);
+
+		this.lastWidth = LayoutParams.FILL_PARENT;
+		this.lastHeight = LayoutParams.FILL_PARENT;
+
 		proxy.setActivity(activity);
+		handleBooted();
 	}
 
 	/*protected void initContext()
@@ -293,7 +311,7 @@ public class TiUIActivityWindow extends TiUIView
 
 	public View getLayout()
 	{
-		TiActivity tia = (TiActivity) windowActivity;
+		TiBaseActivity tia = (TiBaseActivity) windowActivity;
 		if (tia == null) {
 			return null;
 		}

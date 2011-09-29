@@ -164,8 +164,10 @@ public abstract class TiUIView
 		}
 		this.nativeView = view;
 		boolean clickable = true;
-		if (proxy.has(TiC.PROPERTY_TOUCH_ENABLED)) {
-			clickable = TiConvert.toBoolean(proxy.get(TiC.PROPERTY_TOUCH_ENABLED));
+		// TODO hack
+		KrollDict d = proxy.getCreationDict();
+		if (d.containsKey(TiC.PROPERTY_TOUCH_ENABLED)) {
+			clickable = TiConvert.toBoolean(d, TiC.PROPERTY_TOUCH_ENABLED);
 		}
 		doSetClickable(nativeView, clickable);
 		nativeView.setOnFocusChangeListener(this);

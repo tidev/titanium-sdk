@@ -12,7 +12,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.TiUIActivityIndicator;
 
-@Kroll.module(parentModule=UIModule.class)
+@Kroll.module(name="ActivityIndicatorModule", parentModule=UIModule.class)
 public class ActivityIndicatorModule extends KrollModule
 {
 	@Kroll.constant public static final int STATUS_BAR = TiUIActivityIndicator.STATUS_BAR;

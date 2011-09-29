@@ -25,7 +25,7 @@ PROXY_CFLAGS := $(addprefix -I,$(PROXY_GEN_DIRS))
 TOOLS_DIR := $(THIS_DIR)/../../tools
 JS2C := $(TOOLS_DIR)/js2c.py
 
-GEN_BOOTSTRAP := $(THIS_DIR)/../../../../build/genBootstrap.py
+GEN_BOOTSTRAP := $(THIS_DIR)/../../tools/genBootstrap.py
 
 GEN_SOURCES := \
 	$(GENERATED_DIR)/KrollJS.cpp \
@@ -37,11 +37,12 @@ all: ti-generated-dir
 ti-generated-dir:
 	@mkdir -p $(GENERATED_DIR) 2>/dev/null
 
-$(GENERATED_DIR)/KrollJS.cpp: $(ABS_JS_FILES)
+$(GENERATED_DIR)/KrollJS.cpp: $(ABS_JS_FILES) $(GENERATED_DIR)/KrollGeneratedBindings.cpp
 	python $(JS2C) $(GENERATED_DIR)/KrollJS.cpp $(ABS_JS_FILES)
 
 $(GENERATED_DIR)/KrollGeneratedBindings.cpp:
-	python $(GEN_BOOTSTRAP) | gperf -L C++ -Z generated -E -t > $(GENERATED_DIR)/KrollGeneratedBindings.cpp
+	python $(GEN_BOOTSTRAP)
+	gperf -L C++ -E -t $(GENERATED_DIR)/KrollGeneratedBindings.gperf > $(GENERATED_DIR)/KrollGeneratedBindings.cpp
 
 $(GENERATED_DIR)/KrollNativeBindings.cpp: $(THIS_DIR)/KrollNativeBindings.gperf
-	cat $(THIS_DIR)/KrollNativeBindings.gperf | gperf -L C++ -Z native -E -t > $(GENERATED_DIR)/KrollNativeBindings.cpp
+	gperf -L C++ -E -t $(THIS_DIR)/KrollNativeBindings.gperf > $(GENERATED_DIR)/KrollNativeBindings.cpp

@@ -12,8 +12,11 @@
 #include <v8.h>
 
 #include "AndroidUtil.h"
+#include "JavaObject.h"
 #include "JNIUtil.h"
+#include "KrollBindings.h"
 #include "TypeConverter.h"
+#include "V8Util.h"
 
 #define TAG "ProxyFactory"
 
@@ -31,30 +34,54 @@ static ProxyFactoryMap factories;
 
 #define GET_PROXY_INFO(jclass, info) \
 	ProxyFactoryMap::iterator i = factories.find(jclass); \
-	info = i != factories.end() ? &i->second : NULL;
+	info = i != factories.end() ? &i->second : NULL
 
 #define LOG_JNIENV_ERROR(msgMore) \
 	LOGE(TAG, "Unable to find class %s", msgMore)
 
 Handle<Object> ProxyFactory::createV8Proxy(jclass javaClass, jobject javaProxy)
 {
-	ProxyInfo* info;
-	GET_PROXY_INFO(javaClass, info)
-	if (!info) {
-		JNIUtil::logClassName("ProxyFactory: failed to find class for %s", javaClass, true);
-		LOG_JNIENV_ERROR("while creating V8 Proxy.");
+	JNIEnv* env = JNIScope::getEnv();
+	if (!env) {
+		LOG_JNIENV_ERROR("while creating Java proxy.");
 		return Handle<Object>();
 	}
 
 	HandleScope scope;
+	Local<Function> creator;
 
-	Local<Function> creator = info->v8ProxyTemplate->GetFunction();
+	ProxyInfo* info;
+	GET_PROXY_INFO(javaClass, info);
+	if (!info) {
+		// No info has been registered for this class yet, fall back
+		// to the binding lookup table
+		jstring javaClassName = JNIUtil::getClassName(javaClass);
+		Handle<String> className = TypeConverter::javaStringToJsString(javaClassName);
+		Handle<Object> exports = KrollBindings::getBinding(className);
+
+		if (exports.IsEmpty()) {
+			String::Utf8Value classStr(className);
+			LOGE(TAG, "Failed to find class for %s", *classStr);
+			LOG_JNIENV_ERROR("while creating V8 Proxy.");
+			return Handle<Object>();
+		}
+
+		// TODO: The first value in exports should be the type that's exported
+		// But there's probably a better way to do this
+		Handle<Array> names = exports->GetPropertyNames();
+		if (names->Length() >= 1) {
+			creator = Local<Function>::Cast(exports->Get(names->Get(0)));
+		}
+	} else {
+		creator = info->v8ProxyTemplate->GetFunction();
+	}
+
 	Local<Value> external = External::New(javaProxy);
 	Local<Object> v8Proxy = creator->NewInstance(1, &external);
 
 	// set the pointer back on the java proxy
 	jlong ptr = (jlong) *Persistent<Object>::New(v8Proxy);
-	JNIScope::getEnv()->SetLongField(javaProxy, JNIUtil::managedV8ReferencePtrField, ptr);
+	env->SetLongField(javaProxy, JNIUtil::managedV8ReferencePtrField, ptr);
 
 	return scope.Close(v8Proxy);
 }
@@ -62,7 +89,8 @@ Handle<Object> ProxyFactory::createV8Proxy(jclass javaClass, jobject javaProxy)
 jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, const Arguments& args)
 {
 	ProxyInfo* info;
-	GET_PROXY_INFO(javaClass, info)
+	GET_PROXY_INFO(javaClass, info);
+
 	if (!info) {
 		JNIUtil::logClassName("ProxyFactory: failed to find class for %s", javaClass, true);
 		LOGE(TAG, "No proxy info found for class.");
@@ -97,9 +125,9 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 
 	// Create the java proxy using the creator static method provided.
 	// Send along a pointer to the v8 proxy so the two are linked.
-	LOGD(TAG, "calling create for java proxy");
 	jobject javaProxy = env->CallStaticObjectMethod(JNIUtil::krollProxyClass,
 		info->javaProxyCreator, javaClass, javaArgs, pv8Proxy, javaSourceUrl);
+
 	env->DeleteLocalRef(javaArgs);
 
 	return javaProxy;
@@ -126,6 +154,50 @@ void ProxyFactory::registerProxyPair(jclass javaProxyClass, FunctionTemplate* v8
 	info.javaProxyCreator = JNIUtil::krollProxyCreateMethod;
 
 	factories[javaProxyClass] = info;
+}
+
+Handle<Value> ProxyFactory::proxyConstructor(const Arguments& args)
+{
+	HandleScope scope;
+	Local<Object> v8Proxy = args.Holder();
+
+	jclass javaClass = (jclass) External::Unwrap(args.Data());
+
+	// If ProxyFactory::createV8Proxy invoked us, unwrap
+	// the pre-created Java proxy it sent.
+	jobject javaProxy = ProxyFactory::unwrapJavaProxy(args);
+	bool deleteRef = false;
+	if (!javaProxy) {
+		javaProxy = ProxyFactory::createJavaProxy(javaClass, v8Proxy, args);
+		deleteRef = true;
+	}
+
+	JavaObject* v8ProxyNative = new JavaObject(javaProxy);
+	v8ProxyNative->Wrap(v8Proxy);
+
+	if (deleteRef) {
+		JNIEnv *env = JNIScope::getEnv();
+		if (env) {
+			env->DeleteLocalRef(javaProxy);
+		}
+	}
+
+	return v8Proxy;
+}
+
+Handle<FunctionTemplate> ProxyFactory::inheritProxyTemplate(
+	Persistent<FunctionTemplate> superTemplate, jclass javaClass, const char *className)
+{
+	HandleScope scope;
+
+	Local<FunctionTemplate> proxyTemplate = FunctionTemplate::New(ProxyFactory::proxyConstructor, External::Wrap(javaClass));
+	proxyTemplate->InstanceTemplate()->SetInternalFieldCount(ProxyFactory::kInternalFieldCount);
+	proxyTemplate->SetClassName(String::NewSymbol(className));
+	proxyTemplate->Inherit(superTemplate);
+
+	registerProxyPair(javaClass, *proxyTemplate);
+
+	return scope.Close(proxyTemplate);
 }
 
 }

@@ -9,6 +9,9 @@
 
 #include "AndroidUtil.h"
 #include "EventEmitter.h"
+#include "JNIUtil.h"
+#include "JSException.h"
+#include "ProxyFactory.h"
 #include "V8Util.h"
 
 #include "KrollBindings.h"
@@ -38,20 +41,55 @@ void KrollBindings::initNatives(Handle<Object> exports)
 	}
 }
 
-Handle<Value> KrollBindings::getBinding(const Arguments& args)
+void KrollBindings::initTitanium(Handle<Object> exports)
 {
-	static Persistent<Object> bindingCache;
+	HandleScope scope;
+	JNIEnv *env = JNIScope::getEnv();
+	if (!env) {
+		LOGE(TAG, "Couldn't initialize JNIEnv");
+		return;
+	}
+
+	KrollProxy::Initialize(exports);
+	KrollModule::Initialize(exports);
+	TitaniumModule::Initialize(exports);
+}
+
+void KrollBindings::initWindow(Handle<Object> exports)
+{
 	HandleScope scope;
 
-	Handle<Value> resourceName = args.Callee()->GetScriptOrigin().ResourceName();
-	int lineNumber = args.Callee()->GetScriptLineNumber();
-	String::Utf8Value filename(resourceName);
+	Handle<FunctionTemplate> windowTemplate =
+		ProxyFactory::inheritProxyTemplate<TiBaseWindowProxy>("Ti.UI.Window");
 
+	exports->Set(String::NewSymbol("Window"), windowTemplate->GetFunction());
+}
+
+static Persistent<Object> bindingCache;
+
+Handle<Value> KrollBindings::getBinding(const Arguments& args)
+{
+	HandleScope scope;
+
+	if (args.Length() == 0 || !args[0]->IsString()) {
+		return JSException::Error("Invalid arguments to binding, expected String");
+	}
+
+	Handle<Object> binding = getBinding(args[0]->ToString());
+	if (binding.IsEmpty()) {
+		return Undefined();
+	}
+
+	return binding;
+}
+
+Handle<Object> KrollBindings::getBinding(Handle<String> binding)
+{
+	HandleScope scope;
 	if (bindingCache.IsEmpty()) {
 		bindingCache = Persistent<Object>::New(Object::New());
 	}
 
-	Local<String> binding = args[0]->ToString();
 	if (bindingCache->Has(binding)) {
 		return scope.Close(bindingCache->Get(binding)->ToObject());
 	}
@@ -75,8 +113,9 @@ Handle<Value> KrollBindings::getBinding(const Arguments& args)
 		bindingCache->Set(binding, exports);
 		return scope.Close(exports);
 	}
+	LOGE(TAG, "Couldn't find binding: %s", *bindingValue);
 
-	return Undefined();
+	return Handle<Object>();
 }
 
 Handle<String> KrollBindings::getMainSource()

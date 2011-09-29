@@ -36,6 +36,16 @@ EventEmitter.prototype.setMaxListeners = function(n) {
 	this._events.maxListeners = n;
 };
 
+EventEmitter.prototype.callHandler = function(handler, type, data) {
+	if (data instanceof Object) {
+		data.type = type;
+	} else if (!data) {
+		data = { type: type };
+	}
+
+	handler.call(this, data);
+}
+
 EventEmitter.prototype.emit = function(type) {
 
 	// If there is no 'error' event listener then throw.
@@ -59,28 +69,12 @@ EventEmitter.prototype.emit = function(type) {
 
 	if (typeof handler == 'function') {
 		switch (arguments.length) {
-		// fast cases
 		case 1:
-			handler.call(this, { type: type });
+			this.callHandler(handler, type);
 			break;
-		case 2:
-			var event = arguments[1];
-			if (event instanceof Object) {
-				event.type = type;
-			}
-			handler.call(this, event);
-			break;
-		case 3:
-			var event = arguments[1];
-			if (event instanceof Object) {
-				event.type = type;
-			}
-			handler.call(this, event, arguments[2]);
-			break;
-			// slower
 		default:
-			var args = Array.prototype.slice.call(arguments, 1);
-			handler.apply(this, args);
+			this.callHandler(handler, type, arguments[1]);
+			break;
 		}
 		return true;
 
@@ -89,7 +83,8 @@ EventEmitter.prototype.emit = function(type) {
 
 		var listeners = handler.slice();
 		for (var i = 0, l = listeners.length; i < l; i++) {
-			listeners[i].apply(this, args);
+			this.callHandler(listeners[i], type, args[0]);
+			//listeners[i].apply(this, args);
 		}
 		return true;
 

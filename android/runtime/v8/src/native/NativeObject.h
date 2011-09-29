@@ -27,6 +27,8 @@ do {                                                                      \
 
 namespace titanium {
 
+class ProxyFactory;
+
 class NativeObject
 {
 public:
@@ -118,6 +120,8 @@ private:
 		assert(value.IsNearDeath());
 		delete obj;
 	}
+
+	friend class ProxyFactory;
 };
 
 }

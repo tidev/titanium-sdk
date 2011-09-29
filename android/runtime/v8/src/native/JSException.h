@@ -11,7 +11,7 @@
 #include <v8.h>
 
 #define THROW(msg) \
-    v8::ThrowException(v8::Exception::Error(v8::String::New(msg)))
+	v8::ThrowException(v8::Exception::Error(v8::String::New(msg)))
 
 namespace titanium {
 

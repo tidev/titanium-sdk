@@ -8,7 +8,6 @@ var Titanium = kroll.binding('Titanium').Titanium,
 	bootstrap = require('bootstrap');
 
 // assign any Titanium props/methods/aliases here
-
 Titanium.include = function(filename) {
 	var source = kroll.binding('assets').readResource(filename);
 	var wrappedFile = kroll.binding('evals').Script.runInThisContext(source, filename, true);
@@ -25,14 +24,17 @@ Object.prototype.extend = function(other) {
 	return this;
 }
 
-bootstrap.defineProperties("UI", {
-	Window: { get: function() {
-		delete this.Window;
-		this.Window = require("window").Window;
-		return this.Window;
-	}}
+// Custom native modules
+bootstrap.defineLazyBinding(Titanium, "API");
+
+// Custom JS extensions to Java modules
+bootstrap.defineLazyGetter("UI", "Window", function() {
+	// bootstrap TiBaseWindow
+	var dep0 = Titanium.TiBaseWindow;
+	return require("window").bootstrapWindow(this);
 });
 
+// Define lazy initializers for all Titanium APIs
 bootstrap.bootstrap(Titanium);
 
 module.exports = Titanium;

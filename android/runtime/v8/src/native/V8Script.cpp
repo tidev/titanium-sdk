@@ -181,11 +181,11 @@ void Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContextNoResult(JNIEnv
 {
 	titanium::JNIScope jniScope(env);
 	HandleScope scope;
-	Handle<Object> wrappedContext = Persistent<Object>((Object *) context_ptr);
 
-	Handle<Value> args[] = { TypeConverter::javaStringToJsString(source), wrappedContext,
-		TypeConverter::javaStringToJsString(filename) };
-	Local<Function> function = v8::FunctionTemplate::New(WrappedScript::CompileRunInContext)->GetFunction();
+	Handle<Object> wrappedContext = Persistent<Object>((Object *) context_ptr);
+	Handle<Value> args[] = { TypeConverter::javaStringToJsString(source),
+		wrappedContext, TypeConverter::javaStringToJsString(filename) };
+	Local<Function> function = v8::FunctionTemplate::New(WrappedScript::CompileRunInThisContext)->GetFunction();
 
 	TryCatch tryCatch;
 	function->Call(function, 3, args);
@@ -197,16 +197,22 @@ void Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContextNoResult(JNIEnv
 
 void Java_org_appcelerator_kroll_runtime_v8_V8Script_nativeRunInThisContextNoResult(JNIEnv *env, jclass clazz, jstring source, jstring filename)
 {
-
 	titanium::JNIScope jniScope(env);
 	HandleScope scope;
 
-	Handle<Value> args[] = { TypeConverter::javaStringToJsString(source),
-		TypeConverter::javaStringToJsString(filename) };
+	Handle<String> jsSource = TypeConverter::javaStringToJsString(source);
+	Handle<String> jsFilename = TypeConverter::javaStringToJsString(filename);
+
+	Handle<Value> args[] = { jsSource, jsFilename };
 
 	Local<Function> function = v8::FunctionTemplate::New(WrappedScript::CompileRunInThisContext)->GetFunction();
 
 	TryCatch tryCatch;
+
+	Handle<String> message = String::Concat(String::New("Executing code: "), jsFilename);
+	String::Utf8Value timerMsg(message);
+	LOG_TIMER(TAG, *timerMsg);
+
 	function->Call(function, 2, args);
 
 	if (tryCatch.HasCaught()) {
