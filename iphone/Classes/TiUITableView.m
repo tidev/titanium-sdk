@@ -1909,10 +1909,6 @@ if(ourTableView != tableview)	\
 		hasTitle = YES;
 		size+=[tableview sectionFooterHeight];
 	}
-	if ([tableview tableFooterView]!=nil)
-	{
-		size+=[tableview tableFooterView].frame.size.height;
-	}
 	if (hasTitle && size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT)
 	{
 		size += DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
