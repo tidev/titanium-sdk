@@ -10,6 +10,7 @@
 #include "AndroidUtil.h"
 #include "JNIUtil.h"
 #include "TypeConverter.h"
+#include "V8Runtime.h"
 #include "V8Util.h"
 #include "modules/ScriptsModule.h"
 
@@ -197,8 +198,8 @@ void Java_org_appcelerator_kroll_runtime_v8_V8Script_runInContextNoResult(JNIEnv
 
 void Java_org_appcelerator_kroll_runtime_v8_V8Script_nativeRunInThisContextNoResult(JNIEnv *env, jclass clazz, jstring source, jstring filename)
 {
+	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
-	HandleScope scope;
 
 	Handle<String> jsSource = TypeConverter::javaStringToJsString(source);
 	Handle<String> jsFilename = TypeConverter::javaStringToJsString(filename);
@@ -218,6 +219,7 @@ void Java_org_appcelerator_kroll_runtime_v8_V8Script_nativeRunInThisContextNoRes
 	if (tryCatch.HasCaught()) {
 		V8Util::reportException(tryCatch, true);
 	}
+	LOG_HEAP_STATS(TAG);
 }
 
 #ifdef __cplusplus

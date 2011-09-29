@@ -99,8 +99,8 @@ extern "C" {
 
 jboolean Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeFireEvent(JNIEnv *env, jobject jEmitter, jlong ptr, jstring event, jobject data)
 {
+	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
-	HandleScope scope;
 
 	Handle<Object> emitter;
 	if (ptr != 0) {
@@ -139,8 +139,8 @@ static Persistent<Function> addEventListener;
 
 void Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeAddEventListener(JNIEnv *env, jobject jEmitter, jlong ptr, jstring event, jlong listenerPtr)
 {
+	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
-	HandleScope scope;
 
 	Handle<Object> emitter;
 	if (ptr != 0) {
@@ -167,8 +167,8 @@ void Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeAddEventListener(
 
 void Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeRemoveEventListener(JNIEnv *env, jobject jEmitter, jlong ptr, jstring event, jlong listenerPtr)
 {
+	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
-	HandleScope scope;
 
 	Handle<Object> emitter;
 	if (ptr != 0) {
@@ -186,8 +186,8 @@ void Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeRemoveEventListen
 
 jboolean Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeHasListeners(JNIEnv *env, jobject jEmitter, jlong ptr, jstring event)
 {
+	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
-	HandleScope scope;
 
 	Handle<Object> emitter;
 	if (ptr != 0) {

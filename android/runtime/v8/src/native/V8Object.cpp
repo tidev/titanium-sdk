@@ -30,8 +30,8 @@ extern "C" {
  */
 JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCreateObject(JNIEnv *env, jclass clazz)
 {
+	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
-	HandleScope scope;
 	return (jlong) *(Persistent<Object>::New(Object::New()));
 }
 
@@ -43,11 +43,13 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCr
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_ManagedV8Reference_nativeRelease(JNIEnv *env,
 	jclass clazz, jlong object_ptr)
 {
+	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
 	if (object_ptr) {
-		V8Isolate isolate;
-		if (isolate.IsAlive()) {
-			Persistent<Data>((Data *) object_ptr).Dispose();
+		Persistent<Data> handle((Data *) object_ptr);
+		if (!handle.IsEmpty() && !handle.IsNearDeath()) {
+			// TODO even with Isolate this causes problems
+			handle.Dispose();
 		}
 	}
 }
@@ -60,8 +62,9 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_ManagedV8Reference
 JNIEXPORT jstring JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Value_toDetailString
   (JNIEnv *env, jclass clazz, jlong value_ptr)
 {
+	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
-	HandleScope scope;
+
 	Handle<String> string;
 	if (value_ptr) {
 		string = Persistent<Value>((Object *) value_ptr)->ToDetailString();
@@ -77,8 +80,8 @@ JNIEXPORT jstring JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Value_toDetai
 JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeGet(JNIEnv *env, jobject map, jlong ptr,
 	jstring name)
 {
+	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
-	HandleScope scope;
 	Handle<Object> jsObject((Object *) ptr);
 
 	const jchar *chars = env->GetStringChars(name, NULL);
@@ -99,8 +102,8 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_native
 JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeGetIndex(JNIEnv *env, jobject map,
 	jlong ptr, jint index)
 {
+	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
-	HandleScope scope;
 	Handle<Object> jsObject((Object *) ptr);
 
 	Local<Value> value = jsObject->Get((uint32_t) index);
@@ -115,8 +118,8 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_native
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetObject(JNIEnv *env, jobject map,
 	jlong ptr, jstring name, jobject value)
 {
+	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
-	HandleScope scope;
 	Handle<Object> jsObject((Object *) ptr);
 
 	const jchar *nameChars = env->GetStringChars(name, NULL);
@@ -135,8 +138,8 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSet
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetNumber(JNIEnv *env, jobject map,
 	jlong ptr, jstring name, jdouble number)
 {
+	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
-	HandleScope scope;
 	Handle<Object> jsObject((Object *) ptr);
 
 	const jchar *nameChars = env->GetStringChars(name, NULL);
@@ -154,8 +157,8 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSet
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetBoolean(JNIEnv *env, jobject map,
 	jlong ptr, jstring name, jboolean b)
 {
+	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
-	HandleScope scope;
 	Handle<Object> jsObject((Object *) ptr);
 
 	const jchar *nameChars = env->GetStringChars(name, NULL);
@@ -173,8 +176,8 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSet
 JNIEXPORT jboolean JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeHas(JNIEnv *env, jobject map,
 	jlong ptr, jstring name)
 {
+	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
-	HandleScope scope;
 	Handle<Object> jsObject((Object *) ptr);
 
 	const jchar *chars = env->GetStringChars(name, NULL);
@@ -193,8 +196,8 @@ JNIEXPORT jboolean JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativ
 JNIEXPORT jobjectArray JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeKeys(JNIEnv *env, jobject map,
 	jlong ptr)
 {
+	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
-	HandleScope scope;
 	Handle<Object> jsObject((Object *) ptr);
 
 	Handle<Array> names = jsObject->GetPropertyNames();

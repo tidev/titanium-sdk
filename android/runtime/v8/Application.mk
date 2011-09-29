@@ -9,5 +9,6 @@
 APP_BUILD_SCRIPT = src/native/Android.mk
 TARGET_PLATFORM = android-8
 APP_STL := stlport_static
+TARGET_DEVICE := device
 APP_OPTIM := debug
 TI_DEBUG := 1

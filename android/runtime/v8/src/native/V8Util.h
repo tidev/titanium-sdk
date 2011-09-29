@@ -10,6 +10,11 @@
 #include <stdio.h>
 #include <v8.h>
 
+#define ENTER_V8(context) \
+	v8::Locker locker; \
+	v8::Context::Scope contextScope(context); \
+	v8::HandleScope scope;
+
 #define IMMUTABLE_STRING_LITERAL(string_literal) \
 	::titanium::ImmutableAsciiStringLiteral::CreateFromLiteral( \
 		string_literal "", sizeof(string_literal) - 1)
@@ -19,19 +24,27 @@
 	string_literal, length)
 
 #define SYMBOL_LITERAL(string_literal) \
-	v8::Persistent<v8::String>::New(v8::String::NewSymbol(string_literal ""));
+	v8::Persistent<v8::String>::New(v8::String::NewSymbol(string_literal ""))
 
-#define DEFINE_CONSTANT(target, constant) \
-	(target)->Set(v8::String::NewSymbol(#constant), \
-		v8::Integer::New(constant), \
-		static_cast<v8::PropertyAttribute>(v8::ReadOnly|v8::DontDelete))
+#define DEFINE_CONSTANT(target, name, value) \
+	(target)->Set(v8::String::NewSymbol(name), \
+		value, static_cast<v8::PropertyAttribute>(v8::ReadOnly | v8::DontDelete))
 
-#define DEFINE_METHOD(obj, name, callback) \
-	obj->Set(v8::String::NewSymbol(name), \
-		v8::FunctionTemplate::New(callback)->GetFunction())
+#define DEFINE_INT_CONSTANT(target, name, value) \
+	DEFINE_CONSTANT(target, name, v8::Integer::New(value))
 
-#define DEFINE_TEMPLATE(obj, name, tmpl) \
-	obj->Set(v8::String::NewSymbol(name), tmpl->GetFunction())
+#define DEFINE_NUMBER_CONSTANT(target, name, value) \
+	DEFINE_CONSTANT(target, name, v8::Number::New(value))
+
+#define DEFINE_STRING_CONSTANT(target, name, value) \
+	DEFINE_CONSTANT(target, name, v8::String::New(value))
+
+#define DEFINE_TEMPLATE(target, name, tmpl) \
+	target->Set(v8::String::NewSymbol(name), tmpl->GetFunction())
+
+#define DEFINE_METHOD(target, name, callback) \
+	DEFINE_TEMPLATE(target, name, v8::FunctionTemplate::New(callback))
+
 
 #define DEFINE_PROTOTYPE_METHOD(templ, name, callback) \
 { \
@@ -42,6 +55,21 @@
 	templ->PrototypeTemplate()->Set(v8::String::NewSymbol(name), \
 		__callback##_TEM); \
 }
+
+#ifdef TI_DEBUG
+# define LOG_HEAP_STATS(TAG) \
+{ \
+	v8::HeapStatistics stats; \
+	v8::V8::GetHeapStatistics(&stats); \
+	LOGE(TAG, "Heap stats:"); \
+	LOGE(TAG, "   Total heap size:            %dk", stats.total_heap_size() / 1024); \
+	LOGE(TAG, "   Total heap size executable: %dk", stats.total_heap_size_executable() / 1024); \
+	LOGE(TAG, "   Used heap size:             %dk", stats.used_heap_size() / 1024); \
+	LOGE(TAG, "   Heap size limit:            %dk", stats.heap_size_limit() / 1024); \
+}
+#else
+# define LOG_HEAP_STATS(TAG)
+#endif
 
 namespace titanium {
 

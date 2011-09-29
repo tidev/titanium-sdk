@@ -13,6 +13,7 @@
 #include "JSException.h"
 #include "NativeObject.h"
 #include "TypeConverter.h"
+#include "V8Runtime.h"
 #include "V8Util.h"
 
 #include "EventListener.h"
@@ -54,8 +55,8 @@ using namespace titanium;
 
 jlong Java_org_appcelerator_kroll_runtime_v8_EventListener_nativeInit(JNIEnv *env, jobject listener)
 {
+	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
-	HandleScope scope;
 
 	if (javaObjectSymbol.IsEmpty()) {
 		javaObjectSymbol = SYMBOL_LITERAL("javaObject");
@@ -72,8 +73,8 @@ jlong Java_org_appcelerator_kroll_runtime_v8_EventListener_nativeInit(JNIEnv *en
 
 void Java_org_appcelerator_kroll_runtime_v8_EventListener_nativeDispose(JNIEnv *env, jobject listener, jlong ptr)
 {
+	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
-	HandleScope scope;
 
 	Persistent<Function> v8Listener = Persistent<Function>::New(Handle<Function>((Function *) ptr));
 	JavaObject *o = NativeObject::Unwrap<JavaObject>(v8Listener->GetHiddenValue(javaObjectSymbol)->ToObject());

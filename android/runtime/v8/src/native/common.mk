@@ -7,6 +7,7 @@
 # Source files, and other common properties
 
 GENERATED_DIR := $(LOCAL_PATH)/../../generated
+OBJ_DIR = $(THIS_DIR)/../../obj
 SRC_JS_DIR := $(LOCAL_PATH)/../js
 UI_JS_DIR := $(LOCAL_PATH)/../../../../modules/ui/src/ti/modules/titanium/ui
 
@@ -51,3 +52,4 @@ clean: ti-clean
 
 ti-clean:
 	rm -f $(GENERATED_DIR)/*
+	rm -rf $(OBJ_DIR)/*

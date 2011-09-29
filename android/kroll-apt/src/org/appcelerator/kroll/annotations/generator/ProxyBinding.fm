@@ -54,6 +54,33 @@
 	</#if>
 </#macro>
 
+<#macro listConstants>
+	<#if constants??>
+		<#list constants?keys as constantName>
+			<#local constant = constants[constantName]>
+			<#nested constantName_index==0, constantName, constant>
+		</#list>
+	</#if>
+</#macro>
+
+<#macro listProperties>
+	<#if properties??>
+		<#list properties?keys as propertyName>
+			<#local property = properties[propertyName]>
+			<#nested propertyName_index==0, propertyName, property>
+		</#list>
+	</#if>
+</#macro>
+
+<#macro listDynamicProperties>
+	<#if dynamicProperties??>
+		<#list dynamicProperties?keys as propertyName>
+			<#local dynamicProperty = dynamicProperties[propertyName]>
+			<#nested propertyName_index==0, propertyName, dynamicProperty>
+		</#list>
+	</#if>
+</#macro>
+
 <#macro openNamespace>
 namespace titanium {
 	<#list proxyAttrs.fullAPIName?split(".") as ns>

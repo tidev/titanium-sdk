@@ -491,6 +491,8 @@ public class KrollBindingGenerator extends AbstractProcessor {
 				if (javascriptConverter == null || Kroll_DEFAULT.equals(javascriptConverter)) {
 					property.put("javascriptConverter", KrollConverter);
 				}
+			} else if (isConstant) {
+				property.put("value", element.getConstantValue());
 			}
 			propertyMap.put(name, property);
 		}

@@ -16,6 +16,8 @@
 #include "JSException.h"
 #include "ProxyFactory.h"
 #include "TypeConverter.h"
+#include "V8Util.h"
+
 <#if isModule>
 
 <@Proxy.listChildModules ; isFirst, childModule>
@@ -52,7 +54,6 @@ void ${className}::Initialize(Handle<Object> ti)
 
 	<#-- Query the class for the Java proxy -->
 	javaClass = JNIUtil::findClass("${packageName?replace('.','/')}/${className}");
-
 	HandleScope scope;
 	Handle<FunctionTemplate> t = ProxyFactory::inheritProxyTemplate(
 	<#if superProxyClassName != "EventEmitter">
@@ -66,8 +67,23 @@ void ${className}::Initialize(Handle<Object> ti)
 
 	// Method bindings -----------------------------------------------------------
 	<@Proxy.listMethods ; isFirst, name, method, signature>
-	V8_SET_PROTOTYPE_METHOD(proxyTemplate, "${name}", ${className}::${name});
+	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "${name}", ${className}::${name});
 	</@Proxy.listMethods>
+
+	// Constants -----------------------------------------------------------------
+	<#if constants??>
+	Handle<ObjectTemplate> instanceTemplate = proxyTemplate->InstanceTemplate();
+	<@Proxy.listConstants ; isFirst, name, constant>
+	<#if constant.type = "java.lang.String">
+	DEFINE_STRING_CONSTANT(instanceTemplate, "${name}", "${constant.value}");
+	<#elseif constant.type = "int" || constant.type = "long">
+	DEFINE_INT_CONSTANT(instanceTemplate, "${name}", ${constant.value});
+	<#else>
+	DEFINE_NUMBER_CONSTANT(instanceTemplate, "${name}", ${constant.value});
+	</#if>
+
+	</@Proxy.listConstants>
+	</#if>
 
 	Local<Function> proxyConstructor = proxyTemplate->GetFunction();
 	<#if isModule>
@@ -83,7 +99,6 @@ void ${className}::Initialize(Handle<Object> ti)
 Handle<Value> ${className}::${name}(const Arguments& args)
 {
 	LOGD(TAG, "${name}()");
-
 	HandleScope scope;
 	JNIEnv *env = JNIScope::getEnv();
 	if (!env) {

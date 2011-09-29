@@ -99,20 +99,23 @@ extern "C" {
 JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jobject self, jboolean useGlobalRefs)
 {
 	titanium::JNIScope jniScope(env);
+	Locker locker;
 	HandleScope scope;
 
-	LOGD(TAG, "V8Runtime_nativeInit");
+	LOGD(TAG, "nativeInit");
 	titanium::JavaObject::useGlobalRefs = useGlobalRefs;
 	titanium::jruntime = env->NewGlobalRef(self);
 	titanium::JNIUtil::initCache();
 
 	Persistent<Context> context = Persistent<Context>::New(Context::New());
-	context->Enter();
+	Context::Scope contextScope(context);
 
 	titanium::V8Runtime::globalContext = context;
 	titanium::V8Runtime::bootstrap(context->Global());
 
 	Persistent<Object> wrappedContext(titanium::ScriptsModule::WrapContext(context));
+	LOG_HEAP_STATS(TAG);
+
 	return (jlong) *wrappedContext;
 }
 
@@ -124,9 +127,9 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeI
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDispose(JNIEnv *env, jclass clazz)
 {
 	titanium::JNIScope jniScope(env);
-	LOGD(TAG, "disposing global context");
-	titanium::V8Runtime::globalContext->Exit();
+	Locker locker;
 
+	LOGD(TAG, "disposing global context");
 	titanium::V8Runtime::globalContext.Dispose();
 	V8::Dispose();
 

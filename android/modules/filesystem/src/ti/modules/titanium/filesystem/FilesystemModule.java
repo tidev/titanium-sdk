@@ -24,9 +24,9 @@ public class FilesystemModule extends KrollModule
 	private static final String LCAT = "TiFilesystem";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	@Kroll.constant public static int MODE_READ = 0;
-	@Kroll.constant public static int MODE_WRITE = 1;
-	@Kroll.constant public static int MODE_APPEND = 2;
+	@Kroll.constant public static final int MODE_READ = 0;
+	@Kroll.constant public static final int MODE_WRITE = 1;
+	@Kroll.constant public static final int MODE_APPEND = 2;
 
 	private static String[] RESOURCES_DIR = { "app://" };
 

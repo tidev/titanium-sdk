@@ -61,58 +61,22 @@ public class EventEmitter extends V8Object implements Handler.Callback
 
 	public boolean fireEvent(String event, Object data)
 	{
-		fireEvent(event, data, false);
-		return hasListeners(event);
+		return nativeFireEvent(ptr, event, data);
 	}
 
 	public boolean fireSyncEvent(String event, Object data)
 	{
-		return fireEvent(event, data, true);
-	}
-
-	private boolean fireEvent(String type, Object data, boolean sync) {
-		if (V8Runtime.getInstance().isV8Thread()) {
-			return nativeFireEvent(ptr, type, data);
-		}
-
-		Message msg = v8Handler.obtainMessage(MSG_FIRE_EVENT, data);
-		msg.getData().putString(PROPERTY_TYPE, type);
-		msg.getData().putBoolean(PROPERTY_SYNC, sync);
-		msg.sendToTarget();
-
-		if (sync) {
-			try {
-				semaphore.acquire();
-			} catch (InterruptedException e) {
-				Log.e(TAG, e.getMessage(), e);
-			}
-			return msg.getData().getBoolean(PROPERTY_RESULT, false);
-		}
-		return false;
+		return fireEvent(event, data);
 	}
 
 	public void addEventListener(String event, EventListener listener)
 	{
-		if (V8Runtime.getInstance().isV8Thread()) {
-			Log.d(TAG, "addEventListener, ptr: " + ptr);
-			nativeAddEventListener(ptr, event, listener.getPointer());
-			return;
-		}
-
-		Message msg = v8Handler.obtainMessage(MSG_ADD_EVENT_LISTENER, listener);
-		msg.getData().putString(PROPERTY_TYPE, event);
-		msg.sendToTarget();
+		nativeAddEventListener(ptr, event, listener.getPointer());
 	}
 
 	public void removeEventListener(String event, EventListener listener)
 	{
-		if (V8Runtime.getInstance().isV8Thread()) {
-			nativeRemoveEventListener(ptr, event, listener.getPointer());
-		}
-
-		Message msg = v8Handler.obtainMessage(MSG_REMOVE_EVENT_LISTENER, listener);
-		msg.getData().putString(PROPERTY_TYPE, event);
-		msg.sendToTarget();
+		nativeRemoveEventListener(ptr, event, listener.getPointer());
 	}
 
 	public boolean hasListeners(String event)

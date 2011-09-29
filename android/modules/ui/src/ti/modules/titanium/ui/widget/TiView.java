@@ -20,10 +20,9 @@ public class TiView extends TiUIView
 	public TiView(TiViewProxy proxy) {
 		super(proxy);
 		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
-		// TODO this is a hack
-		KrollDict d = proxy.getCreationDict();
-		if (d.containsKey(TiC.PROPERTY_LAYOUT)) {
-			String layoutProperty = TiConvert.toString(d, TiC.PROPERTY_LAYOUT);
+
+		if (proxy.hasProperty(TiC.PROPERTY_LAYOUT)) {
+			String layoutProperty = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_LAYOUT));
 			if (layoutProperty.equals(TiC.LAYOUT_HORIZONTAL)) {
 				arrangement = LayoutArrangement.HORIZONTAL;
 			} else if (layoutProperty.equals(TiC.LAYOUT_VERTICAL)) {
