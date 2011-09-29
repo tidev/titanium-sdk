@@ -11,8 +11,8 @@ import java.util.Calendar;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollInvocation;
+import org.appcelerator.kroll.runtime.v8.V8Function;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -151,7 +151,7 @@ public class TiCompass
 		return compass;
 	}
 
-	public void getCurrentHeading(KrollInvocation invocation, final KrollCallback listener)
+	public void getCurrentHeading(KrollInvocation invocation, final V8Function listener)
 	{
 		if(listener != null) {
 			final SensorEventListener oneShotHeadingListener = new SensorEventListener()
@@ -165,7 +165,8 @@ public class TiCompass
 						long eventTimestamp = event.timestamp / 1000000;
 						long actualTimestamp = baseTime.getTimeInMillis() + (eventTimestamp - sensorTimerStart);
 
-						listener.callAsync(eventToKrollDict(event, actualTimestamp));
+						listener.invoke(eventToKrollDict(event, actualTimestamp));
+						//listener.callAsync(eventToKrollDict(event, actualTimestamp));
 						TiSensorHelper.unregisterListener(Sensor.TYPE_ORIENTATION, this);
 					}
 				}

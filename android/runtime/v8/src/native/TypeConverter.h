@@ -50,6 +50,9 @@ public:
 	static v8::Handle<v8::Date> javaDateToJsDate(jobject);
 	static v8::Handle<v8::Date> javaLongToJsDate(jlong);
 
+	// function convert methods
+	static jobject jsObjectToJavaFunction(v8::Handle<v8::Object> jsObject);
+
 	// arguments conversion
 	static jobjectArray jsArgumentsToJavaArray(const v8::Arguments& args);
 

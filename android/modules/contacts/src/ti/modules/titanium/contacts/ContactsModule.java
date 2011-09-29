@@ -17,6 +17,7 @@ import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.runtime.v8.V8Function;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.Log;
@@ -41,7 +42,7 @@ public class ContactsModule extends KrollModule
 	
 	private final AtomicInteger requestCodeGen = new AtomicInteger();
 	private final CommonContactsApi contactsApi;
-//	private Map<Integer, Map<String, KrollCallback>> requests;
+	private Map<Integer, Map<String, V8Function>> requests;
 	
 	public ContactsModule()
 	{
@@ -102,17 +103,17 @@ public class ContactsModule extends KrollModule
 		int requestCode = requestCodeGen.getAndIncrement();
 		
 		if (requests == null) {
-			requests = new HashMap<Integer, Map<String,KrollCallback>>();
+			requests = new HashMap<Integer, Map<String,V8Function>>();
 		}
-		Map<String, KrollCallback> callbacks = new HashMap<String, KrollCallback>();
+		Map<String, V8Function> callbacks = new HashMap<String, V8Function>();
 		requests.put(new Integer(requestCode), callbacks);
 		
 		String[] callbacksToConsider = new String[]{"selectedPerson", "cancel"};
 		for (String callbackToConsider : callbacksToConsider) {
 			if (d.containsKey(callbackToConsider)) {
 				Object test = d.get(callbackToConsider);
-				if (test instanceof KrollCallback) {
-					callbacks.put(callbackToConsider, (KrollCallback)test);
+				if (test instanceof V8Function) {
+					callbacks.put(callbackToConsider, (V8Function)test);
 				}
 			}
 			if (d.containsKey("proxy")) {
@@ -140,25 +141,27 @@ public class ContactsModule extends KrollModule
 	{
 		Integer rcode = new Integer(requestCode);
 		if (requests.containsKey(rcode)) {
-			Map<String, KrollCallback> request = requests.get(rcode);
+			Map<String, V8Function> request = requests.get(rcode);
 			if (DBG) {
 				Log.d(LCAT, "Received result from contact picker.  Result code: " + resultCode);
 			}
 			if (resultCode == Activity.RESULT_CANCELED) {
 				if (request.containsKey("cancel")) {
-					KrollCallback callback = request.get("cancel");
+					V8Function callback = request.get("cancel");
 					if (callback != null) {
-						callback.callAsync();
+						callback.invoke(new Object[]{});
+						//callback.callAsync();
 					}
 				}
 			} else if (resultCode == Activity.RESULT_OK) {
 				if (request.containsKey("selectedPerson")) {
-					KrollCallback callback = request.get("selectedPerson");
+					V8Function callback = request.get("selectedPerson");
 					if (callback != null) {
 						PersonProxy person = contactsApi.getPersonByUri(data.getData());
 						KrollDict result = new KrollDict();
 						result.put("person", person);
-						callback.callAsync(new Object[]{result});
+						callback.invoke(result);
+						//callback.callAsync(new Object[]{result});
 					}
 				}
 			} else {

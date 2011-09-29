@@ -150,6 +150,17 @@ v8::Handle<v8::Date> TypeConverter::javaLongToJsDate(jlong javaLong)
 	return v8::Handle<v8::Date>::Cast(v8::Date::New((double) javaLong));
 }
 
+jobject TypeConverter::jsObjectToJavaFunction(v8::Handle<v8::Object> jsObject)
+{
+	JNIEnv *env = JNIScope::getEnv();
+	if (!env) {
+		return NULL;
+	}
+
+	jlong pointer = (jlong) *Persistent<Object>::New(jsObject);
+	return env->NewObject(JNIUtil::v8FunctionClass, JNIUtil::v8FunctionInitMethod, pointer);
+}
+
 jobjectArray TypeConverter::jsArgumentsToJavaArray(const Arguments& args)
 {
 	JNIEnv *env = JNIScope::getEnv();
@@ -267,16 +278,24 @@ jobject TypeConverter::jsValueToJavaObject(v8::Local<v8::Value> jsValue)
 	if (jsValue->IsNumber()) {
 		jdouble javaDouble = TypeConverter::jsNumberToJavaDouble(jsValue->ToNumber());
 		return env->NewObject(JNIUtil::doubleClass, JNIUtil::doubleInitMethod, javaDouble);
+
 	} else if (jsValue->IsBoolean()) {
 		jboolean javaBoolean = TypeConverter::jsBooleanToJavaBoolean(jsValue->ToBoolean());
 		return env->NewObject(JNIUtil::booleanClass, JNIUtil::booleanInitMethod, javaBoolean);
+
 	} else if (jsValue->IsString()) {
 		return TypeConverter::jsStringToJavaString(jsValue->ToString());
+
 	} else if (jsValue->IsDate()) {
 		jlong javaLong = TypeConverter::jsDateToJavaLong(v8::Handle<v8::Date>::Cast(jsValue));
 		return env->NewObject(JNIUtil::longClass, JNIUtil::longInitMethod, javaLong);
+
 	} else if (jsValue->IsArray()) {
 		return TypeConverter::jsArrayToJavaArray(v8::Handle<v8::Array>::Cast(jsValue));
+
+	} else if (jsValue->IsFunction()) {
+		return TypeConverter::jsObjectToJavaFunction(jsValue->ToObject());
+
 	} else if (jsValue->IsObject()) {
 		v8::Handle<v8::Object> jsObject = jsValue->ToObject();
 

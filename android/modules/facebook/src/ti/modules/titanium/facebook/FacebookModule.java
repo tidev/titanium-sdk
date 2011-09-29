@@ -17,10 +17,10 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.runtime.v8.V8Function;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
@@ -55,17 +55,17 @@ public class FacebookModule extends KrollModule
 	private AsyncFacebookRunner fbrunner;
 	
 	// Constructors
-	public FacebookModule(TiContext tiContext) {
-		super(tiContext);
+	public FacebookModule() {
+		super();
 		sessionListener = new SessionListener(this);
 		SessionEvents.addAuthListener(sessionListener);
 		SessionEvents.addLogoutListener(sessionListener);
 		debug("FacebookModule()");
-		appid = SessionStore.getSavedAppId(tiContext.getTiApp());
+		appid = SessionStore.getSavedAppId(TiApplication.getInstance());
 		if (appid != null) {
 			debug("Attempting session restore for appid " + appid);
 			facebook = new Facebook(appid);
-			SessionStore.restore(this, tiContext.getTiApp());
+			SessionStore.restore(this, TiApplication.getInstance());
 			if (facebook.isSessionValid()) {
 				debug("Session restore succeeded.  Now logged in.");
 				loggedIn = true;
@@ -162,9 +162,10 @@ public class FacebookModule extends KrollModule
 	@Kroll.method
 	public TiFacebookModuleLoginButtonProxy createLoginButton(KrollInvocation invocation, @Kroll.argument(optional=true) KrollDict options)
 	{
-		TiFacebookModuleLoginButtonProxy login = new TiFacebookModuleLoginButtonProxy(invocation.getTiContext(), this);
+		TiFacebookModuleLoginButtonProxy login = new TiFacebookModuleLoginButtonProxy(this);
 		if (options != null) {
-			login.extend(options);
+			// TODO
+			//login.extend(options);
 		}
 		return login;
 	}
@@ -185,13 +186,13 @@ public class FacebookModule extends KrollModule
 		}
 		
 		// forget session in case this fails.
-		SessionStore.clear(context.getTiApp());
+		SessionStore.clear(TiApplication.getInstance());
 		
 		if (facebook == null) {
 			facebook = new Facebook(appid);
 		}
 		
-		executeAuthorize(invocation.getActivity());
+		executeAuthorize(getActivity());
 	}
 	
 	@Kroll.method
@@ -201,12 +202,12 @@ public class FacebookModule extends KrollModule
 		destroyFacebookSession();
 		if (facebook != null && wasLoggedIn) {
 			SessionEvents.onLogoutBegin();
-			executeLogout(invocation.getActivity());
+			executeLogout(getActivity());
 		}
 	}
 	
 	@Kroll.method
-	public void requestWithGraphPath(String path, KrollDict params, String httpMethod, KrollCallback callback)
+	public void requestWithGraphPath(String path, KrollDict params, String httpMethod, V8Function callback)
 	{
 		if (facebook == null) {
 			Log.w(LCAT, "requestWithGraphPath called without Facebook being instantiated.  Have you set appid?");
@@ -221,7 +222,7 @@ public class FacebookModule extends KrollModule
 	}
 	
 	@Kroll.method
-	public void request(String method, KrollDict params, KrollCallback callback)
+	public void request(String method, KrollDict params, V8Function callback)
 	{
 		if (facebook == null) {
 			Log.w(LCAT, "request called without Facebook being instantiated.  Have you set appid?");
@@ -246,15 +247,15 @@ public class FacebookModule extends KrollModule
 	}
 	
 	@Kroll.method(runOnUiThread=true)
-	public void dialog(KrollInvocation invocation, String action, KrollDict params, KrollCallback callback)
+	public void dialog(KrollInvocation invocation, String action, KrollDict params, V8Function callback)
 	{
 		if (facebook == null) {
 			Log.w(LCAT, "dialog called without Facebook being instantiated.  Have you set appid?");
 			return;
 		}
-		facebook.dialog(invocation.getActivity(), action, Utils.mapToBundle(params), new TiDialogListener(callback, action));
+		facebook.dialog(getActivity(), action, Utils.mapToBundle(params), new TiDialogListener(callback, action));
 	}
-	
+
 	// Protected methods
 	protected void completeLogin()
 	{
@@ -292,7 +293,7 @@ public class FacebookModule extends KrollModule
 					JSONObject json = Util.parseJson(response);
 					uid = json.getString("id");
 					loggedIn = true;
-					SessionStore.save(FacebookModule.this, context.getTiApp());
+					SessionStore.save(FacebookModule.this, TiApplication.getInstance());
 					KrollDict data = new KrollDict();
 					data.put("cancelled", false);
 					data.put("success", true);
@@ -407,7 +408,7 @@ public class FacebookModule extends KrollModule
 	
 	private void destroyFacebookSession()
 	{
-		SessionStore.clear(context.getTiApp());
+		SessionStore.clear(TiApplication.getInstance());
 		uid = null;
 		loggedIn = false;
 	}

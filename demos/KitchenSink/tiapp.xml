@@ -1,41 +1,52 @@
-<?xml version="1.0" encoding="UTF-8"?><ti:app xmlns:ti="http://ti.appcelerator.org">
-<id>com.appcelerator.titanium</id>
-<name>KitchenSink</name>
-<version>1.0</version>
-<publisher>nwright</publisher>
-<url>http://www.appcelerator.com</url>
-<copyright>2009 by nwright</copyright>
-<description>No description provided</description>
-<icon>appicon.png</icon>
-<persistent-wifi>false</persistent-wifi>
-<prerendered-icon>false</prerendered-icon>
-<statusbar-hidden>false</statusbar-hidden>
-<analytics>true</analytics>
-<guid>6fe33f33fd1f4e95a06d2d217170866d</guid>
-<property name="ti.android.debug" type="bool">false</property>
-<property name="ti.facebook.appid">134793934930</property>
-<!-- this will only work with our dev keystore and not on a production device! -->
-<property name="ti.android.google.map.api.key.development">0ZnKXkWA2dIAu2EM-OV4ZD2lJY3sEWE5TSgjJNg</property>
-<!-- get yours at http://code.google.com/android/maps-api-signup.html -->
-<property name="ti.android.google.map.api.key.production">GET_ME_FROM_GOOGLE</property>
-<plugins>
-	<plugin version="0.1">ti.log</plugin>
-</plugins>
-<android xmlns:android="http://schemas.android.com/apk/res/android">
-	<manifest>
-		<supports-screens android:anyDensity="false"/>
-		<application>
-			<activity android:alwaysRetainTaskState="true" android:configChanges="keyboardHidden|orientation" android:label="KitchenSink" android:name=".KitchensinkActivity" android:theme="@style/Theme.Titanium">
-				<intent-filter>
-					<action android:name="android.intent.action.MAIN"/>
-					<category android:name="android.intent.category.LAUNCHER"/>
-				</intent-filter>
-			</activity>
-		</application>
-	</manifest>
-	<activity android:name="ti.modules.titanium.ui.android.TiPreferencesActivity" />
-	<services>
-		<service type="interval" url="testservice.js" />
-	</services>
-</android>
+<?xml version="1.0" encoding="UTF-8"?>
+<ti:app xmlns:ti="http://ti.appcelerator.org">
+    <deployment-targets>
+        <target device="mobileweb">true</target>
+        <target device="iphone">true</target>
+        <target device="ipad">true</target>
+        <target device="blackberry">false</target>
+        <target device="android">true</target>
+    </deployment-targets>
+    <id>com.appcelerator.titanium</id>
+    <name>KitchenSink</name>
+    <version>1.0</version>
+    <publisher>nwright</publisher>
+    <url>http://www.appcelerator.com</url>
+    <copyright>2009 by nwright</copyright>
+    <description>No description provided</description>
+    <icon>appicon.png</icon>
+    <persistent-wifi>false</persistent-wifi>
+    <prerendered-icon>false</prerendered-icon>
+    <statusbar-hidden>false</statusbar-hidden>
+    <analytics>true</analytics>
+    <guid>6fe33f33fd1f4e95a06d2d217170866d</guid>
+    <property name="ti.android.debug" type="bool">false</property>
+    <property name="ti.facebook.appid">134793934930</property>
+    <!-- this will only work with our dev keystore and not on a production device! -->
+    <property name="ti.android.google.map.api.key.development">0ZnKXkWA2dIAu2EM-OV4ZD2lJY3sEWE5TSgjJNg</property>
+    <!-- get yours at http://code.google.com/android/maps-api-signup.html -->
+    <property name="ti.android.google.map.api.key.production">GET_ME_FROM_GOOGLE</property>
+    <plugins>
+        <plugin version="0.1">ti.log</plugin>
+    </plugins>
+    <android xmlns:android="http://schemas.android.com/apk/res/android">
+        <manifest>
+            <supports-screens android:anyDensity="false"/>
+            <application>
+                <activity android:alwaysRetainTaskState="true"
+                    android:configChanges="keyboardHidden|orientation"
+                    android:label="KitchenSink"
+                    android:name=".KitchensinkActivity" android:theme="@style/Theme.Titanium">
+                    <intent-filter>
+                        <action android:name="android.intent.action.MAIN"/>
+                        <category android:name="android.intent.category.LAUNCHER"/>
+                    </intent-filter>
+                </activity>
+            </application>
+        </manifest>
+        <activity android:name="ti.modules.titanium.ui.android.TiPreferencesActivity"/>
+        <services>
+            <service type="interval" url="testservice.js"/>
+        </services>
+    </android>
 </ti:app>

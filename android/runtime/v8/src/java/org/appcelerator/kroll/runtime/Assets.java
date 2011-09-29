@@ -11,17 +11,30 @@ import java.io.InputStream;
 
 import android.app.Activity;
 import android.content.res.AssetManager;
+import android.util.Log;
 
 
-public final class Assets {
+public final class Assets
+{
+	private static final String TAG = "Assets";
+
 	private static AssetManager assetManager = null;
-	
-	public static void init(Activity activity) {
+
+
+	public static void init(Activity activity)
+	{
 		assetManager = activity.getAssets();
 	}
 
-	public static char[] readResource(String path) throws IOException {
-		InputStream stream = assetManager.open(path);
+	public static char[] readResource(String resourcePath) throws IOException
+	{
+		if (assetManager == null) {
+			Log.e(TAG, "assetManager is not initialized");
+			return null;
+		}
+
+		InputStream stream = assetManager.open(resourcePath);
+
 		StringBuilder builder = new StringBuilder();
 		try {
 			int length = -1;
@@ -29,11 +42,13 @@ public final class Assets {
 			while ((length = stream.read(buffer)) != -1) {
 				builder.append(new String(buffer, 0, length));
 			}
+
 			return builder.toString().toCharArray();
+
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.e(TAG, "Error when reading resources:", e);
+			return null;
 		}
-		return null;
 	}
 }
 

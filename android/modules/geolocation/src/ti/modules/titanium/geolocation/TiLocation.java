@@ -21,6 +21,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollInvocation;
+import org.appcelerator.kroll.runtime.v8.V8Function;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
@@ -188,7 +189,7 @@ public class TiLocation
 		return TiLocationHelper.isLocationEnabled();
 	}
 
-	public void getCurrentPosition(KrollInvocation invocation, final KrollCallback listener)
+	public void getCurrentPosition(KrollInvocation invocation, final V8Function listener)
 	{
 		if (listener != null) {
 			String provider = TiLocationHelper.fetchProvider(preferredProvider, accuracy);
@@ -198,15 +199,15 @@ public class TiLocation
 				Location location = locationManager.getLastKnownLocation(provider);
 
 				if (location != null) {
-					listener.callAsync(locationToKrollDict(location, locationManager.getProvider(provider)));
+					listener.invoke(locationToKrollDict(location, locationManager.getProvider(provider)));
 					doAnalytics(location);
 				} else {
 					Log.i(LCAT, "unable to get current position, location is null");
-					listener.callAsync(TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
+					listener.invoke(TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
 				}
 			} else {
 				Log.i(LCAT, "unable to get current position, no providers are available");
-				listener.callAsync(TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, "no providers are available."));
+				listener.invoke(TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, "no providers are available."));
 			}
 		}
 	}
@@ -243,7 +244,7 @@ public class TiLocation
 				try {
 					String url = (String) args[0];
 					String direction = (String) args[1];
-					KrollCallback callback = (KrollCallback) args[2];
+					V8Function callback = (V8Function) args[2];
 
 					if (DBG) {
 						Log.d(LCAT, "GEO URL [" + url + "]");
@@ -286,7 +287,7 @@ public class TiLocation
 
 					if (event != null) {
 						event.put(TiC.EVENT_PROPERTY_SOURCE, this);
-						callback.callAsync(event);
+						callback.invoke(event);
 					}
 				} catch (Throwable t) {
 					Log.e(LCAT, "error retrieving geocode information [" + t.getMessage() + "]", t);
@@ -300,11 +301,11 @@ public class TiLocation
 		return task;
 	}
 
-	public void forwardGeocoder(String address, KrollCallback listener)
+	public void forwardGeocoder(String address, V8Function listener)
 	{
 		if (address != null) {
 			String mid = TiPlatformHelper.getMobileId();
-			String aguid = geolocationModule.getTiContext().getTiApp().getAppInfo().getGUID();
+			String aguid = TiApplication.getInstance().getAppInfo().getGUID();
 			String sid = TiPlatformHelper.getSessionId();
 			String countryCode = Locale.getDefault().getCountry();
 			String url = buildGeoURL(DIRECTION_F, mid, aguid, sid, address, countryCode);
@@ -321,10 +322,10 @@ public class TiLocation
 		}
 	}
 
-	public void reverseGeocoder(double latitude, double longitude, KrollCallback callback)
+	public void reverseGeocoder(double latitude, double longitude, V8Function callback)
 	{
 		String mid = TiPlatformHelper.getMobileId();
-		String aguid = geolocationModule.getTiContext().getTiApp().getAppInfo().getGUID();
+		String aguid = TiApplication.getInstance().getAppInfo().getGUID();
 		String sid = TiPlatformHelper.getSessionId();
 		String countryCode = Locale.getDefault().getCountry();
 		String url = buildGeoURL(DIRECTION_R, mid, aguid, sid, latitude + "," + longitude, countryCode);

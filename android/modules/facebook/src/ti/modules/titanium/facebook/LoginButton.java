@@ -8,6 +8,7 @@
 package ti.modules.titanium.facebook;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
@@ -40,8 +41,8 @@ public class LoginButton extends TiUIView implements TiFacebookStateListener
 	public LoginButton(final TiViewProxy proxy) {
 		super(proxy);
 		initFacebook();
-		discoverResourceIds(proxy.getContext());
-		ImageButton btn = new ImageButton(proxy.getContext()) {
+		discoverResourceIds(proxy.getActivity());
+		ImageButton btn = new ImageButton(proxy.getActivity()) {
 			@Override
 			protected void drawableStateChanged() {
 				super.drawableStateChanged();
@@ -67,11 +68,11 @@ public class LoginButton extends TiUIView implements TiFacebookStateListener
 	}
 
 	protected void updateButtonImage(boolean pressed) {
-		if (getProxy().getTiContext().isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			handleUpdateButtonImage(pressed);
 		} else {
 			final boolean fPressed = pressed;
-			getProxy().getTiContext().getActivity().runOnUiThread(new Runnable()
+			getProxy().getActivity().runOnUiThread(new Runnable()
 			{
 				@Override
 				public void run()
@@ -176,16 +177,14 @@ public class LoginButton extends TiUIView implements TiFacebookStateListener
 					if (btn.getContext() instanceof Activity) {
 						activity = (Activity) btn.getContext();
 					} else {
-						Context context = getProxy().getContext();
+						Context context = getProxy().getActivity();
 						if (context instanceof Activity) {
 							activity = (Activity) context;
 						}
 					}
 					if (activity == null) {
 						// Fallback on the root activity if possible
-						if (getProxy().getTiContext() != null) {
-							activity = getProxy().getTiContext().getRootActivity();
-						}
+						activity = TiApplication.getInstance().getRootActivity();
 					}
 					if (facebook.loggedIn()) {
 						facebook.executeLogout(activity);

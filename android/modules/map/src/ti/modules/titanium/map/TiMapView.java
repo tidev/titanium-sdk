@@ -532,7 +532,10 @@ public class TiMapView extends TiUIView
 			if (newValue != null) {
 				if (newValue instanceof AnnotationProxy) {
 					AnnotationProxy ap = (AnnotationProxy) newValue;
-					doSetLocation(ap.getProperties());
+
+					// TODO - implement a way to get all cached properties for a proxy - set annotation 
+					// via dict for now
+					// doSetLocation(ap.getProperties());
 				} else if (newValue instanceof KrollDict) {
 					doSetLocation((KrollDict) newValue);
 				}

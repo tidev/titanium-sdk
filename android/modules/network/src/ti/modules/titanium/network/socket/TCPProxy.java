@@ -17,6 +17,7 @@ import java.net.UnknownHostException;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.runtime.v8.V8Function;
 import org.appcelerator.titanium.io.TiStream;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -152,19 +153,19 @@ public class TCPProxy extends KrollProxy implements TiStream
 	}
 
 	@Kroll.setProperty @Kroll.method
-	public void setConnected(KrollCallback connected)
+	public void setConnected(V8Function connected)
 	{
 		setSocketProperty("connected", connected);
 	}
 
 	@Kroll.setProperty @Kroll.method
-	public void setError(KrollCallback error)
+	public void setError(V8Function error)
 	{
 		setSocketProperty("error", error);
 	}
 
 	@Kroll.setProperty @Kroll.method
-	public void setAccepted(KrollCallback accepted)
+	public void setAccepted(V8Function accepted)
 	{
 		setSocketProperty("accepted", accepted);
 	}
@@ -235,7 +236,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 					try {
 						Socket acceptedSocket = serverSocket.accept();
 
-						TCPProxy acceptedTcpProxy = new TCPProxy(context);
+						TCPProxy acceptedTcpProxy = new TCPProxy();
 						acceptedTcpProxy.clientSocket = acceptedSocket;
 						acceptedTcpProxy.setProperty("host", acceptedTcpProxy.clientSocket.getInetAddress());
 						acceptedTcpProxy.setProperty("port", acceptedTcpProxy.clientSocket.getPort());
@@ -245,16 +246,17 @@ public class TCPProxy extends KrollProxy implements TiStream
 							acceptedTcpProxy.setProperty("timeout", TiConvert.toInt(optionValue));
 						}
 						if((optionValue = acceptOptions.get("error")) != null) {
-							if(optionValue instanceof KrollCallback) {
-								acceptedTcpProxy.setProperty("error", (KrollCallback) optionValue);
+							if(optionValue instanceof V8Function) {
+								acceptedTcpProxy.setProperty("error", (V8Function) optionValue);
 							}
 						}
 
 						acceptedTcpProxy.state = SocketModule.CONNECTED;
 
 						Object callback = getProperty("accepted");
-						if(callback instanceof KrollCallback) {
-							((KrollCallback) callback).callAsync(buildAcceptedCallbackArgs(acceptedTcpProxy));
+						if(callback instanceof V8Function) {
+							((V8Function) callback).invoke(buildAcceptedCallbackArgs(acceptedTcpProxy));
+							//((KrollCallback) callback).callAsync(buildAcceptedCallbackArgs(acceptedTcpProxy));
 						}
 
 						accepting = false;
@@ -328,8 +330,9 @@ public class TCPProxy extends KrollProxy implements TiStream
 		}
 
 		Object callback = getProperty(callbackName);
-		if(callback instanceof KrollCallback) {
-			((KrollCallback) callback).callAsync(callbackArgs);
+		if(callback instanceof V8Function) {
+			((V8Function) callback).invoke(callbackArgs);
+			//((KrollCallback) callback).callAsync(callbackArgs);
 		}
 	}
 
