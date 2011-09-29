@@ -187,11 +187,13 @@ public class TiAnimationBuilder
 			addAnimation(as,a);
 			a.setAnimationListener(listener);
 			
-			if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY) && fromOpacity != null && toOpacity != null) {
-				if (fromOpacity > 0 && fromOpacity < 1) {
-					TiUIView uiView = viewProxy.getView(null);
-					uiView.setOpacity(1);
-				}
+			TiUIView uiView = viewProxy.peekView();
+			if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY) && fromOpacity != null && toOpacity != null
+				&& uiView != null) {
+				// Initialize the opacity to 1 when we are going to change it in
+				// the animation. If the opacity of the view was initialized to
+				// 0, the animation doesn't work
+				uiView.setOpacity(1);
 			}
 		}
 
