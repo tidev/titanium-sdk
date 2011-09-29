@@ -705,7 +705,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 	protected Map<String, Object> getParentModule(Map<String, Object> proxy) {
 		String parentModuleClass = getParentModuleClass(proxy);
 		if (parentModuleClass != null) {
-			Map<String, Object> modules = (Map<String, Object>) properties.get("modules");
+			Map<String, Object> modules = (Map<String, Object>) properties.get("proxies");
 			return (Map<String, Object>) modules.get(parentModuleClass);
 		}
 		return null;
@@ -736,17 +736,33 @@ public class KrollBindingGenerator extends AbstractProcessor {
 	protected void generateFullAPIName(Map<String, Object> proxy) {
 		Map<String, Object> childProxy = proxy;
 		String fullAPIName = (String) proxy.get("name");
+		Map<String, Object> modules = (Map<String, Object>) properties.get("modules");
+		Map<String, Object> proxies = (Map<String, Object>) properties.get("proxies");
+
 		for (int i = 0; i < 10; i++) {
-			Map<String, Object> parentProxy = getParentModule(childProxy);
-			if (parentProxy == null) {
+			if (childProxy == null) break;
+
+			String name = (String) childProxy.get("name");
+			if (name == null) {
+				name = (String) childProxy.get("apiName");
+			}
+			String moduleClassName = getParentModuleClass(childProxy);
+			String apiName = null;
+
+			Map<String, Object> module = ((Map<String, Object>) modules.get(moduleClassName));
+			if (module != null) {
+				apiName = (String) module.get("apiName");
+			}
+			if (apiName == null && module != null) {
+				apiName = findParentModuleName(module);
+			}
+			if (apiName == null) {
 				break;
 			}
-			String apiName = (String) parentProxy.get("apiName");
-			if (apiName == null) {
-				apiName = findParentModuleName(childProxy);
-			}
 			fullAPIName = apiName + "." + fullAPIName;
-			childProxy = parentProxy;
+
+			Map<String, Object> proxyMap = (Map<String, Object>) proxies.get(moduleClassName);
+			childProxy = (Map<String, Object>) proxyMap.get("proxyAttrs");
 		}
 		proxy.put("fullAPIName", fullAPIName);
 	}

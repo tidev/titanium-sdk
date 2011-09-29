@@ -72,14 +72,14 @@ void ${className}::Initialize(Handle<Object> ti)
 
 	// Constants -----------------------------------------------------------------
 	<#if constants??>
-	Handle<ObjectTemplate> instanceTemplate = proxyTemplate->InstanceTemplate();
+	Local<ObjectTemplate> instanceTemplate = proxyTemplate->InstanceTemplate();
 	<@Proxy.listConstants ; isFirst, name, constant>
 	<#if constant.type = "java.lang.String">
 	DEFINE_STRING_CONSTANT(instanceTemplate, "${name}", "${constant.value}");
 	<#elseif constant.type = "int" || constant.type = "long">
-	DEFINE_INT_CONSTANT(instanceTemplate, "${name}", ${constant.value});
+	DEFINE_INT_CONSTANT(instanceTemplate, "${name}", ${constant.value?c});
 	<#else>
-	DEFINE_NUMBER_CONSTANT(instanceTemplate, "${name}", ${constant.value});
+	DEFINE_NUMBER_CONSTANT(instanceTemplate, "${name}", ${constant.value?c});
 	</#if>
 
 	</@Proxy.listConstants>
@@ -92,6 +92,7 @@ void ${className}::Initialize(Handle<Object> ti)
 	<#else>
 	ti->Set(String::NewSymbol("${proxyAttrs.name}"), proxyConstructor);
 	</#if>
+
 }
 
 // Methods ---------------------------------------------------------------

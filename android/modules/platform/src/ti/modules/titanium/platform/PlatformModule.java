@@ -31,10 +31,10 @@ public class PlatformModule extends KrollModule
 	private static final String LCAT = "PlatformModule";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	@Kroll.constant public static int BATTERY_STATE_UNKNOWN = 0;
-	@Kroll.constant public static int BATTERY_STATE_UNPLUGGED = 1;
-	@Kroll.constant public static int BATTERY_STATE_CHARGING = 2;
-	@Kroll.constant public static int BATTERY_STATE_FULL = 3;
+	@Kroll.constant public static final int BATTERY_STATE_UNKNOWN = 0;
+	@Kroll.constant public static final int BATTERY_STATE_UNPLUGGED = 1;
+	@Kroll.constant public static final int BATTERY_STATE_CHARGING = 2;
+	@Kroll.constant public static final int BATTERY_STATE_FULL = 3;
 
 	protected DisplayCapsProxy displayCaps;
 
