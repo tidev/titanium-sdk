@@ -8,7 +8,6 @@ package ti.modules.titanium.android;
 
 import java.util.List;
 
-import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
@@ -235,7 +234,7 @@ public class AndroidModule extends KrollModule
 	*/
 
 	@Kroll.method
-	public IntentProxy createIntent(KrollInvocation invocation, Object[] args)
+	public IntentProxy createIntent(Object[] args)
 	{
 		IntentProxy intent = new IntentProxy();
 		intent.handleCreationArgs(this, args);
@@ -243,7 +242,7 @@ public class AndroidModule extends KrollModule
 	}
 
 	@Kroll.method
-	public IntentProxy createServiceIntent(KrollInvocation invocation, Object[] args)
+	public IntentProxy createServiceIntent(Object[] args)
 	{
 		IntentProxy intent = new IntentProxy();
 		intent.setType(IntentProxy.TYPE_SERVICE);
@@ -251,7 +250,7 @@ public class AndroidModule extends KrollModule
 		return intent;
 	}
 
-	public IntentProxy createBroadcastIntent(KrollInvocation invocation, Object[] args)
+	public IntentProxy createBroadcastIntent(Object[] args)
 	{
 		IntentProxy intent = new IntentProxy();
 		intent.setType(IntentProxy.TYPE_BROADCAST);
@@ -260,13 +259,13 @@ public class AndroidModule extends KrollModule
 	}
 
 	@Kroll.method
-	public IntentProxy createIntentChooser(KrollInvocation invocation, IntentProxy target, String title)
+	public IntentProxy createIntentChooser(IntentProxy target, String title)
 	{
 		return new IntentProxy(Intent.createChooser(target.getIntent(), title));
 	}
 
 	@Kroll.getProperty(name="R")
-	public RProxy getR(KrollInvocation invocation) {
+	public RProxy getR() {
 		if (r == null) {
 			r = new RProxy(RProxy.RESOURCE_TYPE_ANDROID);
 		}
@@ -274,7 +273,7 @@ public class AndroidModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void startService(KrollInvocation invocation, IntentProxy intentProxy)
+	public void startService(IntentProxy intentProxy)
 	{
 		Activity activity = TiApplication.getInstance().getCurrentActivity();
 		if (activity != null) {
@@ -293,7 +292,7 @@ public class AndroidModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void stopService(KrollInvocation invocation, IntentProxy intentProxy)
+	public void stopService(IntentProxy intentProxy)
 	{
 		Activity activity = TiApplication.getInstance().getCurrentActivity();
 		if (activity != null) {
@@ -312,7 +311,7 @@ public class AndroidModule extends KrollModule
 	}
 
 	@Kroll.method
-	public boolean isServiceRunning(KrollInvocation invocation, IntentProxy intentProxy)
+	public boolean isServiceRunning(IntentProxy intentProxy)
 	{
 		Intent intent = intentProxy.getIntent();
 		if (intent == null) {
@@ -334,7 +333,7 @@ public class AndroidModule extends KrollModule
 	}
 
 	@Kroll.method
-	public ServiceProxy createService(KrollInvocation invocation, IntentProxy intentProxy)
+	public ServiceProxy createService(IntentProxy intentProxy)
 	{
 		// Create a new context for the service proxy
 		TiApplication app = TiApplication.getInstance();

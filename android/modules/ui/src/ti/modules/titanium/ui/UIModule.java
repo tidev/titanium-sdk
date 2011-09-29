@@ -6,7 +6,6 @@
  */
 package ti.modules.titanium.ui;
 
-import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
@@ -136,7 +135,7 @@ public class UIModule extends KrollModule
 	}
 
 	@Kroll.setProperty(runOnUiThread=true) @Kroll.method(runOnUiThread=true)
-	public void setOrientation(KrollInvocation invocation, int tiOrientationMode)
+	public void setOrientation(int tiOrientationMode)
 	{
 		Activity activity = TiApplication.getInstance().getCurrentActivity();
 		if (activity instanceof TiBaseActivity)

@@ -7,7 +7,6 @@
 package ti.modules.titanium.android;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -94,7 +93,7 @@ public class RemoteViewsProxy extends KrollProxy {
 	}
 
 	@Kroll.method
-	public void setImageViewUri(KrollInvocation invocation, int viewId, String uriString)
+	public void setImageViewUri(int viewId, String uriString)
 	{
 		Uri uri = Uri.parse(resolveUrl(null, uriString));
 		remoteViews.setImageViewUri(viewId, uri);

@@ -9,7 +9,6 @@ package ti.modules.titanium.android.notificationmanager;
 import java.util.Date;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
@@ -55,7 +54,7 @@ public class NotificationProxy extends KrollProxy
 			return;
 		}
 		if (d.containsKey(TiC.PROPERTY_ICON)) {
-			setIcon(null, d.get(TiC.PROPERTY_ICON));
+			setIcon(d.get(TiC.PROPERTY_ICON));
 		}
 		if (d.containsKey(TiC.PROPERTY_TICKER_TEXT)) {
 			setTickerText(TiConvert.toString(d, TiC.PROPERTY_TICKER_TEXT));
@@ -97,7 +96,7 @@ public class NotificationProxy extends KrollProxy
 			setNumber(TiConvert.toInt(d, TiC.PROPERTY_NUMBER));
 		}
 		if (d.containsKey(TiC.PROPERTY_SOUND)) {
-			setSound(null, TiConvert.toString(d, TiC.PROPERTY_SOUND));
+			setSound(TiConvert.toString(d, TiC.PROPERTY_SOUND));
 		}
 		if (d.containsKey(TiC.PROPERTY_VIBRATE_PATTERN)) {
 			setVibratePattern((Object[]) d.get(TiC.PROPERTY_VIBRATE_PATTERN));
@@ -106,7 +105,7 @@ public class NotificationProxy extends KrollProxy
 	}
 
 	@Kroll.method @Kroll.setProperty
-	public void setIcon(KrollInvocation invocation, Object icon)
+	public void setIcon(Object icon)
 	{
 		if (icon instanceof Number) {
 			notification.icon = ((Number)icon).intValue();
@@ -204,7 +203,7 @@ public class NotificationProxy extends KrollProxy
 	}
 
 	@Kroll.method @Kroll.setProperty
-	public void setSound(KrollInvocation invocation, String url)
+	public void setSound(String url)
 	{
 		//TiContext context = invocation == null ? getTiContext() : invocation.getTiContext();
 		notification.sound = Uri.parse(resolveUrl(null, url));
@@ -248,8 +247,7 @@ public class NotificationProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void setLatestEventInfo(KrollInvocation invocation,
-		String contentTitle, String contentText, PendingIntentProxy contentIntent)
+	public void setLatestEventInfo(String contentTitle, String contentText, PendingIntentProxy contentIntent)
 	{
 		Context c = getActivity();
 		if (c == null) {

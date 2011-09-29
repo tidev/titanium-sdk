@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -176,19 +175,19 @@ public class GestureModule extends KrollModule
 	}
 	
 	@Kroll.getProperty @Kroll.method
-	public boolean isPortrait(KrollInvocation invocation)
+	public boolean isPortrait()
 	{
 		return TiApplication.getInstance().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public boolean isLandscape(KrollInvocation invocation)
+	public boolean isLandscape()
 	{
 		return TiApplication.getInstance().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public int getOrientation(KrollInvocation invocation)
+	public int getOrientation()
 	{
 		return TiOrientationHelper.convertConfigToTiOrientationMode(TiApplication.getInstance().getResources().getConfiguration().orientation);
 	}

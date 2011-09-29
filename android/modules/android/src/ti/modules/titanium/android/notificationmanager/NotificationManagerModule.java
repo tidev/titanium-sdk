@@ -6,7 +6,6 @@
  */
 package ti.modules.titanium.android.notificationmanager;
 
-import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
@@ -45,33 +44,33 @@ public class NotificationManagerModule extends KrollModule
 	}*/
 
 	// Kept for compatibility with 1.5.x
-	public NotificationProxy createNotification(KrollInvocation invocation, Object[] args)
+	public NotificationProxy createNotification(Object[] args)
 	{
 		NotificationProxy notification = new NotificationProxy();
 		notification.handleCreationArgs(this, args);
 		return notification;
 	}
 
-	private NotificationManager getManager(KrollInvocation invocation)
+	private NotificationManager getManager()
 	{
 		return (NotificationManager) TiApplication.getInstance().getSystemService(Activity.NOTIFICATION_SERVICE);
 	}
 	
 	@Kroll.method
-	public void cancel(KrollInvocation invocation, int id)
+	public void cancel(int id)
 	{
-		getManager(invocation).cancel(id);
+		getManager().cancel(id);
 	}
 	
 	@Kroll.method
-	public void cancelAll(KrollInvocation invocation)
+	public void cancelAll()
 	{
-		getManager(invocation).cancelAll();
+		getManager().cancelAll();
 	}
 	
 	@Kroll.method
-	public void notify(KrollInvocation invocation, int id, NotificationProxy notificationProxy)
+	public void notify(int id, NotificationProxy notificationProxy)
 	{
-		getManager(invocation).notify(id, notificationProxy.getNotification());
+		getManager().notify(id, notificationProxy.getNotification());
 	}	
 }

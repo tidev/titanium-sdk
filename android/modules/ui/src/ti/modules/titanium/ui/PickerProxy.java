@@ -12,7 +12,6 @@ import java.util.Calendar;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -470,7 +469,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	// it doesn't use any state except for context.  It's a quick hit way
 	// of getting a date dialog up, in other words.
 	@Kroll.method
-	public void showDatePickerDialog(KrollInvocation invocation, Object[] args)
+	public void showDatePickerDialog(Object[] args)
 	{
 		KrollDict settings = new KrollDict();
 		final AtomicInteger callbackCount = new AtomicInteger(0); // just a flag to be sure dismiss doesn't fire callback if ondateset did already.
@@ -554,7 +553,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	// it doesn't use any state except for context.  It's a quick hit way
 	// of getting a date dialog up, in other words.
 	@Kroll.method
-	public void showTimePickerDialog(KrollInvocation invocation, Object[] args)
+	public void showTimePickerDialog(Object[] args)
 	{
 		KrollDict settings = new KrollDict();
 		boolean is24HourView = false;

@@ -6,7 +6,6 @@
  */
 package ti.modules.titanium.ui.android;
 
-import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -72,7 +71,7 @@ public class AndroidModule extends KrollModule
 
 	// TODO - grab the activity off the invocation?
 	@Kroll.method
-	public void openPreferences(KrollInvocation kroll, @Kroll.argument(optional=true) String prefsName)
+	public void openPreferences(@Kroll.argument(optional=true) String prefsName)
 	{
 		if (activity != null) {
 			
@@ -88,7 +87,7 @@ public class AndroidModule extends KrollModule
 
 	// TODO grab the activity off the invocation?
 	@Kroll.method
-	public void hideSoftKeyboard(KrollInvocation invocation)
+	public void hideSoftKeyboard()
 	{
 		if (activity != null) {
 			TiUIHelper.showSoftKeyboard(activity.getWindow().getDecorView(), false);

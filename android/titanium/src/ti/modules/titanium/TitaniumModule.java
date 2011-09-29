@@ -18,7 +18,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
-import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
@@ -217,7 +216,7 @@ public class TitaniumModule extends KrollModule
 	}
 
 	@Kroll.method @Kroll.topLevel
-	public int setTimeout(KrollInvocation invocation, Object fn, long timeout, final Object[] args)
+	public int setTimeout(Object fn, long timeout, final Object[] args)
 		throws IllegalArgumentException
 	{
 		return createTimer(KrollContext.getKrollContext(), fn, timeout, args, false);
@@ -237,7 +236,7 @@ public class TitaniumModule extends KrollModule
 	}
 
 	@Kroll.method @Kroll.topLevel
-	public int setInterval(KrollInvocation invocation, Object fn, long timeout, final Object[] args)
+	public int setInterval(Object fn, long timeout, final Object[] args)
 		throws IllegalArgumentException
 	{
 		return createTimer(KrollContext.getKrollContext(), fn, timeout, args, true);
@@ -250,7 +249,7 @@ public class TitaniumModule extends KrollModule
 	}
 
 	@Kroll.method @Kroll.topLevel
-	public void alert(KrollInvocation invocation, Object message)
+	public void alert(Object message)
 	{
 		String msg = (message == null? null : message.toString());
 		Log.i("ALERT", msg);
@@ -390,7 +389,7 @@ public class TitaniumModule extends KrollModule
 	}
 
 	@Kroll.method @Kroll.topLevel("L")
-	public String localize(KrollInvocation invocation, Object args[])
+	public String localize(Object args[])
 	{
 		String key = (String) args[0];
 		String defaultValue = args.length > 1 ? (String) args[1] : null;

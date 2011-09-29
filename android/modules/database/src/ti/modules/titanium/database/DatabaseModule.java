@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
@@ -79,7 +78,7 @@ public class DatabaseModule extends KrollModule
 	}
 
 	@Kroll.method
-	public TiDatabaseProxy install(KrollInvocation invocation, String url, String name) throws IOException
+	public TiDatabaseProxy install(String url, String name) throws IOException
 	{
 		try {
 			//TiContext tiContext = invocation.getTiContext();
