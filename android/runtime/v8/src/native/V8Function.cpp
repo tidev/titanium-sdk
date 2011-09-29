@@ -33,9 +33,15 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeInv
 	// construct function from pointer
 	v8::Handle<v8::Function> jsFunction((v8::Function *) functionPointer);
 
-	// construct arguments array
-	v8::Handle<v8::Array> jsFunctionArguments = TypeConverter::javaArrayToJsArray(functionArguments);
-	v8::Handle<v8::Value>[] jsFunctionArguments = TypeConverter::javaObjectArrayToJsArguments(functionArguments);
+	// convert the Java array to a V8 function arguments array
+	jsize arrayLength = env->GetArrayLength(functionArguments);
+	v8::Handle<v8::Value> jsFunctionArguments[jsize];
+	for (int i = 0; i < arrayLength; i++)
+	{
+		jobject arrayElement = env->GetObjectArrayElement(functionArguments);
+		jsFunctionArguments[i] = TypeConverter::javaObjectToJsValue(arrayElement);
+		env->DeleteLocalRef(arrayElement);
+	}
 
 
 	// call into the JS function with the provided argument
