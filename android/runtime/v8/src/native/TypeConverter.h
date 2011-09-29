@@ -56,6 +56,10 @@ public:
 	// arguments conversion
 	static jobjectArray jsArgumentsToJavaArray(const v8::Arguments& args);
 
+	// BIG FUCKING WARNING!!  make sure you call "delete" on the return value otherwise the
+	// you have introduced a memory leak and the world will end.  plzkthksbye
+	static v8::Handle<v8::Value> * javaObjectArrayToJsArguments(jobjectArray javaObjectArray);
+
 	// array convert methods
 	static jarray jsArrayToJavaArray(v8::Handle<v8::Array>);
 	static v8::Handle<v8::Array> javaArrayToJsArray(jbooleanArray javaBooleanArray);

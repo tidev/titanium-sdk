@@ -183,6 +183,26 @@ jobjectArray TypeConverter::jsArgumentsToJavaArray(const Arguments& args)
 	return javaArgs;
 }
 
+// call "delete" on the return value otherwise the memory will never be released
+v8::Handle<v8::Value> * TypeConverter::javaObjectArrayToJsArguments(jobjectArray javaObjectArray)
+{
+	JNIEnv *env = JNIScope::getEnv();
+	if (!env) {
+		return NULL;
+	}
+
+	jsize javaArrayLength = env->GetArrayLength(javaObjectArray);
+	v8::Handle<v8::Value> *jsArguments = new v8::Handle<v8::Value>[javaArrayLength];
+	for (int i = 0; i < javaArrayLength; i++)
+	{
+		jobject arrayElement = env->GetObjectArrayElement(javaObjectArray, i);
+		jsArguments[i] = TypeConverter::javaObjectToJsValue(arrayElement);
+		env->DeleteLocalRef(arrayElement);
+	}
+
+	return jsArguments;
+}
+
 jarray TypeConverter::jsArrayToJavaArray(v8::Handle<v8::Array> jsArray)
 {
 	JNIEnv *env = JNIScope::getEnv();

@@ -26,6 +26,6 @@ public class V8Function extends V8Object
 		nativeInvoke(getPointer(), functionArgs);
 	}
 
-	private static native void nativeInvoke(long functionPointer, Object[] functionArgs);
+	private native void nativeInvoke(long functionPointer, Object[] functionArgs);
 }
 
