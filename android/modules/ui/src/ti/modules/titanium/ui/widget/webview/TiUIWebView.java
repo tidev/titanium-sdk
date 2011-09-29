@@ -481,6 +481,7 @@ public class TiUIWebView extends TiUIView {
 	
 	public void setEnableZoomControls(boolean enabled)
 	{
+		getWebView().getSettings().setSupportZoom(enabled);
 		getWebView().getSettings().setBuiltInZoomControls(enabled);
 	}
 
