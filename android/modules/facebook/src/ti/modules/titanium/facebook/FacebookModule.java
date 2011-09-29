@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.runtime.v8.V8Function;
@@ -160,7 +159,7 @@ public class FacebookModule extends KrollModule
 	
 	// Public Methods
 	@Kroll.method
-	public TiFacebookModuleLoginButtonProxy createLoginButton(KrollInvocation invocation, @Kroll.argument(optional=true) KrollDict options)
+	public TiFacebookModuleLoginButtonProxy createLoginButton(@Kroll.argument(optional=true) KrollDict options)
 	{
 		TiFacebookModuleLoginButtonProxy login = new TiFacebookModuleLoginButtonProxy(this);
 		if (options != null) {
@@ -171,7 +170,7 @@ public class FacebookModule extends KrollModule
 	}
 	
 	@Kroll.method
-	public void authorize(KrollInvocation invocation)
+	public void authorize()
 	{
 		debug("authorize; permissions.length == " + permissions.length);
 		if (this.isLoggedIn()) {
@@ -196,7 +195,7 @@ public class FacebookModule extends KrollModule
 	}
 	
 	@Kroll.method
-	public void logout(KrollInvocation invocation)
+	public void logout()
 	{
 		boolean wasLoggedIn = isLoggedIn();
 		destroyFacebookSession();
@@ -247,7 +246,7 @@ public class FacebookModule extends KrollModule
 	}
 	
 	@Kroll.method(runOnUiThread=true)
-	public void dialog(KrollInvocation invocation, String action, KrollDict params, V8Function callback)
+	public void dialog(String action, KrollDict params, V8Function callback)
 	{
 		if (facebook == null) {
 			Log.w(LCAT, "dialog called without Facebook being instantiated.  Have you set appid?");

@@ -7,7 +7,6 @@
 
 package ti.modules.titanium.geolocation;
 
-import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -88,27 +87,27 @@ public class GeolocationModule extends KrollModule
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public boolean getLocationServicesEnabled(KrollInvocation invocation)
+	public boolean getLocationServicesEnabled()
 	{
-		return tiLocation.getLocationServicesEnabled(invocation);
+		return tiLocation.getLocationServicesEnabled();
 	}
 
 	@Kroll.method @Kroll.getProperty
-	public boolean getHasCompass(KrollInvocation invocation)
+	public boolean getHasCompass()
 	{
-		return tiCompass.getHasCompass(invocation);
+		return tiCompass.getHasCompass();
 	}
 
 	@Kroll.method
-	public void getCurrentHeading(KrollInvocation invocation, final V8Function listener)
+	public void getCurrentHeading(final V8Function listener)
 	{
-		tiCompass.getCurrentHeading(invocation, listener);
+		tiCompass.getCurrentHeading(listener);
 	}
 
 	@Kroll.method
-	public void getCurrentPosition(KrollInvocation invocation, V8Function listener)
+	public void getCurrentPosition(V8Function listener)
 	{
-		tiLocation.getCurrentPosition(invocation, listener);
+		tiLocation.getCurrentPosition(listener);
 	}
 
 	@Kroll.method

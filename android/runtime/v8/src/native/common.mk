@@ -17,23 +17,12 @@ CFLAGS += -DTI_DEBUG=1
 endif
 
 LDLIBS := -L$(SYSROOT)/usr/lib -ldl -llog -L$(TARGET_OUT)
-SRC_FILES := \
-	AndroidUtil.cpp \
-	EventEmitter.cpp \
-	EventListener.cpp \
-	JavaObject.cpp \
-	JNIUtil.cpp \
-	KrollBindings.cpp \
-	ProxyFactory.cpp \
-	TypeConverter.cpp \
-	V8Object.cpp \
-	V8Runtime.cpp \
-	V8Script.cpp \
-	V8Util.cpp \
-	modules/APIModule.cpp \
-	modules/AssetsModule.cpp \
-	modules/ScriptsModule.cpp \
+ABS_SRC_FILES := \
+	$(wildcard $(LOCAL_PATH)/*.cpp) \
+	$(wildcard $(LOCAL_PATH)/modules/*.cpp) \
 	$(PROXY_SOURCES)
+
+SRC_FILES := $(patsubst $(LOCAL_PATH)/%,%,$(ABS_SRC_FILES))
 
 ABS_JS_FILES := \
 	$(GENERATED_DIR)/bootstrap.js \

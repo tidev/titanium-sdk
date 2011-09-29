@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -86,7 +85,7 @@ public class ContactsModule extends KrollModule
 	}
 	
 	@Kroll.method
-	public void showContacts(KrollInvocation invocation, @Kroll.argument(optional=true) KrollDict d)
+	public void showContacts(@Kroll.argument(optional=true) KrollDict d)
 	{
 		Activity launchingActivity = TiApplication.getInstance().getRootActivity();
 		

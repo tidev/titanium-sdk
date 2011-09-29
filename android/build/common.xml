@@ -417,6 +417,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<build.module module="filesystem"/>
 		<build.module module="media"/>
 		<build.module module="ui"/>
+		<build.module module="geolocation"/>
 		<!-- TODO re-enable me antcall target="build.all.modules"/-->
 
 		<!-- the shared library needs to be last so we can build all the generated native bindings -->

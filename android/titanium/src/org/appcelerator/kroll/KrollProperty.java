@@ -9,8 +9,8 @@ package org.appcelerator.kroll;
 public interface KrollProperty {
 
 	public boolean supportsGet(String name);
-	public Object get(KrollInvocation invocation, String name);
+	public Object get(String name);
 	
 	public boolean supportsSet(String name);
-	public void set(KrollInvocation invocation, String name, Object value);
+	public void set(String name, Object value);
 }

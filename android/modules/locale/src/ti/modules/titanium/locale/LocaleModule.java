@@ -8,7 +8,6 @@ package ti.modules.titanium.locale;
 
 import java.util.Locale;
 
-import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
@@ -89,7 +88,7 @@ public class LocaleModule extends KrollModule
 	}
 
 	@Kroll.method
-	public String getString(KrollInvocation invocation, String key, @Kroll.argument(optional=true) String defaultValue)
+	public String getString(String key, @Kroll.argument(optional=true) String defaultValue)
 	{
 		try {
 			int resid = TiRHelper.getResource("string." + key);

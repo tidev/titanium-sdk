@@ -7,7 +7,6 @@
 package ti.modules.titanium.app.properties;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
@@ -86,7 +85,7 @@ public class PropertiesModule extends KrollModule {
 	}	
 	
 	@Kroll.method
-	public Object getList(KrollInvocation invocation, String key,
+	public Object getList(String key,
 		@Kroll.argument(optional=true/* TODO, , defaultValueProvider=DefaultValues.class*/) Object[] defaultValue) {
 		
 		String[] values = new String[0];

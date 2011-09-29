@@ -8,7 +8,7 @@
 #include <jni.h>
 #include <v8.h>
 
-#include "JNIUtil.h""
+#include "JNIUtil.h"
 #include "TypeConverter.h"
 
 #define TAG "V8Function"
@@ -24,28 +24,23 @@ extern "C" {
  * Method:    nativeInvoke
  * Signature: (J[Ljava/lang/Object)V
  */
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeInvoke(
-	JNIEnv *env, jobject caller, jlong functionPointer, jobjectarray functionArguments)
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Function_nativeInvoke(
+	JNIEnv *env, jobject caller, jlong functionPointer, jobjectArray functionArguments)
 {
 	titanium::JNIScope jniScope(env);
-	HandleScope scope;
+	v8::HandleScope scope;
 
 	// construct function from pointer
 	v8::Handle<v8::Function> jsFunction((v8::Function *) functionPointer);
 
-	// convert the Java array to a V8 function arguments array
-	jsize arrayLength = env->GetArrayLength(functionArguments);
-	v8::Handle<v8::Value> jsFunctionArguments[jsize];
-	for (int i = 0; i < arrayLength; i++)
-	{
-		jobject arrayElement = env->GetObjectArrayElement(functionArguments);
-		jsFunctionArguments[i] = TypeConverter::javaObjectToJsValue(arrayElement);
-		env->DeleteLocalRef(arrayElement);
-	}
-
+	// create function arguments
+	v8::Handle<v8::Value> *jsFunctionArguments = TypeConverter::javaObjectArrayToJsArguments(functionArguments);
 
 	// call into the JS function with the provided argument
-	jsFunction->Call(jsFunction, 1, jsFunctionArgs);
+	jsFunction->Call(jsFunction, 1, jsFunctionArguments);
+
+	// make sure to delete the arguments since the arguments array is built on the heap
+	delete jsFunctionArguments;
 }
 
 #ifdef __cplusplus

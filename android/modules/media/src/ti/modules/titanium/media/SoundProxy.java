@@ -7,7 +7,6 @@
 package ti.modules.titanium.media;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -64,7 +63,7 @@ public class SoundProxy extends KrollProxy
 	}
 	
 	@Kroll.setProperty
-	public void setUrl(KrollInvocation kroll, String url) {
+	public void setUrl(String url) {
 		if (url != null) {
 			setProperty(TiC.PROPERTY_URL, resolveUrl(null, TiConvert.toString(url)));
 		}

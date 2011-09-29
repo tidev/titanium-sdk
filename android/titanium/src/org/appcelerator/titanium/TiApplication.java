@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.Properties;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
@@ -283,7 +282,7 @@ public class TiApplication extends Application implements Handler.Callback
 		appEventProxies.remove(appEventProxy);
 	}
 
-	public boolean fireAppEvent(KrollInvocation invocation, String eventName, KrollDict data)
+	public boolean fireAppEvent(String eventName, KrollDict data)
 	{
 		// TODO boolean handled = false;
 		for (KrollProxy appEventProxy : appEventProxies)

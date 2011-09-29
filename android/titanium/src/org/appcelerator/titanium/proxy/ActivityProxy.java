@@ -7,7 +7,6 @@
 package org.appcelerator.titanium.proxy;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
@@ -87,8 +86,7 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void startActivityFromChild(KrollInvocation invocation,
-		ActivityProxy child, IntentProxy intent, int requestCode)
+	public void startActivityFromChild(ActivityProxy child, IntentProxy intent, int requestCode)
 	{
 		Activity activity = getWrappedActivity();
 		if (activity != null) {
@@ -97,7 +95,7 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public boolean startActivityIfNeeded(KrollInvocation invocation, IntentProxy intent, int requestCode)
+	public boolean startActivityIfNeeded(IntentProxy intent, int requestCode)
 	{
 		Activity activity = getWrappedActivity();
 		if (activity != null) {
@@ -107,7 +105,7 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public boolean startNextMatchingActivity(KrollInvocation invocation, IntentProxy intent)
+	public boolean startNextMatchingActivity(IntentProxy intent)
 	{
 		Activity activity = getWrappedActivity();
 		if (activity != null) {
@@ -117,7 +115,7 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public String getString(KrollInvocation invocation, int resId, Object[] formatArgs)
+	public String getString(int resId, Object[] formatArgs)
 	{
 		Activity activity = getWrappedActivity();
 		if (activity != null) {
@@ -137,7 +135,7 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method @Kroll.setProperty
-	public void setRequestedOrientation(KrollInvocation invocation, int orientation)
+	public void setRequestedOrientation(int orientation)
 	{
 		Activity activity = getWrappedActivity();
 		if (activity != null) {
@@ -146,7 +144,7 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void setResult(KrollInvocation invocation, int resultCode,
+	public void setResult(int resultCode,
 		@Kroll.argument(optional=true) IntentProxy intent)
 	{
 		Activity activity = getWrappedActivity();
@@ -160,7 +158,7 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void finish(KrollInvocation invocation)
+	public void finish()
 	{
 		Activity activity = getWrappedActivity();
 		if (activity != null) {

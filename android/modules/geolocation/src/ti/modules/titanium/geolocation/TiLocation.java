@@ -20,7 +20,6 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.runtime.v8.V8Function;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
@@ -184,12 +183,12 @@ public class TiLocation
 		}
 	}
 
-	public boolean getLocationServicesEnabled(KrollInvocation invocation)
+	public boolean getLocationServicesEnabled()
 	{
 		return TiLocationHelper.isLocationEnabled();
 	}
 
-	public void getCurrentPosition(KrollInvocation invocation, final V8Function listener)
+	public void getCurrentPosition(final V8Function listener)
 	{
 		if (listener != null) {
 			String provider = TiLocationHelper.fetchProvider(preferredProvider, accuracy);
