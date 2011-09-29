@@ -272,6 +272,6 @@ void JNIUtil::initCache()
 	eventListenerPostEventMethod = getMethodID(eventListenerClass, "postEvent",
 		"(Ljava/util/HashMap;)V", false);
 
-	v8FunctionInitMethod = getMethodID(v8FunctionClass, "<init>", "(j)V", false);
+	v8FunctionInitMethod = getMethodID(v8FunctionClass, "<init>", "(J)V", false);
 }
 }
