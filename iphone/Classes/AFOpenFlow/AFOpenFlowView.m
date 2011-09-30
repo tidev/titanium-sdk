@@ -22,7 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-#if defined(USE_TI_UIIOSCOVERFLOWVIEW) || defined(USE_TI_UICOVERFLOWVIEW) 
+#ifdef USE_TI_UICOVERFLOWVIEW
 
 #import "AFOpenFlowView.h"
 #import "AFOpenFlowConstants.h"
@@ -71,9 +71,9 @@ const static CGFloat kReflectionFraction = 0.85;
 	selectedCoverView = nil;
 	
 	// Set up the cover's left & right transforms.
-	leftTransform = CATransform3DIdentity;
+	leftTransform = CATransform3DTranslate(CATransform3DIdentity, 0, 0, SIDE_COVER_ZPOSITION);
 	leftTransform = CATransform3DRotate(leftTransform, SIDE_COVER_ANGLE, 0.0f, 1.0f, 0.0f);
-	rightTransform = CATransform3DIdentity;
+	rightTransform = CATransform3DTranslate(CATransform3DIdentity, 0, 0, SIDE_COVER_ZPOSITION);
 	rightTransform = CATransform3DRotate(rightTransform, SIDE_COVER_ANGLE, 0.0f, -1.0f, 0.0f);
 	
 	// Set some perspective
@@ -124,7 +124,6 @@ const static CGFloat kReflectionFraction = 0.85;
 - (void)layoutCover:(AFItemView *)aCover selectedCover:(int)selectedIndex animated:(Boolean)animated  {
 	int coverNumber = aCover.number;
 	CATransform3D newTransform;
-	CGFloat newZPosition = SIDE_COVER_ZPOSITION;
 	CGPoint newPosition;
 	
 	newPosition.x = halfScreenWidth + aCover.horizontalPosition;
@@ -136,7 +135,6 @@ const static CGFloat kReflectionFraction = 0.85;
 		newPosition.x += CENTER_COVER_OFFSET;
 		newTransform = rightTransform;
 	} else {
-		newZPosition = 0;
 		newTransform = CATransform3DIdentity;
 	}
 	
@@ -147,7 +145,6 @@ const static CGFloat kReflectionFraction = 0.85;
 	}
 	
 	aCover.layer.transform = newTransform;
-	aCover.layer.zPosition = newZPosition;
 	aCover.layer.position = newPosition;
 	
 	if (animated) {
