@@ -413,6 +413,11 @@ public class TiUIWebView extends TiUIView {
 	{
 		return client.getBinding().getJSValue(expression);
 	}
+	
+	public String executeJS(String expression)
+	{
+		return client.getBinding().executeJS(expression);
+	}
 
 	public void setBasicAuthentication(String username, String password) {
 		client.setBasicAuthentication(username, password);

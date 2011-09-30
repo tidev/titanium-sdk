@@ -121,6 +121,15 @@ public class TiWebViewBinding {
 		return null;
 	}
 	
+	//Custom method by Jeff Cross
+	public String executeJS(String expression)
+	{
+		String code = "javascript:" + expression;
+		Log.d(LCAT, "executeJS:" + code);
+		webView.loadUrl(code);
+		return "Code has been executed";
+	}
+	
 	@SuppressWarnings("unused")
 	private class TiReturn {
 		public void setValue(String value) {
