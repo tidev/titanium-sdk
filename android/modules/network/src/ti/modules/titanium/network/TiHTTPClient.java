@@ -834,7 +834,7 @@ public class TiHTTPClient
 			HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
 
 			client = new DefaultHttpClient(new ThreadSafeClientConnManager(params, registry), params);
-			client.setCookieStore(NetworkModule.getSharedCookieStore());
+			client.setCookieStore(TiCookieStore.getInstance());
 		}
 		aborted = false;
 
