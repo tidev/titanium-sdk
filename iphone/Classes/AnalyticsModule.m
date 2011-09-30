@@ -318,7 +318,7 @@ NSString * const TI_DB_VERSION = @"1";
 	[dict setObject:[TiUtils UTCDate] forKey:@"ts"];
 	[dict setObject:[TiUtils createUUID] forKey:@"id"];
 	[dict setObject:NUMINT(sequence++) forKey:@"seq"];
-	[dict setObject:[[UIDevice currentDevice] uniqueIdentifier] forKey:@"mid"];
+	[dict setObject:[TiUtils uniqueIdentifier] forKey:@"mid"];
 	[dict setObject:TI_APPLICATION_GUID forKey:@"aguid"];
 	[dict setObject:TI_APPLICATION_DEPLOYTYPE forKey:@"deploytype"];
 	[dict setObject:name forKey:@"event"];
