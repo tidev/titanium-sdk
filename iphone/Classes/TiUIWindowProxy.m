@@ -310,9 +310,20 @@
 	
 	[barImageView setFrame:barFrame];
 	
-	if ([[ourNB subviews] indexOfObject:barImageView] != 0)
+	int barImageViewIndex = 0;
+	if ([ourNB respondsToSelector:@selector(setBackgroundImage:forBarMetrics:)]) {
+	/*
+	 *	While iOS 5 has methods for setting the background Image, using it requires
+	 *	linking to that SDK (the mentioned bar metrics is an enumeration) which,
+	 *	while iOS 5 is behind the NDA, isn't an option.
+	 *	TODO: Update when iOS 5 is not NDAed for something more elegant.
+	 */
+		barImageViewIndex = 1;
+	}
+	
+	if ([[ourNB subviews] indexOfObject:barImageView] != barImageViewIndex)
 	{
-		[ourNB insertSubview:barImageView atIndex:0];
+		[ourNB insertSubview:barImageView atIndex:barImageViewIndex];
 	}
 }
 
