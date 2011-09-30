@@ -15,7 +15,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
-@Kroll.proxy
+@Kroll.proxy(parentModule=XMLModule.class)
 public class ElementProxy extends NodeProxy {
 
 	private Element element;

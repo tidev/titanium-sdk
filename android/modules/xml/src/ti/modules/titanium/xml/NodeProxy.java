@@ -26,7 +26,7 @@ import org.w3c.dom.Text;
 
 import android.os.Build;
 
-@Kroll.proxy
+@Kroll.proxy(parentModule=XMLModule.class)
 public class NodeProxy extends KrollProxy {
 	
 	@Kroll.constant public static final int ATTRIBUTE_NODE = Node.ATTRIBUTE_NODE;

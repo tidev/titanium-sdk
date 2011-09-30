@@ -246,7 +246,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 			
 			@Override
 			public boolean visit(AnnotationMirror annotation, Object arg) {
-				
+				boolean isModule = utils.annotationTypeIs(annotation, Kroll_module);
 				String packageName = utils.getPackage(element);
 				String proxyClassName = utils.getName(element);
 				String fullProxyClassName = String.format("%s.%s", packageName, proxyClassName);
@@ -274,8 +274,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 					proxyAttrs.put("id", fullProxyClassName);
 				}
 				
-				debug("Found binding for %s %s",
-					(utils.annotationTypeIs(annotation, Kroll_module) ? "module" : "proxy"), apiName);
+				debug("Found binding for %s %s", (isModule ? "module" : "proxy"), apiName);
 
 				proxyAttrs.put("proxyClassName", String.format("%s.%s", packageName, proxyClassName));
 				if (proxyAttrs.containsKey("creatableInModule")) {
@@ -286,7 +285,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 					}
 				}
 				
-				if (proxyAttrs.containsKey("parentModule")) {
+				if (isModule && proxyAttrs.containsKey("parentModule")) {
 					String parentModuleClass = (String) proxyAttrs.get("parentModule");
 					if (!parentModuleClass.equals(Kroll_DEFAULT)) {
 						jsonUtils.appendUniqueObject(getModule(parentModuleClass), "childModules",
@@ -331,14 +330,14 @@ public class KrollBindingGenerator extends AbstractProcessor {
 					proxyProperties.put("superProxyClassName", superTypeName);
 				}
 
-				proxyProperties.put("isModule", utils.annotationTypeIs(annotation, Kroll_module));
+				proxyProperties.put("isModule", isModule);
 				proxyProperties.put("packageName", packageName);
 				proxyProperties.put("proxyClassName", proxyClassName);
 				proxyProperties.put("genClassName", genClassName);
 				proxyProperties.put("sourceName", sourceName);
 				proxyProperties.put("proxyAttrs", proxyAttrs);
 
-				if (utils.annotationTypeIs(annotation, Kroll_module)) {
+				if (isModule) {
 					StringBuilder b = new StringBuilder();
 					b.append(packageName)
 						.append(".")
@@ -687,31 +686,19 @@ public class KrollBindingGenerator extends AbstractProcessor {
 		}
 		
 	}
-	
-	protected String getParentModuleClass(Map<String, Object> proxy) {
-		if (properties.containsKey("modules")) {
-			String moduleClass = null;
-			
-			if (proxy.containsKey("creatableInModule")) {
-				moduleClass = (String) proxy.get("creatableInModule");
-			} else if (proxy.containsKey("parentModule")) {
-				moduleClass = (String) proxy.get("parentModule");
-			}
-			return moduleClass;
+
+	protected String getParentModuleClass(Map<String, Object> proxy)
+	{
+		if (proxy.containsKey("creatableInModule")) {
+			return (String) proxy.get("creatableInModule");
+		} else if (proxy.containsKey("parentModule")) {
+			return (String) proxy.get("parentModule");
 		}
 		return null;
 	}
-		
-	protected Map<String, Object> getParentModule(Map<String, Object> proxy) {
-		String parentModuleClass = getParentModuleClass(proxy);
-		if (parentModuleClass != null) {
-			Map<String, Object> modules = (Map<String, Object>) properties.get("proxies");
-			return (Map<String, Object>) modules.get(parentModuleClass);
-		}
-		return null;
-	}
-	
-	protected String findParentModuleName(Map<String, Object> proxy) {
+
+	protected String findParentModuleName(Map<String, Object> proxy)
+	{
 		// Parent module name wasn't found because it exists in another source round (probably another module)
 		// We can manually pull the annotation name here instead
 		String parentModuleClass = getParentModuleClass(proxy);

@@ -11,7 +11,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.NamedNodeMap;
 
-@Kroll.proxy
+@Kroll.proxy(parentModule=XMLModule.class)
 public class NamedNodeMapProxy extends KrollProxy
 {
 	private NamedNodeMap map;

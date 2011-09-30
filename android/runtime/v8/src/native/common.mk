@@ -26,11 +26,7 @@ SRC_FILES := $(patsubst $(LOCAL_PATH)/%,%,$(ABS_SRC_FILES))
 
 ABS_JS_FILES := \
 	$(GENERATED_DIR)/bootstrap.js \
-	$(SRC_JS_DIR)/events.js \
-	$(SRC_JS_DIR)/kroll.js \
-	$(SRC_JS_DIR)/module.js \
-	$(SRC_JS_DIR)/titanium.js \
-	$(SRC_JS_DIR)/vm.js \
+	$(wildcard $(SRC_JS_DIR)/*.js) \
 	$(UI_JS_DIR)/window.js
 
 JS_FILES = $(subst $(SRC_JS_DIR),../js,$(ABS_JS_FILES))

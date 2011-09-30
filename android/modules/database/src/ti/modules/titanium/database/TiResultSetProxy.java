@@ -19,7 +19,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.os.Build;
 
-@Kroll.proxy
+@Kroll.proxy(parentModule=DatabaseModule.class)
 public class TiResultSetProxy extends KrollProxy
 {
 	private static final String LCAT = "TiResultSet";

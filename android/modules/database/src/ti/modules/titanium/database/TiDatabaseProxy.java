@@ -19,7 +19,7 @@ import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-@Kroll.proxy
+@Kroll.proxy(parentModule=DatabaseModule.class)
 public class TiDatabaseProxy extends KrollProxy
 {
 	private static final String LCAT = "TiDB";

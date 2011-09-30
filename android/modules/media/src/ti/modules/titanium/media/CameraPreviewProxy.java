@@ -14,7 +14,7 @@ import android.app.Activity;
 import android.hardware.Camera;
 
 
-@Kroll.proxy
+@Kroll.proxy(parentModule=MediaModule.class)
 public class CameraPreviewProxy extends TiViewProxy
 {
 	private static final String LCAT = "CameraPreviewProxy";

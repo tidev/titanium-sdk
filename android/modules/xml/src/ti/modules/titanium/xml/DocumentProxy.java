@@ -11,7 +11,7 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 
-@Kroll.proxy
+@Kroll.proxy(parentModule=XMLModule.class)
 public class DocumentProxy extends NodeProxy {
 
 	private Document doc;

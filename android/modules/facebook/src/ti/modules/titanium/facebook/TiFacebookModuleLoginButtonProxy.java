@@ -13,7 +13,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 
-@Kroll.proxy
+@Kroll.proxy(parentModule=FacebookModule.class)
 public class TiFacebookModuleLoginButtonProxy extends TiViewProxy {
 	private FacebookModule facebookModule = null;
 	public TiFacebookModuleLoginButtonProxy() {

@@ -8,16 +8,12 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 
-@Kroll.proxy
+@Kroll.proxy(parentModule=CalendarModule.class)
 public class AlertProxy extends KrollProxy {
 
 	public static final int STATE_SCHEDULED = 0;
@@ -103,30 +99,11 @@ public class AlertProxy extends KrollProxy {
 		alert.alarmTime = alarmTime.getTime();
 		alert.state = STATE_SCHEDULED;
 		alert.minutes = minutes;
-		alert.registerAlertIntent();
+		// FIXME this needs to be implemented alert.registerAlertIntent();
 		return alert;
 	}
-	
-	protected static final String EVENT_REMINDER_ACTION = "android.intent.action.EVENT_REMINDER";
-	protected void registerAlertIntent() {
-//		Uri uri = ContentUris.withAppendedId(Uri.parse(getAlertsUri()), Long.parseLong(id));
-//		Intent intent = new Intent(EVENT_REMINDER_ACTION);
-		Intent intent = new Intent(getActivity(), AlarmReceiver.class);
-//		intent.setAction("" + Math.random());
-		// intent.setData(uri);
-		// intent.putExtra("beginTime", begin.getTime());
-		// intent.putExtra("endTime", end.getTime());
-		PendingIntent sender = PendingIntent.getBroadcast(getActivity(), 0, intent,
-			PendingIntent.FLAG_CANCEL_CURRENT);
-		// PendingIntent sender = PendingIntent.getActivity(context.getActivity(), 0, intent,
-		// 		PendingIntent.FLAG_CANCEL_CURRENT);
 
-		AlarmManager manager = (AlarmManager) 
-			TiApplication.getInstance().getSystemService(Context.ALARM_SERVICE);
-		
-//		manager.set(AlarmManager.RTC_WAKEUP, alarmTime.getTime()+2000, sender);
-		manager.set(AlarmManager.RTC_WAKEUP,System.currentTimeMillis(),sender);
-	}
+	protected static final String EVENT_REMINDER_ACTION = "android.intent.action.EVENT_REMINDER";
 
 	@Kroll.getProperty @Kroll.method
 	public String getId() {

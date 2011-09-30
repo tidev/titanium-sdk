@@ -15,7 +15,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.text.format.DateUtils;
 
-@Kroll.proxy
+@Kroll.proxy(parentModule=CalendarModule.class)
 public class CalendarProxy extends KrollProxy {
 
 	protected String id, name;

@@ -6,7 +6,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.w3c.dom.Node;
 
-@Kroll.proxy
+@Kroll.proxy(parentModule=XMLModule.class)
 public class XPathNodeListProxy extends KrollProxy
 {
 	private List nodeList;

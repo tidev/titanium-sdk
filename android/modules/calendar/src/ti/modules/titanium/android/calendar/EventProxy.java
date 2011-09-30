@@ -17,7 +17,7 @@ import android.database.Cursor;
 import android.net.Uri;
 
 // Columns and value constants taken from android.provider.Calendar in the android source base
-@Kroll.proxy
+@Kroll.proxy(parentModule=CalendarModule.class)
 public class EventProxy extends KrollProxy {
 	public static final String TAG = "TiEvent";
 	

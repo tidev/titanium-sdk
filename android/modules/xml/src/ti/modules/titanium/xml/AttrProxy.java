@@ -10,7 +10,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 
-@Kroll.proxy
+@Kroll.proxy(parentModule=XMLModule.class)
 public class AttrProxy extends NodeProxy {
 
 	private Attr attr;

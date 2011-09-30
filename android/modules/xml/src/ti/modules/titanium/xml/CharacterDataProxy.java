@@ -10,7 +10,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.DOMException;
 
-@Kroll.proxy
+@Kroll.proxy(parentModule=XMLModule.class)
 public class CharacterDataProxy extends NodeProxy {
 
 	private CharacterData data;

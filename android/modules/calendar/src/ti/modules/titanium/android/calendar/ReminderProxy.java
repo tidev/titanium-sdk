@@ -12,7 +12,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 
-@Kroll.proxy
+@Kroll.proxy(parentModule=CalendarModule.class)
 public class ReminderProxy extends KrollProxy {
 
 	public static final int METHOD_DEFAULT = 0;

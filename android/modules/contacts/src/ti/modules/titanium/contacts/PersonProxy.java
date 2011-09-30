@@ -17,7 +17,7 @@ import org.appcelerator.titanium.TiBlob;
 
 import android.graphics.Bitmap;
 
-@Kroll.proxy
+@Kroll.proxy(parentModule=ContactsModule.class)
 public class PersonProxy extends KrollProxy
 {
 	@Kroll.property protected String lastName, firstName, fullName, middleName, firstPhonetic, lastPhonetic, middlePhonetic, department;

@@ -10,7 +10,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.w3c.dom.NodeList;
 
-@Kroll.proxy
+@Kroll.proxy(parentModule=XMLModule.class)
 public class NodeListProxy extends KrollProxy
 {
 	// Support an offset so we can ignore the first "this"

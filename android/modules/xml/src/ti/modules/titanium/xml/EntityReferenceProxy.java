@@ -9,7 +9,7 @@ package ti.modules.titanium.xml;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.w3c.dom.EntityReference;
 
-@Kroll.proxy
+@Kroll.proxy(parentModule=XMLModule.class)
 public class EntityReferenceProxy extends NodeProxy {
 
 	public EntityReferenceProxy(EntityReference ref)

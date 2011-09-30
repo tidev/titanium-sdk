@@ -10,7 +10,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.ProcessingInstruction;
 
-@Kroll.proxy
+@Kroll.proxy(parentModule=XMLModule.class)
 public class ProcessingInstructionProxy extends NodeProxy {
 
 	private ProcessingInstruction pi;

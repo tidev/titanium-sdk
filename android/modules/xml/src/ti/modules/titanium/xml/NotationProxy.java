@@ -9,7 +9,7 @@ package ti.modules.titanium.xml;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.w3c.dom.Notation;
 
-@Kroll.proxy
+@Kroll.proxy(parentModule=XMLModule.class)
 public class NotationProxy extends NodeProxy {
 
 	private Notation notation;

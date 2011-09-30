@@ -9,7 +9,7 @@ package ti.modules.titanium.xml;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.w3c.dom.DocumentType;
 
-@Kroll.proxy
+@Kroll.proxy(parentModule=XMLModule.class)
 public class DocumentTypeProxy extends NodeProxy {
 
 	private DocumentType type;

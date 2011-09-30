@@ -14,7 +14,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import android.util.DisplayMetrics;
 import android.view.Display;
 
-@Kroll.proxy
+@Kroll.proxy(parentModule=PlatformModule.class)
 public class DisplayCapsProxy extends KrollProxy
 {
 	private final DisplayMetrics dm;
