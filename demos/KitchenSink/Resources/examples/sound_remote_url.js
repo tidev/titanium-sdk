@@ -3,7 +3,7 @@ var win = Titanium.UI.currentWindow;
 var url = "http://www.archive.org/download/CelebrationWav/1.wav";
 
 // load from remote url
-var sound = Titanium.Media.createSound({url:url,preload:true});
+var sound = Titanium.Media.createSound({url:url});
 
 //
 // PLAY

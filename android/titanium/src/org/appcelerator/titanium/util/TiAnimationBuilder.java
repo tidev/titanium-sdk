@@ -28,8 +28,6 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.LinearInterpolator;
-import android.view.animation.RotateAnimation;
-import android.view.animation.ScaleAnimation;
 import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
 
@@ -189,11 +187,13 @@ public class TiAnimationBuilder
 			addAnimation(as,a);
 			a.setAnimationListener(listener);
 			
-			if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY) && fromOpacity != null && toOpacity != null) {
-				if (fromOpacity > 0 && fromOpacity < 1) {
-					TiUIView uiView = viewProxy.getView(null);
-					uiView.setOpacity(1);
-				}
+			TiUIView uiView = viewProxy.peekView();
+			if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY) && fromOpacity != null && toOpacity != null
+				&& uiView != null) {
+				// Initialize the opacity to 1 when we are going to change it in
+				// the animation. If the opacity of the view was initialized to
+				// 0, the animation doesn't work
+				uiView.setOpacity(1);
 			}
 		}
 
@@ -404,8 +404,10 @@ public class TiAnimationBuilder
 				relayoutChild = false;
 			}
 			if (applyOpacity) {
+				//There is an android bug where animations still occur after this method. We clear it from the view to correct this.
+				view.clearAnimation();
 				if (toOpacity.floatValue() == 0) {
-					view.setVisibility(View. INVISIBLE);
+					view.setVisibility(View.INVISIBLE);
 				} else if (toOpacity.floatValue() == 1) {
 					view.setVisibility(View.VISIBLE);
 				} else {
@@ -414,6 +416,7 @@ public class TiAnimationBuilder
 					aa.setDuration(1);
 					aa.setFillAfter(true);
 					aa.setFillEnabled(true);
+					view.setLayoutParams(view.getLayoutParams());
 					view.startAnimation(aa);
 				}
 				applyOpacity = false;
