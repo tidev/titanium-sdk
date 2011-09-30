@@ -33,9 +33,7 @@ INTERFACE_HEADER= """
 
 IMPL_HEADER= """#import "ApplicationRouting.h"
 
-extern NSData * decode64 (NSData * thedata); 
-extern NSData * dataWithHexString (NSString * hexString);
-extern NSData * decodeDataWithKey (NSData * thedata, NSString * key);
+extern NSData* filterData(NSData* thedata);
 
 @implementation ApplicationRouting
 
@@ -429,13 +427,19 @@ class Compiler(object):
 		return compile
 				
 	@classmethod	
-	def make_function_from_file(cls,path,file,instance=None):
+	def make_function_from_file(cls,path,file,instance):
 		file_contents = open(os.path.expanduser(file)).read()
 		file_contents = jspacker.jsmin(file_contents)
 		file_contents = file_contents.replace('Titanium.','Ti.')
-		if instance: instance.compile_js(file_contents)
-		data = str(file_contents).encode("hex")
-		method = "dataWithHexString(@\"%s\")" % data
+		instance.compile_js(file_contents)
+		data = str(file_contents).encode('base64','strict')
+		data = data.translate(None, '\n')
+		# the template_dir is the path where this file lives on disk
+		template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
+		titanium_prep = os.path.abspath(os.path.join(template_dir,'titanium_prep'))
+		data = os.popen("\"%s\" \"%s\" \"%s\"" % (titanium_prep,instance.appid,data)).read()
+		data = data.translate(None, '\r\n')
+		method = "[@\"%s\" dataUsingEncoding:NSUTF8StringEncoding]" % data
 		return {'method':method,'path':path}
 	
 	def softlink_resources(self,source,target):
@@ -467,9 +471,8 @@ class Compiler(object):
 			impf.write(IMPL_HEADER)
 
 			impf.write("+ (NSData*) resolveAppAsset:(NSString*)path;\n{\n")
-			impf.write("     static NSMutableDictionary *map;\n")
-			impf.write("     if (map==nil)\n")
-			impf.write("     {\n")
+			impf.write("     static NSMutableDictionary *map = nil;\n")
+			impf.write("     if (!map) {\n")
 			impf.write("         map = [[NSMutableDictionary alloc] init];\n")
 
 			impf_buffer = ''
@@ -565,7 +568,7 @@ class Compiler(object):
 						
 		if write_routing:
 			impf.write("     }\n")
-			impf.write("     return [map objectForKey:path];\n")
+			impf.write("     return filterData([map objectForKey:path]);\n")
 			impf.write('}\n')
 			impf.write(impf_buffer)
 
