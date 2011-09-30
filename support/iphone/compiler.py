@@ -439,7 +439,7 @@ class Compiler(object):
 		titanium_prep = os.path.abspath(os.path.join(template_dir,'titanium_prep'))
 		data = os.popen("\"%s\" \"%s\" \"%s\"" % (titanium_prep,instance.appid,data)).read()
 		data = data.translate(None, '\r\n')
-		method = "[@\"%s\" dataUsingEncoding:NSUTF8StringEncoding]" % data
+		method = "[[@\"%s\" dataUsingEncoding:NSUTF8StringEncoding] autorelease]" % data
 		return {'method':method,'path':path}
 	
 	def softlink_resources(self,source,target):
