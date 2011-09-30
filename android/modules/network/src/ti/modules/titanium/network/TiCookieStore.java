@@ -19,9 +19,9 @@ import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.cookie.BasicClientCookie;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.Log;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
@@ -35,11 +35,20 @@ public class TiCookieStore implements CookieStore
 	private static final String COOKIE_PREFIX = "ti_cookie_";
 	private CookieStore cookieStore;
 	private final SharedPreferences pref;
+	private static TiCookieStore _instance;
 
-	public TiCookieStore(Context context)
+	public static TiCookieStore getInstance()
+	{
+		if (_instance == null) {
+			_instance = new TiCookieStore();
+		}
+		return _instance;
+	}
+
+	public TiCookieStore()
 	{
 		cookieStore = new BasicCookieStore();
-		pref = context.getSharedPreferences(COOKIE_PREFERENCES, 0);
+		pref = TiApplication.getInstance().getSharedPreferences(COOKIE_PREFERENCES, 0);
 
 		synchronized (cookieStore) {
 			String names = pref.getString(COOKIE_NAMES_KEY, null);
