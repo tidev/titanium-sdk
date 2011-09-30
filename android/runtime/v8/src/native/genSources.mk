@@ -32,17 +32,15 @@ GEN_SOURCES := \
 	$(GENERATED_DIR)/KrollNativeBindings.cpp \
 	$(GENERATED_DIR)/KrollGeneratedBindings.cpp
 
-all: ti-generated-dir
-
 ti-generated-dir:
 	@mkdir -p $(GENERATED_DIR) 2>/dev/null
 
-$(GENERATED_DIR)/KrollJS.cpp: $(ABS_JS_FILES) $(GENERATED_DIR)/KrollGeneratedBindings.cpp
+$(GENERATED_DIR)/KrollJS.cpp: ti-generated-dir $(ABS_JS_FILES) $(GENERATED_DIR)/KrollGeneratedBindings.cpp
 	python $(JS2C) $(GENERATED_DIR)/KrollJS.cpp $(ABS_JS_FILES)
 
-$(GENERATED_DIR)/KrollGeneratedBindings.cpp:
+$(GENERATED_DIR)/KrollGeneratedBindings.cpp: ti-generated-dir
 	python $(GEN_BOOTSTRAP)
 	gperf -L C++ -E -t $(GENERATED_DIR)/KrollGeneratedBindings.gperf > $(GENERATED_DIR)/KrollGeneratedBindings.cpp
 
-$(GENERATED_DIR)/KrollNativeBindings.cpp: $(THIS_DIR)/KrollNativeBindings.gperf
+$(GENERATED_DIR)/KrollNativeBindings.cpp: ti-generated-dir $(THIS_DIR)/KrollNativeBindings.gperf
 	gperf -L C++ -E -t $(THIS_DIR)/KrollNativeBindings.gperf > $(GENERATED_DIR)/KrollNativeBindings.cpp
