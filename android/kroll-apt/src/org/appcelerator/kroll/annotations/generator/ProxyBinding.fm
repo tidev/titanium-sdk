@@ -142,7 +142,7 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"jsHandleCast":"Array",
 		"jsToJavaConverter":"jsArrayToJavaArray",
 		"javaToJsConverter":"javaArrayToJsArray",
-		"jvalue":"l",
+		"jvalue":"l", "signature":"[Ljava/lang/Object;",
 		"javaCallMethodType":"Object",
 		"javaReturnType":"jobjectArray"
 	},
