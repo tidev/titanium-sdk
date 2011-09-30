@@ -18,7 +18,7 @@ import android.app.Activity;
 	"title", "titleid", "message",
 	"buttonNames", "androidView",
 	"options", "selectedIndex", "cancel"
-})
+}, parentModule=UIModule.class)
 public abstract class TiDialogProxy extends TiViewProxy
 {
 	protected boolean showing = false;

@@ -689,10 +689,12 @@ public class KrollBindingGenerator extends AbstractProcessor {
 
 	protected String getParentModuleClass(Map<String, Object> proxy)
 	{
-		if (proxy.containsKey("creatableInModule")) {
-			return (String) proxy.get("creatableInModule");
-		} else if (proxy.containsKey("parentModule")) {
-			return (String) proxy.get("parentModule");
+		String creatableInModule = (String) proxy.get("creatableInModule");
+		String parentModule = (String) proxy.get("parentModule");
+		if (creatableInModule != null && !creatableInModule.equals(Kroll_DEFAULT)) {
+			return creatableInModule;
+		} else if (parentModule != null && !parentModule.equals(Kroll_DEFAULT)) {
+			return parentModule;
 		}
 		return null;
 	}
@@ -733,6 +735,7 @@ public class KrollBindingGenerator extends AbstractProcessor {
 			if (name == null) {
 				name = (String) childProxy.get("apiName");
 			}
+			//utils.debugLog(i + ": name: " + name + ", childProxy: " + childProxy);
 			String moduleClassName = getParentModuleClass(childProxy);
 			String apiName = null;
 
