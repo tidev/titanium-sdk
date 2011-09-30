@@ -18,13 +18,23 @@
 #import "TiFile.h"
 #import "TiBlob.h"
 
-
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 // for checking version
 #import <sys/utsname.h>
 #endif
 
 #import "UIImage+Resize.h"
+
+#import <sys/types.h>
+#import <stdio.h>
+#import <string.h>
+#import <sys/socket.h>
+#import <net/if_dl.h>
+#import <ifaddrs.h>
+
+#if !defined(IFT_ETHER)
+#define IFT_ETHER 0x6
+#endif
 
 #if TARGET_IPHONE_SIMULATOR
 extern NSString * const TI_APPLICATION_RESOURCE_DIR;
@@ -33,6 +43,31 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 static NSDictionary* encodingMap = nil;
 static NSDictionary* typeMap = nil;
 static NSDictionary* sizeMap = nil;
+
+static void getAddrInternal(char* macAddress, const char* ifName) {
+    struct ifaddrs* addrs;
+    if (!getifaddrs(&addrs)) {
+        for (struct ifaddrs* cursor = addrs; cursor; cursor = cursor->ifa_next) {
+            if (cursor->ifa_addr->sa_family != AF_LINK) continue;
+            if (((const struct sockaddr_dl *) cursor->ifa_addr)->sdl_type != IFT_ETHER) continue;
+            if (strcmp(ifName, cursor->ifa_name)) continue;
+            const struct sockaddr_dl* dlAddr = (const struct sockaddr_dl*)cursor->ifa_addr;
+            const unsigned char* base = (const unsigned char*)&dlAddr->sdl_data[dlAddr->sdl_nlen];
+            strcpy(macAddress, ""); 
+            for (int i = 0; i < dlAddr->sdl_alen; ++i) {
+                if (i) {
+                    strcat(macAddress, ":");
+                }
+                char partialAddr[3];
+                sprintf(partialAddr, "%02X", base[i]);
+                strcat(macAddress, partialAddr);
+                
+            }
+
+        }
+        freeifaddrs(addrs);
+    }    
+}
 
 @implementation TiUtils
 
@@ -1544,4 +1579,30 @@ if ([str isEqualToString:@#orientation]) return orientation;
     return (position+size);
 }
 
++(NSString*)convertToHex:(unsigned char*)result length:(size_t)length
+{
+	NSMutableString* encoded = [[NSMutableString alloc] initWithCapacity:length];
+	for (int i=0; i < length; i++) {
+		[encoded appendFormat:@"%02x",result[i]];
+	}
+	NSString* value = [encoded lowercaseString];
+	[encoded release];
+	return value;
+}
+
++(NSString*)md5:(NSData*)data
+{
+	unsigned char result[CC_MD5_DIGEST_LENGTH];
+	CC_MD5([data bytes], [data length], result);
+	return [self convertToHex:(unsigned char*)&result length:CC_MD5_DIGEST_LENGTH];    
+}
+
++(NSString*)uniqueIdentifier
+{
+    char addrString[18];
+    getAddrInternal(&addrString[0],"en0");
+    NSString* dataString = [[[NSString alloc] initWithCString:addrString] autorelease];
+    NSData* data = [dataString dataUsingEncoding:NSUTF8StringEncoding];
+    return [TiUtils md5:data];
+}
 @end
