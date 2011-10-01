@@ -119,9 +119,27 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 
 	jstring javaSourceUrl = env->NewStringUTF(url);
 
+	// Determine if this constructor call was made within
+	// the createXYZ() wrapper function. This can be tested by checking
+	// if an Arguments object was passed as the sole argument.
+	bool calledFromCreate = false;
+	if (args.Length() == 1 && args[0]->IsObject()) {
+		Local<String> constructorName = args[0]->ToObject()->GetConstructorName();
+		if (strcmp(*String::Utf8Value(constructorName), "Arguments") == 0)
+			calledFromCreate = true;
+	}
+
 	// Convert the V8 arguments into Java types so they can be
-	// passed to the Java creator method.
-	jobjectArray javaArgs = TypeConverter::jsArgumentsToJavaArray(args);
+	// passed to the Java creator method. Which converter we use
+	// depends how this constructor was called.
+	jobjectArray javaArgs;
+	if (calledFromCreate) {
+		Local<Object> arguments = args[0]->ToObject();
+		int length = arguments->Get(String::New("length"))->Int32Value();
+		javaArgs = TypeConverter::jsObjectIndexPropsToJavaArray(arguments, length);
+	} else {
+		 javaArgs = TypeConverter::jsArgumentsToJavaArray(args);
+	}
 
 	// Create the java proxy using the creator static method provided.
 	// Send along a pointer to the v8 proxy so the two are linked.

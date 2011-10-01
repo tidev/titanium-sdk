@@ -408,6 +408,26 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 	return v8::Handle<v8::Value>();
 }
 
+jobjectArray TypeConverter::jsObjectIndexPropsToJavaArray(v8::Handle<v8::Object> jsObject, int length)
+{
+	JNIEnv *env = JNIScope::getEnv();
+	if (!env) return NULL;
+
+	HandleScope scope;
+
+	jobjectArray javaArray = env->NewObjectArray(length, JNIUtil::objectClass, NULL);
+	int index = 0;
+
+	for (int index = 0; index < length; ++index) {
+		v8::Local<Value> prop = jsObject->Get(index);
+		jobject javaObject = jsValueToJavaObject(prop);
+		env->SetObjectArrayElement(javaArray, index, javaObject);
+		env->DeleteLocalRef(javaObject);
+	}
+
+	return javaArray;
+}
+
 /****************************** private methods ******************************/
 
 // used mainly by the array conversion methods when converting java numeric types 
