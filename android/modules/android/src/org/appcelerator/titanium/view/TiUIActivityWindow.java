@@ -13,31 +13,33 @@ import ti.modules.titanium.android.TiJSActivity;
 public class TiUIActivityWindow extends TiUIView 
 {
 	protected TiJSActivity activity;
-	
+
 	public TiUIActivityWindow(TiActivityWindowProxy proxy, TiJSActivity activity, TiCompositeLayout layout) 
 	{
 		super(proxy);
 		this.activity = activity;
-		
+
 		proxy.setView(this);
-		
+
 		setNativeView(layout);
 		proxy.setModelListener(this);
-		
+
 		layout.setClickable(true);
 		registerForTouch(layout);
-
 	}
-	
-	public void open() {
+
+	public void open()
+	{
 		getProxy().realizeViews(this);
 	}
-	
-	public void close() {
+
+	public void close()
+	{
 		activity.finish();
 	}
-	
-	public TiJSActivity getActivity() {
+
+	public TiJSActivity getActivity()
+	{
 		return activity;
 	}
 }

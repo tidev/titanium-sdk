@@ -76,9 +76,30 @@
 	<#if dynamicProperties??>
 		<#list dynamicProperties?keys as propertyName>
 			<#local dynamicProperty = dynamicProperties[propertyName]>
-			<#nested propertyName_index==0, propertyName, dynamicProperty>
+			<#if dynamicProperty.get>
+				<#local getSignature>
+					<@getMethodSignature dynamicProperty.getMethodArgs, dynamicProperty.getReturnType />
+				</#local>
+			<#else>
+				<#local getSignature = "">
+			</#if>
+			<#if dynamicProperty.set>
+				<#local setSignature>
+					<@getMethodSignature dynamicProperty.setMethodArgs, dynamicProperty.setReturnType />
+				</#local>
+			<#else>
+				<#local setSignature = "">
+			</#if>
+			<#nested propertyName_index==0, propertyName, dynamicProperty, getSignature, setSignature>
 		</#list>
 	</#if>
+</#macro>
+
+<#macro listPropertyAccessors>
+	<#list proxyAttrs.propertyAccessors as accessor>
+		<#local upperCamel = accessor?substring(0, 1)?upper_case + accessor?substring(1)>
+		<#nested accessor_index==0, accessor, "get" + upperCamel, "set" + upperCamel>
+	</#list>
 </#macro>
 
 <#macro openNamespace>
@@ -259,6 +280,28 @@ invocation callback. The converted values are stored into an
 jvalue array named "jArguments". If validation or conversion
 fails, a JS exception is returned.
 ---------------------------------------------------------------->
+<#macro verifyAndConvertArgument expr index info logOnly>
+	<#if info.jsValidation!true>
+	if (!${expr}->Is${info.jsType}()) {
+		const char *error = "Invalid value, expected type ${info.jsType}.";
+		LOGE(TAG, error);
+		<#if !(logOnly!false)>
+		return JSException::Error(error);
+		</#if>
+	}
+	</#if>
+
+	<#if info.jsType == "Value">
+	Local<Value> arg_${index} = ${expr};
+	<#elseif info?keys?seq_contains("jsHandleCast")>
+	Local<${info.jsType}> arg_${index} = Local<${info.jsType}>::Cast(${expr});
+	<#else>
+	Local<${info.jsType}> arg_${index} = ${expr}->To${info.jsType}();
+	</#if>
+
+	jArguments[${index}].${info.jvalue} = TypeConverter::${info.jsToJavaConverter}(arg_${index});
+</#macro>
+
 <#macro verifyAndConvertArguments args>
 	<#-- Verify the correct argument count was provided. -->
 	<@Proxy.getRequiredArgumentCount args=args ; requiredCount>
@@ -273,20 +316,9 @@ fails, a JS exception is returned.
 
 	<#-- Generate argument validation and conversion code -->
 	<@Proxy.listMethodArguments args=args ; index, info>
-	<#if info.jsValidation!true>
-	if (!args[${index}]->Is${info.jsType}())
-		return JSException::Error("Invalid argument at index ${index}. Expected type ${info.jsType}.");
-	</#if>
 
-	<#if info.jsType == "Value">
-	Local<Value> arg_${index} = args[${index}];
-	<#elseif info?keys?seq_contains("jsHandleCast")>
-	Local<${info.jsType}> arg_${index} = Local<${info.jsType}>::Cast(args[${index}]);
-	<#else>
-	Local<${info.jsType}> arg_${index} = args[${index}]->To${info.jsType}();
-	</#if>
+	<@Proxy.verifyAndConvertArgument expr="args[" + index + "]" index=index info=info logOnly=false/>
 
-	jArguments[${index}].${info.jvalue} = TypeConverter::${info.jsToJavaConverter}(arg_${index});
 	</@Proxy.listMethodArguments>
 </#macro>
 
@@ -320,3 +352,24 @@ beprovided to handle the result.
 	<#nested hasResult "v8Result">
 </#macro>
 
+<#macro initJNIEnv>
+	JNIEnv *env = JNIScope::getEnv();
+	if (!env) {
+		return JSException::GetJNIEnvironmentError();
+	}
+</#macro>
+
+<#macro initMethodID className name signature logOnly>
+	<#-- Lazy initialize method ID for the Java proxy. -->
+	static jmethodID methodID = NULL;
+	if (!methodID) {
+		methodID = env->GetMethodID(${className}::javaClass, "${name}", "${signature}");
+		if (!methodID) {
+			const char *error = "Couldn't find proxy method '${name}' with signature '${signature}'";
+			LOGE(TAG, error);
+			<#if !(logOnly!false)>
+				return JSException::Error(error);
+			</#if>
+		}
+	}
+</#macro>

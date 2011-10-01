@@ -11,6 +11,7 @@
 #include "EventEmitter.h"
 #include "JNIUtil.h"
 #include "JSException.h"
+#include "Proxy.h"
 #include "ProxyFactory.h"
 #include "V8Util.h"
 
@@ -50,19 +51,10 @@ void KrollBindings::initTitanium(Handle<Object> exports)
 		return;
 	}
 
-	KrollProxy::Initialize(exports);
-	KrollModule::Initialize(exports);
-	TitaniumModule::Initialize(exports);
-}
-
-void KrollBindings::initWindow(Handle<Object> exports)
-{
-	HandleScope scope;
-
-	Handle<FunctionTemplate> windowTemplate =
-		ProxyFactory::inheritProxyTemplate<TiBaseWindowProxy>("Ti.UI.Window");
-
-	exports->Set(String::NewSymbol("Window"), windowTemplate->GetFunction());
+	Proxy::initProxyTemplate(exports);
+	KrollProxy::initProxyTemplate(exports);
+	KrollModule::initProxyTemplate(exports);
+	TitaniumModule::initProxyTemplate(exports);
 }
 
 static Persistent<Object> bindingCache;

@@ -193,9 +193,9 @@ public abstract class TiBaseActivity extends Activity
 	{
 		if (window == null) return;
 
-		if (window.has(TiC.PROPERTY_TITLE)) {
+		if (window.hasProperty(TiC.PROPERTY_TITLE)) {
 			String oldTitle = (String) getTitle();
-			String newTitle = TiConvert.toString(window.get(TiC.PROPERTY_TITLE));
+			String newTitle = TiConvert.toString(window.getProperty(TiC.PROPERTY_TITLE));
 			if (oldTitle == null) {
 				oldTitle = "";
 			}

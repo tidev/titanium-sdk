@@ -17,45 +17,49 @@ import ti.modules.titanium.android.AndroidModule;
 import android.app.Activity;
 
 @Kroll.proxy(creatableInModule=AndroidModule.class)
-public class TiActivityWindowProxy extends TiWindowProxy 
+public class TiActivityWindowProxy extends TiWindowProxy
 {
 	private static final String LCAT = "TiActivityWindowProxy";
 	private static final boolean DBG = TiConfig.LOGD;
-	
-	public TiActivityWindowProxy() 
+
+	public TiActivityWindowProxy()
 	{
 		super();
-		
+
 		// force to true since the window is actually opened from TiUIActivityWindow
 		// TODO make this lifecycle less weird
 		opened = true;
 	}
 
-	public void setView(TiUIView view) {
+	public void setView(TiUIView view)
+	{
 		this.view = view;
 	}
-	
+
 	@Override
-	protected void handleClose(KrollDict options) {
+	protected void handleClose(KrollDict options)
+	{
 		if (DBG) {
 			Log.d(LCAT, "handleClose");
 		}
 		fireEvent("close", null);
-		
+
 		if (view != null) {
 			((TiUIActivityWindow)view).close();
 		}
-		
+
 		releaseViews();
 		opened = false;
 	}
 
 	@Override
-	protected void handleOpen(KrollDict options) {
+	protected void handleOpen(KrollDict options)
+	{
 	}
-	
+
 	@Override
-	protected Activity handleGetActivity() {
+	protected Activity handleGetActivity()
+	{
 		if (view == null) return null;
 		return ((TiUIActivityWindow)view).getActivity();
 	}

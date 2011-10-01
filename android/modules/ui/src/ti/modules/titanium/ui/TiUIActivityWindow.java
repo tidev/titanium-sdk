@@ -52,8 +52,6 @@ public class TiUIActivityWindow extends TiUIView
 	private static final int MSG_ACTIVITY_CREATED = 1000;
 	private static final int MSG_ANIMATE = 100;
 
-	// Intent.FLAG_ACTIVITY_NO_ANIMATION not available in API 4
-	private static final int INTENT_FLAG_ACTIVITY_NO_ANIMATION = 65536;
 	private static final String WINDOW_ID_PREFIX = "window$";
 
 	protected String activityKey;
@@ -187,7 +185,7 @@ public class TiUIActivityWindow extends TiUIView
 			animate = TiConvert.toBoolean(animated);
 		}
 		if (!animate) {
-			intent.addFlags(INTENT_FLAG_ACTIVITY_NO_ANIMATION);
+			intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 			intent.putExtra(TiC.PROPERTY_ANIMATE, false);
 			activity.startActivity(intent);
 			TiUIHelper.overridePendingTransition(activity);

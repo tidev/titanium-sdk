@@ -11,9 +11,16 @@ if [ "$ANDROID_NDK" = "" ]; then
 fi
 
 THIS_DIR=$(cd "$(dirname "$0")"; pwd)
+
+ARGS=
+if [ "$NUM_CPUS" != "" ]; then
+	ARGS="-j $NUM_CPUS"
+fi
+
 "$ANDROID_NDK/ndk-build" \
 	NDK_APPLICATION_MK=$THIS_DIR/Application.mk \
 	NDK_PROJECT_PATH=$THIS_DIR \
 	NDK_MODULE_PATH=$THIS_DIR/src/ndk-modules \
 	TI_DIST_DIR=$(cd "$THIS_DIR/../../../dist"; pwd) \
+	$ARGS \
 	$@

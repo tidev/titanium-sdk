@@ -29,9 +29,7 @@ bootstrap.defineLazyBinding(Titanium, "API");
 
 // Custom JS extensions to Java modules
 bootstrap.defineLazyGetter("UI", "Window", function() {
-	// bootstrap TiBaseWindow
-	var dep0 = Titanium.TiBaseWindow;
-	return require("window").bootstrapWindow(this);
+	return require("window").bootstrapWindow(Titanium);
 });
 
 // Define lazy initializers for all Titanium APIs

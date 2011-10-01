@@ -6,13 +6,10 @@
  */
 package org.appcelerator.kroll.annotations.generator;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +33,6 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.SimpleElementVisitor6;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
-import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 
 import org.json.simple.JSONValue;
@@ -735,7 +731,6 @@ public class KrollBindingGenerator extends AbstractProcessor {
 			if (name == null) {
 				name = (String) childProxy.get("apiName");
 			}
-			//utils.debugLog(i + ": name: " + name + ", childProxy: " + childProxy);
 			String moduleClassName = getParentModuleClass(childProxy);
 			String apiName = null;
 

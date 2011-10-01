@@ -171,26 +171,26 @@ public class TiMapView extends TiUIView
 			TiOverlayItem item = null;
 
 			AnnotationProxy p = annotations.get(i);
-			//KrollDict a = p.getProperties();
-			if (p.has(TiC.PROPERTY_LATITUDE) && p.has(TiC.PROPERTY_LONGITUDE)) {
-				String title = TiConvert.toString(p.get(TiC.PROPERTY_TITLE), "");
-				String subtitle = TiConvert.toString(p.get(TiC.PROPERTY_SUBTITLE), "");
+			if (p.hasProperty(TiC.PROPERTY_LATITUDE) && p.hasProperty(TiC.PROPERTY_LONGITUDE)) {
+				String title = TiConvert.toString(p.getProperty(TiC.PROPERTY_TITLE), "");
+				String subtitle = TiConvert.toString(p.getProperty(TiC.PROPERTY_SUBTITLE), "");
 
-				GeoPoint location = new GeoPoint(scaleToGoogle(TiConvert.toDouble(p.get(TiC.PROPERTY_LATITUDE))), scaleToGoogle(TiConvert.toDouble(p.get(TiC.PROPERTY_LONGITUDE))));
+				GeoPoint location = new GeoPoint(scaleToGoogle(TiConvert.toDouble(p.getProperty(TiC.PROPERTY_LATITUDE))),
+					scaleToGoogle(TiConvert.toDouble(p.getProperty(TiC.PROPERTY_LONGITUDE))));
 				item = new TiOverlayItem(location, title, subtitle, p);
 
 				//prefer pinImage to pincolor.
-				if (p.has(TiC.PROPERTY_IMAGE) || p.has(TiC.PROPERTY_PIN_IMAGE))
+				if (p.hasProperty(TiC.PROPERTY_IMAGE) || p.hasProperty(TiC.PROPERTY_PIN_IMAGE))
 				{
-					String imagePath = TiConvert.toString(p.get(TiC.PROPERTY_IMAGE));
+					String imagePath = TiConvert.toString(p.getProperty(TiC.PROPERTY_IMAGE));
 					if (imagePath == null) {
-						imagePath = TiConvert.toString(p.get(TiC.PROPERTY_PIN_IMAGE));
+						imagePath = TiConvert.toString(p.getProperty(TiC.PROPERTY_PIN_IMAGE));
 					}
 					Drawable marker = makeMarker(imagePath);
 					boundCenterBottom(marker);
 					item.setMarker(marker);
-				} else if (p.has(TiC.PROPERTY_PINCOLOR)) {
-					Object value = p.get(TiC.PROPERTY_PINCOLOR);
+				} else if (p.hasProperty(TiC.PROPERTY_PINCOLOR)) {
+					Object value = p.getProperty(TiC.PROPERTY_PINCOLOR);
 					
 					try {
 						if (value instanceof String) {
@@ -201,7 +201,7 @@ public class TiMapView extends TiUIView
 							item.setMarker(makeMarker(markerColor));
 						} else {
 							// Assume it's a numeric
-							switch(TiConvert.toInt(p.get(TiC.PROPERTY_PINCOLOR))) {
+							switch(TiConvert.toInt(p.getProperty(TiC.PROPERTY_PINCOLOR))) {
 								case 1 : // RED
 									item.setMarker(makeMarker(Color.RED));
 									break;
@@ -215,18 +215,18 @@ public class TiMapView extends TiUIView
 						}
 					} catch (Exception e) {
 						// May as well catch all errors 
-						Log.w(LCAT, "Unable to parse color [" + TiConvert.toString(p.get(TiC.PROPERTY_PINCOLOR))+"] for item ["+i+"]");
+						Log.w(LCAT, "Unable to parse color [" + TiConvert.toString(p.getProperty(TiC.PROPERTY_PINCOLOR))+"] for item ["+i+"]");
 					}
 				}
 
-				if (p.has(TiC.PROPERTY_LEFT_BUTTON)) {
-					item.setLeftButton(proxy.resolveUrl(null, TiConvert.toString(p.get(TiC.PROPERTY_LEFT_BUTTON))));
+				if (p.hasProperty(TiC.PROPERTY_LEFT_BUTTON)) {
+					item.setLeftButton(proxy.resolveUrl(null, TiConvert.toString(p.getProperty(TiC.PROPERTY_LEFT_BUTTON))));
 				}
-				if (p.has(TiC.PROPERTY_RIGHT_BUTTON)) {
-					item.setRightButton(proxy.resolveUrl(null, TiConvert.toString(p.get(TiC.PROPERTY_RIGHT_BUTTON))));
+				if (p.hasProperty(TiC.PROPERTY_RIGHT_BUTTON)) {
+					item.setRightButton(proxy.resolveUrl(null, TiConvert.toString(p.getProperty(TiC.PROPERTY_RIGHT_BUTTON))));
 				}
-				if (p.has(TiC.PROPERTY_LEFT_VIEW)) {
-					Object leftView = p.get(TiC.PROPERTY_LEFT_VIEW);
+				if (p.hasProperty(TiC.PROPERTY_LEFT_VIEW)) {
+					Object leftView = p.getProperty(TiC.PROPERTY_LEFT_VIEW);
 					if (leftView instanceof TiViewProxy) {
 						item.setLeftView((TiViewProxy)leftView);
 
@@ -234,8 +234,8 @@ public class TiMapView extends TiUIView
 						Log.e(LCAT, "invalid type for leftView");
 					}
 				}
-				if (p.has(TiC.PROPERTY_RIGHT_VIEW)) {
-					Object rightView = p.get(TiC.PROPERTY_RIGHT_VIEW);
+				if (p.hasProperty(TiC.PROPERTY_RIGHT_VIEW)) {
+					Object rightView = p.getProperty(TiC.PROPERTY_RIGHT_VIEW);
 					if (rightView instanceof TiViewProxy) {
 						item.setRightView((TiViewProxy)rightView);
 

@@ -26,7 +26,6 @@ class KrollBindings
 public:
 	static void initNatives(v8::Handle<v8::Object> exports);
 	static void initTitanium(v8::Handle<v8::Object> exports);
-	static void initWindow(v8::Handle<v8::Object> exports);
 
 	static v8::Handle<v8::String> getMainSource();
 

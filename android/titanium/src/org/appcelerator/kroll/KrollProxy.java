@@ -41,14 +41,13 @@ public class KrollProxy extends EventEmitter
 
 	public static final String PROXY_ID_PREFIX = "proxy$";
 
-
 	protected Activity activity;
 	protected String proxyId;
 	protected TiUrl creationUrl;
 	protected KrollProxyListener modelListener;
 	protected KrollModule createdInModule;
 	protected boolean coverageEnabled;
-	protected KrollDict creationDict = null;
+	protected KrollDict properties = new KrollDict();
 
 	// entry point for generator code
 	public static KrollProxy create(Class<? extends KrollProxy> objClass, Object[] creationArguments, long ptr, String creationUrl)
@@ -117,9 +116,9 @@ public class KrollProxy extends EventEmitter
 			/*for (String key : dict.keySet()) {
 				setProperty(key, dict.get(key), true);
 			}*/
-			creationDict = (KrollDict)dict.clone();
+			properties.putAll(dict);
 			if (modelListener != null) {
-				modelListener.processProperties(creationDict);
+				modelListener.processProperties(properties);
 			}
 		}
 	}
@@ -139,31 +138,38 @@ public class KrollProxy extends EventEmitter
 		return creationUrl;
 	}
 
-	@Deprecated
 	public boolean hasProperty(String name)
 	{
-		return has(name);
+		return properties.containsKey(name);
 	}
 
-	@Deprecated
+	/**
+	 * Properties are cached on the Proxy and updated from JS for relevant annotated APIs
+	 */
 	public Object getProperty(String name)
 	{
-		return get(name);
+		return properties.get(name);
 	}
 
-	@Deprecated
+	/**
+	 * This internally sets the named property as well as updating the actual JS object
+	 */
 	public void setProperty(String name, Object value)
 	{
-		set(name, value);
+		properties.put(name, value);
+		forceSet(name, value);
 	}
 
+	/**
+	 * @deprecated use setPropertyAndFire instead
+	 */
 	@Deprecated
 	public void setProperty(String name, Object value, boolean fireChange)
 	{
 		if (!fireChange) {
-			set(name, value);
+			setProperty(name, value);
 		} else {
-			setAndFire(name, value);
+			setPropertyAndFire(name, value);
 		}
 	}
 
@@ -191,10 +197,10 @@ public class KrollProxy extends EventEmitter
 		return false;
 	}
 
-	public void setAndFire(String name, Object value)
+	public void setPropertyAndFire(String name, Object value)
 	{
-		Object current = get(name);
-		set(name, value);
+		Object current = getProperty(name);
+		setProperty(name, value);
 
 		if (shouldFireChange(current, value)) {
 			firePropertyChanged(name, current, value);
@@ -208,9 +214,9 @@ public class KrollProxy extends EventEmitter
 		}
 	}
 
-	public KrollDict getCreationDict()
+	public KrollDict getProperties()
 	{
-		return creationDict;
+		return properties;
 	}
 
 	public KrollModule getCreatedInModule()
@@ -266,8 +272,7 @@ public class KrollProxy extends EventEmitter
 
 		this.modelListener = modelListener;
 		if (modelListener != null) {
-			modelListener.processProperties(creationDict);
-			//creationDict = null;
+			modelListener.processProperties(properties);
 		}
 	}
 

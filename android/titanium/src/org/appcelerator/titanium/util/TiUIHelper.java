@@ -821,8 +821,8 @@ public class TiUIHelper
 	{
 		int focusState = TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS;
 		
-		if (proxy.has("softKeyboardOnFocus")) {
-			focusState = TiConvert.toInt(proxy.get("softKeyboardOnFocus"));
+		if (proxy.hasProperty("softKeyboardOnFocus")) {
+			focusState = TiConvert.toInt(proxy.getProperty("softKeyboardOnFocus"));
 		}
 
 		if (focusState > TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS) {

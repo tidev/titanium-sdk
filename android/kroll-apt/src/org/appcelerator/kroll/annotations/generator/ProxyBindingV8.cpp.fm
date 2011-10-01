@@ -14,6 +14,7 @@
 #include "EventEmitter.h"
 #include "JNIUtil.h"
 #include "JSException.h"
+#include "Proxy.h"
 #include "ProxyFactory.h"
 #include "TypeConverter.h"
 #include "V8Util.h"
@@ -44,35 +45,42 @@ using namespace v8;
 Persistent<FunctionTemplate> ${className}::proxyTemplate = Persistent<FunctionTemplate>();
 jclass ${className}::javaClass = NULL;
 
-${className}::${className}(jobject javaObject) : JavaObject(javaObject)
+${className}::${className}(jobject javaObject) : Proxy(javaObject)
 {
 }
 
-void ${className}::Initialize(Handle<Object> ti)
+void ${className}::initProxyTemplate(Handle<Object> exports)
 {
 	LOGD(TAG, "Initialize");
 
 	<#-- Query the class for the Java proxy -->
 	javaClass = JNIUtil::findClass("${packageName?replace('.','/')}/${className}");
 	HandleScope scope;
-	Handle<FunctionTemplate> t = ProxyFactory::inheritProxyTemplate(
+
+	Handle<String> nameSymbol = String::NewSymbol("${proxyAttrs.name}");
+	Handle<FunctionTemplate> t = Proxy::inheritProxyTemplate(
 	<#if superProxyClassName != "EventEmitter">
-		${superProxyClassName?replace("BindingGen", "")}::proxyTemplate,
+		${superProxyClassName?replace("BindingGen", "")}::proxyTemplate
 	<#else>
-		EventEmitter::constructorTemplate,
-	</#if>
-		javaClass, "${proxyAttrs.name}");
+		Proxy::baseProxyTemplate
+	</#if>, javaClass, nameSymbol);
 
 	proxyTemplate = Persistent<FunctionTemplate>::New(t);
+	proxyTemplate->Set(Proxy::inheritSymbol,
+		FunctionTemplate::New(Proxy::inherit<${className}>)->GetFunction());
 
-	// Method bindings -----------------------------------------------------------
+	ProxyFactory::registerProxyPair(javaClass, *proxyTemplate);
+
+	// Method bindings --------------------------------------------------------
 	<@Proxy.listMethods ; isFirst, name, method, signature>
-	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "${name}", ${className}::${name});
+	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "${method.apiName}", ${className}::${method.apiName});
 	</@Proxy.listMethods>
 
-	// Constants -----------------------------------------------------------------
-	<#if constants??>
+	Local<ObjectTemplate> prototypeTemplate = proxyTemplate->PrototypeTemplate();
 	Local<ObjectTemplate> instanceTemplate = proxyTemplate->InstanceTemplate();
+
+	// Constants --------------------------------------------------------------
+	<#if constants??>
 	<@Proxy.listConstants ; isFirst, name, constant>
 	<#if constant.type = "java.lang.String">
 	DEFINE_STRING_CONSTANT(instanceTemplate, "${name}", "${constant.value}");
@@ -81,41 +89,44 @@ void ${className}::Initialize(Handle<Object> ti)
 	<#else>
 	DEFINE_NUMBER_CONSTANT(instanceTemplate, "${name}", ${constant.value?c});
 	</#if>
-
 	</@Proxy.listConstants>
+
 	</#if>
+
+	// Dynamic properties -----------------------------------------------------
+	<@Proxy.listDynamicProperties ; isFirst, name, property, getSignature, setSignature>
+	prototypeTemplate->SetAccessor(String::NewSymbol("${name}"),
+		<#if property.get>
+			${className}::getter_${name}
+		<#else>
+			0
+		</#if>
+		<#if property.set>
+			, ${className}::setter_${name}
+		</#if>);
+	</@Proxy.listDynamicProperties>
 
 	Local<Function> proxyConstructor = proxyTemplate->GetFunction();
 	<#if isModule>
 	Local<Object> moduleInstance = proxyConstructor->NewInstance();
-	ti->Set(String::NewSymbol("${proxyAttrs.name}"), moduleInstance);
+	exports->Set(nameSymbol, moduleInstance);
 	<#else>
-	ti->Set(String::NewSymbol("${proxyAttrs.name}"), proxyConstructor);
+	exports->Set(nameSymbol, proxyConstructor);
 	</#if>
 
 }
 
-// Methods ---------------------------------------------------------------
+// Methods --------------------------------------------------------------------
 <@Proxy.listMethods ; isFirst, name, method, signature>
-Handle<Value> ${className}::${name}(const Arguments& args)
+Handle<Value> ${className}::${method.apiName}(const Arguments& args)
 {
-	LOGD(TAG, "${name}()");
+	LOGD(TAG, "${method.apiName}()");
 	HandleScope scope;
-	JNIEnv *env = JNIScope::getEnv();
-	if (!env) {
-		return JSException::GetJNIEnvironmentError();
-	}
 
-	<#-- Lazy initialize method ID for the Java proxy. -->
-	static jmethodID methodID = NULL;
-	if (!methodID) {
-		methodID = env->GetMethodID(${className}::javaClass, "${name}", "${signature}");
-		if (!methodID) {
-			return JSException::Error("Couldn't find proxy method '${name}' with signature '${signature}'");
-		}
-	}
+	<@Proxy.initJNIEnv/>
+	<@Proxy.initMethodID className=className name=name signature=signature logOnly=false/>
 
-	JavaObject* proxy = NativeObject::Unwrap<JavaObject>(args.Holder());
+	Proxy* proxy = Proxy::unwrap(args.Holder());
 
 	<#if method.args?size &gt; 0>
 	<@Proxy.verifyAndConvertArguments method.args />
@@ -134,5 +145,66 @@ Handle<Value> ${className}::${name}(const Arguments& args)
 }
 
 </@Proxy.listMethods>
+
+// Dynamic property accessors -------------------------------------------------
+<@Proxy.listDynamicProperties ; isFirst, name, property, getSignature, setSignature>
+
+<#if property.get>
+Handle<Value> ${className}::getter_${name}(Local<String> property, const AccessorInfo& info)
+{
+	LOGD(TAG, "get ${name}");
+	HandleScope scope;
+
+	<@Proxy.initJNIEnv/>
+	<@Proxy.initMethodID className=className name=property.getMethodName signature=getSignature logOnly=false/>
+
+	Proxy* proxy = Proxy::unwrap(info.Holder());
+
+	if (!proxy) {
+		return Undefined();
+	}
+
+	jvalue* jArguments = 0;
+
+	<@Proxy.callJNIMethod property.getReturnType, "methodID", "proxy->getJavaObject()", "jArguments" ;
+		hasResult, resultVar>
+
+	return ${resultVar};
+
+	</@Proxy.callJNIMethod>
+}
+</#if>
+
+<#if property.set>
+void ${className}::setter_${name}(Local<String> property, Local<Value> value, const AccessorInfo& info)
+{
+	LOGD(TAG, "set ${name}");
+	HandleScope scope;
+
+	JNIEnv *env = JNIScope::getEnv();
+	if (!env) {
+		LOGE(TAG, "Failed to get environment, ${name} wasn't set");
+		return;
+	}
+
+	<@Proxy.initMethodID className=className name=property.setMethodName signature=setSignature logOnly=true />
+
+	Proxy* proxy = Proxy::unwrap(info.Holder());
+	if (!proxy) {
+		return;
+	}
+
+	jvalue jArguments[1];
+	<#assign typeInfo = Proxy.getTypeInfo(property.setMethodArgs[0].type)>
+
+	<@Proxy.verifyAndConvertArgument expr="value" index=0 info=typeInfo logOnly=true />
+
+	<@Proxy.callJNIMethod "void", "methodID", "proxy->getJavaObject()", "jArguments" ;
+		hasResult, resultVar>
+	</@Proxy.callJNIMethod>
+}
+</#if>
+
+</@Proxy.listDynamicProperties>
 
 <@Proxy.closeNamespace/>

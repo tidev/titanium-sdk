@@ -103,7 +103,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			if (idPropertyName.equals(thisIdPropertyName)) {
 				try {
 					String localText = getLocalizedText(idPropertyValue);
-					setAndFire(propertyName, localText);
+					setPropertyAndFire(propertyName, localText);
 				} catch (ResourceNotFoundException e) {
 					Log.w(LCAT, "Localized text key '" + idPropertyValue + "' is invalid.");
 				}
@@ -336,8 +336,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	@Kroll.getProperty @Kroll.method
 	public Object getWidth()
 	{
-		if (has(TiC.PROPERTY_WIDTH)) {
-			return get(TiC.PROPERTY_WIDTH);
+		if (hasProperty(TiC.PROPERTY_WIDTH)) {
+			return getProperty(TiC.PROPERTY_WIDTH);
 		}
 		
 		KrollDict size = getSize();
@@ -347,14 +347,14 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	@Kroll.setProperty(retain=false) @Kroll.method
 	public void setWidth(Object width)
 	{
-		setAndFire(TiC.PROPERTY_WIDTH, width);
+		setPropertyAndFire(TiC.PROPERTY_WIDTH, width);
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public Object getHeight()
 	{
-		if (has(TiC.PROPERTY_HEIGHT)) {
-			return get(TiC.PROPERTY_HEIGHT);
+		if (hasProperty(TiC.PROPERTY_HEIGHT)) {
+			return getProperty(TiC.PROPERTY_HEIGHT);
 		}
 		
 		KrollDict size = getSize();
@@ -364,7 +364,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	@Kroll.setProperty(retain=false) @Kroll.method
 	public void setHeight(Object height)
 	{
-		setAndFire(TiC.PROPERTY_HEIGHT, height);
+		setPropertyAndFire(TiC.PROPERTY_HEIGHT, height);
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -399,8 +399,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 	public TiUIView getOrCreateView()
 	{
-		if (activity == null) {
-			return peekView();
+		if (activity == null || view != null) {
+			return view;
 		}
 
 		if (TiApplication.isUIThread()) {
@@ -698,8 +698,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	{
 		super.eventListenerAdded(eventName, count, proxy);
 		if (eventName.equals(TiC.EVENT_CLICK) && proxy.equals(this) && count == 1 && !(proxy instanceof TiWindowProxy)) {
-			if (!proxy.has(TiC.PROPERTY_TOUCH_ENABLED)
-				|| TiConvert.toBoolean(proxy.get(TiC.PROPERTY_TOUCH_ENABLED))) {
+			if (!proxy.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)
+				|| TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED))) {
 				setClickable(true);
 			}
 		}
@@ -710,8 +710,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	{
 		super.eventListenerRemoved(eventName, count, proxy);
 		if (eventName.equals(TiC.EVENT_CLICK) && count == 0 && proxy.equals(this) && !(proxy instanceof TiWindowProxy)) {
-			if (proxy.has(TiC.PROPERTY_TOUCH_ENABLED)
-				&& !TiConvert.toBoolean(proxy.get(TiC.PROPERTY_TOUCH_ENABLED))) {
+			if (proxy.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)
+				&& !TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED))) {
 				setClickable(false);
 			}
 		}
@@ -755,14 +755,14 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		}
 		
 		//Keep the proxy in the correct state
-		Object current = get(TiC.PROPERTY_KEEP_SCREEN_ON);
+		Object current = getProperty(TiC.PROPERTY_KEEP_SCREEN_ON);
 		if (current != null) {
 			boolean currentValue = TiConvert.toBoolean(current);
 			if (keepScreenOn == null) {
 				keepScreenOn = currentValue;
 			} else {
 				if (currentValue != keepScreenOn) {
-					set(TiC.PROPERTY_KEEP_SCREEN_ON, keepScreenOn);
+					setProperty(TiC.PROPERTY_KEEP_SCREEN_ON, keepScreenOn);
 				} else {
 					keepScreenOn = currentValue;
 				}
@@ -772,7 +772,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				keepScreenOn = false; // Android default
 			}
 
-			setProperty(TiC.PROPERTY_KEEP_SCREEN_ON, keepScreenOn, false);
+			setProperty(TiC.PROPERTY_KEEP_SCREEN_ON, keepScreenOn);
 		}
 	
 		return keepScreenOn;
@@ -781,7 +781,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	@Kroll.method @Kroll.setProperty(retain=false)
 	public void setKeepScreenOn(boolean keepScreenOn)
 	{
-		setAndFire(TiC.PROPERTY_KEEP_SCREEN_ON, keepScreenOn);
+		setPropertyAndFire(TiC.PROPERTY_KEEP_SCREEN_ON, keepScreenOn);
 	}
 	
 	@Kroll.method

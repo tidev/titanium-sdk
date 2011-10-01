@@ -10,26 +10,36 @@
 
 #include <jni.h>
 
-#include "JavaObject.h"
+#include "Proxy.h"
 
 <@Proxy.openNamespace/>
 
 <#assign className = Proxy.className(proxyClassName)>
 
-class ${className} : public JavaObject {
+class ${className} : public Proxy {
 public:
 	explicit ${className}(jobject javaObject);
 
-	static void Initialize(v8::Handle<v8::Object> ti);
-	static v8::Handle<v8::Value> Constructor(const v8::Arguments& args);
-
-	// Methods -----------------------------------------------------------
-	<@Proxy.listMethods ; isFirst, name, method>
-	static v8::Handle<v8::Value> ${name}(const v8::Arguments&);
-	</@Proxy.listMethods>
+	static void initProxyTemplate(v8::Handle<v8::Object> exports);
 
 	static v8::Persistent<v8::FunctionTemplate> proxyTemplate;
 	static jclass javaClass;
+
+private:
+	// Methods -----------------------------------------------------------
+	<@Proxy.listMethods ; isFirst, name, method>
+	static v8::Handle<v8::Value> ${method.apiName}(const v8::Arguments&);
+	</@Proxy.listMethods>
+
+	// Dynamic property accessors ----------------------------------------
+	<@Proxy.listDynamicProperties ; isFirst, name, property, getSignature, setSignature>
+	<#if property.get>
+	static v8::Handle<v8::Value> getter_${name}(v8::Local<v8::String> property, const v8::AccessorInfo& info);
+	</#if>
+	<#if property.set>
+	static void setter_${name}(v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::AccessorInfo& info);
+	</#if>
+	</@Proxy.listDynamicProperties>
 };
 
 <@Proxy.closeNamespace/>

@@ -75,10 +75,10 @@ public class BufferProxy extends KrollProxy
 			length = TiConvert.toInt(lengthProperty);
 		}
 
-		if (!has(TiC.PROPERTY_BYTE_ORDER)) {
+		if (!hasProperty(TiC.PROPERTY_BYTE_ORDER)) {
 			// If no byte order is specified we need to default to the system byte order
 			// CodecModule.getByteOrder will return the system byte order when null is passed in.
-			set(TiC.PROPERTY_BYTE_ORDER, CodecModule.getByteOrder(null));
+			setProperty(TiC.PROPERTY_BYTE_ORDER, CodecModule.getByteOrder(null));
 		}
 
 		buffer = new byte[length];

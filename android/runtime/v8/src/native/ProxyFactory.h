@@ -25,12 +25,6 @@ namespace titanium {
 class ProxyFactory
 {
 public:
-	enum {
-		kJavaObject = 0,
-		kTiNamespace,
-		kPropertyCache,
-		kInternalFieldCount
-	};
 
 	// Creates a proxy on the V8 side given an existing Java proxy.
 	static v8::Handle<v8::Object> createV8Proxy(jclass javaClass, jobject javaProxy);
@@ -48,16 +42,6 @@ public:
 
 	// The generic constructor for all proxies
 	static v8::Handle<v8::Value> proxyConstructor(const v8::Arguments& args);
-
-	// Inherit a built-in proxy template for use in Javascript (convenience for custom extensions)
-	template<typename ProxyClass> inline
-	static v8::Handle<v8::FunctionTemplate> inheritProxyTemplate(const char *className)
-	{
-		return inheritProxyTemplate(ProxyClass::proxyTemplate, ProxyClass::javaClass, className);
-	}
-
-	// Inherit a built-in proxy template for use in Javascript (used by generated code)
-	static v8::Handle<v8::FunctionTemplate> inheritProxyTemplate(v8::Persistent<v8::FunctionTemplate> superTemplate, jclass javaClass, const char *className);
 };
 
 }

@@ -170,6 +170,25 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSet
 
 /*
  * Class:     org_appcelerator_kroll_runtime_v8_V8Object
+ * Method:    nativeForceSet
+ * Signature: (JLjava/lang/String;Ljava/lang/Object;)V
+ */
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeForceSet(JNIEnv *env, jobject map,
+	jlong ptr, jstring name, jobject value)
+{
+	ENTER_V8(V8Runtime::globalContext);
+	titanium::JNIScope jniScope(env);
+	Handle<Object> jsObject((Object *) ptr);
+
+	const jchar *nameChars = env->GetStringChars(name, NULL);
+	jint nameLen = env->GetStringLength(name);
+
+	jsObject->ForceSet(String::New(nameChars, nameLen), TypeConverter::javaObjectToJsValue(value));
+	env->ReleaseStringChars(name, nameChars);
+}
+
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Object
  * Method:    nativeHas
  * Signature: (JLjava/lang/String;)Z
  */

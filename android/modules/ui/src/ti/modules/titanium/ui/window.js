@@ -8,11 +8,17 @@ var EventEmitter = require("events").EventEmitter,
 	assets = kroll.binding("assets"),
 	vm = require("vm");
 
-exports.bootstrapWindow = function(UI) {
+exports.bootstrapWindow = function(Titanium) {
 	var newActivityRequiredKeys = ["fullscreen", "navBarHidden", "modal", "windowSoftInputMode"];
 
 	// Backward compatibility for lightweight windows
-	var Window = kroll.binding("Window").Window;
+	var UI = Titanium.UI;
+	var Window = Titanium.TiBaseWindow.inherit(function Window(options) {
+		this.options = {};
+		if (options) {
+			this.options.extend(options);
+		}
+	});
 
 	function getOrientationModes() {
 		return this._orientationModes;
@@ -36,7 +42,8 @@ exports.bootstrapWindow = function(UI) {
 	Window.prototype.__defineGetter__("activity", getActivity);
 
 	Window.prototype.open = function(options) {
-		this.extend(options);
+		this.options.extend(options);
+		this.forceExtend(options);
 
 		this.isActivity = false;
 		newActivityRequiredKeys.forEach(function(key) {
@@ -50,7 +57,8 @@ exports.bootstrapWindow = function(UI) {
 		}
 
 		if (this.isActivity) {
-			this.window = new UI.ActivityWindow(this);
+			this.window = new UI.ActivityWindow(this.options);
+			this.nativeView = this.window;
 			this.attachListeners();
 			this.window.open(this);
 		} else {
@@ -63,9 +71,8 @@ exports.bootstrapWindow = function(UI) {
 			}
 
 			this.window = UI.currentWindow;
-			this.view = new UI.View({
-				backgroundColor: "orange"
-			});
+			this.view = new UI.View(this.options);
+			this.nativeView = this.view;
 
 			if (this._children) {
 				var length = this._children.length;
@@ -89,10 +96,11 @@ exports.bootstrapWindow = function(UI) {
 		if (this.window == null) {
 			return;
 		}
-		this.extend(options);
+		this.options.extend(options);
+		this.forceExtend(options);
 
 		if (this.isActivity) {
-			this.window.close(this);
+			this.window.close(this.options);
 		} else {
 			if (this.view.parent != null) {
 				this.window.remove(this.view);

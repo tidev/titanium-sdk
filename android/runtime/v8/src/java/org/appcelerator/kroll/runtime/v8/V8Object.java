@@ -52,6 +52,10 @@ public class V8Object extends ManagedV8Reference
 		}
 	}
 
+	public void forceSet(String name, Object value) {
+		nativeForceSet(ptr, name, value);
+	}
+
 	public boolean has(String name) {
 		return nativeHas(ptr, name);
 	}
@@ -71,6 +75,8 @@ public class V8Object extends ManagedV8Reference
 	private native void nativeSetNumber(long ptr, String name, double number);
 
 	private native void nativeSetBoolean(long ptr, String name, boolean b);
+
+	private native void nativeForceSet(long ptr, String name, Object value);
 
 	private native boolean nativeHas(long ptr, String name);
 

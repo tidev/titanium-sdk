@@ -330,7 +330,7 @@ public abstract class TiUIView
 			}
 			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_FOCUSABLE)) {
-			boolean focusable = TiConvert.toBoolean(proxy.get(TiC.PROPERTY_FOCUSABLE));
+			boolean focusable = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_FOCUSABLE));
 			nativeView.setFocusable(focusable);
 			if (focusable) {
 				registerForKeyClick(nativeView);
@@ -350,9 +350,9 @@ public abstract class TiUIView
 			|| key.startsWith(TiC.PROPERTY_BACKGROUND_PREFIX)
 			|| key.startsWith(TiC.PROPERTY_BORDER_PREFIX)) {
 			// Update first before querying.
-			proxy.set(key, newValue);
+			proxy.setProperty(key, newValue);
 
-			/*TODO KrollDict d = proxy.getProperties();
+			KrollDict d = proxy.getProperties();
 
 			boolean hasImage = hasImage(d);
 			boolean hasColorState = hasColorState(d);
@@ -419,7 +419,7 @@ public abstract class TiUIView
 			}
 			if (nativeView != null) {
 				nativeView.postInvalidate();
-			}*/
+			}
 		} else if (key.equals(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) {
 			Log.w(LCAT, "Focus state changed to " + TiConvert.toString(newValue) + " not honored until next focus event.");
 		} else if (key.equals(TiC.PROPERTY_TRANSFORM)) {
@@ -876,8 +876,6 @@ public abstract class TiUIView
 	protected void registerForKeyClick(View clickable) 
 	{
 		clickable.setOnKeyListener(new OnKeyListener() {
-			
-			// TODO @Override
 			public boolean onKey(View view, int keyCode, KeyEvent event) 
 			{
 				if (event.getAction() == KeyEvent.ACTION_UP) {
@@ -912,6 +910,7 @@ public abstract class TiUIView
 		}
 		return null;
 	}
+
 	private void doSetClickable(View view, boolean clickable)
 	{
 		if (view == null) {
@@ -929,10 +928,12 @@ public abstract class TiUIView
 			setOnLongClickListener(view);
 		}
 	}
+
 	private void doSetClickable(boolean clickable)
 	{
 		doSetClickable(getTouchView(), clickable);
 	}
+
 	/*
 	 * Used just to setup the click listener if applicable.
 	 */
@@ -943,6 +944,7 @@ public abstract class TiUIView
 		}
 		doSetClickable(view, view.isClickable());
 	}
+
 	/*
 	 * Used just to setup the click listener if applicable.
 	 */
@@ -963,22 +965,20 @@ public abstract class TiUIView
 	{
 		view.setOnClickListener(new OnClickListener()
 		{
-			// TODO @Override
 			public void onClick(View view)
 			{
 				proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(lastUpEvent));
 			}
 		});
 	}
+
 	protected void setOnLongClickListener(View view)
 	{
 		view.setOnLongClickListener(new OnLongClickListener()
 		{
-			// TODO @Override
 			public boolean onLongClick(View view)
 			{
-				/*TODO return */proxy.fireEvent(TiC.EVENT_LONGCLICK, null);
-				return true;
+				return proxy.fireEvent(TiC.EVENT_LONGCLICK, null);
 			}
 		});
 	}

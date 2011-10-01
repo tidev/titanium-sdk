@@ -156,49 +156,5 @@ void ProxyFactory::registerProxyPair(jclass javaProxyClass, FunctionTemplate* v8
 	factories[javaProxyClass] = info;
 }
 
-Handle<Value> ProxyFactory::proxyConstructor(const Arguments& args)
-{
-	HandleScope scope;
-	Local<Object> v8Proxy = args.Holder();
-
-	jclass javaClass = (jclass) External::Unwrap(args.Data());
-
-	// If ProxyFactory::createV8Proxy invoked us, unwrap
-	// the pre-created Java proxy it sent.
-	jobject javaProxy = ProxyFactory::unwrapJavaProxy(args);
-	bool deleteRef = false;
-	if (!javaProxy) {
-		javaProxy = ProxyFactory::createJavaProxy(javaClass, v8Proxy, args);
-		deleteRef = true;
-	}
-
-	JavaObject* v8ProxyNative = new JavaObject(javaProxy);
-	v8ProxyNative->Wrap(v8Proxy);
-
-	if (deleteRef) {
-		JNIEnv *env = JNIScope::getEnv();
-		if (env) {
-			env->DeleteLocalRef(javaProxy);
-		}
-	}
-
-	return v8Proxy;
-}
-
-Handle<FunctionTemplate> ProxyFactory::inheritProxyTemplate(
-	Persistent<FunctionTemplate> superTemplate, jclass javaClass, const char *className)
-{
-	HandleScope scope;
-
-	Local<FunctionTemplate> proxyTemplate = FunctionTemplate::New(ProxyFactory::proxyConstructor, External::Wrap(javaClass));
-	proxyTemplate->InstanceTemplate()->SetInternalFieldCount(ProxyFactory::kInternalFieldCount);
-	proxyTemplate->SetClassName(String::NewSymbol(className));
-	proxyTemplate->Inherit(superTemplate);
-
-	registerProxyPair(javaClass, *proxyTemplate);
-
-	return scope.Close(proxyTemplate);
-}
-
 }
 
