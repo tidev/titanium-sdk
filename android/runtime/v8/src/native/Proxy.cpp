@@ -13,6 +13,7 @@
 #include "JSException.h"
 #include "Proxy.h"
 #include "ProxyFactory.h"
+#include "TypeConverter.h"
 #include "V8Util.h"
 
 using namespace v8;
@@ -60,6 +61,7 @@ void Proxy::initProxyTemplate(Handle<Object> exports)
 		PropertyAttribute(DontDelete | DontEnum));
 
 	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "forceExtend", proxyForceExtend);
+	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "propertyChanged", proxyPropertyChanged);
 
 	baseProxyTemplate = Persistent<FunctionTemplate>::New(proxyTemplate);
 
@@ -147,6 +149,49 @@ Handle<Value> Proxy::proxyForceExtend(const Arguments& args)
 	}
 
 	return jsProxy;
+}
+
+Handle<Value> Proxy::proxyPropertyChanged(const Arguments& args)
+{
+	HandleScope scope;
+	Handle<Object> jsProxy = args.Holder();
+
+	if (args.Length() < 2 || !args[0]->IsString()) {
+		return JSException::Error("Proxy.propertyChanged requires a property and a value");
+	}
+
+	Local<String> property = args[0]->ToString();
+	Local<Value> value = args[1];
+	Local<Value> current;
+	bool shouldFire = false;
+
+	if (jsProxy->Has(property)) {
+		current = jsProxy->Get(property);
+		if (!value.IsEmpty() && !current.IsEmpty() && !current->Equals(value)) {
+			shouldFire = true;
+		}
+	}
+
+	jsProxy->ForceSet(args[0], args[1]);
+	if (shouldFire) {
+		JNIEnv *env = JNIScope::getEnv();
+		Proxy *proxy = unwrap(jsProxy);
+		if (!proxy) return Undefined();
+
+		jobject javaProxy = proxy->getJavaObject();
+		jobject modelListener = env->GetObjectField(javaProxy, JNIUtil::krollProxyModelListenerField);
+
+		if (modelListener) {
+			jstring jProperty = TypeConverter::jsStringToJavaString(property);
+			jobject jValue = TypeConverter::jsValueToJavaObject(value);
+			jobject jCurrent = TypeConverter::jsValueToJavaObject(current);
+
+			env->CallVoidMethod(javaProxy, JNIUtil::krollProxyFirePropertyChangedMethod,
+				jProperty, jCurrent, jValue);
+		}
+	}
+
+	return Undefined();
 }
 
 } // namespace titanium

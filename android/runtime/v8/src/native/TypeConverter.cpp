@@ -110,11 +110,11 @@ v8::Handle<v8::String> TypeConverter::javaStringToJsString(jstring javaString)
 		return v8::Handle<v8::String>();
 	}
 
-	const char *nativeString = env->GetStringUTFChars(javaString, 0);
-	int nativeStringLength = env->GetStringUTFLength(javaString);
+	const jchar *nativeString = env->GetStringChars(javaString, NULL);
+	int nativeStringLength = env->GetStringLength(javaString);
 
 	v8::Handle<v8::String> jsString = v8::String::New(nativeString, nativeStringLength);
-	env->ReleaseStringUTFChars(javaString, nativeString);
+	env->ReleaseStringChars(javaString, nativeString);
 
 	return jsString;
 }
@@ -365,7 +365,7 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 		return v8::Number::New((double) javaDouble);
 
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::stringClass)) {
-		return v8::String::New(env->GetStringChars((jstring) javaObject, 0));
+		return TypeConverter::javaStringToJsString((jstring) javaObject);
 
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::dateClass)) {
 		return TypeConverter::javaDateToJsDate(javaObject);

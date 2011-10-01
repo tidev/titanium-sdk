@@ -73,7 +73,9 @@ void ${className}::initProxyTemplate(Handle<Object> exports)
 
 	// Method bindings --------------------------------------------------------
 	<@Proxy.listMethods ; isFirst, name, method, signature>
+	<#if !Proxy.isDynamicProperty(name)>
 	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "${method.apiName}", ${className}::${method.apiName});
+	</#if>
 	</@Proxy.listMethods>
 
 	Local<ObjectTemplate> prototypeTemplate = proxyTemplate->PrototypeTemplate();
@@ -118,6 +120,7 @@ void ${className}::initProxyTemplate(Handle<Object> exports)
 
 // Methods --------------------------------------------------------------------
 <@Proxy.listMethods ; isFirst, name, method, signature>
+<#if !Proxy.isDynamicProperty(name)>
 Handle<Value> ${className}::${method.apiName}(const Arguments& args)
 {
 	LOGD(TAG, "${method.apiName}()");
@@ -143,7 +146,7 @@ Handle<Value> ${className}::${method.apiName}(const Arguments& args)
 	</#if>
 	</@Proxy.callJNIMethod>
 }
-
+</#if>
 </@Proxy.listMethods>
 
 // Dynamic property accessors -------------------------------------------------

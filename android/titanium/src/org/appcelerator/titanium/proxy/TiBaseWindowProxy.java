@@ -26,6 +26,7 @@ public class TiBaseWindowProxy extends TiWindowProxy
 		if (hasProperty(PROPERTY_NATIVE_VIEW)) {
 			TiViewProxy nativeViewProxy = (TiViewProxy) getProperty(PROPERTY_NATIVE_VIEW);
 			view = nativeViewProxy.peekView();
+			setModelListener(view);
 			return view;
 		} else {
 			Log.w(TAG, "getOrCreateView called without nativeView set");

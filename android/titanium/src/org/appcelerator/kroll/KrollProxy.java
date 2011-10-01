@@ -173,7 +173,7 @@ public class KrollProxy extends EventEmitter
 		}
 	}
 
-	protected void firePropertyChanged(String name, Object oldValue, Object newValue)
+	public void firePropertyChanged(String name, Object oldValue, Object newValue)
 	{
 		if (modelListener != null) {
 			if (TiApplication.isUIThread()) {

@@ -109,6 +109,7 @@ public class TiUIActivityWindow extends TiUIView
 		this.lastHeight = LayoutParams.FILL_PARENT;
 
 		proxy.setActivity(activity);
+		proxy.setModelListener(this);
 		handleBooted();
 	}
 

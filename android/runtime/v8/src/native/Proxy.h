@@ -79,6 +79,7 @@ public:
 private:
 	static v8::Handle<v8::Value> proxyConstructor(const v8::Arguments& args);
 	static v8::Handle<v8::Value> proxyForceExtend(const v8::Arguments& args);
+	static v8::Handle<v8::Value> proxyPropertyChanged(const v8::Arguments& args);
 };
 
 }

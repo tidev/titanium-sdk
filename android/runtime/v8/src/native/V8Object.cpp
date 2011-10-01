@@ -84,12 +84,8 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_native
 	titanium::JNIScope jniScope(env);
 	Handle<Object> jsObject((Object *) ptr);
 
-	const jchar *chars = env->GetStringChars(name, NULL);
-	jint len = env->GetStringLength(name);
-
-	Local<Value> value = jsObject->Get(String::New(chars, len));
+	Local<Value> value = jsObject->Get(TypeConverter::javaStringToJsString(name));
 	jobject result = TypeConverter::jsValueToJavaObject(value);
-	env->ReleaseStringChars(name, chars);
 
 	return result;
 }
@@ -122,12 +118,9 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSet
 	titanium::JNIScope jniScope(env);
 	Handle<Object> jsObject((Object *) ptr);
 
-	const jchar *nameChars = env->GetStringChars(name, NULL);
-	jint nameLen = env->GetStringLength(name);
+	jsObject->Set(TypeConverter::javaStringToJsString(name),
+		TypeConverter::javaObjectToJsValue(value));
 
-	jsObject->Set(String::New(nameChars, nameLen), TypeConverter::javaObjectToJsValue(value));
-
-	env->ReleaseStringChars(name, nameChars);
 }
 
 /*
@@ -142,11 +135,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSet
 	titanium::JNIScope jniScope(env);
 	Handle<Object> jsObject((Object *) ptr);
 
-	const jchar *nameChars = env->GetStringChars(name, NULL);
-	jint nameLen = env->GetStringLength(name);
-
-	jsObject->Set(String::New(nameChars, nameLen), Number::New((double) number));
-	env->ReleaseStringChars(name, nameChars);
+	jsObject->Set(TypeConverter::javaStringToJsString(name), Number::New((double) number));
 }
 
 /*
@@ -161,11 +150,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSet
 	titanium::JNIScope jniScope(env);
 	Handle<Object> jsObject((Object *) ptr);
 
-	const jchar *nameChars = env->GetStringChars(name, NULL);
-	jint nameLen = env->GetStringLength(name);
-
-	jsObject->Set(String::New(nameChars, nameLen), b ? True() : False());
-	env->ReleaseStringChars(name, nameChars);
+	jsObject->Set(TypeConverter::javaStringToJsString(name), b ? True() : False());
 }
 
 /*
@@ -180,11 +165,9 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFor
 	titanium::JNIScope jniScope(env);
 	Handle<Object> jsObject((Object *) ptr);
 
-	const jchar *nameChars = env->GetStringChars(name, NULL);
-	jint nameLen = env->GetStringLength(name);
-
-	jsObject->ForceSet(String::New(nameChars, nameLen), TypeConverter::javaObjectToJsValue(value));
-	env->ReleaseStringChars(name, nameChars);
+	jsObject->ForceSet(
+		TypeConverter::javaStringToJsString(name),
+		TypeConverter::javaObjectToJsValue(value));
 }
 
 /*
@@ -199,12 +182,7 @@ JNIEXPORT jboolean JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativ
 	titanium::JNIScope jniScope(env);
 	Handle<Object> jsObject((Object *) ptr);
 
-	const jchar *chars = env->GetStringChars(name, NULL);
-	jint len = env->GetStringLength(name);
-
-	bool hasProperty = jsObject->Has(String::New(chars, len));
-	env->ReleaseStringChars(name, chars);
-	return (jboolean) hasProperty;
+	return (jboolean) jsObject->Has(TypeConverter::javaStringToJsString(name));
 }
 
 /*

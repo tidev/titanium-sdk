@@ -95,6 +95,26 @@
 	</#if>
 </#macro>
 
+<#-- returns whether or not a method name has @Kroll.getProperty or @Kroll.setProperty -->
+<#function isDynamicProperty methodName>
+	<#if dynamicProperties??>
+		<#list dynamicProperties?keys as propertyName>
+			<#local dynamicProperty = dynamicProperties[propertyName]>
+			<#if dynamicProperty.get>
+				<#if methodName = dynamicProperty.getMethodName>
+					<#return true>
+				</#if>
+			</#if>
+			<#if dynamicProperty.set>
+				<#if methodName = dynamicProperty.setMethodName>
+					<#return true>
+				</#if>
+			</#if>
+		</#list>
+	</#if>
+	<#return false>
+</#function>
+
 <#macro listPropertyAccessors>
 	<#list proxyAttrs.propertyAccessors as accessor>
 		<#local upperCamel = accessor?substring(0, 1)?upper_case + accessor?substring(1)>
