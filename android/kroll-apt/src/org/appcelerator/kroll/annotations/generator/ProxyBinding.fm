@@ -256,7 +256,13 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 	<#if typeInfo?keys?seq_contains(type) && typeInfo[type]?keys?seq_contains("signature")>
 		<#return typeInfo[type].signature>
 	<#else>
-		<#return "L${type?replace('.', '/')};">
+		<#local jniType = type?replace(".", "/")>
+		<#local prefix = "L">
+		<#if type?ends_with("[]")>
+			<#local jniType = jniType?substring(0, jniType?length - 2)>
+			<#local prefix = "[L">
+		</#if>
+		<#return prefix + jniType + ";">
 	</#if>
 </#function>
 
