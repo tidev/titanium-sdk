@@ -268,7 +268,7 @@ void JNIUtil::initCache()
 	booleanInitMethod = getMethodID(booleanClass, "<init>", "(Z)V", false);
 	longInitMethod = getMethodID(longClass, "<init>", "(J)V", false);
 	numberDoubleValueMethod = getMethodID(numberClass, "doubleValue", "()D", false);
-	throwableGetMessageMethod = getMethodID(throwableClass, "getMethod", "()Ljava/lang/String;", false);
+	throwableGetMessageMethod = getMethodID(throwableClass, "getMessage", "()Ljava/lang/String;", false);
 
 	v8ObjectInitMethod = getMethodID(v8ObjectClass, "<init>", "(J)V", false);
 	managedV8ReferencePtrField = getFieldID(managedV8ReferenceClass, "ptr", "J");

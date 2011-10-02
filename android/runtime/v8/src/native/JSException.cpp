@@ -24,6 +24,10 @@ Handle<Value> JSException::fromJavaException(jthrowable javaException)
 	env->ExceptionDescribe();
 
 	jstring message = (jstring) env->CallObjectMethod(javaException, JNIUtil::throwableGetMessageMethod);
+	if (!message) {
+		return THROW("Java Exception occurred");
+	}
+
 	return ThrowException(Exception::Error(TypeConverter::javaStringToJsString(message)));
 }
 
