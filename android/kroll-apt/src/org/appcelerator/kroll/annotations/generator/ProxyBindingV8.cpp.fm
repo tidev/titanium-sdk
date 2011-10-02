@@ -49,18 +49,39 @@ ${className}::${className}(jobject javaObject) : Proxy(javaObject)
 {
 }
 
-void ${className}::initProxyTemplate(Handle<Object> exports)
+void ${className}::bindProxy(Handle<Object> exports)
 {
-	LOGD(TAG, "Initialize");
+	if(proxyTemplate.IsEmpty())
+	{
+		getProxyTemplate();
+	}
+
+	// use symbol over string for efficiency
+	Handle<String> nameSymbol = String::NewSymbol("${proxyAttrs.name}");
+
+	Local<Function> proxyConstructor = proxyTemplate->GetFunction();
+	<#if isModule>
+	Local<Object> moduleInstance = proxyConstructor->NewInstance();
+	exports->Set(nameSymbol, moduleInstance);
+	<#else>
+	exports->Set(nameSymbol, proxyConstructor);
+	</#if>
+}
+
+Handle<FunctionTemplate> ${className}::getProxyTemplate()
+{
+	LOGD(TAG, "GetProxyTemplate");
 
 	<#-- Query the class for the Java proxy -->
 	javaClass = JNIUtil::findClass("${packageName?replace('.','/')}/${className}");
 	HandleScope scope;
 
+	// use symbol over string for efficiency
 	Handle<String> nameSymbol = String::NewSymbol("${proxyAttrs.name}");
+
 	Handle<FunctionTemplate> t = Proxy::inheritProxyTemplate(
 	<#if superProxyClassName != "EventEmitter">
-		${superProxyClassName?replace("BindingGen", "")}::proxyTemplate
+		${superProxyClassName?replace("BindingGen", "")}::getProxyTemplate()
 	<#else>
 		Proxy::baseProxyTemplate
 	</#if>, javaClass, nameSymbol);
@@ -108,14 +129,7 @@ void ${className}::initProxyTemplate(Handle<Object> exports)
 	</@Proxy.listDynamicProperties>
 	-->
 
-	Local<Function> proxyConstructor = proxyTemplate->GetFunction();
-	<#if isModule>
-	Local<Object> moduleInstance = proxyConstructor->NewInstance();
-	exports->Set(nameSymbol, moduleInstance);
-	<#else>
-	exports->Set(nameSymbol, proxyConstructor);
-	</#if>
-
+	return proxyTemplate;
 }
 
 // Methods --------------------------------------------------------------------

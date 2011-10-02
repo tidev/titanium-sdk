@@ -51,10 +51,10 @@ void KrollBindings::initTitanium(Handle<Object> exports)
 		return;
 	}
 
-	Proxy::initProxyTemplate(exports);
-	KrollProxy::initProxyTemplate(exports);
-	KrollModule::initProxyTemplate(exports);
-	TitaniumModule::initProxyTemplate(exports);
+	Proxy::bindProxy(exports);
+	KrollProxy::bindProxy(exports);
+	KrollModule::bindProxy(exports);
+	TitaniumModule::bindProxy(exports);
 }
 
 static Persistent<Object> bindingCache;

@@ -20,8 +20,8 @@ class ${className} : public Proxy {
 public:
 	explicit ${className}(jobject javaObject);
 
-	static void initProxyTemplate(v8::Handle<v8::Object> exports);
-
+	static void bindProxy(v8::Handle<v8::Object> exports);
+	static v8::Handle<v8::FunctionTemplate> getProxyTemplate();
 	static v8::Persistent<v8::FunctionTemplate> proxyTemplate;
 	static jclass javaClass;
 

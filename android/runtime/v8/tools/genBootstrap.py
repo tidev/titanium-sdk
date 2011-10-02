@@ -56,7 +56,7 @@ def addToInitTable(proxy):
 
 	headers += "#include \"%s.h\"\n" % proxy
 	fullAPI = fullAPI.replace("Titanium.", "")
-	initFunction = "%s::%s::initProxyTemplate" % (namespace, className)
+	initFunction = "%s::%s::bindProxy" % (namespace, className)
 
 	initTable.append("%s, %s" % (proxy, initFunction))
 

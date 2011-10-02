@@ -37,7 +37,7 @@ Proxy::Proxy(jobject javaProxy) :
 {
 }
 
-void Proxy::initProxyTemplate(Handle<Object> exports)
+void Proxy::bindProxy(Handle<Object> exports)
 {
 	javaClassSymbol = SYMBOL_LITERAL("__javaClass__");
 	constructorSymbol = SYMBOL_LITERAL("constructor");

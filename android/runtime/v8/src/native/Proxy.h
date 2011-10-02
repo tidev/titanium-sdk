@@ -31,7 +31,7 @@ public:
 	Proxy(jobject javaProxy);
 
 	// Initialize the base proxy template
-	static void initProxyTemplate(v8::Handle<v8::Object> exports);
+	static void bindProxy(v8::Handle<v8::Object> exports);
 
 	// This provides Javascript a way to extend one of our native / wrapped
 	// templates without needing to know about the internal java class.
