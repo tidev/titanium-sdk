@@ -31,6 +31,7 @@ jclass JNIUtil::dateClass = NULL;
 jclass JNIUtil::setClass = NULL;
 jclass JNIUtil::outOfMemoryError = NULL;
 jclass JNIUtil::nullPointerException = NULL;
+jclass JNIUtil::throwableClass = NULL;
 
 jclass JNIUtil::krollProxyClass = NULL;
 jclass JNIUtil::v8ObjectClass = NULL;
@@ -56,6 +57,7 @@ jmethodID JNIUtil::doubleInitMethod = NULL;
 jmethodID JNIUtil::booleanInitMethod = NULL;
 jmethodID JNIUtil::longInitMethod = NULL;
 jmethodID JNIUtil::numberDoubleValueMethod = NULL;
+jmethodID JNIUtil::throwableGetMessageMethod = NULL;
 
 jfieldID JNIUtil::managedV8ReferencePtrField = NULL;
 jmethodID JNIUtil::krollProxyCreateMethod = NULL;
@@ -118,10 +120,12 @@ void JNIUtil::throwOutOfMemoryError(const char *message)
 {
 	throwException(outOfMemoryError, message);
 }
+
 void JNIUtil::throwNullPointerException(const char *message)
 {
 	throwException(nullPointerException, message);
 }
+
 jclass JNIUtil::findClass(const char *className)
 {
 	JNIEnv *env = JNIScope::getEnv();
@@ -234,6 +238,8 @@ void JNIUtil::initCache()
 	setClass = findClass("java/util/Set");
 	outOfMemoryError = findClass("java/lang/OutOfMemoryError");
 	nullPointerException = findClass("java/lang/NullPointerException");
+	throwableClass = findClass("java/lang/Throwable");
+
 	krollProxyClass = findClass("org/appcelerator/kroll/KrollProxy");
 	v8ObjectClass = findClass("org/appcelerator/kroll/runtime/v8/V8Object");
 	managedV8ReferenceClass = findClass("org/appcelerator/kroll/runtime/v8/ManagedV8Reference");
@@ -262,6 +268,7 @@ void JNIUtil::initCache()
 	booleanInitMethod = getMethodID(booleanClass, "<init>", "(Z)V", false);
 	longInitMethod = getMethodID(longClass, "<init>", "(J)V", false);
 	numberDoubleValueMethod = getMethodID(numberClass, "doubleValue", "()D", false);
+	throwableGetMessageMethod = getMethodID(throwableClass, "getMessage", "()Ljava/lang/String;", false);
 
 	v8ObjectInitMethod = getMethodID(v8ObjectClass, "<init>", "(J)V", false);
 	managedV8ReferencePtrField = getFieldID(managedV8ReferenceClass, "ptr", "J");
@@ -277,4 +284,5 @@ void JNIUtil::initCache()
 
 	v8FunctionInitMethod = getMethodID(v8FunctionClass, "<init>", "(J)V", false);
 }
-}
+
+} // namespace titanium

@@ -58,7 +58,7 @@ public:
 
 	// BIG FUCKING WARNING!!  make sure you call "delete" on the return value otherwise the
 	// you have introduced a memory leak and the world will end.  plzkthksbye
-	static v8::Handle<v8::Value> * javaObjectArrayToJsArguments(jobjectArray javaObjectArray);
+	static v8::Handle<v8::Value> * javaObjectArrayToJsArguments(jobjectArray javaObjectArray, int *length);
 
 	// array convert methods
 	static jarray jsArrayToJavaArray(v8::Handle<v8::Array>);

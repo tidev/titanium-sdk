@@ -20,6 +20,7 @@ import java.util.Stack;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.runtime.v8.V8Function;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiLaunchActivity;
@@ -108,34 +109,6 @@ public class TitaniumModule extends KrollModule
 	@Kroll.method
 	public void testThrow(){ throw new Error("Testing throwing throwables"); }
 
-/*
-	@Kroll.method
-	public void include(KrollInvocation invocation, Object[] files)
-	{
-		//TiContext tiContext = invocation.getTiContext();
-		for(Object filename : files) {
-			//try {
-				// we need to make sure paths included from sub-js files are actually relative
-				boolean popContext = false;
-				if (!basePath.contains(tiContext.getBaseUrl())) {
-					basePath.push(tiContext.getBaseUrl());
-					popContext = true;
-				}
-				String resolved = tiContext.resolveUrl(null, TiConvert.toString(filename), basePath.peek());
-				basePath.push(resolved.substring(0, resolved.lastIndexOf('/')+1));
-				tiContext.evalFile(resolved);
-				basePath.pop();
-				
-				if (popContext) {
-					basePath.pop();
-				}
-			//} catch (IOException e) {
-			//	Log.e(LCAT, "Error while evaluating: " + filename, e);
-			//}
-		}
-	}
-*/
-
 	private HashMap<Thread, HashMap<Integer, Timer>> timers = new HashMap<Thread, HashMap<Integer, Timer>>();
 	private int currentTimerId;
 
@@ -144,16 +117,16 @@ public class TitaniumModule extends KrollModule
 		protected long timeout;
 		protected boolean interval;
 		protected Object[] args;
-		//protected KrollCallback callback;
+		protected V8Function callback;
 		protected Handler handler;
 		protected int id;
 		protected boolean canceled;
 	
-		public Timer(int id, Handler handler, /*KrollCallback callback, */long timeout, Object[] args, boolean interval)
+		public Timer(int id, Handler handler, V8Function callback, long timeout, Object[] args, boolean interval)
 		{
 			this.id = id;
 			this.handler = handler;
-			//this.callback = callback;
+			this.callback = callback;
 			this.timeout = timeout;
 			this.args = args;
 			this.interval = interval;
@@ -164,7 +137,6 @@ public class TitaniumModule extends KrollModule
 			handler.postDelayed(this, timeout);
 		}
 
-		// TODO @Override
 		public void run()
 		{
 			if (canceled) return;
@@ -178,7 +150,7 @@ public class TitaniumModule extends KrollModule
 				Log.d(LCAT, message.toString());
 			}
 			long start = System.currentTimeMillis();
-			// TODO callback.callSync(args);
+			callback.invoke(args);
 			if (interval && !canceled) {
 				handler.postDelayed(this, timeout - (System.currentTimeMillis() - start));
 			}
@@ -191,35 +163,29 @@ public class TitaniumModule extends KrollModule
 		}
 	}
 
-	private int createTimer(KrollContext context, Object fn, long timeout, Object[] args, boolean interval)
+	private int createTimer(V8Function callback, long timeout, Object[] args, boolean interval)
 		throws IllegalArgumentException
 	{
-		// TODO: we should handle evaluatable code eventually too..
-		/*TODO if (fn instanceof KrollCallback) {
-			KrollCallback callback = (KrollCallback) fn;
-			int timerId = currentTimerId++;
-			Handler handler = context.getMessageQueue().getHandler();
+		int timerId = currentTimerId++;
+		Handler handler = getV8Handler();
 
-			Timer timer = new Timer(timerId, handler, callback, timeout, args, interval);
-			Thread thread = handler.getLooper().getThread();
-			HashMap<Integer, Timer> threadTimers = timers.get(thread);
-			if (threadTimers == null) {
-				threadTimers = new HashMap<Integer, Timer>();
-				timers.put(thread, threadTimers);
-			}
-			threadTimers.put(timerId, timer);
-			timer.schedule();
-			return timerId;
+		Timer timer = new Timer(timerId, handler, callback, timeout, args, interval);
+		Thread thread = handler.getLooper().getThread();
+		HashMap<Integer, Timer> threadTimers = timers.get(thread);
+		if (threadTimers == null) {
+			threadTimers = new HashMap<Integer, Timer>();
+			timers.put(thread, threadTimers);
 		}
-		else throw new IllegalArgumentException("Don't know how to call callback of type: " + fn.getClass().getName());*/
-		return -1;
+		threadTimers.put(timerId, timer);
+		timer.schedule();
+		return timerId;
 	}
 
 	@Kroll.method @Kroll.topLevel
-	public int setTimeout(Object fn, long timeout, final Object[] args)
+	public int setTimeout(V8Function fn, long timeout, final Object[] args)
 		throws IllegalArgumentException
 	{
-		return createTimer(KrollContext.getKrollContext(), fn, timeout, args, false);
+		return createTimer(fn, timeout, args, false);
 	}
 
 	@Kroll.method @Kroll.topLevel
@@ -236,10 +202,10 @@ public class TitaniumModule extends KrollModule
 	}
 
 	@Kroll.method @Kroll.topLevel
-	public int setInterval(Object fn, long timeout, final Object[] args)
+	public int setInterval(V8Function fn, long timeout, final Object[] args)
 		throws IllegalArgumentException
 	{
-		return createTimer(KrollContext.getKrollContext(), fn, timeout, args, true);
+		return createTimer(fn, timeout, args, true);
 	}
 
 	@Kroll.method @Kroll.topLevel
@@ -412,105 +378,6 @@ public class TitaniumModule extends KrollModule
 			return defaultValue;
 		}
 	}
-
-	/*
-	protected KrollModule requireNativeModule(TiContext context, String path)
-	{
-		if (DBG) {
-			Log.d(LCAT, "Attempting to include native module: " + path);
-		}
-		KrollModuleInfo info = KrollModule.getModuleInfo(path);
-		if (info == null) return null;
-
-		return context.getTiApp().requireModule(context, info);
-	}
-
-	@Kroll.method @Kroll.topLevel
-	public KrollProxy require(KrollInvocation invocation, String path)
-	{
-		// 1. look for a native module first
-		// 2. then look for a cached module
-		// 3. then attempt to load from resources
-		TiContext ctx = invocation.getTiContext().getRootActivity().getTiContext();
-		KrollModule module = requireNativeModule(ctx, path);
-		StringBuilder builder = new StringBuilder();
-
-		if (module != null) {
-			KrollModuleInfo info = module.getModuleInfo();
-			builder.append("Succesfully loaded module: ")
-				.append(info.getName())
-				.append("/")
-				.append(info.getVersion());
-			Log.i(LCAT, builder.toString());
-			return module;
-		}
-
-		// NOTE: CommonJS modules load absolute to app:// in Titanium
-		builder.setLength(0);
-		builder.append(TiC.URL_APP_PREFIX)
-			.append(path)
-			.append(".js");
-		String fileUrl = builder.toString();
-		TiBaseFile tbf = TiFileFactory.createTitaniumFile(ctx, new String[]{ fileUrl }, false);
-		if (tbf == null) {
-			//the spec says we are required to throw an exception
-			Context.reportError("Couldn't find module: " + path);
-			return null;
-		}
-
-		if (DBG) {
-			Log.d(LCAT, "Attempting to include JS module: " + tbf.nativePath());
-		}
-		try {
-			TiBlob blob = (TiBlob) tbf.read();
-			if (blob == null) {
-				Log.e(LCAT, "Couldn't read required file: " + fileUrl);
-				return null;
-			}
-
-			// TODO: we need to switch to the Rhino native require()
-			// implementation, but in the meantime this will have to do
-
-			// create the CommonJS exporter
-			KrollProxy proxy = new KrollProxy(ctx);
-			builder.setLength(0);
-			builder.append("(function(exports){")
-				.append(blob.getText())
-				.append("return exports;")
-				.append("})({})");
-
-			Object result = ctx.evalJS(builder.toString());
-
-			if (!(result instanceof Scriptable)) {
-				builder.setLength(0);
-				builder.append("Module did not correctly return an exports object: ")
-					.append(path)
-					.append(", result: ")
-					.append(result);
-				Context.throwAsScriptRuntimeEx(new Exception(builder.toString()));
-				return null;
-			}
-
-			Scriptable exports = (Scriptable) result;
-			// CommonJS modules export all functions/properties as 
-			// properties of the special exports object provided
-			for (Object key : exports.getIds()) {
-				String propName = key.toString();
-				proxy.setProperty(propName, exports.get(propName, exports));
-			}
-
-			// spec says you must have a read-only id property - we don't
-			// currently support readonly in kroll so this is probably OK for now
-			proxy.setProperty(TiC.PROPERTY_ID, path);
-			// uri is optional but we point it to where we loaded it
-			proxy.setProperty(TiC.PROPERTY_URI, fileUrl);
-			return proxy;
-		} catch (Exception ex) {
-			Log.e(LCAT, "Error loading module named: " + path, ex);
-			Context.throwAsScriptRuntimeEx(ex);
-			return null;
-		}
-	}*/
 
 	@Kroll.method
 	public void dumpCoverage()
