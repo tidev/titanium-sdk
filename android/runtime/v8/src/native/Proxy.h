@@ -25,12 +25,10 @@ public:
 	};
 
 	static v8::Persistent<v8::FunctionTemplate> baseProxyTemplate;
-	static v8::Persistent<v8::String> javaClassSymbol, constructorSymbol, inheritSymbol;
+	static v8::Persistent<v8::String> javaClassSymbol, constructorSymbol;
+	static v8::Persistent<v8::String> inheritSymbol, propertiesSymbol;
 
 	Proxy(jobject javaProxy);
-
-	// Extends a proxy with a property map (or other object), but skips any Java property bindings
-	void forceExtend(v8::Handle<v8::Object> properties);
 
 	// Initialize the base proxy template
 	static void initProxyTemplate(v8::Handle<v8::Object> exports);
@@ -78,8 +76,7 @@ public:
 
 private:
 	static v8::Handle<v8::Value> proxyConstructor(const v8::Arguments& args);
-	static v8::Handle<v8::Value> proxyForceExtend(const v8::Arguments& args);
-	static v8::Handle<v8::Value> proxyPropertyChanged(const v8::Arguments& args);
+	static v8::Handle<v8::Value> proxyOnPropertiesChanged(const v8::Arguments& args);
 };
 
 }

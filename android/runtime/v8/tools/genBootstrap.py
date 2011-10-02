@@ -107,11 +107,16 @@ JS_DEFINE_SETTER = \
 """		%(prototype)s.set%(upperName)s = function(value) { this.%(name)s = value; }
 """
 
-JS_DEFINE_DYNAMIC_SETTER = \
-"""		%(prototype)s.__defineSetter__("%(name)s", function(value) {
-			this.propertyChanged("%(name)s", value);
-		});
+JS_PROPERTY = \
+"""	"%(name)s": {
+		get: function() { return %(getter)s; },
+		set: function(value) { %(setter)s; },
+		enumerable: true
+	},
 """
+
+JS_GET_PROPERTY = """this.getProperty(\"%(name)s\")"""
+JS_SET_PROPERTY = """this.setPropertyAndFire(\"%(name)s\", value)"""
 
 JS_CLOSE_GETTER = \
 """		},
@@ -159,22 +164,7 @@ def genBootstrap(node, namespace = "", indent = 0):
 
 	# ignore _dependencies and _className in the childAPIs count
 	hasChildren = len(childAPIs) > 2
-	getters = list(accessors)
-	setters = list(accessors)
-	dynamicSetters = list(accessors)
-
-	# in many cases we have both a @Kroll.getProperty/@Kroll.setProperty and @Kroll.method
-	# we can save ourselves a C++ function by generating JS here instead
-	if "dynamicProperties" in proxyMap:
-		dynamicProperties = proxyMap["dynamicProperties"]
-		for p in dynamicProperties:
-			dp = dynamicProperties[p]
-			if dp["get"] and isBoundMethod(proxyMap, dp["getMethodName"]):
-				getters.append(dp["name"])
-			elif dp["set"] and isBoundMethod(proxyMap, dp["setMethodName"]):
-				setters.append(dp["name"])
-
-	hasAccessors = len(getters) > 0 or len(setters) > 0 or len(dynamicSetters) > 0
+	hasAccessors = len(accessors) > 0 or "dynamicProperties" in proxyMap
 
 	if namespace != "Titanium":
 		decl = "var %s =" % var
@@ -203,12 +193,32 @@ def genBootstrap(node, namespace = "", indent = 0):
 		upperName = accessor[0:1].upper() + accessor[1:]
 		return template % { "prototype": prototype, "name": accessor, "upperName": upperName }
 
-	for getter in getters: js += defineAccessor(JS_DEFINE_GETTER, getter)
-	for setter in setters: js += defineAccessor(JS_DEFINE_SETTER, setter)
-	for ds in dynamicSetters: js += defineAccessor(JS_DEFINE_DYNAMIC_SETTER, ds)
+	for accessor in accessors:
+		js += defineAccessor(JS_DEFINE_GETTER, accessor)
+		js += defineAccessor(JS_DEFINE_SETTER, accessor)
+
+	if "dynamicProperties" in proxyMap: 
+		properties = ""
+		for dpName in proxyMap["dynamicProperties"]:
+			dp = proxyMap["dynamicProperties"][dpName]
+			getter = JS_GET_PROPERTY % {"name": dp["name"]}
+			if dp["get"]:
+				getter = "this.%s()" % dp["getMethodName"]
+			setter = JS_SET_PROPERTY % {"name": dp["name"]}
+			if dp["set"]:
+				setter = "this.%s(value)" % dp["setMethodName"]
+			properties += JS_PROPERTY % { "prototype": prototype, \
+				"name": dp["name"], "getter": getter, "setter": setter }
+		for accessor in accessors:
+			getter = JS_GET_PROPERTY % {"name": accessor}
+			setter = JS_SET_PROPERTY % {"name": accessor}
+			properties += JS_PROPERTY % { "prototype": prototype, \
+				"name": accessor, "getter": getter, "setter": setter }
+		js += indentCode(JS_DEFINE_PROPERTIES % { "var": prototype, "properties": properties }, 2)
 
 	if hasChildren or hasAccessors:
-		js += "		kroll.log('returning %(var)s');\n		return %(var)s;\n" % { "var": var }
+		js += "		return %s;\n" % var
+
 	return js
 
 jsTemplate = open(os.path.join(thisDir, "bootstrap.js")).read()

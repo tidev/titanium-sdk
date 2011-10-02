@@ -60,7 +60,7 @@ jmethodID JNIUtil::numberDoubleValueMethod = NULL;
 jfieldID JNIUtil::managedV8ReferencePtrField = NULL;
 jmethodID JNIUtil::krollProxyCreateMethod = NULL;
 jfieldID JNIUtil::krollProxyModelListenerField = NULL;
-jmethodID JNIUtil::krollProxyFirePropertyChangedMethod = NULL;
+jmethodID JNIUtil::krollProxyOnPropertiesChangedMethod = NULL;
 jmethodID JNIUtil::v8ObjectInitMethod = NULL;
 jmethodID JNIUtil::assetsReadResourceMethod = NULL;
 jmethodID JNIUtil::eventListenerPostEventMethod = NULL;
@@ -268,8 +268,8 @@ void JNIUtil::initCache()
 	krollProxyCreateMethod = getMethodID(krollProxyClass, "create",
 		"(Ljava/lang/Class;[Ljava/lang/Object;JLjava/lang/String;)Lorg/appcelerator/kroll/KrollProxy;", true);
 	krollProxyModelListenerField = getFieldID(krollProxyClass, "modelListener", "Lorg/appcelerator/kroll/KrollProxyListener;");
-	krollProxyFirePropertyChangedMethod = getMethodID(krollProxyClass, "firePropertyChanged",
-		"(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V", false);
+	krollProxyOnPropertiesChangedMethod = getMethodID(krollProxyClass, "onPropertiesChanged",
+		"([[Ljava/lang/Object;)V", false);
 
 	assetsReadResourceMethod = getMethodID(assetsClass, "readResource", "(Ljava/lang/String;)[C", true);
 	eventListenerPostEventMethod = getMethodID(eventListenerClass, "postEvent",

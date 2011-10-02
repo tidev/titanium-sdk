@@ -7,7 +7,6 @@
 package org.appcelerator.kroll;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.annotations.Kroll;
@@ -31,6 +30,9 @@ public class KrollProxy extends EventEmitter
 {
 	private static final String TAG = "KrollProxy";
 	private static final boolean DBG = TiConfig.LOGD;
+	private static final int INDEX_NAME = 0;
+	private static final int INDEX_OLD_VALUE = 1;
+	private static final int INDEX_VALUE = 2;
 
 	protected static final int MSG_MODEL_PROPERTY_CHANGE = EventEmitter.MSG_LAST_ID + 100;
 	protected static final int MSG_LISTENER_ADDED = EventEmitter.MSG_LAST_ID + 101;
@@ -207,10 +209,57 @@ public class KrollProxy extends EventEmitter
 		}
 	}
 
-	protected void firePropertiesChanged(List<KrollPropertyChange> changes)
+	@Kroll.method
+	public void onPropertyChanged(String name, Object oldValue, Object value)
 	{
-		if (modelListener != null) {
-			modelListener.propertiesChanged(changes, this);
+		properties.put(name, value);
+		firePropertyChanged(name, oldValue, value);
+	}
+
+	public void onPropertiesChanged(Object[][] changes)
+	{
+		int changesLength = changes.length;
+		boolean isUiThread = TiApplication.isUIThread();
+
+		for (int i = 0; i < changesLength; ++i) {
+			Object[] change = changes[i];
+			if (change.length != 3) continue;
+
+			Object name = change[INDEX_NAME];
+			if (name == null || !(name instanceof String)) continue;
+
+			String nameString = (String) name;
+			Object value = change[INDEX_VALUE];
+
+			properties.put(nameString, change[INDEX_VALUE]);
+			if (isUiThread && modelListener != null) {
+				modelListener.propertyChanged(nameString,
+					change[INDEX_OLD_VALUE], value, this);
+			}
+		}
+
+		if (isUiThread || modelListener == null) return;
+
+		Message msg = getUIHandler().obtainMessage(MSG_MODEL_PROPERTIES_CHANGED, changes);
+		msg.sendToTarget();
+	}
+
+	private void firePropertiesChanged(Object[][] changes)
+	{
+		if (modelListener == null) return;
+
+		int changesLength = changes.length;
+		for (int i = 0; i < changesLength; ++i) {
+			Object[] change = changes[i];
+			if (change.length != 3) continue;
+
+			Object name = change[INDEX_NAME];
+			if (name == null || !(name instanceof String)) continue;
+
+			if (modelListener != null) {
+				modelListener.propertyChanged((String) name,
+					change[INDEX_OLD_VALUE], change[INDEX_VALUE], this);
+			}
 		}
 	}
 
@@ -248,7 +297,7 @@ public class KrollProxy extends EventEmitter
 				return true;
 			}
 			case MSG_MODEL_PROPERTIES_CHANGED: {
-				firePropertiesChanged((List<KrollPropertyChange>)msg.obj);
+				firePropertiesChanged((Object[][])msg.obj);
 				return true;
 			}
 		}

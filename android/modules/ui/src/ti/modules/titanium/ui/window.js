@@ -13,37 +13,41 @@ exports.bootstrapWindow = function(Titanium) {
 
 	// Backward compatibility for lightweight windows
 	var UI = Titanium.UI;
-	var Window = Titanium.TiBaseWindow.inherit(function Window(options) {
-		this.options = {};
-		if (options) {
-			this.options.extend(options);
-		}
-	});
+	var Window = Titanium.TiBaseWindow;
+	var Proxy = Titanium.Proxy;
 
 	function getOrientationModes() {
-		return this._orientationModes;
+		return this.getProperty("orientationModes");
 	}
 	Window.prototype.getOrientationModes = getOrientationModes;
-	Window.prototype.__defineGetter__("orientationModes", getOrientationModes);
 
 	function setOrientationModes(modes) {
-		this._orientationModes = modes;
+		this.setPropertyAndFire("orientationModes", modes);
 		if (this.window == null) return;
 
 		this.window.setOrientationModes(modes);
 	}
 	Window.prototype.setOrientationModes = setOrientationModes;
-	Window.prototype.__defineSetter__("orientationModes", setOrientationModes);
 
 	function getActivity() {
 		return this.window.getActivity();
 	}
 	Window.prototype.getActivity = getActivity;
-	Window.prototype.__defineGetter__("activity", getActivity);
+
+	Object.defineProperties(Window.prototype, {
+		orientationModes: {
+			get: getOrientationModes,
+			set: setOrientationModes,
+			enumerable: true
+		},
+		activity: {
+			get: getActivity,
+			enumerable: true
+		}
+	});
 
 	Window.prototype.open = function(options) {
-		this.options.extend(options);
-		this.forceExtend(options);
+		this._properties.extend(options);
 
 		this.isActivity = false;
 		newActivityRequiredKeys.forEach(function(key) {
@@ -57,10 +61,10 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 
 		if (this.isActivity) {
-			this.window = new UI.ActivityWindow(this.options);
+			this.window = new UI.ActivityWindow(this._properties);
 			this.nativeView = this.window;
 			this.attachListeners();
-			this.window.open(this);
+			this.window.open();
 		} else {
 			var needsOpen = false;
 			if (!("currentWindow" in UI)) {
@@ -71,7 +75,7 @@ exports.bootstrapWindow = function(Titanium) {
 			}
 
 			this.window = UI.currentWindow;
-			this.view = new UI.View(this.options);
+			this.view = new UI.View(this._properties);
 			this.nativeView = this.view;
 
 			if (this._children) {
@@ -96,11 +100,10 @@ exports.bootstrapWindow = function(Titanium) {
 		if (this.window == null) {
 			return;
 		}
-		this.options.extend(options);
-		this.forceExtend(options);
+		this._properties.extend(options);
 
 		if (this.isActivity) {
-			this.window.close(this.options);
+			this.window.close(options);
 		} else {
 			if (this.view.parent != null) {
 				this.window.remove(this.view);
@@ -172,6 +175,18 @@ exports.bootstrapWindow = function(Titanium) {
 			EventEmitter.prototype.fireEvent.call(this, event, data);
 		} else {
 			this.window.fireEvent(event, data);
+		}
+	}
+
+	Window.prototype.setPropertyAndFire = function(property, value) {
+		if (!this.window && !this.view) {
+			Proxy.prototype.setPropertyAndFire.call(this, property, value);
+		}
+
+		if (this.isActivity) {
+			this.window.setPropertyAndFire(property, value);
+		} else {
+			this.view.setPropertyAndFire(property, value);
 		}
 	}
 

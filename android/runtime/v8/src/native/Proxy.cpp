@@ -7,6 +7,7 @@
 #include <jni.h>
 #include <v8.h>
 
+#include "AndroidUtil.h"
 #include "EventEmitter.h"
 #include "JavaObject.h"
 #include "JNIUtil.h"
@@ -16,6 +17,11 @@
 #include "TypeConverter.h"
 #include "V8Util.h"
 
+#define TAG "Proxy"
+#define INDEX_NAME 0
+#define INDEX_OLD_VALUE 1
+#define INDEX_VALUE 2
+
 using namespace v8;
 
 namespace titanium {
@@ -24,25 +30,11 @@ Persistent<FunctionTemplate> Proxy::baseProxyTemplate;
 Persistent<String> Proxy::javaClassSymbol;
 Persistent<String> Proxy::constructorSymbol;
 Persistent<String> Proxy::inheritSymbol;
+Persistent<String> Proxy::propertiesSymbol;
 
 Proxy::Proxy(jobject javaProxy) :
 	JavaObject(javaProxy)
 {
-}
-
-void Proxy::forceExtend(Handle<Object> properties)
-{
-	HandleScope scope;
-
-	Handle<Array> names = properties->GetOwnPropertyNames();
-	int length = names->Length();
-
-	for (int i = 0; i < length; ++i) {
-		Handle<Value> name = names->Get(i);
-
-		// We want to skip any API bindings for dynamic properties, so we use ForceSet
-		handle_->ForceSet(name, properties->Get(name));
-	}
 }
 
 void Proxy::initProxyTemplate(Handle<Object> exports)
@@ -50,6 +42,7 @@ void Proxy::initProxyTemplate(Handle<Object> exports)
 	javaClassSymbol = SYMBOL_LITERAL("__javaClass__");
 	constructorSymbol = SYMBOL_LITERAL("constructor");
 	inheritSymbol = SYMBOL_LITERAL("inherit");
+	propertiesSymbol = SYMBOL_LITERAL("_properties");
 
 	Local<FunctionTemplate> proxyTemplate = FunctionTemplate::New();
 	Local<String> proxySymbol = String::NewSymbol("Proxy");
@@ -60,8 +53,7 @@ void Proxy::initProxyTemplate(Handle<Object> exports)
 	proxyTemplate->Set(javaClassSymbol, External::Wrap(JNIUtil::krollProxyClass),
 		PropertyAttribute(DontDelete | DontEnum));
 
-	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "forceExtend", proxyForceExtend);
-	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "propertyChanged", proxyPropertyChanged);
+	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "onPropertiesChanged", proxyOnPropertiesChanged);
 
 	baseProxyTemplate = Persistent<FunctionTemplate>::New(proxyTemplate);
 
@@ -92,6 +84,9 @@ Handle<Value> Proxy::proxyConstructor(const Arguments& args)
 	HandleScope scope;
 	Local<Object> jsProxy = args.Holder();
 
+	Handle<Object> properties = Object::New();
+	jsProxy->Set(propertiesSymbol, properties);
+
 	Handle<Object> prototype = jsProxy->GetPrototype()->ToObject();
 
 	Handle<Function> constructor = Handle<Function>::Cast(prototype->Get(constructorSymbol));
@@ -111,7 +106,15 @@ Handle<Value> Proxy::proxyConstructor(const Arguments& args)
 
 	int length = args.Length();
 	if (length > 0 && args[0]->IsObject()) {
-		proxy->forceExtend(args[0]->ToObject());
+		Handle<Object> createProperties = args[0]->ToObject();
+		Handle<Array> names = createProperties->GetOwnPropertyNames();
+		int length = names->Length();
+
+		for (int i = 0; i < length; ++i) {
+			Handle<Value> name = names->Get(i);
+			Handle<Value> value = createProperties->Get(name);
+			properties->Set(name, value);
+		}
 	}
 
 	if (!args.Data().IsEmpty() && args.Data()->IsFunction()) {
@@ -133,63 +136,51 @@ Handle<Value> Proxy::proxyConstructor(const Arguments& args)
 	return jsProxy;
 }
 
-Handle<Value> Proxy::proxyForceExtend(const Arguments& args)
+Handle<Value> Proxy::proxyOnPropertiesChanged(const Arguments& args)
 {
 	HandleScope scope;
 	Handle<Object> jsProxy = args.Holder();
 
-	if (args.Length() == 0 || !args[0]->IsObject()) {
-		// fail silently, we don't care if this is undefined / not an object
-		return jsProxy;
+	if (args.Length() < 1 || !args[0]->IsArray()) {
+		return JSException::Error("Proxy.propertiesChanged requires a list of lists of property name, the old value, and the new value");
+	}
+
+	JNIEnv *env = JNIScope::getEnv();
+	if (!env) {
+		return JSException::GetJNIEnvironmentError();
 	}
 
 	Proxy *proxy = unwrap(jsProxy);
-	if (proxy) {
-		proxy->forceExtend(args[0]->ToObject());
+	if (!proxy) {
+		return JSException::Error("Failed to unwrap Proxy instance");
 	}
 
-	return jsProxy;
-}
+	Local<Array> changes = Local<Array>::Cast(args[0]);
+	uint32_t length = changes->Length();
+	jobjectArray jChanges = env->NewObjectArray(length, JNIUtil::objectClass, NULL);
 
-Handle<Value> Proxy::proxyPropertyChanged(const Arguments& args)
-{
-	HandleScope scope;
-	Handle<Object> jsProxy = args.Holder();
+	for (uint32_t i = 0; i < length; ++i) {
+		Local<Array> change = Local<Array>::Cast(changes->Get(i));
+		Local<String> name = change->Get(INDEX_NAME)->ToString();
+		Local<Value> oldValue = change->Get(INDEX_OLD_VALUE);
+		Local<Value> value = change->Get(INDEX_VALUE);
 
-	if (args.Length() < 2 || !args[0]->IsString()) {
-		return JSException::Error("Proxy.propertyChanged requires a property and a value");
+		jobjectArray jChange = env->NewObjectArray(3, JNIUtil::objectClass, NULL);
+		env->SetObjectArrayElement(jChange, INDEX_NAME,
+			TypeConverter::jsStringToJavaString(name));
+		env->SetObjectArrayElement(jChange, INDEX_OLD_VALUE,
+			TypeConverter::jsValueToJavaObject(oldValue));
+		env->SetObjectArrayElement(jChange, INDEX_VALUE,
+			TypeConverter::jsValueToJavaObject(value));
+
+		env->SetObjectArrayElement(jChanges, i, jChange);
+		env->DeleteLocalRef(jChange);
 	}
 
-	Local<String> property = args[0]->ToString();
-	Local<Value> value = args[1];
-	Local<Value> current;
-	bool shouldFire = false;
+	jobject javaProxy = proxy->getJavaObject();
 
-	if (jsProxy->Has(property)) {
-		current = jsProxy->Get(property);
-		if (!value.IsEmpty() && !current.IsEmpty() && !current->Equals(value)) {
-			shouldFire = true;
-		}
-	}
-
-	jsProxy->ForceSet(args[0], args[1]);
-	if (shouldFire) {
-		JNIEnv *env = JNIScope::getEnv();
-		Proxy *proxy = unwrap(jsProxy);
-		if (!proxy) return Undefined();
-
-		jobject javaProxy = proxy->getJavaObject();
-		jobject modelListener = env->GetObjectField(javaProxy, JNIUtil::krollProxyModelListenerField);
-
-		if (modelListener) {
-			jstring jProperty = TypeConverter::jsStringToJavaString(property);
-			jobject jValue = TypeConverter::jsValueToJavaObject(value);
-			jobject jCurrent = TypeConverter::jsValueToJavaObject(current);
-
-			env->CallVoidMethod(javaProxy, JNIUtil::krollProxyFirePropertyChangedMethod,
-				jProperty, jCurrent, jValue);
-		}
-	}
+	env->CallVoidMethod(javaProxy, JNIUtil::krollProxyOnPropertiesChangedMethod, jChanges);
+	env->DeleteLocalRef(jChanges);
 
 	return Undefined();
 }
