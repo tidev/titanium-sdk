@@ -123,6 +123,12 @@ JS_CREATE = \
 		}
 """
 
+JS_DEFINE_TOP_LEVEL = \
+"""	global.%(name)s = function() {
+		return %(namespace)s.%(mapping)s.apply(%(namespace)s, arguments);
+	}
+"""
+
 JS_CLOSE_GETTER = \
 """		},
 		configurable: true
@@ -141,6 +147,8 @@ def isBoundMethod(proxyMap, methodName):
 		if method == methodName: return True
 		if proxyMap["methods"][method]["name"] ==  methodName: return True
 	return False
+
+topLevelJS = ""
 
 def genBootstrap(node, namespace = "", indent = 0):
 	js = ""
@@ -233,10 +241,24 @@ def genBootstrap(node, namespace = "", indent = 0):
 
 			js += JS_CREATE % {"name": var, "type": create["name"], "accessor": accessor}
 
+	if "topLevelMethods" in proxyMap:
+		global topLevelJS
+		for method in proxyMap["topLevelMethods"]:
+			ns = namespace
+			if not ns.startswith("Titanium"):
+				ns = "Titanium." + ns
+			topLevelNames = proxyMap["topLevelMethods"][method]
+			for name in topLevelNames:
+				topLevelJS += JS_DEFINE_TOP_LEVEL % {"name": name, "mapping": method, "namespace": ns}
+
 	if hasChildren or hasAccessors or hasCreateProxies:
 		js += "		return %s;\n" % var
 
 	return js
+
+bootstrapJS = genBootstrap(apiTree)
+
+bootstrapJS = topLevelJS + bootstrapJS
 
 jsTemplate = open(os.path.join(thisDir, "bootstrap.js")).read()
 gperfTemplate = open(os.path.join(thisDir, "bootstrap.gperf")).read()
@@ -244,6 +266,6 @@ gperfTemplate = open(os.path.join(thisDir, "bootstrap.gperf")).read()
 bootstrap = os.path.join(genDir, "bootstrap.js")
 genBindings = os.path.join(genDir, "KrollGeneratedBindings.gperf")
 open(bootstrap, "w").write(
-	jsTemplate % { "bootstrap": genBootstrap(apiTree) })
+	jsTemplate % { "bootstrap": bootstrapJS })
 open(genBindings, "w").write(
 	gperfTemplate % { "headers": headers, "bindings": "\n".join(initTable) })

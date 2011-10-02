@@ -72,7 +72,7 @@
 	};
 
 	NativeModule.wrapper = [
-		'(function (exports, require, module, __filename, __dirname) { ',
+		'(function (exports, require, module, __filename, __dirname, global) { ',
 		'\n});' ];
 
 	NativeModule.prototype.compile = function() {
@@ -80,7 +80,7 @@
 		source = NativeModule.wrap(source);
 
 		var fn = runInThisContext(source, this.filename, true);
-		fn(this.exports, NativeModule.require, this, this.filename);
+		fn(this.exports, NativeModule.require, this, this.filename, null, global);
 		this.loaded = true;
 	};
 
