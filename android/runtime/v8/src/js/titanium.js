@@ -89,8 +89,19 @@ Proxy.prototype.setPropertiesAndFire = function(properties) {
 bootstrap.defineLazyBinding(Titanium, "API");
 
 // Custom JS extensions to Java modules
+var Window;
 bootstrap.defineLazyGetter("UI", "Window", function() {
-	return require("window").bootstrapWindow(Titanium);
+	if (!Window) {
+		Window = require("window").bootstrapWindow(Titanium);
+	}
+	return Window;
+});
+
+bootstrap.defineLazyGetter("UI", "createWindow", function() {
+	if (!Window) {
+		Window = require("window").bootstrapWindow(Titanium);
+	}
+	return this.createWindow;
 });
 
 // Define lazy initializers for all Titanium APIs

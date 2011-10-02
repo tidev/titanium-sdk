@@ -58,7 +58,6 @@ def addToInitTable(proxy):
 	fullAPI = fullAPI.replace("Titanium.", "")
 	initFunction = "%s::%s::initProxyTemplate" % (namespace, className)
 
-	#initTable.append("%s, %s" % (fullAPI, initFunction))
 	initTable.append("%s, %s" % (proxy, initFunction))
 
 def addToAPITree(proxyKey):
@@ -118,6 +117,12 @@ JS_PROPERTY = \
 JS_GET_PROPERTY = """this.getProperty(\"%(name)s\")"""
 JS_SET_PROPERTY = """this.setPropertyAndFire(\"%(name)s\", value)"""
 
+JS_CREATE = \
+"""		%(name)s.create%(type)s = function() {
+			return new %(name)s%(accessor)s(arguments);
+		}
+"""
+
 JS_CLOSE_GETTER = \
 """		},
 		configurable: true
@@ -165,10 +170,11 @@ def genBootstrap(node, namespace = "", indent = 0):
 	# ignore _dependencies and _className in the childAPIs count
 	hasChildren = len(childAPIs) > 2
 	hasAccessors = len(accessors) > 0 or "dynamicProperties" in proxyMap
+	hasCreateProxies = isModule and "createProxies" in bindings["modules"][className]
 
 	if namespace != "Titanium":
 		decl = "var %s =" % var
-		if not (hasChildren or hasAccessors):
+		if not (hasChildren or hasAccessors or hasCreateProxies):
 			decl = "return"
 
 		js += JS_LAZY_GET % { "decl": decl, "className": className, "api": apiName, "namespace": namespace }
@@ -216,7 +222,18 @@ def genBootstrap(node, namespace = "", indent = 0):
 				"name": accessor, "getter": getter, "setter": setter }
 		js += indentCode(JS_DEFINE_PROPERTIES % { "var": prototype, "properties": properties }, 2)
 
-	if hasChildren or hasAccessors:
+	if hasCreateProxies:
+		createProxies = bindings["modules"][className]["createProxies"]
+		for create in createProxies:
+			# 2DMatrix: noooooooooooooooooope.
+			if re.match(r"^[0-9]", create["name"]):
+				accessor = "[\"%s\"]" % create["name"]
+			else:
+				accessor = "." + create["name"]
+
+			js += JS_CREATE % {"name": var, "type": create["name"], "accessor": accessor}
+
+	if hasChildren or hasAccessors or hasCreateProxies:
 		js += "		return %s;\n" % var
 
 	return js
