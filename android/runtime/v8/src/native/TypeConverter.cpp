@@ -157,7 +157,7 @@ jobject TypeConverter::jsObjectToJavaFunction(v8::Handle<v8::Object> jsObject)
 		return NULL;
 	}
 
-	jlong pointer = (jlong) *Persistent<Object>::New(jsObject);
+	jlong pointer = (jlong) *Persistent<Function>::New(Handle<Function>::Cast(jsObject));
 	return env->NewObject(JNIUtil::v8FunctionClass, JNIUtil::v8FunctionInitMethod, pointer);
 }
 
@@ -184,7 +184,7 @@ jobjectArray TypeConverter::jsArgumentsToJavaArray(const Arguments& args)
 }
 
 // call "delete" on the return value otherwise the memory will never be released
-v8::Handle<v8::Value> * TypeConverter::javaObjectArrayToJsArguments(jobjectArray javaObjectArray)
+v8::Handle<v8::Value> * TypeConverter::javaObjectArrayToJsArguments(jobjectArray javaObjectArray, int *length)
 {
 	JNIEnv *env = JNIScope::getEnv();
 	if (!env) {
@@ -200,6 +200,7 @@ v8::Handle<v8::Value> * TypeConverter::javaObjectArrayToJsArguments(jobjectArray
 		env->DeleteLocalRef(arrayElement);
 	}
 
+	*length = javaArrayLength;
 	return jsArguments;
 }
 

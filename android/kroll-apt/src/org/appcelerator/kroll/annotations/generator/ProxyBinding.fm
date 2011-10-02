@@ -328,6 +328,20 @@ fails, a JS exception is returned.
 	jArguments[${index}].${info.jvalue} = TypeConverter::${info.jsToJavaConverter}(arg_${index});
 </#macro>
 
+<#macro convertToVarArgs args start>
+	uint32_t length = args.Length() - ${start};
+	if (length < 0) {
+		length = 0;
+	}
+
+	jobjectArray varArgs = env->NewObjectArray(length, JNIUtil::objectClass, NULL);
+	for (uint32_t i = 0; i < length; ++i) {
+		env->SetObjectArrayElement(varArgs, i, TypeConverter::jsValueToJavaObject(args[i])); 
+	}
+
+	jArguments[${start}].l = varArgs;
+</#macro>
+
 <#macro verifyAndConvertArguments args>
 	<#-- Verify the correct argument count was provided. -->
 	<@Proxy.getRequiredArgumentCount args=args ; requiredCount>
@@ -341,9 +355,20 @@ fails, a JS exception is returned.
 	jvalue jArguments[${args?size}];
 
 	<#-- Generate argument validation and conversion code -->
+	<#local varArgsIndex = -1>
+	<#list args as arg>
+		<#if arg.type == "java.lang.Object[]" && arg_index = args?size - 1>
+			<#local varArgsIndex = arg_index>
+		</#if>
+	</#list>
+
 	<@Proxy.listMethodArguments args=args ; index, info>
 
-	<@Proxy.verifyAndConvertArgument expr="args[" + index + "]" index=index info=info logOnly=false/>
+	<#if index = varArgsIndex>
+		<@Proxy.convertToVarArgs args=args start=index/>
+	<#else>
+		<@Proxy.verifyAndConvertArgument expr="args[" + index + "]" index=index info=info logOnly=false/>
+	</#if>
 
 	</@Proxy.listMethodArguments>
 </#macro>
