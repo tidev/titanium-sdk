@@ -47,6 +47,7 @@ public:
 	static jclass dateClass;
 	static jclass setClass;
 	static jclass outOfMemoryError;
+	static jclass throwableClass;
 	static jclass nullPointerException;
 
 	// Titanium classes
@@ -75,6 +76,7 @@ public:
 	static jmethodID booleanInitMethod;
 	static jmethodID longInitMethod;
 	static jmethodID numberDoubleValueMethod;
+	static jmethodID throwableGetMessageMethod;
 
 	// Titanium methods and fields
 	static jfieldID managedV8ReferencePtrField;

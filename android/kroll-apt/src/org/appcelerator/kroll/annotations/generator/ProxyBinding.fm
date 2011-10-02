@@ -166,7 +166,8 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaToJsConverter":"javaStringToJsString",
 		"jvalue":"l",
 		"javaCallMethodType":"Object",
-		"javaReturnType":"jstring"
+		"javaReturnType":"jstring",
+		"javaValidation":true
 	},
 	"java.lang.Object":{
 		"jsType":"Value",
@@ -176,7 +177,8 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaToJsConverter":"javaObjectToJsValue",
 		"jvalue":"l",
 		"javaCallMethodType":"Object",
-		"javaReturnType":"jobject"
+		"javaReturnType":"jobject",
+		"javaValidation":true
 	},
 	"java.lang.Object[]":{
 		"jsType":"Array",
@@ -185,7 +187,8 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaToJsConverter":"javaArrayToJsArray",
 		"jvalue":"l", "signature":"[Ljava/lang/Object;",
 		"javaCallMethodType":"Object",
-		"javaReturnType":"jobjectArray"
+		"javaReturnType":"jobjectArray",
+		"javaValidation": true
 	},
 	"int[]":{
 		"jsType":"Array",
@@ -389,6 +392,18 @@ beprovided to handle the result.
 			hasResult = info.javaReturnType != "void">
 	<#if hasResult>
 	${resultExpr}env->${callExpr}(${argExpr});
+
+	if (env->ExceptionCheck()) {
+		Handle<Value> jsException = JSException::fromJavaException();
+		env->ExceptionClear();
+		return jsException;
+	}
+
+	<#if info.javaValidation!false>
+	if (jResult == NULL) {
+		return Null();
+	}
+	</#if>
 
 	<#local jsType = info.jsType>
 	<#if info?keys?seq_contains("jsConvertType")>

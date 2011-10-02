@@ -8,6 +8,7 @@
 #ifndef JSEXCEPTION_H
 #define JSEXCEPTION_H
 
+#include <jni.h>
 #include <v8.h>
 
 #define THROW(msg) \
@@ -34,6 +35,8 @@ public:
 	{
 		return THROW("Failed to get current JNI environment.");
 	}
+
+	static v8::Handle<v8::Value> fromJavaException(jthrowable javaException = NULL);
 };
 
 }
