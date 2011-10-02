@@ -13,7 +13,7 @@
 #include "V8Runtime.h"
 #include "V8Util.h"
 
-#define TAG "V8Function"
+#define TAG "V8Callback"
 
 using namespace titanium;
 
@@ -22,11 +22,11 @@ extern "C" {
 #endif
 
 /*
- * Class:     org_appcelerator_kroll_runtime_v8_V8Function
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Callback
  * Method:    nativeInvoke
  * Signature: (J[Ljava/lang/Object)V
  */
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Function_nativeInvoke(
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Callback_nativeInvoke(
 	JNIEnv *env, jobject caller, jlong functionPointer, jobjectArray functionArguments)
 {
 	ENTER_V8(V8Runtime::globalContext);

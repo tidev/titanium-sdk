@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.runtime.v8.V8Function;
+import org.appcelerator.kroll.runtime.v8.V8Callback;
 import org.appcelerator.titanium.util.Log;
 
 import com.facebook.android.AsyncFacebookRunner.RequestListener;
@@ -22,9 +22,9 @@ public class TiRequestListener implements RequestListener
 {
 	private boolean isGraphApiCall;
 	private String callPath;
-	private V8Function callback;
+	private V8Callback callback;
 	
-	public TiRequestListener(String callPath, boolean isGraphApiCall, V8Function callback)
+	public TiRequestListener(String callPath, boolean isGraphApiCall, V8Callback callback)
 	{
 		this.callback = callback;
 		this.callPath = callPath;

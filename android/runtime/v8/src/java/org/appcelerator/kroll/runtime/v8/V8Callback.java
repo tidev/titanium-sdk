@@ -9,9 +9,9 @@ package org.appcelerator.kroll.runtime.v8;
 
 import java.util.HashMap;
 
-public class V8Function extends V8Object
+public class V8Callback extends V8Object
 {
-	public V8Function(long pointer)
+	public V8Callback(long pointer)
 	{
 		super(pointer);
 	}

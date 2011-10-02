@@ -38,7 +38,7 @@ jclass JNIUtil::v8ObjectClass = NULL;
 jclass JNIUtil::managedV8ReferenceClass = NULL;
 jclass JNIUtil::assetsClass = NULL;
 jclass JNIUtil::eventListenerClass = NULL;
-jclass JNIUtil::v8FunctionClass = NULL;
+jclass JNIUtil::v8CallbackClass = NULL;
 
 jmethodID JNIUtil::classGetNameMethod = NULL;
 jmethodID JNIUtil::arrayListInitMethod = NULL;
@@ -66,7 +66,7 @@ jmethodID JNIUtil::krollProxyOnPropertiesChangedMethod = NULL;
 jmethodID JNIUtil::v8ObjectInitMethod = NULL;
 jmethodID JNIUtil::assetsReadResourceMethod = NULL;
 jmethodID JNIUtil::eventListenerPostEventMethod = NULL;
-jmethodID JNIUtil::v8FunctionInitMethod = NULL;
+jmethodID JNIUtil::v8CallbackInitMethod = NULL;
 
 JNIEnv* JNIScope::current = NULL;
 
@@ -245,7 +245,7 @@ void JNIUtil::initCache()
 	managedV8ReferenceClass = findClass("org/appcelerator/kroll/runtime/v8/ManagedV8Reference");
 	assetsClass = findClass("org/appcelerator/kroll/runtime/Assets");
 	eventListenerClass = findClass("org/appcelerator/kroll/runtime/v8/EventListener");
-	v8FunctionClass = findClass("org/appcelerator/kroll/runtime/v8/V8Function");
+	v8CallbackClass = findClass("org/appcelerator/kroll/runtime/v8/V8Callback");
 
 	classGetNameMethod = getMethodID(classClass, "getName", "()Ljava/lang/String;", false);
 	arrayListInitMethod = getMethodID(arrayListClass, "<init>", "()V", false);
@@ -282,7 +282,7 @@ void JNIUtil::initCache()
 	eventListenerPostEventMethod = getMethodID(eventListenerClass, "postEvent",
 		"(Ljava/util/HashMap;)V", false);
 
-	v8FunctionInitMethod = getMethodID(v8FunctionClass, "<init>", "(J)V", false);
+	v8CallbackInitMethod = getMethodID(v8CallbackClass, "<init>", "(J)V", false);
 }
 
 } // namespace titanium

@@ -72,7 +72,7 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.runtime.v8.V8Function;
+import org.appcelerator.kroll.runtime.v8.V8Callback;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiFileProxy;
@@ -314,7 +314,7 @@ public class TiHTTPClient
 			}
 			
 			responseOut.write(data, 0, size);
-			V8Function onDataStreamCallback = getCallback(ON_DATA_STREAM);
+			V8Callback onDataStreamCallback = getCallback(ON_DATA_STREAM);
 			if (onDataStreamCallback != null) {
 				KrollDict o = new KrollDict();
 				o.put("totalCount", contentLength);
@@ -457,12 +457,12 @@ public class TiHTTPClient
 		return readyState;
 	}
 
-	public V8Function getCallback(String name)
+	public V8Callback getCallback(String name)
 	{
 		Object value = proxy.getProperty(name);
-		if (value != null && value instanceof V8Function)
+		if (value != null && value instanceof V8Callback)
 		{
-			return (V8Function) value;
+			return (V8Callback) value;
 		}
 		return null;
 	}
@@ -477,7 +477,7 @@ public class TiHTTPClient
 
 	public void fireCallback(String name, Object[] args)
 	{
-		V8Function cb = getCallback(name);
+		V8Callback cb = getCallback(name);
 		if (cb != null)
 		{
 			// TODO - implement converter method for array to hashmap?
@@ -1021,7 +1021,7 @@ public class TiHTTPClient
 
 						ProgressEntity progressEntity = new ProgressEntity(mpe, new ProgressListener() {
 							public void progress(int progress) {
-								V8Function cb = getCallback(ON_SEND_STREAM);
+								V8Callback cb = getCallback(ON_SEND_STREAM);
 								if (cb != null) {
 									KrollDict data = new KrollDict();
 									data.put("progress", ((double)progress)/totalLength);
