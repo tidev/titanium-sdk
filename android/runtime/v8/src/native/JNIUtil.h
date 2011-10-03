@@ -57,6 +57,7 @@ public:
 	static jclass v8CallbackClass;
 	static jclass assetsClass;
 	static jclass krollProxyClass;
+	static jclass v8InvocationClass;
 
 	// Java methods
 	static jmethodID classGetNameMethod;
@@ -84,6 +85,7 @@ public:
 	static jmethodID assetsReadResourceMethod;
 	static jmethodID eventListenerPostEventMethod;
 	static jmethodID v8CallbackInitMethod;
+	static jmethodID v8InvocationInitMethod;
 
 	static jmethodID krollProxyCreateMethod;
 	static jfieldID krollProxyModelListenerField;
