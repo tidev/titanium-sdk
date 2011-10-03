@@ -54,7 +54,7 @@ public:
 	static jclass managedV8ReferenceClass;
 	static jclass v8ObjectClass;
 	static jclass eventListenerClass;
-	static jclass v8FunctionClass;
+	static jclass v8CallbackClass;
 	static jclass assetsClass;
 	static jclass krollProxyClass;
 
@@ -83,7 +83,7 @@ public:
 	static jmethodID v8ObjectInitMethod;
 	static jmethodID assetsReadResourceMethod;
 	static jmethodID eventListenerPostEventMethod;
-	static jmethodID v8FunctionInitMethod;
+	static jmethodID v8CallbackInitMethod;
 
 	static jmethodID krollProxyCreateMethod;
 	static jfieldID krollProxyModelListenerField;

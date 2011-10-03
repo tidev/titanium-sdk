@@ -158,7 +158,7 @@ jobject TypeConverter::jsObjectToJavaFunction(v8::Handle<v8::Object> jsObject)
 	}
 
 	jlong pointer = (jlong) *Persistent<Function>::New(Handle<Function>::Cast(jsObject));
-	return env->NewObject(JNIUtil::v8FunctionClass, JNIUtil::v8FunctionInitMethod, pointer);
+	return env->NewObject(JNIUtil::v8CallbackClass, JNIUtil::v8CallbackInitMethod, pointer);
 }
 
 jobjectArray TypeConverter::jsArgumentsToJavaArray(const Arguments& args)

@@ -20,7 +20,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.runtime.v8.V8Function;
+import org.appcelerator.kroll.runtime.v8.V8Callback;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
@@ -188,7 +188,7 @@ public class TiLocation
 		return TiLocationHelper.isLocationEnabled();
 	}
 
-	public void getCurrentPosition(final V8Function listener)
+	public void getCurrentPosition(final V8Callback listener)
 	{
 		if (listener != null) {
 			String provider = TiLocationHelper.fetchProvider(preferredProvider, accuracy);
@@ -243,7 +243,7 @@ public class TiLocation
 				try {
 					String url = (String) args[0];
 					String direction = (String) args[1];
-					V8Function callback = (V8Function) args[2];
+					V8Callback callback = (V8Callback) args[2];
 
 					if (DBG) {
 						Log.d(LCAT, "GEO URL [" + url + "]");
@@ -300,7 +300,7 @@ public class TiLocation
 		return task;
 	}
 
-	public void forwardGeocoder(String address, V8Function listener)
+	public void forwardGeocoder(String address, V8Callback listener)
 	{
 		if (address != null) {
 			String mid = TiPlatformHelper.getMobileId();
@@ -321,7 +321,7 @@ public class TiLocation
 		}
 	}
 
-	public void reverseGeocoder(double latitude, double longitude, V8Function callback)
+	public void reverseGeocoder(double latitude, double longitude, V8Callback callback)
 	{
 		String mid = TiPlatformHelper.getMobileId();
 		String aguid = TiApplication.getInstance().getAppInfo().getGUID();
