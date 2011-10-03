@@ -11,6 +11,7 @@ import java.io.IOException;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.runtime.v8.V8Invocation;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -62,8 +63,10 @@ public class FilesystemModule extends KrollModule
 	}
 
 	@Kroll.method
-	public FileProxy getFile(Object[] parts)
+	public FileProxy getFile(V8Invocation invocation, Object[] parts)
 	{
+		String sourceUrl = invocation.getSourceUrl();
+		// TODO - do shit here to pass on the url
 		String[] sparts = TiConvert.toStringArray(parts);
 		return new FileProxy(sparts);
 	}

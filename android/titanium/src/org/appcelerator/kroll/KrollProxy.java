@@ -51,6 +51,11 @@ public class KrollProxy extends EventEmitter
 	protected boolean coverageEnabled;
 	protected KrollDict properties = new KrollDict();
 
+	public KrollProxy()
+	{
+		this.creationUrl = new TiUrl("");
+	}
+
 	// entry point for generator code
 	public static KrollProxy create(Class<? extends KrollProxy> objClass, Object[] creationArguments, long ptr, String creationUrl)
 	{
