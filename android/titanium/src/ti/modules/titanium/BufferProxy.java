@@ -333,6 +333,7 @@ public class BufferProxy extends KrollProxy
 		buffer = new byte[0];
 	}
 
+	@Kroll.method
 	public String toString()
 	{
 		return new String(buffer);

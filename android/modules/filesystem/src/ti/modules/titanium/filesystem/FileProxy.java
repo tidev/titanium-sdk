@@ -8,19 +8,20 @@ package ti.modules.titanium.filesystem;
 
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiFileProxy;
+import org.appcelerator.titanium.util.TiUrl;
 
 @Kroll.proxy(parentModule=FilesystemModule.class)
 public class FileProxy extends TiFileProxy
 {
 	private static final String LCAT = "FileProxy";
 
-	public FileProxy(String[] parts)
+	public FileProxy(String sourceUrl, String[] parts)
 	{
-		super(parts, true);
+		super(sourceUrl, parts, true);
 	}
 	
-	public FileProxy(String[] parts, boolean resolve)
+	public FileProxy(String sourceUrl, String[] parts, boolean resolve)
 	{
-		super(parts, resolve);
+		super(sourceUrl, parts, resolve);
 	}
 }

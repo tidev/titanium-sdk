@@ -33,12 +33,12 @@ public class FilesystemModule extends KrollModule
 
 	// Methods
 	@Kroll.method
-	public FileProxy createTempFile()
+	public FileProxy createTempFile(V8Invocation invocation)
 	{
 		try {
 			File f = File.createTempFile("tifile", "tmp");
 			String[] parts = { f.getAbsolutePath() };
-			return new FileProxy(parts, false);
+			return new FileProxy(invocation.getSourceUrl(), parts, false);
 		} catch (IOException e) {
 			Log.e(LCAT, "Unable to create tmp file: " + e.getMessage(), e);
 			return null;
@@ -46,14 +46,14 @@ public class FilesystemModule extends KrollModule
 	}
 
 	@Kroll.method
-	public FileProxy createTempDirectory()
+	public FileProxy createTempDirectory(V8Invocation invocation)
 	{
 		String dir = String.valueOf(System.currentTimeMillis());
 		File tmpdir = new File(System.getProperty("java.io.tmpdir"));
 		File f = new File(tmpdir,dir);
 		f.mkdirs();
 		String[] parts = { f.getAbsolutePath() };
-		return new FileProxy(parts);
+		return new FileProxy(invocation.getSourceUrl(), parts);
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -65,10 +65,8 @@ public class FilesystemModule extends KrollModule
 	@Kroll.method
 	public FileProxy getFile(V8Invocation invocation, Object[] parts)
 	{
-		String sourceUrl = invocation.getSourceUrl();
-		// TODO - do shit here to pass on the url
 		String[] sparts = TiConvert.toStringArray(parts);
-		return new FileProxy(sparts);
+		return new FileProxy(invocation.getSourceUrl(), sparts);
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -115,10 +113,10 @@ public class FilesystemModule extends KrollModule
 	}
 
 	@Kroll.method
-	public FileStreamProxy openStream(int mode, Object[] parts) throws IOException
+	public FileStreamProxy openStream(V8Invocation invocation, int mode, Object[] parts) throws IOException
 	{
 		String[] sparts = TiConvert.toStringArray(parts);
-		FileProxy fileProxy = new FileProxy(sparts);
+		FileProxy fileProxy = new FileProxy(invocation.getSourceUrl(), sparts);
 		fileProxy.getBaseFile().open(mode, true);
 
 		return new FileStreamProxy(fileProxy);

@@ -56,6 +56,11 @@ public class KrollProxy extends EventEmitter
 		this.creationUrl = new TiUrl("");
 	}
 
+	public KrollProxy(String baseCreationUrl)
+	{
+		this.creationUrl = new TiUrl(baseCreationUrl);
+	}
+
 	// entry point for generator code
 	public static KrollProxy create(Class<? extends KrollProxy> objClass, Object[] creationArguments, long ptr, String creationUrl)
 	{

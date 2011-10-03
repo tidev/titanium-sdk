@@ -20,6 +20,7 @@ import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper2;
+import org.appcelerator.titanium.util.TiUrl;
 
 import ti.modules.titanium.stream.FileStreamProxy;
 import android.net.Uri;
@@ -32,13 +33,15 @@ public class TiFileProxy extends KrollProxy
 	protected String path;
 	protected TiBaseFile tbf;
 
-	public TiFileProxy(String[] parts)
+	public TiFileProxy(String sourceUrl, String[] parts)
 	{
-		this(parts, true);
+		this(sourceUrl, parts, true);
 	}
 
-	public TiFileProxy(String[] parts, boolean resolve)
+	public TiFileProxy(String sourceUrl, String[] parts, boolean resolve)
 	{
+		creationUrl = new TiUrl(sourceUrl);
+
 		String scheme = "appdata-private://";
 		String path = null;
 		Uri uri = Uri.parse(parts[0]);
