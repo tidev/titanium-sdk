@@ -84,17 +84,19 @@ public class TiUIWebView extends TiUIView {
 		settings.setJavaScriptEnabled(true);
 		settings.setSupportMultipleWindows(true);
 		settings.setJavaScriptCanOpenWindowsAutomatically(true);
-		settings.setSupportZoom(true);
 		settings.setLoadsImagesAutomatically(true);
 		settings.setLightTouchEnabled(true);
 		
-		if(proxy.hasProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
-			settings.setBuiltInZoomControls(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)));
-		} else {
-			// enable zoom controls by default
-			settings.setBuiltInZoomControls(true);
+		// enable zoom controls by default
+		boolean enableZoom = true;
+
+		if (proxy.hasProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
+			enableZoom = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS));
 		}
-		
+
+		settings.setBuiltInZoomControls(enableZoom);
+		settings.setSupportZoom(enableZoom);
+
 		// We can only support webview settings for plugin/flash in API 8 and higher.
 		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
 			initializePluginAPI(webView);
@@ -481,6 +483,7 @@ public class TiUIWebView extends TiUIView {
 	
 	public void setEnableZoomControls(boolean enabled)
 	{
+		getWebView().getSettings().setSupportZoom(enabled);
 		getWebView().getSettings().setBuiltInZoomControls(enabled);
 	}
 
