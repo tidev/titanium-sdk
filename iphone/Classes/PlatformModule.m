@@ -192,7 +192,7 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 
 -(id)id
 {
-	return [TiUtils uniqueIdentifier];
+	return macaddress;
 }
 
 - (NSString *)createUUID:(id)args
