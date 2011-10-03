@@ -176,28 +176,12 @@ function isUrl(url) {
 }
 exports.isUrl = isUrl;
 
-function getSourceUrl(args) {
-	var caller = args.callee.caller;
-	while (caller && !("url" in caller)) {
-		caller = caller.arguments.callee.caller;
-	}
-
-	if (!caller) {
-		// Default to app.js?
-		return "app://app.js";
-	} else {
-		return caller.url;
-	}
-}
-exports.getSourceUrl = getSourceUrl;
-
-function resolve(pathOrUrl) {
+function resolve(baseUrl, pathOrUrl) {
 	var urlData = urlParse(pathOrUrl);
 
 	if (!("protocol" in urlData)) {
 		// this is a path, not a URL
-		var callerUrl = getSourceUrl(arguments);
-		var callerData = urlParse(callerUrl);
+		var callerData = urlParse(baseUrl);
 		var parentDir = path.dirname(callerData.pathname);
 		var newPath = path.join(parentDir, pathOrUrl);
 		if (pathOrUrl.length > 0 && pathOrUrl.charAt(0) === "/") {

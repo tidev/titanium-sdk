@@ -51,8 +51,7 @@ ${className}::${className}(jobject javaObject) : Proxy(javaObject)
 
 void ${className}::bindProxy(Handle<Object> exports)
 {
-	if(proxyTemplate.IsEmpty())
-	{
+	if (proxyTemplate.IsEmpty()) {
 		getProxyTemplate();
 	}
 
@@ -70,6 +69,10 @@ void ${className}::bindProxy(Handle<Object> exports)
 
 Handle<FunctionTemplate> ${className}::getProxyTemplate()
 {
+	if (!proxyTemplate.IsEmpty()) {
+		return proxyTemplate;
+	}
+
 	LOGD(TAG, "GetProxyTemplate");
 
 	<#-- Query the class for the Java proxy -->
