@@ -164,7 +164,7 @@ public class KrollProxy extends EventEmitter
 	public void setProperty(String name, Object value)
 	{
 		properties.put(name, value);
-		forceSet(name, value);
+		// TODO forceSet(name, value);
 	}
 
 	/**

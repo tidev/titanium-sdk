@@ -14,8 +14,9 @@ var tiBinding = kroll.binding('Titanium'),
 	url = require('url');
 
 // assign any Titanium props/methods/aliases here
-Titanium.include = function(filename) {
-	var sourceUrl = url.resolve(filename);
+Titanium.include = function tiInclude(filename, baseUrl) {
+	baseUrl = typeof(baseUrl) === 'undefined' ? "app://app.js" : baseUrl;
+	var sourceUrl = url.resolve(baseUrl, filename);
 	var source;
 
 	if (!('protocol' in sourceUrl)) {
@@ -30,12 +31,17 @@ Titanium.include = function(filename) {
 		source = assets.readResource(assetPath);
 	}
 
-	var wrappedSource = "function __fn__() {" + 
-		source + 
-	"}; __fn__.url = \"" + sourceUrl.href + "\";" +
-	"__fn__();";
 
-	Script.runInThisContext(wrappedSource, sourceUrl.href, true);
+	var sandbox = {}.extend(global);
+	sandbox.Ti.include = function(filename, baseUrl) {
+		baseUrl = typeof(baseUrl) === 'undefined' ? sourceUrl.href : baseUrl;
+		tiInclude(filename, baseUrl);
+	}
+
+	Script.runInNewContext(source, sandbox, sourceUrl.href);
+
+	sandbox.Ti.include = tiInclude;
+	global.extend(sandbox);
 }
 
 Titanium.Proxy = Proxy;
