@@ -67,9 +67,8 @@ Titanium.bindInvocationAPIs = function(sandboxTi, url) {
 	// This loops through all known APIs that require an
 	// Invocation object and wraps them so we can pass a
 	// source URL as the first argument
-	var len = Titanium.invocationAPIs.length;
-	for (var i = 0; i < len; ++i) {
-		var invocationAPI = Titanium.invocationAPIs[i];
+
+	function genInvoker(invocationAPI) {
 		var names = invocationAPI.namespace.split(".");
 		var apiNamespace = sandboxTi;
 		var realAPI = tiBinding.Titanium;
@@ -101,6 +100,12 @@ Titanium.bindInvocationAPIs = function(sandboxTi, url) {
 		invoker.__parent__ = delegate;
 
 		apiNamespace[invocationAPI.api] = invoker;
+	}
+
+	var len = Titanium.invocationAPIs.length;
+	for (var i = 0; i < len; ++i) {
+		// separate each invoker into it's own private scope
+		genInvoker(Titanium.invocationAPIs[i]);
 	}
 }
 
