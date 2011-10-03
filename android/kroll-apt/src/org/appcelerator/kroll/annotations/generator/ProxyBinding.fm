@@ -339,7 +339,7 @@ fails, a JS exception is returned.
 
 	jobjectArray varArgs = env->NewObjectArray(length, JNIUtil::objectClass, NULL);
 	for (uint32_t i = 0; i < length; ++i) {
-		env->SetObjectArrayElement(varArgs, i, TypeConverter::jsValueToJavaObject(args[i])); 
+		env->SetObjectArrayElement(varArgs, i, TypeConverter::jsValueToJavaObject(args[i+${start}])); 
 	}
 
 	jArguments[${start}].l = varArgs;
@@ -349,9 +349,8 @@ fails, a JS exception is returned.
 	<#-- Verify the correct argument count was provided. -->
 	<@Proxy.getRequiredArgumentCount args=args ; requiredCount>
 	<#if requiredCount &gt; 0>
-	if (args.Length() != ${requiredCount})
+	if (args.Length() < ${requiredCount})
 	{
-		//return JSException::MissingRequiredArguments(args.Length(), ${requiredCount});
 		char errorStringBuffer[100];
 		sprintf(errorStringBuffer, "invalid number of arguments.  Expected ${requiredCount} but got %d", args.Length());
 		return ThrowException(Exception::Error(String::New(errorStringBuffer)));
