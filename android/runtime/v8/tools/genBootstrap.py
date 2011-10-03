@@ -118,7 +118,7 @@ JS_GET_PROPERTY = """this.getProperty(\"%(name)s\")"""
 JS_SET_PROPERTY = """this.setPropertyAndFire(\"%(name)s\", value)"""
 
 JS_CREATE = \
-"""		%(name)s.create%(type)s = function() {
+"""		%(name)s.constructor.prototype.create%(type)s = function() {
 			return new %(name)s%(accessor)s(arguments);
 		}
 """
@@ -180,9 +180,20 @@ def genBootstrap(node, namespace = "", indent = 0):
 	hasAccessors = len(accessors) > 0 or "dynamicProperties" in proxyMap
 	hasCreateProxies = isModule and "createProxies" in bindings["modules"][className]
 
+	invocationAPIs = []
+	if "methods" in proxyMap:
+		for method in proxyMap["methods"]:
+			methodMap = proxyMap["methods"][method]
+			if methodMap["hasInvocation"]:
+				invocationAPIs.append(methodMap)
+	hasInvocationAPIs = len(invocationAPIs) > 0
+
+	needsReturn = hasChildren or hasAccessors or \
+		hasCreateProxies or hasInvocationAPIs
+
 	if namespace != "Titanium":
 		decl = "var %s =" % var
-		if not (hasChildren or hasAccessors or hasCreateProxies):
+		if not needsReturn:
 			decl = "return"
 
 		js += JS_LAZY_GET % { "decl": decl, "className": className, "api": apiName, "namespace": namespace }
@@ -199,6 +210,7 @@ def genBootstrap(node, namespace = "", indent = 0):
 		childJS += JS_CLOSE_GETTER
 
 	if hasChildren:
+		js += "		if (!(\"__propertiesDefined__\" in %s)) {" % var
 		js += indentCode(JS_DEFINE_PROPERTIES % { "var": var, "properties": childJS }, 2)
 
 	prototype = var if isModule else var + ".prototype"
@@ -241,8 +253,12 @@ def genBootstrap(node, namespace = "", indent = 0):
 
 			js += JS_CREATE % {"name": var, "type": create["name"], "accessor": accessor}
 
+	if hasChildren:
+		js += "		}\n";
+		js += "		%s.__propertiesDefined__ = true;\n" % var
+
+	global topLevelJS
 	if "topLevelMethods" in proxyMap:
-		global topLevelJS
 		for method in proxyMap["topLevelMethods"]:
 			ns = namespace
 			if not ns.startswith("Titanium"):
@@ -251,7 +267,11 @@ def genBootstrap(node, namespace = "", indent = 0):
 			for name in topLevelNames:
 				topLevelJS += JS_DEFINE_TOP_LEVEL % {"name": name, "mapping": method, "namespace": ns}
 
-	if hasChildren or hasAccessors or hasCreateProxies:
+	for method in invocationAPIs:
+		topLevelJS += "	Titanium.invocationAPIs.push({ namespace: \"%s\", api: \"%s\" });\n" % \
+			(namespace, method["apiName"])
+
+	if needsReturn:
 		js += "		return %s;\n" % var
 
 	return js

@@ -26,7 +26,7 @@ exports.defineProperties = function(namespace, properties) {
 	customProperties[namespace].extend(properties);
 }
 
-exports.defineLazyGetter = function(namespace, name, getter) {
+function defineLazyGetter(namespace, name, getter) {
 	if (!(namespace in customProperties)) {
 		customProperties[namespace] = {};
 	}
@@ -42,6 +42,7 @@ exports.defineLazyGetter = function(namespace, name, getter) {
 
 	customProperties[namespace][name] = descriptor;
 }
+exports.defineLazyGetter = defineLazyGetter;
 
 exports.defineLazyBinding = function(object, binding) {
 	Object.defineProperty(object, binding, {

@@ -13,8 +13,14 @@ var tiBinding = kroll.binding('Titanium'),
 	path = require('path'),
 	url = require('url');
 
-// assign any Titanium props/methods/aliases here
-Titanium.include = function tiInclude(filename, baseUrl) {
+// the app entry point
+Titanium.sourceUrl = "app://app.js";
+
+// a list of java APIs that need an invocation-specific URL
+// passed in as the first argument
+Titanium.invocationAPIs = [];
+
+function TiInclude(filename, baseUrl) {
 	baseUrl = typeof(baseUrl) === 'undefined' ? "app://app.js" : baseUrl;
 	var sourceUrl = url.resolve(baseUrl, filename);
 	var source;
@@ -31,18 +37,73 @@ Titanium.include = function tiInclude(filename, baseUrl) {
 		source = assets.readResource(assetPath);
 	}
 
+	Titanium.runInContext(source, sourceUrl.href);
+}
+Titanium.include = TiInclude;
 
-	var sandbox = {}.extend(global);
+Titanium.runInContext = function(source, url) {
+	// Use the prototype inheritance chain
+	// to copy and maintain the Titanium dynamic
+	// getters/setters
+	function SandboxTitanium() {}
+	SandboxTitanium.prototype = Titanium;
+
+	var sandboxTi = new SandboxTitanium();
+	sandbox = { Ti: sandboxTi, Titanium: sandboxTi };
+
+	sandbox.Ti.sourceUrl = url;
 	sandbox.Ti.include = function(filename, baseUrl) {
-		baseUrl = typeof(baseUrl) === 'undefined' ? sourceUrl.href : baseUrl;
-		tiInclude(filename, baseUrl);
+		baseUrl = typeof(baseUrl) === 'undefined' ? url : baseUrl;
+		TiInclude(filename, baseUrl);
 	}
 
-	Script.runInNewContext(source, sandbox, sourceUrl.href);
+	Titanium.bindInvocationAPIs(sandboxTi, url);
 
-	sandbox.Ti.include = tiInclude;
-	global.extend(sandbox);
+	var wrappedSource = "with(sandbox) { " + source + " }";
+	return Script.runInThisContext(wrappedSource, url);
 }
+
+Titanium.bindInvocationAPIs = function(sandboxTi, url) {
+	// This loops through all known APIs that require an
+	// Invocation object and wraps them so we can pass a
+	// source URL as the first argument
+	var len = Titanium.invocationAPIs.length;
+	for (var i = 0; i < len; ++i) {
+		var invocationAPI = Titanium.invocationAPIs[i];
+		var names = invocationAPI.namespace.split(".");
+		var apiNamespace = sandboxTi;
+		var realAPI = tiBinding.Titanium;
+
+		for (var j = 0, namesLen = names.length; j < namesLen; ++j) {
+			var name = names[j];
+			function SandboxAPI() {}
+			SandboxAPI.prototype = apiNamespace[name];
+
+			var api = new SandboxAPI();
+			apiNamespace[name] = api;
+			apiNamespace = api;
+			realAPI = realAPI[name];
+		}
+
+		var delegate = realAPI[invocationAPI.api];
+
+		function invoker() {
+			var args = Array.prototype.slice.call(arguments);
+			args.splice(0, 0, url);
+			delegate.apply(this, args);
+		}
+
+		// These invokers form a call hierarchy so we need to
+		// provide a way back to the actual root Titanium / actual impl.
+		while ("__parent__" in delegate) {
+			delegate = delegate.__parent__;
+		}
+		invoker.__parent__ = delegate;
+
+		apiNamespace[invocationAPI.api] = invoker;
+	}
+}
+
 
 Titanium.Proxy = Proxy;
 
@@ -135,5 +196,6 @@ bootstrap.defineLazyGetter("UI", "createWindow", function() {
 
 // Define lazy initializers for all Titanium APIs
 bootstrap.bootstrap(Titanium);
+Titanium.bindInvocationAPIs(Titanium, Titanium.sourceUrl);
 
 module.exports = Titanium;

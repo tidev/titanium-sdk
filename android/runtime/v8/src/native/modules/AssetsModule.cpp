@@ -86,6 +86,11 @@ Handle<Value> AssetsModule::readFile(const Arguments& args)
 	String::Utf8Value filename(args[0]);
 
 	FILE *file = fopen(*filename, "r");
+
+	if (!file) {
+		return JSException::Error("Error opening file");
+	}
+
 	if (fseek(file, 0L, SEEK_END) != 0) {
 		fclose(file);
 		return JSException::Error("Error reading file");

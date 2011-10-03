@@ -84,6 +84,8 @@ Handle<Value> Proxy::proxyConstructor(const Arguments& args)
 	HandleScope scope;
 	Local<Object> jsProxy = args.Holder();
 
+	LOGD(TAG, "proxy constructor");
+
 	Handle<Object> properties = Object::New();
 	jsProxy->Set(propertiesSymbol, properties);
 
@@ -91,6 +93,7 @@ Handle<Value> Proxy::proxyConstructor(const Arguments& args)
 
 	Handle<Function> constructor = Handle<Function>::Cast(prototype->Get(constructorSymbol));
 	jclass javaClass = (jclass) External::Unwrap(constructor->Get(javaClassSymbol));
+
 
 	// If ProxyFactory::createV8Proxy invoked us, unwrap
 	// the pre-created Java proxy it sent.
@@ -101,7 +104,7 @@ Handle<Value> Proxy::proxyConstructor(const Arguments& args)
 		deleteRef = true;
 	}
 
-	Proxy* proxy = new Proxy(javaProxy);
+	Proxy *proxy = new Proxy(javaProxy);
 	proxy->Wrap(jsProxy);
 
 	int length = args.Length();
