@@ -488,6 +488,9 @@
 		24FBE5AF11293DD1005C8D48 /* CAStreamBasicDescription.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 24FBE5AA11293DD1005C8D48 /* CAStreamBasicDescription.cpp */; };
 		24FBE5B011293DD1005C8D48 /* CAXException.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 24FBE5AC11293DD1005C8D48 /* CAXException.cpp */; };
 		288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765FC0DF74451002DB57D /* CoreGraphics.framework */; };
+		2B1F65771431031E006C5D37 /* ApplicationDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1F65761431031E006C5D37 /* ApplicationDefaults.m */; };
+		2B1F65781431031E006C5D37 /* ApplicationDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1F65761431031E006C5D37 /* ApplicationDefaults.m */; };
+		2B1F65791431031E006C5D37 /* ApplicationDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1F65761431031E006C5D37 /* ApplicationDefaults.m */; };
 		2B301A8513DA2E290046529F /* TiUIiOS3DMatrix.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B301A8413DA2E290046529F /* TiUIiOS3DMatrix.m */; };
 		2B301A8613DA2E290046529F /* TiUIiOS3DMatrix.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B301A8413DA2E290046529F /* TiUIiOS3DMatrix.m */; };
 		2B301A8713DA2E290046529F /* TiUIiOS3DMatrix.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B301A8413DA2E290046529F /* TiUIiOS3DMatrix.m */; };
@@ -1360,6 +1363,8 @@
 		24FBE5AD11293DD1005C8D48 /* CAXException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CAXException.h; path = ../Classes/CAXException.h; sourceTree = SOURCE_ROOT; };
 		288765FC0DF74451002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		2B1F65751431031E006C5D37 /* ApplicationDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ApplicationDefaults.h; path = ../Classes/ApplicationDefaults.h; sourceTree = SOURCE_ROOT; };
+		2B1F65761431031E006C5D37 /* ApplicationDefaults.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ApplicationDefaults.m; path = ../Classes/ApplicationDefaults.m; sourceTree = SOURCE_ROOT; };
 		2B301A8313DA2E290046529F /* TiUIiOS3DMatrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOS3DMatrix.h; sourceTree = "<group>"; };
 		2B301A8413DA2E290046529F /* TiUIiOS3DMatrix.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOS3DMatrix.m; sourceTree = "<group>"; };
 		2B94603213F0A2AE000C5BEA /* TiUIiOSCoverFlowView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSCoverFlowView.h; sourceTree = "<group>"; };
@@ -2694,6 +2699,8 @@
 				2478B2A411C447A4005814DF /* ApplicationMods.m */,
 				DAC9D36B138DB65C004917F8 /* debugger.plist */,
 				24F29E3612209E6F0099351D /* stylesheet.plist */,
+				2B1F65751431031E006C5D37 /* ApplicationDefaults.h */,
+				2B1F65761431031E006C5D37 /* ApplicationDefaults.m */,
 			);
 			name = "Other Sources";
 			sourceTree = "<group>";
@@ -3328,6 +3335,7 @@
 				EF03EFF613E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */,
 				2B94603613F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
 				2B94603713F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */,
+				2B1F65771431031E006C5D37 /* ApplicationDefaults.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3598,6 +3606,7 @@
 				EF03EFF713E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */,
 				2B94603813F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
 				2B94603913F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */,
+				2B1F65781431031E006C5D37 /* ApplicationDefaults.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3868,6 +3877,7 @@
 				EF03EFF813E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */,
 				2B94603A13F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
 				2B94603B13F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */,
+				2B1F65791431031E006C5D37 /* ApplicationDefaults.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
