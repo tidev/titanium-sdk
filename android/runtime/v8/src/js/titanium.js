@@ -7,12 +7,35 @@
 var tiBinding = kroll.binding('Titanium'),
 	Titanium = tiBinding.Titanium,
 	Proxy = tiBinding.Proxy,
-	bootstrap = require('bootstrap');
+	assets = kroll.binding('assets'),
+	Script = kroll.binding('evals').Script,
+	bootstrap = require('bootstrap'),
+	path = require('path'),
+	url = require('url');
 
 // assign any Titanium props/methods/aliases here
 Titanium.include = function(filename) {
-	var source = kroll.binding('assets').readResource(filename);
-	var wrappedFile = kroll.binding('evals').Script.runInThisContext(source, filename, true);
+	var sourceUrl = url.resolve(filename);
+	var source;
+
+	if (!('protocol' in sourceUrl)) {
+		source = assets.readResource(filename);
+
+	} else if (sourceUrl.filePath) {
+		var filepath = url.toFilePath(sourceUrl);
+		source = assets.readFile(filepath);
+
+	} else if (sourceUrl.assetPath) {
+		var assetPath = url.toAssetPath(sourceUrl);
+		source = assets.readResource(assetPath);
+	}
+
+	var wrappedSource = "function __fn__() {" + 
+		source + 
+	"}; __fn__.url = \"" + sourceUrl.href + "\";" +
+	"__fn__();";
+
+	Script.runInThisContext(wrappedSource, sourceUrl.href, true);
 }
 
 Titanium.Proxy = Proxy;

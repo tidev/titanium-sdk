@@ -166,6 +166,16 @@ public class ActivityProxy extends KrollProxy
 		}
 	}
 
+	@Kroll.method
+	public String getDir(String name, int mode)
+	{
+		Activity activity = getWrappedActivity();
+		if (activity != null) {
+			return activity.getDir(name, mode).getAbsolutePath();
+		}
+		return null;
+	}
+
 	public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
 	{
 		KrollDict event = new KrollDict();
@@ -184,16 +194,6 @@ public class ActivityProxy extends KrollProxy
 		event.put(TiC.EVENT_PROPERTY_SOURCE, this);
 		fireEvent("error", event);
 	}
-
-	/*
-	public Context getContext()
-	{
-		if (activity == null) {
-			return TiApplication.getInstance();
-		}
-		return activity;
-	}
-	*/
 
 	public void release()
 	{

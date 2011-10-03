@@ -7,7 +7,10 @@
 
 #include "AssetsModule.h"
 
+#include <stdio.h>
+#include <sys/types.h>
 #include <v8.h>
+#include <vector>
 
 #include "AndroidUtil.h"
 #include "JNIUtil.h"
@@ -25,8 +28,8 @@ void AssetsModule::Initialize(Handle<Object> target)
 {
 	HandleScope scope;
 
-	Local<FunctionTemplate> readResource = FunctionTemplate::New(AssetsModule::readResource);
-	target->Set(String::NewSymbol("readResource"), readResource->GetFunction());
+	DEFINE_METHOD(target, "readResource", readResource);
+	DEFINE_METHOD(target, "readFile", readFile);
 }
 
 Handle<Value> AssetsModule::readResource(const Arguments& args)
@@ -50,8 +53,9 @@ Handle<Value> AssetsModule::readResource(const Arguments& args)
 	env->DeleteLocalRef(resourceName);
 
 	if (env->ExceptionCheck()) {
-		env->ExceptionClear();
 		LOGE(TAG, "Failed to load resource.");
+		env->ExceptionDescribe();
+		env->ExceptionClear();
 		return JSException::Error("Failed to load resource, Java exception was thrown.");
 	}
 
@@ -69,6 +73,51 @@ Handle<Value> AssetsModule::readResource(const Arguments& args)
 	env->ReleasePrimitiveArrayCritical(jarray, pchars, 0);
 
 	return resourceData;
+}
+
+Handle<Value> AssetsModule::readFile(const Arguments& args)
+{
+	HandleScope scope;
+
+	if (args.Length() == 0 || args[0]->IsNull() || args[0]->IsUndefined()) {
+		return JSException::Error("assets.readFile requires a valid filename");
+	}
+
+	String::Utf8Value filename(args[0]);
+
+	FILE *file = fopen(*filename, "r");
+	if (fseek(file, 0L, SEEK_END) != 0) {
+		fclose(file);
+		return JSException::Error("Error reading file");
+	}
+
+	long fileLength;
+	if ((fileLength = ftell(file)) == -1) {
+		fclose(file);
+		return JSException::Error("Error getting file length");
+	}
+
+	rewind(file);
+
+	char *buffer = new char[fileLength];
+	while (true) {
+		size_t bytesRead = fread(buffer, 1024, 1, file);
+		if (ferror(file) != 0) {
+			fclose(file);
+			return JSException::Error("Error while reading file");
+		}
+		buffer += bytesRead;
+		if (feof(file) != 0) {
+			break;
+		}
+	}
+
+	fclose(file);
+
+	Handle<String> data = String::New(const_cast<const char *>(buffer), fileLength);
+	delete buffer;
+
+	return data;
 }
 
 }
