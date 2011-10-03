@@ -320,7 +320,10 @@ NSString * const TI_DB_VERSION = @"1";
 	[dict setObject:NUMINT(sequence++) forKey:@"seq"];
 	[dict setObject:[TiUtils uniqueIdentifier] forKey:@"mid"];
     if ([[UIDevice currentDevice] respondsToSelector:@selector(uniqueIdentifier)]) {
-        [dict setObject:[[UIDevice currentDevice] uniqueIdentifier] forKey:@"omid"];
+    	NSString* uid = [[UIDevice currentDevice] uniqueIdentifier];
+    	if (uid) {
+	        [dict setObject:uid forKey:@"omid"];
+        }
     }
 	[dict setObject:TI_APPLICATION_GUID forKey:@"aguid"];
 	[dict setObject:TI_APPLICATION_DEPLOYTYPE forKey:@"deploytype"];
