@@ -148,7 +148,7 @@ Handle<Value> ${className}::${method.apiName}(const Arguments& args)
 	Proxy* proxy = Proxy::unwrap(args.Holder());
 
 	<#if method.args?size &gt; 0>
-	<@Proxy.verifyAndConvertArguments method.args />
+	<@Proxy.verifyAndConvertArguments method.args method />
 	<#else>
 	jvalue* jArguments = 0;
 	</#if>

@@ -268,7 +268,7 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 
 <#macro listMethodArguments args>
 	<#list args as arg>
-		<#nested arg_index, typeInfo[arg.type]!typeInfo["java.lang.Object"]>
+		<#nested arg_index, typeInfo[arg.type]!typeInfo["java.lang.Object"], arg.type>
 	</#list>
 </#macro>
 
@@ -345,7 +345,7 @@ fails, a JS exception is returned.
 	jArguments[${start}].l = varArgs;
 </#macro>
 
-<#macro verifyAndConvertArguments args>
+<#macro verifyAndConvertArguments args method>
 	<#-- Verify the correct argument count was provided. -->
 	<@Proxy.getRequiredArgumentCount args=args ; requiredCount>
 	<#if requiredCount &gt; 0>
@@ -365,14 +365,21 @@ fails, a JS exception is returned.
 		</#if>
 	</#list>
 
-	<@Proxy.listMethodArguments args=args ; index, info>
-
-	<#if index = varArgsIndex>
-		<@Proxy.convertToVarArgs args=args start=index/>
-	<#else>
-		<@Proxy.verifyAndConvertArgument expr="args[" + index + "]" index=index info=info logOnly=false/>
+	<#local argsStartIndex = 0>
+	<#if method.hasInvocation>
+	<#local argsStartIndex = 1>
+	jArguments[0].l = TypeConverter::jsValueToJavaString(args[0]);
 	</#if>
 
+	<@Proxy.listMethodArguments args=args ; index, info, type>
+
+	<#if type != "org.appcelerator.kroll.runtime.v8.V8Invocation">
+		<#if index = varArgsIndex>
+			<@Proxy.convertToVarArgs args=args start=index/>
+		<#else>
+			<@Proxy.verifyAndConvertArgument expr="args[" + index + "]" index=index+argsStartIndex info=info logOnly=false/>
+		</#if>
+	</#if>
 	</@Proxy.listMethodArguments>
 </#macro>
 
