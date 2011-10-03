@@ -90,7 +90,7 @@ Titanium.bindInvocationAPIs = function(sandboxTi, url) {
 		function invoker() {
 			var args = Array.prototype.slice.call(arguments);
 			args.splice(0, 0, url);
-			delegate.apply(this, args);
+			return delegate.apply(this, args);
 		}
 
 		// These invokers form a call hierarchy so we need to
