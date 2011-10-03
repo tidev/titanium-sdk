@@ -368,9 +368,7 @@ fails, a JS exception is returned.
 		</#if>
 	</#list>
 
-	<#local argsStartIndex = 0>
 	<#if method.hasInvocation>
-	<#local argsStartIndex = 1>
 	jArguments[0].l = env->NewObject(JNIUtil::v8InvocationClass, JNIUtil::v8InvocationInitMethod, TypeConverter::jsValueToJavaString(args[0]));
 	</#if>
 
@@ -380,7 +378,7 @@ fails, a JS exception is returned.
 		<#if index = varArgsIndex>
 			<@Proxy.convertToVarArgs args=args start=index/>
 		<#else>
-			<@Proxy.verifyAndConvertArgument expr="args[" + index + "]" index=index+argsStartIndex info=info logOnly=false/>
+			<@Proxy.verifyAndConvertArgument expr="args[" + index + "]" index=index info=info logOnly=false/>
 		</#if>
 	</#if>
 	</@Proxy.listMethodArguments>
