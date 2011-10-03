@@ -22,7 +22,6 @@ import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import ti.modules.titanium.ui.widget.tableview.TiTableViewRowProxyItem;
 import android.app.Activity;
 import android.os.Message;
-import android.test.IsolatedContext;
 
 @Kroll.proxy(creatableInModule=UIModule.class,
 propertyAccessors = {
@@ -194,6 +193,7 @@ public class TableViewRowProxy extends TiViewProxy
 			for (TiViewProxy control : controls) {
 				control.releaseViews();
 			}
+			controls = null;
 		}
 	}
 

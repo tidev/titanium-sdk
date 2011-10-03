@@ -7,8 +7,6 @@
 package ti.modules.titanium.ui;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -96,6 +94,7 @@ public class TableViewProxy extends TiViewProxy
 			for (TableViewSectionProxy section : localSections) {
 				section.releaseViews();
 			}
+			localSections = null;
 		}
 	}
 

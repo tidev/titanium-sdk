@@ -450,6 +450,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				for (TiViewProxy p : children) {
 					p.releaseViews();
 				}
+				children = null;
 			}
 			view.release();
 			view = null;
