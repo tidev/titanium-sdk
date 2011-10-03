@@ -350,8 +350,12 @@ fails, a JS exception is returned.
 	<@Proxy.getRequiredArgumentCount args=args ; requiredCount>
 	<#if requiredCount &gt; 0>
 	if (args.Length() != ${requiredCount})
+	{
 		//return JSException::MissingRequiredArguments(args.Length(), ${requiredCount});
-		return ThrowException(Exception::Error(String::New("")));
+		char errorStringBuffer[100];
+		sprintf(errorStringBuffer, "invalid number of arguments.  Expected ${requiredCount} but got %d", args.Length());
+		return ThrowException(Exception::Error(String::New(errorStringBuffer)));
+	}
 	</#if>
 	</@Proxy.getRequiredArgumentCount>
 
