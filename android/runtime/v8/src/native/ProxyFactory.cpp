@@ -113,11 +113,11 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 	String::Utf8Value sourceUrlValue(sourceUrl);
 
 	const char *url = "app://app.js";
+	jstring javaSourceUrl = NULL;
 	if (sourceUrlValue.length() > 0) {
 		url = *sourceUrlValue;
+		javaSourceUrl = env->NewStringUTF(url);
 	}
-
-	jstring javaSourceUrl = env->NewStringUTF(url);
 
 	// Determine if this constructor call was made within
 	// the createXYZ() wrapper function. This can be tested by checking
@@ -146,6 +146,9 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 	jobject javaProxy = env->CallStaticObjectMethod(JNIUtil::krollProxyClass,
 		info->javaProxyCreator, javaClass, javaArgs, pv8Proxy, javaSourceUrl);
 
+	if (javaSourceUrl) {
+		env->DeleteLocalRef(javaSourceUrl);
+	}
 	env->DeleteLocalRef(javaArgs);
 
 	return javaProxy;

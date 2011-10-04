@@ -3,6 +3,8 @@ package org.appcelerator.kroll.runtime.v8;
 import java.util.HashMap;
 import java.util.concurrent.Semaphore;
 
+import org.appcelerator.titanium.TiApplication;
+
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -66,7 +68,7 @@ public class EventEmitter extends V8Object implements Handler.Callback
 
 	public boolean fireSyncEvent(String event, Object data)
 	{
-		return fireEvent(event, data);
+		return nativeFireEvent(ptr, event, data);
 	}
 
 	public void addEventListener(String event, EventListener listener)

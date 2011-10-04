@@ -112,6 +112,7 @@ jboolean Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeFireEvent(JNI
 	if (!fireEventValue->IsFunction()) {
 		return JNI_FALSE;
 	}
+
 	Handle<Function> fireEvent = Handle<Function>::Cast(fireEventValue->ToObject());
 	Handle<String> jsEvent = TypeConverter::javaStringToJsString(event);
 	Handle<Value> jsData = TypeConverter::javaObjectToJsValue(data);

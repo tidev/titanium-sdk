@@ -85,7 +85,8 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_native
 	Handle<Object> jsObject((Object *) ptr);
 
 	Local<Value> value = jsObject->Get(TypeConverter::javaStringToJsString(name));
-	jobject result = TypeConverter::jsValueToJavaObject(value);
+	bool isNew;
+	jobject result = TypeConverter::jsValueToJavaObject(value, &isNew);
 
 	return result;
 }

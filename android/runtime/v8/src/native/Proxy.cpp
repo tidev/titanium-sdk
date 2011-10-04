@@ -169,12 +169,23 @@ Handle<Value> Proxy::proxyOnPropertiesChanged(const Arguments& args)
 		Local<Value> value = change->Get(INDEX_VALUE);
 
 		jobjectArray jChange = env->NewObjectArray(3, JNIUtil::objectClass, NULL);
-		env->SetObjectArrayElement(jChange, INDEX_NAME,
-			TypeConverter::jsStringToJavaString(name));
-		env->SetObjectArrayElement(jChange, INDEX_OLD_VALUE,
-			TypeConverter::jsValueToJavaObject(oldValue));
-		env->SetObjectArrayElement(jChange, INDEX_VALUE,
-			TypeConverter::jsValueToJavaObject(value));
+
+		jstring jName = TypeConverter::jsStringToJavaString(name);
+		env->SetObjectArrayElement(jChange, INDEX_NAME, jName);
+		env->DeleteLocalRef(jName);
+
+		bool isNew;
+		jobject jOldValue = TypeConverter::jsValueToJavaObject(oldValue, &isNew);
+		env->SetObjectArrayElement(jChange, INDEX_OLD_VALUE, jOldValue);
+		if (isNew) {
+			env->DeleteLocalRef(jOldValue);
+		}
+
+		jobject jValue = TypeConverter::jsValueToJavaObject(value, &isNew);
+		env->SetObjectArrayElement(jChange, INDEX_VALUE, jValue);
+		if (isNew) {
+			env->DeleteLocalRef(jValue);
+		}
 
 		env->SetObjectArrayElement(jChanges, i, jChange);
 		env->DeleteLocalRef(jChange);

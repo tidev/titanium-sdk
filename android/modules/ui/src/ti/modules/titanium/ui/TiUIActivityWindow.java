@@ -255,9 +255,9 @@ public class TiUIActivityWindow extends TiUIView
 				messenger = null;
 			}
 		}
-		if (windowActivity != null && windowActivity instanceof TiActivity) {
+		if (windowActivity != null && windowActivity instanceof TiBaseActivity) {
 			layout.requestFocus();
-			((TiActivity) windowActivity).fireInitialFocus(); 
+			((TiBaseActivity) windowActivity).fireInitialFocus(); 
 		}
 	}
 

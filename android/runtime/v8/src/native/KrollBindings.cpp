@@ -13,6 +13,7 @@
 #include "JSException.h"
 #include "Proxy.h"
 #include "ProxyFactory.h"
+#include "V8Runtime.h"
 #include "V8Util.h"
 
 #include "KrollBindings.h"
@@ -77,13 +78,12 @@ Handle<Value> KrollBindings::getBinding(const Arguments& args)
 
 Handle<Object> KrollBindings::getBinding(Handle<String> binding)
 {
-	HandleScope scope;
 	if (bindingCache.IsEmpty()) {
 		bindingCache = Persistent<Object>::New(Object::New());
 	}
 
 	if (bindingCache->Has(binding)) {
-		return scope.Close(bindingCache->Get(binding)->ToObject());
+		return bindingCache->Get(binding)->ToObject();
 	}
 
 	String::Utf8Value bindingValue(binding);
@@ -95,15 +95,16 @@ Handle<Object> KrollBindings::getBinding(Handle<String> binding)
 		Local<Object> exports = Object::New();
 		native->bind(exports);
 		bindingCache->Set(binding, exports);
-		return scope.Close(exports);
+		return exports;
 	}
 
 	struct bindings::BindEntry* generated = bindings::generated::lookupGeneratedInit(*bindingValue, length);
 	if (generated) {
 		Local<Object> exports = Object::New();
+
 		generated->bind(exports);
 		bindingCache->Set(binding, exports);
-		return scope.Close(exports);
+		return exports;
 	}
 	LOGE(TAG, "Couldn't find binding: %s", *bindingValue);
 

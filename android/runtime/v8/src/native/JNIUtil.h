@@ -42,6 +42,14 @@ public:
 	static jclass floatClass;
 	static jclass doubleClass;
 	static jclass booleanClass;
+	static jclass objectArrayClass;
+	static jclass shortArrayClass;
+	static jclass intArrayClass;
+	static jclass longArrayClass;
+	static jclass floatArrayClass;
+	static jclass doubleArrayClass;
+	static jclass booleanArrayClass;
+
 	static jclass arrayListClass;
 	static jclass hashMapClass;
 	static jclass dateClass;
@@ -75,6 +83,7 @@ public:
 	static jmethodID dateGetTimeMethod;
 	static jmethodID doubleInitMethod;
 	static jmethodID booleanInitMethod;
+	static jmethodID booleanBooleanValueMethod;
 	static jmethodID longInitMethod;
 	static jmethodID numberDoubleValueMethod;
 	static jmethodID throwableGetMessageMethod;

@@ -34,7 +34,8 @@ Handle<Value> EventListener::postEvent(const Arguments& args)
 		return Undefined();
 	}
 
-	jobject jEvent = TypeConverter::jsValueToJavaObject(args[0]);
+	bool isNew;
+	jobject jEvent = TypeConverter::jsValueToJavaObject(args[0], &isNew);
 	JavaObject *javaListener = static_cast<JavaObject *>(External::Unwrap(args.Data()));
 	jobject listener = javaListener->getJavaObject();
 
@@ -44,6 +45,10 @@ Handle<Value> EventListener::postEvent(const Arguments& args)
 	}
 
 	env->CallVoidMethod(listener, JNIUtil::eventListenerPostEventMethod, jEvent);
+	if (isNew) {
+		env->DeleteLocalRef(jEvent);
+	}
+
 	return Undefined();
 }
 
