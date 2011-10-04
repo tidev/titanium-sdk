@@ -683,7 +683,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		dispatch_async(dispatch_get_main_queue(), ^{
 			if (bgTask != UIBackgroundTaskInvalid)
 			{
-				NSLog(@"Ending background task %X %@",bgTask,CODELOCATION);
 				[[UIApplication sharedApplication] endBackgroundTask:bgTask];
 				bgTask = UIBackgroundTaskInvalid;
 			}
