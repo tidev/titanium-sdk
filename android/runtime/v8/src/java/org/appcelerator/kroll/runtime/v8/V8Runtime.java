@@ -82,7 +82,7 @@ public final class V8Runtime
 			Log.d(TAG, "evalFile: " + filename);
 			char[] chars = Assets.readResource(filename);
 			if (chars != null && chars.length > 0) {
-				V8Script.runInThisContextNoResult(new String(chars), filename);
+				nativeRunModule(new String(chars), filename);
 			}
 		} catch (IOException e) {
 			Log.e(TAG, e.getMessage(), e);
@@ -90,5 +90,6 @@ public final class V8Runtime
 	}
 
 	private native long nativeInit(boolean useGlobalRefs);
+	private native void nativeRunModule(String source, String filename);
 	private native void nativeDispose();
 }

@@ -121,6 +121,26 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeI
 
 /*
  * Class:     org_appcelerator_kroll_runtime_v8_V8Runtime
+ * Method:    nativeRunModule
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRunModule(JNIEnv *env, jobject self, jstring source, jstring filename)
+{
+	ENTER_V8(titanium::V8Runtime::globalContext);
+	titanium::JNIScope jniScope(env);
+
+	Handle<String> jsSource = titanium::TypeConverter::javaStringToJsString(source);
+	Handle<String> jsFilename = titanium::TypeConverter::javaStringToJsString(filename);
+	Handle<Object> module = titanium::krollGlobalObject->Get(String::New("Module"))->ToObject();
+	Handle<Function> runMainModule = Handle<Function>::Cast(module->Get(String::New("runMainModule")));
+
+	Handle<Value> args[] = { jsSource, jsFilename };
+	runMainModule->Call(module, 2, args);
+}
+
+
+/*
+ * Class:     org_appcelerator_kroll_runtime_v8_V8Runtime
  * Method:    nativeDispose
  * Signature: ()V
  */

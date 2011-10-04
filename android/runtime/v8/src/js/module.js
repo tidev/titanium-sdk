@@ -21,7 +21,7 @@ function Module(id, parent) {
 	this.exited = false;
 	this.children = [];
 }
-module.exports = Module;
+kroll.Module = module.exports = Module;
 
 Module.cache = [];
 Module.main = null;
@@ -107,8 +107,7 @@ Module.prototype._runScript = function (source, filename) {
 	global.__dirname = path.dirname(filename);
 	global.module = self;
 
-	// TODO(josh): use marshall's version of this instead.
-    return runInThisContext(source, filename, true);
+	return Titanium.runInContext(source, "app://" + filename.replace("Resources/", ""));
 }
 
 // Determine the paths where the requested module could live.

@@ -3,12 +3,9 @@ package org.appcelerator.kroll.runtime.v8;
 import java.util.HashMap;
 import java.util.concurrent.Semaphore;
 
-import org.appcelerator.titanium.TiApplication;
-
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 
 public class EventEmitter extends V8Object implements Handler.Callback
 {
