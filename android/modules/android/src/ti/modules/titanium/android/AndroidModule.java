@@ -28,6 +28,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
+
+
 
 @Kroll.module
 public class AndroidModule extends KrollModule
@@ -343,5 +347,13 @@ public class AndroidModule extends KrollModule
 		TiContext tiContext = TiContext.createTiContext(rootActivity, TiC.URL_APP_PREFIX, url);
 		tiContext.setServiceContext(true);
 		return new ServiceProxy(tiContext, intentProxy);
+	}
+	
+	@Kroll.method
+	public void clearCookies(KrollInvocation invocation)
+	{
+		CookieSyncManager.createInstance(invocation.getTiContext().getTiApp()); 
+	    CookieManager cookieManager = CookieManager.getInstance();
+	    cookieManager.removeAllCookie();
 	}
 }
