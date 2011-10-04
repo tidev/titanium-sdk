@@ -271,6 +271,7 @@ Handle<Value> WrappedScript::EvalMachine(const Arguments& args)
 	if (output_flag == returnResult) {
 		result = script->Run();
 		if (result.IsEmpty()) {
+			if (display_error) V8Util::reportException(try_catch);
 			if (context_flag == newContext) {
 				context->DetachGlobal();
 				context->Exit();
