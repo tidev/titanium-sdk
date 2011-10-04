@@ -13,6 +13,8 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.http.client.CookieStore;
@@ -23,7 +25,6 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.Log;
 
 import android.content.SharedPreferences;
-import android.text.TextUtils;
 
 public class TiCookieStore implements CookieStore
 {
@@ -31,7 +32,6 @@ public class TiCookieStore implements CookieStore
 	private static final String LCAT = "TiCookieStore";
 
 	private static final String COOKIE_PREFERENCES = "TiCookiePreferences";
-	private static final String COOKIE_NAMES_KEY = "tiCookieNames";
 	private static final String COOKIE_PREFIX = "ti_cookie_";
 	private CookieStore cookieStore;
 	private final SharedPreferences pref;
@@ -51,16 +51,18 @@ public class TiCookieStore implements CookieStore
 		pref = TiApplication.getInstance().getSharedPreferences(COOKIE_PREFERENCES, 0);
 
 		synchronized (cookieStore) {
-			String names = pref.getString(COOKIE_NAMES_KEY, null);
 			// read from preferences and update local cookie store
-			if (names != null) {
-				String[] namesArray = TextUtils.split(names, ",");
-				for (String name : namesArray) {
-					String encodedCookie = pref.getString(COOKIE_PREFIX + name, null);
-					if (encodedCookie != null) {
-						Cookie cookie = decodeCookie(encodedCookie);
-						if (cookie != null) {
-							cookieStore.addCookie(cookie);
+			Map<String, ?> allPrefs = pref.getAll();
+			if (!allPrefs.isEmpty()) {
+				Set<String> keys = allPrefs.keySet();
+				for (String key : keys) {
+					if (key.startsWith(COOKIE_PREFIX)) {
+						String encodedCookie = (String) allPrefs.get(key);
+						if (encodedCookie != null) {
+							Cookie cookie = decodeCookie(encodedCookie);
+							if (cookie != null) {
+								cookieStore.addCookie(cookie);
+							}
 						}
 					}
 				}
@@ -80,7 +82,6 @@ public class TiCookieStore implements CookieStore
 			}
 
 			cookieStore.addCookie(cookie);
-			prefWriter.putString(COOKIE_NAMES_KEY, TextUtils.join(",", getCookieNames()));
 			prefWriter.putString(COOKIE_PREFIX + cookie.getName(), encodedCookie);
 			prefWriter.commit();
 		}
@@ -95,7 +96,6 @@ public class TiCookieStore implements CookieStore
 			for (String name : getCookieNames()) {
 				prefWriter.remove(COOKIE_PREFIX + name);
 			}
-			prefWriter.remove(COOKIE_NAMES_KEY);
 			prefWriter.commit();
 			cookieStore.clear();
 		}
@@ -116,7 +116,6 @@ public class TiCookieStore implements CookieStore
 						prefWriter.remove(COOKIE_PREFIX + cookie.getName());
 					}
 				}
-				prefWriter.putString(COOKIE_NAMES_KEY, TextUtils.join(",", getCookieNames()));
 				prefWriter.commit();
 			}
 
