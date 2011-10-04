@@ -30,7 +30,15 @@ Module.paths = [ 'Resources/' ];
 // Run a module as the main entry point.
 Module.runMainModule = function (source, filename) {
 	var mainModule = Module.main = new Module('.');
-	mainModule.load(filename, source);
+
+	try {
+		mainModule.load(filename, source);
+	} catch (e) {
+		kroll.log("Failed to load main module.");
+		return false;
+	}
+
+	return true;
 }
 
 // Attempts to load the module. If no file is found
@@ -107,7 +115,7 @@ Module.prototype._runScript = function (source, filename) {
 	global.__dirname = path.dirname(filename);
 	global.module = self;
 
-	return Titanium.runInContext(source, "app://" + filename.replace("Resources/", ""));
+	return Titanium.runInContext(source, "app://" + filename.replace("Resources/", ""), true);
 }
 
 // Determine the paths where the requested module could live.

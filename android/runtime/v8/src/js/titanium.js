@@ -41,7 +41,11 @@ function TiInclude(filename, baseUrl) {
 }
 Titanium.include = TiInclude;
 
-Titanium.runInContext = function(source, url) {
+// Run a script in the current context.
+// Returns the result of the script or throws an exception
+// if an error occurs. If displayError is true, any exceptions
+// will be logged.
+Titanium.runInContext = function(source, url, displayError) {
 	// Use the prototype inheritance chain
 	// to copy and maintain the Titanium dynamic
 	// getters/setters
@@ -60,7 +64,7 @@ Titanium.runInContext = function(source, url) {
 	Titanium.bindInvocationAPIs(sandboxTi, url);
 
 	var wrappedSource = "with(sandbox) { " + source + " }";
-	return Script.runInThisContext(wrappedSource, url);
+	return Script.runInThisContext(wrappedSource, url, displayError);
 }
 
 Titanium.bindInvocationAPIs = function(sandboxTi, url) {
