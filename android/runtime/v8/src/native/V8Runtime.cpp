@@ -91,6 +91,18 @@ static jobject jruntime;
 extern "C" {
 #endif
 
+static void logV8Exception(Handle<Message> msg, Handle<Value> data)
+{
+	HandleScope scope;
+
+	// Log reason and location of the error.
+	LOGD(TAG, *String::Utf8Value(msg->Get()));
+	LOGD(TAG, "%s @ %d >>> %s",
+		*String::Utf8Value(msg->GetScriptResourceName()),
+		msg->GetLineNumber(),
+		*String::Utf8Value(msg->GetSourceLine()));
+}
+
 /*
  * Class:     org_appcelerator_kroll_runtime_v8_V8Runtime
  * Method:    nativeInit
@@ -101,6 +113,10 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeI
 	titanium::JNIScope jniScope(env);
 	Locker locker;
 	HandleScope scope;
+
+	// Log all uncaught V8 exceptions.
+	V8::AddMessageListener(logV8Exception);
+	V8::SetCaptureStackTraceForUncaughtExceptions(true);
 
 	LOGD(TAG, "nativeInit");
 	titanium::JavaObject::useGlobalRefs = useGlobalRefs;
