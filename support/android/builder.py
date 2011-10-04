@@ -1342,7 +1342,7 @@ class Builder(object):
 				if os.path.splitext(f)[1] != '.java':
 					absolute_path = os.path.join(root, f)
 					relative_path = os.path.join(root[len(self.project_src_dir)+1:], f)
-					if is_modified(absolute_path):
+					if is_modified(absolute_path) or not zip_contains(apk_zip, relative_path):
 						self.apk_updated = True
 						debug("resource file => " + relative_path)
 						apk_zip.write(os.path.join(root, f), relative_path, compression_type(f))
@@ -1368,10 +1368,11 @@ class Builder(object):
 					for file in os.listdir(libs_abi_dir):
 						if file.endswith('.so'):
 							native_lib = os.path.join(libs_abi_dir, file)
-							if is_modified(native_lib):
+							path_in_zip = '/'.join(['lib', abi_dir, file])
+							if is_modified(native_lib) or not zip_contains(apk_zip, path_in_zip):
 								self.apk_updated = True
 								debug("installing native lib: %s" % native_lib)
-								apk_zip.write(native_lib, '/'.join(['lib', abi_dir, file]))
+								apk_zip.write(native_lib, path_in_zip)
 
 		# add any native libraries : libs/**/*.so -> lib/**/*.so
 		add_native_libs(os.path.join(self.project_dir, 'libs'))
