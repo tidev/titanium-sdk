@@ -24,6 +24,45 @@ USE_VIEW_FOR_VERIFY_HEIGHT
 	return [theview toolBar];
 }
 
+-(void)setItems:(NSArray *)newItems
+{
+	NSArray * oldItems = [self valueForUndefinedKey:@"items"];
+	if (![oldItems isKindOfClass:[NSArray class]])
+	{
+		oldItems = nil;
+	}
+
+	BOOL newItemsIsArray = [newItems isKindOfClass:[NSArray class]];
+	if (newItemsIsArray)
+	{
+		for (TiViewProxy * currentItem in newItems)
+		{
+			if (![currentItem respondsToSelector:@selector(supportsNavBarPositioning)] || ![currentItem supportsNavBarPositioning])
+			{
+				NSString * errorString = [NSString stringWithFormat:@"%@ does not support being in a toolbar!",currentItem];
+				[self throwException:errorString subreason:nil location:CODELOCATION];
+				/*
+				 *	Note that this theoretically could mean proxies are improperly remembered
+				 *	if a later entry causes this exception to be thrown. However, the javascript
+				 *	should NOT be using nonproxy objects and the onus is on the Javascript
+				 */
+			}
+
+			if (![oldItems containsObject:currentItem])
+			{
+				[self rememberProxy:currentItem];
+			}
+		}
+	}
+	for (TiViewProxy * currentItem in oldItems) {
+		if (newItemsIsArray && [newItems containsObject:currentItem]) {
+			continue;
+		}
+		[self forgetProxy:currentItem];
+	}
+	[self replaceValue:newItems forKey:@"items" notification:YES];
+}
+
 @end
 
 #endif
