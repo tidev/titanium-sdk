@@ -45,6 +45,8 @@ Titanium.runInContext = function(source, url) {
 	// Use the prototype inheritance chain
 	// to copy and maintain the Titanium dynamic
 	// getters/setters
+	kroll.log("Titanium.runInContext, url = " + url);
+
 	function SandboxTitanium() {}
 	SandboxTitanium.prototype = Titanium;
 
@@ -59,8 +61,8 @@ Titanium.runInContext = function(source, url) {
 
 	Titanium.bindInvocationAPIs(sandboxTi, url);
 
-	var wrappedSource = "with(sandbox) { " + source + " }";
-	return Script.runInThisContext(wrappedSource, url);
+	var wrappedSource = "with(sandbox) { " + source + "\n }";
+	return Script.runInThisContext(wrappedSource, url, true);
 }
 
 Titanium.bindInvocationAPIs = function(sandboxTi, url) {
@@ -109,7 +111,6 @@ Titanium.bindInvocationAPIs = function(sandboxTi, url) {
 	}
 }
 
-
 Titanium.Proxy = Proxy;
 
 Object.prototype.extend = function(other) {
@@ -153,6 +154,7 @@ Proxy.prototype.setPropertyAndFire = function(property, value) {
 	if (oldValue != value) {
 		kroll.log("calling onPropertyChanged = " + this.onPropertyChanged);
 		this.onPropertyChanged(property, oldValue, value);
+		kroll.log("finished on property changed");
 	}
 }
 
@@ -196,7 +198,7 @@ bootstrap.defineLazyGetter("UI", "createWindow", function() {
 	if (!Window) {
 		Window = require("window").bootstrapWindow(Titanium);
 	}
-	return this.createWindow;
+	return Window.createWindow;
 });
 
 // Define lazy initializers for all Titanium APIs

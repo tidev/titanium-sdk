@@ -102,25 +102,34 @@ jboolean Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeFireEvent(JNI
 	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
 
+	Handle<String> jsEvent = TypeConverter::javaStringToJsString(event);
+
+#ifdef TI_DEBUG
+	String::Utf8Value eventName(jsEvent);
+	LOGV(TAG, "firing event \"%s\"", *eventName);
+#endif
+
 	Handle<Object> emitter;
 	if (ptr != 0) {
 		emitter = Persistent<Object>((Object *) ptr);
 	} else {
 		emitter = TypeConverter::javaObjectToJsValue(jEmitter)->ToObject();
 	}
+
+	LOGV(TAG, "done init / unwrapping emitter");
+
 	Handle<Value> fireEventValue = emitter->Get(emitSymbol);
 	if (!fireEventValue->IsFunction()) {
 		return JNI_FALSE;
 	}
 
 	Handle<Function> fireEvent = Handle<Function>::Cast(fireEventValue->ToObject());
-	Handle<String> jsEvent = TypeConverter::javaStringToJsString(event);
-	Handle<Value> jsData = TypeConverter::javaObjectToJsValue(data);
 
+	Handle<Value> jsData = TypeConverter::javaObjectToJsValue(data);
 	Handle<Value> result;
 
 	TryCatch tryCatch;
-	if (jsData->IsNull()) {
+	if (/*jsData.IsEmpty() || */jsData->IsNull()) {
 		Handle<Value> args[] = { jsEvent };
 		result = fireEvent->Call(emitter, 1, args);
 	} else {

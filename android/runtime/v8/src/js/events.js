@@ -48,6 +48,8 @@ EventEmitter.prototype.callHandler = function(handler, type, data) {
 
 EventEmitter.prototype.emit = function(type) {
 
+	kroll.log("emit : " + arguments);
+
 	// If there is no 'error' event listener then throw.
 	if (type === 'error') {
 		if (!this._events || !this._events.error ||
@@ -62,10 +64,14 @@ EventEmitter.prototype.emit = function(type) {
 		}
 	}
 
-	if (!this._events) return false;
+	if (!this._events) {
+		return false;
+	}
 
 	var handler = this._events[type];
-	if (!handler) return false;
+	if (!handler) {
+		return false;
+	}
 
 	if (typeof handler == 'function') {
 		switch (arguments.length) {

@@ -8,9 +8,10 @@ var customProperties = {};
 
 function lazyGet(object, binding, name, namespace) {
 	delete object[name];
+	delete object.__proto__[name];
 
 	// deal with "value" here so we don't accidentally re-invoke the getter
-	var value = object[name] = kroll.binding(binding)[name];
+	var value = object[name] = object.__proto__[name] = kroll.binding(binding)[name];
 	if (namespace && namespace in customProperties) {
 		Object.defineProperties(value, customProperties[namespace]);
 	}

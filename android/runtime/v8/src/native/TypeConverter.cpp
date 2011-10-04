@@ -373,30 +373,39 @@ jobject TypeConverter::jsValueToJavaObject(v8::Local<v8::Value> jsValue, bool *i
 // object is a container type
 v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 {
-	if (javaObject == NULL) {
-		return v8::Null();
+	LOGV(TAG, "javaObjectToJsValue");
+	if (!javaObject) {
+		LOGV(TAG, "returning null");
+		Handle<Value> n = v8::Null();
+		LOGV(TAG, "null is empty? %d", n.IsEmpty());
+		return n;
 	}
 
 	JNIEnv *env = JNIScope::getEnv();
-	if (env == NULL) {
+	if (!env) {
 		return v8::Handle<v8::Value>();
 	}
 
 	if (env->IsInstanceOf(javaObject, JNIUtil::booleanClass)) {
+		LOGV(TAG, "boolean");
 		jboolean javaBoolean = env->CallBooleanMethod(javaObject, JNIUtil::booleanBooleanValueMethod);
 		return javaBoolean ? v8::True() : v8::False();
 
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::numberClass)) {
+		LOGV(TAG, "number");
 		jdouble javaDouble = env->CallDoubleMethod(javaObject, JNIUtil::numberDoubleValueMethod);
 		return v8::Number::New((double) javaDouble);
 
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::stringClass)) {
+		LOGV(TAG, "string");
 		return TypeConverter::javaStringToJsString((jstring) javaObject);
 
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::dateClass)) {
+		LOGV(TAG, "date");
 		return TypeConverter::javaDateToJsDate(javaObject);
 
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::hashMapClass)) {
+		LOGV(TAG, "hashmap");
 		v8::Handle<v8::Object> jsObject = v8::Object::New();
 
 		jobject hashMapSet = env->CallObjectMethod(javaObject, JNIUtil::hashMapKeySetMethod);
@@ -420,17 +429,25 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 
 		return jsObject;
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::managedV8ReferenceClass)) {
+		LOGV(TAG, "ManagedV8Reference");
 		jlong v8ObjectPointer = env->GetLongField(javaObject, JNIUtil::managedV8ReferencePtrField);
+		LOGV(TAG, "ptr = %d", v8ObjectPointer);
 		if (v8ObjectPointer != 0) {
+			LOGV(TAG, "casting");
 			return Persistent<Object>((Object *) v8ObjectPointer);
 		} else {
+			LOGV(TAG, "get object class");
 			jclass javaObjectClass = env->GetObjectClass(javaObject);
+			LOGV(TAG, "create v8 proxy");
 			v8::Handle<v8::Object> proxyHandle = ProxyFactory::createV8Proxy(javaObjectClass, javaObject);
+			LOGV(TAG, "delete local ref");
 			env->DeleteLocalRef(javaObjectClass);
+			LOGV(TAG, "return proxy handle");
 			return proxyHandle;
 		}
 
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::objectArrayClass)) {
+		LOGV(TAG, "Object[]");
 		return javaArrayToJsArray((jobjectArray) javaObject);
 
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::shortArrayClass)) {

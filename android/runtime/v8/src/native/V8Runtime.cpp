@@ -111,7 +111,7 @@ static void logV8Exception(Handle<Message> msg, Handle<Value> data)
 JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jobject self, jboolean useGlobalRefs)
 {
 	titanium::JNIScope jniScope(env);
-	Locker locker;
+	//Locker locker;
 	HandleScope scope;
 
 	// Log all uncaught V8 exceptions.
@@ -163,9 +163,9 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRu
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDispose(JNIEnv *env, jclass clazz)
 {
 	titanium::JNIScope jniScope(env);
-	Locker locker;
+	//Locker locker;
 
-	LOGD(TAG, "disposing global context");
+	LOGE(TAG, "Disposing global context");
 	titanium::V8Runtime::globalContext.Dispose();
 	V8::Dispose();
 

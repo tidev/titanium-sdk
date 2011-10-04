@@ -11,7 +11,6 @@
 #include <v8.h>
 
 #define ENTER_V8(context) \
-	v8::Locker locker; \
 	v8::Context::Scope contextScope(context); \
 	v8::HandleScope scope;
 

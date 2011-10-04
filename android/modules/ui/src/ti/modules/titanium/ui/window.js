@@ -17,14 +17,15 @@ exports.bootstrapWindow = function(Titanium) {
 	var Proxy = Titanium.Proxy;
 
 	function getOrientationModes() {
-		return this.getProperty("orientationModes");
+		/*return this.getProperty("orientationModes");*/
+		return this.window.getOrientationModes();
 	}
 	Window.prototype.getOrientationModes = getOrientationModes;
 
 	function setOrientationModes(modes) {
-		this.setPropertyAndFire("orientationModes", modes);
+		/*this.setPropertyAndFire("orientationModes", modes);*/
 		if (this.window == null) return;
-
+ 
 		this.window.setOrientationModes(modes);
 	}
 	Window.prototype.setOrientationModes = setOrientationModes;
@@ -47,16 +48,20 @@ exports.bootstrapWindow = function(Titanium) {
 	});
 
 	Window.prototype.open = function(options) {
-		this._properties.extend(options);
+		if (!options) {
+			options = {};
+		} else {
+			this._properties.extend(options);
+		}
 
 		this.isActivity = false;
 		newActivityRequiredKeys.forEach(function(key) {
-			if (key in this) {
+			if (key in this._properties) {
 				this.isActivity = true;
 			}
 		}, this);
 
-		if (!this.isActivity && "tabOpen" in this && options.tabOpen) {
+		if (!this.isActivity && "tabOpen" in this._properties && options.tabOpen) {
 			this.isActivity = true;
 		}
 
@@ -67,6 +72,7 @@ exports.bootstrapWindow = function(Titanium) {
 			this.window.open();
 		} else {
 			var needsOpen = false;
+
 			if (!("currentWindow" in UI)) {
 				UI.currentWindow = new UI.ActivityWindow({
 					useCurrentActivity: true
@@ -90,6 +96,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 			this.attachListeners();
 			this.window.add(this.view);
+
 			if (needsOpen) {
 				this.window.open();
 			}
@@ -190,7 +197,7 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 	}
 
-	UI.createWindow = function(options) {
+	Window.createWindow = function(options) {
 		return new Window(options);
 	}
 	return Window;

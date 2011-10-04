@@ -45,13 +45,13 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_ManagedV8Reference
 {
 	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
-	if (object_ptr) {
+	/*if (object_ptr) {
 		Persistent<Data> handle((Data *) object_ptr);
 		if (!handle.IsEmpty() && !handle.IsNearDeath()) {
 			// TODO even with Isolate this causes problems
 			handle.Dispose();
 		}
-	}
+	}*/
 }
 
 /*

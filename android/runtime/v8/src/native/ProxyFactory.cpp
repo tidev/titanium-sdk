@@ -41,6 +41,7 @@ static ProxyFactoryMap factories;
 
 Handle<Object> ProxyFactory::createV8Proxy(jclass javaClass, jobject javaProxy)
 {
+	LOGV(TAG, "create v8 proxy");
 	JNIEnv* env = JNIScope::getEnv();
 	if (!env) {
 		LOG_JNIENV_ERROR("while creating Java proxy.");
@@ -49,6 +50,8 @@ Handle<Object> ProxyFactory::createV8Proxy(jclass javaClass, jobject javaProxy)
 
 	HandleScope scope;
 	Local<Function> creator;
+
+	LOGV(TAG, "get proxy info");
 
 	ProxyInfo* info;
 	GET_PROXY_INFO(javaClass, info);
