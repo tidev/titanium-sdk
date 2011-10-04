@@ -94,6 +94,9 @@ BOOL applicationInMemoryPanic = NO;
 
 TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
 
+@interface TiApp()
+-(void)checkBackgroundServices;
+@end
 
 @implementation TiApp
 
@@ -627,13 +630,16 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)beginBackgrounding
 {
-	runningServices = [[NSMutableArray alloc] initWithCapacity:[backgroundServices count]];
+	if (runningServices == nil) {
+		runningServices = [[NSMutableArray alloc] initWithCapacity:[backgroundServices count]];
+	}
 	
 	for (TiProxy *proxy in backgroundServices)
 	{
 		[runningServices addObject:proxy];
 		[proxy performSelector:@selector(beginBackground)];
 	}
+	[self checkBackgroundServices];
 }
 
 -(void)endBackgrounding
@@ -668,34 +674,34 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	[backgroundServices addObject:proxy];
 }
 
+-(void)checkBackgroundServices
+{
+	if ([runningServices count] == 0)
+	{		
+		// Synchronize the cleanup call on the main thread in case
+		// the expiration handler is fired at the same time.
+		dispatch_async(dispatch_get_main_queue(), ^{
+			if (bgTask != UIBackgroundTaskInvalid)
+			{
+				NSLog(@"Ending background task %X %@",bgTask,CODELOCATION);
+				[[UIApplication sharedApplication] endBackgroundTask:bgTask];
+				bgTask = UIBackgroundTaskInvalid;
+			}
+		});
+	}
+}
+
 -(void)unregisterBackgroundService:(TiProxy*)proxy
 {
 	[backgroundServices removeObject:proxy];
-	if ([backgroundServices count]==0)
-	{
-		RELEASE_TO_NIL(backgroundServices);
-	}
+	[self checkBackgroundServices];
 }
 
 -(void)stopBackgroundService:(TiProxy *)proxy
 {
 	[runningServices removeObject:proxy];
 	[backgroundServices removeObject:proxy];
-	
-	if ([runningServices count] == 0)
-	{
-		RELEASE_TO_NIL(runningServices);
-		
-		// Synchronize the cleanup call on the main thread in case
-		// the expiration handler is fired at the same time.
-		dispatch_async(dispatch_get_main_queue(), ^{
-			if (bgTask != UIBackgroundTaskInvalid)
-			{
-				[[UIApplication sharedApplication] endBackgroundTask:bgTask];
-				bgTask = UIBackgroundTaskInvalid;
-			}
-		});
-	}
+	[self checkBackgroundServices];
 }
 
 #endif
