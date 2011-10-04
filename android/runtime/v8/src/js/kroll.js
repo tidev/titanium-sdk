@@ -14,11 +14,12 @@
 
 	startup.globalVariables = function() {
 		global.kroll = kroll;
-		var Events = NativeModule.require('events');
+		NativeModule.require('events');
 		global.Ti = global.Titanium = NativeModule.require('titanium');
+		global.Module = NativeModule.require("module");
 	};
 
-	startup.runMain = function() {
+	startup.runMain = function(mainModuleID) {
 	};
 
 	var runInThisContext = kroll.binding('evals').Script.runInThisContext;
