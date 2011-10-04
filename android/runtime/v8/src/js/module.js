@@ -28,9 +28,9 @@ Module.main = null;
 Module.paths = [ 'Resources/' ];
 
 // Run a module as the main entry point.
-Module.runMainModule = function (filename) {
+Module.runMainModule = function (source, filename) {
 	var mainModule = Module.main = new Module('.');
-	mainModule.load(filename);
+	mainModule.load(filename, source);
 }
 
 // Attempts to load the module. If no file is found
@@ -41,7 +41,7 @@ Module.runMainModule = function (filename) {
 // This provides a speed boost vs creating a new context.
 //
 // Returns the exports object of the loaded module if successful.
-Module.prototype.load = function (filename) {
+Module.prototype.load = function (filename, source) {
 	kroll.log('Loading ' + filename);
 
 	if (this.loaded) {
@@ -50,7 +50,10 @@ Module.prototype.load = function (filename) {
 
 	this.filename = filename;
 
-	var source = assets.readResource(filename);
+	if (!source) {
+		source = assets.readResource(filename);
+	}
+
 	this._runScript(source, filename);
 
 	this.loaded = true;
