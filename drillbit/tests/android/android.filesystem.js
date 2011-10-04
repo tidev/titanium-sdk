@@ -12,13 +12,20 @@ describe("Android Ti.Filesystem tests", {
 		valueOf(resourcesFileDoesNotExist.exists()).shouldBeFalse();
 	},
 	filesInApplicationDataDirectoryExists: function() {
-		var newFile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory,'this-file-exists.js');
+		
+		var newDirectory = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory,'newDir');
+		newDirectory.createDirectory();
+		
+		var newFile = Ti.Filesystem.getFile(newDirectory.getNativePath(),'this-file-exists.js');
 		newFile.write("testing a file");
 
-		var appDataFileDoesExist = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'this-file-exists.js');
-		var appDataFileDoesNotExist = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'this-file-does-not-exist.js');
-    
+		var appDataFileDoesExist = Ti.Filesystem.getFile(newDirectory.getNativePath(), 'this-file-exists.js');
+		var appDataFileDoesNotExist = Ti.Filesystem.getFile(newDirectory.getNativePath(), 'this-file-does-not-exist.js');
+		
+		valueOf(newDirectory.isDirectory()).shouldBeTrue();
+		valueOf(newDirectory.exists()).shouldBeTrue();
 		valueOf(appDataFileDoesExist.exists()).shouldBeTrue();
 		valueOf(appDataFileDoesNotExist.exists()).shouldBeFalse();
+
 	}
 });
