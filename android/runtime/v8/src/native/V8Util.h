@@ -67,8 +67,21 @@
 	LOGE(TAG, "   Used heap size:             %dk", stats.used_heap_size() / 1024); \
 	LOGE(TAG, "   Heap size limit:            %dk", stats.heap_size_limit() / 1024); \
 }
+# define LOG_STACK_TRACE(TAG, ...) \
+{ \
+	v8::Local<v8::StackTrace> stackTrace = v8::StackTrace::CurrentStackTrace(16); \
+	uint32_t frameCount = stackTrace->GetFrameCount(); \
+	LOGV(TAG, __VA_ARGS__); \
+	for (uint32_t i = 0; i < frameCount; i++) { \
+		v8::Local<v8::StackFrame> frame = stackTrace->GetFrame(i); \
+		v8::String::Utf8Value fnName(frame->GetFunctionName()); \
+		v8::String::Utf8Value scriptUrl(frame->GetScriptName()); \
+		LOGV(TAG, "    at %s [%s:%d:%d]", *fnName, *scriptUrl, frame->GetLineNumber(), frame->GetColumn()); \
+	} \
+}
 #else
 # define LOG_HEAP_STATS(TAG)
+# define LOG_STACK_TRACE(TAG)
 #endif
 
 namespace titanium {

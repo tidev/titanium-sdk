@@ -75,14 +75,17 @@ void V8Util::reportException(TryCatch &tryCatch, bool showLine)
 		Handle<Message> message = tryCatch.Message();
 		if (!message.IsEmpty()) {
 			String::Utf8Value filename(message->GetScriptResourceName());
+			String::Utf8Value msg(message->Get());
 			int linenum = message->GetLineNumber();
-			LOGE(EXC_TAG, "%s:%i", *filename, linenum);
+			LOGE(EXC_TAG, "Exception occurred at %s:%i: %s", *filename, linenum, *msg);
 		}
 	}
 
+	Local<Value> stackTrace = tryCatch.StackTrace();
 	String::Utf8Value trace(tryCatch.StackTrace());
-	if (trace.length() > 0 && !tryCatch.StackTrace()->IsUndefined()) {
-		LOGE(EXC_TAG, "%s", *trace);
+
+	if (trace.length() > 0 && !stackTrace->IsUndefined()) {
+		LOGD(EXC_TAG, *trace);
 	} else {
 		Local<Value> exception = tryCatch.Exception();
 		if (exception->IsObject()) {
