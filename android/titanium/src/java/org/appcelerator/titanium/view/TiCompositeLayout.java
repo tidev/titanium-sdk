@@ -301,8 +301,8 @@ public class TiCompositeLayout extends ViewGroup
 		int bottom = b - t;
 
 		if (needsSort) {
+			viewSorter.clear();
 			if (count > 1) { // No need to sort one item.
-				viewSorter.clear();
 				for(int i = 0; i < count; i++) {
 					View child = getChildAt(i);
 					TiCompositeLayout.LayoutParams params =
@@ -319,6 +319,9 @@ public class TiCompositeLayout extends ViewGroup
 			}
 			needsSort = false;
 		}
+		// viewSorter is not needed after this. It's a source of
+		// memory leaks if it retains the views it's holding.
+		viewSorter.clear();
 
 		int[] horizontal = new int[2];
 		int[] vertical = new int[2];
