@@ -92,7 +92,7 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 		}
 		else 
 		{
-			model = [themodel retain];
+			model = [[NSString alloc] initWithUTF8String:u.machine];
 		}
 		architecture = [arch retain];
 
