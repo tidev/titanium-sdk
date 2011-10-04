@@ -68,7 +68,7 @@ def addToAPITree(proxyKey):
 		if api == "Titanium": continue
 		if api not in tree:
 			tree[api] = {
-				"_dependencies": getDependencies(proxyKey),
+				"_dependencies": [],
 			}
 		tree = tree[api]
 	tree["_className"] = proxy
