@@ -19,6 +19,7 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.Process;
@@ -40,8 +41,6 @@ public class KrollContext implements Handler.Callback
 	private static KrollThreadListener threadListener;
 	private static KrollContext _instance;
 
-	private KrollHandlerThread thread;
-
 	private CountDownLatch initialized;
 	private TiMessageQueue messageQueue;
 	private boolean useOptimization;
@@ -59,7 +58,7 @@ public class KrollContext implements Handler.Callback
 	{
 		TiApplication app = TiApplication.getInstance();
 		// allow a configurable stack size to avoid StackOverflowErrors in some larger apps
-		thread = new KrollHandlerThread(
+		/*thread = new KrollHandlerThread(
 			"KrollContext",
 			Process.THREAD_PRIORITY_DEFAULT,
 			app.getThreadStackSize(), this);
@@ -72,7 +71,8 @@ public class KrollContext implements Handler.Callback
 			app.getDeployType() == TiApplication.DEPLOY_TYPE_PRODUCTION || app.forceCompileJS();
 
 		thread.start();
-		requireInitialized();
+		requireInitialized();*/
+		initContext();
 	}
 
 	/*
@@ -139,23 +139,23 @@ public class KrollContext implements Handler.Callback
 		if (DBG) {
 			Log.d(LCAT, "Context Thread: " + Thread.currentThread().getName());
 		}
-		if (threadListener != null) {
+		/*if (threadListener != null) {
 			threadListener.threadStarted(thread);
-		}
+		}*/
 		messageQueue = TiMessageQueue.getMessageQueue();
 		messageQueue.setCallback(this);
 
-		V8Runtime.init(thread.getLooper());
+		V8Runtime.init(Looper.getMainLooper());
 		context = V8Runtime.getInstance().getGlobalContext();
 
-		initialized.countDown();
+		//initialized.countDown();
 	}
 
 	protected void threadEnded()
 	{
-		if (threadListener != null) {
+		/*if (threadListener != null) {
 			threadListener.threadEnded(thread);
-		}
+		}*/
 	}
 
 	public boolean handleMessage(Message msg)
@@ -193,16 +193,17 @@ public class KrollContext implements Handler.Callback
 
 	protected boolean isOurThread()
 	{
-		if (DBG) {
+		/*if (DBG) {
 			Log.d(LCAT, "ThreadId: " + thread.getId() + " currentThreadId: " + Thread.currentThread().getId());
 		}
-		return thread.getId() == Thread.currentThread().getId();
+		return thread.getId() == Thread.currentThread().getId();*/
+		return TiApplication.isUIThread();
 	}
 
-	public KrollHandlerThread getThread()
+	/*public KrollHandlerThread getThread()
 	{
 		return thread;
-	}
+	}*/
 
 	public V8Object createScope()
 	{
@@ -281,7 +282,7 @@ public class KrollContext implements Handler.Callback
 
 	public Object handleEvalFile(String filename)
 	{
-		requireInitialized();
+		//requireInitialized();
 		V8Runtime.getInstance().evalFile(filename);
 		return null;
 	}
@@ -330,11 +331,11 @@ public class KrollContext implements Handler.Callback
 
 	private void requireInitialized()
 	{
-		try {
+		/*try {
 			initialized.await();
 		} catch (InterruptedException e) {
 			// Ignore
-		}
+		}*/
 	}
 
 	public TiMessageQueue getMessageQueue()
@@ -344,8 +345,8 @@ public class KrollContext implements Handler.Callback
 
 	public void release()
 	{
-		if (thread.getLooper() != null) {
+		/*if (thread.getLooper() != null) {
 			thread.getLooper().quit();
-		}
+		}*/
 	}
 }
