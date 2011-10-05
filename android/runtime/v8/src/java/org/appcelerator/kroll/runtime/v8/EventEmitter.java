@@ -59,9 +59,10 @@ public class EventEmitter extends V8Object implements Handler.Callback
 
 	public boolean fireEvent(String event, Object data)
 	{
+		/* TODO - take a closer look at how to fire events on proxies
 		if (!hasListeners(event)) {
 			return false;
-		}
+		}*/
 
 		if (V8Runtime.getInstance().isUiThread()) {
 			return nativeFireEvent(ptr, event, data);
