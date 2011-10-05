@@ -211,6 +211,10 @@ bootstrap.defineLazyGetter("UI", "createWindow", function() {
 
 // Define lazy initializers for all Titanium APIs
 bootstrap.bootstrap(Titanium);
+
+var Properties = require("properties");
+Properties.bootstrap(Titanium);
+
 Titanium.bindInvocationAPIs(Titanium, Titanium.sourceUrl);
 
 module.exports = Titanium;

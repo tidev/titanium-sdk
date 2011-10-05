@@ -8,6 +8,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <v8.h>
+#ifdef V8_DEBUGGER
+# include <v8-debug.h>
+#endif
 
 #include "AndroidUtil.h"
 #include "EventEmitter.h"
@@ -103,6 +106,20 @@ static void logV8Exception(Handle<Message> msg, Handle<Value> data)
 		*String::Utf8Value(msg->GetSourceLine()));
 }
 
+#ifdef V8_DEBUGGER
+static jmethodID dispatchDebugMessage = NULL;
+
+static void dispatchHandler()
+{
+	static JNIEnv *env = NULL;
+	if (!env) {
+		titanium::JNIUtil::javaVm->AttachCurrentThread(&env, NULL);
+	}
+
+	env->CallVoidMethod(titanium::jruntime, dispatchDebugMessage);
+}
+#endif
+
 /*
  * Class:     org_appcelerator_kroll_runtime_v8_V8Runtime
  * Method:    nativeInit
@@ -124,15 +141,19 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 
 	Persistent<Context> context = Persistent<Context>::New(Context::New());
 	context->Enter();
-	//Context::Scope contextScope(context);
+
+#ifdef V8_DEBUGGER
+	jclass v8RuntimeClass = env->FindClass("org/appcelerator/kroll/runtime/v8/V8Runtime");
+	dispatchDebugMessage = env->GetMethodID(v8RuntimeClass, "dispatchDebugMessages", "()V");
+
+	v8::Debug::SetDebugMessageDispatchHandler(dispatchHandler);
+	v8::Debug::EnableAgent("titanium", 9999, true);
+#endif
 
 	titanium::V8Runtime::globalContext = context;
 	titanium::V8Runtime::bootstrap(context->Global());
 
-	//Persistent<Object> wrappedContext(titanium::ScriptsModule::WrapContext(context));
 	LOG_HEAP_STATS(TAG);
-
-	//return (jlong) *wrappedContext;
 }
 
 /*
@@ -154,6 +175,12 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRu
 	runMainModule->Call(module, 2, args);
 }
 
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeProcessDebugMessages(JNIEnv *env, jobject self)
+{
+#ifdef V8_DEBUGGER
+	v8::Debug::ProcessDebugMessages();
+#endif
+}
 
 /*
  * Class:     org_appcelerator_kroll_runtime_v8_V8Runtime

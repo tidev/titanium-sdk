@@ -5,21 +5,23 @@ import java.io.IOException;
 import org.appcelerator.kroll.runtime.Assets;
 
 import android.os.Build;
+import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 
-public final class V8Runtime
+public final class V8Runtime implements Handler.Callback
 {
 	private static final String TAG = "V8Runtime";
 	private static final String DEVICE_LIB = "kroll-v8-device";
 	private static final String EMULATOR_LIB = "kroll-v8-emulator";
 
-	private static final int MSG_INVOKE_CALLBACK = 1000;
-	private static final int MSG_FIRE_EVENT = 1001;
+	private static final int MSG_PROCESS_DEBUG_MESSAGES = 1000;
 
 	private static V8Runtime _instance;
 
 	private long mainThreadId;
+	private Handler mainHandler;
 
 	private V8Runtime(Looper looper)
 	{
@@ -36,6 +38,7 @@ public final class V8Runtime
 
 		Looper mainLooper = Looper.getMainLooper();
 		mainThreadId = mainLooper.getThread().getId();
+		mainHandler = new Handler(mainLooper, this);
 		nativeInit(useGlobalRefs);
 	}
 
@@ -74,7 +77,25 @@ public final class V8Runtime
 		}
 	}
 
+	protected void dispatchDebugMessages()
+	{
+		Message msg = mainHandler.obtainMessage(MSG_PROCESS_DEBUG_MESSAGES);
+		msg.sendToTarget();
+	}
+
+	@Override
+	public boolean handleMessage(Message msg)
+	{
+		switch (msg.what) {
+			case MSG_PROCESS_DEBUG_MESSAGES:
+				nativeProcessDebugMessages();
+				return true;
+		}
+		return false;
+	}
+
 	private native void nativeInit(boolean useGlobalRefs);
 	private native void nativeRunModule(String source, String filename);
+	private native void nativeProcessDebugMessages();
 	private native void nativeDispose();
 }
