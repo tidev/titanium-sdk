@@ -16,7 +16,6 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiTempFileHelper;
 
 import ti.modules.titanium.stream.FileStreamProxy;
 
