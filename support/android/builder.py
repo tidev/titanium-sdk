@@ -584,8 +584,20 @@ class Builder(object):
 
 	def copy_project_resources(self):
 		info("Copying project resources..")
+
+		def validate_filenames(topdir):
+			for root, dirs, files in os.walk(topdir):
+				remove_ignored_dirs(dirs)
+				for d in dirs:
+					if d == "iphone":
+						dirs.remove(d)
+				for filename in files:
+					if filename.startswith("_"):
+						error("%s is an invalid filename. Android will not package assets whose filenames start with underscores. Fix and rebuild." % os.path.join(root, filename))
+						sys.exit(1)
 		
 		resources_dir = os.path.join(self.top_dir, 'Resources')
+		validate_filenames(resources_dir)
 		android_resources_dir = os.path.join(resources_dir, 'android')
 		self.project_deltafy = Deltafy(resources_dir, include_callback=self.include_path)
 		self.project_deltas = self.project_deltafy.scan()
