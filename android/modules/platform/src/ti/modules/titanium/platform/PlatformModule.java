@@ -71,6 +71,7 @@ public class PlatformModule extends KrollModule
 	public DisplayCapsProxy getDisplayCaps() {
 		if (displayCaps == null) {
 			displayCaps = new DisplayCapsProxy();
+			displayCaps.setActivity(TiApplication.getInstance().getCurrentActivity());
 		}
 		return displayCaps;
 	}
