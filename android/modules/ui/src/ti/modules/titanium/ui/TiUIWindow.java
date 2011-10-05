@@ -273,6 +273,7 @@ public class TiUIWindow extends TiUIView
 		//TODO unique key per window, params for intent
 		activityKey = WINDOW_ID_PREFIX + idGenerator.incrementAndGet();
 		View layout = getLayout();
+		layout.setFocusableInTouchMode(true);
 		layout.setClickable(true);
 		registerForTouch(layout);
 		layout.setOnFocusChangeListener(new OnFocusChangeListener() {

@@ -21,7 +21,6 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.TiContext.OnServiceLifecycleEvent;
 import org.appcelerator.titanium.bridge.OnEventListenerChange;
-import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
