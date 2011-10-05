@@ -67,7 +67,7 @@ public class TiAnimationBuilder
 
 	public void applyOptions(HashMap optionsMap)
 	{
-		if (options == null) {
+		if (optionsMap == null) {
 			return;
 		}
 
@@ -129,7 +129,7 @@ public class TiAnimationBuilder
 	public void applyAnimation(TiAnimation anim)
 	{
 		this.animationProxy = anim;
-		// TODO applyOptions(anim.getProperties());
+		applyOptions(anim.getProperties());
 	}
 
 	public void setCallback(V8Callback callback)
