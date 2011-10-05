@@ -117,10 +117,9 @@ Handle<FunctionTemplate> ${className}::getProxyTemplate()
 
 	</#if>
 
-	<#--
 	// Dynamic properties -----------------------------------------------------
 	<@Proxy.listDynamicProperties ; isFirst, name, property, getSignature, setSignature>
-	prototypeTemplate->SetAccessor(String::NewSymbol("${name}"),
+	instanceTemplate->SetAccessor(String::NewSymbol("${name}"),
 		<#if property.get>
 			${className}::getter_${name}
 		<#else>
@@ -130,7 +129,6 @@ Handle<FunctionTemplate> ${className}::getProxyTemplate()
 			, ${className}::setter_${name}
 		</#if>);
 	</@Proxy.listDynamicProperties>
-	-->
 
 	return proxyTemplate;
 }
@@ -164,7 +162,6 @@ Handle<Value> ${className}::${method.apiName}(const Arguments& args)
 }
 </@Proxy.listMethods>
 
-<#--
 // Dynamic property accessors -------------------------------------------------
 <@Proxy.listDynamicProperties ; isFirst, name, property, getSignature, setSignature>
 
@@ -208,7 +205,7 @@ void ${className}::setter_${name}(Local<String> property, Local<Value> value, co
 
 	<@Proxy.initMethodID className=className name=property.setMethodName signature=setSignature logOnly=true />
 
-	Proxy* proxy = Proxy::unwrap(info.Holder());
+	Proxy* proxy = Proxy::unwrap(info.This());
 	if (!proxy) {
 		return;
 	}
@@ -225,6 +222,5 @@ void ${className}::setter_${name}(Local<String> property, Local<Value> value, co
 </#if>
 
 </@Proxy.listDynamicProperties>
--->
 
 <@Proxy.closeNamespace/>
