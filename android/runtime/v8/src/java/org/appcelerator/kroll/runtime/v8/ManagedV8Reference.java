@@ -30,7 +30,7 @@ package org.appcelerator.kroll.runtime.v8;
 	protected void finalize() throws Throwable
 	{
 		super.finalize();
-		release();
+		V8Runtime.getInstance().release(this);
 	}
 
 	public synchronized void release()

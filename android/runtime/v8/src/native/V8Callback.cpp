@@ -16,6 +16,7 @@
 #define TAG "V8Callback"
 
 using namespace titanium;
+using namespace v8;
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,10 +33,10 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Callback_nativeI
 	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
 
-	v8::Persistent<v8::Object> thisObject((v8::Object *) thisPointer);
+	Local<Object> thisObject = Local<Object>((Object *) thisPointer);
 
 	// construct function from pointer
-	v8::Persistent<v8::Function> jsFunction((v8::Function *) functionPointer);
+	Function *jsFunction = (Function *) functionPointer;
 
 	// create function arguments
 	int length;

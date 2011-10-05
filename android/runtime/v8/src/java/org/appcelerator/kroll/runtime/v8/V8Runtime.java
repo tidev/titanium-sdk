@@ -17,6 +17,7 @@ public final class V8Runtime implements Handler.Callback
 	private static final String EMULATOR_LIB = "kroll-v8-emulator";
 
 	private static final int MSG_PROCESS_DEBUG_MESSAGES = 1000;
+	private static final int MSG_NATIVE_RELEASE = 1001;
 
 	private static V8Runtime _instance;
 
@@ -64,6 +65,16 @@ public final class V8Runtime implements Handler.Callback
 		nativeDispose();
 	}
 
+	public void release(ManagedV8Reference ref)
+	{
+		if (isUiThread()) {
+			ref.release();
+		} else {
+			Message msg = mainHandler.obtainMessage(MSG_NATIVE_RELEASE, ref);
+			msg.sendToTarget();
+		}
+	}
+
 	public void evalFile(String filename)
 	{
 		try {
@@ -89,6 +100,10 @@ public final class V8Runtime implements Handler.Callback
 		switch (msg.what) {
 			case MSG_PROCESS_DEBUG_MESSAGES:
 				nativeProcessDebugMessages();
+				return true;
+			case MSG_NATIVE_RELEASE:
+				ManagedV8Reference ref = (ManagedV8Reference) msg.obj;
+				ref.release();
 				return true;
 		}
 		return false;
