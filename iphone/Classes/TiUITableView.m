@@ -218,13 +218,25 @@
 		RELEASE_TO_NIL(searchField);
 	}
 	RELEASE_TO_NIL(tableController);
+    
+    searchController.searchResultsDataSource =  nil;
+    searchController.searchResultsDelegate = nil;
+    searchController.delegate = nil;
 	RELEASE_TO_NIL(searchController);
+    
+    tableview.delegate = nil;
+    tableview.dataSource = nil;
 	RELEASE_TO_NIL(tableview);
+    
 	RELEASE_TO_NIL(sectionIndex);
 	RELEASE_TO_NIL(sectionIndexMap);
 	RELEASE_TO_NIL(tableHeaderView);
 	RELEASE_TO_NIL(searchScreenView);
+    
+    searchTableView.delegate = nil;
+    searchTableView.dataSource = nil;
 	RELEASE_TO_NIL(searchTableView);
+    
 	RELEASE_TO_NIL(filterAttribute);
 	RELEASE_TO_NIL(searchResultIndexes);
 	RELEASE_TO_NIL(initialSelection);
