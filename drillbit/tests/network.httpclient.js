@@ -165,6 +165,39 @@ describe("Ti.Network.HTTPClient tests", {
 		setTimeout(function(e) {
 			callback.failed("Timed out waiting for HTTP onload");
 		}, 30000);
+	},
+	// http://jira.appcelerator.org/browse/TIMOB-2849
+	setCookieClearCookieWithMultipleHTTPClients_as_async: function(callback) {
+		var testServer = 'http://appc.me/Test/Cookies/';
+		
+		var xhr = Ti.Network.createHTTPClient();
+		xhr.setTimeout(30000);
+		xhr.onload = function(e) {
+			try {
+				valueOf(this.responseText).shouldBe('Set 2 cookies');
+				var xhr2 = Ti.Network.createHTTPClient();
+				xhr2.setTimeout(30000);
+				xhr2.onload = function(e) {
+					Ti.API.info("Clear Cookie");
+					try {
+						valueOf(this.responseText).shouldBe('Set 2 cookies to expire a year ago.');
+						callback.passed();
+					} catch (e) {
+						callback.failed(e);
+					}
+				}
+				xhr2.open('GET', testServer + '?count=2&clear=true');
+				xhr2.send();
+			} catch(e) {
+				callback.failed(e);
+			}
+    };
+		
+		xhr.open('GET', testServer + '?count=2&clear=false');
+		xhr.send();
+		
+		setTimeout(function(e) {
+			callback.failed("Timed out waiting for HTTP onload");
+		}, 30000);
 	}
-
 });
