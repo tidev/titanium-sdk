@@ -114,11 +114,10 @@ public class TiUIScrollableView extends TiUIView
 	private RelativeLayout buildPagingControl(Context context)
 	{
 		RelativeLayout layout = new RelativeLayout(context);
-		layout = new RelativeLayout(proxy.getContext());
 		layout.setFocusable(false);
 		layout.setFocusableInTouchMode(false);
 
-		TiArrowView left = new TiArrowView(proxy.getContext());
+		TiArrowView left = new TiArrowView(context);
 		left.setVisibility(View.INVISIBLE);
 		left.setId(PAGE_LEFT);
 		left.setMinimumWidth(80); // TODO density?
@@ -133,7 +132,7 @@ public class TiUIScrollableView extends TiUIView
 		params.addRule(RelativeLayout.CENTER_VERTICAL);
 		layout.addView(left, params);
 
-		TiArrowView right = new TiArrowView(proxy.getContext());
+		TiArrowView right = new TiArrowView(context);
 		right.setLeft(false);
 		right.setVisibility(View.INVISIBLE);
 		right.setId(PAGE_RIGHT);
