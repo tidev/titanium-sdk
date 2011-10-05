@@ -125,7 +125,14 @@ public class KrollDict
 	}
 
 	public KrollDict getKrollDict(String key) {
-		return (KrollDict) get(key);
+		Object value = get(key);
+		if (value instanceof KrollDict) {
+			return (KrollDict) value;
+		} else if (value instanceof HashMap) {
+			return new KrollDict((HashMap)value);
+		} else {
+			return null;
+		}
 	}
 
 	public boolean isNull(String key) {

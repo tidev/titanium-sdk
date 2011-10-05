@@ -76,14 +76,14 @@ public class FacebookModule extends KrollModule
 	}
 	
 	// Public Properties with accessors
-	@Kroll.getProperty
-	public boolean loggedIn()
+	@Kroll.getProperty @Kroll.method
+	public boolean getLoggedIn()
 	{
 		return isLoggedIn();
 	}
-	
-	@Kroll.getProperty
-	public String accessToken()
+
+	@Kroll.getProperty @Kroll.method
+	public String getAccessToken()
 	{
 		if (facebook != null) {
 			return facebook.getAccessToken();
@@ -93,12 +93,12 @@ public class FacebookModule extends KrollModule
 	}
 	
 	private String appid = null;
-	@Kroll.getProperty
+	@Kroll.getProperty @Kroll.method
 	public String getAppid()
 	{
 		return appid;
 	}
-	@Kroll.setProperty
+	@Kroll.setProperty @Kroll.method
 	public void setAppid(String appid)
 	{
 		if (this.appid != null && !this.appid.equals(appid)) {
@@ -117,26 +117,26 @@ public class FacebookModule extends KrollModule
 	}
 	
 	protected String uid = null;
-	@Kroll.getProperty
+	@Kroll.getProperty @Kroll.method
 	public String getUid()
 	{
 		return uid;
 	}
 	
 	private String[] permissions = new String[]{};
-	@Kroll.getProperty
+	@Kroll.getProperty @Kroll.method
 	public String[] getPermissions()
 	{
 		return permissions;
 	}
-	@Kroll.setProperty
+	@Kroll.setProperty @Kroll.method
 	public void setPermissions(String[] permissions)
 	{
 		this.permissions = permissions;
 	}
 	
-	@Kroll.getProperty
-	public Date expirationDate()
+	@Kroll.getProperty @Kroll.method
+	public Date getExpirationDate()
 	{
 		if (facebook != null) {
 			return TiConvert.toDate(facebook.getAccessExpires());
@@ -146,12 +146,12 @@ public class FacebookModule extends KrollModule
 	}
 	
 	private boolean forceDialogAuth = true;
-	@Kroll.getProperty
+	@Kroll.getProperty @Kroll.method
 	public boolean getForceDialogAuth()
 	{
 		return forceDialogAuth;
 	}
-	@Kroll.setProperty
+	@Kroll.setProperty @Kroll.method
 	public void setForceDialogAuth(boolean value)
 	{
 		this.forceDialogAuth = value;
@@ -217,7 +217,7 @@ public class FacebookModule extends KrollModule
 		if (httpMethod == null || httpMethod.length() == 0) {
 			httpMethod = "GET";
 		}
-		runner.request(path, paramBundle, httpMethod.toUpperCase(), new TiRequestListener(path, true, callback));
+		runner.request(path, paramBundle, httpMethod.toUpperCase(), new TiRequestListener(this, path, true, callback));
 	}
 	
 	@Kroll.method
@@ -242,7 +242,7 @@ public class FacebookModule extends KrollModule
 		if (!bundle.containsKey("method")) {
 			bundle.putString("method", method);
 		}
-		getFBRunner().request(null, bundle, httpMethod, new TiRequestListener(method, false, callback));
+		getFBRunner().request(null, bundle, httpMethod, new TiRequestListener(this, method, false, callback));
 	}
 	
 	@Kroll.method(runOnUiThread=true)
@@ -252,7 +252,7 @@ public class FacebookModule extends KrollModule
 			Log.w(LCAT, "dialog called without Facebook being instantiated.  Have you set appid?");
 			return;
 		}
-		facebook.dialog(getActivity(), action, Utils.mapToBundle(params), new TiDialogListener(callback, action));
+		facebook.dialog(getActivity(), action, Utils.mapToBundle(params), new TiDialogListener(this, callback, action));
 	}
 
 	// Protected methods
@@ -415,7 +415,7 @@ public class FacebookModule extends KrollModule
 	private void fireLoginChange()
 	{
 		for (TiFacebookStateListener listener : stateListeners) {
-			if (loggedIn()) {
+			if (getLoggedIn()) {
 				listener.login();
 			} else {
 				listener.logout();

@@ -148,7 +148,7 @@ public class ContactsModule extends KrollModule
 				if (request.containsKey("cancel")) {
 					V8Callback callback = request.get("cancel");
 					if (callback != null) {
-						callback.invoke(new Object[]{});
+						callback.invoke(this, new Object[]{});
 						//callback.callAsync();
 					}
 				}
@@ -159,7 +159,7 @@ public class ContactsModule extends KrollModule
 						PersonProxy person = contactsApi.getPersonByUri(data.getData());
 						KrollDict result = new KrollDict();
 						result.put("person", person);
-						callback.invoke(result);
+						callback.invoke(this, result);
 						//callback.callAsync(new Object[]{result});
 					}
 				}

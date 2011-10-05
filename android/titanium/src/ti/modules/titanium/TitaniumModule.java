@@ -151,7 +151,7 @@ public class TitaniumModule extends KrollModule
 				Log.d(LCAT, message.toString());
 			}
 			long start = System.currentTimeMillis();
-			callback.invoke(args);
+			callback.invoke(TitaniumModule.this, args);
 			if (interval && !canceled) {
 				handler.postDelayed(this, timeout - (System.currentTimeMillis() - start));
 			}
@@ -168,7 +168,7 @@ public class TitaniumModule extends KrollModule
 		throws IllegalArgumentException
 	{
 		int timerId = currentTimerId++;
-		Handler handler = getV8Handler();
+		Handler handler = getUIHandler();
 
 		Timer timer = new Timer(timerId, handler, callback, timeout, args, interval);
 		Thread thread = handler.getLooper().getThread();

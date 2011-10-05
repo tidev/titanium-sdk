@@ -37,7 +37,7 @@ function TiInclude(filename, baseUrl) {
 		source = assets.readResource(assetPath);
 	}
 
-	Titanium.runInContext(source, sourceUrl.href);
+	Titanium.runInContext(source, sourceUrl.href, true);
 }
 Titanium.include = TiInclude;
 
@@ -117,16 +117,20 @@ Titanium.bindInvocationAPIs = function(sandboxTi, url) {
 
 Titanium.Proxy = Proxy;
 
-Object.prototype.extend = function(other) {
-	if (!other) return;
-
-	for (var name in other) {
-		if (other.hasOwnProperty(name)) {
-			this[name] = other[name];
+// Use defineProperty so we can avoid our custom extensions being enumerated
+Object.defineProperty(Object.prototype, "extend", {
+	value: function(other) {
+		if (!other) return;
+	
+		for (var name in other) {
+			if (other.hasOwnProperty(name)) {
+				this[name] = other[name];
+			}
 		}
-	}
-	return this;
-}
+		return this;
+	},
+	enumerable: false
+});
 
 Proxy.defineProperties = function(proxyPrototype, names) {
 	var properties = {};

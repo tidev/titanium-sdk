@@ -37,6 +37,7 @@ EventEmitter.prototype.setMaxListeners = function(n) {
 };
 
 EventEmitter.prototype.callHandler = function(handler, type, data) {
+	kroll.log("calling event handler: type:" + type + ", data: " + data + ", handler: " + handler);
 	if (data instanceof Object) {
 		data.type = type;
 	} else if (!data) {
@@ -48,7 +49,7 @@ EventEmitter.prototype.callHandler = function(handler, type, data) {
 
 EventEmitter.prototype.emit = function(type) {
 
-	kroll.log("emit : " + arguments);
+	kroll.log("emit : " + JSON.stringify(arguments));
 
 	// If there is no 'error' event listener then throw.
 	if (type === 'error') {
@@ -65,11 +66,13 @@ EventEmitter.prototype.emit = function(type) {
 	}
 
 	if (!this._events) {
+		kroll.log("no events for " + type + ", not emitting");
 		return false;
 	}
 
 	var handler = this._events[type];
 	if (!handler) {
+		kroll.log("no handler for " + type + ", not emitting");
 		return false;
 	}
 
@@ -90,7 +93,6 @@ EventEmitter.prototype.emit = function(type) {
 		var listeners = handler.slice();
 		for (var i = 0, l = listeners.length; i < l; i++) {
 			this.callHandler(listeners[i], type, args[0]);
-			//listeners[i].apply(this, args);
 		}
 		return true;
 

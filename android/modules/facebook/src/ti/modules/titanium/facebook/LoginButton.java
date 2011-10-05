@@ -86,7 +86,7 @@ public class LoginButton extends TiUIView implements TiFacebookStateListener
 
 	private void handleUpdateButtonImage(boolean pressed)
 	{
-		boolean loggedIn = facebook.loggedIn();
+		boolean loggedIn = facebook.getLoggedIn();
 		String stateDescription;
 		int resid = 0;
 		if (loggedIn) {
@@ -186,7 +186,7 @@ public class LoginButton extends TiUIView implements TiFacebookStateListener
 						// Fallback on the root activity if possible
 						activity = TiApplication.getInstance().getRootActivity();
 					}
-					if (facebook.loggedIn()) {
+					if (facebook.getLoggedIn()) {
 						facebook.executeLogout(activity);
 					} else {
 						facebook.executeAuthorize(activity);

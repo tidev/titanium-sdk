@@ -14,13 +14,14 @@ public final class V8Runtime
 	private static final String DEVICE_LIB = "kroll-v8-device";
 	private static final String EMULATOR_LIB = "kroll-v8-emulator";
 
+	private static final int MSG_INVOKE_CALLBACK = 1000;
+	private static final int MSG_FIRE_EVENT = 1001;
+
 	private static V8Runtime _instance;
 
-	private V8Context globalContext;
-	private Looper v8Looper;
-	private long v8LooperThreadId;
+	private long mainThreadId;
 
-	private V8Runtime(Looper v8Looper)
+	private V8Runtime(Looper looper)
 	{
 		boolean useGlobalRefs = true;
 		String libName = DEVICE_LIB;
@@ -32,10 +33,10 @@ public final class V8Runtime
 
 		System.loadLibrary(libName);
 		_instance = this;
-		this.v8Looper = v8Looper;
-		v8LooperThreadId = v8Looper.getThread().getId();
 
-		globalContext = new V8Context(nativeInit(useGlobalRefs));
+		Looper mainLooper = Looper.getMainLooper();
+		mainThreadId = mainLooper.getThread().getId();
+		nativeInit(useGlobalRefs);
 	}
 
 	public static void init(Looper v8Looper)
@@ -50,29 +51,13 @@ public final class V8Runtime
 		return _instance;
 	}
 
-	public V8Context getGlobalContext()
+	public boolean isUiThread()
 	{
-		return globalContext;
-	}
-
-	public Looper getV8Looper()
-	{
-		return v8Looper;
-	}
-
-	public Thread getV8Thread()
-	{
-		return v8Looper.getThread();
-	}
-
-	public boolean isV8Thread()
-	{
-		return Thread.currentThread().getId() == v8LooperThreadId;
+		return Thread.currentThread().getId() == mainThreadId;
 	}
 
 	public void dispose()
 	{
-		globalContext.release();
 		nativeDispose();
 	}
 
@@ -89,7 +74,7 @@ public final class V8Runtime
 		}
 	}
 
-	private native long nativeInit(boolean useGlobalRefs);
+	private native void nativeInit(boolean useGlobalRefs);
 	private native void nativeRunModule(String source, String filename);
 	private native void nativeDispose();
 }

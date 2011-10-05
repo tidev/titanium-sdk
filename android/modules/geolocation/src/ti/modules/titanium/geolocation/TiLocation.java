@@ -198,15 +198,15 @@ public class TiLocation
 				Location location = locationManager.getLastKnownLocation(provider);
 
 				if (location != null) {
-					listener.invoke(locationToKrollDict(location, locationManager.getProvider(provider)));
+					listener.invoke(geolocationModule, locationToKrollDict(location, locationManager.getProvider(provider)));
 					doAnalytics(location);
 				} else {
 					Log.i(LCAT, "unable to get current position, location is null");
-					listener.invoke(TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
+					listener.invoke(geolocationModule, TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
 				}
 			} else {
 				Log.i(LCAT, "unable to get current position, no providers are available");
-				listener.invoke(TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, "no providers are available."));
+				listener.invoke(geolocationModule, TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, "no providers are available."));
 			}
 		}
 	}
@@ -286,7 +286,7 @@ public class TiLocation
 
 					if (event != null) {
 						event.put(TiC.EVENT_PROPERTY_SOURCE, this);
-						callback.invoke(event);
+						callback.invoke(geolocationModule, event);
 					}
 				} catch (Throwable t) {
 					Log.e(LCAT, "error retrieving geocode information [" + t.getMessage() + "]", t);

@@ -9,11 +9,13 @@ package org.appcelerator.titanium.proxy;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.TreeSet;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.runtime.v8.V8Callback;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.AsyncResult;
@@ -461,6 +463,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	@Kroll.method
 	public void add(TiViewProxy child)
 	{
+		if (child == null) {
+			Log.w(LCAT, "add called with null child");
+			return;
+		}
+
 		if (children == null) {
 			children = new ArrayList<TiViewProxy>();
 		}
@@ -491,6 +498,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	@Kroll.method
 	public void remove(TiViewProxy child)
 	{
+		if (child == null) {
+			Log.w(LCAT, "add called with null child");
+			return;
+		}
 		if (peekView() != null) {
 			if (TiApplication.isUIThread()) {
 				handleRemove(child);
@@ -557,16 +568,16 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	}
 
 	@Kroll.method
-	public void animate(Object arg /*, @Kroll.argument(optional=true) KrollCallback callback*/)
+	public void animate(Object arg, @Kroll.argument(optional=true) V8Callback callback)
 	{
-		if (arg instanceof KrollDict) {
-			KrollDict options = (KrollDict) arg;
+		if (arg instanceof HashMap) {
+			HashMap options = (HashMap) arg;
 
 			pendingAnimation = new TiAnimationBuilder();
 			pendingAnimation.applyOptions(options);
-			/*if (callback != null) {
+			if (callback != null) {
 				pendingAnimation.setCallback(callback);
-			}*/
+			}
 		} else if (arg instanceof TiAnimation) {
 			TiAnimation anim = (TiAnimation) arg;
 			pendingAnimation = new TiAnimationBuilder();

@@ -254,8 +254,8 @@ public class TCPProxy extends KrollProxy implements TiStream
 						acceptedTcpProxy.state = SocketModule.CONNECTED;
 
 						Object callback = getProperty("accepted");
-						if(callback instanceof V8Callback) {
-							((V8Callback) callback).invoke(buildAcceptedCallbackArgs(acceptedTcpProxy));
+						if (callback instanceof V8Callback) {
+							((V8Callback) callback).invoke(TCPProxy.this, buildAcceptedCallbackArgs(acceptedTcpProxy));
 							//((KrollCallback) callback).callAsync(buildAcceptedCallbackArgs(acceptedTcpProxy));
 						}
 
@@ -330,8 +330,8 @@ public class TCPProxy extends KrollProxy implements TiStream
 		}
 
 		Object callback = getProperty(callbackName);
-		if(callback instanceof V8Callback) {
-			((V8Callback) callback).invoke(callbackArgs);
+		if (callback instanceof V8Callback) {
+			((V8Callback) callback).invoke(this, callbackArgs);
 			//((KrollCallback) callback).callAsync(callbackArgs);
 		}
 	}
@@ -339,8 +339,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 	@Kroll.method
 	public boolean isConnected()
 	{
-		if(state == SocketModule.CONNECTED)
-		{
+		if (state == SocketModule.CONNECTED) {
 			return true;
 		}
 		return false;
@@ -351,8 +350,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 	@Kroll.method
 	public int read(Object args[]) throws IOException
 	{
-		if(!isConnected())
-		{
+		if (!isConnected()) {
 			throw new IOException("Unable to read from socket, not connected");
 		}
 

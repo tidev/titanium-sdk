@@ -164,7 +164,7 @@ public class TiCompass
 						long eventTimestamp = event.timestamp / 1000000;
 						long actualTimestamp = baseTime.getTimeInMillis() + (eventTimestamp - sensorTimerStart);
 
-						listener.invoke(eventToKrollDict(event, actualTimestamp));
+						listener.invoke(geolocationModule, eventToKrollDict(event, actualTimestamp));
 						//listener.callAsync(eventToKrollDict(event, actualTimestamp));
 						TiSensorHelper.unregisterListener(Sensor.TYPE_ORIENTATION, this);
 					}

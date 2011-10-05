@@ -23,9 +23,11 @@ public class TiRequestListener implements RequestListener
 	private boolean isGraphApiCall;
 	private String callPath;
 	private V8Callback callback;
-	
-	public TiRequestListener(String callPath, boolean isGraphApiCall, V8Callback callback)
+	private FacebookModule module;
+
+	public TiRequestListener(FacebookModule module, String callPath, boolean isGraphApiCall, V8Callback callback)
 	{
+		this.module = module;
 		this.callback = callback;
 		this.callPath = callPath;
 		this.isGraphApiCall = isGraphApiCall;
@@ -72,7 +74,7 @@ public class TiRequestListener implements RequestListener
 	private void doCallback(KrollDict args)
 	{
 		if (callback != null){
-			callback.invoke(args);
+			callback.invoke(module, args);
 			//callback.callAsync(args);
 		}
 	}

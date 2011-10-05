@@ -16,6 +16,7 @@
 #include "JNIUtil.h"
 #include "KrollBindings.h"
 #include "TypeConverter.h"
+#include "V8Runtime.h"
 #include "V8Util.h"
 
 #define TAG "ProxyFactory"
@@ -48,7 +49,7 @@ Handle<Object> ProxyFactory::createV8Proxy(jclass javaClass, jobject javaProxy)
 		return Handle<Object>();
 	}
 
-	HandleScope scope;
+	ENTER_V8(V8Runtime::globalContext);
 	Local<Function> creator;
 
 	LOGV(TAG, "get proxy info");
@@ -128,8 +129,9 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 	bool calledFromCreate = false;
 	if (args.Length() == 1 && args[0]->IsObject()) {
 		Local<String> constructorName = args[0]->ToObject()->GetConstructorName();
-		if (strcmp(*String::Utf8Value(constructorName), "Arguments") == 0)
+		if (strcmp(*String::Utf8Value(constructorName), "Arguments") == 0) {
 			calledFromCreate = true;
+		}
 	}
 
 	// Convert the V8 arguments into Java types so they can be
@@ -144,16 +146,23 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 		 javaArgs = TypeConverter::jsArgumentsToJavaArray(args);
 	}
 
+	//LOGV(TAG, "calling KrollProxy.create");
+
 	// Create the java proxy using the creator static method provided.
 	// Send along a pointer to the v8 proxy so the two are linked.
 	jobject javaProxy = env->CallStaticObjectMethod(JNIUtil::krollProxyClass,
 		info->javaProxyCreator, javaClass, javaArgs, pv8Proxy, javaSourceUrl);
 
+	//LOGV(TAG, "delete source url? %d", javaSourceUrl);
+
 	if (javaSourceUrl) {
+		LOGV(TAG, "delete source url!");
 		env->DeleteLocalRef(javaSourceUrl);
 	}
+	//LOGV(TAG, "delete java args");
 	env->DeleteLocalRef(javaArgs);
 
+	//LOGV(TAG, "return java proxy");
 	return javaProxy;
 }
 

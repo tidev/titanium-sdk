@@ -21,7 +21,7 @@ public class EventEmitter extends V8Object implements Handler.Callback
 	public static final String PROPERTY_RESULT = "eventResult";
 	public static final String PROPERTY_SYNC = "eventSync";
 
-	private Handler v8Handler, uiHandler;
+	private Handler mainHandler;
 	private EventListener eventChangeListener;
 	private boolean needsRegister;
 	private Semaphore semaphore = new Semaphore(0);
@@ -31,8 +31,7 @@ public class EventEmitter extends V8Object implements Handler.Callback
 	{
 		super(0);
 		needsRegister = false;
-		v8Handler = new Handler(V8Runtime.getInstance().getV8Looper(), this);
-		uiHandler = new Handler(Looper.getMainLooper(), this);
+		mainHandler = new Handler(Looper.getMainLooper(), this);
 	}
 
 	@Override
@@ -48,7 +47,7 @@ public class EventEmitter extends V8Object implements Handler.Callback
 	{
 		if (this.ptr != 0) {
 			if (eventChangeListener == null) {
-				eventChangeListener = new EventListener(uiHandler);
+				eventChangeListener = new EventListener(mainHandler);
 				eventChangeListener.addEventMessage(this, EventListener.EVENT_LISTENER_ADDED, MSG_LISTENER_ADDED);
 				eventChangeListener.addEventMessage(this, EventListener.EVENT_LISTENER_REMOVED, MSG_LISTENER_REMOVED);
 				needsRegister = false;
@@ -60,7 +59,19 @@ public class EventEmitter extends V8Object implements Handler.Callback
 
 	public boolean fireEvent(String event, Object data)
 	{
-		return nativeFireEvent(ptr, event, data);
+		if (!hasListeners(event)) {
+			return false;
+		}
+
+		if (V8Runtime.getInstance().isUiThread()) {
+			return nativeFireEvent(ptr, event, data);
+		} else {
+			Message msg = mainHandler.obtainMessage(MSG_FIRE_EVENT, data);
+			msg.getData().putString(PROPERTY_TYPE, event);
+			msg.getData().putBoolean(PROPERTY_SYNC, false);
+			msg.sendToTarget();
+			return true;
+		}
 	}
 
 	public boolean fireSyncEvent(String event, Object data)
@@ -92,12 +103,7 @@ public class EventEmitter extends V8Object implements Handler.Callback
 
 	public Handler getUIHandler()
 	{
-		return uiHandler;
-	}
-
-	public Handler getV8Handler()
-	{
-		return v8Handler;
+		return mainHandler;
 	}
 
 	@Override

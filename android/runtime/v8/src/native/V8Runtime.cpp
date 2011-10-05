@@ -108,11 +108,10 @@ static void logV8Exception(Handle<Message> msg, Handle<Value> data)
  * Method:    nativeInit
  * Signature: (Lorg/appcelerator/kroll/runtime/v8/V8Runtime;)J
  */
-JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jobject self, jboolean useGlobalRefs)
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jobject self, jboolean useGlobalRefs)
 {
-	titanium::JNIScope jniScope(env);
-	//Locker locker;
 	HandleScope scope;
+	titanium::JNIScope jniScope(env);
 
 	// Log all uncaught V8 exceptions.
 	V8::AddMessageListener(logV8Exception);
@@ -124,15 +123,16 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeI
 	titanium::JNIUtil::initCache();
 
 	Persistent<Context> context = Persistent<Context>::New(Context::New());
-	Context::Scope contextScope(context);
+	context->Enter();
+	//Context::Scope contextScope(context);
 
 	titanium::V8Runtime::globalContext = context;
 	titanium::V8Runtime::bootstrap(context->Global());
 
-	Persistent<Object> wrappedContext(titanium::ScriptsModule::WrapContext(context));
+	//Persistent<Object> wrappedContext(titanium::ScriptsModule::WrapContext(context));
 	LOG_HEAP_STATS(TAG);
 
-	return (jlong) *wrappedContext;
+	//return (jlong) *wrappedContext;
 }
 
 /*
@@ -163,7 +163,6 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRu
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDispose(JNIEnv *env, jclass clazz)
 {
 	titanium::JNIScope jniScope(env);
-	//Locker locker;
 
 	LOGE(TAG, "Disposing global context");
 	titanium::V8Runtime::globalContext.Dispose();

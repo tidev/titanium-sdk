@@ -124,11 +124,15 @@ exports.bootstrapWindow = function(Titanium) {
 			this._children = [];
 		}
 
+		kroll.log("adding view " + JSON.stringify(view._properties) + " to window");
 		if (this.isActivity && this.window) {
+			kroll.log("adding to this.window");
 			this.window.add(view);
 		} else if (this.view) {
+			kroll.log("adding to this.view: " + view + ", " + JSON.stringify(view._properties));
 			this.view.add(view);
 		} else {
+			kroll.log("pushing into this._children");
 			this._children.push(view);
 		}
 	}

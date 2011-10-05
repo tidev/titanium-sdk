@@ -24,13 +24,15 @@ extern "C" {
 /*
  * Class:     org_appcelerator_kroll_runtime_v8_V8Callback
  * Method:    nativeInvoke
- * Signature: (J[Ljava/lang/Object)V
+ * Signature: (JJ[Ljava/lang/Object)V
  */
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Callback_nativeInvoke(
-	JNIEnv *env, jobject caller, jlong functionPointer, jobjectArray functionArguments)
+	JNIEnv *env, jobject caller, jlong thisPointer, jlong functionPointer, jobjectArray functionArguments)
 {
 	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
+
+	v8::Persistent<v8::Object> thisObject((v8::Object *) thisPointer);
 
 	// construct function from pointer
 	v8::Persistent<v8::Function> jsFunction((v8::Function *) functionPointer);
@@ -41,7 +43,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Callback_nativeI
 		TypeConverter::javaObjectArrayToJsArguments(functionArguments, &length);
 
 	// call into the JS function with the provided argument
-	jsFunction->Call(V8Runtime::globalContext->Global(), length, jsFunctionArguments);
+	jsFunction->Call(thisObject, length, jsFunctionArguments);
 
 	// make sure to delete the arguments since the arguments array is built on the heap
 	if (jsFunctionArguments) {

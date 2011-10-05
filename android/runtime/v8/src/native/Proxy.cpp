@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #include <jni.h>
+#include <string.h>
 #include <v8.h>
 
 #include "AndroidUtil.h"
@@ -82,6 +83,7 @@ Handle<FunctionTemplate> Proxy::inheritProxyTemplate(
 Handle<Value> Proxy::proxyConstructor(const Arguments& args)
 {
 	HandleScope scope;
+	JNIEnv *env = JNIScope::getEnv();
 	Local<Object> jsProxy = args.Holder();
 
 	Handle<Object> properties = Object::New();
@@ -101,22 +103,48 @@ Handle<Value> Proxy::proxyConstructor(const Arguments& args)
 		deleteRef = true;
 	}
 
+	jstring javaClassName = JNIUtil::getClassName(javaClass);
+	const char *chars = env->GetStringUTFChars(javaClassName, NULL);
+	LOGV(TAG, "create proxy: %s", chars);
+	env->ReleaseStringUTFChars(javaClassName, chars);
+
 	Proxy *proxy = new Proxy(javaProxy);
 	proxy->Wrap(jsProxy);
 
 	int length = args.Length();
 
 	if (length > 0 && args[0]->IsObject()) {
-		Handle<Object> createProperties = args[0]->ToObject();
-		Handle<Array> names = createProperties->GetOwnPropertyNames();
-		int length = names->Length();
+		Handle<Value> argsStr = V8Util::jsonStringify(args[0]);
+		String::Utf8Value str(argsStr);
+		LOGV(TAG, "    with args: %s", *str);
 
-		for (int i = 0; i < length; ++i) {
-			Handle<Value> name = names->Get(i);
-			Handle<Value> value = createProperties->Get(name);
-			properties->Set(name, value);
+		bool copyProperties = true;
+		Handle<Object> createProperties = args[0]->ToObject();
+		Local<String> constructorName = createProperties->GetConstructorName();
+		if (strcmp(*String::Utf8Value(constructorName), "Arguments") == 0) {
+			copyProperties = false;
+			int32_t argsLength = createProperties->Get(String::New("length"))->Int32Value();
+			if (argsLength > 0) {
+				Handle<Value> properties = createProperties->Get(0);
+				if (properties->IsObject()) {
+					copyProperties = true;
+					createProperties = properties->ToObject();
+				}
+			}
+		}
+
+		if (copyProperties) {
+			Handle<Array> names = createProperties->GetOwnPropertyNames();
+			int length = names->Length();
+
+			for (int i = 0; i < length; ++i) {
+				Handle<Value> name = names->Get(i);
+				Handle<Value> value = createProperties->Get(name);
+				properties->Set(name, value);
+			}
 		}
 	}
+
 
 	if (!args.Data().IsEmpty() && args.Data()->IsFunction()) {
 		Handle<Function> proxyFn = Handle<Function>::Cast(args.Data());

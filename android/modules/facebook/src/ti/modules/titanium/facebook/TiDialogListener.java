@@ -22,10 +22,13 @@ public class TiDialogListener implements DialogListener
 {
 	private V8Callback callback;
 	private String dialogAction;
+	private FacebookModule module;
+
 	private enum Status {ERROR, CANCEL, SUCCESS}
 	
-	public TiDialogListener(V8Callback callback, String dialogAction)
+	public TiDialogListener(FacebookModule module, V8Callback callback, String dialogAction)
 	{
+		this.module = module;
 		this.callback = callback;
 		this.dialogAction = dialogAction;
 	}
@@ -66,7 +69,7 @@ public class TiDialogListener implements DialogListener
 	private void doCallback(KrollDict args)
 	{
 		if (callback != null){
-			callback.invoke(args);
+			callback.invoke(module, args);
 			//callback.callAsync(args);
 		}
 	}

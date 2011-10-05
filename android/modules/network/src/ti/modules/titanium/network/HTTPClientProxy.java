@@ -13,13 +13,12 @@ import org.appcelerator.titanium.TiBlob;
 
 import ti.modules.titanium.xml.DocumentProxy;
 
-@Kroll.proxy(creatableInModule=NetworkModule.class)
-@Kroll.dynamicApis(properties = {
+@Kroll.proxy(creatableInModule=NetworkModule.class, propertyAccessors = {
 	"ondatastream", "onerror", "onload",
 	"onreadystatechange", "onsendstream"
 })
-public class HTTPClientProxy extends KrollProxy {
-	
+public class HTTPClientProxy extends KrollProxy
+{
 	@Kroll.constant public static final int UNSENT = TiHTTPClient.READY_STATE_UNSENT;
 	@Kroll.constant public static final int OPENED = TiHTTPClient.READY_STATE_OPENED;
 	@Kroll.constant public static final int HEADERS_RECEIVED = TiHTTPClient.READY_STATE_HEADERS_RECEIVED;

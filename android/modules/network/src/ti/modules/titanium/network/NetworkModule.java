@@ -121,32 +121,25 @@ public class NetworkModule extends KrollModule {
 
 		setProperty("userAgent", NETWORK_USER_AGENT + " Titanium/"+TiApplication.getInstance().getTiBuildVersion());
 
-		//tiContext.addOnLifecycleEventListener(this);
-		((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
-
-		// TODO ?
-		//eventManager.addOnEventChangeListener(this);
+		registerListenerEvents();
 	}
 
-
 	@Override
-	public void listenerAdded(String type, int count, KrollProxy proxy)
+	protected void eventListenerAdded(String event, int count, KrollProxy proxy)
 	{
-		//super.listenerAdded(type, count, proxy);
-
-		if ("change".equals(type)) {
+		super.eventListenerAdded(event, count, proxy);
+		if ("change".equals(event)) {
 			if (!isListeningForConnectivity) {
 				manageConnectivityListener(true);
 			}
 		}
 	}
 
-
 	@Override
-	public void listenerRemoved(String type, int count, KrollProxy proxy) {
-		//super.listenerRemoved(type, count, proxy);
-
-		if ("change".equals(type) && count == 0) {
+	protected void eventListenerRemoved(String event, int count, KrollProxy proxy)
+	{
+		super.eventListenerRemoved(event, count, proxy);
+		if ("change".equals(event) && count == 0) {
 			manageConnectivityListener(false);
 		}
 	}

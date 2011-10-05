@@ -116,7 +116,7 @@ Handle<Object> KrollBindings::getBinding(Handle<String> binding)
 		generated->bind(exports);
 
 		bindingCache->Set(binding, exports);
-		LOG_STACK_TRACE(TAG, "returning exports");
+		//LOG_STACK_TRACE(TAG, "returning exports");
 		return exports;
 	}
 

@@ -67,12 +67,18 @@ jlong Java_org_appcelerator_kroll_runtime_v8_EventListener_nativeInit(JNIEnv *en
 		javaObjectSymbol = SYMBOL_LITERAL("javaObject");
 	}
 
+	LOGV(TAG, "new javaobject");
 	JavaObject *o = new JavaObject(listener);
-	Local<FunctionTemplate> eventTemplate = FunctionTemplate::New(EventListener::postEvent, External::Wrap(o));
+	LOGV(TAG, "create event template");
+	Persistent<FunctionTemplate> eventTemplate = Persistent<FunctionTemplate>::New(
+		FunctionTemplate::New(EventListener::postEvent, External::Wrap(o)));
 
+	LOGV(TAG, "create fn template");
 	Persistent<Function> v8Listener = Persistent<Function>::New(eventTemplate->GetFunction());
+	LOGV(TAG, "set hidden value");
 	v8Listener->SetHiddenValue(javaObjectSymbol, External::Wrap(o));
 
+	LOGV(TAG, "return v8Listener");
 	return (jlong) *v8Listener;
 }
 

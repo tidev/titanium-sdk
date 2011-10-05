@@ -6,7 +6,10 @@
  */
 package org.appcelerator.titanium.util;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.runtime.v8.V8Callback;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -50,7 +53,7 @@ public class TiAnimationBuilder
 	
 	protected TiAnimation animationProxy;
 
-	//protected KrollCallback callback;
+	protected V8Callback callback;
 	protected boolean relayoutChild = false, applyOpacity = false;
 	protected KrollDict options;
 	protected View view;
@@ -62,12 +65,14 @@ public class TiAnimationBuilder
 		anchorY = Ti2DMatrix.DEFAULT_ANCHOR_VALUE;
 	}
 
-	public void applyOptions(KrollDict options)
+	public void applyOptions(HashMap optionsMap)
 	{
 		if (options == null) {
 			return;
 		}
 
+		// TODO this sucks, fix it (don't construct a KrollDict, solve the problem)
+		KrollDict options = new KrollDict(optionsMap);
 		if (options.containsKey(TiC.PROPERTY_ANCHOR_POINT)) {
 			KrollDict point = (KrollDict) options.get(TiC.PROPERTY_ANCHOR_POINT);
 			anchorX = TiConvert.toFloat(point, TiC.PROPERTY_X);
@@ -127,10 +132,10 @@ public class TiAnimationBuilder
 		// TODO applyOptions(anim.getProperties());
 	}
 
-	/*public void setCallback(KrollCallback callback)
+	public void setCallback(V8Callback callback)
 	{
 		this.callback = callback;
-	}*/
+	}
 
 	public AnimationSet render(TiViewProxy viewProxy, View view)
 	{

@@ -329,7 +329,7 @@ public class TiHTTPClient
 				o.put("progress", ((double)totalSize)/((double)contentLength));
 
 				//onDataStreamCallback.callAsync(o);
-				onDataStreamCallback.invoke(o);
+				onDataStreamCallback.invoke(proxy, o);
 			}
 		}
 		
@@ -483,7 +483,7 @@ public class TiHTTPClient
 			// TODO - implement converter method for array to hashmap?
 			//cb.setThisProxy(proxy);
 			//cb.callAsync(args);
-			//cb.invoke(args);
+			cb.invoke(proxy, args);
 		}
 	}
 
@@ -1027,7 +1027,7 @@ public class TiHTTPClient
 									data.put("progress", ((double)progress)/totalLength);
 									data.put("source", proxy);
 									//cb.callAsync(data);
-									cb.invoke(data);
+									cb.invoke(proxy, data);
 								}
 							}
 						});
