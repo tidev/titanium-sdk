@@ -225,7 +225,6 @@ def genBootstrap(node, namespace = "", indent = 0):
 
 	"""
 	if "dynamicProperties" in proxyMap: 
-		properties = ""
 		for dpName in proxyMap["dynamicProperties"]:
 			dp = proxyMap["dynamicProperties"][dpName]
 			getter = JS_GET_PROPERTY % {"name": dp["name"]}
@@ -236,13 +235,15 @@ def genBootstrap(node, namespace = "", indent = 0):
 				setter = "this.%s(value)" % dp["setMethodName"]
 			properties += JS_PROPERTY % { "prototype": prototype, \
 				"name": dp["name"], "getter": getter, "setter": setter }
+	"""
+	if hasAccessors:
+		properties = ""
 		for accessor in accessors:
 			getter = JS_GET_PROPERTY % {"name": accessor}
 			setter = JS_SET_PROPERTY % {"name": accessor}
 			properties += JS_PROPERTY % { "prototype": prototype, \
 				"name": accessor, "getter": getter, "setter": setter }
 		js += indentCode(JS_DEFINE_PROPERTIES % { "var": prototype, "properties": properties }, 2)
-	"""
 
 	if hasCreateProxies:
 		createProxies = bindings["modules"][className]["createProxies"]
