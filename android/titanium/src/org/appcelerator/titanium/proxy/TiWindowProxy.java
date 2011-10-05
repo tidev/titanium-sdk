@@ -9,6 +9,7 @@
 package org.appcelerator.titanium.proxy;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -108,12 +109,14 @@ public abstract class TiWindowProxy extends TiViewProxy
 		TiAnimation animation = null;
 
 		if (arg != null) {
-			if (arg instanceof KrollDict) {
+			if (arg instanceof HashMap) {
 				options = (KrollDict) arg;
 			} else if (arg instanceof TiAnimation) {
 				options = new KrollDict();
 				options.put("_anim", animation);
 			}
+		} else {
+			options = new KrollDict();
 		}
 
 		if (TiApplication.isUIThread()) {

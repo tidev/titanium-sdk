@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui;
 
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
@@ -177,7 +178,7 @@ public class TiUIActivityWindow extends TiUIView
 		}
 	}*/
 
-	protected void createNewActivity(KrollDict options)
+	protected void createNewActivity(HashMap options)
 	{
 		Activity activity = proxy.getActivity();
 		Intent intent = createIntent(activity);
