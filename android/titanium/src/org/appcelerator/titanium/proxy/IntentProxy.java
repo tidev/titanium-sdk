@@ -114,7 +114,7 @@ public class IntentProxy extends KrollProxy
 			}
 			intent.setFlags(flags);
 		} else {
-			set("flags", intent.getFlags());
+			setProperty(TiC.PROPERTY_FLAGS, intent.getFlags());
 		}
 
 		if (action != null) {

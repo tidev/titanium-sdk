@@ -9,10 +9,15 @@
 #include <v8.h>
 
 #include "AndroidUtil.h"
-#include <JNIUtil.h>
-#include <TypeConverter.h>
+#include "JNIUtil.h"
+#include "TypeConverter.h"
+#include "Proxy.h"
 #include "V8Runtime.h"
 #include "V8Util.h"
+
+#include "org_appcelerator_kroll_runtime_v8_ManagedV8Reference.h"
+#include "org_appcelerator_kroll_runtime_v8_V8Object.h"
+#include "org_appcelerator_kroll_runtime_v8_V8Value.h"
 
 #define TAG "V8Object"
 
@@ -28,7 +33,9 @@ extern "C" {
  * Method:    nativeCreateObject
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCreateObject(JNIEnv *env, jclass clazz)
+JNIEXPORT jlong JNICALL
+Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCreateObject
+	(JNIEnv *env, jclass clazz)
 {
 	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
@@ -40,18 +47,18 @@ JNIEXPORT jlong JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCr
  * Method:    nativeRelease
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_ManagedV8Reference_nativeRelease(JNIEnv *env,
-	jclass clazz, jlong object_ptr)
+JNIEXPORT void JNICALL
+Java_org_appcelerator_kroll_runtime_v8_ManagedV8Reference_nativeRelease
+	(JNIEnv *env, jclass clazz, jlong refPointer)
 {
 	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
-	/*if (object_ptr) {
-		Persistent<Data> handle((Data *) object_ptr);
+	if (refPointer) {
+		Persistent<Data> handle((Data *) refPointer);
 		if (!handle.IsEmpty() && !handle.IsNearDeath()) {
-			// TODO even with Isolate this causes problems
 			handle.Dispose();
 		}
-	}*/
+	}
 }
 
 /*
@@ -60,153 +67,42 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_ManagedV8Reference
  * Signature: (J)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Value_toDetailString
-  (JNIEnv *env, jclass clazz, jlong value_ptr)
+	(JNIEnv *env, jclass clazz, jlong valuePointer)
 {
 	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
 
 	Handle<String> string;
-	if (value_ptr) {
-		string = Persistent<Value>((Object *) value_ptr)->ToDetailString();
+	if (valuePointer) {
+		string = ((Object *) valuePointer)->ToDetailString();
 	}
 	return TypeConverter::jsStringToJavaString(string);
 }
 
 /*
  * Class:     org_appcelerator_kroll_runtime_v8_V8Object
- * Method:    nativeGet
- * Signature: (JLjava/lang/String;)Ljava/lang/Object;
- */
-JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeGet(JNIEnv *env, jobject map, jlong ptr,
-	jstring name)
-{
-	ENTER_V8(V8Runtime::globalContext);
-	titanium::JNIScope jniScope(env);
-	Handle<Object> jsObject((Object *) ptr);
-
-	Local<Value> value = jsObject->Get(TypeConverter::javaStringToJsString(name));
-	bool isNew;
-	jobject result = TypeConverter::jsValueToJavaObject(value, &isNew);
-
-	return result;
-}
-
-/*
- * Class:     org_appcelerator_kroll_runtime_v8_V8Object
- * Method:    nativeGetIndex
- * Signature: (JI)Ljava/lang/Object;
- */
-JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeGetIndex(JNIEnv *env, jobject map,
-	jlong ptr, jint index)
-{
-	ENTER_V8(V8Runtime::globalContext);
-	titanium::JNIScope jniScope(env);
-	Handle<Object> jsObject((Object *) ptr);
-
-	Local<Value> value = jsObject->Get((uint32_t) index);
-	return TypeConverter::jsValueToJavaObject(value);
-}
-
-/*
- * Class:     org_appcelerator_kroll_runtime_v8_V8Object
- * Method:    nativeSetObject
+ * Method:    nativeSetProperty
  * Signature: (JLjava/lang/String;Ljava/lang/Object;)V
  */
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetObject(JNIEnv *env, jobject map,
-	jlong ptr, jstring name, jobject value)
+JNIEXPORT void JNICALL
+Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetProperty
+	(JNIEnv *env, jobject object, jlong ptr, jstring name, jobject value)
 {
 	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
-	Handle<Object> jsObject((Object *) ptr);
 
-	jsObject->Set(TypeConverter::javaStringToJsString(name),
-		TypeConverter::javaObjectToJsValue(value));
-
-}
-
-/*
- * Class:     org_appcelerator_kroll_runtime_v8_V8Object
- * Method:    nativeSetNumber
- * Signature: (JLjava/lang/String;D)V
- */
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetNumber(JNIEnv *env, jobject map,
-	jlong ptr, jstring name, jdouble number)
-{
-	ENTER_V8(V8Runtime::globalContext);
-	titanium::JNIScope jniScope(env);
-	Handle<Object> jsObject((Object *) ptr);
-
-	jsObject->Set(TypeConverter::javaStringToJsString(name), Number::New((double) number));
-}
-
-/*
- * Class:     org_appcelerator_kroll_runtime_v8_V8Object
- * Method:    nativeSetBoolean
- * Signature: (JLjava/lang/String;Z)V
- */
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetBoolean(JNIEnv *env, jobject map,
-	jlong ptr, jstring name, jboolean b)
-{
-	ENTER_V8(V8Runtime::globalContext);
-	titanium::JNIScope jniScope(env);
-	Handle<Object> jsObject((Object *) ptr);
-
-	jsObject->Set(TypeConverter::javaStringToJsString(name), b ? True() : False());
-}
-
-/*
- * Class:     org_appcelerator_kroll_runtime_v8_V8Object
- * Method:    nativeForceSet
- * Signature: (JLjava/lang/String;Ljava/lang/Object;)V
- */
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeForceSet(JNIEnv *env, jobject map,
-	jlong ptr, jstring name, jobject value)
-{
-	ENTER_V8(V8Runtime::globalContext);
-	titanium::JNIScope jniScope(env);
-	Handle<Object> jsObject((Object *) ptr);
-
-	jsObject->ForceSet(
-		TypeConverter::javaStringToJsString(name),
-		TypeConverter::javaObjectToJsValue(value));
-}
-
-/*
- * Class:     org_appcelerator_kroll_runtime_v8_V8Object
- * Method:    nativeHas
- * Signature: (JLjava/lang/String;)Z
- */
-JNIEXPORT jboolean JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeHas(JNIEnv *env, jobject map,
-	jlong ptr, jstring name)
-{
-	ENTER_V8(V8Runtime::globalContext);
-	titanium::JNIScope jniScope(env);
-	Handle<Object> jsObject((Object *) ptr);
-
-	return (jboolean) jsObject->Has(TypeConverter::javaStringToJsString(name));
-}
-
-/*
- * Class:     org_appcelerator_kroll_runtime_v8_V8Object
- * Method:    nativeKeys
- * Signature: (J)[Ljava/lang/Object;
- */
-JNIEXPORT jobjectArray JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeKeys(JNIEnv *env, jobject map,
-	jlong ptr)
-{
-	ENTER_V8(V8Runtime::globalContext);
-	titanium::JNIScope jniScope(env);
-	Handle<Object> jsObject((Object *) ptr);
-
-	Handle<Array> names = jsObject->GetPropertyNames();
-	int len = names->Length();
-	jobjectArray keys = JNIUtil::newObjectArray(len);
-
-	for (int i = 0; i < len; i++) {
-		String::Value name(names->Get(i));
-		env->SetObjectArrayElement(keys, (jint) i, env->NewString(*name, name.length()));
+	Handle<Object> jsObject;
+	if (ptr != 0) {
+		jsObject = Persistent<Object>((Object *) ptr);
+	} else {
+		jsObject = TypeConverter::javaObjectToJsValue(object)->ToObject();
 	}
-	return keys;
+
+	Handle<Object> properties = jsObject->Get(Proxy::propertiesSymbol)->ToObject();
+	Handle<String> jsName = TypeConverter::javaStringToJsString(name);
+
+	Handle<Value> jsValue = TypeConverter::javaObjectToJsValue(value);
+	properties->Set(jsName, jsValue);
 }
 
 #ifdef __cplusplus

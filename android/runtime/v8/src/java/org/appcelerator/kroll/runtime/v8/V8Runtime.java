@@ -1,3 +1,9 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package org.appcelerator.kroll.runtime.v8;
 
 import java.io.IOException;
@@ -72,6 +78,20 @@ public final class V8Runtime implements Handler.Callback
 		} else {
 			Message msg = mainHandler.obtainMessage(MSG_NATIVE_RELEASE, ref);
 			msg.sendToTarget();
+		}
+	}
+
+	public void setProperty(final V8Object object, final String property, final Object value)
+	{
+		if (isUiThread()) {
+			object.doSetProperty(property, value);
+		} else {
+			mainHandler.post(new Runnable() {
+				public void run()
+				{
+					object.doSetProperty(property, value);
+				}
+			});
 		}
 	}
 

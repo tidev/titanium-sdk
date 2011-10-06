@@ -136,6 +136,7 @@ public:
 	static v8::Handle<v8::Value> executeString(v8::Handle<v8::String> source, v8::Handle<v8::Value> filename);
 	static v8::Handle<v8::Value> newInstanceFromConstructorTemplate(v8::Persistent<v8::FunctionTemplate>& t,
 		const v8::Arguments& args);
+	static void objectExtend(v8::Handle<v8::Object> dest, v8::Handle<v8::Object> src);
 	static void reportException(v8::TryCatch &tryCatch, bool showLine = true);
 	static void fatalException(v8::TryCatch &tryCatch);
 	static v8::Handle<v8::String> jsonStringify(v8::Handle<v8::Value> value);
