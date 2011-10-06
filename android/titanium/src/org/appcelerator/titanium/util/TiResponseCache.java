@@ -28,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiProperties;
 
 public class TiResponseCache extends ResponseCache
 {

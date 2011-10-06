@@ -33,7 +33,6 @@ import org.appcelerator.titanium.analytics.TiAnalyticsService;
 import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
-import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiTempFileHelper;
@@ -41,7 +40,10 @@ import org.appcelerator.titanium.view.ITiWindowHandler;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Handler.Callback;
@@ -84,6 +86,7 @@ public abstract class TiApplication extends Application implements Callback
 	protected TiStylesheet stylesheet;
 	private String density;
 
+	private BroadcastReceiver externalStorageReceiver;
 	private boolean needsStartEvent;
 	private boolean needsEnrollEvent;
 	protected TiAnalyticsModel analyticsModel;
@@ -228,11 +231,14 @@ public abstract class TiApplication extends Application implements Callback
 
 	public void postOnCreate() {
 		TiConfig.LOGD = systemProperties.getBool("ti.android.debug", false);
+		
+		startExternalStorageMonitor();
 
 		// Register the default cache handler
-		File cacheDir = new File(new TiFileHelper(this).getDataDirectory(false), "remote-image-cache");
+		File cacheDir = new File(tempFileHelper.getTempDirectory(), "remote-image-cache");
 		if (!cacheDir.exists()) {
 			cacheDir.mkdirs();
+			tempFileHelper.excludeFileOnCleanup(cacheDir);
 		}
 		TiResponseCache.setDefault(new TiResponseCache(cacheDir.getAbsoluteFile(), this));
 	}
@@ -449,6 +455,7 @@ public abstract class TiApplication extends Application implements Callback
 
 	@Override
 	public void onTerminate() {
+		stopExternalStorageMonitor();
 		super.onTerminate();
 	}
 
@@ -605,5 +612,33 @@ public abstract class TiApplication extends Application implements Callback
 	public TiTempFileHelper getTempFileHelper()
 	{
 		return tempFileHelper;
+	}
+	
+	private void startExternalStorageMonitor()
+	{
+		externalStorageReceiver = new BroadcastReceiver() {
+			
+			@Override
+			public void onReceive(Context context, Intent intent)
+			{
+				// if the sd card was removed, we don't cache http responses
+				TiResponseCache.setDefault(null);
+				Log.i(LCAT, "SD card has been unmounted. Disabling cache for http responses.");
+			}
+		};
+		
+	    IntentFilter filter = new IntentFilter();
+	    
+	    filter.addAction(Intent.ACTION_MEDIA_REMOVED);
+	    filter.addAction(Intent.ACTION_MEDIA_UNMOUNTED);
+	    filter.addAction(Intent.ACTION_MEDIA_BAD_REMOVAL);
+	    filter.addDataScheme("file");
+
+	    registerReceiver(externalStorageReceiver, filter);
+	}
+	
+	private void stopExternalStorageMonitor()
+	{
+		unregisterReceiver(externalStorageReceiver);
 	}
 }

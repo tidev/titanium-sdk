@@ -8,7 +8,6 @@ package org.appcelerator.titanium.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.channels.FileLockInterruptionException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -41,21 +40,22 @@ public class TiTempFileHelper
 	{
 		// See http://developer.android.com/guide/topics/data/data-storage.html#ExternalCache
 		// getExternalCacheDir() isn't available until API 8
-		File extStorage = Environment.getExternalStorageDirectory();
-		File dataDir = new File(new File(extStorage, "Android"), "data");
-		File externalCacheDir = new File(new File(dataDir, app.getPackageName()), "cache");
-		tempDir = new File(externalCacheDir, TEMPDIR);
 
-		// go ahead and make sure the temp directory exists
 		String extState = Environment.getExternalStorageState();
 		if (Environment.MEDIA_MOUNTED.equals(extState)) {
-			if (!tempDir.exists()) {
-				tempDir.mkdirs();
-			}
+			File extStorage = Environment.getExternalStorageDirectory();
+			File dataDir = new File(new File(extStorage, "Android"), "data");
+			File externalCacheDir = new File(new File(dataDir, app.getPackageName()), "cache");
+			tempDir = new File(externalCacheDir, TEMPDIR);
+			
 		} else {
-			// TODO this needs further discussion regarding what to do with temp files 
-			// when SD card is removed
-			Log.e(TAG, "External storage not mounted for writing");
+			// Use internal storage cache if SD card is removed
+			tempDir = new File(app.getCacheDir(), TEMPDIR);
+		}
+		
+		// go ahead and make sure the temp directory exists
+		if (!tempDir.exists()) {
+			tempDir.mkdirs();
 		}
 	}
 
@@ -64,19 +64,11 @@ public class TiTempFileHelper
 	 * @see File#createTempFile(String, String)
 	 * @throws IOException when the external storage state is either unmounted or read only 
 	 */
-	public File createTempFile(String prefix, String suffix)
-		throws IOException
+	public File createTempFile(String prefix, String suffix) throws IOException
 	{
-		String extState = Environment.getExternalStorageState();
-		if (Environment.MEDIA_MOUNTED.equals(extState)) {
-			File tempFile = File.createTempFile(prefix, suffix, tempDir);
-			synchronized (createdThisSession) {
-				createdThisSession.add(tempFile.getAbsolutePath());
-			}
-			return tempFile;
-		} else {
-			throw new IOException("External storage not mounted for writing");
-		}
+		File tempFile = File.createTempFile(prefix, suffix, tempDir);
+		excludeFileOnCleanup(tempFile);
+		return tempFile;
 	}
 
 	/**
@@ -117,7 +109,7 @@ public class TiTempFileHelper
 		@Override
 		public void run()
 		{
-			cleanTempDir();
+			doCleanTempDir();
 			service.shutdown();
 		}
 
@@ -131,24 +123,23 @@ public class TiTempFileHelper
 	}
 
 	/**
-	 * Cleans the temporary directory synchronously.
-	 * Issues a warning if the external storage is not mounted
-	 * or is read-only.
+	 * Adds file to the list of temp files created during this session. It will
+	 * only be added to the list if the file directly in the temp folder. This
+	 * file will not be wiped during cleanup.
 	 */
-	public void cleanTempDir()
+	public void excludeFileOnCleanup(File f)
 	{
-		String extState = Environment.getExternalStorageState();
-		if (Environment.MEDIA_MOUNTED.equals(extState)) {
-			doCleanTempDir();
-		} else {
-			Log.w(TAG, "External storage not mounted, skipping clean up.");
+		if (f != null && tempDir.equals(f.getParentFile())) {
+			synchronized (createdThisSession) {
+				createdThisSession.add(f.getAbsolutePath());
+			}
 		}
 	}
 
 	protected void doCleanTempDir()
 	{
 		if (!tempDir.exists()) {
-			Log.w(TAG, "The external temp directory doesn't exist, skipping cleanup");
+			Log.w(TAG, "The temp directory doesn't exist, skipping cleanup");
 			return;
 		}
 		for (File file : tempDir.listFiles())
