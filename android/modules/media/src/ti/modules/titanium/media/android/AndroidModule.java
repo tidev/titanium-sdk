@@ -3,8 +3,10 @@ package ti.modules.titanium.media.android;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.runtime.v8.V8Callback;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.util.Log;
@@ -25,14 +27,14 @@ public class AndroidModule extends KrollModule
 	private static final String LCAT = "TiMedia.Android";
 
 	@Kroll.method
-	public void scanMediaFiles(Object[] paths, Object[] mimeTypes/* TODO, KrollCallback callback*/)
+	public void scanMediaFiles(Object[] paths, Object[] mimeTypes, V8Callback callback)
 	{
 		String mediaPaths[] = new String[paths.length];
 		for (int i = 0; i < paths.length; i++) {
 			mediaPaths[i] = resolveUrl(null, TiConvert.toString(paths[i]));
 		}
 
-		(new MediaScannerClient(mediaPaths, mimeTypes/* TODO, callback */)).scan();
+		(new MediaScannerClient(mediaPaths, mimeTypes, callback)).scan();
 	}
 
 	@Kroll.method
@@ -61,16 +63,16 @@ public class AndroidModule extends KrollModule
 	{
 		private String[] paths;
 		private Object[] mimeTypes;
-		// TODO private KrollCallback callback;
+		private V8Callback callback;
 		private MediaScannerConnection connection;
 		private AtomicInteger completedScanCount = new AtomicInteger(0);
 
-		/*TODO  MediaScannerClient(Object[] paths, Object[] mimeTypes, KrollCallback callback)
+		public MediaScannerClient(String[] paths, Object[] mimeTypes, V8Callback callback)
 		{
 			this.paths = paths;
 			this.mimeTypes = mimeTypes;
-			// TODO this.callback = callback;
-		}*/
+			this.callback = callback;
+		}
 
 		public MediaScannerClient(String[] paths, Object[] mimeTypes)
 		{
@@ -103,12 +105,12 @@ public class AndroidModule extends KrollModule
 			if (completedScanCount.incrementAndGet() >= paths.length) {
 				connection.disconnect();
 			}
-			/* TODO if (callback != null) {
+			if (callback != null) {
 				KrollDict properties = new KrollDict(2);
 				properties.put("path", path);
 				properties.put("uri", uri == null ? null : uri.toString());
-				callback.callAsync(properties);
-			}*/
+				callback.invoke(callback, properties);
+			}
 		}
 		public void scan()
 		{
