@@ -86,6 +86,7 @@ public abstract class TiApplication extends Application implements Callback
 	protected TiStylesheet stylesheet;
 	private String density;
 
+	private TiResponseCache responseCache;
 	private BroadcastReceiver externalStorageReceiver;
 	private boolean needsStartEvent;
 	private boolean needsEnrollEvent;
@@ -233,14 +234,20 @@ public abstract class TiApplication extends Application implements Callback
 		TiConfig.LOGD = systemProperties.getBool("ti.android.debug", false);
 		
 		startExternalStorageMonitor();
-
+		
 		// Register the default cache handler
-		File cacheDir = new File(tempFileHelper.getTempDirectory(), "remote-image-cache");
+		responseCache = new TiResponseCache(getRemoteCacheDir(), this);
+		TiResponseCache.setDefault(responseCache);
+	}
+
+	private File getRemoteCacheDir()
+	{
+		File cacheDir = new File(tempFileHelper.getTempDirectory(), "remote-cache");
 		if (!cacheDir.exists()) {
 			cacheDir.mkdirs();
 			tempFileHelper.excludeFileOnCleanup(cacheDir);
 		}
-		TiResponseCache.setDefault(new TiResponseCache(cacheDir.getAbsoluteFile(), this));
+		return cacheDir.getAbsoluteFile();
 	}
 
 	public void setRootActivity(TiRootActivity rootActivity)
@@ -621,14 +628,21 @@ public abstract class TiApplication extends Application implements Callback
 			@Override
 			public void onReceive(Context context, Intent intent)
 			{
-				// if the sd card was removed, we don't cache http responses
-				TiResponseCache.setDefault(null);
-				Log.i(LCAT, "SD card has been unmounted. Disabling cache for http responses.");
+				if (Intent.ACTION_MEDIA_MOUNTED.equals(intent.getAction())) {
+					responseCache.setCacheDir(getRemoteCacheDir());
+					TiResponseCache.setDefault(responseCache);
+					Log.i(LCAT, "SD card has been mounted. Enabling cache for http responses.");
+				} else {
+					// if the sd card was removed, we don't cache http responses
+					TiResponseCache.setDefault(null);
+					Log.i(LCAT, "SD card has been unmounted. Disabling cache for http responses.");
+				}
 			}
 		};
 		
 	    IntentFilter filter = new IntentFilter();
 	    
+	    filter.addAction(Intent.ACTION_MEDIA_MOUNTED);
 	    filter.addAction(Intent.ACTION_MEDIA_REMOVED);
 	    filter.addAction(Intent.ACTION_MEDIA_UNMOUNTED);
 	    filter.addAction(Intent.ACTION_MEDIA_BAD_REMOVAL);

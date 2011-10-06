@@ -36,27 +36,17 @@ public class TiTempFileHelper
 	protected File tempDir;
 	protected ArrayList<String> createdThisSession = new ArrayList<String>();
 
+	private String previousExternalStorageState;
+	private String appPackageName;
+	private File internalCacheDir;
+	
 	public TiTempFileHelper(TiApplication app)
 	{
-		// See http://developer.android.com/guide/topics/data/data-storage.html#ExternalCache
-		// getExternalCacheDir() isn't available until API 8
+		appPackageName = app.getPackageName();
+		internalCacheDir = app.getCacheDir();
+		previousExternalStorageState = Environment.getExternalStorageState();
 
-		String extState = Environment.getExternalStorageState();
-		if (Environment.MEDIA_MOUNTED.equals(extState)) {
-			File extStorage = Environment.getExternalStorageDirectory();
-			File dataDir = new File(new File(extStorage, "Android"), "data");
-			File externalCacheDir = new File(new File(dataDir, app.getPackageName()), "cache");
-			tempDir = new File(externalCacheDir, TEMPDIR);
-			
-		} else {
-			// Use internal storage cache if SD card is removed
-			tempDir = new File(app.getCacheDir(), TEMPDIR);
-		}
-		
-		// go ahead and make sure the temp directory exists
-		if (!tempDir.exists()) {
-			tempDir.mkdirs();
-		}
+		updateTempDir();
 	}
 
 	/**
@@ -66,6 +56,7 @@ public class TiTempFileHelper
 	 */
 	public File createTempFile(String prefix, String suffix) throws IOException
 	{
+		updateTempDir();
 		File tempFile = File.createTempFile(prefix, suffix, tempDir);
 		excludeFileOnCleanup(tempFile);
 		return tempFile;
@@ -164,6 +155,33 @@ public class TiTempFileHelper
 
 	public File getTempDirectory()
 	{
+		updateTempDir();
 		return tempDir;
+	}
+	
+	private void updateTempDir()
+	{
+		String extState = Environment.getExternalStorageState();
+		if (!extState.equals(previousExternalStorageState)) {
+			if (Environment.MEDIA_MOUNTED.equals(extState)) {
+
+				// See http://developer.android.com/guide/topics/data/data-storage.html#ExternalCache
+				// getExternalCacheDir() isn't available until API 8
+				File extStorage = Environment.getExternalStorageDirectory();
+				File dataDir = new File(new File(extStorage, "Android"), "data");
+				File externalCacheDir = new File(new File(dataDir, appPackageName), "cache");
+				tempDir = new File(externalCacheDir, TEMPDIR);
+			} else {
+				// Use internal storage cache if SD card is removed
+				tempDir = new File(internalCacheDir, TEMPDIR);
+			}
+
+			// go ahead and make sure the temp directory exists
+			if (!tempDir.exists()) {
+				tempDir.mkdirs();
+			}
+		}
+
+		previousExternalStorageState = extState;
 	}
 }
