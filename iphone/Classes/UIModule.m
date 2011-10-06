@@ -49,11 +49,21 @@
 
 -(void)dealloc
 {
-#ifdef USE_TI_UIIPAD
-	RELEASE_TO_NIL(ipad);
-#endif
 #ifdef USE_TI_UIIPHONE
+    [self forgetProxy:iphone];
 	RELEASE_TO_NIL(iphone);
+#endif
+#ifdef USE_TI_UIIPAD
+    [self forgetProxy:ipad];
+    RELEASE_TO_NIL(ipad);
+#endif
+#ifdef USE_TI_UIIOS
+    [self forgetProxy:ios];
+    RELEASE_TO_NIL(ios);
+#endif
+#ifdef USE_TI_UICLIPBOARD	
+    [self forgetProxy:clipboard];
+    RELEASE_TO_NIL(clipboard);
 #endif
 	[super dealloc];
 }
@@ -275,6 +285,7 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 	{
 		// cache it since it's used alot
 		iphone = [[TiUIiPhoneProxy alloc] _initWithPageContext:[self executionContext]];
+        [self rememberProxy:iphone];
 	}
 	return iphone;
 }
@@ -285,12 +296,8 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 {
 	if (ipad==nil)
 	{
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-		if ([TiUtils isiPhoneOS3_2OrGreater] && [TiUtils isIPad])
-		{
-			ipad = [[TiUIiPadProxy alloc] _initWithPageContext:[self executionContext]];
-		}
-#endif
+        ipad = [[TiUIiPadProxy alloc] _initWithPageContext:[self executionContext]];
+        [self rememberProxy:ipad];
 	}
 	return ipad;
 }
@@ -301,12 +308,8 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 {
 	if (ios==nil)
 	{
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-		if ([TiUtils isiPhoneOS3_2OrGreater])
-		{
-			ios = [[TiUIiOSProxy alloc] _initWithPageContext:[self executionContext]];
-		}
-#endif
+        ios = [[TiUIiOSProxy alloc] _initWithPageContext:[self executionContext]];
+        [self rememberProxy:ios];
 	}
 	return ios;
 }
@@ -332,6 +335,7 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 	if (clipboard==nil)
 	{
 		clipboard = [[TiUIClipboardProxy alloc] _initWithPageContext:[self executionContext]];
+        [self rememberProxy:clipboard];
 	}
 	return clipboard;
 }

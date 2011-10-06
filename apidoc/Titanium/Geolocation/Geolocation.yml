@@ -100,18 +100,22 @@ properties:
     description: authorization constant
     type: Number
     permission: read-only
+    platforms: [iphone, ipad]
   - name: AUTHORIZATION_DENIED
     description: authorization constant (user disabled authorization)
     type: Number
     permission: read-only
+    platforms: [iphone, ipad]
   - name: AUTHORIZATION_RESTRICTED
     description: authorization constant (system disabled authorization)
     type: Number
     permission: read-only
+    platforms: [iphone, ipad]
   - name: AUTHORIZATION_UNKNOWN
     description: authorization constant
     type: Number
     permission: read-only
+    platforms: [iphone, ipad]
   - name: ERROR_DENIED
     description: error constant
     platforms: [iphone, ipad]
@@ -160,16 +164,20 @@ properties:
     description: The GPS location provider
     type: String
     permission: read-only
+    platforms: [android]
   - name: PROVIDER_NETWORK
     description: The Network location provider
     type: String
     permission: read-only
+    platforms: [android]
   - name: distanceFilter
     description: The minimum change of position (in meters) before a 'location' event is fired. Default is 0, meaning that location events are continuously generated.
     type: Number
+    platforms: [iphone, ipad]
   - name: headingFilter
     description: The minium change of heading (in degrees) before a 'heading' event is fired. Default is 0, meaning that heading events are continuously generated.
     type: Number
+    platforms: [iphone, ipad]
   - name: locationServicesAuthorization
     description: Returns an authorization constant indicating if the application has access to location services. Always returns AUTHORIZATION_UNKNOWN on pre-4.2 devices. Attempting to re-authorize when AUTHORIZATION_RESTRICTED will lead to issues
     type: Number
@@ -180,6 +188,7 @@ properties:
   - name: locationServicesEnabled
     description: returns true if the user has enabled or disable location services for the device (not the application).
     type: Boolean
+    permission: read-only
   - name: preferredProvider
     description: allows setting of the preferred location provider.  Returns undefined when the preferred provider is auto-detected
     type: String
@@ -190,3 +199,4 @@ properties:
   - name: showCalibration
     description: returns true if the calibration UI can show
     type: Boolean
+    platforms: [iphone, ipad]

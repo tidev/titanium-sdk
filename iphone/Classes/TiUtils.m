@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import <QuartzCore/QuartzCore.h>
+#import <CommonCrypto/CommonDigest.h>
 
 #import "TiBase.h"
 #import "TiUtils.h"
@@ -1560,6 +1561,24 @@ if ([str isEqualToString:@#orientation]) return orientation;
     }
     
     return (position+size);
+}
+
++(NSString*)convertToHex:(unsigned char*)result length:(size_t)length
+{
+	NSMutableString* encoded = [[NSMutableString alloc] initWithCapacity:length];
+	for (int i=0; i < length; i++) {
+		[encoded appendFormat:@"%02x",result[i]];
+	}
+	NSString* value = [encoded lowercaseString];
+	[encoded release];
+	return value;
+}
+
++(NSString*)md5:(NSData*)data
+{
+	unsigned char result[CC_MD5_DIGEST_LENGTH];
+	CC_MD5([data bytes], [data length], result);
+	return [self convertToHex:(unsigned char*)&result length:CC_MD5_DIGEST_LENGTH];    
 }
 
 @end

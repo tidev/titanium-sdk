@@ -26,12 +26,9 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiLaunchActivity;
-import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.kroll.KrollCoverage;
@@ -424,13 +421,18 @@ public class TitaniumModule extends KrollModule
 	}
 
 	@Kroll.method @Kroll.topLevel
-	public KrollProxy require(KrollInvocation invocation, String path)
+	public Object require(KrollInvocation invocation, String path)
 	{
 		// 1. look for a native module first
 		// 2. then look for a cached module
 		// 3. then attempt to load from resources
-		TiContext ctx = invocation.getTiContext().getRootActivity().getTiContext();
-		KrollModule module = requireNativeModule(ctx, path);
+		TiContext thisContext = invocation.getTiContext();
+		if (thisContext == null) {
+			Context.throwAsScriptRuntimeEx(new Exception("Execution context is no longer available. Cannot load module '" + path + "'."));
+			return null;
+		}
+		TiContext rootContext = thisContext.getRootActivity().getTiContext();
+		KrollModule module = requireNativeModule(rootContext, path);
 		StringBuilder builder = new StringBuilder();
 
 		if (module != null) {
@@ -443,71 +445,25 @@ public class TitaniumModule extends KrollModule
 			return module;
 		}
 
-		// NOTE: CommonJS modules load absolute to app:// in Titanium
-		builder.setLength(0);
-		builder.append(TiC.URL_APP_PREFIX)
-			.append(path)
-			.append(".js");
-		String fileUrl = builder.toString();
-		TiBaseFile tbf = TiFileFactory.createTitaniumFile(ctx, new String[]{ fileUrl }, false);
-		if (tbf == null) {
-			//the spec says we are required to throw an exception
-			Context.reportError("Couldn't find module: " + path);
-			return null;
-		}
-
 		if (DBG) {
-			Log.d(LCAT, "Attempting to include JS module: " + tbf.nativePath());
+			Log.d(LCAT, "Attempting to include CommonJS module: " + path);
 		}
+
 		try {
-			TiBlob blob = (TiBlob) tbf.read();
-			if (blob == null) {
-				Log.e(LCAT, "Couldn't read required file: " + fileUrl);
-				return null;
-			}
-
-			// TODO: we need to switch to the Rhino native require()
-			// implementation, but in the meantime this will have to do
-
-			// create the CommonJS exporter
-			KrollProxy proxy = new KrollProxy(ctx);
+			return thisContext.getKrollContext().callCommonJsRequire(path);
+		} catch (Exception e) {
 			builder.setLength(0);
-			builder.append("(function(exports){")
-				.append(blob.getText())
-				.append("return exports;")
-				.append("})({})");
-
-			Object result = ctx.evalJS(builder.toString());
-
-			if (!(result instanceof Scriptable)) {
-				builder.setLength(0);
-				builder.append("Module did not correctly return an exports object: ")
-					.append(path)
-					.append(", result: ")
-					.append(result);
-				Context.throwAsScriptRuntimeEx(new Exception(builder.toString()));
-				return null;
-			}
-
-			Scriptable exports = (Scriptable) result;
-			// CommonJS modules export all functions/properties as 
-			// properties of the special exports object provided
-			for (Object key : exports.getIds()) {
-				String propName = key.toString();
-				proxy.setProperty(propName, exports.get(propName, exports));
-			}
-
-			// spec says you must have a read-only id property - we don't
-			// currently support readonly in kroll so this is probably OK for now
-			proxy.setProperty(TiC.PROPERTY_ID, path);
-			// uri is optional but we point it to where we loaded it
-			proxy.setProperty(TiC.PROPERTY_URI, fileUrl);
-			return proxy;
-		} catch (Exception ex) {
-			Log.e(LCAT, "Error loading module named: " + path, ex);
-			Context.throwAsScriptRuntimeEx(ex);
-			return null;
+			builder.append("require(\"")
+				.append(path)
+				.append("\") failed: ")
+				.append(e.getMessage());
+			String msg = builder.toString();
+			Log.e(LCAT, msg, e);
+			Context.throwAsScriptRuntimeEx(new Exception(msg));
 		}
+
+		Context.throwAsScriptRuntimeEx(new Exception("Cannot find module '" + path + "'"));
+		return null;
 	}
 
 	@Kroll.method
