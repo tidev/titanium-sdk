@@ -29,6 +29,16 @@ public class V8Callback extends V8Object implements Handler.Callback
 		invoke(thisObject, new Object[]{ functionArgs });
 	}
 
+	public void invokeAsync(final V8Object thisObject, final Object[] functionArgs)
+	{
+		mainHandler.post(new Runnable() {
+			public void run()
+			{
+				nativeInvoke(thisObject.getPointer(), getPointer(), functionArgs);
+			}
+		});
+	}
+
 	public void invoke(V8Object thisObject, Object[] functionArgs)
 	{
 		V8Runtime v8Runtime = V8Runtime.getInstance();

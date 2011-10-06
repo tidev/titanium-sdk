@@ -422,7 +422,7 @@ public class TiAnimationBuilder
 			}
 			if (a instanceof AnimationSet) {
 				if (callback != null) {
-					callback.invoke(viewProxy, new KrollDict());
+					callback.invokeAsync(viewProxy, new Object[] { new KrollDict() });
 				}
 				if (animationProxy != null) {
 					animationProxy.fireEvent(TiC.EVENT_COMPLETE, null);

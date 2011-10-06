@@ -70,15 +70,15 @@ public class EventEmitter extends V8Object implements Handler.Callback
 			return false;
 		}*/
 
-		if (V8Runtime.getInstance().isUiThread()) {
+		/*if (V8Runtime.getInstance().isUiThread()) {
 			return nativeFireEvent(ptr, event, data);
-		} else {
+		} else {*/
 			Message msg = mainHandler.obtainMessage(MSG_FIRE_EVENT, data);
 			msg.getData().putString(PROPERTY_TYPE, event);
 			msg.getData().putBoolean(PROPERTY_SYNC, false);
 			msg.sendToTarget();
 			return true;
-		}
+		//}
 	}
 
 	public boolean fireSyncEvent(String event, Object data)
