@@ -781,23 +781,29 @@ public abstract class TiUIView
 			new SimpleOnGestureListener() {
 				@Override
 				public boolean onDoubleTap(MotionEvent e) {
-					boolean handledTap = proxy.fireEvent(TiC.EVENT_DOUBLE_TAP, dictFromEvent(e));
-					boolean handledClick = proxy.fireEvent(TiC.EVENT_DOUBLE_CLICK, dictFromEvent(e));
-					return handledTap || handledClick;
+					if (proxy.hasListeners(TiC.EVENT_DOUBLE_TAP) || proxy.hasListeners(TiC.EVENT_DOUBLE_CLICK)) {
+						boolean handledTap = proxy.fireEvent(TiC.EVENT_DOUBLE_TAP, dictFromEvent(e));
+						boolean handledClick = proxy.fireEvent(TiC.EVENT_DOUBLE_CLICK, dictFromEvent(e));
+						return handledTap || handledClick;
+					}
+					return false;
 				}
 				@Override
 				public boolean onSingleTapConfirmed(MotionEvent e) {
 					if (DBG) { Log.d(LCAT, "TAP, TAP, TAP on " + proxy); }
-					boolean handledTap = proxy.fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
-					// Moved click handling to the onTouch listener, because a single tap is not the
-					// same as a click.  A single tap is a quick tap only, whereas clicks can be held
-					// before lifting.
-					// boolean handledClick = proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(event));
-					// Note: this return value is irrelevant in our case.  We "want" to use it
-					// in onTouch below, when we call detector.onTouchEvent(event);  But, in fact,
-					// onSingleTapConfirmed is *not* called in the course of onTouchEvent.  It's
-					// called via Handler in GestureDetector. <-- See its Java source.
-					return handledTap;// || handledClick;
+					if (proxy.hasListeners(TiC.EVENT_SINGLE_TAP)) {
+						return proxy.fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
+						// Moved click handling to the onTouch listener, because a single tap is not the
+						// same as a click.  A single tap is a quick tap only, whereas clicks can be held
+						// before lifting.
+						// boolean handledClick = proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(event));
+						// Note: this return value is irrelevant in our case.  We "want" to use it
+						// in onTouch below, when we call detector.onTouchEvent(event);  But, in fact,
+						// onSingleTapConfirmed is *not* called in the course of onTouchEvent.  It's
+						// called via Handler in GestureDetector. <-- See its Java source.
+						//return handledTap;// || handledClick;
+					}
+					return false;
 				}
 				@Override
 				public void onLongPress(MotionEvent e)
@@ -805,7 +811,9 @@ public abstract class TiUIView
 					if (DBG){
 						Log.d(LCAT, "LONGPRESS on " + proxy);
 					}
-					proxy.fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e));
+					if (proxy.hasListeners(TiC.EVENT_LONGPRESS)) {
+						proxy.fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e));
+					}
 				}
 			});
 		touchable.setOnTouchListener(new OnTouchListener() {
@@ -815,12 +823,23 @@ public abstract class TiUIView
 					lastUpEvent.put(TiC.EVENT_PROPERTY_Y, (double)event.getY());
 				}
 				boolean handled = detector.onTouchEvent(event);
-				if (!handled && motionEvents.containsKey(event.getAction())) {
+				if (handled) {
+					return true;
+				}
+
+				String motionEvent = motionEvents.get(event.getAction());
+				if (motionEvent != null) {
 					if (event.getAction() == MotionEvent.ACTION_UP) {
 						Rect r = new Rect(0, 0, view.getWidth(), view.getHeight());
 						int actualAction = r.contains((int)event.getX(), (int)event.getY())
 							? MotionEvent.ACTION_UP : MotionEvent.ACTION_CANCEL;
-						handled = proxy.fireEvent(motionEvents.get(actualAction), dictFromEvent(event));
+
+						String actualEvent = motionEvents.get(actualAction);
+						if (!proxy.hasListeners(actualEvent)) {
+							return handled;
+						}
+
+						handled = proxy.fireEvent(actualEvent, dictFromEvent(event));
 						if (handled && actualAction == MotionEvent.ACTION_UP) {
 							// If this listener returns true, a click event does not occur,
 							// because part of the Android View's default ACTION_UP handling
@@ -831,7 +850,9 @@ public abstract class TiUIView
 						}
 						return handled;
 					} else {
-						handled = proxy.fireEvent(motionEvents.get(event.getAction()), dictFromEvent(event));
+						if (proxy.hasListeners(motionEvent)) {
+							handled = proxy.fireEvent(motionEvent, dictFromEvent(event));
+						}
 					}
 				}
 				return handled;

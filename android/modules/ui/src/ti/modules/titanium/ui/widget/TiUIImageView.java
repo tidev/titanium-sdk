@@ -555,6 +555,8 @@ public class TiUIImageView extends TiUIView
 	{
 		if (object instanceof FileProxy) {
 			defaultImageSource = TiDrawableReference.fromFile(proxy.getActivity(), ((FileProxy)object).getBaseFile());
+		} else if (object instanceof String) {
+			defaultImageSource = TiDrawableReference.fromUrl(proxy, (String) object);
 		} else {
 			defaultImageSource = TiDrawableReference.fromObject(proxy.getActivity(), object);
 		}
