@@ -123,7 +123,7 @@ Handle<FunctionTemplate> ${className}::getProxyTemplate()
 		<#if property.get>
 			${className}::getter_${name}
 		<#else>
-			0
+			Proxy::getProperty
 		</#if>
 		<#if property.set>
 			, ${className}::setter_${name}
@@ -220,6 +220,14 @@ void ${className}::setter_${name}(Local<String> property, Local<Value> value, co
 	<@Proxy.callJNIMethod "void", "methodID", "proxy->getJavaObject()", "jArguments" ;
 		hasResult, resultVar>
 	</@Proxy.callJNIMethod>
+
+	<#--
+	Store the value in the property map if there is not getter.
+	Otherwise you can never read back the value that was last set.
+	-->
+	<#if property.get == false>
+	Proxy::setProperty(property, value, info);
+	</#if>
 }
 </#if>
 
