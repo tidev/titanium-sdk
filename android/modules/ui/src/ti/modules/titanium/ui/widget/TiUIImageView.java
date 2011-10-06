@@ -544,6 +544,8 @@ public class TiUIImageView extends TiUIView
 	{
 		if (object instanceof FileProxy) {
 			return TiDrawableReference.fromFile(proxy.getActivity(), ((FileProxy)object).getBaseFile());
+		} else if (object instanceof String) {
+			return TiDrawableReference.fromUrl(proxy, (String) object);
 		} else {
 			return TiDrawableReference.fromObject(proxy.getActivity(), object);
 		}
