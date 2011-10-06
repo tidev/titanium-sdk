@@ -58,6 +58,18 @@ Handle<Value> V8Util::newInstanceFromConstructorTemplate(Persistent<FunctionTemp
 	return scope.Close(instance);
 }
 
+void V8Util::objectExtend(Handle<Object> dest, Handle<Object> src)
+{
+	Handle<Array> names = src->GetOwnPropertyNames();
+	int length = names->Length();
+
+	for (int i = 0; i < length; ++i) {
+		Handle<Value> name = names->Get(i);
+		Handle<Value> value = src->Get(name);
+		dest->Set(name, value);
+	}
+}
+
 #define EXC_TAG "V8Exception"
 
 static Persistent<String> nameSymbol, messageSymbol;

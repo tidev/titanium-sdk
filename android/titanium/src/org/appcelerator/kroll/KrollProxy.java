@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.runtime.v8.EventEmitter;
+import org.appcelerator.kroll.runtime.v8.V8Runtime;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiMessageQueue;
@@ -124,10 +125,6 @@ public class KrollProxy extends EventEmitter
 	public void handleCreationDict(KrollDict dict)
 	{
 		if (dict != null) {
-			// TODO we need to set properties inside the proxy from the creation dict on the V8 side
-			/*for (String key : dict.keySet()) {
-				setProperty(key, dict.get(key), true);
-			}*/
 			properties.putAll(dict);
 			if (modelListener != null) {
 				modelListener.processProperties(properties);
@@ -169,7 +166,7 @@ public class KrollProxy extends EventEmitter
 	public void setProperty(String name, Object value)
 	{
 		properties.put(name, value);
-		// TODO forceSet(name, value);
+		V8Runtime.getInstance().setProperty(this, name, value);
 	}
 
 	/**

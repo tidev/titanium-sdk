@@ -32,6 +32,14 @@ GEN_SOURCES := \
 	$(GENERATED_DIR)/KrollNativeBindings.cpp \
 	$(GENERATED_DIR)/KrollGeneratedBindings.cpp
 
+JNI_PREFIX := $(GENERATED_DIR)/org_appcelerator_kroll_runtime_v8
+
+$(THIS_DIR)/V8Runtime.cpp: $(JNI_PREFIX)_V8Runtime.h
+$(THIS_DIR)/V8Object.cpp: \
+	$(JNI_PREFIX)_ManagedV8Reference.h \
+	$(JNI_PREFIX)_V8Object.h \
+	$(JNI_PREFIX)_V8Value.h
+
 ti-generated-dir:
 	@mkdir -p $(GENERATED_DIR) 2>/dev/null
 
@@ -44,3 +52,6 @@ $(GENERATED_DIR)/KrollGeneratedBindings.cpp: ti-generated-dir
 
 $(GENERATED_DIR)/KrollNativeBindings.cpp: ti-generated-dir $(THIS_DIR)/KrollNativeBindings.gperf
 	gperf -L C++ -E -t $(THIS_DIR)/KrollNativeBindings.gperf > $(GENERATED_DIR)/KrollNativeBindings.cpp
+
+$(JNI_PREFIX)%.h:
+	javah -classpath $(THIS_DIR)/../../bin -d $(GENERATED_DIR) $(subst .h,,$(subst _,.,$(patsubst $(GENERATED_DIR)/%,%,$(@F))))

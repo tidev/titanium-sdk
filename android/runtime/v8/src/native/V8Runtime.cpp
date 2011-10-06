@@ -23,12 +23,15 @@
 
 #include "V8Runtime.h"
 
+#include "org_appcelerator_kroll_runtime_v8_V8Runtime.h"
+
 #define TAG "V8Runtime"
 
 namespace titanium {
 
 Persistent<Context> V8Runtime::globalContext;
-static Persistent<Object> krollGlobalObject;
+Persistent<Object> V8Runtime::krollGlobalObject;
+jobject V8Runtime::javaInstance;
 
 /* static */
 void V8Runtime::collectWeakRef(Persistent<Value> ref, void *parameter)
@@ -86,14 +89,6 @@ void V8Runtime::bootstrap(Local<Object> global)
 	}
 }
 
-static jobject jruntime;
-
-} // namespace titanium
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 static void logV8Exception(Handle<Message> msg, Handle<Value> data)
 {
 	HandleScope scope;
@@ -116,9 +111,17 @@ static void dispatchHandler()
 		titanium::JNIUtil::javaVm->AttachCurrentThread(&env, NULL);
 	}
 
-	env->CallVoidMethod(titanium::jruntime, dispatchDebugMessage);
+	env->CallVoidMethod(V8Runtime::javaInstance, dispatchDebugMessage);
 }
 #endif
+
+} // namespace titanium
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+using namespace titanium;
 
 /*
  * Class:     org_appcelerator_kroll_runtime_v8_V8Runtime
@@ -135,9 +138,10 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 	V8::SetCaptureStackTraceForUncaughtExceptions(true);
 
 	LOGD(TAG, "nativeInit");
-	titanium::JavaObject::useGlobalRefs = useGlobalRefs;
-	titanium::jruntime = env->NewGlobalRef(self);
-	titanium::JNIUtil::initCache();
+	JavaObject::useGlobalRefs = useGlobalRefs;
+
+	V8Runtime::javaInstance = env->NewGlobalRef(self);
+	JNIUtil::initCache();
 
 	Persistent<Context> context = Persistent<Context>::New(Context::New());
 	context->Enter();
@@ -146,15 +150,18 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 	jclass v8RuntimeClass = env->FindClass("org/appcelerator/kroll/runtime/v8/V8Runtime");
 	dispatchDebugMessage = env->GetMethodID(v8RuntimeClass, "dispatchDebugMessages", "()V");
 
-	v8::Debug::SetDebugMessageDispatchHandler(dispatchHandler);
-	v8::Debug::EnableAgent("titanium", 9999, true);
+	Debug::SetDebugMessageDispatchHandler(dispatchHandler);
+	Debug::EnableAgent("titanium", 9999, true);
 #endif
 
-	titanium::V8Runtime::globalContext = context;
-	titanium::V8Runtime::bootstrap(context->Global());
+	V8Runtime::globalContext = context;
+	V8Runtime::bootstrap(context->Global());
 
 	LOG_HEAP_STATS(TAG);
 }
+
+static Persistent<Object> moduleObject;
+static Persistent<Function> runMainModuleFunction;
 
 /*
  * Class:     org_appcelerator_kroll_runtime_v8_V8Runtime
@@ -163,16 +170,22 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
  */
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRunModule(JNIEnv *env, jobject self, jstring source, jstring filename)
 {
-	ENTER_V8(titanium::V8Runtime::globalContext);
+	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
 
-	Handle<String> jsSource = titanium::TypeConverter::javaStringToJsString(source);
-	Handle<String> jsFilename = titanium::TypeConverter::javaStringToJsString(filename);
-	Handle<Object> module = titanium::krollGlobalObject->Get(String::New("Module"))->ToObject();
-	Handle<Function> runMainModule = Handle<Function>::Cast(module->Get(String::New("runMainModule")));
+	if (moduleObject.IsEmpty()) {
+		moduleObject = Persistent<Object>::New(
+			V8Runtime::krollGlobalObject->Get(String::New("Module"))->ToObject());
+
+		runMainModuleFunction = Persistent<Function>::New(
+			Handle<Function>::Cast(moduleObject->Get(String::New("runMainModule"))));
+	}
+
+	Handle<String> jsSource = TypeConverter::javaStringToJsString(source);
+	Handle<String> jsFilename = TypeConverter::javaStringToJsString(filename);
 
 	Handle<Value> args[] = { jsSource, jsFilename };
-	runMainModule->Call(module, 2, args);
+	runMainModuleFunction->Call(moduleObject, 2, args);
 }
 
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeProcessDebugMessages(JNIEnv *env, jobject self)
@@ -187,21 +200,21 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativePr
  * Method:    nativeDispose
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDispose(JNIEnv *env, jclass clazz)
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDispose(JNIEnv *env, jobject runtime)
 {
-	titanium::JNIScope jniScope(env);
+	JNIScope jniScope(env);
 
 	LOGE(TAG, "Disposing global context");
-	titanium::V8Runtime::globalContext.Dispose();
+	V8Runtime::globalContext.Dispose();
 	V8::Dispose();
 
-	env->DeleteGlobalRef(titanium::jruntime);
-	titanium::jruntime = NULL;
+	env->DeleteGlobalRef(V8Runtime::javaInstance);
+	V8Runtime::javaInstance = NULL;
 }
 
 jint JNI_OnLoad(JavaVM *vm, void *reserved)
 {
-	titanium::JNIUtil::javaVm = vm;
+	JNIUtil::javaVm = vm;
 	return JNI_VERSION_1_4;
 }
 

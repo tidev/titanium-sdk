@@ -118,30 +118,23 @@ Handle<Value> Proxy::proxyConstructor(const Arguments& args)
 		String::Utf8Value str(argsStr);
 		LOGV(TAG, "    with args: %s", *str);
 
-		bool copyProperties = true;
+		bool extend = true;
 		Handle<Object> createProperties = args[0]->ToObject();
 		Local<String> constructorName = createProperties->GetConstructorName();
 		if (strcmp(*String::Utf8Value(constructorName), "Arguments") == 0) {
-			copyProperties = false;
+			extend = false;
 			int32_t argsLength = createProperties->Get(String::New("length"))->Int32Value();
 			if (argsLength > 0) {
 				Handle<Value> properties = createProperties->Get(0);
 				if (properties->IsObject()) {
-					copyProperties = true;
+					extend = true;
 					createProperties = properties->ToObject();
 				}
 			}
 		}
 
-		if (copyProperties) {
-			Handle<Array> names = createProperties->GetOwnPropertyNames();
-			int length = names->Length();
-
-			for (int i = 0; i < length; ++i) {
-				Handle<Value> name = names->Get(i);
-				Handle<Value> value = createProperties->Get(name);
-				properties->Set(name, value);
-			}
+		if (extend) {
+			V8Util::objectExtend(properties, createProperties);
 		}
 	}
 
