@@ -172,12 +172,13 @@ def genBootstrap(node, namespace = "", indent = 0):
 	childAPIs = node.keys()
 	className = node["_className"]
 	proxyMap = bindings["proxies"][className]
-	accessors = proxyMap["proxyAttrs"]["propertyAccessors"]
+	#accessors = proxyMap["proxyAttrs"]["propertyAccessors"]
 	isModule = proxyMap["isModule"]
 
 	# ignore _dependencies and _className in the childAPIs count
 	hasChildren = len(childAPIs) > 2
-	hasAccessors = len(accessors) > 0 or "dynamicProperties" in proxyMap
+	# hasAccessors = len(accessors) > 0 or "dynamicProperties" in proxyMap
+	hasAccessors = False
 	hasCreateProxies = isModule and "createProxies" in bindings["modules"][className]
 
 	invocationAPIs = []
@@ -219,9 +220,11 @@ def genBootstrap(node, namespace = "", indent = 0):
 		upperName = accessor[0:1].upper() + accessor[1:]
 		return template % { "prototype": prototype, "name": accessor, "upperName": upperName }
 
+	"""
 	for accessor in accessors:
 		js += defineAccessor(JS_DEFINE_GETTER, accessor)
 		js += defineAccessor(JS_DEFINE_SETTER, accessor)
+	"""
 
 	"""
 	if "dynamicProperties" in proxyMap: 
@@ -236,6 +239,8 @@ def genBootstrap(node, namespace = "", indent = 0):
 			properties += JS_PROPERTY % { "prototype": prototype, \
 				"name": dp["name"], "getter": getter, "setter": setter }
 	"""
+
+	"""
 	if hasAccessors:
 		properties = ""
 		for accessor in accessors:
@@ -244,6 +249,7 @@ def genBootstrap(node, namespace = "", indent = 0):
 			properties += JS_PROPERTY % { "prototype": prototype, \
 				"name": accessor, "getter": getter, "setter": setter }
 		js += indentCode(JS_DEFINE_PROPERTIES % { "var": prototype, "properties": properties }, 2)
+	"""
 
 	if hasCreateProxies:
 		createProxies = bindings["modules"][className]["createProxies"]

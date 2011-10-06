@@ -156,20 +156,6 @@ Proxy.prototype.setProperty = function(property, value) {
     return this._properties[property] = value;
 }
 
-Proxy.prototype.setPropertyAndFire = function(property, value) {
-	if (!property) return false;
-
-	var oldValue = this._properties[property];
-	this._properties[property] = value;
-
-	kroll.log("setting " + property + " to " + value + ", oldValue = " + oldValue);
-	if (oldValue != value) {
-		kroll.log("calling onPropertyChanged = " + this.onPropertyChanged);
-		this.onPropertyChanged(property, oldValue, value);
-		kroll.log("finished on property changed");
-	}
-}
-
 Proxy.prototype.setPropertiesAndFire = function(properties) {
 	var ownNames = Object.getOwnPropertyNames(properties);
 	var len = ownNames.length;

@@ -244,9 +244,9 @@ public class KrollProxy extends EventEmitter
 		}
 	}
 
-	@Kroll.method
-	public void onPropertyChanged(String name, Object oldValue, Object value)
+	public void onPropertyChanged(String name, Object value)
 	{
+		Object oldValue = properties.get(name);
 		properties.put(name, value);
 		firePropertyChanged(name, oldValue, value);
 	}

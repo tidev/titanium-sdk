@@ -45,6 +45,12 @@ public:
 							v8::Local<v8::Value> value,
 							const v8::AccessorInfo& info);
 
+	// Setter that reports to the Java proxy when a property has changed.
+	// Used by proxies that use accessor based properties.
+	static void onPropertyChanged(v8::Local<v8::String> property,
+	                              v8::Local<v8::Value> value,
+	                              const v8::AccessorInfo& info);
+
 	// This provides Javascript a way to extend one of our native / wrapped
 	// templates without needing to know about the internal java class.
 	//

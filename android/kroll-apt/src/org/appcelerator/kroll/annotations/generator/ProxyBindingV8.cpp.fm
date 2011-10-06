@@ -132,6 +132,14 @@ Handle<FunctionTemplate> ${className}::getProxyTemplate()
 		</#if>, Handle<Value>(), DEFAULT, DontEnum);
 	</@Proxy.listDynamicProperties>
 
+	// Accessors --------------------------------------------------------------
+	<@Proxy.listPropertyAccessors ; isFirst, name, getter, setter>
+	instanceTemplate->SetAccessor(String::NewSymbol("${name}"),
+	                              Proxy::getProperty,
+	                              Proxy::onPropertyChanged,
+	                              Handle<Value>(), DEFAULT, DontEnum);
+	</@Proxy.listPropertyAccessors>
+
 	return proxyTemplate;
 }
 

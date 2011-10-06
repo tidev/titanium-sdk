@@ -98,6 +98,7 @@ public:
 
 	static jmethodID krollProxyCreateMethod;
 	static jfieldID krollProxyModelListenerField;
+	static jmethodID krollProxyOnPropertyChangedMethod;
 	static jmethodID krollProxyOnPropertiesChangedMethod;
 
 };

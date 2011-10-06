@@ -92,6 +92,22 @@ void Proxy::setProperty(Local<String> property, Local<Value> value, const Access
 	LOGE(TAG, "Unable to lookup Proxy.prototype.setProperty");
 }
 
+void Proxy::onPropertyChanged(Local<String> property, Local<Value> value, const AccessorInfo& info)
+{
+	Proxy* proxy = NativeObject::Unwrap<Proxy>(info.Holder());
+
+	JNIEnv* env = JNIScope::getEnv();
+	if (!env) {
+		LOGE(TAG, "Unable to get current JNI environment.");
+		return;
+	}
+
+	env->CallVoidMethod(proxy->getJavaObject(),
+	                    JNIUtil::krollProxyOnPropertyChangedMethod,
+	                    TypeConverter::jsStringToJavaString(property),
+	                    TypeConverter::jsValueToJavaObject(value));
+}
+
 Handle<FunctionTemplate> Proxy::inheritProxyTemplate(
 	Handle<FunctionTemplate> superTemplate, jclass javaClass,
 	Handle<String> className, Handle<Function> callback)
