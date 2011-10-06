@@ -152,6 +152,10 @@ Proxy.prototype.getProperty = function(property) {
 	return this._properties[property];
 }
 
+Proxy.prototype.setProperty = function(property, value) {
+    return this._properties[property] = value;
+}
+
 Proxy.prototype.setPropertyAndFire = function(property, value) {
 	if (!property) return false;
 
