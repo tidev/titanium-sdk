@@ -1105,14 +1105,17 @@ class Builder(object):
 
 		if self.res_changed or manifest_changed:
 			res_dir = os.path.join(self.project_dir, 'res')
-			output = run.run([self.aapt, 'package', '-m', '-J', self.project_gen_dir, '-M', android_manifest, '-S', res_dir, '-I', self.android_jar],
-				warning_regex=r'skipping')
-		
+			output = run.run([self.aapt, 'package', '-m',
+				'-J', self.project_gen_dir,
+				'-M', android_manifest,
+				'-S', res_dir,
+				'-I', self.android_jar], warning_regex=r'skipping')
+
 		r_file = os.path.join(self.project_gen_dir, self.app_id.replace('.', os.sep), 'R.java')
 		if not os.path.exists(r_file) or (self.res_changed and output == None):
 			error("Error generating R.java from manifest")
 			sys.exit(1)
-		
+
 		return manifest_changed
 
 	def generate_stylesheet(self):
@@ -1371,7 +1374,7 @@ class Builder(object):
 			add_native_libs(module.get_resource('libs'))
 
 		# add sdk runtime native libraries
-		add_native_libs(os.path.join(template_dir,'native/libs'))
+		add_native_libs(os.path.join(template_dir, 'native/libs'))
 
 		apk_zip.close()
 		return unsigned_apk

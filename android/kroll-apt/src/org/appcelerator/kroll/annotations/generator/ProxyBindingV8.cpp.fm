@@ -161,13 +161,15 @@ Handle<Value> ${className}::${method.apiName}(const Arguments& args)
 	jvalue* jArguments = 0;
 	</#if>
 
-	<@Proxy.callJNIMethod method.returnType, "methodID", "proxy->getJavaObject()", "jArguments" ;
-		hasResult, resultVar>
+	<@Proxy.callJNIMethod method.args, method.hasInvocation, method.returnType,
+		"methodID", "proxy->getJavaObject()", "jArguments" ; hasResult, resultVar>
+
 	<#if hasResult>
 	return ${resultVar};
 	<#else>
 	return v8::Undefined();
 	</#if>
+
 	</@Proxy.callJNIMethod>
 }
 </@Proxy.listMethods>
@@ -192,8 +194,8 @@ Handle<Value> ${className}::getter_${name}(Local<String> property, const Accesso
 
 	jvalue* jArguments = 0;
 
-	<@Proxy.callJNIMethod property.getReturnType, "methodID", "proxy->getJavaObject()", "jArguments" ;
-		hasResult, resultVar>
+	<@Proxy.callJNIMethod property.getMethodArgs, property.getHasInvocation, property.getReturnType,
+		"methodID", "proxy->getJavaObject()", "jArguments" ; hasResult, resultVar>
 
 	return ${resultVar};
 
@@ -225,7 +227,7 @@ void ${className}::setter_${name}(Local<String> property, Local<Value> value, co
 
 	<@Proxy.verifyAndConvertArgument expr="value" index=0 info=typeInfo logOnly=true />
 
-	<@Proxy.callJNIMethod "void", "methodID", "proxy->getJavaObject()", "jArguments" ;
+	<@Proxy.callJNIMethod [], property.setHasInvocation, "void", "methodID", "proxy->getJavaObject()", "jArguments" ;
 		hasResult, resultVar>
 	</@Proxy.callJNIMethod>
 

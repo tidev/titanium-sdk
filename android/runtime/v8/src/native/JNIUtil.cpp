@@ -226,6 +226,7 @@ void JNIUtil::logClassName(const char *format, jclass javaClass, bool errorLevel
 	}
 
 	env->ReleaseStringUTFChars(jClassName, chars);
+	env->DeleteLocalRef(jClassName);
 }
 
 void JNIUtil::initCache()

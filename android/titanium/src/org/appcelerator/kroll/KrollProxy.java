@@ -13,8 +13,10 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.runtime.v8.EventEmitter;
 import org.appcelerator.kroll.runtime.v8.V8Runtime;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiMessageQueue;
+import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -296,6 +298,17 @@ public class KrollProxy extends EventEmitter
 					change[INDEX_OLD_VALUE], change[INDEX_VALUE], this);
 			}
 		}
+	}
+
+	@Kroll.method(name="getActivity")
+	@Kroll.getProperty(name="activity")
+	public ActivityProxy getActivityProxy()
+	{
+		if (activity instanceof TiBaseActivity) {
+			TiBaseActivity tiActivity = (TiBaseActivity) activity;
+			return tiActivity.getActivityProxy();
+		}
+		return null;
 	}
 
 	public KrollDict getProperties()

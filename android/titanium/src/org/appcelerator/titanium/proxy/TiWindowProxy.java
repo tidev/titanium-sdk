@@ -315,6 +315,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		return orientationModes;
 	}
 
+	/*
 	@Kroll.method(name="getActivity")
 	@Kroll.getProperty(name="activity")
 	public ActivityProxy getActivityProxy()
@@ -333,8 +334,8 @@ public abstract class TiWindowProxy extends TiViewProxy
 			activityProxy = (ActivityProxy) activityObject;
 		}
 		return activityProxy;
-	}
-		
+	}*/
+
 	protected abstract void handleOpen(KrollDict options);
 	protected abstract void handleClose(KrollDict options);
 	protected abstract Activity handleGetActivity();

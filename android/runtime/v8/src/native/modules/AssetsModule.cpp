@@ -10,7 +10,6 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <v8.h>
-#include <vector>
 
 #include "AndroidUtil.h"
 #include "JNIUtil.h"
@@ -105,22 +104,18 @@ Handle<Value> AssetsModule::readFile(const Arguments& args)
 	rewind(file);
 
 	char *buffer = new char[fileLength];
-	while (true) {
-		size_t bytesRead = fread(buffer, 1024, 1, file);
-		if (ferror(file) != 0) {
-			fclose(file);
-			return JSException::Error("Error while reading file");
-		}
-		buffer += bytesRead;
-		if (feof(file) != 0) {
-			break;
-		}
-	}
 
+	fread(buffer, fileLength, 1, file);
 	fclose(file);
 
+	if (ferror(file) != 0) {
+		return JSException::Error("Error while reading file");
+	}
+
+	LOGD(TAG, "got file data: %d bytes", fileLength);
+
 	Handle<String> data = String::New(const_cast<const char *>(buffer), fileLength);
-	delete buffer;
+	delete[] buffer;
 
 	return data;
 }

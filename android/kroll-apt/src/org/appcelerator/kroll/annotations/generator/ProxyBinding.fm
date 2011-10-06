@@ -167,7 +167,8 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"jvalue":"l",
 		"javaCallMethodType":"Object",
 		"javaReturnType":"jstring",
-		"javaValidation":true
+		"javaValidation":true,
+		"javaDeleteLocalRef":true
 	},
 	"java.lang.Object":{
 		"jsType":"Value",
@@ -178,7 +179,8 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"jvalue":"l",
 		"javaCallMethodType":"Object",
 		"javaReturnType":"jobject",
-		"javaValidation":true
+		"javaValidation":true,
+		"javaDeleteLocalRef":true
 	},
 	"java.lang.Object[]":{
 		"jsType":"Array",
@@ -188,7 +190,8 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"jvalue":"l", "signature":"[Ljava/lang/Object;",
 		"javaCallMethodType":"Object",
 		"javaReturnType":"jobjectArray",
-		"javaValidation": true
+		"javaValidation": true,
+		"javaDeleteLocalRef":true
 	},
 	"int[]":{
 		"jsType":"Array",
@@ -198,7 +201,8 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"jvalue":"l", "signature":"[I",
 		"javaCallMethodType":"Object",
 		"javaReturnType":"jintArray",
-		"javaValidation":true
+		"javaValidation":true,
+		"javaDeleteLocalRef":true
 	},
 	"int":{
 		"jsType":"Number",
@@ -329,7 +333,10 @@ fails, a JS exception is returned.
 	Local<${info.jsType}> arg_${index} = ${expr}->To${info.jsType}();
 	</#if>
 
-	jArguments[${index}].${info.jvalue} = TypeConverter::${info.jsToJavaConverter}(arg_${index});
+	<#local checkNew = info.deleteLocalRef!false && info.javaReturnType != "jstring">
+	<#if checkNew>bool isNew_${index};</#if>
+	jArguments[${index}].${info.jvalue} =
+		TypeConverter::${info.jsToJavaConverter}(arg_${index} <#if checkNew>, &isNew_${index}</#if>);
 </#macro>
 
 <#macro convertToVarArgs args start>
@@ -385,6 +392,33 @@ fails, a JS exception is returned.
 	</@Proxy.listMethodArguments>
 </#macro>
 
+<#macro cleanupMethodArguments args hasInvocation>
+	<#if hasInvocation>
+	env->DeleteLocalRef(jArguments[0].l);
+	</#if>
+
+	<@Proxy.listMethodArguments args=args; index, info, type>
+	<#if type != "org.appcelerator.kroll.runtime.v8.V8Invocation">
+		<#if type == "java.lang.Object[]" && index = args?size - 1>
+			env->DeleteLocalRef(jArguments[${index}].l);
+		<#else>
+			<#if info.javaDeleteLocalRef!false>
+			<#local checkNew = info.deleteLocalRef!false && info.jsType != "String">
+
+			<#if checkNew>
+			if (isNew_${index}) {
+			</#if>
+				env->DeleteLocalRef(jArguments[${index}].l);
+			<#if checkNew>
+			}
+			</#if>
+
+			</#if>
+		</#if>
+	</#if>
+	</@Proxy.listMethodArguments>
+</#macro>
+
 <#--------------------------------------------------------------
 Generate a JNI method call with the given return type, method ID,
 and jobject reference. This macro also expects a jvalue array
@@ -393,7 +427,7 @@ Outputs the complete statement that performs the JNI call and
 stores the return value in "result". A nested section can
 beprovided to handle the result.
 ---------------------------------------------------------------->
-<#macro callJNIMethod returnType methodID jobjectVar argsVar>
+<#macro callJNIMethod methodArgs hasInvocation returnType methodID jobjectVar argsVar>
 	<#local info = getTypeInfo(returnType)
 			callExpr = "Call${info.javaCallMethodType}MethodA"
 			argExpr = "${jobjectVar}, ${methodID}, ${argsVar}"
@@ -402,26 +436,37 @@ beprovided to handle the result.
 	<#if hasResult>
 	${resultExpr}env->${callExpr}(${argExpr});
 
-	if (env->ExceptionCheck()) {
-		Handle<Value> jsException = JSException::fromJavaException();
-		env->ExceptionClear();
-		return jsException;
-	}
-
-	<#if info.javaValidation!false>
-	if (jResult == NULL) {
-		return Null();
-	}
-	</#if>
-
 	<#local jsType = info.jsType>
 	<#if info?keys?seq_contains("jsConvertType")>
 		<#local jsType = info.jsConvertType>
 	</#if>
 
-	Handle<${jsType}> v8Result = TypeConverter::${info.javaToJsConverter}(jResult);
 	<#else>
 	env->${callExpr}(${argExpr});
+	</#if>
+
+	<@Proxy.cleanupMethodArguments args=methodArgs hasInvocation=hasInvocation/>
+
+	if (env->ExceptionCheck()) {
+		<#if hasResult>Handle<Value> jsException = </#if>JSException::fromJavaException();
+		env->ExceptionClear();
+		<#if hasResult>
+		return jsException;
+		</#if>
+	}
+
+	<#if hasResult && info.javaValidation!false>
+	if (jResult == NULL) {
+		return Null();
+	}
+	</#if>
+
+	<#if hasResult>
+	Handle<${jsType}> v8Result = TypeConverter::${info.javaToJsConverter}(jResult);
+
+	<#if info.javaDeleteLocalRef!false>
+	env->DeleteLocalRef(jResult);
+	</#if>
 	</#if>
 
 	<#nested hasResult "v8Result">
