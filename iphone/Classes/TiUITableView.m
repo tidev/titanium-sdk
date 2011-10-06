@@ -198,14 +198,22 @@
 
 @end
 
+@interface TiUITableView ()
+@property (nonatomic,copy,readwrite) NSString * searchString;
+- (void)updateSearchResultIndexes;
+
+@end
+
 @implementation TiUITableView
 #pragma mark Internal 
+@synthesize searchString;
 
 -(id)init
 {
 	if (self = [super init])
 	{
 		filterCaseInsensitive = YES; // defaults to true on search
+		searchString = @"";
 	}
 	return self;
 }
@@ -232,15 +240,11 @@
 	RELEASE_TO_NIL(sectionIndexMap);
 	RELEASE_TO_NIL(tableHeaderView);
 	RELEASE_TO_NIL(searchScreenView);
-    
-    searchTableView.delegate = nil;
-    searchTableView.dataSource = nil;
-	RELEASE_TO_NIL(searchTableView);
-    
 	RELEASE_TO_NIL(filterAttribute);
 	RELEASE_TO_NIL(searchResultIndexes);
 	RELEASE_TO_NIL(initialSelection);
 	RELEASE_TO_NIL(tableHeaderPullView);
+	[searchString release];
 	[super dealloc];
 }
 
@@ -659,6 +663,12 @@
             break;
         }
 	}
+
+	if ([searchController searchResultsTableView] != nil) {
+		[self updateSearchResultIndexes];
+		[[searchController searchResultsTableView] reloadSections:[NSIndexSet indexSetWithIndex:0]
+					   withRowAnimation:UITableViewRowAnimationFade];		
+	}
 }
 
 -(UIView*)titleViewForText:(NSString*)text footer:(BOOL)footer
@@ -830,20 +840,6 @@
 }
 
 
-- (UITableView *) searchTableView
-{
-	if(searchTableView == nil)
-	{
-		CGRect searchFrame = [TiUtils viewPositionRect:[self searchScreenView]];
-		//Todo: make sure we account for the keyboard.
-		searchTableView = [[UITableView alloc] initWithFrame:searchFrame style:UITableViewStylePlain];
-		[searchTableView setDelegate:self];
-		[searchTableView setDataSource:self];
-	}
-	return searchTableView;
-}
-
-
 #pragma mark Searchbar helper methods
 
 - (NSIndexPath *) indexPathFromSearchIndex: (int) index
@@ -868,7 +864,7 @@
 	return nil;
 }
 
-- (void)updateSearchResultIndexesForString:(NSString *) searchString
+- (void)updateSearchResultIndexes
 {
 	NSEnumerator * searchResultIndexEnumerator;
 	if(searchResultIndexes == nil)
@@ -1012,8 +1008,6 @@
 	
 	[[searchField view] resignFirstResponder];
 	[self makeRootViewFirstResponder];
-	[searchTableView removeFromSuperview];
-//	[tableview setScrollEnabled:[self isScrollable]];
 	[self.proxy replaceValue:NUMBOOL(YES) forKey:@"searchHidden" notification:NO];
 	[searchController setActive:NO animated:YES];
 	
@@ -1045,7 +1039,6 @@
 		[tableview scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]
 						 atScrollPosition:UITableViewScrollPositionBottom animated:NO];
 	}
-//	[tableview setScrollEnabled:NO];
 	
 	CGRect screenRect = [TiUtils viewPositionRect:tableview];
 	CGFloat searchHeight = [[tableview tableHeaderView] bounds].size.height;
@@ -1054,16 +1047,8 @@
 	screenRect.size.height -= searchHeight;
 	
 	UIView * wrapperView = [tableview superview];
-	if ([[self searchScreenView] superview] != wrapperView) 
-	{
-//		[searchScreenView setAlpha:0.0];
-//		[wrapperView insertSubview:searchScreenView aboveSubview:tableview];
-	}
-//	[TiUtils setView:searchScreenView positionRect:screenRect];
 	
 	[UIView beginAnimations:@"searchy" context:nil];
-//	[searchScreenView setEnabled:YES];
-//	[searchScreenView setAlpha:0.85];
 	[tableview setContentOffset:CGPointMake(0,0)];
 	[UIView commitAnimations];
 }
@@ -1080,7 +1065,6 @@
 	{
 		[tableview setTableHeaderView:nil];
 		RELEASE_TO_NIL(tableHeaderView);
-		RELEASE_TO_NIL(searchTableView);
 		RELEASE_TO_NIL(searchScreenView);
 		RELEASE_TO_NIL(searchResultIndexes);
 		return;
@@ -1109,35 +1093,15 @@
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
+	[self setSearchString:searchText];
 	// called when text changes (including clear)
 	if([searchText length]==0)
 	{
 		// Redraw visible cells
         [tableview reloadRowsAtIndexPaths:[tableview indexPathsForVisibleRows] withRowAnimation:UITableViewRowAnimationNone];
-		[searchTableView removeFromSuperview];
 		return;
 	}
-	[self updateSearchResultIndexesForString:searchText];
-	
-	UIView * wrapperView = [searchScreenView superview];	
-	if([searchTableView superview] != wrapperView)
-	{
-		if(searchTableView == nil)
-		{
-			[self searchTableView];
-		} 
-		else 
-		{
-			[searchTableView reloadSections:[NSIndexSet indexSetWithIndex:0]
-						   withRowAnimation:UITableViewRowAnimationFade];
-		}
-//		[wrapperView insertSubview:searchTableView aboveSubview:searchScreenView];
-	} 
-	else 
-	{
-		[searchTableView reloadSections:[NSIndexSet indexSetWithIndex:0]
-					   withRowAnimation:UITableViewRowAnimationFade];
-	}
+	[self updateSearchResultIndexes];
 }
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar                    
