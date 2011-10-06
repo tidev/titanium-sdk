@@ -15,6 +15,8 @@ methodWrap = typeof(methodWrap) == 'undefined' ? false : methodWrap;
 autoRun = typeof(autoRun) == 'undefined' ? true : autoRun;
 %>
 
+<%= Drillbit.drillbitTestJs %>
+
 // top level method wrap is inverted
 <% if (!methodWrap) { %>
 function runTests() {
@@ -70,7 +72,6 @@ function runTests() {
 	};
 %>
 
-<%= Drillbit.drillbitTestJs %>
 
 DrillbitTest.NAME = "<%= entry.name %>";
 DrillbitTest.SOURCE = "<%= entry.sourceFile.nativePath().replace(/\\/g, "\\\\") %>";

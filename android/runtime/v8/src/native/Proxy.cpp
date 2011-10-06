@@ -134,10 +134,7 @@ Handle<Value> Proxy::proxyConstructor(const Arguments& args)
 		deleteRef = true;
 	}
 
-	jstring javaClassName = JNIUtil::getClassName(javaClass);
-	const char *chars = env->GetStringUTFChars(javaClassName, NULL);
-	LOGV(TAG, "create proxy: %s", chars);
-	env->ReleaseStringUTFChars(javaClassName, chars);
+	JNIUtil::logClassName("Create proxy: %s", javaClass);
 
 	Proxy *proxy = new Proxy(javaProxy);
 	proxy->Wrap(jsProxy);

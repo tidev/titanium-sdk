@@ -107,13 +107,10 @@ var DrillbitTest =
 
 			this.fireEvent(eventName, resultsInfo);
 			if (Ti.Platform.osname == "android") {
-				try {
-					if (TestHarnessRunner) {
-						var bundle = new (Packages.android.os.Bundle)();
-						TestHarnessRunner.finish(Ti.Android.RESULT_OK, bundle);
-					}
-				} catch (e) {
-					Titanium.API.debug('TestHarnessRunner not defined, skipping automated finish');
+				if ("instrumentation" in DrillbitTest) {
+					DrillbitTest.instrumentation.finish(Ti.Android.RESULT_OK);
+				} else {
+					Titanium.API.debug('Instrumentation not defined, skipping automated finish');
 				}
 			}
 		} catch (e) {

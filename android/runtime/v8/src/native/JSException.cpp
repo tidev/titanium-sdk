@@ -23,8 +23,10 @@ Handle<Value> JSException::fromJavaException(jthrowable javaException)
 		return GetJNIEnvironmentError();
 	}
 
+	bool deleteRef = false;
 	if (!javaException) {
 		javaException = env->ExceptionOccurred();
+		deleteRef = true;
 	}
 
 	env->ExceptionDescribe();
@@ -34,7 +36,14 @@ Handle<Value> JSException::fromJavaException(jthrowable javaException)
 		return THROW("Java Exception occurred");
 	}
 
-	return ThrowException(Exception::Error(TypeConverter::javaStringToJsString(message)));
+	Handle<String> jsMessage = TypeConverter::javaStringToJsString(message);
+	env->DeleteLocalRef(message);
+
+	if (deleteRef) {
+		env->DeleteLocalRef(javaException);
+	}
+
+	return ThrowException(Exception::Error(jsMessage));
 }
 
 }
