@@ -996,7 +996,9 @@ public abstract class TiUIView
 		if (nativeView == null) {
 			return;
 		}
-		Log.d(LCAT, "disabling hardware acceleration for " + nativeView.getClass().getSimpleName());
+		if (DBG) {
+			Log.d(LCAT, "Disabling hardware acceleration for instance of " + nativeView.getClass().getSimpleName());
+		}
 		if (mSetLayerTypeMethod == null) {
 			try {
 				Class<? extends View> c = nativeView.getClass();
