@@ -33,6 +33,7 @@ import org.appcelerator.titanium.util.TiDownloadListener;
 import org.appcelerator.titanium.util.TiDownloadManager;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiUrl;
 
 import android.app.Activity;
 import android.content.res.Resources;
@@ -597,9 +598,7 @@ public class TiDrawableReference
 
 		if (isTypeUrl() && url != null) {
 			try {
-				// TODO look at resolve?
-				//String resolved = context.resolveUrl(null, url);
-				String resolved = url;
+				String resolved = TiUrl.resolve(null, url, null);
 				if (resolved.startsWith(TiC.URL_ANDROID_ASSET_RESOURCES)
 					&& TiFastDev.isFastDevEnabled()) {
 					TiBaseFile tbf = TiFileFactory.createTitaniumFile(new String[] { resolved }, false);

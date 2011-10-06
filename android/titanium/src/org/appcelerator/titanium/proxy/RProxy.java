@@ -15,8 +15,7 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 
-@Kroll.proxy
-@Kroll.dynamicApis(properties = {
+@Kroll.proxy(propertyAccessors = {
 	"anim", "array", "attr", "color",
 	"dimen", "drawable", "id", "integer",
 	"layout", "string", "style", "styleable"

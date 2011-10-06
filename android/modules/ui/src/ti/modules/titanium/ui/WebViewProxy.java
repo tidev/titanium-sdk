@@ -18,10 +18,8 @@ import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 
-@Kroll.proxy(creatableInModule=UIModule.class)
-@Kroll.dynamicApis(properties = {
+@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_DATA,
-	TiC.PROPERTY_HTML,
 	TiC.PROPERTY_SCALES_PAGE_TO_FIT,
 	TiC.PROPERTY_URL
 })
@@ -56,6 +54,15 @@ public class WebViewProxy extends ViewProxy
 		} else {
 			return sendBlockingUiMessage(MSG_EVAL_JS, code);
 		}
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public String getHtml()
+	{
+		if (!hasProperty(TiC.PROPERTY_HTML)) {
+			return "";
+		}
+		return (String) getProperty(TiC.PROPERTY_HTML);
 	}
 
 	@Override

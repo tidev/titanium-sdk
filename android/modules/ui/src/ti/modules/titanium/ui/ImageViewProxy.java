@@ -19,8 +19,7 @@ import ti.modules.titanium.ui.widget.TiUIImageView;
 import android.app.Activity;
 import android.graphics.Bitmap;
 
-@Kroll.proxy(creatableInModule=UIModule.class)
-@Kroll.dynamicApis(properties = {
+@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	"decodeRetries",
 	TiC.PROPERTY_DEFAULT_IMAGE,
 	TiC.PROPERTY_DURATION,

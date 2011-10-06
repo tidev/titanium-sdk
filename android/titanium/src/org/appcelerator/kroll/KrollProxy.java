@@ -182,6 +182,34 @@ public class KrollProxy extends EventEmitter
 		}
 	}
 
+	@Override
+	public boolean fireEvent(String event, Object data)
+	{
+		if (data == null) {
+			data = new KrollDict();
+		}
+
+		if (data instanceof KrollDict) {
+			KrollDict dict = (KrollDict) data;
+			dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
+		}
+		return super.fireEvent(event, data);
+	}
+
+	@Override
+	public boolean fireSyncEvent(String event, Object data)
+	{
+		if (data == null) {
+			data = new KrollDict();
+		}
+
+		if (data instanceof KrollDict) {
+			KrollDict dict = (KrollDict) data;
+			dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
+		}
+		return super.fireSyncEvent(event, data);
+	}
+
 	public void firePropertyChanged(String name, Object oldValue, Object newValue)
 	{
 		if (modelListener != null) {

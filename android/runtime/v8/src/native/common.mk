@@ -18,6 +18,10 @@ ifeq ($(TI_DEBUG),1)
 CFLAGS += -DTI_DEBUG=1
 endif
 
+ifeq ($(V8_DEBUGGER),1)
+CFLAGS += -DV8_DEBUGGER=1
+endif
+
 LDLIBS := -L$(SYSROOT)/usr/lib -ldl -llog -L$(TARGET_OUT)
 ABS_SRC_FILES := \
 	$(wildcard $(LOCAL_PATH)/*.cpp) \

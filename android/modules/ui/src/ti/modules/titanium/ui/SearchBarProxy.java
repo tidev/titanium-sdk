@@ -15,8 +15,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule=UIModule.class)
-@Kroll.dynamicApis(properties = {
+@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	"prompt", "promptid",
 	"hintText", "hinttextid",
 	"showCancel", "barColor",

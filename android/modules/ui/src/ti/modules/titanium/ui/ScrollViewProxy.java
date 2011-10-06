@@ -18,8 +18,7 @@ import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 
-@Kroll.proxy(creatableInModule=UIModule.class)
-@Kroll.dynamicApis(properties = {
+@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	"contentHeight", "contentWidth",
 	"showHorizontalScrollIndicator",
 	"showVerticalScrollIndicator",

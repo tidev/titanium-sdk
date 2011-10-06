@@ -25,8 +25,7 @@ import android.app.LocalActivityManager;
 import android.content.Intent;
 import android.view.Window;
 
-@Kroll.proxy(creatableInModule=MapModule.class)
-@Kroll.dynamicApis(properties = {
+@Kroll.proxy(creatableInModule=MapModule.class, propertyAccessors = {
 	TiC.PROPERTY_ANIMATE,
 	TiC.PROPERTY_ANNOTATIONS,
 	TiC.PROPERTY_MAP_TYPE,

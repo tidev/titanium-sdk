@@ -22,8 +22,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import ti.modules.titanium.codec.CodecModule;
 
 
-@Kroll.proxy(creatableInModule=TitaniumModule.class)
-@Kroll.dynamicApis(properties = {
+@Kroll.proxy(creatableInModule=TitaniumModule.class, propertyAccessors = {
 	TiC.PROPERTY_BYTE_ORDER,
 	TiC.PROPERTY_TYPE,
 	TiC.PROPERTY_VALUE
