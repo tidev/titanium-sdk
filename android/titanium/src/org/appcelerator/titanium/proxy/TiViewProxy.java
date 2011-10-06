@@ -9,6 +9,7 @@ package org.appcelerator.titanium.proxy;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.TreeSet;
 
@@ -434,9 +435,13 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		// Use a copy so bundle can be modified as it passes up the inheritance
 		// tree. Allows defaults to be added and keys removed.
 		if (children != null) {
-			for (TiViewProxy p : children) {
-				TiUIView cv = p.getOrCreateView();
-				view.add(cv);
+			try {
+				for (TiViewProxy p : children) {
+					TiUIView cv = p.getOrCreateView();
+					view.add(cv);
+				}
+			} catch (ConcurrentModificationException e) {
+				Log.e(LCAT, e.getMessage(), e);
 			}
 		}
 		

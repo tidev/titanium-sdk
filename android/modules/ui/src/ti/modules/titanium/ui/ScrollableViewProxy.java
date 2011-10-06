@@ -144,42 +144,52 @@ public class ScrollableViewProxy extends TiViewProxy
 	@Kroll.setProperty @Kroll.method
 	public void setViews(Object viewsObject)
 	{
-		sendBlockingUiMessage(MSG_SET_VIEWS, viewsObject);
+		getView().setViews(viewsObject);
+		//sendBlockingUiMessage(MSG_SET_VIEWS, viewsObject);
 	}
 
 	@Kroll.method
 	public void addView(Object viewObject)
 	{
-		sendBlockingUiMessage(MSG_ADD_VIEW, viewObject); 
+		if (viewObject instanceof TiViewProxy) {
+			getView().addView((TiViewProxy)viewObject);
+		}
+		//sendBlockingUiMessage(MSG_ADD_VIEW, viewObject); 
 	}
 
 	@Kroll.method
 	public void removeView(Object viewObject)
 	{
-		sendBlockingUiMessage(MSG_REMOVE_VIEW, viewObject); 
+		if (viewObject instanceof TiViewProxy) {
+			getView().removeView((TiViewProxy)viewObject);
+		}
+		//sendBlockingUiMessage(MSG_REMOVE_VIEW, viewObject); 
 	}
 
 	@Kroll.method
 	public void scrollToView(Object view)
 	{
 		if (inScroll.get()) return;
-		getUIHandler().obtainMessage(MSG_SCROLL_TO, view).sendToTarget();
+		getView().scrollTo(view);
+		//getUIHandler().obtainMessage(MSG_SCROLL_TO, view).sendToTarget();
 	}
 
 	@Kroll.method
 	public void movePrevious()
 	{
 		if (inScroll.get()) return;
-		getUIHandler().removeMessages(MSG_MOVE_PREV);
-		getUIHandler().sendEmptyMessage(MSG_MOVE_PREV);
+		getView().movePrevious();
+		//getUIHandler().removeMessages(MSG_MOVE_PREV);
+		//getUIHandler().sendEmptyMessage(MSG_MOVE_PREV);
 	}
 
 	@Kroll.method
 	public void moveNext()
 	{
 		if (inScroll.get()) return;
-		getUIHandler().removeMessages(MSG_MOVE_NEXT);
-		getUIHandler().sendEmptyMessage(MSG_MOVE_NEXT);
+		getView().moveNext();
+		//getUIHandler().removeMessages(MSG_MOVE_NEXT);
+		//getUIHandler().sendEmptyMessage(MSG_MOVE_NEXT);
 	}
 
 	public void setPagerTimeout()
@@ -201,9 +211,11 @@ public class ScrollableViewProxy extends TiViewProxy
 	{
 		getView().setShowPagingControl(showPagingControl);
 		if (!showPagingControl) {
-			getUIHandler().sendEmptyMessage(MSG_HIDE_PAGER);
+			getView().hidePager();
+			//getUIHandler().sendEmptyMessage(MSG_HIDE_PAGER);
 		} else {
-			getUIHandler().sendEmptyMessage(MSG_SHOW_PAGER);
+			getView().showPager();
+			//getUIHandler().sendEmptyMessage(MSG_SHOW_PAGER);
 		}
 	}
 
@@ -227,14 +239,15 @@ public class ScrollableViewProxy extends TiViewProxy
 	@Kroll.setProperty @Kroll.method
 	public void setCurrentPage(Object page)
 	{
-		getUIHandler().obtainMessage(MSG_SET_CURRENT, page).sendToTarget();
+		getView().setCurrentPage(page);
+		//getUIHandler().obtainMessage(MSG_SET_CURRENT, page).sendToTarget();
 	}
 
 	@Override
 	public void releaseViews()
 	{
-		getUIHandler().removeMessages(MSG_SHOW_PAGER);
-		getUIHandler().removeMessages(MSG_HIDE_PAGER);
+		//getUIHandler().removeMessages(MSG_SHOW_PAGER);
+		//getUIHandler().removeMessages(MSG_HIDE_PAGER);
 		super.releaseViews();
 	}
 }
