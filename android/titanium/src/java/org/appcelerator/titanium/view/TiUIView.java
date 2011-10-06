@@ -83,6 +83,8 @@ public abstract class TiUIView
 	// i.e., the view passed to registerForTouch.
 	private WeakReference<View> touchView = null;
 
+	private Method mSetLayerTypeMethod = null; // Honeycomb, for turning off hw acceleration.
+
 	public TiUIView(TiViewProxy proxy)
 	{
 		if (idGenerator == null) {
@@ -1020,14 +1022,11 @@ public abstract class TiUIView
 		if (nativeView == null) {
 			return;
 		}
-		if (DBG) {
-			Log.d(LCAT, "Disabling hardware acceleration for instance of " + nativeView.getClass().getSimpleName());
-		}
-
-		if (setLayerTypeMethod == null) {
+		Log.d(LCAT, "disabling hardware acceleration for " + nativeView.getClass().getSimpleName());
+		if (mSetLayerTypeMethod == null) {
 			try {
 				Class<? extends View> c = nativeView.getClass();
-				setLayerTypeMethod = c.getMethod("setLayerType", int.class, Paint.class);
+				mSetLayerTypeMethod = c.getMethod("setLayerType", int.class, Paint.class);
 			} catch (SecurityException e) {
 				Log.e(LCAT, "SecurityException trying to get View.setLayerType to disable hardware acceleration.", e);
 			} catch (NoSuchMethodException e) {
@@ -1035,11 +1034,11 @@ public abstract class TiUIView
 			}
 		}
 
-		if (setLayerTypeMethod == null) {
+		if (mSetLayerTypeMethod == null) {
 			return;
 		}
 		try {
-			setLayerTypeMethod.invoke(nativeView, LAYER_TYPE_SOFTWARE, null);
+			mSetLayerTypeMethod.invoke(nativeView, LAYER_TYPE_SOFTWARE, null);
 		} catch (IllegalArgumentException e) {
 			Log.e(LCAT, e.getMessage(), e);
 		} catch (IllegalAccessException e) {
