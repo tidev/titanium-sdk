@@ -197,7 +197,8 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaToJsConverter":"javaArrayToJsArray",
 		"jvalue":"l", "signature":"[I",
 		"javaCallMethodType":"Object",
-		"javaReturnType":"jintArray"
+		"javaReturnType":"jintArray",
+		"javaValidation":true
 	},
 	"int":{
 		"jsType":"Number",

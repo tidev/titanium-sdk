@@ -69,6 +69,16 @@ exports.bootstrapWindow = function(Titanium) {
 			this.window = new UI.ActivityWindow(this._properties);
 			this.nativeView = this.window;
 			this.attachListeners();
+
+			// we needs the children man!
+			if (this._children) {
+				var length = this._children.length;
+				for (var i = 0; i < length; i++) {
+					this.window.add(this._children[i]);
+				}
+				delete this._children;
+			}
+
 			this.window.open();
 		} else {
 			var needsOpen = false;

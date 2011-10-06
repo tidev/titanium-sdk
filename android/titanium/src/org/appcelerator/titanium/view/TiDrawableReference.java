@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -27,6 +27,7 @@ import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiBackgroundImageLoadTask;
+import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiDownloadListener;
 import org.appcelerator.titanium.util.TiDownloadManager;
@@ -45,23 +46,26 @@ import android.webkit.URLUtil;
 public class TiDrawableReference
 {
 	private static Map<Integer, Bounds> boundsCache;
-	static {
+	static
+	{
 		boundsCache = Collections.synchronizedMap(new HashMap<Integer, Bounds>());
 	}
-	
-	public enum DrawableReferenceType {
+
+	public enum DrawableReferenceType
+	{
 		NULL, URL, RESOURCE_ID, BLOB, FILE
 	}
-	
-	public class Bounds 
-	{ 
+
+	public static class Bounds
+	{
 		public static final int UNKNOWN = TiDrawableReference.UNKNOWN;
 		private int height = UNKNOWN, width = UNKNOWN;
 		public int getHeight() { return height; }
 		public int getWidth() { return width; }
 	}
-	
+
 	private static final String LCAT = "TiDrawableReference";
+	private static final boolean DBG = TiConfig.LOGD;
 	private static final int UNKNOWN = -1;
 	private static final int DEFAULT_SAMPLE_SIZE = 1;
 	private int resourceId = UNKNOWN;
@@ -72,8 +76,6 @@ public class TiDrawableReference
 	private boolean oomOccurred = false;
 	
 	private SoftReference<Activity> softActivity = null;
-	
-	private TiFileHelper fileHelper = null;
 	
 	public TiDrawableReference(Activity activity, DrawableReferenceType type)
 	{
@@ -187,31 +189,36 @@ public class TiDrawableReference
 			return fromObject(activity, null);
 		}
 	}
-	
+
 	public boolean isNetworkUrl()
 	{
 		return (type == DrawableReferenceType.URL && url != null && URLUtil.isNetworkUrl(this.url));
 	}
-	
-	public boolean isTypeUrl() {
+
+	public boolean isTypeUrl()
+	{
 		return type == DrawableReferenceType.URL;
 	}
-	
-	public boolean isTypeFile() {
+
+	public boolean isTypeFile()
+	{
 		return type == DrawableReferenceType.FILE;
 	}
 	
-	public boolean isTypeBlob() {
+	public boolean isTypeBlob()
+	{
 		return type == DrawableReferenceType.BLOB;
 	}
-	
-	public boolean isTypeResourceId() {
+
+	public boolean isTypeResourceId()
+	{
 		return type == DrawableReferenceType.RESOURCE_ID;
 	}
-	public boolean isTypeNull() {
+	public boolean isTypeNull()
+	{
 		return type == DrawableReferenceType.NULL;
 	}
-	
+
 	/**
 	 * Get the bitmap from the resource without respect to sampling/scaling.
 	 * @return Bitmap, or null if any problem getting it.  Check logcat if null.
@@ -223,14 +230,14 @@ public class TiDrawableReference
 			Log.w(LCAT, "Could not open stream to get bitmap");
 			return null;
 		}
-		
+
 		Bitmap b = null;
-		
+
 		try {
 			BitmapFactory.Options opts = new BitmapFactory.Options();
 			opts.inInputShareable = true;
 			opts.inPurgeable = true;
-			
+
 			try {
 				oomOccurred = false;
 				b = BitmapFactory.decodeStream(is, null, opts);
@@ -347,6 +354,71 @@ public class TiDrawableReference
 		destHeight = (int) ((double)destWidth / aspectRatio);
 		return getBitmap(destWidth, destHeight);
 	}
+
+	private Bounds calcDestSize(int srcWidth, int srcHeight, TiDimension destWidthDimension,
+			TiDimension destHeightDimension, View parent)
+	{
+		Bounds bounds = new Bounds();
+		int destWidth, destHeight, containerWidth, containerHeight,
+			parentWidth, parentHeight;
+		destWidth = destHeight = parentWidth = parentHeight =
+			containerWidth = containerHeight = TiDrawableReference.UNKNOWN;
+
+		if (parent != null) {
+			parentWidth = parent.getWidth();
+			parentHeight = parent.getHeight();
+		}
+
+		// Width to fit into
+		if (destWidthDimension != null) {
+			if (destWidthDimension.isUnitAuto()) {
+				containerWidth = srcWidth;
+			} else {
+				containerWidth = destWidthDimension.getAsPixels(parent);
+			}
+		} else {
+			if (parentWidth >= 0) {
+				containerWidth = parentWidth;
+			}
+		}
+		if (containerWidth < 0) {
+			Log.w(LCAT, "Could not determine container width for image. Defaulting to source width. This shouldn't happen.");
+			containerWidth = srcWidth;
+		}
+
+		// Height to fit into
+		if (destHeightDimension != null) {
+			if (destHeightDimension.isUnitAuto()) {
+				containerHeight = srcHeight;
+			} else {
+				containerHeight = destHeightDimension.getAsPixels(parent);
+			}
+		} else {
+			if (parentHeight >= 0) {
+				containerHeight = parentHeight;
+			}
+		}
+
+		if (containerHeight < 0) {
+			Log.w(LCAT, "Could not determine container height for image. Defaulting to source height. This shouldn't happen.");
+			containerHeight = srcHeight;
+		}
+
+		float origAspectRatio = (float) srcWidth / (float) srcHeight;
+
+		if (origAspectRatio > 1f) {
+			destWidth = containerWidth;
+			destHeight = (int) ((float) destWidth / origAspectRatio);
+		} else {
+			destHeight = containerHeight;
+			destWidth = (int) ((float) destHeight * origAspectRatio);
+		}
+
+		bounds.width = destWidth;
+		bounds.height = destHeight;
+		return bounds;
+	}
+
 	/**
 	 * Gets the bitmap, scaled to a width & height specified in TiDimension params.
 	 * @param destWidthDimension (null-ok) TiDimension specifying the desired width.  If .isUnitAuto()
@@ -364,10 +436,27 @@ public class TiDrawableReference
 		Bounds bounds = peekBounds();
 		srcWidth = bounds.width;
 		srcHeight = bounds.height;
-		
+
 		if (srcWidth <= 0 || srcHeight <= 0) {
 			Log.w(LCAT, "Bitmap bounds could not be determined.  If bitmap is loaded, it won't be scaled.");
 			return getBitmap(); // fallback
+		}
+
+		if (parent == null) {
+			Activity activity = softActivity.get();
+			if (activity != null && activity.getWindow() != null) {
+				parent = activity.getWindow().getDecorView();
+			}
+		}
+
+		Bounds destBounds = calcDestSize(srcWidth, srcHeight, destWidthDimension, destHeightDimension, parent);
+		destWidth = destBounds.width;
+		destHeight = destBounds.height;
+
+		if (destWidth <= 0 || destHeight <= 0) {
+			// calcDestSize() should actually prevent this from happening, but just in case...
+			Log.w(LCAT, "Bitmap final bounds could not be determined.  If bitmap is loaded, it won't be scaled.");
+			return getBitmap();
 		}
 
 		InputStream is = getInputStream();
@@ -378,32 +467,11 @@ public class TiDrawableReference
 
 		Bitmap b = null;
 		try {
-			if (destWidthDimension == null) {
-				destWidth = srcWidth; // default, but try harder below
-				Activity activity = softActivity.get();
-				if (activity != null && activity.getWindow() != null) {
-					int parentWidth = activity.getWindow().getDecorView().getWidth();
-					if (parentWidth > 0) {
-						// the parent may not be finished laying out yet
-						// we'll take the natural width as the best guess in that case
-						destWidth = parentWidth;
-					}
-				}
-			} else {
-				destWidth = destWidthDimension.isUnitAuto() ? srcWidth : destWidthDimension.getAsPixels(parent);
-			}
-			
-			if (destHeightDimension == null) {
-				destHeight = (int)(((float) srcHeight / (float) srcWidth)*(float)destWidth);
-			} else {
-				destHeight = destHeightDimension.isUnitAuto() ? srcHeight : destHeightDimension.getAsPixels(parent);
-			}
-			
 			BitmapFactory.Options opts = new BitmapFactory.Options();
 			opts.inInputShareable = true;
 			opts.inPurgeable = true;
 			opts.inSampleSize =  calcSampleSize(srcWidth, srcHeight, destWidth, destHeight);
-			
+
 			Bitmap bTemp = null;
 			try {
 				oomOccurred = false;
@@ -412,7 +480,27 @@ public class TiDrawableReference
 					Log.w(LCAT, "Decoded bitmap is null");
 					return null;
 				}
-				b = Bitmap.createScaledBitmap(bTemp, destWidth, destHeight, true);
+				if (DBG) {
+					StringBuilder sb = new StringBuilder();
+					sb.append("Bitmap sampling results: inSampleSize=");
+					sb.append(opts.inSampleSize);
+					sb.append("; srcWidth=");
+					sb.append(srcWidth);
+					sb.append("; srcHeight=");
+					sb.append(srcHeight);
+					sb.append("; finalWidth=");
+					sb.append(opts.outWidth);
+					sb.append("; finalHeight=");
+					sb.append(opts.outHeight);
+					Log.d(LCAT, sb.toString());
+				}
+				if (bTemp.getNinePatchChunk() != null) {
+					// Don't scale nine-patches
+					b = bTemp;
+					bTemp = null;
+				} else {
+					b = Bitmap.createScaledBitmap(bTemp, destWidth, destHeight, true);
+				}
 			} catch (OutOfMemoryError e) {
 				oomOccurred = true;
 				Log.e(LCAT, "Unable to load bitmap. Not enough memory: " + e.getMessage(), e);
@@ -471,9 +559,9 @@ public class TiDrawableReference
 		}
 		Bounds bounds = new Bounds();
 		if (isTypeNull()) { return bounds; }
-		
+
 		InputStream stream = getInputStream();
-		
+
 		try {
 			if (stream != null) {
 				BitmapFactory.Options bfo = new BitmapFactory.Options();
@@ -496,7 +584,7 @@ public class TiDrawableReference
 		boundsCache.put(hash, bounds);
 		return bounds;
 	}
-	
+
 	/**
 	 * Based on the underlying type of reference this is, figures out how to get
 	 * an InputStream for it.  E.g., if a blob, calls blob.getInputStream, if 
@@ -506,7 +594,7 @@ public class TiDrawableReference
 	public InputStream getInputStream()
 	{
 		InputStream stream = null;
-		
+
 		if (isTypeUrl() && url != null) {
 			try {
 				// TODO look at resolve?
@@ -529,7 +617,7 @@ public class TiDrawableReference
 			} catch (IOException e) {
 				Log.e(LCAT, "Problem opening stream from file " + file.name() + ": " + e.getMessage(), e);
 			}
-			
+
 		} else if (isTypeBlob() && blob != null) {
 			stream = blob.getInputStream();
 			
@@ -539,7 +627,7 @@ public class TiDrawableReference
 
 		return stream;
 	}
-	
+
 	/**
 	 * Calculates a value for the BitmapFactory.Options .inSampleSize property.
 	 * 
@@ -557,7 +645,7 @@ public class TiDrawableReference
 		}
 		return Math.max(srcWidth / destWidth, srcHeight / destHeight);
 	}
-	
+
 	/**
 	 * Calculates a value for the BitmapFactory.Options .inSampleSize property by first calling peakBounds() 
 	 * to determine the original width & height.
@@ -573,7 +661,7 @@ public class TiDrawableReference
 		return calcSampleSize(bounds.width, bounds.height, destWidth, destHeight);
 		
 	}
-	
+
 	/**
 	 * Calculates a value for the BitmapFactory.Options .inSampleSize property.
 	 * 
@@ -588,26 +676,14 @@ public class TiDrawableReference
 	 */
 	public int calcSampleSize(View parent, int srcWidth, int srcHeight, TiDimension destWidthDimension, TiDimension destHeightDimension) 
 	{
-		int destWidth;
-		if (destWidthDimension == null) {
-			destWidth = srcWidth; // default, but try harder below
-			Activity activity = softActivity.get();
-			if (activity != null && activity.getWindow() != null) {
-				destWidth = activity.getWindow().getDecorView().getWidth();
-			}
-		} else {
-			destWidth = destWidthDimension.isUnitAuto() ? srcWidth : destWidthDimension.getAsPixels(parent);
-		}
-		int destHeight;
-		if (destHeightDimension == null) {
-			destHeight = (int)(((float) srcHeight / (float) srcWidth)*(float)destWidth);
-		} else {
-			destHeight = destHeightDimension.isUnitAuto() ? srcHeight : destHeightDimension.getAsPixels(parent);
-		}
-
+		int destWidth, destHeight;
+		destWidth = destHeight = TiDrawableReference.UNKNOWN;
+		Bounds destBounds = calcDestSize(srcWidth, srcHeight, destWidthDimension, destHeightDimension, parent);
+		destWidth = destBounds.width;
+		destHeight = destBounds.height;
 		return calcSampleSize(srcWidth, srcHeight, destWidth, destHeight);
 	}
-	
+
 	/**
 	 * Calculates a value for the BitmapFactory.Options .inSampleSize property by first calling peakBounds() 
 	 * to determine the source width & height.
@@ -624,19 +700,21 @@ public class TiDrawableReference
 		Bounds bounds = peekBounds();
 		int srcWidth = bounds.width;
 		int srcHeight = bounds.height;
-		
+
 		return calcSampleSize(parent, srcWidth, srcHeight, destWidthDimension, destHeightDimension);
-		
+
 	}
-	
+
 	/**
 	 * @return true if most recent attempt to getBitmap caused an OutOfMemoryError
 	 */
-	public boolean outOfMemoryOccurred() {
+	public boolean outOfMemoryOccurred()
+	{
 		return oomOccurred;
 	}
 
-	public String getUrl() {
+	public String getUrl()
+	{
 		return url;
 	}
 }
