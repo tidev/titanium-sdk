@@ -598,13 +598,12 @@ public class TiDrawableReference
 
 		if (isTypeUrl() && url != null) {
 			try {
-				String resolved = TiUrl.resolve(null, url, null);
-				if (resolved.startsWith(TiC.URL_ANDROID_ASSET_RESOURCES)
+				if (url.startsWith(TiC.URL_ANDROID_ASSET_RESOURCES)
 					&& TiFastDev.isFastDevEnabled()) {
-					TiBaseFile tbf = TiFileFactory.createTitaniumFile(new String[] { resolved }, false);
+					TiBaseFile tbf = TiFileFactory.createTitaniumFile(new String[] { url }, false);
 					stream = tbf.getInputStream();
 				} else {
-					stream = TiFileHelper.getInstance().openInputStream(resolved, false);
+					stream = TiFileHelper.getInstance().openInputStream(url, false);
 				}
 			} catch (IOException e) {
 				Log.e(LCAT, "Problem opening stream with url " + url + ": " + e.getMessage(), e);
