@@ -67,6 +67,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 		if (this.isActivity) {
 			this.window = new UI.ActivityWindow(this._properties);
+			UI.currentWindow = this.window;
 			this.nativeView = this.window;
 			this.attachListeners();
 
@@ -83,13 +84,17 @@ exports.bootstrapWindow = function(Titanium) {
 		} else {
 			var needsOpen = false;
 
+			kroll.log("-----------LW window open22");
 			if (!("currentWindow" in UI)) {
-				UI.currentWindow = new UI.ActivityWindow({
+				kroll.log("-----------creating new current window");
+				this.window = new UI.ActivityWindow({
 					useCurrentActivity: true
 				});
+				UI.currentWindow = this.window;
 				needsOpen = true;
 			}
 
+			kroll.log("-------------current window:" + UI.currentWindow);
 			this.window = UI.currentWindow;
 			this.view = new UI.View(this._properties);
 			this.nativeView = this.view;
@@ -105,9 +110,11 @@ exports.bootstrapWindow = function(Titanium) {
 			this.view.zIndex = Math.MAX_INT - 2;
 
 			this.attachListeners();
+			kroll.log("---------------adding the view to the window");
 			this.window.add(this.view);
 
 			if (needsOpen) {
+				kroll.log("------------opening the window");
 				this.window.open();
 			}
 		}
