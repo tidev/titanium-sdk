@@ -991,4 +991,38 @@ public abstract class TiUIView
 			}
 		});
 	}
+
+	private void disableHWAcceleration()
+	{
+		if (nativeView == null) {
+			return;
+		}
+		if (DBG) {
+			Log.d(LCAT, "Disabling hardware acceleration for instance of " + nativeView.getClass().getSimpleName());
+		}
+		if (mSetLayerTypeMethod == null) {
+			try {
+				Class<? extends View> c = nativeView.getClass();
+				mSetLayerTypeMethod = c.getMethod("setLayerType", int.class, Paint.class);
+			} catch (SecurityException e) {
+				Log.e(LCAT, "SecurityException trying to get View.setLayerType to disable hardware acceleration.", e);
+			} catch (NoSuchMethodException e) {
+				Log.e(LCAT, "NoSuchMethodException trying to get View.setLayerType to disable hardware acceleration.", e);
+			}
+		}
+
+		if (mSetLayerTypeMethod == null) {
+			return;
+		}
+		try {
+			mSetLayerTypeMethod.invoke(nativeView, LAYER_TYPE_SOFTWARE, null);
+		} catch (IllegalArgumentException e) {
+			Log.e(LCAT, e.getMessage(), e);
+		} catch (IllegalAccessException e) {
+			Log.e(LCAT, e.getMessage(), e);
+		} catch (InvocationTargetException e) {
+			Log.e(LCAT, e.getMessage(), e);
+		}
+	}
+
 }
