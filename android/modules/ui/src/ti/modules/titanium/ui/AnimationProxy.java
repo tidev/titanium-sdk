@@ -10,8 +10,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.view.TiAnimation;
 
-@Kroll.proxy(creatableInModule=UIModule.class)
-@Kroll.dynamicApis(properties = {
+@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
 	TiC.PROPERTY_ANCHOR_POINT,
 	TiC.PROPERTY_TRANSFORM,
 	TiC.PROPERTY_DELAY,
@@ -27,6 +26,7 @@ import org.appcelerator.titanium.view.TiAnimation;
 	TiC.PROPERTY_WIDTH,
 	TiC.PROPERTY_HEIGHT
 })
+
 public class AnimationProxy extends TiAnimation {
 
 	public void handleCreationDict(org.appcelerator.kroll.KrollDict dict) {
