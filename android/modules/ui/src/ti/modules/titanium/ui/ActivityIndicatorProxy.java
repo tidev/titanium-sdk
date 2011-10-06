@@ -13,12 +13,12 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.TiUIActivityIndicator;
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule=UIModule.class,
-	propertyAccessors={"message", "value"})
-@Kroll.dynamicApis(properties = {
+@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
+	"message", "value",
 	"location", "min", "max",
 	"messageid", "type"
-}, methods = {
+})
+@Kroll.dynamicApis(methods = {
 	"hide", "show"
 })
 public class ActivityIndicatorProxy extends TiDialogProxy

@@ -175,8 +175,8 @@ var fileIndex;
 
 function filenameExists(filename) {
 	if (!fileIndex) {
-        var json = assets.readResource("index.json");
-        fileIndex = JSON.parse(json);
+		var json = assets.readResource("index.json");
+		fileIndex = JSON.parse(json);
 	}
 
 	return filename in fileIndex;

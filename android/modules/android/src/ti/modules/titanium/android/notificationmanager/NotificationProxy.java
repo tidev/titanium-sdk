@@ -26,8 +26,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.net.Uri;
 
-@Kroll.proxy(creatableInModule=AndroidModule.class)
-@Kroll.dynamicApis(properties = {
+@Kroll.proxy(creatableInModule=AndroidModule.class, propertyAccessors = {
 	TiC.PROPERTY_CONTENT_TEXT,
 	TiC.PROPERTY_CONTENT_TITLE
 })

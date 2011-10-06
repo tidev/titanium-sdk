@@ -22,8 +22,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
 
-@Kroll.proxy
-@Kroll.dynamicApis(properties = {
+@Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_ACTION,
 	TiC.PROPERTY_CLASS_NAME,
 	TiC.PROPERTY_PACKAGE_NAME,

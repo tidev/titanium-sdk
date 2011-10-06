@@ -23,8 +23,7 @@ import ti.modules.titanium.ui.widget.TiUITableView;
 import android.app.Activity;
 import android.os.Message;
 
-@Kroll.proxy(creatableInModule=UIModule.class)
-@Kroll.dynamicApis(properties = {
+@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_FILTER_ATTRIBUTE,
 	TiC.PROPERTY_FILTER_CASE_INSENSITIVE,
 	TiC.PROPERTY_HEADER_TITLE,

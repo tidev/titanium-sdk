@@ -19,8 +19,7 @@ import org.appcelerator.titanium.util.TiConfig;
 import android.app.Activity;
 import android.content.Intent;
 
-@Kroll.proxy
-@Kroll.dynamicApis(properties = {
+@Kroll.proxy(propertyAccessors = {
 	"onCreateOptionsMenu",
 	"onPrepareOptionsMenu"
 })

@@ -16,8 +16,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.TiUILabel;
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule=UIModule.class)
-@Kroll.dynamicApis(properties = {
+@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_AUTO_LINK,
 	TiC.PROPERTY_COLOR,
 	TiC.PROPERTY_ELLIPSIZE,

@@ -14,8 +14,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.TiUIProgressBar;
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule=UIModule.class)
-@Kroll.dynamicApis(properties = {
+@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	"min", "max",
 	TiC.PROPERTY_VALUE,
 	TiC.PROPERTY_MESSAGE

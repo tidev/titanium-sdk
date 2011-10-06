@@ -28,8 +28,7 @@ import android.graphics.PixelFormat;
 import android.os.Message;
 import android.os.Messenger;
 
-@Kroll.proxy(creatableInModule=UIModule.class)
-@Kroll.dynamicApis(properties = {
+@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_TITLEID,
 	TiC.PROPERTY_URL,
 	TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE,

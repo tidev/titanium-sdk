@@ -18,8 +18,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import android.app.PendingIntent;
 import android.content.Context;
 
-@Kroll.proxy(creatableInModule=AndroidModule.class)
-@Kroll.dynamicApis(properties = {
+@Kroll.proxy(creatableInModule=AndroidModule.class, propertyAccessors = {
 	TiC.PROPERTY_FLAGS,
 	TiC.PROPERTY_INTENT
 })

@@ -9,6 +9,7 @@ package org.appcelerator.titanium.util;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.annotations.Kroll.getProperty;
 import org.appcelerator.kroll.runtime.v8.V8Callback;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
@@ -285,7 +286,7 @@ public class TiAnimationBuilder
 			relayoutChild = true;
 		}
 		
-		if (/*callback != null || */animationProxy != null) {
+		if (callback != null || animationProxy != null) {
 			as.setAnimationListener(listener);
 		}
 
@@ -420,9 +421,9 @@ public class TiAnimationBuilder
 				applyOpacity = false;
 			}
 			if (a instanceof AnimationSet) {
-				/*if (callback != null) {
-					callback.callAsync();
-				}*/
+				if (callback != null) {
+					callback.invoke(viewProxy, new KrollDict());
+				}
 				if (animationProxy != null) {
 					animationProxy.fireEvent(TiC.EVENT_COMPLETE, null);
 				}
