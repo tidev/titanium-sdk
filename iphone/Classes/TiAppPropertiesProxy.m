@@ -26,6 +26,7 @@
 -(BOOL)propertyExists: (NSString *) key;
 {
 	if (![key isKindOfClass:[NSString class]]) return NO;
+	[defaultsObject synchronize];
 	return ([defaultsObject objectForKey:key] != nil);
 }
 

@@ -354,9 +354,9 @@
 		{
 			// detach existing one
 			UIBarButtonItem *item = controller.navigationItem.rightBarButtonItem;
-			if (item!=nil && [item isKindOfClass:[TiViewProxy class]])
+			if ([item respondsToSelector:@selector(proxy)])
 			{
-				[(TiViewProxy*)item removeBarButtonView];
+				[(TiViewProxy*)[item proxy] removeBarButtonView];
 			}
 			if (proxy!=nil)
 			{
@@ -400,9 +400,9 @@
 		{
 			// detach existing one
 			UIBarButtonItem *item = controller.navigationItem.leftBarButtonItem;
-			if (item!=nil && [item isKindOfClass:[TiViewProxy class]])
+			if ([item respondsToSelector:@selector(proxy)])
 			{
-				[(TiViewProxy*)item removeBarButtonView];
+				[(TiViewProxy*)[item proxy] removeBarButtonView];
 			}
 			controller.navigationItem.leftBarButtonItem = nil;			
 			if (proxy!=nil)
@@ -618,9 +618,9 @@
 		{
 			for (id current in existing)
 			{
-				if ([current isKindOfClass:[TiViewProxy class]])
+				if ([current respondsToSelector:@selector(proxy)])
 				{
-					[(TiViewProxy*)current removeBarButtonView];
+					[(TiViewProxy*)[current proxy] removeBarButtonView];
 				}
 			}
 		}
@@ -769,6 +769,23 @@ else{\
 	}
 }
 
+-(void)cleanupWindowDecorations
+{
+    if (controller != nil) {
+        UIBarButtonItem *item = controller.navigationItem.leftBarButtonItem;
+        if ([item respondsToSelector:@selector(proxy)])
+        {
+            [(TiViewProxy*)[item proxy] removeBarButtonView];
+        }
+        
+        item = controller.navigationItem.rightBarButtonItem;
+        if ([item respondsToSelector:@selector(proxy)]) 
+        {
+            [(TiViewProxy*)[item proxy] removeBarButtonView];
+        }
+    }
+}
+
 -(void)_tabBeforeFocus
 {
 	if (focused==NO)
@@ -780,6 +797,9 @@ else{\
 
 -(void)_tabBeforeBlur
 {
+    if (focused==YES) {
+        [self cleanupWindowDecorations];
+    }
 	[barImageView removeFromSuperview];
 	[super _tabBeforeBlur];
 }

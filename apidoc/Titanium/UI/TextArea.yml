@@ -87,7 +87,7 @@ properties:
     platforms: [iphone, ipad]
     type: Number
   - name: autocapitalization
-    description: One of <Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE>, <Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS>, <Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES>, or <Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL> to indicate how the field should be capitalized during typing. (only Android)
+    description: One of <Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE>, <Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS>, <Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES>, or <Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL> to indicate how the field should be capitalized during typing.
     platforms: [android]
     type: Number
   - name: editable

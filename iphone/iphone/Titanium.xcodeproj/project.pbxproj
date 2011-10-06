@@ -2855,8 +2855,8 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Titanium-KitchenSink" */;
 			buildPhases = (
-				1D60588D0D05DD3D006BFB54 /* Resources */,
 				241EAF36118E30260081A5BE /* Pre-Compile */,
+				1D60588D0D05DD3D006BFB54 /* Resources */,
 				1D60588E0D05DD3D006BFB54 /* Sources */,
 				1D60588F0D05DD3D006BFB54 /* Frameworks */,
 				24CA8D03111169070084E2DE /* Post-Compile */,
@@ -2874,8 +2874,8 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 24D8E4AE119B9D8A00F8CAA6 /* Build configuration list for PBXNativeTarget "Titanium-KitchenSink-iPad" */;
 			buildPhases = (
-				24D8E3B6119B9D8A00F8CAA6 /* Resources */,
 				24D8E3B9119B9D8A00F8CAA6 /* Pre-Compile */,
+				24D8E3B6119B9D8A00F8CAA6 /* Resources */,
 				24D8E3BA119B9D8A00F8CAA6 /* Sources */,
 				24D8E497119B9D8A00F8CAA6 /* Frameworks */,
 				24D8E4AD119B9D8A00F8CAA6 /* Post-Compile */,
@@ -2893,8 +2893,8 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = DABB37B912E8CB280026A6EA /* Build configuration list for PBXNativeTarget "Titanium-KitchenSink-universal" */;
 			buildPhases = (
-				DABB369B12E8CB280026A6EA /* Resources */,
 				DABB369F12E8CB280026A6EA /* Pre-Compile */,
+				DABB369B12E8CB280026A6EA /* Resources */,
 				DABB36A012E8CB280026A6EA /* Sources */,
 				DABB37A112E8CB280026A6EA /* Frameworks */,
 				DABB37B812E8CB280026A6EA /* Post-Compile */,
@@ -2986,7 +2986,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cp -Rf \"$PROJECT_DIR/../../demos/KitchenSink/Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\" \nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/facebook/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/ui/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\n\"$PROJECT_DIR/../../support/common/localecompiler.py\" \"$PROJECT_DIR/../../demos/KitchenSink\" ios simulator \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\n\"$PROJECT_DIR/../../support/common/css/csscompiler.py\" \"$PROJECT_DIR/../../demos/KitchenSink\" ios \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\n";
+			shellScript = "cp -Rf \"$PROJECT_DIR/../../demos/KitchenSink/Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\" \nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/facebook/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/ui/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\n\"$PROJECT_DIR/../../support/common/localecompiler.py\" \"$PROJECT_DIR/../../demos/KitchenSink\" ios simulator \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\n\"$PROJECT_DIR/../../support/common/css/csscompiler.py\" \"$PROJECT_DIR/../../demos/KitchenSink\" ios \"$PROJECT_DIR/../Resources\"";
 		};
 		24CA8D03111169070084E2DE /* Post-Compile */ = {
 			isa = PBXShellScriptBuildPhase;

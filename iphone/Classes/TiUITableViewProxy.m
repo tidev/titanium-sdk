@@ -601,40 +601,47 @@ NSArray * tableKeySequence;
 	id data = [args objectAtIndex:0];
 	NSDictionary *anim = [args count] > 1 ? [args objectAtIndex:1] : nil;
 	
-	TiUITableViewRowProxy *row = [self tableRowFromArg:data];
-
-	TiUITableView *table = [self viewInitialized]?[self tableView]:nil;
-
-	if (sections == nil || [sections count]==0)
-	{
-		[self setData:[NSArray arrayWithObject:data] withObject:anim immediate:YES];
-		return;
-	}
-	else
-	{
+    if ([data isKindOfClass:[NSArray class]]) {
+        for (id row in data) {
+            [self appendRow:[NSArray arrayWithObjects:row, anim, nil]];
+        }
+        return;
+    }
+    
+    TiUITableViewRowProxy *row = [self tableRowFromArg:data];
+    
+    TiUITableView *table = [self viewInitialized]?[self tableView]:nil;
+    
+    if (sections == nil || [sections count]==0)
+    {
+        [self setData:[NSArray arrayWithObject:data] withObject:anim immediate:YES];
+        return;
+    }
+    else
+    {
         id header = [row valueForKey:@"header"];
         TiUITableViewActionType actionType = TiUITableViewActionAppendRow;
-		TiUITableViewSectionProxy* section = [sections lastObject];
+        TiUITableViewSectionProxy* section = [sections lastObject];
         if (header != nil) {
-			section = [self sectionWithHeader:header table:table];			
+            section = [self sectionWithHeader:header table:table];			
             section.section = [sections count];
             
             actionType = TiUITableViewActionAppendRowWithSection;
         }
-		row.section = section;
-		row.parent = section;
-		
-		if(table != nil){
-			[section rememberProxy:row];	//If we wait until the main thread, it'll be too late!
-			TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithObject:row animation:anim type:actionType] autorelease];
-			[table dispatchAction:action];
-		}
-		else
-		{
-		//No table, we have to do the data update ourselves.
-			[section add:row];
-		}
-	}	
+        row.section = section;
+        row.parent = section;
+        
+        if(table != nil){
+            [section rememberProxy:row];	//If we wait until the main thread, it'll be too late!
+            TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithObject:row animation:anim type:actionType] autorelease];
+            [table dispatchAction:action];
+        }
+        else
+        {
+            //No table, we have to do the data update ourselves.
+            [section add:row];
+        }
+    }	
 }
 
 -(void)setData:(id)args withObject:(id)properties immediate:(BOOL)immediate

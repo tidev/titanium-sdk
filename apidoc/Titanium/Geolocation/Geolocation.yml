@@ -39,15 +39,17 @@ methods:
             function to invoke on success or failure. The event object passed contains a `places` array of zero or more place dictionaries. Each `place` dictionary contains the following properties: `street`, `street1`, `city`, `region1`, `region2`, `postalCode`, `country`, `countryCode`, `longitude`, `latitude`, `displayAddress`, `address`.
         type: Callback<Object>
   - name: setShowCalibration
-    description: configure the calibration UI. set the false to disable the calibration display. (iOS only)
+    description: configure the calibration UI. set the false to disable the calibration display.
+    platforms: [iphone, ipad]
 events:
   - name: calibration
-    description: fired only on iPhone/iPad when the device detects interface and requires calibration. when this event is fired, the calibration UI is being displayed to the end user.
+    description: fired when the device detects interface and requires calibration. when this event is fired, the calibration UI is being displayed to the end user.
+    platforms: [iphone, ipad]
   - name: heading
     description: fired when a heading event is received
     properties:
       - name: code
-        description: if success is false, the error code if available (iOS only)
+        description: if success is false, the error code if available
         platforms: [iphone, ipad]
       - name: success
         description: boolean to indicate if the heading event was successfully received or an error occurred
@@ -55,85 +57,105 @@ events:
         description: if success is false, returns a string of the error description
       - name: heading
         description: |
-                heading results dictionary with the following sub-properties: `magneticHeading`, `trueHeading`, `accuracy`, `x`, `y`, `z`, `timestamp`.
+            heading results dictionary with the following sub-pro perties: `magneticHeading`, `trueHeading`, `accuracy`, `x`, `y`, `z`, `timestamp`.
   - name: location
     description: fired when a location event is received
     properties:
       - name: code
-        description: if success is false, the error code if available (iOS only)
+        description: if success is false, the error code if available
         platforms: [iphone, ipad]
       - name: success
         description: boolean to indicate if the location event was successfully received or an error occurred
       - name: provider
         platforms: [android]
         description: |
-                (Android only) location provider dictionary with the following sub-properties: `name`, `accuracy`, `power`, and `provider`.
+            location provider dictionary with the following sub-properties: `name`, `accuracy`, `power`, and `provider`.
       - name: coords
         description: |
-                location coordinates dictionary with the following sub-properties: `latitude`, `longitude`, `altitude`, `accuracy`, `altitudeAccuracy`, `heading`, `speed`, `timestamp`.
+            location coordinates dictionary with the following sub-properties: `latitude`, `longitude`, `altitude`, `accuracy`, `altitudeAccuracy`, `heading`, `speed`, `timestamp`.
       - name: error
         description: if success is false, returns a string of the error description
 properties:
   - name: ACCURACY_BEST
     description: accuracy constant
     type: Number
+    permission: read-only
   - name: ACCURACY_HUNDRED_METERS
     description: accuracy constant
     type: Number
+    permission: read-only
   - name: ACCURACY_KILOMETER
     description: accuracy constant
     type: Number
+    permission: read-only
   - name: ACCURACY_NEAREST_TEN_METERS
     description: accuracy constant
     type: Number
+    permission: read-only
   - name: ACCURACY_THREE_KILOMETERS
     description: accuracy constant
     type: Number
+    permission: read-only
   - name: AUTHORIZATION_AUTHORIZED
     description: authorization constant
     type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
   - name: AUTHORIZATION_DENIED
     description: authorization constant (user disabled authorization)
     type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
   - name: AUTHORIZATION_RESTRICTED
     description: authorization constant (system disabled authorization)
     type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
   - name: AUTHORIZATION_UNKNOWN
     description: authorization constant
     type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
   - name: ERROR_DENIED
-    description: error constant (iOS only)
+    description: error constant
     platforms: [iphone, ipad]
     type: Number
+    permission: read-only
   - name: ERROR_HEADING_FAILURE
-    description: error constant (iOS only)
+    description: error constant
     platforms: [iphone, ipad]
     type: Number
+    permission: read-only
   - name: ERROR_LOCATION_UNKNOWN
-    description: error constant (iOS only)
+    description: error constant
     platforms: [iphone, ipad]
     type: Number
+    permission: read-only
   - name: ERROR_NETWORK
-    description: error constant (iOS only)
+    description: error constant
     platforms: [iphone, ipad]
     type: Number
+    permission: read-only
   - name: ERROR_REGION_MONITORING_DELAYED
-    description: error constant (iOS 4.0+ only)
+    description: error constant
     platforms: [iphone, ipad]
+    permission: read-only
     osver:
         ios:
             min: "4.0"
     type: Number
   - name: ERROR_REGION_MONITORING_DENIED
-    description: error constant (iOS 4.0+ only)
+    description: error constant
     type: Number
+    permission: read-only
     platforms: [iphone, ipad]
     osver:
         ios:
             min: "4.0"
   - name: ERROR_REGION_MONITORING_FAILURE
-    description: error constant (iOS 4.0+ only)
+    description: error constant
     type: Number
+    permission: read-only
     platforms: [iphone, ipad]
     osver:
         ios:
@@ -141,17 +163,23 @@ properties:
   - name: PROVIDER_GPS
     description: The GPS location provider
     type: String
+    permission: read-only
+    platforms: [android]
   - name: PROVIDER_NETWORK
     description: The Network location provider
     type: String
+    permission: read-only
+    platforms: [android]
   - name: distanceFilter
     description: The minimum change of position (in meters) before a 'location' event is fired. Default is 0, meaning that location events are continuously generated.
     type: Number
+    platforms: [iphone, ipad]
   - name: headingFilter
     description: The minium change of heading (in degrees) before a 'heading' event is fired. Default is 0, meaning that heading events are continuously generated.
     type: Number
+    platforms: [iphone, ipad]
   - name: locationServicesAuthorization
-    description: (iOS 4.2+ only). Returns an authorization constant indicating if the application has access to location services. Always returns AUTHORIZATION_UNKNOWN on pre-4.2 devices. Attempting to re-authorize when AUTHORIZATION_RESTRICTED will lead to issues
+    description: Returns an authorization constant indicating if the application has access to location services. Always returns AUTHORIZATION_UNKNOWN on pre-4.2 devices. Attempting to re-authorize when AUTHORIZATION_RESTRICTED will lead to issues
     type: Number
     platforms: [iphone, ipad]
     osver:
@@ -160,13 +188,15 @@ properties:
   - name: locationServicesEnabled
     description: returns true if the user has enabled or disable location services for the device (not the application).
     type: Boolean
+    permission: read-only
   - name: preferredProvider
     description: allows setting of the preferred location provider.  Returns undefined when the preferred provider is auto-detected
     type: String
   - name: purpose
-    description: (iOS only). This property informs the end-user why location services are being requested by the application.  This string will be display in the permission dialog. This property is REQUIRED starting in 4.0.
+    description: This property informs the end-user why location services are being requested by the application.  This string will be display in the permission dialog. This property is REQUIRED starting in 4.0.
     platforms: [iphone, ipad]
     type: String
   - name: showCalibration
     description: returns true if the calibration UI can show
     type: Boolean
+    platforms: [iphone, ipad]

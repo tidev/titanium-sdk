@@ -7,296 +7,389 @@ properties:
   - name: ANIMATION_CURVE_EASE_IN
     description: animation curve constant
     type: Number
+    permission: read-only
   - name: ANIMATION_CURVE_EASE_IN_OUT
     description: animation curve constant
     type: Number
+    permission: read-only
   - name: ANIMATION_CURVE_EASE_OUT
     description: animation curve constant
     type: Number
+    permission: read-only
   - name: ANIMATION_CURVE_LINEAR
     description: animation curve constant
     type: Number
+    permission: read-only
   - name: AUTODETECT_ADDRESS
     description: text autodetection constant (iOS 4.0+)
     platforms: [iphone, ipad]
     osver: {ios: {min: "4.0"}}
+    permission: read-only
     type: Number
   - name: AUTODETECT_ALL
     description: text autodetection constant (iOS)
     platforms: [iphone, ipad]
     type: Number
+    permission: read-only
   - name: AUTODETECT_CALENDAR
     description: text autodetection constant (iOS 4.0+)
     platforms: [iphone, ipad]
     osver: {ios: {min: "4.0"}}
     type: Number
+    permission: read-only
   - name: AUTODETECT_LINK
     description: text autodetection constant (iOS)
     platforms: [iphone, ipad]
     type: Number
+    permission: read-only
   - name: AUTODETECT_NONE
     description: text autodetection constant (iOS)
     platforms: [iphone, ipad]
     type: Number
+    permission: read-only
   - name: AUTODETECT_PHONE
     description: text autodetection constant (iOS)
     platforms: [iphone, ipad]
     type: Number
+    permission: read-only
   - name: BLEND_MODE_CLEAR
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_COLOR
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_COLOR_BURN
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_COLOR_DODGE
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_COPY
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_DARKEN
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_DESTINATION_ATOP
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_DESTINATION_IN
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_DESTINATION_OUT
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_DESTINATION_OVER
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_DIFFERENCE
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_EXCLUSION
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_HARD_LIGHT
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_HUE
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_LIGHTEN
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_LUMINOSITY
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_MULTIPLY
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_NORMAL
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_OVERLAY
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_PLUS_DARKER
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_PLUS_LIGHTER
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_SATURATION
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_SCREEN
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_SOFT_LIGHT
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_SOURCE_ATOP
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_SOURCE_IN
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_SOURCE_OUT
     description: image mode constant
     type: Number
+    permission: read-only
   - name: BLEND_MODE_XOR
     description: image mode constant
     type: Number
+    permission: read-only
   - name: FACE_DOWN
     description: orientation constant
     type: Number
+    permission: read-only
   - name: FACE_UP
     description: orientation constant
     type: Number
+    permission: read-only
   - name: INPUT_BORDERSTYLE_BEZEL
     description: input border style constant
     type: Number
+    permission: read-only
   - name: INPUT_BORDERSTYLE_LINE
     description: input border style constant
     type: Number
+    permission: read-only
   - name: INPUT_BORDERSTYLE_NONE
     description: input border style constant
     type: Number
+    permission: read-only
   - name: INPUT_BORDERSTYLE_ROUNDED
     description: input border style constant
     type: Number
+    permission: read-only
   - name: INPUT_BUTTONMODE_ALWAYS
     description: input button mode constant
     type: Number
+    permission: read-only
   - name: INPUT_BUTTONMODE_NEVER
     description: input button mode constant
     type: Number
+    permission: read-only
   - name: INPUT_BUTTONMODE_ONBLUR
     description: input button mode constant
     type: Number
+    permission: read-only
   - name: INPUT_BUTTONMODE_ONFOCUS
     description: input button mode constant
     type: Number
+    permission: read-only
   - name: KEYBOARD_APPEARANCE_ALERT
     description: textfield keyboard appearance constant
     type: Number
+    permission: read-only
   - name: KEYBOARD_APPEARANCE_DEFAULT
     description: textfield keyboard appearance constant
     type: Number
+    permission: read-only
   - name: KEYBOARD_ASCII
     description: textfield keyboard constant
     type: Number
+    permission: read-only
   - name: KEYBOARD_DEFAULT
     description: textfield keyboard constant
     type: Number
+    permission: read-only
   - name: KEYBOARD_EMAIL
     description: textfield keyboard constant
     type: Number
+    permission: read-only
   - name: KEYBOARD_NAMEPHONE_PAD
     description: textfield keyboard constant
     type: Number
+    permission: read-only
   - name: KEYBOARD_NUMBERS_PUNCTUATION
     description: textfield keyboard constant
     type: Number
+    permission: read-only
   - name: KEYBOARD_NUMBER_PAD
     description: textfield keyboard constant
     type: Number
+    permission: read-only
   - name: KEYBOARD_PHONE_PAD
     description: textfield keyboard constant
     type: Number
+    permission: read-only
   - name: KEYBOARD_URL
     description: textfield keyboard constant
     type: Number
+    permission: read-only
   - name: LANDSCAPE_LEFT
     description: orientation (home button on left) constant
     type: Number
+    permission: read-only
   - name: LANDSCAPE_RIGHT
     description: orientation (home button on right) constant
     type: Number
+    permission: read-only
   - name: NOTIFICATION_DURATION_LONG
     description: Duration of the notification
     type: Number
+    permission: read-only
   - name: NOTIFICATION_DURATION_SHORT
     description: Duration of the notification
     type: Number
+    permission: read-only
   - name: PICKER_TYPE_COUNT_DOWN_TIMER
     description: picker type constant
     type: Number
+    permission: read-only
   - name: PICKER_TYPE_DATE
     description: picker type constant
     type: Number
+    permission: read-only
   - name: PICKER_TYPE_DATE_AND_TIME
     description: picker type constant
     type: Number
+    permission: read-only
   - name: PICKER_TYPE_PLAIN
     description: picker type constant
     type: Number
+    permission: read-only
   - name: PICKER_TYPE_TIME
     description: picker type constant
     type: Number
+    permission: read-only
   - name: PORTRAIT
     description: orientation (home button on bottom) constant
     type: Number
+    permission: read-only
   - name: RETURNKEY_DEFAULT
     description: textfield return key constant
     type: Number
+    permission: read-only
   - name: RETURNKEY_DONE
     description: textfield return key constant
     type: Number
+    permission: read-only
   - name: RETURNKEY_EMERGENCY_CALL
     description: textfield return key constant
     type: Number
+    permission: read-only
   - name: RETURNKEY_GO
     description: textfield return key constant
     type: Number
+    permission: read-only
   - name: RETURNKEY_GOOGLE
     description: textfield return key constant
     type: Number
+    permission: read-only
   - name: RETURNKEY_JOIN
     description: textfield return key constant
     type: Number
+    permission: read-only
   - name: RETURNKEY_NEXT
     description: textfield return key constant
     type: Number
+    permission: read-only
   - name: RETURNKEY_ROUTE
     description: textfield return key constant
     type: Number
+    permission: read-only
   - name: RETURNKEY_SEARCH
     description: textfield return key constant
     type: Number
+    permission: read-only
   - name: RETURNKEY_SEND
     description: textfield return key constant
     type: Number
+    permission: read-only
   - name: RETURNKEY_YAHOO
     description: textfield return key constant
     type: Number
+    permission: read-only
   - name: TEXT_ALIGNMENT_CENTER
     description: text align constant
     type: Number
+    permission: read-only
   - name: TEXT_ALIGNMENT_LEFT
     description: text align constant
     type: Number
+    permission: read-only
   - name: TEXT_ALIGNMENT_RIGHT
     description: text align constant
     type: Number
+    permission: read-only
   - name: TEXT_AUTOCAPITALIZATION_ALL
     description: text capitalization constant
     type: Number
+    permission: read-only
   - name: TEXT_AUTOCAPITALIZATION_NONE
     description: text capitalization constant
     type: Number
+    permission: read-only
   - name: TEXT_AUTOCAPITALIZATION_SENTENCES
     description: text capitalization constant
     type: Number
+    permission: read-only
   - name: TEXT_AUTOCAPITALIZATION_WORDS
     description: text capitalization constant
     type: Number
+    permission: read-only
   - name: TEXT_VERTICAL_ALIGNMENT_BOTTOM
     description: text vertical align constant
     type: Number
+    permission: read-only
   - name: TEXT_VERTICAL_ALIGNMENT_CENTER
     description: text vertical align constant
     type: Number
+    permission: read-only
   - name: TEXT_VERTICAL_ALIGNMENT_TOP
     description: text vertical align constant
     type: Number
+    permission: read-only
   - name: UNKNOWN
     description: orientation constant
     type: Number
+    permission: read-only
   - name: UPSIDE_PORTRAIT
     description: orientation (home button on top) constant
     type: Number
+    permission: read-only
   - name: backgroundColor
     description: this sets the background color of the master UIView (when there are no windows/tab groups on it)
     type: String
+    permission: read-only
   - name: backgroundImage
     description: path/url to an image file for setting a background for the master UIView (when there are no windows/tab groups on it).
     type: String
   - name: currentWindow
     description: The active window associated with the executing Javascript context.
     type: Titanium.UI.Window
+    permission: read-only
   - name: orientation
     deprecated: {since: "1.7.2"}
-    description: DEPRECATED.  To set an orientation, it is suggested to instead set <Titanium.Window.orientationModes> to the specific orientation desired.  When set, this will update the orientation of the current window to the specified orientation value.
+    description: To set an orientation, it is suggested to instead set <Titanium.Window.orientationModes> to the specific orientation desired.  When set, this will update the orientation of the current window to the specified orientation value.
     type: Number
 notes: |
     ### Design

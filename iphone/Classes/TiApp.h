@@ -15,17 +15,25 @@
 #import "TiRootViewController.h"
 #import <TiCore/TiContextRef.h>
 
+extern BOOL applicationInMemoryPanic;
+
+TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
+{
+    while (applicationInMemoryPanic) {
+        [NSThread sleepForTimeInterval:0.01];
+    }
+}
+
 @interface TiApp : TiHost <UIApplicationDelegate> 
 {
 	UIWindow *window;
 	UIImageView *loadView;
-	BOOL splashAttached;
 	BOOL loaded;
 	BOOL handledModal;
 
 	TiContextGroupRef contextGroup;
 	KrollBridge *kjsBridge;
-
+    
 #ifdef USE_TI_UIWEBVIEW
 	XHRBridge *xhrBridge;
 #endif
@@ -35,7 +43,7 @@
 	
 	int networkActivityCount; //We now can use atomic increment/decrement instead. This value is 0 upon initialization anyways.
 	
-	UIViewController<TiRootController> *controller;
+	TiRootViewController *controller;
 	NSString *userAgent;
 	NSString *remoteDeviceUUID;
 	
@@ -44,31 +52,24 @@
 	
 	NSString *sessionId;
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 	UIBackgroundTaskIdentifier bgTask;
 	NSMutableArray *backgroundServices;
 	NSMutableArray *runningServices;
 	UILocalNotification *localNotification;
-#endif	
 }
 
 @property (nonatomic, retain) IBOutlet UIWindow *window;
 @property (nonatomic, assign) id remoteNotificationDelegate;
 @property (nonatomic, readonly) NSDictionary* remoteNotification;
-@property (nonatomic, retain) UIViewController<TiRootController>* controller;
+@property (nonatomic, retain) TiRootViewController* controller;
 @property (nonatomic, readonly) TiContextGroupRef contextGroup;
 +(TiApp*)app;
 //Convenience method
-+(UIViewController<TiRootController>*)controller;
++(TiRootViewController*)controller;
 +(TiContextGroupRef)contextGroup;
 
 -(void)attachXHRBridgeIfRequired;
 
--(BOOL)isSplashVisible;
--(void)hideSplash:(id)event;
--(UIView*)splash;
--(void)loadSplash;
--(UIView*)attachSplash;
 -(NSDictionary*)launchOptions;
 -(NSString*)remoteDeviceUUID;
 

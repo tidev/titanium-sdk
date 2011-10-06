@@ -3,3 +3,6 @@ dist
 .sconsign.dblite
 .DS_Store
 *~
+project.xcworkspace
+xcuserdata
+*.swp

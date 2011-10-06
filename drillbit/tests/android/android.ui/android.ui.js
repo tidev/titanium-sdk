@@ -332,6 +332,45 @@ describe("Ti.UI.Android tests", {
 		// set invalid state, should default to OFF
 		wv.pluginState = 5;
 		valueOf(wv.pluginState).shouldBe(Ti.UI.Android.WEBVIEW_PLUGINS_OFF);
-	}	
+	},
+	webViewEnableZoomControlsMethods: function() {
+		var wv = Ti.UI.createWebView();
+		
+		valueOf(wv).shouldNotBeNull();
+		valueOf(wv.getEnableZoomControls).shouldBeFunction();
+		valueOf(wv.setEnableZoomControls).shouldBeFunction();
+		
+		valueOf(wv.enableZoomControls).shouldBeTrue();
+		wv.enableZoomControls = false;
+		valueOf(wv.enableZoomControls).shouldBeFalse();
+		wv.setEnableZoomControls(true);
+		valueOf(wv.getEnableZoomControls()).shouldBeTrue();
+		
+		wv = Ti.UI.createWebView({
+			enableZoomControls: false
+		});
+		valueOf(wv.enableZoomControls).shouldBeFalse();
+		
+	},
+	keepScreenOn: function() {
+		var v = Ti.UI.createView();
+		valueOf(v).shouldNotBeNull();
+		valueOf(v.getKeepScreenOn).shouldBeFunction();
+		valueOf(v.setKeepScreenOn).shouldBeFunction();
+
+		v.keepScreenOn = true;
+		valueOf(v.keepScreenOn).shouldBeTrue();
+		valueOf(v.getKeepScreenOn()).shouldBeTrue();
+		v.keepScreenOn = false;
+		valueOf(v.keepScreenOn).shouldBeFalse();
+		valueOf(v.getKeepScreenOn()).shouldBeFalse();
+
+		v.setKeepScreenOn(false);
+		valueOf(v.keepScreenOn).shouldBeFalse();
+		valueOf(v.getKeepScreenOn()).shouldBeFalse();
+		v.setKeepScreenOn(true);
+		valueOf(v.keepScreenOn).shouldBeTrue();
+		valueOf(v.getKeepScreenOn()).shouldBeTrue();
+	}
 })
 

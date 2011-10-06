@@ -106,8 +106,6 @@ static NSArray* imageKeySequence;
 	RELEASE_TO_NIL(urlRequest);
     [self replaceValue:nil forKey:@"image" notification:NO];
     
-    // Purge needs to happen AFTER we've released the ref to 'image', so that the cache knows it can unload the information
-    BOOL released = [[ImageLoader sharedLoader] purgeEntry:imageURL];
     RELEASE_TO_NIL(imageURL);
 	[super dealloc];
 }

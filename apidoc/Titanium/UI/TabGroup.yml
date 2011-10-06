@@ -108,14 +108,14 @@ properties:
     description: the active tab
     type: Object
   - name: allowUserCustomization
-    description: whether or not the user can configure the tab group via the 'More' tab's edit functionality.  iPhone/iPad only
+    description: whether or not the user can configure the tab group via the 'More' tab's edit functionality.
     platforms: [iphone, ipad]
     type: Boolean
   - name: barColor
     description: the default navigation bar color (typically for the "More" tab)
     type: String
   - name: editButtonTitle
-    description: the title for the 'More' tab edit button.  iPhone/iPad only
+    description: the title for the 'More' tab edit button.
     platforms: [iphone, ipad]
     type: String
   - name: tabs
@@ -123,7 +123,7 @@ properties:
     type: Array<Object>
   - name: windowSoftInputMode
     description: |
-        One of Ti.UI.Android.SOFT_INPUT_ADJUST_PAN, Ti.UI.Android.SOFT_INPUT_ADJUST_RESIZE, or Ti.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED. Note: MUST be passed in the creation options. (Android Only) [Android Doc: Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int))
+        One of Ti.UI.Android.SOFT_INPUT_ADJUST_PAN, Ti.UI.Android.SOFT_INPUT_ADJUST_RESIZE, or Ti.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED. Note: MUST be passed in the creation options. [Android Doc: Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int))
     type: Number
     platforms: [android]
 notes: |

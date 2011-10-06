@@ -36,7 +36,7 @@ describe("Ti.UI.iOS.3DMatrix Tests", {
 	    valueOf(matrix1.rotate(-720, 0, 0, 0)).shouldBeObject();
 	    valueOf(matrix1.rotate(-0, 0, 0, 0)).shouldBeObject();
     },
-    
+
     testTranslate: function() {
 	    var matrix1 = Ti.UI.iOS.create3DMatrix();
 	    valueOf(matrix1.translate(-1.0, 0, 0)).shouldBeObject();
@@ -63,6 +63,7 @@ describe("Ti.UI.iOS.3DMatrix Tests", {
 	    valueOf(matrix1.scale(-50, 50, 50.0)).shouldBeObject();
 	    valueOf(matrix1.scale(-50, 50, -50.0)).shouldBeObject();
 	    valueOf(matrix1.scale(-50, -50, -50.0)).shouldBeObject();
+
     },
     
     testCreate3DMatrixValue: function() {

@@ -199,7 +199,7 @@
 		[event setObject:NOTNULL([notification alertLaunchImage]) forKey:@"alertLaunchImage"];
 		[event setObject:NOTNULL([notification soundName]) forKey:@"sound"];
 		[event setObject:NUMINT([notification applicationIconBadgeNumber]) forKey:@"badge"];
-		[event setObject:[notification userInfo] forKey:@"userInfo"];
+		[event setObject:NOTNULL([notification userInfo]) forKey:@"userInfo"];
 	}
 	[self fireEvent:@"notification" withObject:event];
 }

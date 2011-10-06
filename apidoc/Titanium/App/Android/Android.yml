@@ -8,6 +8,7 @@ properties:
   - name: R
     description: The R namespace for Application Resources
     type: Titanium.App.Android.R
+    permission: read-only
 examples:
   - title: Custom String Resource
     example: |
