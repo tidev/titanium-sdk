@@ -61,6 +61,37 @@ void Proxy::bindProxy(Handle<Object> exports)
 	exports->Set(proxySymbol, proxyTemplate->GetFunction());
 }
 
+Handle<Value> Proxy::getProperty(Local<String> property, const AccessorInfo& info)
+{
+	Local<Object> proxy = info.This();
+
+	// Call getProperty on the Proxy to get the property.
+	// We define this method in JavaScript on the Proxy prototype.
+	Local<Value> getProperty = proxy->Get(String::New("getProperty"));
+	if (!getProperty.IsEmpty() && getProperty->IsFunction()) {
+		Local<Value> argv[1] = { property };
+		return Handle<Function>::Cast(getProperty)->Call(proxy, 1, argv);
+	}
+
+	LOGE(TAG, "Unable to lookup Proxy.prototype.getProperty");
+	return Undefined();
+}
+
+void Proxy::setProperty(Local<String> property, Local<Value> value, const AccessorInfo& info)
+{
+	Local<Object> proxy = info.This();
+
+	// Call Proxy.prototype.setProperty.
+	Local<Value> setProperty = proxy->Get(String::New("setProperty"));
+	if (!setProperty.IsEmpty() && setProperty->IsFunction()) {
+		Local<Value> argv[2] = { property, value };
+		Handle<Function>::Cast(setProperty)->Call(proxy, 2, argv);
+		return;
+	}
+
+	LOGE(TAG, "Unable to lookup Proxy.prototype.setProperty");
+}
+
 Handle<FunctionTemplate> Proxy::inheritProxyTemplate(
 	Handle<FunctionTemplate> superTemplate, jclass javaClass,
 	Handle<String> className, Handle<Function> callback)

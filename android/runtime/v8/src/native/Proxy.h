@@ -33,6 +33,18 @@ public:
 	// Initialize the base proxy template
 	static void bindProxy(v8::Handle<v8::Object> exports);
 
+	// Query the property value from the internal property map.
+	// Proxies that have only setters in Java store the value
+	// on the JavaScript side in this map. This getter is then
+	// used when the user script requests the value.
+	static v8::Handle<v8::Value> getProperty(v8::Local<v8::String> property,
+											 const v8::AccessorInfo& info);
+
+	// Stores the new value for the property into the internal map.
+	static void setProperty(v8::Local<v8::String> property,
+							v8::Local<v8::Value> value,
+							const v8::AccessorInfo& info);
+
 	// This provides Javascript a way to extend one of our native / wrapped
 	// templates without needing to know about the internal java class.
 	//
