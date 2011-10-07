@@ -8,7 +8,6 @@ package org.appcelerator.titanium.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.channels.FileLockInterruptionException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

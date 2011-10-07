@@ -74,9 +74,8 @@
 
 -(void)updateContentSize
 {
-	CGSize newSize = [self contentSize];
-	BOOL animated_ = [[self popoverController] isPopoverVisible];
-	[[self viewController] setContentSizeForViewInPopover:newSize];
+    CGSize newSize = [self contentSize];
+    [[self viewController] setContentSizeForViewInPopover:newSize];
 	[self layoutChildren:NO];
 }
 
@@ -189,24 +188,19 @@
 
 -(void)show:(id)args
 {
-    if (![NSThread isMainThread]) {
-        ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
-        [self rememberSelf];
-        
-        [closingCondition lock];
-        if (isDismissing) {
-            [closingCondition wait];
-        }
-        [closingCondition unlock];
-        
-        [self performSelectorOnMainThread:@selector(show:) withObject:args waitUntilDone:NO];
-        return;
-    }
-    
+	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+	[self rememberSelf];
 	
+	[closingCondition lock];
+	if (isDismissing) {
+		[closingCondition wait];
+	}
+	[closingCondition unlock];
+
 	NSDictionary *rectProps = [args objectForKey:@"rect"];
 	animated = [TiUtils boolValue:@"animated" properties:args def:YES];
 	directions = [TiUtils intValue:[self valueForKey:@"arrowDirection"] def:UIPopoverArrowDirectionAny];
+
 	[self setPopoverView:[args objectForKey:@"view"]];
 	
 	if (rectProps!=nil)
@@ -220,11 +214,15 @@
 
 	isShowing = YES;
 	[self retain];
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
-	[self windowWillOpen];
-	[self reposition];
-	[self updatePopoverNow];
-	[self windowDidOpen];
+
+	TiThreadPerformOnMainThread(^{
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+		[self windowWillOpen];
+		[self reposition];
+		[self updatePopoverNow];
+		[self windowDidOpen];
+	},YES);
+
 }
 
 -(void)updatePopover:(NSNotification *)notification;
@@ -238,7 +236,17 @@
 
 	if ([popoverView isUsingBarButtonItem])
 	{
-		[[self popoverController] presentPopoverFromBarButtonItem:[popoverView barButtonItem] permittedArrowDirections:directions animated:animated];
+		UIBarButtonItem * ourButtonItem = [popoverView barButtonItem];
+		@try {
+			/*
+			 *	Because buttonItems may or many not have a view, there is no way for us
+			 *	to know beforehand if the request is an invalid one.
+			 */
+			[[self popoverController] presentPopoverFromBarButtonItem: ourButtonItem permittedArrowDirections:directions animated:animated];
+		}
+		@catch (NSException *exception) {
+			NSLog(@"[WARN] Popover requested on view not attached to current window.");
+		}
 	}
 	else
 	{

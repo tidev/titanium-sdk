@@ -1161,20 +1161,24 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 				break;
 			}
 		}
-		
-		
-		// we have a pending GC request to try and reclaim memory
-		if (gcrequest)
-		{
-			[self forceGarbageCollectNow];
-		}
-		
+
 		BOOL stuff_in_queue = YES;
-		
+		int internalLoopCount = 0;
 		// as long as we have stuff in the queue to process, we 
 		// run our thread event pump and process events
 		while (stuff_in_queue)
 		{
+			if (internalLoopCount > 20) {
+				[self gc]; //This only sets up the gcrequest variable.
+				internalLoopCount = 0;
+			}
+			internalLoopCount ++;
+			// we have a pending GC request to try and reclaim memory
+			if (gcrequest)
+			{
+				[self forceGarbageCollectNow];
+			}
+			
 			// don't hold the queue lock
 			// while we're processing an event so we 
 			// can't deadlock on recursive callbacks

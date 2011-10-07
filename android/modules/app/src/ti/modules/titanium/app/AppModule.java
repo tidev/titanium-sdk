@@ -61,11 +61,6 @@ public class AppModule extends KrollModule
 		return appInfo.getGUID();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public Object[] getArguments() {
-		return new Object[0];
-	}
-
 	@Kroll.method
 	public String appURLToPath(String url) {
 		return getTiContext().resolveUrl(null, url);

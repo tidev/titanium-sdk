@@ -134,10 +134,19 @@ public class TiResourceFile extends TiBaseFile
 		boolean result = false;
 		InputStream is = null;
 		try {
-			is = getInputStream();
-			result = (is != null);
+			if (TiFastDev.isFastDevEnabled()) {
+				result = TiFastDev.getInstance().fileExists(path);
+			} else {
+				is = getInputStream();
+				result = (is != null);
+			}
 		} catch (IOException e) {
-			// Ignore
+			// getInputStream() will throw a FileNotFoundException if it is a
+			// directory. We check if there are directory listings. If there is,
+			// we can assume it is a directory and it exists.
+			if (!getDirectoryListing().isEmpty()) {
+				result = true;
+			}
 		} finally {
 			if (is != null) {
 				try {
