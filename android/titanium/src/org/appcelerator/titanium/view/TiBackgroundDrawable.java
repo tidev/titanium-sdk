@@ -28,16 +28,21 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PaintDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.util.AttributeSet;
+import android.util.Log;
 
 public class TiBackgroundDrawable extends StateListDrawable {
 
 	//private int backgroundColor;
 	//private Bitmap backgroundImage;
+	private static final String TAG = "TiBackgroundDrawable";
+
 	private Drawable background;
 	private Border border;
 	private RectF outerRect, innerRect;
 	private static final int NOT_SET = -1;
 	private int alpha = NOT_SET;
+	private Path path;
+	private Paint paint;
 
 	public TiBackgroundDrawable()
 	{
@@ -45,11 +50,11 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		border = null;
 		outerRect = new RectF();
 		innerRect = new RectF();
+		paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 	}
 
 	@Override
 	public void draw(Canvas canvas) {
-		Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		if (border != null) {
 			paint.setColor(border.color);
 			if (border.radius > 0) {
@@ -63,15 +68,14 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		if (background != null) {
 			background.setBounds((int)innerRect.left, (int)innerRect.top, (int)innerRect.right, (int)innerRect.bottom);
 		}
-		canvas.save();
+		int count = canvas.saveLayer(outerRect, paint, Canvas.ALL_SAVE_FLAG);
 		if (border != null && border.radius > 0) {
-			Path path = new Path();
-			float radii[] = new float[8];
-			Arrays.fill(radii, border.radius);
-			path.addRoundRect(innerRect, radii, Direction.CW);
-			path.setFillType(FillType.EVEN_ODD);
-			canvas.clipPath(path);
-			//canvas.clipRoundRect(innerRect, border.radius, border.radius, paint);
+			// This still happens sometimes when hw accelerated so, catch and warn
+			try {
+				canvas.clipPath(path);
+			} catch (Exception e) {
+				Log.w(TAG, "clipPath failed on canvas: " + e.getMessage());
+			}
 		} else {
 			// innerRect == outerRect if there is no border
 			//canvas.drawRect(innerRect, paint);
@@ -85,7 +89,7 @@ public class TiBackgroundDrawable extends StateListDrawable {
 			background.draw(canvas);
 		}
 		
-		canvas.restore();
+		canvas.restoreToCount(count);
 
 		/*if (backgroundImage != null && !backgroundImage.isRecycled()) {
 			canvas.drawBitmap(backgroundImage, null, innerRect, paint);
@@ -104,6 +108,14 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		innerRect.set(bounds.left+padding, bounds.top+padding, bounds.right-padding, bounds.bottom-padding);
 		if (background != null) {
 			background.setBounds((int)innerRect.left, (int)innerRect.top, (int)innerRect.right, (int)innerRect.bottom);
+		}
+
+		if (border != null && border.radius > 0) {
+			path = new Path();
+			float radii[] = new float[8];
+			Arrays.fill(radii, border.radius);
+			path.addRoundRect(innerRect, radii, Direction.CW);
+			path.setFillType(FillType.EVEN_ODD);
 		}
 	}
 
