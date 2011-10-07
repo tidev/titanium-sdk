@@ -44,7 +44,7 @@ jclass JNIUtil::krollProxyClass = NULL;
 jclass JNIUtil::v8ObjectClass = NULL;
 jclass JNIUtil::managedV8ReferenceClass = NULL;
 jclass JNIUtil::assetsClass = NULL;
-jclass JNIUtil::eventListenerClass = NULL;
+jclass JNIUtil::eventEmitterClass = NULL;
 jclass JNIUtil::v8CallbackClass = NULL;
 jclass JNIUtil::v8InvocationClass = NULL;
 
@@ -75,7 +75,7 @@ jmethodID JNIUtil::krollProxyOnPropertyChangedMethod = NULL;
 jmethodID JNIUtil::krollProxyOnPropertiesChangedMethod = NULL;
 jmethodID JNIUtil::v8ObjectInitMethod = NULL;
 jmethodID JNIUtil::assetsReadResourceMethod = NULL;
-jmethodID JNIUtil::eventListenerPostEventMethod = NULL;
+jmethodID JNIUtil::eventEmitterHasListenersForEventTypeMethod = NULL;
 jmethodID JNIUtil::v8CallbackInitMethod = NULL;
 jmethodID JNIUtil::v8InvocationInitMethod = NULL;
 
@@ -263,7 +263,7 @@ void JNIUtil::initCache()
 	v8ObjectClass = findClass("org/appcelerator/kroll/runtime/v8/V8Object");
 	managedV8ReferenceClass = findClass("org/appcelerator/kroll/runtime/v8/ManagedV8Reference");
 	assetsClass = findClass("org/appcelerator/kroll/runtime/Assets");
-	eventListenerClass = findClass("org/appcelerator/kroll/runtime/v8/EventListener");
+	eventEmitterClass = findClass("org/appcelerator/kroll/runtime/v8/EventEmitter");
 	v8CallbackClass = findClass("org/appcelerator/kroll/runtime/v8/V8Callback");
 	v8InvocationClass = findClass("org/appcelerator/kroll/runtime/v8/V8Invocation");
 
@@ -302,8 +302,8 @@ void JNIUtil::initCache()
 		"([[Ljava/lang/Object;)V", false);
 
 	assetsReadResourceMethod = getMethodID(assetsClass, "readResource", "(Ljava/lang/String;)[C", true);
-	eventListenerPostEventMethod = getMethodID(eventListenerClass, "postEvent",
-		"(Ljava/util/HashMap;)V", false);
+	eventEmitterHasListenersForEventTypeMethod = getMethodID(eventEmitterClass, "hasListenersForEventType",
+		"(Ljava/lang/String;Z)V");
 
 	v8CallbackInitMethod = getMethodID(v8CallbackClass, "<init>", "(J)V", false);
 	v8InvocationInitMethod = getMethodID(v8InvocationClass, "<init>", "(Ljava/lang/String;)V", false);

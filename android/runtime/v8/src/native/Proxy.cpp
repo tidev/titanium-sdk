@@ -54,6 +54,7 @@ void Proxy::bindProxy(Handle<Object> exports)
 	proxyTemplate->Set(javaClassSymbol, External::Wrap(JNIUtil::krollProxyClass),
 		PropertyAttribute(DontDelete | DontEnum));
 
+	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "_hasListenersForEventType", hasListenersForEventType);
 	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "onPropertiesChanged", proxyOnPropertiesChanged);
 
 	baseProxyTemplate = Persistent<FunctionTemplate>::New(proxyTemplate);
@@ -106,6 +107,26 @@ void Proxy::onPropertyChanged(Local<String> property, Local<Value> value, const 
 	                    JNIUtil::krollProxyOnPropertyChangedMethod,
 	                    TypeConverter::jsStringToJavaString(property),
 	                    TypeConverter::jsValueToJavaObject(value));
+}
+
+Handle<Value> Proxy::hasListenersForEventType(const Arguments& args)
+{
+    JNIEnv* env = JNIScope::getEnv();
+    if (!env) {
+        return JSException::GetJNIEnvironmentError();
+    }
+
+	Proxy* proxy = NativeObject::Unwrap<Proxy>(args.Holder());
+
+    Local<String> eventType = args[0]->ToString();
+    Local<Boolean> hasListeners = args[1]->ToBoolean();
+
+    env->CallVoidMethod(proxy->getJavaObject(),
+                        JNIUtil::eventEmitterHasListenersForEventTypeMethod,
+                        TypeConverter::jsStringToJavaString(eventType),
+                        TypeConverter::jsBooleanToJavaBoolean(hasListeners));
+
+    return Undefined();
 }
 
 Handle<FunctionTemplate> Proxy::inheritProxyTemplate(
