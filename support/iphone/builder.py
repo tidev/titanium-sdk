@@ -10,6 +10,7 @@ import platform, time, re, run, glob, codecs, hashlib, datetime, plistlib
 from compiler import Compiler
 from projector import Projector
 from xml.dom.minidom import parseString
+from xml.etree.ElementTree import ElementTree
 from os.path import join, splitext, split, exists
 
 # the template_dir is the path where this file lives on disk
@@ -418,6 +419,73 @@ def is_indexing_enabled(tiapp, simulator_dir, **kwargs):
 			return True
 
 	return False
+
+HEADER = """/**
+* Appcelerator Titanium Mobile
+* This is generated code. Do not modify. Your changes *will* be lost.
+* Generated code is Copyright (c) 2009-2011 by Appcelerator, Inc.
+* All Rights Reserved.
+*/
+#import <Foundation/Foundation.h>
+"""
+
+DEFAULTS_IMPL_HEADER= """#import "TiUtils.h"
+#import "ApplicationDefaults.h"
+ 
+@implementation ApplicationDefaults
+  
++ (NSMutableDictionary*) copyDefaults
+{
+    NSMutableDictionary * _property = [[NSMutableDictionary alloc] init];\n
+"""
+
+FOOTER ="""
+@end
+"""
+
+def copy_tiapp_properties(project_dir):
+	tiapp = ElementTree()
+	src_root = os.path.dirname(sys.argv[0])
+	assets_tiappxml = os.path.join(project_dir,'tiapp.xml')
+	if not os.path.exists(assets_tiappxml):
+		shutil.copy(os.path.join(project_dir, 'tiapp.xml'), assets_tiappxml)
+	tiapp.parse(open(assets_tiappxml, 'r'))
+	impf = open("ApplicationDefaults.m",'w+')
+	appl_default = os.path.join(project_dir,'build','iphone','Classes','ApplicationDefaults.m')
+	impf.write(HEADER)
+	impf.write(DEFAULTS_IMPL_HEADER)
+	for property_el in tiapp.findall("property"):
+		name = property_el.get("name")
+		type = property_el.get("type")
+		value = property_el.text
+		if name == None: continue
+		if value == None: value = ""
+		if type == "string":
+			impf.write("""    [_property setObject:[TiUtils stringValue:@"%s"] forKey:@"%s"];\n"""%(value,name))
+		elif type == "bool":
+			impf.write("""    [_property setObject:[NSNumber numberWithBool:[TiUtils boolValue:@"%s"]] forKey:@"%s"];\n"""%(value,name))
+		elif type == "int":
+			impf.write("""    [_property setObject:[NSNumber numberWithInt:[TiUtils intValue:@"%s"]] forKey:@"%s"];\n"""%(value,name))
+		elif type == "double":
+			impf.write("""    [_property setObject:[NSNumber numberWithDouble:[TiUtils doubleValue:@"%s"]] forKey:@"%s"];\n"""%(value,name))
+		elif type == None:
+			impf.write("""    [_property setObject:[TiUtils stringValue:@"%s"] forKey:@"%s"];\n"""%(value,name))
+		else:
+			print """[WARN] Cannot set property "%s" , type "%s" not supported""" % (name,type)
+	if (len(tiapp.findall("property")) > 0) :
+		impf.write("\n    return _property;\n}")
+	else: 
+		impf.write("\n    return NULL;\n}")
+	impf.write(FOOTER)
+	impf.close()
+	if open(appl_default,'r').read() == open('ApplicationDefaults.m','r').read():
+		os.remove('ApplicationDefaults.m')
+		return False
+	else:
+		shutil.copyfile('ApplicationDefaults.m',appl_default)
+		os.remove('ApplicationDefaults.m')
+		return True
+	
 
 def cleanup_app_logfiles(tiapp, log_id, iphone_version):
 	print "[DEBUG] finding old log files"
@@ -1045,6 +1113,11 @@ def main(args):
 				install_defaults(project_dir, template_dir, iphone_resources_dir)
 
 				extra_args = None
+
+				recompile = copy_tiapp_properties(project_dir)
+				# if the anything changed in the application defaults then we have to force  a xcode build.
+				if recompile == True:
+					force_xcode = recompile
 
 				if devicefamily!=None:
 					# Meet the minimum requirements for ipad when necessary

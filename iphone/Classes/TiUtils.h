@@ -220,4 +220,6 @@ typedef enum {
 +(NSString*)md5:(NSData*)data;
 
 +(NSString*)convertToHex:(unsigned char*)result length:(size_t)length;
+
++(NSString*)uniqueIdentifier;
 @end
