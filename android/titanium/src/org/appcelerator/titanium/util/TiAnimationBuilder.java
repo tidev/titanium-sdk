@@ -208,7 +208,7 @@ public class TiAnimationBuilder
 			if (viewProxy.hasProperty(TiC.PROPERTY_BACKGROUND_COLOR)) {
 				fromBackgroundColor = TiConvert.toColor(TiConvert.toString(viewProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR)));
 			} else {
-				Log.w(LCAT, "Cannot animate view without a backgroundColor. View doesn't have that property.Using #00000000");
+				Log.w(LCAT, "Cannot animate view without a backgroundColor. View doesn't have that property. Using #00000000");
 				fromBackgroundColor = Color.argb(0,0,0,0);
 			}
 			Animation a = new TiColorAnimation(view, fromBackgroundColor, backgroundColor);
