@@ -54,6 +54,7 @@ public class TiAnimationBuilder
 	protected Integer centerX = null, centerY = null;
 	protected Integer width = null, height = null;
 	protected Integer backgroundColor = null;
+	
 	protected TiAnimation animationProxy;
 	protected KrollFunction callback;
 	protected boolean relayoutChild = false, applyOpacity = false;
@@ -213,13 +214,16 @@ public class TiAnimationBuilder
 		}
 		
 		if (backgroundColor != null) {
+			int fromBackgroundColor = 0;
+			
 			if (viewProxy.hasProperty(TiC.PROPERTY_BACKGROUND_COLOR)) {
-				int fromBackgroundColor = TiConvert.toColor(TiConvert.toString(viewProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR)));
-				Animation a = new TiColorAnimation(view, fromBackgroundColor, backgroundColor);
-				addAnimation(as, a);
+				fromBackgroundColor = TiConvert.toColor(TiConvert.toString(viewProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR)));
 			} else {
-				Log.w(LCAT, "Cannot animate backgroundColor. View doesn't have that property.");
+				Log.w(LCAT, "Cannot animate view without a backgroundColor. View doesn't have that property.Using #00000000");
+				fromBackgroundColor = Color.argb(0,0,0,0);
 			}
+			Animation a = new TiColorAnimation(view, fromBackgroundColor, backgroundColor);
+			addAnimation(as, a);
 		}
 
 		if (tdm != null) {
@@ -445,9 +449,9 @@ public class TiAnimationBuilder
 	public static class TiColorAnimation extends Animation
 	{
 		protected View view;
-		int fromRed, fromGreen, fromBlue;
-		int toRed, toGreen, toBlue;
-		int deltaRed, deltaGreen, deltaBlue;
+		int fromRed, fromGreen, fromBlue, fromAlpha;
+		int toRed, toGreen, toBlue, toAlpha;
+		int deltaRed, deltaGreen, deltaBlue, deltaAlpha;
 		
 		public TiColorAnimation(View view, int fromColor, int toColor) 
 		{
@@ -456,14 +460,17 @@ public class TiAnimationBuilder
 			fromRed = Color.red(fromColor);
 			fromGreen = Color.green(fromColor);
 			fromBlue = Color.blue(fromColor);
+			fromAlpha = Color.alpha(fromColor);
 			
 			toRed = Color.red(toColor);
 			toGreen = Color.green(toColor);
 			toBlue = Color.blue(toColor);
+			toAlpha = Color.alpha(toColor);
 			
 			deltaRed = toRed - fromRed;
 			deltaGreen = toGreen - fromGreen;
 			deltaBlue = toBlue - fromBlue;
+			deltaAlpha = toAlpha - fromAlpha;
 			
 			view.setDrawingCacheEnabled(true);
 		}
@@ -473,7 +480,8 @@ public class TiAnimationBuilder
 		{
 			super.applyTransformation(interpolatedTime, t);
 				
-			int c = Color.rgb(
+			int c = Color.argb(
+						fromAlpha + (int) (deltaAlpha * interpolatedTime),
 						fromRed + (int) (deltaRed * interpolatedTime),
 						fromGreen + (int) (deltaGreen * interpolatedTime),
 						fromBlue + (int) (deltaBlue * interpolatedTime)
