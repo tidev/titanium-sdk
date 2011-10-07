@@ -182,7 +182,7 @@ public abstract class TiUIView
 			}
 			nativeView.startAnimation(as);
 			// Clean up proxy
-			proxy.clearAnimation();
+			proxy.clearAnimation(builder);
 		}
 	}
 
