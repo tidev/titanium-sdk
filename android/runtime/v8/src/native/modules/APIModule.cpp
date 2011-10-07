@@ -137,21 +137,21 @@ Handle<Value> APIModule::log(const Arguments& args)
 	String::Utf8Value level(args[0]);
 	String::Utf8Value message(args[1]);
 
-	if (strcasecmp(*level, "TRACE")) {
+	if (strcasecmp(*level, "TRACE") == 0) {
 		APIModule::logInternal(LOG_LEVEL_TRACE, LCAT, *message);
-	} else if (strcasecmp(*level, "DEBUG")) {
+	} else if (strcasecmp(*level, "DEBUG") == 0) {
 		APIModule::logInternal(LOG_LEVEL_DEBUG, LCAT, *message);
-	} else if (strcasecmp(*level, "INFO")) {
+	} else if (strcasecmp(*level, "INFO") == 0) {
 		APIModule::logInternal(LOG_LEVEL_INFO, LCAT, *message);
-	} else if (strcasecmp(*level, "NOTICE")) {
+	} else if (strcasecmp(*level, "NOTICE") == 0) {
 		APIModule::logInternal(LOG_LEVEL_NOTICE, LCAT, *message);
-	} else if (strcasecmp(*level, "WARN")) {
+	} else if (strcasecmp(*level, "WARN") == 0) {
 		APIModule::logInternal(LOG_LEVEL_WARN, LCAT, *message);
-	} else if (strcasecmp(*level, "ERROR")) {
+	} else if (strcasecmp(*level, "ERROR") == 0) {
 		APIModule::logInternal(LOG_LEVEL_ERROR, LCAT, *message);
-	} else if (strcasecmp(*level, "CRITICAL")) {
+	} else if (strcasecmp(*level, "CRITICAL") == 0) {
 		APIModule::logInternal(LOG_LEVEL_CRITICAL, LCAT, *message);
-	} else if (strcasecmp(*level, "FATAL")) {
+	} else if (strcasecmp(*level, "FATAL") == 0) {
 		APIModule::logInternal(LOG_LEVEL_FATAL, LCAT, *message);
 	} else {
 		APIModule::logInternal(LOG_LEVEL_INFO, LCAT, *message);
