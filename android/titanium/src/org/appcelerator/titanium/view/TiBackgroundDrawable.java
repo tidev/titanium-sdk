@@ -68,7 +68,7 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		if (background != null) {
 			background.setBounds((int)innerRect.left, (int)innerRect.top, (int)innerRect.right, (int)innerRect.bottom);
 		}
-		int count = canvas.saveLayer(outerRect, paint, Canvas.ALL_SAVE_FLAG);
+		canvas.save();
 		if (border != null && border.radius > 0) {
 			// This still happens sometimes when hw accelerated so, catch and warn
 			try {
@@ -89,7 +89,7 @@ public class TiBackgroundDrawable extends StateListDrawable {
 			background.draw(canvas);
 		}
 		
-		canvas.restoreToCount(count);
+		canvas.restore();
 
 		/*if (backgroundImage != null && !backgroundImage.isRecycled()) {
 			canvas.drawBitmap(backgroundImage, null, innerRect, paint);
