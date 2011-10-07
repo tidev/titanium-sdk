@@ -34,7 +34,9 @@
 #ifdef USE_TI_UIIOSCOVERFLOWVIEW
 -(id)createCoverFlowView:(id)args;
 #endif
-
+#ifdef USE_TI_UIIOSTOOLBAR
+-(id)createToolbar:(id)args;
+#endif
 @end
 
 #endif

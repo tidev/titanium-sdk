@@ -58,8 +58,8 @@
 	UIView * tableHeaderView;
 	UIView * tableHeaderPullView;
 	UIButton * searchScreenView;
-	UITableView *searchTableView;
 	NSString * filterAttribute;
+	NSString * searchString;
 	NSMutableArray * searchResultIndexes;
 	BOOL filterCaseInsensitive;
 	BOOL allowsSelectionSet;
@@ -82,7 +82,6 @@
 -(void)scrollToTop:(NSInteger)top animated:(BOOL)animated;
 -(NSIndexPath*)indexPathFromSearchIndex:(int)index;
 -(IBAction)hideSearchScreen:(id)sender;
--(UITableView*)searchTableView;
 -(UITableView*)tableView;
 -(CGFloat)tableRowHeight:(CGFloat)height;
 

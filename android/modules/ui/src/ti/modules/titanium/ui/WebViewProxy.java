@@ -37,7 +37,11 @@ public class WebViewProxy extends ViewProxy
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
-	public WebViewProxy(TiContext context) {
+	private static String fusername;
+	private static String fpassword;
+	
+	public WebViewProxy(TiContext context)
+	{
 		super(context);
 	}
 
@@ -63,7 +67,8 @@ public class WebViewProxy extends ViewProxy
 	@Override
 	public boolean handleMessage(Message msg)
 	{
-		switch (msg.what) {
+		if (peekView() != null) {
+			switch (msg.what) {
 			case MSG_GO_BACK:
 				getWebView().goBack();
 				return true;
@@ -76,6 +81,7 @@ public class WebViewProxy extends ViewProxy
 			case MSG_STOP_LOADING:
 				getWebView().stopLoading();
 				return true;
+			}
 		}
 		return super.handleMessage(msg);
 	}
@@ -83,19 +89,32 @@ public class WebViewProxy extends ViewProxy
 	@Kroll.method
 	public void setBasicAuthentication(String username, String password)
 	{
+		if (peekView() == null) {
+			// if the view is null, we cache the username/password
+			fusername = username;
+			fpassword = password;
+			return;
+		}
+		clearBasicAuthentication();
 		getWebView().setBasicAuthentication(username, password);
 	}
 
 	@Kroll.method
 	public boolean canGoBack()
 	{
-		return getWebView().canGoBack();
+		if (peekView() != null) {
+			return getWebView().canGoBack();
+		}
+		return false;
 	}
 
 	@Kroll.method
 	public boolean canGoForward()
 	{
-		return getWebView().canGoForward();
+		if (peekView() != null) {
+			return getWebView().canGoForward();
+		}
+		return false;
 	}
 	
 	@Kroll.method
@@ -151,13 +170,17 @@ public class WebViewProxy extends ViewProxy
 	@Kroll.method
 	public void pause() 
 	{
-		getWebView().pauseWebView();
+		if (peekView() != null) {
+			getWebView().pauseWebView();
+		}
 	}
 
 	@Kroll.method
 	public void resume()
 	{
-		getWebView().resumeWebView();
+		if (peekView() != null) {
+			getWebView().resumeWebView();
+		}
 	}
 
 	@Kroll.method(runOnUiThread=true) @Kroll.setProperty(runOnUiThread=true)
@@ -185,6 +208,22 @@ public class WebViewProxy extends ViewProxy
 		// to refer back to it in GC and freak out (crash the app)
 		// if it's not there.
 		// So we're just overriding and not calling super.
+	}
+
+	public void clearBasicAuthentication()
+	{
+		fusername = null;
+		fpassword = null;
+	}
+	
+	public String getBasicAuthenticationUserName()
+	{
+		return fusername;
+	}
+
+	public String getBasicAuthenticationPassword()
+	{
+		return fpassword;
 	}
 
 }
