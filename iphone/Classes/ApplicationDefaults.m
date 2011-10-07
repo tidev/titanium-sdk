@@ -9,5 +9,7 @@
 
 
 @implementation ApplicationDefaults
-
++ (NSMutableDictionary *) copyDefaults{
+    return NULL;
+}
 @end
