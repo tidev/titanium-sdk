@@ -51,6 +51,10 @@ public:
 	                              v8::Local<v8::Value> value,
 	                              const v8::AccessorInfo& info);
 
+	// Called by EventEmitter to notify when listeners
+	// are watching for a type of event. Notfies the Java proxy when this changes.
+	static v8::Handle<v8::Value> hasListenersForEventType(const v8::Arguments& args);
+
 	// This provides Javascript a way to extend one of our native / wrapped
 	// templates without needing to know about the internal java class.
 	//

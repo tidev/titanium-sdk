@@ -114,9 +114,7 @@ EventEmitter.prototype.addListener = function(type, listener) {
 		this._events = {};
 	}
 
-	var id = -1;
-	// To avoid recursion in the case that type == "newListeners"! Before
-	// adding it to the listeners, first emit "newListeners".
+	var id;
 
 	// Setup ID first so we can pass count in to "listenerAdded"
 	if (!this._events[type]) {
@@ -126,9 +124,6 @@ EventEmitter.prototype.addListener = function(type, listener) {
 	} else {
 		id = 1;
 	}
-
-	// This was originally "newListener"
-	this.emit('listenerAdded', { count: id + 1 });
 
 	if (!this._events[type]) {
 		// Optimize the case of one listener. Don't need the extra array object.
@@ -160,8 +155,18 @@ EventEmitter.prototype.addListener = function(type, listener) {
 		this._events[type] = [this._events[type], listener];
 	}
 
+	// Notify the Java proxy if this is the first listener added.
+	if (id == 0) {
+		this._hasListenersForEventType(type, true);
+	}
+
 	return id;
 };
+
+// The JavaObject prototype will provide a version of this
+// that delegates back to the Java proxy. Non-Java versions
+// of EventEmitter don't care, so this no op is called instead.
+EventEmitter.prototype._listenerForEvent = function () { }
 
 EventEmitter.prototype.on = EventEmitter.prototype.addListener;
 // Titanium compatibility
@@ -222,8 +227,9 @@ EventEmitter.prototype.removeListener = function(type, listener) {
 		delete this._events[type];
 	}
 
-	// Here we've correctly removed the listener, notify via listenerRemoved
-	this.emit('listenerRemoved', { count: count });
+	if (count == 0) {
+		this._hasListenersForEventType(type, false);
+	}
 
 	return this;
 };
@@ -232,7 +238,10 @@ EventEmitter.prototype.removeEventListener = EventEmitter.prototype.removeListen
 
 EventEmitter.prototype.removeAllListeners = function(type) {
 	// does not use listeners(), so no side effect of creating _events[type]
-	if (type && this._events && this._events[type]) this._events[type] = null;
+	if (type && this._events && this._events[type]) {
+		this._events[type] = null;
+		this._hasListenersForEventType(type, false);
+	}
 	return this;
 };
 
