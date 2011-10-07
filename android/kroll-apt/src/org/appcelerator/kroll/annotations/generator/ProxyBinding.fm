@@ -333,10 +333,10 @@ fails, a JS exception is returned.
 	Local<${info.jsType}> arg_${index} = ${expr}->To${info.jsType}();
 	</#if>
 
-	<#local checkNew = info.deleteLocalRef!false && info.javaReturnType != "jstring">
+	<#local checkNew = (info?keys?seq_contains("javaDeleteLocalRef") && info.javaToJsConverter == "javaObjectToJsValue")>
 	<#if checkNew>bool isNew_${index};</#if>
 	jArguments[${index}].${info.jvalue} =
-		TypeConverter::${info.jsToJavaConverter}(arg_${index} <#if checkNew>, &isNew_${index}</#if>);
+		TypeConverter::${info.jsToJavaConverter}(arg_${index}<#if checkNew>, &isNew_${index}</#if>);
 </#macro>
 
 <#macro convertToVarArgs args start>
@@ -403,7 +403,7 @@ fails, a JS exception is returned.
 			env->DeleteLocalRef(jArguments[${index}].l);
 		<#else>
 			<#if info.javaDeleteLocalRef!false>
-			<#local checkNew = info.deleteLocalRef!false && info.jsType != "String">
+			<#local checkNew = info.javaToJsConverter == "javaObjectToJsValue">
 
 			<#if checkNew>
 			if (isNew_${index}) {
