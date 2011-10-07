@@ -99,7 +99,7 @@ void Proxy::onPropertyChanged(Local<String> property, Local<Value> value, const 
 
 	JNIEnv* env = JNIScope::getEnv();
 	if (!env) {
-		LOGE(TAG, "Unable to get current JNI environment.");
+		LOG_JNIENV_GET_ERROR(TAG);
 		return;
 	}
 
@@ -107,6 +107,38 @@ void Proxy::onPropertyChanged(Local<String> property, Local<Value> value, const 
 	                    JNIUtil::krollProxyOnPropertyChangedMethod,
 	                    TypeConverter::jsStringToJavaString(property),
 	                    TypeConverter::jsValueToJavaObject(value));
+}
+
+Handle<Value> Proxy::getIndexedProperty(uint32_t index, const AccessorInfo& info)
+{
+	JNIEnv* env = JNIScope::getEnv();
+	if (!env) {
+		return JSException::GetJNIEnvironmentError();
+	}
+
+	Proxy* proxy = NativeObject::Unwrap<Proxy>(info.Holder());
+	jobject value = env->CallObjectMethod(proxy->getJavaObject(),
+	                                      JNIUtil::krollProxyGetIndexedPropertyMethod,
+	                                      index);
+
+	return TypeConverter::javaObjectToJsValue(value);
+}
+
+Handle<Value> Proxy::setIndexedProperty(uint32_t index, Local<Value> value, const AccessorInfo& info)
+{
+	JNIEnv* env = JNIScope::getEnv();
+	if (!env) {
+		LOG_JNIENV_GET_ERROR(TAG);
+		return Undefined();
+	}
+
+	Proxy* proxy = NativeObject::Unwrap<Proxy>(info.Holder());
+	env->CallVoidMethod(proxy->getJavaObject(),
+	                    JNIUtil::krollProxySetIndexedPropertyMethod,
+	                    index,
+	                    TypeConverter::jsValueToJavaObject(value));
+
+	return value;
 }
 
 Handle<Value> Proxy::hasListenersForEventType(const Arguments& args)

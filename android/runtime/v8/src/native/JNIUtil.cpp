@@ -71,6 +71,8 @@ jmethodID JNIUtil::throwableGetMessageMethod = NULL;
 jfieldID JNIUtil::managedV8ReferencePtrField = NULL;
 jmethodID JNIUtil::krollProxyCreateMethod = NULL;
 jfieldID JNIUtil::krollProxyModelListenerField = NULL;
+jmethodID JNIUtil::krollProxySetIndexedPropertyMethod = NULL;
+jmethodID JNIUtil::krollProxyGetIndexedPropertyMethod = NULL;
 jmethodID JNIUtil::krollProxyOnPropertyChangedMethod = NULL;
 jmethodID JNIUtil::krollProxyOnPropertiesChangedMethod = NULL;
 jmethodID JNIUtil::v8ObjectInitMethod = NULL;
@@ -296,6 +298,8 @@ void JNIUtil::initCache()
 	krollProxyCreateMethod = getMethodID(krollProxyClass, "create",
 		"(Ljava/lang/Class;[Ljava/lang/Object;JLjava/lang/String;)Lorg/appcelerator/kroll/KrollProxy;", true);
 	krollProxyModelListenerField = getFieldID(krollProxyClass, "modelListener", "Lorg/appcelerator/kroll/KrollProxyListener;");
+	krollProxySetIndexedPropertyMethod = getMethodID(krollProxyClass, "setIndexedProperty", "(ILjava/lang/Object;)V");
+	krollProxyGetIndexedPropertyMethod = getMethodID(krollProxyClass, "getIndexedProperty", "(I)Ljava/lang/Object;");
 	krollProxyOnPropertyChangedMethod = getMethodID(krollProxyClass, "onPropertyChanged",
 		"(Ljava/lang/String;Ljava/lang/Object;)V");
 	krollProxyOnPropertiesChangedMethod = getMethodID(krollProxyClass, "onPropertiesChanged",

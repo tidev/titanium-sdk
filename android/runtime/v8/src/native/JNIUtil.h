@@ -11,6 +11,10 @@
 #include <stdint.h>
 #include "AndroidUtil.h"
 
+#define JNIENV_GET_ERROR_MSG "Unable to get current JNI environment."
+#define LOG_JNIENV_GET_ERROR(tag) \
+	LOGE(tag, JNIENV_GET_ERROR_MSG)
+
 namespace titanium {
 class JNIUtil
 {
@@ -98,6 +102,8 @@ public:
 
 	static jmethodID krollProxyCreateMethod;
 	static jfieldID krollProxyModelListenerField;
+	static jmethodID krollProxySetIndexedPropertyMethod;
+	static jmethodID krollProxyGetIndexedPropertyMethod;
 	static jmethodID krollProxyOnPropertyChangedMethod;
 	static jmethodID krollProxyOnPropertiesChangedMethod;
 

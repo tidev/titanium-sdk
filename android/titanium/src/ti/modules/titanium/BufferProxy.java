@@ -11,6 +11,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
@@ -62,6 +63,17 @@ public class BufferProxy extends KrollProxy
 		}
 		return KrollConverter.getInstance().convertNative(invocation, this);
 	}*/
+
+	@Override
+	public void handleCreationArgs(KrollModule createdInModule, Object[] args)
+	{
+		// If no arguments are provided in create, allocate an empty buffer.
+		if (args.length == 0) {
+			buffer = new byte[0];
+		} else {
+			super.handleCreationArgs(createdInModule, args);
+		}
+	}
 
 	@Override
 	public void handleCreationDict(KrollDict dict)
@@ -130,29 +142,21 @@ public class BufferProxy extends KrollProxy
 		return buffer;
 	}
 
-	/* TODO
 	@Override
-	public boolean has(Scriptable scope, int index)
-	{
-		return buffer.length < index;
-	}
-
-	@Override
-	public Object get(Scriptable scope, int index)
+	public Object getIndexedProperty(int index)
 	{
 		return buffer[index] & 0xFF;
 	}
 
 	@Override
-	public void set(Scriptable scope, int index, Object value)
+	public void setIndexedProperty(int index, Object value)
 	{
 		if (value instanceof Number) {
 			buffer[index] = ((Number)value).byteValue();
 		} else {
-			super.set(scope, index, value);
+			super.setIndexedProperty(index, value);
 		}
 	}
-	*/
 
 	protected byte[] copyOf(byte[] array, int newLength)
 	{

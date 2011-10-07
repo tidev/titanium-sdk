@@ -51,6 +51,15 @@ public:
 	                              v8::Local<v8::Value> value,
 	                              const v8::AccessorInfo& info);
 
+	// Fetches an indexed property value from the Java proxy.
+	static v8::Handle<v8::Value> getIndexedProperty(uint32_t index,
+	                                                const v8::AccessorInfo& info);
+
+	// Sets an indexed property on the Java proxy.
+	static v8::Handle<v8::Value>  setIndexedProperty(uint32_t index,
+	                                                v8::Local<v8::Value> value,
+	                                                const v8::AccessorInfo& info);
+
 	// Called by EventEmitter to notify when listeners
 	// are watching for a type of event. Notfies the Java proxy when this changes.
 	static v8::Handle<v8::Value> hasListenersForEventType(const v8::Arguments& args);
