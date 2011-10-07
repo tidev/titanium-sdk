@@ -4,7 +4,7 @@
 # Project Compiler
 #
 
-import os, sys, re, shutil, time, run, sgmllib, codecs
+import os, sys, re, shutil, time, run, sgmllib, codecs, tempfile
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.join(template_dir,'../'))
@@ -33,7 +33,7 @@ INTERFACE_HEADER= """
 
 IMPL_HEADER= """#import "ApplicationRouting.h"
 
-extern NSData* filterData(NSData* thedata);
+extern NSData* filterData(NSString* thedata);
 
 @implementation ApplicationRouting
 
@@ -432,14 +432,18 @@ class Compiler(object):
 		file_contents = jspacker.jsmin(file_contents)
 		file_contents = file_contents.replace('Titanium.','Ti.')
 		instance.compile_js(file_contents)
-		data = str(file_contents).encode('base64','strict')
-		data = data.translate(None, '\n')
-		# the template_dir is the path where this file lives on disk
+
+		tfile = tempfile.NamedTemporaryFile(mode="r+b", delete=False)
+		tfilename = tfile.name
+		tfile.write(file_contents)
+		tfile.close()
 		template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 		titanium_prep = os.path.abspath(os.path.join(template_dir,'titanium_prep'))
-		data = os.popen("\"%s\" \"%s\" \"%s\"" % (titanium_prep,instance.appid,data)).read()
+		data = os.popen("\"%s\" \"%s\" \"%s\"" % (titanium_prep, tfilename, instance.appid)).read()
+		os.remove(tfilename)
+
 		data = data.translate(None, '\r\n')
-		method = "[[@\"%s\" dataUsingEncoding:NSUTF8StringEncoding] autorelease]" % data
+		method = "@\"%s\"" % data
 		return {'method':method,'path':path}
 	
 	def softlink_resources(self,source,target):
