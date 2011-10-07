@@ -637,6 +637,13 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
 	NSURL * newUrl = [request URL];
+
+	if ([self.proxy _hasListeners:@"beforeload"])
+	{
+		NSDictionary *event = newUrl == nil ? nil : [NSDictionary dictionaryWithObject:[newUrl absoluteString] forKey:@"url"];
+		[self.proxy fireEvent:@"beforeload" withObject:event];
+	}
+
 	NSString * scheme = [[newUrl scheme] lowercaseString];
 	if ([scheme hasPrefix:@"http"] || [scheme hasPrefix:@"app"] || [scheme hasPrefix:@"file"] || [scheme hasPrefix:@"ftp"])
 	{
@@ -667,11 +674,6 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
-	if ([self.proxy _hasListeners:@"beforeload"])
-	{
-		NSDictionary *event = url == nil ? nil : [NSDictionary dictionaryWithObject:[url absoluteString] forKey:@"url"];
-		[self.proxy fireEvent:@"beforeload" withObject:event];
-	}
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
