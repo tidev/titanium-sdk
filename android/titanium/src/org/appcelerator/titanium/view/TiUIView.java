@@ -931,8 +931,7 @@ public abstract class TiUIView
 
 	public KrollDict toImage()
 	{
-		return null;
-		//return TiUIHelper.viewToImage(proxy.getTiContext(), proxy.getProperties(), getNativeView());
+		return TiUIHelper.viewToImage(proxy.getProperties(), getNativeView());
 	}
 
 	private View getTouchView()

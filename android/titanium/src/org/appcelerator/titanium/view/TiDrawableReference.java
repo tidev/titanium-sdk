@@ -154,10 +154,10 @@ public class TiDrawableReference
 		return ref;
 	}
 	
-	public static TiDrawableReference fromDictionary(Activity activity, KrollDict dict)
+	public static TiDrawableReference fromDictionary(Activity activity, HashMap dict)
 	{
 		if (dict.containsKey("media")) {
-			return fromBlob(activity, TiConvert.toBlob(dict, "media"));
+			return fromBlob(activity, TiConvert.toBlob(new KrollDict(dict), "media"));
 		} else {
 			Log.w(LCAT, "Unknown drawable reference inside dictionary.  Expected key 'media' to be a blob.  Returning null drawable reference");
 			return fromObject(activity, null);
@@ -177,8 +177,8 @@ public class TiDrawableReference
 		
 		if (object instanceof String) {
 			return fromUrl(activity, TiConvert.toString(object));
-		} else if (object instanceof KrollDict) {
-			return fromDictionary(activity, (KrollDict)object);
+		} else if (object instanceof HashMap) {
+			return fromDictionary(activity, (HashMap)object);
 		} else if (object instanceof TiBaseFile) {
 			return fromFile(activity, (TiBaseFile)object);
 		} else if (object instanceof TiBlob) {

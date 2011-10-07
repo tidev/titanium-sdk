@@ -673,7 +673,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 	protected KrollDict handleToImage()
 	{
-		TiUIView view = peekView();
+		TiUIView view = getOrCreateView();
 		if (view == null) {
 			return null;
 		}
