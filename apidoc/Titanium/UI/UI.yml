@@ -134,7 +134,7 @@ properties:
     description: image mode constant
     type: Number
     permission: read-only
-        deprecated:
+    deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_EXCLUSION
     description: image mode constant
