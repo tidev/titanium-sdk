@@ -17,6 +17,7 @@ import ti.modules.titanium.xml.DocumentProxy;
 	"ondatastream", "onerror", "onload",
 	"onreadystatechange", "onsendstream"
 })
+
 public class HTTPClientProxy extends KrollProxy
 {
 	@Kroll.constant public static final int UNSENT = TiHTTPClient.READY_STATE_UNSENT;
@@ -24,56 +25,68 @@ public class HTTPClientProxy extends KrollProxy
 	@Kroll.constant public static final int HEADERS_RECEIVED = TiHTTPClient.READY_STATE_HEADERS_RECEIVED;
 	@Kroll.constant public static final int LOADING = TiHTTPClient.READY_STATE_LOADING;
 	@Kroll.constant public static final int DONE = TiHTTPClient.READY_STATE_DONE;
-	
+
+
 	private TiHTTPClient client;
+
+
 	public HTTPClientProxy()
 	{
 		super();
 		this.client = new TiHTTPClient(this);
 	}
-	
+
 	@Kroll.method
-	public void abort() {
+	public void abort()
+	{
 		client.abort();
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public String getAllResponseHeaders() {
+	public String getAllResponseHeaders()
+	{
 		return client.getAllResponseHeaders();
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public int getReadyState() {
+	public int getReadyState()
+	{
 		return client.getReadyState();
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public TiBlob getResponseData() {
+	public TiBlob getResponseData()
+	{
 		return client.getResponseData();
 	}
 
 	@Kroll.method
-	public String getResponseHeader(String header) {
+	public String getResponseHeader(String header)
+	{
 		return client.getResponseHeader(header);
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public String getResponseText() {
+	public String getResponseText()
+	{
 		return client.getResponseText();
 	}
 	
 	@Kroll.getProperty @Kroll.method
-	public DocumentProxy getResponseXML() {
+	public DocumentProxy getResponseXML()
+	{
 		return client.getResponseXML();
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public int getStatus() {
+	public int getStatus()
+	{
 		return client.getStatus();
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public String getStatusText() {
+	public String getStatusText()
+	{
 		return client.getStatusText();
 	}
 
@@ -90,33 +103,39 @@ public class HTTPClientProxy extends KrollProxy
 		client.send(data);
 	}
 
-  @Kroll.method
-	public void clearCookies(String host) {
+	@Kroll.method
+	public void clearCookies(String host)
+	{
 		client.clearCookies(host);
 	}
 
 	@Kroll.method
-	public void setRequestHeader(String header, String value) {
+	public void setRequestHeader(String header, String value)
+	{
 		client.setRequestHeader(header, value);
 	}
 	
 	@Kroll.setProperty @Kroll.method
-	public void setTimeout(int millis) {
+	public void setTimeout(int millis)
+	{
 		client.setTimeout(millis);
 	}
 	
 	@Kroll.getProperty @Kroll.method
-	public String getLocation() {
+	public String getLocation()
+	{
 		return client.getLocation();
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public String getConnectionType() {
+	public String getConnectionType()
+	{
 		return client.getConnectionType();
 	}
 	
 	@Kroll.getProperty @Kroll.method
-	public boolean getConnected() {
+	public boolean getConnected()
+	{
 		return client.isConnected();
 	}
 
