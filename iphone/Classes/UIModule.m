@@ -37,6 +37,9 @@
 #ifdef USE_TI_UICOVERFLOWVIEW
 	#import "TiUIiOSCoverFlowViewProxy.h"
 #endif
+#ifdef USE_TI_UITOOLBAR
+	#import "TiUIiOSToolbarProxy.h"
+#endif
 #import "TiApp.h"
 #import "ImageLoader.h"
 #import "Webcolor.h"
@@ -346,6 +349,13 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 }
 #endif
 
+#ifdef USE_TI_UITOOLBAR
+-(id)createToolbar:(id)args
+{
+	DEPRECATED_REPLACED(@"UI.createToolBar()",@"1.8.0",@"1.9.0",@"UI.iOS.createToolBar()");
+	return [[[TiUIiOSToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
 #pragma mark Internal Memory Management
 
 -(void)didReceiveMemoryWarning:(NSNotification*)notification

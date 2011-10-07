@@ -179,18 +179,15 @@
 
 -(int)currentPage
 {
-	int result = 0;
+	int result = currentPage;
     if (scrollview != nil) {
         CGPoint offset = [[self scrollview] contentOffset];
-        if (offset.x >= 0) {
+        if (offset.x > 0) {
             CGSize scrollFrame = [self bounds].size;
             if (scrollFrame.width != 0) {
                 result = floor(offset.x/scrollFrame.width);
             }
-            else {
-				result = currentPage;
-            }
-        }
+		}
     }
 	[pageControl setCurrentPage:result];
     return result;
