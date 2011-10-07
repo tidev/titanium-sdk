@@ -9,6 +9,7 @@ package org.appcelerator.titanium.util;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TimeZone;
@@ -202,15 +203,17 @@ public class TiConvert
 
 	public static void updateLayoutCenter(Object value, LayoutParams layoutParams)
 	{
-		if (value instanceof KrollDict) {
-			KrollDict center = (KrollDict) value;
-			if (center.containsKeyAndNotNull(TiC.PROPERTY_X)) {
-				layoutParams.optionCenterX = toTiDimension(center, TiC.PROPERTY_X, TiDimension.TYPE_CENTER_X);
+		if (value instanceof HashMap) {
+			HashMap center = (HashMap) value;
+			Object x = center.get(TiC.PROPERTY_X);
+			Object y = center.get(TiC.PROPERTY_Y);
+			if (x != null) {
+				layoutParams.optionCenterX = toTiDimension(x, TiDimension.TYPE_CENTER_X);
 			} else {
 				layoutParams.optionCenterX = null;
 			}
-			if (center.containsKeyAndNotNull(TiC.PROPERTY_Y)) {
-				layoutParams.optionCenterY = toTiDimension(center, TiC.PROPERTY_Y, TiDimension.TYPE_CENTER_Y);
+			if (y != null) {
+				layoutParams.optionCenterY = toTiDimension(y, TiDimension.TYPE_CENTER_Y);
 			} else {
 				layoutParams.optionCenterY = null;
 			}
