@@ -178,7 +178,25 @@ Handle<Value> Proxy::proxyConstructor(const Arguments& args)
 		}
 
 		if (extend) {
-			V8Util::objectExtend(properties, createProperties);
+			Handle<Array> names = createProperties->GetOwnPropertyNames();
+			int length = names->Length();
+
+			for (int i = 0; i < length; ++i) {
+				Handle<Value> name = names->Get(i);
+				Handle<Value> value = createProperties->Get(name);
+				bool isProperty = true;
+				if (name->IsString()) {
+					Handle<String> nameString = name->ToString();
+					if (!jsProxy->HasRealNamedCallbackProperty(nameString)
+						&& !jsProxy->HasRealNamedProperty(nameString)) {
+						jsProxy->Set(name, value);
+						isProperty = false;
+					}
+				}
+				if (isProperty) {
+					properties->Set(name, value);
+				}
+			}
 		}
 	}
 

@@ -193,7 +193,10 @@ public class KrollProxy extends EventEmitter
 
 		if (data instanceof KrollDict) {
 			KrollDict dict = (KrollDict) data;
-			dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
+			Object source = dict.get(TiC.EVENT_PROPERTY_SOURCE);
+			if (source == null) {
+				dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
+			}
 		}
 		return super.fireEvent(event, data);
 	}
