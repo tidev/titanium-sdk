@@ -49,7 +49,7 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 			[self replaceValue:@"iphone" forKey:@"osname" notification:NO]; 
 		}
 		
-		macaddress = [[[UIDevice currentDevice] uniqueIdentifier] retain];
+		macaddress = [[TiUtils uniqueIdentifier] retain];
 		
 		NSString *themodel = [theDevice model];
 		
@@ -192,7 +192,7 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 
 -(id)id
 {
-	return [[UIDevice currentDevice] uniqueIdentifier];
+	return macaddress;
 }
 
 - (NSString *)createUUID:(id)args
