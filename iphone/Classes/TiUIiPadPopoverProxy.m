@@ -212,6 +212,11 @@
 
 -(void)updatePopoverNow
 {
+    // We're in the middle of playing cleanup while a hide() is happening.
+    if (isDismissing) {
+        return;
+    }
+    
 	[self updateContentSize];
 
 	if ([popoverView isUsingBarButtonItem])
