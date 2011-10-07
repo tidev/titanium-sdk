@@ -603,12 +603,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				if (callback != null) {
 					pendingAnimation.setCallback(callback);
 				}
-
 			} else if (arg instanceof TiAnimation) {
 				TiAnimation anim = (TiAnimation) arg;
 				pendingAnimation = new TiAnimationBuilder();
 				pendingAnimation.applyAnimation(anim);
-
 			} else {
 				throw new IllegalArgumentException("Unhandled argument to animate: " + arg.getClass().getSimpleName());
 			}
