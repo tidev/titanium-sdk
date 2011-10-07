@@ -15,9 +15,10 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.Ti2DMatrix;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiCompositeLayout;
-import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -49,6 +50,8 @@ public class TiAnimationBuilder
 	protected Integer top = null, bottom = null, left = null, right = null;
 	protected Integer centerX = null, centerY = null;
 	protected Integer width = null, height = null;
+	protected Integer backgroundColor = null;
+	//protected 
 	
 	protected TiAnimation animationProxy;
 
@@ -118,6 +121,9 @@ public class TiAnimationBuilder
 		}
 		if (options.containsKey(TiC.PROPERTY_HEIGHT)) {
 			height = TiConvert.toInt(options, TiC.PROPERTY_HEIGHT);
+		}
+		if (options.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			backgroundColor = TiConvert.toColor(options, TiC.PROPERTY_BACKGROUND_COLOR);
 		}
 		
 		this.options = options;
@@ -194,6 +200,16 @@ public class TiAnimationBuilder
 				// the animation. If the opacity of the view was initialized to
 				// 0, the animation doesn't work
 				uiView.setOpacity(1);
+			}
+		}
+		
+		if (backgroundColor != null) {
+			if (viewProxy.hasProperty(TiC.PROPERTY_BACKGROUND_COLOR)) {
+				int fromBackgroundColor = TiConvert.toColor(TiConvert.toString(viewProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR)));
+				Animation a = new TiColorAnimation(view, fromBackgroundColor, backgroundColor);
+				addAnimation(as, a);
+			} else {
+				Log.w(LCAT, "Cannot animate backgroundColor. View doesn't have that property.");
 			}
 		}
 
@@ -389,6 +405,46 @@ public class TiAnimationBuilder
 				int top = view.getTop();
 				((ViewGroup)view.getParent()).invalidate(left + rect.left, top + rect.top, left + rect.width(), top + rect.height());
 			}
+		}
+	}
+	
+	public static class TiColorAnimation extends Animation
+	{
+		protected View view;
+		int fromRed, fromGreen, fromBlue;
+		int toRed, toGreen, toBlue;
+		int deltaRed, deltaGreen, deltaBlue;
+		
+		public TiColorAnimation(View view, int fromColor, int toColor) 
+		{
+			this.view = view;
+
+			fromRed = Color.red(fromColor);
+			fromGreen = Color.green(fromColor);
+			fromBlue = Color.blue(fromColor);
+			
+			toRed = Color.red(toColor);
+			toGreen = Color.green(toColor);
+			toBlue = Color.blue(toColor);
+			
+			deltaRed = toRed - fromRed;
+			deltaGreen = toGreen - fromGreen;
+			deltaBlue = toBlue - fromBlue;
+			
+			view.setDrawingCacheEnabled(true);
+		}
+
+		@Override
+		protected void applyTransformation(float interpolatedTime, Transformation t) 
+		{
+			super.applyTransformation(interpolatedTime, t);
+				
+			int c = Color.rgb(
+						fromRed + (int) (deltaRed * interpolatedTime),
+						fromGreen + (int) (deltaGreen * interpolatedTime),
+						fromBlue + (int) (deltaBlue * interpolatedTime)
+					);
+			view.setBackgroundColor(c);
 		}
 	}
 
