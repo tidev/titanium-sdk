@@ -82,7 +82,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	public TiViewProxy()
 	{
 		langConversionTable = getLangConversionTable();
-		registerListenerEvents();
 		pendingAnimationLock = new Object();
 	}
 
