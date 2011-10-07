@@ -17,6 +17,8 @@
 
 @implementation TiFilesystemFileProxy
 
+@synthesize protectFile;
+
 -(id)initWithFile:(NSString*)path_
 {
 	if (self = [super init])
@@ -34,9 +36,17 @@
 	[super dealloc];
 }
 
+-(int)writeFlags
+{
+    if ([protectFile intValue]) {
+        return NSDataWritingFileProtectionComplete;
+    }
+    return NSDataWritingFileProtectionNone;
+}
+
 -(id)nativePath
 {
-	return [[NSURL fileURLWithPath:path] absoluteString];
+    return [[NSURL fileURLWithPath:path] absoluteString];
 }
 
 -(id)exists:(id)args
@@ -160,7 +170,7 @@ FILENOOP(setHidden:(id)x);
 	
 	NSArray *payload = [NSArray arrayWithObjects:[self path], mode, nil];
 	
-	return [[[TiFilesystemFileStreamProxy alloc] _initWithPageContext:[self executionContext] args:payload] autorelease];
+	return [[[TiFilesystemFileStreamProxy alloc] _initWithPageContext:[self executionContext] args:payload protect:[self writeFlags]] autorelease];
 }
 
 -(id)createFile:(id)args
@@ -174,7 +184,7 @@ FILENOOP(setHidden:(id)x);
 			[fm createDirectoryAtPath:[path stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:nil];
 			//We don't care if this fails.
 		}
-		result = [[NSData data] writeToFile:path options:NSDataWritingFileProtectionComplete error:nil];
+		result = [[NSData data] writeToFile:path options:[self writeFlags] error:nil];
 	}			
 	return NUMBOOL(result);
 }
@@ -307,14 +317,14 @@ FILENOOP(setHidden:(id)x);
 		if(![fm fileExistsAtPath:path]) {
 			//create the file if it doesn't exist already
 			NSError *writeError = nil;
-			[data writeToFile:path options:NSDataWritingFileProtectionComplete | NSDataWritingAtomic error:&writeError];
+			[data writeToFile:path options:[self writeFlags] | NSDataWritingAtomic error:&writeError];
 			if(writeError != nil) {
 				NSLog(@"[ERROR] Could not write data to file at path \"%@\"", path);
 			}
 			return NUMBOOL(writeError == nil);
 		}	
 		
-		NSFileHandle *handle = [NSFileHandle fileHandleForUpdatingAtPath:path];
+        NSFileHandle *handle = [NSFileHandle fileHandleForUpdatingAtPath:path];
 
 		unsigned long long offset = [handle seekToEndOfFile];
 		[handle writeData:data];
@@ -353,7 +363,7 @@ FILENOOP(setHidden:(id)x);
 	if ([arg isKindOfClass:[TiBlob class]])
 	{
 		TiBlob *blob = (TiBlob*)arg;
-		return NUMBOOL([blob writeTo:path error:nil]);
+		return NUMBOOL([blob writeTo:path protect:[self writeFlags] error:nil]);
 	}
 	else if ([arg isKindOfClass:[TiFile class]])
 	{
@@ -370,7 +380,7 @@ FILENOOP(setHidden:(id)x);
     NSString* dataString = [TiUtils stringValue:arg];
     NSData* data = [dataString dataUsingEncoding:NSUTF8StringEncoding];
 	NSError *err = nil;
-    [data writeToFile:path options:NSDataWritingFileProtectionComplete | NSDataWritingAtomic error:&err];
+    [data writeToFile:path options:[self writeFlags] | NSDataWritingAtomic error:&err];
 	if(err != nil) {
 		NSLog(@"[ERROR] Could not write data to file at path \"%@\" - details: %@", path, err);
 	}
@@ -432,7 +442,7 @@ FILENOOP(setHidden:(id)x);
 	} 
 	else 
 	{
-		[[NSData data] writeToFile:resultPath options:NSDataWritingFileProtectionComplete error:&error];
+		[[NSData data] writeToFile:resultPath options:NSDataWritingFileProtectionNone error:&error];
 	}
 	
 	if (error != nil)

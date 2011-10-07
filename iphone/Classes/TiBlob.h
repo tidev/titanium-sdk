@@ -52,7 +52,7 @@ typedef enum {
 -(NSString*)path;
 -(NSString*)nativePath; // Android compatibility
 
--(BOOL)writeTo:(NSString*)path error:(NSError**)error;
+-(BOOL)writeTo:(NSString*)path protect:(int)protect error:(NSError**)error;
 
 #pragma mark Image specific blob manipulations
 

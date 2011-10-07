@@ -16,6 +16,8 @@
 	TiStreamMode mode;
 }
 
+-(id) _initWithPageContext:(id <TiEvaluator>)context args:(NSArray *)args protect:(int)protectFlags;
+
 @end
 
 #endif

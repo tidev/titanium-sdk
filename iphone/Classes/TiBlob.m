@@ -249,7 +249,7 @@
 	type = type_;
 }
 
--(BOOL)writeTo:(NSString*)destination error:(NSError**)error
+-(BOOL)writeTo:(NSString*)destination protect:(int)protect error:(NSError**)error
 {
 	NSData *writeData = nil;
 	switch(type)
@@ -272,7 +272,7 @@
 	}
 	if (writeData!=nil)
 	{
-		[writeData writeToFile:destination atomically:YES];
+		[writeData writeToFile:destination options:protect atomically:YES];
 	}
 	return NO;
 }
