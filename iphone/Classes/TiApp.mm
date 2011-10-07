@@ -16,7 +16,7 @@
 #import "TiDebugger.h"
 #import <QuartzCore/QuartzCore.h>
 #import <AVFoundation/AVFoundation.h>
-
+#import "ApplicationDefaults.h"
 #import <libkern/OSAtomic.h>
 
 #ifdef KROLL_COVERAGE
@@ -180,6 +180,18 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	}
 #endif
 }
+//To load application Defaults 
+- (void) loadUserDefaults
+{
+	[[NSUserDefaults standardUserDefaults] setPersistentDomain:[NSDictionary dictionary] forName:[[NSBundle mainBundle] bundleIdentifier]];
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	NSDictionary *appDefaults = [[NSDictionary alloc] initWithDictionary:[ApplicationDefaults copyDefaults]];
+	if(appDefaults)
+	{
+		[defaults registerDefaults:appDefaults];
+	}
+	[appDefaults release];
+}
 
 - (void)boot
 {
@@ -231,6 +243,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
 	NSSetUncaughtExceptionHandler(&MyUncaughtExceptionHandler);
 	[self initController];
+	[self loadUserDefaults];
 	[self boot];
 }
 
@@ -289,7 +302,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	{
 		[self generateNotification:notification];
 	}
-	
+	[self loadUserDefaults];
 	[self boot];
 	
 	return YES;
