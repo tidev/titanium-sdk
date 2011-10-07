@@ -214,6 +214,16 @@ public class TiAnimationBuilder
 				Log.w(LCAT, "Cannot animate backgroundColor. View doesn't have that property.");
 			}
 		}
+		
+		if (backgroundColor != null) {
+			if (viewProxy.hasProperty(TiC.PROPERTY_BACKGROUND_COLOR)) {
+				int fromBackgroundColor = TiConvert.toColor(TiConvert.toString(viewProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR)));
+				Animation a = new TiColorAnimation(view, fromBackgroundColor, backgroundColor);
+				addAnimation(as, a);
+			} else {
+				Log.w(LCAT, "Cannot animate backgroundColor. View doesn't have that property.");
+			}
+		}
 
 		if (tdm != null) {
 			as.setFillAfter(true);
