@@ -4,7 +4,14 @@
 	<target name="build">
 		<antcall target="build.titanium.jar"/>
 	</target>
-	
+
+	<target name="build.thirdparty.jar">
+		<mkdir dir="tpbin"/>
+		<javac srcdir="src/thirdparty" destdir="tpbin" classpath="${android.sdk}/platforms/android-8/android.jar"/>
+		<jar destfile="lib/thirdparty.jar" basedir="tpbin"/>
+		<delete dir="tpbin" includeemptydirs="true"/>
+	</target>
+
 	<target name="clean">
 		<clean.project name="titanium"/>
 	</target>

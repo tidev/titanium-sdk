@@ -214,7 +214,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<attribute name="name"/>
 		<attribute name="dir" default="${ti.android.root}/modules/@{name}"/>
 		<attribute name="build.dir" default="@{dir}/bin"/>
-		<attribute name="src.dir" default="@{dir}/src"/>
+		<attribute name="src.dir" default="@{dir}/src/java"/>
 		<attribute name="apt.src.dir" default="@{dir}/.apt_generated"/>
 		<attribute name="kroll.jsonFile" default="@{name}.json"/>
 		<attribute name="kroll.jsonPackage" default="org.appcelerator.titanium.bindings"/>
@@ -429,11 +429,6 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<antcall target="update.libv8"/>
 		<antcall target="build.kroll.apt.jar"/>
 		<antcall target="build.titanium.jar"/>
-		<!--build.module module="utils"/>
-		<build.module module="filesystem"/>
-		<build.module module="media"/>
-		<build.module module="ui"/>
-		<build.module module="geolocation"/-->
 		<antcall target="build.all.modules"/>
 
 		<!-- the shared library needs to be last so we can build all the generated native bindings -->

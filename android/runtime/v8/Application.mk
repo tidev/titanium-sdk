@@ -11,4 +11,4 @@ TARGET_PLATFORM = android-8
 APP_STL := stlport_static
 TARGET_DEVICE := device
 APP_OPTIM := release
-TI_DEBUG := 1
+#TI_DEBUG := 1
