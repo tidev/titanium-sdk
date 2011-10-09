@@ -103,6 +103,10 @@ Handle<FunctionTemplate> ${className}::getProxyTemplate()
 	Local<ObjectTemplate> prototypeTemplate = proxyTemplate->PrototypeTemplate();
 	Local<ObjectTemplate> instanceTemplate = proxyTemplate->InstanceTemplate();
 
+	// Delegate indexed property get and set to the Java proxy.
+	instanceTemplate->SetIndexedPropertyHandler(Proxy::getIndexedProperty,
+	                                            Proxy::setIndexedProperty);
+
 	// Constants --------------------------------------------------------------
 	<#if constants??>
 	<@Proxy.listConstants ; isFirst, name, constant>

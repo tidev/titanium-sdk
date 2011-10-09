@@ -33,7 +33,7 @@ public:
 	// An attempt to get the current JNI environment failed.
 	static v8::Handle<v8::Value> GetJNIEnvironmentError()
 	{
-		return THROW("Failed to get current JNI environment.");
+		return THROW(JNIENV_GET_ERROR_MSG);
 	}
 
 	static v8::Handle<v8::Value> fromJavaException(jthrowable javaException = NULL);

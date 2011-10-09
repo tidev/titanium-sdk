@@ -171,6 +171,17 @@ public class KrollProxy extends EventEmitter
 		V8Runtime.getInstance().setProperty(this, name, value);
 	}
 
+	public Object getIndexedProperty(int index)
+	{
+		// TODO(josh): return undefined value
+		return 0;
+	}
+
+	public void setIndexedProperty(int index, Object value)
+	{
+		// no-op
+	}
+
 	/**
 	 * @deprecated use setPropertyAndFire instead
 	 */
