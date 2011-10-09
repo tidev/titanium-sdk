@@ -6,3 +6,5 @@ dist
 project.xcworkspace
 xcuserdata
 *.swp
+*.orig
+*.rej
