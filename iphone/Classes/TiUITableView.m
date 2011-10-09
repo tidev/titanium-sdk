@@ -399,11 +399,6 @@
 	{
 		if ([section parent] == ourProxy)
 		{
-            for (TiUITableViewRowProxy* row in [section rows]) {
-                [row setTable:nil];
-                [row setParent:nil];
-                [section forgetProxy:row];
-            }
 			[section setTable:nil];
 			[section setParent:nil];
 			[self.proxy forgetProxy:section];
