@@ -153,7 +153,7 @@ Proxy.prototype.getProperty = function(property) {
 }
 
 Proxy.prototype.setProperty = function(property, value) {
-    return this._properties[property] = value;
+	return this._properties[property] = value;
 }
 
 Proxy.prototype.setPropertiesAndFire = function(properties) {
@@ -197,6 +197,13 @@ bootstrap.defineLazyGetter("UI", "createWindow", function() {
 		Window = require("window").bootstrapWindow(Titanium);
 	}
 	return Window.createWindow;
+});
+
+Object.defineProperty(Titanium, "Yahoo", {
+	get: function() {
+		return bootstrap.lazyGet(this, "yahoo", "Yahoo");
+	},
+	configurable: true
 });
 
 // Define lazy initializers for all Titanium APIs

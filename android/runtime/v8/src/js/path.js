@@ -27,29 +27,29 @@
 // (so also no leading and trailing slashes - it does not distinguish
 // relative and absolute paths)
 function normalizeArray(parts, allowAboveRoot) {
-  // if the path tries to go above the root, `up` ends up > 0
-  var up = 0;
-  for (var i = parts.length-1; i >= 0; i--) {
-    var last = parts[i];
-    if (last == '.') {
-      parts.splice(i, 1);
-    } else if (last === '..') {
-      parts.splice(i, 1);
-      up++;
-    } else if (up) {
-      parts.splice(i, 1);
-      up--;
-    }
-  }
+	// if the path tries to go above the root, `up` ends up > 0
+	var up = 0;
+	for ( var i = parts.length - 1; i >= 0; i--) {
+		var last = parts[i];
+		if (last == '.') {
+			parts.splice(i, 1);
+		} else if (last === '..') {
+			parts.splice(i, 1);
+			up++;
+		} else if (up) {
+			parts.splice(i, 1);
+			up--;
+		}
+	}
 
-  // if the path is allowed to go above the root, restore leading ..s
-  if (allowAboveRoot) {
-    for (; up--; up) {
-      parts.unshift('..');
-    }
-  }
+	// if the path is allowed to go above the root, restore leading ..s
+	if (allowAboveRoot) {
+		for (; up--; up) {
+			parts.unshift('..');
+		}
+	}
 
-  return parts;
+	return parts;
 }
 
 // Split a filename into [root, dir, basename, ext], unix version
@@ -134,7 +134,7 @@ exports.relative = function(from, to) {
 
 		if (start > end) return [];
 		return arr.slice(start, end - start + 1);
-    }
+	}
 
 	var fromParts = trim(from.split('/'));
 	var toParts = trim(to.split('/'));
@@ -146,7 +146,7 @@ exports.relative = function(from, to) {
 			samePartsLength = i;
 			break;
 		}
-    }
+	}
 
 	var outputParts = [];
 	for (var i = samePartsLength; i < fromParts.length; i++) {

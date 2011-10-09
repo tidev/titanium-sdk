@@ -39,6 +39,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<property name="dist.dir" location="${ti.android.root}/../dist/android"/>
 	<available property="dist.dir.available" file="${dist.dir}"/>
 
+	<property name="dist.json.dir" value="${dist.dir}/json"/>
 	<property name="dist.classes.dir" value="${dist.dir}/classes"/>
 	<property name="gen.src.dir" value="${dist.dir}/generated"/>
 	<property name="build.version" value="1.0.0"/>
@@ -159,7 +160,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<attribute name="dir" default="${ti.android.root}/@{prefix}@{name}"/>
 		<attribute name="build.dir" default="@{dir}/bin"/>
 		<attribute name="src.dir" default="@{dir}/src"/>
-		<attribute name="apt.src.dir" default="@{dir}/.apt_generated"/>
+		<attribute name="apt.src.dir" default="${dist.json.dir}"/>
 		<attribute name="kroll.jsonFile" default="@{name}.json"/>
 		<attribute name="kroll.jsonPackage" default="org.appcelerator.titanium.bindings"/>
 		<attribute name="includes" default="**/*.java"/>
@@ -215,7 +216,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<attribute name="dir" default="${ti.android.root}/modules/@{name}"/>
 		<attribute name="build.dir" default="@{dir}/bin"/>
 		<attribute name="src.dir" default="@{dir}/src/java"/>
-		<attribute name="apt.src.dir" default="@{dir}/.apt_generated"/>
+		<attribute name="apt.src.dir" default="${dist.json.dir}"/>
 		<attribute name="kroll.jsonFile" default="@{name}.json"/>
 		<attribute name="kroll.jsonPackage" default="org.appcelerator.titanium.bindings"/>
 		<attribute name="includes" default="**/*.java"/>
@@ -296,7 +297,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 
 	<target name="build.kroll.apt.jar" depends="build.kroll.apt">
 		<property name="dest.file" value="${dist.dir}/kroll-apt.jar"/>
-		<jar destfile="${dest.file}" basedir="${build.dir}"/>
+		<jar destfile="${dest.file}" basedir="${build.dir}" manifest="${kroll.apt.project.dir}/META-INF/MANIFEST.MF"/>
 	</target>
 
 	<macrodef name="update.modules.properties">
@@ -325,7 +326,18 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		</sequential>
 	</macrodef>
 
-	<target name="build.kroll.v8.so">
+	<target name="generate.bindings">
+		<mkdir dir="${dist.json.dir}"/>
+		<apply executable="java" parallel="true" failonerror="true">
+			<arg value="-classpath"/>
+			<arg value="${toString:kroll.apt.path}"/>
+			<arg value="org.appcelerator.kroll.annotations.generator.KrollBindingGenerator"/>
+			<arg value="${kroll.v8.project.dir}/generated"/>
+			<fileset dir="${dist.json.dir}" includes="**/*.json"/>
+		</apply>
+	</target>
+
+	<target name="build.kroll.v8.so" depends="generate.bindings">
 		<exec executable="${ndk.build}" dir="${kroll.v8.project.dir}" failonerror="true">
 			<env key="ANDROID_NDK" file="${android.ndk}"/>
 		</exec>
@@ -348,19 +360,11 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 
 	<target name="build.titanium" depends="build.kroll.v8.jar">
 		<property name="build.dir" value="${titanium.project.dir}/bin"/>
-		<property name="apt.src.dir" value="${titanium.project.dir}/.apt_generated"/>
 
-		<build.module.project name="titanium" dir="${ti.android.root}/titanium" build.dir="${build.dir}" apt.src.dir="${apt.src.dir}">
+		<build.module.project name="titanium" dir="${ti.android.root}/titanium" build.dir="${build.dir}">
 			<extra.javac.args>
-				<src path="${titanium.project.dir}/thirdparty"/>
 				<classpath refid="kroll.v8.path"/>
 			</extra.javac.args>
-			<extra.copy.to.build>
-				<fileset dir="${titanium.project.dir}/thirdparty">
-					<include name="**/*"/>
-					<exclude name="**/*.java"/>
-				</fileset>
-			</extra.copy.to.build>
 		</build.module.project>
 	</target>
 	
@@ -439,12 +443,10 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<attribute name="name"/>
 		<attribute name="prefix" default=""/>
 		<attribute name="dir" default="${ti.android.root}/@{prefix}@{name}"/>
-		<attribute name="apt.src.dir" default="@{dir}/.apt_generated"/>
 		<attribute name="build.dir" default="@{dir}/bin"/>
 		<sequential>
 			<delete includeemptydirs="true" failonerror="false">
 				<fileset dir="@{build.dir}" includes="**/*" defaultexcludes="false"/>
-				<fileset dir="@{apt.src.dir}" includes="**/*" defaultexcludes="false"/>
 				<fileset file="${dist.dir}/@{name}.jar"/>
 			</delete>
 		</sequential>

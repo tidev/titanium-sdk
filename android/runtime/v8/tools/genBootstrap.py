@@ -4,15 +4,16 @@ import os, re, sys, json
 thisDir = os.path.abspath(os.path.dirname(__file__))
 genDir = os.path.join(os.path.dirname(thisDir), "generated")
 androidDir = os.path.abspath(os.path.join(thisDir, "..", "..", ".."))
+jsonDir = os.path.abspath(os.path.join(androidDir, "..", "dist", "android", "json"))
 
 bindingPaths = []
-bindingPaths.append(os.path.join(androidDir, "titanium", ".apt_generated", "org", "appcelerator", "titanium", "bindings", "titanium.json"))
 
-modulesDir = os.path.join(androidDir, "modules")
-for module in os.listdir(modulesDir):
-	jsonPath = os.path.join(modulesDir, module, ".apt_generated", "org", "appcelerator", "titanium", "bindings", module + ".json")
-	if os.path.exists(jsonPath):
-		bindingPaths.append(jsonPath)
+for module in os.listdir(jsonDir):
+	bindingsDir = os.path.join(jsonDir, "org", "appcelerator", "titanium", "bindings")
+	for binding in os.listdir(bindingsDir):
+		jsonPath = os.path.join(bindingsDir, binding)
+		if os.path.exists(jsonPath):
+			bindingPaths.append(jsonPath)
 
 bindings = { "proxies": {}, "modules": {} }
 apiTree = {}

@@ -7,8 +7,14 @@
 
 	<target name="build.thirdparty.jar">
 		<mkdir dir="tpbin"/>
-		<javac srcdir="src/thirdparty" destdir="tpbin" classpath="${android.sdk}/platforms/android-8/android.jar"/>
-		<jar destfile="lib/thirdparty.jar" basedir="tpbin"/>
+		<javac srcdir="src/thirdparty" destdir="tpbin">
+			<classpath refid="android"/>
+			<classpath refid="titanium.path"/>
+		</javac>
+		<jar destfile="lib/thirdparty.jar" basedir="tpbin">
+			<fileset dir="src/thirdparty"
+				includes="**/*" excludes="**/*.java"/>
+		</jar>
 		<delete dir="tpbin" includeemptydirs="true"/>
 	</target>
 

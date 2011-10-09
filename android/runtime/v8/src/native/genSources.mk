@@ -10,27 +10,21 @@ GENERATED_DIR := $(LOCAL_PATH)/../../generated
 
 THIS_DIR := $(LOCAL_PATH)
 ANDROID_DIR := ../../../..
-ABS_ANDROID_DIR := $(LOCAL_PATH)/$(ANDROID_DIR)
-
-TI_APT_GEN := $(ABS_ANDROID_DIR)/titanium/.apt_generated
-ABS_PROXY_SOURCES := $(wildcard $(ABS_ANDROID_DIR)/modules/*/.apt_generated/*.cpp) \
-	$(wildcard $(TI_APT_GEN)/*.cpp)
-
-PROXY_SOURCES := $(patsubst $(ABS_ANDROID_DIR)/%,$(ANDROID_DIR)/%,$(ABS_PROXY_SOURCES))
-
-PROXY_GEN_DIRS := $(wildcard $(ABS_ANDROID_DIR)/modules/*/.apt_generated) \
-	$(ABS_ANDROID_DIR)/titanium/.apt_generated
-PROXY_CFLAGS := $(addprefix -I,$(PROXY_GEN_DIRS))
 
 TOOLS_DIR := $(THIS_DIR)/../../tools
 JS2C := $(TOOLS_DIR)/js2c.py
 
 GEN_BOOTSTRAP := $(THIS_DIR)/../../tools/genBootstrap.py
 
+ABS_PROXY_SOURCES := $(wildcard $(GENERATED_DIR)/org.*.cpp) \
+	$(wildcard $(GENERATED_DIR)/ti.*.cpp)
+
+PROXY_SOURCES := $(patsubst $(GENERATED_DIR)/%,../../generated/%,$(ABS_PROXY_SOURCES))
+
 GEN_SOURCES := \
 	$(GENERATED_DIR)/KrollJS.cpp \
-	$(GENERATED_DIR)/KrollNativeBindings.cpp \
-	$(GENERATED_DIR)/KrollGeneratedBindings.cpp
+	$(GENERATED_DIR)/KrollGeneratedBindings.cpp \
+	$(GENERATED_DIR)/KrollNativeBindings.cpp
 
 JNI_PREFIX := $(GENERATED_DIR)/org_appcelerator_kroll_runtime_v8
 
@@ -46,7 +40,7 @@ ti-generated-dir:
 $(GENERATED_DIR)/KrollJS.cpp: ti-generated-dir $(ABS_JS_FILES) $(GENERATED_DIR)/KrollGeneratedBindings.cpp
 	python $(JS2C) $(GENERATED_DIR)/KrollJS.cpp $(ABS_JS_FILES)
 
-$(GENERATED_DIR)/KrollGeneratedBindings.cpp: ti-generated-dir
+$(GENERATED_DIR)/KrollGeneratedBindings.cpp: ti-generated-dir $(ABS_PROXY_SOURCES)
 	python $(GEN_BOOTSTRAP)
 	gperf -L C++ -E -t $(GENERATED_DIR)/KrollGeneratedBindings.gperf > $(GENERATED_DIR)/KrollGeneratedBindings.cpp
 
