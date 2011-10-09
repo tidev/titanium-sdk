@@ -11,27 +11,12 @@
 
 @implementation TiMapPinAnnotationView
 
--(void)removeFromSuperview
-{
-	if (observing)
-	{
-		[self removeObserver:map forKeyPath:@"selected"];
-		observing = NO;
-		map = nil;
-	}
-	[super removeFromSuperview];
-}
 
 -(id)initWithAnnotation:(id<MKAnnotation>)annotation reuseIdentifier:(NSString *)reuseIdentifier map:(TiMapView*)map_
 {
 	if (self = [self initWithAnnotation:annotation reuseIdentifier:reuseIdentifier])
 	{
-		map = map_;
-		[self addObserver:map
-				  forKeyPath:@"selected"
-					 options:NSKeyValueObservingOptionNew
-					 context:@"ANSELECTED"];
-		observing = YES;
+		
 	}
 	return self;
 }

@@ -860,6 +860,7 @@ DEFINE_EXCEPTIONS
 			[proxy fireEvent:@"dblclick" withObject:evt propagate:YES];
 		}
 	}
+	[super touchesBegan:touches withEvent:event];
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event 
@@ -901,6 +902,7 @@ DEFINE_EXCEPTIONS
 	{
 		[touchDelegate touchesMoved:touches withEvent:event];
 	}
+	[super touchesMoved:touches withEvent:event];
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event 
@@ -1004,6 +1006,7 @@ DEFINE_EXCEPTIONS
 	{
 		[touchDelegate touchesEnded:touches withEvent:event];
 	}
+	[super touchesEnded:touches withEvent:event];
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event 
@@ -1032,6 +1035,7 @@ DEFINE_EXCEPTIONS
 	{
 		[touchDelegate touchesCancelled:touches withEvent:event];
 	}
+	[super touchesCancelled:touches withEvent:event];
 }
 
 #pragma mark Listener management
