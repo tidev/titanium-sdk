@@ -38,6 +38,8 @@
 
 -(void)dealloc
 {
+    [proxy setCallbackCell:nil];
+    
 	RELEASE_TO_NIL(gradientLayer);
 	RELEASE_TO_NIL(backgroundGradient);
 	RELEASE_TO_NIL(selectedBackgroundGradient);
