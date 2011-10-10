@@ -38,10 +38,24 @@
 
 -(void)dealloc
 {
+    [proxy setCallbackCell:nil];
+    
 	RELEASE_TO_NIL(gradientLayer);
 	RELEASE_TO_NIL(backgroundGradient);
 	RELEASE_TO_NIL(selectedBackgroundGradient);
 	[super dealloc];
+}
+
+-(void)setProxy:(TiUITableViewRowProxy *)proxy_
+{
+    if (proxy == proxy_) {
+        return;
+    }
+    
+    if ([proxy callbackCell] == self) {
+        [proxy setCallbackCell:nil];
+    }
+    proxy = proxy_;
 }
 
 -(CGSize)computeCellSize
