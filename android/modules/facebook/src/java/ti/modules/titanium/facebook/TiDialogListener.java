@@ -8,7 +8,7 @@
 package ti.modules.titanium.facebook;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.runtime.v8.V8Callback;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.titanium.util.Log;
 
 import android.os.Bundle;
@@ -20,13 +20,13 @@ import com.facebook.android.Util;
 
 public class TiDialogListener implements DialogListener
 {
-	private V8Callback callback;
+	private KrollFunction callback;
 	private String dialogAction;
 	private FacebookModule module;
 
 	private enum Status {ERROR, CANCEL, SUCCESS}
 	
-	public TiDialogListener(FacebookModule module, V8Callback callback, String dialogAction)
+	public TiDialogListener(FacebookModule module, KrollFunction callback, String dialogAction)
 	{
 		this.module = module;
 		this.callback = callback;
@@ -69,8 +69,7 @@ public class TiDialogListener implements DialogListener
 	private void doCallback(KrollDict args)
 	{
 		if (callback != null){
-			callback.invoke(module, args);
-			//callback.callAsync(args);
+			module.callAsync(callback, new Object[] { args });
 		}
 	}
 	

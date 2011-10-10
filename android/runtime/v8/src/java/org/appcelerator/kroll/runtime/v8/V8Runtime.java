@@ -6,27 +6,22 @@
  */
 package org.appcelerator.kroll.runtime.v8;
 
+import org.appcelerator.kroll.KrollRuntime;
+
 import android.os.Build;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
-public final class V8Runtime implements Handler.Callback
+public final class V8Runtime extends KrollRuntime implements Handler.Callback
 {
-	private static final String TAG = "V8Runtime";
+	private static final String TAG = "KrollV8Runtime";
 	private static final String DEVICE_LIB = "kroll-v8-device";
 	private static final String EMULATOR_LIB = "kroll-v8-emulator";
 
-	private static final int MSG_PROCESS_DEBUG_MESSAGES = 1000;
-	private static final int MSG_NATIVE_RELEASE = 1001;
+	private static final int MSG_PROCESS_DEBUG_MESSAGES = KrollRuntime.MSG_LAST_ID + 100;
 
-	private static V8Runtime _instance;
-
-	private long mainThreadId;
-	private Handler mainHandler;
-
-	private V8Runtime(Looper looper)
+	public V8Runtime()
 	{
 		boolean useGlobalRefs = true;
 		String libName = DEVICE_LIB;
@@ -37,69 +32,30 @@ public final class V8Runtime implements Handler.Callback
 		}
 
 		System.loadLibrary(libName);
-		_instance = this;
-
-		Looper mainLooper = Looper.getMainLooper();
-		mainThreadId = mainLooper.getThread().getId();
-		mainHandler = new Handler(mainLooper, this);
 		nativeInit(useGlobalRefs);
 	}
 
-	public static void init(Looper v8Looper)
-	{
-		if (_instance == null) {
-			new V8Runtime(v8Looper);
-		}
-	}
-
-	public static V8Runtime getInstance()
-	{
-		return _instance;
-	}
-
-	public boolean isUiThread()
-	{
-		return Thread.currentThread().getId() == mainThreadId;
-	}
-
-	public void dispose()
+	@Override
+	public void doDispose()
 	{
 		nativeDispose();
 	}
 
-	public void release(ManagedV8Reference ref)
-	{
-		if (isUiThread()) {
-			ref.release();
-		} else {
-			Message msg = mainHandler.obtainMessage(MSG_NATIVE_RELEASE, ref);
-			msg.sendToTarget();
-		}
-	}
-
-	public void setProperty(final V8Object object, final String property, final Object value)
-	{
-		if (isUiThread()) {
-			object.doSetProperty(property, value);
-		} else {
-			mainHandler.post(new Runnable() {
-				public void run()
-				{
-					object.doSetProperty(property, value);
-				}
-			});
-		}
-	}
-
-	public void runModule(String source, String filename)
+	@Override
+	public void doRunModule(String source, String filename)
 	{
 		nativeRunModule(source, filename);
 	}
 
+	@Override
+	public void initObject(Object proxyObject)
+	{
+		V8Object.nativeInitObject(proxyObject.getClass(), proxyObject);
+	}
+
 	protected void dispatchDebugMessages()
 	{
-		Message msg = mainHandler.obtainMessage(MSG_PROCESS_DEBUG_MESSAGES);
-		msg.sendToTarget();
+		mainHandler.sendEmptyMessage(MSG_PROCESS_DEBUG_MESSAGES);
 	}
 
 	@Override
@@ -108,10 +64,6 @@ public final class V8Runtime implements Handler.Callback
 		switch (msg.what) {
 			case MSG_PROCESS_DEBUG_MESSAGES:
 				nativeProcessDebugMessages();
-				return true;
-			case MSG_NATIVE_RELEASE:
-				ManagedV8Reference ref = (ManagedV8Reference) msg.obj;
-				ref.release();
 				return true;
 		}
 		return false;

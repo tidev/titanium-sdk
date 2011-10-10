@@ -13,10 +13,10 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.runtime.v8.V8Callback;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.Log;
@@ -41,7 +41,7 @@ public class ContactsModule extends KrollModule
 	
 	private final AtomicInteger requestCodeGen = new AtomicInteger();
 	private final CommonContactsApi contactsApi;
-	private Map<Integer, Map<String, V8Callback>> requests;
+	private Map<Integer, Map<String, KrollFunction>> requests;
 	
 	public ContactsModule()
 	{
@@ -102,17 +102,17 @@ public class ContactsModule extends KrollModule
 		int requestCode = requestCodeGen.getAndIncrement();
 		
 		if (requests == null) {
-			requests = new HashMap<Integer, Map<String,V8Callback>>();
+			requests = new HashMap<Integer, Map<String,KrollFunction>>();
 		}
-		Map<String, V8Callback> callbacks = new HashMap<String, V8Callback>();
+		Map<String, KrollFunction> callbacks = new HashMap<String, KrollFunction>();
 		requests.put(new Integer(requestCode), callbacks);
 		
 		String[] callbacksToConsider = new String[]{"selectedPerson", "cancel"};
 		for (String callbackToConsider : callbacksToConsider) {
 			if (d.containsKey(callbackToConsider)) {
 				Object test = d.get(callbackToConsider);
-				if (test instanceof V8Callback) {
-					callbacks.put(callbackToConsider, (V8Callback)test);
+				if (test instanceof KrollFunction) {
+					callbacks.put(callbackToConsider, (KrollFunction)test);
 				}
 			}
 			if (d.containsKey("proxy")) {
@@ -140,27 +140,25 @@ public class ContactsModule extends KrollModule
 	{
 		Integer rcode = new Integer(requestCode);
 		if (requests.containsKey(rcode)) {
-			Map<String, V8Callback> request = requests.get(rcode);
+			Map<String, KrollFunction> request = requests.get(rcode);
 			if (DBG) {
 				Log.d(LCAT, "Received result from contact picker.  Result code: " + resultCode);
 			}
 			if (resultCode == Activity.RESULT_CANCELED) {
 				if (request.containsKey("cancel")) {
-					V8Callback callback = request.get("cancel");
+					KrollFunction callback = request.get("cancel");
 					if (callback != null) {
-						callback.invoke(this, new Object[]{});
-						//callback.callAsync();
+						callAsync(callback, new Object[0]);
 					}
 				}
 			} else if (resultCode == Activity.RESULT_OK) {
 				if (request.containsKey("selectedPerson")) {
-					V8Callback callback = request.get("selectedPerson");
+					KrollFunction callback = request.get("selectedPerson");
 					if (callback != null) {
 						PersonProxy person = contactsApi.getPersonByUri(data.getData());
 						KrollDict result = new KrollDict();
 						result.put("person", person);
-						callback.invoke(this, result);
-						//callback.callAsync(new Object[]{result});
+						callAsync(callback, new Object[] { result });
 					}
 				}
 			} else {

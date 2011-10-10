@@ -8,10 +8,11 @@ package org.appcelerator.titanium;
 
 import java.util.Set;
 
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
-import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiAssetHelper;
 import org.appcelerator.titanium.util.TiBindingHelper;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConfig;
@@ -64,7 +65,15 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			if (DBG) {
 				Log.d(TAG, "Eval JS Activity:" + fullUrl);
 			}
-			KrollContext.getKrollContext().evalFile(fullUrl);
+
+			if (fullUrl.startsWith(TiC.URL_APP_PREFIX)) {
+				fullUrl = fullUrl.replaceAll("app:/", "Resources");
+			} else if (fullUrl.startsWith(TiC.URL_ANDROID_ASSET_RESOURCES)) {
+				fullUrl = fullUrl.replaceAll("file:///android_asset/", "");
+			}
+
+			KrollRuntime.getInstance().runModule(
+				TiAssetHelper.readAsset(fullUrl), fullUrl);
 		} finally {
 			if (DBG) {
 				Log.d(TAG, "Signal JS loaded");
@@ -84,8 +93,6 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		}
 
 		url = TiUrl.normalizeWindowUrl(getUrl());
-
-		KrollContext.getKrollContext();
 
 		if (activityProxy == null) {
 			setActivityProxy(new ActivityProxy(this));

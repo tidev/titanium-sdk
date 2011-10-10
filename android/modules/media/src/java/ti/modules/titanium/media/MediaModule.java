@@ -19,13 +19,11 @@ import java.util.Date;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.runtime.v8.V8Callback;
-import org.appcelerator.kroll.runtime.v8.V8Invocation;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -94,18 +92,18 @@ public class MediaModule extends KrollModule
 	@Kroll.method
 	public void showCamera(KrollDict options)
 	{
-		V8Callback successCallback = null;
-		V8Callback cancelCallback = null;
-		V8Callback errorCallback = null;
+		KrollFunction successCallback = null;
+		KrollFunction cancelCallback = null;
+		KrollFunction errorCallback = null;
 
 		if (options.containsKey("success")) {
-			successCallback = (V8Callback) options.get("success");
+			successCallback = (KrollFunction) options.get("success");
 		}
 		if (options.containsKey("cancel")) {
-			cancelCallback = (V8Callback) options.get("cancel");
+			cancelCallback = (KrollFunction) options.get("cancel");
 		}
 		if (options.containsKey("error")) {
-			errorCallback = (V8Callback) options.get("error");
+			errorCallback = (KrollFunction) options.get("error");
 		}
 		if (options.containsKey("overlay")) {
 			TiCameraActivity.overlayProxy = (TiViewProxy) options.get("overlay");
@@ -126,7 +124,7 @@ public class MediaModule extends KrollModule
 				camera.release();
 			}
 			if (errorCallback != null) {
-				errorCallback.invoke(this, createErrorResponse(NO_CAMERA, "Camera not available."));
+				call(errorCallback, new Object[] { createErrorResponse(NO_CAMERA, "Camera not available.") });
 			}
 			return;
 		}
@@ -168,7 +166,7 @@ public class MediaModule extends KrollModule
 		} catch (IOException e) {
 			Log.e(LCAT, "Unable to create temp file", e);
 			if (errorCallback != null) {
-				errorCallback.invoke(this, createErrorResponse(UNKNOWN_ERROR, e.getMessage()));
+				callAsync(errorCallback, createErrorResponse(UNKNOWN_ERROR, e.getMessage()));
 			}
 			return;
 		}
@@ -225,7 +223,7 @@ public class MediaModule extends KrollModule
 		protected String imageUrl;
 		protected boolean saveToPhotoGallery;
 		protected int code;
-		protected V8Callback successCallback, cancelCallback, errorCallback;
+		protected KrollFunction successCallback, cancelCallback, errorCallback;
 		protected TiActivitySupport activitySupport;
 		protected Intent cameraIntent;
 
@@ -244,7 +242,7 @@ public class MediaModule extends KrollModule
 					imageFile.delete();
 				}
 				if (cancelCallback != null) {
-					cancelCallback.invoke(MediaModule.this, new Object[0]);
+					callAsync(cancelCallback);
 				}
 			} else {
 				if (data == null) {
@@ -270,13 +268,13 @@ public class MediaModule extends KrollModule
 
 					try {
 						if (successCallback != null) {
-							successCallback.invoke(MediaModule.this, createDictForImage(imageUri.toString(), "image/jpeg"));
+							callAsync(successCallback, createDictForImage(imageUri.toString(), "image/jpeg"));
 						}
 					} catch (OutOfMemoryError e) {
 						String msg = "Not enough memory to get image: " + e.getMessage();
 						Log.e(LCAT, msg);
 						if (errorCallback != null) {
-							errorCallback.invoke(MediaModule.this, createErrorResponse(UNKNOWN_ERROR, msg));
+							callAsync(errorCallback, createErrorResponse(UNKNOWN_ERROR, msg));
 						}
 					}
 				} else {
@@ -375,13 +373,13 @@ public class MediaModule extends KrollModule
 					
 					try {
 						if (successCallback != null) {
-							successCallback.invoke(MediaModule.this, createDictForImage(localImageUrl, "image/jpeg"));
+							callAsync(successCallback, createDictForImage(localImageUrl, "image/jpeg"));
 						}
 					} catch (OutOfMemoryError e) {
 						String msg = "Not enough memory to get image: " + e.getMessage();
 						Log.e(LCAT, msg);
 						if (errorCallback != null) {
-							errorCallback.invoke(MediaModule.this, createErrorResponse(UNKNOWN_ERROR, msg));
+							callAsync(errorCallback, createErrorResponse(UNKNOWN_ERROR, msg));
 						}
 					}
 				}
@@ -396,7 +394,7 @@ public class MediaModule extends KrollModule
 			String msg = "Camera problem: " + e.getMessage();
 			Log.e(LCAT, msg, e);
 			if (errorCallback != null) {
-				errorCallback.invoke(MediaModule.this, createErrorResponse(UNKNOWN_ERROR, msg));
+				callAsync(errorCallback, createErrorResponse(UNKNOWN_ERROR, msg));
 			}
 		}
 	}
@@ -404,23 +402,23 @@ public class MediaModule extends KrollModule
 	@Kroll.method
 	public void openPhotoGallery(KrollDict options)
 	{
-		V8Callback successCallback = null;
-		V8Callback cancelCallback = null;
-		V8Callback errorCallback = null;
+		KrollFunction successCallback = null;
+		KrollFunction cancelCallback = null;
+		KrollFunction errorCallback = null;
 
 		if (options.containsKey("success")) {
-			successCallback = (V8Callback) options.get("success");
+			successCallback = (KrollFunction) options.get("success");
 		}
 		if (options.containsKey("cancel")) {
-			cancelCallback = (V8Callback) options.get("cancel");
+			cancelCallback = (KrollFunction) options.get("cancel");
 		}
 		if (options.containsKey("error")) {
-			errorCallback = (V8Callback) options.get("error");
+			errorCallback = (KrollFunction) options.get("error");
 		}
 
-		final V8Callback fSuccessCallback = successCallback;
-		final V8Callback fCancelCallback = cancelCallback;
-		final V8Callback fErrorCallback = errorCallback;
+		final KrollFunction fSuccessCallback = successCallback;
+		final KrollFunction fCancelCallback = cancelCallback;
+		final KrollFunction fErrorCallback = errorCallback;
 
 		if (DBG) {
 			Log.d(LCAT, "openPhotoGallery called");
@@ -444,19 +442,19 @@ public class MediaModule extends KrollModule
 					Log.e(LCAT, "OnResult called: " + resultCode);
 					if (resultCode == Activity.RESULT_CANCELED) {
 						if (fCancelCallback != null) {
-							fCancelCallback.invoke(MediaModule.this, new Object[0]);
+							callAsync(fCancelCallback, new Object[0]);
 						}
 					} else {
 						String path = data.getDataString();
 						try {
 							if (fSuccessCallback != null) {
-								fSuccessCallback.invoke(MediaModule.this, createDictForImage(path, "image/jpeg"));
+								callAsync(fSuccessCallback, createDictForImage(path, "image/jpeg"));
 							}
 						} catch (OutOfMemoryError e) {
 							String msg = "Not enough memory to get image: " + e.getMessage();
 							Log.e(LCAT, msg);
 							if (fErrorCallback != null) {
-								fErrorCallback.invoke(MediaModule.this, createErrorResponse(UNKNOWN_ERROR, msg));
+								callAsync(fErrorCallback, createErrorResponse(UNKNOWN_ERROR, msg));
 							}
 						}
 					}
@@ -467,7 +465,7 @@ public class MediaModule extends KrollModule
 					String msg = "Gallery problem: " + e.getMessage();
 					Log.e(LCAT, msg, e);
 					if (fErrorCallback != null) {
-						fErrorCallback.invoke(MediaModule.this, createErrorResponse(UNKNOWN_ERROR, msg));
+						callAsync(fErrorCallback, createErrorResponse(UNKNOWN_ERROR, msg));
 					}
 				}
 			});

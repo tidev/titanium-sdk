@@ -48,7 +48,6 @@ import org.apache.http.conn.params.ConnPerRouteBean;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.scheme.SocketFactory;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.AbstractHttpEntity;
@@ -71,8 +70,8 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.runtime.v8.V8Callback;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiFileProxy;
@@ -318,7 +317,7 @@ public class TiHTTPClient
 			}
 			
 			responseOut.write(data, 0, size);
-			V8Callback onDataStreamCallback = getCallback(ON_DATA_STREAM);
+			KrollFunction onDataStreamCallback = getCallback(ON_DATA_STREAM);
 			if (onDataStreamCallback != null) {
 				KrollDict o = new KrollDict();
 				o.put("totalCount", contentLength);
@@ -332,8 +331,7 @@ public class TiHTTPClient
 				o.put("blob", blob);
 				o.put("progress", ((double)totalSize)/((double)contentLength));
 
-				//onDataStreamCallback.callAsync(o);
-				onDataStreamCallback.invoke(proxy, o);
+				proxy.callAsync(onDataStreamCallback, o);
 			}
 		}
 		
@@ -472,12 +470,12 @@ public class TiHTTPClient
 		return readyState;
 	}
 
-	public V8Callback getCallback(String name)
+	public KrollFunction getCallback(String name)
 	{
 		Object value = proxy.getProperty(name);
-		if (value != null && value instanceof V8Callback)
+		if (value != null && value instanceof KrollFunction)
 		{
-			return (V8Callback) value;
+			return (KrollFunction) value;
 		}
 		return null;
 	}
@@ -492,13 +490,11 @@ public class TiHTTPClient
 
 	public void fireCallback(String name, Object[] args)
 	{
-		V8Callback cb = getCallback(name);
+		KrollFunction cb = getCallback(name);
 		if (cb != null)
 		{
 			// TODO - implement converter method for array to hashmap?
-			//cb.setThisProxy(proxy);
-			//cb.callAsync(args);
-			cb.invoke(proxy, args);
+			proxy.callAsync(cb, args);
 		}
 	}
 
@@ -1100,13 +1096,12 @@ public class TiHTTPClient
 
 						ProgressEntity progressEntity = new ProgressEntity(mpe, new ProgressListener() {
 							public void progress(int progress) {
-								V8Callback cb = getCallback(ON_SEND_STREAM);
+								KrollFunction cb = getCallback(ON_SEND_STREAM);
 								if (cb != null) {
 									KrollDict data = new KrollDict();
 									data.put("progress", ((double)progress)/totalLength);
 									data.put("source", proxy);
-									//cb.callAsync(data);
-									cb.invoke(proxy, data);
+									proxy.callAsync(cb, data);
 								}
 							}
 						});

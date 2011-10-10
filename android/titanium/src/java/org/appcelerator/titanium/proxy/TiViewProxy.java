@@ -14,9 +14,9 @@ import java.util.HashMap;
 import java.util.TreeSet;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.runtime.v8.V8Callback;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.AsyncResult;
@@ -583,7 +583,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	}
 
 	@Kroll.method
-	public void animate(Object arg, @Kroll.argument(optional=true) V8Callback callback)
+	public void animate(Object arg, @Kroll.argument(optional=true) KrollFunction callback)
 	{
 		synchronized (pendingAnimationLock) {
 			if (arg instanceof HashMap) {

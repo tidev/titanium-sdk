@@ -30,7 +30,9 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	
 	<property name="titanium.project.dir" value="${ti.android.root}/titanium"/>
 	<property name="kroll.apt.project.dir" value="${ti.android.root}/kroll-apt"/>
+	<property name="kroll.common.project.dir" value="${ti.android.root}/runtime/common"/>
 	<property name="kroll.v8.project.dir" value="${ti.android.root}/runtime/v8"/>
+	<property name="kroll.rhino.project.dir" value="${ti.android.root}/runtime/rhino"/>
 	<property name="ndk.build" value="${kroll.v8.project.dir}/ndk-build.sh"/>
 
 	<property name="modules.dir" value="${ti.android.root}/modules"/>
@@ -102,8 +104,16 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<fileset dir="${kroll.apt.project.dir}/lib" includes="**/*.jar"/>
 	</path>
 
+	<path id="kroll.common.path">
+		<pathelement path="${kroll.common.project.dir}/bin"/>
+	</path>
+
 	<path id="kroll.v8.path">
 		<pathelement path="${kroll.v8.project.dir}/bin"/>
+	</path>
+
+	<path id="kroll.rhino.path">
+		<pathelement path="${kroll.rhino.project.dir}/bin"/>
 	</path>
 
 	<path id="titanium.path">
@@ -246,7 +256,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 				<extra.javac.classpath/>
 				<classpath refid="kroll.apt.path"/>
 				<classpath refid="titanium.path"/>
-				<classpath refid="kroll.v8.path"/>
+				<classpath refid="kroll.common.path"/>
 			</build.project.annotations>
 			<build.project
 				name="@{name}"
@@ -268,7 +278,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 					<classpath refid="android"/>
 					<classpath refid="kroll.apt.path"/>
 					<classpath refid="titanium.path"/>
-					<classpath refid="kroll.v8.path"/>
+					<classpath refid="kroll.common.path"/>
 					<classpath>
 						<pathelement path="@{build.dir}"/>
 					</classpath>
@@ -326,7 +336,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		</sequential>
 	</macrodef>
 
-	<target name="generate.bindings">
+	<target name="generate.kroll.v8.bindings">
 		<mkdir dir="${dist.json.dir}"/>
 		<apply executable="java" parallel="true" failonerror="true">
 			<arg value="-classpath"/>
@@ -337,7 +347,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		</apply>
 	</target>
 
-	<target name="build.kroll.v8.so" depends="generate.bindings">
+	<target name="build.kroll.v8.so" depends="generate.kroll.v8.bindings">
 		<exec executable="${ndk.build}" dir="${kroll.v8.project.dir}" failonerror="true">
 			<env key="ANDROID_NDK" file="${android.ndk}"/>
 		</exec>
@@ -348,10 +358,24 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		</copy>
 	</target>
 
-	<target name="build.kroll.v8.jar">
+	<target name="build.kroll.common.jar">
+		<mkdir dir="${kroll.common.project.dir}/bin"/>
+		<javac srcdir="${kroll.common.project.dir}/src/java" destdir="${kroll.common.project.dir}/bin">
+			<classpath refid="android"/>
+		</javac>
+
+		<property name="kroll.common.dest" value="${dist.dir}/kroll-common.jar"/>
+		<jar destfile="${kroll.common.dest}" basedir="${kroll.common.project.dir}/bin"/>
+
+	</target>
+
+	<target name="build.kroll.v8.jar" depends="build.kroll.common.jar">
 		<mkdir dir="${kroll.v8.project.dir}/bin"/>
 		<javac srcdir="${kroll.v8.project.dir}/src/java" destdir="${kroll.v8.project.dir}/bin">
 			<classpath refid="android"/>
+			<classpath>
+				<fileset file="${dist.dir}/kroll-common.jar"/>
+			</classpath>
 		</javac>
 
 		<property name="kroll.v8.dest" value="${dist.dir}/kroll-v8.jar"/>
@@ -361,11 +385,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<target name="build.titanium" depends="build.kroll.v8.jar">
 		<property name="build.dir" value="${titanium.project.dir}/bin"/>
 
-		<build.module.project name="titanium" dir="${ti.android.root}/titanium" build.dir="${build.dir}">
-			<extra.javac.args>
-				<classpath refid="kroll.v8.path"/>
-			</extra.javac.args>
-		</build.module.project>
+		<build.module.project name="titanium" dir="${ti.android.root}/titanium" build.dir="${build.dir}"/>
 	</target>
 	
 	<target name="build.titanium.javadoc">

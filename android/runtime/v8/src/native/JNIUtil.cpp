@@ -40,11 +40,10 @@ jclass JNIUtil::outOfMemoryError = NULL;
 jclass JNIUtil::nullPointerException = NULL;
 jclass JNIUtil::throwableClass = NULL;
 
-jclass JNIUtil::managedV8ReferenceClass = NULL;
 jclass JNIUtil::v8ObjectClass = NULL;
-jclass JNIUtil::v8CallbackClass = NULL;
-jclass JNIUtil::v8InvocationClass = NULL;
-jclass JNIUtil::eventEmitterClass = NULL;
+jclass JNIUtil::v8FunctionClass = NULL;
+jclass JNIUtil::krollInvocationClass = NULL;
+jclass JNIUtil::krollObjectClass = NULL;
 jclass JNIUtil::krollProxyClass = NULL;
 jclass JNIUtil::tiAssetHelperClass = NULL;
 
@@ -68,18 +67,20 @@ jmethodID JNIUtil::longInitMethod = NULL;
 jmethodID JNIUtil::numberDoubleValueMethod = NULL;
 jmethodID JNIUtil::throwableGetMessageMethod = NULL;
 
-jfieldID JNIUtil::managedV8ReferencePtrField = NULL;
-jmethodID JNIUtil::krollProxyCreateMethod = NULL;
+jfieldID JNIUtil::v8ObjectPtrField = NULL;
+jmethodID JNIUtil::v8ObjectInitMethod = NULL;
+jmethodID JNIUtil::v8FunctionInitMethod = NULL;
+
+jmethodID JNIUtil::krollInvocationInitMethod = NULL;
+jmethodID JNIUtil::krollObjectSetHasListenersForEventTypeMethod = NULL;
+jmethodID JNIUtil::krollProxyCreateProxyMethod = NULL;
+jfieldID JNIUtil::krollProxyKrollObjectField = NULL;
 jfieldID JNIUtil::krollProxyModelListenerField = NULL;
 jmethodID JNIUtil::krollProxySetIndexedPropertyMethod = NULL;
 jmethodID JNIUtil::krollProxyGetIndexedPropertyMethod = NULL;
 jmethodID JNIUtil::krollProxyOnPropertyChangedMethod = NULL;
 jmethodID JNIUtil::krollProxyOnPropertiesChangedMethod = NULL;
-jmethodID JNIUtil::v8ObjectInitMethod = NULL;
 jmethodID JNIUtil::tiAssetHelperReadAssetMethod = NULL;
-jmethodID JNIUtil::eventEmitterHasListenersForEventTypeMethod = NULL;
-jmethodID JNIUtil::v8CallbackInitMethod = NULL;
-jmethodID JNIUtil::v8InvocationInitMethod = NULL;
 
 JNIEnv* JNIScope::current = NULL;
 
@@ -261,13 +262,12 @@ void JNIUtil::initCache()
 	nullPointerException = findClass("java/lang/NullPointerException");
 	throwableClass = findClass("java/lang/Throwable");
 
-	krollProxyClass = findClass("org/appcelerator/kroll/KrollProxy");
 	v8ObjectClass = findClass("org/appcelerator/kroll/runtime/v8/V8Object");
-	managedV8ReferenceClass = findClass("org/appcelerator/kroll/runtime/v8/ManagedV8Reference");
+	v8FunctionClass = findClass("org/appcelerator/kroll/runtime/v8/V8Function");
+	krollInvocationClass = findClass("org/appcelerator/kroll/KrollInvocation");
+	krollObjectClass = findClass("org/appcelerator/kroll/KrollObject");
+	krollProxyClass = findClass("org/appcelerator/kroll/KrollProxy");
 	tiAssetHelperClass = findClass("org/appcelerator/titanium/util/TiAssetHelper");
-	eventEmitterClass = findClass("org/appcelerator/kroll/runtime/v8/EventEmitter");
-	v8CallbackClass = findClass("org/appcelerator/kroll/runtime/v8/V8Callback");
-	v8InvocationClass = findClass("org/appcelerator/kroll/runtime/v8/V8Invocation");
 
 	classGetNameMethod = getMethodID(classClass, "getName", "()Ljava/lang/String;", false);
 	arrayListInitMethod = getMethodID(arrayListClass, "<init>", "()V", false);
@@ -293,10 +293,17 @@ void JNIUtil::initCache()
 	numberDoubleValueMethod = getMethodID(numberClass, "doubleValue", "()D", false);
 	throwableGetMessageMethod = getMethodID(throwableClass, "getMessage", "()Ljava/lang/String;", false);
 
+	v8ObjectPtrField = getFieldID(v8ObjectClass, "ptr", "J");
 	v8ObjectInitMethod = getMethodID(v8ObjectClass, "<init>", "(J)V", false);
-	managedV8ReferencePtrField = getFieldID(managedV8ReferenceClass, "ptr", "J");
-	krollProxyCreateMethod = getMethodID(krollProxyClass, "create",
-		"(Ljava/lang/Class;[Ljava/lang/Object;JLjava/lang/String;)Lorg/appcelerator/kroll/KrollProxy;", true);
+	v8FunctionInitMethod = getMethodID(v8FunctionClass, "<init>", "(J)V", false);
+
+	krollInvocationInitMethod = getMethodID(krollInvocationClass, "<init>", "(Ljava/lang/String;)V", false);
+	krollObjectSetHasListenersForEventTypeMethod = getMethodID(krollObjectClass, "setHasListenersForEventType",
+		"(Ljava/lang/String;Z)V");
+
+	krollProxyCreateProxyMethod = getMethodID(krollProxyClass, "createProxy",
+		"(Ljava/lang/Class;Lorg/appcelerator/kroll/KrollObject;[Ljava/lang/Object;Ljava/lang/String;)Lorg/appcelerator/kroll/KrollProxy;", true);
+	krollProxyKrollObjectField = getFieldID(krollProxyClass, "krollObject", "Lorg/appcelerator/kroll/KrollObject;");
 	krollProxyModelListenerField = getFieldID(krollProxyClass, "modelListener", "Lorg/appcelerator/kroll/KrollProxyListener;");
 	krollProxySetIndexedPropertyMethod = getMethodID(krollProxyClass, "setIndexedProperty", "(ILjava/lang/Object;)V");
 	krollProxyGetIndexedPropertyMethod = getMethodID(krollProxyClass, "getIndexedProperty", "(I)Ljava/lang/Object;");
@@ -306,11 +313,7 @@ void JNIUtil::initCache()
 		"([[Ljava/lang/Object;)V", false);
 
 	tiAssetHelperReadAssetMethod = getMethodID(tiAssetHelperClass, "readAsset", "(Ljava/lang/String;)Ljava/lang/String;", true);
-	eventEmitterHasListenersForEventTypeMethod = getMethodID(eventEmitterClass, "hasListenersForEventType",
-		"(Ljava/lang/String;Z)V");
 
-	v8CallbackInitMethod = getMethodID(v8CallbackClass, "<init>", "(J)V", false);
-	v8InvocationInitMethod = getMethodID(v8InvocationClass, "<init>", "(Ljava/lang/String;)V", false);
 }
 
 } // namespace titanium

@@ -8,6 +8,13 @@ package ${config['appid']};
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollModuleInfo;
+import org.appcelerator.kroll.KrollRuntime;
+
+% if runtime == "v8":
+import org.appcelerator.kroll.runtime.v8.V8Runtime;
+% else:
+import org.appcelerator.kroll.runtime.rhino.RhinoRuntime;
+% endif
 
 import java.util.List;
 import java.util.ArrayList;
@@ -26,6 +33,13 @@ public final class ${config['classname']}Application extends TiApplication
 
 		appInfo = new ${config['classname']}AppInfo(this);
 		postAppInfo();
+
+		% if runtime == "v8":
+		KrollRuntime.init(new V8Runtime());
+		% else:
+		KrollRuntime.init(new RhinoRuntime());
+		% endif
+
 		stylesheet = new ApplicationStylesheet();
 		postOnCreate();
 

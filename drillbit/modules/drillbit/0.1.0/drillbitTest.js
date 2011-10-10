@@ -93,12 +93,12 @@ var DrillbitTest =
 			var eventName = "complete";
 			if (Ti.Platform.osname == "android") {
 				// TODO just return this as an object
-				Ti.dumpCoverage();
+				// TODO re-enable coverage Ti.dumpCoverage();
 				var resultsFile = Ti.Filesystem.getFile("appdata://results.json");
 				resultsFile.write(JSON.stringify(results));
 				eventName = "completeAndroid";
 				resultsInfo.resultsPath = resultsFile.getNativePath();
-				resultsInfo.coveragePath = Ti.Filesystem.getFile("appdata://coverage.json").getNativePath();
+				// TODO re-enable coverage resultsInfo.coveragePath = Ti.Filesystem.getFile("appdata://coverage.json").getNativePath();
 			} else {
 				coverage = Ti.dumpCoverage();
 				resultsInfo.results = results;

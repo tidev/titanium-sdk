@@ -104,9 +104,9 @@ void Proxy::onPropertyChanged(Local<String> property, Local<Value> value, const 
 	}
 
 	env->CallVoidMethod(proxy->getJavaObject(),
-	                    JNIUtil::krollProxyOnPropertyChangedMethod,
-	                    TypeConverter::jsStringToJavaString(property),
-	                    TypeConverter::jsValueToJavaObject(value));
+		JNIUtil::krollProxyOnPropertyChangedMethod,
+		TypeConverter::jsStringToJavaString(property),
+		TypeConverter::jsValueToJavaObject(value));
 }
 
 Handle<Value> Proxy::getIndexedProperty(uint32_t index, const AccessorInfo& info)
@@ -118,8 +118,8 @@ Handle<Value> Proxy::getIndexedProperty(uint32_t index, const AccessorInfo& info
 
 	Proxy* proxy = NativeObject::Unwrap<Proxy>(info.Holder());
 	jobject value = env->CallObjectMethod(proxy->getJavaObject(),
-	                                      JNIUtil::krollProxyGetIndexedPropertyMethod,
-	                                      index);
+		JNIUtil::krollProxyGetIndexedPropertyMethod,
+		index);
 
 	return TypeConverter::javaObjectToJsValue(value);
 }
@@ -134,31 +134,33 @@ Handle<Value> Proxy::setIndexedProperty(uint32_t index, Local<Value> value, cons
 
 	Proxy* proxy = NativeObject::Unwrap<Proxy>(info.Holder());
 	env->CallVoidMethod(proxy->getJavaObject(),
-	                    JNIUtil::krollProxySetIndexedPropertyMethod,
-	                    index,
-	                    TypeConverter::jsValueToJavaObject(value));
+		JNIUtil::krollProxySetIndexedPropertyMethod,
+		index,
+		TypeConverter::jsValueToJavaObject(value));
 
 	return value;
 }
 
 Handle<Value> Proxy::hasListenersForEventType(const Arguments& args)
 {
-    JNIEnv* env = JNIScope::getEnv();
-    if (!env) {
-        return JSException::GetJNIEnvironmentError();
-    }
+	JNIEnv* env = JNIScope::getEnv();
+	if (!env) {
+		return JSException::GetJNIEnvironmentError();
+	}
 
 	Proxy* proxy = NativeObject::Unwrap<Proxy>(args.Holder());
 
-    Local<String> eventType = args[0]->ToString();
-    Local<Boolean> hasListeners = args[1]->ToBoolean();
+	Local<String> eventType = args[0]->ToString();
+	Local<Boolean> hasListeners = args[1]->ToBoolean();
 
-    env->CallVoidMethod(proxy->getJavaObject(),
-                        JNIUtil::eventEmitterHasListenersForEventTypeMethod,
-                        TypeConverter::jsStringToJavaString(eventType),
-                        TypeConverter::jsBooleanToJavaBoolean(hasListeners));
+	jobject krollObject = env->GetObjectField(proxy->getJavaObject(), JNIUtil::krollProxyKrollObjectField);
 
-    return Undefined();
+	env->CallVoidMethod(krollObject,
+		JNIUtil::krollObjectSetHasListenersForEventTypeMethod,
+		TypeConverter::jsStringToJavaString(eventType),
+		TypeConverter::jsBooleanToJavaBoolean(hasListeners));
+
+	return Undefined();
 }
 
 Handle<FunctionTemplate> Proxy::inheritProxyTemplate(

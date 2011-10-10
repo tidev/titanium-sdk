@@ -87,7 +87,12 @@ Handle<Object> ProxyFactory::createV8Proxy(jclass javaClass, jobject javaProxy)
 
 	// set the pointer back on the java proxy
 	jlong ptr = (jlong) *Persistent<Object>::New(v8Proxy);
-	env->SetLongField(javaProxy, JNIUtil::managedV8ReferencePtrField, ptr);
+
+	jobject javaV8Object = env->NewObject(JNIUtil::v8ObjectClass,
+		JNIUtil::v8ObjectInitMethod, ptr);
+
+	env->SetObjectField(javaProxy,
+		JNIUtil::krollProxyKrollObjectField, javaV8Object);
 
 	return scope.Close(v8Proxy);
 }
@@ -150,10 +155,13 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 
 	//LOGV(TAG, "calling KrollProxy.create");
 
+	jobject javaV8Object = env->NewObject(JNIUtil::v8ObjectClass,
+		JNIUtil::v8ObjectInitMethod, pv8Proxy);
+
 	// Create the java proxy using the creator static method provided.
 	// Send along a pointer to the v8 proxy so the two are linked.
 	jobject javaProxy = env->CallStaticObjectMethod(JNIUtil::krollProxyClass,
-		info->javaProxyCreator, javaClass, javaArgs, pv8Proxy, javaSourceUrl);
+		info->javaProxyCreator, javaClass, javaV8Object, javaArgs, javaSourceUrl);
 
 	//LOGV(TAG, "delete source url? %d", javaSourceUrl);
 
@@ -186,7 +194,7 @@ void ProxyFactory::registerProxyPair(jclass javaProxyClass, FunctionTemplate* v8
 
 	ProxyInfo info;
 	info.v8ProxyTemplate = v8ProxyTemplate;
-	info.javaProxyCreator = JNIUtil::krollProxyCreateMethod;
+	info.javaProxyCreator = JNIUtil::krollProxyCreateProxyMethod;
 
 	factories[javaProxyClass] = info;
 }

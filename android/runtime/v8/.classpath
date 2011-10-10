@@ -3,5 +3,6 @@
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="src" path="src/java"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
+	<classpathentry kind="src" path="kroll-common_src_java"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

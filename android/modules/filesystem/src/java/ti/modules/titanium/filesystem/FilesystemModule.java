@@ -9,9 +9,9 @@ package ti.modules.titanium.filesystem;
 import java.io.File;
 import java.io.IOException;
 
+import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.runtime.v8.V8Invocation;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -33,7 +33,7 @@ public class FilesystemModule extends KrollModule
 
 	// Methods
 	@Kroll.method
-	public FileProxy createTempFile(V8Invocation invocation)
+	public FileProxy createTempFile(KrollInvocation invocation)
 	{
 		try {
 			File f = File.createTempFile("tifile", "tmp");
@@ -46,7 +46,7 @@ public class FilesystemModule extends KrollModule
 	}
 
 	@Kroll.method
-	public FileProxy createTempDirectory(V8Invocation invocation)
+	public FileProxy createTempDirectory(KrollInvocation invocation)
 	{
 		String dir = String.valueOf(System.currentTimeMillis());
 		File tmpdir = new File(System.getProperty("java.io.tmpdir"));
@@ -63,7 +63,7 @@ public class FilesystemModule extends KrollModule
 	}
 
 	@Kroll.method
-	public FileProxy getFile(V8Invocation invocation, Object[] parts)
+	public FileProxy getFile(KrollInvocation invocation, Object[] parts)
 	{
 		String[] sparts = TiConvert.toStringArray(parts);
 		return new FileProxy(invocation.getSourceUrl(), sparts);
@@ -113,7 +113,7 @@ public class FilesystemModule extends KrollModule
 	}
 
 	@Kroll.method
-	public FileStreamProxy openStream(V8Invocation invocation, int mode, Object[] parts) throws IOException
+	public FileStreamProxy openStream(KrollInvocation invocation, int mode, Object[] parts) throws IOException
 	{
 		String[] sparts = TiConvert.toStringArray(parts);
 		FileProxy fileProxy = new FileProxy(invocation.getSourceUrl(), sparts);

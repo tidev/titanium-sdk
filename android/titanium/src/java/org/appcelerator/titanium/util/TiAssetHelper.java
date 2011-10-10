@@ -9,6 +9,7 @@ package org.appcelerator.titanium.util;
 import java.io.IOException;
 
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 
 import android.app.Activity;
 import android.content.res.AssetManager;

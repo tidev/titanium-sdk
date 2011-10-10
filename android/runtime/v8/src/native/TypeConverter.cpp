@@ -158,7 +158,7 @@ jobject TypeConverter::jsObjectToJavaFunction(v8::Handle<v8::Object> jsObject)
 	}
 
 	jlong pointer = (jlong) *Persistent<Function>::New(Handle<Function>::Cast(jsObject));
-	return env->NewObject(JNIUtil::v8CallbackClass, JNIUtil::v8CallbackInitMethod, pointer);
+	return env->NewObject(JNIUtil::v8FunctionClass, JNIUtil::v8FunctionInitMethod, pointer);
 }
 
 jobjectArray TypeConverter::jsArgumentsToJavaArray(const Arguments& args)
@@ -425,26 +425,21 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 		env->DeleteLocalRef(hashMapKeys);
 
 		return jsObject;
-	} else if (env->IsInstanceOf(javaObject, JNIUtil::managedV8ReferenceClass)) {
-		//LOGV(TAG, "ManagedV8Reference");
-		jlong v8ObjectPointer = env->GetLongField(javaObject, JNIUtil::managedV8ReferencePtrField);
-		//LOGV(TAG, "ptr = %d", v8ObjectPointer);
-		if (v8ObjectPointer != 0) {
-			//LOGV(TAG, "casting");
-			return Persistent<Object>((Object *) v8ObjectPointer);
-		} else {
-			//LOGV(TAG, "get object class");
-			jclass javaObjectClass = env->GetObjectClass(javaObject);
-			//LOGV(TAG, "create v8 proxy");
-			v8::Handle<v8::Object> proxyHandle = ProxyFactory::createV8Proxy(javaObjectClass, javaObject);
-			//LOGV(TAG, "delete local ref");
-			env->DeleteLocalRef(javaObjectClass);
-			//LOGV(TAG, "return proxy handle");
-			return proxyHandle;
+	} else if (env->IsInstanceOf(javaObject, JNIUtil::krollProxyClass)) {
+		jobject krollObject = env->GetObjectField(javaObject, JNIUtil::krollProxyKrollObjectField);
+		if (krollObject) {
+			jlong v8ObjectPointer = env->GetLongField(krollObject, JNIUtil::v8ObjectPtrField);
+			if (v8ObjectPointer != 0) {
+				return Persistent<Object>((Object *) v8ObjectPointer);
+			}
 		}
 
+		jclass javaObjectClass = env->GetObjectClass(javaObject);
+		v8::Handle<v8::Object> proxyHandle = ProxyFactory::createV8Proxy(javaObjectClass, javaObject);
+		env->DeleteLocalRef(javaObjectClass);
+		return proxyHandle;
+
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::objectArrayClass)) {
-		//LOGV(TAG, "Object[]");
 		return javaArrayToJsArray((jobjectArray) javaObject);
 
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::shortArrayClass)) {
