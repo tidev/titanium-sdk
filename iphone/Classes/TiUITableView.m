@@ -399,6 +399,27 @@
 	{
 		if ([section parent] == ourProxy)
 		{
+            // Due to the "traditional" way of aligning data in the stack in Titanium apps
+            // (creating rows, then passing an array of them into setData()) it would take
+            // TWO garbage collection passes to collect rows when a section is removed
+            // (one pass to remove the section, and then an additional pass to remove the
+            // newly freed rows that appear earlier on the stack).
+            // We want to avoid that, and should forget the rows on a section before it's
+            // deallocated, to take advantage of aggressive GC and better handle memory warnings.
+            // For apps with lots of rows, this makes a HUGE difference and can determine
+            // whether jetsam kills with an L2 or the app is blessed to continue.
+            // 
+            // This isn't an issue if row r_1 is used in both section_a and section_b, where
+            // tableView.setData(section_b) replaces tableView.data == section_a. This is
+            // because section_b remembers the row proxies before section_a forgets them,
+            // keeping memory consistent where required.
+            
+            for (TiUITableViewRowProxy* row in [section rows]) {
+                [row setTable:nil];
+                [row setSection:nil];
+                [section forgetProxy:row];
+            }
+            
 			[section setTable:nil];
 			[section setParent:nil];
 			[self.proxy forgetProxy:section];
