@@ -44,6 +44,18 @@
 	[super dealloc];
 }
 
+-(void)setProxy:(TiUITableViewRowProxy *)proxy_
+{
+    if (proxy == proxy_) {
+        return;
+    }
+    
+    if ([proxy callbackCell] == self) {
+        [proxy setCallbackCell:nil];
+    }
+    proxy = proxy_;
+}
+
 -(CGSize)computeCellSize
 {
     CGFloat width = 0;

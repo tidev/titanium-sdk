@@ -256,21 +256,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 @synthesize tableClass, table, section, row, callbackCell;
 
--(void)setCallbackCell:(TiUITableViewCell *)newValue
-{
-    // Don't want to set our callback's proxy to nil accidentally
-	if (newValue == callbackCell)
-	{
-		return;
-	}
-    
-	if ([callbackCell proxy] == self)
-	{
-		[callbackCell setProxy:nil];
-	}
-    callbackCell = newValue;
-}
-
 -(void)_destroy
 {
 	RELEASE_TO_NIL(tableClass);
