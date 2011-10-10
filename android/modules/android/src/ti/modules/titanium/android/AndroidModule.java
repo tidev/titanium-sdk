@@ -356,4 +356,11 @@ public class AndroidModule extends KrollModule
 	    CookieManager cookieManager = CookieManager.getInstance();
 	    cookieManager.removeAllCookie();
 	}
+	
+	@Kroll.method
+	public void setCookie (KrollInvocation invocation, String url, String value) {
+		CookieSyncManager.createInstance(invocation.getTiContext().getTiApp()); 
+	    CookieManager cookieManager = CookieManager.getInstance();
+	    cookieManager.setCookie(url, value);
+	}
 }

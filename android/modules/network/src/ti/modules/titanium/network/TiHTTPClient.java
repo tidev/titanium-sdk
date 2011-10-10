@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.util.regex.MatchResult;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -43,6 +46,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.protocol.RequestAddCookies;
 import org.apache.http.conn.params.ConnManagerParams;
 import org.apache.http.conn.params.ConnPerRouteBean;
 import org.apache.http.conn.scheme.PlainSocketFactory;
@@ -89,6 +93,10 @@ import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
 import android.net.Uri;
 
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
+
+
 public class TiHTTPClient
 {
 	private static final String LCAT = "TiHttpClient";
@@ -128,6 +136,7 @@ public class TiHTTPClient
 	private HttpHost host;
 	private LocalResponseHandler handler;
 	private Credentials credentials;
+	private CookieManager cookieManager;
 
 	private TiBlob responseData;
 	private OutputStream responseOut;
@@ -166,6 +175,30 @@ public class TiHTTPClient
 			// in some cases we have to manually replace spaces in the URI (probably because the HTTP server isn't correctly escaping them)
 			String location = locationHeader.getValue().replaceAll (" ", "%20");
 			response.setHeader("location", location);
+			
+			//Custom logic to set cookies by Jeff Cross 10/7/11
+			Header[] setCookieHeaders = response.getHeaders("Set-Cookie");
+			
+			if (cookieManager == null) {
+				try {
+					cookieManager = CookieManager.getInstance();
+				}
+				catch (Exception e) {
+					Log.w(LCAT, "No instance of cookie manager yet");
+					CookieSyncManager.createInstance(proxy.getTiContext().getTiApp());
+					cookieManager = CookieManager.getInstance();
+				}
+			}
+			
+			Pattern p = Pattern.compile("http[s]?://([A-Za-z0-9\\:\\.\\-])*");
+			Matcher m = p.matcher(location);
+			if (m.find()) {
+				String domain = m.group(0);
+				Log.w(LCAT, "Domain in redirect is: " + domain);
+				for (Header cookieHeader : setCookieHeaders) {
+					cookieManager.setCookie(domain, cookieHeader.getValue());
+				}
+			}
 			
 			return super.getLocationURI(response, context);
 		}
@@ -446,6 +479,14 @@ public class TiHTTPClient
 		this.parts = new HashMap<String,ContentBody>();
 		this.maxBufferSize = proxy.getTiContext().getTiApp()
 			.getSystemProperties().getInt(PROPERTY_MAX_BUFFER_SIZE, DEFAULT_MAX_BUFFER_SIZE);
+			
+		try {
+			cookieManager = CookieManager.getInstance();
+		}
+		finally {
+			CookieSyncManager.createInstance(proxy.getTiContext().getTiApp());
+			cookieManager = CookieManager.getInstance();
+		}
 	}
 
 	public int getReadyState() {
@@ -935,6 +976,9 @@ public class TiHTTPClient
 			Log.d(LCAT, this.url);
 		}
 		request = new DefaultHttpRequestFactory().newHttpRequest(method, this.url);
+		
+		request.setHeader("cookie:", cookieManager.getCookie(this.url));
+		
 		for (String header : headers.keySet()) {
 			request.setHeader(header, headers.get(header));
 		}
