@@ -40,7 +40,7 @@ public class ActivityProxy extends KrollProxy
 	{
 		setWrappedActivity(activity);
 	}
-	
+
 	public void setWrappedActivity(Activity activity)
 	{
 		this.wrappedActivity = activity;

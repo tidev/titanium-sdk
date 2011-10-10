@@ -59,7 +59,7 @@ Module.prototype.load = function (filename, source) {
 	this.filename = filename;
 
 	if (!source) {
-		source = assets.readResource(filename);
+		source = assets.readAsset(filename);
 	}
 
 	this._runScript(source, filename);
@@ -175,7 +175,7 @@ var fileIndex;
 
 function filenameExists(filename) {
 	if (!fileIndex) {
-		var json = assets.readResource("index.json");
+		var json = assets.readAsset("index.json");
 		fileIndex = JSON.parse(json);
 	}
 

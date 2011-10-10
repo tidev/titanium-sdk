@@ -13,6 +13,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiAssetHelper;
 import org.appcelerator.titanium.util.TiConfig;
 
 import android.os.Handler;
@@ -71,14 +72,9 @@ public class KrollContext implements Handler.Callback
 		switch (msg.what)
 		{
 			case MSG_EVAL_STRING : {
-				/*AsyncResult result = (AsyncResult) msg.obj;
-				String src = msg.getData().getString(TiC.MSG_PROPERTY_SRC);
-				result.setResult(handleEval(src));
-				return true;*/
 			}
 			case MSG_EVAL_FILE : {
 				AsyncResult result = (AsyncResult) msg.obj;
-				V8Object scope = (V8Object) result.getArg();
 				String filename = msg.getData().getString(TiC.MSG_PROPERTY_FILENAME);
 				result.setResult(handleEvalFile(filename));
 				return true;
@@ -101,15 +97,6 @@ public class KrollContext implements Handler.Callback
 	protected boolean isOurThread()
 	{
 		return TiApplication.isUIThread();
-	}
-
-	public V8Object createScope()
-	{
-		AsyncResult result = new AsyncResult();
-		Message msg = messageQueue.getHandler().obtainMessage(MSG_CREATE_SCOPE, result);
-
-		return (V8Object) TiMessageQueue.getMessageQueue().
-			sendBlockingMessage(msg, messageQueue, result);
 	}
 
 	public Object evalFile(String filename)
@@ -158,7 +145,9 @@ public class KrollContext implements Handler.Callback
 
 	public Object handleEvalFile(String filename)
 	{
-		V8Runtime.getInstance().evalFile(filename);
+		V8Runtime.getInstance().runModule(
+			TiAssetHelper.readAsset(filename), filename);
+
 		return null;
 	}
 

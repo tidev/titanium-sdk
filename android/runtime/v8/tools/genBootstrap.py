@@ -1,4 +1,13 @@
 #!/usr/bin/env python
+#
+# Appcelerator Titanium Mobile
+# Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+# Licensed under the terms of the Apache Public License
+# Please see the LICENSE included with this distribution for details.
+#
+# Generates javascript bootstrapping code for Titanium Mobile
+#
+
 import os, re, sys, json
 
 thisDir = os.path.abspath(os.path.dirname(__file__))

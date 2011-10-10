@@ -27,11 +27,11 @@ void AssetsModule::Initialize(Handle<Object> target)
 {
 	HandleScope scope;
 
-	DEFINE_METHOD(target, "readResource", readResource);
+	DEFINE_METHOD(target, "readAsset", readAsset);
 	DEFINE_METHOD(target, "readFile", readFile);
 }
 
-Handle<Value> AssetsModule::readResource(const Arguments& args)
+Handle<Value> AssetsModule::readAsset(const Arguments& args)
 {
 	if (args.Length() < 1) {
 		return JSException::Error("Missing required argument 'resourceName'.");
@@ -44,9 +44,9 @@ Handle<Value> AssetsModule::readResource(const Arguments& args)
 		return JSException::GetJNIEnvironmentError();
 	}
 
-	jcharArray jarray = (jcharArray) env->CallStaticObjectMethod(
-		JNIUtil::assetsClass,
-		JNIUtil::assetsReadResourceMethod,
+	jstring assetData = (jstring) env->CallStaticObjectMethod(
+		JNIUtil::tiAssetHelperClass,
+		JNIUtil::tiAssetHelperReadAssetMethod,
 		resourceName);
 
 	env->DeleteLocalRef(resourceName);
@@ -58,18 +58,19 @@ Handle<Value> AssetsModule::readResource(const Arguments& args)
 		return JSException::Error("Failed to load resource, Java exception was thrown.");
 	}
 
-	if (!jarray) {
+	if (!assetData) {
 		return v8::Null();
 	}
 
-	jint len = env->GetArrayLength(jarray);
-	jchar *pchars = (jchar*) env->GetPrimitiveArrayCritical(jarray, 0);
-	if (!pchars) {
+	jint len = env->GetStringLength(assetData);
+	const jchar *assetChars = env->GetStringChars(assetData, NULL);
+	if (!assetChars) {
 		return v8::Null();
 	}
 
-	Local<String> resourceData = String::New(pchars, len);
-	env->ReleasePrimitiveArrayCritical(jarray, pchars, 0);
+	Local<String> resourceData = String::New(assetChars, len);
+	env->ReleaseStringChars(assetData, assetChars);
+	env->DeleteLocalRef(assetData);
 
 	return resourceData;
 }

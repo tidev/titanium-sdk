@@ -65,11 +65,11 @@ public:
 	// Titanium classes
 	static jclass managedV8ReferenceClass;
 	static jclass v8ObjectClass;
-	static jclass eventEmitterClass;
 	static jclass v8CallbackClass;
-	static jclass assetsClass;
-	static jclass krollProxyClass;
 	static jclass v8InvocationClass;
+	static jclass eventEmitterClass;
+	static jclass krollProxyClass;
+	static jclass tiAssetHelperClass;
 
 	// Java methods
 	static jmethodID classGetNameMethod;
@@ -95,7 +95,6 @@ public:
 	// Titanium methods and fields
 	static jfieldID managedV8ReferencePtrField;
 	static jmethodID v8ObjectInitMethod;
-	static jmethodID assetsReadResourceMethod;
 	static jmethodID eventEmitterHasListenersForEventTypeMethod;
 	static jmethodID v8CallbackInitMethod;
 	static jmethodID v8InvocationInitMethod;
@@ -107,6 +106,7 @@ public:
 	static jmethodID krollProxyOnPropertyChangedMethod;
 	static jmethodID krollProxyOnPropertiesChangedMethod;
 
+	static jmethodID tiAssetHelperReadAssetMethod;
 
 };
 

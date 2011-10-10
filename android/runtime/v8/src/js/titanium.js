@@ -26,7 +26,7 @@ function TiInclude(filename, baseUrl) {
 	var source;
 
 	if (!('protocol' in sourceUrl)) {
-		source = assets.readResource(filename);
+		source = assets.readAsset(filename);
 
 	} else if (sourceUrl.filePath) {
 		var filepath = url.toFilePath(sourceUrl);
@@ -34,7 +34,7 @@ function TiInclude(filename, baseUrl) {
 
 	} else if (sourceUrl.assetPath) {
 		var assetPath = url.toAssetPath(sourceUrl);
-		source = assets.readResource(assetPath);
+		source = assets.readAsset(assetPath);
 	}
 
 	Titanium.runInContext(source, sourceUrl.href, true);

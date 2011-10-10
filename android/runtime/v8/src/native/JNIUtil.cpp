@@ -40,13 +40,13 @@ jclass JNIUtil::outOfMemoryError = NULL;
 jclass JNIUtil::nullPointerException = NULL;
 jclass JNIUtil::throwableClass = NULL;
 
-jclass JNIUtil::krollProxyClass = NULL;
-jclass JNIUtil::v8ObjectClass = NULL;
 jclass JNIUtil::managedV8ReferenceClass = NULL;
-jclass JNIUtil::assetsClass = NULL;
-jclass JNIUtil::eventEmitterClass = NULL;
+jclass JNIUtil::v8ObjectClass = NULL;
 jclass JNIUtil::v8CallbackClass = NULL;
 jclass JNIUtil::v8InvocationClass = NULL;
+jclass JNIUtil::eventEmitterClass = NULL;
+jclass JNIUtil::krollProxyClass = NULL;
+jclass JNIUtil::tiAssetHelperClass = NULL;
 
 jmethodID JNIUtil::classGetNameMethod = NULL;
 jmethodID JNIUtil::arrayListInitMethod = NULL;
@@ -76,7 +76,7 @@ jmethodID JNIUtil::krollProxyGetIndexedPropertyMethod = NULL;
 jmethodID JNIUtil::krollProxyOnPropertyChangedMethod = NULL;
 jmethodID JNIUtil::krollProxyOnPropertiesChangedMethod = NULL;
 jmethodID JNIUtil::v8ObjectInitMethod = NULL;
-jmethodID JNIUtil::assetsReadResourceMethod = NULL;
+jmethodID JNIUtil::tiAssetHelperReadAssetMethod = NULL;
 jmethodID JNIUtil::eventEmitterHasListenersForEventTypeMethod = NULL;
 jmethodID JNIUtil::v8CallbackInitMethod = NULL;
 jmethodID JNIUtil::v8InvocationInitMethod = NULL;
@@ -264,7 +264,7 @@ void JNIUtil::initCache()
 	krollProxyClass = findClass("org/appcelerator/kroll/KrollProxy");
 	v8ObjectClass = findClass("org/appcelerator/kroll/runtime/v8/V8Object");
 	managedV8ReferenceClass = findClass("org/appcelerator/kroll/runtime/v8/ManagedV8Reference");
-	assetsClass = findClass("org/appcelerator/kroll/runtime/Assets");
+	tiAssetHelperClass = findClass("org/appcelerator/titanium/util/TiAssetHelper");
 	eventEmitterClass = findClass("org/appcelerator/kroll/runtime/v8/EventEmitter");
 	v8CallbackClass = findClass("org/appcelerator/kroll/runtime/v8/V8Callback");
 	v8InvocationClass = findClass("org/appcelerator/kroll/runtime/v8/V8Invocation");
@@ -305,7 +305,7 @@ void JNIUtil::initCache()
 	krollProxyOnPropertiesChangedMethod = getMethodID(krollProxyClass, "onPropertiesChanged",
 		"([[Ljava/lang/Object;)V", false);
 
-	assetsReadResourceMethod = getMethodID(assetsClass, "readResource", "(Ljava/lang/String;)[C", true);
+	tiAssetHelperReadAssetMethod = getMethodID(tiAssetHelperClass, "readAsset", "(Ljava/lang/String;)Ljava/lang/String;", true);
 	eventEmitterHasListenersForEventTypeMethod = getMethodID(eventEmitterClass, "hasListenersForEventType",
 		"(Ljava/lang/String;Z)V");
 

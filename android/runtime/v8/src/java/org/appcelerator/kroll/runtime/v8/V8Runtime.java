@@ -6,10 +6,6 @@
  */
 package org.appcelerator.kroll.runtime.v8;
 
-import java.io.IOException;
-
-import org.appcelerator.kroll.runtime.Assets;
-
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -95,17 +91,9 @@ public final class V8Runtime implements Handler.Callback
 		}
 	}
 
-	public void evalFile(String filename)
+	public void runModule(String source, String filename)
 	{
-		try {
-			Log.d(TAG, "evalFile: " + filename);
-			char[] chars = Assets.readResource(filename);
-			if (chars != null && chars.length > 0) {
-				nativeRunModule(new String(chars), filename);
-			}
-		} catch (IOException e) {
-			Log.e(TAG, e.getMessage(), e);
-		}
+		nativeRunModule(source, filename);
 	}
 
 	protected void dispatchDebugMessages()
