@@ -10,4 +10,9 @@
 
 @implementation ApplicationDefaults
 
++(NSMutableDictionary*)copyDefaults
+{
+    return nil;
+}
+
 @end

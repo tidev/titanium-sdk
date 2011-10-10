@@ -1168,9 +1168,10 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		// run our thread event pump and process events
 		while (stuff_in_queue)
 		{
-			if (internalLoopCount > 20) {
+			if (internalLoopCount > GC_LOOP_COUNT) {
 				[self gc]; //This only sets up the gcrequest variable.
 				internalLoopCount = 0;
+                loopCount = 0;
 			}
 			internalLoopCount ++;
 			// we have a pending GC request to try and reclaim memory
