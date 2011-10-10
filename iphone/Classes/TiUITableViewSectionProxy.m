@@ -27,7 +27,6 @@
 		{
 			[thisRow setParent:nil];
             [thisRow setSection:nil];
-            [self forgetProxy:thisRow];
 		}
 	}
 	RELEASE_TO_NIL(rows);
