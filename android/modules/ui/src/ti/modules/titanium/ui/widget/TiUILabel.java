@@ -21,6 +21,7 @@ import android.text.InputType;
 import android.text.TextUtils.TruncateAt;
 import android.text.util.Linkify;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.TextView;
 
 public class TiUILabel extends TiUIView
@@ -142,4 +143,23 @@ public class TiUILabel extends TiUIView
 	public void setClickable(boolean clickable) {
 		((TextView)getNativeView()).setClickable(clickable);
 	}
+
+	@Override
+	protected void setOpacity(View view, float opacity)
+	{
+		if (view != null && view instanceof TextView) {
+			TiUIHelper.setPaintOpacity(((TextView) view).getPaint(), opacity);
+		}
+		super.setOpacity(view, opacity);
+	}
+
+	@Override
+	public void clearOpacity(View view)
+	{
+		super.clearOpacity(view);
+		if (view != null && view instanceof TextView) {
+			((TextView) view).getPaint().setColorFilter(null);
+		}
+	}
+	
 }
