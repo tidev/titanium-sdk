@@ -7,6 +7,7 @@
 var EventEmitter = require("events").EventEmitter,
 	assets = kroll.binding("assets"),
 	vm = require("vm");
+var TAG = "Window";
 
 exports.bootstrapWindow = function(Titanium) {
 	var newActivityRequiredKeys = ["fullscreen", "navBarHidden", "modal", "windowSoftInputMode"];
@@ -84,9 +85,7 @@ exports.bootstrapWindow = function(Titanium) {
 		} else {
 			var needsOpen = false;
 
-			kroll.log("-----------LW window open22");
 			if (!("currentWindow" in UI)) {
-				kroll.log("-----------creating new current window");
 				this.window = new UI.ActivityWindow({
 					useCurrentActivity: true
 				});
@@ -94,7 +93,6 @@ exports.bootstrapWindow = function(Titanium) {
 				needsOpen = true;
 			}
 
-			kroll.log("-------------current window:" + UI.currentWindow);
 			this.window = UI.currentWindow;
 			this.view = new UI.View(this._properties);
 			this.nativeView = this.view;
@@ -110,11 +108,9 @@ exports.bootstrapWindow = function(Titanium) {
 			this.view.zIndex = Math.MAX_INT - 2;
 
 			this.attachListeners();
-			kroll.log("---------------adding the view to the window");
 			this.window.add(this.view);
 
 			if (needsOpen) {
-				kroll.log("------------opening the window");
 				this.window.open();
 			}
 		}
@@ -141,15 +137,14 @@ exports.bootstrapWindow = function(Titanium) {
 			this._children = [];
 		}
 
-		kroll.log("adding view " + JSON.stringify(view._properties) + " to window");
+		kroll.log(TAG, "adding view " + JSON.stringify(view._properties) + " to window");
 		if (this.isActivity && this.window) {
-			kroll.log("adding to this.window");
+			kroll.log(TAG, "adding to this.window");
 			this.window.add(view);
 		} else if (this.view) {
-			kroll.log("adding to this.view: " + view + ", " + JSON.stringify(view._properties));
+			kroll.log(TAG, "adding to this.view: " + view + ", " + JSON.stringify(view._properties));
 			this.view.add(view);
 		} else {
-			kroll.log("pushing into this._children");
 			this._children.push(view);
 		}
 	}

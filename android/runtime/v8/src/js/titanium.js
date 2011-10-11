@@ -13,6 +13,8 @@ var tiBinding = kroll.binding('Titanium'),
 	path = require('path'),
 	url = require('url');
 
+var TAG = "Titanium";
+
 // the app entry point
 Titanium.sourceUrl = "app://app.js";
 
@@ -49,7 +51,7 @@ Titanium.runInContext = function(source, url, displayError) {
 	// Use the prototype inheritance chain
 	// to copy and maintain the Titanium dynamic
 	// getters/setters
-	kroll.log("Titanium.runInContext, url = " + url);
+	kroll.log(TAG, "Titanium.runInContext, url = " + url);
 
 	function SandboxTitanium() {}
 	SandboxTitanium.prototype = Titanium;

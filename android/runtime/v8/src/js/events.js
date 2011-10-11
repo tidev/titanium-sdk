@@ -21,6 +21,7 @@
 
 // Modifications Copyright 2011 Appcelerator, Inc.
 
+var TAG = "EventEmitter";
 var EventEmitter = exports.EventEmitter = kroll.EventEmitter;
 var isArray = Array.isArray;
 
@@ -37,7 +38,7 @@ EventEmitter.prototype.setMaxListeners = function(n) {
 };
 
 EventEmitter.prototype.callHandler = function(handler, type, data) {
-	kroll.log("calling event handler: type:" + type + ", data: " + data + ", handler: " + handler);
+	kroll.log(TAG, "calling event handler: type:" + type + ", data: " + data + ", handler: " + handler);
 	if (data instanceof Object) {
 		data.type = type;
 	} else if (!data) {
@@ -49,7 +50,7 @@ EventEmitter.prototype.callHandler = function(handler, type, data) {
 
 EventEmitter.prototype.emit = function(type) {
 
-	kroll.log("emit : " + JSON.stringify(arguments));
+	kroll.log(TAG, "emit : " + JSON.stringify(arguments));
 
 	// If there is no 'error' event listener then throw.
 	if (type === 'error') {
@@ -66,13 +67,13 @@ EventEmitter.prototype.emit = function(type) {
 	}
 
 	if (!this._events) {
-		kroll.log("no events for " + type + ", not emitting");
+		kroll.log(TAG, "no events for " + type + ", not emitting");
 		return false;
 	}
 
 	var handler = this._events[type];
 	if (!handler) {
-		kroll.log("no handler for " + type + ", not emitting");
+		kroll.log(TAG, "no handler for " + type + ", not emitting");
 		return false;
 	}
 
