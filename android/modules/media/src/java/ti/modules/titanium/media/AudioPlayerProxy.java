@@ -40,9 +40,13 @@ public class AudioPlayerProxy extends KrollProxy
 
 	public AudioPlayerProxy()
 	{
-		// TODO this needs to happen post-set
-		((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
 		setProperty("volume", 0.5, true);
+	}
+
+	@Override
+	protected void initActivity(Activity activity) {
+		super.initActivity(activity);
+		((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
 	}
 
 	@Override
