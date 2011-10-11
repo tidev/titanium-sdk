@@ -4,25 +4,15 @@ describe("Ti.Android.NotificationManager tests", {
 		// Just tests if the module is even reachable, by referencing its constants
 		valueOf(function() { Ti.Android.NotificationManager.DEFAULT_ALL; }).shouldNotThrowException();
 		valueOf(Ti.Android.NotificationManager.DEFAULT_ALL).shouldBeNumber();
-		valueOf(function() { Ti.Android.NotificationManager.DEFAULT_LIGHTS; }).shouldNotThrowException();
 		valueOf(Ti.Android.NotificationManager.DEFAULT_LIGHTS).shouldBeNumber();
-		valueOf(function() { Ti.Android.NotificationManager.DEFAULT_SOUND; }).shouldNotThrowException();
 		valueOf(Ti.Android.NotificationManager.DEFAULT_SOUND).shouldBeNumber();
-		valueOf(function() { Ti.Android.NotificationManager.DEFAULT_VIBRATE; }).shouldNotThrowException();
 		valueOf(Ti.Android.NotificationManager.DEFAULT_VIBRATE).shouldBeNumber();
-		valueOf(function() { Ti.Android.NotificationManager.FLAG_AUTO_CANCEL; }).shouldNotThrowException();
 		valueOf(Ti.Android.NotificationManager.FLAG_AUTO_CANCEL).shouldBeNumber();
-		valueOf(function() { Ti.Android.NotificationManager.FLAG_INSISTENT; }).shouldNotThrowException();
 		valueOf(Ti.Android.NotificationManager.FLAG_INSISTENT).shouldBeNumber();
-		valueOf(function() { Ti.Android.NotificationManager.FLAG_NO_CLEAR; }).shouldNotThrowException();
 		valueOf(Ti.Android.NotificationManager.FLAG_NO_CLEAR).shouldBeNumber();
-		valueOf(function() { Ti.Android.NotificationManager.FLAG_ONGOING_EVENT; }).shouldNotThrowException();
 		valueOf(Ti.Android.NotificationManager.FLAG_ONGOING_EVENT).shouldBeNumber();
-		valueOf(function() { Ti.Android.NotificationManager.FLAG_ONLY_ALERT_ONCE; }).shouldNotThrowException();
 		valueOf(Ti.Android.NotificationManager.FLAG_ONLY_ALERT_ONCE).shouldBeNumber();
-		valueOf(function() { Ti.Android.NotificationManager.FLAG_SHOW_LIGHTS; }).shouldNotThrowException();
 		valueOf(Ti.Android.NotificationManager.FLAG_SHOW_LIGHTS).shouldBeNumber();
-		valueOf(function() { Ti.Android.NotificationManager.STREAM_DEFAULT; }).shouldNotThrowException();
 		valueOf(Ti.Android.NotificationManager.STREAM_DEFAULT).shouldBeNumber();
 	},
 	
