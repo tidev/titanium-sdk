@@ -93,6 +93,7 @@ Handle<Object> ProxyFactory::createV8Proxy(jclass javaClass, jobject javaProxy)
 
 	env->SetObjectField(javaProxy,
 		JNIUtil::krollProxyKrollObjectField, javaV8Object);
+	env->DeleteLocalRef(javaV8Object);
 
 	return scope.Close(v8Proxy);
 }
@@ -150,10 +151,8 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 		int length = arguments->Get(String::New("length"))->Int32Value();
 		javaArgs = TypeConverter::jsObjectIndexPropsToJavaArray(arguments, length);
 	} else {
-		 javaArgs = TypeConverter::jsArgumentsToJavaArray(args);
+		javaArgs = TypeConverter::jsArgumentsToJavaArray(args);
 	}
-
-	//LOGV(TAG, "calling KrollProxy.create");
 
 	jobject javaV8Object = env->NewObject(JNIUtil::v8ObjectClass,
 		JNIUtil::v8ObjectInitMethod, pv8Proxy);
@@ -163,16 +162,14 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 	jobject javaProxy = env->CallStaticObjectMethod(JNIUtil::krollProxyClass,
 		info->javaProxyCreator, javaClass, javaV8Object, javaArgs, javaSourceUrl);
 
-	//LOGV(TAG, "delete source url? %d", javaSourceUrl);
-
 	if (javaSourceUrl) {
 		LOGV(TAG, "delete source url!");
 		env->DeleteLocalRef(javaSourceUrl);
 	}
-	//LOGV(TAG, "delete java args");
+
+	env->DeleteLocalRef(javaV8Object);
 	env->DeleteLocalRef(javaArgs);
 
-	//LOGV(TAG, "return java proxy");
 	return javaProxy;
 }
 

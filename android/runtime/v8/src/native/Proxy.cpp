@@ -103,10 +103,19 @@ void Proxy::onPropertyChanged(Local<String> property, Local<Value> value, const 
 		return;
 	}
 
+	jstring javaProperty = TypeConverter::jsStringToJavaString(property);
+	bool isNew;
+	jobject javaValue = TypeConverter::jsValueToJavaObject(value, &isNew);
+
 	env->CallVoidMethod(proxy->getJavaObject(),
 		JNIUtil::krollProxyOnPropertyChangedMethod,
-		TypeConverter::jsStringToJavaString(property),
-		TypeConverter::jsValueToJavaObject(value));
+		javaProperty,
+		javaValue);
+
+	env->DeleteLocalRef(javaProperty);
+	if (isNew) {
+		env->DeleteLocalRef(javaValue);
+	}
 }
 
 Handle<Value> Proxy::getIndexedProperty(uint32_t index, const AccessorInfo& info)
@@ -121,7 +130,10 @@ Handle<Value> Proxy::getIndexedProperty(uint32_t index, const AccessorInfo& info
 		JNIUtil::krollProxyGetIndexedPropertyMethod,
 		index);
 
-	return TypeConverter::javaObjectToJsValue(value);
+	Handle<Value> result = TypeConverter::javaObjectToJsValue(value);
+	env->DeleteLocalRef(value);
+
+	return result;
 }
 
 Handle<Value> Proxy::setIndexedProperty(uint32_t index, Local<Value> value, const AccessorInfo& info)
@@ -133,10 +145,17 @@ Handle<Value> Proxy::setIndexedProperty(uint32_t index, Local<Value> value, cons
 	}
 
 	Proxy* proxy = NativeObject::Unwrap<Proxy>(info.Holder());
+
+	bool isNew;
+	jobject javaValue = TypeConverter::jsValueToJavaObject(value, &isNew);
 	env->CallVoidMethod(proxy->getJavaObject(),
 		JNIUtil::krollProxySetIndexedPropertyMethod,
 		index,
-		TypeConverter::jsValueToJavaObject(value));
+		javaValue);
+
+	if (isNew) {
+		env->DeleteLocalRef(javaValue);
+	}
 
 	return value;
 }
@@ -154,11 +173,15 @@ Handle<Value> Proxy::hasListenersForEventType(const Arguments& args)
 	Local<Boolean> hasListeners = args[1]->ToBoolean();
 
 	jobject krollObject = env->GetObjectField(proxy->getJavaObject(), JNIUtil::krollProxyKrollObjectField);
+	jstring javaEventType = TypeConverter::jsStringToJavaString(eventType);
 
 	env->CallVoidMethod(krollObject,
 		JNIUtil::krollObjectSetHasListenersForEventTypeMethod,
-		TypeConverter::jsStringToJavaString(eventType),
+		javaEventType,
 		TypeConverter::jsBooleanToJavaBoolean(hasListeners));
+
+	env->DeleteLocalRef(krollObject);
+	env->DeleteLocalRef(javaEventType);
 
 	return Undefined();
 }

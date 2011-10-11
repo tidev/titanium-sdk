@@ -429,6 +429,8 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 		jobject krollObject = env->GetObjectField(javaObject, JNIUtil::krollProxyKrollObjectField);
 		if (krollObject) {
 			jlong v8ObjectPointer = env->GetLongField(krollObject, JNIUtil::v8ObjectPtrField);
+			env->DeleteLocalRef(krollObject);
+
 			if (v8ObjectPointer != 0) {
 				return Persistent<Object>((Object *) v8ObjectPointer);
 			}
