@@ -13,8 +13,7 @@
 
 @interface TiMapImageAnnotationView : MKAnnotationView<TiMapAnnotation> {
 @private
-	TiMapView *map;
-	BOOL observing;
+	
 	NSString * lastHitName;
 }
 

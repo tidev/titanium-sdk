@@ -12,16 +12,6 @@
 
 @implementation TiMapImageAnnotationView
 
--(void)removeFromSuperview
-{
-	if (observing)
-	{
-		[self removeObserver:map forKeyPath:@"selected"];
-		observing = NO;
-		map = nil;
-	}
-	[super removeFromSuperview];
-}
 
 - (id)initWithAnnotation:(id <MKAnnotation>)annotation reuseIdentifier:(NSString *)reuseIdentifier map:(TiMapView*)map_  image:(UIImage*)image
 {
@@ -30,12 +20,7 @@
 		self.backgroundColor = [UIColor clearColor];
 		self.frame = CGRectMake(0, 0, image.size.width, image.size.height);
 		self.image = image;
-		map = map_;
-		[self addObserver:map
-			   forKeyPath:@"selected"
-				  options:NSKeyValueObservingOptionNew
-				  context:@"ANSELECTED"];
-		observing = YES;
+		
 	}
 	return self;
 }

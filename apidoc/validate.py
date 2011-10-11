@@ -86,10 +86,6 @@ def validateSince(tracker, since):
 	if type(since) not in [str, dict]:
 		tracker.trackError('"since" should either be a version inside a string, or a dictionary of platform to version: %s, %s' % (since, type(since)))
 
-def validateCreateable(tracker, createable):
-	if not isinstance(createable, bool):
-		tracker.trackError('"createable" should either be true or false: %s, %s' % (createable, type(createable)))
-
 def validateDeprecated(tracker, deprecated):
 	if type(deprecated) != dict or 'since' not in deprecated:
 			tracker.trackError('"deprecated" should be a dictionary with "since" and optional "removed" versions: %s' % deprecated)
@@ -100,6 +96,14 @@ def validateOsVer(tracker, osver):
 	for key, value in osver.iteritems():
 		if type(value) != dict:
 			tracker.trackError('"osver" for platform "%s" should be a dictionary with platforms mapping to dictionaries of "mix" (String), "max" (String), and/or "versions" (List)' % (key, value))
+
+def validateIsBool(tracker, name, value):
+	if not isinstance(value, bool):
+		tracker.trackError('"%s" should either be true or false: %s, %s' % (name, value, type(value)))
+
+def validateIsOneOf(tracker, name, value, validValues):
+	if value not in validValues:
+		tracker.trackError('"%s" should be one of %s, but was %s' % (name, ", ".join(validValues), value))
 
 def validateMarkdown(tracker, mdData, name):
 	try:
@@ -147,7 +151,21 @@ def validateCommon(tracker, map):
 		validateOsVer(tracker, map['osver'])
 
 	if 'createable' in map:
-		validateCreateable(tracker, map['createable'])
+		validateIsBool(tracker, 'createable', map['createable'])
+
+	if 'permission' in map:
+		validateIsOneOf(tracker, 'permission', map['permission'],
+			('read-only', 'write-only', 'read-write'))
+
+	if 'availability' in map:
+		validateIsOneOf(tracker, 'availability', map['availability'],
+			('always', 'creation', 'not-creation'))
+
+	if 'accessors' in map:
+		validateIsBool(tracker, 'accessors', map['accessors'])
+
+	if 'optional' in map:
+		validateIsBool(tracker, 'optional', map['optional'])
 
 def validateMethod(typeTracker, method):
 	tracker = ErrorTracker(method['name'], typeTracker)
@@ -180,6 +198,15 @@ def validateProperty(typeTracker, property):
 
 	if 'examples' in property:
 		validateExamples(tracker, property['examples'])
+	
+	constantRegex = r'[A-Z]+[A-Z_]*'
+	match = re.match(constantRegex, property['name'])
+	if match:
+		if not 'permission' in property:
+			tracker.trackError('Required property for constant "permission" not found')
+		else:
+			if not property['permission'] == 'read-only':
+				tracker.trackError('Constant should have "read-only" permission.')
 
 def validateEvent(typeTracker, event):
 	tracker = ErrorTracker(event['name'], typeTracker)

@@ -4,16 +4,14 @@
 # Project Compiler
 #
 
-import os, sys, re, shutil, time, base64, run, sgmllib, codecs
+import os, sys, re, shutil, time, run, sgmllib, codecs
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.join(template_dir,'../'))
-sys.path.append(os.path.join(template_dir,'../module'))
 
 from tiapp import *
 import jspacker 
 from csspacker import CSSPacker
-from module import ModuleDetector
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn','CVS','android','iphone'];
@@ -147,11 +145,14 @@ def parse_xcconfig(xcconfig, moduleId, variables):
 	
 class Compiler(object):
 	
-	def __init__(self,project_dir,appid,name,deploytype,xcode,devicefamily,iphone_version,silent=False):
+	def __init__(self,project_dir,appid,name,deploytype,xcode,devicefamily,iphone_version,silent=False,sdk=None):
 		self.project_dir = project_dir
 		self.project_name = name
 		self.appid = appid
-		self.iphone_dir = os.path.join(project_dir,'build','iphone')
+		if deploytype != 'export-build':
+			self.iphone_dir = os.path.join(project_dir,'build','iphone')
+		else:
+			self.iphone_dir = project_dir
 		self.classes_dir = os.path.join(self.iphone_dir,'Classes')
 		self.modules = []
 		self.modules_metadata = []
@@ -161,9 +162,12 @@ class Compiler(object):
 
 		tiapp_xml = os.path.join(project_dir,'tiapp.xml')
 		ti = TiAppXML(tiapp_xml)
-		sdk_version = os.path.basename(os.path.abspath(os.path.join(template_dir,'../')))
-		detector = ModuleDetector(project_dir)
-		missing_modules, modules = detector.find_app_modules(ti, 'iphone')
+		if sdk is None:
+			sdk_version = os.path.basename(os.path.abspath(os.path.join(template_dir,'../')))
+		else:
+			sdk_version = sdk
+		
+
 
 		if xcode:
 			app_name = os.environ['FULL_PRODUCT_NAME']
@@ -175,34 +179,35 @@ class Compiler(object):
 			app_name = name+'.app'
 			app_folder_name = '%s-iphoneos' % target
 			app_dir = os.path.abspath(os.path.join(self.iphone_dir,'build',app_folder_name,app_name))
-		
-		main_template_file = os.path.join(template_dir,'main.m')
-		main_template = codecs.open(main_template_file, encoding='utf-8').read()
-		main_template = main_template.replace('__PROJECT_NAME__',name)
-		main_template = main_template.replace('__PROJECT_ID__',appid)
-		main_template = main_template.replace('__DEPLOYTYPE__',deploytype)
-		main_template = main_template.replace('__APP_ID__',appid)
-		main_template = main_template.replace('__APP_ANALYTICS__',ti.properties['analytics'])
-		main_template = main_template.replace('__APP_PUBLISHER__',ti.properties['publisher'])
-		main_template = main_template.replace('__APP_URL__',ti.properties['url'])
-		main_template = main_template.replace('__APP_NAME__',ti.properties['name'])
-		main_template = main_template.replace('__APP_VERSION__',ti.properties['version'])
-		main_template = main_template.replace('__APP_DESCRIPTION__',ti.properties['description'])
-		main_template = main_template.replace('__APP_COPYRIGHT__',ti.properties['copyright'])
-		main_template = main_template.replace('__APP_GUID__',ti.properties['guid'])
-		main_template = main_template.replace('__APP_RESOURCE_DIR__','')
 
 		if not silent:
 			print "[INFO] Titanium SDK version: %s" % sdk_version
 			print "[INFO] iPhone Device family: %s" % devicefamily
 			print "[INFO] iPhone SDK version: %s" % iphone_version
-		
-		main_template_out = os.path.join(self.iphone_dir,'main.m')	
-		main_file = codecs.open(main_template_out,'w+',encoding='utf-8')
-		main_file_contents = main_file.read()
-		if main_file_contents!=main_template:
-			main_file.write(main_template)
-			main_file.close()
+	
+		if deploytype != 'export-build':
+			main_template_file = os.path.join(template_dir,'main.m')
+			main_template = codecs.open(main_template_file, encoding='utf-8').read()
+			main_template = main_template.replace('__PROJECT_NAME__',name)
+			main_template = main_template.replace('__PROJECT_ID__',appid)
+			main_template = main_template.replace('__DEPLOYTYPE__',deploytype)
+			main_template = main_template.replace('__APP_ID__',appid)
+			main_template = main_template.replace('__APP_ANALYTICS__',ti.properties['analytics'])
+			main_template = main_template.replace('__APP_PUBLISHER__',ti.properties['publisher'])
+			main_template = main_template.replace('__APP_URL__',ti.properties['url'])
+			main_template = main_template.replace('__APP_NAME__',ti.properties['name'])
+			main_template = main_template.replace('__APP_VERSION__',ti.properties['version'])
+			main_template = main_template.replace('__APP_DESCRIPTION__',ti.properties['description'])
+			main_template = main_template.replace('__APP_COPYRIGHT__',ti.properties['copyright'])
+			main_template = main_template.replace('__APP_GUID__',ti.properties['guid'])
+			main_template = main_template.replace('__APP_RESOURCE_DIR__','')
+	
+			main_template_out = os.path.join(self.iphone_dir,'main.m')	
+			main_file = codecs.open(main_template_out,'w+',encoding='utf-8')
+			main_file_contents = main_file.read()
+			if main_file_contents!=main_template:
+				main_file.write(main_template)
+				main_file.close()
 		
 		if deploytype == 'production':
 			version = ti.properties['version']
@@ -214,66 +219,79 @@ class Compiler(object):
 		iphone_resources_dir = os.path.join(resources_dir,'iphone')
 
 		# copy in any resources in our module like icons
-		project_module_dir = os.path.join(project_dir,'modules','iphone')
-		if os.path.exists(project_module_dir):
-			self.copy_resources([project_module_dir],app_dir,False)
-		
-		# we have to copy these even in simulator given the path difference
-		if os.path.exists(app_dir):
-			self.copy_resources([iphone_resources_dir],app_dir,False)
-
-		# generate the includes for all compiled modules
-		xcconfig_c = "// this is a generated file - DO NOT EDIT\n\n"
+		# NOTE: This means that any JS-only modules in the local project
+		# are hashed up and dumped into the export.
 		has_modules = False
-
-		if len(modules) > 0:
-			mods = open(os.path.join(self.classes_dir,'ApplicationMods.m'),'w+')
-			variables = {}
-			mods.write(MODULE_IMPL_HEADER)
-			for module in modules:
-				module_id = module.manifest.moduleid.lower()
-				module_name = module.manifest.name.lower()
-				module_version = module.manifest.version
-				module_guid = ''
-				module_licensekey = ''
-				if module.manifest.has_property('guid'):
-					module_guid = module.manifest.guid
-				if module.manifest.has_property('licensekey'):
-					module_licensekey = module.manifest.licensekey
-				self.modules_metadata.append({'guid':module_guid,'name':module_name,'id':module_id,'dir':module.path,'version':module_version,'licensekey':module_licensekey})
-				xcfile = module.get_resource('module.xcconfig')
-				if os.path.exists(xcfile):
-					xcconfig_contents = parse_xcconfig(xcfile, module_id, variables)
-					xcconfig_c += xcconfig_contents
-				xcfile = os.path.join(self.project_dir,'modules','iphone',"%s.xcconfig" % module_name)
-				if os.path.exists(xcfile):
-					xcconfig_contents = parse_xcconfig(xcfile, module_id, variables)
-					xcconfig_c += xcconfig_contents
-				mods.write("	[modules addObject:[NSDictionary dictionaryWithObjectsAndKeys:@\"%s\",@\"name\",@\"%s\",@\"moduleid\",@\"%s\",@\"version\",@\"%s\",@\"guid\",@\"%s\",@\"licensekey\",nil]];\n" % (module_name,module_id,module_version,module_guid,module_licensekey));
-			mods.write("	return modules;\n")	
-			mods.write("}\n")
-			mods.write(FOOTER)
-			mods.close()
+		missing_modules, modules = ([], [])
+		if deploytype != 'export-build':
+			# Have to load the module detection here, in order to
+			# prevent distributing even MORE stuff in export/transport
+			sys.path.append(os.path.join(template_dir,'../module'))
+			from module import ModuleDetector
 			
-			for (name, values) in variables.iteritems():
-				xcconfig_c += name + '=$(inherited) '
-				for value in values:
-					xcconfig_c += '$(%s) ' % value
-				xcconfig_c += '\n'
+			detector = ModuleDetector(project_dir)
+			missing_modules, modules = detector.find_app_modules(ti, 'iphone')
 			
-			has_modules = True
-			xcconfig = os.path.join(self.iphone_dir,"module.xcconfig")
-			make_xcc = True
-			if os.path.exists(xcconfig):
-				existing_xcc = open(xcconfig).read()
-				# only copy if different so we don't trigger re-compile in xcode
-				make_xcc = existing_xcc!=xcconfig_c
-			if make_xcc:
-				xcconfig = open(xcconfig,'w')
-				xcconfig.write(xcconfig_c)
-				xcconfig.close()
+			project_module_dir = os.path.join(project_dir,'modules','iphone')
+			if os.path.exists(project_module_dir):
+				self.copy_resources([project_module_dir],app_dir,False)
+		
+			# we have to copy these even in simulator given the path difference
+			if os.path.exists(app_dir):
+				self.copy_resources([iphone_resources_dir],app_dir,False)
 
-		if deploytype=='simulator':
+			# generate the includes for all compiled modules
+			xcconfig_c = "// this is a generated file - DO NOT EDIT\n\n"
+	
+			if len(modules) > 0:
+				mods = open(os.path.join(self.classes_dir,'ApplicationMods.m'),'w+')
+				variables = {}
+				mods.write(MODULE_IMPL_HEADER)
+				for module in modules:
+					module_id = module.manifest.moduleid.lower()
+					module_name = module.manifest.name.lower()
+					module_version = module.manifest.version
+					module_guid = ''
+					module_licensekey = ''
+					if module.manifest.has_property('guid'):
+						module_guid = module.manifest.guid
+					if module.manifest.has_property('licensekey'):
+						module_licensekey = module.manifest.licensekey
+					self.modules_metadata.append({'guid':module_guid,'name':module_name,'id':module_id,'dir':module.path,'version':module_version,'licensekey':module_licensekey})
+					xcfile = module.get_resource('module.xcconfig')
+					if os.path.exists(xcfile):
+						xcconfig_contents = parse_xcconfig(xcfile, module_id, variables)
+						xcconfig_c += xcconfig_contents
+					xcfile = os.path.join(self.project_dir,'modules','iphone',"%s.xcconfig" % module_name)
+					if os.path.exists(xcfile):
+						xcconfig_contents = parse_xcconfig(xcfile, module_id, variables)
+						xcconfig_c += xcconfig_contents
+					mods.write("	[modules addObject:[NSDictionary dictionaryWithObjectsAndKeys:@\"%s\",@\"name\",@\"%s\",@\"moduleid\",@\"%s\",@\"version\",@\"%s\",@\"guid\",@\"%s\",@\"licensekey\",nil]];\n" % (module_name,module_id,module_version,module_guid,module_licensekey));
+				mods.write("	return modules;\n")	
+				mods.write("}\n")
+				mods.write(FOOTER)
+				mods.close()
+				
+				for (name, values) in variables.iteritems():
+					xcconfig_c += name + '=$(inherited) '
+					for value in values:
+						xcconfig_c += '$(%s) ' % value
+					xcconfig_c += '\n'
+				
+				has_modules = True
+				xcconfig = os.path.join(self.iphone_dir,"module.xcconfig")
+				make_xcc = True
+				if os.path.exists(xcconfig):
+					existing_xcc = open(xcconfig).read()
+					# only copy if different so we don't trigger re-compile in xcode
+					make_xcc = existing_xcc!=xcconfig_c
+				if make_xcc:
+					xcconfig = open(xcconfig,'w')
+					xcconfig.write(xcconfig_c)
+					xcconfig.close()
+		#endif deploytype != 'export-build'
+
+		if deploytype=='simulator' or deploytype=='export':
 			shutil.copy(os.path.join(template_dir,'Classes','defines.h'),os.path.join(self.classes_dir,'defines.h'))
 		
 		if deploytype!='development' or has_modules:
@@ -286,7 +304,7 @@ class Compiler(object):
 				if os.path.exists(debugger_plist):
 					os.remove(debugger_plist)
 					
-			if deploytype!='development':	
+			if deploytype!='development' and deploytype!='export':	
 				defines_file = os.path.join(self.classes_dir,'defines.h')
 				defines_header = open(defines_file,'w+')
 				defines_content = "// Warning: this is generated file. Do not modify!\n\n"
@@ -295,7 +313,7 @@ class Compiler(object):
 					defines_content+="#define %s 1\n"%sym
 				if defines_content!=defines_header.read():
 					defines_header.write(defines_content)
-					defines_header.close()	
+					defines_header.close()
 
 			# deploy any module image files 
 			for module in self.modules:
@@ -558,11 +576,38 @@ class Compiler(object):
 			impf.close()
 		
 if __name__ == "__main__":
-	project_dir = os.path.expanduser("~/tmp/yoyoyo")
-	appid = "com.appcelerator.yoyoyo"
-	name = "Yo Yo Yo"
-	deploytype = 'development'
-	xcode = False
-	c = Compiler(project_dir,appid,name,deploytype,xcode)
+	argv = sys.argv
+	if len(argv) < 3:
+		print "[USAGE] %s <dir> <deploytype> [devicetype] [ios_version] [sdk_version]" % argv[0]
+		exit(1)
+	
+	project_dir = argv[1]
+	deploytype = argv[2]
+	
+	if deploytype == 'export-build':
+		xcode = True
+	else:
+		xcode = False
+	
+	if len(argv) >= 4:
+		devicefamily = argv[3]
+	else:
+		devicefamily = 'unknown'
+	
+	if len(argv) >= 5:
+		ios = argv[4]
+	else:
+		ios = 'unknown'
+	
+	if len(argv) >= 6:
+		sdk = argv[5]
+	else:
+		sdk = None
+	
+	tiapp_xml = os.path.join(project_dir,'tiapp.xml')
+	ti = TiAppXML(tiapp_xml)
+	appid = ti.properties['id']
+	name = ti.properties['name']
+	c = Compiler(project_dir,appid,name,deploytype,xcode,devicefamily,ios,sdk=sdk)
 	
 	

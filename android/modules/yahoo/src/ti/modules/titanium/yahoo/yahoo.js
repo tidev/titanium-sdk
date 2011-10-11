@@ -51,7 +51,7 @@ Ti.Yahoo.yql = function(apiQuery, callback) {
 
 	xhr.onload = function()
 	{
-		Ti.API.info("YQL: " + this.reponseText);
+		Ti.API.info("YQL: " + this.responseText);
 		callback({source: Ti.Yahoo, data: eval('('+this.responseText+')').query.results});
 	};
 

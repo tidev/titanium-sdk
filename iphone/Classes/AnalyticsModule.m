@@ -318,7 +318,13 @@ NSString * const TI_DB_VERSION = @"1";
 	[dict setObject:[TiUtils UTCDate] forKey:@"ts"];
 	[dict setObject:[TiUtils createUUID] forKey:@"id"];
 	[dict setObject:NUMINT(sequence++) forKey:@"seq"];
-	[dict setObject:[[UIDevice currentDevice] uniqueIdentifier] forKey:@"mid"];
+	[dict setObject:[TiUtils uniqueIdentifier] forKey:@"mid"];
+    if ([[UIDevice currentDevice] respondsToSelector:@selector(uniqueIdentifier)]) {
+    	NSString* uid = [[UIDevice currentDevice] uniqueIdentifier];
+    	if (uid) {
+	        [dict setObject:uid forKey:@"omid"];
+        }
+    }
 	[dict setObject:TI_APPLICATION_GUID forKey:@"aguid"];
 	[dict setObject:TI_APPLICATION_DEPLOYTYPE forKey:@"deploytype"];
 	[dict setObject:name forKey:@"event"];
@@ -448,6 +454,7 @@ NSString * const TI_DB_VERSION = @"1";
 -(void)enroll
 {
 	// don't let analytics ever crash the app
+    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 	@try 
 	{
 		// if not online (since we need some stuff), re-queue for later
@@ -455,7 +462,7 @@ NSString * const TI_DB_VERSION = @"1";
 		if ([TiUtils boolValue:online]==NO)
 		{
 			NSLog(@"[DEBUG] attempted to enroll, but we're offline. will try again in 10s");
-			[self performSelector:@selector(entroll) withObject:nil afterDelay:10];
+			[self performSelector:@selector(enroll) withObject:nil afterDelay:10];
 			return;
 		}
 		
@@ -479,6 +486,9 @@ NSString * const TI_DB_VERSION = @"1";
 	{
 		NSLog(@"[ERROR] Error sending analytics event. %@",e);
 	}
+    @finally {
+        [pool release];
+    }
 }
 
 -(void)begin

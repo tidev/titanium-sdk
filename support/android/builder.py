@@ -580,16 +580,30 @@ class Builder(object):
 
 	def copy_project_resources(self):
 		info("Copying project resources..")
+
+		def validate_filenames(topdir):
+			for root, dirs, files in os.walk(topdir):
+				remove_ignored_dirs(dirs)
+				for d in dirs:
+					if d == "iphone":
+						dirs.remove(d)
+				for filename in files:
+					if filename.startswith("_"):
+						error("%s is an invalid filename. Android will not package assets whose filenames start with underscores. Fix and rebuild." % os.path.join(root, filename))
+						sys.exit(1)
 		
 		resources_dir = os.path.join(self.top_dir, 'Resources')
+		validate_filenames(resources_dir)
 		android_resources_dir = os.path.join(resources_dir, 'android')
 		self.project_deltafy = Deltafy(resources_dir, include_callback=self.include_path)
 		self.project_deltas = self.project_deltafy.scan()
 		self.js_changed = False
 		tiapp_delta = self.project_deltafy.scan_single_file(self.project_tiappxml)
 		self.tiapp_changed = tiapp_delta is not None
-		if self.tiapp_changed or self.force_rebuild:
-			info("Detected tiapp.xml change, forcing full re-build...")
+		full_copy = not os.path.exists(self.assets_resources_dir)
+
+		if self.tiapp_changed or self.force_rebuild or full_copy:
+			info("Detected tiapp.xml change (or assets deleted), forcing full re-build...")
 			# force a clean scan/copy when the tiapp.xml has changed
 			self.project_deltafy.clear_state()
 			self.project_deltas = self.project_deltafy.scan()
@@ -653,11 +667,15 @@ class Builder(object):
 		# NOTE: these are built-in permissions we need -- we probably need to refine when these are needed too
 		permissions_required = ['INTERNET','ACCESS_WIFI_STATE','ACCESS_NETWORK_STATE', 'WRITE_EXTERNAL_STORAGE']
 		
-		GEO_PERMISSION = [ 'ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION', 'ACCESS_MOCK_LOCATION']
+		GEO_PERMISSION = [ 'ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION']
 		CONTACTS_PERMISSION = ['READ_CONTACTS']
 		VIBRATE_PERMISSION = ['VIBRATE']
 		CAMERA_PERMISSION = ['CAMERA']
 		WALLPAPER_PERMISSION = ['SET_WALLPAPER']
+
+		# Enable mock location if in development or test mode.
+		if self.deploy_type == 'development' or self.deploy_type == 'test':
+			GEO_PERMISSION.append('ACCESS_MOCK_LOCATION')
 		
 		# this is our module method to permission(s) trigger - for each method on the left, require the permission(s) on the right
 		permission_mapping = {
@@ -813,20 +831,20 @@ class Builder(object):
 
 		self.use_maps = False
 		self.res_changed = False
-		iconname = self.tiapp.properties['icon']
-		iconpath = os.path.join(self.assets_resources_dir, iconname)
-		iconext = os.path.splitext(iconpath)[1]
+		icon_name = self.tiapp.properties['icon']
+		icon_path = os.path.join(self.assets_resources_dir, icon_name)
+		icon_ext = os.path.splitext(icon_path)[1]
 
-		res_drawable_dest = os.path.join(self.project_dir, 'res','drawable')
+		res_drawable_dest = os.path.join(self.project_dir, 'res', 'drawable')
 		if not os.path.exists(res_drawable_dest):
 			os.makedirs(res_drawable_dest)
 
 		default_icon = os.path.join(self.support_resources_dir, 'default.png')
-		dest_icon = os.path.join(res_drawable_dest, 'appicon%s' % iconext)
-		if Deltafy.needs_update(iconpath, dest_icon):
+		dest_icon = os.path.join(res_drawable_dest, 'appicon%s' % icon_ext)
+		if Deltafy.needs_update(icon_path, dest_icon):
 			self.res_changed = True
-			debug("copying app icon: %s" % iconpath)
-			shutil.copy(iconpath, dest_icon)
+			debug("copying app icon: %s" % icon_path)
+			shutil.copy(icon_path, dest_icon)
 		elif Deltafy.needs_update(default_icon, dest_icon):
 			self.res_changed = True
 			debug("copying default app icon")
@@ -1326,7 +1344,7 @@ class Builder(object):
 				if os.path.splitext(f)[1] != '.java':
 					absolute_path = os.path.join(root, f)
 					relative_path = os.path.join(root[len(self.project_src_dir)+1:], f)
-					if is_modified(absolute_path):
+					if is_modified(absolute_path) or not zip_contains(apk_zip, relative_path):
 						self.apk_updated = True
 						debug("resource file => " + relative_path)
 						apk_zip.write(os.path.join(root, f), relative_path, compression_type(f))
@@ -1352,10 +1370,11 @@ class Builder(object):
 					for file in os.listdir(libs_abi_dir):
 						if file.endswith('.so'):
 							native_lib = os.path.join(libs_abi_dir, file)
-							if is_modified(native_lib):
+							path_in_zip = '/'.join(['lib', abi_dir, file])
+							if is_modified(native_lib) or not zip_contains(apk_zip, path_in_zip):
 								self.apk_updated = True
 								debug("installing native lib: %s" % native_lib)
-								apk_zip.write(native_lib, '/'.join(['lib', abi_dir, file]))
+								apk_zip.write(native_lib, path_in_zip)
 
 		# add any native libraries : libs/**/*.so -> lib/**/*.so
 		add_native_libs(os.path.join(self.project_dir, 'libs'))
@@ -1741,7 +1760,8 @@ class Builder(object):
 					include_all_ti_modules = True
 			if self.tiapp_changed or (self.js_changed and not self.fastdev) or \
 					self.force_rebuild or self.deploy_type == "production" or \
-					(self.fastdev and (not self.app_installed or not built_all_modules)):
+					(self.fastdev and (not self.app_installed or not built_all_modules)) or \
+					(not self.fastdev and built_all_modules):
 				trace("Generating Java Classes")
 				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')),
 					True, project_dir = self.top_dir, include_all_ti_modules=include_all_ti_modules)

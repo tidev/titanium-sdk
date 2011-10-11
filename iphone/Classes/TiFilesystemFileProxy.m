@@ -30,6 +30,7 @@
 -(void)dealloc
 {
 	RELEASE_TO_NIL(fm);
+    RELEASE_TO_NIL(path);
 	[super dealloc];
 }
 

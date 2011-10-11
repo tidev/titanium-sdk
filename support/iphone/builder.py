@@ -10,7 +10,7 @@ import platform, time, re, run, glob, codecs, hashlib, datetime, plistlib
 from compiler import Compiler
 from projector import Projector
 from xml.dom.minidom import parseString
-from pbxproj import PBXProj
+from xml.etree.ElementTree import ElementTree
 from os.path import join, splitext, split, exists
 
 # the template_dir is the path where this file lives on disk
@@ -26,6 +26,7 @@ from tiapp import *
 from css import csscompiler
 import localecompiler
 from module import ModuleDetector
+from tools import *
 
 ignoreFiles = ['.gitignore', '.cvsignore']
 ignoreDirs = ['.git','.svn', 'CVS']
@@ -79,16 +80,6 @@ def write_project_property(f,prop,val):
 		fx = open(f,'w')
 		fx.write("%s=%s\n"%(prop,val))
 		fx.close()
-	
-def read_config(f):
-	props = {}
-	if os.path.exists(f):
-		contents = open(f).read()
-		for line in contents.splitlines(False):
-			if line[0:1]=='#': continue
-			(k,v) = line.split("=")
-			props[k]=v
-	return props
 			
 def read_project_property(f,prop):
 	if os.path.exists(f):
@@ -429,6 +420,73 @@ def is_indexing_enabled(tiapp, simulator_dir, **kwargs):
 
 	return False
 
+HEADER = """/**
+* Appcelerator Titanium Mobile
+* This is generated code. Do not modify. Your changes *will* be lost.
+* Generated code is Copyright (c) 2009-2011 by Appcelerator, Inc.
+* All Rights Reserved.
+*/
+#import <Foundation/Foundation.h>
+"""
+
+DEFAULTS_IMPL_HEADER= """#import "TiUtils.h"
+#import "ApplicationDefaults.h"
+ 
+@implementation ApplicationDefaults
+  
++ (NSMutableDictionary*) copyDefaults
+{
+    NSMutableDictionary * _property = [[NSMutableDictionary alloc] init];\n
+"""
+
+FOOTER ="""
+@end
+"""
+
+def copy_tiapp_properties(project_dir):
+	tiapp = ElementTree()
+	src_root = os.path.dirname(sys.argv[0])
+	assets_tiappxml = os.path.join(project_dir,'tiapp.xml')
+	if not os.path.exists(assets_tiappxml):
+		shutil.copy(os.path.join(project_dir, 'tiapp.xml'), assets_tiappxml)
+	tiapp.parse(open(assets_tiappxml, 'r'))
+	impf = open("ApplicationDefaults.m",'w+')
+	appl_default = os.path.join(project_dir,'build','iphone','Classes','ApplicationDefaults.m')
+	impf.write(HEADER)
+	impf.write(DEFAULTS_IMPL_HEADER)
+	for property_el in tiapp.findall("property"):
+		name = property_el.get("name")
+		type = property_el.get("type")
+		value = property_el.text
+		if name == None: continue
+		if value == None: value = ""
+		if type == "string":
+			impf.write("""    [_property setObject:[TiUtils stringValue:@"%s"] forKey:@"%s"];\n"""%(value,name))
+		elif type == "bool":
+			impf.write("""    [_property setObject:[NSNumber numberWithBool:[TiUtils boolValue:@"%s"]] forKey:@"%s"];\n"""%(value,name))
+		elif type == "int":
+			impf.write("""    [_property setObject:[NSNumber numberWithInt:[TiUtils intValue:@"%s"]] forKey:@"%s"];\n"""%(value,name))
+		elif type == "double":
+			impf.write("""    [_property setObject:[NSNumber numberWithDouble:[TiUtils doubleValue:@"%s"]] forKey:@"%s"];\n"""%(value,name))
+		elif type == None:
+			impf.write("""    [_property setObject:[TiUtils stringValue:@"%s"] forKey:@"%s"];\n"""%(value,name))
+		else:
+			print """[WARN] Cannot set property "%s" , type "%s" not supported""" % (name,type)
+	if (len(tiapp.findall("property")) > 0) :
+		impf.write("\n    return _property;\n}")
+	else: 
+		impf.write("\n    return NULL;\n}")
+	impf.write(FOOTER)
+	impf.close()
+	if open(appl_default,'r').read() == open('ApplicationDefaults.m','r').read():
+		os.remove('ApplicationDefaults.m')
+		return False
+	else:
+		shutil.copyfile('ApplicationDefaults.m',appl_default)
+		os.remove('ApplicationDefaults.m')
+		return True
+	
+
 def cleanup_app_logfiles(tiapp, log_id, iphone_version):
 	print "[DEBUG] finding old log files"
 	sys.stdout.flush()
@@ -583,9 +641,8 @@ def main(args):
 		version_file = None
 		log_id = None
 		provisioning_profile = None
-		debug_host = None
-		debug_port = None
 		debughost = None
+		debugport = None
 		postbuild_modules = []
 		
 		# starting in 1.4, you don't need to actually keep the build/iphone directory
@@ -629,6 +686,7 @@ def main(args):
 				debughost = dequote(args[8].decode("utf-8"))
 				if debughost=='':
 					debughost = None
+					debugport = None
 				else:
 					debughost,debugport = debughost.split(":")
 		elif command == 'install':
@@ -643,6 +701,7 @@ def main(args):
 				debughost = dequote(args[9].decode("utf-8"))
 				if debughost=='':
 					debughost=None
+					debugport=None
 				else:
 					debughost,debugport = debughost.split(":")
 			target = 'Debug'
@@ -712,9 +771,8 @@ def main(args):
 
 			detector = ModuleDetector(project_dir)
 			missing_modules, modules = detector.find_app_modules(ti, 'iphone')
-			module_lib_search_path = []
-			module_asset_dirs = []
-			
+			module_lib_search_path, module_asset_dirs = locate_modules(modules, project_dir, app_dir, log)
+
 			# search for modules that the project is using
 			# and make sure we add them to the compile
 			for module in modules:
@@ -796,60 +854,8 @@ def main(args):
 				ti.properties['version']=version
 				pp = os.path.expanduser("~/Library/MobileDevice/Provisioning Profiles/%s.mobileprovision" % appuuid)
 				provisioning_profile = read_provisioning_profile(pp,o)
-			
-			
-			def write_debugger_plist(debuggerplist):
-				debugger_tmpl = os.path.join(template_dir,'debugger.plist')
-				plist = codecs.open(debugger_tmpl, encoding='utf-8').read()
-				if debughost:
-					plist = plist.replace('__DEBUGGER_HOST__',debughost)
-					plist = plist.replace('__DEBUGGER_PORT__',debugport)
-				else:
-					plist = plist.replace('__DEBUGGER_HOST__','')
-					plist = plist.replace('__DEBUGGER_PORT__','')
-
-				tempfile = debuggerplist+'.tmp'
-				pf = codecs.open(tempfile,'w',encoding='utf-8')
-				pf.write(plist)
-				pf.close()
-				
-				if os.path.exists(debuggerplist):
-					changed = not filecmp.cmp(tempfile, debuggerplist, shallow=False)
-				else:
-					changed = True
-					
-				shutil.move(tempfile, debuggerplist)
-				
-				return changed
-				
-				
-# TODO:				
-# This code is used elsewhere, as well.  We should move stuff like this to
-# a common file.
-			def write_info_plist(infoplist_tmpl):
-				plist = codecs.open(infoplist_tmpl, encoding='utf-8').read()
-				plist = plist.replace('__PROJECT_NAME__',name)
-				plist = plist.replace('__PROJECT_ID__',appid)
-				plist = plist.replace('__URL__',appid)
-				urlscheme = name.replace('.','_').replace(' ','').lower()
-				plist = plist.replace('__URLSCHEME__',urlscheme)
-				if ti.has_app_property('ti.facebook.appid'):
-					fbid = ti.get_app_property('ti.facebook.appid')
-					plist = plist.replace('__ADDITIONAL_URL_SCHEMES__', '<string>fb%s</string>' % fbid)
-				else:
-					plist = plist.replace('__ADDITIONAL_URL_SCHEMES__','')
-				pf = codecs.open(infoplist,'w', encoding='utf-8')
-				pf.write(plist)
-				pf.close()			
-
-			# if the user has a Info.plist in their project directory, consider
-			# that a custom override
-			infoplist_tmpl = os.path.join(project_dir,'Info.plist')
-			if os.path.exists(infoplist_tmpl):
-				shutil.copy(infoplist_tmpl,infoplist)
-			else:
-				infoplist_tmpl = os.path.join(template_dir,'Info.plist')
-				write_info_plist(infoplist_tmpl)
+	
+			create_info_plist(ti, template_dir, project_dir, infoplist)
 
 			applogo = None
 			clean_build = False
@@ -922,7 +928,7 @@ def main(args):
 				force_xcode = True
 				if os.path.exists(app_dir): shutil.rmtree(app_dir)
 				# we have to re-copy if we have a custom version
-				write_info_plist(infoplist_tmpl)
+				create_info_plist(ti, template_dir, project_dir, infoplist)
 				# since compiler will generate the module dependencies, we need to 
 				# attempt to compile to get it correct for the first time.
 				compiler = Compiler(project_dir,appid,name,deploytype,xcode_build,devicefamily,iphone_version,True)
@@ -945,18 +951,7 @@ def main(args):
 
 			# write out any modules into the xcode project
 			# this must be done after project create above or this will be overriden
-			if len(module_lib_search_path)>0:
-				proj = PBXProj()
-				xcode_proj = os.path.join(iphone_dir,'%s.xcodeproj'%name,'project.pbxproj')
-				current_xcode = open(xcode_proj).read()
-				for tp in module_lib_search_path:
-					proj.add_static_library(tp[0],tp[1])
-				out = proj.parse(xcode_proj)
-				# since xcode changes can be destructive, only write as necessary (if changed)
-				if current_xcode!=out:
-					xo = open(xcode_proj,'w')
-					xo.write(out)
-					xo.close()
+			link_modules(module_lib_search_path, name, iphone_dir)
 
 			cwd = os.getcwd()
 
@@ -1003,7 +998,7 @@ def main(args):
 			debug_plist = os.path.join(iphone_dir,'Resources','debugger.plist')
 			
 			# Force an xcodebuild if the debugger.plist has changed
-			force_xcode = write_debugger_plist(debug_plist)
+			force_xcode = write_debugger_plist(debughost, debugport, template_dir, debug_plist)
 
 			if command not in ['simulator', 'build']:
 				# compile plist into binary format so it's faster to load
@@ -1019,10 +1014,6 @@ def main(args):
 				applogo = ti.generate_infoplist(infoplist,appid,devicefamily,project_dir,iphone_version)
 			else:
 				applogo = ti.generate_infoplist(infoplist,appid,'iphone',project_dir,iphone_version)
-
-			# copy over the appicon
-			if applogo==None and ti.properties.has_key('icon'):
-				applogo = ti.properties['icon']
 				
 			# attempt to load any compiler plugins
 			if len(ti.properties['plugins']) > 0:
@@ -1118,23 +1109,15 @@ def main(args):
 					dump_resources_listing(project_dir,o)
 					dump_infoplist(infoplist,o)
 
-				# copy Default.png and appicon each time so if they're 
-				# changed they'll stick get picked up	
-				# If Default.png is not found in the project, copy it from the SDK's default path
-				app_icon_path = os.path.join(project_dir,'Resources','iphone',applogo)
-				if not os.path.exists(app_icon_path):
-					app_icon_path = os.path.join(project_dir,'Resources',applogo)
-				if os.path.exists(app_icon_path):
-					shutil.copy(app_icon_path,app_dir)
-				defaultpng_path = os.path.join(project_dir,'Resources','iphone','Default.png')
-				if not os.path.exists(defaultpng_path):
-					defaultpng_path = os.path.join(project_dir,'Resources','Default.png')
-				if not os.path.exists(defaultpng_path):
-					defaultpng_path = os.path.join(template_dir,'resources','Default.png')
-				if os.path.exists(defaultpng_path):
-					shutil.copy(defaultpng_path,iphone_resources_dir)
+				install_logo(ti, applogo, project_dir, template_dir, app_dir)
+				install_defaults(project_dir, template_dir, iphone_resources_dir)
 
 				extra_args = None
+
+				recompile = copy_tiapp_properties(project_dir)
+				# if the anything changed in the application defaults then we have to force  a xcode build.
+				if recompile == True:
+					force_xcode = recompile
 
 				if devicefamily!=None:
 					# Meet the minimum requirements for ipad when necessary
@@ -1270,7 +1253,7 @@ def main(args):
 					f = open(version_file,'w+')
 					f.write("%s,%s,%s,%s" % (template_dir,log_id,lib_hash,githash))
 					f.close()
-					
+
 				# both simulator and build require an xcodebuild
 				if command in ['simulator', 'build']:
 					debugstr = ''
