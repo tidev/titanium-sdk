@@ -50,6 +50,7 @@ public abstract class TiBaseActivity extends Activity
 	private static OrientationChangedListener orientationChangedListener = null;
 
 	private boolean onDestroyFired = false;
+	private int originalOrientationMode = -1;
 
 	protected TiCompositeLayout layout;
 	protected TiActivitySupportHelper supportHelper;
@@ -329,12 +330,24 @@ public abstract class TiBaseActivity extends Activity
 		// for backwards compatibility
 		sendMessage(msgId);
 
+		// store off the original orientation for the activity set in the AndroidManifest.xml
+		// for later use
+		originalOrientationMode = getRequestedOrientation();
+
 		// make sure the activity opens according to any orientation modes 
 		// set on the window before the activity was actually created 
 		if (window != null)
 		{
-			window.updateOrientation();
+			if (window.getOrientationModes() != null)
+			{
+				window.updateOrientation();
+			}
 		}
+	}
+
+	public int getOriginalOrientationMode()
+	{
+		return originalOrientationMode;
 	}
 
 	protected void sendMessage(final int msgId)

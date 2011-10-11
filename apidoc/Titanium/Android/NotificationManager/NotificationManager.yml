@@ -26,34 +26,45 @@ properties:
   - name: DEFAULT_ALL
     description: Use all default values (where applicable).
     type: Number
+    permission: read-only
   - name: DEFAULT_LIGHTS
     description: Use the default notification lights.
     type: Number
+    permission: read-only
   - name: DEFAULT_SOUND
     description: Use the default notification sound.
     type: Number
+    permission: read-only
   - name: DEFAULT_VIBRATE
     description: Use the default notification vibrate.
     type: Number
+    permission: read-only
   - name: FLAG_AUTO_CANCEL
     description: Bit to be bitwise-ored into the flags field that should be set if the notification should be canceled when it is clicked by the user.
     type: Number
+    permission: read-only
   - name: FLAG_INSISTENT
     description: Bit to be bitwise-ored into the flags field that if set, the audio will be repeated until the notification is cancelled or the notification window is opened.
     type: Number
+    permission: read-only
   - name: FLAG_NO_CLEAR
     description: Bit to be bitwise-ored into the flags field that should be set if the notification should not be canceled when the user clicks the Clear all button.
     type: Number
+    permission: read-only
   - name: FLAG_ONGOING_EVENT
     description: Bit to be bitwise-ored into the flags field that should be set if this notification is in reference to something that is ongoing, like a phone call.
     type: Number
+    permission: read-only
   - name: FLAG_ONLY_ALERT_ONCE
     description: Bit to be bitwise-ored into the flags field that should be set if you want the sound and/or vibration play each time the notification is sent, even if it has not been canceled before that.
     type: Number
+    permission: read-only
   - name: FLAG_SHOW_LIGHTS
     description: Bit to be bitwise-ored into the flags field that should be set if you want the LED on for this notification.
     type: Number
+    permission: read-only
   - name: STREAM_DEFAULT
     description: Use this constant as the value for audioStreamType to request that the default stream type for notifications be used.
     type: Number
+    permission: read-only
 notes: The constants above are taken from [Notification](http://developer.android.com/reference/android/app/Notification.html).

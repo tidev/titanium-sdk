@@ -14,6 +14,7 @@
 #import "TiAction.h"
 #import "TiStylesheet.h"
 #import "TiLocale.h"
+#import "TiUIView.h"
 
 #import <QuartzCore/QuartzCore.h>
 #import <libkern/OSAtomic.h>
@@ -275,16 +276,19 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(void)setCenter:(id)value
 {
-	if (![value isKindOfClass:[NSDictionary class]])
-	{
-		layoutProperties.centerX = TiDimensionUndefined;
-		layoutProperties.centerY = TiDimensionUndefined;
-	}
-	else
+	if ([value isKindOfClass:[NSDictionary class]])
 	{
 		layoutProperties.centerX = TiDimensionFromObject([value objectForKey:@"x"]);
 		layoutProperties.centerY = TiDimensionFromObject([value objectForKey:@"y"]);
+	} else if ([value isKindOfClass:[TiPoint class]]) {
+        CGPoint p = [value point];
+		layoutProperties.centerX = TiDimensionPixels(p.x);
+		layoutProperties.centerY = TiDimensionPixels(p.y);
+    } else {
+		layoutProperties.centerX = TiDimensionUndefined;
+		layoutProperties.centerY = TiDimensionUndefined;
 	}
+
 	[self willChangePosition];
 }
 
@@ -556,6 +560,29 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	return barButtonView;
 }
 
+#pragma mark Recognizers
+
+-(void)recognizedPinch:(UIPinchGestureRecognizer*)recognizer 
+{ 
+    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                           NUMDOUBLE(recognizer.scale), @"scale", 
+                           NUMDOUBLE(recognizer.velocity), @"velocity", 
+                           nil]; 
+    [self fireEvent:@"pinch" withObject:event]; 
+}
+
+-(void)recognizedLongPress:(UILongPressGestureRecognizer*)recognizer 
+{ 
+    if ([recognizer state] == UIGestureRecognizerStateBegan) {
+        CGPoint p = [recognizer locationInView:self.view];
+        NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                               NUMFLOAT(p.x), @"x",
+                               NUMFLOAT(p.y), @"y",
+                               nil];
+        [self fireEvent:@"longpress" withObject:event]; 
+    }
+}
+
 -(TiUIView*)view
 {
 	if (view == nil)
@@ -570,7 +597,19 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		// on open we need to create a new view
 		[self viewWillAttach];
 		view = [self newView];
-		
+
+        // check listeners dictionary to see if we need gesture recognizers
+        if ([self _hasListeners:@"pinch"]) {
+            UIPinchGestureRecognizer* r = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedPinch:)];
+            [view addGestureRecognizer:r];
+            [r release];
+        }
+        if ([self _hasListeners:@"longpress"]) {
+            UILongPressGestureRecognizer* r = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedLongPress:)];
+            [view addGestureRecognizer:r];
+            [r release];
+        }
+        
 		view.proxy = self;
 		view.layer.transform = CATransform3DIdentity;
 		view.transform = CGAffineTransformIdentity;
@@ -980,7 +1019,9 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	if (view!=nil)
 	{
 		[self viewWillDetach];
-		// hold the view during detachment
+		// hold the view during detachment -- but we can't release it immediately.
+        // What if it (or a superview or subview) is in the middle of an animation?
+        // We probably need to be even MORE careful here.
 		[[view retain] autorelease];
 		view.proxy = nil;
 		if (self.modelDelegate!=nil && [self.modelDelegate respondsToSelector:@selector(detachProxy)])
@@ -1227,7 +1268,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	{
 		[self.modelDelegate listenerAdded:type count:count];
 	}
-	else if(view!=nil)  // don't create the view if not already realized
+	else if(view!=nil) // don't create the view if not already realized
 	{
 		[self.view listenerAdded:type count:count];
 	}

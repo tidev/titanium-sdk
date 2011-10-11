@@ -637,17 +637,18 @@ public class TiHTTPClient
 	private Uri uri;
 	private String url;
 
-  public void clearCookies(String url) {
-    List<Cookie> cookies = new ArrayList(client.getCookieStore().getCookies());
-    client.getCookieStore().clear();
-    String lower_url = url.toLowerCase();
-    for (Cookie cookie : cookies) {
-      if (!lower_url.contains(cookie.getDomain().toLowerCase())) {
-        client.getCookieStore().addCookie(cookie);
-      }  
-    } 
-  }
-	
+	public void clearCookies(String url)
+	{
+		List<Cookie> cookies = new ArrayList<Cookie>(client.getCookieStore().getCookies());
+		client.getCookieStore().clear();
+		String lower_url = url.toLowerCase();
+		for (Cookie cookie : cookies) {
+			if (!lower_url.contains(cookie.getDomain().toLowerCase())) {
+				client.getCookieStore().addCookie(cookie);
+			}
+		}
+	}
+  	
 	public void setRequestHeader(String header, String value)
 	{
 		if (readyState == READY_STATE_OPENED) {
@@ -868,6 +869,7 @@ public class TiHTTPClient
 			HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
 
 			client = new DefaultHttpClient(new ThreadSafeClientConnManager(params, registry), params);
+			client.setCookieStore(TiCookieStore.getInstance());
 		}
 		aborted = false;
 

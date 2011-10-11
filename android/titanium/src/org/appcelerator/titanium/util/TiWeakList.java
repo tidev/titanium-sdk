@@ -55,6 +55,17 @@ public class TiWeakList<T> extends ArrayList<WeakReference<T>> {
 		}
 		return false;
 	}
+	
+	@Override
+	public boolean add(WeakReference<T> o) 
+	{
+		if (synchronizedList != null) {
+			synchronized (synchronizedList) {
+				return super.add(o);
+			}
+		}
+		return super.add(o);
+	}
 
 	@Override
 	public boolean contains(Object o)

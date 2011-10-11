@@ -57,7 +57,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args);
 	BOOL opening;
 	BOOL attached;
 	BOOL closing;
-	BOOL splashTransitionAnimation;
+	BOOL startingTransitionAnimation;
 	int transitionAnimation;
 
 

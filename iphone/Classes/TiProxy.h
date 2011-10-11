@@ -11,7 +11,7 @@
 #import <pthread.h>
 
 @class KrollBridge;
-
+@class KrollObject;
 
 //Common exceptions to throw when the function call was improper
 extern NSString * const TiExceptionInvalidType;
@@ -76,9 +76,16 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	BOOL	ignoreValueChanged;	//This is done only at initialization where we know the dynprops were properly set by _initWithProperties.
 	NSMutableDictionary *dynprops; 
 	pthread_rwlock_t dynpropsLock; // NOTE: You must respect the dynprops lock when accessing dynprops elsewhere!
+
+	int bridgeCount;
+	KrollObject * pageKrollObject;
 	id<TiEvaluator> pageContext;
 	id<TiEvaluator> executionContext;
 }
+
+-(void)boundBridge:(id<TiEvaluator>)newBridge withKrollObject:(KrollObject *)newKrollObject;
+-(void)unboundBridge:(id<TiEvaluator>)oldBridge;
+
 
 @property(readonly,nonatomic)			id<TiEvaluator> pageContext;
 @property(readonly,nonatomic)			id<TiEvaluator> executionContext;
@@ -99,7 +106,6 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(TiHost*)_host;
 -(NSURL*)_baseURL;
 -(void)_setBaseURL:(NSURL*)url;
--(BOOL)_propertyInitRequiresUIThread;
 -(void)_destroy;
 -(void)_configure;
 -(void)_dispatchWithObjectOnUIThread:(NSArray*)args;

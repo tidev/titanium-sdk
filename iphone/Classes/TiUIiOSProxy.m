@@ -9,20 +9,23 @@
 #import "TiUtils.h"
 
 #ifdef USE_TI_UIIOS
+ 
+	#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+		#ifdef USE_TI_UIIOSADVIEW
+			#import "TiUIiOSAdViewProxy.h"
+		#endif
 
-#ifdef USE_TI_UIIOSADVIEW
-#import "TiUIiOSAdViewProxy.h"
-#endif
-
-#endif
-#ifdef USE_TI_UIIOS3DMATRIX
-#import "TiUIiOS3DMatrix.h"
-#endif
-#ifdef USE_TI_UIIOSCOVERFLOWVIEW
-#import "TiUIiOSCoverFlowViewProxy.h"
-#endif
+	#endif
+	#ifdef USE_TI_UIIOS3DMATRIX
+		#import "TiUIiOS3DMatrix.h"
+	#endif
+	#ifdef USE_TI_UIIOSCOVERFLOWVIEW
+		#import "TiUIiOSCoverFlowViewProxy.h"
+	#endif
+	#ifdef USE_TI_UIIOSTOOLBAR
+		#import "TiUIiOSToolbarProxy.h"
+	#endif
 
 @implementation TiUIiOSProxy
 
@@ -51,7 +54,13 @@
 #ifdef USE_TI_UIIOSCOVERFLOWVIEW
 -(id)createCoverFlowView:(id)args
 {
-		return [[[TiUIiOSCoverFlowViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+	return [[[TiUIiOSCoverFlowViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
+#ifdef USE_TI_UIIOSTOOLBAR
+-(id)createToolbar:(id)args
+{
+	return [[[TiUIiOSToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 @end

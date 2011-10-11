@@ -333,6 +333,25 @@ describe("Ti.UI.Android tests", {
 		wv.pluginState = 5;
 		valueOf(wv.pluginState).shouldBe(Ti.UI.Android.WEBVIEW_PLUGINS_OFF);
 	},
+	webViewEnableZoomControlsMethods: function() {
+		var wv = Ti.UI.createWebView();
+		
+		valueOf(wv).shouldNotBeNull();
+		valueOf(wv.getEnableZoomControls).shouldBeFunction();
+		valueOf(wv.setEnableZoomControls).shouldBeFunction();
+		
+		valueOf(wv.enableZoomControls).shouldBeTrue();
+		wv.enableZoomControls = false;
+		valueOf(wv.enableZoomControls).shouldBeFalse();
+		wv.setEnableZoomControls(true);
+		valueOf(wv.getEnableZoomControls()).shouldBeTrue();
+		
+		wv = Ti.UI.createWebView({
+			enableZoomControls: false
+		});
+		valueOf(wv.enableZoomControls).shouldBeFalse();
+		
+	},
 	keepScreenOn: function() {
 		var v = Ti.UI.createView();
 		valueOf(v).shouldNotBeNull();

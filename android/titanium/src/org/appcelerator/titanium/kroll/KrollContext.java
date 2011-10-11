@@ -28,15 +28,20 @@ import org.appcelerator.titanium.util.TiFileHelper2;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.EvaluatorException;
+import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.commonjs.module.ModuleScript;
+import org.mozilla.javascript.commonjs.module.ModuleScriptProvider;
+import org.mozilla.javascript.commonjs.module.Require;
+import org.mozilla.javascript.commonjs.module.RequireBuilder;
 
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
 
-public class KrollContext implements Handler.Callback
+public class KrollContext implements Handler.Callback, ModuleScriptProvider
 {
 	private static final String LCAT = "KrollContext";
 	private static boolean DBG = TiConfig.DEBUG;
@@ -54,6 +59,7 @@ public class KrollContext implements Handler.Callback
 	private static KrollThreadListener threadListener;
 
 	private KrollHandlerThread thread;
+	private Require commonJsRequire;
 	private TiContext tiContext;
 	private ScriptableObject jsScope;
 	private String sourceUrl;
@@ -189,7 +195,79 @@ public class KrollContext implements Handler.Callback
 			if (DBG) {
 				Log.d(LCAT, "Initialized scope: " + jsScope);
 			}
+			this.commonJsRequire = buildCommonJsRequire(ctx);
+			if (DBG) {
+				Log.d(LCAT, "Initialized commonJS require() function: " + this.commonJsRequire);
+			}
 			initialized.countDown();
+		} finally {
+			exit();
+		}
+	}
+
+	private Require buildCommonJsRequire(Context ctx)
+	{
+		RequireBuilder builder = new RequireBuilder();
+		builder.setModuleScriptProvider(this);
+		return builder.createRequire(ctx, jsScope);
+	}
+
+	@Override
+	public ModuleScript getModuleScript(Context context, String moduleId,
+			Scriptable paths) throws Exception
+	{
+		Script script = null;
+		String uri;
+
+		// CommonJS modules are relative to app://. If a moduleId came
+		// in with a forward slash, lose it.
+		if (moduleId.startsWith("/")) {
+			moduleId = moduleId.substring(1);
+		}
+
+		StringBuilder sb = new StringBuilder();
+		sb.append(TiC.URL_APP_PREFIX)
+			.append(moduleId)
+			.append(".js");
+		uri = sb.toString();
+
+		if (useOptimization) {
+			// get Script from compiled script class
+			script = TiScriptRunner.getInstance()
+					.getScript(context, jsScope, moduleId);
+			if (script == null) {
+				Log.e(LCAT, "Could not retrieve a Script object for module '" + moduleId + "'.");
+				Context.throwAsScriptRuntimeEx(new Exception("Unable to load Script for module '" + moduleId + "'."));
+			}
+		} else {
+			// make Script from JS source
+			TiBaseFile file = TiFileFactory.createTitaniumFile(tiContext, new String[] { uri }, false);
+			BufferedReader br = null;
+			try {
+				br = new BufferedReader(new InputStreamReader(file.getInputStream()), 4000);
+				script = context.compileReader(br, uri, 1, null);
+			} catch (IOException e) {
+				Log.e(LCAT, "IOException reading module file: " + uri, e);
+				Context.throwAsScriptRuntimeEx(e);
+			} finally {
+				if (br != null) {
+					try {
+						br.close();
+					} catch (IOException e) {
+						// Ignore
+					}
+				}
+			}
+		}
+
+		return new ModuleScript(script, uri);
+	}
+
+	public Object callCommonJsRequire(String path)
+	{
+		Context ctx = enter();
+		try {
+			return commonJsRequire.call(ctx, jsScope, jsScope, new String[] { path });
 		} finally {
 			exit();
 		}
