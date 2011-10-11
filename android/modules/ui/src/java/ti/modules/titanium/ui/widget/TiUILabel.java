@@ -147,7 +147,7 @@ public class TiUILabel extends TiUIView
 	@Override
 	protected void setOpacity(View view, float opacity)
 	{
-		if (view instanceof TextView) {
+		if (view != null && view instanceof TextView) {
 			TiUIHelper.setPaintOpacity(((TextView) view).getPaint(), opacity);
 		}
 		super.setOpacity(view, opacity);
@@ -157,9 +157,9 @@ public class TiUILabel extends TiUIView
 	public void clearOpacity(View view)
 	{
 		super.clearOpacity(view);
-		if (view instanceof TextView) {
+		if (view != null && view instanceof TextView) {
 			((TextView) view).getPaint().setColorFilter(null);
 		}
 	}
-
+	
 }
