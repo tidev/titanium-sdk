@@ -347,7 +347,12 @@ fails, a JS exception is returned.
 
 	jobjectArray varArgs = env->NewObjectArray(length, JNIUtil::objectClass, NULL);
 	for (uint32_t i = 0; i < length; ++i) {
-		env->SetObjectArrayElement(varArgs, i, TypeConverter::jsValueToJavaObject(args[i+${start}])); 
+		bool isNew;
+		jobject arg = TypeConverter::jsValueToJavaObject(args[i+${start}], &isNew);
+		env->SetObjectArrayElement(varArgs, i, arg);
+		if (isNew) {
+			env->DeleteLocalRef(arg);
+		}
 	}
 
 	jArguments[${start}].l = varArgs;
