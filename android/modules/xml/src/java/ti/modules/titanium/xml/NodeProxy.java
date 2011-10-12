@@ -8,6 +8,7 @@ package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
@@ -50,7 +51,12 @@ public class NodeProxy extends KrollProxy {
 		super();
 		this.node = node;
 	}
-	
+
+	public NodeProxy(TiContext tiContext, Node node)
+	{
+		this(node);
+	}
+
 	public Node getNode() {
 		return node;
 	}
@@ -104,11 +110,21 @@ public class NodeProxy extends KrollProxy {
 
 		return proxy;
 	}
+
+	public static NodeProxy getNodeProxy(TiContext tiContext, Node node)
+	{
+		return getNodeProxy(node);
+	}
 	
 	public static NodeProxy removeProxyForNode(Node node) {
 		// if we're here then a proxy was never generated for this node
 		// just return a temporary wrapper in this case
 		return new NodeProxy(node);
+	}
+
+	public static NodeProxy removeProxyForNode(TiContext tiContext, Node node)
+	{
+		return removeProxyForNode(node);
 	}
 	
 	@SuppressWarnings("unchecked")

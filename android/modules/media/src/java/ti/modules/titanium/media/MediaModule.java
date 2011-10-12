@@ -27,6 +27,7 @@ import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
@@ -78,6 +79,16 @@ public class MediaModule extends KrollModule
 	
 	@Kroll.constant public static final String MEDIA_TYPE_PHOTO = "public.image";
 	@Kroll.constant public static final String MEDIA_TYPE_VIDEO = "public.video";
+
+	public MediaModule()
+	{
+		super();
+	}
+
+	public MediaModule(TiContext tiContext)
+	{
+		this();
+	}
 
 	@Kroll.method
 	public void vibrate(@Kroll.argument(optional=true) long[] pattern)

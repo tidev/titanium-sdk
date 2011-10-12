@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget.tableview;
 
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiUIHelper;
 
@@ -75,6 +76,10 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 		setMinimumHeight((int)TiUIHelper.getRawDIPSize(18, activity));
 	}
 
+	public TiTableViewHeaderItem(TiContext tiContext, Activity activity)
+	{
+		this(activity);
+	}
 	public void setRowData(Item item) {
 		rowView.setRowData(item);
 	}

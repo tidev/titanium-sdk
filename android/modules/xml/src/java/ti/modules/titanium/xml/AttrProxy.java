@@ -7,6 +7,7 @@
 package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiContext;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 
@@ -18,7 +19,12 @@ public class AttrProxy extends NodeProxy {
 		super(attr);
 		this.attr = attr;
 	}
-	
+
+	public AttrProxy(TiContext context, Attr attr)
+	{
+		this(attr);
+	}
+
 	public Attr getAttr() {
 		return attr;
 	}

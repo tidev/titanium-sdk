@@ -8,6 +8,7 @@ package ti.modules.titanium.android;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiBaseService;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.proxy.ServiceProxy;
 import org.appcelerator.titanium.util.Log;
@@ -103,8 +104,11 @@ public class TiJSService extends TiBaseService
 	}
 
 	// TODO
-	/*
-	@Override
+	public int registerBoundTiContext(int serviceIntentId, TiContext tiContext)
+	{
+		return registerBoundTiContext(serviceIntentId);
+	}
+
 	public int registerBoundTiContext(int serviceIntentId)
 	{
 		if (url != null) {
@@ -113,9 +117,10 @@ public class TiJSService extends TiBaseService
 			if (baseUrl.length() == 0) {
 				baseUrl = null;
 			}
-			tiContext.setBaseUrl(baseUrl);
+			//tiContext.setBaseUrl(baseUrl);
 		}
-		return super.registerBoundTiContext(serviceIntentId, tiContext);
+		//return super.registerBoundTiContext(serviceIntentId, tiContext);
+		return -1;
 	}
-	*/
 }
+

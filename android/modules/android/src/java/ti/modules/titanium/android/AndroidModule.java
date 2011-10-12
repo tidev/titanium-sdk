@@ -12,6 +12,7 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.RProxy;
 import org.appcelerator.titanium.proxy.ServiceProxy;
@@ -226,12 +227,15 @@ public class AndroidModule extends KrollModule
 
 	protected RProxy r;
 
-	/*
+	public AndroidModule()
+	{
+		super();
+	}
+
 	public AndroidModule(TiContext tiContext)
 	{
-		super(tiContext);
+		this();
 	}
-	*/
 
 	@Kroll.method
 	public IntentProxy createIntent(Object[] args)

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 
 import android.content.ContentResolver;
@@ -23,12 +24,16 @@ public class ReminderProxy extends KrollProxy {
 	protected String id;
 	protected int minutes, method;
 
-	/*
-	public ReminderProxy() {
-		super(context);
+	public ReminderProxy()
+	{
+		super();
 	}
-	*/
-	
+
+	public ReminderProxy(TiContext context)
+	{
+		this();
+	}
+
 	public static String getRemindersUri() {
 		return CalendarProxy.getBaseCalendarUri() + "/reminders";
 	}
@@ -55,7 +60,12 @@ public class ReminderProxy extends KrollProxy {
 		
 		return reminders;
 	}
-	
+
+	public static ArrayList<ReminderProxy> getRemindersForEvent(TiContext context, EventProxy event)
+	{
+		return getRemindersForEvent(event);
+	}
+
 	public static ReminderProxy createReminder(EventProxy event, int minutes, int method) {
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 		ContentValues eventValues = new ContentValues();
@@ -75,7 +85,12 @@ public class ReminderProxy extends KrollProxy {
 		
 		return reminder;
 	}
-	
+
+	public static ReminderProxy createReminder(TiContext context, EventProxy event, int minutes, int method)
+	{
+		return createReminder(event, minutes, method);
+	}
+
 	@Kroll.getProperty @Kroll.method
 	public String getId() {
 		return id;

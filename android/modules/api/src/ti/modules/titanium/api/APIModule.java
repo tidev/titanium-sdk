@@ -8,6 +8,7 @@ package ti.modules.titanium.api;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiLogger;
 
@@ -25,8 +26,20 @@ public class APIModule extends KrollModule
 	@Kroll.constant public static final int CRITICAL = TiLogger.CRITICAL;
 	@Kroll.constant public static final int FATAL = TiLogger.FATAL;
 
-	private TiLogger logger = new TiLogger() {
-		public void log(int level, String message) {
+	public APIModule()
+	{
+		super();
+	}
+
+	public APIModule(TiContext tiContext)
+	{
+		this();
+	}
+
+	private TiLogger logger = new TiLogger()
+	{
+		public void log(int level, String message)
+		{
 			internalLog(level, message);
 		}
 	};
@@ -41,7 +54,8 @@ public class APIModule extends KrollModule
 		this.logger = logger;
 	}
 
-	private String toString(Object msg) {
+	private String toString(Object msg)
+	{
 		if (msg == null) {
 			return "null";
 		}
@@ -49,42 +63,50 @@ public class APIModule extends KrollModule
 	}
 	
 	@Kroll.method
-	public void debug(Object msg) {
+	public void debug(Object msg)
+	{
 		logger.log(DEBUG, toString(msg));
 	}
 
 	@Kroll.method
-	public void info(Object msg) {
+	public void info(Object msg)
+	{
 		logger.log(INFO, toString(msg));
 	}
 
 	@Kroll.method
-	public void warn(Object msg) {
+	public void warn(Object msg)
+	{
 		logger.log(WARN, toString(msg));
 	}
 
 	@Kroll.method
-	public void error(Object msg) {
+	public void error(Object msg)
+	{
 		logger.log(ERROR, toString(msg));
 	}
 
 	@Kroll.method
-	public void trace(Object msg) {
+	public void trace(Object msg)
+	{
 		logger.log(TRACE, toString(msg));
 	}
 
 	@Kroll.method
-	public void notice(Object msg) {
+	public void notice(Object msg)
+	{
 		logger.log(NOTICE, toString(msg));
 	}
 
 	@Kroll.method
-	public void critical(Object msg) {
+	public void critical(Object msg)
+	{
 		logger.log(CRITICAL, toString(msg));
 	}
 
 	@Kroll.method
-	public void fatal(Object msg) {
+	public void fatal(Object msg)
+	{
 		logger.log(FATAL, toString(msg));
 	}
 

@@ -12,6 +12,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiPlatformHelper;
@@ -50,6 +51,11 @@ public class PlatformModule extends KrollModule
 
 		batteryState = BATTERY_STATE_UNKNOWN;
 		batteryLevel = -1;
+	}
+
+	public PlatformModule(TiContext tiContext)
+	{
+		this();
 	}
 
 	@Kroll.getProperty @Kroll.method

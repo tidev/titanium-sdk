@@ -10,6 +10,7 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
@@ -102,6 +103,16 @@ public class UIModule extends KrollModule
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_SENTENCES = 1;
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_WORDS = 2;
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_ALL = 3;
+
+	public UIModule()
+	{
+		super();
+	}
+
+	public UIModule(TiContext tiContext)
+	{
+		this();
+	}
 
 	@Kroll.setProperty(runOnUiThread=true) @Kroll.method(runOnUiThread=true)
 	public void setBackgroundColor(String color)

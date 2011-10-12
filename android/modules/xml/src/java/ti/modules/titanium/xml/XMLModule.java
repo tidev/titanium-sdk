@@ -16,6 +16,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -42,10 +43,15 @@ public class XMLModule extends KrollModule {
 		}
 	}
 
-	/*
-	public XMLModule(TiContext context) {
-		super(context);
-	}*/
+	public XMLModule()
+	{
+		super();
+	}
+
+	public XMLModule(TiContext context)
+	{
+		this();
+	}
 	
 	@Kroll.method
 	public DocumentProxy parseString(String xml)
@@ -59,7 +65,13 @@ public class XMLModule extends KrollModule {
 	{
 		return parse(xml, System.getProperty("file.encoding", "UTF-8"));
 	}
-	
+
+	public static DocumentProxy parse(TiContext tiContext, String xml)
+		throws SAXException, IOException
+	{
+		return XMLModule.parse(xml);
+	}
+
 	public static DocumentProxy parse(String xml, String encoding)
 		throws SAXException, IOException
 	{
@@ -76,7 +88,13 @@ public class XMLModule extends KrollModule {
 		}
 		return null;
 	}
-	
+
+	public static DocumentProxy parse(TiContext tiContext, String xml, String encoding)
+		throws SAXException, IOException
+	{
+		return XMLModule.parse(xml, encoding);
+	}
+
 	@Kroll.method
 	public String serializeToString(NodeProxy node)
 	{

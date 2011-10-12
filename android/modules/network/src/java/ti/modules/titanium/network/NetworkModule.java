@@ -11,6 +11,7 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
@@ -119,6 +120,11 @@ public class NetworkModule extends KrollModule {
 		this.isListeningForConnectivity = false;
 
 		setProperty("userAgent", NETWORK_USER_AGENT + " Titanium/"+TiApplication.getInstance().getTiBuildVersion());
+	}
+
+	public NetworkModule(TiContext tiContext)
+	{
+		this();
 	}
 
 	@Override

@@ -10,6 +10,7 @@ import org.apache.http.MethodNotSupportedException;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiContext;
 
 import ti.modules.titanium.xml.DocumentProxy;
 
@@ -34,6 +35,11 @@ public class HTTPClientProxy extends KrollProxy
 	{
 		super();
 		this.client = new TiHTTPClient(this);
+	}
+
+	public HTTPClientProxy(TiContext tiContext)
+	{
+		this();
 	}
 
 	@Kroll.method

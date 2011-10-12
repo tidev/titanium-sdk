@@ -14,6 +14,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
@@ -52,7 +53,14 @@ public class TabGroupProxy extends TiWindowProxy
 
 	public TabGroupProxy()
 	{
+		super();
+
 		initialActiveTab = null;
+	}
+
+	public TabGroupProxy(TiContext tiContext)
+	{
+		this();
 	}
 
 	@Override

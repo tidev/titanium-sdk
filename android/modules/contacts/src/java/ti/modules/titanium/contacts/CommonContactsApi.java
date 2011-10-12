@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 
 import android.content.Intent;
@@ -31,6 +32,7 @@ public abstract class CommonContactsApi
 			try {
 				Class.forName("android.provider.ContactsContract"); // just a test for success
 				useNew = true;
+
 			} catch (ClassNotFoundException e) {
 				Log.d(LCAT, "Unable to load newer contacts api: " + e.getMessage(), e);
 				useNew = false;
@@ -42,20 +44,32 @@ public abstract class CommonContactsApi
 			if (!c.loadedOk) {
 				Log.d(LCAT, "ContactsApiLevel5 did not load successfully.  Falling back to L4.");
 				return new ContactsApiLevel4();
+
 			} else {
 				return c;
 			}
+
 		} else {
 			return new ContactsApiLevel4();
 		}
 	}
-	
+
+	protected static CommonContactsApi getInstance(TiContext tiContext)
+	{
+		return getInstance();
+	}
+
 	protected static Bitmap getContactImage(long contact_id)
 	{
 		CommonContactsApi api = getInstance();
 		return api.getContactImage(contact_id);
 	}
-	
+
+	protected static Bitmap getContactImage(TiContext context, long contact_id)
+	{
+		return getContactImage(contact_id);
+	}
+
 	protected abstract PersonProxy getPersonById(long id);
 	protected abstract PersonProxy getPersonByUri(Uri uri);
 	protected abstract PersonProxy[] getAllPeople(int limit);
@@ -78,7 +92,12 @@ public abstract class CommonContactsApi
 		}
 		return proxies;
 	}
-	
+
+	protected PersonProxy[] proxifyPeople(Map<Long, LightPerson> persons, TiContext tiContext)
+	{
+		return proxifyPeople(persons);
+	}
+
 	// Happily, these codes are common across api level
 	protected static String getEmailTextType(int type) 
 	{
@@ -290,6 +309,11 @@ public abstract class CommonContactsApi
 			proxy.hasImage = this.hasImage;
 			return proxy;
 			
+		}
+
+		PersonProxy proxify(TiContext tiContext)
+		{
+			return proxify();
 		}
 	}
 	

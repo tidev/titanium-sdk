@@ -7,6 +7,7 @@
 package ti.modules.titanium.facebook;
 
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.view.TiUIView;
@@ -14,10 +15,18 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.app.Activity;
 
 @Kroll.proxy(parentModule=FacebookModule.class)
-public class TiFacebookModuleLoginButtonProxy extends TiViewProxy {
+public class TiFacebookModuleLoginButtonProxy extends TiViewProxy
+{
 	private FacebookModule facebookModule = null;
-	public TiFacebookModuleLoginButtonProxy() {
+
+	public TiFacebookModuleLoginButtonProxy()
+	{
 		super();
+	}
+
+	public TiFacebookModuleLoginButtonProxy(TiContext tiContext)
+	{
+		this();
 	}
 	
 	public TiFacebookModuleLoginButtonProxy(FacebookModule facebookModule)
@@ -25,6 +34,11 @@ public class TiFacebookModuleLoginButtonProxy extends TiViewProxy {
 		this();
 		Log.d("LoginButtonProxy", "Second constructor called");
 		this.facebookModule = facebookModule;
+	}
+
+	public TiFacebookModuleLoginButtonProxy(TiContext tiContext, FacebookModule facebookModule)
+	{
+		this(facebookModule);
 	}
 
 	@Override

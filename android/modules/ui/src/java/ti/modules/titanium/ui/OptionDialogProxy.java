@@ -9,6 +9,7 @@ package ti.modules.titanium.ui;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIDialog;
@@ -26,6 +27,12 @@ public class OptionDialogProxy extends TiDialogProxy
 {
 	public OptionDialogProxy()
 	{
+		super();
+	}
+
+	public OptionDialogProxy(TiContext tiContext)
+	{
+		this();
 	}
 	
 	@Override

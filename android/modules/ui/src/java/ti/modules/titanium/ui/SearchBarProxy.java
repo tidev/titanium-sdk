@@ -9,6 +9,7 @@ package ti.modules.titanium.ui;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -25,7 +26,13 @@ public class SearchBarProxy extends TiViewProxy
 {
 	public SearchBarProxy()
 	{
+		super();
 		setProperty(TiC.PROPERTY_VALUE, "");
+	}
+
+	public SearchBarProxy(TiContext tiContext)
+	{
+		this();
 	}
 
 	@Override

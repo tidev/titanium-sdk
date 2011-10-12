@@ -7,6 +7,7 @@
 package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiContext;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.DOMException;
 
@@ -18,6 +19,11 @@ public class CharacterDataProxy extends NodeProxy {
 	{
 		super(data);
 		this.data = data;
+	}
+
+	public CharacterDataProxy(TiContext context, CharacterData data)
+	{
+		this(data);
 	}
 	
 	@Kroll.method

@@ -19,6 +19,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.runtime.v8.V8Callback;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
@@ -73,6 +74,11 @@ public class FacebookModule extends KrollModule
 				loggedIn = false;
 			}
 		}
+	}
+
+	public FacebookModule(TiContext tiContext)
+	{
+		this();
 	}
 	
 	// Public Properties with accessors

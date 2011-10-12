@@ -7,6 +7,7 @@
 package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiContext;
 import org.w3c.dom.Entity;
 
 @Kroll.proxy(parentModule=XMLModule.class)
@@ -17,6 +18,11 @@ public class EntityProxy extends NodeProxy {
 	{
 		super(entity);
 		this.entity = entity;
+	}
+
+	public EntityProxy(TiContext context, Entity entity)
+	{
+		this(entity);
 	}
 	
 	@Kroll.getProperty @Kroll.method

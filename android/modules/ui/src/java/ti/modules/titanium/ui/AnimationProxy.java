@@ -8,6 +8,7 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.view.TiAnimation;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
@@ -28,6 +29,16 @@ import org.appcelerator.titanium.view.TiAnimation;
 })
 
 public class AnimationProxy extends TiAnimation {
+
+	public AnimationProxy()
+	{
+		super();
+	}
+
+	public AnimationProxy(TiContext tiContext)
+	{
+		this();
+	}
 
 	public void handleCreationDict(org.appcelerator.kroll.KrollDict dict) {
 		super.handleCreationDict(dict);

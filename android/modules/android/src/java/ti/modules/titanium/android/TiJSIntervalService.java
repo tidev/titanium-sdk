@@ -14,6 +14,7 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.ServiceProxy;
@@ -119,9 +120,6 @@ public class TiJSIntervalService extends TiJSService
 		super.onDestroy();
 	}
 
-	// TODO
-	/*
-	@Override
 	protected void unbindContext()
 	{
 		IntervalServiceRunner runner = findRunnerOfContext();
@@ -133,7 +131,12 @@ public class TiJSIntervalService extends TiJSService
 		}
 		runners.remove(runner);
 	}
-	*/
+
+	//@Override
+	protected void unbindContext(TiContext tiContext)
+	{
+		unbindContext();
+	}
 	
 	private class IntervalServiceRunner
 	{

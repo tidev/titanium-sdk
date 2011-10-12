@@ -11,6 +11,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiSensorHelper;
 
@@ -21,8 +22,7 @@ import android.hardware.SensorManager;
 
 
 @Kroll.module
-public class AccelerometerModule extends KrollModule
-	implements SensorEventListener
+public class AccelerometerModule extends KrollModule implements SensorEventListener
 {
 	private static final String LCAT = "TiAccelerometer";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -32,12 +32,15 @@ public class AccelerometerModule extends KrollModule
 	private long lastSensorEventTimestamp = 0;
 
 
-	/*
 	public AccelerometerModule()
 	{
 		super();
 	}
-	*/
+
+	public AccelerometerModule(TiContext tiContext)
+	{
+		this();
+	}
 
 	@Override
 	public void eventListenerAdded(String type, int count, final KrollProxy proxy)

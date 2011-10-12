@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.widget.tableview;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -69,6 +70,11 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 				}
 			}
 		}
+	}
+
+	public TiBaseTableViewItem(TiContext tiContext, Activity activity)
+	{
+		this(activity);
 	}
 
 	public abstract void setRowData(Item item);

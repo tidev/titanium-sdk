@@ -15,6 +15,7 @@ import org.appcelerator.kroll.runtime.v8.V8Runtime;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.util.AsyncResult;
@@ -437,4 +438,10 @@ public class KrollProxy extends EventEmitter
 	{
 		return toString();
 	}
+
+	public TiContext getTiContext()
+	{
+		return new TiContext(activity, proxyId);
+	}
 }
+

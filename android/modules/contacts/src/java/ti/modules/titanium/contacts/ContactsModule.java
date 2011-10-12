@@ -19,6 +19,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.runtime.v8.V8Callback;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
@@ -48,7 +49,12 @@ public class ContactsModule extends KrollModule
 		super();
 		contactsApi = CommonContactsApi.getInstance();
 	}
-	
+
+	public ContactsModule(TiContext tiContext)
+	{
+		this();
+	}
+
 	@Kroll.method
 	public Object[] getAllPeople(@Kroll.argument(optional=true) KrollDict options)
 	{

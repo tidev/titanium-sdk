@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiColorHelper;
@@ -339,6 +340,11 @@ public class TiTableView extends FrameLayout
 			}
 		});
 		addView(listView);
+	}
+
+	public TiTableView(TiContext tiContext, TableViewProxy proxy)
+	{
+		this(proxy);
 	}
 
 	private TiBaseTableViewItem getParentTableViewItem(View view)

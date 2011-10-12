@@ -13,6 +13,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -51,7 +52,8 @@ public class ViewProxy extends TiViewProxy
 	private ArrayList<AnnotationProxy> annotations;
 	private ArrayList<TiMapView.SelectedAnnotation> selectedAnnotations;
 	
-	public ViewProxy() {
+	public ViewProxy()
+	{
 		super();
 
 		// TODO ?
@@ -62,6 +64,11 @@ public class ViewProxy extends TiViewProxy
 
 		annotations = new ArrayList<AnnotationProxy>();
 		selectedAnnotations = new ArrayList<TiMapView.SelectedAnnotation>();
+	}
+
+	public ViewProxy(TiContext tiContext)
+	{
+		this();
 	}
 
 	@Override

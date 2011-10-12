@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiContext;
 
 import ti.modules.titanium.android.AndroidModule;
 
@@ -27,11 +28,15 @@ public class CalendarModule extends KrollModule {
 	@Kroll.constant public static final int STATE_FIRED = AlertProxy.STATE_FIRED;
 	@Kroll.constant public static final int STATE_SCHEDULED = AlertProxy.STATE_SCHEDULED;
 
-	/*
-	public CalendarModule(TiContext context) {
-		super(context);
+	public CalendarModule()
+	{
+		super();
 	}
-	*/
+
+	public CalendarModule(TiContext context)
+	{
+		this();
+	}
 	
 	@Kroll.getProperty @Kroll.method
 	public CalendarProxy[] getAllCalendars() {

@@ -14,6 +14,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiContext;
 
 import android.graphics.Bitmap;
 
@@ -32,13 +33,16 @@ public class PersonProxy extends KrollProxy
 	private boolean imageFetched; // lazy load these bitmap images
 	protected boolean hasImage = false;
 
-	/*
+	public PersonProxy()
+	{
+		super();
+	}
+
 	public PersonProxy(TiContext tiContext)
 	{
-		super(tiContext);
+		this();
 	}
-	*/
-	
+
 	private boolean isPhotoFetchable()
 	{
 		return (id > 0 && hasImage );

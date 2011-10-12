@@ -8,6 +8,7 @@ package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiContext;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.DOMImplementation;
 
@@ -20,7 +21,12 @@ public class DOMImplementationProxy extends KrollProxy {
 		super();
 		this.impl = impl;
 	}
-	
+
+	public DOMImplementationProxy(TiContext context, DOMImplementation impl)
+	{
+		this(impl);
+	}
+
 	@Kroll.method
 	public DocumentProxy createDocument(String namespaceURI, String qualifiedName,
 			DocumentTypeProxy doctype) throws DOMException {

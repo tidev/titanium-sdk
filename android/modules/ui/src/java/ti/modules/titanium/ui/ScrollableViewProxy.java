@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
@@ -47,7 +48,13 @@ public class ScrollableViewProxy extends TiViewProxy
 
 	public ScrollableViewProxy()
 	{
+		super();
 		inScroll = new AtomicBoolean(false);
+	}
+
+	public ScrollableViewProxy(TiContext context)
+	{
+		this();
 	}
 
 	@Override

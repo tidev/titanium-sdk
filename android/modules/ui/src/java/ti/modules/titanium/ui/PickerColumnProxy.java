@@ -10,6 +10,7 @@ package ti.modules.titanium.ui;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.view.TiUIView;
@@ -32,6 +33,16 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	private PickerColumnListener columnListener  = null;
 	private boolean useSpinner = false;
 	private boolean suppressListenerEvents = false;
+
+	public PickerColumnProxy()
+	{
+		super();
+	}
+
+	public PickerColumnProxy(TiContext tiContext)
+	{
+		this();
+	}
 
 	public void setColumnListener(PickerColumnListener listener)
 	{

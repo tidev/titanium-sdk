@@ -9,6 +9,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.runtime.v8.V8Callback;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiDrawableReference;
@@ -25,6 +26,16 @@ import android.net.Uri;
 public class AndroidModule extends KrollModule
 {
 	private static final String LCAT = "TiMedia.Android";
+
+	public AndroidModule()
+	{
+		super();
+	}
+
+	public AndroidModule(TiContext tiContext)
+	{
+		this();
+	}
 
 	@Kroll.method
 	public void scanMediaFiles(Object[] paths, Object[] mimeTypes, V8Callback callback)
@@ -74,10 +85,20 @@ public class AndroidModule extends KrollModule
 			this.callback = callback;
 		}
 
+		public MediaScannerClient(TiContext tiContext, String[] paths, Object[] mimeTypes, V8Callback callback)
+		{
+			this(paths, mimeTypes, callback);
+		}
+
 		public MediaScannerClient(String[] paths, Object[] mimeTypes)
 		{
 			this.paths = paths;
 			this.mimeTypes = mimeTypes;
+		}
+
+		public MediaScannerClient(TiContext tiContext, String[] paths, Object[] mimeTypes)
+		{
+			this(paths, mimeTypes);
 		}
 
 		@Override

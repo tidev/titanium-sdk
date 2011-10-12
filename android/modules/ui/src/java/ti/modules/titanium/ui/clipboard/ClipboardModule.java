@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.clipboard;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiContext;
 
 import ti.modules.titanium.ui.UIModule;
 import android.content.Context;
@@ -17,6 +18,16 @@ import android.text.ClipboardManager;
 @Kroll.module(parentModule=UIModule.class)
 public class ClipboardModule extends KrollModule
 {
+	public ClipboardModule()
+	{
+		super();
+	}
+
+	public ClipboardModule(TiContext tiContext)
+	{
+		this();
+	}
+
 	/**
 	 * Get the native clipboard instance.
 	 */

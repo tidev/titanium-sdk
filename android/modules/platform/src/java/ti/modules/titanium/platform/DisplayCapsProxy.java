@@ -10,6 +10,7 @@ import java.lang.ref.SoftReference;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiContext;
 
 import android.util.DisplayMetrics;
 import android.view.Display;
@@ -24,6 +25,11 @@ public class DisplayCapsProxy extends KrollProxy
 	{
 		super();
 		dm = new DisplayMetrics();
+	}
+
+	public DisplayCapsProxy(TiContext tiContext)
+	{
+		this();
 	}
 
 	private Display getDisplay() {

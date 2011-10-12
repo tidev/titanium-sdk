@@ -18,6 +18,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.runtime.v8.V8Callback;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.io.TiStream;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -46,6 +47,11 @@ public class TCPProxy extends KrollProxy implements TiStream
 	{
 		super();
 		state = SocketModule.INITIALIZED;
+	}
+
+	public TCPProxy(TiContext tiContext)
+	{
+		this();
 	}
 
 	@Kroll.method

@@ -18,6 +18,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 
@@ -25,6 +26,16 @@ import org.appcelerator.titanium.util.TiConvert;
 public class UtilsModule extends KrollModule
 {
 	private static final String TAG = "UtilsModule";
+
+	public UtilsModule()
+	{
+		super();
+	}
+
+	public UtilsModule(TiContext tiContext)
+	{
+		this();
+	}
 
 	@Kroll.method
 	public TiBlob base64encode(Object obj)

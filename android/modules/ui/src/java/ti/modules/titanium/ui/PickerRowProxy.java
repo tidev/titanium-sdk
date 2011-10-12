@@ -9,6 +9,7 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
@@ -23,6 +24,16 @@ public class PickerRowProxy extends TiViewProxy
 	private static final String LCAT = "PickerRowProxy";
 	private String title = "[PickerRow]";
 	private PickerRowListener rowListener = null;
+
+	public PickerRowProxy()
+	{
+		super();
+	}
+
+	public PickerRowProxy(TiContext tiContext)
+	{
+		this();
+	}
 
 	@Kroll.getProperty @Kroll.method
 	public String getTitle()

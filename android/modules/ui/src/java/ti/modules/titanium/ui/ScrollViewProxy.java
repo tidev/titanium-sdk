@@ -9,6 +9,7 @@ package ti.modules.titanium.ui;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.view.TiUIView;
@@ -32,6 +33,16 @@ public class ScrollViewProxy extends TiViewProxy
 	private static final int MSG_SCROLL_TO = MSG_FIRST_ID + 100;
 	private static final int MSG_SCROLL_TO_BOTTOM = MSG_FIRST_ID + 101;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
+
+	public ScrollViewProxy()
+	{
+		super();
+	}
+
+	public ScrollViewProxy(TiContext context)
+	{
+		this();
+	}
 
 	@Override
 	public TiUIView createView(Activity activity) {
