@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import <QuartzCore/QuartzCore.h>
+#import <CommonCrypto/CommonDigest.h>
 
 #import "TiBase.h"
 #import "TiUtils.h"
