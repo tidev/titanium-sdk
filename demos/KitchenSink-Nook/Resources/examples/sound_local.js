@@ -1,0 +1,173 @@
+// TODO: add progress bar for sound
+
+if (Titanium.Media.audioPlaying) {
+	Titanium.Media.audioSessionMode = Titanium.Media.AUDIO_SESSION_MODE_AMBIENT;
+}
+
+var win = Titanium.UI.currentWindow;
+
+//TODO: USE OBJECT
+var sound = Titanium.Media.createSound();
+sound.url='../cricket.wav'; // For testing #1913
+
+//
+// PLAY
+//
+var play = Titanium.UI.createButton({
+	title:'Play',
+	height:40,
+	width:145,
+	left:10,
+	top:10
+});
+play.addEventListener('click', function()
+{
+	sound.play();
+	//pb.max = sound.duration;
+});
+win.add(play);
+
+//
+// PAUSE
+//
+var pause = Titanium.UI.createButton({
+	title:'Pause',
+	height:40,
+	width:145,
+	right:10,
+	top:10
+});
+pause.addEventListener('click', function()
+{
+	sound.pause();
+});
+win.add(pause);
+
+//
+// RESET
+//
+var reset = Titanium.UI.createButton({
+	title:'Reset',
+	height:40,
+	width:145,
+	left:10,
+	top:60
+});
+reset.addEventListener('click', function()
+{
+	sound.reset();
+	//pb.value = 0;
+});
+win.add(reset);
+
+//
+// STOP
+//
+var stop = Titanium.UI.createButton({
+	title:'Stop',
+	height:40,
+	width:145,
+	right:10,
+	top:60
+});
+stop.addEventListener('click', function()
+{
+	sound.stop();
+	//pb.value = 0;
+});
+win.add(stop);
+
+//
+// VOLUME +
+//
+var volumeUp = Titanium.UI.createButton({
+	title:'Volume++',
+	height:40,
+	width:145,
+	left:10,
+	top:110
+});
+volumeUp.addEventListener('click', function()
+{
+	if (sound.volume < 1.0)
+	{
+		sound.volume += 0.1;
+		var roundedVolume = Math.round(sound.volume*1000)/1000;
+		volumeUp.title = 'Volume++ (' + roundedVolume + ')';
+		volumeDown.title = 'Volume--';
+	}
+});
+win.add(volumeUp);
+
+//
+// VOLUME -
+//
+var volumeDown = Titanium.UI.createButton({
+	title:'Volume--',
+	height:40,
+	width:145,
+	right:10,
+	top:110
+});
+volumeDown.addEventListener('click', function()
+{
+	if (sound.volume > 0)
+	{
+		if (sound.volume < 0.1){
+			sound.volume = 0;
+		} else {
+			sound.volume -= 0.1;
+		}
+		var roundedVolume = Math.round(sound.volume*1000)/1000;
+		volumeDown.title = 'Volume-- (' + roundedVolume + ')';
+		volumeUp.title = 'Volume++';
+	}
+
+});
+win.add(volumeDown);
+
+//
+// LOOPING
+//
+var looping = Titanium.UI.createButton({
+	title:'Looping (false)',
+	height:40,
+	width:145,
+	left:10,
+	top:160
+});
+looping.addEventListener('click', function()
+{
+	sound.looping = (sound.looping === false)?true:false;
+	looping.title = 'Looping (' + sound.isLooping() + ')';
+});
+win.add(looping);
+
+//
+// EVENTS
+//
+sound.addEventListener('complete', function()
+{
+	//pb.value = 0;
+});
+sound.addEventListener('resume', function()
+{
+	Titanium.API.info('RESUME CALLED');
+});
+
+var i = setInterval(function()
+{
+	if (sound.isPlaying())
+	{
+		Ti.API.info('time ' + sound.time);
+	}
+},500);
+
+//
+//  CLOSE EVENT - CANCEL INTERVAL
+//
+win.addEventListener('close', function()
+{
+	clearInterval(i);
+});
+
