@@ -6,23 +6,59 @@
  */
 package org.appcelerator.kroll.runtime.v8;
 
-public class V8Object extends ManagedV8Reference
+import org.appcelerator.kroll.KrollObject;
+
+public class V8Object extends KrollObject
 {
+	public static final int MSG_LAST_ID = KrollObject.MSG_LAST_ID;
+
+	private volatile long ptr;
+
 	public V8Object(long ptr)
 	{
-		super(ptr);
+		this.ptr = ptr;
 	}
 
-	public V8Object()
+	public long getPointer()
 	{
-		super(nativeCreateObject());
+		return ptr;
 	}
 
-	void doSetProperty(String name, Object value)
+	public void setPointer(long ptr)
+	{
+		this.ptr = ptr;
+	}
+
+	@Override
+	protected void doSetProperty(String name, Object value)
 	{
 		nativeSetProperty(ptr, name, value);
 	}
 
-	private static native long nativeCreateObject();
+	@Override
+	protected boolean doFireEvent(String type, Object data)
+	{
+		return nativeFireEvent(ptr, type, data);
+	}
+
+	@Override
+	protected void doRelease()
+	{
+		nativeRelease(ptr);
+	}
+
+	@Override
+	protected void finalize() throws Throwable
+	{
+		super.finalize();
+		if (ptr != 0) {
+			release();
+		}
+	}
+
+	protected static native void nativeInitObject(Class<?> proxyClass, Object proxyObject);
 	private native void nativeSetProperty(long ptr, String name, Object value);
+	private native boolean nativeFireEvent(long ptr, String event, Object data);
+	private static native void nativeRelease(long ptr);
+
 }

@@ -10,8 +10,6 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.runtime.v8.EventEmitter;
-import org.appcelerator.kroll.runtime.v8.V8Runtime;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -29,8 +27,7 @@ import android.os.Handler;
 import android.os.Message;
 
 @Kroll.proxy(name="KrollProxy")
-public class KrollProxy extends EventEmitter
-	implements Handler.Callback
+public class KrollProxy implements Handler.Callback
 {
 	private static final String TAG = "KrollProxy";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -38,15 +35,16 @@ public class KrollProxy extends EventEmitter
 	private static final int INDEX_OLD_VALUE = 1;
 	private static final int INDEX_VALUE = 2;
 
-	protected static final int MSG_MODEL_PROPERTY_CHANGE = EventEmitter.MSG_LAST_ID + 100;
-	protected static final int MSG_LISTENER_ADDED = EventEmitter.MSG_LAST_ID + 101;
-	protected static final int MSG_LISTENER_REMOVED = EventEmitter.MSG_LAST_ID + 102;
-	protected static final int MSG_MODEL_PROPERTIES_CHANGED = EventEmitter.MSG_LAST_ID + 103;
-	protected static final int MSG_LAST_ID = EventEmitter.MSG_LAST_ID + 999;
+	protected static final int MSG_MODEL_PROPERTY_CHANGE = KrollObject.MSG_LAST_ID + 100;
+	protected static final int MSG_LISTENER_ADDED = KrollObject.MSG_LAST_ID + 101;
+	protected static final int MSG_LISTENER_REMOVED = KrollObject.MSG_LAST_ID + 102;
+	protected static final int MSG_MODEL_PROPERTIES_CHANGED = KrollObject.MSG_LAST_ID + 103;
+	protected static final int MSG_LAST_ID = KrollObject.MSG_LAST_ID + 100;
 	protected static AtomicInteger proxyCounter = new AtomicInteger();
 
 	public static final String PROXY_ID_PREFIX = "proxy$";
 
+	protected KrollObject krollObject;
 	protected Activity activity;
 	protected String proxyId;
 	protected TiUrl creationUrl;
@@ -66,24 +64,25 @@ public class KrollProxy extends EventEmitter
 	}
 
 	// entry point for generator code
-	public static KrollProxy create(Class<? extends KrollProxy> objClass, Object[] creationArguments, long ptr, String creationUrl)
+	public static KrollProxy createProxy(Class<? extends KrollProxy> proxyClass,
+		KrollObject object, Object[] creationArguments, String creationUrl)
 	{
 		try {
-			KrollProxy proxyInstance = objClass.newInstance();
+			KrollProxy proxyInstance = proxyClass.newInstance();
 
-			/* store reference to the native object that represents this proxy so we can drive changes to the JS 
-			 * object
-			 */
-			proxyInstance.setPointer(ptr);
+			// Store reference to the native object that represents this proxy so we can drive changes to the JS 
+			// object
+			proxyInstance.krollObject = object;
+			object.setDelegate(proxyInstance);
+
 			proxyInstance.creationUrl = new TiUrl(creationUrl);
 
-			/* associate the activity with the proxy.  if the proxy needs activity association delayed until a 
-			 * later point then initActivity should be overridden to be a no-op and then call setActivity directly
-			 * at the appropriate time
-			 */
+			// Associate the activity with the proxy.  if the proxy needs activity association delayed until a 
+			// later point then initActivity should be overridden to be a no-op and then call setActivity directly
+			// at the appropriate time
 			proxyInstance.initActivity(TiApplication.getInstance().getCurrentActivity());
 
-			// setup the proxy according to the creation arguments TODO - pass in createdInModule
+			// Setup the proxy according to the creation arguments TODO - pass in createdInModule
 			proxyInstance.handleCreationArgs(null, creationArguments);
 
 			return proxyInstance;
@@ -100,6 +99,19 @@ public class KrollProxy extends EventEmitter
 	protected void initActivity(Activity activity)
 	{
 		this.activity = activity;
+	}
+
+	public Handler getUIHandler()
+	{
+		return krollObject.getMainHandler();
+	}
+
+	public KrollObject getKrollObject()
+	{
+		if (krollObject == null) {
+			KrollRuntime.getInstance().initObject(this);
+		}
+		return krollObject;
 	}
 
 	/**
@@ -169,7 +181,7 @@ public class KrollProxy extends EventEmitter
 	public void setProperty(String name, Object value)
 	{
 		properties.put(name, value);
-		V8Runtime.getInstance().setProperty(this, name, value);
+		getKrollObject().setProperty(name, value);
 	}
 
 	public Object getIndexedProperty(int index)
@@ -196,7 +208,6 @@ public class KrollProxy extends EventEmitter
 		}
 	}
 
-	@Override
 	public boolean fireEvent(String event, Object data)
 	{
 		if (data == null) {
@@ -210,10 +221,9 @@ public class KrollProxy extends EventEmitter
 				dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
 			}
 		}
-		return super.fireEvent(event, data);
+		return getKrollObject().fireEvent(event, data);
 	}
 
-	@Override
 	public boolean fireSyncEvent(String event, Object data)
 	{
 		if (data == null) {
@@ -224,7 +234,7 @@ public class KrollProxy extends EventEmitter
 			KrollDict dict = (KrollDict) data;
 			dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
 		}
-		return super.fireSyncEvent(event, data);
+		return getKrollObject().fireSyncEvent(event, data);
 	}
 
 	public void firePropertyChanged(String name, Object oldValue, Object newValue)
@@ -234,9 +244,14 @@ public class KrollProxy extends EventEmitter
 				modelListener.propertyChanged(name, oldValue, newValue, this);
 			} else {
 				KrollPropertyChange pch = new KrollPropertyChange(name, oldValue, newValue);
-				getUIHandler().obtainMessage(MSG_MODEL_PROPERTY_CHANGE, pch).sendToTarget();
+				getKrollObject().getMainHandler().obtainMessage(MSG_MODEL_PROPERTY_CHANGE, pch).sendToTarget();
 			}
 		}
+	}
+
+	public boolean hasListeners(String event)
+	{
+		return getKrollObject().hasListeners(event);
 	}
 
 	protected boolean shouldFireChange(Object oldValue, Object newValue)
@@ -292,7 +307,7 @@ public class KrollProxy extends EventEmitter
 
 		if (isUiThread || modelListener == null) return;
 
-		Message msg = getUIHandler().obtainMessage(MSG_MODEL_PROPERTIES_CHANGED, changes);
+		Message msg = krollObject.getMainHandler().obtainMessage(MSG_MODEL_PROPERTIES_CHANGED, changes);
 		msg.sendToTarget();
 	}
 
@@ -313,6 +328,36 @@ public class KrollProxy extends EventEmitter
 					change[INDEX_OLD_VALUE], change[INDEX_VALUE], this);
 			}
 		}
+	}
+
+	public Object call(KrollFunction fn)
+	{
+		return call(fn, new Object[0]);
+	}
+
+	public Object call(KrollFunction fn, KrollDict dict)
+	{
+		return call(fn, new Object[] { dict });
+	}
+
+	public Object call(KrollFunction fn, Object[] args)
+	{
+		return getKrollObject().call(fn, args);
+	}
+
+	public void callAsync(KrollFunction fn)
+	{
+		callAsync(fn, new Object[0]);
+	}
+
+	public void callAsync(KrollFunction fn, KrollDict dict)
+	{
+		callAsync(fn, new Object[] { dict });
+	}
+
+	public void callAsync(KrollFunction fn, Object[] args)
+	{
+		getKrollObject().callAsync(fn, args);
 	}
 
 	@Kroll.method(name="getActivity")
@@ -336,7 +381,7 @@ public class KrollProxy extends EventEmitter
 		return createdInModule;
 	}
 
-	@Override @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	public boolean handleMessage(Message msg)
 	{
 		switch (msg.what) {
@@ -349,7 +394,7 @@ public class KrollProxy extends EventEmitter
 			case MSG_LISTENER_REMOVED: {
 				if (modelListener == null) return true;
 
-				String event = msg.getData().getString(EventEmitter.PROPERTY_TYPE);
+				String event = msg.getData().getString(TiC.PROPERTY_TYPE);
 				HashMap<String, Object> map = (HashMap<String, Object>) msg.obj;
 				int count = TiConvert.toInt(map.get(TiC.PROPERTY_COUNT));
 				if (msg.what == MSG_LISTENER_ADDED) {
@@ -364,7 +409,7 @@ public class KrollProxy extends EventEmitter
 				return true;
 			}
 		}
-		return super.handleMessage(msg);
+		return false;
 	}
 
 	protected void eventListenerAdded(String event, int count, KrollProxy proxy)
@@ -397,21 +442,21 @@ public class KrollProxy extends EventEmitter
 	{
 		AsyncResult result = new AsyncResult(asyncArg);
 		return sendBlockingUiMessage(
-			getUIHandler().obtainMessage(what, result), result);
+			krollObject.getMainHandler().obtainMessage(what, result), result);
 	}
 	
 	public Object sendBlockingUiMessage(int what, int arg1)
 	{
 		AsyncResult result = new AsyncResult(null);
 		return sendBlockingUiMessage(
-			getUIHandler().obtainMessage(what, arg1, -1), result);
+			krollObject.getMainHandler().obtainMessage(what, arg1, -1), result);
 	}
 
 	public Object sendBlockingUiMessage(int what, Object asyncArg, int arg1, int arg2)
 	{
 		AsyncResult result = new AsyncResult(asyncArg);
 		return sendBlockingUiMessage(
-			getUIHandler().obtainMessage(what, arg1, arg2, result), result);
+			krollObject.getMainHandler().obtainMessage(what, arg1, arg2, result), result);
 	}
 
 	public Object sendBlockingUiMessage(Message msg, AsyncResult result)
@@ -434,9 +479,9 @@ public class KrollProxy extends EventEmitter
 		return error;
 	}
 
-	public Object getDefaultValue(Class<?> typeHint)
+	public void release()
 	{
-		return toString();
+		krollObject.release();
 	}
 
 	public TiContext getTiContext()

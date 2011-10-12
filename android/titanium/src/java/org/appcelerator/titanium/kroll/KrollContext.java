@@ -6,8 +6,7 @@
  */
 package org.appcelerator.titanium.kroll;
 
-import org.appcelerator.kroll.runtime.v8.V8Object;
-import org.appcelerator.kroll.runtime.v8.V8Runtime;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiMessageQueue;
@@ -17,7 +16,6 @@ import org.appcelerator.titanium.util.TiAssetHelper;
 import org.appcelerator.titanium.util.TiConfig;
 
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
@@ -29,7 +27,6 @@ public class KrollContext implements Handler.Callback
 
 	private static final int MSG_EVAL_STRING = 1000;
 	private static final int MSG_EVAL_FILE = 1001;
-	private static final int MSG_CREATE_SCOPE = 1002;
 
 	public static final String CONTEXT_KEY = "krollContext";
 
@@ -59,8 +56,6 @@ public class KrollContext implements Handler.Callback
 
 		messageQueue = TiMessageQueue.getMessageQueue();
 		messageQueue.setCallback(this);
-
-		V8Runtime.init(Looper.getMainLooper());
 	}
 
 	protected void threadEnded()
@@ -77,12 +72,6 @@ public class KrollContext implements Handler.Callback
 				AsyncResult result = (AsyncResult) msg.obj;
 				String filename = msg.getData().getString(TiC.MSG_PROPERTY_FILENAME);
 				result.setResult(handleEvalFile(filename));
-				return true;
-			}
-			case MSG_CREATE_SCOPE: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				// this launches a native allocation
-				result.setResult(new V8Object());
 				return true;
 			}
 		}
@@ -145,7 +134,7 @@ public class KrollContext implements Handler.Callback
 
 	public Object handleEvalFile(String filename)
 	{
-		V8Runtime.getInstance().runModule(
+		KrollRuntime.getInstance().runModule(
 			TiAssetHelper.readAsset(filename), filename);
 
 		return null;

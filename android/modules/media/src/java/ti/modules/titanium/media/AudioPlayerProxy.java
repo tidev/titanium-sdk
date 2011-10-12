@@ -54,6 +54,12 @@ public class AudioPlayerProxy extends KrollProxy
 	}
 
 	@Override
+	protected void initActivity(Activity activity) {
+		super.initActivity(activity);
+		((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
+	}
+
+	@Override
 	public void handleCreationDict(KrollDict options) {
 		super.handleCreationDict(options);
 		if (options.containsKey(TiC.PROPERTY_URL)) {

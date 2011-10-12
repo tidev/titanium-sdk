@@ -19,6 +19,8 @@ namespace titanium {
 class EventEmitter : public NativeObject
 {
 public:
+	static v8::Persistent<v8::String> emitSymbol;
+
 	static v8::Handle<v8::Value> Constructor(const v8::Arguments& args);
 	static void Initialize();
 	static v8::Persistent<v8::FunctionTemplate> constructorTemplate;

@@ -10,7 +10,7 @@ package ti.modules.titanium.geolocation;
 import java.util.Calendar;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.runtime.v8.V8Callback;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -150,7 +150,7 @@ public class TiCompass
 		return compass;
 	}
 
-	public void getCurrentHeading(final V8Callback listener)
+	public void getCurrentHeading(final KrollFunction listener)
 	{
 		if(listener != null) {
 			final SensorEventListener oneShotHeadingListener = new SensorEventListener()
@@ -164,8 +164,7 @@ public class TiCompass
 						long eventTimestamp = event.timestamp / 1000000;
 						long actualTimestamp = baseTime.getTimeInMillis() + (eventTimestamp - sensorTimerStart);
 
-						listener.invoke(geolocationModule, eventToKrollDict(event, actualTimestamp));
-						//listener.callAsync(eventToKrollDict(event, actualTimestamp));
+						geolocationModule.callAsync(listener, new Object[] { eventToKrollDict(event, actualTimestamp) });
 						TiSensorHelper.unregisterListener(Sensor.TYPE_ORIENTATION, this);
 					}
 				}

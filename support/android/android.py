@@ -240,6 +240,11 @@ class Android(object):
 		resource_dir = os.path.join(project_dir, 'Resources')
 		self.config['ti_resources_dir'] = resource_dir
 
+		# TODO change defalt back to rhino
+		runtime = "v8"
+		if self.tiapp.has_app_property("ti.android.runtime"):
+			runtime = self.tiapp.get_app_property("ti.android.runtime")
+
 		app_build_dir = self.newdir(project_dir, 'build')
 		app_dir = self.newdir(app_build_dir, 'android')
 
@@ -273,7 +278,7 @@ class Android(object):
 		
 		self.render(template_dir, 'AndroidManifest.xml', app_dir, 'AndroidManifest.xml')
 		self.render(template_dir, 'App.java', app_package_dir, self.config['classname'] + 'Application.java',
-			app_modules = self.app_modules, custom_modules = self.custom_modules)
+			app_modules = self.app_modules, custom_modules = self.custom_modules, runtime = runtime)
 		self.render(template_dir, 'Activity.java', app_package_dir, self.config['classname'] + 'Activity.java')
 		self.generate_activities(app_package_dir)
 		self.generate_services(app_package_dir)

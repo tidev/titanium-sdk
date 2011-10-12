@@ -347,7 +347,12 @@ fails, a JS exception is returned.
 
 	jobjectArray varArgs = env->NewObjectArray(length, JNIUtil::objectClass, NULL);
 	for (uint32_t i = 0; i < length; ++i) {
-		env->SetObjectArrayElement(varArgs, i, TypeConverter::jsValueToJavaObject(args[i+${start}])); 
+		bool isNew;
+		jobject arg = TypeConverter::jsValueToJavaObject(args[i+${start}], &isNew);
+		env->SetObjectArrayElement(varArgs, i, arg);
+		if (isNew) {
+			env->DeleteLocalRef(arg);
+		}
 	}
 
 	jArguments[${start}].l = varArgs;
@@ -377,12 +382,12 @@ fails, a JS exception is returned.
 	</#list>
 
 	<#if method.hasInvocation>
-	jArguments[0].l = env->NewObject(JNIUtil::v8InvocationClass, JNIUtil::v8InvocationInitMethod, TypeConverter::jsValueToJavaString(args[0]));
+	jArguments[0].l = env->NewObject(JNIUtil::krollInvocationClass, JNIUtil::krollInvocationInitMethod, TypeConverter::jsValueToJavaString(args[0]));
 	</#if>
 
 	<@Proxy.listMethodArguments args=args ; index, info, type>
 
-	<#if type != "org.appcelerator.kroll.runtime.v8.V8Invocation">
+	<#if type != "org.appcelerator.kroll.KrollInvocation">
 		<#if index = varArgsIndex>
 			<@Proxy.convertToVarArgs args=args start=index/>
 		<#else>
@@ -398,7 +403,7 @@ fails, a JS exception is returned.
 	</#if>
 
 	<@Proxy.listMethodArguments args=args; index, info, type>
-	<#if type != "org.appcelerator.kroll.runtime.v8.V8Invocation">
+	<#if type != "org.appcelerator.kroll.KrollInvocation">
 		<#if type == "java.lang.Object[]" && index = args?size - 1>
 			env->DeleteLocalRef(jArguments[${index}].l);
 		<#else>

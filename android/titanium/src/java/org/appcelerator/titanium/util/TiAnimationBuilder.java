@@ -9,16 +9,15 @@ package org.appcelerator.titanium.util;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.annotations.Kroll.getProperty;
-import org.appcelerator.kroll.runtime.v8.V8Callback;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.Ti2DMatrix;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiCompositeLayout;
-import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
+import org.appcelerator.titanium.view.TiUIView;
 
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -57,7 +56,7 @@ public class TiAnimationBuilder
 	
 	protected TiAnimation animationProxy;
 
-	protected V8Callback callback;
+	protected KrollFunction callback;
 	protected boolean relayoutChild = false, applyOpacity = false;
 	protected KrollDict options;
 	protected View view;
@@ -139,7 +138,7 @@ public class TiAnimationBuilder
 		applyOptions(anim.getProperties());
 	}
 
-	public void setCallback(V8Callback callback)
+	public void setCallback(KrollFunction callback)
 	{
 		this.callback = callback;
 	}
@@ -483,7 +482,7 @@ public class TiAnimationBuilder
 			}
 			if (a instanceof AnimationSet) {
 				if (callback != null) {
-					callback.invokeAsync(viewProxy, new Object[] { new KrollDict() });
+					viewProxy.callAsync(callback, new Object[] { new KrollDict() });
 				}
 				if (animationProxy != null) {
 					animationProxy.fireEvent(TiC.EVENT_COMPLETE, null);

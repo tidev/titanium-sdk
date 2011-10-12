@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.runtime.v8.V8Callback;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
@@ -38,7 +39,7 @@ public class AndroidModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void scanMediaFiles(Object[] paths, Object[] mimeTypes, V8Callback callback)
+	public void scanMediaFiles(Object[] paths, Object[] mimeTypes, KrollFunction callback)
 	{
 		String mediaPaths[] = new String[paths.length];
 		for (int i = 0; i < paths.length; i++) {
@@ -70,22 +71,23 @@ public class AndroidModule extends KrollModule
 			Log.w(LCAT, "Unable to get bitmap to set wallpaper");
 		}
 	}
+
 	public static class MediaScannerClient implements MediaScannerConnectionClient
 	{
 		private String[] paths;
 		private Object[] mimeTypes;
-		private V8Callback callback;
+		private KrollFunction callback;
 		private MediaScannerConnection connection;
 		private AtomicInteger completedScanCount = new AtomicInteger(0);
 
-		public MediaScannerClient(String[] paths, Object[] mimeTypes, V8Callback callback)
+		public MediaScannerClient(String[] paths, Object[] mimeTypes, KrollFunction callback)
 		{
 			this.paths = paths;
 			this.mimeTypes = mimeTypes;
 			this.callback = callback;
 		}
 
-		public MediaScannerClient(TiContext tiContext, String[] paths, Object[] mimeTypes, V8Callback callback)
+		public MediaScannerClient(TiContext tiContext, String[] paths, Object[] mimeTypes, KrollFunction callback)
 		{
 			this(paths, mimeTypes, callback);
 		}
@@ -130,9 +132,10 @@ public class AndroidModule extends KrollModule
 				KrollDict properties = new KrollDict(2);
 				properties.put("path", path);
 				properties.put("uri", uri == null ? null : uri.toString());
-				callback.invoke(callback, properties);
+				((KrollObject) callback).callAsync(callback, new Object[] { properties });
 			}
 		}
+
 		public void scan()
 		{
 			if (paths == null || paths.length == 0) {

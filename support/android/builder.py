@@ -34,6 +34,7 @@ from css import csscompiler
 from module import ModuleDetector
 import localecompiler
 import fastdev
+import requireIndex
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn', 'CVS'];
@@ -647,7 +648,10 @@ class Builder(object):
 						relative_path = make_relative(delta.get_path(), resources_dir)
 					relative_path = relative_path.replace("\\", "/")
 					self.run_adb('push', delta.get_path(), "%s/%s" % (self.sdcard_resources, relative_path))
-		
+
+		if len(self.project_deltas) > 0:
+			requireIndex.generateJSON(self.assets_dir, os.path.join(self.assets_dir, "index.json"))
+
 	def generate_android_manifest(self,compiler):
 
 		self.generate_localizations()
@@ -1374,7 +1378,11 @@ class Builder(object):
 			add_native_libs(module.get_resource('libs'))
 
 		# add sdk runtime native libraries
-		add_native_libs(os.path.join(template_dir, 'native/libs'))
+		# TODO add runtime / emulator check here
+		libkroll_v8_device = os.path.join(template_dir, 'native', 'libs', 'armeabi', 'libkroll-v8-device.so')
+		apk_zip.write(libkroll_v8_device, 'lib/armeabi/libkroll-v8-device.so')
+		self.apk_updated = True
+		#add_native_libs(os.path.join(template_dir, 'native/libs'))
 
 		apk_zip.close()
 		return unsigned_apk

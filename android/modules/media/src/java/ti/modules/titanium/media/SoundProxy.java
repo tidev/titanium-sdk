@@ -46,6 +46,12 @@ public class SoundProxy extends KrollProxy
 	}
 
 	@Override
+	protected void initActivity(Activity activity) {
+		super.initActivity(activity);
+		((TiBaseActivity)activity).addOnLifecycleEventListener(this);
+	}
+
+	@Override
 	public void handleCreationDict(KrollDict options) {
 		super.handleCreationDict(options);
 		if (options.containsKey(TiC.PROPERTY_URL)) {

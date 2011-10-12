@@ -9,15 +9,15 @@
 #include <v8.h>
 
 #include "AndroidUtil.h"
+#include "EventEmitter.h"
 #include "JNIUtil.h"
 #include "TypeConverter.h"
 #include "Proxy.h"
+#include "ProxyFactory.h"
 #include "V8Runtime.h"
 #include "V8Util.h"
 
-#include "org_appcelerator_kroll_runtime_v8_ManagedV8Reference.h"
 #include "org_appcelerator_kroll_runtime_v8_V8Object.h"
-#include "org_appcelerator_kroll_runtime_v8_V8Value.h"
 
 #define TAG "V8Object"
 
@@ -28,62 +28,16 @@ using namespace v8;
 extern "C" {
 #endif
 
-/*
- * Class:     org_appcelerator_kroll_runtime_v8_V8Object
- * Method:    nativeCreateObject
- * Signature: ()J
- */
-JNIEXPORT jlong JNICALL
-Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCreateObject
-	(JNIEnv *env, jclass clazz)
-{
-	ENTER_V8(V8Runtime::globalContext);
-	titanium::JNIScope jniScope(env);
-	return (jlong) *(Persistent<Object>::New(Object::New()));
-}
-
-/*
- * Class:     org_appcelerator_kroll_runtime_v8_ManagedV8Reference
- * Method:    nativeRelease
- * Signature: (J)V
- */
 JNIEXPORT void JNICALL
-Java_org_appcelerator_kroll_runtime_v8_ManagedV8Reference_nativeRelease
-	(JNIEnv *env, jclass clazz, jlong refPointer)
+Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeInitObject
+	(JNIEnv *env, jclass clazz, jclass proxyClass, jobject proxyObject)
 {
 	ENTER_V8(V8Runtime::globalContext);
-	titanium::JNIScope jniScope(env);
-	if (refPointer) {
-		Persistent<Data> handle((Data *) refPointer);
-		if (!handle.IsEmpty() && !handle.IsNearDeath()) {
-			handle.Dispose();
-		}
-	}
+	JNIScope jniScope(env);
+
+	ProxyFactory::createV8Proxy(proxyClass, proxyObject);
 }
 
-/*
- * Class:     org_appcelerator_kroll_runtime_v8_V8Value
- * Method:    toDetailString
- * Signature: (J)Ljava/lang/String;
- */
-JNIEXPORT jstring JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Value_toDetailString
-	(JNIEnv *env, jclass clazz, jlong valuePointer)
-{
-	ENTER_V8(V8Runtime::globalContext);
-	titanium::JNIScope jniScope(env);
-
-	Handle<String> string;
-	if (valuePointer) {
-		string = ((Object *) valuePointer)->ToDetailString();
-	}
-	return TypeConverter::jsStringToJavaString(string);
-}
-
-/*
- * Class:     org_appcelerator_kroll_runtime_v8_V8Object
- * Method:    nativeSetProperty
- * Signature: (JLjava/lang/String;Ljava/lang/Object;)V
- */
 JNIEXPORT void JNICALL
 Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetProperty
 	(JNIEnv *env, jobject object, jlong ptr, jstring name, jobject value)
@@ -103,6 +57,70 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetProperty
 
 	Handle<Value> jsValue = TypeConverter::javaObjectToJsValue(value);
 	properties->Set(jsName, jsValue);
+}
+
+
+JNIEXPORT jboolean JNICALL
+Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
+	(JNIEnv *env, jobject jEmitter, jlong ptr, jstring event, jobject data)
+{
+	ENTER_V8(V8Runtime::globalContext);
+	JNIScope jniScope(env);
+
+	Handle<String> jsEvent = TypeConverter::javaStringToJsString(event);
+
+#ifdef TI_DEBUG
+	String::Utf8Value eventName(jsEvent);
+	LOGV(TAG, "firing event \"%s\"", *eventName);
+#endif
+
+	Handle<Object> emitter;
+	if (ptr != 0) {
+		emitter = Persistent<Object>((Object *) ptr);
+	} else {
+		emitter = TypeConverter::javaObjectToJsValue(jEmitter)->ToObject();
+	}
+
+	Handle<Value> fireEventValue = emitter->Get(EventEmitter::emitSymbol);
+	if (!fireEventValue->IsFunction()) {
+		return JNI_FALSE;
+	}
+
+	Handle<Function> fireEvent = Handle<Function>::Cast(fireEventValue->ToObject());
+
+	Handle<Value> jsData = TypeConverter::javaObjectToJsValue(data);
+	Handle<Value> result;
+
+	TryCatch tryCatch;
+	if (jsData->IsNull()) {
+		Handle<Value> args[] = { jsEvent };
+		result = fireEvent->Call(emitter, 1, args);
+	} else {
+		Handle<Value> args[] = { jsEvent, jsData };
+		result = fireEvent->Call(emitter, 2, args);
+	}
+
+	if (tryCatch.HasCaught()) {
+		V8Util::reportException(tryCatch);
+	} else if (result->IsTrue()) {
+		return JNI_TRUE;
+	}
+	return JNI_FALSE;
+}
+
+JNIEXPORT void JNICALL
+Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeRelease
+	(JNIEnv *env, jclass clazz, jlong refPointer)
+{
+	ENTER_V8(V8Runtime::globalContext);
+	JNIScope jniScope(env);
+
+	if (refPointer) {
+		Persistent<Data> handle((Data *) refPointer);
+		if (!handle.IsEmpty() && !handle.IsNearDeath()) {
+			handle.Dispose();
+		}
+	}
 }
 
 #ifdef __cplusplus

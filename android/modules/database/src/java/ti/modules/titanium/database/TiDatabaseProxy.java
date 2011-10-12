@@ -78,12 +78,21 @@ public class TiDatabaseProxy extends KrollProxy
 	@Kroll.method
 	public TiResultSetProxy execute(String sql, Object... args)
 	{
+		// Handle the cases where an array is passed containing the SQL query arguments.
+		// Otherwise use the variable argument list for the SQL query.
+		Object[] sqlArgs;
+		if (args != null && args.length == 1 && args[0] instanceof Object[]) {
+			sqlArgs = (Object[]) args[0];
+		} else {
+			sqlArgs = args;
+		}
+
 		if(statementLogging) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("Executing SQL: ").append(sql).append("\n  Args: [ ");
 			boolean needsComma = false;
 
-			for(Object s : args) {
+			for(Object s : sqlArgs) {
 				if (needsComma) {
 					sb.append(", \"");
 				} else {
@@ -101,10 +110,10 @@ public class TiDatabaseProxy extends KrollProxy
 		TiResultSetProxy rs = null;
 		Cursor c = null;
 		String[] newArgs = null;
-		if (args != null) {
-			newArgs = new String[args.length];
-			for(int i = 0; i < args.length; i++) {
-				newArgs[i] = TiConvert.toString(args[i]);
+		if (sqlArgs != null) {
+			newArgs = new String[sqlArgs.length];
+			for(int i = 0; i < sqlArgs.length; i++) {
+				newArgs[i] = TiConvert.toString(sqlArgs[i]);
 			}
 		}
 		try {

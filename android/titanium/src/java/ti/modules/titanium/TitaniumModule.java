@@ -18,15 +18,14 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.runtime.v8.V8Callback;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiLaunchActivity;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiLifecycle.OnServiceLifecycleEvent;
-import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -118,12 +117,12 @@ public class TitaniumModule extends KrollModule
 		protected long timeout;
 		protected boolean interval;
 		protected Object[] args;
-		protected V8Callback callback;
+		protected KrollFunction callback;
 		protected Handler handler;
 		protected int id;
 		protected boolean canceled;
 	
-		public Timer(int id, Handler handler, V8Callback callback, long timeout, Object[] args, boolean interval)
+		public Timer(int id, Handler handler, KrollFunction callback, long timeout, Object[] args, boolean interval)
 		{
 			this.id = id;
 			this.handler = handler;
@@ -151,7 +150,7 @@ public class TitaniumModule extends KrollModule
 				Log.d(LCAT, message.toString());
 			}
 			long start = System.currentTimeMillis();
-			callback.invoke(TitaniumModule.this, args);
+			call(callback, args);
 			if (interval && !canceled) {
 				handler.postDelayed(this, timeout - (System.currentTimeMillis() - start));
 			}
@@ -164,7 +163,7 @@ public class TitaniumModule extends KrollModule
 		}
 	}
 
-	private int createTimer(V8Callback callback, long timeout, Object[] args, boolean interval)
+	private int createTimer(KrollFunction callback, long timeout, Object[] args, boolean interval)
 		throws IllegalArgumentException
 	{
 		int timerId = currentTimerId++;
@@ -183,7 +182,7 @@ public class TitaniumModule extends KrollModule
 	}
 
 	@Kroll.method @Kroll.topLevel
-	public int setTimeout(V8Callback fn, long timeout, final Object[] args)
+	public int setTimeout(KrollFunction fn, long timeout, final Object[] args)
 		throws IllegalArgumentException
 	{
 		return createTimer(fn, timeout, args, false);
@@ -203,7 +202,7 @@ public class TitaniumModule extends KrollModule
 	}
 
 	@Kroll.method @Kroll.topLevel
-	public int setInterval(V8Callback fn, long timeout, final Object[] args)
+	public int setInterval(KrollFunction fn, long timeout, final Object[] args)
 		throws IllegalArgumentException
 	{
 		return createTimer(fn, timeout, args, true);

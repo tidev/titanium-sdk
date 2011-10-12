@@ -16,6 +16,7 @@
 #include "EventEmitter.h"
 #include "JavaObject.h"
 #include "JNIUtil.h"
+#include "JSException.h"
 #include "KrollBindings.h"
 #include "ScriptsModule.h"
 #include "TypeConverter.h"
@@ -41,14 +42,25 @@ void V8Runtime::collectWeakRef(Persistent<Value> ref, void *parameter)
 	JNIScope::getEnv()->DeleteGlobalRef(v8Object);
 }
 
-// Minimalistic log function for debugging in kroll.js
-static Handle<Value> jsLog(const Arguments& args)
+// Minimalistic logging function for internal JS
+static Handle<Value> krollLog(const Arguments& args)
 {
 	HandleScope scope;
-	if (args.Length() == 0) return Undefined();
+	uint32_t len = args.Length();
 
-	String::Utf8Value msg(args[0]);
-	LOGD(TAG, *msg);
+	if (len < 2) {
+		return JSException::Error("log: missing required tag and message arguments");
+	}
+
+	Handle<String> tag = args[0]->ToString();
+	Handle<String> message = args[1]->ToString();
+	for (uint32_t i = 2; i < len; ++i) {
+		message = String::Concat(String::Concat(message, String::New(" ")), args[i]->ToString());
+	}
+
+	String::Utf8Value tagValue(tag);
+	String::Utf8Value messageValue(message);
+	LOGD(*tagValue, *messageValue);
 
 	return Undefined();
 }
@@ -59,7 +71,7 @@ void V8Runtime::bootstrap(Local<Object> global)
 	EventEmitter::Initialize();
 	krollGlobalObject = Persistent<Object>::New(Object::New());
 
-	DEFINE_METHOD(krollGlobalObject, "log", jsLog);
+	DEFINE_METHOD(krollGlobalObject, "log", krollLog);
 	DEFINE_METHOD(krollGlobalObject, "binding", KrollBindings::getBinding);
 	DEFINE_TEMPLATE(krollGlobalObject, "EventEmitter", EventEmitter::constructorTemplate);
 

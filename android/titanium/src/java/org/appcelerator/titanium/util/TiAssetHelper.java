@@ -17,19 +17,22 @@ import android.util.Log;
 public class TiAssetHelper
 {
 	private static final String TAG = "TiAssetHelper";
+	private static AssetManager manager;
 
 	public static String readAsset(String path)
 	{
-		Activity activity = TiApplication.getInstance().getCurrentActivity();
-		if (activity == null) {
-			Log.e(TAG, "Current activity is not initialized");
-			return null;
-		}
-
-		AssetManager manager = activity.getAssets();
 		if (manager == null) {
-			Log.e(TAG, "AssetManager is null");
-			return null;
+			Activity activity = TiApplication.getInstance().getCurrentActivity();
+			if (activity == null) {
+				Log.e(TAG, "Current activity is not initialized");
+				return null;
+			}
+	
+			manager = activity.getAssets();
+			if (manager == null) {
+				Log.e(TAG, "AssetManager is null");
+				return null;
+			}
 		}
 
 		try {

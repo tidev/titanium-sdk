@@ -87,7 +87,13 @@ Handle<Object> ProxyFactory::createV8Proxy(jclass javaClass, jobject javaProxy)
 
 	// set the pointer back on the java proxy
 	jlong ptr = (jlong) *Persistent<Object>::New(v8Proxy);
-	env->SetLongField(javaProxy, JNIUtil::managedV8ReferencePtrField, ptr);
+
+	jobject javaV8Object = env->NewObject(JNIUtil::v8ObjectClass,
+		JNIUtil::v8ObjectInitMethod, ptr);
+
+	env->SetObjectField(javaProxy,
+		JNIUtil::krollProxyKrollObjectField, javaV8Object);
+	env->DeleteLocalRef(javaV8Object);
 
 	return scope.Close(v8Proxy);
 }
@@ -145,26 +151,25 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 		int length = arguments->Get(String::New("length"))->Int32Value();
 		javaArgs = TypeConverter::jsObjectIndexPropsToJavaArray(arguments, length);
 	} else {
-		 javaArgs = TypeConverter::jsArgumentsToJavaArray(args);
+		javaArgs = TypeConverter::jsArgumentsToJavaArray(args);
 	}
 
-	//LOGV(TAG, "calling KrollProxy.create");
+	jobject javaV8Object = env->NewObject(JNIUtil::v8ObjectClass,
+		JNIUtil::v8ObjectInitMethod, pv8Proxy);
 
 	// Create the java proxy using the creator static method provided.
 	// Send along a pointer to the v8 proxy so the two are linked.
 	jobject javaProxy = env->CallStaticObjectMethod(JNIUtil::krollProxyClass,
-		info->javaProxyCreator, javaClass, javaArgs, pv8Proxy, javaSourceUrl);
-
-	//LOGV(TAG, "delete source url? %d", javaSourceUrl);
+		info->javaProxyCreator, javaClass, javaV8Object, javaArgs, javaSourceUrl);
 
 	if (javaSourceUrl) {
 		LOGV(TAG, "delete source url!");
 		env->DeleteLocalRef(javaSourceUrl);
 	}
-	//LOGV(TAG, "delete java args");
+
+	env->DeleteLocalRef(javaV8Object);
 	env->DeleteLocalRef(javaArgs);
 
-	//LOGV(TAG, "return java proxy");
 	return javaProxy;
 }
 
@@ -186,7 +191,7 @@ void ProxyFactory::registerProxyPair(jclass javaProxyClass, FunctionTemplate* v8
 
 	ProxyInfo info;
 	info.v8ProxyTemplate = v8ProxyTemplate;
-	info.javaProxyCreator = JNIUtil::krollProxyCreateMethod;
+	info.javaProxyCreator = JNIUtil::krollProxyCreateProxyMethod;
 
 	factories[javaProxyClass] = info;
 }

@@ -128,6 +128,7 @@ public class TiC
 	public static final String PROPERTY_CITY = "city";
 	public static final String PROPERTY_CLASS_NAME = "className";
 	public static final String PROPERTY_CLASS_NAMES = "classNames";
+	public static final String PROPERTY_CLEAR_ON_EDIT = "clearOnEdit";
 	public static final String PROPERTY_CODE = "code";
 	public static final String PROPERTY_COLOR = "color";
 	public static final String PROPERTY_COORDS = "coords";
@@ -155,6 +156,7 @@ public class TiC
 	public static final String PROPERTY_ELLIPSIZE = "ellipsize";
 	public static final String PROPERTY_ENABLE_ZOOM_CONTROLS = "enableZoomControls";
 	public static final String PROPERTY_ENABLED = "enabled";
+	public static final String PROPERTY_ENABLE_RETURN_KEY = "enableReturnKey";
 	public static final String PROPERTY_EXIT_ON_CLOSE = "exitOnClose";
 	public static final String PROPERTY_FILE = "file";
 	public static final String PROPERTY_FILTER_ATTRIBUTE = "filterAttribute";

@@ -29,10 +29,7 @@ GEN_SOURCES := \
 JNI_PREFIX := $(GENERATED_DIR)/org_appcelerator_kroll_runtime_v8
 
 $(THIS_DIR)/V8Runtime.cpp: $(JNI_PREFIX)_V8Runtime.h
-$(THIS_DIR)/V8Object.cpp: \
-	$(JNI_PREFIX)_ManagedV8Reference.h \
-	$(JNI_PREFIX)_V8Object.h \
-	$(JNI_PREFIX)_V8Value.h
+$(THIS_DIR)/V8Object.cpp: $(JNI_PREFIX)_V8Object.h
 
 ti-generated-dir:
 	@mkdir -p $(GENERATED_DIR) 2>/dev/null

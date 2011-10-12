@@ -4,15 +4,13 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+package org.appcelerator.kroll;
 
-package org.appcelerator.kroll.runtime.v8;
-
-
-public class V8Invocation
+public class KrollInvocation
 {
-	private String sourceUrl = "";
+	private String sourceUrl;
 
-	public V8Invocation(String sourceUrl)
+	public KrollInvocation(String sourceUrl)
 	{
 		this.sourceUrl = sourceUrl;
 	}
@@ -22,4 +20,3 @@ public class V8Invocation
 		return sourceUrl;
 	}
 }
-

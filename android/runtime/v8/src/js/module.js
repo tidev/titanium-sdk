@@ -10,6 +10,7 @@ var Script = kroll.binding('evals').Script;
 var assets = kroll.binding('assets');
 var path = require('path');
 var runInThisContext = Script.runInThisContext;
+var TAG = "Module";
 
 function Module(id, parent) {
 	this.id = id;
@@ -34,7 +35,7 @@ Module.runMainModule = function (source, filename) {
 	try {
 		mainModule.load(filename, source);
 	} catch (e) {
-		kroll.log("Failed to load main module.");
+		kroll.log(TAG, "Failed to load main module.");
 		return false;
 	}
 
@@ -50,7 +51,7 @@ Module.runMainModule = function (source, filename) {
 //
 // Returns the exports object of the loaded module if successful.
 Module.prototype.load = function (filename, source) {
-	kroll.log('Loading ' + filename);
+	kroll.log(TAG, 'Loading module: "' + filename + '"');
 
 	if (this.loaded) {
 		throw new Error("Module already loaded.");
@@ -72,16 +73,19 @@ Module.prototype.load = function (filename, source) {
 // when loading the child. Returns the exports object
 // of the child module.
 Module.prototype.require = function (request) {
-	kroll.log('Requesting module ' + request);
+	kroll.log(TAG, 'Requesting module: "' + request + '"');
 
 	// Delegate native module requests.
 	if (NativeModule.exists(request)) {
+		kroll.log(TAG, 'Found native module: "' + request + '"');
 		return NativeModule.require(request);
 	}
 
-	var resolved = resolveFilename(request, this.parent);
+	var resolved = resolveFilename(request, this);
 	var id = resolved[0];
 	var filename = resolved[1];
+
+	kroll.log(TAG, 'Loading module "' + request + '" using filename: "' + filename + '"');
 
 	var cachedModule = Module.cache[filename];
 	if (cachedModule) {
@@ -138,8 +142,8 @@ function resolveLookupPaths(request, parentModule) {
 	// is an index file, its ID is already the directory path.
 	// Ex: path.id = "a/" if index
 	//     path.id = "a/b" if non-index
-	var isIndex = /^index\.\w+?$/.test(path.basename(parent.filename));
-	var parentIdPath = isIndex ? parent.id : path.dirname(parent.id);
+	var isIndex = /^index\.\w+?$/.test(path.basename(parentModule.filename));
+	var parentIdPath = isIndex ? parentModule.id : path.dirname(parentModule.id);
 	var id = path.resolve(parentIdPath, request);
 
 	// make sure require('./path') and require('path') get distinct ids, even
@@ -148,7 +152,7 @@ function resolveLookupPaths(request, parentModule) {
 		id = './' + id;
 	}
 
-	return [id, [path.dirname(parent.filename)]];
+	return [id, [path.dirname(parentModule.filename)]];
 }
 
 // Determine the filename that contains the request

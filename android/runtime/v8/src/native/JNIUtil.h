@@ -63,11 +63,10 @@ public:
 	static jclass nullPointerException;
 
 	// Titanium classes
-	static jclass managedV8ReferenceClass;
 	static jclass v8ObjectClass;
-	static jclass v8CallbackClass;
-	static jclass v8InvocationClass;
-	static jclass eventEmitterClass;
+	static jclass v8FunctionClass;
+	static jclass krollInvocationClass;
+	static jclass krollObjectClass;
 	static jclass krollProxyClass;
 	static jclass tiAssetHelperClass;
 
@@ -93,13 +92,14 @@ public:
 	static jmethodID throwableGetMessageMethod;
 
 	// Titanium methods and fields
-	static jfieldID managedV8ReferencePtrField;
+	static jfieldID v8ObjectPtrField;
 	static jmethodID v8ObjectInitMethod;
-	static jmethodID eventEmitterHasListenersForEventTypeMethod;
-	static jmethodID v8CallbackInitMethod;
-	static jmethodID v8InvocationInitMethod;
+	static jmethodID v8FunctionInitMethod;
 
-	static jmethodID krollProxyCreateMethod;
+	static jmethodID krollInvocationInitMethod;
+	static jmethodID krollObjectSetHasListenersForEventTypeMethod;
+	static jmethodID krollProxyCreateProxyMethod;
+	static jfieldID krollProxyKrollObjectField;
 	static jfieldID krollProxyModelListenerField;
 	static jmethodID krollProxySetIndexedPropertyMethod;
 	static jmethodID krollProxyGetIndexedPropertyMethod;

@@ -62,7 +62,7 @@ public class KrollJSONGenerator extends AbstractProcessor {
 	protected static final String Kroll_dynamicApis = Kroll_annotation + ".dynamicApis";
 	protected static final String Kroll_onAppCreate = Kroll_annotation + ".onAppCreate"; 
 
-	protected static final String V8Invocation = "org.appcelerator.kroll.runtime.v8.V8Invocation";
+	protected static final String KrollInvocation = "org.appcelerator.kroll.KrollInvocation";
 	protected static final String KrollConverter = Kroll_package + ".KrollConverter";
 	protected static final String KrollNativeConverter = Kroll_package + ".KrollNativeConverter";
 	protected static final String KrollJavascriptConverter = Kroll_package + ".KrollJavascriptConverter";
@@ -354,7 +354,7 @@ public class KrollJSONGenerator extends AbstractProcessor {
 
 			for (VariableElement var: element.getParameters()) {
 				String paramType = utils.getType(var);
-				if (paramType.equals(V8Invocation)) {
+				if (paramType.equals(KrollInvocation)) {
 					methodAttrs.put("hasInvocation", true);
 				}
 
@@ -475,7 +475,7 @@ public class KrollJSONGenerator extends AbstractProcessor {
 			ArrayList<Map<Object,Object>> args = new ArrayList<Map<Object,Object>>();
 			for (VariableElement var: element.getParameters()) {
 				String paramType = utils.getType(var);
-				if (paramType.equals(V8Invocation)) {
+				if (paramType.equals(KrollInvocation)) {
 					if (utils.annotationTypeIs(annotation, Kroll_getProperty)) {
 						dynamicProperty.put("getHasInvocation", true);
 					} else {

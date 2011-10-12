@@ -25,7 +25,7 @@ namespace titanium {
 Persistent<FunctionTemplate> EventEmitter::constructorTemplate;
 
 static Persistent<String> eventsSymbol;
-static Persistent<String> emitSymbol;
+Persistent<String> EventEmitter::emitSymbol;
 
 Handle<Value> EventEmitter::Constructor(const Arguments& args)
 {
@@ -86,59 +86,5 @@ bool EventEmitter::emit(Handle<String> event, int argc, Handle<Value> *argv)
 	return true;
 }
 
-}
-
-using namespace titanium;
-
-extern "C" {
-
-jboolean Java_org_appcelerator_kroll_runtime_v8_EventEmitter_nativeFireEvent(JNIEnv *env, jobject jEmitter, jlong ptr, jstring event, jobject data)
-{
-	ENTER_V8(V8Runtime::globalContext);
-	titanium::JNIScope jniScope(env);
-
-	Handle<String> jsEvent = TypeConverter::javaStringToJsString(event);
-
-#ifdef TI_DEBUG
-	String::Utf8Value eventName(jsEvent);
-	LOGV(TAG, "firing event \"%s\"", *eventName);
-#endif
-
-	Handle<Object> emitter;
-	if (ptr != 0) {
-		emitter = Persistent<Object>((Object *) ptr);
-	} else {
-		emitter = TypeConverter::javaObjectToJsValue(jEmitter)->ToObject();
-	}
-
-	LOGV(TAG, "done init / unwrapping emitter");
-
-	Handle<Value> fireEventValue = emitter->Get(emitSymbol);
-	if (!fireEventValue->IsFunction()) {
-		return JNI_FALSE;
-	}
-
-	Handle<Function> fireEvent = Handle<Function>::Cast(fireEventValue->ToObject());
-
-	Handle<Value> jsData = TypeConverter::javaObjectToJsValue(data);
-	Handle<Value> result;
-
-	TryCatch tryCatch;
-	if (/*jsData.IsEmpty() || */jsData->IsNull()) {
-		Handle<Value> args[] = { jsEvent };
-		result = fireEvent->Call(emitter, 1, args);
-	} else {
-		Handle<Value> args[] = { jsEvent, jsData };
-		result = fireEvent->Call(emitter, 2, args);
-	}
-
-	if (tryCatch.HasCaught()) {
-		V8Util::reportException(tryCatch);
-	} else if (result->IsTrue()) {
-		return JNI_TRUE;
-	}
-	return JNI_FALSE;
-}
-
-}
+} // namespace titanium
 

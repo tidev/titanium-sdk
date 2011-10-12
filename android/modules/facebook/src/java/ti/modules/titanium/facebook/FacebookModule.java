@@ -14,9 +14,9 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.runtime.v8.V8Callback;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
@@ -212,7 +212,7 @@ public class FacebookModule extends KrollModule
 	}
 	
 	@Kroll.method
-	public void requestWithGraphPath(String path, KrollDict params, String httpMethod, V8Callback callback)
+	public void requestWithGraphPath(String path, KrollDict params, String httpMethod, KrollFunction callback)
 	{
 		if (facebook == null) {
 			Log.w(LCAT, "requestWithGraphPath called without Facebook being instantiated.  Have you set appid?");
@@ -227,7 +227,7 @@ public class FacebookModule extends KrollModule
 	}
 	
 	@Kroll.method
-	public void request(String method, KrollDict params, V8Callback callback)
+	public void request(String method, KrollDict params, KrollFunction callback)
 	{
 		if (facebook == null) {
 			Log.w(LCAT, "request called without Facebook being instantiated.  Have you set appid?");
@@ -252,7 +252,7 @@ public class FacebookModule extends KrollModule
 	}
 	
 	@Kroll.method(runOnUiThread=true)
-	public void dialog(String action, KrollDict params, V8Callback callback)
+	public void dialog(String action, KrollDict params, KrollFunction callback)
 	{
 		if (facebook == null) {
 			Log.w(LCAT, "dialog called without Facebook being instantiated.  Have you set appid?");

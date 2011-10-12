@@ -30,7 +30,7 @@
 </@Proxy.listCreateProxies>
 </#if>
 
-<#if superProxyClassName != "EventEmitter">
+<#if superProxyClassName??>
 #include "${superPackageName}.${superProxyClassName}.h"
 </#if>
 
@@ -83,7 +83,7 @@ Handle<FunctionTemplate> ${className}::getProxyTemplate()
 	Handle<String> nameSymbol = String::NewSymbol("${proxyAttrs.name}");
 
 	Handle<FunctionTemplate> t = Proxy::inheritProxyTemplate(
-	<#if superProxyClassName != "EventEmitter">
+	<#if superProxyClassName??>
 		${superProxyClassName?replace("BindingGen", "")}::getProxyTemplate()
 	<#else>
 		Proxy::baseProxyTemplate

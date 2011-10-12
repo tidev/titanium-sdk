@@ -182,8 +182,8 @@ public class TiUIText extends TiUIView
 			}
 			handleTextAlign(textAlign, verticalAlign);
 		} else if (key.equals(TiC.PROPERTY_KEYBOARD_TYPE) || (key.equals(TiC.PROPERTY_AUTOCORRECT) || key.equals(TiC.PROPERTY_AUTOCAPITALIZATION) || key.equals(TiC.PROPERTY_PASSWORD_MASK) || key.equals(TiC.PROPERTY_EDITABLE))) {
-			/* TODO KrollDict d = proxy.getProperties();
-			handleKeyboard(d);*/
+			KrollDict d = proxy.getProperties();
+			handleKeyboard(d);
 		} else if (key.equals(TiC.PROPERTY_RETURN_KEY_TYPE)) {
 			handleReturnKeyType(TiConvert.toInt(newValue));
 		} else if (key.equals(TiC.PROPERTY_FONT)) {
@@ -209,14 +209,14 @@ public class TiUIText extends TiUIView
 		KrollDict data = new KrollDict();
 		data.put("value", value);
 
-		proxy.setProperty("value", value);
-		proxy.fireEvent("change", data);
+		proxy.setProperty(TiC.PROPERTY_VALUE, value);
+		proxy.fireEvent(TiC.EVENT_CHANGE, data);
 	}
 
 
 	public void onFocusChange(View v, boolean hasFocus) {
 		if (hasFocus) {
-			Boolean clearOnEdit = (Boolean) proxy.getProperty("clearOnEdit");
+			Boolean clearOnEdit = (Boolean) proxy.getProperty(TiC.PROPERTY_CLEAR_ON_EDIT);
 			if (clearOnEdit != null && clearOnEdit) {
 				((EditText) nativeView).setText("");
 			}
@@ -232,7 +232,7 @@ public class TiUIText extends TiUIView
 	protected KrollDict getFocusEventObject(boolean hasFocus)
 	{
 		KrollDict event = new KrollDict();
-		event.put("value", tv.getText().toString());
+		event.put(TiC.PROPERTY_VALUE, tv.getText().toString());
 		return event;
 	}
 
@@ -240,9 +240,9 @@ public class TiUIText extends TiUIView
 	{
 		String value = tv.getText().toString();
 		KrollDict data = new KrollDict();
-		data.put("value", value);
+		data.put(TiC.PROPERTY_VALUE, value);
 
-		proxy.setProperty("value", value);
+		proxy.setProperty(TiC.PROPERTY_VALUE, value);
 		if (DBG) {
 			Log.e(LCAT, "ActionID: " + actionId + " KeyEvent: " + (keyEvent != null ? keyEvent.getKeyCode() : null));
 		}
@@ -250,7 +250,7 @@ public class TiUIText extends TiUIView
 			proxy.fireEvent("return", data);
 		}
 
-		Boolean enableReturnKey = (Boolean) proxy.getProperty("enableReturnKey");
+		Boolean enableReturnKey = (Boolean) proxy.getProperty(TiC.PROPERTY_ENABLE_RETURN_KEY);
 		if (enableReturnKey != null && enableReturnKey && v.getText().length() == 0) {
 			return true;
 		}
