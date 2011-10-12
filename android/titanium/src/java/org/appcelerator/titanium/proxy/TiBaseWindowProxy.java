@@ -2,6 +2,7 @@ package org.appcelerator.titanium.proxy;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -10,28 +11,34 @@ import android.util.Log;
 /**
  * This class exists to allow JS wrapping of the abstract methods
  */
-@Kroll.proxy
+@Kroll.proxy(propertyAccessors={
+	TiC.PROPERTY_NATIVE_VIEW
+})
 public class TiBaseWindowProxy extends TiWindowProxy
 {
 	private static final String TAG = "TiBaseWindow";
-	public static final String PROPERTY_NATIVE_VIEW = "nativeView";
 
 	@Override
-	public TiUIView getOrCreateView()
+	public TiUIView peekView()
 	{
 		if (view != null) {
 			return view;
 		}
 
-		if (hasProperty(PROPERTY_NATIVE_VIEW)) {
-			TiViewProxy nativeViewProxy = (TiViewProxy) getProperty(PROPERTY_NATIVE_VIEW);
+		if (hasProperty(TiC.PROPERTY_NATIVE_VIEW)) {
+			TiViewProxy nativeViewProxy = (TiViewProxy) getProperty(TiC.PROPERTY_NATIVE_VIEW);
 			view = nativeViewProxy.peekView();
 			setModelListener(view);
 			return view;
 		} else {
-			Log.w(TAG, "getOrCreateView called without nativeView set");
+			Log.w(TAG, "No nativeView set!");
 			return null;
 		}
+	}
+
+	@Override
+	public TiUIView getOrCreateView() {
+		return peekView();
 	}
 
 	@Override

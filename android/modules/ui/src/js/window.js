@@ -66,6 +66,8 @@ exports.bootstrapWindow = function(Titanium) {
 			this.isActivity = true;
 		}
 
+		var needsOpen = false;
+
 		if (this.isActivity) {
 			this.window = new UI.ActivityWindow(this._properties);
 			UI.currentWindow = this.window;
@@ -81,10 +83,8 @@ exports.bootstrapWindow = function(Titanium) {
 				delete this._children;
 			}
 
-			this.window.open();
+			needsOpen = true;
 		} else {
-			var needsOpen = false;
-
 			if (!("currentWindow" in UI)) {
 				this.window = new UI.ActivityWindow({
 					useCurrentActivity: true
@@ -107,12 +107,17 @@ exports.bootstrapWindow = function(Titanium) {
 
 			this.view.zIndex = Math.MAX_INT - 2;
 
-			this.attachListeners();
 			this.window.add(this.view);
+		}
 
-			if (needsOpen) {
-				this.window.open();
-			}
+		if (needsOpen) {
+			var self = this;
+			this.window.on("open", function () {
+				self.postOpen();
+			});
+			this.window.open();
+		} else {
+			this.postOpen();
 		}
 	}
 
@@ -123,12 +128,17 @@ exports.bootstrapWindow = function(Titanium) {
 		this._properties.extend(options);
 
 		if (this.isActivity) {
+			var self = this;
+			this.window.on("close", function () {
+				self.emit("close");
+			});
 			this.window.close(options);
 		} else {
 			if (this.view.parent != null) {
 				this.window.remove(this.view);
 				this.window = null;
 			}
+			this.emit("close");
 		}
 	}
 
@@ -149,25 +159,11 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 	}
 
-	Window.prototype.attachListeners = function() {
-		// map the right events to open/close
-		var self = this;
-		var openEvent = this.isActivity ? "open" : "added";
-		var win = this.isActivity ? this.window : this.view;
-
-		win.on(openEvent, function(e) {
-			if ("url" in self) {
-				self.loadUrl();
-			}
-			e.source = self;
-			self.emit("open", e);
-		});
-
-		var closeEvent = this.isActivity ? "close" : "removed";
-		win.on(closeEvent, function(e) {
-			e.source = self;
-			self.emit("close", e);
-		});
+	Window.prototype.postOpen = function() {
+		if ("url" in this) {
+			this.loadUrl();
+		}
+		this.emit("open");
 	}
 
 	Window.prototype.loadUrl = function()
@@ -178,7 +174,7 @@ exports.bootstrapWindow = function(Titanium) {
 	}
 
 	Window.prototype.addEventListener = function(event, listener) {
-		if (["open", "close"].indexOf(event) > 0 || this.window == null) {
+		if (["open", "close"].indexOf(event) >= 0 || this.window == null) {
 			EventEmitter.prototype.addEventListener.call(this, event, listener);
 		} else {
 			this.window.addEventListener(event, listener);
@@ -186,7 +182,7 @@ exports.bootstrapWindow = function(Titanium) {
 	}
 
 	Window.prototype.removeEventListener = function(event, listener) {
-		if (["open", "close"].indexOf(event) > 0 || this.window == null) {
+		if (["open", "close"].indexOf(event) >= 0 || this.window == null) {
 			EventEmitter.prototype.removeEventListener.call(this, event, listener);
 		} else {
 			this.window.removeEventListener(event, listener);
@@ -194,7 +190,7 @@ exports.bootstrapWindow = function(Titanium) {
 	}
 
 	Window.prototype.fireEvent = function(event, data) {
-		if (["open", "close"].indexOf(event) > 0 || this.window == null) {
+		if (["open", "close"].indexOf(event) >= 0 || this.window == null) {
 			EventEmitter.prototype.fireEvent.call(this, event, data);
 		} else {
 			this.window.fireEvent(event, data);
