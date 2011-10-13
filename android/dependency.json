@@ -25,7 +25,7 @@
 	"required": ["analytics","android","ui","locale"],
 	"libraries": 
 	{
-		"android":["titanium.jar","ti-commons-codec-1.3.jar","kroll-v8.jar","jaxen-1.1.1.jar"],
+		"android":["titanium.jar","ti-commons-codec-1.3.jar","kroll-common.jar","kroll-v8.jar","jaxen-1.1.1.jar"],
 		"xml":["jaxen-1.1.1.jar"],
 		"ui":["android-support-v4.jar"]
 	}
