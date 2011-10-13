@@ -13,6 +13,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -43,6 +44,11 @@ public class NotificationProxy extends KrollProxy
 		notification = new Notification(
 			android.R.drawable.stat_sys_warning, null, System.currentTimeMillis());
 		notification.flags = Notification.FLAG_AUTO_CANCEL;
+	}
+
+	public NotificationProxy(TiContext tiContext) 
+	{
+		this();
 	}
 
 	@Override

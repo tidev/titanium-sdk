@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiContext;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -116,6 +117,11 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			loadedOk = false;
 			return;
 		}
+	}
+
+	protected ContactsApiLevel5(TiContext tiContext)
+	{
+		this();
 	}
 	
 	@Override

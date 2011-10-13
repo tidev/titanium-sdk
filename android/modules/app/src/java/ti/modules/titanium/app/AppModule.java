@@ -4,6 +4,7 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiContext;
 
 @Kroll.module
 public class AppModule extends KrollModule
@@ -12,8 +13,15 @@ public class AppModule extends KrollModule
 
 	public AppModule()
 	{
+		super();
+
 		TiApplication.getInstance().addAppEventProxy(this);
 		appInfo = TiApplication.getInstance().getAppInfo();
+	}
+
+	public AppModule(TiContext tiContext)
+	{
+		this();
 	}
 
 	public void onDestroy() {

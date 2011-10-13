@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiConvert;
@@ -50,6 +51,16 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	private static final int MSG_FIRE_ROW_CHANGE = MSG_FIRST_ID + 106;
 	private static final int MSG_FORCE_LAYOUT = MSG_FIRST_ID + 107;
 	private boolean useSpinner = false;
+
+	public PickerProxy()
+	{
+		super();
+	}
+
+	public PickerProxy(TiContext tiContext)
+	{
+		this();
+	}
 
 	@Override
 	public void handleCreationDict(KrollDict dict) {

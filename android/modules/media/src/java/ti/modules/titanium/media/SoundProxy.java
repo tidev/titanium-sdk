@@ -11,6 +11,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -31,8 +32,17 @@ public class SoundProxy extends KrollProxy
 
 	public SoundProxy()
 	{
+		super();
+
+		// TODO needs to happen post-activity assignment
+		((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
 		setProperty(PROPERTY_VOLUME, 0.5, true);
 		setProperty(TiC.PROPERTY_TIME, 0d, false);
+	}
+
+	public SoundProxy(TiContext tiContext)
+	{
+		this();
 	}
 
 	@Override
@@ -40,7 +50,7 @@ public class SoundProxy extends KrollProxy
 		super.initActivity(activity);
 		((TiBaseActivity)activity).addOnLifecycleEventListener(this);
 	}
-	
+
 	@Override
 	public void handleCreationDict(KrollDict options) {
 		super.handleCreationDict(options);

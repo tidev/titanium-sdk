@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.activityindicator;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiContext;
 
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.TiUIActivityIndicator;
@@ -21,4 +22,13 @@ public class ActivityIndicatorModule extends KrollModule
 	@Kroll.constant public static final int INDETERMINANT = TiUIActivityIndicator.INDETERMINANT;
 	@Kroll.constant public static final int DETERMINANT = TiUIActivityIndicator.DETERMINANT;
 
+	public ActivityIndicatorModule()
+	{
+		super();
+	}
+
+	public ActivityIndicatorModule(TiContext tiContext)
+	{
+		this();
+	}
 }

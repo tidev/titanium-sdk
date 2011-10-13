@@ -13,6 +13,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiConfig;
@@ -61,6 +62,18 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	private ArrayList<TableViewSectionProxy> localSections;
+
+	public TableViewProxy()
+	{
+		super();
+
+		//eventManager.addOnEventChangeListener(this);
+	}
+
+	public TableViewProxy(TiContext tiContext)
+	{
+		this();
+	}
 
 	@Override
 	public void handleCreationDict(KrollDict dict) {

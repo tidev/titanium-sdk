@@ -7,6 +7,7 @@
 package ti.modules.titanium.filesystem;
 
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.util.TiUrl;
 
@@ -19,9 +20,19 @@ public class FileProxy extends TiFileProxy
 	{
 		super(sourceUrl, parts, true);
 	}
-	
+
+	public FileProxy(TiContext tiContext, String[] parts)
+	{
+		super(tiContext.getBaseUrl(), parts, true);
+	}
+
 	public FileProxy(String sourceUrl, String[] parts, boolean resolve)
 	{
 		super(sourceUrl, parts, resolve);
+	}
+
+	public FileProxy(TiContext tiContext, String[] parts, boolean resolve)
+	{
+		super(tiContext.getBaseUrl(), parts, resolve);
 	}
 }

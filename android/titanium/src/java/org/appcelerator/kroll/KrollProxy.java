@@ -13,6 +13,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.util.AsyncResult;
@@ -482,4 +483,10 @@ public class KrollProxy implements Handler.Callback
 	{
 		krollObject.release();
 	}
+
+	public TiContext getTiContext()
+	{
+		return new TiContext(activity, proxyId);
+	}
 }
+

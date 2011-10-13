@@ -12,6 +12,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.view.TiUIView;
@@ -40,6 +41,16 @@ public class TableViewRowProxy extends TiViewProxy
 	protected TiTableViewRowProxyItem tableViewItem;
 
 	private static final int MSG_SET_DATA = TiViewProxy.MSG_LAST_ID + 5001;
+
+	public TableViewRowProxy()
+	{
+		super();
+	}
+
+	public TableViewRowProxy(TiContext tiContext)
+	{
+		this();
+	}
 
 	@Override
 	public void handleCreationDict(KrollDict options)

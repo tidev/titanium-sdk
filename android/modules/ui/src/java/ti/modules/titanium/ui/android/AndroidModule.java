@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.android;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -68,6 +69,16 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int WEBVIEW_PLUGINS_OFF = TiUIWebView.PLUGIN_STATE_OFF;
 	@Kroll.constant public static final int WEBVIEW_PLUGINS_ON = TiUIWebView.PLUGIN_STATE_ON;
 	@Kroll.constant public static final int WEBVIEW_PLUGINS_ON_DEMAND = TiUIWebView.PLUGIN_STATE_ON_DEMAND;
+
+	public AndroidModule()
+	{
+		super();
+	}
+
+	public AndroidModule(TiContext tiContext) 
+	{
+		this();
+	}
 
 	// TODO - grab the activity off the invocation?
 	@Kroll.method

@@ -7,6 +7,7 @@
 package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiContext;
 import org.w3c.dom.Notation;
 
 @Kroll.proxy(parentModule=XMLModule.class)
@@ -17,6 +18,11 @@ public class NotationProxy extends NodeProxy {
 	{
 		super(notation);
 		this.notation = notation;
+	}
+
+	public NotationProxy(TiContext tiContext, Notation notation)
+	{
+		this(notation);
 	}
 	
 	@Kroll.getProperty @Kroll.method

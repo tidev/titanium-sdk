@@ -10,6 +10,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -32,6 +33,14 @@ public class LabelProxy extends TiViewProxy
 {
 	public LabelProxy()
 	{
+		super();
+
+		setProperty(TiC.PROPERTY_TEXT, "");
+	}
+
+	public LabelProxy(TiContext tiContext)
+	{
+		this();
 	}
 
 	@Override

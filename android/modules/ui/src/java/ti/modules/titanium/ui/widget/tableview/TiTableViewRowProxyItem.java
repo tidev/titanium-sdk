@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
@@ -64,6 +65,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		this.rightImage = new ImageView(activity);
 		rightImage.setVisibility(GONE);
 		addView(rightImage, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+	}
+
+	public TiTableViewRowProxyItem(TiContext tiContext)
+	{
+		this(tiContext.getActivity());
 	}
 
 	protected TableViewRowProxy getRowProxy() {

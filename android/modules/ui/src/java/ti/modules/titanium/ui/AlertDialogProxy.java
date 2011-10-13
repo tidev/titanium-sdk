@@ -9,6 +9,7 @@ package ti.modules.titanium.ui;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
@@ -28,6 +29,16 @@ import android.app.Activity;
 )
 public class AlertDialogProxy extends TiViewProxy
 {
+	public AlertDialogProxy()
+	{
+		super();
+	}
+
+	public AlertDialogProxy(TiContext tiContext)
+	{
+		this();
+	}
+
 	@Override
 	protected KrollDict getLangConversionTable() {
 		KrollDict table = new KrollDict();

@@ -7,6 +7,7 @@
 package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiContext;
 import org.w3c.dom.DocumentType;
 
 @Kroll.proxy(parentModule=XMLModule.class)
@@ -17,6 +18,11 @@ public class DocumentTypeProxy extends NodeProxy {
 	{
 		super(type);
 		this.type = type;
+	}
+
+	public DocumentTypeProxy(TiContext context, DocumentType type)
+	{
+		this(type);
 	}
 	
 	@Kroll.getProperty @Kroll.method

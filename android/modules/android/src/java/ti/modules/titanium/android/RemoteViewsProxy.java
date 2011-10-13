@@ -12,6 +12,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.net.Uri;
@@ -23,11 +24,15 @@ public class RemoteViewsProxy extends KrollProxy {
 	protected int layoutId;
 	protected RemoteViews remoteViews;
 
-	/*
+	public RemoteViewsProxy()
+	{
+		super();
+	}
+
 	public RemoteViewsProxy(TiContext context)
 	{
-		super(context);
-	}*/
+		this();
+	}
 	
 	@Override
 	public void handleCreationArgs(KrollModule createdInModule, Object[] args) {

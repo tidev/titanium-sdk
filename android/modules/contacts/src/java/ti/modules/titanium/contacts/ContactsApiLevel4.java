@@ -62,7 +62,7 @@ public class ContactsApiLevel4 extends CommonContactsApi
 		weakContext = new WeakReference<TiContext>(tiContext);
 	}
 	*/
-	
+
 	@Override
 	protected PersonProxy[] getAllPeople(int limit)
 	{

@@ -7,6 +7,7 @@
 package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiContext;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.ProcessingInstruction;
 
@@ -18,6 +19,11 @@ public class ProcessingInstructionProxy extends NodeProxy {
 	{
 		super(pi);
 		this.pi = pi;
+	}
+
+	public ProcessingInstructionProxy(TiContext tiContext, ProcessingInstruction pi)
+	{
+		this(pi);
 	}
 	
 	@Kroll.getProperty @Kroll.method

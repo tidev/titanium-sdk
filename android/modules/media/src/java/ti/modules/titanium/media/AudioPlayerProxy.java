@@ -11,6 +11,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -40,7 +41,16 @@ public class AudioPlayerProxy extends KrollProxy
 
 	public AudioPlayerProxy()
 	{
+		super();
+
+		// TODO this needs to happen post-set
+		((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
 		setProperty("volume", 0.5, true);
+	}
+
+	public AudioPlayerProxy(TiContext tiContext)
+	{
+		this();
 	}
 
 	@Override

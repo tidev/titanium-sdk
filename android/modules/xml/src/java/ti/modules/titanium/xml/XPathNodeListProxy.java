@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiContext;
 import org.w3c.dom.Node;
 
 @Kroll.proxy(parentModule=XMLModule.class)
@@ -14,6 +15,11 @@ public class XPathNodeListProxy extends KrollProxy
 	{
 		super();
 		this.nodeList = nodeList;
+	}
+
+	public XPathNodeListProxy(TiContext tiContext, List nodeList)
+	{
+		this(nodeList);
 	}
 	
 	@Kroll.getProperty @Kroll.method

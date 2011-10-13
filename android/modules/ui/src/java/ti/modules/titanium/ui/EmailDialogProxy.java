@@ -15,6 +15,7 @@ import java.util.List;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -57,8 +58,15 @@ public class EmailDialogProxy extends TiViewProxy {
 
 	public EmailDialogProxy()
 	{
+		super();
+
 		TiBaseFile privateDataDirectory = TiFileFactory.createTitaniumFile("appdata-private:///", false);
 		privateDataDirectoryPath = privateDataDirectory.getNativeFile().getAbsolutePath();
+	}
+
+	public EmailDialogProxy(TiContext tiContext)
+	{
+		this();
 	}
 
 	@Kroll.method

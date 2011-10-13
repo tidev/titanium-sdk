@@ -10,6 +10,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -28,6 +29,18 @@ import android.app.Activity;
 })
 public class ButtonProxy extends TiViewProxy
 {
+	public ButtonProxy()
+	{
+		super();
+
+		setProperty(TiC.PROPERTY_TITLE, "");
+	}
+
+	public ButtonProxy(TiContext tiContext)
+	{
+		this();
+	}
+
 	@Override
 	public void handleCreationArgs(KrollModule createdInModule, Object[] args)
 	{

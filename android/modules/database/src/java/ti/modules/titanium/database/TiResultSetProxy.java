@@ -10,6 +10,7 @@ import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -31,7 +32,7 @@ public class TiResultSetProxy extends KrollProxy
 
 	public TiResultSetProxy(Cursor rs)
 	{
-		//super();
+		super();
 
 		this.rs = rs;
 		String[] names = rs.getColumnNames();
@@ -39,6 +40,11 @@ public class TiResultSetProxy extends KrollProxy
 		for(int i=0; i < names.length; i++) {
 			columnNames.put(names[i].toLowerCase(), i);
 		}
+	}
+
+	public TiResultSetProxy(TiContext tiContext, Cursor rs)
+	{
+		this(rs);
 	}
 
 	@Kroll.method

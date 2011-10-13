@@ -9,6 +9,7 @@ package ti.modules.titanium.android.notificationmanager;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiContext;
 
 import ti.modules.titanium.android.AndroidModule;
 import android.app.Activity;
@@ -37,11 +38,16 @@ public class NotificationManagerModule extends KrollModule
 	@Kroll.constant public static final int FLAG_SHOW_LIGHTS = Notification.FLAG_SHOW_LIGHTS;
 	@Kroll.constant public static final int STREAM_DEFAULT = Notification.STREAM_DEFAULT;
 
-	/*
+
+	public NotificationManagerModule()
+	{
+		super();
+	}
+
 	public NotificationManagerModule(TiContext tiContext)
 	{
-		super(tiContext);
-	}*/
+		this();
+	}
 
 	// Kept for compatibility with 1.5.x
 	public NotificationProxy createNotification(Object[] args)

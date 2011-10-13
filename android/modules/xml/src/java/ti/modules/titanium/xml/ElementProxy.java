@@ -7,6 +7,7 @@
 package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiContext;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMException;
@@ -23,6 +24,11 @@ public class ElementProxy extends NodeProxy {
 	{
 		super(element);
 		this.element = element;
+	}
+
+	public ElementProxy(TiContext context, Element element)
+	{
+		this(element);
 	}
 
 	@Kroll.getProperty @Kroll.method

@@ -11,6 +11,7 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -32,11 +33,15 @@ public class PendingIntentProxy extends KrollProxy
 	protected Context pendingIntentContext;
 	protected int flags;
 
-	/*
+	public PendingIntentProxy()
+	{
+		super();
+	}
+
 	public PendingIntentProxy(TiContext tiContext)
 	{
-		super(tiContext);
-	}*/
+		this();
+	}
 
 	@Override
 	public void handleCreationArgs(KrollModule createdInModule, Object[] args)

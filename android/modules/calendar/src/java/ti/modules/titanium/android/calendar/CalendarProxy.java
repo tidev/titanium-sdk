@@ -8,6 +8,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiContext;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
@@ -20,8 +21,9 @@ public class CalendarProxy extends KrollProxy {
 
 	protected String id, name;
 	protected boolean selected, hidden;
-	
-	public CalendarProxy(String id, String name, boolean selected, boolean hidden) {
+
+	public CalendarProxy(String id, String name, boolean selected, boolean hidden)
+	{
 		super();
 		
 		this.id = id;
@@ -30,7 +32,13 @@ public class CalendarProxy extends KrollProxy {
 		this.hidden = hidden;
 	}
 
-	public static String getBaseCalendarUri() {
+	public CalendarProxy(TiContext context, String id, String name, boolean selected, boolean hidden)
+	{
+		this(id, name, selected, hidden);
+	}
+
+	public static String getBaseCalendarUri()
+	{
 		if (Build.VERSION.SDK_INT >= 8) { // FROYO, 2.2
 			return "content://com.android.calendar";
 		}
@@ -38,7 +46,8 @@ public class CalendarProxy extends KrollProxy {
 		return "content://calendar";
 	}
 
-	public static ArrayList<CalendarProxy> queryCalendars(String query, String[] queryArgs) {
+	public static ArrayList<CalendarProxy> queryCalendars(String query, String[] queryArgs)
+	{
 		ArrayList<CalendarProxy> calendars = new ArrayList<CalendarProxy>();
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 		
@@ -60,9 +69,15 @@ public class CalendarProxy extends KrollProxy {
 		
 		return calendars;
 	}
-	
+
+	public static ArrayList<CalendarProxy> queryCalendars(TiContext context, String query, String[] queryArgs)
+	{
+		return queryCalendars(query, queryArgs);
+	}
+
 	@Kroll.method
-	public EventProxy[] getEventsInYear(int year) {
+	public EventProxy[] getEventsInYear(int year)
+	{
 		Calendar jan1 = Calendar.getInstance();
 		jan1.clear();
 		jan1.set(year, 0, 1);
@@ -74,7 +89,8 @@ public class CalendarProxy extends KrollProxy {
 	}
 	
 	@Kroll.method
-	public EventProxy[] getEventsInMonth(int year, int month) {
+	public EventProxy[] getEventsInMonth(int year, int month)
+	{
 		Calendar firstOfTheMonth = Calendar.getInstance();
 		firstOfTheMonth.clear();
 		firstOfTheMonth.set(year, month, 1);
@@ -93,7 +109,8 @@ public class CalendarProxy extends KrollProxy {
 	}
 	
 	@Kroll.method
-	public EventProxy[] getEventsInDate(int year, int month, int day) {
+	public EventProxy[] getEventsInDate(int year, int month, int day)
+	{
 		Calendar beginningOfDay = Calendar.getInstance();
 		beginningOfDay.clear();
 		beginningOfDay.set(year, month, day, 0, 0, 0);
@@ -109,13 +126,15 @@ public class CalendarProxy extends KrollProxy {
 	}
 	
 	@Kroll.method	
-	public EventProxy[] getEventsBetweenDates(Date date1, Date date2) {
+	public EventProxy[] getEventsBetweenDates(Date date1, Date date2)
+	{
 		ArrayList<EventProxy> events = EventProxy.queryEventsBetweenDates(date1.getTime(), date2.getTime(), this);
 		return events.toArray(new EventProxy[events.size()]);
 	}
 	
 	@Kroll.method
-	public EventProxy getEventById(int id) {
+	public EventProxy getEventById(int id)
+	{
 		ArrayList<EventProxy> events = EventProxy.queryEvents("_id = ?", new String[] { ""+id });
 		if (events.size() > 0) {
 			return events.get(0);
@@ -123,27 +142,33 @@ public class CalendarProxy extends KrollProxy {
 	}
 	
 	@Kroll.method
-	public EventProxy createEvent(KrollDict data) {
+	public EventProxy createEvent(KrollDict data)
+	{
 		return EventProxy.createEvent(this, data);
 	}
 	
 	@Kroll.getProperty @Kroll.method
-	public String getName() {
+	public String getName()
+	{
 		return name;
 	}
 	
 	@Kroll.getProperty @Kroll.method
-	public String getId() {
+	public String getId()
+	{
 		return id;
 	}
 	
 	@Kroll.getProperty @Kroll.method
-	public boolean getSelected() {
+	public boolean getSelected()
+	{
 		return selected;
 	}
 	
 	@Kroll.getProperty @Kroll.method
-	public boolean getHidden() {
+	public boolean getHidden()
+	{
 		return hidden;
 	}
 }
+

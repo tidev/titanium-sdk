@@ -7,6 +7,7 @@
 package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiContext;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -19,6 +20,11 @@ public class DocumentProxy extends NodeProxy {
 	{
 		super(doc);
 		this.doc = doc;
+	}
+
+	public DocumentProxy(TiContext context, Document doc)
+	{
+		this(doc);
 	}
 
 	@Kroll.method

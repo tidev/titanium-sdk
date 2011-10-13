@@ -13,6 +13,7 @@ import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -32,6 +33,16 @@ public class FilesystemModule extends KrollModule
 	private static String[] RESOURCES_DIR = { "app://" };
 
 	// Methods
+	public FilesystemModule()
+	{
+		super();
+	}
+
+	public FilesystemModule(TiContext tiContext)
+	{
+		this();
+	}
+
 	@Kroll.method
 	public FileProxy createTempFile(KrollInvocation invocation)
 	{

@@ -17,6 +17,7 @@ import java.io.OutputStream;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -40,13 +41,19 @@ public class DatabaseModule extends KrollModule
 	@Kroll.constant public static final int FIELD_TYPE_FLOAT = 2;
 	@Kroll.constant public static final int FIELD_TYPE_DOUBLE = 3;
 
-	/*
-	public DatabaseModule(TiContext tiContext) {
-		super(tiContext);
-	}*/
+	public DatabaseModule()
+	{
+		super();
+	}
+
+	public DatabaseModule(TiContext tiContext)
+	{
+		this();
+	}
 
 	@Kroll.method
-	public TiDatabaseProxy open(Object file) {
+	public TiDatabaseProxy open(Object file)
+	{
 		TiDatabaseProxy dbp = null;
 
 		try {

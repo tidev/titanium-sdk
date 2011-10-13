@@ -9,6 +9,7 @@ package ti.modules.titanium.database;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -32,20 +33,32 @@ public class TiDatabaseProxy extends KrollProxy
 	public TiDatabaseProxy(String name, SQLiteDatabase db)
 	{
 		//super(tiContext);
+		super();
 		this.name = name;
 		this.db = db;
 		statementLogging = false;
 		readOnly = false;
 	}
-	
+
+	public TiDatabaseProxy(TiContext tiContext, String name, SQLiteDatabase db)
+	{
+		this(name, db);
+	}
+
 	// readonly database
 	public TiDatabaseProxy(SQLiteDatabase db)
 	{
 		//super(tiContext);
+		super();
 		this.name = db.getPath();
 		this.db = db;
 		statementLogging = false;
 		readOnly = true;
+	}
+
+	public TiDatabaseProxy(TiContext tiContext, SQLiteDatabase db)
+	{
+		this(db);
 	}
 
 	@Kroll.method

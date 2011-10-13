@@ -8,6 +8,7 @@ package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiContext;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.NamedNodeMap;
 
@@ -19,6 +20,11 @@ public class NamedNodeMapProxy extends KrollProxy
 	{
 		super();
 		this.map = map;
+	}
+
+	public NamedNodeMapProxy(TiContext context, NamedNodeMap map)
+	{
+		this(map);
 	}
 
 	@Kroll.getProperty @Kroll.method

@@ -11,17 +11,22 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiConvert;
 
 @Kroll.module
-public class AnalyticsModule extends KrollModule {
-
-	/*
-	public AnalyticsModule(TiContext tiContext) {
-		super(tiContext);
+public class AnalyticsModule extends KrollModule
+{
+	public AnalyticsModule()
+	{
+		super();
 	}
-	*/
+
+	public AnalyticsModule(TiContext tiContext)
+	{
+		this();
+	}
 
 	@Kroll.method
 	public void addEvent(String type, String event, @Kroll.argument(optional=true) KrollDict data)

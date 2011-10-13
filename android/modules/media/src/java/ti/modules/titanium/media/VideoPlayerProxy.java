@@ -14,6 +14,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -42,6 +43,16 @@ public class VideoPlayerProxy extends KrollProxy
 	private boolean play;
 	private int mediaControlStyle = MediaModule.VIDEO_CONTROL_DEFAULT;
 	private int scalingMode = MediaModule.VIDEO_SCALING_ASPECT_FIT;
+
+	public VideoPlayerProxy()
+	{
+		super();
+	}
+
+	public VideoPlayerProxy(TiContext tiContext)
+	{
+		this();
+	}
 
 	public void handleCreationDict(KrollDict options)
 	{

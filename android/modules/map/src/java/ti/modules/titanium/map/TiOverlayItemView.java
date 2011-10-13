@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.map;
 
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiFileHelper;
@@ -126,6 +127,11 @@ public class TiOverlayItemView extends FrameLayout
 		addView(layout, fparams);
 
 		hitTestList = new View[] { leftPane, title, snippet, rightPane };
+	}
+
+	public TiOverlayItemView(Context context, TiContext tiContext)
+	{
+		this(context);
 	}
 
 	private RelativeLayout.LayoutParams createBaseParams() {

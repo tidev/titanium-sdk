@@ -13,6 +13,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiLocationHelper;
@@ -52,6 +53,11 @@ public class GeolocationModule extends KrollModule
 		super();
 		tiCompass = new TiCompass(this);
 		tiLocation = new TiLocation(this);
+	}
+
+	public GeolocationModule(TiContext tiContext)
+	{
+		this();
 	}
 
 	protected void eventListenerAdded(String event, int count, KrollProxy proxy)

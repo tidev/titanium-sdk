@@ -8,6 +8,7 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -19,6 +20,12 @@ public class NotificationProxy extends TiViewProxy
 {
 	public NotificationProxy()
 	{
+		super();
+	}
+
+	public NotificationProxy(TiContext tiContext)
+	{
+		this();
 	}
 
 	@Override

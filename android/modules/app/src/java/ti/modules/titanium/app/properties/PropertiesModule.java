@@ -9,6 +9,7 @@ package ti.modules.titanium.app.properties;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiProperties;
 
 import ti.modules.titanium.app.AppModule;
@@ -21,7 +22,14 @@ public class PropertiesModule extends KrollModule {
 
 	public PropertiesModule()
 	{
+		super();
+
 		appProperties = TiApplication.getInstance().getAppProperties();
+	}
+
+	public PropertiesModule(TiContext tiContext)
+	{
+		this();
 	}
 
 	@Kroll.method

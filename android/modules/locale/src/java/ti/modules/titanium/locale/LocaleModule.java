@@ -11,6 +11,7 @@ import java.util.Locale;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiPlatformHelper;
@@ -24,12 +25,15 @@ public class LocaleModule extends KrollModule
 	private static final String LCAT = "LocaleModule";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	/*
+	public LocaleModule()
+	{
+		super();
+	}
+
 	public LocaleModule(TiContext tiContext)
 	{
-		super(tiContext);
+		this();
 	}
-	*/
 	
 	@Kroll.method @Kroll.getProperty
 	public String getCurrentLanguage()
