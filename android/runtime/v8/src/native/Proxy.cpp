@@ -212,7 +212,7 @@ Handle<Value> Proxy::proxyConstructor(const Arguments& args)
 	Local<Object> jsProxy = args.Holder();
 
 	Handle<Object> properties = Object::New();
-	jsProxy->Set(propertiesSymbol, properties);
+	jsProxy->Set(propertiesSymbol, properties, PropertyAttribute(DontEnum));
 
 	Handle<Object> prototype = jsProxy->GetPrototype()->ToObject();
 

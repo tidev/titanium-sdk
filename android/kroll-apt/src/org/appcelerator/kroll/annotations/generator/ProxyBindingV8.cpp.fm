@@ -133,7 +133,7 @@ Handle<FunctionTemplate> ${className}::getProxyTemplate()
 			, ${className}::setter_${name}
 		<#else>
 			, 0
-		</#if>, Handle<Value>(), DEFAULT, DontEnum);
+		</#if>, Handle<Value>(), DEFAULT);
 	</@Proxy.listDynamicProperties>
 
 	// Accessors --------------------------------------------------------------
@@ -142,7 +142,7 @@ Handle<FunctionTemplate> ${className}::getProxyTemplate()
 		String::NewSymbol("${name}"),
 		Proxy::getProperty,
 		Proxy::onPropertyChanged,
-		Handle<Value>(), DEFAULT, DontEnum);
+		Handle<Value>(), DEFAULT);
 	</@Proxy.listPropertyAccessors>
 
 	return proxyTemplate;

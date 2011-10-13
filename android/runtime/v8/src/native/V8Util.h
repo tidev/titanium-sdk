@@ -51,7 +51,7 @@
 	v8::FunctionTemplate::New(callback, v8::Handle<v8::Value>(), \
 		__callback##_SIG); \
 	templ->PrototypeTemplate()->Set(v8::String::NewSymbol(name), \
-		__callback##_TEM); \
+		__callback##_TEM, PropertyAttribute(DontEnum)); \
 }
 
 #ifdef TI_DEBUG
