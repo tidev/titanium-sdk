@@ -159,6 +159,18 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 </#function>
 
 <#assign typeInfo = {
+	"org.appcelerator.kroll.KrollProxy":{
+		"jsType":"Object",
+		"jsValidation":true,
+		"jsConvertType":"Value",
+		"jsToJavaConverter":"jsValueToJavaObject",
+		"javaToJsConverter":"javaObjectToJsValue",
+		"jvalue":"l",
+		"javaCallMethodType":"Object",
+		"javaReturnType":"jobject",
+		"javaValidation":true,
+		"javaDeleteLocalRef":true
+	},
 	"java.lang.String":{
 		"jsType":"Value",
 		"jsValidation":false,
@@ -264,16 +276,17 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		<#return typeInfo[type]>
 	</#if>
 
-	<#if type?contains(".")>
-		<#return typeInfo["java.lang.Object"]>
+	<#if type?ends_with("Proxy")>
+		<#return typeInfo["org.appcelerator.kroll.KrollProxy"]>
 	</#if>
 
-	<#stop "Unknown type info requested: ${type}">
+	<#-- default type -->
+	<#return typeInfo["java.lang.Object"]>
 </#function>
 
 <#macro listMethodArguments args>
 	<#list args as arg>
-		<#nested arg_index, typeInfo[arg.type]!typeInfo["java.lang.Object"], arg.type>
+		<#nested arg_index, getTypeInfo(arg.type), arg.type>
 	</#list>
 </#macro>
 
