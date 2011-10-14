@@ -15,37 +15,76 @@ exports.bootstrapWindow = function(Titanium) {
 	// Backward compatibility for lightweight windows
 	var UI = Titanium.UI;
 	var Window = Titanium.TiBaseWindow;
+	var ActivityWindow = UI.ActivityWindow;
 	var Proxy = Titanium.Proxy;
 
-	function getOrientationModes() {
-		/*return this.getProperty("orientationModes");*/
-		return this.window.getOrientationModes();
+	var isCurrentWindowOpen = false;
+	function getOrCreateCurrentWindow() {
+		var currentWindow = UI.currentWindow;
+		if (!currentWindow) {
+			currentWindow = new ActivityWindow({
+				useCurrentActivity: true
+			});
+			UI.currentWindow = currentWindow;
+		}
+		return currentWindow;
 	}
-	Window.prototype.getOrientationModes = getOrientationModes;
 
-	function setOrientationModes(modes) {
-		/*this.setPropertyAndFire("orientationModes", modes);*/
-		if (this.window == null) return;
- 
-		this.window.setOrientationModes(modes);
+	Window.prototype._cacheSetProperty = function(setter, value) {
+		var cache = this.propertyCache;
+		if (!cache) {
+			cache = this.propertyCache = {};
+		}
+		cache[setter] = value;
 	}
-	Window.prototype.setOrientationModes = setOrientationModes;
 
-	function getActivity() {
-		return this.window.getActivity();
+	function definePropsAndMethods(getter, setter) {
+		var descriptor = {enumerable: true};
+		var getterMethod, setterMethod;
+
+		if (getter) {
+			getterMethod = ActivityWindow.prototype[getter];
+			function get() {
+				var window = this.window;
+				if (!window) {
+					// If this window isn't open yet, first try
+					// getting the property from the cache. It may have
+					// been set before this call.
+					var cache = this.propertyCache;
+					if (setterMethod && cache && setterMethod in cache) {
+						return cache[setterMethod];
+					} else {
+						// If property isn't in the cache, fall back to
+						// getting it off the current window.
+						window = getOrCreateCurrentWindow();
+					}
+				}
+				return getterMethod.call(window);
+			}
+			descriptor.get = Window.prototype[getter] = get;
+		}
+		if (setter) {
+			setterMethod = ActivityWindow.prototype[setter];
+			function set(value) {
+				var window = this.window;
+				if (!window) {
+					// Save value to a cache so it can later to set
+					// on the window once it has opened.
+					this._cacheSetProperty(setterMethod, value);
+				} else {
+					setterMethod.call(window, value);
+				}
+			}
+			descriptor.set = Window.prototype[setter] = set;
+		}
+		return descriptor;
 	}
-	Window.prototype.getActivity = getActivity;
 
 	Object.defineProperties(Window.prototype, {
-		orientationModes: {
-			get: getOrientationModes,
-			set: setOrientationModes,
-			enumerable: true
-		},
-		activity: {
-			get: getActivity,
-			enumerable: true
-		}
+		orientationModes: definePropsAndMethods("getOrientationModes", "setOrientationModes"),
+		activity: definePropsAndMethods("getActivity"),
+		orientation: definePropsAndMethods("getOrientation"),
+		windowPixelFormat: definePropsAndMethods("getWindowPixelFormat", "setWindowPixelFormat")
 	});
 
 	Window.prototype.open = function(options) {
@@ -55,6 +94,7 @@ exports.bootstrapWindow = function(Titanium) {
 			this._properties.extend(options);
 		}
 
+		// Determine if we should create a heavy or light weight window.
 		this.isActivity = false;
 		newActivityRequiredKeys.forEach(function(key) {
 			if (key in this._properties) {
@@ -69,45 +109,30 @@ exports.bootstrapWindow = function(Titanium) {
 		var needsOpen = false;
 
 		if (this.isActivity) {
-			this.window = new UI.ActivityWindow(this._properties);
+			this.window = new ActivityWindow(this._properties);
 			UI.currentWindow = this.window;
-			this.nativeView = this.window;
-			this.attachListeners();
-
-			// we needs the children man!
-			if (this._children) {
-				var length = this._children.length;
-				for (var i = 0; i < length; i++) {
-					this.window.add(this._children[i]);
-				}
-				delete this._children;
-			}
-
+			this.view = this.window;
 			needsOpen = true;
 		} else {
-			if (!("currentWindow" in UI)) {
-				this.window = new UI.ActivityWindow({
-					useCurrentActivity: true
-				});
-				UI.currentWindow = this.window;
+			this.window = getOrCreateCurrentWindow();
+			if (!isCurrentWindowOpen) {
 				needsOpen = true;
+				isCurrentWindowOpen = true;
 			}
 
-			this.window = UI.currentWindow;
 			this.view = new UI.View(this._properties);
-			this.nativeView = this.view;
-
-			if (this._children) {
-				var length = this._children.length;
-				for (var i = 0; i < length; i++) {
-					this.view.add(this._children[i]);
-				}
-				delete this._children;
-			}
-
 			this.view.zIndex = Math.MAX_INT - 2;
-
 			this.window.add(this.view);
+		}
+
+		this.setWindowView(this.view);
+
+		if (this._children) {
+			var length = this._children.length;
+			for (var i = 0; i < length; i++) {
+				this.view.add(this._children[i]);
+			}
+			delete this._children;
 		}
 
 		if (needsOpen) {
@@ -143,23 +168,25 @@ exports.bootstrapWindow = function(Titanium) {
 	}
 
 	Window.prototype.add = function(view) {
-		if (!("_children" in this)) {
-			this._children = [];
-		}
-
-		kroll.log(TAG, "adding view " + JSON.stringify(view._properties) + " to window");
-		if (this.isActivity && this.window) {
-			kroll.log(TAG, "adding to this.window");
-			this.window.add(view);
-		} else if (this.view) {
-			kroll.log(TAG, "adding to this.view: " + view + ", " + JSON.stringify(view._properties));
+		if (this.view) {
 			this.view.add(view);
 		} else {
-			this._children.push(view);
+			var children = this._children;
+			if (!children) {
+				children = this._children = [];
+			}
+			children.push(view);
 		}
 	}
 
 	Window.prototype.postOpen = function() {
+		// Set any cached properties.
+		if (this.propertyCache) {
+			for (setter in this.propertyCache) {
+				setter.call(this.window, this.propertyCache[setter]);
+			}
+		}
+
 		if ("url" in this) {
 			this.loadUrl();
 		}
@@ -198,12 +225,8 @@ exports.bootstrapWindow = function(Titanium) {
 	}
 
 	Window.prototype.setPropertyAndFire = function(property, value) {
-		if (!this.window && !this.view) {
+		if (!this.view) {
 			Proxy.prototype.setPropertyAndFire.call(this, property, value);
-		}
-
-		if (this.isActivity) {
-			this.window.setPropertyAndFire(property, value);
 		} else {
 			this.view.setPropertyAndFire(property, value);
 		}

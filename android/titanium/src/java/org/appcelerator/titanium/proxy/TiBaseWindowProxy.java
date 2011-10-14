@@ -11,22 +11,20 @@ import android.util.Log;
 /**
  * This class exists to allow JS wrapping of the abstract methods
  */
-@Kroll.proxy(propertyAccessors={
-	TiC.PROPERTY_NATIVE_VIEW
-})
+@Kroll.proxy
 public class TiBaseWindowProxy extends TiWindowProxy
 {
 	private static final String TAG = "TiBaseWindow";
 
-	@Override
+	/*@Override
 	public TiUIView peekView()
 	{
 		if (view != null) {
 			return view;
 		}
 
-		if (hasProperty(TiC.PROPERTY_NATIVE_VIEW)) {
-			TiViewProxy nativeViewProxy = (TiViewProxy) getProperty(TiC.PROPERTY_NATIVE_VIEW);
+		if (hasProperty(TiC.PROPERTY_VIEW)) {
+			TiViewProxy nativeViewProxy = (TiViewProxy) getProperty(TiC.PROPERTY_VIEW);
 			view = nativeViewProxy.peekView();
 			setModelListener(view);
 			return view;
@@ -34,11 +32,18 @@ public class TiBaseWindowProxy extends TiWindowProxy
 			Log.w(TAG, "No nativeView set!");
 			return null;
 		}
+	}*/
+
+	@Kroll.method
+	public void setWindowView(TiViewProxy viewProxy) {
+		TiUIView view = viewProxy.peekView();
+		setView(view);
+		setModelListener(view);
 	}
 
 	@Override
 	public TiUIView getOrCreateView() {
-		return peekView();
+		throw new IllegalStateException("Cannot create view on TiBaseWindowProxy");
 	}
 
 	@Override

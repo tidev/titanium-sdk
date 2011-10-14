@@ -221,7 +221,6 @@ public class TiC
 	public static final String PROPERTY_MINUTE_INTERVAL = "minuteInterval";
 	public static final String PROPERTY_MODAL = "modal";
 	public static final String PROPERTY_NAME = "name";
-	public static final String PROPERTY_NATIVE_VIEW = "nativeView";
 	public static final String PROPERTY_NAV_BAR_HIDDEN = "navBarHidden";
 	public static final String PROPERTY_NUMBER = "number";
 	public static final String PROPERTY_OK = "ok";
@@ -312,6 +311,7 @@ public class TiC
 	public static final String PROPERTY_VIBRATE_PATTERN = "vibratePattern";
 	public static final String PROPERTY_VISIBLE = "visible";
 	public static final String PROPERTY_VISIBLE_ITEMS = "visibleItems";
+	public static final String PROPERTY_VIEW = "view";
 	public static final String PROPERTY_WHEN = "when";
 	public static final String PROPERTY_WIDTH = "width";
 	public static final String PROPERTY_WINDOW = "window";
