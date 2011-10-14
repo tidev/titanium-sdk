@@ -37,6 +37,7 @@
   NSString* _urlSchemeSuffix;
   NSArray* _permissions;
   BOOL appSupportsBackgrounding;
+	BOOL forceDialog;
 }
 
 @property(nonatomic, copy) NSString* accessToken;
@@ -45,7 +46,11 @@
 
 @property(nonatomic, assign) id<FBSessionDelegate2> sessionDelegate;
 @property(nonatomic, copy) NSString* urlSchemeSuffix;
+
+//Properties added to restore older functionality in the new facebook API:
+//We can now add appIds after the fact, and force a dialog to open
 @property(nonatomic, copy) NSString* appId;
+@property(nonatomic, assign) BOOL forceDialog;
 
 - (id)initWithAppId:(NSString *)appId
         andDelegate:(id<FBSessionDelegate2>)delegate;

@@ -396,9 +396,8 @@
 	[self _unsave];
 	
 	NSArray *permissions_ = permissions == nil ? [NSArray array] : permissions;
-//	[facebook set
+	[facebook setForceDialog:forceDialogAuth];
 	[facebook authorize:permissions_];
-//	  forceDialog:forceDialogAuth ];
 }
 
 /**

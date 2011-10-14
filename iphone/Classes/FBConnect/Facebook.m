@@ -50,6 +50,7 @@ static NSString* kSDKVersion = @"2";
         urlSchemeSuffix = _urlSchemeSuffix,
                   appId = _appId;
 
+@synthesize forceDialog;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // private
@@ -190,7 +191,7 @@ static NSString* kSDKVersion = @"2";
   // her credentials in order to authorize the application.
   BOOL didOpenOtherApp = NO;
   UIDevice *device = [UIDevice currentDevice];
-  if ([device respondsToSelector:@selector(isMultitaskingSupported)] && [device isMultitaskingSupported]) {
+  if (!forceDialog && [device respondsToSelector:@selector(isMultitaskingSupported)] && [device isMultitaskingSupported]) {
     if (tryFBAppAuth) {
       NSString *scheme = kFBAppAuthURLScheme;
       if (_urlSchemeSuffix) {
