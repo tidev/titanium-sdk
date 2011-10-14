@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Properties;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
@@ -76,6 +77,7 @@ public class TiApplication extends Application implements Handler.Callback
 	private boolean needsStartEvent;
 	private boolean needsEnrollEvent;
 	private String buildVersion = "", buildTimestamp = "", buildHash = "";
+	private HashMap<String, KrollModule> modules;
 
 	protected TiAnalyticsModel analyticsModel;
 	protected Intent analyticsIntent;
@@ -96,6 +98,8 @@ public class TiApplication extends Application implements Handler.Callback
 
 		mainThreadId = Looper.getMainLooper().getThread().getId();
 		tiApp = this;
+
+		modules = new HashMap<String, KrollModule>();
 
 		Log.i(LCAT, "Titanium " + buildVersion + " (" + buildTimestamp + " " + buildHash + ")");
 	}
@@ -500,6 +504,17 @@ public class TiApplication extends Application implements Handler.Callback
 		}
 
 		return false;
+	}
+
+	public KrollModule getModuleByName(String name) {
+		return modules.get(name);
+	}
+
+	public void registerModuleInstance(String name, KrollModule module) {
+		if (modules.containsKey(name)) {
+			Log.w(LCAT, "Registering module with name already in use.");
+		}
+		modules.put(name, module);
 	}
 }
 

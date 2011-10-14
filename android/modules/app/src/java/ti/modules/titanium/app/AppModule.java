@@ -13,7 +13,7 @@ public class AppModule extends KrollModule
 
 	public AppModule()
 	{
-		super();
+		super("App");
 
 		TiApplication.getInstance().addAppEventProxy(this);
 		appInfo = TiApplication.getInstance().getAppInfo();
