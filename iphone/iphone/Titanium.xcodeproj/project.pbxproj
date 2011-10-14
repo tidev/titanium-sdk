@@ -3611,13 +3611,10 @@
 				EF03EFF713E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */,
 				2B94603813F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
 				2B94603913F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */,
-<<<<<<< HEAD
 				EF0ADCFB143F9ABF00977386 /* NSData+Additions.mm in Sources */,
 				EF0ADD1B143FA0CD00977386 /* GeolocationModule.mm in Sources */,
 				EF0ADD20143FA0E200977386 /* AnalyticsModule.mm in Sources */,
-=======
 				2B1F65781431031E006C5D37 /* ApplicationDefaults.m in Sources */,
->>>>>>> d3dd5dc3c3b051e9ec9ef7a986a101cb0d647be5
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3885,13 +3882,10 @@
 				EF03EFF813E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */,
 				2B94603A13F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
 				2B94603B13F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */,
-<<<<<<< HEAD
 				EF0ADCFC143F9ABF00977386 /* NSData+Additions.mm in Sources */,
 				EF0ADD1C143FA0CD00977386 /* GeolocationModule.mm in Sources */,
 				EF0ADD21143FA0E200977386 /* AnalyticsModule.mm in Sources */,
-=======
 				2B1F65791431031E006C5D37 /* ApplicationDefaults.m in Sources */,
->>>>>>> d3dd5dc3c3b051e9ec9ef7a986a101cb0d647be5
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
