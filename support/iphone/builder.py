@@ -1451,8 +1451,8 @@ def main(args):
 				#
 				elif command == 'distribute':
 					# Enable assistive devices so that the following applescripts can run properly
-					ass = os.path.join(template_dir, 'enable_assistive_devices.scpt')
-					cmd = "osascript \"%s\"" % ass
+					ass = os.path.join(template_dir, 'enable_assistive_devices.app')
+					cmd = "open \"%s\"" % ass
 					os.system(cmd)
 					
 					deploytype = "production"
