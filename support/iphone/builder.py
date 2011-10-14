@@ -1450,7 +1450,11 @@ def main(args):
 				# this command is run for packaging an app for distribution
 				#
 				elif command == 'distribute':
-
+					# Enable assistive devices so that the following applescripts can run properly
+					ass = os.path.join(template_dir, 'enable_assistive_devices.scpt')
+					cmd = "osascript \"%s\"" % ass
+					os.system(cmd)
+					
 					deploytype = "production"
 
 					args += [
