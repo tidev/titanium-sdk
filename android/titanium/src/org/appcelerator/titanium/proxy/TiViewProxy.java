@@ -74,6 +74,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	protected WeakReference<TiViewProxy> parent;
 
 	protected TiUIView view;
+	protected Object pendingAnimationLock;
 	protected TiAnimationBuilder pendingAnimation;
 	private KrollDict langConversionTable;
 
@@ -81,6 +82,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	{
 		super(tiContext);
 		langConversionTable = getLangConversionTable();
+		pendingAnimationLock = new Object();
 	}
 
 	/**
@@ -224,13 +226,17 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 	public TiAnimationBuilder getPendingAnimation()
 	{
-		return pendingAnimation;
+		synchronized(pendingAnimationLock) {
+			return pendingAnimation;
+		}
 	}
 
-	public void clearAnimation()
+	public void clearAnimation(TiAnimationBuilder builder)
 	{
-		if (pendingAnimation != null) {
-			pendingAnimation = null;
+		synchronized(pendingAnimationLock) {
+			if (pendingAnimation != null && pendingAnimation == builder) {
+				pendingAnimation = null;
+			}
 		}
 	}
 
@@ -438,8 +444,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			}
 		}
 		
-		if (pendingAnimation != null) {
-			handlePendingAnimation(true);
+		synchronized(pendingAnimationLock) {
+			if (pendingAnimation != null) {
+				handlePendingAnimation(true);
+			}
 		}
 	}
 
@@ -550,8 +558,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	protected void handleHide(KrollDict options)
 	{
 		if (view != null) {
-			if (pendingAnimation != null) {
-				handlePendingAnimation(false);
+			synchronized(pendingAnimationLock) {
+				if (pendingAnimation != null) {
+					handlePendingAnimation(false);
+				}
 			}
 			view.hide();
 		}
@@ -560,22 +570,24 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	@Kroll.method
 	public void animate(Object arg, @Kroll.argument(optional=true) KrollCallback callback)
 	{
-		if (arg instanceof KrollDict) {
-			KrollDict options = (KrollDict) arg;
-
-			pendingAnimation = new TiAnimationBuilder();
-			pendingAnimation.applyOptions(options);
-			if (callback != null) {
-				pendingAnimation.setCallback(callback);
+		synchronized(pendingAnimationLock) {
+			if (arg instanceof KrollDict) {
+				KrollDict options = (KrollDict) arg;
+	
+				pendingAnimation = new TiAnimationBuilder();
+				pendingAnimation.applyOptions(options);
+				if (callback != null) {
+					pendingAnimation.setCallback(callback);
+				}
+			} else if (arg instanceof TiAnimation) {
+				TiAnimation anim = (TiAnimation) arg;
+				pendingAnimation = new TiAnimationBuilder();
+				pendingAnimation.applyAnimation(anim);
+			} else {
+				throw new IllegalArgumentException("Unhandled argument to animate: " + arg.getClass().getSimpleName());
 			}
-		} else if (arg instanceof TiAnimation) {
-			TiAnimation anim = (TiAnimation) arg;
-			pendingAnimation = new TiAnimationBuilder();
-			pendingAnimation.applyAnimation(anim);
-		} else {
-			throw new IllegalArgumentException("Unhandled argument to animate: " + arg.getClass().getSimpleName());
+			handlePendingAnimation(false);
 		}
-		handlePendingAnimation(false);
 	}
 
 	public void handlePendingAnimation(boolean forceQueue)
