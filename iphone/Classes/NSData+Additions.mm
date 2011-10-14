@@ -60,7 +60,7 @@ NSData * dataWithHexString (NSString * hexString)
 	const int size = [hexString length] / 2;
 	const char * stringBuffer = [hexString cStringUsingEncoding:NSASCIIStringEncoding];
 	NSMutableData * result = [NSMutableData dataWithLength:size];
-	char * resultBuffer = [result mutableBytes];
+	char * resultBuffer = (char*)[result mutableBytes];
 	for (i = 0; i < size; i++) {
 		// Get first character, use as high order bits
 		current = stringBuffer[i * 2];
