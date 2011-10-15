@@ -75,7 +75,7 @@ public class TiPlatformHelper
 
 		// which is the value we need to be concerned with?
 		String currentMachineId;
-		if (platformId != hardwareMachineId) {
+		if (!platformId.equals(hardwareMachineId)) {
 			currentMachineId = platformId;
 		} else {
 			currentMachineId = storedMachineId;
