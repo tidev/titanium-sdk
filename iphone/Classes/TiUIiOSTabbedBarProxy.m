@@ -4,11 +4,11 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
-#import "TiUITabbedBarProxy.h"
+#if defined(USE_TI_UIIOSTABBEDBAR) || defined(USE_TI_UITABBEDBAR)
+#import "TiUIiOSTabbedBarProxy.h"
 #import "TiUIButtonBar.h"
 
-@implementation TiUITabbedBarProxy
+@implementation TiUIiOSTabbedBarProxy
 
 NSArray* tabbedKeySequence;
 
@@ -31,3 +31,4 @@ USE_VIEW_FOR_AUTO_WIDTH
 USE_VIEW_FOR_AUTO_HEIGHT
 
 @end
+#endif

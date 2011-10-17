@@ -40,6 +40,9 @@
 #ifdef USE_TI_UITOOLBAR
 	#import "TiUIiOSToolbarProxy.h"
 #endif
+#ifdef USE_TI_UITABBEDBAR
+    #import "TiUIiOSTabbedBarProxy.h"
+#endif
 #import "TiApp.h"
 #import "ImageLoader.h"
 #import "Webcolor.h"
@@ -354,6 +357,14 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 {
 	DEPRECATED_REPLACED(@"UI.createToolBar()",@"1.8.0",@"1.9.0",@"UI.iOS.createToolBar()");
 	return [[[TiUIiOSToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
+
+#ifdef USE_TI_UITABBEDBAR
+-(id)createTabbedBar:(id)args
+{
+    DEPRECATED_REPLACED(@"UI.createTabbedBar()", @"1.8.0", @"1.9.0",@"UI.iOS.createTabbedBar()");
+    return [[[TiUIiOSTabbedBarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 #pragma mark Internal Memory Management
