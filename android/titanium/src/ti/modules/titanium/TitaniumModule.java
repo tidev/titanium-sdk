@@ -468,14 +468,22 @@ public class TitaniumModule extends KrollModule
 			Context.throwAsScriptRuntimeEx(new Exception(msg));
 		}
 
-		if (result instanceof Scriptable) {
-			Scriptable exports = (Scriptable) result;
-			// CommonJS modules export all functions/properties as
-			// properties of the special exports object provided
-			for (Object key : exports.getIds()) {
-				String propName = key.toString();
-				proxy.setProperty(propName, exports.get(propName, exports));
-			}
+		if (!(result instanceof Scriptable)) {
+			builder.setLength(0);
+			builder.append("Module did not correctly return an exports object: ")
+				.append(path)
+				.append(", result: ")
+				.append(result);
+			Context.throwAsScriptRuntimeEx(new Exception(builder.toString()));
+			return null;
+		}
+
+		Scriptable exports = (Scriptable) result;
+		// CommonJS modules export all functions/properties as
+		// properties of the special exports object provided
+		for (Object key : exports.getIds()) {
+			String propName = key.toString();
+			proxy.setProperty(propName, exports.get(propName, exports));
 		}
 
 		// spec says you must have a read-only id property - we don't
