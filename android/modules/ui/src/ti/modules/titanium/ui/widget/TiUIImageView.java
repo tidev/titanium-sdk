@@ -553,8 +553,13 @@ public class TiUIImageView extends TiUIView
 			if (imageViewProxy.inTableView()) {
 				Bitmap currentBitmap = imageViewProxy.getBitmap();
 				if (currentBitmap != null) {
-					setImage(currentBitmap);
-					return;
+					// If the image proxy has the default image currently cached, we need to
+					// load the downloaded URL instead. TIMOB-4814
+					ArrayList<TiDrawableReference> proxySources = imageViewProxy.getImageSources();
+					if (proxySources != null && !proxySources.contains(defaultImageSource)) {
+						setImage(currentBitmap);
+						return;
+					}
 				}
 			}
 			TiDrawableReference imageref = imageSources.get(0);

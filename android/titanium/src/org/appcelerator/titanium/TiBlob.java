@@ -98,7 +98,7 @@ public class TiBlob extends KrollProxy
 
 	public byte[] getBytes()
 	{
-		byte[] bytes = null;
+		byte[] bytes = new byte[0];
 
 		switch(type) {
 			case TYPE_STRING :

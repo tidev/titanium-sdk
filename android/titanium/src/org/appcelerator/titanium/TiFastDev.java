@@ -155,7 +155,7 @@ public class TiFastDev
 
 	public int getLength(String relativePath)
 	{
-		byte result[][] = session.sendMessage(COMMAND_LENGTH);
+		byte result[][] = session.sendMessage(COMMAND_LENGTH, relativePath);
 		if (result != null && result.length > 0) {
 			return session.toInt(result[0]);
 		}
