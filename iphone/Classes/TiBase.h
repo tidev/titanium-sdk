@@ -316,6 +316,13 @@ void TiExceptionThrowWithNameAndReason(NSString * exceptionName, NSString * mess
 return [NSNumber numberWithInt:map];\
 }\
 
+#define MAKE_SYSTEM_PROP_DEPRECATED(name,map,api,in,removed,newapi) \
+-(NSNumber*)name \
+{\
+DEPRECATED_REPLACED(api,in,removed,newapi)\
+return [NSNumber numberWithInt:map];\
+}\
+
 #define MAKE_SYSTEM_PROP_DBL(name,map) \
 -(NSNumber*)name \
 {\
