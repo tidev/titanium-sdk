@@ -37,7 +37,7 @@ b.addEventListener('click', function()
 //
 // BASIC TABBED BAR
 //
-var tb1 = Titanium.UI.createTabbedBar({
+var tb1 = Titanium.UI.iOS.createTabbedBar({
 	labels:['One', 'Two', 'Three'],
 	backgroundColor:'#336699',
 	top:50,
@@ -71,7 +71,7 @@ tb1.addEventListener('click', function(e)
 //
 // TOOLBAR
 //
-var tb2 = Titanium.UI.createTabbedBar({
+var tb2 = Titanium.UI.iOS.createTabbedBar({
 	labels:['One', 'Two', 'Three', 'Four', 'Five'],
 	backgroundColor:'maroon',
 	index:2
@@ -90,7 +90,7 @@ tb2.addEventListener('click', function(e)
 //
 // NAVBAR
 //
-var tb3 = Titanium.UI.createTabbedBar({
+var tb3 = Titanium.UI.iOS.createTabbedBar({
 	labels:['One', 'Two'],
 	index:0,
 	backgroundColor:'#336699'
@@ -106,7 +106,7 @@ tb3.addEventListener('click', function(e)
 
 
 // title control
-var tb4 = Titanium.UI.createTabbedBar({
+var tb4 = Titanium.UI.iOS.createTabbedBar({
 	labels:['One', 'Two'],
 	index:0,
 	backgroundColor:'red',
@@ -127,7 +127,7 @@ var buttonObjects = [
 	{image:'../images/slider_thumb.png', width:50},
 	{title:'Toggle Enabled', width:140}
 ];
-var tb4 = Titanium.UI.createTabbedBar({
+var tb4 = Titanium.UI.iOS.createTabbedBar({
 	labels:buttonObjects,
 	backgroundColor:'#999',
 	top:100,

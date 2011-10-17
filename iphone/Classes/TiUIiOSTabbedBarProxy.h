@@ -5,8 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiViewProxy.h"
-
-@interface TiUITabbedBarProxy : TiViewProxy {
+#if defined(USE_TI_UIIOSTABBEDBAR) || defined(USE_TI_UITABBEDBAR)
+@interface TiUIiOSTabbedBarProxy : TiViewProxy {
 }
 
 @end
+#endif
