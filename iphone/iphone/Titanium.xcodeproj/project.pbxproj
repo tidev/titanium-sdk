@@ -33,8 +33,7 @@
 		24597035118FF66300519F79 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24597034118FF66300519F79 /* StoreKit.framework */; };
 		245972C611921D0D00519F79 /* TiUIiPadSplitWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 245972C511921D0D00519F79 /* TiUIiPadSplitWindow.m */; };
 		245B3C3D11375A6600CE7530 /* UtilsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 245B3C3911375A6600CE7530 /* UtilsModule.m */; };
-		245B45641139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 245B45601139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m */; };
-		2464F96411AB996C001C035A /* module.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 2464F96211AB996C001C035A /* module.xcconfig */; };
+		245B45641139B41800CE7530 /* TiUIiPhoneTableViewCellSelectionStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 245B45601139B41800CE7530 /* TiUIiPhoneTableViewCellSelectionStyleProxy.m */; };
 		2465592411E5862F0059BBF4 /* TiFilesystemBlobProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2465592311E5862F0059BBF4 /* TiFilesystemBlobProxy.m */; };
 		2465592511E5862F0059BBF4 /* TiFilesystemBlobProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2465592311E5862F0059BBF4 /* TiFilesystemBlobProxy.m */; };
 		2467310711E2549300D39AF7 /* Webcolor.m in Sources */ = {isa = PBXBuildFile; fileRef = 2467310611E2549300D39AF7 /* Webcolor.m */; };
@@ -589,7 +588,6 @@
 		DABA10C912E676A1007DD791 /* FBLoginDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = DABA10BE12E676A1007DD791 /* FBLoginDialog.m */; };
 		DABA10CA12E676A1007DD791 /* FBRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = DABA10C012E676A1007DD791 /* FBRequest.m */; };
 		DABB369C12E8CB280026A6EA /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 24CA9182111170820084E2DE /* Default.png */; };
-		DABB369D12E8CB280026A6EA /* module.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 2464F96211AB996C001C035A /* module.xcconfig */; };
 		DABB369E12E8CB280026A6EA /* stylesheet.plist in Resources */ = {isa = PBXBuildFile; fileRef = 24F29E3612209E6F0099351D /* stylesheet.plist */; };
 		DABB36A112E8CB280026A6EA /* TiUITableViewAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC7D6112634AF00639DF4 /* TiUITableViewAction.m */; };
 		DABB36A212E8CB280026A6EA /* TiFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F5AEB3111F9DE9005C9199 /* TiFile.m */; };
@@ -877,7 +875,6 @@
 		DABF3EDC134D2E4400836137 /* TiStreamProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3EDB134D2E4300836137 /* TiStreamProxy.m */; };
 		DABF3EDD134D2E4400836137 /* TiStreamProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3EDB134D2E4300836137 /* TiStreamProxy.m */; };
 		DABF3EDE134D2E4400836137 /* TiStreamProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3EDB134D2E4300836137 /* TiStreamProxy.m */; };
-		DAC9D36A138DB2F8004917F8 /* module.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 2464F96211AB996C001C035A /* module.xcconfig */; };
 		DAC9D36C138DB65C004917F8 /* debugger.plist in Resources */ = {isa = PBXBuildFile; fileRef = DAC9D36B138DB65C004917F8 /* debugger.plist */; };
 		DAC9D36D138DB678004917F8 /* debugger.plist in Resources */ = {isa = PBXBuildFile; fileRef = DAC9D36B138DB65C004917F8 /* debugger.plist */; };
 		DAC9D36E138DB67F004917F8 /* debugger.plist in Resources */ = {isa = PBXBuildFile; fileRef = DAC9D36B138DB65C004917F8 /* debugger.plist */; };
@@ -2940,6 +2937,9 @@
 /* Begin PBXProject section */
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0420;
+			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Titanium" */;
 			compatibilityVersion = "Xcode 3.1";
 			developmentRegion = English;
@@ -2967,7 +2967,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				24CA9183111170820084E2DE /* Default.png in Resources */,
-				DAC9D36A138DB2F8004917F8 /* module.xcconfig in Resources */,
 				24F29E3812209E6F0099351D /* stylesheet.plist in Resources */,
 				DAC9D36E138DB67F004917F8 /* debugger.plist in Resources */,
 			);
@@ -2978,7 +2977,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				24D8E3B7119B9D8A00F8CAA6 /* Default.png in Resources */,
-				2464F96411AB996C001C035A /* module.xcconfig in Resources */,
 				24F29E3712209E6F0099351D /* stylesheet.plist in Resources */,
 				DAC9D36D138DB678004917F8 /* debugger.plist in Resources */,
 			);
@@ -2989,7 +2987,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				DABB369C12E8CB280026A6EA /* Default.png in Resources */,
-				DABB369D12E8CB280026A6EA /* module.xcconfig in Resources */,
 				DABB369E12E8CB280026A6EA /* stylesheet.plist in Resources */,
 				DAC9D36C138DB65C004917F8 /* debugger.plist in Resources */,
 			);
@@ -3990,7 +3987,6 @@
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_UNIVERSAL_IPHONE_OS)";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -4029,7 +4025,6 @@
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_UNIVERSAL_IPHONE_OS)";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
@@ -4065,11 +4060,15 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
-				"ARCHS[sdk=iphoneos*]" = (
-					armv7,
+				ARCHS = (
 					armv6,
+					armv7,
 				);
-				"ARCHS[sdk=iphonesimulator*]" = "$(ARCHS_STANDARD_32_BIT)";
+				"ARCHS[sdk=iphoneos*]" = (
+					armv6,
+					armv7,
+				);
+				"ARCHS[sdk=iphonesimulator*]" = i386;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = c99;
@@ -4107,11 +4106,15 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
-				"ARCHS[sdk=iphoneos*]" = (
-					armv7,
+				ARCHS = (
 					armv6,
+					armv7,
 				);
-				"ARCHS[sdk=iphonesimulator*]" = "$(ARCHS_STANDARD_32_BIT)";
+				"ARCHS[sdk=iphoneos*]" = (
+					armv6,
+					armv7,
+				);
+				"ARCHS[sdk=iphonesimulator*]" = i386;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = c99;
@@ -4210,6 +4213,7 @@
 					CoreMedia,
 				);
 				PRODUCT_NAME = Titanium;
+				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VALID_ARCHS = "armv6 armv7 i386";
