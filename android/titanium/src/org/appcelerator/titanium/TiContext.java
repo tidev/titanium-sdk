@@ -218,6 +218,12 @@ public class TiContext implements ErrorReporter
 		return krollBridge.evalJS(src);
 	}
 
+	public Object evalCommonJsModule(String filename)
+		throws IOException
+	{
+		return krollBridge.evalCommonJsModule(filename);
+	}
+
 	public Scriptable getScope()
 	{
 		if (krollBridge != null) {
