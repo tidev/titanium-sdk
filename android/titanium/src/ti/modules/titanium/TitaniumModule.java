@@ -426,13 +426,8 @@ public class TitaniumModule extends KrollModule
 		// 1. look for a native module first
 		// 2. then look for a cached module
 		// 3. then attempt to load from resources
-		TiContext thisContext = invocation.getTiContext();
-		if (thisContext == null) {
-			Context.throwAsScriptRuntimeEx(new Exception("Execution context is no longer available. Cannot load module '" + path + "'."));
-			return null;
-		}
-		TiContext rootContext = thisContext.getRootActivity().getTiContext();
-		KrollModule module = requireNativeModule(rootContext, path);
+		TiContext ctx = invocation.getTiContext().getRootActivity().getTiContext();
+		KrollModule module = requireNativeModule(ctx, path);
 		StringBuilder builder = new StringBuilder();
 
 		if (module != null) {
@@ -450,7 +445,7 @@ public class TitaniumModule extends KrollModule
 		}
 
 		try {
-			return thisContext.getKrollContext().callCommonJsRequire(path);
+			return ctx.getKrollContext().callCommonJsRequire(path);
 		} catch (Exception e) {
 			builder.setLength(0);
 			builder.append("require(\"")
@@ -462,8 +457,7 @@ public class TitaniumModule extends KrollModule
 			Context.throwAsScriptRuntimeEx(new Exception(msg));
 		}
 
-		Context.throwAsScriptRuntimeEx(new Exception("Cannot find module '" + path + "'"));
-		return null;
+		return Context.throwAsScriptRuntimeEx(new Exception("Cannot find module '" + path + "'"));
 	}
 
 	@Kroll.method
