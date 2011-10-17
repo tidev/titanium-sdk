@@ -41,7 +41,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
 
-public class KrollContext implements Handler.Callback, ModuleScriptProvider
+public class KrollContext implements Handler.Callback
 {
 	private static final String LCAT = "KrollContext";
 	private static boolean DBG = TiConfig.DEBUG;
@@ -208,46 +208,48 @@ public class KrollContext implements Handler.Callback, ModuleScriptProvider
 	private Require buildCommonJsRequire(Context ctx)
 	{
 		RequireBuilder builder = new RequireBuilder();
-		builder.setModuleScriptProvider(this);
+		builder.setModuleScriptProvider(new ModuleScriptProvider()
+		{
+			@Override
+			public ModuleScript getModuleScript(Context context, String moduleId,
+					Scriptable paths) throws Exception
+			{
+				Script script = null;
+				String uri;
+
+				StringBuilder sb = new StringBuilder();
+				sb.append(TiC.URL_APP_PREFIX)
+					.append(moduleId)
+					.append(".js");
+				uri = sb.toString();
+
+				if (useOptimization) {
+					// get Script from compiled script class
+					script = TiScriptRunner.getInstance()
+							.getScript(context, jsScope, moduleId);
+					if (script == null) {
+						Log.e(LCAT, "Could not retrieve a Script object for module '" + moduleId + "'.");
+						Context.throwAsScriptRuntimeEx(new Exception("Unable to load Script for module '" + moduleId + "'."));
+					}
+				} else {
+					// make Script from JS source
+					TiBaseFile file = TiFileFactory.createTitaniumFile(tiContext, new String[] { uri }, false);
+					BufferedReader br = null;
+					try {
+						br = new BufferedReader(new InputStreamReader(file.getInputStream()), 4000);
+						script = context.compileReader(br, uri, 1, null);
+						br.close();
+					} catch (IOException e) {
+						Log.e(LCAT, "IOException reading module file: " + uri, e);
+						Context.throwAsScriptRuntimeEx(e);
+					}
+				}
+
+				return new ModuleScript(script, uri);
+			}
+		});
+
 		return builder.createRequire(ctx, jsScope);
-	}
-
-	@Override
-	public ModuleScript getModuleScript(Context context, String moduleId,
-			Scriptable paths) throws Exception
-	{
-		Script script = null;
-		String uri;
-
-		StringBuilder sb = new StringBuilder();
-		sb.append(TiC.URL_APP_PREFIX)
-			.append(moduleId)
-			.append(".js");
-		uri = sb.toString();
-
-		if (useOptimization) {
-			// get Script from compiled script class
-			script = TiScriptRunner.getInstance()
-					.getScript(context, jsScope, moduleId);
-			if (script == null) {
-				Log.e(LCAT, "Could not retrieve a Script object for module '" + moduleId + "'.");
-				Context.throwAsScriptRuntimeEx(new Exception("Unable to load Script for module '" + moduleId + "'."));
-			}
-		} else {
-			// make Script from JS source
-			TiBaseFile file = TiFileFactory.createTitaniumFile(tiContext, new String[] { uri }, false);
-			BufferedReader br = null;
-			try {
-				br = new BufferedReader(new InputStreamReader(file.getInputStream()), 4000);
-				script = context.compileReader(br, uri, 1, null);
-				br.close();
-			} catch (IOException e) {
-				Log.e(LCAT, "IOException reading module file: " + uri, e);
-				Context.throwAsScriptRuntimeEx(e);
-			}
-		}
-
-		return new ModuleScript(script, uri);
 	}
 
 	public Object callCommonJsRequire(String path)
