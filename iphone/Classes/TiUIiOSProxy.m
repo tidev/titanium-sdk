@@ -26,7 +26,9 @@
 	#ifdef USE_TI_UIIOSTOOLBAR
 		#import "TiUIiOSToolbarProxy.h"
 	#endif
-
+    #ifdef USE_TI_UIIOSTABBEDBAR
+        #import "TiUIiOSTabbedBarProxy.h"
+    #endif
 @implementation TiUIiOSProxy
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
@@ -61,6 +63,13 @@
 -(id)createToolbar:(id)args
 {
 	return [[[TiUIiOSToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
+
+#ifdef USE_TI_UIIOSTABBEDBAR
+-(id)createTabbedBar:(id)args
+{
+    return [[[TiUIiOSTabbedBarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 #ifdef USE_TI_UIIOS
