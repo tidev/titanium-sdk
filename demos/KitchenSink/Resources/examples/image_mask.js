@@ -12,7 +12,7 @@ var mask = Titanium.UI.createMaskedImage({
 var image = Titanium.UI.createMaskedImage({
 	image:'../images/body.png',
 	tint: 'black',
-	mode: Titanium.UI.iOS,BLEND_MODE_SOURCE_IN
+	mode: Titanium.UI.iOS.BLEND_MODE_SOURCE_IN
 });
 
 
