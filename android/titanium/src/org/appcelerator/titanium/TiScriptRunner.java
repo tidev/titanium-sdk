@@ -12,7 +12,6 @@ import java.util.HashMap;
 
 import org.appcelerator.titanium.util.Log;
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.NativeFunction;
 import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
@@ -87,23 +86,6 @@ public class TiScriptRunner
 		appPackageName = packageName;
 	}
 
-	public Script getScript(String relativePath)
-		throws ClassNotFoundException, InstantiationException, IllegalAccessException
-	{
-		String scriptClassName = getScriptClassName(relativePath);
-		TiScript tiScript = scripts.get(scriptClassName);
-		if (tiScript != null) {
-			return tiScript.script;
-		}
-		Class<?> scriptClass = Class.forName(scriptClassName);
-		if (scriptClass != null) {
-			@SuppressWarnings("unchecked")
-			Class<NativeFunction> scriptClaxx = (Class<NativeFunction>) scriptClass;
-			return (Script) scriptClaxx.newInstance();
-		} else {
-			throw new ClassNotFoundException("CommonJS module class for \"" + relativePath + "\" not found.");
-		}
-	}
 
 	public Object runScript(Context context, Scriptable scope, String relativePath)
 		throws ClassNotFoundException
