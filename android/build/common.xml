@@ -114,7 +114,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	</path>
 
 	<path id="kroll.common.path">
-		<pathelement path="${kroll.common.project.dir}/bin"/>
+		<pathelement path="${dist.dir}/kroll-common.jar"/>
 	</path>
 
 	<path id="kroll.v8.path">
