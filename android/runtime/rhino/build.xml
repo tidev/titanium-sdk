@@ -19,13 +19,22 @@
 		<fileset file="${dist.dir}/kroll-rhino-js.jar"/>
 	</path>
 
-	<target name="compile.kroll.rhino.js">
+	<target name="generate.rhino.bootstrap.js">
+		<exec executable="python">
+			<arg file="${kroll.v8.project.dir}/tools/genBootstrap.py"/>
+			<arg value="--disable-api-tree"/>
+			<arg value="-o"/>
+			<arg file="${kroll.rhino.project.dir}/generated/bootstrap.js"/>
+		</exec>
+	</target>
+
+	<target name="compile.kroll.rhino.js" depends="generate.rhino.bootstrap.js">
 		<mkdir dir="${js.bin.dir}"/>
 
 		<path id="js.files">
 			<fileset dir="${kroll.common.project.dir}/src/js" includes="*.js"/>
 			<fileset dir="${modules.dir}" includes="*/src/js/*.js"/>
-			<fileset file="${kroll.v8.project.dir}/generated/bootstrap.js"/>
+			<fileset file="${kroll.rhino.project.dir}/generated/bootstrap.js"/>
 		</path>
 
 		<for param="js.file">
