@@ -44,7 +44,6 @@ public class TiTempFileHelper
 	{
 		appPackageName = app.getPackageName();
 		internalCacheDir = app.getCacheDir();
-		previousExternalStorageState = Environment.getExternalStorageState();
 
 		updateTempDir();
 	}
