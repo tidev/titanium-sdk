@@ -623,8 +623,9 @@ public abstract class TiApplication extends Application implements Callback
 	
 	private void startExternalStorageMonitor()
 	{
-		externalStorageReceiver = new BroadcastReceiver() {
-			
+		externalStorageReceiver = new BroadcastReceiver()
+		{
+
 			@Override
 			public void onReceive(Context context, Intent intent)
 			{
@@ -639,18 +640,18 @@ public abstract class TiApplication extends Application implements Callback
 				}
 			}
 		};
-		
-	    IntentFilter filter = new IntentFilter();
-	    
-	    filter.addAction(Intent.ACTION_MEDIA_MOUNTED);
-	    filter.addAction(Intent.ACTION_MEDIA_REMOVED);
-	    filter.addAction(Intent.ACTION_MEDIA_UNMOUNTED);
-	    filter.addAction(Intent.ACTION_MEDIA_BAD_REMOVAL);
-	    filter.addDataScheme("file");
 
-	    registerReceiver(externalStorageReceiver, filter);
+		IntentFilter filter = new IntentFilter();
+
+		filter.addAction(Intent.ACTION_MEDIA_MOUNTED);
+		filter.addAction(Intent.ACTION_MEDIA_REMOVED);
+		filter.addAction(Intent.ACTION_MEDIA_UNMOUNTED);
+		filter.addAction(Intent.ACTION_MEDIA_BAD_REMOVAL);
+		filter.addDataScheme("file");
+
+		registerReceiver(externalStorageReceiver, filter);
 	}
-	
+
 	private void stopExternalStorageMonitor()
 	{
 		unregisterReceiver(externalStorageReceiver);
