@@ -93,9 +93,6 @@ Titanium.bindInvocationAPIs = function(sandboxTi, url) {
 		}
 
 		var delegate = realAPI[invocationAPI.api];
-		kroll.log(TAG, "delegate = " + delegate +
-			", names = " + names + ", realAPI = " + JSON.stringify(realAPI) +
-			", api = " + invocationAPI.api);
 
 		function invoker() {
 			var args = Array.prototype.slice.call(arguments);
@@ -153,37 +150,46 @@ Proxy.defineProperties = function(proxyPrototype, names) {
 	Object.defineProperties(proxyPrototype, properties);
 }
 
-Proxy.prototype.getProperty = function(property) {
-	return this._properties[property];
-}
+Object.defineProperty(Proxy.prototype, "getProperty", {
+	value: function(property) {
+		return this._properties[property];
+	},
+	enumerable: false
+});
 
-Proxy.prototype.setProperty = function(property, value) {
-	return this._properties[property] = value;
-}
+Object.defineProperty(Proxy.prototype, "setProperty", {
+	value: function(property, value) {
+		return this._properties[property] = value;
+	},
+	enumerable: false
+});
 
-Proxy.prototype.setPropertiesAndFire = function(properties) {
-	var ownNames = Object.getOwnPropertyNames(properties);
-	var len = ownNames.length;
-	var changes = [];
+Object.defineProperty(Proxy.prototype, "setPropertiesAndFire", {
+	value: function(properties) {
+		var ownNames = Object.getOwnPropertyNames(properties);
+		var len = ownNames.length;
+		var changes = [];
 
-	for (var i = 0; i < len; ++i) {
-		var property = ownNames[i];
-		var value = properties[property];
+		for (var i = 0; i < len; ++i) {
+			var property = ownNames[i];
+			var value = properties[property];
 
-		if (!property) continue;
+			if (!property) continue;
 
-		var oldValue = this._properties[property];
-		this._properties[property] = value;
+			var oldValue = this._properties[property];
+			this._properties[property] = value;
 
-		if (value != oldValue) {
-			changes.push([property, oldValue, value]);
+			if (value != oldValue) {
+				changes.push([property, oldValue, value]);
+			}
 		}
-	}
 
-	if (changes.length > 0) {
-		this.onPropertiesChanged(changes);
-	}
-}
+		if (changes.length > 0) {
+			this.onPropertiesChanged(changes);
+		}
+	},
+	enumerable: false
+});
 
 // Custom native modules
 bootstrap.defineLazyBinding(Titanium, "API");
@@ -197,8 +203,6 @@ Object.defineProperty(Titanium, "Yahoo", {
 	},
 	configurable: true
 });
-
-kroll.log(TAG, "Titanium.constructor = " + Titanium.constructor);
 
 // Define lazy initializers for all Titanium APIs
 bootstrap.bootstrap(Titanium);

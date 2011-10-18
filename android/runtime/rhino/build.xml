@@ -16,7 +16,7 @@
 	</path>
 
 	<path id="kroll.rhino.js">
-		<fileset file="${kroll.rhino.project.dir}/lib/kroll-rhino-js.jar"/>
+		<fileset file="${dist.dir}/kroll-rhino-js.jar"/>
 	</path>
 
 	<target name="compile.kroll.rhino.js">
@@ -43,7 +43,7 @@
 			</sequential>
 		</for>
 
-		<jar destfile="${kroll.rhino.project.dir}/lib/kroll-rhino-js.jar">
+		<jar destfile="${dist.dir}/kroll-rhino-js.jar">
 			<fileset dir="${js.bin.dir}" includes="**/*.class"/>
 		</jar>
 	</target>

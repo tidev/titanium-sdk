@@ -9,24 +9,16 @@
 
 	global = this;
 
-	kroll.log(TAG, "global = " + global + ", runtime = " + kroll.runtime);
-
 	function startup() {
 		startup.globalVariables();
 		startup.runMain();
 	}
 
 	startup.globalVariables = function() {
-		kroll.log(TAG, "global variables");
 		global.kroll = kroll;
 
-		kroll.log(TAG, "events");
 		NativeModule.require('events');
-
-		kroll.log(TAG, "global.Titanium");
 		global.Ti = global.Titanium = NativeModule.require('titanium');
-
-		kroll.log(TAG, "global.Module");
 		global.Module = NativeModule.require("module");
 	};
 
@@ -56,7 +48,7 @@
 		}
 
 		if (!NativeModule.exists(id)) {
-			throw new Error('No such native module ' + id + ', have keys: ' + Object.keys(NativeModule._source));
+			throw new Error('No such native module ' + id);
 		}
 
 		var nativeModule = new NativeModule(id);
@@ -89,7 +81,7 @@
 
 	NativeModule.prototype.compile = function() {
 		if (kroll.runtime == "rhino") {
-			// In Rhino we return pre-compiled Functions, so we just use with
+			// We need to call back into compiled JS Scripts in Rhino
 			var scope = {
 				exports: this.exports,
 				require: NativeModule.require,
@@ -116,6 +108,5 @@
 		NativeModule._cache[this.id] = this;
 	};
 
-	kroll.log(TAG, "startup()");
 	startup();
 });

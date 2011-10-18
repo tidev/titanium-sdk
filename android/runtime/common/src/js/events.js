@@ -32,225 +32,267 @@ var isArray = Array.isArray;
 //Obviously not all Emitters should be limited to 10. This function allows
 //that to be increased. Set to zero for unlimited.
 var defaultMaxListeners = 10;
-EventEmitter.prototype.setMaxListeners = function(n) {
-	if (!this._events) this._events = {};
-	this._events.maxListeners = n;
-};
+Object.defineProperty(EventEmitter.prototype, "setMaxListeners", {
+	value: function(n) {
+		if (!this._events) this._events = {};
+		this._events.maxListeners = n;
+	},
+	enumerable: false
+});
 
-EventEmitter.prototype.callHandler = function(handler, type, data) {
-	kroll.log(TAG, "calling event handler: type:" + type + ", data: " + data + ", handler: " + handler);
-	if (data instanceof Object) {
-		data.type = type;
-	} else if (!data) {
-		data = { type: type };
-	}
+Object.defineProperty(EventEmitter.prototype, "callHandler", {
+	value: function(handler, type, data) {
+		kroll.log(TAG, "calling event handler: type:" + type + ", data: " + data + ", handler: " + handler);
+		if (data instanceof Object) {
+			data.type = type;
+		} else if (!data) {
+			data = { type: type };
+		}
 
-	handler.call(this, data);
-}
+		handler.call(this, data);
+	},
+	enumerable: false
+});
 
-EventEmitter.prototype.emit = function(type) {
+Object.defineProperty(EventEmitter.prototype, "emit", {
+	value: function(type) {
+		kroll.log(TAG, "emit : " + JSON.stringify(arguments));
 
-	kroll.log(TAG, "emit : " + JSON.stringify(arguments));
-
-	// If there is no 'error' event listener then throw.
-	if (type === 'error') {
-		if (!this._events || !this._events.error ||
-				(isArray(this._events.error) && !this._events.error.length))
-		{
-			if (arguments[1] instanceof Error) {
-				throw arguments[1]; // Unhandled 'error' event
-			} else {
-				throw new Error("Uncaught, unspecified 'error' event.");
+		// If there is no 'error' event listener then throw.
+		if (type === 'error') {
+			if (!this._events || !this._events.error ||
+					(isArray(this._events.error) && !this._events.error.length))
+			{
+				if (arguments[1] instanceof Error) {
+					throw arguments[1]; // Unhandled 'error' event
+				} else {
+					throw new Error("Uncaught, unspecified 'error' event.");
+				}
+				return false;
 			}
+		}
+
+		if (!this._events) {
+			kroll.log(TAG, "no events for " + type + ", not emitting");
 			return false;
 		}
-	}
 
-	if (!this._events) {
-		kroll.log(TAG, "no events for " + type + ", not emitting");
-		return false;
-	}
-
-	var handler = this._events[type];
-	if (!handler) {
-		kroll.log(TAG, "no handler for " + type + ", not emitting");
-		return false;
-	}
-
-	if (typeof handler == 'function') {
-		switch (arguments.length) {
-		case 1:
-			this.callHandler(handler, type);
-			break;
-		default:
-			this.callHandler(handler, type, arguments[1]);
-			break;
+		var handler = this._events[type];
+		if (!handler) {
+			kroll.log(TAG, "no handler for " + type + ", not emitting");
+			return false;
 		}
-		return true;
 
-	} else if (isArray(handler)) {
-		var args = Array.prototype.slice.call(arguments, 1);
+		if (typeof handler == 'function') {
+			switch (arguments.length) {
+			case 1:
+				this.callHandler(handler, type);
+				break;
+			default:
+				this.callHandler(handler, type, arguments[1]);
+				break;
+			}
+			return true;
 
-		var listeners = handler.slice();
-		for (var i = 0, l = listeners.length; i < l; i++) {
-			this.callHandler(listeners[i], type, args[0]);
+		} else if (isArray(handler)) {
+			var args = Array.prototype.slice.call(arguments, 1);
+
+			var listeners = handler.slice();
+			for (var i = 0, l = listeners.length; i < l; i++) {
+				this.callHandler(listeners[i], type, args[0]);
+			}
+			return true;
+
+		} else {
+			return false;
 		}
-		return true;
+	},
+	enumerable: false
+});
 
-	} else {
-		return false;
-	}
-};
 // Titanium compatibility
-EventEmitter.prototype.fireEvent = EventEmitter.prototype.emit;
+Object.defineProperty(EventEmitter.prototype, "fireEvent", {
+	value: EventEmitter.prototype.emit,
+	enumerable: false
+});
 
 //EventEmitter is defined in src/node_events.cc
 //EventEmitter.prototype.emit() is also defined there.
-EventEmitter.prototype.addListener = function(type, listener) {
-	if ('function' !== typeof listener) {
-		throw new Error('addListener only takes instances of Function');
-	}
-
-	if (!this._events) {
-		this._events = {};
-	}
-
-	var id;
-
-	// Setup ID first so we can pass count in to "listenerAdded"
-	if (!this._events[type]) {
-		id = 0;
-	} else if (isArray(this._events[type])) {
-		id = this._events[type].length;
-	} else {
-		id = 1;
-	}
-
-	if (!this._events[type]) {
-		// Optimize the case of one listener. Don't need the extra array object.
-		this._events[type] = listener;
-	} else if (isArray(this._events[type])) {
-
-		// If we've already got an array, just append.
-		this._events[type].push(listener);
-		// Check for listener leak
-		if (!this._events[type].warned) {
-			var m;
-			if (this._events.maxListeners !== undefined) {
-				m = this._events.maxListeners;
-			} else {
-				m = defaultMaxListeners;
-			}
-
-			if (m && m > 0 && this._events[type].length > m) {
-				this._events[type].warned = true;
-				Ti.API.error('warning: possible EventEmitter memory ' +
-					'leak detected. %d listeners added. ' +
-					'Use emitter.setMaxListeners() to increase limit.',
-					this._events[type].length);
-				//TODO console.trace();
-			}
+Object.defineProperty(EventEmitter.prototype, "addListener", {
+	value: function(type, listener) {
+		if ('function' !== typeof listener) {
+			throw new Error('addListener only takes instances of Function');
 		}
-	} else {
-		// Adding the second element, need to change to array.
-		this._events[type] = [this._events[type], listener];
-	}
 
-	// Notify the Java proxy if this is the first listener added.
-	if (id == 0) {
-		this._hasListenersForEventType(type, true);
-	}
+		if (!this._events) {
+			this._events = {};
+		}
 
-	return id;
-};
+		var id;
+
+		// Setup ID first so we can pass count in to "listenerAdded"
+		if (!this._events[type]) {
+			id = 0;
+		} else if (isArray(this._events[type])) {
+			id = this._events[type].length;
+		} else {
+			id = 1;
+		}
+
+		if (!this._events[type]) {
+			// Optimize the case of one listener. Don't need the extra array object.
+			this._events[type] = listener;
+		} else if (isArray(this._events[type])) {
+
+			// If we've already got an array, just append.
+			this._events[type].push(listener);
+			// Check for listener leak
+			if (!this._events[type].warned) {
+				var m;
+				if (this._events.maxListeners !== undefined) {
+					m = this._events.maxListeners;
+				} else {
+					m = defaultMaxListeners;
+				}
+
+				if (m && m > 0 && this._events[type].length > m) {
+					this._events[type].warned = true;
+					Ti.API.error('warning: possible EventEmitter memory ' +
+						'leak detected. %d listeners added. ' +
+						'Use emitter.setMaxListeners() to increase limit.',
+						this._events[type].length);
+					//TODO console.trace();
+				}
+			}
+		} else {
+			// Adding the second element, need to change to array.
+			this._events[type] = [this._events[type], listener];
+		}
+
+		// Notify the Java proxy if this is the first listener added.
+		if (id == 0) {
+			this._hasListenersForEventType(type, true);
+		}
+
+		return id;
+	},
+	enumerable: false
+});
+
 
 // The JavaObject prototype will provide a version of this
 // that delegates back to the Java proxy. Non-Java versions
 // of EventEmitter don't care, so this no op is called instead.
-EventEmitter.prototype._listenerForEvent = function () { }
+Object.defineProperty(EventEmitter.prototype, "_listenerForEvent", {
+	value: function () {},
+	enumerable: false
+});
 
-EventEmitter.prototype.on = EventEmitter.prototype.addListener;
+Object.defineProperty(EventEmitter.prototype, "on", {
+	value: EventEmitter.prototype.addListener,
+	enumerable: false
+});
+
 // Titanium compatibility
-EventEmitter.prototype.addEventListener = EventEmitter.prototype.addListener;
+Object.defineProperty(EventEmitter.prototype, "addEventListener", {
+	value: EventEmitter.prototype.addListener,
+	enumerable: false
+});
 
-EventEmitter.prototype.once = function(type, listener) {
-	var self = this;
-	function g() {
-		self.removeListener(type, g);
-		listener.apply(this, arguments);
-	};
+Object.defineProperty(EventEmitter.prototype, "once", {
+	value: function(type, listener) {
+		var self = this;
+		function g() {
+			self.removeListener(type, g);
+			listener.apply(this, arguments);
+		};
 
-	g.listener = listener;
-	self.on(type, g);
+		g.listener = listener;
+		self.on(type, g);
 
-	return this;
-};
+		return this;
+	},
+	enumerable: false
+});
 
-EventEmitter.prototype.removeListener = function(type, listener) {
-	if ('function' !== typeof listener) {
-		throw new Error('removeListener only takes instances of Function');
-	}
-
-	// does not use listeners(), so no side effect of creating _events[type]
-	if (!this._events || !this._events[type]) return this;
-
-	var list = this._events[type];
-	var count = 0;
-
-	if (isArray(list)) {
-		var position = -1;
-		// Also support listener indexes / ids
-		if (typeof(listener) === 'number') {
-			position = listener;
-			if (position > list.length || position < 0) {
-				return this;
-			}
-		} else {
-			for (var i = 0, length = list.length; i < length; i++) {
-				if (list[i] === listener ||
-					(list[i].listener && list[i].listener === listener))
-				{
-					position = i;
-					break;
-				}
-			}
+Object.defineProperty(EventEmitter.prototype, "removeListener", {
+	value: function(type, listener) {
+		if ('function' !== typeof listener) {
+			throw new Error('removeListener only takes instances of Function');
 		}
 
-		if (position < 0) return this;
-		list.splice(position, 1);
-		if (list.length == 0)
+		// does not use listeners(), so no side effect of creating _events[type]
+		if (!this._events || !this._events[type]) return this;
+
+		var list = this._events[type];
+		var count = 0;
+
+		if (isArray(list)) {
+			var position = -1;
+			// Also support listener indexes / ids
+			if (typeof(listener) === 'number') {
+				position = listener;
+				if (position > list.length || position < 0) {
+					return this;
+				}
+			} else {
+				for (var i = 0, length = list.length; i < length; i++) {
+					if (list[i] === listener ||
+						(list[i].listener && list[i].listener === listener))
+					{
+						position = i;
+						break;
+					}
+				}
+			}
+
+			if (position < 0) return this;
+			list.splice(position, 1);
+			if (list.length == 0)
+				delete this._events[type];
+			count = list.length;
+		} else if (list === listener ||
+			(list.listener && list.listener === listener) ||
+			listener == 0)
+		{
 			delete this._events[type];
-		count = list.length;
-	} else if (list === listener ||
-		(list.listener && list.listener === listener) ||
-		listener == 0)
-	{
-		delete this._events[type];
-	}
+		}
 
-	if (count == 0) {
-		this._hasListenersForEventType(type, false);
-	}
+		if (count == 0) {
+			this._hasListenersForEventType(type, false);
+		}
 
-	return this;
-};
+		return this;
+	},
+	enumerable: false
+});
 
-EventEmitter.prototype.removeEventListener = EventEmitter.prototype.removeListener;
+Object.defineProperty(EventEmitter.prototype, "removeEventListener", {
+	value: EventEmitter.prototype.removeListener,
+	enumerable: false
+});
 
-EventEmitter.prototype.removeAllListeners = function(type) {
-	// does not use listeners(), so no side effect of creating _events[type]
-	if (type && this._events && this._events[type]) {
-		this._events[type] = null;
-		this._hasListenersForEventType(type, false);
-	}
-	return this;
-};
+Object.defineProperty(EventEmitter.prototype, "removeAllListeners", {
+	value: function(type) {
+		// does not use listeners(), so no side effect of creating _events[type]
+		if (type && this._events && this._events[type]) {
+			this._events[type] = null;
+			this._hasListenersForEventType(type, false);
+		}
+		return this;
+	},
+	enumerable: false
+});
 
-EventEmitter.prototype.listeners = function(type) {
-	if (!this._events) this._events = {};
-	if (!this._events[type]) this._events[type] = [];
-	if (!isArray(this._events[type])) {
-		this._events[type] = [this._events[type]];
-	}
-	return this._events[type];
-};
+Object.defineProperty(EventEmitter.prototype, "listeners", {
+	value: function(type) {
+		if (!this._events) this._events = {};
+		if (!this._events[type]) this._events[type] = [];
+		if (!isArray(this._events[type])) {
+			this._events[type] = [this._events[type]];
+		}
+		return this._events[type];
+	},
+	enumerable: false
+});
+
