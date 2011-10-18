@@ -79,6 +79,11 @@ properties:
   - name: barColor
     description: the bar color of the search bar view
     type: String
+  - name: cancelAnimated
+    description: boolean to indicate if cancel button will be displayed with animation
+    platforms: [iphone, ipad]
+    default: false
+    type: Boolean
   - name: hintText
     description: the text to show when the search bar field is not focused
     type: String
