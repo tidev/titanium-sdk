@@ -101,7 +101,7 @@ public abstract class KrollObject implements Handler.Callback
 		return doFireEvent(event, data);
 	}
 
-	protected void setHasListenersForEventType(String event, boolean hasListeners)
+	public void setHasListenersForEventType(String event, boolean hasListeners)
 	{
 		hasListenersForEventType.put(event, hasListeners);
 	}
@@ -154,6 +154,7 @@ public abstract class KrollObject implements Handler.Callback
 		return delegate.handleMessage(msg);
 	}
 
+	public abstract Object getNativeObject();
 	protected abstract void doSetProperty(String name, Object value);
 	protected abstract boolean doFireEvent(String type, Object data);
 	protected abstract void doRelease();

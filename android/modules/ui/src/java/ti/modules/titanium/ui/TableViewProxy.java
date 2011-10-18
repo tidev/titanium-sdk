@@ -365,19 +365,19 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	@Kroll.setProperty @Kroll.method
-	public void setData(Object[] data, @Kroll.argument(optional=true) KrollDict options)
+	public void setData(Object[] args)
 	{
-		Object[] actualData = data;
-		if (data != null && data.length > 0 && data[0] instanceof Object[]) {
-			actualData = (Object[]) data[0];
+		Object[] data = args;
+		if (args != null && args.length > 0 && args[0] instanceof Object[]) {
+			data = (Object[]) args[0];
 		}
 		if (TiApplication.isUIThread()) {
-			handleSetData(actualData);
+			handleSetData(data);
 		} else {
-			sendBlockingUiMessage(MSG_SET_DATA, actualData);
+			sendBlockingUiMessage(MSG_SET_DATA, data);
 		}
 	}
-	
+
 	private void handleSetData(Object[] data) {
 		if (data != null) {
 			processData(data);

@@ -60,7 +60,7 @@ module.exports = {
 
 		xhr.open('GET', url);
 		xhr.send();
-	}
+	},
 
 	yqlO: function(apiQuery,callback) {
 		var apiEndpoint = 'http://query.yahooapis.com/v1/yql?format=json';

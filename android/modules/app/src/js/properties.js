@@ -1,5 +1,5 @@
 exports.bootstrap = function(Titanium) {
-
+	var TAG = "properties";
 	var Properties = Titanium.App.Properties;
 
 	function propertyGetter(delegate) {

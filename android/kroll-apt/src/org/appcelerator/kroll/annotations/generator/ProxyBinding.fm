@@ -49,7 +49,7 @@
 			<#local signature>
 				<@getMethodSignature method.args, method.returnType />
 			</#local>
-			<#nested methodName_index==0, methodName, method, signature>
+			<#nested methodName_index==0, methodName, method, signature, methodName_has_next>
 		</#list>
 	</#if>
 </#macro>
@@ -169,7 +169,12 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaCallMethodType":"Object",
 		"javaReturnType":"jobject",
 		"javaValidation":true,
-		"javaDeleteLocalRef":true
+		"javaDeleteLocalRef":true,
+		"rhinoValidation":true,
+		"rhinoType":"Proxy",
+		"rhinoToJavaConverter":"jsObjectToJavaObject",
+		"javaToRhinoConverter":"javaObjectToJsObject",
+		"defaultValue": "null"
 	},
 	"java.lang.String":{
 		"jsType":"Value",
@@ -180,7 +185,11 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaCallMethodType":"Object",
 		"javaReturnType":"jstring",
 		"javaValidation":true,
-		"javaDeleteLocalRef":true
+		"javaDeleteLocalRef":true,
+		"rhinoValidation":false,
+		"rhinoType":"String",
+		"rhinoToJavaConverter":"jsObjectToJavaString",
+		"defaultValue": "null"
 	},
 	"java.lang.Object":{
 		"jsType":"Value",
@@ -192,7 +201,12 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaCallMethodType":"Object",
 		"javaReturnType":"jobject",
 		"javaValidation":true,
-		"javaDeleteLocalRef":true
+		"javaDeleteLocalRef":true,
+		"rhinoValidation":false,
+		"rhinoType":"Object",
+		"rhinoToJavaConverter":"jsObjectToJavaObject",
+		"javaToRhinoConverter":"javaObjectToJsObject",
+		"defaultValue": "null"
 	},
 	"java.lang.Object[]":{
 		"jsType":"Array",
@@ -203,7 +217,11 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaCallMethodType":"Object",
 		"javaReturnType":"jobjectArray",
 		"javaValidation": true,
-		"javaDeleteLocalRef":true
+		"javaDeleteLocalRef":true,
+		"rhinoType":"Scriptable",
+		"rhinoToJavaConverter":"jsArrayToJavaObjectArray",
+		"javaToRhinoConverter":"javaObjectArrayToJsArray",
+		"defaultValue": "null"
 	},
 	"int[]":{
 		"jsType":"Array",
@@ -214,7 +232,11 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaCallMethodType":"Object",
 		"javaReturnType":"jintArray",
 		"javaValidation":true,
-		"javaDeleteLocalRef":true
+		"javaDeleteLocalRef":true,
+		"rhinoType":"Scriptable",
+		"rhinoToJavaConverter":"jsArrayToJavaIntArray",
+		"javaToRhinoConverter":"javaIntArrayToJsArray",
+		"defaultValue": "null"
 	},
 	"int":{
 		"jsType":"Number",
@@ -222,7 +244,10 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaToJsConverter":"javaIntToJsNumber",
 		"jvalue":"i", "signature":"I",
 		"javaCallMethodType":"Int",
-		"javaReturnType":"jint"
+		"javaReturnType":"jint",
+		"rhinoType":"Number",
+		"rhinoToJavaConverter":"jsObjectToJavaInt",
+		"defaultValue": "-1"
 	},
 	"short":{
 		"jsType":"Number",
@@ -230,7 +255,10 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaToJsConverter":"javaShortToJsNumber",
 		"jvalue":"s", "signature":"S",
 		"javaCallMethodType":"Short",
-		"javaReturnType":"jshort"
+		"javaReturnType":"jshort",
+		"rhinoType":"Number",
+		"rhinoToJavaConverter":"jsObjectToJavaShort",
+		"defaultValue": "-1"
 	},
 	"long":{
 		"jsType":"Number",
@@ -238,7 +266,10 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaToJsConverter":"javaLongToJsNumber",
 		"jvalue":"j", "signature":"J",
 		"javaCallMethodType":"Long",
-		"javaReturnType":"jlong"
+		"javaReturnType":"jlong",
+		"rhinoType":"Number",
+		"rhinoToJavaConverter":"jsObjectToJavaLong",
+		"defaultValue": "-1"
 	},
 	"float":{
 		"jsType":"Number",
@@ -246,7 +277,10 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaToJsConverter":"javaFloatToJsNumber",
 		"jvalue":"f", "signature":"F",
 		"javaCallMethodType":"Float",
-		"javaReturnType":"jfloat"
+		"javaReturnType":"jfloat",
+		"rhinoType":"Number",
+		"rhinoToJavaConverter":"jsObjectToJavaFloat",
+		"defaultValue": "-1f"
 	},
 	"double":{
 		"jsType":"Number",
@@ -254,7 +288,10 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaToJsConverter":"javaDoubleToJsNumber",
 		"jvalue":"d", "signature":"D",
 		"javaCallMethodType":"Double",
-		"javaReturnType":"jdouble"
+		"javaReturnType":"jdouble",
+		"rhinoType":"Number",
+		"rhinoToJavaConverter":"jsObjectToJavaDouble",
+		"defaultValue": "-1d"
 	},
 	"boolean":{
 		"jsType":"Boolean",
@@ -262,12 +299,16 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaToJsConverter":"javaBooleanToJsBoolean",
 		"jvalue":"z", "signature":"Z",
 		"javaCallMethodType":"Boolean",
-		"javaReturnType":"jboolean"
+		"javaReturnType":"jboolean",
+		"rhinoType":"Boolean",
+		"rhinoToJavaConverter":"jsObjectToJavaBoolean",
+		"defaultValue": "false"
 	},
 	"void":{
 		"signature":"V",
 		"javaCallMethodType":"Void",
-		"javaReturnType":"void"
+		"javaReturnType":"void",
+		"rhinoType":"void"
 	}
 }>
 
@@ -286,7 +327,7 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 
 <#macro listMethodArguments args>
 	<#list args as arg>
-		<#nested arg_index, getTypeInfo(arg.type), arg.type>
+		<#nested arg_index, getTypeInfo(arg.type), arg.type, (arg.optional?? && arg.optional)>
 	</#list>
 </#macro>
 
@@ -375,10 +416,9 @@ fails, a JS exception is returned.
 	<#-- Verify the correct argument count was provided. -->
 	<@Proxy.getRequiredArgumentCount args=args ; requiredCount>
 	<#if requiredCount &gt; 0>
-	if (args.Length() < ${requiredCount})
-	{
+	if (args.Length() < ${requiredCount}) {
 		char errorStringBuffer[100];
-		sprintf(errorStringBuffer, "invalid number of arguments.  Expected ${requiredCount} but got %d", args.Length());
+		sprintf(errorStringBuffer, "${method.apiName}: Invalid number of arguments. Expected ${requiredCount} but got %d", args.Length());
 		return ThrowException(Exception::Error(String::New(errorStringBuffer)));
 	}
 	</#if>
@@ -408,6 +448,80 @@ fails, a JS exception is returned.
 		</#if>
 	</#if>
 	</@Proxy.listMethodArguments>
+</#macro>
+
+<#macro verifyAndConvertJavaArgument expr index info type logOnly isOptional>
+	<#if info.rhinoValidation!true && !isOptional>
+		if (!(${expr} instanceof ${info.rhinoType})) {
+			String error = "Invalid value, expected type ${info.jsType}.";
+			Log.e(TAG, error);
+			<#if !(logOnly!false)>
+			throw new IllegalArgumentException(error);
+			</#if>
+		}
+	</#if>
+<#t>
+	<#local cast = "">
+	<#if info.rhinoType != type>
+	<#local cast = "(" + type + ")">
+	</#if>
+<#t>
+		${type} arg${index};
+	<#if isOptional>
+		if (args.length <= ${index}) {
+			arg${index} = ${info.defaultValue};
+		} else {
+	</#if>
+		arg${index} = ${cast}TypeConverter.${info.rhinoToJavaConverter}((${info.rhinoType}) ${expr}, thisObj);
+	<#if isOptional>
+		}
+	</#if>
+</#macro>
+
+<#macro convertToJavaVarArgs args start>
+	int length = args.length - ${start};
+	if (length < 0) {
+		length = 0;
+	}
+
+	Object[] arg${start} = new Object[length];
+	for (int i = 0; i < length; i++) {
+		arg${start}[i] = TypeConverter.jsObjectToJavaObject(args[i+${start}], this);
+	}
+</#macro>
+
+<#macro verifyAndConvertJavaArguments args method>
+	<#-- Verify the correct argument count was provided. -->
+	<@Proxy.getRequiredArgumentCount args=args ; requiredCount>
+	<#if requiredCount &gt; 0>
+		if (args.length < ${requiredCount}) {
+			throw new IllegalArgumentException("${method.apiName}: Invalid number of arguments. Expected ${requiredCount} but got " + args.length);
+		}
+	</#if>
+	</@Proxy.getRequiredArgumentCount>
+<#t>
+	<#-- Generate argument validation and conversion code -->
+	<#local varArgsIndex = -1>
+	<#list args as arg>
+		<#if arg.type == "java.lang.Object[]" && arg_index = args?size - 1>
+			<#local varArgsIndex = arg_index>
+		</#if>
+	</#list>
+<#t>
+	<#if method.hasInvocation>
+		KrollInvocation arg0 = new KrollInvocation((String) args[0]);
+	</#if>
+<#t>
+	<@Proxy.listMethodArguments args=args ; index, info, type, isOptional>
+	<#if type != "org.appcelerator.kroll.KrollInvocation">
+		<#if index = varArgsIndex>
+			<@Proxy.convertToJavaVarArgs args=args start=index/>
+		<#else>
+			<@Proxy.verifyAndConvertJavaArgument expr="args[" + index + "]" index=index info=info type=type logOnly=false isOptional=isOptional/>
+		</#if>
+	</#if>
+	</@Proxy.listMethodArguments>
+<#t>
 </#macro>
 
 <#macro cleanupMethodArguments args hasInvocation>
@@ -488,6 +602,37 @@ beprovided to handle the result.
 	</#if>
 
 	<#nested hasResult "v8Result">
+</#macro>
+
+<#macro callJavaMethod methodArgs methodName hasInvocation returnType proxyVar>
+	<#local hasResult = returnType != "void">
+	<#local info = getTypeInfo(returnType)>
+	<#local resultExpr = "">
+<#t>
+	<#if hasResult>
+	<#local resultExpr = returnType + " javaResult = ">
+	</#if>
+<#t>
+	<#local args>
+		<#t><#list methodArgs as arg>
+			<#t>arg${arg_index}
+			<#t><#if arg_has_next>, </#if>
+		<#t></#list>
+	</#local>
+		${resultExpr}${proxyVar}.${methodName}(${args});
+<#t>
+	<#if hasResult>
+		<#local result>
+			<#t><#if info.rhinoType == "java.lang.Object">javaResult<#t>
+			<#t><#elseif !(info.javaToRhinoConverter??)>(${info.rhinoType}) javaResult<#t>
+			<#t><#else>(${info.rhinoType}) TypeConverter.${info.javaToRhinoConverter}(javaResult, this)<#t>
+			<#t></#if>
+		</#local>
+
+		${info.rhinoType} rhinoResult = ${result};
+	</#if>
+<#t>
+	<#nested hasResult, "rhinoResult">
 </#macro>
 
 <#macro initJNIEnv>

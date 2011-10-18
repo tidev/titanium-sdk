@@ -30,6 +30,12 @@ public class V8Object extends KrollObject
 	}
 
 	@Override
+	public Object getNativeObject()
+	{
+		return this;
+	}
+
+	@Override
 	protected void doSetProperty(String name, Object value)
 	{
 		nativeSetProperty(ptr, name, value);

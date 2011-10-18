@@ -35,8 +35,7 @@ import android.os.Messenger;
 	TiC.PROPERTY_NAV_BAR_HIDDEN,
 	TiC.PROPERTY_MODAL,
 	TiC.PROPERTY_FULLSCREEN,
-	TiC.PROPERTY_EXIT_ON_CLOSE,
-	TiC.PROPERTY_WINDOW_PIXEL_FORMAT
+	TiC.PROPERTY_EXIT_ON_CLOSE
 })
 public class ActivityWindowProxy extends TiWindowProxy
 {

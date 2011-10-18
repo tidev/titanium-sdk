@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,37 +26,61 @@ import freemarker.template.Template;
 
 public class KrollBindingGenerator
 {
-	private String outPath;
-	private Configuration fmConfig;
-	private Template sourceTemplate, headerTemplate;
+	private static final String RUNTIME_V8 = "v8";
+	private static final String RUNTIME_RHINO = "rhino";
 
-	@SuppressWarnings("unchecked")
-	public KrollBindingGenerator(String outPath)
+	private String runtime, outPath;
+	private Configuration fmConfig;
+	private Template v8SourceTemplate, v8HeaderTemplate;
+	private Template rhinoSourceTemplate, rhinoBindingsTemplate;
+	private ArrayList<HashMap<String, String>> rhinoBindings = new ArrayList<HashMap<String, String>>();
+
+	public KrollBindingGenerator(String runtime, String outPath)
 	{
+		this.runtime = runtime;
 		this.outPath = outPath;
-		initTemplate();
+
+		initTemplates();
 	}
 
-	protected void initTemplate()
+	protected void initTemplates()
 	{
 		fmConfig = new Configuration();
 		fmConfig.setObjectWrapper(new DefaultObjectWrapper());
 		fmConfig.setClassForTemplateLoading(getClass(), "");
 
 		try {
-			InputStream headerStream, sourceStream;
 			ClassLoader loader = getClass().getClassLoader();
-			headerStream = loader.getResourceAsStream("org/appcelerator/kroll/annotations/generator/ProxyBindingV8.h.fm");
-			sourceStream = loader.getResourceAsStream("org/appcelerator/kroll/annotations/generator/ProxyBindingV8.cpp.fm");
+			String templatePackage = "org/appcelerator/kroll/annotations/generator/";
+
+			if (RUNTIME_V8.equals(runtime)) {
+				InputStream v8HeaderStream = loader.getResourceAsStream(templatePackage + "ProxyBindingV8.h.fm");
+				InputStream v8SourceStream = loader.getResourceAsStream(templatePackage + "ProxyBindingV8.cpp.fm");
 	
-			headerTemplate = new Template(
-				"ProxyBindingV8.h.fm",
-				new InputStreamReader(headerStream),
-				fmConfig);
-			sourceTemplate = new Template(
-				"ProxyBindingV8.cpp.fm",
-				new InputStreamReader(sourceStream),
-				fmConfig);
+				v8HeaderTemplate = new Template(
+					"ProxyBindingV8.h.fm",
+					new InputStreamReader(v8HeaderStream),
+					fmConfig);
+	
+				v8SourceTemplate = new Template(
+					"ProxyBindingV8.cpp.fm",
+					new InputStreamReader(v8SourceStream),
+					fmConfig);
+
+			} else if (RUNTIME_RHINO.equals(runtime)) {
+				InputStream rhinoSourceStream = loader.getResourceAsStream(templatePackage + "ProxyBindingRhino.java.fm");
+				InputStream rhinoBindingsStream = loader.getResourceAsStream(templatePackage + "KrollGeneratedBindingsRhino.java.fm");
+
+				rhinoSourceTemplate = new Template(
+					"ProxyBindingRhino.java.fm",
+					new InputStreamReader(rhinoSourceStream),
+					fmConfig);
+
+				rhinoBindingsTemplate = new Template(
+					"KrollGeneratedBindingsRhino.java.fm",
+					new InputStreamReader(rhinoBindingsStream),
+					fmConfig);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -67,6 +92,12 @@ public class KrollBindingGenerator
 		try {
 			File file = new File(outPath, outFile);
 			System.out.println("Generating " + file.getAbsolutePath());
+
+			File parent = file.getParentFile();
+			if (!parent.exists()) {
+				parent.mkdirs();
+			}
+
 			writer = new FileWriter(file);
 			template.process(root, writer);
 		} catch (Exception e) {
@@ -97,27 +128,61 @@ public class KrollBindingGenerator
 			HashMap<Object, Object> root = new HashMap<Object, Object>(proxy);
 			root.put("allModules", properties.get("modules"));
 
-			String proxyHeader = proxyName + ".h";
-			String proxySource = proxyName + ".cpp";
-			
-			saveTypeTemplate(headerTemplate, proxyHeader, root);
-			saveTypeTemplate(sourceTemplate, proxySource, root);
+			if (RUNTIME_V8.equals(runtime)) {
+				String v8ProxyHeader = proxyName + ".h";
+				String v8ProxySource = proxyName + ".cpp";
+	
+				saveTypeTemplate(v8HeaderTemplate, v8ProxyHeader, root);
+				saveTypeTemplate(v8SourceTemplate, v8ProxySource, root);
+
+			} else if (RUNTIME_RHINO.equals(runtime)) {
+				String rhinoProxySource = proxyName.replace('.', File.separatorChar) + "Prototype.java";
+				saveTypeTemplate(rhinoSourceTemplate, rhinoProxySource, root);
+
+				HashMap<String, String> binding = new HashMap<String, String>();
+				binding.put("class", proxyName);
+
+				Map<String, Object> proxyAttrs = (Map<String, Object>) proxy.get("proxyAttrs"); 
+				binding.put("apiName", (String) proxyAttrs.get("name"));
+				rhinoBindings.add(binding);
+			}
 		}
+	}
+
+	protected void generateRhinoBindings()
+	{
+		HashMap<Object, Object> root = new HashMap<Object, Object>();
+		root.put("bindings", rhinoBindings);
+
+		saveTypeTemplate(rhinoBindingsTemplate,
+			"org/appcelerator/kroll/runtime/rhino/KrollGeneratedBindings.java",
+			root);
 	}
 
 	public static void main(String[] args)
 		throws Exception
 	{
-		if (args.length < 2) {
-			System.err.println("Usage: KrollBindingGenerator <outdir> <binding.json> [<binding.json> ...]");
+		if (args.length < 3) {
+			System.err.println("Usage: KrollBindingGenerator <runtime> <outdir> <binding.json> [<binding.json> ...]");
 			System.exit(1);
 		}
 
-		String outDir = args[0];
-		KrollBindingGenerator generator = new KrollBindingGenerator(outDir);
+		String runtime = args[0];
 
-		for (int i = 1; i < args.length; i++) {
+		if (!(RUNTIME_V8.equals(runtime) || RUNTIME_RHINO.equals(runtime))) {
+			System.err.println("\"runtime\" must be v8 or rhino");
+			System.exit(1);
+		}
+
+		String outDir = args[1];
+		KrollBindingGenerator generator = new KrollBindingGenerator(runtime, outDir);
+
+		for (int i = 2; i < args.length; i++) {
 			generator.generateBindings(args[i]);
+		}
+
+		if (RUNTIME_RHINO.equals(runtime)) {
+			generator.generateRhinoBindings();
 		}
 	}
 

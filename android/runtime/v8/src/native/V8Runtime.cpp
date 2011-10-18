@@ -75,6 +75,8 @@ void V8Runtime::bootstrap(Local<Object> global)
 	DEFINE_METHOD(krollGlobalObject, "binding", KrollBindings::getBinding);
 	DEFINE_TEMPLATE(krollGlobalObject, "EventEmitter", EventEmitter::constructorTemplate);
 
+	krollGlobalObject->Set(String::NewSymbol("runtime"), String::New("v8"));
+
 	LOG_TIMER(TAG, "Executing kroll.js");
 
 	TryCatch tryCatch;

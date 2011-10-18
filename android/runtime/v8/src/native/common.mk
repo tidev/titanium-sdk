@@ -8,7 +8,7 @@
 
 GENERATED_DIR := $(LOCAL_PATH)/../../generated
 OBJ_DIR = $(THIS_DIR)/../../obj
-SRC_JS_DIR := $(LOCAL_PATH)/../js
+SRC_JS_DIR := $(LOCAL_PATH)/../../../common/src/js
 MODULES_DIR := $(LOCAL_PATH)/../../../../modules
 UI_JS_DIR := $(MODULES_DIR)/ui/src/ti/modules/titanium/ui
 PROPERTIES_JS_DIR := $(MODULES_DIR)/app/src/ti/modules/titanium/app/properties

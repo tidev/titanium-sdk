@@ -45,7 +45,7 @@ jclass JNIUtil::v8FunctionClass = NULL;
 jclass JNIUtil::krollInvocationClass = NULL;
 jclass JNIUtil::krollObjectClass = NULL;
 jclass JNIUtil::krollProxyClass = NULL;
-jclass JNIUtil::tiAssetHelperClass = NULL;
+jclass JNIUtil::krollAssetHelperClass = NULL;
 
 jmethodID JNIUtil::classGetNameMethod = NULL;
 jmethodID JNIUtil::arrayListInitMethod = NULL;
@@ -80,7 +80,7 @@ jmethodID JNIUtil::krollProxySetIndexedPropertyMethod = NULL;
 jmethodID JNIUtil::krollProxyGetIndexedPropertyMethod = NULL;
 jmethodID JNIUtil::krollProxyOnPropertyChangedMethod = NULL;
 jmethodID JNIUtil::krollProxyOnPropertiesChangedMethod = NULL;
-jmethodID JNIUtil::tiAssetHelperReadAssetMethod = NULL;
+jmethodID JNIUtil::krollAssetHelperReadAssetMethod = NULL;
 
 JNIEnv* JNIScope::current = NULL;
 
@@ -267,7 +267,7 @@ void JNIUtil::initCache()
 	krollInvocationClass = findClass("org/appcelerator/kroll/KrollInvocation");
 	krollObjectClass = findClass("org/appcelerator/kroll/KrollObject");
 	krollProxyClass = findClass("org/appcelerator/kroll/KrollProxy");
-	tiAssetHelperClass = findClass("org/appcelerator/titanium/util/TiAssetHelper");
+	krollAssetHelperClass = findClass("org/appcelerator/kroll/util/KrollAssetHelper");
 
 	classGetNameMethod = getMethodID(classClass, "getName", "()Ljava/lang/String;", false);
 	arrayListInitMethod = getMethodID(arrayListClass, "<init>", "()V", false);
@@ -312,7 +312,7 @@ void JNIUtil::initCache()
 	krollProxyOnPropertiesChangedMethod = getMethodID(krollProxyClass, "onPropertiesChanged",
 		"([[Ljava/lang/Object;)V", false);
 
-	tiAssetHelperReadAssetMethod = getMethodID(tiAssetHelperClass, "readAsset", "(Ljava/lang/String;)Ljava/lang/String;", true);
+	krollAssetHelperReadAssetMethod = getMethodID(krollAssetHelperClass, "readAsset", "(Ljava/lang/String;)Ljava/lang/String;", true);
 
 }
 

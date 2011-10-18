@@ -1,0 +1,174 @@
+<project>
+	<property name="js.bin.dir" location="${kroll.rhino.project.dir}/jsbin"/>
+	<property name="js.jar" location="${kroll.rhino.project.dir}/lib/js.jar"/>
+
+	<property name="rhino.compiler" value="org.mozilla.javascript.tools.jsc.Main"/>
+	<property name="rhino.idswitch" value="org.mozilla.javascript.tools.idswitch.Main"/>
+
+	<property name="kroll.rhino.src.java.package.dir" location="${kroll.rhino.project.dir}/src/java/org/appcelerator/kroll/runtime/rhino"/>
+
+	<property name="js.package" value="org.appcelerator.kroll.runtime.rhino.js"/>
+	<property name="js.classes.dir" location="${js.bin.dir}/org/appcelerator/kroll/runtime/rhino/js"/>
+	<property name="js.main.method.class" value="org.appcelerator.kroll.runtime.rhino.KrollScriptRunner"/>
+
+	<path id="rhino">
+		<fileset file="${js.jar}"/>
+	</path>
+
+	<path id="kroll.rhino.js">
+		<fileset file="${kroll.rhino.project.dir}/lib/kroll-rhino-js.jar"/>
+	</path>
+
+	<target name="compile.kroll.rhino.js">
+		<mkdir dir="${js.bin.dir}"/>
+
+		<path id="js.files">
+			<fileset dir="${kroll.common.project.dir}/src/js" includes="*.js"/>
+			<fileset dir="${modules.dir}" includes="*/src/js/*.js"/>
+			<fileset file="${kroll.v8.project.dir}/generated/bootstrap.js"/>
+		</path>
+
+		<for param="js.file">
+			<path refid="js.files"/>
+			<sequential>
+				<echo>Compiling JS: @{js.file}</echo>
+				<java classpathref="rhino" classname="${rhino.compiler}">
+					<arg line="-opt 9 -debug"/>
+					<arg line="-package ${js.package}"/>
+					<arg line="-main-method-class ${js.main.method.class}"/>
+					<arg value="-d"/>
+					<arg file="${js.bin.dir}"/>
+					<arg file="@{js.file}"/>
+				</java>
+			</sequential>
+		</for>
+
+		<jar destfile="${kroll.rhino.project.dir}/lib/kroll-rhino-js.jar">
+			<fileset dir="${js.bin.dir}" includes="**/*.class"/>
+		</jar>
+	</target>
+
+	<macrodef name="idswitch">
+		<attribute name="file"/>
+		<sequential>
+			<java classpathref="rhino" classname="${rhino.idswitch}">
+				<arg file="@{file}"/>
+			</java>
+		</sequential>
+	</macrodef>
+
+	<!--
+	Generates an optimized id switch statement for prototype
+	and instance IDs
+	-->
+	<target name="generate.kroll.rhino.idswitch">
+		<path id="rhino.prototypes">
+			<fileset dir="${kroll.rhino.src.java.package.dir}">
+				<include name="modules/AssetsModule.java"/>
+				<include name="EventEmitter.java"/>
+				<include name="KrollGlobal.java"/>
+				<include name="Proxy.java"/>
+			</fileset>
+			<fileset dir="${kroll.rhino.project.dir}/generated" includes="**/*.java"/>
+		</path>
+
+		<for param="prototype">
+			<path refid="rhino.prototypes"/>
+			<sequential>
+				<echo>Generating IDs for @{prototype}</echo>
+				<idswitch file="@{prototype}"/>
+			</sequential>
+		</for>
+	</target>
+
+	<macrodef name="path.to.classname">
+		<attribute name="path"/>
+		<attribute name="basedir"/>
+		<attribute name="property"/>
+		<sequential>
+			<ti.string property="classname"
+				string="@{path}"
+				replace="@{basedir}${file.separator}"
+				with=""/>
+
+			<ti.string property="classname"
+				string="${classname}"
+				replace="${file.separator}"
+				with="."/>
+
+			<ti.string property="classname"
+				string="${classname}"
+				replace=".java"
+				with=""/>
+			<var name="@{property}" value="${classname}"/>
+		</sequential>
+	</macrodef>
+
+	<!--
+	Generates a serialVersionUID for each generated prototype,
+	allowing each proxy prototype to be serialized
+	-->
+	<target name="generate.kroll.rhino.serials">
+		<define.ti.ant.tasks/>
+
+		<path id="serialver.path">
+			<path refid="android"/>
+			<fileset file="${js.jar}"/>
+			<fileset file="${dist.dir}/kroll-common.jar"/>
+			<dirset dir="${dist.classes.dir}/kroll-rhino"/>
+			<dirset dir="${dist.classes.dir}/kroll-rhino-gen"/>
+		</path>
+
+		<path id="generated.prototypes">
+			<fileset dir="${kroll.rhino.project.dir}/generated"
+				includes="**/*.java"
+				excludes="**/KrollGeneratedBindings.java"/>
+		</path>
+
+		<var name="generated.prototype.classes" value=""/>
+		<for param="prototype">
+			<path refid="generated.prototypes"/>
+			<sequential>
+				<path.to.classname path="@{prototype}"
+					basedir="${kroll.rhino.project.dir}${file.separator}generated"
+					property="prototype.classname"/>
+				<if>
+					<equals arg1="${generated.prototype.classes}" arg2=""/>
+					<then>
+						<var name="generated.prototype.classes" value="${prototype.classname}"/>
+					</then>
+					<else>
+						<var name="generated.prototype.classes" value="${generated.prototype.classes},${prototype.classname}"/>
+					</else>
+				</if>
+			</sequential>
+		</for>
+
+		<serialver serializableclass="${generated.prototype.classes}" property="generated.suids">
+			<classpath refid="serialver.path"/>
+		</serialver>
+
+		<property name="kroll.rhino.tmpdir" location="${java.io.tmpdir}/kroll-rhino"/>
+		<mkdir dir="${kroll.rhino.tmpdir}"/>
+
+		<echo file="${kroll.rhino.tmpdir}/serials.properties" message="${generated.suids}"/>
+		<property file="${kroll.rhino.tmpdir}/serials.properties" prefix="suid"/>
+
+		<for param="prototype">
+			<path refid="generated.prototypes"/>
+			<sequential>
+				<path.to.classname path="@{prototype}"
+					basedir="${kroll.rhino.project.dir}${file.separator}generated"
+					property="prototype.classname"/>
+
+				<propertycopy property="suid" from="suid.${prototype.classname}" override="true"/>
+				<echo>Generating serialVersionUID for ${prototype.classname}</echo> 
+				<replace file="@{prototype}" propertyfile="${kroll.rhino.tmpdir}/serials.properties">
+					<replacefilter token="// GENERATE_SUID"
+						value="private static final long serialVersionUID = ${suid};"/>
+				</replace>
+			</sequential>
+		</for>
+	</target>
+
+</project>

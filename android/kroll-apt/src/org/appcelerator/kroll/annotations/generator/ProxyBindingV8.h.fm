@@ -16,7 +16,8 @@
 
 <#assign className = Proxy.className(proxyClassName)>
 
-class ${className} : public Proxy {
+class ${className} : public Proxy
+{
 public:
 	explicit ${className}(jobject javaObject);
 
