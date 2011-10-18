@@ -9,6 +9,7 @@
 #
 
 import os, re, sys, json
+import optparse
 
 thisDir = os.path.abspath(os.path.dirname(__file__))
 genDir = os.path.join(os.path.dirname(thisDir), "generated")
@@ -159,6 +160,7 @@ def isBoundMethod(proxyMap, methodName):
 	return False
 
 topLevelJS = ""
+genApiTree = True
 
 def genBootstrap(node, namespace = "", indent = 0):
 	js = ""
@@ -182,13 +184,10 @@ def genBootstrap(node, namespace = "", indent = 0):
 	childAPIs = node.keys()
 	className = node["_className"]
 	proxyMap = bindings["proxies"][className]
-	#accessors = proxyMap["proxyAttrs"]["propertyAccessors"]
 	isModule = proxyMap["isModule"]
 
 	# ignore _dependencies and _className in the childAPIs count
 	hasChildren = len(childAPIs) > 2
-	# hasAccessors = len(accessors) > 0 or "dynamicProperties" in proxyMap
-	hasAccessors = False
 	hasCreateProxies = isModule and "createProxies" in bindings["modules"][className]
 
 	invocationAPIs = []
@@ -199,10 +198,10 @@ def genBootstrap(node, namespace = "", indent = 0):
 				invocationAPIs.append(methodMap)
 	hasInvocationAPIs = len(invocationAPIs) > 0
 
-	needsReturn = hasChildren or hasAccessors or \
+	needsReturn = hasChildren or \
 		hasCreateProxies or hasInvocationAPIs
 
-	if namespace != "Titanium":
+	if namespace != "Titanium" and genAPITree:
 		decl = "var %s =" % var
 		if not needsReturn:
 			decl = "return"
@@ -216,11 +215,11 @@ def genBootstrap(node, namespace = "", indent = 0):
 		if namespace == "Titanium":
 			childNamespace = childAPI
 
-		childJS += JS_GETTER % { "var": var, "child": childAPI }
-		childJS += indentCode(genBootstrap(node[childAPI], childNamespace, indent + 1))
-		childJS += JS_CLOSE_GETTER
+			if genAPITree: childJS += JS_GETTER % { "var": var, "child": childAPI }
+			childJS += indentCode(genBootstrap(node[childAPI], childNamespace, indent + 1))
+			if genAPITree: childJS += JS_CLOSE_GETTER
 
-	if hasChildren:
+	if hasChildren and genAPITree:
 		js += "		if (!(\"__propertiesDefined__\" in %s)) {" % var
 		js += indentCode(JS_DEFINE_PROPERTIES % { "var": var, "properties": childJS }, 2)
 
@@ -230,38 +229,7 @@ def genBootstrap(node, namespace = "", indent = 0):
 		upperName = accessor[0:1].upper() + accessor[1:]
 		return template % { "prototype": prototype, "name": accessor, "upperName": upperName }
 
-	"""
-	for accessor in accessors:
-		js += defineAccessor(JS_DEFINE_GETTER, accessor)
-		js += defineAccessor(JS_DEFINE_SETTER, accessor)
-	"""
-
-	"""
-	if "dynamicProperties" in proxyMap: 
-		for dpName in proxyMap["dynamicProperties"]:
-			dp = proxyMap["dynamicProperties"][dpName]
-			getter = JS_GET_PROPERTY % {"name": dp["name"]}
-			if dp["get"]:
-				getter = "this.%s()" % dp["getMethodName"]
-			setter = JS_SET_PROPERTY % {"name": dp["name"]}
-			if dp["set"]:
-				setter = "this.%s(value)" % dp["setMethodName"]
-			properties += JS_PROPERTY % { "prototype": prototype, \
-				"name": dp["name"], "getter": getter, "setter": setter }
-	"""
-
-	"""
-	if hasAccessors:
-		properties = ""
-		for accessor in accessors:
-			getter = JS_GET_PROPERTY % {"name": accessor}
-			setter = JS_SET_PROPERTY % {"name": accessor}
-			properties += JS_PROPERTY % { "prototype": prototype, \
-				"name": accessor, "getter": getter, "setter": setter }
-		js += indentCode(JS_DEFINE_PROPERTIES % { "var": prototype, "properties": properties }, 2)
-	"""
-
-	if hasCreateProxies:
+	if hasCreateProxies and genAPITree:
 		createProxies = bindings["modules"][className]["createProxies"]
 		for create in createProxies:
 			# 2DMatrix: noooooooooooooooooope.
@@ -272,7 +240,7 @@ def genBootstrap(node, namespace = "", indent = 0):
 
 			js += JS_CREATE % {"name": var, "type": create["name"], "accessor": accessor}
 
-	if hasChildren:
+	if hasChildren and genAPITree:
 		js += "		}\n";
 		js += "		%s.__propertiesDefined__ = true;\n" % var
 
@@ -290,21 +258,39 @@ def genBootstrap(node, namespace = "", indent = 0):
 		topLevelJS += "	Titanium.invocationAPIs.push({ namespace: \"%s\", api: \"%s\" });\n" % \
 			(namespace, method["apiName"])
 
-	if needsReturn:
+	if needsReturn and genAPITree:
 		js += "		return %s;\n" % var
 
 	return js
 
-bootstrapJS = genBootstrap(apiTree)
+def main():
+	parser = optparse.OptionParser()
+	parser.add_option("", "--disable-api-tree", dest="apiTree",
+		action="store_false", default=True)
+	parser.add_option("-o", "--output", dest="output", default=None)
 
-bootstrapJS = topLevelJS + bootstrapJS
+	(options, args) = parser.parse_args()
 
-jsTemplate = open(os.path.join(thisDir, "bootstrap.js")).read()
-gperfTemplate = open(os.path.join(thisDir, "bootstrap.gperf")).read()
+	global genAPITree
+	genAPITree = options.apiTree
 
-bootstrap = os.path.join(genDir, "bootstrap.js")
-genBindings = os.path.join(genDir, "KrollGeneratedBindings.gperf")
-open(bootstrap, "w").write(
-	jsTemplate % { "bootstrap": bootstrapJS })
-open(genBindings, "w").write(
-	gperfTemplate % { "headers": headers, "bindings": "\n".join(initTable) })
+	bootstrapJS = genBootstrap(apiTree)
+	bootstrapJS = topLevelJS + bootstrapJS
+
+	jsTemplate = open(os.path.join(thisDir, "bootstrap.js")).read()
+	gperfTemplate = open(os.path.join(thisDir, "bootstrap.gperf")).read()
+
+	if options.output == None:
+		bootstrap = os.path.join(genDir, "bootstrap.js")
+	else:
+		bootstrap = options.output
+
+	genBindings = os.path.join(genDir, "KrollGeneratedBindings.gperf")
+	open(bootstrap, "w").write(
+		jsTemplate % { "bootstrap": bootstrapJS })
+	open(genBindings, "w").write(
+		gperfTemplate % { "headers": headers, "bindings": "\n".join(initTable) })
+
+if __name__ == "__main__":
+	main()
+
