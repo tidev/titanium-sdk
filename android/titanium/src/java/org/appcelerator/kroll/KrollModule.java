@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 
@@ -31,6 +32,13 @@ public class KrollModule extends KrollProxy
 			initializedTemplates.add(moduleClass);
 		}*/
 		modelListener = this;
+	}
+
+	public KrollModule(String name) {
+		this();
+
+		// Register module with TiApplication if a name is provided.
+		TiApplication.getInstance().registerModuleInstance(name, this);
 	}
 
 	@Override

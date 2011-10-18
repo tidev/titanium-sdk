@@ -12,8 +12,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.concurrent.Semaphore;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollLogging;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.webkit.WebView;
 
@@ -50,17 +55,19 @@ public class TiWebViewBinding {
 	}
 
 	private WebView webView;
-	// TODO private APIBinding apiBinding;
-	// TODO private AppBinding appBinding;
+	private KrollLogging apiBinding;
+	//private AppBinding appBinding;
 	
 	public TiWebViewBinding(WebView webView)
 	{
 		this.webView = webView;
-		
-		//TODO apiBinding = new APIBinding(context);
-		//TODO appBinding = new AppBinding(context);
-		//TODO webView.addJavascriptInterface(apiBinding, "TiAPI");
-		//TODO webView.addJavascriptInterface(appBinding, "TiApp");
+
+		apiBinding = new KrollLogging("TiAPI");
+		/*apiBinding = new APIBinding();
+		appBinding = new AppBinding();
+		webView.addJavascriptInterface(apiBinding, "TiAPI");
+		webView.addJavascriptInterface(appBinding, "TiApp");*/
+		webView.addJavascriptInterface(apiBinding, "TiAPI");
 		webView.addJavascriptInterface(new TiReturn(), "_TiReturn");
 	}
 
@@ -127,32 +134,31 @@ public class TiWebViewBinding {
 		}
 	}
 	
-	/*TODO @SuppressWarnings("serial")
-	private class WebViewCallback extends KrollMethod
+	/*@SuppressWarnings("serial")
+	private class WebViewCallback implements KrollFunction
 	{
 		private int id;
 		public WebViewCallback(int id) {
-			super("webViewCallback$"+id);
 			this.id = id;
 		}
 		
 		@Override
-		public Object invoke(KrollInvocation invocation, Object[] args) {
+		public Object call(KrollObject thisObject, Object[] args) {
 			if (args.length > 0 && args[0] instanceof KrollDict) {
 				KrollDict data = (KrollDict) args[0];
 				String code = "Ti.executeListener("+id+", "+data.toString()+");";
 				evalJS(code);
 			}
-			return KrollProxy.UNDEFINED;
+			return 0; // TODO: return undefined instead
 		}
 	}*/
 
-	/* TODO @SuppressWarnings("unused")
+	/*@SuppressWarnings("unused")
 	private class APIBinding
 	{
 		private APIModule module;
-		public APIBinding(TiContext context) {
-			module = context.getTiApp().getModuleByClass(APIModule.class);
+		public APIBinding() {
+			module = (APIModule) TiApplication.getInstance().getModuleByName("API");
 		}
 		public void critical(String msg) {
 			module.critical(msg);
@@ -181,16 +187,16 @@ public class TiWebViewBinding {
 		public void warn(String msg) {
 			module.warn(msg);
 		}
-	}
+	}*/
 
-	@SuppressWarnings("unused")
+	/*@SuppressWarnings("unused")
 	private class AppBinding
 	{
 		private AppModule module;
 		
-		public AppBinding(TiContext context)
+		public AppBinding()
 		{
-			module = context.getTiApp().getModuleByClass(AppModule.class);
+			module = (AppModule) TiApplication.getInstance().getModuleByName("App");
 		}
 		
 		public void fireEvent(String event, String json)
