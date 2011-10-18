@@ -368,15 +368,29 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<generate.bindings runtime="rhino" dest="${kroll.rhino.project.dir}/generated"/>
 	</target>
 
-	<target name="build.kroll.v8.so" depends="generate.kroll.v8.bindings">
+	<target name="build.kroll.v8.emulator.so" depends="generate.kroll.v8.bindings">
 		<exec executable="${ndk.build}" dir="${kroll.v8.project.dir}" failonerror="true">
 			<env key="ANDROID_NDK" file="${android.ndk}"/>
+			<arg value="TI_DEBUG=0"/>
+			<arg value="TARGET_DEVICE=emulator"/>
 		</exec>
 		<copy todir="${dist.dir}">
-			<fileset dir="${kroll.v8.project.dir}">
-				<include name="libs/**/*.so"/>
-			</fileset>
+			<fileset dir="${kroll.v8.project.dir}" includes="libs/armeabi/libkroll-v8-emulator.so"/>
 		</copy>
+	</target>
+
+	<target name="build.kroll.v8.device.so" depends="generate.kroll.v8.bindings">
+		<exec executable="${ndk.build}" dir="${kroll.v8.project.dir}" failonerror="true">
+			<env key="ANDROID_NDK" file="${android.ndk}"/>
+			<arg value="TI_DEBUG=0"/>
+			<arg value="TARGET_DEVICE=device"/>
+		</exec>
+		<copy todir="${dist.dir}">
+			<fileset dir="${kroll.v8.project.dir}" includes="libs/armeabi/libkroll-v8-device.so"/>
+		</copy>
+	</target>
+
+	<target name="build.kroll.v8.so" depends="build.kroll.v8.device.so,build.kroll.v8.emulator.so">
 	</target>
 
 	<target name="build.kroll.common.jar">
@@ -393,34 +407,19 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<import file="${kroll.rhino.project.dir}/build.xml"/>
 	<macrodef name="compile.kroll.rhino.bindings">
 		<sequential>
-			<!--property name="kroll.rhino.tmpdir" location="${java.io.tmpdir}/kroll-rhino"/>
-
-			<mkdir dir="${kroll.rhino.tmpdir}"/-->
-			<!--copy todir="${kroll.rhino.tmpdir}">
-				< use the actual generated bindings >
-				<fileset dir="${kroll.rhino.project.dir}/src/java"
-					includes="**/*.java" excludes="**/KrollGeneratedBindings.java"/>
-			</copy-->
-
 			<javac destdir="${kroll.rhino.gen.classes.dir}" debug="true">
 				<classpath refid="android"/>
 				<classpath refid="rhino"/>
 				<classpath>
 					<fileset file="${dist.dir}/kroll-common.jar"/>
-					<fileset file="${dist.dir}/kroll-rhino.jar"/>
+					<dirset dir="${kroll.rhino.classes.dir}"/>
 					<fileset dir="${dist.dir}" includes="titanium-*.jar"/>
 				</classpath>
 				<classpath refid="titanium.path"/>
 				<classpath refid="kroll.apt.path"/>
-				<classpath>
-				</classpath>
 
 				<src path="${kroll.rhino.project.dir}/generated"/>
 			</javac>
-
-			<!--delete includeemptydirs="true" failonerror="false" defaultexcludes="false">
-				<fileset dir="${kroll.rhino.tmpdir}" includes="**/*"/>
-			</delete-->
 		</sequential>
 	</macrodef>
 
@@ -456,7 +455,6 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			<fileset dir="${kroll.rhino.classes.dir}" includes="**/KrollGeneratedBindings.class"/>
 		</delete>
 
-		<jar destfile="${kroll.rhino.dest}" basedir="${kroll.rhino.classes.dir}"/>
 
 		<compile.kroll.rhino.bindings/>
 
@@ -465,18 +463,11 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 
 		<jar destfile="${kroll.rhino.bindings.dest}" basedir="${kroll.rhino.gen.classes.dir}"/>
 
-		<!--property name="kroll.rhino.tmpdir" location="${java.io.tmpdir}/kroll-rhino"/>
-
-		<mkdir dir="${kroll.rhino.tmpdir}"/>
-		<copy todir="${kroll.rhino.tmpdir}">
-			< use the actual generated bindings >
-			<fileset dir="${kroll.rhino.project.dir}/src/java"
-				includes="**/*.java" excludes="**/KrollGeneratedBindings.java"/>
-		</copy-->
-
-		<!--delete includeemptydirs="true" failonerror="false" defaultexcludes="false">
-			<fileset dir="${kroll.rhino.tmpdir}" includes="**/*"/>
-		</delete-->
+		<jar destfile="${kroll.rhino.dest}">
+			<fileset dir="${kroll.rhino.classes.dir}" includes="**/*"/>
+			<fileset dir="${kroll.rhino.gen.classes.dir}" includes="**/*"/>
+			<fileset dir="${kroll.rhino.project.dir}/jsbin" includes="**/*"/>
+		</jar>
 	</target>
 
 	<target name="build.kroll.runtime.rhino" depends="build.kroll.rhino.jar"/>

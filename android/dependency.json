@@ -22,11 +22,16 @@
 		"utils":[],
 		"xml":[]
 	},
-	"required": ["analytics","android","ui","locale"],
+	"required": ["analytics","android","app","ui","locale"],
 	"libraries": 
 	{
-		"android":["titanium.jar","ti-commons-codec-1.3.jar","kroll-common.jar","kroll-v8.jar","jaxen-1.1.1.jar"],
+		"android":["jaxen-1.1.1.jar","ti-commons-codec-1.3.jar","kroll-common.jar","titanium.jar"],
 		"xml":["jaxen-1.1.1.jar"],
 		"ui":["android-support-v4.jar"]
+	},
+	"runtimes":
+	{
+		"v8":["kroll-v8.jar"],
+		"rhino":["kroll-rhino.jar","js.jar"]
 	}
 }

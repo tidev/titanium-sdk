@@ -96,7 +96,7 @@ if build_type in ['full', 'android'] and not only_package:
 	d = os.getcwd()
 	os.chdir('android')
 	try:
-		sdk = AndroidSDK(ARGUMENTS.get("android_sdk", None), 7)
+		sdk = AndroidSDK(ARGUMENTS.get("android_sdk", None), 8)
 		# TODO re-enable javadoc targets = ["full.build", "build.titanium.javadoc"]
 		targets = ["full.build"]
 		if clean: targets = ["clean"]
