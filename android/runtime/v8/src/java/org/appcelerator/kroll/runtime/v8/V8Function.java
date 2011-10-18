@@ -7,8 +7,11 @@
 
 package org.appcelerator.kroll.runtime.v8;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollRuntime;
 
 public class V8Function extends V8Object implements KrollFunction
 {
@@ -17,12 +20,29 @@ public class V8Function extends V8Object implements KrollFunction
 		super(pointer);
 	}
 
-	public Object call(KrollObject thisObject, Object[] args)
+	public void call(KrollObject krollObject, HashMap hashMap)
 	{
-		V8Object v8Object = (V8Object) thisObject;
-		nativeInvoke(v8Object.getPointer(), getPointer(), args);
+		call(krollObject, new Object[] { hashMap });
+	}
 
-		return null;
+	public void call(KrollObject krollObject, Object[] args)
+	{
+		nativeInvoke(((V8Object) krollObject).getPointer(), getPointer(), args);
+	}
+
+	public void callAsync(KrollObject krollObject, HashMap hashMap)
+	{
+		callAsync(krollObject, new Object[] { hashMap });
+	}
+
+	public void callAsync(final KrollObject krollObject, final Object[] args)
+	{
+		KrollRuntime.getInstance().getMainHandler().post(new Runnable() {
+			public void run()
+			{
+				call(krollObject, args);
+			}
+		});
 	}
 
 	private native void nativeInvoke(long thisPointer, long functionPointer, Object[] functionArgs);

@@ -154,7 +154,7 @@ public class ContactsModule extends KrollModule
 				if (request.containsKey("cancel")) {
 					KrollFunction callback = request.get("cancel");
 					if (callback != null) {
-						callAsync(callback, new Object[0]);
+						callback.callAsync(getKrollObject(), new Object[0]);
 					}
 				}
 			} else if (resultCode == Activity.RESULT_OK) {
@@ -164,7 +164,7 @@ public class ContactsModule extends KrollModule
 						PersonProxy person = contactsApi.getPersonByUri(data.getData());
 						KrollDict result = new KrollDict();
 						result.put("person", person);
-						callAsync(callback, new Object[] { result });
+						callback.callAsync(getKrollObject(), new Object[] { result });
 					}
 				}
 			} else {

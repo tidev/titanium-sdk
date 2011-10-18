@@ -261,7 +261,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 
 						Object callback = getProperty("accepted");
 						if (callback instanceof KrollFunction) {
-							callAsync((KrollFunction) callback, buildAcceptedCallbackArgs(acceptedTcpProxy));
+							((KrollFunction) callback).callAsync(getKrollObject(), buildAcceptedCallbackArgs(acceptedTcpProxy));
 						}
 
 						accepting = false;
@@ -336,7 +336,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 
 		Object callback = getProperty(callbackName);
 		if (callback instanceof KrollFunction) {
-			callAsync((KrollFunction) callback, callbackArgs);
+			((KrollFunction) callback).callAsync(getKrollObject(), callbackArgs);
 		}
 	}
 

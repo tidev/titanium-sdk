@@ -10,20 +10,22 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
+
 public abstract class KrollRuntime implements Handler.Callback
 {
 	private static final String TAG = "KrollRuntime";
-
 	private static final int MSG_DISPOSE = 100;
 	private static final int MSG_RUN_MODULE = 101;
-	public static final int MSG_LAST_ID = MSG_RUN_MODULE + 100;
-
 	private static final String PROPERTY_FILENAME = "filename";
 
 	private static KrollRuntime _instance;
 
 	private long mainThreadId;
+
 	protected Handler mainHandler;
+
+	public static final int MSG_LAST_ID = MSG_RUN_MODULE + 100;
+
 
 	protected KrollRuntime()
 	{
@@ -42,6 +44,11 @@ public abstract class KrollRuntime implements Handler.Callback
 	public static KrollRuntime getInstance()
 	{
 		return _instance;
+	}
+
+	public Handler getMainHandler()
+	{
+		return mainHandler;
 	}
 
 	public boolean isUiThread()

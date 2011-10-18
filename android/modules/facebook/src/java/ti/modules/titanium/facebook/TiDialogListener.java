@@ -68,8 +68,8 @@ public class TiDialogListener implements DialogListener
 	
 	private void doCallback(KrollDict args)
 	{
-		if (callback != null){
-			module.callAsync(callback, new Object[] { args });
+		if (callback != null) {
+			callback.callAsync(module.getKrollObject(), new Object[] { args });
 		}
 	}
 	

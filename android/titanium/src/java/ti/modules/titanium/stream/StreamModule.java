@@ -142,7 +142,7 @@ public class StreamModule extends KrollModule
 					errorDescription = e.getMessage();
 				}
 
-				callAsync(fResultsCallback, buildRWCallbackArgs(fsourceStream, bytesRead, errorState, errorDescription));
+				fResultsCallback.callAsync(getKrollObject(), buildRWCallbackArgs(fsourceStream, bytesRead, errorState, errorDescription));
 			}
 		}).start();
 	}
@@ -216,7 +216,7 @@ public class StreamModule extends KrollModule
 						errorDescription = e.getMessage();
 					}
 
-					callAsync(fResultsCallback, buildRWCallbackArgs(fsourceStream, fbuffer.getLength(), errorState, errorDescription));
+					fResultsCallback.callAsync(getKrollObject(), buildRWCallbackArgs(fsourceStream, fbuffer.getLength(), errorState, errorDescription));
 				}
 			}).start();
 
@@ -326,7 +326,7 @@ public class StreamModule extends KrollModule
 					errorDescription = e.getMessage();
 				}
 
-				callAsync(fResultsCallback, buildRWCallbackArgs(foutputStream, bytesWritten, errorState, errorDescription));
+				fResultsCallback.callAsync(getKrollObject(), buildRWCallbackArgs(foutputStream, bytesWritten, errorState, errorDescription));
 			}
 		}).start();
 	}
@@ -400,7 +400,7 @@ public class StreamModule extends KrollModule
 						errorDescription = e.getMessage();
 					}
 
-					callAsync(fResultsCallback, buildWriteStreamCallbackArgs(finputStream, foutputStream, totalBytesWritten, errorState, errorDescription));
+					fResultsCallback.callAsync(getKrollObject(), buildWriteStreamCallbackArgs(finputStream, foutputStream, totalBytesWritten, errorState, errorDescription));
 				}
 			}).start();
 
@@ -510,11 +510,13 @@ public class StreamModule extends KrollModule
 				if (bytesRead != buffer.getLength()) {
 					if (bytesRead == -1) {
 						buffer.resize(0);
+
 					} else {
 						buffer.resize(bytesRead);
 					}
 				}
-				call(handler, buildPumpCallbackArgs(inputStream, buffer, bytesRead, totalBytesRead, errorState, errorDescription));
+
+				handler.call(getKrollObject(), buildPumpCallbackArgs(inputStream, buffer, bytesRead, totalBytesRead, errorState, errorDescription));
 				buffer = null;
 
 				if (bytesRead == -1) {
@@ -525,7 +527,7 @@ public class StreamModule extends KrollModule
 		} catch (IOException e) {
 			errorState = 1;
 			errorDescription = e.getMessage();
-			call(handler, buildPumpCallbackArgs(inputStream, new BufferProxy(), 0, totalBytesRead, errorState, errorDescription));
+			handler.call(getKrollObject(), buildPumpCallbackArgs(inputStream, new BufferProxy(), 0, totalBytesRead, errorState, errorDescription));
 		}
 	}
 

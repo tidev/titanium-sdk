@@ -331,7 +331,7 @@ public class TiHTTPClient
 				o.put("blob", blob);
 				o.put("progress", ((double)totalSize)/((double)contentLength));
 
-				proxy.callAsync(onDataStreamCallback, o);
+				onDataStreamCallback.callAsync(proxy.getKrollObject(), o);
 			}
 		}
 		
@@ -494,7 +494,7 @@ public class TiHTTPClient
 		if (cb != null)
 		{
 			// TODO - implement converter method for array to hashmap?
-			proxy.callAsync(cb, args);
+			cb.callAsync(proxy.getKrollObject(), args);
 		}
 	}
 
@@ -1101,7 +1101,7 @@ public class TiHTTPClient
 									KrollDict data = new KrollDict();
 									data.put("progress", ((double)progress)/totalLength);
 									data.put("source", proxy);
-									proxy.callAsync(cb, data);
+									cb.callAsync(proxy.getKrollObject(), data);
 								}
 							}
 						});
