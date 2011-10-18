@@ -45,8 +45,8 @@ Handle<Value> AssetsModule::readAsset(const Arguments& args)
 	}
 
 	jstring assetData = (jstring) env->CallStaticObjectMethod(
-		JNIUtil::tiAssetHelperClass,
-		JNIUtil::tiAssetHelperReadAssetMethod,
+		JNIUtil::krollAssetHelperClass,
+		JNIUtil::krollAssetHelperReadAssetMethod,
 		resourceName);
 
 	env->DeleteLocalRef(resourceName);

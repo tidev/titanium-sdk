@@ -9,10 +9,10 @@ package org.appcelerator.titanium;
 import java.util.Set;
 
 import org.appcelerator.kroll.KrollRuntime;
+import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiAssetHelper;
 import org.appcelerator.titanium.util.TiBindingHelper;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConfig;
@@ -73,7 +73,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			}
 
 			KrollRuntime.getInstance().runModule(
-				TiAssetHelper.readAsset(fullUrl), fullUrl);
+				KrollAssetHelper.readAsset(fullUrl), fullUrl);
 		} finally {
 			if (DBG) {
 				Log.d(TAG, "Signal JS loaded");

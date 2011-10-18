@@ -32,7 +32,7 @@ class ScriptProcessor(SGMLParser):
 					self.scripts.append(attr[1])
 
 class Compiler(object):
-	def __init__(self,tiapp,project_dir,java,classes_dir,root_dir, include_all_modules=False):
+	def __init__(self, tiapp, project_dir, java, classes_dir, root_dir, include_all_modules=False):
 		self.tiapp = tiapp
 		self.java = java
 		self.appname = tiapp.properties['name']
@@ -51,7 +51,12 @@ class Compiler(object):
 		# go ahead and slurp in any required modules
 		for required in self.depends_map['required']:
 			self.add_required_module(required)
-		
+
+		# TODO switch default runtime to Rhino
+		runtime = tiapp.app_properties.get('ti.android.runtime', 'v8')
+		for runtime_jar in self.depends_map['runtimes'][runtime]:
+			self.jar_libraries.add(os.path.join(template_dir, runtime_jar))
+
 		if (tiapp.has_app_property('ti.android.include_all_modules')):
 			if tiapp.to_bool(tiapp.get_app_property('ti.android.include_all_modules')):
 				include_all_modules = True

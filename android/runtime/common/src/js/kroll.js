@@ -5,6 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 (function(kroll) {
+	var TAG = "kroll";
+
 	global = this;
 
 	function startup() {
@@ -14,6 +16,7 @@
 
 	startup.globalVariables = function() {
 		global.kroll = kroll;
+
 		NativeModule.require('events');
 		global.Ti = global.Titanium = NativeModule.require('titanium');
 		global.Module = NativeModule.require("module");
@@ -77,11 +80,27 @@
 		'\n});' ];
 
 	NativeModule.prototype.compile = function() {
-		var source = NativeModule.getSource(this.id);
-		source = NativeModule.wrap(source);
+		if (kroll.runtime == "rhino") {
+			// We need to call back into compiled JS Scripts in Rhino
+			var scope = {
+				exports: this.exports,
+				require: NativeModule.require,
+				module: this,
+				__filename: this.filename,
+				__dirname: null,
+				global: global
+			};
 
-		var fn = runInThisContext(source, this.filename, true);
-		fn(this.exports, NativeModule.require, this, this.filename, null, global);
+			kroll.requireNative(this.id, scope);
+
+		} else {
+			var source = NativeModule.getSource(this.id);
+			source = NativeModule.wrap(source);
+
+			var fn = runInThisContext(source, this.filename, true);
+			fn(this.exports, NativeModule.require, this, this.filename, null, global);
+		}
+
 		this.loaded = true;
 	};
 

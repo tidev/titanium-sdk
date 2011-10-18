@@ -7,12 +7,12 @@
 package org.appcelerator.titanium.kroll;
 
 import org.appcelerator.kroll.KrollRuntime;
+import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiAssetHelper;
 import org.appcelerator.titanium.util.TiConfig;
 
 import android.os.Handler;
@@ -135,7 +135,7 @@ public class KrollContext implements Handler.Callback
 	public Object handleEvalFile(String filename)
 	{
 		KrollRuntime.getInstance().runModule(
-			TiAssetHelper.readAsset(filename), filename);
+			KrollAssetHelper.readAsset(filename), filename);
 
 		return null;
 	}

@@ -29,7 +29,7 @@ public abstract class KrollObject
 		return hasListeners.booleanValue();
 	}
 
-	protected void setHasListenersForEventType(String event, boolean hasListeners)
+	public void setHasListenersForEventType(String event, boolean hasListeners)
 	{
 		hasListenersForEventType.put(event, hasListeners);
 	}

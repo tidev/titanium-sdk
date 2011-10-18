@@ -29,6 +29,11 @@ public class V8Object extends KrollObject
 		this.ptr = ptr;
 	}
 
+	public Object getNativeObject()
+	{
+		return this;
+	}
+
 	@Override
 	public void setProperty(String name, Object value)
 	{

@@ -18,13 +18,20 @@ public abstract class KrollRuntime implements Handler.Callback
 	private static final int MSG_RUN_MODULE = 101;
 	private static final String PROPERTY_FILENAME = "filename";
 
-	private static KrollRuntime _instance;
-
 	private long mainThreadId;
+
+	protected static KrollRuntime _instance;
 
 	protected Handler mainHandler;
 
 	public static final int MSG_LAST_ID = MSG_RUN_MODULE + 100;
+
+	public static final Object UNDEFINED = new Object() {
+		public String toString()
+		{
+			return "undefined";
+		}
+	};
 
 
 	protected KrollRuntime()
@@ -80,7 +87,7 @@ public abstract class KrollRuntime implements Handler.Callback
 
 	public abstract void doRunModule(String source, String filename);
 
-	public abstract void initObject(Object proxyObject);
+	public abstract void initObject(KrollProxySupport proxy);
 
 	public boolean handleMessage(Message msg)
 	{

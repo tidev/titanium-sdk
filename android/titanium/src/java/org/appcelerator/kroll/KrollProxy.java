@@ -29,7 +29,7 @@ import android.os.Message;
 
 
 @Kroll.proxy(name="KrollProxy")
-public class KrollProxy implements Handler.Callback
+public class KrollProxy implements Handler.Callback, KrollProxySupport
 {
 	private static final String TAG = "KrollProxy";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -113,6 +113,11 @@ public class KrollProxy implements Handler.Callback
 	public Handler getUIHandler()
 	{
 		return mainHandler;
+	}
+
+	public void setKrollObject(KrollObject object)
+	{
+		this.krollObject = object;
 	}
 
 	/**

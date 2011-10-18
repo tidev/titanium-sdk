@@ -208,6 +208,9 @@ class Builder(object):
 		self.sdk = AndroidSDK(sdk, self.tool_api_level)
 		self.tiappxml = temp_tiapp
 
+		# TODO switch default to Rhino
+		self.runtime = self.tiappxml.app_properties.get('ti.android.runtime', 'v8')
+
 		self.set_java_commands()
 		# start in 1.4, you no longer need the build/android directory
 		# if missing, we'll create it on the fly
@@ -1378,11 +1381,17 @@ class Builder(object):
 			add_native_libs(module.get_resource('libs'))
 
 		# add sdk runtime native libraries
-		# TODO add runtime / emulator check here
-		libkroll_v8_device = os.path.join(template_dir, 'native', 'libs', 'armeabi', 'libkroll-v8-device.so')
-		apk_zip.write(libkroll_v8_device, 'lib/armeabi/libkroll-v8-device.so')
-		self.apk_updated = True
-		#add_native_libs(os.path.join(template_dir, 'native/libs'))
+		sdk_native_libs = os.path.join(template_dir, 'native', 'libs', 'armeabi')
+		libkroll_v8_device = os.path.join(sdk_native_libs, 'libkroll-v8-device.so')
+		libkroll_v8_emulator = os.path.join(sdk_native_libs, 'libkroll-v8-emulator.so')
+
+		if self.runtime == "v8":
+			if self.deploy_type == "development":
+				apk_zip.write(libkroll_v8_emulator, 'lib/armeabi/libkroll-v8-emulator.so')
+				self.apk_updated = True
+			else:
+				apk_zip.write(libkroll_v8_device, 'lib/armeabi/libkroll-v8-device.so')
+				self.apk_updated = True
 
 		apk_zip.close()
 		return unsigned_apk
@@ -1778,7 +1787,7 @@ class Builder(object):
 			self.compiled_files = compiler.compiled_files
 			self.android_jars = compiler.jar_libraries
 			self.merge_internal_module_resources()
-			
+
 			if not os.path.exists(self.assets_dir):
 				os.makedirs(self.assets_dir)
 

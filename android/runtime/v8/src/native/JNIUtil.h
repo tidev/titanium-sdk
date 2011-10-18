@@ -68,7 +68,7 @@ public:
 	static jclass krollInvocationClass;
 	static jclass krollObjectClass;
 	static jclass krollProxyClass;
-	static jclass tiAssetHelperClass;
+	static jclass krollAssetHelperClass;
 
 	// Java methods
 	static jmethodID classGetNameMethod;
@@ -106,7 +106,7 @@ public:
 	static jmethodID krollProxyOnPropertyChangedMethod;
 	static jmethodID krollProxyOnPropertiesChangedMethod;
 
-	static jmethodID tiAssetHelperReadAssetMethod;
+	static jmethodID krollAssetHelperReadAssetMethod;
 
 };
 

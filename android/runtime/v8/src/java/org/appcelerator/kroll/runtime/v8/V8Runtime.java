@@ -6,6 +6,7 @@
  */
 package org.appcelerator.kroll.runtime.v8;
 
+import org.appcelerator.kroll.KrollProxySupport;
 import org.appcelerator.kroll.KrollRuntime;
 
 import android.os.Build;
@@ -48,9 +49,9 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	}
 
 	@Override
-	public void initObject(Object proxyObject)
+	public void initObject(KrollProxySupport proxy)
 	{
-		V8Object.nativeInitObject(proxyObject.getClass(), proxyObject);
+		V8Object.nativeInitObject(proxy.getClass(), proxy);
 	}
 
 	protected void dispatchDebugMessages()
