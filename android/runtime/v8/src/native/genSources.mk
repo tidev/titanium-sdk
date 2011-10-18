@@ -28,6 +28,7 @@ GEN_SOURCES := \
 
 JNI_PREFIX := $(GENERATED_DIR)/org_appcelerator_kroll_runtime_v8
 
+DIST_DIR := $(THIS_DIR)/../../../../../dist/android
 $(THIS_DIR)/V8Runtime.cpp: $(JNI_PREFIX)_V8Runtime.h
 $(THIS_DIR)/V8Object.cpp: $(JNI_PREFIX)_V8Object.h
 
@@ -45,4 +46,4 @@ $(GENERATED_DIR)/KrollNativeBindings.cpp: ti-generated-dir $(THIS_DIR)/KrollNati
 	gperf -L C++ -E -t $(THIS_DIR)/KrollNativeBindings.gperf > $(GENERATED_DIR)/KrollNativeBindings.cpp
 
 $(JNI_PREFIX)%.h:
-	javah -classpath $(THIS_DIR)/../../bin -d $(GENERATED_DIR) $(subst .h,,$(subst _,.,$(patsubst $(GENERATED_DIR)/%,%,$(@F))))
+	javah -classpath $(DIST_DIR)/kroll-v8.jar -d $(GENERATED_DIR) $(subst .h,,$(subst _,.,$(patsubst $(GENERATED_DIR)/%,%,$(@F))))
