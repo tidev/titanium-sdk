@@ -21,7 +21,7 @@
 @class GDataXMLElement, GDataXMLDocument;
 
 
-static const int kGDataXMLParseOptions = (XML_PARSE_NOCDATA | XML_PARSE_NOBLANKS);
+static const int kGDataXMLParseOptions = (XML_PARSE_NOBLANKS);
 
 // dictionary key callbacks for string cache
 static const void *StringCacheKeyRetainCallBack(CFAllocatorRef allocator, const void *str);

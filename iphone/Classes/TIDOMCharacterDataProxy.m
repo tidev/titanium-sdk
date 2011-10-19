@@ -6,10 +6,16 @@
  */
 #if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
 
-#import "TIDOMCharacterDataProxy.h"
+#import "TiDOMCharacterDataProxy.h"
+#import "TiUtils.h"
+
+@implementation TiDOMCharacterDataProxy
 
 
-@implementation TIDOMCharacterData
+-(id)text
+{
+	[node stringValue];
+}
 
 @end
 

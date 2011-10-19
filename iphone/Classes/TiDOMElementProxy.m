@@ -9,6 +9,7 @@
 #import "TiDOMElementProxy.h"
 #import "TiDOMNodeProxy.h"
 #import "TiDOMNodeListProxy.h"
+#import "TiDOMAttrProxy.h"
 #import "TiUtils.h"
 
 @implementation TiDOMElementProxy
@@ -75,7 +76,7 @@
 -(id)nodeValue
 {
 	// DOM spec says nodeValue for element must return null
-	return nil;
+	return [NSNull null];
 }
 
 -(id)getAttribute:(id)args
@@ -86,7 +87,7 @@
 	{
 		return [_node stringValue];
 	}
-	return nil;
+	return @"";
 }
 
 -(void)setAttribute:(id)args
@@ -107,13 +108,23 @@
 
 -(void)removeAttribute:(id)args
 {
-	//TODO:
+	ENSURE_SINGLE_ARG(args, NSString);
+	
+	GDataXMLNode * attributeNode = [element attributeForName:args];
+	[element removeChild:attributeNode];
 }
 
 -(id)getAttributeNode:(id)args
 {
-	//TODO:
-	return nil;
+	ENSURE_SINGLE_ARG(args, NSString);
+	GDataXMLNode * attributeNode = [element attributeForName:args];
+	if (attributeNode == nil) {
+		return [NSNull null];
+	}
+	TiDOMAttrProxy * result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self pageContext]] autorelease];
+	[result setAttribute:args value:[attributeNode stringValue] owner:element];
+	[result setDocument:[self document]];
+	return result;
 }
 
 -(void)setAttributeNode:(id)args

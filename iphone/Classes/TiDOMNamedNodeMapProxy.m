@@ -57,6 +57,20 @@
 	return proxy;
 }
 
+/*
+Because of parity, we cannot enable this just yet, but this code will allow for treating index
+properties the same as foo.item(index).
+ 
+-(id)valueForUndefinedKey:(NSString *)key
+{
+	if ([[key stringByTrimmingCharactersInSet:[NSCharacterSet decimalDigitCharacterSet]] length]==0)
+	{
+		return [self item:key];
+	}
+	return [super valueForUndefinedKey:key];
+}
+*/
+
 -(NSNumber*)length
 {
 	return NUMINT([[element attributes] count]);

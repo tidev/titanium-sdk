@@ -7,10 +7,10 @@
 #if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
 
 #import "TiProxy.h"
-#import "GDataXMLNode.h"
+#import "TiDOMNodeProxy.h"
 
-@interface TIDOMCharacterData : TiProxy {
-    
+@interface TiDOMCharacterDataProxy : TiDOMNodeProxy {
+@private
 }
 
 @end
