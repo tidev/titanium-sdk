@@ -265,6 +265,7 @@ public class Proxy extends EventEmitter
 	{
 		private Function emitFunction;
 
+
 		@Override
 		public Object getNativeObject()
 		{
@@ -272,7 +273,22 @@ public class Proxy extends EventEmitter
 		}
 
 		@Override
-		protected boolean doFireEvent(String type, Object data)
+		protected void setProperty(String name, Object value)
+		{
+			Context context = Context.enter();
+			context.setOptimizationLevel(-1);
+
+			try {
+				putProperty(properties, name, 
+					TypeConverter.javaObjectToJsObject(value, properties));
+
+			} finally {
+				Context.exit();
+			}
+		}
+
+		@Override
+		protected boolean fireEvent(String type, Object data)
 		{
 			Context context = Context.enter();
 			context.setOptimizationLevel(-1);
@@ -284,37 +300,27 @@ public class Proxy extends EventEmitter
 	
 				Object jsData = TypeConverter.javaObjectToJsObject(data, Proxy.this);
 				Object[] args;
+
 				if (jsData == null) {
 					args = new Object[] { type };
+
 				} else {
 					args = new Object[] { type, jsData };
 				}
 	
 				Object result = emitFunction.call(Context.getCurrentContext(),
 					getParentScope(), Proxy.this, args);
+
 				return TypeConverter.jsObjectToJavaBoolean(result, Proxy.this);
+
 			} finally {
 				Context.exit();
 			}
 		}
 
 		@Override
-		protected void doRelease()
+		protected void release()
 		{
-		}
-
-		@Override
-		protected void doSetProperty(String name, Object value)
-		{
-			Context context = Context.enter();
-			context.setOptimizationLevel(-1);
-
-			try {
-				putProperty(properties, name, 
-					TypeConverter.javaObjectToJsObject(value, properties));
-			} finally {
-				Context.exit();
-			}
 		}
 	}
 
@@ -406,3 +412,4 @@ public class Proxy extends EventEmitter
 	}
 
 }
+

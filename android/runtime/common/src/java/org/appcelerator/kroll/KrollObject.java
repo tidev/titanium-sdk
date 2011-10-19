@@ -34,6 +34,7 @@ public abstract class KrollObject
 		hasListenersForEventType.put(event, hasListeners);
 	}
 
+	public abstract Object getNativeObject();
 	protected abstract void setProperty(String name, Object value);
 	protected abstract boolean fireEvent(String type, Object data);
 	protected abstract void release();

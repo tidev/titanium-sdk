@@ -6,8 +6,11 @@
  */
 package org.appcelerator.kroll.runtime.rhino;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.runtime.rhino.Proxy.RhinoObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
@@ -25,22 +28,43 @@ public class RhinoFunction implements KrollFunction
 		this.fn = fn;
 	}
 
-	@Override
-	public Object call(KrollObject thisObject, Object[] args)
+	public void call(KrollObject krollObject, HashMap hashMap)
 	{
-		RhinoObject rhinoObject = (RhinoObject) thisObject;
+		call(krollObject, new Object[] { hashMap });
+	}
+
+	public void call(KrollObject krollObject, Object[] args)
+	{
+		RhinoObject rhinoObject = (RhinoObject) krollObject;
 		Scriptable thisObj = (Scriptable) rhinoObject.getNativeObject();
 
 		Context context = Context.enter();
 		context.setOptimizationLevel(-1);
+
 		try {
 			for (int i = 0; i < args.length; i++) {
 				args[i] = TypeConverter.javaObjectToJsObject(args[i], thisObj);
 			}
-			return fn.call(context, fn.getParentScope(), thisObj, args);
+
+			fn.call(context, fn.getParentScope(), thisObj, args);
+
 		} finally {
 			Context.exit();
 		}
 	}
 
+	public void callAsync(KrollObject krollObject, HashMap hashMap)
+	{
+		callAsync(krollObject, new Object[] { hashMap });
+	}
+
+	public void callAsync(final KrollObject krollObject, final Object[] args)
+	{
+		KrollRuntime.getInstance().getMainHandler().post(new Runnable() {
+			public void run()
+			{
+				call(krollObject, args);
+			}
+		});
+	}
 }
