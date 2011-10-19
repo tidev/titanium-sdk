@@ -160,9 +160,10 @@ def isBoundMethod(proxyMap, methodName):
 	return False
 
 topLevelJS = ""
-genApiTree = True
+genAPITree = True
 
 def genBootstrap(node, namespace = "", indent = 0):
+	global genAPITree
 	js = ""
 
 	hasDependencies = "_dependencies" in node and len(node["_dependencies"]) > 0
@@ -215,9 +216,9 @@ def genBootstrap(node, namespace = "", indent = 0):
 		if namespace == "Titanium":
 			childNamespace = childAPI
 
-			if genAPITree: childJS += JS_GETTER % { "var": var, "child": childAPI }
-			childJS += indentCode(genBootstrap(node[childAPI], childNamespace, indent + 1))
-			if genAPITree: childJS += JS_CLOSE_GETTER
+		if genAPITree: childJS += JS_GETTER % { "var": var, "child": childAPI }
+		childJS += indentCode(genBootstrap(node[childAPI], childNamespace, indent + 1))
+		if genAPITree: childJS += JS_CLOSE_GETTER
 
 	if hasChildren and genAPITree:
 		js += "		if (!(\"__propertiesDefined__\" in %s)) {" % var
@@ -267,13 +268,15 @@ def main():
 	parser = optparse.OptionParser()
 	parser.add_option("", "--disable-api-tree", dest="apiTree",
 		action="store_false", default=True)
-	parser.add_option("-o", "--output", dest="output", default=None)
+	parser.add_option("-o", "--output",
+		dest="output", default=None)
 
 	(options, args) = parser.parse_args()
 
 	global genAPITree
 	genAPITree = options.apiTree
 
+	global apiTree
 	bootstrapJS = genBootstrap(apiTree)
 	bootstrapJS = topLevelJS + bootstrapJS
 
