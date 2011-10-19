@@ -95,9 +95,9 @@ public class TiPlatformHelper
 			db.updatePlatformParam("unique_machine_id", currentMachineId);
 			db.updatePlatformParam("hardware_machine_id", platformId);
 			db.updatePlatformParam("previous_machine_id", storedMachineId);
-			platformId = currentMachineId;
 		}
-
+		
+		platformId = currentMachineId;
 		sessionId = createUUID();
 	}
 	
