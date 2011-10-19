@@ -1,143 +1,214 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Make an iOS project transportable so that it can be zipped and 
+# Make an iOS project transportable so that it can be zipped and
 # sent to another machine
-# 
+#
 
 import os, sys, shutil, codecs, glob
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 
+sys.path.append(os.path.abspath(os.path.dirname(template_dir)))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(template_dir),'module')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(template_dir),'common')))
+
+from tiapp import *
+from module import ModuleDetector
+from pbxproj import PBXProj
+from localecompiler import LocaleCompiler
+from projector import Projector
+from tools import *
+from compiler import Compiler
+
 def find_sdk(version):
-	dir = os.path.join(os.path.expanduser("~/Library/Application Support/Titanium"),"mobilesdk","osx",version)
-	if os.path.exists(dir):
-		return dir
-	dir = os.path.join("/Library","Application Support","Titanium","mobilesdk","osx",version)
-	if os.path.exists(dir):
-		return dir
-	print "Is Titanium installed? I can't find it"
-	sys.exit(1)
-	
+		sdks = [os.path.join(os.path.expanduser("~/Library/Application Support/Titanium"),"mobilesdk","osx",version),
+				os.path.join("/Library","Application Support","Titanium","mobilesdk","osx",version)]
+		
+		for sdk in sdks:
+			if os.path.exists(sdk):
+				return sdk
+		print "[ERROR] Is Titanium installed? I can't find it"
+		sys.exit(1)
+
 def info(msg):
-	print msg
-	sys.stdout.flush()
-		
+		print "[INFO] %s" % msg
+		sys.stdout.flush()
+
 def main(args):
-	if len(args)!=2:
-		print "Usage: %s <directory>" % os.path.basename(args[0])
-		sys.exit(1)
-	
-	
-	# these are the following things that need to be done to make an xcode project transportable
-	#
-	# 1. copy in libTiCore and fix symlink
-	# 2. copy in iphone
-	# 3. migrate TI_SDK_DIR to project.xcconfig
-	# 4. migrate shellScript in xcodeproj
-	
-	project_dir = os.path.abspath(args[1])
-	tiapp_xml = os.path.join(project_dir,'tiapp.xml')
-	build_dir = os.path.join(project_dir,'build','iphone')
-	lib_file = os.path.join(build_dir,'lib','libTiCore.a')
-	support_dir = os.path.join(build_dir,'support')
+		if len(args) < 2:
+				print "Usage: %s <project_directory> [sdk_verison]" % os.path.basename(args[0])
+				sys.exit(1)
 
-	info("Migrating iOS project ... ")
-
-	files = glob.glob('%s/*.xcodeproj' % build_dir)
-	if len(files)!=1:
-		print "Couldn't find the .xcodeproj file at %s" % build_dir
-		sys.exit(1)
+		# What needs to be done in order to perform a "true" export?
+		# ---
+		# Wipe the build dir
+		# Migrate resources
+		# Migrate tiapp.xml (required for scripts)
+		# Generate project from template
+		# Populate Info.plist
+		# Compile/migrate i18n 
+		# Migrate scripts for compiling JSS files (and i18n)
+		# Modify xcodeproj build steps to call the JSS compiler
+		# Then... Share and Enjoy.
 		
-	xcodeproj_dir = files[0]
-	
-	# first check that we're in a valid project folder that has been built
-	if not os.path.exists(tiapp_xml):
-		print "%s doesn't look like a valid project folder" % project_dir
-		sys.exit(1)
-	
-	if not os.path.exists(build_dir):
-		print "%s hasn't build built by Titanium yet. Build it and re-try" % project_dir
-		sys.exit(1)
-
-	info("  + Preparing project")
-	
-	if os.path.islink(lib_file) or os.path.exists(lib_file):
-		os.remove(lib_file)
+		project_dir = os.path.abspath(args[1])
+		build_dir = os.path.join(project_dir,'build','iphone')
+		titanium_local = os.path.join(build_dir,'titanium')
 		
-	if os.path.exists(support_dir):
-		shutil.rmtree(support_dir)
-	
-	os.makedirs(support_dir)
-
-	# migrate TI_SDK_DIR
-	project_xcconfig = os.path.join(build_dir,'project.xcconfig')
-	contents = codecs.open(project_xcconfig,'r',encoding='utf-8').read()
-	new_contents = u''
-	version = None
-	
-	for line in contents.splitlines(True):
-		if line.find('TI_VERSION=')!=-1:
-			k,v = line.split("=")
-			version = v.strip()
-		if line.find('TI_SDK_DIR=')==-1:
-			new_contents+=line
+		if len(args) == 3:
+			version = args[2]
+			sdk_dir = find_sdk(version)
 		else:
-			new_contents+="TI_SDK_DIR=support/iphone\n"
+			sdk_dir = os.path.abspath(os.path.dirname(template_dir))
+			version = os.path.basename(sdk_dir)			
 
-	ti_sdk = find_sdk(version)
-	iphone_dir = os.path.join(ti_sdk,'iphone')
-	info("  + Detected version %s" % version)
-			
-	# write our migrated version		
-	f = codecs.open(project_xcconfig,'w',encoding='utf-8')		
-	f.write(new_contents)
-	f.close()
-
-	info("  + Migrated xcconfig")
-	
-	# copy in key folders
-	for f in ('common','iphone'):
-		info("  + Copying %s directory" % f)
-		shutil.copytree(os.path.join(ti_sdk,f),os.path.join(support_dir,f))	
+		tiappxml = os.path.join(project_dir, 'tiapp.xml')
+		tiapp = TiAppXML(tiappxml)
 		
-	# remove some folders that aren't needed in transport
-	for f in ('Classes','headers','include','resources'):
-		shutil.rmtree(os.path.join(support_dir,'iphone',f))
-	
-	# copy in key files
-	for f in ('tiapp.py','manifest.py'):
-		shutil.copy(os.path.join(ti_sdk,f),support_dir)
-
-	info("  + Copied scripts")
-	
-	# create our symlink
-	cwd = os.getcwd()
-	os.chdir(os.path.join(build_dir,'lib'))
-	os.symlink('../support/iphone/libTiCore.a','libTiCore.a')
-	os.chdir(cwd)
-	
-	xcodeproj = os.path.join(xcodeproj_dir,'project.pbxproj')
-	
-	contents = codecs.open(xcodeproj,'r',encoding='utf-8').read()
-	new_contents = u''
-	
-	for line in contents.splitlines(True):
-		if line.find('shellScript =')==-1:
-			new_contents+=line
+		app_id = tiapp.properties['id']
+		app_name = tiapp.properties['name']
+		
+		if app_id is None or app_name is None:
+			info("Your tiapp.xml is malformed - please specify an app name and id")
+			sys.exit(1)
+		
+		# Clean build dir (if it exists), error otherwise (no iphone support)
+		info("Cleaning build...")
+		if os.path.exists(build_dir):
+			for f in os.listdir(build_dir):
+				path = os.path.join(build_dir,f)
+				if os.path.isfile(path):
+					os.remove(path)
+				else:
+					shutil.rmtree(path)
 		else:
-			new_contents+='      shellScript = "support/iphone/builder.py xcode\\nexit $?";\n'
-	
-	# write our migrated version		
-	f = codecs.open(xcodeproj,'w',encoding='utf-8')		
-	f.write(new_contents)
-	f.close()
-	
-	info("  + Removing temporary build")
-	shutil.rmtree(os.path.join(build_dir,'build'))
-
-	info("Finished!")
-	
+			info("Your project is not configured to be built for iphone.")
+			exit(1)
 		
+		# Migrate Resources
+		info("Migrating resources...")
+		project_resources = os.path.join(project_dir, 'Resources')
+		resources_dir = os.path.join(build_dir, 'Resources')
+		
+		shutil.copytree(project_resources,resources_dir)
+		
+		# Migrate tiapp.xml
+		info("Migrating tiapp.xml...")
+		shutil.copy(tiappxml, build_dir)
+		
+		# Generate project stuff from the template
+		info("Generating project from Titanium template...")
+		project = Projector(app_name,version,template_dir,project_dir,app_id)
+		project.create(template_dir,build_dir)			
+		
+		# Because the debugger.plist is built as part of the required
+		# resources, we need to autogen an empty one
+		debug_plist = os.path.join(resources_dir,'debugger.plist')
+		force_xcode = write_debugger_plist(None, None, template_dir, debug_plist)
+		
+		# Populate Info.plist
+		applogo = None
+		info("Populating Info.plist...")
+		plist_out = os.path.join(build_dir, 'Info.plist')
+		create_info_plist(tiapp, template_dir, project_dir, plist_out)
+		applogo = tiapp.generate_infoplist(plist_out, app_id, 'iphone', project_dir, None)
+		
+		# Run the compiler to autogenerate .m files
+		info("Copying classes, creating generated .m files...")
+		compiler = Compiler(project_dir,app_id,app_name,'export',False,None,None,silent=True)
+		
+		#... But we still have to nuke the stuff that gets built that we don't want
+		# to bundle.
+		ios_build = os.path.join(build_dir,'build')
+		if os.path.isdir(ios_build):
+			shutil.rmtree(os.path.join(build_dir,'build'))
+		
+		# Install applogo/splash/etc.
+		info("Copying icons and splash...")
+		install_logo(tiapp, applogo, project_dir, template_dir, resources_dir)
+		install_defaults(project_dir, template_dir, resources_dir)
+		
+		# Get Modules
+		detector = ModuleDetector(project_dir)
+		missing_modules, modules = detector.find_app_modules(tiapp, 'iphone')
+		
+		if len(missing_modules) != 0:
+			for module in missing_modules:
+				info("MISSING MODULE: %s ... Project will not build correctly" % module['id'])
+			info("Terminating export: Please fix your modules.")
+			sys.exit(1)
+		
+		module_search_path, module_asset_dirs = locate_modules(modules, project_dir, resources_dir, info)
+		
+		lib_dir = os.path.join(build_dir, 'lib')
+		if not os.path.exists(lib_dir): 
+			os.makedirs(lib_dir)
+		
+		if len(module_search_path) > 0:
+			info("Copying modules...")
+			for module in module_search_path:
+				module_name, module_path = module
+				info("\t%s..." % module_name)
+				shutil.copy(os.path.join(module_path, module_name), lib_dir)
+				module[1] = os.path.join(lib_dir, module_name)
+				
+			# Note: The module link information has to be added to
+			# the xcodeproj after it's created.
+			# We also have to mod the module_search_path to reference
+			# the local 'lib' directory instead of the original
+			# module install location
+			info("Linking modules...")
+			local_modules = []
+			for module in module_search_path:
+				name = module[0]
+				newpath = os.path.join('lib',name)
+				local_modules.append([name, newpath])
+			link_modules(local_modules, app_name, build_dir, relative=True)		
+		
+		# Copy libraries
+		info("Copying libraries...")
+		iphone_dir = os.path.join(sdk_dir, 'iphone')
+		for lib in glob.iglob(os.path.join(iphone_dir,'lib*')):
+			info("\t%s..." % lib)
+			shutil.copy(lib, lib_dir)
+		
+		# Process i18n files
+		info("Processing i18n...")
+		locale_compiler = LocaleCompiler(app_name, project_dir, 'ios', 'development', resources_dir)
+		locale_compiler.compile()
+		
+		# Migrate compile scripts
+		info("Copying custom Titanium compiler scripts...")
+		shutil.copytree(os.path.join(sdk_dir,'common'),titanium_local)
+		shutil.copy(os.path.join(sdk_dir,'tiapp.py'),titanium_local)
+		
+		iphone_script_dir = os.path.join(titanium_local,'iphone')
+		os.mkdir(iphone_script_dir)
+		shutil.copy(os.path.join(sdk_dir,'iphone','compiler.py'),iphone_script_dir)
+		shutil.copy(os.path.join(sdk_dir,'iphone','run.py'),iphone_script_dir)
+		shutil.copy(os.path.join(sdk_dir,'iphone','csspacker.py'),iphone_script_dir)
+		shutil.copy(os.path.join(sdk_dir,'iphone','jspacker.py'),iphone_script_dir)
+		
+		# Add compilation to the build script in project
+		info("Modifying pre-compile stage...")
+		xcodeproj = os.path.join(build_dir,'%s.xcodeproj' % app_name, 'project.pbxproj')
+		contents = codecs.open(xcodeproj,'r',encoding='utf-8').read()
+
+		css_compiler = os.path.join('titanium','css','csscompiler.py')
+		ti_compiler = os.path.join('titanium','iphone','compiler.py')
+		script = """%s . ios Resources
+%s . export-build $TARGETED_DEVICE_FAMILY $SDKROOT %s""" % (css_compiler, ti_compiler, version)
+		contents = fix_xcode_script(contents,"Pre-Compile",script)
+
+		# write our new project
+		f = codecs.open(xcodeproj,'w',encoding='utf-8')
+		f.write(contents)
+		f.close()		
+		
+		info("Finished! Share and Enjoy.")
+
+
 if __name__ == "__main__":
-	main(sys.argv)
-	sys.exit(0)
+		main(sys.argv)
+		sys.exit(0)
+

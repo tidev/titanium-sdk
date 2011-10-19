@@ -18,42 +18,39 @@ events:
     properties:
       - name: index
         description: the index of the image frame being displayed
-      - name: source
-        description: the source object that fired the event
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: load
     description: fired when either the initial image and/or all of the images in an animation are loaded
     properties:
-      - name: source
-        description: the source object that fired the event
       - name: state
         description: either `url` to indicate the url property is loaded or `images` when all the images are loaded
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
   - name: start
     description: fired when the animation starts
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
   - name: stop
@@ -61,24 +58,25 @@ events:
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
 properties:
   - name: animating
-    description: readonly boolean to indicate if the animation is animating
+    description: boolean to indicate if the animation is animating
     type: Boolean
+    permission: read-only
   - name: canScale
-    description: allow image to scale (Android)
+    description: allow image to scale
     type: Boolean
+    platforms: [android]
   - name: decodeRetries
     description: |
-        number of times to retry decoding the bitmap at this URL (1.7.0 / Android only. default: 5)
+        number of times to retry decoding the bitmap at this URL
     default: 5
     platforms: [android]
     since: "1.7.0"
@@ -95,7 +93,7 @@ properties:
     platforms: [android]
     since: "1.3.0"
   - name: hires
-    description: indicates whether or not the source image is in 2x resolution for retina displays.  Use for remote images ONLY.  (iOS)
+    description: indicates whether or not the source image is in 2x resolution for retina displays.  Use for remote images ONLY.
     platforms: [iphone, ipad]
     type: Boolean
   - name: image
@@ -105,8 +103,9 @@ properties:
     description: array of images (either as string url, Blob or File) to display in an animation
     type: Array<Object>
   - name: paused
-    description: readonly boolean to indicate if the animation is paused
+    description: boolean to indicate if the animation is paused
     type: Boolean
+    permission: read-only
   - name: preventDefaultImage
     description: boolean to indicate if the default image should be displaying while loading a remote image
     type: Boolean
@@ -130,5 +129,3 @@ examples:
         
             var image = Titanium.UI.createImageView({url:'myimage.png'});
             view.add(image);
-        
-        

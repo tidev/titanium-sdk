@@ -4,6 +4,7 @@ description: The blob is an abstract data type that represents binary informatio
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [android, iphone, ipad]
+createable: false
 properties:
   - name: length
     type: Number
@@ -28,11 +29,6 @@ properties:
   - name: nativePath
     type: String
     description: When this blob represents a <Titanium.File>, this is the file URL that represents it
-    permission: read-only
-  - name: path
-    type: String
-    description: When this blob represents a <Titanium.File>, this is the absolute path to the file.
-    platforms: [iphone, ipad]
     permission: read-only
   - name: size
     type: Number

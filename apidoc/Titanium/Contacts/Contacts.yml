@@ -99,15 +99,19 @@ properties:
   - name: CONTACTS_KIND_ORGANIZATION
     description: constant for 'organization' kind property of Person object
     type: Number
+    permission: read-only
   - name: CONTACTS_KIND_PERSON
     description: constant for 'person' kind property of Person object
     type: Number
+    permission: read-only
   - name: CONTACTS_SORT_FIRST_NAME
     description: constant for sorting group members by first name
     type: Number
+    permission: read-only
   - name: CONTACTS_SORT_LAST_NAME
     description: constant for sorting group members by last name
     type: Number
+    permission: read-only
 notes: Contacts on Android are currently only read-only, so methods such as `createPerson`, `removePerson`, etc., are not supported.
     
     <Titanium.Contacts.Person> objects which have been removed from the database are invalidated after a save operation, whether from creating a new contact or explicitly calling <Titanium.Contacts.save()>.  Using them may result in unpredictable behavior, including crashes.

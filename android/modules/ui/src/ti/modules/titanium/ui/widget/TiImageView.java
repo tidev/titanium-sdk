@@ -209,10 +209,10 @@ public class TiImageView extends ViewGroup
 			if (Integer.parseInt(Build.VERSION.SDK) > 3) {
 				imageView.setScaleType(ScaleType.MATRIX);
 			} else {
-				imageView.setScaleType(ScaleType.CENTER);
+				imageView.setScaleType(ScaleType.FIT_CENTER);
 			}
 		} else {
-			imageView.setScaleType(ScaleType.CENTER);
+			imageView.setScaleType(ScaleType.FIT_CENTER); // Android default and our iOS implementation
 		}
 		((NoLayoutImageView) imageView).allowLayoutRequest = true;
 		requestLayout();

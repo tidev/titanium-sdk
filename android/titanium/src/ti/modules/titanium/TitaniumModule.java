@@ -26,11 +26,9 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiLaunchActivity;
-import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.kroll.KrollCoverage;
@@ -50,7 +48,8 @@ import android.os.Environment;
 import android.os.Handler;
 
 @Kroll.module @Kroll.topLevel({"Ti", "Titanium"})
-public class TitaniumModule extends KrollModule implements TiContext.OnLifecycleEvent, TiContext.OnServiceLifecycleEvent
+public class TitaniumModule extends KrollModule
+	implements TiContext.OnLifecycleEvent, TiContext.OnServiceLifecycleEvent
 {
 	private static final String LCAT = "TitaniumModule";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -74,7 +73,14 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 	@Kroll.getProperty @Kroll.method
 	public String getUserAgent()
 	{
-		return System.getProperties().getProperty("http.agent")+" Titanium/"+getVersion();
+		StringBuilder builder = new StringBuilder();
+		String httpAgent = System.getProperty("http.agent");
+		if (httpAgent != null) {
+			builder.append(httpAgent);
+		}
+		builder.append(" Titanium/")
+			.append(getVersion());
+		return builder.toString();
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -163,7 +169,15 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 		public void run()
 		{
 			if (canceled) return;
-			Log.d(LCAT, "calling " + (interval?"interval":"timeout") + " timer " + id + " @" + new Date().getTime());
+			if (DBG) {
+				StringBuilder message = new StringBuilder("calling ")
+					.append(interval ? "interval" : "timeout")
+					.append(" timer ")
+					.append(id)
+					.append(" @")
+					.append(new Date().getTime());
+				Log.d(LCAT, message.toString());
+			}
 			long start = System.currentTimeMillis();
 			callback.callSync(args);
 			if (interval && !canceled) {
@@ -395,8 +409,11 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 		}
 	}
 
-	protected KrollModule requireNativeModule(TiContext context, String path) {
-		Log.d(LCAT, "Attempting to include native module: " + path);
+	protected KrollModule requireNativeModule(TiContext context, String path)
+	{
+		if (DBG) {
+			Log.d(LCAT, "Attempting to include native module: " + path);
+		}
 		KrollModuleInfo info = KrollModule.getModuleInfo(path);
 		if (info == null) return null;
 
@@ -404,65 +421,48 @@ public class TitaniumModule extends KrollModule implements TiContext.OnLifecycle
 	}
 
 	@Kroll.method @Kroll.topLevel
-	public KrollProxy require(KrollInvocation invocation, String path) {
-
-		// 1. look for a TiPlus module first
+	public Object require(KrollInvocation invocation, String path)
+	{
+		// 1. look for a native module first
 		// 2. then look for a cached module
 		// 3. then attempt to load from resources
-		TiContext ctx = invocation.getTiContext().getRootActivity().getTiContext();
-		KrollModule module = requireNativeModule(ctx, path);
+		TiContext thisContext = invocation.getTiContext();
+		if (thisContext == null) {
+			Context.throwAsScriptRuntimeEx(new Exception("Execution context is no longer available. Cannot load module '" + path + "'."));
+			return null;
+		}
+		TiContext rootContext = thisContext.getRootActivity().getTiContext();
+		KrollModule module = requireNativeModule(rootContext, path);
+		StringBuilder builder = new StringBuilder();
+
 		if (module != null) {
 			KrollModuleInfo info = module.getModuleInfo();
-			Log.d(LCAT, "Succesfully loaded module: " + info.getName() + "/" + info.getVersion());
+			builder.append("Succesfully loaded module: ")
+				.append(info.getName())
+				.append("/")
+				.append(info.getVersion());
+			Log.i(LCAT, builder.toString());
 			return module;
 		}
 
-		// NOTE: commonjs modules load absolute to root in Titanium
-		String fileUrl = "app://"+path+".js";
-		TiBaseFile tbf = TiFileFactory.createTitaniumFile(ctx, new String[]{ fileUrl }, false);
-		if (tbf!=null)
-		{
-			try
-			{
-				TiBlob blob = (TiBlob)tbf.read();
-				if (blob == null) {
-					Log.e(LCAT, "Couldn't read required file: " + fileUrl);
-					return null;
-				}
-
-				// create the common js exporter
-				KrollProxy proxy = new KrollProxy(ctx);
-				StringBuilder buf = new StringBuilder();
-				buf.append("(function(exports){");
-				buf.append(blob.getText());
-				buf.append("return exports;");
-				buf.append("})({})");
-				Scriptable result = (Scriptable)ctx.evalJS(buf.toString());
-				// common js modules export all functions/properties as 
-				// properties of the special export object provided
-				for (Object key : result.getIds())
-				{
-					String propName = key.toString();
-					Scriptable propValue = (Scriptable)result.get(propName,result);
-					proxy.setProperty(propName, propValue);
-				}
-				// spec says you must have a read-only id property - we don't
-				// currently support readonly in kroll so this is probably OK for now
-				proxy.setProperty("id", path);
-				// uri is optional but we point it to where we loaded it
-				proxy.setProperty("uri",fileUrl);
-				return proxy;
-			}
-			catch(Exception ex)
-			{
-				Log.e(LCAT,"Error loading module named: "+path,ex);
-				Context.throwAsScriptRuntimeEx(ex);
-				return null;
-			}
+		if (DBG) {
+			Log.d(LCAT, "Attempting to include CommonJS module: " + path);
 		}
 
-		//the spec says we are required to throw an exception
-		Context.reportError("couldn't find module: "+path);
+		try {
+			return thisContext.getKrollContext().callCommonJsRequire(path);
+		} catch (Exception e) {
+			builder.setLength(0);
+			builder.append("require(\"")
+				.append(path)
+				.append("\") failed: ")
+				.append(e.getMessage());
+			String msg = builder.toString();
+			Log.e(LCAT, msg, e);
+			Context.throwAsScriptRuntimeEx(new Exception(msg));
+		}
+
+		Context.throwAsScriptRuntimeEx(new Exception("Cannot find module '" + path + "'"));
 		return null;
 	}
 

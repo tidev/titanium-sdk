@@ -67,24 +67,22 @@ methods:
 events:
   - name: click
     description: fired when the user presses the button
-    properties:
-      - name: source
-        description: the source object that fired the event
-      - name: type
-        description: the name of the event fired
 properties:
   - name: enabled
     description: set the enabled state of the item
     type: Boolean
   - name: groupId
-    description: groupId for this item (Read-only)
+    description: groupId for this item
     type: Number
+    permission: read-only
   - name: itemId
-    description: itemId for this item (Read-only)
+    description: itemId for this item
     type: Number
+    permission: read-only
   - name: order
-    description: integer used for controlling sort order (Read-only)
+    description: integer used for controlling sort order
     type: Number
+    permission: read-only
   - name: title
     description: item title
     type: String

@@ -90,13 +90,13 @@ def is_android(platform):
 
 def stage(platform, project_dir, manifest, callback):
 	dont_delete = True
-	dir = tempfile.mkdtemp('ti','m')
+	dir = tempfile.mkdtemp('ti', 'm')
 	print '[DEBUG] Staging module project at %s' % dir
 	try:
 		name = manifest.name
 		moduleid = manifest.moduleid
 		version = manifest.version
-		script = os.path.join(template_dir,'..','project.py')
+		script = os.path.join(template_dir, '..', 'project.py')
 		
 		# create a temporary proj
 		create_project_args = [script, name, moduleid, dir, platform]
@@ -109,21 +109,21 @@ def stage(platform, project_dir, manifest, callback):
 		gen_resources_dir = os.path.join(gen_project_dir, 'Resources')
 		
 		# copy in our example source
-		copy_resources(os.path.join(project_dir,'example'), gen_resources_dir)
+		copy_resources(os.path.join(project_dir, 'example'), gen_resources_dir)
 
 		# patch in our tiapp.xml
 		tiapp = os.path.join(gen_project_dir, 'tiapp.xml')
 		xml = open(tiapp).read()
 		tiappf = open(tiapp,'w')
-		xml = xml.replace('<guid/>','<guid></guid>')
-		xml = xml.replace('</guid>','</guid>\n<modules>\n<module version="%s">%s</module>\n</modules>\n' % (version,moduleid))
+		xml = xml.replace('<guid/>', '<guid></guid>')
+		xml = xml.replace('</guid>', '</guid>\n<modules>\n<module version="%s">%s</module>\n</modules>\n' % (version, moduleid))
 		# generate a guid since this is currently done by developer
 		guid = str(uuid.uuid4())
-		xml = xml.replace('<guid></guid>','<guid>%s</guid>' % guid)
+		xml = xml.replace('<guid></guid>', '<guid>%s</guid>' % guid)
 		tiappf.write(xml)
 		tiappf.close()
 
-		module_dir = os.path.join(gen_project_dir,'modules',platform)
+		module_dir = os.path.join(gen_project_dir, 'modules', platform)
 		if not os.path.exists(module_dir):
 			os.makedirs(module_dir)
 
@@ -131,7 +131,7 @@ def stage(platform, project_dir, manifest, callback):
 		module_zip = os.path.join(project_dir, 'dist', module_zip_name)
 		if is_ios(platform):
 			module_zip = os.path.join(project_dir, module_zip_name)
-			script = os.path.join(project_dir,'build.py')
+			script = os.path.join(project_dir, 'build.py')
 			run_python([script])
 		elif is_android(platform):
 			run_ant(project_dir)
@@ -194,7 +194,7 @@ def main(args):
 
 	if command == 'run':
 		def run_callback(gen_project_dir):
-			script = os.path.abspath(os.path.join(template_dir,'..',platform,'builder.py'))
+			script = os.path.abspath(os.path.join(template_dir, '..', platform,'builder.py'))
 			script_args = [script, 'run', gen_project_dir]
 			if is_android(platform):
 				script_args.append(android_sdk.get_android_sdk())
@@ -204,12 +204,35 @@ def main(args):
 			# run the project
 			if rc==1:
 				if is_ios(platform):
-					error = os.path.join(gen_project_dir,'build','iphone','build','build.log')
+					error = os.path.join(gen_project_dir, 'build', 'iphone', 'build', 'build.log')
 					print "[ERROR] Build Failed. See: %s" % os.path.abspath(error)
 				else:
 					print "[ERROR] Build Failed."
 		
 		stage(platform, project_dir, manifest, run_callback)
+	elif command == 'install':
+		def install_callback(gen_project_dir):
+
+			if is_ios(platform):
+				print "[ERROR] Build Failed. Install module to device not supported on iOS."
+				return
+
+			tiapp_xml = os.path.join(gen_project_dir, 'tiapp.xml')
+
+			script = os.path.abspath(os.path.join(template_dir, '..', platform, 'builder.py'))
+			script_args = [script, "install", manifest.name, android_sdk.get_android_sdk(), gen_project_dir, manifest.moduleid, "Necessary argument, but unused."]
+
+			rc = run_python(script_args)
+
+			# install the project
+			if rc != 0:
+				if is_ios(platform):
+					error = os.path.join(gen_project_dir, 'build', 'iphone', 'build', 'build.log')
+					print "[ERROR] Build Failed. See: %s" % os.path.abspath(error)
+				else:
+					print "[ERROR] Build Failed."
+
+		stage(platform, project_dir, manifest, install_callback)
 	elif command == 'run-emulator':
 		if is_android(platform):
 			def run_emulator_callback(gen_project_dir):

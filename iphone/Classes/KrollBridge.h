@@ -13,6 +13,7 @@
 #import "KrollContext.h"
 #import "KrollObject.h"
 #import "TiModule.h"
+#include <libkern/OSAtomic.h>
 
 #ifdef KROLL_COVERAGE
 # import "KrollCoverage.h"
@@ -43,12 +44,11 @@
 	TitaniumObject *titanium;
 	BOOL shutdown;
     BOOL evaluationError;
-	NSMutableArray *proxies;
 	//NOTE: Do NOT treat registeredProxies like a mutableDictionary; mutable dictionaries copy keys,
 	//CFMutableDictionaryRefs only retain keys, which lets them work with proxies properly.
 	CFMutableDictionaryRef registeredProxies;
 	NSCondition *shutdownCondition;
-	NSRecursiveLock *proxyLock;
+	OSSpinLock proxyLock;
 }
 - (void)boot:(id)callback url:(NSURL*)url_ preload:(NSDictionary*)preload_;
 - (void)evalJSWithoutResult:(NSString*)code;
@@ -59,7 +59,6 @@
 - (KrollContext*)krollContext;
 
 + (NSArray *)krollBridgesUsingProxy:(id)proxy;
-+ (int)countOfKrollBridgesUsingProxy:(id)proxy;
 + (BOOL)krollBridgeExists:(KrollBridge *)bridge;
 + (KrollBridge *)krollBridgeForThreadName:(NSString *)threadName;
 

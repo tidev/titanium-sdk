@@ -10,16 +10,12 @@ events:
     properties:
       - name: timestamp
         description: reference timestamp since the previous change. this is not a valid timestamp and should simply be used to determine the time between events and not an exact timestamp.
-      - name: source
-        description: the source object that fired the event
       - name: y
         description: the y axis of the device
       - name: x
         description: the x axis of the device
       - name: z
         description: the z axis of the device
-      - name: type
-        description: the name of the event fired
 notes: >
     You'll want to be selective about turning on and off the device accelerometer.  It's recommended you 
     turn off the accelerometer when you're not using it.

@@ -190,7 +190,9 @@ def annotate_apis():
 		elif is_titanium_proxy(one_api):
 			annotated_apis[name] = AnnotatedProxy(one_api)
 		else:
-			if one_api["name"].startswith("Ti"):
+			if one_api["name"].startswith("Ti") and one_api["name"] != "Titanium.Event":
+				# Titanium.Event is an exception because it doesn't extend anything and doesn't need
+				# to be annotated as a Titanium type.
 				log.warn("%s not being annotated as a Titanium type. Is its 'extends' property not set correctly?" % one_api["name"])
 			else:
 				# Types that are not true Titanium proxies and modules (like pseudo-types)
@@ -386,6 +388,16 @@ class AnnotatedEvent(AnnotatedApi):
 		properties = []
 		if dict_has_non_empty_member(self.api_obj, "properties"):
 			properties = [AnnotatedProperty(p, self) for p in self.api_obj["properties"]]
+		# Append properties from Titanium.Event.yml
+		existing_names = [p.name for p in properties]
+		event_super_type = apis.get("Titanium.Event")
+		if event_super_type is not None and dict_has_non_empty_member(event_super_type, "properties"):
+			for prop in event_super_type["properties"]:
+				if prop["name"] in existing_names:
+					continue
+				new_prop = AnnotatedProperty(prop, self)
+				new_prop.inherited_from = "Titanium.Event"
+				properties.append(new_prop)
 		return sorted(properties, key=lambda item: item.name)
 
 def main():
@@ -407,7 +419,7 @@ def main():
 	parser.add_option("-o", "--output",
 			dest="output",
 			help="Output directory for generated documentation",
-			default=dist_apidoc_dir)
+			default=None)
 	parser.add_option("-v", "--version",
 			dest="version",
 			help="Version of the API to generate documentation for",
@@ -422,11 +434,19 @@ def main():
 			action="store_true",
 			help="Display verbose info messages",
 			default=False)
+	parser.add_option("--stdout",
+			dest="stdout",
+			action="store_true",
+			help="Useful only for json/jsca. Writes the result to stdout. If you specify both --stdout and --output you'll get both an output file and the result will be written to stdout.",
+			default=False)
 	(options, args) = parser.parse_args()
 	log_level = TiLogger.INFO
 	if options.verbose:
 		log_level = TiLogger.TRACE
 	log = TiLogger(None, level=log_level, output_stream=sys.stderr)
+	if options.output is None and "html" in options.formats:
+		log.trace("Setting output folder to %s because html files will be generated and now --output folder was specified" % dist_apidoc_dir)
+		options.output = dist_apidoc_dir
 	process_yaml()
 	generate_output(options)
 	titanium_apis = [ta for ta in apis.values() if ta["name"].startswith("Ti")]

@@ -465,7 +465,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
 							direction, @"d",
 							aguid,@"aguid",
-							[[UIDevice currentDevice] uniqueIdentifier],@"mid",
+							[TiUtils uniqueIdentifier],@"mid",
 							sid,@"sid",
 							address,@"q",
 							[[NSLocale currentLocale] objectForKey: NSLocaleCountryCode],@"c",

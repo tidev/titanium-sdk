@@ -4,16 +4,20 @@ description: An object which represents a single reminder for an event in an And
 extends: Titanium.Proxy
 platforms: [android]
 since: "1.5"
+createable: false
 properties:
   - name: id
     description: The id of the reminder.
     type: String
+    permission: read-only
   - name: method
     description: The reminder method.  Possible values are the METHOD constants in <Titanium.Android.Calendar>.
     type: Number
+    permission: read-only
   - name: minutes
     description: The minutes before the event when the reminder should occur.
     type: Number
+    permission: read-only
 notes: Reminder API
     
     See <Titanium.Android.Calendar> for examples of retrieving reminder information and creating reminders for events.

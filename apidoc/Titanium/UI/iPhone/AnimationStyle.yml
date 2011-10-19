@@ -9,15 +9,20 @@ properties:
   - name: CURL_DOWN
     description: Curl downwards during a transition animation
     type: Number
+    permission: read-only
   - name: CURL_UP
     description: Curl upwards during a transition animation
     type: Number
+    permission: read-only
   - name: FLIP_FROM_LEFT
     description: Flip from left to right during a transition animation
     type: Number
+    permission: read-only
   - name: FLIP_FROM_RIGHT
     description: Flip from right to left during a transition animation
     type: Number
+    permission: read-only
   - name: NONE
     description: No animation
     type: Number
+    permission: read-only

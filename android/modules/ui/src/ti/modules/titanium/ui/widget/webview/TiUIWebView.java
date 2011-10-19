@@ -10,6 +10,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -26,9 +29,13 @@ import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.WebViewProxy;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
+import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
@@ -38,7 +45,18 @@ public class TiUIWebView extends TiUIView {
 	private static final boolean DBG = TiConfig.LOGD;
 	private TiWebViewClient client;
 	private boolean changingUrl = false;
+	
+	private static Enum<?> enumPluginStateOff;
+	private static Enum<?> enumPluginStateOn;
+	private static Enum<?> enumPluginStateOnDemand;
+	private static Method internalSetPluginState;
+	private static Method internalWebViewPause;
+	private static Method internalWebViewResume;
 
+	public static final int PLUGIN_STATE_OFF = 0;
+	public static final int PLUGIN_STATE_ON = 1;
+	public static final int PLUGIN_STATE_ON_DEMAND = 2;
+	
 	private class TiWebView extends WebView {
 		public TiWebViewClient client;
 		public TiWebView(Context context) {
@@ -62,19 +80,40 @@ public class TiUIWebView extends TiUIView {
 		webView.setVerticalScrollbarOverlay(true);
 
 		WebSettings settings = webView.getSettings();
-		settings.setBuiltInZoomControls(true);
 		settings.setUseWideViewPort(true);
 		settings.setJavaScriptEnabled(true);
 		settings.setSupportMultipleWindows(true);
 		settings.setJavaScriptCanOpenWindowsAutomatically(true);
-		settings.setSupportZoom(true);
 		settings.setLoadsImagesAutomatically(true);
 		settings.setLightTouchEnabled(true);
+		
+		// enable zoom controls by default
+		boolean enableZoom = true;
+
+		if (proxy.hasProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
+			enableZoom = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS));
+		}
+
+		settings.setBuiltInZoomControls(enableZoom);
+		settings.setSupportZoom(enableZoom);
+
+		// We can only support webview settings for plugin/flash in API 8 and higher.
+		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
+			initializePluginAPI(webView);
+		}
 
 		webView.setWebChromeClient(new TiWebChromeClient(this));
 		client = new TiWebViewClient(this, webView);
 		webView.setWebViewClient(client);
 		webView.client = client;
+
+		WebViewProxy webProxy = (WebViewProxy) proxy;
+		String username = webProxy.getBasicAuthenticationUserName();
+		String password = webProxy.getBasicAuthenticationPassword();
+		if (username != null && password != null) {
+			setBasicAuthentication(username, password);
+		}
+		webProxy.clearBasicAuthentication();
 
 		TiCompositeLayout.LayoutParams params = getLayoutParams();
 		params.autoFillsHeight = true;
@@ -88,6 +127,40 @@ public class TiUIWebView extends TiUIView {
 		return (WebView)getNativeView();
 	}
 
+	private void initializePluginAPI(TiWebView webView) 
+	{
+		try 
+		{
+			synchronized(this.getClass()) {
+				// Initialize
+				if (enumPluginStateOff == null) {
+					Class<?> webSettings = Class.forName("android.webkit.WebSettings");
+					Class<?> pluginState = Class.forName("android.webkit.WebSettings$PluginState");
+					
+					Field f = pluginState.getDeclaredField("OFF");
+					enumPluginStateOff = (Enum<?>) f.get(null);
+					f = pluginState.getDeclaredField("ON");
+					enumPluginStateOn = (Enum<?>) f.get(null);
+					f = pluginState.getDeclaredField("ON_DEMAND");
+					enumPluginStateOnDemand = (Enum<?>) f.get(null);
+					internalSetPluginState = webSettings.getMethod("setPluginState", pluginState);
+					// Hidden APIs
+					// http://android.git.kernel.org/?p=platform/frameworks/base.git;a=blob;f=core/java/android/webkit/WebView.java;h=bbd8b95c7bea66b7060b5782fae4b3b2c4f04966;hb=4db1f432b853152075923499768639e14403b73a#l2558
+					internalWebViewPause = webView.getClass().getMethod("onPause");
+					internalWebViewResume = webView.getClass().getMethod("onResume");
+				}
+			}
+		} catch (ClassNotFoundException e) {
+			Log.e(LCAT, "ClassNotFound: " + e.getMessage(), e);
+		} catch (NoSuchMethodException e) {
+			Log.e(LCAT, "NoSuchMethod: " + e.getMessage(), e);
+		} catch (NoSuchFieldException e) {
+			Log.e(LCAT, "NoSuchField: " + e.getMessage(), e);			
+		} catch (IllegalAccessException e) {
+			Log.e(LCAT, "IllegalAccess: " + e.getMessage(), e);
+		}			
+	}
+	
 	@Override
 	public void processProperties(KrollDict d) {
 		super.processProperties(d);
@@ -113,6 +186,14 @@ public class TiUIWebView extends TiUIView {
 		// in order to see any of it.
 		if (nativeView != null && nativeView.getBackground() instanceof TiBackgroundDrawable) {
 			nativeView.setBackgroundColor(Color.TRANSPARENT);
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_PLUGIN_STATE)) {
+			setPluginState(TiConvert.toInt(d, TiC.PROPERTY_PLUGIN_STATE));
+		}
+		
+		if(d.containsKey(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
+			setEnableZoomControls(TiConvert.toBoolean(d,TiC.PROPERTY_ENABLE_ZOOM_CONTROLS));
 		}
 	}
 
@@ -337,6 +418,73 @@ public class TiUIWebView extends TiUIView {
 
 	public void setBasicAuthentication(String username, String password) {
 		client.setBasicAuthentication(username, password);
+	}
+	
+	public void setPluginState(int pluginState) 
+	{
+		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
+			TiWebView webView = (TiWebView) getNativeView();
+			WebSettings webSettings = webView.getSettings();
+			if (webView != null) {
+				try {
+					switch(pluginState) {
+						case PLUGIN_STATE_OFF : 
+							internalSetPluginState.invoke(webSettings, enumPluginStateOff);
+							break;
+						case PLUGIN_STATE_ON : 
+							internalSetPluginState.invoke(webSettings, enumPluginStateOn);
+							break;
+						case PLUGIN_STATE_ON_DEMAND : 
+							internalSetPluginState.invoke(webSettings, enumPluginStateOnDemand);
+							break;
+						default :
+							Log.w(LCAT, "Not a valid plugin state. Ignoring setPluginState request");
+					}
+				} catch (InvocationTargetException e) {
+					Log.e(LCAT, "Method not supported", e);
+				} catch (IllegalAccessException e) {
+					Log.e(LCAT, "Illegal Access", e);
+				}
+			}
+		}
+	}
+	
+	public void pauseWebView()
+	{
+		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
+			View v = getNativeView();
+			if (v != null) {
+				try {
+					internalWebViewPause.invoke(v);
+				} catch (InvocationTargetException e) {
+					Log.e(LCAT, "Method not supported", e);
+				} catch (IllegalAccessException e) {
+					Log.e(LCAT, "Illegal Access", e);
+				}
+			}
+		}
+	}
+	
+	public void resumeWebView()
+	{
+		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
+			View v = getNativeView();
+			if (v != null) {
+				try {
+					internalWebViewResume.invoke(v);
+				} catch (InvocationTargetException e) {
+					Log.e(LCAT, "Method not supported", e);
+				} catch (IllegalAccessException e) {
+					Log.e(LCAT, "Illegal Access", e);
+				}
+			}
+		}
+	}
+	
+	public void setEnableZoomControls(boolean enabled)
+	{
+		getWebView().getSettings().setSupportZoom(enabled);
+		getWebView().getSettings().setBuiltInZoomControls(enabled);
 	}
 
 	public boolean canGoBack() {

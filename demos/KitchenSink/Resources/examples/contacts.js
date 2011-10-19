@@ -1,7 +1,8 @@
 // create table view data object
 var data = [
 	{title:'Contacts picker', hasChild:true, test:'../examples/contacts_picker.js'},
-	{title:'Display people', hasChild:true, test:'../examples/contacts_db.js'}
+	{title:'Display people', hasChild:true, test:'../examples/contacts_db.js'},
+	{title:'Search By ID', hasChild:true, test:'../examples/contacts_searchById.js'}
 ];
 if (Ti.Platform.osname !== 'android') {
 	data.push({title:'Add contact',hasChild:true, test:'../examples/contacts_add.js'});

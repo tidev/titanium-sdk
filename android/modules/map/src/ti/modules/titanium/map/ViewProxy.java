@@ -52,7 +52,6 @@ public class ViewProxy extends TiViewProxy
 	private TiMapView mapView;
 	private ArrayList<AnnotationProxy> annotations;
 	private ArrayList<TiMapView.SelectedAnnotation> selectedAnnotations;
-	private KrollDict location;
 	
 	public ViewProxy(TiContext tiContext) {
 		super(tiContext);
@@ -119,11 +118,21 @@ public class ViewProxy extends TiViewProxy
 		lam.dispatchResume();
 		mapView = new TiMapView(this, mapWindow, annotations, selectedAnnotations);
 
-		if(location != null) {
-			mapView.doSetLocation(location);
+		Object location = getProperty(TiC.PROPERTY_LOCATION);
+		if (location != null)
+		{
+			if(location instanceof KrollDict)
+			{
+				mapView.doSetLocation((KrollDict) location);
+			}
+			else
+			{
+				Log.e(LCAT, "location is set, but the structure is not correct");
+			}
 		}
+
 		mapView.updateAnnotations();
-		
+
 		return mapView;
 	}
 
@@ -282,9 +291,10 @@ public class ViewProxy extends TiViewProxy
 	@Kroll.method
 	public void setLocation(KrollDict location)
 	{
-		if(mapView == null) {
-			this.location = location;
-		} else {
+		setProperty(TiC.PROPERTY_LOCATION, location);
+
+		if(mapView != null)
+		{
 			mapView.doSetLocation(location);
 		}
 	}

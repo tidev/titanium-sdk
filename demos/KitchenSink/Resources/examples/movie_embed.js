@@ -1,5 +1,16 @@
 var win = Titanium.UI.currentWindow;
 
+if (Titanium.Platform.name != 'Android') {
+	var statusLabel = Titanium.UI.createLabel({
+		text:'tap on movie content',
+		width:'auto',
+		top:50,
+		height:25,
+		font:{fontSize:12,fontFamily:'Helvetica Neue'}
+	});
+	win.add(statusLabel);
+}
+
 var activeMovie = Titanium.Media.createVideoPlayer({
 	contentURL:'../movie.mp4',
 	backgroundColor:'#111',
@@ -23,6 +34,20 @@ var movieLabel = Titanium.UI.createLabel({
 
 // add label to view
 activeMovie.add(movieLabel);
+
+// label click
+if (Titanium.Platform.name != 'Android') {
+	activeMovie.addEventListener('click',function()
+	{
+		var newText = "";
+		newText += " i:" + activeMovie.initialPlaybackTime;
+		newText += " p:" + activeMovie.playableDuration;
+		newText += " e:" + activeMovie.endPlaybackTime;
+		newText += " d:" + activeMovie.duration;
+		newText += " c:" + activeMovie.currentPlaybackTime;
+		statusLabel.text = newText;
+	});
+}
 
 // label click
 movieLabel.addEventListener('click',function()

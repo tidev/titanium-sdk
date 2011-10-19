@@ -1,4 +1,4 @@
-import os, sys, simplejson
+import os, sys, json
 
 project_dir = None
 def compile(config):
@@ -9,7 +9,7 @@ def compile(config):
 	config['tiapp'] = None
 	config['logger'] = None
 	outfile = os.path.join(project_dir, 'plugin_compile.json')
-	open(outfile, "w").write(simplejson.dumps(config))
+	open(outfile, "w").write(json.encode(config))
 
 def postbuild():
 	global project_dir

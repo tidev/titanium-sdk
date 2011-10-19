@@ -12,6 +12,7 @@ methods:
       - name: callback
         description: callback function to invoke upon network connectivity changes
         type: Callback<Object>
+    platforms: [iphone, ipad]
   - name: createBonjourBrowser
     description: create and return an instance of <Titanium.Network.BonjourBrowser>
     platforms: [iphone, ipad]
@@ -86,7 +87,7 @@ methods:
         description: input value to be encoded
         type: String
   - name: registerForPushNotifications
-    description: register for push notifications with the Apple Push Notification Service. Only available on iPhone.
+    description: register for push notifications with the Apple Push Notification Service.
     platforms: [iphone, ipad]
     parameters:
       - name: config
@@ -101,98 +102,124 @@ methods:
       - name: callback
         description: callback function to remove
         type: Callback<Object>
+    platforms: [iphone, ipad]
 events:
   - name: change
     description: fired upon a network connectivity change
     properties:
       - name: networkTypeName
         description: the new network type as a string
-      - name: source
-        description: the source object that fired the event
       - name: online
         description: boolean to indicate if the network is online
-      - name: type
-        description: the name of the event fired
       - name: networkType
         description: the new network type
 properties:
   - name: INADDR_ANY
     description: constant value representing the ability for sockets to listen on any locally available network device
     type: String
+    permission: read-only
+    platforms: [iphone, ipad]
   - name: NETWORK_LAN
     description: constant value to indicate that the network is LAN
     type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
   - name: NETWORK_MOBILE
     description: constant value to indicate that the network is MOBILE
     type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
   - name: NETWORK_NONE
     description: constant value to indicate that the network is not available
     type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
   - name: NETWORK_UNKNOWN
     description: constant value to indicate that the network is not known
     type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
   - name: NETWORK_WIFI
     description: constant value to indicate that the network is WIFI
     type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
   - name: NOTIFICATION_TYPE_ALERT
     description: constant value for the push notification alert type
     platforms: [iphone, ipad]
+    permission: read-only
     type: Number
   - name: NOTIFICATION_TYPE_BADGE
     description: constant value for the push notification badge type
     type: Number
+    permission: read-only
     platforms: [iphone, ipad]
   - name: NOTIFICATION_TYPE_SOUND
     description: constant value for the push notification sound type
     type: Number
+    permission: read-only
     platforms: [iphone, ipad]
   - name: READ_MODE
     description: constant value specifying read-only mode for sockets
     type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
   - name: READ_WRITE_MODE
     description: constant value specifying read-write mode for sockets
     type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
   - name: SOCKET_CLOSED
     description: constant value representing a socket in the CLOSED state
     type: Number
+    permission: read-only
     platforms: [iphone, ipad]
   - name: SOCKET_CONNECTED
     description: constant value representing a socket in the CONNECTED state
     type: Number
+    permission: read-only
     platforms: [iphone, ipad]
   - name: SOCKET_ERROR
     description: constant value representing a socket in the ERROR state
     type: Number
+    permission: read-only
     platforms: [iphone, ipad]
   - name: SOCKET_INITIALIZED
     description: constant value representing a socket in the INITIALIZED state
     type: Number
+    permission: read-only
     platforms: [iphone, ipad]
   - name: SOCKET_LISTENING
     description: constant value representing a socket in the LISTENING state
     type: Number
+    permission: read-only
     platforms: [iphone, ipad]
   - name: WRITE_MODE
     description: constant value specifying write-only mode for sockets
     type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
   - name: networkType
     description: the network type value as a constant.
     type: Number
+    permission: read-only
   - name: networkTypeName
     description: the network type name constant. Returns one of `NONE`, `WIFI`, `LAN` or `MOBILE`.
     type: String
+    permission: read-only
   - name: online
-    description: readonly boolean value that indicates if the network is reachable to the Internet either via WIFI or Carrier network
+    description: boolean value that indicates if the network is reachable to the Internet either via WIFI or Carrier network
     type: Boolean
+    permission: read-only
   - name: remoteDeviceUUID
-    description: the remote device UUID if the device was registered with the Apple Push Notification Service or null if not set. Only available on iPhone.
+    description: the remote device UUID if the device was registered with the Apple Push Notification Service or null if not set.
     platforms: [iphone, ipad]
     type: String
   - name: remoteNotificationTypes
-    description: returns an array of network type constants enabled for the application. Only available on iPhone.
+    description: returns an array of network type constants enabled for the application.
     platforms: [iphone, ipad]
     type: Array<Object>
   - name: remoteNotificationsEnabled
-    description: returns true if remote notifications have been enabled. Only available on iPhone.
+    description: returns true if remote notifications have been enabled.
     platforms: [iphone, ipad]
     type: Boolean

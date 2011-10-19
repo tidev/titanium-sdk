@@ -35,6 +35,19 @@ describe("Ti.include tests", {
 			Ti.include('l2/../l2/./l3/lotsofdots.js');
 		}).shouldNotThrowException();
 		valueOf(testval).shouldBeTrue();
-	}
+	},
+	simpleRequire: function() {
+		valueOf(require).shouldBeFunction();
 
+		var module = require("module");
+		valueOf(module).shouldBeObject();
+		valueOf(module.message).shouldBe("test required module");
+	},
+	secondContextRequire_as_async: function(callback) {
+		Ti.UI.createWindow({
+			url: "win.js",
+			drillbitCallback: callback
+		}).open();
+		// see win.js for the code that sets results.
+	}
 });

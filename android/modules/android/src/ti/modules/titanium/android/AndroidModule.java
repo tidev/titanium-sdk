@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,10 +8,10 @@ package ti.modules.titanium.android;
 
 import java.util.List;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.IntentProxy;
@@ -21,8 +21,8 @@ import org.appcelerator.titanium.util.Log;
 
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.Notification;
 import android.app.ActivityManager.RunningServiceInfo;
+import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -240,7 +240,7 @@ public class AndroidModule extends KrollModule
 		intent.handleCreationArgs(this, args);
 		return intent;
 	}
-	
+
 	@Kroll.method
 	public IntentProxy createServiceIntent(KrollInvocation invocation, Object[] args)
 	{
@@ -271,7 +271,7 @@ public class AndroidModule extends KrollModule
 		}
 		return r;
 	}
-	
+
 	@Kroll.method
 	public void startService(KrollInvocation invocation, IntentProxy intentProxy)
 	{
@@ -288,7 +288,7 @@ public class AndroidModule extends KrollModule
 		}
 		Log.w(TAG, "Could not locate non-null activity/context/application with which to start service.");
 	}
-	
+
 	@Kroll.method
 	public void stopService(KrollInvocation invocation, IntentProxy intentProxy)
 	{
@@ -305,7 +305,7 @@ public class AndroidModule extends KrollModule
 		}
 		Log.w(TAG, "Could not locate non-null activity/context/application with which to stop service.");
 	}
-	
+
 	@Kroll.method
 	public boolean isServiceRunning(KrollInvocation invocation, IntentProxy intentProxy)
 	{
@@ -326,12 +326,21 @@ public class AndroidModule extends KrollModule
 		}
 		return false;
 	}
-	
+
 	@Kroll.method
 	public ServiceProxy createService(KrollInvocation invocation, IntentProxy intentProxy)
 	{
 		// Create a new context for the service proxy
-		TiContext tiContext = TiContext.createTiContext(invocation.getTiContext().getTiApp().getRootActivity(), null);
+		TiApplication app = TiApplication.getInstance();
+		Activity rootActivity = app.getRootActivity();
+
+		String url = null;
+		Object urlProperty = intentProxy.getProperty(TiC.PROPERTY_URL);
+		if (urlProperty != null) {
+			url = urlProperty.toString();
+		}
+
+		TiContext tiContext = TiContext.createTiContext(rootActivity, TiC.URL_APP_PREFIX, url);
 		tiContext.setServiceContext(true);
 		return new ServiceProxy(tiContext, intentProxy);
 	}
