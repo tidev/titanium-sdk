@@ -526,6 +526,7 @@ NSString * const TI_DB_VERSION = @"1";
 						   os,@"osver",
 						   VAL_OR_NSNULL(nettype),@"nettype",
 						   VAL_OR_NSNULL(mmodel),@"model",
+						   @"iphone", @"platform",
 						   nil
 						   ];
 	
