@@ -66,9 +66,6 @@ properties:
   - name: clearOnEdit
     description: boolean that indicates if the value of the field is cleared upon editing
     type: Boolean
-  - name: passwordMask
-    description: boolean that indicates if the value of the field is masked to protect the content
-    type: Boolean
   - name: editable
     description: boolean indicating if the field is editable
     type: Boolean

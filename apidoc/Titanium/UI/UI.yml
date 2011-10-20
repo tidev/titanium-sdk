@@ -291,9 +291,6 @@ properties:
   - name: backgroundImage
     description: path/url to an image file for setting a background for the master UIView (when there are no windows/tab groups on it).
     type: String
-  - name: currentTab
-    description: The active tab currently selected.
-    type: Titanium.UI.Tab
   - name: currentWindow
     description: The active window associated with the executing Javascript context.
     type: Titanium.UI.Window
