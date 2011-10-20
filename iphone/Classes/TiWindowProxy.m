@@ -765,10 +765,12 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 
 -(void)viewWillAppear:(BOOL)animated
 {
+	[self parentWillShow];
 }
 
 - (void)viewDidDisappear:(BOOL)animated
 {
+	[self parentWillHide];
 }
 
 #pragma mark Animation Delegates
