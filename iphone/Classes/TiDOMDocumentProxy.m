@@ -9,6 +9,7 @@
 #import "TiDOMDocumentProxy.h"
 #import "TiDOMNodeProxy.h"
 #import "TiDOMNodeListProxy.h"
+#import "TiDOMTextNodeProxy.h"
 #import "TiUtils.h"
 
 @implementation TiDOMDocumentProxy
@@ -102,6 +103,29 @@
 		return proxy;
 	}
 	return nil;
+}
+
+-(TiDOMElementProxy *)createElement:(id)args
+{
+	ENSURE_ARG_COUNT(args, 1);
+	NSString * tagName;
+	ENSURE_ARG_AT_INDEX(tagName, args, 0, NSString);
+	TiDOMElementProxy * result = [[[TiDOMElementProxy alloc] _initWithPageContext:[self pageContext]] autorelease];
+	GDataXMLElement * resultElement = [GDataXMLElement elementWithName:tagName];
+	[result setDocument:[self document]];
+	[result setElement:resultElement];
+	return result;
+}
+
+-(TiDOMTextNodeProxy *)createTextNode:(id)args
+{
+	ENSURE_ARG_COUNT(args, 1);
+	NSString * textData;
+	ENSURE_ARG_AT_INDEX(textData, args, 0, NSString);
+	TiDOMTextNodeProxy * result = [[[TiDOMTextNodeProxy alloc] _initWithPageContext:[self pageContext]] autorelease];
+	GDataXMLNode * resultElement = [GDataXMLNode textWithStringValue:textData];
+	[result setNode:resultElement];
+	return result;
 }
 
 @end
