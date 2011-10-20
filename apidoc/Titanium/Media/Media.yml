@@ -3,6 +3,7 @@ name: Titanium.Media
 description: The top level Media module.  The Media module is used accessing the device's media related  functionality such as playing audio or recording video.
 extends: Titanium.Module
 since: "0.1"
+platforms: [android, iphone, ipad]
 methods:
   - name: beep
     description: play a device beep notification

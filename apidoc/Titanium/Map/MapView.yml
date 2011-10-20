@@ -3,6 +3,7 @@ name: Titanium.Map.MapView
 description: The MapView is an object created by <Titanium.Map.createMapView> and is used for embedding native mapping capabilities as a view in your application.  With native maps, you can control the mapping location, the type of map, the zoom level and you can add custom annotations directly to the map.
 extends: Titanium.UI.View
 since: "0.8"
+platforms: [android, iphone, ipad]
 methods:
   - name: addAnnotation
     description: add a new annotation to the map
