@@ -19,10 +19,8 @@
 #import "TiFile.h"
 #import "TiBlob.h"
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 // for checking version
 #import <sys/utsname.h>
-#endif
 
 #import "UIImage+Resize.h"
 
@@ -78,7 +76,6 @@ static void getAddrInternal(char* macAddress, const char* ifName) {
 	static CGFloat scale = 0.0;
 	if (scale == 0.0)
 	{
-#if __IPHONE_3_2 <= __IPHONE_OS_VERSION_MAX_ALLOWED
 // NOTE: iPad in iPhone compatibility mode will return a scale factor of 2.0
 // when in 2x zoom, which leads to false positives and bugs. This tries to
 // future proof against possible different model names, but in the event of
@@ -93,13 +90,12 @@ static void getAddrInternal(char* macAddress, const char* ifName) {
 				return NO;
 			}
 		}
-#endif
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+
 		if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)])
 		{
 			scale = [[UIScreen mainScreen] scale];
 		}
-#endif
+
 	}
 	return scale > 1.0;
 }
@@ -109,17 +105,6 @@ static void getAddrInternal(char* macAddress, const char* ifName) {
 	return [UIView instancesRespondToSelector:@selector(drawRect:forViewPrintFormatter:)];
 }
 
-+(BOOL)isIOS4OrGreater
-{
-	return [UIView instancesRespondToSelector:@selector(contentScaleFactor)];
-}
-
-+(BOOL)isiPhoneOS3_2OrGreater
-{
-	// Here's a cheap way to test for 3.2; does it respond to a selector that was introduced with that version?
-	return [[UIApplication sharedApplication] respondsToSelector:@selector(setStatusBarHidden:withAnimation:)];
-}
-
 +(BOOL)isIPad
 {
 	return [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad;
@@ -127,7 +112,6 @@ static void getAddrInternal(char* macAddress, const char* ifName) {
 
 +(BOOL)isIPhone4
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 	static bool iphone_checked = NO;
 	static bool iphone4 = NO;
 	if (iphone_checked==NO)
@@ -147,8 +131,6 @@ static void getAddrInternal(char* macAddress, const char* ifName) {
 		}
 	}
 	return iphone4;
-#endif
-	return NO;
 }
 
 +(void)queueAnalytics:(NSString*)type name:(NSString*)name data:(NSDictionary*)data
@@ -498,6 +480,9 @@ static void getAddrInternal(char* macAddress, const char* ifName) {
 			return @"auto";
 		case TiDimensionTypePixels:
 			return [NSNumber numberWithFloat:dimension.value];
+		default: {
+			break;
+		}
 	}
 	return nil;
 }
@@ -630,7 +615,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 
 */
-	if((relativeString == nil) || (relativeString == [NSNull null]))
+	if((relativeString == nil) || ((void*)relativeString == (void*)[NSNull null]))
 	{
 		return nil;
 	}
@@ -1139,7 +1124,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 }
 
 #define RETURN_IF_ORIENTATION_STRING(str,orientation) \
-if ([str isEqualToString:@#orientation]) return orientation;
+if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation;
 
 +(UIDeviceOrientation)orientationValue:(id)value def:(UIDeviceOrientation)def
 {
@@ -1151,7 +1136,7 @@ if ([str isEqualToString:@#orientation]) return orientation;
 		}
 		if ([value isEqualToString:@"landscape"])
 		{
-			return UIInterfaceOrientationLandscapeRight;
+			return (UIDeviceOrientation)UIInterfaceOrientationLandscapeRight;
 		}
 		
 		RETURN_IF_ORIENTATION_STRING(value,UIInterfaceOrientationPortrait)
@@ -1620,7 +1605,7 @@ if ([str isEqualToString:@#orientation]) return orientation;
 {
     char addrString[18];
     getAddrInternal(&addrString[0],"en0");
-    NSString* dataString = [[[NSString alloc] initWithCString:addrString] autorelease];
+    NSString* dataString = [[[NSString alloc] initWithCString:addrString encoding:NSUTF8StringEncoding] autorelease];
     NSData* data = [dataString dataUsingEncoding:NSUTF8StringEncoding];
     return [TiUtils md5:data];
 }

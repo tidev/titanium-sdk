@@ -18,14 +18,6 @@ extern "C" {
 #define MEMORY_DEBUG 0
 #define VIEW_DEBUG 0
 
-#ifndef __IPHONE_3_2
-#define __IPHONE_3_2 30200
-#endif
-
-#ifndef __IPHONE_4_0
-#define __IPHONE_4_0 40000
-#endif
-
 #ifndef __IPHONE_4_1
 #define __IPHONE_4_1 40100
 #endif
@@ -152,7 +144,7 @@ if (out && ![out isKindOfClass:[type class]]) { \
 
 #define COERCE_TO_INT(out,in) \
 if (![in respondsToSelector:@selector(intValue)]) {\
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"cannot coerce type %@ to int",[in type]] location:CODELOCATION]; \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"cannot coerce type %@ to int",[in class]] location:CODELOCATION]; \
 }\
 out = [in intValue]; \
 
@@ -521,9 +513,7 @@ extern NSString * const kTiRemoteDeviceUUIDNotification;
 extern NSString * const kTiGestureShakeNotification;
 extern NSString * const kTiRemoteControlNotification;
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 extern NSString * const kTiLocalNotification;
-#endif
 
 #ifndef ASI_AUTOUPDATE_NETWORK_INDICATOR
 	#define ASI_AUTOUPDATE_NETWORK_INDICATOR 0
