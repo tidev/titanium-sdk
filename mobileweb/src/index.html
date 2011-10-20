@@ -12,17 +12,29 @@
 	<meta name="MobileOptimized" content="320">
 	<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
 
-	<meta name="apple-mobile-web-app-capable" content="yes" />
-	<meta name="apple-mobile-web-app-status-bar-style" content="__TI_STATUSBAR_STYLE__" />
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="__TI_STATUSBAR_STYLE__">
 
 	<link rel="stylesheet" href="titanium/titanium.css">
-	<link rel="apple-touch-icon" href="appicon.png"/>
-	<link rel="apple-touch-startup-image" href="Default.png" />
+	<link rel="apple-touch-startup-image" href="img/l/splash.png">
+	<link rel="apple-touch-icon" href="appicon.png">
+	<link rel="apple-touch-startup-image" href="Default.png">
+
+	<!--
+	<link rel="apple-touch-icon-precomposed" sizes="114x114" href="img/h/apple-touch-icon.png">
+	<link rel="apple-touch-icon-precomposed" sizes="72x72" href="img/m/apple-touch-icon.png">
+	<link rel="apple-touch-icon-precomposed" href="img/l/apple-touch-icon-precomposed.png">
+	<link rel="shortcut icon" href="img/l/apple-touch-icon.png">
+	-->
+
+	<meta http-equiv="cleartype" content="on">
 </head>
 <body>
-	<script src="titanium/titanium.js" type="application/javascript"></script>
-	<script src="titanium/i18n.js" type="application/javascript"></script>
-	<script type="application/javascript">Ti._5.frameworkLoaded()</script>
-	<script src="app.js" type="application/javascript"></script>
+	<script>
+	__TI_JS__
+	</script>
+	<script src="titanium/i18n.js"></script>
+	<script>Ti._5.frameworkLoaded()</script>
+	<script src="app.js"></script>
 </body>
 </html>

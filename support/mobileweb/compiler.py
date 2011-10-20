@@ -224,7 +224,7 @@ class Compiler(object):
 		main_template = codecs.open(os.path.join(src_dir,'index.html'), encoding='utf-8').read().encode("utf-8")
 		main_template = main_template.replace('__TI_VERSION__',sdk_version)
 		main_template = main_template.replace('__TI_STATUSBAR_STYLE__',status_bar_style)
-		main_template = main_template.replace('__TI_GENERATOR__',"Appcelerator Titanium Mobile ".sdk_version)
+		main_template = main_template.replace('__TI_GENERATOR__',"Appcelerator Titanium Mobile "+sdk_version)
 		main_template = main_template.replace('__PROJECT_NAME__',self.project_name)
 		main_template = main_template.replace('__PROJECT_ID__',self.appid)
 		main_template = main_template.replace('__DEPLOYTYPE__',deploytype)
@@ -237,6 +237,7 @@ class Compiler(object):
 		main_template = main_template.replace('__APP_DESCRIPTION__',ti.properties['description'])
 		main_template = main_template.replace('__APP_COPYRIGHT__',ti.properties['copyright'])
 		main_template = main_template.replace('__APP_GUID__',ti.properties['guid'])
+		main_template = main_template.replace('__TI_JS__',titanium_js)
 
 		index_file = os.path.join(self.build_dir,'index.html')
 		o = codecs.open(index_file,'w',encoding='utf-8')
