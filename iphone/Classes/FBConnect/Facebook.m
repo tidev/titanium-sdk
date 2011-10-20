@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#ifdef USE_TI_FACEBOOK
+
 #import "Facebook.h"
 #import "FBLoginDialog.h"
 #import "FBRequest.h"
@@ -654,3 +656,5 @@ static NSString* kSDKVersion = @"2";
 }
 
 @end
+
+#endif
