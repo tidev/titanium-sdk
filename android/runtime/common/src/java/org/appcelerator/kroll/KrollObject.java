@@ -8,16 +8,28 @@ package org.appcelerator.kroll;
 
 import java.util.HashMap;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+
 
 /**
  * A representation of the native JS object that corresponds with a Kroll proxy
  */
-public abstract class KrollObject
+public abstract class KrollObject implements Handler.Callback
 {
 	private static final String TAG = "KrollObject";
 
-	protected HashMap<String, Boolean> hasListenersForEventType = new HashMap<String, Boolean>();
+	protected static final int MSG_RELEASE = 100;
+	protected static final int MSG_LAST_ID = MSG_RELEASE;
 
+	protected HashMap<String, Boolean> hasListenersForEventType = new HashMap<String, Boolean>();
+	protected Handler mainHandler = null;
+
+	public KrollObject()
+	{
+		mainHandler = new Handler(Looper.getMainLooper(), this);		
+	}
 
 	public boolean hasListeners(String event)
 	{
@@ -34,9 +46,34 @@ public abstract class KrollObject
 		hasListenersForEventType.put(event, hasListeners);
 	}
 
+	protected void release()
+	{
+		if (KrollRuntime.getInstance().isUiThread()) {
+			doRelease();
+
+		} else {
+			Message message = mainHandler.obtainMessage(MSG_RELEASE, null);
+			message.sendToTarget();
+		}
+	}
+
+	public boolean handleMessage(Message msg)
+	{
+		switch (msg.what) {
+			case MSG_RELEASE: {
+				doRelease();
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public abstract Object getNativeObject();
+
 	protected abstract void setProperty(String name, Object value);
 	protected abstract boolean fireEvent(String type, Object data);
-	protected abstract void release();
+	protected abstract void doRelease();
 }
 

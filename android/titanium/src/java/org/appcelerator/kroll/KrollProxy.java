@@ -37,15 +37,15 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	private static final int INDEX_OLD_VALUE = 1;
 	private static final int INDEX_VALUE = 2;
 
-	protected static final int MSG_MODEL_PROPERTY_CHANGE = 100;
-	protected static final int MSG_LISTENER_ADDED = 101;
-	protected static final int MSG_LISTENER_REMOVED = 102;
-	protected static final int MSG_MODEL_PROPERTIES_CHANGED = 103;
-	protected static final int MSG_INIT_KROLL_OBJECT = 104;
-	protected static final int MSG_SET_PROPERTY = 105;
-	protected static final int MSG_FIRE_EVENT = 106;
-	protected static final int MSG_RELEASE = 107;
-	protected static final int MSG_LAST_ID = MSG_RELEASE;
+	protected static final int MSG_MODEL_PROPERTY_CHANGE = KrollObject.MSG_LAST_ID + 100;
+	protected static final int MSG_LISTENER_ADDED = KrollObject.MSG_LAST_ID + 101;
+	protected static final int MSG_LISTENER_REMOVED = KrollObject.MSG_LAST_ID + 102;
+	protected static final int MSG_MODEL_PROPERTIES_CHANGED = KrollObject.MSG_LAST_ID + 103;
+	protected static final int MSG_INIT_KROLL_OBJECT = KrollObject.MSG_LAST_ID + 104;
+	protected static final int MSG_SET_PROPERTY = KrollObject.MSG_LAST_ID + 105;
+	protected static final int MSG_FIRE_EVENT = KrollObject.MSG_LAST_ID + 106;
+	protected static final int MSG_FIRE_SYNC_EVENT = KrollObject.MSG_LAST_ID + 107;
+	protected static final int MSG_LAST_ID = MSG_FIRE_SYNC_EVENT;
 	protected static final String PROPERTY_NAME = "name";
 
 	protected static AtomicInteger proxyCounter = new AtomicInteger();
@@ -266,7 +266,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			return doFireEvent(event, data);
 
 		} else {
-			return fireEvent(event, data);
+			AsyncResult asyncResult = new AsyncResult(data);
+			Message message = mainHandler.obtainMessage(MSG_FIRE_SYNC_EVENT, asyncResult);
+			message.getData().putString(PROPERTY_NAME, event);
+			message.sendToTarget();
+			asyncResult.getResult();
+
+			return true;
 		}
 	}
 
@@ -467,8 +473,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 				return true;
 			}
-			case MSG_RELEASE: {
-				doRelease();
+			case MSG_FIRE_SYNC_EVENT: {
+				Object data = ((AsyncResult)msg.obj).getArg();
+				String event = msg.getData().getString(PROPERTY_NAME);
+				doFireEvent(event, data);
 
 				return true;
 			}
@@ -547,18 +555,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 	public void release()
 	{
-		if (KrollRuntime.getInstance().isUiThread()) {
-			doRelease();
-
-		} else {
-			Message message = mainHandler.obtainMessage(MSG_RELEASE, null);
-			message.sendToTarget();
+		if (krollObject != null) {
+			krollObject.release();
 		}
-	}
-
-	public void doRelease()
-	{
-		getKrollObject().release();
 	}
 
 	public TiContext getTiContext()

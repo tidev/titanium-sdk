@@ -319,7 +319,7 @@ public class Proxy extends EventEmitter
 		}
 
 		@Override
-		protected void release()
+		protected void doRelease()
 		{
 		}
 	}

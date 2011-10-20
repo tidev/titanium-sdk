@@ -48,7 +48,7 @@ public class V8Object extends KrollObject
 	}
 
 	@Override
-	public void release()
+	public void doRelease()
 	{
 		nativeRelease(ptr);
 	}
