@@ -52,4 +52,8 @@ public class AsyncResult extends Semaphore
 		}
 		return result;
 	}
+
+	public Object getResultUnsafe() {
+		return result;
+	}
 }

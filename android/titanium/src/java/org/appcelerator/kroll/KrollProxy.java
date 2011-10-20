@@ -536,7 +536,14 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 	public Object sendBlockingUiMessage(Message msg, AsyncResult result)
 	{
-		return TiMessageQueue.getMessageQueue().sendBlockingMessage(msg, TiMessageQueue.getMainMessageQueue(), result);
+		// If current thread is the UI thread, dispatch message directly.
+		if (TiApplication.isUIThread()) {
+			handleMessage(msg);
+			return result.getResultUnsafe();
+		}
+
+		return TiMessageQueue.getMessageQueue().sendBlockingMessage(
+			msg, TiMessageQueue.getMainMessageQueue(), result);
 	}
 
 	public String getProxyId()
