@@ -1623,7 +1623,7 @@ if ([str isEqualToString:@#orientation]) return orientation;
 {
     // we store in a globally available system pasteboard
     UIPasteboard* pb = [UIPasteboard pasteboardWithName:@"com.appcelerator" create:YES];
-    pb.persistent = YES; // these is required to make pasteboard persist after application exists and restarts
+    pb.persistent = YES; // this is required to make pasteboard persist after application exists and restarts
     NSData* data = [pb dataForPasteboardType:kDeviceUUIDString];
     NSString* uid = [TiUtils oldUUID];
     if (uid == nil) {

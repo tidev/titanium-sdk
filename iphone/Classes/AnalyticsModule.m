@@ -320,6 +320,7 @@ NSString * const TI_DB_VERSION = @"1";
 	[dict setObject:NUMINT(sequence++) forKey:@"seq"];
 	[dict setObject:[TiUtils uniqueIdentifier] forKey:@"mid"];
 #if 0
+	// In 1.8, we'll be using this additional field for rotating IDs
     if ([[UIDevice currentDevice] respondsToSelector:@selector(uniqueIdentifier)]) {
     	NSString* uid = [[UIDevice currentDevice] uniqueIdentifier];
     	if (uid) {
