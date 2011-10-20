@@ -54,6 +54,7 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
 					   [UIColor brownColor],@"brown",
 					   [UIColor clearColor],@"transparent",
 					   [UIColor groupTableViewBackgroundColor],@"stripped",
+					   [UIColor scrollViewTexturedBackgroundColor],@"linen",
 					   
 					   // these are also defined by the W3C HTML spec so we support them
 					   [Webcolor colorForHex:@"#0ff"],@"aqua",
@@ -75,7 +76,12 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
 					   black,@"000000",
 					   black,@"ff000000",
 					   nil];
+					   
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
+		[colorLookup setObject:[UIColor underPageBackgroundColor] forKey:@"light linen"];	
+#endif
 	}
+
 	if ([colorName hasPrefix:@"#"]) 
 	{
 		colorName = [colorName substringFromIndex:1];
