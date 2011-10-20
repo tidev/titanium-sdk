@@ -731,7 +731,15 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			childOrientationControllerChangedFlags:self];
 }
 
+-(void)viewWillAppear:(BOOL)animated
+{
+	[self parentWillShow];
+}
 
+- (void)viewDidDisappear:(BOOL)animated
+{
+	[self parentWillHide];
+}
 
 -(BOOL)animationShouldTransition:(id)sender
 {
