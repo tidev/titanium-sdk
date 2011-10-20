@@ -121,7 +121,7 @@ public class TableViewProxy extends TiViewProxy
 			locateIndex(rowIndex, rr);
 			sectionProxy = rr.section;
 		} else if (row instanceof TableViewRowProxy) {
-			ArrayList<TableViewSectionProxy> sections = getSections();
+			ArrayList<TableViewSectionProxy> sections = getSectionsArray();
 			sectionLoop: for (int i = 0; i < sections.size(); i++) {
 				ArrayList<TableViewRowProxy> rows = sections.get(i).rows;
 				for (int j = 0; j < rows.size(); j++) {
@@ -165,7 +165,7 @@ public class TableViewProxy extends TiViewProxy
 			rowList = new Object[] { rows };
 		}
 
-		ArrayList<TableViewSectionProxy> sections = getSections();
+		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
 		if (sections.size() == 0)
 		{
 			processData(rowList);
@@ -248,7 +248,7 @@ public class TableViewProxy extends TiViewProxy
 	}
 	
 	private void handleInsertRowBefore(int index, Object data) {
-		if (getSections().size() > 0) {
+		if (getSectionsArray().size() > 0) {
 			if (index < 0) {
 				index = 0;
 			}
@@ -294,7 +294,13 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public ArrayList<TableViewSectionProxy> getSections()
+	public TableViewSectionProxy[] getSections()
+	{
+		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
+		return sections.toArray(new TableViewSectionProxy[sections.size()]);
+	}
+
+	public ArrayList<TableViewSectionProxy> getSectionsArray()
 	{
 		ArrayList<TableViewSectionProxy> sections = localSections;
 		if (sections == null) {
@@ -330,7 +336,7 @@ public class TableViewProxy extends TiViewProxy
 
 	public void processData(Object[] data)
 	{
-		ArrayList<TableViewSectionProxy> sections = getSections();
+		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
 		sections.clear();
 
 		TableViewSectionProxy currentSection = null;
@@ -388,7 +394,7 @@ public class TableViewProxy extends TiViewProxy
 	
 	@Kroll.getProperty @Kroll.method
 	public Object[] getData() {
-		ArrayList<TableViewSectionProxy> sections = getSections();
+		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
 		if (sections != null) {
 			return sections.toArray();
 		}

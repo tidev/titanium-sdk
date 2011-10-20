@@ -101,7 +101,7 @@ public class TableViewModel
 
 	public TableViewSectionProxy getSection(int index)
 	{
-		return proxy.getSections().get(index);
+		return proxy.getSectionsArray().get(index);
 	}
 
 	public ArrayList<Item> getViewModel()
@@ -111,7 +111,7 @@ public class TableViewModel
 			int sectionIndex = 0;
 			int indexInSection = 0;
 			int index = 0;
-			ArrayList<TableViewSectionProxy> sections = proxy.getSections();
+			ArrayList<TableViewSectionProxy> sections = proxy.getSectionsArray();
 			if (sections != null) {
 				for (TableViewSectionProxy section : sections) {
 					String headerTitle = TiConvert.toString(section.getProperty(TiC.PROPERTY_HEADER_TITLE));

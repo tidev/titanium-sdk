@@ -81,6 +81,9 @@ public class TableViewRowProxy extends TiViewProxy
 	
 	@Override
 	public TiViewProxy[] getChildren() {
+		if (children == null) {
+			return new TiViewProxy[0];
+		}
 		return controls.toArray(new TiViewProxy[controls.size()]);
 	}
 
