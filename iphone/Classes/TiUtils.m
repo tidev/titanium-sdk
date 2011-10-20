@@ -44,6 +44,8 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 static NSDictionary* encodingMap = nil;
 static NSDictionary* typeMap = nil;
 static NSDictionary* sizeMap = nil;
+static NSString* kDeviceUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
+	
 
 static void getAddrInternal(char* macAddress, const char* ifName) {
     struct ifaddrs* addrs;
@@ -1616,12 +1618,44 @@ if ([str isEqualToString:@#orientation]) return orientation;
 	return [self convertToHex:(unsigned char*)&result length:CC_MD5_DIGEST_LENGTH];    
 }
 
-+(NSString*)uniqueIdentifier
++(NSString*)oldUUID
+{
+	NSString* result = nil;
+	UIDevice* currentDevice = [UIDevice currentDevice];
+	if ([currentDevice respondsToSelector:@selector(uniqueIdentifier)]) {
+		result = [currentDevice performSelector:@selector(uniqueIdentifier)];
+	}
+	return result;
+}
+
++(NSString*)macmd5
 {
     char addrString[18];
     getAddrInternal(&addrString[0],"en0");
-    NSString* dataString = [[[NSString alloc] initWithCString:addrString] autorelease];
+    NSString* dataString = [[[NSString alloc] initWithCString:addrString encoding:NSUTF8StringEncoding] autorelease];
     NSData* data = [dataString dataUsingEncoding:NSUTF8StringEncoding];
     return [TiUtils md5:data];
+}
+
++(NSString*)uniqueIdentifier
+{
+    // we store in a globally available system pasteboard
+    UIPasteboard* pb = [UIPasteboard pasteboardWithName:@"com.appcelerator" create:YES];
+    pb.persistent = YES; // this is required to make pasteboard persist after application exists and restarts
+    NSData* data = [pb dataForPasteboardType:kDeviceUUIDString];
+    NSString* uid = [TiUtils oldUUID];
+    if (uid == nil) {
+        if (data == nil) {
+            uid = [TiUtils macmd5];
+        } else {
+            uid = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
+        }
+    }
+    if (data == nil) {
+        // store if not already present - what's nice is that we'll go ahead and migrate (and keep) the old (pre-deprecation)
+        // value and once it goes away on an upgrade, we'll still be using it vs. a randomly generated one
+        [pb setData:[uid dataUsingEncoding:NSUTF8StringEncoding] forPasteboardType:kDeviceUUIDString];
+    }
+    return uid;
 }
 @end
