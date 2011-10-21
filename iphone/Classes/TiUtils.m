@@ -122,7 +122,12 @@ static void getAddrInternal(char* macAddress, const char* ifName) {
 
 +(BOOL)isIPad
 {
-	return [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
+	if ([TiUtils isiPhoneOS3_2OrGreater]) {
+		return UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad;
+	}
+#endif
+	return NO;
 }
 
 +(BOOL)isIPhone4
