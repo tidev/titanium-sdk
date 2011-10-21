@@ -59,6 +59,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	protected boolean coverageEnabled;
 	protected KrollDict properties = new KrollDict();
 	protected Handler mainHandler = null;
+	protected Handler runtimeHandler = null;
 
 	public static final String PROXY_ID_PREFIX = "proxy$";
 
@@ -72,6 +73,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	{
 		creationUrl = new TiUrl(baseCreationUrl);
 		mainHandler = new Handler(Looper.getMainLooper(), this);
+		runtimeHandler = new Handler(KrollRuntime.getInstance().getRuntimeLooper(), this);
 	}
 
 	// entry point for generator code
@@ -184,12 +186,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	public KrollObject getKrollObject()
 	{
 		if (krollObject == null) {
-			if (KrollRuntime.getInstance().isUiThread()) {
+			if (KrollRuntime.getInstance().isRuntimeThread()) {
 				initKrollObject();
 
 			} else {
 				AsyncResult asyncResult = new AsyncResult();
-				Message message = mainHandler.obtainMessage(MSG_INIT_KROLL_OBJECT, asyncResult);
+				Message message = runtimeHandler.obtainMessage(MSG_INIT_KROLL_OBJECT, asyncResult);
 				message.sendToTarget();
 				asyncResult.getResult();
 			}
@@ -235,11 +237,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 */
 	public void setProperty(String name, Object value)
 	{
-		if (KrollRuntime.getInstance().isUiThread()) {
+		if (KrollRuntime.getInstance().isRuntimeThread()) {
 			doSetProperty(name, value);
 
 		} else {
-			Message message = mainHandler.obtainMessage(MSG_SET_PROPERTY, value);
+			Message message = runtimeHandler.obtainMessage(MSG_SET_PROPERTY, value);
 			message.getData().putString(PROPERTY_NAME, name);
 			message.sendToTarget();
 		}
@@ -253,7 +255,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 	public boolean fireEvent(String event, Object data)
 	{
-		Message message = mainHandler.obtainMessage(MSG_FIRE_EVENT, data);
+		Message message = runtimeHandler.obtainMessage(MSG_FIRE_EVENT, data);
 		message.getData().putString(PROPERTY_NAME, event);
 		message.sendToTarget();
 
@@ -262,12 +264,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 	public boolean fireSyncEvent(String event, Object data)
 	{
-		if (KrollRuntime.getInstance().isUiThread()) {
+		if (KrollRuntime.getInstance().isRuntimeThread()) {
 			return doFireEvent(event, data);
 
 		} else {
 			AsyncResult asyncResult = new AsyncResult(data);
-			Message message = mainHandler.obtainMessage(MSG_FIRE_SYNC_EVENT, asyncResult);
+			Message message = runtimeHandler.obtainMessage(MSG_FIRE_SYNC_EVENT, asyncResult);
 			message.getData().putString(PROPERTY_NAME, event);
 			message.sendToTarget();
 			asyncResult.getResult();
@@ -474,9 +476,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 				return true;
 			}
 			case MSG_FIRE_SYNC_EVENT: {
-				Object data = ((AsyncResult)msg.obj).getArg();
+				AsyncResult result = (AsyncResult) msg.obj;
+				Object data = result.getArg();
 				String event = msg.getData().getString(PROPERTY_NAME);
-				doFireEvent(event, data);
+				boolean handled = doFireEvent(event, data);
+				result.setResult(handled);
 
 				return true;
 			}

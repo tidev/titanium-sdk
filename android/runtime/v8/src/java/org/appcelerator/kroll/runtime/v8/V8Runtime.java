@@ -19,13 +19,15 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	private static final String TAG = "KrollV8Runtime";
 	private static final String DEVICE_LIB = "kroll-v8-device";
 	private static final String EMULATOR_LIB = "kroll-v8-emulator";
-
 	private static final int MSG_PROCESS_DEBUG_MESSAGES = KrollRuntime.MSG_LAST_ID + 100;
 
-	public V8Runtime()
+
+	@Override
+	public void initRuntime()
 	{
 		boolean useGlobalRefs = true;
 		String libName = DEVICE_LIB;
+
 		if (Build.PRODUCT.equals("sdk") || Build.PRODUCT.equals("google_sdk")) {
 			Log.i(TAG, "Loading emulator version of kroll-v8");
 			libName = EMULATOR_LIB;
@@ -56,7 +58,7 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 
 	protected void dispatchDebugMessages()
 	{
-		mainHandler.sendEmptyMessage(MSG_PROCESS_DEBUG_MESSAGES);
+		runtimeHandler.sendEmptyMessage(MSG_PROCESS_DEBUG_MESSAGES);
 	}
 
 	@Override
@@ -65,9 +67,11 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		switch (msg.what) {
 			case MSG_PROCESS_DEBUG_MESSAGES:
 				nativeProcessDebugMessages();
+
 				return true;
 		}
-		return false;
+
+		return super.handleMessage(msg);
 	}
 
 	private native void nativeInit(boolean useGlobalRefs);
@@ -75,3 +79,4 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	private native void nativeProcessDebugMessages();
 	private native void nativeDispose();
 }
+

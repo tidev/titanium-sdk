@@ -57,6 +57,7 @@ public class V8Object extends KrollObject
 	protected void finalize() throws Throwable
 	{
 		super.finalize();
+
 		if (ptr != 0) {
 			release();
 		}

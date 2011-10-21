@@ -18,11 +18,13 @@ public abstract class KrollRuntime implements Handler.Callback
 	private static final int MSG_RUN_MODULE = 101;
 	private static final String PROPERTY_FILENAME = "filename";
 
-	private long mainThreadId;
+	private KrollRuntimeThread runtimeThread;
+	private long runtimeThreadId;
+	private Looper runtimeLooper;
 
-	protected static KrollRuntime _instance;
+	protected static KrollRuntime runtimeInstance;
 
-	protected Handler mainHandler;
+	protected Handler runtimeHandler;
 
 	public static final int MSG_LAST_ID = MSG_RUN_MODULE + 100;
 
@@ -34,73 +36,130 @@ public abstract class KrollRuntime implements Handler.Callback
 	};
 
 
-	protected KrollRuntime()
+	public static class KrollRuntimeThread extends Thread
 	{
-		Looper mainLooper = Looper.getMainLooper();
-		mainThreadId = mainLooper.getThread().getId();
-		mainHandler = new Handler(mainLooper, this);
+		private static final String TAG = "KrollRuntimeThread";
+
+		private Looper looper;
+		private KrollRuntime runtime = null;
+
+		public KrollRuntimeThread(KrollRuntime runtime)
+		{
+			super(TAG);
+			this.runtime = runtime;
+		}
+
+		public void run()
+		{
+			Looper.prepare();
+
+			synchronized (this) {
+				looper = Looper.myLooper();
+				notifyAll();
+			}
+
+			runtime.runtimeThreadId = looper.getThread().getId();
+			runtime.runtimeLooper = looper;
+			runtime.runtimeHandler = new Handler(looper, runtime);
+
+			runtime.initRuntime();
+			Looper.loop();
+		}
+
+		public Looper getLooper()
+		{
+			if (!isAlive()) {
+				return null;
+			}
+
+			synchronized (this) {
+				while (isAlive() && looper == null) {
+					try {
+						wait();
+
+					} catch (InterruptedException e) {
+					}
+				}
+			}
+
+			return looper;
+		}
 	}
+
 
 	public static void init(KrollRuntime runtime)
 	{
-		if (_instance == null) {
-			_instance = runtime;
+		if (runtimeInstance == null) {
+			runtime.runtimeThread = new KrollRuntimeThread(runtime);
+			runtime.runtimeThread.start();
+			runtimeInstance = runtime;
 		}
 	}
 
 	public static KrollRuntime getInstance()
 	{
-		return _instance;
+		return runtimeInstance;
 	}
 
-	public Handler getMainHandler()
+	public boolean isRuntimeThread()
 	{
-		return mainHandler;
+		return Thread.currentThread().getId() == runtimeThreadId;
 	}
 
-	public boolean isUiThread()
+	public Looper getRuntimeLooper()
 	{
-		return Thread.currentThread().getId() == mainThreadId;
+		return runtimeLooper;
+	}
+
+	public Handler getRuntimeHandler()
+	{
+		return runtimeHandler;
 	}
 
 	public void dispose()
 	{
-		if (isUiThread()) {
+		if (isRuntimeThread()) {
 			doDispose();
+
 		} else {
-			mainHandler.sendEmptyMessage(MSG_DISPOSE);
+			runtimeHandler.sendEmptyMessage(MSG_DISPOSE);
 		}
 	}
-
-	public abstract void doDispose();
 
 	public void runModule(String source, String filename)
 	{
-		if (isUiThread()) {
+		if (isRuntimeThread()) {
 			doRunModule(source, filename);
+
 		} else {
-			Message msg = mainHandler.obtainMessage(MSG_RUN_MODULE, source);
-			msg.getData().putString(PROPERTY_FILENAME, filename);
-			msg.sendToTarget();
+			Message message = runtimeHandler.obtainMessage(MSG_RUN_MODULE, source);
+			message.getData().putString(PROPERTY_FILENAME, filename);
+			message.sendToTarget();
 		}
 	}
-
-	public abstract void doRunModule(String source, String filename);
-
-	public abstract void initObject(KrollProxySupport proxy);
 
 	public boolean handleMessage(Message msg)
 	{
 		switch (msg.what) {
 			case MSG_DISPOSE:
 				doDispose();
+
 				return true;
+
 			case MSG_RUN_MODULE:
 				String source = (String) msg.obj;
 				String filename = msg.getData().getString(PROPERTY_FILENAME);
 				doRunModule(source, filename);
+
 				return true;
 		}
+
 		return false;
 	}
+
+	public abstract void initRuntime();
+	public abstract void doDispose();
+	public abstract void doRunModule(String source, String filename);
+	public abstract void initObject(KrollProxySupport proxy);
 }
+

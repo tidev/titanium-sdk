@@ -24,11 +24,11 @@ public abstract class KrollObject implements Handler.Callback
 	protected static final int MSG_LAST_ID = MSG_RELEASE;
 
 	protected HashMap<String, Boolean> hasListenersForEventType = new HashMap<String, Boolean>();
-	protected Handler mainHandler = null;
+	protected Handler runtimeHandler = null;
 
 	public KrollObject()
 	{
-		mainHandler = new Handler(Looper.getMainLooper(), this);		
+		runtimeHandler = new Handler(KrollRuntime.getInstance().getRuntimeLooper(), this);	
 	}
 
 	public boolean hasListeners(String event)
@@ -48,11 +48,11 @@ public abstract class KrollObject implements Handler.Callback
 
 	protected void release()
 	{
-		if (KrollRuntime.getInstance().isUiThread()) {
+		if (KrollRuntime.getInstance().isRuntimeThread()) {
 			doRelease();
 
 		} else {
-			Message message = mainHandler.obtainMessage(MSG_RELEASE, null);
+			Message message = runtimeHandler.obtainMessage(MSG_RELEASE, null);
 			message.sendToTarget();
 		}
 	}
