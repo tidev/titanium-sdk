@@ -320,15 +320,11 @@ description: |
     
     ### Passing Data
     
-    By default, sub-context variables cannot access Javascript references in the global context.  However, the global context can allow its sub-contexts the ability to have access to properties and functions in the global context by reference assignment.  An example best illustrates how to do this.
+    By default, sub-context variables cannot access Javascript references in the global context.  However, the global context can allow its sub-contexts the ability to have access to properties in the global context by reference assignment.  An example best illustrates how to do this.
     
-    In `app.js`, you could define a function and a property.
+    In `app.js`, you could define a property.
     
-        var a = 1;
-        function b()
-        {
-        	return "hello";
-        }
+        var a = "Hi world!";
     
     Now, you can create a new Window - let's call it `foo.js` - in your `app.js`.
     
@@ -336,17 +332,16 @@ description: |
         	url:'foo.js'
         });
     
-    To _give_ your new window access to both `a` and `b`, you would need to assign them to the 
+    To _give_ your new window access to `a`, you would need to assign it to the 
     new window reference `w`.
     
         w.a = a;
-        w.b = b;
     
-    Of course, you could give them a different name than their original names.  However, what name you give them in your `app.js` is how you will reference them in `foo.js`.  Now, let's look at the code for `foo.js`.
+    Of course, you could give it a different name than their original name.  However, what name you give it in your `app.js` is how you will reference them in `foo.js`.  Now, let's look at the code for `foo.js`.
     
-        alert("b() = "+Titanium.UI.currentWindow.b());
+        alert(Titanium.UI.currentWindow.a);
     
-    In the above code, the `foo.js` will execute the function `b` in the global context and return the result.  Since `b` is a reference (vs. a copy by value), any changes made to these Javascript references will be immediately available in all sub-contexts.
+    In the above code, the `foo.js` will alert the value of the `a` property in the global context and return the result. 
     
     ### Events
     
