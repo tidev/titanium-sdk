@@ -75,7 +75,7 @@ public class TiPlatformHelper
 
 		// which is the value we need to be concerned with?
 		String currentMachineId;
-		if (platformId != hardwareMachineId) {
+		if (!platformId.equals(hardwareMachineId)) {
 			currentMachineId = platformId;
 		} else {
 			currentMachineId = storedMachineId;
@@ -99,9 +99,9 @@ public class TiPlatformHelper
 			db.updatePlatformParam("unique_machine_id", currentMachineId);
 			db.updatePlatformParam("hardware_machine_id", platformId);
 			db.updatePlatformParam("previous_machine_id", storedMachineId);
-			platformId = currentMachineId;
 		}
-
+		
+		platformId = currentMachineId;
 		sessionId = createUUID();
 	}
 	

@@ -8,7 +8,7 @@ win.backgroundColor = 'white';
 var currentDetection;
 
 var ta = Ti.UI.createTextArea({
-	autoLink:Ti.UI.AUTODETECT_ALL,
+	autoLink:Ti.UI.iOS.AUTODETECT_ALL,
 	left:5, top: 5, right: 5, height: 80,
 	editable: false, // this needs to be set to false, otherwise data detection type will fail
 	backgroundColor:'#ccc',
@@ -69,16 +69,16 @@ function toggleEditable(e) {
 function setDetection(e) {	
 	switch (e.source.title) {
 		case btn01.title: 
-			ta.autoLink = Ti.UI.AUTODETECT_LINK; // detect links
+			ta.autoLink = Ti.UI.iOS.AUTODETECT_LINK; // detect links
 			break;
 		case btn02.title: 
-			ta.autoLink = Ti.UI.AUTODETECT_PHONE; // detect phone
+			ta.autoLink = Ti.UI.iOS.AUTODETECT_PHONE; // detect phone
 			break;
 		case btn03.title: 
-			ta.autoLink = Ti.UI.AUTODETECT_ALL; // detect all, including email and addresses
+			ta.autoLink = Ti.UI.iOS.AUTODETECT_ALL; // detect all, including email and addresses
 			break;
 		case btn05.title:
-			ta.autoLink = Ti.UI.AUTODETECT_ADDRESS;
+			ta.autoLink = Ti.UI.iOS.AUTODETECT_ADDRESS;
 			break;
 		default: break;
 	}
