@@ -76,6 +76,7 @@
 -(void)unregisterTimer:(double)timerId;
 
 -(int)forceGarbageCollectNow;
+-(NSString*)threadName;
 
 @end
 
