@@ -22,7 +22,6 @@ import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollModuleInfo;
 import org.appcelerator.kroll.KrollObject;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -42,7 +41,6 @@ import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
 import android.app.Service;
@@ -423,7 +421,7 @@ public class TitaniumModule extends KrollModule
 	}
 
 	@Kroll.method @Kroll.topLevel
-	public KrollProxy require(KrollInvocation invocation, String path)
+	public Object require(KrollInvocation invocation, String path)
 	{
 		// 1. look for a native module first
 		// 2. then look for a cached module
@@ -459,38 +457,7 @@ public class TitaniumModule extends KrollModule
 			Log.d(LCAT, "Attempting to include JS module: " + tbf.nativePath());
 		}
 		try {
-			// TODO: we need to switch to the Rhino native require()
-			// implementation, but in the meantime this will have to do
-
-			// create the CommonJS exporter
-			KrollProxy proxy = new KrollProxy(ctx);
-			builder.setLength(0);
-			Object result = ctx.evalCommonJsModule(fileUrl);
-
-			if (!(result instanceof Scriptable)) {
-				builder.setLength(0);
-				builder.append("Module did not correctly return an exports object: ")
-					.append(path)
-					.append(", result: ")
-					.append(result);
-				Context.throwAsScriptRuntimeEx(new Exception(builder.toString()));
-				return null;
-			}
-
-			Scriptable exports = (Scriptable) result;
-			// CommonJS modules export all functions/properties as 
-			// properties of the special exports object provided
-			for (Object key : exports.getIds()) {
-				String propName = key.toString();
-				proxy.setProperty(propName, exports.get(propName, exports));
-			}
-
-			// spec says you must have a read-only id property - we don't
-			// currently support readonly in kroll so this is probably OK for now
-			proxy.setProperty(TiC.PROPERTY_ID, path);
-			// uri is optional but we point it to where we loaded it
-			proxy.setProperty(TiC.PROPERTY_URI, fileUrl);
-			return proxy;
+			return ctx.evalCommonJsModule(fileUrl);
 		} catch (Exception ex) {
 			Log.e(LCAT, "Error loading module named: " + path, ex);
 			Context.throwAsScriptRuntimeEx(ex);

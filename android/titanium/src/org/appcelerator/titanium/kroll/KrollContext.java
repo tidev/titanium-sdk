@@ -330,10 +330,10 @@ public class KrollContext implements Handler.Callback
 		}
 
 		Context context = enter(true);
-		Scriptable scope = context.newObject(jsScope);
-		Scriptable exports = context.newObject(scope);
-		scope.put("exports", scope, exports);
 		try {
+			Scriptable scope = context.newObject(jsScope);
+			Scriptable exports = context.newObject(scope);
+			scope.put("exports", scope, exports);
 			Log.d(LCAT, "Running CommonJS module script: " + relativePath);
 			TiScriptRunner.getInstance().runScript(context, scope, relativePath);
 			return exports;
