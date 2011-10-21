@@ -140,20 +140,24 @@ public class TiUIWindow extends TiUIView
 
 	protected void initContext()
 	{
+		TiContext proxyContext = proxy.getTiContext();
+		KrollDict urlPropertyHolder = resolver.findProperty(TiC.PROPERTY_URL);
+		boolean hasUrl = (urlPropertyHolder != null);
+		if (newActivity) {
+			windowId = TiActivityWindows.addWindow(this);
+		}
+		ActivityProxy activityProxy = null;
 		// if url, create a new context.
-		if (proxy.hasProperty(TiC.PROPERTY_URL)) {
-			if (newActivity) {
-				windowId = TiActivityWindows.addWindow(this);
-			}
-			String url = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_URL));
-			String baseUrl = proxy.getTiContext().getBaseUrl();
+		if (hasUrl) {
+			String url = TiConvert.toString(urlPropertyHolder, TiC.PROPERTY_URL);
+			String baseUrl = proxyContext.getBaseUrl();
 			TiUrl tiUrl = TiUrl.normalizeWindowUrl(baseUrl, url);
 			windowUrl = tiUrl.url;
 			Activity activity = null;
 			if (!newActivity) {
 				activity = windowActivity;
 				if (activity == null) {
-					activity = proxy.getTiContext().getActivity();
+					activity = proxyContext.getActivity();
 				}
 			}
 			windowContext = TiContext.createTiContext(activity, tiUrl.baseUrl, tiUrl.url);
@@ -161,33 +165,37 @@ public class TiUIWindow extends TiUIView
 			// if LW window, use the existing activityProxy from the activity rather than
 			// creating a new one which will cause the listeners on the duplicate activityProxy
 			// to not fire
-			ActivityProxy activityProxy = null;
 			if (!newActivity) {
 				if (activity instanceof TiBaseActivity) {
 					activityProxy = ((TiBaseActivity)activity).getActivityProxy();
 				}
 			}
+		} else if (!lightWeight) {
+			windowContext = TiContext.createTiContext(windowActivity, proxyContext.getBaseUrl(), proxyContext.getCurrentUrl());
+			newContext = true;
+		}
+		if (windowActivity != null || hasUrl) {
 			if (activityProxy == null) {
 				activityProxy = ((TiWindowProxy) proxy).getActivity(windowContext);
 			}
+			TiBindingHelper.bindCurrentWindowAndActivity(windowContext, proxy, activityProxy);
 			if (windowActivity != null) {
 				bindWindowActivity(windowContext, windowActivity);
+				bindProxies();
 			}
-			TiBindingHelper.bindCurrentWindowAndActivity(windowContext, proxy, activityProxy);
-		} else if (!lightWeight) {
-			windowContext = TiContext.createTiContext(windowActivity, proxy.getTiContext().getBaseUrl(), proxy.getTiContext().getCurrentUrl());
-			newContext = true;
-			ActivityProxy activityProxy = ((TiWindowProxy) proxy).getActivity(windowContext);
-			if (windowActivity != null) {
-				bindWindowActivity(windowContext, windowActivity);
-			}
-			if (newActivity) {
-				windowId = TiActivityWindows.addWindow(this);
-			}
-			TiBindingHelper.bindCurrentWindowAndActivity(windowContext, proxy, activityProxy);
-			bindProxies();
 		} else {
-			bindWindowActivity(proxy.getTiContext(), proxy.getTiContext().getActivity());
+			Activity proxyActivity = proxyContext.getActivity();
+			bindWindowActivity(proxyContext, proxyActivity);
+
+			// set this so that if the LW window is created on top of the root activity 
+			// it can still be accessed via the activity
+			if (lightWeight)
+			{
+				if (proxyActivity instanceof TiBaseActivity)
+				{
+					((TiBaseActivity)proxyActivity).lwWindow = (TiWindowProxy)proxy;
+				}
+			}
 		}
 		if (!newActivity && !lightWeight) {
 			proxy.switchContext(windowContext);
@@ -324,13 +332,21 @@ public class TiUIWindow extends TiUIView
 				// Activity finish will result in close firing.
 				KrollDict data = new KrollDict();
 				data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
-				proxy.fireEvent(TiC.EVENT_CLOSE, data);
+				proxy.fireSyncEvent(TiC.EVENT_CLOSE, data);
 				ITiWindowHandler windowHandler = proxy.getTiContext().getTiApp().getWindowHandler();
 				if (windowHandler != null) {
 					windowHandler.removeWindow(lightWindow);
 				}
 				lightWindow.removeAllViews();
 				lightWindow = null;
+			}
+
+			// set the lightweight window reference on the activity to null when the window closes
+			TiContext proxyContext = proxy.getTiContext();
+			Activity proxyActivity = proxyContext.getActivity();
+			if (proxyActivity instanceof TiBaseActivity)
+			{
+				((TiBaseActivity)proxyActivity).lwWindow = null;
 			}
 		}
 	}
@@ -489,6 +505,18 @@ public class TiUIWindow extends TiUIView
 				}
 			}
 		}
+		if (d.containsKey(TiC.PROPERTY_KEEP_SCREEN_ON)) {
+			if (!lightWeight) {
+				if (windowActivity != null) {
+					windowActivity.getWindow().getDecorView().setKeepScreenOn(TiConvert.toBoolean(d, TiC.PROPERTY_KEEP_SCREEN_ON));
+				}
+				// skip default processing
+				d.remove(TiC.PROPERTY_KEEP_SCREEN_ON);
+			}
+		}
+		if (d.containsKey(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
+			handleWindowPixelFormat(TiConvert.toInt(d, TiC.PROPERTY_WINDOW_PIXEL_FORMAT));
+		}
 
 		// Don't allow default processing.
 		d.remove(TiC.PROPERTY_BACKGROUND_IMAGE);
@@ -549,11 +577,36 @@ public class TiUIWindow extends TiUIView
 			}
 		} else if (key.equals(TiC.PROPERTY_OPACITY)) {
 			setOpacity(TiConvert.toFloat(newValue));
+		} else if (key.equals(TiC.PROPERTY_KEEP_SCREEN_ON)) {
+			if (!lightWeight) {
+				if (windowActivity != null) {
+					windowActivity.getWindow().getDecorView().setKeepScreenOn(TiConvert.toBoolean(newValue));
+				}
+			} else {
+				// Pass up to view if lightweight
+				super.propertyChanged(key, oldValue, newValue, proxy); 
+			}
+		} else if (key.equals(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
+			handleWindowPixelFormat(TiConvert.toInt(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
 
+	protected void handleWindowPixelFormat(int format)
+	{
+		if (!lightWeight) {
+			if (windowActivity != null) {
+				windowActivity.getWindow().setFormat(format);
+				windowActivity.getWindow().getDecorView().invalidate();
+			} else {
+				Log.w(LCAT, "Activity is null. windowPixelFormat not set.");
+			}
+		} else {
+			Log.w(LCAT, "Setting windowPixelFormat on lightweight windows is not supported.");
+		}
+	}
+	
 	protected LayoutArrangement getLayoutArrangement()
 	{
 		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
@@ -597,6 +650,10 @@ public class TiUIWindow extends TiUIView
 		if (props != null && props.containsKey(TiC.PROPERTY_URL)) {
 			intent.putExtra(TiC.PROPERTY_URL, TiConvert.toString(props, TiC.PROPERTY_URL));
 		}
+		props = resolver.findProperty(TiC.PROPERTY_KEEP_SCREEN_ON);
+		if (props != null && props.containsKey(TiC.PROPERTY_KEEP_SCREEN_ON)) {
+			intent.putExtra(TiC.PROPERTY_KEEP_SCREEN_ON, TiConvert.toBoolean(props, TiC.PROPERTY_KEEP_SCREEN_ON));
+		}
 		props = resolver.findProperty(TiC.PROPERTY_LAYOUT);
 		if (props != null && props.containsKey(TiC.PROPERTY_LAYOUT)) {
 			intent.putExtra(TiC.INTENT_PROPERTY_LAYOUT, TiConvert.toString(props, TiC.PROPERTY_LAYOUT));
@@ -605,7 +662,11 @@ public class TiUIWindow extends TiUIView
 		if (props != null && props.containsKey(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE)) {
 			intent.putExtra(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, TiConvert.toInt(props, TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE));
 		}
-
+		props = resolver.findProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT);
+		if (props != null && props.containsKey(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
+			intent.putExtra(TiC.PROPERTY_WINDOW_PIXEL_FORMAT, TiConvert.toInt(props, TiC.PROPERTY_WINDOW_PIXEL_FORMAT));
+		}
+		
 		boolean finishRoot = false;
 		props = resolver.findProperty(TiC.PROPERTY_EXIT_ON_CLOSE);
 		if (props != null && props.containsKey(TiC.PROPERTY_EXIT_ON_CLOSE)) {
@@ -631,7 +692,7 @@ public class TiUIWindow extends TiUIView
 			windowActivity.getWindow().getDecorView().invalidate();
 		}
 	}
-
+	
 	@Override
 	public void release()
 	{

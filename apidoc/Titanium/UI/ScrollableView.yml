@@ -41,13 +41,14 @@ events:
         description: the current page view
 properties:
   - name: cacheSize
-    description: The number of views to cache (prerender).  Views are rendered in the range (currentPage +/- (cacheSize - 1)/2), ROUNDED DOWN for even values (i.e. cacheSize=4 renders 3 views into the cache).  Keep in mind that improved performance (larger cache) will lead to faster performance, but more memory usage.  iOS only.
+    description: The number of views to cache (prerender).  Views are rendered in the range (currentPage +/- (cacheSize - 1)/2), ROUNDED DOWN for even values (i.e. cacheSize=4 renders 3 views into the cache).  Keep in mind that improved performance (larger cache) will lead to faster performance, but more memory usage.
     type: Number
+    platforms: [iphone,ipad]
   - name: currentPage
     description: the current page visible in the view
     type: Number
   - name: disableBounce
-    description: disable view bouncing.  iOS only.
+    description: disable view bouncing.
     platforms: [iphone, ipad]
     type: Boolean
   - name: pagingControlColor
@@ -59,6 +60,11 @@ properties:
   - name: showPagingControl
     description: boolean to indicate whether the paging control UI is visible
     type: Boolean
+  - name: pagingControlTimeout
+    description: number of milliseconds to wait before hiding the paging control. Less than or equal to 0 disables timeout keeping controls displayed.
+    platforms: [android]
+    availability: creation
+    type: Number
   - name: views
     description: array of view objects to place in the view
     type: Array<Object>

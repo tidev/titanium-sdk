@@ -17,15 +17,16 @@ def validate_project_name(name):
 	if re.match("^[A-Za-z]+[A-Za-z0-9_-]*",name)==None:
 		die("Invalid project name: %s" % name)
 
-def fork(args,quiet=False):
+def fork(args, quiet=False):
 	# We need to insert the python executable to be safe
 	args.insert(0, sys.executable)
 	proc = subprocess.Popen(args, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-	while proc.poll()==None:
+	while proc.poll() == None:
 		line = proc.stdout.readline()
 		if line and not quiet:
 			print line.strip()
 			sys.stdout.flush()
+	return proc.returncode
 
 def is_module_project(dir):
 	if os.path.exists(os.path.join(dir,'manifest')):
@@ -93,74 +94,89 @@ def is_ios(osname):
 		return True
 	return False
 
-def create_iphone_project(project_dir,osname,args):
-	script = os.path.join(template_dir,'project.py')
-	name = get_required(args,'name')
+def create_iphone_project(project_dir, osname, args):
+	script = os.path.join(template_dir, 'project.py')
+	name = get_required(args, 'name')
 	validate_project_name(name)
-	appid = get_required(args,'id')
-	args = [script,name,appid,project_dir,osname]
-	fork(args,True)
-	print "Created %s application project" % osname
-	return os.path.join(project_dir,name)
+	appid = get_required(args, 'id')
+	args = [script, name, appid, project_dir, osname]
+	retcode = fork(args, True)
+	if retcode == 0:
+		print "Created %s application project" % osname
+		return os.path.join(project_dir, name)
+	else:
+		die("Aborting")
 	
-def create_iphone_module(project_dir,osname,args):
-	script = os.path.join(template_dir,'module','module.py')
-	name = get_required(args,'name')
+def create_iphone_module(project_dir, osname, args):
+	script = os.path.join(template_dir, 'module', 'module.py')
+	name = get_required(args, 'name')
 	validate_project_name(name)
-	appid = get_required(args,'id')
-	args = [script,'--name',name,'--id',appid,'--directory',project_dir,'--platform',osname]
-	fork(args,False)
-	print "Created %s module project" % osname
-	return os.path.join(project_dir,name)
+	appid = get_required(args, 'id')
+	args = [script, '--name', name, '--id', appid, '--directory', project_dir, '--platform', osname]
+	retcode = fork(args, False)
+	if retcode == 0:
+		print "Created %s module project" % osname
+		return os.path.join(project_dir, name)
+	else:
+		die("Aborting")
 
-def create_android_project(project_dir,osname,args):
-	script = os.path.join(template_dir,'project.py')
-	name = get_required(args,'name')
+def create_android_project(project_dir, osname, args):
+	script = os.path.join(template_dir, 'project.py')
+	name = get_required(args, 'name')
 	validate_project_name(name)
-	appid = get_required(args,'id')
+	appid = get_required(args, 'id')
 	android_sdk = get_android_sdk(args)
-	args = [script,name,appid,project_dir,osname,android_sdk]
-	fork(args,True)
-	print "Created %s application project" % osname
-	return os.path.join(project_dir,name)
+	args = [script, name, appid, project_dir, osname, android_sdk]
+	retcode = fork(args, True)
+	if retcode == 0:
+		print "Created %s application project" % osname
+		return os.path.join(project_dir, name)
+	else:
+		die("Aborting")
 
-def create_android_module(project_dir,osname,args):
-	script = os.path.join(template_dir,'module','module.py')
+def create_android_module(project_dir, osname, args):
+	script = os.path.join(template_dir, 'module', 'module.py')
 	
-	name = get_required(args,'name')
+	name = get_required(args, 'name')
 	validate_project_name(name)
-	appid = get_required(args,'id')
+	appid = get_required(args, 'id')
 	android_sdk = get_android_sdk(args)
-	args = [script,'--name',name,'--id',appid,'--directory',project_dir,'--platform',osname,'--sdk',android_sdk]
+	args = [script, '--name', name, '--id', appid, '--directory', project_dir, '--platform', osname, '--sdk', android_sdk]
 	
-	fork(args,False)
-	print "Created %s module project" % osname
-	return os.path.join(project_dir,name)
+	retcode = fork(args, False)
+	if retcode == 0:
+		print "Created %s module project" % osname
+		return os.path.join(project_dir, name)
+	else:
+		die("Aborting")
 
-def create_mobile_project(osname,project_dir,args):
+def create_mobile_project(osname, project_dir, args):
 	if is_ios(osname):
-		return create_iphone_project(project_dir,osname,args)
+		return create_iphone_project(project_dir, osname, args)
 	elif osname == 'android':
-		return create_android_project(project_dir,osname,args)
+		return create_android_project(project_dir, osname, args)
 	else:
 		die("Unknown platform: %s" % osname)
 
-def create_module_project(osname,project_dir,args):
+def create_module_project(osname, project_dir, args):
 	if is_ios(osname):
-		return create_iphone_module(project_dir,osname,args)
+		return create_iphone_module(project_dir, osname, args)
 	elif osname == 'android':
-		return create_android_module(project_dir,osname,args)
+		return create_android_module(project_dir, osname, args)
 	else:
 		die("Unknown platform: %s" % osname)
 
-def create_plugin_project(project_dir,args):
-	script = os.path.join(template_dir,'plugin','plugin.py')
-	project_id = get_required(args,'id')
-	args = [script,'--id',project_id,'--directory',project_dir]
+def create_plugin_project(project_dir, args):
+	script = os.path.join(template_dir, 'plugin', 'plugin.py')
+	project_id = get_required(args, 'id')
+	args = [script,'--id', project_id, '--directory', project_dir]
 	
-	fork(args,False)
-	print "Created plugin project"
-	return os.path.join(project_dir,project_id)
+	retcode = fork(args, False)
+	if retcode == 0:
+		print "Created plugin project"
+		return os.path.join(project_dir, project_id)
+	else:
+		die("Aborting")
 	
 	
 ###################################################################################
@@ -285,7 +301,7 @@ def install_project_args(args,script,project_dir,platform):
 	return [script,"install",version,project_dir,appid,name]
 
 def install_module_args(args,script,project_dir,platform):
-	pass
+	return [script,"install",platform,project_dir]
 
 def install(args):
 	dyn_run(args,install_project_args,install_module_args)

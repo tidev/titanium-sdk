@@ -21,11 +21,13 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiOrientationHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.PixelFormat;
 import android.os.Message;
 import android.os.Messenger;
 
@@ -37,7 +39,8 @@ import android.os.Messenger;
 	TiC.PROPERTY_NAV_BAR_HIDDEN,
 	TiC.PROPERTY_MODAL,
 	TiC.PROPERTY_FULLSCREEN,
-	TiC.PROPERTY_EXIT_ON_CLOSE
+	TiC.PROPERTY_EXIT_ON_CLOSE,
+	TiC.PROPERTY_WINDOW_PIXEL_FORMAT
 })
 public class WindowProxy extends TiWindowProxy
 {
@@ -188,6 +191,23 @@ public class WindowProxy extends TiWindowProxy
 		}
 		Log.e(LCAT, "unable to get orientation, activity not found for window");
 		return TiOrientationHelper.ORIENTATION_UNKNOWN;
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public int getWindowPixelFormat() 
+	{
+		int pixelFormat = PixelFormat.UNKNOWN;
+		
+		if (hasProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
+			pixelFormat = TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT));
+		}
+		return pixelFormat;
+	}
+	
+	@Kroll.method @Kroll.setProperty(retain=false)
+	public void setWindowPixelFormat(int pixelFormat)
+	{
+		setProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT, pixelFormat, true);
 	}
 
 	@Override

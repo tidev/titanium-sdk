@@ -27,12 +27,16 @@ properties:
   - name: FIELD_TYPE_DOUBLE
     description: constant for requesting a column's value returned in double form.
     type: Number
+    permission: read-only
   - name: FIELD_TYPE_FLOAT
     description: constant for requesting a column's value returned in float form.
     type: Number
+    permission: read-only
   - name: FIELD_TYPE_INT
     description: constant for requesting a column's value returned in integer form.
     type: Number
+    permission: read-only
   - name: FIELD_TYPE_STRING
     description: constant for requesting a column's value returned in string form.
     type: Number
+    permission: read-only

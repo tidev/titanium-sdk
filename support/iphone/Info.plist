@@ -14,6 +14,11 @@
 	<array>
 		<string>__APPICON__.png</string>
 		<string>__APPICON__@2x.png</string>
+		<string>__APPICON__-72.png</string>
+		<string>iTunesArtwork</string>
+		<string>__APPICON__-Small-50.png</string>
+		<string>__APPICON__-Small.png</string>
+		<string>__APPICON__-Small@2x.png</string>
 	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
@@ -38,6 +43,8 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
+	<string>1.0</string>
+	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>

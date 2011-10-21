@@ -293,6 +293,22 @@ describe("Ti.UI.Android tests", {
 		w.open();
 
 	},
+	pixelFormats : function() {
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_A_8).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_LA_88).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_L_8).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_OPAQUE).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_RGBA_4444).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_RGBA_5551).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_RGBA_8888).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_RGBX_8888).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_RGB_332).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_RGB_565).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_RGB_888).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_TRANSLUCENT).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_TRANSPARENT).shouldBeNumber();
+		valueOf(Ti.UI.Android.PIXEL_FORMAT_UNKNOWN).shouldBeNumber();		
+	},	
 	webViewPluginMethods: function() {
 		var wv = Ti.UI.createWebView();
 		
@@ -316,6 +332,45 @@ describe("Ti.UI.Android tests", {
 		// set invalid state, should default to OFF
 		wv.pluginState = 5;
 		valueOf(wv.pluginState).shouldBe(Ti.UI.Android.WEBVIEW_PLUGINS_OFF);
+	},
+	webViewEnableZoomControlsMethods: function() {
+		var wv = Ti.UI.createWebView();
+		
+		valueOf(wv).shouldNotBeNull();
+		valueOf(wv.getEnableZoomControls).shouldBeFunction();
+		valueOf(wv.setEnableZoomControls).shouldBeFunction();
+		
+		valueOf(wv.enableZoomControls).shouldBeTrue();
+		wv.enableZoomControls = false;
+		valueOf(wv.enableZoomControls).shouldBeFalse();
+		wv.setEnableZoomControls(true);
+		valueOf(wv.getEnableZoomControls()).shouldBeTrue();
+		
+		wv = Ti.UI.createWebView({
+			enableZoomControls: false
+		});
+		valueOf(wv.enableZoomControls).shouldBeFalse();
+		
+	},
+	keepScreenOn: function() {
+		var v = Ti.UI.createView();
+		valueOf(v).shouldNotBeNull();
+		valueOf(v.getKeepScreenOn).shouldBeFunction();
+		valueOf(v.setKeepScreenOn).shouldBeFunction();
+
+		v.keepScreenOn = true;
+		valueOf(v.keepScreenOn).shouldBeTrue();
+		valueOf(v.getKeepScreenOn()).shouldBeTrue();
+		v.keepScreenOn = false;
+		valueOf(v.keepScreenOn).shouldBeFalse();
+		valueOf(v.getKeepScreenOn()).shouldBeFalse();
+
+		v.setKeepScreenOn(false);
+		valueOf(v.keepScreenOn).shouldBeFalse();
+		valueOf(v.getKeepScreenOn()).shouldBeFalse();
+		v.setKeepScreenOn(true);
+		valueOf(v.keepScreenOn).shouldBeTrue();
+		valueOf(v.getKeepScreenOn()).shouldBeTrue();
 	}
 })
 

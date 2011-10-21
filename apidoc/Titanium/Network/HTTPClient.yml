@@ -52,18 +52,23 @@ properties:
   - name: DONE
     description: the DONE readyState constant
     type: Number
+    permission: read-only
   - name: HEADERS_RECEIVED
     description: the HEADERS_RECEIVED readyState constant
     type: Number
+    permission: read-only
   - name: LOADING
     description: the LOADING readyState constant
     type: Number
+    permission: read-only
   - name: OPENED
     description: the OPENED readyState constant
     type: Number
+    permission: read-only
   - name: UNSENT
     description: the UNSET readyState constant
     type: Number
+    permission: read-only
   - name: connected
     description: boolean to indicate that the response was successful
     type: Boolean
@@ -71,8 +76,9 @@ properties:
     description: the connection type, normally either `GET` or `POST`.
     type: String
   - name: file
-    description: file to download contents to.  Can only be set after calling open.  iOS only
+    description: file to download contents to.  Can only be set after calling open.
     type: String
+    platforms: [iphone, ipad]
   - name: location
     description: the absolute URL of the request
     type: String

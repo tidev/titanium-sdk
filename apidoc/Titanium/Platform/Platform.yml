@@ -6,7 +6,7 @@ extends: Titanium.Module
 since: "0.1"
 methods:
   - name: canOpenURL
-    description: returns whether or not a system URL can be opened. iOS only
+    description: returns whether or not a system URL can be opened.
     platforms: [iphone, ipad]
     parameters:
       - name: url
@@ -38,66 +38,88 @@ properties:
   - name: BATTERY_STATE_CHARGING
     description: the device is plugged in and currently being charged
     type: Number
+    permission: read-only
   - name: BATTERY_STATE_FULL
     description: the battery is fully charged
     type: Number
+    permission: read-only
   - name: BATTERY_STATE_UNKNOWN
     description: the battery state is unknown or not monitoring is not enabled
     type: Number
+    permission: read-only
   - name: BATTERY_STATE_UNPLUGGED
     description: the device is unplugged
     type: Number
+    permission: read-only
   - name: address
     description: the ip address that the device reports (only applicable on WIFI network)
     type: String
+    permission: read-only
   - name: architecture
     description: the processor architecture that the device reports
     type: String
+    permission: read-only
   - name: availableMemory
     description: return the amount of memory available on the device in bytes
     type: Number
+    permission: read-only
   - name: batteryLevel
     description: the current device battery level. this property is only accessible if `batteryMonitoring` is enabled. on iPhone, this level only changes at 5% intervals.
     type: Number
+    permission: read-only
   - name: batteryMonitoring
     description: boolean to indicate if battery monitoring is enabled
     type: Boolean
+    permission: read-only
   - name: batteryState
     description: constant that represents the state of the battery. this property is only accessible if `batteryMonitoring` is enabled
     type: Number
+    permission: read-only
   - name: displayCaps
     description: return the DisplayCaps object for platform
     type: Titanium.Platform.DisplayCaps
+    permission: read-only
   - name: id
     description: the unique id of the device
     type: String
+    permission: read-only
   - name: locale
     description: the primary language of the device that the user has enabled
     type: String
+    permission: read-only
   - name: macaddress
     description: this property will return a unique identifier for the device
     type: String
+    permission: read-only
   - name: model
     description: the model of the phone that the device reports
     type: String
+    permission: read-only
   - name: name
     description: the name of the platform returned by the device
     type: String
+    permission: read-only
   - name: netmask
     description: the network mask that the device reports (only applicable on WIFI network)
     type: String
+    permission: read-only
   - name: osname
     description: the shortname of the operating system. for example, on an iPhone, will return `iphone`, iPad will return `ipad` and Android will return `android`.
     type: String
+    permission: read-only
   - name: ostype
     description: the OS architecture, such as 32 bit
     type: String
+    permission: read-only
   - name: processorCount
     description: the number of processors the device reports
     type: Number
+    permission: read-only
   - name: username
     description: the username of the device, if set
     type: String
+    permission: read-only
   - name: version
     description: the version of the platform returned by the device
     type: String
+    permission: read-only

@@ -419,7 +419,7 @@ def main():
 	parser.add_option("-o", "--output",
 			dest="output",
 			help="Output directory for generated documentation",
-			default=dist_apidoc_dir)
+			default=None)
 	parser.add_option("-v", "--version",
 			dest="version",
 			help="Version of the API to generate documentation for",
@@ -434,11 +434,19 @@ def main():
 			action="store_true",
 			help="Display verbose info messages",
 			default=False)
+	parser.add_option("--stdout",
+			dest="stdout",
+			action="store_true",
+			help="Useful only for json/jsca. Writes the result to stdout. If you specify both --stdout and --output you'll get both an output file and the result will be written to stdout.",
+			default=False)
 	(options, args) = parser.parse_args()
 	log_level = TiLogger.INFO
 	if options.verbose:
 		log_level = TiLogger.TRACE
 	log = TiLogger(None, level=log_level, output_stream=sys.stderr)
+	if options.output is None and "html" in options.formats:
+		log.trace("Setting output folder to %s because html files will be generated and now --output folder was specified" % dist_apidoc_dir)
+		options.output = dist_apidoc_dir
 	process_yaml()
 	generate_output(options)
 	titanium_apis = [ta for ta in apis.values() if ta["name"].startswith("Ti")]

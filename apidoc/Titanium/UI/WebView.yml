@@ -113,6 +113,12 @@ properties:
     platforms: [android]
     since: "1.8.0"
     default: <Titanium.UI.Android.WEBVIEW_PLUGINS_OFF>
+  - name: enableZoomControls
+    description: sets whether the zoom controls are enabled
+    type: Boolean
+    platforms: [android]
+    since: "1.8.0"
+    default: true
   - name: scalesPageToFit
     description: whether the webview should scale it's contents or not
     type: Boolean

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,6 +8,8 @@ package org.appcelerator.titanium.view;
 
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,26 +25,28 @@ import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiAnimationBuilder;
-import org.appcelerator.titanium.util.TiAnimationBuilder.TiMatrixAnimation;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiAnimationBuilder.TiMatrixAnimation;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import android.content.Context;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
-import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.inputmethod.InputMethodManager;
@@ -51,6 +55,8 @@ import android.widget.AdapterView;
 public abstract class TiUIView
 	implements KrollProxyListener, OnFocusChangeListener
 {
+	private static final boolean HONEYCOMB_OR_GREATER = (Build.VERSION.SDK_INT >= 11);
+	private static final int LAYER_TYPE_SOFTWARE = 1;
 	private static final String LCAT = "TiUIView";
 	private static final boolean DBG = TiConfig.LOGD;
 
@@ -67,7 +73,6 @@ public abstract class TiUIView
 	protected ArrayList<TiUIView> children = new ArrayList<TiUIView>();
 
 	protected LayoutParams layoutParams;
-	protected int zIndex;
 	protected TiAnimationBuilder animBuilder;
 	protected TiBackgroundDrawable background;
 
@@ -76,6 +81,8 @@ public abstract class TiUIView
 	// so this holds a reference to the view which is used for touching,
 	// i.e., the view passed to registerForTouch.
 	private WeakReference<View> mTouchView = null;
+
+	private Method mSetLayerTypeMethod = null; // Honeycomb, for turning off hw acceleration.
 
 	public TiUIView(TiViewProxy proxy)
 	{
@@ -98,6 +105,7 @@ public abstract class TiUIView
 						((ViewGroup) nv).addView(cv, child.getLayoutParams());
 					}
 					children.add(child);
+					child.parent = proxy;
 				}
 			}
 		}
@@ -112,6 +120,7 @@ public abstract class TiUIView
 				if (nv instanceof ViewGroup) {
 					((ViewGroup) nv).removeView(cv);
 					children.remove(child);
+					child.parent = null;
 				}
 			}
 		}
@@ -147,11 +156,6 @@ public abstract class TiUIView
 		return layoutParams;
 	}
 
-	public int getZIndex()
-	{
-		return zIndex;
-	}
-
 	public View getNativeView()
 	{
 		return nativeView;
@@ -176,11 +180,6 @@ public abstract class TiUIView
 		this.layoutParams = layoutParams;
 	}
 
-	protected void setZIndex(int index)
-	{
-		zIndex = index;
-	}
-
 	public void animate()
 	{
 		TiAnimationBuilder builder = proxy.getPendingAnimation();
@@ -191,7 +190,7 @@ public abstract class TiUIView
 			}
 			nativeView.startAnimation(as);
 			// Clean up proxy
-			proxy.clearAnimation();
+			proxy.clearAnimation(builder);
 		}
 	}
 
@@ -244,11 +243,27 @@ public abstract class TiUIView
 
 	protected void layoutNativeView()
 	{
+		layoutNativeView(false);
+	}
+	
+	protected void layoutNativeView(boolean informParent)
+	{
 		if (nativeView != null) {
 			Animation a = nativeView.getAnimation();
 			if (a != null && a instanceof TiMatrixAnimation) {
 				TiMatrixAnimation matrixAnimation = (TiMatrixAnimation) a;
 				matrixAnimation.invalidateWithMatrix(nativeView);
+			}
+			if (informParent) {				
+				if (parent != null) {
+					TiUIView uiv = parent.peekView();
+					if (uiv != null) {
+						View v = uiv.getNativeView();
+						if (v instanceof TiCompositeLayout) {
+							((TiCompositeLayout) v).resort();
+						}
+					}
+				}
 			}
 			nativeView.requestLayout();
 		}
@@ -323,11 +338,11 @@ public abstract class TiUIView
 			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_ZINDEX)) {
 			if (newValue != null) {
-				layoutParams.optionZIndex = TiConvert.toInt(TiConvert.toString(newValue));
+				layoutParams.optionZIndex = TiConvert.toInt(newValue);
 			} else {
 				layoutParams.optionZIndex = 0;
 			}
-			layoutNativeView();
+			layoutNativeView(true);
 		} else if (key.equals(TiC.PROPERTY_FOCUSABLE)) {
 			boolean focusable = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_FOCUSABLE));
 			nativeView.setFocusable(focusable);
@@ -425,6 +440,10 @@ public abstract class TiUIView
 			if (nativeView != null) {
 				applyTransform((Ti2DMatrix)newValue);
 			}
+		} else if (key.equals(TiC.PROPERTY_KEEP_SCREEN_ON)) {
+			if (nativeView != null) {
+				nativeView.setKeepScreenOn(TiConvert.toBoolean(newValue));
+			}
 		} else {
 			TiViewProxy viewProxy = getProxy();
 			if (viewProxy != null && viewProxy.isLocalizedTextId(key)) {
@@ -492,6 +511,10 @@ public abstract class TiUIView
 			if (matrix != null) {
 				applyTransform(matrix);
 			}
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_KEEP_SCREEN_ON)) {
+			nativeView.setKeepScreenOn(TiConvert.toBoolean(d, TiC.PROPERTY_KEEP_SCREEN_ON));
 		}
 	}
 
@@ -681,7 +704,11 @@ public abstract class TiUIView
 				TiBackgroundDrawable.Border border = background.getBorder();
 
 				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
-					border.setRadius(TiConvert.toFloat(d, TiC.PROPERTY_BORDER_RADIUS));
+					float radius = TiConvert.toFloat(d, TiC.PROPERTY_BORDER_RADIUS);
+					if (radius > 0f && HONEYCOMB_OR_GREATER) {
+						disableHWAcceleration();
+					}
+					border.setRadius(radius);
 				}
 				if (d.containsKey(TiC.PROPERTY_BORDER_COLOR) || d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
 					if (d.containsKey(TiC.PROPERTY_BORDER_COLOR)) {
@@ -710,7 +737,11 @@ public abstract class TiUIView
 		if (property.equals(TiC.PROPERTY_BORDER_COLOR)) {
 			border.setColor(TiConvert.toColor(value.toString()));
 		} else if (property.equals(TiC.PROPERTY_BORDER_RADIUS)) {
-			border.setRadius(TiConvert.toFloat(value));
+			float radius = TiConvert.toFloat(value);
+			if (radius > 0f && HONEYCOMB_OR_GREATER) {
+				disableHWAcceleration();
+			}
+			border.setRadius(radius);
 		} else if (property.equals(TiC.PROPERTY_BORDER_WIDTH)) {
 			border.setWidth(TiConvert.toFloat(value));
 		}
@@ -932,17 +963,6 @@ public abstract class TiUIView
 		}
 		doSetClickable(view, view.isClickable());
 	}
-	/*
-	 * Used just to setup the click listener if applicable.
-	 */
-	private void doSetClickable()
-	{
-		View view = getTouchView();
-		if (view == null) {
-			return;
-		}
-		doSetClickable(view, view.isClickable());
-	}
 
 	/**
 	 * Can be overriden by inheriting views for special click handling.  For example,
@@ -970,4 +990,38 @@ public abstract class TiUIView
 			}
 		});
 	}
+
+	private void disableHWAcceleration()
+	{
+		if (nativeView == null) {
+			return;
+		}
+		if (DBG) {
+			Log.d(LCAT, "Disabling hardware acceleration for instance of " + nativeView.getClass().getSimpleName());
+		}
+		if (mSetLayerTypeMethod == null) {
+			try {
+				Class<? extends View> c = nativeView.getClass();
+				mSetLayerTypeMethod = c.getMethod("setLayerType", int.class, Paint.class);
+			} catch (SecurityException e) {
+				Log.e(LCAT, "SecurityException trying to get View.setLayerType to disable hardware acceleration.", e);
+			} catch (NoSuchMethodException e) {
+				Log.e(LCAT, "NoSuchMethodException trying to get View.setLayerType to disable hardware acceleration.", e);
+			}
+		}
+
+		if (mSetLayerTypeMethod == null) {
+			return;
+		}
+		try {
+			mSetLayerTypeMethod.invoke(nativeView, LAYER_TYPE_SOFTWARE, null);
+		} catch (IllegalArgumentException e) {
+			Log.e(LCAT, e.getMessage(), e);
+		} catch (IllegalAccessException e) {
+			Log.e(LCAT, e.getMessage(), e);
+		} catch (InvocationTargetException e) {
+			Log.e(LCAT, e.getMessage(), e);
+		}
+	}
+
 }

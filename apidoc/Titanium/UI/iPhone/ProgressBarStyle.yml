@@ -9,9 +9,12 @@ properties:
   - name: BAR
     description: The style of progress view that is used in a toolbar.
     type: Number
+    permission: read-only
   - name: DEFAULT
     description: he standard progress-view style. This is the default.
     type: Number
+    permission: read-only
   - name: PLAIN
     description: The standard progress-view style. Same as `DEFAULT`.
     type: Number
+    permission: read-only

@@ -164,23 +164,23 @@ events:
     description: fired when the table view is scrolled
     properties:
       - name: firstVisibleItem
-        description: the row index of the topmost visible row in the view (Android only)
+        description: the row index of the topmost visible row in the view
         platforms: [android]
       - name: visibleItemCount
-        description: the number of rows currently visible in the view (Android only)
+        description: the number of rows currently visible in the view
         platforms: [android]
       - name: contentOffset
-        description: dictionary with `x` and `y` properties containing the content offset (iOS only)
+        description: dictionary with `x` and `y` properties containing the content offset
         platforms: [iphone, ipad]
       - name: totalItemCount
-        description: the total number of rows in the view (Android only)
+        description: the total number of rows in the view
         platforms: [android]
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
       - name: contentSize
-        description: dictionary with `width` and `height` properties containing the size of the content (regardless of the display size in the case of scrolling) (iOS only)
+        description: dictionary with `width` and `height` properties containing the size of the content (regardless of the display size in the case of scrolling)
         platforms: [iphone, ipad]
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
@@ -193,14 +193,14 @@ events:
     description: fired when the table view stops scrolling
     properties:
       - name: contentOffset
-        description: dictionary with `x` and `y` properties containing the content offset (iOS only)
+        description: dictionary with `x` and `y` properties containing the content offset
         platforms: [iphone, ipad]
       - name: y
         description: the y point of the event, in receiving view coordinates
       - name: x
         description: the x point of the event in receiving view coordiantes
       - name: contentSize
-        description: dictionary with `width` and `height` properties containing the size of the content (regardless of the display size in the case of scrolling) (iOS only)
+        description: dictionary with `width` and `height` properties containing the size of the content (regardless of the display size in the case of scrolling)
         platforms: [iphone, ipad]
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
@@ -214,18 +214,18 @@ properties:
     description: true if the rows can be selected
     type: Boolean
   - name: allowsSelectionDuringEditing
-    description: true if the rows can be selected while editing the table (iOS Only)
+    description: true if the rows can be selected while editing the table
     platforms: [iphone, ipad]
     type: Boolean
   - name: data
     description: the data array of objects to be used for the rows of the table view
     type: Array<Object>
   - name: editable
-    description: allow the table view to be editable (this must be true for swipe-to-delete) (iOS Only)
+    description: allow the table view to be editable (this must be true for swipe-to-delete)
     platforms: [iphone, ipad]
     type: Boolean
   - name: editing
-    description: boolean to control the editing state of the table view (iOS Only)
+    description: boolean to control the editing state of the table view
     platforms: [iphone, ipad]
     type: Boolean
   - name: filterAttribute
@@ -257,7 +257,7 @@ properties:
     description: min row height for table view rows
     type: Number
   - name: moving
-    description: boolean to control the moveable state of the table view (iOS Only)
+    description: boolean to control the moveable state of the table view
     platforms: [iphone, ipad]
     type: Boolean
   - name: rowHeight
@@ -280,12 +280,12 @@ properties:
     platforms: [iphone, ipad]
     type: Number
   - name: showVerticalScrollIndicator
-    description: whether tableview displays vertical scroll indicator (iOS Only)
+    description: whether tableview displays vertical scroll indicator
     platforms: [iphone, ipad]
     default: true
     type: Boolean
   - name: style
-    description: iPhone only. the style of the table view. constant from <Titanium.UI.iPhone.TableViewStyle>
+    description: the style of the table view. constant from <Titanium.UI.iPhone.TableViewStyle>
     platforms: [iphone, ipad]
     type: Number
 examples:

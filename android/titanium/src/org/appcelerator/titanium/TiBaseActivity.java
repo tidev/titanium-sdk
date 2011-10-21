@@ -29,6 +29,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
@@ -49,6 +50,7 @@ public abstract class TiBaseActivity extends Activity
 	private static OrientationChangedListener orientationChangedListener = null;
 
 	private boolean onDestroyFired = false;
+	private int originalOrientationMode = -1;
 
 	protected TiCompositeLayout layout;
 	protected TiActivitySupportHelper supportHelper;
@@ -62,6 +64,8 @@ public abstract class TiBaseActivity extends Activity
 	protected Messenger messenger;
 	protected int msgActivityCreatedId = -1;
 	protected int msgId = -1;
+
+	public TiWindowProxy lwWindow;
 
 
 	// could use a normal ConfigurationChangedListener but since only orientation changes are
@@ -287,6 +291,10 @@ public abstract class TiBaseActivity extends Activity
 				msgActivityCreatedId = intent.getIntExtra(TiC.INTENT_PROPERTY_MSG_ACTIVITY_CREATED_ID, -1);
 				msgId = intent.getIntExtra(TiC.INTENT_PROPERTY_MSG_ID, -1);
 			}
+			
+			if (intent.hasExtra(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
+				getWindow().setFormat(intent.getIntExtra(TiC.PROPERTY_WINDOW_PIXEL_FORMAT, PixelFormat.UNKNOWN));
+			}
 		}
 
 		// Doing this on every create in case the activity is externally created.
@@ -295,6 +303,9 @@ public abstract class TiBaseActivity extends Activity
 		TiPlatformHelper.initializeRhinoDateFormats(this);
 
 		layout = createLayout();
+		if (intent != null && intent.hasExtra(TiC.PROPERTY_KEEP_SCREEN_ON)) {
+			layout.setKeepScreenOn(intent.getBooleanExtra(TiC.PROPERTY_KEEP_SCREEN_ON, layout.getKeepScreenOn()));
+		}
 		super.onCreate(savedInstanceState);
 		getTiApp().setWindowHandler(this);
 		windowCreated();
@@ -319,12 +330,24 @@ public abstract class TiBaseActivity extends Activity
 		// for backwards compatibility
 		sendMessage(msgId);
 
+		// store off the original orientation for the activity set in the AndroidManifest.xml
+		// for later use
+		originalOrientationMode = getRequestedOrientation();
+
 		// make sure the activity opens according to any orientation modes 
 		// set on the window before the activity was actually created 
 		if (window != null)
 		{
-			window.updateOrientation();
+			if (window.getOrientationModes() != null)
+			{
+				window.updateOrientation();
+			}
 		}
+	}
+
+	public int getOriginalOrientationMode()
+	{
+		return originalOrientationMode;
 	}
 
 	protected void sendMessage(final int msgId)
@@ -674,7 +697,7 @@ public abstract class TiBaseActivity extends Activity
 		if (window != null) {
 			KrollDict data = new KrollDict();
 			data.put(TiC.EVENT_PROPERTY_SOURCE, window);
-			window.fireEvent(TiC.EVENT_CLOSE, data);
+			window.fireSyncEvent(TiC.EVENT_CLOSE, data);
 		}
 
 		boolean animate = getIntentBoolean(TiC.PROPERTY_ANIMATE, true);

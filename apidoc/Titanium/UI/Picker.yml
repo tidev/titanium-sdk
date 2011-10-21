@@ -60,8 +60,9 @@ properties:
     description: the duration value in milliseconds for count down timer pickers. (Note that Titanium's Android implementation does not support the countdown timer.)
     type: Number
   - name: format24
-    description: (Android only, applicable only to the <Titanium.UI.PICKER_TYPE_TIME> picker.)  If true, a 24-hour cloc will be used, with hours 0 through 23.  If false, a 12-hour clock will be used, with hours 1 through 12 and am/pm controls.  For reasons of backward compatibility, the default value depends on the type of time picker being used.  For the native time picker (when "useSpinner" is either un-set or false), the default is false.  For the spinner-style time picker, the default is true.
+    description: (applicable only to the <Titanium.UI.PICKER_TYPE_TIME> picker.)  If true, a 24-hour cloc will be used, with hours 0 through 23.  If false, a 12-hour clock will be used, with hours 1 through 12 and am/pm controls.  For reasons of backward compatibility, the default value depends on the type of time picker being used.  For the native time picker (when "useSpinner" is either un-set or false), the default is false.  For the spinner-style time picker, the default is true.
     type: Boolean
+    platforms: [android]
   - name: locale
     description: the locale used for displaying Date/Time pickers values
     type: String
@@ -78,7 +79,7 @@ properties:
     description: the type constant for the picker. One of <Titanium.UI.PICKER_TYPE_PLAIN> (default), <Titanium.UI.PICKER_TYPE_DATE_AND_TIME>, <Titanium.UI.PICKER_TYPE_DATE>, <Titanium.UI.PICKER_TYPE_TIME> or <Titanium.UI.PICKER_TYPE_COUNT_DOWN_TIMER>. (Note that Titanium's Android implementation does not support the countdown timer or date+time varieties.)
     type: Number
   - name: useSpinner
-    description: (Android only, default false.) An indicator that you wish to use a non-native Android control that looks and behaves more like the iOS picker in the sense that the user selects values by spinning a wheel.  (The native Android spinner is more like a conventional "dropdown".)  Note that this option works both plain pickers, date pickers and time pickers.  Set it preferably immediately when creating the picker, i.e., <Titanium.UI.createPicker({useSpinner:true});>, but definitely before `.add()`ing the picker to its parent.
+    description: An indicator that you wish to use a non-native Android control that looks and behaves more like the iOS picker in the sense that the user selects values by spinning a wheel.  (The native Android spinner is more like a conventional "dropdown".)  Note that this option works both plain pickers, date pickers and time pickers.  Set it preferably immediately when creating the picker, i.e., <Titanium.UI.createPicker({useSpinner:true});>, but definitely before `.add()`ing the picker to its parent.
     type: Boolean
     default: false
     platforms: [android]
@@ -87,8 +88,9 @@ properties:
     type: Date
   - name: visibleItems
     description: |
-        (Android only.)  This is relevant only if you set `useSpinner` to `true`, and it is relevant only for the plain picker (not date/time).  By default, the spinner-style Android picker will show 5 rows: the one in the middle which is selected, and then 2 above and below.  You can set this to allow more (use an odd number to be sure the selected row is in the middle.)
+        This is relevant only if you set `useSpinner` to `true`, and it is relevant only for the plain picker (not date/time).  By default, the spinner-style Android picker will show 5 rows: the one in the middle which is selected, and then 2 above and below.  You can set this to allow more (use an odd number to be sure the selected row is in the middle.)
     type: Number
+    platforms: [android]
 notes: |
     For Android, note the `useSpinner` property above.  By default, when you create a picker you will get Android's native picker control, which looks more like the classic "dropdown" widget.  If you'd prefer to use something that looks more like iOS's picker -- which looks like one or more spinning wheels --, you can set `useSpinner: true`.
     

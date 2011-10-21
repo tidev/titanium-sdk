@@ -29,9 +29,11 @@
 	MKCoordinateRegion region;
 	
 	TiMapAnnotationProxy * pendingAnnotationSelection;
-	NSMutableDictionary *routes;
-	NSMutableDictionary *routeViews;
-	
+    // routes
+    // dictionaries for object tracking and association
+    CFMutableDictionaryRef mapLine2View;   // MKPolyline(route line) -> MKPolylineView(route view)
+    CFMutableDictionaryRef mapName2Line;   // NSString(name) -> MKPolyline(route line)
+    
 	// Click detection
 	id<MKAnnotation> hitAnnotation;
 	BOOL hitSelect;
@@ -50,10 +52,8 @@
 -(void)addRoute:(id)args;
 -(void)removeRoute:(id)args;
 
--(void)sendRouteToBack;
 #pragma mark Framework
 -(void)refreshAnnotation:(TiMapAnnotationProxy*)proxy readd:(BOOL)yn;
-
 -(void)fireClickEvent:(MKAnnotationView *) pinview source:(NSString *)source;
 
 @end

@@ -12,12 +12,15 @@ var data = [
 	{title:'zIndex', hasChild:true, test:'../examples/views_zindex.js'},
 	{title:'Email Dialog', hasChild:true, test:'../examples/email_dialog.js'},
 	{title:'Map View', hasChild:true, test:'../examples/map_view.js'},
-	{title:'View w/ Size', hasChild:true, test:'../examples/view_with_size.js'}
-
+	{title:'View w/ Size', hasChild:true, test:'../examples/view_with_size.js'},
+	{title:'Point Conversion', hasChild:true, test:'../examples/view_point_conversion.js'}
 ];
 
 if (Titanium.Platform.name == 'iPhone OS')
 {
+	// Android team, implement the following then move this entry above
+	data.push({title:'View Gestures', hasChild:true, test:'../examples/view_gestures.js'});
+	//
 	data.push({title:'Map View with Routing', hasChild:true, test:'../examples/map_view2.js'});
 	data.push({title:'Events', hasChild:true, test:'../examples/view_events.js'});
 	data.push({title:'Events with Views', hasChild:true, test:'../examples/view_events_2.js'});

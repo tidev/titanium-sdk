@@ -38,6 +38,7 @@ properties:
   - name: messageid
     description: the key in the locale file to use for the message property
     type: String
+    accessors: false
 
   - name: title
     description: the title of the dialog
@@ -46,6 +47,7 @@ properties:
   - name: titleid
     description: the key in the locale file to use for the title property
     type: String
+    accessors: false
 
   - name: ok
     description: Text for the OK button.  Useful for when you only want one button and therefore don't want to
@@ -56,6 +58,7 @@ properties:
     description: the key in the locale file to use for the `ok` property.  Note that if you use the `buttonNames`
         property to set the button titles, this will be ignored.
     type: String
+    accessors: false
 
   - name: androidView
     description: Titanium view that should be loaded inside the alert dialog

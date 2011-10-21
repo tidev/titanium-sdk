@@ -9,6 +9,8 @@ properties:
   - name: NONE
     description: The separator cell has no distinct style.
     type: Number
+    permission: read-only
   - name: SINGLE_LINE
     description: The separator cell has a single line running across its width. This is the default value.
     type: Number
+    permission: read-only

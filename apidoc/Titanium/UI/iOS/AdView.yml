@@ -50,6 +50,8 @@ properties:
   - name: SIZE_320x50
     description: constant for 320x50 ad sizes
     type: String
+    permission: read-only
   - name: SIZE_480x32
     description: constant for 480x32 ad sizes
     type: String
+    permission: read-only

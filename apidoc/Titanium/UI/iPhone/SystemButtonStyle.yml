@@ -9,12 +9,16 @@ properties:
   - name: BAR
     description: Used by tabbed bar and button bar only to use the more condensed style used in nav bars and tool bars.
     type: Number
+    permission: read-only
   - name: BORDERED
     description: A simple button style with a border.
     type: Number
+    permission: read-only
   - name: DONE
     description: The style for a done button - for example, a button that completes some task and returns to the previous view.
     type: Number
+    permission: read-only
   - name: PLAIN
     description: Glows when tapped. The default item style.
     type: Number
+    permission: read-only

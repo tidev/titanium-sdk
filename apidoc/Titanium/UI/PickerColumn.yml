@@ -18,8 +18,9 @@ methods:
         type: Titanium.UI.PickerRow
 properties:
   - name: rowCount
-    description: number of rows in the column (readonly)
+    description: number of rows in the column
     type: Number
+    permission: read-only
   - name: rows
     description: an array of rows
     type: Array<Object>

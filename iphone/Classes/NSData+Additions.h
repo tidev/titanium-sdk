@@ -7,7 +7,15 @@
 
 #import <Foundation/Foundation.h>
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 NSData * decode64 (NSData * thedata); 
 NSData * dataWithHexString (NSString * hexString);
 NSString *stringWithHexString (NSString * hexString);
 NSData * decodeDataWithKey (NSData * thedata, NSString * key);
+
+#if defined(__cplusplus)
+}
+#endif
