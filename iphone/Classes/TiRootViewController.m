@@ -394,10 +394,8 @@
 
 -(CGRect)resizeView
 {
-//	CGRect rect = [[UIScreen mainScreen] applicationFrame];
-//	VerboseLog(@"(%f,%f),(%fx%f)",rect.origin.x,rect.origin.y,rect.size.width,rect.size.height);
-//	[[self view] setFrame:rect];
-	//Because of the transition in landscape orientation, TiUtils can't be used here... SetFrame compensates for it.
+	CGRect rect = [[UIScreen mainScreen] applicationFrame];
+	[[self view] setFrame:rect];
 	return [[self view] bounds];
 }
 
