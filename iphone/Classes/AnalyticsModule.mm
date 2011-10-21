@@ -319,12 +319,15 @@ NSString * const TI_DB_VERSION = @"1";
 	[dict setObject:[TiUtils createUUID] forKey:@"id"];
 	[dict setObject:NUMINT(sequence++) forKey:@"seq"];
 	[dict setObject:[TiUtils uniqueIdentifier] forKey:@"mid"];
+#if 0
+	// In 1.8, we'll be using this additional field for rotating IDs
     if ([[UIDevice currentDevice] respondsToSelector:@selector(uniqueIdentifier)]) {
     	NSString* uid = [[UIDevice currentDevice] uniqueIdentifier];
     	if (uid) {
 	        [dict setObject:uid forKey:@"omid"];
         }
     }
+#endif
 	[dict setObject:TI_APPLICATION_GUID forKey:@"aguid"];
 	[dict setObject:TI_APPLICATION_DEPLOYTYPE forKey:@"deploytype"];
 	[dict setObject:name forKey:@"event"];
