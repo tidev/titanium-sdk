@@ -43,10 +43,12 @@
 	
 	NSString *sessionId;
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 	UIBackgroundTaskIdentifier bgTask;
 	NSMutableArray *backgroundServices;
 	NSMutableArray *runningServices;
 	UILocalNotification *localNotification;
+#endif	
 }
 
 @property (nonatomic, retain) IBOutlet UIWindow *window;

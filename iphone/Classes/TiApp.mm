@@ -154,8 +154,14 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	// attach our main view controller
 	controller = [[TiRootViewController alloc] init];
 	
-	// attach our main view controller... IF we haven't already loaded the main window.
-	[window setRootViewController:controller];
+	if([window respondsToSelector:@selector(setRootViewController:)])
+	{
+		[window setRootViewController:controller];		
+	}
+	else
+	{
+		[window addSubview:[controller view]];
+	}
     [window makeKeyAndVisible];
 }
 

@@ -48,7 +48,7 @@
 {	
 	UIImage* image;
 	
-	if([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
+	if([TiUtils isIPad])
 	{
 		*imageOrientation = orientation;
 		*imageIdiom = UIUserInterfaceIdiomPad;
@@ -109,7 +109,7 @@
 	}
 	UIDeviceOrientation imageOrientation;
 	UIUserInterfaceIdiom imageIdiom;
-	UIUserInterfaceIdiom deviceIdiom = [[UIDevice currentDevice] userInterfaceIdiom];
+	UIUserInterfaceIdiom deviceIdiom = UI_USER_INTERFACE_IDIOM();
 /*
  *	This code could stand for some refinement, but it is rarely called during
  *	an application's lifetime and is meant to recreate the quirks and edge cases
@@ -121,7 +121,10 @@
 			(UIDeviceOrientation)newOrientation
 			resultingOrientation:&imageOrientation idiom:&imageIdiom];
 
-	CGFloat imageScale = [defaultImage scale];
+	CGFloat imageScale = 1.0;
+	if ([defaultImage respondsToSelector:@selector(scale)]) {
+		imageScale = [defaultImage scale];
+	}
 	CGRect newFrame = [[self view] bounds];
 	CGSize imageSize = [defaultImage size];
 	UIViewContentMode contentMode = UIViewContentModeScaleToFill;
