@@ -1419,7 +1419,6 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	if(!parentVisible)
 	{
 		VerboseLog(@"[INFO] Parent Invisible");
-		NSLog(@"[INFO] %@ parent invisible",self);
 		return;
 	}
 	
