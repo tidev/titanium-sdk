@@ -1,5 +1,5 @@
 TI_VERSION=0.0.0
 
-OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) -weak_framework iAd -weak_library /usr/lib/libSystem.B.dylib -ObjC
-OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) -weak_framework iAd -weak_library /usr/lib/libSystem.B.dylib -ObjC
+OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) -weak_framework iAd
+OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) -weak_framework iAd
 
