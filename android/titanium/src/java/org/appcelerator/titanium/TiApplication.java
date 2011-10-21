@@ -501,7 +501,7 @@ public class TiApplication extends Application implements Handler.Callback
 
 	public static boolean isUIThread()
 	{
-		if (mainThreadId == Looper.getMainLooper().getThread().getId()) {
+		if (mainThreadId == Thread.currentThread().getId()) {
 			return true;
 		}
 
