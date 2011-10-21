@@ -398,7 +398,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 {
 	navWindow = NO;
 	BOOL rootViewAttached = [self isRootViewAttached];
-	
+	[self parentWillShow];
 	// give it to our subclass. he'll either return true to continue with open state and animation or 
 	// false to delay for some other action
 	if ([self _handleOpen:args])
@@ -731,7 +731,15 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			childOrientationControllerChangedFlags:self];
 }
 
+-(void)viewWillAppear:(BOOL)animated
+{
+	[self parentWillShow];
+}
 
+- (void)viewDidDisappear:(BOOL)animated
+{
+	[self parentWillHide];
+}
 
 -(BOOL)animationShouldTransition:(id)sender
 {
