@@ -115,7 +115,7 @@
 	const char *cStr = [nstr UTF8String];
 	unsigned char result[CC_SHA256_DIGEST_LENGTH];
 	CC_SHA256(cStr, [nstr lengthOfBytesUsingEncoding:NSUTF8StringEncoding], result);
-	return [self convertToHex:(unsigned char*)&result length:CC_SHA256_DIGEST_LENGTH];
+	return [TiUtils convertToHex:(unsigned char*)&result length:CC_SHA256_DIGEST_LENGTH];
 }
 
 @end
