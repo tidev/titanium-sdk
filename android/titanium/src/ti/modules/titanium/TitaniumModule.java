@@ -434,7 +434,16 @@ public class TitaniumModule extends KrollModule
 			return module;
 		}
 
-// NOTE: CommonJS modules load absolute to app:// in Titanium
+		// NOTE: CommonJS modules load absolute to app:// in Titanium.
+		// If path contains forward slash, lose it.
+		if (path.startsWith("/")) {
+			path = path.substring(1);
+		}
+		ctx = invocation.getTiContext();
+		if (ctx == null) {
+			Context.reportError("Couldn't load module: " + path + " because execution context has been destroyed.");
+			return null;
+		}
 		builder.setLength(0);
 		builder.append(TiC.URL_APP_PREFIX)
 			.append(path)
