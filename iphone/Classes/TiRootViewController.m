@@ -366,7 +366,8 @@
 
 	for (TiWindowProxy * thisProxy in windowProxies)
 	{
-        if ([thisProxy allowsOrientation:toInterfaceOrientation]) {
+		TiOrientationFlags windowFlags = [thisProxy orientationFlags];
+        if (TI_ORIENTATION_ALLOWED(windowFlags, toInterfaceOrientation) || (windowFlags == TiOrientationNone)) {
             UIViewController * thisNavCon = [thisProxy navController];
             if (thisNavCon == nil)
             {
