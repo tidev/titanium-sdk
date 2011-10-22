@@ -11,6 +11,8 @@ import java.util.TreeSet;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.titanium.TiActivity;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 
@@ -334,9 +336,14 @@ public class TiCompositeLayout extends ViewGroup
 				(TiCompositeLayout.LayoutParams) child.getLayoutParams();
 			if (child.getVisibility() != View.GONE) {
 				// Dimension is required from Measure. Positioning is determined here.
-				int childMeasuredWidth = child.getMeasuredWidth();
-				int childMeasuredHeight = child.getMeasuredHeight();
 				
+				// Use the height and width from params if we can. When we switch orientation the child returns the
+				// value from the previous orientation instead of the current one
+				int childMeasuredWidth = params.optionWidth != null ? params.optionWidth.getAsPixels(this) : child
+					.getMeasuredWidth();
+				int childMeasuredHeight = params.optionHeight != null ? params.optionHeight.getAsPixels(this) : child
+					.getMeasuredHeight();
+
 				if (isHorizontalArrangement()) {
 					if (i == 0)  {
 						horizontalLayoutCurrentLeft = left;
