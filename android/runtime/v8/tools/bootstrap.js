@@ -34,8 +34,16 @@ function defineLazyGetter(namespace, name, getter) {
 
 	var descriptor = {
 		get: function() {
-			delete this[name];
-			var value = this[name] = getter.call(this);
+			var self = this;
+			while (!self.hasOwnProperty(name) && self !== null) {
+				self = Object.getPrototypeOf(this);
+			}
+			if (self === null) {
+				throw new Error("Unable to find property on prototype chain.");
+			}
+
+			delete self[name];
+			var value = self[name] = getter.call(self);
 			return value;
 		},
 		configurable: true
