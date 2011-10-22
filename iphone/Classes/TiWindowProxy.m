@@ -713,11 +713,6 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	focused = newFocused;
 }
 
--(BOOL)allowsOrientation:(UIInterfaceOrientation)orientation
-{
-    return TI_ORIENTATION_ALLOWED([self orientationFlags], orientation);
-}
-
 -(void)ignoringRotationToOrientation:(UIInterfaceOrientation)orientation
 {
     // For subclasses
