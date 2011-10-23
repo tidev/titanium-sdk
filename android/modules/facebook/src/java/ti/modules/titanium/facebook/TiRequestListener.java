@@ -13,7 +13,7 @@ import java.net.MalformedURLException;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
-import org.appcelerator.titanium.util.Log;
+import org.appcelerator.kroll.common.Log;
 
 import com.facebook.android.AsyncFacebookRunner.RequestListener;
 import com.facebook.android.FacebookError;

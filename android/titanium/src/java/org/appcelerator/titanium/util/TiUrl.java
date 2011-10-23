@@ -9,6 +9,8 @@ package org.appcelerator.titanium.util;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;

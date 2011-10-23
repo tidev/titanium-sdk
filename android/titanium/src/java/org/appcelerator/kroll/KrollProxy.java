@@ -10,15 +10,15 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.AsyncResult;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.proxy.ActivityProxy;
-import org.appcelerator.titanium.util.AsyncResult;
-import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUrl;
 
@@ -72,8 +72,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	public KrollProxy(String baseCreationUrl)
 	{
 		creationUrl = new TiUrl(baseCreationUrl);
-		mainHandler = new Handler(Looper.getMainLooper(), this);
-		runtimeHandler = new Handler(KrollRuntime.getInstance().getRuntimeLooper(), this);
 	}
 
 	// entry point for generator code
@@ -112,14 +110,14 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		this.activity = activity;
 	}
 
-	public Handler getUIHandler()
+	public void setActivity(Activity activity)
 	{
-		return mainHandler;
+		this.activity = activity;
 	}
 
-	public void setKrollObject(KrollObject object)
+	public Activity getActivity()
 	{
-		this.krollObject = object;
+		return activity;
 	}
 
 	/**
@@ -157,14 +155,46 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		}
 	}
 
-	public void setActivity(Activity activity)
+	public Handler getMainHandler()
 	{
-		this.activity = activity;
+		if (mainHandler == null) {
+			mainHandler = new Handler(TiMessenger.getMainMessenger().getLooper(), this);
+		}
+
+		return mainHandler;
 	}
 
-	public Activity getActivity()
+	public Handler getRuntimeHandler()
 	{
-		return activity;
+		if (runtimeHandler == null) {
+			runtimeHandler = new Handler(TiMessenger.getRuntimeMessenger().getLooper(), this);
+		}
+
+		return runtimeHandler;
+	}
+
+	public void setKrollObject(KrollObject object)
+	{
+		this.krollObject = object;
+	}
+
+	public KrollObject getKrollObject()
+	{
+		if (krollObject == null) {
+			if (KrollRuntime.getInstance().isRuntimeThread()) {
+				initKrollObject();
+
+			} else {
+				TiMessenger.sendBlockingRuntimeMessage(getRuntimeHandler().obtainMessage(MSG_INIT_KROLL_OBJECT));
+			}
+		}
+
+		return krollObject;
+	}
+
+	public void initKrollObject()
+	{
+		KrollRuntime.getInstance().initObject(this);
 	}
 
 	public TiUrl getCreationUrl()
@@ -181,28 +211,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	public void setIndexedProperty(int index, Object value)
 	{
 		// no-op
-	}
-
-	public KrollObject getKrollObject()
-	{
-		if (krollObject == null) {
-			if (KrollRuntime.getInstance().isRuntimeThread()) {
-				initKrollObject();
-
-			} else {
-				AsyncResult asyncResult = new AsyncResult();
-				Message message = runtimeHandler.obtainMessage(MSG_INIT_KROLL_OBJECT, asyncResult);
-				message.sendToTarget();
-				asyncResult.getResult();
-			}
-		}
-
-		return krollObject;
-	}
-
-	public void initKrollObject()
-	{
-		KrollRuntime.getInstance().initObject(this);
 	}
 
 	public boolean hasProperty(String name)
@@ -241,7 +249,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			doSetProperty(name, value);
 
 		} else {
-			Message message = runtimeHandler.obtainMessage(MSG_SET_PROPERTY, value);
+			Message message = getRuntimeHandler().obtainMessage(MSG_SET_PROPERTY, value);
 			message.getData().putString(PROPERTY_NAME, name);
 			message.sendToTarget();
 		}
@@ -255,7 +263,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 	public boolean fireEvent(String event, Object data)
 	{
-		Message message = runtimeHandler.obtainMessage(MSG_FIRE_EVENT, data);
+		// TODO what was the reason for never calling doFireEvent directly based on current thread
+		Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_EVENT, data);
 		message.getData().putString(PROPERTY_NAME, event);
 		message.sendToTarget();
 
@@ -268,13 +277,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			return doFireEvent(event, data);
 
 		} else {
-			AsyncResult asyncResult = new AsyncResult(data);
-			Message message = runtimeHandler.obtainMessage(MSG_FIRE_SYNC_EVENT, asyncResult);
+			Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_SYNC_EVENT);
 			message.getData().putString(PROPERTY_NAME, event);
-			message.sendToTarget();
-			asyncResult.getResult();
 
-			return true;
+			return (Boolean) TiMessenger.sendBlockingRuntimeMessage(message, data);
 		}
 	}
 
@@ -304,7 +310,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 			} else {
 				KrollPropertyChange pch = new KrollPropertyChange(name, oldValue, newValue);
-				mainHandler.obtainMessage(MSG_MODEL_PROPERTY_CHANGE, pch).sendToTarget();
+				getMainHandler().obtainMessage(MSG_MODEL_PROPERTY_CHANGE, pch).sendToTarget();
 			}
 		}
 	}
@@ -371,8 +377,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			return;
 		}
 
-		Message msg = mainHandler.obtainMessage(MSG_MODEL_PROPERTIES_CHANGED, changes);
-		msg.sendToTarget();
+		Message message = getMainHandler().obtainMessage(MSG_MODEL_PROPERTIES_CHANGED, changes);
+		message.sendToTarget();
 	}
 
 	private void firePropertiesChanged(Object[][] changes)
@@ -424,8 +430,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	{
 		switch (msg.what) {
 			case MSG_MODEL_PROPERTY_CHANGE: {
-				KrollPropertyChange pch = (KrollPropertyChange) msg.obj;
-				pch.fireEvent(this, modelListener);
+				((KrollPropertyChange) msg.obj).fireEvent(this, modelListener);
 
 				return true;
 			}
@@ -455,9 +460,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			}
 			case MSG_INIT_KROLL_OBJECT: {
 				initKrollObject();
-				if (msg.obj instanceof AsyncResult) {
-					((AsyncResult)msg.obj).setResult(null);
-				}
+				((AsyncResult) msg.obj).setResult(null);
 
 				return true;
 			}
@@ -476,13 +479,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 				return true;
 			}
 			case MSG_FIRE_SYNC_EVENT: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				Object data = result.getArg();
-				String event = msg.getData().getString(PROPERTY_NAME);
-				boolean handled = doFireEvent(event, data);
-				result.setResult(handled);
+				AsyncResult asyncResult = (AsyncResult) msg.obj;
+				boolean handled = doFireEvent(msg.getData().getString(PROPERTY_NAME), asyncResult.getArg());
+				asyncResult.setResult(handled);
 
-				return true;
+				return handled;
 			}
 		}
 
@@ -515,39 +516,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	public String resolveUrl(String scheme, String path)
 	{
 		return TiUrl.resolve(creationUrl.baseUrl, path, scheme);
-	}
-
-	public Object sendBlockingUiMessage(int what, Object asyncArg)
-	{
-		AsyncResult result = new AsyncResult(asyncArg);
-
-		return sendBlockingUiMessage(mainHandler.obtainMessage(what, result), result);
-	}
-	
-	public Object sendBlockingUiMessage(int what, int arg1)
-	{
-		AsyncResult result = new AsyncResult(null);
-
-		return sendBlockingUiMessage(mainHandler.obtainMessage(what, arg1, -1), result);
-	}
-
-	public Object sendBlockingUiMessage(int what, Object asyncArg, int arg1, int arg2)
-	{
-		AsyncResult result = new AsyncResult(asyncArg);
-
-		return sendBlockingUiMessage(mainHandler.obtainMessage(what, arg1, arg2, result), result);
-	}
-
-	public Object sendBlockingUiMessage(Message msg, AsyncResult result)
-	{
-		// If current thread is the UI thread, dispatch message directly.
-		if (TiApplication.isUIThread()) {
-			handleMessage(msg);
-			return result.getResultUnsafe();
-		}
-
-		return TiMessageQueue.getMessageQueue().sendBlockingMessage(
-			msg, TiMessageQueue.getMainMessageQueue(), result);
 	}
 
 	public String getProxyId()

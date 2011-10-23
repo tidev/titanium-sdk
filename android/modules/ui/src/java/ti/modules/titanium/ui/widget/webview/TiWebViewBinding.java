@@ -14,9 +14,9 @@ import java.util.concurrent.Semaphore;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollLogging;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 

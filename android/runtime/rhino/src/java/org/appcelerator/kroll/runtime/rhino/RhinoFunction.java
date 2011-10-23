@@ -10,7 +10,7 @@ import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollObject;
-import org.appcelerator.kroll.KrollRuntime;
+import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.runtime.rhino.Proxy.RhinoObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
@@ -62,7 +62,7 @@ public class RhinoFunction implements KrollFunction
 
 	public void callAsync(final KrollObject krollObject, final Object[] args)
 	{
-		KrollRuntime.getInstance().getRuntimeHandler().post(new Runnable() {
+		TiMessenger.postOnRuntime(new Runnable() {
 			public void run()
 			{
 				call(krollObject, args);

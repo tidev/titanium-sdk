@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-package org.appcelerator.titanium.util;
+package org.appcelerator.kroll.common;
 
 import java.util.concurrent.Semaphore;
 

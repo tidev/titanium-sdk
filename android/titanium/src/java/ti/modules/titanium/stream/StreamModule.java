@@ -13,9 +13,9 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.io.TiStream;
-import org.appcelerator.titanium.util.TiConfig;
 
 import ti.modules.titanium.BufferProxy;
 import ti.modules.titanium.TitaniumModule;

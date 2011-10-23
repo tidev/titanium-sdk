@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
 
 public abstract class TiStylesheet {
 	private static final String TAG = "TiStylesheet";

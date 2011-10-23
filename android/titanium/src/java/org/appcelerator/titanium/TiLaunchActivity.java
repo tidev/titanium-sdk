@@ -9,13 +9,13 @@ package org.appcelerator.titanium;
 import java.util.Set;
 
 import org.appcelerator.kroll.KrollRuntime;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.proxy.ActivityProxy;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiBindingHelper;
 import org.appcelerator.titanium.util.TiColorHelper;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
@@ -62,23 +62,24 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	{
 		try {
 			String fullUrl = url.resolve();
+
 			if (DBG) {
 				Log.d(TAG, "Eval JS Activity:" + fullUrl);
 			}
 
 			if (fullUrl.startsWith(TiC.URL_APP_PREFIX)) {
 				fullUrl = fullUrl.replaceAll("app:/", "Resources");
+
 			} else if (fullUrl.startsWith(TiC.URL_ANDROID_ASSET_RESOURCES)) {
 				fullUrl = fullUrl.replaceAll("file:///android_asset/", "");
 			}
 
-			KrollRuntime.getInstance().runModule(
-				KrollAssetHelper.readAsset(fullUrl), fullUrl);
+			KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(fullUrl), fullUrl);
+
 		} finally {
 			if (DBG) {
 				Log.d(TAG, "Signal JS loaded");
 			}
-			messageQueue.stopBlocking();
 		}
 	}
 
@@ -128,10 +129,12 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		if (action != null && action.equals(Intent.ACTION_MAIN)) {
 			Set<String> categories = intent.getCategories();
 			boolean b2373Detected = true; // Absence of LAUNCHER is the problem.
+
 			if (categories != null) {
 				for(String category : categories) {
 					if (category.equals(Intent.CATEGORY_LAUNCHER)) {
 						b2373Detected = false;
+
 						break;
 					}
 				}
@@ -143,9 +146,11 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 				layout = new TiCompositeLayout(this);
 				setContentView(layout);
 				activityOnCreate(savedInstanceState);
+
 				return true;
 			}
 		}
+
 		return false;
 	}
 
@@ -165,11 +170,13 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		String title = systemProperties.getString("ti.android.bug2373.title", "Restart Required");
 		String message = systemProperties.getString("ti.android.bug2373.message", "An application restart is required");
 		String buttonText = systemProperties.getString("ti.android.bug2373.buttonText", "Continue");
+
 		noLaunchCategoryAlert = new AlertDialog.Builder(this)
 			.setTitle(title)
 			.setMessage(message)
 			.setPositiveButton(buttonText, restartListener)
 			.setCancelable(false).create();
+
 		noLaunchCategoryAlert.show();
 	}
 
@@ -184,6 +191,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, relaunch, PendingIntent.FLAG_ONE_SHOT);
 			am.set(AlarmManager.RTC, System.currentTimeMillis() + delay, pi);
 		}
+
 		finish();
 	}
 
@@ -192,6 +200,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	{
 		super.onRestart();
 		TiProperties systemProperties = getTiApp().getSystemProperties();
+
 		boolean restart = systemProperties.getBool("ti.android.root.reappears.restart", false);
 		if (restart) {
 			Log.w(TAG, "Tasks may have been destroyed by Android OS for inactivity. Restarting.");
@@ -200,57 +209,13 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	}
 
 	@Override
-	protected void onStart()
-	{
-		super.onStart();
-	}
-
-	@Override
-	protected void onResume()
-	{
-		super.onResume();
-	}
-
-	@Override
-	protected void onPause()
-	{
-		/*
-		if (tiContext == null) {
-			// Not in a good state. Let's get out.
-			if (noLaunchCategoryAlert != null && noLaunchCategoryAlert.isShowing()) {
-				noLaunchCategoryAlert.cancel();
-				noLaunchCategoryAlert = null;
-			}
-			finish();
-		} else {
-			tiContext.fireLifecycleEvent(this, TiContext.LIFECYCLE_ON_PAUSE);
-		}
-		*/
-		super.onPause();
-	}
-
-	@Override
-	protected void onStop()
-	{
-		super.onStop();
-	}
-
-	@Override
 	protected void onDestroy()
 	{
-		/*
-		if (tiContext != null) {
-			tiContext.fireLifecycleEvent(this, TiContext.LIFECYCLE_ON_DESTROY);
-			TiApplication tiApp = tiContext.getTiApp();
-			if (tiApp != null) {
-				tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppEndEvent());
-			}
-		}*/
-
 		TiApplication tiApp = TiApplication.getInstance();
 		if (tiApp != null) {
 			tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppEndEvent());
 		}
+
 		super.onDestroy();
 	}
 }

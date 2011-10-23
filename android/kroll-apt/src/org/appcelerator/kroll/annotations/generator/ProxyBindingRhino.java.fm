@@ -17,7 +17,7 @@ import org.appcelerator.kroll.KrollProxySupport;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.runtime.rhino.Proxy;
 import org.appcelerator.kroll.runtime.rhino.TypeConverter;
-import org.appcelerator.titanium.util.Log;
+import org.appcelerator.kroll.common.Log;
 
 import java.util.HashMap;
 

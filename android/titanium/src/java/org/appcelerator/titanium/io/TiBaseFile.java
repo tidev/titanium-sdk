@@ -20,8 +20,8 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.List;
 
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.util.Log;
 
 public abstract class TiBaseFile
 {

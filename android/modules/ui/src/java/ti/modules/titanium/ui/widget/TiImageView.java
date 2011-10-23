@@ -8,8 +8,8 @@ package ti.modules.titanium.ui.widget;
 
 import java.lang.ref.SoftReference;
 
-import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
 
 import android.content.Context;
 import android.graphics.Bitmap;

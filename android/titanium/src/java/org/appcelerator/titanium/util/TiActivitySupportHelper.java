@@ -9,6 +9,9 @@ package org.appcelerator.titanium.util;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
+
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;

@@ -11,7 +11,7 @@ import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollObject;
-import org.appcelerator.kroll.KrollRuntime;
+import org.appcelerator.kroll.common.TiMessenger;
 
 
 public class V8Function extends V8Object implements KrollFunction
@@ -38,7 +38,7 @@ public class V8Function extends V8Object implements KrollFunction
 
 	public void callAsync(final KrollObject krollObject, final Object[] args)
 	{
-		KrollRuntime.getInstance().getRuntimeHandler().post(new Runnable() {
+		TiMessenger.postOnRuntime(new Runnable() {
 			public void run()
 			{
 				call(krollObject, args);
@@ -46,6 +46,8 @@ public class V8Function extends V8Object implements KrollFunction
 		});
 	}
 
+
+	// JNI method prototypes
 	private native void nativeInvoke(long thisPointer, long functionPointer, Object[] functionArgs);
 }
 

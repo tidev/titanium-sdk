@@ -6,6 +6,8 @@
  */
 package org.appcelerator.kroll;
 
+import org.appcelerator.kroll.common.TiMessenger;
+
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -18,13 +20,12 @@ public abstract class KrollRuntime implements Handler.Callback
 	private static final int MSG_RUN_MODULE = 101;
 	private static final String PROPERTY_FILENAME = "filename";
 
-	private KrollRuntimeThread runtimeThread;
-	private long runtimeThreadId;
-	private Looper runtimeLooper;
+	private static KrollRuntime instance;
 
-	protected static KrollRuntime runtimeInstance;
+	private KrollRuntimeThread thread;
+	private long threadId;
 
-	protected Handler runtimeHandler;
+	protected Handler handler;
 
 	public static final int MSG_LAST_ID = MSG_RUN_MODULE + 100;
 
@@ -35,13 +36,12 @@ public abstract class KrollRuntime implements Handler.Callback
 		}
 	};
 
-
 	public static class KrollRuntimeThread extends Thread
 	{
 		private static final String TAG = "KrollRuntimeThread";
 
-		private Looper looper;
 		private KrollRuntime runtime = null;
+
 
 		public KrollRuntimeThread(KrollRuntime runtime)
 		{
@@ -51,69 +51,52 @@ public abstract class KrollRuntime implements Handler.Callback
 
 		public void run()
 		{
-			Looper.prepare();
+			Looper looper;
 
+			Looper.prepare();
 			synchronized (this) {
 				looper = Looper.myLooper();
 				notifyAll();
 			}
 
-			runtime.runtimeThreadId = looper.getThread().getId();
-			runtime.runtimeLooper = looper;
-			runtime.runtimeHandler = new Handler(looper, runtime);
+			// initialize the runtime instance
+			runtime.threadId = looper.getThread().getId();
+			runtime.handler = new Handler(looper, runtime);
 
-			runtime.initRuntime();
+			// initialize the TiMessenger instance for the runtime thread
+			// NOTE: this must occur after threadId is set and before initRuntime() is called
+			TiMessenger.getMessenger();
+
+			runtime.initRuntime(); // initializer for the specific runtime implementation (V8, Rhino, etc)
+
+			// start handling messages for this thread
 			Looper.loop();
-		}
-
-		public Looper getLooper()
-		{
-			if (!isAlive()) {
-				return null;
-			}
-
-			synchronized (this) {
-				while (isAlive() && looper == null) {
-					try {
-						wait();
-
-					} catch (InterruptedException e) {
-					}
-				}
-			}
-
-			return looper;
 		}
 	}
 
 
 	public static void init(KrollRuntime runtime)
 	{
-		if (runtimeInstance == null) {
-			runtime.runtimeThread = new KrollRuntimeThread(runtime);
-			runtime.runtimeThread.start();
-			runtimeInstance = runtime;
+		if (instance == null) {
+			runtime.thread = new KrollRuntimeThread(runtime);
+			runtime.thread.start();
+			instance = runtime;
 		}
 	}
 
 	public static KrollRuntime getInstance()
 	{
-		return runtimeInstance;
+		return instance;
 	}
 
 	public boolean isRuntimeThread()
 	{
-		return Thread.currentThread().getId() == runtimeThreadId;
+		return Thread.currentThread().getId() == threadId;
 	}
 
-	public Looper getRuntimeLooper()
+	public long getThreadId()
 	{
-		return runtimeLooper;
-	}
-
-	public Handler getRuntimeHandler()
-	{
-		return runtimeHandler;
+		return threadId;
 	}
 
 	public void dispose()
@@ -122,7 +105,7 @@ public abstract class KrollRuntime implements Handler.Callback
 			doDispose();
 
 		} else {
-			runtimeHandler.sendEmptyMessage(MSG_DISPOSE);
+			handler.sendEmptyMessage(MSG_DISPOSE);
 		}
 	}
 
@@ -132,7 +115,7 @@ public abstract class KrollRuntime implements Handler.Callback
 			doRunModule(source, filename);
 
 		} else {
-			Message message = runtimeHandler.obtainMessage(MSG_RUN_MODULE, source);
+			Message message = handler.obtainMessage(MSG_RUN_MODULE, source);
 			message.getData().putString(PROPERTY_FILENAME, filename);
 			message.sendToTarget();
 		}
@@ -147,9 +130,7 @@ public abstract class KrollRuntime implements Handler.Callback
 				return true;
 
 			case MSG_RUN_MODULE:
-				String source = (String) msg.obj;
-				String filename = msg.getData().getString(PROPERTY_FILENAME);
-				doRunModule(source, filename);
+				doRunModule((String) msg.obj, msg.getData().getString(PROPERTY_FILENAME));
 
 				return true;
 		}

@@ -9,6 +9,8 @@ package org.appcelerator.titanium.util;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 
 import android.app.Activity;

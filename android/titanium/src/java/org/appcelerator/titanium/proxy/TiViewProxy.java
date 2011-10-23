@@ -17,12 +17,13 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.AsyncResult;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.util.AsyncResult;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiAnimationBuilder;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
@@ -339,7 +340,9 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	@Kroll.getProperty @Kroll.method
 	public KrollDict getSize()
 	{
-		return (KrollDict) sendBlockingUiMessage(MSG_GETSIZE, getActivity());
+		return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETSIZE), getActivity());
+		//return (KrollDict) TiApplication.getInstance().getMessageQueue().sendBlockingMessage(getMainHandler().obtainMessage(MSG_GETSIZE), getActivity());
+		//return (KrollDict) sendBlockingUiMessage(MSG_GETSIZE, getActivity());
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -379,7 +382,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	@Kroll.getProperty @Kroll.method
 	public KrollDict getCenter()
 	{
-		return (KrollDict) sendBlockingUiMessage(MSG_GETCENTER, getActivity());
+		return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETCENTER), getActivity());
 	}
 
 	public void clearView()
@@ -416,7 +419,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			return handleGetView();
 		}
 
-		return (TiUIView) sendBlockingUiMessage(MSG_GETVIEW, 0);
+		return (TiUIView) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETVIEW), 0);
 	}
 
 	protected TiUIView handleGetView()
@@ -490,7 +493,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				return;
 			}
 
-			sendBlockingUiMessage(MSG_ADD_CHILD, child);
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ADD_CHILD), child);
+
 		} else {
 			children.add(child);
 			child.parent = new WeakReference<TiViewProxy>(this);
@@ -513,15 +517,18 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	{
 		if (child == null) {
 			Log.w(LCAT, "add called with null child");
+
 			return;
 		}
+
 		if (peekView() != null) {
 			if (TiApplication.isUIThread()) {
 				handleRemove(child);
 				return;
 			}
 
-			sendBlockingUiMessage(MSG_REMOVE_CHILD, child);
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REMOVE_CHILD), child);
+
 		} else {
 			if (children != null) {
 				children.remove(child);
@@ -548,7 +555,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		if (TiApplication.isUIThread()) {
 			handleShow(options);
 		} else {
-			getUIHandler().obtainMessage(MSG_SHOW, options).sendToTarget();
+			getMainHandler().obtainMessage(MSG_SHOW, options).sendToTarget();
+			//getUIHandler().obtainMessage(MSG_SHOW, options).sendToTarget();
 		}
 	}
 
@@ -565,7 +573,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		if (TiApplication.isUIThread()) {
 			handleHide(options);
 		} else {
-			getUIHandler().obtainMessage(MSG_HIDE, options).sendToTarget();
+			getMainHandler().obtainMessage(MSG_HIDE, options).sendToTarget();
+			//getUIHandler().obtainMessage(MSG_HIDE, options).sendToTarget();
 		}
 
 	}
@@ -611,7 +620,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	{
 		if (pendingAnimation != null && peekView() != null) {
 			if (forceQueue || !(TiApplication.isUIThread())) {
-				getUIHandler().obtainMessage(MSG_ANIMATE).sendToTarget();
+				getMainHandler().obtainMessage(MSG_ANIMATE).sendToTarget();
+				//getUIHandler().obtainMessage(MSG_ANIMATE).sendToTarget();
 			} else {
 				handleAnimate();
 			}
@@ -633,7 +643,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		if (TiApplication.isUIThread()) {
 			handleBlur();
 		} else {
-			getUIHandler().sendEmptyMessage(MSG_BLUR);
+			getMainHandler().sendEmptyMessage(MSG_BLUR);
+			//getUIHandler().sendEmptyMessage(MSG_BLUR);
 		}
 	}
 
@@ -650,7 +661,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		if (TiApplication.isUIThread()) {
 			handleFocus();
 		} else {
-			getUIHandler().sendEmptyMessage(MSG_FOCUS);
+			getMainHandler().sendEmptyMessage(MSG_FOCUS);
+			//getUIHandler().sendEmptyMessage(MSG_FOCUS);
 		}
 	}
 
@@ -666,8 +678,9 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	{
 		if (TiApplication.isUIThread()) {
 			return handleToImage();
+
 		} else {
-			return (KrollDict) sendBlockingUiMessage(MSG_TOIMAGE, getActivity());
+			return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_TOIMAGE), getActivity());
 		}
 	}
 

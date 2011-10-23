@@ -9,8 +9,8 @@ package ti.modules.titanium.network.socket;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.util.TiConfig;
 
 import ti.modules.titanium.network.NetworkModule;
 

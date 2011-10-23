@@ -9,7 +9,7 @@ package ti.modules.titanium.xml;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.appcelerator.titanium.util.Log;
+import org.appcelerator.kroll.common.Log;
 import org.jaxen.JaxenException;
 import org.jaxen.XPath;
 import org.jaxen.dom.DOMXPath;

@@ -7,10 +7,11 @@
 package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.AsyncResult;
+import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -62,8 +63,9 @@ public class WebViewProxy extends ViewProxy
 	public Object evalJS(String code) {
 		if (TiApplication.isUIThread()) {
 			return getWebView().getJSValue(code);
+
 		} else {
-			return sendBlockingUiMessage(MSG_EVAL_JS, code);
+			return TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_EVAL_JS), code);
 		}
 	}
 
@@ -118,23 +120,27 @@ public class WebViewProxy extends ViewProxy
 	
 	@Kroll.method
 	public void goBack() {
-		getUIHandler().sendEmptyMessage(MSG_GO_BACK);
+		getMainHandler().sendEmptyMessage(MSG_GO_BACK);
+		//getUIHandler().sendEmptyMessage(MSG_GO_BACK);
 	}
 	
 	
 	@Kroll.method
 	public void goForward() {
-		getUIHandler().sendEmptyMessage(MSG_GO_FORWARD);
+		getMainHandler().sendEmptyMessage(MSG_GO_FORWARD);
+		//getUIHandler().sendEmptyMessage(MSG_GO_FORWARD);
 	}
 	
 	@Kroll.method
 	public void reload() {
-		getUIHandler().sendEmptyMessage(MSG_RELOAD);
+		getMainHandler().sendEmptyMessage(MSG_RELOAD);
+		//getUIHandler().sendEmptyMessage(MSG_RELOAD);
 	}
 	
 	@Kroll.method
 	public void stopLoading() {
-		getUIHandler().sendEmptyMessage(MSG_STOP_LOADING);
+		getMainHandler().sendEmptyMessage(MSG_STOP_LOADING);
+		//getUIHandler().sendEmptyMessage(MSG_STOP_LOADING);
 
 	}
 	

@@ -7,6 +7,8 @@
 
 package org.appcelerator.titanium.util;
 
+import org.appcelerator.kroll.common.TiConfig;
+
 import android.content.res.Configuration;
 
 

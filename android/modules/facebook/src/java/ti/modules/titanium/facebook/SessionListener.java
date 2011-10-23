@@ -6,7 +6,7 @@
  */
 package ti.modules.titanium.facebook;
 
-import org.appcelerator.titanium.util.Log;
+import org.appcelerator.kroll.common.Log;
 
 import ti.modules.titanium.facebook.SessionEvents.AuthListener;
 import ti.modules.titanium.facebook.SessionEvents.LogoutListener;

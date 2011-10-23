@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.appcelerator.titanium.util.Log;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -21,14 +21,14 @@ import java.util.Stack;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiLaunchActivity;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiLifecycle.OnServiceLifecycleEvent;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
-import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -172,7 +172,8 @@ public class TitaniumModule extends KrollModule
 		throws IllegalArgumentException
 	{
 		int timerId = currentTimerId++;
-		Handler handler = getUIHandler();
+		//Handler handler = getUIHandler();
+		Handler handler = getMainHandler();
 
 		Timer timer = new Timer(timerId, handler, callback, timeout, args, interval);
 		Thread thread = handler.getLooper().getThread();

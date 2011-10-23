@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+
 public final class V8Runtime extends KrollRuntime implements Handler.Callback
 {
 	private static final String TAG = "KrollV8Runtime";
@@ -56,24 +57,26 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		V8Object.nativeInitObject(proxy.getClass(), proxy);
 	}
 
-	protected void dispatchDebugMessages()
-	{
-		runtimeHandler.sendEmptyMessage(MSG_PROCESS_DEBUG_MESSAGES);
-	}
-
 	@Override
-	public boolean handleMessage(Message msg)
+	public boolean handleMessage(Message message)
 	{
-		switch (msg.what) {
+		switch (message.what) {
 			case MSG_PROCESS_DEBUG_MESSAGES:
 				nativeProcessDebugMessages();
 
 				return true;
 		}
 
-		return super.handleMessage(msg);
+		return super.handleMessage(message);
 	}
 
+	protected void dispatchDebugMessages()
+	{
+		handler.sendEmptyMessage(MSG_PROCESS_DEBUG_MESSAGES);
+	}
+
+
+	// JNI method prototypes
 	private native void nativeInit(boolean useGlobalRefs);
 	private native void nativeRunModule(String source, String filename);
 	private native void nativeProcessDebugMessages();

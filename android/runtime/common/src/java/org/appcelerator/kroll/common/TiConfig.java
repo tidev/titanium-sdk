@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-package org.appcelerator.titanium.util;
+package org.appcelerator.kroll.common;
 
 import android.util.Config;
 

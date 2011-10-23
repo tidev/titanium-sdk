@@ -17,7 +17,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import org.appcelerator.titanium.util.Log;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.util.TiStreamHelper;
 import org.appcelerator.titanium.util.TiTempFileHelper;
 

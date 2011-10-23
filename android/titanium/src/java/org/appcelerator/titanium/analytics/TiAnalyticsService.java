@@ -19,7 +19,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.appcelerator.titanium.util.Log;
+import org.appcelerator.kroll.common.Log;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

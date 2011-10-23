@@ -21,12 +21,12 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
-import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiLocationHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
@@ -323,11 +323,12 @@ public class TiLocation
 			String url = buildGeoURL(DIRECTION_F, mid, aguid, sid, address, countryCode);
 
 			if (url != null) {
-				Message msg = geolocationModule.getUIHandler().obtainMessage(GeolocationModule.MSG_LOOKUP);
-				msg.getData().putString(TiC.PROPERTY_DIRECTION, DIRECTION_F);
-				msg.getData().putString(TiC.PROPERTY_URL, url);
-				msg.obj = listener;
-				msg.sendToTarget();
+				Message message = geolocationModule.getMainHandler().obtainMessage(GeolocationModule.MSG_LOOKUP);
+				//Message msg = geolocationModule.getUIHandler().obtainMessage(GeolocationModule.MSG_LOOKUP);
+				message.getData().putString(TiC.PROPERTY_DIRECTION, DIRECTION_F);
+				message.getData().putString(TiC.PROPERTY_URL, url);
+				message.obj = listener;
+				message.sendToTarget();
 			}
 		} else {
 			Log.w(LCAT, "address should not be null");
@@ -343,11 +344,12 @@ public class TiLocation
 		String url = buildGeoURL(DIRECTION_R, mid, aguid, sid, latitude + "," + longitude, countryCode);
 
 		if (url != null) {
-			Message msg = geolocationModule.getUIHandler().obtainMessage(GeolocationModule.MSG_LOOKUP);
-			msg.getData().putString(TiC.PROPERTY_DIRECTION, DIRECTION_R);
-			msg.getData().putString(TiC.PROPERTY_URL, url);
-			msg.obj = callback;
-			msg.sendToTarget();
+			Message message = geolocationModule.getMainHandler().obtainMessage(GeolocationModule.MSG_LOOKUP);
+			//Message msg = geolocationModule.getUIHandler().obtainMessage(GeolocationModule.MSG_LOOKUP);
+			message.getData().putString(TiC.PROPERTY_DIRECTION, DIRECTION_R);
+			message.getData().putString(TiC.PROPERTY_URL, url);
+			message.obj = callback;
+			message.sendToTarget();
 		}
 	}
 

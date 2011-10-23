@@ -8,6 +8,7 @@ package org.appcelerator.titanium.util;
 
 import java.util.LinkedList;
 
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiFastDev;
 import org.appcelerator.titanium.kroll.KrollContext;

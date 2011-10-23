@@ -10,9 +10,9 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 
 //import org.appcelerator.titanium.kroll.KrollBridge;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.kroll.KrollContext;
-import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiJSErrorDialog;
 import org.appcelerator.titanium.util.TiUrl;

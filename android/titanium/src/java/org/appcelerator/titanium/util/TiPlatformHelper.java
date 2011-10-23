@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.UUID;
 
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
 

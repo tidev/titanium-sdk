@@ -21,12 +21,14 @@ import java.util.regex.Pattern;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiFastDev;
-import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
@@ -887,11 +889,13 @@ public class TiUIHelper
 	 */
 	public static void runUiDelayedIfBlock(final Runnable runnable)
 	{
-		if (TiMessageQueue.getMainMessageQueue().isBlocking()) {
+		//if (TiApplication.getInstance().getMessageQueue().isBlocking()) {
+		if (TiMessenger.getMainMessenger().isBlocking()) {
 			runUiDelayed(runnable);
 		} else {
-			Handler handler = new Handler(Looper.getMainLooper());
-			handler.post(runnable);
+			//Handler handler = new Handler(Looper.getMainLooper());
+			//handler.post(runnable);
+			TiMessenger.getMainMessenger().getHandler().post(runnable);
 		}
 	}
 }

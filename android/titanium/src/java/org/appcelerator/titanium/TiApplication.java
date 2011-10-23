@@ -20,13 +20,14 @@ import java.util.Properties;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.analytics.TiAnalyticsModel;
 import org.appcelerator.titanium.analytics.TiAnalyticsService;
-import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiResponseCache;
@@ -41,6 +42,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.DisplayMetrics;
 
+
 public class TiApplication extends Application implements Handler.Callback
 {
 	private static final String LCAT = "TiApplication";
@@ -52,18 +54,8 @@ public class TiApplication extends Application implements Handler.Callback
 	private static final String PROPERTY_THREAD_STACK_SIZE = "ti.android.threadstacksize";
 	private static final String PROPERTY_COMPILE_JS = "ti.android.compilejs";
 	private static final String PROPERTY_ENABLE_COVERAGE = "ti.android.enablecoverage";
-
-	public static final String DEPLOY_TYPE_DEVELOPMENT = "development";
-	public static final String DEPLOY_TYPE_TEST = "test";
-	public static final String DEPLOY_TYPE_PRODUCTION = "production";
-	public static final int DEFAULT_THREAD_STACK_SIZE = 16 * 1024; // 16K as a "sane" default
-	public static final String APPLICATION_PREFERENCES_NAME = "titanium";
-	public static final String PROPERTY_FASTDEV = "ti.android.fastdev";
-
 	private static long lastAnalyticsTriggered = 0;
 	private static long mainThreadId = 0;
-
-	protected static TiApplication tiApp = null;
 
 	private String baseUrl;
 	private String startUrl;
@@ -80,6 +72,8 @@ public class TiApplication extends Application implements Handler.Callback
 	private String buildVersion = "", buildTimestamp = "", buildHash = "";
 	private HashMap<String, KrollModule> modules;
 
+	protected static TiApplication tiApp = null;
+
 	protected TiAnalyticsModel analyticsModel;
 	protected Intent analyticsIntent;
 	protected Handler analyticsHandler;
@@ -87,6 +81,14 @@ public class TiApplication extends Application implements Handler.Callback
 	protected TiTempFileHelper tempFileHelper;
 	protected ITiAppInfo appInfo;
 	protected TiStylesheet stylesheet;
+
+	public static final String DEPLOY_TYPE_DEVELOPMENT = "development";
+	public static final String DEPLOY_TYPE_TEST = "test";
+	public static final String DEPLOY_TYPE_PRODUCTION = "production";
+	public static final int DEFAULT_THREAD_STACK_SIZE = 16 * 1024; // 16K as a "sane" default
+	public static final String APPLICATION_PREFERENCES_NAME = "titanium";
+	public static final String PROPERTY_FASTDEV = "ti.android.fastdev";
+
 
 	public TiApplication()
 	{
@@ -101,6 +103,7 @@ public class TiApplication extends Application implements Handler.Callback
 		tiApp = this;
 
 		modules = new HashMap<String, KrollModule>();
+		TiMessenger.getMessenger(); // initialize message queue for main thread
 
 		Log.i(LCAT, "Titanium " + buildVersion + " (" + buildTimestamp + " " + buildHash + ")");
 	}

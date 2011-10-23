@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.appcelerator.kroll.common.Log;
+
 import android.graphics.Color;
 
 public class TiColorHelper

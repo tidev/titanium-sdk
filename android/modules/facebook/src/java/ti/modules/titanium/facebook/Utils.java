@@ -10,9 +10,9 @@ package ti.modules.titanium.facebook;
 import java.io.IOException;
 import java.util.Map;
 
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.os.Bundle;

@@ -17,9 +17,7 @@ import org.mozilla.javascript.ScriptableObject;
 
 import android.util.Log;
 
-/**
- * The Rhino implementation of KrollRuntime
- */
+
 public class RhinoRuntime extends KrollRuntime
 {
 	private static final String TAG = "RhinoRuntime";
@@ -33,7 +31,6 @@ public class RhinoRuntime extends KrollRuntime
 	@Override
 	public void initRuntime()
 	{
-		runtimeInstance = this;
 		Context context = Context.enter();
 		context.setOptimizationLevel(-1);
 
@@ -43,38 +40,6 @@ public class RhinoRuntime extends KrollRuntime
 
 		} finally {
 			Context.exit();
-		}
-	}
-
-	public static Scriptable getGlobalScope()
-	{
-		return ((RhinoRuntime) getInstance()).globalScope;
-	}
-
-	private void bootstrap(Context context, Scriptable scope)
-	{
-		Function krollConstructor = KrollGlobal.init(globalScope);
-		globalKrollObject = krollConstructor.construct(context, globalScope, ScriptRuntime.emptyArgs);
-
-		EventEmitter.init(globalKrollObject);
-
-		Script krollScript = KrollBindings.getJsBinding("kroll");
-		Object result = krollScript.exec(context, globalScope);
-
-		if (!(result instanceof Function)) {
-			Log.e(TAG, "kroll.js result is not a function");
-
-			return;
-		}
-
-		Function mainFunction = (Function) result;
-		Object[] args = new Object[] { globalKrollObject };
-
-		try {
-			mainFunction.call(context, globalScope, globalScope, args);
-
-		} catch (Exception e) {
-			Log.e(TAG, "Caught exception while bootstrapping kroll: " + e.getMessage(), e);
 		}
 	}
 
@@ -117,5 +82,36 @@ public class RhinoRuntime extends KrollRuntime
 		}
 	}
 
+	public static Scriptable getGlobalScope()
+	{
+		return ((RhinoRuntime) getInstance()).globalScope;
+	}
+
+	private void bootstrap(Context context, Scriptable scope)
+	{
+		Function krollConstructor = KrollGlobal.init(globalScope);
+		globalKrollObject = krollConstructor.construct(context, globalScope, ScriptRuntime.emptyArgs);
+
+		EventEmitter.init(globalKrollObject);
+
+		Script krollScript = KrollBindings.getJsBinding("kroll");
+		Object result = krollScript.exec(context, globalScope);
+
+		if (!(result instanceof Function)) {
+			Log.e(TAG, "kroll.js result is not a function");
+
+			return;
+		}
+
+		Function mainFunction = (Function) result;
+		Object[] args = new Object[] { globalKrollObject };
+
+		try {
+			mainFunction.call(context, globalScope, globalScope, args);
+
+		} catch (Exception e) {
+			Log.e(TAG, "Caught exception while bootstrapping kroll: " + e.getMessage(), e);
+		}
+	}
 }
 

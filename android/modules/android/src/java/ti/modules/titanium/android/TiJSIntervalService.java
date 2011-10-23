@@ -14,13 +14,13 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.ServiceProxy;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiBindingHelper;
-import org.appcelerator.titanium.util.TiConfig;
 
 import android.app.Service;
 import android.content.Intent;

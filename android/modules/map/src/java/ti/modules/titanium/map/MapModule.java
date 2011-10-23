@@ -8,8 +8,8 @@ package ti.modules.titanium.map;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.util.TiConfig;
 
 @Kroll.module
 public class MapModule extends KrollModule

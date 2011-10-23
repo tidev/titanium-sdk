@@ -6,9 +6,9 @@
  */
 package org.appcelerator.titanium;
 
-import org.appcelerator.titanium.util.Log;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.util.TiActivitySupport;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiRHelper;
 
 import android.content.res.Configuration;
