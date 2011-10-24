@@ -209,8 +209,41 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	}
 
 	@Override
+	protected void onPause()
+	{
+		// TODO - enable this
+		/*
+		if (tiContext == null) {
+			// Not in a good state. Let's get out.
+			if (noLaunchCategoryAlert != null && noLaunchCategoryAlert.isShowing()) {
+				noLaunchCategoryAlert.cancel();
+				noLaunchCategoryAlert = null;
+			}
+
+			finish();
+
+		} else {
+			tiContext.fireLifecycleEvent(this, TiContext.LIFECYCLE_ON_PAUSE);	
+		}
+		*/
+
+		super.onPause();
+	}
+
+	@Override
 	protected void onDestroy()
 	{
+		// TODO - enable this
+		/*
+		if (tiContext != null) {
+			tiContext.fireLifecycleEvent(this, TiContext.LIFECYCLE_ON_DESTROY);
+			TiApplication tiApp = tiContext.getTiApp();
+			if (tiApp != null) {
+				tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppEndEvent());
+			}
+		}
+		*/
+
 		TiApplication tiApp = TiApplication.getInstance();
 		if (tiApp != null) {
 			tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppEndEvent());
