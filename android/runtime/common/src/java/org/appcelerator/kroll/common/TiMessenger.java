@@ -53,6 +53,14 @@ public class TiMessenger implements Handler.Callback
 	protected static ThreadLocal<TiMessenger> threadLocalMessenger = new ThreadLocal<TiMessenger>() {
 		protected TiMessenger initialValue()
 		{
+			if (Looper.myLooper() == null) {
+				synchronized (threadLocalMessenger) {
+					if (Looper.myLooper() == null) {
+						Looper.prepare();
+					}
+				}
+			}
+
 			TiMessenger messenger = new TiMessenger();
 
 			long currentThreadId = Thread.currentThread().getId();
@@ -80,14 +88,6 @@ public class TiMessenger implements Handler.Callback
 
 	public static TiMessenger getMessenger()
 	{
-		if (Looper.myLooper() == null) {
-			synchronized (threadLocalMessenger) {
-				if (Looper.myLooper() == null) {
-					Looper.prepare();
-				}
-			}
-		}
-
 		return threadLocalMessenger.get();
 	}
 
