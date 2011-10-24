@@ -15,5 +15,5 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/titanium-app"/>
 	<classpathentry kind="lib" path="/titanium-dist/lib/kroll-apt.jar"/>
 	<classpathentry kind="lib" path="/titanium/lib/android-support-v4.jar"/>
-	<classpathentry kind="output" path="bin/classes"/>
+	<classpathentry kind="output" path="bin"/>
 </classpath>
