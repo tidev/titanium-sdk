@@ -10,24 +10,34 @@ import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollRuntime;
+import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.runtime.rhino.Proxy.RhinoObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 
+import android.os.Handler;
+import android.os.Message;
+
 
 /**
  * An implementation of KrollFunction for Rhino
  */
-public class RhinoFunction implements KrollFunction
+public class RhinoFunction implements KrollFunction, Handler.Callback
 {
 	private Function function;
+	private Handler handler;
+
+	protected static final int MSG_CALL_SYNC = 100;
+	protected static final int MSG_LAST_ID = MSG_CALL_SYNC;
 
 
 	public RhinoFunction(Function function)
 	{
 		this.function = function;
+		handler = new Handler(TiMessenger.getRuntimeMessenger().getLooper(), this);
 	}
 
 	public void call(KrollObject krollObject, HashMap args)
@@ -36,6 +46,17 @@ public class RhinoFunction implements KrollFunction
 	}
 
 	public void call(KrollObject krollObject, Object[] args)
+	{
+		if (KrollRuntime.getInstance().isRuntimeThread())
+		{
+			callSync(krollObject, args);
+
+		} else {
+			TiMessenger.sendBlockingRuntimeMessage(handler.obtainMessage(MSG_CALL_SYNC), new FunctionArgs(krollObject, args));
+		}
+	}
+
+	public void callSync(KrollObject krollObject, Object[] args)
 	{
 		RhinoObject rhinoObject = (RhinoObject) krollObject;
 		Scriptable nativeObject = (Scriptable) rhinoObject.getNativeObject();
@@ -68,6 +89,22 @@ public class RhinoFunction implements KrollFunction
 				call(krollObject, args);
 			}
 		});
+	}
+
+	public boolean handleMessage(Message message)
+	{
+		switch (message.what) {
+			case MSG_CALL_SYNC: {
+				AsyncResult asyncResult = ((AsyncResult) message.obj);
+				FunctionArgs functionArgs = (FunctionArgs) asyncResult.getArg();
+				callSync(functionArgs.krollObject, functionArgs.args);
+				asyncResult.setResult(null);
+
+				return true;
+			}
+		}
+
+		return false;
 	}
 }
 

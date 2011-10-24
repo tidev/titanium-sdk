@@ -172,8 +172,7 @@ public class TitaniumModule extends KrollModule
 		throws IllegalArgumentException
 	{
 		int timerId = currentTimerId++;
-		//Handler handler = getUIHandler();
-		Handler handler = getMainHandler();
+		Handler handler = getRuntimeHandler();
 
 		Timer timer = new Timer(timerId, handler, callback, timeout, args, interval);
 		Thread thread = handler.getLooper().getThread();
