@@ -11,5 +11,5 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/titanium"/>
 	<classpathentry kind="lib" path="lib/jaxen-1.1.1.jar"/>
 	<classpathentry kind="lib" path="/titanium-dist/lib/kroll-apt.jar"/>
-	<classpathentry kind="output" path="bin/classes"/>
+	<classpathentry kind="output" path="bin"/>
 </classpath>
