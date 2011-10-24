@@ -197,7 +197,7 @@ exports.bootstrapWindow = function(Titanium) {
 	{
 		if (this.url == null) return;
 
-		vm.runInThisContext(assets.readResource(this.url), this.url);
+		Ti.include(this.url, this._sourceUrl);
 	}
 
 	Window.prototype.addEventListener = function(event, listener) {
@@ -232,8 +232,11 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 	}
 
-	Window.createWindow = function(options) {
-		return new Window(options);
+	Window.createWindow = function(sourceUrl, options) {
+		var win = new Window(options);
+		win._sourceUrl = sourceUrl;
+		return win;
 	}
+
 	return Window;
 };

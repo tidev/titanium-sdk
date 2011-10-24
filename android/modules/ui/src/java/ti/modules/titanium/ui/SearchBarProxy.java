@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
@@ -27,12 +28,17 @@ public class SearchBarProxy extends TiViewProxy
 	public SearchBarProxy()
 	{
 		super();
-		setProperty(TiC.PROPERTY_VALUE, "");
 	}
 
 	public SearchBarProxy(TiContext tiContext)
 	{
 		this();
+	}
+
+	@Override
+	public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
+		super.handleCreationArgs(createdInModule, args);
+		setProperty(TiC.PROPERTY_VALUE, "");
 	}
 
 	@Override

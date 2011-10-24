@@ -146,6 +146,8 @@ public abstract class TiWindowProxy extends TiViewProxy
 				options = new KrollDict();
 				options.put("_anim", animation);
 			}
+		} else {
+			options = new KrollDict();
 		}
 
 		if (TiApplication.isUIThread()) {
