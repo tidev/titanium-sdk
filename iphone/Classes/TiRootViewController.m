@@ -13,6 +13,7 @@
 #import "TiTab.h"
 #import "TiApp.h"
 #import <MessageUI/MessageUI.h>
+#import "UIImage+Resize.h"
 
 @interface TiRootView : UIView
 @end
@@ -102,6 +103,18 @@
 	RELEASE_TO_NIL(defaultImageView);
 }
 
+-(UIImage *)reorientImage:(UIImage *) oldImage toOrientation:(UIImageOrientation) newOrientation
+{
+	if ([oldImage respondsToSelector:@selector(scale)]) {
+		return [UIImage imageWithCGImage:[oldImage CGImage] scale:[oldImage scale] orientation:newOrientation];
+	}
+	
+	//By now, this is 3.x, and so we now need to create a new image by drawing since we can't simply
+	//change the orientation.
+	return oldImage;
+}
+
+
 -(void)rotateDefaultImageViewToOrientation: (UIInterfaceOrientation )newOrientation;
 {
 	if (defaultImageView == nil)
@@ -141,8 +154,7 @@
 			{
 				imageOrientation = UIImageOrientationRight;
 			}
-			defaultImage = [
-							UIImage imageWithCGImage:[defaultImage CGImage] scale:imageScale orientation:imageOrientation];
+			defaultImage = [self reorientImage:defaultImage toOrientation:imageOrientation];
 			imageSize = CGSizeMake(imageSize.height, imageSize.width);
 			if (imageScale > 1.5) {
 				contentMode = UIViewContentModeCenter;
@@ -150,7 +162,7 @@
 		}
 		else if(newOrientation == UIInterfaceOrientationLandscapeRight)
 		{
-			defaultImage = [UIImage imageWithCGImage:[defaultImage CGImage] scale:imageScale orientation:UIImageOrientationLeft];
+			defaultImage = [self reorientImage:defaultImage toOrientation:UIImageOrientationLeft];
 			imageSize = CGSizeMake(imageSize.height, imageSize.width);
 			if (imageScale > 1.5) {
 				contentMode = UIViewContentModeCenter;
@@ -158,7 +170,7 @@
 		}
 		else if((newOrientation == UIInterfaceOrientationPortraitUpsideDown) && (deviceIdiom == UIUserInterfaceIdiomPhone))
 		{
-			defaultImage = [UIImage imageWithCGImage:[defaultImage CGImage] scale:imageScale orientation:UIImageOrientationDown];			
+			defaultImage = [self reorientImage:defaultImage toOrientation:UIImageOrientationDown];
 			if (imageScale > 1.5) {
 				contentMode = UIViewContentModeCenter;
 			}
