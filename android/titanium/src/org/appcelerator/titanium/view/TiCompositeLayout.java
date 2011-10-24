@@ -245,7 +245,7 @@ public class TiCompositeLayout extends ViewGroup
 		int childDimension = LayoutParams.WRAP_CONTENT;
 		if (p.optionWidth != null) {
 			childDimension = p.optionWidth.getAsPixels(this);
-			if (childDimension == 0 && p.optionWidth.isUnitPercent() && width > 0) {
+			if (childDimension >= 0 && p.optionWidth.isUnitPercent() && width > 0) {
 				childDimension = (int) ((p.optionWidth.getValue() / 100.0) * width);
 			}
 		} else {
@@ -258,7 +258,7 @@ public class TiCompositeLayout extends ViewGroup
 		childDimension = LayoutParams.WRAP_CONTENT;
 		if (p.optionHeight != null) {
 			childDimension = p.optionHeight.getAsPixels(this);
-			if (childDimension == 0 && p.optionHeight.isUnitPercent() && height > 0) {
+			if (childDimension >= 0 && p.optionHeight.isUnitPercent() && height > 0) {
 				childDimension = (int) ((p.optionHeight.getValue() / 100.0) * height);
 			}
 		} else {
@@ -327,12 +327,8 @@ public class TiCompositeLayout extends ViewGroup
 			if (child.getVisibility() != View.GONE) {
 				// Dimension is required from Measure. Positioning is determined here.
 				
-				// Use the height and width from params if we can. When we switch orientation the child returns the
-				// value from the previous orientation instead of the current one
-				int childMeasuredWidth = params.optionWidth != null ? params.optionWidth.getAsPixels(this) : child
-					.getMeasuredWidth();
-				int childMeasuredHeight = params.optionHeight != null ? params.optionHeight.getAsPixels(this) : child
-					.getMeasuredHeight();
+				int childMeasuredWidth = child.getMeasuredWidth();
+				int childMeasuredHeight = child.getMeasuredHeight();
 
 				if (isHorizontalArrangement()) {
 					if (i == 0)  {
