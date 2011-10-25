@@ -3,9 +3,9 @@
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="src" path="src/java"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
-	<classpathentry kind="src" path="kroll-common_src_java"/>
 	<classpathentry exported="true" kind="lib" path="lib/js.jar" sourcepath="/Users/marshall/Code/rhino_titanium/src"/>
 	<classpathentry kind="lib" path="/titanium-dist/lib/kroll-rhino-bindings.jar" sourcepath="generated"/>
 	<classpathentry kind="lib" path="/titanium-dist/lib/kroll-rhino-js.jar"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
+	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

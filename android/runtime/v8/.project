@@ -98,11 +98,4 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>kroll-common_src_java</name>
-			<type>2</type>
-			<locationURI>_android_kroll_common_cc851bf0/src/java</locationURI>
-		</link>
-	</linkedResources>
 </projectDescription>
