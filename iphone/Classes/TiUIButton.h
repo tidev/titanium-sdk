@@ -14,6 +14,12 @@
 	int style;
 	
 	BOOL eventAlreadyTriggered;
+    //Variables holding for control state images
+    BOOL hasBgImageN;
+    BOOL hasBgImageF;
+    BOOL hasBgImageD;
+    BOOL hasBgImageS;
+
 }
 
 -(UIButton*)button;
