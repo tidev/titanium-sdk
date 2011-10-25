@@ -52,6 +52,7 @@ public:
 
 	// function convert methods
 	static jobject jsObjectToJavaFunction(v8::Handle<v8::Object> jsObject);
+	static v8::Handle<v8::Function> javaObjectToJsFunction(jobject javaObject);
 
 	// arguments conversion
 	static jobjectArray jsArgumentsToJavaArray(const v8::Arguments& args);
