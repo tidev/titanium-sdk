@@ -218,12 +218,6 @@ public class KrollContext implements Handler.Callback, ModuleScriptProvider
 		Script script = null;
 		String uri;
 
-		// CommonJS modules are relative to app://. If a moduleId came
-		// in with a forward slash, lose it.
-		if (moduleId.startsWith("/")) {
-			moduleId = moduleId.substring(1);
-		}
-
 		StringBuilder sb = new StringBuilder();
 		sb.append(TiC.URL_APP_PREFIX)
 			.append(moduleId)
