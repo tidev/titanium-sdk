@@ -7,7 +7,6 @@
 package ti.modules.titanium;
 
 import java.io.IOException;
-import java.lang.StringBuilder;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -24,9 +23,10 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiLaunchActivity;
+import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
@@ -436,60 +436,53 @@ public class TitaniumModule extends KrollModule
 			return module;
 		}
 
-		if (DBG) {
-			Log.d(LCAT, "Attempting to include CommonJS module: " + path);
+		// NOTE: commonjs modules load absolute to root in Titanium
+		String fileUrl = "app://"+path+".js";
+		TiBaseFile tbf = TiFileFactory.createTitaniumFile(ctx, new String[]{ fileUrl }, false);
+		if (tbf!=null)
+		{
+			try
+			{
+				TiBlob blob = (TiBlob)tbf.read();
+				if (blob == null) {
+					Log.e(LCAT, "Couldn't read required file: " + fileUrl);
+					return null;
+				}
+
+				// create the common js exporter
+				KrollProxy proxy = new KrollProxy(ctx);
+				StringBuilder buf = new StringBuilder();
+				buf.append("(function(exports){");
+				buf.append(blob.getText());
+				buf.append("return exports;");
+				buf.append("})({})");
+				Scriptable result = (Scriptable)ctx.evalJS(buf.toString());
+				// common js modules export all functions/properties as 
+				// properties of the special export object provided
+				for (Object key : result.getIds())
+				{
+					String propName = key.toString();
+					Scriptable propValue = (Scriptable)result.get(propName,result);
+					proxy.setProperty(propName, propValue);
+				}
+				// spec says you must have a read-only id property - we don't
+				// currently support readonly in kroll so this is probably OK for now
+				proxy.setProperty("id", path);
+				// uri is optional but we point it to where we loaded it
+				proxy.setProperty("uri",fileUrl);
+				return proxy;
+			}
+			catch(Exception ex)
+			{
+				Log.e(LCAT,"Error loading module named: "+path,ex);
+				Context.throwAsScriptRuntimeEx(ex);
+				return null;
+			}
 		}
 
-		StringBuilder builder = new StringBuilder();
-		builder.setLength(0);
-		builder.append(TiC.URL_APP_PREFIX)
-			.append(path)
-			.append(".js");
-		String fileUrl = builder.toString();
-
-		// create the CommonJS exporter
-		KrollProxy proxy = new KrollProxy(ctx);
-
-		// call the actual require() implementation.
-		Object result = null;
-		try {
-			result = ctx.getKrollContext().callCommonJsRequire(path);
-		} catch (Exception e) {
-			builder.setLength(0);
-			builder.append("require(\"")
-				.append(path)
-				.append("\") failed: ")
-				.append(e.getMessage());
-			String msg = builder.toString();
-			Log.e(LCAT, msg, e);
-			Context.throwAsScriptRuntimeEx(new Exception(msg));
-		}
-
-		if (!(result instanceof Scriptable)) {
-			builder.setLength(0);
-			builder.append("Module did not correctly return an exports object: ")
-				.append(path)
-				.append(", result: ")
-				.append(result);
-			Context.throwAsScriptRuntimeEx(new Exception(builder.toString()));
-			return null;
-		}
-
-		Scriptable exports = (Scriptable) result;
-		// CommonJS modules export all functions/properties as
-		// properties of the special exports object provided
-		for (Object key : exports.getIds()) {
-			String propName = key.toString();
-			proxy.setProperty(propName, exports.get(propName, exports));
-		}
-
-		// spec says you must have a read-only id property - we don't
-		// currently support readonly in kroll so this is probably OK for now
-		proxy.setProperty(TiC.PROPERTY_ID, path);
-		// uri is optional but we point it to where we loaded it
-		proxy.setProperty("uri", fileUrl);
-		return proxy;
-
+		//the spec says we are required to throw an exception
+		Context.reportError("couldn't find module: "+path);
+		return null;
 	}
 
 	@Override
