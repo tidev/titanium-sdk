@@ -333,7 +333,7 @@ public class KrollContext implements Handler.Callback
 			Scriptable scope = context.newObject(jsScope);
 			Scriptable exports = context.newObject(scope);
 			scope.put("exports", scope, exports);
-			Log.d(LCAT, "Running CommonJS module script: " + relativePath);
+			Log.i(LCAT, "Running CommonJS module script: " + relativePath);
 			TiScriptRunner.getInstance().runScript(context, scope, relativePath);
 			return exports;
 		} catch (ClassNotFoundException e) {
@@ -357,7 +357,11 @@ public class KrollContext implements Handler.Callback
 	{
 		String[] parts = { filename };
 		TiBaseFile tbf = TiFileFactory.createTitaniumFile(tiContext, parts, false);
-
+		if (!tbf.exists()) {
+			Context.throwAsScriptRuntimeEx(new Exception("Module file " + filename + " does not exist."));
+			return null;
+		}
+		Log.i(LCAT, "Evaluating CommonJS module script: " + filename);
 		Context context = enter(false);
 		Scriptable scope = context.newObject(jsScope);
 		Scriptable exports = context.newObject(scope);

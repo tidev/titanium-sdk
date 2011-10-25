@@ -449,16 +449,7 @@ public class TitaniumModule extends KrollModule
 			.append(path)
 			.append(".js");
 		String fileUrl = builder.toString();
-		TiBaseFile tbf = TiFileFactory.createTitaniumFile(ctx, new String[]{ fileUrl }, false);
-		if (tbf == null) {
-			//the spec says we are required to throw an exception
-			Context.reportError("Couldn't find module: " + path);
-			return null;
-		}
 
-		if (DBG) {
-			Log.d(LCAT, "Attempting to include JS module: " + tbf.nativePath());
-		}
 		try {
 			return ctx.evalCommonJsModule(fileUrl);
 		} catch (Exception ex) {
