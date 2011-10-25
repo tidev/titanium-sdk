@@ -7,5 +7,6 @@
 	<classpathentry kind="lib" path="/titanium-dist/lib/kroll-rhino-bindings.jar" sourcepath="generated"/>
 	<classpathentry kind="lib" path="/titanium-dist/lib/kroll-rhino-js.jar"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/kroll-common"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

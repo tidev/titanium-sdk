@@ -5,5 +5,7 @@
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="lib" path="/titanium-dist/lib/kroll-apt.jar"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/kroll-common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/titanium"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
