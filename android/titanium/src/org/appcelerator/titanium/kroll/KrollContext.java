@@ -28,26 +28,22 @@ import org.appcelerator.titanium.util.TiFileHelper2;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.EvaluatorException;
-import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
-import org.mozilla.javascript.commonjs.module.ModuleScript;
-import org.mozilla.javascript.commonjs.module.ModuleScriptProvider;
-import org.mozilla.javascript.commonjs.module.Require;
-import org.mozilla.javascript.commonjs.module.RequireBuilder;
 
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
 
-public class KrollContext implements Handler.Callback, ModuleScriptProvider
+public class KrollContext implements Handler.Callback
 {
 	private static final String LCAT = "KrollContext";
 	private static boolean DBG = TiConfig.DEBUG;
 
 	private static final int MSG_EVAL_STRING = 1000;
 	private static final int MSG_EVAL_FILE = 1001;
+	private static final int MSG_EVAL_COMMONJS = 1002;
 
 	private static final String STRING_SOURCE = "<anonymous>";
 
@@ -59,7 +55,6 @@ public class KrollContext implements Handler.Callback, ModuleScriptProvider
 	private static KrollThreadListener threadListener;
 
 	private KrollHandlerThread thread;
-	private Require commonJsRequire;
 	private TiContext tiContext;
 	private ScriptableObject jsScope;
 	private String sourceUrl;
@@ -194,79 +189,7 @@ public class KrollContext implements Handler.Callback, ModuleScriptProvider
 			if (DBG) {
 				Log.d(LCAT, "Initialized scope: " + jsScope);
 			}
-			this.commonJsRequire = buildCommonJsRequire(ctx);
-			if (DBG) {
-				Log.d(LCAT, "Initialized commonJS require() function: " + this.commonJsRequire);
-			}
 			initialized.countDown();
-		} finally {
-			exit();
-		}
-	}
-
-	private Require buildCommonJsRequire(Context ctx)
-	{
-		RequireBuilder builder = new RequireBuilder();
-		builder.setModuleScriptProvider(this);
-		return builder.createRequire(ctx, jsScope);
-	}
-
-	@Override
-	public ModuleScript getModuleScript(Context context, String moduleId,
-			Scriptable paths) throws Exception
-	{
-		Script script = null;
-		String uri;
-
-		// CommonJS modules are relative to app://. If a moduleId came
-		// in with a forward slash, lose it.
-		if (moduleId.startsWith("/")) {
-			moduleId = moduleId.substring(1);
-		}
-
-		StringBuilder sb = new StringBuilder();
-		sb.append(TiC.URL_APP_PREFIX)
-			.append(moduleId)
-			.append(".js");
-		uri = sb.toString();
-
-		if (useOptimization) {
-			// get Script from compiled script class
-			script = TiScriptRunner.getInstance()
-					.getScript(context, jsScope, moduleId);
-			if (script == null) {
-				Log.e(LCAT, "Could not retrieve a Script object for module '" + moduleId + "'.");
-				Context.throwAsScriptRuntimeEx(new Exception("Unable to load Script for module '" + moduleId + "'."));
-			}
-		} else {
-			// make Script from JS source
-			TiBaseFile file = TiFileFactory.createTitaniumFile(tiContext, new String[] { uri }, false);
-			BufferedReader br = null;
-			try {
-				br = new BufferedReader(new InputStreamReader(file.getInputStream()), 4000);
-				script = context.compileReader(br, uri, 1, null);
-			} catch (IOException e) {
-				Log.e(LCAT, "IOException reading module file: " + uri, e);
-				Context.throwAsScriptRuntimeEx(e);
-			} finally {
-				if (br != null) {
-					try {
-						br.close();
-					} catch (IOException e) {
-						// Ignore
-					}
-				}
-			}
-		}
-
-		return new ModuleScript(script, uri);
-	}
-
-	public Object callCommonJsRequire(String path)
-	{
-		Context ctx = enter();
-		try {
-			return commonJsRequire.call(ctx, jsScope, jsScope, new String[] { path });
 		} finally {
 			exit();
 		}
@@ -293,6 +216,12 @@ public class KrollContext implements Handler.Callback, ModuleScriptProvider
 				AsyncResult result = (AsyncResult) msg.obj;
 				String filename = msg.getData().getString(TiC.MSG_PROPERTY_FILENAME);
 				result.setResult(handleEvalFile(filename));
+				return true;
+			}
+			case MSG_EVAL_COMMONJS : {
+				AsyncResult result = (AsyncResult) msg.obj;
+				String filename = msg.getData().getString(TiC.MSG_PROPERTY_FILENAME);
+				result.setResult(handleEvalCommonJsModule(filename));
 				return true;
 			}
 		}
@@ -355,6 +284,22 @@ public class KrollContext implements Handler.Callback, ModuleScriptProvider
 		return TiMessageQueue.getMessageQueue().sendBlockingMessage(msg, messageQueue, result);
 	}
 
+	public Object evalCommonJsModule(String filename)
+	{
+		if (DBG) {
+			Log.d(LCAT, "evalCommonJsModule: " + filename);
+		}
+
+		if (isOurThread()) {
+			return handleEvalCommonJsModule(filename);
+		}
+
+		AsyncResult result = new AsyncResult();
+		Message msg = messageQueue.getHandler().obtainMessage(MSG_EVAL_COMMONJS, result);
+		msg.getData().putString(TiC.MSG_PROPERTY_FILENAME, filename);
+		return TiMessageQueue.getMessageQueue().sendBlockingMessage(msg, messageQueue, result);
+	}
+
 	protected Object runCompiledScript(String filename)
 	{
 		String relativePath = TiFileHelper2.getResourceRelativePath(filename);
@@ -375,6 +320,30 @@ public class KrollContext implements Handler.Callback, ModuleScriptProvider
 		return ScriptableObject.NOT_FOUND;
 	}
 
+	protected Object runCompiledScriptAsModule(String filename)
+	{
+		String relativePath = TiFileHelper2.getResourceRelativePath(filename);
+		if (relativePath == null) {
+			// we can only handle pre-compiled app:// and file:///android_asset/Resources/ scripts here
+			return evaluateScript(filename);
+		}
+
+		Context context = enter(true);
+		try {
+			Scriptable scope = context.newObject(jsScope);
+			Scriptable exports = context.newObject(scope);
+			scope.put("exports", scope, exports);
+			Log.i(LCAT, "Running CommonJS module script: " + relativePath);
+			TiScriptRunner.getInstance().runScript(context, scope, relativePath);
+			return exports;
+		} catch (ClassNotFoundException e) {
+			Log.e(LCAT, "Couldn't find pre-compiled class for CommonJS module: " + relativePath, e);
+		} finally {
+			exit();
+		}
+		return ScriptableObject.NOT_FOUND;
+	}
+
 	public Object evaluateScript(String filename)
 	{
 		String[] parts = { filename };
@@ -382,6 +351,23 @@ public class KrollContext implements Handler.Callback, ModuleScriptProvider
 		
 		Context context = enter(false);
 		return evaluator.evaluateFile(context, jsScope, tbf, filename, 1, null);
+	}
+
+	public Object evaluateScriptAsModule(String filename)
+	{
+		String[] parts = { filename };
+		TiBaseFile tbf = TiFileFactory.createTitaniumFile(tiContext, parts, false);
+		if (!tbf.exists()) {
+			Context.throwAsScriptRuntimeEx(new Exception("Module file " + filename + " does not exist."));
+			return null;
+		}
+		Log.i(LCAT, "Evaluating CommonJS module script: " + filename);
+		Context context = enter(false);
+		Scriptable scope = context.newObject(jsScope);
+		Scriptable exports = context.newObject(scope);
+		scope.put("exports", scope, exports);
+		evaluator.evaluateFile(context, scope, tbf, filename, 1, null);
+		return exports;
 	}
 
 	public Object handleEvalFile(String filename)
@@ -394,6 +380,28 @@ public class KrollContext implements Handler.Callback, ModuleScriptProvider
 				result = runCompiledScript(filename);
 			} else {
 				result = evaluateScript(filename);
+			}
+		} catch (EcmaError e) {
+			evaluator.handleEcmaError(e);
+		} catch (EvaluatorException e) {
+			evaluator.handleEvaluatorException(e);
+		} catch (Exception e) {
+			evaluator.handleException(e);
+		}
+
+		return result;
+	}
+
+	public Object handleEvalCommonJsModule(String filename)
+	{
+		requireInitialized();
+		Object result = null;
+
+		try {
+			if (useOptimization) {
+				result = runCompiledScriptAsModule(filename);
+			} else {
+				result = evaluateScriptAsModule(filename);
 			}
 		} catch (EcmaError e) {
 			evaluator.handleEcmaError(e);
