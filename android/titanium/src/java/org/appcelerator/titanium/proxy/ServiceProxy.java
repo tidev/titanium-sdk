@@ -8,7 +8,7 @@ package org.appcelerator.titanium.proxy;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.kroll.common.TiConfig;
 
 import android.app.Service;
 import android.content.Intent;

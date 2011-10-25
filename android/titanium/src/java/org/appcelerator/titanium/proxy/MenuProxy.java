@@ -11,11 +11,12 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.AsyncResult;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.util.AsyncResult;
-import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.os.Message;
@@ -104,7 +105,7 @@ public class MenuProxy extends KrollProxy
 			return mip;
 		}
 
-		return (MenuItemProxy) sendBlockingUiMessage(MSG_ADD, d);
+		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ADD), d);
 	}
 
 	public MenuItemProxy handleAdd(KrollDict d) 
@@ -146,7 +147,7 @@ public class MenuProxy extends KrollProxy
 			return;
 		}
 
-		sendBlockingUiMessage(MSG_CLEAR, null);
+		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CLEAR));
 	}
 
 	public void handleClear() {
@@ -166,7 +167,7 @@ public class MenuProxy extends KrollProxy
 			return;
 		}
 
-		sendBlockingUiMessage(MSG_CLOSE, null);
+		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CLOSE));
 	}
 
 	public void handleClose() {
@@ -221,7 +222,7 @@ public class MenuProxy extends KrollProxy
 			return;
 		}
 
-		sendBlockingUiMessage(MSG_REMOVE_GROUP, groupId);
+		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REMOVE_GROUP), groupId);
 	}
 
 	public void handleRemoveGroup(int groupId) {
@@ -248,7 +249,7 @@ public class MenuProxy extends KrollProxy
 			return;
 		}
 
-		sendBlockingUiMessage(MSG_REMOVE_ITEM, itemId);
+		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REMOVE_ITEM), itemId);
 	}
 
 	public void handleRemoveItem(int itemId) {
@@ -281,7 +282,7 @@ public class MenuProxy extends KrollProxy
 			return;
 		}
 
-		sendBlockingUiMessage(MSG_SET_GROUP_ENABLED, args);
+		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_GROUP_ENABLED), args);
 	}
 
 	public void handleSetGroupEnabled(HashMap args) {
@@ -300,7 +301,7 @@ public class MenuProxy extends KrollProxy
 			return;
 		}
 
-		sendBlockingUiMessage(MSG_SET_GROUP_VISIBLE, args);
+		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_GROUP_VISIBLE), args);
 	}
 
 	public void handleSetGroupVisible(HashMap args) {

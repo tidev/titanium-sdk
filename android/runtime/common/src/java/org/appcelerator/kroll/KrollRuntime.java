@@ -7,18 +7,28 @@
 package org.appcelerator.kroll;
 
 import org.appcelerator.kroll.util.KrollAssetHelper;
+import org.appcelerator.kroll.common.TiMessenger;
 
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
+
 public abstract class KrollRuntime implements Handler.Callback
 {
 	private static final String TAG = "KrollRuntime";
-
 	private static final int MSG_DISPOSE = 100;
 	private static final int MSG_RUN_MODULE = 101;
+	private static final String PROPERTY_FILENAME = "filename";
+
+	private static KrollRuntime instance;
+
+	private KrollRuntimeThread thread;
+	private long threadId;
+
+	protected Handler handler;
+
 	public static final int MSG_LAST_ID = MSG_RUN_MODULE + 100;
 
 	public static final Object UNDEFINED = new Object() {
@@ -28,63 +38,89 @@ public abstract class KrollRuntime implements Handler.Callback
 		}
 	};
 
-	private static final String PROPERTY_FILENAME = "filename";
-
-	protected static KrollRuntime _instance;
-
-	private long mainThreadId;
-	protected Handler mainHandler;
-
-	protected KrollRuntime()
+	public static class KrollRuntimeThread extends Thread
 	{
-		Looper mainLooper = Looper.getMainLooper();
-		mainThreadId = mainLooper.getThread().getId();
-		mainHandler = new Handler(mainLooper, this);
+		private static final String TAG = "KrollRuntimeThread";
+
+		private KrollRuntime runtime = null;
+
+		public KrollRuntimeThread(KrollRuntime runtime)
+		{
+			super(TAG);
+			this.runtime = runtime;
+		}
+
+		public void run()
+		{
+			Looper looper;
+
+			Looper.prepare();
+			synchronized (this) {
+				looper = Looper.myLooper();
+				notifyAll();
+			}
+
+			// initialize the runtime instance
+			runtime.threadId = looper.getThread().getId();
+			runtime.handler = new Handler(looper, runtime);
+
+			// initialize the TiMessenger instance for the runtime thread
+			// NOTE: this must occur after threadId is set and before initRuntime() is called
+			TiMessenger.getMessenger();
+
+			runtime.initRuntime(); // initializer for the specific runtime implementation (V8, Rhino, etc)
+
+			// start handling messages for this thread
+			Looper.loop();
+		}
 	}
 
 	public static void init(Context context, KrollRuntime runtime)
 	{
-		if (_instance == null) {
-			_instance = runtime;
+		if (instance == null) {
+			runtime.thread = new KrollRuntimeThread(runtime);
+			runtime.thread.start();
+			instance = runtime;
 		}
 		KrollAssetHelper.init(context);
 	}
 
 	public static KrollRuntime getInstance()
 	{
-		return _instance;
+		return instance;
 	}
 
-	public boolean isUiThread()
+	public boolean isRuntimeThread()
 	{
-		return Thread.currentThread().getId() == mainThreadId;
+		return Thread.currentThread().getId() == threadId;
+	}
+
+	public long getThreadId()
+	{
+		return threadId;
 	}
 
 	public void dispose()
 	{
-		if (isUiThread()) {
+		if (isRuntimeThread()) {
 			doDispose();
+
 		} else {
-			mainHandler.sendEmptyMessage(MSG_DISPOSE);
+			handler.sendEmptyMessage(MSG_DISPOSE);
 		}
 	}
-
-	public abstract void doDispose();
 
 	public void runModule(String source, String filename)
 	{
-		if (isUiThread()) {
+		if (isRuntimeThread()) {
 			doRunModule(source, filename);
+
 		} else {
-			Message msg = mainHandler.obtainMessage(MSG_RUN_MODULE, source);
-			msg.getData().putString(PROPERTY_FILENAME, filename);
-			msg.sendToTarget();
+			Message message = handler.obtainMessage(MSG_RUN_MODULE, source);
+			message.getData().putString(PROPERTY_FILENAME, filename);
+			message.sendToTarget();
 		}
 	}
-
-	public abstract void doRunModule(String source, String filename);
-
-	public abstract void initObject(KrollProxySupport proxy);
 
 	public boolean handleMessage(Message msg)
 	{
@@ -92,12 +128,18 @@ public abstract class KrollRuntime implements Handler.Callback
 			case MSG_DISPOSE:
 				doDispose();
 				return true;
+
 			case MSG_RUN_MODULE:
-				String source = (String) msg.obj;
-				String filename = msg.getData().getString(PROPERTY_FILENAME);
-				doRunModule(source, filename);
+				doRunModule((String) msg.obj, msg.getData().getString(PROPERTY_FILENAME));
 				return true;
 		}
+
 		return false;
 	}
+
+	public abstract void initRuntime();
+	public abstract void doDispose();
+	public abstract void doRunModule(String source, String filename);
+	public abstract void initObject(KrollProxySupport proxy);
 }
+

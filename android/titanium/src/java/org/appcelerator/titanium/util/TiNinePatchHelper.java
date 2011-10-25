@@ -8,6 +8,8 @@ package org.appcelerator.titanium.util;
 
 import java.util.ArrayList;
 
+import org.appcelerator.kroll.common.TiConfig;
+
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;

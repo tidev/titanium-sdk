@@ -8,8 +8,8 @@ package org.appcelerator.titanium;
 
 import java.util.ArrayList;
 
-import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
 
 import android.content.Context;
 import android.content.SharedPreferences;

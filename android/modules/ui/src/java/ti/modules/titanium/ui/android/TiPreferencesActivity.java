@@ -1,7 +1,7 @@
 package ti.modules.titanium.ui.android;
 
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiRHelper;
 
 import android.os.Bundle;

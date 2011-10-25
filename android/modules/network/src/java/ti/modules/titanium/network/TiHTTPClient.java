@@ -72,13 +72,13 @@ import org.apache.http.util.EntityUtils;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
-import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.util.TiTempFileHelper;
@@ -331,7 +331,7 @@ public class TiHTTPClient
 				o.put("blob", blob);
 				o.put("progress", ((double)totalSize)/((double)contentLength));
 
-				proxy.callAsync(onDataStreamCallback, o);
+				onDataStreamCallback.callAsync(proxy.getKrollObject(), o);
 			}
 		}
 		
@@ -494,7 +494,7 @@ public class TiHTTPClient
 		if (cb != null)
 		{
 			// TODO - implement converter method for array to hashmap?
-			proxy.callAsync(cb, args);
+			cb.callAsync(proxy.getKrollObject(), args);
 		}
 	}
 
@@ -1101,7 +1101,7 @@ public class TiHTTPClient
 									KrollDict data = new KrollDict();
 									data.put("progress", ((double)progress)/totalLength);
 									data.put("source", proxy);
-									proxy.callAsync(cb, data);
+									cb.callAsync(proxy.getKrollObject(), data);
 								}
 							}
 						});

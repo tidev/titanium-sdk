@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.util.Log;
 
 import android.content.Intent;
 import android.database.Cursor;

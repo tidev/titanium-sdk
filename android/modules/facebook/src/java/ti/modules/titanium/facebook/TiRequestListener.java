@@ -13,7 +13,7 @@ import java.net.MalformedURLException;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
-import org.appcelerator.titanium.util.Log;
+import org.appcelerator.kroll.common.Log;
 
 import com.facebook.android.AsyncFacebookRunner.RequestListener;
 import com.facebook.android.FacebookError;
@@ -73,11 +73,11 @@ public class TiRequestListener implements RequestListener
 	
 	private void doCallback(KrollDict args)
 	{
-		if (callback != null){
-			module.callAsync(callback, new Object[] { args });
+		if (callback != null) {
+			callback.callAsync(module.getKrollObject(), args);
 		}
 	}
-	
+
 	// AsyncFacebookRunner.RequestListener implementation
 	@Override
 	public void onComplete(String result)

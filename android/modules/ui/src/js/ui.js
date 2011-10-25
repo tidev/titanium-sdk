@@ -7,6 +7,7 @@ exports.bootstrap = function(Titanium) {
 	// we need to just bite the bullet and assign these here
 	Titanium.UI.Window = Window;
 	Titanium.UI.createWindow = Window.createWindow;
+	Titanium.invocationAPIs.push({namespace: "UI", api: "createWindow"});
 
 	function iPhoneConstant(name) {
 		Ti.API.error("!!!");

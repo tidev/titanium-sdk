@@ -10,11 +10,11 @@ import java.util.ArrayList;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.tableview.TableViewModel;
@@ -81,6 +81,9 @@ public class TableViewRowProxy extends TiViewProxy
 	
 	@Override
 	public TiViewProxy[] getChildren() {
+		if (children == null) {
+			return new TiViewProxy[0];
+		}
 		return controls.toArray(new TiViewProxy[controls.size()]);
 	}
 
@@ -91,8 +94,9 @@ public class TableViewRowProxy extends TiViewProxy
 		controls.add(control);
 		control.setParent(this);
 		if (tableViewItem != null) {
-			Message msg = getUIHandler().obtainMessage(MSG_SET_DATA);
-			msg.sendToTarget();
+			Message message = getMainHandler().obtainMessage(MSG_SET_DATA);
+			//Message msg = getUIHandler().obtainMessage(MSG_SET_DATA);
+			message.sendToTarget();
 		}
 	}
 
@@ -103,8 +107,9 @@ public class TableViewRowProxy extends TiViewProxy
 		}
 		controls.remove(control);
 		if (tableViewItem != null) {
-			Message msg = getUIHandler().obtainMessage(MSG_SET_DATA);
-			msg.sendToTarget();
+			Message message = getMainHandler().obtainMessage(MSG_SET_DATA);
+			//Message msg = getUIHandler().obtainMessage(MSG_SET_DATA);
+			message.sendToTarget();
 		}
 	}
 
@@ -127,8 +132,9 @@ public class TableViewRowProxy extends TiViewProxy
 			if (TiApplication.isUIThread()) {
 				tableViewItem.setRowData(this);
 			} else {
-				Message msg = getUIHandler().obtainMessage(MSG_SET_DATA);
-				msg.sendToTarget();
+				Message message = getMainHandler().obtainMessage(MSG_SET_DATA);
+				//Message msg = getUIHandler().obtainMessage(MSG_SET_DATA);
+				message.sendToTarget();
 			}
 		}
 	}

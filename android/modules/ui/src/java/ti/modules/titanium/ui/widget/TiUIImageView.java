@@ -18,16 +18,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.common.AsyncResult;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.AsyncResult;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiBackgroundImageLoadTask;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiDownloadListener;
 import org.appcelerator.titanium.util.TiResponseCache;
@@ -229,8 +230,9 @@ public class TiUIImageView extends TiUIView
 	{
 		if (bitmap != null) {
 			if (!TiApplication.isUIThread()) {
-				AsyncResult result = new AsyncResult(bitmap);
-				proxy.sendBlockingUiMessage(handler.obtainMessage(SET_IMAGE, result), result);
+				//AsyncResult result = new AsyncResult(bitmap);
+				TiMessenger.sendBlockingMainMessage(proxy.getMainHandler().obtainMessage(SET_IMAGE), bitmap);
+
 			} else {
 				TiImageView view = getView();
 				if (view != null) {
@@ -644,7 +646,8 @@ public class TiUIImageView extends TiUIView
 		final int maxRetries = retries == null ? DEFAULT_DECODE_RETRIES : (Integer) retries;
 		if (decodeRetries < maxRetries) {
 			decodeRetries++;
-			proxy.getUIHandler().postDelayed(new Runnable() {
+			proxy.getMainHandler().postDelayed(new Runnable() {
+			//proxy.getUIHandler().postDelayed(new Runnable() {
 				public void run() {
 					Log.d(LCAT, "Retrying bitmap decode: " + decodeRetries + "/" + maxRetries);
 					setImage(recycle);

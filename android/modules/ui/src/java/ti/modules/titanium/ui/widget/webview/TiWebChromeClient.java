@@ -9,8 +9,8 @@ package ti.modules.titanium.ui.widget.webview;
 
 import java.lang.ref.SoftReference;
 
+import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;

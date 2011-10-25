@@ -7,11 +7,12 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiDrawableReference;
 
@@ -28,9 +29,13 @@ public class AndroidModule extends KrollModule
 {
 	private static final String LCAT = "TiMedia.Android";
 
+	protected static AndroidModule _instance = null;
+
+
 	public AndroidModule()
 	{
 		super();
+		_instance = this;
 	}
 
 	public AndroidModule(TiContext tiContext)
@@ -128,11 +133,12 @@ public class AndroidModule extends KrollModule
 			if (completedScanCount.incrementAndGet() >= paths.length) {
 				connection.disconnect();
 			}
+
 			if (callback != null) {
 				KrollDict properties = new KrollDict(2);
 				properties.put("path", path);
 				properties.put("uri", uri == null ? null : uri.toString());
-				((KrollObject) callback).callAsync(callback, new Object[] { properties });
+				callback.callAsync(AndroidModule._instance.getKrollObject(), new Object[] { properties });
 			}
 		}
 
@@ -141,6 +147,7 @@ public class AndroidModule extends KrollModule
 			if (paths == null || paths.length == 0) {
 				return;
 			}
+
 			connection = new MediaScannerConnection(TiApplication.getInstance().getCurrentActivity(), this);
 			connection.connect();
 		}

@@ -9,16 +9,17 @@ package org.appcelerator.titanium;
 import java.lang.ref.WeakReference;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiLifecycle.OnServiceLifecycleEvent;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMenuSupport;
 import org.appcelerator.titanium.util.TiPlatformHelper;
@@ -62,7 +63,6 @@ public abstract class TiBaseActivity extends Activity
 	protected TiWeakList<ConfigurationChangedListener> configChangedListeners = new TiWeakList<ConfigurationChangedListener>();
 	protected int orientationDegrees;
 	protected TiMenuSupport menuHelper;
-	protected TiMessageQueue messageQueue;
 	protected Messenger messenger;
 	protected int msgActivityCreatedId = -1;
 	protected int msgId = -1;
@@ -156,6 +156,7 @@ public abstract class TiBaseActivity extends Activity
 				return intent.getBooleanExtra(property, defaultValue);
 			}
 		}
+
 		return defaultValue;
 	}
 
@@ -167,6 +168,7 @@ public abstract class TiBaseActivity extends Activity
 				return intent.getIntExtra(property, defaultValue);
 			}
 		}
+
 		return defaultValue;
 	}
 
@@ -178,6 +180,7 @@ public abstract class TiBaseActivity extends Activity
 				return intent.getStringExtra(property);
 			}
 		}
+
 		return defaultValue;
 	}
 
@@ -196,12 +199,15 @@ public abstract class TiBaseActivity extends Activity
 		if (window.hasProperty(TiC.PROPERTY_TITLE)) {
 			String oldTitle = (String) getTitle();
 			String newTitle = TiConvert.toString(window.getProperty(TiC.PROPERTY_TITLE));
+
 			if (oldTitle == null) {
 				oldTitle = "";
 			}
+
 			if (newTitle == null) {
 				newTitle = "";
 			}
+
 			if (!newTitle.equals(oldTitle)) {
 				final String fnewTitle = newTitle;
 				runOnUiThread(new Runnable(){
@@ -217,12 +223,15 @@ public abstract class TiBaseActivity extends Activity
 	protected TiCompositeLayout createLayout()
 	{
 		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
+
 		String layoutFromIntent = getIntentString(TiC.INTENT_PROPERTY_LAYOUT, "");
 		if (layoutFromIntent.equals(TiC.LAYOUT_HORIZONTAL)) {
 			arrangement = LayoutArrangement.HORIZONTAL;
+
 		} else if (layoutFromIntent.equals(TiC.LAYOUT_VERTICAL)) {
 			arrangement = LayoutArrangement.VERTICAL;
 		}
+
 		return new TiCompositeLayout(this, arrangement);
 	}
 
@@ -242,6 +251,7 @@ public abstract class TiBaseActivity extends Activity
 			this.requestWindowFeature(Window.FEATURE_RIGHT_ICON);
 			this.requestWindowFeature(Window.FEATURE_PROGRESS);
 			this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+
 		} else {
 			this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		}
@@ -258,6 +268,7 @@ public abstract class TiBaseActivity extends Activity
 		
 		setFullscreen(fullscreen);
 		setNavBarHidden(navBarHidden);
+
 		if (modal) {
 			getWindow().setFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND,
 					WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
@@ -267,6 +278,7 @@ public abstract class TiBaseActivity extends Activity
 			if (DBG) {
 				Log.d(TAG, "windowSoftInputMode: " + softInputMode);
 			}
+
 			getWindow().setSoftInputMode(softInputMode);
 		}
 
@@ -280,7 +292,6 @@ public abstract class TiBaseActivity extends Activity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		messageQueue = TiMessageQueue.getMessageQueue();
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onCreate");
 		}
@@ -301,14 +312,12 @@ public abstract class TiBaseActivity extends Activity
 		// Doing this on every create in case the activity is externally created.
 		TiPlatformHelper.intializeDisplayMetrics(this);
 
-		// TiPlatformHelper.initializeRhinoDateFormats(this);
-
 		layout = createLayout();
 		if (intent != null && intent.hasExtra(TiC.PROPERTY_KEEP_SCREEN_ON)) {
 			layout.setKeepScreenOn(intent.getBooleanExtra(TiC.PROPERTY_KEEP_SCREEN_ON, layout.getKeepScreenOn()));
 		}
+
 		super.onCreate(savedInstanceState);
-		// getTiApp().setWindowHandler(this);
 		windowCreated();
 
 		if (activityProxy != null) {
@@ -337,10 +346,8 @@ public abstract class TiBaseActivity extends Activity
 
 		// make sure the activity opens according to any orientation modes 
 		// set on the window before the activity was actually created 
-		if (window != null)
-		{
-			if (window.getOrientationModes() != null)
-			{
+		if (window != null) {
+			if (window.getOrientationModes() != null) {
 				window.updateOrientation();
 			}
 		}
@@ -353,24 +360,30 @@ public abstract class TiBaseActivity extends Activity
 
 	protected void sendMessage(final int msgId)
 	{
-		if (messenger == null || msgId == -1) return;
+		if (messenger == null || msgId == -1) {
+			return;
+		}
+
 		// fire an async message on this thread's queue
 		// so we don't block onCreate() from returning
-		messageQueue.post(new Runnable() {
-			public void run() {
+		TiMessenger.postOnMain(new Runnable() {
+			public void run()
+			{
 				handleSendMessage(msgId);
 			}
 		});
 	}
 
-	protected void handleSendMessage(int msgId)
+	protected void handleSendMessage(int messageId)
 	{
 		try {
-			Message msg = messageQueue.getHandler().obtainMessage(msgId, this);
-			messenger.send(msg);
+			Message message = TiMessenger.getMainMessenger().getHandler().obtainMessage(messageId, this);
+			messenger.send(message);
+
 		} catch (RemoteException e) {
 			Log.e(TAG, "Unable to message creator. finishing.", e);
 			finish();
+
 		} catch (RuntimeException e) {
 			Log.e(TAG, "Unable to message creator. finishing.", e);
 			finish();
@@ -382,6 +395,7 @@ public abstract class TiBaseActivity extends Activity
 		if (supportHelper == null) {
 			this.supportHelper = new TiActivitySupportHelper(this);
 		}
+
 		return supportHelper;
 	}
 
@@ -403,20 +417,15 @@ public abstract class TiBaseActivity extends Activity
 		getSupportHelper().onActivityResult(requestCode, resultCode, data);
 	}
 
-/*	private TiFileHelper fileHelper = new TiFileHelper(this);
-	public TiFileHelper getTiFileHelper()
-	{
-		// TODO stub
-		return fileHelper;
-	}*/
-
 	@Override
 	public boolean dispatchKeyEvent(KeyEvent event) 
 	{
 		boolean handled = false;
+
 		if (window == null) {
 			return super.dispatchKeyEvent(event);
 		}
+
 		switch(event.getKeyCode()) {
 			case KeyEvent.KEYCODE_BACK : {
 				if (window.hasListeners(TiC.EVENT_ANDROID_BACK)) {
@@ -425,6 +434,7 @@ public abstract class TiBaseActivity extends Activity
 					}
 					handled = true;
 				}
+
 				break;
 			}
 			case KeyEvent.KEYCODE_CAMERA : {
@@ -434,6 +444,7 @@ public abstract class TiBaseActivity extends Activity
 					}
 					handled = true;
 				}
+
 				break;
 			}
 			case KeyEvent.KEYCODE_FOCUS : {
@@ -443,6 +454,7 @@ public abstract class TiBaseActivity extends Activity
 					}
 					handled = true;
 				}
+
 				break;
 			}
 			case KeyEvent.KEYCODE_SEARCH : {
@@ -452,6 +464,7 @@ public abstract class TiBaseActivity extends Activity
 					}
 					handled = true;
 				}
+
 				break;
 			}
 			case KeyEvent.KEYCODE_VOLUME_UP : {
@@ -461,6 +474,7 @@ public abstract class TiBaseActivity extends Activity
 					}
 					handled = true;
 				}
+
 				break;
 			}
 			case KeyEvent.KEYCODE_VOLUME_DOWN : {
@@ -470,6 +484,7 @@ public abstract class TiBaseActivity extends Activity
 					}
 					handled = true;
 				}
+
 				break;
 			}
 		}
@@ -477,6 +492,7 @@ public abstract class TiBaseActivity extends Activity
 		if (!handled) {
 			handled = super.dispatchKeyEvent(event);
 		}
+
 		return handled;
 	}
 
@@ -486,6 +502,7 @@ public abstract class TiBaseActivity extends Activity
 		if (menuHelper == null) {
 			menuHelper = new TiMenuSupport(activityProxy);
 		}
+
 		return menuHelper.onCreateOptionsMenu(super.onCreateOptionsMenu(menu), menu);
 	}
 
@@ -505,6 +522,7 @@ public abstract class TiBaseActivity extends Activity
 	public void onConfigurationChanged(Configuration newConfig)
 	{
 		super.onConfigurationChanged(newConfig);
+
 		for (WeakReference<ConfigurationChangedListener> listener : configChangedListeners) {
 			if (listener.get() != null) {
 				listener.get().onConfigurationChanged(this, newConfig);
@@ -521,6 +539,7 @@ public abstract class TiBaseActivity extends Activity
 	protected void onNewIntent(Intent intent) 
 	{
 		super.onNewIntent(intent);
+
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onNewIntent");
 		}
@@ -557,12 +576,14 @@ public abstract class TiBaseActivity extends Activity
 	protected void onPause() 
 	{
 		super.onPause();
+
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onPause");
 		}
 
 		getTiApp().setWindowHandler(null);
 		getTiApp().setCurrentActivity(this, null);
+
 		if (activityProxy != null) {
 			activityProxy.fireSyncEvent(TiC.EVENT_PAUSE, null);
 		}
@@ -571,6 +592,7 @@ public abstract class TiBaseActivity extends Activity
 			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
 				try {
 					TiLifecycle.fireLifecycleEvent(this, listener, TiLifecycle.LIFECYCLE_ON_PAUSE);
+
 				} catch (Throwable t) {
 					Log.e(TAG, "Error dispatching lifecycle event: " + t.getMessage(), t);
 				}
@@ -582,11 +604,13 @@ public abstract class TiBaseActivity extends Activity
 	protected void onResume()
 	{
 		super.onResume();
+
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onResume");
 		}
-		//getTiApp().setWindowHandler(this);
+
 		getTiApp().setCurrentActivity(this, this);
+
 		if (activityProxy != null) {
 			activityProxy.fireSyncEvent(TiC.EVENT_RESUME, null);
 		}
@@ -595,6 +619,7 @@ public abstract class TiBaseActivity extends Activity
 			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
 				try {
 					TiLifecycle.fireLifecycleEvent(this, listener, TiLifecycle.LIFECYCLE_ON_RESUME);
+
 				} catch (Throwable t) {
 					Log.e(TAG, "Error dispatching lifecycle event: " + t.getMessage(), t);
 				}
@@ -606,16 +631,20 @@ public abstract class TiBaseActivity extends Activity
 	protected void onStart()
 	{
 		super.onStart();
+
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onStart");
 		}
+
 		updateTitle();
 		
 		if (window != null) {
 			window.fireEvent(TiC.EVENT_FOCUS, null);
+
 		} else {
 			mustFireInitialFocus = true;
 		}
+
 		if (activityProxy != null) {
 			// we only want to set the current activity for good in the resume state but we need it right now.
 			// save off the existing current activity, set ourselves to be the new current activity temporarily 
@@ -634,6 +663,7 @@ public abstract class TiBaseActivity extends Activity
 			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
 				try {
 					TiLifecycle.fireLifecycleEvent(this, listener, TiLifecycle.LIFECYCLE_ON_START);
+
 				} catch (Throwable t) {
 					Log.e(TAG, "Error dispatching lifecycle event: " + t.getMessage(), t);
 				}
@@ -645,12 +675,15 @@ public abstract class TiBaseActivity extends Activity
 	protected void onStop()
 	{
 		super.onStop();
+
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onStop");
 		}
+
 		if (window != null) {
 			window.fireEvent(TiC.EVENT_BLUR, null);
 		}
+
 		if (activityProxy != null) {
 			activityProxy.fireSyncEvent(TiC.EVENT_STOP, null);
 		}
@@ -659,6 +692,7 @@ public abstract class TiBaseActivity extends Activity
 			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
 				try {
 					TiLifecycle.fireLifecycleEvent(this, listener, TiLifecycle.LIFECYCLE_ON_STOP);
+
 				} catch (Throwable t) {
 					Log.e(TAG, "Error dispatching lifecycle event: " + t.getMessage(), t);
 				}
@@ -670,9 +704,11 @@ public abstract class TiBaseActivity extends Activity
 	protected void onRestart()
 	{
 		super.onRestart();
+
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onRestart");
 		}
+
 		if (activityProxy != null) {
 			// we only want to set the current activity for good in the resume state but we need it right now.
 			// save off the existing current activity, set ourselves to be the new current activity temporarily 
@@ -699,6 +735,7 @@ public abstract class TiBaseActivity extends Activity
 			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
 				try {
 					TiLifecycle.fireLifecycleEvent(this, listener, TiLifecycle.LIFECYCLE_ON_DESTROY);
+
 				} catch (Throwable t) {
 					Log.e(TAG, "Error dispatching lifecycle event: " + t.getMessage(), t);
 				}
@@ -706,6 +743,7 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		super.onDestroy();
+
 		// Our Activities are currently unable to recover from Android-forced restarts,
 		// so we need to relaunch the application entirely.
 		if (!isFinishing())
@@ -714,8 +752,10 @@ public abstract class TiBaseActivity extends Activity
 				// Put it in, because we want it to finish root in this case.
 				getIntent().putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, true);
 			}
+
 			getTiApp().scheduleRestart(250);
 			finish();
+
 			return;
 		}
 
@@ -726,14 +766,17 @@ public abstract class TiBaseActivity extends Activity
 			layout.removeAllViews();
 			layout = null;
 		}
+
 		if (window != null) {
 			window.closeFromActivity();
 			window = null;
 		}
+
 		if (menuHelper != null) {
 			menuHelper.destroy();
 			menuHelper = null;
 		}
+
 		if (activityProxy != null) {
 			activityProxy.release();
 			activityProxy = null;
@@ -767,6 +810,7 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		boolean animate = getIntentBoolean(TiC.PROPERTY_ANIMATE, true);
+
 		if (shouldFinishRootActivity()) {
 			TiApplication app = getTiApp();
 			if (app != null) {
@@ -778,8 +822,10 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		super.finish();
+
 		if (!animate) {
 			TiUIHelper.overridePendingTransition(this);
 		}
 	}
 }
+

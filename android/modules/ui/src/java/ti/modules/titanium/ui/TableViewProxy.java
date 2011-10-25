@@ -7,16 +7,18 @@
 package ti.modules.titanium.ui;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.AsyncResult;
+import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.AsyncResult;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -121,7 +123,7 @@ public class TableViewProxy extends TiViewProxy
 			locateIndex(rowIndex, rr);
 			sectionProxy = rr.section;
 		} else if (row instanceof TableViewRowProxy) {
-			ArrayList<TableViewSectionProxy> sections = getSections();
+			ArrayList<TableViewSectionProxy> sections = getSectionsArray();
 			sectionLoop: for (int i = 0; i < sections.size(); i++) {
 				ArrayList<TableViewRowProxy> rows = sections.get(i).rows;
 				for (int j = 0; j < rows.size(); j++) {
@@ -146,10 +148,11 @@ public class TableViewProxy extends TiViewProxy
 	{
 		if (TiApplication.isUIThread()) {
 			handleAppendRow(rows);
+
 			return;
 		}
 
-		sendBlockingUiMessage(MSG_APPEND_ROW, rows);
+		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_APPEND_ROW), rows);
 	}
 
 	private void handleAppendRow(Object rows)
@@ -165,7 +168,7 @@ public class TableViewProxy extends TiViewProxy
 			rowList = new Object[] { rows };
 		}
 
-		ArrayList<TableViewSectionProxy> sections = getSections();
+		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
 		if (sections.size() == 0)
 		{
 			processData(rowList);
@@ -197,9 +200,10 @@ public class TableViewProxy extends TiViewProxy
 			handleDeleteRow(index);
 			return;
 		}
-		Message msg = getUIHandler().obtainMessage(MSG_DELETE_ROW);
-		msg.arg1 = index;
-		msg.sendToTarget();
+		Message message = getMainHandler().obtainMessage(MSG_DELETE_ROW);
+		//Message msg = getUIHandler().obtainMessage(MSG_DELETE_ROW);
+		message.arg1 = index;
+		message.sendToTarget();
 
 	}
 
@@ -244,11 +248,11 @@ public class TableViewProxy extends TiViewProxy
 			return;
 		}
 
-		sendBlockingUiMessage(MSG_INSERT_ROW, data, INSERT_ROW_BEFORE, index);
+		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_INSERT_ROW, INSERT_ROW_BEFORE, index), data);
 	}
 	
 	private void handleInsertRowBefore(int index, Object data) {
-		if (getSections().size() > 0) {
+		if (getSectionsArray().size() > 0) {
 			if (index < 0) {
 				index = 0;
 			}
@@ -276,7 +280,8 @@ public class TableViewProxy extends TiViewProxy
 			handleInsertRowAfter(index, data);
 			return;
 		}
-		sendBlockingUiMessage(MSG_INSERT_ROW, data, INSERT_ROW_AFTER, index);
+
+		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_INSERT_ROW, INSERT_ROW_AFTER, index), data);
 	}
 
 	private void handleInsertRowAfter(int index, Object data) {
@@ -294,7 +299,13 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public ArrayList<TableViewSectionProxy> getSections()
+	public TableViewSectionProxy[] getSections()
+	{
+		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
+		return sections.toArray(new TableViewSectionProxy[sections.size()]);
+	}
+
+	public ArrayList<TableViewSectionProxy> getSectionsArray()
 	{
 		ArrayList<TableViewSectionProxy> sections = localSections;
 		if (sections == null) {
@@ -330,7 +341,7 @@ public class TableViewProxy extends TiViewProxy
 
 	public void processData(Object[] data)
 	{
-		ArrayList<TableViewSectionProxy> sections = getSections();
+		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
 		sections.clear();
 
 		TableViewSectionProxy currentSection = null;
@@ -373,8 +384,9 @@ public class TableViewProxy extends TiViewProxy
 		}
 		if (TiApplication.isUIThread()) {
 			handleSetData(data);
+
 		} else {
-			sendBlockingUiMessage(MSG_SET_DATA, data);
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_DATA), data);
 		}
 	}
 
@@ -388,7 +400,7 @@ public class TableViewProxy extends TiViewProxy
 	
 	@Kroll.getProperty @Kroll.method
 	public Object[] getData() {
-		ArrayList<TableViewSectionProxy> sections = getSections();
+		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
 		if (sections != null) {
 			return sections.toArray();
 		}
@@ -398,17 +410,24 @@ public class TableViewProxy extends TiViewProxy
 
 	private TableViewRowProxy rowProxyFor(Object row) {
 		TableViewRowProxy rowProxy = null;
-		if (row instanceof KrollDict) {
-			KrollDict d = (KrollDict) row;
-			rowProxy = new TableViewRowProxy();
-			rowProxy.handleCreationDict(d);
-			rowProxy.setProperty(TiC.PROPERTY_CLASS_NAME, CLASSNAME_NORMAL);
-			rowProxy.setProperty(TiC.PROPERTY_ROW_DATA, row);
+		if (row instanceof HashMap) {
+			return rowProxyFor(new KrollDict((HashMap) row));
+		} else if (row instanceof KrollDict) {
+			return rowProxyFor((KrollDict) row);
 		} else {
 			rowProxy = (TableViewRowProxy) row;
 		}
 		
 		rowProxy.setParent(this);
+		return rowProxy;
+	}
+
+	private TableViewRowProxy rowProxyFor(KrollDict row) {
+		TableViewRowProxy rowProxy = new TableViewRowProxy();
+		rowProxy.handleCreationDict(row);
+		rowProxy.setProperty(TiC.PROPERTY_CLASS_NAME, CLASSNAME_NORMAL);
+		rowProxy.setProperty(TiC.PROPERTY_ROW_DATA, row);
+		rowProxy.setActivity(getActivity());
 		return rowProxy;
 	}
 
@@ -441,21 +460,24 @@ public class TableViewProxy extends TiViewProxy
 			getTableView().updateView();
 			return;
 		}
-		sendBlockingUiMessage(MSG_UPDATE_VIEW, null);
+
+		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_UPDATE_VIEW));
 	}
 
 	@Kroll.method
 	public void scrollToIndex(int index) {
-		Message msg = getUIHandler().obtainMessage(MSG_SCROLL_TO_INDEX);
-		msg.arg1 = index;
-		msg.sendToTarget();
+		Message message = getMainHandler().obtainMessage(MSG_SCROLL_TO_INDEX);
+		//Message msg = getUIHandler().obtainMessage(MSG_SCROLL_TO_INDEX);
+		message.arg1 = index;
+		message.sendToTarget();
 	}
 
 	@Kroll.method
 	public void scrollToTop(int index) {
-		Message msg = getUIHandler().obtainMessage(MSG_SCROLL_TO_TOP);
-		msg.arg1 = index;
-		msg.sendToTarget();
+		Message message = getMainHandler().obtainMessage(MSG_SCROLL_TO_TOP);
+		//Message msg = getUIHandler().obtainMessage(MSG_SCROLL_TO_TOP);
+		message.arg1 = index;
+		message.sendToTarget();
 	}
 
 	@Override

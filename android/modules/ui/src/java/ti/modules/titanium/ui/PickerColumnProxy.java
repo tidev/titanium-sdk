@@ -9,10 +9,11 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.AsyncResult;
+import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.PickerRowProxy.PickerRowListener;
@@ -33,6 +34,7 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	private PickerColumnListener columnListener  = null;
 	private boolean useSpinner = false;
 	private boolean suppressListenerEvents = false;
+
 
 	public PickerColumnProxy()
 	{
@@ -95,8 +97,9 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	{
 		if (TiApplication.isUIThread() || peekView() == null) {
 			handleAddRow(o);
+
 		} else {
-			sendBlockingUiMessage(MSG_ADD, o);
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ADD), o);
 		}
 	}
 	
@@ -121,8 +124,9 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	{
 		if (TiApplication.isUIThread() || peekView() == null) {
 			handleRemoveRow(o);
+
 		} else {
-			sendBlockingUiMessage(MSG_REMOVE, o);
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REMOVE), o);
 		}
 	}
 
@@ -177,8 +181,9 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	{
 		if (TiApplication.isUIThread() || peekView() == null) {
 			handleSetRows(rows);
+
 		} else {
-			sendBlockingUiMessage(MSG_SET_ROWS, rows);
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_ROWS), rows);
 		}
 	}
 

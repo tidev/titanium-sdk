@@ -14,11 +14,12 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.AsyncResult;
+import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.util.AsyncResult;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiOrientationHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiAnimation;
@@ -124,7 +125,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 			opening = false;
 			return;
 		}
-		sendBlockingUiMessage(MSG_OPEN, options);
+
+		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_OPEN), options);
+
 		opening = false;
 	}
 
@@ -143,6 +146,8 @@ public abstract class TiWindowProxy extends TiViewProxy
 				options = new KrollDict();
 				options.put("_anim", animation);
 			}
+		} else {
+			options = new KrollDict();
 		}
 
 		if (TiApplication.isUIThread()) {
@@ -150,7 +155,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 			return;
 		}
 
-		sendBlockingUiMessage(MSG_CLOSE, options);
+		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CLOSE), options);
 	}
 
 	public void closeFromActivity()
@@ -348,7 +353,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	{
 		if (postOpenListener != null)
 		{
-			getUIHandler().post(new Runnable() {
+			getMainHandler().post(new Runnable() {
 				public void run() {
 					postOpenListener.onPostOpen(TiWindowProxy.this);
 				}

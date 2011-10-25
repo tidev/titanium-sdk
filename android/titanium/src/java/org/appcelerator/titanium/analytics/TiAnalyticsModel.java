@@ -8,7 +8,7 @@ package org.appcelerator.titanium.analytics;
 
 import java.util.HashMap;
 
-import org.appcelerator.titanium.util.Log;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -8,8 +8,8 @@ package org.appcelerator.titanium.analytics;
 
 import java.util.GregorianCalendar;
 
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiDatabaseHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.json.JSONException;

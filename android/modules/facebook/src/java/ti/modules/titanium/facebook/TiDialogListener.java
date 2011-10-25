@@ -9,7 +9,7 @@ package ti.modules.titanium.facebook;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
-import org.appcelerator.titanium.util.Log;
+import org.appcelerator.kroll.common.Log;
 
 import android.os.Bundle;
 
@@ -68,8 +68,8 @@ public class TiDialogListener implements DialogListener
 	
 	private void doCallback(KrollDict args)
 	{
-		if (callback != null){
-			module.callAsync(callback, new Object[] { args });
+		if (callback != null) {
+			callback.callAsync(module.getKrollObject(), new Object[] { args });
 		}
 	}
 	

@@ -8,11 +8,11 @@ package org.appcelerator.kroll.runtime.v8;
 
 import org.appcelerator.kroll.KrollObject;
 
+
 public class V8Object extends KrollObject
 {
-	public static final int MSG_LAST_ID = KrollObject.MSG_LAST_ID;
-
 	private volatile long ptr;
+
 
 	public V8Object(long ptr)
 	{
@@ -36,19 +36,19 @@ public class V8Object extends KrollObject
 	}
 
 	@Override
-	protected void doSetProperty(String name, Object value)
+	public void setProperty(String name, Object value)
 	{
 		nativeSetProperty(ptr, name, value);
 	}
 
 	@Override
-	protected boolean doFireEvent(String type, Object data)
+	public boolean fireEvent(String type, Object data)
 	{
 		return nativeFireEvent(ptr, type, data);
 	}
 
 	@Override
-	protected void doRelease()
+	public void doRelease()
 	{
 		nativeRelease(ptr);
 	}
@@ -57,14 +57,17 @@ public class V8Object extends KrollObject
 	protected void finalize() throws Throwable
 	{
 		super.finalize();
+
 		if (ptr != 0) {
 			release();
 		}
 	}
 
+
+	// JNI method prototypes
 	protected static native void nativeInitObject(Class<?> proxyClass, Object proxyObject);
 	private native void nativeSetProperty(long ptr, String name, Object value);
 	private native boolean nativeFireEvent(long ptr, String event, Object data);
 	private static native void nativeRelease(long ptr);
-
 }
+

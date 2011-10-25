@@ -25,7 +25,7 @@ import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.conn.scheme.LayeredSocketFactory;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.appcelerator.titanium.util.Log;
+import org.appcelerator.kroll.common.Log;
 
 public class NonValidatingSSLSocketFactory implements LayeredSocketFactory {
 	private SSLSocketFactory sslFactory;

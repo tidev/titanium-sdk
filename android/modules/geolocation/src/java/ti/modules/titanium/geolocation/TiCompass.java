@@ -11,9 +11,9 @@ import java.util.Calendar;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiLocationHelper;
 import org.appcelerator.titanium.util.TiSensorHelper;
@@ -164,7 +164,7 @@ public class TiCompass
 						long eventTimestamp = event.timestamp / 1000000;
 						long actualTimestamp = baseTime.getTimeInMillis() + (eventTimestamp - sensorTimerStart);
 
-						geolocationModule.callAsync(listener, new Object[] { eventToKrollDict(event, actualTimestamp) });
+						listener.callAsync(geolocationModule.getKrollObject(), new Object[] { eventToKrollDict(event, actualTimestamp) });
 						TiSensorHelper.unregisterListener(Sensor.TYPE_ORIENTATION, this);
 					}
 				}

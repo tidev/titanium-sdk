@@ -161,6 +161,17 @@ jobject TypeConverter::jsObjectToJavaFunction(v8::Handle<v8::Object> jsObject)
 	return env->NewObject(JNIUtil::v8FunctionClass, JNIUtil::v8FunctionInitMethod, pointer);
 }
 
+v8::Handle<v8::Function> TypeConverter::javaObjectToJsFunction(jobject javaObject)
+{
+	JNIEnv *env = JNIScope::getEnv();
+	if (!env) {
+		return v8::Handle<v8::Function>();
+	}
+
+	jlong v8ObjectPointer = env->GetLongField(javaObject, JNIUtil::v8ObjectPtrField);
+	return v8::Handle<v8::Function>(reinterpret_cast<v8::Function*>(v8ObjectPointer));
+}
+
 jobjectArray TypeConverter::jsArgumentsToJavaArray(const Arguments& args)
 {
 	JNIEnv *env = JNIScope::getEnv();
@@ -373,7 +384,6 @@ jobject TypeConverter::jsValueToJavaObject(v8::Local<v8::Value> jsValue, bool *i
 // object is a container type
 v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 {
-	//LOGV(TAG, "javaObjectToJsValue");
 	if (!javaObject) {
 		return v8::Null();
 	}
@@ -384,25 +394,20 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 	}
 
 	if (env->IsInstanceOf(javaObject, JNIUtil::booleanClass)) {
-		//LOGV(TAG, "boolean");
 		jboolean javaBoolean = env->CallBooleanMethod(javaObject, JNIUtil::booleanBooleanValueMethod);
 		return javaBoolean ? v8::True() : v8::False();
 
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::numberClass)) {
-		//LOGV(TAG, "number");
 		jdouble javaDouble = env->CallDoubleMethod(javaObject, JNIUtil::numberDoubleValueMethod);
 		return v8::Number::New((double) javaDouble);
 
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::stringClass)) {
-		//LOGV(TAG, "string");
 		return TypeConverter::javaStringToJsString((jstring) javaObject);
 
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::dateClass)) {
-		//LOGV(TAG, "date");
 		return TypeConverter::javaDateToJsDate(javaObject);
 
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::hashMapClass)) {
-		//LOGV(TAG, "hashmap");
 		v8::Handle<v8::Object> jsObject = v8::Object::New();
 
 		jobject hashMapSet = env->CallObjectMethod(javaObject, JNIUtil::hashMapKeySetMethod);
@@ -440,6 +445,9 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 		v8::Handle<v8::Object> proxyHandle = ProxyFactory::createV8Proxy(javaObjectClass, javaObject);
 		env->DeleteLocalRef(javaObjectClass);
 		return proxyHandle;
+
+	} else if (env->IsInstanceOf(javaObject, JNIUtil::v8FunctionClass)) {
+		return javaObjectToJsFunction(javaObject);
 
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::objectArrayClass)) {
 		return javaArrayToJsArray((jobjectArray) javaObject);

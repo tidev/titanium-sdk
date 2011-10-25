@@ -21,12 +21,12 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
-import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiLocationHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
@@ -198,19 +198,21 @@ public class TiLocation
 				Location location = locationManager.getLastKnownLocation(provider);
 
 				if (location != null) {
-					geolocationModule.call(listener, new Object[] {
+					listener.call(geolocationModule.getKrollObject(), new Object[] {
 						locationToKrollDict(location, locationManager.getProvider(provider))
 					});
 					doAnalytics(location);
+
 				} else {
 					Log.i(LCAT, "unable to get current position, location is null");
-					geolocationModule.call(listener, new Object[] {
+					listener.call(geolocationModule.getKrollObject(), new Object[] {
 						TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, "location is currently unavailable.")
 					});
 				}
+
 			} else {
 				Log.i(LCAT, "unable to get current position, no providers are available");
-				geolocationModule.call(listener, new Object[] {
+				listener.call(geolocationModule.getKrollObject(), new Object[] {
 					TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, "no providers are available.")
 				});
 			}
@@ -267,6 +269,7 @@ public class TiLocation
 					if (DBG) {
 						Log.i(LCAT, "received Geo [" + response + "]");
 					}
+
 					KrollDict event = null;
 					if (response != null) {
 						try {
@@ -274,9 +277,11 @@ public class TiLocation
 							if (jsonObject.getBoolean(TiC.PROPERTY_SUCCESS)) {
 								if (direction.equals(DIRECTION_R)) {
 									event = buildReverseResponse(jsonObject);
+
 								} else {
 									event = buildForwardResponse(jsonObject);
 								}
+
 							} else {
 								event = new KrollDict();
 								KrollDict errorDict = new KrollDict();
@@ -285,6 +290,7 @@ public class TiLocation
 								errorDict.put(TiC.PROPERTY_CODE, errorCode);
 								event.put(TiC.EVENT_PROPERTY_ERROR, errorDict);
 							}
+
 						} catch (JSONException e) {
 							Log.e(LCAT, "error converting geo response to JSONObject [" + e.getMessage() + "]", e);
 						}
@@ -292,8 +298,9 @@ public class TiLocation
 
 					if (event != null) {
 						event.put(TiC.EVENT_PROPERTY_SOURCE, this);
-						geolocationModule.call(callback, new Object[] { event });
+						callback.call(geolocationModule.getKrollObject(), new Object[] { event });
 					}
+
 				} catch (Throwable t) {
 					Log.e(LCAT, "error retrieving geocode information [" + t.getMessage() + "]", t);
 				}
@@ -316,11 +323,12 @@ public class TiLocation
 			String url = buildGeoURL(DIRECTION_F, mid, aguid, sid, address, countryCode);
 
 			if (url != null) {
-				Message msg = geolocationModule.getUIHandler().obtainMessage(GeolocationModule.MSG_LOOKUP);
-				msg.getData().putString(TiC.PROPERTY_DIRECTION, DIRECTION_F);
-				msg.getData().putString(TiC.PROPERTY_URL, url);
-				msg.obj = listener;
-				msg.sendToTarget();
+				Message message = geolocationModule.getMainHandler().obtainMessage(GeolocationModule.MSG_LOOKUP);
+				//Message msg = geolocationModule.getUIHandler().obtainMessage(GeolocationModule.MSG_LOOKUP);
+				message.getData().putString(TiC.PROPERTY_DIRECTION, DIRECTION_F);
+				message.getData().putString(TiC.PROPERTY_URL, url);
+				message.obj = listener;
+				message.sendToTarget();
 			}
 		} else {
 			Log.w(LCAT, "address should not be null");
@@ -336,11 +344,12 @@ public class TiLocation
 		String url = buildGeoURL(DIRECTION_R, mid, aguid, sid, latitude + "," + longitude, countryCode);
 
 		if (url != null) {
-			Message msg = geolocationModule.getUIHandler().obtainMessage(GeolocationModule.MSG_LOOKUP);
-			msg.getData().putString(TiC.PROPERTY_DIRECTION, DIRECTION_R);
-			msg.getData().putString(TiC.PROPERTY_URL, url);
-			msg.obj = callback;
-			msg.sendToTarget();
+			Message message = geolocationModule.getMainHandler().obtainMessage(GeolocationModule.MSG_LOOKUP);
+			//Message msg = geolocationModule.getUIHandler().obtainMessage(GeolocationModule.MSG_LOOKUP);
+			message.getData().putString(TiC.PROPERTY_DIRECTION, DIRECTION_R);
+			message.getData().putString(TiC.PROPERTY_URL, url);
+			message.obj = callback;
+			message.sendToTarget();
 		}
 	}
 

@@ -3,8 +3,8 @@ package ti.modules.titanium.contacts;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.util.Log;
 
 import android.app.Activity;
 import android.content.ContentUris;

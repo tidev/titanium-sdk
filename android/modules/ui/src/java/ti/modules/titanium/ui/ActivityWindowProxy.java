@@ -8,16 +8,16 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiActivityWindow;
 import org.appcelerator.titanium.TiActivityWindows;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiMessageQueue;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
-import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiOrientationHelper;
 import org.appcelerator.titanium.view.TiUIView;
@@ -27,6 +27,7 @@ import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Message;
 import android.os.Messenger;
+
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_TITLEID,
@@ -41,13 +42,14 @@ public class ActivityWindowProxy extends TiWindowProxy
 {
 	private static final String LCAT = "ActivityWindowProxy";
 	private static final boolean DBG = TiConfig.LOGD;
-
 	private static final int MSG_FIRST_ID = TiWindowProxy.MSG_LAST_ID + 1;
 	private static final int MSG_FINISH_OPEN = MSG_FIRST_ID + 100;
+
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	protected String windowId;
 	protected boolean useCurrentActivity;
+
 
 	@Override
 	public void handleCreationDict(KrollDict options)
@@ -66,6 +68,7 @@ public class ActivityWindowProxy extends TiWindowProxy
 		KrollDict table = new KrollDict();
 		table.put(TiC.PROPERTY_TITLE, TiC.PROPERTY_TITLEID);
 		table.put(TiC.PROPERTY_TITLE_PROMPT, TiC.PROPERTY_TITLE_PROMPTID);
+
 		return table;
 	}
 	
@@ -87,12 +90,15 @@ public class ActivityWindowProxy extends TiWindowProxy
 		switch(msg.what) {
 			case MSG_FINISH_OPEN: {
 				realizeViews(view);
+
 				if (tab == null) {
 					//TODO attach window
 				}
+
 				opened = true;
 				handlePostOpen();
 				fireEvent(TiC.EVENT_OPEN, null);
+
 				return true;
 			}
 			default : {
@@ -108,13 +114,14 @@ public class ActivityWindowProxy extends TiWindowProxy
 			Log.d(LCAT, "handleOpen");
 		}
 
-		Messenger messenger = new Messenger(getUIHandler());
+		Messenger messenger = new Messenger(getMainHandler());
 
 		if (useCurrentActivity) {
 			Activity activity = TiApplication.getInstance().getCurrentActivity();
 			if (activity instanceof TiBaseActivity) {
 				view = new TiUIActivityWindow(this, (TiBaseActivity) activity, messenger, MSG_FINISH_OPEN);
 			}
+
 		} else {
 			view = new TiUIActivityWindow(this, options, messenger, MSG_FINISH_OPEN);
 		}
@@ -123,6 +130,7 @@ public class ActivityWindowProxy extends TiWindowProxy
 	public void fillIntentForTab(Intent intent)
 	{
 		intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
+
 		int windowId = TiActivityWindows.addWindow(new TiActivityWindow() {
 			@Override
 			public void windowCreated(TiBaseActivity activity)
@@ -131,9 +139,9 @@ public class ActivityWindowProxy extends TiWindowProxy
 				realizeViews(view);
 				opened = true;
 				fireEvent(TiC.EVENT_OPEN, null);
-				TiMessageQueue.getMainMessageQueue().stopBlocking();
 			}
 		});
+
 		intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
 	}
 
@@ -149,6 +157,7 @@ public class ActivityWindowProxy extends TiWindowProxy
 		if (window != null) {
 			window.close(options);
 		}
+
 		releaseViews();
 	}
 
@@ -179,6 +188,7 @@ public class ActivityWindowProxy extends TiWindowProxy
 		{
 			return TiOrientationHelper.convertConfigToTiOrientationMode(activity.getResources().getConfiguration().orientation);
 		}
+
 		Log.e(LCAT, "unable to get orientation, activity not found for window");
 		return TiOrientationHelper.ORIENTATION_UNKNOWN;
 	}
@@ -191,6 +201,7 @@ public class ActivityWindowProxy extends TiWindowProxy
 		if (hasProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
 			pixelFormat = TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT));
 		}
+
 		return pixelFormat;
 	}
 

@@ -9,8 +9,8 @@ package ti.modules.titanium.ui.widget.picker;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.PickerColumnProxy;

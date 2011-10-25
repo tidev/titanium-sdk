@@ -6,8 +6,8 @@
  */
 package ti.modules.titanium.ui.widget.tableview;
 
+import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.ui.TableViewRowProxy;

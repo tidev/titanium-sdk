@@ -19,7 +19,7 @@
 
 package org.appcelerator.titanium.kroll;
 
-import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.kroll.common.TiConfig;
 
 import android.os.Looper;
 import android.os.Process;

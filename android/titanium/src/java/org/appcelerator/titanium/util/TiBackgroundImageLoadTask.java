@@ -9,6 +9,8 @@ package org.appcelerator.titanium.util;
 import java.lang.ref.SoftReference;
 import java.util.concurrent.RejectedExecutionException;
 
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.view.TiDrawableReference;
 

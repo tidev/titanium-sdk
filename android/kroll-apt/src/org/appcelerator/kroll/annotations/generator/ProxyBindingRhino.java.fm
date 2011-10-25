@@ -20,7 +20,7 @@ import org.appcelerator.kroll.runtime.rhino.Proxy;
 import org.appcelerator.kroll.runtime.rhino.ProxyFactory;
 import org.appcelerator.kroll.runtime.rhino.RhinoRuntime;
 import org.appcelerator.kroll.runtime.rhino.TypeConverter;
-import org.appcelerator.titanium.util.Log;
+import org.appcelerator.kroll.common.Log;
 
 import java.util.HashMap;
 

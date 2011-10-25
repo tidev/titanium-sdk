@@ -17,9 +17,7 @@ import org.mozilla.javascript.ScriptableObject;
 
 import android.util.Log;
 
-/**
- * The Rhino implementation of KrollRuntime
- */
+
 public class RhinoRuntime extends KrollRuntime
 {
 	private static final String TAG = "RhinoRuntime";
@@ -29,14 +27,56 @@ public class RhinoRuntime extends KrollRuntime
 	private Scriptable moduleObject;
 	private Function runMainModuleFunction;
 
-	public RhinoRuntime()
+
+	@Override
+	public void initRuntime()
 	{
-		_instance = this;
 		Context context = Context.enter();
 		context.setOptimizationLevel(-1);
+
 		try {
 			globalScope = context.initStandardObjects();
 			bootstrap(context, globalScope);
+
+		} finally {
+			Context.exit();
+		}
+	}
+
+	@Override
+	public void doDispose()
+	{
+	}
+
+	@Override
+	public void doRunModule(String source, String filename)
+	{
+		Context context = Context.enter();
+		context.setOptimizationLevel(-1);
+
+		try {
+			if (moduleObject == null) {
+				moduleObject = (Scriptable) ScriptableObject.getProperty(globalScope, "Module");
+				runMainModuleFunction = (Function) ScriptableObject.getProperty(moduleObject, "runMainModule");
+			}
+
+			runMainModuleFunction.call(context, globalScope, moduleObject, new Object[] { source, filename });
+
+		} finally {
+			Context.exit();
+		}
+	}
+
+	@Override
+	public void initObject(KrollProxySupport proxy)
+	{
+		Context context = Context.enter();
+		context.setOptimizationLevel(-1);
+
+		try {
+			Proxy rhinoProxy = ProxyFactory.createRhinoProxy(context, globalScope, proxy);
+			proxy.setKrollObject(rhinoProxy.getRhinoObject());
+
 		} finally {
 			Context.exit();
 		}
@@ -59,53 +99,19 @@ public class RhinoRuntime extends KrollRuntime
 
 		if (!(result instanceof Function)) {
 			Log.e(TAG, "kroll.js result is not a function");
+
 			return;
 		}
 
 		Function mainFunction = (Function) result;
 		Object[] args = new Object[] { globalKrollObject };
+
 		try {
 			mainFunction.call(context, globalScope, globalScope, args);
+
 		} catch (Exception e) {
 			Log.e(TAG, "Caught exception while bootstrapping kroll: " + e.getMessage(), e);
 		}
 	}
-
-	@Override
-	public void doDispose()
-	{
-	}
-
-	@Override
-	public void doRunModule(String source, String filename)
-	{
-		Context context = Context.enter();
-		context.setOptimizationLevel(-1);
-
-		try {
-			if (moduleObject == null) {
-				moduleObject = (Scriptable) ScriptableObject.getProperty(globalScope, "Module");
-				runMainModuleFunction = (Function) ScriptableObject.getProperty(moduleObject, "runMainModule");
-			}
-
-			runMainModuleFunction.call(context, globalScope, moduleObject,
-				new Object[] { source, filename });
-		} finally {
-			Context.exit();
-		}
-	}
-
-	@Override
-	public void initObject(KrollProxySupport proxy)
-	{
-		Context context = Context.enter();
-		context.setOptimizationLevel(-1);
-		try {
-			Proxy rhinoProxy = ProxyFactory.createRhinoProxy(context, globalScope, proxy);
-			proxy.setKrollObject(rhinoProxy.getRhinoObject());
-		} finally {
-			Context.exit();
-		}
-	}
-
 }
+

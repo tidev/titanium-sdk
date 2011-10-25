@@ -32,8 +32,6 @@ public class ButtonProxy extends TiViewProxy
 	public ButtonProxy()
 	{
 		super();
-
-		setProperty(TiC.PROPERTY_TITLE, "");
 	}
 
 	public ButtonProxy(TiContext tiContext)

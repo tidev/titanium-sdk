@@ -21,14 +21,14 @@ import java.util.Stack;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiLaunchActivity;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiLifecycle.OnServiceLifecycleEvent;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
-import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -139,7 +139,10 @@ public class TitaniumModule extends KrollModule
 
 		public void run()
 		{
-			if (canceled) return;
+			if (canceled) {
+				return;
+			}
+
 			if (DBG) {
 				StringBuilder message = new StringBuilder("calling ")
 					.append(interval ? "interval" : "timeout")
@@ -147,10 +150,12 @@ public class TitaniumModule extends KrollModule
 					.append(id)
 					.append(" @")
 					.append(new Date().getTime());
+
 				Log.d(LCAT, message.toString());
 			}
+
 			long start = System.currentTimeMillis();
-			call(callback, args);
+			callback.call(getKrollObject(), args);
 			if (interval && !canceled) {
 				handler.postDelayed(this, timeout - (System.currentTimeMillis() - start));
 			}
@@ -167,7 +172,7 @@ public class TitaniumModule extends KrollModule
 		throws IllegalArgumentException
 	{
 		int timerId = currentTimerId++;
-		Handler handler = getUIHandler();
+		Handler handler = getRuntimeHandler();
 
 		Timer timer = new Timer(timerId, handler, callback, timeout, args, interval);
 		Thread thread = handler.getLooper().getThread();
@@ -178,14 +183,15 @@ public class TitaniumModule extends KrollModule
 		}
 		threadTimers.put(timerId, timer);
 		timer.schedule();
+
 		return timerId;
 	}
 
 	@Kroll.method @Kroll.topLevel
-	public int setTimeout(KrollFunction fn, long timeout, final Object[] args)
+	public int setTimeout(KrollFunction krollFunction, long timeout, final Object[] args)
 		throws IllegalArgumentException
 	{
-		return createTimer(fn, timeout, args, false);
+		return createTimer(krollFunction, timeout, args, false);
 	}
 
 	@Kroll.method @Kroll.topLevel
@@ -196,16 +202,17 @@ public class TitaniumModule extends KrollModule
 			if (threadTimers.containsKey(timerId)) {
 				Timer timer = threadTimers.remove(timerId);
 				timer.cancel();
+
 				break;
 			}
 		}
 	}
 
 	@Kroll.method @Kroll.topLevel
-	public int setInterval(KrollFunction fn, long timeout, final Object[] args)
+	public int setInterval(KrollFunction krollFunction, long timeout, final Object[] args)
 		throws IllegalArgumentException
 	{
-		return createTimer(fn, timeout, args, true);
+		return createTimer(krollFunction, timeout, args, true);
 	}
 
 	@Kroll.method @Kroll.topLevel
@@ -226,6 +233,7 @@ public class TitaniumModule extends KrollModule
 			return;
 		}
 		*/
+
 		TiUIHelper.doOkDialog("Alert", msg, null);
 	}
 
@@ -233,17 +241,21 @@ public class TitaniumModule extends KrollModule
 	{
 		TiWindowProxy window = activity.getWindowProxy();
 		Thread thread = null;
+
 		// FIXME this used to look at the activity / tiContext, but we don't care now
 		if (window != null) {
 			thread = Looper.getMainLooper().getThread();
+
 		} else {
 			if (activity instanceof TiLaunchActivity) {
-				TiLaunchActivity launchActivity = (TiLaunchActivity) activity;
+				//TiLaunchActivity launchActivity = (TiLaunchActivity) activity;
 				thread = Looper.getMainLooper().getThread();
 			}
 		}
+
 		if (thread != null) {
 			cancelTimers(thread);
+
 		} else {
 			Log.w(LCAT, "Tried cancelling timers for an activity with no associated JS thread: " + activity);
 		}
@@ -252,7 +264,9 @@ public class TitaniumModule extends KrollModule
 	public void cancelTimers(Thread thread)
 	{
 		HashMap<Integer, Timer> threadTimers = timers.get(thread);
-		if (threadTimers == null) return;
+		if (threadTimers == null) {
+			return;
+		}
 
 		Iterator<Timer> timerIter = threadTimers.values().iterator();
 		while (timerIter.hasNext()) {
@@ -262,6 +276,7 @@ public class TitaniumModule extends KrollModule
 				timerIter.remove();
 			}
 		}
+
 		threadTimers.clear();
 	}
 
@@ -271,15 +286,20 @@ public class TitaniumModule extends KrollModule
 		try {
 			// clean up formats for integers into doubles since thats how JS rolls
 			format = format.replaceAll("%d", "%1.0f");
+
 			// in case someone passes an iphone formatter symbol, convert
 			format = format.replaceAll("%@", "%s");
+
 			if (args.length == 0) {
 				return String.format(format);
+
 			} else {
 				return String.format(format, args);
 			}
+
 		} catch (Exception ex) {
 			Log.e(LCAT, "Error in string format", ex);
+
 			return null;
 		}
 	}
@@ -288,22 +308,23 @@ public class TitaniumModule extends KrollModule
 	public String stringFormatDate(Date date, @Kroll.argument(optional=true) String format)
 	{
 		int style = DateFormat.SHORT;
+
 		if (format.equals("medium")) {
 			style = DateFormat.MEDIUM;
+
 		} else if (format.equals("long")) {
 			style = DateFormat.LONG;
 		}
-		
-		DateFormat fmt = DateFormat.getDateInstance(style);
-		return fmt.format(date);
+
+		return (DateFormat.getDateInstance(style)).format(date);
 	}
 
 	@Kroll.method @Kroll.topLevel("String.formatTime")
 	public String stringFormatTime(Date time)
 	{
 		int style = DateFormat.SHORT;
-		DateFormat fmt = DateFormat.getTimeInstance(style);
-		return fmt.format(time);
+
+		return (DateFormat.getTimeInstance(style)).format(time);
 	}
 
 	@Kroll.method @Kroll.topLevel("String.formatCurrency")
@@ -317,16 +338,19 @@ public class TitaniumModule extends KrollModule
 	{
 		String pattern = null;
 		String locale = null;
+
 		if (args.length == 2) {
 			// Is the second argument a locale string or a format string?
 			String test = TiConvert.toString(args[1]);
 			if (test != null && test.length() > 0) {
 				if (test.contains(".") || test.contains("#") || test.contains("0")) {
 					pattern = test;
+
 				} else {
 					locale = test;
 				}
 			}
+
 		} else if (args.length >= 3) {
 			// this is: stringFormatDecimal(n, locale_string, pattern_string);
 			locale = TiConvert.toString(args[1]);
@@ -338,9 +362,11 @@ public class TitaniumModule extends KrollModule
 		NumberFormat format;
 		if (numberFormats.containsKey(key)) {
 			format = numberFormats.get(key);
+
 		} else {
 			if (locale != null) {
 				format = NumberFormat.getInstance(TiPlatformHelper.getLocale(locale));
+
 			} else {
 				format = NumberFormat.getInstance();
 			}
@@ -348,6 +374,7 @@ public class TitaniumModule extends KrollModule
 			if (pattern != null && format instanceof DecimalFormat) {
 				((DecimalFormat)format).applyPattern(pattern);
 			}
+
 			numberFormats.put(key, format);
 		}
 
@@ -359,22 +386,26 @@ public class TitaniumModule extends KrollModule
 	{
 		String key = (String) args[0];
 		String defaultValue = args.length > 1 ? (String) args[1] : null;
+
 		try {
 			int resid = TiRHelper.getResource("string." + key);
 			if (resid != 0) {
 				return TiApplication.getInstance().getString(resid);
+
 			} else {
 				return defaultValue;
 			}
-		}
-		catch (TiRHelper.ResourceNotFoundException e) {
+
+		} catch (TiRHelper.ResourceNotFoundException e) {
 			if (DBG) {
 				Log.d(LCAT, "Resource string with key '" + key + "' not found.  Returning default value.");
 			}
+
 			return defaultValue;
-		}
-		catch (Exception e) {
+
+		} catch (Exception e) {
 			Log.e(LCAT, "Exception trying to localize string '" + key + "': ", e);
+
 			return defaultValue;
 		}
 	}
@@ -385,6 +416,7 @@ public class TitaniumModule extends KrollModule
 		TiApplication app = TiApplication.getInstance();
 		if (app == null || !app.isCoverageEnabled()) {
 			Log.w(LCAT, "Coverage is not enabled, no coverage data will be generated");
+
 			return;
 		}
 
@@ -394,6 +426,7 @@ public class TitaniumModule extends KrollModule
 			FileOutputStream reportOut = new FileOutputStream(reportFile);
 			// TODO KrollCoverage.writeCoverageReport(reportOut);
 			reportOut.close();
+
 		} catch (IOException e) {
 			Log.e(LCAT, e.getMessage(), e);
 		}
@@ -404,6 +437,7 @@ public class TitaniumModule extends KrollModule
 		if (activity instanceof TiBaseActivity) {
 			cancelTimers((TiBaseActivity) activity);
 		}
+
 		super.onDestroy(activity);
 	}
 
@@ -412,3 +446,4 @@ public class TitaniumModule extends KrollModule
 	{
 	}
 }
+

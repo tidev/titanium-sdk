@@ -17,13 +17,13 @@ import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
-import org.appcelerator.titanium.util.TiConfig;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -154,7 +154,7 @@ public class ContactsModule extends KrollModule
 				if (request.containsKey("cancel")) {
 					KrollFunction callback = request.get("cancel");
 					if (callback != null) {
-						callAsync(callback, new Object[0]);
+						callback.callAsync(getKrollObject(), new Object[0]);
 					}
 				}
 			} else if (resultCode == Activity.RESULT_OK) {
@@ -164,7 +164,7 @@ public class ContactsModule extends KrollModule
 						PersonProxy person = contactsApi.getPersonByUri(data.getData());
 						KrollDict result = new KrollDict();
 						result.put("person", person);
-						callAsync(callback, new Object[] { result });
+						callback.callAsync(getKrollObject(), new Object[] { result });
 					}
 				}
 			} else {
