@@ -225,7 +225,7 @@ public class KrollContext implements Handler.Callback
 				if (useOptimization) {
 					// get Script from compiled script class
 					script = TiScriptRunner.getInstance()
-							.getScript(context, jsScope, moduleId);
+							.getScript(moduleId);
 					if (script == null) {
 						Log.e(LCAT, "Could not retrieve a Script object for module '" + moduleId + "'.");
 						Context.throwAsScriptRuntimeEx(new Exception("Unable to load Script for module '" + moduleId + "'."));
