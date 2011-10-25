@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
 
@@ -34,11 +35,14 @@ public class KrollBindingGenerator
 	private Template v8SourceTemplate, v8HeaderTemplate;
 	private Template rhinoSourceTemplate, rhinoBindingsTemplate;
 	private ArrayList<HashMap<String, String>> rhinoBindings = new ArrayList<HashMap<String, String>>();
+	private HashMap<String, Object> apiTree = new HashMap<String, Object>();
+	private JSONUtils jsonUtils;
 
 	public KrollBindingGenerator(String runtime, String outPath)
 	{
 		this.runtime = runtime;
 		this.outPath = outPath;
+		this.jsonUtils = new JSONUtils();
 
 		initTemplates();
 	}
@@ -115,6 +119,56 @@ public class KrollBindingGenerator
 		
 	}
 
+	protected void addToApiTree(String className, Map<Object, Object> proxy)
+	{
+		String fullApiName = (String) jsonUtils.getMap(proxy, "proxyAttrs").get("fullAPIName");
+		Map<String, Object> tree = apiTree;
+		String[] apiNames = fullApiName.split("\\.");
+		for (String api : apiNames) {
+			if (api.equals("Titanium")) {
+				continue;
+			}
+
+			if (!tree.containsKey(api)) {
+				HashMap<String, Object> subTree = new HashMap<String, Object>();
+				tree.put(api, subTree);
+			}
+
+			tree = jsonUtils.getStringMap(tree, api);
+		}
+		tree.put("_className", className);
+	}
+
+	protected Map<String, Object> getProxyApiTree(Map<Object, Object> proxy)
+	{
+		String fullApiName = (String) jsonUtils.getMap(proxy, "proxyAttrs").get("fullAPIName");
+		Map<String, Object> tree = apiTree;
+		String[] apiNames = fullApiName.split("\\.");
+		for (String api : apiNames) {
+			if (api.equals("Titanium")) {
+				continue;
+			}
+			tree = jsonUtils.getStringMap(tree, api);
+		}
+		return tree;
+	}
+
+	@SuppressWarnings("unchecked")
+	protected void loadBindings(String jsonPath)
+		throws ParseException, IOException
+	{
+		Map<String, Object> properties = (Map<String, Object>)
+			JSONValue.parseWithException(new FileReader(jsonPath));
+
+		Map<String, Object> proxies = jsonUtils.getStringMap(properties, "proxies");
+
+		// First pass generates the API tree
+		for (String proxyName : proxies.keySet()) {
+			Map<Object, Object> proxy = jsonUtils.getMap(proxies, proxyName);
+			addToApiTree(proxyName, proxy);
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	protected void generateBindings(String jsonPath)
 		throws ParseException, IOException
@@ -122,9 +176,11 @@ public class KrollBindingGenerator
 		Map<String, Object> properties = (Map<String, Object>)
 			JSONValue.parseWithException(new FileReader(jsonPath));
 
-		Map<String, Object> proxies = (Map<String, Object>) properties.get("proxies");
+		Map<String, Object> proxies = jsonUtils.getStringMap(properties, "proxies");
+
 		for (String proxyName : proxies.keySet()) {
-			Map<Object, Object> proxy = (Map<Object, Object>)proxies.get(proxyName);
+			Map<Object, Object> proxy = jsonUtils.getMap(proxies, proxyName);
+
 			HashMap<Object, Object> root = new HashMap<Object, Object>(proxy);
 			root.put("allModules", properties.get("modules"));
 
@@ -136,13 +192,15 @@ public class KrollBindingGenerator
 				saveTypeTemplate(v8SourceTemplate, v8ProxySource, root);
 
 			} else if (RUNTIME_RHINO.equals(runtime)) {
+				root.put("apiTree", getProxyApiTree(proxy));
+
 				String rhinoProxySource = proxyName.replace('.', File.separatorChar) + "Prototype.java";
 				saveTypeTemplate(rhinoSourceTemplate, rhinoProxySource, root);
 
 				HashMap<String, String> binding = new HashMap<String, String>();
 				binding.put("class", proxyName);
 
-				Map<String, Object> proxyAttrs = (Map<String, Object>) proxy.get("proxyAttrs"); 
+				Map<String, Object> proxyAttrs = jsonUtils.getStringMap(proxy, "proxyAttrs"); 
 				binding.put("apiName", (String) proxyAttrs.get("name"));
 				rhinoBindings.add(binding);
 			}
@@ -176,6 +234,15 @@ public class KrollBindingGenerator
 
 		String outDir = args[1];
 		KrollBindingGenerator generator = new KrollBindingGenerator(runtime, outDir);
+
+		if (RUNTIME_RHINO.equals(runtime)) {
+			// First pass to generate the entire API tree
+			for (int i = 2; i < args.length; i++) {
+				generator.loadBindings(args[i]);
+			}
+
+			System.out.println(JSONObject.toJSONString(generator.apiTree));
+		}
 
 		for (int i = 2; i < args.length; i++) {
 			generator.generateBindings(args[i]);

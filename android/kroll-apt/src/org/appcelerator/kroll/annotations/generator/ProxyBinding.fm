@@ -28,13 +28,26 @@
 	</#if>
 </#macro>
 
+<#function hasCreateProxies>
+	<#if isModule>
+		<#list allModules?keys as module>
+			<#if module = packageName+"."+proxyClassName>
+				<#if allModules[module].createProxies??>
+					<#return true>
+				</#if>
+			</#if>
+		</#list>
+	</#if>
+	<#return false>
+</#function>
+
 <#macro listCreateProxies>
 	<#if isModule>
 		<#list allModules?keys as module>
 			<#if module = packageName+"."+proxyClassName>
 				<#if allModules[module].createProxies??>
 					<#list allModules[module].createProxies as createProxy>
-						<#nested createProxy_index==0, createProxy>
+						<#nested createProxy_index==0, createProxy, createProxy_has_next>
 					</#list>
 				</#if>
 			</#if>
@@ -119,6 +132,22 @@
 	<#list proxyAttrs.propertyAccessors as accessor>
 		<#local upperCamel = accessor?substring(0, 1)?upper_case + accessor?substring(1)>
 		<#nested accessor_index==0, accessor, "get" + upperCamel, "set" + upperCamel>
+	</#list>
+</#macro>
+
+<#function hasApiTree>
+	<#-- accounts for _className -->
+	<#return apiTree?keys?size &gt; 1>
+</#function>
+
+<#macro listApiTree>
+	<#local index = 0>
+	<#list apiTree?keys as api>
+		<#if api != "_className">
+			<#local className = apiTree[api]._className>
+			<#nested index==0, api, className, api_has_next>
+			<#local index = index + 1>
+		</#if>
 	</#list>
 </#macro>
 

@@ -15,7 +15,10 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollProxySupport;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.runtime.rhino.KrollBindings;
 import org.appcelerator.kroll.runtime.rhino.Proxy;
+import org.appcelerator.kroll.runtime.rhino.ProxyFactory;
+import org.appcelerator.kroll.runtime.rhino.RhinoRuntime;
 import org.appcelerator.kroll.runtime.rhino.TypeConverter;
 import org.appcelerator.titanium.util.Log;
 
@@ -41,6 +44,13 @@ public class ${className}Prototype extends ${superProxy}
 	private static final String CLASS_TAG = "${className}";
 	<#assign protoVar = className?substring(0, 1)?lower_case + className?substring(1) + "Prototype">
 	private static ${className}Prototype ${protoVar};
+
+<@Proxy.listApiTree ; isFirst, name, className, hasNext>
+	<#if isFirst>
+	// Lazy loaded child APIs
+	</#if>
+	private Object API_${name} = null;
+</@Proxy.listApiTree>
 
 	public static ${className}Prototype getProxyPrototype()
 	{
@@ -93,7 +103,7 @@ public class ${className}Prototype extends ${superProxy}
 		<#assign returnType = "Object">
 	</#if>
 <#t>
-	public ${returnType} ${name}(Context context, Scriptable thisObj, Object[] args)
+	public ${returnType} ${method.apiName}(Context context, Scriptable thisObj, Object[] args)
 	{
 		Log.d(TAG, "${method.apiName}()");
 
@@ -159,17 +169,18 @@ public class ${className}Prototype extends ${superProxy}
 	// Prototype IDs
 	private static final int
 		<#assign start = 2>
-		<#if superProxyClassName??>
-		PSTART = 0/*${superProxyClassName}Prototype.MAX_PROTOTYPE_ID*/,
-		</#if>
-		Id_constructor = <#if superProxyClassName??>PSTART + </#if>1
+		Id_constructor = 1
 		<#t><#if methods??>,</#if>
-
 		// Method IDs
 		<@Proxy.listMethods ; isFirst, name, method, signature, hasNext>
-		Id_${name} = <#if superProxyClassName??>PSTART + </#if>${start}<#if hasNext>,</#if>
+		Id_${method.apiName} = ${start}<#if hasNext>,</#if>
 		<#assign start = start + 1>
-		</@Proxy.listMethods>;
+		</@Proxy.listMethods>
+		<#t><#if Proxy.hasCreateProxies()>,</#if>
+		<@Proxy.listCreateProxies ; isFirst, createProxy, hasNext>
+		Id_create${createProxy.name} = ${start}<#if hasNext>,</#if>
+		<#assign start = start + 1>
+		</@Proxy.listCreateProxies>;
 
 	public static final int MAX_PROTOTYPE_ID = ${start - 1};
 
@@ -200,15 +211,21 @@ public class ${className}Prototype extends ${superProxy}
 				name = "constructor";
 				break;
 		<@Proxy.listMethods ; isFirst, name, method>
-			case Id_${name}:
+			case Id_${method.apiName}:
 			<#assign arity = method.args?size>
 			<#if method.hasInvocation>
 				<#assign arity = arity - 1>
 			</#if>
 				arity = ${arity};
-				name = "${name}";
+				name = "${method.apiName}";
 				break;
 		</@Proxy.listMethods>
+		<@Proxy.listCreateProxies ; isFirst, createProxy, hasNext>
+			case Id_create${createProxy.name}:
+				arity = 1;
+				name = "create${createProxy.name}";
+				break;
+		</@Proxy.listCreateProxies>
 			default:
 				super.initPrototypeId(id);
 				return;
@@ -229,27 +246,31 @@ public class ${className}Prototype extends ${superProxy}
 			case Id_constructor:
 				return jsConstructor(scope, args);
 		<@Proxy.listMethods ; isFirst, name, method>
-
-			case Id_${name}:
+			case Id_${method.apiName}:
 				<#assign hasReturn = (method.returnType != "void")> 
-				<#if hasReturn>return</#if> ${name}(cx, thisObj, args);
+				<#if hasReturn>return</#if> ${method.apiName}(cx, thisObj, args);
 				<#if !hasReturn>return Undefined.instance;</#if>
 		</@Proxy.listMethods>
+		<@Proxy.listCreateProxies ; isFirst, createProxy, hasNext>
+			case Id_create${createProxy.name}:
+				return ProxyFactory.createRhinoProxy(cx, scope,
+					"${createProxy.proxyClassName}", args);
+		</@Proxy.listCreateProxies>
 			default:
 				throw new IllegalArgumentException(String.valueOf(id));
 		}
 	}
 
 	<#assign start = 0>
-	<#assign hasInstanceIds =  dynamicProperties?? || proxyAttrs.propertyAccessors?size &gt; 0>
-	<#if hasInstanceIds>
+	<#assign hasInstanceIds = dynamicProperties?? || proxyAttrs.propertyAccessors?size &gt; 0>
+	<#if hasInstanceIds || Proxy.hasApiTree()>
 
 // #string_id_map#
 
 	<#assign start = 1>
 	// Instance IDs
 	<#if superProxyClassName??>
-	private static final int ISTART = 0/*${superProxyClassName}Prototype.MAX_INSTANCE_ID*/;
+	private static final int ISTART = 0;
 	</#if>
 <#t>
 		<@Proxy.listDynamicProperties ; isFirst, name, property, getSignature, setSignature>
@@ -259,7 +280,7 @@ public class ${className}Prototype extends ${superProxy}
 		<#else>
 		<#t>,
 		</#if>
-		Id_${name} = <#if superProxyClassName??>ISTART + </#if>${start}
+		Id_${name} = ${start}
 		<#assign start = start + 1>
 		</@Proxy.listDynamicProperties>;
 
@@ -270,14 +291,25 @@ public class ${className}Prototype extends ${superProxy}
 		<#else>
 		<#t>,
 		</#if>
-		Id_${name} = <#if superProxyClassName??>ISTART + </#if>${start}
+		Id_${name} = ${start}
 		<#assign start = start + 1>
 		</@Proxy.listPropertyAccessors>;
+
+		<@Proxy.listApiTree ; isFirst, name, className, hasNext>
+		<#if isFirst>
+	// Child APIs
+	private static final int
+		<#else>
+		<#t>,
+		</#if>
+		Id_${name} = ${start}
+		<#assign start = start + 1>
+		</@Proxy.listApiTree>;
 	</#if>
 
 	public static final int MAX_INSTANCE_ID = ${start - 1};
 
-	<#if hasInstanceIds>
+	<#if hasInstanceIds || Proxy.hasApiTree()>
 	@Override
 	protected int getMaxInstanceId()
 	{
@@ -310,6 +342,10 @@ public class ${className}Prototype extends ${superProxy}
 			case Id_${name}:
 				return "${name}";
 		</@Proxy.listPropertyAccessors>
+		<@Proxy.listApiTree ; isFirst, name, className, hasNext>
+			case Id_${name}:
+				return "${name}";
+		</@Proxy.listApiTree>
 			default:
 				throw new IllegalArgumentException(String.valueOf(id));
 		}
@@ -331,6 +367,17 @@ public class ${className}Prototype extends ${superProxy}
 			case Id_${name}:
 				return getProperty(Context.getCurrentContext(), "${name}");
 		</@Proxy.listPropertyAccessors>
+		<@Proxy.listApiTree ; isFirst, name, className, hasNext>
+			case Id_${name}:
+				if (API_${name} == null) {
+					Context context = Context.getCurrentContext();
+					Scriptable scope = RhinoRuntime.getGlobalScope();
+
+					API_${name} = KrollBindings.getProxyBinding(context, scope,
+						"${className}", ${className}Prototype.class); 
+				}
+				return API_${name};
+		</@Proxy.listApiTree>
 			default:
 				throw new IllegalArgumentException(String.valueOf(id));
 		}
@@ -354,6 +401,11 @@ public class ${className}Prototype extends ${superProxy}
 				setProperty(Context.getCurrentContext(), "${name}", value);
 				break;
 		</@Proxy.listPropertyAccessors>
+		<@Proxy.listApiTree ; isFirst, name, className, hasNext>
+			case Id_${name}:
+				API_${name} = value;
+				break;
+		</@Proxy.listApiTree>
 			default:
 				throw new IllegalArgumentException(String.valueOf(id));
 		}
