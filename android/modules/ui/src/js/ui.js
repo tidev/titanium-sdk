@@ -1,20 +1,12 @@
 var bootstrap = require("bootstrap");
 
-exports.bootstrap = function(Titanium){
-	var Window;
-	bootstrap.defineLazyGetter("UI", "Window", function() {
-		if (!Window) {
-			Window = require("window").bootstrapWindow(Titanium);
-		}
-		return Window;
-	});
+exports.bootstrap = function(Titanium) {
+	var Window = require("window").bootstrapWindow(Titanium);
 
-	bootstrap.defineLazyGetter("UI", "createWindow", function() {
-		if (!Window) {
-			Window = require("window").bootstrapWindow(Titanium);
-		}
-		return Window.createWindow;
-	});
+	// Since Rhino doesn't use lazy bootstrap directly,
+	// we need to just bite the bullet and assign these here
+	Titanium.UI.Window = Window;
+	Titanium.UI.createWindow = Window.createWindow;
 
 	function iPhoneConstant(name) {
 		Ti.API.error("!!!");
@@ -23,7 +15,8 @@ exports.bootstrap = function(Titanium){
 		return 0;
 	}
 
-	var iPhone = {
+	// TODO: Remove me. Only for temporary compatibility
+	Titanium.UI.iPhone = {
 		ActivityIndicatorStyle: {
 			get BIG() { return iPhoneConstant("ActivityIndicatorStyle.BIG"); },
 			get DARK() { return  iPhoneConstant("ActivityIndicatorStyle.DARK"); }
@@ -39,7 +32,19 @@ exports.bootstrap = function(Titanium){
 		}
 	};
 
-	bootstrap.defineLazyGetter("UI", "iPhone", function() {
-		return iPhone;
-	})
+	var TiView = Titanium.TiView;
+	TiView.prototype.toJSON = function() {
+		var json = {};
+		var keys = Object.keys(this);
+		var len = keys.length;
+
+		for (var i = 0; i < len; i++) {
+			var key = keys[i];
+			if (key == "parent") {
+				continue;
+			}
+			json[key] = this[key];
+		}
+		return json;
+	}
 }

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 
+import android.content.Context;
 import android.content.res.AssetManager;
 import android.util.Log;
 
@@ -20,10 +21,13 @@ public class KrollAssetHelper
 {
 	private static final String TAG = "TiAssetHelper";
 	private static WeakReference<AssetManager> manager;
+	private static String packageName, cacheDir;
 
-	public static void init(AssetManager manager)
+	public static void init(Context context)
 	{
-		KrollAssetHelper.manager = new WeakReference<AssetManager>(manager);
+		KrollAssetHelper.manager = new WeakReference<AssetManager>(context.getAssets());
+		KrollAssetHelper.packageName = context.getPackageName();
+		KrollAssetHelper.cacheDir = context.getCacheDir().getAbsolutePath();
 	}
 
 	public static String readAsset(String path)
@@ -70,5 +74,15 @@ public class KrollAssetHelper
 			Log.e(TAG, "Error while reading file: " + path, e);
 		}
 		return null;
+	}
+
+	public static String getPackageName()
+	{
+		return packageName;
+	}
+
+	public static String getCacheDir()
+	{
+		return cacheDir;
 	}
 }

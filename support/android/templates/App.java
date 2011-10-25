@@ -35,9 +35,9 @@ public final class ${config['classname']}Application extends TiApplication
 		postAppInfo();
 
 		% if runtime == "v8":
-		KrollRuntime.init(new V8Runtime());
+		KrollRuntime.init(this, new V8Runtime());
 		% else:
-		KrollRuntime.init(new RhinoRuntime());
+		KrollRuntime.init(this, new RhinoRuntime());
 		% endif
 
 		stylesheet = new ApplicationStylesheet();

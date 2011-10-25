@@ -28,6 +28,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 
 /**
  * Various native Rhino bindings
@@ -151,6 +152,23 @@ public class KrollBindings
 
 		// TODO
 		return null;
+	}
+
+	public static Object getProxyBinding(Context context, Scriptable scope, String name, Class<? extends Proxy> proxyClass)
+	{
+		Scriptable exports = bindingCache.get(name);
+		String bindingName = KrollGeneratedBindings.getBindingName(name);
+
+		if (exports != null) {
+			return ScriptableObject.getProperty(exports, bindingName);
+		}
+
+		exports = context.newObject(scope);
+		Function constructor = Proxy.init(context, exports, bindingName, proxyClass);
+
+		bindingCache.put(name, exports);
+		ProxyFactory.addProxyConstructor(name, constructor);
+		return ScriptableObject.getProperty(exports, bindingName);
 	}
 
 	public static void requireNative(Context context, Scriptable scope, String name)

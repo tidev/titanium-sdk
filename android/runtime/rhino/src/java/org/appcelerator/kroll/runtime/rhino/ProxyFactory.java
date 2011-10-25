@@ -25,14 +25,21 @@ public class ProxyFactory
 
 	public static Proxy createRhinoProxy(Context context, Scriptable scope, KrollProxySupport proxySupport)
 	{
-		Class<?> proxyClass = proxySupport.getClass();
-		String proxyClassName = proxyClass.getName();
+		return createRhinoProxy(context, scope, proxySupport.getClass().getName(), new Object[] { proxySupport });
+	}
 
+	public static Proxy createRhinoProxy(Context context, Scriptable scope, String proxyClassName)
+	{
+		return createRhinoProxy(context, scope, proxyClassName, new Object[0]);
+	}
+
+	public static Proxy createRhinoProxy(Context context, Scriptable scope, String proxyClassName, Object[] args)
+	{
 		Function constructor = proxyConstructors.get(proxyClassName);
 		if (constructor == null) {
 			Scriptable exports = KrollBindings.getBinding(context, scope, proxyClassName);
 			if (exports == null) {
-				Log.e(TAG, "Failed to find prototype class for " + proxyClass.getName());
+				Log.e(TAG, "Failed to find prototype class for " + proxyClassName);
 				return null;
 			}
 
@@ -42,7 +49,7 @@ public class ProxyFactory
 			}
 		}
 
-		return (Proxy) constructor.construct(context, scope, new Object[] { proxySupport });
+		return (Proxy) constructor.construct(context, scope, args);
 	}
 
 	public static void addProxyConstructor(String proxyClassName, Function constructor)

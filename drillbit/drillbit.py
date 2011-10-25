@@ -1,5 +1,7 @@
 #!/usr/bin/python
-import os, sys, re, platform, subprocess, shutil, zipfile
+import os, sys, re
+import platform, subprocess
+import shutil, zipfile
 
 drillbit_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 drillbit_app_dir = os.path.join(drillbit_dir, 'app')
@@ -121,6 +123,7 @@ def usage():
     --android-force-build           When passed, the test harness is forcefully built on initial deploy
     --android-device=DEVICE         The device argument to pass to ADB.
                                     Valid values: emulator (-e), device (-d), or specific serial (default: emulator)
+    --android-runtime=RUNTIME       The Android runtime to run tests with (default: v8)
 """ % sys.argv[0]
 	sys.exit(1)
 

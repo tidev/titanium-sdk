@@ -9,7 +9,8 @@ import org.appcelerator.titanium.TiContext;
 import ti.modules.titanium.android.AndroidModule;
 
 @Kroll.module(parentModule=AndroidModule.class)
-public class CalendarModule extends KrollModule {
+public class CalendarModule extends KrollModule
+{
 	@Kroll.constant public static final int STATUS_TENTATIVE = EventProxy.STATUS_TENTATIVE;
 	@Kroll.constant public static final int STATUS_CONFIRMED = EventProxy.STATUS_CONFIRMED;
 	@Kroll.constant public static final int STATUS_CANCELED = EventProxy.STATUS_CANCELED;

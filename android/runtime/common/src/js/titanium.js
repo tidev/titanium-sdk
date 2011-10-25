@@ -27,6 +27,21 @@ function TiInclude(filename, baseUrl) {
 	var sourceUrl = url.resolve(baseUrl, filename);
 	var source;
 
+	if (kroll.runtime == 'rhino') {
+		var path = filename;
+
+		if (sourceUrl.assetPath) {
+			path = url.toAssetPath(sourceUrl);
+
+		} else if (sourceUrl.filePath) {
+			path = url.toFilePath(sourceUrl);
+		}
+
+		// we don't use source for compiled scripts in Rhino
+		Titanium.runInContext(path, sourceUrl.href, true, true);
+		return;
+	}
+
 	if (!('protocol' in sourceUrl)) {
 		source = assets.readAsset(filename);
 
@@ -47,12 +62,11 @@ Titanium.include = TiInclude;
 // Returns the result of the script or throws an exception
 // if an error occurs. If displayError is true, any exceptions
 // will be logged.
-Titanium.runInContext = function(source, url, displayError) {
+Titanium.runInContext = function(source, url, displayError, isPath) {
+
 	// Use the prototype inheritance chain
 	// to copy and maintain the Titanium dynamic
 	// getters/setters
-	kroll.log(TAG, "Titanium.runInContext, url = " + url);
-
 	function SandboxTitanium() {}
 	SandboxTitanium.prototype = Titanium;
 
@@ -67,8 +81,14 @@ Titanium.runInContext = function(source, url, displayError) {
 
 	Titanium.bindInvocationAPIs(sandboxTi, url);
 
-	var wrappedSource = "with(sandbox) { " + source + "\n }";
-	return Script.runInThisContext(wrappedSource, url, displayError);
+	if (isPath) {
+		// "source" is the actual path when "isPath" is true
+		return Script.runInSandbox(source, url, sandbox);
+
+	} else {
+		var wrappedSource = "with(sandbox) { " + source + "\n }";
+		return Script.runInThisContext(wrappedSource, url, displayError);
+	}
 }
 
 Titanium.bindInvocationAPIs = function(sandboxTi, url) {
@@ -92,22 +112,28 @@ Titanium.bindInvocationAPIs = function(sandboxTi, url) {
 			realAPI = realAPI[name];
 		}
 
-		var delegate = realAPI[invocationAPI.api];
-
-		function invoker() {
-			var args = Array.prototype.slice.call(arguments);
-			args.splice(0, 0, url);
-			return delegate.apply(this, args);
-		}
-
 		// These invokers form a call hierarchy so we need to
 		// provide a way back to the actual root Titanium / actual impl.
-		while ("__parent__" in delegate) {
-			delegate = delegate.__parent__;
+		var delegate = realAPI[invocationAPI.api];
+		while (delegate.__delegate__) {
+			delegate = delegate.__delegate__;
 		}
-		invoker.__parent__ = delegate;
 
-		apiNamespace[invocationAPI.api] = invoker;
+		function createInvoker(delegate) {
+			var urlInvoker = function invoker() {
+				var args = Array.prototype.slice.call(arguments);
+				args.splice(0, 0, invoker.__url__);
+
+				return delegate.apply(invoker.__thisObj__, args);
+			}
+
+			urlInvoker.__url__ = url;
+			urlInvoker.__delegate__ = delegate;
+			urlInvoker.__thisObj__ = realAPI;
+			return urlInvoker;
+		}
+
+		apiNamespace[invocationAPI.api] = createInvoker(delegate);
 	}
 
 	var len = Titanium.invocationAPIs.length;
@@ -194,9 +220,6 @@ Object.defineProperty(Proxy.prototype, "setPropertiesAndFire", {
 // Custom native modules
 bootstrap.defineLazyBinding(Titanium, "API");
 
-// Custom JS extensions to Java modules
-require("ui").bootstrap(Titanium);
-
 Object.defineProperty(Titanium, "Yahoo", {
 	get: function() {
 		return bootstrap.lazyGet(this, "yahoo", "Yahoo");
@@ -207,9 +230,17 @@ Object.defineProperty(Titanium, "Yahoo", {
 // Define lazy initializers for all Titanium APIs
 bootstrap.bootstrap(Titanium);
 
+// Custom JS extensions to Java modules
+require("ui").bootstrap(Titanium);
+
 var Properties = require("properties");
 Properties.bootstrap(Titanium);
 
-Titanium.bindInvocationAPIs(Titanium, Titanium.sourceUrl);
+// Finally, sandbox and bind the top level Titanium object
+function SandboxTitanium() {}
+SandboxTitanium.prototype = Titanium;
 
-module.exports = Titanium;
+var sandboxTi = new SandboxTitanium();
+Titanium.bindInvocationAPIs(sandboxTi, Titanium.sourceUrl);
+
+module.exports = sandboxTi;

@@ -35,6 +35,13 @@ function AndroidEmulator(drillbit, androidSdk, apiLevel, platform, googleApis) {
 		this.avdId = drillbit.argv.avdId;
 	}
 
+	this.runtime = 'v8';
+	if ('androidRuntime' in drillbit.argv) {
+		this.runtime = drillbit.argv.androidRuntime;
+	}
+
+	ti.api.debug('Using javascript runtime: ' + this.runtime);
+
 	this.androidBuilder = ti.path.join(drillbit.mobileSdk, 'android', 'builder.py');
 	this.waitForDevice = ti.path.join(drillbit.mobileSdk, 'android', 'wait_for_device.py');
 	this.testHarnessRunning = false;
@@ -122,8 +129,15 @@ AndroidEmulator.prototype.isEmulatorRunning = function() {
 };
 
 AndroidEmulator.prototype.getTestJSInclude = function() {
-	//return "TestHarnessActivity.loadTest(this);";
-	return "Ti.include(\"appdata://test.js\")";
+	if (this.runtime == "rhino") {
+		return "Ti.include(\"appdata://test.jar:" + this.drillbit.testHarnessId + ".js.test\")";
+	} else {
+		return "Ti.include(\"appdata://test.js\")";
+	}
+};
+
+AndroidEmulator.prototype.fillTiAppData = function(data) {
+	data.androidRuntime = this.runtime;
 };
 
 AndroidEmulator.prototype.run = function(readLineCb) {
@@ -214,6 +228,12 @@ AndroidEmulator.prototype.removeTestJS = function(testScript) {
 	this.runADB(['shell', 'rm', testJS]);
 };
 
+AndroidEmulator.prototype.fillTestTemplateData = function(data) {
+	if (this.runtime == "rhino") {
+		data.withWrap = true;
+	}
+}
+
 AndroidEmulator.prototype.pushTestJS = function(testScript) {
 	var tempDir = ti.fs.createTempDirectory();
 	var testJS = ti.fs.getFile(tempDir.nativePath(), "test.js");
@@ -221,37 +241,40 @@ AndroidEmulator.prototype.pushTestJS = function(testScript) {
 	stream.write(testScript);
 	stream.close();
 
-	this.runADB(['push', testJS, '/sdcard/' + this.drillbit.testHarnessId + '/test.js']);
+	if (this.runtime == "v8") {
+		this.runADB(['push', testJS, '/sdcard/' + this.drillbit.testHarnessId + '/test.js']);
 
-	/* This is the old rhino compile method, we just push directly in V8
-	var rhinoJar = ti.path.join(this.drillbit.mobileSdk, 'android', 'js.jar');
-	var dx = ti.path.join(this.androidSdk, "platform-tools", "dx");
-	if (Ti.Platform.isWin32()) {
-		dx += ".bat";
+	} else if (this.runtime == "rhino") {
+		/* Since rhino is particular about code size, we pre-compile */
+		var rhinoJar = ti.path.join(this.drillbit.mobileSdk, 'android', 'js.jar');
+		var dx = ti.path.join(this.androidSdk, "platform-tools", "dx");
+		if (Ti.Platform.isWin32()) {
+			dx += ".bat";
+		}
+
+		var java = "java";
+		var compileArgs = [java, "-classpath", rhinoJar,
+			"org.mozilla.javascript.tools.jsc.Main", "-opt", "9", "-g",
+			"-main-method-class", "org.appcelerator.kroll.runtime.rhino.KrollScriptRunner",
+			"-package", "org.appcelerator.titanium.testharness.js",
+			"-o", "test", "-encoding", "utf8", "-d", tempDir,
+			testJS.nativePath()
+		];
+
+		var compileProcess = Ti.Process.createProcess(compileArgs);
+		Ti.API.debug(compileArgs.join(" "));
+		var out = compileProcess()
+		Ti.API.debug(out.toString());
+
+		var testOutJar = ti.path.join(tempDir.nativePath(), "test.jar");
+		var dxArgs = [dx, "--dex", "--output=" + testOutJar, tempDir.nativePath()];
+		var dxProcess = Ti.Process.createProcess(dxArgs);
+		Ti.API.debug(dxArgs.join(" "));
+		out = dxProcess();
+		Ti.API.debug(out.toString());
+
+		this.runADB(['push', testOutJar, '/sdcard/' + this.drillbit.testHarnessId + '/test.jar']);
 	}
-
-	var java = "java";
-	var compileArgs = [java, "-classpath", rhinoJar,
-		"org.mozilla.javascript.tools.jsc.Main", "-opt", "9", "-g",
-		"-main-method-class", "org.appcelerator.titanium.TiScriptRunner",
-		"-package", "org.appcelerator.titanium.testharness.js",
-		"-o", "test", "-encoding", "utf8", "-d", tempDir,
-		testJS.nativePath()
-	];
-
-	var compileProcess = Ti.Process.createProcess(compileArgs);
-	Ti.API.debug(compileArgs.join(" "));
-	var out = compileProcess()
-	Ti.API.debug(out.toString());
-
-	var testOutJar = ti.path.join(tempDir.nativePath(), "test.jar");
-	var dxArgs = [dx, "--dex", "--output=" + testOutJar, tempDir.nativePath()];
-	var dxProcess = Ti.Process.createProcess(dxArgs);
-	Ti.API.debug(dxArgs.join(" "));
-	out = dxProcess();
-	Ti.API.debug(out.toString());
-
-	this.runADB(['push', testOutJar, '/sdcard/' + this.drillbit.testHarnessId + '/test.jar']);*/
 };
 
 AndroidEmulator.prototype.stageSDK = function(sdkTimestamp) {

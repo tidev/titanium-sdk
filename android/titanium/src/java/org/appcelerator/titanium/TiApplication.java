@@ -141,7 +141,6 @@ public class TiApplication extends Application implements Handler.Callback
 			Log.d(LCAT, "Application onCreate");
 		}
 
-		KrollAssetHelper.init(getAssets());
 		final UncaughtExceptionHandler defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 			public void uncaughtException(Thread t, Throwable e) {

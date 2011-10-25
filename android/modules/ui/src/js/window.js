@@ -21,20 +21,24 @@ exports.bootstrapWindow = function(Titanium) {
 	var isCurrentWindowOpen = false;
 	function getOrCreateCurrentWindow() {
 		var currentWindow = UI.currentWindow;
+
 		if (!currentWindow) {
 			currentWindow = new ActivityWindow({
 				useCurrentActivity: true
 			});
 			UI.currentWindow = currentWindow;
 		}
+
 		return currentWindow;
 	}
 
 	Window.prototype._cacheSetProperty = function(setter, value) {
 		var cache = this.propertyCache;
+
 		if (!cache) {
 			cache = this.propertyCache = {};
 		}
+
 		cache[setter] = value;
 	}
 
@@ -63,6 +67,7 @@ exports.bootstrapWindow = function(Titanium) {
 			}
 			descriptor.get = Window.prototype[getter] = get;
 		}
+
 		if (setter) {
 			setterMethod = ActivityWindow.prototype[setter];
 			function set(value) {
@@ -113,6 +118,7 @@ exports.bootstrapWindow = function(Titanium) {
 			UI.currentWindow = this.window;
 			this.view = this.window;
 			needsOpen = true;
+
 		} else {
 			this.window = getOrCreateCurrentWindow();
 			if (!isCurrentWindowOpen) {
@@ -129,9 +135,11 @@ exports.bootstrapWindow = function(Titanium) {
 
 		if (this._children) {
 			var length = this._children.length;
+
 			for (var i = 0; i < length; i++) {
 				this.view.add(this._children[i]);
 			}
+
 			delete this._children;
 		}
 
@@ -140,7 +148,9 @@ exports.bootstrapWindow = function(Titanium) {
 			this.window.on("open", function () {
 				self.postOpen();
 			});
+
 			this.window.open();
+
 		} else {
 			this.postOpen();
 		}
@@ -158,11 +168,13 @@ exports.bootstrapWindow = function(Titanium) {
 				self.emit("close");
 			});
 			this.window.close(options);
+
 		} else {
 			if (this.view.parent != null) {
 				this.window.remove(this.view);
 				this.window = null;
 			}
+
 			this.emit("close");
 		}
 	}
@@ -170,6 +182,7 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.add = function(view) {
 		if (this.view) {
 			this.view.add(view);
+
 		} else {
 			var children = this._children;
 			if (!children) {
@@ -203,6 +216,7 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.addEventListener = function(event, listener) {
 		if (["open", "close"].indexOf(event) >= 0 || this.window == null) {
 			EventEmitter.prototype.addEventListener.call(this, event, listener);
+
 		} else {
 			this.window.addEventListener(event, listener);
 		}
@@ -211,6 +225,7 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.removeEventListener = function(event, listener) {
 		if (["open", "close"].indexOf(event) >= 0 || this.window == null) {
 			EventEmitter.prototype.removeEventListener.call(this, event, listener);
+
 		} else {
 			this.window.removeEventListener(event, listener);
 		}
@@ -219,6 +234,7 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.fireEvent = function(event, data) {
 		if (["open", "close"].indexOf(event) >= 0 || this.window == null) {
 			EventEmitter.prototype.fireEvent.call(this, event, data);
+
 		} else {
 			this.window.fireEvent(event, data);
 		}
@@ -227,6 +243,7 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.setPropertyAndFire = function(property, value) {
 		if (!this.view) {
 			Proxy.prototype.setPropertyAndFire.call(this, property, value);
+
 		} else {
 			this.view.setPropertyAndFire(property, value);
 		}
@@ -235,5 +252,6 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.createWindow = function(options) {
 		return new Window(options);
 	}
+
 	return Window;
 };

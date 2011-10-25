@@ -8,11 +8,16 @@
  * -- <%= entry.name %>
  */
 
+<% if (withWrap) { %>
+with (sandbox) {
+<% } %>
+
 var testName = "<%= entry.name %>";
 
 <%
 methodWrap = typeof(methodWrap) == 'undefined' ? false : methodWrap;
 autoRun = typeof(autoRun) == 'undefined' ? true : autoRun;
+withWrap = typeof(withWrap) == 'undefined' ? false : withWrap;
 %>
 
 <%= Drillbit.drillbitTestJs %>
@@ -160,5 +165,9 @@ catch (e)
 	<% } %>
 
 <% if (!methodWrap) { %>
+}
+<% } %>
+
+<% if (withWrap) { %>
 }
 <% } %>

@@ -6,6 +6,9 @@
  */
 package org.appcelerator.kroll;
 
+import org.appcelerator.kroll.util.KrollAssetHelper;
+
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -39,11 +42,12 @@ public abstract class KrollRuntime implements Handler.Callback
 		mainHandler = new Handler(mainLooper, this);
 	}
 
-	public static void init(KrollRuntime runtime)
+	public static void init(Context context, KrollRuntime runtime)
 	{
 		if (_instance == null) {
 			_instance = runtime;
 		}
+		KrollAssetHelper.init(context);
 	}
 
 	public static KrollRuntime getInstance()

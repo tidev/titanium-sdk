@@ -290,8 +290,7 @@ public class Proxy extends EventEmitter
 					args = new Object[] { type, jsData };
 				}
 	
-				Object result = emitFunction.call(Context.getCurrentContext(),
-					getParentScope(), Proxy.this, args);
+				Object result = emitFunction.call(context, getParentScope(), Proxy.this, args);
 				return TypeConverter.jsObjectToJavaBoolean(result, Proxy.this);
 			} finally {
 				Context.exit();

@@ -106,6 +106,8 @@ public class KrollScriptRunner
 	{
 		KrollScript script = getOrCreateScript(scriptClass);
 		if (script != null) {
+			script.context = context;
+			script.scope = scope;
 			return executeScript(script);
 		} else {
 			throw new RuntimeException("Couldn't load script for class: " + scriptClass);
