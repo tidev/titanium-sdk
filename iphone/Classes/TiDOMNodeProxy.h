@@ -15,7 +15,7 @@
 	GDataXMLDocument *document;
 }
 
--(void)setNode:(GDataXMLNode*)node_;
+@property(nonatomic,retain) GDataXMLNode *node;
 @property(nonatomic,retain)	GDataXMLDocument *document;
 
 -(NSString *)XMLString;

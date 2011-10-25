@@ -15,7 +15,7 @@
 #import "TiDOMAttrProxy.h"
 
 @implementation TiDOMNodeProxy
-@synthesize document;
+@synthesize document, node;
 
 #pragma mark Internal
 
@@ -24,12 +24,6 @@
 	RELEASE_TO_NIL(node);
 	RELEASE_TO_NIL(document);
 	[super dealloc];
-}
-
--(void)setNode:(GDataXMLNode*)node_
-{
-	RELEASE_TO_NIL(node);
-	node = [node_ retain];
 }
 
 -(NSString *)XMLString

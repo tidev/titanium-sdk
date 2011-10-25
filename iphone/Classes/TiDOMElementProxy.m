@@ -127,6 +127,34 @@
 	return result;
 }
 
+-(id)insertBefore:(id)args
+{
+	[self throwException:@"mutation not supported" subreason:nil location:CODELOCATION];
+}
+
+-(id)replaceChild:(id)args
+{
+	[self throwException:@"mutation not supported" subreason:nil location:CODELOCATION];
+}
+
+-(id)removeChild:(id)args
+{
+	ENSURE_ARG_COUNT(args, 1);
+	TiDOMNodeProxy * oldChild;
+	ENSURE_ARG_AT_INDEX(oldChild, args, 0, TiDOMNodeProxy);
+	[element removeChild:[oldChild node]];
+	return oldChild;
+}
+
+-(id)appendChild:(id)args
+{
+	ENSURE_ARG_COUNT(args, 1);
+	TiDOMNodeProxy * newChild;
+	ENSURE_ARG_AT_INDEX(newChild, args, 0, TiDOMNodeProxy);
+	[element addChild:[newChild node]];
+	return newChild;
+}
+
 -(void)setAttributeNode:(id)args
 {
 	//TODO:
