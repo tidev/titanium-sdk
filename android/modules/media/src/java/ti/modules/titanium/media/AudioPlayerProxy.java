@@ -43,9 +43,10 @@ public class AudioPlayerProxy extends KrollProxy
 	{
 		super();
 
+		// TODO - we shouldnt need this as this proxy is created only from the runtime - double check
 		// TODO this needs to happen post-set
-		((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
-		setProperty("volume", 0.5, true);
+		//((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
+		//setProperty("volume", 0.5, true);
 	}
 
 	public AudioPlayerProxy(TiContext tiContext)
@@ -57,6 +58,7 @@ public class AudioPlayerProxy extends KrollProxy
 	protected void initActivity(Activity activity) {
 		super.initActivity(activity);
 		((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
+		setPropertyAndFire("volume", 0.5);
 	}
 
 	@Override

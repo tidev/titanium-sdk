@@ -34,10 +34,11 @@ public class SoundProxy extends KrollProxy
 	{
 		super();
 
+		// TODO - we shouldnt need this as this proxy is created only from the runtime - double check
 		// TODO needs to happen post-activity assignment
-		((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
-		setProperty(PROPERTY_VOLUME, 0.5, true);
-		setProperty(TiC.PROPERTY_TIME, 0d, false);
+		//((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
+		//setProperty(PROPERTY_VOLUME, 0.5, true);
+		//setProperty(TiC.PROPERTY_TIME, 0d, false);
 	}
 
 	public SoundProxy(TiContext tiContext)
@@ -49,6 +50,8 @@ public class SoundProxy extends KrollProxy
 	protected void initActivity(Activity activity) {
 		super.initActivity(activity);
 		((TiBaseActivity)activity).addOnLifecycleEventListener(this);
+		setPropertyAndFire(PROPERTY_VOLUME, 0.5);
+		setProperty(TiC.PROPERTY_TIME, 0d);
 	}
 
 	@Override
