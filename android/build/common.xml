@@ -594,10 +594,11 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		</delete>
 		<exec executable="${ndk.build}" dir="${kroll.v8.project.dir}" failonerror="true">
 			<env key="ANDROID_NDK" file="${android.ndk}"/>
+			<env key="NUM_CPUS" value="1"/>
 			<arg value="clean"/>
 		</exec>
 	</target>
-	
+
 	<macrodef name="define.ti.ant.tasks">
 		<sequential>
 			<taskdef classname="org.appcelerator.titanium.ant.GetModuleBuildOrderTask" name="ti.getModuleBuildOrder" classpathref="ti.build.path"/>
@@ -607,7 +608,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			<taskdef classname="org.appcelerator.titanium.ant.JSONMap" name="ti.jsonMap" classpathref="ti.build.path"/>
 		</sequential>
 	</macrodef>
-	
+
 	<macrodef name="build.ti.ant.tasks">
 		<sequential>
 			<mkdir dir="${ti.build.dir}/bin"/>

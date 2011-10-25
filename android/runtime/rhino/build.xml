@@ -60,7 +60,7 @@
 	<macrodef name="idswitch">
 		<attribute name="file"/>
 		<sequential>
-			<java classpathref="rhino" classname="${rhino.idswitch}">
+			<java classpathref="rhino" classname="${rhino.idswitch}" failonerror="true" logerror="true">
 				<arg file="@{file}"/>
 			</java>
 		</sequential>
