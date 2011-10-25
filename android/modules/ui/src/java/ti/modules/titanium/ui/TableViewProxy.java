@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -409,17 +410,24 @@ public class TableViewProxy extends TiViewProxy
 
 	private TableViewRowProxy rowProxyFor(Object row) {
 		TableViewRowProxy rowProxy = null;
-		if (row instanceof KrollDict) {
-			KrollDict d = (KrollDict) row;
-			rowProxy = new TableViewRowProxy();
-			rowProxy.handleCreationDict(d);
-			rowProxy.setProperty(TiC.PROPERTY_CLASS_NAME, CLASSNAME_NORMAL);
-			rowProxy.setProperty(TiC.PROPERTY_ROW_DATA, row);
+		if (row instanceof HashMap) {
+			return rowProxyFor(new KrollDict((HashMap) row));
+		} else if (row instanceof KrollDict) {
+			return rowProxyFor((KrollDict) row);
 		} else {
 			rowProxy = (TableViewRowProxy) row;
 		}
 		
 		rowProxy.setParent(this);
+		return rowProxy;
+	}
+
+	private TableViewRowProxy rowProxyFor(KrollDict row) {
+		TableViewRowProxy rowProxy = new TableViewRowProxy();
+		rowProxy.handleCreationDict(row);
+		rowProxy.setProperty(TiC.PROPERTY_CLASS_NAME, CLASSNAME_NORMAL);
+		rowProxy.setProperty(TiC.PROPERTY_ROW_DATA, row);
+		rowProxy.setActivity(getActivity());
 		return rowProxy;
 	}
 
