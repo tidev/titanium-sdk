@@ -111,9 +111,58 @@
 	
 	//By now, this is 3.x, and so we now need to create a new image by drawing since we can't simply
 	//change the orientation.
-	return oldImage;
-}
+	CGRect imageRect;
+	imageRect.origin = CGPointZero;
+	imageRect.size = [oldImage size];
+	CGFloat resultWidth;
+	CGFloat resultHeight;
+	CGAffineTransform resultRotation;
+	switch (newOrientation) {
+		case UIImageOrientationDown:
+			resultRotation = CGAffineTransformMakeTranslation(imageRect.size.width, imageRect.size.height);
+			resultRotation = CGAffineTransformRotate(resultRotation, M_PI);
+			resultWidth = imageRect.size.width;
+			resultHeight = imageRect.size.height;
+			break;
+		case UIImageOrientationLeft:
+			resultHeight = imageRect.size.width;
+			resultWidth = imageRect.size.height;
+			resultRotation = CGAffineTransformMakeTranslation(resultWidth, 0);
+			resultRotation = CGAffineTransformRotate(resultRotation, M_PI_2);
+			break;
+		case UIImageOrientationRight:
+			resultHeight = imageRect.size.width;
+			resultWidth = imageRect.size.height;
+			resultRotation = CGAffineTransformMakeTranslation(0, resultHeight);
+			resultRotation = CGAffineTransformRotate(resultRotation, -M_PI_2);
+			break;
+		default: //Should not happen.
+			return oldImage;
+	}
 
+	CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+
+	CGContextRef bitmap = CGBitmapContextCreate(NULL, resultWidth, resultHeight,
+			8, 0, colorSpace, kCGImageAlphaPremultipliedLast);
+
+	//Since this is a pure rotation of the image, no interpolation is needed.
+	CGContextConcatCTM(bitmap, resultRotation);
+	CGContextSetInterpolationQuality(bitmap, kCGInterpolationNone);
+
+	// Draw into the context; this scales the image
+	CGContextDrawImage(bitmap, imageRect, [oldImage CGImage]);
+
+	// Get the resized image from the context and a UIImage
+	CGImageRef newImageRef = CGBitmapContextCreateImage(bitmap);
+	UIImage *newImage = [UIImage imageWithCGImage:newImageRef];
+
+	// Clean up
+	CGContextRelease(bitmap);
+	CGImageRelease(newImageRef);
+	CGColorSpaceRelease(colorSpace);
+
+	return newImage;
+}
 
 -(void)rotateDefaultImageViewToOrientation: (UIInterfaceOrientation )newOrientation;
 {
