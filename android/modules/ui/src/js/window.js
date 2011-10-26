@@ -18,18 +18,15 @@ exports.bootstrapWindow = function(Titanium) {
 	var ActivityWindow = UI.ActivityWindow;
 	var Proxy = Titanium.Proxy;
 
-	var isCurrentWindowOpen = false;
-	function getOrCreateCurrentWindow() {
-		var currentWindow = UI.currentWindow;
-
-		if (!currentWindow) {
-			currentWindow = new ActivityWindow({
+	var rootWindow;
+	function getRootWindow() {
+		if (!rootWindow) {
+			rootWindow = new ActivityWindow({
 				useCurrentActivity: true
 			});
-			UI.currentWindow = currentWindow;
+			rootWindow.open();
 		}
-
-		return currentWindow;
+		return rootWindow;
 	}
 
 	Window.prototype._cacheSetProperty = function(setter, value) {
@@ -59,8 +56,8 @@ exports.bootstrapWindow = function(Titanium) {
 						return cache[setterMethod];
 					} else {
 						// If property isn't in the cache, fall back to
-						// getting it off the current window.
-						window = getOrCreateCurrentWindow();
+						// getting it off the root window.
+						window = getRootWindow();
 					}
 				}
 				return getterMethod.call(window);
@@ -115,17 +112,11 @@ exports.bootstrapWindow = function(Titanium) {
 
 		if (this.isActivity) {
 			this.window = new ActivityWindow(this._properties);
-			UI.currentWindow = this.window;
 			this.view = this.window;
 			needsOpen = true;
 
 		} else {
-			this.window = getOrCreateCurrentWindow();
-			if (!isCurrentWindowOpen) {
-				needsOpen = true;
-				isCurrentWindowOpen = true;
-			}
-
+			this.window = getRootWindow();
 			this.view = new UI.View(this._properties);
 			this.view.zIndex = Math.MAX_INT - 2;
 			this.window.add(this.view);
@@ -165,7 +156,7 @@ exports.bootstrapWindow = function(Titanium) {
 		if (this.isActivity) {
 			var self = this;
 			this.window.on("close", function () {
-				self.emit("close");
+				self.fireEvent("close");
 			});
 			this.window.close(options);
 
@@ -175,7 +166,7 @@ exports.bootstrapWindow = function(Titanium) {
 				this.window = null;
 			}
 
-			this.emit("close");
+			this.fireEvent("close");
 		}
 	}
 
@@ -203,14 +194,14 @@ exports.bootstrapWindow = function(Titanium) {
 		if ("url" in this) {
 			this.loadUrl();
 		}
-		this.emit("open");
+		this.fireEvent("open");
 	}
 
 	Window.prototype.loadUrl = function()
 	{
 		if (this.url == null) return;
 
-		Ti.include(this.url, this._sourceUrl);
+		Ti.include(this.url, this._sourceUrl, this);
 	}
 
 	Window.prototype.addEventListener = function(event, listener) {
