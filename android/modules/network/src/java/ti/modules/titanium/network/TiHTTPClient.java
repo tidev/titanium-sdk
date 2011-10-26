@@ -483,9 +483,9 @@ public class TiHTTPClient
 	public void fireCallback(String name)
 	{
 		KrollDict eventProperties = new KrollDict();
-		eventProperties.put ("source", proxy);
-		
-		fireCallback (name, new Object [] {eventProperties});
+		eventProperties.put("source", proxy);
+
+		fireCallback(name, new Object [] {eventProperties});
 	}
 
 	public void fireCallback(String name, Object[] args)

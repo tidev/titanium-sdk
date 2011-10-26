@@ -316,7 +316,7 @@ public class TiMessenger implements Handler.Callback
 
 		if (message.getTarget() != null) {
 			message.getTarget().dispatchMessage(message);
-
+			message.recycle();
 			return true;
 		}
 
@@ -334,7 +334,7 @@ public class TiMessenger implements Handler.Callback
 
 				if (message.getTarget() != null) {
 					message.getTarget().dispatchMessage(message);
-
+					message.recycle();
 					return true;
 				}
 

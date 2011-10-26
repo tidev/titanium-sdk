@@ -267,7 +267,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		message.getData().putString(PROPERTY_NAME, event);
 		message.sendToTarget();
 
-		return true;
+		return hasListeners(event);
 	}
 
 	public boolean fireSyncEvent(String event, Object data)
