@@ -234,8 +234,10 @@ class Compiler(object):
 			if os.path.exists(project_module_dir):
 				self.copy_resources([project_module_dir],app_dir,False)
 		
-			# we have to copy these even in simulator given the path difference
-			if os.path.exists(app_dir):
+			# In the simulator, we softlink these now, so skip this step
+			# if we're doing that
+			if os.path.exists(app_dir) and deploytype!='development':
+				print "[DEBUG] Copying iphone resources"
 				self.copy_resources([iphone_resources_dir],app_dir,False)
 
 			# generate the includes for all compiled modules
@@ -457,8 +459,27 @@ class Compiler(object):
 			print "[DEBUG] linking: %s to %s" % (from_,to_)
 			if os.path.exists(to_):
 				if os.path.islink(to_):
-					os.remove(to_)
-					os.symlink(from_, to_)
+					# We need to take into consideration whether or not
+					# this is a directory; if it is, we need to softlink_resources
+					# of the contents to the appropriate place, instead
+					# of just removing them.
+					#
+					# However, if we're mixing and matching dirs and plain
+					# files, from_'s type takes precedence.
+					if os.path.isdir(to_) and os.path.isdir(from_):
+						rootpath = os.path.realpath(to_)
+						os.remove(to_)
+						os.makedirs(to_)
+						
+						# Symlink contents of the root path
+						self.softlink_resources(rootpath, to_)
+						# Symlink contents of the current from_
+						self.softlink_resources(from_, to_)
+					else:
+						os.remove(to_)
+						os.symlink(from_, to_)
+				else:
+					print "[DEBUG] File at %s is not a symlink..." % to_
 			else:
 				os.symlink(from_, to_)
 	

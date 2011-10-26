@@ -838,9 +838,11 @@ def main(args):
 
 				# when in simulator since we point to the resources directory, we need
 				# to explicitly copy over any files
-				ird = os.path.join(project_dir,'Resources','iphone')
-				if os.path.exists(ird): 
-					module_asset_dirs.append([ird,app_dir])
+				
+				# NOTE: Skip this because we symlink in compiler.py now. What a mess.
+				#ird = os.path.join(project_dir,'Resources','iphone')
+				#if os.path.exists(ird): 
+				#	module_asset_dirs.append([ird,app_dir])
 				
 				for ext in ('ttf','otf'):
 					for f in glob.glob('%s/*.%s' % (os.path.join(project_dir,'Resources'),ext)):
