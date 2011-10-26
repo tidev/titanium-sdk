@@ -81,11 +81,18 @@ def create_info_plist(tiapp, template_dir, project_dir, output):
 		plist = plist.replace('__URL__',appid)
 		urlscheme = name.replace('.','_').replace(' ','').lower()
 		plist = plist.replace('__URLSCHEME__',urlscheme)
-		if tiapp.has_app_property('ti.facebook.appid'):
-			fbid = tiapp.get_app_property('ti.facebook.appid')
-			plist = plist.replace('__ADDITIONAL_URL_SCHEMES__', '<string>fb%s</string>' % fbid)
-		else:
-			plist = plist.replace('__ADDITIONAL_URL_SCHEMES__','')
+		
+		additional_url_schemes = ''
+		if ti.has_app_property('ti.facebook.appid'):
+			fbid = ti.get_app_property('ti.facebook.appid');
+			additional_url_schemes += ('<string>fb%s</string>' % fbid)
+			
+		if ti.has_app_property('ti.additional.url.scheme'):
+			url_scheme = ti.get_app_property('ti.additional.url.scheme')
+			additional_url_schemes += ('<string>%s</string>' % url_scheme)
+			
+		plist = plist.replace('__ADDITIONAL_URL_SCHEMES__', additional_url_schemes)
+		
 		pf = codecs.open(output,'w', encoding='utf-8')
 		pf.write(plist)
 		pf.close()
