@@ -95,12 +95,16 @@ public class WebViewProxy extends ViewProxy
 	
 	@Kroll.method @Kroll.setProperty
 	public void setUserAgent(String userAgent) {
-		getWebView().setUserAgentString(userAgent);	
+		TiUIWebView currWebView = getWebView();
+		if (currWebView != null) {
+			currWebView.setUserAgentString(userAgent);				
+		}
 	}
 	
 	@Kroll.method @Kroll.getProperty
 	public String getUserAgent() {
-		return getWebView().getUserAgentString();
+		TiUIWebView currWebView = getWebView();
+		return (currWebView != null) ? currWebView.getUserAgentString() : "";
 	}	
 	
 	@Kroll.method
