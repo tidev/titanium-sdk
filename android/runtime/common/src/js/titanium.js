@@ -221,12 +221,7 @@ Object.defineProperty(Proxy.prototype, "setPropertiesAndFire", {
 // Custom native modules
 bootstrap.defineLazyBinding(Titanium, "API");
 
-Object.defineProperty(Titanium, "Yahoo", {
-	get: function() {
-		return bootstrap.lazyGet(this, "yahoo", "Yahoo");
-	},
-	configurable: true
-});
+Titanium.Yahoo = require("yahoo");
 
 // Define lazy initializers for all Titanium APIs
 bootstrap.bootstrap(Titanium);
