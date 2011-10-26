@@ -65,6 +65,11 @@ events:
             since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
+  - name: error
+    description: fired when the image fails to load
+    properties:
+      - name: image
+        description: the url of the image that failed to load
 properties:
   - name: animating
     description: boolean to indicate if the animation is animating
