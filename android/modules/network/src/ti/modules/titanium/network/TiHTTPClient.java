@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.zip.GZIPInputStream;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -194,6 +195,7 @@ public class TiHTTPClient
 		{
 			connected = true;
 			String clientResponse = null;
+			Header contentEncoding = null;
 
 			if (client != null) {
 				TiHTTPClient c = client.get();
@@ -223,11 +225,15 @@ public class TiHTTPClient
 				}
 
 				entity = response.getEntity();
+				contentEncoding = response.getFirstHeader("Content-Encoding");
 				if (entity != null) {
 					if (entity.getContentType() != null) {
 						contentType = entity.getContentType().getValue();
 					}
-					is = entity.getContent();
+					if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip"))
+						is = new GZIPInputStream(entity.getContent());
+					else
+						is = entity.getContent();
 					charset = EntityUtils.getContentCharSet(entity);
 				} else {
 					is = null;
