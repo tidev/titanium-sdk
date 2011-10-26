@@ -22,7 +22,7 @@ Titanium.sourceUrl = "app://app.js";
 // passed in as the first argument
 Titanium.invocationAPIs = [];
 
-function TiInclude(filename, baseUrl) {
+function TiInclude(filename, baseUrl, currentWindow) {
 	baseUrl = typeof(baseUrl) === 'undefined' ? "app://app.js" : baseUrl;
 	var sourceUrl = url.resolve(baseUrl, filename);
 	var source;
@@ -38,7 +38,7 @@ function TiInclude(filename, baseUrl) {
 		}
 
 		// we don't use source for compiled scripts in Rhino
-		Titanium.runInContext(path, sourceUrl.href, true, true);
+		Titanium.runInContext(path, sourceUrl.href, true, true, currentWindow);
 		return;
 	}
 
@@ -54,7 +54,7 @@ function TiInclude(filename, baseUrl) {
 		source = assets.readAsset(assetPath);
 	}
 
-	Titanium.runInContext(source, sourceUrl.href, true);
+	Titanium.runInContext(source, sourceUrl.href, true, false, currentWindow);
 }
 Titanium.include = TiInclude;
 
@@ -62,7 +62,7 @@ Titanium.include = TiInclude;
 // Returns the result of the script or throws an exception
 // if an error occurs. If displayError is true, any exceptions
 // will be logged.
-Titanium.runInContext = function(source, url, displayError, isPath) {
+Titanium.runInContext = function(source, url, displayError, isPath, currentWindow) {
 
 	// Use the prototype inheritance chain
 	// to copy and maintain the Titanium dynamic
@@ -78,6 +78,7 @@ Titanium.runInContext = function(source, url, displayError, isPath) {
 		baseUrl = typeof(baseUrl) === 'undefined' ? url : baseUrl;
 		TiInclude(filename, baseUrl);
 	}
+	sandbox.Ti.UI.currentWindow = currentWindow;
 
 	Titanium.bindInvocationAPIs(sandboxTi, url);
 
