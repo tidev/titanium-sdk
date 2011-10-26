@@ -22,13 +22,14 @@ import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollModuleInfo;
 import org.appcelerator.kroll.KrollObject;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiLaunchActivity;
+import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.kroll.KrollCoverage;
@@ -40,7 +41,6 @@ import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
 import android.app.Service;
@@ -426,13 +426,8 @@ public class TitaniumModule extends KrollModule
 		// 1. look for a native module first
 		// 2. then look for a cached module
 		// 3. then attempt to load from resources
-		TiContext thisContext = invocation.getTiContext();
-		if (thisContext == null) {
-			Context.throwAsScriptRuntimeEx(new Exception("Execution context is no longer available. Cannot load module '" + path + "'."));
-			return null;
-		}
-		TiContext rootContext = thisContext.getRootActivity().getTiContext();
-		KrollModule module = requireNativeModule(rootContext, path);
+		TiContext ctx = invocation.getTiContext().getRootActivity().getTiContext();
+		KrollModule module = requireNativeModule(ctx, path);
 		StringBuilder builder = new StringBuilder();
 
 		if (module != null) {
@@ -445,25 +440,29 @@ public class TitaniumModule extends KrollModule
 			return module;
 		}
 
-		if (DBG) {
-			Log.d(LCAT, "Attempting to include CommonJS module: " + path);
+		// NOTE: CommonJS modules load absolute to app:// in Titanium.
+		// If path contains forward slash, lose it.
+		if (path.startsWith("/")) {
+			path = path.substring(1);
 		}
+		ctx = invocation.getTiContext();
+		if (ctx == null) {
+			Context.reportError("Couldn't load module: " + path + " because execution context has been destroyed.");
+			return null;
+		}
+		builder.setLength(0);
+		builder.append(TiC.URL_APP_PREFIX)
+			.append(path)
+			.append(".js");
+		String fileUrl = builder.toString();
 
 		try {
-			return thisContext.getKrollContext().callCommonJsRequire(path);
-		} catch (Exception e) {
-			builder.setLength(0);
-			builder.append("require(\"")
-				.append(path)
-				.append("\") failed: ")
-				.append(e.getMessage());
-			String msg = builder.toString();
-			Log.e(LCAT, msg, e);
-			Context.throwAsScriptRuntimeEx(new Exception(msg));
+			return ctx.evalCommonJsModule(fileUrl);
+		} catch (Exception ex) {
+			Log.e(LCAT, "Error loading module named: " + path, ex);
+			Context.throwAsScriptRuntimeEx(ex);
+			return null;
 		}
-
-		Context.throwAsScriptRuntimeEx(new Exception("Cannot find module '" + path + "'"));
-		return null;
 	}
 
 	@Kroll.method

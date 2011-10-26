@@ -13,6 +13,7 @@
 #import "TiComplexValue.h"
 #import "TiApp.h"
 #import "TiTabController.h"
+#import "TiLayoutQueue.h"
 
 // this is how long we should wait on the new JS context to be loaded
 // holding the UI thread before we return during an window open. we 
@@ -103,6 +104,11 @@
 
 
 @implementation TiUIWindowProxy
+
+-(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+	[TiLayoutQueue addViewProxy:self];
+}
 
 -(void)_destroy
 {
