@@ -132,7 +132,7 @@ Handle<FunctionTemplate> ${className}::getProxyTemplate()
 		<#if property.set>
 			, ${className}::setter_${name}
 		<#else>
-			, 0
+			, Proxy::onPropertyChanged
 		</#if>, Handle<Value>(), DEFAULT);
 	</@Proxy.listDynamicProperties>
 
