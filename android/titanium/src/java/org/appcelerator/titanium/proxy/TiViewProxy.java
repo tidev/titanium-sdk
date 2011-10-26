@@ -697,7 +697,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	@Override
 	public boolean fireEvent(String eventName, Object data)
 	{
-		if (data == null) data = new KrollDict();
+		if (data == null) {
+			data = new KrollDict();
+		}
+
 		boolean handled = super.fireEvent(eventName, data);
 
 		if (parent != null && parent.get() != null) {
@@ -710,7 +713,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	@Kroll.getProperty @Kroll.method
 	public TiViewProxy getParent()
 	{
-		if (this.parent == null) { return null; }
+		if (this.parent == null) {
+			return null;
+		}
+
 		return this.parent.get();
 	}
 
@@ -720,7 +726,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	}
 
 	@Override
-	public void setActivity(Activity activity) {
+	public void setActivity(Activity activity)
+	{
 		super.setActivity(activity);
 		if (children != null) {
 			for (TiViewProxy child : children) {
