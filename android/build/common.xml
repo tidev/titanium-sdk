@@ -592,6 +592,11 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			<fileset dir="${modules.dir}" includes="*/bin/**/*" defaultexcludes="false"/>
 			<fileset dir="${modules.dir}" includes="*/.apt_generated/**/*" defaultexcludes="false"/>
 		</delete>
+
+		<!-- V8 clean target requires we have libv8 for now -->
+		<build.ti.ant.tasks/>
+		<define.ti.ant.tasks/>
+		<antcall target="update.libv8"/>
 		<exec executable="${ndk.build}" dir="${kroll.v8.project.dir}" failonerror="true">
 			<env key="ANDROID_NDK" file="${android.ndk}"/>
 			<env key="NUM_CPUS" value="1"/>
