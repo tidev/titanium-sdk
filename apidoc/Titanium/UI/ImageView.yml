@@ -65,6 +65,7 @@ events:
             since: "1.8.0"
       - name: x
         description: the x point of the event in receiving view coordiantes
+        type: String
   - name: error
     description: fired when the image fails to load
     properties:
