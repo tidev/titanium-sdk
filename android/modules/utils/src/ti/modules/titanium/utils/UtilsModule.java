@@ -89,6 +89,30 @@ public class UtilsModule extends KrollModule
 		return null;
 	}
 	
+	@Kroll.method
+	public String sha256(String data) {
+		if (data == null)
+			return null;
+		try
+		{
+			byte[] b = data.getBytes();
+			MessageDigest algorithm = MessageDigest.getInstance("SHA-256");
+			algorithm.reset();
+			algorithm.update(b);
+			byte messageDigest[] = algorithm.digest();
+			StringBuilder result = new StringBuilder();
+			//NOTE: DigestUtils with the version before 1.4 doesn't have the function sha256,
+			//so we deal with it ourselves
+			for (int i=0; i < messageDigest.length; i++) {
+				result.append(Integer.toString(( messageDigest[i] & 0xff ) + 0x100, 16).substring(1));
+			}
+			return result.toString();
+		} catch(NoSuchAlgorithmException e) {
+			Log.e(LCAT, "SHA256 is not a supported algorithm");
+		}
+		return null;
+	}
+	
 	public String transcodeString(String orig, String inEncoding, String outEncoding)
 	{
 		try {
