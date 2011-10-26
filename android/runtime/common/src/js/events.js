@@ -56,7 +56,6 @@ Object.defineProperty(EventEmitter.prototype, "callHandler", {
 
 Object.defineProperty(EventEmitter.prototype, "emit", {
 	value: function(type) {
-		kroll.log(TAG, "emit : " + JSON.stringify(arguments));
 
 		// If there is no 'error' event listener then throw.
 		if (type === 'error') {

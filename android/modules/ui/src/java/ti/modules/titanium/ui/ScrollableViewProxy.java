@@ -14,6 +14,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -151,58 +152,51 @@ public class ScrollableViewProxy extends TiViewProxy
 	@Kroll.setProperty @Kroll.method
 	public void setViews(Object viewsObject)
 	{
-		getView().setViews(viewsObject);
-		//sendBlockingUiMessage(MSG_SET_VIEWS, viewsObject);
+		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_VIEWS), viewsObject);
 	}
 
 	@Kroll.method
 	public void addView(Object viewObject)
 	{
-		if (viewObject instanceof TiViewProxy) {
-			getView().addView((TiViewProxy)viewObject);
-		}
-		//sendBlockingUiMessage(MSG_ADD_VIEW, viewObject); 
+		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ADD_VIEW), viewObject);
 	}
 
 	@Kroll.method
 	public void removeView(Object viewObject)
 	{
-		if (viewObject instanceof TiViewProxy) {
-			getView().removeView((TiViewProxy)viewObject);
-		}
-		//sendBlockingUiMessage(MSG_REMOVE_VIEW, viewObject); 
+		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REMOVE_VIEW), viewObject);
 	}
 
 	@Kroll.method
 	public void scrollToView(Object view)
 	{
 		if (inScroll.get()) return;
-		getView().scrollTo(view);
-		//getUIHandler().obtainMessage(MSG_SCROLL_TO, view).sendToTarget();
+
+		getMainHandler().obtainMessage(MSG_SCROLL_TO, view).sendToTarget();
 	}
 
 	@Kroll.method
 	public void movePrevious()
 	{
 		if (inScroll.get()) return;
-		getView().movePrevious();
-		//getUIHandler().removeMessages(MSG_MOVE_PREV);
-		//getUIHandler().sendEmptyMessage(MSG_MOVE_PREV);
+
+		getMainHandler().removeMessages(MSG_MOVE_PREV);
+		getMainHandler().sendEmptyMessage(MSG_MOVE_PREV);
 	}
 
 	@Kroll.method
 	public void moveNext()
 	{
 		if (inScroll.get()) return;
-		getView().moveNext();
-		//getUIHandler().removeMessages(MSG_MOVE_NEXT);
-		//getUIHandler().sendEmptyMessage(MSG_MOVE_NEXT);
+
+		getMainHandler().removeMessages(MSG_MOVE_NEXT);
+		getMainHandler().sendEmptyMessage(MSG_MOVE_NEXT);
 	}
 
 	public void setPagerTimeout()
 	{
 		getMainHandler().removeMessages(MSG_HIDE_PAGER);
-		//getUIHandler().removeMessages(MSG_HIDE_PAGER);
+
 		int timeout = DEFAULT_PAGING_CONTROL_TIMEOUT;
 		Object o = getProperty(TiC.PROPERTY_PAGING_CONTROL_TIMEOUT);
 		if (o != null) {
@@ -211,7 +205,6 @@ public class ScrollableViewProxy extends TiViewProxy
 
 		if (timeout > 0) {
 			getMainHandler().sendEmptyMessageDelayed(MSG_HIDE_PAGER, timeout);
-			//getUIHandler().sendEmptyMessageDelayed(MSG_HIDE_PAGER, timeout);
 		}
 	}
 
@@ -220,11 +213,11 @@ public class ScrollableViewProxy extends TiViewProxy
 	{
 		getView().setShowPagingControl(showPagingControl);
 		if (!showPagingControl) {
-			getView().hidePager();
-			//getUIHandler().sendEmptyMessage(MSG_HIDE_PAGER);
+			//getView().hidePager();
+			getMainHandler().sendEmptyMessage(MSG_HIDE_PAGER);
 		} else {
-			getView().showPager();
-			//getUIHandler().sendEmptyMessage(MSG_SHOW_PAGER);
+			//getView().showPager();
+			getMainHandler().sendEmptyMessage(MSG_SHOW_PAGER);
 		}
 	}
 
@@ -235,7 +228,7 @@ public class ScrollableViewProxy extends TiViewProxy
 			options.put("index", to);
 			options.put("view", this);
 			options.put("currentPage", getView().getCurrentPage());
-			TiEventHelper.fireViewEvent(this, TiC.EVENT_SCROLL, options);
+			fireEvent(TiC.EVENT_SCROLL, options);
 		}
 	}
 
@@ -248,15 +241,15 @@ public class ScrollableViewProxy extends TiViewProxy
 	@Kroll.setProperty @Kroll.method
 	public void setCurrentPage(Object page)
 	{
-		getView().setCurrentPage(page);
-		//getUIHandler().obtainMessage(MSG_SET_CURRENT, page).sendToTarget();
+		//getView().setCurrentPage(page);
+		getMainHandler().obtainMessage(MSG_SET_CURRENT, page).sendToTarget();
 	}
 
 	@Override
 	public void releaseViews()
 	{
-		//getUIHandler().removeMessages(MSG_SHOW_PAGER);
-		//getUIHandler().removeMessages(MSG_HIDE_PAGER);
+		getMainHandler().removeMessages(MSG_SHOW_PAGER);
+		getMainHandler().removeMessages(MSG_HIDE_PAGER);
 		super.releaseViews();
 	}
 }

@@ -1,6 +1,7 @@
-var sha1 = kroll.binding("sha1");
+var sha1 = require("sha1");
 
 module.exports = {
+
 	percentEscape: function(r) {
 		return encodeURIComponent(r).replace(/!/g,'%21').replace(/'/g,'%27').replace(/\(/,'%28').replace(/\)/,'%29');
 	},
@@ -50,8 +51,8 @@ module.exports = {
 
 		var self = this;
 		xhr.onload = function() {
-			Titanium.API.info("YQL: " + this.reponseText);
-			callback({ source: self, data: eval('('+this.responseText+')').query.results });
+			Titanium.API.info("YQL: " + this.responseText);
+			callback({ source: self, data: JSON.parse(this.responseText).query.results });
 		}
 
 		xhr.onreadystatechange = function() {
@@ -78,7 +79,7 @@ module.exports = {
 
 		var self = this;
 		xhr.onload = function() {
-			callback({ source: self, data: eval('('+this.responseText+')').query.results });
+			callback({ source: self, data: JSON.parse(this.responseText).query.results });
 		}
 		xhr.open('GET', url);
 		xhr.send();

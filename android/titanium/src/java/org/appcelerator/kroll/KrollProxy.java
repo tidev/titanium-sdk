@@ -42,11 +42,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	protected static final int MSG_MODEL_PROPERTY_CHANGE = KrollObject.MSG_LAST_ID + 100;
 	protected static final int MSG_LISTENER_ADDED = KrollObject.MSG_LAST_ID + 101;
 	protected static final int MSG_LISTENER_REMOVED = KrollObject.MSG_LAST_ID + 102;
-	protected static final int MSG_MODEL_PROPERTIES_CHANGED = KrollObject.MSG_LAST_ID + 103;
-	protected static final int MSG_INIT_KROLL_OBJECT = KrollObject.MSG_LAST_ID + 104;
-	protected static final int MSG_SET_PROPERTY = KrollObject.MSG_LAST_ID + 105;
-	protected static final int MSG_FIRE_EVENT = KrollObject.MSG_LAST_ID + 106;
-	protected static final int MSG_FIRE_SYNC_EVENT = KrollObject.MSG_LAST_ID + 107;
+	protected static final int MSG_MODEL_PROCESS_PROPERTIES = KrollObject.MSG_LAST_ID + 103;
+	protected static final int MSG_MODEL_PROPERTIES_CHANGED = KrollObject.MSG_LAST_ID + 104;
+	protected static final int MSG_INIT_KROLL_OBJECT = KrollObject.MSG_LAST_ID + 105;
+	protected static final int MSG_SET_PROPERTY = KrollObject.MSG_LAST_ID + 106;
+	protected static final int MSG_FIRE_EVENT = KrollObject.MSG_LAST_ID + 107;
+	protected static final int MSG_FIRE_SYNC_EVENT = KrollObject.MSG_LAST_ID + 108;
 	protected static final int MSG_LAST_ID = MSG_FIRE_SYNC_EVENT;
 	protected static final String PROPERTY_NAME = "name";
 
@@ -329,7 +330,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		message.getData().putString(PROPERTY_NAME, event);
 		message.sendToTarget();
 
-		return true;
+		return hasListeners(event);
 	}
 
 	public boolean fireSyncEvent(String event, Object data)
@@ -490,6 +491,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 				return true;
 			}
+			case MSG_MODEL_PROCESS_PROPERTIES: {
+				if (modelListener != null) {
+					modelListener.processProperties(properties);
+				}
+				return true;
+			}
 			case MSG_MODEL_PROPERTIES_CHANGED: {
 				firePropertiesChanged((Object[][])msg.obj);
 
@@ -546,7 +553,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 		this.modelListener = modelListener;
 		if (modelListener != null) {
-			modelListener.processProperties(properties);
+			if (TiApplication.isUIThread()) {
+				modelListener.processProperties(properties);
+			} else {
+				getMainHandler().sendEmptyMessage(MSG_MODEL_PROCESS_PROPERTIES);
+			}
 		}
 	}
 

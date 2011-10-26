@@ -220,7 +220,7 @@ AndroidEmulator.prototype.handleCompleteAndroidEvent = function(event)
 };
 
 AndroidEmulator.prototype.removeTestJS = function(testScript) {
-	var testJS = '/sdcard/'+this.drillbit.testHarnessId+'/test.js';
+	var testJS = '/sdcard/' + this.drillbit.testHarnessId + '/test.js';
 	var results = this.runADB(['shell', 'ls', testJS]);
 	if (results.indexOf("No such file") > -1) {
 		return;
