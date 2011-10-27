@@ -6,6 +6,10 @@
 
 import os, sys, re, shutil, time, base64, sgmllib, codecs, xml, json
 
+# Add the Android support dir, since mako is located there, and import mako
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),"..", "android")))
+import mako.template
+
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 from tiapp import *
 import jspacker 
@@ -98,39 +102,25 @@ class Compiler(object):
 					compile_js(from_,to_)
 				else:
 					shutil.copy(from_,to_)
-
-		titanium_js = "(%s\n\
+		titanium_js = "<%!\n\
+	def jsQuoteEscapeFilter(str):\n\
+		return str.replace(\"\\\"\",\"\\\\\\\"\")\n\
+%>\n" + "(%s\n\
 )(window, {\n\
-	projectName: '%s',\n\
-	projectId: '%s',\n\
-	deployType: '%s',\n\
-	appId: '%s',\n\
-	appAnalytics: '%s',\n\
-	appPublisher: '%s',\n\
-	appUrl: '%s',\n\
-	appName: '%s',\n\
-	appVersion: '%s',\n\
-	appDescription: '%s',\n\
-	appCopyright: '%s',\n\
-	appGuid: '%s',\n\
-	tiVersion: '%s'\n\
-});\n".encode('utf-8') % (
-			self.load_api(os.path.join(src_dir,"titanium.js")),
-			self.project_name,
-			self.appid,
-			deploytype,
-			self.appid,
-			ti.properties['analytics'],
-			ti.properties['publisher'],
-			ti.properties['url'],
-			ti.properties['name'],
-			ti.properties['version'],
-			ti.properties['description'],
-			ti.properties['copyright'],
-			ti.properties['guid'],
-			sdk_version
-		)
-
+	projectName: '${project_name | jsQuoteEscapeFilter}',\n\
+	projectId: '${project_id | jsQuoteEscapeFilter}',\n\
+	deployType: '${deploy_type | jsQuoteEscapeFilter}',\n\
+	appId: '${app_name | jsQuoteEscapeFilter}',\n\
+	appAnalytics: '${app_analytics | jsQuoteEscapeFilter}',\n\
+	appPublisher: '${app_publisher | jsQuoteEscapeFilter}',\n\
+	appUrl: '${app_url | jsQuoteEscapeFilter}',\n\
+	appName: '${app_name | jsQuoteEscapeFilter}',\n\
+	appVersion: '${app_version | jsQuoteEscapeFilter}',\n\
+	appDescription: '${app_description | jsQuoteEscapeFilter}',\n\
+	appCopyright: '${app_copyright | jsQuoteEscapeFilter}',\n\
+	appGuid: '${app_guid | jsQuoteEscapeFilter}',\n\
+	tiVersion: '${ti_version | jsQuoteEscapeFilter}'\n\
+});\n".encode('utf-8') % (self.load_api(os.path.join(src_dir,"titanium.js")))
 		if deploytype == 'all':
 			print "Deploy type is 'all' - all modules will be included into dist"
 			for root, dirs, files in os.walk(src_dir):
@@ -176,21 +166,21 @@ class Compiler(object):
 		titanium_js += ";\nTi._5.setLoadedScripts(" + json.dumps(self.ti_includes) + ");"
 
 		titanium_js = HEADER + titanium_js + FOOTER
-
-		titanium_js = titanium_js.replace('__PROJECT_NAME__',self.project_name)
-		titanium_js = titanium_js.replace('__PROJECT_ID__',self.appid)
-		titanium_js = titanium_js.replace('__DEPLOYTYPE__',deploytype)
-		titanium_js = titanium_js.replace('__APP_ID__',self.appid)
-		titanium_js = titanium_js.replace('__APP_ANALYTICS__',ti.properties['analytics'])
-		titanium_js = titanium_js.replace('__APP_PUBLISHER__',ti.properties['publisher'])
-		titanium_js = titanium_js.replace('__APP_URL__',ti.properties['url'])
-		titanium_js = titanium_js.replace('__APP_NAME__',ti.properties['name'])
-		titanium_js = titanium_js.replace('__APP_VERSION__',ti.properties['version'])
-		titanium_js = titanium_js.replace('__APP_DESCRIPTION__',ti.properties['description'])
-		titanium_js = titanium_js.replace('__APP_COPYRIGHT__',ti.properties['copyright'])
-		titanium_js = titanium_js.replace('__APP_GUID__',ti.properties['guid'])
+		titanium_js = mako.template.Template(titanium_js).render(
+				ti_version=sdk_version,
+				project_name=self.project_name,
+				project_id=self.appid,
+				deploy_type=deploytype,
+				app_id=self.appid,
+				app_analytics=ti.properties['analytics'],
+				app_publisher=ti.properties['publisher'],
+				app_url=ti.properties['url'],
+				app_name=ti.properties['name'],
+				app_version=ti.properties['version'],
+				app_description=ti.properties['description'],
+				app_copyright=ti.properties['copyright'],
+				app_guid=ti.properties['guid'])
 		
-
 		ti_dir = os.path.join(self.build_dir,'titanium')
 		try:
 			os.makedirs(ti_dir)
@@ -222,22 +212,23 @@ class Compiler(object):
 			status_bar_style = 'default'
 
 		main_template = codecs.open(os.path.join(src_dir,'index.html'), encoding='utf-8').read().encode("utf-8")
-		main_template = main_template.replace('__TI_VERSION__',sdk_version)
-		main_template = main_template.replace('__TI_STATUSBAR_STYLE__',status_bar_style)
-		main_template = main_template.replace('__TI_GENERATOR__',"Appcelerator Titanium Mobile "+sdk_version)
-		main_template = main_template.replace('__PROJECT_NAME__',self.project_name)
-		main_template = main_template.replace('__PROJECT_ID__',self.appid)
-		main_template = main_template.replace('__DEPLOYTYPE__',deploytype)
-		main_template = main_template.replace('__APP_ID__',self.appid)
-		main_template = main_template.replace('__APP_ANALYTICS__',ti.properties['analytics'])
-		main_template = main_template.replace('__APP_PUBLISHER__',ti.properties['publisher'])
-		main_template = main_template.replace('__APP_URL__',ti.properties['url'])
-		main_template = main_template.replace('__APP_NAME__',ti.properties['name'])
-		main_template = main_template.replace('__APP_VERSION__',ti.properties['version'])
-		main_template = main_template.replace('__APP_DESCRIPTION__',ti.properties['description'])
-		main_template = main_template.replace('__APP_COPYRIGHT__',ti.properties['copyright'])
-		main_template = main_template.replace('__APP_GUID__',ti.properties['guid'])
-		main_template = main_template.replace('__TI_JS__',titanium_js)
+		main_template = mako.template.Template(main_template).render(
+				ti_version=sdk_version,
+				ti_statusbar_style=status_bar_style,
+				ti_generator="Appcelerator Titanium Mobile "+sdk_version,
+				project_name=self.project_name,
+				project_id=self.appid,
+				deploy_type=deploytype,
+				app_id=self.appid,
+				app_analytics=ti.properties['analytics'],
+				app_publisher=ti.properties['publisher'],
+				app_url=ti.properties['url'],
+				app_name=ti.properties['name'],
+				app_version=ti.properties['version'],
+				app_description=ti.properties['description'],
+				app_copyright=ti.properties['copyright'],
+				app_guid=ti.properties['guid'],
+				ti_js=titanium_js)
 
 		index_file = os.path.join(self.build_dir,'index.html')
 		o = codecs.open(index_file,'w',encoding='utf-8')

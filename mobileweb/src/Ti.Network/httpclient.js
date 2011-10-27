@@ -1,3 +1,7 @@
+<%!
+	def jsQuoteEscapeFilter(str):
+		return str.replace("\"","\\\"")
+%>
 Ti._5.createClass('Titanium.Network.HTTPClient', function(args){
 	var obj = this;
 	// Interfaces
@@ -215,7 +219,7 @@ Ti._5.createClass('Titanium.Network.HTTPClient', function(args){
 			async = true;
 		}
 		_xhr.open(_connectionType,_location,async);
-		//_xhr.setRequestHeader("UserAgent","Appcelerator Titanium/__TI_VERSION__ ("+navigator.userAgent+")");
+		//_xhr.setRequestHeader("UserAgent","Appcelerator Titanium/${ti_version | jsQuoteEscapeFilter} ("+navigator.userAgent+")");
 		//_xhr.setRequestHeader("Access-Control-Allow-Origin","*");
 		//_xhr.setRequestHeader("Content-Type", "text/xml; charset=utf-8");
 	};

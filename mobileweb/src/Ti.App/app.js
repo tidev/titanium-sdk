@@ -1,20 +1,24 @@
+<%!
+	def jsQuoteEscapeFilter(str):
+		return str.replace("\"","\\\"")
+%>
 (function(api){
 	// Interfaces
 	Ti._5.EventDriven(api);
 
-	api.id = "__APP_ID__";
-	api.name = "__APP_NAME__";
-	api.version = "__APP_VERSION__";
-	api.publisher = "__APP_PUBLISHER__";
-	api.description = "__APP_DESCRIPTION__";
-	api.copyright = "__APP_COPYRIGHT__";
-	api.url = "__APP_URL__";
-	api.guid = "__APP_GUID__";
+	api.id = "${app_id | jsQuoteEscapeFilter}";
+	api.name = "${app_name | jsQuoteEscapeFilter}";
+	api.version = "${app_version | jsQuoteEscapeFilter}";
+	api.publisher = "${app_publisher | jsQuoteEscapeFilter}";
+	api.description = "${app_description | jsQuoteEscapeFilter}";
+	api.copyright = "${app_copyright | jsQuoteEscapeFilter}";
+	api.url = "${app_url | jsQuoteEscapeFilter}";
+	api.guid = "${app_guid | jsQuoteEscapeFilter}";
 	api.idleTimerDisabled = true;
 	api.proximityDetection = false;
 	api.proximityState = 0;
 		
-	var analytics = "__APP_ANALYTICS__";
+	var analytics = "${app_analytics | jsQuoteEscapeFilter}";
 
 	// Methods
 	api.getArguments = function(){
