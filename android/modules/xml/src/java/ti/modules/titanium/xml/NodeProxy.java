@@ -28,8 +28,8 @@ import org.w3c.dom.Text;
 import android.os.Build;
 
 @Kroll.proxy(parentModule=XMLModule.class)
-public class NodeProxy extends KrollProxy {
-	
+public class NodeProxy extends KrollProxy
+{
 	@Kroll.constant public static final int ATTRIBUTE_NODE = Node.ATTRIBUTE_NODE;
 	@Kroll.constant public static final int CDATA_SECTION_NODE = Node.CDATA_SECTION_NODE;
 	@Kroll.constant public static final int COMMENT_NODE = Node.COMMENT_NODE;
@@ -42,10 +42,11 @@ public class NodeProxy extends KrollProxy {
 	@Kroll.constant public static final int NOTATION_NODE = Node.NOTATION_NODE;
 	@Kroll.constant public static final int PROCESSING_INSTRUCTION_NODE = Node.PROCESSING_INSTRUCTION_NODE;
 	@Kroll.constant public static final int TEXT_NODE = Node.TEXT_NODE;
-	public static final String TAG = "TiNodeProxy";
+
+	private static final String TAG = "TiNodeProxy";
 
 	protected Node node;
-	
+
 	public NodeProxy(Node node)
 	{
 		super();
@@ -57,14 +58,17 @@ public class NodeProxy extends KrollProxy {
 		this(node);
 	}
 
-	public Node getNode() {
+	public Node getNode()
+	{
 		return node;
 	}
 	
-	public static NodeProxy getNodeProxy(Node node) {
+	public static NodeProxy getNodeProxy(Node node)
+	{
 		if (node == null) {
 			return null;
 		}
+
 		NodeProxy proxy;
 		switch (node.getNodeType()) {
 			case Node.ATTRIBUTE_NODE:
@@ -115,8 +119,9 @@ public class NodeProxy extends KrollProxy {
 	{
 		return getNodeProxy(node);
 	}
-	
-	public static NodeProxy removeProxyForNode(Node node) {
+
+	public static NodeProxy removeProxyForNode(Node node) 
+	{
 		// if we're here then a proxy was never generated for this node
 		// just return a temporary wrapper in this case
 		return new NodeProxy(node);
@@ -126,19 +131,22 @@ public class NodeProxy extends KrollProxy {
 	{
 		return removeProxyForNode(node);
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	protected <T extends NodeProxy> T getProxy(Node node) {
+	protected <T extends NodeProxy> T getProxy(Node node)
+	{
 		return (T) getNodeProxy(node);
 	}
-	
+
 	@Kroll.method
-	public NodeProxy appendChild(NodeProxy newChild) throws DOMException {
+	public NodeProxy appendChild(NodeProxy newChild) throws DOMException
+	{
 		return getProxy(node.appendChild(newChild.node));
 	}
 
 	@Kroll.method
-	public NodeProxy cloneNode(boolean deep) {
+	public NodeProxy cloneNode(boolean deep)
+	{
 		if (Build.VERSION.SDK_INT < 11) {
 			// TIMOB-4771, android harmony implementation bug fixed in Honeycomb.
 			Log.w(TAG, "cloneNode will often throw exception in versions prior to Honeycomb.");
@@ -147,124 +155,154 @@ public class NodeProxy extends KrollProxy {
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public NamedNodeMapProxy getAttributes() {
+	public NamedNodeMapProxy getAttributes()
+	{
 		return new NamedNodeMapProxy(node.getAttributes());
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public NodeListProxy getChildNodes() {
+	public NodeListProxy getChildNodes()
+	{
 		return new NodeListProxy(node.getChildNodes());
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public NodeProxy getFirstChild() {
+	public NodeProxy getFirstChild()
+	{
 		return getProxy(node.getFirstChild());
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public NodeProxy getLastChild() {
+	public NodeProxy getLastChild()
+	{
 		return getProxy(node.getLastChild());
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public String getLocalName() {
+	public String getLocalName() 
+	{
 		return node.getLocalName();
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public String getNamespaceURI() {
+	public String getNamespaceURI()
+	{
 		return node.getNamespaceURI();
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public NodeProxy getNextSibling() {
+	public NodeProxy getNextSibling()
+	{
 		return getProxy(node.getNextSibling());
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public String getNodeName() {
+	public String getNodeName() 
+	{
 		return node.getNodeName();
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public short getNodeType() {
+	public short getNodeType()
+	{
 		return node.getNodeType();
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public String getNodeValue() throws DOMException {
+	public String getNodeValue()
+		throws DOMException
+	{
 		return node.getNodeValue();
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public DocumentProxy getOwnerDocument() {
+	public DocumentProxy getOwnerDocument()
+	{
 		return new DocumentProxy(node.getOwnerDocument());
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public NodeProxy getParentNode() {
+	public NodeProxy getParentNode()
+	{
 		return getProxy(node.getParentNode());
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public String getPrefix() {
+	public String getPrefix()
+	{
 		return node.getPrefix();
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public NodeProxy getPreviousSibling() {
+	public NodeProxy getPreviousSibling()
+	{
 		return getProxy(node.getPreviousSibling());
 	}
 
 	@Kroll.method
-	public boolean hasAttributes() {
+	public boolean hasAttributes()
+	{
 		return node.hasAttributes();
 	}
 
 	@Kroll.method
-	public boolean hasChildNodes() {
+	public boolean hasChildNodes()
+	{
 		return node.hasChildNodes();
 	}
 
 	@Kroll.method
-	public NodeProxy insertBefore(NodeProxy newChild, NodeProxy refChild) throws DOMException {
+	public NodeProxy insertBefore(NodeProxy newChild, NodeProxy refChild)
+		throws DOMException
+	{
 		return getProxy(node.insertBefore(newChild.node, refChild.node));
 	}
 
 	@Kroll.method
-	public boolean isSupported(String feature, String version) {
+	public boolean isSupported(String feature, String version) 
+	{
 		return node.isSupported(feature, version);
 	}
 
 	@Kroll.method
-	public void normalize() {
+	public void normalize()
+	{
 		node.normalize();
 	}
 
 	@Kroll.method
-	public NodeProxy removeChild(NodeProxy oldChild) throws DOMException {
+	public NodeProxy removeChild(NodeProxy oldChild)
+		throws DOMException
+	{
 		Node oldNode = node.removeChild(oldChild.node);
 		return removeProxyForNode(oldNode);
 	}
-	
+
 	@Kroll.method
-	public NodeProxy replaceChild(NodeProxy newChild, NodeProxy oldChild) throws DOMException {
+	public NodeProxy replaceChild(NodeProxy newChild, NodeProxy oldChild)
+		throws DOMException
+	{
 		Node oldNode = node.replaceChild(newChild.node, oldChild.node);
 		return removeProxyForNode(oldNode);
 	}
 
 	@Kroll.setProperty @Kroll.method
-	public void setNodeValue(String nodeValue) throws DOMException {
+	public void setNodeValue(String nodeValue) 
+		throws DOMException
+	{
 		node.setNodeValue(nodeValue);
 	}
 
 	@Kroll.setProperty @Kroll.method
-	public void setPrefix(String prefix) throws DOMException {
+	public void setPrefix(String prefix)
+		throws DOMException
+	{
 		node.setPrefix(prefix);
 	}
-	
+
 	@Kroll.method
-	public XPathNodeListProxy evaluate(String xpath) {
+	public XPathNodeListProxy evaluate(String xpath)
+	{
 		return XPathUtil.evaluate(this, xpath);
 	}
 

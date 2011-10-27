@@ -17,13 +17,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Properties;
 
+import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
-import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.analytics.TiAnalyticsModel;
@@ -43,7 +43,7 @@ import android.os.Message;
 import android.util.DisplayMetrics;
 
 
-public class TiApplication extends Application implements Handler.Callback
+public class TiApplication extends Application implements Handler.Callback, KrollApplication
 {
 	private static final String LCAT = "TiApplication";
 	private static final boolean DBG = TiConfig.LOGD;

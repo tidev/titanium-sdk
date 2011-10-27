@@ -87,8 +87,8 @@ public class TypeConverter
 		@Override
 		public Object getDefaultValue(Class<?> typeHint)
 		{
-			if (typeHint == null || typeHint.equals(String.class)) {
-				return toString();
+			if (typeHint == null || typeHint.equals(ScriptRuntime.StringClass)) {
+				return "[object Object]";
 			}
 			return super.getDefaultValue(typeHint);
 		}

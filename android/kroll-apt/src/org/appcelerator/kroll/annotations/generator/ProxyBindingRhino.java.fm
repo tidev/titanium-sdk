@@ -11,10 +11,12 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.IdFunctionObject;
 import org.mozilla.javascript.Undefined;
 
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollInvocation;
-import org.appcelerator.kroll.KrollProxySupport;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollProxySupport;
+import org.appcelerator.kroll.KrollRuntime;
+
 import org.appcelerator.kroll.runtime.rhino.KrollBindings;
 import org.appcelerator.kroll.runtime.rhino.Proxy;
 import org.appcelerator.kroll.runtime.rhino.ProxyFactory;
@@ -170,13 +172,13 @@ public class ${className}Prototype extends ${superProxy}
 	private static final int
 		<#assign start = 2>
 		Id_constructor = 1
-		<#t><#if methods??>,</#if>
+		<#t><#if methods?? || Proxy.hasCreateProxies()>,</#if>
 		// Method IDs
 		<@Proxy.listMethods ; isFirst, name, method, signature, hasNext>
-		Id_${method.apiName} = ${start}<#if hasNext>,</#if>
-		<#assign start = start + 1>
+		Id_${method.apiName} = ${start}<#if hasNext || Proxy.hasCreateProxies()>,</#if>
+		<#t><#assign start = start + 1>
 		</@Proxy.listMethods>
-		<#t><#if Proxy.hasCreateProxies()>,</#if>
+<#t>
 		<@Proxy.listCreateProxies ; isFirst, createProxy, hasNext>
 		Id_create${createProxy.name} = ${start}<#if hasNext>,</#if>
 		<#assign start = start + 1>
@@ -260,6 +262,24 @@ public class ${className}Prototype extends ${superProxy}
 				throw new IllegalArgumentException(String.valueOf(id));
 		}
 	}
+
+	<#if interceptor??>
+	@Override
+	public Object get(String name, Scriptable start)
+	{
+		${className} proxy = (${className}) getProxy();
+		Object result = proxy.${interceptor.name}(name);
+
+		if (result != null && result instanceof Number) {
+			int value = ((Number) result).intValue();
+			if (value == KrollRuntime.DONT_INTERCEPT) {
+				return super.get(name, start);
+			}
+		}
+
+		return result;
+	}
+	</#if>
 
 	<#assign start = 0>
 	<#assign hasInstanceIds = dynamicProperties?? || proxyAttrs.propertyAccessors?size &gt; 0>
@@ -352,20 +372,25 @@ public class ${className}Prototype extends ${superProxy}
 	}
 
 	@Override
-	protected Object getInstanceIdValue(int id)
+	protected Object getInstanceIdValue(int id, Scriptable start)
 	{
+		${className}Prototype proxy = this;
+		if (this == ${protoVar} && start instanceof ${className}Prototype) {
+			proxy = (${className}Prototype) start;
+		}
+
 		switch (id) {
 		<@Proxy.listDynamicProperties ; isFirst, name, property, getSignature, setSignature>
 			case Id_${name}:
 			<#if property.get>
-				return getter_${name}();
+				return proxy.getter_${name}();
 			<#else>
-				return getProperty(Context.getCurrentContext(), "${name}");
+				return proxy.getProperty(Context.getCurrentContext(), "${name}");
 			</#if> 
 		</@Proxy.listDynamicProperties>
 		<@Proxy.listPropertyAccessors ; isFirst, name, getter, setter>
 			case Id_${name}:
-				return getProperty(Context.getCurrentContext(), "${name}");
+				return proxy.getProperty(Context.getCurrentContext(), "${name}");
 		</@Proxy.listPropertyAccessors>
 		<@Proxy.listApiTree ; isFirst, name, className, hasNext>
 			case Id_${name}:

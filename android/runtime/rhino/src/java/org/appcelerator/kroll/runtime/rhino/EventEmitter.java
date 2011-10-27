@@ -94,6 +94,24 @@ public class EventEmitter extends IdScriptableObject
 		}
 	}
 
+	protected Object getInstanceIdValue(int id, Scriptable start)
+	{
+		return NOT_FOUND;
+	}
+
+	@Override
+	// Modified to pass the "start" object on to getInstanceIdValue
+	public Object get(String name, Scriptable start)
+	{
+		int info = findInstanceIdInfo(name);
+		if (info != 0) {
+			int id = (info & 0xFFFF);
+			Object value = getInstanceIdValue(id, start);
+			if (value != NOT_FOUND) return value;
+		}
+		return super.get(name, start);
+	}
+
 	@Override
 	public String getClassName()
 	{

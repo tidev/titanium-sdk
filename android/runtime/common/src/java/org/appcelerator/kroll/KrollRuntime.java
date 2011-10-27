@@ -6,9 +6,10 @@
  */
 package org.appcelerator.kroll;
 
-import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.kroll.util.KrollAssetHelper;
 
+import android.app.Application;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
@@ -39,6 +40,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	};
 
 	public static final int DONT_INTERCEPT = Integer.MIN_VALUE + 1;
+	public static final int DEFAULT_THREAD_STACK_SIZE = 16 * 1024;
 
 	public static class KrollRuntimeThread extends Thread
 	{
@@ -46,9 +48,9 @@ public abstract class KrollRuntime implements Handler.Callback
 
 		private KrollRuntime runtime = null;
 
-		public KrollRuntimeThread(KrollRuntime runtime)
+		public KrollRuntimeThread(KrollRuntime runtime, int stackSize)
 		{
-			super(TAG);
+			super(null, null, TAG, stackSize);
 			this.runtime = runtime;
 		}
 
@@ -80,7 +82,8 @@ public abstract class KrollRuntime implements Handler.Callback
 	public static void init(Context context, KrollRuntime runtime)
 	{
 		if (instance == null) {
-			runtime.thread = new KrollRuntimeThread(runtime);
+			int stackSize = runtime.getThreadStackSize(context);
+			runtime.thread = new KrollRuntimeThread(runtime, stackSize);
 			runtime.thread.start();
 			instance = runtime;
 		}
@@ -122,6 +125,15 @@ public abstract class KrollRuntime implements Handler.Callback
 			message.getData().putString(PROPERTY_FILENAME, filename);
 			message.sendToTarget();
 		}
+	}
+
+	public int getThreadStackSize(Context context)
+	{
+		if (context instanceof KrollApplication) {
+			KrollApplication app = (KrollApplication) context;
+			return app.getThreadStackSize();
+		}
+		return DEFAULT_THREAD_STACK_SIZE;
 	}
 
 	public boolean handleMessage(Message msg)

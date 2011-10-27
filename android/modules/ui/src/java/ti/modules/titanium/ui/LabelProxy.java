@@ -33,14 +33,10 @@ public class LabelProxy extends TiViewProxy
 {
 	public LabelProxy()
 	{
-		super();
-
-		setProperty(TiC.PROPERTY_TEXT, "");
 	}
 
 	public LabelProxy(TiContext tiContext)
 	{
-		this();
 	}
 
 	@Override

@@ -118,13 +118,19 @@ public class NetworkModule extends KrollModule {
 
 		this.lastNetInfo = new NetInfo();
 		this.isListeningForConnectivity = false;
-
-		setProperty("userAgent", NETWORK_USER_AGENT + " Titanium/"+TiApplication.getInstance().getTiBuildVersion());
 	}
 
 	public NetworkModule(TiContext tiContext)
 	{
 		this();
+	}
+
+	@Override
+	public void handleCreationArgs(KrollModule createdInModule, Object[] args)
+	{
+		super.handleCreationArgs(createdInModule, args);
+
+		setProperty("userAgent", NETWORK_USER_AGENT + " Titanium/" + TiApplication.getInstance().getTiBuildVersion());
 	}
 
 	@Override
