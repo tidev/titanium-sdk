@@ -115,6 +115,11 @@ Object.defineProperty(EventEmitter.prototype, "fireEvent", {
 	enumerable: false
 });
 
+Object.defineProperty(EventEmitter.prototype, "fireSyncEvent", {
+	value: EventEmitter.prototype.emit,
+	enumerable: false
+});
+
 //EventEmitter is defined in src/node_events.cc
 //EventEmitter.prototype.emit() is also defined there.
 Object.defineProperty(EventEmitter.prototype, "addListener", {
