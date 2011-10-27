@@ -6,7 +6,6 @@
 describe("Ti.Utils tests", {
 	base64decode: function() {
 		valueOf(Ti.Utils.base64decode).shouldBeFunction();
-		valueOf(Ti.Utils.base64decode(null)).shouldBeNull();
 		valueOf(Ti.Utils.base64decode('SGVsbG8sIHdvcmxkIQ==')).shouldBe('Hello, world!');
 
 		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'encodedFile.txt');
@@ -15,13 +14,12 @@ describe("Ti.Utils tests", {
 	},
 	base64encode: function() {
 		valueOf(Ti.Utils.base64encode).shouldBeFunction();
-		valueOf(Ti.Utils.base64encode(null)).shouldBeNull();
 		valueOf(Ti.Utils.base64encode('Hello, world!')).shouldBe('SGVsbG8sIHdvcmxkIQ==');
 
 		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'decodedFile.txt');
 		var contents = f.read();
 		valueOf(Ti.Utils.base64encode(contents)).shouldBe('SSBhbSBub3QgZW5jb2RlZCB5ZXQu');
-	}/*,
+	},
     sha1: function() {
 		valueOf(Ti.Utils.sha1).shouldBeFunction();
         valueOf(Ti.Utils.sha1("The quick brown fox jumps over the lazy dog.")).shouldBe('408d94384216f890ff7a0c3528e8bed1e0b01621');
@@ -45,6 +43,6 @@ describe("Ti.Utils tests", {
 		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'decodedFile.txt');
 		var contents = f.read();
 		valueOf(Ti.Utils.md5HexDigest(contents)).shouldBe('86bd3c0247976528f3b7559d38cfb405');
-    }*/
+    }
 
 });
