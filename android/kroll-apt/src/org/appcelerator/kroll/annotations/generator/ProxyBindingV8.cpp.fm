@@ -230,7 +230,7 @@ void ${className}::setter_${name}(Local<String> property, Local<Value> value, co
 	jvalue jArguments[1];
 	<#assign typeInfo = Proxy.getTypeInfo(property.setMethodArgs[0].type)>
 
-	<@Proxy.verifyAndConvertArgument expr="value" index=0 info=typeInfo logOnly=true />
+	<@Proxy.verifyAndConvertArgument expr="value" index=0 info=typeInfo logOnly=true isOptional=false/>
 
 	<@Proxy.callJNIMethod [], property.setHasInvocation, "void", "methodID", "proxy->getJavaObject()", "jArguments" ;
 		hasResult, resultVar>

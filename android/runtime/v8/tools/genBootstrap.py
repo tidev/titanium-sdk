@@ -58,23 +58,49 @@ def getDependencies(proxy):
 
 def addToInitTable(proxy):
 	global headers, initTable
-	fullAPI = bindings["proxies"][proxy]["proxyAttrs"]["fullAPIName"]
-	namespaces = map(lambda n: n.lower(), fullAPI.split(".")[:-1])
+	#fullApi = bindings["proxies"][proxy]["proxyAttrs"]["fullAPIName"]
+	fullApi = getFullApiName(bindings["proxies"][proxy])
+	namespaces = map(lambda n: n.lower(), fullApi.split(".")[:-1])
 	if "titanium" not in namespaces:
 		namespaces.insert(0, "titanium")
 	namespace = "::".join(namespaces)
 	className = bindings["proxies"][proxy]["proxyClassName"]
 
 	headers += "#include \"%s.h\"\n" % proxy
-	fullAPI = fullAPI.replace("Titanium.", "")
+	fullApi = fullApi.replace("Titanium.", "")
 	initFunction = "%s::%s::bindProxy" % (namespace, className)
 
 	initTable.append("%s, %s" % (proxy, initFunction))
 
-def addToAPITree(proxyKey):
-	fullAPI = bindings["proxies"][proxyKey]["proxyAttrs"]["fullAPIName"]
+Kroll_DEFAULT = "org.appcelerator.kroll.annotations.Kroll.DEFAULT"
+
+def getParentModuleClass(proxyMap):
+	creatableInModule = proxyMap["proxyAttrs"].get("creatableInModule", None)
+	parentModule = proxyMap["proxyAttrs"].get("parentModule", None)
+	if creatableInModule and creatableInModule != Kroll_DEFAULT:
+		return creatableInModule
+	if parentModule and parentModule != Kroll_DEFAULT:
+		return parentModule
+	return None
+
+def getFullApiName(proxyMap):
+	fullApiName = proxyMap["proxyAttrs"]["name"]
+	parentModuleClass = getParentModuleClass(proxyMap)
+
+	while parentModuleClass:
+		parent = bindings["proxies"][parentModuleClass]
+		parentName = parent["proxyAttrs"]["name"]
+		fullApiName = parentName + "." + fullApiName
+
+		parentModuleClass = getParentModuleClass(parent)
+
+	return fullApiName
+
+def addToApiTree(proxyKey):
+	#fullAPI = bindings["proxies"][proxyKey]["proxyAttrs"]["fullAPIName"]
+	fullApi = getFullApiName(bindings["proxies"][proxyKey])
 	tree = apiTree
-	apiNames = fullAPI.split(".")
+	apiNames = fullApi.split(".")
 	for api in apiNames:
 		if api == "Titanium": continue
 		if api not in tree:
@@ -85,7 +111,7 @@ def addToAPITree(proxyKey):
 	tree["_className"] = proxy
 
 for proxy in bindings["proxies"]:
-	addToAPITree(proxy)
+	addToApiTree(proxy)
 	addToInitTable(proxy)
 
 

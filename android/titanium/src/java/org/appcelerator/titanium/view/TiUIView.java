@@ -507,7 +507,9 @@ public abstract class TiUIView
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_KEEP_SCREEN_ON)) {
-			nativeView.setKeepScreenOn(TiConvert.toBoolean(d, TiC.PROPERTY_KEEP_SCREEN_ON));
+			if (nativeView != null) {
+				nativeView.setKeepScreenOn(TiConvert.toBoolean(d, TiC.PROPERTY_KEEP_SCREEN_ON));
+			}
 		}
 	}
 
