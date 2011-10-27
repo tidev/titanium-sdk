@@ -220,7 +220,13 @@ class Compiler(object):
 		# NOTE: This means that any JS-only modules in the local project
 		# are hashed up and dumped into the export.
 		has_modules = False
-		missing_modules, modules = ([], [])
+		missing_modules, modules, module_js = ([], [], [])
+		module_js_dir = os.path.join(project_dir,'modules')
+		if os.path.exists(module_js_dir):
+			for file in os.listdir(module_js_dir):
+				if file.endswith('.js'):
+					module_js.append({'from':os.path.join(module_js_dir,file),'to':os.path.join(app_dir,file),'path':'modules/'+file})
+		
 		if deploytype != 'export-build':
 			# Have to load the module detection here, in order to
 			# prevent distributing even MORE stuff in export/transport
@@ -295,7 +301,7 @@ class Compiler(object):
 		if deploytype!='development' or has_modules:
 
 			if os.path.exists(app_dir) and deploytype != 'development':
-				self.copy_resources([resources_dir],app_dir)
+				self.copy_resources([resources_dir],app_dir,True,module_js)
 				
 			if deploytype == 'production':
 				debugger_plist = os.path.join(app_dir,'debugger.plist')
@@ -344,7 +350,15 @@ class Compiler(object):
 		
 		if deploytype=='development':
 			self.softlink_resources(resources_dir,app_dir)
-			self.softlink_resources(iphone_resources_dir,app_dir)
+			if(os.path.exists(iphone_resources_dir)):
+				self.softlink_resources(iphone_resources_dir,app_dir)
+			dest_mod_dir = os.path.join(app_dir,'modules')
+			src_mod_dir = os.path.join(project_dir,'modules')
+			if(os.path.exists(src_mod_dir)):
+				self.softlink_resources(src_mod_dir,dest_mod_dir)
+				src_mod_iphone_dir = os.path.join(src_mod_dir,'iphone')
+				if(os.path.exists(src_mod_iphone_dir)):
+					self.softlink_resources(os.path.join(project_dir,'modules','iphone'),dest_mod_dir)
 	
 	def add_symbol(self,api):
 		print "[DEBUG] detected symbol: %s" % api
@@ -446,23 +460,27 @@ class Compiler(object):
 		method = "@\"%s\"" % data
 		return {'method':method,'path':path}
 	
-	def softlink_resources(self,source,target):
+	def softlink_resources(self,source,target,use_ignoreDirs=True):
 		if not os.path.exists(target):
 			os.makedirs(target)
 		for file in os.listdir(source):
-			if (file in ignoreDirs) or (file in ignoreFiles):
+			if (use_ignoreDirs and (file in ignoreDirs)) or (file in ignoreFiles):
 				continue
 			from_ = os.path.join(source, file)
 			to_ = os.path.join(target, file)
-			print "[DEBUG] linking: %s to %s" % (from_,to_)
-			if os.path.exists(to_):
-				if os.path.islink(to_):
-					os.remove(to_)
-					os.symlink(from_, to_)
+			if os.path.isdir(from_):
+				print "[DEBUG] creating: %s" % (to_)
+				self.softlink_resources(from_,to_,False)
 			else:
-				os.symlink(from_, to_)
+				print "[DEBUG] linking: %s to %s" % (from_,to_)
+				if os.path.exists(to_):
+					if os.path.islink(to_):
+						os.remove(to_)
+						os.symlink(from_, to_)
+				else:
+					os.symlink(from_, to_)
 	
-	def copy_resources(self,sources,target,write_routing=True):
+	def copy_resources(self,sources,target,write_routing=True,module_js=[]):
 		
 		if write_routing:
 			intf = open(os.path.join(self.classes_dir,'ApplicationRouting.h'),'w+')
@@ -484,6 +502,13 @@ class Compiler(object):
 		if not os.path.exists(os.path.expanduser(target)):
 			os.makedirs(os.path.expanduser(target))
 			
+		def compile_js_file(path,from_):
+			print "[DEBUG] compiling: %s" % from_
+			metadata = Compiler.make_function_from_file(path,from_,self)
+			method = metadata['method']
+			eq = path.replace('.','_')
+			impf.write('         [map setObject:%s forKey:@"%s"];\n' % (method,eq))
+			
 		def add_compiled_resources(source,target):
 			print "[DEBUG] copy resources from %s to %s" % (source,target)
 			compiled_targets = {}
@@ -495,7 +520,7 @@ class Compiler(object):
 					if file in ignoreFiles:
 						continue					
 					prefix = root[len(source):]
-					from_ = os.path.join(root, file)			  
+					from_ = os.path.join(root, file)
 					to_ = os.path.expanduser(from_.replace(source, target, 1))
 					to_directory = os.path.expanduser(os.path.split(to_)[0])
 					if not os.path.exists(to_directory):
@@ -552,12 +577,7 @@ class Compiler(object):
 				for js_file in compiled_targets['.js']:
 					path = js_file['path']
 					from_ = js_file['from']
-					to_ = js_file['to']
-					print "[DEBUG] compiling: %s" % from_
-					metadata = Compiler.make_function_from_file(path,from_,self)
-					method = metadata['method']
-					eq = path.replace('.','_')
-					impf.write('         [map setObject:%s forKey:@"%s"];\n' % (method,eq))
+					compile_js_file(path,from_)
 		
 		# copy in any module assets
 		for metadata in self.modules_metadata:
@@ -571,6 +591,9 @@ class Compiler(object):
 			add_compiled_resources(source,target)
 						
 		if write_routing:
+			for js_file in module_js:
+				compile_js_file(js_file['path'],js_file['from'])
+			
 			impf.write("     }\n")
 			impf.write("     return filterData([map objectForKey:path]);\n")
 			impf.write('}\n')
