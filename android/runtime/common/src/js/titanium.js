@@ -234,21 +234,24 @@ Properties.bootstrap(Titanium);
 
 // Do not serialize the parent view. Doing so will result
 // in a circular reference loop.
-Titanium.TiView.prototype.toJSON = function () {
-	var keys = Object.keys(this);
-	var keyCount = keys.length;
-	var serialized = {};
+Object.defineProperty(Titanium.TiView.prototype, "toJSON", {
+	value: function () {
+		var keys = Object.keys(this);
+		var keyCount = keys.length;
+		var serialized = {};
 
-	for (var i = 0; i < keyCount; i++) {
-		var k = keys[i];
-		if (k === "parent") {
-			continue;
+		for (var i = 0; i < keyCount; i++) {
+			var k = keys[i];
+			if (k === "parent") {
+				continue;
+			}
+			serialized[k] = this[k];
 		}
-		serialized[k] = this[k];
-	}
 
-	return serialized;
-}
+		return serialized;
+	},
+	enumerable: false
+});
 
 // Finally, sandbox and bind the top level Titanium object
 function SandboxTitanium() {}
