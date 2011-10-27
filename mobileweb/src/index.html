@@ -3,17 +3,17 @@
 <head>
 	<meta charset="utf-8">
 
-	<title>__PROJECT_NAME__</title>
-	<meta name="description" content="__APP_DESCRIPTION__">
-	<meta name="author" content="__APP_PUBLISHER__">
-	<meta name="generator" content="__TI_GENERATOR__">
+	<title>${project_name | h,trim}</title>
+	<meta name="description" content="${app_description | h,trim}">
+	<meta name="author" content="${app_publisher | h,trim}">
+	<meta name="generator" content="${ti_generator | h,trim}">
 
 	<meta name="HandheldFriendly" content="True">
 	<meta name="MobileOptimized" content="320">
 	<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
 
 	<meta name="apple-mobile-web-app-capable" content="yes">
-	<meta name="apple-mobile-web-app-status-bar-style" content="__TI_STATUSBAR_STYLE__">
+	<meta name="apple-mobile-web-app-status-bar-style" content="${ti_statusbar_style | h,trim}">
 
 	<link rel="stylesheet" href="titanium/titanium.css">
 	<link rel="apple-touch-startup-image" href="img/l/splash.png">
@@ -31,7 +31,7 @@
 </head>
 <body>
 	<script>
-	__TI_JS__
+	${ti_js}
 	</script>
 	<script src="titanium/i18n.js"></script>
 	<script>Ti._5.frameworkLoaded()</script>
