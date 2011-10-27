@@ -30,6 +30,9 @@ exports.bootstrap = function(Titanium) {
 		},
 		TableViewSeparatorStyle: {
 			get NONE() { return iPhoneConstant("TableViewSeparatorStyle.NONE"); }
+		},
+		RowAnimationStyle: {
+			get NONE() { return iPhoneConstant("RowAnimationStyle.NONE"); }
 		}
 	};
 

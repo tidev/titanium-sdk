@@ -154,8 +154,6 @@ public class KrollBindingGenerator
 		String fullApiName = getFullApiName(proxy);
 		jsonUtils.getMap(proxy, "proxyAttrs").put("fullAPIName", fullApiName);
 
-		System.out.println(className + " = " + fullApiName);
-
 		Map<String, Object> tree = apiTree;
 		String[] apiNames = fullApiName.split("\\.");
 		for (String api : apiNames) {

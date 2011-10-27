@@ -397,8 +397,8 @@ invocation callback. The converted values are stored into an
 jvalue array named "jArguments". If validation or conversion
 fails, a JS exception is returned.
 ---------------------------------------------------------------->
-<#macro verifyAndConvertArgument expr index info logOnly>
-	<#if info.jsValidation!true>
+<#macro verifyAndConvertArgument expr index info logOnly isOptional>
+	<#if info.jsValidation!true && !isOptional>
 	if (!${expr}->Is${info.jsType}()) {
 		const char *error = "Invalid value, expected type ${info.jsType}.";
 		LOGE(TAG, error);
@@ -407,19 +407,40 @@ fails, a JS exception is returned.
 		</#if>
 	}
 	</#if>
-
-	<#if info.jsType == "Value">
-	Local<Value> arg_${index} = ${expr};
-	<#elseif info?keys?seq_contains("jsHandleCast")>
-	Local<${info.jsType}> arg_${index} = Local<${info.jsType}>::Cast(${expr});
-	<#else>
-	Local<${info.jsType}> arg_${index} = ${expr}->To${info.jsType}();
-	</#if>
-
+<#t>
 	<#local checkNew = (info?keys?seq_contains("javaDeleteLocalRef") && info.javaToJsConverter == "javaObjectToJsValue")>
 	<#if checkNew>bool isNew_${index};</#if>
+<#t>
+	<#if isOptional>
+	if (args.Length() <= ${index}) {
+		<#local defValue = info.defaultValue>
+		<#if defValue == "null">
+			<#local defValue = "NULL">
+		</#if>
+		jArguments[${index}].${info.jvalue} = ${defValue};
+
+	} else {
+	</#if>
+<#t>
+	<#if info.jsType == "Value">
+		<#local type = "Local<Value>">
+		<#local valueExpr = expr>
+	<#elseif info?keys?seq_contains("jsHandleCast")>
+		<#local type = "Local<" + info.jsType + ">">
+		<#local valueExpr = "Local<" + info.jsType + ">::Cast(" + expr + ")">
+	<#else>
+		<#local type = "Local<" + info.jsType + ">">
+		<#local valueExpr = expr + "->To" + info.jsType + "()">
+	</#if>
+<#t>
+	${type} arg_${index} = ${valueExpr};
+<#t>
 	jArguments[${index}].${info.jvalue} =
 		TypeConverter::${info.jsToJavaConverter}(arg_${index}<#if checkNew>, &isNew_${index}</#if>);
+<#t>
+	<#if isOptional>
+	}
+	</#if>
 </#macro>
 
 <#macro convertToVarArgs args start>
@@ -467,13 +488,13 @@ fails, a JS exception is returned.
 	jArguments[0].l = env->NewObject(JNIUtil::krollInvocationClass, JNIUtil::krollInvocationInitMethod, TypeConverter::jsValueToJavaString(args[0]));
 	</#if>
 
-	<@Proxy.listMethodArguments args=args ; index, info, type>
+	<@Proxy.listMethodArguments args=args ; index, info, type, isOptional>
 
 	<#if type != "org.appcelerator.kroll.KrollInvocation">
 		<#if index = varArgsIndex>
 			<@Proxy.convertToVarArgs args=args start=index/>
 		<#else>
-			<@Proxy.verifyAndConvertArgument expr="args[" + index + "]" index=index info=info logOnly=false/>
+			<@Proxy.verifyAndConvertArgument expr="args[" + index + "]" index=index info=info logOnly=false isOptional=isOptional/>
 		</#if>
 	</#if>
 	</@Proxy.listMethodArguments>
