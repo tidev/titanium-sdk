@@ -6,7 +6,9 @@
  */
 package org.appcelerator.kroll;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.annotations.Kroll;
@@ -203,6 +205,66 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		return creationUrl;
 	}
 
+	// native extending support allows us to whole-sale apply properties and only fire one event / job
+	@Kroll.method
+	public void extend(KrollDict options)
+	{
+		ArrayList<KrollPropertyChange> propertyChanges = new ArrayList<KrollPropertyChange>();
+		for (String name : options.keySet()) {
+			Object oldValue = properties.get(name);
+			Object value = options.get(name);
+
+			// dont just fire the change event, make sure we set the property back on the KrollObject 
+			// since the property change may not be driven from JS (KrollObject->Java proxy)
+			setProperty(name, value);
+
+			if (shouldFireChange(oldValue, value)) {
+				KrollPropertyChange pch = new KrollPropertyChange(name, oldValue, value);
+				propertyChanges.add(pch);
+			}
+		}
+
+		// convert to two dimensional array
+		int changeSize = propertyChanges.size();
+		Object[][] changeArray = new Object[changeSize][];
+		for (int i = 0; i < changeSize; i++) {
+			KrollPropertyChange propertyChange = propertyChanges.get(i);
+			changeArray[i] = new Object[] {propertyChange.name, propertyChange.oldValue, propertyChange.newValue};
+		}
+
+		if (KrollRuntime.getInstance().isRuntimeThread()) {
+			firePropertiesChanged(changeArray);
+
+		} else {
+			Message message = getMainHandler().obtainMessage(MSG_MODEL_PROPERTIES_CHANGED, changeArray);
+			message.sendToTarget();
+		}
+	}
+
+	private void firePropertiesChanged(Object[][] changes)
+	{
+		if (modelListener == null) {
+			return;
+		}
+
+		int changesLength = changes.length;
+		for (int i = 0; i < changesLength; ++i) {
+			Object[] change = changes[i];
+			if (change.length != 3) {
+				continue;
+			}
+
+			Object name = change[INDEX_NAME];
+			if (name == null || !(name instanceof String)) {
+				continue;
+			}
+
+			if (modelListener != null) {
+				modelListener.propertyChanged((String) name, change[INDEX_OLD_VALUE], change[INDEX_VALUE], this);
+			}
+		}
+	}
+
 	public Object getIndexedProperty(int index)
 	{
 		// TODO(josh): return undefined value
@@ -379,30 +441,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 		Message message = getMainHandler().obtainMessage(MSG_MODEL_PROPERTIES_CHANGED, changes);
 		message.sendToTarget();
-	}
-
-	private void firePropertiesChanged(Object[][] changes)
-	{
-		if (modelListener == null) {
-			return;
-		}
-
-		int changesLength = changes.length;
-		for (int i = 0; i < changesLength; ++i) {
-			Object[] change = changes[i];
-			if (change.length != 3) {
-				continue;
-			}
-
-			Object name = change[INDEX_NAME];
-			if (name == null || !(name instanceof String)) {
-				continue;
-			}
-
-			if (modelListener != null) {
-				modelListener.propertyChanged((String) name, change[INDEX_OLD_VALUE], change[INDEX_VALUE], this);
-			}
-		}
 	}
 
 	@Kroll.method(name="getActivity") @Kroll.getProperty(name="activity")

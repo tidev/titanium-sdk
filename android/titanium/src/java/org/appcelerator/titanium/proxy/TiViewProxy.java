@@ -163,7 +163,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	protected String getBaseUrlForStylesheet()
 	{
 		String baseUrl = getCreationUrl().baseUrl;
-		if (baseUrl == null) {
+		if (baseUrl == null || baseUrl.equals("app://")) {
 			baseUrl = "app://app.js";
 		}
 		
@@ -171,6 +171,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		if (idx != -1) {
 			baseUrl = baseUrl.substring(idx + 1).replace(".js", "");
 		}
+
 		return baseUrl;
 	}
 
@@ -204,6 +205,9 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		
 		String baseUrl = getBaseUrlForStylesheet();
 		KrollDict dict = TiApplication.getInstance().getStylesheet(baseUrl, styleClasses, viewId);
+		if (dict.size() > 0) {
+			extend(dict);
+		}
 
 		if (DBG) {
 			Log.d(LCAT, "trying to get stylesheet for base:" + baseUrl + ",classes:" + styleClasses + ",id:" + viewId + ",dict:" + dict);
@@ -341,8 +345,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	public KrollDict getSize()
 	{
 		return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETSIZE), getActivity());
-		//return (KrollDict) TiApplication.getInstance().getMessageQueue().sendBlockingMessage(getMainHandler().obtainMessage(MSG_GETSIZE), getActivity());
-		//return (KrollDict) sendBlockingUiMessage(MSG_GETSIZE, getActivity());
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -556,7 +558,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			handleShow(options);
 		} else {
 			getMainHandler().obtainMessage(MSG_SHOW, options).sendToTarget();
-			//getUIHandler().obtainMessage(MSG_SHOW, options).sendToTarget();
 		}
 	}
 
@@ -574,7 +575,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			handleHide(options);
 		} else {
 			getMainHandler().obtainMessage(MSG_HIDE, options).sendToTarget();
-			//getUIHandler().obtainMessage(MSG_HIDE, options).sendToTarget();
 		}
 
 	}
@@ -621,7 +621,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		if (pendingAnimation != null && peekView() != null) {
 			if (forceQueue || !(TiApplication.isUIThread())) {
 				getMainHandler().obtainMessage(MSG_ANIMATE).sendToTarget();
-				//getUIHandler().obtainMessage(MSG_ANIMATE).sendToTarget();
 			} else {
 				handleAnimate();
 			}
@@ -644,7 +643,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			handleBlur();
 		} else {
 			getMainHandler().sendEmptyMessage(MSG_BLUR);
-			//getUIHandler().sendEmptyMessage(MSG_BLUR);
 		}
 	}
 
@@ -662,7 +660,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			handleFocus();
 		} else {
 			getMainHandler().sendEmptyMessage(MSG_FOCUS);
-			//getUIHandler().sendEmptyMessage(MSG_FOCUS);
 		}
 	}
 
@@ -788,8 +785,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		for (Object c : classNames) {
 			classes.add(TiConvert.toString(c));
 		}
-		//KrollDict options = getTiContext().getTiApp().getStylesheet(baseUrl, classes, null);
-		//TODO extend(options);
+		KrollDict options = TiApplication.getInstance().getStylesheet(baseUrl, classes, null);
+		extend(options);
 	}
 
 	@Kroll.method @Kroll.getProperty
