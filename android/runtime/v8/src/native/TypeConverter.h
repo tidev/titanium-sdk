@@ -42,7 +42,7 @@ public:
 	// string convert methods
 	static jstring jsStringToJavaString(v8::Handle<v8::String> jsString);
 	static jstring jsValueToJavaString(v8::Handle<v8::Value> jsValue);
-	static v8::Handle<v8::String> javaStringToJsString(jstring javaString);
+	static v8::Handle<v8::Value> javaStringToJsString(jstring javaString);
 
 	// date convert methods
 	static jobject jsDateToJavaDate(v8::Handle<v8::Date> jsDate);

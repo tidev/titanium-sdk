@@ -98,16 +98,24 @@ jstring TypeConverter::jsValueToJavaString(v8::Handle<v8::Value> jsValue)
 		return NULL;
 	}
 
+	if (jsValue->IsNull()) {
+		return NULL;
+	}
+
 	v8::Local<v8::String> jsString = jsValue->ToString();
 	v8::String::Value javaString(jsString);
 	return env->NewString(*javaString, javaString.length());
 }
 
-v8::Handle<v8::String> TypeConverter::javaStringToJsString(jstring javaString)
+v8::Handle<v8::Value> TypeConverter::javaStringToJsString(jstring javaString)
 {
 	JNIEnv *env = JNIScope::getEnv();
 	if (env == NULL) {
 		return v8::Handle<v8::String>();
+	}
+
+	if (!javaString) {
+		return v8::Null();
 	}
 
 	const jchar *nativeString = env->GetStringChars(javaString, NULL);

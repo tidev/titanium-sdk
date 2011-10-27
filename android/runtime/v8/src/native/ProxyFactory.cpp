@@ -60,10 +60,10 @@ Handle<Object> ProxyFactory::createV8Proxy(jclass javaClass, jobject javaProxy)
 		// No info has been registered for this class yet, fall back
 		// to the binding lookup table
 		jstring javaClassName = JNIUtil::getClassName(javaClass);
-		Handle<String> className = TypeConverter::javaStringToJsString(javaClassName);
+		Handle<Value> className = TypeConverter::javaStringToJsString(javaClassName);
 		env->DeleteLocalRef(javaClassName);
 
-		Handle<Object> exports = KrollBindings::getBinding(className);
+		Handle<Object> exports = KrollBindings::getBinding(className->ToString());
 
 		if (exports.IsEmpty()) {
 			String::Utf8Value classStr(className);

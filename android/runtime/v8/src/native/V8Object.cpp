@@ -53,7 +53,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetProperty
 	}
 
 	Handle<Object> properties = jsObject->Get(Proxy::propertiesSymbol)->ToObject();
-	Handle<String> jsName = TypeConverter::javaStringToJsString(name);
+	Handle<Value> jsName = TypeConverter::javaStringToJsString(name);
 
 	Handle<Value> jsValue = TypeConverter::javaObjectToJsValue(value);
 	properties->Set(jsName, jsValue);
@@ -67,7 +67,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 	ENTER_V8(V8Runtime::globalContext);
 	JNIScope jniScope(env);
 
-	Handle<String> jsEvent = TypeConverter::javaStringToJsString(event);
+	Handle<Value> jsEvent = TypeConverter::javaStringToJsString(event);
 
 #ifdef TI_DEBUG
 	String::Utf8Value eventName(jsEvent);

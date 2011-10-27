@@ -195,8 +195,8 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRu
 			Handle<Function>::Cast(moduleObject->Get(String::New("runMainModule"))));
 	}
 
-	Handle<String> jsSource = TypeConverter::javaStringToJsString(source);
-	Handle<String> jsFilename = TypeConverter::javaStringToJsString(filename);
+	Handle<Value> jsSource = TypeConverter::javaStringToJsString(source);
+	Handle<Value> jsFilename = TypeConverter::javaStringToJsString(filename);
 
 	Handle<Value> args[] = { jsSource, jsFilename };
 	runMainModuleFunction->Call(moduleObject, 2, args);
