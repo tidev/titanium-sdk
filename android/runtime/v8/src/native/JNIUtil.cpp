@@ -42,6 +42,7 @@ jclass JNIUtil::throwableClass = NULL;
 
 jclass JNIUtil::v8ObjectClass = NULL;
 jclass JNIUtil::v8FunctionClass = NULL;
+jclass JNIUtil::krollRuntimeClass = NULL;
 jclass JNIUtil::krollInvocationClass = NULL;
 jclass JNIUtil::krollObjectClass = NULL;
 jclass JNIUtil::krollProxyClass = NULL;
@@ -71,6 +72,7 @@ jfieldID JNIUtil::v8ObjectPtrField = NULL;
 jmethodID JNIUtil::v8ObjectInitMethod = NULL;
 jmethodID JNIUtil::v8FunctionInitMethod = NULL;
 
+jint JNIUtil::krollRuntimeDontIntercept = -1;
 jmethodID JNIUtil::krollInvocationInitMethod = NULL;
 jmethodID JNIUtil::krollObjectSetHasListenersForEventTypeMethod = NULL;
 jmethodID JNIUtil::krollProxyCreateProxyMethod = NULL;
@@ -264,6 +266,7 @@ void JNIUtil::initCache()
 
 	v8ObjectClass = findClass("org/appcelerator/kroll/runtime/v8/V8Object");
 	v8FunctionClass = findClass("org/appcelerator/kroll/runtime/v8/V8Function");
+	krollRuntimeClass = findClass("org/appcelerator/kroll/KrollRuntime");
 	krollInvocationClass = findClass("org/appcelerator/kroll/KrollInvocation");
 	krollObjectClass = findClass("org/appcelerator/kroll/KrollObject");
 	krollProxyClass = findClass("org/appcelerator/kroll/KrollProxy");
@@ -296,6 +299,9 @@ void JNIUtil::initCache()
 	v8ObjectPtrField = getFieldID(v8ObjectClass, "ptr", "J");
 	v8ObjectInitMethod = getMethodID(v8ObjectClass, "<init>", "(J)V", false);
 	v8FunctionInitMethod = getMethodID(v8FunctionClass, "<init>", "(J)V", false);
+
+	jfieldID dontInterceptField = env->GetStaticFieldID(krollRuntimeClass, "DONT_INTERCEPT", "I");
+	krollRuntimeDontIntercept = env->GetStaticIntField(krollRuntimeClass, dontInterceptField);
 
 	krollInvocationInitMethod = getMethodID(krollInvocationClass, "<init>", "(Ljava/lang/String;)V", false);
 	krollObjectSetHasListenersForEventTypeMethod = getMethodID(krollObjectClass, "setHasListenersForEventType",

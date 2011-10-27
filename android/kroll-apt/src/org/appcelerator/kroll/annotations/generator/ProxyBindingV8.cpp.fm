@@ -145,6 +145,9 @@ Handle<FunctionTemplate> ${className}::getProxyTemplate()
 		Handle<Value>(), DEFAULT);
 	</@Proxy.listPropertyAccessors>
 
+	<#if interceptor??>
+	instanceTemplate->SetNamedPropertyHandler(${className}::interceptor);
+	</#if>
 	return proxyTemplate;
 }
 
@@ -247,5 +250,45 @@ void ${className}::setter_${name}(Local<String> property, Local<Value> value, co
 </#if>
 
 </@Proxy.listDynamicProperties>
+
+<#if interceptor??>
+Handle<Value> ${className}::interceptor(Local<String> property, const AccessorInfo& info)
+{
+	HandleScope scope;
+
+	<@Proxy.initJNIEnv/>
+	<@Proxy.initMethodID className=className name=interceptor.name signature="(Ljava/lang/String;)Ljava/lang/Object;" logOnly=false/>
+
+	Proxy* proxy = Proxy::unwrap(info.Holder());
+
+	if (!proxy) {
+		return Undefined();
+	}
+
+	jstring javaProperty = TypeConverter::jsStringToJavaString(property);
+	jobject jResult = (jobject) env->CallObjectMethod(proxy->getJavaObject(), methodID, javaProperty);
+
+	env->DeleteLocalRef(javaProperty);
+
+	if (env->ExceptionCheck()) {
+		Handle<Value> jsException = JSException::fromJavaException();
+		env->ExceptionClear();
+		return jsException;
+	}
+
+	if (jResult == NULL) {
+		return Null();
+	}
+
+	Handle<Value> v8Result = TypeConverter::javaObjectToJsValue(jResult);
+	env->DeleteLocalRef(jResult);
+	if (v8Result->IsNumber() && v8Result->Int32Value() == JNIUtil::krollRuntimeDontIntercept) {
+		return Handle<Value>();
+	}
+
+	return v8Result;
+
+}
+</#if>
 
 <@Proxy.closeNamespace/>

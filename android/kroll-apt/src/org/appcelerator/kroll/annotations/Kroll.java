@@ -533,4 +533,17 @@ public @interface Kroll
 	public static @interface onAppCreate
 	{
 	}
+
+	/**
+	 * Intercepts all property gets on a specific proxy.
+	 * Be <b>very careful</b> with this annotation, as it can slow your code down significantly.
+	 * 
+	 * To revert to the object's default behavior, return KrollRuntime.DONT_INTERCEPT
+	 */
+	@Documented
+	@Retention(RetentionPolicy.SOURCE)
+	@Target({ElementType.METHOD})
+	public static @interface interceptor
+	{
+	}
 }

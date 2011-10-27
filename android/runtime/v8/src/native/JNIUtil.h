@@ -65,6 +65,7 @@ public:
 	// Titanium classes
 	static jclass v8ObjectClass;
 	static jclass v8FunctionClass;
+	static jclass krollRuntimeClass;
 	static jclass krollInvocationClass;
 	static jclass krollObjectClass;
 	static jclass krollProxyClass;
@@ -96,6 +97,7 @@ public:
 	static jmethodID v8ObjectInitMethod;
 	static jmethodID v8FunctionInitMethod;
 
+	static jint krollRuntimeDontIntercept;
 	static jmethodID krollInvocationInitMethod;
 	static jmethodID krollObjectSetHasListenersForEventTypeMethod;
 	static jmethodID krollProxyCreateProxyMethod;

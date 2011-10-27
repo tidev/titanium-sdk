@@ -60,6 +60,7 @@ public class KrollJSONGenerator extends AbstractProcessor {
 	protected static final String Kroll_setProperty = Kroll_annotation + ".setProperty";
 	protected static final String Kroll_topLevel = Kroll_annotation + ".topLevel";
 	protected static final String Kroll_dynamicApis = Kroll_annotation + ".dynamicApis";
+	protected static final String Kroll_interceptor = Kroll_annotation + ".interceptor";
 	protected static final String Kroll_onAppCreate = Kroll_annotation + ".onAppCreate"; 
 
 	protected static final String KrollInvocation = "org.appcelerator.kroll.KrollInvocation";
@@ -299,7 +300,7 @@ public class KrollJSONGenerator extends AbstractProcessor {
 		{
 			utils.acceptAnnotations(e, new String[] {
 				Kroll_method, Kroll_getProperty, Kroll_setProperty,
-				Kroll_inject, Kroll_topLevel, Kroll_onAppCreate }, this, e);
+				Kroll_inject, Kroll_topLevel, Kroll_onAppCreate, Kroll_interceptor }, this, e);
 			return null;
 		}
 
@@ -325,6 +326,8 @@ public class KrollJSONGenerator extends AbstractProcessor {
 					visitTopLevel(annotation, element);
 				} else if (utils.annotationTypeIs(annotation, Kroll_dynamicApis)) {
 					visitDynamicApis(annotation);
+				} else if (utils.annotationTypeIs(annotation, Kroll_interceptor)) {
+					visitInterceptor(annotation, element);
 				} else if (utils.annotationTypeIs(annotation, Kroll_onAppCreate)) {
 					visitOnAppCreate(annotation, element);
 				} else {
@@ -595,6 +598,13 @@ public class KrollJSONGenerator extends AbstractProcessor {
 					jsonUtils.getOrCreateList(dynamicApis, "methods").add(m);
 				}
 			}
+		}
+
+		protected void visitInterceptor(AnnotationMirror annotation, ExecutableElement element)
+		{
+			// There should only be 1 of these per proxy
+			Map<Object, Object> interceptor = jsonUtils.getOrCreateMap(proxyProperties, "interceptor");
+			interceptor.put("name", utils.getName(element));
 		}
 
 		protected void visitOnAppCreate(AnnotationMirror annotation, Element element)

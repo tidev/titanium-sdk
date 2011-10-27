@@ -38,6 +38,8 @@ public abstract class KrollRuntime implements Handler.Callback
 		}
 	};
 
+	public static final int DONT_INTERCEPT = Integer.MIN_VALUE + 1;
+
 	public static class KrollRuntimeThread extends Thread
 	{
 		private static final String TAG = "KrollRuntimeThread";
