@@ -26,6 +26,10 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.widget.Toast;
 
 /**
  * Titanium launch activites have a single TiContext and launch an associated
@@ -35,6 +39,10 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 {
 	private static final String TAG = "TiLaunchActivity";
 	private static final boolean DBG = TiConfig.LOGD;
+	
+	private static final int MSG_FINISH = 100;
+	private static final int RESTART_DELAY = 500;
+	private static final int FINISH_DELAY = 500;
 
 	protected TiContext tiContext;
 	protected TiUrl url;
@@ -87,7 +95,9 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	{
 		Intent intent = getIntent();
 		if (intent != null) {
-			if (checkMissingLauncher(intent, savedInstanceState)) {
+			TiProperties systemProperties = getTiApp().getSystemProperties();
+			boolean detectionDisabled = systemProperties.getBool("ti.android.bug2373.disableDetection", false);
+			if (!detectionDisabled && checkMissingLauncher(intent, savedInstanceState)) {
 				return;
 			}
 		}
@@ -143,6 +153,11 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 				Log.e(TAG, "Android issue 2373 detected (missing intent CATEGORY_LAUNCHER), restarting app.");
 				layout = new TiCompositeLayout(this);
 				setContentView(layout);
+				TiProperties systemProperties = getTiApp().getSystemProperties();
+				int backgroundColor = TiColorHelper.parseColor(systemProperties.getString("ti.android.bug2373.backgroundColor", "black"));
+				getWindow().getDecorView().setBackgroundColor(backgroundColor);
+				layout.setBackgroundColor(backgroundColor);
+
 				activityOnCreate(savedInstanceState);
 				return true;
 			}
@@ -154,28 +169,41 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	{
 		// No context, we have a launch problem.
 		TiProperties systemProperties = getTiApp().getSystemProperties();
-		String backgroundColor = systemProperties.getString("ti.android.bug2373.backgroundColor", "black");
-		layout.setBackgroundColor(TiColorHelper.parseColor(backgroundColor));
-
-		OnClickListener restartListener = new OnClickListener() {	
-			@Override
-			public void onClick(DialogInterface arg0, int arg1) {
-				restartActivity(500);
-			}
-		};
-
-		String title = systemProperties.getString("ti.android.bug2373.title", "Restart Required");
 		String message = systemProperties.getString("ti.android.bug2373.message", "An application restart is required");
-		String buttonText = systemProperties.getString("ti.android.bug2373.buttonText", "Continue");
-		noLaunchCategoryAlert = new AlertDialog.Builder(this)
-			.setTitle(title)
-			.setMessage(message)
-			.setPositiveButton(buttonText, restartListener)
-			.setCancelable(false).create();
-		noLaunchCategoryAlert.show();
+		final int restartDelay = systemProperties.getInt("ti.android.bug2373.restartDelay", RESTART_DELAY);
+		final int finishDelay = systemProperties.getInt("ti.android.bug2373.finishDelay", FINISH_DELAY);
+		
+		if (systemProperties.getBool("ti.android.bug2373.skipAlert", false)) {
+			if (message != null && message.length() > 0) {
+				Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+			}
+			restartActivity(restartDelay, finishDelay);
+		} else {
+			OnClickListener restartListener = new OnClickListener() 
+			{	
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+					restartActivity(restartDelay, finishDelay);
+				}
+			};
+	
+			String title = systemProperties.getString("ti.android.bug2373.title", "Restart Required");
+			String buttonText = systemProperties.getString("ti.android.bug2373.buttonText", "Continue");
+			noLaunchCategoryAlert = new AlertDialog.Builder(this)
+				.setTitle(title)
+				.setMessage(message)
+				.setPositiveButton(buttonText, restartListener)
+				.setCancelable(false).create();
+			noLaunchCategoryAlert.show();
+		}
 	}
 
 	protected void restartActivity(int delay)
+	{
+		restartActivity(delay, 0);
+	}
+	
+	protected void restartActivity(int delay, int finishDelay)
 	{
 		Intent relaunch = new Intent(getApplicationContext(), getClass());
 		relaunch.setAction(Intent.ACTION_MAIN);
@@ -186,7 +214,25 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, relaunch, PendingIntent.FLAG_ONE_SHOT);
 			am.set(AlarmManager.RTC, System.currentTimeMillis() + delay, pi);
 		}
-		finish();
+		
+		if (finishDelay > 0) {
+			Handler handler = new Handler() 
+			{	
+				@Override
+				public void handleMessage(Message msg) 
+				{					
+					if (msg.what == MSG_FINISH) {
+						finish();		
+					} else {
+						super.handleMessage(msg);
+					}
+				}			
+			};
+			
+			handler.sendEmptyMessageDelayed(MSG_FINISH, finishDelay);
+		} else {
+			finish();
+		}
 	}
 
 	@Override

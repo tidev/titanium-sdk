@@ -25,7 +25,7 @@ return; \
 
 #define ENSURE_UI_THREAD(x,y) \
 if (![NSThread isMainThread]) { \
-[self performSelectorOnMainThread:@selector(x:) withObject:y waitUntilDone:WAIT_UNTIL_DONE_ON_UI_THREAD]; \
+[self performSelectorOnMainThread:@selector(x:) withObject:y waitUntilDone:WAIT_UNTIL_DONE_ON_UI_THREAD modes:[NSArray arrayWithObject:NSRunLoopCommonModes]]; \
 return; \
 } \
 

@@ -4,7 +4,7 @@
 # Project Compiler
 #
 
-import os, sys, re, shutil, time, run, sgmllib, codecs
+import os, sys, re, shutil, time, run, sgmllib, codecs, tempfile
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.join(template_dir,'../'))
@@ -33,9 +33,7 @@ INTERFACE_HEADER= """
 
 IMPL_HEADER= """#import "ApplicationRouting.h"
 
-extern NSData * decode64 (NSData * thedata); 
-extern NSData * dataWithHexString (NSString * hexString);
-extern NSData * decodeDataWithKey (NSData * thedata, NSString * key);
+extern NSData* filterData(NSString* thedata);
 
 @implementation ApplicationRouting
 
@@ -443,13 +441,23 @@ class Compiler(object):
 		return compile
 				
 	@classmethod	
-	def make_function_from_file(cls,path,file,instance=None):
+	def make_function_from_file(cls,path,file,instance):
 		file_contents = open(os.path.expanduser(file)).read()
 		file_contents = jspacker.jsmin(file_contents)
 		file_contents = file_contents.replace('Titanium.','Ti.')
-		if instance: instance.compile_js(file_contents)
-		data = str(file_contents).encode("hex")
-		method = "dataWithHexString(@\"%s\")" % data
+		instance.compile_js(file_contents)
+
+		tfile = tempfile.NamedTemporaryFile(mode="r+b", delete=False)
+		tfilename = tfile.name
+		tfile.write(file_contents)
+		tfile.close()
+		template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
+		titanium_prep = os.path.abspath(os.path.join(template_dir,'titanium_prep'))
+		data = os.popen("\"%s\" \"%s\" \"%s\"" % (titanium_prep, tfilename, instance.appid)).read()
+		os.remove(tfilename)
+
+		data = data.translate(None, '\r\n')
+		method = "@\"%s\"" % data
 		return {'method':method,'path':path}
 	
 	def softlink_resources(self,source,target,use_ignoreDirs=True):
@@ -485,9 +493,8 @@ class Compiler(object):
 			impf.write(IMPL_HEADER)
 
 			impf.write("+ (NSData*) resolveAppAsset:(NSString*)path;\n{\n")
-			impf.write("     static NSMutableDictionary *map;\n")
-			impf.write("     if (map==nil)\n")
-			impf.write("     {\n")
+			impf.write("     static NSMutableDictionary *map = nil;\n")
+			impf.write("     if (!map) {\n")
 			impf.write("         map = [[NSMutableDictionary alloc] init];\n")
 
 			impf_buffer = ''
@@ -588,7 +595,7 @@ class Compiler(object):
 				compile_js_file(js_file['path'],js_file['from'])
 			
 			impf.write("     }\n")
-			impf.write("     return [map objectForKey:path];\n")
+			impf.write("     return filterData([map objectForKey:path]);\n")
 			impf.write('}\n')
 			impf.write(impf_buffer)
 

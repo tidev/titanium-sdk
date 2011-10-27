@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,6 +8,8 @@ package org.appcelerator.titanium.view;
 
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,8 +32,10 @@ import org.appcelerator.titanium.util.TiAnimationBuilder.TiMatrixAnimation;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import android.content.Context;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -51,6 +55,8 @@ import android.widget.AdapterView;
 public abstract class TiUIView
 	implements KrollProxyListener, OnFocusChangeListener
 {
+	private static final boolean HONEYCOMB_OR_GREATER = (Build.VERSION.SDK_INT >= 11);
+	private static final int LAYER_TYPE_SOFTWARE = 1;
 	private static final String LCAT = "TiUIView";
 	private static final boolean DBG = TiConfig.LOGD;
 
@@ -75,6 +81,8 @@ public abstract class TiUIView
 	// so this holds a reference to the view which is used for touching,
 	// i.e., the view passed to registerForTouch.
 	private WeakReference<View> mTouchView = null;
+
+	private Method mSetLayerTypeMethod = null; // Honeycomb, for turning off hw acceleration.
 
 	public TiUIView(TiViewProxy proxy)
 	{
@@ -182,7 +190,7 @@ public abstract class TiUIView
 			}
 			nativeView.startAnimation(as);
 			// Clean up proxy
-			proxy.clearAnimation();
+			proxy.clearAnimation(builder);
 		}
 	}
 
@@ -696,7 +704,11 @@ public abstract class TiUIView
 				TiBackgroundDrawable.Border border = background.getBorder();
 
 				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
-					border.setRadius(TiConvert.toFloat(d, TiC.PROPERTY_BORDER_RADIUS));
+					float radius = TiConvert.toFloat(d, TiC.PROPERTY_BORDER_RADIUS);
+					if (radius > 0f && HONEYCOMB_OR_GREATER) {
+						disableHWAcceleration();
+					}
+					border.setRadius(radius);
 				}
 				if (d.containsKey(TiC.PROPERTY_BORDER_COLOR) || d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
 					if (d.containsKey(TiC.PROPERTY_BORDER_COLOR)) {
@@ -725,7 +737,11 @@ public abstract class TiUIView
 		if (property.equals(TiC.PROPERTY_BORDER_COLOR)) {
 			border.setColor(TiConvert.toColor(value.toString()));
 		} else if (property.equals(TiC.PROPERTY_BORDER_RADIUS)) {
-			border.setRadius(TiConvert.toFloat(value));
+			float radius = TiConvert.toFloat(value);
+			if (radius > 0f && HONEYCOMB_OR_GREATER) {
+				disableHWAcceleration();
+			}
+			border.setRadius(radius);
 		} else if (property.equals(TiC.PROPERTY_BORDER_WIDTH)) {
 			border.setWidth(TiConvert.toFloat(value));
 		}
@@ -947,17 +963,6 @@ public abstract class TiUIView
 		}
 		doSetClickable(view, view.isClickable());
 	}
-	/*
-	 * Used just to setup the click listener if applicable.
-	 */
-	private void doSetClickable()
-	{
-		View view = getTouchView();
-		if (view == null) {
-			return;
-		}
-		doSetClickable(view, view.isClickable());
-	}
 
 	/**
 	 * Can be overriden by inheriting views for special click handling.  For example,
@@ -985,4 +990,38 @@ public abstract class TiUIView
 			}
 		});
 	}
+
+	private void disableHWAcceleration()
+	{
+		if (nativeView == null) {
+			return;
+		}
+		if (DBG) {
+			Log.d(LCAT, "Disabling hardware acceleration for instance of " + nativeView.getClass().getSimpleName());
+		}
+		if (mSetLayerTypeMethod == null) {
+			try {
+				Class<? extends View> c = nativeView.getClass();
+				mSetLayerTypeMethod = c.getMethod("setLayerType", int.class, Paint.class);
+			} catch (SecurityException e) {
+				Log.e(LCAT, "SecurityException trying to get View.setLayerType to disable hardware acceleration.", e);
+			} catch (NoSuchMethodException e) {
+				Log.e(LCAT, "NoSuchMethodException trying to get View.setLayerType to disable hardware acceleration.", e);
+			}
+		}
+
+		if (mSetLayerTypeMethod == null) {
+			return;
+		}
+		try {
+			mSetLayerTypeMethod.invoke(nativeView, LAYER_TYPE_SOFTWARE, null);
+		} catch (IllegalArgumentException e) {
+			Log.e(LCAT, e.getMessage(), e);
+		} catch (IllegalAccessException e) {
+			Log.e(LCAT, e.getMessage(), e);
+		} catch (InvocationTargetException e) {
+			Log.e(LCAT, e.getMessage(), e);
+		}
+	}
+
 }

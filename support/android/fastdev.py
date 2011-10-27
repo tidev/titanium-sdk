@@ -142,6 +142,9 @@ class FastDevHandler(SocketServer.BaseRequestHandler):
 				if command == "length":
 					request_count += 1
 					self.handle_length(tokens[1])
+				elif command == "exists":
+					request_count += 1
+					self.handle_exists(tokens[1])
 				elif command == "get":
 					request_count += 1
 					self.handle_get(tokens[1])
@@ -186,6 +189,15 @@ class FastDevHandler(SocketServer.BaseRequestHandler):
 		else:
 			logging.info("length %s: path not found" % relative_path)
 			self.send_tokens(pack_int(-1))
+
+	def handle_exists(self, relative_path):
+		path = self.get_resource_path(relative_path)
+		if path != None:
+			logging.info("%s exists: true" % relative_path)
+			self.send_tokens(pack_int(1))
+		else:
+			logging.info("%s exists: false" % relative_path)
+			self.send_tokens(pack_int(0))
 
 	def handle_get(self, relative_path):
 		path = self.get_resource_path(relative_path)

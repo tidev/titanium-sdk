@@ -57,7 +57,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args);
 	BOOL opening;
 	BOOL attached;
 	BOOL closing;
-	BOOL splashTransitionAnimation;
+	BOOL startingTransitionAnimation;
 	int transitionAnimation;
 
 
@@ -97,7 +97,6 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args);
 -(BOOL)_isChildOfTab;
 -(void)_associateTab:(UIViewController*)controller_ navBar:(UINavigationController*)navbar_ tab:(TiProxy<TiTab>*)tab_;
 -(void)prepareForNavView:(UINavigationController*)navController_;
--(BOOL)allowsOrientation:(UIInterfaceOrientation)orientation;
 -(void)ignoringRotationToOrientation:(UIInterfaceOrientation)orientation;
 
 @property(nonatomic,readwrite,retain)	UIViewController *controller;

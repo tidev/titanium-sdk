@@ -3,6 +3,7 @@ name: Titanium.UI.ButtonBar
 description: A Button Bar is created by the method <Titanium.UI.createButtonBar>.
 extends: Titanium.UI.View
 since: "0.8"
+platforms: [iphone, ipad]
 properties:
   - name: index
     description: the selected index

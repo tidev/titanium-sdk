@@ -1,5 +1,5 @@
 ---
-name: Titanium.UI.CoverFlowView
+name: Titanium.UI.iOS.CoverFlowView
 description: The Cover Flow view is container for showing  animated, three dimensional images in a nice UI. The Cover Flow view is created by the method <Titanium.UI.iOS.createCoverFlowView>.
 extends: Titanium.UI.View
 since: "0.8"
@@ -46,7 +46,7 @@ examples:
         
         Create a rounded view.
         
-            var view = Titanium.UI.createCoverFlowView({
+            var view = Titanium.UI.iOS.createCoverFlowView({
             	images:['a.png','b.png','c.png'],
             	backgroundColor:'#000'
             });
