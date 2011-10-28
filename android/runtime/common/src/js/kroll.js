@@ -76,7 +76,7 @@
 	};
 
 	NativeModule.wrapper = [
-		'(function (exports, require, module, __filename, __dirname, global) { ',
+		'(function (exports, require, module, __filename, __dirname, Titanium, global, kroll) {\n  Ti = Titanium;\n',
 		'\n});' ];
 
 	NativeModule.prototype.compile = function() {
@@ -98,7 +98,7 @@
 			source = NativeModule.wrap(source);
 
 			var fn = runInThisContext(source, this.filename, true);
-			fn(this.exports, NativeModule.require, this, this.filename, null, global);
+			fn(this.exports, NativeModule.require, this, this.filename, null, global.Ti, global, kroll);
 		}
 
 		this.loaded = true;
