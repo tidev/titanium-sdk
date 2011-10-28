@@ -53,46 +53,46 @@
 
 	// Methods
 	api.getTime = function(){
-		console.debug('Method "Titanium.Media.Sound..getTime" is not implemented yet.');
+		console.debug('Method "Titanium.Media.Sound.getTime" is not implemented yet.');
 	};
 	api.getVolume = function(){
-		console.debug('Method "Titanium.Media.Sound..getVolume" is not implemented yet.');
+		console.debug('Method "Titanium.Media.Sound.getVolume" is not implemented yet.');
 	};
 	api.isLooping = function(){
-		console.debug('Method "Titanium.Media.Sound..isLooping" is not implemented yet.');
+		console.debug('Method "Titanium.Media.Sound.isLooping" is not implemented yet.');
 	};
 	api.isPaused = function(){
-		console.debug('Method "Titanium.Media.Sound..isPaused" is not implemented yet.');
+		console.debug('Method "Titanium.Media.Sound.isPaused" is not implemented yet.');
 	};
 	api.isPlaying = function(){
-		console.debug('Method "Titanium.Media.Sound..isPlaying" is not implemented yet.');
+		console.debug('Method "Titanium.Media.Sound.isPlaying" is not implemented yet.');
 	};
 	api.pause = function(){
-		console.debug('Method "Titanium.Media.Sound..pause" is not implemented yet.');
+		console.debug('Method "Titanium.Media.Sound.pause" is not implemented yet.');
 	};
 	api.play = function(){
-		console.debug('Method "Titanium.Media.Sound..play" is not implemented yet.');
+		console.debug('Method "Titanium.Media.Sound.play" is not implemented yet.');
 	};
 	api.release = function(){
-		console.debug('Method "Titanium.Media.Sound..release" is not implemented yet.');
+		console.debug('Method "Titanium.Media.Sound.release" is not implemented yet.');
 	};
 	api.reset = function(){
-		console.debug('Method "Titanium.Media.Sound..reset" is not implemented yet.');
+		console.debug('Method "Titanium.Media.Sound.reset" is not implemented yet.');
 	};
 	api.setLooping = function(){
-		console.debug('Method "Titanium.Media.Sound..setLooping" is not implemented yet.');
+		console.debug('Method "Titanium.Media.Sound.setLooping" is not implemented yet.');
 	};
 	api.setPaused = function(){
-		console.debug('Method "Titanium.Media.Sound..setPaused" is not implemented yet.');
+		console.debug('Method "Titanium.Media.Sound.setPaused" is not implemented yet.');
 	};
 	api.setTime = function(){
-		console.debug('Method "Titanium.Media.Sound..setTime" is not implemented yet.');
+		console.debug('Method "Titanium.Media.Sound.setTime" is not implemented yet.');
 	};
 	api.setVolume = function(){
-		console.debug('Method "Titanium.Media.Sound..setVolume" is not implemented yet.');
+		console.debug('Method "Titanium.Media.Sound.setVolume" is not implemented yet.');
 	};
 	api.stop = function(){
-		console.debug('Method "Titanium.Media.Sound..stop" is not implemented yet.');
+		console.debug('Method "Titanium.Media.Sound.stop" is not implemented yet.');
 	};
 
 	// Events

@@ -80,6 +80,7 @@ Ti._5.createClass('Titanium.UI.Picker', function(args){
 		set: function(val){return _value = val;}
 	});
 
+	// Note: this is relevant only if you set `useSpinner` to `true`
 	var _visibleItems = null;
 	Object.defineProperty(this, 'visibleItems', {
 		get: function(){return obj.dom.size;},

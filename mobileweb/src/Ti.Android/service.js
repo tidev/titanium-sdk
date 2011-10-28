@@ -38,9 +38,9 @@
 
 	// Methods
 	api.start = function(){
-		console.debug('Method "Titanium.Android.Service..start" is not implemented yet.');
+		console.debug('Method "Titanium.Android.Service.start" is not implemented yet.');
 	};
 	api.stop = function(){
-		console.debug('Method "Titanium.Android.Service..stop" is not implemented yet.');
+		console.debug('Method "Titanium.Android.Service.stop" is not implemented yet.');
 	};
 })(Ti._5.createClass('Titanium.Android.Service'));

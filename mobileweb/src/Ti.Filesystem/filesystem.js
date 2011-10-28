@@ -59,18 +59,18 @@
 
 	// Methods
 	api.createFile = function(){
-		console.debug('Method "Titanium.Filesystem..createFile" is not implemented yet.');
+		console.debug('Method "Titanium.Filesystem.createFile" is not implemented yet.');
 	};
 	api.createTempDirectory = function(){
-		console.debug('Method "Titanium.Filesystem..createTempDirectory" is not implemented yet.');
+		console.debug('Method "Titanium.Filesystem.createTempDirectory" is not implemented yet.');
 	};
 	api.createTempFile = function(){
-		console.debug('Method "Titanium.Filesystem..createTempFile" is not implemented yet.');
+		console.debug('Method "Titanium.Filesystem.createTempFile" is not implemented yet.');
 	};
 	api.getFile = function(){
-		console.debug('Method "Titanium.Filesystem..getFile" is not implemented yet.');
+		console.debug('Method "Titanium.Filesystem.getFile" is not implemented yet.');
 	};
 	api.isExternalStoragePresent = function(){
-		console.debug('Method "Titanium.Filesystem..isExternalStoragePresent" is not implemented yet.');
+		console.debug('Method "Titanium.Filesystem.isExternalStoragePresent" is not implemented yet.');
 	};
 })(Ti._5.createClass('Titanium.Filesystem'));

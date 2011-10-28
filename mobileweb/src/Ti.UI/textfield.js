@@ -251,8 +251,8 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 						_vertAlign = 'bottom';
 						obj.dom.style.lineHeight = (obj.height + ((obj.height  - obj.fontSize) * 0.5)) + 'px';
 						break;
-					case 'midle':
-						_vertAlign = 'midle';
+					case 'middle':
+						_vertAlign = 'middle';
 					case 'auto':
 					default : 
 						_vertAlign = 'auto';

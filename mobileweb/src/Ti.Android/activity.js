@@ -28,25 +28,25 @@
 
 	// Methods
 	api.finish = function(){
-		console.debug('Method "Titanium.Android.Activity..finish" is not implemented yet.');
+		console.debug('Method "Titanium.Android.Activity.finish" is not implemented yet.');
 	};
 	api.getIntent = function(){
-		console.debug('Method "Titanium.Android.Activity..getIntent" is not implemented yet.');
+		console.debug('Method "Titanium.Android.Activity.getIntent" is not implemented yet.');
 	};
 	api.getString = function(){
-		console.debug('Method "Titanium.Android.Activity..getString" is not implemented yet.');
+		console.debug('Method "Titanium.Android.Activity.getString" is not implemented yet.');
 	};
 	api.setRequestedOrientation = function(){
-		console.debug('Method "Titanium.Android.Activity..setRequestedOrientation" is not implemented yet.');
+		console.debug('Method "Titanium.Android.Activity.setRequestedOrientation" is not implemented yet.');
 	};
 	api.setResult = function(){
-		console.debug('Method "Titanium.Android.Activity..setResult" is not implemented yet.');
+		console.debug('Method "Titanium.Android.Activity.setResult" is not implemented yet.');
 	};
 	api.startActivity = function(){
-		console.debug('Method "Titanium.Android.Activity..startActivity" is not implemented yet.');
+		console.debug('Method "Titanium.Android.Activity.startActivity" is not implemented yet.');
 	};
 	api.startActivityForResult = function(){
-		console.debug('Method "Titanium.Android.Activity..startActivityForResult" is not implemented yet.');
+		console.debug('Method "Titanium.Android.Activity.startActivityForResult" is not implemented yet.');
 	};
 
 	// Events

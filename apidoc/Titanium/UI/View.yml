@@ -31,6 +31,7 @@ methods:
     description: make the view visible
   - name: toImage
     description: return a Blob image of the rendered view
+    platforms: [android, iphone, ipad]
     returns:
         type: Object
     parameters:
@@ -44,6 +45,7 @@ methods:
         If either view is not in the view hierarchy, a null is returned. Keep in mind that views may be removed from the view hierarchy
         if their window is blurred or if the view is offscreen (such as in some situations with <Titanium.UI.ScrollableView>).
         If this view is a <Titanium.UI.ScrollView>, the view's x and y offsets are subtracted from the return value.
+    platforms: [android, iphone, ipad]
     returns:
         type: Point
     parameters:
@@ -80,6 +82,7 @@ events:
         description: the x point of the event in receiving view coordinates
   - name: doubletap
     description: fired when the device detects a double tap against the view
+    platforms: [android, iphone, ipad]
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
@@ -102,6 +105,7 @@ events:
         and a longclick can occur together.  The differences are that longclick can occur also
         with the trackball whereas longpress is a touch-only event, and longpress includes
         x and y coordinates.
+    platforms: [android, iphone, ipad]
   - name: pinch
     description: fired when the device detects a pinch, which is a touch and expand or contract 
         with two fingers.  The event occurs continuously until a finger is lifted again.  
@@ -202,9 +206,11 @@ events:
 properties:
   - name: anchorPoint
     description: a dictionary with properties x and y to indicate the anchor point value. anchor specifies the position by which animation should occur. center is 0.5, 0.5
+    platforms: [android, iphone, ipad]
     type: Object
   - name: animatedCenterPoint
     description: object with x and y properties of where the view is during animation
+    platforms: [android, iphone, ipad]
     type: Object
     permission: read-only
   - name: backgroundColor
@@ -239,11 +245,11 @@ properties:
     platforms: [iphone, ipad]
   - name: backgroundSelectedColor
     description: the selected background color of the view. focusable must be true for normal views.
-    platforms: [android]
+    platforms: [android, mobileweb]
     type: String
   - name: backgroundSelectedImage
     description: the selected background image url of the view. focusable must be true for normal views.
-    platforms: [android]
+    platforms: [android, mobileweb]
     type: String
   - name: backgroundTopCap
     description: End caps specify the portion of an image that should not be resized when an image is stretched. This technique is used to implement buttons and other resizable image-based interface elements. When a button with end caps is resized, the resizing occurs only in the middle of the button, in the region between the end caps. The end caps themselves keep their original size and appearance. This property specifies the size of the top end cap. The middle (stretchable) portion is assumed to be 1 pixel wide. The bottom end cap is therefore computed by adding the size of the top end cap and the middle portion together and then subtracting that value from the height of the image
@@ -298,6 +304,7 @@ properties:
     type: Boolean
   - name: transform
     description: the transformation matrix to apply to the view
+    platforms: [android, iphone, ipad]
     type: Object
   - name: visible
     description: a boolean of the visibility of the view
@@ -330,6 +337,7 @@ examples:
 name: Point
 description: A pair of coordinates used to describe the location of a <Titanium.UI.View>
 since: "1.8.0"
+platforms: [android, iphone, ipad]
 properties:
   - name: x
     type: Number

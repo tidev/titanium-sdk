@@ -635,61 +635,61 @@
 
 	// Methods
 	api.beep = function(){
-		console.debug('Method "Titanium.Media..beep" is not implemented yet.');
+		console.debug('Method "Titanium.Media.beep" is not implemented yet.');
 	};
 	api.createAudioPlayer = function(){
-		console.debug('Method "Titanium.Media..createAudioPlayer" is not implemented yet.');
+		console.debug('Method "Titanium.Media.createAudioPlayer" is not implemented yet.');
 	};
 	api.createAudioRecorder = function(){
-		console.debug('Method "Titanium.Media..createAudioRecorder" is not implemented yet.');
+		console.debug('Method "Titanium.Media.createAudioRecorder" is not implemented yet.');
 	};
 	api.createItem = function(){
-		console.debug('Method "Titanium.Media..createItem" is not implemented yet.');
+		console.debug('Method "Titanium.Media.createItem" is not implemented yet.');
 	};
 	api.createMusicPlayer = function(){
-		console.debug('Method "Titanium.Media..createMusicPlayer" is not implemented yet.');
+		console.debug('Method "Titanium.Media.createMusicPlayer" is not implemented yet.');
 	};
 	api.createSound = function(){
-		console.debug('Method "Titanium.Media..createSound" is not implemented yet.');
+		console.debug('Method "Titanium.Media.createSound" is not implemented yet.');
 	};
 	api.createVideoPlayer = function(){
-		console.debug('Method "Titanium.Media..createVideoPlayer" is not implemented yet.');
+		console.debug('Method "Titanium.Media.createVideoPlayer" is not implemented yet.');
 	};
 	api.hideCamera = function(){
-		console.debug('Method "Titanium.Media..hideCamera" is not implemented yet.');
+		console.debug('Method "Titanium.Media.hideCamera" is not implemented yet.');
 	};
 	api.hideMusicLibrary = function(){
-		console.debug('Method "Titanium.Media..hideMusicLibrary" is not implemented yet.');
+		console.debug('Method "Titanium.Media.hideMusicLibrary" is not implemented yet.');
 	};
 	api.isMediaTypeSupported = function(){
-		console.debug('Method "Titanium.Media..isMediaTypeSupported" is not implemented yet.');
+		console.debug('Method "Titanium.Media.isMediaTypeSupported" is not implemented yet.');
 	};
 	api.openPhotoGallery = function(){
-		console.debug('Method "Titanium.Media..openPhotoGallery" is not implemented yet.');
+		console.debug('Method "Titanium.Media.openPhotoGallery" is not implemented yet.');
 	};
 	api.saveToPhotoGallery = function(){
-		console.debug('Method "Titanium.Media..saveToPhotoGallery" is not implemented yet.');
+		console.debug('Method "Titanium.Media.saveToPhotoGallery" is not implemented yet.');
 	};
 	api.showCamera = function(){
-		console.debug('Method "Titanium.Media..showCamera" is not implemented yet.');
+		console.debug('Method "Titanium.Media.showCamera" is not implemented yet.');
 	};
 	api.showMusicLibrary = function(){
-		console.debug('Method "Titanium.Media..showMusicLibrary" is not implemented yet.');
+		console.debug('Method "Titanium.Media.showMusicLibrary" is not implemented yet.');
 	};
 	api.startMicrophoneMonitor = function(){
-		console.debug('Method "Titanium.Media..startMicrophoneMonitor" is not implemented yet.');
+		console.debug('Method "Titanium.Media.startMicrophoneMonitor" is not implemented yet.');
 	};
 	api.stopMicrophoneMonitor = function(){
-		console.debug('Method "Titanium.Media..stopMicrophoneMonitor" is not implemented yet.');
+		console.debug('Method "Titanium.Media.stopMicrophoneMonitor" is not implemented yet.');
 	};
 	api.takePicture = function(){
-		console.debug('Method "Titanium.Media..takePicture" is not implemented yet.');
+		console.debug('Method "Titanium.Media.takePicture" is not implemented yet.');
 	};
 	api.takeScreenshot = function(){
-		console.debug('Method "Titanium.Media..takeScreenshot" is not implemented yet.');
+		console.debug('Method "Titanium.Media.takeScreenshot" is not implemented yet.');
 	};
 	api.vibrate = function(){
-		console.debug('Method "Titanium.Media..vibrate" is not implemented yet.');
+		console.debug('Method "Titanium.Media.vibrate" is not implemented yet.');
 	};
 
 	// Events

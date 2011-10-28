@@ -30,6 +30,7 @@ methods:
     description: force the webview to repaint its contents
   - name: setBasicAuthentication
     description: set the basic authentication for the webview instance to be used on subsequent url requests
+    platforms: [android, iphone, ipad]
     parameters:
       - name: username
         description: the username
@@ -39,6 +40,7 @@ methods:
         type: String
   - name: stopLoading
     description: stop loading a currently loading page
+    note: For mobile web, due to browser permissions, this will issue a stop on all windows include the parent and all other webviews.
 events:
   - name: beforeload
     description: fired before the webview starts loading its content
@@ -98,6 +100,7 @@ events:
 properties:
   - name: data
     description: a data blob or file that is used to load the web document
+    platforms: [android, iphone, ipad]
     type: Object
   - name: html
     description: the html content of the web document
@@ -121,6 +124,7 @@ properties:
     default: true
   - name: scalesPageToFit
     description: whether the webview should scale it's contents or not
+    platforms: [android, iphone, ipad]
     type: Boolean
   - name: url
     description: the url to the web document. this property will change as the content of the webview changes (such as from internal hyperlinks, etc)

@@ -23,10 +23,10 @@
 
 	// Methods
 	api.search = function(){
-		console.debug('Method "Titanium.Network.BonjourBrowser..search" is not implemented yet.');
+		console.debug('Method "Titanium.Network.BonjourBrowser.search" is not implemented yet.');
 	};
 	api.stopSearch = function(){
-		console.debug('Method "Titanium.Network.BonjourBrowser..stopSearch" is not implemented yet.');
+		console.debug('Method "Titanium.Network.BonjourBrowser.stopSearch" is not implemented yet.');
 	};
 
 	// Events

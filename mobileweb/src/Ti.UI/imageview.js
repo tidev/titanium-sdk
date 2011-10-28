@@ -125,6 +125,7 @@ Ti._5.createClass('Titanium.UI.ImageView', function(args){
 		set: function(val){return _preventDefaultImage = val ? true : false;}
 	});
 
+	// deprecated since 1.5.0
 	Object.defineProperty(this, 'url', {
 		get: function(){return obj.image;},
 		set: function(val){obj.image = val;}

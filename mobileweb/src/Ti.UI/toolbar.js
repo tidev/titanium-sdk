@@ -1,4 +1,7 @@
 Ti._5.createClass('Titanium.UI.Toolbar', function(args){
+
+	// deprecated since 1.8.0
+
 	var obj = this;
 	
 	args = Ti._5.extend({}, args);

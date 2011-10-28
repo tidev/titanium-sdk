@@ -1,4 +1,7 @@
 Ti._5.createClass('Titanium.UI.TabbedBar', function(args){
+
+	// deprecated since 1.8.0
+
 	var obj = this;
 	// Interfaces
 	Ti._5.DOMView(this, 'tabbedbar', args, 'TabbedBar');

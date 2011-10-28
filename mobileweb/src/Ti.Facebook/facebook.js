@@ -47,22 +47,22 @@
 
 	// Methods
 	api.authorize = function(){
-		console.debug('Method "Titanium.Facebook..authorize" is not implemented yet.');
+		console.debug('Method "Titanium.Facebook.authorize" is not implemented yet.');
 	};
 	api.createLoginButton = function(){
-		console.debug('Method "Titanium.Facebook..createLoginButton" is not implemented yet.');
+		console.debug('Method "Titanium.Facebook.createLoginButton" is not implemented yet.');
 	};
 	api.dialog = function(){
-		console.debug('Method "Titanium.Facebook..dialog" is not implemented yet.');
+		console.debug('Method "Titanium.Facebook.dialog" is not implemented yet.');
 	};
 	api.logout = function(){
-		console.debug('Method "Titanium.Facebook..logout" is not implemented yet.');
+		console.debug('Method "Titanium.Facebook.logout" is not implemented yet.');
 	};
 	api.request = function(){
-		console.debug('Method "Titanium.Facebook..request" is not implemented yet.');
+		console.debug('Method "Titanium.Facebook.request" is not implemented yet.');
 	};
 	api.requestWithGraphPath = function(){
-		console.debug('Method "Titanium.Facebook..requestWithGraphPath" is not implemented yet.');
+		console.debug('Method "Titanium.Facebook.requestWithGraphPath" is not implemented yet.');
 	};
 
 	// Events

@@ -29,10 +29,10 @@
 
 	// Methods
 	api.createBackgroundService = function(){
-		console.debug('Method "Titanium.App.iOS..createBackgroundService" is not implemented yet.');
+		console.debug('Method "Titanium.App.iOS.createBackgroundService" is not implemented yet.');
 	};
 	api.createLocalNotification = function(){
-		console.debug('Method "Titanium.App.iOS..createLocalNotification" is not implemented yet.');
+		console.debug('Method "Titanium.App.iOS.createLocalNotification" is not implemented yet.');
 	};
 
 	// Events

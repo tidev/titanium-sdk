@@ -92,6 +92,6 @@
 
 	// Methods
 	api.setLatestEventInfo = function(){
-		console.debug('Method "Titanium.Android.Notification..setLatestEventInfo" is not implemented yet.');
+		console.debug('Method "Titanium.Android.Notification.setLatestEventInfo" is not implemented yet.');
 	};
 })(Ti._5.createClass('Titanium.Android.Notification'));

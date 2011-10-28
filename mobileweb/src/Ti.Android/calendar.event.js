@@ -86,15 +86,15 @@
 
 	// Methods
 	api.createAlert = function(){
-		console.debug('Method "Titanium.Android.Calendar.Event..createAlert" is not implemented yet.');
+		console.debug('Method "Titanium.Android.Calendar.Event.createAlert" is not implemented yet.');
 	};
 	api.createReminder = function(){
-		console.debug('Method "Titanium.Android.Calendar.Event..createReminder" is not implemented yet.');
+		console.debug('Method "Titanium.Android.Calendar.Event.createReminder" is not implemented yet.');
 	};
 	api.getExtendedProperty = function(){
-		console.debug('Method "Titanium.Android.Calendar.Event..getExtendedProperty" is not implemented yet.');
+		console.debug('Method "Titanium.Android.Calendar.Event.getExtendedProperty" is not implemented yet.');
 	};
 	api.setExtendedProperty = function(){
-		console.debug('Method "Titanium.Android.Calendar.Event..setExtendedProperty" is not implemented yet.');
+		console.debug('Method "Titanium.Android.Calendar.Event.setExtendedProperty" is not implemented yet.');
 	};
 })(Ti._5.createClass('Titanium.Android.Calendar.Event'));

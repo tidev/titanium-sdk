@@ -79,19 +79,24 @@
 	api.createHTTPClient = function(args) {
 		return new Ti.Network.HTTPClient(args);
 	};
-	// Deprecated
+
+	// deprecated since 1.7.0
 	api.addConnectivityListener = function(){
 		console.debug('Method "Titanium.Network.addConnectivityListener" is not implemented yet.');
 	};
+
 	api.createBonjourBrowser = function(args) {
 		console.debug('Method "Titanium.Network.createBonjourBrowser" is not implemented yet.');
 	};
 	api.createBonjourService = function(args) {
 		console.debug('Method "Titanium.Network.createBonjourService" is not implemented yet.');
 	};
+	
+	// deprecated since 1.7.0
 	api.createTCPSocket = function(args){
 		return new Ti.Network.TCPSocket(args);
 	};
+
 	api.decodeURIComponent = function(value) {
 		return decodeURIComponent(value);
 	};
@@ -103,7 +108,8 @@
 	api.registerForPushNotifications = function(){
 		console.debug('Method "Titanium.Network.registerForPushNotifications" is not implemented yet.');
 	};
-	// Deprecated
+
+	// deprecated since 1.7.0
 	api.removeConnectivityListener = function(){
 		console.debug('Method "Titanium.Network.removeConnectivityListener" is not implemented yet.');
 	};

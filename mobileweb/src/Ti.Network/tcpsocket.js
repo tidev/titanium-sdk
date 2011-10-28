@@ -1,4 +1,7 @@
 Ti._5.createClass('Titanium.Network.TCPSocket', function(args){
+
+	// deprecated in 1.7.0 in favor for Titanium.Network.Socket.TCP
+
 	var obj = this;
 	var _socket = null;
 	

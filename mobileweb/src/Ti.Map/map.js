@@ -23,9 +23,9 @@
 
 	// Methods
 	api.createAnnotation = function(){
-		console.debug('Method "Titanium.Map..createAnnotation" is not implemented yet.');
+		console.debug('Method "Titanium.Map.createAnnotation" is not implemented yet.');
 	};
 	api.createMapView = function(){
-		console.debug('Method "Titanium.Map..createMapView" is not implemented yet.');
+		console.debug('Method "Titanium.Map.createMapView" is not implemented yet.');
 	};
 })(Ti._5.createClass('Titanium.Map'));

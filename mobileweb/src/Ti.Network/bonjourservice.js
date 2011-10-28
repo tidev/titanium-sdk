@@ -32,12 +32,12 @@
 
 	// Methods
 	api.publish = function(){
-		console.debug('Method "Titanium.Network.BonjourService..publish" is not implemented yet.');
+		console.debug('Method "Titanium.Network.BonjourService.publish" is not implemented yet.');
 	};
 	api.resolve = function(){
-		console.debug('Method "Titanium.Network.BonjourService..resolve" is not implemented yet.');
+		console.debug('Method "Titanium.Network.BonjourService.resolve" is not implemented yet.');
 	};
 	api.stop = function(){
-		console.debug('Method "Titanium.Network.BonjourService..stop" is not implemented yet.');
+		console.debug('Method "Titanium.Network.BonjourService.stop" is not implemented yet.');
 	};
 })(Ti._5.createClass('Titanium.Network.BonjourService'));

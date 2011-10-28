@@ -129,34 +129,34 @@ Ti._5.createClass('Titanium.Media.VideoPlayer', function(api){
 
 	// Methods
 	this.cancelAllThumbnailImageRequests = function(){
-		console.debug('Method "Titanium.Media.VideoPlayer..cancelAllThumbnailImageRequests" is not implemented yet.');
+		console.debug('Method "Titanium.Media.VideoPlayer.cancelAllThumbnailImageRequests" is not implemented yet.');
 	};
 	this.pause = function(){
-		console.debug('Method "Titanium.Media.VideoPlayer..pause" is not implemented yet.');
+		console.debug('Method "Titanium.Media.VideoPlayer.pause" is not implemented yet.');
 	};
 	this.play = function(){
-		console.debug('Method "Titanium.Media.VideoPlayer..play" is not implemented yet.');
+		console.debug('Method "Titanium.Media.VideoPlayer.play" is not implemented yet.');
 	};
 	this.release = function(){
-		console.debug('Method "Titanium.Media.VideoPlayer..release" is not implemented yet.');
+		console.debug('Method "Titanium.Media.VideoPlayer.release" is not implemented yet.');
 	};
 	this.requestThumbnailImagesAtTimes = function(){
-		console.debug('Method "Titanium.Media.VideoPlayer..requestThumbnailImagesAtTimes" is not implemented yet.');
+		console.debug('Method "Titanium.Media.VideoPlayer.requestThumbnailImagesAtTimes" is not implemented yet.');
 	};
 	this.setBackgroundView = function(){
-		console.debug('Method "Titanium.Media.VideoPlayer..setBackgroundView" is not implemented yet.');
+		console.debug('Method "Titanium.Media.VideoPlayer.setBackgroundView" is not implemented yet.');
 	};
 	this.setMedia = function(){
-		console.debug('Method "Titanium.Media.VideoPlayer..setMedia" is not implemented yet.');
+		console.debug('Method "Titanium.Media.VideoPlayer.setMedia" is not implemented yet.');
 	};
 	this.setUrl = function(){
-		console.debug('Method "Titanium.Media.VideoPlayer..setUrl" is not implemented yet.');
+		console.debug('Method "Titanium.Media.VideoPlayer.setUrl" is not implemented yet.');
 	};
 	this.stop = function(){
-		console.debug('Method "Titanium.Media.VideoPlayer..stop" is not implemented yet.');
+		console.debug('Method "Titanium.Media.VideoPlayer.stop" is not implemented yet.');
 	};
 	this.thumbnailImageAtTime = function(){
-		console.debug('Method "Titanium.Media.VideoPlayer..thumbnailImageAtTime" is not implemented yet.');
+		console.debug('Method "Titanium.Media.VideoPlayer.thumbnailImageAtTime" is not implemented yet.');
 	};
 
 	// Events

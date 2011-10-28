@@ -71,12 +71,12 @@
 
 	// Methods
 	api.cancel = function(){
-		console.debug('Method "Titanium.Android.NotificationManager..cancel" is not implemented yet.');
+		console.debug('Method "Titanium.Android.NotificationManager.cancel" is not implemented yet.');
 	};
 	api.cancelAll = function(){
-		console.debug('Method "Titanium.Android.NotificationManager..cancelAll" is not implemented yet.');
+		console.debug('Method "Titanium.Android.NotificationManager.cancelAll" is not implemented yet.');
 	};
 	api.notify = function(){
-		console.debug('Method "Titanium.Android.NotificationManager..notify" is not implemented yet.');
+		console.debug('Method "Titanium.Android.NotificationManager.notify" is not implemented yet.');
 	};
 })(Ti._5.createClass('Titanium.Android.NotificationManager'));

@@ -7,7 +7,7 @@ since: "0.1"
 methods:
   - name: canOpenURL
     description: returns whether or not a system URL can be opened.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     parameters:
       - name: url
         description: the url to check
@@ -26,6 +26,7 @@ methods:
     description: Whether device settings are set to show times in 24-hour format.
     returns:
         type: Boolean
+    platforms: [android, iphone, ipad]
 events:
   - name: battery
     description: fired when the battery state changes.  the battery state changes are only tracked on iPhone/iPad at 5% increments.
@@ -34,6 +35,7 @@ events:
         description: the new battery state
       - name: level
         description: the new battery level
+    platforms: [android, iphone, ipad]
 properties:
   - name: BATTERY_STATE_CHARGING
     description: the device is plugged in and currently being charged

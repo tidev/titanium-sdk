@@ -1037,33 +1037,33 @@
 
 	// Methods
 	api.createBroadcastIntent = function(){
-		console.debug('Method "Titanium.Android..createBroadcastIntent" is not implemented yet.');
+		console.debug('Method "Titanium.Android.createBroadcastIntent" is not implemented yet.');
 	};
 	api.createIntent = function(){
-		console.debug('Method "Titanium.Android..createIntent" is not implemented yet.');
+		console.debug('Method "Titanium.Android.createIntent" is not implemented yet.');
 	};
 	api.createIntentChooser = function(){
-		console.debug('Method "Titanium.Android..createIntentChooser" is not implemented yet.');
+		console.debug('Method "Titanium.Android.createIntentChooser" is not implemented yet.');
 	};
 	api.createNotification = function(){
-		console.debug('Method "Titanium.Android..createNotification" is not implemented yet.');
+		console.debug('Method "Titanium.Android.createNotification" is not implemented yet.');
 	};
 	api.createPendingIntent = function(){
-		console.debug('Method "Titanium.Android..createPendingIntent" is not implemented yet.');
+		console.debug('Method "Titanium.Android.createPendingIntent" is not implemented yet.');
 	};
 	api.createService = function(){
-		console.debug('Method "Titanium.Android..createService" is not implemented yet.');
+		console.debug('Method "Titanium.Android.createService" is not implemented yet.');
 	};
 	api.createServiceIntent = function(){
-		console.debug('Method "Titanium.Android..createServiceIntent" is not implemented yet.');
+		console.debug('Method "Titanium.Android.createServiceIntent" is not implemented yet.');
 	};
 	api.isServiceRunning = function(){
-		console.debug('Method "Titanium.Android..isServiceRunning" is not implemented yet.');
+		console.debug('Method "Titanium.Android.isServiceRunning" is not implemented yet.');
 	};
 	api.startService = function(){
-		console.debug('Method "Titanium.Android..startService" is not implemented yet.');
+		console.debug('Method "Titanium.Android.startService" is not implemented yet.');
 	};
 	api.stopService = function(){
-		console.debug('Method "Titanium.Android..stopService" is not implemented yet.');
+		console.debug('Method "Titanium.Android.stopService" is not implemented yet.');
 	};
 })(Ti._5.createClass('Titanium.Android'));

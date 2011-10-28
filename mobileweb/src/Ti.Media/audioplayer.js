@@ -101,22 +101,22 @@
 
 	// Methods
 	api.pause = function(){
-		console.debug('Method "Titanium.Media.AudioPlayer..pause" is not implemented yet.');
+		console.debug('Method "Titanium.Media.AudioPlayer.pause" is not implemented yet.');
 	};
 	api.setPaused = function(){
-		console.debug('Method "Titanium.Media.AudioPlayer..setPaused" is not implemented yet.');
+		console.debug('Method "Titanium.Media.AudioPlayer.setPaused" is not implemented yet.');
 	};
 	api.setUrl = function(){
-		console.debug('Method "Titanium.Media.AudioPlayer..setUrl" is not implemented yet.');
+		console.debug('Method "Titanium.Media.AudioPlayer.setUrl" is not implemented yet.');
 	};
 	api.start = function(){
-		console.debug('Method "Titanium.Media.AudioPlayer..start" is not implemented yet.');
+		console.debug('Method "Titanium.Media.AudioPlayer.start" is not implemented yet.');
 	};
 	api.stateDescription = function(){
-		console.debug('Method "Titanium.Media.AudioPlayer..stateDescription" is not implemented yet.');
+		console.debug('Method "Titanium.Media.AudioPlayer.stateDescription" is not implemented yet.');
 	};
 	api.stop = function(){
-		console.debug('Method "Titanium.Media.AudioPlayer..stop" is not implemented yet.');
+		console.debug('Method "Titanium.Media.AudioPlayer.stop" is not implemented yet.');
 	};
 
 	// Events
