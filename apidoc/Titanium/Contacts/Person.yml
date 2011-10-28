@@ -8,6 +8,7 @@ properties:
     description: |
         URLs of webpages associated with the person.  Multi-value, valid labels are: `home`, `work`, `other`, `homepage`.  Values are strings.
     type: Object
+    platforms: [iphone, ipad]
   - name: address
     description: |
         The addresses for the person.  Multi-value, valid labels are: `home`, `work`, `other`.  Values are dictionaries.
