@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
@@ -22,6 +23,8 @@ import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.os.Message;
 import android.view.Window;
 import android.widget.Toast;
 
@@ -29,7 +32,7 @@ import android.widget.Toast;
 @Kroll.dynamicApis(properties = {
 	"currentWindow"
 })
-public class UIModule extends KrollModule
+public class UIModule extends KrollModule implements Handler.Callback
 {
 	private static final String LCAT = "TiUIModule";
 
@@ -104,6 +107,12 @@ public class UIModule extends KrollModule
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_WORDS = 2;
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_ALL = 3;
 
+	protected static final int MSG_SET_BACKGROUND_COLOR = KrollProxy.MSG_LAST_ID + 100;
+	protected static final int MSG_SET_BACKGROUND_IMAGE = KrollProxy.MSG_LAST_ID + 101;
+	protected static final int MSG_SET_ORIENTATION = KrollProxy.MSG_LAST_ID + 102;
+	protected static final int MSG_LAST_ID = MSG_SET_ORIENTATION;
+
+
 	public UIModule()
 	{
 		super();
@@ -117,6 +126,17 @@ public class UIModule extends KrollModule
 	@Kroll.setProperty(runOnUiThread=true) @Kroll.method(runOnUiThread=true)
 	public void setBackgroundColor(String color)
 	{
+		if (TiApplication.isUIThread()) {
+			doSetBackgroundColor(color);
+
+		} else {
+			Message message = getMainHandler().obtainMessage(MSG_SET_BACKGROUND_COLOR, color);
+			message.sendToTarget();
+		}
+	}
+
+	protected void doSetBackgroundColor(String color)
+	{
 		Window w = TiApplication.getInstance().getRootActivity().getWindow();
 		if (w != null) {
 			w.setBackgroundDrawable(new ColorDrawable(TiConvert.toColor((String)color)));
@@ -125,6 +145,17 @@ public class UIModule extends KrollModule
 
 	@Kroll.setProperty(runOnUiThread=true) @Kroll.method(runOnUiThread=true)
 	public void setBackgroundImage(Object image)
+	{
+		if (TiApplication.isUIThread()) {
+			doSetBackgroundImage(image);
+
+		} else {
+			Message message = getMainHandler().obtainMessage(MSG_SET_BACKGROUND_IMAGE, image);
+			message.sendToTarget();
+		}
+	}
+
+	protected void doSetBackgroundImage(Object image)
 	{
 		Window w = TiApplication.getInstance().getRootActivity().getWindow();
 		if (w != null) {
@@ -147,6 +178,17 @@ public class UIModule extends KrollModule
 
 	@Kroll.setProperty(runOnUiThread=true) @Kroll.method(runOnUiThread=true)
 	public void setOrientation(int tiOrientationMode)
+	{
+		if (TiApplication.isUIThread()) {
+			doSetOrientation(tiOrientationMode);
+
+		} else {
+			Message message = getMainHandler().obtainMessage(MSG_SET_ORIENTATION, tiOrientationMode);
+			message.sendToTarget();
+		}
+	}
+
+	protected void doSetOrientation(int tiOrientationMode)
 	{
 		Activity activity = TiApplication.getInstance().getCurrentActivity();
 		if (activity instanceof TiBaseActivity)
@@ -181,6 +223,30 @@ public class UIModule extends KrollModule
 			{
 				windowProxy.setOrientationModes(orientationModes);
 			}
+		}	
+	}
+
+	@SuppressWarnings("unchecked")
+	public boolean handleMessage(Message message)
+	{
+		switch (message.what) {
+			case MSG_SET_BACKGROUND_COLOR: {
+				doSetBackgroundColor((String)message.obj);
+
+				return true;
+			}
+			case MSG_SET_BACKGROUND_IMAGE: {
+				doSetBackgroundImage(message.obj);
+
+				return true;
+			}
+			case MSG_SET_ORIENTATION: {
+				doSetOrientation((Integer)message.obj);
+
+				return true;
+			}
 		}
+
+		return super.handleMessage(message);
 	}
 }
