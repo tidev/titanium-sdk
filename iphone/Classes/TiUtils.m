@@ -116,6 +116,11 @@ static void getAddrInternal(char* macAddress, const char* ifName) {
 	return [UIView instancesRespondToSelector:@selector(contentScaleFactor)];
 }
 
++(BOOL)isIOS5OrGreater
+{
+  return [UIAlertView instancesRespondToSelector:@selector(alertViewStyle)];
+}
+
 +(BOOL)isiPhoneOS3_2OrGreater
 {
 	// Here's a cheap way to test for 3.2; does it respond to a selector that was introduced with that version?

@@ -203,6 +203,8 @@ typedef enum {
 
 +(BOOL)isIOS4_2OrGreater;
 
++(BOOL)isIOS5OrGreater;
+
 +(BOOL)isIPhone4;
 
 +(BOOL)isRetinaDisplay;
