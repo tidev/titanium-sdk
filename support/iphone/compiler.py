@@ -144,6 +144,7 @@ def parse_xcconfig(xcconfig, moduleId, variables):
 class Compiler(object):
 	
 	def __init__(self,project_dir,appid,name,deploytype,xcode,devicefamily,iphone_version,silent=False,sdk=None):
+		self.deploytype = deploytype
 		self.project_dir = project_dir
 		self.project_name = name
 		self.appid = appid
@@ -443,7 +444,8 @@ class Compiler(object):
 	@classmethod	
 	def make_function_from_file(cls,path,file,instance):
 		file_contents = open(os.path.expanduser(file)).read()
-		file_contents = jspacker.jsmin(file_contents)
+		if instance.deploytype == 'production':
+			file_contents = jspacker.jsmin(file_contents)
 		file_contents = file_contents.replace('Titanium.','Ti.')
 		instance.compile_js(file_contents)
 
