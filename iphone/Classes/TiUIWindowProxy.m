@@ -107,6 +107,7 @@
 
 -(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
+    [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 	[TiLayoutQueue addViewProxy:self];
 }
 
