@@ -22,7 +22,8 @@ var modalWin = Ti.UI.createWindow({
 });
 
 var nav = Ti.UI.iPhone.createNavigationGroup({
-	window:modalWin
+	window:modalWin,
+	backgroundColor:'blue'
 });
 
 var table = Ti.UI.createTableView({
