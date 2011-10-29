@@ -8,7 +8,7 @@ package org.appcelerator.kroll;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.annotations.Kroll;
@@ -26,7 +26,6 @@ import org.appcelerator.titanium.util.TiUrl;
 
 import android.app.Activity;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 
 
@@ -61,6 +60,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	protected KrollModule createdInModule;
 	protected boolean coverageEnabled;
 	protected KrollDict properties = new KrollDict();
+	protected KrollDict defaultValues = new KrollDict();
 	protected Handler mainHandler = null;
 	protected Handler runtimeHandler = null;
 
@@ -132,12 +132,28 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	{
 		this.createdInModule = createdInModule;
 
-		if (args.length >= 1 && args[0] instanceof HashMap) {
-			if (args[0] instanceof KrollDict) {
-				handleCreationDict((KrollDict)args[0]);
+		if (args.length == 0 || !(args[0] instanceof HashMap)) {
+			handleDefaultValues();
+			return;
+		}
 
-			} else {
-				handleCreationDict(new KrollDict((HashMap)args[0]));
+		KrollDict dict;
+		if (args[0] instanceof KrollDict) {
+			dict = (KrollDict) args[0];
+		} else {
+			dict = new KrollDict((HashMap) args[0]);
+		}
+		handleCreationDict(dict);
+	}
+
+	/**
+	 * Handles initialization of the proxy's default property values
+	 */
+	protected void handleDefaultValues()
+	{
+		for (String key : defaultValues.keySet()) {
+			if (!properties.containsKey(key)) {
+				setProperty(key, defaultValues.get(key));
 			}
 		}
 	}
@@ -145,16 +161,21 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	/**
 	 * Handle the creation {@link KrollDict} passed into the create method for this proxy.
 	 * This is usually the first (and sometimes only) argument to the proxy's create method.
+	 * 
+	 * To set default property values, add them to the {@link KrollProxy#defaultValues map}
 	 * @param dict
 	 */
 	public void handleCreationDict(KrollDict dict)
 	{
-		if (dict != null) {
-			properties.putAll(dict);
+		if (dict == null) {
+			return;
+		}
 
-			if (modelListener != null) {
-				modelListener.processProperties(properties);
-			}
+		properties.putAll(dict);
+		handleDefaultValues();
+
+		if (modelListener != null) {
+			modelListener.processProperties(properties);
 		}
 	}
 
@@ -308,6 +329,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 */
 	public void setProperty(String name, Object value)
 	{
+		properties.put(name, value);
+
 		if (KrollRuntime.getInstance().isRuntimeThread()) {
 			doSetProperty(name, value);
 
@@ -320,7 +343,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 	protected void doSetProperty(String name, Object value)
 	{
-		properties.put(name, value);
 		getKrollObject().setProperty(name, value);
 	}
 

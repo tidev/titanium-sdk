@@ -513,8 +513,8 @@ fails, a JS exception is returned.
 
 <#macro verifyAndConvertJavaArgument expr index info type logOnly isOptional>
 	<#if info.rhinoValidation!true && !isOptional>
-		if (!(${expr} instanceof ${info.rhinoType})) {
-			String error = "Invalid value, expected type ${info.jsType}.";
+		if (!(${expr} instanceof ${info.rhinoType})<#if info.javaCallMethodType == "Object"> && ${expr} != null</#if>) {
+			String error = "Invalid value, expected type ${info.rhinoType}, got: " + ${expr};
 			Log.e(TAG, error);
 			<#if !(logOnly!false)>
 			throw new IllegalArgumentException(error);
@@ -522,9 +522,14 @@ fails, a JS exception is returned.
 		}
 	</#if>
 <#t>
-	<#local cast = "">
+	<#local wrapStart = "">
+	<#local wrapEnd = "">
 	<#if info.rhinoType != type>
-	<#local cast = "(" + type + ")">
+		<#local wrapStart = "(" + type + ")">
+		<#if type == "org.appcelerator.kroll.KrollDict">
+			<#local wrapStart = "new KrollDict((HashMap) ">
+			<#local wrapEnd = ")">
+		</#if>
 	</#if>
 <#t>
 		${type} arg${index};
@@ -538,7 +543,15 @@ fails, a JS exception is returned.
 		<#else>
 			<#local rhinoExpr = expr>
 		</#if>
-		arg${index} = ${cast}TypeConverter.${info.rhinoToJavaConverter}(${rhinoExpr}, thisObj);
+		<#if type == "org.appcelerator.kroll.KrollDict">
+		if (${expr} == null) {
+			arg${index} = null;
+		} else {
+		</#if>
+		arg${index} = ${wrapStart} TypeConverter.${info.rhinoToJavaConverter}(${rhinoExpr}, thisObj) ${wrapEnd};
+		<#if type == "org.appcelerator.kroll.KrollDict">
+		}
+		</#if>
 	<#if isOptional>
 		}
 	</#if>

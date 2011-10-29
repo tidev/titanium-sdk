@@ -37,10 +37,10 @@ public class StreamModule extends KrollModule
 		Object source = params.get("source");
 
 		Object rawMode = params.get("mode");
-		if (!(rawMode instanceof Double)) {
+		if (!(rawMode instanceof Number)) {
 			throw new IllegalArgumentException("Unable to create stream, invalid mode");
 		}
-		int mode = ((Double)rawMode).intValue();
+		int mode = ((Number)rawMode).intValue();
 		
 		if (source instanceof TiBlob) {
 			if (mode != MODE_READ) {
@@ -93,15 +93,15 @@ public class StreamModule extends KrollModule
 				}
 
 			} else if (args.length == 5) {
-				if (args[2] instanceof Double) {
-					offset = ((Double)args[2]).intValue();
+				if (args[2] instanceof Number) {
+					offset = ((Number)args[2]).intValue();
 
 				} else{
 					throw new IllegalArgumentException("Invalid offset argument");
 				}
 
-				if (args[3] instanceof Double) {
-					length = ((Double)args[3]).intValue();
+				if (args[3] instanceof Number) {
+					length = ((Number)args[3]).intValue();
 
 				} else {
 					throw new IllegalArgumentException("Invalid length argument");
@@ -278,15 +278,15 @@ public class StreamModule extends KrollModule
 				}
 
 			} else if (args.length == 5) {
-				if (args[2] instanceof Double) {
-					offset = ((Double)args[2]).intValue();
+				if (args[2] instanceof Number) {
+					offset = ((Number)args[2]).intValue();
 
 				} else{
 					throw new IllegalArgumentException("Invalid offset argument");
 				}
 
-				if (args[3] instanceof Double) {
-					length = ((Double)args[3]).intValue();
+				if (args[3] instanceof Number) {
+					length = ((Number)args[3]).intValue();
 
 				} else {
 					throw new IllegalArgumentException("Invalid length argument");
@@ -356,8 +356,8 @@ public class StreamModule extends KrollModule
 				throw new IllegalArgumentException("Invalid output stream argument");
 			}
 
-			if (args[2] instanceof Double) {
-				maxChunkSize = ((Double)args[2]).intValue();
+			if (args[2] instanceof Number) {
+				maxChunkSize = ((Number)args[2]).intValue();
 
 			} else{
 				throw new IllegalArgumentException("Invalid max chunk size argument");
@@ -452,8 +452,8 @@ public class StreamModule extends KrollModule
 				throw new IllegalArgumentException("Invalid handler argument");
 			}
 
-			if (args[2] instanceof Double) {
-				maxChunkSize = ((Double)args[2]).intValue();
+			if (args[2] instanceof Number) {
+				maxChunkSize = ((Number)args[2]).intValue();
 
 			} else{
 				throw new IllegalArgumentException("Invalid max chunk size argument");

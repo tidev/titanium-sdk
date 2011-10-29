@@ -33,17 +33,12 @@ public class LabelProxy extends TiViewProxy
 {
 	public LabelProxy()
 	{
+		defaultValues.put(TiC.PROPERTY_TEXT, "");
 	}
 
 	public LabelProxy(TiContext tiContext)
 	{
-	}
-
-	@Override
-	public void handleCreationArgs(KrollModule createdInModule, Object[] args)
-	{
-		setProperty(TiC.PROPERTY_TEXT, "");
-		super.handleCreationArgs(createdInModule, args);
+		this();
 	}
 
 	@Override

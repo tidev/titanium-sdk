@@ -99,6 +99,10 @@ public class EventEmitter extends IdScriptableObject
 		return NOT_FOUND;
 	}
 
+	protected void setInstanceIdValue(int id, Scriptable start, Object value)
+	{
+	}
+
 	@Override
 	// Modified to pass the "start" object on to getInstanceIdValue
 	public Object get(String name, Scriptable start)
@@ -106,10 +110,26 @@ public class EventEmitter extends IdScriptableObject
 		int info = findInstanceIdInfo(name);
 		if (info != 0) {
 			int id = (info & 0xFFFF);
-			Object value = getInstanceIdValue(id, start);
-			if (value != NOT_FOUND) return value;
+			return getInstanceIdValue(id, start);
 		}
 		return super.get(name, start);
+	}
+
+	@Override
+	// Modified to pass the "start" object on to setInstanceIdValue
+	public void put(String name, Scriptable start, Object value)
+	{
+		int info = findInstanceIdInfo(name);
+		if (info != 0) {
+			int attr = (info >>> 16);
+			if ((attr & READONLY) == 0) {
+				int id = (info & 0xFFFF);
+				setInstanceIdValue(id, start, value);
+				return;
+			}
+		}
+
+		super.put(name, start, value);
 	}
 
 	@Override

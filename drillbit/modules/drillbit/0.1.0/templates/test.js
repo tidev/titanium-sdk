@@ -139,6 +139,7 @@ catch (e)
 				// wrap the exception message so we can report the failed test's line number
 				var ___err = {
 					message: ___e.message || ("Non-assertion exception: " + String(___e)),
+					stack: ___e.stack || this.message,
 					line: ___e.constructor == DrillbitTest.Error ? ___e.line : <%= entry.lineOffsets[f] %>,
 					toString: function() { return this.message; }
 				};

@@ -30,32 +30,32 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<path id="ti.build.lib.path">
 		<fileset dir="${ti.build.dir}/lib" includes="**/*.jar"/>
 	</path>
-
-	<path id="ti.build.path">
-		<path refid="ti.build.lib.path"/>
-		<path path="${ti.build.dir}/bin"/>
-	</path>
 	
-	<property name="titanium.project.dir" value="${ti.android.root}/titanium"/>
-	<property name="kroll.apt.project.dir" value="${ti.android.root}/kroll-apt"/>
-	<property name="kroll.common.project.dir" value="${ti.android.root}/runtime/common"/>
-	<property name="kroll.v8.project.dir" value="${ti.android.root}/runtime/v8"/>
-	<property name="kroll.rhino.project.dir" value="${ti.android.root}/runtime/rhino"/>
-	<property name="ndk.build" value="${kroll.v8.project.dir}/ndk-build.sh"/>
+	<property name="titanium.project.dir" location="${ti.android.root}/titanium"/>
+	<property name="kroll.apt.project.dir" location="${ti.android.root}/kroll-apt"/>
+	<property name="kroll.common.project.dir" location="${ti.android.root}/runtime/common"/>
+	<property name="kroll.v8.project.dir" location="${ti.android.root}/runtime/v8"/>
+	<property name="kroll.rhino.project.dir" location="${ti.android.root}/runtime/rhino"/>
+	<property name="ndk.build" location="${kroll.v8.project.dir}/ndk-build.sh"/>
 	<property name="kroll.runtime" value="all"/>
 
-	<property name="modules.dir" value="${ti.android.root}/modules"/>
-	<property name="ui.module.dir" value="${modules.dir}/ui"/>
+	<property name="modules.dir" location="${ti.android.root}/modules"/>
+	<property name="ui.module.dir" location="${modules.dir}/ui"/>
 	
 	<property name="dist.dir" location="${ti.android.root}/../dist/android"/>
 	<available property="dist.dir.available" file="${dist.dir}"/>
 
-	<property name="dist.json.dir" value="${dist.dir}/json"/>
-	<property name="dist.classes.dir" value="${dist.dir}/classes"/>
-	<property name="gen.src.dir" value="${dist.dir}/generated"/>
+	<property name="dist.json.dir" location="${dist.dir}/json"/>
+	<property name="dist.classes.dir" location="${dist.dir}/classes"/>
+	<property name="gen.src.dir" location="${dist.dir}/generated"/>
 	<property name="build.version" value="1.0.0"/>
 	<property name="dependency.json" location="${ti.android.root}/dependency.json"/>
 	<property environment="env"/>
+
+	<path id="ti.build.path">
+		<path refid="ti.build.lib.path"/>
+		<path path="${dist.classes.dir}/ant-tasks"/>
+	</path>
 
 	<property name="android.ndk" value="${env.ANDROID_NDK}"/>
 
@@ -109,7 +109,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	</path>
 
 	<path id="kroll.apt.path">
-		<pathelement path="${kroll.apt.project.dir}/bin"/>
+		<pathelement path="${dist.classes.dir}/kroll-apt"/>
 		<fileset dir="${kroll.apt.project.dir}/lib" includes="**/*.jar"/>
 	</path>
 
@@ -118,22 +118,22 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	</path>
 
 	<path id="kroll.v8.path">
-		<pathelement path="${kroll.v8.project.dir}/bin"/>
+		<pathelement path="${dist.classes.dir}/kroll-v8"/>
 	</path>
 
 	<path id="kroll.rhino.path">
-		<pathelement path="${kroll.rhino.project.dir}/bin"/>
+		<pathelement path="${dist.classes.dir}/kroll-rhino"/>
 	</path>
 
 	<path id="titanium.path">
-		<pathelement path="${titanium.project.dir}/bin"/>
+		<pathelement path="${dist.classes.dir}/titanium"/>
 		<fileset dir="${titanium.project.dir}/lib" includes="**/*.jar"/>
 	</path>
 
 	<macrodef name="build.project">
 		<attribute name="name"/>
 		<attribute name="dir" default="${ti.android.root}/@{name}"/>
-		<attribute name="build.dir" default="@{dir}/bin"/>
+		<attribute name="build.dir" default="${dist.classes.dir}/@{name}"/>
 		<attribute name="src.dir" default="@{dir}/src"/>
 		<attribute name="includes" default="**/*.java"/>
 		<attribute name="excludes" default=""/>
@@ -177,7 +177,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<attribute name="name"/>
 		<attribute name="prefix" default=""/>
 		<attribute name="dir" default="${ti.android.root}/@{prefix}@{name}"/>
-		<attribute name="build.dir" default="@{dir}/bin"/>
+		<attribute name="build.dir" default="${dist.classes.dir}/@{name}"/>
 		<attribute name="src.dir" default="@{dir}/src"/>
 		<attribute name="apt.src.dir" default="${dist.json.dir}"/>
 		<attribute name="kroll.jsonFile" default="@{name}.json"/>
@@ -233,7 +233,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<macrodef name="build.module.project">
 		<attribute name="name"/>
 		<attribute name="dir" default="${ti.android.root}/modules/@{name}"/>
-		<attribute name="build.dir" default="@{dir}/bin"/>
+		<attribute name="build.dir" default="${dist.classes.dir}/@{name}"/>
 		<attribute name="src.dir" default="@{dir}/src/java"/>
 		<attribute name="apt.src.dir" default="${dist.json.dir}"/>
 		<attribute name="kroll.jsonFile" default="@{name}.json"/>
@@ -302,7 +302,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<!-- build targets are designed to be called with <antcall> so multiple projects can be built in the same file -->
 
 	<target name="build.kroll.apt">
-		<property name="build.dir" value="${kroll.apt.project.dir}/bin"/>
+		<property name="build.dir" value="${dist.classes.dir}/kroll-apt"/>
 
 		<build.project
 			name="kroll-apt"
@@ -333,7 +333,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	</macrodef>
 	
 	<macrodef name="generate.build.properties">
-		<attribute name="dir" default="${titanium.project.dir}/bin"/>
+		<attribute name="dir" default="${dist.classes.dir}/titanium"/>
 		<sequential>
 			<mkdir dir="@{dir}/org/appcelerator/titanium"/>
 			<propertyfile file="@{dir}/org/appcelerator/titanium/build.properties"
@@ -492,7 +492,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		depends="build.kroll.runtime.rhino,build.kroll.runtime.v8"/>
 
 	<target name="build.titanium" depends="build.kroll.common.jar">
-		<property name="build.dir" value="${titanium.project.dir}/bin"/>
+		<property name="build.dir" value="${dist.classes.dir}/titanium"/>
 
 		<build.module.project name="titanium" dir="${ti.android.root}/titanium" build.dir="${build.dir}"/>
 	</target>
@@ -551,8 +551,8 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 					<classpath refid="dependencies"/>
 				</extra.javac.classpath>
 			</build.module.project>
-			<update.modules.properties dir="${modules.dir}/@{name}/bin" name="@{name}"/>
-			<jar destfile="${dist.dir}/titanium-@{name}.jar" basedir="${modules.dir}/@{name}/bin"/>
+			<update.modules.properties dir="${dist.classes.dir}/@{name}" name="@{name}"/>
+			<jar destfile="${dist.dir}/titanium-@{name}.jar" basedir="${dist.classes.dir}/@{name}"/>
 		</sequential>
 	</macrodef>
 
@@ -572,7 +572,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<attribute name="name"/>
 		<attribute name="prefix" default=""/>
 		<attribute name="dir" default="${ti.android.root}/@{prefix}@{name}"/>
-		<attribute name="build.dir" default="@{dir}/bin"/>
+		<attribute name="build.dir" default="${dist.classes.dir}/@{prefix}@{name}"/>
 		<sequential>
 			<delete includeemptydirs="true" failonerror="false">
 				<fileset dir="@{build.dir}" includes="**/*" defaultexcludes="false"/>
@@ -583,20 +583,14 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 
 	<target name="clean.all">
 		<delete includeemptydirs="true" failonerror="false">
-			<fileset dir="${ti.build.dir}/bin" includes="**/*" defaultexcludes="false"/>
 			<fileset dir="${dist.dir}" includes="**/*" excludes="libv8/**/*" defaultexcludes="false"/>
-			<fileset dir="${dist.classes.dir}" includes="**/*" defaultexcludes="false"/>
-			<fileset dir="${titanium.project.dir}/bin" includes="**/*" defaultexcludes="false"/>
-			<fileset dir="${titanium.project.dir}/.apt_generated" includes="**/*" defaultexcludes="false"/>
-			<fileset dir="${kroll.apt.project.dir}/bin" includes="**/*" defaultexcludes="false"/>
-			<fileset dir="${modules.dir}" includes="*/bin/**/*" defaultexcludes="false"/>
-			<fileset dir="${modules.dir}" includes="*/.apt_generated/**/*" defaultexcludes="false"/>
 		</delete>
 
 		<!-- V8 clean target requires we have libv8 for now -->
 		<build.ti.ant.tasks/>
 		<define.ti.ant.tasks/>
 		<antcall target="update.libv8"/>
+
 		<exec executable="${ndk.build}" dir="${kroll.v8.project.dir}" failonerror="true">
 			<env key="ANDROID_NDK" file="${android.ndk}"/>
 			<env key="NUM_CPUS" value="1"/>
@@ -616,9 +610,9 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 
 	<macrodef name="build.ti.ant.tasks">
 		<sequential>
-			<mkdir dir="${ti.build.dir}/bin"/>
-			<javac srcdir="${ti.build.dir}/src" destdir="${ti.build.dir}/bin" includes="**/*.java" classpathref="ti.build.lib.path" includeantruntime="false" debug="true"/>
-			<jar basedir="${ti.build.dir}/bin" destfile="${dist.dir}/ant-tasks.jar"/>
+			<mkdir dir="${dist.classes.dir}/ant-tasks"/>
+			<javac srcdir="${ti.build.dir}/src" destdir="${dist.classes.dir}/ant-tasks" includes="**/*.java" classpathref="ti.build.lib.path" includeantruntime="false" debug="true"/>
+			<jar basedir="${dist.classes.dir}/ant-tasks" destfile="${dist.dir}/ant-tasks.jar"/>
 		</sequential>
 	</macrodef>
 

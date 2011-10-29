@@ -38,6 +38,12 @@ function TiInclude(filename, baseUrl, currentWindow) {
 		}
 
 		// we don't use source for compiled scripts in Rhino
+		// for drillbit, we also mangle appdata://*.jar based URLs to look like "test.js"
+		var jarIndex = -1;
+		if ((jarIndex = sourceUrl.href.indexOf(".jar:")) >= 0) {
+			sourceUrl.href = "app://" + sourceUrl.href.substring(jarIndex + 5) + ".js";
+		}
+
 		Titanium.runInContext(path, sourceUrl.href, true, true, currentWindow);
 		return;
 	}

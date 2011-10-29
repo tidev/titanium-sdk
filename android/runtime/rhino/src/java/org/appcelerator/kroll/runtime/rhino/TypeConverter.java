@@ -189,6 +189,9 @@ public class TypeConverter
 		} else if (value.getClass().isArray()) {
 			return javaArrayToJsArray(value, scope);
 
+		} else if (value instanceof RhinoFunction) {
+			return ((RhinoFunction) value).getFunction();
+
 		} else if (value == JSONObject.NULL || value.getClass().equals(JSONObject.NULL.getClass())) {
 			return Context.javaToJS(null, scope);
 
