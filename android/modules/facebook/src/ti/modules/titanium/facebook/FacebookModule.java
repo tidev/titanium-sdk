@@ -217,7 +217,9 @@ public class FacebookModule extends KrollModule
 		if (httpMethod == null || httpMethod.length() == 0) {
 			httpMethod = "GET";
 		}
-		runner.request(path, paramBundle, httpMethod.toUpperCase(), new TiRequestListener(path, true, callback));
+		runner.request(path, paramBundle, httpMethod.toUpperCase(),
+			new TiRequestListener(path, true, callback),
+			null /* state */);
 	}
 	
 	@Kroll.method
@@ -242,7 +244,9 @@ public class FacebookModule extends KrollModule
 		if (!bundle.containsKey("method")) {
 			bundle.putString("method", method);
 		}
-		getFBRunner().request(null, bundle, httpMethod, new TiRequestListener(method, false, callback));
+		getFBRunner().request(null, bundle, httpMethod,
+			new TiRequestListener(method, false, callback),
+			null /* state */);
 	}
 	
 	@Kroll.method(runOnUiThread=true)
@@ -261,31 +265,31 @@ public class FacebookModule extends KrollModule
 		getFBRunner().request("me", new RequestListener()
 		{
 			@Override
-			public void onMalformedURLException(MalformedURLException e)
+			public void onMalformedURLException(MalformedURLException e, Object state)
 			{
 				loginError(e);
 			}
 			
 			@Override
-			public void onIOException(IOException e)
+			public void onIOException(IOException e, Object state)
 			{
 				loginError(e);
 			}
 			
 			@Override
-			public void onFileNotFoundException(FileNotFoundException e)
+			public void onFileNotFoundException(FileNotFoundException e, Object state)
 			{
 				loginError(e);
 			}
 			
 			@Override
-			public void onFacebookError(FacebookError e)
+			public void onFacebookError(FacebookError e, Object state)
 			{
 				loginError(e);
 			}
 			
 			@Override
-			public void onComplete(String response)
+			public void onComplete(String response, Object state)
 			{
 				try {
 					debug("onComplete (getting 'me'): " + response);
@@ -448,32 +452,32 @@ public class FacebookModule extends KrollModule
 	private final class LogoutRequestListener implements RequestListener
 	{
 		@Override
-		public void onComplete(String response)
+		public void onComplete(String response, Object state)
 		{
 			debug("Logout request complete: " + response);
 			SessionEvents.onLogoutFinish();
 		}
 
 		@Override
-		public void onFacebookError(FacebookError e)
+		public void onFacebookError(FacebookError e, Object state)
 		{
 			Log.e(LCAT, "Logout failure: " + e.getMessage(), e);
 		}
 
 		@Override
-		public void onFileNotFoundException(FileNotFoundException e)
+		public void onFileNotFoundException(FileNotFoundException e, Object state)
 		{
 			Log.e(LCAT, "Logout failure: " + e.getMessage(), e);
 		}
 
 		@Override
-		public void onIOException(IOException e)
+		public void onIOException(IOException e, Object state)
 		{
 			Log.e(LCAT, "Logout failure: " + e.getMessage(), e);
 		}
 
 		@Override
-		public void onMalformedURLException(MalformedURLException e)
+		public void onMalformedURLException(MalformedURLException e, Object state)
 		{
 			Log.e(LCAT, "Logout failure: " + e.getMessage(), e);
 		}
