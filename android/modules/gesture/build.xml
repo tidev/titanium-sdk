@@ -2,7 +2,7 @@
 	<import file="../../build/build-module.xml"/>
 	
 	<path id="dependencies">
-		<path path="${modules.dir}/ui/bin"/>
+		<path path="${dist.classes.dir}/ui"/>
 	</path>
 	
 </project>
