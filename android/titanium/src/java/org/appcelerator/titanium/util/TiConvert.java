@@ -118,52 +118,52 @@ public class TiConvert
 		return TiColorHelper.parseColor(value);
 	}
 
-	public static int toColor(KrollDict d, String key) {
-		return toColor(d.getString(key));
+	public static int toColor(HashMap<String, Object> hashMap, String key) {
+		return toColor(TiConvert.toString(hashMap.get(key)));
 	}
 
 	public static ColorDrawable toColorDrawable(String value) {
 		return new ColorDrawable(toColor(value));
 	}
 
-	public static ColorDrawable toColorDrawable(KrollDict d, String key) {
-		return toColorDrawable(d.getString(key));
+	public static ColorDrawable toColorDrawable(HashMap<String, Object> hashMap, String key) {
+		return toColorDrawable(TiConvert.toString(hashMap.get(key)));
 	}
 
 	// Layout
-	public static boolean fillLayout(KrollDict d, LayoutParams layoutParams) {
+	public static boolean fillLayout(HashMap<String, Object> hashMap, LayoutParams layoutParams) {
 		boolean dirty = false;
 		Object width = null;
 		Object height = null;
-		if (d.containsKey(TiC.PROPERTY_SIZE)) {
-			KrollDict size = (KrollDict)d.get(TiC.PROPERTY_SIZE);
+		if (hashMap.containsKey(TiC.PROPERTY_SIZE)) {
+			HashMap<String, Object> size = (HashMap<String, Object>) hashMap.get(TiC.PROPERTY_SIZE);
 			width = size.get(TiC.PROPERTY_WIDTH);
 			height = size.get(TiC.PROPERTY_HEIGHT);
 		}
-		if (d.containsKey(TiC.PROPERTY_LEFT)) {
-			layoutParams.optionLeft = toTiDimension(d, TiC.PROPERTY_LEFT, TiDimension.TYPE_LEFT);
+		if (hashMap.containsKey(TiC.PROPERTY_LEFT)) {
+			layoutParams.optionLeft = toTiDimension(hashMap, TiC.PROPERTY_LEFT, TiDimension.TYPE_LEFT);
 			dirty = true;
 		}
-		if (d.containsKey(TiC.PROPERTY_TOP)) {
-			layoutParams.optionTop = toTiDimension(d, TiC.PROPERTY_TOP, TiDimension.TYPE_TOP);
+		if (hashMap.containsKey(TiC.PROPERTY_TOP)) {
+			layoutParams.optionTop = toTiDimension(hashMap, TiC.PROPERTY_TOP, TiDimension.TYPE_TOP);
 			dirty = true;
 		}
-		if (d.containsKey(TiC.PROPERTY_CENTER)) {
-			updateLayoutCenter(d.get(TiC.PROPERTY_CENTER), layoutParams);
+		if (hashMap.containsKey(TiC.PROPERTY_CENTER)) {
+			updateLayoutCenter(hashMap.get(TiC.PROPERTY_CENTER), layoutParams);
 			dirty = true;
 		}
-		if (d.containsKey(TiC.PROPERTY_RIGHT)) {
-			layoutParams.optionRight = toTiDimension(d, TiC.PROPERTY_RIGHT, TiDimension.TYPE_RIGHT);
+		if (hashMap.containsKey(TiC.PROPERTY_RIGHT)) {
+			layoutParams.optionRight = toTiDimension(hashMap, TiC.PROPERTY_RIGHT, TiDimension.TYPE_RIGHT);
 			dirty = true;
 		}
-		if (d.containsKey(TiC.PROPERTY_BOTTOM)) {
-			layoutParams.optionBottom = toTiDimension(d, TiC.PROPERTY_BOTTOM, TiDimension.TYPE_BOTTOM);
+		if (hashMap.containsKey(TiC.PROPERTY_BOTTOM)) {
+			layoutParams.optionBottom = toTiDimension(hashMap, TiC.PROPERTY_BOTTOM, TiDimension.TYPE_BOTTOM);
 			dirty = true;
 		}
-		if (width != null || d.containsKey(TiC.PROPERTY_WIDTH)) {
+		if (width != null || hashMap.containsKey(TiC.PROPERTY_WIDTH)) {
 			if (width == null)
 			{
-				width = d.get(TiC.PROPERTY_WIDTH);
+				width = hashMap.get(TiC.PROPERTY_WIDTH);
 			}
 			if (width == null || width.equals(TiC.SIZE_AUTO)) {
 				layoutParams.optionWidth = null;
@@ -174,10 +174,10 @@ public class TiConvert
 			}
 			dirty = true;
 		}
-		if (height != null || d.containsKey(TiC.PROPERTY_HEIGHT)) {
+		if (height != null || hashMap.containsKey(TiC.PROPERTY_HEIGHT)) {
 			if (height == null)
 			{
-				height = d.get(TiC.PROPERTY_HEIGHT);
+				height = hashMap.get(TiC.PROPERTY_HEIGHT);
 			}
 			if (height == null || height.equals(TiC.SIZE_AUTO)) {
 				layoutParams.optionHeight = null;
@@ -188,8 +188,8 @@ public class TiConvert
 			}
 			dirty = true;
 		}
-		if (d.containsKey(TiC.PROPERTY_ZINDEX)) {
-			Object zIndex = d.get(TiC.PROPERTY_ZINDEX);
+		if (hashMap.containsKey(TiC.PROPERTY_ZINDEX)) {
+			Object zIndex = hashMap.get(TiC.PROPERTY_ZINDEX);
 			if (zIndex != null) {
 				layoutParams.optionZIndex = toInt(zIndex);
 			} else {
@@ -197,8 +197,8 @@ public class TiConvert
 			}
 			dirty = true;
 		}
-		if (d.containsKey(TiC.PROPERTY_TRANSFORM)) {
-			layoutParams.optionTransform = (Ti2DMatrix) d.get(TiC.PROPERTY_TRANSFORM);
+		if (hashMap.containsKey(TiC.PROPERTY_TRANSFORM)) {
+			layoutParams.optionTransform = (Ti2DMatrix) hashMap.get(TiC.PROPERTY_TRANSFORM);
 		}
 		return dirty;
 	}
@@ -238,8 +238,8 @@ public class TiConvert
 			throw new IllegalArgumentException("Unable to convert " + (value == null ? "null" : value.getClass().getName()) + " to boolean.");
 		}
 	}
-	public static boolean toBoolean(KrollDict d, String key) {
-		return toBoolean(d.get(key));
+	public static boolean toBoolean(HashMap<String, Object> hashMap, String key) {
+		return toBoolean(hashMap.get(key));
 	}
 
 	public static int toInt(Object value) {
@@ -255,8 +255,8 @@ public class TiConvert
 			throw new NumberFormatException("Unable to convert " + value.getClass().getName());
 		}
 	}
-	public static int toInt(KrollDict d, String key) {
-		return toInt(d.get(key));
+	public static int toInt(HashMap<String, Object> hashMap, String key) {
+		return toInt(hashMap.get(key));
 	}
 
 	public static float toFloat(Object value) {
@@ -270,8 +270,8 @@ public class TiConvert
 			throw new NumberFormatException("Unable to convert " + value.getClass().getName());
 		}
 	}
-	public static float toFloat(KrollDict d, String key) {
-		return toFloat(d.get(key));
+	public static float toFloat(HashMap<String, Object> hashMap, String key) {
+		return toFloat(hashMap.get(key));
 	}
 
 	public static double toDouble(Object value) {
@@ -285,8 +285,8 @@ public class TiConvert
 			throw new NumberFormatException("Unable to convert " + value.getClass().getName());
 		}
 	}
-	public static double toDouble(KrollDict d, String key) {
-		return toDouble(d.get(key));
+	public static double toDouble(HashMap<String, Object> hashMap, String key) {
+		return toDouble(hashMap.get(key));
 	}
 
 	public static String toString(Object value, String defaultString)
@@ -301,8 +301,8 @@ public class TiConvert
 	public static String toString(Object value) {
 		return value == null ? null : value.toString();
 	}
-	public static String toString(KrollDict d, String key) {
-		return toString(d.get(key));
+	public static String toString(HashMap<String, Object> hashMap, String key) {
+		return toString(hashMap.get(key));
 	}
 
 	public static String[] toStringArray(Object[] parts) {
@@ -327,8 +327,8 @@ public class TiConvert
 		return toTiDimension((String) value, valueType);
 	}
 	
-	public static TiDimension toTiDimension(KrollDict d, String key, int valueType) {
-		return toTiDimension(d.get(key), valueType);
+	public static TiDimension toTiDimension(HashMap<String, Object> hashMap, String key, int valueType) {
+		return toTiDimension(hashMap.get(key), valueType);
 	}
 
 	// URL
@@ -349,9 +349,9 @@ public class TiConvert
 	}
 
 	//Error
-	public static KrollDict toErrorObject(int code, String msg) {
-		KrollDict d = new KrollDict(1);
-		KrollDict e = new KrollDict();
+	public static HashMap<String, Object> toErrorObject(int code, String msg) {
+		HashMap<String, Object> d = new HashMap<String, Object>(1);
+		HashMap<String, Object> e = new HashMap<String, Object>();
 		e.put(TiC.ERROR_PROPERTY_CODE, code);
 		e.put(TiC.ERROR_PROPERTY_MESSAGE, msg);
 		d.put(TiC.EVENT_PROPERTY_ERROR, e);
@@ -362,12 +362,12 @@ public class TiConvert
 		return (TiBlob) value;
 	}
 
-	public static TiBlob toBlob(KrollDict object, String property) {
+	public static TiBlob toBlob(HashMap<String, Object> object, String property) {
 		return toBlob(object.get(property));
 	}
 
 	// JSON
-	public static JSONObject toJSON(KrollDict data) {
+	public static JSONObject toJSON(HashMap<String, Object> data) {
 		if (data == null) {
 			return null;
 		}
@@ -386,8 +386,8 @@ public class TiConvert
 					json.put(key, (Boolean) o);
 				} else if (o instanceof Date) {
 					json.put(key, toJSONString((Date)o));
-				} else if (o instanceof KrollDict) {
-					json.put(key, toJSON((KrollDict) o));
+				} else if (o instanceof HashMap) {
+					json.put(key, toJSON((HashMap) o));
 				} else if (o.getClass().isArray()) {
 					json.put(key, toJSONArray((Object[]) o));
 				} else {
@@ -410,9 +410,12 @@ public class TiConvert
 				}
 				continue;
 			}
-			if (o == null) {
+
+			// dead code, for now leave in place for debugging
+			/*if (o == null) {
 				ja.put(JSONObject.NULL);
-			} else if (o instanceof Number) {
+			} else */
+			if (o instanceof Number) {
 				ja.put((Number) o);
 			} else if (o instanceof String) {
 				ja.put((String) o);
@@ -420,8 +423,8 @@ public class TiConvert
 				ja.put((Boolean) o);
 			} else if (o instanceof Date) {
 				ja.put(toJSONString((Date)o));
-			} else if (o instanceof KrollDict) {
-				ja.put(toJSON((KrollDict) o));
+			} else if (o instanceof HashMap) {
+				ja.put(toJSON((HashMap) o));
 			} else if (o.getClass().isArray()) {
 				ja.put(toJSONArray((Object[]) o));
 			} else {
@@ -449,7 +452,7 @@ public class TiConvert
 		return null;
 	}
 	
-	public static Date toDate(KrollDict d, String key) {
-		return toDate(d.get(key));
+	public static Date toDate(HashMap<String, Object> hashMap, String key) {
+		return toDate(hashMap.get(key));
 	}
 }
