@@ -108,6 +108,7 @@ Module.prototype._runScript = function (source, filename) {
 	require.main = Module.main;
 
 	if (self.id == '.') {
+		global.require = require;
 		return runInThisContext(source, filename, true);
 	}
 

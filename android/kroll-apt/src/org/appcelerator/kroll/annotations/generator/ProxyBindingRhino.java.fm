@@ -393,7 +393,7 @@ public class ${className}Prototype extends ${superProxy}
 			start = start.getPrototype();
 		}
 
-		if (this == ${protoVar} && start instanceof ${className}Prototype) {
+		if (start instanceof ${className}Prototype) {
 			proxy = (${className}Prototype) start;
 		}
 
@@ -434,7 +434,7 @@ public class ${className}Prototype extends ${superProxy}
 			start = start.getPrototype();
 		}
 
-		if (this == ${protoVar} && start instanceof ${className}Prototype) {
+		if (start instanceof ${className}Prototype) {
 			proxy = (${className}Prototype) start;
 		}
 

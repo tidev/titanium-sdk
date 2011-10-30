@@ -71,32 +71,32 @@ public class ScriptsModule extends ScriptableObject
 		}
 	}
 
-	private static Object runInSandbox(Context context, Scriptable sandbox, String path, String url)
+	private static Object runInSandbox(Context context, Scriptable scope, Scriptable sandbox, String path, String url)
 	{
 		Scriptable global = RhinoRuntime.getGlobalScope();
 		Object result = Undefined.instance;
 
 		ScriptableObject.putProperty(global, "sandbox", sandbox);
-		Scriptable scope = ScriptRuntime.enterWith(sandbox, context, global);
+		Scriptable withScope = ScriptRuntime.enterWith(sandbox, context, global);
 
 		if (path.contains(".jar:")) {
 			// this allows us to load pre-compiled js directly using a jar / classname
 			// i.e. with an app ID of org.foo.app and a path of appdata://test.jar:org.foo.app.js.test
 			// => loads org.foo.app.js.test from /mnt/sdcard/org.foo.app/test.jar
 			String[] parts = path.split(":");
-			result = runCompiledJar(context, scope, sandbox, parts[0], parts[1]);
+			result = runCompiledJar(context, withScope, sandbox, parts[0], parts[1]);
 
 		} else if (path.startsWith("Resources/")) {
 			String source = KrollAssetHelper.readAsset(path);
-			result = runSource(context, scope, source, url, true);
+			result = runSource(context, withScope, source, url, true);
 
 		} else {
 			String source = KrollAssetHelper.readFile(path);
-			result = runSource(context, scope, source, url, true);
+			result = runSource(context, withScope, source, url, true);
 
 		}
 
-		ScriptRuntime.leaveWith(scope);
+		ScriptRuntime.leaveWith(withScope);
 		return result;
 	}
 
@@ -139,7 +139,7 @@ public class ScriptsModule extends ScriptableObject
 			String url = (String) args[1];
 			Scriptable sandbox = (Scriptable) args[2];
 
-			return runInSandbox(cx, sandbox, path, url);
+			return runInSandbox(cx, scope, sandbox, path, url);
 		}
 	}
 
