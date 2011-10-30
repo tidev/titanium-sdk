@@ -23,7 +23,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
-import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.analytics.TiAnalyticsModel;
@@ -36,6 +35,7 @@ import org.appcelerator.titanium.view.ITiWindowHandler;
 
 import android.app.Activity;
 import android.app.Application;
+import android.app.TabActivity;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
@@ -250,6 +250,15 @@ public class TiApplication extends Application implements Handler.Callback
 	public void setCurrentActivity(Activity callingActivity, Activity newValue)
 	{
 		synchronized (this) {
+			if ((currentActivity instanceof TabActivity) && (newValue instanceof TiActivity)) {
+				TiActivity tiActivity = (TiActivity)newValue;
+				if (tiActivity.isTab()) {
+					currentActivity = newValue;
+
+					return;
+				}
+			}
+
 			if (currentActivity == null || (callingActivity == currentActivity && newValue == null)) {
 				currentActivity = newValue;
 			}

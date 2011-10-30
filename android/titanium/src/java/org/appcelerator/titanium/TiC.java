@@ -72,6 +72,7 @@ public class TiC
 	public static final String EVENT_TOUCH_START = "touchstart";
 	public static final String EVENT_UNFOCUSED = "unfocused";
 	public static final String INTENT_PROPERTY_FINISH_ROOT = "finishRoot";
+	public static final String INTENT_PROPERTY_IS_TAB = "isTab";
 	public static final String INTENT_PROPERTY_LAYOUT = "layout";
 	public static final String INTENT_PROPERTY_MESSENGER = "messenger";
 	public static final String INTENT_PROPERTY_MSG_ACTIVITY_CREATED_ID = "msgActivityCreatedId";
