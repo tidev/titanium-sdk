@@ -244,7 +244,17 @@ Object.defineProperty(Proxy.prototype, "setPropertiesAndFire", {
 // Custom native modules
 bootstrap.defineLazyBinding(Titanium, "API");
 
-Titanium.Yahoo = require("yahoo");
+Object.defineProperty(Titanium, "Yahoo", {
+	get: function() {
+		delete this.Yahoo;
+		delete this.__proto__.Yahoo;
+
+		var value = require("yahoo").bootstrap(Titanium);
+		this.Yahoo = this.__proto__.Yahoo = value;
+
+		return value;
+	}
+});
 
 // Do not serialize the parent view. Doing so will result
 // in a circular reference loop.
