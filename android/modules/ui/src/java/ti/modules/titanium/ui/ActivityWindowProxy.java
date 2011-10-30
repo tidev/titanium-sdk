@@ -143,6 +143,7 @@ public class ActivityWindowProxy extends TiWindowProxy
 		});
 
 		intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
+		intent.putExtra(TiC.INTENT_PROPERTY_IS_TAB, true);
 	}
 
 	@Override

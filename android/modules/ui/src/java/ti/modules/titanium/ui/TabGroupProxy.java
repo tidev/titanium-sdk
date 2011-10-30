@@ -183,9 +183,11 @@ public class TabGroupProxy extends TiWindowProxy
 		TiBaseWindowProxy baseWindow = (TiBaseWindowProxy) tab.getProperty(TiC.PROPERTY_WINDOW);
 		if (baseWindow != null) {
 			vp.handleCreationDict(baseWindow.getProperties());
+
+		} else {
 			Log.w(LCAT, "window property was not set on tab");
 		}
-		tab.setProperty(TiC.PROPERTY_WINDOW, vp);
+		baseWindow.getKrollObject().setWindow(vp);
 
 		vp.setTabGroupProxy(this);
 		vp.setTabProxy(tab);

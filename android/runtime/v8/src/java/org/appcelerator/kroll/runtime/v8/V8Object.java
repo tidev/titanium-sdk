@@ -54,6 +54,12 @@ public class V8Object extends KrollObject
 	}
 
 	@Override
+	public void doSetWindow(Object windowProxyObject)
+	{
+		nativeSetWindow(ptr, windowProxyObject);
+	}
+
+	@Override
 	protected void finalize() throws Throwable
 	{
 		super.finalize();
@@ -69,5 +75,6 @@ public class V8Object extends KrollObject
 	private native void nativeSetProperty(long ptr, String name, Object value);
 	private native boolean nativeFireEvent(long ptr, String event, Object data);
 	private static native void nativeRelease(long ptr);
+	private native boolean nativeSetWindow(long ptr, Object windowProxyObject);
 }
 
