@@ -6,16 +6,16 @@
  */
 
 var NativeModule = require('native_module');
-var Script = kroll.binding('evals').Script;
 var assets = kroll.binding('assets');
 var path = require('path');
-var runInThisContext = Script.runInThisContext;
+var runInThisContext = require('vm').runInThisContext;
 var TAG = "Module";
 
-function Module(id, parent) {
+function Module(id, parent, context) {
 	this.id = id;
 	this.exports = {};
 	this.parent = parent;
+	this.context = context;
 
 	this.filename = null;
 	this.loaded = false;
@@ -27,18 +27,12 @@ kroll.Module = module.exports = Module;
 Module.cache = [];
 Module.main = null;
 Module.paths = [ 'Resources/' ];
+Module.wrap = NativeModule.wrap;
 
 // Run a module as the main entry point.
 Module.runMainModule = function (source, filename) {
 	var mainModule = Module.main = new Module('.');
-
-	try {
-		mainModule.load(filename, source);
-	} catch (e) {
-		kroll.log(TAG, "Failed to load main module.");
-		return false;
-	}
-
+	mainModule.load(filename, source);
 	return true;
 }
 
@@ -72,7 +66,7 @@ Module.prototype.load = function (filename, source) {
 // This parent module's path is appended to the search paths
 // when loading the child. Returns the exports object
 // of the child module.
-Module.prototype.require = function (request) {
+Module.prototype.require = function (request, context) {
 	kroll.log(TAG, 'Requesting module: "' + request + '"');
 
 	// Delegate native module requests.
@@ -93,7 +87,7 @@ Module.prototype.require = function (request) {
 	}
 
 	// Create and attempt to load the module.
-	var module = new Module(id, this);
+	var module = new Module(id, this, context);
 	module.load(filename);
 
 	// Cache the module for future requests.
@@ -106,20 +100,28 @@ Module.prototype.require = function (request) {
 // Returns the result of the executed script.
 Module.prototype._runScript = function (source, filename) {
 	var self = this;
+	var url = "app://" + filename.replace("Resources/", "");
 
-	function require(path) {
-		return self.require(path);
+	function require(path, context) {
+		return self.require(path, context);
 	}
-
 	require.main = Module.main;
 
-	global.require = require;
-	global.exports = self.exports;
-	global.__filename = filename;
-	global.__dirname = path.dirname(filename);
-	global.module = self;
+	if (self.id == '.') {
+		return runInThisContext(source, filename, true);
+	}
 
-	return Titanium.runInContext(source, "app://" + filename.replace("Resources/", ""), true);
+	// Create context-bound modules.
+	var context = self.context || {};
+	context.sourceUrl = url;
+	var ti = new Titanium.TitaniumModule(context);
+
+	// Execute the module inside a wrapper to prevent
+	// globals from leaking into the global scope.
+	var wrapper = Module.wrap(source);
+	var compiledWrapper = runInThisContext(wrapper, filename, true);
+	var args = [self.exports, require, self, filename, path.dirname(filename), ti, global, kroll];
+	return compiledWrapper.apply(self.exports, args);
 }
 
 // Determine the paths where the requested module could live.

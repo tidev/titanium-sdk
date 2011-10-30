@@ -15,88 +15,98 @@ var tiBinding = kroll.binding('Titanium'),
 
 var TAG = "Titanium";
 
-// the app entry point
+//the app entry point
 Titanium.sourceUrl = "app://app.js";
 
-// a list of java APIs that need an invocation-specific URL
-// passed in as the first argument
+//a list of java APIs that need an invocation-specific URL
+//passed in as the first argument
 Titanium.invocationAPIs = [];
 
-function TiInclude(filename, baseUrl, currentWindow) {
-	baseUrl = typeof(baseUrl) === 'undefined' ? "app://app.js" : baseUrl;
-	var sourceUrl = url.resolve(baseUrl, filename);
-	var source;
+//Define lazy initializers for all Titanium APIs
+bootstrap.bootstrap(Titanium);
 
-	if (kroll.runtime == 'rhino') {
-		var path = filename;
+// Custom JS extensions to Java modules
+require("ui").bootstrap(Titanium);
 
-		if (sourceUrl.assetPath) {
-			path = url.toAssetPath(sourceUrl);
+var Properties = require("properties");
+Properties.bootstrap(Titanium);
 
-		} else if (sourceUrl.filePath) {
-			path = url.toFilePath(sourceUrl);
-		}
+//Custom native modules
+bootstrap.defineLazyBinding(Titanium, "API")
 
-		// we don't use source for compiled scripts in Rhino
-		// for drillbit, we also mangle appdata://*.jar based URLs to look like "test.js"
-		var jarIndex = -1;
-		if ((jarIndex = sourceUrl.href.indexOf(".jar:")) >= 0) {
-			sourceUrl.href = "app://" + sourceUrl.href.substring(jarIndex + 5) + ".js";
-		}
+// Context-bound modules -------------------------------------------------
+//
+// Specialized modules that require binding context specific data
+// within a script execution scope. This is how Ti.UI.currentWindow,
+// Ti.Android.currentActivity, and others are implemented.
+function TitaniumModule(context) {
+	var sourceUrl = this.sourceUrl = context.sourceUrl;
 
-		Titanium.runInContext(path, sourceUrl.href, true, true, currentWindow);
-		return;
+	// Special version of include to handle relative paths based on sourceUrl.
+	this.include = function(filename, baseUrl, context) {
+		TiInclude(filename, baseUrl || sourceUrl, context);
 	}
 
+	this.Android = new AndroidModule(context);
+	this.UI = new UIModule(context);
+
+	Titanium.bindInvocationAPIs(this, sourceUrl);
+}
+TitaniumModule.prototype = Titanium;
+Titanium.TitaniumModule = TitaniumModule;
+
+function UIModule(context) {
+	this.currentWindow = context.currentWindow;
+}
+UIModule.prototype = Titanium.UI;
+
+function AndroidModule(context) {
+	var currentWindow = context.currentWindow;
+	this.currentActivity = currentWindow ? currentWindow.activity : Titanium.activity;
+}
+AndroidModule.prototype = Titanium.Android;
+
+// -----------------------------------------------------------------------
+
+function TiInclude(filename, baseUrl, context) {
+	baseUrl = typeof(baseUrl) === 'undefined' ? "app://app.js" : baseUrl;
+	var sourceUrl = url.resolve(baseUrl, filename);
+	var contextUrl = sourceUrl.href;
+
+	// Create a context-bound Titanium module.
+	var context = context || {};
+	if (kroll.runtime == "rhino") {
+		contextUrl = require("rhino").getSourceUrl(sourceUrl);
+	}
+
+	context.sourceUrl = contextUrl;
+	var ti = new TitaniumModule(context);
+	sandbox = { Ti: ti, Titanium: ti };
+
+	if (kroll.runtime == 'rhino') {
+		return require("rhino").include(filename, baseUrl, sandbox);
+	}
+
+	var source;
+
+	// Load the source code for the script.
 	if (!('protocol' in sourceUrl)) {
 		source = assets.readAsset(filename);
-
 	} else if (sourceUrl.filePath) {
 		var filepath = url.toFilePath(sourceUrl);
 		source = assets.readFile(filepath);
-
 	} else if (sourceUrl.assetPath) {
 		var assetPath = url.toAssetPath(sourceUrl);
 		source = assets.readAsset(assetPath);
-	}
-
-	Titanium.runInContext(source, sourceUrl.href, true, false, currentWindow);
-}
-Titanium.include = TiInclude;
-
-// Run a script in the current context.
-// Returns the result of the script or throws an exception
-// if an error occurs. If displayError is true, any exceptions
-// will be logged.
-Titanium.runInContext = function(source, url, displayError, isPath, currentWindow) {
-
-	// Use the prototype inheritance chain
-	// to copy and maintain the Titanium dynamic
-	// getters/setters
-	function SandboxTitanium() {}
-	SandboxTitanium.prototype = Titanium;
-
-	var sandboxTi = new SandboxTitanium();
-	sandbox = { Ti: sandboxTi, Titanium: sandboxTi };
-
-	sandbox.Ti.sourceUrl = url;
-	sandbox.Ti.include = function(filename, baseUrl) {
-		baseUrl = typeof(baseUrl) === 'undefined' ? url : baseUrl;
-		TiInclude(filename, baseUrl);
-	}
-	sandbox.Ti.UI.currentWindow = currentWindow;
-
-	Titanium.bindInvocationAPIs(sandboxTi, url);
-
-	if (isPath) {
-		// "source" is the actual path when "isPath" is true
-		return Script.runInSandbox(source, url, sandbox);
-
 	} else {
-		var wrappedSource = "with(sandbox) { " + source + "\n }";
-		return Script.runInThisContext(wrappedSource, url, displayError);
+		throw new Error("Unable to load source for filename: " + filename);
 	}
+
+	var wrappedSource = "with(sandbox) { " + source + "\n }";
+	return Script.runInThisContext(wrappedSource, sourceUrl.href, true);
 }
+TiInclude.prototype = global;
+Titanium.include = TiInclude;
 
 Titanium.bindInvocationAPIs = function(sandboxTi, url) {
 	// This loops through all known APIs that require an
@@ -110,11 +120,18 @@ Titanium.bindInvocationAPIs = function(sandboxTi, url) {
 
 		for (var j = 0, namesLen = names.length; j < namesLen; ++j) {
 			var name = names[j];
-			function SandboxAPI() {}
-			SandboxAPI.prototype = apiNamespace[name];
+			var api;
 
-			var api = new SandboxAPI();
-			apiNamespace[name] = api;
+			// Create a module wrapper only if it hasn't been wrapped already.
+			if (apiNamespace.hasOwnProperty(name)) {
+				api = apiNamespace[name];
+			} else {
+				function SandboxAPI() {}
+				SandboxAPI.prototype = apiNamespace[name];
+				api = new SandboxAPI();
+				apiNamespace[name] = api;
+			}
+
 			apiNamespace = api;
 			realAPI = realAPI[name];
 		}
@@ -229,15 +246,6 @@ bootstrap.defineLazyBinding(Titanium, "API");
 
 Titanium.Yahoo = require("yahoo");
 
-// Define lazy initializers for all Titanium APIs
-bootstrap.bootstrap(Titanium);
-
-// Custom JS extensions to Java modules
-require("ui").bootstrap(Titanium);
-
-var Properties = require("properties");
-Properties.bootstrap(Titanium);
-
 // Do not serialize the parent view. Doing so will result
 // in a circular reference loop.
 Object.defineProperty(Titanium.TiView.prototype, "toJSON", {
@@ -259,11 +267,6 @@ Object.defineProperty(Titanium.TiView.prototype, "toJSON", {
 	enumerable: false
 });
 
-// Finally, sandbox and bind the top level Titanium object
-function SandboxTitanium() {}
-SandboxTitanium.prototype = Titanium;
-
-var sandboxTi = new SandboxTitanium();
-Titanium.bindInvocationAPIs(sandboxTi, Titanium.sourceUrl);
-
-module.exports = sandboxTi;
+module.exports = new TitaniumModule({
+	sourceUrl: Titanium.sourceUrl
+});
