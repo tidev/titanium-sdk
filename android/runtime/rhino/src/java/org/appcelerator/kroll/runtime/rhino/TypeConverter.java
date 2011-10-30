@@ -12,7 +12,6 @@ import java.util.Map;
 
 import org.appcelerator.kroll.KrollProxySupport;
 import org.appcelerator.kroll.KrollRuntime;
-import org.appcelerator.kroll.runtime.rhino.Proxy.RhinoObject;
 import org.json.JSONObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;

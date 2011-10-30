@@ -8,7 +8,6 @@ package org.appcelerator.kroll.runtime.rhino;
 
 import java.util.TreeSet;
 
-import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollProxySupport;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
@@ -93,7 +92,7 @@ public class Proxy extends EventEmitter
 
 	public Proxy()
 	{
-		rhinoObject = new RhinoObject();
+		rhinoObject = new RhinoObject(this);
 	}
 
 	public RhinoObject getRhinoObject()
@@ -259,73 +258,7 @@ public class Proxy extends EventEmitter
 			TypeConverter.jsObjectToJavaObject(value, this));
 	}
 
-	protected class RhinoObject extends KrollObject
-	{
-		private Function emitFunction;
-
-
-		@Override
-		public Object getNativeObject()
-		{
-			return Proxy.this;
-		}
-
-		@Override
-		protected void setProperty(String name, Object value)
-		{
-			Context context = Context.enter();
-			context.setOptimizationLevel(-1);
-
-			try {
-				putProperty(properties, name, 
-					TypeConverter.javaObjectToJsObject(value, properties));
-
-			} finally {
-				Context.exit();
-			}
-		}
-
-		@Override
-		protected boolean fireEvent(String type, Object data)
-		{
-			Context context = Context.enter();
-			context.setOptimizationLevel(-1);
-
-			try {
-				if (emitFunction == null) {
-					emitFunction = (Function) getProperty(Proxy.this, "emit");
-				}
-	
-				Object jsData = TypeConverter.javaObjectToJsObject(data, Proxy.this);
-				Object[] args;
-
-				if (jsData == null) {
-					args = new Object[] { type };
-
-				} else {
-					args = new Object[] { type, jsData };
-				}
-	
-				Object result = emitFunction.call(context, getParentScope(), Proxy.this, args);
-				return TypeConverter.jsObjectToJavaBoolean(result, Proxy.this);
-
-			} finally {
-				Context.exit();
-			}
-		}
-
-		@Override
-		protected void doRelease()
-		{
-		}
-
-		@Override
-		protected void doSetWindow(Object windowProxyObject)
-		{
-		}
-	}
-
-// #string_id_map#
+	// #string_id_map#
 	private static final int
 		Id_constructor = 1,
 		Id__hasListenersForEventType = 2,
@@ -467,6 +400,11 @@ public class Proxy extends EventEmitter
 			return idSet.toArray();
 		}
 		return ids;
+	}
+
+	public Scriptable getProperties()
+	{
+		return properties;
 	}
 
 	@Override

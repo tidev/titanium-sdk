@@ -19,7 +19,6 @@ import android.app.Activity;
 @Kroll.proxy(creatableInModule=UIModule.class,
 propertyAccessors = {
 	TiC.PROPERTY_TITLE,
-	TiC.PROPERTY_WINDOW,
 	TiC.PROPERTY_ICON
 })
 public class TabProxy extends TiViewProxy
@@ -51,29 +50,28 @@ public class TabProxy extends TiViewProxy
 		return null;
 	}
 
-	@Kroll.method
-	public void open(TiWindowProxy win, @Kroll.argument(optional=true) KrollDict options)
+	@Kroll.method @Kroll.setProperty
+	public void setWindow(TiWindowProxy window)
 	{
-		if (win != null) {
-			if (options == null) {
-				options = new KrollDict();
-			}
-
-			this.win = win;
-			this.win.setTabProxy(this);
-			this.win.setTabGroupProxy(tabGroupProxy);
-			options.put(TiC.PROPERTY_TAB_OPEN, true);
-			win.open(options);
+		this.win = window;
+		if (window == null) {
+			return;
 		}
+
+		this.win.setTabProxy(this);
+		this.win.setTabGroupProxy(tabGroupProxy);
 	}
 
-	@Kroll.method
-	public void close(@Kroll.argument(optional=true) KrollDict options)
+	@Kroll.method @Kroll.getProperty
+	public TiWindowProxy getWindow()
 	{
-		if (win != null) {
-			win.close(options);
-			win = null;
-		}
+		return this.win;
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public TabGroupProxy getTabGroup()
+	{
+		return this.tabGroupProxy;
 	}
 
 	public void setTabGroup(TabGroupProxy tabGroupProxy) 

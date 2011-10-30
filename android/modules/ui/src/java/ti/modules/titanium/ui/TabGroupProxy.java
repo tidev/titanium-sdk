@@ -176,22 +176,25 @@ public class TabGroupProxy extends TiWindowProxy
 		Drawable icon = TiDrawableReference.fromObject(activity, tab.getProperty(TiC.PROPERTY_ICON)).getDrawable();
 		String tag = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TAG));
 		String title = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TITLE));
-		if (title == null) { title = ""; }
+		if (title == null) {
+			title = "";
+		}
+
 		tab.setTabGroup(this);
 
-		ActivityWindowProxy vp = new ActivityWindowProxy();
+		ActivityWindowProxy windowProxy = new ActivityWindowProxy();
 		TiBaseWindowProxy baseWindow = (TiBaseWindowProxy) tab.getProperty(TiC.PROPERTY_WINDOW);
 		if (baseWindow != null) {
-			vp.handleCreationDict(baseWindow.getProperties());
+			windowProxy.handleCreationDict(baseWindow.getProperties());
+			baseWindow.getKrollObject().setWindow(windowProxy);
 
 		} else {
 			Log.w(LCAT, "window property was not set on tab");
 		}
-		baseWindow.getKrollObject().setWindow(vp);
 
-		vp.setTabGroupProxy(this);
-		vp.setTabProxy(tab);
-		if (tag != null && vp != null) {
+		windowProxy.setTabGroupProxy(this);
+		windowProxy.setTabProxy(tab);
+		if (tag != null && windowProxy != null) {
 			TabSpec tspec = tg.newTab(tag);
 			if (icon == null) {
 				tspec.setIndicator(title);
@@ -200,7 +203,7 @@ public class TabGroupProxy extends TiWindowProxy
 			}
 
 			Intent intent = new Intent(tta, TiActivity.class);
-			vp.fillIntentForTab(intent);
+			windowProxy.fillIntentForTab(intent);
 
 			tspec.setContent(intent);
 

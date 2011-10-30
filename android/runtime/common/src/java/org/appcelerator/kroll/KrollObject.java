@@ -26,7 +26,6 @@ public abstract class KrollObject implements Handler.Callback
 	protected HashMap<String, Boolean> hasListenersForEventType = new HashMap<String, Boolean>();
 	protected Handler handler;
 
-
 	public KrollObject()
 	{
 		handler = new Handler(TiMessenger.getRuntimeMessenger().getLooper(), this);	

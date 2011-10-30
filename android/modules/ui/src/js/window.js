@@ -89,15 +89,15 @@ exports.bootstrapWindow = function(Titanium) {
 		windowPixelFormat: definePropsAndMethods("getWindowPixelFormat", "setWindowPixelFormat")
 	});
 
-	var addChildren = function(thisObject) {
-		if (thisObject._children) {
-			var length = thisObject._children.length;
+	Window.prototype.addChildren = function() {
+		if (this._children) {
+			var length = this._children.length;
 
 			for (var i = 0; i < length; i++) {
-				thisObject.view.add(thisObject._children[i]);
+				this.view.add(this._children[i]);
 			}
 
-			delete thisObject._children;
+			delete this._children;
 		}
 	}
 
@@ -135,7 +135,7 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 
 		this.setWindowView(this.view);
-		addChildren(this);
+		this.addChildren();
 
 		if (needsOpen) {
 			var self = this;
@@ -155,7 +155,7 @@ exports.bootstrapWindow = function(Titanium) {
 		this.view = this.window;
 		this.setWindowView(this.view);
 
-		addChildren(this);
+		this.addChildren();
 
 		var self = this;
 		this.window.on("open", function () {
@@ -209,14 +209,21 @@ exports.bootstrapWindow = function(Titanium) {
 			if (!children) {
 				children = this._children = [];
 			}
+
 			children.push(view);
 		}
 	}
 
-	Window.prototype.loadUrl = function()
-	{
-		if (this.url == null) return;
-		Ti.include(this.url, this._sourceUrl, {currentWindow:this});
+	Window.prototype.loadUrl = function() {
+		if (this.url == null) {
+			return;
+		}
+
+		Ti.include(this.url, this._sourceUrl, {
+			currentWindow: this,
+			currentTab: this.window.tab,
+			currentTabGroup: this.window.tabGroup
+		});
 	}
 
 	Window.prototype.addEventListener = function(event, listener) {

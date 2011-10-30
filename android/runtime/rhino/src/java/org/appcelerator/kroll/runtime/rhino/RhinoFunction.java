@@ -13,7 +13,6 @@ import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.TiMessenger;
-import org.appcelerator.kroll.runtime.rhino.Proxy.RhinoObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;

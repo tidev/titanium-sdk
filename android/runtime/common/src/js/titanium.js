@@ -57,6 +57,8 @@ Titanium.TitaniumModule = TitaniumModule;
 
 function UIModule(context) {
 	this.currentWindow = context.currentWindow;
+	this.currentTab = context.currentTab;
+	this.currentTabGroup = context.currentTabGroup;
 }
 UIModule.prototype = Titanium.UI;
 

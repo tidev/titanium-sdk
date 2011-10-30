@@ -72,9 +72,10 @@ public class V8Object extends KrollObject
 
 	// JNI method prototypes
 	protected static native void nativeInitObject(Class<?> proxyClass, Object proxyObject);
+	private static native void nativeRelease(long ptr);
+
 	private native void nativeSetProperty(long ptr, String name, Object value);
 	private native boolean nativeFireEvent(long ptr, String event, Object data);
-	private static native void nativeRelease(long ptr);
-	private native boolean nativeSetWindow(long ptr, Object windowProxyObject);
+	private native void nativeSetWindow(long ptr, Object windowProxyObject);
 }
 

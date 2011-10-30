@@ -168,21 +168,29 @@ public abstract class TiWindowProxy extends TiViewProxy
 		activity = null;
 	}
 
+	@Kroll.method(name="setTab")
+	@Kroll.setProperty(name="tab")
 	public void setTabProxy(TiViewProxy tabProxy)
 	{
 		this.tab = tabProxy;
 	}
 
+	@Kroll.method(name="getTab")
+	@Kroll.getProperty(name="tab")
 	public TiViewProxy getTabProxy()
 	{
 		return this.tab;
 	}
 
+	@Kroll.method(name="setTabGroup")
+	@Kroll.setProperty(name="tabGroup")
 	public void setTabGroupProxy(TiViewProxy tabGroupProxy)
 	{
 		this.tabGroup = tabGroupProxy;
 	}
 
+	@Kroll.method(name="getTabGroup")
+	@Kroll.getProperty(name="tabGroup")
 	public TiViewProxy getTabGroupProxy()
 	{
 		return this.tabGroup;
