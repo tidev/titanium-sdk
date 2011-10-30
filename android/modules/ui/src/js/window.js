@@ -89,6 +89,18 @@ exports.bootstrapWindow = function(Titanium) {
 		windowPixelFormat: definePropsAndMethods("getWindowPixelFormat", "setWindowPixelFormat")
 	});
 
+	var addChildren = function(thisObject) {
+		if (thisObject._children) {
+			var length = thisObject._children.length;
+
+			for (var i = 0; i < length; i++) {
+				thisObject.view.add(thisObject._children[i]);
+			}
+
+			delete thisObject._children;
+		}
+	}
+
 	Window.prototype.open = function(options) {
 		if (!options) {
 			options = {};
@@ -123,16 +135,7 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 
 		this.setWindowView(this.view);
-
-		if (this._children) {
-			var length = this._children.length;
-
-			for (var i = 0; i < length; i++) {
-				this.view.add(this._children[i]);
-			}
-
-			delete this._children;
-		}
+		addChildren(this);
 
 		if (needsOpen) {
 			var self = this;
@@ -145,6 +148,33 @@ exports.bootstrapWindow = function(Titanium) {
 		} else {
 			this.postOpen();
 		}
+	}
+
+	Window.prototype.setWindow = function(existingWindow) {
+		this.window = existingWindow;
+		this.view = this.window;
+		this.setWindowView(this.view);
+
+		addChildren(this);
+
+		var self = this;
+		this.window.on("open", function () {
+			self.postOpen();
+		});
+	}
+
+	Window.prototype.postOpen = function() {
+		// Set any cached properties.
+		if (this.propertyCache) {
+			for (setter in this.propertyCache) {
+				setter.call(this.window, this.propertyCache[setter]);
+			}
+		}
+
+		if ("url" in this) {
+			this.loadUrl();
+		}
+		this.fireEvent("open");
 	}
 
 	Window.prototype.close = function(options) {
@@ -181,20 +211,6 @@ exports.bootstrapWindow = function(Titanium) {
 			}
 			children.push(view);
 		}
-	}
-
-	Window.prototype.postOpen = function() {
-		// Set any cached properties.
-		if (this.propertyCache) {
-			for (setter in this.propertyCache) {
-				setter.call(this.window, this.propertyCache[setter]);
-			}
-		}
-
-		if ("url" in this) {
-			this.loadUrl();
-		}
-		this.fireEvent("open");
 	}
 
 	Window.prototype.loadUrl = function()

@@ -123,6 +123,44 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeRelease
 	}
 }
 
+JNIEXPORT jboolean JNICALL
+Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetWindow
+	(JNIEnv *env, jobject javaKrollWindow, jlong ptr, jobject javaWindow)
+{
+	ENTER_V8(V8Runtime::globalContext);
+	titanium::JNIScope jniScope(env);
+
+	Handle<Object> jsKrollWindow;
+	if (ptr != 0) {
+		jsKrollWindow = Persistent<Object>((Object *) ptr);
+	} else {
+		jsKrollWindow = TypeConverter::javaObjectToJsValue(javaKrollWindow)->ToObject();
+	}
+
+	Handle<Value> setWindowValue = jsKrollWindow->Get(String::New("setWindow"));
+	if (!setWindowValue->IsFunction()) {
+		return JNI_FALSE;
+	}
+
+	Handle<Function> setWindow = Handle<Function>::Cast(setWindowValue->ToObject());
+
+	Handle<Value> jsWindow = TypeConverter::javaObjectToJsValue(javaWindow);
+	Handle<Value> result;
+
+	TryCatch tryCatch;
+	if (!(jsWindow->IsNull())) {
+		Handle<Value> args[] = { jsWindow };
+		result = setWindow->Call(jsKrollWindow, 1, args);
+	}
+
+	if (tryCatch.HasCaught()) {
+		V8Util::reportException(tryCatch);
+	} else if (result->IsTrue()) {
+		return JNI_TRUE;
+	}
+	return JNI_FALSE;
+}
+
 #ifdef __cplusplus
 }
 #endif

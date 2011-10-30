@@ -20,7 +20,8 @@ public abstract class KrollObject implements Handler.Callback
 	private static final String TAG = "KrollObject";
 
 	protected static final int MSG_RELEASE = 100;
-	protected static final int MSG_LAST_ID = MSG_RELEASE;
+	protected static final int MSG_SET_WINDOW = 101;
+	protected static final int MSG_LAST_ID = MSG_SET_WINDOW;
 
 	protected HashMap<String, Boolean> hasListenersForEventType = new HashMap<String, Boolean>();
 	protected Handler handler;
@@ -57,11 +58,27 @@ public abstract class KrollObject implements Handler.Callback
 		}
 	}
 
+	public void setWindow(Object windowProxyObject)
+	{
+		if (KrollRuntime.getInstance().isRuntimeThread()) {
+			doSetWindow(windowProxyObject);
+
+		} else {
+			Message message = handler.obtainMessage(MSG_SET_WINDOW, windowProxyObject);
+			message.sendToTarget();
+		}
+	}
+
 	public boolean handleMessage(Message msg)
 	{
 		switch (msg.what) {
 			case MSG_RELEASE: {
 				doRelease();
+
+				return true;
+			}
+			case MSG_SET_WINDOW: {
+				doSetWindow(msg.obj);
 
 				return true;
 			}
@@ -74,5 +91,6 @@ public abstract class KrollObject implements Handler.Callback
 	protected abstract void setProperty(String name, Object value);
 	protected abstract boolean fireEvent(String type, Object data);
 	protected abstract void doRelease();
+	protected abstract void doSetWindow(Object windowProxyObject);
 }
 

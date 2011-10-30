@@ -36,6 +36,7 @@ import org.appcelerator.titanium.view.ITiWindowHandler;
 
 import android.app.Activity;
 import android.app.Application;
+import android.app.TabActivity;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
@@ -250,6 +251,15 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 	public void setCurrentActivity(Activity callingActivity, Activity newValue)
 	{
 		synchronized (this) {
+			if ((currentActivity instanceof TabActivity) && (newValue instanceof TiActivity)) {
+				TiActivity tiActivity = (TiActivity)newValue;
+				if (tiActivity.isTab()) {
+					currentActivity = newValue;
+
+					return;
+				}
+			}
+
 			if (currentActivity == null || (callingActivity == currentActivity && newValue == null)) {
 				currentActivity = newValue;
 			}

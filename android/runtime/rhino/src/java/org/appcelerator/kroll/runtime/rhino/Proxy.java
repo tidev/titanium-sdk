@@ -318,6 +318,11 @@ public class Proxy extends EventEmitter
 		protected void doRelease()
 		{
 		}
+
+		@Override
+		protected void doSetWindow(Object windowProxyObject)
+		{
+		}
 	}
 
 // #string_id_map#

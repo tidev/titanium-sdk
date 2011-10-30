@@ -19,6 +19,7 @@ import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.proxy.TiBaseWindowProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -177,7 +178,17 @@ public class TabGroupProxy extends TiWindowProxy
 		String title = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TITLE));
 		if (title == null) { title = ""; }
 		tab.setTabGroup(this);
-		final ActivityWindowProxy vp = (ActivityWindowProxy) tab.getProperty(TiC.PROPERTY_WINDOW);
+
+		ActivityWindowProxy vp = new ActivityWindowProxy();
+		TiBaseWindowProxy baseWindow = (TiBaseWindowProxy) tab.getProperty(TiC.PROPERTY_WINDOW);
+		if (baseWindow != null) {
+			vp.handleCreationDict(baseWindow.getProperties());
+
+		} else {
+			Log.w(LCAT, "window property was not set on tab");
+		}
+		baseWindow.getKrollObject().setWindow(vp);
+
 		vp.setTabGroupProxy(this);
 		vp.setTabProxy(tab);
 		if (tag != null && vp != null) {
