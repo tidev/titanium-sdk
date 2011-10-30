@@ -55,7 +55,7 @@ public class CodecModule extends KrollModule
 		}
 
 		BufferProxy dest = (BufferProxy) args.get(TiC.PROPERTY_DEST);
-		Double src = (Double) args.get(TiC.PROPERTY_SOURCE);
+		Number src = (Number) args.get(TiC.PROPERTY_SOURCE);
 		String type = TiConvert.toString(args, TiC.PROPERTY_TYPE);
 		int byteOrder = getByteOrder(args.get(TiC.PROPERTY_BYTE_ORDER));
 

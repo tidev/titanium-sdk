@@ -87,8 +87,8 @@ public class TypeConverter
 		@Override
 		public Object getDefaultValue(Class<?> typeHint)
 		{
-			if (typeHint == null || typeHint.equals(String.class)) {
-				return toString();
+			if (typeHint == null || typeHint.equals(ScriptRuntime.StringClass)) {
+				return "[object Object]";
 			}
 			return super.getDefaultValue(typeHint);
 		}
@@ -188,6 +188,9 @@ public class TypeConverter
 
 		} else if (value.getClass().isArray()) {
 			return javaArrayToJsArray(value, scope);
+
+		} else if (value instanceof RhinoFunction) {
+			return ((RhinoFunction) value).getFunction();
 
 		} else if (value == JSONObject.NULL || value.getClass().equals(JSONObject.NULL.getClass())) {
 			return Context.javaToJS(null, scope);

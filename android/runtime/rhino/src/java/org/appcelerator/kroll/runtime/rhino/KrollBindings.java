@@ -17,11 +17,14 @@ import org.appcelerator.kroll.runtime.rhino.js.kroll;
 import org.appcelerator.kroll.runtime.rhino.js.module;
 import org.appcelerator.kroll.runtime.rhino.js.path;
 import org.appcelerator.kroll.runtime.rhino.js.properties;
+import org.appcelerator.kroll.runtime.rhino.js.rhino;
+import org.appcelerator.kroll.runtime.rhino.js.sha1;
 import org.appcelerator.kroll.runtime.rhino.js.titanium;
 import org.appcelerator.kroll.runtime.rhino.js.ui;
 import org.appcelerator.kroll.runtime.rhino.js.url;
 import org.appcelerator.kroll.runtime.rhino.js.vm;
 import org.appcelerator.kroll.runtime.rhino.js.window;
+import org.appcelerator.kroll.runtime.rhino.js.yahoo;
 import org.appcelerator.kroll.runtime.rhino.modules.AssetsModule;
 import org.appcelerator.kroll.runtime.rhino.modules.ScriptsModule;
 import org.mozilla.javascript.Context;
@@ -58,6 +61,7 @@ public class KrollBindings
 
 	private static void initJsBindings()
 	{
+		// TODO this should be generated
 		addJsBinding("activity", activity.class);
 		addJsBinding("bootstrap", bootstrap.class);
 		addJsBinding("events", events.class);
@@ -65,11 +69,14 @@ public class KrollBindings
 		addJsBinding("module", module.class);
 		addJsBinding("path", path.class);
 		addJsBinding("properties", properties.class);
+		addJsBinding("rhino", rhino.class);
+		addJsBinding("sha1", sha1.class);
 		addJsBinding("titanium", titanium.class);
 		addJsBinding("ui", ui.class);
 		addJsBinding("url", url.class);
 		addJsBinding("vm", vm.class);
 		addJsBinding("window", window.class);
+		addJsBinding("yahoo", yahoo.class);
 	}
 
 	private static void initTitanium(Context context, Scriptable exports)

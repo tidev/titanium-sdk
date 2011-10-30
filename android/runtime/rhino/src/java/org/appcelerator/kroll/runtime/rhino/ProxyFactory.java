@@ -43,10 +43,8 @@ public class ProxyFactory
 				return null;
 			}
 
-			Object[] ids = exports.getIds();
-			if (ids.length >= 1) {
-				constructor = (Function) exports.get(ids[0].toString(), exports);
-			}
+			String bindingName = KrollGeneratedBindings.getBindingName(proxyClassName);
+			constructor = (Function) exports.get(bindingName, exports);
 		}
 
 		return (Proxy) constructor.construct(context, scope, args);

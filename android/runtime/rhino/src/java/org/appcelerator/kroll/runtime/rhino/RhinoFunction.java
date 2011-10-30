@@ -27,12 +27,13 @@ import android.os.Message;
  */
 public class RhinoFunction implements KrollFunction, Handler.Callback
 {
+	private static final long serialVersionUID = 5260765490022979346L;
+
 	private Function function;
 	private Handler handler;
 
 	protected static final int MSG_CALL_SYNC = 100;
 	protected static final int MSG_LAST_ID = MSG_CALL_SYNC;
-
 
 	public RhinoFunction(Function function)
 	{
@@ -89,6 +90,11 @@ public class RhinoFunction implements KrollFunction, Handler.Callback
 				call(krollObject, args);
 			}
 		});
+	}
+
+	public Function getFunction()
+	{
+		return function;
 	}
 
 	public boolean handleMessage(Message message)

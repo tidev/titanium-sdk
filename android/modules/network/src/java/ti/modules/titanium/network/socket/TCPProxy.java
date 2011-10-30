@@ -107,7 +107,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 	@Kroll.method
 	public void accept(KrollDict acceptOptions) throws Exception
 	{
-		if(state != SocketModule.LISTENING) {
+		if (state != SocketModule.LISTENING) {
 			throw new Exception("Socket is not listening, unable to call accept");
 		}
 

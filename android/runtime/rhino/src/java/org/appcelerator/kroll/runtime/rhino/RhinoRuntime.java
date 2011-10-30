@@ -17,7 +17,6 @@ import org.mozilla.javascript.ScriptableObject;
 
 import android.util.Log;
 
-
 public class RhinoRuntime extends KrollRuntime
 {
 	private static final String TAG = "RhinoRuntime";
@@ -26,7 +25,6 @@ public class RhinoRuntime extends KrollRuntime
 	private Scriptable globalKrollObject;
 	private Scriptable moduleObject;
 	private Function runMainModuleFunction;
-
 
 	@Override
 	public void initRuntime()

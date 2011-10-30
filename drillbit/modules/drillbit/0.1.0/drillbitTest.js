@@ -63,14 +63,14 @@ var DrillbitTest =
 		}
 	},
 	
-	testFailed: function(name,e)
+	testFailed: function(name, e)
 	{
 		this.failed++;
 		this.results.push({
 			name:name,
 			passed:false,
 			lineNumber:e.line,
-			message:e.message || String(e)
+			message: e.message || String(e)
 		});
 		
 		var errorMessage = String(e).replace("\n","\\n");

@@ -33,6 +33,7 @@
 
 		<path id="js.files">
 			<fileset dir="${kroll.common.project.dir}/src/js" includes="*.js"/>
+			<fileset dir="${kroll.rhino.project.dir}/src/js" includes="*.js"/>
 			<fileset dir="${modules.dir}" includes="*/src/js/*.js"/>
 			<fileset file="${kroll.rhino.project.dir}/generated/bootstrap.js"/>
 		</path>

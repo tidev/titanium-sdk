@@ -6,6 +6,8 @@
  */
 package org.appcelerator.kroll.runtime.rhino;
 
+import java.util.TreeSet;
+
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollProxySupport;
 import org.mozilla.javascript.Context;
@@ -13,7 +15,6 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.IdFunctionObject;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.Undefined;
 
 import android.util.Log;
@@ -58,7 +59,7 @@ public class Proxy extends EventEmitter
 			// Initialize the prototype inheritance chain
 			if (proxyProto.getPrototype() == null) {
 				Class<? extends Proxy> parentProto = proxyProto.getParent();
-				Function parentCtor = init(context, exports, proxyProto.getClassName(), parentProto);
+				Function parentCtor = init(context, exports, parentProto.getName(), parentProto);
 				ProxyFactory.addProxyConstructor(parentProto.getName().replace("Prototype", ""), parentCtor);
 			}
 
@@ -144,7 +145,7 @@ public class Proxy extends EventEmitter
 
 		for (Object key : ids) {
 			if (!(key instanceof String)) {
-				 continue;
+				continue;
 			}
 
 			String name = (String) key;
@@ -152,7 +153,7 @@ public class Proxy extends EventEmitter
 			boolean isGetter = proxy.isGetterOrSetter(name, 0, false);
 			boolean isSetter = proxy.isGetterOrSetter(name, 0, true);
 
-			if (!ScriptableObject.hasProperty(proxy, name) && !isGetter && !isSetter) {
+			if (!hasProperty(proxy, name) && !isGetter && !isSetter) {
 				putProperty(proxy, name, value);
 
 			} else {
@@ -237,28 +238,25 @@ public class Proxy extends EventEmitter
 		return MAX_PROTOTYPE_ID;
 	}
 
-	protected Object getProperty(Context context, String name)
+	protected Object getProperty(String name)
 	{
-		if (getProperty == null) {
-			getProperty = (Function) getProperty(this, "getProperty");
-		}
-
-		Object result = getProperty.call(context,
-			this, this, new Object[] { name });
-
-		return TypeConverter.jsObjectToJavaObject(result, this);
+		return getProperty(properties, name);
 	}
 
-	protected void setProperty(Context context, String name, Object value)
+	protected void setProperty(String name, Object value)
 	{
-		if (setProperty == null) {
-			setProperty = (Function) getProperty(this, "setProperty");
+		putProperty(properties, name, value);
+	}
+
+	protected void onPropertyChanged(String name, Object value)
+	{
+		KrollProxySupport proxy = getProxy();
+		if (proxy == null) {
+			return;
 		}
 
-		Object jsValue = TypeConverter.javaObjectToJsObject(value, this);
-
-		setProperty.call(context,
-			this, this, new Object[] { name, jsValue });
+		proxy.onPropertyChanged(name,
+			TypeConverter.jsObjectToJavaObject(value, this));
 	}
 
 	protected class RhinoObject extends KrollObject
@@ -329,10 +327,9 @@ public class Proxy extends EventEmitter
 
 // #string_id_map#
 	private static final int
-		START = EventEmitter.MAX_PROTOTYPE_ID,
-		Id_constructor = START + 1,
-		Id__hasListenersForEventType = START + 2,
-		Id_onPropertiesChanged = START + 3;
+		Id_constructor = 1,
+		Id__hasListenersForEventType = 2,
+		Id_onPropertiesChanged = 3;
 
 	public static final int MAX_PROTOTYPE_ID = Id_onPropertiesChanged;
 
@@ -406,6 +403,70 @@ public class Proxy extends EventEmitter
 			default:
 				throw new IllegalArgumentException(String.valueOf(id));
 		}
+	}
+
+	@Override
+	public Object get(int index, Scriptable start)
+	{
+		KrollProxySupport proxySupport = getProxy();
+		if (proxySupport != null) {
+			Object result = proxySupport.getIndexedProperty(index);
+			return TypeConverter.javaObjectToJsObject(result, start);
+		}
+		return super.get(index, start);
+	}
+
+	@Override
+	public void put(int index, Scriptable start, Object value)
+	{
+		KrollProxySupport proxySupport = getProxy();
+		if (proxySupport != null) {
+			Object javaValue = TypeConverter.jsObjectToJavaObject(value, start);
+			proxySupport.setIndexedProperty(index, javaValue);
+			return;
+		}
+		super.put(index, start, value);
+	}
+
+	@Override
+	protected Object equivalentValues(Object value)
+	{
+		if (!(value instanceof Proxy)) {
+			return super.equivalentValues(value);
+		}
+
+		Proxy other = (Proxy) value;
+
+		KrollProxySupport proxySupport = getProxy();
+		KrollProxySupport otherProxySupport = other.getProxy();
+		if (proxySupport == null || otherProxySupport == null) {
+			return super.equivalentValues(value);
+		}
+
+		return proxySupport.equals(otherProxySupport);
+	}
+
+	@Override
+	public Object[] getIds()
+	{
+		Object[] ids = super.getIds();
+		if (properties != null) {
+			TreeSet<Object> idSet = new TreeSet<Object>();
+			if (ids != null) {
+				for (Object id : ids) {
+					idSet.add(id);
+				}
+			}
+
+			Object[] propertyIds = properties.getIds();
+			if (propertyIds != null) {
+				for (Object propertyId : propertyIds) {
+					idSet.add(propertyId);
+				}
+			}
+			return idSet.toArray();
+		}
+		return ids;
 	}
 
 	@Override

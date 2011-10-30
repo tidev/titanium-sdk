@@ -199,7 +199,13 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRu
 	Handle<Value> jsFilename = TypeConverter::javaStringToJsString(filename);
 
 	Handle<Value> args[] = { jsSource, jsFilename };
+	TryCatch tryCatch;
 	runMainModuleFunction->Call(moduleObject, 2, args);
+
+	if (tryCatch.HasCaught()) {
+		V8Util::reportException(tryCatch, true);
+		JNIUtil::terminateVM();
+	}
 }
 
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeProcessDebugMessages(JNIEnv *env, jobject self)

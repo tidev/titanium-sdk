@@ -201,6 +201,7 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaDeleteLocalRef":true,
 		"rhinoValidation":true,
 		"rhinoType":"Proxy",
+		"rhinoJsCast":false,
 		"rhinoToJavaConverter":"jsObjectToJavaObject",
 		"javaToRhinoConverter":"javaObjectToJsObject",
 		"defaultValue": "null"
@@ -217,6 +218,7 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaDeleteLocalRef":true,
 		"rhinoValidation":false,
 		"rhinoType":"String",
+		"rhinoJsCast":false,
 		"rhinoToJavaConverter":"jsObjectToJavaString",
 		"defaultValue": "null"
 	},
@@ -233,6 +235,7 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaDeleteLocalRef":true,
 		"rhinoValidation":false,
 		"rhinoType":"Object",
+		"rhinoJsCast":false,
 		"rhinoToJavaConverter":"jsObjectToJavaObject",
 		"javaToRhinoConverter":"javaObjectToJsObject",
 		"defaultValue": "null"
@@ -248,6 +251,7 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaValidation": true,
 		"javaDeleteLocalRef":true,
 		"rhinoType":"Scriptable",
+		"rhinoJsCast":true,
 		"rhinoToJavaConverter":"jsArrayToJavaObjectArray",
 		"javaToRhinoConverter":"javaObjectArrayToJsArray",
 		"defaultValue": "null"
@@ -263,6 +267,7 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaValidation":true,
 		"javaDeleteLocalRef":true,
 		"rhinoType":"Scriptable",
+		"rhinoJsCast":true,
 		"rhinoToJavaConverter":"jsArrayToJavaIntArray",
 		"javaToRhinoConverter":"javaIntArrayToJsArray",
 		"defaultValue": "null"
@@ -275,6 +280,7 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaCallMethodType":"Int",
 		"javaReturnType":"jint",
 		"rhinoType":"Number",
+		"rhinoJsCast":false,
 		"rhinoToJavaConverter":"jsObjectToJavaInt",
 		"defaultValue": "-1"
 	},
@@ -286,6 +292,7 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaCallMethodType":"Short",
 		"javaReturnType":"jshort",
 		"rhinoType":"Number",
+		"rhinoJsCast":false,
 		"rhinoToJavaConverter":"jsObjectToJavaShort",
 		"defaultValue": "-1"
 	},
@@ -297,6 +304,7 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaCallMethodType":"Long",
 		"javaReturnType":"jlong",
 		"rhinoType":"Number",
+		"rhinoJsCast":false,
 		"rhinoToJavaConverter":"jsObjectToJavaLong",
 		"defaultValue": "-1"
 	},
@@ -308,6 +316,7 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaCallMethodType":"Float",
 		"javaReturnType":"jfloat",
 		"rhinoType":"Number",
+		"rhinoJsCast":false,
 		"rhinoToJavaConverter":"jsObjectToJavaFloat",
 		"defaultValue": "-1f"
 	},
@@ -319,6 +328,7 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaCallMethodType":"Double",
 		"javaReturnType":"jdouble",
 		"rhinoType":"Number",
+		"rhinoJsCast":false,
 		"rhinoToJavaConverter":"jsObjectToJavaDouble",
 		"defaultValue": "-1d"
 	},
@@ -330,6 +340,7 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaCallMethodType":"Boolean",
 		"javaReturnType":"jboolean",
 		"rhinoType":"Boolean",
+		"rhinoJsCast":false,
 		"rhinoToJavaConverter":"jsObjectToJavaBoolean",
 		"defaultValue": "false"
 	},
@@ -502,8 +513,8 @@ fails, a JS exception is returned.
 
 <#macro verifyAndConvertJavaArgument expr index info type logOnly isOptional>
 	<#if info.rhinoValidation!true && !isOptional>
-		if (!(${expr} instanceof ${info.rhinoType})) {
-			String error = "Invalid value, expected type ${info.jsType}.";
+		if (!(${expr} instanceof ${info.rhinoType})<#if info.javaCallMethodType == "Object"> && ${expr} != null</#if>) {
+			String error = "Invalid value, expected type ${info.rhinoType}, got: " + ${expr};
 			Log.e(TAG, error);
 			<#if !(logOnly!false)>
 			throw new IllegalArgumentException(error);
@@ -511,9 +522,14 @@ fails, a JS exception is returned.
 		}
 	</#if>
 <#t>
-	<#local cast = "">
+	<#local wrapStart = "">
+	<#local wrapEnd = "">
 	<#if info.rhinoType != type>
-	<#local cast = "(" + type + ")">
+		<#local wrapStart = "(" + type + ")">
+		<#if type == "org.appcelerator.kroll.KrollDict">
+			<#local wrapStart = "new KrollDict((HashMap) ">
+			<#local wrapEnd = ")">
+		</#if>
 	</#if>
 <#t>
 		${type} arg${index};
@@ -522,7 +538,20 @@ fails, a JS exception is returned.
 			arg${index} = ${info.defaultValue};
 		} else {
 	</#if>
-		arg${index} = ${cast}TypeConverter.${info.rhinoToJavaConverter}((${info.rhinoType}) ${expr}, thisObj);
+		<#if info.rhinoJsCast>
+			<#local rhinoExpr = "(" + info.rhinoType + ") " + expr>
+		<#else>
+			<#local rhinoExpr = expr>
+		</#if>
+		<#if type == "org.appcelerator.kroll.KrollDict">
+		if (${expr} == null) {
+			arg${index} = null;
+		} else {
+		</#if>
+		arg${index} = ${wrapStart} TypeConverter.${info.rhinoToJavaConverter}(${rhinoExpr}, thisObj) ${wrapEnd};
+		<#if type == "org.appcelerator.kroll.KrollDict">
+		}
+		</#if>
 	<#if isOptional>
 		}
 	</#if>

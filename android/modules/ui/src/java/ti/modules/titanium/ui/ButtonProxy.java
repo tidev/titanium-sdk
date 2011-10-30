@@ -7,7 +7,6 @@
 package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
@@ -31,7 +30,7 @@ public class ButtonProxy extends TiViewProxy
 {
 	public ButtonProxy()
 	{
-		super();
+		defaultValues.put(TiC.PROPERTY_TITLE, "");
 	}
 
 	public ButtonProxy(TiContext tiContext)
@@ -40,14 +39,8 @@ public class ButtonProxy extends TiViewProxy
 	}
 
 	@Override
-	public void handleCreationArgs(KrollModule createdInModule, Object[] args)
+	protected KrollDict getLangConversionTable()
 	{
-		setProperty(TiC.PROPERTY_TITLE, "");
-		super.handleCreationArgs(createdInModule, args);
-	}
-
-	@Override
-	protected KrollDict getLangConversionTable() {
 		KrollDict table = new KrollDict();
 		table.put(TiC.PROPERTY_TITLE, TiC.PROPERTY_TITLEID);
 		return table;

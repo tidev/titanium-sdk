@@ -12,9 +12,15 @@ package org.appcelerator.kroll;
  */
 public interface KrollProxySupport
 {
+	public void onPropertyChanged(String name, Object value);
+
 	public void onPropertiesChanged(Object[][] changes);
 
 	public KrollObject getKrollObject();
 
 	public void setKrollObject(KrollObject object);
+
+	public Object getIndexedProperty(int index);
+
+	public void setIndexedProperty(int index, Object value);
 }

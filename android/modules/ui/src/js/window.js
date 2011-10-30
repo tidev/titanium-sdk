@@ -216,8 +216,7 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.loadUrl = function()
 	{
 		if (this.url == null) return;
-
-		Ti.include(this.url, this._sourceUrl, this);
+		Ti.include(this.url, this._sourceUrl, {currentWindow:this});
 	}
 
 	Window.prototype.addEventListener = function(event, listener) {
