@@ -619,7 +619,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<macrodef name="build.module">
 		<attribute name="module"/>
 		<sequential>
-			<ti.modulePath json="${dependency.json}" module="@{module}" modulesdir="${modules.dir}" pathid="dependencies"/>
+			<ti.modulePath json="${dependency.json}" module="@{module}" modulesdir="${dist.classes.dir}" pathid="dependencies"/>
 			<build.module.jar name="@{module}"/>
 			<available type="dir" file="${modules.dir}/@{module}/res" property="@{module}.res.avail"/>
 			<if>
