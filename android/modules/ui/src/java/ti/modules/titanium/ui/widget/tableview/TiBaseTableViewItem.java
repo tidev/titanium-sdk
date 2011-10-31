@@ -185,7 +185,7 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 			background = new ColorDrawable(bgColor);
 		}
 
-		// TODO setBackgroundDrawable(props, background);
+		setBackgroundDrawable(proxy.getProperties(), background);
 	}
 	
 	public void release() {

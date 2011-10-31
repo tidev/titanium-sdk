@@ -123,7 +123,7 @@ public class TableViewModel
 						item.sectionIndex = sectionIndex;
 						item.indexInSection = indexInSection;
 						item.proxy = row;
-						item.rowData = row; // TODO capture dictionary?
+						item.rowData = row.getProperties().get("rowData");
 						item.className = classNameForRow(row);
 
 						viewModel.add(item);
