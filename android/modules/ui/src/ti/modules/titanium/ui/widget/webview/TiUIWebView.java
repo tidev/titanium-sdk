@@ -57,6 +57,8 @@ public class TiUIWebView extends TiUIView {
 	public static final int PLUGIN_STATE_ON = 1;
 	public static final int PLUGIN_STATE_ON_DEMAND = 2;
 	
+	private static final String DEFAULT_PAGE_FINISH_URL = "file:///android_asset/Resources/";
+	
 	private class TiWebView extends WebView {
 		public TiWebViewClient client;
 		public TiWebView(Context context) {
@@ -170,14 +172,14 @@ public class TiUIWebView extends TiUIView {
 			settings.setLoadWithOverviewMode(TiConvert.toBoolean(d, TiC.PROPERTY_SCALES_PAGE_TO_FIT));
 		}
 
-		if (d.containsKey(TiC.PROPERTY_URL)) {
+		if (d.containsKey(TiC.PROPERTY_URL) && !DEFAULT_PAGE_FINISH_URL.equals(TiConvert.toString(d, TiC.PROPERTY_URL))) {
 			setUrl(TiConvert.toString(d, TiC.PROPERTY_URL));
 		} else if (d.containsKey(TiC.PROPERTY_HTML)) {
 			setHtml(TiConvert.toString(d, TiC.PROPERTY_HTML));
 		} else if (d.containsKey(TiC.PROPERTY_DATA)) {
 			Object value = d.get(TiC.PROPERTY_DATA);
 			if (value instanceof TiBlob) {
-				setData((TiBlob)value);
+				setData((TiBlob) value);
 			}
 		}
 
@@ -199,13 +201,14 @@ public class TiUIWebView extends TiUIView {
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
-		if (TiC.PROPERTY_URL.equals(key) && !changingUrl) {
+		if (TiC.PROPERTY_URL.equals(key) && !changingUrl
+			&& !DEFAULT_PAGE_FINISH_URL.equals(TiConvert.toString(newValue))) {
 			setUrl(TiConvert.toString(newValue));
 		} else if (TiC.PROPERTY_HTML.equals(key)) {
 			setHtml(TiConvert.toString(newValue));
 		} else if (TiC.PROPERTY_DATA.equals(key)) {
 			if (newValue instanceof TiBlob) {
-				setData((TiBlob)newValue);
+				setData((TiBlob) newValue);
 			}
 		} else if (TiC.PROPERTY_SCALES_PAGE_TO_FIT.equals(key)) {
 			WebSettings settings = getWebView().getSettings();

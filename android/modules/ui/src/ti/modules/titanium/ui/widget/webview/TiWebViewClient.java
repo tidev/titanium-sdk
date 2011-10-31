@@ -27,7 +27,6 @@ public class TiWebViewClient extends WebViewClient
 	private static final boolean DBG = TiConfig.LOGD;
 	private TiUIWebView webView;
 	private TiWebViewBinding binding;
-	private static final String DEFAULT_PAGE_FINISH_URL = "file:///android_asset/Resources/";
 
 	private String username, password;
 
@@ -42,12 +41,7 @@ public class TiWebViewClient extends WebViewClient
 	public void onPageFinished(WebView view, String url)
 	{
 		super.onPageFinished(view, url);
-		if (DEFAULT_PAGE_FINISH_URL.equals(url)) {
-			url = "";
-			webView.getProxy().getProperties().remove("url");
-		} else {
-			webView.changeProxyUrl(url);
-		}
+		webView.changeProxyUrl(url);
 		KrollDict data = new KrollDict();
 		data.put("url", url);
 		webView.getProxy().fireEvent("load", data);
