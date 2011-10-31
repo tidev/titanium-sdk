@@ -12,20 +12,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
-<<<<<<< HEAD
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-=======
-import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.AsyncResult;
-import org.appcelerator.titanium.util.Log;
->>>>>>> 57c75c1... [TIMOB-5228] Added support for configuring how long the paging controls are displayed before they timeout. Zero or less indicates don't time out.
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiEventHelper;
 import org.appcelerator.titanium.view.TiUIView;
@@ -201,15 +193,10 @@ public class ScrollableViewProxy extends TiViewProxy
 		getMainHandler().sendEmptyMessage(MSG_MOVE_NEXT);
 	}
 
-<<<<<<< HEAD
 	public void setPagerTimeout()
 	{
 		getMainHandler().removeMessages(MSG_HIDE_PAGER);
 
-=======
-	public void setPagerTimeout() {
-		getUIHandler().removeMessages(MSG_HIDE_PAGER);
->>>>>>> 57c75c1... [TIMOB-5228] Added support for configuring how long the paging controls are displayed before they timeout. Zero or less indicates don't time out.
 		int timeout = DEFAULT_PAGING_CONTROL_TIMEOUT;
 		Object o = getProperty(TiC.PROPERTY_PAGING_CONTROL_TIMEOUT);
 		if (o != null) {
@@ -217,11 +204,7 @@ public class ScrollableViewProxy extends TiViewProxy
 		}
 
 		if (timeout > 0) {
-<<<<<<< HEAD
 			getMainHandler().sendEmptyMessageDelayed(MSG_HIDE_PAGER, timeout);
-=======
-			getUIHandler().sendEmptyMessageDelayed(MSG_HIDE_PAGER, timeout);
->>>>>>> 57c75c1... [TIMOB-5228] Added support for configuring how long the paging controls are displayed before they timeout. Zero or less indicates don't time out.
 		}
 	}
 
