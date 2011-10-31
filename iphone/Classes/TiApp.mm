@@ -178,7 +178,6 @@ void MyUncaughtExceptionHandler(NSException *exception)
 //To load application Defaults 
 - (void) loadUserDefaults
 {
-	[[NSUserDefaults standardUserDefaults] setPersistentDomain:[NSDictionary dictionary] forName:[[NSBundle mainBundle] bundleIdentifier]];
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	NSDictionary *appDefaults = [[NSDictionary alloc] initWithDictionary:[ApplicationDefaults copyDefaults]];
 	if(appDefaults)
