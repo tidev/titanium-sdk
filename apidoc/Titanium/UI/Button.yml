@@ -36,10 +36,10 @@ properties:
     description: the disabled background image url of the view. Sets the background image for all four (normal, disabled, focused, selected) states of the button unless overridden.
     type: String
   - name: backgroundFocusedImage
-    description: the focused background image url of the view. focusable must be true for normal views. Sets the background image for focused state only.
+    description: the focused background image url of the view. Focusable must be true for normal views. Sets the background image for focused state only.
     type: String
   - name: backgroundSelectedImage
-    description: the selected background image url of the view. focusable must be true for normal views. Sets the background image for selected state only
+    description: the selected background image url of the view. Focusable must be true for normal views. Sets the background image for selected state only
     type: String
 examples:
   - title: Simple Button Example
