@@ -116,10 +116,12 @@ public class TiAnalyticsEventFactory
 			json = new JSONObject();
 			json.put("tz",GregorianCalendar.getInstance().getTimeZone().getRawOffset()/60000);
 			json.put("deploytype", deployType);
+			json.put("platform", TiPlatformHelper.getName());
 			json.put("os", TiPlatformHelper.getModel());
 			json.put("osver", TiPlatformHelper.getVersion());
 			json.put("version", application.getTiBuildVersion());
 			json.put("un", TiPlatformHelper.getUsername());
+			json.put("model", TiPlatformHelper.getModel());
 			json.put("app_version", application.getAppInfo().getVersion());
 			json.put("nettype", TiPlatformHelper.getNetworkTypeName());
 
