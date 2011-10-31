@@ -360,7 +360,7 @@ public class TableViewProxy extends TiViewProxy
 
 		for (int i = 0; i < data.length; i++) {
 			Object o = data[i];
-			if (o instanceof KrollDict || o instanceof TableViewRowProxy) {
+			if (o instanceof HashMap || o instanceof TableViewRowProxy) {
 				TableViewRowProxy rowProxy = rowProxyFor(o);
 				TableViewSectionProxy addedToSection = addRowToSection(rowProxy, currentSection);
 				if (currentSection == null || !currentSection.equals(addedToSection)) {
