@@ -7,8 +7,6 @@
 #import "TiBase.h"
 #import "TiUIViewProxy.h"
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-
 #ifdef USE_TI_UIIOSADVIEW
 
 
@@ -22,7 +20,5 @@
 @property(nonatomic,assign,readonly) NSString *SIZE_480x32;
 
 @end
-
-#endif
 
 #endif
