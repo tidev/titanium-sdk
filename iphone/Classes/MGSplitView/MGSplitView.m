@@ -32,7 +32,7 @@
     singleLayout = YES;
 }
 
-// Ugly hack to force the controller's layout method to be called whenever an initial
+// Force the controller's layout method to be called whenever an initial
 // layout request is made. We have to rely on the controller's layout method to properly
 // set the 'layingOut' flag, as well... dangerous, and fragile.
 -(void)layoutSubviews

@@ -877,6 +877,9 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 			result = CGRectMake(leftMargin, topMargin, newWidth, newHeight);
 			break;
 		}
+		default: {
+			break;
+		}
 	}
 	return result;
 }
