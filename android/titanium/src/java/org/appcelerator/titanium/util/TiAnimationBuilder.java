@@ -227,23 +227,23 @@ public class TiAnimationBuilder
 		}
 
 		if (tdm != null) {
-			animationSet.setFillAfter(true);
-			animationSet.setFillEnabled(true);
+			as.setFillAfter(true);
+			as.setFillEnabled(true);
 			TiMatrixAnimation matrixAnimation = new TiMatrixAnimation(tdm, anchorX, anchorY);
 
 			if (duration != null) {
 				matrixAnimation.setDuration(duration.longValue());
 			}
 
-			addAnimation(animationSet, matrixAnimation);
+			addAnimation(as, matrixAnimation);
 		}
 
 		// Set duration after adding children.
 		if (duration != null) {
-			animationSet.setDuration(duration.longValue());
+			as.setDuration(duration.longValue());
 		}
 		if (delay != null) {
-			animationSet.setStartOffset(delay.longValue());
+			as.setStartOffset(delay.longValue());
 		}
 		
 		// ignore translate/resize if we have a matrix.. we need to eventually collect to/from properly
@@ -293,10 +293,10 @@ public class TiAnimationBuilder
 				animation.setDuration(duration.longValue());
 			}
 
-			animationSet.setFillEnabled(true);
-			animationSet.setFillAfter(true);
+			as.setFillEnabled(true);
+			as.setFillAfter(true);
 			animation.setAnimationListener(animationListener);
-			animationSet.addAnimation(animation);
+			as.addAnimation(animation);
 
 			if (DBG) {
 				Log.d(LCAT, "animate " + viewProxy + " relative to self: " + (horizontal[0]-x) + ", " + (vertical[0]-y));
@@ -317,16 +317,16 @@ public class TiAnimationBuilder
 
 			sizeAnimation.setInterpolator(new LinearInterpolator());
 			sizeAnimation.setAnimationListener(animationListener);
-			animationSet.addAnimation(sizeAnimation);
+			as.addAnimation(sizeAnimation);
 
 			relayoutChild = true;
 		}
 		
 		if (callback != null || animationProxy != null) {
-			animationSet.setAnimationListener(animationListener);
+			as.setAnimationListener(animationListener);
 		}
 
-		return animationSet;
+		return as;
 	}
 	
 	protected class SizeAnimation extends Animation
