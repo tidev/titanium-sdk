@@ -93,6 +93,9 @@
 			newContentSize.width = MAX(newContentSize.width,[(TiViewProxy *)[self proxy] autoWidthForWidth:0.0]);
 			break;
 		}
+		default: {
+			break;
+		}
 	}
 
 	switch (contentHeight.type)
