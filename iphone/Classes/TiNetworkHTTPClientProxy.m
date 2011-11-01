@@ -188,7 +188,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	if (request!=nil)
 	{
 		NSData *data = [request responseData];
-		if ((![data isEqual: (id)[NSNull null]]) || [data length]==0) 
+		if (data==nil || [data length]==0) 
 		{
 			return (id)[NSNull null];
 		}
@@ -200,12 +200,12 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 			// with in a _special_ way
 			NSStringEncoding encoding = ExtractEncodingFromData(data);
 			result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:encoding] autorelease];
-			if (result!=nil)
-			{
-				return result;
-			}
+			
 		}
-		return result;
+		if (result!=nil)
+		{
+			return result;
+		}
 	}
 	return (id)[NSNull null];
 }
