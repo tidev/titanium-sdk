@@ -66,7 +66,6 @@ NSDictionary* TiValueToDict(KrollContext *context, TiValueRef value)
 	TiContextRef jsContext = [context context];
 	TiObjectRef obj = TiValueToObject(jsContext, value, NULL);
 	TiPropertyNameArrayRef props = TiObjectCopyPropertyNames(jsContext,obj);
-	TiPropertyNameArrayRetain(props);
 	
 	NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
 	
@@ -190,6 +189,14 @@ TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
 	else if (obj == nil)
 	{
 		return TiValueMakeUndefined(jsContext);
+	}
+	else if ([obj isKindOfClass:[NSURL class]])
+	{
+        NSString* urlString = [obj absoluteString];
+		TiStringRef jsString = TiStringCreateWithCFString((CFStringRef) urlString);
+		TiValueRef result = TiValueMakeString(jsContext,jsString);
+		TiStringRelease(jsString);
+		return result;
 	}
 	else if ([obj isKindOfClass:[NSString class]])
 	{
@@ -1443,6 +1450,7 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 
 	TiStringRef jsEventTypeString = TiStringCreateWithCFString((CFStringRef) eventName);
 	TiObjectRef jsCallbackArray = TiObjectGetProperty(jsContext, jsEventHash, jsEventTypeString, NULL);
+	TiStringRelease(jsEventTypeString);
 	TiObjectRef callbackFunction = [eventCallback function];
 
 	if ((jsCallbackArray == NULL) || (TiValueGetType(jsContext,jsCallbackArray) != kTITypeObject))
@@ -1486,6 +1494,7 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 
 	TiStringRef jsEventTypeString = TiStringCreateWithCFString((CFStringRef) eventName);
 	TiObjectRef jsCallbackArray = (TiObjectRef)TiObjectGetProperty(jsContext, jsEventHash, jsEventTypeString, NULL);
+	TiStringRelease(jsEventTypeString);
 
 	if ((jsCallbackArray == NULL) || (TiValueGetType(jsContext,jsCallbackArray) != kTITypeObject))
 	{	//We did not have any event listeners on this proxy. Perfectly normal.

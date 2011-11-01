@@ -622,6 +622,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	if (hasOndatastream)
 	{
 		CGFloat progress = (CGFloat)((CGFloat)downloadProgress/(CGFloat)downloadLength);
+		progress = progress == INFINITY ? 1.0 : progress;
 		TiNetworkHTTPClientResultProxy *thisPointer = [[TiNetworkHTTPClientResultProxy alloc] initWithDelegate:self];
 		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithFloat:progress],@"progress",@"datastream",@"type",nil];
 		[self fireCallback:@"ondatastream" withArg:event withSource:thisPointer];

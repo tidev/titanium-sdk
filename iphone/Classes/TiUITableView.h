@@ -25,7 +25,7 @@
 	CGPoint hitPoint;
 }
 @property (nonatomic,readonly) CGPoint hitPoint;
-@property (nonatomic,readwrite) TiUITableViewRowProxy* proxy;
+@property (nonatomic,readwrite,assign) TiUITableViewRowProxy* proxy;
 
 -(id)initWithStyle:(UITableViewCellStyle)style_ reuseIdentifier:(NSString *)reuseIdentifier_ row:(TiUITableViewRowProxy*)row_;
 
@@ -58,8 +58,8 @@
 	UIView * tableHeaderView;
 	UIView * tableHeaderPullView;
 	UIButton * searchScreenView;
-	UITableView *searchTableView;
 	NSString * filterAttribute;
+	NSString * searchString;
 	NSMutableArray * searchResultIndexes;
 	BOOL filterCaseInsensitive;
 	BOOL allowsSelectionSet;
@@ -82,7 +82,6 @@
 -(void)scrollToTop:(NSInteger)top animated:(BOOL)animated;
 -(NSIndexPath*)indexPathFromSearchIndex:(int)index;
 -(IBAction)hideSearchScreen:(id)sender;
--(UITableView*)searchTableView;
 -(UITableView*)tableView;
 -(CGFloat)tableRowHeight:(CGFloat)height;
 

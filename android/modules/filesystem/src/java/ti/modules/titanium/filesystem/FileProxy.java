@@ -9,7 +9,6 @@ package ti.modules.titanium.filesystem;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiFileProxy;
-import org.appcelerator.titanium.util.TiUrl;
 
 @Kroll.proxy(parentModule=FilesystemModule.class)
 public class FileProxy extends TiFileProxy

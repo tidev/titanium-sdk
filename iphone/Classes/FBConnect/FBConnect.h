@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+#ifdef USE_TI_FACEBOOK
 
 #include "Facebook.h"
 #include "FBDialog.h"
 #include "FBLoginDialog.h"
 #include "FBRequest.h"
 #include "SBJSON.h"
+
+#endif
