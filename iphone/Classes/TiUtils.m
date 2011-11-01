@@ -46,7 +46,7 @@ static NSDictionary* typeMap = nil;
 static NSDictionary* sizeMap = nil;
 static NSString* kDeviceUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 	
-
+#if 0
 static void getAddrInternal(char* macAddress, const char* ifName) {
     struct ifaddrs* addrs;
     if (!getifaddrs(&addrs)) {
@@ -71,6 +71,7 @@ static void getAddrInternal(char* macAddress, const char* ifName) {
         freeifaddrs(addrs);
     }    
 }
+#endif
 
 @implementation TiUtils
 
@@ -1628,6 +1629,7 @@ if ([str isEqualToString:@#orientation]) return orientation;
 	return result;
 }
 
+#if 0
 +(NSString*)macmd5
 {
     char addrString[18];
@@ -1636,26 +1638,11 @@ if ([str isEqualToString:@#orientation]) return orientation;
     NSData* data = [dataString dataUsingEncoding:NSUTF8StringEncoding];
     return [TiUtils md5:data];
 }
+#endif
 
 +(NSString*)uniqueIdentifier
 {
-    // we store in a globally available system pasteboard
-    UIPasteboard* pb = [UIPasteboard pasteboardWithName:@"com.appcelerator" create:YES];
-    pb.persistent = YES; // this is required to make pasteboard persist after application exists and restarts
-    NSData* data = [pb dataForPasteboardType:kDeviceUUIDString];
     NSString* uid = [TiUtils oldUUID];
-    if (uid == nil) {
-        if (data == nil) {
-            uid = [TiUtils macmd5];
-        } else {
-            uid = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
-        }
-    }
-    if (data == nil) {
-        // store if not already present - what's nice is that we'll go ahead and migrate (and keep) the old (pre-deprecation)
-        // value and once it goes away on an upgrade, we'll still be using it vs. a randomly generated one
-        [pb setData:[uid dataUsingEncoding:NSUTF8StringEncoding] forPasteboardType:kDeviceUUIDString];
-    }
     return uid;
 }
 @end
