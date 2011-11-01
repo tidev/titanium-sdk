@@ -125,7 +125,18 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 	if (button==nil)
 	{
 		id backgroundImage = [self.proxy valueForKey:@"backgroundImage"];
-		UIButtonType defaultType = backgroundImage!=nil ? UIButtonTypeCustom : UIButtonTypeRoundedRect;
+        id backgroundImageS = [self.proxy valueForKey:@"backgroundSelectedImage"];
+        id backgroundImageD = [self.proxy valueForKey:@"backgroundDisabledImage"];
+        id backgroundImageF = [self.proxy valueForKey:@"backgroundFocusedImage"];
+        
+        hasBackgroundForStateNormal = backgroundImage  != nil ? YES :NO;
+        hasBackgroundForStateDisabled = backgroundImageD != nil ? YES :NO;
+        hasBackgroundForStateSelected = backgroundImageS != nil ? YES :NO;
+        hasBackgroundForStateFocused = backgroundImageF != nil ? YES :NO;
+        
+        BOOL hasImage = hasBackgroundForStateDisabled||hasBackgroundForStateNormal;
+		
+        UIButtonType defaultType = (hasImage==YES) ? UIButtonTypeCustom : UIButtonTypeRoundedRect;
 		style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:defaultType];
 		UIView *btn = [TiButtonUtil buttonWithType:style];
 		button = (UIButton*)[btn retain];
@@ -139,7 +150,6 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 		[button addTarget:self action:@selector(highlightOn:) forControlEvents:highlightingTouches];
 		[button addTarget:self action:@selector(highlightOff:) forControlEvents:unHighlightingTouches];
 		button.exclusiveTouch = YES;
-
 	}
 	return button;
 }
@@ -214,16 +224,43 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 {
 	[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateNormal];
     self.backgroundImage = value;
-}
-
--(void)setBackgroundSelectedImage_:(id)value
-{
-	[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateHighlighted];
+    
+    //Match android behavior. Setting a background image sets it for all states unless overridden
+    //TIMOB-5803
+    if(!hasBackgroundForStateDisabled)
+        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateDisabled];
+    if(!hasBackgroundForStateFocused)
+        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateHighlighted];
+    if(!hasBackgroundForStateSelected)
+        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateSelected];
+    
 }
 
 -(void)setBackgroundDisabledImage_:(id)value
 {
 	[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateDisabled];
+    
+    //Match android behavior. Setting a background image for disabled only sets it for all states unless overridden
+    //TIMOB-5803
+    if(!hasBackgroundForStateNormal)
+    {
+        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateNormal];
+        self.backgroundImage = value;
+    }
+    if(!hasBackgroundForStateFocused)
+        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateHighlighted];
+    if(!hasBackgroundForStateSelected)
+        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateSelected];
+}
+
+-(void)setBackgroundFocusedImage_:(id)value
+{
+	[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateSelected];
+}
+
+-(void)setBackgroundSelectedImage_:(id)value
+{
+	[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateHighlighted];
 }
 
 -(void)setBackgroundColor_:(id)value
