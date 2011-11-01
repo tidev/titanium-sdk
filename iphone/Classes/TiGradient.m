@@ -101,6 +101,9 @@
 	{
 		case TiGradientTypeRadial:
 			return @"radial";
+		default: {
+			break;
+		}
 	}
 	return @"linear";
 }

@@ -374,7 +374,8 @@
 			UIBarButtonItem *item = controller.navigationItem.rightBarButtonItem;
 			if ([item respondsToSelector:@selector(proxy)])
 			{
-				[(TiViewProxy*)[item proxy] removeBarButtonView];
+				TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
+				[p removeBarButtonView];
 			}
 			if (proxy!=nil)
 			{
@@ -420,7 +421,8 @@
 			UIBarButtonItem *item = controller.navigationItem.leftBarButtonItem;
 			if ([item respondsToSelector:@selector(proxy)])
 			{
-				[(TiViewProxy*)[item proxy] removeBarButtonView];
+				TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
+				[p removeBarButtonView];
 			}
 			controller.navigationItem.leftBarButtonItem = nil;			
 			if (proxy!=nil)
@@ -638,7 +640,8 @@
 			{
 				if ([current respondsToSelector:@selector(proxy)])
 				{
-					[(TiViewProxy*)[current proxy] removeBarButtonView];
+					TiViewProxy* p = (TiViewProxy*)[current performSelector:@selector(proxy)];
+					[p removeBarButtonView];
 				}
 			}
 		}
@@ -793,13 +796,15 @@ else{\
         UIBarButtonItem *item = controller.navigationItem.leftBarButtonItem;
         if ([item respondsToSelector:@selector(proxy)])
         {
-            [(TiViewProxy*)[item proxy] removeBarButtonView];
+			TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
+            [p removeBarButtonView];
         }
         
         item = controller.navigationItem.rightBarButtonItem;
         if ([item respondsToSelector:@selector(proxy)]) 
         {
-            [(TiViewProxy*)[item proxy] removeBarButtonView];
+			TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
+            [p removeBarButtonView];
         }
     }
 }

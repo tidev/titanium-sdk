@@ -93,6 +93,9 @@
 			}
 			return [result intValue];
 		}
+		default: {
+			break;
+		}
 	}
 	return 0;
 }
@@ -153,6 +156,9 @@
 		{
 			return [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
 		}
+		default: {
+			break;
+		}
 	}
 	// anything else we refuse to write out
 	return nil;
@@ -171,6 +177,9 @@
 		{
 			return UIImageJPEGRepresentation(image,1.0);
 		}
+		default: {
+			break;
+		}
 	}
 	return data;
 }
@@ -186,6 +195,9 @@
 		case TiBlobTypeData:
 		{
 			return [UIImage imageWithData:data];
+		}
+		default: {
+			break;
 		}
 	}
 	return image;
