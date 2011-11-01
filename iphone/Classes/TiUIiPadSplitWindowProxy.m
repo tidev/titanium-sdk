@@ -87,6 +87,20 @@
     }
 }
 
+-(BOOL)_handleClose:(id)args
+{
+    // Ensure popup isn't visible so it can be dealloced
+    [self hidePopover:nil];
+
+    return [super _handleClose:args];
+}
+
+-(void)hidePopover:(id)args
+{
+    ENSURE_UI_THREAD_0_ARGS;
+    [[self view] setMasterPopupVisible_:NO];
+}
+
 @end
 
 #endif

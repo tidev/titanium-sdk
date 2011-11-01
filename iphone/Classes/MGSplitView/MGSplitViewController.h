@@ -62,6 +62,7 @@ typedef enum _MGSplitViewDividerStyle {
 - (IBAction)showMasterPopover:(id)sender; // shows the master view in a popover spawned from the provided barButtonItem, if it's currently hidden.
 - (IBAction)hideMasterPopover:(id)sender;
 - (void)notePopoverDismissed; // should rarely be needed, because you should not change the popover's delegate. If you must, then call this when it's dismissed.
+- (void) toggleMasterPopover:(id)sender;
 
 // Conveniences for you, because I care.
 - (BOOL)isShowingMaster;
