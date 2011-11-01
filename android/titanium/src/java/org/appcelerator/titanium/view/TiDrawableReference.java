@@ -28,7 +28,6 @@ import org.appcelerator.titanium.TiFastDev;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.TiBackgroundImageLoadTask;
-import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiDownloadListener;
 import org.appcelerator.titanium.util.TiDownloadManager;

@@ -63,6 +63,7 @@ public class WebViewProxy extends ViewProxy
 	@Kroll.method
 	public Object evalJS(String code) {
 		return getWebView().getJSValue(code);
+	}
 
 	@Kroll.method @Kroll.getProperty
 	public String getHtml()
