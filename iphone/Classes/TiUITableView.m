@@ -300,9 +300,7 @@
 	}
 
 	[table setBackgroundColor:(bgColor != nil ? bgColor : defaultColor)];
-	if ([TiUtils isiPhoneOS3_2OrGreater]) {
-		[[table backgroundView] setBackgroundColor:[table backgroundColor]];
-	}
+	[[table backgroundView] setBackgroundColor:[table backgroundColor]];
 	
 	[table setOpaque:![[table backgroundColor] isEqual:[UIColor clearColor]]];
 }
@@ -510,6 +508,20 @@
 	[row.section reorderRows];
 }
 
+//Because UITableView does not like having 0 sections, we MUST maintain the facade of having at least one section,
+//albeit with 0 rows. Because of this, we might come across several times where this fictional first section will
+//be asked about. Because we don't want the sections array throwing range exceptions, sectionForIndex MUST be used
+//for this protection.
+-(TiUITableViewSectionProxy *)sectionForIndex:(NSInteger) index
+{
+	NSArray * sections = [(TiUITableViewProxy *)[self proxy] sections];
+	if(index >= [sections count])
+	{
+		return nil;
+	}
+	return [sections objectAtIndex:index];
+}
+
 -(void)dispatchAction:(TiUITableViewAction*)action
 {
 	ENSURE_UI_THREAD(dispatchAction,action);
@@ -708,20 +720,6 @@
     [containerView addSubview:headerLabel];
 	
 	return containerView;
-}
-
-//Because UITableView does not like having 0 sections, we MUST maintain the facade of having at least one section,
-//albeit with 0 rows. Because of this, we might come across several times where this fictional first section will
-//be asked about. Because we don't want the sections array throwing range exceptions, sectionForIndex MUST be used
-//for this protection.
--(TiUITableViewSectionProxy *)sectionForIndex:(NSInteger) index
-{
-	NSArray * sections = [(TiUITableViewProxy *)[self proxy] sections];
-	if(index >= [sections count])
-	{
-		return nil;
-	}
-	return [sections objectAtIndex:index];
 }
 
 -(TiUITableViewRowProxy*)rowForIndexPath:(NSIndexPath*)indexPath

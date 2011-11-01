@@ -14,7 +14,7 @@
 #import "TiApp.h"
 #import "ApplicationMods.h"
 #import <libkern/OSAtomic.h>
-
+#import "KrollContext.h"
 #import "TiDebugger.h"
 
 #ifdef KROLL_COVERAGE

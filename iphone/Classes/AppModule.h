@@ -22,7 +22,7 @@
 -(void)addEventListener:(NSArray*)args;
 -(void)removeEventListener:(NSArray*)args;
 -(void)fireEvent:(NSArray*)args;
--(void)garbageCollect:(NSArray*)args;
+-(int)garbageCollect:(NSArray*)args;
 
 @property(nonatomic,readonly) NSString *id;
 @property(nonatomic,readonly) NSString *url;
