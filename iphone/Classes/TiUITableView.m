@@ -78,6 +78,9 @@
 
 -(void)prepareForReuse
 {
+    // If we're reusing a cell, it obviously isn't attached to a proxy.
+    proxy = nil;
+    
 	[super prepareForReuse];
 	
 	// TODO: HACK: In the case of abnormally large table view cells, we have to reset the size.
