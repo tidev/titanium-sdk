@@ -7,7 +7,8 @@
 
 package ti.modules.titanium.analytics;
 
-import org.appcelerator.kroll.KrollDate;
+//import org.appcelerator.kroll.KrollDate;
+import java.util.Date;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -68,16 +69,20 @@ public class AnalyticsModule extends KrollModule
 		payload.put(TiC.PROPERTY_EVENT, event);
 		if (start instanceof Number) {
 			payload.put(TiC.PROPERTY_START, ((Number) start).longValue());
-		} else if (start instanceof KrollDate) {
-			payload.put(TiC.PROPERTY_START, ((KrollDate) start).getTime());
+//		} else if (start instanceof KrollDate) {
+		} else if (start instanceof Date) {
+			//payload.put(TiC.PROPERTY_START, ((KrollDate) start).getTime());
+			payload.put(TiC.PROPERTY_START, ((Date) start).getTime());
 		} else {
 			throw new IllegalArgumentException("start must be a long or Date.");
 		}
 		
 		if (stop instanceof Number) {
 			payload.put(TiC.PROPERTY_STOP, ((Number) stop).longValue());			
-		} else if (stop instanceof KrollDate) {
-			payload.put(TiC.PROPERTY_STOP, ((KrollDate) start).getTime());
+//		} else if (stop instanceof KrollDate) {
+		} else if (stop instanceof Date) {
+			//payload.put(TiC.PROPERTY_STOP, ((KrollDate) start).getTime());
+			payload.put(TiC.PROPERTY_STOP, ((Date) start).getTime());
 		} else {
 			throw new IllegalArgumentException("stop must be a long or Date.");
 		}
