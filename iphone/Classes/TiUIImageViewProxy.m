@@ -207,7 +207,10 @@ USE_VIEW_FOR_AUTO_HEIGHT
 {
 	if (request == urlRequest)
 	{
-		NSLog(@"[ERROR] Failed to load image: %@, Error: %@",[request url], error);
+		if ([self _hasListeners:@"error"])
+		{
+			[self fireEvent:@"error" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[request url], @"image", nil]];
+		}
 		RELEASE_TO_NIL(urlRequest);
 	}
 }
