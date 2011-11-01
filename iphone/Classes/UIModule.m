@@ -235,7 +235,7 @@ MAKE_SYSTEM_PROP_DEPRECATED(AUTODETECT_CALENDAR,UIDataDetectorTypeCalendarEvent,
 -(void)setOrientation:(id)mode
 {
 	ENSURE_UI_THREAD(setOrientation,mode);
-	UIInterfaceOrientation orientation = [TiUtils orientationValue:mode def:UIInterfaceOrientationPortrait];
+	UIInterfaceOrientation orientation = (UIInterfaceOrientation)[TiUtils orientationValue:mode def:(UIDeviceOrientation)UIInterfaceOrientationPortrait];
 	[[[TiApp app] controller] manuallyRotateToOrientation:orientation];
 }
 

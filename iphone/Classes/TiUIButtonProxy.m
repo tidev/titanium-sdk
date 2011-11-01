@@ -65,6 +65,9 @@
 			return 18;
 		case UITitaniumNativeItemDisclosure:
 			return 29;
+		default: {
+			break;
+		}
 	}
 	return suggestedWidth;
 }
@@ -78,6 +81,9 @@
 			return 19;
 		case UITitaniumNativeItemDisclosure:
 			return 31;
+		default: {
+			break;
+		}
 	}
 	return suggestedHeight;
 }
@@ -91,6 +97,9 @@
 		case UITitaniumNativeItemInfoDark:
 		case UITitaniumNativeItemDisclosure:
 			return suggestedResizing & ~(UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
+		default: {
+			break;
+		}
 	}
 	return suggestedResizing;
 }

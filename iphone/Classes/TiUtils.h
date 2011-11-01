@@ -197,10 +197,6 @@ typedef enum {
 
 +(BOOL)isIPad;
 
-+(BOOL)isiPhoneOS3_2OrGreater;
-
-+(BOOL)isIOS4OrGreater;
-
 +(BOOL)isIOS4_2OrGreater;
 
 +(BOOL)isIPhone4;
