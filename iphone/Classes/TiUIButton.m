@@ -129,14 +129,14 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
         id backgroundImageD = [self.proxy valueForKey:@"backgroundDisabledImage"];
         id backgroundImageF = [self.proxy valueForKey:@"backgroundFocusedImage"];
         
-        hasBackgroundForStateNormal = backgroundImage  != nil ? TRUE :FALSE;
-        hasBackgroundForStateDisabled = backgroundImageD != nil ? TRUE :FALSE;
-        hasBackgroundForStateSelected = backgroundImageS != nil ? TRUE :FALSE;
-        hasBackgroundForStateFocused = backgroundImageF != nil ? TRUE :FALSE;
+        hasBackgroundForStateNormal = backgroundImage  != nil ? YES :NO;
+        hasBackgroundForStateDisabled = backgroundImageD != nil ? YES :NO;
+        hasBackgroundForStateSelected = backgroundImageS != nil ? YES :NO;
+        hasBackgroundForStateFocused = backgroundImageF != nil ? YES :NO;
         
         BOOL hasImage = hasBackgroundForStateDisabled||hasBackgroundForStateNormal;
 		
-        UIButtonType defaultType = (hasImage==TRUE) ? UIButtonTypeCustom : UIButtonTypeRoundedRect;
+        UIButtonType defaultType = (hasImage==YES) ? UIButtonTypeCustom : UIButtonTypeRoundedRect;
 		style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:defaultType];
 		UIView *btn = [TiButtonUtil buttonWithType:style];
 		button = (UIButton*)[btn retain];
