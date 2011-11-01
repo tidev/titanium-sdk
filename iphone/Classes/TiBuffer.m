@@ -30,11 +30,6 @@ NSArray* bufferKeySequence = nil;
     [super dealloc];
 }
 
--(void)setByteOrder:(CFByteOrder)byteOrder_
-{
-    byteOrder = [[NSNumber numberWithInt:byteOrder_] retain];
-}
-
 -(NSArray *)keySequence
 {
 	if (bufferKeySequence == nil)

@@ -41,17 +41,13 @@
 @property(nonatomic, readonly) NSNumber* ERROR_DENIED;
 @property(nonatomic, readonly) NSNumber* ERROR_NETWORK;
 @property(nonatomic, readonly) NSNumber* ERROR_HEADING_FAILURE;
-// iOS 4.0+ only
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+
 @property(nonatomic, readonly) NSNumber* ERROR_REGION_MONITORING_DENIED;
 @property(nonatomic, readonly) NSNumber* ERROR_REGION_MONITORING_FAILURE;
 @property(nonatomic, readonly) NSNumber* ERROR_REGION_MONITORING_DELAYED;
-#endif
 
 // the reason for using Location services - now required in 3.2+
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 @property(nonatomic,readwrite,assign) NSString *purpose;
-#endif
 
 @property(nonatomic,readonly) NSNumber *ACCURACY_BEST;
 @property(nonatomic,readonly) NSNumber *ACCURACY_NEAREST_TEN_METERS;

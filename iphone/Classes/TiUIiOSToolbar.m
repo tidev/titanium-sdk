@@ -13,14 +13,6 @@
 #import "TiToolbarButton.h"
 #import "TiToolbar.h"
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_4_0
-
-@interface TiUIiOSToolbar (laterMethods)
-@property(nonatomic) CGFloat           contentScaleFactor;
-@end
-
-#endif
-
 @implementation TiUIiOSToolbar
 
 -(void)dealloc
