@@ -140,12 +140,14 @@ public abstract class TiWindowProxy extends TiViewProxy
 		TiAnimation animation = null;
 
 		if (arg != null) {
-			if (arg instanceof KrollDict) {
-				options = (KrollDict) arg;
+			if (arg instanceof HashMap) {
+				options = new KrollDict((HashMap) arg);
+
 			} else if (arg instanceof TiAnimation) {
 				options = new KrollDict();
 				options.put("_anim", animation);
 			}
+
 		} else {
 			options = new KrollDict();
 		}

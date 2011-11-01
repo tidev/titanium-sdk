@@ -303,8 +303,8 @@ public abstract class TiUIView
 			}
 			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_SIZE)) {
-			if (newValue instanceof KrollDict) {
-				KrollDict d = (KrollDict)newValue;
+			if (newValue instanceof HashMap) {
+				HashMap<String, Object> d = (HashMap) newValue;
 				propertyChanged(TiC.PROPERTY_WIDTH, oldValue, d.get(TiC.PROPERTY_WIDTH), proxy);
 				propertyChanged(TiC.PROPERTY_HEIGHT, oldValue, d.get(TiC.PROPERTY_HEIGHT), proxy);
 			}else if (newValue != null){

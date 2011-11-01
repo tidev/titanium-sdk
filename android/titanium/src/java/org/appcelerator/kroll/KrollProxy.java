@@ -374,8 +374,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			data = new KrollDict();
 		}
 
-		if (data instanceof KrollDict) {
-			KrollDict dict = (KrollDict) data;
+		if (data instanceof HashMap) {
+			HashMap<String, Object> dict = (HashMap) data;
 
 			Object source = dict.get(TiC.EVENT_PROPERTY_SOURCE);
 			if (source == null) {

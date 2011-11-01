@@ -9,6 +9,7 @@ package ti.modules.titanium.map;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
@@ -141,12 +142,12 @@ public class TiMapView extends TiUIView
 				lastLatitudeSpan = getLatitudeSpan();
 				lastLongitudeSpan = getLongitudeSpan();
 
-				KrollDict d = new KrollDict();
-				d.put(TiC.PROPERTY_LATITUDE, scaleFromGoogle(lastLatitude));
-				d.put(TiC.PROPERTY_LONGITUDE, scaleFromGoogle(lastLongitude));
-				d.put(TiC.PROPERTY_LATITUDE_DELTA, scaleFromGoogle(lastLatitudeSpan));
-				d.put(TiC.PROPERTY_LONGITUDE_DELTA, scaleFromGoogle(lastLongitudeSpan));
-				proxy.fireEvent(TiC.EVENT_REGION_CHANGED, d);
+				HashMap<String, Object> location = new HashMap<String, Object>();
+				location.put(TiC.PROPERTY_LATITUDE, scaleFromGoogle(lastLatitude));
+				location.put(TiC.PROPERTY_LONGITUDE, scaleFromGoogle(lastLongitude));
+				location.put(TiC.PROPERTY_LATITUDE_DELTA, scaleFromGoogle(lastLatitudeSpan));
+				location.put(TiC.PROPERTY_LONGITUDE_DELTA, scaleFromGoogle(lastLongitudeSpan));
+				proxy.fireEvent(TiC.EVENT_REGION_CHANGED, location);
 			}
 		}
 	}
@@ -536,8 +537,8 @@ public class TiMapView extends TiUIView
 					// TODO - implement a way to get all cached properties for a proxy - set annotation 
 					// via dict for now
 					// doSetLocation(ap.getProperties());
-				} else if (newValue instanceof KrollDict) {
-					doSetLocation((KrollDict) newValue);
+				} else if (newValue instanceof HashMap) {
+					doSetLocation((HashMap) newValue);
 				}
 			}
 		} else if (key.equals(TiC.PROPERTY_MAP_TYPE)) {
@@ -551,13 +552,13 @@ public class TiMapView extends TiUIView
 		}
 	}
 
-	public void doSetLocation(KrollDict d) {
+	public void doSetLocation(HashMap<String, Object> location) {
 		LocalMapView view = getView();
-		if (d.containsKey(TiC.PROPERTY_LONGITUDE) && d.containsKey(TiC.PROPERTY_LATITUDE)) {
-			GeoPoint gp = new GeoPoint(scaleToGoogle(d.getDouble(TiC.PROPERTY_LATITUDE)), scaleToGoogle(d.getDouble(TiC.PROPERTY_LONGITUDE)));
+		if (location.containsKey(TiC.PROPERTY_LONGITUDE) && location.containsKey(TiC.PROPERTY_LATITUDE)) {
+			GeoPoint gp = new GeoPoint(scaleToGoogle(TiConvert.toDouble(location, TiC.PROPERTY_LATITUDE)), scaleToGoogle(TiConvert.toDouble(location, TiC.PROPERTY_LONGITUDE)));
 			boolean anim = false;
-			if (d.containsKey(TiC.PROPERTY_ANIMATE)) {
-				anim = TiConvert.toBoolean(d, TiC.PROPERTY_ANIMATE);
+			if (location.containsKey(TiC.PROPERTY_ANIMATE)) {
+				anim = TiConvert.toBoolean(location, TiC.PROPERTY_ANIMATE);
 			}
 			if (anim) {
 				view.getController().animateTo(gp);
@@ -565,8 +566,8 @@ public class TiMapView extends TiUIView
 				view.getController().setCenter(gp);
 			}
 		}
-		if (regionFit && d.containsKey(TiC.PROPERTY_LONGITUDE_DELTA) && d.containsKey(TiC.PROPERTY_LATITUDE_DELTA)) {
-			view.getController().zoomToSpan(scaleToGoogle(d.getDouble(TiC.PROPERTY_LATITUDE_DELTA)), scaleToGoogle(d.getDouble(TiC.PROPERTY_LONGITUDE_DELTA)));
+		if (regionFit && location.containsKey(TiC.PROPERTY_LONGITUDE_DELTA) && location.containsKey(TiC.PROPERTY_LATITUDE_DELTA)) {
+			view.getController().zoomToSpan(scaleToGoogle(TiConvert.toDouble(location, TiC.PROPERTY_LATITUDE_DELTA)), scaleToGoogle(TiConvert.toDouble(location, TiC.PROPERTY_LONGITUDE_DELTA)));
 		} else {
 			Log.w(LCAT, "span must have longitudeDelta and latitudeDelta");
 		}

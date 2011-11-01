@@ -8,6 +8,7 @@
 package ti.modules.titanium.ui.widget.picker;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import kankan.wheel.widget.WheelView;
 
@@ -85,7 +86,7 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 		Typeface typeface = null;
 		// TODO KrollDict d = proxy.getProperties();
 		KrollDict d = new KrollDict();
-		if (d.containsKey(TiC.PROPERTY_FONT) && d.get(TiC.PROPERTY_FONT) instanceof KrollDict) {
+		if (d.containsKey(TiC.PROPERTY_FONT) && d.get(TiC.PROPERTY_FONT) instanceof HashMap) {
 			KrollDict font = d.getKrollDict(TiC.PROPERTY_FONT);
 			if (font.containsKey("fontSize")) {
 				String sFontSize = TiConvert.toString(font, "fontSize");

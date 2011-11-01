@@ -7,6 +7,7 @@
 package ti.modules.titanium.map;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -133,9 +134,9 @@ public class ViewProxy extends TiViewProxy
 		Object location = getProperty(TiC.PROPERTY_LOCATION);
 		if (location != null)
 		{
-			if(location instanceof KrollDict)
+			if(location instanceof HashMap)
 			{
-				mapView.doSetLocation((KrollDict) location);
+				mapView.doSetLocation((HashMap) location);
 			}
 			else
 			{
@@ -226,21 +227,24 @@ public class ViewProxy extends TiViewProxy
 		boolean center = true; // keep existing default behavior
 
 		if (args != null && args.length > 0) {
-			if (args[0] instanceof KrollDict) {
-				KrollDict params = (KrollDict)args[0];
+			if (args[0] instanceof HashMap) {
+				HashMap<String, Object> params = (HashMap) args[0];
 
 				Object selectedAnnotation = params.get(TiC.PROPERTY_ANNOTATION);
 				if(selectedAnnotation instanceof AnnotationProxy) {
 					title = TiConvert.toString(((AnnotationProxy) selectedAnnotation).getProperty(TiC.PROPERTY_TITLE));
 				} else {
-					title = params.getString(TiC.PROPERTY_TITLE);
+					title = TiConvert.toString(params, TiC.PROPERTY_TITLE);
 				}
 
-				if (params.containsKeyAndNotNull(TiC.PROPERTY_ANIMATE)) {
-					animate = params.getBoolean(TiC.PROPERTY_ANIMATE);
+				Object animateProperty = params.containsKey(TiC.PROPERTY_ANIMATE);
+				if (animateProperty != null) {
+					animate = TiConvert.toBoolean(animateProperty);
 				}
-				if (params.containsKeyAndNotNull(TiC.PROPERTY_CENTER)) {
-					center = params.getBoolean(TiC.PROPERTY_CENTER);
+
+				Object centerProperty = params.containsKey(TiC.PROPERTY_CENTER);
+				if (centerProperty != null) {
+					center = TiConvert.toBoolean(centerProperty);
 				}
 
 			} else {

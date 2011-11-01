@@ -947,8 +947,8 @@ public class TiHTTPClient
 		
 		if (userData != null)
 		{
-			if (userData instanceof KrollDict) {
-				KrollDict data = (KrollDict)userData;
+			if (userData instanceof HashMap) {
+				HashMap<String, Object> data = (HashMap) userData;
 				boolean isPostOrPut = method.equals("POST") || method.equals("PUT");
 				boolean isGet = !isPostOrPut && method.equals("GET");
 								
