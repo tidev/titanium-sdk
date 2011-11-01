@@ -144,21 +144,31 @@ public class TiUIImageView extends TiUIView
 			}
 		});
 		
-		downloadListener = new TiDownloadListener() {
+		downloadListener = new TiDownloadListener()
+		{
 			@Override
-			public void downloadFinished(URI uri) {
+			public void downloadFinished(URI uri)
+			{
 				if (!TiResponseCache.peek(uri)) {
 					// The requested image did not make it into our TiResponseCache,
-					// possibly because it had a header forbidding that.  Now get it
+					// possibly because it had a header forbidding that. Now get it
 					// via the "old way" (not relying on cache).
 					synchronized (imageTokenGenerator) {
 						token = imageTokenGenerator.incrementAndGet();
-						imageSources.get(0).getBitmapAsync(new BgImageLoader(getProxy().getTiContext(), requestedWidth, requestedHeight, token));
+						imageSources.get(0).getBitmapAsync(
+							new BgImageLoader(getProxy().getTiContext(), requestedWidth, requestedHeight, token));
 					}
 				} else {
 					firedLoad = false;
 					setImage(true);
 				}
+			}
+
+			@Override
+			public void downloadFailed()
+			{
+				// If the download failed, fire the an error event
+				fireError();
 			}
 		};
 		setNativeView(view);
@@ -352,6 +362,7 @@ public class TiUIImageView extends TiUIView
 	private void setImages()
 	{
 		if (imageSources == null || imageSources.size() == 0) {
+			fireError();
 			return;
 		}
 		if (loader == null) {
@@ -409,6 +420,12 @@ public class TiUIImageView extends TiUIView
 	{
 		KrollDict data = new KrollDict();
 		proxy.fireEvent(TiC.EVENT_STOP, data);
+	}
+	
+	private void fireError()
+	{
+		KrollDict data = new KrollDict();
+		proxy.fireEvent(TiC.EVENT_ERROR, data);
 	}
 
 	private class Animator extends TimerTask
@@ -655,6 +672,8 @@ public class TiUIImageView extends TiUIView
 			if (imageSources != null && imageSources.size() == 1) {
 				url = imageSources.get(0).getUrl();
 			}
+			//Fire an error event when we've reached max retries
+			fireError();
 			Log.e(LCAT, "Max retries reached, giving up decoding image source: " + url);
 		}
 	}

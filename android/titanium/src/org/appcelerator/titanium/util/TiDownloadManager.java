@@ -21,17 +21,17 @@ import android.os.Message;
 
 /**
  * Manages the asynchronous opening of InputStreams from URIs so that
- * the resources get put into our TiResponseCache. 
+ * the resources get put into our TiResponseCache.
  */
 public class TiDownloadManager implements Handler.Callback
 {
 	private static final String TAG = "TiDownloadManager";
 	private static final int MSG_FIRE_DOWNLOAD_FINISHED = 1000;
+	private static final int MSG_FIRE_DOWNLOAD_FAILED = 1001;
 	protected static TiDownloadManager _instance;
-	public static final int THREAD_POOL_SIZE = 2; 
+	public static final int THREAD_POOL_SIZE = 2;
 
-	protected HashMap<String, ArrayList<SoftReference<TiDownloadListener>>> listeners =
-		new HashMap<String, ArrayList<SoftReference<TiDownloadListener>>>();
+	protected HashMap<String, ArrayList<SoftReference<TiDownloadListener>>> listeners = new HashMap<String, ArrayList<SoftReference<TiDownloadListener>>>();
 	protected ArrayList<String> downloadingURIs = new ArrayList<String>();
 	protected ExecutorService threadPool;
 	protected Handler handler;
@@ -61,7 +61,17 @@ public class TiDownloadManager implements Handler.Callback
 
 	protected void fireDownloadFinished(URI uri)
 	{
-		Message msg = handler.obtainMessage(MSG_FIRE_DOWNLOAD_FINISHED);
+		sendMessage(uri, MSG_FIRE_DOWNLOAD_FINISHED);
+	}
+
+	protected void fireDownloadFailed(URI uri)
+	{
+		sendMessage(uri, MSG_FIRE_DOWNLOAD_FAILED);
+	}
+
+	private void sendMessage(URI uri, int what)
+	{
+		Message msg = handler.obtainMessage(what);
 		msg.obj = uri;
 		msg.sendToTarget();
 	}
@@ -93,14 +103,18 @@ public class TiDownloadManager implements Handler.Callback
 		}
 	}
 
-	protected void handleFireDownloadFinished(URI uri)
+	protected void handleDownloadMessage(URI uri, int what)
 	{
 		ArrayList<SoftReference<TiDownloadListener>> toRemove = new ArrayList<SoftReference<TiDownloadListener>>();
 		synchronized (listeners) {
 			String hash = DigestUtils.shaHex(uri.toString());
 			for (SoftReference<TiDownloadListener> listener : listeners.get(hash)) {
 				if (listener.get() != null) {
-					fireDownloadFinished(uri, listener.get());
+					if (what == MSG_FIRE_DOWNLOAD_FINISHED) {
+						fireDownloadFinished(uri, listener.get());
+					} else if (what == MSG_FIRE_DOWNLOAD_FAILED) {
+						fireDownloadFailed(listener.get());
+					}
 					toRemove.add(listener);
 				}
 			}
@@ -117,19 +131,27 @@ public class TiDownloadManager implements Handler.Callback
 		}
 	}
 
+	protected void fireDownloadFailed(TiDownloadListener listener)
+	{
+		if (listener != null) {
+			listener.downloadFailed();
+		}
+	}
+
 	protected class DownloadJob implements Runnable
 	{
 		protected URI uri;
+
 		public DownloadJob(URI uri)
 		{
 			this.uri = uri;
 		}
-		
+
 		@Override
 		public void run()
 		{
 			try {
-				// all we want to do is instigate putting this into the cache, and this 
+				// all we want to do is instigate putting this into the cache, and this
 				// is enough for that:
 				InputStream stream = uri.toURL().openStream();
 				TiStreamHelper.pump(stream, null);
@@ -139,17 +161,23 @@ public class TiDownloadManager implements Handler.Callback
 				}
 				fireDownloadFinished(uri);
 			} catch (Exception e) {
+				//fire a download fail event if we are unable to download
+				fireDownloadFailed(uri);
 				Log.e(TAG, "Exception downloading " + uri, e);
 			}
 		}
 	}
 
 	@Override
-	public boolean handleMessage(Message msg) {
+	public boolean handleMessage(Message msg)
+	{
 		switch (msg.what) {
-			case MSG_FIRE_DOWNLOAD_FINISHED:
-				handleFireDownloadFinished((URI)msg.obj);
-				return true;
+		case MSG_FIRE_DOWNLOAD_FINISHED:
+			handleDownloadMessage((URI) msg.obj, MSG_FIRE_DOWNLOAD_FINISHED);
+			return true;
+		case MSG_FIRE_DOWNLOAD_FAILED:
+			handleDownloadMessage((URI) msg.obj, MSG_FIRE_DOWNLOAD_FAILED);
+			return true;
 		}
 		return false;
 	}
