@@ -185,7 +185,6 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		} else {
 			OnClickListener restartListener = new OnClickListener() 
 			{	
-				@Override
 				public void onClick(DialogInterface arg0, int arg1) {
 					restartActivity(restartDelay, finishDelay);
 				}
