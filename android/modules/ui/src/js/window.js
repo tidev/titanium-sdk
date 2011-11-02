@@ -219,12 +219,12 @@ exports.bootstrapWindow = function(Titanium) {
 			return;
 		}
 
-		Ti.include(this.url, this._sourceUrl, {
+		Ti.include(this.url, [this._sourceUrl, {
 			currentWindow: this,
 			currentActivity: this.window.activity,
 			currentTab: this.tab,
 			currentTabGroup: this.tabGroup
-		});
+		}]);
 	}
 
 	Window.prototype.addEventListener = function(event, listener) {
