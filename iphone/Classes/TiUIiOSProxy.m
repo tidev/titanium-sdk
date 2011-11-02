@@ -10,28 +10,24 @@
 
 #ifdef USE_TI_UIIOS
  
-	#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+#ifdef USE_TI_UIIOSADVIEW
+	#import "TiUIiOSAdViewProxy.h"
+#endif
 
-		#ifdef USE_TI_UIIOSADVIEW
-			#import "TiUIiOSAdViewProxy.h"
-		#endif
-
-	#endif
-	#ifdef USE_TI_UIIOS3DMATRIX
-		#import "TiUIiOS3DMatrix.h"
-	#endif
-	#ifdef USE_TI_UIIOSCOVERFLOWVIEW
-		#import "TiUIiOSCoverFlowViewProxy.h"
-	#endif
-	#ifdef USE_TI_UIIOSTOOLBAR
-		#import "TiUIiOSToolbarProxy.h"
-	#endif
-    #ifdef USE_TI_UIIOSTABBEDBAR
-        #import "TiUIiOSTabbedBarProxy.h"
-    #endif
+#ifdef USE_TI_UIIOS3DMATRIX
+	#import "TiUIiOS3DMatrix.h"
+#endif
+#ifdef USE_TI_UIIOSCOVERFLOWVIEW
+	#import "TiUIiOSCoverFlowViewProxy.h"
+#endif
+#ifdef USE_TI_UIIOSTOOLBAR
+	#import "TiUIiOSToolbarProxy.h"
+#endif
+#ifdef USE_TI_UIIOSTABBEDBAR
+	#import "TiUIiOSTabbedBarProxy.h"
+#endif
 @implementation TiUIiOSProxy
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 #ifdef USE_TI_UIIOSADVIEW
 
 -(id)createAdView:(id)args
@@ -40,7 +36,7 @@
 }
 
 #endif
-#endif
+
 #ifdef USE_TI_UIIOS3DMATRIX
 -(id)create3DMatrix:(id)args
 {
