@@ -48,23 +48,39 @@ function TitaniumModule(context) {
 	}
 
 	this.Android = new AndroidModule(context);
-	this.UI = new UIModule(context);
+	this.UI = new UIModule(context, this.Android);
 
 	Titanium.bindInvocationAPIs(this, sourceUrl);
 }
 TitaniumModule.prototype = Titanium;
 Titanium.TitaniumModule = TitaniumModule;
 
-function UIModule(context) {
+function UIModule(context, Android) {
 	this.currentWindow = context.currentWindow;
 	this.currentTab = context.currentTab;
 	this.currentTabGroup = context.currentTabGroup;
+
+	if (!context.currentWindow && Android.currentActivity) {
+		this.currentWindow = Android.currentActivity.window;
+	}
 }
 UIModule.prototype = Titanium.UI;
 
 function AndroidModule(context) {
+	this.currentActivity = context.currentActivity;
 	var currentWindow = context.currentWindow;
-	this.currentActivity = currentWindow ? currentWindow.activity : Titanium.activity;
+
+	var topActivity;
+	if (currentWindow && currentWindow.activity) {
+		Titanium.API.debug("getting activity from currentWindow: " + currentWindow.activity);
+		this.currentActivity = currentWindow.activity;
+
+	} else if (topActivity = Titanium.App.Android.getTopActivity()) {
+		Titanium.API.debug("getting activity from top activity: " + topActivity);
+		this.currentActivity = topActivity;
+
+	}
+	
 }
 AndroidModule.prototype = Titanium.Android;
 

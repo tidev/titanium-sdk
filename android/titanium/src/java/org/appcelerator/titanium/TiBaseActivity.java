@@ -271,7 +271,7 @@ public abstract class TiBaseActivity extends Activity
 
 		if (modal) {
 			getWindow().setFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND,
-					WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
+				WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
 		}
 
 		if (hasSoftInputMode) {
@@ -581,7 +581,6 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onPause");
 		}
 
-		getTiApp().setWindowHandler(null);
 		getTiApp().setCurrentActivity(this, null);
 
 		if (activityProxy != null) {

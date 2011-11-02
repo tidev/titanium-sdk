@@ -141,8 +141,8 @@ public class KrollContext implements Handler.Callback
 
 	public Object handleEvalFile(String filename)
 	{
-		KrollRuntime.getInstance().runModule(
-			KrollAssetHelper.readAsset(filename), filename);
+		/*KrollRuntime.getInstance().runModule(
+			KrollAssetHelper.readAsset(filename), filename);*/
 
 		return null;
 	}

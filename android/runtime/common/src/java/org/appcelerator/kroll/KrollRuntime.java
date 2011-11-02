@@ -6,14 +6,16 @@
  */
 package org.appcelerator.kroll;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 
-import android.app.Application;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 
 
 public abstract class KrollRuntime implements Handler.Callback
@@ -21,12 +23,15 @@ public abstract class KrollRuntime implements Handler.Callback
 	private static final String TAG = "KrollRuntime";
 	private static final int MSG_DISPOSE = 100;
 	private static final int MSG_RUN_MODULE = 101;
+
 	private static final String PROPERTY_FILENAME = "filename";
+	private static final String PROPERTY_SOURCE = "source";
 
 	private static KrollRuntime instance;
 
 	private KrollRuntimeThread thread;
 	private long threadId;
+	private AtomicBoolean initialized = new AtomicBoolean(false);
 
 	protected Handler handler;
 
@@ -73,6 +78,7 @@ public abstract class KrollRuntime implements Handler.Callback
 			TiMessenger.getMessenger();
 
 			runtime.initRuntime(); // initializer for the specific runtime implementation (V8, Rhino, etc)
+			runtime.initialized.set(true);
 
 			// start handling messages for this thread
 			Looper.loop();
@@ -115,13 +121,22 @@ public abstract class KrollRuntime implements Handler.Callback
 		}
 	}
 
-	public void runModule(String source, String filename)
+	public void runModule(String source, String filename, KrollProxySupport activityProxy)
 	{
+		while (!initialized.get()) {
+			try {
+				Thread.sleep(200L);
+			} catch (InterruptedException e) {
+				Log.e(TAG, e.getMessage(), e);
+			}
+		}
+
 		if (isRuntimeThread()) {
-			doRunModule(source, filename);
+			doRunModule(source, filename, activityProxy);
 
 		} else {
-			Message message = handler.obtainMessage(MSG_RUN_MODULE, source);
+			Message message = handler.obtainMessage(MSG_RUN_MODULE, activityProxy);
+			message.getData().putString(PROPERTY_SOURCE, source);
 			message.getData().putString(PROPERTY_FILENAME, filename);
 			message.sendToTarget();
 		}
@@ -144,7 +159,11 @@ public abstract class KrollRuntime implements Handler.Callback
 				return true;
 
 			case MSG_RUN_MODULE:
-				doRunModule((String) msg.obj, msg.getData().getString(PROPERTY_FILENAME));
+				String source = msg.getData().getString(PROPERTY_SOURCE);
+				String filename = msg.getData().getString(PROPERTY_FILENAME);
+				KrollProxySupport activityProxy = (KrollProxySupport) msg.obj;
+
+				doRunModule(source, filename, activityProxy);
 				return true;
 		}
 
@@ -153,7 +172,7 @@ public abstract class KrollRuntime implements Handler.Callback
 
 	public abstract void initRuntime();
 	public abstract void doDispose();
-	public abstract void doRunModule(String source, String filename);
+	public abstract void doRunModule(String source, String filename, KrollProxySupport activityProxy);
 	public abstract void initObject(KrollProxySupport proxy);
 }
 

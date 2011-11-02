@@ -24,7 +24,7 @@ public class RhinoRuntime extends KrollRuntime
 	private Scriptable globalScope;
 	private Scriptable globalKrollObject;
 	private Scriptable moduleObject;
-	private Function runMainModuleFunction;
+	private Function runModuleFunction;
 
 	@Override
 	public void initRuntime()
@@ -47,7 +47,7 @@ public class RhinoRuntime extends KrollRuntime
 	}
 
 	@Override
-	public void doRunModule(String source, String filename)
+	public void doRunModule(String source, String filename, KrollProxySupport activityProxy)
 	{
 		Context context = Context.enter();
 		context.setOptimizationLevel(-1);
@@ -55,10 +55,10 @@ public class RhinoRuntime extends KrollRuntime
 		try {
 			if (moduleObject == null) {
 				moduleObject = (Scriptable) ScriptableObject.getProperty(globalScope, "Module");
-				runMainModuleFunction = (Function) ScriptableObject.getProperty(moduleObject, "runMainModule");
+				runModuleFunction = (Function) ScriptableObject.getProperty(moduleObject, "runModule");
 			}
 
-			runMainModuleFunction.call(context, globalScope, moduleObject, new Object[] { source, filename });
+			runModuleFunction.call(context, globalScope, moduleObject, new Object[] { source, filename, activityProxy });
 
 		} finally {
 			Context.exit();
