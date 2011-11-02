@@ -8,44 +8,42 @@ methods:
   - name: base64decode
     description: decode a Base64 string
     returns:
-        type: String
+        type: TiBlob
     parameters:
-      - name: str
-        description: the string to use for the input
-        type: String
+      - name: obj
+        description: the string or TiBlob to use for the input
+        type: Object
   - name: base64encode
     description: encode a string into Base64
     returns:
-        type: String
+        type: TiBlob
     parameters:
-      - name: str
-        description: the string to use for the input
-        type: String
+      - name: obj
+        description: the string or TiBlob to use for the input
+        type: Object
   - name: md5HexDigest
     description: compute a MD5 hash algorithm against the input and return a hex-based string
     returns:
         type: String
     parameters:
-      - name: str
-        description: the string to use for the input
-        type: String
+      - name: obj
+        description: the string or TiBlob to use for the input
+        type: Object
   - name: sha1
     since: "1.3.2"
     description: compute a SHA-1 hash algorithm against the input and return a hex-based string
     returns:
         type: String
     parameters:
-      - name: str
-        description: the string to use for the input
-        type: String
+      - name: obj
+        description: the string or TiBlob to use for the input
+        type: Object
   - name: sha256
     since: "1.8.0"
-    platforms: [iphone, ipad]
     description: compute a SHA-256 hash algorithm against the input and return a hex-based string
     returns:
         type: String
     parameters:
-      - name: str
-        description: the string to use for the input
-        type: String
-
+      - name: obj
+        description: the string or TiBlob to use for the input
+        type: Object
