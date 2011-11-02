@@ -309,11 +309,13 @@ public class TitaniumModule extends KrollModule
 	{
 		int style = DateFormat.SHORT;
 
-		if (format.equals("medium")) {
-			style = DateFormat.MEDIUM;
-
-		} else if (format.equals("long")) {
-			style = DateFormat.LONG;
+		if (format != null) {
+			if (format.equals("medium")) {
+				style = DateFormat.MEDIUM;
+	
+			} else if (format.equals("long")) {
+				style = DateFormat.LONG;
+			}
 		}
 
 		return (DateFormat.getDateInstance(style)).format(date);

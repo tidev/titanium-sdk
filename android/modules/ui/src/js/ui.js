@@ -23,6 +23,9 @@ exports.bootstrap = function(Titanium) {
 			get BIG() { return iPhoneConstant("ActivityIndicatorStyle.BIG"); },
 			get DARK() { return  iPhoneConstant("ActivityIndicatorStyle.DARK"); }
 		},
+		AnimationStyle: {
+			get FLIP_FROM_LEFT() { return iPhoneConstant("AnimationStyle.FLIP_FROM_LEFT"); }
+		},
 		SystemButtonStyle: {
 			get BAR() { return iPhoneConstant("SystemButtonStyle.BAR"); }
 		},

@@ -183,6 +183,8 @@ public class TabGroupProxy extends TiWindowProxy
 		tab.setTabGroup(this);
 
 		ActivityWindowProxy windowProxy = new ActivityWindowProxy();
+		windowProxy.setActivity(getActivity());
+
 		TiBaseWindowProxy baseWindow = (TiBaseWindowProxy) tab.getProperty(TiC.PROPERTY_WINDOW);
 		if (baseWindow != null) {
 			windowProxy.handleCreationDict(baseWindow.getProperties());

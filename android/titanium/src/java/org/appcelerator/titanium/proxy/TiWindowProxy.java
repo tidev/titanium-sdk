@@ -19,7 +19,6 @@ import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiOrientationHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiAnimation;
@@ -99,7 +98,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method
+	@Kroll.method @SuppressWarnings("unchecked")
 	public void open(@Kroll.argument(optional = true) Object arg)
 	{
 		if (opened || opening) { return; }
@@ -111,7 +110,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 		if (arg != null) {
 			if (arg instanceof HashMap) {
-				options = (KrollDict) arg;
+				options = new KrollDict((HashMap) arg);
 			} else if (arg instanceof TiAnimation) {
 				options = new KrollDict();
 				options.put("_anim", animation);
