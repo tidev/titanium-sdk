@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.SoftReference;
-import java.lang.reflect.Method;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,7 +32,6 @@ import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiTempFileHelper;
-import org.appcelerator.titanium.view.ITiWindowHandler;
 
 import android.app.Activity;
 import android.app.Application;
@@ -43,7 +42,9 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.DisplayMetrics;
 
-
+/**
+ * The main application entry point for all Titanium applications and services
+ */
 public class TiApplication extends Application implements Handler.Callback, KrollApplication
 {
 	private static final String LCAT = "TiApplication";
@@ -58,30 +59,7 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 	private static long lastAnalyticsTriggered = 0;
 	private static long mainThreadId = 0;
 
-	private String baseUrl;
-	private String startUrl;
-	private HashMap<Class<?>, HashMap<String, Method>> methodMap;
-	private HashMap<String, SoftReference<KrollProxy>> proxyMap;
-	private TiRootActivity rootActivity;
-	private TiProperties appProperties;
-	private TiProperties systemProperties;
-	private ITiWindowHandler windowHandler;
-	private Activity currentActivity;
-	private String density;
-	private boolean needsStartEvent;
-	private boolean needsEnrollEvent;
-	private String buildVersion = "", buildTimestamp = "", buildHash = "";
-	private HashMap<String, KrollModule> modules;
-
-	protected static TiApplication tiApp = null;
-
-	protected TiAnalyticsModel analyticsModel;
-	protected Intent analyticsIntent;
-	protected Handler analyticsHandler;
-	protected TiDeployData deployData;
-	protected TiTempFileHelper tempFileHelper;
-	protected ITiAppInfo appInfo;
-	protected TiStylesheet stylesheet;
+	protected static WeakReference<TiApplication> tiApp = null;
 
 	public static final String DEPLOY_TYPE_DEVELOPMENT = "development";
 	public static final String DEPLOY_TYPE_TEST = "test";
@@ -90,6 +68,27 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 	public static final String APPLICATION_PREFERENCES_NAME = "titanium";
 	public static final String PROPERTY_FASTDEV = "ti.android.fastdev";
 
+	private String baseUrl;
+	private String startUrl;
+	private HashMap<String, SoftReference<KrollProxy>> proxyMap;
+	private ArrayList<KrollProxy> appEventProxies = new ArrayList<KrollProxy>();
+	private WeakReference<TiRootActivity> rootActivity;
+	private TiProperties appProperties;
+	private TiProperties systemProperties;
+	private WeakReference<Activity> currentActivity;
+	private String density;
+	private boolean needsStartEvent;
+	private boolean needsEnrollEvent;
+	private String buildVersion = "", buildTimestamp = "", buildHash = "";
+	private HashMap<String, WeakReference<KrollModule>> modules;
+
+	protected TiAnalyticsModel analyticsModel;
+	protected Intent analyticsIntent;
+	protected Handler analyticsHandler;
+	protected TiDeployData deployData;
+	protected TiTempFileHelper tempFileHelper;
+	protected ITiAppInfo appInfo;
+	protected TiStylesheet stylesheet;
 
 	public TiApplication()
 	{
@@ -101,9 +100,9 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 		loadBuildProperties();
 
 		mainThreadId = Looper.getMainLooper().getThread().getId();
-		tiApp = this;
+		tiApp = new WeakReference<TiApplication>(this);
 
-		modules = new HashMap<String, KrollModule>();
+		modules = new HashMap<String, WeakReference<KrollModule>>();
 		TiMessenger.getMessenger(); // initialize message queue for main thread
 
 		Log.i(LCAT, "Titanium " + buildVersion + " (" + buildTimestamp + " " + buildHash + ")");
@@ -111,7 +110,11 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 
 	public static TiApplication getInstance()
 	{
-		return tiApp;
+		if (tiApp == null) {
+			return null;
+		}
+
+		return tiApp.get();
 	}
 
 	protected void loadBuildProperties()
@@ -160,7 +163,6 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 		File fullPath = new File(baseUrl, getStartFilename("app.js"));
 		baseUrl = fullPath.getParent();
 
-		methodMap = new HashMap<Class<?>, HashMap<String,Method>>(25);
 		proxyMap = new HashMap<String, SoftReference<KrollProxy>>(5);
 
 		appProperties = new TiProperties(getApplicationContext(), APPLICATION_PREFERENCES_NAME, false);
@@ -172,11 +174,13 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 		tempFileHelper = new TiTempFileHelper(this);
 	}
 
-	public void postAppInfo() {
+	public void postAppInfo()
+	{
 		TiPlatformHelper.initialize();
 	}
 
-	public void postOnCreate() {
+	public void postOnCreate()
+	{
 		TiConfig.LOGD = systemProperties.getBool("ti.android.debug", false);
 
 		// Register the default cache handler
@@ -189,9 +193,7 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 
 	public void setRootActivity(TiRootActivity rootActivity)
 	{
-		//TODO consider weakRef
-		this.rootActivity = rootActivity;
-		//this.windowHandler = rootActivity;
+		this.rootActivity = new WeakReference<TiRootActivity>(rootActivity);
 
 		// calculate the display density
 		DisplayMetrics dm = new DisplayMetrics();
@@ -236,57 +238,61 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 		tempFileHelper.scheduleCleanTempDir();
 	}
 
-	public TiRootActivity getRootActivity() {
-		return rootActivity;
+	public TiRootActivity getRootActivity()
+	{
+		if (rootActivity == null) {
+			return null;
+		}
+
+		return rootActivity.get();
 	}
 
-	public ITiWindowHandler getWindowHandler() {
-		return windowHandler;
-	}
+	public Activity getCurrentActivity()
+	{
+		if (currentActivity == null) {
+			return null;
+		}
 
-	public Activity getCurrentActivity() {
-		return currentActivity;
+		return currentActivity.get();
 	}
 
 	public void setCurrentActivity(Activity callingActivity, Activity newValue)
 	{
 		synchronized (this) {
-			if ((currentActivity instanceof TabActivity) && (newValue instanceof TiActivity)) {
+			// TabActivity (the container for tab activities) doesn't pause itself while it's
+			// children tabs are being paused and resumed (while switching tabs), so this
+			// covers that special case
+			Activity currentActivity = getCurrentActivity();
+			if (currentActivity instanceof TabActivity && newValue instanceof TiActivity) {
 				TiActivity tiActivity = (TiActivity)newValue;
 				if (tiActivity.isTab()) {
-					currentActivity = newValue;
+					this.currentActivity = new WeakReference<Activity>(newValue);
 
 					return;
 				}
 			}
 
 			if (currentActivity == null || (callingActivity == currentActivity && newValue == null)) {
-				currentActivity = newValue;
+				this.currentActivity = new WeakReference<Activity>(newValue);
 			}
 		}
 	}
 
-	public void setWindowHandler(ITiWindowHandler windowHandler) {
-		if (windowHandler == null) {
-			//this.windowHandler = rootActivity;
-		} else {
-			this.windowHandler = windowHandler; //TODO weakRef?
-		}
-	}
-
-	public String getBaseUrl() {
+	public String getBaseUrl()
+	{
 		return baseUrl;
 	}
 
-	public String getStartUrl() {
+	public String getStartUrl()
+	{
 		return startUrl;
 	}
 
-	private String getStartFilename(String defaultStartFile) {
+	private String getStartFilename(String defaultStartFile)
+	{
 		return defaultStartFile;
 	}
 
-	private ArrayList<KrollProxy> appEventProxies = new ArrayList<KrollProxy>();
 	public void addAppEventProxy(KrollProxy appEventProxy)
 	{
 		Log.e(LCAT, "APP PROXY: " + appEventProxy);
@@ -302,14 +308,13 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 
 	public boolean fireAppEvent(String eventName, KrollDict data)
 	{
-		// TODO boolean handled = false;
-		for (KrollProxy appEventProxy : appEventProxies)
-		{
-			/*TODO boolean proxyHandled = */appEventProxy.fireEvent(eventName, data);
-			//handled = handled || proxyHandled;
+		boolean handled = false;
+		for (KrollProxy appEventProxy : appEventProxies) {
+			boolean proxyHandled = appEventProxy.fireEvent(eventName, data);
+			handled = handled || proxyHandled;
 		}
-		//TODO return handled;
-		return true;
+
+		return handled;
 	}
 
 	public TiProperties getAppProperties()
@@ -400,6 +405,7 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 				sendAnalytics();
 				analyticsModel.markEnrolled();
 			}
+
 		} else if (event.getEventType() == TiAnalyticsEventFactory.EVENT_APP_START) {
 			if (needsStartEvent) {
 				analyticsModel.addEvent(event);
@@ -408,10 +414,12 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 				lastAnalyticsTriggered = System.currentTimeMillis();
 			}
 			return;
+
 		} else if (event.getEventType() == TiAnalyticsEventFactory.EVENT_APP_END) {
 			needsStartEvent = true;
 			analyticsModel.addEvent(event);
 			sendAnalytics();
+
 		} else {
 			analyticsModel.addEvent(event);
 			long now = System.currentTimeMillis();
@@ -422,7 +430,7 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 		}
 	}
 
-	public boolean handleMessage(Message msg) 
+	public boolean handleMessage(Message msg)
 	{
 		if (msg.what == MSG_SEND_ANALYTICS) {
 			if (startService(analyticsIntent) == null) {
@@ -433,7 +441,8 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 		return false;
 	}
 
-	public void sendAnalytics() {
+	public void sendAnalytics()
+	{
 		if (analyticsIntent != null) {
 			synchronized(this) {
 				analyticsHandler.removeMessages(MSG_SEND_ANALYTICS);
@@ -520,15 +529,23 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 		return false;
 	}
 
-	public KrollModule getModuleByName(String name) {
-		return modules.get(name);
+	public KrollModule getModuleByName(String name)
+	{
+		WeakReference<KrollModule> module = modules.get(name);
+		if (module == null) {
+			return null;
+		}
+
+		return module.get();
 	}
 
-	public void registerModuleInstance(String name, KrollModule module) {
+	public void registerModuleInstance(String name, KrollModule module)
+	{
 		if (modules.containsKey(name)) {
 			Log.w(LCAT, "Registering module with name already in use.");
 		}
-		modules.put(name, module);
+
+		modules.put(name, new WeakReference<KrollModule>(module));
 	}
 }
 

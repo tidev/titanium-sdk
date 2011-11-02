@@ -221,6 +221,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 		Ti.include(this.url, this._sourceUrl, {
 			currentWindow: this,
+			currentActivity: this.window.activity,
 			currentTab: this.window.tab,
 			currentTabGroup: this.window.tabGroup
 		});

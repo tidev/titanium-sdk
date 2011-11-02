@@ -60,7 +60,7 @@ static Handle<Value> krollLog(const Arguments& args)
 
 	String::Utf8Value tagValue(tag);
 	String::Utf8Value messageValue(message);
-	LOGD(*tagValue, *messageValue);
+	__android_log_print(ANDROID_LOG_DEBUG, *tagValue, *messageValue);
 
 	return Undefined();
 }
@@ -175,14 +175,15 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 }
 
 static Persistent<Object> moduleObject;
-static Persistent<Function> runMainModuleFunction;
+static Persistent<Function> runModuleFunction;
 
 /*
  * Class:     org_appcelerator_kroll_runtime_v8_V8Runtime
  * Method:    nativeRunModule
  * Signature: (Ljava/lang/String;Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRunModule(JNIEnv *env, jobject self, jstring source, jstring filename)
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRunModule
+	(JNIEnv *env, jobject self, jstring source, jstring filename, jobject activityProxy)
 {
 	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
@@ -191,16 +192,17 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRu
 		moduleObject = Persistent<Object>::New(
 			V8Runtime::krollGlobalObject->Get(String::New("Module"))->ToObject());
 
-		runMainModuleFunction = Persistent<Function>::New(
-			Handle<Function>::Cast(moduleObject->Get(String::New("runMainModule"))));
+		runModuleFunction = Persistent<Function>::New(
+			Handle<Function>::Cast(moduleObject->Get(String::New("runModule"))));
 	}
 
 	Handle<Value> jsSource = TypeConverter::javaStringToJsString(source);
 	Handle<Value> jsFilename = TypeConverter::javaStringToJsString(filename);
+	Handle<Value> jsActivity = TypeConverter::javaObjectToJsValue(activityProxy);
 
-	Handle<Value> args[] = { jsSource, jsFilename };
+	Handle<Value> args[] = { jsSource, jsFilename, jsActivity };
 	TryCatch tryCatch;
-	runMainModuleFunction->Call(moduleObject, 2, args);
+	runModuleFunction->Call(moduleObject, 3, args);
 
 	if (tryCatch.HasCaught()) {
 		V8Util::reportException(tryCatch, true);

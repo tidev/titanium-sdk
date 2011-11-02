@@ -11,6 +11,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
@@ -173,6 +174,18 @@ public class ActivityProxy extends KrollProxy
 			return activity.getDir(name, mode).getAbsolutePath();
 		}
 		return null;
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public TiWindowProxy getWindow()
+	{
+		Activity activity = getWrappedActivity();
+		if (!(activity instanceof TiBaseActivity)) {
+			return null;
+		}
+
+		TiBaseActivity tiActivity = (TiBaseActivity) activity;
+		return tiActivity.getWindowProxy();
 	}
 
 	public void onResult(Activity activity, int requestCode, int resultCode, Intent data)

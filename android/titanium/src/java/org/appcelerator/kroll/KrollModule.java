@@ -6,7 +6,6 @@
  */
 package org.appcelerator.kroll;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.appcelerator.kroll.annotations.Kroll;
@@ -21,16 +20,10 @@ public class KrollModule extends KrollProxy
 	implements KrollProxyListener, OnLifecycleEvent
 {
 	private static final String TAG = "KrollModule";
-	protected static ArrayList<Class<? extends KrollModule>> initializedTemplates = new ArrayList<Class<? extends KrollModule>>();
 
 	public KrollModule() {
 		super();
 
-		//Class<? extends KrollModule> moduleClass = getClass();
-		/*if (!initializedTemplates.contains(moduleClass)) {
-			V8Runtime.initModuleTemplate(moduleClass);
-			initializedTemplates.add(moduleClass);
-		}*/
 		modelListener = this;
 	}
 

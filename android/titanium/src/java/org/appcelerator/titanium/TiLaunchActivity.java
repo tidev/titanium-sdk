@@ -82,7 +82,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 				fullUrl = fullUrl.replaceAll("file:///android_asset/", "");
 			}
 
-			KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(fullUrl), fullUrl);
+			KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(fullUrl), fullUrl, activityProxy);
 
 		} finally {
 			if (DBG) {
