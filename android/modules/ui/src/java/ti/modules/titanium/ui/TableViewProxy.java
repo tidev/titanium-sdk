@@ -13,6 +13,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
@@ -410,24 +411,33 @@ public class TableViewProxy extends TiViewProxy
 
 	private TableViewRowProxy rowProxyFor(Object row) {
 		TableViewRowProxy rowProxy = null;
-		if (row instanceof HashMap) {
-			return rowProxyFor(new KrollDict((HashMap) row));
-		} else if (row instanceof KrollDict) {
-			return rowProxyFor((KrollDict) row);
-		} else {
+		if (row instanceof TableViewRowProxy) {
 			rowProxy = (TableViewRowProxy) row;
-		}
-		
-		rowProxy.setParent(this);
-		return rowProxy;
-	}
 
-	private TableViewRowProxy rowProxyFor(KrollDict row) {
-		TableViewRowProxy rowProxy = new TableViewRowProxy();
-		rowProxy.handleCreationDict(row);
-		rowProxy.setProperty(TiC.PROPERTY_CLASS_NAME, CLASSNAME_NORMAL);
-		rowProxy.setProperty(TiC.PROPERTY_ROW_DATA, row);
-		rowProxy.setActivity(getActivity());
+		} else {
+			KrollDict rowDict = null;
+			if (row instanceof KrollDict) {
+				rowDict = (KrollDict) row;
+
+			} else if (row instanceof HashMap) {
+				rowDict = new KrollDict((HashMap) row);
+			}
+
+			if (rowDict != null) {
+				rowProxy = new TableViewRowProxy();
+				rowProxy.handleCreationDict(rowDict);
+				rowProxy.setProperty(TiC.PROPERTY_CLASS_NAME, CLASSNAME_NORMAL);
+				rowProxy.setProperty(TiC.PROPERTY_ROW_DATA, row);
+				rowProxy.setActivity(getActivity());
+			}
+		}
+
+		if (rowProxy == null) {
+			Log.e(LCAT, "unable to create table view row proxy for object, likely an error in the type of the object passed in...");
+			return null;
+		}
+
+		rowProxy.setParent(this);
 		return rowProxy;
 	}
 
