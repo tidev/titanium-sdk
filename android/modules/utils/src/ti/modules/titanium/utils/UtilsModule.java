@@ -20,7 +20,6 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiConvert;
 
 @Kroll.module
 public class UtilsModule extends KrollModule
@@ -30,61 +29,83 @@ public class UtilsModule extends KrollModule
 	public UtilsModule(TiContext tiContext) {
 		super(tiContext);
 	}
+	
+	private String convertToString(Object obj) {
+		if (obj instanceof String)
+			return (String)obj;
+		else if (obj instanceof TiBlob)
+			return ((TiBlob)obj).getText();
+		else
+			throw new IllegalArgumentException("Invalid type for argument");
+	}
 
 	@Kroll.method
 	public TiBlob base64encode(Object obj) {
 		if (obj instanceof TiBlob) {
 			return TiBlob.blobFromString(getTiContext(), ((TiBlob)obj).toBase64());
 		}
-		String data;
-		try {
-			if (obj instanceof byte[]) {
-				data = new String((byte[])obj, "UTF-8");
-			} else {
-				data = TiConvert.toString(obj);
+		String data = convertToString(obj);
+		if (data != null) {
+			try {
+				return TiBlob.blobFromString(getTiContext(),new String(Base64.encodeBase64(data.getBytes("UTF-8")), "UTF-8"));
+			} catch (UnsupportedEncodingException e) {
+				Log.e(LCAT, "UTF-8 is not a supported encoding type");
 			}
-			return TiBlob.blobFromString(getTiContext(),new String(Base64.encodeBase64(data.getBytes("UTF-8")), "UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			Log.e(LCAT, "UTF-8 is not a supported encoding type");
 		}
 		return null;
 	}
 
 	@Kroll.method
-	public TiBlob base64decode(String data)
+	public TiBlob base64decode(Object obj)
 	{
-		try {
-			return TiBlob.blobFromData(getTiContext(), Base64.decodeBase64(data.getBytes("UTF-8")));
-		} catch (UnsupportedEncodingException e) {
+		String data = convertToString(obj);
+		if (data != null) {
+			try {
+				return TiBlob.blobFromData(getTiContext(), Base64.decodeBase64(data.getBytes("UTF-8")));
+			} catch (UnsupportedEncodingException e) {
 			Log.e(LCAT, "UTF-8 is not a supported encoding type");
+			}
 		}
-
 		return null;
 	}
 
 	@Kroll.method
-	public String md5HexDigest(String data) {
-		return DigestUtils.md5Hex(data);
+	public String md5HexDigest(Object obj) {
+		String data = convertToString(obj);
+		if (data != null)
+			return DigestUtils.md5Hex(data);
+		return null;
 	}
 	
 	@Kroll.method
-	public String sha1(String data) {
+	public String sha1(Object obj) {
+		String data = convertToString(obj);
+		if (data != null)
+		{
+			return DigestUtils.shaHex(data);
+		}
+		return null;
+	}
+	
+	@Kroll.method
+	public String sha256(Object obj) {
+		String data = convertToString(obj);
+		//NOTE: DigestUtils with the version before 1.4 doesn't have the function sha256Hex,
+		//so we deal with it ourselves
 		try
 		{
 			byte[] b = data.getBytes();
-			MessageDigest algorithm = MessageDigest.getInstance("SHA-1");
+			MessageDigest algorithm = MessageDigest.getInstance("SHA-256");
 			algorithm.reset();
 			algorithm.update(b);
 			byte messageDigest[] = algorithm.digest();
 			StringBuilder result = new StringBuilder();
-			//NOTE: for some reason DigestUtils doesn't produce correct value
-			//so we deal with it ourselves
 			for (int i=0; i < messageDigest.length; i++) {
 				result.append(Integer.toString(( messageDigest[i] & 0xff ) + 0x100, 16).substring(1));
 			}
 			return result.toString();
 		} catch(NoSuchAlgorithmException e) {
-			Log.e(LCAT, "SHA1 is not a supported algorithm");
+			Log.e(LCAT, "SHA256 is not a supported algorithm");
 		}
 		return null;
 	}
