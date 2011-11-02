@@ -43,8 +43,23 @@ function TitaniumModule(context) {
 	var sourceUrl = this.sourceUrl = context.sourceUrl;
 
 	// Special version of include to handle relative paths based on sourceUrl.
-	this.include = function(filename, baseUrl, context) {
-		TiInclude(filename, baseUrl || sourceUrl, context);
+	this.include = function() {
+		var baseUrl, context;
+		var fileCount = arguments.length;
+
+		var info = arguments[fileCount - 1];
+		var baseUrl, context;
+		if (info instanceof Array) {
+			fileCount--;
+			baseUrl = info[0];
+			context = info[1];
+		} else {
+			baseUrl = sourceUrl;
+		}
+
+		for (var i = 0; i < fileCount; i++) {
+			TiInclude(arguments[i], baseUrl, context);
+		}
 	}
 
 	this.Android = new AndroidModule(context);
@@ -87,16 +102,15 @@ AndroidModule.prototype = Titanium.Android;
 // -----------------------------------------------------------------------
 
 function TiInclude(filename, baseUrl, context) {
-	baseUrl = typeof(baseUrl) === 'undefined' ? "app://app.js" : baseUrl;
-	var sourceUrl = url.resolve(baseUrl, filename);
+	var sourceUrl = url.resolve(baseUrl || Titanium.sourceUrl, filename);
 	var contextUrl = sourceUrl.href;
 
 	// Create a context-bound Titanium module.
-	var context = context || {};
 	if (kroll.runtime == "rhino") {
 		contextUrl = require("rhino").getSourceUrl(sourceUrl);
 	}
 
+	var context = context || {};
 	context.sourceUrl = contextUrl;
 	var ti = new TitaniumModule(context);
 	sandbox = { Ti: ti, Titanium: ti };
