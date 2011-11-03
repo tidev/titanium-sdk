@@ -8,20 +8,17 @@ package org.appcelerator.kroll;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.ActivityProxy;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUrl;
 
 import android.app.Activity;
@@ -33,7 +30,6 @@ import android.os.Message;
 public class KrollProxy implements Handler.Callback, KrollProxySupport
 {
 	private static final String TAG = "KrollProxy";
-	private static final boolean DBG = TiConfig.LOGD;
 	private static final int INDEX_NAME = 0;
 	private static final int INDEX_OLD_VALUE = 1;
 	private static final int INDEX_VALUE = 2;
@@ -86,6 +82,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			// Store reference to the native object that represents this proxy so we can drive changes to the JS 
 			// object
 			proxyInstance.krollObject = object;
+			object.setProxySupport(proxyInstance);
 			proxyInstance.creationUrl = new TiUrl(creationUrl);
 
 			// Associate the activity with the proxy.  if the proxy needs activity association delayed until a 
@@ -399,6 +396,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		}
 	}
 
+	public void onHasListenersChanged(String event, boolean hasListeners)
+	{
+		Message msg = getMainHandler().obtainMessage(hasListeners ? MSG_LISTENER_ADDED : MSG_LISTENER_REMOVED);
+		msg.obj = event;
+		TiMessenger.getMainMessenger().sendMessage(msg);
+	}
+
 	public boolean hasListeners(String event)
 	{
 		return getKrollObject().hasListeners(event);
@@ -500,15 +504,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 					return true;
 				}
 
-				String event = msg.getData().getString(TiC.PROPERTY_TYPE);
+				String event = (String) msg.obj;
 
-				HashMap<String, Object> map = (HashMap<String, Object>) msg.obj;
-				int count = TiConvert.toInt(map.get(TiC.PROPERTY_COUNT));
 				if (msg.what == MSG_LISTENER_ADDED) {
-					eventListenerAdded(event, count, this);
+					eventListenerAdded(event, 1, this);
 
 				} else {
-					eventListenerRemoved(event, count, this);
+					eventListenerRemoved(event, 0, this);
 				}
 
 				return true;
@@ -556,6 +558,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		return false;
 	}
 
+	// TODO: count should be removed since we no longer report it.
+	//       These methods only gets called now when the first listener
+	//       is added or the last one has been removed.
 	protected void eventListenerAdded(String event, int count, KrollProxy proxy)
 	{
 		modelListener.listenerAdded(event, count, this);

@@ -11,7 +11,6 @@ import java.util.HashMap;
 import org.appcelerator.kroll.common.TiMessenger;
 
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 
 
@@ -26,9 +25,16 @@ public abstract class KrollObject implements Handler.Callback
 	protected HashMap<String, Boolean> hasListenersForEventType = new HashMap<String, Boolean>();
 	protected Handler handler;
 
+	private KrollProxySupport proxySupport;
+
 	public KrollObject()
 	{
 		handler = new Handler(TiMessenger.getRuntimeMessenger().getLooper(), this);	
+	}
+
+	public void setProxySupport(KrollProxySupport proxySupport)
+	{
+		this.proxySupport = proxySupport;
 	}
 
 	public boolean hasListeners(String event)
@@ -44,6 +50,9 @@ public abstract class KrollObject implements Handler.Callback
 	public void setHasListenersForEventType(String event, boolean hasListeners)
 	{
 		hasListenersForEventType.put(event, hasListeners);
+		if (proxySupport != null) {
+			proxySupport.onHasListenersChanged(event, hasListeners);
+		}
 	}
 
 	protected void release()

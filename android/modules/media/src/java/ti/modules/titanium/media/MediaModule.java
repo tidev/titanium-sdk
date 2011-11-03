@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
@@ -32,6 +33,7 @@ import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiIntentWrapper;
 
@@ -101,7 +103,7 @@ public class MediaModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void showCamera(KrollDict options)
+	public void showCamera(HashMap options)
 	{
 		KrollFunction successCallback = null;
 		KrollFunction cancelCallback = null;
@@ -145,7 +147,7 @@ public class MediaModule extends KrollModule
 
 		boolean saveToPhotoGallery = false;
 		if (options.containsKey("saveToPhotoGallery")) {
-			saveToPhotoGallery = options.getBoolean("saveToPhotoGallery");
+			saveToPhotoGallery = TiConvert.toBoolean(options.get("saveToPhotoGallery"));
 		}
 
 		Activity activity = TiApplication.getInstance().getCurrentActivity();
@@ -283,7 +285,7 @@ public class MediaModule extends KrollModule
 					Uri imageUri = activity.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
 
 					// puts newly captured photo into the gallery
-					MediaScannerClient mediaScanner = new MediaScannerClient(new String[] {imageUrl}, null);
+					MediaScannerClient mediaScanner = new MediaScannerClient(activity, new String[] {imageUrl}, null, null);
 					mediaScanner.scan();
 
 					try {
