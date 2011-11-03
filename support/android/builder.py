@@ -1428,7 +1428,9 @@ class Builder(object):
 			non_js_assets = os.path.join(self.project_dir, 'bin', 'non-js-assets')
 			if not os.path.exists(non_js_assets):
 				os.mkdir(non_js_assets)
-			copy_all(self.assets_dir, non_js_assets, ignore_exts=[".js"])
+			#TODO: Decide whether we need to add 'ignore_exts=[".js"]' back to the copy_all() method once we are able to package with rhino
+			# For now, we leave the js files in for v8 packaging
+			copy_all(self.assets_dir, non_js_assets)
 			pkg_assets_dir = non_js_assets
 
 		run.run([self.aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', pkg_assets_dir,
