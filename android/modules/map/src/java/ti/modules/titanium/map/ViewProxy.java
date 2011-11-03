@@ -315,12 +315,6 @@ public class ViewProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method
-	public void setMapType(int mapType)
-	{
-		this.setProperty(TiC.PROPERTY_MAP_TYPE, mapType, true);
-	}
-
 	public void onDestroy(Activity activity) {
 		if (lam != null && !destroyed) {
 			destroyed = true;
