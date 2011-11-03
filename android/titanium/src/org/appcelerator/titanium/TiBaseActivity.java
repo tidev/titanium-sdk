@@ -367,7 +367,15 @@ public abstract class TiBaseActivity extends Activity
 	{
 		try {
 			Message msg = messageQueue.getHandler().obtainMessage(msgId, this);
-			messenger.send(msg);
+			// Our Activities are currently unable to recover from Android-forced restarts. If the binder for the
+			// messenger no longer exists, we have to relaunch the application entirely. (Fix for TIMOB-5825)
+			if (!messenger.getBinder().pingBinder()) {
+				Log.e(TAG, "Unable to message creator. finishing.");
+				getTiApp().scheduleRestart(250);
+				finish();
+			} else {
+				messenger.send(msg);
+			}
 		} catch (RemoteException e) {
 			Log.e(TAG, "Unable to message creator. finishing.", e);
 			finish();
