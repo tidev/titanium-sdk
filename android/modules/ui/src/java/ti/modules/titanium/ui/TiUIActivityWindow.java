@@ -82,8 +82,8 @@ public class TiUIActivityWindow extends TiUIView
 		this.lastWidth = LayoutParams.FILL_PARENT;
 		this.lastHeight = LayoutParams.FILL_PARENT;
 
+		windowId = TiActivityWindows.addWindow(this);
 		createNewActivity(options);
-		TiActivityWindows.addWindow(this);
 	}
 
 	public TiUIActivityWindow(ActivityWindowProxy proxy, TiBaseActivity activity)
@@ -163,7 +163,13 @@ public class TiUIActivityWindow extends TiUIView
 		if (windowActivity instanceof TiBaseActivity) {
 			TiBaseActivity tiActivity = (TiBaseActivity)windowActivity;
 			TiWindowProxy windowProxy = (TiWindowProxy)proxy;
-			tiActivity.setActivityProxy(windowProxy.getActivityProxy());
+
+			ActivityProxy activityProxy = windowProxy.getActivityProxy();
+			if (activityProxy == null) {
+				activityProxy = new ActivityProxy(tiActivity);
+			}
+
+			tiActivity.setActivityProxy(activityProxy);
 			tiActivity.setWindowProxy(windowProxy);
 		}
 	}
