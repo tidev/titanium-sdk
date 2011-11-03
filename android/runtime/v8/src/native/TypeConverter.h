@@ -64,10 +64,15 @@ public:
 	// array convert methods
 	static jarray jsArrayToJavaArray(v8::Handle<v8::Array>);
 	static v8::Handle<v8::Array> javaArrayToJsArray(jbooleanArray javaBooleanArray);
+	static jshortArray jsArrayToJavaShortArray(v8::Handle<v8::Array> jsArray);
 	static v8::Handle<v8::Array> javaArrayToJsArray(jshortArray javaShortArray);
+	static jintArray jsArrayToJavaIntArray(v8::Handle<v8::Array> jsArray);
 	static v8::Handle<v8::Array> javaArrayToJsArray(jintArray javaIntArray);
+	static jlongArray jsArrayToJavaLongArray(v8::Handle<v8::Array> jsArray);
 	static v8::Handle<v8::Array> javaArrayToJsArray(jlongArray javaLongArray);
+	static jfloatArray jsArrayToJavaFloatArray(v8::Handle<v8::Array> jsArray);
 	static v8::Handle<v8::Array> javaArrayToJsArray(jfloatArray javaFloatArray);
+	static jdoubleArray jsArrayToJavaDoubleArray(v8::Handle<v8::Array> jsArray);
 	static v8::Handle<v8::Array> javaArrayToJsArray(jdoubleArray javaDoubleArray);
 	static v8::Handle<v8::Array> javaArrayToJsArray(jobjectArray javaObjectArray);
 

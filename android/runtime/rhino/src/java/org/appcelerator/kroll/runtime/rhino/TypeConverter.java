@@ -133,6 +133,16 @@ public class TypeConverter
 		return Context.getCurrentContext().newArray(scope, jsArray);
 	}
 
+	public static Scriptable javaLongArrayToJsArray(long[] value, Scriptable scope)
+	{
+		int length = value.length;
+		Object[] jsArray = new Object[length];
+		for (int i = 0; i < length; i++) {
+			jsArray[i] = value;
+		}
+		return Context.getCurrentContext().newArray(scope, jsArray);
+	}
+
 	public static Scriptable javaArrayToJsArray(Object value, Scriptable scope)
 	{
 		int length = Array.getLength(value);
@@ -263,6 +273,20 @@ public class TypeConverter
 				Log.d(TAG, "Index: " + i + " value: " + v + " type: " + v.getClass().getName());
 			}
 			a[i] = jsObjectToJavaInt(v, scope);
+		}
+		return a;
+	}
+
+	public static long[] jsArrayToJavaLongArray(Scriptable array, Scriptable scope)
+	{
+		int len = (Integer) Context.jsToJava(array.get(JS_PROPERTY_LENGTH, array), Integer.class);
+		long[] a = new long[len];
+		for (int i = 0; i < len; i++) {
+			Object v = array.get(i, array);
+			if (DBG) {
+				Log.d(TAG, "Index: " + i + " value: " + v + " type: " + v.getClass().getName());
+			}
+			a[i] = jsObjectToJavaLong(v, scope);
 		}
 		return a;
 	}
