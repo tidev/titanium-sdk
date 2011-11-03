@@ -91,7 +91,7 @@ public class MediaModule extends KrollModule
 	@Kroll.method
 	public void vibrate(@Kroll.argument(optional=true) long[] pattern)
 	{
-		if (pattern.length == 0) {
+		if ((pattern == null) || (pattern.length == 0)) {
 			pattern = DEFAULT_VIBRATE_PATTERN;
 		}
 		Vibrator vibrator = (Vibrator) TiApplication.getInstance().getSystemService(Context.VIBRATOR_SERVICE);
