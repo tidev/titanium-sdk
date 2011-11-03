@@ -26,6 +26,12 @@ exports.bootstrap = function(Titanium) {
 		AnimationStyle: {
 			get FLIP_FROM_LEFT() { return iPhoneConstant("AnimationStyle.FLIP_FROM_LEFT"); }
 		},
+		ProgressBarStyle: {
+			get SIMPLE() { return iPhoneConstant("ProgressBarStyle.SIMPLE"); }
+		},
+		SystemButton: {
+			get FLEXIBLE_SPACE() { return iPhoneConstant("SystemButton.FLEXIBLE_SPACE"); }
+		},
 		SystemButtonStyle: {
 			get BAR() { return iPhoneConstant("SystemButtonStyle.BAR"); }
 		},
