@@ -91,10 +91,8 @@ Handle<Value> Proxy::getProperty(const Arguments& args)
 	return getPropertyForProxy(name, args.Holder());
 }
 
-void Proxy::setProperty(Local<String> property, Local<Value> value, const AccessorInfo& info)
+static void setPropertyOnProxy(Local<String> property, Local<Value> value, Local<Object> proxy)
 {
-	Local<Object> proxy = info.This();
-
 	// Call Proxy.prototype.setProperty.
 	Local<Value> setProperty = proxy->Get(String::New("setProperty"));
 	if (!setProperty.IsEmpty() && setProperty->IsFunction()) {
@@ -104,6 +102,11 @@ void Proxy::setProperty(Local<String> property, Local<Value> value, const Access
 	}
 
 	LOGE(TAG, "Unable to lookup Proxy.prototype.setProperty");
+}
+
+void Proxy::setProperty(Local<String> property, Local<Value> value, const AccessorInfo& info)
+{
+	setPropertyOnProxy(property, value, info.This());
 }
 
 static void onPropertyChangedForProxy(Local<String> property, Local<Value> value, Local<Object> proxyObject)
@@ -129,6 +132,9 @@ static void onPropertyChangedForProxy(Local<String> property, Local<Value> value
 	if (isNew) {
 		env->DeleteLocalRef(javaValue);
 	}
+
+	// Store new property value on JS internal map.
+	setPropertyOnProxy(property, value, proxyObject);
 }
 
 void Proxy::onPropertyChanged(Local<String> property, Local<Value> value, const AccessorInfo& info)
