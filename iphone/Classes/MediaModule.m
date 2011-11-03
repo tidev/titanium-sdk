@@ -946,8 +946,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 -(void)vibrate:(id)args
 {
-	ENSURE_UI_THREAD(beep,args);
-	AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
+	[self beep:args];
 }
 
 -(void)takePicture:(id)args
