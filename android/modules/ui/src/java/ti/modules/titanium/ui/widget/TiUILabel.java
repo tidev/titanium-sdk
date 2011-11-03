@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -123,7 +125,7 @@ public class TiUILabel extends TiUIView
 			TiUIHelper.setAlignment(tv, null, TiConvert.toString(newValue));
 			tv.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_FONT)) {
-			TiUIHelper.styleText(tv, (KrollDict) newValue);
+			TiUIHelper.styleText(tv, (HashMap) newValue);
 			tv.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_ELLIPSIZE)) {
 			if (TiConvert.toBoolean(newValue)) {

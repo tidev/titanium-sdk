@@ -256,7 +256,7 @@ public class TiUIHelper
 		return getRawSize(getSizeUnits(size), getSize(size), context);
 	}
 
-	public static void styleText(TextView tv, KrollDict d) {
+	public static void styleText(TextView tv, HashMap<String, Object> d) {
 		String fontSize = null;
 		String fontWeight = null;
 		String fontFamily = null;

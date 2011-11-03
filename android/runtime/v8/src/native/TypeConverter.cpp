@@ -339,9 +339,8 @@ jobject TypeConverter::jsValueToJavaObject(v8::Local<v8::Value> jsValue, bool *i
 		return TypeConverter::jsStringToJavaString(jsValue->ToString());
 
 	} else if (jsValue->IsDate()) {
-		jlong javaLong = TypeConverter::jsDateToJavaLong(v8::Handle<v8::Date>::Cast(jsValue));
-		*isNew = true;
-		return env->NewObject(JNIUtil::longClass, JNIUtil::longInitMethod, javaLong);
+		Local<Date> date = Local<Date>::Cast<Value>(jsValue);
+		return TypeConverter::jsDateToJavaDate(date);
 
 	} else if (jsValue->IsArray()) {
 		*isNew = true;
