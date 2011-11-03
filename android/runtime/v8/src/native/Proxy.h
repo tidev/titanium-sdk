@@ -39,6 +39,7 @@ public:
 	// used when the user script requests the value.
 	static v8::Handle<v8::Value> getProperty(v8::Local<v8::String> property,
 											 const v8::AccessorInfo& info);
+	static v8::Handle<v8::Value> getProperty(const v8::Arguments& args);
 
 	// Stores the new value for the property into the internal map.
 	static void setProperty(v8::Local<v8::String> property,
@@ -50,6 +51,7 @@ public:
 	static void onPropertyChanged(v8::Local<v8::String> property,
 	                              v8::Local<v8::Value> value,
 	                              const v8::AccessorInfo& info);
+	static v8::Handle<v8::Value> onPropertyChanged(const v8::Arguments& args);
 
 	// Fetches an indexed property value from the Java proxy.
 	static v8::Handle<v8::Value> getIndexedProperty(uint32_t index,

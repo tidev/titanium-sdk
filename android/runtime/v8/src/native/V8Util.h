@@ -44,15 +44,17 @@
 	DEFINE_TEMPLATE(target, name, v8::FunctionTemplate::New(callback))
 
 
-#define DEFINE_PROTOTYPE_METHOD(templ, name, callback) \
+#define DEFINE_PROTOTYPE_METHOD_DATA(templ, name, callback, data) \
 { \
 	v8::Local<v8::Signature> __callback##_SIG = v8::Signature::New(templ); \
 	v8::Local<v8::FunctionTemplate> __callback##_TEM = \
-	v8::FunctionTemplate::New(callback, v8::Handle<v8::Value>(), \
-		__callback##_SIG); \
+	v8::FunctionTemplate::New(callback, data, __callback##_SIG); \
 	templ->PrototypeTemplate()->Set(v8::String::NewSymbol(name), \
 		__callback##_TEM, PropertyAttribute(DontEnum)); \
 }
+
+#define DEFINE_PROTOTYPE_METHOD(templ, name, callback) \
+	DEFINE_PROTOTYPE_METHOD_DATA(templ, name, callback, v8::Handle<v8::Value>())
 
 #ifdef TI_DEBUG
 # define LOG_HEAP_STATS(TAG) \

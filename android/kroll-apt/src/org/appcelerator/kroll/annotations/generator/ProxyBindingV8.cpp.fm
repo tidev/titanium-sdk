@@ -143,6 +143,8 @@ Handle<FunctionTemplate> ${className}::getProxyTemplate()
 		Proxy::getProperty,
 		Proxy::onPropertyChanged,
 		Handle<Value>(), DEFAULT);
+	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "${getter}", Proxy::getProperty);
+	DEFINE_PROTOTYPE_METHOD_DATA(proxyTemplate, "${setter}", Proxy::onPropertyChanged, String::NewSymbol("${name}"));
 	</@Proxy.listPropertyAccessors>
 
 	<#if interceptor??>
