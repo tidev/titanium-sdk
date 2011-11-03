@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui.widget;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -94,7 +95,7 @@ public class TiUIButton extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			btn.setTextColor(TiConvert.toColor(TiConvert.toString(newValue)));
 		} else if (key.equals(TiC.PROPERTY_FONT)) {
-			TiUIHelper.styleText(btn, (KrollDict) newValue);
+			TiUIHelper.styleText(btn, (HashMap) newValue);
 		} else if (key.equals(TiC.PROPERTY_TEXT_ALIGN)) {
 			TiUIHelper.setAlignment(btn, TiConvert.toString(newValue), null);
 			btn.requestLayout();
