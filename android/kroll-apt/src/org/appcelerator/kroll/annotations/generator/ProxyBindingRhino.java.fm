@@ -182,7 +182,13 @@ public class ${className}Prototype extends ${superProxy}
 	private static final int
 		<#assign start = 2>
 		Id_constructor = 1
-		<#t><#if methods?? || Proxy.hasCreateProxies()>,</#if>
+		<#t><#if methods?? || Proxy.hasCreateProxies() || proxyAttrs.propertyAccessors?size &gt; 0>,</#if>
+		// Property IDs
+		<@Proxy.listPropertyAccessors ; isFirst, name, getter, setter, hasNext>
+		Id_${getter} = ${start},
+		Id_${setter} = ${start + 1}<#if hasNext || methods?? || Proxy.hasCreateProxies()>,</#if>
+		<#assign start = start + 2>
+		</@Proxy.listPropertyAccessors>
 		// Method IDs
 		<@Proxy.listMethods ; isFirst, name, method, signature, hasNext>
 		Id_${method.apiName} = ${start}<#if hasNext || Proxy.hasCreateProxies()>,</#if>
@@ -193,6 +199,7 @@ public class ${className}Prototype extends ${superProxy}
 		Id_create${createProxy.name} = ${start}<#if hasNext>,</#if>
 		<#assign start = start + 1>
 		</@Proxy.listCreateProxies>;
+		
 
 	public static final int MAX_PROTOTYPE_ID = ${start - 1};
 
@@ -222,6 +229,16 @@ public class ${className}Prototype extends ${superProxy}
 				arity = 0;
 				name = "constructor";
 				break;
+		<@Proxy.listPropertyAccessors ; isFirst, name, getter, setter>
+			case Id_${getter}:
+				arity = 0;
+				name = "${getter}";
+				break;
+			case Id_${setter}:
+				arity = 1;
+				name = "${setter}";
+				break;
+		</@Proxy.listPropertyAccessors>
 		<@Proxy.listMethods ; isFirst, name, method>
 			case Id_${method.apiName}:
 			<#assign arity = method.args?size>
@@ -257,10 +274,19 @@ public class ${className}Prototype extends ${superProxy}
 			thisObj = thisObj.getPrototype();
 		}
 
+		${className}Prototype proxy = (${className}Prototype) thisObj;
 		int id = f.methodId();
 		switch (id) {
 			case Id_constructor:
 				return jsConstructor(scope, args);
+		<@Proxy.listPropertyAccessors ; isFirst, name, getter, setter>
+			case Id_${getter}:
+				return proxy.getProperty("${name}");
+			case Id_${setter}:
+				proxy.setProperty("${name}", args[0]);
+				proxy.onPropertyChanged("${name}", args[0]);
+				return Undefined.instance;
+		</@Proxy.listPropertyAccessors>
 		<@Proxy.listMethods ; isFirst, name, method>
 			case Id_${method.apiName}:
 				<#assign hasReturn = (method.returnType != "void")> 
