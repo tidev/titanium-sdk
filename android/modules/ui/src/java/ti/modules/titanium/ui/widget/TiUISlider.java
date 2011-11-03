@@ -267,10 +267,11 @@ public class TiUISlider extends TiUIView
 			}
 		}
 		KrollDict data = new KrollDict();
-		data.put(TiC.PROPERTY_VALUE, scaledValue());
+		int scaledValue = scaledValue();
+		data.put(TiC.PROPERTY_VALUE, scaledValue);
 		data.put(TiC.EVENT_PROPERTY_THUMB_OFFSET, offset);
 		data.put(TiC.EVENT_PROPERTY_THUMB_SIZE, size);
-		proxy.setProperty(TiC.PROPERTY_VALUE, scaledValue(), false);
+		proxy.setProperty(TiC.PROPERTY_VALUE, scaledValue, false);
 
 		proxy.fireEvent(TiC.EVENT_CHANGE, data);
 	}
