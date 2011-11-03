@@ -6,7 +6,6 @@
  */
 
 #import "___FILEBASENAME___.h"
-#import "TiUtils.h"
 
 @implementation ___FILEBASENAMEASIDENTIFIER___
 

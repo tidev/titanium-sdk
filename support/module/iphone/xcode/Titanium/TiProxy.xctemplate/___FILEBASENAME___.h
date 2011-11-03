@@ -8,8 +8,6 @@
 
 @interface ___FILEBASENAMEASIDENTIFIER___ : TiProxy {
 
-@private
-
 }
 
 @end
