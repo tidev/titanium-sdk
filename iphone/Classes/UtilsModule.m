@@ -108,6 +108,16 @@
 	return [TiUtils convertToHex:(unsigned char*)&result length:CC_SHA1_DIGEST_LENGTH];
 }
 
+-(id)sha256:(id)args
+{
+	ENSURE_SINGLE_ARG(args,NSObject);
+	NSString *nstr = [self convertToString:args];
+	const char *cStr = [nstr UTF8String];
+	unsigned char result[CC_SHA256_DIGEST_LENGTH];
+	CC_SHA256(cStr, [nstr lengthOfBytesUsingEncoding:NSUTF8StringEncoding], result);
+	return [TiUtils convertToHex:(unsigned char*)&result length:CC_SHA256_DIGEST_LENGTH];
+}
+
 @end
 
 #endif

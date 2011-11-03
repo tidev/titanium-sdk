@@ -150,7 +150,7 @@
 	{
 		[result next]; // we need to do this to make sure lastInsertRowId and rowsAffected work
 		[result close];
-		return nil;
+		return [NSNull null];
 	}
 	
 	if (statements==nil)

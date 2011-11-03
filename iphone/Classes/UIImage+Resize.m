@@ -25,15 +25,13 @@
 	CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     
 	CGFloat scale = 1.0;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-	if ([TiUtils isIOS4OrGreater]) {
-		scale = [image scale];
-		// Force scaling to 2.0
-		if ([TiUtils isRetinaDisplay] && hires) {
-			scale = 2.0;
-		}
+
+	scale = [image scale];
+	// Force scaling to 2.0
+	if ([TiUtils isRetinaDisplay] && hires) {
+		scale = 2.0;
 	}
-#endif 
+
 
     CGRect newRect = CGRectIntegral(CGRectMake(0, 0, newSize.width*scale, newSize.height*scale));
     CGRect transposedRect = CGRectMake(0, 0, newRect.size.height, newRect.size.width);
@@ -58,13 +56,7 @@
     
     // Get the resized image from the context and a UIImage
     CGImageRef newImageRef = CGBitmapContextCreateImage(bitmap);
-    UIImage *newImage = nil;
-	if ([TiUtils isIOS4OrGreater]) {
-		newImage = [UIImage imageWithCGImage:newImageRef scale:scale orientation:UIImageOrientationUp];
-	}
-	else {
-		newImage = [UIImage imageWithCGImage:newImageRef];
-	}
+    UIImage* newImage = [UIImage imageWithCGImage:newImageRef scale:scale orientation:UIImageOrientationUp];
     
     // Clean up
     CGContextRelease(bitmap);
@@ -97,6 +89,9 @@
             transform = CGAffineTransformTranslate(transform, 0, newSize.height);
             transform = CGAffineTransformRotate(transform, -M_PI_2);
             break;
+		default: {
+			break;
+		}
     }
     
     switch (image.imageOrientation) {
@@ -111,6 +106,9 @@
             transform = CGAffineTransformTranslate(transform, newSize.height, 0);
             transform = CGAffineTransformScale(transform, -1, 1);
             break;
+		default: {
+			break;
+		}
     }
     
     return transform;

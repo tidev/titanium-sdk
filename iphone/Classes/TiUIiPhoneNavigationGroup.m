@@ -147,7 +147,7 @@
 	{
 		if (visibleProxy != nil && visibleProxy!=root && opening==NO)
 		{
-			//TODO: This is a hideous hack, but NavGroup needs rewriting anyways
+			//TODO: This is an expedient fix, but NavGroup needs rewriting anyways
 			[[self proxy] close:[NSArray arrayWithObject:visibleProxy]];
 		}
 		[self setVisibleProxy:newWindow];
