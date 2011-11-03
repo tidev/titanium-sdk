@@ -25,6 +25,12 @@ methods:
       - name: callback
         description: function to invoke on success or failure of obtaining the current location. See location event in <Titanium.Geolocation>.
         type: Callback<Object>
+  - name: isLocationProviderEnabled
+    description: returns true if the specified location provider is enabled in Android.  false otherwise.
+    parameters:
+      - name: requestedProvider
+        description: The location provider to check.  For example, Titanium.Geolocation.PROVIDER_GPS.
+        type: String
   - name: reverseGeocoder
     description: tries to resolve a location to an address.
     parameters:

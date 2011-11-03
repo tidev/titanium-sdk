@@ -11,6 +11,10 @@ if (isIPhone3_2_Plus())
 	//purpose property for using Location services on iPhone
 	Ti.Geolocation.purpose = "GPS demo";
 }
+else if(Titanium.Platform.name == 'android')
+{
+	var activity = Titanium.Android.currentActivity;	
+}
 
 function translateErrorCode(code) {
 	if (code == null) {
@@ -465,6 +469,28 @@ Titanium.Geolocation.forwardGeocoder(addr,function(evt)
 
 if (Titanium.Platform.name == 'android')
 {
+	//check to see if we have actual GPS capabilities and not just WIFI-based location from google
+	if(Titanium.Geolocation.isLocationProviderEnabled(Titanium.Geolocation.PROVIDER_GPS) == false) {
+		var alertDlg = Titanium.UI.createAlertDialog({
+			title:'GPS is OFF', 
+			message:'Enable it in Settings.',
+			buttonNames: ['Cancel', 'Open Settings']
+		});
+		alertDlg.cancel = 0;
+		
+		alertDlg.addEventListener('click', function(e){
+			if(!e.cancel) {
+				//open up the settings page
+				var settingsIntent = Titanium.Android.createIntent({
+					action: 'android.settings.LOCATION_SOURCE_SETTINGS'
+				});
+				activity.startActivity(settingsIntent);
+			}
+		});
+		
+		alertDlg.show();
+	}
+
 	//  as the destroy handler will remove the listener, only set the pause handler to remove if you need battery savings
 	Ti.Android.currentActivity.addEventListener('pause', function(e) {
 		Ti.API.info("pause event received");

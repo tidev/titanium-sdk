@@ -98,6 +98,12 @@ public class GeolocationModule extends KrollModule
 	{
 		return tiLocation.getLocationServicesEnabled(invocation);
 	}
+	
+	@Kroll.method
+	public boolean isLocationProviderEnabled(KrollInvocation invocation, String requestedProvider)
+	{
+		return tiLocation.isLocationProviderEnabled(invocation, requestedProvider);
+	}
 
 	@Kroll.method @Kroll.getProperty
 	public boolean getHasCompass(KrollInvocation invocation)

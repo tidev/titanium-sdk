@@ -188,7 +188,12 @@ public class TiLocation
 	{
 		return TiLocationHelper.isLocationEnabled();
 	}
-
+	
+	public boolean isLocationProviderEnabled(KrollInvocation invocation, String requestedProvider)
+	{
+		return TiLocationHelper.isLocationProviderEnabled(requestedProvider);
+	}
+	
 	public void getCurrentPosition(KrollInvocation invocation, final KrollCallback listener)
 	{
 		if (listener != null) {
