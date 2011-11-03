@@ -214,6 +214,15 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 	}
 
+	Window.prototype.animate = function(options) {
+		if (this.view) {
+			this.view.animate(options);
+
+		} else {
+			kroll.log(TAG, "unable to call animate, view is undefined");
+		}
+	}
+
 	Window.prototype.loadUrl = function() {
 		if (this.url == null) {
 			return;
