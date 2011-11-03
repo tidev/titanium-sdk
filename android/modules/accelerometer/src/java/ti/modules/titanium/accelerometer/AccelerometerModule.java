@@ -11,7 +11,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiSensorHelper;
 
@@ -25,7 +24,6 @@ import android.hardware.SensorManager;
 public class AccelerometerModule extends KrollModule implements SensorEventListener
 {
 	private static final String LCAT = "TiAccelerometer";
-	private static final boolean DBG = TiConfig.LOGD;
 	private static final String EVENT_UPDATE = "update";
 
 	private boolean accelerometerRegistered = false;
@@ -52,7 +50,6 @@ public class AccelerometerModule extends KrollModule implements SensorEventListe
 			}
 		}
 		super.eventListenerAdded(type, count, proxy);
-		//return super.addEventListener(invocation, eventName, listener);
 	}
 
 	@Override
@@ -65,33 +62,7 @@ public class AccelerometerModule extends KrollModule implements SensorEventListe
 			}
 		}
 		super.eventListenerRemoved(type, count, proxy);
-		//super.removeEventListener(invocation, eventName, listener);
 	}
-
-	/*
-	public int addEventListener(KrollInvocation invocation, String eventName, Object listener)
-	{
-		if (!accelerometerRegistered) {
-			if (EVENT_UPDATE.equals(eventName)) {
-				TiSensorHelper.registerListener(Sensor.TYPE_ACCELEROMETER, this, SensorManager.SENSOR_DELAY_UI);
-				accelerometerRegistered = true;
-			}
-		}
-		return super.addEventListener(invocation, eventName, listener);
-	}
-
-	@Override
-	public void removeEventListener(KrollInvocation invocation, String eventName, Object listener)
-	{
-		if (accelerometerRegistered) {
-			if (EVENT_UPDATE.equals(eventName)) {
-				TiSensorHelper.unregisterListener(Sensor.TYPE_ACCELEROMETER, this);
-				accelerometerRegistered = false;
-			}
-		}
-		super.removeEventListener(invocation, eventName, listener);
-	}
-	*/
 
 	public void onAccuracyChanged(Sensor sensor, int accuracy)
 	{
@@ -116,4 +87,3 @@ public class AccelerometerModule extends KrollModule implements SensorEventListe
 		}
 	}
 }
-
