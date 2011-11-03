@@ -73,6 +73,7 @@ NSString* const INADDR_ANY_token = @"INADDR_ANY";
 	RELEASE_TO_NIL(pushNotificationCallback);
 	RELEASE_TO_NIL(pushNotificationError);
 	RELEASE_TO_NIL(pushNotificationSuccess);
+    [self forgetProxy:socketProxy];
     RELEASE_TO_NIL(socketProxy);
 	[super _destroy];
 }
@@ -161,6 +162,7 @@ NSString* const INADDR_ANY_token = @"INADDR_ANY";
 {
     if (socketProxy == nil) {
         socketProxy = [[TiNetworkSocketProxy alloc] _initWithPageContext:[self pageContext]];
+        [self rememberProxy:socketProxy];
     }
     return socketProxy;
 }
@@ -187,6 +189,9 @@ NSString* const INADDR_ANY_token = @"INADDR_ANY";
 			return @"LAN";
 		case TiNetworkConnectionStateMobile:
 			return @"MOBILE";
+		default: {
+			break;
+		}
 	}
 	return @"UNKNOWN";
 }

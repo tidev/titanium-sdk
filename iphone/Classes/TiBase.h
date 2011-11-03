@@ -18,14 +18,6 @@ extern "C" {
 #define MEMORY_DEBUG 0
 #define VIEW_DEBUG 0
 
-#ifndef __IPHONE_3_2
-#define __IPHONE_3_2 30200
-#endif
-
-#ifndef __IPHONE_4_0
-#define __IPHONE_4_0 40000
-#endif
-
 #ifndef __IPHONE_4_1
 #define __IPHONE_4_1 40100
 #endif
@@ -106,7 +98,7 @@ x = (t*)[x objectAtIndex:0]; \
 } \
 if (![x isKindOfClass:[t class]]) \
 {\
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[x class],[t class]] location:CODELOCATION]; \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[t class],[x class]] location:CODELOCATION]; \
 }\
 
 #define ENSURE_SINGLE_ARG_OR_NIL(x,t) \
@@ -118,7 +110,7 @@ x = (t*)[x objectAtIndex:0]; \
 } \
 if (![x isKindOfClass:[t class]]) \
 {\
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[x class],[t class]] location:CODELOCATION]; \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[t class],[x class]] location:CODELOCATION]; \
 }\
 }\
 
@@ -129,7 +121,7 @@ out = (type*)[args objectAtIndex:index]; \
 } \
 if (![out isKindOfClass:[type class]]) \
 { \
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[out class],[type class]] location:CODELOCATION]; \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[type class],[out class]] location:CODELOCATION]; \
 } \
 
 
@@ -146,13 +138,13 @@ else { \
 out = nil; \
 } \
 if (out && ![out isKindOfClass:[type class]]) { \
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[out class],[type class]] location:CODELOCATION]; \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@",[type class],[out class]] location:CODELOCATION]; \
 } \
 } \
 
 #define COERCE_TO_INT(out,in) \
 if (![in respondsToSelector:@selector(intValue)]) {\
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"cannot coerce type %@ to int",[in type]] location:CODELOCATION]; \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"cannot coerce type %@ to int",[in class]] location:CODELOCATION]; \
 }\
 out = [in intValue]; \
 
@@ -232,7 +224,7 @@ if (IS_NULL_OR_NIL(x))	\
 }	\
 else if (![x isKindOfClass:t])	\
 { \
-	[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@ or nil, was: %@",t,[x class]] location:CODELOCATION]; \
+	[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@ or nil, was: %@",[x class],t] location:CODELOCATION]; \
 }\
 
 #define ENSURE_TYPE_OR_NIL(x,t) ENSURE_CLASS_OR_NIL(x,[t class])
@@ -279,27 +271,21 @@ if ((__x<__minX) || (__x>__maxX)) \
 #define ENSURE_ARRAY(x) ENSURE_TYPE(x,NSArray)
 #define ENSURE_STRING(x) ENSURE_TYPE(x,NSString)
 
-
-
+void TiExceptionThrowWithNameAndReason(NSString * exceptionName, NSString * message);
+	
 #define DEFINE_EXCEPTIONS \
 - (void) throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location\
 {\
 	NSString * exceptionName = [@"org.appcelerator." stringByAppendingString:NSStringFromClass([self class])];\
 	NSString * message = [NSString stringWithFormat:@"%@. %@ %@",reason,(subreason!=nil?subreason:@""),(location!=nil?location:@"")];\
-	NSLog(@"[ERROR] %@",message);\
-	if ([NSThread isMainThread]==NO) {\
-		@throw [NSException exceptionWithName:exceptionName reason:message userInfo:nil];\
-	}\
+	TiExceptionThrowWithNameAndReason(exceptionName,message);\
 }\
 \
 + (void) throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location\
 {\
 	NSString * exceptionName = @"org.appcelerator";\
 	NSString * message = [NSString stringWithFormat:@"%@. %@ %@",reason,(subreason!=nil?subreason:@""),(location!=nil?location:@"")];\
-	NSLog(@"[ERROR] %@",message);\
-	if ([NSThread isMainThread]==NO) {\
-		@throw [NSException exceptionWithName:exceptionName reason:message userInfo:nil];\
-	}\
+	TiExceptionThrowWithNameAndReason(exceptionName,message);\
 }\
 
 
@@ -319,6 +305,13 @@ if ((__x<__minX) || (__x>__maxX)) \
 #define MAKE_SYSTEM_PROP(name,map) \
 -(NSNumber*)name \
 {\
+return [NSNumber numberWithInt:map];\
+}\
+
+#define MAKE_SYSTEM_PROP_DEPRECATED(name,map,api,in,removed,newapi) \
+-(NSNumber*)name \
+{\
+DEPRECATED_REPLACED(api,in,removed,newapi)\
 return [NSNumber numberWithInt:map];\
 }\
 
@@ -452,7 +445,8 @@ return value;\
 #define STRING(x) _QUOTEME(x)
  
 #define TI_VERSION_STR STRING(TI_VERSION)
- 
+
+//#define VERBOSE
 
 #ifdef VERBOSE
 
@@ -519,9 +513,7 @@ extern NSString * const kTiRemoteDeviceUUIDNotification;
 extern NSString * const kTiGestureShakeNotification;
 extern NSString * const kTiRemoteControlNotification;
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 extern NSString * const kTiLocalNotification;
-#endif
 
 #ifndef ASI_AUTOUPDATE_NETWORK_INDICATOR
 	#define ASI_AUTOUPDATE_NETWORK_INDICATOR 0
@@ -532,6 +524,8 @@ extern NSString * const kTiLocalNotification;
 #endif
 
 #include "TiThreading.h"
+void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish);
+
 #include "TiPublicAPI.h"
 
 #ifdef __cplusplus

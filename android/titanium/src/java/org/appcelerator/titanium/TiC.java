@@ -158,6 +158,7 @@ public class TiC
 	public static final String PROPERTY_ENABLE_ZOOM_CONTROLS = "enableZoomControls";
 	public static final String PROPERTY_ENABLED = "enabled";
 	public static final String PROPERTY_ENABLE_RETURN_KEY = "enableReturnKey";
+	public static final String PROPERTY_EVENT = "event";
 	public static final String PROPERTY_EXIT_ON_CLOSE = "exitOnClose";
 	public static final String PROPERTY_FILE = "file";
 	public static final String PROPERTY_FILTER_ATTRIBUTE = "filterAttribute";
@@ -172,6 +173,7 @@ public class TiC
 	public static final String PROPERTY_FOOTER_TITLE = "footerTitle";
 	public static final String PROPERTY_FOOTER_VIEW = "footerView";
 	public static final String PROPERTY_FREQUENCY = "frequency";
+	public static final String PROPERTY_FROM = "from";
 	public static final String PROPERTY_FULLSCREEN = "fullscreen";
 	public static final String PROPERTY_GROUP_ID = "groupId";
 	public static final String PROPERTY_HAS_CHECK = "hasCheck";
@@ -278,8 +280,10 @@ public class TiC
 	public static final String PROPERTY_SOURCE = EVENT_PROPERTY_SOURCE;
 	public static final String PROPERTY_SOURCE_LENGTH = "sourceLength";
 	public static final String PROPERTY_SOURCE_POSITION = "sourcePosition";
+	public static final String PROPERTY_START = "start";
 	public static final String PROPERTY_STATE = "state";
 	public static final String PROPERTY_STATUS = "status";
+	public static final String PROPERTY_STOP = "stop";
 	public static final String PROPERTY_STREET = "street";
 	public static final String PROPERTY_STREET1 = "street1";
 	public static final String PROPERTY_STYLE = "style";
@@ -299,6 +303,7 @@ public class TiC
 	public static final String PROPERTY_TITLE_OFF = "titleOff";
 	public static final String PROPERTY_TITLE_PROMPT = "titlePrompt";
 	public static final String PROPERTY_TITLE_PROMPTID = "titlepromptid";
+	public static final String PROPERTY_TO = "to";
 	public static final String PROPERTY_TOP = "top";
 	public static final String PROPERTY_TOUCH_ENABLED = "touchEnabled";
 	public static final String PROPERTY_TRANSFORM = "transform";

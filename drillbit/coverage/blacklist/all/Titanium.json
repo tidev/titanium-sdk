@@ -1,0 +1,11 @@
+{
+	"functions": [
+		"dumpCoverage",
+		"testFunction",
+		"testThrow"
+	],
+	"properties": [
+		"a", "x"
+	]
+}
+

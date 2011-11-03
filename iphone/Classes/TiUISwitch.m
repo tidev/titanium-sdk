@@ -63,6 +63,25 @@
 	}
 }
 
+-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+{
+	[super frameSizeChanged:frame bounds:bounds];
+	[self setCenter:[self center]];
+}
+
+-(void)setCenter:(CGPoint)center
+{
+	CGSize ourSize = [self bounds].size;
+	CGPoint ourAnchor = [[self layer] anchorPoint];
+	CGFloat originx = center.x - (ourSize.width * ourAnchor.x);
+	CGFloat originy = center.y - (ourSize.height * ourAnchor.y);
+	
+	center.x -= originx - floorf(originx);
+	center.y -= originy	- floorf(originy);
+	
+	[super setCenter:center];
+}
+
 - (IBAction)switchChanged:(id)sender
 {
 	NSNumber * newValue = [NSNumber numberWithBool:[(UISwitch *)sender isOn]];

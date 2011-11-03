@@ -4,9 +4,13 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiViewProxy.h"
+#if defined(USE_TI_UIIOSTOOLBAR) || defined(USE_TI_UITOOLBAR)
 
-@interface TiUITabbedBarProxy : TiViewProxy {
+
+#import "TiToolbar.h"
+
+@interface TiUIiOSToolbarProxy : TiToolbar {
 }
-
 @end
+
+#endif

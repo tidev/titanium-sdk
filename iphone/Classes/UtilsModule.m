@@ -11,6 +11,7 @@
 #import "Base64Transcoder.h"
 #import "TiBlob.h"
 #import "TiFile.h"
+#import "TiUtils.h"
 #import <CommonCrypto/CommonDigest.h>
 #import <CommonCrypto/CommonHMAC.h>
 
@@ -27,17 +28,6 @@
 		return [(TiBlob*)arg text];
 	}
 	THROW_INVALID_ARG(@"invalid type");
-}
-
--(NSString*)convertToHex:(unsigned char*)result length:(size_t)length
-{
-	NSMutableString* encoded = [[NSMutableString alloc] initWithCapacity:length];
-	for (int i=0; i < length; i++) {
-		[encoded appendFormat:@"%02x",result[i]];
-	}
-	NSString* value = [encoded lowercaseString];
-	[encoded release];
-	return value;
 }
 
 #pragma mark Public API
@@ -104,10 +94,8 @@
 	ENSURE_SINGLE_ARG(args,NSObject);
 	
 	NSString *nstr = [self convertToString:args];
-	const char* str = [nstr UTF8String];
-	unsigned char result[CC_MD5_DIGEST_LENGTH];
-	CC_MD5(str, strlen(str), result);
-	return [self convertToHex:(unsigned char*)&result length:CC_MD5_DIGEST_LENGTH];
+    const char* data = [nstr UTF8String];
+    return [TiUtils md5:[NSData dataWithBytes:data length:strlen(data)]];
 }
 
 -(id)sha1:(id)args
@@ -117,7 +105,17 @@
 	const char *cStr = [nstr UTF8String];
 	unsigned char result[CC_SHA1_DIGEST_LENGTH];
 	CC_SHA1(cStr, [nstr lengthOfBytesUsingEncoding:NSUTF8StringEncoding], result);
-	return [self convertToHex:(unsigned char*)&result length:CC_SHA1_DIGEST_LENGTH];
+	return [TiUtils convertToHex:(unsigned char*)&result length:CC_SHA1_DIGEST_LENGTH];
+}
+
+-(id)sha256:(id)args
+{
+	ENSURE_SINGLE_ARG(args,NSObject);
+	NSString *nstr = [self convertToString:args];
+	const char *cStr = [nstr UTF8String];
+	unsigned char result[CC_SHA256_DIGEST_LENGTH];
+	CC_SHA256(cStr, [nstr lengthOfBytesUsingEncoding:NSUTF8StringEncoding], result);
+	return [TiUtils convertToHex:(unsigned char*)&result length:CC_SHA256_DIGEST_LENGTH];
 }
 
 @end

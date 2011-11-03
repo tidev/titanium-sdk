@@ -29,6 +29,8 @@ import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.WebViewProxy;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.net.Uri;
@@ -82,17 +84,19 @@ public class TiUIWebView extends TiUIView {
 		settings.setJavaScriptEnabled(true);
 		settings.setSupportMultipleWindows(true);
 		settings.setJavaScriptCanOpenWindowsAutomatically(true);
-		settings.setSupportZoom(true);
 		settings.setLoadsImagesAutomatically(true);
 		settings.setLightTouchEnabled(true);
 		
-		if(proxy.hasProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
-			settings.setBuiltInZoomControls(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)));
-		} else {
-			// enable zoom controls by default
-			settings.setBuiltInZoomControls(true);
+		// enable zoom controls by default
+		boolean enableZoom = true;
+
+		if (proxy.hasProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
+			enableZoom = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS));
 		}
-		
+
+		settings.setBuiltInZoomControls(enableZoom);
+		settings.setSupportZoom(enableZoom);
+
 		// We can only support webview settings for plugin/flash in API 8 and higher.
 		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
 			initializePluginAPI(webView);
@@ -102,6 +106,14 @@ public class TiUIWebView extends TiUIView {
 		client = new TiWebViewClient(this, webView);
 		webView.setWebViewClient(client);
 		webView.client = client;
+
+		WebViewProxy webProxy = (WebViewProxy) proxy;
+		String username = webProxy.getBasicAuthenticationUserName();
+		String password = webProxy.getBasicAuthenticationPassword();
+		if (username != null && password != null) {
+			setBasicAuthentication(username, password);
+		}
+		webProxy.clearBasicAuthentication();
 
 		TiCompositeLayout.LayoutParams params = getLayoutParams();
 		params.autoFillsHeight = true;
@@ -178,10 +190,6 @@ public class TiUIWebView extends TiUIView {
 		
 		if (d.containsKey(TiC.PROPERTY_PLUGIN_STATE)) {
 			setPluginState(TiConvert.toInt(d, TiC.PROPERTY_PLUGIN_STATE));
-		}
-		
-		if(d.containsKey(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
-			setEnableZoomControls(TiConvert.toBoolean(d,TiC.PROPERTY_ENABLE_ZOOM_CONTROLS));
 		}
 	}
 
@@ -471,6 +479,7 @@ public class TiUIWebView extends TiUIView {
 	
 	public void setEnableZoomControls(boolean enabled)
 	{
+		getWebView().getSettings().setSupportZoom(enabled);
 		getWebView().getSettings().setBuiltInZoomControls(enabled);
 	}
 

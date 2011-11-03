@@ -264,18 +264,16 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		locationManager.distanceFilter = distance;
 		locationManager.headingFilter = heading;
 		
-		if ([TiUtils isiPhoneOS3_2OrGreater]) {
-			if (purpose==nil)
-			{ 
-				NSLog(@"[ERROR] Starting in iOS 3.2, you must set the Ti.Geolocation.purpose property to indicate the purpose of using Location services for your application");
-			}
-			else
-			{
-				[locationManager setPurpose:purpose];
-			}
+		if (purpose==nil)
+		{ 
+			NSLog(@"[ERROR] Starting in iOS 3.2, you must set the Ti.Geolocation.purpose property to indicate the purpose of using Location services for your application");
+		}
+		else
+		{
+			[locationManager setPurpose:purpose];
 		}
 
-		if ([locationManager locationServicesEnabled]== NO) 
+		if ([CLLocationManager locationServicesEnabled]== NO) 
 		{
 			//NOTE: this is from Apple example from LocateMe and it works well. the developer can still check for the
 			//property and do this message themselves before calling geo. But if they don't, we at least do it for them.
@@ -421,17 +419,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(BOOL)headingAvailable
 {
-	if ([TiUtils isIOS4OrGreater]) {
-		return [CLLocationManager headingAvailable];
-	}
-	else {
-		CLLocationManager* tempManager_ = [self tempLocationManager];
-		if ([tempManager_ respondsToSelector:@selector(headingAvailable)]) {
-			return [tempManager_ headingAvailable];
-		}
-	}
-	
-	return NO;
+	return [CLLocationManager headingAvailable];
 }
 
 #pragma mark Public APIs
@@ -449,7 +437,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		if (!strcmp(u.machine, "i386")) 
 		{
 			// 3.0 simulator headingAvailable will report YES but its not really available except post 3.0
-			headingAvailableBool = [version hasPrefix:@"3.0"] ? NO : [[self tempLocationManager] headingAvailable];
+			headingAvailableBool = [version hasPrefix:@"3.0"] ? NO : [CLLocationManager headingAvailable];
 		}	
 	}
 	return NUMBOOL(headingAvailableBool);
@@ -465,7 +453,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
 							direction, @"d",
 							aguid,@"aguid",
-							[[UIDevice currentDevice] uniqueIdentifier],@"mid",
+							[TiUtils uniqueIdentifier],@"mid",
 							sid,@"sid",
 							address,@"q",
 							[[NSLocale currentLocale] objectForKey: NSLocaleCountryCode],@"c",
@@ -594,11 +582,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(NSNumber*)locationServicesEnabled
 {
-	if ([TiUtils isIOS4OrGreater]) {
-		return NUMBOOL([CLLocationManager locationServicesEnabled]);
-	}
-	
-	return NUMBOOL([[self tempLocationManager] locationServicesEnabled]);
+	return NUMBOOL([CLLocationManager locationServicesEnabled]);
 }
 
 -(NSNumber*)locationServicesAuthorization
@@ -642,12 +626,10 @@ MAKE_SYSTEM_PROP(ERROR_LOCATION_UNKNOWN, kCLErrorLocationUnknown);
 MAKE_SYSTEM_PROP(ERROR_DENIED, kCLErrorDenied);
 MAKE_SYSTEM_PROP(ERROR_NETWORK, kCLErrorNetwork);
 MAKE_SYSTEM_PROP(ERROR_HEADING_FAILURE, kCLErrorHeadingFailure);
-// iOS 4.0+ only
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+
 MAKE_SYSTEM_PROP(ERROR_REGION_MONITORING_DENIED, kCLErrorRegionMonitoringDenied);
 MAKE_SYSTEM_PROP(ERROR_REGION_MONITORING_FAILURE, kCLErrorRegionMonitoringFailure);
 MAKE_SYSTEM_PROP(ERROR_REGION_MONITORING_DELAYED, kCLErrorRegionMonitoringSetupDelayed);
-#endif
 
 #pragma mark Internal
 
@@ -739,8 +721,6 @@ MAKE_SYSTEM_PROP(ERROR_REGION_MONITORING_DELAYED, kCLErrorRegionMonitoringSetupD
 	return NO;
 } 
 
-// the purpose for using Location services - now required in 3.2+
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 -(NSString*)purpose
 {
 	return purpose;
@@ -757,8 +737,6 @@ MAKE_SYSTEM_PROP(ERROR_REGION_MONITORING_DELAYED, kCLErrorRegionMonitoringSetupD
 	}
 	
 }
-#endif
-
 
 #pragma mark Delegates
 

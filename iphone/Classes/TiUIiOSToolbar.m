@@ -4,24 +4,16 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UITOOLBAR
+#if defined(USE_TI_UIIOSTOOLBAR) || defined(USE_TI_UITOOLBAR)
 
-#import "TiUIToolbar.h"
+#import "TiUIiOSToolbar.h"
 #import "TiViewProxy.h"
 #import "TiUtils.h"
 #import "TiColor.h"
 #import "TiToolbarButton.h"
 #import "TiToolbar.h"
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_4_0
-
-@interface TiUIToolbar (laterMethods)
-@property(nonatomic) CGFloat           contentScaleFactor;
-@end
-
-#endif
-
-@implementation TiUIToolbar
+@implementation TiUIiOSToolbar
 
 -(void)dealloc
 {

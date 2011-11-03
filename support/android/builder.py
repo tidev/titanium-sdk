@@ -584,8 +584,20 @@ class Builder(object):
 
 	def copy_project_resources(self):
 		info("Copying project resources..")
+
+		def validate_filenames(topdir):
+			for root, dirs, files in os.walk(topdir):
+				remove_ignored_dirs(dirs)
+				for d in dirs:
+					if d == "iphone":
+						dirs.remove(d)
+				for filename in files:
+					if filename.startswith("_"):
+						error("%s is an invalid filename. Android will not package assets whose filenames start with underscores. Fix and rebuild." % os.path.join(root, filename))
+						sys.exit(1)
 		
 		resources_dir = os.path.join(self.top_dir, 'Resources')
+		validate_filenames(resources_dir)
 		android_resources_dir = os.path.join(resources_dir, 'android')
 		self.project_deltafy = Deltafy(resources_dir, include_callback=self.include_path)
 		self.project_deltas = self.project_deltafy.scan()
@@ -1342,7 +1354,7 @@ class Builder(object):
 				if os.path.splitext(f)[1] != '.java':
 					absolute_path = os.path.join(root, f)
 					relative_path = os.path.join(root[len(self.project_src_dir)+1:], f)
-					if is_modified(absolute_path):
+					if is_modified(absolute_path) or not zip_contains(apk_zip, relative_path):
 						self.apk_updated = True
 						debug("resource file => " + relative_path)
 						apk_zip.write(os.path.join(root, f), relative_path, compression_type(f))
@@ -1368,10 +1380,11 @@ class Builder(object):
 					for file in os.listdir(libs_abi_dir):
 						if file.endswith('.so'):
 							native_lib = os.path.join(libs_abi_dir, file)
-							if is_modified(native_lib):
+							path_in_zip = '/'.join(['lib', abi_dir, file])
+							if is_modified(native_lib) or not zip_contains(apk_zip, path_in_zip):
 								self.apk_updated = True
 								debug("installing native lib: %s" % native_lib)
-								apk_zip.write(native_lib, '/'.join(['lib', abi_dir, file]))
+								apk_zip.write(native_lib, path_in_zip)
 
 		# add any native libraries : libs/**/*.so -> lib/**/*.so
 		add_native_libs(os.path.join(self.project_dir, 'libs'))
@@ -1769,7 +1782,8 @@ class Builder(object):
 					include_all_ti_modules = True
 			if self.tiapp_changed or (self.js_changed and not self.fastdev) or \
 					self.force_rebuild or self.deploy_type == "production" or \
-					(self.fastdev and (not self.app_installed or not built_all_modules)):
+					(self.fastdev and (not self.app_installed or not built_all_modules)) or \
+					(not self.fastdev and built_all_modules):
 				trace("Generating Java Classes")
 				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')),
 					True, project_dir = self.top_dir, include_all_ti_modules=include_all_ti_modules)

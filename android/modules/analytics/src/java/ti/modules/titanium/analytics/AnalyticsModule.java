@@ -7,10 +7,13 @@
 
 package ti.modules.titanium.analytics;
 
+//import org.appcelerator.kroll.KrollDate;
+import java.util.Date;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiConvert;
@@ -18,6 +21,12 @@ import org.appcelerator.titanium.util.TiConvert;
 @Kroll.module
 public class AnalyticsModule extends KrollModule
 {
+	protected static final String PROPERTY_APP_NAV = "app.nav";
+	protected static final String PROPERTY_APP_TIMED = "app.timed";
+	protected static final String PROPERTY_APP_FEATURE = "app.feature";
+	protected static final String PROPERTY_APP_SETTINGS = "app.settings";
+	protected static final String PROPERTY_APP_USER = "app.user";
+
 	public AnalyticsModule()
 	{
 		super();
@@ -44,40 +53,61 @@ public class AnalyticsModule extends KrollModule
 		@Kroll.argument(optional=true) KrollDict data)
 	{
 		KrollDict payload = new KrollDict();
-		payload.put("from", from);
-		payload.put("to", to);
-		payload.put("event", event);
-		payload.put("data", data);
+		payload.put(TiC.PROPERTY_FROM, from);
+		payload.put(TiC.PROPERTY_TO, to);
+		payload.put(TiC.PROPERTY_EVENT, event);
+		payload.put(TiC.PROPERTY_DATA, data);
 
-		localAddEvent("app.nav", payload.getString("event"), payload);
+		localAddEvent(PROPERTY_APP_NAV, payload.getString(TiC.PROPERTY_EVENT), payload);
 	}
 
 	@Kroll.method
-	public void timedEvent(String event, long start, long stop, int duration,
+	public void timedEvent(String event, Object start, Object stop, int duration,
 		@Kroll.argument(optional=true) KrollDict data)
 	{
 		KrollDict payload = new KrollDict();
-		payload.put("event", event);
-		payload.put("start", start);
-		payload.put("stop", stop);
-		payload.put("duration", duration);
-		payload.put("data", data);
+		payload.put(TiC.PROPERTY_EVENT, event);
+		if (start instanceof Number) {
+			payload.put(TiC.PROPERTY_START, ((Number) start).longValue());
+//		} else if (start instanceof KrollDate) {
+		} else if (start instanceof Date) {
+			//payload.put(TiC.PROPERTY_START, ((KrollDate) start).getTime());
+			payload.put(TiC.PROPERTY_START, ((Date) start).getTime());
+		} else {
+			throw new IllegalArgumentException("start must be a long or Date.");
+		}
+		
+		if (stop instanceof Number) {
+			payload.put(TiC.PROPERTY_STOP, ((Number) stop).longValue());			
+//		} else if (stop instanceof KrollDate) {
+		} else if (stop instanceof Date) {
+			//payload.put(TiC.PROPERTY_STOP, ((KrollDate) start).getTime());
+			payload.put(TiC.PROPERTY_STOP, ((Date) start).getTime());
+		} else {
+			throw new IllegalArgumentException("stop must be a long or Date.");
+		}
+		
+		payload.put(TiC.PROPERTY_DURATION, duration);
+		payload.put(TiC.PROPERTY_DATA, data);
 
-		localAddEvent("app.timed", payload.getString("event"), payload);
+		localAddEvent(PROPERTY_APP_TIMED, payload.getString(TiC.PROPERTY_EVENT), payload);
 	}
 
 	@Kroll.method
-	public void featureEvent(String event, @Kroll.argument(optional=true) KrollDict data) {
-		localAddEvent("app.feature", event, data);
+	public void featureEvent(String event, @Kroll.argument(optional=true) KrollDict data) 
+	{
+		localAddEvent(PROPERTY_APP_FEATURE, event, data);
 	}
 
 	@Kroll.method
-	public void settingsEvent(String event, @Kroll.argument(optional=true) KrollDict data) {
-		localAddEvent("app.settings", event, data);
+	public void settingsEvent(String event, @Kroll.argument(optional=true) KrollDict data) 
+	{
+		localAddEvent(PROPERTY_APP_SETTINGS, event, data);
 	}
 
 	@Kroll.method
-	public void userEvent(String event, @Kroll.argument(optional=true) KrollDict data) {
-		localAddEvent("app.user", event, data);
+	public void userEvent(String event, @Kroll.argument(optional=true) KrollDict data) 
+	{
+		localAddEvent(PROPERTY_APP_USER, event, data);
 	}
 }

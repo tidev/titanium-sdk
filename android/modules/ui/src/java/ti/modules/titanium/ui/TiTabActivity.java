@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,6 +11,8 @@ import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiRootActivity;
+import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
 import android.app.TabActivity;
 import android.content.Intent;
@@ -19,6 +21,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -28,7 +31,6 @@ import android.widget.TabHost.TabContentFactory;
 public class TiTabActivity extends TabActivity
 {
 	private static final String LCAT = "TiTabActivity";
-	private static final boolean DBG = TiConfig.LOGD;
 
 	protected TabGroupProxy proxy;
 	protected Handler handler;
@@ -48,9 +50,18 @@ public class TiTabActivity extends TabActivity
 		if (layoutResId == 0) {
 			throw new IllegalStateException("titanium_tabgroup layout resource not found.  TabGroup cannot be created.");
 		}
+		Intent intent = getIntent();
 		handler = new Handler();
 
-		Intent intent = getIntent();
+		// Grab the TabHost from the layout and put it in a TiCompositeLayout
+		// so we can more easily support things like animation and
+		// our tab group being below/above screen.
+		TabHost tabHost = (TabHost) LayoutInflater.from(this).inflate(layoutResId, null);
+		TiCompositeLayout.LayoutParams tabHostLayout = new TiCompositeLayout.LayoutParams();
+		tabHostLayout.autoFillsHeight = true;
+		tabHostLayout.autoFillsWidth = true;
+		TiCompositeLayout layout = new TiCompositeLayout(this, LayoutArrangement.DEFAULT);
+		layout.addView(tabHost, tabHostLayout);
 
 		boolean fullscreen = false;
 		boolean navbar = false;
@@ -92,8 +103,7 @@ public class TiTabActivity extends TabActivity
 			this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		}
 
-		setContentView(layoutResId);
-		TabHost tabHost = getTabHost();
+		setContentView(layout);
 
 		// The TabActivity requires that a tab be present and that the tab have
 		// some content (at least one View) *before* we get to the point where

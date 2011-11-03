@@ -5,14 +5,14 @@ win.backgroundColor = '#ccc';
 var mask = Titanium.UI.createMaskedImage({
 	image:'../images/body-mask.png',
 	tint: 'brown',
-	mode: Titanium.UI.BLEND_MODE_SOURCE_IN
+	mode: Titanium.UI.iOS.BLEND_MODE_SOURCE_IN
 });
 
 // layer on top the image that is transparent that you want to blend
 var image = Titanium.UI.createMaskedImage({
 	image:'../images/body.png',
 	tint: 'black',
-	mode: Titanium.UI.BLEND_MODE_SOURCE_IN
+	mode: Titanium.UI.iOS.BLEND_MODE_SOURCE_IN
 });
 
 

@@ -47,6 +47,7 @@ public class TiFastDev
 	private static final String TEMP_FILE_SUFFIX = "tmp";
 
 	public static final String COMMAND_LENGTH = "length";
+	public static final String COMMAND_EXISTS = "exists";
 	public static final String COMMAND_GET = "get";
 	public static final String COMMAND_HANDSHAKE = "handshake";
 	public static final String COMMAND_KILL = "kill";
@@ -162,6 +163,15 @@ public class TiFastDev
 			return session.toInt(result[0]);
 		}
 		return -1;
+	}
+	
+	public boolean fileExists(String path)
+	{
+		byte result[][] = session.sendMessage(COMMAND_EXISTS, path);
+		if (result != null && result.length > 0) {
+			return (session.toInt(result[0]) > 0);
+		}
+		return false;
 	}
 
 	public InputStream openInputStream(String relativePath)

@@ -312,7 +312,7 @@ public class TitaniumModule extends KrollModule
 		if (format != null) {
 			if (format.equals("medium")) {
 				style = DateFormat.MEDIUM;
-	
+
 			} else if (format.equals("long")) {
 				style = DateFormat.LONG;
 			}

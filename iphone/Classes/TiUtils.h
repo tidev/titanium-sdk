@@ -197,10 +197,6 @@ typedef enum {
 
 +(BOOL)isIPad;
 
-+(BOOL)isiPhoneOS3_2OrGreater;
-
-+(BOOL)isIOS4OrGreater;
-
 +(BOOL)isIOS4_2OrGreater;
 
 +(BOOL)isIPhone4;
@@ -217,4 +213,9 @@ typedef enum {
 
 +(int)encodeNumber:(NSNumber*)data toBuffer:(TiBuffer*)dest offset:(int)position type:(NSString*)type endianness:(CFByteOrder)byteOrder;
 
++(NSString*)md5:(NSData*)data;
+
++(NSString*)convertToHex:(unsigned char*)result length:(size_t)length;
+
++(NSString*)uniqueIdentifier;
 @end

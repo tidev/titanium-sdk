@@ -95,7 +95,7 @@ public class TableViewSectionProxy extends TiViewProxy
 	
 	@Override
 	public String toString() {
-		return "[object TiUITableViewSection]";
+		return "[object TableViewSectionProxy]";
 	}
 
 	@Override

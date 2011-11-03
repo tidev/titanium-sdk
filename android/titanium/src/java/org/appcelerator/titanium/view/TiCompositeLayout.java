@@ -11,6 +11,8 @@ import java.util.TreeSet;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.titanium.TiActivity;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 
@@ -109,6 +111,13 @@ public class TiCompositeLayout extends ViewGroup
 	private String viewToString(View view) {
 		return view.getClass().getSimpleName() + "@" + Integer.toHexString(view.hashCode());
 	}
+	
+	public void resort()
+	{
+		needsSort = true;
+		requestLayout();
+		invalidate();
+	}
 
 	public void onChildViewAdded(View parent, View child) {
 		needsSort = true;
@@ -144,26 +153,44 @@ public class TiCompositeLayout extends ViewGroup
 		return params;
 	}
 
-	protected int getViewWidthPadding(View child) {
+	protected int getViewWidthPadding(View child, int parentWidth)
+	{
 		LayoutParams p = (LayoutParams) child.getLayoutParams();
 		int padding = 0;
 		if (p.optionLeft != null) {
-			padding += p.optionLeft.getAsPixels(this);
+			if (p.optionLeft.isUnitPercent()) {
+				padding += (int) ((p.optionLeft.getValue() / 100.0) * parentWidth);
+			} else {
+				padding += p.optionLeft.getAsPixels(this);
+			}
 		}
 		if (p.optionRight != null) {
-			padding += p.optionRight.getAsPixels(this);
+			if (p.optionRight.isUnitPercent()) {
+				padding += (int) ((p.optionRight.getValue() / 100.0) * parentWidth);
+			} else {
+				padding += p.optionRight.getAsPixels(this);
+			}
 		}
 		return padding;
 	}
-	
-	protected int getViewHeightPadding(View child) {
+
+	protected int getViewHeightPadding(View child, int parentHeight)
+	{
 		LayoutParams p = (LayoutParams) child.getLayoutParams();
 		int padding = 0;
 		if (p.optionTop != null) {
-			padding += p.optionTop.getAsPixels(this);
+			if (p.optionTop.isUnitPercent()) {
+				padding += (int) ((p.optionTop.getValue() / 100.0) * parentHeight);
+			} else {
+				padding += p.optionTop.getAsPixels(this);
+			}
 		}
 		if (p.optionBottom != null) {
-			padding += p.optionBottom.getAsPixels(this);
+			if (p.optionBottom.isUnitPercent()) {
+				padding += (int) ((p.optionBottom.getValue() / 100.0) * parentHeight);
+			} else {
+				padding += p.optionBottom.getAsPixels(this);
+			}
 		}
 		return padding;
 	}
@@ -193,8 +220,8 @@ public class TiCompositeLayout extends ViewGroup
 			int childWidth = child.getMeasuredWidth();
 			int childHeight = child.getMeasuredHeight();
 			if (child.getVisibility() != View.GONE) {
-				childWidth += getViewWidthPadding(child);
-				childHeight += getViewHeightPadding(child);
+				childWidth += getViewWidthPadding(child, w);
+				childHeight += getViewHeightPadding(child, h);
 			}
 
 			if (isHorizontalArrangement()) {
@@ -238,26 +265,28 @@ public class TiCompositeLayout extends ViewGroup
 
 	protected void constrainChild(View child, int width, int wMode, int height, int hMode)
 	{
-		LayoutParams p =
-			(LayoutParams) child.getLayoutParams();
+		LayoutParams p = (LayoutParams) child.getLayoutParams();
 		int childDimension = LayoutParams.WRAP_CONTENT;
 		if (p.optionWidth != null) {
-			childDimension = p.optionWidth.getAsPixels(this);
-			if (childDimension == 0 && p.optionWidth.isUnitPercent() && width > 0) {
+			if (p.optionWidth.isUnitPercent() && width > 0) {
 				childDimension = (int) ((p.optionWidth.getValue() / 100.0) * width);
+			} else {
+				childDimension = p.optionWidth.getAsPixels(this);
 			}
 		} else {
 			if (p.autoWidth && p.autoFillsWidth && !isHorizontalArrangement()) {
 				childDimension = LayoutParams.FILL_PARENT;
 			}
 		}
-		int widthPadding = getViewWidthPadding(child);
-		int widthSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(width, wMode), widthPadding, childDimension);
+		int widthPadding = getViewWidthPadding(child, width);
+		int widthSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(width, wMode), widthPadding,
+			childDimension);
 		childDimension = LayoutParams.WRAP_CONTENT;
 		if (p.optionHeight != null) {
-			childDimension = p.optionHeight.getAsPixels(this);
-			if (childDimension == 0 && p.optionHeight.isUnitPercent() && height > 0) {
+			if (p.optionHeight.isUnitPercent() && height > 0) {
 				childDimension = (int) ((p.optionHeight.getValue() / 100.0) * height);
+			} else {
+				childDimension = p.optionHeight.getAsPixels(this);
 			}
 		} else {
 			if (p.autoHeight && p.autoFillsHeight && !isVerticalArrangement()) {
@@ -265,8 +294,9 @@ public class TiCompositeLayout extends ViewGroup
 			}
 		}
 
-		int heightPadding = getViewHeightPadding(child);
-		int heightSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(height, hMode), heightPadding, childDimension);
+		int heightPadding = getViewHeightPadding(child, height);
+		int heightSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(height, hMode), heightPadding,
+			childDimension);
 		child.measure(widthSpec, heightSpec);
 		// Useful for debugging.
 		// int childWidth = child.getMeasuredWidth();
@@ -294,8 +324,8 @@ public class TiCompositeLayout extends ViewGroup
 		int bottom = b - t;
 
 		if (needsSort) {
+			viewSorter.clear();
 			if (count > 1) { // No need to sort one item.
-				viewSorter.clear();
 				for(int i = 0; i < count; i++) {
 					View child = getChildAt(i);
 					TiCompositeLayout.LayoutParams params =
@@ -312,6 +342,9 @@ public class TiCompositeLayout extends ViewGroup
 			}
 			needsSort = false;
 		}
+		// viewSorter is not needed after this. It's a source of
+		// memory leaks if it retains the views it's holding.
+		viewSorter.clear();
 
 		int[] horizontal = new int[2];
 		int[] vertical = new int[2];
@@ -324,9 +357,10 @@ public class TiCompositeLayout extends ViewGroup
 				(TiCompositeLayout.LayoutParams) child.getLayoutParams();
 			if (child.getVisibility() != View.GONE) {
 				// Dimension is required from Measure. Positioning is determined here.
+				
 				int childMeasuredWidth = child.getMeasuredWidth();
 				int childMeasuredHeight = child.getMeasuredHeight();
-				
+
 				if (isHorizontalArrangement()) {
 					if (i == 0)  {
 						horizontalLayoutCurrentLeft = left;

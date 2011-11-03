@@ -618,9 +618,13 @@ public class TiDrawableReference
 
 		} else if (isTypeBlob() && blob != null) {
 			stream = blob.getInputStream();
-			
 		} else if (isTypeResourceId() && resourceId != UNKNOWN) {
-			stream = TiApplication.getInstance().getResources().openRawResource(resourceId);
+			try {
+				stream = TiApplication.getInstance().getResources().openRawResource(resourceId);
+			} catch (Resources.NotFoundException e) {
+				Log.e(LCAT, "Drawable resource could not be opened. Are you sure you have the resource for the current device configuration (orientation, screen size, etc.)?");
+				throw e;
+			}
 		}
 
 		return stream;
@@ -700,7 +704,6 @@ public class TiDrawableReference
 		int srcHeight = bounds.height;
 
 		return calcSampleSize(parent, srcWidth, srcHeight, destWidthDimension, destHeightDimension);
-
 	}
 
 	/**

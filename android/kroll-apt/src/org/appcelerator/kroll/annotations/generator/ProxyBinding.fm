@@ -259,7 +259,7 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 	"int[]":{
 		"jsType":"Array",
 		"jsHandleCast":"Array",
-		"jsToJavaConverter":"jsArrayToJavaArray",
+		"jsToJavaConverter":"jsArrayToJavaIntArray",
 		"javaToJsConverter":"javaArrayToJsArray",
 		"jvalue":"l", "signature":"[I",
 		"javaCallMethodType":"Object",
@@ -295,6 +295,22 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"rhinoJsCast":false,
 		"rhinoToJavaConverter":"jsObjectToJavaShort",
 		"defaultValue": "-1"
+	},
+	"long[]":{
+		"jsType":"Array",
+		"jsHandleCast":"Array",
+		"jsToJavaConverter":"jsArrayToJavaLongArray",
+		"javaToJsConverter":"javaArrayToJsArray",
+		"jvalue":"l", "signature":"[J",
+		"javaCallMethodType":"Object",
+		"javaReturnType":"jlongArray",
+		"javaValidation":true,
+		"javaDeleteLocalRef":true,
+		"rhinoType":"Scriptable",
+		"rhinoJsCast":true,
+		"rhinoToJavaConverter":"jsArrayToJavaLongArray",
+		"javaToRhinoConverter":"javaLongArrayToJsArray",
+		"defaultValue": "null"
 	},
 	"long":{
 		"jsType":"Number",

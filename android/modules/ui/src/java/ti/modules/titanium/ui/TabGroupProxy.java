@@ -194,8 +194,9 @@ public class TabGroupProxy extends TiWindowProxy
 			Log.w(LCAT, "window property was not set on tab");
 		}
 
-		windowProxy.setTabGroupProxy(this);
-		windowProxy.setTabProxy(tab);
+		baseWindow.setTabGroupProxy(this);
+		baseWindow.setTabProxy(tab);
+
 		if (tag != null && windowProxy != null) {
 			TabSpec tspec = tg.newTab(tag);
 			if (icon == null) {

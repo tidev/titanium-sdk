@@ -65,46 +65,52 @@
 
 @implementation TiUIiPhoneProxy
 
+#define FORGET_AND_RELEASE(x) \
+{\
+[self forgetProxy:x]; \
+RELEASE_TO_NIL(x); \
+}
+
 -(void)dealloc
 {
 #ifdef USE_TI_UIIPHONEANIMATIONSTYLE
-	RELEASE_TO_NIL(animationStyle);
+	FORGET_AND_RELEASE(animationStyle);
 #endif
 #ifdef USE_TI_UIIPHONESTATUSBAR	
-	RELEASE_TO_NIL(statusBar);
+	FORGET_AND_RELEASE(statusBar);
 #endif
 #ifdef USE_TI_UIIPHONEROWANIMATIONSTYLE
-	RELEASE_TO_NIL(rowAnimationStyle);
+	FORGET_AND_RELEASE(rowAnimationStyle);
 #endif
 #ifdef USE_TI_UIIPHONESYSTEMBUTTONSTYLE
-	RELEASE_TO_NIL(systemButtonStyle);
+	FORGET_AND_RELEASE(systemButtonStyle);
 #endif
 #ifdef USE_TI_UIIPHONESYSTEMBUTTON
-	RELEASE_TO_NIL(systemButton);
+	FORGET_AND_RELEASE(systemButton);
 #endif
 #ifdef USE_TI_UIIPHONEPROGRESSBARSTYLE
-	RELEASE_TO_NIL(progressBarStyle);
+	FORGET_AND_RELEASE(progressBarStyle);
 #endif
 #ifdef USE_TI_UIIPHONEACTIVITYINDICATORSTYLE
-	RELEASE_TO_NIL(activityIndicatorStyle);
+	FORGET_AND_RELEASE(activityIndicatorStyle);
 #endif
 #ifdef USE_TI_UIIPHONESYSTEMICON
-	RELEASE_TO_NIL(systemIcon);
+	FORGET_AND_RELEASE(systemIcon);
 #endif
 #ifdef USE_TI_UIIPHONESCROLLINDICATORSTYLE
-	RELEASE_TO_NIL(scrollIndicatorStyle);
+	FORGET_AND_RELEASE(scrollIndicatorStyle);
 #endif
 #ifdef USE_TI_UIIPHONETABLEVIEWSTYLE
-	RELEASE_TO_NIL(tableViewStyle);
+	FORGET_AND_RELEASE(tableViewStyle);
 #endif
 #ifdef USE_TI_UIIPHONETABLEVIEWSEPARATORSTYLE
-	RELEASE_TO_NIL(tableViewSeparatorStyle);
+	FORGET_AND_RELEASE(tableViewSeparatorStyle);
 #endif
 #ifdef USE_TI_UIIPHONETABLEVIEWSCROLLPOSITION
-	RELEASE_TO_NIL(tableViewScrollPosition);
+	FORGET_AND_RELEASE(tableViewScrollPosition);
 #endif
 #ifdef USE_TI_UIIPHONETABLEVIEWCELLSELECTIONSTYLE
-	RELEASE_TO_NIL(tableViewCellSelectionStyle);
+	FORGET_AND_RELEASE(tableViewCellSelectionStyle);
 #endif
 	[super dealloc];
 }
@@ -115,6 +121,7 @@
 	if (ivarName==nil)	\
 	{	\
 		ivarName = [[TiUIiPhone##methodName##Proxy alloc] _initWithPageContext:[self executionContext]];	\
+        [self rememberProxy:ivarName]; \
 	}	\
 	return ivarName;	\
 }	\
@@ -159,12 +166,8 @@
 	DEFINE_SUBPROXY(TableViewCellSelectionStyle,tableViewCellSelectionStyle);
 #endif
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 #define RESPONDS_TO_3_2_STATUSBAR_SELECTOR \
 [[UIApplication sharedApplication] respondsToSelector:@selector(setStatusBarHidden:withAnimation:)]
-#else
-#define RESPONDS_TO_3_2_STATUSBAR_SELECTOR NO
-#endif
 
 -(void)hideStatusBar:(id)args
 {
@@ -174,18 +177,14 @@
 	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
 	
 	BOOL repositionViews = NO;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	if (RESPONDS_TO_3_2_STATUSBAR_SELECTOR) {
 		int style = (animated==NO) ? UIStatusBarAnimationNone : [TiUtils intValue:@"animationStyle" properties:args def:UIStatusBarAnimationSlide];
 		[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:style];
 	}
 	else {
-#endif		
 		[[UIApplication sharedApplication] setStatusBarHidden:YES];
 		repositionViews = YES;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	}
-#endif	
 	
 	[[[TiApp app] controller] resizeView];
 	if (repositionViews) {
@@ -201,18 +200,14 @@
 	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
 
 	BOOL repositionViews = NO;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	if (RESPONDS_TO_3_2_STATUSBAR_SELECTOR) {
 		int style = (animated==NO) ? UIStatusBarAnimationNone : [TiUtils intValue:@"animationStyle" properties:args def:UIStatusBarAnimationSlide];
 		[[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:style];
 	}
 	else {
-#endif
 		[[UIApplication sharedApplication] setStatusBarHidden:NO];		
 		repositionViews = YES;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	}
-#endif
 	
 	[[[TiApp app] controller] resizeView];
 	if (repositionViews) {
@@ -228,17 +223,13 @@
 	BOOL value = [TiUtils boolValue:hidden];
 	
 	BOOL repositionViews = NO;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	if (RESPONDS_TO_3_2_STATUSBAR_SELECTOR) {
 		[[UIApplication sharedApplication] setStatusBarHidden:value withAnimation:UIStatusBarAnimationNone];
 	}
 	else {
-#endif		
 		[[UIApplication sharedApplication] setStatusBarHidden:value];
 		repositionViews = YES;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	}
-#endif
 	
 	[[[TiApp app] controller] resizeView];
 	if (repositionViews) {
@@ -302,15 +293,11 @@ MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_CROSS_DISSOLVE,UIModalTransitionStyleCro
 
 
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-
 MAKE_SYSTEM_PROP(MODAL_PRESENTATION_FULLSCREEN,UIModalPresentationFullScreen);
 MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_PARTIAL_CURL,UIModalTransitionStylePartialCurl);
 MAKE_SYSTEM_PROP(MODAL_PRESENTATION_PAGESHEET,UIModalPresentationPageSheet);
 MAKE_SYSTEM_PROP(MODAL_PRESENTATION_FORMSHEET,UIModalPresentationFormSheet);
 MAKE_SYSTEM_PROP(MODAL_PRESENTATION_CURRENT_CONTEXT,UIModalPresentationCurrentContext);
-
-#endif
 
 
 
@@ -319,43 +306,43 @@ MAKE_SYSTEM_PROP(MODAL_PRESENTATION_CURRENT_CONTEXT,UIModalPresentationCurrentCo
 -(void)didReceiveMemoryWarning:(NSNotification*)notification
 {
 #ifdef USE_TI_UIIPHONEANIMATIONSTYLE
-	RELEASE_TO_NIL(animationStyle);
+	FORGET_AND_RELEASE(animationStyle);
 #endif
 #ifdef USE_TI_UIIPHONESTATUSBAR
-	RELEASE_TO_NIL(statusBar);
+	FORGET_AND_RELEASE(statusBar);
 #endif
 #ifdef USE_TI_UIIPHONEROWANIMATIONSTYLE
-	RELEASE_TO_NIL(rowAnimationStyle);
+	FORGET_AND_RELEASE(rowAnimationStyle);
 #endif
 #ifdef USE_TI_UIIPHONESYSTEMBUTTONSTYLE
-	RELEASE_TO_NIL(systemButtonStyle);
+	FORGET_AND_RELEASE(systemButtonStyle);
 #endif
 #ifdef USE_TI_UIIPHONESYSTEMBUTTON
-	RELEASE_TO_NIL(systemButton);
+	FORGET_AND_RELEASE(systemButton);
 #endif
 #ifdef USE_TI_UIIPHONEPROGRESSBARSTYLE
-	RELEASE_TO_NIL(progressBarStyle);
+	FORGET_AND_RELEASE(progressBarStyle);
 #endif
 #ifdef USE_TI_UIIPHONEACTIVITYINDICATORSTYLE
-	RELEASE_TO_NIL(activityIndicatorStyle);
+	FORGET_AND_RELEASE(activityIndicatorStyle);
 #endif
 #ifdef USE_TI_UIIPHONESYSTEMICON
-	RELEASE_TO_NIL(systemIcon);
+	FORGET_AND_RELEASE(systemIcon);
 #endif
 #ifdef USE_TI_UIIPHONESCROLLINDICATORSTYLE
-	RELEASE_TO_NIL(scrollIndicatorStyle);
+	FORGET_AND_RELEASE(scrollIndicatorStyle);
 #endif
 #ifdef USE_TI_UIIPHONETABLEVIEWSTYLE
-	RELEASE_TO_NIL(tableViewStyle);
+	FORGET_AND_RELEASE(tableViewStyle);
 #endif
 #ifdef USE_TI_UIIPHONETABLEVIEWSEPARATORSTYLE
-	RELEASE_TO_NIL(tableViewSeparatorStyle);
+	FORGET_AND_RELEASE(tableViewSeparatorStyle);
 #endif
 #ifdef USE_TI_UIIPHONETABLEVIEWSCROLLPOSITION
-	RELEASE_TO_NIL(tableViewScrollPosition);
+	FORGET_AND_RELEASE(tableViewScrollPosition);
 #endif
 #ifdef USE_TI_UIIPHONETABLEVIEWCELLSELECTIONSTYLE
-	RELEASE_TO_NIL(tableViewCellSelectionStyle);
+	FORGET_AND_RELEASE(tableViewCellSelectionStyle);
 #endif
 	[super didReceiveMemoryWarning:notification];
 }

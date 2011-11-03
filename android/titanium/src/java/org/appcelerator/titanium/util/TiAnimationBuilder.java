@@ -18,8 +18,8 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.Ti2DMatrix;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiCompositeLayout;
-import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -54,6 +54,7 @@ public class TiAnimationBuilder
 	protected Integer centerX = null, centerY = null;
 	protected Integer width = null, height = null;
 	protected Integer backgroundColor = null;
+	
 	protected TiAnimation animationProxy;
 	protected KrollFunction callback;
 	protected boolean relayoutChild = false, applyOpacity = false;
@@ -186,7 +187,7 @@ public class TiAnimationBuilder
 		this.view = view;
 		this.viewProxy = viewProxy;
 		
-		AnimationSet animationSet = new AnimationSet(false);
+		AnimationSet as = new AnimationSet(false);
 		AnimationListener animationListener = new AnimationListener();
 		
 		if (toOpacity != null) {
@@ -199,49 +200,50 @@ public class TiAnimationBuilder
 			
 			Animation animation = new AlphaAnimation(fromOpacity.floatValue(), toOpacity.floatValue());
 			applyOpacity = true;
-			addAnimation(animationSet, animation);
+			addAnimation(as, animation);
 			animation.setAnimationListener(animationListener);
 			
-			if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY) && fromOpacity != null && toOpacity != null) {
-				if (fromOpacity > 0 && fromOpacity < 1) {
-					TiUIView uiView = viewProxy.getOrCreateView();
-					uiView.setOpacity(1);
-				}
+			TiUIView uiView = viewProxy.peekView();
+			if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY) && fromOpacity != null && toOpacity != null
+				&& uiView != null) {
+				// Initialize the opacity to 1 when we are going to change it in
+				// the animation. If the opacity of the view was initialized to
+				// 0, the animation doesn't work
+				uiView.setOpacity(1);
 			}
 		}
 		
 		if (backgroundColor != null) {
 			int fromBackgroundColor = 0;
-
+			
 			if (viewProxy.hasProperty(TiC.PROPERTY_BACKGROUND_COLOR)) {
 				fromBackgroundColor = TiConvert.toColor(TiConvert.toString(viewProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR)));
-
 			} else {
-				fromBackgroundColor = Color.argb(0, 255, 255, 255);
+				Log.w(LCAT, "Cannot animate view without a backgroundColor. View doesn't have that property. Using #00000000");
+				fromBackgroundColor = Color.argb(0,0,0,0);
 			}
-
-			Animation animation = new TiColorAnimation(view, fromBackgroundColor, backgroundColor);
-			addAnimation(animationSet, animation);
+			Animation a = new TiColorAnimation(view, fromBackgroundColor, backgroundColor);
+			addAnimation(as, a);
 		}
 
 		if (tdm != null) {
-			animationSet.setFillAfter(true);
-			animationSet.setFillEnabled(true);
+			as.setFillAfter(true);
+			as.setFillEnabled(true);
 			TiMatrixAnimation matrixAnimation = new TiMatrixAnimation(tdm, anchorX, anchorY);
 
 			if (duration != null) {
 				matrixAnimation.setDuration(duration.longValue());
 			}
 
-			addAnimation(animationSet, matrixAnimation);
+			addAnimation(as, matrixAnimation);
 		}
 
 		// Set duration after adding children.
 		if (duration != null) {
-			animationSet.setDuration(duration.longValue());
+			as.setDuration(duration.longValue());
 		}
 		if (delay != null) {
-			animationSet.setStartOffset(delay.longValue());
+			as.setStartOffset(delay.longValue());
 		}
 		
 		// ignore translate/resize if we have a matrix.. we need to eventually collect to/from properly
@@ -291,10 +293,10 @@ public class TiAnimationBuilder
 				animation.setDuration(duration.longValue());
 			}
 
-			animationSet.setFillEnabled(true);
-			animationSet.setFillAfter(true);
+			as.setFillEnabled(true);
+			as.setFillAfter(true);
 			animation.setAnimationListener(animationListener);
-			animationSet.addAnimation(animation);
+			as.addAnimation(animation);
 
 			if (DBG) {
 				Log.d(LCAT, "animate " + viewProxy + " relative to self: " + (horizontal[0]-x) + ", " + (vertical[0]-y));
@@ -315,16 +317,16 @@ public class TiAnimationBuilder
 
 			sizeAnimation.setInterpolator(new LinearInterpolator());
 			sizeAnimation.setAnimationListener(animationListener);
-			animationSet.addAnimation(sizeAnimation);
+			as.addAnimation(sizeAnimation);
 
 			relayoutChild = true;
 		}
 		
 		if (callback != null || animationProxy != null) {
-			animationSet.setAnimationListener(animationListener);
+			as.setAnimationListener(animationListener);
 		}
 
-		return animationSet;
+		return as;
 	}
 	
 	protected class SizeAnimation extends Animation
@@ -447,11 +449,10 @@ public class TiAnimationBuilder
 	public static class TiColorAnimation extends Animation
 	{
 		protected View view;
-		protected int fromRed, fromGreen, fromBlue, fromAlpha;
-		protected int toRed, toGreen, toBlue, toAlpha;
-		protected int deltaRed, deltaGreen, deltaBlue, deltaAlpha;
-
-
+		int fromRed, fromGreen, fromBlue, fromAlpha;
+		int toRed, toGreen, toBlue, toAlpha;
+		int deltaRed, deltaGreen, deltaBlue, deltaAlpha;
+		
 		public TiColorAnimation(View view, int fromColor, int toColor) 
 		{
 			this.view = view;
@@ -475,17 +476,16 @@ public class TiAnimationBuilder
 		}
 
 		@Override
-		protected void applyTransformation(float interpolatedTime, Transformation transformation) 
+		protected void applyTransformation(float interpolatedTime, Transformation t) 
 		{
-			super.applyTransformation(interpolatedTime, transformation);
+			super.applyTransformation(interpolatedTime, t);
 				
 			int c = Color.argb(
-				fromAlpha + (int) (deltaAlpha * interpolatedTime),
-				fromRed + (int) (deltaRed * interpolatedTime),
-				fromGreen + (int) (deltaGreen * interpolatedTime),
-				fromBlue + (int) (deltaBlue * interpolatedTime)
-				);
-
+						fromAlpha + (int) (deltaAlpha * interpolatedTime),
+						fromRed + (int) (deltaRed * interpolatedTime),
+						fromGreen + (int) (deltaGreen * interpolatedTime),
+						fromBlue + (int) (deltaBlue * interpolatedTime)
+					);
 			view.setBackgroundColor(c);
 		}
 	}
@@ -503,9 +503,10 @@ public class TiAnimationBuilder
 			}
 
 			if (applyOpacity) {
+				//There is an android bug where animations still occur after this method. We clear it from the view to correct this.
+				view.clearAnimation();
 				if (toOpacity.floatValue() == 0) {
-					view.setVisibility(View. INVISIBLE);
-
+					view.setVisibility(View.INVISIBLE);
 				} else if (toOpacity.floatValue() == 1) {
 					view.setVisibility(View.VISIBLE);
 
@@ -515,6 +516,7 @@ public class TiAnimationBuilder
 					aa.setDuration(1);
 					aa.setFillAfter(true);
 					aa.setFillEnabled(true);
+					view.setLayoutParams(view.getLayoutParams());
 					view.startAnimation(aa);
 				}
 

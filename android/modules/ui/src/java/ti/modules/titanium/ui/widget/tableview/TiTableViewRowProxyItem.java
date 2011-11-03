@@ -45,7 +45,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	private ImageView rightImage;
 	private TiCompositeLayout content;
 	private ArrayList<TiUIView> views;
-	private boolean hasControls;
+//	private boolean hasControls;
 	private TiDimension height = null;
 	private Item item;
 	private Object selectorSource;
@@ -194,7 +194,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	}
 
 	public void setRowData(TableViewRowProxy rp) {
-		hasControls = rp.hasControls();
+//		hasControls = rp.hasControls();
 		
 		Object newSelectorSource = null;
 		if (rp.hasProperty(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE)) {
@@ -381,10 +381,10 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			rightImage.layout(right-w-rightMargin, top+offset, right-rightMargin, top+offset+h);
 		}
 
-		if (hasControls) {
-			contentLeft = left + LEFT_MARGIN;
-			contentRight = right - RIGHT_MARGIN;
-		}
+//		if (hasControls) {
+//			contentLeft = left + LEFT_MARGIN;
+//			contentRight = right - RIGHT_MARGIN;
+//		}
 
 		if (content != null) {
 			content.layout(contentLeft, top, contentRight, bottom);
