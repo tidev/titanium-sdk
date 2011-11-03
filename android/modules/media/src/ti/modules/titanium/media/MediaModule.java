@@ -80,6 +80,8 @@ public class MediaModule extends KrollModule
 	
 	@Kroll.constant public static final String MEDIA_TYPE_PHOTO = "public.image";
 	@Kroll.constant public static final String MEDIA_TYPE_VIDEO = "public.video";
+	@Kroll.constant public static final String MEDIA_TYPE_UNKNOWN = "public.unknown";
+	@Kroll.constant public static final String MEDIA_TYPE_ALL = "public.all";
 	
 	public MediaModule(TiContext tiContext)
 	{
@@ -429,6 +431,26 @@ public class MediaModule extends KrollModule
 		final KrollCallback fCancelCallback = cancelCallback;
 		final KrollCallback fErrorCallback = errorCallback;
 
+		String mime = "image/*";
+		if (options.containsKey("mimeType")) {
+			mime = options.getString("mimeType");
+		}
+		else if(options.containsKey("mediaTypes")) {
+			String[] types = options.getStringArray("mediaTypes");
+			if(types.length == 1) {
+				if(types[0].equals(MEDIA_TYPE_VIDEO)) {
+					mime = "video/*";
+				}
+				if(types[0].equals(MEDIA_TYPE_PHOTO)) {
+					mime = "image/*";
+				}
+				if(types[0].equals(MEDIA_TYPE_ALL)) {
+					mime = "*/*";
+				}
+			}
+		}
+
+
 		if (DBG) {
 			Log.d(LCAT, "openPhotoGallery called");
 		}
@@ -438,7 +460,7 @@ public class MediaModule extends KrollModule
 
 		TiIntentWrapper galleryIntent = new TiIntentWrapper(new Intent());
 		galleryIntent.getIntent().setAction(Intent.ACTION_PICK);
-		galleryIntent.getIntent().setType("image/*");
+		galleryIntent.getIntent().setType(mime);
 		galleryIntent.getIntent().addCategory(Intent.CATEGORY_DEFAULT);
 		galleryIntent.setWindowId(TiIntentWrapper.createActivityName("GALLERY"));
 
@@ -457,7 +479,23 @@ public class MediaModule extends KrollModule
 						String path = data.getDataString();
 						try {
 							if (fSuccessCallback != null) {
-								fSuccessCallback.callAsync(createDictForImage(path, "image/jpeg"));
+								if(path.contains("image")) {
+									fSuccessCallback.callAsync(createDictForImage(path, "image/jpeg"));
+								}
+								else if(path.contains("video")) {
+									String[] parts = { path };
+									KrollDict d = new KrollDict();
+									d.put("mediaType", MEDIA_TYPE_VIDEO);
+									d.put("media", TiBlob.blobFromFile(getTiContext(), TiFileFactory.createTitaniumFile(getTiContext(), parts, false), "video/3gpp"));
+									fSuccessCallback.callAsync(d);
+								}
+								else {
+									String[] parts = { path };
+									KrollDict d = new KrollDict();
+									d.put("mediaType", MEDIA_TYPE_UNKNOWN);
+									d.put("media", TiBlob.blobFromFile(getTiContext(), TiFileFactory.createTitaniumFile(getTiContext(), parts, false), "application/octet-stream"));
+									fSuccessCallback.callAsync(d);
+								}
 							}
 						} catch (OutOfMemoryError e) {
 							String msg = "Not enough memory to get image: " + e.getMessage();
