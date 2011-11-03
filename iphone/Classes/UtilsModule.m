@@ -93,9 +93,15 @@
 {
 	ENSURE_SINGLE_ARG(args,NSObject);
 	
+	NSData* data = nil;
 	NSString *nstr = [self convertToString:args];
-    const char* data = [nstr UTF8String];
-    return [TiUtils md5:[NSData dataWithBytes:data length:strlen(data)]];
+	if (nstr) {
+		const char* s = [nstr UTF8String];
+		data = [NSData dataWithBytes:s length:strlen(s)];
+	} else if ([args respondsToSelector:@selector(data)]) {
+		data = [args data];
+	}
+	return [TiUtils md5:data];
 }
 
 -(id)sha1:(id)args
