@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -327,28 +327,44 @@ public class TiMapView extends TiUIView
 
 		ma.setLifecycleListener(new OnLifecycleEvent() {
 			public void onPause(Activity activity) {
+/* TODO:JLC moved to onStop, call mapView.userLocation = false in JS
 				if (myLocation != null) {
 					if (DBG) {
 						Log.d(LCAT, "onPause: Disabling My Location");
 					}
 					myLocation.disableMyLocation();
 				}
+*/
 			}
 			public void onResume(Activity activity) {
+/* TODO:JLC moved to onStart, call mapView.userLocation = true in JS
 				if (myLocation != null && userLocation) {
 					if (DBG) {
 						Log.d(LCAT, "onResume: Enabling My Location");
 					}
 					myLocation.enableMyLocation();
 				}
+*/
 			}
 			public void onDestroy(Activity activity) {
 			}
 
-			public void onStart(Activity activity) {
+			public void onStart(Activity activity) { // JLC:MOD add onResume impl here
+				if (myLocation != null && userLocation) {
+					if (DBG) {
+						Log.d(LCAT, "onStart: Enabling My Location");
+					}
+					myLocation.enableMyLocation();
+				}
 			}
 
-			public void onStop(Activity activity) {
+			public void onStop(Activity activity) { // JLC:MOD add onPause impl here
+				if (myLocation != null) {
+					if (DBG) {
+						Log.d(LCAT, "onStop: Disabling My Location");
+					}
+					myLocation.disableMyLocation();
+				}
 			}
 		});
 		view.setBuiltInZoomControls(true);
@@ -543,6 +559,10 @@ public class TiMapView extends TiUIView
 			} else {
 				doSetMapType(TiConvert.toInt(newValue));
 			}
+        } else if (key.equals(TiC.PROPERTY_USER_LOCATION)) {  // JLC:MOD
+            if (newValue != null) { 
+                doUserLocation(TiConvert.toBoolean(newValue));
+            }
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
