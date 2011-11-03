@@ -6,8 +6,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
-import org.appcelerator.kroll.KrollObject;
-import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
@@ -17,6 +15,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiDrawableReference;
 
 import ti.modules.titanium.media.MediaModule;
+import android.app.Activity;
 import android.app.WallpaperManager;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -51,7 +50,8 @@ public class AndroidModule extends KrollModule
 			mediaPaths[i] = resolveUrl(null, TiConvert.toString(paths[i]));
 		}
 
-		(new MediaScannerClient(mediaPaths, mimeTypes, callback)).scan();
+		Activity activity = TiApplication.getInstance().getCurrentActivity();
+		(new MediaScannerClient(activity, mediaPaths, mimeTypes, callback)).scan();
 	}
 
 	@Kroll.method
@@ -84,9 +84,11 @@ public class AndroidModule extends KrollModule
 		private KrollFunction callback;
 		private MediaScannerConnection connection;
 		private AtomicInteger completedScanCount = new AtomicInteger(0);
+		private Activity activity;
 
-		public MediaScannerClient(String[] paths, Object[] mimeTypes, KrollFunction callback)
+		public MediaScannerClient(Activity activity, String[] paths, Object[] mimeTypes, KrollFunction callback)
 		{
+			this.activity = activity;
 			this.paths = paths;
 			this.mimeTypes = mimeTypes;
 			this.callback = callback;
@@ -94,18 +96,12 @@ public class AndroidModule extends KrollModule
 
 		public MediaScannerClient(TiContext tiContext, String[] paths, Object[] mimeTypes, KrollFunction callback)
 		{
-			this(paths, mimeTypes, callback);
-		}
-
-		public MediaScannerClient(String[] paths, Object[] mimeTypes)
-		{
-			this.paths = paths;
-			this.mimeTypes = mimeTypes;
+			this(tiContext.getActivity(), paths, mimeTypes, callback);
 		}
 
 		public MediaScannerClient(TiContext tiContext, String[] paths, Object[] mimeTypes)
 		{
-			this(paths, mimeTypes);
+			this(tiContext, paths, mimeTypes, null);
 		}
 
 		@Override
@@ -148,7 +144,7 @@ public class AndroidModule extends KrollModule
 				return;
 			}
 
-			connection = new MediaScannerConnection(TiApplication.getInstance().getCurrentActivity(), this);
+			connection = new MediaScannerConnection(activity, this);
 			connection.connect();
 		}
 	}
