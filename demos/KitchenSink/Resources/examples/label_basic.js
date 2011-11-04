@@ -2,7 +2,9 @@ var win = Titanium.UI.currentWindow;
 
 var l1 = Titanium.UI.createLabel({
 	id:'font_label_test',
-	text:'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat'
+	text:'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat',
+	top:0,
+	textAlign:'center'
 });
 
 win.add(l1);
