@@ -24,6 +24,7 @@ public class DecorViewProxy extends TiViewProxy
 	{
 		super();
 		this.layout = layout;
+		this.view = createView(null);
 	}
 
 

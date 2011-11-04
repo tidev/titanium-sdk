@@ -70,7 +70,10 @@ public class ActivityProxy extends KrollProxy
 			return null;
 		}
 
-		return new DecorViewProxy(((TiBaseActivity)activity).getLayout());
+		DecorViewProxy decorViewProxy = new DecorViewProxy(((TiBaseActivity)activity).getLayout());
+		decorViewProxy.setActivity(activity);
+
+		return decorViewProxy;
 	}
 
 	@Kroll.method

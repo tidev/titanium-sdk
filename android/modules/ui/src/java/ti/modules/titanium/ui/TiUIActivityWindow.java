@@ -168,6 +168,7 @@ public class TiUIActivityWindow extends TiUIView
 			if (activityProxy == null) {
 				activityProxy = new ActivityProxy(tiActivity);
 			}
+			activityProxy.setActivity(tiActivity);
 
 			tiActivity.setActivityProxy(activityProxy);
 			tiActivity.setWindowProxy(windowProxy);
