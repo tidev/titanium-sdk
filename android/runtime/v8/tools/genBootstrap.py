@@ -223,6 +223,13 @@ def genBootstrap(node, namespace = "", indent = 0):
 			methodMap = proxyMap["methods"][method]
 			if methodMap["hasInvocation"]:
 				invocationAPIs.append(methodMap)
+	if "dynamicProperties" in proxyMap:
+		for dp in proxyMap["dynamicProperties"]:
+			dpMap = proxyMap["dynamicProperties"][dp]
+			if dpMap["getHasInvocation"]:
+				invocationAPIs.append({ "apiName": dpMap["getMethodName"] })
+			if dpMap["setHasInvocation"]:
+				invocationAPIs.append({ "apiName": dpMap["setMethodName"] })
 	hasInvocationAPIs = len(invocationAPIs) > 0
 
 	needsReturn = hasChildren or \
@@ -265,7 +272,8 @@ def genBootstrap(node, namespace = "", indent = 0):
 			else:
 				accessor = "." + create["name"]
 
-			js += JS_CREATE % {"name": var, "type": create["name"], "accessor": accessor}
+			invocationAPIs.append({ "apiName": "create%s" % create["name"] })
+			js += JS_CREATE % {"name": var, "type": create["name"], "accessor": accessor }
 
 	if hasChildren and genAPITree:
 		js += "		}\n";

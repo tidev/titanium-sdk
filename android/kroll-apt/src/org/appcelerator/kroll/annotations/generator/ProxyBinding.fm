@@ -60,7 +60,7 @@
 		<#list methods?keys as methodName>
 			<#local method = methods[methodName]>
 			<#local signature>
-				<@getMethodSignature method.args, method.returnType />
+				<@getMethodSignature method.args, method.returnType, false/>
 			</#local>
 			<#nested methodName_index==0, methodName, method, signature, methodName_has_next>
 		</#list>
@@ -91,14 +91,14 @@
 			<#local dynamicProperty = dynamicProperties[propertyName]>
 			<#if dynamicProperty.get>
 				<#local getSignature>
-					<@getMethodSignature dynamicProperty.getMethodArgs, dynamicProperty.getReturnType />
+					<@getMethodSignature dynamicProperty.getMethodArgs, dynamicProperty.getReturnType, dynamicProperty.getHasInvocation/>
 				</#local>
 			<#else>
 				<#local getSignature = "">
 			</#if>
 			<#if dynamicProperty.set>
 				<#local setSignature>
-					<@getMethodSignature dynamicProperty.setMethodArgs, dynamicProperty.setReturnType />
+					<@getMethodSignature dynamicProperty.setMethodArgs, dynamicProperty.setReturnType, dynamicProperty.setHasInvocation/>
 				</#local>
 			<#else>
 				<#local setSignature = "">
@@ -407,12 +407,13 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 <#macro getArgumentsSignature args>
 	<#list args as arg>
 		<#local signature = getTypeSignature(arg.type)>
-		<#nested "${signature}">
+		<#nested signature>
 	</#list>
 </#macro>
 
-<#macro getMethodSignature args returnType>
-	(<@getArgumentsSignature args ; s>${s}</@getArgumentsSignature>)${getTypeSignature(returnType)}<#t>
+<#macro getMethodSignature args returnType hasInvocation>
+	(<#if hasInvocation>${getTypeSignature("org.appcelerator.kroll.KrollInvocation")}</#if><#t>
+	<@getArgumentsSignature args ; s>${s}</@getArgumentsSignature>)${getTypeSignature(returnType)}<#t>
 </#macro>
 
 <#macro generateJNICall returnType>

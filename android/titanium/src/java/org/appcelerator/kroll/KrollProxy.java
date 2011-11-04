@@ -83,7 +83,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			// object
 			proxyInstance.krollObject = object;
 			object.setProxySupport(proxyInstance);
-			proxyInstance.creationUrl = new TiUrl(creationUrl);
+			proxyInstance.creationUrl = TiUrl.createProxyUrl(creationUrl);
 
 			// Associate the activity with the proxy.  if the proxy needs activity association delayed until a 
 			// later point then initActivity should be overridden to be a no-op and then call setActivity directly
