@@ -236,10 +236,6 @@ class Compiler(object):
 			
 			detector = ModuleDetector(project_dir)
 			missing_modules, modules = detector.find_app_modules(ti, 'iphone')
-			
-			project_module_dir = os.path.join(project_dir,'modules','iphone')
-			if os.path.exists(project_module_dir):
-				self.copy_resources([project_module_dir],app_dir,False)
 		
 			# we have to copy these even in simulator given the path difference
 			if os.path.exists(app_dir):
