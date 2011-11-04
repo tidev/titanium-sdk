@@ -62,10 +62,8 @@ void Proxy::bindProxy(Handle<Object> exports)
 	exports->Set(proxySymbol, proxyTemplate->GetFunction());
 }
 
-Handle<Value> Proxy::getProperty(Local<String> property, const AccessorInfo& info)
+static Handle<Value> getPropertyForProxy(Local<String> property, Local<Object> proxy)
 {
-	Local<Object> proxy = info.This();
-
 	// Call getProperty on the Proxy to get the property.
 	// We define this method in JavaScript on the Proxy prototype.
 	Local<Value> getProperty = proxy->Get(String::New("getProperty"));
@@ -78,10 +76,23 @@ Handle<Value> Proxy::getProperty(Local<String> property, const AccessorInfo& inf
 	return Undefined();
 }
 
-void Proxy::setProperty(Local<String> property, Local<Value> value, const AccessorInfo& info)
+Handle<Value> Proxy::getProperty(Local<String> property, const AccessorInfo& info)
 {
-	Local<Object> proxy = info.This();
+	return getPropertyForProxy(property, info.This());
+}
 
+Handle<Value> Proxy::getProperty(const Arguments& args)
+{
+	if (args.Length() < 1) {
+		return JSException::Error("Requires property name as first argument.");
+	}
+
+	Local<String> name = args[0]->ToString();
+	return getPropertyForProxy(name, args.Holder());
+}
+
+static void setPropertyOnProxy(Local<String> property, Local<Value> value, Local<Object> proxy)
+{
 	// Call Proxy.prototype.setProperty.
 	Local<Value> setProperty = proxy->Get(String::New("setProperty"));
 	if (!setProperty.IsEmpty() && setProperty->IsFunction()) {
@@ -93,9 +104,14 @@ void Proxy::setProperty(Local<String> property, Local<Value> value, const Access
 	LOGE(TAG, "Unable to lookup Proxy.prototype.setProperty");
 }
 
-void Proxy::onPropertyChanged(Local<String> property, Local<Value> value, const AccessorInfo& info)
+void Proxy::setProperty(Local<String> property, Local<Value> value, const AccessorInfo& info)
 {
-	Proxy* proxy = NativeObject::Unwrap<Proxy>(info.Holder());
+	setPropertyOnProxy(property, value, info.This());
+}
+
+static void onPropertyChangedForProxy(Local<String> property, Local<Value> value, Local<Object> proxyObject)
+{
+	Proxy* proxy = NativeObject::Unwrap<Proxy>(proxyObject);
 
 	JNIEnv* env = JNIScope::getEnv();
 	if (!env) {
@@ -116,6 +132,27 @@ void Proxy::onPropertyChanged(Local<String> property, Local<Value> value, const 
 	if (isNew) {
 		env->DeleteLocalRef(javaValue);
 	}
+
+	// Store new property value on JS internal map.
+	setPropertyOnProxy(property, value, proxyObject);
+}
+
+void Proxy::onPropertyChanged(Local<String> property, Local<Value> value, const AccessorInfo& info)
+{
+	onPropertyChangedForProxy(property, value, info.Holder());
+}
+
+Handle<Value> Proxy::onPropertyChanged(const Arguments& args)
+{
+	if (args.Length() < 1) {
+		return JSException::Error("Requires property name as first parameters.");
+	}
+
+	Local<String> name = args.Data()->ToString();
+	Local<Value> value = args[0];
+	onPropertyChangedForProxy(name, value, args.Holder());
+
+	return Undefined();
 }
 
 Handle<Value> Proxy::getIndexedProperty(uint32_t index, const AccessorInfo& info)

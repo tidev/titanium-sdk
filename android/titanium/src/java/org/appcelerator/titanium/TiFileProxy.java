@@ -245,9 +245,9 @@ public class TiFileProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public TiBaseFile resolve()
+	public String resolve()
 	{
-		return tbf.resolve();
+		return getNativePath();
 	}
 
 	@Kroll.getProperty @Kroll.method

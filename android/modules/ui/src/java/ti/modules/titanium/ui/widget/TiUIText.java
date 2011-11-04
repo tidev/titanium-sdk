@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -185,7 +187,7 @@ public class TiUIText extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_RETURN_KEY_TYPE)) {
 			handleReturnKeyType(TiConvert.toInt(newValue));
 		} else if (key.equals(TiC.PROPERTY_FONT)) {
-			TiUIHelper.styleText(tv, (KrollDict) newValue);
+			TiUIHelper.styleText(tv, (HashMap) newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

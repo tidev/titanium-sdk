@@ -131,7 +131,7 @@
 <#macro listPropertyAccessors>
 	<#list proxyAttrs.propertyAccessors as accessor>
 		<#local upperCamel = accessor?substring(0, 1)?upper_case + accessor?substring(1)>
-		<#nested accessor_index==0, accessor, "get" + upperCamel, "set" + upperCamel>
+		<#nested accessor_index==0, accessor, "get" + upperCamel, "set" + upperCamel, accessor_has_next>
 	</#list>
 </#macro>
 
