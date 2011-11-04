@@ -146,11 +146,17 @@ Titanium.bindInvocationAPIs = function(sandboxTi, url) {
 	// source URL as the first argument
 
 	function genInvoker(invocationAPI) {
-		var names = invocationAPI.namespace.split(".");
+		var namespace = invocationAPI.namespace;
+		var names = namespace.split(".");
+		var length = names.length;
+		if (namespace == "Titanium") {
+			length = 0;
+		}
+
 		var apiNamespace = sandboxTi;
 		var realAPI = tiBinding.Titanium;
 
-		for (var j = 0, namesLen = names.length; j < namesLen; ++j) {
+		for (var j = 0, namesLen = length; j < namesLen; ++j) {
 			var name = names[j];
 			var api;
 
@@ -168,9 +174,11 @@ Titanium.bindInvocationAPIs = function(sandboxTi, url) {
 			realAPI = realAPI[name];
 		}
 
+		Titanium.API.debug("namespace: " + namespace +", delegate: realAPI: " + realAPI + ", api: " + invocationAPI.api);
+		var delegate = realAPI[invocationAPI.api];
+
 		// These invokers form a call hierarchy so we need to
 		// provide a way back to the actual root Titanium / actual impl.
-		var delegate = realAPI[invocationAPI.api];
 		while (delegate.__delegate__) {
 			delegate = delegate.__delegate__;
 		}

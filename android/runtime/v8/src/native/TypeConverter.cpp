@@ -601,22 +601,25 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 	return v8::Handle<v8::Value>();
 }
 
-jobjectArray TypeConverter::jsObjectIndexPropsToJavaArray(v8::Handle<v8::Object> jsObject, int length)
+jobjectArray TypeConverter::jsObjectIndexPropsToJavaArray(v8::Handle<v8::Object> jsObject, int start, int length)
 {
 	JNIEnv *env = JNIScope::getEnv();
-	if (!env) return NULL;
+	if (!env) {
+		return NULL;
+	}
 
 	HandleScope scope;
 
-	jobjectArray javaArray = env->NewObjectArray(length, JNIUtil::objectClass, NULL);
+	int arrayLength = length == 0 ? 0 : length - start;
+	jobjectArray javaArray = env->NewObjectArray(arrayLength, JNIUtil::objectClass, NULL);
 	int index = 0;
 
-	for (int index = 0; index < length; ++index) {
+	for (int index = start; index < length; ++index) {
 		v8::Local<Value> prop = jsObject->Get(index);
 		bool isNew;
 
 		jobject javaObject = jsValueToJavaObject(prop, &isNew);
-		env->SetObjectArrayElement(javaArray, index, javaObject);
+		env->SetObjectArrayElement(javaArray, index - start, javaObject);
 
 		if (isNew) {
 			env->DeleteLocalRef(javaObject);
