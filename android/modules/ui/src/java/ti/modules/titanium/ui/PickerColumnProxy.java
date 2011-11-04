@@ -83,8 +83,8 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	@Override
 	public void handleCreationDict(KrollDict dict) {
 		super.handleCreationDict(dict);
-		if (hasProperty("rows")) {
-			Object rowsAtCreation = getProperty("rows");
+		if (dict.containsKey("rows")) {
+			Object rowsAtCreation = dict.get("rows");
 			if (rowsAtCreation.getClass().isArray()) {
 				Object[] rowsArray = (Object[]) rowsAtCreation;
 				addRows(rowsArray);
@@ -95,7 +95,7 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	@Override
 	public void add(TiViewProxy o)
 	{
-		if (TiApplication.isUIThread() || peekView() == null) {
+		if (TiApplication.isUIThread()) {
 			handleAddRow(o);
 
 		} else {

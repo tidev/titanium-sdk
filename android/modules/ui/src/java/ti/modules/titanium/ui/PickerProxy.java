@@ -9,9 +9,11 @@ package ti.modules.titanium.ui;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.TiMessenger;
@@ -35,6 +37,8 @@ import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.os.Message;
 import android.util.Log;
+import android.widget.DatePicker;
+import android.widget.TimePicker;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={"locale"})
 public class PickerProxy extends TiViewProxy implements PickerColumnListener
@@ -496,21 +500,21 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		if (settings.containsKey("value")) {
 			calendar.setTime(TiConvert.toDate(settings, "value"));
 		}
-		/* TODO tie to an event in JS
-		final KrollCallback callback;
+
+		final KrollFunction callback;
 		if (settings.containsKey("callback")) {
 			Object typeTest = settings.get("callback");
-			if (typeTest instanceof KrollCallback) {
-				callback = (KrollCallback) typeTest; 
+			if (typeTest instanceof KrollFunction) {
+				callback = (KrollFunction) typeTest; 
 			} else {
 				callback = null;
 			}
 		} else {
 			callback = null;
-		}*/
+		}
 		DatePickerDialog.OnDateSetListener dateSetListener = null;
 		DialogInterface.OnDismissListener dismissListener = null;
-		/* TODO if (callback != null) {
+		if (callback != null) {
 			dateSetListener = new DatePickerDialog.OnDateSetListener()
 			{
 				@Override
@@ -526,7 +530,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 						KrollDict data = new KrollDict();
 						data.put("cancel", false);
 						data.put("value", value);
-						callback.callAsync(new Object[]{ data });
+						callback.callAsync(getKrollObject(), new Object[]{ data });
 					}
 				}
 			};
@@ -540,11 +544,11 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 						KrollDict data = new KrollDict();
 						data.put("cancel", true);
 						data.put("value", null);
-						callback.callAsync(new Object[]{ data });
+						callback.callAsync(getKrollObject(), new Object[]{ data });
 					}
 				}
 			};
-		}*/
+		}
 		DatePickerDialog dialog = new DatePickerDialog(
 					activity,
 					dateSetListener,
@@ -584,21 +588,21 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		if (settings.containsKey("value")) {
 			calendar.setTime(TiConvert.toDate(settings, "value"));
 		}
-		// TODO tie to an event in JS
-		/* final KrollCallback callback;
+
+		final KrollFunction callback;
 		if (settings.containsKey("callback")) {
 			Object typeTest = settings.get("callback");
-			if (typeTest instanceof KrollCallback) {
-				callback = (KrollCallback) typeTest; 
+			if (typeTest instanceof KrollFunction) {
+				callback = (KrollFunction) typeTest; 
 			} else {
 				callback = null;
 			}
 		} else {
 			callback = null;
-		}*/
+		}
 		TimePickerDialog.OnTimeSetListener timeSetListener = null;
 		DialogInterface.OnDismissListener dismissListener = null;
-		/* TODO if (callback != null) {
+		if (callback != null) {
 			timeSetListener = new TimePickerDialog.OnTimeSetListener()
 			{
 				@Override
@@ -613,7 +617,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 						KrollDict data = new KrollDict();
 						data.put("cancel", false);
 						data.put("value", value);
-						callback.callAsync(new Object[]{ data });
+						callback.callAsync(getKrollObject(), new Object[]{ data });
 					}
 				}
 			};
@@ -627,11 +631,11 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 						KrollDict data = new KrollDict();
 						data.put("cancel", true);
 						data.put("value", null);
-						callback.callAsync(new Object[]{ data });
+						callback.callAsync(getKrollObject(), new Object[]{ data });
 					}
 				}
 			};
-		}*/
+		}
 		TimePickerDialog dialog = new TimePickerDialog(
 					activity,
 					timeSetListener,
