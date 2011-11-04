@@ -254,6 +254,7 @@ static NSDictionary* TI_filterableItemProperties;
 	}
 	
 	RELEASE_TO_NIL(popover);
+	[self destroyPicker];
 }
 
 -(void)showPicker:(NSDictionary*)args isCamera:(BOOL)isCamera
