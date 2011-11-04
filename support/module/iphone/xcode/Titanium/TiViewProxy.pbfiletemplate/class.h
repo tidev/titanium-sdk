@@ -8,8 +8,6 @@
 
 @interface «FILEBASENAMEASIDENTIFIER» : TiViewProxy {
 
-@private
-
 }
 
 @end
