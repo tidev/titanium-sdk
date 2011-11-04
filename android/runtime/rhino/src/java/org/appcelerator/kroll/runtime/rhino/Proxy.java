@@ -219,7 +219,7 @@ public class Proxy extends EventEmitter
 		String event = (String) args[0];
 		boolean hasListeners = ((Boolean) args[1]).booleanValue();
 
-		rhinoObject.setHasListenersForEventType(event, hasListeners);
+		((Proxy) thisObj).rhinoObject.setHasListenersForEventType(event, hasListeners);
 	}
 
 	protected void onPropertiesChanged(Scriptable thisObj, Object[] args)
