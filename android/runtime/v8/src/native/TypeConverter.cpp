@@ -598,6 +598,9 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 		return javaArrayToJsArray((jbooleanArray) javaObject);
 	}
 
+	JNIUtil::logClassName("!!! Unable to convert unknown Java object class '%s' to Js value !!!",
+	                      env->GetObjectClass(javaObject),
+	                      true);
 	return v8::Handle<v8::Value>();
 }
 
