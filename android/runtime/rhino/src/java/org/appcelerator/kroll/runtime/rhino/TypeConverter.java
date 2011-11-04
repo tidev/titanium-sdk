@@ -251,6 +251,9 @@ public class TypeConverter
 
 	public static Object[] jsArrayToJavaObjectArray(Scriptable array, Scriptable scope)
 	{
+		if (array == null) {
+			return null;
+		}
 		int len = (Integer) Context.jsToJava(array.get(JS_PROPERTY_LENGTH, array), Integer.class);
 		Object[] a = new Object[len];
 		for (int i = 0; i < len; i++) {
@@ -265,6 +268,9 @@ public class TypeConverter
 
 	public static int[] jsArrayToJavaIntArray(Scriptable array, Scriptable scope)
 	{
+		if (array == null) {
+			return null;
+		}
 		int len = (Integer) Context.jsToJava(array.get(JS_PROPERTY_LENGTH, array), Integer.class);
 		int[] a = new int[len];
 		for (int i = 0; i < len; i++) {
@@ -279,6 +285,9 @@ public class TypeConverter
 
 	public static long[] jsArrayToJavaLongArray(Scriptable array, Scriptable scope)
 	{
+		if (array == null) {
+			return null;
+		}
 		int len = (Integer) Context.jsToJava(array.get(JS_PROPERTY_LENGTH, array), Integer.class);
 		long[] a = new long[len];
 		for (int i = 0; i < len; i++) {
@@ -293,6 +302,9 @@ public class TypeConverter
 
 	public static Object jsArrayToJavaArray(Object[] array, Class<?> target, Scriptable scope)
 	{
+		if (array == null) {
+			return null;
+		}
 		if (target.isArray()) {
 			// Handle casting native / box type arrays
 			Object converted = null;
