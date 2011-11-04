@@ -7,6 +7,7 @@
 #include <v8.h>
 #include "V8Util.h"
 #include "JNIUtil.h"
+#include "JSException.h"
 #include "AndroidUtil.h"
 
 namespace titanium {
@@ -138,7 +139,13 @@ Handle<String> V8Util::jsonStringify(Handle<Value> value)
 	Handle<Object> json = Context::GetCurrent()->Global()->Get(String::New("JSON"))->ToObject();
 	Handle<Function> stringify = Handle<Function>::Cast(json->Get(String::New("stringify")));
 	Handle<Value> args[] = { value };
-	return stringify->Call(json, 1, args)->ToString();
+	Handle<Value> result = stringify->Call(json, 1, args);
+    if (result.IsEmpty()) {
+        LOGE(TAG, "!!!! JSON.stringify() result is null/undefined.!!!");
+        return String::New("ERROR");
+    } else {
+        return result->ToString();
+    }
 }
 
 }

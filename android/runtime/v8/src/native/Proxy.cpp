@@ -273,9 +273,11 @@ Handle<Value> Proxy::proxyConstructor(const Arguments& args)
 	int length = args.Length();
 
 	if (length > 0 && args[0]->IsObject()) {
+		/*
 		Handle<Value> argsStr = V8Util::jsonStringify(args[0]);
 		String::Utf8Value str(argsStr);
 		LOGV(TAG, "    with args: %s", *str);
+		*/
 
 		bool extend = true;
 		Handle<Object> createProperties = args[0]->ToObject();
