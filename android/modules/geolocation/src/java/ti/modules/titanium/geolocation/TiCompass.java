@@ -8,8 +8,8 @@
 package ti.modules.titanium.geolocation;
 
 import java.util.Calendar;
+import java.util.HashMap;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
@@ -83,18 +83,18 @@ public class TiCompass
 					lastHeading = event.values[0];
 				}
 
-				geolocationModule.fireEvent(TiC.EVENT_HEADING, eventToKrollDict(event, actualTimestamp));
+				geolocationModule.fireEvent(TiC.EVENT_HEADING, eventToHashMap(event, actualTimestamp));
 			}
 		}
 	}
 
-	private KrollDict eventToKrollDict(SensorEvent event, long timestamp)
+	private Object eventToHashMap(SensorEvent event, long timestamp)
 	{
 		float x = event.values[0];
 		float y = event.values[1];
 		float z = event.values[2];
 
-		KrollDict heading = new KrollDict();
+		HashMap<String, Object> heading = new HashMap<String, Object>();
 		heading.put(TiC.EVENT_PROPERTY_TYPE, TiC.EVENT_HEADING);
 		heading.put(TiC.PROPERTY_TIMESTAMP, timestamp);
 		heading.put(TiC.PROPERTY_X, x);
@@ -131,7 +131,7 @@ public class TiCompass
 			heading.put(TiC.PROPERTY_TRUE_HEADING, trueHeading);
 		}
 
-		KrollDict data = new KrollDict();
+		HashMap<String, Object> data = new HashMap<String, Object>();
 		data.put(TiC.PROPERTY_HEADING, heading);
 		return data;
 	}
@@ -164,7 +164,7 @@ public class TiCompass
 						long eventTimestamp = event.timestamp / 1000000;
 						long actualTimestamp = baseTime.getTimeInMillis() + (eventTimestamp - sensorTimerStart);
 
-						listener.callAsync(geolocationModule.getKrollObject(), new Object[] { eventToKrollDict(event, actualTimestamp) });
+						listener.callAsync(geolocationModule.getKrollObject(), new Object[] { eventToHashMap(event, actualTimestamp) });
 						TiSensorHelper.unregisterListener(Sensor.TYPE_ORIENTATION, this);
 					}
 				}

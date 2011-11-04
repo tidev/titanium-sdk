@@ -172,6 +172,7 @@ public class ${className}Prototype extends ${superProxy}
 		<@Proxy.callJavaMethod property.setMethodArgs, property.setMethodName, property.setHasInvocation,
 			"void", "proxy" ; hasResult, resultVar>
 		</@Proxy.callJavaMethod> 
+		proxy.setProperty("${name}", value);
 	}
 	</#if> 
 	</@Proxy.listDynamicProperties>

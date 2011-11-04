@@ -297,7 +297,7 @@ public class TiLocation
 					}
 
 					if (event != null) {
-						event.put(TiC.EVENT_PROPERTY_SOURCE, this);
+						event.put(TiC.EVENT_PROPERTY_SOURCE, geolocationModule);
 						callback.call(geolocationModule.getKrollObject(), new Object[] { event });
 					}
 
