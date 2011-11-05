@@ -143,7 +143,7 @@ Module.prototype._runScript = function (source, filename) {
 	// globals from leaking into the global scope.
 	var wrapper = Module.wrap(source);
 	var compiledWrapper = runInThisContext(wrapper, filename, true);
-	var args = [self.exports, require, self, filename, path.dirname(filename), ti, global, kroll];
+	var args = [self.exports, require, self, filename, path.dirname(filename), ti, ti, global, kroll];
 	return compiledWrapper.apply(self.exports, args);
 }
 

@@ -19,7 +19,7 @@ exports.bootstrapWindow = function(Titanium) {
 	var Proxy = Titanium.Proxy;
 
 	Window.prototype.getActivityDecorView = function() {
-		var topActivity = Ti.App.Android.getTopActivity();
+		var topActivity = Titanium.App.Android.getTopActivity();
 		if (topActivity) {
 			return topActivity.getDecorView();
 		}
@@ -247,7 +247,7 @@ exports.bootstrapWindow = function(Titanium) {
 			return;
 		}
 
-		Ti.include(this.url, [this._sourceUrl, {
+		Titanium.include(this.url, [this._sourceUrl, {
 			currentWindow: this,
 			currentActivity: this.window.activity,
 			currentTab: this.tab,
