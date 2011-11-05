@@ -319,19 +319,6 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<jar destfile="${dest.file}" basedir="${build.dir}" manifest="${kroll.apt.project.dir}/META-INF/MANIFEST.MF"/>
 	</target>
 
-	<macrodef name="update.modules.properties">
-		<attribute name="name"/>
-		<attribute name="dir"/>
-		<sequential>
-			<var name="jarname" unset="true"/>
-			<condition property="jarname" value="@{name}.jar" else="titanium-@{name}.jar">
-				<equals arg1="@{name}" arg2="titanium"/>
-			</condition>
-			<ti.updateModulesJSON moduleJSON="@{dir}/org/appcelerator/titanium/bindings/@{name}.json"
-				modulesJSON="${dist.dir}/modules.json" jarname="${jarname}"/>
-		</sequential>
-	</macrodef>
-	
 	<macrodef name="generate.build.properties">
 		<attribute name="dir" default="${dist.classes.dir}/titanium"/>
 		<sequential>
@@ -525,10 +512,9 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<!-- TODO: retrieve git hash / value from titanium_version.py -->
 		<property name="build.githash" value="HEAD"/>
 		<property name="dest.file" value="${dist.dir}/titanium.jar"/>
-		
+
 		<generate.build.properties/>
-		<update.modules.properties dir="${build.dir}" name="titanium"/>
-		
+
 		<jar destfile="${dest.file}" basedir="${build.dir}"/>
 	</target>
 	
@@ -544,17 +530,27 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 
 	<macrodef name="build.module.jar">
 		<attribute name="name"/>
-		
+
 		<sequential>
 			<build.module.project name="@{name}">
 				<extra.javac.classpath>
 					<classpath refid="dependencies"/>
 				</extra.javac.classpath>
 			</build.module.project>
-			<update.modules.properties dir="${dist.classes.dir}/@{name}" name="@{name}"/>
 			<jar destfile="${dist.dir}/titanium-@{name}.jar" basedir="${dist.classes.dir}/@{name}"/>
 		</sequential>
 	</macrodef>
+
+	<target name="update.apis" depends="build.kroll.apt.jar">
+		<apply executable="java" parallel="true" failonerror="true">
+			<arg value="-classpath"/>
+			<arg value="${toString:kroll.apt.path}"/>
+			<arg value="org.appcelerator.kroll.annotations.generator.KrollAPIUpdater"/>
+			<arg value="${dist.dir}"/>
+
+			<fileset dir="${dist.json.dir}" includes="**/*.json"/>
+		</apply>
+	</target>
 
 	<target name="build.all">
 		<build.ti.ant.tasks/>
@@ -563,6 +559,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<antcall target="build.kroll.apt.jar"/>
 		<antcall target="build.titanium.jar"/>
 		<antcall target="build.all.modules"/>
+		<antcall target="update.apis"/>
 
 		<!-- the runtime libraries need to be last so we can build all the generated native bindings -->
 		<antcall target="build.kroll.runtime.${kroll.runtime}"/>
