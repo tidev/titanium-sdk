@@ -33,6 +33,7 @@ public class ActivityProxy extends KrollProxy
 
 	protected Activity wrappedActivity;
 	protected IntentProxy intentProxy;
+	protected DecorViewProxy savedDecorViewProxy;
 
 	
 	public ActivityProxy()
@@ -66,17 +67,22 @@ public class ActivityProxy extends KrollProxy
 	@Kroll.method
 	public DecorViewProxy getDecorView()
 	{
-		Activity activity = getActivity();
-		if (!(activity instanceof TiBaseActivity)) {
-			Log.e(TAG, "unable to return decor view, activity is not TiBaseActivity");
+		if (savedDecorViewProxy == null) {
+			Activity activity = getActivity();
+			if (!(activity instanceof TiBaseActivity)) {
+				Log.e(TAG, "unable to return decor view, activity is not TiBaseActivity");
 
-			return null;
+				return null;
+			}
+
+			DecorViewProxy decorViewProxy = new DecorViewProxy(((TiBaseActivity)activity).getLayout());
+			decorViewProxy.setActivity(activity);
+
+			return decorViewProxy;
+
+		} else {
+			return savedDecorViewProxy;
 		}
-
-		DecorViewProxy decorViewProxy = new DecorViewProxy(((TiBaseActivity)activity).getLayout());
-		decorViewProxy.setActivity(activity);
-
-		return decorViewProxy;
 	}
 
 	@Kroll.method
