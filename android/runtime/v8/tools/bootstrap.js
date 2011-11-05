@@ -84,10 +84,18 @@ function loadAppModules() {
 loadAppModules();
 
 function addInvocationAPI(Titanium, namespace, api) {
+	var apiInfo = { namespace: namespace, api: api };
+
+	// Always push Titanium module APIs.
+	if (namespace == 'Titanium') {
+		Titanium.invocationAPIs.push(apiInfo);
+		return;
+	}
+
 	var len = appModules.length;
 	for (var i = 0; i < len; i++) {
 		if (namespace.indexOf(appModules[i]) == 0) {
-			Titanium.invocationAPIs.push({ namespace: namespace, api: api });
+			Titanium.invocationAPIs.push(apiInfo);
 			break;
 		}
 	}
