@@ -149,7 +149,8 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 	if (calledFromCreate) {
 		Local<Object> arguments = args[0]->ToObject();
 		int length = arguments->Get(String::New("length"))->Int32Value();
-		Handle<Value> sourceUrl = arguments->Get(0);
+		Handle<Object> scopeVars = arguments->Get(0)->ToObject();
+		Handle<Value> sourceUrl = scopeVars->Get(String::New("sourceUrl"));
 
 		javaSourceUrl = TypeConverter::jsValueToJavaString(sourceUrl);
 		javaArgs = TypeConverter::jsObjectIndexPropsToJavaArray(arguments, 1, length);

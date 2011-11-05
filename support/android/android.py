@@ -285,6 +285,14 @@ class Android(object):
 		self.render(template_dir, 'classpath', app_dir, '.classpath')
 		self.render(template_dir, 'project', app_dir, '.project')
 		self.render(template_dir, 'default.properties', app_dir, 'default.properties')
+		print "[TRACE] Generating app.json"
+		f = None
+		try:
+			f = open(os.path.join(app_bin_assets_dir, "app.json"), "w")
+			f.write(simplejson.dumps({"app_modules":self.app_modules}))
+		finally:
+			if f is not None:
+				f.close()
 		# Don't override a pre-existing .gitignore in case users have their own preferences
 		# for what should be in it. (LH #2446)
 		if not os.path.exists(os.path.join(app_dir, '.gitignore')):

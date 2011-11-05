@@ -27,7 +27,8 @@ public abstract class TiJSActivity extends TiLaunchActivity
 
 	public TiJSActivity(ActivityProxy proxy)
 	{
-		setActivityProxy(proxy);
+		proxy.setActivity(this);
+		activityProxy = proxy;
 		if (proxy.hasProperty(TiC.PROPERTY_URL)) {
 			this.url = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_URL));
 		}

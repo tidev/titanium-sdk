@@ -65,7 +65,8 @@ function TitaniumModule(context) {
 	this.Android = new AndroidModule(context);
 	this.UI = new UIModule(context, this.Android);
 
-	Titanium.bindInvocationAPIs(this, sourceUrl);
+	var scopeVars = {"sourceUrl": sourceUrl, "currentActivity": this.Android.currentActivity};
+	Titanium.bindInvocationAPIs(this, scopeVars);
 }
 TitaniumModule.prototype = Titanium;
 Titanium.TitaniumModule = TitaniumModule;
@@ -85,17 +86,17 @@ function AndroidModule(context) {
 	this.currentActivity = context.currentActivity;
 	var currentWindow = context.currentWindow;
 
-	var topActivity;
-	if (currentWindow && currentWindow.activity) {
-		Titanium.API.debug("getting activity from currentWindow: " + currentWindow.activity);
-		this.currentActivity = currentWindow.activity;
+	if (!this.currentActivity) {
+		var topActivity;
+		if (currentWindow && currentWindow.window && currentWindow.window.activity) {
+			Titanium.API.debug("getting activity from currentWindow: " + currentWindow.activity);
+			this.currentActivity = currentWindow.activity;
 
-	} else if (topActivity = Titanium.App.Android.getTopActivity()) {
-		Titanium.API.debug("getting activity from top activity: " + topActivity);
-		this.currentActivity = topActivity;
-
+		} else if (topActivity = Titanium.App.Android.getTopActivity()) {
+			Titanium.API.debug("getting activity from top activity: " + topActivity);
+			this.currentActivity = topActivity;
+		}
 	}
-	
 }
 AndroidModule.prototype = Titanium.Android;
 
@@ -140,7 +141,7 @@ function TiInclude(filename, baseUrl, context) {
 TiInclude.prototype = global;
 Titanium.include = TiInclude;
 
-Titanium.bindInvocationAPIs = function(sandboxTi, url) {
+Titanium.bindInvocationAPIs = function(sandboxTi, scopeVars) {
 	// This loops through all known APIs that require an
 	// Invocation object and wraps them so we can pass a
 	// source URL as the first argument
@@ -186,14 +187,15 @@ Titanium.bindInvocationAPIs = function(sandboxTi, url) {
 		function createInvoker(delegate) {
 			var urlInvoker = function invoker() {
 				var args = Array.prototype.slice.call(arguments);
-				args.splice(0, 0, invoker.__url__);
+				args.splice(0, 0, invoker.scopeVars);
 
 				return delegate.apply(invoker.__thisObj__, args);
 			}
 
-			urlInvoker.__url__ = url;
+			urlInvoker.scopeVars = scopeVars;
 			urlInvoker.__delegate__ = delegate;
 			urlInvoker.__thisObj__ = realAPI;
+
 			return urlInvoker;
 		}
 

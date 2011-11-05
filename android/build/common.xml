@@ -218,7 +218,11 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 				<copy.to.build>
 					<fileset dir="@{apt.src.dir}">
 						<include name="**/*"/>
+						<exclude name="org/appcelerator/titanium/bindings/*.json"/>
 						<exclude name="**/*.java"/>
+					</fileset>
+					<fileset dir="@{apt.src.dir}">
+						<include name="**/@{name}.json"/>
 					</fileset>
 				</copy.to.build>
 			</build.project>

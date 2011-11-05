@@ -18,15 +18,14 @@ exports.bootstrapWindow = function(Titanium) {
 	var ActivityWindow = UI.ActivityWindow;
 	var Proxy = Titanium.Proxy;
 
-	var rootWindow;
-	function getRootWindow() {
-		if (!rootWindow) {
-			rootWindow = new ActivityWindow({
-				useCurrentActivity: true
-			});
-			rootWindow.open();
+	Window.prototype.getActivityDecorView = function() {
+		var topActivity = Ti.App.Android.getTopActivity();
+		if (topActivity) {
+			return topActivity.getDecorView();
 		}
-		return rootWindow;
+
+		kroll.log(TAG, "unable to find valid activity for decor view");
+		return null;
 	}
 
 	Window.prototype._cacheSetProperty = function(setter, value) {
@@ -39,7 +38,8 @@ exports.bootstrapWindow = function(Titanium) {
 		cache[setter] = value;
 	}
 
-	function definePropsAndMethods(getter, setter) {
+	function definePropsAndMethods(getter, setter)
+	{
 		var descriptor = {enumerable: true};
 		var getterMethod, setterMethod;
 
@@ -57,7 +57,7 @@ exports.bootstrapWindow = function(Titanium) {
 					} else {
 						// If property isn't in the cache, fall back to
 						// getting it off the root window.
-						window = getRootWindow();
+						window = getActivityDecorView();
 					}
 				}
 				return getterMethod.call(window);
@@ -128,7 +128,7 @@ exports.bootstrapWindow = function(Titanium) {
 			needsOpen = true;
 
 		} else {
-			this.window = getRootWindow();
+			this.window = this.getActivityDecorView();
 			this.view = new UI.View(this._properties);
 			this.view.zIndex = Math.MAX_INT - 2;
 			this.window.add(this.view);
@@ -277,11 +277,14 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 	}
 
-	Window.createWindow = function(sourceUrl, options) {
-		var win = new Window(options);
-		win._sourceUrl = sourceUrl;
-		return win;
+	Window.createWindow = function(scopeVars, options) {
+		var window = new Window(options);
+		window._sourceUrl = scopeVars.sourceUrl;
+		window._currentActivity = scopeVars.currentActivity;
+
+		return window;
 	}
 
 	return Window;
 };
+

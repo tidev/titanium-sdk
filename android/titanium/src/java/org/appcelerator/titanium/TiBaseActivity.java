@@ -296,6 +296,9 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onCreate");
 		}
 
+		// create the activity proxy here so that it is accessible from the activity in all cases
+		activityProxy = new ActivityProxy(this);
+
 		Intent intent = getIntent();
 		if (intent != null) {
 			if (intent.hasExtra(TiC.INTENT_PROPERTY_MESSENGER)) {

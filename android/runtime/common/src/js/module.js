@@ -35,7 +35,7 @@ Module.runModule = function (source, filename, activity) {
 		id = ".";
 	}
 
-	var module = new Module(id, {
+	var module = new Module(id, null, {
 		currentActivity: activity,
 		currentWindow: activity ? activity.window : null
 	});
@@ -128,13 +128,16 @@ Module.prototype._runScript = function (source, filename) {
 
 	if (self.id == '.') {
 		global.require = require;
+		Titanium.Android.currentActivity = self.context.currentActivity;
+
 		return runInThisContext(source, filename, true);
 	}
 
 	// Create context-bound modules.
 	var context = self.context || {};
 	context.sourceUrl = url;
-	var ti = new Titanium.TitaniumModule(context);
+
+	var ti = new Titanium.constructor(context);
 
 	// Execute the module inside a wrapper to prevent
 	// globals from leaking into the global scope.
