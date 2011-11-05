@@ -6,6 +6,7 @@
  */
 package org.appcelerator.kroll.runtime.rhino;
 
+import java.util.Arrays;
 import java.util.TreeSet;
 
 import org.appcelerator.kroll.KrollProxySupport;
@@ -14,6 +15,7 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.IdFunctionObject;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.Undefined;
 
 import android.util.Log;
@@ -105,7 +107,7 @@ public class Proxy extends EventEmitter
 		return proxy;
 	}
 
-	protected KrollProxySupport createProxy(Object[] args)
+	protected KrollProxySupport createProxy(String creationUrl, Object[] args)
 	{
 		return null;
 	}
@@ -121,9 +123,11 @@ public class Proxy extends EventEmitter
 		return getEventEmitterPrototype();
 	}
 
+	/*
 	protected void handleCreationArgs(Proxy proxy, Scriptable arguments)
 	{
 		Object[] args = TypeConverter.jsArgumentsToJavaObjectArray(arguments);
+
 		if (args.length == 0 || !(args[0] instanceof KrollScriptableDict)) {
 			proxy.proxy = proxy.createProxy(args);
 			return;
@@ -134,6 +138,7 @@ public class Proxy extends EventEmitter
 
 		proxy.proxy = proxy.createProxy(args);
 	}
+	*/
 
 	protected void handleCreationDict(Proxy proxy, Scriptable dict)
 	{
@@ -164,6 +169,7 @@ public class Proxy extends EventEmitter
 	protected Proxy jsConstructor(Scriptable scope, Object[] args)
 	{
 		try {
+			String sourceUrl = "app://app.js";
 			Proxy proxy = getClass().newInstance();
 			proxy.properties = Context.getCurrentContext().newObject(scope);
 			defineProperty(proxy, "_properties", proxy.properties, DONTENUM);
@@ -172,6 +178,9 @@ public class Proxy extends EventEmitter
 				return proxy;
 			}
 
+			Scriptable scopeVars = null;
+			Scriptable creationDict = null;
+
 			if (args.length > 0) {
 				if (args[0] instanceof KrollProxySupport) {
 					proxy.proxy = (KrollProxySupport) args[0];
@@ -179,19 +188,50 @@ public class Proxy extends EventEmitter
 
 				} else if (args[0] instanceof Scriptable) {
 					Scriptable arg = (Scriptable) args[0];
-					if (arg.getClassName().equals("Arguments")) {
-						handleCreationArgs(proxy, arg);
-						return proxy;
-					} else if (TypeConverter.jsScriptableIsCreationDict(arg)) {
-						handleCreationDict(proxy, arg);
+					if (TypeConverter.jsScriptableIsScopeVarsDict(arg)) {
+						scopeVars = arg;
+						if (args.length > 1 && args[1] instanceof Scriptable) {
+							Scriptable arg1 = (Scriptable) args[1];
+							if (TypeConverter.jsScriptableIsCreationDict(arg1)) {
+								creationDict = arg1;
+							}
+						}
+					} else {
+						if (TypeConverter.jsScriptableIsCreationDict(arg)) {
+							creationDict = arg;
+						}
+					}
+
+					if (scopeVars != null) {
+						Object sourceUrlObj = ScriptableObject.getProperty(scopeVars, "sourceUrl");
+						if (sourceUrlObj instanceof String) {
+							sourceUrl = (String) sourceUrlObj;
+						}
+					}
+
+					if (creationDict != null) {
+						handleCreationDict(proxy, creationDict);
 					}
 				}
 			}
 
-			for (int i = 0; i < args.length; i++) {
-				args[i] = TypeConverter.jsObjectToJavaObject(args[i], scope);
+			// remove the scope vars from the passed args (if present) before
+			// passing along to createProxy.
+			Object[] proxyArgs = null;
+			if (scopeVars != null) {
+				if (args.length > 1) {
+					proxyArgs = new Object[args.length - 1];
+					System.arraycopy(args, 1, proxyArgs, 0, args.length - 1);
+				} else {
+					proxyArgs = new Object[0];
+				}
+			} else {
+				proxyArgs = args;
 			}
-			proxy.proxy = proxy.createProxy(args);
+			for (int i = 0; i < proxyArgs.length; i++) {
+				proxyArgs[i] = TypeConverter.jsObjectToJavaObject(proxyArgs[i], scope);
+			}
+			proxy.proxy = proxy.createProxy(sourceUrl, proxyArgs);
 
 			return proxy;
 		} catch (IllegalAccessException e) {

@@ -258,9 +258,12 @@ def genBootstrap(node, namespace = "", indent = 0):
 		if namespace == "Titanium":
 			childNamespace = childAPI
 
-		if genAPITree: childJS += JS_GETTER % { "var": var, "child": childAPI }
+		if genAPITree:
+			childJS += JS_GETTER % { "var": var, "child": childAPI }
+
 		childJS += indentCode(genBootstrap(node[childAPI], childNamespace, indent + 1))
-		if genAPITree: childJS += JS_CLOSE_GETTER
+		if genAPITree:
+			childJS += JS_CLOSE_GETTER
 
 	if hasChildren and genAPITree:
 		js += "		if (!(\"__propertiesDefined__\" in %s)) {" % var
@@ -272,7 +275,7 @@ def genBootstrap(node, namespace = "", indent = 0):
 		upperName = accessor[0:1].upper() + accessor[1:]
 		return template % { "prototype": prototype, "name": accessor, "upperName": upperName }
 
-	if hasCreateProxies and genAPITree:
+	if hasCreateProxies:
 		createProxies = bindings["modules"][className]["createProxies"]
 		for create in createProxies:
 			# 2DMatrix: noooooooooooooooooope.
@@ -282,7 +285,8 @@ def genBootstrap(node, namespace = "", indent = 0):
 				accessor = "." + create["name"]
 
 			invocationAPIs.append({ "apiName": "create%s" % create["name"] })
-			js += JS_CREATE % {"name": var, "type": create["name"], "accessor": accessor }
+			if genAPITree:
+				js += JS_CREATE % {"name": var, "type": create["name"], "accessor": accessor }
 
 	if hasChildren and genAPITree:
 		js += "		}\n";

@@ -106,6 +106,4 @@ exports.bootstrap = function(Titanium) {
 	// from genBootstrap.py goes
 	// ----
 	%(bootstrap)s
-
-	Titanium.API.debug("bootstrapped, invocationAPIs = " + Titanium.invocationAPIs);
 }

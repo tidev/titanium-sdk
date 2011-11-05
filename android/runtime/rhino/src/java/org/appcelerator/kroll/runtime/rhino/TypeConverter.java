@@ -34,11 +34,14 @@ public class TypeConverter
 	public static final String JS_CLASS_DATE = "Date";
 	public static final String JS_CLASS_ERROR = "Error";
 	public static final String JS_CLASS_OBJECT = "Object";
+	public static final String JS_CLASS_SCOPEVARS = "ScopeVars";
 	public static final String JS_METHOD_VALUE_OF = "valueOf";
 	public static final String JS_METHOD_TO_STRING = "toString";
+	public static final String JS_PROPERTY_CONSTRUCTOR = "constructor";
 	public static final String JS_PROPERTY_JAVA_EXCEPTION = "javaException";
 	public static final String JS_PROPERTY_LENGTH = "length";
 	public static final String JS_PROPERTY_MESSAGE = "message";
+	public static final String JS_PROPERTY_NAME = "name";
 	public static final String JS_UNDEFINED = "undefined";
 
 	@SuppressWarnings("serial")
@@ -219,6 +222,21 @@ public class TypeConverter
 			|| ScriptRuntime.isArrayObject(scriptable)
 			|| scriptable.getClassName().equals(JS_CLASS_DATE)
 			|| scriptable.getClassName().equals(JS_CLASS_ERROR));
+	}
+
+	public static boolean jsScriptableIsScopeVarsDict(Scriptable scriptable)
+	{
+		if (scriptable == null) {
+			return false;
+		}
+		Object constructor = ScriptableObject.getProperty(scriptable, JS_PROPERTY_CONSTRUCTOR);
+		if (constructor instanceof Scriptable) {
+			Object name = ScriptableObject.getProperty((Scriptable) constructor, JS_PROPERTY_NAME);
+			if (JS_CLASS_SCOPEVARS.equals(name)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public static Object jsScriptableToJavaObject(Scriptable scriptable, Scriptable scope)
