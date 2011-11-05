@@ -18,13 +18,23 @@ exports.bootstrapWindow = function(Titanium) {
 	var ActivityWindow = UI.ActivityWindow;
 	var Proxy = Titanium.Proxy;
 
-	Window.prototype.getActivityDecorView = function() {
+	Window.prototype.getTopActivity = function() {
 		var topActivity = Titanium.App.Android.getTopActivity();
+		if (topActivity) {
+			return topActivity;
+		}
+
+		kroll.log(TAG, "unable to find valid top activity");
+		return null;
+	}
+
+	Window.prototype.getActivityDecorView = function() {
+		var topActivity = this.getTopActivity();
 		if (topActivity) {
 			return topActivity.getDecorView();
 		}
 
-		//kroll.log(TAG, "unable to find valid activity for decor view");
+		kroll.log(TAG, "unable to find valid activity for decor view");
 		return null;
 	}
 
@@ -56,8 +66,8 @@ exports.bootstrapWindow = function(Titanium) {
 						return cache[setterMethod];
 					} else {
 						// If property isn't in the cache, fall back to
-						// getting it off the root window.
-						window = this.getActivityDecorView();
+						// getting it off the top window.
+						window = this.getTopActivity();
 					}
 				}
 				return getterMethod.call(window);
