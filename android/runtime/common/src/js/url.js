@@ -117,6 +117,8 @@ exports.parse = urlParse;
 var appId, extStorage, privateAppData;
 
 function urlToFilePath(url) {
+	var Ti = global.Titanium;
+
 	if (!url) {
 		return null;
 	}

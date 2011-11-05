@@ -19,7 +19,7 @@ exports.bootstrapWindow = function(Titanium) {
 	var Proxy = Titanium.Proxy;
 
 	Window.prototype.getActivityDecorView = function() {
-		var topActivity = Ti.App.Android.getTopActivity();
+		var topActivity = Titanium.App.Android.getTopActivity();
 		if (topActivity) {
 			return topActivity.getDecorView();
 		}
@@ -96,8 +96,19 @@ exports.bootstrapWindow = function(Titanium) {
 			for (var i = 0; i < length; i++) {
 				this.view.add(this._children[i]);
 			}
+		}
 
-			delete this._children;
+		// don't delete the children once finished in case the window
+		// needs to be opened again
+	}
+
+	Window.prototype.removeChildren = function() {
+		if (this._children) {
+			var length = this._children.length;
+
+			for (var i = 0; i < length; i++) {
+				this.view.remove(this._children[i]);
+			}
 		}
 	}
 
@@ -181,7 +192,6 @@ exports.bootstrapWindow = function(Titanium) {
 		if (this.window == null) {
 			return;
 		}
-		this._properties.extend(options);
 
 		if (this.isActivity) {
 			var self = this;
@@ -192,6 +202,10 @@ exports.bootstrapWindow = function(Titanium) {
 
 		} else {
 			if (this.view.parent != null) {
+				// make sure to remove the children otherwise when the window is opened a second time
+				// the children views wont be added again to the native view
+				this.removeChildren();
+
 				this.window.remove(this.view);
 				this.window = null;
 			}
@@ -233,7 +247,7 @@ exports.bootstrapWindow = function(Titanium) {
 			return;
 		}
 
-		Ti.include(this.url, [this._sourceUrl, {
+		Titanium.include(this.url, [this._sourceUrl, {
 			currentWindow: this,
 			currentActivity: this.window.activity,
 			currentTab: this.tab,
