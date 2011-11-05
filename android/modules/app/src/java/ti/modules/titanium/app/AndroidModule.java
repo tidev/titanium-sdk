@@ -2,6 +2,7 @@ package ti.modules.titanium.app;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiContext;
@@ -13,7 +14,10 @@ import android.app.Activity;
 @Kroll.module(parentModule=AppModule.class)
 public class AndroidModule extends KrollModule
 {
+	private static final String TAG = "AndroidModule";
+
 	protected RProxy r;
+
 
 	public AndroidModule()
 	{
@@ -37,12 +41,11 @@ public class AndroidModule extends KrollModule
 	@Kroll.method
 	public ActivityProxy getTopActivity()
 	{
-		Activity top = TiApplication.getInstance().getCurrentActivity();
-		if (top == null || !(top instanceof TiBaseActivity)) {
-			return null;
+		Activity activity = TiApplication.getInstance().getCurrentActivity();
+		if (activity == null || !(activity instanceof TiBaseActivity)) {
+			return TiApplication.getInstance().getRootActivity().getActivityProxy();
 		}
 
-		TiBaseActivity tiActivity = (TiBaseActivity) top;
-		return tiActivity.getActivityProxy();
+		return ((TiBaseActivity)activity).getActivityProxy();
 	}
 }

@@ -143,6 +143,9 @@ public class TiUIActivityWindow extends TiUIView
 	{
 		ActivityProxy activityProxy = null;
 
+		Log.d(LCAT, "we shouldnt be getting in here to bindWindowActivity!!!");
+		// TODO old logic before we started creating the activity proxy on the onCreate of TiBaseActivity
+		/*
 		if (activity instanceof TiBaseActivity) {
 			activityProxy = ((TiBaseActivity)activity).getActivityProxy();
 		}
@@ -154,6 +157,7 @@ public class TiUIActivityWindow extends TiUIView
 				((TiBaseActivity)activity).setActivityProxy(activityProxy);
 			}
 		}
+		*/
 
 		return activityProxy;
 	}
@@ -166,11 +170,9 @@ public class TiUIActivityWindow extends TiUIView
 
 			ActivityProxy activityProxy = windowProxy.getActivityProxy();
 			if (activityProxy == null) {
-				activityProxy = new ActivityProxy(tiActivity);
+				windowProxy.setActivity(windowActivity);
 			}
-			activityProxy.setActivity(tiActivity);
 
-			tiActivity.setActivityProxy(activityProxy);
 			tiActivity.setWindowProxy(windowProxy);
 		}
 	}

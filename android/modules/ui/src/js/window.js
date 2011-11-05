@@ -19,7 +19,13 @@ exports.bootstrapWindow = function(Titanium) {
 	var Proxy = Titanium.Proxy;
 
 	Window.prototype.getActivityDecorView = function() {
-		return this._currentActivity.getDecorView();
+		var topActivity = Ti.App.Android.getTopActivity();
+		if (topActivity) {
+			return topActivity.getDecorView();
+		}
+
+		kroll.log(TAG, "unable to find valid activity for decor view");
+		return null;
 	}
 
 	Window.prototype._cacheSetProperty = function(setter, value) {

@@ -105,9 +105,12 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 
 		url = TiUrl.normalizeWindowUrl(getUrl());
 
+		// removed with the change to create the activity proxy in the onCreate of TiBaseActivity
+		/*
 		if (activityProxy == null) {
 			setActivityProxy(new ActivityProxy(this));
 		}
+		*/
 
 		// we only want to set the current activity for good in the resume state but we need it right now.
 		// save off the existing current activity, set ourselves to be the new current activity temporarily 
@@ -116,7 +119,8 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		Activity tempCurrentActivity = tiApp.getCurrentActivity();
 		tiApp.setCurrentActivity(this, this);
 
-		TiBindingHelper.bindCurrentActivity(activityProxy);
+		// TODO this isnt used anymore, remove?
+		//TiBindingHelper.bindCurrentActivity(activityProxy);
 
 		// set the current activity back to what it was originally
 		tiApp.setCurrentActivity(this, tempCurrentActivity);

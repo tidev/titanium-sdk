@@ -34,12 +34,15 @@ public class ActivityProxy extends KrollProxy
 	protected Activity wrappedActivity;
 	protected IntentProxy intentProxy;
 
+	
 	public ActivityProxy()
 	{
 	}
 
+
 	public ActivityProxy(Activity activity)
 	{
+		setActivity(activity);
 		setWrappedActivity(activity);
 	}
 
@@ -63,7 +66,7 @@ public class ActivityProxy extends KrollProxy
 	@Kroll.method
 	public DecorViewProxy getDecorView()
 	{
-		Activity activity = this.getActivity();
+		Activity activity = getActivity();
 		if (!(activity instanceof TiBaseActivity)) {
 			Log.e(TAG, "unable to return decor view, activity is not TiBaseActivity");
 
