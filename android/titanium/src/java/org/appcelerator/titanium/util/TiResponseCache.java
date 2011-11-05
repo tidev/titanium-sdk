@@ -195,17 +195,26 @@ public class TiResponseCache extends ResponseCache
 	public static InputStream openCachedStream(URI uri)
 	{
 		TiResponseCache rc = (TiResponseCache) TiResponseCache.getDefault();
-		if (rc == null) return null;
-		if (rc.cacheDir == null) return null;
+		if (rc == null) {
+			return null;
+		}
+
+		if (rc.cacheDir == null) {
+			return null;
+		}
 		
 		String hash = DigestUtils.shaHex(uri.toString());
 		File hFile = new File(rc.cacheDir, hash + HEADER_SUFFIX);
 		File bFile = new File(rc.cacheDir, hash + BODY_SUFFIX);
-		if (!bFile.exists() || !hFile.exists()) return null;
+
+		if (!bFile.exists() || !hFile.exists()) {
+			return null;
+		}
+
 		try {
 			return new FileInputStream(bFile);
 		} catch (FileNotFoundException e) {
-			Log.e(TAG, "File not found", e);
+			// Fallback to URL download?
 			return null;
 		}
 	}

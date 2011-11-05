@@ -159,7 +159,11 @@ public class TiFileHelper
 				try {
 					URI uri = new URI(path);
 					if (TiResponseCache.peek(uri)) {
-						return TiResponseCache.openCachedStream(uri);
+						InputStream stream = TiResponseCache.openCachedStream(uri);
+						if (stream != null) {
+							// Fallback to actual download when null
+							return stream;
+						}
 					}
 				} catch (URISyntaxException uriException) {
 				}
