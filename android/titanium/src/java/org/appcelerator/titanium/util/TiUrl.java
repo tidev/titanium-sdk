@@ -103,7 +103,7 @@ public class TiUrl
 		}
 
 		int lastSlash = url.lastIndexOf(PATH_SEPARATOR);
-		String baseUrl = url.substring(0, lastSlash);
+		String baseUrl = url.substring(0, lastSlash + 1);
 		if (baseUrl.length() == 0) {
 			baseUrl = TiC.URL_APP_PREFIX;
 		}
