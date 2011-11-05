@@ -11,9 +11,9 @@ exports.bootstrap = function(Titanium) {
 	Titanium.invocationAPIs.push({namespace: "UI", api: "createWindow"});
 
 	function iPhoneConstant(name) {
-		Ti.API.error("!!!");
-		Ti.API.error("!!! WARNING : Use of unsupported constant Ti.UI.iPhone." + name + " !!!");
-		Ti.API.error("!!!");
+		Titanium.API.error("!!!");
+		Titanium.API.error("!!! WARNING : Use of unsupported constant Ti.UI.iPhone." + name + " !!!");
+		Titanium.API.error("!!!");
 		return 0;
 	}
 
