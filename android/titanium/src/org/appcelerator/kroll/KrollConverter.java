@@ -74,6 +74,7 @@ public class KrollConverter implements KrollNativeConverter,
 	}
 	
 	public Object convertJSONArray(KrollInvocation invocation, JSONArray array) {
+		TiContext tiContext = invocation.getTiContext();
 		Object result[] = new Object[array.length()];
 		for (int i = 0; i < array.length(); i++) {
 			try {
@@ -83,7 +84,7 @@ public class KrollConverter implements KrollNativeConverter,
 				ig.printStackTrace();
 			}
 		}
-		return Context.getCurrentContext().newArray(invocation.getScope(), result);
+		return Context.getCurrentContext().newArray(tiContext.getKrollBridge().getScope(), result);
 	}
 	
 	@SuppressWarnings("serial")
@@ -222,7 +223,8 @@ public class KrollConverter implements KrollNativeConverter,
 			for (int i = 0; i < length; i++) {
 				jsArray[i] = convertNative(invocation, Array.get(value, i));
 			}
-			return Context.getCurrentContext().newArray(invocation.getScope(), jsArray);
+			TiContext tiContext = invocation.getTiContext();
+			return Context.getCurrentContext().newArray(tiContext.getKrollBridge().getScope(), jsArray);
 		}
 		else if (value == JSONObject.NULL || value.getClass().equals(JSONObject.NULL.getClass()))
 		{
