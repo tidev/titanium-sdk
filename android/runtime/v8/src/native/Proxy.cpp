@@ -285,8 +285,8 @@ Handle<Value> Proxy::proxyConstructor(const Arguments& args)
 		if (strcmp(*String::Utf8Value(constructorName), "Arguments") == 0) {
 			extend = false;
 			int32_t argsLength = createProperties->Get(String::New("length"))->Int32Value();
-			if (argsLength > 0) {
-				Handle<Value> properties = createProperties->Get(0);
+			if (argsLength > 1) {
+				Handle<Value> properties = createProperties->Get(1);
 				if (properties->IsObject()) {
 					extend = true;
 					createProperties = properties->ToObject();
