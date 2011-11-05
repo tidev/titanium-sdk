@@ -550,6 +550,24 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 
 			<fileset dir="${dist.json.dir}" includes="**/*.json"/>
 		</apply>
+
+		<jar update="true" destfile="${dist.dir}/titanium.jar">
+			<fileset dir="${dist.json.dir}">
+				<include name="org/appcelerator/titanium/bindings/titanium.json"/>
+			</fileset>
+		</jar>
+
+		<ti.getModuleBuildOrder json="${dependency.json}" property="modules"/>
+
+		<for list="${modules}" param="module" delimiter=" ">
+		<sequential>
+			<jar update="true" destfile="${dist.dir}/titanium-@{module}.jar">
+				<fileset dir="${dist.json.dir}">
+					<include name="org/appcelerator/titanium/bindings/@{module}.json"/>
+				</fileset>
+			</jar>
+		</sequential>
+		</for>
 	</target>
 
 	<target name="build.all">

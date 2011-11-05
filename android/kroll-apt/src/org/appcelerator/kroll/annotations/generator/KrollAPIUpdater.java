@@ -130,6 +130,7 @@ public class KrollAPIUpdater
 		// First pass generates the API tree
 		for (String jsonPath : proxies.keySet()) {
 			Map<String, Object> jsonProxies = proxies.get(jsonPath);
+
 			for (String proxyName : jsonProxies.keySet()) {
 				Map<String, Object> proxy = jsonUtils.getStringMap(jsonProxies, proxyName);
 				addToApiTree(jsonPath, proxyName, proxy);
