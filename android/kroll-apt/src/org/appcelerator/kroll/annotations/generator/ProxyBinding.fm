@@ -426,7 +426,7 @@ jvalue array named "jArguments". If validation or conversion
 fails, a JS exception is returned.
 ---------------------------------------------------------------->
 <#macro verifyAndConvertArgument expr index info logOnly isOptional>
-	<#if info.jsValidation!true && !isOptional>
+	<#if !isOptional && info.jsValidation!true>
 	if (!${expr}->Is${info.jsType}()) {
 		const char *error = "Invalid value, expected type ${info.jsType}.";
 		LOGE(TAG, error);

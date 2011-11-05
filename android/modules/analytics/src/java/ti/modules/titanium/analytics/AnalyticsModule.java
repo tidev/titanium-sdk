@@ -44,7 +44,11 @@ public class AnalyticsModule extends KrollModule
 	}
 	
 	protected void localAddEvent(String type, String event, KrollDict data) {
-		TiApplication.getInstance().postAnalyticsEvent(TiAnalyticsEventFactory.createEvent(type, event, TiConvert.toJSON(data).toString()));
+		String dataJSON = "";
+		if (data != null) {
+			dataJSON = TiConvert.toJSONString(data).toString();
+		}
+		TiApplication.getInstance().postAnalyticsEvent(TiAnalyticsEventFactory.createEvent(type, event, dataJSON));
 	}
 
 	@Kroll.method
