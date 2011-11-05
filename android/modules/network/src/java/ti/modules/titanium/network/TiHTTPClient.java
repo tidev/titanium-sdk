@@ -260,7 +260,7 @@ public class TiHTTPClient
 							Log.e(LCAT, "Error handling entity data", e);
 
 							// TODO
-							// Context.throwAsScriptRuntimeEx(e);
+							//Context.throwAsScriptRuntimeEx(e);
 						}
 					}
 					if (entity != null) {
@@ -641,6 +641,10 @@ public class TiHTTPClient
 				client.getConnectionManager().shutdown();
 				client = null;
 			}
+			if (validatingClient != null)
+				validatingClient = null;
+			if (nonValidatingClient != null)
+				nonValidatingClient = null;
 		}
 	}
 
