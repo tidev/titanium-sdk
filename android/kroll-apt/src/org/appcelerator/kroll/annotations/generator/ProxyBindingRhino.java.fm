@@ -94,10 +94,8 @@ public class ${className}Prototype extends ${superProxy}
 		return ${superProxy}.class;
 	}
 
-	protected KrollProxySupport createProxy(Object[] args)
+	protected KrollProxySupport createProxy(String creationUrl, Object[] args)
 	{
-		// TODO
-		String creationUrl = "app://app.js";
 		return KrollProxy.createProxy(${className}.class, getRhinoObject(), args, creationUrl); 
 	}
 

@@ -34,6 +34,9 @@ Properties.bootstrap(Titanium);
 //Custom native modules
 bootstrap.defineLazyBinding(Titanium, "API")
 
+// Used just to differentiate scope vars on java side by checking
+// constructor name
+function ScopeVars() {};
 // Context-bound modules -------------------------------------------------
 //
 // Specialized modules that require binding context specific data
@@ -65,7 +68,9 @@ function TitaniumWrapper(context) {
 	this.Android = new AndroidWrapper(context);
 	this.UI = new UIWrapper(context, this.Android);
 
-	var scopeVars = { sourceUrl: sourceUrl, currentActivity: this.Android.currentActivity };
+	var scopeVars = new ScopeVars();
+	scopeVars.sourceUrl = sourceUrl;
+	scopeVars.currentActivity = this.Android.currentActivity;
 	Titanium.bindInvocationAPIs(this, scopeVars);
 }
 TitaniumWrapper.prototype = Titanium;
