@@ -19,6 +19,7 @@ import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiOrientationHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiAnimation;
@@ -29,7 +30,16 @@ import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Message;
 
-@Kroll.proxy(propertyAccessors={"title"})
+@Kroll.proxy(propertyAccessors={
+	TiC.PROPERTY_EXIT_ON_CLOSE,
+	TiC.PROPERTY_FULLSCREEN,
+	TiC.PROPERTY_MODAL,
+	TiC.PROPERTY_NAV_BAR_HIDDEN,
+	TiC.PROPERTY_TITLE,
+	TiC.PROPERTY_TITLEID,
+	TiC.PROPERTY_URL,
+	TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE
+})
 public abstract class TiWindowProxy extends TiViewProxy
 {
 	private static final String LCAT = "TiWindowProxy";

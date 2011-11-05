@@ -44,6 +44,7 @@ function urlParse (url/*, parseQueryString*/) {
 	if (proto) {
 		proto = proto[0];
 		out.protocol = proto;
+
 		rest = rest.substr(proto.length);
 	}
 

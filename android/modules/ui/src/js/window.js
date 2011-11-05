@@ -182,7 +182,7 @@ exports.bootstrapWindow = function(Titanium) {
 			}
 		}
 
-		if ("url" in this) {
+		if ("url" in this._properties) {
 			this.loadUrl();
 		}
 		this.fireEvent("open");
@@ -247,12 +247,12 @@ exports.bootstrapWindow = function(Titanium) {
 			return;
 		}
 
-		Titanium.include(this.url, [this._sourceUrl, {
+		Titanium.include(this.url, this._sourceUrl, {
 			currentWindow: this,
 			currentActivity: this.window.activity,
 			currentTab: this.tab,
 			currentTabGroup: this.tabGroup
-		}]);
+		});
 	}
 
 	Window.prototype.addEventListener = function(event, listener) {

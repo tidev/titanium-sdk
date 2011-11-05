@@ -95,7 +95,10 @@ public class TiUITableView extends TiUIView
 	public void processProperties(KrollDict d)
 	{
 		tableView = new TiTableView((TableViewProxy) proxy);
-		((TiBaseActivity)proxy.getActivity()).addOnLifecycleEventListener(this);
+		Activity activity = proxy.getActivity();
+		if (activity instanceof TiBaseActivity) {
+			((TiBaseActivity) activity).addOnLifecycleEventListener(this);
+		}
 
 		tableView.setOnItemClickListener(this);
 		tableView.setOnItemLongClickListener(this);

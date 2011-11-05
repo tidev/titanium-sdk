@@ -29,15 +29,7 @@ import android.os.Message;
 import android.os.Messenger;
 
 
-@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
-	TiC.PROPERTY_TITLEID,
-	TiC.PROPERTY_URL,
-	TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE,
-	TiC.PROPERTY_NAV_BAR_HIDDEN,
-	TiC.PROPERTY_MODAL,
-	TiC.PROPERTY_FULLSCREEN,
-	TiC.PROPERTY_EXIT_ON_CLOSE
-})
+@Kroll.proxy(creatableInModule=UIModule.class)
 public class ActivityWindowProxy extends TiWindowProxy
 {
 	private static final String LCAT = "ActivityWindowProxy";
