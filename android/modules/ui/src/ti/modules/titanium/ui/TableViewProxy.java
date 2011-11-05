@@ -110,7 +110,7 @@ public class TableViewProxy extends TiViewProxy
 			locateIndex(rowIndex, rr);
 			sectionProxy = rr.section;
 		} else if (row instanceof TableViewRowProxy) {
-			ArrayList<TableViewSectionProxy> sections = getSections();
+			ArrayList<TableViewSectionProxy> sections = getLocalSections();
 			sectionLoop: for (int i = 0; i < sections.size(); i++) {
 				ArrayList<TableViewRowProxy> rows = sections.get(i).rows;
 				for (int j = 0; j < rows.size(); j++) {
@@ -146,7 +146,7 @@ public class TableViewProxy extends TiViewProxy
 
 	private void handleAppendRow(Object row) {
 		TableViewRowProxy rowProxy = rowProxyFor(row);
-		ArrayList<TableViewSectionProxy> sections = getSections();
+		ArrayList<TableViewSectionProxy> sections = getLocalSections();
 		if (sections.size() == 0) {
 			Object[] data = { rowProxy };
 			processData(data);
@@ -197,7 +197,7 @@ public class TableViewProxy extends TiViewProxy
 		int index = -1;
 		int idx = 0;
 		if (name != null) {
-			for (TableViewSectionProxy section : getSections()) {
+			for (TableViewSectionProxy section : getLocalSections()) {
 				for (TableViewRowProxy row : section.getRows()) {
 					String rname = TiConvert.toString(row.getProperty(TiC.PROPERTY_NAME));
 					if (rname != null && name.equals(rname)) {
@@ -230,7 +230,7 @@ public class TableViewProxy extends TiViewProxy
 	}
 	
 	private void handleInsertRowBefore(int index, Object data) {
-		if (getSections().size() > 0) {
+		if (getLocalSections().size() > 0) {
 			if (index < 0) {
 				index = 0;
 			}
@@ -281,7 +281,12 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public ArrayList<TableViewSectionProxy> getSections()
+	public Object[] getSections()
+	{
+		return getData();
+	}
+	
+	public ArrayList<TableViewSectionProxy> getLocalSections()
 	{
 		ArrayList<TableViewSectionProxy> sections = localSections;
 		if (sections == null) {
@@ -317,7 +322,7 @@ public class TableViewProxy extends TiViewProxy
 	}
 	public void processData(Object[] data)
 	{
-		ArrayList<TableViewSectionProxy> sections = getSections();
+		ArrayList<TableViewSectionProxy> sections = getLocalSections();
 		sections.clear();
 
 		TableViewSectionProxy currentSection = null;
@@ -379,7 +384,7 @@ public class TableViewProxy extends TiViewProxy
 	
 	@Kroll.getProperty @Kroll.method
 	public Object[] getData() {
-		ArrayList<TableViewSectionProxy> sections = getSections();
+		ArrayList<TableViewSectionProxy> sections = getLocalSections();
 		if (sections != null) {
 			return sections.toArray();
 		}
@@ -408,7 +413,7 @@ public class TableViewProxy extends TiViewProxy
 		int rowCount = 0;
 		int sectionIndex = 0;
 
-		for (TableViewSectionProxy section : getSections()) {
+		for (TableViewSectionProxy section : getLocalSections()) {
 			int sectionRowCount = (int) section.getRowCount();
 			if (sectionRowCount + rowCount > index) {
 				rowResult.section = section;
@@ -495,7 +500,7 @@ public class TableViewProxy extends TiViewProxy
 	public void eventListenerAdded(String eventName, int count, KrollProxy proxy) {
 		super.eventListenerAdded(eventName, count, proxy);
 		if (eventName.equals(TiC.EVENT_CLICK) && proxy == this) {
-			for (TableViewSectionProxy section : getSections()) {
+			for (TableViewSectionProxy section : getLocalSections()) {
 				for (TableViewRowProxy row : section.getRows()) {
 					row.setLabelsClickable(true);
 				}
@@ -507,7 +512,7 @@ public class TableViewProxy extends TiViewProxy
 	public void eventListenerRemoved(String eventName, int count, KrollProxy proxy) {
 		super.eventListenerRemoved(eventName, count, proxy);
 		if (eventName.equals(TiC.EVENT_CLICK) && count == 0 && proxy == this) {
-			for (TableViewSectionProxy section : getSections()) {
+			for (TableViewSectionProxy section : getLocalSections()) {
 				for (TableViewRowProxy row : section.getRows()) {
 					row.setLabelsClickable(false);
 				}
