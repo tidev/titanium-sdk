@@ -57,7 +57,7 @@ exports.bootstrapWindow = function(Titanium) {
 					} else {
 						// If property isn't in the cache, fall back to
 						// getting it off the root window.
-						window = getActivityDecorView();
+						window = this.getActivityDecorView();
 					}
 				}
 				return getterMethod.call(window);
