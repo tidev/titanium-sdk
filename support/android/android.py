@@ -184,19 +184,18 @@ class Android(object):
 					break
 			
 			if module_apiName == None: continue # module wasn't found
-			if '.' not in module:
-				ext_modules = []
-				if module_class in external_child_modules:
-					for child_module in external_child_modules[module_class]:
-						if child_module['fullAPIName'].lower() in compiler.modules:
-							ext_modules.append(child_module)
-				self.app_modules.append({
-					'api_name': module_apiName,
-					'class_name': module_class,
-					'bindings': module_bindings,
-					'external_child_modules': ext_modules,
-					'on_app_create': module_onAppCreate
-				})
+			ext_modules = []
+			if module_class in external_child_modules:
+				for child_module in external_child_modules[module_class]:
+					if child_module['fullAPIName'].lower() in compiler.modules:
+						ext_modules.append(child_module)
+			self.app_modules.append({
+				'api_name': module_apiName,
+				'class_name': module_class,
+				'bindings': module_bindings,
+				'external_child_modules': ext_modules,
+				'on_app_create': module_onAppCreate
+			})
 		
 		# discover app modules
 		detector = ModuleDetector(self.project_dir)

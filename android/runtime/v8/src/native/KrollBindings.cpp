@@ -84,21 +84,15 @@ Handle<Object> KrollBindings::getBinding(Handle<String> binding)
 	}
 
 	String::Utf8Value bindingValue(binding);
-	LOGV(TAG, "getBinding: %s", *bindingValue);
 
 	if (bindingCache->Has(binding)) {
-		LOGV(TAG, "returning from cache");
 		return bindingCache->Get(binding)->ToObject();
 	}
 
-	LOGV(TAG, "get length");
 	int length = bindingValue.length();
-
-	LOGV(TAG, "lookup binding init");
 	struct bindings::BindEntry *native = bindings::native::lookupBindingInit(*bindingValue, length);
 
 	if (native) {
-		LOGV(TAG, "got a native");
 		Local<Object> exports = Object::New();
 		native->bind(exports);
 
@@ -106,12 +100,9 @@ Handle<Object> KrollBindings::getBinding(Handle<String> binding)
 		return exports;
 	}
 
-	LOGV(TAG, "lookup generated init");
 	struct bindings::BindEntry* generated = bindings::generated::lookupGeneratedInit(*bindingValue, length);
 	if (generated) {
-		LOGV(TAG, "creating exports");
 		Local<Object> exports = Object::New();
-		LOGV(TAG, "finished creating exports");
 
 		generated->bind(exports);
 
@@ -120,7 +111,6 @@ Handle<Object> KrollBindings::getBinding(Handle<String> binding)
 		return exports;
 	}
 
-	LOGV(TAG, "nada");
 	return Handle<Object>();
 }
 

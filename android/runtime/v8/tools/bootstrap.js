@@ -62,9 +62,42 @@ exports.defineLazyBinding = function(object, binding) {
 	});
 }
 
+var appModules = exports.appModules = [];
+
+function loadAppModules() {
+	var assets = kroll.binding("assets");
+	var appData = assets.readAsset("app.json");
+
+	if (!appData) {
+		return;
+	}
+
+	var app = JSON.parse(appData);
+	if ("app_modules" in app) {
+		var len = app.app_modules.length;
+		for (var i = 0; i < len; ++i) {
+			appModules[i] = app.app_modules[i].api_name;
+		}
+	}
+}
+
+loadAppModules();
+
+function addInvocationAPI(Titanium, namespace, api) {
+	var len = appModules.length;
+	for (var i = 0; i < len; i++) {
+		if (namespace.indexOf(appModules[i]) == 0) {
+			Titanium.invocationAPIs.push({ namespace: namespace, api: api });
+			break;
+		}
+	}
+}
+
 exports.bootstrap = function(Titanium) {
 	// Below this is where the generated code
 	// from genBootstrap.py goes
 	// ----
 	%(bootstrap)s
+
+	Titanium.API.debug("bootstrapped, invocationAPIs = " + Titanium.invocationAPIs);
 }
