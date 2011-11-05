@@ -652,6 +652,10 @@ public abstract class TiUIView
 		}
 	}
 
+	private String resolveImageUrl(String path) {
+		return path.length() > 0 ? proxy.resolveUrl(null, path) : null;
+	}
+
 	private void handleBackgroundImage(KrollDict d)
 	{
 		String bg = d.getString(TiC.PROPERTY_BACKGROUND_IMAGE);
@@ -665,16 +669,16 @@ public abstract class TiUIView
 		String bgDisabledColor = d.getString(TiC.PROPERTY_BACKGROUND_DISABLED_COLOR);
 
 		if (bg != null) {
-			bg = proxy.resolveUrl(null, bg);
+			bg = resolveImageUrl(bg);
 		}
 		if (bgSelected != null) {
-			bgSelected = proxy.resolveUrl(null, bgSelected);
+			bgSelected = resolveImageUrl(bgSelected);
 		}
 		if (bgFocused != null) {
-			bgFocused = proxy.resolveUrl(null, bgFocused);
+			bgFocused = resolveImageUrl(bgFocused);
 		}
 		if (bgDisabled != null) {
-			bgDisabled = proxy.resolveUrl(null, bgDisabled);
+			bgDisabled = resolveImageUrl(bgDisabled);
 		}
 
 		if (bg != null || bgSelected != null || bgFocused != null || bgDisabled != null ||
