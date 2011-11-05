@@ -39,7 +39,7 @@ bootstrap.defineLazyBinding(Titanium, "API")
 // Specialized modules that require binding context specific data
 // within a script execution scope. This is how Ti.UI.currentWindow,
 // Ti.Android.currentActivity, and others are implemented.
-function TitaniumModule(context) {
+function TitaniumWrapper(context) {
 	var sourceUrl = this.sourceUrl = context.sourceUrl;
 
 	// Special version of include to handle relative paths based on sourceUrl.
@@ -62,16 +62,16 @@ function TitaniumModule(context) {
 		}
 	}
 
-	this.Android = new AndroidModule(context);
-	this.UI = new UIModule(context, this.Android);
+	this.Android = new AndroidWrapper(context);
+	this.UI = new UIWrapper(context, this.Android);
 
-	var scopeVars = {"sourceUrl": sourceUrl, "currentActivity": this.Android.currentActivity};
+	var scopeVars = { sourceUrl: sourceUrl, currentActivity: this.Android.currentActivity };
 	Titanium.bindInvocationAPIs(this, scopeVars);
 }
-TitaniumModule.prototype = Titanium;
-Titanium.TitaniumModule = TitaniumModule;
+TitaniumWrapper.prototype = Titanium;
+Titanium.Wrapper = TitaniumWrapper;
 
-function UIModule(context, Android) {
+function UIWrapper(context, Android) {
 	this.currentWindow = context.currentWindow;
 	this.currentTab = context.currentTab;
 	this.currentTabGroup = context.currentTabGroup;
@@ -80,25 +80,25 @@ function UIModule(context, Android) {
 		this.currentWindow = Android.currentActivity.window;
 	}
 }
-UIModule.prototype = Titanium.UI;
+UIWrapper.prototype = Titanium.UI;
 
-function AndroidModule(context) {
+function AndroidWrapper(context) {
 	this.currentActivity = context.currentActivity;
 	var currentWindow = context.currentWindow;
 
 	if (!this.currentActivity) {
 		var topActivity;
 		if (currentWindow && currentWindow.window && currentWindow.window.activity) {
-			Titanium.API.debug("getting activity from currentWindow: " + currentWindow.activity);
+			//Titanium.API.debug("getting activity from currentWindow: " + currentWindow.activity);
 			this.currentActivity = currentWindow.activity;
 
 		} else if (topActivity = Titanium.App.Android.getTopActivity()) {
-			Titanium.API.debug("getting activity from top activity: " + topActivity);
+			//Titanium.API.debug("getting activity from top activity: " + topActivity);
 			this.currentActivity = topActivity;
 		}
 	}
 }
-AndroidModule.prototype = Titanium.Android;
+AndroidWrapper.prototype = Titanium.Android;
 
 // -----------------------------------------------------------------------
 
@@ -113,7 +113,7 @@ function TiInclude(filename, baseUrl, context) {
 
 	var context = context || {};
 	context.sourceUrl = contextUrl;
-	var ti = new TitaniumModule(context);
+	var ti = new TitaniumWrapper(context);
 	sandbox = { Ti: ti, Titanium: ti };
 
 	if (kroll.runtime == 'rhino') {
@@ -175,7 +175,6 @@ Titanium.bindInvocationAPIs = function(sandboxTi, scopeVars) {
 			realAPI = realAPI[name];
 		}
 
-		Titanium.API.debug("namespace: " + namespace +", delegate: realAPI: " + realAPI + ", api: " + invocationAPI.api);
 		var delegate = realAPI[invocationAPI.api];
 
 		// These invokers form a call hierarchy so we need to
@@ -338,6 +337,6 @@ Object.defineProperty(Titanium.Activity.prototype, "toJSON", {
 	enumerable: false
 });
 
-module.exports = new TitaniumModule({
+module.exports = new TitaniumWrapper({
 	sourceUrl: Titanium.sourceUrl
 });

@@ -137,7 +137,7 @@ Module.prototype._runScript = function (source, filename) {
 	var context = self.context || {};
 	context.sourceUrl = url;
 
-	var ti = new Titanium.constructor(context);
+	var ti = new Titanium.Wrapper(context);
 
 	// Execute the module inside a wrapper to prevent
 	// globals from leaking into the global scope.

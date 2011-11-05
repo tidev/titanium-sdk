@@ -24,7 +24,7 @@ exports.bootstrapWindow = function(Titanium) {
 			return topActivity.getDecorView();
 		}
 
-		kroll.log(TAG, "unable to find valid activity for decor view");
+		//kroll.log(TAG, "unable to find valid activity for decor view");
 		return null;
 	}
 

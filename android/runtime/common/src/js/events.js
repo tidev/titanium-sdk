@@ -42,7 +42,7 @@ Object.defineProperty(EventEmitter.prototype, "setMaxListeners", {
 
 Object.defineProperty(EventEmitter.prototype, "callHandler", {
 	value: function(handler, type, data) {
-		kroll.log(TAG, "calling event handler: type:" + type + ", data: " + data + ", handler: " + handler);
+		//kroll.log(TAG, "calling event handler: type:" + type + ", data: " + data + ", handler: " + handler);
 		if (data instanceof Object) {
 			data.type = type;
 		} else if (!data) {
@@ -72,13 +72,13 @@ Object.defineProperty(EventEmitter.prototype, "emit", {
 		}
 
 		if (!this._events) {
-			kroll.log(TAG, "no events for " + type + ", not emitting");
+			//kroll.log(TAG, "no events for " + type + ", not emitting");
 			return false;
 		}
 
 		var handler = this._events[type];
 		if (!handler) {
-			kroll.log(TAG, "no handler for " + type + ", not emitting");
+			//kroll.log(TAG, "no handler for " + type + ", not emitting");
 			return false;
 		}
 
