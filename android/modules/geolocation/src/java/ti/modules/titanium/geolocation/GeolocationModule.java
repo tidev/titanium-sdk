@@ -12,7 +12,6 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.TiConfig;
-import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
@@ -23,7 +22,11 @@ import android.os.AsyncTask;
 import android.os.Message;
 
 
-@Kroll.module @ContextSpecific
+@Kroll.module(propertyAccessors={
+	TiC.PROPERTY_ACCURACY,
+	TiC.PROPERTY_FREQUENCY,
+	TiC.PROPERTY_PREFERRED_PROVIDER
+})
 public class GeolocationModule extends KrollModule
 {
 	@Kroll.constant public static final int ACCURACY_BEST = TiLocationHelper.ACCURACY_BEST;

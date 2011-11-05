@@ -149,7 +149,10 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 	if (calledFromCreate) {
 		Local<Object> arguments = args[0]->ToObject();
 		int length = arguments->Get(String::New("length"))->Int32Value();
-		javaArgs = TypeConverter::jsObjectIndexPropsToJavaArray(arguments, length);
+		Handle<Value> sourceUrl = arguments->Get(0);
+
+		javaSourceUrl = TypeConverter::jsValueToJavaString(sourceUrl);
+		javaArgs = TypeConverter::jsObjectIndexPropsToJavaArray(arguments, 1, length);
 	} else {
 		javaArgs = TypeConverter::jsArgumentsToJavaArray(args);
 	}

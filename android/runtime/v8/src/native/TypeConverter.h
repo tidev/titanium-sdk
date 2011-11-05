@@ -87,7 +87,7 @@ public:
 
 	// Convert a JS object's indexed properties to a Java object array.
 	// Starts at index zero and continues until length is reached.
-	static jobjectArray jsObjectIndexPropsToJavaArray(v8::Handle<v8::Object> jsObject, int length);
+	static jobjectArray jsObjectIndexPropsToJavaArray(v8::Handle<v8::Object> jsObject, int start, int length);
 
 private:
 	// utility methods

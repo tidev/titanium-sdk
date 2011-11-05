@@ -96,6 +96,22 @@ public class TiUrl
 		return bUrl;
 	}
 
+	public static TiUrl createProxyUrl(String url)
+	{
+		if (url == null) {
+			return new TiUrl(null);
+		}
+
+		int lastSlash = url.lastIndexOf(PATH_SEPARATOR);
+		String baseUrl = url.substring(0, lastSlash);
+		if (baseUrl.length() == 0) {
+			baseUrl = TiC.URL_APP_PREFIX;
+		}
+
+		String path = url.substring(lastSlash + 1);
+		return new TiUrl(baseUrl, path);
+	}
+
 	public static TiUrl normalizeWindowUrl(String url) 
 	{
 		int lastSlash = url.lastIndexOf(PATH_SEPARATOR);
