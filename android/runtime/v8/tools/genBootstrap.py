@@ -160,6 +160,10 @@ JS_CREATE = \
 		}
 """
 
+JS_INVOCATION_API = \
+"""	addInvocationAPI(Titanium, \"%(namespace)s\", \"%(api)s\");
+"""
+
 JS_DEFINE_TOP_LEVEL = \
 """	global.%(name)s = function() {
 		return %(namespace)s.%(mapping)s.apply(%(namespace)s, arguments);
@@ -187,6 +191,7 @@ def isBoundMethod(proxyMap, methodName):
 
 topLevelJS = ""
 genAPITree = True
+modulesWithCreate = []
 
 def genBootstrap(node, namespace = "", indent = 0):
 	global genAPITree
@@ -216,6 +221,10 @@ def genBootstrap(node, namespace = "", indent = 0):
 	# ignore _dependencies and _className in the childAPIs count
 	hasChildren = len(childAPIs) > 2
 	hasCreateProxies = isModule and "createProxies" in bindings["modules"][className]
+
+	if hasCreateProxies:
+		if apiName not in modulesWithCreate:
+			modulesWithCreate.append(namespace)
 
 	invocationAPIs = []
 	if "methods" in proxyMap:
@@ -289,9 +298,8 @@ def genBootstrap(node, namespace = "", indent = 0):
 			for name in topLevelNames:
 				topLevelJS += JS_DEFINE_TOP_LEVEL % {"name": name, "mapping": method, "namespace": ns}
 
-	for method in invocationAPIs:
-		topLevelJS += "	Titanium.invocationAPIs.push({ namespace: \"%s\", api: \"%s\" });\n" % \
-			(namespace, method["apiName"])
+	for api in invocationAPIs:
+		topLevelJS += JS_INVOCATION_API % { "namespace": namespace, "api": api["apiName"] }
 
 	if needsReturn and genAPITree:
 		js += "		return %s;\n" % var
@@ -324,7 +332,7 @@ def main():
 
 	genBindings = os.path.join(genDir, "KrollGeneratedBindings.gperf")
 	open(bootstrap, "w").write(
-		jsTemplate % { "bootstrap": bootstrapJS })
+		jsTemplate % { "bootstrap": bootstrapJS, "modulesWithCreate": json.dumps(modulesWithCreate) })
 	open(genBindings, "w").write(
 		gperfTemplate % { "headers": headers, "bindings": "\n".join(initTable) })
 
