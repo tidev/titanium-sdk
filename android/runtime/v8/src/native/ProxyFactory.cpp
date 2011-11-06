@@ -158,6 +158,7 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 			if (V8Util::constructorNameMatches(scopeVars, "ScopeVars")) {
 				Local<Value> sourceUrl = scopeVars->Get(Proxy::sourceUrlSymbol);
 				javaSourceUrl = TypeConverter::jsValueToJavaString(sourceUrl);
+				start = 1;
 			}
 		}
 
