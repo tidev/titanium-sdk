@@ -36,6 +36,17 @@ public class TableViewSectionProxy extends TiViewProxy
 		return null;
 	}
 
+	@Override
+	public void setActivity(Activity activity)
+	{
+		super.setActivity(activity);
+		if (rows != null) {
+			for (TableViewRowProxy row : rows) {
+				row.setActivity(activity);
+			}
+		}
+	}
+
 	@Kroll.method @Kroll.getProperty
 	public TableViewRowProxy[] getRows()
 	{

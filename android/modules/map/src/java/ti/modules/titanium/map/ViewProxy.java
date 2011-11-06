@@ -60,7 +60,6 @@ public class ViewProxy extends TiViewProxy
 		// TODO ?
 		//eventManager.addOnEventChangeListener(this);
 
-		((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
 		//tiContext.addOnLifecycleEventListener(this);
 
 		annotations = new ArrayList<AnnotationProxy>();
@@ -70,6 +69,14 @@ public class ViewProxy extends TiViewProxy
 	public ViewProxy(TiContext tiContext)
 	{
 		this();
+	}
+
+	@Override
+	protected void initActivity(Activity activity)
+	{
+		super.initActivity(activity);
+
+		((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
 	}
 
 	@Override

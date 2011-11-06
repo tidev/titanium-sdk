@@ -550,7 +550,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 			};
 		}
 		DatePickerDialog dialog = new DatePickerDialog(
-					activity,
+					getActivity(),
 					dateSetListener,
 					calendar.get(Calendar.YEAR),
 					calendar.get(Calendar.MONTH),
@@ -637,7 +637,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 			};
 		}
 		TimePickerDialog dialog = new TimePickerDialog(
-					activity,
+					getActivity(),
 					timeSetListener,
 					calendar.get(Calendar.HOUR_OF_DAY),
 					calendar.get(Calendar.MINUTE),

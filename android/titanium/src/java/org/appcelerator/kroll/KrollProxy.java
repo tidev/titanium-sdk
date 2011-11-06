@@ -6,6 +6,7 @@
  */
 package org.appcelerator.kroll;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -49,7 +50,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	protected static AtomicInteger proxyCounter = new AtomicInteger();
 
 	protected KrollObject krollObject;
-	protected Activity activity;
+	protected WeakReference<Activity> activity;
 	protected String proxyId;
 	protected TiUrl creationUrl;
 	protected KrollProxyListener modelListener;
@@ -107,17 +108,20 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 	protected void initActivity(Activity activity)
 	{
-		this.activity = activity;
+		this.activity = new WeakReference<Activity>(activity);
 	}
 
 	public void setActivity(Activity activity)
 	{
-		this.activity = activity;
+		this.activity = new WeakReference<Activity>(activity);
 	}
 
 	public Activity getActivity()
 	{
-		return activity;
+		if (activity == null) {
+			return null;
+		}
+		return activity.get();
 	}
 
 	/**
@@ -472,6 +476,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	@Kroll.method(name="getActivity") @Kroll.getProperty(name="activity")
 	public ActivityProxy getActivityProxy()
 	{
+		Activity activity = getActivity();
 		if (activity instanceof TiBaseActivity) {
 			return ((TiBaseActivity) activity).getActivityProxy();
 		}
@@ -618,7 +623,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	@Deprecated
 	public TiContext getTiContext()
 	{
-		return new TiContext(activity, proxyId);
+		return new TiContext(getActivity(), proxyId);
 	}
 
 	// TODO RM_TICONTEXT

@@ -8,6 +8,7 @@ package org.appcelerator.kroll;
 
 import java.util.HashMap;
 
+import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.TiMessenger;
 
 import android.os.Handler;
@@ -72,8 +73,7 @@ public abstract class KrollObject implements Handler.Callback
 			doSetWindow(windowProxyObject);
 
 		} else {
-			Message message = handler.obtainMessage(MSG_SET_WINDOW, windowProxyObject);
-			message.sendToTarget();
+			TiMessenger.sendBlockingRuntimeMessage(handler.obtainMessage(MSG_SET_WINDOW), windowProxyObject);
 		}
 	}
 
@@ -86,7 +86,9 @@ public abstract class KrollObject implements Handler.Callback
 				return true;
 			}
 			case MSG_SET_WINDOW: {
-				doSetWindow(msg.obj);
+				AsyncResult result = (AsyncResult) msg.obj;
+				doSetWindow(result.getArg());
+				result.setResult(null);
 
 				return true;
 			}

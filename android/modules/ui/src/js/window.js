@@ -257,6 +257,7 @@ exports.bootstrapWindow = function(Titanium) {
 			return;
 		}
 
+		kroll.log(TAG, "Loading window with URL: " + this.url);
 		Titanium.include(this.url, this._sourceUrl, {
 			currentWindow: this,
 			currentActivity: this.window.activity,

@@ -55,7 +55,7 @@ public class PendingIntentProxy extends KrollProxy
 
 		super.handleCreationArgs(createdInModule, args);
 
-		pendingIntentContext = activity;
+		pendingIntentContext = getActivity();
 		//pendingIntentContext = this.context.getActivity();
 		/*
 		if (context == null) {
