@@ -4,11 +4,15 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#include <string.h>
+
 #include <v8.h>
 #include "V8Util.h"
 #include "JNIUtil.h"
 #include "JSException.h"
 #include "AndroidUtil.h"
+#include "TypeConverter.h"
+
 
 namespace titanium {
 using namespace v8;
@@ -77,8 +81,40 @@ static Persistent<String> nameSymbol, messageSymbol;
 
 void V8Util::reportException(TryCatch &tryCatch, bool showLine)
 {
+
+	JNIEnv* env = JNIScope::getEnv();
+	if (!env) {
+		LOG_JNIENV_GET_ERROR(TAG);
+		return;
+	}
+
 	HandleScope scope;
 	Handle<Message> message = tryCatch.Message();
+
+	const char *title = "Runtime Error";
+
+	jstring title1 = env->NewString((const jchar *) title, strlen(title));
+	jstring scriptData = TypeConverter::jsValueToJavaString(message->GetScriptData());
+	jstring resourceName = TypeConverter::jsValueToJavaString(message->GetScriptResourceName());
+	jstring sourceLine = TypeConverter::jsValueToJavaString(message->GetSourceLine());
+
+	// Open a js error dialog
+	env->CallStaticVoidMethod(
+		JNIUtil::tiJsErrorDialogClass,
+		JNIUtil::openErrorDialogMethod,
+		scriptData,
+		scriptData,
+		resourceName,
+		message->GetLineNumber(),
+		sourceLine,
+		message->GetEndColumn());
+
+	env->DeleteLocalRef(title1);
+	env->DeleteLocalRef(scriptData);
+	env->DeleteLocalRef(resourceName);
+	env->DeleteLocalRef(sourceLine);
+
+
 	if (nameSymbol.IsEmpty()) {
 		nameSymbol = SYMBOL_LITERAL("name");
 		messageSymbol = SYMBOL_LITERAL("message");
@@ -116,6 +152,8 @@ void V8Util::reportException(TryCatch &tryCatch, bool showLine)
 			LOGE(EXC_TAG, *error);
 		}
 	}
+
+
 }
 
 static int uncaughtExceptionCounter = 0;

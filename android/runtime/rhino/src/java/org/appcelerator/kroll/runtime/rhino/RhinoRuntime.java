@@ -8,7 +8,10 @@ package org.appcelerator.kroll.runtime.rhino;
 
 import org.appcelerator.kroll.KrollProxySupport;
 import org.appcelerator.kroll.KrollRuntime;
+import org.appcelerator.kroll.common.TiJSErrorDialog;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ErrorReporter;
+import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptRuntime;
@@ -31,6 +34,29 @@ public class RhinoRuntime extends KrollRuntime
 	{
 		Context context = Context.enter();
 		context.setOptimizationLevel(-1);
+		context.setErrorReporter(new ErrorReporter()
+		{
+
+			@Override
+			public void warning(String message, String sourceName, int line, String lineSource, int lineOffset)
+			{
+				TiJSErrorDialog.openErrorDialog("Warning", message, sourceName, line, lineSource, lineOffset);
+			}
+
+			@Override
+			public EvaluatorException runtimeError(String message, String sourceName, int line, String lineSource,
+				int lineOffset)
+			{
+				TiJSErrorDialog.openErrorDialog("Runtime Error", message, sourceName, line, lineSource, lineOffset);
+				return new EvaluatorException(message, sourceName, line, lineSource, lineOffset);
+			}
+
+			@Override
+			public void error(String message, String sourceName, int line, String lineSource, int lineOffset)
+			{
+				TiJSErrorDialog.openErrorDialog("Error", message, sourceName, line, lineSource, lineOffset);
+			}
+		});
 
 		try {
 			globalScope = context.initStandardObjects();
@@ -112,4 +138,3 @@ public class RhinoRuntime extends KrollRuntime
 		}
 	}
 }
-

@@ -6,6 +6,7 @@
  */
 package org.appcelerator.kroll;
 
+import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.common.TiMessenger;
@@ -29,6 +30,7 @@ public abstract class KrollRuntime implements Handler.Callback
 
 	private static KrollRuntime instance;
 
+	private WeakReference<KrollApplication> krollApplication;
 	private KrollRuntimeThread thread;
 	private long threadId;
 	private AtomicBoolean initialized = new AtomicBoolean(false);
@@ -89,6 +91,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	{
 		if (instance == null) {
 			int stackSize = runtime.getThreadStackSize(context);
+			runtime.krollApplication = new WeakReference<KrollApplication>((KrollApplication) context);
 			runtime.thread = new KrollRuntimeThread(runtime, stackSize);
 			runtime.thread.start();
 			instance = runtime;
@@ -101,6 +104,14 @@ public abstract class KrollRuntime implements Handler.Callback
 		return instance;
 	}
 
+	public KrollApplication getKrollApplication()
+	{
+		if (krollApplication != null) {
+			return krollApplication.get();
+		}
+		return null;
+	}
+	
 	public boolean isRuntimeThread()
 	{
 		return Thread.currentThread().getId() == threadId;
