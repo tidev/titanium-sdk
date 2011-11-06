@@ -54,56 +54,58 @@ exports.bootstrapWindow = function(Titanium) {
 		cache[setter] = value;
 	}
 
-	function definePropsAndMethods(getter, setter)
-	{
-		var descriptor = {enumerable: true};
-		var getterMethod, setterMethod;
-
-		if (getter) {
-			getterMethod = ActivityWindow.prototype[getter];
-			function get() {
-				var window = this.window;
-				if (!window) {
-					// If this window isn't open yet, first try
-					// getting the property from the cache. It may have
-					// been set before this call.
-					var cache = this.propertyCache;
-					if (setterMethod && cache && setterMethod in cache) {
-						return cache[setterMethod];
-					} else {
-						// If property isn't in the cache, fall back to
-						// getting it off the top window.
-						window = this.getTopActivity();
-					}
-				}
-				return getterMethod.call(window);
-			}
-			descriptor.get = Window.prototype[getter] = get;
+	var wrappedPropsAndMethods = [
+		{
+			name: 'activity',
+			getter: 'getActivity'
+		},
+		{
+			name: 'orientation',
+			getter: 'getOrientation'
+		},
+		{
+			name: 'orientationModes',
+			getter: 'getOrientationModes',
+			setter: 'setOrientationModes'
+		},
+		{
+			name: 'windowPixelFormat',
+			getter: 'getWindowPixelFormat',
+			setter: 'setWindowPixelFormat'
 		}
+	]
 
-		if (setter) {
-			setterMethod = ActivityWindow.prototype[setter];
-			function set(value) {
-				var window = this.window;
-				if (!window) {
-					// Save value to a cache so it can later to set
-					// on the window once it has opened.
-					this._cacheSetProperty(setterMethod, value);
-				} else {
-					setterMethod.call(window, value);
+	function wrapPropsAndMethods(wrapperWindow) {
+		wrappedPropsAndMethods.forEach(function(info) {
+			var name = info.name,
+			    descriptor = {};
+
+			// Define getter and setter methods.
+			if (info.getter) {
+				function getProperty() {
+					return this.window[name];
 				}
+				wrapperWindow[info.getter] = getProperty;
+				descriptor.get = getProperty;
 			}
-			descriptor.set = Window.prototype[setter] = set;
-		}
-		return descriptor;
+			if (info.setter) {
+				function setProperty(value) {
+					this.window[name] = value;
+				}
+				wrapperWindow[info.setter] = setProperty;
+				descriptor.set = setProperty;
+
+				// Sync inner window with any property values set
+				// on the wrapper before it was opened.
+				wrapperWindow.window[name] = wrapperWindow[name];
+			}
+
+			// Re-define new property on wrapper which delegates
+			// to the inner window proxy.
+			delete wrapperWindow[name];
+			Object.defineProperty(wrapperWindow, name, descriptor);
+		});
 	}
-
-	Object.defineProperties(Window.prototype, {
-		orientationModes: definePropsAndMethods("getOrientationModes", "setOrientationModes"),
-		activity: definePropsAndMethods("getActivity"),
-		orientation: definePropsAndMethods("getOrientation"),
-		windowPixelFormat: definePropsAndMethods("getWindowPixelFormat", "setWindowPixelFormat")
-	});
 
 	Window.prototype.addChildren = function() {
 		if (this._children) {
@@ -171,6 +173,9 @@ exports.bootstrapWindow = function(Titanium) {
 		this.setWindowView(this.view);
 		this.addChildren();
 
+		// Expose the real window's properties by creating wrappers.
+		wrapPropsAndMethods(this);
+
 		if (needsOpen) {
 			var self = this;
 			this.window.on("open", function () {
@@ -190,6 +195,8 @@ exports.bootstrapWindow = function(Titanium) {
 		this.window = existingWindow;
 		this.view = this.window;
 		this.setWindowView(this.view);
+
+		wrappedPropsAndMethods(this);
 
 		this.addChildren();
 
