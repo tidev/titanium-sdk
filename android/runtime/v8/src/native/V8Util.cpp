@@ -148,4 +148,11 @@ Handle<String> V8Util::jsonStringify(Handle<Value> value)
     }
 }
 
+bool V8Util::constructorNameMatches(Handle<Object> object, const char* name)
+{
+	HandleScope scope;
+	Local<String> constructorName = object->GetConstructorName();
+	return strcmp(*String::Utf8Value(constructorName), name) == 0;
+}
+
 }
