@@ -40,7 +40,7 @@ public class TiFileProxy extends KrollProxy
 
 	public TiFileProxy(String sourceUrl, String[] parts, boolean resolve)
 	{
-		creationUrl = new TiUrl(sourceUrl);
+		creationUrl = TiUrl.createProxyUrl(sourceUrl);
 
 		String scheme = "appdata-private://";
 		String path = null;

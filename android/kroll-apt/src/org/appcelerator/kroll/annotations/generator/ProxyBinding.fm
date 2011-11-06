@@ -513,7 +513,9 @@ fails, a JS exception is returned.
 	</#list>
 
 	<#if method.hasInvocation>
-	jArguments[0].l = env->NewObject(JNIUtil::krollInvocationClass, JNIUtil::krollInvocationInitMethod, TypeConverter::jsValueToJavaString(args[0]));
+	Handle<Object> scopeVars = args[0]->ToObject();
+	Handle<Value> sourceUrl = scopeVars->Get(Proxy::sourceUrlSymbol);
+	jArguments[0].l = env->NewObject(JNIUtil::krollInvocationClass, JNIUtil::krollInvocationInitMethod, TypeConverter::jsValueToJavaString(sourceUrl));
 	</#if>
 
 	<@Proxy.listMethodArguments args=args ; index, info, type, isOptional>
@@ -605,7 +607,9 @@ fails, a JS exception is returned.
 	</#list>
 <#t>
 	<#if method.hasInvocation>
-		KrollInvocation arg0 = new KrollInvocation((String) args[0]);
+		Scriptable scopeVars = (Scriptable) args[0];
+		String sourceUrl = (String) ScriptableObject.getProperty(scopeVars, "sourceUrl");
+		KrollInvocation arg0 = new KrollInvocation(sourceUrl);
 	</#if>
 <#t>
 	<@Proxy.listMethodArguments args=args ; index, info, type, isOptional>

@@ -27,6 +27,7 @@ public:
 	static v8::Persistent<v8::FunctionTemplate> baseProxyTemplate;
 	static v8::Persistent<v8::String> javaClassSymbol, constructorSymbol;
 	static v8::Persistent<v8::String> inheritSymbol, propertiesSymbol;
+	static v8::Persistent<v8::String> lengthSymbol, sourceUrlSymbol;
 
 	Proxy(jobject javaProxy);
 
