@@ -18,6 +18,12 @@ exports.bootstrapWindow = function(Titanium) {
 	var ActivityWindow = UI.ActivityWindow;
 	var Proxy = Titanium.Proxy;
 
+	// set constants for representing states for the window
+	Window.prototype.stateClosed = 0;
+	Window.prototype.stateOpening = 1;
+	Window.prototype.stateOpened = 2;
+	Window.prototype.stateClosing = 3;
+
 	Window.prototype.getTopActivity = function() {
 		var topActivity = Titanium.App.Android.getTopActivity();
 		if (topActivity) {
@@ -123,6 +129,13 @@ exports.bootstrapWindow = function(Titanium) {
 	}
 
 	Window.prototype.open = function(options) {
+		// if the window is not closed, do not open
+		if (this.currentState != this.stateClosed) {
+			kroll.log(TAG, "unable to open, window is not closed");
+			return;
+		}
+		this.currentState = this.stateOpening;
+
 		if (!options) {
 			options = {};
 		} else {
@@ -172,6 +185,8 @@ exports.bootstrapWindow = function(Titanium) {
 	}
 
 	Window.prototype.setWindow = function(existingWindow) {
+		this.currentState = this.stateOpening;
+
 		this.window = existingWindow;
 		this.view = this.window;
 		this.setWindowView(this.view);
@@ -195,20 +210,27 @@ exports.bootstrapWindow = function(Titanium) {
 		if ("url" in this._properties) {
 			this.loadUrl();
 		}
+
+		this.currentState = this.stateOpened;
 		this.fireEvent("open");
 	}
 
 	Window.prototype.close = function(options) {
-		if (this.window == null) {
+		// if the window is not opened, do not close
+		if (this.currentState != this.stateOpened) {
+			kroll.log(TAG, "unable to close, window is not opened");
 			return;
 		}
+		this.currentState = this.stateClosing;
 
 		if (this.isActivity) {
 			var self = this;
 			this.window.on("close", function () {
 				self.fireEvent("close");
 			});
+
 			this.window.close(options);
+			this.currentState = this.stateClosed;
 
 		} else {
 			if (this.view.parent != null) {
@@ -220,6 +242,7 @@ exports.bootstrapWindow = function(Titanium) {
 				this.window = null;
 			}
 
+			this.currentState = this.stateClosed;
 			this.fireEvent("close");
 		}
 	}
@@ -303,6 +326,10 @@ exports.bootstrapWindow = function(Titanium) {
 
 	Window.createWindow = function(scopeVars, options) {
 		var window = new Window(options);
+
+		// keeps track of the current window state
+		window.currentState = window.stateClosed;
+
 		window._sourceUrl = scopeVars.sourceUrl;
 		window._currentActivity = scopeVars.currentActivity;
 
