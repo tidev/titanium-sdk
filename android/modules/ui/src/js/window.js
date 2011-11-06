@@ -181,6 +181,8 @@ exports.bootstrapWindow = function(Titanium) {
 		this.view = this.window;
 		this.setWindowView(this.view);
 
+		wrappedPropsAndMethods(this);
+
 		this.addChildren();
 
 		var self = this;
