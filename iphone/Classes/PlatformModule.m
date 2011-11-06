@@ -192,6 +192,7 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 
 -(id)id
 {
+	NSLog(@"[WARN] Ti%@.Platform.id DEPRECATED in 1.8.0", @"tanium");
 	return macaddress;
 }
 
