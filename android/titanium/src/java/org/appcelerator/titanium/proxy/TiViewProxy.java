@@ -137,6 +137,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	{
 		options = handleStyleOptions(options);
 		if (langConversionTable != null) {
+			KrollDict foundStrings = new KrollDict();
 			for (String key : langConversionTable.keySet()) {
 				// if we have it already, ignore
 				if (!options.containsKey(key)) {
@@ -145,13 +146,18 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 					if (langKey != null) {
 						try {
 							String localText = getLocalizedText(langKey);
-							options.put(key, localText);
+							foundStrings.put(key, localText);
 						}
 						catch (TiRHelper.ResourceNotFoundException e) {
 							Log.w(LCAT, "Localized text key '" + langKey + "' is invalid.");
 						}
 					}
 				}
+			}
+
+			if (!(foundStrings.isEmpty())) {
+				extend(foundStrings);
+				options.putAll(foundStrings);
 			}
 		}
 		options = handleStyleOptions(options);

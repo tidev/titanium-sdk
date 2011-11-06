@@ -43,6 +43,9 @@ exports.bootstrap = function(Titanium) {
 		},
 		RowAnimationStyle: {
 			get NONE() { return iPhoneConstant("RowAnimationStyle.NONE"); }
+		},
+		TableViewStyle: {
+			get GROUPED() { return iPhoneConstant("TableViewStyle.GROUPED"); }
 		}
 	};
 

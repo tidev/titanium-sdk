@@ -15,6 +15,7 @@
 #include "JavaObject.h"
 #include "JNIUtil.h"
 #include "KrollBindings.h"
+#include "Proxy.h"
 #include "TypeConverter.h"
 #include "V8Runtime.h"
 #include "V8Util.h"
@@ -136,8 +137,7 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 	// if an Arguments object was passed as the sole argument.
 	bool calledFromCreate = false;
 	if (args.Length() == 1 && args[0]->IsObject()) {
-		Local<String> constructorName = args[0]->ToObject()->GetConstructorName();
-		if (strcmp(*String::Utf8Value(constructorName), "Arguments") == 0) {
+		if (V8Util::constructorNameMatches(args[0]->ToObject(), "Arguments")) {
 			calledFromCreate = true;
 		}
 	}
@@ -148,12 +148,21 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 	jobjectArray javaArgs;
 	if (calledFromCreate) {
 		Local<Object> arguments = args[0]->ToObject();
-		int length = arguments->Get(String::New("length"))->Int32Value();
-		Handle<Object> scopeVars = arguments->Get(0)->ToObject();
-		Handle<Value> sourceUrl = scopeVars->Get(String::New("sourceUrl"));
+		int length = arguments->Get(Proxy::lengthSymbol)->Int32Value();
+		int start = 0;
 
-		javaSourceUrl = TypeConverter::jsValueToJavaString(sourceUrl);
-		javaArgs = TypeConverter::jsObjectIndexPropsToJavaArray(arguments, 1, length);
+		// Get the scope variables if provided and extract the source URL.
+		// We need to send that to the Java side when creating the proxy.
+		if (length > 0) {
+			Local<Object> scopeVars = arguments->Get(0)->ToObject();
+			if (V8Util::constructorNameMatches(scopeVars, "ScopeVars")) {
+				Local<Value> sourceUrl = scopeVars->Get(Proxy::sourceUrlSymbol);
+				javaSourceUrl = TypeConverter::jsValueToJavaString(sourceUrl);
+				start = 1;
+			}
+		}
+
+		javaArgs = TypeConverter::jsObjectIndexPropsToJavaArray(arguments, start, length);
 	} else {
 		javaArgs = TypeConverter::jsArgumentsToJavaArray(args);
 	}

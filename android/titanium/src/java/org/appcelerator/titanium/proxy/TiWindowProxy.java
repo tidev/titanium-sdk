@@ -15,11 +15,13 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiOrientationHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiAnimation;
@@ -27,6 +29,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
+import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.Message;
 
@@ -388,5 +391,37 @@ public abstract class TiWindowProxy extends TiViewProxy
 		{
 			waitingForOpen = null;
 		}
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public int getOrientation()
+	{
+		Activity activity = getActivity();
+
+		if (activity != null)
+		{
+			return TiOrientationHelper.convertConfigToTiOrientationMode(activity.getResources().getConfiguration().orientation);
+		}
+
+		Log.e(LCAT, "unable to get orientation, activity not found for window");
+		return TiOrientationHelper.ORIENTATION_UNKNOWN;
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public int getWindowPixelFormat() 
+	{
+		int pixelFormat = PixelFormat.UNKNOWN;
+		
+		if (hasProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
+			pixelFormat = TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT));
+		}
+
+		return pixelFormat;
+	}
+
+	@Kroll.method @Kroll.setProperty(retain=false)
+	public void setWindowPixelFormat(int pixelFormat)
+	{
+		setProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT, pixelFormat, true);
 	}
 }

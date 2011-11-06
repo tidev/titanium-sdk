@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+
 #include <string.h>
 
 #include <v8.h>
@@ -184,6 +185,13 @@ Handle<String> V8Util::jsonStringify(Handle<Value> value)
     } else {
         return result->ToString();
     }
+}
+
+bool V8Util::constructorNameMatches(Handle<Object> object, const char* name)
+{
+	HandleScope scope;
+	Local<String> constructorName = object->GetConstructorName();
+	return strcmp(*String::Utf8Value(constructorName), name) == 0;
 }
 
 }

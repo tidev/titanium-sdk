@@ -32,6 +32,8 @@ Persistent<String> Proxy::javaClassSymbol;
 Persistent<String> Proxy::constructorSymbol;
 Persistent<String> Proxy::inheritSymbol;
 Persistent<String> Proxy::propertiesSymbol;
+Persistent<String> Proxy::lengthSymbol;
+Persistent<String> Proxy::sourceUrlSymbol;
 
 Proxy::Proxy(jobject javaProxy) :
 	JavaObject(javaProxy)
@@ -44,6 +46,8 @@ void Proxy::bindProxy(Handle<Object> exports)
 	constructorSymbol = SYMBOL_LITERAL("constructor");
 	inheritSymbol = SYMBOL_LITERAL("inherit");
 	propertiesSymbol = SYMBOL_LITERAL("_properties");
+	lengthSymbol = SYMBOL_LITERAL("length");
+	sourceUrlSymbol = SYMBOL_LITERAL("sourceUrl");
 
 	Local<FunctionTemplate> proxyTemplate = FunctionTemplate::New();
 	Local<String> proxySymbol = String::NewSymbol("Proxy");

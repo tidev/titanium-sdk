@@ -7,8 +7,9 @@
 package ${packageName};
 
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.IdFunctionObject;
+import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.Undefined;
 
 import org.appcelerator.kroll.KrollDict;
@@ -170,7 +171,7 @@ public class ${className}Prototype extends ${superProxy}
 		<@Proxy.callJavaMethod property.setMethodArgs, property.setMethodName, property.setHasInvocation,
 			"void", "proxy" ; hasResult, resultVar>
 		</@Proxy.callJavaMethod> 
-		proxy.setProperty("${name}", value);
+		//proxy.setProperty("${name}", value); // Commenting out for parity with V8 (don't retain from a custom setter)
 	}
 	</#if> 
 	</@Proxy.listDynamicProperties>

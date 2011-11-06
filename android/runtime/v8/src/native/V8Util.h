@@ -142,6 +142,7 @@ public:
 	static void reportException(v8::TryCatch &tryCatch, bool showLine = true);
 	static void fatalException(v8::TryCatch &tryCatch);
 	static v8::Handle<v8::String> jsonStringify(v8::Handle<v8::Value> value);
+	static bool constructorNameMatches(v8::Handle<v8::Object>, const char* name);
 };
 
 }

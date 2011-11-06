@@ -172,6 +172,7 @@ public class ActivityWindowProxy extends TiWindowProxy
 		Log.w(LCAT, "setLeftNavButton not supported in Android");
 	}
 
+	/*
 	@Kroll.method @Kroll.getProperty
 	public int getOrientation()
 	{
@@ -203,6 +204,7 @@ public class ActivityWindowProxy extends TiWindowProxy
 	{
 		setProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT, pixelFormat, true);
 	}
+	*/
 
 	@Override
 	protected Activity handleGetActivity() 
