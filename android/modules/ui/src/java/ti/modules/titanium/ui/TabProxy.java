@@ -19,6 +19,7 @@ import android.app.Activity;
 @Kroll.proxy(creatableInModule=UIModule.class,
 propertyAccessors = {
 	TiC.PROPERTY_TITLE,
+	TiC.PROPERTY_TITLEID,
 	TiC.PROPERTY_ICON
 })
 public class TabProxy extends TiViewProxy
