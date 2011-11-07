@@ -277,6 +277,9 @@
 
 -(void)hide:(id)args
 {
+	if (!isShowing) {
+		return;
+	}
     if (![NSThread isMainThread]) {
         ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
         
