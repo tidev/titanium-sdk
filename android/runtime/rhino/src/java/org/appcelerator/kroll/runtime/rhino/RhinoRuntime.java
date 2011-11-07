@@ -84,7 +84,7 @@ public class RhinoRuntime extends KrollRuntime
 				runModuleFunction = (Function) ScriptableObject.getProperty(moduleObject, "runModule");
 			}
 
-			runModuleFunction.call(context, globalScope, moduleObject, new Object[] { source, filename, activityProxy });
+			runModuleFunction.call(context, globalScope, moduleObject, new Object[] { source, filename, activityProxy.getKrollObject().getNativeObject() });
 
 		} finally {
 			Context.exit();
@@ -117,6 +117,7 @@ public class RhinoRuntime extends KrollRuntime
 		globalKrollObject = krollConstructor.construct(context, globalScope, ScriptRuntime.emptyArgs);
 
 		EventEmitter.init(globalKrollObject);
+		GlobalSandbox.init(globalKrollObject);
 
 		Script krollScript = KrollBindings.getJsBinding("kroll");
 		Object result = krollScript.exec(context, globalScope);

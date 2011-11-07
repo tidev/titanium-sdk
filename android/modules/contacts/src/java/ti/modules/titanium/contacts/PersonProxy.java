@@ -18,9 +18,14 @@ import org.appcelerator.titanium.TiContext;
 
 import android.graphics.Bitmap;
 
-@Kroll.proxy(parentModule=ContactsModule.class)
+@Kroll.proxy(parentModule=ContactsModule.class, propertyAccessors={
+	"lastName", "firstName", "fullName", "middleName", "firstPhonetic", "lastPhonetic", "middlePhonetic", "department",
+	"jobTitle", "nickname", "note", "organization", "prefix", "suffix", "birthday", "created", "modified", "kind", "email", 
+	"phone", "address", "id"
+})
 public class PersonProxy extends KrollProxy
 {
+	/*
 	@Kroll.property protected String lastName, firstName, fullName, middleName, firstPhonetic, lastPhonetic, middlePhonetic, department;
 	@Kroll.property protected String jobTitle, nickname, note, organization, prefix, suffix;
 	@Kroll.property protected String birthday, created, modified;
@@ -28,7 +33,8 @@ public class PersonProxy extends KrollProxy
 	@Kroll.property protected int kind;
 	@Kroll.property protected KrollDict email, phone, address;
 	@Kroll.property protected long id;
-	
+	*/
+
 	private TiBlob image = null;
 	private boolean imageFetched; // lazy load these bitmap images
 	protected boolean hasImage = false;
@@ -45,6 +51,7 @@ public class PersonProxy extends KrollProxy
 
 	private boolean isPhotoFetchable()
 	{
+		long id = (Long) getProperty("id");
 		return (id > 0 && hasImage );
 	}
 	
@@ -54,7 +61,8 @@ public class PersonProxy extends KrollProxy
 		if (this.image != null) {
 			return this.image;
 		} else if (!imageFetched && isPhotoFetchable()) {
-			Bitmap photo = CommonContactsApi.getContactImage(this.id);
+			long id = (Long) getProperty("id");
+			Bitmap photo = CommonContactsApi.getContactImage(id);
 			if (photo != null) {
 				this.image = TiBlob.blobFromImage(photo);
 			}
@@ -83,12 +91,12 @@ public class PersonProxy extends KrollProxy
 
 	protected void setEmailFromMap(Map<String, ArrayList<String>> map)
 	{
-		email = contactMethodMapToDict(map);
+		setProperty("email", contactMethodMapToDict(map));
 	}
 	
 	protected void setPhoneFromMap(Map<String, ArrayList<String>> map)
 	{
-		phone = contactMethodMapToDict(map);
+		setProperty("phone", contactMethodMapToDict(map));
 	}
 	
 	protected void setAddressFromMap(Map<String, ArrayList<String>> map)
@@ -96,7 +104,7 @@ public class PersonProxy extends KrollProxy
 		// We're supposed to support "Street", "CountryCode", "State", etc.
 		// But Android 1.6 does not have structured addresses so we're just put
 		// everything in Street.
-		address = new KrollDict();
+		KrollDict address = new KrollDict();
 		for (String key: map.keySet()) {
 			ArrayList<String> values = map.get(key);
 			KrollDict[] dictValues = new KrollDict[values.size()];
@@ -106,5 +114,7 @@ public class PersonProxy extends KrollProxy
 			}
 			address.put(key, dictValues);
 		}
+
+		setProperty("address", address);
 	}
 }

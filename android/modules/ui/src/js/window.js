@@ -17,6 +17,7 @@ exports.bootstrapWindow = function(Titanium) {
 	var Window = Titanium.TiBaseWindow;
 	var ActivityWindow = UI.ActivityWindow;
 	var Proxy = Titanium.Proxy;
+	var TiWindow = Titanium.TiWindow;
 
 	// set constants for representing states for the window
 	Window.prototype.stateClosed = 0;
@@ -44,68 +45,99 @@ exports.bootstrapWindow = function(Titanium) {
 		return null;
 	}
 
-	Window.prototype._cacheSetProperty = function(setter, value) {
-		var cache = this.propertyCache;
-
-		if (!cache) {
-			cache = this.propertyCache = {};
+	Window.prototype.setCachedProperty = function(name, value) {
+		if (!(this.propertyCache)) {
+			this.propertyCache = {};
 		}
 
-		cache[setter] = value;
+		this.propertyCache[name] = value;
 	}
 
-	var wrappedPropsAndMethods = [
-		{
-			name: 'activity',
-			getter: 'getActivity'
-		},
-		{
-			name: 'orientation',
-			getter: 'getOrientation'
-		},
-		{
-			name: 'orientationModes',
-			getter: 'getOrientationModes',
-			setter: 'setOrientationModes'
-		},
-		{
-			name: 'windowPixelFormat',
-			getter: 'getWindowPixelFormat',
-			setter: 'setWindowPixelFormat'
+	Window.prototype.getCachedProperty = function(name) {
+		if (!(this.propertyCache)) {
+			this.propertyCache = {};
 		}
-	]
 
-	function wrapPropsAndMethods(wrapperWindow) {
-		wrappedPropsAndMethods.forEach(function(info) {
-			var name = info.name,
-			    descriptor = {};
-
-			// Define getter and setter methods.
-			if (info.getter) {
-				function getProperty() {
-					return this.window[name];
-				}
-				wrapperWindow[info.getter] = getProperty;
-				descriptor.get = getProperty;
-			}
-			if (info.setter) {
-				function setProperty(value) {
-					this.window[name] = value;
-				}
-				wrapperWindow[info.setter] = setProperty;
-				descriptor.set = setProperty;
-
-				// Sync inner window with any property values set
-				// on the wrapper before it was opened.
-				wrapperWindow.window[name] = wrapperWindow[name];
-			}
-
-			// Re-define new property on wrapper which delegates
-			// to the inner window proxy.
-			delete wrapperWindow[name];
-			Object.defineProperty(wrapperWindow, name, descriptor);
-		});
+		return this.propertyCache[name];
 	}
+
+	// set orientation access
+	var orientationGetter = function() {
+		if (this.window) {
+			return this.window.getOrientation();
+
+		}
+
+		return TiWindow.prototype.getOrientation.apply(this);
+	}
+	Window.prototype.getOrientation = orientationGetter;
+	Object.defineProperty(Window.prototype, "orientation", { get: orientationGetter});
+
+	// set orientationModes access
+	var orientationModesGetter = function() {
+		if (this.window) {
+			return this.window.getOrientationModes();
+
+		} else if (this.getCachedProperty("orientationModes")) {
+			return this.getCachedProperty("orientationModes");
+		}
+
+		return TiWindow.prototype.getOrientationModes.apply(this);
+	}
+	var orientationModesSetter = function(value) {
+		if (value != null) {
+			if (this.window) {
+				this.window.setOrientationModes(value);
+
+			} else {
+				this.setCachedProperty("orientationModes", value);
+			}
+
+		} else {
+			kroll.log(TAG, "not allowed to set orientationModes to null");
+		}
+	}
+
+	Window.prototype.getOrientationModes = orientationModesGetter;
+	Window.prototype.setOrientationModes = orientationModesSetter;
+	Object.defineProperty(Window.prototype, "orientationModes", { get: orientationModesGetter, set: orientationModesSetter});
+
+	// set windowPixelFormat access
+	var windowPixelFormatGetter = function() {
+		if (this.isActivity) {
+			if (this.window) {
+				return this.window.getWindowPixelFormat();
+
+			} else if (this.getCachedProperty("windowPixelFormat")) {
+				return this.getCachedProperty("windowPixelFormat");
+			}
+
+			return Titanium.UI.Android.PIXEL_FORMAT_UNKNOWN;
+
+		} else {
+			if (this.getCachedProperty("windowPixelFormat")) {
+				return this.getCachedProperty("windowPixelFormat");
+			}
+			return Titanium.UI.Android.PIXEL_FORMAT_UNKNOWN;
+		}
+	}
+	var windowPixelFormatSetter = function(value) {
+		if (this.isActivity) {
+			if (this.window) {
+				TiWindow.prototype.setWindowPixelFormat.call(this, value);
+
+			} else {
+				this.setCachedProperty("windowPixelFormat", value);
+			}
+
+		} else {
+			this.setCachedProperty("windowPixelFormat", value);
+		}
+	}
+	Window.prototype.getWindowPixelFormat = windowPixelFormatGetter;
+	Window.prototype.setWindowPixelFormat = windowPixelFormatSetter;
+	Object.defineProperty(Window.prototype, "windowPixelFormat", { get: windowPixelFormatGetter, set: windowPixelFormatSetter});
+
 
 	Window.prototype.addChildren = function() {
 		if (this._children) {
@@ -156,8 +188,12 @@ exports.bootstrapWindow = function(Titanium) {
 			this.isActivity = true;
 		}
 
-		var needsOpen = false;
+		// Set any cached properties on the properties given to the "true" view
+		if (this.propertyCache) {
+			this._properties.extend(this.propertyCache);
+		}
 
+		var needsOpen = false;
 		if (this.isActivity) {
 			this.window = new ActivityWindow(this._properties);
 			this.view = this.window;
@@ -172,9 +208,6 @@ exports.bootstrapWindow = function(Titanium) {
 
 		this.setWindowView(this.view);
 		this.addChildren();
-
-		// Expose the real window's properties by creating wrappers.
-		wrapPropsAndMethods(this);
 
 		if (needsOpen) {
 			var self = this;
@@ -192,11 +225,14 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.setWindow = function(existingWindow) {
 		this.currentState = this.stateOpening;
 
+		// Set any cached properties on the properties given to the "true" view
+		if (this.propertyCache) {
+			this._properties.extend(this.propertyCache);
+		}
+
 		this.window = existingWindow;
 		this.view = this.window;
 		this.setWindowView(this.view);
-
-		wrappedPropsAndMethods(this);
 
 		this.addChildren();
 
@@ -207,13 +243,6 @@ exports.bootstrapWindow = function(Titanium) {
 	}
 
 	Window.prototype.postOpen = function() {
-		// Set any cached properties.
-		if (this.propertyCache) {
-			for (setter in this.propertyCache) {
-				setter.call(this.window, this.propertyCache[setter]);
-			}
-		}
-
 		if ("url" in this._properties) {
 			this.loadUrl();
 		}
@@ -287,6 +316,7 @@ exports.bootstrapWindow = function(Titanium) {
 			return;
 		}
 
+		kroll.log(TAG, "Loading window with URL: " + this.url);
 		Titanium.include(this.url, this._sourceUrl, {
 			currentWindow: this,
 			currentActivity: this.window.activity,

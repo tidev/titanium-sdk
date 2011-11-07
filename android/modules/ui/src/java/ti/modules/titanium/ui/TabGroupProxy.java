@@ -45,6 +45,7 @@ public class TabGroupProxy extends TiWindowProxy
 	private static final int MSG_ADD_TAB = MSG_FIRST_ID + 100;
 	private static final int MSG_REMOVE_TAB = MSG_FIRST_ID + 101;
 	private static final int MSG_FINISH_OPEN = MSG_FIRST_ID + 102;
+	private static final int MSG_SET_ACTIVE_TAB = MSG_FIRST_ID + 103;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
@@ -92,6 +93,12 @@ public class TabGroupProxy extends TiWindowProxy
 				view = new TiUITabGroup(this, activity);
 				modelListener = view;
 				handlePostOpen(activity);
+				return true;
+			}
+			case MSG_SET_ACTIVE_TAB: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				doSetActiveTab(result.getArg());
+				result.setResult(null); // signal added
 				return true;
 			}
 			default : {
@@ -173,7 +180,7 @@ public class TabGroupProxy extends TiWindowProxy
 				Log.w(LCAT, "Could not add tab because tab activity no longer exists");
 			}
 		}
-		Drawable icon = TiDrawableReference.fromObject(activity, tab.getProperty(TiC.PROPERTY_ICON)).getDrawable();
+		Drawable icon = TiDrawableReference.fromObject(getActivity(), tab.getProperty(TiC.PROPERTY_ICON)).getDrawable();
 		String tag = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TAG));
 		String title = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TITLE));
 		if (title == null) {
@@ -218,12 +225,23 @@ public class TabGroupProxy extends TiWindowProxy
 	public void removeTab(TabProxy tab) { }
 	public void handleRemoveTab(TabProxy tab) { }
 
-	@Kroll.setProperty(runOnUiThread=true) @Kroll.method(runOnUiThread=true)
+	@Kroll.setProperty @Kroll.method
 	public void setActiveTab(Object tab)
+	{
+		if (TiApplication.isUIThread()) {
+			doSetActiveTab(tab);
+
+		} else {
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_ACTIVE_TAB), tab);
+		}
+	}
+
+	protected void doSetActiveTab(Object tab)
 	{
 		if (peekView() != null) {
 			TiUITabGroup tg = (TiUITabGroup) peekView();
 			tg.changeActiveTab(tab);
+
 		} else {
 			// handles the case where the setActiveTab is called before the TabGroup has finished opening
 			// and thus would prevent the initial tab from being set
