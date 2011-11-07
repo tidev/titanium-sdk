@@ -6,7 +6,6 @@
  */
 package org.appcelerator.kroll.runtime.rhino;
 
-import java.util.Arrays;
 import java.util.TreeSet;
 
 import org.appcelerator.kroll.KrollProxySupport;
@@ -358,6 +357,10 @@ public class Proxy extends EventEmitter
 	{
 		if (!f.hasTag(PROXY_TAG)) {
 			return super.execIdCall(f, cx, scope, thisObj, args);
+		}
+
+		while (thisObj != null && !(thisObj instanceof Proxy)) {
+			thisObj = thisObj.getPrototype();
 		}
 
 		int id = f.methodId();

@@ -16,9 +16,11 @@ import org.appcelerator.kroll.common.TiMessenger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 
 /**
@@ -70,7 +72,22 @@ public class RhinoFunction implements KrollFunction, Handler.Callback
 				args[i] = TypeConverter.javaObjectToJsObject(args[i], nativeObject);
 			}
 
-			function.call(context, function.getParentScope(), nativeObject, args);
+			Scriptable parentScope = function.getParentScope();
+			Scriptable scope = parentScope;
+			boolean useWith = false;
+
+			if (parentScope instanceof KrollWith.WithScope) {
+				KrollWith.WithScope withScope = (KrollWith.WithScope) parentScope;
+				Scriptable sandbox = withScope.getKrollWith().getPrototype();
+				scope = KrollWith.enterWith(sandbox, RhinoRuntime.getGlobalScope());
+				useWith = true;
+			}
+
+			function.call(context, scope, nativeObject, args);
+
+			if (useWith) {
+				KrollWith.leaveWith();
+			}
 
 		} finally {
 			Context.exit();

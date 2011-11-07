@@ -276,7 +276,7 @@ public class TypeConverter
 			}
 
 		} else if (scriptable instanceof Function) {
-			return new RhinoFunction((Function) scriptable);    
+			return new RhinoFunction((Function) scriptable);
 
 		} else {
 			return new KrollScriptableDict(scriptable);
