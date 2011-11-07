@@ -456,7 +456,10 @@ public class TypeConverter
 		if (value instanceof Scriptable) {
 			return jsScriptableToJavaObject((Scriptable)value, scope);
 
-		} else if (value instanceof String || value instanceof Number || value instanceof Boolean) {
+		} else if (value instanceof Number) {
+			return ((Number) value).doubleValue();
+
+		} else if (value instanceof String || value instanceof Boolean) {
 			return Context.jsToJava(value, value.getClass());
 
 		} else if (value instanceof Undefined) {

@@ -10,7 +10,6 @@ import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollLogging;
 import org.appcelerator.kroll.runtime.rhino.KrollScriptRunner.KrollScript;
-import org.appcelerator.kroll.runtime.rhino.js.activity;
 import org.appcelerator.kroll.runtime.rhino.js.bootstrap;
 import org.appcelerator.kroll.runtime.rhino.js.events;
 import org.appcelerator.kroll.runtime.rhino.js.kroll;
@@ -63,7 +62,6 @@ public class KrollBindings
 	private static void initJsBindings()
 	{
 		// TODO this should be generated
-		addJsBinding("activity", activity.class);
 		addJsBinding("bootstrap", bootstrap.class);
 		addJsBinding("events", events.class);
 		addJsBinding("kroll", kroll.class);
