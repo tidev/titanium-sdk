@@ -286,4 +286,5 @@ Titanium.API.info("OS name is " + Titanium.Platform.osname);
 if (Titanium.Platform.osname == 'iphone' || Titanium.Platform.osname == 'ipad') {
 	Titanium.API.info("Data network: " + Titanium.Platform.dataAddress);
 	Titanium.API.info("Netmask: " + Titanium.Platform.netmask);
+	Titanium.API.info("runtime: " + Titanium.Platform.runtime);
 }
