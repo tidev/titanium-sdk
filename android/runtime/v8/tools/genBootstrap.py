@@ -273,7 +273,10 @@ def genBootstrap(node, namespace = "", indent = 0):
 		js += "		if (!(\"__propertiesDefined__\" in %s)) {" % var
 		js += indentCode(JS_DEFINE_PROPERTIES % { "var": var, "properties": childJS }, 2)
 
-	prototype = var if isModule else var + ".prototype"
+	if isModule:
+		prototype = var
+	else:
+		prototype = var + ".prototype"
 
 	def defineAccessor(template, accessor):
 		upperName = accessor[0:1].upper() + accessor[1:]
