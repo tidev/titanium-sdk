@@ -232,6 +232,12 @@ public abstract class TiWindowProxy extends TiViewProxy
 		setOrientationModes (orientationModes);
 	}
 
+	@Kroll.setProperty @Kroll.method
+	public void setLeftNavButton(Object button)
+	{
+		Log.w(LCAT, "setLeftNavButton not supported in Android");
+	}
+
 	@Kroll.method
 	public void setOrientationModes (int[] modes)
 	{
