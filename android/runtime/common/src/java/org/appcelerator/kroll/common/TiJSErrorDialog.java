@@ -213,10 +213,10 @@ public class TiJSErrorDialog implements Handler.Callback
 	{
 		switch (msg.what) {
 		case MSG_OPEN_ERROR_DIALOG:
-			AsyncResult x = (AsyncResult)msg.obj;
-			ErrorMessage em = (ErrorMessage)x.getArg();
-			handleOpenErrorDialog(em);
-			x.setResult(null);
+			AsyncResult asyncResult = (AsyncResult)msg.obj;
+			ErrorMessage errorMessage = (ErrorMessage)asyncResult.getArg();
+			handleOpenErrorDialog(errorMessage);
+			asyncResult.setResult(null);
 			return true;
 		default:
 			break;
