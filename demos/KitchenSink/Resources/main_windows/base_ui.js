@@ -68,7 +68,7 @@ tableview.addEventListener('click', function(e)
 
 		if (e.index == 3)
 		{
-			if (Ti.Platform.name == "iPhone OS') {
+			if (Ti.Platform.name == "iPhone OS") {
 				win.hideTabBar();
 			}
 		}
