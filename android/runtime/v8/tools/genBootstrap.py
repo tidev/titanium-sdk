@@ -8,7 +8,13 @@
 # Generates javascript bootstrapping code for Titanium Mobile
 #
 
-import os, re, sys, json
+import os, re, sys
+
+try:
+	import json
+except:
+	import simplejson as json
+
 import optparse
 
 thisDir = os.path.abspath(os.path.dirname(__file__))
