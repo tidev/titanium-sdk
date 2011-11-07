@@ -9,6 +9,7 @@
 #import "TiUIiPhoneNavigationGroup.h"
 #import "TiUtils.h"
 #import "TiWindowProxy.h"
+#import "TiUIiPhoneNavigationGroupProxy.h"
 
 @implementation TiUIiPhoneNavigationGroup
 
@@ -148,7 +149,7 @@
 		if (visibleProxy != nil && visibleProxy!=root && opening==NO)
 		{
 			//TODO: This is an expedient fix, but NavGroup needs rewriting anyways
-			[[self proxy] close:[NSArray arrayWithObject:visibleProxy]];
+			[(TiUIiPhoneNavigationGroupProxy*)[self proxy] close:[NSArray arrayWithObject:visibleProxy]];
 		}
 		[self setVisibleProxy:newWindow];
 	}
