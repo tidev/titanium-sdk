@@ -76,7 +76,7 @@ public class ScriptsModule extends ScriptableObject
 		Scriptable global = RhinoRuntime.getGlobalScope();
 		Object result = Undefined.instance;
 
-		//ScriptableObject.putProperty(global, "sandbox", sandbox);
+		ScriptableObject.putProperty(global, "sandbox", sandbox);
 		Scriptable withScope = ScriptRuntime.enterWith(sandbox, context, global);
 
 		if (path.contains(".jar:")) {

@@ -58,7 +58,7 @@ public class RhinoRuntime extends KrollRuntime
 				runModuleFunction = (Function) ScriptableObject.getProperty(moduleObject, "runModule");
 			}
 
-			runModuleFunction.call(context, globalScope, moduleObject, new Object[] { source, filename, activityProxy });
+			runModuleFunction.call(context, globalScope, moduleObject, new Object[] { source, filename, activityProxy.getKrollObject().getNativeObject() });
 
 		} finally {
 			Context.exit();

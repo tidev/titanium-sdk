@@ -42,13 +42,32 @@
 			<path refid="js.files"/>
 			<sequential>
 				<echo>Compiling JS: @{js.file}</echo>
+
+				<var name="js.path" value="@{js.file}"/>
+				<var name="js.filename" unset="true"/>
+				<basename property="js.filename" file="@{js.file}"/>
+
+				<if>
+					<not><equals arg1="${js.filename}" arg2="kroll.js"/></not>
+					<then>
+						<var name="js.path" value="${java.io.tmpdir}/${js.filename}"/>
+						<concat destfile="${js.path}">
+							<header filtering="no">(function (exports, require, module, __filename, __dirname, Titanium, Ti, global, kroll) {
+							</header>
+							<path path="@{js.file}"/>
+							<footer filtering="no">
+							});</footer>
+						</concat>
+					</then>
+				</if>
+
 				<java classpathref="rhino" classname="${rhino.compiler}">
 					<arg line="-opt 9 -debug"/>
 					<arg line="-package ${js.package}"/>
 					<arg line="-main-method-class ${js.main.method.class}"/>
 					<arg value="-d"/>
 					<arg file="${js.bin.dir}"/>
-					<arg file="@{js.file}"/>
+					<arg file="${js.path}"/>
 				</java>
 			</sequential>
 		</for>

@@ -56,15 +56,23 @@ public class KrollGlobal extends IdScriptableObject
 		return KrollBindings.getBinding(context, scope, args[0].toString());
 	}
 
-	private void requireNative(Context context, Object[] args)
+	private void requireNative(Context context, Scriptable scope, Object[] args)
 	{
-		if (args.length < 2) {
-			throw new IllegalArgumentException("kroll.requireNative requires a javascript source name and a scope");
+		if (args.length < 1) {
+			throw new IllegalArgumentException("kroll.requireNative requires a javascript source name");
 		}
 
 		String name = (String) args[0];
-		Scriptable scope = (Scriptable) args[1];
-		KrollBindings.requireNative(context, scope, name);
+		//Scriptable scopeVars = (Scriptable) args[1];
+
+		Object[] wrapperArgs = new Object[args.length - 1];
+		System.arraycopy(args, 1, wrapperArgs, 0, args.length - 1);
+
+		Object result = KrollBindings.requireNative(context, scope, name);
+		if (result instanceof Function) {
+			Function wrapper = (Function) result;
+			wrapper.call(context, scope, scope, wrapperArgs);
+		}
 	}
 
 // #string_id_map#
@@ -138,7 +146,7 @@ public class KrollGlobal extends IdScriptableObject
 			case Id_binding:
 				return binding(cx, scope, args);
 			case Id_requireNative:
-				requireNative(cx, args);
+				requireNative(cx, scope, args);
 				return Undefined.instance;
 			default:
 				throw new IllegalArgumentException(String.valueOf(id));

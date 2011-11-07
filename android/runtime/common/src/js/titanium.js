@@ -112,7 +112,7 @@ function createSandbox(ti) {
 	var sandbox = { Ti: ti, Titanium: ti };
 
 	if (kroll.runtime == "rhino") {
-		return new kroll.createSandbox(sandbox);
+		return kroll.createSandbox(sandbox);
 	}
 
 	return sandbox;
@@ -130,7 +130,8 @@ function TiInclude(filename, baseUrl, context) {
 	var context = context || {};
 	context.sourceUrl = contextUrl;
 	var ti = new TitaniumWrapper(context);
-	var sandbox = createSandbox(ti);
+
+	sandbox = createSandbox(ti);
 
 	if (kroll.runtime == 'rhino') {
 		return require("rhino").include(filename, baseUrl, sandbox);
