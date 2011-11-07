@@ -25,16 +25,6 @@ import android.graphics.Bitmap;
 })
 public class PersonProxy extends KrollProxy
 {
-	/*
-	@Kroll.property protected String lastName, firstName, fullName, middleName, firstPhonetic, lastPhonetic, middlePhonetic, department;
-	@Kroll.property protected String jobTitle, nickname, note, organization, prefix, suffix;
-	@Kroll.property protected String birthday, created, modified;
-	
-	@Kroll.property protected int kind;
-	@Kroll.property protected KrollDict email, phone, address;
-	@Kroll.property protected long id;
-	*/
-
 	private TiBlob image = null;
 	private boolean imageFetched; // lazy load these bitmap images
 	protected boolean hasImage = false;
