@@ -232,7 +232,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		setOrientationModes (orientationModes);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	@Kroll.method
 	public void setOrientationModes (int[] modes)
 	{
 		int activityOrientationMode = -1;
@@ -341,7 +341,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method
 	public int[] getOrientationModes()
 	{
 		return orientationModes;
@@ -393,7 +393,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method
 	public int getOrientation()
 	{
 		Activity activity = getActivity();
@@ -407,7 +407,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		return TiOrientationHelper.ORIENTATION_UNKNOWN;
 	}
 
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method
 	public int getWindowPixelFormat() 
 	{
 		int pixelFormat = PixelFormat.UNKNOWN;
@@ -419,7 +419,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		return pixelFormat;
 	}
 
-	@Kroll.method @Kroll.setProperty(retain=false)
+	@Kroll.method
 	public void setWindowPixelFormat(int pixelFormat)
 	{
 		setProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT, pixelFormat, true);
