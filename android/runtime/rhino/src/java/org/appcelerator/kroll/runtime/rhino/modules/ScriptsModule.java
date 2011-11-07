@@ -7,6 +7,7 @@
 package org.appcelerator.kroll.runtime.rhino.modules;
 
 import org.appcelerator.kroll.runtime.rhino.KrollScriptRunner;
+import org.appcelerator.kroll.runtime.rhino.KrollWith;
 import org.appcelerator.kroll.runtime.rhino.RhinoRuntime;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.mozilla.javascript.BaseFunction;
@@ -77,7 +78,7 @@ public class ScriptsModule extends ScriptableObject
 		Object result = Undefined.instance;
 
 		ScriptableObject.putProperty(global, "sandbox", sandbox);
-		Scriptable withScope = ScriptRuntime.enterWith(sandbox, context, global);
+		Scriptable withScope = KrollWith.enterWith(sandbox, global);
 
 		if (path.contains(".jar:")) {
 			// this allows us to load pre-compiled js directly using a jar / classname
@@ -96,7 +97,7 @@ public class ScriptsModule extends ScriptableObject
 
 		}
 
-		ScriptRuntime.leaveWith(withScope);
+		KrollWith.leaveWith();
 		return result;
 	}
 
