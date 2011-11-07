@@ -45,5 +45,6 @@ $(GENERATED_DIR)/KrollGeneratedBindings.cpp: ti-generated-dir $(ABS_PROXY_SOURCE
 $(GENERATED_DIR)/KrollNativeBindings.cpp: ti-generated-dir $(THIS_DIR)/KrollNativeBindings.gperf
 	gperf -L C++ -E -t $(THIS_DIR)/KrollNativeBindings.gperf > $(GENERATED_DIR)/KrollNativeBindings.cpp
 
+JAVAH := javah
 $(JNI_PREFIX)%.h:
-	javah -classpath $(DIST_DIR)/kroll-v8.jar -d $(GENERATED_DIR) $(subst .h,,$(subst _,.,$(patsubst $(GENERATED_DIR)/%,%,$(@F))))
+	$(JAVAH) -classpath $(DIST_DIR)/kroll-v8.jar -d $(GENERATED_DIR) $(subst .h,,$(subst _,.,$(patsubst $(GENERATED_DIR)/%,%,$(@F))))

@@ -13,6 +13,10 @@ import optparse
 
 thisDir = os.path.abspath(os.path.dirname(__file__))
 genDir = os.path.join(os.path.dirname(thisDir), "generated")
+
+if not os.path.exists(genDir):
+	os.makedirs(genDir)
+
 androidDir = os.path.abspath(os.path.join(thisDir, "..", "..", ".."))
 jsonDir = os.path.abspath(os.path.join(androidDir, "..", "dist", "android", "json"))
 
