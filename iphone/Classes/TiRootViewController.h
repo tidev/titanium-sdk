@@ -33,7 +33,6 @@
 	TiOrientationFlags	allowedOrientations;
 	UIInterfaceOrientation orientationHistory[4];
 
-	UIInterfaceOrientation lastOrientation;
 	UIInterfaceOrientation windowOrientation;
 
 	BOOL isCurrentlyVisible;
@@ -72,8 +71,6 @@
 
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation)orientation;
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration;
-
--(void)setOrientationModes:(NSArray *)newOrientationModes;
 
 - (void)openWindow:(TiWindowProxy *)window withObject:(id)args;
 - (void)closeWindow:(TiWindowProxy *)window withObject:(id)args;
