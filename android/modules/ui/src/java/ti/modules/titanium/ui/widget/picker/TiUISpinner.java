@@ -19,9 +19,12 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 
+
 public class TiUISpinner extends TiUIPicker
 {
-	private static final String LCAT = "TiUISpinner";
+	private static final String TAG = "TiUISpinner";
+
+
 	public TiUISpinner(TiViewProxy proxy)
 	{
 		super(proxy);
@@ -64,14 +67,14 @@ public class TiUISpinner extends TiUIPicker
 	public int getSelectedRowIndex(int columnIndex)
 	{
 		if (columnIndex < 0 || children == null || children.size() == 0 || columnIndex >= children.size()) {
-			Log.w(LCAT, "Ignoring effort to get selected row index for out-of-bounds columnIndex " + columnIndex);
+			Log.w(TAG, "Ignoring effort to get selected row index for out-of-bounds columnIndex " + columnIndex);
 			return -1;
 		}
 		TiUIView child = children.get(columnIndex);
 		if (child instanceof TiUISpinnerColumn) {
 			return ((TiUISpinnerColumn)child).getSelectedRowIndex();
 		} else {
-			Log.w(LCAT, "Could not locate column " + columnIndex + ".  Ignoring effort to get selected row index in that column.");
+			Log.w(TAG, "Could not locate column " + columnIndex + ".  Ignoring effort to get selected row index in that column.");
 			return -1;
 		}
 	}
@@ -79,14 +82,14 @@ public class TiUISpinner extends TiUIPicker
 	public void selectRow(int columnIndex, int rowIndex, boolean animated)
 	{
 		if (children == null || columnIndex >= children.size()) {
-			Log.w(LCAT, "Column " + columnIndex + " does not exist.  Ignoring effort to select a row in that column.");
+			Log.w(TAG, "Column " + columnIndex + " does not exist.  Ignoring effort to select a row in that column.");
 			return;
 		}
 		TiUIView child = children.get(columnIndex);
 		if (child instanceof TiUISpinnerColumn) {
 			((TiUISpinnerColumn)child).selectRow(rowIndex);
 		} else {
-			Log.w(LCAT, "Could not locate column " + columnIndex + ".  Ignoring effort to select a row in that column.");
+			Log.w(TAG, "Could not locate column " + columnIndex + ".  Ignoring effort to select a row in that column.");
 		}
 	}
 
@@ -119,7 +122,7 @@ public class TiUISpinner extends TiUIPicker
 		if (children != null && children.size() > 0) {
 			for (TiUIView child : children) {
 				if (child instanceof TiUISpinnerColumn) {
-					child.getProxy().setProperty(key, value, true);
+					child.getProxy().setPropertyAndFire(key, value);
 				}
 			}
 		}

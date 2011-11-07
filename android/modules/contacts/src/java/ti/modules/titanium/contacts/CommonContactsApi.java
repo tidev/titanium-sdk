@@ -299,13 +299,13 @@ public abstract class CommonContactsApi
 		PersonProxy proxify()
 		{
 			PersonProxy proxy = new PersonProxy();
-			proxy.fullName = name;
-			proxy.note = notes;
+			proxy.setProperty("fullName", name);
+			proxy.setProperty("note", notes);
 			proxy.setEmailFromMap(emails);
 			proxy.setPhoneFromMap(phones);
 			proxy.setAddressFromMap(addresses);
-			proxy.kind = ContactsModule.CONTACTS_KIND_PERSON;
-			proxy.id = id;
+			proxy.setProperty("kind", ContactsModule.CONTACTS_KIND_PERSON);
+			proxy.setProperty("id", id);
 			proxy.hasImage = this.hasImage;
 			return proxy;
 			

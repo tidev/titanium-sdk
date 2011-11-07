@@ -440,7 +440,10 @@ public class TypeConverter
 			return null;
 		}
 
-		if (value instanceof String) {
+		if (value instanceof Proxy) {
+			return ((Proxy) value).getProxy().toString();
+
+		} else if (value instanceof String) {
 			return (String) value;
 		}
 

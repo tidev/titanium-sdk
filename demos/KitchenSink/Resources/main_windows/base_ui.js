@@ -68,7 +68,9 @@ tableview.addEventListener('click', function(e)
 
 		if (e.index == 3)
 		{
-			win.hideTabBar();
+			if (Ti.Platform.name == "iPhone OS') {
+				win.hideTabBar();
+			}
 		}
 		if (Ti.Platform.name==='android' && e.rowData.test.indexOf('window_properties.js') >= 0) {
 			// As explained in apidoc for Window, if opacity is ever to be changed for an Android
