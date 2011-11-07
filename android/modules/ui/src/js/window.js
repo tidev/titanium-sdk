@@ -17,6 +17,7 @@ exports.bootstrapWindow = function(Titanium) {
 	var Window = Titanium.TiBaseWindow;
 	var ActivityWindow = UI.ActivityWindow;
 	var Proxy = Titanium.Proxy;
+	var TiWindow = Titanium.TiWindow;
 
 	// set constants for representing states for the window
 	Window.prototype.stateClosed = 0;
@@ -107,6 +108,78 @@ exports.bootstrapWindow = function(Titanium) {
 		});
 	}
 
+
+	// set orientation access
+	var orientationGetter = function() {
+		if (this.window) {
+			return this.window.getOrientation();
+
+		}
+
+		return TiWindow.prototype.getOrientation.apply(this);
+	}
+	Window.prototype.getOrientation = orientationGetter;
+	Object.defineProperty(Window.prototype, "orientation", { get: orientationGetter});
+
+	// set orientationModes access
+	var orientationModesGetter = function() {
+		if (this.window) {
+			return this.window.getOrientationModes();
+
+		}
+
+		return TiWindow.prototype.getOrientationModes.apply(this);
+	}
+	var orientationModesSetter = function(value) {
+		if (value != null) {
+			if (this.window) {
+				this.window.setOrientationModes(value);
+			}
+
+			TiWindow.prototype.setOrientationModes.call(this, value);
+
+		} else {
+			kroll.log(TAG, "not allowed to set orientationModes to null");
+		}
+	}
+		
+	Window.prototype.getOrientationModes = orientationModesGetter;
+	Window.prototype.setOrientationModes = orientationModesSetter;
+	Object.defineProperty(Window.prototype, "orientationModes", { get: orientationModesGetter, set: orientationModesSetter});
+
+	// set windowPixelFormat access
+	var windowPixelFormatGetter = function() {
+		if (this.isActivity) {
+			if (this.window) {
+				return this.window.getWindowPixelFormat();
+
+			}
+
+			kroll.log(TAG, "unable to get windowPixelFormat, window has not been opened");
+			return Titanium.UI.Android.PIXEL_FORMAT_UNKNOWN;
+
+		} else {
+			kroll.log(TAG, "unable to get windowPixelFormat, not an activity window");
+			return Titanium.UI.Android.PIXEL_FORMAT_UNKNOWN;
+		}
+	}
+	var windowPixelFormatSetter = function(value) {
+		if (this.isActivity) {
+			if (this.window) {
+				TiWindow.prototype.setWindowPixelFormat.call(this, value);
+
+			}
+			kroll.log(TAG, "unable to set windowPixelFormat, window not open");
+
+		} else {
+			kroll.log(TAG, "unable to set windowPixelFormat, window is not an activity window");
+		}
+	}
+	Window.prototype.getWindowPixelFormat = windowPixelFormatGetter;
+	Window.prototype.setWindowPixelFormat = windowPixelFormatSetter;
+	Object.defineProperty(Window.prototype, "windowPixelFormat", { get: windowPixelFormatGetter, set: windowPixelFormatSetter});
+
+
 	Window.prototype.addChildren = function() {
 		if (this._children) {
 			var length = this._children.length;
@@ -173,9 +246,6 @@ exports.bootstrapWindow = function(Titanium) {
 		this.setWindowView(this.view);
 		this.addChildren();
 
-		// Expose the real window's properties by creating wrappers.
-		wrapPropsAndMethods(this);
-
 		if (needsOpen) {
 			var self = this;
 			this.window.on("open", function () {
@@ -195,8 +265,6 @@ exports.bootstrapWindow = function(Titanium) {
 		this.window = existingWindow;
 		this.view = this.window;
 		this.setWindowView(this.view);
-
-		wrappedPropsAndMethods(this);
 
 		this.addChildren();
 
