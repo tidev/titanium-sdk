@@ -97,8 +97,8 @@ public class TabGroupProxy extends TiWindowProxy
 			}
 			case MSG_SET_ACTIVE_TAB: {
 				AsyncResult result = (AsyncResult) msg.obj;
-				handleSetActiveTab(result.getArg());
-				result.setResult(null);
+				doSetActiveTab(result.getArg());
+				result.setResult(null); // signal added
 				return true;
 			}
 			default : {
@@ -228,14 +228,20 @@ public class TabGroupProxy extends TiWindowProxy
 	@Kroll.setProperty @Kroll.method
 	public void setActiveTab(Object tab)
 	{
-		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_ACTIVE_TAB), tab);
+		if (TiApplication.isUIThread()) {
+			doSetActiveTab(tab);
+
+		} else {
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_ACTIVE_TAB), tab);
+		}
 	}
 
-	protected void handleSetActiveTab(Object tab)
+	protected void doSetActiveTab(Object tab)
 	{
 		if (peekView() != null) {
 			TiUITabGroup tg = (TiUITabGroup) peekView();
 			tg.changeActiveTab(tab);
+
 		} else {
 			// handles the case where the setActiveTab is called before the TabGroup has finished opening
 			// and thus would prevent the initial tab from being set
