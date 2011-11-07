@@ -240,7 +240,7 @@ Handle<Value> WrappedScript::EvalMachine(const Arguments& args)
 	}
 
 	// Catch errors
-	TryCatch try_catch;
+//	TryCatch try_catch;
 
 	Handle<Value> result;
 	Handle<Script> script;
@@ -251,10 +251,10 @@ Handle<Value> WrappedScript::EvalMachine(const Arguments& args)
 		script = output_flag == returnResult ? Script::Compile(code, filename) : Script::New(code, filename);
 		if (script.IsEmpty()) {
 			if (display_error) {
-				V8Util::reportException(try_catch, true);
+//				V8Util::reportException(try_catch, true);
 			}
 			// Hack because I can't get a proper stacktrace on SyntaxError
-			return try_catch.ReThrow();
+//			return try_catch.ReThrow();
 		}
 	} else {
 		WrappedScript *n_script = NativeObject::Unwrap<WrappedScript>(args.Holder());
@@ -271,13 +271,13 @@ Handle<Value> WrappedScript::EvalMachine(const Arguments& args)
 	if (output_flag == returnResult) {
 		result = script->Run();
 		if (result.IsEmpty()) {
-			if (display_error) V8Util::reportException(try_catch);
+//			if (display_error) V8Util::reportException(try_catch);
 			if (context_flag == newContext) {
 				context->DetachGlobal();
 				context->Exit();
 				context.Dispose();
 			}
-			return try_catch.ReThrow();
+//			return try_catch.ReThrow();
 		}
 	} else {
 		WrappedScript *n_script = NativeObject::Unwrap<WrappedScript>(args.Holder());

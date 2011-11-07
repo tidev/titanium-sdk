@@ -19,7 +19,6 @@ import android.content.DialogInterface.OnClickListener;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Messenger;
 import android.os.Process;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -97,13 +96,13 @@ public class TiJSErrorDialog implements Handler.Callback
 		if (!dialogShowing) {
 			dialogShowing = true;
 			final ErrorMessage fError = error;
-//			TiUIHelper.waitForCurrentActivity(new CurrentActivityListener() {
-//				// TODO @Override
-//				public void onCurrentActivityReady(Activity activity)
-//				{
+			application.waitForCurrentActivity(new CurrentActivityListener() {
+				// TODO @Override
+				public void onCurrentActivityReady(Activity activity)
+				{
 					createDialog(fError);
-//				}
-//			});
+				}
+			});
 		} else {
 			errorMessages.add(error);
 		}

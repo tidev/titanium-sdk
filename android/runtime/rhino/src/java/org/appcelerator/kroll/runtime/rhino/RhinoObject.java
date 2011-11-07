@@ -35,6 +35,7 @@ public class RhinoObject extends KrollObject
 	{
 		Context context = Context.enter();
 		context.setOptimizationLevel(-1);
+		context.setErrorReporter(RhinoRuntime.getErrorReporter());
 
 		try {
 			ScriptableObject.putProperty(proxy.getProperties(), name, 
@@ -50,6 +51,7 @@ public class RhinoObject extends KrollObject
 	{
 		Context context = Context.enter();
 		context.setOptimizationLevel(-1);
+		context.setErrorReporter(RhinoRuntime.getErrorReporter());
 
 		try {
 			if (emitFunction == null) {
@@ -84,6 +86,7 @@ public class RhinoObject extends KrollObject
 	{
 		Context context = Context.enter();
 		context.setOptimizationLevel(-1);
+		context.setErrorReporter(RhinoRuntime.getErrorReporter());
 
 		try {
 			if (setWindowFunction == null) {

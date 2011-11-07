@@ -83,38 +83,8 @@ static Persistent<String> nameSymbol, messageSymbol;
 void V8Util::reportException(TryCatch &tryCatch, bool showLine)
 {
 
-	JNIEnv* env = JNIScope::getEnv();
-	if (!env) {
-		LOG_JNIENV_GET_ERROR(TAG);
-		return;
-	}
-
 	HandleScope scope;
 	Handle<Message> message = tryCatch.Message();
-
-	const char *title = "Runtime Error";
-
-	jstring title1 = env->NewString((const jchar *) title, strlen(title));
-	jstring scriptData = TypeConverter::jsValueToJavaString(message->GetScriptData());
-	jstring resourceName = TypeConverter::jsValueToJavaString(message->GetScriptResourceName());
-	jstring sourceLine = TypeConverter::jsValueToJavaString(message->GetSourceLine());
-
-	// Open a js error dialog
-	env->CallStaticVoidMethod(
-		JNIUtil::tiJsErrorDialogClass,
-		JNIUtil::openErrorDialogMethod,
-		scriptData,
-		scriptData,
-		resourceName,
-		message->GetLineNumber(),
-		sourceLine,
-		message->GetEndColumn());
-
-	env->DeleteLocalRef(title1);
-	env->DeleteLocalRef(scriptData);
-	env->DeleteLocalRef(resourceName);
-	env->DeleteLocalRef(sourceLine);
-
 
 	if (nameSymbol.IsEmpty()) {
 		nameSymbol = SYMBOL_LITERAL("name");
@@ -162,11 +132,11 @@ static int uncaughtExceptionCounter = 0;
 void V8Util::fatalException(TryCatch &tryCatch)
 {
 	HandleScope scope;
+
 	// Check if uncaught_exception_counter indicates a recursion
 	if (uncaughtExceptionCounter > 0) {
 		reportException(tryCatch, true);
 		LOGF(TAG, "Double exception fault");
-		JNIUtil::terminateVM();
 	}
 	reportException(tryCatch, true);
 }

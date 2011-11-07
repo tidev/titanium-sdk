@@ -13,6 +13,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ErrorReporter;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
@@ -28,35 +29,14 @@ public class RhinoRuntime extends KrollRuntime
 	private Scriptable globalKrollObject;
 	private Scriptable moduleObject;
 	private Function runModuleFunction;
+	private static ErrorReporter errorReporter;
 
 	@Override
 	public void initRuntime()
 	{
 		Context context = Context.enter();
 		context.setOptimizationLevel(-1);
-		context.setErrorReporter(new ErrorReporter()
-		{
-
-			@Override
-			public void warning(String message, String sourceName, int line, String lineSource, int lineOffset)
-			{
-				TiJSErrorDialog.openErrorDialog("Warning", message, sourceName, line, lineSource, lineOffset);
-			}
-
-			@Override
-			public EvaluatorException runtimeError(String message, String sourceName, int line, String lineSource,
-				int lineOffset)
-			{
-				TiJSErrorDialog.openErrorDialog("Runtime Error", message, sourceName, line, lineSource, lineOffset);
-				return new EvaluatorException(message, sourceName, line, lineSource, lineOffset);
-			}
-
-			@Override
-			public void error(String message, String sourceName, int line, String lineSource, int lineOffset)
-			{
-				TiJSErrorDialog.openErrorDialog("Error", message, sourceName, line, lineSource, lineOffset);
-			}
-		});
+		context.setErrorReporter(getErrorReporter());
 
 		try {
 			globalScope = context.initStandardObjects();
@@ -77,6 +57,7 @@ public class RhinoRuntime extends KrollRuntime
 	{
 		Context context = Context.enter();
 		context.setOptimizationLevel(-1);
+		context.setErrorReporter(getErrorReporter());
 
 		try {
 			if (moduleObject == null) {
@@ -86,6 +67,14 @@ public class RhinoRuntime extends KrollRuntime
 
 			runModuleFunction.call(context, globalScope, moduleObject, new Object[] { source, filename, activityProxy.getKrollObject().getNativeObject() });
 
+		} catch (Exception e) {
+			if (e instanceof RhinoException) {
+				RhinoException re = (RhinoException) e;
+				Context.reportRuntimeError(re.getMessage(), re.sourceName(), re.lineNumber(), re.lineSource(),
+					re.columnNumber());
+			} else {
+				Context.reportError(e.getMessage());
+			}
 		} finally {
 			Context.exit();
 		}
@@ -96,6 +85,7 @@ public class RhinoRuntime extends KrollRuntime
 	{
 		Context context = Context.enter();
 		context.setOptimizationLevel(-1);
+		context.setErrorReporter(getErrorReporter());
 
 		try {
 			Proxy rhinoProxy = ProxyFactory.createRhinoProxy(context, globalScope, proxy);
@@ -137,5 +127,36 @@ public class RhinoRuntime extends KrollRuntime
 		} catch (Exception e) {
 			Log.e(TAG, "Caught exception while bootstrapping kroll: " + e.getMessage(), e);
 		}
+	}
+
+	public static ErrorReporter getErrorReporter()
+	{
+		if (errorReporter == null) {
+			errorReporter = new ErrorReporter()
+			{
+
+				@Override
+				public void warning(String message, String sourceName, int line, String lineSource, int lineOffset)
+				{
+					// Don't show error dialog on warnings
+					// TiJSErrorDialog.openErrorDialog("Warning", message, sourceName, line, lineSource, lineOffset);
+				}
+
+				@Override
+				public EvaluatorException runtimeError(String message, String sourceName, int line, String lineSource,
+					int lineOffset)
+				{
+					TiJSErrorDialog.openErrorDialog("Runtime Error", message, sourceName, line, lineSource, lineOffset);
+					return new EvaluatorException(message, sourceName, line, lineSource, lineOffset);
+				}
+
+				@Override
+				public void error(String message, String sourceName, int line, String lineSource, int lineOffset)
+				{
+					TiJSErrorDialog.openErrorDialog("Error", message, sourceName, line, lineSource, lineOffset);
+				}
+			};
+		}
+		return errorReporter;
 	}
 }

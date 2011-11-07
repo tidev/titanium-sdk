@@ -63,6 +63,7 @@ public class RhinoFunction implements KrollFunction, Handler.Callback
 
 		Context context = Context.enter();
 		context.setOptimizationLevel(-1);
+		context.setErrorReporter(RhinoRuntime.getErrorReporter());
 
 		try {
 			for (int i = 0; i < args.length; i++) {
