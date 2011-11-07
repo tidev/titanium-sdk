@@ -82,16 +82,7 @@
 	NativeModule.prototype.compile = function() {
 		if (kroll.runtime == "rhino") {
 			// We need to call back into compiled JS Scripts in Rhino
-			var scope = {
-				exports: this.exports,
-				require: NativeModule.require,
-				module: this,
-				__filename: this.filename,
-				__dirname: null,
-				global: global
-			};
-
-			kroll.requireNative(this.id, scope);
+			kroll.requireNative(this.id, this.exports, NativeModule.require, this, this.filename, null, global.Ti, global.Ti, global, kroll);
 
 		} else {
 			var source = NativeModule.getSource(this.id);

@@ -455,6 +455,7 @@ public class ${className}Prototype extends ${superProxy}
 	@Override
 	protected void setInstanceIdValue(int id, Scriptable start, Object value)
 	{
+		Scriptable original = start;
 		${className}Prototype proxy = this;
 		while (start != null && !(start instanceof ${className}Prototype)) {
 			start = start.getPrototype();
@@ -483,7 +484,11 @@ public class ${className}Prototype extends ${superProxy}
 		</@Proxy.listPropertyAccessors>
 		<@Proxy.listApiTree ; isFirst, name, className, hasNext>
 			case Id_${name}:
-				proxy.API_${name} = value;
+				if (value instanceof Proxy) {
+					proxy.API_${name} = value;
+				} else {
+					defineProperty(original, "${name}", value, 0);
+				}
 				break;
 		</@Proxy.listApiTree>
 			default:

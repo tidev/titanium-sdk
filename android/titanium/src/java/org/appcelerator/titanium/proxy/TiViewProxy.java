@@ -437,7 +437,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				Log.d(LCAT, "getView: " + getClass().getSimpleName());
 			}
 
-			view = createView(activity);
+			view = createView(getActivity());
 			realizeViews(view);
 			view.registerForTouch();
 		}
@@ -495,8 +495,9 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		if (children == null) {
 			children = new ArrayList<TiViewProxy>();
 		}
+
 		if (peekView() != null) {
-			if(TiApplication.isUIThread()) {
+			if (TiApplication.isUIThread()) {
 				handleAdd(child);
 				return;
 			}
@@ -515,6 +516,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		children.add(child);
 		child.parent = new WeakReference<TiViewProxy>(this);
 		if (view != null) {
+			child.setActivity(getActivity());
 			TiUIView cv = child.getOrCreateView();
 			view.add(cv);
 		}

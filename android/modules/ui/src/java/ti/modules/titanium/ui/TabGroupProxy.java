@@ -180,7 +180,7 @@ public class TabGroupProxy extends TiWindowProxy
 				Log.w(LCAT, "Could not add tab because tab activity no longer exists");
 			}
 		}
-		Drawable icon = TiDrawableReference.fromObject(activity, tab.getProperty(TiC.PROPERTY_ICON)).getDrawable();
+		Drawable icon = TiDrawableReference.fromObject(getActivity(), tab.getProperty(TiC.PROPERTY_ICON)).getDrawable();
 		String tag = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TAG));
 		String title = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TITLE));
 		if (title == null) {
@@ -225,7 +225,7 @@ public class TabGroupProxy extends TiWindowProxy
 	public void removeTab(TabProxy tab) { }
 	public void handleRemoveTab(TabProxy tab) { }
 
-	@Kroll.setProperty(runOnUiThread=true) @Kroll.method(runOnUiThread=true)
+	@Kroll.setProperty @Kroll.method
 	public void setActiveTab(Object tab)
 	{
 		if (TiApplication.isUIThread()) {

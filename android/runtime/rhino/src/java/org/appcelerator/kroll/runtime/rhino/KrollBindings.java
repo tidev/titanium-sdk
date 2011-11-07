@@ -178,11 +178,12 @@ public class KrollBindings
 		return ScriptableObject.getProperty(exports, bindingName);
 	}
 
-	public static void requireNative(Context context, Scriptable scope, String name)
+	public static Object requireNative(Context context, Scriptable scope, String name)
 	{
 		Script jsBinding = jsBindings.get(name);
 		if (jsBinding != null) {
-			jsBinding.exec(context, scope);
+			return jsBinding.exec(context, scope);
 		}
+		return null;
 	}
 }

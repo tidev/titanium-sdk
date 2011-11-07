@@ -95,6 +95,17 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	@Override
+	public void setActivity(Activity activity)
+	{
+		super.setActivity(activity);
+		if (localSections != null) {
+			for (TableViewSectionProxy section : localSections) {
+				section.setActivity(activity);
+			}
+		}
+	}
+
+	@Override
 	public void releaseViews()
 	{
 		super.releaseViews();
@@ -348,12 +359,14 @@ public class TableViewProxy extends TiViewProxy
 		TableViewSectionProxy currentSection = null;
 		if (hasProperty(TiC.PROPERTY_HEADER_TITLE)) {
 			currentSection = new TableViewSectionProxy();
+			currentSection.setActivity(getActivity());
 			sections.add(currentSection);
 			currentSection.setProperty(TiC.PROPERTY_HEADER_TITLE, getProperty(TiC.PROPERTY_HEADER_TITLE));
 		}
 		if (hasProperty(TiC.PROPERTY_FOOTER_TITLE)) {
 			if (currentSection == null) {
 				currentSection = new TableViewSectionProxy();
+				currentSection.setActivity(getActivity());
 				sections.add(currentSection);
 			}
 			currentSection.setProperty(TiC.PROPERTY_FOOTER_TITLE, getProperty(TiC.PROPERTY_FOOTER_TITLE));

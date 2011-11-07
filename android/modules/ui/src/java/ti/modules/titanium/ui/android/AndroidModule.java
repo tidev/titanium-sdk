@@ -86,11 +86,11 @@ public class AndroidModule extends KrollModule
 	{
 		if (activity != null) {
 			
-			Intent i = new Intent(activity, TiPreferencesActivity.class);
+			Intent i = new Intent(getActivity(), TiPreferencesActivity.class);
 			if (prefsName != null) {
 				i.putExtra("prefsName", prefsName);
 			}
-			activity.startActivity(i);
+			getActivity().startActivity(i);
 		} else {
 			Log.w(LCAT, "Unable to open preferences. Activity is null");
 		}
@@ -101,7 +101,7 @@ public class AndroidModule extends KrollModule
 	public void hideSoftKeyboard()
 	{
 		if (activity != null) {
-			TiUIHelper.showSoftKeyboard(activity.getWindow().getDecorView(), false);
+			TiUIHelper.showSoftKeyboard(getActivity().getWindow().getDecorView(), false);
 		}
 	}
 }

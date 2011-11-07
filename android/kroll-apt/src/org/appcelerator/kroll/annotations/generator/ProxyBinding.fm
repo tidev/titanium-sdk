@@ -531,7 +531,7 @@ fails, a JS exception is returned.
 </#macro>
 
 <#macro verifyAndConvertJavaArgument expr index info type logOnly isOptional>
-	<#if info.rhinoValidation!true && !isOptional>
+	<#if (info.rhinoValidation!true) && !isOptional>
 		if (!(${expr} instanceof ${info.rhinoType})<#if info.javaCallMethodType == "Object"> && ${expr} != null</#if>) {
 			String error = "Invalid value, expected type ${info.rhinoType}, got: " + ${expr};
 			Log.e(TAG, error);
