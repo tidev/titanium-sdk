@@ -71,6 +71,7 @@ function TitaniumWrapper(context) {
 	var scopeVars = new ScopeVars();
 	scopeVars.sourceUrl = sourceUrl;
 	scopeVars.currentActivity = this.Android.currentActivity;
+
 	Titanium.bindInvocationAPIs(this, scopeVars);
 }
 TitaniumWrapper.prototype = Titanium;
@@ -107,6 +108,16 @@ AndroidWrapper.prototype = Titanium.Android;
 
 // -----------------------------------------------------------------------
 
+function createSandbox(ti) {
+	var sandbox = { Ti: ti, Titanium: ti };
+
+	if (kroll.runtime == "rhino") {
+		return new kroll.createSandbox(sandbox);
+	}
+
+	return sandbox;
+}
+
 function TiInclude(filename, baseUrl, context) {
 	var sourceUrl = url.resolve(baseUrl || Titanium.sourceUrl, filename);
 	var contextUrl = sourceUrl.href;
@@ -119,7 +130,7 @@ function TiInclude(filename, baseUrl, context) {
 	var context = context || {};
 	context.sourceUrl = contextUrl;
 	var ti = new TitaniumWrapper(context);
-	sandbox = { Ti: ti, Titanium: ti };
+	var sandbox = createSandbox(ti);
 
 	if (kroll.runtime == 'rhino') {
 		return require("rhino").include(filename, baseUrl, sandbox);
@@ -172,6 +183,7 @@ Titanium.bindInvocationAPIs = function(sandboxTi, scopeVars) {
 			} else {
 				function SandboxAPI() {}
 				SandboxAPI.prototype = apiNamespace[name];
+
 				api = new SandboxAPI();
 				apiNamespace[name] = api;
 			}
