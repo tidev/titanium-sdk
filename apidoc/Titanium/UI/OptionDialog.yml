@@ -6,6 +6,11 @@ since: "0.8"
 methods:
   - name: show
     description: cause the dialog to become visible
+    parameters:
+      - name: view
+        description: name of the view the OptionDialog needs to be attached to.
+        type: Titanium.UI.View
+        platforms: [ipad]
 events:
   - name: click
     description: fired when a button in the dialog is clicked
