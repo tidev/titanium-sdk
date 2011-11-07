@@ -117,6 +117,10 @@ public class TypeConverter
 
 	public static Scriptable javaObjectArrayToJsArray(Object[] value, Scriptable scope)
 	{
+		if (value == null) {
+			return null;
+		}
+
 		int length = value.length;
 		Object[] jsArray = new Object[length];
 		for (int i = 0; i < length; i++) {
@@ -128,6 +132,10 @@ public class TypeConverter
 
 	public static Scriptable javaIntArrayToJsArray(int[] value, Scriptable scope)
 	{
+		if (value == null) {
+			return null;
+		}
+
 		int length = value.length;
 		Object[] jsArray = new Object[length];
 		for (int i = 0; i < length; i++) {
@@ -138,6 +146,10 @@ public class TypeConverter
 
 	public static Scriptable javaLongArrayToJsArray(long[] value, Scriptable scope)
 	{
+		if (value == null) {
+			return null;
+		}
+
 		int length = value.length;
 		Object[] jsArray = new Object[length];
 		for (int i = 0; i < length; i++) {
@@ -148,6 +160,10 @@ public class TypeConverter
 
 	public static Scriptable javaArrayToJsArray(Object value, Scriptable scope)
 	{
+		if (value == null) {
+			return null;
+		}
+
 		int length = Array.getLength(value);
 		Object[] jsArray = new Object[length];
 		for (int i = 0; i < length; i++) {

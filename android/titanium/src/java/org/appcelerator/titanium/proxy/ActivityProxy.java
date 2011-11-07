@@ -7,6 +7,7 @@
 package org.appcelerator.titanium.proxy;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -35,6 +36,7 @@ public class ActivityProxy extends KrollProxy
 	protected IntentProxy intentProxy;
 	protected DecorViewProxy savedDecorViewProxy;
 
+	private KrollFunction resultCallback;
 	
 	public ActivityProxy()
 	{
@@ -95,7 +97,7 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void startActivityForResult(IntentProxy intent)
+	public void startActivityForResult(IntentProxy intent, KrollFunction callback)
 	{
 		Activity activity = getWrappedActivity();
 		if (activity != null) {
@@ -106,6 +108,7 @@ public class ActivityProxy extends KrollProxy
 				support = new TiActivitySupportHelper(activity);
 			}
 
+			this.resultCallback = callback;
 			int requestCode = support.getUniqueResultCode();
 			support.launchActivityForResult(intent.getIntent(), requestCode, this);
 		}
@@ -216,12 +219,17 @@ public class ActivityProxy extends KrollProxy
 
 	public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
 	{
+		IntentProxy intent = null;
+		if (data != null) {
+			intent = new IntentProxy(data);
+		}
+
 		KrollDict event = new KrollDict();
 		event.put(TiC.EVENT_PROPERTY_REQUEST_CODE, requestCode);
 		event.put(TiC.EVENT_PROPERTY_RESULT_CODE, resultCode);
-		event.put(TiC.EVENT_PROPERTY_INTENT, new IntentProxy(data));
+		event.put(TiC.EVENT_PROPERTY_INTENT, intent);
 		event.put(TiC.EVENT_PROPERTY_SOURCE, this);
-		fireEvent("result", event);
+		this.resultCallback.callAsync(krollObject, event);
 	}
 
 	public void onError(Activity activity, int requestCode, Exception e)
@@ -230,7 +238,7 @@ public class ActivityProxy extends KrollProxy
 		event.put(TiC.EVENT_PROPERTY_REQUEST_CODE, requestCode);
 		event.put(TiC.EVENT_PROPERTY_ERROR, e.getMessage());
 		event.put(TiC.EVENT_PROPERTY_SOURCE, this);
-		fireEvent("error", event);
+		this.resultCallback.callAsync(krollObject, event);
 	}
 
 	public void release()
