@@ -58,7 +58,7 @@ Object.defineProperty(EventEmitter.prototype, "emit", {
 	value: function(type) {
 
 		// If there is no 'error' event listener then throw.
-		if (type === 'error') {
+		/*if (type === 'error') {
 			if (!this._events || !this._events.error ||
 					(isArray(this._events.error) && !this._events.error.length))
 			{
@@ -69,7 +69,7 @@ Object.defineProperty(EventEmitter.prototype, "emit", {
 				}
 				return false;
 			}
-		}
+		}*/
 
 		if (!this._events) {
 			//kroll.log(TAG, "no events for " + type + ", not emitting");

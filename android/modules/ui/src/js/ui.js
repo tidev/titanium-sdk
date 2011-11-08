@@ -30,7 +30,8 @@ exports.bootstrap = function(Titanium) {
 			get SIMPLE() { return iPhoneConstant("ProgressBarStyle.SIMPLE"); }
 		},
 		SystemButton: {
-			get FLEXIBLE_SPACE() { return iPhoneConstant("SystemButton.FLEXIBLE_SPACE"); }
+			get FLEXIBLE_SPACE() { return iPhoneConstant("SystemButton.FLEXIBLE_SPACE"); },
+			get DISCLOSURE() { return iPhoneConstant("SystemButton.DISCLOSURE"); }
 		},
 		SystemButtonStyle: {
 			get BAR() { return iPhoneConstant("SystemButtonStyle.BAR"); }
