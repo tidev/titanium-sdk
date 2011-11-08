@@ -202,30 +202,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRu
 	runModuleFunction->Call(moduleObject, 3, args);
 
 	if (tryCatch.HasCaught()) {
-
-		Handle<Message> message = tryCatch.Message();
-
-		jstring title = env->NewStringUTF((const char *)"Runtime Error");
-		jstring errorMessage = TypeConverter::jsValueToJavaString(message->Get());
-		jstring resourceName = TypeConverter::jsValueToJavaString(message->GetScriptResourceName());
-		jstring sourceLine = TypeConverter::jsValueToJavaString(message->GetSourceLine());
-
-		// Open a js error dialog
-		env->CallStaticVoidMethod(
-			JNIUtil::tiJsErrorDialogClass,
-			JNIUtil::openErrorDialogMethod,
-			title,
-			errorMessage,
-			resourceName,
-			message->GetLineNumber(),
-			sourceLine,
-			message->GetEndColumn());
-
-		env->DeleteLocalRef(title);
-		env->DeleteLocalRef(errorMessage);
-		env->DeleteLocalRef(resourceName);
-		env->DeleteLocalRef(sourceLine);
-
+		V8Util::openJSErrorDialog(tryCatch);
 		V8Util::reportException(tryCatch, true);
 	}
 }

@@ -123,7 +123,36 @@ void V8Util::reportException(TryCatch &tryCatch, bool showLine)
 			LOGE(EXC_TAG, *error);
 		}
 	}
+}
 
+void V8Util::openJSErrorDialog(TryCatch &tryCatch)
+{
+	JNIEnv *env = JNIUtil::getJNIEnv();
+	if (!env) {
+		return;
+	}
+
+	Handle<Message> message = tryCatch.Message();
+
+	jstring title = env->NewStringUTF((const char *)"Runtime Error");
+	jstring errorMessage = TypeConverter::jsValueToJavaString(message->Get());
+	jstring resourceName = TypeConverter::jsValueToJavaString(message->GetScriptResourceName());
+	jstring sourceLine = TypeConverter::jsValueToJavaString(message->GetSourceLine());
+
+	env->CallStaticVoidMethod(
+		JNIUtil::tiJsErrorDialogClass,
+		JNIUtil::openErrorDialogMethod,
+		title,
+		errorMessage,
+		resourceName,
+		message->GetLineNumber(),
+		sourceLine,
+		message->GetEndColumn());
+
+	env->DeleteLocalRef(title);
+	env->DeleteLocalRef(errorMessage);
+	env->DeleteLocalRef(resourceName);
+	env->DeleteLocalRef(sourceLine);
 
 }
 

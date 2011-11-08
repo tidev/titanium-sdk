@@ -255,6 +255,8 @@ Handle<Value> WrappedScript::EvalMachine(const Arguments& args)
 			}
 			// Hack because I can't get a proper stacktrace on SyntaxError
 //			return try_catch.ReThrow();
+			return result == args.This() ? result : scope.Close(result);
+
 		}
 	} else {
 		WrappedScript *n_script = NativeObject::Unwrap<WrappedScript>(args.Holder());
@@ -278,6 +280,8 @@ Handle<Value> WrappedScript::EvalMachine(const Arguments& args)
 				context.Dispose();
 			}
 //			return try_catch.ReThrow();
+			return result == args.This() ? result : scope.Close(result);
+
 		}
 	} else {
 		WrappedScript *n_script = NativeObject::Unwrap<WrappedScript>(args.Holder());

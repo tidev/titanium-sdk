@@ -15,12 +15,11 @@ import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptableObject;
 
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 
 
 /**
@@ -89,6 +88,14 @@ public class RhinoFunction implements KrollFunction, Handler.Callback
 				KrollWith.leaveWith();
 			}
 
+		} catch (Exception e) {
+			if (e instanceof RhinoException) {
+				RhinoException re = (RhinoException) e;
+				Context.reportRuntimeError(re.getMessage(), re.sourceName(), re.lineNumber(), re.lineSource(),
+					re.columnNumber());
+			} else {
+				Context.reportError(e.getMessage());
+			}
 		} finally {
 			Context.exit();
 		}
