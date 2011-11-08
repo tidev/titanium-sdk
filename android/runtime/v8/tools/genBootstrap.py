@@ -8,11 +8,21 @@
 # Generates javascript bootstrapping code for Titanium Mobile
 #
 
-import os, re, sys, json
+import os, re, sys
+
+try:
+	import json
+except:
+	import simplejson as json
+
 import optparse
 
 thisDir = os.path.abspath(os.path.dirname(__file__))
 genDir = os.path.join(os.path.dirname(thisDir), "generated")
+
+if not os.path.exists(genDir):
+	os.makedirs(genDir)
+
 androidDir = os.path.abspath(os.path.join(thisDir, "..", "..", ".."))
 jsonDir = os.path.abspath(os.path.join(androidDir, "..", "dist", "android", "json"))
 
@@ -269,7 +279,10 @@ def genBootstrap(node, namespace = "", indent = 0):
 		js += "		if (!(\"__propertiesDefined__\" in %s)) {" % var
 		js += indentCode(JS_DEFINE_PROPERTIES % { "var": var, "properties": childJS }, 2)
 
-	prototype = var if isModule else var + ".prototype"
+	if isModule:
+		prototype = var
+	else:
+		prototype = var + ".prototype"
 
 	def defineAccessor(template, accessor):
 		upperName = accessor[0:1].upper() + accessor[1:]
