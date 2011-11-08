@@ -79,13 +79,24 @@ def zip_dir(zf,dir,basepath,subs=None,cb=None):
 			else:		
 				zf.write(from_, to_)
 
-def zip_android(zf,basepath):
+def zip_android(zf, basepath):
 	android_dist_dir = os.path.join(top_dir, 'dist', 'android')
 	zip_dir(zf, os.path.join(cur_dir,'simplejson'), os.path.join(basepath, 'android', 'simplejson'))
 	
-	for jar in ['titanium.jar', 'kroll-apt.jar']:
+	for jar in ['titanium.jar', 'kroll-apt.jar', 'kroll-common.jar', 'kroll-v8.jar', 'kroll-rhino.jar']:
 		jar_path = os.path.join(android_dist_dir, jar)
 		zf.write(jar_path, '%s/android/%s' % (basepath, jar))
+
+	js_jar = os.path.join(top_dir, 'android', 'runtime', 'rhino', 'lib', 'js.jar')
+	zf.write(js_jar, '%s/android/%s' % (basepath, 'js.jar'))
+
+	libs_dir = os.path.join(android_dist_dir, 'libs')
+	for lib_dir in os.listdir(libs_dir):
+		arch_dir = os.path.join(libs_dir, lib_dir)
+		for so_file in os.listdir(arch_dir):
+			if so_file.endswith('.so'):
+				so_path = os.path.join(arch_dir, so_file)
+				zf.write(so_path, '%s/android/native/libs/%s/%s' % (basepath, lib_dir, so_file))
 
 	ant_tasks_jar = os.path.join(android_dist_dir, 'ant-tasks.jar')
 	zf.write(ant_tasks_jar, '%s/module/android/ant-tasks.jar' % basepath)
@@ -96,7 +107,7 @@ def zip_android(zf,basepath):
 			jar_path = os.path.join(kroll_apt_lib_dir, jar)
 			zf.write(jar_path, '%s/android/%s' % (basepath, jar))
 
-	android_depends = os.path.join(top_dir, 'android','dependency.json')
+	android_depends = os.path.join(top_dir, 'android', 'dependency.json')
 	zf.write(android_depends, '%s/android/dependency.json' % basepath)
 	
 	android_modules = os.path.join(android_dist_dir, 'modules.json')

@@ -962,7 +962,7 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 				else if ([attributes hasPrefix:@"Ti,"])
 				{
 					int i;
-					typedef float (*iIMP)(id, SEL, ...);
+					typedef int (*iIMP)(id, SEL, ...);
 					i = ((iIMP)methodFunction)(target,selector);
 					return [NSNumber numberWithInt:i];
 				}

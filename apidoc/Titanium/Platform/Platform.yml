@@ -85,6 +85,8 @@ properties:
     description: the unique id of the device
     type: String
     permission: read-only
+    deprecated:
+        since: "1.8.0"
   - name: locale
     description: the primary language of the device that the user has enabled
     type: String
