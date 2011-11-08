@@ -82,7 +82,6 @@ static Persistent<String> nameSymbol, messageSymbol;
 
 void V8Util::reportException(TryCatch &tryCatch, bool showLine)
 {
-
 	HandleScope scope;
 	Handle<Message> message = tryCatch.Message();
 

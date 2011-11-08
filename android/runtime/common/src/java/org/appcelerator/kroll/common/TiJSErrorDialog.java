@@ -36,8 +36,8 @@ public class TiJSErrorDialog implements Handler.Callback
 	private static Handler mainHandler;
 	private static TiJSErrorDialog _instance;
 
-	public static void printError(String title, String message,
-		String sourceName, int line, String lineSource, int lineOffset)
+	public static void printError(String title, String message, String sourceName, int line, String lineSource,
+		int lineOffset)
 	{
 		Log.e(TAG, "----- Titanium Javascript " + title + " -----");
 		Log.e(TAG, "- In " + sourceName + ":" + line + "," + lineOffset);
@@ -53,10 +53,10 @@ public class TiJSErrorDialog implements Handler.Callback
 
 	private static Handler getMainHandler()
 	{
-		if(_instance == null) {
+		if (_instance == null) {
 			_instance = new TiJSErrorDialog();
 		}
-		
+
 		if (mainHandler == null) {
 			mainHandler = new Handler(TiMessenger.getMainMessenger().getLooper(), _instance);
 		}
@@ -64,7 +64,6 @@ public class TiJSErrorDialog implements Handler.Callback
 		return mainHandler;
 	}
 
-	
 	public static void openErrorDialog(final String title, final String message, final String sourceName, final int line,
 		final String lineSource, final int lineOffset)
 	{
@@ -75,28 +74,30 @@ public class TiJSErrorDialog implements Handler.Callback
 		error.line = line;
 		error.lineSource = lineSource;
 		error.lineOffset = lineOffset;
-		
+
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_OPEN_ERROR_DIALOG), error);
 	}
-	
+
 	protected static void handleOpenErrorDialog(ErrorMessage error)
 	{
 		KrollApplication application = KrollRuntime.getInstance().getKrollApplication();
 		if (application == null) {
 			return;
 		}
+
 		Activity activity = application.getCurrentActivity();
-		printError(error.title, error.message, error.sourceName, error.line, error.lineSource, error.lineOffset);
-		if (activity == null || activity.isFinishing())
-		{
+		if (activity == null || activity.isFinishing()) {
 			Log.w(TAG, "Activity is null or already finishing, skipping dialog.");
 			return;
 		}
 
+		printError(error.title, error.message, error.sourceName, error.line, error.lineSource, error.lineOffset);
+
 		if (!dialogShowing) {
 			dialogShowing = true;
 			final ErrorMessage fError = error;
-			application.waitForCurrentActivity(new CurrentActivityListener() {
+			application.waitForCurrentActivity(new CurrentActivityListener()
+			{
 				// TODO @Override
 				public void onCurrentActivityReady(Activity activity)
 				{
@@ -114,6 +115,7 @@ public class TiJSErrorDialog implements Handler.Callback
 		if (application == null) {
 			return;
 		}
+
 		Context context = application.getCurrentActivity();
 		FrameLayout layout = new FrameLayout(context);
 		layout.setBackgroundColor(Color.rgb(128, 0, 0));
@@ -163,65 +165,68 @@ public class TiJSErrorDialog implements Handler.Callback
 		vlayout.addView(sourceLabel);
 		vlayout.addView(sourceView);
 
-		OnClickListener clickListener = new OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
+		OnClickListener clickListener = new OnClickListener()
+		{
+			public void onClick(DialogInterface dialog, int which)
+			{
 				if (which == DialogInterface.BUTTON_POSITIVE) {
 					// Kill Process
 					Process.killProcess(Process.myPid());
+
 				} else if (which == DialogInterface.BUTTON_NEUTRAL) {
 					// Continue
 				} else if (which == DialogInterface.BUTTON_NEGATIVE) {
-					// Reload (Fastdev)
-					//if (error.tiContext != null && error.tiContext.get() != null) {
-						reload(error.sourceName);
-					//}
+					// TODO: Reload (Fastdev)
+					// if (error.tiContext != null && error.tiContext.get() != null) {
+					// reload(error.sourceName);
+					// }
+
 				}
 				if (!errorMessages.isEmpty()) {
 					createDialog(errorMessages.removeFirst());
+
 				} else {
 					dialogShowing = false;
 				}
 			}
 		};
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(context)
-			.setTitle(error.title)
-			.setView(layout)
-			.setPositiveButton("Kill", clickListener)
-			.setNeutralButton("Continue", clickListener)
-			.setCancelable(false);
-		
+		AlertDialog.Builder builder = new AlertDialog.Builder(context).setTitle(error.title).setView(layout)
+			.setPositiveButton("Kill", clickListener).setNeutralButton("Continue", clickListener).setCancelable(false);
+
 		// TODO: Enable when we have fastdev working
-//		if (TiFastDev.isFastDevEnabled()) {
-//			builder.setNegativeButton("Reload", clickListener);
-//		}
+		// if (TiFastDev.isFastDevEnabled()) {
+		// builder.setNegativeButton("Reload", clickListener);
+		// }
 		builder.create().show();
 	}
 
 	protected static void reload(String sourceName)
 	{
-		//try {
-		//TODO: Enable this when we have fastdev
-//			KrollContext.getKrollContext().evalFile(sourceName);
-		/*} catch (IOException e) {
-			Log.e(TAG, e.getMessage(), e);
-		}*/
+		// try {
+		// TODO: Enable this when we have fastdev
+		// KrollContext.getKrollContext().evalFile(sourceName);
+		/*
+		 * } catch (IOException e) {
+		 * Log.e(TAG, e.getMessage(), e);
+		 * }
+		 */
 	}
 
 	@Override
 	public boolean handleMessage(Message msg)
 	{
 		switch (msg.what) {
-		case MSG_OPEN_ERROR_DIALOG:
-			AsyncResult asyncResult = (AsyncResult)msg.obj;
-			ErrorMessage errorMessage = (ErrorMessage)asyncResult.getArg();
-			handleOpenErrorDialog(errorMessage);
-			asyncResult.setResult(null);
-			return true;
-		default:
-			break;
+			case MSG_OPEN_ERROR_DIALOG:
+				AsyncResult asyncResult = (AsyncResult) msg.obj;
+				ErrorMessage errorMessage = (ErrorMessage) asyncResult.getArg();
+				handleOpenErrorDialog(errorMessage);
+				asyncResult.setResult(null);
+				return true;
+			default:
+				break;
 		}
-		
+
 		return false;
 	}
 }

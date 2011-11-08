@@ -21,7 +21,7 @@ import org.mozilla.javascript.ScriptableObject;
 
 import android.util.Log;
 
-public class RhinoRuntime extends KrollRuntime
+public class RhinoRuntime extends KrollRuntime implements ErrorReporter
 {
 	private static final String TAG = "RhinoRuntime";
 
@@ -132,31 +132,28 @@ public class RhinoRuntime extends KrollRuntime
 	public static ErrorReporter getErrorReporter()
 	{
 		if (errorReporter == null) {
-			errorReporter = new ErrorReporter()
-			{
-
-				@Override
-				public void warning(String message, String sourceName, int line, String lineSource, int lineOffset)
-				{
-					// Don't show error dialog on warnings
-					// TiJSErrorDialog.openErrorDialog("Warning", message, sourceName, line, lineSource, lineOffset);
-				}
-
-				@Override
-				public EvaluatorException runtimeError(String message, String sourceName, int line, String lineSource,
-					int lineOffset)
-				{
-					TiJSErrorDialog.openErrorDialog("Runtime Error", message, sourceName, line, lineSource, lineOffset);
-					return new EvaluatorException(message, sourceName, line, lineSource, lineOffset);
-				}
-
-				@Override
-				public void error(String message, String sourceName, int line, String lineSource, int lineOffset)
-				{
-					TiJSErrorDialog.openErrorDialog("Error", message, sourceName, line, lineSource, lineOffset);
-				}
-			};
+			errorReporter = ((RhinoRuntime) getInstance());
 		}
 		return errorReporter;
+	}
+
+	@Override
+	public void error(String message, String sourceName, int line, String lineSource, int lineOffset)
+	{
+		TiJSErrorDialog.openErrorDialog("Error", message, sourceName, line, lineSource, lineOffset);
+	}
+
+	@Override
+	public EvaluatorException runtimeError(String message, String sourceName, int line, String lineSource,
+		int lineOffset)
+	{
+		TiJSErrorDialog.openErrorDialog("Runtime Error", message, sourceName, line, lineSource, lineOffset);
+		return new EvaluatorException(message, sourceName, line, lineSource, lineOffset);
+	}
+
+	@Override
+	public void warning(String message, String sourceName, int line, String lineSource, int lineOffset)
+	{
+		// Don't show error dialog on warnings
 	}
 }

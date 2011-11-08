@@ -19,6 +19,6 @@ public interface KrollApplication
 	
 	public Activity getCurrentActivity();
 	
-	public void waitForCurrentActivity(final CurrentActivityListener l);
+	public void waitForCurrentActivity(CurrentActivityListener l);
 	
 }
