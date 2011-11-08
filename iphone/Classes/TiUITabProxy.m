@@ -27,6 +27,8 @@
 
 -(void)_destroy
 {
+    RELEASE_TO_NIL(closingWindows);
+    RELEASE_TO_NIL(controllerStack);
 	RELEASE_TO_NIL(tabGroup);
 	RELEASE_TO_NIL(rootController);
 	RELEASE_TO_NIL(current);
@@ -111,9 +113,21 @@
 		// check to make sure that we're not actually push a window on the stack
 		if (opening==NO && [rootController window]!=currentWindow && [TiUtils boolValue:currentWindow.opened] && currentWindow.closing==NO)
 		{
-			RELEASE_TO_NIL(closingWindow);
-			closingWindow = [currentWindow retain];
-			[closingWindow windowWillClose];
+			RELEASE_TO_NIL(closingWindows);
+            closingWindows = [[NSMutableArray alloc] init];
+            // Travel down the stack until the new viewController is reached; these are the windows
+            // which must be closed.
+            NSEnumerator* enumerator = [controllerStack reverseObjectEnumerator];
+            for (UIViewController* windowController in enumerator) {
+                if (windowController != viewController && [windowController isKindOfClass:[TiUITabController class]]) {
+                    TiWindowProxy* window = [(TiUITabController*)windowController window];
+                    [closingWindows addObject:window];
+                    [window windowWillClose];
+                }
+                else {
+                    break;
+                }
+            }
 		}
 		
 		[currentWindow _tabBlur];
@@ -140,11 +154,15 @@
 
 - (void)handleDidShowViewController:(UIViewController *)viewController
 {
-	if (closingWindow!=nil)
+	if (closingWindows!=nil)
 	{
-		[self close:[NSArray arrayWithObject:closingWindow]];
-		RELEASE_TO_NIL(closingWindow);
+        for (TiWindowProxy* closingWindow in closingWindows) {
+            [self close:[NSArray arrayWithObject:closingWindow]];
+        }
+		RELEASE_TO_NIL(closingWindows);
 	}
+    RELEASE_TO_NIL(controllerStack);
+    controllerStack = [[[rootController navigationController] viewControllers] copy];
 }
 
 #pragma mark Delegates
@@ -269,9 +287,11 @@
 	
 	// Manage the navigation controller stack
 	UINavigationController* navController = [rootController navigationController];
-	NSMutableArray* controllerStack = [NSMutableArray arrayWithArray:[navController viewControllers]];
-	[controllerStack removeObject:[window controller]];
-	[navController setViewControllers:controllerStack animated:animated];
+	NSMutableArray* newControllerStack = [NSMutableArray arrayWithArray:[navController viewControllers]];
+	[newControllerStack removeObject:[window controller]];
+	[navController setViewControllers:newControllerStack animated:animated];
+    RELEASE_TO_NIL(controllerStack);
+    controllerStack = [newControllerStack retain];
 	
 	[window retain];
 	[window _tabBlur];

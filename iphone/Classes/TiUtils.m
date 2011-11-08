@@ -19,13 +19,21 @@
 #import "TiFile.h"
 #import "TiBlob.h"
 
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 // for checking version
 #import <sys/utsname.h>
-#endif
 
 #import "UIImage+Resize.h"
+
+#import <sys/types.h>
+#import <stdio.h>
+#import <string.h>
+#import <sys/socket.h>
+#import <net/if_dl.h>
+#import <ifaddrs.h>
+
+#if !defined(IFT_ETHER)
+#define IFT_ETHER 0x6
+#endif
 
 #if TARGET_IPHONE_SIMULATOR
 extern NSString * const TI_APPLICATION_RESOURCE_DIR;
@@ -34,6 +42,34 @@ extern NSString * const TI_APPLICATION_RESOURCE_DIR;
 static NSDictionary* encodingMap = nil;
 static NSDictionary* typeMap = nil;
 static NSDictionary* sizeMap = nil;
+static NSString* kDeviceUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
+	
+#if 0
+static void getAddrInternal(char* macAddress, const char* ifName) {
+    struct ifaddrs* addrs;
+    if (!getifaddrs(&addrs)) {
+        for (struct ifaddrs* cursor = addrs; cursor; cursor = cursor->ifa_next) {
+            if (cursor->ifa_addr->sa_family != AF_LINK) continue;
+            if (((const struct sockaddr_dl *) cursor->ifa_addr)->sdl_type != IFT_ETHER) continue;
+            if (strcmp(ifName, cursor->ifa_name)) continue;
+            const struct sockaddr_dl* dlAddr = (const struct sockaddr_dl*)cursor->ifa_addr;
+            const unsigned char* base = (const unsigned char*)&dlAddr->sdl_data[dlAddr->sdl_nlen];
+            strcpy(macAddress, ""); 
+            for (int i = 0; i < dlAddr->sdl_alen; ++i) {
+                if (i) {
+                    strcat(macAddress, ":");
+                }
+                char partialAddr[3];
+                sprintf(partialAddr, "%02X", base[i]);
+                strcat(macAddress, partialAddr);
+                
+            }
+
+        }
+        freeifaddrs(addrs);
+    }    
+}
+#endif
 
 @implementation TiUtils
 
@@ -43,7 +79,6 @@ static NSDictionary* sizeMap = nil;
 	static CGFloat scale = 0.0;
 	if (scale == 0.0)
 	{
-#if __IPHONE_3_2 <= __IPHONE_OS_VERSION_MAX_ALLOWED
 // NOTE: iPad in iPhone compatibility mode will return a scale factor of 2.0
 // when in 2x zoom, which leads to false positives and bugs. This tries to
 // future proof against possible different model names, but in the event of
@@ -58,13 +93,12 @@ static NSDictionary* sizeMap = nil;
 				return NO;
 			}
 		}
-#endif
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+
 		if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)])
 		{
 			scale = [[UIScreen mainScreen] scale];
 		}
-#endif
+
 	}
 	return scale > 1.0;
 }
@@ -74,15 +108,9 @@ static NSDictionary* sizeMap = nil;
 	return [UIView instancesRespondToSelector:@selector(drawRect:forViewPrintFormatter:)];
 }
 
-+(BOOL)isIOS4OrGreater
++(BOOL)isIOS5OrGreater
 {
-	return [UIView instancesRespondToSelector:@selector(contentScaleFactor)];
-}
-
-+(BOOL)isiPhoneOS3_2OrGreater
-{
-	// Here's a cheap way to test for 3.2; does it respond to a selector that was introduced with that version?
-	return [[UIApplication sharedApplication] respondsToSelector:@selector(setStatusBarHidden:withAnimation:)];
+  return [UIAlertView instancesRespondToSelector:@selector(alertViewStyle)];
 }
 
 +(BOOL)isIPad
@@ -92,7 +120,6 @@ static NSDictionary* sizeMap = nil;
 
 +(BOOL)isIPhone4
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 	static bool iphone_checked = NO;
 	static bool iphone4 = NO;
 	if (iphone_checked==NO)
@@ -112,8 +139,6 @@ static NSDictionary* sizeMap = nil;
 		}
 	}
 	return iphone4;
-#endif
-	return NO;
 }
 
 +(void)queueAnalytics:(NSString*)type name:(NSString*)name data:(NSDictionary*)data
@@ -463,6 +488,9 @@ static NSDictionary* sizeMap = nil;
 			return @"auto";
 		case TiDimensionTypePixels:
 			return [NSNumber numberWithFloat:dimension.value];
+		default: {
+			break;
+		}
 	}
 	return nil;
 }
@@ -595,7 +623,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 
 */
-	if((relativeString == nil) || (relativeString == [NSNull null]))
+	if((relativeString == nil) || ((void*)relativeString == (void*)[NSNull null]))
 	{
 		return nil;
 	}
@@ -1104,7 +1132,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 }
 
 #define RETURN_IF_ORIENTATION_STRING(str,orientation) \
-if ([str isEqualToString:@#orientation]) return orientation;
+if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation;
 
 +(UIDeviceOrientation)orientationValue:(id)value def:(UIDeviceOrientation)def
 {
@@ -1116,7 +1144,7 @@ if ([str isEqualToString:@#orientation]) return orientation;
 		}
 		if ([value isEqualToString:@"landscape"])
 		{
-			return UIInterfaceOrientationLandscapeRight;
+			return (UIDeviceOrientation)UIInterfaceOrientationLandscapeRight;
 		}
 		
 		RETURN_IF_ORIENTATION_STRING(value,UIInterfaceOrientationPortrait)
@@ -1581,4 +1609,30 @@ if ([str isEqualToString:@#orientation]) return orientation;
 	return [self convertToHex:(unsigned char*)&result length:CC_MD5_DIGEST_LENGTH];    
 }
 
++(NSString*)oldUUID
+{
+	NSString* result = nil;
+	UIDevice* currentDevice = [UIDevice currentDevice];
+	if ([currentDevice respondsToSelector:@selector(uniqueIdentifier)]) {
+		result = [currentDevice performSelector:@selector(uniqueIdentifier)];
+	}
+	return result;
+}
+
+#if 0
++(NSString*)macmd5
+{
+    char addrString[18];
+    getAddrInternal(&addrString[0],"en0");
+    NSString* dataString = [[[NSString alloc] initWithCString:addrString encoding:NSUTF8StringEncoding] autorelease];
+    NSData* data = [dataString dataUsingEncoding:NSUTF8StringEncoding];
+    return [TiUtils md5:data];
+}
+#endif
+
++(NSString*)uniqueIdentifier
+{
+    NSString* uid = [TiUtils oldUUID];
+    return uid;
+}
 @end

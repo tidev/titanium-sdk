@@ -11,8 +11,6 @@
 #import "TiUtils.h"
 #import <libkern/OSAtomic.h>
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-
 @implementation TiUIiPadPopoverProxy
 @synthesize viewController, popoverView;
 
@@ -227,11 +225,16 @@
 
 -(void)updatePopover:(NSNotification *)notification;
 {
-	[self performSelector:@selector(updatePopoverNow) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+	[self performSelector:@selector(updatePopoverNow) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration] inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 }
 
 -(void)updatePopoverNow
 {
+    // We're in the middle of playing cleanup while a hide() is happening.
+    if (isDismissing) {
+        return;
+    }
+    
 	[self updateContentSize];
 
 	if ([popoverView isUsingBarButtonItem])
@@ -376,6 +379,5 @@
 }
 
 @end
-#endif
 
 #endif

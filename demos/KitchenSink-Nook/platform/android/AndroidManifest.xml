@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+	package="com.appcelerator.kitchensinknook" android:versionCode="1"
+	android:versionName="1">
+	<uses-sdk android:minSdkVersion="8" />
+
+	<!-- TI_MANIFEST -->
+
+	<application android:icon="@drawable/appicon"
+		android:label="KitchenSink-Nook" android:name="KitchensinkNookApplication"
+		android:debuggable="false">
+
+		<!-- TI_APPLICATION -->
+
+		<activity android:name=".KitchensinkNookActivity"
+			android:label="KitchenSink-Nook" android:theme="@style/Theme.Titanium"
+			android:configChanges="keyboardHidden|orientation">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+		</activity>
+
+		<activity
+		android:name="ti.modules.titanium.media.TiVideoActivity"
+		android:configChanges="keyboardHidden|orientation"
+		android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+		android:launchMode="singleTask"
+    	/>
+
+		<activity 
+		android:name="ti.modules.titanium.facebook.FBActivity"
+		android:theme="@android:style/Theme.Translucent.NoTitleBar"
+    />
+
+
+		<activity android:name="org.appcelerator.titanium.TiActivity"
+			android:configChanges="keyboardHidden|orientation" />
+		<activity android:name="org.appcelerator.titanium.TiTranslucentActivity"
+			android:configChanges="keyboardHidden|orientation"
+			android:theme="@android:style/Theme.Translucent" />
+		<activity android:name="org.appcelerator.titanium.TiModalActivity"
+			android:configChanges="keyboardHidden|orientation"
+			android:theme="@android:style/Theme.Translucent"
+		/>
+		<activity android:name="ti.modules.titanium.ui.TiTabActivity"
+			android:configChanges="keyboardHidden|orientation" />
+		<activity android:name="ti.modules.titanium.ui.android.TiPreferencesActivity" />
+
+		<service android:name="org.appcelerator.titanium.analytics.TiAnalyticsService"
+			android:exported="false" />
+		
+
+	</application>
+	
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+	<!-- <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION"/> 
+	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+	<uses-permission android:name="android.permission.CAMERA"/>
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+	<uses-permission android:name="android.permission.VIBRATE"/>
+	<uses-permission android:name="android.permission.READ_CONTACTS"/>
+	-->
+	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>	
+	<uses-permission android:name="android.permission.INTERNET"/>
+</manifest>

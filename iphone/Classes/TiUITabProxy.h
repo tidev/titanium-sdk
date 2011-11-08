@@ -21,7 +21,10 @@
 	
 	TiUITabGroupProxy *tabGroup;
 	TiUITabController *current;
-	TiWindowProxy *closingWindow;
+    
+    NSArray* controllerStack;
+    NSMutableArray* closingWindows;
+    
 	BOOL opening;
 	BOOL systemTab;
 	BOOL transitionIsAnimating;

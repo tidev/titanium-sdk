@@ -332,7 +332,7 @@ public class TiUIWindow extends TiUIView
 				// Activity finish will result in close firing.
 				KrollDict data = new KrollDict();
 				data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
-				proxy.fireEvent(TiC.EVENT_CLOSE, data);
+				proxy.fireSyncEvent(TiC.EVENT_CLOSE, data);
 				ITiWindowHandler windowHandler = proxy.getTiContext().getTiApp().getWindowHandler();
 				if (windowHandler != null) {
 					windowHandler.removeWindow(lightWindow);

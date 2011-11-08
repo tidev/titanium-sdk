@@ -184,7 +184,7 @@ static void listeningCallback(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
 	return UINT_MAX;
 }
 
-- (void)release {
+- (oneway void)release {
 	// Do nothing.
 }
 

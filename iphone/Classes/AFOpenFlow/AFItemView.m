@@ -30,7 +30,7 @@
 
 
 @implementation AFItemView
-@synthesize number, imageView, horizontalPosition, verticalPosition;
+@synthesize imageView, horizontalPosition, verticalPosition;
 
 - (id)initWithFrame:(CGRect)frame {
 	if (self = [super initWithFrame:frame]) {
@@ -53,6 +53,10 @@
 	verticalPosition = imageHeight * reflectionFraction / 2;
 	originalImageHeight = imageHeight;
 	self.frame = CGRectMake(0, 0, newImage.size.width, newImage.size.height);
+}
+
+- (int)number {
+	return number;
 }
 
 - (void)setNumber:(int)newNumber {

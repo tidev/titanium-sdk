@@ -106,13 +106,13 @@
 -(TiDOMDocumentProxy*)responseXML
 {
 	NSString* responseText = [self valueForKey:@"responseText"];
-	if (responseText!=nil)
+	if (![responseText isEqual:(id)[NSNull null]])
 	{
 		TiDOMDocumentProxy *dom = [[[TiDOMDocumentProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
 		[dom parseString:responseText];
 		return dom;
 	}
-	return nil;
+	return (id)[NSNull null];
 }
 
 -(id)getResponseHeader:(id)args

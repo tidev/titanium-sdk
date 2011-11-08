@@ -16,7 +16,7 @@
 #import "TiDebugger.h"
 #import <QuartzCore/QuartzCore.h>
 #import <AVFoundation/AVFoundation.h>
-
+#import "ApplicationDefaults.h"
 #import <libkern/OSAtomic.h>
 
 #ifdef KROLL_COVERAGE
@@ -94,6 +94,9 @@ BOOL applicationInMemoryPanic = NO;
 
 TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
 
+@interface TiApp()
+-(void)checkBackgroundServices;
+@end
 
 @implementation TiApp
 
@@ -180,6 +183,17 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	}
 #endif
 }
+//To load application Defaults 
+- (void) loadUserDefaults
+{
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	NSDictionary *appDefaults = [[NSDictionary alloc] initWithDictionary:[ApplicationDefaults copyDefaults]];
+	if(appDefaults)
+	{
+		[defaults registerDefaults:appDefaults];
+	}
+	[appDefaults release];
+}
 
 - (void)boot
 {
@@ -204,12 +218,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	kjsBridge = [[KrollBridge alloc] initWithHost:self];
 	
 	[kjsBridge boot:self url:nil preload:nil];
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-	if ([TiUtils isIOS4OrGreater])
-	{
-		[[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
-	}
-#endif
+	[[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
 }
 
 - (void)validator
@@ -231,6 +240,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
 	NSSetUncaughtExceptionHandler(&MyUncaughtExceptionHandler);
 	[self initController];
+	[self loadUserDefaults];
 	[self boot];
 }
 
@@ -289,7 +299,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	{
 		[self generateNotification:notification];
 	}
-	
+	[self loadUserDefaults];
 	[self boot];
 	
 	return YES;
@@ -381,7 +391,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
 	[TiUtils queueAnalytics:@"ti.background" name:@"ti.background" data:nil];
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 	
 	if (backgroundServices==nil)
 	{
@@ -407,7 +416,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         // Do the work associated with the task.
 		[tiapp beginBackgrounding];
     });
-#endif	
 	
 }
 
@@ -416,7 +424,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumeNotification object:self];
 	
 	[TiUtils queueAnalytics:@"ti.foreground" name:@"ti.foreground" data:nil];
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 	
 	if (backgroundServices==nil)
 	{
@@ -424,8 +431,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	}
 	
 	[self endBackgrounding];
-	
-#endif
 
 }
 
@@ -554,9 +559,13 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 -(void)hideModalController:(UIViewController*)modalController animated:(BOOL)animated
 {
 	UIViewController *navController = [modalController parentViewController];
-	if (navController==nil)
+
+	//	As of iOS 5, Apple is phasing out the modal concept in exchange for
+	//	'presenting', making all non-Ti modal view controllers claim to have
+	//	no parent view controller.
+	if (navController==nil && [modalController respondsToSelector:@selector(presentingViewController)])
 	{
-//		navController = [controller currentNavController];
+		navController = [modalController presentingViewController];
 	}
 	[controller windowClosed:modalController];
 	if (navController!=nil)
@@ -586,10 +595,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     if ([self debugMode]) {
         TiDebuggerStop();
     }
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 	RELEASE_TO_NIL(backgroundServices);
 	RELEASE_TO_NIL(localNotification);
-#endif	
 	[super dealloc];
 }
 
@@ -621,19 +628,20 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	return kjsBridge;
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-
 #pragma mark Backgrounding
 
 -(void)beginBackgrounding
 {
-	runningServices = [[NSMutableArray alloc] initWithCapacity:[backgroundServices count]];
+	if (runningServices == nil) {
+		runningServices = [[NSMutableArray alloc] initWithCapacity:[backgroundServices count]];
+	}
 	
 	for (TiProxy *proxy in backgroundServices)
 	{
 		[runningServices addObject:proxy];
 		[proxy performSelector:@selector(beginBackground)];
 	}
+	[self checkBackgroundServices];
 }
 
 -(void)endBackgrounding
@@ -668,24 +676,10 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	[backgroundServices addObject:proxy];
 }
 
--(void)unregisterBackgroundService:(TiProxy*)proxy
+-(void)checkBackgroundServices
 {
-	[backgroundServices removeObject:proxy];
-	if ([backgroundServices count]==0)
-	{
-		RELEASE_TO_NIL(backgroundServices);
-	}
-}
-
--(void)stopBackgroundService:(TiProxy *)proxy
-{
-	[runningServices removeObject:proxy];
-	[backgroundServices removeObject:proxy];
-	
 	if ([runningServices count] == 0)
-	{
-		RELEASE_TO_NIL(runningServices);
-		
+	{		
 		// Synchronize the cleanup call on the main thread in case
 		// the expiration handler is fired at the same time.
 		dispatch_async(dispatch_get_main_queue(), ^{
@@ -698,6 +692,17 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	}
 }
 
-#endif
+-(void)unregisterBackgroundService:(TiProxy*)proxy
+{
+	[backgroundServices removeObject:proxy];
+	[self checkBackgroundServices];
+}
+
+-(void)stopBackgroundService:(TiProxy *)proxy
+{
+	[runningServices removeObject:proxy];
+	[backgroundServices removeObject:proxy];
+	[self checkBackgroundServices];
+}
 
 @end

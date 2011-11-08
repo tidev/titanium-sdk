@@ -13,6 +13,7 @@
 #import "TiComplexValue.h"
 #import "TiApp.h"
 #import "TiTabController.h"
+#import "TiLayoutQueue.h"
 
 // this is how long we should wait on the new JS context to be loaded
 // holding the UI thread before we return during an window open. we 
@@ -103,6 +104,12 @@
 
 
 @implementation TiUIWindowProxy
+
+-(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+	[TiLayoutQueue addViewProxy:self];
+}
 
 -(void)_destroy
 {
@@ -310,9 +317,20 @@
 	
 	[barImageView setFrame:barFrame];
 	
-	if ([[ourNB subviews] indexOfObject:barImageView] != 0)
+	int barImageViewIndex = 0;
+	if ([ourNB respondsToSelector:@selector(setBackgroundImage:forBarMetrics:)]) {
+	/*
+	 *	While iOS 5 has methods for setting the background Image, using it requires
+	 *	linking to that SDK (the mentioned bar metrics is an enumeration) which,
+	 *	while iOS 5 is behind the NDA, isn't an option.
+	 *	TODO: Update when iOS 5 is not NDAed for something more elegant.
+	 */
+		barImageViewIndex = 1;
+	}
+	
+	if ([[ourNB subviews] indexOfObject:barImageView] != barImageViewIndex)
 	{
-		[ourNB insertSubview:barImageView atIndex:0];
+		[ourNB insertSubview:barImageView atIndex:barImageViewIndex];
 	}
 }
 
@@ -356,7 +374,8 @@
 			UIBarButtonItem *item = controller.navigationItem.rightBarButtonItem;
 			if ([item respondsToSelector:@selector(proxy)])
 			{
-				[(TiViewProxy*)[item proxy] removeBarButtonView];
+				TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
+				[p removeBarButtonView];
 			}
 			if (proxy!=nil)
 			{
@@ -402,7 +421,8 @@
 			UIBarButtonItem *item = controller.navigationItem.leftBarButtonItem;
 			if ([item respondsToSelector:@selector(proxy)])
 			{
-				[(TiViewProxy*)[item proxy] removeBarButtonView];
+				TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
+				[p removeBarButtonView];
 			}
 			controller.navigationItem.leftBarButtonItem = nil;			
 			if (proxy!=nil)
@@ -620,7 +640,8 @@
 			{
 				if ([current respondsToSelector:@selector(proxy)])
 				{
-					[(TiViewProxy*)[current proxy] removeBarButtonView];
+					TiViewProxy* p = (TiViewProxy*)[current performSelector:@selector(proxy)];
+					[p removeBarButtonView];
 				}
 			}
 		}
@@ -775,13 +796,15 @@ else{\
         UIBarButtonItem *item = controller.navigationItem.leftBarButtonItem;
         if ([item respondsToSelector:@selector(proxy)])
         {
-            [(TiViewProxy*)[item proxy] removeBarButtonView];
+			TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
+            [p removeBarButtonView];
         }
         
         item = controller.navigationItem.rightBarButtonItem;
         if ([item respondsToSelector:@selector(proxy)]) 
         {
-            [(TiViewProxy*)[item proxy] removeBarButtonView];
+			TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
+            [p removeBarButtonView];
         }
     }
 }
