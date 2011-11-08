@@ -338,12 +338,12 @@ describe("Ti.UI tests", {
 			// null y -> throw exception
 			valueOf(function() {
 				view1.convertPointToView({ x: 0, y: null }, win);
-			});
+			}).shouldThrowException();
 
 			// null destView -> throw exception
 			valueOf(function() {
 				view1.convertPointToView({ x: 0, y: 0 }, null);
-			});
+			}).shouldThrowException();
 
 			// non-View destView -> throw exception
 			valueOf(function() {

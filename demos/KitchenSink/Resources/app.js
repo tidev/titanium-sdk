@@ -335,9 +335,6 @@ Ti.API.info("should be 1, was = "+String.format('%d',1));
 Ti.API.info("should be 1.0, was = "+String.format('%1.1f',1));
 Ti.API.info("should be hello, was = "+String.format('%s','hello'));
 
-Ti.API.info("instanceof check, should be true => " + (Ti.UI.createWindow() instanceof Ti.UI.createView()));
-Ti.API.info("instanceof check, should be false => " + (Ti.UI.createView() instanceof Ti.UI.createWindow()));
-
 // test to check that we can iterate over titanium based objects
 (function(){
 	Ti.API.info("you should see a list of properties (3 or more) below this line");

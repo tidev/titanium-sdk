@@ -40,7 +40,7 @@ public class ModulePathTask extends Task {
 		List<String> moduleDeps = deps.getModuleDependencies(module);
 		if (moduleDeps != null) {
 			for (String dep : moduleDeps) {
-				moduleDepsPath.add(new Path(getProject(), String.format("%s/%s/bin", modulesDir, dep)));
+				moduleDepsPath.add(new Path(getProject(), String.format("%s/%s", modulesDir, dep)));
 				File libDir = new File(String.format("%s/%s/lib", modulesDir, dep));
 				if (libDir.exists()) {
 					FileSet libFileset = new FileSet();

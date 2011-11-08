@@ -5,11 +5,16 @@
  */
 package ${config['appid']};
 
-import org.mozilla.javascript.Scriptable;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollModuleInfo;
+import org.appcelerator.kroll.KrollRuntime;
+
+% if runtime == "v8":
+import org.appcelerator.kroll.runtime.v8.V8Runtime;
+% else:
+import org.appcelerator.kroll.runtime.rhino.RhinoRuntime;
+% endif
 
 import java.util.List;
 import java.util.ArrayList;
@@ -28,6 +33,13 @@ public final class ${config['classname']}Application extends TiApplication
 
 		appInfo = new ${config['classname']}AppInfo(this);
 		postAppInfo();
+
+		% if runtime == "v8":
+		KrollRuntime.init(this, new V8Runtime());
+		% else:
+		KrollRuntime.init(this, new RhinoRuntime());
+		% endif
+
 		stylesheet = new ApplicationStylesheet();
 		postOnCreate();
 
@@ -56,6 +68,7 @@ public final class ${config['classname']}Application extends TiApplication
 		% endfor
 	}
 
+	/*
 	@Override
 	protected void bootModules(TiContext context)
 	{
@@ -117,4 +130,5 @@ public final class ${config['classname']}Application extends TiApplication
 		return null;
 	}
 	% endif
+	*/
 }
