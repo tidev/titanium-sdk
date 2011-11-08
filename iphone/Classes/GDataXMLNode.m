@@ -248,6 +248,43 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
 	return nil;
 }
 
++ (id)commentWithStringValue:(NSString *)value
+{
+    xmlNodePtr theNewText = xmlNewComment(GDataGetXMLString(value));
+    if (theNewText) {
+		return [self nodeConsumingXMLNode:theNewText];
+	}
+	return nil;
+}
+
++ (id)processingInstructionWithTarget:(NSString *)theName andData:(NSString*)content
+{
+    xmlNodePtr theNewPI = xmlNewPI(GDataGetXMLString(theName), GDataGetXMLString(content));
+    if(theNewPI){
+        return [self nodeConsumingXMLNode:theNewPI];
+    }
+    return nil;
+}
+
++ (id)dtdWithQualifiedName:(NSString*)qName publicId:(NSString*)pubId sysId:(NSString*)sysId
+{
+    xmlDtdPtr theNewDTD = xmlNewDtd(nil, GDataGetXMLString(qName), GDataGetXMLString(pubId), GDataGetXMLString(sysId));
+    if(theNewDTD)
+    {
+        return [self nodeConsumingXMLNode:(xmlNodePtr)theNewDTD];
+    }
+    return nil;
+}
+
++ (id)createNewDocFragment
+{
+    xmlNodePtr theDocFrag = xmlNewDocFragment(nil);
+    if (theDocFrag) {
+        return [self nodeConsumingXMLNode:theDocFrag];
+    }
+    return nil;
+}
+
 + (id)namespaceWithName:(NSString *)name stringValue:(NSString *)value {
 	
 	xmlChar *href = GDataGetXMLString(value);
@@ -1011,10 +1048,10 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
 	}
 }
 
-- (void)addChild:(GDataXMLNode *)child {
+- (GDataXMLNode*)addChild:(GDataXMLNode *)child {
 	if ([child kind] == GDataXMLAttributeKind) {
 		[self addAttribute:child];
-		return;
+		return [GDataXMLNode nodeBorrowingXMLNode:xmlNode_];
 	}
 	
 	if (xmlNode_ != NULL) {
@@ -1035,16 +1072,17 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
 				// previously-unresolved namespace prefixes that can now be fixed up
 				[[self class] fixUpNamespacesForNode:childNodeCopy
 								  graftingToTreeNode:xmlNode_];
+                
+                return [GDataXMLNode nodeConsumingXMLNode:resultNode];
 			}
 		}
 	}
+    return nil;
 }
 
 - (void)removeChild:(GDataXMLNode *)child {
 	// this is safe for attributes too
 	if (xmlNode_ != NULL) {
-		
-		[self releaseCachedValues];
 		
 		xmlNodePtr node = [child XMLNode];
 		
@@ -1056,6 +1094,7 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
 		if (![child shouldFreeXMLNode]) {
 			xmlFreeNode(node);
 		}
+        [self releaseCachedValues];
 	}
 }
 
@@ -1788,6 +1827,48 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
 		return array;
 	}
 	return nil;
+}
+
+- (id) importNode:(GDataXMLNode*)theNode recursive:(BOOL)deep
+{
+    xmlNodePtr ret = nil;
+    if (xmlDoc_ != NULL) 
+    {
+        xmlNodePtr nodeToImport = [theNode XMLNode];
+        
+        if(deep)
+        {
+            ret = xmlDocCopyNode(nodeToImport, xmlDoc_, 1);
+        }
+        else
+        {
+            ret = xmlDocCopyNode(nodeToImport, xmlDoc_, 0);
+        }
+    }
+    
+    if(ret != nil)
+    {
+        return [GDataXMLNode nodeConsumingXMLNode:ret];
+    }
+    return nil;
+}
+
+- (id) entityRefForName:(NSString*)theName
+{
+    if(xmlDoc_ != nil)
+    {
+        xmlNodePtr theRef = xmlNewReference(xmlDoc_, GDataGetXMLString(theName));
+        if(theRef != nil)
+        {
+            return [GDataXMLNode nodeConsumingXMLNode:theRef];
+        }
+    }
+    return nil;
+}
+
+-(xmlDtdPtr) getIntDTD
+{
+    return xmlGetIntSubset(xmlDoc_);
 }
 
 @end

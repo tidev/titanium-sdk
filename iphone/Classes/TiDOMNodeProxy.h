@@ -23,7 +23,7 @@
 +(id)makeNode:(id)child context:(id<TiEvaluator>)context;
 
 @property(nonatomic,readonly) id nodeName;
-@property(nonatomic,readonly) id nodeValue;
+@property(nonatomic,copy,readwrite) id nodeValue;
 @property(nonatomic,readonly) id nodeType;
 
 @property(nonatomic,readonly) id text;

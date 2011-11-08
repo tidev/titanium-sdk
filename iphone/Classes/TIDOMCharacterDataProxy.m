@@ -14,12 +14,6 @@
 @implementation TiDOMCharacterDataProxy
 
 
--(id)text
-{
-	DEPRECATED_REPLACED(@"XML.CharacterData.text", 1.8, 1.9, @"Ti.XML.CharacterData.data")
-	return [self data];
-}
-
 -(NSString *)data
 {
 	return [node stringValue];
@@ -77,10 +71,20 @@
 	NSString * ourData = [self data];
 	int dataLength = [ourData length];
 	ENSURE_VALUE_RANGE(offsetArg, 0, dataLength);
-	
-	NSString * result = [ourData stringByReplacingCharactersInRange:
-						 NSMakeRange(offsetArg, 0) withString:newData];
-	
+    NSString *result;
+    
+    if(offsetArg == dataLength)
+    {
+        result = [ourData stringByAppendingString:newData];
+    }
+    else if(offsetArg == 0)
+    {
+        result = [newData stringByAppendingString:ourData];
+    }
+    else
+    {
+        result = result = [ourData stringByReplacingCharactersInRange:NSMakeRange(offsetArg, 0) withString:newData];
+    }
 	[node setStringValue:result];
 }
 

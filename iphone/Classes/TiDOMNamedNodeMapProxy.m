@@ -7,7 +7,7 @@
 #if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
 
 #import "TiDOMNamedNodeMapProxy.h"
-#import "TiDOMNodeProxy.h"
+#import "TiDOMAttrProxy.h"
 #import "TiUtils.h"
 
 @implementation TiDOMNamedNodeMapProxy
@@ -30,31 +30,202 @@
 {
 	ENSURE_SINGLE_ARG(name,NSString);
 	GDataXMLNode *node = [element attributeForName:name];
-	TiDOMNodeProxy *proxy = [[[TiDOMNodeProxy alloc] _initWithPageContext:[self pageContext]] autorelease];
-	[proxy setNode:node];
-	[proxy setDocument:[self document]];
-	return proxy;
+    if(node != nil)
+    {
+        TiDOMAttrProxy *proxy = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+        [proxy setAttribute:[node name] value:[node stringValue] owner:element];
+        [proxy setNode:node];
+        [proxy setDocument:[self document]];
+        return proxy;
+    }
+    return [NSNull null];
 }
 
--(void)setNamedItem:(id)args
+-(id)getNamedItemNS:(id)args
 {
-	//TODO:
+    ENSURE_ARG_COUNT(args, 2);
+    
+    NSString* name;
+    NSObject* theURI;
+    ENSURE_ARG_AT_INDEX(theURI, args, 0, NSObject);
+    ENSURE_ARG_AT_INDEX(name, args, 1, NSString);
+	
+    GDataXMLNode *node = nil;
+    if([theURI isKindOfClass:[NSNull class]])
+    {
+        node = [element attributeForName:name];
+    }
+    else
+    {
+        node = [element attributeForLocalName:name URI:(NSString*)theURI]; 
+    }
+
+    if(node != nil)
+    {
+        TiDOMAttrProxy *proxy = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+        [proxy setAttribute:[node name] value:[node stringValue] owner:element];
+        [proxy setNode:node];
+        [proxy setDocument:[self document]];
+        return proxy;
+    }
+    return [NSNull null];
 }
 
--(void)removeNamedItem:(id)args
+-(id)setNamedItem:(id)args
 {
-	//TODO:
+	ENSURE_SINGLE_ARG(args, TiDOMAttrProxy);
+    if(args != nil)
+    {
+        TiDOMAttrProxy* result = nil;
+        TiDOMAttrProxy* attProxy = (TiDOMAttrProxy*)args;
+        GDataXMLNode* realNode = [attProxy node];
+        NSObject* ownerObj = [attProxy ownerElement];
+        if(![ownerObj isKindOfClass:[NSNull class]])
+        {
+            GDataXMLElement *owner = [attProxy ownerElement];
+            if( (owner != nil)&&([element isEqual:owner] == NO) )
+            {
+                [self throwException:@"mismatched owner elements" subreason:nil location:CODELOCATION];
+                return [NSNull null];
+            }
+        }
+        if ([attProxy document] != [self document])
+        {
+            [self throwException:@"mismatched documents" subreason:nil location:CODELOCATION];
+            return [NSNull null];
+        }
+        NSString* localName = [realNode localName];
+        GDataXMLNode * attributeNode = [element attributeForName:localName];
+        if (attributeNode != nil) 
+        {
+            //Need to return the old attribute node
+            result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+            [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
+            [result setNode:attributeNode];
+            [result setDocument:[self document]];
+            [element removeChild:attributeNode];
+        }
+        [element addAttribute:realNode];
+        attributeNode = [element attributeForName:localName];
+        [attProxy setNode:attributeNode];
+        
+        //Call name property here so that it is set correctly
+        [attProxy name];
+        if(result != nil)
+            return result;
+        else
+            return [NSNull null];
+    }
+    return [NSNull null];
+}
+
+-(id)setNamedItemNS:(id)args
+{
+    ENSURE_SINGLE_ARG(args, TiDOMAttrProxy);
+    if(args != nil)
+    {
+        TiDOMAttrProxy* result = nil;
+        TiDOMAttrProxy* attProxy = (TiDOMAttrProxy*)args;
+        GDataXMLNode* realNode = [attProxy node];
+        NSObject* ownerObj = [attProxy ownerElement];
+        if(![ownerObj isKindOfClass:[NSNull class]])
+        {
+            GDataXMLElement *owner = [attProxy ownerElement];
+            if( (owner != nil)&&([element isEqual:owner] == NO) )
+            {
+                [self throwException:@"mismatched owner elements" subreason:nil location:CODELOCATION];
+                return [NSNull null];
+            }
+        }
+        if ([args document] != [self document])
+        {
+            [self throwException:@"mismatched documents" subreason:nil location:CODELOCATION];
+            return [NSNull null];
+        }
+        NSString* localName = [realNode localName];
+        GDataXMLNode * attributeNode = [element attributeForLocalName:localName URI:[realNode URI]];
+        if (attributeNode != nil) 
+        {
+            //Need to return the old attribute node
+            result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+            [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
+            [result setNode:attributeNode];
+            [result setDocument:[self document]];
+            [element removeChild:attributeNode];
+        }
+        [element addAttribute:realNode];
+        attributeNode = [element attributeForLocalName:localName URI:[realNode URI]];
+        [attProxy setNode:attributeNode];
+
+        //Call name property here so that it is set correctly
+        [attProxy name];
+        if(result != nil)
+            return result;
+        else
+            return [NSNull null];
+    }
+    return [NSNull null];
+}
+
+-(id)removeNamedItem:(id)args
+{
+	ENSURE_SINGLE_ARG(args, NSString);
+	
+	GDataXMLNode * attributeNode = [element attributeForName:args];
+    if(attributeNode != nil)
+    {
+        TiDOMAttrProxy* result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+        [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
+        [result setNode:attributeNode];
+        [result setDocument:[self document]];
+        [element removeChild:attributeNode];
+        return result;
+    }
+    else
+    {
+        [self throwException:@"could not find item to remove" subreason:@"" location:CODELOCATION];
+    }
+}
+
+-(id)removeNamedItemNS:(id)args
+{
+	ENSURE_ARG_COUNT(args, 2);
+    NSString* name;
+    NSString* theURI;
+    ENSURE_ARG_AT_INDEX(theURI, args, 0, NSString);
+    ENSURE_ARG_AT_INDEX(name, args, 1, NSString);
+
+	
+	GDataXMLNode *attributeNode = [element attributeForLocalName:name URI:theURI];
+    if(attributeNode != nil)
+    {
+        TiDOMAttrProxy* result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+        [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
+        [result setNode:attributeNode];
+        [result setDocument:[self document]];
+        [element removeChild:attributeNode];
+        return result;
+    }
+    else
+    {
+        [self throwException:@"could not find item to remove" subreason:@"" location:CODELOCATION];
+    }
 }
 
 -(id)item:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSObject);
 	int index = [TiUtils intValue:args];
-	GDataXMLNode *node = [[element attributes] objectAtIndex:index];
-	TiDOMNodeProxy *proxy = [[[TiDOMNodeProxy alloc] _initWithPageContext:[self pageContext]] autorelease];
-	[proxy setNode:node];
-	[proxy setDocument:[self document]];
-	return proxy;
+    if([[element attributes] count] > index)
+    {
+        GDataXMLNode *node = [[element attributes] objectAtIndex:index];
+        TiDOMAttrProxy *proxy = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+        [proxy setAttribute:[node name] value:[node stringValue] owner:element];
+        [proxy setNode:node];
+        [proxy setDocument:[self document]];
+        return proxy;
+    }
+    return [NSNull null];
 }
 
 /*

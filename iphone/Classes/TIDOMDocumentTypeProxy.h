@@ -6,13 +6,17 @@
  */
 #if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
 
-#import "TiProxy.h"
+#import "TiDOMNodeProxy.h"
 #import "GDataXMLNode.h"
 
-@interface TIDOMDocumentType : TiProxy {
+@interface TIDOMDocumentTypeProxy : TiDOMNodeProxy {
     
 }
-
+@property(nonatomic,readonly) id entities;
+@property(nonatomic,readonly) id notations;
+@property(nonatomic,readonly) id publicId;
+@property(nonatomic,readonly) id systemId;
+@property(nonatomic,readonly) id internalSubset;
 @end
 
 #endif

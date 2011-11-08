@@ -9,8 +9,61 @@
 #import "TIDOMDocumentTypeProxy.h"
 
 
-@implementation TIDOMDocumentType
+@implementation TIDOMDocumentTypeProxy
 
+-(id)nodeValue
+{
+	// DOM spec says nodeValue must return null
+	return [NSNull null];
+}
+-(id)entities{
+    //TODO
+    return [NSNull null];
+}
+-(id)notations{
+     //TODO
+    return [NSNull null];
+}
+-(id)publicId
+{
+    if(node != nil)
+    {
+        xmlDtdPtr theRealNode = (xmlDtdPtr)[node XMLNode];
+        if(theRealNode->ExternalID != nil)
+        {
+            NSString* ret = [NSString stringWithUTF8String:(const char *)theRealNode->ExternalID];
+            if(ret == nil)
+                return [NSNull null];
+            else
+                return ret;
+        }
+    }
+    return [NSNull null];
+}
+-(id)systemId
+{
+    if(node != nil)
+    {
+        xmlDtdPtr theRealNode = (xmlDtdPtr)[node XMLNode];
+        if(theRealNode->SystemID != nil)
+        {
+            NSString* ret = [NSString stringWithUTF8String:(const char *)theRealNode->SystemID];
+            if(ret == nil)
+                return [NSNull null];
+            else
+                return ret;
+        }
+    }
+    return [NSNull null];
+}
+-(id)internalSubset
+{
+    if(node != nil)
+    {
+        [node stringValue];
+    }
+    return [NSNull null];
+}
 @end
 
 #endif

@@ -160,6 +160,13 @@ typedef NSUInteger GDataXMLNodeKind;
 - (void)releaseCachedValues;
 
 + (id)nodeBorrowingXMLNode:(xmlNodePtr)theXMLNode;
++ (id)nodeConsumingXMLNode:(xmlNodePtr)theXMLNode;
+//ADDITIONS FOR DOM MODULE
+
++ (id)createNewDocFragment;
++ (id)commentWithStringValue:(NSString *)value;
++ (id)processingInstructionWithTarget:(NSString *)theName andData:(NSString*)content;
++ (id)dtdWithQualifiedName:(NSString*)qName publicId:(NSString*)pubId sysId:(NSString*)sysId;
 
 @end
 
@@ -172,7 +179,7 @@ typedef NSUInteger GDataXMLNodeKind;
 - (void)setNamespaces:(NSArray *)namespaces;
 - (void)addNamespace:(GDataXMLNode *)aNamespace;
 
-- (void)addChild:(GDataXMLNode *)child;
+- (GDataXMLNode*)addChild:(GDataXMLNode *)child;
 - (void)removeChild:(GDataXMLNode *)child;
 
 - (NSArray *)elementsForName:(NSString *)name;
@@ -215,6 +222,11 @@ typedef NSUInteger GDataXMLNodeKind;
 - (NSArray *)nodesForXPath:(NSString *)xpath error:(NSError **)error;
 
 - (NSString *)description;
+
+//ADDITIONS FOR DOM MODULE
+- (id) importNode:(GDataXMLNode*)theNode recursive:(BOOL)deep;
+- (id) entityRefForName:(NSString*)theName;
+- (xmlDtdPtr) getIntDTD;
 @end
 
 #endif

@@ -10,9 +10,7 @@
 #import "GDataXMLNode.h"
 
 @interface TIDOMDOMImplementation : TiProxy {
-    
 }
-
 @end
 
 #endif

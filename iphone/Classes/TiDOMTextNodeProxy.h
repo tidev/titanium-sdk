@@ -13,7 +13,7 @@
 @private
 }
 
--(TiDOMNodeProxy *) splitText:(id)args;
+-(TiDOMTextNodeProxy *) splitText:(id)args;
 
 @end
 

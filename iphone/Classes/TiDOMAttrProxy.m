@@ -11,7 +11,6 @@
 #import "TiUtils.h"
 
 @implementation TiDOMAttrProxy
-@synthesize document;
 
 -(void)dealloc
 {
@@ -29,24 +28,84 @@
 	name = [name_ retain];
 	value = [value_ retain];
 	owner = [owner_ retain];
+    if(value != nil)
+        isSpecified = YES;
+    else
+        isSpecified = NO;
 }
 
 -(id)name
 {
-	return name;
+    NSString* ret = [node name];
+    if(ret == nil)
+    {
+        //probably got removed from tree
+        if(name != nil)
+            return [node name];
+        else
+            return [NSNull null];
+    }
+    else
+    {
+        if(name == nil)
+            name = [ret retain];
+        else if([ret compare:name] != 0)
+        {
+            RELEASE_TO_NIL(name);
+            name = [ret retain];
+        }
+        return ret;
+    }
 }
 
 -(id)value
 {
-	return value;
+    if(value != nil)
+        return value;
+    else
+        return [NSNull null];
+}
+
+-(void)setValue:(NSString *)data
+{
+    ENSURE_TYPE(data, NSString);
+    RELEASE_TO_NIL(value);
+    value = data;
+	[node setStringValue:data];
+    isSpecified = YES;
+}
+
+-(void)setIsSpecified:(BOOL)isSpecified_
+{
+    isSpecified = isSpecified_;
+}
+
+-(void)setNodeValue:(NSString *)data
+{
+	ENSURE_TYPE(data, NSString);
+    RELEASE_TO_NIL(value);
+    value = data;
+    [node setStringValue:data];
+    isSpecified = YES;
 }
 
 -(id)ownerElement
 {
-	TiDOMElementProxy *proxy = [[[TiDOMElementProxy alloc] _initWithPageContext:[self pageContext]] autorelease];
+    if([node XMLNode]->parent == nil)
+        return [NSNull null];
+	TiDOMElementProxy *proxy = [[[TiDOMElementProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
 	[proxy setDocument:[self document]];
-	[proxy setElement:owner];
+    [proxy setElement:[GDataXMLNode nodeConsumingXMLNode:[node XMLNode]->parent]];
 	return proxy;
+}
+
+-(id)specified
+{
+    //TODO FIX THIS
+    if([node XMLNode]->parent == nil)
+        return NUMBOOL(YES);
+   
+    return NUMBOOL(isSpecified);
 }
 
 
