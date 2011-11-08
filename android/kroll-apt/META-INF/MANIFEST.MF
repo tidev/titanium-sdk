@@ -1,13 +1,2 @@
 Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Kroll APT Processor
-Bundle-SymbolicName: org.appcelerator.kroll.apt;singleton:=true
-Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: org.appcelerator.kroll.apt.Activator
-Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.jdt.apt.core;bundle-version="3.3.202"
-Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-ClassPath: lib/freemarker.jar,
- .,
- lib/json_simple-1.1.jar
+Main-Class: org.appcelerator.kroll.annotations.generator.KrollBindingGenerator

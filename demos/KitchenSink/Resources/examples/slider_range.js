@@ -1,6 +1,5 @@
-var win = Ti.UI.createWindow({
-	backgroundColor : 'white'
-});
+var win = Ti.UI.currentWindow;
+win.backgroundColor = "white";
 
 var customSlider = Titanium.UI.createSlider({
 	min:0,
@@ -45,4 +44,4 @@ customSlider.addEventListener('change', function(e) {
 		e.thumbSize.width + "height: " + e.thumbSize.height);
 });
 
-win.open({ animated : false });
+//win.open({ animated : false });
