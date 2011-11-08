@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
 
 import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollDict;
@@ -89,6 +90,9 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 	protected TiTempFileHelper tempFileHelper;
 	protected ITiAppInfo appInfo;
 	protected TiStylesheet stylesheet;
+
+	public CountDownLatch rootActivityLatch = new CountDownLatch(1);
+
 
 	public TiApplication()
 	{
@@ -194,6 +198,7 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 	public void setRootActivity(TiRootActivity rootActivity)
 	{
 		this.rootActivity = new WeakReference<TiRootActivity>(rootActivity);
+		rootActivityLatch.countDown();
 
 		// calculate the display density
 		DisplayMetrics dm = new DisplayMetrics();

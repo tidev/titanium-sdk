@@ -90,8 +90,8 @@ public abstract class KrollRuntime implements Handler.Callback
 		if (instance == null) {
 			int stackSize = runtime.getThreadStackSize(context);
 			runtime.thread = new KrollRuntimeThread(runtime, stackSize);
+			instance = runtime; // make sure this is set before the runtime thread is started
 			runtime.thread.start();
-			instance = runtime;
 		}
 		KrollAssetHelper.init(context);
 	}

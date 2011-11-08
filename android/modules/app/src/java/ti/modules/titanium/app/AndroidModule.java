@@ -1,5 +1,7 @@
 package ti.modules.titanium.app;
 
+import java.util.concurrent.CountDownLatch;
+
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -38,14 +40,23 @@ public class AndroidModule extends KrollModule
 		return r;
 	}
 
+	// this shouldn't be called from anything other than the runtime thread
 	@Kroll.method
 	public ActivityProxy getTopActivity()
 	{
+		try {
+			TiApplication.getInstance().rootActivityLatch.await();
+
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
 		Activity activity = TiApplication.getInstance().getCurrentActivity();
 		if (activity == null || !(activity instanceof TiBaseActivity)) {
-			return TiApplication.getInstance().getRootActivity().getActivityProxy();
+			activity = TiApplication.getInstance().getRootActivity();
 		}
 
 		return ((TiBaseActivity)activity).getActivityProxy();
 	}
 }
+
