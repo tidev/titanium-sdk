@@ -101,9 +101,12 @@ if build_type in ['full', 'android'] and not only_package:
 		targets = ["full.build"]
 		if clean: targets = ["clean"]
 		elif "ant_targets" in ARGUMENTS: targets = ARGUMENTS["ant_targets"].split(",")
-			
+
+		javah_path = os.path.join(os.path.dirname(ant.get_java()), "javah")
+
 		ant.build(targets=targets, properties={"build.version": version, "build.githash": githash,
-			"android.sdk": sdk.get_android_sdk(), "android.platform": sdk.get_platform_dir(), "google.apis": sdk.get_google_apis_dir()})
+			"android.sdk": sdk.get_android_sdk(), "android.platform": sdk.get_platform_dir(), "google.apis": sdk.get_google_apis_dir(),
+			"ndk.build.args": "JAVAH=%s" % javah_path })
 	finally:
 		os.chdir(d)
 

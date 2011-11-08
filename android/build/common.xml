@@ -360,10 +360,12 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	</target>
 
 	<target name="build.kroll.v8.emulator.so" depends="generate.kroll.v8.bindings">
+		<property name="ndk.build.args" value=""/>
 		<exec executable="${ndk.build}" dir="${kroll.v8.project.dir}" failonerror="true">
 			<env key="ANDROID_NDK" file="${android.ndk}"/>
 			<arg value="TI_DEBUG=0"/>
 			<arg value="TARGET_DEVICE=emulator"/>
+			<arg line="${ndk.build.args}"/>
 		</exec>
 		<copy todir="${dist.dir}">
 			<fileset dir="${kroll.v8.project.dir}" includes="libs/armeabi/libkroll-v8-emulator.so"/>
@@ -371,10 +373,12 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	</target>
 
 	<target name="build.kroll.v8.device.so" depends="generate.kroll.v8.bindings">
+		<property name="ndk.build.args" value=""/>
 		<exec executable="${ndk.build}" dir="${kroll.v8.project.dir}" failonerror="true">
 			<env key="ANDROID_NDK" file="${android.ndk}"/>
 			<arg value="TI_DEBUG=0"/>
 			<arg value="TARGET_DEVICE=device"/>
+			<arg line="${ndk.build.args}"/>
 		</exec>
 		<copy todir="${dist.dir}">
 			<fileset dir="${kroll.v8.project.dir}" includes="libs/armeabi/libkroll-v8-device.so"/>
