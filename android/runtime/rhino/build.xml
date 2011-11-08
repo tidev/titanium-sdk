@@ -20,7 +20,12 @@
 	</path>
 
 	<target name="generate.rhino.bootstrap.js">
-		<exec executable="python">
+		<property environment="env"/>
+		<condition property="python" value="${env.PYTHON}" else="python">
+			<isset property="env.PYTHON"/>
+		</condition>
+
+		<exec executable="${python}">
 			<arg file="${kroll.v8.project.dir}/tools/genBootstrap.py"/>
 			<arg value="--disable-api-tree"/>
 			<arg value="-o"/>
