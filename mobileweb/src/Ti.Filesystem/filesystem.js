@@ -21,13 +21,13 @@
 		set: function(val){return _MODE_WRITE = val;}
 	});
 
-	var _applicationDataDirectory = null;
+	var _applicationDataDirectory = "";
 	Object.defineProperty(api, 'applicationDataDirectory', {
 		get: function(){return _applicationDataDirectory;},
 		set: function(val){return _applicationDataDirectory = val;}
 	});
 
-	var _applicationDirectory = null;
+	var _applicationDirectory = "";
 	Object.defineProperty(api, 'applicationDirectory', {
 		get: function(){return _applicationDirectory;},
 		set: function(val){return _applicationDirectory = val;}
@@ -39,7 +39,7 @@
 		set: function(val){return _lineEnding = val;}
 	});
 
-	var _resourcesDirectory = null;
+	var _resourcesDirectory = '/';
 	Object.defineProperty(api, 'resourcesDirectory', {
 		get: function(){return _resourcesDirectory;},
 		set: function(val){return _resourcesDirectory = val;}
@@ -69,6 +69,7 @@
 	};
 	api.getFile = function(){
 		console.debug('Method "Titanium.Filesystem.getFile" is not implemented yet.');
+		return new Ti.Filesystem.File;
 	};
 	api.isExternalStoragePresent = function(){
 		console.debug('Method "Titanium.Filesystem.isExternalStoragePresent" is not implemented yet.');
