@@ -184,19 +184,18 @@ class Android(object):
 					break
 			
 			if module_apiName == None: continue # module wasn't found
-			if '.' not in module:
-				ext_modules = []
-				if module_class in external_child_modules:
-					for child_module in external_child_modules[module_class]:
-						if child_module['fullAPIName'].lower() in compiler.modules:
-							ext_modules.append(child_module)
-				self.app_modules.append({
-					'api_name': module_apiName,
-					'class_name': module_class,
-					'bindings': module_bindings,
-					'external_child_modules': ext_modules,
-					'on_app_create': module_onAppCreate
-				})
+			ext_modules = []
+			if module_class in external_child_modules:
+				for child_module in external_child_modules[module_class]:
+					if child_module['fullAPIName'].lower() in compiler.modules:
+						ext_modules.append(child_module)
+			self.app_modules.append({
+				'api_name': module_apiName,
+				'class_name': module_class,
+				'bindings': module_bindings,
+				'external_child_modules': ext_modules,
+				'on_app_create': module_onAppCreate
+			})
 		
 		# discover app modules
 		detector = ModuleDetector(self.project_dir)
@@ -240,6 +239,11 @@ class Android(object):
 		resource_dir = os.path.join(project_dir, 'Resources')
 		self.config['ti_resources_dir'] = resource_dir
 
+		# TODO change defalt back to rhino
+		runtime = "v8"
+		if self.tiapp.has_app_property("ti.android.runtime"):
+			runtime = self.tiapp.get_app_property("ti.android.runtime")
+
 		app_build_dir = self.newdir(project_dir, 'build')
 		app_dir = self.newdir(app_build_dir, 'android')
 
@@ -273,13 +277,21 @@ class Android(object):
 		
 		self.render(template_dir, 'AndroidManifest.xml', app_dir, 'AndroidManifest.xml')
 		self.render(template_dir, 'App.java', app_package_dir, self.config['classname'] + 'Application.java',
-			app_modules = self.app_modules, custom_modules = self.custom_modules)
+			app_modules = self.app_modules, custom_modules = self.custom_modules, runtime = runtime)
 		self.render(template_dir, 'Activity.java', app_package_dir, self.config['classname'] + 'Activity.java')
 		self.generate_activities(app_package_dir)
 		self.generate_services(app_package_dir)
 		self.render(template_dir, 'classpath', app_dir, '.classpath')
 		self.render(template_dir, 'project', app_dir, '.project')
 		self.render(template_dir, 'default.properties', app_dir, 'default.properties')
+		print "[TRACE] Generating app.json"
+		f = None
+		try:
+			f = open(os.path.join(app_bin_assets_dir, "app.json"), "w")
+			f.write(simplejson.dumps({"app_modules":self.app_modules}))
+		finally:
+			if f is not None:
+				f.close()
 		# Don't override a pre-existing .gitignore in case users have their own preferences
 		# for what should be in it. (LH #2446)
 		if not os.path.exists(os.path.join(app_dir, '.gitignore')):
