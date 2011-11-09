@@ -288,6 +288,10 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 
 -(void)hide:(id)args
 {
+	if (!isShowing) {
+		return;
+	}
+    
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
 	
 	[closingCondition lock];
@@ -309,7 +313,6 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 		// have to set a flag to warn show(), and then trigger a condition when the flag is cleared.
 		
 		[self performSelector:@selector(popoverControllerDidDismissPopover:) withObject:popoverController afterDelay:0.5];		
-
 	},NO);
 }
 
