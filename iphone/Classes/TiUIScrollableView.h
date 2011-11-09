@@ -28,7 +28,7 @@
 
 -(void)manageRotation;
 -(UIScrollView*)scrollview;
-
+-(void)setCurrentPage_:(id)page;
 @end
 
 #endif
