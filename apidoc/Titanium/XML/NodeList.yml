@@ -6,6 +6,7 @@ description: A list of <Titanium.XML.Node> objects. This conforms to the
     definition of a DOM NodeList.
 since: "0.9"
 createable: false
+platforms: [android, iphone, ipad]
 methods:
   - name: item
     description: Returns the <Titanium.XML.Node> object at the specified index.
