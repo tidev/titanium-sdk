@@ -14,7 +14,6 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.util.TiFileHelper;
-import org.appcelerator.titanium.util.TiJSErrorDialog;
 import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.util.TiWeakList;
 //import org.mozilla.javascript.ErrorReporter;
