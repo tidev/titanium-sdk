@@ -443,6 +443,12 @@ public @interface Kroll
 		 * @default No dynamic property accessors are generated
 		 */
 		String[] propertyAccessors() default {};
+		/**
+		 * Specify the parent module / namespace for this proxy (if you want this proxy to be expose via "create",
+		 * use {@link proxy#creatableInModule() instead)
+		 * @default None (lives under the Titanium namespace)
+		 */
+		Class<?> parentModule() default DEFAULT.class;
 	}
 
 	/**
@@ -525,6 +531,19 @@ public @interface Kroll
 	@Retention(RetentionPolicy.SOURCE)
 	@Target({ElementType.METHOD})
 	public static @interface onAppCreate
+	{
+	}
+
+	/**
+	 * Intercepts all property gets on a specific proxy.
+	 * Be <b>very careful</b> with this annotation, as it can slow your code down significantly.
+	 * 
+	 * To revert to the object's default behavior, return KrollRuntime.DONT_INTERCEPT
+	 */
+	@Documented
+	@Retention(RetentionPolicy.SOURCE)
+	@Target({ElementType.METHOD})
+	public static @interface interceptor
 	{
 	}
 }

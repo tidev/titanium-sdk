@@ -3,6 +3,7 @@ name: Titanium.Media.AudioPlayer
 description: The AudioPlayer object is returned by <Titanium.Media.createAudioPlayer> and is used for streaming audio to the device and low-level control of the audio playback.
 extends: Titanium.Proxy
 since: "0.9"
+platforms: [android, iphone, ipad]
 methods:
   - name: pause
     description: pause playback

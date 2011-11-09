@@ -138,7 +138,7 @@ if(fileHandle == nil) {\
 	
 	if(length == 0) {
 		[buffer setData:[NSMutableData dataWithData:[fileHandle availableData]]];
-		return [buffer length];
+		return [[buffer length] intValue];
 	}
 	
 	fileData = [fileHandle readDataOfLength:length];

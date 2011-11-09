@@ -1,0 +1,296 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+
+/** This code is generated, do not edit by hand. **/
+<#import "ProxyBinding.fm" as Proxy>
+
+#include "${packageName}.${proxyClassName}.h"
+
+#include "AndroidUtil.h"
+#include "EventEmitter.h"
+#include "JNIUtil.h"
+#include "JSException.h"
+#include "Proxy.h"
+#include "ProxyFactory.h"
+#include "TypeConverter.h"
+#include "V8Util.h"
+
+<#if isModule>
+
+<@Proxy.listChildModules ; isFirst, childModule>
+#include "${childModule.proxyClassName}.h"
+</@Proxy.listChildModules>
+
+<@Proxy.listCreateProxies ; isFirst, createProxy>
+#include "${createProxy.proxyClassName}.h"
+</@Proxy.listCreateProxies>
+</#if>
+
+<#if superProxyClassName??>
+#include "${superPackageName}.${superProxyClassName}.h"
+</#if>
+
+#define TAG "${proxyClassName}"
+
+using namespace v8;
+
+<@Proxy.openNamespace/>
+
+<#assign className = Proxy.className(proxyClassName)>
+
+Persistent<FunctionTemplate> ${className}::proxyTemplate = Persistent<FunctionTemplate>();
+jclass ${className}::javaClass = NULL;
+
+${className}::${className}(jobject javaObject) : Proxy(javaObject)
+{
+}
+
+void ${className}::bindProxy(Handle<Object> exports)
+{
+	if (proxyTemplate.IsEmpty()) {
+		getProxyTemplate();
+	}
+
+	// use symbol over string for efficiency
+	Handle<String> nameSymbol = String::NewSymbol("${proxyAttrs.name}");
+
+	Local<Function> proxyConstructor = proxyTemplate->GetFunction();
+	<#if isModule>
+	Local<Object> moduleInstance = proxyConstructor->NewInstance();
+	exports->Set(nameSymbol, moduleInstance);
+	<#else>
+	exports->Set(nameSymbol, proxyConstructor);
+	</#if>
+}
+
+Handle<FunctionTemplate> ${className}::getProxyTemplate()
+{
+	if (!proxyTemplate.IsEmpty()) {
+		return proxyTemplate;
+	}
+
+	LOGD(TAG, "GetProxyTemplate");
+
+	<#-- Query the class for the Java proxy -->
+	javaClass = JNIUtil::findClass("${packageName?replace('.','/')}/${className}");
+	HandleScope scope;
+
+	// use symbol over string for efficiency
+	Handle<String> nameSymbol = String::NewSymbol("${proxyAttrs.name}");
+
+	Handle<FunctionTemplate> t = Proxy::inheritProxyTemplate(
+	<#if superProxyClassName??>
+		${superProxyClassName?replace("BindingGen", "")}::getProxyTemplate()
+	<#else>
+		Proxy::baseProxyTemplate
+	</#if>, javaClass, nameSymbol);
+
+	proxyTemplate = Persistent<FunctionTemplate>::New(t);
+	proxyTemplate->Set(Proxy::inheritSymbol,
+		FunctionTemplate::New(Proxy::inherit<${className}>)->GetFunction());
+
+	ProxyFactory::registerProxyPair(javaClass, *proxyTemplate);
+
+	// Method bindings --------------------------------------------------------
+	<@Proxy.listMethods ; isFirst, name, method, signature>
+	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "${method.apiName}", ${className}::${method.apiName});
+	</@Proxy.listMethods>
+
+	Local<ObjectTemplate> prototypeTemplate = proxyTemplate->PrototypeTemplate();
+	Local<ObjectTemplate> instanceTemplate = proxyTemplate->InstanceTemplate();
+
+	// Delegate indexed property get and set to the Java proxy.
+	instanceTemplate->SetIndexedPropertyHandler(Proxy::getIndexedProperty,
+	                                            Proxy::setIndexedProperty);
+
+	// Constants --------------------------------------------------------------
+	<#if constants??>
+	<@Proxy.listConstants ; isFirst, name, constant>
+	<#if constant.type = "java.lang.String">
+	DEFINE_STRING_CONSTANT(instanceTemplate, "${name}", "${constant.value}");
+	<#elseif constant.type = "int" || constant.type = "long">
+	DEFINE_INT_CONSTANT(instanceTemplate, "${name}", ${constant.value?c});
+	<#else>
+	DEFINE_NUMBER_CONSTANT(instanceTemplate, "${name}", ${constant.value?c});
+	</#if>
+	</@Proxy.listConstants>
+
+	</#if>
+
+	// Dynamic properties -----------------------------------------------------
+	<@Proxy.listDynamicProperties ; isFirst, name, property, getSignature, setSignature>
+	instanceTemplate->SetAccessor(String::NewSymbol("${name}"),
+		<#if property.get>
+			${className}::getter_${name}
+		<#else>
+			Proxy::getProperty
+		</#if>
+		<#if property.set>
+			, ${className}::setter_${name}
+		<#else>
+			, Proxy::onPropertyChanged
+		</#if>, Handle<Value>(), DEFAULT);
+	</@Proxy.listDynamicProperties>
+
+	// Accessors --------------------------------------------------------------
+	<@Proxy.listPropertyAccessors ; isFirst, name, getter, setter>
+	instanceTemplate->SetAccessor(
+		String::NewSymbol("${name}"),
+		Proxy::getProperty,
+		Proxy::onPropertyChanged,
+		Handle<Value>(), DEFAULT);
+	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "${getter}", Proxy::getProperty);
+	DEFINE_PROTOTYPE_METHOD_DATA(proxyTemplate, "${setter}", Proxy::onPropertyChanged, String::NewSymbol("${name}"));
+	</@Proxy.listPropertyAccessors>
+
+	<#if interceptor??>
+	instanceTemplate->SetNamedPropertyHandler(${className}::interceptor);
+	</#if>
+	return proxyTemplate;
+}
+
+// Methods --------------------------------------------------------------------
+<@Proxy.listMethods ; isFirst, name, method, signature>
+Handle<Value> ${className}::${method.apiName}(const Arguments& args)
+{
+	LOGD(TAG, "${method.apiName}()");
+	HandleScope scope;
+
+	<@Proxy.initJNIEnv/>
+	<@Proxy.initMethodID className=className name=name signature=signature logOnly=false/>
+
+	Proxy* proxy = Proxy::unwrap(args.Holder());
+
+	<#if method.args?size &gt; 0>
+	<@Proxy.verifyAndConvertArguments method.args method />
+	<#else>
+	jvalue* jArguments = 0;
+	</#if>
+
+	<@Proxy.callJNIMethod method.args, method.hasInvocation, method.returnType,
+		"methodID", "proxy->getJavaObject()", "jArguments" ; hasResult, resultVar>
+
+	<#if hasResult>
+	return ${resultVar};
+	<#else>
+	return v8::Undefined();
+	</#if>
+
+	</@Proxy.callJNIMethod>
+}
+</@Proxy.listMethods>
+
+// Dynamic property accessors -------------------------------------------------
+<@Proxy.listDynamicProperties ; isFirst, name, property, getSignature, setSignature>
+
+<#if property.get>
+Handle<Value> ${className}::getter_${name}(Local<String> property, const AccessorInfo& info)
+{
+	LOGD(TAG, "get ${name}");
+	HandleScope scope;
+
+	<@Proxy.initJNIEnv/>
+	<@Proxy.initMethodID className=className name=property.getMethodName signature=getSignature logOnly=false/>
+
+	Proxy* proxy = Proxy::unwrap(info.Holder());
+
+	if (!proxy) {
+		return Undefined();
+	}
+
+	jvalue* jArguments = 0;
+
+	<@Proxy.callJNIMethod property.getMethodArgs, property.getHasInvocation, property.getReturnType,
+		"methodID", "proxy->getJavaObject()", "jArguments" ; hasResult, resultVar>
+
+	return ${resultVar};
+
+	</@Proxy.callJNIMethod>
+}
+</#if>
+
+<#if property.set>
+void ${className}::setter_${name}(Local<String> property, Local<Value> value, const AccessorInfo& info)
+{
+	LOGD(TAG, "set ${name}");
+	HandleScope scope;
+
+	JNIEnv *env = JNIScope::getEnv();
+	if (!env) {
+		LOGE(TAG, "Failed to get environment, ${name} wasn't set");
+		return;
+	}
+
+	<@Proxy.initMethodID className=className name=property.setMethodName signature=setSignature logOnly=true />
+
+	Proxy* proxy = Proxy::unwrap(info.Holder());
+	if (!proxy) {
+		return;
+	}
+
+	jvalue jArguments[1];
+	<#assign typeInfo = Proxy.getTypeInfo(property.setMethodArgs[0].type)>
+
+	<@Proxy.verifyAndConvertArgument expr="value" index=0 info=typeInfo logOnly=true isOptional=false/>
+
+	<@Proxy.callJNIMethod [], property.setHasInvocation, "void", "methodID", "proxy->getJavaObject()", "jArguments" ;
+		hasResult, resultVar>
+	</@Proxy.callJNIMethod>
+
+	<#--
+	Store the value in the property map if there is not getter.
+	Otherwise you can never read back the value that was last set.
+	-->
+	<#if property.get == false>
+	Proxy::setProperty(property, value, info);
+	</#if>
+}
+</#if>
+
+</@Proxy.listDynamicProperties>
+
+<#if interceptor??>
+Handle<Value> ${className}::interceptor(Local<String> property, const AccessorInfo& info)
+{
+	HandleScope scope;
+
+	<@Proxy.initJNIEnv/>
+	<@Proxy.initMethodID className=className name=interceptor.name signature="(Ljava/lang/String;)Ljava/lang/Object;" logOnly=false/>
+
+	Proxy* proxy = Proxy::unwrap(info.Holder());
+
+	if (!proxy) {
+		return Undefined();
+	}
+
+	jstring javaProperty = TypeConverter::jsStringToJavaString(property);
+	jobject jResult = (jobject) env->CallObjectMethod(proxy->getJavaObject(), methodID, javaProperty);
+
+	env->DeleteLocalRef(javaProperty);
+
+	if (env->ExceptionCheck()) {
+		Handle<Value> jsException = JSException::fromJavaException();
+		env->ExceptionClear();
+		return jsException;
+	}
+
+	if (jResult == NULL) {
+		return Null();
+	}
+
+	Handle<Value> v8Result = TypeConverter::javaObjectToJsValue(jResult);
+	env->DeleteLocalRef(jResult);
+	if (v8Result->IsNumber() && v8Result->Int32Value() == JNIUtil::krollRuntimeDontIntercept) {
+		return Handle<Value>();
+	}
+
+	return v8Result;
+
+}
+</#if>
+
+<@Proxy.closeNamespace/>

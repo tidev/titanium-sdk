@@ -120,11 +120,9 @@
 		
 		if ([dialogView supportsNavBarPositioning] && [dialogView isUsingBarButtonItem])
 		{
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2				
 			UIBarButtonItem *button = [dialogView barButtonItem];
 			[actionSheet showFromBarButtonItem:button animated:animated];
 			return;
-#endif				
 		}
 		
 		if ([dialogView isKindOfClass:[TiToolbar class]])
@@ -161,10 +159,8 @@
 			rect = dialogRect;
 		}
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2				
 		[actionSheet showFromRect:rect inView:view animated:animated];
 		return;
-#endif				
 	}
 	[actionSheet showInView:view];
 }

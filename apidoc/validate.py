@@ -26,7 +26,7 @@ except:
 	sys.exit(1)
 
 
-VALID_PLATFORMS = ["android", "iphone", "ipad"]
+VALID_PLATFORMS = ["android", "iphone", "ipad", "mobileweb"]
 types = {}
 errorTrackers = {}
 options = None
@@ -210,7 +210,7 @@ def validateProperty(typeTracker, property):
 			tracker.trackError('Required property for constant "permission" not found')
 		else:
 			if not property['permission'] == 'read-only':
-				tracker.trackError('Constant should have "read-only" permission.')
+				tracker.trackError("Constant should have 'read-only' permission.")
 
 def validateEvent(typeTracker, event):
 	tracker = ErrorTracker(event['name'], typeTracker)

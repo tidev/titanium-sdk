@@ -5,6 +5,7 @@ description: >
     a way to keep processor-specific information in the text of the document. See [DOM Level 2 Spec](http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-1004215813)
 since: "0.9"
 createable: false
+platforms: [android, iphone, ipad]
 properties:
   - name: data
     description: >
