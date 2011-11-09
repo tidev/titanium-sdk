@@ -8,8 +8,6 @@
 
 @interface «FILEBASENAMEASIDENTIFIER» : TiUIView {
 
-@private
-
 }
 
 @end
