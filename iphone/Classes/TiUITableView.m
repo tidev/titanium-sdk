@@ -28,7 +28,7 @@
 -(id)initWithStyle:(UITableViewCellStyle)style_ reuseIdentifier:(NSString *)reuseIdentifier_ row:(TiUITableViewRowProxy *)row_
 {
 	if (self = [super initWithStyle:style_ reuseIdentifier:reuseIdentifier_]) {
-		proxy = row_;
+		proxy = [row_ retain];
 		[proxy setCallbackCell:self];
 		self.exclusiveTouch = YES;
 	}
@@ -40,6 +40,7 @@
 {
     [proxy setCallbackCell:nil];
     
+    RELEASE_TO_NIL(proxy);
 	RELEASE_TO_NIL(gradientLayer);
 	RELEASE_TO_NIL(backgroundGradient);
 	RELEASE_TO_NIL(selectedBackgroundGradient);
@@ -55,7 +56,7 @@
     if ([proxy callbackCell] == self) {
         [proxy setCallbackCell:nil];
     }
-    proxy = proxy_;
+    proxy = [proxy_ retain];
 }
 
 -(CGSize)computeCellSize
@@ -363,19 +364,6 @@
 {
 	UITableView *table = [self tableView];
 	
-	if ((animation == UITableViewRowAnimationNone) && ![tableview isEditing])
-	{
-		if([NSThread isMainThread])
-		{
-			[tableview reloadData];
-		}
-		else
-		{
-			[tableview performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
-		}
-		return;
-	}
-
 	//Table views hate having 0 sections, so we have to act like it has at least 1.
 	oldCount = MAX(1,oldCount);
 	newCount = MAX(1,newCount);
@@ -697,7 +685,7 @@
 	if ([searchController searchResultsTableView] != nil) {
 		[self updateSearchResultIndexes];
 		[[searchController searchResultsTableView] reloadSections:[NSIndexSet indexSetWithIndex:0]
-					   withRowAnimation:UITableViewRowAnimationFade];		
+                                                  withRowAnimation:UITableViewRowAnimationFade];
 	}
 }
 
@@ -2040,14 +2028,6 @@ if(ourTableView != tableview)	\
 
 #pragma mark Search Display Controller Delegates
 
-- (void) searchDisplayController:(UISearchDisplayController *)controller willShowSearchResultsTableView:(UITableView *)tableView
-{
-    // Carry over (relevant) display properties from our table to the search table, for consistency.  Note that
-    // we MAY NOT be able to get the correct row height min/max.
-    [tableView setBackgroundColor:[[self tableView] backgroundColor]];
-    [tableView setSeparatorStyle:[[self tableView] separatorStyle]];
-    [tableView setSeparatorColor:[[self tableView] separatorColor]];
-}
 
 - (void) searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
 {
