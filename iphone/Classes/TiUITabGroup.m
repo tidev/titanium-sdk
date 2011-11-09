@@ -161,7 +161,7 @@ DEFINE_EXCEPTIONS
 			[self setEditButton:navigationController];
 		}
 		// However, under iOS4, we have to manage the appearance/disappearance of the edit button ourselves.
-		else if ([TiUtils isIOS4OrGreater]) {
+		else {
 			[self removeEditButton:navigationController];
 		}
 	}

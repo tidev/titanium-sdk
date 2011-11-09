@@ -26,6 +26,7 @@ except:
 	sys.exit(1)
 
 
+VALID_PLATFORMS = ["android", "iphone", "ipad"]
 types = {}
 errorTrackers = {}
 options = None
@@ -81,6 +82,9 @@ def validateRequired(tracker, map, required):
 def validatePlatforms(tracker, platforms):
 	if type(platforms) != list:
 		tracker.trackError('"platforms" specified, but isn\'t a list: %s' % platforms)
+	for p in platforms:
+		if p not in VALID_PLATFORMS:
+			tracker.trackError('platform specifier "%s" is not valid. Valid platforms are: %s.' % (p, VALID_PLATFORMS))
 
 def validateSince(tracker, since):
 	if type(since) not in [str, dict]:
@@ -206,7 +210,7 @@ def validateProperty(typeTracker, property):
 			tracker.trackError('Required property for constant "permission" not found')
 		else:
 			if not property['permission'] == 'read-only':
-				tracker.trackError('Constant should have "read-only" permission.')
+				tracker.trackError("Constant should have 'read-only' permission.")
 
 def validateEvent(typeTracker, event):
 	tracker = ErrorTracker(event['name'], typeTracker)

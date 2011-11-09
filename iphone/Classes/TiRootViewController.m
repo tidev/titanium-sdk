@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+
 #import "TiRootViewController.h"
 #import "TiUtils.h"
 #import "TiViewProxy.h"
@@ -302,6 +303,88 @@
 	[rootView release];
 }
 
+-(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration
+{
+	UIApplication * ourApp = [UIApplication sharedApplication];
+	UIInterfaceOrientation oldOrientation = [ourApp statusBarOrientation];
+	CGAffineTransform transform;
+
+	switch (newOrientation)
+	{
+		case UIInterfaceOrientationPortraitUpsideDown:
+			transform = CGAffineTransformMakeRotation(M_PI);
+			break;
+		case UIInterfaceOrientationLandscapeLeft:
+			transform = CGAffineTransformMakeRotation(-M_PI_2);
+			break;
+		case UIInterfaceOrientationLandscapeRight:
+			transform = CGAffineTransformMakeRotation(M_PI_2);
+			break;
+		default:
+			transform = CGAffineTransformIdentity;
+			break;
+	}
+
+	[self willRotateToInterfaceOrientation:newOrientation duration:duration];
+	
+    // Have to batch all of the animations together, so that it doesn't look funky
+    if (duration > 0.0)
+	{
+		[UIView beginAnimations:@"orientation" context:nil];
+		[UIView setAnimationDuration:duration];
+	}
+    
+    
+    if (newOrientation != oldOrientation && isCurrentlyVisible)
+    {
+        [keyboardFocusedProxy blur:nil];
+        [ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
+        [keyboardFocusedProxy focus:nil];
+    }
+
+	UIView * ourView = [self view];
+	CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
+	[ourView setCenter:CGPointMake(viewFrame.origin.x + viewFrame.size.width/2.0, viewFrame.origin.y + viewFrame.size.height/2.0)];
+	if (UIInterfaceOrientationIsLandscape(newOrientation)) {
+		viewFrame.size = CGSizeMake(viewFrame.size.height, viewFrame.size.width);
+	}
+    [ourView setTransform:transform];
+	viewFrame.origin=CGPointZero;
+	[ourView setBounds:viewFrame];
+	[self resizeView];
+
+	[self willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
+
+    //Propigate this to everyone else. This has to be done INSIDE the animation.
+    [self repositionSubviews];
+    
+	lastOrientation = newOrientation;
+
+	
+	if (duration > 0.0)
+	{
+		[UIView commitAnimations];
+	}
+	
+	[self didRotateFromInterfaceOrientation:oldOrientation];
+}
+
+-(void)manuallyRotateToOrientation:(UIInterfaceOrientation) newOrientation
+{
+	NSTimeInterval animation = ([self focusedViewController]==nil)?0.0:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
+	[self manuallyRotateToOrientation:newOrientation duration:animation];
+}
+
+-(void)manuallyRotate
+{
+	for (int i = 0; i<4; i++) {
+		if ([self shouldAutorotateToInterfaceOrientation:orientationHistory[i]]) {
+			[self manuallyRotateToOrientation:orientationHistory[i]];
+			return;
+		}
+	}
+}
+
 -(void)updateOrientationIfNeeded
 {
 	UIInterfaceOrientation newOrientation = (UIInterfaceOrientation)
@@ -459,87 +542,6 @@
 	
 }
 
--(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration
-{
-	UIApplication * ourApp = [UIApplication sharedApplication];
-	UIInterfaceOrientation oldOrientation = [ourApp statusBarOrientation];
-	CGAffineTransform transform;
-
-	switch (newOrientation)
-	{
-		case UIInterfaceOrientationPortraitUpsideDown:
-			transform = CGAffineTransformMakeRotation(M_PI);
-			break;
-		case UIInterfaceOrientationLandscapeLeft:
-			transform = CGAffineTransformMakeRotation(-M_PI_2);
-			break;
-		case UIInterfaceOrientationLandscapeRight:
-			transform = CGAffineTransformMakeRotation(M_PI_2);
-			break;
-		default:
-			transform = CGAffineTransformIdentity;
-			break;
-	}
-
-	[self willRotateToInterfaceOrientation:newOrientation duration:duration];
-	
-    // Have to batch all of the animations together, so that it doesn't look funky
-    if (duration > 0.0)
-	{
-		[UIView beginAnimations:@"orientation" context:nil];
-		[UIView setAnimationDuration:duration];
-	}
-    
-    
-    if (newOrientation != oldOrientation && isCurrentlyVisible)
-    {
-        [keyboardFocusedProxy blur:nil];
-        [ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
-        [keyboardFocusedProxy focus:nil];
-    }
-
-	UIView * ourView = [self view];
-	CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
-	[ourView setCenter:CGPointMake(viewFrame.origin.x + viewFrame.size.width/2.0, viewFrame.origin.y + viewFrame.size.height/2.0)];
-	if (UIInterfaceOrientationIsLandscape(newOrientation)) {
-		viewFrame.size = CGSizeMake(viewFrame.size.height, viewFrame.size.width);
-	}
-    [ourView setTransform:transform];
-	viewFrame.origin=CGPointZero;
-	[ourView setBounds:viewFrame];
-	[self resizeView];
-
-	[self willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
-
-    //Propigate this to everyone else. This has to be done INSIDE the animation.
-    [self repositionSubviews];
-    
-	lastOrientation = newOrientation;
-
-	
-	if (duration > 0.0)
-	{
-		[UIView commitAnimations];
-	}
-	
-	[self didRotateFromInterfaceOrientation:oldOrientation];
-}
-
--(void)manuallyRotateToOrientation:(UIInterfaceOrientation) newOrientation
-{
-	NSTimeInterval animation = ([self focusedViewController]==nil)?0.0:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
-	[self manuallyRotateToOrientation:newOrientation duration:animation];
-}
-
--(void)manuallyRotate
-{
-	for (int i = 0; i<4; i++) {
-		if ([self shouldAutorotateToInterfaceOrientation:orientationHistory[i]]) {
-			[self manuallyRotateToOrientation:orientationHistory[i]];
-			return;
-		}
-	}
-}
 
 
 -(TiOrientationFlags)getDefaultOrientations
@@ -563,7 +565,7 @@
 		defaultFlags = TiOrientationNone;
 		for (NSString* orientationString in orientations)
 		{
-			UIInterfaceOrientation orientation = [TiUtils orientationValue:orientationString def:-1];
+			UIInterfaceOrientation orientation = (UIInterfaceOrientation)[TiUtils orientationValue:orientationString def:-1];
 			if (orientation != -1) {
 				TI_ORIENTATION_SET(defaultFlags, orientation);
 			}
@@ -584,7 +586,7 @@
 
 	for (id mode in newOrientationModes)
 	{
-		UIInterfaceOrientation orientation = [TiUtils orientationValue:mode def:-1];
+		UIInterfaceOrientation orientation = (UIInterfaceOrientation)[TiUtils orientationValue:mode def:-1];
 		switch (orientation)
 		{
 			case UIDeviceOrientationPortrait:
@@ -753,12 +755,10 @@ What this does mean is that any
 
 #pragma mark Remote Control Notifications
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 - (void)remoteControlReceivedWithEvent:(UIEvent *)event 
 { 
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiRemoteControlNotification object:self userInfo:[NSDictionary dictionaryWithObject:event forKey:@"event"]];
 }
-#endif
 
 #pragma mark TiOrientationFlags management.
 - (void)openWindow:(TiWindowProxy *)window withObject:(id)args
@@ -802,6 +802,7 @@ What this does mean is that any
 		[self childOrientationControllerChangedFlags:[windowProxies lastObject]];
 	}
 }
+
 
 -(void)childOrientationControllerChangedFlags:(id<TiOrientationController>) orientationController;
 {
@@ -862,14 +863,8 @@ What this does mean is that any
 {
 	NSValue *v = nil;
 	CGRect endingFrame;
-	BOOL canUse32Constants = [TiUtils isiPhoneOS3_2OrGreater];
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-	if (canUse32Constants)
-	{
-		v = [userInfo valueForKey:UIKeyboardFrameEndUserInfoKey];
-	}
-#endif
+	v = [userInfo valueForKey:UIKeyboardFrameEndUserInfoKey];
 	
 	if (v != nil)
 	{
@@ -877,23 +872,16 @@ What this does mean is that any
 	}
 	else
 	{
-		v = [userInfo valueForKey:UIKeyboardBoundsUserInfoKey];
+		v = [userInfo valueForKey:UIKeyboardFrameBeginUserInfoKey];
 		endingFrame = [v CGRectValue];
-		v = [userInfo valueForKey:UIKeyboardCenterEndUserInfoKey];
+		v = [userInfo valueForKey:UIKeyboardFrameEndUserInfoKey];
 		CGPoint endingCenter = [v CGPointValue];
 		endingFrame.origin.x = endingCenter.x - endingFrame.size.width/2.0;
 		endingFrame.origin.y = endingCenter.y - endingFrame.size.height/2.0;
 	}
 
 	CGRect startingFrame;
-	v = nil;
-	
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-	if (canUse32Constants)
-	{
-		v = [userInfo valueForKey:UIKeyboardFrameBeginUserInfoKey];
-	}
-#endif
+	v = [userInfo valueForKey:UIKeyboardFrameBeginUserInfoKey];
 
 	if (v != nil)
 	{
@@ -902,7 +890,7 @@ What this does mean is that any
 	else
 	{
 		startingFrame.size = endingFrame.size;
-		v = [userInfo valueForKey:UIKeyboardCenterBeginUserInfoKey];
+		v = [userInfo valueForKey:UIKeyboardFrameBeginUserInfoKey];
 		CGPoint startingCenter = [v CGPointValue];
 		startingFrame.origin.x = startingCenter.x - startingFrame.size.width/2.0;
 		startingFrame.origin.y = startingCenter.y - startingFrame.size.height/2.0;
