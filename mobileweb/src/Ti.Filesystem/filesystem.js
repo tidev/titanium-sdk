@@ -21,13 +21,13 @@
 		set: function(val){return _MODE_WRITE = val;}
 	});
 
-	var _applicationDataDirectory = "";
+	var _applicationDataDirectory = "/";
 	Object.defineProperty(api, 'applicationDataDirectory', {
 		get: function(){return _applicationDataDirectory;},
 		set: function(val){return _applicationDataDirectory = val;}
 	});
 
-	var _applicationDirectory = "";
+	var _applicationDirectory = "/";
 	Object.defineProperty(api, 'applicationDirectory', {
 		get: function(){return _applicationDirectory;},
 		set: function(val){return _applicationDirectory = val;}
@@ -39,13 +39,13 @@
 		set: function(val){return _lineEnding = val;}
 	});
 
-	var _resourcesDirectory = '/';
+	var _resourcesDirectory = "/";
 	Object.defineProperty(api, 'resourcesDirectory', {
 		get: function(){return _resourcesDirectory;},
 		set: function(val){return _resourcesDirectory = val;}
 	});
 
-	var _separator = null;
+	var _separator = "/";
 	Object.defineProperty(api, 'separator', {
 		get: function(){return _separator;},
 		set: function(val){return _separator = val;}
