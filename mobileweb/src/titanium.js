@@ -1,5 +1,190 @@
 function($window, args){
-	/* Appcelerator Titanium Mobile Web */
+	function is(it, type) {
+		return ({}).toString.call(it).indexOf('[object ' + type) === 0;
+	}
+
+	function each(a, fn) {
+		var i = 0,
+			l = (a && a.length) || 0,
+			args = Array.prototype.slice.call(arguments, 0);
+		args.shift();
+		while (i < l) {
+			args[0] = a[i++];
+			fn.apply(null, args);
+		}
+	}
+
+	// Object.defineProperty() shim
+	if (!Object.defineProperty || !(function (obj) {
+			try {
+				Object.defineProperty(obj, "x", {});
+				return obj.hasOwnProperty("x");
+			} catch (e) { }
+		}({}))) {
+		// add support for Object.defineProperty() thanks to es5-shim
+		Object.defineProperty = function defineProperty(obj, prop, desc) {
+			if (!obj || (!is(obj, "Object") && !is(obj, "Function") && !is(obj, "Window"))) {
+				throw new TypeError("Object.defineProperty called on non-object: " + obj);
+			}
+			desc = desc || {};
+			if (!desc || (!is(desc, "Object") && !is(desc, "Function"))) {
+				throw new TypeError("Property description must be an object: " + desc);
+			}
+	
+			if (odp) {
+				try {
+					return odp.call(Object, obj, prop, desc);
+				} catch (e) { }
+			}
+	
+			var op = Object.prototype,
+				h = function (o, p) {
+					return o.hasOwnProperty(p);
+				},
+				a = h(op, "__defineGetter__"),
+				p = obj.__proto__;
+	
+			if (h(desc, "value")) {
+				if (a && (obj.__lookupGetter__(prop) || obj.__lookupSetter__(prop))) {
+					obj.__proto__ = op;
+					delete obj[prop];
+					obj[prop] = desc.value;
+					obj.__proto__ = p;
+				} else {
+					obj[prop] = desc.value;
+				}
+			} else {
+				if (!a) {
+					throw new TypeError("Getters and setters can not be defined on this javascript engine");
+				}
+				if (h(desc, "get")) {
+					defineGetter(obj, prop, desc.get);
+				}
+				if (h(desc, "set")) {
+					defineSetter(obj, prop, desc.set);
+				} else {
+					obj[prop] = null;
+				}
+			}
+		};
+	}
+
+	// console.*() shim	
+	typeof console !== "undefined" || (console = {});
+
+	// make sure "log" is always at the end
+	each(["debug", "info", "warn", "error", "log"], function (c) {
+		console[c] || (console[c] = ("log" in console)
+			?	function () {
+					var a = Array.apply({}, arguments);
+					a.unshift(c + ":");
+					console.log(a.join(" "));
+				}
+			:	function () {}
+		);
+	});
+
+	// JSON.parse() and JSON.stringify() shim
+	if (typeof JSON === "undefined" || JSON.stringify({a:0}, function(k,v){return v||1;}) !== '{"a":1}') {
+		function escapeString(s){
+			return ('"' + s.replace(/(["\\])/g, '\\$1') + '"').
+				replace(/[\f]/g, "\\f").replace(/[\b]/g, "\\b").replace(/[\n]/g, "\\n").
+				replace(/[\t]/g, "\\t").replace(/[\r]/g, "\\r");
+		}
+	
+		JSON.parse = function (s) {
+			return eval('(' + s + ')');
+		};
+	
+		JSON.stringify = function (value, replacer, space) {
+			var undef;
+			if (is(replacer, "String")) {
+				space = replacer;
+				replacer = null;
+			}
+	
+			function stringify(it, indent, key) {
+				var val,
+					len,
+					objtype = typeof it,
+					nextIndent = space ? (indent + space) : "",
+					sep = space ? " " : "",
+					newLine = space ? "\n" : "",
+					ar = [];
+	
+				if (replacer) {
+					it = replacer(key, it);
+				}
+				if (objtype === "number") {
+					return isFinite(it) ? it + "" : "null";
+				}
+				if (is(objtype, "Boolean")) {
+					return it + "";
+				}
+				if (it === null) {
+					return "null";
+				}
+				if (is(it, "String")) {
+					return escapeString(it);
+				}
+				if (objtype === "function" || objtype === "undefined") {
+					return undef;
+				}
+	
+				// short-circuit for objects that support "json" serialization
+				// if they return "self" then just pass-through...
+				if (is(it.toJSON, "Function")) {
+					return stringify(it.toJSON(key), indent, key);
+				}
+				if (it instanceof Date) {
+					return '"{FullYear}-{Month+}-{Date}T{Hours}:{Minutes}:{Seconds}Z"'.replace(/\{(\w+)(\+)?\}/g, function(t, prop, plus){
+						var num = it["getUTC" + prop]() + (plus ? 1 : 0);
+						return num < 10 ? "0" + num : num;
+					});
+				}
+				if (it.valueOf() !== it) {
+					return stringify(it.valueOf(), indent, key);
+				}
+	
+				// array code path
+				if (it instanceof Array) {
+					for(key = 0, len = it.length; key < len; key++){
+						var obj = it[key];
+						val = stringify(obj, nextIndent, key);
+						if (!is(val, "String")) {
+							val = "null";
+						}
+						ar.push(newLine + nextIndent + val);
+					}
+					return "[" + ar.join(",") + newLine + indent + "]";
+				}
+	
+				// generic object code path
+				for (key in it) {
+					var keyStr;
+					if (is(key, "Number")) {
+						keyStr = '"' + key + '"';
+					} else if (is(key, "String")) {
+						keyStr = escapeString(key);
+					} else {
+						continue;
+					}
+					val = stringify(it[key], nextIndent, key);
+					if (!is(val, "String")) {
+						// skip non-serializable values
+						continue;
+					}
+					// At this point, the most non-IE browsers don't get in this branch 
+					// (they have native JSON), so push is definitely the way to
+					ar.push(newLine + nextIndent + keyStr + ":" + sep + val);
+				}
+				return "{" + ar.join(",") + newLine + indent + "}"; // String
+			}
+	
+			return stringify(value, "", "");
+		};
+	}
+
 	console.info("[INFO] Appcelerator Titanium " + (args['tiVersion'] || "") + " for Mobile Web");
 
 	var Ti = {};
