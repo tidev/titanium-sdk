@@ -13,6 +13,7 @@ methods:
 events:
   - name: blur
     description: fired when the field loses focus
+    platforms: [android, iphone, ipad]
     properties:
       - name: value
         description: the value of the field upon blur
@@ -41,6 +42,7 @@ events:
             since: "1.8.0"
   - name: focus
     description: fired when the field gains focus
+    platforms: [android, iphone, ipad]
     properties:
       - name: value
         description: the value of the field upon focus
@@ -55,6 +57,7 @@ events:
             since: "1.8.0"
   - name: return
     description: fired when the field return key is pressed on the keyboard
+    platforms: [android, iphone, ipad]
     properties:
       - name: value
         description: the value of the field upon return
@@ -88,7 +91,7 @@ properties:
     type: Number
   - name: autocapitalization
     description: One of <Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE>, <Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS>, <Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES>, or <Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL> to indicate how the field should be capitalized during typing.
-    platforms: [android]
+    platforms: [android, mobileweb]
     type: Number
   - name: editable
     description: boolean indicating if the field is editable
@@ -99,12 +102,15 @@ properties:
   - name: keyboardToolbar
     description: array of toolbar button objects to be used when the keyboard is displayed
     type: Array<Object>
+    platforms: [android, iphone, ipad]
   - name: keyboardToolbarColor
     description: the color of the keyboard toolbar
     type: String
+    platforms: [android, iphone, ipad]
   - name: keyboardToolbarHeight
     description: the height of the keyboard toolbar
     type: Number
+    platforms: [android, iphone, ipad]
   - name: suppressReturn
     description: boolean to indicate if the return key should be suppressed during entry
     type: Boolean
