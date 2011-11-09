@@ -254,6 +254,7 @@ public class AndroidModule extends KrollModule
 		return intent;
 	}
 
+	@Kroll.method
 	public IntentProxy createBroadcastIntent(Object[] args)
 	{
 		IntentProxy intent = new IntentProxy();
