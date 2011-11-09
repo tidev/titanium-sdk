@@ -108,6 +108,23 @@ public class WebViewProxy extends ViewProxy
 		}
 		clearBasicAuthentication();
 		getWebView().setBasicAuthentication(username, password);
+
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setUserAgent(String userAgent)
+	{
+		TiUIWebView currWebView = getWebView();
+		if (currWebView != null) {
+			currWebView.setUserAgentString(userAgent);
+		}
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public String getUserAgent()
+	{
+		TiUIWebView currWebView = getWebView();
+		return (currWebView != null) ? currWebView.getUserAgentString() : "";
 	}
 
 	@Kroll.method
