@@ -236,7 +236,7 @@ public class TableViewProxy extends TiViewProxy
 		int index = -1;
 		int idx = 0;
 		if (name != null) {
-			for (TableViewSectionProxy section : getSections()) {
+			for (TableViewSectionProxy section : getLocalSections()) {
 				for (TableViewRowProxy row : section.getRows()) {
 					String rname = TiConvert.toString(row.getProperty(TiC.PROPERTY_NAME));
 					if (rname != null && name.equals(rname)) {
@@ -311,7 +311,12 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public TableViewSectionProxy[] getSections()
+	public Object[] getSections()
+	{
+		return getData();
+	}
+
+	public TableViewSectionProxy[] getLocalSections()
 	{
 		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
 		return sections.toArray(new TableViewSectionProxy[sections.size()]);
@@ -459,7 +464,7 @@ public class TableViewProxy extends TiViewProxy
 		int rowCount = 0;
 		int sectionIndex = 0;
 
-		for (TableViewSectionProxy section : getSections()) {
+		for (TableViewSectionProxy section : getLocalSections()) {
 			int sectionRowCount = (int) section.getRowCount();
 			if (sectionRowCount + rowCount > index) {
 				rowResult.section = section;
@@ -549,7 +554,7 @@ public class TableViewProxy extends TiViewProxy
 	public void eventListenerAdded(String eventName, int count, KrollProxy proxy) {
 		super.eventListenerAdded(eventName, count, proxy);
 		if (eventName.equals(TiC.EVENT_CLICK) && proxy == this) {
-			for (TableViewSectionProxy section : getSections()) {
+			for (TableViewSectionProxy section : getLocalSections()) {
 				for (TableViewRowProxy row : section.getRows()) {
 					row.setLabelsClickable(true);
 				}
@@ -561,7 +566,7 @@ public class TableViewProxy extends TiViewProxy
 	public void eventListenerRemoved(String eventName, int count, KrollProxy proxy) {
 		super.eventListenerRemoved(eventName, count, proxy);
 		if (eventName.equals(TiC.EVENT_CLICK) && count == 0 && proxy == this) {
-			for (TableViewSectionProxy section : getSections()) {
+			for (TableViewSectionProxy section : getLocalSections()) {
 				for (TableViewRowProxy row : section.getRows()) {
 					row.setLabelsClickable(false);
 				}
