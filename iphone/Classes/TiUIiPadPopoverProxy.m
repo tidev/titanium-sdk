@@ -11,6 +11,8 @@
 #import "TiUtils.h"
 #import <libkern/OSAtomic.h>
 
+TiUIiPadPopoverProxy * currentlyDisplaying = nil;
+
 @implementation TiUIiPadPopoverProxy
 @synthesize viewController, popoverView;
 
@@ -26,6 +28,10 @@
 
 -(void)dealloc
 {
+	if (currentlyDisplaying == self) {
+		//This shouldn't happen because we clear it on hide.
+		currentlyDisplaying = nil;
+	}
 	[viewController setProxy:nil];
 	RELEASE_TO_NIL(viewController);
 	RELEASE_TO_NIL(navigationController);
@@ -225,7 +231,7 @@
 
 -(void)updatePopover:(NSNotification *)notification;
 {
-	[self performSelector:@selector(updatePopoverNow) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+	[self performSelector:@selector(updatePopoverNow) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration] inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 }
 
 -(void)updatePopoverNow
@@ -235,6 +241,12 @@
         return;
     }
     
+	if ((currentlyDisplaying != self)) {
+		[currentlyDisplaying hide:nil];
+		currentlyDisplaying = self;
+	}
+	
+	
 	[self updateContentSize];
 
 	if ([popoverView isUsingBarButtonItem])
@@ -274,31 +286,31 @@
 	}
 }
 
-
 -(void)hide:(id)args
 {
-    if (![NSThread isMainThread]) {
-        ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
-        
-        [closingCondition lock];
-        isDismissing = YES;
-        [closingCondition unlock];
-        
-        [self performSelectorOnMainThread:@selector(hide:) withObject:args waitUntilDone:NO];
-        return;
-    }
+	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+	
+	[closingCondition lock];
+	isDismissing = YES;
+	[closingCondition unlock];
+	
+	TiThreadPerformOnMainThread(^{
+		if (currentlyDisplaying == self) {
+			currentlyDisplaying = nil;
+		}
+		BOOL animated_ = [TiUtils boolValue:@"animated" properties:args def:YES];
+		[[self popoverController] dismissPopoverAnimated:animated_];
+		
+		// Manually calling dismissPopoverAnimated: does not, in fact, call the delegate's
+		// popoverControllerDidDismissPopover: callback. See documentation!
+		
+		// OK, apparently we need the delay so that the animation can finish and the popover vanish before making any
+		// dealloc attempts. But mixing poorly-timed hide/show calls can lead to crashes due to this delay, so we
+		// have to set a flag to warn show(), and then trigger a condition when the flag is cleared.
+		
+		[self performSelector:@selector(popoverControllerDidDismissPopover:) withObject:popoverController afterDelay:0.5];		
 
-	BOOL animated_ = [TiUtils boolValue:@"animated" properties:args def:YES];
-	[[self popoverController] dismissPopoverAnimated:animated_];
-
-    // Manually calling dismissPopoverAnimated: does not, in fact, call the delegate's
-    // popoverControllerDidDismissPopover: callback. See documentation!
-    
-    // OK, apparently we need the delay so that the animation can finish and the popover vanish before making any
-    // dealloc attempts. But mixing poorly-timed hide/show calls can lead to crashes due to this delay, so we
-    // have to set a flag to warn show(), and then trigger a condition when the flag is cleared.
-    
-	[self performSelector:@selector(popoverControllerDidDismissPopover:) withObject:popoverController afterDelay:0.5];
+	},NO);
 }
 
 -(void)setPassthroughViews:(id)args
@@ -329,6 +341,9 @@
         [closingCondition unlock];
         
 		return;
+	}
+	if (currentlyDisplaying == self) {
+		currentlyDisplaying = nil;
 	}
 	[self windowWillClose];
 	isShowing = NO;
