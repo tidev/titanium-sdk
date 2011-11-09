@@ -7,7 +7,6 @@
 package org.appcelerator.kroll.annotations.generator;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,14 +14,30 @@ import java.util.Map;
 import javax.lang.model.element.AnnotationMirror;
 
 @SuppressWarnings("unchecked")
-public class JSONUtils {
+public class JSONUtils
+{
 	protected KrollAnnotationUtils annUtils;
-	
-	public JSONUtils(KrollAnnotationUtils annUtils) {
+
+	public JSONUtils()
+	{
+	}
+
+	public JSONUtils(KrollAnnotationUtils annUtils)
+	{
 		this.annUtils = annUtils;
 	}
-	
-	public Map<Object,Object> getOrCreateMap(Map<Object,Object> map, String name) {
+
+	public Map<Object, Object> getMap(Map<? extends Object, Object> map, String name)
+	{
+		return (Map<Object, Object>) map.get(name);
+	}
+
+	public Map<String, Object> getStringMap(Map<? extends Object, Object> map, String name) {
+		return (Map<String, Object>) map.get(name);
+	}
+
+	public Map<Object, Object> getOrCreateMap(Map<Object,Object> map, String name)
+	{
 		Map<Object,Object> subMap = (Map<Object,Object>) map.get(name);
 		if (subMap == null) {
 			subMap = new HashMap<Object,Object>();
@@ -30,8 +45,9 @@ public class JSONUtils {
 		}
 		return subMap;
 	}
-	
-	public List<Object> getOrCreateList(Map<Object,Object> map, String name) {
+
+	public List<Object> getOrCreateList(Map<Object,Object> map, String name)
+	{
 		List<Object> list = (List<Object>) map.get(name);
 		if (list == null) {
 			list = new ArrayList<Object>();
@@ -39,12 +55,12 @@ public class JSONUtils {
 		}
 		return list;
 	}
-	
+
 	public void appendUnique(Map<Object,Object> parent, String arrayName, Object value)
 	{
 		appendUnique(getOrCreateList(parent, arrayName), value);
 	}
-	
+
 	public void appendUnique(List<Object> list, Object value)
 	{
 		// treat the array like a set
@@ -86,11 +102,13 @@ public class JSONUtils {
 		}
 	}
 
-	public void updateObjectFromAnnotation(Map<Object,Object> object, AnnotationMirror annotation) {
+	public void updateObjectFromAnnotation(Map<Object,Object> object, AnnotationMirror annotation)
+	{
 		updateObjectFromAnnotationParams(object, annUtils.getAnnotationParams(annotation));
 	}
-	
-	public void updateObjectFromAnnotationParams(Map<Object,Object> object, HashMap<String, Object> params) {
+
+	public void updateObjectFromAnnotationParams(Map<Object,Object> object, HashMap<String, Object> params)
+	{
 		for (String key : params.keySet()) {
 			Object value = params.get(key);
 			if (object.containsKey(key)) {
