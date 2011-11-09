@@ -225,7 +225,6 @@ def zip_mobileweb(zf,basepath,version):
 		"__TIMESTAMP__":ts,
 		"__GITHASH__": githash
 	}
-	zip_dir(zf,mobileweb_dir,basepath,subs)
 	zip_dir(zf,os.path.join(top_dir,'mobileweb','src'),os.path.join(basepath,'mobileweb','src'),subs)
 
 def create_platform_zip(platform,dist_dir,osname,version,version_tag):
