@@ -26,7 +26,7 @@ except:
 	sys.exit(1)
 
 
-VALID_PLATFORMS = ["android", "iphone", "ipad"]
+VALID_PLATFORMS = ["android", "iphone", "ipad", "mobileweb"]
 types = {}
 errorTrackers = {}
 options = None

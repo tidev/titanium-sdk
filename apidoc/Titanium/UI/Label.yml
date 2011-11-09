@@ -34,13 +34,15 @@ properties:
   - name: highlightedColor
     description: the color of the label when in the highlighted state
     type: String
+    platforms: [android, iphone, ipad]
   - name: html
-    description: simple html formatting. (Android Only)
-    platforms: [android]
+    description: simple html formatting.
+    platforms: [android, mobileweb]
     type: String
   - name: minimumFontSize
     description: the minimum size of the font when the font is sized based on the contents.  Enables font scaling to fit and forces the label content to be limited to a single line
     type: Number
+    platforms: [android, iphone, ipad]
   - name: shadowColor
     description: the text shadow color
     type: String
@@ -57,9 +59,9 @@ properties:
     description: the key in the locale file to use for the text property
     type: String
   - name: wordWrap
-    description: Turn on/off word wrapping in the label. (Android Only - default true)
+    description: Turn on/off word wrapping in the label.
     type: Boolean
-    platforms: [android]
+    platforms: [android, mobileweb]
     default: true
 examples:
   - title: Basic Label

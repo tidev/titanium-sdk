@@ -3,6 +3,7 @@ name: Titanium.UI.Animation
 description: The Animation object is used for specifying lower-level animation properties and more low-level control of events during an animation. The Animation is created by the method <Titanium.UI.createAnimation>.
 extends: Titanium.Proxy
 since: "0.9"
+platforms: [android, iphone, ipad]
 events:
   - name: complete
     description: fired when the animation completes

@@ -8,6 +8,7 @@ description: >
     defintion of a DOM NamedNodeMap.
 since: "0.9"
 createable: false
+platforms: [android, iphone, ipad]
 methods:
   - name: getNamedItem
     description: Retrieves a node specified by name. 

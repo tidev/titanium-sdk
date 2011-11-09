@@ -3,6 +3,7 @@ name: Titanium.Contacts.Person
 description: An object which represents a person in the contacts database.
 extends: Titanium.Proxy
 since: "0.8"
+platforms: [android, iphone, ipad]
 properties:
   - name: url
     description: |

@@ -3,6 +3,7 @@ name: Titanium.Stream
 description: Stream module containing stream utility methods
 extends: Titanium.Module
 since: "1.7"
+platforms: [android, iphone, ipad]
 
 properties:
   - name: MODE_READ
