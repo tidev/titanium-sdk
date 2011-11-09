@@ -227,7 +227,7 @@ void ${className}::setter_${name}(Local<String> property, Local<Value> value, co
 
 	<@Proxy.initMethodID className=className name=property.setMethodName signature=setSignature logOnly=true />
 
-	Proxy* proxy = Proxy::unwrap(info.This());
+	Proxy* proxy = Proxy::unwrap(info.Holder());
 	if (!proxy) {
 		return;
 	}
