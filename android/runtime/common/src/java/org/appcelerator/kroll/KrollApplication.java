@@ -6,10 +6,19 @@
  */
 package org.appcelerator.kroll;
 
+import org.appcelerator.kroll.common.CurrentActivityListener;
+
+import android.app.Activity;
+
 /**
  * An interface for things Kroll needs from the application instance
  */
 public interface KrollApplication
 {
 	public int getThreadStackSize();
+	
+	public Activity getCurrentActivity();
+	
+	public void waitForCurrentActivity(CurrentActivityListener l);
+	
 }

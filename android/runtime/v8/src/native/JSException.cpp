@@ -26,10 +26,11 @@ Handle<Value> JSException::fromJavaException(jthrowable javaException)
 	bool deleteRef = false;
 	if (!javaException) {
 		javaException = env->ExceptionOccurred();
+		env->ExceptionClear();
 		deleteRef = true;
 	}
 
-	env->ExceptionDescribe();
+	//env->ExceptionDescribe();
 
 	jstring message = (jstring) env->CallObjectMethod(javaException, JNIUtil::throwableGetMessageMethod);
 	if (!message) {

@@ -12,6 +12,8 @@
 #include "JNIUtil.h"
 #include "JSException.h"
 #include "AndroidUtil.h"
+#include "TypeConverter.h"
+
 
 namespace titanium {
 using namespace v8;
@@ -82,6 +84,7 @@ void V8Util::reportException(TryCatch &tryCatch, bool showLine)
 {
 	HandleScope scope;
 	Handle<Message> message = tryCatch.Message();
+
 	if (nameSymbol.IsEmpty()) {
 		nameSymbol = SYMBOL_LITERAL("name");
 		messageSymbol = SYMBOL_LITERAL("message");
@@ -121,16 +124,47 @@ void V8Util::reportException(TryCatch &tryCatch, bool showLine)
 	}
 }
 
+void V8Util::openJSErrorDialog(TryCatch &tryCatch)
+{
+	JNIEnv *env = JNIUtil::getJNIEnv();
+	if (!env) {
+		return;
+	}
+
+	Handle<Message> message = tryCatch.Message();
+
+	jstring title = env->NewStringUTF("Runtime Error");
+	jstring errorMessage = TypeConverter::jsValueToJavaString(message->Get());
+	jstring resourceName = TypeConverter::jsValueToJavaString(message->GetScriptResourceName());
+	jstring sourceLine = TypeConverter::jsValueToJavaString(message->GetSourceLine());
+
+	env->CallStaticVoidMethod(
+		JNIUtil::tiJsErrorDialogClass,
+		JNIUtil::openErrorDialogMethod,
+		title,
+		errorMessage,
+		resourceName,
+		message->GetLineNumber(),
+		sourceLine,
+		message->GetEndColumn());
+
+	env->DeleteLocalRef(title);
+	env->DeleteLocalRef(errorMessage);
+	env->DeleteLocalRef(resourceName);
+	env->DeleteLocalRef(sourceLine);
+
+}
+
 static int uncaughtExceptionCounter = 0;
 
 void V8Util::fatalException(TryCatch &tryCatch)
 {
 	HandleScope scope;
+
 	// Check if uncaught_exception_counter indicates a recursion
 	if (uncaughtExceptionCounter > 0) {
 		reportException(tryCatch, true);
 		LOGF(TAG, "Double exception fault");
-		JNIUtil::terminateVM();
 	}
 	reportException(tryCatch, true);
 }
