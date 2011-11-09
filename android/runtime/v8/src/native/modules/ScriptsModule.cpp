@@ -248,7 +248,7 @@ Handle<Value> WrappedScript::EvalMachine(const Arguments& args)
 		script = output_flag == returnResult ? Script::Compile(code, filename) : Script::New(code, filename);
 		if (script.IsEmpty()) {
 			// Hack because I can't get a proper stacktrace on SyntaxError
-			return result == args.This() ? result : scope.Close(result);
+			return Undefined();
 		}
 	} else {
 		WrappedScript *n_script = NativeObject::Unwrap<WrappedScript>(args.Holder());
@@ -270,7 +270,7 @@ Handle<Value> WrappedScript::EvalMachine(const Arguments& args)
 				context->Exit();
 				context.Dispose();
 			}
-			return result == args.This() ? result : scope.Close(result);
+			return Undefined();
 		}
 	} else {
 		WrappedScript *n_script = NativeObject::Unwrap<WrappedScript>(args.Holder());

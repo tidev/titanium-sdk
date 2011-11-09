@@ -191,8 +191,11 @@ public class TiJSErrorDialog implements Handler.Callback
 			}
 		};
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(context).setTitle(error.title).setView(layout)
-			.setPositiveButton("Kill", clickListener).setNeutralButton("Continue", clickListener).setCancelable(false);
+		AlertDialog.Builder builder = new AlertDialog.Builder(context)
+			.setTitle(error.title).setView(layout)
+			.setPositiveButton("Kill", clickListener)
+			.setNeutralButton("Continue", clickListener)
+			.setCancelable(false);
 
 		// TODO: Enable when we have fastdev working
 		// if (TiFastDev.isFastDevEnabled()) {

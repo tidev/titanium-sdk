@@ -133,7 +133,7 @@ void V8Util::openJSErrorDialog(TryCatch &tryCatch)
 
 	Handle<Message> message = tryCatch.Message();
 
-	jstring title = env->NewStringUTF((const char *)"Runtime Error");
+	jstring title = env->NewStringUTF("Runtime Error");
 	jstring errorMessage = TypeConverter::jsValueToJavaString(message->Get());
 	jstring resourceName = TypeConverter::jsValueToJavaString(message->GetScriptResourceName());
 	jstring sourceLine = TypeConverter::jsValueToJavaString(message->GetSourceLine());
