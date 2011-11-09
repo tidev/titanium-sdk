@@ -677,6 +677,11 @@ beprovided to handle the result.
 	env->${callExpr}(${argExpr});
 	</#if>
 
+	<#-- Delete java proxy reference once done making the call. -->
+	if (!JavaObject::useGlobalRefs) {
+		env->DeleteLocalRef(${jobjectVar});
+	}
+
 	<@Proxy.cleanupMethodArguments args=methodArgs hasInvocation=hasInvocation/>
 
 	if (env->ExceptionCheck()) {

@@ -1,0 +1,21 @@
+.HTML5_DOMElement {
+
+}
+
+.HTML5_Styleable {
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	line-height: normal;
+}
+.HTML5_verticalLayout{
+	clear: both;
+}
+
+.HTML5_verticalLayout > .HTML5_DOMElement {
+	position: relative !important;
+}
+
+.HTML5_horizontalLayout > .HTML5_DOMElement {
+	float: left;
+	position: relative;
+}

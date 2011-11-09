@@ -232,10 +232,12 @@ public class TiHTTPClient
 					if (entity.getContentType() != null) {
 						contentType = entity.getContentType().getValue();
 					}
-					if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip"))
+					if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip")) {
 						is = new GZIPInputStream(entity.getContent());
-					else
+					}
+					else {
 						is = entity.getContent();
+					}
 					charset = EntityUtils.getContentCharSet(entity);
 				} else {
 					is = null;

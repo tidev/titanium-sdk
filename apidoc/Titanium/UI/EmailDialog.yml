@@ -4,6 +4,7 @@ description: The Email Dialog is created by <Titanium.UI.createEmailDialog> and 
     application emails on behalf of the application user.
 extends: Titanium.Proxy
 since: "0.8"
+platforms: [android, iphone, ipad]
 methods:
   - name: addAttachment
     description: |
