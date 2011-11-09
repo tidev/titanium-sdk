@@ -76,7 +76,12 @@ public class MediaModule extends KrollModule
 	@Kroll.constant public static final int VIDEO_CONTROL_FULLSCREEN = 2;
 	@Kroll.constant public static final int VIDEO_CONTROL_NONE = 3;
 	@Kroll.constant public static final int VIDEO_CONTROL_HIDDEN = 4;
-	
+
+	@Kroll.constant public static final int VIDEO_LOAD_STATE_UNKNOWN = 0;
+	@Kroll.constant public static final int VIDEO_LOAD_STATE_PLAYABLE = 1 << 0;
+	@Kroll.constant public static final int VIDEO_LOAD_STATE_PLAYTHROUGH_OK = 1 << 1;
+	@Kroll.constant public static final int VIDEO_LOAD_STATE_STALLED = 1 << 2;
+
 	@Kroll.constant public static final String MEDIA_TYPE_PHOTO = "public.image";
 	@Kroll.constant public static final String MEDIA_TYPE_VIDEO = "public.video";
 

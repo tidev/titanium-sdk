@@ -28,6 +28,7 @@ public class TiC
 	public static final String EVENT_DESTROY = "destroy";
 	public static final String EVENT_DOUBLE_CLICK = "dblclick";
 	public static final String EVENT_DOUBLE_TAP = "doubletap";
+	public static final String EVENT_ERROR = "error";
 	public static final String EVENT_FOCUS = "focus";
 	public static final String EVENT_FOCUSED = "focused";
 	public static final String EVENT_HEADING = "heading";
@@ -45,6 +46,7 @@ public class TiC
 	public static final String EVENT_PROPERTY_INTENT = "intent";
 	public static final String EVENT_PROPERTY_LAYOUT_NAME = "layoutName";
 	public static final String EVENT_PROPERTY_MENU = "menu";
+	public static final String EVENT_PROPERTY_MESSAGE = "message";
 	public static final String EVENT_PROPERTY_PREVIOUS_INDEX = "previousIndex";
 	public static final String EVENT_PROPERTY_PREVIOUS_TAB = "previousTab";
 	public static final String EVENT_PROPERTY_REQUEST_CODE = "requestCode";
