@@ -8,6 +8,7 @@ description: An interface extending <Titanium.XML.Node> with a set of
     with the javascript engine, text is represented by UTF-8 instead of UTF-16.
 since: "0.9"
 createable: false
+platforms: [android, iphone, ipad]
 methods:
   - name: appendData
     description: Append the string to the end of the character data of the node. 

@@ -3,6 +3,7 @@ name: Titanium.Media.Sound
 description: The Sound object is returned by <Titanium.Media.createSound> and is useful for playing basic sounds. The Sound object loads the entire media resource in memory before playing.  If you need to support streaming, use the <Titanium.Media.createAudioPlayer> API.
 extends: Titanium.Proxy
 since: "0.8"
+platforms: [android, iphone, ipad]
 methods:
   - name: getTime
     description: return the current time position of the audio

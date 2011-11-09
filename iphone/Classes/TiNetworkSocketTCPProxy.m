@@ -94,6 +94,7 @@ static NSString* ARG_KEY = @"arg";
     
     [socket disconnect];
     [socket setDelegate:nil];
+    
     RELEASE_TO_NIL(socket);
 }
 
@@ -158,6 +159,7 @@ static NSString* ARG_KEY = @"arg";
             [self _fireEventToListener:@"error" withObject:event listener:error thisObject:self];
         }
         
+        socketThread = nil;
         [pool release];
         return;
     }

@@ -1,0 +1,18 @@
+%%define lookup-function-name lookupGeneratedInit
+%%define class-name generated
+%%{
+
+#include <string.h>
+#include <v8.h>
+%(headers)s
+
+namespace titanium {
+namespace bindings {
+
+%%}
+struct BindEntry;
+%%%%
+%(bindings)s
+%%%%
+} // namespace bindings
+} // namespace titanium
