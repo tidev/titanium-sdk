@@ -15,6 +15,7 @@ methods:
       - name: name
         description: the name of the database
         type: String
+    platforms: [android, iphone, ipad]
   - name: open
     description: open a database. if it doesn't yet exist, create it.
     returns:

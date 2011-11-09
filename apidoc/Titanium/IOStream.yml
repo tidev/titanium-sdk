@@ -4,6 +4,7 @@ description: IOStream is the interface that all stream types implement
 since: "1.7"
 extends: Titanium.Proxy
 createable: false
+platforms: [android, iphone, ipad]
 
 methods:
   - name: read

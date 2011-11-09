@@ -5,6 +5,7 @@ description: Represents the textual content of an <Titanium.XML.Element> or <Tit
     This conforms to the [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html)
     defintion of a DOM Text.
 createable: false
+platforms: [android, iphone, ipad]
 methods:
   - name: splitText
     description: Breaks this node into two nodes at the specified by offset,
