@@ -154,7 +154,7 @@
 -(void)textWidget:(UIView<UITextInputTraits>*)tw didFocusWithText:(NSString *)value
 {
 	TiViewProxy * ourProxy = (TiViewProxy *)[self proxy];
-	[[TiApp controller] didKeyboardFocusOnProxy:ourProxy];
+	[[TiApp controller] didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)ourProxy];
 
 	if ([ourProxy _hasListeners:@"focus"])
 	{
@@ -166,7 +166,7 @@
 {
 	TiViewProxy * ourProxy = (TiViewProxy *)[self proxy];
 
-	[[TiApp controller] didKeyboardBlurOnProxy:ourProxy];
+	[[TiApp controller] didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)ourProxy];
 
 	if ([ourProxy _hasListeners:@"blur"])
 	{
