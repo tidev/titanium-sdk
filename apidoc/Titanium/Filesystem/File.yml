@@ -3,6 +3,7 @@ name: Titanium.Filesystem.File
 description: The File object which support various filesystem based operations.
 extends: Titanium.Proxy
 since: "0.1"
+platforms: [android, iphone, ipad]
 methods:
   - name: createDirectory
     description: create a directory at the path for the file object

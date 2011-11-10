@@ -236,11 +236,12 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 -(void)setModelDelegate:(id <TiProxyDelegate>)md
 {
-    if (modelDelegate != self) {
+	// TODO; revisit modelDelegate/TiProxy typing issue
+    if ((void*)modelDelegate != self) {
         RELEASE_TO_NIL(modelDelegate);
     }
     
-    if (md != self) {
+    if ((void*)md != self) {
         modelDelegate = [md retain];
     }
     else {
@@ -395,7 +396,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	
 	RELEASE_TO_NIL(baseURL);
 	RELEASE_TO_NIL(krollDescription);
-    if (modelDelegate != self) {
+    if ((void*)modelDelegate != self) {
         RELEASE_TO_NIL(modelDelegate);
     }
 	pageContext=nil;
@@ -612,7 +613,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 			[pageKrollObject protectJsobject];
 			return;
 		}
-		[pageKrollObject noteKeylessKrollObject:[rememberedProxy krollObjectForBridge:pageContext]];
+		[pageKrollObject noteKeylessKrollObject:[rememberedProxy krollObjectForBridge:(KrollBridge*)pageContext]];
 		return;
 	}
 	if (bridgeCount < 1)
@@ -647,7 +648,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 			[pageKrollObject unprotectJsobject];
 			return;
 		}
-		[pageKrollObject forgetKeylessKrollObject:[forgottenProxy krollObjectForBridge:pageContext]];
+		[pageKrollObject forgetKeylessKrollObject:[forgottenProxy krollObjectForBridge:(KrollBridge*)pageContext]];
 		return;
 	}
 	if (bridgeCount < 1)
@@ -698,7 +699,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		return;
 	}
 
-	KrollBridge * blessedBridge = [[eventCallback context] delegate];
+	KrollBridge * blessedBridge = (KrollBridge*)[[eventCallback context] delegate];
 	NSArray * bridges = [KrollBridge krollBridgesUsingProxy:self];
 
 	for (KrollBridge * currentBridge in bridges)
@@ -864,7 +865,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 			id currentValue = [keyedValues objectForKey:currentKey];
 			if([currentValue isKindOfClass:[TiProxy class]] && [pageContext usesProxy:currentValue])
 			{
-				[pageKrollObject noteKrollObject:[currentValue krollObjectForBridge:pageContext] forKey:currentKey];
+				[pageKrollObject noteKrollObject:[currentValue krollObjectForBridge:(KrollBridge*)pageContext] forKey:currentKey];
 			}
 		}
 	}
@@ -1010,8 +1011,8 @@ DEFINE_EXCEPTIONS
 		//As a wrapper, we hold onto a krollFunction tuple so that other contexts
 		//may access the function.
 		KrollFunction * newValue = [[[KrollFunction alloc] init] autorelease];
-		[newValue setRemoteBridge:[[value context] delegate]];
-		[newValue setRemoteFunction:[value function]];
+		[newValue setRemoteBridge:(KrollBridge*)[[(KrollCallback*)value context] delegate]];
+		[newValue setRemoteFunction:[(KrollCallback*)value function]];
 		value = newValue;
 	}
 

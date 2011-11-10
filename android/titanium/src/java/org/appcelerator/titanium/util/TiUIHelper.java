@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
@@ -125,11 +126,6 @@ public class TiUIHelper
 			.setPositiveButton("Continue", positiveListener)
 			.setNegativeButton("Kill", negativeListener)
 			.setCancelable(false).create().show();
-	}
-
-	public static interface CurrentActivityListener
-	{
-		public void onCurrentActivityReady(Activity activity);
 	}
 
 	public static void waitForCurrentActivity(final CurrentActivityListener l)

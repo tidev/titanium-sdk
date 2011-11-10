@@ -7,7 +7,7 @@ deprecated:
     since: "1.7.0"
     removed: "2.0.0"
 since: "1.2.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, mobileweb]
 methods:
   - name: close
     deprecated:

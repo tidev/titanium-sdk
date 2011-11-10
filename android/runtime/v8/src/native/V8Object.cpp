@@ -101,6 +101,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 	}
 
 	if (tryCatch.HasCaught()) {
+		V8Util::openJSErrorDialog(tryCatch);
 		V8Util::reportException(tryCatch);
 	} else if (result->IsTrue()) {
 		return JNI_TRUE;
@@ -153,6 +154,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetWindow
 	}
 
 	if (tryCatch.HasCaught()) {
+		V8Util::openJSErrorDialog(tryCatch);
 		V8Util::reportException(tryCatch);
 	}
 }

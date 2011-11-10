@@ -3,6 +3,7 @@ name: Titanium.Network.Socket
 description: Socket module
 extends: Titanium.Module
 since: "1.7"
+platforms: [android, iphone, ipad]
 
 properties:
   - name: INITIALIZED

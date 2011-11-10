@@ -32,8 +32,14 @@ public:
 		return false;
 	}
 
+	// When useGlobalRefs is false, you MUST DeleteLocalRef()
+	// the returned jobject when you are done using it.
 	jobject getJavaObject();
 
+	// True when we use global refs for the wrapped jobject.
+	// This is false for the emulator since it has a low limit
+	// of how many global refs you can hold. Instead we use an internal
+	// hash map for holding onto references to avoid this limit.
 	static bool useGlobalRefs;
 private:
 	jobject javaObject_;

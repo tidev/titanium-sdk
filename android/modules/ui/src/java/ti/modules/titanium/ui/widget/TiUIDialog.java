@@ -229,7 +229,7 @@ public class TiUIDialog extends TiUIView
 	public void show(KrollDict options)
 	{
 		if (dialog == null) {
-			// TODO processProperties(proxy.getProperties());
+			processProperties(proxy.getProperties());
 			getBuilder().setOnCancelListener(new OnCancelListener() {
 				@Override
 				public void onCancel(DialogInterface dlg) {

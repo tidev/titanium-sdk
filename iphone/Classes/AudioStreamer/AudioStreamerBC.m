@@ -19,7 +19,7 @@
 #endif
 
 @interface AudioStreamerBC ()
-@property (readwrite) TI_AudioStreamerState state;
+@property (nonatomic, readwrite) TI_AudioStreamerState state;
 
 - (void)handlePropertyChangeForFileStream:(AudioFileStreamID)inAudioFileStream
 	fileStreamPropertyID:(AudioFileStreamPropertyID)inPropertyID

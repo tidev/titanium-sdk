@@ -29,6 +29,7 @@
 -(void)manageRotation;
 -(UIScrollView*)scrollview;
 -(void)setCurrentPage_:(id)page;
+-(void)refreshScrollView:(CGRect)visibleBounds readd:(BOOL)readd;
 @end
 
 #endif

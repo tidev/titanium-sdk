@@ -9,6 +9,7 @@ description: This interface represents an entity, either parsed or unparsed, in
     defintion of a DOM Entity.
 since: "0.9"
 createable: false
+platforms: [android, iphone, ipad]
 properties:
   - name: notationName
     description: For unparsed entities, the name of the notation for the entity. 

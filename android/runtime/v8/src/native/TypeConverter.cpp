@@ -474,8 +474,8 @@ jobject TypeConverter::jsValueToJavaObject(v8::Local<v8::Value> jsValue, bool *i
 		v8::Handle<v8::Object> jsObject = jsValue->ToObject();
 
 		if (JavaObject::isJavaObject(jsObject)) {
+			*isNew = JavaObject::useGlobalRefs ? false : true;
 			JavaObject *javaObject = JavaObject::Unwrap<JavaObject>(jsObject);
-			*isNew = false;
 			return javaObject->getJavaObject();
 		} else {
 			v8::Handle<v8::Array> objectKeys = jsObject->GetOwnPropertyNames();
@@ -490,8 +490,11 @@ jobject TypeConverter::jsValueToJavaObject(v8::Local<v8::Value> jsValue, bool *i
 				v8::Local<v8::Value> jsObjectPropertyValue = jsObject->Get(jsObjectPropertyKey);
 				jobject javaObjectPropertyValue = TypeConverter::jsValueToJavaObject(jsObjectPropertyValue, &valueIsNew);
 
-				env->CallObjectMethod(javaHashMap, JNIUtil::hashMapPutMethod, javaObjectPropertyKey,
-					javaObjectPropertyValue);
+				jobject result = env->CallObjectMethod(javaHashMap,
+				                                       JNIUtil::hashMapPutMethod,
+				                                       javaObjectPropertyKey,
+				                                       javaObjectPropertyValue);
+				env->DeleteLocalRef(result);
 
 				if (keyIsNew) {
 					env->DeleteLocalRef(javaObjectPropertyKey);
@@ -504,6 +507,8 @@ jobject TypeConverter::jsValueToJavaObject(v8::Local<v8::Value> jsValue, bool *i
 			return javaHashMap;
 		}
 	}
+
+	LOGW(TAG, "jsValueToJavaObject returning null");
 	return NULL;
 }
 
