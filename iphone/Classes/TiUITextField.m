@@ -13,6 +13,7 @@
 #import "TiRange.h"
 #import "TiViewProxy.h"
 #import "TiApp.h"
+#import "TiUITextWidget.h"
 
 @implementation TiTextField
 

@@ -2,7 +2,6 @@
 name: Titanium
 description: The top level Titanium module.
 since: "0.1"
-platforms: [android, iphone, ipad]
 extends: Titanium.Module
 
 properties:
@@ -38,6 +37,7 @@ methods:
     returns:
         type: Titanium.Buffer
         description: The new buffer.
+    platforms: [android, iphone, ipad]
     examples:
       - title: Create a buffer with 1K bytes
         example: |
@@ -94,6 +94,7 @@ notes: |
 name: CreateBufferArgs
 description: Arguments to be passed to createBuffer
 since: "1.7"
+platforms: [android, iphone, ipad]
 
 properties:
   - name: value

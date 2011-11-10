@@ -24,6 +24,7 @@ methods:
       - name: column
         description: new column to load
         type: Object
+    platforms: [android, iphone, ipad]
   - name: setSelectedRow
     description: set the column's row to the selected state
     parameters:

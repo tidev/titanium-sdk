@@ -140,7 +140,7 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 	{
 		return;
 	}
-	KrollBridge * ourBridge = [context delegate];
+	KrollBridge * ourBridge = (KrollBridge*)[context delegate];
 	KrollObject * targetKrollObject = [ourBridge krollObjectForProxy:target];
 	TiStringRef keyString = TiStringCreateWithCFString((CFStringRef) key);
 

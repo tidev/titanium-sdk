@@ -39,7 +39,7 @@ describe("Ti.include tests", {
 	simpleRequire: function() {
 		valueOf(require).shouldBeFunction();
 
-		var module = require("module");
+		var module = require("./module");
 		valueOf(module).shouldBeObject();
 		valueOf(module.message).shouldBe("test required module");
 	},

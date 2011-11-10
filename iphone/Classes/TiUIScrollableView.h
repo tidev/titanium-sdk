@@ -28,6 +28,7 @@
 
 -(void)manageRotation;
 -(UIScrollView*)scrollview;
+-(void)refreshScrollView:(CGRect)visibleBounds readd:(BOOL)readd;
 
 @end
 

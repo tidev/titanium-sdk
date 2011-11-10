@@ -4,6 +4,7 @@ description: The top level Filesystem module.  The Filesystem module is used for
     directories on the device.
 extends: Titanium.Module
 since: "0.1"
+platforms: [android, iphone, ipad]
 methods:
   - name: createTempDirectory
     description: create temp file and return a <Titanium.Filesystem.File>
