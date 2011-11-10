@@ -324,7 +324,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		navController = [navbar_ retain];
 		controller = [controller_ retain];
 		[(TiViewController *)controller setProxy:self];
-		tab = [tab_ retain];
+		tab = (TiViewProxy<TiTab>*)[tab_ retain];
 		
 		[self _tabAttached];
 	}
