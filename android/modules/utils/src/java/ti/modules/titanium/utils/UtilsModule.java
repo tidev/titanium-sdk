@@ -31,13 +31,20 @@ public class UtilsModule extends KrollModule
 		super();
 	}
 	
-	private String convertToString(Object obj) {
+	private String convertToString(Object obj) 
+	{
 		if (obj instanceof String)
+		{
 			return (String)obj;
+		}
 		else if (obj instanceof TiBlob)
+		{
 			return ((TiBlob)obj).getText();
+		}
 		else
+		{
 			throw new IllegalArgumentException("Invalid type for argument");
+		}
 	}
 
 	public UtilsModule(TiContext tiContext)
@@ -48,11 +55,13 @@ public class UtilsModule extends KrollModule
 	@Kroll.method
 	public TiBlob base64encode(Object obj)
 	{
-		if (obj instanceof TiBlob) {
+		if (obj instanceof TiBlob) 
+		{
 			return TiBlob.blobFromString(((TiBlob)obj).toBase64());
 		}
 		String data = convertToString(obj);
-		if (data != null) {
+		if (data != null) 
+		{
 			try {
 				return TiBlob.blobFromString(new String(Base64.encodeBase64(data.getBytes("UTF-8")), "UTF-8"));
 			} catch (UnsupportedEncodingException e) {
@@ -77,15 +86,19 @@ public class UtilsModule extends KrollModule
 	}
 
 	@Kroll.method
-	public String md5HexDigest(Object obj) {
+	public String md5HexDigest(Object obj) 
+	{
 		String data = convertToString(obj);
 		if (data != null)
+		{
 			return DigestUtils.md5Hex(data);
+		}
 		return null;
 	}
 
 	@Kroll.method
-	public String sha1(Object obj) {
+	public String sha1(Object obj) 
+	{
 		String data = convertToString(obj);
 		if (data != null)
 		{
@@ -95,7 +108,8 @@ public class UtilsModule extends KrollModule
 	}
 	
 	@Kroll.method
-	public String sha256(Object obj) {
+	public String sha256(Object obj) 
+	{
 		String data = convertToString(obj);
 		//NOTE: DigestUtils with the version before 1.4 doesn't have the function sha256Hex,
 		//so we deal with it ourselves
@@ -107,7 +121,8 @@ public class UtilsModule extends KrollModule
 			algorithm.update(b);
 			byte messageDigest[] = algorithm.digest();
 			StringBuilder result = new StringBuilder();
-			for (int i=0; i < messageDigest.length; i++) {
+			for (int i=0; i < messageDigest.length; i++) 
+			{
 				result.append(Integer.toString(( messageDigest[i] & 0xff ) + 0x100, 16).substring(1));
 			}
 			return result.toString();
