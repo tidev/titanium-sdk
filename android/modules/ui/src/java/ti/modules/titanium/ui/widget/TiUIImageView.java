@@ -192,8 +192,10 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 	protected View getParentView()
 	{
-		if (nativeView == null)
+		if (nativeView == null) {
 			return null;
+		}
+		
 		ViewParent parent = nativeView.getParent();
 		if (parent instanceof View) {
 			return (View) parent;
