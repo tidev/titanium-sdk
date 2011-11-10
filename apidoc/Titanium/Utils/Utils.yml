@@ -8,18 +8,18 @@ methods:
   - name: base64decode
     description: decode a Base64 string
     returns:
-        type: TiBlob
+        type: Titanium.Blob
     parameters:
       - name: obj
-        description: the string or TiBlob to use for the input
+        description: the string or Titanium.Blob to use for the input
         type: Object
   - name: base64encode
     description: encode a string into Base64
     returns:
-        type: TiBlob
+        type: Titanium.Blob
     parameters:
       - name: obj
-        description: the string or TiBlob to use for the input
+        description: the string or Titanium.Blob to use for the input
         type: Object
   - name: md5HexDigest
     description: compute a MD5 hash algorithm against the input and return a hex-based string
@@ -27,7 +27,7 @@ methods:
         type: String
     parameters:
       - name: obj
-        description: the string or TiBlob to use for the input
+        description: the string or Titanium.Blob to use for the input
         type: Object
   - name: sha1
     since: "1.3.2"
@@ -36,7 +36,7 @@ methods:
         type: String
     parameters:
       - name: obj
-        description: the string or TiBlob to use for the input
+        description: the string or Titanium.Blob to use for the input
         type: Object
   - name: sha256
     since: "1.8.0"
@@ -45,5 +45,5 @@ methods:
         type: String
     parameters:
       - name: obj
-        description: the string or TiBlob to use for the input
+        description: the string or Titanium.Blob to use for the input
         type: Object
