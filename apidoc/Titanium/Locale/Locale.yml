@@ -3,6 +3,7 @@ name: Titanium.Locale
 description: The top level Locale module.  The Locale module works with localization files to which are generated during compilation into the operating system specific localization formats. The Locale module provides locale-specific strings which can be referenced at runtime.  Additionally, the module contains a few methods and properties for querying device locale information.
 extends: Titanium.Module
 since: "1.5"
+platforms: [android, iphone, ipad]
 methods:
   - name: formatTelephoneNumber
     description: format a telephone number according to the current locale.

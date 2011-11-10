@@ -6,7 +6,6 @@
  */
 
 «OPTIONALHEADERIMPORTLINE»
-#import "TiUtils.h"
 
 @implementation «FILEBASENAMEASIDENTIFIER»
 

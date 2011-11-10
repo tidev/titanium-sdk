@@ -3,6 +3,7 @@ name: Titanium.Buffer
 description: Buffer is a container for raw data. A buffer is created by the method `Titanium.createBuffer`.
 extends: Titanium.Proxy
 since: "1.7"
+platforms: [android, iphone, ipad]
 
 properties:
   - name: length

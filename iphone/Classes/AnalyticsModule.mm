@@ -82,12 +82,8 @@ NSString * const TI_DB_VERSION = @"1";
 -(void)backgroundFlushEventQueue
 {
 	// place the flush on a background thread so it doesn't need to block the main UI thread
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 	// flushEventQueueWrapper is only defined when compiling for 4.0 and greater - otherwise we get hella crashes.
-	SEL queueFlusher = [TiUtils isIOS4OrGreater] ? @selector(flushEventQueueWrapper) : @selector(flushEventQueue);
-#else
-	SEL queueFlusher = @selector(flushEventQueue);
-#endif
+	SEL queueFlusher = @selector(flushEventQueueWrapper);
 	[NSThread detachNewThreadSelector:queueFlusher toTarget:self withObject:nil];
 }
 
@@ -179,11 +175,9 @@ NSString * const TI_DB_VERSION = @"1";
 	// before the expiration date, one way or another.
 	// TODO: Documentation is vague about this - can we ever be shutting down AND in the background state,
 	// at the same time?
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-	if ([TiUtils isIOS4OrGreater] && [[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground) {
+	if ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground) {
 		timeout = [[UIApplication sharedApplication] backgroundTimeRemaining] * 0.75; // Give us a good chunk of time to complete
 	}
-#endif
 	[database beginTransaction];
 	
 	NSMutableArray *data = [NSMutableArray array];
@@ -273,8 +267,6 @@ NSString * const TI_DB_VERSION = @"1";
 	pool = nil;
 }
 
-// --- ONLY CALL THIS FUNCTION IN IOS4 OR THERE WILL BE A DYLIB PANIC WHEN IT TRIES TO DEALLOC THE __BLOCK VARIABLE ---
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 -(void)flushEventQueueWrapper
 {
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
@@ -296,7 +288,6 @@ NSString * const TI_DB_VERSION = @"1";
 	}
 	[pool release];
 }
-#endif
 
 -(void)startFlushTimer
 {
@@ -319,12 +310,15 @@ NSString * const TI_DB_VERSION = @"1";
 	[dict setObject:[TiUtils createUUID] forKey:@"id"];
 	[dict setObject:NUMINT(sequence++) forKey:@"seq"];
 	[dict setObject:[TiUtils uniqueIdentifier] forKey:@"mid"];
+#if 0
+	// In 1.8, we'll be using this additional field for rotating IDs
     if ([[UIDevice currentDevice] respondsToSelector:@selector(uniqueIdentifier)]) {
     	NSString* uid = [[UIDevice currentDevice] uniqueIdentifier];
     	if (uid) {
 	        [dict setObject:uid forKey:@"omid"];
         }
     }
+#endif
 	[dict setObject:TI_APPLICATION_GUID forKey:@"aguid"];
 	[dict setObject:TI_APPLICATION_DEPLOYTYPE forKey:@"deploytype"];
 	[dict setObject:name forKey:@"event"];
@@ -375,12 +369,7 @@ NSString * const TI_DB_VERSION = @"1";
 	if (immediate)
 	{	
 		// if immediate we send right now
-		if ([TiUtils isIOS4OrGreater]) {
-			[self flushEventQueueWrapper];
-		}
-		else {
-			[self flushEventQueue];
-		}
+		[self flushEventQueueWrapper];
 	}
 	else
 	{
@@ -526,6 +515,7 @@ NSString * const TI_DB_VERSION = @"1";
 						   os,@"osver",
 						   VAL_OR_NSNULL(nettype),@"nettype",
 						   VAL_OR_NSNULL(mmodel),@"model",
+						   @"iphone", @"platform",
 						   nil
 						   ];
 	

@@ -1,0 +1,33 @@
+---
+name: Titanium.UI.iOS.TabbedBar
+description: A Tabbed Bar is created by the method <Titanium.UI.iOS.createTabbedBar>. The difference between the Tabbed Bar and the Button Bar is that the tabbed bar visually maintains a state (visually distinguished as a pressed or selected look).
+extends: Titanium.UI.View
+platforms: [iphone, ipad]
+since: "0.8"
+properties:
+  - name: index
+    description: the selected index
+    type: Number
+  - name: labels
+    description: the array of labels for the tabbed bar. each object should have the properties `title`, `image`, `width` and `enabled`.
+    type: Array<Object>
+  - name: style
+    description: the style of the tabbed bar
+    type: Number
+notes: |
+    For iPhone, the style constants are available in the constants defined in [Titanium.UI.iPhone.SystemButtonStyle](Titanium.UI.iPhone.SystemButtonStyle).
+examples:
+  - title: Simple Tabbed Bar with 3 items
+    example: |
+        
+            var bb1 = Titanium.UI.iOS.createTabbedBar({
+            	labels:['One', 'Two', 'Three'],
+            	backgroundColor:'#336699',
+            	top:50,
+            	style:Titanium.UI.iPhone.SystemButtonStyle.BAR,
+            	height:25,
+            	width:200
+            });
+            win.add(bb1);
+        
+        

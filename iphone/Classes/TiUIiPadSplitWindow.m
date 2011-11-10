@@ -12,8 +12,6 @@
 #endif
 
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-
 #import "TiUIiPadSplitWindow.h"
 #import "TiUtils.h"
 #import "TiViewController.h"
@@ -35,7 +33,7 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 
 	[[proxy view] setAutoresizingMask:UIViewAutoresizingNone];
 
-	return [[[TiViewController alloc] initWithViewProxy:proxy] autorelease];
+	return [[[TiViewController alloc] initWithViewProxy:(TiViewProxy<TiUIViewController>*)proxy] autorelease];
 }
 
 
@@ -193,7 +191,5 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 
 
 @end
-
-#endif
 
 #endif

@@ -6,6 +6,7 @@ since: "0.1"
 methods:
   - name: getArguments
     description: return the arguments passed to the application on startup as a dictionary
+    platforms: [android, iphone, ipad]
     returns:
         type: Object
 events:
@@ -14,6 +15,7 @@ events:
     properties:
       - name: state
         description: the proximity state value
+    platforms: [android, iphone, ipad]
   - name: resume
     description: fired when an iOS application will enter the foreground due to iOS 4's multitasking.
         This does not include pauses due to notifications or calls. See
