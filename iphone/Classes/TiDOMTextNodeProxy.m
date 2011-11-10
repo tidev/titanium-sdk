@@ -57,6 +57,7 @@
         if(ourParent->last == ourRealNode)
             ourParent->last = resultRealNode;
     }
+    [TiDOMNodeProxy setNode:result forXMLNode:resultRealNode];
     return result;
     //THIS DOES NOT WORK SINCE LIBXML MERGES ADJACENT TEXT NODES WHEN ADDING SIBLINGS,CHILDREN
     //Set as sibling

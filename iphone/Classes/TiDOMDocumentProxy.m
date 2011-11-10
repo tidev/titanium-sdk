@@ -27,6 +27,12 @@
 
 -(void)dealloc
 {
+    if( (document != nil) && ([document DocNode] != NULL ) )
+    {
+        [TiDOMNodeProxy removeNodeForXMLNode:(xmlNodePtr)[document DocNode]];
+    }
+    RELEASE_TO_NIL(document);
+    RELEASE_TO_NIL(node);
 	[super dealloc];
 }
 
@@ -49,8 +55,9 @@
 		[self throwException:[error description] subreason:nil location:CODELOCATION];
 	}
     [self setNode:[ourDocument rootElement]];
-    //[self setElement:[ourDocument rootElement]];
 	[self setDocument:ourDocument];
+    xmlDocPtr docPtr = [ourDocument DocNode];
+    [TiDOMNodeProxy setNode:self forXMLNode:(xmlNodePtr)docPtr];
 	[ourDocument release];
 }
 
@@ -74,6 +81,7 @@
     [result setNode:resultNode];
     [result setAttribute:tagName value:@"" owner:nil];
     [result setIsSpecified:NO];
+    [TiDOMNodeProxy setNode:result forXMLNode:[resultNode XMLNode]];
     return result;
 }
 
@@ -130,6 +138,7 @@
     [result setNode:resultNode];
     [result setAttribute:tagName value:@"" owner:nil];
     [result setIsSpecified:NO];
+    [TiDOMNodeProxy setNode:result forXMLNode:[resultNode XMLNode]];
     return result;
 }
 
@@ -143,6 +152,7 @@
     [resultElement XMLNode]->type = XML_CDATA_SECTION_NODE;
     [result setDocument:[self document]];
 	[result setNode:resultElement];
+    [TiDOMNodeProxy setNode:result forXMLNode:[resultElement XMLNode]];
 	return result;
 }
 -(TiDOMCommentProxy *)createComment:(id)args
@@ -154,6 +164,7 @@
     GDataXMLNode* resultElement = [GDataXMLNode commentWithStringValue:textData];
     [result setDocument:[self document]];
 	[result setNode:resultElement];
+    [TiDOMNodeProxy setNode:result forXMLNode:[resultElement XMLNode]];
 	return result;
 }
 
@@ -163,6 +174,7 @@
     GDataXMLNode* resultElement = [GDataXMLNode createNewDocFragment];
     [result setDocument:nil];
 	[result setNode:resultElement];
+    [TiDOMNodeProxy setNode:result forXMLNode:[resultElement XMLNode]];
 	return result;
 }
 
@@ -176,6 +188,7 @@
 	GDataXMLElement * resultElement = [GDataXMLElement elementWithName:tagName];
 	[result setDocument:[self document]];
 	[result setElement:resultElement];
+    [TiDOMNodeProxy setNode:result forXMLNode:[resultElement XMLNode]];
 	return result;
 }
 
@@ -230,6 +243,7 @@
     [resultElement XMLNode]->ns = theNewNs;
 	[result setDocument:[self document]];
 	[result setElement:resultElement];
+    [TiDOMNodeProxy setNode:result forXMLNode:[resultElement XMLNode]];
 	return result;
 }
 
@@ -243,6 +257,7 @@
     GDataXMLNode* resultElement = [[self document]entityRefForName:tagName];
     [result setNode:resultElement];
     [result setDocument:[self document]];
+    [TiDOMNodeProxy setNode:result forXMLNode:[resultElement XMLNode]];
     return result;
 }
 
@@ -257,6 +272,7 @@
     GDataXMLNode* resultElement = [GDataXMLNode processingInstructionWithTarget:theTarget andData:theData];
     [result setDocument:[self document]];
 	[result setNode:resultElement];
+    [TiDOMNodeProxy setNode:result forXMLNode:[resultElement XMLNode]];
 	return result;
 }
 
@@ -269,6 +285,7 @@
 	GDataXMLNode * resultElement = [GDataXMLNode textWithStringValue:textData];
     [result setDocument:[self document]];
 	[result setNode:resultElement];
+    [TiDOMNodeProxy setNode:result forXMLNode:[resultElement XMLNode]];
 	return result;
 }
 
@@ -284,10 +301,16 @@
     
     if(resultPtr != nil)
     {
-        TIDOMDocumentTypeProxy * result = [[[TIDOMDocumentTypeProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
-        [result setDocument:[self document]];
-        [result setNode:[GDataXMLNode nodeConsumingXMLNode:(xmlNodePtr)resultPtr]];
-        return result;
+        id result = [TiDOMNodeProxy nodeForXMLNode:(xmlNodePtr)resultPtr];
+        if (result != nil) 
+        {
+            return result;
+        }
+        TIDOMDocumentTypeProxy * proxy = [[[TIDOMDocumentTypeProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+        [proxy setDocument:[self document]];
+        [proxy setNode:[GDataXMLNode nodeConsumingXMLNode:(xmlNodePtr)resultPtr]];
+        [TiDOMNodeProxy setNode:proxy forXMLNode:(xmlNodePtr)resultPtr];
+        return proxy;
     }
     return [NSNull null];
 }

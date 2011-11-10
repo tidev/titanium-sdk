@@ -32,10 +32,16 @@
 	GDataXMLNode *node = [element attributeForName:name];
     if(node != nil)
     {
+        xmlNodePtr resultPtr = [node XMLNode];
+        id resultNode = [TiDOMNodeProxy nodeForXMLNode:resultPtr];
+        if(resultNode != nil)
+            return resultNode;
+
         TiDOMAttrProxy *proxy = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
         [proxy setAttribute:[node name] value:[node stringValue] owner:element];
         [proxy setNode:node];
         [proxy setDocument:[self document]];
+        [TiDOMNodeProxy setNode:proxy forXMLNode:resultPtr];
         return proxy;
     }
     return [NSNull null];
@@ -62,10 +68,16 @@
 
     if(node != nil)
     {
+        xmlNodePtr resultPtr = [node XMLNode];
+        id resultNode = [TiDOMNodeProxy nodeForXMLNode:resultPtr];
+        if(resultNode != nil)
+            return resultNode;
+
         TiDOMAttrProxy *proxy = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
         [proxy setAttribute:[node name] value:[node stringValue] owner:element];
         [proxy setNode:node];
         [proxy setDocument:[self document]];
+        [TiDOMNodeProxy setNode:proxy forXMLNode:resultPtr];
         return proxy;
     }
     return [NSNull null];
@@ -98,17 +110,27 @@
         GDataXMLNode * attributeNode = [element attributeForName:localName];
         if (attributeNode != nil) 
         {
-            //Need to return the old attribute node
-            result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
-            [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
-            [result setNode:attributeNode];
-            [result setDocument:[self document]];
+            result = [TiDOMNodeProxy nodeForXMLNode:[attributeNode XMLNode]];
+            if(result == nil)
+            {
+                //Need to return the old attribute node
+                result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+                [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
+                [result setNode:attributeNode];
+                [result setDocument:[self document]];
+                [TiDOMNodeProxy setNode:result forXMLNode:[attributeNode XMLNode]];
+            }
             [element removeChild:attributeNode];
+        }
+        xmlNodePtr oldNodePtr = [[attProxy node]XMLNode];
+        if(oldNodePtr != NULL)
+        {
+            [TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
         }
         [element addAttribute:realNode];
         attributeNode = [element attributeForName:localName];
         [attProxy setNode:attributeNode];
-        
+        [TiDOMNodeProxy setNode:attProxy forXMLNode:[attributeNode XMLNode]];
         //Call name property here so that it is set correctly
         [attProxy name];
         if(result != nil)
@@ -146,17 +168,27 @@
         GDataXMLNode * attributeNode = [element attributeForLocalName:localName URI:[realNode URI]];
         if (attributeNode != nil) 
         {
-            //Need to return the old attribute node
-            result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
-            [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
-            [result setNode:attributeNode];
-            [result setDocument:[self document]];
+            result = [TiDOMNodeProxy nodeForXMLNode:[attributeNode XMLNode]];
+            if(result == nil)
+            {
+                //Need to return the old attribute node
+                result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+                [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
+                [result setNode:attributeNode];
+                [result setDocument:[self document]];
+                [TiDOMNodeProxy setNode:result forXMLNode:[attributeNode XMLNode]];
+            }
             [element removeChild:attributeNode];
+        }
+        xmlNodePtr oldNodePtr = [[attProxy node]XMLNode];
+        if(oldNodePtr != NULL)
+        {
+            [TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
         }
         [element addAttribute:realNode];
         attributeNode = [element attributeForLocalName:localName URI:[realNode URI]];
         [attProxy setNode:attributeNode];
-
+        [TiDOMNodeProxy setNode:attProxy forXMLNode:[attributeNode XMLNode]];
         //Call name property here so that it is set correctly
         [attProxy name];
         if(result != nil)
@@ -170,14 +202,19 @@
 -(id)removeNamedItem:(id)args
 {
 	ENSURE_SINGLE_ARG(args, NSString);
-	
+	TiDOMAttrProxy* result = nil;
 	GDataXMLNode * attributeNode = [element attributeForName:args];
     if(attributeNode != nil)
     {
-        TiDOMAttrProxy* result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
-        [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
-        [result setNode:attributeNode];
-        [result setDocument:[self document]];
+        result = [TiDOMNodeProxy nodeForXMLNode:[attributeNode XMLNode]];
+        if(result == nil)
+        {
+            result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+            [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
+            [result setNode:attributeNode];
+            [result setDocument:[self document]];
+            [TiDOMNodeProxy setNode:result forXMLNode:[attributeNode XMLNode]];
+        }
         [element removeChild:attributeNode];
         return result;
     }
@@ -194,15 +231,20 @@
     NSString* theURI;
     ENSURE_ARG_AT_INDEX(theURI, args, 0, NSString);
     ENSURE_ARG_AT_INDEX(name, args, 1, NSString);
-
+    TiDOMAttrProxy* result = nil;
 	
 	GDataXMLNode *attributeNode = [element attributeForLocalName:name URI:theURI];
     if(attributeNode != nil)
     {
-        TiDOMAttrProxy* result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
-        [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
-        [result setNode:attributeNode];
-        [result setDocument:[self document]];
+        result = [TiDOMNodeProxy nodeForXMLNode:[attributeNode XMLNode]];
+        if(result == nil)
+        {
+            result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+            [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
+            [result setNode:attributeNode];
+            [result setDocument:[self document]];
+            [TiDOMNodeProxy setNode:result forXMLNode:[attributeNode XMLNode]];
+        }
         [element removeChild:attributeNode];
         return result;
     }
@@ -216,13 +258,18 @@
 {
 	ENSURE_SINGLE_ARG(args,NSObject);
 	int index = [TiUtils intValue:args];
-    if([[element attributes] count] > index)
+    if( ([[element attributes] count] > index) && (index >= 0) )
     {
         GDataXMLNode *node = [[element attributes] objectAtIndex:index];
-        TiDOMAttrProxy *proxy = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
-        [proxy setAttribute:[node name] value:[node stringValue] owner:element];
-        [proxy setNode:node];
-        [proxy setDocument:[self document]];
+        TiDOMAttrProxy *proxy = [TiDOMNodeProxy nodeForXMLNode:[node XMLNode]];
+        if(proxy == nil)
+        {
+            proxy = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+            [proxy setAttribute:[node name] value:[node stringValue] owner:element];
+            [proxy setNode:node];
+            [proxy setDocument:[self document]];
+            [TiDOMNodeProxy setNode:proxy forXMLNode:[node XMLNode]];
+        }
         return proxy;
     }
     return [NSNull null];

@@ -21,6 +21,9 @@
 -(NSString *)XMLString;
 -(id)makeNode:(id)child context:(id<TiEvaluator>)context;
 +(id)makeNode:(id)child context:(id<TiEvaluator>)context;
++(id)nodeForXMLNode:(xmlNodePtr) nodePtr;
++(void)setNode:(id)node forXMLNode:(xmlNodePtr) nodePtr;
++(void)removeNodeForXMLNode:(xmlNodePtr)nodePtr;
 
 @property(nonatomic,readonly) id nodeName;
 @property(nonatomic,copy,readwrite) id nodeValue;

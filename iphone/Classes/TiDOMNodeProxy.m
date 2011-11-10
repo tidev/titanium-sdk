@@ -27,6 +27,10 @@ OSSpinLock nodeRegistryLock = OS_SPINLOCK_INIT;
 
 -(void)dealloc
 {
+    if( (node != nil) && ([node XMLNode] != NULL) )
+    {
+        [TiDOMNodeProxy removeNodeForXMLNode:[node XMLNode]];
+    }
 	RELEASE_TO_NIL(node);
 	RELEASE_TO_NIL(document);
 	[super dealloc];
@@ -73,13 +77,22 @@ CFHashCode	simpleHash(const void *value)
 		keyCallbacks.hash = simpleHash;
 		callbacks.retain = NULL;
 		callbacks.release = NULL;
-		return (NSMutableDictionary*)CFDictionaryCreateMutable(nil, 0, &keyCallbacks, &callbacks);
 		nodeRegistry = CFDictionaryCreateMutable(nil, 0, &keyCallbacks, &callbacks);
 	}
 	CFDictionarySetValue(nodeRegistry, (void*)nodePtr, node);
 	OSSpinLockUnlock(&nodeRegistryLock);
 
 }
+
++(void)removeNodeForXMLNode:(xmlNodePtr)nodePtr
+{
+    OSSpinLockLock(&nodeRegistryLock);
+    if (nodeRegistry == NULL)
+        return;
+    CFDictionaryRemoveValue(nodeRegistry, nodePtr);
+    OSSpinLockUnlock(&nodeRegistryLock);
+}
+
 
 -(id)makeNode:(id)child context:(id<TiEvaluator>)context
 {
@@ -286,9 +299,14 @@ CFHashCode	simpleHash(const void *value)
 	}
 	//GDataXMLDocument *doc = [[[GDataXMLDocument alloc] initWithDocument:xmlCopyDoc(p, 1)] autorelease];
 	//TiDOMDocumentProxy *proxy = [[[TiDOMDocumentProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
-    TiDOMDocumentProxy *proxy = [[[TiDOMDocumentProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
-	[proxy setDocument:[self document]];
-    [proxy setNode:[[self document]rootElement]];
+    TiDOMDocumentProxy *proxy = [TiDOMNodeProxy nodeForXMLNode:(xmlNodePtr)p];
+    if(proxy == nil)
+    {
+        proxy = [[[TiDOMDocumentProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+        [proxy setDocument:[self document]];
+        [proxy setNode:[[self document]rootElement]];
+        [TiDOMNodeProxy setNode:proxy forXMLNode:(xmlNodePtr)p];
+    }
 	return proxy;
 }
 

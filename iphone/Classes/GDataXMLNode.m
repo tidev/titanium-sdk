@@ -1871,6 +1871,11 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
     return xmlGetIntSubset(xmlDoc_);
 }
 
+- (xmlDocPtr) DocNode
+{
+    return xmlDoc_;
+}
+
 @end
 
 //

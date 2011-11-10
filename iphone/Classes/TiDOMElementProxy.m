@@ -214,14 +214,21 @@
 {
 	ENSURE_SINGLE_ARG(args, NSString);
 	GDataXMLNode * attributeNode = [element attributeForName:args];
-	if (attributeNode == nil) {
+	if (attributeNode == nil) 
+    {
 		return [NSNull null];
 	}
+    xmlNodePtr resultPtr = [attributeNode XMLNode];
+    id resultNode = [TiDOMNodeProxy nodeForXMLNode:resultPtr];
+    if(resultNode != nil)
+        return resultNode;
+
     NSString* nodeString = [attributeNode stringValue];
     TiDOMAttrProxy * result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
 	[result setAttribute:[attributeNode name] value:nodeString owner:element];
     [result setNode:attributeNode];
 	[result setDocument:[self document]];
+    [TiDOMNodeProxy setNode:result forXMLNode:resultPtr];
 	return result;
 }
 
@@ -239,11 +246,17 @@
         GDataXMLNode * attributeNode = [element attributeForLocalName:name URI:theURI];
         if(attributeNode != nil)
         {
+            xmlNodePtr resultPtr = [attributeNode XMLNode];
+            id resultNode = [TiDOMNodeProxy nodeForXMLNode:resultPtr];
+            if(resultNode != nil)
+                return resultNode;
+
             NSString* nodeString = [attributeNode stringValue];
             TiDOMAttrProxy * result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
             [result setAttribute:[attributeNode name] value:nodeString owner:element];
             [result setNode:attributeNode];
             [result setDocument:[self document]];
+            [TiDOMNodeProxy setNode:result forXMLNode:resultPtr];
             return result;
         }
     }
@@ -278,18 +291,28 @@
         GDataXMLNode * attributeNode = [element attributeForName:name];
         if (attributeNode != nil) 
         {
-            NSString* nodeString = [attributeNode stringValue];
-            //Need to return the old attribute node
-            result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
-            [result setAttribute:[attributeNode name] value:nodeString owner:element];
-            [result setNode:attributeNode];
-            [result setDocument:[self document]];
+            result = [TiDOMNodeProxy nodeForXMLNode:[attributeNode XMLNode]];
+            if(result == nil)
+            {
+                NSString* nodeString = [attributeNode stringValue];
+                //Need to return the old attribute node
+                result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+                [result setAttribute:[attributeNode name] value:nodeString owner:element];
+                [result setNode:attributeNode];
+                [result setDocument:[self document]];
+                [TiDOMNodeProxy setNode:result forXMLNode:[attributeNode XMLNode]];
+            }
             [element removeChild:attributeNode];
+        }
+        xmlNodePtr oldNodePtr = [[attProxy node]XMLNode];
+        if(oldNodePtr != NULL)
+        {
+            [TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
         }
         [element addAttribute: [attProxy node]];
         attributeNode = [element attributeForName:name];
         [attProxy setNode:attributeNode];
-        
+        [TiDOMNodeProxy setNode:attProxy forXMLNode:[attributeNode XMLNode]];
         //Call name property here so that it is set correctly
         [attProxy name];
 
@@ -328,18 +351,28 @@
         GDataXMLNode * attributeNode = [element attributeForLocalName:[GDataXMLNode localNameForName:name] URI:theURI];
         if (attributeNode != nil) 
         {
-            NSString* nodeString = [attributeNode stringValue];
-            //Need to return the old attribute node
-            result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
-            [result setAttribute:[attributeNode name] value:nodeString owner:nil];
-            [result setNode:attributeNode];
-            [result setDocument:[self document]];
+            result = [TiDOMNodeProxy nodeForXMLNode:[attributeNode XMLNode]];
+            if(result == nil)
+            {
+                NSString* nodeString = [attributeNode stringValue];
+                //Need to return the old attribute node
+                result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+                [result setAttribute:[attributeNode name] value:nodeString owner:nil];
+                [result setNode:attributeNode];
+                [result setDocument:[self document]];
+                [TiDOMNodeProxy setNode:result forXMLNode:[attributeNode XMLNode]];
+            }
             [element removeChild:attributeNode];
+        }
+        xmlNodePtr oldNodePtr = [[attProxy node]XMLNode];
+        if(oldNodePtr != NULL)
+        {
+            [TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
         }
         [element addAttribute: [attProxy node]];
         attributeNode = attributeNode = [element attributeForLocalName:[GDataXMLNode localNameForName:name] URI:theURI];
         [attProxy setNode:attributeNode];
-        
+        [TiDOMNodeProxy setNode:attProxy forXMLNode:[attributeNode XMLNode]];
         //Call name property here so that it is set correctly
         [attProxy name];
 
@@ -508,10 +541,16 @@
 {
     ENSURE_SINGLE_ARG(args, TiDOMNodeProxy);
 	TiDOMNodeProxy * newChild = (TiDOMNodeProxy*)args;
+    xmlNodePtr oldNodePtr = [node XMLNode];
 	GDataXMLNode* resultElement = [element addChild:[newChild node]];
     if(resultElement != nil)
     {
+        if(oldNodePtr != NULL)
+        {
+            [TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
+        }
         [newChild setNode:resultElement];
+        [TiDOMNodeProxy setNode:newChild forXMLNode:[resultElement XMLNode]];
         return newChild;
     }
     else

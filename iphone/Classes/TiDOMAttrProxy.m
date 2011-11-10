@@ -91,11 +91,19 @@
 
 -(id)ownerElement
 {
-    if([node XMLNode]->parent == nil)
+    xmlNodePtr parentNode = [node XMLNode]->parent;
+    if(parentNode == nil)
         return [NSNull null];
+	
+	id result = [TiDOMNodeProxy nodeForXMLNode:parentNode];
+	if (result != nil) 
+    {
+		return result;
+	}
 	TiDOMElementProxy *proxy = [[[TiDOMElementProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
 	[proxy setDocument:[self document]];
-    [proxy setElement:[GDataXMLNode nodeConsumingXMLNode:[node XMLNode]->parent]];
+    [proxy setElement:[GDataXMLNode nodeConsumingXMLNode:parentNode]];
+    [TiDOMNodeProxy setNode:proxy forXMLNode:parentNode];
 	return proxy;
 }
 

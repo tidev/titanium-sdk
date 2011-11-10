@@ -55,7 +55,7 @@
     TIDOMDocumentTypeProxy * result = [[[TIDOMDocumentTypeProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
     [result setNode:resultElement];
     [result setDocument:nil];
-    
+    [TiDOMNodeProxy setNode:result forXMLNode:[resultElement XMLNode]];
     return result;
 }
 
@@ -138,6 +138,7 @@
     TiDOMDocumentProxy * result = [[[TiDOMDocumentProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
     [result setNode:[theDocument rootElement]];
     [result setDocument:theDocument];
+    [TiDOMNodeProxy setNode:result forXMLNode:(xmlNodePtr)doc];
     return result;
     
 }
