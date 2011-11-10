@@ -382,5 +382,21 @@ public class TiUIScrollView extends TiUIView {
 			}
 		}
 	}
+	
+	@Override
+	public void remove(TiUIView child)
+	{
+		if (child != null) {
+			View cv = child.getNativeView();
+			if (cv != null) {
+				View nv = getLayout();
+				if (nv instanceof ViewGroup) {
+					((ViewGroup) nv).removeView(cv);
+					children.remove(child);
+					child.setParent(null);
+				}
+			}
+		}
+	}
 
 }
