@@ -15,6 +15,7 @@
 #import "TiViewProxy.h"
 #import "TiUITableViewProxy.h"
 #import "TiApp.h"
+#import "TiLayoutQueue.h"
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
 
@@ -56,6 +57,7 @@
     if ([proxy callbackCell] == self) {
         [proxy setCallbackCell:nil];
     }
+    [proxy release];
     proxy = [proxy_ retain];
 }
 
@@ -135,6 +137,10 @@
 {
 	[super layoutSubviews];
 	[gradientLayer setFrame:[self bounds]];
+    
+    // In order to avoid ugly visual behavior, whenever a cell is laid out, we MUST relayout the
+    // row concurrently.
+    [TiLayoutQueue layoutProxy:proxy];
 }
 
 -(BOOL) selectedOrHighlighted
@@ -363,7 +369,7 @@
 -(void)reloadDataFromCount:(int)oldCount toCount:(int)newCount animation:(UITableViewRowAnimation)animation
 {
 	UITableView *table = [self tableView];
-	
+    
 	//Table views hate having 0 sections, so we have to act like it has at least 1.
 	oldCount = MAX(1,oldCount);
 	newCount = MAX(1,newCount);
@@ -371,7 +377,7 @@
 	int commonality = MIN(oldCount,newCount);
 	oldCount -= commonality;
 	newCount -= commonality;
-	
+    
 	[tableview beginUpdates];
 	if (commonality > 0)
 	{
@@ -409,6 +415,13 @@
 		}
 	}
 	
+    // Make sure that before we update the section count, the table has been created;
+    // this prevents consistency errors on loading the initial dataset when it contains
+    // more than one section.
+    if (tableview == nil) {
+        [self tableView];
+    }
+    
 	[ourProxy setSections:data];
 
 	int newCount = 0;	//Since we're iterating anyways, we might as well not get count.
@@ -1347,9 +1360,17 @@
 	}
     
 	int sectionCount = [self numberOfSectionsInTableView:tableview]-1;
-	[self reloadDataFromCount:sectionCount toCount:sectionCount animation:UITableViewRowAnimationNone];
-	// HACK - Should just reload section indexes when reloadSelectionIndexTitles functions properly.
-    //[[self tableView] reloadSectionIndexTitles];  THIS DOESN'T WORK.
+
+    // Instead of calling back through our mechanism to reload specific sections, because the entire index of the table
+    // has been regenerated, we can assume it's okay to just reload the whole dataset.
+    if ([NSThread isMainThread]) {
+        [[self tableView] reloadData];
+    }
+    else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[self tableView] reloadData];
+        });
+    }
 }
 
 -(void)setFilterCaseInsensitive_:(id)caseBool
