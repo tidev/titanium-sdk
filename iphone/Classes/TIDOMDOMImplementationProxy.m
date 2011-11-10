@@ -124,12 +124,15 @@
     if(docType != nil)
     {
         GDataXMLNode *docTypeNode = [docType node];
+        xmlAddChild((xmlNodePtr)doc, [docTypeNode XMLNode]);
+        /*
         xmlNodePtr theRealNode = [docTypeNode XMLNode];
         if(theRealNode != nil)
         {
             xmlDtdPtr theNewDTDNode = xmlCopyDtd((xmlDtdPtr) theRealNode);
             doc->intSubset = theNewDTDNode;
         }
+         */
     }
 
     TiDOMDocumentProxy * result = [[[TiDOMDocumentProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
