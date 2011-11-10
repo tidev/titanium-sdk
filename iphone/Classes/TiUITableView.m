@@ -82,8 +82,7 @@
 -(void)prepareForReuse
 {
     // If we're reusing a cell, it obviously isn't attached to a proxy.
-    [proxy setCallbackCell:nil];
-    proxy = nil;
+    [self setProxy:nil];
     
 	[super prepareForReuse];
 	
