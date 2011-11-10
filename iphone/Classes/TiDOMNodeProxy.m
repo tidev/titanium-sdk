@@ -15,6 +15,10 @@
 #import "TiDOMAttrProxy.h"
 #import "TiDOMCDATANodeProxy.h"
 #import "TiUtils.h"
+#include <libkern/OSAtomic.h>
+
+static CFMutableDictionaryRef nodeRegistry = NULL;
+OSSpinLock nodeRegistryLock = OS_SPINLOCK_INIT;
 
 @implementation TiDOMNodeProxy
 @synthesize document, node;
@@ -31,6 +35,50 @@
 -(NSString *)XMLString
 {
 	return [node XMLString];
+}
+
++(id)nodeForXMLNode:(xmlNodePtr) nodePtr
+{
+	id result = nil;
+	OSSpinLockLock(&nodeRegistryLock);
+	if (nodeRegistry != NULL) {
+		result = CFDictionaryGetValue(nodeRegistry, nodePtr);
+	}
+	OSSpinLockUnlock(&nodeRegistryLock);
+	return result;
+}
+
+Boolean		simpleEquals(const void *value1, const void *value2)
+{
+	return value1==value2;
+}
+
+CFHashCode	simpleHash(const void *value)
+{
+	return (CFHashCode)value;
+}
+
++(void)setNode:(id)node forXMLNode:(xmlNodePtr) nodePtr
+{
+	if ((node == nil) || (nodePtr == NULL)) {
+		return;
+	}
+	OSSpinLockLock(&nodeRegistryLock);
+	if (nodeRegistry == NULL) {
+		CFDictionaryKeyCallBacks keyCallbacks = kCFTypeDictionaryKeyCallBacks;
+		CFDictionaryValueCallBacks callbacks = kCFTypeDictionaryValueCallBacks;
+		keyCallbacks.retain = NULL;
+		keyCallbacks.release = NULL;
+		keyCallbacks.equal = simpleEquals;
+		keyCallbacks.hash = simpleHash;
+		callbacks.retain = NULL;
+		callbacks.release = NULL;
+		return (NSMutableDictionary*)CFDictionaryCreateMutable(nil, 0, &keyCallbacks, &callbacks);
+		nodeRegistry = CFDictionaryCreateMutable(nil, 0, &keyCallbacks, &callbacks);
+	}
+	CFDictionarySetValue(nodeRegistry, (void*)nodePtr, node);
+	OSSpinLockUnlock(&nodeRegistryLock);
+
 }
 
 -(id)makeNode:(id)child context:(id<TiEvaluator>)context
@@ -54,37 +102,49 @@
 		return child;
 	}
 	
-	switch([child XMLNode]->type)
+	xmlNodePtr childXmlNode = [child XMLNode];
+	
+	id result = [TiDOMNodeProxy nodeForXMLNode:childXmlNode];
+	if (result != nil) {
+		return result;
+	}
+	
+	switch(childXmlNode->type)
 	{
 		case XML_ELEMENT_NODE:
 		{
 			TiDOMElementProxy *element = [[[TiDOMElementProxy alloc] _initWithPageContext:context] autorelease];
 			[element setElement:(GDataXMLElement*)child];
+			[TiDOMNodeProxy setNode:element forXMLNode:childXmlNode];
 			return element;
 		}
 		case XML_ATTRIBUTE_NODE:
 		{
-			//FIXME:
 			TiDOMAttrProxy *proxy = [[[TiDOMAttrProxy alloc] _initWithPageContext:context] autorelease];
             [proxy setAttribute:[child name] value:[child stringValue] owner:nil];
+			[proxy setNode:child];
+			[TiDOMNodeProxy setNode:proxy forXMLNode:childXmlNode];
 			return proxy;
 		}
 		case XML_TEXT_NODE:
 		{
 			TiDOMTextNodeProxy *proxy = [[[TiDOMTextNodeProxy alloc] _initWithPageContext:context] autorelease];
 			[proxy setNode:child];
+			[TiDOMNodeProxy setNode:proxy forXMLNode:childXmlNode];
 			return proxy;
 		}
         case XML_CDATA_SECTION_NODE:
         {
             TiDOMCDATANodeProxy *proxy = [[[TiDOMCDATANodeProxy alloc] _initWithPageContext:context] autorelease];
             [proxy setNode:child];
+			[TiDOMNodeProxy setNode:proxy forXMLNode:childXmlNode];
             return proxy;
         }
 		default:
 		{
 			TiDOMNodeProxy *element = [[[TiDOMNodeProxy alloc] _initWithPageContext:context] autorelease];
 			[element setNode:child];
+			[TiDOMNodeProxy setNode:element forXMLNode:childXmlNode];
 			return element;
 		}
 	}
