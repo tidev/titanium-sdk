@@ -3,7 +3,7 @@ package ${config['appid']};
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiProperties;
-import org.appcelerator.titanium.util.Log;
+import org.appcelerator.kroll.common.Log;
 
 /* GENERATED CODE
  * Warning - this class was generated from your application's tiapp.xml

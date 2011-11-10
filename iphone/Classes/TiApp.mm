@@ -218,12 +218,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	kjsBridge = [[KrollBridge alloc] initWithHost:self];
 	
 	[kjsBridge boot:self url:nil preload:nil];
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-	if ([TiUtils isIOS4OrGreater])
-	{
-		[[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
-	}
-#endif
+	[[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
 }
 
 - (void)validator
@@ -396,7 +391,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
 	[TiUtils queueAnalytics:@"ti.background" name:@"ti.background" data:nil];
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 	
 	if (backgroundServices==nil)
 	{
@@ -422,7 +416,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         // Do the work associated with the task.
 		[tiapp beginBackgrounding];
     });
-#endif	
 	
 }
 
@@ -431,7 +424,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumeNotification object:self];
 	
 	[TiUtils queueAnalytics:@"ti.foreground" name:@"ti.foreground" data:nil];
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 	
 	if (backgroundServices==nil)
 	{
@@ -439,8 +431,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	}
 	
 	[self endBackgrounding];
-	
-#endif
 
 }
 
@@ -569,9 +559,13 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 -(void)hideModalController:(UIViewController*)modalController animated:(BOOL)animated
 {
 	UIViewController *navController = [modalController parentViewController];
-	if (navController==nil)
+
+	//	As of iOS 5, Apple is phasing out the modal concept in exchange for
+	//	'presenting', making all non-Ti modal view controllers claim to have
+	//	no parent view controller.
+	if (navController==nil && [modalController respondsToSelector:@selector(presentingViewController)])
 	{
-//		navController = [controller currentNavController];
+		navController = [modalController presentingViewController];
 	}
 	[controller windowClosed:modalController];
 	if (navController!=nil)
@@ -601,10 +595,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     if ([self debugMode]) {
         TiDebuggerStop();
     }
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 	RELEASE_TO_NIL(backgroundServices);
 	RELEASE_TO_NIL(localNotification);
-#endif	
 	[super dealloc];
 }
 
@@ -635,8 +627,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
 	return kjsBridge;
 }
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 
 #pragma mark Backgrounding
 
@@ -714,7 +704,5 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	[backgroundServices removeObject:proxy];
 	[self checkBackgroundServices];
 }
-
-#endif
 
 @end

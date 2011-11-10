@@ -3,12 +3,13 @@ name: Titanium.Contacts.Person
 description: An object which represents a person in the contacts database.
 extends: Titanium.Proxy
 since: "0.8"
+platforms: [android, iphone, ipad]
 properties:
   - name: url
     description: |
         URLs of webpages associated with the person.  Multi-value, valid labels are: `home`, `work`, `other`, `homepage`.  Values are strings.
     type: Object
-    platforms: [iphone, ipad, ipod]
+    platforms: [iphone, ipad]
   - name: address
     description: |
         The addresses for the person.  Multi-value, valid labels are: `home`, `work`, `other`.  Values are dictionaries.

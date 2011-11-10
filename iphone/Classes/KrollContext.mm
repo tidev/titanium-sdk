@@ -372,19 +372,7 @@ static TiValueRef StringFormatDateCallback (TiContextRef jsContext, TiObjectRef 
 	
 	@try 
 	{
-		NSString* result;
-		// Only available in iOS4+
-		if ([TiUtils isIOS4OrGreater]) {
-			result = [NSDateFormatter localizedStringFromDate:date dateStyle:style timeStyle:NSDateFormatterNoStyle];
-		}
-		else {
-			NSLocale* locale = [NSLocale currentLocale];
-			NSDateFormatter* formatter = [[[NSDateFormatter alloc] init] autorelease];
-			[formatter setLocale:locale];
-			[formatter setDateStyle:style];
-			[formatter setTimeStyle:NSDateFormatterNoStyle];
-			result = [formatter stringFromDate:date];
-		}
+		NSString* result = [NSDateFormatter localizedStringFromDate:date dateStyle:style timeStyle:NSDateFormatterNoStyle];
 		TiValueRef value = [KrollObject toValue:ctx value:result];
 		return value;
 	}
@@ -429,18 +417,7 @@ static TiValueRef StringFormatTimeCallback (TiContextRef jsContext, TiObjectRef 
 	
 	@try 
 	{
-		NSString* result;
-		if ([TiUtils isIOS4OrGreater]) {
-			result = [NSDateFormatter localizedStringFromDate:date dateStyle:NSDateFormatterNoStyle timeStyle:style];
-		}
-		else {
-			NSLocale* locale = [NSLocale currentLocale];
-			NSDateFormatter* formatter = [[[NSDateFormatter alloc] init] autorelease];
-			[formatter setLocale:locale];
-			[formatter setDateStyle:NSDateFormatterNoStyle];
-			[formatter setTimeStyle:style];
-			result = [formatter stringFromDate:date];
-		}
+		NSString* result = [NSDateFormatter localizedStringFromDate:date dateStyle:NSDateFormatterNoStyle timeStyle:style];
 		TiValueRef value = [KrollObject toValue:ctx value:result];
 		return value;
 	}
@@ -467,16 +444,7 @@ static TiValueRef StringFormatCurrencyCallback (TiContextRef jsContext, TiObject
 	
 	@try 
 	{
-		NSString* result;
-		if ([TiUtils isIOS4OrGreater]) {
-			result = [NSNumberFormatter localizedStringFromNumber:number numberStyle:NSNumberFormatterCurrencyStyle];
-		}
-		else {
-			NSNumberFormatter* formatter = [[[NSNumberFormatter alloc] init] autorelease];
-			NSLocale* locale = [NSLocale currentLocale];
-			[formatter setNumberStyle:NSNumberFormatterCurrencyStyle];
-			result = [formatter stringFromNumber:number];
-		}
+		NSString* result = [NSNumberFormatter localizedStringFromNumber:number numberStyle:NSNumberFormatterCurrencyStyle];
 		TiValueRef value = [KrollObject toValue:ctx value:result];
 		return value;
 	}

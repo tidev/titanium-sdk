@@ -9,16 +9,19 @@ properties:
     type: Boolean
     description: True if current window is considered portrait by the device, false otherwise
     permission: read-only
+    platforms: [android, iphone, ipad]
 
   - name: landscape
     type: Boolean
     description: True if current window is considered landscape by the device, false otherwise
     permission: read-only
+    platforms: [android, iphone, ipad]
 
   - name: orientation
     type: Number
     description: Orientation of the current window.  Value will be one of the following - <Titanium.UI.PORTRAIT>, <Titanium.UI.UPSIDE_PORTRAIT>, <Titanium.UI.LANDSCAPE_LEFT>, <Titanium.UI.LANDSCAPE_RIGHT> or <Titanium.UI.UNKNOWN>
     permission: read-only
+    platforms: [android, iphone, ipad]
 
 events:
   - name: orientationchange

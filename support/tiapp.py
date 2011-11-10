@@ -327,10 +327,10 @@ class TiAppXML(object):
 
 	def has_app_property(self, property):
 		return property in self.app_properties
-	
+
 	def get_app_property(self, property):
 		return self.app_properties[property]
-	
+
 	def to_bool(self, value):
 		return value in ['true', 'True', 'TRUE', 'yes', 'Yes', 'YES', 'y', 't', '1']
 	

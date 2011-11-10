@@ -17,6 +17,7 @@ methods:
 events:
   - name: scale
     description: fired when the zoom scale factor changes
+    platforms: [android, iphone, ipad]
     properties:
       - name: scale
         description: the new scale as a float
@@ -58,7 +59,7 @@ properties:
   - name: canCancelEvents
     description: boolean to indicate if the scroll view can cancel subview touches in order to scroll instead. Default of true
     type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: contentHeight
     description: the height of the scrollable area
     type: Number

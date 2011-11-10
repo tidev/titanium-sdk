@@ -5,6 +5,7 @@ var data = [
 	{title:'Activity Indicator', hasChild:true, test:'../examples/activity_indicator.js'},
 	{title:'Progress Bar', hasChild:true, test:'../examples/progress_bar.js'},
 	{title:'Button', hasChild:true, test:'../examples/button.js'},
+	{title:'Button States', hasChild:true, test:'../examples/button_state.js'},
 	{title:'Label', hasChild:true, test:'../examples/label.js'},
 	{title:'Search Bar', hasChild:true, test:'../examples/searchbar.js'},
 	{title:'Text Field', hasChild:true, test:'../examples/textfield.js'},

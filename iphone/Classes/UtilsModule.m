@@ -93,9 +93,15 @@
 {
 	ENSURE_SINGLE_ARG(args,NSObject);
 	
+	NSData* data = nil;
 	NSString *nstr = [self convertToString:args];
-    const char* data = [nstr UTF8String];
-    return [TiUtils md5:[NSData dataWithBytes:data length:strlen(data)]];
+	if (nstr) {
+		const char* s = [nstr UTF8String];
+		data = [NSData dataWithBytes:s length:strlen(s)];
+	} else if ([args respondsToSelector:@selector(data)]) {
+		data = [args data];
+	}
+	return [TiUtils md5:data];
 }
 
 -(id)sha1:(id)args
@@ -106,6 +112,16 @@
 	unsigned char result[CC_SHA1_DIGEST_LENGTH];
 	CC_SHA1(cStr, [nstr lengthOfBytesUsingEncoding:NSUTF8StringEncoding], result);
 	return [TiUtils convertToHex:(unsigned char*)&result length:CC_SHA1_DIGEST_LENGTH];
+}
+
+-(id)sha256:(id)args
+{
+	ENSURE_SINGLE_ARG(args,NSObject);
+	NSString *nstr = [self convertToString:args];
+	const char *cStr = [nstr UTF8String];
+	unsigned char result[CC_SHA256_DIGEST_LENGTH];
+	CC_SHA256(cStr, [nstr lengthOfBytesUsingEncoding:NSUTF8StringEncoding], result);
+	return [TiUtils convertToHex:(unsigned char*)&result length:CC_SHA256_DIGEST_LENGTH];
 }
 
 @end

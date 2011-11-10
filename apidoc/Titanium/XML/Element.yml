@@ -9,6 +9,7 @@ description: >
     [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html)
     definition of a DOM Element.
 createable: false
+platforms: [android, iphone, ipad]
 methods:
   - name: getAttribute
     description: Retrieves an attribute value by name, returning it as a string.
