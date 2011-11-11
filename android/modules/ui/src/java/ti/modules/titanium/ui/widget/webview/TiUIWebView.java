@@ -39,13 +39,14 @@ import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
-public class TiUIWebView extends TiUIView {
+public class TiUIWebView extends TiUIView
+{
 
 	private static final String LCAT = "TiUIWebView";
 	private static final boolean DBG = TiConfig.LOGD;
 	private TiWebViewClient client;
 	private boolean changingUrl = false;
-	
+
 	private static Enum<?> enumPluginStateOff;
 	private static Enum<?> enumPluginStateOn;
 	private static Enum<?> enumPluginStateOnDemand;
@@ -56,15 +57,21 @@ public class TiUIWebView extends TiUIView {
 	public static final int PLUGIN_STATE_OFF = 0;
 	public static final int PLUGIN_STATE_ON = 1;
 	public static final int PLUGIN_STATE_ON_DEMAND = 2;
-	
-	private class TiWebView extends WebView {
+
+	private static final String DEFAULT_PAGE_FINISH_URL = "file:///android_asset/Resources/";
+
+	private class TiWebView extends WebView
+	{
 		public TiWebViewClient client;
-		public TiWebView(Context context) {
+
+		public TiWebView(Context context)
+		{
 			super(context);
 		}
 
 		@Override
-		public void destroy() {
+		public void destroy()
+		{
 			if (client != null) {
 				client.getBinding().destroy();
 			}
@@ -86,7 +93,7 @@ public class TiUIWebView extends TiUIView {
 		settings.setJavaScriptCanOpenWindowsAutomatically(true);
 		settings.setLoadsImagesAutomatically(true);
 		settings.setLightTouchEnabled(true);
-		
+
 		// enable zoom controls by default
 		boolean enableZoom = true;
 
@@ -124,19 +131,18 @@ public class TiUIWebView extends TiUIView {
 
 	public WebView getWebView()
 	{
-		return (WebView)getNativeView();
+		return (WebView) getNativeView();
 	}
 
-	private void initializePluginAPI(TiWebView webView) 
+	private void initializePluginAPI(TiWebView webView)
 	{
-		try 
-		{
-			synchronized(this.getClass()) {
+		try {
+			synchronized (this.getClass()) {
 				// Initialize
 				if (enumPluginStateOff == null) {
 					Class<?> webSettings = Class.forName("android.webkit.WebSettings");
 					Class<?> pluginState = Class.forName("android.webkit.WebSettings$PluginState");
-					
+
 					Field f = pluginState.getDeclaredField("OFF");
 					enumPluginStateOff = (Enum<?>) f.get(null);
 					f = pluginState.getDeclaredField("ON");
@@ -155,14 +161,15 @@ public class TiUIWebView extends TiUIView {
 		} catch (NoSuchMethodException e) {
 			Log.e(LCAT, "NoSuchMethod: " + e.getMessage(), e);
 		} catch (NoSuchFieldException e) {
-			Log.e(LCAT, "NoSuchField: " + e.getMessage(), e);			
+			Log.e(LCAT, "NoSuchField: " + e.getMessage(), e);
 		} catch (IllegalAccessException e) {
 			Log.e(LCAT, "IllegalAccess: " + e.getMessage(), e);
-		}			
+		}
 	}
-	
+
 	@Override
-	public void processProperties(KrollDict d) {
+	public void processProperties(KrollDict d)
+	{
 		super.processProperties(d);
 
 		if (d.containsKey(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
@@ -170,14 +177,14 @@ public class TiUIWebView extends TiUIView {
 			settings.setLoadWithOverviewMode(TiConvert.toBoolean(d, TiC.PROPERTY_SCALES_PAGE_TO_FIT));
 		}
 
-		if (d.containsKey(TiC.PROPERTY_URL)) {
+		if (d.containsKey(TiC.PROPERTY_URL) && !DEFAULT_PAGE_FINISH_URL.equals(TiConvert.toString(d, TiC.PROPERTY_URL))) {
 			setUrl(TiConvert.toString(d, TiC.PROPERTY_URL));
 		} else if (d.containsKey(TiC.PROPERTY_HTML)) {
 			setHtml(TiConvert.toString(d, TiC.PROPERTY_HTML));
 		} else if (d.containsKey(TiC.PROPERTY_DATA)) {
 			Object value = d.get(TiC.PROPERTY_DATA);
 			if (value instanceof TiBlob) {
-				setData((TiBlob)value);
+				setData((TiBlob) value);
 			}
 		}
 
@@ -187,21 +194,22 @@ public class TiUIWebView extends TiUIView {
 		if (nativeView != null && nativeView.getBackground() instanceof TiBackgroundDrawable) {
 			nativeView.setBackgroundColor(Color.TRANSPARENT);
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_PLUGIN_STATE)) {
 			setPluginState(TiConvert.toInt(d, TiC.PROPERTY_PLUGIN_STATE));
 		}
 	}
 
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
-		if (TiC.PROPERTY_URL.equals(key) && !changingUrl) {
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
+	{
+		if (TiC.PROPERTY_URL.equals(key) && !changingUrl && !DEFAULT_PAGE_FINISH_URL.equals(TiConvert.toString(newValue))) {
 			setUrl(TiConvert.toString(newValue));
 		} else if (TiC.PROPERTY_HTML.equals(key)) {
 			setHtml(TiConvert.toString(newValue));
 		} else if (TiC.PROPERTY_DATA.equals(key)) {
 			if (newValue instanceof TiBlob) {
-				setData((TiBlob)newValue);
+				setData((TiBlob) newValue);
 			}
 		} else if (TiC.PROPERTY_SCALES_PAGE_TO_FIT.equals(key)) {
 			WebSettings settings = getWebView().getSettings();
@@ -222,7 +230,7 @@ public class TiUIWebView extends TiUIView {
 	private boolean mightBeHtml(String url)
 	{
 		String mime = TiMimeTypeHelper.getMimeType(url);
-		if (mime.equals("text/html")){
+		if (mime.equals("text/html")) {
 			return true;
 		} else if (mime.equals("application/xhtml+xml")) {
 			return true;
@@ -241,7 +249,7 @@ public class TiUIWebView extends TiUIView {
 			finalUrl = getProxy().resolveUrl(null, finalUrl);
 		}
 
-		if (TiFileFactory.isLocalScheme(finalUrl) && mightBeHtml(finalUrl) ) {
+		if (TiFileFactory.isLocalScheme(finalUrl) && mightBeHtml(finalUrl)) {
 			TiBaseFile tiFile = TiFileFactory.createTitaniumFile(finalUrl, false);
 			if (tiFile != null) {
 				StringBuilder out = new StringBuilder();
@@ -258,9 +266,9 @@ public class TiUIWebView extends TiUIView {
 							if (pos >= 0) {
 								int posEnd = line.indexOf(">", pos);
 								if (posEnd > pos) {
-									out.append(line.substring(pos, posEnd+ 1));
+									out.append(line.substring(pos, posEnd + 1));
 									out.append(TiWebViewBinding.INJECTION_CODE);
-									if ((posEnd + 1) < line.length() ) {
+									if ((posEnd + 1) < line.length()) {
 										out.append(line.substring(posEnd + 1));
 									}
 									out.append("\n");
@@ -274,10 +282,13 @@ public class TiUIWebView extends TiUIView {
 						out.append("\n");
 						line = breader.readLine();
 					}
-					setHtml(out.toString(), (originalUrlHasScheme ? url : finalUrl) ); // keep app:// etc. intact in case html in file contains links to JS that use app:// etc.
+					setHtml(out.toString(), (originalUrlHasScheme ? url : finalUrl)); // keep app:// etc. intact in case
+																						// html in file contains links
+																						// to JS that use app:// etc.
 					return;
 				} catch (IOException ioe) {
-					Log.e(LCAT, "Problem reading from " + url + ": " + ioe.getMessage() + ". Will let WebView try loading it directly.", ioe);
+					Log.e(LCAT, "Problem reading from " + url + ": " + ioe.getMessage()
+						+ ". Will let WebView try loading it directly.", ioe);
 				} finally {
 					if (fis != null) {
 						try {
@@ -303,17 +314,20 @@ public class TiUIWebView extends TiUIView {
 
 	}
 
-	public void changeProxyUrl(String url) {
+	public void changeProxyUrl(String url)
+	{
 		changingUrl = true;
 		getProxy().setProperty("url", url, true);
 		changingUrl = false;
 	}
 
-	public String getUrl() {
+	public String getUrl()
+	{
 		return getWebView().getUrl();
 	}
 
-	private static final char escapeChars[] = new char[]{ '%', '#', '\'', '?'};
+	private static final char escapeChars[] = new char[] { '%', '#', '\'', '?' };
+
 	private String escapeContent(String content)
 	{
 		// The Android WebView has a known bug
@@ -321,15 +335,15 @@ public class TiUIWebView extends TiUIView {
 		// when it creates a data:// URL in the loadData() method
 		// http://code.google.com/p/android/issues/detail?id=1733
 		for (char escapeChar : escapeChars) {
-			String regex = "\\"+escapeChar;
-			content = content.replaceAll(regex, "%"+Integer.toHexString(escapeChar));
+			String regex = "\\" + escapeChar;
+			content = content.replaceAll(regex, "%" + Integer.toHexString(escapeChar));
 		}
 		return content;
 	}
 
 	public void setHtml(String html)
 	{
-		//getWebView().loadData(escapeContent(html), "text/html", "utf-8");
+		// getWebView().loadData(escapeContent(html), "text/html", "utf-8");
 		// Commented out the loadData solution. You can't access local assets without
 		// providing an acceptable base url to loadDataWithBaseURL. Using the contentEscaping
 		// breaks the document and munges the quotes causing images to fail. Images in local
@@ -340,20 +354,20 @@ public class TiUIWebView extends TiUIView {
 		// Use this code to post process your document to adjust URLs. May need updating it comes
 		// from ti.js in the old 0.X method.
 		//
-		// 		var imgs = document.getElementsByTagName('img');
-		// 		for(i=0; i < imgs.length;i++) {
-		// 			var s = imgs[i].src;
-		// 			//alert('BEFORE: ' + s);
-		// 			if (s.indexOf('file:///') === 0) {
-		// 				if (s.indexOf('file:///sdcard/') == -1 && s.indexOf('file:///android_asset') == -1) {
-		// 					imgs[i].src = s.substring(8);
-		// 				}
-		// 			} else if (s.indexOf('app://') === 0) {
-		// 				imgs[i].src = s.substring(6);
-		// 			}
+		// var imgs = document.getElementsByTagName('img');
+		// for(i=0; i < imgs.length;i++) {
+		// var s = imgs[i].src;
+		// //alert('BEFORE: ' + s);
+		// if (s.indexOf('file:///') === 0) {
+		// if (s.indexOf('file:///sdcard/') == -1 && s.indexOf('file:///android_asset') == -1) {
+		// imgs[i].src = s.substring(8);
+		// }
+		// } else if (s.indexOf('app://') === 0) {
+		// imgs[i].src = s.substring(6);
+		// }
 		//
-		// 			//alert('AFTER: ' + imgs[i].src);
-		// 		}
+		// //alert('AFTER: ' + imgs[i].src);
+		// }
 
 		setHtml(html, TiC.URL_ANDROID_ASSET_RESOURCES);
 	}
@@ -412,28 +426,29 @@ public class TiUIWebView extends TiUIView {
 		return client.getBinding().getJSValue(expression);
 	}
 
-	public void setBasicAuthentication(String username, String password) {
+	public void setBasicAuthentication(String username, String password)
+	{
 		client.setBasicAuthentication(username, password);
 	}
-	
-	public void setPluginState(int pluginState) 
+
+	public void setPluginState(int pluginState)
 	{
 		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
 			TiWebView webView = (TiWebView) getNativeView();
 			WebSettings webSettings = webView.getSettings();
 			if (webView != null) {
 				try {
-					switch(pluginState) {
-						case PLUGIN_STATE_OFF : 
+					switch (pluginState) {
+						case PLUGIN_STATE_OFF:
 							internalSetPluginState.invoke(webSettings, enumPluginStateOff);
 							break;
-						case PLUGIN_STATE_ON : 
+						case PLUGIN_STATE_ON:
 							internalSetPluginState.invoke(webSettings, enumPluginStateOn);
 							break;
-						case PLUGIN_STATE_ON_DEMAND : 
+						case PLUGIN_STATE_ON_DEMAND:
 							internalSetPluginState.invoke(webSettings, enumPluginStateOnDemand);
 							break;
-						default :
+						default:
 							Log.w(LCAT, "Not a valid plugin state. Ignoring setPluginState request");
 					}
 				} catch (InvocationTargetException e) {
@@ -444,7 +459,7 @@ public class TiUIWebView extends TiUIView {
 			}
 		}
 	}
-	
+
 	public void pauseWebView()
 	{
 		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
@@ -460,7 +475,7 @@ public class TiUIWebView extends TiUIView {
 			}
 		}
 	}
-	
+
 	public void resumeWebView()
 	{
 		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
@@ -476,46 +491,54 @@ public class TiUIWebView extends TiUIView {
 			}
 		}
 	}
-	
+
 	public void setEnableZoomControls(boolean enabled)
 	{
 		getWebView().getSettings().setSupportZoom(enabled);
 		getWebView().getSettings().setBuiltInZoomControls(enabled);
 	}
 
-	public void setUserAgentString(String userAgentString) {
+	public void setUserAgentString(String userAgentString)
+	{
 		WebView currWebView = getWebView();
 		if (currWebView != null) {
-			currWebView.getSettings().setUserAgentString(userAgentString);			
+			currWebView.getSettings().setUserAgentString(userAgentString);
 		}
 	}
 
-	public String getUserAgentString(){
+	public String getUserAgentString()
+	{
 		WebView currWebView = getWebView();
 		return (currWebView != null) ? currWebView.getSettings().getUserAgentString() : "";
-	}	
-	
-	public boolean canGoBack() {
+	}
+
+	public boolean canGoBack()
+	{
 		return getWebView().canGoBack();
 	}
-	
-	public boolean canGoForward() {
+
+	public boolean canGoForward()
+	{
 		return getWebView().canGoForward();
 	}
-	
-	public void goBack() {
+
+	public void goBack()
+	{
 		getWebView().goBack();
 	}
-	
-	public void goForward() {
+
+	public void goForward()
+	{
 		getWebView().goForward();
 	}
-	
-	public void reload() {
+
+	public void reload()
+	{
 		getWebView().reload();
 	}
-	
-	public void stopLoading() {
+
+	public void stopLoading()
+	{
 		getWebView().stopLoading();
 	}
 }
