@@ -23,6 +23,12 @@
 
 extern BOOL const TI_APPLICATION_ANALYTICS;
 
+NSString * TitaniumModuleRequireFormat = @"(function(exports){"
+		"var __OXP=exports;var module={'exports':exports};%@;\n"
+		"if(module.exports !== __OXP){return module.exports;}"
+		"return exports;})({})";
+
+
 @implementation TitaniumObject
 
 -(NSDictionary*)modules
@@ -698,8 +704,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 -(id)loadCommonJSModule:(NSString*)code withPath:(NSString*)path
 {
-	NSString *js = [[NSString alloc] initWithFormat:
-					@"(function(exports){%@;return exports;})({})",code];
+	NSString *js = [[NSString alloc] initWithFormat:TitaniumModuleRequireFormat,code];
 	
 	NSDictionary *result = [self evalJSAndWait:js];
 	[js release];
