@@ -55,11 +55,11 @@ public class TiUIVideoView extends TiUIView
 			mVideoView.setVideoURI(Uri.parse(proxy.resolveUrl(null, url)));
 		}
 
-		Object value = d.get(TiC.PROPERTY_SCALING_MODE);
-		if (value != null) {
-			mVideoView.setScalingMode(TiConvert.toInt(value));
-		}
+		// Proxy holds the scaling mode directly.
+		mVideoView.setScalingMode(((VideoPlayerProxy) proxy).getScalingMode());
 
+		// Proxy holds the media control style directly.
+		// TODO
 	}
 
 	@Override
@@ -77,6 +77,24 @@ public class TiUIVideoView extends TiUIView
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
+	}
+
+	public void setScalingMode(int mode)
+	{
+		if (mVideoView == null) {
+			return;
+		}
+
+		mVideoView.setScalingMode(mode);
+	}
+
+	public void setMediaControlStyle(int style)
+	{
+		if (mVideoView == null) {
+			return;
+		}
+
+		// TODO
 	}
 
 	public void play()
