@@ -9,6 +9,7 @@
 #import "TIDOMDOMImplementationProxy.h"
 #import "TIDOMDocumentTypeProxy.h"
 #import "TiDOMDocumentProxy.h"
+#import "TiUtils.h"
 
 
 @implementation TIDOMDOMImplementation
@@ -72,74 +73,59 @@
     ENSURE_ARG_OR_NIL_AT_INDEX(obj1,args,0,NSObject);
     ENSURE_ARG_OR_NIL_AT_INDEX(obj2,args,1,NSObject);
     ENSURE_ARG_OR_NIL_AT_INDEX(obj3,args,2,NSObject);
+	
+	theNsURI = [TiUtils stringValue:obj1];
+	qualifiedName = [TiUtils stringValue:obj2];
+	
+	if (qualifiedName == nil)
+	{
+		[self throwException:@"Could not create root element with null qualified name" subreason:nil location:CODELOCATION];
+		return [NSNull null];
+	}
     
-    if([obj1 isKindOfClass:[NSNull class]])
-    {
-        theNsURI = nil;
-    }
-    else
-    {
-        theNsURI = (NSString*)obj1;
-    }
     
-    if([obj2 isKindOfClass:[NSNull class]])
-    {
-        [self throwException:@"could not create root element with null localname" subreason:nil location:CODELOCATION];
-        return [NSNull null];
-    }
-    else
-    {
-        qualifiedName = (NSString*)obj2;
-    }
-    
-    if([obj3 isKindOfClass:[NSNull class]])
+    if ([obj3 isKindOfClass:[NSNull class]])
     {
         docType = nil;
     }
-    else
+    else if ( [obj3 isKindOfClass:[TIDOMDocumentTypeProxy class]] )
     {
         docType = (TIDOMDocumentTypeProxy*)obj3;
     }
+	else
+	{
+		[self throwException:@"Invalid argument passed for docType" subreason:nil location:CODELOCATION];
+		return [NSNull null];
+	}
     
-    xmlChar *pre = NULL;
-    xmlChar *href = NULL;
-    if(theNsURI != nil)
-        href = (xmlChar*)[theNsURI UTF8String];
-    NSString* prefix = [GDataXMLNode prefixForName:qualifiedName];
-    NSString* localName = [GDataXMLNode localNameForName:qualifiedName];
+	xmlChar *pre = NULL;
+	xmlChar *href = NULL;
+	if(theNsURI != nil)
+		href = (xmlChar*)[theNsURI UTF8String];
+	NSString* prefix = [GDataXMLNode prefixForName:qualifiedName];
+	NSString* localName = [GDataXMLNode localNameForName:qualifiedName];
     
-    if (prefix != nil && ([prefix length] > 0)) 
-    {
-        pre = (xmlChar*)[prefix UTF8String];
-    } 
-    
-    xmlNsPtr theNewNs = xmlNewNs(NULL, // parent node
+	if ([prefix length] > 0)
+	{
+		pre = (xmlChar*)[prefix UTF8String];
+	}
+	xmlNsPtr theNewNs = xmlNewNs(NULL, // parent node
                                  href, pre);
-    
     xmlNodePtr rootPtr = xmlNewNode(theNewNs, (xmlChar*)[localName UTF8String]);
-    xmlDocPtr doc = xmlNewDoc(NULL);
-    xmlDocSetRootElement(doc, rootPtr);
-    GDataXMLDocument * theDocument = [[GDataXMLDocument alloc]initWithDocument:doc];
+	xmlDocPtr doc = xmlNewDoc(NULL);
+	xmlDocSetRootElement(doc, rootPtr);
+	GDataXMLDocument * theDocument = [[GDataXMLDocument alloc]initWithDocument:doc];
     
-    if(docType != nil)
-    {
-        GDataXMLNode *docTypeNode = [docType node];
-        xmlAddChild((xmlNodePtr)doc, [docTypeNode XMLNode]);
-        /*
-        xmlNodePtr theRealNode = [docTypeNode XMLNode];
-        if(theRealNode != nil)
-        {
-            xmlDtdPtr theNewDTDNode = xmlCopyDtd((xmlDtdPtr) theRealNode);
-            doc->intSubset = theNewDTDNode;
-        }
-         */
-    }
-
-    TiDOMDocumentProxy * result = [[[TiDOMDocumentProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
-    [result setNode:[theDocument rootElement]];
-    [result setDocument:theDocument];
-    [TiDOMNodeProxy setNode:result forXMLNode:(xmlNodePtr)doc];
-    return result;
+	if (docType != nil)
+	{
+		GDataXMLNode *docTypeNode = [docType node];
+		xmlAddChild((xmlNodePtr)doc, [docTypeNode XMLNode]);
+	}
+	TiDOMDocumentProxy * result = [[[TiDOMDocumentProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+	[result setNode:[theDocument rootElement]];
+	[result setDocument:theDocument];
+	[TiDOMNodeProxy setNode:result forXMLNode:(xmlNodePtr)doc];
+	return result;
     
 }
 
