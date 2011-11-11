@@ -82,11 +82,7 @@
 
 -(void)setNodeValue:(NSString *)data
 {
-	ENSURE_TYPE(data, NSString);
-    RELEASE_TO_NIL(value);
-    value = data;
-    [node setStringValue:data];
-    isSpecified = YES;
+	[self setValue:data];
 }
 
 -(id)ownerElement
@@ -109,7 +105,7 @@
 
 -(id)specified
 {
-    //TODO FIX THIS
+    //TODO - Support for default values specified in the DTD.
     if([node XMLNode]->parent == nil)
         return NUMBOOL(YES);
    
