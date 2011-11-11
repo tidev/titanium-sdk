@@ -3,6 +3,7 @@ name: Titanium.Yahoo
 description: The top level Yahoo module.  The Yahoo module is used for accessing Yahoo related API services.
 extends: Titanium.Module
 since: "0.8"
+platforms: [android, iphone, ipad]
 methods:
   - name: yql
     description: invoke a Yahoo YQL query

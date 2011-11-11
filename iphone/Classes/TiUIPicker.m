@@ -39,7 +39,8 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	{
 		if (type == -1)
 		{
-			picker = [[UIPickerView alloc] initWithFrame:CGRectMake(0, 0, 320, 228)];
+			//TODO: this is not the way to abstract pickers, note the cast I had to add to the following line
+			picker = (UIControl*)[[UIPickerView alloc] initWithFrame:CGRectMake(0, 0, 320, 228)];
 			((UIPickerView*)picker).delegate = self;
 			((UIPickerView*)picker).dataSource = self;
 		}

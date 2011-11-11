@@ -1176,11 +1176,11 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 //	TODO: A previous bug was DeviceOrientationUnknown == 0, which is always true. Uncomment this when pushing.
 	if (UIDeviceOrientationUnknown == orient) 
 	{
-		return UIDeviceOrientationPortrait;
+		return (UIInterfaceOrientation)UIDeviceOrientationPortrait;
 	} 
 	else 
 	{
-		return orient;
+		return (UIInterfaceOrientation)orient;
 	}
 }
 

@@ -3910,7 +3910,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
-					"\"$(SRCROOT)/../../../../tmp/debug/build\"",
 				);
 				OTHER_CFLAGS = (
 					"-DDEBUG",
@@ -3949,7 +3948,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
-					"\"$(SRCROOT)/../../../../tmp/debug/build\"",
 				);
 				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
 					"$(inherited)",

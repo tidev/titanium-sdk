@@ -264,7 +264,7 @@ NSArray * tableKeySequence;
 	{
 		// Set up the new section
 		result.table = table;
-		result.parent = [table proxy];
+		result.parent = (TiViewProxy*)[table proxy];
 	}
 	if (newHeader != nil)
 	{
