@@ -234,8 +234,7 @@ public class TiHTTPClient
 					}
 					if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip")) {
 						is = new GZIPInputStream(entity.getContent());
-					}
-					else {
+					} else {
 						is = entity.getContent();
 					}
 					charset = EntityUtils.getContentCharSet(entity);
