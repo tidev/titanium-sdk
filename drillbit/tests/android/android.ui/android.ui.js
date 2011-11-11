@@ -371,6 +371,17 @@ describe("Ti.UI.Android tests", {
 		v.setKeepScreenOn(true);
 		valueOf(v.keepScreenOn).shouldBeTrue();
 		valueOf(v.getKeepScreenOn()).shouldBeTrue();
-	}
+	},
+	//Test Cases for timob-1055
+	webViewUserAgentMethods: function() {
+    	var wv = Ti.UI.createWebView();
+    	
+    	valueOf(wv.getUserAgent()).shouldNotBeNull();
+    	valueOf(wv.userAgent).shouldNotBeNull();
+    	wv.setUserAgent("custom");
+    	valueOf(wv.getUserAgent()).shouldBe("custom");
+    	wv.userAgent = "custom2";
+    	valueOf(wv.userAgent).shouldBe("custom2");
+  }
 })
 

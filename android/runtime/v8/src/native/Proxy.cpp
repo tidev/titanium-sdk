@@ -124,16 +124,21 @@ static void onPropertyChangedForProxy(Local<String> property, Local<Value> value
 	}
 
 	jstring javaProperty = TypeConverter::jsStringToJavaString(property);
-	bool isNew;
-	jobject javaValue = TypeConverter::jsValueToJavaObject(value, &isNew);
+	bool javaValueIsNew;
+	jobject javaValue = TypeConverter::jsValueToJavaObject(value, &javaValueIsNew);
 
-	env->CallVoidMethod(proxy->getJavaObject(),
+	jobject javaProxy = proxy->getJavaObject();
+	env->CallVoidMethod(javaProxy,
 		JNIUtil::krollProxyOnPropertyChangedMethod,
 		javaProperty,
 		javaValue);
 
+	if (!JavaObject::useGlobalRefs) {
+		env->DeleteLocalRef(javaProxy);
+	}
+
 	env->DeleteLocalRef(javaProperty);
-	if (isNew) {
+	if (javaValueIsNew) {
 		env->DeleteLocalRef(javaValue);
 	}
 
@@ -167,9 +172,14 @@ Handle<Value> Proxy::getIndexedProperty(uint32_t index, const AccessorInfo& info
 	}
 
 	Proxy* proxy = NativeObject::Unwrap<Proxy>(info.Holder());
-	jobject value = env->CallObjectMethod(proxy->getJavaObject(),
+	jobject javaProxy = proxy->getJavaObject();
+	jobject value = env->CallObjectMethod(javaProxy,
 		JNIUtil::krollProxyGetIndexedPropertyMethod,
 		index);
+
+	if (!JavaObject::useGlobalRefs) {
+		env->DeleteLocalRef(javaProxy);
+	}
 
 	Handle<Value> result = TypeConverter::javaObjectToJsValue(value);
 	env->DeleteLocalRef(value);
@@ -187,14 +197,18 @@ Handle<Value> Proxy::setIndexedProperty(uint32_t index, Local<Value> value, cons
 
 	Proxy* proxy = NativeObject::Unwrap<Proxy>(info.Holder());
 
-	bool isNew;
-	jobject javaValue = TypeConverter::jsValueToJavaObject(value, &isNew);
-	env->CallVoidMethod(proxy->getJavaObject(),
+	bool javaValueIsNew;
+	jobject javaValue = TypeConverter::jsValueToJavaObject(value, &javaValueIsNew);
+	jobject javaProxy = proxy->getJavaObject();
+	env->CallVoidMethod(javaProxy,
 		JNIUtil::krollProxySetIndexedPropertyMethod,
 		index,
 		javaValue);
 
-	if (isNew) {
+	if (!JavaObject::useGlobalRefs) {
+		env->DeleteLocalRef(javaProxy);
+	}
+	if (javaValueIsNew) {
 		env->DeleteLocalRef(javaValue);
 	}
 
@@ -213,8 +227,13 @@ Handle<Value> Proxy::hasListenersForEventType(const Arguments& args)
 	Local<String> eventType = args[0]->ToString();
 	Local<Boolean> hasListeners = args[1]->ToBoolean();
 
-	jobject krollObject = env->GetObjectField(proxy->getJavaObject(), JNIUtil::krollProxyKrollObjectField);
+	jobject javaProxy = proxy->getJavaObject();
+	jobject krollObject = env->GetObjectField(javaProxy, JNIUtil::krollProxyKrollObjectField);
 	jstring javaEventType = TypeConverter::jsStringToJavaString(eventType);
+
+	if (!JavaObject::useGlobalRefs) {
+		env->DeleteLocalRef(javaProxy);
+	}
 
 	env->CallVoidMethod(krollObject,
 		JNIUtil::krollObjectSetHasListenersForEventTypeMethod,
@@ -394,9 +413,12 @@ Handle<Value> Proxy::proxyOnPropertiesChanged(const Arguments& args)
 	}
 
 	jobject javaProxy = proxy->getJavaObject();
-
 	env->CallVoidMethod(javaProxy, JNIUtil::krollProxyOnPropertiesChangedMethod, jChanges);
 	env->DeleteLocalRef(jChanges);
+
+	if (!JavaObject::useGlobalRefs) {
+		env->DeleteLocalRef(javaProxy);
+	}
 
 	return Undefined();
 }

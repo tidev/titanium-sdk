@@ -108,6 +108,23 @@ public class WebViewProxy extends ViewProxy
 		}
 		clearBasicAuthentication();
 		getWebView().setBasicAuthentication(username, password);
+
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setUserAgent(String userAgent)
+	{
+		TiUIWebView currWebView = getWebView();
+		if (currWebView != null) {
+			currWebView.setUserAgentString(userAgent);
+		}
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public String getUserAgent()
+	{
+		TiUIWebView currWebView = getWebView();
+		return (currWebView != null) ? currWebView.getUserAgentString() : "";
 	}
 
 	@Kroll.method
@@ -210,16 +227,6 @@ public class WebViewProxy extends ViewProxy
 			enabled = TiConvert.toBoolean(getProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS));
 		}
 		return enabled;
-	}
-
-	@Override
-	public void releaseViews()
-	{
-		// See Lighthouse #1936 - we can't allow the releasing
-		// of the view because Android's WebViewCoreThread seems
-		// to refer back to it in GC and freak out (crash the app)
-		// if it's not there.
-		// So we're just overriding and not calling super.
 	}
 
 	public void clearBasicAuthentication()

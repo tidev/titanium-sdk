@@ -22,6 +22,7 @@ import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
@@ -29,15 +30,18 @@ import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.analytics.TiAnalyticsModel;
 import org.appcelerator.titanium.analytics.TiAnalyticsService;
-import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiTempFileHelper;
+import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
 import android.app.Application;
 import android.app.TabActivity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -82,6 +86,8 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 	private boolean needsEnrollEvent;
 	private String buildVersion = "", buildTimestamp = "", buildHash = "";
 	private HashMap<String, WeakReference<KrollModule>> modules;
+	private TiResponseCache responseCache;
+	private BroadcastReceiver externalStorageReceiver;
 
 	protected TiAnalyticsModel analyticsModel;
 	protected Intent analyticsIntent;
@@ -177,6 +183,13 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 		}
 		tempFileHelper = new TiTempFileHelper(this);
 	}
+	
+	@Override
+	public void onTerminate()
+	{
+		stopExternalStorageMonitor();
+		super.onTerminate();
+	}
 
 	public void postAppInfo()
 	{
@@ -187,12 +200,22 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 	{
 		TiConfig.LOGD = systemProperties.getBool("ti.android.debug", false);
 
+		startExternalStorageMonitor();
+		
 		// Register the default cache handler
-		File cacheDir = new File(new TiFileHelper(this).getDataDirectory(false), "remote-image-cache");
-		if (!cacheDir.exists()) {
+		responseCache = new TiResponseCache(getRemoteCacheDir(), this);
+		TiResponseCache.setDefault(responseCache);
+	}
+	
+	private File getRemoteCacheDir()
+	{
+		File cacheDir = new File(tempFileHelper.getTempDirectory(), "remote-cache");
+		if (!cacheDir.exists())
+		{
 			cacheDir.mkdirs();
+			tempFileHelper.excludeFileOnCleanup(cacheDir);
 		}
-		TiResponseCache.setDefault(new TiResponseCache(cacheDir.getAbsoluteFile(), this));
+		return cacheDir.getAbsoluteFile();
 	}
 
 	public void setRootActivity(TiRootActivity rootActivity)
@@ -552,5 +575,47 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 
 		modules.put(name, new WeakReference<KrollModule>(module));
 	}
+
+	public void waitForCurrentActivity(CurrentActivityListener l)
+	{
+		TiUIHelper.waitForCurrentActivity(l);
+	}
+	
+	private void startExternalStorageMonitor()
+	{
+		externalStorageReceiver = new BroadcastReceiver()
+		{
+			@Override
+			public void onReceive(Context context, Intent intent)
+			{
+				if (Intent.ACTION_MEDIA_MOUNTED.equals(intent.getAction())) {
+					responseCache.setCacheDir(getRemoteCacheDir());
+					TiResponseCache.setDefault(responseCache);
+					Log.i(LCAT, "SD card has been mounted. Enabling cache for http responses.");
+					
+				} else {
+					// if the sd card is removed, we don't cache http responses
+					TiResponseCache.setDefault(null);
+					Log.i(LCAT, "SD card has been unmounted. Disabling cache for http responses.");
+				}
+			}
+		};
+
+		IntentFilter filter = new IntentFilter();
+
+		filter.addAction(Intent.ACTION_MEDIA_MOUNTED);
+		filter.addAction(Intent.ACTION_MEDIA_REMOVED);
+		filter.addAction(Intent.ACTION_MEDIA_UNMOUNTED);
+		filter.addAction(Intent.ACTION_MEDIA_BAD_REMOVAL);
+		filter.addDataScheme("file");
+
+		registerReceiver(externalStorageReceiver, filter);
+	}
+
+	private void stopExternalStorageMonitor()
+	{
+		unregisterReceiver(externalStorageReceiver);
+	}
+
 }
 
