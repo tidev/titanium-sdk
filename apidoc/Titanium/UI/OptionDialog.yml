@@ -11,6 +11,7 @@ methods:
         description: name of the view the OptionDialog needs to be attached to.
         type: Titanium.UI.View
         platforms: [ipad]
+        optional: true
 events:
   - name: click
     description: fired when a button in the dialog is clicked
