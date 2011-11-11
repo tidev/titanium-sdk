@@ -1830,12 +1830,12 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
 
 - (id) importNode:(GDataXMLNode*)theNode recursive:(BOOL)deep
 {
-    xmlNodePtr ret = nil;
+    xmlNodePtr ret = NULL;
     if (xmlDoc_ != NULL) 
     {
         xmlNodePtr nodeToImport = [theNode XMLNode];
         
-        if(deep)
+        if (deep)
         {
             ret = xmlDocCopyNode(nodeToImport, xmlDoc_, 1);
         }
@@ -1845,7 +1845,7 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
         }
     }
     
-    if(ret != nil)
+    if(ret != NULL)
     {
         return [GDataXMLNode nodeConsumingXMLNode:ret];
     }
@@ -1854,10 +1854,10 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
 
 - (id) entityRefForName:(NSString*)theName
 {
-    if(xmlDoc_ != nil)
+    if(xmlDoc_ != NULL)
     {
         xmlNodePtr theRef = xmlNewReference(xmlDoc_, GDataGetXMLString(theName));
-        if(theRef != nil)
+        if (theRef != NULL)
         {
             return [GDataXMLNode nodeConsumingXMLNode:theRef];
         }
