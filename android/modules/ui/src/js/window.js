@@ -297,9 +297,14 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.remove = function(view) {
 		if (this.view) {
 			this.view.remove(view);
-		} 
-		if (this._children && this._children.indexOf(view) != -1) {
-			this._children.splice(this._children.indexOf(view),1);
+		}
+		var children = this._children;
+		if (children) {
+			var viewIndex = children.indexOf(view);
+			if (viewIndex != -1)
+			{
+				children.splice(viewIndex, 1);
+			}
 		}
 	}
 
