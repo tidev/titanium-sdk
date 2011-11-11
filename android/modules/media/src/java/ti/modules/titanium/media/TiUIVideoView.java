@@ -14,6 +14,7 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
+import android.widget.MediaController;
 import android.widget.TiVideoView8;
 
 public class TiUIVideoView extends TiUIView
@@ -27,12 +28,14 @@ public class TiUIVideoView extends TiUIView
 	private static final String PROPERTY_CURRENT_PLAYBACK_TIME = "currentPlaybackTime";
 
 	private TiVideoView8 mVideoView;
+	private MediaController mMediaController;
 
 	public TiUIVideoView(TiViewProxy proxy)
 	{
 		super(proxy);
 		mVideoView = new TiVideoView8(proxy.getActivity());
 		TiCompositeLayout layout = new TiCompositeLayout(proxy.getActivity());
+		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
 		layout.addView(mVideoView, new TiCompositeLayout.LayoutParams());
 		mVideoView.setOnPreparedListener(this);
 		mVideoView.setOnCompletionListener(this);
@@ -50,6 +53,12 @@ public class TiUIVideoView extends TiUIView
 		}
 
 		String url = d.getString(TiC.PROPERTY_URL);
+		if (url == null) {
+			url = d.getString(TiC.PROPERTY_CONTENT_URL);
+			if (url != null) {
+				Log.w(TAG, "contentURL is deprecated, use url instead");
+			}
+		}
 		if (url != null) {
 			fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
 			mVideoView.setVideoURI(Uri.parse(proxy.resolveUrl(null, url)));
@@ -59,7 +68,7 @@ public class TiUIVideoView extends TiUIView
 		mVideoView.setScalingMode(((VideoPlayerProxy) proxy).getScalingMode());
 
 		// Proxy holds the media control style directly.
-		// TODO
+		setMediaControlStyle(((VideoPlayerProxy) proxy).getMediaControlStyle());
 	}
 
 	@Override
@@ -69,9 +78,12 @@ public class TiUIVideoView extends TiUIView
 			return;
 		}
 
-		if (key.equals(TiC.PROPERTY_URL)) {
+		if (key.equals(TiC.PROPERTY_URL) || key.equals(TiC.PROPERTY_CONTENT_URL)) {
 			fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
 			mVideoView.setVideoURI(Uri.parse(proxy.resolveUrl(null, TiConvert.toString(newValue))));
+			if (key.equals(TiC.PROPERTY_CONTENT_URL)) {
+				Log.w(TAG, "contentURL is deprecated, use url instead");
+			}
 		} else if (key.equals(TiC.PROPERTY_SCALING_MODE)) {
 			mVideoView.setScalingMode(TiConvert.toInt(newValue));
 		} else {
@@ -94,7 +106,31 @@ public class TiUIVideoView extends TiUIView
 			return;
 		}
 
-		// TODO
+		boolean showController = true;
+
+		switch(style) {
+			case MediaModule.VIDEO_CONTROL_DEFAULT:
+			case MediaModule.VIDEO_CONTROL_EMBEDDED:
+			case MediaModule.VIDEO_CONTROL_FULLSCREEN:
+				showController = true;
+				break;
+			case MediaModule.VIDEO_CONTROL_HIDDEN:
+			case MediaModule.VIDEO_CONTROL_NONE:
+				showController = false;
+				break;
+		}
+
+		if (showController) {
+			if (mMediaController == null) {
+				mMediaController = new MediaController(proxy.getActivity());
+			}
+			if (style == MediaModule.VIDEO_CONTROL_EMBEDDED) {
+				mMediaController.setAnchorView(mVideoView);
+			}
+			mVideoView.setMediaController(mMediaController);
+		} else {
+			mVideoView.setMediaController(null);
+		}
 	}
 
 	public void play()
@@ -183,6 +219,7 @@ public class TiUIVideoView extends TiUIView
 		try {
 			releaseVideoView();
 			mVideoView = null;
+			mMediaController = null;
 		} catch (Exception e) { /* ignore */
 		}
 	}

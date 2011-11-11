@@ -27,7 +27,7 @@ import android.os.RemoteException;
 import android.os.ResultReceiver;
 
 @Kroll.proxy(creatableInModule = MediaModule.class, propertyAccessors = {
-	"url", "initialPlaybackTime", "duration"
+	"url", "initialPlaybackTime", "duration", "contentURL"
 })
 public class VideoPlayerProxy extends TiViewProxy
 {
