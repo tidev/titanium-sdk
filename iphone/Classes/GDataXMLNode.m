@@ -250,8 +250,8 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
 
 + (id)commentWithStringValue:(NSString *)value
 {
-    xmlNodePtr theNewText = xmlNewComment(GDataGetXMLString(value));
-    if (theNewText) {
+	xmlNodePtr theNewText = xmlNewComment(GDataGetXMLString(value));
+	if (theNewText) {
 		return [self nodeConsumingXMLNode:theNewText];
 	}
 	return nil;
@@ -1072,8 +1072,7 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
 				// previously-unresolved namespace prefixes that can now be fixed up
 				[[self class] fixUpNamespacesForNode:childNodeCopy
 								  graftingToTreeNode:xmlNode_];
-                
-                return [GDataXMLNode nodeConsumingXMLNode:resultNode];
+				return [GDataXMLNode nodeConsumingXMLNode:resultNode];
 			}
 		}
 	}
@@ -1871,7 +1870,7 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
     return xmlGetIntSubset(xmlDoc_);
 }
 
-- (xmlDocPtr) DocNode
+- (xmlDocPtr) getDocNode
 {
     return xmlDoc_;
 }

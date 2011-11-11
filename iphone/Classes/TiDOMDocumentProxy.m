@@ -27,9 +27,9 @@
 
 -(void)dealloc
 {
-    if( (document != nil) && ([document DocNode] != NULL ) )
+    if( (document != nil) && ([document getDocNode] != NULL ) )
     {
-        [TiDOMNodeProxy removeNodeForXMLNode:(xmlNodePtr)[document DocNode]];
+        [TiDOMNodeProxy removeNodeForXMLNode:(xmlNodePtr)[document getDocNode]];
     }
     RELEASE_TO_NIL(document);
     RELEASE_TO_NIL(node);
@@ -56,7 +56,7 @@
 	}
     [self setNode:[ourDocument rootElement]];
 	[self setDocument:ourDocument];
-    xmlDocPtr docPtr = [ourDocument DocNode];
+    xmlDocPtr docPtr = [ourDocument getDocNode];
     [TiDOMNodeProxy setNode:self forXMLNode:(xmlNodePtr)docPtr];
 	[ourDocument release];
 }
