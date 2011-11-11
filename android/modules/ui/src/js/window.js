@@ -301,8 +301,7 @@ exports.bootstrapWindow = function(Titanium) {
 		var children = this._children;
 		if (children) {
 			var viewIndex = children.indexOf(view);
-			if (viewIndex != -1)
-			{
+			if (viewIndex != -1) {
 				children.splice(viewIndex, 1);
 			}
 		}
