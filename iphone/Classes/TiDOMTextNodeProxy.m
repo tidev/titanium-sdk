@@ -60,26 +60,7 @@
     [TiDOMNodeProxy setNode:result forXMLNode:resultRealNode];
     return result;
     //THIS DOES NOT WORK SINCE LIBXML MERGES ADJACENT TEXT NODES WHEN ADDING SIBLINGS,CHILDREN
-    //Set as sibling
     //xmlAddNextSibling([node XMLNode], [resultElement XMLNode]);
-    
-    //if([node XMLNode]->parent != nil)
-    //{
-    //    [[self parentNode] appendChild:result];
-    //}
-    //else
-    //{
-    //    //THIS SHOULD NOT HAPPEN
-    //    xmlNodePtr ourRealNode = [node XMLNode];
-    //    xmlNodePtr newRealNode = [resultElement XMLNode];
-        
-    //    newRealNode->next = ourRealNode->next;
-    //    ourRealNode->next = newRealNode;
-    //}
-    
-    //Return now
-	//return result;
-    
     
 }
 
