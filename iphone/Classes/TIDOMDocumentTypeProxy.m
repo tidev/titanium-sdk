@@ -24,6 +24,13 @@
      //TODO
     return [NSNull null];
 }
+-(id)name{
+	if(node != nil)
+	{
+		return [node localName];
+	}
+	return [NSNull null];
+}
 -(id)publicId
 {
     if(node != nil)
@@ -60,7 +67,7 @@
 {
     if(node != nil)
     {
-        [node stringValue];
+        [node XMLString];
     }
     return [NSNull null];
 }

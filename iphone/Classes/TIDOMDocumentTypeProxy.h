@@ -12,6 +12,7 @@
 @interface TIDOMDocumentTypeProxy : TiDOMNodeProxy {
     
 }
+@property(nonatomic,readonly) id name;
 @property(nonatomic,readonly) id entities;
 @property(nonatomic,readonly) id notations;
 @property(nonatomic,readonly) id publicId;
