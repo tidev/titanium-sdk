@@ -286,14 +286,20 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.add = function(view) {
 		if (this.view) {
 			this.view.add(view);
-
-		} else {
-			var children = this._children;
-			if (!children) {
-				children = this._children = [];
-			}
-
-			children.push(view);
+		} 
+		var children = this._children;
+		if (!children) {
+			children = this._children = [];
+		}
+		children.push(view);
+	}
+	
+	Window.prototype.remove = function(view) {
+		if (this.view) {
+			this.view.remove(view);
+		} 
+		if (this._children && this._children.indexOf(view) != -1) {
+			this._children.splice(this._children.indexOf(view),1);
 		}
 	}
 
