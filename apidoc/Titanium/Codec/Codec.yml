@@ -3,6 +3,7 @@ name: Titanium.Codec
 description: A module for converting Numbers and Strings to and from a <Titanium.Buffer>.
 extends: Titanium.Module
 since: "1.7"
+platforms: [android, iphone, ipad]
 
 properties:
   - name: CHARSET_ASCII

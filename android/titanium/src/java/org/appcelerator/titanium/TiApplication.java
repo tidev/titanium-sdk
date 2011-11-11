@@ -22,6 +22,7 @@ import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
@@ -29,10 +30,13 @@ import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.analytics.TiAnalyticsModel;
 import org.appcelerator.titanium.analytics.TiAnalyticsService;
+import org.appcelerator.titanium.proxy.TiWindowProxy;
+import org.appcelerator.titanium.proxy.TiWindowProxy.PostOpenListener;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiTempFileHelper;
+import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
 import android.app.Application;
@@ -552,5 +556,11 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 
 		modules.put(name, new WeakReference<KrollModule>(module));
 	}
+
+	public void waitForCurrentActivity(CurrentActivityListener l)
+	{
+		TiUIHelper.waitForCurrentActivity(l);
+	}
+
 }
 

@@ -4,6 +4,7 @@ extends: Titanium.XML.Node
 description: Proxy representing an attribute of an [Element](Titanium.XML.Element), as defined
     in the [DOM Level 2 specification](http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-637646024).
 createable: false
+platforms: [android, iphone, ipad]
 properties:
   - name: name
     type: String

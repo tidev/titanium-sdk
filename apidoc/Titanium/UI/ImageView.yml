@@ -6,12 +6,16 @@ since: "0.9"
 methods:
   - name: pause
     description: pause a started animation.
+    platforms: [android, iphone, ipad]
   - name: start
     description: start the image animation. this method only works if you set multiple images
+    platforms: [android, iphone, ipad]
   - name: stop
     description: stop a started animation and reset the index to the first image
+    platforms: [android, iphone, ipad]
   - name: toBlob
     description: return the image as a Blob object
+    platforms: [android, iphone, ipad]
 events:
   - name: change
     description: fired for each frame changed during an animation
@@ -38,7 +42,7 @@ events:
         description: the x point of the event in receiving view coordiantes
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, mobileweb]
         deprecated:
             since: "1.8.0"
   - name: start
@@ -79,7 +83,7 @@ properties:
   - name: canScale
     description: allow image to scale
     type: Boolean
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: decodeRetries
     description: |
         number of times to retry decoding the bitmap at this URL
@@ -100,7 +104,7 @@ properties:
     since: "1.3.0"
   - name: hires
     description: indicates whether or not the source image is in 2x resolution for retina displays.  Use for remote images ONLY.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     type: Boolean
   - name: image
     description: image to display either as string url, Blob or File

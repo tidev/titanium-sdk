@@ -134,7 +134,7 @@
 		RELEASE_TO_NIL(current);
 	}
 	
-	current = [viewController retain];
+	current = (TiUITabController*)[viewController retain];
 	
 	TiWindowProxy *newWindow = [current window];
 	

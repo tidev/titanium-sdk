@@ -140,6 +140,7 @@ public:
 		const v8::Arguments& args);
 	static void objectExtend(v8::Handle<v8::Object> dest, v8::Handle<v8::Object> src);
 	static void reportException(v8::TryCatch &tryCatch, bool showLine = true);
+	static void openJSErrorDialog(v8::TryCatch &tryCatch);
 	static void fatalException(v8::TryCatch &tryCatch);
 	static v8::Handle<v8::String> jsonStringify(v8::Handle<v8::Value> value);
 	static bool constructorNameMatches(v8::Handle<v8::Object>, const char* name);

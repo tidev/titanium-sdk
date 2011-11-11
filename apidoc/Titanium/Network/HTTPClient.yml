@@ -122,3 +122,4 @@ properties:
   - name: validatesSecureCertificate
     description: set this to control how SSL certification validation is performed on connection.  defaults to false if in simulator or device testing and true if release for distribution mode.
     type: Boolean
+notes: Mobile web requires cross-domain origin policies to be configured on the web servers in order for cross-domain connections to work.

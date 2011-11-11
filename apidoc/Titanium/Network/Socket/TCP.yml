@@ -4,6 +4,7 @@ type: Titanium.IOStream
 description: TCP socket that implements the `Titanium.IOStream` interface.  Created by `Titanium.Network.Socket.createTCP`
 extends: Titanium.Proxy
 since: "1.7"
+platforms: [android, iphone, ipad]
 
 properties:
   - name: host

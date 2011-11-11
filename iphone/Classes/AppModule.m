@@ -169,7 +169,7 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(int)garbageCollect:(NSArray*)args
 {
-	KrollBridge * ourBridge = [self executionContext];
+	KrollBridge * ourBridge = (KrollBridge *)[self executionContext];
 	return [ourBridge forceGarbageCollectNow];
 }
 
