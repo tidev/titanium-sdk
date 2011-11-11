@@ -91,7 +91,7 @@ properties:
     platforms: [iphone, ipad]
     type: Number
   - name: autocapitalization
-    description: Specifies how text should be capitalized during typing. Specify one of the following constants from <Titanium.UI>: [TEXT_AUTOCAPITALIZATION_NONE](Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE), [TEXT_AUTOCAPITALIZATION_WORDS](Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS), [TEXT_AUTOCAPITALIZATION_SENTENCES](Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES), or [TEXT_AUTOCAPITALIZATION_ALL](Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL).
+    description: Specifies how text should be capitalized during typing. Specify one of the following constants from <Titanium.UI>":" [TEXT_AUTOCAPITALIZATION_NONE](Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE), [TEXT_AUTOCAPITALIZATION_WORDS](Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS), [TEXT_AUTOCAPITALIZATION_SENTENCES](Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES), or [TEXT_AUTOCAPITALIZATION_ALL](Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL).
     platforms: [android]
     type: Number
   - name: editable
