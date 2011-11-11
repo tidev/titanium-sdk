@@ -96,19 +96,14 @@
 	ENSURE_ARG_AT_INDEX(obj1, args, 0, NSObject);
 	ENSURE_ARG_AT_INDEX(obj2, args, 1, NSObject);
     
-    if([obj1 isKindOfClass:[NSNull class]])
-        theURI = nil;
-    else
-        theURI = (NSString*)obj1;
-    
-    if([obj2 isKindOfClass:[NSNull class]])
+    theURI = [TiUtils stringValue:obj1];
+    tagName = [TiUtils stringValue:obj2];
+	
+    if (tagName == nil)
     {
         [self throwException:@"could not create attribute with null qualified name" subreason:nil location:CODELOCATION];
         return nil;
     }
-    else
-        tagName = (NSString*)obj2;
-    
     
 	TiDOMAttrProxy *result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
     //THIS WILL NOT WORK UNTIL ADD CHILD IS CALLED SO CREATE A NAMESPACE POINTER AND SET IT EXPLICITLY
@@ -119,12 +114,12 @@
     xmlChar *href;
 	xmlChar *pre;
     
-    if(theURI != nil)
+    if (theURI != nil)
         href = (xmlChar*)[theURI UTF8String];
     else
         href = NULL;
 	
-	if (prefix != nil && ([prefix length] > 0)) {
+	if ([prefix length] > 0) {
 		pre = (xmlChar*)[prefix UTF8String];
 	} else {
 		// default namespace is represented by a nil prefix
@@ -203,18 +198,14 @@
 	ENSURE_ARG_AT_INDEX(obj1, args, 0, NSObject);
 	ENSURE_ARG_AT_INDEX(obj2, args, 1, NSObject);
     
-    if([obj1 isKindOfClass:[NSNull class]])
-        theURI = nil;
-    else
-        theURI = (NSString*)obj1;
+    theURI = [TiUtils stringValue:obj1];
+    tagName = [TiUtils stringValue:obj2];
     
-    if([obj2 isKindOfClass:[NSNull class]])
+    if (tagName == nil)
     {
         [self throwException:@"could not create element with null qualified name" subreason:nil location:CODELOCATION];
         return nil;
     }
-    else
-        tagName = (NSString*)obj2;
     
     TiDOMElementProxy * result = [[[TiDOMElementProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
     //THIS WILL NOT WORK UNTIL ADD CHILD IS CALLED SO CREATE A NAMESPACE POINTER AND SET IT EXPLICITLY
@@ -230,7 +221,7 @@
     else
         href = NULL;
 	
-	if (prefix != nil && ([prefix length] > 0)) {
+	if ([prefix length] > 0) {
 		pre = (xmlChar*)[prefix UTF8String];
 	} else {
 		// default namespace is represented by a nil prefix
