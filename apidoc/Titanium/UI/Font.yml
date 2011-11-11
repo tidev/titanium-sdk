@@ -1,0 +1,22 @@
+---
+name: Font
+description: An abstract datatype for specifying a text font.
+properties:
+  - name: fontFamily
+    description: Name of a font family, for example, "Helvetica" or "DroidSans." If the family name does not match an existing font, the default font is used. The special names "sans-serif," "serif," and "monospace" (or "monospaced") can be used instead.
+    type: String
+    default: Uses the default system font.
+  - name: fontSize
+    summary: Font size, in platform-dependent units.
+    description: Font size. iOS accepts sizes in Apple "points," where one "point" corresponds to one pixel on non-Retina displays, and two pixels on Retina displays. The default unit on Android is pixels, but users can specify other units, including pixels (px), points (pt), density-independent pixels (dp or dip), millimeters (mm) or inches (in). For example, "16dp" specifies a size of 16 density-independent pixels. Note that points on Android refers to the typographical unit of 1/72 of an inch, not to be confused with Apple "points."
+    type: [ Number, String ]
+    default: 15px
+  - name: fontWeight
+    description: Font weight. Valid values are "bold" or "normal." The "semibold" weight is recognized on iOS only.
+    type: String
+    default: normal
+  - name: fontStyle
+    description: Font style. Valid values are "italic" or "normal." 
+    type: String
+    platforms: [ iphone, ipad ]
+    default: normal

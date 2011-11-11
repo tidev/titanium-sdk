@@ -1,38 +1,38 @@
 ---
 name: Titanium.UI.Label
-description: A Label is created by the method <Titanium.UI.createLabel>.
+description: A text label, with optional background image. Use the <Titanium.UI.createLabel> method to create a label. 
 extends: Titanium.UI.View
 since: "0.8"
 properties:
   - name: autoLink
-    description: One of Ti.UI.Android.LINKIFY constants. Automatically create clickable links for the specified type. (Android Only)
+    description: One of the <Titanium.UI.Android> `LINKIFY` constants. Automatically create clickable links for the specified type.
     type: Number
     platforms: [android]
   - name: backgroundPaddingBottom
-    description: the number of pixels to extend the background image past the label on the bottom
+    description: Number of pixels to extend the background image past the label on the bottom.
     type: Number
   - name: backgroundPaddingLeft
-    description: the number of pixels to extend the background image past the label on the left
+    description: Number of pixels to extend the background image past the label on the left.
     type: Number
   - name: backgroundPaddingRight
-    description: the number of pixels to extend the background image past the label on the right
+    description: Number of pixels to extend the background image past the label on the right.
     type: Number
   - name: backgroundPaddingTop
-    description: the number of pixels to extend the background image past the label on the top
+    description: Number of pixels to extend the background image past the label on the top.
     type: Number
   - name: color
-    description: the color of the label
+    description: Color of the label text.
     type: String
   - name: ellipsize
-    description: Turn on/off the addition of ellipses at the end of the label if the text is too large to fit. (Android Only, default false)
+    description: Turn on/off the addition of ellipses at the end of the label if the text is too large to fit.
     type: Boolean
     default: false
     platforms: [android]
   - name: font
-    description: the label font object properties
-    type: Object
+    description: Font to use for the label text.
+    type: Font
   - name: highlightedColor
-    description: the color of the label when in the highlighted state
+    description: Color of the label when in the highlighted state. Used when the label is part of a view that can be highlighted, such as a <Titanium.UI.TableViewRow>.
     type: String
     platforms: [android, iphone, ipad]
   - name: html
@@ -40,23 +40,23 @@ properties:
     platforms: [android, mobileweb]
     type: String
   - name: minimumFontSize
-    description: the minimum size of the font when the font is sized based on the contents.  Enables font scaling to fit and forces the label content to be limited to a single line
+    description: Minimum font size when the font is sized based on the contents.  Enables font scaling to fit and forces the label content to be limited to a single line.
     type: Number
     platforms: [android, iphone, ipad]
   - name: shadowColor
     description: the text shadow color
     type: String
   - name: shadowOffset
-    description: the shadow offset as a dictionary with the properties `x` and `y`
+    description: Shadow offset as a dictionary with the properties `x` and `y`.
     type: Object
   - name: text
-    description: the text of the label
+    description: Label text.
     type: String
   - name: textAlign
-    description: the alignment constant or string value such as `left`, `center` or `right`
+    description: Text alignment, specified as a string value such as `left`, `center` or `right` or as a text alignment constant such as <Titanium.UI.TEXT_ALIGNMENT_CENTER>.
     type: [String,Number]
   - name: textid
-    description: the key in the locale file to use for the text property
+    description: Key identifying a string from the locale file to use for the label text. Only one of `text` or `textid` should be specified.
     type: String
   - name: wordWrap
     description: Turn on/off word wrapping in the label.

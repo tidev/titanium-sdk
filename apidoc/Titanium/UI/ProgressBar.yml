@@ -1,41 +1,40 @@
 ---
 name: Titanium.UI.ProgressBar
-description: A Progress Bar is created by the method <Titanium.UI.createProgressBar>.
+summary: A progress bar.
+description: A progress bar is used for displaying an ongoing activity with a defined progression. For an activity without a defined progression, you can use <Titanium.UI.ActivityIndicator>. Use the <Titanium.UI.createProgressBar> method to create a progress bar.
 extends: Titanium.Proxy
 since: "0.8"
 platforms: [android, iphone, ipad]
 properties:
   - name: color
-    description: the color of the progress bar text
+    description: Color of the progress bar text.
     type: String
   - name: font
-    description: the font object for the progress bar text
-    type: Object
+    description: Font for the progress bar text.
+    type: Font
   - name: max
-    description: the maximum value of the progress bar
+    description: Maximum value of the progress bar.
     type: Number
   - name: message
-    description: the progress bar message
+    description: Progress bar text.
     type: String
   - name: min
-    description: the minimum value of the progress bar
+    description: Minimum value of the progress bar.
     type: Number
   - name: style
-    description: the style of the progress bar
+    description: Style of the progress bar. For iPhone, progress bar styles are constants defined in [ProgressBarStyle](Titanium.UI.iPhone.ProgressBarStyle).
     type: Number
   - name: value
-    description: the current value of the progress bar
+    description: Current value of the progress bar.
     type: Number
-notes: |
-    For iPhone, progress bar styles are constants defined in [Titanium.UI.iPhone.ProgressBarStyle](Titanium.UI.iPhone.ProgressBarStyle).
 examples:
   - title: Simple Progress Bar
-    example: |
-        
-        In this example we create a progress bar with the min value of `0` and the max value of `10` and the current value of `0`.  The change the value of the progress bar to cause it to move, we would set the `value` property to a value between `min` and `max`.
+    example: |    
+        In this example we create a progress bar with the min value of `0` and the max value of `10` and the current value of `0`. As the activity progresses, we would update the  progress bar by setting the `value` property to a value between `min` and `max`.
         
             var pb=Titanium.UI.createProgressBar({
             	width:250,
+            	height:'auto',
             	min:0,
             	max:10,
             	value:0,

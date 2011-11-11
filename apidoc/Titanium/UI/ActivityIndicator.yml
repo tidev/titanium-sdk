@@ -1,33 +1,39 @@
 ---
 name: Titanium.UI.ActivityIndicator
-description: An Activity Indicator is created by the method <Titanium.UI.createActivityIndicator>.  An activity indicator can be used to show the progress of an operation in the UI to let the user know some action is taking place.
+summary: An activity indicator that lets the user know an action is 
+    taking place. 
+    
+description:  An activity indicator can be used to show the progress of an operation in the UI to let the user know some action is taking place. An activity indicator consists of a spinning animation and an optional text message, and is used to indicate an ongoing activity of indeterminate length. To show progress, use <Titanium.UI.ProgressBar> instead.
+
+    Use the <Titanium.UI.createActivityIndicator> method to create an Activity Indicator. 
+    
+    Activity indicators must be used differently on Android and iOS. On Android, the activity indicator is a modal dialog that blocks the UI. Calling `show` displays the indicator, and calling `hide` removes it. On iOS, the activity indicator is a view like any other view, and must be added to a window or other top-level view before it can be shown.
 extends: Titanium.Proxy
 since: "0.8"
 methods:
   - name: hide
-    description: call hide to make the activity indicator hidden and stop spinning
+    description: Hides the activity indicator and stops the animation.
   - name: show
-    description: call show to make the activity indicator visible and start spinning
+    description: Shows the activity indicator and starts the animation.
 properties:
   - name: color
-    description: the color of the message label
+    description: Color of the message text.
     type: String
   - name: font
-    description: the font object for the activity message label
-    type: Object
+    description: Font to use for the message text.
+    type: Font
   - name: message
-    description: the activity message label text
+    description: Message text.
     type: String
   - name: messageid
-    description: the key in the locale file to use for the message property
+    description: Key identifying a string from the locale file to use for the message text. Only one of `message` or `messageid` should be specified.
     type: String
   - name: style
-    description: the style constant of the activity indicator
+    description: The style for the activity indicator. For iPhone, the style can be set from the constants <Titanium.UI.iPhone.ActivityIndicatorStyle>.
     type: Number
-notes: |
-    For iPhone, the style can be set from the constants <Titanium.UI.iPhone.ActivityIndicatorStyle>.
+    
 examples:
-  - title: Simple Activity Indicator
+  - title: Simple Activity Indicator (Android)
     example: |
         In this example, we create a basic activity indicator and start it.
         
@@ -35,5 +41,16 @@ examples:
             	height:50,
             	width:10
             });
+            actInd.show();
+  - title: Simple Activity Indicator (iOS)
+    example: |
+        In iOS, the activity indicator must be added to a window or another view to appear.
+        
+            var actInd = Titanium.UI.createActivityIndicator({
+                bottom:10,
+            	height:50,
+            	width:10
+            });
+            win.add(actInd);
             actInd.show();
         
