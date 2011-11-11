@@ -48,6 +48,8 @@ jclass JNIUtil::krollObjectClass = NULL;
 jclass JNIUtil::krollProxyClass = NULL;
 jclass JNIUtil::krollAssetHelperClass = NULL;
 
+jclass JNIUtil::tiJsErrorDialogClass = NULL;
+
 jmethodID JNIUtil::classGetNameMethod = NULL;
 jmethodID JNIUtil::arrayListInitMethod = NULL;
 jmethodID JNIUtil::arrayListAddMethod = NULL;
@@ -83,6 +85,8 @@ jmethodID JNIUtil::krollProxyGetIndexedPropertyMethod = NULL;
 jmethodID JNIUtil::krollProxyOnPropertyChangedMethod = NULL;
 jmethodID JNIUtil::krollProxyOnPropertiesChangedMethod = NULL;
 jmethodID JNIUtil::krollAssetHelperReadAssetMethod = NULL;
+
+jmethodID JNIUtil::openErrorDialogMethod = NULL;
 
 JNIEnv* JNIScope::current = NULL;
 
@@ -271,6 +275,7 @@ void JNIUtil::initCache()
 	krollObjectClass = findClass("org/appcelerator/kroll/KrollObject");
 	krollProxyClass = findClass("org/appcelerator/kroll/KrollProxy");
 	krollAssetHelperClass = findClass("org/appcelerator/kroll/util/KrollAssetHelper");
+	tiJsErrorDialogClass = findClass("org/appcelerator/kroll/common/TiJSErrorDialog");
 
 	classGetNameMethod = getMethodID(classClass, "getName", "()Ljava/lang/String;", false);
 	arrayListInitMethod = getMethodID(arrayListClass, "<init>", "()V", false);
@@ -318,6 +323,7 @@ void JNIUtil::initCache()
 	krollProxyOnPropertiesChangedMethod = getMethodID(krollProxyClass, "onPropertiesChanged",
 		"([[Ljava/lang/Object;)V", false);
 
+	openErrorDialogMethod = getMethodID(tiJsErrorDialogClass, "openErrorDialog", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;I)V",true);
 	krollAssetHelperReadAssetMethod = getMethodID(krollAssetHelperClass, "readAsset", "(Ljava/lang/String;)Ljava/lang/String;", true);
 
 }

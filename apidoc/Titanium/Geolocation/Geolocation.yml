@@ -13,12 +13,14 @@ methods:
       - name: callback
         description: function to invoke on success or failure. The event object contains the properties described as the `place` dictionary in <Titanium.Geolocation.reverseGeocoder>.
         type: Callback<Object>
+    platforms: [android, iphone, ipad]
   - name: getCurrentHeading
     description: retrieve the current compass heading.
     parameters:
       - name: callback
         description: function to invoke on success or failure of obtaining the current heading. See heading event in <Titanium.Geolocation>.
         type: Callback<Object>
+    platforms: [android, iphone, ipad]
   - name: getCurrentPosition
     description: retrieve the last known location from the device. On Android, the radios are not turned on to update the location. On iOS the radios MAY be used if the location is too "old".
     parameters:
@@ -38,9 +40,10 @@ methods:
         description: |
             function to invoke on success or failure. The event object passed contains a `places` array of zero or more place dictionaries. Each `place` dictionary contains the following properties: `street`, `street1`, `city`, `region1`, `region2`, `postalCode`, `country`, `countryCode`, `longitude`, `latitude`, `displayAddress`, `address`.
         type: Callback<Object>
+    platforms: [android, iphone, ipad]
   - name: setShowCalibration
     description: configure the calibration UI. set the false to disable the calibration display.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
 events:
   - name: calibration
     description: fired when the device detects interface and requires calibration. when this event is fired, the calibration UI is being displayed to the end user.
@@ -58,6 +61,7 @@ events:
       - name: heading
         description: |
             heading results dictionary with the following sub-pro perties: `magneticHeading`, `trueHeading`, `accuracy`, `x`, `y`, `z`, `timestamp`.
+    platforms: [android, iphone, ipad]
   - name: location
     description: fired when a location event is received
     properties:
@@ -100,45 +104,45 @@ properties:
     description: authorization constant
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: AUTHORIZATION_DENIED
     description: authorization constant (user disabled authorization)
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: AUTHORIZATION_RESTRICTED
     description: authorization constant (system disabled authorization)
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: AUTHORIZATION_UNKNOWN
     description: authorization constant
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: ERROR_DENIED
     description: error constant
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     type: Number
     permission: read-only
   - name: ERROR_HEADING_FAILURE
     description: error constant
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     type: Number
     permission: read-only
   - name: ERROR_LOCATION_UNKNOWN
     description: error constant
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     type: Number
     permission: read-only
   - name: ERROR_NETWORK
     description: error constant
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     type: Number
     permission: read-only
   - name: ERROR_REGION_MONITORING_DELAYED
     description: error constant
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     permission: read-only
     osver:
         ios:
@@ -148,7 +152,7 @@ properties:
     description: error constant
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     osver:
         ios:
             min: "4.0"
@@ -156,7 +160,7 @@ properties:
     description: error constant
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     osver:
         ios:
             min: "4.0"
@@ -164,12 +168,12 @@ properties:
     description: The GPS location provider
     type: String
     permission: read-only
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: PROVIDER_NETWORK
     description: The Network location provider
     type: String
     permission: read-only
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: distanceFilter
     description: The minimum change of position (in meters) before a 'location' event is fired. Default is 0, meaning that location events are continuously generated.
     type: Number

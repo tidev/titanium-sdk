@@ -12,6 +12,7 @@
 #import "TiUtils.h"
 #import "ImageLoader.h"
 #import "TiButtonUtil.h"
+#import "TiUIView.h"
 
 const UIControlEvents highlightingTouches = UIControlEventTouchDown|UIControlEventTouchDragEnter;
 const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIControlEventTouchDragExit|UIControlEventTouchUpInside;

@@ -9,6 +9,8 @@
 #include "JavaObject.h"
 #include "JNIUtil.h"
 
+#define TAG "JavaObject"
+
 namespace titanium {
 
 bool JavaObject::useGlobalRefs = true;
@@ -27,7 +29,7 @@ void JavaObject::newGlobalRef()
 {
 	JNIEnv *env = JNIUtil::getJNIEnv();
 	if (!env) {
-		// TODO error
+		LOGE(TAG, "Failed to get JNI environment.");
 		return;
 	}
 
@@ -41,7 +43,8 @@ void JavaObject::newGlobalRef()
 				env->NewObject(JNIUtil::hashMapClass, JNIUtil::hashMapInitMethod, 2000));
 		}
 		jobject longObject = env->NewObject(JNIUtil::longClass, JNIUtil::longInitMethod, (jlong) this);
-		env->CallObjectMethod(objectMap, JNIUtil::hashMapPutMethod, longObject, javaObject_);
+		jobject r = env->CallObjectMethod(objectMap, JNIUtil::hashMapPutMethod, longObject, javaObject_);
+		env->DeleteLocalRef(r);
 		env->DeleteLocalRef(longObject);
 
 		// This will be requeried from getJavaObject()
@@ -58,7 +61,7 @@ jobject JavaObject::getJavaObject()
 		// the only workaround for hard limits on the JNI global reference count
 		JNIEnv *env = JNIUtil::getJNIEnv();
 		if (!env) {
-			// TODO error
+			LOGE(TAG, "Failed to get JNI environment.");
 			return NULL;
 		}
 

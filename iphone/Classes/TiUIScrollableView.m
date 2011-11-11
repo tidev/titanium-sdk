@@ -257,6 +257,7 @@
 {
     lastPage = [self currentPage];
     [super setFrame:frame_];
+	[self setCurrentPage_:[NSNumber numberWithInt:lastPage]];
 }
 
 -(void)setBounds:(CGRect)bounds_

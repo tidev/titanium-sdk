@@ -3,6 +3,7 @@ name: Titanium.UI.PickerColumn
 description: The picker row object created by [Titanium.UI.createPickerColumn](Titanium.UI.createPickerColumn).
 extends: Titanium.UI.View
 since: "0.9"
+platforms: [android, iphone, ipad]
 methods:
   - name: addRow
     description: add a row to the column.

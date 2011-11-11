@@ -225,7 +225,7 @@
 	}
 	else {
 		[pendingAnnotationSelection release];
-		pendingAnnotationSelection = [annotation retain];
+		pendingAnnotationSelection = (TiMapAnnotationProxy*)[annotation retain];
 	}
 }
 

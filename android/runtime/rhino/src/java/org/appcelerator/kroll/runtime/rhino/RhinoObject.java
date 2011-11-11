@@ -9,6 +9,7 @@ package org.appcelerator.kroll.runtime.rhino;
 import org.appcelerator.kroll.KrollObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.ScriptableObject;
 
 /**
@@ -35,6 +36,7 @@ public class RhinoObject extends KrollObject
 	{
 		Context context = Context.enter();
 		context.setOptimizationLevel(-1);
+		context.setErrorReporter(RhinoRuntime.getErrorReporter());
 
 		try {
 			ScriptableObject.putProperty(proxy.getProperties(), name, 
@@ -50,6 +52,7 @@ public class RhinoObject extends KrollObject
 	{
 		Context context = Context.enter();
 		context.setOptimizationLevel(-1);
+		context.setErrorReporter(RhinoRuntime.getErrorReporter());
 
 		try {
 			if (emitFunction == null) {
@@ -69,6 +72,15 @@ public class RhinoObject extends KrollObject
 			Object result = emitFunction.call(context, proxy.getParentScope(), proxy, args);
 			return TypeConverter.jsObjectToJavaBoolean(result, proxy);
 
+		} catch (Exception e) {
+			if (e instanceof RhinoException) {
+				RhinoException re = (RhinoException) e;
+				Context.reportRuntimeError(re.getMessage(), re.sourceName(), re.lineNumber(), re.lineSource(),
+					re.columnNumber());
+			} else {
+				Context.reportError(e.getMessage());
+			}
+			return false;
 		} finally {
 			Context.exit();
 		}
@@ -84,6 +96,7 @@ public class RhinoObject extends KrollObject
 	{
 		Context context = Context.enter();
 		context.setOptimizationLevel(-1);
+		context.setErrorReporter(RhinoRuntime.getErrorReporter());
 
 		try {
 			if (setWindowFunction == null) {
@@ -95,6 +108,14 @@ public class RhinoObject extends KrollObject
 
 			setWindowFunction.call(context, this.proxy.getParentScope(), proxy, args);
 
+		} catch (Exception e) {
+			if (e instanceof RhinoException) {
+				RhinoException re = (RhinoException) e;
+				Context.reportRuntimeError(re.getMessage(), re.sourceName(), re.lineNumber(), re.lineSource(),
+					re.columnNumber());
+			} else {
+				Context.reportError(e.getMessage());
+			}
 		} finally {
 			Context.exit();
 		}
