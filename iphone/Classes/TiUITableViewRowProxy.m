@@ -666,7 +666,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 			[rowContainerView addSubview:uiview];
 			[proxy setReproxying:NO];
 		}
-		[self willEnqueue];
 		[contentView addSubview:rowContainerView];
 	}
 	configuredChildren = YES;
