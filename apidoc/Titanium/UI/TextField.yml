@@ -13,6 +13,7 @@ methods:
 events:
   - name: blur
     description: fired when the field loses focus
+    platforms: [android, iphone, ipad]
     properties:
       - name: value
         description: the value of the field upon blur
@@ -27,6 +28,7 @@ events:
             since: "1.8.0"
   - name: change
     description: fired when the field value changes
+    platforms: [android, iphone, ipad]
     properties:
       - name: value
         description: the value of the field upon change
@@ -41,6 +43,7 @@ events:
             since: "1.8.0"
   - name: focus
     description: fired when the field gains focus
+    platforms: [android, iphone, ipad]
     properties:
       - name: value
         description: the value of the field upon focus
@@ -55,6 +58,7 @@ events:
             since: "1.8.0"
   - name: return
     description: fired when the field return key is pressed on the keyboard
+    platforms: [android, iphone, ipad]
     properties:
       - name: y
         description: the y point of the event, in receiving view coordinates
@@ -75,6 +79,7 @@ properties:
   - name: clearButtonMode
     description: the mode constant for how to handle displaying the clear button
     type: Number
+    platforms: [android, iphone, ipad]
   - name: clearOnEdit
     description: boolean that indicates if the value of the field is cleared upon editing
     type: Boolean
@@ -90,24 +95,31 @@ properties:
   - name: keyboardToolbar
     description: array of toolbar button objects to be used when the keyboard is displayed
     type: Array<Object>
+    platforms: [android, iphone, ipad]
   - name: keyboardToolbarColor
     description: the color of the keyboard toolbar
     type: String
+    platforms: [android, iphone, ipad]
   - name: keyboardToolbarHeight
     description: the height of the keyboard toolbar
     type: Number
+    platforms: [android, iphone, ipad]
   - name: leftButton
     description: the left button view
     type: Object
+    platforms: [android, iphone, ipad]
   - name: leftButtonMode
     description: the mode of the left button view
     type: Number
+    platforms: [android, iphone, ipad]
   - name: leftButtonPadding
     description: the left padding of the space between the button and the edge of the field
     type: Number
+    platforms: [android, iphone, ipad]
   - name: minimumFontSize
     description: the minimum size of the font when the font is sized based on the contents.  Enables font scaling to fit
     type: Number
+    platforms: [android, iphone, ipad]
   - name: paddingLeft
     description: the left padding of the text field
     type: Number
@@ -117,12 +129,15 @@ properties:
   - name: rightButton
     description: the right button view
     type: Object
+    platforms: [android, iphone, ipad]
   - name: rightButtonMode
     description: the mode of the right button view
     type: Number
+    platforms: [android, iphone, ipad]
   - name: rightButtonPadding
     description: the right padding of the space between the button and the edge of the field
     type: Number
+    platforms: [android, iphone, ipad]
   - name: suppressReturn
     description: boolean to indicate if the return key should be suppressed during entry
     type: Boolean
@@ -133,10 +148,10 @@ properties:
     description: the constant or string value for the fields vertical alignment.
     type: [Number,String]
   - name: maxLength
-  	description: the maximum length of text field input. Any attempt to input text beyond this length (including pasting a string larger than maxLength) will not edit the field's contents. A value of -1 indicates unlimited length.
-  	default: -1
-  	type: Number
-  	platforms: [iphone]
+    description: the maximum length of text field input. Any attempt to input text beyond this length (including pasting a string larger than maxLength) will not edit the field's contents. A value of -1 indicates unlimited length.
+    default: -1
+    type: Number
+    platforms: [iphone]
 notes: |
     On iPhone, the borderStyle can be set with a constant from [Titanium.UI](Titanium.UI).
     

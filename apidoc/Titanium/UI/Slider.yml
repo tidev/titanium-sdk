@@ -26,27 +26,34 @@ properties:
   - name: disabledLeftTrackImage
     description: the image url of the slider left track when in the disabled state
     type: String
+    platforms: [android, iphone, ipad]
   - name: disabledRightTrackImage
     description: the image url of the slider right track when in the disabled state
     type: String
+    platforms: [android, iphone, ipad]
   - name: disabledThumbImage
     description: the image url of the slider thumb when in the disabled state
     type: String
+    platforms: [android, iphone, ipad]
   - name: enabled
     description: boolean to indicate the enabled state of the slider
     type: Boolean
   - name: highlightedLeftTrackImage
     description: the image url of the slider left track when in the highlighted state
     type: String
+    platforms: [android, iphone, ipad]
   - name: highlightedRightTrackImage
     description: the image url of the slider right track when in the highlighted state
     type: String
+    platforms: [android, iphone, ipad]
   - name: highlightedThumbImage
     description: the image url of the slider thumb when in the highlighted state
     type: String
+    platforms: [android, iphone, ipad]
   - name: leftTrackImage
     description: the image url of the slider left track
     type: String
+    platforms: [android, iphone, ipad]
   - name: max
     description: the maximum slider value
     type: Number

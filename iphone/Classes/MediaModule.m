@@ -26,19 +26,12 @@
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <QuartzCore/QuartzCore.h>
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 #import <UIKit/UIPopoverController.h>
-#endif
 // by default, we want to make the camera fullscreen and 
 // these transform values will scale it when we have our own overlay
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-	#define CAMERA_TRANSFORM_Y 1.23
-	#define CAMERA_TRANSFORM_X 1
-#else
-	#define CAMERA_TRANSFORM_X 1.2
-	#define CAMERA_TRANSFORM_Y 1.12412
-#endif
+#define CAMERA_TRANSFORM_Y 1.23
+#define CAMERA_TRANSFORM_X 1
 
 enum  
 {
@@ -93,11 +86,9 @@ static NSDictionary* TI_filterableItemProperties;
 
 -(void)destroyPickerCallbacks
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 	RELEASE_TO_NIL(editorSuccessCallback);
 	RELEASE_TO_NIL(editorErrorCallback);
 	RELEASE_TO_NIL(editorCancelCallback);
-#endif
 	RELEASE_TO_NIL(pickerSuccessCallback);
 	RELEASE_TO_NIL(pickerErrorCallback);
 	RELEASE_TO_NIL(pickerCancelCallback);
@@ -105,15 +96,11 @@ static NSDictionary* TI_filterableItemProperties;
 
 -(void)destroyPicker
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	RELEASE_TO_NIL(popover);
-#endif
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 	RELEASE_TO_NIL(editor);
 	RELEASE_TO_NIL(editorSuccessCallback);
 	RELEASE_TO_NIL(editorErrorCallback);
 	RELEASE_TO_NIL(editorCancelCallback);
-#endif
 	RELEASE_TO_NIL(musicPicker);
 	RELEASE_TO_NIL(picker);
 	RELEASE_TO_NIL(pickerSuccessCallback);
@@ -221,7 +208,6 @@ static NSDictionary* TI_filterableItemProperties;
 		[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait];
 		[tiApp showModalController:picker_ animated:animatedPicker];
 	}
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	else
 	{
 		RELEASE_TO_NIL(popover);
@@ -246,12 +232,10 @@ static NSDictionary* TI_filterableItemProperties;
 		[popover setDelegate:self];
 		[popover presentPopoverFromRect:poFrame inView:poView permittedArrowDirections:arrow animated:animatedPicker];
 	}
-#endif
 }
 
 -(void)closeModalPicker:(UIViewController*)picker_
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	if (popover)
 	{
 		[(UIPopoverController*)popover dismissPopoverAnimated:animatedPicker];
@@ -259,11 +243,8 @@ static NSDictionary* TI_filterableItemProperties;
 	}
 	else
 	{
-#endif
 		[[TiApp app] hideModalController:picker_ animated:animatedPicker];
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	}
-#endif	
 }
 
 - (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController
@@ -273,6 +254,7 @@ static NSDictionary* TI_filterableItemProperties;
 	}
 	
 	RELEASE_TO_NIL(popover);
+	[self destroyPicker];
 }
 
 -(void)showPicker:(NSDictionary*)args isCamera:(BOOL)isCamera
@@ -467,16 +449,7 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,MediaModuleErrorNoMusicPlayer);
 // >=3.2 dependent value; this one isn't deprecated
 -(NSNumber*)VIDEO_CONTROL_DEFAULT
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-	if ([TiUtils isiPhoneOS3_2OrGreater]) {
-		return NUMINT(MPMovieControlStyleDefault);
-	}
-	else {
-#endif
-		return NUMINT(MPMovieControlModeDefault);
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
-	}
-#endif
+	return NUMINT(MPMovieControlStyleDefault);
 }
 
 // these have been deprecated in 3.2 but we need them for older devices
@@ -495,19 +468,14 @@ MAKE_SYSTEM_PROP(QUALITY_HIGH,UIImagePickerControllerQualityTypeHigh);
 MAKE_SYSTEM_PROP(QUALITY_MEDIUM,UIImagePickerControllerQualityTypeMedium);
 MAKE_SYSTEM_PROP(QUALITY_LOW,UIImagePickerControllerQualityTypeLow);
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 MAKE_SYSTEM_PROP(QUALITY_640x480,UIImagePickerControllerQualityType640x480);
-#endif
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-MAKE_SYSTEM_PROP(CAMERA_FRONT,UIImagePickerControllerCameraDeviceRear);
-MAKE_SYSTEM_PROP(CAMERA_REAR,UIImagePickerControllerCameraDeviceFront);
+MAKE_SYSTEM_PROP(CAMERA_FRONT,UIImagePickerControllerCameraDeviceFront);
+MAKE_SYSTEM_PROP(CAMERA_REAR,UIImagePickerControllerCameraDeviceRear);
 
 MAKE_SYSTEM_PROP(CAMERA_FLASH_OFF,UIImagePickerControllerCameraFlashModeOff);
 MAKE_SYSTEM_PROP(CAMERA_FLASH_AUTO,UIImagePickerControllerCameraFlashModeAuto);
 MAKE_SYSTEM_PROP(CAMERA_FLASH_ON,UIImagePickerControllerCameraFlashModeOn);
-
-#endif
 
 MAKE_SYSTEM_PROP(AUDIO_HEADPHONES,TiMediaAudioSessionInputHeadphones);
 MAKE_SYSTEM_PROP(AUDIO_HEADSET_INOUT,TiMediaAudioSessionInputHeadsetInOut);
@@ -576,7 +544,6 @@ MAKE_SYSTEM_PROP(MUSIC_PLAYER_SHUFFLE_NONE, MPMusicShuffleModeOff);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_SHUFFLE_SONGS, MPMusicShuffleModeSongs);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_SHUFFLE_ALBUMS, MPMusicShuffleModeAlbums);
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 // these are new in 3.2
 MAKE_SYSTEM_PROP(VIDEO_CONTROL_NONE,MPMovieControlStyleNone);
 MAKE_SYSTEM_PROP(VIDEO_CONTROL_EMBEDDED,MPMovieControlStyleEmbedded);
@@ -611,10 +578,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_PLAYBACK_ENDED,MPMovieFinishReasonPlaybackEnded);
 MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_PLAYBACK_ERROR,MPMovieFinishReasonPlaybackError);
 MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
-
-				 
-#endif
-
 
 -(CGFloat)volume
 {
@@ -654,17 +617,8 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	return albumSourceTypes==nil ? [NSArray arrayWithObject:(NSString*)kUTTypeImage] : albumSourceTypes;
 }
 
-#define ONLY_IN_IOS4_OR_GREATER(method,retval) \
-if (![TiUtils isIOS4OrGreater]) { \
-	NSLog(@"[WARN] " #method " only available in iOS 4 and later");\
-	return retval;\
-}
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 -(NSArray*)availableCameras
-{
-	ONLY_IN_IOS4_OR_GREATER(availableCameras, nil)
-	
+{	
 	NSMutableArray* types = [NSMutableArray arrayWithCapacity:2];
 	if ([UIImagePickerController isCameraDeviceAvailable:UIImagePickerControllerCameraDeviceFront])
 	{
@@ -678,9 +632,7 @@ if (![TiUtils isIOS4OrGreater]) { \
 }
 
 -(id)camera 
-{
-	ONLY_IN_IOS4_OR_GREATER(camera,nil)
-	
+{	
 	if (picker!=nil)
 	{
 		return NUMINT([picker cameraDevice]);
@@ -689,9 +641,7 @@ if (![TiUtils isIOS4OrGreater]) { \
 }
 
 -(id)cameraFlashMode
-{
-	ONLY_IN_IOS4_OR_GREATER(cameraFlashMode,nil)
-	
+{	
 	if (picker!=nil)
 	{
 		return NUMINT([picker cameraFlashMode]);
@@ -701,9 +651,7 @@ if (![TiUtils isIOS4OrGreater]) { \
 
 -(void)setCameraFlashMode:(id)args
 {
-	// Return nothing
-	ONLY_IN_IOS4_OR_GREATER(setCameraFlashMode, )
-	
+	// Return nothing	
 	ENSURE_UI_THREAD(setCameraFlashMode,args);
 	ENSURE_SINGLE_ARG(args,NSNumber);
 	
@@ -715,9 +663,7 @@ if (![TiUtils isIOS4OrGreater]) { \
 
 -(void)switchCamera:(id)args
 {
-	// Return nothing
-	ONLY_IN_IOS4_OR_GREATER(switchCamera, )
-	
+	// Return nothing	
 	ENSURE_UI_THREAD(switchCamera,args);
 	ENSURE_SINGLE_ARG(args,NSNumber);
 	
@@ -731,9 +677,7 @@ if (![TiUtils isIOS4OrGreater]) { \
 
 -(void)startVideoCapture:(id)args
 { 
-	// Return nothing
-	ONLY_IN_IOS4_OR_GREATER(startVideoCapture, )
-	
+	// Return nothing	
 	ENSURE_UI_THREAD(startVideoCapture,args);
 	// must have a picker, doh
 	if (picker==nil)
@@ -744,9 +688,7 @@ if (![TiUtils isIOS4OrGreater]) { \
 }
 
 -(void)stopVideoCapture:(id)args
-{
-	ONLY_IN_IOS4_OR_GREATER(stopVideoCapture, )
-	
+{	
 	ENSURE_UI_THREAD(stopVideoCapture,args);
 	// must have a picker, doh
 	if (picker!=nil)
@@ -756,9 +698,7 @@ if (![TiUtils isIOS4OrGreater]) { \
 }
 
 -(void)startVideoEditing:(id)args
-{
-	ONLY_IN_IOS4_OR_GREATER(startVideoEditing, )
-	
+{	
 	ENSURE_UI_THREAD(startVideoEditing,args);
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
 
@@ -815,9 +755,7 @@ if (![TiUtils isIOS4OrGreater]) { \
 }
 
 -(void)stopVideoEditing:(id)args
-{
-	ONLY_IN_IOS4_OR_GREATER(stopVideoEditing, )
-	
+{	
 	ENSURE_UI_THREAD(stopVideoEditing,args);
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
 	
@@ -828,8 +766,6 @@ if (![TiUtils isIOS4OrGreater]) { \
 		RELEASE_TO_NIL(editor);
 	}
 }
-
-#endif
 
 -(id)isMediaTypeSupported:(id)args
 {
@@ -1011,8 +947,7 @@ if (![TiUtils isIOS4OrGreater]) { \
 
 -(void)vibrate:(id)args
 {
-	ENSURE_UI_THREAD(beep,args);
-	AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
+	[self beep:args];
 }
 
 -(void)takePicture:(id)args
@@ -1415,9 +1350,6 @@ if (![TiUtils isIOS4OrGreater]) { \
 	}
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-// Callbacks for iOS 4.0; will never be called in earlier iOSes so don't need the +[TiUtils isIOS4OrGreater] guard.
-
 - (void)videoEditorController:(UIVideoEditorController *)editor_ didSaveEditedVideoToPath:(NSString *)editedVideoPath
 {
 	id listener = [[editorSuccessCallback retain] autorelease];
@@ -1458,9 +1390,6 @@ if (![TiUtils isIOS4OrGreater]) { \
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
 	}
 }
-
-#endif
-
 
 @end
 

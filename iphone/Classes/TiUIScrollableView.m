@@ -179,18 +179,15 @@
 
 -(int)currentPage
 {
-	int result = 0;
+	int result = currentPage;
     if (scrollview != nil) {
         CGPoint offset = [[self scrollview] contentOffset];
-        if (offset.x >= 0) {
+        if (offset.x > 0) {
             CGSize scrollFrame = [self bounds].size;
             if (scrollFrame.width != 0) {
                 result = floor(offset.x/scrollFrame.width);
             }
-            else {
-				result = currentPage;
-            }
-        }
+		}
     }
 	[pageControl setCurrentPage:result];
     return result;
@@ -448,11 +445,12 @@
 {
 	//switch page control at 50% across the center - this visually looks better
     CGFloat pageWidth = scrollview.frame.size.width;
-    int page = [self currentPage];
+    int page = currentPage;
     int nextPage = floor((scrollview.contentOffset.x - pageWidth / 2) / pageWidth) + 1;
 	if (page != nextPage) {
 		[pageControl setCurrentPage:nextPage];
 		currentPage = nextPage;
+		[self.proxy replaceValue:NUMINT(currentPage) forKey:@"currentPage" notification:NO];
         [self manageCache:currentPage];
 	}
 }

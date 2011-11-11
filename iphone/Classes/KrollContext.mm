@@ -372,19 +372,7 @@ static TiValueRef StringFormatDateCallback (TiContextRef jsContext, TiObjectRef 
 	
 	@try 
 	{
-		NSString* result;
-		// Only available in iOS4+
-		if ([TiUtils isIOS4OrGreater]) {
-			result = [NSDateFormatter localizedStringFromDate:date dateStyle:style timeStyle:NSDateFormatterNoStyle];
-		}
-		else {
-			NSLocale* locale = [NSLocale currentLocale];
-			NSDateFormatter* formatter = [[[NSDateFormatter alloc] init] autorelease];
-			[formatter setLocale:locale];
-			[formatter setDateStyle:style];
-			[formatter setTimeStyle:NSDateFormatterNoStyle];
-			result = [formatter stringFromDate:date];
-		}
+		NSString* result = [NSDateFormatter localizedStringFromDate:date dateStyle:style timeStyle:NSDateFormatterNoStyle];
 		TiValueRef value = [KrollObject toValue:ctx value:result];
 		return value;
 	}
@@ -429,18 +417,7 @@ static TiValueRef StringFormatTimeCallback (TiContextRef jsContext, TiObjectRef 
 	
 	@try 
 	{
-		NSString* result;
-		if ([TiUtils isIOS4OrGreater]) {
-			result = [NSDateFormatter localizedStringFromDate:date dateStyle:NSDateFormatterNoStyle timeStyle:style];
-		}
-		else {
-			NSLocale* locale = [NSLocale currentLocale];
-			NSDateFormatter* formatter = [[[NSDateFormatter alloc] init] autorelease];
-			[formatter setLocale:locale];
-			[formatter setDateStyle:NSDateFormatterNoStyle];
-			[formatter setTimeStyle:style];
-			result = [formatter stringFromDate:date];
-		}
+		NSString* result = [NSDateFormatter localizedStringFromDate:date dateStyle:NSDateFormatterNoStyle timeStyle:style];
 		TiValueRef value = [KrollObject toValue:ctx value:result];
 		return value;
 	}
@@ -467,16 +444,7 @@ static TiValueRef StringFormatCurrencyCallback (TiContextRef jsContext, TiObject
 	
 	@try 
 	{
-		NSString* result;
-		if ([TiUtils isIOS4OrGreater]) {
-			result = [NSNumberFormatter localizedStringFromNumber:number numberStyle:NSNumberFormatterCurrencyStyle];
-		}
-		else {
-			NSNumberFormatter* formatter = [[[NSNumberFormatter alloc] init] autorelease];
-			NSLocale* locale = [NSLocale currentLocale];
-			[formatter setNumberStyle:NSNumberFormatterCurrencyStyle];
-			result = [formatter stringFromNumber:number];
-		}
+		NSString* result = [NSNumberFormatter localizedStringFromNumber:number numberStyle:NSNumberFormatterCurrencyStyle];
 		TiValueRef value = [KrollObject toValue:ctx value:result];
 		return value;
 	}
@@ -1123,9 +1091,9 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		loopCount++;
 		
 		// if we're suspended, we simply wait for resume
+        [condition lock];
 		if (suspended)
 		{
-			[condition lock];
 			//TODO: Suspended currently only is set on app pause/resume. We should have it happen whenever a JS thread
 			//should be paused. Paused being no timers waiting, no events being triggered, no code to execute.
 			if (suspended && ([queue count] == 0))
@@ -1134,15 +1102,18 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 				[condition wait];
 				VerboseLog(@"Resumed! %@",self)
 			} 
-			[condition unlock];
 		}
+        [condition unlock];
 		
 		// we're stopped, we need to check to see if we have stuff that needs to
 		// be executed before we can exit.  if we have stuff in the queue, we 
 		// process just those events and then we immediately exit and clean up
 		// otherwise, we can just exit immediately from here
+
+        [condition lock];
 		if (stopped)
 		{
+            [condition unlock];
 			exit_after_flush = YES;
 			int queue_count = 0;
 			
@@ -1161,20 +1132,29 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 				break;
 			}
 		}
-		
-		
-		// we have a pending GC request to try and reclaim memory
-		if (gcrequest)
-		{
-			[self forceGarbageCollectNow];
-		}
-		
+        // If this is the case, then we were not halted, and must unlock the condition.
+        if (!exit_after_flush) {
+            [condition unlock];
+        }
+
 		BOOL stuff_in_queue = YES;
-		
+		int internalLoopCount = 0;
 		// as long as we have stuff in the queue to process, we 
 		// run our thread event pump and process events
 		while (stuff_in_queue)
 		{
+			if (internalLoopCount > GC_LOOP_COUNT) {
+				[self gc]; //This only sets up the gcrequest variable.
+				internalLoopCount = 0;
+                loopCount = 0;
+			}
+			internalLoopCount ++;
+			// we have a pending GC request to try and reclaim memory
+			if (gcrequest)
+			{
+				[self forceGarbageCollectNow];
+			}
+			
 			// don't hold the queue lock
 			// while we're processing an event so we 
 			// can't deadlock on recursive callbacks
@@ -1219,7 +1199,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 					entry = nil;
 				}				
 			}
-            [pool_ drain];
+            [pool_ release];
 		}
 
 		// TODO: experiment, attempt to collect more often than usual given our environment

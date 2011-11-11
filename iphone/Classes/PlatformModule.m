@@ -49,7 +49,7 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 			[self replaceValue:@"iphone" forKey:@"osname" notification:NO]; 
 		}
 		
-		macaddress = [[[UIDevice currentDevice] uniqueIdentifier] retain];
+		macaddress = [[TiUtils uniqueIdentifier] retain];
 		
 		NSString *themodel = [theDevice model];
 		
@@ -181,6 +181,11 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 
 #pragma mark Public APIs
 
+-(NSString*)runtime
+{
+	return @"javascriptcore";
+}
+
 -(NSString*)locale
 {
 	// this will return the locale that the user has set the phone in
@@ -192,7 +197,8 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 
 -(id)id
 {
-	return [[UIDevice currentDevice] uniqueIdentifier];
+	NSLog(@"[WARN] Ti%@.Platform.id DEPRECATED in 1.8.0", @"tanium");
+	return macaddress;
 }
 
 - (NSString *)createUUID:(id)args

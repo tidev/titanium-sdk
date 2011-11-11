@@ -7,6 +7,7 @@ description: The <Titanium.XML.DOMImplementation> interface provides a number of
     defintion of a DOM DOMImplementation.
 since: "1.8"
 createable: false
+platforms: [android, iphone, ipad]
 methods:
   - name: createDocument
     description: Creates an <Titanium.XML.Document> object of the specified type with its document

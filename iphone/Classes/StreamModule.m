@@ -31,7 +31,7 @@
 // TODO: Call read/write directly, NOT internal impls
 -(void)invokeRWOperation:(SEL)operation withArgs:(id)args
 {
-    id<TiStreamInternal> stream = nil; // Conform to proxy because we're gonna ship that mother some internal messages
+    TiStreamProxy<TiStreamInternal>* stream = nil; // Conform to proxy because we're gonna ship that mother some internal messages
     TiBuffer* buffer = nil;
     id offset = nil; // Spec specifies 'int' but we may do our own type coercion
     id length = nil;
@@ -145,7 +145,7 @@
 // TODO: Call API read(), not internal read methods, if possible
 -(TiBuffer*)readAll:(id)args
 {
-    id<TiStreamInternal> stream = nil; // Conform to proxy because we're gonna ship that mother some internal messages
+    TiStreamProxy<TiStreamInternal>* stream = nil; // Conform to proxy because we're gonna ship that mother some internal messages
     TiBuffer* buffer = nil;
     KrollCallback* callback = nil;
     
@@ -191,8 +191,8 @@
 // TODO: Use read()/write()
 -(NSNumber*)writeStream:(id)args
 {
-    id<TiStreamInternal> inputStream = nil;
-    id<TiStreamInternal> outputStream = nil;
+    TiStreamProxy<TiStreamInternal>* inputStream = nil;
+    TiStreamProxy<TiStreamInternal>* outputStream = nil;
     id chunkSize = nil;
     KrollCallback* callback = nil;
     
@@ -232,7 +232,7 @@
 // TODO: Use read()
 -(void)pump:(id)args
 {
-    id<TiStreamInternal> stream = nil;
+    TiStreamProxy<TiStreamInternal>* stream = nil;
     KrollCallback* callback = nil;
     id chunkSize = nil;
     id asynch = nil;

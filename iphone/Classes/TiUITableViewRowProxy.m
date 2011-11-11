@@ -256,20 +256,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 @synthesize tableClass, table, section, row, callbackCell;
 
--(void)setCallbackCell:(TiUITableViewCell *)newValue
-{
-	if (newValue == callbackCell)
-	{
-		return;
-	}
-	if ([callbackCell proxy] == self)
-	{
-		[callbackCell setProxy:nil];
-	}
-	[callbackCell release];
-	callbackCell = [newValue retain];
-}
-
 -(void)_destroy
 {
 	RELEASE_TO_NIL(tableClass);
@@ -277,7 +263,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	[rowContainerView performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
 	rowContainerView = nil;
 	[callbackCell setProxy:nil];
-	[callbackCell performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
 	callbackCell = nil;
 	[super _destroy];
 }

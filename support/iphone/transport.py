@@ -188,6 +188,7 @@ def main(args):
 		shutil.copy(os.path.join(sdk_dir,'iphone','run.py'),iphone_script_dir)
 		shutil.copy(os.path.join(sdk_dir,'iphone','csspacker.py'),iphone_script_dir)
 		shutil.copy(os.path.join(sdk_dir,'iphone','jspacker.py'),iphone_script_dir)
+		shutil.copy(os.path.join(sdk_dir,'iphone','titanium_prep'),iphone_script_dir)
 		
 		# Add compilation to the build script in project
 		info("Modifying pre-compile stage...")

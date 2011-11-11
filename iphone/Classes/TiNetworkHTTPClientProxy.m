@@ -190,7 +190,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 		NSData *data = [request responseData];
 		if (data==nil || [data length]==0) 
 		{
-			return nil;
+			return (id)[NSNull null];
 		}
 		[[data retain] autorelease];
 		NSString * result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:[request responseEncoding]] autorelease];
@@ -200,26 +200,26 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 			// with in a _special_ way
 			NSStringEncoding encoding = ExtractEncodingFromData(data);
 			result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:encoding] autorelease];
-			if (result!=nil)
-			{
-				return result;
-			}
+			
 		}
-		return result;
+		if (result!=nil)
+		{
+			return result;
+		}
 	}
-	return nil;
+	return (id)[NSNull null];
 }
 
 -(TiProxy*)responseXML
 {
 	NSString *responseText = [self responseText];
-	if (responseText!=nil)
+	if (responseText != nil && (![responseText isEqual:(id)[NSNull null]]))
 	{
 		TiDOMDocumentProxy *dom = [[[TiDOMDocumentProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
 		[dom parseString:responseText];
 		return dom;
 	}
-	return nil;
+	return (id)[NSNull null];
 }
 
 -(TiBlob*)responseData
@@ -229,7 +229,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 		NSString *contentType = [[request responseHeaders] objectForKey:@"Content-Type"];
 		return [[[TiBlob alloc] initWithData:[request responseData] mimetype:contentType] autorelease];
 	}
-	return nil;
+	return (id)[NSNull null];
 }
 
 -(NSString*)connectionType
@@ -534,7 +534,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	
 	// should it automatically redirect
 	[request setShouldRedirect:[autoRedirect boolValue]];
-
+	
 	// allow self-signed certs (NO) or required valid SSL (YES)    
 	[request setValidatesSecureCertificate:[validatesSecureCertificate boolValue]];
 	
@@ -622,6 +622,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	if (hasOndatastream)
 	{
 		CGFloat progress = (CGFloat)((CGFloat)downloadProgress/(CGFloat)downloadLength);
+		progress = progress == INFINITY ? 1.0 : progress;
 		TiNetworkHTTPClientResultProxy *thisPointer = [[TiNetworkHTTPClientResultProxy alloc] initWithDelegate:self];
 		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithFloat:progress],@"progress",@"datastream",@"type",nil];
 		[self fireCallback:@"ondatastream" withArg:event withSource:thisPointer];

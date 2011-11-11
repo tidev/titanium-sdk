@@ -225,7 +225,7 @@
 	}
 	else {
 		[pendingAnnotationSelection release];
-		pendingAnnotationSelection = [annotation retain];
+		pendingAnnotationSelection = (TiMapAnnotationProxy*)[annotation retain];
 	}
 }
 
@@ -577,31 +577,26 @@
 	return nil;
 }
 
-// TODO: We can remove all this when we go to 4.0-only... including the click detection stuff, thanks to new delegates.
-- (void)observeValueForKeyPath:(NSString *)keyPath
-                      ofObject:(id)object
-                        change:(NSDictionary *)change
-                       context:(void *)context
-{
-	NSString *action = (NSString*)context;
-	if([action isEqualToString:@"ANSELECTED"])
+- (void)mapView:(MKMapView *)mapView didSelectAnnotationView:(MKAnnotationView *)view{
+	if ([view conformsToProtocol:@protocol(TiMapAnnotation)])
 	{
-		if ([object conformsToProtocol:@protocol(TiMapAnnotation)])
-		{
-			MKAnnotationView<TiMapAnnotation> *ann = (MKAnnotationView<TiMapAnnotation> *)object;
-			BOOL isSelected = [ann isSelected];
-			
-			// Short-circuit on manual selection; we don't need to do all the expensive "which point did we hit" stuff
-			if (manualSelect || hitSelect && (hitAnnotation == [ann annotation] || hitAnnotation == nil)) {
-				[self fireClickEvent:ann source:isSelected?@"pin":[ann lastHitName]];
-				// Manual selection only fires once - but don't clear hitAnnotation until the next hit event/manual select
-				// hitSelect is necessary to avoid some internal madness where 'selected' will toggle rapidly when scrolling to
-				// show an annotation's accessory view
-				manualSelect = NO;
-				hitSelect = NO;
-				return;
-			}
-		}
+		BOOL isSelected = [view isSelected];
+		MKAnnotationView<TiMapAnnotation> *ann = (MKAnnotationView<TiMapAnnotation> *)view;
+		[self fireClickEvent:view source:isSelected?@"pin":[ann lastHitName]];
+		manualSelect = NO;
+		hitSelect = NO;
+		return;
+	}
+}
+- (void)mapView:(MKMapView *)mapView didDeselectAnnotationView:(MKAnnotationView *)view{
+	if ([view conformsToProtocol:@protocol(TiMapAnnotation)])
+	{
+		BOOL isSelected = [view isSelected];
+		MKAnnotationView<TiMapAnnotation> *ann = (MKAnnotationView<TiMapAnnotation> *)view;
+		[self fireClickEvent:view source:isSelected?@"pin":[ann lastHitName]];
+		manualSelect = NO;
+		hitSelect = NO;
+		return;
 	}
 }
 
@@ -700,9 +695,6 @@
 		TiMapAnnotationProxy * thisProxy = [self proxyForAnnotation:thisView];
 		[thisProxy setPlaced:YES];
 	}
-}
--(void) mapView:(MKMapView *)mapView didDeselectAnnotationView:(MKAnnotationView *) views
-{
 }
 
 #pragma mark Click detection
