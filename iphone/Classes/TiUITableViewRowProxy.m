@@ -299,8 +299,9 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 -(void)setLayout:(id)value
 {
 	layoutProperties.layout = TiLayoutRuleFromObject(value);
-    // Apple's app certification uses `strings` to search for private APIs. One happens to be named `layout`.
-    // This means that any app can get rejected just for having the word "layout" hardcoded into it. DUMB.
+    
+    // Apple's app certification uses a string sniffer to search for private APIs.
+    // One happens to be named `layout`, so we must obfuscate.
 	[self replaceValue:value forKey:[@"lay" stringByAppendingString:@"out"] notification:YES];
 }
 
