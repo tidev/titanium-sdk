@@ -69,7 +69,8 @@
 -(CGRect)resizeView;
 -(void)repositionSubviews;
 
--(void)manuallyRotateToOrientation:(UIInterfaceOrientation)orientation;
+-(void)refreshOrientationWithDuration:(NSTimeInterval) duration;
+-(NSTimeInterval)suggestedRotationDuration;
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration;
 
 - (void)openWindow:(TiWindowProxy *)window withObject:(id)args;

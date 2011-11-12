@@ -42,7 +42,6 @@
 -(void)updateBackground;
 -(UIInterfaceOrientation) lastValidOrientation;
 
-@property (nonatomic,readwrite,assign)	TiOrientationFlags	allowedOrientations;
 @property (nonatomic,readwrite,assign)	UIInterfaceOrientation windowOrientation;
 
 -(TiOrientationFlags)getDefaultOrientations;
@@ -53,7 +52,7 @@
 
 @implementation TiRootViewController
 @synthesize backgroundColor, backgroundImage, defaultImageView, keyboardVisible;
-@synthesize allowedOrientations, windowOrientation;
+@synthesize windowOrientation;
 
 #pragma Default image handling
 
@@ -288,13 +287,7 @@
 {
    	isCurrentlyVisible = YES;
 	[self.view becomeFirstResponder];
-	if (![self shouldAutorotateToInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]]) {
-		CGFloat duration = 0.0;
-		if (animated) {
-			duration = [[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
-		}
-		[self manuallyRotateToOrientation:[self lastValidOrientation]];
-	}
+	[self refreshOrientationWithDuration:animated?[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]:0.0];
 	[super viewDidAppear:animated];
 	[[viewControllerStack lastObject] viewDidAppear:animated];
 }
@@ -303,12 +296,10 @@
 {
 	isCurrentlyVisible = NO;
 	[self.view resignFirstResponder];
+	[self refreshOrientationWithDuration:animated?[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]:0.0];
     [super viewDidDisappear:animated];
 	[[viewControllerStack lastObject] viewDidDisappear:animated];
 }
-
-#pragma mark 
-
 
 #pragma mark Background image/color
 
@@ -358,6 +349,7 @@
 	}
 }
 
+#pragma mark Performing orientation rotations
 
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration
 {
@@ -421,19 +413,13 @@
 	[self didRotateFromInterfaceOrientation:oldOrientation];
 }
 
--(BOOL)shouldAnimateRotation
+-(NSTimeInterval)suggestedRotationDuration
 {
 	if(([self focusedViewController]==nil)) // || ([[self view] window]==nil))
 	{
-		return NO;
+		return 0.0;
 	}
-	return YES;
-}
-
--(void)manuallyRotateToOrientation:(UIInterfaceOrientation) newOrientation
-{
-	NSTimeInterval animation = [self shouldAnimateRotation]?[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]:0.0;
-	[self manuallyRotateToOrientation:newOrientation duration:animation];
+	return [[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
 }
 
 -(UIInterfaceOrientation) lastValidOrientation
@@ -443,10 +429,28 @@
 			return orientationHistory[i];
 		}
 	}
+	//This line should never happen, but just in case...
+	return UIInterfaceOrientationPortrait;
 }
 
--(void)noteOrientationRequest:(UIInterfaceOrientation) newOrientation
+-(void)refreshOrientation
 {
+	[self refreshOrientationWithDuration:[self suggestedRotationDuration]];
+}
+
+-(void)didOrientNotify:(NSNotification *)notification
+{
+	/*
+	 *	The new behavior is that we give iOS a chance to do it right instead.
+	 *	Then, during the callback, see if we need to manually override.
+	 */
+	UIInterfaceOrientation newOrientation =
+			(UIInterfaceOrientation)[[UIDevice currentDevice] orientation];
+	
+	if (!UIDeviceOrientationIsValidInterfaceOrientation(newOrientation)) {
+		return;
+	}
+
 	/*
 	 *	And now, to push the orientation onto the history stack. This could be
 	 *	expressed as a for loop, but the loop is so small that it might as well
@@ -464,24 +468,8 @@
 		orientationHistory[1] = orientationHistory[0];
 	}
 	orientationHistory[0] = newOrientation;
-}
 
--(void)didOrientNotify:(NSNotification *)notification
-{
-	/*
-	 *	The new behavior is that we give iOS a chance to do it right instead.
-	 *	Then, during the callback, see if we need to manually override.
-	 */
-	UIInterfaceOrientation newOrientation =
-			(UIInterfaceOrientation)[[UIDevice currentDevice] orientation];
-	
-	if (!UIDeviceOrientationIsValidInterfaceOrientation(newOrientation)) {
-		return;
-	}
-
-	[self noteOrientationRequest:newOrientation];
-
-	[TiRootViewController performSelector:@selector(attemptRotationToDeviceOrientation) withObject:nil afterDelay:0.0];
+	[self performSelector:@selector(refreshOrientation) withObject:nil afterDelay:0.0];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
@@ -522,17 +510,17 @@
 	[super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 }
 
-+(void)attemptRotationToDeviceOrientation
-{
-	TiRootViewController * rootController = [TiApp controller];
-	
-	/*
+-(void)refreshOrientationWithDuration:(NSTimeInterval) duration
+{	/*
 	 *	It turns out that, despite Apple giving us this wonderful method, it still
 	 *	does not solve our woes, only minimally reduces the times where we need to
 	 *	implement it ourselves.
 	 */
-	if ([UIViewController instancesRespondToSelector:@selector(presentingViewController)]) {
-		[super attemptRotationToDeviceOrientation];
+	TiOrientationFlags oldFlags = allowedOrientations;
+	allowedOrientations = [self orientationFlags];	
+
+	if ([self respondsToSelector:@selector(presentingViewController)]) {
+		[UIViewController attemptRotationToDeviceOrientation];
 	}
 	/*
 	 *	In this case, iOS's attemptRotationToDeviceOrientaiton only tries rotating
@@ -541,19 +529,16 @@
 	 *	rotation history.
 	 */
 	
-	UIInterfaceOrientation newOrientation = [rootController lastValidOrientation];
-	TiOrientationFlags newFlags = [rootController orientationFlags];
-	TiOrientationFlags oldFlags = [rootController allowedOrientations];
-	[rootController setAllowedOrientations:newFlags];
-	
-	if ((newOrientation == [rootController windowOrientation]) &&
-		(newFlags == oldFlags))
+	UIInterfaceOrientation newOrientation = [self lastValidOrientation];	
+	if ((newOrientation == windowOrientation) &&
+		(oldFlags == allowedOrientations))
 	{
+		//Nothing to do here.
 		return;
 	}
 	
 	//By now, we should check to see if we actually should rotate into position
-	[rootController manuallyRotateToOrientation:newOrientation];
+	[self manuallyRotateToOrientation:newOrientation duration:duration];
 	//If so, we force a rotation.
 }
 
@@ -561,9 +546,9 @@
 
 -(CGRect)resizeView
 {
-//	CGRect rect = [[UIScreen mainScreen] applicationFrame];
+	CGRect rect = [[UIScreen mainScreen] applicationFrame];
 //	VerboseLog(@"(%f,%f),(%fx%f)",rect.origin.x,rect.origin.y,rect.size.width,rect.size.height);
-//	[[self view] setFrame:rect];
+	[[self view] setFrame:rect];
 	//Because of the transition in landscape orientation, TiUtils can't be used here... SetFrame compensates for it.
 	return [[self view] bounds];
 }
