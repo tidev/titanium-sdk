@@ -298,11 +298,8 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 -(void)setLayout:(id)value
 {
-	layoutProperties.layout = TiLayoutRuleFromObject(value);
-    
-    // Apple's app certification uses a string sniffer to search for private APIs.
-    // One happens to be named `layout`, so we must obfuscate.
-	[self replaceValue:value forKey:[@"lay" stringByAppendingString:@"out"] notification:YES];
+	layoutProperties.layoutStyle = TiLayoutRuleFromObject(value);
+	[self replaceValue:value forKey:@"layoutStyle" notification:YES];
 }
 
 -(CGFloat)sizeWidthForDecorations:(CGFloat)oldWidth forceResizing:(BOOL)force
