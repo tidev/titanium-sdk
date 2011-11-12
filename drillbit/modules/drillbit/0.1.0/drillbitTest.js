@@ -319,7 +319,7 @@ DrillbitTest.Subject.prototype.shouldBeFunction = function(expected,lineNumber)
 {
 	this.lineNumber = lineNumber;
 	DrillbitTest.assertion(this);
-	if (!(this.target instanceof Function))
+	if ((typeof(this.target) != 'function') && !(this.target instanceof Function))
 	{
 		throw new DrillbitTest.Error('should be a function, was: '+typeof(this.target),lineNumber);
 	}
@@ -329,7 +329,7 @@ DrillbitTest.Subject.prototype.shouldBeObject = function(expected,lineNumber)
 {
 	this.lineNumber = lineNumber;
 	DrillbitTest.assertion(this);
-	if (!(this.target instanceof Object))
+	if ((typeof(this.target) != 'object') && !(this.target instanceof Object))
 	{
 		throw new DrillbitTest.Error('should be a object, was: ' + this.target,lineNumber);
 	}
