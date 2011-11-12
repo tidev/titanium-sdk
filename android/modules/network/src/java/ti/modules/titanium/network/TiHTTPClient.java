@@ -330,6 +330,7 @@ public class TiHTTPClient
 				TiBlob blob = TiBlob.blobFromData(blobData, contentType);
 				o.put("blob", blob);
 				o.put("progress", ((double)totalSize)/((double)contentLength));
+				o.put("source", proxy);
 
 				onDataStreamCallback.callAsync(proxy.getKrollObject(), o);
 			}
