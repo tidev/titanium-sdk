@@ -117,11 +117,12 @@
 
 -(id)getResponseHeader:(id)args
 {
+    ENSURE_SINGLE_ARG(args, NSString);
+    
 	id result = [delegate getResponseHeader:args];
 	if (result == nil) {
-		id key = [args objectAtIndex:0];
-		ENSURE_TYPE(key,NSString);
-		result = [responseHeaders objectForKey:key];
+        NSString* header = [TiUtils caseCorrect:args];
+		result = [responseHeaders objectForKey:header];
 	}
 	return result;
 }
