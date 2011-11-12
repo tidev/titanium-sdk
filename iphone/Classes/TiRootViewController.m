@@ -792,7 +792,7 @@
 -(void)childOrientationControllerChangedFlags:(id<TiOrientationController>) orientationController;
 {
 	WARN_IF_BACKGROUND_THREAD_OBJ;
-	[TiRootViewController attemptRotationToDeviceOrientation];
+	[self refreshOrientationWithDuration:[self suggestedRotationDuration]];
 }
 
 -(void)setParentOrientationController:(id <TiOrientationController>)newParent
