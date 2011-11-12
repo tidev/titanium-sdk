@@ -406,6 +406,12 @@
 	}
 }
 
+-(void)setScrollingEnabled_:(id)enabled
+{
+    scrollingEnabled = [TiUtils boolValue:enabled];
+    [[self scrollview] setScrollEnabled:scrollingEnabled];
+}
+
 -(void)setDisableBounce_:(id)value
 {
 	[[self scrollview] setBounces:![TiUtils boolValue:value]];

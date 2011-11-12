@@ -16,6 +16,7 @@
 	BOOL showPageControl;
 	CGFloat pageControlHeight;
 	BOOL handlingPageControlEvent;
+    BOOL scrollingEnabled;
         
     // Have to correct for an apple goof; rotation stops scrolling, AND doesn't move to the next page.
     BOOL rotatedWhileScrolling;
@@ -29,6 +30,7 @@
 -(void)manageRotation;
 -(UIScrollView*)scrollview;
 -(void)setCurrentPage_:(id)page;
+-(void)setScrollingEnabled_:(id)enabled;
 -(void)refreshScrollView:(CGRect)visibleBounds readd:(BOOL)readd;
 @end
 
