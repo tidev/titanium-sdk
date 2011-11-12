@@ -100,7 +100,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 					<if>
 						<not><isset property="google.apis"/></not>
 						<then>
-							<property name="google.apis" location="${android.sdk}/add-ons/addon_google_apis_google_inc_8"/>
+							<property name="google.apis" location="${android.sdk}/add-ons/addon-google_apis-google_inc_-8"/>
 						</then>
 					</if>
 				</else>

@@ -341,14 +341,13 @@
         TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
 		[proxy setDocument:[self document]];
 		[proxy setNodes:nodes];
-        return proxy;
-    }
-    else
-    {
-        [self throwException:[error description] subreason:nil location:CODELOCATION];
-        return nil;
-    }
-	
+		return proxy;
+	}
+	if (error!=nil)
+	{
+		[self throwException:[error description] subreason:nil location:CODELOCATION];
+	}
+	return [NSNull null];
 }
 
 -(id)getElementsByTagNameNS:(id)args

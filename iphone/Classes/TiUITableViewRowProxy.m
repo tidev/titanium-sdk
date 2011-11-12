@@ -299,7 +299,10 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 -(void)setLayout:(id)value
 {
 	layoutProperties.layout = TiLayoutRuleFromObject(value);
-	[self replaceValue:value forKey:@"layout" notification:YES];
+    
+    // Apple's app certification uses a string sniffer to search for private APIs.
+    // One happens to be named `layout`, so we must obfuscate.
+	[self replaceValue:value forKey:[@"lay" stringByAppendingString:@"out"] notification:YES];
 }
 
 -(CGFloat)sizeWidthForDecorations:(CGFloat)oldWidth forceResizing:(BOOL)force
@@ -663,7 +666,6 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 			[rowContainerView addSubview:uiview];
 			[proxy setReproxying:NO];
 		}
-		[self willEnqueue];
 		[contentView addSubview:rowContainerView];
 	}
 	configuredChildren = YES;

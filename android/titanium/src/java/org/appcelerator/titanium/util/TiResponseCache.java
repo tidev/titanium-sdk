@@ -321,6 +321,11 @@ public class TiResponseCache extends ResponseCache
 	{
 		if (cacheDir == null) return null;
 		
+		// Make sure the cacheDir exists, in case user clears cache while app is running
+		if (!cacheDir.exists()) {
+			cacheDir.mkdirs();
+		}
+		
 		// Gingerbread 2.3 bug: getHeaderField tries re-opening the InputStream
 		// getHeaderFields() just checks the response itself
 		Map<String, List<String>> headers = makeLowerCaseHeaders(conn.getHeaderFields());
@@ -380,6 +385,11 @@ public class TiResponseCache extends ResponseCache
 			}
 			return new TiCacheRequest(uri, bFile, hFile, contentLength);
 		}
+	}
+	
+	public void setCacheDir(File dir)
+	{
+		cacheDir = dir;
 	}
 
 	private static final void fireCacheCompleted(URI uri)
