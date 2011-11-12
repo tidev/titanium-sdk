@@ -6514,7 +6514,30 @@
                 ], 
                 "returns": null, 
                 "since": "0.4"
-            }, 
+            },
+ 			"clearCookies": {
+                "arguments": [
+                    {
+                        "description": "Domain for which to clear cookies.", 
+                        "name": "host", 
+                        "optional": false, 
+                        "type": "string"
+                    }
+                ], 
+                "deprecated": false, 
+                "description": "Clear cookies for a given host.", 
+                "method": true, 
+                "name": "clearCookies", 
+                "platforms": [
+                    "android-1.5", 
+                    "iphone-2.2.1", 
+                    "iphone-3.0", 
+                    "iphone-3.0", 
+                    "iphone-3.1"
+                ], 
+                "returns": null, 
+                "since": "1.7"
+            },
             "since": "0.8", 
             "status": {
                 "deprecated": false, 

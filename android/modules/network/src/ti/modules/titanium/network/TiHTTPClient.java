@@ -26,7 +26,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-import java.util.regex.MatchResult;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -46,7 +45,6 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.protocol.RequestAddCookies;
 import org.apache.http.conn.params.ConnManagerParams;
 import org.apache.http.conn.params.ConnPerRouteBean;
 import org.apache.http.conn.scheme.PlainSocketFactory;
@@ -55,6 +53,7 @@ import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.scheme.SocketFactory;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.cookie.Cookie;
+import org.apache.http.client.CookieStore;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
@@ -96,7 +95,6 @@ import android.net.Uri;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
-
 public class TiHTTPClient
 {
 	private static final String LCAT = "TiHttpClient";
@@ -136,7 +134,6 @@ public class TiHTTPClient
 	private HttpHost host;
 	private LocalResponseHandler handler;
 	private Credentials credentials;
-	private CookieManager cookieManager;
 
 	private TiBlob responseData;
 	private OutputStream responseOut;
@@ -178,17 +175,16 @@ public class TiHTTPClient
 			
 			//Custom logic to set cookies by Jeff Cross 10/7/11
 			Header[] setCookieHeaders = response.getHeaders("Set-Cookie");
-			
-			if (cookieManager == null) {
-				try {
-					cookieManager = CookieManager.getInstance();
-				}
-				catch (Exception e) {
-					Log.w(LCAT, "No instance of cookie manager yet");
-					CookieSyncManager.createInstance(proxy.getTiContext().getTiApp());
-					cookieManager = CookieManager.getInstance();
-				}
+
+			CookieManager cookieManager;
+			try {
+				CookieSyncManager.createInstance(proxy.getTiContext().getTiApp());
 			}
+			catch (Exception e) {
+				Log.w(LCAT, "Couldn't createInstance of CookieSyncManager");
+			}
+			
+			cookieManager = CookieManager.getInstance();
 			
 			Pattern p = Pattern.compile("http[s]?://([A-Za-z0-9\\:\\.\\-])*");
 			Matcher m = p.matcher(location);
@@ -202,14 +198,6 @@ public class TiHTTPClient
 			
 			return super.getLocationURI(response, context);
 		}
-		@Override
-    public boolean isRedirectRequested(HttpResponse response, HttpContext context) {
-      if (autoRedirect) {
-         return super.isRedirectRequested(response,context);
-      } else {
-         return false;
-      }
-    }   
 	}
 	
 	class LocalResponseHandler implements ResponseHandler<String>
@@ -302,6 +290,38 @@ public class TiHTTPClient
 					if (totalSize > 0) {
 						finishedReceivingEntityData(totalSize);
 					}
+				}
+				
+				//Custom code by Jeff Cross 11/10/11. Add cookies to CookieManager so webViews have them.
+				if (c != null) {
+					CookieStore cookieStore = TiCookieStore.getInstance();
+					List<Cookie> cookies = new ArrayList<Cookie>(cookieStore.getCookies());
+					
+					CookieManager cookieManager;
+					try {
+						CookieSyncManager.createInstance(proxy.getTiContext().getTiApp());
+					}
+					catch (Exception e) {
+						Log.w(LCAT, "Couldn't createInstance of CookieSyncManager");
+					}
+
+					cookieManager = CookieManager.getInstance();
+					
+					String lower_url = c.getLocation().toLowerCase();
+					
+					for (Cookie cookie : cookies) {
+						if (!lower_url.contains(cookie.getDomain().toLowerCase())) {
+							Log.w(LCAT, "Setting cookie: " + cookie.getValue());
+							cookieManager.setCookie(lower_url, cookie.getValue());
+						}
+						else {
+							Log.w(LCAT, "Not setting cookie: " + cookie.getValue());
+							Log.w(LCAT, "Cookie domain (" + cookie.getDomain().toLowerCase() + ") didn't match " + lower_url);
+						}
+					}
+				}
+				else {
+					Log.w(LCAT, "Couldn't set cookies because c is null");
 				}
 			}
 			return clientResponse;
@@ -479,14 +499,6 @@ public class TiHTTPClient
 		this.parts = new HashMap<String,ContentBody>();
 		this.maxBufferSize = proxy.getTiContext().getTiApp()
 			.getSystemProperties().getInt(PROPERTY_MAX_BUFFER_SIZE, DEFAULT_MAX_BUFFER_SIZE);
-			
-		try {
-			cookieManager = CookieManager.getInstance();
-		}
-		finally {
-			CookieSyncManager.createInstance(proxy.getTiContext().getTiApp());
-			cookieManager = CookieManager.getInstance();
-		}
 	}
 
 	public int getReadyState() {
@@ -680,14 +692,28 @@ public class TiHTTPClient
 
 	public void clearCookies(String url)
 	{
-		List<Cookie> cookies = new ArrayList<Cookie>(client.getCookieStore().getCookies());
-		client.getCookieStore().clear();
+		CookieStore cookieStore = TiCookieStore.getInstance();
+		List<Cookie> cookies = new ArrayList<Cookie>(cookieStore.getCookies());
+		cookieStore.clear();
 		String lower_url = url.toLowerCase();
 		for (Cookie cookie : cookies) {
 			if (!lower_url.contains(cookie.getDomain().toLowerCase())) {
-				client.getCookieStore().addCookie(cookie);
+				cookieStore.addCookie(cookie);
 			}
 		}
+		
+		//Clear the WebView cookies also, by clearing CookieManager cookies
+		CookieManager cookieManager;
+		try {
+			CookieSyncManager.createInstance(proxy.getTiContext().getTiApp());
+		}
+		catch (Exception e) {
+			Log.w(LCAT, "Couldn't createInstance of CookieSyncManager, presumably because an instance already exists");
+		}
+		
+		cookieManager = CookieManager.getInstance();
+		
+		cookieManager.removeAllCookie();
 	}
   	
 	public void setRequestHeader(String header, String value)
@@ -978,9 +1004,6 @@ public class TiHTTPClient
 			Log.d(LCAT, this.url);
 		}
 		request = new DefaultHttpRequestFactory().newHttpRequest(method, this.url);
-		
-		request.setHeader("cookie:", cookieManager.getCookie(this.url));
-		
 		for (String header : headers.keySet()) {
 			request.setHeader(header, headers.get(header));
 		}
