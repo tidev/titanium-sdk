@@ -1102,7 +1102,7 @@
 		{
 			if ([possibleScrollView conformsToProtocol:@protocol(TiUIScrollView)])
 			{
-				confirmedScrollView = possibleScrollView;
+				confirmedScrollView = (UIView<TiUIScrollView>*)possibleScrollView;
 			}
 			possibleScrollView = [possibleScrollView superview];
 		}

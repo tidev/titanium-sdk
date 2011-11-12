@@ -3,6 +3,7 @@ name: Titanium.Media.VideoPlayer
 description: The VideoPlayer object is returned by <Titanium.Media.createVideoPlayer> and is useful for playing videos.
 extends: Titanium.UI.View
 since: "0.9"
+platforms: [android, iphone, ipad]
 methods:
   - name: animate
     description: animate the view

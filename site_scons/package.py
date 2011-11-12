@@ -17,6 +17,7 @@ android_dir = os.path.abspath(os.path.join(template_dir,'android'))
 iphone_dir = os.path.abspath(os.path.join(template_dir,'iphone'))
 osx_dir = os.path.abspath(os.path.join(template_dir,'osx'))
 win32_dir = os.path.abspath(os.path.join(template_dir, 'win32'))
+mobileweb_dir = os.path.abspath(os.path.join(template_dir, 'mobileweb'))
 
 buildtime = datetime.datetime.now()
 ts = buildtime.strftime("%m/%d/%y %H:%M")
@@ -78,13 +79,24 @@ def zip_dir(zf,dir,basepath,subs=None,cb=None):
 			else:		
 				zf.write(from_, to_)
 
-def zip_android(zf,basepath):
+def zip_android(zf, basepath):
 	android_dist_dir = os.path.join(top_dir, 'dist', 'android')
 	zip_dir(zf, os.path.join(cur_dir,'simplejson'), os.path.join(basepath, 'android', 'simplejson'))
 	
-	for jar in ['titanium.jar', 'kroll-apt.jar']:
+	for jar in ['titanium.jar', 'kroll-apt.jar', 'kroll-common.jar', 'kroll-v8.jar', 'kroll-rhino.jar']:
 		jar_path = os.path.join(android_dist_dir, jar)
 		zf.write(jar_path, '%s/android/%s' % (basepath, jar))
+
+	js_jar = os.path.join(top_dir, 'android', 'runtime', 'rhino', 'lib', 'js.jar')
+	zf.write(js_jar, '%s/android/%s' % (basepath, 'js.jar'))
+
+	libs_dir = os.path.join(android_dist_dir, 'libs')
+	for lib_dir in os.listdir(libs_dir):
+		arch_dir = os.path.join(libs_dir, lib_dir)
+		for so_file in os.listdir(arch_dir):
+			if so_file.endswith('.so'):
+				so_path = os.path.join(arch_dir, so_file)
+				zf.write(so_path, '%s/android/native/libs/%s/%s' % (basepath, lib_dir, so_file))
 
 	ant_tasks_jar = os.path.join(android_dist_dir, 'ant-tasks.jar')
 	zf.write(ant_tasks_jar, '%s/module/android/ant-tasks.jar' % basepath)
@@ -95,7 +107,7 @@ def zip_android(zf,basepath):
 			jar_path = os.path.join(kroll_apt_lib_dir, jar)
 			zf.write(jar_path, '%s/android/%s' % (basepath, jar))
 
-	android_depends = os.path.join(top_dir, 'android','dependency.json')
+	android_depends = os.path.join(top_dir, 'android', 'dependency.json')
 	zf.write(android_depends, '%s/android/dependency.json' % basepath)
 	
 	android_modules = os.path.join(android_dist_dir, 'modules.json')
@@ -207,6 +219,14 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 				module_name = f.replace('Module','').lower()
 				zip_dir(zf,module_images,'%s/%s/modules/%s/images' % (basepath,platform,module_name))
 	
+def zip_mobileweb(zf,basepath,version):
+	subs = {
+		"__VERSION__":version,
+		"__TIMESTAMP__":ts,
+		"__GITHASH__": githash
+	}
+	zip_dir(zf,os.path.join(top_dir,'mobileweb','src'),os.path.join(basepath,'mobileweb','src'),subs)
+
 def create_platform_zip(platform,dist_dir,osname,version,version_tag):
 	if not os.path.exists(dist_dir):
 		os.makedirs(dist_dir)
@@ -215,7 +235,7 @@ def create_platform_zip(platform,dist_dir,osname,version,version_tag):
 	zf = zipfile.ZipFile(sdkzip, 'w', zipfile.ZIP_DEFLATED)
 	return (zf,basepath)
 
-def zip_mobilesdk(dist_dir,osname,version,android,iphone,ipad,version_tag):
+def zip_mobilesdk(dist_dir,osname,version,android,iphone,ipad,mobileweb,version_tag):
 	zf, basepath = create_platform_zip('mobilesdk',dist_dir,osname,version,version_tag)
 
 	version_txt = """version=%s
@@ -231,28 +251,29 @@ githash=%s
 	zip_dir(zf,template_dir,basepath)
 	if android: zip_android(zf,basepath)
 	if (iphone or ipad) and osname == "osx": zip_iphone_ipad(zf,basepath,'iphone',version,version_tag)
+	if mobileweb: zip_mobileweb(zf,basepath,version)
 	if osname == 'win32':
 		zip_dir(zf, win32_dir, basepath)
 	
 	zf.close()
 				
-def zip_it(dist_dir,osname,version,android,iphone,ipad,version_tag):
-	zip_mobilesdk(dist_dir,osname,version,android,iphone,ipad,version_tag)
+def zip_it(dist_dir,osname,version,android,iphone,ipad,mobileweb,version_tag):
+	zip_mobilesdk(dist_dir,osname,version,android,iphone,ipad,mobileweb,version_tag)
 
 class Packager(object):
 	def __init__(self):
 		self.os_names = { "Windows":"win32", "Linux":"linux", "Darwin":"osx" }
 	 
-	def build(self,dist_dir,version,android=True,iphone=True,ipad=True,version_tag=None):
+	def build(self,dist_dir,version,android=True,iphone=True,ipad=True,mobileweb=True,version_tag=None):
 		if version_tag == None:
 			version_tag = version
-		zip_it(dist_dir,self.os_names[platform.system()],version,android,iphone,ipad,version_tag)
+		zip_it(dist_dir,self.os_names[platform.system()],version,android,iphone,ipad,mobileweb,version_tag)
 
-	def build_all_platforms(self,dist_dir,version,android=True,iphone=True,ipad=True,version_tag=None):
+	def build_all_platforms(self,dist_dir,version,android=True,iphone=True,ipad=True,mobileweb=True,version_tag=None):
 		if version_tag == None:
 			version_tag = version
 		for os in self.os_names.values():
-			zip_it(dist_dir,os,version,android,iphone,ipad,version_tag)
+			zip_it(dist_dir,os,version,android,iphone,ipad,mobileweb,version_tag)
 		
 if __name__ == '__main__':
 	Packager().build(os.path.abspath('../dist'), "1.1.0")

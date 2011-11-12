@@ -1,37 +1,4 @@
-/**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
- * Licensed under the terms of the Apache Public License
- * Please see the LICENSE included with this distribution for details.
- */
-package ${packageName};
-
-import org.appcelerator.kroll.KrollArgument;
-import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.KrollConverter;
-import org.appcelerator.kroll.KrollInvocation;
-import org.appcelerator.kroll.KrollMethod;
-import org.appcelerator.kroll.KrollModule;
-import org.appcelerator.kroll.KrollProxyBinding;
-import org.appcelerator.kroll.KrollModuleBinding;
-import org.appcelerator.kroll.KrollDynamicProperty;
-import org.appcelerator.kroll.KrollReflectionProperty;
-import org.appcelerator.kroll.KrollInjector;
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollDefaultValueProvider;
-import org.appcelerator.kroll.util.KrollReflectionUtils;
-import org.appcelerator.kroll.util.KrollBindingUtils;
-import org.appcelerator.titanium.kroll.KrollBridge;
-import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.util.Log;
-
-import org.mozilla.javascript.Scriptable;
-
-import java.util.HashMap;
-
-import ${packageName}.${proxyClassName};
-
-<#function countRequiredArguments args>
+<#macro getRequiredArgumentCount args>
 	<#local count = 0>
 	<#list args as arg>
 		<#if arg?keys?seq_contains("optional")>
@@ -44,142 +11,7 @@ import ${packageName}.${proxyClassName};
 			<#local count = count + 1>
 		</#if>
 	</#list>
-	<#return count>
-</#function>
-
-<#macro injectByType type proxy value>
-	<#if injectMethods??>
-		<#list injectMethods as injectMethod>
-			<#if injectMethod.type = type>
-			KrollInjector.injectValueIntoMethod(${proxy}, "${injectMethod.name}", ${value});
-			</#if>
-		</#list>
-	</#if>
-	<#if injectFields??>
-		<#list injectFields as injectField>
-			<#if injectField.type = type>
-			KrollInjector.injectValueIntoField(${proxy}, "${injectField.name}", ${value});
-			</#if>
-		</#list>
-	</#if>
-</#macro>
-
-<#macro generateMethodCall methodName args returnType converter hasInvocation hasArgArray firstArgValue returnUndefinedForVoid>
-	<#local varArgsIndex = -1>
-	<#list args as arg>
-		<#if arg.type == "java.lang.Object[]" && arg_index = args?size - 1>
-			<#local varArgsIndex = arg_index>
-		</#if>
-	</#list>
-	
-	<#if hasArgArray>
-		<#local requiredArgs = countRequiredArguments(args)>
-		<#if requiredArgs &gt; 0>
-	KrollBindingUtils.assertRequiredArgs(__args, ${requiredArgs}, METHOD_${methodName});
-		</#if>
-	</#if>
-
-	Object __${methodName}_tmp;
-	<#if returnType != "void">
-	final ${converter} __${methodName}_converter = ${converter}.getInstance();
-	</#if>
-	<#list args as arg>
-		KrollArgument __${arg.name}_argument = new KrollArgument("${arg.name}");
-		${arg.type} ${arg.name};
-		<#if arg_index = varArgsIndex>
-			<#if hasArgArray>
-				${arg.name} = KrollBindingUtils.getVarArgs(__invocation, __args, ${arg_index}, ${arg.converter}.getInstance(), ${arg.defaultValueProvider}.getInstance()); 
-			<#else>
-				${arg.name} = (Object[]) ${converter}.getInstance().convertJavascript(__invocation, ${firstArgValue}, Object[].class);
-			</#if>
-		<#else>
-			<#local optional = arg?keys?seq_contains("optional") && arg.optional>
-			__${arg.name}_argument.setOptional(${optional?string});
-			<#local castType = arg.type>
-			<#local isBoxType = primitiveBoxTypes?keys?seq_contains(arg.type)>
-			<#if isBoxType>
-				<#local castType = primitiveBoxTypes[arg.type]>
-			</#if>
-			<#local convertType = castType>
-			<#if castType?contains("<")>
-				<#local convertType = castType?substring(0, castType?index_of("<"))>
-			</#if>
-			<#if optional && hasArgArray>
-			if (__args.length >= ${arg_index+1}) {
-			</#if>
-			
-			<#local argNeedsConvert = true>
-			<#if hasArgArray>
-				<#local argValue = "__args[" + arg_index + "]">
-			<#else>
-				<#if arg_index == 0 && !optional>
-					<#local argValue = firstArgValue>
-				<#else>
-					<#local argNeedsConvert = false>
-					<#local argValue = arg.converter + ".getInstance().getDefaultValue(" + castType + ".class)">
-				</#if>
-			</#if>
-			<#if argNeedsConvert>
-				__${methodName}_tmp = ${arg.converter}.getInstance().convertJavascript(__invocation, ${argValue}, ${convertType}.class);
-				try {
-					${arg.name} = (${castType}) __${methodName}_tmp;
-				} catch (ClassCastException e) {
-					throw new IllegalArgumentException("Expected ${castType} type for argument \"${arg.name}\" in \"${methodName}\", but got " + __${methodName}_tmp);
-				}
-			<#else>
-				__${arg.name}_argument.setValueDefault(true);
-				${arg.name} = (${castType})
-					${arg.defaultValueProvider}.getInstance().getDefaultValue(${castType}.class);
-			</#if>
-			<#if optional && hasArgArray>
-			} else {
-				__${arg.name}_argument.setValueDefault(true);
-				${arg.name} = (${castType})
-					${arg.defaultValueProvider}.getInstance().getDefaultValue(${castType}.class);
-			}
-			</#if>
-		</#if>
-		__${arg.name}_argument.setValue(${arg.name});
-		__invocation.addArgument(__${arg.name}_argument);
-	</#list>
-	
-	<#-- TODO: re-enable injection
-	<@injectByType type="org.appcelerator.kroll.KrollInvocation" proxy="__proxy" value="__invocation"-->
-	
-	<#if returnType != "void">
-	${returnType} __retVal =
-	</#if>
-	
-	
-	((${proxyClassName}) __invocation.getProxy()).${methodName}(
-		<#if hasInvocation>
-		__invocation
-		<#if args?size &gt; 0>,</#if>
-		</#if>
-		<#list args as arg>
-		${arg.name}<#if arg_has_next>,</#if>
-		</#list>);
-	<#if returnType != "void">
-	return __${methodName}_converter.convertNative(__invocation, __retVal);
-	<#else>
-	<#if returnUndefinedForVoid>
-		return KrollProxy.UNDEFINED;
-	</#if>
-	</#if>
-</#macro>
-
-<#macro listCreateProxies>
-	<#if isModule>
-		<#list allModules?keys as module>
-			<#if module = packageName+"."+proxyClassName>
-				<#if allModules[module].createProxies??>
-					<#list allModules[module].createProxies as createProxy>
-						<#nested createProxy_index==0, createProxy>
-					</#list>
-				</#if>
-			</#if>
-		</#list>
-	</#if>
+	<#nested count>
 </#macro>
 
 <#macro listChildModules>
@@ -192,6 +24,45 @@ import ${packageName}.${proxyClassName};
 					</#list>
 				</#if>
 			</#if>
+		</#list>
+	</#if>
+</#macro>
+
+<#function hasCreateProxies>
+	<#if isModule>
+		<#list allModules?keys as module>
+			<#if module = packageName+"."+proxyClassName>
+				<#if allModules[module].createProxies??>
+					<#return true>
+				</#if>
+			</#if>
+		</#list>
+	</#if>
+	<#return false>
+</#function>
+
+<#macro listCreateProxies>
+	<#if isModule>
+		<#list allModules?keys as module>
+			<#if module = packageName+"."+proxyClassName>
+				<#if allModules[module].createProxies??>
+					<#list allModules[module].createProxies as createProxy>
+						<#nested createProxy_index==0, createProxy, createProxy_has_next>
+					</#list>
+				</#if>
+			</#if>
+		</#list>
+	</#if>
+</#macro>
+
+<#macro listMethods>
+	<#if methods??>
+		<#list methods?keys as methodName>
+			<#local method = methods[methodName]>
+			<#local signature>
+				<@getMethodSignature method.args, method.returnType, false/>
+			</#local>
+			<#nested methodName_index==0, methodName, method, signature, methodName_has_next>
 		</#list>
 	</#if>
 </#macro>
@@ -218,270 +89,675 @@ import ${packageName}.${proxyClassName};
 	<#if dynamicProperties??>
 		<#list dynamicProperties?keys as propertyName>
 			<#local dynamicProperty = dynamicProperties[propertyName]>
-			<#nested propertyName_index==0, propertyName, dynamicProperty>
+			<#if dynamicProperty.get>
+				<#local getSignature>
+					<@getMethodSignature dynamicProperty.getMethodArgs, dynamicProperty.getReturnType, dynamicProperty.getHasInvocation/>
+				</#local>
+			<#else>
+				<#local getSignature = "">
+			</#if>
+			<#if dynamicProperty.set>
+				<#local setSignature>
+					<@getMethodSignature dynamicProperty.setMethodArgs, dynamicProperty.setReturnType, dynamicProperty.setHasInvocation/>
+				</#local>
+			<#else>
+				<#local setSignature = "">
+			</#if>
+			<#nested propertyName_index==0, propertyName, dynamicProperty, getSignature, setSignature>
 		</#list>
 	</#if>
 </#macro>
 
-<#macro listMethods>
-	<#if methods??>
-		<#list methods?keys as methodName>
-			<#local method = methods[methodName]>
-			<#nested methodName_index==0, methodName, method>
+<#-- returns whether or not a method name has @Kroll.getProperty or @Kroll.setProperty -->
+<#function isDynamicProperty methodName>
+	<#if dynamicProperties??>
+		<#list dynamicProperties?keys as propertyName>
+			<#local dynamicProperty = dynamicProperties[propertyName]>
+			<#if dynamicProperty.get>
+				<#if methodName = dynamicProperty.getMethodName>
+					<#return true>
+				</#if>
+			</#if>
+			<#if dynamicProperty.set>
+				<#if methodName = dynamicProperty.setMethodName>
+					<#return true>
+				</#if>
+			</#if>
 		</#list>
 	</#if>
-</#macro>
+	<#return false>
+</#function>
 
-<#assign primitiveBoxTypes = {"int":"Integer", "double":"Double", "float":"Float", "long":"Long", "boolean":"Boolean", "short":"Short", "byte":"Byte"}>
-
-/* WARNING: this code is generated for binding methods in Android */
-public class ${genClassName}
-<#if superProxyBindingClassName??>
-	extends ${superProxyBindingClassName}
-<#else>
-	<#-- even proxies need to extend module binding so we can preserve KrollProxy delegation -->
-	extends KrollModuleBinding
-</#if>
-{
-	private static final String TAG = "${genClassName}";
-
-	<@listConstants ; isFirst, name, constant>
-	private static final String CONST_${name} = "${name}";
-	</@listConstants>
-	<@listCreateProxies ; isFirst, createProxy>
-	private static final String CREATE_${createProxy.name} = "create${createProxy.name}";
-	</@listCreateProxies>
-	<@listChildModules ; isFirst, childModule>
-	private static final String CHILD_MODULE_${childModule.name} = "${childModule.name}";
-	</@listChildModules>
-	<@listProperties ; isFirst, name, property>
-	private static final String PROP_${name} = "${name}";
-	</@listProperties>
-	<@listDynamicProperties ; isFirst, name, property>
-	private static final String DYNPROP_${name} = "${name}";
-	</@listDynamicProperties>
-	<@listMethods ; isFirst, name, method>
-	private static final String METHOD_${method.apiName} = "${method.apiName}";
-	</@listMethods>
+<#macro listPropertyAccessors>
 	<#list proxyAttrs.propertyAccessors as accessor>
-		<#assign upperCamel = accessor?substring(0, 1)?upper_case + accessor?substring(1)>
-	private static final String ACCESSOR_${accessor} = "${accessor}";
-	private static final String PROP_GET_${accessor} = "get${upperCamel}";
-	private static final String PROP_SET_${accessor} = "set${upperCamel}";
+		<#local upperCamel = accessor?substring(0, 1)?upper_case + accessor?substring(1)>
+		<#nested accessor_index==0, accessor, "get" + upperCamel, "set" + upperCamel, accessor_has_next>
 	</#list>
-	<#if proxyAttrs.isTopLevel>
-	<#list proxyAttrs.topLevelNames as topLevelName>
-	private static final String TOP_LEVEL_${topLevelName?replace(".","_")} = "${topLevelName}";
+</#macro>
+
+<#function hasApiTree>
+	<#-- accounts for _className -->
+	<#return apiTree?keys?size &gt; 1>
+</#function>
+
+<#macro listApiTree>
+	<#local index = 0>
+	<#list apiTree?keys as api>
+		<#if api != "_className">
+			<#local className = apiTree[api]._className>
+			<#nested index==0, api, className, api_has_next>
+			<#local index = index + 1>
+		</#if>
 	</#list>
-	</#if>
-	<#if topLevelMethods??>
-		<#list topLevelMethods?keys as methodName>
-			<#list topLevelMethods[methodName] as topLevelName>
-	private static final String TOP_LEVEL_${topLevelName?replace(".","_")} = "${topLevelName}";
-	private static final String TOP_LEVEL_METHOD_${methodName} = "${methodName}";
-			</#list>
-		</#list>
-	</#if>
-		
-	public ${genClassName}() {
-		<#if superProxyBindingClassName??>super();</#if>
-		// Constants are pre-bound
-		<@listConstants ; isFirst, name, constant>
-		bindings.put(CONST_${name}, ${proxyClassName}.${constant.proxyName});
-		</@listConstants>
-		
-		<@listCreateProxies ; isFirst, createProxy>
-		bindings.put(CREATE_${createProxy.name}, null);
-		</@listCreateProxies>
-		<@listChildModules ; isFirst, childModule>
-		bindings.put(CHILD_MODULE_${childModule.name}, null);
-		</@listChildModules>
-		<@listProperties ; isFirst, name, property>
-		bindings.put(PROP_${name}, null);
-		</@listProperties>
-		<@listDynamicProperties ; isFirst, name, property>
-		bindings.put(DYNPROP_${name}, null);
-		</@listDynamicProperties>
-		<@listMethods ; isFirst, name, method>
-		bindings.put(METHOD_${method.apiName}, null);
-		</@listMethods>
-		<#list proxyAttrs.propertyAccessors as accessor>
-		bindings.put(PROP_GET_${accessor}, null);
-		bindings.put(PROP_SET_${accessor}, null);
-		</#list>
-		
-	}
+</#macro>
 
-	public void bindContextSpecific(KrollBridge bridge, KrollProxy proxy) {
-		<#if proxyAttrs.isTopLevel>
-		<#list proxyAttrs.topLevelNames as topLevelName>
-		bridge.bindToTopLevel(TOP_LEVEL_${topLevelName?replace(".","_")}, proxy);
-		</#list>
+<#macro openNamespace>
+namespace titanium {
+	<#list proxyAttrs.fullAPIName?split(".") as ns>
+		<#if ns_has_next && ns?lower_case != "titanium">
+			namespace ${ns?lower_case} {
 		</#if>
-		<#if topLevelMethods??>
-			<#list topLevelMethods?keys as methodName>
-				<#list topLevelMethods[methodName] as topLevelName>
-		bridge.bindToTopLevel(TOP_LEVEL_${topLevelName?replace(".","_")}, proxy.getBoundMethodForThis(TOP_LEVEL_METHOD_${methodName}));
-				</#list>
-			</#list>
+	</#list>
+</#macro>
+
+<#macro closeNamespace>
+	<#list proxyAttrs.fullAPIName?split(".")?reverse as ns>
+		<#if ns_index != 0 && ns?lower_case != "titanium">
+			} // namespace ${ns?lower_case}
+		</#if>
+	</#list>
+} // namespace titanium
+</#macro>
+
+<#macro namespace proxy>
+<#compress>
+titanium::<#list proxy.fullAPIName?split(".") as ns>
+		<#if ns_has_next && ns?lower_case != "titanium">
+			${ns?lower_case}::
+		</#if>
+	</#list>
+</#compress>
+</#macro>
+
+<#function className name>
+	<#if name?matches("^[0-9].+")>
+		<#return "_" + name>
+	<#else>
+		<#return name>
+	</#if>
+</#function>
+
+<#assign typeInfo = {
+	"org.appcelerator.kroll.KrollProxy":{
+		"jsType":"Object",
+		"jsValidation":true,
+		"jsConvertType":"Value",
+		"jsToJavaConverter":"jsValueToJavaObject",
+		"javaToJsConverter":"javaObjectToJsValue",
+		"jvalue":"l",
+		"javaCallMethodType":"Object",
+		"javaReturnType":"jobject",
+		"javaValidation":true,
+		"javaDeleteLocalRef":true,
+		"rhinoValidation":true,
+		"rhinoType":"Proxy",
+		"rhinoJsCast":false,
+		"rhinoToJavaConverter":"jsObjectToJavaObject",
+		"javaToRhinoConverter":"javaObjectToJsObject",
+		"defaultValue": "null"
+	},
+	"java.lang.String":{
+		"jsType":"Value",
+		"jsValidation":false,
+		"jsToJavaConverter":"jsValueToJavaString",
+		"javaToJsConverter":"javaStringToJsString",
+		"jvalue":"l",
+		"javaCallMethodType":"Object",
+		"javaReturnType":"jstring",
+		"javaValidation":true,
+		"javaDeleteLocalRef":true,
+		"rhinoValidation":false,
+		"rhinoType":"String",
+		"rhinoJsCast":false,
+		"rhinoToJavaConverter":"jsObjectToJavaString",
+		"defaultValue": "null"
+	},
+	"java.lang.Object":{
+		"jsType":"Value",
+		"jsValidation":false,
+		"jsConvertType":"Value",
+		"jsToJavaConverter":"jsValueToJavaObject",
+		"javaToJsConverter":"javaObjectToJsValue",
+		"jvalue":"l",
+		"javaCallMethodType":"Object",
+		"javaReturnType":"jobject",
+		"javaValidation":true,
+		"javaDeleteLocalRef":true,
+		"rhinoValidation":false,
+		"rhinoType":"Object",
+		"rhinoJsCast":false,
+		"rhinoToJavaConverter":"jsObjectToJavaObject",
+		"javaToRhinoConverter":"javaObjectToJsObject",
+		"defaultValue": "null"
+	},
+	"java.lang.Object[]":{
+		"jsType":"Array",
+		"jsHandleCast":"Array",
+		"jsToJavaConverter":"jsArrayToJavaArray",
+		"javaToJsConverter":"javaArrayToJsArray",
+		"jvalue":"l", "signature":"[Ljava/lang/Object;",
+		"javaCallMethodType":"Object",
+		"javaReturnType":"jobjectArray",
+		"javaValidation": true,
+		"javaDeleteLocalRef":true,
+		"rhinoType":"Scriptable",
+		"rhinoJsCast":true,
+		"rhinoToJavaConverter":"jsArrayToJavaObjectArray",
+		"javaToRhinoConverter":"javaObjectArrayToJsArray",
+		"defaultValue": "null"
+	},
+	"int[]":{
+		"jsType":"Array",
+		"jsHandleCast":"Array",
+		"jsToJavaConverter":"jsArrayToJavaIntArray",
+		"javaToJsConverter":"javaArrayToJsArray",
+		"jvalue":"l", "signature":"[I",
+		"javaCallMethodType":"Object",
+		"javaReturnType":"jintArray",
+		"javaValidation":true,
+		"javaDeleteLocalRef":true,
+		"rhinoType":"Scriptable",
+		"rhinoJsCast":true,
+		"rhinoToJavaConverter":"jsArrayToJavaIntArray",
+		"javaToRhinoConverter":"javaIntArrayToJsArray",
+		"defaultValue": "null"
+	},
+	"int":{
+		"jsType":"Number",
+		"jsToJavaConverter":"jsNumberToJavaInt",
+		"javaToJsConverter":"javaIntToJsNumber",
+		"jvalue":"i", "signature":"I",
+		"javaCallMethodType":"Int",
+		"javaReturnType":"jint",
+		"rhinoType":"Number",
+		"rhinoJsCast":false,
+		"rhinoToJavaConverter":"jsObjectToJavaInt",
+		"defaultValue": "-1"
+	},
+	"short":{
+		"jsType":"Number",
+		"jsToJavaConverter":"jsNumberToJavaShort",
+		"javaToJsConverter":"javaShortToJsNumber",
+		"jvalue":"s", "signature":"S",
+		"javaCallMethodType":"Short",
+		"javaReturnType":"jshort",
+		"rhinoType":"Number",
+		"rhinoJsCast":false,
+		"rhinoToJavaConverter":"jsObjectToJavaShort",
+		"defaultValue": "-1"
+	},
+	"long[]":{
+		"jsType":"Array",
+		"jsHandleCast":"Array",
+		"jsToJavaConverter":"jsArrayToJavaLongArray",
+		"javaToJsConverter":"javaArrayToJsArray",
+		"jvalue":"l", "signature":"[J",
+		"javaCallMethodType":"Object",
+		"javaReturnType":"jlongArray",
+		"javaValidation":true,
+		"javaDeleteLocalRef":true,
+		"rhinoType":"Scriptable",
+		"rhinoJsCast":true,
+		"rhinoToJavaConverter":"jsArrayToJavaLongArray",
+		"javaToRhinoConverter":"javaLongArrayToJsArray",
+		"defaultValue": "null"
+	},
+	"long":{
+		"jsType":"Number",
+		"jsToJavaConverter":"jsNumberToJavaLong",
+		"javaToJsConverter":"javaLongToJsNumber",
+		"jvalue":"j", "signature":"J",
+		"javaCallMethodType":"Long",
+		"javaReturnType":"jlong",
+		"rhinoType":"Number",
+		"rhinoJsCast":false,
+		"rhinoToJavaConverter":"jsObjectToJavaLong",
+		"defaultValue": "-1"
+	},
+	"float":{
+		"jsType":"Number",
+		"jsToJavaConverter":"jsNumberToJavaFloat",
+		"javaToJsConverter":"javaFloatToJsNumber",
+		"jvalue":"f", "signature":"F",
+		"javaCallMethodType":"Float",
+		"javaReturnType":"jfloat",
+		"rhinoType":"Number",
+		"rhinoJsCast":false,
+		"rhinoToJavaConverter":"jsObjectToJavaFloat",
+		"defaultValue": "-1f"
+	},
+	"double":{
+		"jsType":"Number",
+		"jsToJavaConverter":"jsNumberToJavaDouble",
+		"javaToJsConverter":"javaDoubleToJsNumber",
+		"jvalue":"d", "signature":"D",
+		"javaCallMethodType":"Double",
+		"javaReturnType":"jdouble",
+		"rhinoType":"Number",
+		"rhinoJsCast":false,
+		"rhinoToJavaConverter":"jsObjectToJavaDouble",
+		"defaultValue": "-1d"
+	},
+	"boolean":{
+		"jsType":"Boolean",
+		"jsToJavaConverter":"jsBooleanToJavaBoolean",
+		"javaToJsConverter":"javaBooleanToJsBoolean",
+		"jvalue":"z", "signature":"Z",
+		"javaCallMethodType":"Boolean",
+		"javaReturnType":"jboolean",
+		"rhinoType":"Boolean",
+		"rhinoJsCast":false,
+		"rhinoToJavaConverter":"jsObjectToJavaBoolean",
+		"defaultValue": "false"
+	},
+	"void":{
+		"signature":"V",
+		"javaCallMethodType":"Void",
+		"javaReturnType":"void",
+		"rhinoType":"void"
+	}
+}>
+
+<#function getTypeInfo type>
+	<#if typeInfo?keys?seq_contains(type)>
+		<#return typeInfo[type]>
+	</#if>
+
+	<#if type?ends_with("Proxy")>
+		<#return typeInfo["org.appcelerator.kroll.KrollProxy"]>
+	</#if>
+
+	<#-- default type -->
+	<#return typeInfo["java.lang.Object"]>
+</#function>
+
+<#macro listMethodArguments args>
+	<#list args as arg>
+		<#nested arg_index, getTypeInfo(arg.type), arg.type, (arg.optional?? && arg.optional)>
+	</#list>
+</#macro>
+
+<#function getTypeSignature type>
+	<#-- Look up the type's signature. If it does not exist, this
+		 type is a Java object. Object signatures take a special format
+		 which has the full class name in it (ex: Ljava.lang.Object;) -->
+	<#if typeInfo?keys?seq_contains(type) && typeInfo[type]?keys?seq_contains("signature")>
+		<#return typeInfo[type].signature>
+	<#else>
+		<#local jniType = type?replace(".", "/")>
+		<#local prefix = "L">
+		<#if type?ends_with("[]")>
+			<#local jniType = jniType?substring(0, jniType?length - 2)>
+			<#local prefix = "[L">
+		</#if>
+		<#return prefix + jniType + ";">
+	</#if>
+</#function>
+
+<#macro getArgumentsSignature args>
+	<#list args as arg>
+		<#local signature = getTypeSignature(arg.type)>
+		<#nested signature>
+	</#list>
+</#macro>
+
+<#macro getMethodSignature args returnType hasInvocation>
+	(<#if hasInvocation>${getTypeSignature("org.appcelerator.kroll.KrollInvocation")}</#if><#t>
+	<@getArgumentsSignature args ; s>${s}</@getArgumentsSignature>)${getTypeSignature(returnType)}<#t>
+</#macro>
+
+<#macro generateJNICall returnType>
+</#macro>
+
+<#--------------------------------------------------------------
+Verify and convert V8 values into JNI values inside a V8
+invocation callback. The converted values are stored into an
+jvalue array named "jArguments". If validation or conversion
+fails, a JS exception is returned.
+---------------------------------------------------------------->
+<#macro verifyAndConvertArgument expr index info logOnly isOptional>
+	<#if !isOptional && info.jsValidation!true>
+	if (!${expr}->Is${info.jsType}()) {
+		const char *error = "Invalid value, expected type ${info.jsType}.";
+		LOGE(TAG, error);
+		<#if !(logOnly!false)>
+		return JSException::Error(error);
 		</#if>
 	}
+	</#if>
+<#t>
+	<#local checkNew = (info?keys?seq_contains("javaDeleteLocalRef") && info.javaToJsConverter == "javaObjectToJsValue")>
+	<#if checkNew>bool isNew_${index};</#if>
+<#t>
+	<#if isOptional>
+	if (args.Length() <= ${index}) {
+		<#local defValue = info.defaultValue>
+		<#if defValue == "null">
+			<#local defValue = "NULL">
+		</#if>
+		jArguments[${index}].${info.jvalue} = ${defValue};
 
-	<#if superProxyBindingClassName??>@Override</#if>
-	public Object getBinding(String name) {
-		Object value = bindings.get(name);
-		if (value != null) { 
-			return value;
-		}
+	} else {
+	</#if>
+<#t>
+	<#if info.jsType == "Value">
+		<#local type = "Local<Value>">
+		<#local valueExpr = expr>
+	<#elseif info?keys?seq_contains("jsHandleCast")>
+		<#local type = "Local<" + info.jsType + ">">
+		<#local valueExpr = "Local<" + info.jsType + ">::Cast(" + expr + ")">
+	<#else>
+		<#local type = "Local<" + info.jsType + ">">
+		<#local valueExpr = expr + "->To" + info.jsType + "()">
+	</#if>
+<#t>
+	${type} arg_${index} = ${valueExpr};
+<#t>
+	jArguments[${index}].${info.jvalue} =
+		TypeConverter::${info.jsToJavaConverter}(arg_${index}<#if checkNew>, &isNew_${index}</#if>);
+<#t>
+	<#if isOptional>
+	}
+	</#if>
+</#macro>
 
-		<@listCreateProxies ; isFirst, createProxy>
-		<#if isFirst>// Proxy create methods</#if>
-		if (name.equals(CREATE_${createProxy.name})) {
-			KrollBindingUtils.KrollProxyCreator creator = new KrollBindingUtils.KrollProxyCreator() {
-				public KrollProxy create(TiContext context) {
-					return new ${createProxy.proxyClassName}(context);
-				}
-			};
-			KrollMethod create${createProxy.name}_method = KrollBindingUtils.createCreateMethod(CREATE_${createProxy.name}, creator);
-			bindings.put(CREATE_${createProxy.name}, create${createProxy.name}_method);
-			return create${createProxy.name}_method;
-		}
-		</@listCreateProxies>
-
-		<@listChildModules ; isFirst, childModule>
-		<#if isFirst>// Child modules</#if>
-		if (name.equals(CHILD_MODULE_${childModule.name})) {
-			KrollModule ${childModule.name}_module = new ${childModule.proxyClassName}(TiContext.getCurrentTiContext());
-			bindings.put(CHILD_MODULE_${childModule.name}, ${childModule.name}_module);
-			return ${childModule.name}_module;
-		}
-		</@listChildModules>
-
-		<#--@listConstants ; isFirst, name, constant>
-		<#if isFirst>// Constants</#if>
-		if (name.equals("${name}")) {
-			bindings.put("${name}", ${proxyClassName}.${constant.proxyName});
-			return ${proxyClassName}.${constant.proxyName};
-		}
-		</@listConstants-->
-
-		<@listProperties ; isFirst, name, property>
-		<#if isFirst>// Properties</#if>
-		if (name.equals(PROP_${name})) {
-			KrollReflectionProperty ${name}_property = new KrollReflectionProperty(PROP_${name},
-				${property.get?string}, ${property.set?string}, "${property.proxyName}");
-			${name}_property.setJavascriptConverter(${property.javascriptConverter}.getInstance());
-			${name}_property.setNativeConverter(${property.nativeConverter}.getInstance());
-			bindings.put(PROP_${name}, ${name}_property);
-			return ${name}_property;
-		}
-		</@listProperties>
-
-		<@listDynamicProperties ; isFirst, name, property>
-		<#if isFirst>// Dynamic Properties</#if>
-		if (name.equals(DYNPROP_${name})) {
-			KrollDynamicProperty ${name}_property = new KrollDynamicProperty(DYNPROP_${name},
-				${property.get?string}, ${property.set?string},
-				<#if property.set>${property.retain?string}<#else>false</#if>) {
-				
-				@Override
-				public Object dynamicGet(KrollInvocation __invocation) {
-					<#if property.get>
-						<@generateMethodCall methodName=property.getMethodName args=property.getMethodArgs
-							returnType=property.getReturnType converter=property.nativeConverter
-							hasInvocation=property.getHasInvocation hasArgArray=false firstArgValue="none" returnUndefinedForVoid=true />
-					<#else>
-					Log.w(TAG, "Property ${proxyAttrs.name}.${name} isn't readable");
-					return KrollProxy.UNDEFINED;
-					</#if>
-				}
-
-				@Override
-				public void dynamicSet(KrollInvocation __invocation, Object __value) {
-					<#if property.set>
-						<@generateMethodCall methodName=property.setMethodName args=property.setMethodArgs
-							returnType="void" converter=property.javascriptConverter
-							hasInvocation=property.setHasInvocation hasArgArray=false firstArgValue="__value" returnUndefinedForVoid=false />
-					<#else>
-					Log.w(TAG, "Property ${proxyAttrs.name}.${name} isn't writable");
-					</#if>
-				}
-			};
-			<#if property.runOnUiThread>
-			${name}_property.setRunOnUiThread(true);
-			</#if>
-			${name}_property.setJavascriptConverter(${property.javascriptConverter}.getInstance());
-			${name}_property.setNativeConverter(${property.nativeConverter}.getInstance());
-			bindings.put(DYNPROP_${name}, ${name}_property);
-			return ${name}_property;
-		}
-		</@listDynamicProperties>
-
-		<@listMethods ; isFirst, name, method>
-		<#if isFirst>// Methods</#if>
-		if (name.equals(METHOD_${method.apiName})) {
-			KrollMethod ${method.apiName}_method = new KrollMethod(METHOD_${method.apiName}) {
-				public Object invoke(KrollInvocation __invocation, Object[] __args) throws Exception
-				{
-					<@generateMethodCall methodName=name args=method.args returnType=method.returnType
-						converter=method.converter hasInvocation=method.hasInvocation
-						hasArgArray=true firstArgValue="none" returnUndefinedForVoid=true/>
-				}
-			};
-			<#if method.runOnUiThread>
-			${method.apiName}_method.setRunOnUiThread(true);
-			</#if>
-			bindings.put(METHOD_${method.apiName}, ${method.apiName}_method);
-			return ${method.apiName}_method;
-		}
-		</@listMethods>
-
-		<#list proxyAttrs.propertyAccessors as accessor>
-		<#assign upperCamel = accessor?substring(0, 1)?upper_case + accessor?substring(1)>
-		if (name.equals(PROP_SET_${accessor})) {
-			KrollMethod ${accessor}_set_accessor = KrollBindingUtils.createAccessorMethod(ACCESSOR_${accessor}, true);
-			bindings.put(PROP_SET_${accessor}, ${accessor}_set_accessor);
-			return ${accessor}_set_accessor;
-		} else if (name.equals(PROP_GET_${accessor})) {
-			KrollMethod ${accessor}_get_accessor = KrollBindingUtils.createAccessorMethod(ACCESSOR_${accessor}, false);
-			bindings.put(PROP_GET_${accessor}, ${accessor}_get_accessor);
-			return ${accessor}_get_accessor;
-		}
-		</#list>
-
-		return super.getBinding(name);
+<#macro convertToVarArgs args start>
+	uint32_t length = args.Length() - ${start};
+	if (length < 0) {
+		length = 0;
 	}
 
-	private static final String SHORT_API_NAME = "${proxyAttrs.name}";
-	private static final String FULL_API_NAME = "${proxyAttrs.fullAPIName}";
-	private static final String ID = "${proxyAttrs.id}";
-
-	public String getAPIName() {
-		return FULL_API_NAME;
+	jobjectArray varArgs = env->NewObjectArray(length, JNIUtil::objectClass, NULL);
+	for (uint32_t i = 0; i < length; ++i) {
+		bool isNew;
+		jobject arg = TypeConverter::jsValueToJavaObject(args[i+${start}], &isNew);
+		env->SetObjectArrayElement(varArgs, i, arg);
+		if (isNew) {
+			env->DeleteLocalRef(arg);
+		}
 	}
 
-	public String getShortAPIName() {
-		return SHORT_API_NAME;
-	}
+	jArguments[${start}].l = varArgs;
+</#macro>
 
-	public String getId() {
-		return ID;
+<#macro verifyAndConvertArguments args method>
+	<#-- Verify the correct argument count was provided. -->
+	<@Proxy.getRequiredArgumentCount args=args ; requiredCount>
+	<#if requiredCount &gt; 0>
+	if (args.Length() < ${requiredCount}) {
+		char errorStringBuffer[100];
+		sprintf(errorStringBuffer, "${method.apiName}: Invalid number of arguments. Expected ${requiredCount} but got %d", args.Length());
+		return ThrowException(Exception::Error(String::New(errorStringBuffer)));
 	}
+	</#if>
+	</@Proxy.getRequiredArgumentCount>
 
-	<#-- for convenience so we can avoid reflection -->
-	public KrollModule newInstance(TiContext context) {
-		<#if isModule>
-		return new ${proxyClassName}(context);
+	jvalue jArguments[${args?size}];
+
+	<#-- Generate argument validation and conversion code -->
+	<#local varArgsIndex = -1>
+	<#list args as arg>
+		<#if arg.type == "java.lang.Object[]" && arg_index = args?size - 1>
+			<#local varArgsIndex = arg_index>
+		</#if>
+	</#list>
+
+	<#if method.hasInvocation>
+	Handle<Object> scopeVars = args[0]->ToObject();
+	Handle<Value> sourceUrl = scopeVars->Get(Proxy::sourceUrlSymbol);
+	jArguments[0].l = env->NewObject(JNIUtil::krollInvocationClass, JNIUtil::krollInvocationInitMethod, TypeConverter::jsValueToJavaString(sourceUrl));
+	</#if>
+
+	<@Proxy.listMethodArguments args=args ; index, info, type, isOptional>
+
+	<#if type != "org.appcelerator.kroll.KrollInvocation">
+		<#if index = varArgsIndex>
+			<@Proxy.convertToVarArgs args=args start=index/>
 		<#else>
-		return null;
+			<@Proxy.verifyAndConvertArgument expr="args[" + index + "]" index=index info=info logOnly=false isOptional=isOptional/>
+		</#if>
+	</#if>
+	</@Proxy.listMethodArguments>
+</#macro>
+
+<#macro verifyAndConvertJavaArgument expr index info type logOnly isOptional>
+	<#if (info.rhinoValidation!true) && !isOptional>
+		if (!(${expr} instanceof ${info.rhinoType})<#if info.javaCallMethodType == "Object"> && ${expr} != null</#if>) {
+			String error = "Invalid value, expected type ${info.rhinoType}, got: " + ${expr};
+			Log.e(TAG, error);
+			<#if !(logOnly!false)>
+			throw new IllegalArgumentException(error);
+			</#if>
+		}
+	</#if>
+<#t>
+	<#local wrapStart = "">
+	<#local wrapEnd = "">
+	<#if info.rhinoType != type>
+		<#local wrapStart = "(" + type + ")">
+		<#if type == "org.appcelerator.kroll.KrollDict">
+			<#local wrapStart = "new KrollDict((HashMap) ">
+			<#local wrapEnd = ")">
+		</#if>
+	</#if>
+<#t>
+		${type} arg${index};
+	<#if isOptional>
+		if (args.length <= ${index}) {
+			arg${index} = ${info.defaultValue};
+		} else {
+	</#if>
+		<#if info.rhinoJsCast>
+			<#local rhinoExpr = "(" + info.rhinoType + ") " + expr>
+		<#else>
+			<#local rhinoExpr = expr>
+		</#if>
+		<#if type == "org.appcelerator.kroll.KrollDict">
+		if (${expr} == null) {
+			arg${index} = null;
+		} else {
+		</#if>
+		arg${index} = ${wrapStart} TypeConverter.${info.rhinoToJavaConverter}(${rhinoExpr}, thisObj) ${wrapEnd};
+		<#if type == "org.appcelerator.kroll.KrollDict">
+		}
+		</#if>
+	<#if isOptional>
+		}
+	</#if>
+</#macro>
+
+<#macro convertToJavaVarArgs args start>
+	int length = args.length - ${start};
+	if (length < 0) {
+		length = 0;
+	}
+
+	Object[] arg${start} = new Object[length];
+	for (int i = 0; i < length; i++) {
+		arg${start}[i] = TypeConverter.jsObjectToJavaObject(args[i+${start}], this);
+	}
+</#macro>
+
+<#macro verifyAndConvertJavaArguments args method>
+	<#-- Verify the correct argument count was provided. -->
+	<@Proxy.getRequiredArgumentCount args=args ; requiredCount>
+	<#if requiredCount &gt; 0>
+		if (args.length < ${requiredCount}) {
+			throw new IllegalArgumentException("${method.apiName}: Invalid number of arguments. Expected ${requiredCount} but got " + args.length);
+		}
+	</#if>
+	</@Proxy.getRequiredArgumentCount>
+<#t>
+	<#-- Generate argument validation and conversion code -->
+	<#local varArgsIndex = -1>
+	<#list args as arg>
+		<#if arg.type == "java.lang.Object[]" && arg_index = args?size - 1>
+			<#local varArgsIndex = arg_index>
+		</#if>
+	</#list>
+<#t>
+	<#if method.hasInvocation>
+		Scriptable scopeVars = (Scriptable) args[0];
+		String sourceUrl = (String) ScriptableObject.getProperty(scopeVars, "sourceUrl");
+		KrollInvocation arg0 = new KrollInvocation(sourceUrl);
+	</#if>
+<#t>
+	<@Proxy.listMethodArguments args=args ; index, info, type, isOptional>
+	<#if type != "org.appcelerator.kroll.KrollInvocation">
+		<#if index = varArgsIndex>
+			<@Proxy.convertToJavaVarArgs args=args start=index/>
+		<#else>
+			<@Proxy.verifyAndConvertJavaArgument expr="args[" + index + "]" index=index info=info type=type logOnly=false isOptional=isOptional/>
+		</#if>
+	</#if>
+	</@Proxy.listMethodArguments>
+<#t>
+</#macro>
+
+<#macro cleanupMethodArguments args hasInvocation>
+	<#if hasInvocation>
+	env->DeleteLocalRef(jArguments[0].l);
+	</#if>
+
+	<@Proxy.listMethodArguments args=args; index, info, type>
+	<#if type != "org.appcelerator.kroll.KrollInvocation">
+		<#if type == "java.lang.Object[]" && index = args?size - 1>
+			env->DeleteLocalRef(jArguments[${index}].l);
+		<#else>
+			<#if info.javaDeleteLocalRef!false>
+			<#local checkNew = info.javaToJsConverter == "javaObjectToJsValue">
+
+			<#if checkNew>
+			if (isNew_${index}) {
+			</#if>
+				env->DeleteLocalRef(jArguments[${index}].l);
+			<#if checkNew>
+			}
+			</#if>
+
+			</#if>
+		</#if>
+	</#if>
+	</@Proxy.listMethodArguments>
+</#macro>
+
+<#--------------------------------------------------------------
+Generate a JNI method call with the given return type, method ID,
+and jobject reference. This macro also expects a jvalue array
+already exists in the scope name provided in "argsVar".
+Outputs the complete statement that performs the JNI call and
+stores the return value in "result". A nested section can
+beprovided to handle the result.
+---------------------------------------------------------------->
+<#macro callJNIMethod methodArgs hasInvocation returnType methodID jobjectVar argsVar>
+	<#local info = getTypeInfo(returnType)
+			callExpr = "Call${info.javaCallMethodType}MethodA"
+			argExpr = "${jobjectVar}, ${methodID}, ${argsVar}"
+			resultExpr = "${info.javaReturnType} jResult = (${info.javaReturnType})"
+			hasResult = info.javaReturnType != "void">
+	<#if hasResult>
+	${resultExpr}env->${callExpr}(${argExpr});
+
+	<#local jsType = info.jsType>
+	<#if info?keys?seq_contains("jsConvertType")>
+		<#local jsType = info.jsConvertType>
+	</#if>
+
+	<#else>
+	env->${callExpr}(${argExpr});
+	</#if>
+
+	<#-- Delete java proxy reference once done making the call. -->
+	if (!JavaObject::useGlobalRefs) {
+		env->DeleteLocalRef(${jobjectVar});
+	}
+
+	<@Proxy.cleanupMethodArguments args=methodArgs hasInvocation=hasInvocation/>
+
+	if (env->ExceptionCheck()) {
+		<#if hasResult>Handle<Value> jsException = </#if>JSException::fromJavaException();
+		env->ExceptionClear();
+		<#if hasResult>
+		return jsException;
 		</#if>
 	}
 
-	public Class<? extends KrollProxy> getProxyClass() {
-		return ${proxyClassName}.class;
+	<#if hasResult && info.javaValidation!false>
+	if (jResult == NULL) {
+		return Null();
 	}
+	</#if>
 
-	public boolean isModule() {
-		return ${isModule?string}; 
+	<#if hasResult>
+	Handle<${jsType}> v8Result = TypeConverter::${info.javaToJsConverter}(jResult);
+
+	<#if info.javaDeleteLocalRef!false>
+	env->DeleteLocalRef(jResult);
+	</#if>
+	</#if>
+
+	<#nested hasResult "v8Result">
+</#macro>
+
+<#macro callJavaMethod methodArgs methodName hasInvocation returnType proxyVar>
+	<#local hasResult = returnType != "void">
+	<#local info = getTypeInfo(returnType)>
+	<#local resultExpr = "">
+<#t>
+	<#if hasResult>
+	<#local resultExpr = returnType + " javaResult = ">
+	</#if>
+<#t>
+	<#local args>
+		<#t><#list methodArgs as arg>
+			<#t>arg${arg_index}
+			<#t><#if arg_has_next>, </#if>
+		<#t></#list>
+	</#local>
+		${resultExpr}${proxyVar}.${methodName}(${args});
+<#t>
+	<#if hasResult>
+		<#local result>
+			<#t><#if info.rhinoType == "java.lang.Object">javaResult<#t>
+			<#t><#elseif !(info.javaToRhinoConverter??)>(${info.rhinoType}) javaResult<#t>
+			<#t><#else>(${info.rhinoType}) TypeConverter.${info.javaToRhinoConverter}(javaResult, this)<#t>
+			<#t></#if>
+		</#local>
+
+		${info.rhinoType} rhinoResult = ${result};
+	</#if>
+<#t>
+	<#nested hasResult, "rhinoResult">
+</#macro>
+
+<#macro initJNIEnv>
+	JNIEnv *env = JNIScope::getEnv();
+	if (!env) {
+		return JSException::GetJNIEnvironmentError();
 	}
-}
+</#macro>
+
+<#macro initMethodID className name signature logOnly>
+	<#-- Lazy initialize method ID for the Java proxy. -->
+	static jmethodID methodID = NULL;
+	if (!methodID) {
+		methodID = env->GetMethodID(${className}::javaClass, "${name}", "${signature}");
+		if (!methodID) {
+			const char *error = "Couldn't find proxy method '${name}' with signature '${signature}'";
+			LOGE(TAG, error);
+			<#if !(logOnly!false)>
+				return JSException::Error(error);
+			</#if>
+		}
+	}
+</#macro>

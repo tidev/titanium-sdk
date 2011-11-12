@@ -3,6 +3,7 @@ name: Titanium.Contacts
 description: The top level Contacts module.  The Contacts module is used accessing the device Address Book.  (Read-only on Android.)
 extends: Titanium.Module
 since: "0.8"
+platforms: [android, iphone, ipad]
 methods:
   - name: createGroup
     description: create and return an instance of <a href="Titanium.Contacts.Group.html">Titanium.Contacts.Group</a>

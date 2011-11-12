@@ -162,6 +162,12 @@ USE_VIEW_FOR_AUTO_WIDTH
 
 #pragma mark Evaluator
 
+- (BOOL)evaluationError
+{
+	// TODO; is this correct
+	return NO;
+}
+
 - (TiHost*)host
 {
 	return [self _host];
