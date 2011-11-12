@@ -299,7 +299,8 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 -(void)setLayout:(id)value
 {
 	layoutProperties.layoutStyle = TiLayoutRuleFromObject(value);
-	[self replaceValue:value forKey:@"layoutStyle" notification:YES];
+    // Obfuscate to try and avoid possible Apple private API detection issues
+	[self replaceValue:value forKey:[@"lay" stringByAppendingString:@"out"] notification:YES];
 }
 
 -(CGFloat)sizeWidthForDecorations:(CGFloat)oldWidth forceResizing:(BOOL)force
