@@ -1635,4 +1635,22 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     NSString* uid = [TiUtils oldUUID];
     return uid;
 }
+
+// Used for HTTP response header case-correction, as performed by Apple
++(NSString*)caseCorrect:(NSString *)str
+{
+    if ([str rangeOfString:@"-"].location != NSNotFound) {
+        NSArray* substrings = [str componentsSeparatedByString:@"-"];
+        NSMutableString* header = [NSMutableString stringWithString:[[substrings objectAtIndex:0] capitalizedString]];
+        for (int i=1; i < [substrings count]; i++) {
+            NSString* substr = [substrings objectAtIndex:i];
+            [(NSMutableString*)header appendFormat:@"-%@",[substr capitalizedString]];
+        }
+        
+        return header;
+    }
+    
+    return str;
+}
+
 @end
