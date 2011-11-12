@@ -6,7 +6,8 @@
  */
 var EventEmitter = require("events").EventEmitter,
 	assets = kroll.binding("assets"),
-	vm = require("vm");
+	vm = require("vm"),
+	url = require('url');
 var TAG = "Window";
 
 exports.bootstrapWindow = function(Titanium) {
