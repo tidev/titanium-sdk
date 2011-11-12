@@ -291,6 +291,8 @@
         GDataXMLNode * attributeNode = [element attributeForName:name];
         if (attributeNode != nil) 
         {
+            //Switch the flag here so that the node is freed only when the object is freed
+            [attributeNode setShouldFreeXMLNode:YES];
             result = [TiDOMNodeProxy nodeForXMLNode:[attributeNode XMLNode]];
             if(result == nil)
             {
@@ -312,10 +314,8 @@
         [element addAttribute: [attProxy node]];
         attributeNode = [element attributeForName:name];
         [attProxy setNode:attributeNode];
+        [attProxy setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
         [TiDOMNodeProxy setNode:attProxy forXMLNode:[attributeNode XMLNode]];
-        //Call name property here so that it is set correctly
-        [attProxy name];
-
     }
     if(result == nil)
         return [NSNull null];
@@ -351,6 +351,8 @@
         GDataXMLNode * attributeNode = [element attributeForLocalName:[GDataXMLNode localNameForName:name] URI:theURI];
         if (attributeNode != nil) 
         {
+            //Switch the flag here so that the node is freed only when the object is freed
+            [attributeNode setShouldFreeXMLNode:YES];
             result = [TiDOMNodeProxy nodeForXMLNode:[attributeNode XMLNode]];
             if(result == nil)
             {
@@ -372,9 +374,8 @@
         [element addAttribute: [attProxy node]];
         attributeNode = attributeNode = [element attributeForLocalName:[GDataXMLNode localNameForName:name] URI:theURI];
         [attProxy setNode:attributeNode];
+        [attProxy setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
         [TiDOMNodeProxy setNode:attProxy forXMLNode:[attributeNode XMLNode]];
-        //Call name property here so that it is set correctly
-        [attProxy name];
 
     } 
     if(result == nil)
@@ -392,7 +393,7 @@
     NSArray* elemAttributes = [element attributes];
     GDataXMLNode* nodeToRemove = nil;
     
-    if((elemAttributes != nil)&&([elemAttributes count]>0))
+    if([elemAttributes count]>0)
     {
         for(GDataXMLNode* node_ in elemAttributes)
         {
@@ -410,6 +411,8 @@
         }
         else
         {
+            //Switch the flag here so that the node is freed only when the object is freed
+            [[attProxy node]setShouldFreeXMLNode:YES];
             [element removeChild:nodeToRemove];
             return attProxy;
         }
@@ -419,22 +422,6 @@
         [self throwException:@"no node found to remove" subreason:nil location:CODELOCATION];
         return;
     }
-    /*
-    NSString* name = [attProxy name];
-    if(name != nil)
-    {
-        GDataXMLNode * attributeNode = [element attributeForName:name];
-        if(attributeNode == nil)
-        {
-            [self throwException:@"no node found to remove" subreason:nil location:CODELOCATION];
-            return;
-        }
-        [element removeChild:attributeNode];
-    }
-    if(attProxy == nil)
-        return [NSNull null];
-    return attProxy;
-     */
 }
 
 
@@ -463,10 +450,16 @@
     if(actualRefChildNode != nil)
     {
         xmlNodePtr returnNode = xmlAddPrevSibling([actualRefChildNode XMLNode], [[newChild node] XMLNode]);
-        if(returnNode != nil)
+        if(returnNode != NULL)
         {
             [[self node]releaseCachedValues];
-            GDataXMLNode* retVal = [GDataXMLNode nodeConsumingXMLNode:returnNode];
+            if (returnNode == [[newChild node] XMLNode])
+            {
+                //Now it is part of the tree so switch flag to ensur it gets freed when doc is released
+                [[newChild node]setShouldFreeXMLNode:NO];
+                return newChild;
+			}
+            GDataXMLNode* retVal = [GDataXMLNode nodeBorrowingXMLNode:returnNode];
             return [TiDOMNodeProxy makeNode:retVal context:[self executionContext]];
         }
         return [NSNull null];
@@ -482,8 +475,11 @@
     TiDOMNodeProxy* refChild;
     
     ENSURE_ARG_AT_INDEX(newChild, args, 0, TiDOMNodeProxy);
-	ENSURE_ARG_AT_INDEX(refChild, args, 1, TiDOMNodeProxy);
+    ENSURE_ARG_AT_INDEX(refChild, args, 1, TiDOMNodeProxy);
     
+    if(newChild == refChild)
+		return;
+	
     NSArray* children = [node children];
     GDataXMLNode* refChildNode = [refChild node];
     GDataXMLNode* actualRefChildNode = nil;
@@ -501,6 +497,8 @@
         xmlNodePtr returnNode = xmlReplaceNode([actualRefChildNode XMLNode], [[newChild node]XMLNode]);
         if(returnNode != nil)
         {
+            //No longer part of tree. Set to free node ptr on object dealloc
+            [[refChild node]setShouldFreeXMLNode:YES];
             [[self node]releaseCachedValues];
             GDataXMLNode* retVal = [GDataXMLNode nodeConsumingXMLNode:returnNode];
             return [TiDOMNodeProxy makeNode:retVal context:[self executionContext]];
@@ -541,10 +539,12 @@
 {
     ENSURE_SINGLE_ARG(args, TiDOMNodeProxy);
 	TiDOMNodeProxy * newChild = (TiDOMNodeProxy*)args;
-    xmlNodePtr oldNodePtr = [node XMLNode];
+    xmlNodePtr oldNodePtr = [[newChild node]XMLNode];
 	GDataXMLNode* resultElement = [element addChild:[newChild node]];
     if(resultElement != nil)
     {
+        //No longer part of tree set to free node since add child adds by creating copy
+        [[newChild node]setShouldFreeXMLNode:YES];
         if(oldNodePtr != NULL)
         {
             [TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];

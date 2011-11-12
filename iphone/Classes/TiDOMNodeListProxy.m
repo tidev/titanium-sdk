@@ -31,7 +31,7 @@
 	ENSURE_SINGLE_ARG(args,NSObject);
 	int index = [TiUtils intValue:args];
     
-	if ((nodes != nil) && (index < [nodes count]))
+	if (index < [nodes count])
 	{
 		id result = [TiDOMNodeProxy makeNode:[nodes objectAtIndex:index] context:[self executionContext]];
 		[result setDocument:[self document]];
@@ -42,10 +42,7 @@
 
 -(NSNumber*)length
 {
-    if(nodes != nil)
-        return NUMINT([nodes count]);
-    else
-        return NUMINT(0);
+    return NUMINT([nodes count]);
 }
 
 @end

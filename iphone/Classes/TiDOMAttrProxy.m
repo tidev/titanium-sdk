@@ -36,26 +36,10 @@
 
 -(id)name
 {
-    NSString* ret = [node name];
-    if(ret == nil)
-    {
-        //probably got removed from tree
-        if(name != nil)
-            return [node name];
-        else
-            return [NSNull null];
-    }
-    else
-    {
-        if(name == nil)
-            name = [ret retain];
-        else if([ret compare:name] != 0)
-        {
-            RELEASE_TO_NIL(name);
-            name = [ret retain];
-        }
-        return ret;
-    }
+	if (name != nil)
+		return name;
+	else
+		return [NSNull null];
 }
 
 -(id)value
@@ -98,8 +82,8 @@
 	}
 	TiDOMElementProxy *proxy = [[[TiDOMElementProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
 	[proxy setDocument:[self document]];
-    [proxy setElement:[GDataXMLNode nodeConsumingXMLNode:parentNode]];
-    [TiDOMNodeProxy setNode:proxy forXMLNode:parentNode];
+	[proxy setElement:[GDataXMLNode nodeBorrowingXMLNode:parentNode]];
+	[TiDOMNodeProxy setNode:proxy forXMLNode:parentNode];
 	return proxy;
 }
 

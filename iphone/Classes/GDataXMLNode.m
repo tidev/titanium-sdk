@@ -1072,7 +1072,7 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
 				// previously-unresolved namespace prefixes that can now be fixed up
 				[[self class] fixUpNamespacesForNode:childNodeCopy
 								  graftingToTreeNode:xmlNode_];
-				return [GDataXMLNode nodeConsumingXMLNode:resultNode];
+				return [GDataXMLNode nodeBorrowingXMLNode:resultNode];
 			}
 		}
 	}
@@ -1082,6 +1082,8 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
 - (void)removeChild:(GDataXMLNode *)child {
 	// this is safe for attributes too
 	if (xmlNode_ != NULL) {
+		
+		[self releaseCachedValues];
 		
 		xmlNodePtr node = [child XMLNode];
 		
@@ -1093,8 +1095,7 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
 		if (![child shouldFreeXMLNode]) {
 			xmlFreeNode(node);
 		}
-        [self releaseCachedValues];
-	}
+    }
 }
 
 - (NSArray *)elementsForName:(NSString *)name {
@@ -1847,7 +1848,7 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
     
     if(ret != NULL)
     {
-        return [GDataXMLNode nodeConsumingXMLNode:ret];
+        return [GDataXMLNode nodeBorrowingXMLNode:ret];
     }
     return nil;
 }

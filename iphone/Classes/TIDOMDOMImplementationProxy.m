@@ -119,7 +119,12 @@
 	if (docType != nil)
 	{
 		GDataXMLNode *docTypeNode = [docType node];
-		xmlAddChild((xmlNodePtr)doc, [docTypeNode XMLNode]);
+		xmlNodePtr ret = xmlAddChild((xmlNodePtr)doc, [docTypeNode XMLNode]);
+		if (ret != NULL)
+		{
+			//Now it is part of the tree so switch flag to ensur it gets freed when doc is released
+			[docTypeNode setShouldFreeXMLNode:NO];
+		}
 	}
 	TiDOMDocumentProxy * result = [[[TiDOMDocumentProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
 	[result setNode:[theDocument rootElement]];

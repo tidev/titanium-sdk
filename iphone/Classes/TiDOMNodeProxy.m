@@ -209,12 +209,10 @@ CFHashCode	simpleHash(const void *value)
 -(id)parentNode
 {
 	xmlNodePtr p = [node XMLNode]->parent;
-    if(p == nil)
+    if (p == NULL)
         return [NSNull null];
     
-	//GDataXMLNode* sibling = [GDataXMLNode nodeBorrowingXMLNode:p];
-    //return [self makeNode:sibling context:[self executionContext]];
-    GDataXMLNode* sibling = [GDataXMLNode nodeConsumingXMLNode:p];
+    GDataXMLNode* sibling = [GDataXMLNode nodeBorrowingXMLNode:p];
 	return [self makeNode:sibling context:[self executionContext]];
 }
 
@@ -257,9 +255,7 @@ CFHashCode	simpleHash(const void *value)
 	{
 		return [NSNull null];
 	}
-	//GDataXMLNode* sibling = [GDataXMLNode nodeBorrowingXMLNode:p];
-	//return [self makeNode:sibling context:[self executionContext]];
-    GDataXMLNode* sibling = [GDataXMLNode nodeConsumingXMLNode:p];
+    GDataXMLNode* sibling = [GDataXMLNode nodeBorrowingXMLNode:p];
     return [self makeNode:sibling context:[self executionContext]];
 }
 
@@ -270,9 +266,7 @@ CFHashCode	simpleHash(const void *value)
 	{
 		return [NSNull null];
 	}
-	//GDataXMLNode* sibling = [GDataXMLNode nodeBorrowingXMLNode:p];
-    //return [self makeNode:sibling context:[self executionContext]];
-    GDataXMLNode* sibling = [GDataXMLNode nodeConsumingXMLNode:p];
+    GDataXMLNode* sibling = [GDataXMLNode nodeBorrowingXMLNode:p];
     return [self makeNode:sibling context:[self executionContext]];
 	
 }
@@ -280,7 +274,7 @@ CFHashCode	simpleHash(const void *value)
 -(id)attributes
 {
     xmlElementType realType = [node XMLNode]->type;
-    if(realType == XML_ELEMENT_NODE)
+    if (realType == XML_ELEMENT_NODE)
     {
         TiDOMNamedNodeMapProxy *proxy = [[[TiDOMNamedNodeMapProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
         [proxy setDocument:[self document]];
@@ -293,14 +287,12 @@ CFHashCode	simpleHash(const void *value)
 -(id)ownerDocument
 {
 	xmlDocPtr p = [node XMLNode]->doc;
-	if (p==nil) 
+	if (p==NULL) 
 	{
 		return [NSNull null];
 	}
-	//GDataXMLDocument *doc = [[[GDataXMLDocument alloc] initWithDocument:xmlCopyDoc(p, 1)] autorelease];
-	//TiDOMDocumentProxy *proxy = [[[TiDOMDocumentProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
     TiDOMDocumentProxy *proxy = [TiDOMNodeProxy nodeForXMLNode:(xmlNodePtr)p];
-    if(proxy == nil)
+    if (proxy == nil)
     {
         proxy = [[[TiDOMDocumentProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
         [proxy setDocument:[self document]];
@@ -332,8 +324,7 @@ CFHashCode	simpleHash(const void *value)
 
 -(id)hasChildNodes:(id)args
 {
-    //[node releaseCachedValues];
-	return NUMBOOL([node childCount] > 0);
+    return NUMBOOL([node childCount] > 0);
 }
 
 -(void)normalize:(id)args
@@ -351,11 +342,11 @@ CFHashCode	simpleHash(const void *value)
 	NSString *version = [args objectAtIndex:1];
 	ENSURE_STRING_OR_NIL(version);
     
-    if(feature != nil)
+    if (feature != nil)
     {
-        if( (version == nil) || ([[version lowercaseString] compare:@"1.0"] == 0) || ([[version lowercaseString] compare:@"2.0"] == 0) )
+        if ( (version == nil) || ([[version lowercaseString] compare:@"1.0"] == 0) || ([[version lowercaseString] compare:@"2.0"] == 0) )
         {
-            if([[feature lowercaseString] compare:@"core"] == 0)
+            if ([[feature lowercaseString] compare:@"core"] == 0)
                 return NUMBOOL(YES);
             else if([[feature lowercaseString] compare:@"xml"] == 0)
                 return NUMBOOL(YES);
@@ -370,7 +361,7 @@ CFHashCode	simpleHash(const void *value)
 -(id)namespaceURI
 {
 	NSString* result = [node URI];
-    if(result == nil)
+    if (result == nil)
         return [NSNull null];
     return result;
 }
@@ -378,7 +369,7 @@ CFHashCode	simpleHash(const void *value)
 -(id)prefix
 {
 	NSString* result = [node prefix];
-    if((result == nil)||([result length]==0))
+    if ([result length]==0)
         return [NSNull null];
     return result;
 }
@@ -388,10 +379,10 @@ CFHashCode	simpleHash(const void *value)
     if(node != nil)
     {
         xmlNodePtr theRealNode = [node XMLNode];
-        if(theRealNode != nil)
+        if (theRealNode != nil)
         {
             xmlElementType nodeType = theRealNode->type;
-            if(nodeType == XML_ELEMENT_NODE || nodeType == XML_ATTRIBUTE_NODE)
+            if (nodeType == XML_ELEMENT_NODE || nodeType == XML_ATTRIBUTE_NODE)
             {
                 if(theRealNode->ns != nil)
                 {
@@ -424,7 +415,7 @@ CFHashCode	simpleHash(const void *value)
 		return NUMINT(0);
 	}
 	xmlElementType realNodeType = realNode->type;
-    if(realNodeType == XML_DTD_NODE)
+    if (realNodeType == XML_DTD_NODE)
         realNodeType = XML_DOCUMENT_TYPE_NODE;
 	return NUMINT(realNodeType);
 }
@@ -433,7 +424,6 @@ CFHashCode	simpleHash(const void *value)
 {
     int recursive;
     ENSURE_SINGLE_ARG(args,NSNumber);
-    recursive = [(NSNumber*)args intValue];
     
     BOOL deep = [TiUtils boolValue:args];
     
@@ -445,38 +435,14 @@ CFHashCode	simpleHash(const void *value)
     xmlNodePtr ourRealNode = [node XMLNode];
     xmlNodePtr ret = xmlCopyNode(ourRealNode, recursive);
     
-    if(ret == nil)
+    if (ret == nil)
         return [NSNull null];
     else
     {
-        GDataXMLNode *resultElement = [GDataXMLNode nodeConsumingXMLNode:ret];
+        GDataXMLNode *resultElement = [GDataXMLNode nodeBorrowingXMLNode:ret];
         return [self makeNode:resultElement context:[self executionContext]];
     }
 }
-
-//Override isEqual and hash Methods
-/*
-- (BOOL)isEqual:(id)anObject
-{
-    if( [anObject isKindOfClass:[TiDOMDocumentProxy class]] )
-    {
-        return NO;
-    }
-    else if( [anObject isKindOfClass:[TiDOMNodeProxy class]] )
-    {
-        return [node isEqual:[anObject node]];
-    }
-    else
-        return NO;
-}
-- (NSUInteger)hash
-{
-    if(node == nil)
-        return [super hash];
-    else
-        return [node hash];
-}
-*/
 
 
 MAKE_SYSTEM_PROP(ELEMENT_NODE,XML_ELEMENT_NODE);

@@ -110,6 +110,8 @@
         GDataXMLNode * attributeNode = [element attributeForName:localName];
         if (attributeNode != nil) 
         {
+            //Switch the flag here so that the node is freed only when the object is freed
+            [attributeNode setShouldFreeXMLNode:YES];
             result = [TiDOMNodeProxy nodeForXMLNode:[attributeNode XMLNode]];
             if(result == nil)
             {
@@ -130,9 +132,8 @@
         [element addAttribute:realNode];
         attributeNode = [element attributeForName:localName];
         [attProxy setNode:attributeNode];
+        [attProxy setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
         [TiDOMNodeProxy setNode:attProxy forXMLNode:[attributeNode XMLNode]];
-        //Call name property here so that it is set correctly
-        [attProxy name];
         if(result != nil)
             return result;
         else
@@ -168,6 +169,8 @@
         GDataXMLNode * attributeNode = [element attributeForLocalName:localName URI:[realNode URI]];
         if (attributeNode != nil) 
         {
+            //Switch the flag here so that the node is freed only when the object is freed
+            [attributeNode setShouldFreeXMLNode:YES];
             result = [TiDOMNodeProxy nodeForXMLNode:[attributeNode XMLNode]];
             if(result == nil)
             {
@@ -188,9 +191,8 @@
         [element addAttribute:realNode];
         attributeNode = [element attributeForLocalName:localName URI:[realNode URI]];
         [attProxy setNode:attributeNode];
+        [attProxy setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
         [TiDOMNodeProxy setNode:attProxy forXMLNode:[attributeNode XMLNode]];
-        //Call name property here so that it is set correctly
-        [attProxy name];
         if(result != nil)
             return result;
         else
@@ -206,6 +208,8 @@
 	GDataXMLNode * attributeNode = [element attributeForName:args];
     if(attributeNode != nil)
     {
+        //Switch the flag here so that the node is freed only when the object is freed
+        [attributeNode setShouldFreeXMLNode:YES];
         result = [TiDOMNodeProxy nodeForXMLNode:[attributeNode XMLNode]];
         if(result == nil)
         {
@@ -236,6 +240,8 @@
 	GDataXMLNode *attributeNode = [element attributeForLocalName:name URI:theURI];
     if(attributeNode != nil)
     {
+        //Switch the flag here so that the node is freed only when the object is freed
+        [attributeNode setShouldFreeXMLNode:YES];
         result = [TiDOMNodeProxy nodeForXMLNode:[attributeNode XMLNode]];
         if(result == nil)
         {

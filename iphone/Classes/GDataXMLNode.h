@@ -162,6 +162,7 @@ typedef NSUInteger GDataXMLNodeKind;
 + (id)nodeBorrowingXMLNode:(xmlNodePtr)theXMLNode;
 + (id)nodeConsumingXMLNode:(xmlNodePtr)theXMLNode;
 //ADDITIONS FOR DOM MODULE
+- (void)setShouldFreeXMLNode:(BOOL)flag;
 
 + (id)createNewDocFragment;
 + (id)commentWithStringValue:(NSString *)value;

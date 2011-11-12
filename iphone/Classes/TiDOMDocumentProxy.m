@@ -167,8 +167,8 @@
 {
     TiDOMDocFragProxy *result = [[[TiDOMDocFragProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
     GDataXMLNode* resultElement = [GDataXMLNode createNewDocFragment];
-    [result setDocument:nil];
-	[result setNode:resultElement];
+    [result setDocument:[self document]];
+    [result setNode:resultElement];
     [TiDOMNodeProxy setNode:result forXMLNode:[resultElement XMLNode]];
 	return result;
 }
@@ -299,7 +299,7 @@
         }
         TIDOMDocumentTypeProxy * proxy = [[[TIDOMDocumentTypeProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
         [proxy setDocument:[self document]];
-        [proxy setNode:[GDataXMLNode nodeConsumingXMLNode:(xmlNodePtr)resultPtr]];
+        [proxy setNode:[GDataXMLNode nodeBorrowingXMLNode:(xmlNodePtr)resultPtr]];
         [TiDOMNodeProxy setNode:proxy forXMLNode:(xmlNodePtr)resultPtr];
         return proxy;
     }
@@ -418,27 +418,6 @@
 	}
 	return [NSNull null];
 }
-
-//Override isEqual and hash Methods
-/*
-- (BOOL)isEqual:(id)anObject
-{
-    if( [anObject isKindOfClass:[TiDOMDocumentProxy class]] )
-    {
-        return [document isEqual:[anObject document]];
-    }
-    else
-        return NO;
-}
-
-- (NSUInteger)hash
-{
-    if(document == nil)
-        return [super hash];
-    else
-        return [document hash];
-}
-*/
 
 @end
 

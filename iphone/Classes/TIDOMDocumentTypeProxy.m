@@ -25,7 +25,7 @@
     return [NSNull null];
 }
 -(id)name{
-	if(node != nil)
+	if (node != nil)
 	{
 		return [node localName];
 	}
@@ -33,13 +33,13 @@
 }
 -(id)publicId
 {
-    if(node != nil)
+    if (node != nil)
     {
         xmlDtdPtr theRealNode = (xmlDtdPtr)[node XMLNode];
-        if(theRealNode->ExternalID != nil)
+        if (theRealNode->ExternalID != nil)
         {
             NSString* ret = [NSString stringWithUTF8String:(const char *)theRealNode->ExternalID];
-            if(ret == nil)
+            if (ret == nil)
                 return [NSNull null];
             else
                 return ret;
@@ -49,13 +49,13 @@
 }
 -(id)systemId
 {
-    if(node != nil)
+    if (node != nil)
     {
         xmlDtdPtr theRealNode = (xmlDtdPtr)[node XMLNode];
-        if(theRealNode->SystemID != nil)
+        if (theRealNode->SystemID != nil)
         {
             NSString* ret = [NSString stringWithUTF8String:(const char *)theRealNode->SystemID];
-            if(ret == nil)
+            if (ret == nil)
                 return [NSNull null];
             else
                 return ret;
@@ -65,7 +65,7 @@
 }
 -(id)internalSubset
 {
-    if(node != nil)
+    if (node != nil)
     {
         [node XMLString];
     }
