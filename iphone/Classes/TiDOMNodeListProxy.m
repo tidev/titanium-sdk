@@ -33,7 +33,8 @@
     
 	if (index < [nodes count])
 	{
-		id result = [TiDOMNodeProxy makeNode:[nodes objectAtIndex:index] context:[self executionContext]];
+		id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+		id result = [TiDOMNodeProxy makeNode:[nodes objectAtIndex:index] context:context];
 		[result setDocument:[self document]];
 		return result;
 	}

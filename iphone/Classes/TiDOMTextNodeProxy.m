@@ -30,7 +30,8 @@
     [node setStringValue:ourNewData];
    
     //Create new node with data from offset
-    TiDOMTextNodeProxy * result = [[[TiDOMTextNodeProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+    id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+    TiDOMTextNodeProxy * result = [[[TiDOMTextNodeProxy alloc] _initWithPageContext:context] autorelease];
 	GDataXMLNode * resultElement = [GDataXMLNode textWithStringValue:newNodeData];
 	//Now it is part of the tree so switch flag to ensur it gets freed when doc is released
 	[resultElement setShouldFreeXMLNode:NO];

@@ -46,7 +46,8 @@
 	NSArray *nodes = [node nodesForXPath:args error:&error];
 	if (error==nil)
 	{
-		TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+		id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+		TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:context] autorelease];
 		[proxy setNodes:nodes];
 		[proxy setDocument:[self document]];
 		return proxy;
@@ -68,7 +69,8 @@
 	NSArray *nodes = [element nodesForXPath:xpath error:&error];
 	if (error==nil)
 	{
-		TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+		id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+		TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:context] autorelease];
 		[proxy setNodes:nodes];
 		[proxy setDocument:[self document]];
 		return proxy;
@@ -96,7 +98,8 @@
     NSArray *nodes = [element nodesForXPath:xpath error:&error];
 	if (error==nil)
 	{
-		TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+		id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+		TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:context] autorelease];
 		[proxy setNodes:nodes];
 		[proxy setDocument:[self document]];
 		return proxy;
@@ -224,7 +227,8 @@
         return resultNode;
 
     NSString* nodeString = [attributeNode stringValue];
-    TiDOMAttrProxy * result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+    id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+    TiDOMAttrProxy * result = [[[TiDOMAttrProxy alloc] _initWithPageContext:context] autorelease];
 	[result setAttribute:[attributeNode name] value:nodeString owner:element];
     [result setNode:attributeNode];
 	[result setDocument:[self document]];
@@ -252,7 +256,8 @@
                 return resultNode;
 
             NSString* nodeString = [attributeNode stringValue];
-            TiDOMAttrProxy * result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+            id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+            TiDOMAttrProxy * result = [[[TiDOMAttrProxy alloc] _initWithPageContext:context] autorelease];
             [result setAttribute:[attributeNode name] value:nodeString owner:element];
             [result setNode:attributeNode];
             [result setDocument:[self document]];
@@ -298,7 +303,8 @@
             {
                 NSString* nodeString = [attributeNode stringValue];
                 //Need to return the old attribute node
-                result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+                id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+                result = [[[TiDOMAttrProxy alloc] _initWithPageContext:context] autorelease];
                 [result setAttribute:[attributeNode name] value:nodeString owner:element];
                 [result setNode:attributeNode];
                 [result setDocument:[self document]];
@@ -357,8 +363,9 @@
             if(result == nil)
             {
                 NSString* nodeString = [attributeNode stringValue];
+                id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
                 //Need to return the old attribute node
-                result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+                result = [[[TiDOMAttrProxy alloc] _initWithPageContext:context] autorelease];
                 [result setAttribute:[attributeNode name] value:nodeString owner:nil];
                 [result setNode:attributeNode];
                 [result setDocument:[self document]];
@@ -460,7 +467,8 @@
                 return newChild;
 			}
             GDataXMLNode* retVal = [GDataXMLNode nodeBorrowingXMLNode:returnNode];
-            return [TiDOMNodeProxy makeNode:retVal context:[self executionContext]];
+            id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+            return [TiDOMNodeProxy makeNode:retVal context:context];
         }
         return [NSNull null];
     }
@@ -501,7 +509,8 @@
             [[refChild node]setShouldFreeXMLNode:YES];
             [[self node]releaseCachedValues];
             GDataXMLNode* retVal = [GDataXMLNode nodeConsumingXMLNode:returnNode];
-            return [TiDOMNodeProxy makeNode:retVal context:[self executionContext]];
+            id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+            return [TiDOMNodeProxy makeNode:retVal context:context];
         }
         return [NSNull null];
     }

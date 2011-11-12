@@ -80,7 +80,8 @@
     {
 		return result;
 	}
-	TiDOMElementProxy *proxy = [[[TiDOMElementProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+	TiDOMElementProxy *proxy = [[[TiDOMElementProxy alloc] _initWithPageContext:context] autorelease];
 	[proxy setDocument:[self document]];
 	[proxy setElement:[GDataXMLNode nodeBorrowingXMLNode:parentNode]];
 	[TiDOMNodeProxy setNode:proxy forXMLNode:parentNode];

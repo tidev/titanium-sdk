@@ -37,7 +37,8 @@
         if(resultNode != nil)
             return resultNode;
 
-        TiDOMAttrProxy *proxy = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+        id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+        TiDOMAttrProxy *proxy = [[[TiDOMAttrProxy alloc] _initWithPageContext:context] autorelease];
         [proxy setAttribute:[node name] value:[node stringValue] owner:element];
         [proxy setNode:node];
         [proxy setDocument:[self document]];
@@ -72,8 +73,9 @@
         id resultNode = [TiDOMNodeProxy nodeForXMLNode:resultPtr];
         if(resultNode != nil)
             return resultNode;
+        id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
 
-        TiDOMAttrProxy *proxy = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+        TiDOMAttrProxy *proxy = [[[TiDOMAttrProxy alloc] _initWithPageContext:context] autorelease];
         [proxy setAttribute:[node name] value:[node stringValue] owner:element];
         [proxy setNode:node];
         [proxy setDocument:[self document]];
@@ -116,7 +118,8 @@
             if(result == nil)
             {
                 //Need to return the old attribute node
-                result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+                id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+                result = [[[TiDOMAttrProxy alloc] _initWithPageContext:context] autorelease];
                 [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
                 [result setNode:attributeNode];
                 [result setDocument:[self document]];
@@ -175,7 +178,8 @@
             if(result == nil)
             {
                 //Need to return the old attribute node
-                result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+                id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+                result = [[[TiDOMAttrProxy alloc] _initWithPageContext:context] autorelease];
                 [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
                 [result setNode:attributeNode];
                 [result setDocument:[self document]];
@@ -213,7 +217,8 @@
         result = [TiDOMNodeProxy nodeForXMLNode:[attributeNode XMLNode]];
         if(result == nil)
         {
-            result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+            id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+            result = [[[TiDOMAttrProxy alloc] _initWithPageContext:context] autorelease];
             [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
             [result setNode:attributeNode];
             [result setDocument:[self document]];
@@ -245,7 +250,8 @@
         result = [TiDOMNodeProxy nodeForXMLNode:[attributeNode XMLNode]];
         if(result == nil)
         {
-            result = [[[TiDOMAttrProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+            id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+            result = [[[TiDOMAttrProxy alloc] _initWithPageContext:context] autorelease];
             [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
             [result setNode:attributeNode];
             [result setDocument:[self document]];

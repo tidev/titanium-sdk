@@ -53,7 +53,8 @@
     
     GDataXMLNode* resultElement = [GDataXMLNode dtdWithQualifiedName:qualifiedName publicId:publicId sysId:systemId];
     
-    TIDOMDocumentTypeProxy * result = [[[TIDOMDocumentTypeProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+    id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+    TIDOMDocumentTypeProxy * result = [[[TIDOMDocumentTypeProxy alloc] _initWithPageContext:context] autorelease];
     [result setNode:resultElement];
     [result setDocument:nil];
     [TiDOMNodeProxy setNode:result forXMLNode:[resultElement XMLNode]];
@@ -126,7 +127,8 @@
 			[docTypeNode setShouldFreeXMLNode:NO];
 		}
 	}
-	TiDOMDocumentProxy * result = [[[TiDOMDocumentProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+	TiDOMDocumentProxy * result = [[[TiDOMDocumentProxy alloc] _initWithPageContext:context] autorelease];
 	[result setNode:[theDocument rootElement]];
 	[result setDocument:theDocument];
 	[TiDOMNodeProxy setNode:result forXMLNode:(xmlNodePtr)doc];

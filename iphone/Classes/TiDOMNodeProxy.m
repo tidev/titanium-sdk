@@ -213,18 +213,20 @@ CFHashCode	simpleHash(const void *value)
         return [NSNull null];
     
     GDataXMLNode* sibling = [GDataXMLNode nodeBorrowingXMLNode:p];
-	return [self makeNode:sibling context:[self executionContext]];
+	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+	return [self makeNode:sibling context:context];
 }
 
 -(id)childNodes
 {
     [node releaseCachedValues];
 	NSMutableArray *children = [NSMutableArray array];
+	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
 	for (GDataXMLNode* child in [node children])
 	{
-		[children addObject:[self makeNode:child context:[self executionContext]]];
+		[children addObject:[self makeNode:child context:context]];
 	}
-	TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+	TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:context] autorelease];
 	[proxy setDocument:[self document]];
 	[proxy setNodes:children];
 	return proxy;
@@ -236,7 +238,8 @@ CFHashCode	simpleHash(const void *value)
 	int count = [node childCount];
 	if (count == 0) return [NSNull null];
 	id child = [node childAtIndex:0];
-	return [self makeNode:child context:[self executionContext]];
+	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+	return [self makeNode:child context:context];
 }
 
 -(id)lastChild
@@ -245,7 +248,8 @@ CFHashCode	simpleHash(const void *value)
 	int count = [node childCount];
 	if (count == 0) return [NSNull null];
 	id child = [node childAtIndex:count-1];
-	return [self makeNode:child context:[self executionContext]];
+	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+	return [self makeNode:child context:context];
 }
 
 -(id)previousSibling
@@ -255,8 +259,9 @@ CFHashCode	simpleHash(const void *value)
 	{
 		return [NSNull null];
 	}
-    GDataXMLNode* sibling = [GDataXMLNode nodeBorrowingXMLNode:p];
-    return [self makeNode:sibling context:[self executionContext]];
+	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+	GDataXMLNode* sibling = [GDataXMLNode nodeBorrowingXMLNode:p];
+	return [self makeNode:sibling context:context];
 }
 
 -(id)nextSibling
@@ -266,9 +271,9 @@ CFHashCode	simpleHash(const void *value)
 	{
 		return [NSNull null];
 	}
-    GDataXMLNode* sibling = [GDataXMLNode nodeBorrowingXMLNode:p];
-    return [self makeNode:sibling context:[self executionContext]];
-	
+	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+	GDataXMLNode* sibling = [GDataXMLNode nodeBorrowingXMLNode:p];
+	return [self makeNode:sibling context:context];
 }
 
 -(id)attributes
@@ -276,7 +281,8 @@ CFHashCode	simpleHash(const void *value)
     xmlElementType realType = [node XMLNode]->type;
     if (realType == XML_ELEMENT_NODE)
     {
-        TiDOMNamedNodeMapProxy *proxy = [[[TiDOMNamedNodeMapProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+        id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+        TiDOMNamedNodeMapProxy *proxy = [[[TiDOMNamedNodeMapProxy alloc] _initWithPageContext:context] autorelease];
         [proxy setDocument:[self document]];
         [proxy setElement:(GDataXMLElement*)node];
         return proxy;
@@ -294,7 +300,8 @@ CFHashCode	simpleHash(const void *value)
     TiDOMDocumentProxy *proxy = [TiDOMNodeProxy nodeForXMLNode:(xmlNodePtr)p];
     if (proxy == nil)
     {
-        proxy = [[[TiDOMDocumentProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+        id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+        proxy = [[[TiDOMDocumentProxy alloc] _initWithPageContext:context] autorelease];
         [proxy setDocument:[self document]];
         [proxy setNode:[[self document]rootElement]];
         [TiDOMNodeProxy setNode:proxy forXMLNode:(xmlNodePtr)p];
@@ -440,7 +447,8 @@ CFHashCode	simpleHash(const void *value)
     else
     {
         GDataXMLNode *resultElement = [GDataXMLNode nodeBorrowingXMLNode:ret];
-        return [self makeNode:resultElement context:[self executionContext]];
+        id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+        return [self makeNode:resultElement context:context];
     }
 }
 
