@@ -247,6 +247,7 @@ exports.bootstrapWindow = function(Titanium) {
 			this.loadUrl();
 		}
 
+		this.setWindowView(this.view);
 		this.currentState = this.stateOpened;
 		this.fireEvent("open");
 	}
@@ -327,6 +328,11 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 
 		kroll.log(TAG, "Loading window with URL: " + this.url);
+		
+		// Reset creationUrl of the window based on this._sourceUrl and this.url
+		var currentUrl = url.resolve(this._sourceUrl, this.url);
+		this.window.setCreationUrl(currentUrl.href);
+		
 		Titanium.include(this.url, this._sourceUrl, {
 			currentWindow: this,
 			currentActivity: this.window.activity,
