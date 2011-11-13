@@ -154,30 +154,30 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 			_contentContainer.style.left = _initialPosition + "px";
 			
 			// Set the start time
-			var _time = 0;
+			var _startTime = (new Date()).getTime();
 			var _duration = 300 + 0.2 * _w; // Calculate a weighted duration so that larger views take longer to scroll.
 			var _distance = (_viewsToScroll.length - 1) * _w;
 			var _interval = setInterval(function(){
 				
 				// Calculate the new position
-				_time += 10;
-				var _currentTime = _time / (_duration / 2);
+				var _currentTime = ((new Date()).getTime() - _startTime)
+				var _normalizedTime = _currentTime / (_duration / 2);
 				var _newPosition;
-				if (_currentTime < 1) {
-					_newPosition = _distance / 2 * _currentTime * _currentTime;
+				if (_normalizedTime < 1) {
+					_newPosition = _distance / 2 * _normalizedTime * _normalizedTime;
 				} else {
-					_currentTime--;
-					_newPosition = -_distance / 2 * (_currentTime * (_currentTime - 2) - 1);
+					_normalizedTime--;
+					_newPosition = -_distance / 2 * (_normalizedTime * (_normalizedTime - 2) - 1);
 				}
 				
 				// Update the position of the div
 				_contentContainer.style.left = _scrollingDirection * Math.round(_newPosition) + _initialPosition + "px";
 				
 				// Check if the transition is finished.
-				if (_time >= _duration) {
+				if (_currentTime >= _duration) {
 					clearInterval(_interval);
 		    	}
-			},10);
+			},32); // Update around 32 FPS.
 		}
 		_currentPage = viewIndex;
 	};
