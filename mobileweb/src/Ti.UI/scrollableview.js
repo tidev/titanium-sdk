@@ -98,7 +98,7 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 	this._scrollToViewPosition = function(viewIndex){
 		
 		// Sanity check
-		if (viewIndex < 0 || viewIndex >= _viewList.length) {
+		if (viewIndex < 0 || viewIndex >= _viewList.length || viewIndex == _currentIndex) {
 			return;
 		}
 		
@@ -108,14 +108,80 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 		}
 		
 		// If the scrollableView hasn't been laid out yet, we can't do much since the scroll distance is unknown.
-		// At the same time, it doesn't matter since the user won't see it anyways.
+		// At the same time, it doesn't matter since the user won't see it anyways. So we just append the new
+		// element and don't show the transition animation.
 		if (obj.dom.offsetWidth == 0) {
-			obj.dom.appendChild(_viewList[viewIndex].dom);
-		} else {
 			var _contentContainer = document.createElement('div');
 			_contentContainer.style.position = "absolute";
+			_contentContainer.style.width = "100%";
+			_contentContainer.style.height = "100%";
 			_contentContainer.appendChild(_viewList[viewIndex].dom);
 			obj.dom.appendChild(_contentContainer);
+		} else {
+			
+			// Calculate the views to be scrolled
+			var _w = obj.dom.offsetWidth
+			var _viewsToScroll = []
+			var _scrollingDirection = -1;
+			var _initialPosition = 0
+			if (viewIndex > _currentIndex) {
+				for (var i = _currentIndex; i <= viewIndex; i++) {
+					_viewsToScroll.push(_viewList[i].dom);
+				}
+			} else {
+				for (var i = viewIndex; i <= _currentIndex; i++) {
+					_viewsToScroll.push(_viewList[i].dom);
+				}
+				_initialPosition = -(_viewsToScroll.length - 1) * _w;
+				_scrollingDirection = 1;
+			}
+			
+			// Create the animation div
+			var _contentContainer = document.createElement('div');
+			_contentContainer.style.position = "absolute";
+			_contentContainer.style.width = _viewsToScroll.length * _w;
+			_contentContainer.style.height = obj.dom.offsetHeight;
+			obj.dom.appendChild(_contentContainer);
+			
+			// Attach the child views, each contained in their own div so we can mess with positioning w/o touching the views
+			for (var i = 0; i < _viewsToScroll.length; i++) {
+				var _viewDiv = document.createElement('div');
+				_viewDiv.style.position = 'absolute';
+				_viewDiv.style.width = _w + "px";
+				_viewDiv.appendChild(_viewsToScroll[i]);
+				_contentContainer.appendChild(_viewDiv);
+				_viewDiv.style.left = i * _w + "px";
+			}
+			
+			// Attach the div to the scrollableView
+			obj.dom.appendChild(_contentContainer);
+			_contentContainer.style.left = _initialPosition + "px";
+			
+			// Set the start time
+			var _time = 0;
+			var _duration = 300 + 0.2 * _w; // We want larger scrollable views to take longer to scroll
+			var _distance = (_viewsToScroll.length - 1) * _w;
+			var _interval = setInterval(function(){
+				
+				// Calculate the new position
+				_time += 10;
+				var _currentTime = _time / (_duration / 2);
+				var _newPosition;
+				if (_currentTime < 1) {
+					_newPosition = _distance / 2 * _currentTime * _currentTime;
+				} else {
+					_currentTime--;
+					_newPosition = -_distance / 2 * (_currentTime * (_currentTime - 2) - 1);
+				}
+				
+				// Update the position of the div
+				_contentContainer.style.left = _scrollingDirection * Math.round(_newPosition) + _initialPosition + "px";
+				
+				// Check if the transition is finished.
+				if (_time >= _duration) {
+					clearInterval(_interval);
+		    	}
+			},10);
 		}
 		_currentIndex = viewIndex;
 	};
