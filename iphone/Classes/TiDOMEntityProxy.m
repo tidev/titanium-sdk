@@ -17,15 +17,15 @@
 
 -(id)notationName{
     //TODO
-    return nil;
+    return [NSNull null];
 }
 -(id)publicId{
     //TODO
-    return nil;
+    return [NSNull null];
 }
 -(id)systemId{
     //TODO
-    return nil;
+    return [NSNull null];
 }
 @end
 #endif
