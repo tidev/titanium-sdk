@@ -17,6 +17,8 @@
 @property(nonatomic,assign) id<TiOrientationController> parentOrientationController;
 -(UINavigationController*)controller;
 
+-(void)close:(NSArray*)args;
+
 @end
 
 #endif

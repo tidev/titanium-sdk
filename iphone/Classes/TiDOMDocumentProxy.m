@@ -74,7 +74,7 @@
 	{
 		[self throwException:[error description] subreason:nil location:CODELOCATION];
 	}
-	return nil;
+	return [NSNull null];
 }
 
 -(id)getElementById:(id)args

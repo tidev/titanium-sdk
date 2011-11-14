@@ -165,5 +165,21 @@ describe("Kroll tests",
 		valueOf(results['xyz']).shouldBe('title');
 		valueOf(results['foo.jpg']).shouldBe('backgroundImage');
 		valueOf(results['sup']).shouldBe('custom');
+	},
+	
+	//TIMOB-5240
+	optionalParam: function() {
+		function getList(name, value) {
+			return Titanium.App.Properties.getList(name, value);
+		}
+		valueOf(function() {
+			getList("key", "value");
+		}).shouldNotThrowException();
+		valueOf(function() {
+			getList("key");
+		}).shouldNotThrowException();
+		//TIMOB-5276
+		valueOf(getList("key")).shouldBeNull();
+		
 	}
 });
