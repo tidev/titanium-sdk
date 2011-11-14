@@ -114,7 +114,8 @@
         {
             //Switch the flag here so that the node is freed only when the object is freed
             [attributeNode setShouldFreeXMLNode:YES];
-            result = [TiDOMNodeProxy nodeForXMLNode:[attributeNode XMLNode]];
+            xmlNodePtr oldNodePtr = [attributeNode XMLNode];
+            result = [TiDOMNodeProxy nodeForXMLNode:oldNodePtr];
             if(result == nil)
             {
                 //Need to return the old attribute node
@@ -127,6 +128,8 @@
             }
             else
             {
+                [TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
+                [TiDOMNodeProxy setNode:result forXMLNode:[attributeNode XMLNode]];
                 [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
                 [result setNode:attributeNode];
                 [result setDocument:[self document]];
@@ -180,7 +183,8 @@
         {
             //Switch the flag here so that the node is freed only when the object is freed
             [attributeNode setShouldFreeXMLNode:YES];
-            result = [TiDOMNodeProxy nodeForXMLNode:[attributeNode XMLNode]];
+            xmlNodePtr oldNodePtr = [attributeNode XMLNode];
+            result = [TiDOMNodeProxy nodeForXMLNode:oldNodePtr];
             if(result == nil)
             {
                 //Need to return the old attribute node
@@ -193,6 +197,8 @@
             }
             else
             {
+                [TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
+                [TiDOMNodeProxy setNode:result forXMLNode:[attributeNode XMLNode]];
                 [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
                 [result setNode:attributeNode];
                 [result setDocument:[self document]];

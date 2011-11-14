@@ -27,12 +27,11 @@
 
 -(void)dealloc
 {
-    if( (document != nil) && ([document docNode] != NULL ) )
-    {
-        [TiDOMNodeProxy removeNodeForXMLNode:(xmlNodePtr)[document docNode]];
-    }
-    RELEASE_TO_NIL(document);
-    RELEASE_TO_NIL(node);
+	if ( [document docNode] != NULL )
+	{
+		//Ensure that docNode is removed from nodeRegistry
+		[TiDOMNodeProxy removeNodeForXMLNode:(xmlNodePtr)[document docNode]];
+	}
 	[super dealloc];
 }
 

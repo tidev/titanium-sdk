@@ -17,6 +17,12 @@
 #import "TiUtils.h"
 #include <libkern/OSAtomic.h>
 
+/*
+ * The nodeRegistry is used to map xmlNodePtr objects to TiDOMNodeProxies
+ * Ensures that there is only one active proxy for a give xmlNodePtr.
+ * Values are inserted when the proxies are created
+ * Values are removed when the proxies are freed
+ */
 static CFMutableDictionaryRef nodeRegistry = NULL;
 OSSpinLock nodeRegistryLock = OS_SPINLOCK_INIT;
 
@@ -27,7 +33,7 @@ OSSpinLock nodeRegistryLock = OS_SPINLOCK_INIT;
 
 -(void)dealloc
 {
-    if( (node != nil) && ([node XMLNode] != NULL) )
+    if ( [node XMLNode] != NULL)
     {
         [TiDOMNodeProxy removeNodeForXMLNode:[node XMLNode]];
     }
