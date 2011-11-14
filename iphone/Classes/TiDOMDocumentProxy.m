@@ -27,9 +27,9 @@
 
 -(void)dealloc
 {
-    if( (document != nil) && ([document getDocNode] != NULL ) )
+    if( (document != nil) && ([document docNode] != NULL ) )
     {
-        [TiDOMNodeProxy removeNodeForXMLNode:(xmlNodePtr)[document getDocNode]];
+        [TiDOMNodeProxy removeNodeForXMLNode:(xmlNodePtr)[document docNode]];
     }
     RELEASE_TO_NIL(document);
     RELEASE_TO_NIL(node);
@@ -56,7 +56,7 @@
 	}
     [self setNode:[ourDocument rootElement]];
 	[self setDocument:ourDocument];
-    xmlDocPtr docPtr = [ourDocument getDocNode];
+    xmlDocPtr docPtr = [ourDocument docNode];
     [TiDOMNodeProxy setNode:self forXMLNode:(xmlNodePtr)docPtr];
 	[ourDocument release];
 }
@@ -299,7 +299,7 @@
 
 -(id)doctype
 {
-    xmlDtdPtr resultPtr = [[self document]getIntDTD];
+    xmlDtdPtr resultPtr = [[self document]intDTD];
     
     if(resultPtr != nil)
     {

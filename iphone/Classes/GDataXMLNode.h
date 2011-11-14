@@ -227,8 +227,8 @@ typedef NSUInteger GDataXMLNodeKind;
 //ADDITIONS FOR DOM MODULE
 - (id) importNode:(GDataXMLNode*)theNode recursive:(BOOL)deep;
 - (id) entityRefForName:(NSString*)theName;
-- (xmlDtdPtr) getIntDTD;
-- (xmlDocPtr) getDocNode;
+- (xmlDtdPtr) intDTD;
+- (xmlDocPtr) docNode;
 @end
 
 #endif

@@ -260,7 +260,7 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
 + (id)processingInstructionWithTarget:(NSString *)theName andData:(NSString*)content
 {
     xmlNodePtr theNewPI = xmlNewPI(GDataGetXMLString(theName), GDataGetXMLString(content));
-    if(theNewPI){
+    if (theNewPI){
         return [self nodeConsumingXMLNode:theNewPI];
     }
     return nil;
@@ -269,7 +269,7 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
 + (id)dtdWithQualifiedName:(NSString*)qName publicId:(NSString*)pubId sysId:(NSString*)sysId
 {
     xmlDtdPtr theNewDTD = xmlNewDtd(nil, GDataGetXMLString(qName), GDataGetXMLString(pubId), GDataGetXMLString(sysId));
-    if(theNewDTD)
+    if (theNewDTD)
     {
         return [self nodeConsumingXMLNode:(xmlNodePtr)theNewDTD];
     }
@@ -1095,7 +1095,7 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
 		if (![child shouldFreeXMLNode]) {
 			xmlFreeNode(node);
 		}
-    }
+	}
 }
 
 - (NSArray *)elementsForName:(NSString *)name {
@@ -1846,7 +1846,7 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
         }
     }
     
-    if(ret != NULL)
+    if (ret != NULL)
     {
         return [GDataXMLNode nodeBorrowingXMLNode:ret];
     }
@@ -1855,7 +1855,7 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
 
 - (id) entityRefForName:(NSString*)theName
 {
-    if(xmlDoc_ != NULL)
+    if (xmlDoc_ != NULL)
     {
         xmlNodePtr theRef = xmlNewReference(xmlDoc_, GDataGetXMLString(theName));
         if (theRef != NULL)
@@ -1866,12 +1866,12 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
     return nil;
 }
 
--(xmlDtdPtr) getIntDTD
+-(xmlDtdPtr) intDTD
 {
     return xmlGetIntSubset(xmlDoc_);
 }
 
-- (xmlDocPtr) getDocNode
+- (xmlDocPtr) docNode
 {
     return xmlDoc_;
 }
