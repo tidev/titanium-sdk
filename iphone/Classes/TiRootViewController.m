@@ -390,16 +390,9 @@
     }
 
 	UIView * ourView = [self view];
-	CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
-	[ourView setCenter:CGPointMake(viewFrame.origin.x + viewFrame.size.width/2.0, viewFrame.origin.y + viewFrame.size.height/2.0)];
-	if (UIInterfaceOrientationIsLandscape(newOrientation)) {
-		viewFrame.size = CGSizeMake(viewFrame.size.height, viewFrame.size.width);
-	}
     [ourView setTransform:transform];
-	viewFrame.origin=CGPointZero;
-	[ourView setBounds:viewFrame];
 	[self resizeView];
-
+	
 	[self willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
 
     //Propigate this to everyone else. This has to be done INSIDE the animation.
