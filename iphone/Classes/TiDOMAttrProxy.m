@@ -72,12 +72,12 @@
 -(id)ownerElement
 {
     xmlNodePtr parentNode = [node XMLNode]->parent;
-    if(parentNode == nil)
+    if (parentNode == NULL)
         return [NSNull null];
 	
 	id result = [TiDOMNodeProxy nodeForXMLNode:parentNode];
 	if (result != nil) 
-    {
+	{
 		return result;
 	}
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
