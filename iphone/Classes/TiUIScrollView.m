@@ -125,8 +125,12 @@
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)visibleBounds
 {
-	//Treat this as a size change
-	[(TiViewProxy *)[self proxy] willChangeSize];
+    //Treat this as a size change
+    if (!CGRectIsEmpty(visibleBounds))
+    {
+        [self setNeedsHandleContentSizeIfAutosizing];
+    }
+    [super frameSizeChanged:frame bounds:visibleBounds];
 }
 
 -(void)setContentWidth_:(id)value
