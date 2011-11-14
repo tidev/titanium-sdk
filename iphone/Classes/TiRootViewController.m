@@ -54,7 +54,7 @@
 @synthesize backgroundColor, backgroundImage, defaultImageView, keyboardVisible;
 @synthesize windowOrientation;
 
-#pragma Default image handling
+#pragma mark Default image handling
 
 - (UIImage*)defaultImageForOrientation:(UIDeviceOrientation) orientation resultingOrientation:(UIDeviceOrientation *)imageOrientation idiom:(UIUserInterfaceIdiom*) imageIdiom
 {	
@@ -252,7 +252,7 @@
 	return self;
 }
 
-#pragma UIViewController methods
+#pragma mark UIViewController methods
 
 -(void)loadView
 {
@@ -408,7 +408,7 @@
 
 -(NSTimeInterval)suggestedRotationDuration
 {
-	if(([self focusedViewController]==nil)) // || ([[self view] window]==nil))
+	if(([self focusedViewController]==nil))
 	{
 		return 0.0;
 	}
@@ -505,9 +505,10 @@
 
 -(void)refreshOrientationWithDuration:(NSTimeInterval) duration
 {	/*
-	 *	It turns out that, despite Apple giving us this wonderful method, it still
-	 *	does not solve our woes, only minimally reduces the times where we need to
-	 *	implement it ourselves.
+	 *	Apple gives us a wonderful method, attemptRotation... in iOS 5 below
+	 *	but sadly, it only updates the orientation if the UI can change that
+	 *	way. So we give it a shot, and if that's not enough, consult the
+	 *	rotation history and manually force the rotation.
 	 */
 	TiOrientationFlags oldFlags = allowedOrientations;
 	allowedOrientations = [self orientationFlags];	
@@ -515,13 +516,6 @@
 	if ([self respondsToSelector:@selector(presentingViewController)]) {
 		[UIViewController attemptRotationToDeviceOrientation];
 	}
-	/*
-	 *	In this case, iOS's attemptRotationToDeviceOrientaiton only tries rotating
-	 *	the the device's current rotation, and in the case where the current rotation
-	 *	is not desired, does nothing. Instead, we have to maintain and consult a
-	 *	rotation history.
-	 */
-	
 	UIInterfaceOrientation newOrientation = [self lastValidOrientation];	
 	if ((newOrientation == windowOrientation) &&
 		(oldFlags == allowedOrientations))
@@ -530,9 +524,7 @@
 		return;
 	}
 	
-	//By now, we should check to see if we actually should rotate into position
 	[self manuallyRotateToOrientation:newOrientation duration:duration];
-	//If so, we force a rotation.
 }
 
 
