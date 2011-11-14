@@ -452,9 +452,14 @@ fails, a JS exception is returned.
 	} else {
 	</#if>
 <#t>
+	<#local current_arg = "arg_" + index>
 	<#if info.jsType == "Value">
 		<#local type = "Local<Value>">
 		<#local valueExpr = expr>
+	<#elseif info.jsType == "Number">
+		<#local type = "Local<Number>">
+		<#local valueExpr = expr + "->ToNumber()">
+		<#local postAssignmentCheck = "V8Util::isNaN(" + current_arg + ")">
 	<#elseif info?keys?seq_contains("jsHandleCast")>
 		<#local type = "Local<" + info.jsType + ">">
 		<#local valueExpr = "Local<" + info.jsType + ">::Cast(" + expr + ")">
@@ -463,7 +468,17 @@ fails, a JS exception is returned.
 		<#local valueExpr = expr + "->To" + info.jsType + "()">
 	</#if>
 <#t>
-	${type} arg_${index} = ${valueExpr};
+	${type} ${current_arg} = ${valueExpr};
+	
+	<#if info.jsType == "Number">
+		if(${postAssignmentCheck}) {
+			const char *error = "Invalid value, expected type ${info.jsType}.";
+			LOGE(TAG, error);
+			<#if !(logOnly!false)>
+			return JSException::Error(error);
+			</#if>
+		}
+	</#if>
 <#t>
 	jArguments[${index}].${info.jvalue} =
 		TypeConverter::${info.jsToJavaConverter}(arg_${index}<#if checkNew>, &isNew_${index}</#if>);
