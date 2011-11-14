@@ -178,10 +178,19 @@
     
 	if (theURI != nil && name != nil && val != nil)
 	{
-        GDataXMLNode * attributeNode = [element attributeForLocalName:[GDataXMLNode localNameForName:name] URI:theURI];
-        if(attributeNode != nil)
-            [element removeChild:attributeNode];
-        [element addAttribute: [GDataXMLNode attributeWithName:name URI:theURI stringValue:val]];
+		GDataXMLNode * attributeNode = [element attributeForLocalName:[GDataXMLNode localNameForName:name] URI:theURI];
+		if(attributeNode != nil)
+		{
+			//Retain it here so that the node does not get freed when cached values are released
+			[attributeNode retain];
+			//Switch the flag here so that the node is freed only when the object is freed
+			[attributeNode setShouldFreeXMLNode:YES];
+			[element removeChild:attributeNode];
+			//Release now and this will free the underlying memory
+			[attributeNode release];
+			
+		}
+		[element addAttribute: [GDataXMLNode attributeWithName:name URI:theURI stringValue:val]];
 	}
 }
 
@@ -191,8 +200,16 @@
 	ENSURE_SINGLE_ARG(args, NSString);
 	
 	GDataXMLNode * attributeNode = [element attributeForName:args];
-    if(attributeNode != nil)
-        [element removeChild:attributeNode];
+	if (attributeNode != nil)
+	{
+		//Retain it here so that the node does not get freed when cached values are released
+		[attributeNode retain];
+		//Switch the flag here so that the node is freed only when the object is freed
+		[attributeNode setShouldFreeXMLNode:YES];
+		[element removeChild:attributeNode];
+		//Release now and this will free the underlying memory
+		[attributeNode release];
+	}
 }
 
 -(void)removeAttributeNS:(id)args
@@ -204,12 +221,21 @@
     
 	NSString *name = [args objectAtIndex:1];
 	ENSURE_STRING_OR_NIL(name);
-    if(theURI != nil && name != nil)
-    {
-        GDataXMLNode * attributeNode = [element attributeForLocalName:name URI:theURI];
-        if(attributeNode != nil)
-            [element removeChild:attributeNode];
-    }
+    
+	if(theURI != nil && name != nil)
+	{
+		GDataXMLNode * attributeNode = [element attributeForLocalName:name URI:theURI];
+		if (attributeNode != nil)
+		{
+			//Retain it here so that the node does not get freed when cached values are released
+			[attributeNode retain];
+			//Switch the flag here so that the node is freed only when the object is freed
+			[attributeNode setShouldFreeXMLNode:YES];
+			[element removeChild:attributeNode];
+			//Release now and this will free the underlying memory
+			[attributeNode release];
+		}
+	}
 }
 
 
@@ -310,6 +336,12 @@
                 [result setDocument:[self document]];
                 [TiDOMNodeProxy setNode:result forXMLNode:[attributeNode XMLNode]];
             }
+            else
+            {
+                [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
+                [result setNode:attributeNode];
+                [result setDocument:[self document]];
+            }
             [element removeChild:attributeNode];
         }
         xmlNodePtr oldNodePtr = [[attProxy node]XMLNode];
@@ -370,6 +402,12 @@
                 [result setNode:attributeNode];
                 [result setDocument:[self document]];
                 [TiDOMNodeProxy setNode:result forXMLNode:[attributeNode XMLNode]];
+            }
+            else
+            {
+                [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
+                [result setNode:attributeNode];
+                [result setDocument:[self document]];
             }
             [element removeChild:attributeNode];
         }
@@ -534,6 +572,8 @@
     }
     if(actualRefChildNode != nil)
     {
+        [actualRefChildNode setShouldFreeXMLNode:YES];
+        [oldChild setNode:actualRefChildNode];
         [element removeChild:actualRefChildNode];
         return oldChild;
     }

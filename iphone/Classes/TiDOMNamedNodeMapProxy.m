@@ -125,6 +125,12 @@
                 [result setDocument:[self document]];
                 [TiDOMNodeProxy setNode:result forXMLNode:[attributeNode XMLNode]];
             }
+            else
+            {
+                [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
+                [result setNode:attributeNode];
+                [result setDocument:[self document]];
+            }
             [element removeChild:attributeNode];
         }
         xmlNodePtr oldNodePtr = [[attProxy node]XMLNode];
@@ -185,6 +191,12 @@
                 [result setDocument:[self document]];
                 [TiDOMNodeProxy setNode:result forXMLNode:[attributeNode XMLNode]];
             }
+            else
+            {
+                [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
+                [result setNode:attributeNode];
+                [result setDocument:[self document]];
+            }
             [element removeChild:attributeNode];
         }
         xmlNodePtr oldNodePtr = [[attProxy node]XMLNode];
@@ -224,6 +236,12 @@
             [result setDocument:[self document]];
             [TiDOMNodeProxy setNode:result forXMLNode:[attributeNode XMLNode]];
         }
+        else
+        {
+            [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
+            [result setNode:attributeNode];
+            [result setDocument:[self document]];
+        }
         [element removeChild:attributeNode];
         return result;
     }
@@ -256,6 +274,12 @@
             [result setNode:attributeNode];
             [result setDocument:[self document]];
             [TiDOMNodeProxy setNode:result forXMLNode:[attributeNode XMLNode]];
+        }
+        else
+        {
+            [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
+            [result setNode:attributeNode];
+            [result setDocument:[self document]];
         }
         [element removeChild:attributeNode];
         return result;
