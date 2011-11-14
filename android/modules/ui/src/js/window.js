@@ -21,7 +21,7 @@ exports.bootstrapWindow = function(Titanium) {
 	var TiWindow = Titanium.TiWindow;
 
 	// set constants for representing states for the window
-	Window.prototype.state = {"closed": 0, "opening": 1, "opened": 2, "closing": 3};
+	Window.prototype.state = {closed: 0, opening: 1, opened: 2, closing: 3};
 
 
 	// this is mainly used when we need to perform an operation on an activity and our
@@ -130,11 +130,11 @@ exports.bootstrapWindow = function(Titanium) {
 
 	Window.prototype.open = function(options) {
 		// if the window is not closed, do not open
-		if (this.currentState != this.state["closed"]) {
+		if (this.currentState != this.state.closed) {
 			kroll.log(TAG, "unable to open, window is not closed");
 			return;
 		}
-		this.currentState = this.state["opening"];
+		this.currentState = this.state.opening;
 
 		if (!options) {
 			options = {};
@@ -189,7 +189,7 @@ exports.bootstrapWindow = function(Titanium) {
 	}
 
 	Window.prototype.setWindow = function(existingWindow) {
-		this.currentState = this.state["opening"];
+		this.currentState = this.state.opening;
 
 		// Set any cached properties on the properties given to the "true" view
 		if (this.propertyCache) {
@@ -213,7 +213,7 @@ exports.bootstrapWindow = function(Titanium) {
 			this.loadUrl();
 		}
 
-		this.currentState = this.state["opened"];
+		this.currentState = this.state.opened;
 		this.fireEvent("open");
 	}
 
@@ -233,11 +233,11 @@ exports.bootstrapWindow = function(Titanium) {
 
 	Window.prototype.close = function(options) {
 		// if the window is not opened, do not close
-		if (this.currentState != this.state["opened"]) {
+		if (this.currentState != this.state.opened) {
 			kroll.log(TAG, "unable to close, window is not opened");
 			return;
 		}
-		this.currentState = this.state["closing"];
+		this.currentState = this.state.closing;
 
 		if (this.isActivity) {
 			var self = this;
@@ -246,7 +246,7 @@ exports.bootstrapWindow = function(Titanium) {
 			});
 
 			this.window.close(options);
-			this.currentState = this.state["closed"];
+			this.currentState = this.state.closed;
 
 		} else {
 			if (this.view.parent != null) {
@@ -258,7 +258,7 @@ exports.bootstrapWindow = function(Titanium) {
 				this.window = null;
 			}
 
-			this.currentState = this.state["closed"];
+			this.currentState = this.state.closed;
 			this.fireEvent("close");
 		}
 	}
@@ -366,7 +366,7 @@ exports.bootstrapWindow = function(Titanium) {
 		var window = new Window(options);
 
 		// keeps track of the current window state
-		window.currentState = window.state["closed"];
+		window.currentState = window.state.closed;
 
 		window._sourceUrl = scopeVars.sourceUrl;
 		window._currentActivity = scopeVars.currentActivity; // don't think we are using this, remove?
