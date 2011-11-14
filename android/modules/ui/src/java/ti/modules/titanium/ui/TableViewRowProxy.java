@@ -164,7 +164,7 @@ public class TableViewRowProxy extends TiViewProxy
 			// inject row click data for events coming from row children
 			TableViewProxy table = getTable();
 			Item item = tableViewItem.getRowData();
-			if (table != null && item != null) {
+			if (table != null && item != null && data instanceof KrollDict) {
 				fillClickEvent((KrollDict) data, table.getTableView().getModel(), item);
 			}
 		}
