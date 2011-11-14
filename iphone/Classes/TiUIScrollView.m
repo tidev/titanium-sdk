@@ -52,7 +52,7 @@
 {
 	if (TiDimensionIsAuto(contentWidth) || TiDimensionIsAuto(contentHeight))
 	{
-		[self setNeedsHandleContentSize];
+		[self performSelector:@selector(setNeedsHandleContentSize) withObject:nil afterDelay:.1];
 	}
 }
 
@@ -139,13 +139,13 @@
 -(void)setContentWidth_:(id)value
 {
 	contentWidth = [TiUtils dimensionValue:value];
-	[self setNeedsHandleContentSize];
+	[self performSelector:@selector(setNeedsHandleContentSize) withObject:nil afterDelay:.1];
 }
 
 -(void)setContentHeight_:(id)value
 {
 	contentHeight = [TiUtils dimensionValue:value];
-	[self setNeedsHandleContentSize];
+	[self performSelector:@selector(setNeedsHandleContentSize) withObject:nil afterDelay:.1];
 }
 
 -(void)setShowHorizontalScrollIndicator_:(id)value
