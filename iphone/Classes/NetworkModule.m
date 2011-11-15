@@ -240,12 +240,12 @@ MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_NEWSSTAND, 4)
 	{
 		[result addObject:NUMINT(3)];
 	}
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
-  if ((types & UIRemoteNotificationTypeNewsstandContentAvailability)!=0)
-  {
-    [result addObject:NUMINT(4)];
-  }
-#endif
+	#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
+	if ((types & UIRemoteNotificationTypeNewsstandContentAvailability)!=0)
+	{
+		[result addObject:NUMINT(4)];
+	}
+	#endif
 	return result;
 }
 
