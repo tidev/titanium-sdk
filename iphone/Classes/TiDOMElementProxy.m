@@ -491,7 +491,7 @@
     
     for(GDataXMLNode* childNode in children)
     {
-        if([childNode isEqual:refChildNode])
+        if ([childNode XMLNode] == [refChildNode XMLNode])
         {
             actualRefChildNode = childNode;
             break;
@@ -538,7 +538,7 @@
     
     for(GDataXMLNode* childNode in children)
     {
-        if([childNode isEqual:refChildNode])
+        if ([childNode XMLNode] == [refChildNode XMLNode])
         {
             actualRefChildNode = childNode;
             break;
@@ -550,8 +550,12 @@
         if(returnNode != nil)
         {
             //No longer part of tree. Set to free node ptr on object dealloc
-            [[refChild node]setShouldFreeXMLNode:YES];
             [[self node]releaseCachedValues];
+            if (returnNode == [[refChild node] XMLNode])
+            {
+                [[refChild node]setShouldFreeXMLNode:YES];
+                return refChild;
+            }
             GDataXMLNode* retVal = [GDataXMLNode nodeConsumingXMLNode:returnNode];
             id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
             return [TiDOMNodeProxy makeNode:retVal context:context];
@@ -570,7 +574,7 @@
     GDataXMLNode* actualRefChildNode = nil;
     for(GDataXMLNode* childNode in children)
     {
-        if([childNode isEqual:refChildNode])
+        if ([childNode XMLNode] == [refChildNode XMLNode])
         {
             actualRefChildNode = childNode;
             break;
@@ -579,7 +583,14 @@
     if(actualRefChildNode != nil)
     {
         [actualRefChildNode setShouldFreeXMLNode:YES];
-        [oldChild setNode:actualRefChildNode];
+        if ([oldChild isKindOfClass:[TiDOMElementProxy class]])
+        {
+            [(TiDOMElementProxy*)oldChild setElement:(GDataXMLElement*)actualRefChildNode];
+        }
+        else
+        {
+            [oldChild setNode:actualRefChildNode];
+        }
         [element removeChild:actualRefChildNode];
         return oldChild;
     }
@@ -592,26 +603,34 @@
 
 -(id)appendChild:(id)args
 {
-    ENSURE_SINGLE_ARG(args, TiDOMNodeProxy);
+	ENSURE_SINGLE_ARG(args, TiDOMNodeProxy);
 	TiDOMNodeProxy * newChild = (TiDOMNodeProxy*)args;
-    xmlNodePtr oldNodePtr = [[newChild node]XMLNode];
+	xmlNodePtr oldNodePtr = [[newChild node]XMLNode];
 	GDataXMLNode* resultElement = [element addChild:[newChild node]];
-    if(resultElement != nil)
-    {
-        //No longer part of tree set to free node since add child adds by creating copy
-        [[newChild node]setShouldFreeXMLNode:YES];
-        if(oldNodePtr != NULL)
-        {
-            [TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
-        }
-        [newChild setNode:resultElement];
-        [TiDOMNodeProxy setNode:newChild forXMLNode:[resultElement XMLNode]];
-        return newChild;
-    }
-    else
-    {
-        return [NSNull null];
-    }
+
+	if (resultElement != nil)
+	{
+		//No longer part of tree set to free node since add child adds by creating copy
+		[[newChild node]setShouldFreeXMLNode:YES];
+		if (oldNodePtr != NULL)
+		{
+			[TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
+		}
+		if ([newChild isKindOfClass:[TiDOMElementProxy class]])
+		{
+			[(TiDOMElementProxy*)newChild setElement:(GDataXMLElement*)resultElement];
+		}
+		else
+		{
+			[newChild setNode:resultElement];
+		}
+		[TiDOMNodeProxy setNode:newChild forXMLNode:[resultElement XMLNode]];
+		return newChild;
+	}
+	else
+	{
+		return [NSNull null];
+	}
 }
 
 
