@@ -4,19 +4,15 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
 
-#import "TiProxy.h"
-#import "GDataXMLNode.h"
+#if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
 #import "TiDOMNodeProxy.h"
 
-@interface TiDOMDocumentProxy : TiDOMNodeProxy {
-@private
+@interface TiDOMEntityProxy : TiDOMNodeProxy{
+    
 }
-
--(void)parseString:(NSString*)xml;
-
+@property(nonatomic,readonly) id notationName;
+@property(nonatomic,readonly) id publicId;
+@property(nonatomic,readonly) id systemId;
 @end
-
-
 #endif
