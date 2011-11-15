@@ -343,16 +343,9 @@
     }
 
 	UIView * ourView = [self view];
-	CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
-	[ourView setCenter:CGPointMake(viewFrame.origin.x + viewFrame.size.width/2.0, viewFrame.origin.y + viewFrame.size.height/2.0)];
-	if (UIInterfaceOrientationIsLandscape(newOrientation)) {
-		viewFrame.size = CGSizeMake(viewFrame.size.height, viewFrame.size.width);
-	}
     [ourView setTransform:transform];
-	viewFrame.origin=CGPointZero;
-	[ourView setBounds:viewFrame];
 	[self resizeView];
-
+	
 	[self willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
 
     //Propigate this to everyone else. This has to be done INSIDE the animation.
@@ -481,9 +474,9 @@
 
 -(CGRect)resizeView
 {
-//	CGRect rect = [[UIScreen mainScreen] applicationFrame];
+	CGRect rect = [[UIScreen mainScreen] applicationFrame];
 //	VerboseLog(@"(%f,%f),(%fx%f)",rect.origin.x,rect.origin.y,rect.size.width,rect.size.height);
-//	[[self view] setFrame:rect];
+	[[self view] setFrame:rect];
 	//Because of the transition in landscape orientation, TiUtils can't be used here... SetFrame compensates for it.
 	return [[self view] bounds];
 }

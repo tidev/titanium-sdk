@@ -104,7 +104,8 @@ enum
 -(void)setRight:(id)value;
 -(void)setWidth:(id)value;
 -(void)setHeight:(id)value;
--(void)setLayout:(id)value;
+// See the code for setValue:forUndefinedKey: for why we can't have this
+//-(void)setLayout:(id)value;
 -(void)setMinWidth:(id)value;
 -(void)setMinHeight:(id)value;
 
