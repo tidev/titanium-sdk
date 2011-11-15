@@ -10,10 +10,17 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 	this.dom.style.overflow = 'hidden';
 
 	// Properties
-	var _currentPage = -1;
+	var _currentPage = args.currentPage === undefined ? -1 : args.currentPage;
 	Object.defineProperty(this, 'currentPage', {
 		get: function(){return _currentPage;},
-		set: function(val){return _currentPage = val;}
+		set: function(val){
+			if (val >= 0 && val < _views.length) {
+				obj._scrollToViewPosition(val);
+				return _currentPage = val;
+			} else {
+				return null;
+			}
+		}
 	});
 
 	var _maxZoomScale = null;
@@ -46,7 +53,7 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 		set: function(val){return _showPagingControl = val;}
 	});
 
-	var _views = [];
+	var _views = args.views === undefined ? [] : args.views;
 	Object.defineProperty(this, 'views', {
 		get: function(){return _views;},
 		set: function(val){return _views = val;}
@@ -71,10 +78,10 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 		
 		// Update the view if this view was currently visible
 		if (viewIndex == _currentPage) {
-			if (viewIndex == _views.length - 1) {
-				obj._scrollToViewPosition(viewIndex - 1);
-			} else if (_views.length == 0) {
+			if (_views.length == 1) {
 				obj.dom.removeChild(obj.dom.firstChild);
+			} else if (viewIndex == _views.length - 1) {
+				obj._scrollToViewPosition(viewIndex - 1);
 			} else {
 				obj._scrollToViewPosition(viewIndex + 1);
 			}
@@ -91,6 +98,7 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 	this.scrollToView = function(view){
 		this._scrollToViewPosition(_views.indexOf(view))
 	};
+	var _interval = null;
 	this._scrollToViewPosition = function(viewIndex){
 		
 		// Sanity check
@@ -120,6 +128,11 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 		if (obj.dom.offsetWidth == 0) {
 			obj._attachFinalView(_views[viewIndex].dom);
 		} else {
+			
+			// Stop the previous timer if it is running (i.e. we are in the middle of an animation)
+			if (_interval != null) {
+				clearInterval(_interval);
+			}
 		
 			// Remove the previous container
 			if (obj.dom.childNodes.length > 0) {
@@ -127,10 +140,10 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 			}
 			
 			// Calculate the views to be scrolled
-			var _w = obj.dom.offsetWidth
-			var _viewsToScroll = []
+			var _w = obj.dom.offsetWidth;
+			var _viewsToScroll = [];
 			var _scrollingDirection = -1;
-			var _initialPosition = 0
+			var _initialPosition = 0;
 			if (viewIndex > _currentPage) {
 				for (var i = _currentPage; i <= viewIndex; i++) {
 					_viewsToScroll.push(_views[i].dom);
@@ -169,10 +182,12 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 			var _startTime = (new Date()).getTime();
 			var _duration = 300 + 0.2 * _w; // Calculate a weighted duration so that larger views take longer to scroll.
 			var _distance = (_viewsToScroll.length - 1) * _w;
-			var _interval = setInterval(function(){
+			
+			// Start the timer
+			_interval = setInterval(function(){
 				
 				// Calculate the new position
-				var _currentTime = ((new Date()).getTime() - _startTime)
+				var _currentTime = ((new Date()).getTime() - _startTime);
 				var _normalizedTime = _currentTime / (_duration / 2);
 				var _newPosition;
 				if (_normalizedTime < 1) {
@@ -188,12 +203,18 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 				// Check if the transition is finished.
 				if (_currentTime >= _duration) {
 					clearInterval(_interval);
+					_interval = null;
 					obj._attachFinalView(_views[viewIndex].dom);
 		    	}
 			},32); // Update around 32 FPS.
 		}
 		_currentPage = viewIndex;
 	};
+	
+	// If some views were defined via args, process them now
+	if (_views.length > 0) {
+		this._scrollToViewPosition(_currentPage != -1 ? _currentPage : 0);
+	}
 
 	// Events
 	this.addEventListener('scroll', function(){
