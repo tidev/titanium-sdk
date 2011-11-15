@@ -28,6 +28,7 @@ public class TiC
 	public static final String EVENT_DESTROY = "destroy";
 	public static final String EVENT_DOUBLE_CLICK = "dblclick";
 	public static final String EVENT_DOUBLE_TAP = "doubletap";
+	public static final String EVENT_ERROR = "error";
 	public static final String EVENT_FOCUS = "focus";
 	public static final String EVENT_FOCUSED = "focused";
 	public static final String EVENT_HEADING = "heading";

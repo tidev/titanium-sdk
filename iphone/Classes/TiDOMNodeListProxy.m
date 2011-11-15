@@ -30,18 +30,20 @@
 {
 	ENSURE_SINGLE_ARG(args,NSObject);
 	int index = [TiUtils intValue:args];
+    
 	if (index < [nodes count])
 	{
-		id result = [TiDOMNodeProxy makeNode:[nodes objectAtIndex:index] context:[self pageContext]];
+		id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+		id result = [TiDOMNodeProxy makeNode:[nodes objectAtIndex:index] context:context];
 		[result setDocument:[self document]];
 		return result;
 	}
-	return nil;
+	return [NSNull null];
 }
 
 -(NSNumber*)length
 {
-	return NUMINT([nodes count]);
+    return NUMINT([nodes count]);
 }
 
 @end
