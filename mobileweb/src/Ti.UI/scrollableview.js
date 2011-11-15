@@ -98,22 +98,33 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 			return;
 		}
 		
-		// Remove the previous container
-		if (obj.dom.childNodes.length > 0) {
-			obj.dom.removeChild(obj.dom.firstChild);
-		}
+		obj._attachFinalView = function(view) {
+		
+			// Remove the previous container
+			if (obj.dom.childNodes.length > 0) {
+				obj.dom.removeChild(obj.dom.firstChild);
+			}
+			
+			// Attach the new container
+			var _contentContainer = document.createElement('div');
+			_contentContainer.style.position = 'absolute';
+			_contentContainer.style.width = '100%';
+			_contentContainer.style.height = '100%';
+			_contentContainer.appendChild(view);
+			obj.dom.appendChild(_contentContainer);
+		};
 		
 		// If the scrollableView hasn't been laid out yet, we can't do much since the scroll distance is unknown.
 		// At the same time, it doesn't matter since the user won't see it anyways. So we just append the new
 		// element and don't show the transition animation.
 		if (obj.dom.offsetWidth == 0) {
-			var _contentContainer = document.createElement('div');
-			_contentContainer.style.position = "absolute";
-			_contentContainer.style.width = "100%";
-			_contentContainer.style.height = "100%";
-			_contentContainer.appendChild(_views[viewIndex].dom);
-			obj.dom.appendChild(_contentContainer);
+			obj._attachFinalView(_views[viewIndex].dom);
 		} else {
+		
+			// Remove the previous container
+			if (obj.dom.childNodes.length > 0) {
+				obj.dom.removeChild(obj.dom.firstChild);
+			}
 			
 			// Calculate the views to be scrolled
 			var _w = obj.dom.offsetWidth
@@ -134,24 +145,25 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 			
 			// Create the animation div
 			var _contentContainer = document.createElement('div');
-			_contentContainer.style.position = "absolute";
+			_contentContainer.style.position = 'absolute';
 			_contentContainer.style.width = _viewsToScroll.length * _w;
-			_contentContainer.style.height = obj.dom.offsetHeight;
+			_contentContainer.style.height = '100%';
 			obj.dom.appendChild(_contentContainer);
 			
 			// Attach the child views, each contained in their own div so we can mess with positioning w/o touching the views
 			for (var i = 0; i < _viewsToScroll.length; i++) {
 				var _viewDiv = document.createElement('div');
 				_viewDiv.style.position = 'absolute';
-				_viewDiv.style.width = _w + "px";
+				_viewDiv.style.width = _w + 'px';
+				_viewDiv.style.height = '100%';
 				_viewDiv.appendChild(_viewsToScroll[i]);
 				_contentContainer.appendChild(_viewDiv);
-				_viewDiv.style.left = i * _w + "px";
+				_viewDiv.style.left = i * _w + 'px';
 			}
 			
 			// Attach the div to the scrollableView
 			obj.dom.appendChild(_contentContainer);
-			_contentContainer.style.left = _initialPosition + "px";
+			_contentContainer.style.left = _initialPosition + 'px';
 			
 			// Set the start time
 			var _startTime = (new Date()).getTime();
@@ -171,11 +183,12 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 				}
 				
 				// Update the position of the div
-				_contentContainer.style.left = _scrollingDirection * Math.round(_newPosition) + _initialPosition + "px";
+				_contentContainer.style.left = _scrollingDirection * Math.round(_newPosition) + _initialPosition + 'px';
 				
 				// Check if the transition is finished.
 				if (_currentTime >= _duration) {
 					clearInterval(_interval);
+					obj._attachFinalView(_views[viewIndex].dom);
 		    	}
 			},32); // Update around 32 FPS.
 		}
