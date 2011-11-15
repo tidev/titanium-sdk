@@ -9,18 +9,28 @@ description: |
     has an associated tab button and a stack of windows. The user can switch between
     tabs by tapping a tab button. 
 
-    Programmatically, you can specify the active tab by calling [setActiveTab](Titanium.UI.TabGroup.setActiveTab) on
-    the tab group or by setting the [active](Titanium.UI.Tab.active) property on one of the tabs.
+    You can add tabs to the group using [addTab](Titanium.UI.TabGroup.addTab),
+    and switch active tabs by calling 
+    [setActiveTab](Titanium.UI.TabGroup.setActiveTab). 
     
-    Note that when opening a tab group, if one or more of its tabs are set 
-    'active' *prior* to opening, or if `setActiveTab()` is called while 
-    a tab is 'active', the result of which tab is initially selected is 
-    undefined.
-
+    #### Platform Implementation Notes
     When using a tab group, note the following differences between platforms: 
-    on Android, tabs cannot be removed from the tab group once added, and the 
-    tabs cannot be reordered. On iOS, tabs can be removed, and the user may (optionally) 
+    
+    On Android, tabs cannot be removed from the tab group once added, and the 
+    tabs cannot be reordered. 
+    
+    On iOS, tabs can be removed, and the user may (optionally) 
     be allowed to reorder tabs.
+
+    On iOS, it is 
+    also possible to add tabs by updating the [tabs](Titanium.UI.TabGroup.tabs) property, 
+    and to switch active tabs by setting the [active](Titanium.UI.Tab.active) 
+    property on one of the tabs to `true`. Since these mechanisms are platform-specific,
+    it is recommended that you use `addTab` and `setActiveTab` instead.
+    
+    If you use the iOS-specific mechanisms, it is possible to add multiple active tabs 
+    to a tab group. In this case, the result of which tab is initially selected is 
+    undefined.
 extends: Titanium.UI.View
 since: "0.9"
 methods:
@@ -47,6 +57,9 @@ methods:
       - name: indexOrObject
         description: Tab object to switch to, or the index of the tab object to switch to. 
         type: [Number,Titanium.UI.Tab]
+  - name: getTabs
+    description: Returns an array of tab objects that are managed by the tab group.
+    returns: Array<Titanium.UI.Tab>
 events:
   - name: blur
     description: Fired when the tab group loses focus.
@@ -60,34 +73,11 @@ events:
       - name: tab
         description: Active tab.
         type: Titanium.UI.Tab
-      - name: y
-        description: Y coordinate of the event, in the receiving view's coordinates.
-        type: Number
-      - name: x
-        description: X coordinate of the event, in the receiving view's coordinates.
-        type: Number
-      - name: globalPoint
-        description: Dictionary with properties `x` and `y` describing the point of the event in screen coordinates.
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
       - name: previousTab
         description: Previous active tab.
         type: Titanium.UI.Tab
   - name: close
     description: Fired when the tab group is closed.
-    properties:
-      - name: y
-        description: Y coordinate of the event, in the receiving view's coordinates.
-        type: Number
-      - name: globalPoint
-        description: Dictionary with properties `x` and `y` describing the point of the event in screen coordinates.
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: X coordinate of the event, in the receiving view's coordinates.
-        type: Number
   - name: focus
     description: Fired when the tab group gains focus.
     properties:
@@ -100,55 +90,35 @@ events:
       - name: tab
         description: Active tab.
         type: Titanium.UI.Tab
-      - name: y
-        description: Y coordinate of the event, in the receiving view's coordinates.
-        type: Number
-      - name: x
-        description: X coordinate of the event, in the receiving view's coordinates.
-        type: Number
-      - name: globalPoint
-        description: Dictionary with properties `x` and `y` describing the point of the event in screen coordinates.
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
       - name: previousTab
         description: Previous active tab.
         type: Titanium.UI.Tab
   - name: open
     description: fired when the tab group is opened
-    properties:
-      - name: y
-        description: Y coordinate of the event, in the receiving view's coordinates.
-        type: Number
-      - name: globalPoint
-        description: Dictionary with properties `x` and `y` describing the point of the event in screen coordinates.
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: X coordinate of the event, in the receiving view's coordinates.
-        type: Number
 properties:
   - name: activeTab
     description: Active tab.
     type: Titanium.UI.Tab
   - name: allowUserCustomization
     description: Set to `true` to allow the user to reorder tabs in the tab group, `false` to prevent reordering. When customization is enabled, the user can reorder tabs using the **Edit**  button on the **More** tab.
-    platforms: [iphone, ipad]
+    platforms: [iphone,ipad]
     type: Boolean
   - name: barColor
     description: Default navigation bar color (typically for the **More** tab).
     type: String
+    platforms: [iphone,ipad]
   - name: editButtonTitle
     description: Title for the edit button on the **More** tab.
-    platforms: [iphone, ipad]
+    platforms: [iphone,ipad]
     type: String
   - name: tabs
-    description: Array of tab objects that are managed by the tab group.
+    description: |
+        Array of tab objects that are managed by the tab group. This property is not supported across all platforms: use [getTabs](Titanium.UI.TabGroup.getTabs) instead.
     type: Array<Titanium.UI.Tab>
+    platforms: [iphone,ipad]
   - name: windowSoftInputMode
     description: |
-        One of [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN), [SOFT_INPUT_ADJUST_RESIZE](Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE), or [SOFT_INPUT_ADJUST_UNSPECIFIED](Ti.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED). For more information see the Android API Reference: [Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int)).
+        Determines how the tab group is treated when a soft input method (such as a virtual keyboard) is displayed. One of [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN), [SOFT_INPUT_ADJUST_RESIZE](Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE), or [SOFT_INPUT_ADJUST_UNSPECIFIED](Ti.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED). For more information see the Android API Reference: [Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int)).
     type: Number
     platforms: [android]
     availabilty: creation
