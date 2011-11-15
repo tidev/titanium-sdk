@@ -170,7 +170,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			@Override
 			public void downloadFailed()
 			{
-				// If the download filed, fire an error event
+				// If the download failed, fire an error event
 				fireError();
 			}
 		};
@@ -344,9 +344,10 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					if (paused && !Thread.currentThread().isInterrupted()) {
 						try {
 							Log.i(LCAT, "Pausing");
+							 // User backed-out while animation running
 							if (loader == null) {
 								break;
-							} // User backed-out while animation running
+							}
 							synchronized (loader) {
 								loader.wait();
 							}
@@ -691,7 +692,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			decodeRetries++;
 			proxy.getMainHandler().postDelayed(new Runnable()
 			{
-				// proxy.getUIHandler().postDelayed(new Runnable() {
 				public void run()
 				{
 					Log.d(LCAT, "Retrying bitmap decode: " + decodeRetries + "/" + maxRetries);
@@ -741,9 +741,11 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		}
 		if (d.containsKey(TiC.PROPERTY_DEFAULT_IMAGE)) {
 			try {
+				String propertyImage = d.getString(TiC.PROPERTY_IMAGE);
+				URI propertyImageURI = new URI(propertyImage);
+				
 				if (!d.containsKey(TiC.PROPERTY_IMAGE)
-					|| (URLUtil.isNetworkUrl(d.getString(TiC.PROPERTY_IMAGE)) && !TiResponseCache.peek(new URI(d
-						.getString(TiC.PROPERTY_IMAGE)))))
+					|| (URLUtil.isNetworkUrl(propertyImage) && !TiResponseCache.peek(propertyImageURI)))
 					setDefaultImageSource(d.get(TiC.PROPERTY_DEFAULT_IMAGE));
 			} catch (URISyntaxException e) {
 				setDefaultImageSource(d.get(TiC.PROPERTY_DEFAULT_IMAGE));
