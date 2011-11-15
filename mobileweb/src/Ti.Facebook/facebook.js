@@ -129,7 +129,17 @@
 		console.debug('Method "Titanium.Facebook.createLoginButton" is not implemented yet.');
 	};
 	api.dialog = function(action,params,callback){
-		console.debug('Method "Titanium.Facebook.dialog" is not implemented yet.');
+		params.method = action;
+		FB.ui(params,function(response){
+			if (!response) {
+				var undef;
+				callback({'success':false,'error':undef,'path':path});
+			} else if (response.error) {
+				callback({'success':false,'error':response.error,'path':path});
+			} else {
+				callback({'success':true,'result':response,'path':path});
+			}
+		});
 	};
 	api.logout = function(){
 		FB.logout(function(response) {
@@ -143,10 +153,9 @@
 		});
 	};
 	api.request = function(method,params,callback){
-		FB.api({
-				method: method,
-				urls: 'facebook.com,developers.facebook.com'
-			},params,function(response){
+		params.method = method;
+		params.urls = 'facebook.com,developers.facebook.com';
+		FB.api(params,function(response){
 			if (!response) {
 				var undef;
 				callback({'success':false,'error':undef,'path':path});
