@@ -230,9 +230,7 @@ public class TiUIImageView extends TiUIView
 	{
 		if (bitmap != null) {
 			if (!TiApplication.isUIThread()) {
-				//AsyncResult result = new AsyncResult(bitmap);
 				TiMessenger.sendBlockingMainMessage(handler.obtainMessage(SET_IMAGE), bitmap);
-
 			} else {
 				TiImageView view = getView();
 				if (view != null) {
