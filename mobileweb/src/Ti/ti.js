@@ -12,6 +12,14 @@
 	};
 	
 	api.include = function(files){
+		/* coming soon!
+		var i = 0;
+		typeof files === "array" || (files = [].concat(Array.prototype.slice.call(arguments, 0)));
+		for (; i < files.length; i++) {
+			require("include!" + files[i]);
+		}
+		*/
+
 		var head = document.getElementsByTagName('head')[0];
 		if(head == null){
 			head = document;

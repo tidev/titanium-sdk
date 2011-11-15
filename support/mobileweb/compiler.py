@@ -164,8 +164,24 @@ class Compiler(object):
 
 					open(target_file,'wb').write(open(api_file,'rb').read())
 		titanium_js += ";\nTi._5.setLoadedScripts(" + json.dumps(self.ti_includes) + ");"
-
-		titanium_js = HEADER + titanium_js + FOOTER
+		
+		loader_js = "var require={\n\
+	projectName: '${project_name | jsQuoteEscapeFilter}',\n\
+	projectId: '${project_id | jsQuoteEscapeFilter}',\n\
+	deployType: '${deploy_type | jsQuoteEscapeFilter}',\n\
+	appId: '${app_name | jsQuoteEscapeFilter}',\n\
+	appAnalytics: '${app_analytics | jsQuoteEscapeFilter}',\n\
+	appPublisher: '${app_publisher | jsQuoteEscapeFilter}',\n\
+	appUrl: '${app_url | jsQuoteEscapeFilter}',\n\
+	appName: '${app_name | jsQuoteEscapeFilter}',\n\
+	appVersion: '${app_version | jsQuoteEscapeFilter}',\n\
+	appDescription: '${app_description | jsQuoteEscapeFilter}',\n\
+	appCopyright: '${app_copyright | jsQuoteEscapeFilter}',\n\
+	appGuid: '${app_guid | jsQuoteEscapeFilter}',\n\
+	tiVersion: '${ti_version | jsQuoteEscapeFilter}'\n\
+};\n".encode('utf-8') + self.load_api(os.path.join(src_dir,"loader.js"))
+		
+		titanium_js = HEADER + loader_js + titanium_js + FOOTER
 		titanium_js = mako.template.Template(titanium_js).render(
 				ti_version=sdk_version,
 				project_name=self.project_name,
