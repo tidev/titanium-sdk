@@ -161,8 +161,9 @@ properties:
     platforms: [iphone, ipad, mobileweb]
   - name: NOTIFICATION_TYPE_NEWSSTAND
     description: constant value for the push notification Newsstand type. Only available on iOS5 and later
-	permissions: read-only
-	platforms: [iphone, ipad, mobileweb]
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad, mobileweb]
   - name: READ_MODE
     description: constant value specifying read-only mode for sockets
     type: Number
