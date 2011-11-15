@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-package org.appcelerator.titanium;
+package org.appcelerator.kroll.common;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,10 +17,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.util.TiStreamHelper;
-import org.appcelerator.titanium.util.TiTempFileHelper;
+import org.appcelerator.kroll.KrollApplication;
+import org.appcelerator.kroll.KrollRuntime;
+import org.appcelerator.kroll.util.KrollStreamHelper;
+import org.appcelerator.kroll.util.TiTempFileHelper;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Looper;
@@ -58,43 +60,49 @@ public class TiFastDev
 	public static final String RESULT_OK = "OK";
 	public static final int MAX_TOKEN_COUNT = 16;
 
-	public static TiFastDev getInstance()
-	{
-		if (_instance == null) {
-			_instance = new TiFastDev();
-		}
-		return _instance;
-	}
-
 	protected boolean enabled = false, listen = false;
 	protected int port = -1;
-	protected String urlPrefix;
+	protected String appGuid, urlPrefix;
 	protected Socket fastDevSocket;
 	protected Session session;
 	protected boolean restarting = false;
 	protected TiTempFileHelper tempHelper;
 
-	public TiFastDev()
+	public static void initFastDev(KrollApplication app)
 	{
-		TiApplication app = TiApplication.getInstance();
+		_instance = new TiFastDev(app);
+	}
+
+	public static TiFastDev getInstance()
+	{
+		return _instance;
+	}
+
+	public TiFastDev(KrollApplication app)
+	{
 		if (app == null) {
 			return;
 		}
 
+		appGuid = app.getAppGUID();
 		tempHelper = app.getTempFileHelper();
-		if (app.isFastDevMode()) {
-			TiDeployData deployData = app.getDeployData();
-			if (deployData != null) {
-				enabled = true;
-				readDeployData(deployData);
+		if (!app.isFastDevMode()) {
+			return;
+		}
 
-				if (enabled && fastDevSocket != null)
-				{
-					session = new Session();
-					session.executeHandshake();
-					session.start();
-				}
-			}
+		TiDeployData deployData = app.getDeployData();
+		if (deployData == null) {
+			return;
+		}
+
+		enabled = true;
+		readDeployData(deployData);
+
+		if (enabled && fastDevSocket != null)
+		{
+			session = new Session();
+			session.executeHandshake();
+			session.start();
 		}
 	}
 
@@ -102,12 +110,15 @@ public class TiFastDev
 	{
 		port = deployData.getFastDevPort();
 		listen = deployData.getFastDevListen();
+
 		if (listen) {
 			Log.d(TAG, "Enabling Fastdev in listening mode...");
 			acceptConnection();
+
 		} else if (port != -1) {
 			Log.d(TAG, "Enabling Fastdev on port " + port);
 			connect();
+
 		} else {
 			enabled = false;
 		}
@@ -118,6 +129,7 @@ public class TiFastDev
 		try {
 			ServerSocket server = new ServerSocket(FASTDEV_PORT);
 			fastDevSocket = server.accept();
+
 		} catch (IOException e) {
 			Log.w(TAG, e.getMessage(), e);
 			enabled = false;
@@ -129,6 +141,7 @@ public class TiFastDev
 	{
 		try {
 			fastDevSocket = new Socket(EMULATOR_HOST, port);
+
 		} catch (Exception e) {
 			Log.w(TAG, e.getMessage(), e);
 			enabled = false;
@@ -141,7 +154,8 @@ public class TiFastDev
 		if (Looper.myLooper() == null) {
 			Looper.prepare();
 		}
-		Context ctx = TiApplication.getInstance().getRootActivity();
+
+		Context ctx = KrollRuntime.getInstance().getKrollApplication().getCurrentActivity();
 		Toast toast = Toast.makeText(ctx, message, Toast.LENGTH_LONG);
 		toast.show();
 	}
@@ -162,6 +176,7 @@ public class TiFastDev
 		if (result != null && result.length > 0) {
 			return session.toInt(result[0]);
 		}
+
 		return -1;
 	}
 	
@@ -171,6 +186,7 @@ public class TiFastDev
 		if (result != null && result.length > 0) {
 			return (session.toInt(result[0]) > 0);
 		}
+
 		return false;
 	}
 
@@ -195,13 +211,15 @@ public class TiFastDev
 				// the connection if the app is doing a long-running task with the file.
 				File tempFile = tempHelper.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX);
 				FileOutputStream tempOut = new FileOutputStream(tempFile);
-				TiStreamHelper.pumpCount(session.getInputStream(), tempOut, length);
+				KrollStreamHelper.pumpCount(session.getInputStream(), tempOut, length);
 				tempOut.close();
 
 				session.checkingForMessage = true;
 				return new FileInputStream(tempFile);
+
 			} catch (FileNotFoundException e) {
 				Log.e(TAG, e.getMessage(), e);
+
 			} catch (IOException e) {
 				Log.e(TAG, e.getMessage(), e);
 			}
@@ -222,10 +240,12 @@ public class TiFastDev
 			_instance.restarting = false;
 			return;
 		}
+
 		if (_instance != null && _instance.session != null) {
 			_instance.session.close();
 			_instance.session = null;
 		}
+
 		_instance = null;
 	}
 
@@ -251,6 +271,7 @@ public class TiFastDev
 			try {
 				in = fastDevSocket.getInputStream();
 				out = fastDevSocket.getOutputStream();
+
 			} catch (IOException e) {
 				Log.e(TAG, e.getMessage(), e);
 			}
@@ -271,6 +292,7 @@ public class TiFastDev
 					if (read < 0) {
 						return false;
 					}
+
 					bytesRead += read;
 					if (bytesRead == buffer.length) {
 						return true;
@@ -279,6 +301,7 @@ public class TiFastDev
 			} catch (IOException e) {
 				Log.e(TAG, e.getMessage(), e);
 			}
+
 			return false;
 		}
 
@@ -297,6 +320,7 @@ public class TiFastDev
 			bytes[1] = (byte) (data >>> 16);
 			bytes[2] = (byte) (data >>> 8);
 			bytes[3] = (byte) data;
+
 			return bytes;
 		}
 
@@ -306,6 +330,7 @@ public class TiFastDev
 			if (blockRead(buffer)) {
 				return toInt(buffer);
 			}
+
 			return -1;
 		}
 
@@ -348,15 +373,16 @@ public class TiFastDev
 
 		protected void executeHandshake()
 		{
-			String guid = TiApplication.getInstance().getAppInfo().getGUID();
-			byte resultData[][] = sendMessage(COMMAND_HANDSHAKE, guid);
+			byte resultData[][] = sendMessage(COMMAND_HANDSHAKE, appGuid);
 			if (resultData == null) {
-				handshakeError(guid, null);
+				handshakeError(appGuid, null);
 				return;
 			}
+
 			String result = new String(resultData[0]);
 			if (!result.equals(RESULT_OK)) {
-				handshakeError(guid, result);
+				handshakeError(appGuid, result);
+
 			} else {
 				Log.d(TAG, "Fastdev session handshake succesful.");
 			}
@@ -369,6 +395,7 @@ public class TiFastDev
 				if (tokenCount > MAX_TOKEN_COUNT) return -1;
 				return tokenCount;
 			}
+
 			return -1;
 		}
 
@@ -380,8 +407,10 @@ public class TiFastDev
 				for (int i = 0; i < tokenCount; i++) {
 					tokens[i] = readToken();
 				}
+
 				return tokens;
 			}
+
 			return null;
 		}
 
@@ -392,10 +421,11 @@ public class TiFastDev
 				if (TRACE) {
 					Log.d(TAG, "Execute command: " + command);
 				}
+
 				if (COMMAND_KILL.equals(command)) {
 					executeKill();
-				}
-				else if (COMMAND_RESTART.equals(command)) {
+
+				} else if (COMMAND_RESTART.equals(command)) {
 					executeRestart();
 				}
 			} catch (UnsupportedEncodingException e) {
@@ -421,11 +451,12 @@ public class TiFastDev
 			restarting = true;
 
 			sendTokens(RESULT_OK);
-			TiApplication app = TiApplication.getInstance();
+			Application app = (Application) KrollRuntime.getInstance().getKrollApplication();
 			Intent i = app.getPackageManager().getLaunchIntentForPackage(app.getPackageName());
 			i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			i.addCategory(Intent.CATEGORY_LAUNCHER);
-			app.getRootActivity().startActivity(i);
+			app.startActivity(i);
+			//app.getRootActivity().startActivity(i);
 		}
 
 		protected boolean sendTokens(String... tokens)
@@ -454,12 +485,15 @@ public class TiFastDev
 				if (TRACE) {
 					Log.d(TAG, "sent tokens successfully");
 				}
+
 				checkingForMessage = true;
 				return message;
 			}
+
 			if (TRACE) {
 				Log.d(TAG, "error sending tokens");
 			}
+
 			checkingForMessage = true;
 			return null;
 		}
@@ -471,10 +505,12 @@ public class TiFastDev
 				try {
 					fastDevSocket.close();
 					fastDevSocket = null;
+
 				} catch (IOException e) {
 					Log.e(TAG, e.getMessage(), e);
 				}
 			}
 		}
+
 	}
 }

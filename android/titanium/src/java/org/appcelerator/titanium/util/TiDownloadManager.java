@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.util.KrollStreamHelper;
 
 import android.os.Handler;
 import android.os.Message;
@@ -125,19 +126,20 @@ public class TiDownloadManager implements Handler.Callback
 		{
 			this.uri = uri;
 		}
-		
-		// TODO // TODO @Override
+
 		public void run()
 		{
 			try {
 				// all we want to do is instigate putting this into the cache, and this 
 				// is enough for that:
 				InputStream stream = uri.toURL().openStream();
-				TiStreamHelper.pump(stream, null);
+				KrollStreamHelper.pump(stream, null);
 				stream.close();
+
 				synchronized (downloadingURIs) {
 					downloadingURIs.remove(DigestUtils.shaHex(uri.toString()));
 				}
+
 				fireDownloadFinished(uri);
 			} catch (Exception e) {
 				Log.e(TAG, "Exception downloading " + uri, e);
@@ -145,7 +147,6 @@ public class TiDownloadManager implements Handler.Callback
 		}
 	}
 
-	// TODO @Override
 	public boolean handleMessage(Message msg) {
 		switch (msg.what) {
 			case MSG_FIRE_DOWNLOAD_FINISHED:
