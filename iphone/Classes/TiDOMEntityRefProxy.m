@@ -4,17 +4,15 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+
 #if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
+#import "TiDOMEntityRefProxy.h"
 
-#import "TiProxy.h"
-#import "TIDOMCharacterDataProxy.h"
-
-@interface TiDOMTextNodeProxy : TiDOMCharacterDataProxy {
-@private
+@implementation TiDOMEntityRefProxy
+-(id)nodeValue
+{
+	// DOM spec says nodeValue must return null
+	return [NSNull null];
 }
-
--(TiDOMTextNodeProxy *) splitText:(id)args;
-
 @end
-
 #endif

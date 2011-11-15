@@ -11,4 +11,6 @@ import java.net.URI;
 public interface TiDownloadListener
 {
 	public void downloadFinished(URI uri);
+
+	public void downloadFailed();
 }
