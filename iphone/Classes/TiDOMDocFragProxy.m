@@ -5,16 +5,15 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
+#import "TiDOMDocFragProxy.h"
 
-#import "TiProxy.h"
-#import "TIDOMCharacterDataProxy.h"
+// Corresponds to Interface DocumentFragment of DOM2 Spec
+@implementation TiDOMDocFragProxy
 
-@interface TiDOMTextNodeProxy : TiDOMCharacterDataProxy {
-@private
+-(id)nodeValue
+{
+	// DOM spec says nodeValue must return null
+	return [NSNull null];
 }
-
--(TiDOMTextNodeProxy *) splitText:(id)args;
-
 @end
-
 #endif
