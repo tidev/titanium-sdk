@@ -288,13 +288,13 @@ MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_NEWSSTAND, 4)
 					ourNotifications |= UIRemoteNotificationTypeSound;
 					break;
 				}
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
+        #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
         case 4: // NOTIFICATION_TYPE_NEWSSTAND
         {
           ourNotifications |= UIRemoteNotificationTypeNewsstandContentAvailability;
           break;
         }
-#endif
+        #endif
 			}
 		}
 	}
