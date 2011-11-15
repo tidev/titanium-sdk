@@ -218,13 +218,18 @@ exports.bootstrapWindow = function(Titanium) {
 		this.currentState = this.stateOpened;
 		this.fireEvent("open");
 	}
-
+	
 	Window.prototype.loadUrl = function() {
 		if (this.url == null) {
 			return;
 		}
 
 		kroll.log(TAG, "Loading window with URL: " + this.url);
+		
+		// Reset creationUrl of the window based on this._sourceUrl and this.url
+		var currentUrl = url.resolve(this._sourceUrl, this.url);
+		this.window.setCreationUrl(currentUrl.href);
+		
 		Titanium.include(this.url, this._sourceUrl, {
 			currentWindow: this,
 			currentActivity: this.window.activity,
@@ -326,25 +331,6 @@ exports.bootstrapWindow = function(Titanium) {
 		} else {
 			kroll.log(TAG, "unable to call animate, view is undefined");
 		}
-	}
-
-	Window.prototype.loadUrl = function() {
-		if (this.url == null) {
-			return;
-		}
-
-		kroll.log(TAG, "Loading window with URL: " + this.url);
-		
-		// Reset creationUrl of the window based on this._sourceUrl and this.url
-		var currentUrl = url.resolve(this._sourceUrl, this.url);
-		this.window.setCreationUrl(currentUrl.href);
-		
-		Titanium.include(this.url, this._sourceUrl, {
-			currentWindow: this,
-			currentActivity: this.window.activity,
-			currentTab: this.tab,
-			currentTabGroup: this.tabGroup
-		});
 	}
 
 	Window.prototype.addEventListener = function(event, listener) {
