@@ -471,7 +471,7 @@ fails, a JS exception is returned.
 	${type} ${current_arg} = ${valueExpr};
 	
 	<#if info.jsType == "Number">
-		if(${postAssignmentCheck}) {
+		if (${postAssignmentCheck}) {
 			const char *error = "Invalid value, expected type ${info.jsType}.";
 			LOGE(TAG, error);
 			<#if !(logOnly!false)>
