@@ -83,7 +83,7 @@
     }
     else
     {
-        result = result = [ourData stringByReplacingCharactersInRange:NSMakeRange(offsetArg, 0) withString:newData];
+        result = [ourData stringByReplacingCharactersInRange:NSMakeRange(offsetArg, 0) withString:newData];
     }
 	[node setStringValue:result];
 }

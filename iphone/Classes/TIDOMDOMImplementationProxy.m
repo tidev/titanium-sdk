@@ -115,7 +115,7 @@
     xmlNodePtr rootPtr = xmlNewNode(theNewNs, (xmlChar*)[localName UTF8String]);
 	xmlDocPtr doc = xmlNewDoc(NULL);
 	xmlDocSetRootElement(doc, rootPtr);
-	GDataXMLDocument * theDocument = [[GDataXMLDocument alloc]initWithDocument:doc];
+	GDataXMLDocument * theDocument = [[[GDataXMLDocument alloc]initWithDocument:doc]autorelease];
     
 	if (docType != nil)
 	{

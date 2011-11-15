@@ -423,7 +423,7 @@
             [TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
         }
         [element addAttribute: [attProxy node]];
-        attributeNode = attributeNode = [element attributeForLocalName:[GDataXMLNode localNameForName:name] URI:theURI];
+        attributeNode = [element attributeForLocalName:[GDataXMLNode localNameForName:name] URI:theURI];
         [attProxy setNode:attributeNode];
         [attProxy setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
         [TiDOMNodeProxy setNode:attProxy forXMLNode:[attributeNode XMLNode]];

@@ -54,7 +54,7 @@
 {
     ENSURE_TYPE(data, NSString);
     RELEASE_TO_NIL(value);
-    value = data;
+    value = [data copy];
 	[node setStringValue:data];
     isSpecified = YES;
 }
