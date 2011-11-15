@@ -230,7 +230,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private Handler handler = new Handler(Looper.getMainLooper(), this);
 	private static final int SET_IMAGE = 10001;
 
-	@Override
+	
 	public boolean handleMessage(Message msg)
 	{
 		if (msg.what == SET_IMAGE) {
@@ -248,9 +248,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	{
 		if (bitmap != null) {
 			if (!TiApplication.isUIThread()) {
-				// AsyncResult result = new AsyncResult(bitmap);
-				TiMessenger.sendBlockingMainMessage(proxy.getMainHandler().obtainMessage(SET_IMAGE), bitmap);
-
+				TiMessenger.sendBlockingMainMessage(handler.obtainMessage(SET_IMAGE), bitmap);
 			} else {
 				TiImageView view = getView();
 				if (view != null) {
