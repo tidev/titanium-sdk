@@ -58,183 +58,66 @@ events:
     properties:
       - name: reason
         description: the completion reason. One of <Titanium.Media.VIDEO_FINISH_REASON_PLAYBACK_ENDED>, <Titanium.Media.VIDEO_FINISH_REASON_PLAYBACK_ERROR> or <Titanium.Media.VIDEO_FINISH_REASON_USER_EXITED>.
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
   - name: durationAvailable
     description: fired when the duration is available
     properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
       - name: duration
         description: duration
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
   - name: error
     description: fired when movie playback encounters an error
     properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
       - name: message
         description: reason for error as string
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
   - name: fullscreen
     description: fired when a movie changes from fullscreen view
     platforms: [iphone, ipad]
     properties:
       - name: entering
         description: true to indicate entering fullscreen, false to indicate leaving fullscreen
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
   - name: load
     description: fired when the movie play loads
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
   - name: loadstate
     description: fired when the network loadState changes
     properties:
       - name: loadState
         description: loadState
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
+        type: Number
   - name: mediaTypesAvailable
     description: fired when the media types is available
     platforms: [iphone, ipad]
     properties:
       - name: mediaTypes
         description: media types
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
   - name: naturalSizeAvailable
     description: fired when the natural size is available
     platforms: [iphone, ipad]
     properties:
       - name: naturalSize
         description: natural size as a dictionary. see `naturalSize` property.
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
   - name: playbackState
     description: fired when the playbackState changes
     properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
       - name: playbackState
-        description: playbackState
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
+        description: playback state, such as <Titanium.Media.VIDEO_PLAYBACK_STATE_PLAYING>.
+        type: Number
   - name: playing
     description: fired when the currently playing movie changes
     platforms: [iphone, ipad]
     properties:
       - name: url
         description: url of the media
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
+        type: String
   - name: preload
     description: fired when the movie has preloaded and is ready to play
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
   - name: resize
     description: fired when the movie player is resized
     platforms: [iphone, ipad]
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
   - name: sourceChange
     description: fired when the movieSourceType is <Titanium.Media.VIDEO_SOURCE_TYPE_UNKNOWN> when preparing for playback.
     platforms: [iphone, ipad]
     properties:
       - name: sourceChange
         description: the new sourceType
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
   - name: thumbnail
     description: fired when a movie thumbnail is available from `requestThumbnailImagesAtTimes`
     platforms: [iphone, ipad]
@@ -247,15 +130,6 @@ events:
         description: time
       - name: error
         description: if success is `false`, error message as string for reason
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
 
 properties:
   - name: allowsAirPlay
@@ -280,14 +154,13 @@ properties:
     description: The duration of the movie, or 0.0 if not known.
     type: Number
   - name: endPlaybackTime
-    description: The end time of movie playback. Defaults to NaN, which indicates natural end time of the movie.
-    platforms: [iphone, ipad]
+    description: The end time of movie playback. Defaults to NaN in iOS, which indicates natural end time of the movie. On Android, this is always the same as `duration` (the natural end time) and there is no effect if you change the value.
     type: Number
   - name: fullscreen
     description: Determines if the movie is presented in the entire screen (obscuring all other application content). Default is false. In iOS, setting this property to true before the movie player's view is visible will have no effect.  In Android, setting this value to true means that the video will have its own Android Activity rather than being embedded as a view.  In Android, this property is only relevant at creation time (e.g., `createVideoPlayer({fullscreen: true})`).
     type: Boolean
   - name: initialPlaybackTime
-    description: The start time of movie playback. Defaults to NaN, indicating the natural start time of the movie.
+    description: The start time of movie playback. Defaults to NaN in iOS and 0 in Android, indicating the natural start time of the movie.
     type: Number
   - name: loadState
     description: Returns the network load state of the movie player.

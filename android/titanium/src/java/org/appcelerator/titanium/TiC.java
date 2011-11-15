@@ -169,6 +169,7 @@ public class TiC
 	public static final String PROPERTY_ENABLE_ZOOM_CONTROLS = "enableZoomControls";
 	public static final String PROPERTY_ENABLED = "enabled";
 	public static final String PROPERTY_ENABLE_RETURN_KEY = "enableReturnKey";
+	public static final String PROPERTY_END_PLAYBACK_TIME = "endPlaybackTime";
 	public static final String PROPERTY_EVENT = "event";
 	public static final String PROPERTY_EXIT_ON_CLOSE = "exitOnClose";
 	public static final String PROPERTY_FILE = "file";

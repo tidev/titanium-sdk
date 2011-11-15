@@ -20,7 +20,9 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.widget.MediaController;
 import android.widget.TiVideoView8;
 
@@ -65,6 +67,14 @@ public class TiUIVideoView extends TiUIView
 		mVideoView.setOnPreparedListener(this);
 		mVideoView.setOnCompletionListener(this);
 		mVideoView.setOnErrorListener(this);
+		mVideoView.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event)
+			{
+				// TODO recognize clicks
+				return false;
+			}
+		});
 	}
 
 	private void seekIf()

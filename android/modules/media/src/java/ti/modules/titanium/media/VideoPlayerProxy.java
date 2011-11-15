@@ -32,7 +32,7 @@ import android.os.Message;
 import android.os.Messenger;
 
 @Kroll.proxy(creatableInModule = MediaModule.class, propertyAccessors = {
-	"url", "initialPlaybackTime", "duration", "contentURL", "autoplay"
+	"url", "initialPlaybackTime", "duration", "contentURL", "autoplay", "endPlaybackTime", "playableDuration"
 })
 public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifecycleEvent
 {
@@ -492,6 +492,10 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		data.put(TiC.PROPERTY_DURATION, duration);
 		setProperty(TiC.PROPERTY_DURATION, duration);
 		setProperty(TiC.PROPERTY_PLAYABLE_DURATION, duration);
+		setProperty(TiC.PROPERTY_END_PLAYBACK_TIME, duration); // Currently we're not doing anything else with this property in Android.
+		if (!hasProperty(TiC.PROPERTY_INITIAL_PLAYBACK_TIME)) {
+			setProperty(TiC.PROPERTY_INITIAL_PLAYBACK_TIME, 0);
+		}
 		fireEvent(TiC.EVENT_DURATION_AVAILABLE, data);
 		fireEvent(TiC.EVENT_PRELOAD, null);
 		fireEvent(TiC.EVENT_LOAD, null); // No distinction between load and preload in our case.
