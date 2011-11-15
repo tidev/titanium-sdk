@@ -158,18 +158,18 @@ public class TableViewRowProxy extends TiViewProxy
 		data.put(TiC.EVENT_PROPERTY_DETAIL, false);
 	}
 
-	/* TODO @Override
+	 
 	public boolean fireEvent(String eventName, Object data) {
 		if (eventName.equals(TiC.EVENT_CLICK) || eventName.equals(TiC.EVENT_LONGCLICK)) {
 			// inject row click data for events coming from row children
 			TableViewProxy table = getTable();
 			Item item = tableViewItem.getRowData();
-			if (table != null && item != null) {
-				fillClickEvent(data, table.getTableView().getModel(), item);
+			if (table != null && item != null && data instanceof KrollDict) {
+				fillClickEvent((KrollDict) data, table.getTableView().getModel(), item);
 			}
 		}
 		return super.fireEvent(eventName, data);
-	}*/
+	}
 
 	public void setLabelsClickable(boolean clickable) {
 		if (controls != null) {
