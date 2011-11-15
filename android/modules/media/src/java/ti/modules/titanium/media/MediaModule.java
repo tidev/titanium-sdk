@@ -82,6 +82,17 @@ public class MediaModule extends KrollModule
 	@Kroll.constant public static final int VIDEO_LOAD_STATE_PLAYTHROUGH_OK = 1 << 1;
 	@Kroll.constant public static final int VIDEO_LOAD_STATE_STALLED = 1 << 2;
 
+	@Kroll.constant public static final int VIDEO_PLAYBACK_STATE_STOPPED = 0;
+	@Kroll.constant public static final int VIDEO_PLAYBACK_STATE_PLAYING = 1;
+	@Kroll.constant public static final int VIDEO_PLAYBACK_STATE_PAUSED = 2;
+	@Kroll.constant public static final int VIDEO_PLAYBACK_STATE_INTERRUPTED = 3;
+	@Kroll.constant public static final int VIDEO_PLAYBACK_STATE_SEEKING_FORWARD = 4;
+	@Kroll.constant public static final int VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD = 5;
+
+	@Kroll.constant public static final int VIDEO_FINISH_REASON_PLAYBACK_ENDED = 0;
+	@Kroll.constant public static final int VIDEO_FINISH_REASON_PLAYBACK_ERROR = 1;
+	@Kroll.constant public static final int VIDEO_FINISH_REASON_USER_EXITED = 2;
+
 	@Kroll.constant public static final String MEDIA_TYPE_PHOTO = "public.image";
 	@Kroll.constant public static final String MEDIA_TYPE_VIDEO = "public.video";
 

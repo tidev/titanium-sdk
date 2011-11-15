@@ -1,3 +1,9 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package ti.modules.titanium.media;
 
 import org.appcelerator.kroll.KrollDict;
@@ -14,18 +20,14 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
+import android.view.View;
 import android.widget.MediaController;
 import android.widget.TiVideoView8;
 
 public class TiUIVideoView extends TiUIView
-	implements OnPreparedListener, OnCompletionListener, OnErrorListener
+	implements OnPreparedListener, OnCompletionListener, OnErrorListener, TiPlaybackListener
 {
 	private static final String TAG = "TiUIView";
-	private static final String EVENT_PROPERTY_DURATION = "duration";
-	private static final String EVENT_DURATION_AVAILABLE = "durationAvailable";
-	private static final String EVENT_LOADSTATE = "loadstate";
-	private static final String PROPERTY_LOADSTATE = "loadState";
-	private static final String PROPERTY_CURRENT_PLAYBACK_TIME = "currentPlaybackTime";
 
 	private TiVideoView8 mVideoView;
 	private MediaController mMediaController;
@@ -33,35 +35,85 @@ public class TiUIVideoView extends TiUIView
 	public TiUIVideoView(TiViewProxy proxy)
 	{
 		super(proxy);
-		mVideoView = new TiVideoView8(proxy.getActivity());
-		TiCompositeLayout layout = new TiCompositeLayout(proxy.getActivity());
-		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
-		layout.addView(mVideoView, new TiCompositeLayout.LayoutParams());
+	}
+
+	/**
+	 * Used when setting video view to one created by our fullscreen TiVideoActivity, in which
+	 * case we shouldn't create one of our own in this class.
+	 * @param vv instance of TiVideoView8 created by TiVideoActivity
+	 */
+	public void setVideoViewFromActivityLayout(TiCompositeLayout layout)
+	{
+		setNativeView(layout);
+		for (int i = 0; i < layout.getChildCount(); i++) {
+			View child = layout.getChildAt(i);
+			if (child instanceof TiVideoView8) {
+				mVideoView = (TiVideoView8) child;
+				break;
+			}
+		}
+		initView();
+	}
+
+	private void initView()
+	{
+		if (nativeView == null) {
+			TiCompositeLayout layout = new TiCompositeLayout(mVideoView.getContext());
+			layout.addView(mVideoView, new TiCompositeLayout.LayoutParams());
+			setNativeView(layout);
+		}
 		mVideoView.setOnPreparedListener(this);
 		mVideoView.setOnCompletionListener(this);
 		mVideoView.setOnErrorListener(this);
-		setNativeView(layout);
+	}
+
+	private void seekIf()
+	{
+		if (mVideoView == null) {
+			return;
+		}
+		int seekTo = 0;
+		Object initialPlaybackTime = proxy.getProperty(TiC.PROPERTY_INITIAL_PLAYBACK_TIME);
+		if (initialPlaybackTime != null) {
+			seekTo = TiConvert.toInt(initialPlaybackTime);
+		}
+		// Resuming from an activity pause?
+		Object seekToOnResume = proxy.getProperty(VideoPlayerProxy.PROPERTY_SEEK_TO_ON_RESUME);
+		if (seekToOnResume != null) {
+			seekTo = TiConvert.toInt(seekToOnResume);
+			proxy.setProperty(VideoPlayerProxy.PROPERTY_SEEK_TO_ON_RESUME, 0);
+		}
+		if (seekTo > 0) {
+			mVideoView.seekTo(seekTo);
+		}
 	}
 
 	@Override
 	public void processProperties(KrollDict d)
 	{
+		if (mVideoView == null) {
+			mVideoView = new TiVideoView8(proxy.getActivity());
+			initView();
+		}
 		super.processProperties(d);
 
 		if (mVideoView == null) {
 			return;
 		}
 
+		((VideoPlayerProxy) proxy).fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
+
 		String url = d.getString(TiC.PROPERTY_URL);
 		if (url == null) {
 			url = d.getString(TiC.PROPERTY_CONTENT_URL);
 			if (url != null) {
 				Log.w(TAG, "contentURL is deprecated, use url instead");
+				proxy.setProperty(TiC.PROPERTY_URL, url);
 			}
 		}
 		if (url != null) {
-			fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
 			mVideoView.setVideoURI(Uri.parse(proxy.resolveUrl(null, url)));
+			seekIf();
 		}
 
 		// Proxy holds the scaling mode directly.
@@ -79,16 +131,26 @@ public class TiUIVideoView extends TiUIView
 		}
 
 		if (key.equals(TiC.PROPERTY_URL) || key.equals(TiC.PROPERTY_CONTENT_URL)) {
-			fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
+			((VideoPlayerProxy) proxy).fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
 			mVideoView.setVideoURI(Uri.parse(proxy.resolveUrl(null, TiConvert.toString(newValue))));
+			seekIf();
 			if (key.equals(TiC.PROPERTY_CONTENT_URL)) {
 				Log.w(TAG, "contentURL is deprecated, use url instead");
+				proxy.setProperty(TiC.PROPERTY_URL, newValue);
 			}
 		} else if (key.equals(TiC.PROPERTY_SCALING_MODE)) {
 			mVideoView.setScalingMode(TiConvert.toInt(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
+	}
+
+	public boolean isPlaying()
+	{
+		if (mVideoView == null) {
+			return false;
+		}
+		return mVideoView.isPlaying();
 	}
 
 	public void setScalingMode(int mode)
@@ -133,6 +195,13 @@ public class TiUIVideoView extends TiUIView
 		}
 	}
 
+	public void hideMediaController()
+	{
+		if (mMediaController != null && mMediaController.isShowing()) {
+			mMediaController.hide();
+		}
+	}
+
 	public void play()
 	{
 		if (mVideoView == null) { return; }
@@ -149,11 +218,13 @@ public class TiUIVideoView extends TiUIView
 				Log.w(TAG, "play() ignored, no url set.");
 				return;
 			}
-			fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
+			((VideoPlayerProxy) proxy).fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
 			mVideoView.setVideoURI(Uri.parse(proxy.resolveUrl(null, TiConvert.toString(urlObj))));
+			seekIf();
 		}
 
 		mVideoView.start();
+
 	}
 
 	public void stop()
@@ -199,19 +270,6 @@ public class TiUIVideoView extends TiUIView
 		}
 	}
 
-	private void fireLoadState(int state)
-	{
-		KrollDict args = new KrollDict();
-		args.put(PROPERTY_LOADSTATE, state);
-		int currentPlaybackTime = 0;
-		if (mVideoView != null) {
-			currentPlaybackTime = mVideoView.getCurrentPosition();
-		}
-		args.put(PROPERTY_CURRENT_PLAYBACK_TIME, currentPlaybackTime);
-		proxy.fireEvent(EVENT_LOADSTATE, args);
-	}
-
-
 	@Override
 	public void release()
 	{
@@ -227,36 +285,37 @@ public class TiUIVideoView extends TiUIView
 	@Override
 	public void onPrepared(MediaPlayer mp)
 	{
-		KrollDict data = new KrollDict();
-		int duration = mp.getDuration();
-		data.put(EVENT_PROPERTY_DURATION, duration);
-		proxy.setProperty(TiC.PROPERTY_DURATION, duration);
-		proxy.fireEvent(EVENT_DURATION_AVAILABLE, data);
-		fireLoadState(MediaModule.VIDEO_LOAD_STATE_PLAYABLE);
+		((VideoPlayerProxy) proxy).onPlaybackReady(mp.getDuration());
 	}
 
 	@Override
 	public void onCompletion(MediaPlayer mp)
 	{
-		proxy.fireEvent(TiC.EVENT_COMPLETE, null);
+		((VideoPlayerProxy) proxy).onPlaybackComplete();
 	}
 
 	@Override
 	public boolean onError(MediaPlayer mp, int what, int extra)
 	{
-		String message = "Unknown";
-		switch(what) {
-			case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK:
-				message = "Not valid for progressive playback";
-				break;
-			case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
-				message = "Server died";
-				break;
-		}
-		KrollDict data = new KrollDict();
-		data.put(TiC.EVENT_PROPERTY_MESSAGE, message);
-		proxy.fireEvent(TiC.EVENT_ERROR, data);
-		fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
-		return false; // Let onCompletionListener fire.
+		((VideoPlayerProxy) proxy).onPlaybackError(what);
+		return false; // Let completion listener run.
+	}
+
+	@Override
+	public void onStartPlayback()
+	{
+		((VideoPlayerProxy) proxy).onPlaybackStarted();
+	}
+
+	@Override
+	public void onPausePlayback()
+	{
+		((VideoPlayerProxy) proxy).onPlaybackPaused();
+	}
+
+	@Override
+	public void onStopPlayback()
+	{
+		((VideoPlayerProxy) proxy).onPlaybackStopped();
 	}
 }

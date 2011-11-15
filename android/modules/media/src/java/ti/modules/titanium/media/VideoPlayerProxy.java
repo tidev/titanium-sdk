@@ -6,41 +6,67 @@
  */
 package ti.modules.titanium.media;
 
+import java.lang.ref.WeakReference;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiLifecycle;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
+import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
-import android.os.RemoteException;
-import android.os.ResultReceiver;
 
 @Kroll.proxy(creatableInModule = MediaModule.class, propertyAccessors = {
-	"url", "initialPlaybackTime", "duration", "contentURL"
+	"url", "initialPlaybackTime", "duration", "contentURL", "autoplay"
 })
-public class VideoPlayerProxy extends TiViewProxy
+public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifecycleEvent
 {
 	private static final String LCAT = "VideoPlayerProxy";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	protected static final int CONTROL_MSG_LOAD = 100;
-	protected static final int CONTROL_MSG_COMPLETE = 101;
+	protected static final int CONTROL_MSG_ACTIVITY_AVAILABLE = 101;
+	protected static final int CONTROL_MSG_CONFIG_CHANGED = 102;
+
+	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
+	private static final int MSG_PLAY = MSG_FIRST_ID + 101;
+	private static final int MSG_STOP = MSG_FIRST_ID + 102;
+	private static final int MSG_PAUSE = MSG_FIRST_ID + 103;
+	private static final int MSG_MEDIA_CONTROL_CHANGE = MSG_FIRST_ID + 104;
+	private static final int MSG_SCALING_CHANGE = MSG_FIRST_ID + 105;
+	private static final int MSG_SET_PLAYBACK_TIME = MSG_FIRST_ID + 106;
+	private static final int MSG_GET_PLAYBACK_TIME = MSG_FIRST_ID + 107;
+	private static final int MSG_RELEASE_RESOURCES = MSG_FIRST_ID + 108; // Release video resources
+	private static final int MSG_RELEASE = MSG_FIRST_ID + 109; // Call view.release() (more drastic)
+	private static final int MSG_HIDE_MEDIA_CONTROLLER = MSG_FIRST_ID + 110;
+	private static final int MSG_SET_VIEW_FROM_ACTIVITY = MSG_FIRST_ID + 111;
+
+	// The player doesn't automatically preserve its current location and restart from
+	// there when being resumed.  This internal property lets us track that and use it.
+	public static final String PROPERTY_SEEK_TO_ON_RESUME = "__seek_to_on_resume__";
 
 	protected int mMediaControlStyle = MediaModule.VIDEO_CONTROL_DEFAULT;
 	protected int mScalingMode = MediaModule.VIDEO_SCALING_ASPECT_FIT;
+	private int mLoadState = MediaModule.VIDEO_LOAD_STATE_UNKNOWN;
+	private int mPlaybackState = MediaModule.VIDEO_PLAYBACK_STATE_STOPPED;
 
-	private VideoPlayerProxy.ProxyImplementation mImpl = null;
+	// Used only if TiVideoActivity is used (fullscreen == true)
+	private Handler mVideoActivityHandler;
+	private WeakReference<Activity> mActivityListeningTo = null;
 
 	public VideoPlayerProxy()
 	{
@@ -53,8 +79,53 @@ public class VideoPlayerProxy extends TiViewProxy
 	}
 
 	@Override
+	public void setActivity(Activity activity)
+	{
+		super.setActivity(activity);
+		if (mActivityListeningTo != null) {
+			Activity oldActivity = mActivityListeningTo.get();
+			if (oldActivity instanceof TiBaseActivity) {
+				((TiBaseActivity) oldActivity).removeOnLifecycleEventListener(this);
+			} else if (oldActivity instanceof TiVideoActivity) {
+				((TiVideoActivity) oldActivity).setOnLifecycleEventListener(null);
+			}
+			mActivityListeningTo = null;
+		}
+		if (activity instanceof TiBaseActivity) {
+			((TiBaseActivity) activity).addOnLifecycleEventListener(this);
+			mActivityListeningTo = new WeakReference<Activity>(activity);
+		} else if (activity instanceof TiVideoActivity) {
+			((TiVideoActivity) activity).setOnLifecycleEventListener(this);
+			mActivityListeningTo = new WeakReference<Activity>(activity);
+		}
+	}
+
+	/**
+	 * Even when using TiVideoActivity (fullscreen == true), we create
+	 * a TiUIVideoView so we have on common interface to the VideoView
+	 * and so we can handle child views in our standard way without any
+	 * extra code beyond this here.
+	 * @param layout The content view of the TiVideoActivity. It already contains a VideoView.
+	 */
+	// 
+	// a TiUIVideoView so we have one common channel to the VideoView
+	private void setVideoViewFromActivity(TiCompositeLayout layout)
+	{
+		TiUIVideoView tiView = new TiUIVideoView(this);
+		view = tiView;
+		tiView.setVideoViewFromActivityLayout(layout);
+		realizeViews(tiView);
+	}
+
+	@Override
 	public void handleCreationDict(KrollDict options)
 	{
+		super.handleCreationDict(options);
+
+		// "fullscreen" in the creation dict determines
+		// whether we use a TiVideoActivity versus a standard
+		// embedded view.  Setting "fullscreen" after this currently
+		// has no effect.
 		boolean fullscreen = false;
 		Object fullscreenObj = options.get(TiC.PROPERTY_FULLSCREEN);
 		if (fullscreenObj != null) {
@@ -62,54 +133,170 @@ public class VideoPlayerProxy extends TiViewProxy
 		}
 
 		if (fullscreen) {
-			mImpl = new VideoPlayerProxy.VideoPlayerFullscreenProxy();
-		} else {
-			mImpl = new VideoPlayerProxy.VideoPlayerViewProxy();
-		}
-		if (!mImpl.handleCreationDict(options)) {
-			super.handleCreationDict(options);
+			launchVideoActivity(options);
 		}
 	}
 
-	private boolean isActivity()
+	private void launchVideoActivity(KrollDict options)
 	{
-		return (mImpl instanceof VideoPlayerFullscreenProxy);
+		final Intent intent = new Intent(getActivity(), TiVideoActivity.class);
+
+		if (options.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			intent.putExtra(TiC.PROPERTY_BACKGROUND_COLOR, TiConvert.toColor(options, TiC.PROPERTY_BACKGROUND_COLOR));
+		}
+		mVideoActivityHandler = createControlHandler();
+		intent.putExtra(TiC.PROPERTY_MESSENGER, new Messenger(mVideoActivityHandler));
+		getActivity().startActivity(intent);
 	}
 
-	@Kroll.method
-	public void add(TiViewProxy proxy)
+	/**
+	 * Create handler used for communication from TiVideoActivity to this proxy.
+	 * @return
+	 */
+	private Handler createControlHandler()
 	{
-		super.add(proxy); // Let TiViewProxy manage children, even if we're using the fullscreen video activity.
-		if (isActivity()) {
-			// Alert the fullscreen activity of the new child.
-			((VideoPlayerFullscreenProxy) mImpl).sendAddMessage(proxy);
+		return new Handler(new Handler.Callback() {
+			@Override
+			public boolean handleMessage(Message msg)
+			{
+				boolean handled = false;
+				switch (msg.what) {
+					case CONTROL_MSG_CONFIG_CHANGED:
+						if (DBG) {
+							Log.d(LCAT, "TiVideoActivity sending configuration changed message to proxy");
+						}
+						// In case the orientation changed and the media controller is still showing (now in the
+						// wrong place since the screen flipped), hide it.
+						if (view != null) {
+							if (TiApplication.isUIThread()) {
+								((TiUIVideoView) view).hideMediaController();
+							} else {
+								getMainHandler().sendEmptyMessage(MSG_HIDE_MEDIA_CONTROLLER);
+							}
+						}
+						handled = true;
+						break;
+					case CONTROL_MSG_ACTIVITY_AVAILABLE:
+						if (DBG) {
+							Log.d(LCAT, "TiVideoActivity sending activity started message to proxy");
+						}
+						// The TiVideoActivity has started and has called its own
+						// setContentView, which is a TiCompositeLayout with the
+						// TiVideoView8 view on it.  In chain of calls below,
+						// we create a TiUIVideoView and set its nativeView to the
+						// already-existing layout from the activity.
+						TiVideoActivity videoActivity = (TiVideoActivity) msg.obj;
+						setActivity(videoActivity);
+						if (TiApplication.isUIThread()) {
+							setVideoViewFromActivity(videoActivity.mLayout);
+						} else {
+							getMainHandler().sendMessage(getMainHandler().obtainMessage(MSG_SET_VIEW_FROM_ACTIVITY, videoActivity.mLayout));
+						}
+						handled = true;
+						break;
+				}
+				return handled;
+			}
+		});
+	}
+
+	private void control(int action)
+	{
+		if (DBG) {
+			Log.d(LCAT, getActionName(action));
+		}
+
+		if (!TiApplication.isUIThread()) {
+			getMainHandler().sendEmptyMessage(action);
+			return;
+		}
+
+		TiUIView view = peekView();
+		if (view == null) {
+			Log.w(LCAT, "Player action ignored; player has not been created.");
+			return;
+		}
+
+		TiUIVideoView vv = (TiUIVideoView) view;
+
+		switch (action) {
+			case MSG_PLAY:
+				vv.play();
+				break;
+			case MSG_STOP:
+				vv.stop();
+				break;
+			case MSG_PAUSE:
+				vv.pause();
+				break;
+			default:
+				Log.w(LCAT, "Unknown player action (" + action + ") ignored.");
 		}
 	}
+
 
 	@Kroll.method
 	public void play()
 	{
-		mImpl.play();
+		control(MSG_PLAY);
 	}
 
 	
 	@Kroll.method
 	public void pause()
 	{
-		mImpl.pause();
+		control(MSG_PAUSE);
 	}
 
 	@Kroll.method
 	public void stop()
 	{
-		mImpl.stop();
+		control(MSG_STOP);
+	}
+
+	@Kroll.method
+	public void release()
+	{
+		if (DBG) {
+			Log.d(LCAT, "release()");
+		}
+
+		if (view != null) {
+			if (TiApplication.isUIThread()) {
+				((TiUIVideoView) view).releaseVideoView();
+			} else {
+				TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_RELEASE_RESOURCES));
+			}
+		}
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public boolean getPlaying()
+	{
+		if (view != null) {
+			return ((TiUIVideoView) view).isPlaying();
+		} else {
+			return false;
+		}
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public int getLoadState()
+	{
+		return mLoadState;
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public int getPlaybackState()
+	{
+		return mPlaybackState;
 	}
 
 	@Override
 	public void hide(@Kroll.argument(optional=true) KrollDict options)
 	{
-		if (isActivity()) {
-			((VideoPlayerFullscreenProxy) mImpl).sendHideMessage();
+		if (getActivity() instanceof TiVideoActivity) {
+			getActivity().finish();
 		} else {
 			super.hide(options);
 		}
@@ -118,7 +305,66 @@ public class VideoPlayerProxy extends TiViewProxy
 	@Override
 	public boolean handleMessage(Message msg)
 	{
-		boolean handled = mImpl.handleMessage(msg);
+		if (msg.what >= MSG_PLAY && msg.what <= MSG_PAUSE) {
+			control(msg.what);
+			return true;
+		}
+
+		boolean handled = false;
+		TiUIVideoView vv = (TiUIVideoView) view;
+		switch (msg.what) {
+			case MSG_MEDIA_CONTROL_CHANGE:
+				if (vv != null) {
+					vv.setMediaControlStyle(mMediaControlStyle);
+				}
+				handled = true;
+				break;
+			case MSG_SCALING_CHANGE:
+				if (vv != null) {
+					vv.setScalingMode(mScalingMode);
+				}
+				handled = true;
+				break;
+			case MSG_SET_PLAYBACK_TIME:
+				if (vv != null) {
+					vv.seek(msg.arg1);
+				}
+				handled = true;
+				break;
+			case MSG_GET_PLAYBACK_TIME:
+				if (vv != null) {
+					((AsyncResult) msg.obj).setResult(vv.getCurrentPlaybackTime());
+				} else {
+					((AsyncResult) msg.obj).setResult(null);
+				}
+				handled = true;
+				break;
+			case MSG_RELEASE_RESOURCES:
+				if (vv != null) {
+					vv.releaseVideoView();
+				}
+				((AsyncResult) msg.obj).setResult(null);
+				handled = true;
+				break;
+			case MSG_RELEASE:
+				if (vv != null) {
+					vv.release();
+				}
+				((AsyncResult) msg.obj).setResult(null);
+				handled = true;
+				break;
+			case MSG_HIDE_MEDIA_CONTROLLER:
+				if (vv != null) {
+					vv.hideMediaController();
+				}
+				handled = true;
+				break;
+			case MSG_SET_VIEW_FROM_ACTIVITY:
+				setVideoViewFromActivity((TiCompositeLayout) msg.obj);
+				handled = true;
+				break;
+		}
+
 		if (!handled) {
 			handled = super.handleMessage(msg);
 		}
@@ -136,8 +382,12 @@ public class VideoPlayerProxy extends TiViewProxy
 	{
 		boolean alert = (mMediaControlStyle != style);
 		mMediaControlStyle = style;
-		if (alert) {
-			mImpl.onMediaControlStyle();
+		if (alert && view != null) {
+			if (TiApplication.isUIThread()) {
+				((TiUIVideoView) view).setMediaControlStyle(style);
+			} else {
+				getMainHandler().sendEmptyMessage(MSG_MEDIA_CONTROL_CHANGE);
+			}
 		}
 	}
 
@@ -152,15 +402,19 @@ public class VideoPlayerProxy extends TiViewProxy
 	{
 		boolean alert = (mode != mScalingMode);
 		mScalingMode = mode;
-		if (alert) {
-			mImpl.onScalingMode();
+		if (alert && view != null) {
+			if (TiApplication.isUIThread()) {
+				((TiUIVideoView) view).setScalingMode(mode);
+			} else {
+				getMainHandler().sendEmptyMessage(MSG_SCALING_CHANGE);
+			}
 		}
 	}
 
 	@Override
 	public TiUIView createView(Activity activity)
 	{
-		if (isActivity()) {
+		if (getActivity() instanceof TiVideoActivity) {
 			return null;
 		} else {
 			return new TiUIVideoView(this);
@@ -170,405 +424,190 @@ public class VideoPlayerProxy extends TiViewProxy
 	@Kroll.method @Kroll.getProperty
 	public int getCurrentPlaybackTime()
 	{
-		return mImpl.getCurrentPlaybackTime();
+		if (view != null) {
+			if (TiApplication.isUIThread()) {
+				return ((TiUIVideoView) view).getCurrentPlaybackTime();
+			} else {
+				Object result = TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GET_PLAYBACK_TIME));
+				if (result instanceof Number) {
+					return ((Number) result).intValue();
+				} else {
+					return 0;
+				}
+			}
+		} else {
+			return 0;
+		}
 	}
 
 	@Kroll.method @Kroll.setProperty
 	public void setCurrentPlaybackTime(int milliseconds)
 	{
-		mImpl.setCurrentPlaybackTime(milliseconds);
-	}
-
-	interface ProxyImplementation
-	{
-		boolean handleMessage(Message msg);
-		void play();
-		void stop();
-		void pause();
-		void release();
-		boolean handleCreationDict(KrollDict options);
-		void onMediaControlStyle();
-		void onScalingMode();
-		int getCurrentPlaybackTime();
-		void setCurrentPlaybackTime(int milliseconds);
-	}
-
-	class VideoPlayerFullscreenProxy implements ProxyImplementation
-	{
-		private Handler controlHandler;
-		private Messenger activityMessenger;
-
-		private boolean play;
-
-		@Override
-		public boolean handleMessage(Message msg)
-		{
-			return false;
+		if (DBG) {
+			Log.d(LCAT, "setCurrentPlaybackTime(" + milliseconds + ")");
 		}
 
-		@Override
-		public void play()
-		{
-			if (activityMessenger != null) {
-				sendPlayMessage();
-			} else {
-				play = true;
-			}
-		}
-
-		protected void sendPlayMessage()
-		{
-			try {
-				Message msg = Message.obtain();
-				msg.what = TiVideoActivity.MSG_PLAY;
-				activityMessenger.send(msg);
-			} catch (RemoteException e) {
-				Log.w(LCAT, "Unable to send play message: " + e.getMessage());
-			}
-		}
-
-		@Override
-		public void stop()
-		{
-			if (activityMessenger != null) {
-				try {
-					Message msg = Message.obtain();
-					msg.what = TiVideoActivity.MSG_STOP_PLAYBACK;
-					activityMessenger.send(msg);
-				} catch (RemoteException e) {
-					Log.w(LCAT, "Unable to send stop message: " + e.getMessage());
-				}
-			} else {
-				play = false;
-			}
-		}
-
-		@Override
-		public void pause()
-		{
-			if (activityMessenger != null) {
-				try {
-					Message msg = Message.obtain();
-					msg.what = TiVideoActivity.MSG_PAUSE_PLAYBACK;
-					activityMessenger.send(msg);
-				} catch (RemoteException e) {
-					Log.w(LCAT, "Unable to send pause message: " + e.getMessage());
-				}
-			}
-		}
-
-		@Override
-		public void onScalingMode()
-		{
-			if (activityMessenger != null) {
-				try {
-					Message msg = Message.obtain();
-					msg.what = TiVideoActivity.MSG_SCALING_MODE_CHANGE;
-					msg.arg1 = mScalingMode;
-					activityMessenger.send(msg);
-				} catch (RemoteException e) {
-					Log.w(LCAT, "Unable to send scaling mode message: " + e.getMessage());
-				}
-			}
-		}
-
-		@Override
-		public void onMediaControlStyle()
-		{
-			if (activityMessenger != null) {
-				try {
-					Message msg = Message.obtain();
-					msg.what = TiVideoActivity.MSG_MEDIA_CONTROL_STYLE_CHANGE;
-					msg.arg1 = mMediaControlStyle;
-					activityMessenger.send(msg);
-				} catch (RemoteException e) {
-					Log.w(LCAT, "Unable to send media control style change message: " + e.getMessage());
-				}
-			}
-		}
-
-		@Override
-		public boolean handleCreationDict(KrollDict options)
-		{
-			final Intent intent = new Intent(getActivity(), TiVideoActivity.class);
-
-			String url = null;
-			if (options.containsKey(TiC.PROPERTY_CONTENT_URL)) {
-				url = TiConvert.toString(options, TiC.PROPERTY_CONTENT_URL);
-				Log.w(LCAT, "contentURL is deprecated, use url instead");
-			} else if (options.containsKey(TiC.PROPERTY_URL)) {
-				url = TiConvert.toString(options, TiC.PROPERTY_URL);
-			}
-
-			if (url != null) {
-				url = resolveUrl(null, url);
-				if (DBG) {
-					Log.d(LCAT, "Video source: " + url);
-				}
-				intent.putExtra(TiC.PROPERTY_CONTENT_URL, url);
-			}
-			if (options.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
-				intent.putExtra(TiC.PROPERTY_BACKGROUND_COLOR, TiConvert.toColor(options, TiC.PROPERTY_BACKGROUND_COLOR));
-			}
-			if (options.containsKey(TiC.PROPERTY_PLAY)) {
-				intent.putExtra(TiC.PROPERTY_PLAY, TiConvert.toBoolean(options, TiC.PROPERTY_PLAY));
-			}
-			if (options.containsKey(TiC.PROPERTY_MEDIA_CONTROL_STYLE)) {
-				mMediaControlStyle = TiConvert.toInt(options, TiC.PROPERTY_MEDIA_CONTROL_STYLE);
-			}
-			intent.putExtra(TiC.PROPERTY_MEDIA_CONTROL_STYLE, mMediaControlStyle);
-			
-			if (options.containsKey(TiC.PROPERTY_SCALING_MODE)) {
-				mScalingMode = TiConvert.toInt(options, TiC.PROPERTY_SCALING_MODE);
-			}
-			intent.putExtra(TiC.PROPERTY_SCALING_MODE, mScalingMode);
-
-			controlHandler = createControlHandler();
-			intent.putExtra(TiC.PROPERTY_MESSENGER, new Messenger(controlHandler));
-
-			ResultReceiver messengerReceiver = new ResultReceiver(controlHandler) {
-				@Override
-				protected void onReceiveResult(int resultCode, Bundle resultData) {
-					super.onReceiveResult(resultCode, resultData);
-					setActivityMessenger((Messenger)resultData.getParcelable("messenger"));
-					if (DBG) {
-						Log.d(LCAT, "TiVideoActivity messenger received. Releasing latch");
-					}
-				}
-			};
-			intent.putExtra(TiC.PROPERTY_MESSENGER_RECEIVER, messengerReceiver);
-			getActivity().startActivity(intent);
-			return true;
-		}
-
-		private Handler createControlHandler()
-		{
-			return new Handler(new Handler.Callback() {
-				@Override
-				public boolean handleMessage(Message msg)
-				{
-					switch (msg.what) {
-						case CONTROL_MSG_LOAD : {
-							if (DBG) {
-								Log.i(LCAT, "Video Loaded message received from TiVideoActivity");
-							}
-
-							fireEvent("load", null);
-							return true;
-						}
-						case CONTROL_MSG_COMPLETE : {
-							if (DBG) {
-								Log.i(LCAT, "Video playback message received from TiVideoActivity");
-							}
-							fireEvent("complete", null);
-							return true;
-						}
-					}
-					return false;
-				}
-			});
-		}
-
-		protected void setActivityMessenger(Messenger messenger)
-		{
-			activityMessenger = messenger;
-			synchronized (children) {
-				for (TiViewProxy child : children) {
-					sendAddMessage(child);
-				}
-			}
-			if (play) {
-				sendPlayMessage();
-			}
-		}
-
-		protected void sendAddMessage(TiViewProxy proxy)
-		{
-			if (activityMessenger != null) {
-				Message msg = Message.obtain();
-				msg.what = TiVideoActivity.MSG_ADD_VIEW;
-				msg.obj = proxy;
-				try {
-					activityMessenger.send(msg);
-				} catch (RemoteException e) {
-					Log.w(LCAT, "Unable to add view, Activity is no longer available: " + e.getMessage());
-				}
-			}
-		}
-
-		protected void sendHideMessage()
-		{
-			if (activityMessenger != null) {
-				try {
-					Message msg = Message.obtain();
-					msg.what = TiVideoActivity.MSG_HIDE;
-					activityMessenger.send(msg);
-				} catch (RemoteException e) {
-					Log.w(LCAT, "Unable to send hide message: " + e.getMessage());
-				}
-			}
-		}
-
-		@Override
-		public void release()
-		{
-			// No-op
-		}
-
-		@Override
-		public int getCurrentPlaybackTime()
-		{
-			// We never supported this in old (activity-based) implementation.
-			return 0;
-		}
-
-		@Override
-		public void setCurrentPlaybackTime(int milliseconds)
-		{
-			// We never supported this in old (activity-based) implementation.
-		}
-	}
-
-	class VideoPlayerViewProxy implements ProxyImplementation
-	{
-
-		private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
-		private static final int MSG_PLAY = MSG_FIRST_ID + 101;
-		private static final int MSG_STOP = MSG_FIRST_ID + 102;
-		private static final int MSG_PAUSE = MSG_FIRST_ID + 103;
-
-		private void control(int action)
-		{
-			if (DBG) {
-				Log.d(LCAT, getActionName(action));
-			}
-
-			if (!TiApplication.isUIThread()) {
-				getMainHandler().sendEmptyMessage(action);
-				return;
-			}
-
-			TiUIView view = peekView();
-			if (view == null) {
-				Log.w(LCAT, "Player action ignored; player has not been created.");
-				return;
-			}
-
-			TiUIVideoView vv = (TiUIVideoView) view;
-
-			switch (action) {
-				case MSG_PLAY:
-					vv.play();
-					break;
-				case MSG_STOP:
-					vv.stop();
-					break;
-				case MSG_PAUSE:
-					vv.pause();
-					break;
-				default:
-					Log.w(LCAT, "Unknown player action (" + action + ") ignored.");
-			}
-		}
-
-		@Override
-		public void play()
-		{
-			control(MSG_PLAY);
-		}
-
-		@Override
-		public void stop()
-		{
-			control(MSG_STOP);
-		}
-
-		@Override
-		public void pause()
-		{
-			control(MSG_PAUSE);
-		}
-
-		@Override
-		public void setCurrentPlaybackTime(int milliseconds)
-		{
-			if (DBG) {
-				Log.d(LCAT, "setCurrentPlaybackTime(" + milliseconds + ")");
-			}
-
-			if (view != null) {
+		if (view != null) {
+			if (TiApplication.isUIThread()) {
 				((TiUIVideoView) view).seek(milliseconds);
-			}
-
-		}
-
-		@Kroll.method @Kroll.getProperty
-		public int getCurrentPlaybackTime()
-		{
-			if (view == null) {
-				return 0;
-			}
-
-			return ((TiUIVideoView) view).getCurrentPlaybackTime();
-		}
-
-		@Override
-		public boolean handleCreationDict(KrollDict options)
-		{
-			// No-op
-			return false;
-		}
-
-		@Override
-		public boolean handleMessage(Message msg)
-		{
-			if (msg.what >= MSG_PLAY && msg.what <= MSG_PAUSE) {
-				control(msg.what);
-				return true;
-			}
-			return false;
-		}
-
-		private String getActionName(int action)
-		{
-			switch (action) {
-				case MSG_PLAY:
-					return "play";
-				case MSG_PAUSE:
-					return "pause";
-				case MSG_STOP:
-					return "stop";
-				default:
-					return "unknown";
+			} else {
+				Message msg = getMainHandler().obtainMessage(MSG_SET_PLAYBACK_TIME);
+				msg.arg1 = milliseconds;
+				TiMessenger.getMainMessenger().sendMessage(msg);
 			}
 		}
+	}
 
-		@Override
-		public void release()
-		{
-			if (DBG) {
-				Log.d(LCAT, "release()");
-			}
+	private void firePlaybackState(int state)
+	{
+		mPlaybackState = state;
+		KrollDict data = new KrollDict();
+		data.put(TiC.EVENT_PROPERTY_PLAYBACK_STATE, state);
+		fireEvent(TiC.EVENT_PLAYBACK_STATE, data);
+	}
 
-			if (view != null) {
-				((TiUIVideoView) view).releaseVideoView();
+	public void fireLoadState(int state)
+	{
+		mLoadState = state;
+		KrollDict args = new KrollDict();
+		args.put(TiC.EVENT_PROPERTY_LOADSTATE, state);
+		args.put(TiC.EVENT_PROPERTY_CURRENT_PLAYBACK_TIME, getCurrentPlaybackTime());
+		fireEvent(TiC.EVENT_LOADSTATE, args);
+		if (state == MediaModule.VIDEO_LOAD_STATE_UNKNOWN) {
+			setProperty(TiC.PROPERTY_DURATION, 0);
+			setProperty(TiC.PROPERTY_PLAYABLE_DURATION, 0);
+		}
+	}
+
+	public void fireComplete(int reason)
+	{
+		KrollDict args = new KrollDict();
+		args.put(TiC.EVENT_PROPERTY_REASON, reason);
+		fireEvent(TiC.EVENT_COMPLETE, args);
+	}
+
+	public void onPlaybackReady(int duration)
+	{
+		KrollDict data = new KrollDict();
+		data.put(TiC.PROPERTY_DURATION, duration);
+		setProperty(TiC.PROPERTY_DURATION, duration);
+		setProperty(TiC.PROPERTY_PLAYABLE_DURATION, duration);
+		fireEvent(TiC.EVENT_DURATION_AVAILABLE, data);
+		fireEvent(TiC.EVENT_PRELOAD, null);
+		fireEvent(TiC.EVENT_LOAD, null); // No distinction between load and preload in our case.
+		fireLoadState(MediaModule.VIDEO_LOAD_STATE_PLAYABLE);
+		Object autoplay = getProperty(TiC.PROPERTY_AUTOPLAY); // Docs say autoplay on by default.
+		if (autoplay == null || TiConvert.toBoolean(autoplay)) {
+			play();
+		}
+	}
+
+	public void onPlaybackStarted()
+	{
+		firePlaybackState(MediaModule.VIDEO_PLAYBACK_STATE_PLAYING);
+	}
+
+	public void onPlaybackPaused()
+	{
+		firePlaybackState(MediaModule.VIDEO_PLAYBACK_STATE_PAUSED);
+	}
+
+	public void onPlaybackStopped()
+	{
+		firePlaybackState(MediaModule.VIDEO_PLAYBACK_STATE_STOPPED);
+		fireComplete(MediaModule.VIDEO_FINISH_REASON_USER_EXITED);
+	}
+
+	public void onPlaybackComplete()
+	{
+		firePlaybackState(MediaModule.VIDEO_PLAYBACK_STATE_STOPPED);
+		fireComplete(MediaModule.VIDEO_FINISH_REASON_PLAYBACK_ENDED);
+	}
+
+	public void onPlaybackError(int what)
+	{
+		String message = "Unknown";
+		switch(what) {
+			case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK:
+				message = "Not valid for progressive playback";
+				break;
+			case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
+				message = "Server died";
+				break;
+		}
+		firePlaybackState(MediaModule.VIDEO_PLAYBACK_STATE_INTERRUPTED);
+		KrollDict data = new KrollDict();
+		data.put(TiC.EVENT_PROPERTY_MESSAGE, message);
+		fireEvent(TiC.EVENT_ERROR, data);
+		fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
+		fireComplete(MediaModule.VIDEO_FINISH_REASON_PLAYBACK_ERROR);
+	}
+
+	private String getActionName(int action)
+	{
+		switch (action) {
+			case MSG_PLAY:
+				return "play";
+			case MSG_PAUSE:
+				return "pause";
+			case MSG_STOP:
+				return "stop";
+			default:
+				return "unknown";
+		}
+	}
+
+	@Override
+	public void onStart(Activity activity){}
+
+	@Override
+	public void onResume(Activity activity)
+	{
+		// The TiVideoActivity has resumed.  Was it playing when it was paused earlier?
+		// If so, start playing again.
+		boolean play = false;
+		if (hasProperty(PROPERTY_SEEK_TO_ON_RESUME)) {
+			play = TiConvert.toInt(getProperty(PROPERTY_SEEK_TO_ON_RESUME)) > 0;
+		}
+		if (view != null && play) {
+			play();
+		}
+	}
+
+	@Override
+	public void onPause(Activity activity)
+	{
+		if (view != null) {
+			int seekToOnResume = getCurrentPlaybackTime();
+			setProperty(PROPERTY_SEEK_TO_ON_RESUME, seekToOnResume);
+			pause();
+		}
+	}
+
+	@Override
+	public void onStop(Activity activity) {}
+
+	@Override
+	public void onDestroy(Activity activity)
+	{
+		boolean wasPlaying = getPlaying();
+		if (!wasPlaying) {
+			// Could be we've passed through onPause while finishing and paused playback.
+			if (hasProperty(PROPERTY_SEEK_TO_ON_RESUME)) {
+				wasPlaying = TiConvert.toInt(getProperty(PROPERTY_SEEK_TO_ON_RESUME)) > 0;
+				setProperty(PROPERTY_SEEK_TO_ON_RESUME, 0);
 			}
 		}
-
-		@Override
-		public void onMediaControlStyle()
-		{
-			if (view != null) {
-				((TiUIVideoView) view).setMediaControlStyle(mMediaControlStyle);
+		// Stop the video and cleanup.
+		if (view != null) {
+			if (TiApplication.isUIThread()) {
+				((TiUIVideoView) view).release();
+			} else {
+				TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_RELEASE));
 			}
 		}
-
-		@Override
-		public void onScalingMode()
-		{
-			if (view != null) {
-				((TiUIVideoView) view).setScalingMode(mScalingMode);
-			}
+		if (wasPlaying) {
+			fireComplete(MediaModule.VIDEO_FINISH_REASON_USER_EXITED);
 		}
 	}
 

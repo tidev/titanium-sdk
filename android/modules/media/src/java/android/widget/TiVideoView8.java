@@ -20,6 +20,8 @@
  * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
+ * 
+ * This is the api level 8 VideoView.java with Titanium-specific modifications.
  */
 
 package android.widget;
@@ -33,6 +35,7 @@ import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 
 import ti.modules.titanium.media.MediaModule;
+import ti.modules.titanium.media.TiPlaybackListener;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -114,6 +117,9 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	@SuppressWarnings("unused")
 	private int mStateWhenSuspended; // state before calling suspend()
 
+	// TITANIUM
+	private TiPlaybackListener mPlaybackListener;
+
 	public TiVideoView8(Context context)
 	{
 		super(context);
@@ -130,6 +136,12 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	{
 		super(context, attrs, defStyle);
 		initVideoView();
+	}
+
+	// TITANIUM
+	public void setOnPlaybackListener(TiPlaybackListener tiPlaybackListener)
+	{
+		mPlaybackListener = tiPlaybackListener;
 	}
 
 	/*
@@ -313,6 +325,10 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	{
 		if (mMediaPlayer != null) {
 			mMediaPlayer.stop();
+			// TITANIUM
+			if (mPlaybackListener != null) {
+				mPlaybackListener.onStopPlayback();
+			}
 			mMediaPlayer.release();
 			mMediaPlayer = null;
 			mCurrentState = STATE_IDLE;
@@ -763,6 +779,10 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 		if (isInPlaybackState()) {
 			mMediaPlayer.start();
 			mCurrentState = STATE_PLAYING;
+			// TITANIUM
+			if (mPlaybackListener != null) {
+				mPlaybackListener.onStartPlayback();
+			}
 		}
 		mTargetState = STATE_PLAYING;
 	}
@@ -773,6 +793,10 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			if (mMediaPlayer.isPlaying()) {
 				mMediaPlayer.pause();
 				mCurrentState = STATE_PAUSED;
+				// TITANIUM
+				if (mPlaybackListener != null) {
+					mPlaybackListener.onPausePlayback();
+				}
 			}
 		}
 		mTargetState = STATE_PAUSED;
