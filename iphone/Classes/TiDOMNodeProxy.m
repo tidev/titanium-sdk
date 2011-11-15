@@ -182,15 +182,15 @@ CFHashCode	simpleHash(const void *value)
     switch (realNodeType) 
     {
         case XML_TEXT_NODE:
-            return @"text";
+            return @"#text";
         case XML_COMMENT_NODE:
-            return @"comment";
+            return @"#comment";
         case XML_CDATA_SECTION_NODE:
-            return @"cdata-section";
+            return @"#cdata-section";
         case XML_DOCUMENT_NODE:
-            return @"document";
+            return @"#document";
         case XML_DOCUMENT_FRAG_NODE:
-            return @"document-fragment";
+            return @"#document-fragment";
         default:
             return [node name];
     }
