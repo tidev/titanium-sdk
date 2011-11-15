@@ -10,6 +10,10 @@
 			typestr = "Object"
 		elif data.typestr == "method":
 			typestr = "Function"
+		elif data.typestr == "property":
+			typestr = "Property"
+		elif data.typestr == "event":
+			typestr = "Event"
 	%>
 	% if len(typestr) > 0 and data.parent is not None:
 		${typestr} of <a href="${data.parent.filename_html}.html">${data.parent.name}</a>.

@@ -1,23 +1,27 @@
 ---
 name: Titanium.Namespace.Name
 extends: Titanium.Proxy
-description: A proxy
+summary: A proxy
+description: |
+    A long-format description of this type.
 since: "1.7.0"
 properties:
   - name: exampleProperty
-    description: A property
+    summary: A property
+    description: A long-format description of this property.
     type: String
 methods:
   - name: exampleMethod
-    description: A method
+    summary: A method
+    description: A long-format description of this property.
 events:
   - name: exampleEvent
-    description: An event
+    summary: An event
+    description: A long-format description of this property.
     properties:
       - name: eventProperty
-        description: An event property
-notes: |
-    An example note
+        summary: An event property
+        description: A long-format description of this event property.
 examples:
   - title: Example
     example: |

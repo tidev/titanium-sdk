@@ -171,6 +171,9 @@ def validateCommon(tracker, map):
 	if 'optional' in map:
 		validateIsBool(tracker, 'optional', map['optional'])
 
+	if 'notes' in map:
+		tracker.trackError('"notes" field is no longer valid')
+
 def validateMethod(typeTracker, method):
 	tracker = ErrorTracker(method['name'], typeTracker)
 	validateRequired(tracker, method, ['name'])
@@ -189,7 +192,7 @@ def validateMethod(typeTracker, method):
 			tracker.trackError('"parameters" must be a list')
 		for param in method['parameters']:
 			pTracker = ErrorTracker(param['name'], tracker)
-			validateRequired(pTracker, param, ['name', 'description', 'type'])
+			validateRequired(pTracker, param, ['name', 'summary', 'type'])
 
 	if 'examples' in method:
 		validateExamples(tracker, method['examples'])
@@ -197,7 +200,7 @@ def validateMethod(typeTracker, method):
 def validateProperty(typeTracker, property):
 	tracker = ErrorTracker(property['name'], typeTracker)
 
-	validateRequired(tracker, property, ['name', 'description', 'type'])
+	validateRequired(tracker, property, ['name', 'summary', 'type'])
 	validateCommon(tracker, property)
 
 	if 'examples' in property:
@@ -214,7 +217,7 @@ def validateProperty(typeTracker, property):
 
 def validateEvent(typeTracker, event):
 	tracker = ErrorTracker(event['name'], typeTracker)
-	validateRequired(tracker, event, ['name', 'description'])
+	validateRequired(tracker, event, ['name', 'summary'])
 	validateCommon(tracker, event)
 
 def validateExamples(tracker, examples):
@@ -232,11 +235,11 @@ def validateType(typeDoc):
 	errorTrackers[typeName] = ErrorTracker(typeName)
 	tracker = errorTrackers[typeName]
 
-	validateRequired(tracker, typeDoc, ['name', 'description'])
+	validateRequired(tracker, typeDoc, ['name', 'summary'])
 	validateCommon(tracker, typeDoc)
 
-	if 'notes' in typeDoc:
-		validateMarkdown(tracker, typeDoc['notes'], 'notes')
+	if 'description' in typeDoc:
+		validateMarkdown(tracker, typeDoc['description'], 'description')
 
 	if 'examples' in typeDoc:
 		validateExamples(tracker, typeDoc['examples'])
