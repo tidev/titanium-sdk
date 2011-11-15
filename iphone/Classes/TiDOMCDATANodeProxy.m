@@ -6,15 +6,9 @@
  */
 #if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
 
-#import "TiProxy.h"
-#import "TIDOMCharacterDataProxy.h"
+#import "TiDOMCDATANodeProxy.h"
 
-@interface TiDOMTextNodeProxy : TiDOMCharacterDataProxy {
-@private
-}
-
--(TiDOMTextNodeProxy *) splitText:(id)args;
+@implementation TiDOMCDATANodeProxy
 
 @end
-
 #endif
