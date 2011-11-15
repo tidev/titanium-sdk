@@ -1,27 +1,84 @@
 ---
 name: Titanium.UI.Tab
-description: A TabGroup Tab instance.  Each Tab instance maintains a stack of tab windows. Only one window 
-    within in the Tab can be visible at a time.  When a window is closed, either by the user or 
-    by code, the window is removed from the stack, make the previous window visible. The root tab 
-    window cannot be removed. The Tab Group is created by the method <Titanium.UI.createTab>.
+summary: A tab instance for a [TabGroup](Titanium.UI.TabGroup).
+description: |
+    A `TabGroup` tab instance. Each tab instance maintains a stack of tab windows. Only one window 
+    in the tab is visible at a time.  When a window is closed, either by the user or 
+    by code, the window is removed from the stack, making the previous window visible. The root tab 
+    window cannot be removed. Use the <Titanium.UI.createTab> method to create a tab.
+    
+    Use [TabGroup.setActiveTab](Titanium.UI.TabGroup.setActiveTab) to switch between tabs 
+    in a tab group. The <Titanium.UI.currentTab> property provides a global reference to the currently active tab.
 extends: Titanium.UI.View
 since: "0.8"
+methods:
+  - name: open
+    description: Opens a new window as the top window in the tab's window stack.
+    parameters: 
+      - name: window
+        description: Window to open.
+        type: Titanium.UI.Window
+      - name: options
+        description: Dictionary of display and animation settings to use when opening the window. Identical to the `options` parameter to [Window.open](Titanium.UI.Window.open).
+        type: Object
+  - name: close
+    description: Closes the top-level window for this tab. 
+    parameters: 
+      - name: options
+        description: Dictionary of display and animation settings to use when opening the window. Identical to the `options` parameter to [Window.close](Titanium.UI.Window.close).
+        type: Object
 properties:
+  - name: active
+    description: |
+        `true` if this tab is active, `false` if it is not. The tab can be activated by setting the property, but since this propery is platform-specific, using [TabGroup.setActiveTab](Titanium.UI.TabGroup.setActiveTab) is recommended instead.
+    type: Boolean
+    platforms: [iphone,ipad]
   - name: badge
-    description: the badge value for the tab group for this tab. null indicates no badge is value
+    description: Badge value for this tab's tab group. `null` indicates no badge.
     type: String
   - name: icon
-    description: the icon url for the tab group for this tab
+    description: Icon URL for this tab's tab group.
     type: String
   - name: title
-    description: the title for the tab group for this tab
+    description: Title for this tab's tab group.
     type: String
   - name: titleid
-    description: the key in the locale file to use for the title property
+    description: Key identifying a string from the locale file to use for the label text. Only one of `title` or `titleid` should be specified.
     type: String
   - name: window
-    description: the root level tab window.  all tabs must have at least one root level tab window.
-    type: Object
+    description: Root level tab window.  All tabs must have at least one root level tab window.
+    type: Titanium.UI.Window
+events: 
+  - name: blur
+    description: Fired when the tab loses focus.
+    properties:
+      - name: index
+        description: Index of the current active tab.
+        type: Number
+      - name: previousIndex
+        description: Index of the previous active tab.
+        type: Number
+      - name: tab
+        description: Current active tab object.
+        type: Titanium.UI.Tab
+      - name: previousTab
+        description: Previous active tab object.
+        type: Titanium.UI.Tab
+  - name: focus
+    description: Fired when the tab gains focus.
+    properties:
+      - name: index
+        description: Index of the current active tab.
+        type: Number
+      - name: previousIndex
+        description: Index of the previous active tab.
+        type: Number
+      - name: tab
+        description: Current active tab object.
+        type: Titanium.UI.Tab
+      - name: previousTab
+        description: Previous active tab object.
+        type: Titanium.UI.Tab
 examples:
   - title: Simple Tab Example
     example: |
@@ -34,5 +91,3 @@ examples:
             	icon:'myicon.png'
             });
             tabGroup.addTab(tab);
-        
-        
