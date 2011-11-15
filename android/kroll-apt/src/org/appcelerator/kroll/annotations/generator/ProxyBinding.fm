@@ -459,6 +459,7 @@ fails, a JS exception is returned.
 	<#elseif info.jsType == "Number">
 		<#local type = "Local<Number>">
 		<#local valueExpr = expr + "->ToNumber()">
+		<#local stringExpr = expr + "->ToString()">
 		<#local postAssignmentCheck = "V8Util::isNaN(" + current_arg + ")">
 	<#elseif info?keys?seq_contains("jsHandleCast")>
 		<#local type = "Local<" + info.jsType + ">">
@@ -471,7 +472,7 @@ fails, a JS exception is returned.
 	${type} ${current_arg} = ${valueExpr};
 	
 	<#if info.jsType == "Number">
-		if (${postAssignmentCheck}) {
+		if (${postAssignmentCheck} || ${stringExpr}->Length() == 0) {
 			const char *error = "Invalid value, expected type ${info.jsType}.";
 			LOGE(TAG, error);
 			<#if !(logOnly!false)>
