@@ -10,15 +10,13 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 	this.dom.style.overflow = 'hidden';
 
 	// Properties
-	var _currentPage = args.currentPage === undefined ? -1 : args.currentPage;
+	var _currentPage = args.currentPage || -1;
 	Object.defineProperty(this, 'currentPage', {
 		get: function(){return _currentPage;},
 		set: function(val){
 			if (val >= 0 && val < _views.length) {
 				obj._scrollToViewPosition(val);
 				return _currentPage = val;
-			} else {
-				return null;
 			}
 		}
 	});
@@ -53,7 +51,7 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 		set: function(val){return _showPagingControl = val;}
 	});
 
-	var _views = args.views === undefined ? [] : args.views;
+	var _views = args.views || [];
 	Object.defineProperty(this, 'views', {
 		get: function(){return _views;},
 		set: function(val){return _views = val;}
@@ -68,6 +66,17 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 			obj._scrollToViewPosition(0);
 		}
 	};
+	this._viewToRemoveAfterScroll = -1;
+	this._removeViewFromList = function(viewIndex) {
+		
+		// Remove the view
+		_views.splice(viewIndex,1);
+		
+		// Update the current view if necessary
+		if (viewIndex < _currentPage){
+			_currentPage--;
+		}
+	}
 	this.removeView = function(view){
 		
 		// Get and validate the location of the view
@@ -78,6 +87,7 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 		
 		// Update the view if this view was currently visible
 		if (viewIndex == _currentPage) {
+			this._viewToRemoveAfterScroll = viewIndex;
 			if (_views.length == 1) {
 				obj.dom.removeChild(obj.dom.firstChild);
 			} else if (viewIndex == _views.length - 1) {
@@ -85,14 +95,8 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 			} else {
 				obj._scrollToViewPosition(viewIndex + 1);
 			}
-		}
-		
-		// Remove the view
-		_views.splice(viewIndex,1);
-		
-		// Update the current view if necessary
-		if (viewIndex < _currentPage){
-			_currentPage--;
+		} else {
+			obj._removeViewFromList(viewIndex);
 		}
 	};
 	this.scrollToView = function(view){
@@ -205,6 +209,10 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 					clearInterval(_interval);
 					_interval = null;
 					obj._attachFinalView(_views[viewIndex].dom);
+					if (obj._viewToRemoveAfterScroll != -1) {
+						obj._removeViewFromList(obj._viewToRemoveAfterScroll);
+						obj._viewToRemoveAfterScroll = -1;
+					}
 		    	}
 			},32); // Update around 32 FPS.
 		}
