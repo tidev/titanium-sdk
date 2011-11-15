@@ -35,7 +35,7 @@
 					}
 				}
 			};
-			xhr.open("POST", absLocation, false);
+			xhr.open("GET", absLocation, false);
 			xhr.setRequestHeader("Access-Control-Allow-Origin","*");
 			xhr.setRequestHeader("Content-Type", "text/xml; charset=utf-8");
 			xhr.send(null);
