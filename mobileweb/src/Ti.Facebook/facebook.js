@@ -93,34 +93,34 @@
 		
 		// Authorize
 		FB.login(function(response) {
+			var undef;
+			var oEvent = {
+				cancelled	: false,
+				data		: response,
+				error		: undef,
+				source		: undef,
+				success		: false,
+				type		: undef,
+				uid			: response.id
+			};
 			if (response.authResponse) {
 				_expirationDate = new Date((new Date()).getTime() + response.authResponse.expiresIn * 1000);
 				FB.api('/me', function(response) {
-					_loggedIn = true;
-					_uid = response.id;
-					var undef;
-					var oEvent = {
-						cancelled	: false,
-						data		: response,
-						error		: undef,
-						source		: undef,
-						success		: true,
-						type		: undef,
-						uid			: _uid
-					};
+					if (!response) {
+						oEvent.error = "An unknown error occured.";
+					} else if (response.error) {
+						oEvent.error = response.error;
+					} else {
+						_loggedIn = true;
+						_uid = response.id;
+						oEvent.success = true;
+						oEvent.uid = _uid;
+					}
 					api.fireEvent('login', oEvent);
 				});
 			} else {
-				var undef;
-				var oEvent = {
-					cancelled	: true,
-					data		: response,
-					error		: "The user cancelled or there was an internal error",
-					source		: undef,
-					success		: false,
-					type		: undef,
-					uid			: response.id
-				};
+				oEvent.cancelled = true
+				oEvent.error = "The user cancelled or an internal error occured."
 				api.fireEvent('login', oEvent);
 			}
 		}, {'scope':_permissions.join()});
@@ -143,9 +143,30 @@
 		});
 	};
 	api.request = function(method,params,callback){
-		console.debug('Method "Titanium.Facebook.request" is not implemented yet.');
+		FB.api({
+				method: method,
+				urls: 'facebook.com,developers.facebook.com'
+			},params,function(response){
+			if (!response) {
+				var undef;
+				callback({'success':false,'error':undef,'path':path});
+			} else if (response.error) {
+				callback({'success':false,'error':response.error,'path':path});
+			} else {
+				callback({'success':true,'result':response,'path':path});
+			}
+		});
 	};
 	api.requestWithGraphPath = function(path,params,httpMethod,callback){
-		console.debug('Method "Titanium.Facebook.requestWithGraphPath" is not implemented yet.');
+		FB.api(path,httpMethod,params,function(response){
+			if (!response) {
+				var undef;
+				callback({'success':false,'error':undef,'path':path});
+			} else if (response.error) {
+				callback({'success':false,'error':response.error,'path':path});
+			} else {
+				callback({'success':true,'result':response,'path':path});
+			}
+		});
 	};
 })(Ti._5.createClass('Titanium.Facebook'));
