@@ -6,15 +6,10 @@
  */
 #if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
 
-#import "TiProxy.h"
-#import "TIDOMCharacterDataProxy.h"
+#import "TiDOMNodeProxy.h"
+// Corresponds to Interface DocumentFragment of DOM2 Spec
 
-@interface TiDOMTextNodeProxy : TiDOMCharacterDataProxy {
-@private
-}
-
--(TiDOMTextNodeProxy *) splitText:(id)args;
+@interface TiDOMDocFragProxy : TiDOMNodeProxy
 
 @end
-
 #endif

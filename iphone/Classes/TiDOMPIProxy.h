@@ -4,19 +4,16 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+
 #if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
-
-#import "TiProxy.h"
-#import "GDataXMLNode.h"
 #import "TiDOMNodeProxy.h"
+// Corresponds to Interface ProcessingInstruction of DOM2 Spec.
 
-@interface TiDOMDocumentProxy : TiDOMNodeProxy {
-@private
+@interface TiDOMPIProxy : TiDOMNodeProxy{   
 }
+@property(nonatomic,copy,readwrite) NSString * data;
+@property(nonatomic,readonly) NSString * target;
 
--(void)parseString:(NSString*)xml;
 
 @end
-
-
 #endif
