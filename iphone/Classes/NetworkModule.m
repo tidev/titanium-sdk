@@ -189,6 +189,9 @@ NSString* const INADDR_ANY_token = @"INADDR_ANY";
 			return @"LAN";
 		case TiNetworkConnectionStateMobile:
 			return @"MOBILE";
+		default: {
+			break;
+		}
 	}
 	return @"UNKNOWN";
 }

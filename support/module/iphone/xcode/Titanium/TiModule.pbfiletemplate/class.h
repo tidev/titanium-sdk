@@ -8,8 +8,6 @@
 
 @interface «FILEBASENAMEASIDENTIFIER» : TiModule {
 
-@private
-
 }
 
 @end

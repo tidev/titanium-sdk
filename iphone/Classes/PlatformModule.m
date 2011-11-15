@@ -181,6 +181,11 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 
 #pragma mark Public APIs
 
+-(NSString*)runtime
+{
+	return @"javascriptcore";
+}
+
 -(NSString*)locale
 {
 	// this will return the locale that the user has set the phone in
@@ -192,6 +197,7 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 
 -(id)id
 {
+	NSLog(@"[WARN] Ti%@.Platform.id DEPRECATED in 1.8.0", @"tanium");
 	return macaddress;
 }
 

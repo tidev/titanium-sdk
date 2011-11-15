@@ -13,6 +13,7 @@
 #import "TiRange.h"
 #import "TiViewProxy.h"
 #import "TiApp.h"
+#import "TiUITextWidget.h"
 
 @implementation TiTextField
 
@@ -193,7 +194,7 @@
 
 -(BOOL)isFirstResponder
 {
-	if ([TiUtils isiPhoneOS3_2OrGreater] && becameResponder) return YES;
+	if (becameResponder) return YES;
 	return [super isFirstResponder];
 }
 

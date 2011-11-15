@@ -22,7 +22,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 	TiOrientationFlags result = TiOrientationNone;
 	for (id mode in args)
 	{
-		UIInterfaceOrientation orientation = [TiUtils orientationValue:mode def:-1];
+		UIInterfaceOrientation orientation = (UIInterfaceOrientation)[TiUtils orientationValue:mode def:-1];
 		switch (orientation)
 		{
 			case UIDeviceOrientationPortrait:
@@ -324,7 +324,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		navController = [navbar_ retain];
 		controller = [controller_ retain];
 		[(TiViewController *)controller setProxy:self];
-		tab = [tab_ retain];
+		tab = (TiViewProxy<TiTab>*)[tab_ retain];
 		
 		[self _tabAttached];
 	}
@@ -448,7 +448,6 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 				[wc setModalTransitionStyle:style];
 				[nc setModalTransitionStyle:style];
 			}
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 			style = [TiUtils intValue:@"modalStyle" properties:dict def:-1];
 			if (style!=-1)
 			{
@@ -460,7 +459,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 				    [nc setModalPresentationStyle:style];
 				}
 			}
-#endif		
+
 //			[self setController:wc];
 			[self setNavController:nc];
 			BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];

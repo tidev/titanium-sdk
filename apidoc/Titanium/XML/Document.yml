@@ -5,6 +5,7 @@ description: The DOM Document returned from <Titanium.XML.parseString> or <Titan
 extends: Titanium.XML.Node
 createable: false
 since: "0.9"
+platforms: [android, iphone, ipad]
 properties:
   - name: doctype
     type: Titanium.XML.DocumentType

@@ -52,7 +52,7 @@ methods:
         type: Dictionary<Titanium.Network.BonjourService>
   - name: createTCPSocket
     description: create and return an instance of <Titanium.Network.TCPSocket>
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     deprecated:
         since: "1.7.0"
     returns:
@@ -118,59 +118,61 @@ properties:
     description: constant value representing the ability for sockets to listen on any locally available network device
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: NETWORK_LAN
     description: constant value to indicate that the network is LAN
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: NETWORK_MOBILE
     description: constant value to indicate that the network is MOBILE
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: NETWORK_NONE
     description: constant value to indicate that the network is not available
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: NETWORK_UNKNOWN
     description: constant value to indicate that the network is not known
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: NETWORK_WIFI
     description: constant value to indicate that the network is WIFI
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: NOTIFICATION_TYPE_ALERT
     description: constant value for the push notification alert type
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     permission: read-only
     type: Number
   - name: NOTIFICATION_TYPE_BADGE
     description: constant value for the push notification badge type
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: NOTIFICATION_TYPE_SOUND
     description: constant value for the push notification sound type
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: NOTIFICATION_TYPE_NEWSSTAND
     description: constant value for the push notification Newsstand type. Only available on iOS5 and later
+	permissions: read-only
+	platforms: [iphone, ipad, mobileweb]
   - name: READ_MODE
     description: constant value specifying read-only mode for sockets
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: READ_WRITE_MODE
     description: constant value specifying read-write mode for sockets
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: SOCKET_CLOSED
     description: constant value representing a socket in the CLOSED state
     type: Number
@@ -200,7 +202,7 @@ properties:
     description: constant value specifying write-only mode for sockets
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: networkType
     description: the network type value as a constant.
     type: Number

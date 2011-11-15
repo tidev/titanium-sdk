@@ -87,16 +87,12 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 
 -(KrollBridge*)krollBridge;
 
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-
 -(void)beginBackgrounding;
 -(void)endBackgrounding;
 -(void)registerBackgroundService:(TiProxy*)proxy;
 -(void)unregisterBackgroundService:(TiProxy*)proxy;
 -(void)stopBackgroundService:(TiProxy*)proxy;
 -(UILocalNotification*)localNotification;
-#endif
 
 @end
 

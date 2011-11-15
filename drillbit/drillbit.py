@@ -1,5 +1,7 @@
 #!/usr/bin/python
-import os, sys, re, platform, subprocess, shutil, zipfile
+import os, sys, re
+import platform, subprocess
+import shutil, zipfile
 
 drillbit_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 drillbit_app_dir = os.path.join(drillbit_dir, 'app')
@@ -76,7 +78,7 @@ class version(object):
 					return other.parts[2]
 				else: return 0
 
-def extract_mobilesdk():
+def extract_mobilesdk(extract=True):
 	mobile_dist_dir = os.path.join(mobile_dir, 'dist')
 	sys.path.append(mobile_dist_dir)
 	sys.path.append(os.path.join(mobile_dir, 'build'))
@@ -84,6 +86,9 @@ def extract_mobilesdk():
 	
 	mobilesdk_dir = os.path.join(mobile_dist_dir, 'mobilesdk', platform_name, titanium_version.version)
 	mobilesdk_zipfile = os.path.join(mobile_dist_dir, 'mobilesdk-%s-%s.zip' % (titanium_version.version, platform_name))
+	if not extract:
+		return mobilesdk_dir
+
 	if platform.system() == 'Darwin':
 		subprocess.Popen(['/usr/bin/unzip', '-q', '-o', '-d', mobile_dist_dir, mobilesdk_zipfile])
 	else:
@@ -118,6 +123,7 @@ def usage():
     --android-force-build           When passed, the test harness is forcefully built on initial deploy
     --android-device=DEVICE         The device argument to pass to ADB.
                                     Valid values: emulator (-e), device (-d), or specific serial (default: emulator)
+    --android-runtime=RUNTIME       The Android runtime to run tests with (default: v8)
 """ % sys.argv[0]
 	sys.exit(1)
 
@@ -152,7 +158,8 @@ def build_and_run(args=None):
 	tibuild = os.path.join(desktop_sdk, 'tibuild.py')
 	drillbit_build_dir = os.path.join(mobile_dir, 'build', 'drillbit')
 
-	mobilesdk_dir = extract_mobilesdk()
+	extract = 'NO_EXTRACT' not in os.environ
+	mobilesdk_dir = extract_mobilesdk(extract)
 
 	if not os.path.exists(drillbit_build_dir):
 		os.makedirs(drillbit_build_dir)
