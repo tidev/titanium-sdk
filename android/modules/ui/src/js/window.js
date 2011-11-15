@@ -10,6 +10,7 @@ var EventEmitter = require("events").EventEmitter,
 var TAG = "Window";
 
 exports.bootstrapWindow = function(Titanium) {
+	// flags to indicate if an activity should be created for the window
 	var newActivityRequiredKeys = ["fullscreen", "navBarHidden", "modal", "windowSoftInputMode"];
 
 	// Backward compatibility for lightweight windows
@@ -20,23 +21,14 @@ exports.bootstrapWindow = function(Titanium) {
 	var TiWindow = Titanium.TiWindow;
 
 	// set constants for representing states for the window
-	Window.prototype.stateClosed = 0;
-	Window.prototype.stateOpening = 1;
-	Window.prototype.stateOpened = 2;
-	Window.prototype.stateClosing = 3;
+	Window.prototype.state = {closed: 0, opening: 1, opened: 2, closing: 3};
 
-	Window.prototype.getTopActivity = function() {
-		var topActivity = Titanium.App.Android.getTopActivity();
-		if (topActivity) {
-			return topActivity;
-		}
 
-		kroll.log(TAG, "unable to find valid top activity");
-		return null;
-	}
-
+	// this is mainly used when we need to perform an operation on an activity and our
+	// window does not have its own activity.  IE:  setting orientation on a window opened 
+	// without having any of the newActivityRequiredKeys in it's construction arguments
 	Window.prototype.getActivityDecorView = function() {
-		var topActivity = this.getTopActivity();
+		var topActivity = Titanium.App.Android.getTopActivity();
 		if (topActivity) {
 			return topActivity.getDecorView();
 		}
@@ -68,7 +60,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 		}
 
-		return TiWindow.prototype.getOrientation.apply(this);
+		return this.getActivityDecorView().getOrientation();
 	}
 	Window.prototype.getOrientation = orientationGetter;
 	Object.defineProperty(Window.prototype, "orientation", { get: orientationGetter});
@@ -78,11 +70,9 @@ exports.bootstrapWindow = function(Titanium) {
 		if (this.window) {
 			return this.window.getOrientationModes();
 
-		} else if (this.getCachedProperty("orientationModes")) {
-			return this.getCachedProperty("orientationModes");
 		}
 
-		return TiWindow.prototype.getOrientationModes.apply(this);
+		return this.getActivityDecorView().getOrientationModes();
 	}
 	var orientationModesSetter = function(value) {
 		if (value != null) {
@@ -90,7 +80,7 @@ exports.bootstrapWindow = function(Titanium) {
 				this.window.setOrientationModes(value);
 
 			} else {
-				this.setCachedProperty("orientationModes", value);
+				this.getActivityDecorView().setOrientationModes(value);
 			}
 
 		} else {
@@ -138,37 +128,13 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.setWindowPixelFormat = windowPixelFormatSetter;
 	Object.defineProperty(Window.prototype, "windowPixelFormat", { get: windowPixelFormatGetter, set: windowPixelFormatSetter});
 
-
-	Window.prototype.addChildren = function() {
-		if (this._children) {
-			var length = this._children.length;
-
-			for (var i = 0; i < length; i++) {
-				this.view.add(this._children[i]);
-			}
-		}
-
-		// don't delete the children once finished in case the window
-		// needs to be opened again
-	}
-
-	Window.prototype.removeChildren = function() {
-		if (this._children) {
-			var length = this._children.length;
-
-			for (var i = 0; i < length; i++) {
-				this.view.remove(this._children[i]);
-			}
-		}
-	}
-
 	Window.prototype.open = function(options) {
 		// if the window is not closed, do not open
-		if (this.currentState != this.stateClosed) {
+		if (this.currentState != this.state.closed) {
 			kroll.log(TAG, "unable to open, window is not closed");
 			return;
 		}
-		this.currentState = this.stateOpening;
+		this.currentState = this.state.opening;
 
 		if (!options) {
 			options = {};
@@ -223,7 +189,7 @@ exports.bootstrapWindow = function(Titanium) {
 	}
 
 	Window.prototype.setWindow = function(existingWindow) {
-		this.currentState = this.stateOpening;
+		this.currentState = this.state.opening;
 
 		// Set any cached properties on the properties given to the "true" view
 		if (this.propertyCache) {
@@ -247,17 +213,31 @@ exports.bootstrapWindow = function(Titanium) {
 			this.loadUrl();
 		}
 
-		this.currentState = this.stateOpened;
+		this.currentState = this.state.opened;
 		this.fireEvent("open");
+	}
+
+	Window.prototype.loadUrl = function() {
+		if (this.url == null) {
+			return;
+		}
+
+		kroll.log(TAG, "Loading window with URL: " + this.url);
+		Titanium.include(this.url, this._sourceUrl, {
+			currentWindow: this,
+			currentActivity: this.window.activity,
+			currentTab: this.tab,
+			currentTabGroup: this.tabGroup
+		});
 	}
 
 	Window.prototype.close = function(options) {
 		// if the window is not opened, do not close
-		if (this.currentState != this.stateOpened) {
+		if (this.currentState != this.state.opened) {
 			kroll.log(TAG, "unable to close, window is not opened");
 			return;
 		}
-		this.currentState = this.stateClosing;
+		this.currentState = this.state.closing;
 
 		if (this.isActivity) {
 			var self = this;
@@ -266,7 +246,7 @@ exports.bootstrapWindow = function(Titanium) {
 			});
 
 			this.window.close(options);
-			this.currentState = this.stateClosed;
+			this.currentState = this.state.closed;
 
 		} else {
 			if (this.view.parent != null) {
@@ -278,7 +258,7 @@ exports.bootstrapWindow = function(Titanium) {
 				this.window = null;
 			}
 
-			this.currentState = this.stateClosed;
+			this.currentState = this.state.closed;
 			this.fireEvent("close");
 		}
 	}
@@ -286,14 +266,49 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.add = function(view) {
 		if (this.view) {
 			this.view.add(view);
+		}
 
-		} else {
-			var children = this._children;
-			if (!children) {
-				children = this._children = [];
+		var children = this._children;
+		if (!children) {
+			children = this._children = [];
+		}
+		children.push(view);
+	}
+
+	Window.prototype.addChildren = function() {
+		if (this._children) {
+			var length = this._children.length;
+
+			for (var i = 0; i < length; i++) {
+				this.view.add(this._children[i]);
 			}
+		}
 
-			children.push(view);
+		// don't delete the children once finished in case the window
+		// needs to be opened again
+	}
+
+	Window.prototype.remove = function(view) {
+		if (this.view) {
+			this.view.remove(view);
+		}
+
+		var children = this._children;
+		if (children) {
+			var viewIndex = children.indexOf(view);
+			if (viewIndex != -1) {
+				children.splice(viewIndex, 1);
+			}
+		}
+	}
+
+	Window.prototype.removeChildren = function() {
+		if (this._children) {
+			var length = this._children.length;
+
+			for (var i = 0; i < length; i++) {
+				this.view.remove(this._children[i]);
+			}
 		}
 	}
 
@@ -309,20 +324,6 @@ exports.bootstrapWindow = function(Titanium) {
 		} else {
 			kroll.log(TAG, "unable to call animate, view is undefined");
 		}
-	}
-
-	Window.prototype.loadUrl = function() {
-		if (this.url == null) {
-			return;
-		}
-
-		kroll.log(TAG, "Loading window with URL: " + this.url);
-		Titanium.include(this.url, this._sourceUrl, {
-			currentWindow: this,
-			currentActivity: this.window.activity,
-			currentTab: this.tab,
-			currentTabGroup: this.tabGroup
-		});
 	}
 
 	Window.prototype.addEventListener = function(event, listener) {
@@ -365,10 +366,10 @@ exports.bootstrapWindow = function(Titanium) {
 		var window = new Window(options);
 
 		// keeps track of the current window state
-		window.currentState = window.stateClosed;
+		window.currentState = window.state.closed;
 
 		window._sourceUrl = scopeVars.sourceUrl;
-		window._currentActivity = scopeVars.currentActivity;
+		window._currentActivity = scopeVars.currentActivity; // don't think we are using this, remove?
 
 		return window;
 	}
