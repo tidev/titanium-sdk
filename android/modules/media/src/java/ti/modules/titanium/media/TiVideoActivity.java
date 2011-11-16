@@ -29,9 +29,9 @@ public class TiVideoActivity extends Activity
 	private static final String LCAT = "TiVideoActivity";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	protected TiCompositeLayout mLayout = null;
-	private Messenger mProxyMessenger = null;
-	private TiLifecycle.OnLifecycleEvent mLifecycleListener = null;
+	protected TiCompositeLayout layout = null;
+	private Messenger proxyMessenger = null;
+	private TiLifecycle.OnLifecycleEvent lifecycleListener = null;
 
 	public TiVideoActivity() {}
 
@@ -46,24 +46,24 @@ public class TiVideoActivity extends Activity
 
 		final Intent intent = getIntent();
 
-		mProxyMessenger = intent.getParcelableExtra(TiC.PROPERTY_MESSENGER);
+		proxyMessenger = intent.getParcelableExtra(TiC.PROPERTY_MESSENGER);
 
 		if (intent.hasExtra(TiC.PROPERTY_BACKGROUND_COLOR)) {
 			ColorDrawable d = new ColorDrawable(intent.getIntExtra(TiC.PROPERTY_BACKGROUND_COLOR, Color.RED));
 			getWindow().setBackgroundDrawable(d);
 		}
 
-		mLayout = new TiCompositeLayout(this);
-		mLayout.addView(new TiVideoView8(this), new TiCompositeLayout.LayoutParams());
+		layout = new TiCompositeLayout(this);
+		layout.addView(new TiVideoView8(this), new TiCompositeLayout.LayoutParams());
 
-		setContentView(mLayout);
+		setContentView(layout);
 
-		if (mProxyMessenger != null) {
+		if (proxyMessenger != null) {
 			Message msg = Message.obtain();
 			msg.what = VideoPlayerProxy.CONTROL_MSG_ACTIVITY_AVAILABLE;
 			msg.obj = this;
 			try {
-				mProxyMessenger.send(msg);
+				proxyMessenger.send(msg);
 			} catch (RemoteException e) {
 				Log.e(LCAT, "Cannot send activity available message to proxy", e);
 			}
@@ -82,8 +82,8 @@ public class TiVideoActivity extends Activity
 	protected void onStart() {
 		super.onStart();
 
-		if (mLifecycleListener != null) {
-			mLifecycleListener.onStart(this);
+		if (lifecycleListener != null) {
+			lifecycleListener.onStart(this);
 		}
 	}
 
@@ -92,8 +92,8 @@ public class TiVideoActivity extends Activity
 		super.onResume();
 
 		TiApplication.getInstance().setCurrentActivity(this, this);
-		if (mLifecycleListener != null) {
-			mLifecycleListener.onResume(this);
+		if (lifecycleListener != null) {
+			lifecycleListener.onResume(this);
 		}
 	}
 
@@ -102,8 +102,8 @@ public class TiVideoActivity extends Activity
 		super.onPause();
 
 		TiApplication.getInstance().setCurrentActivity(this, null);
-		if (mLifecycleListener != null) {
-			mLifecycleListener.onPause(this);
+		if (lifecycleListener != null) {
+			lifecycleListener.onPause(this);
 		}
 	}
 
@@ -111,18 +111,18 @@ public class TiVideoActivity extends Activity
 	protected void onDestroy() {
 		super.onDestroy();
 
-		if (mLifecycleListener != null) {
-			mLifecycleListener.onDestroy(this);
+		if (lifecycleListener != null) {
+			lifecycleListener.onDestroy(this);
 		}
 	}
 
 	private void sendProxyMessage(final int messageId)
 	{
-		if (mProxyMessenger != null) {
+		if (proxyMessenger != null) {
 			Message msg = Message.obtain();
 			msg.what = messageId;
 			try {
-				mProxyMessenger.send(msg);
+				proxyMessenger.send(msg);
 			} catch (RemoteException e) {
 				Log.w(LCAT, "VideoPlayerProxy no longer available: " + e.getMessage());
 			}
@@ -131,7 +131,7 @@ public class TiVideoActivity extends Activity
 
 	public void setOnLifecycleEventListener(TiLifecycle.OnLifecycleEvent listener)
 	{
-		mLifecycleListener = listener;
+		lifecycleListener = listener;
 	}
 
 }

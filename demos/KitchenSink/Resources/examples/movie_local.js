@@ -4,7 +4,7 @@ var options = {
 	url: '../movie.mp4',
 	backgroundColor: '#111',
 	scalingMode: Titanium.Media.VIDEO_SCALING_MODE_FILL,
-	mediaControlStyle: Titanium.Media.VIDEO_CONTROL_NONE
+	movieControlMode: Titanium.Media.VIDEO_CONTROL_NONE // See TIMOB-2802, which may change this property name
 };
 
 if (Titanium.Platform.osname == "ipad") {

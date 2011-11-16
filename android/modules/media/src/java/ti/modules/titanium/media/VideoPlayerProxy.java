@@ -59,14 +59,14 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	// there when being resumed.  This internal property lets us track that and use it.
 	public static final String PROPERTY_SEEK_TO_ON_RESUME = "__seek_to_on_resume__";
 
-	protected int mMediaControlStyle = MediaModule.VIDEO_CONTROL_DEFAULT;
-	protected int mScalingMode = MediaModule.VIDEO_SCALING_ASPECT_FIT;
-	private int mLoadState = MediaModule.VIDEO_LOAD_STATE_UNKNOWN;
-	private int mPlaybackState = MediaModule.VIDEO_PLAYBACK_STATE_STOPPED;
+	protected int mediaControlStyle = MediaModule.VIDEO_CONTROL_DEFAULT;
+	protected int scalingMode = MediaModule.VIDEO_SCALING_ASPECT_FIT;
+	private int loadState = MediaModule.VIDEO_LOAD_STATE_UNKNOWN;
+	private int playbackState = MediaModule.VIDEO_PLAYBACK_STATE_STOPPED;
 
 	// Used only if TiVideoActivity is used (fullscreen == true)
-	private Handler mVideoActivityHandler;
-	private WeakReference<Activity> mActivityListeningTo = null;
+	private Handler videoActivityHandler;
+	private WeakReference<Activity> activityListeningTo = null;
 
 	public VideoPlayerProxy()
 	{
@@ -82,21 +82,21 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	public void setActivity(Activity activity)
 	{
 		super.setActivity(activity);
-		if (mActivityListeningTo != null) {
-			Activity oldActivity = mActivityListeningTo.get();
+		if (activityListeningTo != null) {
+			Activity oldActivity = activityListeningTo.get();
 			if (oldActivity instanceof TiBaseActivity) {
 				((TiBaseActivity) oldActivity).removeOnLifecycleEventListener(this);
 			} else if (oldActivity instanceof TiVideoActivity) {
 				((TiVideoActivity) oldActivity).setOnLifecycleEventListener(null);
 			}
-			mActivityListeningTo = null;
+			activityListeningTo = null;
 		}
 		if (activity instanceof TiBaseActivity) {
 			((TiBaseActivity) activity).addOnLifecycleEventListener(this);
-			mActivityListeningTo = new WeakReference<Activity>(activity);
+			activityListeningTo = new WeakReference<Activity>(activity);
 		} else if (activity instanceof TiVideoActivity) {
 			((TiVideoActivity) activity).setOnLifecycleEventListener(this);
-			mActivityListeningTo = new WeakReference<Activity>(activity);
+			activityListeningTo = new WeakReference<Activity>(activity);
 		}
 	}
 
@@ -144,8 +144,8 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		if (options.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
 			intent.putExtra(TiC.PROPERTY_BACKGROUND_COLOR, TiConvert.toColor(options, TiC.PROPERTY_BACKGROUND_COLOR));
 		}
-		mVideoActivityHandler = createControlHandler();
-		intent.putExtra(TiC.PROPERTY_MESSENGER, new Messenger(mVideoActivityHandler));
+		videoActivityHandler = createControlHandler();
+		intent.putExtra(TiC.PROPERTY_MESSENGER, new Messenger(videoActivityHandler));
 		getActivity().startActivity(intent);
 	}
 
@@ -188,9 +188,9 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 						TiVideoActivity videoActivity = (TiVideoActivity) msg.obj;
 						setActivity(videoActivity);
 						if (TiApplication.isUIThread()) {
-							setVideoViewFromActivity(videoActivity.mLayout);
+							setVideoViewFromActivity(videoActivity.layout);
 						} else {
-							getMainHandler().sendMessage(getMainHandler().obtainMessage(MSG_SET_VIEW_FROM_ACTIVITY, videoActivity.mLayout));
+							getMainHandler().sendMessage(getMainHandler().obtainMessage(MSG_SET_VIEW_FROM_ACTIVITY, videoActivity.layout));
 						}
 						handled = true;
 						break;
@@ -283,13 +283,13 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	@Kroll.method @Kroll.getProperty
 	public int getLoadState()
 	{
-		return mLoadState;
+		return loadState;
 	}
 
 	@Kroll.method @Kroll.getProperty
 	public int getPlaybackState()
 	{
-		return mPlaybackState;
+		return playbackState;
 	}
 
 	@Override
@@ -315,13 +315,13 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		switch (msg.what) {
 			case MSG_MEDIA_CONTROL_CHANGE:
 				if (vv != null) {
-					vv.setMediaControlStyle(mMediaControlStyle);
+					vv.setMediaControlStyle(mediaControlStyle);
 				}
 				handled = true;
 				break;
 			case MSG_SCALING_CHANGE:
 				if (vv != null) {
-					vv.setScalingMode(mScalingMode);
+					vv.setScalingMode(scalingMode);
 				}
 				handled = true;
 				break;
@@ -374,14 +374,14 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	@Kroll.getProperty @Kroll.method
 	public int getMediaControlStyle()
 	{
-		return mMediaControlStyle;
+		return mediaControlStyle;
 	}
 
 	@Kroll.setProperty @Kroll.method
 	public void setMediaControlStyle(int style)
 	{
-		boolean alert = (mMediaControlStyle != style);
-		mMediaControlStyle = style;
+		boolean alert = (mediaControlStyle != style);
+		mediaControlStyle = style;
 		if (alert && view != null) {
 			if (TiApplication.isUIThread()) {
 				((TiUIVideoView) view).setMediaControlStyle(style);
@@ -392,16 +392,48 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	}
 
 	@Kroll.getProperty @Kroll.method
+	public int getMovieControlMode()
+	{
+		Log.w(LCAT, "movieControlMode is deprecated.  Use mediaControlStyle instead.");
+		return getMediaControlStyle();
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setMovieControlMode(int style)
+	{
+		Log.w(LCAT, "movieControlMode is deprecated.  Use mediaControlStyle instead.");
+		setMediaControlStyle(style);
+	}
+
+	/**
+	 * Our iOS implementation has been supporting this version of the property name as well,
+	 * possibly accidentally.  These "media/movieControl" property names should be properly
+	 * deprecated and cleaned up after TIMOB-2802 is resolved.
+	 * TODO
+	 */
+	@Kroll.getProperty @Kroll.method
+	public int getMovieControlStyle()
+	{
+		return getMediaControlStyle();
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setMovieControlStyle(int style)
+	{
+		setMediaControlStyle(style);
+	}
+
+	@Kroll.getProperty @Kroll.method
 	public int getScalingMode()
 	{
-		return mScalingMode;
+		return scalingMode;
 	}
 
 	@Kroll.setProperty @Kroll.method
 	public void setScalingMode(int mode)
 	{
-		boolean alert = (mode != mScalingMode);
-		mScalingMode = mode;
+		boolean alert = (mode != scalingMode);
+		scalingMode = mode;
 		if (alert && view != null) {
 			if (TiApplication.isUIThread()) {
 				((TiUIVideoView) view).setScalingMode(mode);
@@ -460,7 +492,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 
 	private void firePlaybackState(int state)
 	{
-		mPlaybackState = state;
+		playbackState = state;
 		KrollDict data = new KrollDict();
 		data.put(TiC.EVENT_PROPERTY_PLAYBACK_STATE, state);
 		fireEvent(TiC.EVENT_PLAYBACK_STATE, data);
@@ -468,7 +500,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 
 	public void fireLoadState(int state)
 	{
-		mLoadState = state;
+		loadState = state;
 		KrollDict args = new KrollDict();
 		args.put(TiC.EVENT_PROPERTY_LOADSTATE, state);
 		args.put(TiC.EVENT_PROPERTY_CURRENT_PLAYBACK_TIME, getCurrentPlaybackTime());
