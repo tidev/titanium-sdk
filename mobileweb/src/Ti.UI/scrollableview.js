@@ -94,11 +94,10 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 		if (viewIndex == _currentPage) {
 			this._viewToRemoveAfterScroll = viewIndex;
 			if (_views.length == 1) {
+				obj._removeViewFromList(viewIndex);
 				obj.dom.removeChild(obj.dom.firstChild);
-			} else if (viewIndex == _views.length - 1) {
-				obj._scrollToViewPosition(viewIndex - 1);
 			} else {
-				obj._scrollToViewPosition(viewIndex + 1);
+			    obj._scrollToViewPosition(viewIndex == _views.length -1 ? --viewIndex : ++viewIndex);
 			}
 		} else {
 			obj._removeViewFromList(viewIndex);
