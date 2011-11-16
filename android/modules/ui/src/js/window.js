@@ -6,7 +6,8 @@
  */
 var EventEmitter = require("events").EventEmitter,
 	assets = kroll.binding("assets"),
-	vm = require("vm");
+	vm = require("vm"),
+	url = require("url");
 var TAG = "Window";
 
 exports.bootstrapWindow = function(Titanium) {
@@ -231,16 +232,22 @@ exports.bootstrapWindow = function(Titanium) {
 			this.loadUrl();
 		}
 
-		this.currentState = this.state.opened;
+		this.setWindowView(this.view);
+		this.currentState = this.stateOpened;
 		this.fireEvent("open");
 	}
-
+	
 	Window.prototype.loadUrl = function() {
 		if (this.url == null) {
 			return;
 		}
 
 		kroll.log(TAG, "Loading window with URL: " + this.url);
+		
+		// Reset creationUrl of the window based on this._sourceUrl and this.url
+		var currentUrl = url.resolve(this._sourceUrl, this.url);
+		this.window.setCreationUrl(currentUrl.href);
+		
 		Titanium.include(this.url, this._sourceUrl, {
 			currentWindow: this,
 			currentActivity: this.window.activity,
