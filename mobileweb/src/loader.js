@@ -502,7 +502,7 @@
 
 		var module = new ResourceDef(name, refMap, deps, rawDef);
 
-		if (/(require|exports|module)/.test(name)) {
+		if (/^(require|exports|module)$/.test(name)) {
 			module.def = module[name];
 			module.loaded = module.executed = 1;
 			return module;
