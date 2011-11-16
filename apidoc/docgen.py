@@ -270,10 +270,8 @@ class AnnotatedProxy(AnnotatedApi):
 				"events": AnnotatedEvent}[att_list_name]
 		existing_names = [item.name for item in att_list]
 		excluded_names = []
-		try:
+		if "excludes" in self.api_obj and att_list_name in self.api_obj["excludes"]:
 			excluded_names = self.api_obj["excludes"][att_list_name]
-		except:
-			pass
 
 		while (super_type_name is not None and len(super_type_name) > 0
 				and super_type_name in apis):
