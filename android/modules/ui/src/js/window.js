@@ -212,6 +212,14 @@ exports.bootstrapWindow = function(Titanium) {
 		if ("url" in this._properties) {
 			this.loadUrl();
 		}
+		
+		// Add event listener for this.window
+		 for (var event in this._events) { 
+		 	var listeners = this.listeners(event); 
+		 	for (var i = 0; i < listeners.length; i++) { 
+		 		this.window.addEventListener(event, listeners[i]); 
+		 	} 
+		 }
 
 		this.currentState = this.state.opened;
 		this.fireEvent("open");
