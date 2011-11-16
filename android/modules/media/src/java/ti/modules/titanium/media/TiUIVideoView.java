@@ -111,7 +111,7 @@ public class TiUIVideoView extends TiUIView
 			return;
 		}
 
-		((VideoPlayerProxy) proxy).fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
+		getPlayerProxy().fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
 
 		String url = d.getString(TiC.PROPERTY_URL);
 		if (url == null) {
@@ -127,10 +127,10 @@ public class TiUIVideoView extends TiUIView
 		}
 
 		// Proxy holds the scaling mode directly.
-		mVideoView.setScalingMode(((VideoPlayerProxy) proxy).getScalingMode());
+		mVideoView.setScalingMode(getPlayerProxy().getScalingMode());
 
 		// Proxy holds the media control style directly.
-		setMediaControlStyle(((VideoPlayerProxy) proxy).getMediaControlStyle());
+		setMediaControlStyle(getPlayerProxy().getMediaControlStyle());
 	}
 
 	@Override
@@ -141,7 +141,7 @@ public class TiUIVideoView extends TiUIView
 		}
 
 		if (key.equals(TiC.PROPERTY_URL) || key.equals(TiC.PROPERTY_CONTENT_URL)) {
-			((VideoPlayerProxy) proxy).fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
+			getPlayerProxy().fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
 			mVideoView.setVideoURI(Uri.parse(proxy.resolveUrl(null, TiConvert.toString(newValue))));
 			seekIf();
 			if (key.equals(TiC.PROPERTY_CONTENT_URL)) {
@@ -228,7 +228,7 @@ public class TiUIVideoView extends TiUIView
 				Log.w(TAG, "play() ignored, no url set.");
 				return;
 			}
-			((VideoPlayerProxy) proxy).fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
+			getPlayerProxy().fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
 			mVideoView.setVideoURI(Uri.parse(proxy.resolveUrl(null, TiConvert.toString(urlObj))));
 			seekIf();
 		}
@@ -276,7 +276,8 @@ public class TiUIVideoView extends TiUIView
 		}
 		try {
 			mVideoView.release(true);
-		} catch (Exception e) { /* ignore */
+		} catch (Exception e) {
+			Log.e(TAG, "Exception while releasing video resources", e);
 		}
 	}
 
@@ -288,44 +289,50 @@ public class TiUIVideoView extends TiUIView
 			releaseVideoView();
 			mVideoView = null;
 			mMediaController = null;
-		} catch (Exception e) { /* ignore */
+		} catch (Exception e) {
+			Log.e(TAG, "Exception while releasing view", e);
 		}
 	}
 
 	@Override
 	public void onPrepared(MediaPlayer mp)
 	{
-		((VideoPlayerProxy) proxy).onPlaybackReady(mp.getDuration());
+		getPlayerProxy().onPlaybackReady(mp.getDuration());
 	}
 
 	@Override
 	public void onCompletion(MediaPlayer mp)
 	{
-		((VideoPlayerProxy) proxy).onPlaybackComplete();
+		getPlayerProxy().onPlaybackComplete();
 	}
 
 	@Override
 	public boolean onError(MediaPlayer mp, int what, int extra)
 	{
-		((VideoPlayerProxy) proxy).onPlaybackError(what);
+		getPlayerProxy().onPlaybackError(what);
 		return false; // Let completion listener run.
 	}
 
 	@Override
 	public void onStartPlayback()
 	{
-		((VideoPlayerProxy) proxy).onPlaybackStarted();
+		getPlayerProxy().onPlaybackStarted();
 	}
 
 	@Override
 	public void onPausePlayback()
 	{
-		((VideoPlayerProxy) proxy).onPlaybackPaused();
+		getPlayerProxy().onPlaybackPaused();
 	}
 
 	@Override
 	public void onStopPlayback()
 	{
-		((VideoPlayerProxy) proxy).onPlaybackStopped();
+		getPlayerProxy().onPlaybackStopped();
+	}
+
+	private VideoPlayerProxy getPlayerProxy()
+	{
+		return ((VideoPlayerProxy) proxy);
 	}
 }
