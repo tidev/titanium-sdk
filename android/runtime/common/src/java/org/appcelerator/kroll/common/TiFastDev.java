@@ -229,7 +229,11 @@ public class TiFastDev
 
 	public static boolean isFastDevEnabled()
 	{
-		return getInstance().isEnabled();
+		if (_instance == null) {
+			_instance = new TiFastDev(KrollRuntime.getInstance().getKrollApplication());
+		}
+
+		return _instance.isEnabled();
 	}
 
 	public static void onDestroy()
