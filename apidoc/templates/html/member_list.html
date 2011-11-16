@@ -21,11 +21,7 @@
 	%>
 
 	<tr class="${row_class}">
-		% if item.typestr == "parameter" or (item.typestr == "property" and item.parent.typestr == "event"):
-			<td class="name${append_cell_class}">${item.name}</td>
-		% else:
-			<td class="name${append_cell_class}"><a href="${item.filename_html}.html">${item.name}</a></td>
-		% endif
+		<td class="name${append_cell_class}"><a href="${item.filename_html}.html">${item.name}</a></td>
 		% if is_property_list:
 			<td class="type${append_cell_class}">${item.type_html}</td>
 		% endif

@@ -4,8 +4,14 @@
     name = data.name
     if data.typestr in ("method", "property", "event"):
         name = "%s.%s" % (data.parent.name, name)
+    if data.typestr == "property" and data.parent.typestr == "event":
+        name = "%s (event callback property)" % data.name
+    if data.typestr == "parameter":
+        name = "%s (method parameter)" % data.name
 %>
+
 <h1 class="namespace">${name}</h1>
+
 % if data.deprecated:
     <div class="deprecation_warning">Deprecated
         % if "since" in data.deprecated:

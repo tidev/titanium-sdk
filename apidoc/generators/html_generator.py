@@ -90,6 +90,12 @@ def generate(raw_apis, annotated_apis, options):
 				for m in getattr(one_type, mt):
 					log.trace("Producing html output for %s.%s" % (name, m.name))
 					render_template(m, options)
+					if m.typestr == "event" and m.properties:
+						for p in m.properties:
+							render_template(p, options)
+					if m.typestr == "method" and m.parameters:
+						for p in m.parameters:
+							render_template(p, options)
 
 	# Create the special .json files that the webserver uses.
 	log.info("Creating json files for server")
@@ -207,6 +213,13 @@ def annotate(annotated_obj):
 	if annotated_obj.typestr == "property":
 		annotated_obj.filename_html = clean_for_filename("%s.%s-%s" % (annotated_obj.parent.name, annotated_obj.name, "property"))
 		annotated_obj.template_html = "property"
+	# Override for "property" that is an event callback property
+	if annotated_obj.typestr == "property" and annotated_obj.parent.typestr == "event":
+		annotated_obj.filename_html = clean_for_filename("%s.%s.%s-%s" % (annotated_obj.parent.parent.name, annotated_obj.parent.name, annotated_obj.name, "callback-property"))
+		annotated_obj.template_html = "property"
+	if annotated_obj.typestr == "parameter":
+		annotated_obj.filename_html = clean_for_filename("%s.%s-param" % (annotated_obj.parent.filename_html, annotated_obj.name))
+		annotated_obj.template_html = "property"
 	if annotated_obj.typestr == "event":
 		annotated_obj.filename_html = clean_for_filename("%s.%s-%s" % (annotated_obj.parent.name, annotated_obj.name, "event"))
 		annotated_obj.template_html = "event"
@@ -215,13 +228,13 @@ def annotate(annotated_obj):
 			annotated_obj.inherited_from_obj = all_annotated_apis[annotated_obj.inherited_from]
 	for list_type in ("methods", "properties", "events", "parameters"):
 		annotate_member_list(annotated_obj, list_type)
-	if hasattr(annotated_obj, "methods"):
-		set_overloaded_method_filenames(annotated_obj)
 
 def annotate_member_list(annotated_obj, member_list_name):
 	if hasattr(annotated_obj, member_list_name) and len(getattr(annotated_obj, member_list_name)) > 0:
 		for m in getattr(annotated_obj, member_list_name):
 			annotate(m)
+		if member_list_name == "methods":
+			set_overloaded_method_filenames(annotated_obj)
 
 def set_overloaded_method_filenames(obj):
 	filenames = []
@@ -231,8 +244,14 @@ def set_overloaded_method_filenames(obj):
 		while test_filename in filenames:
 			test_filename = "%s-%s" % (m.filename_html, counter)
 			counter += 1
+		changed = (m.filename_html != test_filename)
 		m.filename_html = test_filename
 		filenames.append(test_filename)
+		if changed:
+			# Change parameter filenames too
+			if m.parameters:
+				for p in m.parameters:
+					p.filename_html = clean_for_filename("%s.%s-param" % (m.filename_html, p.name))
 
 def render_template(annotated_obj, options):
 	global files_written
