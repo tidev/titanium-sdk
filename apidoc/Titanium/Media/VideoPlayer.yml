@@ -157,7 +157,8 @@ properties:
     description: The end time of movie playback. Defaults to NaN in iOS, which indicates natural end time of the movie. On Android, this is always the same as `duration` (the natural end time) and there is no effect if you change the value.
     type: Number
   - name: fullscreen
-    description: Determines if the movie is presented in the entire screen (obscuring all other application content). Default is false. In iOS, setting this property to true before the movie player's view is visible will have no effect.  In Android, setting this value to true means that the video will have its own Android Activity rather than being embedded as a view.  In Android, this property is only relevant at creation time (e.g., `createVideoPlayer({fullscreen: true})`).
+    description: |
+        Determines if the movie is presented in the entire screen (obscuring all other application content). Default is false. In iOS, setting this property to true before the movie player's view is visible will have no effect.  In Android, setting this value to true means that the video will have its own Android Activity rather than being embedded as a view.  In Android, this property is only relevant at creation time (e.g., `createVideoPlayer({fullscreen: true})`).
     type: Boolean
   - name: initialPlaybackTime
     description: The start time of movie playback. Defaults to NaN in iOS and 0 in Android, indicating the natural start time of the movie.
