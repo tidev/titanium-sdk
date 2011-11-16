@@ -1325,7 +1325,11 @@ def main(args):
 					# even though it's really not (it's a combination of device type and configuration).
 					# So we translate it into two args:
 					if simtype == 'retina':
-						simtype = 'iphone --retina'
+						# Manually overrule retina type if we're an ipad
+						if devicefamily == 'ipad':
+							simtype = 'ipad'
+						else:
+							simtype = 'iphone --retina'
 					if devicefamily==None:
 						sim = subprocess.Popen("\"%s\" launch \"%s\" --sdk %s" % (iphonesim,app_dir,iphone_version),shell=True)
 					else:
