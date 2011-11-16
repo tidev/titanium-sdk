@@ -226,6 +226,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	{
 		return creationUrl;
 	}
+	
+	@Kroll.method
+	public void setCreationUrl(String url)
+	{
+		creationUrl = TiUrl.createProxyUrl(url);
+	}
 
 	// native extending support allows us to whole-sale apply properties and only fire one event / job
 	@Kroll.method

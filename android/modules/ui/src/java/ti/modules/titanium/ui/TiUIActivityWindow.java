@@ -430,7 +430,7 @@ public class TiUIActivityWindow extends TiUIView
 			handleBackgroundColor(newValue, false);
 
 		} else if (key.equals(TiC.PROPERTY_WIDTH) || key.equals(TiC.PROPERTY_HEIGHT)) {
-			Window w = proxy.getActivity().getWindow();
+			Window w = windowActivity.getWindow();
 			int width = lastWidth;
 			int height = lastHeight;
 
