@@ -20,10 +20,21 @@ public class KrollLogging
 	public static final int FATAL = 8;
 
 	private String tag;
+	private LogListener listener;
+
+	public interface LogListener
+	{
+		public void onLog(int severity, String msg);
+	}
 
 	public KrollLogging(String tag)
 	{
 		this.tag = tag;
+	}
+
+	public void setLogListener(LogListener listener)
+	{
+		this.listener = listener;
 	}
 	
 	public void debug(String msg)
@@ -115,6 +126,10 @@ public class KrollLogging
 		else
 		{
 			Log.e(tag,msg);
+		}
+
+		if (listener != null) {
+			listener.onLog(severity, msg);
 		}
 	}
 }
