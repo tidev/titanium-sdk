@@ -197,6 +197,14 @@ public class TiHTTPClient
 			
 			return super.getLocationURI(response, context);
 		}
+		@Override
+		public boolean isRedirectRequested(HttpResponse response, HttpContext context) {
+			if (autoRedirect) {
+				return super.isRedirectRequested(response,context);
+			} else {
+				return false;
+			}
+		}
 	}
 	
 	class LocalResponseHandler implements ResponseHandler<String>

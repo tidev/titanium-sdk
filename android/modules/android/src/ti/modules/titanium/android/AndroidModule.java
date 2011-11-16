@@ -344,5 +344,4 @@ public class AndroidModule extends KrollModule
 		tiContext.setServiceContext(true);
 		return new ServiceProxy(tiContext, intentProxy);
 	}
-	
 }
