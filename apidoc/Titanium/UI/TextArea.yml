@@ -1,10 +1,9 @@
 ---
 name: Titanium.UI.TextArea
-description: A multiline text field that 
-    supports editing and scrolling. 
+description: |
+    A multiline text field that supports editing and scrolling. 
      
     Use the <Titanium.UI.createTextArea> method to create a text area. 
-    
 extends: Titanium.UI.View
 since: "0.8"
 methods:
@@ -20,71 +19,26 @@ events:
     properties:
       - name: value
         description: Value of the text area at the time of the event.
-      - name: y
-        description: Y coordinate of the event, in the receiving view's coordinates.
-      - name: x
-        description: X coordinate of the event, in the receiving view's coordinates.
-      - name: globalPoint
-        description: Dictionary with properties `x` and `y` describing the location of the event in screen coordinates.
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
   - name: change
     description: Fired when the text area value changes.
     properties:
       - name: value
         description: New value of the text area.
-      - name: y
-        description: Y coordinate of the event, in the receiving view's coordinates.
-      - name: x
-        description: X coordinate of the event, in the receiving view's coordinates.
-      - name: globalPoint
-        description: Dictionary with properties `x` and `y` describing the location of the event in screen coordinates.
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
   - name: focus
     description: Fired when the text area gains focus.
     properties:
       - name: value
         description: Value of the text area at the time of the event.
-      - name: y
-        description: Y coordinate of the event, in the receiving view's coordinates.
-      - name: x
-        description: X coordinate of the event, in the receiving view's coordinates.
-      - name: globalPoint
-        description: Dictionary with properties `x` and `y` describing the location of the event in screen coordinates.
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
   - name: return
     description: Fired when the return key is pressed on the keyboard.
     properties:
       - name: value
         description: Value of the text area at the time of the event.
-      - name: y
-        description: Y coordinate of the event, in the receiving view's coordinates.
-      - name: x
-        description: X coordinate of the event, in the receiving view's coordinates.
-      - name: globalPoint
-        description: Dictionary with properties `x` and `y` describing the location of the event in screen coordinates.
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
   - name: selected
     description: Fired when text in the text area is selected.
     properties:
       - name: range
         description: A range of text. The range is an object with the properties `location` and `length`.
-      - name: y
-        description: Y coordinate of the event, in the receiving view's coordinates.
-      - name: x
-        description: X coordinate of the event, in the receiving view's coordinates.
-      - name: globalPoint
-        description: Dictionary with properties `x` and `y` describing the location of the event in screen coordinates.
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
 properties:
   - name: autoLink
     description: Automatically convert text within this area to clickable links. Specify which type of items should be converted using the `AUTODETECT` constants defined in <Titanium.UI>.

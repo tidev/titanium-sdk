@@ -17,58 +17,21 @@ events:
     properties:
       - name: value
         description: Value of the field at the time of the event.
-      - name: y
-        description: Y coordinate of the event, in the receiving view's coordinates.
-      - name: x
-        description: X coordinate of the event, in the receiving view's coordinates.
-      - name: globalPoint
-        description: Dictionary with properties `x` and `y` describing the location of the event in screen coordinates.
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
   - name: change
     description: Fired when the field value changes.
     platforms: [android, iphone, ipad]
     properties:
       - name: value
         description: New value of the field.
-      - name: y
-        description: Y coordinate of the event, in the receiving view's coordinates.
-      - name: x
-        description: Y coordinate of the event, in the receiving view's coordinates.
-      - name: globalPoint
-        description: Dictionary with properties `x` and `y` describing the location of the event in screen coordinates.
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
   - name: focus
     description: Fired when the field gains focus.
     platforms: [android, iphone, ipad]
     properties:
       - name: value
         description: Value of the field at the time of the event.
-      - name: y
-        description: Y coordinate of the event, in the receiving view's coordinates.
-      - name: x
-        description: X coordinate of the event, in the receiving view's coordinates.
-      - name: globalPoint
-        description: Dictionary with properties `x` and `y` describing the location of the event in screen coordinates.
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
   - name: return
     description: Fired when the return key is pressed on the keyboard.
     platforms: [android, iphone, ipad]
-    properties:
-      - name: y
-        description: Y coordinate of the event, in the receiving view's coordinates.
-      - name: globalPoint
-        description: Dictionary with properties `x` and `y` describing the location of the event in screen coordinates.
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: X coordinate of the event, in the receiving view's coordinates.
 properties:
   - name: autocapitalization
     description: >

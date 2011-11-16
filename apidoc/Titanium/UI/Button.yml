@@ -1,7 +1,8 @@
 ---
 name: Titanium.UI.Button
 summary: A button widget.
-description: A button widget that has four states, normal, disabled, focused and selected. You can specify background images for each state, as well as button text and a button icon. Use the <Titanium.UI.createButton> method to create a button. 
+description: |
+    A button widget that has four states, normal, disabled, focused and selected. You can specify background images for each state, as well as button text and a button icon. Use the <Titanium.UI.createButton> method to create a button. 
 extends: Titanium.UI.View
 since: "0.8"
 properties:

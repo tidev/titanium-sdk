@@ -5,7 +5,7 @@ extends: Titanium.UI.View
 since: "0.8"
 properties:
   - name: autoLink
-    description: One of the <Titanium.UI.Android> `LINKIFY` constants. Automatically create clickable links for the specified type.
+    description: Automatically convert certain text items in the label to clickable links. Specify which types of items are converted by setting `autoLink` to one of the <Titanium.UI.Android> `LINKIFY` constants.
     type: Number
     platforms: [android]
   - name: backgroundPaddingBottom
@@ -59,7 +59,7 @@ properties:
     description: Key identifying a string from the locale file to use for the label text. Only one of `text` or `textid` should be specified.
     type: String
   - name: wordWrap
-    description: Turn on/off word wrapping in the label.
+    description: Enable or disable word wrapping in the label.
     type: Boolean
     platforms: [android, mobileweb]
     default: true

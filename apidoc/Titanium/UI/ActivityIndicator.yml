@@ -3,7 +3,8 @@ name: Titanium.UI.ActivityIndicator
 summary: An activity indicator that lets the user know an action is 
     taking place. 
     
-description:  An activity indicator can be used to show the progress of an operation in the UI to let the user know some action is taking place. An activity indicator consists of a spinning animation and an optional text message, and is used to indicate an ongoing activity of indeterminate length. To show progress, use <Titanium.UI.ProgressBar> instead.
+description:  |
+    An activity indicator can be used to show the progress of an operation in the UI to let the user know some action is taking place. An activity indicator consists of a spinning animation and an optional text message, and is used to indicate an ongoing activity of indeterminate length. To show progress, use <Titanium.UI.ProgressBar> instead.
 
     Use the <Titanium.UI.createActivityIndicator> method to create an Activity Indicator. 
     
