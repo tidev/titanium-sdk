@@ -10,6 +10,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -37,15 +38,11 @@ public class TiUIScrollView extends TiUIView {
 	{
 		private static final int AUTO = Integer.MAX_VALUE;
 		protected int measuredWidth = 0, measuredHeight = 0;
+		private int parentWidth = 0, parentHeight = 0;
 
 		public TiScrollViewLayout(Context context, LayoutArrangement arrangement)
 		{
 			super(context, arrangement);
-		}
-
-		private LayoutParams getParams(View child)
-		{
-			return (LayoutParams)child.getLayoutParams();
 		}
 
 		@Override
@@ -53,6 +50,16 @@ public class TiUIScrollView extends TiUIView {
 		{
 			super.onLayout(changed, l, t, r, b);
 			measuredHeight = measuredWidth = 0;
+		}
+
+		public void setParentWidth(int width)
+		{
+			parentWidth = width;
+		}
+
+		public void setParentHeight(int height)
+		{
+			parentHeight = height;
 		}
 
 		@Override
@@ -69,7 +76,17 @@ public class TiUIScrollView extends TiUIView {
 				if (value.equals(TiC.SIZE_AUTO)) {
 					return AUTO;
 				} else if (value instanceof Number) {
-					return ((Number)value).intValue();
+					return ((Number) value).intValue();
+				} else {
+					int type = 0;
+					TiDimension dimension;
+					if (TiC.PROPERTY_CONTENT_HEIGHT.equals(property)) {
+						type = TiDimension.TYPE_HEIGHT;
+					} else if (TiC.PROPERTY_CONTENT_WIDTH.equals(property)) {
+						type = TiDimension.TYPE_WIDTH;
+					}
+					dimension = new TiDimension(value.toString(), type);
+					return dimension.getUnits() == TiDimension.COMPLEX_UNIT_AUTO ? AUTO : dimension.getIntValue();
 				}
 			}
 			return AUTO;
@@ -77,46 +94,24 @@ public class TiUIScrollView extends TiUIView {
 
 		private int calculateAbsoluteRight(View child)
 		{
-			LayoutParams p = getParams(child);
 			int contentWidth = getContentProperty(TiC.PROPERTY_CONTENT_WIDTH);
 			if (contentWidth == AUTO) {
-				int childMeasuredWidth = child.getMeasuredWidth();
-				if (!p.autoWidth) {
-					childMeasuredWidth = p.optionWidth.getAsPixels(this);
-				}
-				if (p.optionLeft != null) {
-					childMeasuredWidth += p.optionLeft.getAsPixels(this);
-				}
-				if (p.optionRight != null) {
-					childMeasuredWidth += p.optionRight.getAsPixels(this);
-				}
-
-				measuredWidth = Math.max(childMeasuredWidth, measuredWidth);
+				// Use the measured width of the parent for auto
+				measuredWidth = parentWidth;
 			} else {
 				measuredWidth = contentWidth;
 			}
-			
+
 			return measuredWidth;
 		}
 
 		private int calculateAbsoluteBottom(View child)
 		{
-			LayoutParams p = (LayoutParams)child.getLayoutParams();
 			int contentHeight = getContentProperty(TiC.PROPERTY_CONTENT_HEIGHT);
-			
-			if (contentHeight == AUTO) {
-				int childMeasuredHeight = child.getMeasuredHeight();
-				if (!p.autoHeight) {
-					childMeasuredHeight = p.optionHeight.getAsPixels(this);
-				}
-				if (p.optionTop != null) {
-					childMeasuredHeight += p.optionTop.getAsPixels(this);
-				}
-				if (p.optionBottom != null) {
-					childMeasuredHeight += p.optionBottom.getAsPixels(this);
-				}
 
-				measuredHeight = Math.max(childMeasuredHeight, measuredHeight);
+			if (contentHeight == AUTO) {
+				// Use the measured height of the parent for auto
+				measuredHeight = parentHeight;
 			} else {
 				measuredHeight = contentHeight;
 			}
@@ -211,6 +206,14 @@ public class TiUIScrollView extends TiUIView {
 			data.put(TiC.EVENT_PROPERTY_Y, t);
 			getProxy().fireEvent(TiC.EVENT_SCROLL, data);
 		}
+
+		@Override
+		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+		{
+			layout.setParentHeight(MeasureSpec.getSize(heightMeasureSpec));
+			layout.setParentWidth(MeasureSpec.getSize(widthMeasureSpec));
+			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+		}
 	}
 
 	private class TiHorizontalScrollView extends HorizontalScrollView
@@ -248,6 +251,14 @@ public class TiUIScrollView extends TiUIView {
 			data.put(TiC.EVENT_PROPERTY_X, l);
 			data.put(TiC.EVENT_PROPERTY_Y, t);
 			getProxy().fireEvent(TiC.EVENT_SCROLL, data);
+		}
+
+		@Override
+		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+		{
+			layout.setParentHeight(MeasureSpec.getSize(heightMeasureSpec));
+			layout.setParentWidth(MeasureSpec.getSize(widthMeasureSpec));
+			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		}
 	}
 
