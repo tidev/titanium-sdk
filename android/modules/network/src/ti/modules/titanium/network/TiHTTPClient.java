@@ -173,7 +173,6 @@ public class TiHTTPClient
 			String location = locationHeader.getValue().replaceAll (" ", "%20");
 			response.setHeader("location", location);
 			
-			//Custom logic to set cookies by Jeff Cross 10/7/11
 			Header[] setCookieHeaders = response.getHeaders("Set-Cookie");
 
 			CookieManager cookieManager;
@@ -181,7 +180,7 @@ public class TiHTTPClient
 				CookieSyncManager.createInstance(proxy.getTiContext().getTiApp());
 			}
 			catch (Exception e) {
-				Log.w(LCAT, "Couldn't createInstance of CookieSyncManager");
+				Log.w(LCAT, "Couldn't createInstance of CookieSyncManager, presumably because an instance already exists.");
 			}
 			
 			cookieManager = CookieManager.getInstance();
@@ -292,7 +291,7 @@ public class TiHTTPClient
 					}
 				}
 				
-				//Custom code by Jeff Cross 11/10/11. Add cookies to CookieManager so webViews have them.
+				//Add cookies to CookieManager so webViews have them.
 				if (c != null) {
 					CookieStore cookieStore = TiCookieStore.getInstance();
 					List<Cookie> cookies = new ArrayList<Cookie>(cookieStore.getCookies());
@@ -302,7 +301,7 @@ public class TiHTTPClient
 						CookieSyncManager.createInstance(proxy.getTiContext().getTiApp());
 					}
 					catch (Exception e) {
-						Log.w(LCAT, "Couldn't createInstance of CookieSyncManager");
+						Log.w(LCAT, "Couldn't createInstance of CookieSyncManager, presumably because one already exists.");
 					}
 
 					cookieManager = CookieManager.getInstance();
@@ -311,12 +310,7 @@ public class TiHTTPClient
 					
 					for (Cookie cookie : cookies) {
 						if (!lower_url.contains(cookie.getDomain().toLowerCase())) {
-							Log.w(LCAT, "Setting cookie: " + cookie.getValue());
 							cookieManager.setCookie(lower_url, cookie.getValue());
-						}
-						else {
-							Log.w(LCAT, "Not setting cookie: " + cookie.getValue());
-							Log.w(LCAT, "Cookie domain (" + cookie.getDomain().toLowerCase() + ") didn't match " + lower_url);
 						}
 					}
 				}
@@ -695,14 +689,11 @@ public class TiHTTPClient
 		CookieStore cookieStore = TiCookieStore.getInstance();
 		List<Cookie> cookies = new ArrayList<Cookie>(cookieStore.getCookies());
 		cookieStore.clear();
-		String lower_url = url.toLowerCase();
-		for (Cookie cookie : cookies) {
-			if (!lower_url.contains(cookie.getDomain().toLowerCase())) {
-				cookieStore.addCookie(cookie);
-			}
-		}
 		
-		//Clear the WebView cookies also, by clearing CookieManager cookies
+		// Clear the WebView cookies also, by clearing CookieManager cookies
+		// Unfortunately Android CookieManager doesn't allow us to remove
+		// cookies by URL. Any cookies that have been set in the browser
+		// and not the network client will be cleared in this process.
 		CookieManager cookieManager;
 		try {
 			CookieSyncManager.createInstance(proxy.getTiContext().getTiApp());
@@ -710,10 +701,21 @@ public class TiHTTPClient
 		catch (Exception e) {
 			Log.w(LCAT, "Couldn't createInstance of CookieSyncManager, presumably because an instance already exists");
 		}
-		
-		cookieManager = CookieManager.getInstance();
-		
+
+		cookieManager = CookieManager.getInstance();		
 		cookieManager.removeAllCookie();
+		
+		String lower_url = url.toLowerCase();
+		for (Cookie cookie : cookies) {
+			if (!lower_url.contains(cookie.getDomain().toLowerCase())) {
+				cookieStore.addCookie(cookie);
+				cookieManager.setCookie(cookie.getDomain().toLowerCase(), cookie.getValue());
+			}
+		}
+		
+		
+		
+		
 	}
   	
 	public void setRequestHeader(String header, String value)

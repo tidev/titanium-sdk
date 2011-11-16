@@ -64,13 +64,6 @@ public class WebViewProxy extends ViewProxy
 		return getWebView().getJSValue(code);
 	}
 	
-	//Jeff Cross custom method
-	@Kroll.method
-	public Object executeJS(String code)
-	{
-		return getWebView().executeJS(code);
-	}
-
 	@Override
 	public boolean handleMessage(Message msg)
 	{
