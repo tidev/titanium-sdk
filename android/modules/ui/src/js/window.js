@@ -233,7 +233,7 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 
 		this.setWindowView(this.view);
-		this.currentState = this.stateOpened;
+		this.currentState = this.state.opened;
 		this.fireEvent("open");
 	}
 	
