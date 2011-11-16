@@ -183,7 +183,8 @@ public class TiOverlayItemView extends FrameLayout
 
 				}
 			} else if (rightView != null) {
-				rightPane.addView(rightView.peekView().getNativeView());
+				//rightPane.addView(rightView.peekView().getNativeView());
+				rightPane.addView(rightView.getView(rightView.getTiContext().getActivity()).getNativeView());
 			}
 			rightPane.setVisibility(VISIBLE);
 
