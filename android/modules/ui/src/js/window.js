@@ -20,9 +20,13 @@ exports.bootstrapWindow = function(Titanium) {
 	var Proxy = Titanium.Proxy;
 	var TiWindow = Titanium.TiWindow;
 
+	Window.prototype.isActivity = false;
+
 	// set constants for representing states for the window
 	Window.prototype.state = {closed: 0, opening: 1, opened: 2, closing: 3};
 
+	// cached orientation modes for window that are not part of the normal properties map for the proxy
+	Window.prototype.cachedOrientationModes = null;
 
 	// this is mainly used when we need to perform an operation on an activity and our
 	// window does not have its own activity.  IE:  setting orientation on a window opened 
@@ -68,19 +72,28 @@ exports.bootstrapWindow = function(Titanium) {
 	// set orientationModes access
 	var orientationModesGetter = function() {
 		if (this.window) {
-			return this.window.getOrientationModes();
+			if (this.isActivity) {
+				return this.window.getOrientationModes();
 
+			} else {
+				return this.getActivityDecorView().getOrientationModes();
+			}
 		}
 
-		return this.getActivityDecorView().getOrientationModes();
+		return this.cachedOrientationModes;
 	}
 	var orientationModesSetter = function(value) {
 		if (value != null) {
 			if (this.window) {
-				this.window.setOrientationModes(value);
+				if (this.isActivity) {
+					this.window.setOrientationModes(value);
+
+				} else {
+					this.getActivityDecorView().setOrientationModes(value);
+				}
 
 			} else {
-				this.getActivityDecorView().setOrientationModes(value);
+				this.cachedOrientationModes = value;
 			}
 
 		} else {
@@ -143,7 +156,6 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 
 		// Determine if we should create a heavy or light weight window.
-		this.isActivity = false;
 		newActivityRequiredKeys.forEach(function(key) {
 			if (key in this._properties) {
 				this.isActivity = true;
@@ -170,6 +182,12 @@ exports.bootstrapWindow = function(Titanium) {
 			this.view = new UI.View(this._properties);
 			this.view.zIndex = Math.MAX_INT - 2;
 			this.window.add(this.view);
+		}
+
+		// handle orientation - don't put this in post open otherwise the orientation
+		// will visibly change after the window opens
+		if (this.cachedOrientationModes) {
+			this.setOrientationModes(this.cachedOrientationModes);
 		}
 
 		this.setWindowView(this.view);
