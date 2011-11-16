@@ -617,7 +617,7 @@ def main(args):
 			else:
 				iphone_version = dequote(args[3].decode("utf-8"))
 			project_dir = os.path.expanduser(dequote(args[2].decode("utf-8")))
-			iphonesim = os.path.abspath(os.path.join(template_dir,'iphonesim'))
+			iphonesim = os.path.abspath(os.path.join(template_dir,'ios-sim'))
 			iphone_dir = os.path.abspath(os.path.join(project_dir,'build','iphone'))
 			tiapp_xml = os.path.join(project_dir,'tiapp.xml')
 			ti = TiAppXML(tiapp_xml)
@@ -626,7 +626,7 @@ def main(args):
 			command = 'simulator' # switch it so that the rest of the stuff works
 		else:
 			iphone_version = dequote(args[2].decode("utf-8"))
-			iphonesim = os.path.abspath(os.path.join(template_dir,'iphonesim'))
+			iphonesim = os.path.abspath(os.path.join(template_dir,'ios-sim'))
 			project_dir = os.path.expanduser(dequote(args[3].decode("utf-8")))
 			appid = dequote(args[4].decode("utf-8"))
 			name = dequote(args[5].decode("utf-8"))
@@ -1320,10 +1320,16 @@ def main(args):
 					os.putenv('DYLD_FRAMEWORK_PATH', iphoneprivateframeworkspath)
 
 					# launch the simulator
+					
+					# Awkard arg handling; we need to take 'retina' to be a device type,
+					# even though it's really not (it's a combination of device type and configuration).
+					# So we translate it into two args:
+					if simtype == 'retina':
+						simtype = 'iphone --retina'
 					if devicefamily==None:
-						sim = subprocess.Popen("\"%s\" launch \"%s\" %s iphone" % (iphonesim,app_dir,iphone_version),shell=True)
+						sim = subprocess.Popen("\"%s\" launch \"%s\" --sdk %s" % (iphonesim,app_dir,iphone_version),shell=True)
 					else:
-						sim = subprocess.Popen("\"%s\" launch \"%s\" %s %s" % (iphonesim,app_dir,iphone_version,simtype),shell=True)
+						sim = subprocess.Popen("\"%s\" launch \"%s\" --sdk %s --family %s" % (iphonesim,app_dir,iphone_version,simtype),shell=True)
 
 					# activate the simulator window - we use a OSA script to 
 					# cause the simulator window to come into the foreground (otherwise
