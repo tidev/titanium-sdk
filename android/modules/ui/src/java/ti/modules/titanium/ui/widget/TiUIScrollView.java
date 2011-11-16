@@ -45,6 +45,11 @@ public class TiUIScrollView extends TiUIView {
 			super(context, arrangement);
 		}
 
+		private LayoutParams getParams(View child)
+		{
+			return (LayoutParams)child.getLayoutParams();
+		}
+		
 		@Override
 		protected void onLayout(boolean changed, int l, int t, int r, int b)
 		{
@@ -94,10 +99,23 @@ public class TiUIScrollView extends TiUIView {
 
 		private int calculateAbsoluteRight(View child)
 		{
+			LayoutParams p = getParams(child);
 			int contentWidth = getContentProperty(TiC.PROPERTY_CONTENT_WIDTH);
 			if (contentWidth == AUTO) {
-				// Use the measured width of the parent for auto
-				measuredWidth = parentWidth;
+				int childMeasuredWidth = child.getMeasuredWidth();
+				if (!p.autoWidth) {
+					childMeasuredWidth = getDimensionValue(p.optionWidth, parentWidth);
+				}
+				if (p.optionLeft != null) {
+					childMeasuredWidth += getDimensionValue(p.optionLeft, parentWidth);
+				}
+				if (p.optionRight != null) {
+					childMeasuredWidth += getDimensionValue(p.optionRight, parentWidth);
+				}
+
+				measuredWidth = Math.max(childMeasuredWidth, measuredWidth);
+				// Make parentWidth the minimum value
+				measuredWidth = Math.max(parentWidth, measuredWidth);
 			} else {
 				measuredWidth = contentWidth;
 			}
@@ -107,15 +125,38 @@ public class TiUIScrollView extends TiUIView {
 
 		private int calculateAbsoluteBottom(View child)
 		{
+			LayoutParams p = (LayoutParams) child.getLayoutParams();
 			int contentHeight = getContentProperty(TiC.PROPERTY_CONTENT_HEIGHT);
 
 			if (contentHeight == AUTO) {
-				// Use the measured height of the parent for auto
-				measuredHeight = parentHeight;
+				int childMeasuredHeight = child.getMeasuredHeight();
+				if (!p.autoHeight) {
+					childMeasuredHeight = getDimensionValue(p.optionHeight, parentHeight);
+				}
+				if (p.optionTop != null) {
+					childMeasuredHeight += getDimensionValue(p.optionTop, parentHeight);
+				}
+				if (p.optionBottom != null) {
+					childMeasuredHeight += getDimensionValue(p.optionBottom, parentHeight);
+				}
+
+				measuredHeight = Math.max(childMeasuredHeight, measuredHeight);
+				// Make parentHeight the minimum value
+				measuredHeight = Math.max(parentHeight, measuredHeight);
 			} else {
 				measuredHeight = contentHeight;
 			}
 			return measuredHeight;
+		}
+
+		private int getDimensionValue(TiDimension dimension, int parentValue)
+		{
+			// getAsPixels doesn't return the correct value for percentages, so we manually calculate the percentage
+			// values here
+			if (dimension.isUnitPercent()) {
+				return (int) ((dimension.getValue() / 100.0) * parentValue);
+			}
+			return dimension.getAsPixels(this);
 		}
 
 		@Override
