@@ -2,9 +2,9 @@
 name: Titanium.UI.ProgressBar
 summary: A progress bar.
 description: |
-A progress bar is used for displaying an ongoing activity with a defined progression. For an activity without a defined progression, you can use <Titanium.UI.ActivityIndicator>. 
+    A progress bar is used for displaying an ongoing activity with a defined progression. For an activity without a defined progression, you can use <Titanium.UI.ActivityIndicator>. 
 
-Use the <Titanium.UI.createProgressBar> method to create a progress bar.
+    Use the <Titanium.UI.createProgressBar> method to create a progress bar.
 extends: Titanium.Proxy
 since: "0.8"
 platforms: [android, iphone, ipad]
