@@ -82,7 +82,7 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 		// Get and validate the location of the view
 		viewIndex = _views.indexOf(view);
 		if (viewIndex == -1) {
-			return
+			return;
 		}
 		
 		// Update the view if this view was currently visible
@@ -129,25 +129,23 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 		// If the scrollableView hasn't been laid out yet, we can't do much since the scroll distance is unknown.
 		// At the same time, it doesn't matter since the user won't see it anyways. So we just append the new
 		// element and don't show the transition animation.
-		if (obj.dom.offsetWidth == 0) {
+		if (!obj.dom.offsetWidth) {
 			obj._attachFinalView(_views[viewIndex].dom);
 		} else {
 			
 			// Stop the previous timer if it is running (i.e. we are in the middle of an animation)
-			if (_interval != null) {
-				clearInterval(_interval);
-			}
+			_interval && clearInterval(_interval);
 		
 			// Remove the previous container
-			if (obj.dom.childNodes.length > 0) {
+			if (obj.dom.childNodes.length) {
 				obj.dom.removeChild(obj.dom.firstChild);
 			}
 			
 			// Calculate the views to be scrolled
-			var _w = obj.dom.offsetWidth;
-			var _viewsToScroll = [];
-			var _scrollingDirection = -1;
-			var _initialPosition = 0;
+			var _w = obj.dom.offsetWidth,
+				_viewsToScroll = [],
+				_scrollingDirection = -1,
+				_initialPosition = 0;
 			if (viewIndex > _currentPage) {
 				for (var i = _currentPage; i <= viewIndex; i++) {
 					_viewsToScroll.push(_views[i].dom);
