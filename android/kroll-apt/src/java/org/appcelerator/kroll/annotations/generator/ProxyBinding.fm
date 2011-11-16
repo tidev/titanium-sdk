@@ -190,7 +190,6 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 <#assign typeInfo = {
 	"org.appcelerator.kroll.KrollProxy":{
 		"jsType":"Object",
-		"jsValidation":true,
 		"jsConvertType":"Value",
 		"jsToJavaConverter":"jsValueToJavaObject",
 		"javaToJsConverter":"javaObjectToJsValue",
@@ -199,16 +198,15 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaReturnType":"jobject",
 		"javaValidation":true,
 		"javaDeleteLocalRef":true,
-		"rhinoValidation":true,
 		"rhinoType":"Proxy",
 		"rhinoJsCast":false,
 		"rhinoToJavaConverter":"jsObjectToJavaObject",
 		"javaToRhinoConverter":"javaObjectToJsObject",
+		"typeValidation":true,
 		"defaultValue": "null"
 	},
 	"java.lang.String":{
 		"jsType":"Value",
-		"jsValidation":false,
 		"jsToJavaConverter":"jsValueToJavaString",
 		"javaToJsConverter":"javaStringToJsString",
 		"jvalue":"l",
@@ -216,15 +214,14 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaReturnType":"jstring",
 		"javaValidation":true,
 		"javaDeleteLocalRef":true,
-		"rhinoValidation":false,
 		"rhinoType":"String",
 		"rhinoJsCast":false,
 		"rhinoToJavaConverter":"jsObjectToJavaString",
+		"typeValidation":false,
 		"defaultValue": "null"
 	},
 	"java.lang.Object":{
 		"jsType":"Value",
-		"jsValidation":false,
 		"jsConvertType":"Value",
 		"jsToJavaConverter":"jsValueToJavaObject",
 		"javaToJsConverter":"javaObjectToJsValue",
@@ -233,11 +230,11 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"javaReturnType":"jobject",
 		"javaValidation":true,
 		"javaDeleteLocalRef":true,
-		"rhinoValidation":false,
 		"rhinoType":"Object",
 		"rhinoJsCast":false,
 		"rhinoToJavaConverter":"jsObjectToJavaObject",
 		"javaToRhinoConverter":"javaObjectToJsObject",
+		"typeValidation":false,
 		"defaultValue": "null"
 	},
 	"java.lang.Object[]":{
@@ -282,6 +279,7 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"rhinoType":"Number",
 		"rhinoJsCast":false,
 		"rhinoToJavaConverter":"jsObjectToJavaInt",
+		"typeValidation":false,
 		"defaultValue": "-1"
 	},
 	"short":{
@@ -294,6 +292,7 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"rhinoType":"Number",
 		"rhinoJsCast":false,
 		"rhinoToJavaConverter":"jsObjectToJavaShort",
+		"typeValidation":false,
 		"defaultValue": "-1"
 	},
 	"long[]":{
@@ -322,6 +321,7 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"rhinoType":"Number",
 		"rhinoJsCast":false,
 		"rhinoToJavaConverter":"jsObjectToJavaLong",
+		"typeValidation":false,
 		"defaultValue": "-1"
 	},
 	"float":{
@@ -334,6 +334,7 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"rhinoType":"Number",
 		"rhinoJsCast":false,
 		"rhinoToJavaConverter":"jsObjectToJavaFloat",
+		"typeValidation":false,
 		"defaultValue": "-1f"
 	},
 	"double":{
@@ -346,6 +347,7 @@ titanium::<#list proxy.fullAPIName?split(".") as ns>
 		"rhinoType":"Number",
 		"rhinoJsCast":false,
 		"rhinoToJavaConverter":"jsObjectToJavaDouble",
+		"typeValidation":false,
 		"defaultValue": "-1d"
 	},
 	"boolean":{
@@ -426,7 +428,7 @@ jvalue array named "jArguments". If validation or conversion
 fails, a JS exception is returned.
 ---------------------------------------------------------------->
 <#macro verifyAndConvertArgument expr index info logOnly isOptional>
-	<#if !isOptional && info.jsValidation!true>
+	<#if !isOptional && info.typeValidation!true>
 	if (!${expr}->Is${info.jsType}()) {
 		const char *error = "Invalid value, expected type ${info.jsType}.";
 		LOGE(TAG, error);
@@ -450,9 +452,15 @@ fails, a JS exception is returned.
 	} else {
 	</#if>
 <#t>
+	<#local current_arg = "arg_" + index>
 	<#if info.jsType == "Value">
 		<#local type = "Local<Value>">
 		<#local valueExpr = expr>
+	<#elseif info.jsType == "Number">
+		<#local type = "Local<Number>">
+		<#local valueExpr = expr + "->ToNumber()">
+		<#local stringExpr = expr + "->ToString()">
+		<#local postAssignmentCheck = "V8Util::isNaN(" + current_arg + ")">
 	<#elseif info?keys?seq_contains("jsHandleCast")>
 		<#local type = "Local<" + info.jsType + ">">
 		<#local valueExpr = "Local<" + info.jsType + ">::Cast(" + expr + ")">
@@ -461,7 +469,17 @@ fails, a JS exception is returned.
 		<#local valueExpr = expr + "->To" + info.jsType + "()">
 	</#if>
 <#t>
-	${type} arg_${index} = ${valueExpr};
+	${type} ${current_arg} = ${valueExpr};
+	
+	<#if info.jsType == "Number">
+		if (${postAssignmentCheck} || ${stringExpr}->Length() == 0) {
+			const char *error = "Invalid value, expected type ${info.jsType}.";
+			LOGE(TAG, error);
+			<#if !(logOnly!false)>
+			return JSException::Error(error);
+			</#if>
+		}
+	</#if>
 <#t>
 	jArguments[${index}].${info.jvalue} =
 		TypeConverter::${info.jsToJavaConverter}(arg_${index}<#if checkNew>, &isNew_${index}</#if>);
@@ -531,7 +549,7 @@ fails, a JS exception is returned.
 </#macro>
 
 <#macro verifyAndConvertJavaArgument expr index info type logOnly isOptional>
-	<#if (info.rhinoValidation!true) && !isOptional>
+	<#if (info.typeValidation!true) && !isOptional>
 		if (!(${expr} instanceof ${info.rhinoType})<#if info.javaCallMethodType == "Object"> && ${expr} != null</#if>) {
 			String error = "Invalid value, expected type ${info.rhinoType}, got: " + ${expr};
 			Log.e(TAG, error);
