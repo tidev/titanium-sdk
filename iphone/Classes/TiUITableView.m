@@ -1896,16 +1896,29 @@ if(ourTableView != tableview)	\
 				break;
 		}
 	}
+    /*
+     * Keeping this code in for historical reasons, because:
+     *
+     * Prior to iOS 5, this method (tableView:heightForHeaderInSection:) had its return value IGNORED
+     * for sections which returned `nil` for tableView:viewForHeaderInSection: -
+     * meaning that it was dead code.
+     *
+     * But in iOS 5, if this method is here, then it is ALWAYS called, even if that return value
+     * is nil; meaning we were previously providing the default spacing (which, contrary to
+     * our HEADERFOOTER_HEIGHT constant, is apparently not 20px and also apparently not 
+     * -[UITableView sectionHeaderHeight]).
+     *
+     * Returning a value of 0 coereces the table into rendering the section of "empty" header height,
+     * which is the behavior consistent with iOS <5.0 behavior.
 	else if ([sectionProxy headerTitle]!=nil)
 	{
 		hasTitle = YES;
-		size+=[tableview sectionHeaderHeight];
+		size = [tableview sectionHeaderHeight];
+        if (size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT) {
+            size = DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+        }
 	}
-	
-	if (hasTitle && size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT)
-	{
-		size += DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
-	}
+     */
 	return size;
 }
 
