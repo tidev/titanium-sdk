@@ -369,6 +369,21 @@
 {
 	UITableView *table = [self tableView];
     
+    // Apple kindly forces animations whenever we're inserting/deleting in a no-animation
+    // way, meaning that we have to explicitly reload the whole visible table to get
+    // the "right" behavior.
+    if (animation == UITableViewRowAnimationNone) {
+        if (![NSThread isMainThread]) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [table reloadData];
+            });
+        }
+        else {
+            [table reloadData];            
+        }
+        return;
+    }
+    
 	//Table views hate having 0 sections, so we have to act like it has at least 1.
 	oldCount = MAX(1,oldCount);
 	newCount = MAX(1,newCount);
@@ -696,8 +711,16 @@
 
 	if ([searchController searchResultsTableView] != nil) {
 		[self updateSearchResultIndexes];
-		[[searchController searchResultsTableView] reloadSections:[NSIndexSet indexSetWithIndex:0]
-                                                  withRowAnimation:UITableViewRowAnimationFade];
+        // -[UITableView reloadData] helpfully queues on the main runloop, and does NOT
+        // execute immediately. This means that however we update the search results table
+        // must match with how we update the tableview data, or else there could be a mismatch.
+        if (action.animation == UITableViewRowAnimationNone) {
+            [[searchController searchResultsTableView] reloadData];
+        }
+        else {
+            [[searchController searchResultsTableView] reloadSections:[NSIndexSet indexSetWithIndex:0]
+                                                     withRowAnimation:UITableViewRowAnimationFade];
+        }
 	}
 }
 
