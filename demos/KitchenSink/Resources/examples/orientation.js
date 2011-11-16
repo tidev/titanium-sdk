@@ -13,14 +13,15 @@ var win = Titanium.UI.currentWindow;
 //
 
 // initialize to all modes
-win.orientationModes = [
+var orientationModes = [
 	Titanium.UI.PORTRAIT,
 	Titanium.UI.UPSIDE_PORTRAIT,
 	Titanium.UI.LANDSCAPE_LEFT,
 	Titanium.UI.LANDSCAPE_RIGHT,
 	Titanium.UI.FACE_UP,
 	Titanium.UI.FACE_DOWN
-]; 
+];
+win.orientationModes = orientationModes;
 
 
 //
@@ -154,14 +155,7 @@ b4.addEventListener('click', function()
 		backgroundColor:'purple'
 	});
 
-	subwin.orientationModes = [ 
-		Titanium.UI.PORTRAIT, 
-		Titanium.UI.UPSIDE_PORTRAIT, 
-		Titanium.UI.LANDSCAPE_LEFT, 
-		Titanium.UI.LANDSCAPE_RIGHT, 
-		Titanium.UI.FACE_UP, 
-		Titanium.UI.FACE_DOWN
-	];
+	subwin.orientationModes = orientationModes;
 
 	var close = Titanium.UI.createButton({
 		title:'close',
@@ -175,7 +169,7 @@ b4.addEventListener('click', function()
 		if (Titanium.Platform.osname == 'android')
 		{
 			// reset the orientation modes on the parent to ensure the orientation gets reset on the previous window
-			win.orientationModes = win.orientationModes;
+			win.orientationModes = orientationModes;
 		}
 		subwin.close();
 	});
