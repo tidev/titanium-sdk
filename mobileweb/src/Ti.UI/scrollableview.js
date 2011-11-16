@@ -59,11 +59,16 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 
 	// Methods
 	this.addView = function(view){
-		_views.push(view);
 		
-		// Check if any children have been added yet, and if not load this view
-		if (_currentPage == -1) {
-			obj._scrollToViewPosition(0);
+		// Sanity check
+		var undef; 
+		if (view !== undef && view !== null) {
+			_views.push(view);
+			
+			// Check if any children have been added yet, and if not load this view
+			if (_currentPage == -1) {
+				obj._scrollToViewPosition(0);
+			}
 		}
 	};
 	this._viewToRemoveAfterScroll = -1;
@@ -80,7 +85,7 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 	this.removeView = function(view){
 		
 		// Get and validate the location of the view
-		viewIndex = _views.indexOf(view);
+		var viewIndex = _views.indexOf(view);
 		if (viewIndex == -1) {
 			return;
 		}
@@ -181,17 +186,17 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 			_contentContainer.style.left = _initialPosition + 'px';
 			
 			// Set the start time
-			var _startTime = (new Date()).getTime();
-			var _duration = 300 + 0.2 * _w; // Calculate a weighted duration so that larger views take longer to scroll.
-			var _distance = (_viewsToScroll.length - 1) * _w;
+			var _startTime = (new Date()).getTime(),
+				_duration = 300 + 0.2 * _w, // Calculate a weighted duration so that larger views take longer to scroll.
+				_distance = (_viewsToScroll.length - 1) * _w;
 			
 			// Start the timer
 			_interval = setInterval(function(){
 				
 				// Calculate the new position
-				var _currentTime = ((new Date()).getTime() - _startTime);
-				var _normalizedTime = _currentTime / (_duration / 2);
-				var _newPosition;
+				var _currentTime = ((new Date()).getTime() - _startTime),
+					_normalizedTime = _currentTime / (_duration / 2),
+					_newPosition;
 				if (_normalizedTime < 1) {
 					_newPosition = _distance / 2 * _normalizedTime * _normalizedTime;
 				} else {
