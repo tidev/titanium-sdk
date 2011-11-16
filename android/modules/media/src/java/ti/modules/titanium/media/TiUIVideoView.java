@@ -285,13 +285,9 @@ public class TiUIVideoView extends TiUIView
 	public void release()
 	{
 		super.release();
-		try {
-			releaseVideoView();
-			mVideoView = null;
-			mMediaController = null;
-		} catch (Exception e) {
-			Log.e(TAG, "Exception while releasing view", e);
-		}
+		releaseVideoView();
+		mVideoView = null;
+		mMediaController = null;
 	}
 
 	@Override

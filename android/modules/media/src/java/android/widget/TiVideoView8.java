@@ -341,7 +341,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	private void setDataSource()
 	{
 		try {
-			if (mUri.getScheme().equals("http") || mUri.getScheme().equals("https")) {
+			if ("http".equals(mUri.getScheme()) || "https".equals(mUri.getScheme())) {
 				// Media player doesn't handle redirects, try to follow them
 				// here
 				while (true) {
