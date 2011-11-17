@@ -96,7 +96,7 @@
 		for (p in it) {
 			break;
 		}
-		return !p;
+		return !it || !p;
 	}
 
 	function evaluate(str, vars, globally) {
@@ -351,15 +351,15 @@
 			dc = defCache[_t.name],
 			onLoad = function (rawDef) {
 				_t.loaded = 1;
-				if (rawDef) {
-					_t.rawDef = rawDef;
+				if (_t.rawDef = rawDef) {
 					if (is(rawDef, "String")) {
 						if (/\.js$/.test(_t.url)) {
-							_t.rawDef = evaluate(rawDef, {
+							rawDef = evaluate(rawDef, {
 								require: _t.require,
 								exports: _t.exports,
 								module: _t.module
 							});
+							_t.rawDef = !isEmpty(_t.exports) ? _t.exports : (!isEmpty(_t.module.exports) ? _t.module.exports : rawDef);
 						} else {
 							_t.def = rawDef;
 							_t.executed = 1;
