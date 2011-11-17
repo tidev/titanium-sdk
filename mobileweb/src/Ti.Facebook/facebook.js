@@ -132,11 +132,11 @@
 		FB.ui(params,function(response){
 			if (!response) {
 				var undef;
-				callback({'success':false,'error':undef,'path':path});
+				callback({'success':false,'error':undef,'path':path,'source':Titanium.Facebook});
 			} else if (response.error) {
-				callback({'success':false,'error':response.error,'path':path});
+				callback({'success':false,'error':response.error,'path':path,'source':Titanium.Facebook});
 			} else {
-				callback({'success':true,'result':response,'path':path});
+				callback({'success':true,'result':response,'path':path,'source':Titanium.Facebook});
 			}
 		});
 	};
@@ -157,11 +157,11 @@
 		FB.api(params,function(response){
 			if (!response) {
 				var undef;
-				callback({'success':false,'error':undef,'method':method});
+				callback({'success':false,'error':undef,'method':method,'source':Titanium.Facebook});
 			} else if (response.error) {
-				callback({'success':false,'error':response.error,'method':method});
+				callback({'success':false,'error':response.error,'method':method,'source':Titanium.Facebook});
 			} else {
-				callback({'success':true,'result':JSON.stringify(response),'method':method});
+				callback({'success':true,'result':JSON.stringify(response),'method':method,'source':Titanium.Facebook});
 			}
 		});
 	};
@@ -169,11 +169,11 @@
 		FB.api(path,httpMethod,params,function(response){
 			if (!response) {
 				var undef;
-				callback({'success':false,'error':undef,'path':path});
+				callback({'success':false,'error':undef,'path':path,'source':Titanium.Facebook});
 			} else if (response.error) {
-				callback({'success':false,'error':response.error,'path':path});
+				callback({'success':false,'error':response.error,'path':path,'source':Titanium.Facebook});
 			} else {
-				callback({'success':true,'result':JSON.stringify(response),'path':path});
+				callback({'success':true,'result':JSON.stringify(response),'path':path,'source':Titanium.Facebook});
 			}
 		});
 	};
