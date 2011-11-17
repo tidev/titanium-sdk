@@ -39,12 +39,12 @@
 
 -(UIView*)makeButton:(id)button tag:(int)buttonTag
 {
-	UIView *view = nil;
+	UIView *button_view = nil;
 	if ([button isKindOfClass:[NSNumber class]])
 	{
 		// this is button type constant
 		int type = [TiUtils intValue:button];
-		view = [TiButtonUtil buttonWithType:type];
+		button_view = [TiButtonUtil buttonWithType:type];
 	}
 	else 
 	{
@@ -56,14 +56,14 @@
 			[TiUtils setView:bview positionRect:CGRectMake(0,0,size.width,size.height)];
 			bview.backgroundColor = [UIColor clearColor];
 			[bview setImage:image forState:UIControlStateNormal];
-			view = bview;
+			button_view = bview;
 		}
 	}
-	if (view!=nil)
+	if (button_view!=nil)
 	{
-		view.tag = buttonTag;
+		button_view.tag = buttonTag;
 	}
-	return view;
+	return button_view;
 }
 
 -(void)setNeedsRefreshingWithSelection: (BOOL)shouldReselect
@@ -232,21 +232,21 @@
 	}
 }
 
-- (void)setRightView:(id)view
+- (void)setRightView:(id)rightview
 {
 	id current = [self valueForUndefinedKey:@"rightView"];
-	[self replaceValue:view forKey:@"rightView" notification:NO];
-	if (current!=view)
+	[self replaceValue:rightview forKey:@"rightView" notification:NO];
+	if (current!=rightview)
 	{
 		[self setNeedsRefreshingWithSelection:YES];
 	}
 }
 
-- (void)setLeftView:(id)view
+- (void)setLeftView:(id)leftview
 {
 	id current = [self valueForUndefinedKey:@"leftView"];
-	[self replaceValue:view forKey:@"leftView" notification:NO];
-	if (current!=view)
+	[self replaceValue:leftview forKey:@"leftView" notification:NO];
+	if (current!=leftview)
 	{
 		[self setNeedsRefreshingWithSelection:YES];
 	}

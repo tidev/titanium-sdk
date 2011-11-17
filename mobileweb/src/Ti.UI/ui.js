@@ -186,8 +186,8 @@
 	api.createScrollView = function(args) {
 		return new Ti.UI.ScrollView(args);
 	};
-	api.createScrollableView = function(){
-		console.debug('Method "Titanium.UI.createScrollableView" is not implemented yet.');
+	api.createScrollableView = function(args){
+		return new Ti.UI.ScrollableView(args);
 	};
 	api.createSearchBar = function(args){
 		return new Ti.UI.SearchBar(args);

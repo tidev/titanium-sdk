@@ -214,8 +214,12 @@ public class TiUIActivityWindow extends TiUIView
 
 	public void close(KrollDict options) 
 	{
-		Object animated = options.get(TiC.PROPERTY_ANIMATED);
 		boolean animateOnClose = animate;
+
+		Object animated = null;
+		if (options != null) {
+			animated = options.get(TiC.PROPERTY_ANIMATED);
+		}
 
 		if (animated != null) {
 			animateOnClose = TiConvert.toBoolean(animated);
