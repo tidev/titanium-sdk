@@ -158,11 +158,11 @@
 		FB.api(params,function(response){
 			if (!response) {
 				var undef;
-				callback({'success':false,'error':undef,'path':path});
+				callback({'success':false,'error':undef,'method':method});
 			} else if (response.error) {
-				callback({'success':false,'error':response.error,'path':path});
+				callback({'success':false,'error':response.error,'method':method});
 			} else {
-				callback({'success':true,'result':response,'path':path});
+				callback({'success':true,'result':JSON.stringify(response),'method':method});
 			}
 		});
 	};
@@ -174,7 +174,7 @@
 			} else if (response.error) {
 				callback({'success':false,'error':response.error,'path':path});
 			} else {
-				callback({'success':true,'result':response,'path':path});
+				callback({'success':true,'result':JSON.stringify(response),'path':path});
 			}
 		});
 	};
