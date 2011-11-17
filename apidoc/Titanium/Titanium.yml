@@ -7,25 +7,39 @@ extends: Titanium.Module
 properties:
   - name: userAgent
     type: String
-    description: the user-agent string used by Titanium
+    description: User-agent string used by Titanium.
   - name: version
     type: Number
-    description: the version of Titanium that is executing
+    description: Version of Titanium that is executing.
     permission: read-only
   - name: buildDate
     type: String
-    description: The date of the Titanium build
+    description: Date of the Titanium build.
     permission: read-only
   - name: buildHash
     type: String
-    description: The git hash of the Titanium build
+    description: Git hash of the Titanium build.
     permission: read-only
 methods:
   - name: include
-    description: a filename to include as if the Javascript code was written in place.  This is similar to a C `#include` function.
+    summary: Include a JavaScript from one or more files.
+    description: |
+        Includes JavaScript code from one or more files. The `include` method has several interesting quirks:
+        * The included JavaScript is interpreted in the current root execution context. For example, in the following code snippet, the included code in `some_module.js` has access to `globalVar`, but *not* to the local variable, `localVar`:
+        `
+            var globalVar = {};
+            function loadModule() {
+                var localVar = "A local value.";
+                Ti.include('some_module.js');
+            };
+            loadModule();
+        `
+        * The included filename is interpreted *local to the current file*. For example, suppose `a.js` includes `subdir/b.js.` If `b.js` includes another file, `c.js`, this is interpreted as a`subdir/c.js`.
+        * Calling `include` from an event handler may have unexpected results. 
+working::here::<<<working here>>>
     parameters:
       - name: name
-        description:  filename to include
+        description: Filename(s) to include. 
         type: String
 
   - name: createBuffer
