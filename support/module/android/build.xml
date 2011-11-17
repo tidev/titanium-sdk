@@ -47,13 +47,20 @@
 			debug="${javac.debug}"
 			includeantruntime="false">
 				<compilerarg value="-processor"/>
-				<compilerarg value="org.appcelerator.kroll.annotations.generator.KrollBindingGenerator"/>
+				<compilerarg value="org.appcelerator.kroll.annotations.generator.KrollJSONGenerator"/>
 				<compilerarg value="-s"/>
 				<compilerarg value="${gen}"/>
 				<compilerarg line="-Akroll.jsonFile=${ant.project.name}.json"/>
 				<compilerarg line="-Akroll.jsonPackage=org.appcelerator.titanium.bindings"/>
 				<classpath refid="project.classpath"/>
 		</javac>
+		<java
+			classname="org.appcelerator.kroll.annotations.generator.KrollBindingGenerator"
+			classpathref="project.classpath">
+			<arg value="v8"/>
+			<arg value="${gen}"/>
+			<arg value="${gen}/org/appcelerator/titanium/bindings/${ant.project.name}.json"/>
+		</java>
 	</target>
 
 	<target name="pre.compile">
@@ -82,7 +89,7 @@
 
 	<macrodef name="check.ndk">
 		<sequential>
-			<fail message="The module.ndkbuild property is set, but the android.ndk property is not set to an existing Android NDK installation (check your module's build.properties)">
+			<fail message="The android.ndk property is not set to an existing Android NDK installation (check your module's build.properties)">
 				<condition>
 					<not>
 						<available file="${android.ndk}" type="dir"/>
@@ -92,7 +99,7 @@
 		</sequential>
 	</macrodef>
 
-	<target name="ndk.build" if="module.ndkbuild">
+	<target name="ndk.build">
 		<check.ndk/>
 		<property name="ndk.build" location="${android.ndk}/ndk-build"/>
 		<exec executable="${ndk.build}" dir="${jni}">
