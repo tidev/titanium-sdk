@@ -546,6 +546,7 @@
 	ENSURE_UI_THREAD(dispatchAction,action);
 	
 	NSMutableArray * sections = [(TiUITableViewProxy *)[self proxy] sections];
+    BOOL reloadSearch = NO;
 	switch (action.type)
 	{
 		case TiUITableViewActionRowReload:
@@ -689,6 +690,7 @@
 		case TiUITableViewActionSetData:
 		{
 			[self replaceData:action.obj animation:action.animation];
+            reloadSearch = YES;
 			break;
 		}
 		case TiUITableViewActionAppendRow:
@@ -710,11 +712,9 @@
 	}
 
 	if ([searchController searchResultsTableView] != nil) {
-		[self updateSearchResultIndexes];
-        // -[UITableView reloadData] helpfully queues on the main runloop, and does NOT
-        // execute immediately. This means that however we update the search results table
-        // must match with how we update the tableview data, or else there could be a mismatch.
-        if (action.animation == UITableViewRowAnimationNone) {
+        [self updateSearchResultIndexes];
+        
+        if (reloadSearch) {
             [[searchController searchResultsTableView] reloadData];
         }
         else {
