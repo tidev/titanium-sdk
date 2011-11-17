@@ -528,7 +528,7 @@ public class TableViewProxy extends TiViewProxy
 	{
 		if (msg.what == MSG_UPDATE_VIEW) {
 			getTableView().updateView();
-			((AsyncResult) msg.obj).setResult(0);
+			((AsyncResult) msg.obj).setResult(null);
 			return true;
 		} else if (msg.what == MSG_SCROLL_TO_INDEX) {
 			getTableView().scrollToIndex(msg.arg1);
@@ -537,7 +537,7 @@ public class TableViewProxy extends TiViewProxy
 			AsyncResult result = (AsyncResult) msg.obj;
 			Object[] data = (Object[]) result.getArg();
 			handleSetData(data);
-			result.setResult(0);
+			result.setResult(null);
 			return true;
 		} else if (msg.what == MSG_INSERT_ROW) {
 			AsyncResult result = (AsyncResult) msg.obj;
@@ -548,7 +548,7 @@ public class TableViewProxy extends TiViewProxy
 				} else {
 					handleInsertRowBefore(msg.arg2, result.getArg());
 				}
-				result.setResult(0);
+				result.setResult(null);
 
 			} catch (IllegalStateException e) {
 				result.setResult(e);
@@ -557,13 +557,13 @@ public class TableViewProxy extends TiViewProxy
 		} else if (msg.what == MSG_APPEND_ROW) {
 			AsyncResult result = (AsyncResult) msg.obj;
 			handleAppendRow(result.getArg());
-			result.setResult(0);
+			result.setResult(null);
 			return true;
 		} else if (msg.what == MSG_DELETE_ROW) {
 			AsyncResult result = (AsyncResult) msg.obj;
 			try {
 				handleDeleteRow(msg.arg1);
-				result.setResult(0);
+				result.setResult(null);
 			} catch (IllegalStateException e) {
 				result.setResult(e);
 			}
