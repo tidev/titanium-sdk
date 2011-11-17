@@ -607,6 +607,10 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 -(void)rememberProxy:(TiProxy *)rememberedProxy
 {
+	if (rememberedProxy == nil)
+	{
+		return;
+	}
 	if ((bridgeCount == 1) && (pageKrollObject != nil))
 	{
 		if (rememberedProxy == self) {
@@ -642,6 +646,10 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 -(void)forgetProxy:(TiProxy *)forgottenProxy
 {
+	if (forgottenProxy == nil)
+	{
+		return;
+	}
 	if ((bridgeCount == 1) && (pageKrollObject != nil))
 	{
 		if (forgottenProxy == self) {

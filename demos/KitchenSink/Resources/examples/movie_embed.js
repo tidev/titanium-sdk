@@ -1,25 +1,28 @@
 var win = Titanium.UI.currentWindow;
 
-if (Titanium.Platform.name != 'Android') {
-	var statusLabel = Titanium.UI.createLabel({
-		text:'tap on movie content',
-		width:'auto',
-		top:50,
-		height:25,
-		font:{fontSize:12,fontFamily:'Helvetica Neue'}
-	});
-	win.add(statusLabel);
-}
+var statusLabel = Titanium.UI.createLabel({
+	text:'tap on movie content',
+	width:'auto',
+	bottom:50,
+	font:{fontSize:12,fontFamily:'Helvetica Neue'}
+});
+win.add(statusLabel);
 
 var activeMovie = Titanium.Media.createVideoPlayer({
-	contentURL:'../movie.mp4',
+	url:'movie.mp4',
 	backgroundColor:'#111',
-	movieControlStyle: Titanium.Media.VIDEO_CONTROL_EMBEDDED,
+	movieControlMode: Titanium.Media.VIDEO_CONTROL_EMBEDDED, // See TIMOB-2802, which may change this property name
 	scalingMode:Titanium.Media.VIDEO_SCALING_MODE_FILL,
 	width:100,
 	height:100,
 	autoplay:true
 });
+
+// The built-in media playback controls look crazy at 100x100 in Android
+if (Ti.Platform.name === "android") {
+	activeMovie.width = 250;
+	activeMovie.height = 250;
+}
 
 win.add(activeMovie);
 
@@ -29,25 +32,23 @@ var movieLabel = Titanium.UI.createLabel({
 	width:'auto',
 	height:25,
 	color:'white',
-	font:{fontSize:24,fontFamily:'Helvetica Neue'}
+	font:{fontSize:18,fontFamily:'Helvetica Neue'}
 });
 
 // add label to view
 activeMovie.add(movieLabel);
 
-// label click
-if (Titanium.Platform.name != 'Android') {
-	activeMovie.addEventListener('click',function()
-	{
-		var newText = "";
-		newText += " i:" + activeMovie.initialPlaybackTime;
-		newText += " p:" + activeMovie.playableDuration;
-		newText += " e:" + activeMovie.endPlaybackTime;
-		newText += " d:" + activeMovie.duration;
-		newText += " c:" + activeMovie.currentPlaybackTime;
-		statusLabel.text = newText;
-	});
-}
+// movie click
+activeMovie.addEventListener('click',function()
+{
+	var newText = "";
+	newText += " initialPlaybackTime: " + activeMovie.initialPlaybackTime;
+	newText += "; playableDuration: " + activeMovie.playableDuration;
+	newText += "; endPlaybackTime: " + activeMovie.endPlaybackTime;
+	newText += "; duration: " + activeMovie.duration;
+	newText += "; currentPlaybackTime: " + activeMovie.currentPlaybackTime;
+	statusLabel.text = newText;
+});
 
 // label click
 movieLabel.addEventListener('click',function()
@@ -69,17 +70,27 @@ activeMovie.addEventListener('load',function()
 activeMovie.addEventListener('complete',function()
 {
 	Ti.API.debug('Completed!');
-	Titanium.UI.createAlertDialog({title:'Movie', message:'Completed!'}).show();
-	win.close();
+	var dlg = Titanium.UI.createAlertDialog({title:'Movie', message:'Completed!'});
+	if (Ti.Platform.name === "android") {
+		// Gives a chance to see the dialog
+		win.close();
+		dlg.show();
+	} else {
+		dlg.show();
+		win.close();
+	}
 });
 
-var thumbnailImage = activeMovie.thumbnailImageAtTime(4.0, Titanium.Media.VIDEO_TIME_OPTION_EXACT);
-win.add(Titanium.UI.createImageView({
-	image:thumbnailImage,
-	bottom:10,
-	width:100,
-	height:100
-}));
+if (Ti.Platform.name !== "android") {
+	// Thumbnails not supported
+	var thumbnailImage = activeMovie.thumbnailImageAtTime(4.0, Titanium.Media.VIDEO_TIME_OPTION_EXACT);
+	win.add(Titanium.UI.createImageView({
+		image:thumbnailImage,
+		bottom:10,
+		width:100,
+		height:100
+	}));
+}
 
 activeMovie.play();
 
