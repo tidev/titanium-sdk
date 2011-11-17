@@ -39,11 +39,22 @@
 
 - (UIView *)keyboardAccessoryViewForProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy withView:(UIView **)proxyView;
 
+-(void)updateBackground;
+-(UIInterfaceOrientation) lastValidOrientation;
+
+@property (nonatomic,readwrite,assign)	UIInterfaceOrientation windowOrientation;
+
+-(TiOrientationFlags)getDefaultOrientations;
+
+
 @end
 
 
 @implementation TiRootViewController
 @synthesize backgroundColor, backgroundImage, defaultImageView, keyboardVisible;
+@synthesize windowOrientation;
+
+#pragma mark Default image handling
 
 - (UIImage*)defaultImageForOrientation:(UIDeviceOrientation) orientation resultingOrientation:(UIDeviceOrientation *)imageOrientation idiom:(UIUserInterfaceIdiom*) imageIdiom
 {	
@@ -177,6 +188,7 @@
 }
 
 
+#pragma mark Initialization and deallocation 
 
 -(void)dealloc
 {
@@ -203,9 +215,11 @@
 		windowProxies = [[NSMutableArray alloc] init];
 		viewControllerStack = [[NSMutableArray alloc] init];
 		// Set up the initial orientation modes
-		[self setOrientationModes:nil];
+		allowedOrientations = [self getDefaultOrientations];
 		orientationHistory[0] = UIInterfaceOrientationPortrait;
 		orientationHistory[1] = UIInterfaceOrientationLandscapeLeft;
+		orientationHistory[2] = UIInterfaceOrientationLandscapeRight;
+		orientationHistory[3] = UIInterfaceOrientationPortraitUpsideDown;
 		
 //Keyboard initialization
 		leaveCurve = UIViewAnimationCurveEaseIn;
@@ -237,6 +251,57 @@
 	}
 	return self;
 }
+
+#pragma mark UIViewController methods
+
+-(void)loadView
+{
+	TiRootView *rootView = [[TiRootView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]];
+	self.view = rootView;
+	[self updateBackground];
+	if (defaultImageView != nil) {
+		[self rotateDefaultImageViewToOrientation:UIInterfaceOrientationPortrait];
+		[rootView addSubview:defaultImageView];
+	}
+	//In the event that we are reloading the view due to memory panic.
+	for (TiWindowProxy * thisProxy in windowProxies)
+	{
+		UIView * thisView = [thisProxy view];
+		[rootView addSubview:thisView];
+		[thisProxy reposition];
+	}
+	[rootView release];
+}
+
+- (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
+{
+	[[viewControllerStack lastObject] viewWillAppear:animated];
+}
+
+- (void)viewWillDisappear:(BOOL)animated; // Called when the view is dismissed, covered or otherwise hidden. Default does nothing
+{
+	[[viewControllerStack lastObject] viewWillDisappear:animated];
+}
+
+- (void) viewDidAppear:(BOOL)animated
+{
+   	isCurrentlyVisible = YES;
+	[self.view becomeFirstResponder];
+	[self refreshOrientationWithDuration:animated?[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]:0.0];
+	[super viewDidAppear:animated];
+	[[viewControllerStack lastObject] viewDidAppear:animated];
+}
+
+- (void) viewDidDisappear:(BOOL)animated
+{
+	isCurrentlyVisible = NO;
+	[self.view resignFirstResponder];
+	[self refreshOrientationWithDuration:animated?[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]:0.0];
+    [super viewDidDisappear:animated];
+	[[viewControllerStack lastObject] viewDidDisappear:animated];
+}
+
+#pragma mark Background image/color
 
 -(void)setBackgroundColor:(UIColor *)newColor
 {
@@ -284,24 +349,7 @@
 	}
 }
 
--(void)loadView
-{
-	TiRootView *rootView = [[TiRootView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]];
-	self.view = rootView;
-	[self updateBackground];
-	if (defaultImageView != nil) {
-		[self rotateDefaultImageViewToOrientation:UIInterfaceOrientationPortrait];
-		[rootView addSubview:defaultImageView];
-	}
-	//In the event that we are reloading the view due to memory panic.
-	for (TiWindowProxy * thisProxy in windowProxies)
-	{
-		UIView * thisView = [thisProxy view];
-		[rootView addSubview:thisView];
-		[thisProxy reposition];
-	}
-	[rootView release];
-}
+#pragma mark Performing orientation rotations
 
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration
 {
@@ -334,7 +382,6 @@
 		[UIView setAnimationDuration:duration];
 	}
     
-    
     if (newOrientation != oldOrientation && isCurrentlyVisible)
     {
         [keyboardFocusedProxy blur:nil];
@@ -350,9 +397,6 @@
 
     //Propigate this to everyone else. This has to be done INSIDE the animation.
     [self repositionSubviews];
-    
-	lastOrientation = newOrientation;
-
 	
 	if (duration > 0.0)
 	{
@@ -362,39 +406,29 @@
 	[self didRotateFromInterfaceOrientation:oldOrientation];
 }
 
--(void)manuallyRotateToOrientation:(UIInterfaceOrientation) newOrientation
+-(NSTimeInterval)suggestedRotationDuration
 {
-	NSTimeInterval animation = ([self focusedViewController]==nil)?0.0:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
-	[self manuallyRotateToOrientation:newOrientation duration:animation];
+	if(([self focusedViewController]==nil))
+	{
+		return 0.0;
+	}
+	return [[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
 }
 
--(void)manuallyRotate
+-(UIInterfaceOrientation) lastValidOrientation
 {
 	for (int i = 0; i<4; i++) {
 		if ([self shouldAutorotateToInterfaceOrientation:orientationHistory[i]]) {
-			[self manuallyRotateToOrientation:orientationHistory[i]];
-			return;
+			return orientationHistory[i];
 		}
 	}
+	//This line should never happen, but just in case...
+	return UIInterfaceOrientationPortrait;
 }
 
--(void)updateOrientationIfNeeded
+-(void)refreshOrientation
 {
-	UIInterfaceOrientation newOrientation = (UIInterfaceOrientation)
-			[[UIDevice currentDevice] orientation];
-
-	if (newOrientation == windowOrientation)
-	{
-		return;
-	}
-	//By now, we should check to see if we actually should rotate into position
-	
-	if (![self shouldAutorotateToInterfaceOrientation:newOrientation]) {
-		return;
-	}
-	
-	[self manuallyRotate];
-	//If so, we force a rotation.
+	[self refreshOrientationWithDuration:[self suggestedRotationDuration]];
 }
 
 -(void)didOrientNotify:(NSNotification *)notification
@@ -427,8 +461,8 @@
 		orientationHistory[1] = orientationHistory[0];
 	}
 	orientationHistory[0] = newOrientation;
-	
-	[self performSelector:@selector(updateOrientationIfNeeded) withObject:nil afterDelay:0.0];
+
+	[self performSelector:@selector(refreshOrientation) withObject:nil afterDelay:0.0];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
@@ -469,6 +503,29 @@
 	[super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 }
 
+-(void)refreshOrientationWithDuration:(NSTimeInterval) duration
+{	/*
+	 *	Apple gives us a wonderful method, attemptRotation... in iOS 5 below
+	 *	but sadly, it only updates the orientation if the UI can change that
+	 *	way. So we give it a shot, and if that's not enough, consult the
+	 *	rotation history and manually force the rotation.
+	 */
+	TiOrientationFlags oldFlags = allowedOrientations;
+	allowedOrientations = [self orientationFlags];	
+
+	if ([self respondsToSelector:@selector(presentingViewController)]) {
+		[UIViewController attemptRotationToDeviceOrientation];
+	}
+	UIInterfaceOrientation newOrientation = [self lastValidOrientation];	
+	if ((newOrientation == windowOrientation) &&
+		(oldFlags == allowedOrientations))
+	{
+		//Nothing to do here.
+		return;
+	}
+	
+	[self manuallyRotateToOrientation:newOrientation duration:duration];
+}
 
 
 
@@ -481,37 +538,6 @@
 	return [[self view] bounds];
 }
 
-- (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
-{
-	[[viewControllerStack lastObject] viewWillAppear:animated];
-}
-- (void)viewWillDisappear:(BOOL)animated; // Called when the view is dismissed, covered or otherwise hidden. Default does nothing
-{
-	[[viewControllerStack lastObject] viewWillDisappear:animated];
-}
-
-- (void) viewDidAppear:(BOOL)animated
-{
-   	isCurrentlyVisible = YES;
-	[self.view becomeFirstResponder];
-	if (![self shouldAutorotateToInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]]) {
-		CGFloat duration = 0.0;
-		if (animated) {
-			duration = [[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
-		}
-		[self manuallyRotate];
-	}
-	[super viewDidAppear:animated];
-	[[viewControllerStack lastObject] viewDidAppear:animated];
-}
-
-- (void) viewDidDisappear:(BOOL)animated
-{
-	isCurrentlyVisible = NO;
-	[self.view resignFirstResponder];
-    [super viewDidDisappear:animated];
-	[[viewControllerStack lastObject] viewDidDisappear:animated];
-}
 
 -(void)repositionSubviews
 {
@@ -568,48 +594,6 @@
 	return defaultFlags;
 }
 
--(TiOrientationFlags)allowedOrientations
-{
-    return allowedOrientations;
-}
-
--(void)setOrientationModes:(NSArray *)newOrientationModes
-{
-	allowedOrientations = TiOrientationNone;
-
-	for (id mode in newOrientationModes)
-	{
-		UIInterfaceOrientation orientation = (UIInterfaceOrientation)[TiUtils orientationValue:mode def:-1];
-		switch (orientation)
-		{
-			case UIDeviceOrientationPortrait:
-			case UIDeviceOrientationPortraitUpsideDown:
-			case UIDeviceOrientationLandscapeLeft:
-			case UIDeviceOrientationLandscapeRight:
-				TI_ORIENTATION_SET(allowedOrientations,orientation);
-				break;
-			case -1:
-				break;
-			default:
-				NSLog(@"[WARN] An invalid orientation was requested. Ignoring.");
-				break;
-		}
-	}
-	
-	if (allowedOrientations == TiOrientationNone)
-	{
-		allowedOrientations = [self getDefaultOrientations];
-	}
-}
-
-
-
-/*
-Okay, Blain's sit and think about this. This is only concerning the top level of things.
-That is, this is only a stack of open windows, and does not concern beyond that.
-What this does mean is that any 
-
-*/
 
 - (void)willHideViewController:(UIViewController *)focusedViewController animated:(BOOL)animated
 {
@@ -746,13 +730,6 @@ What this does mean is that any
     return [[windowProxies lastObject] isEqual:window];
 }
 
-#pragma mark Remote Control Notifications
-
-- (void)remoteControlReceivedWithEvent:(UIEvent *)event 
-{ 
-	[[NSNotificationCenter defaultCenter] postNotificationName:kTiRemoteControlNotification object:self userInfo:[NSDictionary dictionaryWithObject:event forKey:@"event"]];
-}
-
 #pragma mark TiOrientationFlags management.
 - (void)openWindow:(TiWindowProxy *)window withObject:(id)args
 {
@@ -800,24 +777,7 @@ What this does mean is that any
 -(void)childOrientationControllerChangedFlags:(id<TiOrientationController>) orientationController;
 {
 	WARN_IF_BACKGROUND_THREAD_OBJ;
-	//Because a modal window might not introduce new 
-
-	TiOrientationFlags newFlags = [self orientationFlags];
-	if (newFlags == allowedOrientations)
-	{
-		//No change. Nothing to update. Skip.
-		return;
-	}
-
-	allowedOrientations = newFlags;
-	if ([self shouldAutorotateToInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]])
-	{
-		//We're still good. No need to rotate. Skip.
-		return;
-	}
-
-	//Force a rotate to accomodate.
-	[self manuallyRotate];
+	[self refreshOrientationWithDuration:[self suggestedRotationDuration]];
 }
 
 -(void)setParentOrientationController:(id <TiOrientationController>)newParent
@@ -843,6 +803,13 @@ What this does mean is that any
 	}
 	
 	return [self getDefaultOrientations];
+}
+
+#pragma mark Remote Control Notifications
+
+- (void)remoteControlReceivedWithEvent:(UIEvent *)event 
+{ 
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiRemoteControlNotification object:self userInfo:[NSDictionary dictionaryWithObject:event forKey:@"event"]];
 }
 
 #pragma mark Keyboard handling
