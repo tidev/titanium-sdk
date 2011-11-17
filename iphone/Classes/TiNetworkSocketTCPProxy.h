@@ -54,6 +54,7 @@ typedef enum {
     KrollCallback* accepted;
     KrollCallback* closed;
     KrollCallback* error;
+    KrollCallback* secured;
 }
 // Properties:
 // -- Stored on TiProxy dynprops --
@@ -65,9 +66,11 @@ typedef enum {
 @property (nonatomic, readwrite, retain) KrollCallback* accepted;
 @property (nonatomic, readwrite, retain) KrollCallback* closed;
 @property (nonatomic, readwrite, retain) KrollCallback* error;
+@property (nonatomic, readwrite, retain) KrollCallback* secured;
 
 // Public API
 -(void)connect:(id)_void;
+-(void)startTLS:(id)_void;
 -(void)listen:(id)arg; // arg[0]: int maxAcceptQueueSize : queue size
 -(void)accept:(id)arg; // arg[0]: Object params : callbacks for created socket
 -(void)close:(id)_void;

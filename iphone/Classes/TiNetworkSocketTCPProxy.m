@@ -23,7 +23,7 @@ static NSString* ARG_KEY = @"arg";
 @end
 
 @implementation TiNetworkSocketTCPProxy
-@synthesize host, connected, accepted, closed, error;
+@synthesize host, connected, accepted, closed, error, secured;
 
 #pragma mark Internals
 
@@ -66,6 +66,7 @@ static NSString* ARG_KEY = @"arg";
     RELEASE_TO_NIL(accepted);
     RELEASE_TO_NIL(closed);
     RELEASE_TO_NIL(error);
+    RELEASE_TO_NIL(secured);
     
     // Release the conditions... so long as each condition has been retained, this is safe.
     RELEASE_TO_NIL(listening);
@@ -292,6 +293,14 @@ NSCondition* temp = [condition retain]; \
     [self performSelectorInBackground:@selector(startConnectingSocket) withObject:nil];
 }
 
+-(void)startTLS:(id)_void
+{
+    NSMutableDictionary* args = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                 [NSNumber numberWithBool:NO],(NSString *)kCFStreamSSLValidatesCertificateChain,
+                                 nil];
+    [socket performSelector:@selector(startTLS:) onThread:socketThread withObject:args waitUntilDone:NO];
+}
+
 -(void)listen:(id)arg
 {
     if (!(internalState & SOCKET_INITIALIZED)) {
@@ -385,6 +394,7 @@ TYPESAFE_SETTER(setHost, host, NSString)
 
 TYPESAFE_SETTER(setConnected, connected, KrollCallback)
 TYPESAFE_SETTER(setAccepted, accepted, KrollCallback)
+TYPESAFE_SETTER(setSecured, secured, KrollCallback)
 TYPESAFE_SETTER(setClosed, closed, KrollCallback)
 TYPESAFE_SETTER(setError, error, KrollCallback)
 
@@ -625,6 +635,12 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     [tempConditionRef signal];
     [tempConditionRef unlock];
     [tempConditionRef release];
+}
+
+- (void)onSocketDidSecure:(AsyncSocket *)_socket
+{
+    NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"socket", nil];
+    [self _fireEventToListener:@"secured" withObject:event listener:secured thisObject:self];
 }
 
 -(void)onSocketDidDisconnect:(AsyncSocket *)sock
