@@ -35,7 +35,8 @@ import android.os.Message;
 	TiC.PROPERTY_FOOTER_TITLE,
 	TiC.PROPERTY_FOOTER_VIEW,
 	TiC.PROPERTY_SEARCH,
-	TiC.PROPERTY_SEPARATOR_COLOR
+	TiC.PROPERTY_SEPARATOR_COLOR,
+	"showVerticalScrollIndicator"
 })
 public class TableViewProxy extends TiViewProxy
 {
