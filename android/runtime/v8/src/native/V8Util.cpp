@@ -192,4 +192,22 @@ bool V8Util::constructorNameMatches(Handle<Object> object, const char* name)
 	return strcmp(*String::Utf8Value(constructorName), name) == 0;
 }
 
+static Persistent<Function> isNaNFunction;
+
+bool V8Util::isNaN(Handle<Value> value)
+{
+	HandleScope scope;
+	Local<Object> global = Context::GetCurrent()->Global();
+
+	if (isNaNFunction.IsEmpty()) {
+		Local<Value> isNaNValue = global->Get(String::NewSymbol("isNaN"));
+		isNaNFunction = Persistent<Function>::New(isNaNValue.As<Function> ());
+	}
+
+	Handle<Value> args[] = { value };
+
+	return isNaNFunction->Call(global, 1, args)->BooleanValue();
+
+}
+
 }

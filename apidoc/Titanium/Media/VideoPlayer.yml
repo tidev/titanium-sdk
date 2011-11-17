@@ -5,19 +5,9 @@ extends: Titanium.UI.View
 since: "0.9"
 platforms: [android, iphone, ipad]
 methods:
-  - name: animate
-    description: animate the view
-    parameters:
-      - name: obj
-        description: either a dictionary of animation properties or an Animation object
-        type: Object
-      - name: callback
-        description: function to be invoked upon completion of the animation
-        type: Callback<Object>
   - name: cancelAllThumbnailImageRequests
     description: Cancels all pending asynchronous thumbnail requests.
-  - name: hide
-    description: hide the view
+    platforms: [iphone, ipad]
   - name: pause
     description: pause playing the video.
   - name: play
@@ -26,6 +16,7 @@ methods:
     description: release the internal video resources immediately.  this is not usually necessary but can help if you no longer need to use the player after it is used to help converse memory.
   - name: requestThumbnailImagesAtTimes
     description: Asynchronously request thumbnails for one or more times, provided as an array of numbers (double). Fires a `thumbnail` event on completion. Optionally invokes the callback function passed in the method.
+    platforms: [iphone, ipad]
     parameters:
       - name: times
         description: array of doubles for each time to request
@@ -35,28 +26,23 @@ methods:
         type: Number
   - name: setBackgroundView
     description: A view for customization which is always displayed behind movie content.
+    platforms: [iphone, ipad]
     parameters:
       - name: view
         description: view to set
         type: Object
   - name: setMedia
     description: the a non-url based media to play, either a File or Blob.
+    platforms: [iphone, ipad]
     parameters:
       - name: media
         description: media to play
         type: Object
-  - name: setUrl
-    description: the url to play
-    parameters:
-      - name: url
-        description: the url to play
-        type: String
-  - name: show
-    description: make the view visible
   - name: stop
     description: stop playing the video
   - name: thumbnailImageAtTime
     description: Returns a thumbnail at the given time as a blob.
+    platforms: [iphone, ipad]
     returns:
         type: Object
     parameters:
@@ -66,255 +52,75 @@ methods:
       - name: option
         description: either <Titanium.Media.VIDEO_TIME_OPTION_NEAREST_KEYFRAME> or <Titanium.Media.VIDEO_TIME_OPTION_EXACT>
         type: Number
-  - name: toImage
-    description: return a Blob image of the rendered view
-    returns:
-        type: Object
-    parameters:
-      - name: f
-        description: function to be invoked upon completion. if non-null, this method will be performed asynchronously. if null, it will be performed immediately
-        type: Callback<Object>
 events:
-  - name: click
-    description: fired when the device detects a click (longer than touch) against the view
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
   - name: complete
     description: fired when movie playback ends or a user exits playback
     properties:
       - name: reason
         description: the completion reason. One of <Titanium.Media.VIDEO_FINISH_REASON_PLAYBACK_ENDED>, <Titanium.Media.VIDEO_FINISH_REASON_PLAYBACK_ERROR> or <Titanium.Media.VIDEO_FINISH_REASON_USER_EXITED>.
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-  - name: dblclick
-    description: fired when the device detects a double click against the view
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-  - name: doubletap
-    description: fired when the device detects a double tap against the view
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
   - name: durationAvailable
     description: fired when the duration is available
     properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
       - name: duration
         description: duration
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
   - name: error
     description: fired when movie playback encounters an error
     properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
       - name: message
         description: reason for error as string
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
   - name: fullscreen
     description: fired when a movie changes from fullscreen view
+    platforms: [iphone, ipad]
     properties:
       - name: entering
         description: true to indicate entering fullscreen, false to indicate leaving fullscreen
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
   - name: load
     description: fired when the movie play loads
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
   - name: loadstate
     description: fired when the network loadState changes
     properties:
       - name: loadState
         description: loadState
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
+        type: Number
   - name: mediaTypesAvailable
     description: fired when the media types is available
+    platforms: [iphone, ipad]
     properties:
       - name: mediaTypes
         description: media types
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
   - name: naturalSizeAvailable
     description: fired when the natural size is available
+    platforms: [iphone, ipad]
     properties:
       - name: naturalSize
         description: natural size as a dictionary. see `naturalSize` property.
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
   - name: playbackState
     description: fired when the playbackState changes
     properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
       - name: playbackState
-        description: playbackState
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
+        description: playback state, such as <Titanium.Media.VIDEO_PLAYBACK_STATE_PLAYING>.
+        type: Number
   - name: playing
     description: fired when the currently playing movie changes
+    platforms: [iphone, ipad]
     properties:
       - name: url
         description: url of the media
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
+        type: String
   - name: preload
     description: fired when the movie has preloaded and is ready to play
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
   - name: resize
     description: fired when the movie player is resized
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-  - name: singletap
-    description: fired when the device detects a single tap against the view
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
+    platforms: [iphone, ipad]
   - name: sourceChange
     description: fired when the movieSourceType is <Titanium.Media.VIDEO_SOURCE_TYPE_UNKNOWN> when preparing for playback.
+    platforms: [iphone, ipad]
     properties:
       - name: sourceChange
         description: the new sourceType
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-  - name: swipe
-    description: fired when the device detects a swipe (left or right) against the view
-    properties:
-      - name: direction
-        description: direction of the swipe - either left or right
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
   - name: thumbnail
     description: fired when a movie thumbnail is available from `requestThumbnailImagesAtTimes`
+    platforms: [iphone, ipad]
     properties:
       - name: success
         description: boolean to indicate success or failure
@@ -324,75 +130,7 @@ events:
         description: time
       - name: error
         description: if success is `false`, error message as string for reason
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-  - name: touchcancel
-    description: fired when a touch event is interrupted by the device. this happens in circumenstances such as an incoming call to allow the UI to clean up state.
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-  - name: touchend
-    description: fired when a touch event is completed
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-  - name: touchmove
-    description: fired as soon as the device detects movement of a touch.  Event coordinates are always relative to the view in which the initial touch occurred
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-  - name: touchstart
-    description: fired as soon as the device detects a gesture
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-  - name: twofingertap
-    description: fired when the device detects a two-finger tap against the view
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
+
 properties:
   - name: allowsAirPlay
     description: Whether or not the movie can be played on a remote device.
@@ -401,73 +139,9 @@ properties:
     osver:
         ios:
             min: "4.3"
-  - name: anchorPoint
-    description: a dictionary with properties x and y to indicate the anchor point value. anchor specifies the position by which animation should occur. center is 0.5, 0.5
-    type: Object
-  - name: animatedCenterPoint
-    description: object with x and y properties of where the view is during animation
-    permission: read-only
-    type: Object
   - name: autoplay
     description: indicates if a movie should automatically start playback when it is likely to finish uninterrupted based on e.g. network conditions. Defaults to true.
     type: Boolean
-  - name: backgroundColor
-    description: the background color of the view
-    type: String
-  - name: backgroundDisabledColor
-    description: the disabled background color of the view.
-    platforms: [android]
-    type: String
-  - name: backgroundDisabledImage
-    description: the disabled background image url of the view.
-    platforms: [android]
-    type: String
-  - name: backgroundFocusedColor
-    description: the focused background color of the view. focusable must be true for normal views.
-    platforms: [android]
-    type: String
-  - name: backgroundFocusedImage
-    description: the focused background image url of the view. focusable must be true for normal views.
-    platforms: [android]
-    type: String
-  - name: backgroundGradient
-    description: |
-        a background gradient for the view with the properties: type,startPoint,endPoint,startRadius,endRadius,backfillStart,backfillEnd,colors.
-    type: Object
-  - name: backgroundImage
-    description: the background image url of the view
-    type: String
-  - name: backgroundLeftCap
-    description: End caps specify the portion of an image that should not be resized when an image is stretched. This technique is used to implement buttons and other resizable image-based interface elements. When a button with end caps is resized, the resizing occurs only in the middle of the button, in the region between the end caps. The end caps themselves keep their original size and appearance. This property specifies the size of the left end cap. The middle (stretchable) portion is assumed to be 1 pixel wide. The right end cap is therefore computed by adding the size of the left end cap and the middle portion together and then subtracting that value from the width of the image
-    platforms: [iphone, ipad]
-    type: Number
-  - name: backgroundSelectedColor
-    description: the selected background color of the view. focusable must be true for normal views.
-    platforms: [android]
-    type: String
-  - name: backgroundSelectedImage
-    description: the selected background image url of the view. focusable must be true for normal views.
-    platforms: [android]
-    type: String
-  - name: backgroundTopCap
-    description: End caps specify the portion of an image that should not be resized when an image is stretched. This technique is used to implement buttons and other resizable image-based interface elements. When a button with end caps is resized, the resizing occurs only in the middle of the button, in the region between the end caps. The end caps themselves keep their original size and appearance. This property specifies the size of the top end cap. The middle (stretchable) portion is assumed to be 1 pixel wide. The bottom end cap is therefore computed by adding the size of the top end cap and the middle portion together and then subtracting that value from the height of the image
-    platforms: [iphone, ipad]
-    type: Number
-  - name: borderColor
-    description: the border color of the view
-    type: String
-  - name: borderRadius
-    description: the border radius of the view
-    type: Number
-  - name: borderWidth
-    description: the border width of the view
-    type: Number
-  - name: bottom
-    description: property for the view bottom position. This position is relative to the view's parent. Can be either a float value or a dimension string ie 'auto' (default).
-    type: [Number,String]
-  - name: center
-    description: a dictionary with properties x and y to indicate the center of the views position relative to the parent view
-    type: Object
   - name: contentURL
     description: use url property instead.
     type: String
@@ -476,104 +150,72 @@ properties:
   - name: currentPlaybackTime
     description: the current playback time of the now playing item in seconds.
     type: Number
-    platforms: [iphone, ipad]
   - name: duration
     description: The duration of the movie, or 0.0 if not known.
     type: Number
   - name: endPlaybackTime
-    description: The end time of movie playback. Defaults to NaN, which indicates natural end time of the movie.
+    description: The end time of movie playback. Defaults to NaN in iOS, which indicates natural end time of the movie. On Android, this is always the same as `duration` (the natural end time) and there is no effect if you change the value.
     type: Number
-  - name: focusable
-    description: |
-        Set true if you want a view to be focusable when navigating with the trackball or D-Pad. Default: false.
-    type: Boolean
-    platforms: [android]
   - name: fullscreen
-    description: Determines if the movie is presented in the entire screen (obscuring all other application content). Default is false. Setting this property to true before the movie player's view is visible will have no effect.
+    description: |
+        Determines if the movie is presented in the entire screen (obscuring all other application content). Default is false. In iOS, setting this property to true before the movie player's view is visible will have no effect.  In Android, setting this value to true means that the video will have its own Android Activity rather than being embedded as a view.  In Android, this property is only relevant at creation time (e.g., `createVideoPlayer({fullscreen: true})`).
     type: Boolean
-  - name: height
-    description: property for the view height. Can be either a float value or a dimension string ie 'auto' (default).
-    type: [Number,String]
   - name: initialPlaybackTime
-    description: The start time of movie playback. Defaults to NaN, indicating the natural start time of the movie.
+    description: The start time of movie playback. Defaults to NaN in iOS and 0 in Android, indicating the natural start time of the movie.
     type: Number
-  - name: left
-    description: property for the view left position. This position is relative to the view's parent. Can be either a float value or a dimension string ie 'auto' (default).
-    type: [Number,String]
   - name: loadState
     description: Returns the network load state of the movie player.
     type: Number
+    permission: read-only
   - name: media
     description: the media object, either a File or Blob.
+    platforms: [iphone, ipad]
     type: Object
   - name: mediaControlStyle
     description: The style of the playback controls. Defaults to <Titanium.Media.VIDEO_CONTROL_DEFAULT>
     type: Number
   - name: mediaTypes
     description: The types of media in the movie, or <Titanium.Media.VIDEO_MEDIA_TYPE_NONE> if not known.
+    platforms: [iphone, ipad]
     type: Number
   - name: movieControlMode
     description: deprecated in 3.2+ of the iPhone SDK - use `mediaControlStyle`. Provides the ability to set the control mode of the movie player. Defaults to <Titanium.Media.VIDEO_CONTROL_DEFAULT>.
+    platforms: [iphone, ipad]
     type: Number
     osver:
         ios:
             max: "3.1"
   - name: naturalSize
     description: returns a dictionary with properties `width` and `height`. Returns the natural size of the movie or 0 for both properties if not known or applicable.
+    platforms: [iphone, ipad]
     type: Object
-  - name: opacity
-    description: the opacity from 0.0-1.0
-    type: Number
   - name: playableDuration
-    description: The currently playable duration of the movie, for progressively downloaded network content.
+    description: The currently playable duration of the movie, for progressively downloaded network content. On Android, this is always the same as `duration`.
     type: Number
+    permission: read-only
   - name: playbackState
     description: Returns the current playback state of the music player
     type: Number
+    permission: read-only
   - name: playing
     description: Boolean to indicate if the player has started playing.
     type: Boolean
+    permission: read-only
   - name: repeatMode
     description: Determines how the movie player repeats when reaching the end of playback. Defaults to <Titanium.Media.VIDEO_REPEAT_MODE_NONE>.
+    platforms: [iphone, ipad]
     type: Number
-  - name: right
-    description: property for the view right position. This position is relative to the view's parent. Can be either a float value or a dimension string ie 'auto' (default).
-    type: [Number,String]
   - name: scalingMode
     description: Determines how the content scales to fit the view. Defaults to <Titanium.Media.VIDEO_SCALING_ASPECT_FIT>.
     type: Number
-  - name: size
-    description: the size of the view as a dictionary of width and height properties
-    type: Object
-  - name: softKeyboardOnFocus
-    description: One of Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS, Titanium.UI.Android.SOFT_KEYBOARD_HIDE_ON_FOCUS, or Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS.
-    platforms: [android]
-    type: Number
   - name: sourceType
     description: The playback type of the movie. Defaults to <Titanium.Media.VIDEO_SOURCE_TYPE_UNKNOWN>. Specifying a playback type before playing the movie can result in faster load times.
+    platforms: [iphone, ipad]
     type: Number
-  - name: top
-    description: property for the view top position. This position is relative to the view's parent. Can be either a float value or a dimension string ie 'auto' (default).
-    type: [Number,String]
-  - name: touchEnabled
-    description: a boolean indicating if the view should receive touch events (true, default) or forward them to peers (false)
-    type: Boolean
-  - name: transform
-    description: the transformation matrix to apply to the view
-    type: Object
   - name: url
-    description: url of the media.
+    description: url of the media to play.
     type: String
   - name: useApplicationAudioSession
     description: Indicates if the movie player should inherit the application's audio session instead of creating a new session (which would interrupt the application's session). Defaults to true. Setting this property during playback will not take effect until playback is stopped and started again.
+    platforms: [iphone, ipad]
     type: Boolean
-  - name: visible
-    description: a boolean of the visibility of the view
-    type: Boolean
-  - name: width
-    description: property for the view width. Can be either a float value or a dimension string ie 'auto' (default).
-    type: [Number,String]
-  - name: zIndex
-    description: the z index position relative to other sibling views
-    type: Number
-notes: Starting in iPhone 3.2 SDK, the video player can be embedded in any normal view.  However, if you create multiple video players at one time, only the last one to have its URL set will display video content or behave as if it is a view for a video player.  Prior to 3.2, only fullscreen views were available on iPhone.

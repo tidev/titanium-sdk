@@ -113,7 +113,7 @@
 
 -(void)_destroy
 {
-    if (![self closing]) {
+    if (![self closing] && [[self opened] boolValue]) {
         [self performSelectorOnMainThread:@selector(close:) withObject:nil waitUntilDone:YES];
     }
     
