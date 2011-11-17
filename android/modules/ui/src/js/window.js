@@ -239,7 +239,9 @@ exports.bootstrapWindow = function(Titanium) {
 		var self = this;
 		function addListener(name, listener) {
 			self.window.addEventListener(name, function(e) {
-				e.source = self;
+				if (e.source == self.window) {
+						e.source = self;
+				}
 				listener(e);
 			});
 		}
@@ -377,7 +379,9 @@ exports.bootstrapWindow = function(Titanium) {
 			var self = this;
 			function addListener(name, listener) {
 				self.window.addEventListener(name, function(e) {
-					e.source = self;
+					if (e.source == self.window) {
+						e.source = self;
+					}
 					listener(e);
 				});
 			}
