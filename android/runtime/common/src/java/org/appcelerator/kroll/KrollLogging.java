@@ -19,15 +19,27 @@ public class KrollLogging
 	public static final int CRITICAL = 7;
 	public static final int FATAL = 8;
 
+	private static KrollLogging instance = new KrollLogging("TiAPI");
+
 	private String tag;
 	private LogListener listener;
+
+	public static KrollLogging getDefault()
+	{
+		return instance;
+	}
+
+	public static void logWithDefaultLogger(int severity, String msg)
+	{
+		getDefault().internalLog(severity, msg);
+	}
 
 	public interface LogListener
 	{
 		public void onLog(int severity, String msg);
 	}
 
-	public KrollLogging(String tag)
+	private KrollLogging(String tag)
 	{
 		this.tag = tag;
 	}
