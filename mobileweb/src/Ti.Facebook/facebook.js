@@ -81,8 +81,7 @@
 		
 		// Sanity check
 		if (_appid == null) {
-			console.debug('App ID not set. Facebook authorization cancelled.');
-			return;
+			throw new Error('App ID not set. Facebook authorization cancelled.');
 		}
 		
 		// Check if facebook is still initializing, and if so queue the auth request
@@ -98,7 +97,7 @@
 				cancelled	: false,
 				data		: response,
 				error		: undef,
-				source		: undef,
+				source		: Titanium.Facebook,
 				success		: false,
 				type		: undef,
 				uid			: response.id
@@ -146,7 +145,7 @@
 			_loggedIn = false;
 			var undef;
 			var oEvent = {
-				source		: undef,
+				source		: Titanium.Facebook,
 				type		: undef
 			};
 			api.fireEvent('logout', oEvent);
