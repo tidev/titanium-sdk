@@ -56,9 +56,8 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	private static final int MSG_SET_VIEW_FROM_ACTIVITY = MSG_FIRST_ID + 111;
 
 	// The player doesn't automatically preserve its current location and seek back to
-	// there when being resumed.  These internal properties let us track that.
+	// there when being resumed.  This internal property lets us track that.
 	public static final String PROPERTY_SEEK_TO_ON_RESUME = "__seek_to_on_resume__";
-	public static final String PROPERTY_PLAY_ON_RESUME = "__play_on_resume";
 
 	protected int mediaControlStyle = MediaModule.VIDEO_CONTROL_DEFAULT;
 	protected int scalingMode = MediaModule.VIDEO_SCALING_ASPECT_FIT;
@@ -600,22 +599,10 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	@Override
 	public void onResume(Activity activity)
 	{
-		// Was it playing when activity was paused earlier?
-		// If so, start playing again.
 		if (view != null) {
-			boolean play = false;
-			Object shouldPlay = getProperty(PROPERTY_PLAY_ON_RESUME);
-
-			play = (shouldPlay != null && TiConvert.toBoolean(shouldPlay));
-
-			if (play) {
-				play();
-				setProperty(PROPERTY_PLAY_ON_RESUME, false);
-			} else {
-				// Maybe we were paused in the middle of video. Should at least
-				// seek back to that position.
-				getVideoView().seekIfNeeded();
-			}
+			// Maybe we were paused in the middle of video. Should at least
+			// seek back to that position.
+			getVideoView().seekIfNeeded();
 		}
 	}
 
@@ -625,7 +612,6 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		if (activity.isFinishing()) {
 			// Forget any saved positions
 			setProperty(PROPERTY_SEEK_TO_ON_RESUME, 0);
-			setProperty(PROPERTY_PLAY_ON_RESUME, false);
 		} else {
 			// We're not finishing, so we might be coming back. Remember where we are.
 			if (view != null) {
@@ -633,7 +619,6 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 				setProperty(PROPERTY_SEEK_TO_ON_RESUME, seekToOnResume);
 				if (getPlaying()) {
 					pause();
-					setProperty(PROPERTY_PLAY_ON_RESUME, true);
 				}
 			}
 		}
