@@ -232,15 +232,24 @@ exports.bootstrapWindow = function(Titanium) {
 			this.loadUrl();
 		}
 		
-		// Add event listener for this.window
-		 for (var event in this._events) { 
-		 	var listeners = this.listeners(event); 
-		 	for (var i = 0; i < listeners.length; i++) { 
-		 		this.window.addEventListener(event, listeners[i]); 
-		 	} 
-		 }
-
+		// Set view and model listener after the window opens
 		this.setWindowView(this.view);
+		
+		// Add event listeners to this.window and update the source of events to this after the window opens
+		var self = this;
+		function addListener(name, listener) {
+			self.window.addEventListener(name, function(e) {
+				e.source = self;
+				listener(e);
+			});
+		}
+		for (var event in this._events) { 
+			var listeners = this.listeners(event); 
+		 	for (var i = 0; i < listeners.length; i++) { 
+		 		addListener(event, listeners[i]); 
+		 	} 
+		}
+
 		this.currentState = this.state.opened;
 		this.fireEvent("open");
 	}
@@ -252,7 +261,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 		kroll.log(TAG, "Loading window with URL: " + this.url);
 		
-		// Reset creationUrl of the window based on this._sourceUrl and this.url
+		// Reset creationUrl of the window
 		var currentUrl = url.resolve(this._sourceUrl, this.url);
 		this.window.setCreationUrl(currentUrl.href);
 		
@@ -364,7 +373,15 @@ exports.bootstrapWindow = function(Titanium) {
 			EventEmitter.prototype.addEventListener.call(this, event, listener);
 
 		} else {
-			this.window.addEventListener(event, listener);
+			// Add event listener to this.window and update the source of events to this.
+			var self = this;
+			function addListener(name, listener) {
+				self.window.addEventListener(name, function(e) {
+					e.source = self;
+					listener(e);
+				});
+			}
+			addListener(event, listener); 
 		}
 	}
 
