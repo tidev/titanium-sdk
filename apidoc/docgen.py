@@ -37,7 +37,7 @@ module_support_dir = os.path.abspath(os.path.join(this_dir, "..", "support", "mo
 sys.path.append(module_support_dir)
 import markdown
 
-DEFAULT_PLATFORMS = ["android", "iphone", "ipad"]
+DEFAULT_PLATFORMS = ["android", "iphone", "ipad", "mobileweb"]
 DEFAULT_SINCE = "0.8"
 apis = {} # raw conversion from yaml
 annotated_apis = {} # made friendlier for templates, etc.
@@ -80,6 +80,8 @@ def pretty_platform_name(name):
 		return "Blackberry"
 	if name.lower() == "android":
 		return "Android"
+	if name.lower() == "mobileweb":
+		return "Mobile Web"
 
 def combine_platforms_and_since(annotated_obj):
 	obj = annotated_obj.api_obj

@@ -155,6 +155,7 @@ static void logReachabilityFlags_(const char *name, int line, SCNetworkReachabil
 
 #define logNetworkStatus(status) (logNetworkStatus_(__PRETTY_FUNCTION__, __LINE__, status))
 
+/*
 static void logNetworkStatus_(const char *name, int line, NetworkStatus status) {
 	
 	NSString *statusString = nil;
@@ -174,6 +175,7 @@ static void logNetworkStatus_(const char *name, int line, NetworkStatus status) 
 	NSLog(@"%s (%d) \n\tNetwork Status: %@", name, line, statusString);
 	
 } // logNetworkStatus_()
+*/
 
 #else
 #define logReachabilityFlags(flags)
@@ -345,8 +347,9 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 } // makeAddressKey:
 
 
-+ (Reachability *) reachabilityWithAddress: (const struct sockaddr_in *) hostAddress {
++ (Reachability *) reachabilityWithAddress: (const void *) parm {
 	
+	const struct sockaddr_in * hostAddress = (const struct sockaddr_in *)parm;
 	SCNetworkReachabilityRef ref = SCNetworkReachabilityCreateWithAddress(kCFAllocatorDefault, (const struct sockaddr*)hostAddress);
 
 	if (ref) {

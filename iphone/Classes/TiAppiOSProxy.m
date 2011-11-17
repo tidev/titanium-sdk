@@ -13,8 +13,6 @@
 #import "TiAppiOSBackgroundServiceProxy.h"
 #import "TiAppiOSLocalNotificationProxy.h"
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-
 #define NOTNULL(v) ((v==nil) ? (id)[NSNull null] : v)
 
 @implementation TiAppiOSProxy
@@ -207,5 +205,4 @@
 
 @end
 
-#endif
 #endif

@@ -145,7 +145,7 @@
         }
         
         byteOrder = (hasByteOrder) ? byteOrder : CFByteOrderGetCurrent();
-        [buffer setByteOrder:byteOrder];
+        [buffer setByteOrder:[NSNumber numberWithInt:byteOrder]];
         switch ([TiUtils encodeNumber:data toBuffer:buffer offset:0 type:type endianness:byteOrder]) {
             case BAD_ENDIAN: {
                 [self throwException:[NSString stringWithFormat:@"Invalid endianness: %d", byteOrder]

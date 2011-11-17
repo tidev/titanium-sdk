@@ -3,6 +3,7 @@ name: Titanium.Map
 description: The top level Map module.  The Map module is used for creating in-application native maps.
 extends: Titanium.Module
 since: "0.8"
+platforms: [android, iphone, ipad]
 properties:
   - name: HYBRID_TYPE
     description: Displays a satellite image of the area with road and road name information layered on top.

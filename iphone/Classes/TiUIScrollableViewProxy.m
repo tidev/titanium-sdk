@@ -142,8 +142,8 @@
 	}
 
 	[doomedView performSelectorOnMainThread:@selector(detachView) withObject:nil waitUntilDone:NO];
-	[self forgetProxy:args];
-	[viewProxies removeObject:args];
+	[self forgetProxy:doomedView];
+	[viewProxies removeObject:doomedView];
 	[self unlockViews];	
 
 	[[self view] performSelectorOnMainThread:@selector(removeView:) withObject:args waitUntilDone:NO];

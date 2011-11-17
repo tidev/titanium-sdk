@@ -3,6 +3,7 @@ name: Titanium.Map.Annotation
 description: An Annotation object that is created by the method <Titanium.Map.createAnnotation>. This object gives you low level control over annotations that can be added to a Map View.
 extends: Titanium.Proxy
 since: "0.9"
+platforms: [android, iphone, ipad]
 properties:
   - name: animate
     description: boolean to indicate whether the pin should animate when dropped

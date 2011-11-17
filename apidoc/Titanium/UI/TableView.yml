@@ -97,6 +97,7 @@ methods:
 events:
   - name: delete
     description: fired when a table row is delete by the user
+    platform: [android, iphone, ios]
     properties:
       - name: index
         description: table view row index
@@ -138,6 +139,7 @@ events:
         type: Titanium.UI.TableViewRow
   - name: move
     description: fired when a table row is moved by the user
+    platform: [android, iphone, ios]
     properties:
       - name: index
         description: table view row index
@@ -165,23 +167,25 @@ events:
     properties:
       - name: firstVisibleItem
         description: the row index of the topmost visible row in the view
-        platforms: [android]
+        platforms: [android, mobileweb]
       - name: visibleItemCount
         description: the number of rows currently visible in the view
-        platforms: [android]
+        platforms: [android, mobileweb]
       - name: contentOffset
         description: dictionary with `x` and `y` properties containing the content offset
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, mobileweb]
       - name: totalItemCount
         description: the total number of rows in the view
-        platforms: [android]
+        platforms: [android, mobileweb]
       - name: y
         description: the y point of the event, in receiving view coordinates
+        platforms: [android, iphone, ipad]
       - name: x
         description: the x point of the event in receiving view coordiantes
+        platforms: [android, iphone, ipad]
       - name: contentSize
         description: dictionary with `width` and `height` properties containing the size of the content (regardless of the display size in the case of scrolling)
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, mobileweb]
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
@@ -194,14 +198,16 @@ events:
     properties:
       - name: contentOffset
         description: dictionary with `x` and `y` properties containing the content offset
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, mobileweb]
       - name: y
         description: the y point of the event, in receiving view coordinates
+        platforms: [android, iphone, ipad]
       - name: x
         description: the x point of the event in receiving view coordiantes
+        platforms: [android, iphone, ipad]
       - name: contentSize
         description: dictionary with `width` and `height` properties containing the size of the content (regardless of the display size in the case of scrolling)
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, mobileweb]
       - name: globalPoint
         description: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
@@ -231,10 +237,12 @@ properties:
   - name: filterAttribute
     description: the filter attribute to be used when searching. this property maps to your data object or a property on the row object
     type: String
+    platforms: [android, iphone, ipad]
   - name: filterCaseInsensitive
     description: boolean to indicate if the search should be case sensitive or case insensitive (default)
     default: true
     type: Boolean
+    platforms: [android, iphone, ipad]
   - name: footerTitle
     description: the table view footer title
     type: String
@@ -250,6 +258,7 @@ properties:
   - name: index
     description: an array of objects (with title and index properties) to control the table view index
     type: Array<Object>
+    platforms: [android, iphone, ipad]
   - name: maxRowHeight
     description: max row height for table view rows
     type: Number
@@ -269,15 +278,17 @@ properties:
   - name: search
     description: the search field to use for the table view
     type: Object
+    platforms: [android, iphone, ipad]
   - name: searchHidden
     description: boolean to control the visibility of the search field
     type: Boolean
+    platforms: [android, iphone, ipad]
   - name: separatorColor
     description: the separator color color as a hex or named value
     type: String
   - name: separatorStyle
     description: the separator style constant. For iPhone, Titanium.UI.iPhone.TableViewSeparatorStyle
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     type: Number
   - name: showVerticalScrollIndicator
     description: whether tableview displays vertical scroll indicator
