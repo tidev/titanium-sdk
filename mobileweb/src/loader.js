@@ -96,14 +96,16 @@
 		for (p in it) {
 			break;
 		}
-		return !p;
+		return !it || (!it.call && !p);
 	}
 
 	function evaluate(str, vars, globally) {
 		var r = globally
 				?	global.eval(str)
 				:	(function (v, t) {
-						var f = new Function("__vars", "__js", "return eval('for(var i in __vars){this[i]=__vars[i];}'+__js);");
+						// this trick will run the eval inside a sandbox where we must expose
+						// any variables to the local scope, then capture them again.
+						var f = new Function("__vars", "__js", "return eval('for(var i in __vars){this[i]=__vars[i];}'+__js+'for(i in __vars){__vars[i]=this[i];}__vars;');");
 						return f(v, t);
 					}(vars, str));
 		// Firebug for some reason sometimes returns "_firebugIgnore" instead of
@@ -351,15 +353,15 @@
 			dc = defCache[_t.name],
 			onLoad = function (rawDef) {
 				_t.loaded = 1;
-				if (rawDef) {
-					_t.rawDef = rawDef;
+				if (_t.rawDef = rawDef) {
 					if (is(rawDef, "String")) {
 						if (/\.js$/.test(_t.url)) {
-							_t.rawDef = evaluate(rawDef, {
+							rawDef = evaluate(rawDef, {
 								require: _t.require,
 								exports: _t.exports,
 								module: _t.module
 							});
+							_t.def = !isEmpty(rawDef.exports) ? rawDef.exports : (!isEmpty(rawDef.module.exports) ? rawDef.module.exports : null);
 						} else {
 							_t.def = rawDef;
 							_t.executed = 1;
