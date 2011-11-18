@@ -451,14 +451,17 @@
 	 *	are copied back, ensuring the newOrientation will be unique when it's
 	 *	placed at the top of the stack.
 	 */
-	if (orientationHistory[2] != newOrientation) {
-		orientationHistory[3] = orientationHistory[2];
+	int i=0;
+	for (int j=0;j<4;j++)
+	{
+		if (orientationHistory[j] == newOrientation) {
+			i = j;
+			break;
+		}
 	}
-	if (orientationHistory[1] != newOrientation) {
-		orientationHistory[2] = orientationHistory[1];
-	}
-	if (orientationHistory[0] != newOrientation) {
-		orientationHistory[1] = orientationHistory[0];
+	while (i > 0) {
+		orientationHistory[i] = orientationHistory[i-1];
+		i--;
 	}
 	orientationHistory[0] = newOrientation;
 
