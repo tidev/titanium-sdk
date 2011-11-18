@@ -78,6 +78,12 @@
 	var _facebookInitialized = false;
 	var _authAfterInitialized = false;
 	window.fbAsyncInit = function() {
+		
+		// Sanity check
+		if (_appid == null) {
+			throw new Error('App ID not set. Facebook authorization cancelled.');
+		}
+		
 		FB.init({
 			appId  : _appid, // App ID
 			status : true, // check login status
@@ -111,15 +117,23 @@
 		var _head = document.getElementsByTagName ("head")[0];
 		_head.insertBefore(_fbScriptTag, _head.firstChild);
 	}
+	
+	var _processResponse = function(response,requestParamName,requestParamValue,callback) {
+		result = {'source':api};
+		result[requestParamName] = requestParamValue;
+		if (!response || response.error) {
+			result['success'] = false;
+			result['error'] = response ? response.error : undefined;
+		} else {
+			result['success'] = true;
+			result['result'] = JSON.stringify(response);
+		}
+		callback(result);
+	}
 
 	// Methods
 	api.authorize = function(){
-		
-		// Sanity check
-		if (_appid == null) {
-			throw new Error('App ID not set. Facebook authorization cancelled.');
-		}
-		
+				
 		// Check if facebook is still initializing, and if so queue the auth request
 		if (!_facebookInitialized) {
 			_authAfterInitialized = true;
@@ -155,27 +169,7 @@
 		}
 		params.method = action;
 		FB.ui(params,function(response){
-			if (!response) {
-				callback({
-					'success'	: false,
-					'action'	: action,
-					'source'	: api
-				});
-			} else if (response.error) {
-				callback({
-					'success'	: false,
-					'error'		: response.error,
-					'action'	: action,
-					'source'	: api
-				});
-			} else {
-				callback({
-					'success'	: true,
-					'result'	: response,
-					'action'	: action,
-					'source'	: api
-				});
-			}
+			_processResponse(response,'action',action,callback);
 		});
 	};
 	api.logout = function(){
@@ -208,27 +202,7 @@
 		params.method = method;
 		params.urls = 'facebook.com,developers.facebook.com';
 		FB.api(params,function(response){
-			if (!response) {
-				callback({
-					'success'	: false,
-					'method'	: method,
-					'source'	: api
-				});
-			} else if (response.error) {
-				callback({
-					'success'	: false,
-					'error'		: response.error,
-					'method'	: method,
-					'source'	: api
-				});
-			} else {
-				callback({
-					'success'	: true,
-					'result'	: JSON.stringify(response),
-					'method'	: method,
-					'source'	: api
-				});
-			}
+			_processResponse(response,'method',method,callback);
 		});
 	};
 	api.requestWithGraphPath = function(path,params,httpMethod,callback){
@@ -242,24 +216,7 @@
 			return;
 		}
 		FB.api(path,httpMethod,params,function(response){
-			if (!response) {
-				callback({
-					'success'	: false,
-					'path'		: path,
-					'source'	: api});
-			} else if (response.error) {
-				callback({
-					'success'	: false,
-					'error'		: response.error,
-					'path'		: path,
-					'source'	: api});
-			} else {
-				callback({
-					'success'	: true,
-					'result'	: JSON.stringify(response),
-					'path'		: path,
-					'source'	: api});
-			}
+			_processResponse(response,'path',path,callback);
 		});
 	};
 })(Ti._5.createClass('Titanium.Facebook'));
