@@ -18,24 +18,19 @@ import android.util.Log;
 public final class V8Runtime extends KrollRuntime implements Handler.Callback
 {
 	private static final String TAG = "KrollV8Runtime";
-	private static final String DEVICE_LIB = "kroll-v8-device";
-	private static final String EMULATOR_LIB = "kroll-v8-emulator";
 	private static final int MSG_PROCESS_DEBUG_MESSAGES = KrollRuntime.MSG_LAST_ID + 100;
-
 
 	@Override
 	public void initRuntime()
 	{
 		boolean useGlobalRefs = true;
-		String libName = DEVICE_LIB;
 
-		if (Build.PRODUCT.equals("sdk") || Build.PRODUCT.equals("google_sdk")) {
-			Log.i(TAG, "Loading emulator version of kroll-v8");
-			libName = EMULATOR_LIB;
+		if (Build.PRODUCT.equals("sdk") || Build.PRODUCT.equals("google_sdk") || Build.FINGERPRINT.startsWith("generic")) {
+			Log.i(TAG, "Emulator detected, storing global references in a global Map");
 			useGlobalRefs = false;
 		}
 
-		System.loadLibrary(libName);
+		System.loadLibrary("kroll-v8");
 		nativeInit(useGlobalRefs);
 	}
 

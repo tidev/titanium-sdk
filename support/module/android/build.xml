@@ -11,7 +11,9 @@
 	
 	<property name="src" location="${ti.module.root}/src"/>
 	<property name="build" location="${ti.module.root}/build"/>
-	<property name="gen" location="${build}/.apt_generated"/>
+	<property name="gen" location="${build}/generated"/>
+	<property name="genjson" location="${build}/generated/json"/>
+	<property name="genjni" location="${build}/generated/jni"/>
 	<property name="classes" location="${build}/classes"/>
 	<property name="docs" location="${build}/docs"/>
 	<property name="dist" location="${ti.module.root}/dist"/>
@@ -41,6 +43,7 @@
 	
 	<target name="process.annotations" depends="init"
 		description="Processes @Kroll.proxy and @Kroll.module annotations">
+		<mkdir dir="${genjson}"/>
 		<javac 
 			srcdir="${src}" 
 			destdir="${classes}"
@@ -49,7 +52,7 @@
 				<compilerarg value="-processor"/>
 				<compilerarg value="org.appcelerator.kroll.annotations.generator.KrollJSONGenerator"/>
 				<compilerarg value="-s"/>
-				<compilerarg value="${gen}"/>
+				<compilerarg value="${genjson}"/>
 				<compilerarg line="-Akroll.jsonFile=${ant.project.name}.json"/>
 				<compilerarg line="-Akroll.jsonPackage=org.appcelerator.titanium.bindings"/>
 				<classpath refid="project.classpath"/>
@@ -58,8 +61,8 @@
 			classname="org.appcelerator.kroll.annotations.generator.KrollBindingGenerator"
 			classpathref="project.classpath">
 			<arg value="v8"/>
-			<arg value="${gen}"/>
-			<arg value="${gen}/org/appcelerator/titanium/bindings/${ant.project.name}.json"/>
+			<arg value="${genjni}"/>
+			<arg value="${genjson}/org/appcelerator/titanium/bindings/${ant.project.name}.json"/>
 		</java>
 	</target>
 
@@ -89,20 +92,47 @@
 
 	<macrodef name="check.ndk">
 		<sequential>
-			<fail message="The android.ndk property is not set to an existing Android NDK installation (check your module's build.properties)">
+			<property environment="env"/>
+			<fail message="Neither the ANDROID_NDK environment variable, or the android.ndk property is not set to an existing Android NDK installation (check your module's build.properties)">
 				<condition>
 					<not>
-						<available file="${android.ndk}" type="dir"/>
+						<or>
+							<available file="${android.ndk}" type="dir"/>
+							<available file="${env.ANDROID_NDK}" type="dir"/>
+						</or>
 					</not>
 				</condition>
 			</fail>
+			<condition property="ndk.path" value="${android.ndk}" else="${env.ANDROID_NDK}">
+				<isset property="android.ndk"/>
+			</condition>
 		</sequential>
 	</macrodef>
 
 	<target name="ndk.build">
 		<check.ndk/>
-		<property name="ndk.build" location="${android.ndk}/ndk-build"/>
-		<exec executable="${ndk.build}" dir="${jni}">
+		<property name="ndk.build" location="${ndk.path}/ndk-build"/>
+
+		<mkdir dir="${genjni}"/>
+		<property name="module.template.dir"
+			location="${titanium.platform}/../module/android/templates"/>
+
+		<filterset id="ndk.filter">
+			<filter token="PROJECT_SHORT_NAME" value="${ant.project.name}"/>
+		</filterset>
+
+		<copy todir="${gen}"
+			file="${module.template.dir}/Application.mk">
+			<filterset refid="ndk.filter"/>
+		</copy>
+
+		<copy todir="${genjni}"
+			file="${module.template.dir}/Android.mk">
+			<filterset refid="ndk.filter"/>
+		</copy>
+
+		<exec executable="${ndk.build}" dir="${gen}">
+			<arg line="TI_ANDROID_NATIVE=${titanium.platform}/native"/>
 			<arg line="V=1"/>
 		</exec>
 	</target>
@@ -170,7 +200,7 @@
 
 	<target name="ndk.clean" if="module.ndkbuild">
 		<check.ndk/>
-		<property name="ndk.build" location="${android.ndk}/ndk-build"/>
+		<property name="ndk.build" location="${ndk.path}/ndk-build"/>
 		<exec executable="${ndk.build}" dir="${jni}">
 			<arg line="V=1"/>
 			<arg line="clean"/>

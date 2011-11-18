@@ -87,6 +87,7 @@ def zip_android(zf, basepath):
 		jar_path = os.path.join(android_dist_dir, jar)
 		zf.write(jar_path, '%s/android/%s' % (basepath, jar))
 
+	# include headers for v8 3rd party module building
 	def add_headers(dir):
 		for header in os.listdir(dir):
 			if not header.endswith('.h'):
@@ -111,6 +112,7 @@ def zip_android(zf, basepath):
 	js_jar = os.path.join(top_dir, 'android', 'runtime', 'rhino', 'lib', 'js.jar')
 	zf.write(js_jar, '%s/android/%s' % (basepath, 'js.jar'))
 
+	# include all native shared libraries
 	libs_dir = os.path.join(android_dist_dir, 'libs')
 	for lib_dir in os.listdir(libs_dir):
 		arch_dir = os.path.join(libs_dir, lib_dir)
@@ -121,7 +123,7 @@ def zip_android(zf, basepath):
 
 	ant_tasks_jar = os.path.join(android_dist_dir, 'ant-tasks.jar')
 	zf.write(ant_tasks_jar, '%s/module/android/ant-tasks.jar' % basepath)
-	
+
 	kroll_apt_lib_dir = os.path.join(top_dir, 'android', 'kroll-apt', 'lib')
 	for jar in os.listdir(kroll_apt_lib_dir):
 		if jar.endswith('.jar'):
@@ -130,16 +132,16 @@ def zip_android(zf, basepath):
 
 	android_depends = os.path.join(top_dir, 'android', 'dependency.json')
 	zf.write(android_depends, '%s/android/dependency.json' % basepath)
-	
+
 	android_modules = os.path.join(android_dist_dir, 'modules.json')
 	zf.write(android_modules, '%s/android/modules.json' % basepath)
-	
+
 	titanium_lib_dir = os.path.join(top_dir, 'android', 'titanium', 'lib')
 	for thirdparty_jar in os.listdir(titanium_lib_dir):
 		if thirdparty_jar == "commons-logging-1.1.1.jar": continue
 		jar_path = os.path.join(top_dir, 'android', 'titanium', 'lib', thirdparty_jar)
 		zf.write(jar_path, '%s/android/%s' % (basepath, thirdparty_jar))
-	
+
 	# include all module lib dependencies
 	modules_dir = os.path.join(top_dir, 'android', 'modules')
 	for module_dir in os.listdir(modules_dir):
@@ -159,7 +161,7 @@ def zip_android(zf, basepath):
 	for android_module_res_zip in android_module_res_zips:
 		zipname = os.path.split(android_module_res_zip)[1]
 		zf.write(android_module_res_zip, '%s/android/modules/%s' % (basepath, zipname))
-	
+
 def resolve_source_imports(platform):
 	sys.path.append(iphone_dir)
 	import run,prereq

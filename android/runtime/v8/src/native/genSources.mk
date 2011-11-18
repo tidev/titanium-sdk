@@ -42,7 +42,7 @@ endif
 $(GENERATED_DIR)/KrollJS.cpp: ti-generated-dir $(ABS_JS_FILES) $(GENERATED_DIR)/KrollGeneratedBindings.cpp
 	$(PYTHON) $(JS2C) $(GENERATED_DIR)/KrollJS.cpp $(ABS_JS_FILES)
 
-$(GENERATED_DIR)/KrollGeneratedBindings.cpp: ti-generated-dir $(ABS_PROXY_SOURCES)
+$(GENERATED_DIR)/KrollGeneratedBindings.cpp $(GENERATED_DIR)/bootstrap.js: ti-generated-dir $(ABS_PROXY_SOURCES)
 	$(PYTHON) $(GEN_BOOTSTRAP)
 	gperf -L C++ -E -t $(GENERATED_DIR)/KrollGeneratedBindings.gperf > $(GENERATED_DIR)/KrollGeneratedBindings.cpp
 
