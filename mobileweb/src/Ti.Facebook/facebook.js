@@ -46,18 +46,18 @@
 	
 	var _notLoggedInMessage = "not logged in";
 	
-	var _initSession = function(response) {
-		var ar = response.authResponse
+	function _initSession(response) {
+		var ar = response.authResponse;
 		if (ar) {
 			// Set the various status members
 			_loggedIn = true;
-			_uid = response.authResponse.userID;
-			_expirationDate = new Date((new Date()).getTime() + response.authResponse.expiresIn * 1000);
+			_uid = ar.userID;
+			_expirationDate = new Date((new Date()).getTime() + ar.expiresIn * 1000);
 			
 			// Set a timeout to match when the token expires
-			response.authResponse.expiresIn && setTimeout(function(){ 
+			ar.expiresIn && setTimeout(function(){ 
 				api.logout();
-			}, response.authResponse.expiresIn * 1000);
+			}, ar.expiresIn * 1000);
 			
 			// Fire the login event
 			api.fireEvent('login', {
@@ -67,16 +67,14 @@
 				uid			: _uid,
 				source		: api
 			});
-			
+
 			return true;
-		} else {
-			return false;
 		}
 	};
 
 	// Setup the Facebook initialization callback
-	var _facebookInitialized = false;
-	var _authAfterInitialized = false;
+	var _facebookInitialized = false,
+		_authAfterInitialized = false;
 	window.fbAsyncInit = function() {
 		
 		// Sanity check
@@ -93,10 +91,7 @@
 		});
 		FB.getLoginStatus(function(response){
 			// Calculate connected outside of the if statement to ensure that _initSession runs and isn't optimized out if _authAfterInitialized is false
-			var connected = (response.status == "connected") && (_initSession(response));
-			if (!connected && _authAfterInitialized) {
-				api.authorize();
-			}
+			response.status == "connected" && _initSession(response) || _authAfterInitialized && api.authorize();
 			_facebookInitialized = true;
 		});
 	};
@@ -119,11 +114,10 @@
 	}
 	
 	var _processResponse = function(response,requestParamName,requestParamValue,callback) {
-		result = {'source':api};
+		result = {source:api,success:false};
 		result[requestParamName] = requestParamValue;
 		if (!response || response.error) {
-			result['success'] = false;
-			result['error'] = response ? response.error : undefined;
+			response && (result['error'] = response.error);
 		} else {
 			result['success'] = true;
 			result['result'] = JSON.stringify(response);
@@ -133,17 +127,11 @@
 
 	// Methods
 	api.authorize = function(){
-				
 		// Check if facebook is still initializing, and if so queue the auth request
-		if (!_facebookInitialized) {
-			_authAfterInitialized = true;
-			return;
-		}
-		
-		// Authorize
-		FB.login(function(response) {
-			if (!_initSession(response)) {
-				api.fireEvent('login', {
+		if (_facebookInitialized) {
+			// Authorize
+			FB.login(function(response) {
+				_initSession(response) || api.fireEvent('login', {
 					cancelled	: true,
 					data		: response,
 					error		: "user cancelled or an internal error occured.",
@@ -151,72 +139,74 @@
 					uid			: response.id,
 					source		: api
 				});
-			}
-		}, {'scope':_permissions.join()});
+			}, {'scope':_permissions.join()});
+		} else {
+			_authAfterInitialized = true;
+		}
 	};
 	api.createLoginButton = function(parameters){
 		throw new Error('Method "Titanium.Facebook.createLoginButton" is not implemented yet.');
 	};
 	api.dialog = function(action,params,callback){
-		if (!_loggedIn) {
-			callback({
-				'success'	: false,
-				'error'		: _notLoggedInMessage,
-				'action'	: action,
-				'source'	: api
+		if (_loggedIn) {
+			params.method = action;
+			FB.ui(params,function(response){
+				_processResponse(response,'action',action,callback);
 			});
-			return;
+		} else {
+			callback({
+				success	: false,
+				error	: _notLoggedInMessage,
+				action	: action,
+				source	: api
+			});
 		}
-		params.method = action;
-		FB.ui(params,function(response){
-			_processResponse(response,'action',action,callback);
-		});
 	};
 	api.logout = function(){
-		if (!_loggedIn) {
+		if (_loggedIn) {
+			FB.logout(function(response) {
+				_loggedIn = false;
+				api.fireEvent('logout', {
+					success	: true,
+					source	: api
+				});
+			});
+		} else {
 			callback({
-				'success'	: false,
-				'error'		: _notLoggedInMessage,
-				'source'	: api
+				success	: false,
+				error	: _notLoggedInMessage,
+				source	: api
 			});
-			return;
 		}
-		FB.logout(function(response) {
-			_loggedIn = false;
-			api.fireEvent('logout', {
-				'success'	: true,
-				source		: api
-			});
-		});
 	};
 	api.request = function(method,params,callback){
-		if (!_loggedIn) {
-			callback({
-				'success'	: false,
-				'error'		: _notLoggedInMessage,
-				'method'	: method,
-				'source'	: api
+		if (_loggedIn) {
+			params.method = method;
+			params.urls = 'facebook.com,developers.facebook.com';
+			FB.api(params,function(response){
+				_processResponse(response,'method',method,callback);
 			});
-			return;
+		} else {
+			callback({
+				success	: false,
+				error	: _notLoggedInMessage,
+				method	: method,
+				source	: api
+			});
 		}
-		params.method = method;
-		params.urls = 'facebook.com,developers.facebook.com';
-		FB.api(params,function(response){
-			_processResponse(response,'method',method,callback);
-		});
 	};
 	api.requestWithGraphPath = function(path,params,httpMethod,callback){
-		if (!_loggedIn) {
-			callback({
-				'success'	: false,
-				'error'		: _notLoggedInMessage,
-				'path'		: path,
-				'source'	: api
+		if (_loggedIn) {
+			FB.api(path,httpMethod,params,function(response){
+				_processResponse(response,'path',path,callback);
 			});
-			return;
+		} else {
+			callback({
+				success	: false,
+				error	: _notLoggedInMessage,
+				path	: path,
+				source	: api
+			});
 		}
-		FB.api(path,httpMethod,params,function(response){
-			_processResponse(response,'path',path,callback);
-		});
 	};
 })(Ti._5.createClass('Titanium.Facebook'));
