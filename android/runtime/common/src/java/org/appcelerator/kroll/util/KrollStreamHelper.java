@@ -55,7 +55,8 @@ public class KrollStreamHelper
 		int totalCount = 0;
 		try {
 			while (totalCount < byteCount) {
-				int count = in.read(buffer);
+				int leftOver = Math.min(bufferSize, byteCount - totalCount);
+				int count = in.read(buffer, 0, leftOver);
 				if (count == -1) {
 					break;
 				}
