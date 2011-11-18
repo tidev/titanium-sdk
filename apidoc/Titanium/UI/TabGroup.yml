@@ -59,7 +59,8 @@ methods:
         type: [Number,Titanium.UI.Tab]
   - name: getTabs
     description: Returns an array of tab objects that are managed by the tab group.
-    returns: Array<Titanium.UI.Tab>
+    returns: 
+        type: Array<Titanium.UI.Tab>
 events:
   - name: blur
     description: Fired when the tab group loses focus.
