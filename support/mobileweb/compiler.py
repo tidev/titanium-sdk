@@ -341,7 +341,7 @@ class Compiler(object):
 		return tokens	
 
 	def expand_ti_includes(self,line,filename):
-		idx = line.find('Ti.include')
+		'''idx = line.find('Ti.include')
 		if idx!=-1:
 			srcs = line[idx+11:-1]
 			for srcQ in srcs.split(','):
@@ -361,7 +361,7 @@ class Compiler(object):
 					print "[ERROR] Cannot find include file at: %s" % src_path
 					sys.exit(1)
 				source = Compiler.make_function_from_file(src_path,self)
-				self.ti_includes[src] = source
+				self.ti_includes[src] = source'''
 
 	def compile_js(self,file_contents,fn):
 		contents = ""
