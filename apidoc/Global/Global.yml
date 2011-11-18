@@ -1,6 +1,38 @@
 ---
 name: Global
-description: APIs that live on the global scope.
+summary: APIs that live in the global scope.
+description: |
+    Titanium provides a number of global built-in objects. 
+
+    #### JSON
+
+    Titanium has a built-in JSON parser with two main functions: `parse` and `stringify`.  `JSON.parse` will safely evaluate a string encoded as JavaScript into a JavaScript object.  `JSON.stringify` will encode a JavaScript object into a string.
+
+    #### Timers
+
+    Titanium has built-in support for one-shot and repeating timers with two main functions: `setTimeout` and `setInterval`.  `setTimeout` takes 2 arguments: function and timeout in milliseconds after which the function should be executed and returns a timer handle that can be used to cancel a pending timer with `clearTimeout`.  `setInterval` takes 2 arguments: function and timeout in milliseconds for how often the function should be executed until cancelled and returns a timer handle that can be used to cancel a timer with `clearInterval`.
+
+    #### Alert
+
+    Titanium has a built-in convenience function `alert` which can be used as a shortcut to <Titanium.UI.createAlertDialog> for creating a message box.  Note that unlike a web browser-based version of `alert`, the method is asynchronous. However, only one alert dialog will be visible and modal at a time.
+
+    #### Locale
+
+    The macro `L` can also be used which aliases the method <Titanium.Locale.getString>.
+
+    #### String Formatting
+
+    The following are built-in functions available on the [String](Global.String) class which are Titanium specific and will aid in formatting data into locale-specific strings. These include:
+
+    `String.format`: format a generic string using the [IEEE printf specification](http://www.opengroup.org/onlinepubs/009695399/functions/printf.html).
+
+    `String.formatDate`: format a date into a locale specific date format. Optionally pass a second argument (string) as either "short" (default), "medium" or "long" for controlling the date format.
+
+    `String.formatTime`: format a date into a locale specific time format.
+
+    `String.formatDecimal`: format a number into a locale specific decimal format.
+
+    `String.formatCurrency`: format a number into a locale specific currency format.
 
 methods:
   - name: alert
