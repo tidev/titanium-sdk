@@ -271,12 +271,16 @@ class AnnotatedProxy(AnnotatedApi):
 		class_type = {"properties": AnnotatedProperty, "methods": AnnotatedMethod,
 				"events": AnnotatedEvent}[att_list_name]
 		existing_names = [item.name for item in att_list]
+		excluded_names = []
+		if "excludes" in self.api_obj and att_list_name in self.api_obj["excludes"]:
+			excluded_names = self.api_obj["excludes"][att_list_name]
+
 		while (super_type_name is not None and len(super_type_name) > 0
 				and super_type_name in apis):
 			super_type = apis[super_type_name]
 			if dict_has_non_empty_member(super_type, att_list_name):
 				for new_item in super_type[att_list_name]:
-					if new_item["name"] in existing_names:
+					if new_item["name"] in existing_names or new_item["name"] in excluded_names:
 						continue
 					new_instance = class_type(new_item, self)
 					new_instance.inherited_from = super_type_name
