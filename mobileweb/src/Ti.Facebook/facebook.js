@@ -60,11 +60,9 @@
 			}, response.authResponse.expiresIn * 1000);
 			
 			// Fire the login event
-			var undef;
 			api.fireEvent('login', {
 				cancelled	: false,
 				data		: response,
-				error		: undef,
 				success		: true,
 				uid			: _uid,
 				source		: api
@@ -131,7 +129,6 @@
 		// Authorize
 		FB.login(function(response) {
 			if (!_initSession(response)) {
-				var undef;
 				api.fireEvent('login', {
 					cancelled	: true,
 					data		: response,
@@ -159,10 +156,8 @@
 		params.method = action;
 		FB.ui(params,function(response){
 			if (!response) {
-				var undef;
 				callback({
 					'success'	: false,
-					'error'		: undef,
 					'action'	: action,
 					'source'	: api
 				});
@@ -194,7 +189,6 @@
 		}
 		FB.logout(function(response) {
 			_loggedIn = false;
-			var undef;
 			api.fireEvent('logout', {
 				'success'	: true,
 				source		: api
@@ -215,10 +209,8 @@
 		params.urls = 'facebook.com,developers.facebook.com';
 		FB.api(params,function(response){
 			if (!response) {
-				var undef;
 				callback({
 					'success'	: false,
-					'error'		: undef,
 					'method'	: method,
 					'source'	: api
 				});
@@ -251,10 +243,8 @@
 		}
 		FB.api(path,httpMethod,params,function(response){
 			if (!response) {
-				var undef;
 				callback({
 					'success'	: false,
-					'error'		: undef,
 					'path'		: path,
 					'source'	: api});
 			} else if (response.error) {
