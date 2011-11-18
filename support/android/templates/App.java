@@ -66,18 +66,18 @@ public final class ${config['classname']}Application extends TiApplication
 
 /*
 		% if len(custom_modules) > 0:
-		// Custom modules
 		KrollModuleInfo moduleInfo;
 		% endif
 */
+
 		% for  module in custom_modules:
 		${onAppCreate(module)} \
 
-		KrollBindings.addExternalBinding("${module['class_name']}", ${module['class_name']}Prototype.class);
-		<% module_id = module['manifest'].moduleid %>
-		${module_id}.${module["manifest"].name}GeneratedBindings.init();
-/*
 		<% manifest = module['manifest'] %>
+		KrollBindings.addExternalBinding("${manifest.moduleid}", ${module['class_name']}Prototype.class);
+		${manifest.moduleid}.${manifest.name}GeneratedBindings.init();
+
+/*
 		moduleInfo = new KrollModuleInfo(
 			"${manifest.name}", "${manifest.moduleid}", "${manifest.guid}", "${manifest.version}",
 			"${manifest.description}", "${manifest.author}", "${manifest.license}",
@@ -89,6 +89,7 @@ public final class ${config['classname']}Application extends TiApplication
 
 		KrollModule.addModuleInfo(moduleInfo);
 */
+
 		% endfor
 	}
 }
