@@ -44,6 +44,8 @@
 		set: function(val){return _uid = val;}
 	});
 	
+	var _notLoggedInMessage = "not logged in";
+	
 	var _initSession = function(response) {
 		var ar = response.authResponse
 		if (ar) {
@@ -133,7 +135,7 @@
 				api.fireEvent('login', {
 					cancelled	: true,
 					data		: response,
-					error		: "The user cancelled or an internal error occured.",
+					error		: "user cancelled or an internal error occured.",
 					success		: false,
 					uid			: response.id,
 					source		: api
@@ -148,7 +150,7 @@
 		if (!_loggedIn) {
 			callback({
 				'success'	: false,
-				'error'		: 'must be logged in to call Titanium.Facebook.dialog',
+				'error'		: _notLoggedInMessage,
 				'action'	: action,
 				'source'	: api
 			});
@@ -185,7 +187,7 @@
 		if (!_loggedIn) {
 			callback({
 				'success'	: false,
-				'error'		: 'must be logged in to call Titanium.Facebook.logout',
+				'error'		: _notLoggedInMessage,
 				'source'	: api
 			});
 			return;
@@ -203,7 +205,7 @@
 		if (!_loggedIn) {
 			callback({
 				'success'	: false,
-				'error'		: 'must be logged in to call Titanium.Facebook.request',
+				'error'		: _notLoggedInMessage,
 				'method'	: method,
 				'source'	: api
 			});
@@ -241,7 +243,7 @@
 		if (!_loggedIn) {
 			callback({
 				'success'	: false,
-				'error'		: 'must be logged in to call Titanium.Facebook.requestWithGraphPath',
+				'error'		: _notLoggedInMessage,
 				'path'		: path,
 				'source'	: api
 			});
