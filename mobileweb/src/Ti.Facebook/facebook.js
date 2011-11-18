@@ -71,30 +71,6 @@
 			return true;
 		}
 	};
-
-	// Setup the Facebook initialization callback
-	var _facebookInitialized = false,
-		_authAfterInitialized = false;
-	window.fbAsyncInit = function() {
-		
-		// Sanity check
-		if (_appid == null) {
-			throw new Error('App ID not set. Facebook authorization cancelled.');
-		}
-		
-		FB.init({
-			appId  : _appid, // App ID
-			status : true, // check login status
-			cookie : true, // enable cookies to allow the server to access the session
-			oauth  : true, // enable OAuth 2.0
-			xfbml  : true  // parse XFBML
-		});
-		FB.getLoginStatus(function(response){
-			// Calculate connected outside of the if statement to ensure that _initSession runs and isn't optimized out if _authAfterInitialized is false
-			response.status == "connected" && _initSession(response) || _authAfterInitialized && api.authorize();
-			_facebookInitialized = true;
-		});
-	};
 	
 	// Create the div required by Facebook
 	var _fbDiv = document.createElement('div');
@@ -126,10 +102,15 @@
 	}
 
 	// Methods
+	var _facebookInitialized = false;
 	api.authorize = function(){
-		// Check if facebook is still initializing, and if so queue the auth request
-		if (_facebookInitialized) {
-			// Authorize
+		
+		// Sanity check
+		if (_appid == null) {
+			throw new Error('App ID not set. Facebook authorization cancelled.');
+		}
+		
+		function _loginInternal() {
 			FB.login(function(response) {
 				_initSession(response) || api.fireEvent('login', {
 					cancelled	: true,
@@ -140,8 +121,25 @@
 					source		: api
 				});
 			}, {'scope':_permissions.join()});
+		}
+		
+		// Check if facebook is still initializing, and if so queue the auth request
+		if (_facebookInitialized) {
+			// Authorize
+			_loginInternal();
 		} else {
-			_authAfterInitialized = true;
+			FB.init({
+				appId  : _appid, // App ID
+				status : true, // check login status
+				cookie : true, // enable cookies to allow the server to access the session
+				oauth  : true, // enable OAuth 2.0
+				xfbml  : true  // parse XFBML
+			});
+			FB.getLoginStatus(function(response){
+				// Calculate connected outside of the if statement to ensure that _initSession runs and isn't optimized out if _authAfterInitialized is false
+				response.status == "connected" && _initSession(response) || _loginInternal();
+				_facebookInitialized = true;
+			});
 		}
 	};
 	api.createLoginButton = function(parameters){
