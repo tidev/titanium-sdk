@@ -33,6 +33,7 @@ namespace titanium {
 Persistent<Context> V8Runtime::globalContext;
 Persistent<Object> V8Runtime::krollGlobalObject;
 jobject V8Runtime::javaInstance;
+bool V8Runtime::debuggerEnabled = false;
 
 /* static */
 void V8Runtime::collectWeakRef(Persistent<Value> ref, void *parameter)
@@ -139,7 +140,7 @@ using namespace titanium;
  * Method:    nativeInit
  * Signature: (Lorg/appcelerator/kroll/runtime/v8/V8Runtime;)J
  */
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jobject self, jboolean useGlobalRefs)
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jobject self, jboolean useGlobalRefs, jboolean debuggerEnabled)
 {
 	HandleScope scope;
 	titanium::JNIScope jniScope(env);
@@ -150,6 +151,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 
 	LOGD(TAG, "nativeInit");
 	JavaObject::useGlobalRefs = useGlobalRefs;
+	V8Runtime::debuggerEnabled = debuggerEnabled;
 
 	V8Runtime::javaInstance = env->NewGlobalRef(self);
 	JNIUtil::initCache();
