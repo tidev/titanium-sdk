@@ -55,10 +55,14 @@
 			oauth  : true, // enable OAuth 2.0
 			xfbml  : true  // parse XFBML
 		});
-		_facebookInitialized = true;
-		if (_authAfterInitialized) {
-			api.authorize();
-		}
+		FB.getLoginStatus(function(response){
+			if (response.status == "connected" && response.authResponse) {
+				_loggedIn = true;
+			} else if (_authAfterInitialized) {
+				api.authorize();
+			}
+			_facebookInitialized = true;
+		});
 	};
 	
 	// Create the div required by Facebook
@@ -67,6 +71,7 @@
 	document.getElementsByTagName('body')[0].appendChild(fbDiv);
 	
 	// Load the Facebook SDK Asynchronously.
+	
 	var fbScriptTag, id = 'facebook-jssdk'; 
 	if (!document.getElementById(id)) {
 		fbScriptTag = document.createElement('script');
@@ -97,7 +102,7 @@
 				cancelled	: false,
 				data		: response,
 				error		: undef,
-				source		: Titanium.Facebook,
+				source		: api,
 				success		: false,
 				type		: undef,
 				uid			: response.id
@@ -132,11 +137,11 @@
 		FB.ui(params,function(response){
 			if (!response) {
 				var undef;
-				callback({'success':false,'error':undef,'path':path,'source':Titanium.Facebook});
+				callback({'success':false,'error':undef,'action':action,'source':api});
 			} else if (response.error) {
-				callback({'success':false,'error':response.error,'path':path,'source':Titanium.Facebook});
+				callback({'success':false,'error':response.error,'action':action,'source':api});
 			} else {
-				callback({'success':true,'result':response,'path':path,'source':Titanium.Facebook});
+				callback({'success':true,'result':response,'action':action,'source':api});
 			}
 		});
 	};
@@ -145,7 +150,7 @@
 			_loggedIn = false;
 			var undef;
 			var oEvent = {
-				source		: Titanium.Facebook,
+				source		: api,
 				type		: undef
 			};
 			api.fireEvent('logout', oEvent);
@@ -157,11 +162,11 @@
 		FB.api(params,function(response){
 			if (!response) {
 				var undef;
-				callback({'success':false,'error':undef,'method':method,'source':Titanium.Facebook});
+				callback({'success':false,'error':undef,'method':method,'source':api});
 			} else if (response.error) {
-				callback({'success':false,'error':response.error,'method':method,'source':Titanium.Facebook});
+				callback({'success':false,'error':response.error,'method':method,'source':api});
 			} else {
-				callback({'success':true,'result':JSON.stringify(response),'method':method,'source':Titanium.Facebook});
+				callback({'success':true,'result':JSON.stringify(response),'method':method,'source':api});
 			}
 		});
 	};
@@ -169,11 +174,11 @@
 		FB.api(path,httpMethod,params,function(response){
 			if (!response) {
 				var undef;
-				callback({'success':false,'error':undef,'path':path,'source':Titanium.Facebook});
+				callback({'success':false,'error':undef,'path':path,'source':api});
 			} else if (response.error) {
-				callback({'success':false,'error':response.error,'path':path,'source':Titanium.Facebook});
+				callback({'success':false,'error':response.error,'path':path,'source':api});
 			} else {
-				callback({'success':true,'result':JSON.stringify(response),'path':path,'source':Titanium.Facebook});
+				callback({'success':true,'result':JSON.stringify(response),'path':path,'source':api});
 			}
 		});
 	};
