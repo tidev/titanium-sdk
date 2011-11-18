@@ -43,6 +43,37 @@
 		get: function(){return _uid;},
 		set: function(val){return _uid = val;}
 	});
+	
+	var _initSession = function(response) {
+		var ar = response.authResponse
+		if (ar) {
+			// Set the various status members
+			_loggedIn = true;
+			_uid = response.authResponse.userID;
+			_expirationDate = new Date((new Date()).getTime() + response.authResponse.expiresIn * 1000);
+			
+			// Set a timeout to match when the token expires
+			response.authResponse.expiresIn && setTimeout(function(){ 
+				api.logout();
+			}, response.authResponse.expiresIn * 1000);
+			
+			// Fire the login event
+			var undef;
+			api.fireEvent('login', {
+				cancelled	: false,
+				data		: response,
+				error		: undef,
+				source		: api,
+				success		: true,
+				type		: undef,
+				uid			: _uid
+			});
+			
+			return true;
+		} else {
+			return false;
+		}
+	};
 
 	// Setup the Facebook initialization callback
 	var _facebookInitialized = false;
@@ -56,9 +87,9 @@
 			xfbml  : true  // parse XFBML
 		});
 		FB.getLoginStatus(function(response){
-			if (response.status == "connected" && response.authResponse) {
-				_loggedIn = true;
-			} else if (_authAfterInitialized) {
+			// Calculate connected outside of the if statement to ensure that _initSession runs and isn't optimized out if _authAfterInitialized is false
+			var connected = (response.status == "connected") && (_initSession(response));
+			if (!connected && _authAfterInitialized) {
 				api.authorize();
 			}
 			_facebookInitialized = true;
@@ -78,7 +109,8 @@
 		fbScriptTag.id = id; 
 		fbScriptTag.async = true;
 		fbScriptTag.src = "//connect.facebook.net/en_US/all.js";
-		document.getElementsByTagName('head')[0].appendChild(fbScriptTag);
+		head = document.getElementsByTagName ("head")[0] || document.documentElement;
+		head.insertBefore(fbScriptTag, head.firstChild);
 	}
 
 	// Methods
@@ -97,42 +129,25 @@
 		
 		// Authorize
 		FB.login(function(response) {
-			var undef;
-			var oEvent = {
-				cancelled	: false,
-				data		: response,
-				error		: undef,
-				source		: api,
-				success		: false,
-				type		: undef,
-				uid			: response.id
-			};
-			if (response.authResponse) {
-				_expirationDate = new Date((new Date()).getTime() + response.authResponse.expiresIn * 1000);
-				FB.api('/me', function(response) {
-					if (!response) {
-						oEvent.error = "An unknown error occured.";
-					} else if (response.error) {
-						oEvent.error = response.error;
-					} else {
-						_loggedIn = true;
-						_uid = response.id;
-						oEvent.success = true;
-						oEvent.uid = _uid;
-					}
-					api.fireEvent('login', oEvent);
+			if (!_initSession(response)) {
+				var undef;
+				api.fireEvent('login', {
+					cancelled	: true,
+					data		: response,
+					error		: "The user cancelled or an internal error occured.",
+					source		: api,
+					success		: false,
+					type		: undef,
+					uid			: response.id
 				});
-			} else {
-				oEvent.cancelled = true
-				oEvent.error = "The user cancelled or an internal error occured."
-				api.fireEvent('login', oEvent);
 			}
 		}, {'scope':_permissions.join()});
 	};
 	api.createLoginButton = function(parameters){
-		console.debug('Method "Titanium.Facebook.createLoginButton" is not implemented yet.');
+		throw new Error('Method "Titanium.Facebook.createLoginButton" is not implemented yet.');
 	};
 	api.dialog = function(action,params,callback){
+		if (!_loggedIn) return;
 		params.method = action;
 		FB.ui(params,function(response){
 			if (!response) {
@@ -146,17 +161,18 @@
 		});
 	};
 	api.logout = function(){
+		if (!_loggedIn) return;
 		FB.logout(function(response) {
 			_loggedIn = false;
 			var undef;
-			var oEvent = {
+			api.fireEvent('logout', {
 				source		: api,
 				type		: undef
-			};
-			api.fireEvent('logout', oEvent);
+			});
 		});
 	};
 	api.request = function(method,params,callback){
+		if (!_loggedIn) return;
 		params.method = method;
 		params.urls = 'facebook.com,developers.facebook.com';
 		FB.api(params,function(response){
@@ -171,6 +187,7 @@
 		});
 	};
 	api.requestWithGraphPath = function(path,params,httpMethod,callback){
+		if (!_loggedIn) return;
 		FB.api(path,httpMethod,params,function(response){
 			if (!response) {
 				var undef;
