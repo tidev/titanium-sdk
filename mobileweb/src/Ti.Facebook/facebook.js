@@ -63,10 +63,9 @@
 				cancelled	: false,
 				data		: response,
 				error		: undef,
-				source		: api,
 				success		: true,
-				type		: undef,
-				uid			: _uid
+				uid			: _uid,
+				source		: api
 			});
 			
 			return true;
@@ -97,20 +96,20 @@
 	};
 	
 	// Create the div required by Facebook
-	fbDiv = document.createElement('div');
-	fbDiv.id = 'fb-root';
-	document.getElementsByTagName('body')[0].appendChild(fbDiv);
+	var _fbDiv = document.createElement('div');
+	_fbDiv.id = 'fb-root';
+	document.body.appendChild(_fbDiv);
 	
 	// Load the Facebook SDK Asynchronously.
 	
-	var fbScriptTag, id = 'facebook-jssdk'; 
-	if (!document.getElementById(id)) {
-		fbScriptTag = document.createElement('script');
-		fbScriptTag.id = id; 
-		fbScriptTag.async = true;
-		fbScriptTag.src = "//connect.facebook.net/en_US/all.js";
-		head = document.getElementsByTagName ("head")[0] || document.documentElement;
-		head.insertBefore(fbScriptTag, head.firstChild);
+	var _fbDivID = 'facebook-jssdk'; 
+	if (!document.getElementById(_fbDivID)) {
+		var _fbScriptTag = document.createElement('script');
+		_fbScriptTag.id = _fbDivID; 
+		_fbScriptTag.async = true;
+		_fbScriptTag.src = "//connect.facebook.net/en_US/all.js";
+		var _head = document.getElementsByTagName ("head")[0];
+		_head.insertBefore(_fbScriptTag, _head.firstChild);
 	}
 
 	// Methods
@@ -135,10 +134,9 @@
 					cancelled	: true,
 					data		: response,
 					error		: "The user cancelled or an internal error occured.",
-					source		: api,
 					success		: false,
-					type		: undef,
-					uid			: response.id
+					uid			: response.id,
+					source		: api
 				});
 			}
 		}, {'scope':_permissions.join()});
@@ -147,55 +145,128 @@
 		throw new Error('Method "Titanium.Facebook.createLoginButton" is not implemented yet.');
 	};
 	api.dialog = function(action,params,callback){
-		if (!_loggedIn) return;
+		if (!_loggedIn) {
+			callback({
+				'success'	: false,
+				'error'		: 'must be logged in to call Titanium.Facebook.dialog',
+				'action'	: action,
+				'source'	: api
+			});
+			return;
+		}
 		params.method = action;
 		FB.ui(params,function(response){
 			if (!response) {
 				var undef;
-				callback({'success':false,'error':undef,'action':action,'source':api});
+				callback({
+					'success'	: false,
+					'error'		: undef,
+					'action'	: action,
+					'source'	: api
+				});
 			} else if (response.error) {
-				callback({'success':false,'error':response.error,'action':action,'source':api});
+				callback({
+					'success'	: false,
+					'error'		: response.error,
+					'action'	: action,
+					'source'	: api
+				});
 			} else {
-				callback({'success':true,'result':response,'action':action,'source':api});
+				callback({
+					'success'	: true,
+					'result'	: response,
+					'action'	: action,
+					'source'	: api
+				});
 			}
 		});
 	};
 	api.logout = function(){
-		if (!_loggedIn) return;
+		if (!_loggedIn) {
+			callback({
+				'success'	: false,
+				'error'		: 'must be logged in to call Titanium.Facebook.logout',
+				'source'	: api
+			});
+			return;
+		}
 		FB.logout(function(response) {
 			_loggedIn = false;
 			var undef;
 			api.fireEvent('logout', {
-				source		: api,
-				type		: undef
+				'success'	: true,
+				source		: api
 			});
 		});
 	};
 	api.request = function(method,params,callback){
-		if (!_loggedIn) return;
+		if (!_loggedIn) {
+			callback({
+				'success'	: false,
+				'error'		: 'must be logged in to call Titanium.Facebook.request',
+				'method'	: method,
+				'source'	: api
+			});
+			return;
+		}
 		params.method = method;
 		params.urls = 'facebook.com,developers.facebook.com';
 		FB.api(params,function(response){
 			if (!response) {
 				var undef;
-				callback({'success':false,'error':undef,'method':method,'source':api});
+				callback({
+					'success'	: false,
+					'error'		: undef,
+					'method'	: method,
+					'source'	: api
+				});
 			} else if (response.error) {
-				callback({'success':false,'error':response.error,'method':method,'source':api});
+				callback({
+					'success'	: false,
+					'error'		: response.error,
+					'method'	: method,
+					'source'	: api
+				});
 			} else {
-				callback({'success':true,'result':JSON.stringify(response),'method':method,'source':api});
+				callback({
+					'success'	: true,
+					'result'	: JSON.stringify(response),
+					'method'	: method,
+					'source'	: api
+				});
 			}
 		});
 	};
 	api.requestWithGraphPath = function(path,params,httpMethod,callback){
-		if (!_loggedIn) return;
+		if (!_loggedIn) {
+			callback({
+				'success'	: false,
+				'error'		: 'must be logged in to call Titanium.Facebook.requestWithGraphPath',
+				'path'		: path,
+				'source'	: api
+			});
+			return;
+		}
 		FB.api(path,httpMethod,params,function(response){
 			if (!response) {
 				var undef;
-				callback({'success':false,'error':undef,'path':path,'source':api});
+				callback({
+					'success'	: false,
+					'error'		: undef,
+					'path'		: path,
+					'source'	: api});
 			} else if (response.error) {
-				callback({'success':false,'error':response.error,'path':path,'source':api});
+				callback({
+					'success'	: false,
+					'error'		: response.error,
+					'path'		: path,
+					'source'	: api});
 			} else {
-				callback({'success':true,'result':JSON.stringify(response),'path':path,'source':api});
+				callback({
+					'success'	: true,
+					'result'	: JSON.stringify(response),
+					'path'		: path,
+					'source'	: api});
 			}
 		});
 	};
