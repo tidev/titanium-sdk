@@ -60,59 +60,64 @@ properties:
   - name: keyboardToolbar
     description: Array of toolbar button objects to be used when the keyboard is displayed.
     type: Array<Object>
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
   - name: keyboardToolbarColor
     description: Color of the keyboard toolbar.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
   - name: keyboardToolbarHeight
     description: Height of the keyboard toolbar.
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
   - name: leftButton
-    description: the left button view
+    description: Left button view. Using an object other than a [Button](Titanium.UI.Button) may have unpredictable results.
     type: Object
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
   - name: leftButtonMode
-    description: >
+    description: |
         When to display the left button view. Specify one of the following  <Titanium.UI> constants: [INPUT_BUTTONMODE_ALWAYS](Titanium.UI.INPUT_BUTTONMODE_ALWAYS), [INPUT_BUTTONMODE_NEVER](Titanium.UI.INPUT_BUTTONMODE_NEVER), [INPUT_BUTTONMODE_ONBLUR](Titanium.UI.INPUT_BUTTONMODE_ONBLUR), or [INPUT_BUTTONMODE_ONFOCUS](Titanium.UI.INPUT_BUTTONMODE_ONFOCUS).
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
   - name: leftButtonPadding
-    description: the left padding of the space between the button and the edge of the field
+    description: Padding between the left button and the edge of the field.
     type: Number
     platforms: [android, iphone, ipad]
   - name: minimumFontSize
-    description: the minimum size of the font when the font is sized based on the contents.  Enables font scaling to fit
+    description: Minimum size of the font when the font is sized based on the contents.  Enables font scaling to fit.
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
   - name: paddingLeft
-    description: the left padding of the text field
+    description: Left padding of the text field.
     type: Number
   - name: paddingRight
-    description: the right padding of the text field
+    description: Right padding of the text field.
     type: Number
+  - name: passwordMask
+    description: |
+        Set to `true` to hide entered characters. Note: on iOS, `passwordMask` *must* be specified when the text field is created.
+    type: Boolean
+    default: false
   - name: rightButton
-    description: the right button view
+    description: Right button view. Using an object other than a [Button](Titanium.UI.Button) may have unpredictable results.
     type: Object
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
   - name: rightButtonMode
-    description: >
+    description: |
         When to display the right button view. Specify one of the following  <Titanium.UI> constants: [INPUT_BUTTONMODE_ALWAYS](Titanium.UI.INPUT_BUTTONMODE_ALWAYS), [INPUT_BUTTONMODE_NEVER](Titanium.UI.INPUT_BUTTONMODE_NEVER), [INPUT_BUTTONMODE_ONBLUR](Titanium.UI.INPUT_BUTTONMODE_ONBLUR), or [INPUT_BUTTONMODE_ONFOCUS](Titanium.UI.INPUT_BUTTONMODE_ONFOCUS).
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
   - name: rightButtonPadding
-    description: the right padding of the space between the button and the edge of the field
+    description: Padding between the right button and the edge of the field.
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
   - name: suppressReturn
-    description: boolean to indicate if the return key should be suppressed during entry
+    description: Should the return key should be suppressed during entry?
     type: Boolean
   - name: value
-    description: value of the field
+    description: Value of the field.
     type: String
   - name: verticalAlign
-    description: >
+    description: |
         Vertical alignment for the text field, specified using a string ('top', 'center', 'bottom') or one of the vertical alignment constants from <Titanium.UI>: [TEXT_VERTICAL_ALIGNMENT_BOTTOM](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM), [TEXT_VERTICAL_ALIGNMENT_CENTER](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER), or [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
     type: [Number,String]
   - name: maxLength

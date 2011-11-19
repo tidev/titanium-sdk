@@ -1,7 +1,6 @@
 ---
 name: Titanium.UI.ActivityIndicator
-summary: An activity indicator that lets the user know an action is 
-    taking place. 
+summary: An activity indicator that lets the user know an action is taking place. 
     
 description:  |
     An activity indicator can be used to show the progress of an operation in the UI to let the user know some action is taking place. An activity indicator consists of a spinning animation and an optional text message, and is used to indicate an ongoing activity of indeterminate length. To show progress, use <Titanium.UI.ProgressBar> instead.
@@ -20,6 +19,7 @@ properties:
   - name: color
     description: Color of the message text.
     type: String
+    platforms: [iphone,ipad,mobileweb]
   - name: font
     description: Font to use for the message text.
     type: Font
@@ -30,7 +30,7 @@ properties:
     description: Key identifying a string from the locale file to use for the message text. Only one of `message` or `messageid` should be specified.
     type: String
   - name: style
-    description: The style for the activity indicator. For iPhone, the style can be set from the constants <Titanium.UI.iPhone.ActivityIndicatorStyle>.
+    description: The style for the activity indicator. For iPhone, the style can be set to one of the constants defined in <Titanium.UI.iPhone.ActivityIndicatorStyle>.
     type: Number
     
 examples:

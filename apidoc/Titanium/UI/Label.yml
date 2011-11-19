@@ -11,15 +11,19 @@ properties:
   - name: backgroundPaddingBottom
     description: Number of pixels to extend the background image past the label on the bottom.
     type: Number
+    platforms: [iphone,ipad]
   - name: backgroundPaddingLeft
     description: Number of pixels to extend the background image past the label on the left.
     type: Number
+    platforms: [iphone,ipad]
   - name: backgroundPaddingRight
     description: Number of pixels to extend the background image past the label on the right.
     type: Number
+    platforms: [iphone,ipad]
   - name: backgroundPaddingTop
     description: Number of pixels to extend the background image past the label on the top.
     type: Number
+    platforms: [iphone,ipad]
   - name: color
     description: Color of the label text.
     type: String
@@ -34,21 +38,23 @@ properties:
   - name: highlightedColor
     description: Color of the label when in the highlighted state. Used when the label is part of a view that can be highlighted, such as a <Titanium.UI.TableViewRow>.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
   - name: html
-    description: simple html formatting.
+    description: Simple HTML formatting.
     platforms: [android, mobileweb]
     type: String
   - name: minimumFontSize
     description: Minimum font size when the font is sized based on the contents.  Enables font scaling to fit and forces the label content to be limited to a single line.
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
   - name: shadowColor
-    description: the text shadow color
+    description: Text shadow color.
     type: String
+    platforms: [iphone,ipad]
   - name: shadowOffset
     description: Shadow offset as a dictionary with the properties `x` and `y`.
     type: Object
+    platforms: [iphone,ipad]
   - name: text
     description: Label text.
     type: String

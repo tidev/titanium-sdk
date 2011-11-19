@@ -58,12 +58,15 @@ properties:
   - name: keyboardToolbar
     description: Array of toolbar button objects to be used when the keyboard is displayed.
     type: Array<Object>
+    platforms: [iphone,ipad]
   - name: keyboardToolbarColor
     description: Color of the keyboard toolbar.
     type: String
+    platforms: [iphone,ipad]
   - name: keyboardToolbarHeight
     description: Height of the keyboard toolbar.
     type: Number
+    platforms: [iphone,ipad]
   - name: suppressReturn
     description: Should the return key be suppressed during entry?
     type: Boolean
