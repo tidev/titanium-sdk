@@ -36,8 +36,7 @@ methods:
         type: Object
     parameters:
       - name: f
-        summary: Function to be invoked upon completion.
-        description: If non-null, this method will be performed asynchronously. if null, it will be performed immediately
+        summary: Function to be invoked upon completion. If non-null, this method will be performed asynchronously. If null, it will be performed immediately.
         type: Callback<Object>
         optional: true
   - name: convertPointToView
@@ -51,12 +50,10 @@ methods:
         type: Point
     parameters:
       - name: point
-        summary: an object with properties of x and y describing a point within the receiver's coordinate system.
-        description: If this argument is missing an x or y property, or the properties can not be converted into numbers, an exception will be raised.
+        summary: an object with properties of x and y describing a point within the receiver's coordinate system.  If this argument is missing an x or y property, or the properties can not be converted into numbers, an exception will be raised.
         type: Point
       - name: destinationView
-        summary: the view whose coordinate system to which the point will be converted.
-        description: If this argument is not a view, an exception will be raised.
+        summary: the view whose coordinate system to which the point will be converted. If this argument is not a view, an exception will be raised.
         type: Titanium.UI.View
 events:
   - name: click

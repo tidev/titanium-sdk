@@ -90,12 +90,6 @@ def generate(raw_apis, annotated_apis, options):
 				for m in getattr(one_type, mt):
 					log.trace("Producing html output for %s.%s" % (name, m.name))
 					render_template(m, options)
-					if m.typestr == "event" and m.properties:
-						for p in m.properties:
-							render_template(p, options)
-					if m.typestr == "method" and m.parameters:
-						for p in m.parameters:
-							render_template(p, options)
 
 	# Create the special .json files that the webserver uses.
 	log.info("Creating json files for server")

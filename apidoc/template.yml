@@ -20,8 +20,8 @@ events:
     description: A long-format description of this property.
     properties:
       - name: eventProperty
+        type: String
         summary: An event property
-        description: A long-format description of this event property.
 examples:
   - title: Example
     example: |

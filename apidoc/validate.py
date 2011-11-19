@@ -109,6 +109,11 @@ def validateIsOneOf(tracker, name, value, validValues):
 	if value not in validValues:
 		tracker.trackError('"%s" should be one of %s, but was %s' % (name, ", ".join(validValues), value))
 
+def validateAllowedKeys(tracker, name, actualKeys, allowedKeys):
+	for k in actualKeys:
+		if k not in allowedKeys:
+			tracker.trackError('"%s" should only contain %s, but "%s" is present' % (name, ", ".join(allowedKeys), k))
+
 def validateMarkdown(tracker, mdData, name):
 	try:
 		html = markdown.markdown(mdData)
@@ -193,6 +198,8 @@ def validateMethod(typeTracker, method):
 		for param in method['parameters']:
 			pTracker = ErrorTracker(param['name'], tracker)
 			validateRequired(pTracker, param, ['name', 'summary', 'type'])
+			validateCommon(pTracker, param)
+			validateAllowedKeys(pTracker, param['name'], param.keys(), ('name', 'type', 'summary', 'optional', 'default'))
 
 	if 'examples' in method:
 		validateExamples(tracker, method['examples'])
@@ -219,6 +226,12 @@ def validateEvent(typeTracker, event):
 	tracker = ErrorTracker(event['name'], typeTracker)
 	validateRequired(tracker, event, ['name', 'summary'])
 	validateCommon(tracker, event)
+	if 'properties' in event:
+		for p in event['properties']:
+			pTracker = ErrorTracker(p['name'], tracker)
+			validateRequired(pTracker, p, ['name', 'summary'])
+			validateCommon(pTracker, p)
+			validateAllowedKeys(pTracker, p['name'], p.keys(), ('name', 'summary', 'type', 'deprecated', 'platforms'))
 
 def validateExamples(tracker, examples):
 	if not isinstance(examples, list):
