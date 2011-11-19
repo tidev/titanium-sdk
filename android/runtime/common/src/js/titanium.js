@@ -118,8 +118,8 @@ function createSandbox(ti) {
 	return sandbox;
 }
 
-function TiInclude(filename, baseUrl, context) {
-	var sourceUrl = url.resolve(baseUrl || Titanium.sourceUrl, filename);
+function initScopeVars(scopeVars, sourceUrl)
+{
 	var contextUrl = sourceUrl.href;
 
 	// Create a context-bound Titanium module.
@@ -127,16 +127,14 @@ function TiInclude(filename, baseUrl, context) {
 		contextUrl = require("rhino").getSourceUrl(sourceUrl);
 	}
 
-	var context = context || {};
-	context.sourceUrl = contextUrl;
-	var ti = new TitaniumWrapper(context);
+	scopeVars = scopeVars || {};
+	scopeVars.sourceUrl = contextUrl;
+	return scopeVars;
+}
+Titanium.initScopeVars = initScopeVars;
 
-	sandbox = createSandbox(ti);
-
-	if (kroll.runtime == 'rhino') {
-		return require("rhino").include(filename, baseUrl, sandbox);
-	}
-
+function getUrlSource(filename, sourceUrl)
+{
 	var source;
 
 	// Load the source code for the script.
@@ -151,8 +149,28 @@ function TiInclude(filename, baseUrl, context) {
 	} else {
 		throw new Error("Unable to load source for filename: " + filename);
 	}
+	return source;
+}
+Titanium.getUrlSource = getUrlSource;
 
+function TiInclude(filename, baseUrl, scopeVars) {
+	var sourceUrl = url.resolve(baseUrl, filename);
+	scopeVars = initScopeVars(scopeVars, sourceUrl);
+	var ti = new TitaniumWrapper(scopeVars);
+
+	sandbox = createSandbox(ti);
+
+	if (kroll.runtime == 'rhino') {
+		var useGlobalScope = true;
+		if ("useGlobalScope" in scopeVars) {
+			useGlobalScope = scopeVars.useGlobalScope;
+		}
+		return require("rhino").include(filename, baseUrl, sandbox, useGlobalScope);
+	}
+
+	var source = getUrlSource(filename, sourceUrl);
 	var wrappedSource = "with(sandbox) { " + source + "\n }";
+
 	return Script.runInThisContext(wrappedSource, sourceUrl.href, true);
 }
 TiInclude.prototype = global;
