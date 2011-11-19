@@ -7,7 +7,9 @@
 var EventEmitter = require("events").EventEmitter,
 	assets = kroll.binding("assets"),
 	vm = require("vm"),
-	url = require("url");
+	url = require("url"),
+	Script = kroll.binding('evals').Script;
+
 var TAG = "Window";
 
 exports.bootstrapWindow = function(Titanium) {
@@ -80,7 +82,6 @@ exports.bootstrapWindow = function(Titanium) {
 				return this.getActivityDecorView().getOrientationModes();
 			}
 		}
-
 		return this.cachedOrientationModes;
 	}
 	var orientationModesSetter = function(value) {
@@ -246,7 +247,22 @@ exports.bootstrapWindow = function(Titanium) {
 		this.currentState = this.state.opened;
 		this.fireEvent("open");
 	}
-	
+
+	Window.prototype.runWindowUrl = function(Ti, currentUrl) {
+		if (kroll.runtime == "rhino") {
+			require("rhino").include(this.url, this._sourceUrl, {
+				Ti: Ti,
+				Titanium: Ti
+			}, false);
+
+		} else {
+			var source = Titanium.getUrlSource(this.url, currentUrl);
+			var wrappedSource = "(function(Ti, Titanium) { " + source + "\n})";
+			var fn = Script.runInThisContext(wrappedSource, currentUrl.href, true);
+			fn(Ti, Ti);
+		}
+	}
+
 	Window.prototype.loadUrl = function() {
 		if (this.url == null) {
 			return;
@@ -257,17 +273,22 @@ exports.bootstrapWindow = function(Titanium) {
 		// Reset creationUrl of the window
 		var currentUrl = url.resolve(this._sourceUrl, this.url);
 		this.window.setCreationUrl(currentUrl.href);
-		
-		Titanium.include(this.url, this._sourceUrl, {
+
+		var scopeVars = {
 			currentWindow: this,
 			currentActivity: this.window.activity,
 			currentTab: this.tab,
 			currentTabGroup: this.tabGroup
-		});
+		};
+		scopeVars = Titanium.initScopeVars(scopeVars, currentUrl);
+
+		var ti = new Titanium.Wrapper(scopeVars);
+		this.runWindowUrl(ti, currentUrl);
 	}
 
 	Window.prototype.close = function(options) {
 		// if the window is not opened, do not close
+		
 		if (this.currentState != this.state.opened) {
 			kroll.log(TAG, "unable to close, window is not opened");
 			return;

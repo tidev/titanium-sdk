@@ -47,7 +47,10 @@ public class KrollWith extends NativeWith
 		public WithScope(ScriptableObject parent)
 		{
 			this.parent = parent;
-			this.associateValue("ClassCache", parent.getAssociatedValue("ClassCache"));
+			Object classCache = parent.getAssociatedValue("ClassCache");
+			if (classCache != null) {
+				this.associateValue("ClassCache", classCache);
+			}
 		}
 
 		public KrollWith getKrollWith()

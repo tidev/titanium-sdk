@@ -1,7 +1,7 @@
 var url = require("url"),
 	Script = kroll.binding("evals").Script;
 
-function include(filename, baseUrl, sandbox) {
+function include(filename, baseUrl, sandbox, useGlobalScope) {
 	var path = filename;
 	var sourceUrl = url.resolve(baseUrl, filename);
 
@@ -14,7 +14,7 @@ function include(filename, baseUrl, sandbox) {
 
 	// Delegate back to Java for evaluation in Rhino to correctly
 	// handle pre-compiled JS classes
-	Script.runInSandbox(path, getSourceUrl(sourceUrl), sandbox);
+	Script.runInSandbox(path, getSourceUrl(sourceUrl), sandbox, useGlobalScope);
 }
 exports.include = include;
 
