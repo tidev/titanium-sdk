@@ -324,7 +324,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		navController = [navbar_ retain];
 		controller = [controller_ retain];
 		[(TiViewController *)controller setProxy:self];
-		tab = [tab_ retain];
+		tab = (TiViewProxy<TiTab>*)[tab_ retain];
 		
 		[self _tabAttached];
 	}
@@ -601,10 +601,9 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	if([self viewAttached]) {
 		myview = [self view];
 	}
-	[[myview retain] autorelease];
-	
 	// hold ourself during close
-	[[self retain] autorelease];
+	[myview retain];	
+	[self retain];
 
 	[[[TiApp app] controller] willHideViewController:controller animated:YES];
 	VerboseLog(@"%@ (modal:%d)%@",self,modalFlag,CODELOCATION);
@@ -655,6 +654,8 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			[self windowClosed];
 		}
 	}
+	[myview release];
+	[self release];
 }
 
 -(void)attachViewToTopLevelWindow

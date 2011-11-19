@@ -3,6 +3,7 @@ name: Titanium.UI.ScrollableView
 description: The Scrollable View provides a view that supports horizontal scrolling on one or more views in a gesture motion.  The Scrollable View also optionally supports a visual paging control to indicate the page that the view is visible. The Scrollable View is created by the method <Titanium.UI.createScrollableView>.
 extends: Titanium.UI.View
 since: "0.8"
+platforms: [android, iphone, ipad]
 methods:
   - name: addView
     description: add a new view to the Scrollable View

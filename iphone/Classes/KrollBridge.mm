@@ -23,6 +23,12 @@
 
 extern BOOL const TI_APPLICATION_ANALYTICS;
 
+NSString * TitaniumModuleRequireFormat = @"(function(exports){"
+		"var __OXP=exports;var module={'exports':exports};%@;\n"
+		"if(module.exports !== __OXP){return module.exports;}"
+		"return exports;})({})";
+
+
 @implementation TitaniumObject
 
 -(NSDictionary*)modules
@@ -200,6 +206,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 #if KROLLBRIDGE_MEMORY_DEBUG==1
 		NSLog(@"INIT: %@",self);
 #endif		
+		modules = [[NSMutableDictionary alloc] init];
 		proxyLock = OS_SPINLOCK_INIT;
 		OSSpinLockLock(&krollBridgeRegistryLock);
 		CFSetAddValue(krollBridgeRegistry, self);
@@ -697,8 +704,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 -(id)loadCommonJSModule:(NSString*)code withPath:(NSString*)path
 {
-	NSString *js = [[NSString alloc] initWithFormat:
-					@"(function(exports){%@;return exports;})({})",code];
+	NSString *js = [[NSString alloc] initWithFormat:TitaniumModuleRequireFormat,code];
 	
 	NSDictionary *result = [self evalJSAndWait:js];
 	[js release];
@@ -745,27 +751,31 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		}
 	}
 	
-	// now see if this is a plus module that we need to dynamically
-	// load and create
-	NSString *moduleClassName = [self pathToModuleClassName:path];
-	id moduleClass = NSClassFromString(moduleClassName);
-	if (moduleClass!=nil)
-	{
-		module = [[moduleClass alloc] _initWithPageContext:self];
-		// we might have a module that's simply a JS native module wrapper
-		// in which case we simply load it and don't register our native module
-		if ([module isJSModule])
+	//If it's a relative path or has folder path bits, it cannot
+	//be a class name.
+	if (![path hasPrefix:@"."] && ([path rangeOfString:@"/"].location == NSNotFound)) {
+		// now see if this is a plus module that we need to dynamically
+		// load and create
+		NSString *moduleClassName = [self pathToModuleClassName:path];
+		id moduleClass = NSClassFromString(moduleClassName);
+		if (moduleClass!=nil)
 		{
-			data = [module moduleJS];
+			module = [[moduleClass alloc] _initWithPageContext:self];
+			// we might have a module that's simply a JS native module wrapper
+			// in which case we simply load it and don't register our native module
+			if ([module isJSModule])
+			{
+				data = [module moduleJS];
+			}
+			else
+			{
+				[module setHost:host];
+				[module _setName:moduleClassName];
+				// register it
+				[modules setObject:module forKey:path];
+			}
+			[module autorelease];
 		}
-		else
-		{
-			[module setHost:host];
-			[module _setName:moduleClassName];
-			// register it
-			[modules setObject:module forKey:path];
-		}
-		[module autorelease];
 	}
 	
 	if (data==nil)

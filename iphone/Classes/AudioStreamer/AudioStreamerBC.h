@@ -67,7 +67,7 @@
 }
 
 @property TI_AudioStreamerErrorCode errorCode;
-@property (readonly) TI_AudioStreamerState state;
+@property (nonatomic, readonly) TI_AudioStreamerState state;
 @property (readonly) double progress;
 @property (readwrite) UInt32 bitRate;
 @property (nonatomic,readwrite,assign) NSUInteger bufferSize;

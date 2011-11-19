@@ -15,15 +15,18 @@
 	GDataXMLDocument *document;
 }
 
--(void)setNode:(GDataXMLNode*)node_;
+@property(nonatomic,retain) GDataXMLNode *node;
 @property(nonatomic,retain)	GDataXMLDocument *document;
 
 -(NSString *)XMLString;
 -(id)makeNode:(id)child context:(id<TiEvaluator>)context;
 +(id)makeNode:(id)child context:(id<TiEvaluator>)context;
++(id)nodeForXMLNode:(xmlNodePtr) nodePtr;
++(void)setNode:(id)node forXMLNode:(xmlNodePtr) nodePtr;
++(void)removeNodeForXMLNode:(xmlNodePtr)nodePtr;
 
 @property(nonatomic,readonly) id nodeName;
-@property(nonatomic,readonly) id nodeValue;
+@property(nonatomic,copy,readwrite) id nodeValue;
 @property(nonatomic,readonly) id nodeType;
 
 @property(nonatomic,readonly) id text;

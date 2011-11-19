@@ -257,6 +257,7 @@
 {
     lastPage = [self currentPage];
     [super setFrame:frame_];
+	[self setCurrentPage_:[NSNumber numberWithInt:lastPage]];
 }
 
 -(void)setBounds:(CGRect)bounds_
@@ -445,11 +446,12 @@
 {
 	//switch page control at 50% across the center - this visually looks better
     CGFloat pageWidth = scrollview.frame.size.width;
-    int page = [self currentPage];
+    int page = currentPage;
     int nextPage = floor((scrollview.contentOffset.x - pageWidth / 2) / pageWidth) + 1;
 	if (page != nextPage) {
 		[pageControl setCurrentPage:nextPage];
 		currentPage = nextPage;
+		[self.proxy replaceValue:NUMINT(currentPage) forKey:@"currentPage" notification:NO];
         [self manageCache:currentPage];
 	}
 }

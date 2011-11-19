@@ -108,6 +108,11 @@ static void getAddrInternal(char* macAddress, const char* ifName) {
 	return [UIView instancesRespondToSelector:@selector(drawRect:forViewPrintFormatter:)];
 }
 
++(BOOL)isIOS5OrGreater
+{
+  return [UIAlertView instancesRespondToSelector:@selector(alertViewStyle)];
+}
+
 +(BOOL)isIPad
 {
 	return [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad;
@@ -1171,11 +1176,11 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 //	TODO: A previous bug was DeviceOrientationUnknown == 0, which is always true. Uncomment this when pushing.
 	if (UIDeviceOrientationUnknown == orient) 
 	{
-		return UIDeviceOrientationPortrait;
+		return (UIInterfaceOrientation)UIDeviceOrientationPortrait;
 	} 
 	else 
 	{
-		return orient;
+		return (UIInterfaceOrientation)orient;
 	}
 }
 

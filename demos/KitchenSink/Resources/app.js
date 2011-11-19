@@ -335,9 +335,6 @@ Ti.API.info("should be 1, was = "+String.format('%d',1));
 Ti.API.info("should be 1.0, was = "+String.format('%1.1f',1));
 Ti.API.info("should be hello, was = "+String.format('%s','hello'));
 
-Ti.API.info("instanceof check, should be true => " + (Ti.UI.createWindow() instanceof Ti.UI.createView()));
-Ti.API.info("instanceof check, should be false => " + (Ti.UI.createView() instanceof Ti.UI.createWindow()));
-
 // test to check that we can iterate over titanium based objects
 (function(){
 	Ti.API.info("you should see a list of properties (3 or more) below this line");
@@ -387,3 +384,22 @@ if (isiOS4Plus())
 		Ti.API.info("app was paused from the foreground");
 	});
 }
+
+if (Ti.App.Properties.getBool('showNotice', true)){
+	var alertNotice = Ti.UI.createAlertDialog({
+		buttonNames: ['OK', 'Visit docs', 'Don\'t show again'],
+		cancel:0,
+		title: 'Notice',
+		message: 'While this KitchenSink provides an extensive demonstration of the Titanium API\'s options, its structure is not recommended for production apps. Please refer to our documentation for the reasons for this.'
+	});
+	alertNotice.show();
+	alertNotice.addEventListener('click', function(e){
+		if(e.index === 1){
+			Titanium.Platform.openURL('http://wiki.appcelerator.org/display/guides/Example+Applications');
+		}
+		if(e.index === 2){
+			Ti.App.Properties.setBool('showNotice', false);
+		}
+	});
+}
+

@@ -26,7 +26,7 @@ except:
 	sys.exit(1)
 
 
-VALID_PLATFORMS = ["android", "iphone", "ipad"]
+VALID_PLATFORMS = ["android", "iphone", "ipad", "mobileweb"]
 types = {}
 errorTrackers = {}
 options = None
@@ -210,7 +210,7 @@ def validateProperty(typeTracker, property):
 			tracker.trackError('Required property for constant "permission" not found')
 		else:
 			if not property['permission'] == 'read-only':
-				tracker.trackError('Constant should have "read-only" permission.')
+				tracker.trackError("Constant should have 'read-only' permission.")
 
 def validateEvent(typeTracker, event):
 	tracker = ErrorTracker(event['name'], typeTracker)
@@ -226,6 +226,18 @@ def validateExamples(tracker, examples):
 			tracker.trackError('each example must be a dict with "title" and "example" members: %s' % example)
 			continue
 		validateMarkdown(tracker, example['example'], 'example')
+		
+def validateExcludes(tracker, excludes):
+	if not isinstance(excludes, dict):
+		tracker.trackError('"excludes" must be a dict and cannot be empty')
+		return
+	for category in excludes:
+		if category not in ['events','properties','methods']:
+			tracker.trackError('only "events","properties", and "methods" are allowed in "excludes": %s' % category)
+			continue
+		if not isinstance(excludes[category], list):
+			tracker.trackError('"%s" must be a list' % category)
+			continue
 
 def validateType(typeDoc):
 	typeName = typeDoc['name']
@@ -234,6 +246,8 @@ def validateType(typeDoc):
 
 	validateRequired(tracker, typeDoc, ['name', 'description'])
 	validateCommon(tracker, typeDoc)
+	if 'excludes' in typeDoc:
+		validateExcludes(tracker, typeDoc['excludes'])
 
 	if 'notes' in typeDoc:
 		validateMarkdown(tracker, typeDoc['notes'], 'notes')

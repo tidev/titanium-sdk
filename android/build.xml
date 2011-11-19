@@ -2,12 +2,11 @@
 	<property name="ti.android.root" location="${basedir}"/>
 
 	<import file="build/common.xml"/>
-	
+
 	<target name="full.build" depends="clean,build">
 	</target>
-	
+
 	<target name="clean" depends="clean.all" />
-	
+
 	<target name="build" depends="build.all" />
-	
 </project>

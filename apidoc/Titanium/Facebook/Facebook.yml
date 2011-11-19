@@ -10,6 +10,7 @@ description: |
     You must still set Ti.Facebook.appid within your app itself to use the facebook module.  This property is used only for configuring your app to interface with the facebook login process.
 extends: Titanium.Module
 since: "0.8"
+platforms: [android, iphone, ipad]
 methods:
   - name: authorize
     description: Login the user (if not already logged in) and authorize your application.  Be sure to set your desired `permissions` and your `appid` before calling this.

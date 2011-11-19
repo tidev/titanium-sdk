@@ -1,3 +1,0 @@
-<project name="json" default="build">
-	<import file="../../build/build-module.xml"/>
-</project>
