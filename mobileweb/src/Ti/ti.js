@@ -12,6 +12,14 @@
 	};
 	
 	api.include = function(files){
+		/* coming soon!
+		var i = 0;
+		typeof files === "array" || (files = [].concat(Array.prototype.slice.call(arguments, 0)));
+		for (; i < files.length; i++) {
+			require("include!" + files[i]);
+		}
+		*/
+
 		var head = document.getElementsByTagName('head')[0];
 		if(head == null){
 			head = document;
@@ -35,7 +43,7 @@
 					}
 				}
 			};
-			xhr.open("POST", absLocation, false);
+			xhr.open("GET", absLocation, false);
 			xhr.setRequestHeader("Access-Control-Allow-Origin","*");
 			xhr.setRequestHeader("Content-Type", "text/xml; charset=utf-8");
 			xhr.send(null);

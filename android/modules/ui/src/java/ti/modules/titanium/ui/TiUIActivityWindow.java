@@ -214,8 +214,12 @@ public class TiUIActivityWindow extends TiUIView
 
 	public void close(KrollDict options) 
 	{
-		Object animated = options.get(TiC.PROPERTY_ANIMATED);
 		boolean animateOnClose = animate;
+
+		Object animated = null;
+		if (options != null) {
+			animated = options.get(TiC.PROPERTY_ANIMATED);
+		}
 
 		if (animated != null) {
 			animateOnClose = TiConvert.toBoolean(animated);
@@ -426,7 +430,7 @@ public class TiUIActivityWindow extends TiUIView
 			handleBackgroundColor(newValue, false);
 
 		} else if (key.equals(TiC.PROPERTY_WIDTH) || key.equals(TiC.PROPERTY_HEIGHT)) {
-			Window w = proxy.getActivity().getWindow();
+			Window w = windowActivity.getWindow();
 			int width = lastWidth;
 			int height = lastHeight;
 

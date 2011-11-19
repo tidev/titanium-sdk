@@ -10,6 +10,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -37,6 +38,7 @@ public class TiUIScrollView extends TiUIView {
 	{
 		private static final int AUTO = Integer.MAX_VALUE;
 		protected int measuredWidth = 0, measuredHeight = 0;
+		private int parentWidth = 0, parentHeight = 0;
 
 		public TiScrollViewLayout(Context context, LayoutArrangement arrangement)
 		{
@@ -47,12 +49,22 @@ public class TiUIScrollView extends TiUIView {
 		{
 			return (LayoutParams)child.getLayoutParams();
 		}
-
+		
 		@Override
 		protected void onLayout(boolean changed, int l, int t, int r, int b)
 		{
 			super.onLayout(changed, l, t, r, b);
 			measuredHeight = measuredWidth = 0;
+		}
+
+		public void setParentWidth(int width)
+		{
+			parentWidth = width;
+		}
+
+		public void setParentHeight(int height)
+		{
+			parentHeight = height;
 		}
 
 		@Override
@@ -69,7 +81,17 @@ public class TiUIScrollView extends TiUIView {
 				if (value.equals(TiC.SIZE_AUTO)) {
 					return AUTO;
 				} else if (value instanceof Number) {
-					return ((Number)value).intValue();
+					return ((Number) value).intValue();
+				} else {
+					int type = 0;
+					TiDimension dimension;
+					if (TiC.PROPERTY_CONTENT_HEIGHT.equals(property)) {
+						type = TiDimension.TYPE_HEIGHT;
+					} else if (TiC.PROPERTY_CONTENT_WIDTH.equals(property)) {
+						type = TiDimension.TYPE_WIDTH;
+					}
+					dimension = new TiDimension(value.toString(), type);
+					return dimension.getUnits() == TiDimension.COMPLEX_UNIT_AUTO ? AUTO : dimension.getIntValue();
 				}
 			}
 			return AUTO;
@@ -82,45 +104,59 @@ public class TiUIScrollView extends TiUIView {
 			if (contentWidth == AUTO) {
 				int childMeasuredWidth = child.getMeasuredWidth();
 				if (!p.autoWidth) {
-					childMeasuredWidth = p.optionWidth.getAsPixels(this);
+					childMeasuredWidth = getDimensionValue(p.optionWidth, parentWidth);
 				}
 				if (p.optionLeft != null) {
-					childMeasuredWidth += p.optionLeft.getAsPixels(this);
+					childMeasuredWidth += getDimensionValue(p.optionLeft, parentWidth);
 				}
 				if (p.optionRight != null) {
-					childMeasuredWidth += p.optionRight.getAsPixels(this);
+					childMeasuredWidth += getDimensionValue(p.optionRight, parentWidth);
 				}
 
 				measuredWidth = Math.max(childMeasuredWidth, measuredWidth);
+				// Make parentWidth the minimum value
+				measuredWidth = Math.max(parentWidth, measuredWidth);
 			} else {
 				measuredWidth = contentWidth;
 			}
-			
+
 			return measuredWidth;
 		}
 
 		private int calculateAbsoluteBottom(View child)
 		{
-			LayoutParams p = (LayoutParams)child.getLayoutParams();
+			LayoutParams p = (LayoutParams) child.getLayoutParams();
 			int contentHeight = getContentProperty(TiC.PROPERTY_CONTENT_HEIGHT);
-			
+
 			if (contentHeight == AUTO) {
 				int childMeasuredHeight = child.getMeasuredHeight();
 				if (!p.autoHeight) {
-					childMeasuredHeight = p.optionHeight.getAsPixels(this);
+					childMeasuredHeight = getDimensionValue(p.optionHeight, parentHeight);
 				}
 				if (p.optionTop != null) {
-					childMeasuredHeight += p.optionTop.getAsPixels(this);
+					childMeasuredHeight += getDimensionValue(p.optionTop, parentHeight);
 				}
 				if (p.optionBottom != null) {
-					childMeasuredHeight += p.optionBottom.getAsPixels(this);
+					childMeasuredHeight += getDimensionValue(p.optionBottom, parentHeight);
 				}
 
 				measuredHeight = Math.max(childMeasuredHeight, measuredHeight);
+				// Make parentHeight the minimum value
+				measuredHeight = Math.max(parentHeight, measuredHeight);
 			} else {
 				measuredHeight = contentHeight;
 			}
 			return measuredHeight;
+		}
+
+		private int getDimensionValue(TiDimension dimension, int parentValue)
+		{
+			// getAsPixels doesn't return the correct value for percentages, so we manually calculate the percentage
+			// values here
+			if (dimension.isUnitPercent()) {
+				return (int) ((dimension.getValue() / 100.0) * parentValue);
+			}
+			return dimension.getAsPixels(this);
 		}
 
 		@Override
@@ -211,6 +247,14 @@ public class TiUIScrollView extends TiUIView {
 			data.put(TiC.EVENT_PROPERTY_Y, t);
 			getProxy().fireEvent(TiC.EVENT_SCROLL, data);
 		}
+
+		@Override
+		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+		{
+			layout.setParentHeight(MeasureSpec.getSize(heightMeasureSpec));
+			layout.setParentWidth(MeasureSpec.getSize(widthMeasureSpec));
+			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+		}
 	}
 
 	private class TiHorizontalScrollView extends HorizontalScrollView
@@ -248,6 +292,14 @@ public class TiUIScrollView extends TiUIView {
 			data.put(TiC.EVENT_PROPERTY_X, l);
 			data.put(TiC.EVENT_PROPERTY_Y, t);
 			getProxy().fireEvent(TiC.EVENT_SCROLL, data);
+		}
+
+		@Override
+		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+		{
+			layout.setParentHeight(MeasureSpec.getSize(heightMeasureSpec));
+			layout.setParentWidth(MeasureSpec.getSize(widthMeasureSpec));
+			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		}
 	}
 
