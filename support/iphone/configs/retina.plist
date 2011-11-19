@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>LocationMode</key>
+	<integer>3102</integer>
+	<key>NSWindow Frame iPhoneSimulatorWindow</key>
+	<string>922 136 386 742 0 0 1440 878 </string>
+	<key>NSWindow Frame iPhoneSimulatorWindow.0.0.500000</key>
+	<string>1064 14 724 1044 0 0 1920 1058 </string>
+	<key>NSWindow Frame iPhoneSimulatorWindow.2.0.500000</key>
+	<string>664 253 466 616 0 0 1920 1058 </string>
+	<key>NSWindow Frame iPhoneSimulatorWindow.2.0.750000</key>
+	<string>620 115 679 893 0 0 1920 1058 </string>
+	<key>SimulateDevice</key>
+	<string>iPhone (Retina)</string>
+</dict>
+</plist>
