@@ -841,6 +841,11 @@ def main(args):
 				ird = os.path.join(project_dir,'Resources','iphone')
 				if os.path.exists(ird): 
 					module_asset_dirs.append([ird,app_dir])
+					
+				# We also need to copy over the contents of 'platform/iphone'
+				platform_iphone = os.path.join(project_dir,'platform','iphone')
+				if os.path.exists(platform_iphone):
+					module_asset_dirs.append([platform_iphone,app_dir])
 				
 				for ext in ('ttf','otf'):
 					for f in glob.glob('%s/*.%s' % (os.path.join(project_dir,'Resources'),ext)):
