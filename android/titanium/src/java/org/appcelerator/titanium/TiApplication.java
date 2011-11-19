@@ -580,7 +580,12 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 	{
 		TiUIHelper.waitForCurrentActivity(l);
 	}
-	
+
+	public boolean isDebuggerEnabled()
+	{
+		return getDeployData().isDebuggerEnabled();
+	}
+
 	private void startExternalStorageMonitor()
 	{
 		externalStorageReceiver = new BroadcastReceiver()

@@ -369,6 +369,21 @@
 {
 	UITableView *table = [self tableView];
     
+    // Apple kindly forces animations whenever we're inserting/deleting in a no-animation
+    // way, meaning that we have to explicitly reload the whole visible table to get
+    // the "right" behavior.
+    if (animation == UITableViewRowAnimationNone) {
+        if (![NSThread isMainThread]) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [table reloadData];
+            });
+        }
+        else {
+            [table reloadData];            
+        }
+        return;
+    }
+    
 	//Table views hate having 0 sections, so we have to act like it has at least 1.
 	oldCount = MAX(1,oldCount);
 	newCount = MAX(1,newCount);
@@ -531,6 +546,7 @@
 	ENSURE_UI_THREAD(dispatchAction,action);
 	
 	NSMutableArray * sections = [(TiUITableViewProxy *)[self proxy] sections];
+    BOOL reloadSearch = NO;
 	switch (action.type)
 	{
 		case TiUITableViewActionRowReload:
@@ -674,6 +690,7 @@
 		case TiUITableViewActionSetData:
 		{
 			[self replaceData:action.obj animation:action.animation];
+            reloadSearch = YES;
 			break;
 		}
 		case TiUITableViewActionAppendRow:
@@ -695,9 +712,18 @@
 	}
 
 	if ([searchController searchResultsTableView] != nil) {
-		[self updateSearchResultIndexes];
-		[[searchController searchResultsTableView] reloadSections:[NSIndexSet indexSetWithIndex:0]
-                                                  withRowAnimation:UITableViewRowAnimationFade];
+        [self updateSearchResultIndexes];
+        
+        // Because -[UITableView reloadData] queues on the main runloop, we need to sync the search
+        // table reload to the same method. The only time we reloadData, though, is when setting the
+        // data, so toggle a flag to indicate what the search should do.
+        if (reloadSearch) {
+            [[searchController searchResultsTableView] reloadData];
+        }
+        else {
+            [[searchController searchResultsTableView] reloadSections:[NSIndexSet indexSetWithIndex:0]
+                                                     withRowAnimation:UITableViewRowAnimationFade];
+        }
 	}
 }
 
@@ -1896,16 +1922,29 @@ if(ourTableView != tableview)	\
 				break;
 		}
 	}
+    /*
+     * Keeping this code in for historical reasons, because:
+     *
+     * Prior to iOS 5, this method (tableView:heightForHeaderInSection:) had its return value IGNORED
+     * for sections which returned `nil` for tableView:viewForHeaderInSection: -
+     * meaning that it was dead code.
+     *
+     * But in iOS 5, if this method is here, then it is ALWAYS called, even if that return value
+     * is nil; meaning we were previously providing the default spacing (which, contrary to
+     * our HEADERFOOTER_HEIGHT constant, is apparently not 20px and also apparently not 
+     * -[UITableView sectionHeaderHeight]).
+     *
+     * Returning a value of 0 coereces the table into rendering the section of "empty" header height,
+     * which is the behavior consistent with iOS <5.0 behavior.
 	else if ([sectionProxy headerTitle]!=nil)
 	{
 		hasTitle = YES;
-		size+=[tableview sectionHeaderHeight];
+		size = [tableview sectionHeaderHeight];
+        if (size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT) {
+            size = DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+        }
 	}
-	
-	if (hasTitle && size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT)
-	{
-		size += DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
-	}
+     */
 	return size;
 }
 
