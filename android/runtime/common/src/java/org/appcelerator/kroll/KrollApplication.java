@@ -20,5 +20,6 @@ public interface KrollApplication
 	public Activity getCurrentActivity();
 	
 	public void waitForCurrentActivity(CurrentActivityListener l);
-	
+
+	public boolean isDebuggerEnabled();
 }

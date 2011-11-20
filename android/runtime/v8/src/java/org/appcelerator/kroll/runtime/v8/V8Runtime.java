@@ -30,8 +30,9 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 			useGlobalRefs = false;
 		}
 
+		boolean debuggerEnabled = getKrollApplication().isDebuggerEnabled();
 		System.loadLibrary("kroll-v8");
-		nativeInit(useGlobalRefs);
+		nativeInit(useGlobalRefs, debuggerEnabled);
 	}
 
 	@Override
@@ -72,7 +73,7 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 
 
 	// JNI method prototypes
-	private native void nativeInit(boolean useGlobalRefs);
+	private native void nativeInit(boolean useGlobalRefs, boolean debuggerActive);
 	private native void nativeRunModule(String source, String filename, KrollProxySupport activityProxy);
 	private native void nativeProcessDebugMessages();
 	private native void nativeDispose();

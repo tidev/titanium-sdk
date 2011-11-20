@@ -216,6 +216,7 @@ class Compiler(object):
 
 		resources_dir = os.path.join(project_dir,'Resources')
 		iphone_resources_dir = os.path.join(resources_dir,'iphone')
+		iphone_platform_dir = os.path.join(project_dir,'platform','iphone')
 
 		# copy in any resources in our module like icons
 		# NOTE: This means that any JS-only modules in the local project
@@ -236,14 +237,13 @@ class Compiler(object):
 			
 			detector = ModuleDetector(project_dir)
 			missing_modules, modules = detector.find_app_modules(ti, 'iphone')
-			
-			project_module_dir = os.path.join(project_dir,'modules','iphone')
-			if os.path.exists(project_module_dir):
-				self.copy_resources([project_module_dir],app_dir,False)
 		
 			# we have to copy these even in simulator given the path difference
 			if os.path.exists(app_dir):
 				self.copy_resources([iphone_resources_dir],app_dir,False)
+				
+			if os.path.exists(app_dir):
+				self.copy_resources([iphone_platform_dir],app_dir,False)
 
 			# generate the includes for all compiled modules
 			xcconfig_c = "// this is a generated file - DO NOT EDIT\n\n"
