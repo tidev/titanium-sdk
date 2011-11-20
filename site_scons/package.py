@@ -124,6 +124,9 @@ def zip_android(zf, basepath):
 	ant_tasks_jar = os.path.join(android_dist_dir, 'ant-tasks.jar')
 	zf.write(ant_tasks_jar, '%s/module/android/ant-tasks.jar' % basepath)
 
+	ant_contrib_jar = os.path.join(top_dir, 'android', 'build', 'lib', 'ant-contrib-1.0b3.jar')
+	zf.write(ant_contrib_jar, '%s/module/android/ant-contrib-1.0b3.jar' % basepath)
+
 	kroll_apt_lib_dir = os.path.join(top_dir, 'android', 'kroll-apt', 'lib')
 	for jar in os.listdir(kroll_apt_lib_dir):
 		if jar.endswith('.jar'):

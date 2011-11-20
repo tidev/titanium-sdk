@@ -25,6 +25,7 @@ import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -68,6 +69,7 @@ public class KrollJSONGenerator extends AbstractProcessor {
 	protected static final String KrollNativeConverter = Kroll_package + ".KrollNativeConverter";
 	protected static final String KrollJavascriptConverter = Kroll_package + ".KrollJavascriptConverter";
 	protected static final String KrollModule = Kroll_package + ".KrollModule";
+	protected static final String TiContext = "org.appcelerator.titanium.TiContext";
 
 	// this needs to mirror Kroll.DEFAULT_NAME
 	protected static final String DEFAULT_NAME = "__default_name__";
@@ -76,8 +78,10 @@ public class KrollJSONGenerator extends AbstractProcessor {
 	protected static final String PROPERTY_JSON_PACKAGE = "kroll.jsonPackage";
 	protected static final String PROPERTY_JSON_FILE = "kroll.jsonFile";
 	protected static final String PROPERTY_PROJECT_DIR = "kroll.projectDir";
+	protected static final String PROPERTY_CHECK_TICONTEXT = "kroll.checkTiContext";
 	protected static final String DEFAULT_JSON_PACKAGE = "org.appcelerator.titanium.gen";
 	protected static final String DEFAULT_JSON_FILE = "bindings.json";
+	protected static final boolean DEFAULT_CHECK_TICONTEXT = false;
 
 	// we make these generic because they may be initialized by JSON
 	protected Map<Object, Object> properties = new HashMap<Object, Object>();
@@ -87,6 +91,7 @@ public class KrollJSONGenerator extends AbstractProcessor {
 	protected String jsonPackage, jsonFile;
 
 	protected boolean initialized = false;
+	protected boolean checkTiContext;
 
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations,
@@ -142,6 +147,9 @@ public class KrollJSONGenerator extends AbstractProcessor {
 		String jsonFile = processingEnv.getOptions().get(PROPERTY_JSON_FILE);
 		this.jsonFile = jsonFile != null ? jsonFile : DEFAULT_JSON_FILE;
 
+		String checkTiContext = processingEnv.getOptions().get(PROPERTY_CHECK_TICONTEXT);
+		this.checkTiContext = checkTiContext != null ? Boolean.parseBoolean(checkTiContext) : DEFAULT_CHECK_TICONTEXT;
+
 		try {
 			FileObject bindingsFile = processingEnv.getFiler().getResource(
 				StandardLocation.SOURCE_OUTPUT, this.jsonPackage, this.jsonFile);
@@ -182,6 +190,30 @@ public class KrollJSONGenerator extends AbstractProcessor {
 				return jsonUtils.getOrCreateMap(jsonUtils.getOrCreateMap(properties, "modules"), moduleClassName);
 			}
 
+			protected void checkProxyConstructor(Element element)
+			{
+				List<? extends Element> elements = element.getEnclosedElements();
+				for (Element el : elements) {
+					if (!(el instanceof ExecutableElement)) {
+						continue;
+					}
+
+					ExecutableElement executable = (ExecutableElement) el;
+					if (!executable.getKind().equals(ElementKind.CONSTRUCTOR)) {
+						continue;
+					}
+
+					List<? extends VariableElement> parameters = executable.getParameters();
+					
+					if (parameters.size() == 1) {
+						String paramType = utils.getType(parameters.get(0));
+						if (TiContext.equals(paramType)) {
+							proxyProperties.put("useTiContext", true);
+						}
+					}
+				}
+			}
+
 			@Override
 			public boolean visit(AnnotationMirror annotation, Object arg) {
 				boolean isModule = utils.annotationTypeIs(annotation, Kroll_module);
@@ -190,6 +222,8 @@ public class KrollJSONGenerator extends AbstractProcessor {
 				String fullProxyClassName = String.format("%s.%s", packageName, proxyClassName);
 
 				proxyProperties = getProxyProperties(packageName, proxyClassName);
+
+				checkProxyConstructor(element);
 
 				String genClassName = proxyClassName + "BindingGen";
 				String sourceName = String.format("%s.%s", packageName, genClassName);

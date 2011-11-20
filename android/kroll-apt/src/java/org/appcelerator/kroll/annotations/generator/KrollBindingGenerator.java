@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
 
@@ -34,7 +33,7 @@ public class KrollBindingGenerator
 	private String runtime, outPath;
 	private Configuration fmConfig;
 	private Template v8SourceTemplate, v8HeaderTemplate;
-	private Template rhinoSourceTemplate, rhinoBindingsTemplate;
+	private Template rhinoSourceTemplate, rhinoGeneratedBindingsTemplate, rhinoModuleBindingsTemplate;
 	private ArrayList<HashMap<String, String>> rhinoBindings = new ArrayList<HashMap<String, String>>();
 	private HashMap<String, Object> apiTree = new HashMap<String, Object>();
 	private HashMap<String, Object> proxies = new HashMap<String, Object>();
@@ -76,16 +75,22 @@ public class KrollBindingGenerator
 
 			} else if (RUNTIME_RHINO.equals(runtime)) {
 				InputStream rhinoSourceStream = loader.getResourceAsStream(templatePackage + "ProxyBindingRhino.java.fm");
-				InputStream rhinoBindingsStream = loader.getResourceAsStream(templatePackage + "KrollGeneratedBindingsRhino.java.fm");
+				InputStream rhinoGeneratedBindingsStream = loader.getResourceAsStream(templatePackage + "KrollGeneratedBindingsRhino.java.fm");
+				InputStream rhinoModuleBindingsStream = loader.getResourceAsStream(templatePackage + "KrollModuleBindingsRhino.java.fm");
 
 				rhinoSourceTemplate = new Template(
 					"ProxyBindingRhino.java.fm",
 					new InputStreamReader(rhinoSourceStream),
 					fmConfig);
 
-				rhinoBindingsTemplate = new Template(
+				rhinoGeneratedBindingsTemplate = new Template(
 					"KrollGeneratedBindingsRhino.java.fm",
-					new InputStreamReader(rhinoBindingsStream),
+					new InputStreamReader(rhinoGeneratedBindingsStream),
+					fmConfig);
+
+				rhinoModuleBindingsTemplate = new Template(
+					"KrollModuleBindingsRhino.java.fm",
+					new InputStreamReader(rhinoModuleBindingsStream),
 					fmConfig);
 			}
 		} catch (IOException e) {
@@ -241,21 +246,30 @@ public class KrollBindingGenerator
 		}
 	}
 
-	protected void generateRhinoBindings()
+	protected void generateRhinoBindings(boolean isModule, String packageName, String className)
 	{
 		HashMap<Object, Object> root = new HashMap<Object, Object>();
 		root.put("bindings", rhinoBindings);
 
-		saveTypeTemplate(rhinoBindingsTemplate,
-			"org/appcelerator/kroll/runtime/rhino/KrollGeneratedBindings.java",
-			root);
+		if (isModule) {
+			String path = packageName.replaceAll(".", "/");
+			root.put("packageName", packageName);
+			root.put("className", className);
+
+			saveTypeTemplate(rhinoModuleBindingsTemplate, path + "/" + className + ".java", root);
+
+		} else {
+			saveTypeTemplate(rhinoGeneratedBindingsTemplate,
+				"org/appcelerator/kroll/runtime/rhino/KrollGeneratedBindings.java",
+				root);
+		}
 	}
 
 	public static void main(String[] args)
 		throws Exception
 	{
-		if (args.length < 3) {
-			System.err.println("Usage: KrollBindingGenerator <runtime> <outdir> <binding.json> [<binding.json> ...]");
+		if (args.length < 6) {
+			System.err.println("Usage: KrollBindingGenerator <runtime> <outdir> <isModule> <modulePackage> <moduleClassName> <binding.json> [<binding.json> ...]");
 			System.exit(1);
 		}
 
@@ -270,7 +284,7 @@ public class KrollBindingGenerator
 		KrollBindingGenerator generator = new KrollBindingGenerator(runtime, outDir);
 
 		// First pass to generate the entire API tree
-		for (int i = 2; i < args.length; i++) {
+		for (int i = 5; i < args.length; i++) {
 			generator.loadBindings(args[i]);
 		}
 
@@ -278,7 +292,10 @@ public class KrollBindingGenerator
 		generator.generateBindings();
 
 		if (RUNTIME_RHINO.equals(runtime)) {
-			generator.generateRhinoBindings();
+			boolean isModule = "true".equalsIgnoreCase(args[2]);
+			String packageName = args[3];
+			String className = args[4];
+			generator.generateRhinoBindings(isModule, packageName, className);
 		}
 	}
 

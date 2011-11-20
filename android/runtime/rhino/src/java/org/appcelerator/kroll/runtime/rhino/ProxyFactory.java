@@ -12,6 +12,7 @@ import org.appcelerator.kroll.KrollProxySupport;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 
 import android.util.Log;
 
@@ -38,13 +39,24 @@ public class ProxyFactory
 		Function constructor = proxyConstructors.get(proxyClassName);
 		if (constructor == null) {
 			Scriptable exports = KrollBindings.getBinding(context, scope, proxyClassName);
-			if (exports == null) {
-				Log.e(TAG, "Failed to find prototype class for " + proxyClassName);
-				return null;
-			}
 
-			String bindingName = KrollGeneratedBindings.getBindingName(proxyClassName);
-			constructor = (Function) exports.get(bindingName, exports);
+			if (exports != null) {
+				String bindingName = KrollGeneratedBindings.getBindingName(proxyClassName);
+				constructor = (Function) exports.get(bindingName, exports);
+
+			} else {
+				// Fall back to our external / 3rd party modules
+				exports = KrollBindings.getExternalBinding(context, scope, proxyClassName);
+
+				if (exports != null) {
+					Object ids[] = exports.getIds();
+					constructor = (Function) ScriptableObject.getProperty(exports, (String) ids[0]);
+
+				} else {
+					Log.e(TAG, "Failed to find prototype class for " + proxyClassName);
+					return null;
+				}
+			}
 		}
 
 		return (Proxy) constructor.construct(context, scope, args);
