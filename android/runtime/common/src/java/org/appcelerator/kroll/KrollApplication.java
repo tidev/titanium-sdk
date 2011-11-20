@@ -30,4 +30,6 @@ public interface KrollApplication
 	public boolean isFastDevMode();
 
 	public String getAppGUID();
+
+	public boolean isDebuggerEnabled();
 }

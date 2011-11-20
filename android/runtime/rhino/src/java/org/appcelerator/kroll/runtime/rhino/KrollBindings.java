@@ -132,7 +132,7 @@ public class KrollBindings
 		} else if (BINDING_API.equals(name)) {
 			Scriptable exports = context.newObject(scope);
 			exports.put("API", exports,
-				Context.javaToJS(new KrollLogging("TiAPI"), scope));
+				Context.javaToJS(KrollLogging.getDefault(), scope));
 
 			bindingCache.put(name, exports);
 			return exports;
