@@ -53,7 +53,7 @@ class Compiler(object):
 			self.add_required_module(required)
 
 		# TODO switch default runtime to Rhino
-		runtime = tiapp.app_properties.get('ti.android.runtime', 'v8')
+		runtime = tiapp.app_properties.get('ti.android.runtime', 'rhino')
 		for runtime_jar in self.depends_map['runtimes'][runtime]:
 			self.jar_libraries.add(os.path.join(template_dir, runtime_jar))
 
