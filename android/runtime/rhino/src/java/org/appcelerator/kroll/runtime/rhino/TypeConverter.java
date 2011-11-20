@@ -134,13 +134,7 @@ public class TypeConverter
 		if (value == null) {
 			return null;
 		}
-
-		int length = value.length;
-		String[] jsArray = new String[length];
-		for (int i = 0; i < length; i++) {
-			jsArray[i] = (String) javaObjectToJsObject(value[i], scope);
-		}
-		return Context.getCurrentContext().newArray(scope, jsArray);
+		return Context.getCurrentContext().newArray(scope, value);
 	}
 
 
