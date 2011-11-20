@@ -10,19 +10,22 @@ import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.Undefined;
 
 /**
- * A wrapper sandbox that delegates correctly to the global object
- *
+ * A wrapper sandbox that delegates correctly to the passed in context global object
  */
 public class GlobalSandbox extends ScriptableObject
 {
 	private static final long serialVersionUID = -6159432408659287514L;
 
 	private boolean putOnGlobalScope = false;
+	private Scriptable global;
 
-	public GlobalSandbox(Scriptable sandbox)
+	public GlobalSandbox(Scriptable sandbox, Scriptable global)
 	{
+		this.global = global;
+
 		Object[] ids = sandbox.getIds();
 		if (ids == null) {
 			return;
@@ -31,7 +34,8 @@ public class GlobalSandbox extends ScriptableObject
 		for (Object id: ids) {
 			if (id instanceof String) {
 				String idStr = (String) id;
-				putProperty(this, idStr, getProperty(sandbox, idStr));
+				Object value = getProperty(sandbox, idStr);
+				putProperty(this, idStr, value);
 
 			} else if (id instanceof Number) {
 				int idNumber = ((Number) id).intValue();
@@ -54,7 +58,16 @@ public class GlobalSandbox extends ScriptableObject
 		@Override
 		public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 		{
-			return new GlobalSandbox((Scriptable) args[0]);
+			Scriptable sandbox = (Scriptable) args[0];
+
+			Scriptable global = RhinoRuntime.getGlobalScope();
+			if (args[1] instanceof Scriptable) {
+				global = (Scriptable) args[1];
+			}
+
+			GlobalSandbox globalSandbox = new GlobalSandbox(sandbox, global);
+			globalSandbox.setParentScope(null);
+			return globalSandbox;
 		}
 	}
 
@@ -62,7 +75,6 @@ public class GlobalSandbox extends ScriptableObject
 	public void put(String name, Scriptable start, Object value)
 	{
 		if (putOnGlobalScope) {
-			Scriptable global = RhinoRuntime.getGlobalScope();
 			putProperty(global, name, value);
 			return;
 		}

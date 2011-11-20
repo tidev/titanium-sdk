@@ -12,7 +12,6 @@ import org.appcelerator.kroll.runtime.rhino.RhinoRuntime;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.Undefined;
@@ -72,19 +71,12 @@ public class ScriptsModule extends ScriptableObject
 		}
 	}
 
-	private static Object runInSandbox(Context context, Scriptable scope, Scriptable sandbox, String path, String url, boolean useGlobalScope)
+	private static Object runInSandbox(Context context, Scriptable scope, Scriptable sandbox, String path, String url, Scriptable global)
 	{
-		Scriptable global = RhinoRuntime.getGlobalScope();
 		Object result = Undefined.instance;
 
 		ScriptableObject.putProperty(global, "sandbox", sandbox);
-
-		Scriptable executionScope;
-		if (useGlobalScope) {
-			executionScope = KrollWith.enterWith(sandbox, RhinoRuntime.getGlobalScope());
-		} else {
-			executionScope = sandbox;
-		}
+		Scriptable executionScope = KrollWith.enterWith(sandbox, global);
 
 		if (path.contains(".jar:")) {
 			// this allows us to load pre-compiled js directly using a jar / classname
@@ -103,9 +95,7 @@ public class ScriptsModule extends ScriptableObject
 
 		}
 
-		if (useGlobalScope) {
-			KrollWith.leaveWith();
-		}
+		KrollWith.leaveWith();
 
 		return result;
 	}
@@ -118,7 +108,7 @@ public class ScriptsModule extends ScriptableObject
 		public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 		{
 			if (args.length < 2) {
-				throw new IllegalArgumentException("runInThisContext requires 2 args: code, filename[, displayError]");
+				throw new IllegalArgumentException("runInThisContext requires 2 args: code, filename[, displayError, contextGlobal]");
 			}
 
 			String code = (String) args[0];
@@ -129,28 +119,35 @@ public class ScriptsModule extends ScriptableObject
 				displayError = ((Boolean) args[2]).booleanValue();
 			}
 
-			return runSource(cx, RhinoRuntime.getGlobalScope(), code, filename, displayError);
+			Scriptable global = RhinoRuntime.getGlobalScope();
+			Scriptable contextGlobal = global;
+			if (args.length > 3 && args[3] instanceof Scriptable) {
+				contextGlobal = (Scriptable) args[3];
+				contextGlobal.setParentScope(null);
+				cx.initStandardObjects((ScriptableObject) contextGlobal);
+			}
+
+			return runSource(cx, contextGlobal, code, filename, displayError);
 		}
 	}
 
 	private static class RunInSandbox extends BaseFunction
 	{
-
 		private static final long serialVersionUID = -8831485691910010234L;
 
 		@Override
 		public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 		{
-			if (args.length < 2) {
-				throw new IllegalArgumentException("runCompiledInSandbox requires 2 args: url, sandbox");
+			if (args.length < 4) {
+				throw new IllegalArgumentException("runInSandbox requires 4 args: path, url, sandbox, global");
 			}
 
 			String path = (String) args[0];
 			String url = (String) args[1];
 			Scriptable sandbox = (Scriptable) args[2];
-			Boolean useGlobalScope = (Boolean) args[3];
+			Scriptable global = (Scriptable) args[3];
 
-			return runInSandbox(cx, scope, sandbox, path, url, useGlobalScope);
+			return runInSandbox(cx, scope, sandbox, path, url, global);
 		}
 	}
 

@@ -248,19 +248,15 @@ exports.bootstrapWindow = function(Titanium) {
 		this.fireEvent("open");
 	}
 
-	Window.prototype.runWindowUrl = function(Ti, currentUrl) {
-		if (kroll.runtime == "rhino") {
-			require("rhino").include(this.url, this._sourceUrl, {
-				Ti: Ti,
-				Titanium: Ti
-			}, false);
+	Window.prototype.runWindowUrl = function(scopeVars) {
+		var parent = this._module || kroll.Module.main;
+		var moduleId = this.url;
 
-		} else {
-			var source = Titanium.getUrlSource(this.url, currentUrl);
-			var wrappedSource = "(function(Ti, Titanium) { " + source + "\n})";
-			var fn = Script.runInThisContext(wrappedSource, currentUrl.href, true);
-			fn(Ti, Ti);
+		if (this.url.indexOf(".js") == this.url.length - 3) {
+			moduleId = this.url.substring(0, this.url.length - 3);
 		}
+
+		parent.require(moduleId, scopeVars, false);
 	}
 
 	Window.prototype.loadUrl = function() {
@@ -269,7 +265,7 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 
 		kroll.log(TAG, "Loading window with URL: " + this.url);
-		
+
 		// Reset creationUrl of the window
 		var currentUrl = url.resolve(this._sourceUrl, this.url);
 		this.window.setCreationUrl(currentUrl.href);
@@ -282,13 +278,12 @@ exports.bootstrapWindow = function(Titanium) {
 		};
 		scopeVars = Titanium.initScopeVars(scopeVars, currentUrl);
 
-		var ti = new Titanium.Wrapper(scopeVars);
-		this.runWindowUrl(ti, currentUrl);
+		this.runWindowUrl(scopeVars);
 	}
 
 	Window.prototype.close = function(options) {
 		// if the window is not opened, do not close
-		
+
 		if (this.currentState != this.state.opened) {
 			kroll.log(TAG, "unable to close, window is not opened");
 			return;
@@ -437,6 +432,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 		window._sourceUrl = scopeVars.sourceUrl;
 		window._currentActivity = scopeVars.currentActivity; // don't think we are using this, remove?
+		window._module = scopeVars.module;
 
 		return window;
 	}
