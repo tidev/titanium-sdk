@@ -163,9 +163,9 @@ class Compiler(object):
 		sys.stdout.flush()
 		so, se = run.run(jsc_args, ignore_error=True, return_error=True)
 		if not se is None and len(se):
-			sys.stderr.write("[ERROR] %s\n" % se)
+			sys.stderr.write("[WARN] %s\n" % se)
 			sys.stderr.flush()
-			sys.exit(1)
+			#sys.exit(1)
 		os.unlink(fullpath)
 		os.rename(fullpath+'-compiled',fullpath)
 
