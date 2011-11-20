@@ -163,9 +163,19 @@ class Compiler(object):
 		sys.stdout.flush()
 		so, se = run.run(jsc_args, ignore_error=True, return_error=True)
 		if not se is None and len(se):
-			sys.stderr.write("[WARN] %s\n" % se)
+			errors_value = re.sub(r'.*\n+', '', re.sub(r'.error\(s\).*', '', se, flags=re.DOTALL), flags=re.DOTALL)
+			errors_count = int(errors_value)
+
+			if errors_count > 0:
+				sys.stderr.write("[ERROR] %s\n" % se)
+			else:
+				sys.stderr.write("[WARN] %s\n" % se)
+
 			sys.stderr.flush()
-			#sys.exit(1)
+
+			if errors_count > 0:
+				sys.exit(1)
+
 		os.unlink(fullpath)
 		os.rename(fullpath+'-compiled',fullpath)
 
