@@ -8,11 +8,35 @@
 		get: function(){return _accessToken;},
 		set: function(val){return _accessToken = val;}
 	});
+	
+	var _facebookInitialized = false;
+	var _loginAfterInitialization = false;
+	function _initFacebook() {
+		FB.init({
+			appId  : _appid, // App ID
+			status : true, // check login status
+			cookie : true, // enable cookies to allow the server to access the session
+			oauth  : true, // enable OAuth 2.0
+			xfbml  : true  // parse XFBML
+		});
+		FB.getLoginStatus(function(response){
+			var connected = response.status == "connected" && _initSession(response);
+			_facebookInitialized = true;
+			if(!connected && _loginAfterInitialization) {
+				_loginInternal();
+			}
+		});
+	}
 
 	var _appid = null;
 	Object.defineProperty(api, 'appid', {
 		get: function(){return _appid;},
-		set: function(val){return _appid = val;}
+		set: function(val){
+			if (_facebookLoaded) {
+				_initFacebook();
+			}
+			return _appid = val;
+		}
 	});
 
 	var _expirationDate = null;
@@ -73,20 +97,27 @@
 	};
 	
 	// Create the div required by Facebook
-	var _fbDiv = document.createElement('div');
-	_fbDiv.id = 'fb-root';
-	document.body.appendChild(_fbDiv);
+	var _facebookDiv = document.createElement('div');
+	_facebookDiv.id = 'fb-root';
+	document.body.appendChild(_facebookDiv);
 	
 	// Load the Facebook SDK Asynchronously.
-	
-	var _fbDivID = 'facebook-jssdk'; 
-	if (!document.getElementById(_fbDivID)) {
-		var _fbScriptTag = document.createElement('script');
-		_fbScriptTag.id = _fbDivID; 
-		_fbScriptTag.async = true;
-		_fbScriptTag.src = "//connect.facebook.net/en_US/all.js";
+	var _facebookDivID = 'facebook-jssdk'; 
+	if (!document.getElementById(_facebookDivID)) {
+		var _facebookScriptTag = document.createElement('script');
+		_facebookScriptTag.id = _facebookDivID; 
+		_facebookScriptTag.async = true;
+		_facebookScriptTag.src = "//connect.facebook.net/en_US/all.js";
 		var _head = document.getElementsByTagName ("head")[0];
-		_head.insertBefore(_fbScriptTag, _head.firstChild);
+		_head.insertBefore(_facebookScriptTag, _head.firstChild);
+	}
+	
+	var _facebookLoaded = false;
+	window.fbAsyncInit = function() {
+		_facebookLoaded = true;
+		if (_appid) {
+			_initFacebook();
+		}
 	}
 	
 	var _processResponse = function(response,requestParamName,requestParamValue,callback) {
@@ -102,7 +133,6 @@
 	}
 
 	// Methods
-	var _facebookInitialized = false;
 	api.authorize = function(){
 		
 		// Sanity check
@@ -128,18 +158,7 @@
 			// Authorize
 			_loginInternal();
 		} else {
-			FB.init({
-				appId  : _appid, // App ID
-				status : true, // check login status
-				cookie : true, // enable cookies to allow the server to access the session
-				oauth  : true, // enable OAuth 2.0
-				xfbml  : true  // parse XFBML
-			});
-			FB.getLoginStatus(function(response){
-				// Calculate connected outside of the if statement to ensure that _initSession runs and isn't optimized out if _authAfterInitialized is false
-				response.status == "connected" && _initSession(response) || _loginInternal();
-				_facebookInitialized = true;
-			});
+			_loginAfterInitialization = true;
 		}
 	};
 	api.createLoginButton = function(parameters){
