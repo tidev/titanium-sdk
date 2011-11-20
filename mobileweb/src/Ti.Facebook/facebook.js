@@ -102,10 +102,10 @@
 	document.body.appendChild(_facebookDiv);
 	
 	// Load the Facebook SDK Asynchronously.
-	var _facebookDivID = 'facebook-jssdk'; 
-	if (!document.getElementById(_facebookDivID)) {
+	var _facebookScriptTagID = 'facebook-jssdk'; 
+	if (!document.getElementById(_facebookScriptTagID)) {
 		var _facebookScriptTag = document.createElement('script');
-		_facebookScriptTag.id = _facebookDivID; 
+		_facebookScriptTag.id = _facebookScriptTagID; 
 		_facebookScriptTag.async = true;
 		_facebookScriptTag.src = "//connect.facebook.net/en_US/all.js";
 		var _head = document.getElementsByTagName ("head")[0];
