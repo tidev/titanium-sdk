@@ -163,8 +163,8 @@ class Compiler(object):
 		sys.stdout.flush()
 		so, se = run.run(jsc_args, ignore_error=True, return_error=True)
 		if not se is None and len(se):
-			errors_value = re.sub(r'.*\n+', '', re.sub(r'.error\(s\).*', '', se, flags=re.DOTALL), flags=re.DOTALL)
-			errors_count = int(errors_value)
+			regex_result = re.search("(\d+) error\(s\), (\d+) warning\(s\)", se, flags=re.MULTILINE)
+			errors_count = int(regex_result.group(1))
 
 			if errors_count > 0:
 				sys.stderr.write("[ERROR] %s\n" % se)
