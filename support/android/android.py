@@ -239,10 +239,14 @@ class Android(object):
 		resource_dir = os.path.join(project_dir, 'Resources')
 		self.config['ti_resources_dir'] = resource_dir
 
-		# TODO change defalt back to rhino
-		runtime = "v8"
+		runtime = "rhino"
 		if self.tiapp.has_app_property("ti.android.runtime"):
-			runtime = self.tiapp.get_app_property("ti.android.runtime")
+			requested_runtime = self.tiapp.get_app_property("ti.android.runtime")
+			if requested_runtime == "rhino" or requested_runtime == "v8":
+				runtime = requested_runtime
+			else:
+				print "[DEBUG] invalid runtime <" + requested_runtime + "> requested, must be 'v8' or 'rhino'"
+				sys.exit(1);
 
 		app_build_dir = self.newdir(project_dir, 'build')
 		app_dir = self.newdir(app_build_dir, 'android')
