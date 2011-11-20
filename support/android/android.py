@@ -245,7 +245,7 @@ class Android(object):
 			if requested_runtime == "rhino" or requested_runtime == "v8":
 				runtime = requested_runtime
 			else:
-				print "[DEBUG] invalid runtime <" + requested_runtime + "> requested, must be 'v8' or 'rhino'"
+				print "[ERROR] invalid runtime \"" + requested_runtime + "\" requested, must be 'v8' or 'rhino'"
 				sys.exit(1);
 
 		app_build_dir = self.newdir(project_dir, 'build')
