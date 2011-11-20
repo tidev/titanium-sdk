@@ -131,6 +131,19 @@
 		}
 		callback(result);
 	}
+		
+	function _loginInternal() {
+		FB.login(function(response) {
+			_initSession(response) || api.fireEvent('login', {
+				cancelled	: true,
+				data		: response,
+				error		: "user cancelled or an internal error occured.",
+				success		: false,
+				uid			: response.id,
+				source		: api
+			});
+		}, {'scope':_permissions.join()});
+	}
 
 	// Methods
 	api.authorize = function(){
@@ -138,19 +151,6 @@
 		// Sanity check
 		if (_appid == null) {
 			throw new Error('App ID not set. Facebook authorization cancelled.');
-		}
-		
-		function _loginInternal() {
-			FB.login(function(response) {
-				_initSession(response) || api.fireEvent('login', {
-					cancelled	: true,
-					data		: response,
-					error		: "user cancelled or an internal error occured.",
-					success		: false,
-					uid			: response.id,
-					source		: api
-				});
-			}, {'scope':_permissions.join()});
 		}
 		
 		// Check if facebook is still initializing, and if so queue the auth request
