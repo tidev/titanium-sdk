@@ -98,8 +98,7 @@ public class TiFastDev
 		enabled = true;
 		readDeployData(deployData);
 
-		if (enabled && fastDevSocket != null)
-		{
+		if (enabled && fastDevSocket != null) {
 			session = new Session();
 			session.executeHandshake();
 			session.start();
@@ -460,7 +459,6 @@ public class TiFastDev
 			i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			i.addCategory(Intent.CATEGORY_LAUNCHER);
 			app.startActivity(i);
-			//app.getRootActivity().startActivity(i);
 		}
 
 		protected boolean sendTokens(String... tokens)
