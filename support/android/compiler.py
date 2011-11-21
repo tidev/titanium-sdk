@@ -164,16 +164,22 @@ class Compiler(object):
 		so, se = run.run(jsc_args, ignore_error=True, return_error=True)
 		if not se is None and len(se):
 			regex_result = re.search("(\d+) error\(s\), (\d+) warning\(s\)", se, flags=re.MULTILINE)
-			errors_count = int(regex_result.group(1))
+			if not regex_result is None:
+				errors_count = int(regex_result.group(1))
 
-			if errors_count > 0:
-				sys.stderr.write("[ERROR] %s\n" % se)
+				if errors_count > 0:
+					sys.stderr.write("[ERROR] %s\n" % se)
+
+				else:
+					sys.stderr.write("[WARN] %s\n" % se)
+
+				sys.stderr.flush()
+
+				if errors_count > 0:
+					sys.exit(1)
+
 			else:
-				sys.stderr.write("[WARN] %s\n" % se)
-
-			sys.stderr.flush()
-
-			if errors_count > 0:
+				sys.stderr.write("[ERROR] unrecognized error encountered: " % se)
 				sys.exit(1)
 
 		os.unlink(fullpath)
