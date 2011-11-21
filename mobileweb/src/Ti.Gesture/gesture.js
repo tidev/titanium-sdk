@@ -73,20 +73,12 @@
 	// need some delta for coordinates changed
 	var _delta = 10;
 	function _checkShake (event) {
-		var accel, e;
-		if (e = event.acceleration) {
-			accel = {
+		var e = event.acceleration || event.accelerationIncludingGravity,
+			accel = e && {
 				x: e.x,
 				y: e.y,
 				z: e.z
 			};
-		} else if (e = event.accelerationIncludingGravity) {
-			accel = {
-				x: e.x,
-				y: e.y,
-				z: e.z
-			};
-		}
 		if (accel) {
 			if (_lastAccel.x || _lastAccel.y || _lastAccel.z) {
 				if (

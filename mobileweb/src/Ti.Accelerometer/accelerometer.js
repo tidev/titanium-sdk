@@ -6,20 +6,12 @@
 	// need some delta for coordinates changed
 	var _delta = 0.2;
 	function _checkMotion (event) {
-		var accel, e;
-		if (e = event.acceleration) {
-			accel = {
+		var e = event.acceleration || event.accelerationIncludingGravity,
+			accel = e && {
 				x: e.x,
 				y: e.y,
 				z: e.z
 			};
-		} else if (e = event.accelerationIncludingGravity) {
-			accel = {
-				x: e.x,
-				y: e.y,
-				z: e.z
-			};
-		}
 		if (accel) {
 			_lastAccel = null == _lastAccel ? accel : _lastAccel;
 			if (
@@ -29,7 +21,7 @@
 			) {
 				var currentTime = new Date();
 				var timeDifference = currentTime.getTime() - _tLastShake.getTime();
-				_tLastShake = new Date();
+				_tLastShake = currentTime;
 				
 				api.fireEvent('update', {
 					source: ev.source,
