@@ -28,6 +28,8 @@ describe("Ti.Platform tests", {
        valueOf(Ti.Platform.ostype).shouldBeString();
        valueOf(Ti.Platform.processorCount).shouldBeNumber();
        valueOf(Ti.Platform.version).shouldBeString();
+       valueOf(Ti.Platform.runtime).shouldBeString();
+       valueOf(Ti.Platform.runtime.length).shouldBeGreaterThan(0);
     }
 
 });
