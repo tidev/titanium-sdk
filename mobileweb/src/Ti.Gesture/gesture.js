@@ -87,26 +87,28 @@
 				z: e.z
 			};
 		}
-		if (_lastAccel.x || _lastAccel.y || _lastAccel.z) {
-			if (
-				((Math.abs(_lastAccel.x - accel.x) > _delta) && (Math.abs(_lastAccel.y - accel.y) > _delta)) || 
-				((Math.abs(_lastAccel.x - accel.x) > _delta) && (Math.abs(_lastAccel.z - accel.z) > _delta)) || 
-				((Math.abs(_lastAccel.y - accel.y) > _delta) && (Math.abs(_lastAccel.z - accel.z) > _delta))
-			) {
-				var currentTime = new Date();
-				var timeDifference = currentTime.getTime() - _tLastShake.getTime();
-				if (timeDifference > 300) {
-					_tLastShake = new Date();
-					
-					api.fireEvent('shake', {
-						source: event.source,
-						timestamp: timeDifference,
-						type: 'shake'
-					})
+		if (accel) {
+			if (_lastAccel.x || _lastAccel.y || _lastAccel.z) {
+				if (
+					((Math.abs(_lastAccel.x - accel.x) > _delta) && (Math.abs(_lastAccel.y - accel.y) > _delta)) || 
+					((Math.abs(_lastAccel.x - accel.x) > _delta) && (Math.abs(_lastAccel.z - accel.z) > _delta)) || 
+					((Math.abs(_lastAccel.y - accel.y) > _delta) && (Math.abs(_lastAccel.z - accel.z) > _delta))
+				) {
+					var currentTime = new Date();
+					var timeDifference = currentTime.getTime() - _tLastShake.getTime();
+					if (timeDifference > 300) {
+						_tLastShake = new Date();
+						
+						api.fireEvent('shake', {
+							source: event.source,
+							timestamp: timeDifference,
+							type: 'shake'
+						})
+					}
 				}
 			}
+			_lastAccel = accel;
 		}
-		_lastAccel = accel;
 	}
 	window.addEventListener("devicemotion", _checkShake, false);
 			
