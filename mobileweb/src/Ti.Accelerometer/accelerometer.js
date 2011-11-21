@@ -6,7 +6,7 @@
 	// need some delta for coordinates changed
 	var _delta = 0.2;
 	function _checkMotion (event) {
-		var accel;
+		var accel, e;
 		if (e = event.acceleration) {
 			accel = {
 				x: e.x,

@@ -73,7 +73,7 @@
 	// need some delta for coordinates changed
 	var _delta = 10;
 	function _checkShake (event) {
-		var accel;
+		var accel, e;
 		if (e = event.acceleration) {
 			accel = {
 				x: e.x,
