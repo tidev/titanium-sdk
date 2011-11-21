@@ -195,7 +195,7 @@ static NSDictionary* TI_filterableItemProperties;
 	TiApp * tiApp = [TiApp app];
 	if ([TiUtils isIPad]==NO)
 	{
-		[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait];
+		[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait duration:[[tiApp controller] suggestedRotationDuration]];
 	}
 	[tiApp showModalController:picker_ animated:animatedPicker];
 }
@@ -205,7 +205,7 @@ static NSDictionary* TI_filterableItemProperties;
 	TiApp * tiApp = [TiApp app];
 	if ([TiUtils isIPad]==NO)
 	{
-		[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait];
+		[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait duration:[[tiApp controller] suggestedRotationDuration]];
 		[tiApp showModalController:picker_ animated:animatedPicker];
 	}
 	else
@@ -750,7 +750,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	}
 	
 	TiApp * tiApp = [TiApp app];
-	[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait];
+	[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait duration:[[tiApp controller] suggestedRotationDuration]];
 	[tiApp showModalController:editor animated:animated];
 }
 

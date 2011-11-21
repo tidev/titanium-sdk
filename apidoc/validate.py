@@ -226,6 +226,18 @@ def validateExamples(tracker, examples):
 			tracker.trackError('each example must be a dict with "title" and "example" members: %s' % example)
 			continue
 		validateMarkdown(tracker, example['example'], 'example')
+		
+def validateExcludes(tracker, excludes):
+	if not isinstance(excludes, dict):
+		tracker.trackError('"excludes" must be a dict and cannot be empty')
+		return
+	for category in excludes:
+		if category not in ['events','properties','methods']:
+			tracker.trackError('only "events","properties", and "methods" are allowed in "excludes": %s' % category)
+			continue
+		if not isinstance(excludes[category], list):
+			tracker.trackError('"%s" must be a list' % category)
+			continue
 
 def validateType(typeDoc):
 	typeName = typeDoc['name']
@@ -234,6 +246,8 @@ def validateType(typeDoc):
 
 	validateRequired(tracker, typeDoc, ['name', 'description'])
 	validateCommon(tracker, typeDoc)
+	if 'excludes' in typeDoc:
+		validateExcludes(tracker, typeDoc['excludes'])
 
 	if 'notes' in typeDoc:
 		validateMarkdown(tracker, typeDoc['notes'], 'notes')

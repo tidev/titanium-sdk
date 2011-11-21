@@ -6,7 +6,8 @@
  */
 var EventEmitter = require("events").EventEmitter,
 	assets = kroll.binding("assets"),
-	vm = require("vm");
+	vm = require("vm"),
+	url = require("url");
 var TAG = "Window";
 
 exports.bootstrapWindow = function(Titanium) {
@@ -20,9 +21,13 @@ exports.bootstrapWindow = function(Titanium) {
 	var Proxy = Titanium.Proxy;
 	var TiWindow = Titanium.TiWindow;
 
+	Window.prototype.isActivity = false;
+
 	// set constants for representing states for the window
 	Window.prototype.state = {closed: 0, opening: 1, opened: 2, closing: 3};
 
+	// cached orientation modes for window that are not part of the normal properties map for the proxy
+	Window.prototype.cachedOrientationModes = null;
 
 	// this is mainly used when we need to perform an operation on an activity and our
 	// window does not have its own activity.  IE:  setting orientation on a window opened 
@@ -68,19 +73,28 @@ exports.bootstrapWindow = function(Titanium) {
 	// set orientationModes access
 	var orientationModesGetter = function() {
 		if (this.window) {
-			return this.window.getOrientationModes();
+			if (this.isActivity) {
+				return this.window.getOrientationModes();
 
+			} else {
+				return this.getActivityDecorView().getOrientationModes();
+			}
 		}
 
-		return this.getActivityDecorView().getOrientationModes();
+		return this.cachedOrientationModes;
 	}
 	var orientationModesSetter = function(value) {
 		if (value != null) {
 			if (this.window) {
-				this.window.setOrientationModes(value);
+				if (this.isActivity) {
+					this.window.setOrientationModes(value);
+
+				} else {
+					this.getActivityDecorView().setOrientationModes(value);
+				}
 
 			} else {
-				this.getActivityDecorView().setOrientationModes(value);
+				this.cachedOrientationModes = value;
 			}
 
 		} else {
@@ -138,12 +152,11 @@ exports.bootstrapWindow = function(Titanium) {
 
 		if (!options) {
 			options = {};
-		} else {
+		} else if (!(options instanceof UI.Animation)) {
 			this._properties.extend(options);
 		}
 
 		// Determine if we should create a heavy or light weight window.
-		this.isActivity = false;
 		newActivityRequiredKeys.forEach(function(key) {
 			if (key in this._properties) {
 				this.isActivity = true;
@@ -172,6 +185,12 @@ exports.bootstrapWindow = function(Titanium) {
 			this.window.add(this.view);
 		}
 
+		// handle orientation - don't put this in post open otherwise the orientation
+		// will visibly change after the window opens
+		if (this.cachedOrientationModes) {
+			this.setOrientationModes(this.cachedOrientationModes);
+		}
+
 		this.setWindowView(this.view);
 		this.addChildren();
 
@@ -181,7 +200,7 @@ exports.bootstrapWindow = function(Titanium) {
 				self.postOpen();
 			});
 
-			this.window.open();
+			this.window.open(options);
 
 		} else {
 			this.postOpen();
@@ -212,17 +231,33 @@ exports.bootstrapWindow = function(Titanium) {
 		if ("url" in this._properties) {
 			this.loadUrl();
 		}
+		
+		// Set view and model listener after the window opens
+		this.setWindowView(this.view);
+		
+		// Add event listeners and update the source of events after the window opens
+		for (var event in this._events) { 
+			var listeners = this.listeners(event); 
+		 	for (var i = 0; i < listeners.length; i++) { 
+		 		this.addWrappedListener(event, listeners[i]); 
+		 	} 
+		}
 
 		this.currentState = this.state.opened;
 		this.fireEvent("open");
 	}
-
+	
 	Window.prototype.loadUrl = function() {
 		if (this.url == null) {
 			return;
 		}
 
 		kroll.log(TAG, "Loading window with URL: " + this.url);
+		
+		// Reset creationUrl of the window
+		var currentUrl = url.resolve(this._sourceUrl, this.url);
+		this.window.setCreationUrl(currentUrl.href);
+		
 		Titanium.include(this.url, this._sourceUrl, {
 			currentWindow: this,
 			currentActivity: this.window.activity,
@@ -331,8 +366,19 @@ exports.bootstrapWindow = function(Titanium) {
 			EventEmitter.prototype.addEventListener.call(this, event, listener);
 
 		} else {
-			this.window.addEventListener(event, listener);
+			this.addWrappedListener(event, listener); 
 		}
+	}
+	
+	// Add event listener to this.window and update the source of event to this.
+	Window.prototype.addWrappedListener = function(event, listener) {
+		var self = this;
+		self.window.addEventListener(event, function(e) {
+			if (e.source == self.window) {
+				e.source = self;
+			}
+			listener(e);
+		});
 	}
 
 	Window.prototype.removeEventListener = function(event, listener) {

@@ -139,7 +139,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<attribute name="name"/>
 		<attribute name="dir" default="${ti.android.root}/@{name}"/>
 		<attribute name="build.dir" default="${dist.classes.dir}/@{name}"/>
-		<attribute name="src.dir" default="@{dir}/src"/>
+		<attribute name="src.dir" default="@{dir}/src/java"/>
 		<attribute name="includes" default="**/*.java"/>
 		<attribute name="excludes" default=""/>
 		<attribute name="debug" default="true"/>
@@ -183,7 +183,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<attribute name="prefix" default=""/>
 		<attribute name="dir" default="${ti.android.root}/@{prefix}@{name}"/>
 		<attribute name="build.dir" default="${dist.classes.dir}/@{name}"/>
-		<attribute name="src.dir" default="@{dir}/src"/>
+		<attribute name="src.dir" default="@{dir}/src/java"/>
 		<attribute name="apt.src.dir" default="${dist.json.dir}"/>
 		<attribute name="kroll.jsonFile" default="@{name}.json"/>
 		<attribute name="kroll.jsonPackage" default="org.appcelerator.titanium.bindings"/>
@@ -396,7 +396,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<target name="build.kroll.common.jar">
 		<property name="kroll.common.classes.dir" location="${dist.classes.dir}/kroll-common"/>
 		<mkdir dir="${kroll.common.classes.dir}"/>
-		<javac srcdir="${kroll.common.project.dir}/src/java" destdir="${kroll.common.classes.dir}">
+		<javac srcdir="${kroll.common.project.dir}/src/java" destdir="${kroll.common.classes.dir}" debug="true">
 			<classpath refid="android"/>
 		</javac>
 
@@ -475,7 +475,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<target name="build.kroll.v8.jar" depends="build.kroll.common.jar">
 		<property name="kroll.v8.classes.dir" location="${dist.classes.dir}/kroll-v8"/>
 		<mkdir dir="${kroll.v8.classes.dir}"/>
-		<javac srcdir="${kroll.v8.project.dir}/src/java" destdir="${kroll.v8.classes.dir}">
+		<javac srcdir="${kroll.v8.project.dir}/src/java" destdir="${kroll.v8.classes.dir}" debug="true">
 			<classpath refid="android"/>
 			<classpath>
 				<fileset file="${dist.dir}/kroll-common.jar"/>
