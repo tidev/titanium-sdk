@@ -74,17 +74,17 @@
 	var _delta = 10;
 	function _checkShake (event) {
 		var accel;
-		if (event.acceleration) {
+		if (e = event.acceleration) {
 			accel = {
-				x: event.acceleration.x,
-				y: event.acceleration.y,
-				z: event.acceleration.z
+				x: e.x,
+				y: e.y,
+				z: e.z
 			};
-		} else if (event.accelerationIncludingGravity) {
+		} else if (e = event.accelerationIncludingGravity) {
 			accel = {
-				x: event.accelerationIncludingGravity.x,
-				y: event.accelerationIncludingGravity.y,
-				z: event.accelerationIncludingGravity.z
+				x: e.x,
+				y: e.y,
+				z: e.z
 			};
 		}
 		if (_lastAccel.x || _lastAccel.y || _lastAccel.z) {
