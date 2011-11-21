@@ -241,6 +241,15 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		control(MSG_PLAY);
 	}
 
+	/**
+	 * Backwards-compatibility
+	 */
+	@Kroll.method
+	public void start()
+	{
+		play();
+	}
+
 	
 	@Kroll.method
 	public void pause()

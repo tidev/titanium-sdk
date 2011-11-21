@@ -91,6 +91,19 @@ def main(args):
 		resources_dir = os.path.join(build_dir, 'Resources')
 		
 		shutil.copytree(project_resources,resources_dir)
+
+		# Migrate platform/iphone contents into Resources.
+		info("Migrating platform/iphone to Resources...")
+		project_platform = os.path.join(project_dir,'platform','iphone')
+		
+		if os.path.isdir(project_platform):
+			contents = os.listdir(project_platform)
+			for file in contents:
+				path = os.path.join(project_platform,file)
+				if os.path.isdir(path):
+					shutil.copytree(path, os.path.join(resources_dir,file))
+				else:
+					shutil.copy(path, os.path.join(resources_dir,file))
 		
 		# Migrate tiapp.xml
 		info("Migrating tiapp.xml...")
