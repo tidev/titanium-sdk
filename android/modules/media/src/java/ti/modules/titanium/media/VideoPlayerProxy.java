@@ -55,9 +55,15 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	private static final int MSG_HIDE_MEDIA_CONTROLLER = MSG_FIRST_ID + 110;
 	private static final int MSG_SET_VIEW_FROM_ACTIVITY = MSG_FIRST_ID + 111;
 
+	// Keeping these out of TiC because I believe we'll stop supporting them
+	// in favor of the documented property, which is "mediaControlStyle".
+	private static final String PROPERTY_MOVIE_CONTROL_MODE = "movieControlMode";
+	private static final String PROPERTY_MOVIE_CONTROL_STYLE = "movieControlStyle";
+
 	// The player doesn't automatically preserve its current location and seek back to
 	// there when being resumed.  This internal property lets us track that.
 	public static final String PROPERTY_SEEK_TO_ON_RESUME = "__seek_to_on_resume__";
+
 
 	protected int mediaControlStyle = MediaModule.VIDEO_CONTROL_DEFAULT;
 	protected int scalingMode = MediaModule.VIDEO_SCALING_ASPECT_FIT;
@@ -121,6 +127,22 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	public void handleCreationDict(KrollDict options)
 	{
 		super.handleCreationDict(options);
+
+		Object mcStyle = options.get(TiC.PROPERTY_MEDIA_CONTROL_STYLE);
+		Object mcMode = options.get(PROPERTY_MOVIE_CONTROL_MODE);
+		Object mcStyleDeprecated = options.get(PROPERTY_MOVIE_CONTROL_STYLE);
+		if (mcStyle != null) {
+			mediaControlStyle = TiConvert.toInt(mcStyle);
+		} else if (mcMode != null) {
+			mediaControlStyle = TiConvert.toInt(mcMode);
+		} else if (mcStyleDeprecated != null) {
+			mediaControlStyle = TiConvert.toInt(mcStyleDeprecated);
+		}
+
+		Object sMode = options.get(TiC.PROPERTY_SCALING_MODE);
+		if (sMode != null) {
+			scalingMode = TiConvert.toInt(scalingMode);
+		}
 
 		// "fullscreen" in the creation dict determines
 		// whether we use a TiVideoActivity versus a standard
