@@ -129,19 +129,19 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		super.handleCreationDict(options);
 
 		Object mcStyle = options.get(TiC.PROPERTY_MEDIA_CONTROL_STYLE);
-		Object mcMode = options.get(PROPERTY_MOVIE_CONTROL_MODE);
+		Object mcModeDeprecated = options.get(PROPERTY_MOVIE_CONTROL_MODE);
 		Object mcStyleDeprecated = options.get(PROPERTY_MOVIE_CONTROL_STYLE);
 		if (mcStyle != null) {
 			mediaControlStyle = TiConvert.toInt(mcStyle);
-		} else if (mcMode != null) {
-			mediaControlStyle = TiConvert.toInt(mcMode);
+		} else if (mcModeDeprecated != null) {
+			mediaControlStyle = TiConvert.toInt(mcModeDeprecated);
 		} else if (mcStyleDeprecated != null) {
 			mediaControlStyle = TiConvert.toInt(mcStyleDeprecated);
 		}
 
 		Object sMode = options.get(TiC.PROPERTY_SCALING_MODE);
 		if (sMode != null) {
-			scalingMode = TiConvert.toInt(scalingMode);
+			scalingMode = TiConvert.toInt(sMode);
 		}
 
 		// "fullscreen" in the creation dict determines
