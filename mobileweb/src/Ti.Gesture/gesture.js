@@ -3,8 +3,9 @@
 	Ti._5.EventDriven(api);
 	
 	var _lastOrient = null;
-	function _checkOrientation(event){
-		var orient = null;
+	
+	window.addEventListener("orientationchange", function(event) {
+		var orient = Ti.UI.UNKNOWN;
 		switch(window.orientation) {
 			case 0:
 				orient = Ti.UI.PORTRAIT;
@@ -18,10 +19,8 @@
 			case 180:
 				orient = Ti.UI.UPSIDE_PORTRAIT;
 				break;
-			default:
-				orient = Ti.UI.UNKNOWN;
 		}
-		if (null != orient && _lastOrient != orient) {
+		if (_lastOrient != orient) {
 			_lastOrient = orient;
 			api.fireEvent('orientationchange', {
 				orientation: orient,
@@ -29,8 +28,8 @@
 				type: 'orientationchange'
 			})
 		}
-	}
-	function _checkOrientationForFace(event) {
+	}, false);
+	window.addEventListener("deviceorientation", function(event) {
 		var orient = null, _deltaOrient = 5, _deltaTop = 170;
 		var angles = {
 			alpha: event.alpha || event.x,
@@ -64,15 +63,12 @@
 				type: 'orientationchange'
 			});
 		}
-    }
-	window.addEventListener("orientationchange", _checkOrientation, false);
-	window.addEventListener("deviceorientation", _checkOrientationForFace, false);
-	//window.addEventListener("MozOrientation", _checkOrientationForFace, false);
+    }, false);
 	
 	var _tLastShake = new Date(), _lastAccel = {}; 
 	// need some delta for coordinates changed
 	var _delta = 10;
-	function _checkShake (event) {
+	window.addEventListener("devicemotion", function(event) {
 		var e = event.acceleration || event.accelerationIncludingGravity,
 			accel = e && {
 				x: e.x,
@@ -89,7 +85,7 @@
 					var currentTime = new Date();
 					var timeDifference = currentTime.getTime() - _tLastShake.getTime();
 					if (timeDifference > 300) {
-						_tLastShake = new Date();
+						_tLastShake = currentTime;
 						
 						api.fireEvent('shake', {
 							source: event.source,
@@ -101,7 +97,6 @@
 			}
 			_lastAccel = accel;
 		}
-	}
-	window.addEventListener("devicemotion", _checkShake, false);
+	}, false);
 			
 })(Ti._5.createClass('Titanium.Gesture'));

@@ -5,7 +5,8 @@
 	var _tLastShake = new Date(), _lastAccel = null; 
 	// need some delta for coordinates changed
 	var _delta = 0.2;
-	function _checkMotion (event) {
+	
+	window.addEventListener("devicemotion", function (event) {
 		var e = event.acceleration || event.accelerationIncludingGravity,
 			accel = e && {
 				x: e.x,
@@ -34,7 +35,6 @@
 			}
 			_lastAccel = accel;
 		}
-	}
-	window.addEventListener("devicemotion", _checkMotion, false);
+	}, false);
 	
 })(Ti._5.createClass('Titanium.Accelerometer'));
