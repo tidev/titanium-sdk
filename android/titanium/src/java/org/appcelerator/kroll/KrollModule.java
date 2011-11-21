@@ -12,6 +12,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
+import org.appcelerator.titanium.TiRootActivity;
 
 import android.app.Activity;
 
@@ -37,10 +38,13 @@ public class KrollModule extends KrollProxy
 	@Override
 	protected void initActivity(Activity activity)
 	{
-		super.initActivity(activity);
+		// modules should use the root activity rather than the current activity at 
+		// the time the module is lazy loaded
+		TiRootActivity rootActivity = TiApplication.getInstance().getRootActivity();
 
-		if (activity instanceof TiBaseActivity) {
-			((TiBaseActivity) getActivity()).addOnLifecycleEventListener(this);
+		super.initActivity(rootActivity);
+		if (rootActivity != null) {
+			rootActivity.addOnLifecycleEventListener(this);
 		}
 	}
 
