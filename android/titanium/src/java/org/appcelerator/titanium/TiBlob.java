@@ -18,9 +18,9 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.util.KrollStreamHelper;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
-import org.appcelerator.titanium.util.TiStreamHelper;
 
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
@@ -117,7 +117,7 @@ public class TiBlob extends KrollProxy
 				InputStream stream = getInputStream();
 				if (stream != null) {
 					try {
-						bytes = TiStreamHelper.toByteArray(stream, getLength());
+						bytes = KrollStreamHelper.toByteArray(stream, getLength());
 					} finally {
 						try {
 							stream.close();

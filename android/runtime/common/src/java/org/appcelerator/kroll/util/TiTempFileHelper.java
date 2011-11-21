@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-package org.appcelerator.titanium.util;
+package org.appcelerator.kroll.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,8 +17,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
-import org.appcelerator.titanium.TiApplication;
 
+import android.app.Application;
 import android.os.Environment;
 
 /**
@@ -42,7 +42,7 @@ public class TiTempFileHelper
 	private String appPackageName;
 	private File internalCacheDir;
 
-	public TiTempFileHelper(TiApplication app)
+	public TiTempFileHelper(Application app)
 	{
 		appPackageName = app.getPackageName();
 		internalCacheDir = app.getCacheDir();
