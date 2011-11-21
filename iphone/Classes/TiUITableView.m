@@ -81,9 +81,6 @@
 
 -(void)prepareForReuse
 {
-    // If we're reusing a cell, it obviously isn't attached to a proxy.
-    [self setProxy:nil];
-    
 	[super prepareForReuse];
 	
 	// TODO: HACK: In the case of abnormally large table view cells, we have to reset the size.
@@ -1556,14 +1553,6 @@ if(ourTableView != tableview)	\
         // Have to reset the proxy on the cell, and the row's callback cell, as it may have been cleared in reuse operations (or reassigned)
         [(TiUITableViewCell*)cell setProxy:row];
         [row setCallbackCell:(TiUITableViewCell*)cell];
-        
-		/*
-		 * Old-school style:
-		// in the case of a reuse, we need to tell the row proxy to update the data
-		// in the re-used cell with this proxy's contents
-		[row renderTableViewCell:cell];
-		 *
-		 */
 	}
 	[row initializeTableViewCell:cell];
 	
