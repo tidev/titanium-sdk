@@ -208,8 +208,7 @@ class Builder(object):
 		self.sdk = AndroidSDK(sdk, self.tool_api_level)
 		self.tiappxml = temp_tiapp
 
-		# TODO switch default to Rhino
-		self.runtime = self.tiappxml.app_properties.get('ti.android.runtime', 'v8')
+		self.runtime = self.tiappxml.app_properties.get('ti.android.runtime', 'rhino')
 
 		self.set_java_commands()
 		# start in 1.4, you no longer need the build/android directory
