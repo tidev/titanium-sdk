@@ -38,13 +38,16 @@ public class KrollModule extends KrollProxy
 	@Override
 	protected void initActivity(Activity activity)
 	{
-		// modules should use the root activity rather than the current activity at 
-		// the time the module is lazy loaded
-		TiRootActivity rootActivity = TiApplication.getInstance().getRootActivity();
+		Activity moduleActivity = TiApplication.getInstance().getRootActivity();
+		if (moduleActivity == null) {
+			// this should only occur in case such as JS activities etc where root 
+			// activity will not be available
+			moduleActivity = activity;
+		}
 
-		super.initActivity(rootActivity);
-		if (rootActivity != null) {
-			rootActivity.addOnLifecycleEventListener(this);
+		super.initActivity(moduleActivity);
+		if (moduleActivity instanceof TiBaseActivity) {
+			((TiBaseActivity)moduleActivity).addOnLifecycleEventListener(this);
 		}
 	}
 
