@@ -22,6 +22,8 @@ public:
 
 	static void collectWeakRef(Persistent<Value> ref, void *parameter);
 	static void bootstrap(Local<Object> global);
+
+	static bool debuggerEnabled;
 };
 }
 ;

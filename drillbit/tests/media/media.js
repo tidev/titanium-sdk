@@ -59,7 +59,8 @@ describe("Ti.Media tests", {
 		valueOf(player).shouldNotBeNull();
 		valueOf(player.add).shouldBeFunction();
 		valueOf(player.pause).shouldBeFunction();
-		valueOf(player.start).shouldBeFunction();
+		valueOf(player.play).shouldBeFunction(); // this is the documented way to start playback.
+		valueOf(player.start).shouldBeFunction(); // backwards compat.
 		valueOf(player.stop).shouldBeFunction();
 		if (!isAndroid) valueOf(player.setUrl).shouldBeFunction();
 		valueOf(player.hide).shouldBeFunction();

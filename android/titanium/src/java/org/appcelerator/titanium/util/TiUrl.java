@@ -46,6 +46,11 @@ public class TiUrl
 		this.url = url;
 	}
 
+	public String getNormalizedUrl()
+	{
+		return normalizeWindowUrl(baseUrl, url).url;
+	}
+
 	protected static String parseRelativeBaseUrl(String path, String baseUrl, boolean checkAppPrefix) 
 	{
 		String[] right = path.split(PATH_SEPARATOR);
