@@ -30,8 +30,9 @@ properties:
     description: Key identifying a string from the locale file to use for the message text. Only one of `message` or `messageid` should be specified.
     type: String
   - name: style
-    description: The style for the activity indicator. For iPhone, the style can be set to one of the constants defined in <Titanium.UI.iPhone.ActivityIndicatorStyle>.
+    description: The style for the activity indicator. For iOS, the style can be set to one of the constants defined in <Titanium.UI.iPhone.ActivityIndicatorStyle>.
     type: Number
+    platforms: [iphone,ipad]
     
 examples:
   - title: Simple Activity Indicator (Android)
