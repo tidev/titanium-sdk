@@ -153,7 +153,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 		if (!options) {
 			options = {};
-		} else {
+		} else if (!(options instanceof UI.Animation)) {
 			this._properties.extend(options);
 		}
 
@@ -201,7 +201,7 @@ exports.bootstrapWindow = function(Titanium) {
 				self.postOpen();
 			});
 
-			this.window.open();
+			this.window.open(options);
 
 		} else {
 			this.postOpen();
