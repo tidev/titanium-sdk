@@ -152,6 +152,12 @@ properties:
     default: -1
     type: Number
     platforms: [iphone]
+  - name: returnKeyType
+    description: the return key constant defined in Titanium.UI.
+    type: Number
+  - name: keyboardType
+    description: the keyboard type constant defined in Titanium.UI.
+    type: Number
 notes: |
     On iPhone, the borderStyle can be set with a constant from [Titanium.UI](Titanium.UI).
     
