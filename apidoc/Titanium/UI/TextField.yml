@@ -36,7 +36,8 @@ events:
 properties:
   - name: autocapitalization
     summary: Determines how text is capitalized during typing. 
-    description: Specify one of the following constants from <Titanium.UI>: 
+    description: |
+        Specify one of the following constants from <Titanium.UI>: 
         [TEXT_AUTOCAPITALIZATION_NONE](Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE), 
         [TEXT_AUTOCAPITALIZATION_WORDS](Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS), 
         [TEXT_AUTOCAPITALIZATION_SENTENCES](Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES), or 
@@ -48,7 +49,8 @@ properties:
     type: Number
   - name: clearButtonMode
     summary: When to display the clear button. 
-    description: Specify one of the following  <Titanium.UI> constants: 
+    description: |
+        Specify one of the following  <Titanium.UI> constants: 
         [INPUT_BUTTONMODE_ALWAYS](Titanium.UI.INPUT_BUTTONMODE_ALWAYS), 
         [INPUT_BUTTONMODE_NEVER](Titanium.UI.INPUT_BUTTONMODE_NEVER), 
         [INPUT_BUTTONMODE_ONBLUR](Titanium.UI.INPUT_BUTTONMODE_ONBLUR), or 
@@ -85,7 +87,8 @@ properties:
     platforms: [iphone, ipad]
   - name: leftButtonMode
     summary: When to display the left button view. 
-    description: Specify one of the following  <Titanium.UI> constants: 
+    description: |
+        Specify one of the following  <Titanium.UI> constants: 
         [INPUT_BUTTONMODE_ALWAYS](Titanium.UI.INPUT_BUTTONMODE_ALWAYS), 
         [INPUT_BUTTONMODE_NEVER](Titanium.UI.INPUT_BUTTONMODE_NEVER), 
         [INPUT_BUTTONMODE_ONBLUR](Titanium.UI.INPUT_BUTTONMODE_ONBLUR), or 
@@ -108,7 +111,8 @@ properties:
     type: Number
   - name: passwordMask
     summary: Set to `true` to hide entered characters. 
-    description: Note: on iOS, `passwordMask` *must* be specified when the text field is created.
+    description: |
+        Note: on iOS, `passwordMask` *must* be specified when the text field is created.
     type: Boolean
     default: false
   - name: rightButton
@@ -138,7 +142,8 @@ properties:
     summary: Value of the field.
     type: String
   - name: verticalAlign
-    summary: Vertical alignment for the text field, specified using a string ('top', 
+    summary: |
+        Vertical alignment for the text field, specified using a string ('top', 
         'center', 'bottom') or one of the vertical alignment constants from <Titanium.UI>: 
         [TEXT_VERTICAL_ALIGNMENT_BOTTOM](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM), 
         [TEXT_VERTICAL_ALIGNMENT_CENTER](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER), or 
@@ -167,7 +172,8 @@ examples:
             });
   - title: Text Area with Custom Keyboard Toolbar
     example: |
-        Both Text Areas and Text Fields can control the buttons displayed in a button bar above the keyboard when it's visible.
+        Both Text Areas and Text Fields can control the buttons displayed in a button bar 
+        above the keyboard when it's visible.
     
         Example using a custom keyboard toolbar:
     
@@ -182,5 +188,3 @@ examples:
         	    keyboardToolbarColor: '#999',	
         	    keyboardToolbarHeight: 40,
             });
-        
-        
