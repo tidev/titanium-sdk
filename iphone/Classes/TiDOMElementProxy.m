@@ -86,8 +86,8 @@
 -(id)getElementsByTagNameNS:(id)args
 {
     ENSURE_ARG_COUNT(args, 2);
-    NSString * theURI;
-	NSString * localName;
+    NSString * theURI = nil;
+	NSString * localName = nil;
 	ENSURE_ARG_AT_INDEX(theURI, args, 0, NSString);
 	ENSURE_ARG_AT_INDEX(localName, args, 1, NSString);
     
@@ -127,8 +127,8 @@
 -(id)getAttributeNS:(id)args
 {
 	ENSURE_ARG_COUNT(args, 2);
-    NSString * theURI;
-	NSString * localName;
+    NSString * theURI = nil;
+	NSString * localName = nil;
 	ENSURE_ARG_AT_INDEX(theURI, args, 0, NSString);
 	ENSURE_ARG_AT_INDEX(localName, args, 1, NSString);
     GDataXMLNode *_node = [element attributeForLocalName:localName URI:theURI];
@@ -479,8 +479,8 @@
 -(id)insertBefore:(id)args
 {
     ENSURE_ARG_COUNT(args, 2);
-    TiDOMNodeProxy* newChild;
-    TiDOMNodeProxy* refChild;
+    TiDOMNodeProxy* newChild = nil;
+    TiDOMNodeProxy* refChild = nil;
     
     ENSURE_ARG_AT_INDEX(newChild, args, 0, TiDOMNodeProxy);
 	ENSURE_ARG_AT_INDEX(refChild, args, 1, TiDOMNodeProxy);
@@ -523,8 +523,8 @@
 -(id)replaceChild:(id)args
 {
     ENSURE_ARG_COUNT(args, 2);
-    TiDOMNodeProxy* newChild;
-    TiDOMNodeProxy* refChild;
+    TiDOMNodeProxy* newChild = nil;
+    TiDOMNodeProxy* refChild = nil;
     
     ENSURE_ARG_AT_INDEX(newChild, args, 0, TiDOMNodeProxy);
     ENSURE_ARG_AT_INDEX(refChild, args, 1, TiDOMNodeProxy);

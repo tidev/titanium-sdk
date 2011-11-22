@@ -70,7 +70,7 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 }
 
 -(id)openStream:(id) args {
-	NSNumber *fileMode;
+	NSNumber *fileMode = nil;
 	
 	ENSURE_ARG_AT_INDEX(fileMode, args, 0, NSNumber);
 	ENSURE_VALUE_RANGE([fileMode intValue], TI_READ, TI_APPEND);

@@ -62,13 +62,11 @@
 				// font family, not actually settable - so we need to attempt to 
 				// resolve it in a terribly inconsistently named font way
                 NSString* primaryStyle;
-                BOOL hasSecondaryStyle = NO;
                 NSString* secondaryStyle;
                 if (isBoldWeight || isSemiboldWeight) { // 'Italic' is considered a secondary style when bolded; see the font check loop
                     primaryStyle = (isBoldWeight) ? @"Bold" : @"Semibold";
                     secondaryStyle = @"Italic";
                     if (isItalicStyle) {
-                        hasSecondaryStyle = YES;
                     }
                 }
                 else { // Must be italic (for now) and secondary styling is handled by the 'bold' conditions

@@ -943,7 +943,6 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 			else
 			{
 				// it's probably a primitive type - check for them
-				NSMethodSignature *methodSignature = [target methodSignatureForSelector:selector];
 				IMP methodFunction = [target methodForSelector:selector];
 				if ([attributes hasPrefix:@"Td,"])
 				{

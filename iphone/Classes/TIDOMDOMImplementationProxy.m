@@ -43,9 +43,9 @@
 -(id)createDocumentType:(id)args
 {
 	ENSURE_ARG_COUNT(args, 3);
-    NSString* qualifiedName;
-    NSString* publicId;
-    NSString* systemId;
+    NSString* qualifiedName = nil;
+    NSString* publicId = nil;
+    NSString* systemId = nil;
     
     ENSURE_ARG_OR_NIL_AT_INDEX(qualifiedName,args,0,NSString);
     ENSURE_ARG_OR_NIL_AT_INDEX(publicId,args,1,NSString);
@@ -64,12 +64,12 @@
 -(id)createDocument:(id)args
 {
 	ENSURE_ARG_COUNT(args, 3);
-    NSObject* obj1;
-    NSObject* obj2;
-    NSObject* obj3;
-    NSString* theNsURI;
-    NSString* qualifiedName;
-    TIDOMDocumentTypeProxy* docType;
+    NSObject* obj1 = nil;
+    NSObject* obj2 = nil;
+    NSObject* obj3 = nil;
+    NSString* theNsURI = nil;
+    NSString* qualifiedName = nil;
+    TIDOMDocumentTypeProxy* docType = nil;
     
     ENSURE_ARG_OR_NIL_AT_INDEX(obj1,args,0,NSObject);
     ENSURE_ARG_OR_NIL_AT_INDEX(obj2,args,1,NSObject);

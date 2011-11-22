@@ -1338,9 +1338,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 -(void)main
 {
 	IMP ourFunction = [invocationTarget methodForSelector:invocationSelector];
-	id result = ourFunction(invocationTarget,invocationSelector,
-		invocationArg1,invocationArg2,invocationArg3,invocationArg4);
-
+	ourFunction(invocationTarget,invocationSelector, invocationArg1,invocationArg2,invocationArg3,invocationArg4);
 }
 
 - (void) dealloc

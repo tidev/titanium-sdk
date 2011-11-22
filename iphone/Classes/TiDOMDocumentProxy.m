@@ -48,16 +48,16 @@
 {
 	NSError *error = nil;
 	GDataXMLDocument * ourDocument = [[GDataXMLDocument alloc] initWithXMLString:xml options:0 error:&error];
-	if (error!=nil)
-	{
+	if (!error) {
+		[self setNode:[ourDocument rootElement]];
+		[self setDocument:ourDocument];
+		xmlDocPtr docPtr = [ourDocument docNode];
+		[TiDOMNodeProxy setNode:self forXMLNode:(xmlNodePtr)docPtr];
+		[ourDocument release];
+	} else {
 		[ourDocument release];
 		[self throwException:[error description] subreason:nil location:CODELOCATION];
 	}
-    [self setNode:[ourDocument rootElement]];
-	[self setDocument:ourDocument];
-    xmlDocPtr docPtr = [ourDocument docNode];
-    [TiDOMNodeProxy setNode:self forXMLNode:(xmlNodePtr)docPtr];
-	[ourDocument release];
 }
 
 #pragma mark Public APIs
@@ -71,7 +71,7 @@
 -(TiDOMAttrProxy *)createAttribute:(id)args
 {
 	ENSURE_ARG_COUNT(args, 1);
-	NSString * tagName;
+	NSString * tagName = nil;
 	ENSURE_ARG_AT_INDEX(tagName, args, 0, NSString);
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
 
@@ -88,10 +88,10 @@
 -(TiDOMAttrProxy *)createAttributeNS:(id)args
 {
 	ENSURE_ARG_COUNT(args, 2);
-    NSObject* obj1;
-    NSObject* obj2;
-    NSString * theURI;
-	NSString * tagName;
+    NSObject* obj1 = nil;
+    NSObject* obj2 = nil;
+    NSString * theURI = nil;
+	NSString * tagName = nil;
     
 	ENSURE_ARG_AT_INDEX(obj1, args, 0, NSObject);
 	ENSURE_ARG_AT_INDEX(obj2, args, 1, NSObject);
@@ -141,7 +141,7 @@
 -(TiDOMCDATANodeProxy *)createCDATASection:(id)args
 {
     ENSURE_ARG_COUNT(args, 1);
-	NSString * textData;
+	NSString * textData = nil;
 	ENSURE_ARG_AT_INDEX(textData, args, 0, NSString);
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
 	TiDOMCDATANodeProxy * result = [[[TiDOMCDATANodeProxy alloc] _initWithPageContext:context] autorelease];
@@ -155,7 +155,7 @@
 -(TiDOMCommentProxy *)createComment:(id)args
 {
     ENSURE_ARG_COUNT(args, 1);
-	NSString * textData;
+	NSString * textData = nil;
 	ENSURE_ARG_AT_INDEX(textData, args, 0, NSString);
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
 	TiDOMCommentProxy * result = [[[TiDOMCommentProxy alloc] _initWithPageContext:context] autorelease];
@@ -181,7 +181,7 @@
 -(TiDOMElementProxy *)createElement:(id)args
 {
 	ENSURE_ARG_COUNT(args, 1);
-	NSString * tagName;
+	NSString * tagName = nil;
 	ENSURE_ARG_AT_INDEX(tagName, args, 0, NSString);
     
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
@@ -196,16 +196,14 @@
 -(TiDOMElementProxy *)createElementNS:(id)args
 {
 	ENSURE_ARG_COUNT(args, 2);
-    NSObject* obj1;
-    NSObject* obj2;
-    NSString * theURI;
-	NSString * tagName;
+    NSObject* obj1 = nil;
+    NSObject* obj2 = nil;
 
 	ENSURE_ARG_AT_INDEX(obj1, args, 0, NSObject);
 	ENSURE_ARG_AT_INDEX(obj2, args, 1, NSObject);
     
-    theURI = [TiUtils stringValue:obj1];
-    tagName = [TiUtils stringValue:obj2];
+    NSString* theURI = [TiUtils stringValue:obj1];
+    NSString* tagName = [TiUtils stringValue:obj2];
     
     if (tagName == nil)
     {
@@ -247,7 +245,7 @@
 -(TiDOMEntityRefProxy*)createEntityReference:(id)args
 {
     ENSURE_ARG_COUNT(args, 1);
-	NSString * tagName;
+	NSString * tagName = nil;
 	ENSURE_ARG_AT_INDEX(tagName, args, 0, NSString);
     
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
@@ -262,8 +260,8 @@
 -(TiDOMPIProxy *)createProcessingInstruction:(id)args
 {
 	ENSURE_ARG_COUNT(args, 2);
-	NSString * theTarget;
-	NSString * theData;
+	NSString * theTarget = nil;
+	NSString * theData = nil;
 	ENSURE_ARG_AT_INDEX(theTarget, args, 0, NSString);
 	ENSURE_ARG_AT_INDEX(theData, args, 1, NSString);
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
@@ -278,7 +276,7 @@
 -(TiDOMTextNodeProxy *)createTextNode:(id)args
 {
 	ENSURE_ARG_COUNT(args, 1);
-	NSString * textData;
+	NSString * textData = nil;
 	ENSURE_ARG_AT_INDEX(textData, args, 0, NSString);
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
 	TiDOMTextNodeProxy * result = [[[TiDOMTextNodeProxy alloc] _initWithPageContext:context] autorelease];
@@ -367,8 +365,8 @@
 -(id)getElementsByTagNameNS:(id)args
 {
     ENSURE_ARG_COUNT(args, 2);
-    NSString * theURI;
-	NSString * localName;
+    NSString * theURI = nil;
+	NSString * localName = nil;
 	ENSURE_ARG_AT_INDEX(theURI, args, 0, NSString);
 	ENSURE_ARG_AT_INDEX(localName, args, 1, NSString);
 
@@ -397,8 +395,8 @@
 -(id)importNode:(id)args
 {
     ENSURE_ARG_COUNT(args, 2);
-    TiDOMNodeProxy* theNodeToImport;
-    NSNumber* recursive;
+    TiDOMNodeProxy* theNodeToImport = nil;
+    NSNumber* recursive = nil;
     ENSURE_ARG_AT_INDEX(theNodeToImport, args, 0, TiDOMNodeProxy);
     ENSURE_ARG_AT_INDEX(recursive, args, 1, NSNumber);
     

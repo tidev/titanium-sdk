@@ -30,7 +30,6 @@ typedef enum
 	TiDimension height;
 	BOOL configuredChildren;
 	int dirtyRowFlags;
-	BOOL subviewIsAnimating;
 	UIView * rowContainerView;
 	BOOL modifyingRow;
 	BOOL attaching;

@@ -17,7 +17,6 @@
 	NSRecursiveLock* playerLock;
 	BOOL playing;
 @private
-	UIView * legacyWindowView;
 
 	NSURL *url;
 	TiColor* backgroundColor;
