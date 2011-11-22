@@ -1894,7 +1894,6 @@ if(ourTableView != tableview)	\
 	TiUIView *view = [self sectionView:section forLocation:@"headerView" section:&sectionProxy];
 	TiViewProxy *viewProxy = (TiViewProxy *)[view proxy];
 	CGFloat size = 0;
-	BOOL hasTitle = NO;
 	if (viewProxy!=nil)
 	{
 		LayoutConstraint *viewLayout = [viewProxy layoutProperties];
@@ -1912,28 +1911,26 @@ if(ourTableView != tableview)	\
 		}
 	}
     /*
-     * Keeping this code in for historical reasons, because:
-     *
-     * Prior to iOS 5, this method (tableView:heightForHeaderInSection:) had its return value IGNORED
-     * for sections which returned `nil` for tableView:viewForHeaderInSection: -
-     * meaning that it was dead code.
-     *
-     * But in iOS 5, if this method is here, then it is ALWAYS called, even if that return value
-     * is nil; meaning we were previously providing the default spacing (which, contrary to
-     * our HEADERFOOTER_HEIGHT constant, is apparently not 20px and also apparently not 
-     * -[UITableView sectionHeaderHeight]).
-     *
-     * Returning a value of 0 coereces the table into rendering the section of "empty" header height,
-     * which is the behavior consistent with iOS <5.0 behavior.
+     * This behavior is slightly more complex between iOS 4 and iOS 5 than you might believe, and Apple's
+     * documentation is once again misleading. It states that in iOS 4 this value was "ignored if
+     * -[delegate tableView:viewForHeaderInSection:] returned nil" but apparently a non-nil value for
+     * -[delegate tableView:titleForHeaderInSection:] is considered a valid value for height handling as well,
+     * provided it is NOT the empty string.
+     * 
+     * So for parity with iOS 4, iOS 5 must similarly treat the empty string header as a 'nil' value and
+     * return a 0.0 height that is overridden by the system.
+     */
 	else if ([sectionProxy headerTitle]!=nil)
 	{
-		hasTitle = YES;
-		size = [tableview sectionHeaderHeight];
+        if ([TiUtils isIOS5OrGreater] && [[sectionProxy headerTitle] isEqualToString:@""]) {
+            return size;
+        }
+		size+=[tableview sectionHeaderHeight];
+        
         if (size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT) {
-            size = DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+            size += DEFAULT_SECTION_HEADERFOOTER_HEIGHT;            
         }
 	}
-     */
 	return size;
 }
 
