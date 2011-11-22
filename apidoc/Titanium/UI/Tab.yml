@@ -2,18 +2,40 @@
 name: Titanium.UI.Tab
 summary: A tab instance for a [TabGroup](Titanium.UI.TabGroup).
 description: |
-    A `TabGroup` tab instance. Each tab instance maintains a stack of tab windows. Only one window 
-    in the tab is visible at a time.  When a window is closed, either by the user or 
-    by code, the window is removed from the stack, making the previous window visible. The root tab 
-    window cannot be removed. Use the <Titanium.UI.createTab> method to create a tab.
-    
+    A `TabGroup` tab instance. Each tab includes a button and one or more windows, which 
+    holds the "contents" of the tab. Users can select a tab by clicking on the tab button.
+
     Use [TabGroup.setActiveTab](Titanium.UI.TabGroup.setActiveTab) to switch between tabs 
-    in a tab group. The <Titanium.UI.currentTab> property provides a global reference to the currently active tab.
+    in a tab group. The <Titanium.UI.currentTab> property provides a global reference to 
+    the currently active tab. Use the <Titanium.UI.createTab> method to create a tab.
+    
+    #### Platform Implementation Notes
+    The behavior of tabs and tab groups follows the platform's native navigation style, 
+    which varies significantly between platforms.
+
+    On iOS, the tab maintains a stack of windows. Windows on top of the stack can partially 
+    or totally obscure windows lower in the stack.  Calling [open](Titanium.UI.Tab.open) 
+    opens a new window on top of the window stack. When a window is closed, either by the 
+    user or by code, the window is removed from the stack, making the previous window 
+    visible. The root tab window cannot be removed. On iOS the tab controls are generally 
+    kept on screen to allow a user to navigate inside the app. Tab controls are hidden 
+    when the user is performing a modal task (for example, composing a message). In this case,
+    the app should open the new window as modal and provide a button in the navigation 
+    bar to return to the previous screen.
+
+    On Android, calling [open](Titanium.UI.Tab.open) opens a new, heavyweight window, which 
+    by default covers the tab group entirely. This seems quite different from the iOS model,
+    but it is the standard model for Android applications. Users can use the **Back** button 
+    to return to the tab group.
+    
 extends: Titanium.UI.View
 since: "0.8"
 methods:
   - name: open
-    description: Opens a new window as the top window in the tab's window stack.
+    summary: Opens a new window.
+    description: On iOS, the new window is opened as the top window 
+        in the tab's window stack. On Android, the new window is opened as a new, 
+        heavyweight window, obscuring the tab group.
     parameters: 
       - name: window
         description: Window to open.
@@ -36,6 +58,7 @@ properties:
   - name: badge
     description: Badge value for this tab's tab group. `null` indicates no badge.
     type: String
+    platforms: [iphone,ipad]
   - name: icon
     description: Icon URL for this tab's tab group.
     type: String
