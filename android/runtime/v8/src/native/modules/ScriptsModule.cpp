@@ -58,6 +58,9 @@ WrappedContext::WrappedContext(Persistent<Context> context)
 WrappedContext::~WrappedContext()
 {
 	context_.Dispose();
+	if (!initCallback_.IsEmpty()) {
+		initCallback_.Dispose();
+	}
 }
 
 Local<Object> WrappedContext::NewInstance()
@@ -69,6 +72,16 @@ Local<Object> WrappedContext::NewInstance()
 Persistent<Context> WrappedContext::GetV8Context()
 {
 	return context_;
+}
+
+Persistent<Function> WrappedContext::GetInitCallback()
+{
+	return initCallback_;
+}
+
+void WrappedContext::SetInitCallback(Persistent<Function> initCallback)
+{
+	initCallback_ = initCallback;
 }
 
 Handle<Object> WrappedContext::WrapContext(Persistent<Context> context)
@@ -122,6 +135,8 @@ Handle<Value> WrappedScript::CreateContext(const Arguments& args)
 {
 	HandleScope scope;
 	Local<Object> context = WrappedContext::NewInstance();
+	WrappedContext *wrappedContext = NativeObject::Unwrap<WrappedContext>(context);
+
 	if (args.Length() > 0) {
 		Local<Object> sandbox = args[0]->ToObject();
 		Local<Array> keys = sandbox->GetPropertyNames();
@@ -134,7 +149,14 @@ Handle<Value> WrappedScript::CreateContext(const Arguments& args)
 			}
 			context->Set(key, value);
 		}
+
+		if (args.Length() > 1 && args[0]->IsFunction()) {
+			wrappedContext->SetInitCallback(Persistent<Function>::New(args[0].As<Function>()));
+		}
 	}
+
+	wrappedContext->GetV8Context()->SetSecurityToken(
+		Context::GetCurrent()->GetSecurityToken());
 
 	return scope.Close(context);
 }
@@ -209,14 +231,17 @@ Handle<Value> WrappedScript::EvalMachine(const Arguments& args)
 
 	Local<Array> keys;
 	unsigned int i;
+	WrappedContext *nContext = NULL;
+	Local<Object> contextArg;
+
 	if (context_flag == newContext) {
 		// Create the new context
 		context = Context::New();
 
 	} else if (context_flag == userContext) {
 		// Use the passed in context
-		Local<Object> contextArg = args[sandbox_index]->ToObject();
-		WrappedContext *nContext = NativeObject::Unwrap<WrappedContext>(sandbox);
+		contextArg = args[sandbox_index]->ToObject();
+		nContext = NativeObject::Unwrap<WrappedContext>(sandbox);
 		context = nContext->GetV8Context();
 	}
 
@@ -224,6 +249,16 @@ Handle<Value> WrappedScript::EvalMachine(const Arguments& args)
 	if (context_flag == userContext || context_flag == newContext) {
 		// Enter the context
 		context->Enter();
+
+		// Call the initCallback, if it exists
+		if (nContext) {
+			Persistent<Function> initCallback = nContext->GetInitCallback();
+
+			if (!initCallback.IsEmpty()) {
+				Handle<Value> callbackArgs[] = { contextArg, context->Global() };
+				initCallback->Call(contextArg, 2, callbackArgs);
+			}
+		}
 
 		// Copy everything from the passed in sandbox (either the persistent
 		// context for runInContext(), or the sandbox arg to runInNewContext()).

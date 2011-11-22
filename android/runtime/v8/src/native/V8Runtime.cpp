@@ -226,8 +226,12 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDi
 	JNIScope jniScope(env);
 
 	LOGE(TAG, "Disposing global context");
+	moduleObject.Dispose();
+	runModuleFunction.Dispose();
+
+	V8Runtime::krollGlobalObject.Dispose();
+	V8Runtime::globalContext->Exit();
 	V8Runtime::globalContext.Dispose();
-	V8::Dispose();
 
 	env->DeleteGlobalRef(V8Runtime::javaInstance);
 	V8Runtime::javaInstance = NULL;

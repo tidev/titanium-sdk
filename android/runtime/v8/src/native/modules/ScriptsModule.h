@@ -26,6 +26,9 @@ public:
 	static v8::Handle<v8::Value> New(const v8::Arguments& args);
 
 	v8::Persistent<v8::Context> GetV8Context();
+	v8::Persistent<v8::Function> GetInitCallback();
+	void SetInitCallback(v8::Persistent<v8::Function> initCallback);
+
 	static v8::Local<v8::Object> NewInstance();
 	static v8::Handle<v8::Object> WrapContext(v8::Persistent<v8::Context> context);
 
@@ -38,6 +41,7 @@ protected:
 	virtual ~WrappedContext();
 
 	v8::Persistent<v8::Context> context_;
+	v8::Persistent<v8::Function> initCallback_;
 };
 
 class WrappedScript: NativeObject

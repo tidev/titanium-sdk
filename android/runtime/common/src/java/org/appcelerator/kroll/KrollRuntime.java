@@ -22,13 +22,15 @@ import android.util.Log;
 public abstract class KrollRuntime implements Handler.Callback
 {
 	private static final String TAG = "KrollRuntime";
-	private static final int MSG_DISPOSE = 100;
-	private static final int MSG_RUN_MODULE = 101;
+	private static final int MSG_INIT = 100;
+	private static final int MSG_DISPOSE = 101;
+	private static final int MSG_RUN_MODULE = 102;
 
 	private static final String PROPERTY_FILENAME = "filename";
 	private static final String PROPERTY_SOURCE = "source";
 
 	private static KrollRuntime instance;
+	private static int activityRefCount = 0;
 
 	private WeakReference<KrollApplication> krollApplication;
 	private KrollRuntimeThread thread;
@@ -79,9 +81,6 @@ public abstract class KrollRuntime implements Handler.Callback
 			// NOTE: this must occur after threadId is set and before initRuntime() is called
 			TiMessenger.getMessenger();
 
-			runtime.initRuntime(); // initializer for the specific runtime implementation (V8, Rhino, etc)
-			runtime.initialized.set(true);
-
 			// start handling messages for this thread
 			Looper.loop();
 		}
@@ -120,6 +119,13 @@ public abstract class KrollRuntime implements Handler.Callback
 	public long getThreadId()
 	{
 		return threadId;
+	}
+
+	protected void doInit()
+	{
+		// initializer for the specific runtime implementation (V8, Rhino, etc)
+		initRuntime();
+		initialized.set(true);
 	}
 
 	public void dispose()
@@ -165,6 +171,10 @@ public abstract class KrollRuntime implements Handler.Callback
 	public boolean handleMessage(Message msg)
 	{
 		switch (msg.what) {
+			case MSG_INIT:
+				doInit();
+				return true;
+
 			case MSG_DISPOSE:
 				doDispose();
 				return true;
@@ -179,6 +189,25 @@ public abstract class KrollRuntime implements Handler.Callback
 		}
 
 		return false;
+	}
+
+	public static void incrementActivityRefCount()
+	{
+		activityRefCount++;
+		if (activityRefCount == 1) {
+			instance.handler.sendEmptyMessage(MSG_INIT);
+
+		}
+	}
+
+	public static void decrementActivityRefCount()
+	{
+		activityRefCount--;
+		if (activityRefCount > 0 || instance == null) {
+			return;
+		}
+
+		instance.dispose();
 	}
 
 	public abstract void initRuntime();

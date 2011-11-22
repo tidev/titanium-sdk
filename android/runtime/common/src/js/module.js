@@ -9,7 +9,8 @@ var NativeModule = require('native_module'),
 	assets = kroll.binding('assets'),
 	path = require('path'),
 	Script = kroll.binding('evals').Script,
-	runInThisContext = require('vm').runInThisContext;
+	runInThisContext = require('vm').runInThisContext,
+	bootstrap = require('bootstrap');
 
 var TAG = "Module";
 
@@ -32,6 +33,14 @@ Module.paths = [ 'Resources/' ];
 Module.wrap = NativeModule.wrap;
 
 Module.runModule = function (source, filename, activity) {
+	/*kroll.log("runModule", "run module: " + filename);
+	if (filename === "Resources/app.js") {
+		// TODO this is a bandaid for the time being
+		// we need to clean up state in the app gracefully
+		Module.cache = [];
+		Module.main = null;
+	}*/
+
 	var id = filename;
 	if (!Module.main) {
 		id = ".";
@@ -128,60 +137,64 @@ Module.prototype._runScript = function (source, filename) {
 	var self = this;
 	var url = "app://" + filename.replace("Resources/", "");
 
-	function require(path, context) {
-		return self.require(path, context);
-	}
-	require.main = Module.main;
+	kroll.log(TAG, "in _runScript: " + filename + ", id = " + self.id);
 
-	if (self.id == '.') {
-		global.require = require;
-		Titanium.Android.currentActivity = self.context.currentActivity;
-
-		return runInThisContext(source, filename, true);
-	}
-
-	// Create context-bound modules.
-	var context = self.context || {};
-	context.sourceUrl = url;
-	context.module = this;
-
-	// Create a "context global" that's specific to each module
-	var contextGlobal = context.global = {
-		exports: this.exports,
-		require: require,
-		module: this,
-		__filename: filename,
-		__dirname: path.dirname(filename),
-		kroll: kroll
-	};
-	contextGlobal.global = contextGlobal;
-
-	var ti = new Titanium.Wrapper(context);
-	contextGlobal.Ti = contextGlobal.Titanium = ti;
-
-	// Copy global APIs over into the context global
-	var skipKeys = Object.keys(contextGlobal);
-	var keys = Object.keys(global);
-	var len = keys.length;
-	for (var i = 0; i < len; ++i) {
-		var key = keys[i];
-		if (skipKeys.indexOf(key) < 0) {
-			contextGlobal[key] = global[key];
+	try {
+		function require(path, context) {
+			return self.require(path, context);
 		}
-	}
-
-	if (kroll.runtime == "rhino") {
-		// The Rhino version of this API takes a custom global object but uses the same Rhino "Context".
-		// It's not possible to create more than 1 Context per thread in Rhino, so contextGlobal
-		// is essentially a detached global object that mimics a new context.
-		return runInThisContext(source, filename, true, contextGlobal);
-
-	} else {
-		// The V8 version of this API creates a brand new V8 top-level context that's associated
-		// with a new global object. Script.createContext copies all of our context-specific data
-		// into a new ContextWrapper that doubles as the global object for the context itself.
-		var newContext = context.global = ti.global = Script.createContext(contextGlobal);
-		return Script.runInContext(source, newContext, filename, true);
+		require.main = Module.main;
+	
+		if (self.id == '.') {
+			global.require = require;
+			Titanium.Android.currentActivity = self.context.currentActivity;
+	
+			return runInThisContext(source, filename, true);
+		}
+	
+		// Create context-bound modules.
+		var context = self.context || {};
+		context.sourceUrl = url;
+		context.module = this;
+	
+		// Create a "context global" that's specific to each module
+		var contextGlobal = context.global = {
+			exports: this.exports,
+			require: require,
+			module: this,
+			__filename: filename,
+			__dirname: path.dirname(filename),
+			kroll: kroll
+		};
+		contextGlobal.global = contextGlobal;
+	
+		var ti = new Titanium.Wrapper(context);
+		contextGlobal.Ti = contextGlobal.Titanium = ti;
+	
+		// This function is called by the context when it is finished initializing
+		// the builtin Javascript APIs
+		function initContext(ctx, contextGlobal) {
+			// Bootstrap Titanium global APIs onto the new context global
+			bootstrap.bootstrapGlobals(contextGlobal, Titanium);
+		}
+	
+		// We initialize the context with the standard Javascript APIs and globals first before running the script
+		var newContext = context.global = ti.global = Script.createContext(contextGlobal, initContext);
+	
+		if (kroll.runtime == "rhino") {
+			// The Rhino version of this API takes a custom global object but uses the same Rhino "Context".
+			// It's not possible to create more than 1 Context per thread in Rhino, so contextGlobal
+			// is essentially a detached global object that mimics a new context.
+			return runInThisContext(source, filename, true, newContext);
+	
+		} else {
+			// The V8 version of this API creates a brand new V8 top-level context that's associated
+			// with a new global object. Script.createContext copies all of our context-specific data
+			// into a new ContextWrapper that doubles as the global object for the context itself.
+			return Script.runInContext(source, newContext, filename, true);
+		}
+	} catch (e) {
+		kroll.log(TAG, "got error running module: " + e);
 	}
 }
 

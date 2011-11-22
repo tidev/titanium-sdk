@@ -37,6 +37,7 @@ public class ScriptsModule extends ScriptableObject
 	{
 		putProperty(this, "runInThisContext", new RunInThisContext());
 		putProperty(this, "runInSandbox", new RunInSandbox());
+		putProperty(this, "createContext", new CreateContext());
 	}
 
 	private static Object runCompiledJar(Context context, Scriptable scope, Scriptable sandbox, String jarPath, String className)
@@ -119,12 +120,9 @@ public class ScriptsModule extends ScriptableObject
 				displayError = ((Boolean) args[2]).booleanValue();
 			}
 
-			Scriptable global = RhinoRuntime.getGlobalScope();
-			Scriptable contextGlobal = global;
-			if (args.length > 3 && args[3] instanceof Scriptable) {
+			Scriptable contextGlobal = RhinoRuntime.getGlobalScope();
+			if (args.length > 3 && args[3] instanceof ScriptableObject) {
 				contextGlobal = (Scriptable) args[3];
-				contextGlobal.setParentScope(null);
-				cx.initStandardObjects((ScriptableObject) contextGlobal);
 			}
 
 			return runSource(cx, contextGlobal, code, filename, displayError);
@@ -148,6 +146,25 @@ public class ScriptsModule extends ScriptableObject
 			Scriptable global = (Scriptable) args[3];
 
 			return runInSandbox(cx, scope, sandbox, path, url, global);
+		}
+	}
+
+	private static class CreateContext extends BaseFunction
+	{
+		private static final long serialVersionUID = 2562915206016408283L;
+
+		@Override
+		public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
+		{
+			if (args.length < 1) {
+				throw new IllegalArgumentException("createContext requires 1 arg: contextGlobal");
+			}
+
+			Scriptable contextGlobal = (Scriptable) args[0];
+			contextGlobal.setParentScope(null);
+			cx.initStandardObjects((ScriptableObject) contextGlobal);
+
+			return contextGlobal;
 		}
 	}
 
