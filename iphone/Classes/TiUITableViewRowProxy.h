@@ -51,7 +51,6 @@ typedef enum
 
 +(void)clearTableRowCell:(UITableViewCell*)cell;
 -(void)initializeTableViewCell:(UITableViewCell*)cell;
--(void)renderTableViewCell:(UITableViewCell*)cell;
 -(CGFloat)sizeWidthForDecorations:(CGFloat)oldWidth forceResizing:(BOOL)force;
 -(CGFloat)rowHeight:(CGFloat)width;
 -(TiProxy *)touchedViewProxyInCell:(UITableViewCell *)targetCell atPoint:(CGPoint*)point;
