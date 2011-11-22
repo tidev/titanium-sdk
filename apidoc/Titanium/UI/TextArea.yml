@@ -1,80 +1,79 @@
 ---
 name: Titanium.UI.TextArea
-description: |
-    A multiline text field that supports editing and scrolling. 
-     
-    Use the <Titanium.UI.createTextArea> method to create a text area. 
+summary: A multiline text field that supports editing and scrolling. 
+description: Use the <Titanium.UI.createTextArea> method to create a text area. 
 extends: Titanium.UI.View
 since: "0.8"
 methods:
   - name: blur
-    description: Forces the text area to lose focus.
+    summary: Forces the text area to lose focus.
   - name: focus
-    description: Forces the text area to gain focus.
+    summary: Forces the text area to gain focus.
   - name: hasText
-    description: Returns `true` if the text area contains text, `false` if it is empty.
+    summary: Returns `true` if the text area contains text, `false` if it is empty.
 events:
   - name: blur
-    description: Fired when the text area loses focus.
+    summary: Fired when the text area loses focus.
     properties:
       - name: value
-        description: Value of the text area at the time of the event.
+        summary: Value of the text area at the time of the event.
   - name: change
-    description: Fired when the text area value changes.
+    summary: Fired when the text area value changes.
     properties:
       - name: value
-        description: New value of the text area.
+        summary: New value of the text area.
   - name: focus
-    description: Fired when the text area gains focus.
+    summary: Fired when the text area gains focus.
     properties:
       - name: value
-        description: Value of the text area at the time of the event.
+        summary: Value of the text area at the time of the event.
   - name: return
-    description: Fired when the return key is pressed on the keyboard.
+    summary: Fired when the return key is pressed on the keyboard.
     properties:
       - name: value
-        description: Value of the text area at the time of the event.
+        summary: Value of the text area at the time of the event.
   - name: selected
-    description: Fired when text in the text area is selected.
+    summary: Fired when text in the text area is selected.
     properties:
       - name: range
-        description: A range of text. The range is an object with the properties `location` and `length`.
+        summary: A range of text. The range is an object with the properties `location` and `length`.
 properties:
   - name: autoLink
-    description: Automatically convert text within this area to clickable links. Specify which type of items should be converted using the `AUTODETECT` constants defined in <Titanium.UI>.
+    summary: Automatically convert text within this area to clickable links. 
+    description: Specify which type of items should be converted using the `AUTODETECT` constants defined in <Titanium.UI>.
     platforms: [iphone, ipad]
     type: Number
   - name: autocapitalization
-    description: >
-        Specifies how text should be capitalized during typing. Specify one of the following constants from <Titanium.UI>: [TEXT_AUTOCAPITALIZATION_NONE](Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE), [TEXT_AUTOCAPITALIZATION_WORDS](Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS), [TEXT_AUTOCAPITALIZATION_SENTENCES](Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES), or [TEXT_AUTOCAPITALIZATION_ALL](Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL).
+    summary: Specifies how text should be capitalized during typing. 
+    description: Specify one of the following constants from <Titanium.UI>: [TEXT_AUTOCAPITALIZATION_NONE](Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE), [TEXT_AUTOCAPITALIZATION_WORDS](Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS), [TEXT_AUTOCAPITALIZATION_SENTENCES](Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES), or [TEXT_AUTOCAPITALIZATION_ALL](Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL).
     platforms: [android,iphone,ipad]
     type: Number
   - name: editable
-    description: Is the text area editable?
+    summary: Is the text area editable?
     type: Boolean
   - name: enabled
-    description: Is the text area enabled?
+    summary: Is the text area enabled?
     type: Boolean
   - name: keyboardToolbar
-    description: Array of toolbar button objects to be used when the keyboard is displayed.
+    summary: Array of toolbar button objects to be used when the keyboard is displayed.
     type: Array<Object>
     platforms: [iphone,ipad]
   - name: keyboardToolbarColor
-    description: Color of the keyboard toolbar.
+    summary: Color of the keyboard toolbar.
     type: String
     platforms: [iphone,ipad]
   - name: keyboardToolbarHeight
-    description: Height of the keyboard toolbar.
+    summary: Height of the keyboard toolbar.
     type: Number
     platforms: [iphone,ipad]
   - name: suppressReturn
-    description: Should the return key be suppressed during entry?
+    summary: Should the return key be suppressed during entry?
     type: Boolean
   - name: value
-    description: Value of the text area.
+    summary: Value of the text area.
     type: String
   - name: scrollable
-    description: Can the text area be scrolled?
+    summary: Can the text area be scrolled?
     platforms: [iphone, ipad]
     type: Boolean
     default: true

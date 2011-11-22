@@ -12,25 +12,27 @@ extends: Titanium.Proxy
 since: "0.8"
 methods:
   - name: hide
-    description: Hides the activity indicator and stops the animation.
+    summary: Hides the activity indicator and stops the animation.
   - name: show
-    description: Shows the activity indicator and starts the animation.
+    summary: Shows the activity indicator and starts the animation.
 properties:
   - name: color
-    description: Color of the message text.
+    summary: Color of the message text.
     type: String
     platforms: [iphone,ipad,mobileweb]
   - name: font
-    description: Font to use for the message text.
+    summary: Font to use for the message text.
     type: Font
   - name: message
-    description: Message text.
+    summary: Message text.
     type: String
   - name: messageid
-    description: Key identifying a string from the locale file to use for the message text. Only one of `message` or `messageid` should be specified.
+    summary: Key identifying a string from the locale file to use for the message text. 
+    description: Only one of `message` or `messageid` should be specified.
     type: String
   - name: style
-    description: The style for the activity indicator. For iOS, the style can be set to one of the constants defined in <Titanium.UI.iPhone.ActivityIndicatorStyle>.
+    summary: The style for the activity indicator. 
+    description: The style can be set to one of the constants defined in <Titanium.UI.iPhone.ActivityIndicatorStyle>.
     type: Number
     platforms: [iphone,ipad]
     

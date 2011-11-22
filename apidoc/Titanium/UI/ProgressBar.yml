@@ -2,7 +2,8 @@
 name: Titanium.UI.ProgressBar
 summary: A progress bar.
 description: |
-    A progress bar is used for displaying an ongoing activity with a defined progression. For an activity without a defined progression, you can use <Titanium.UI.ActivityIndicator>. 
+    A progress bar is used for displaying an ongoing activity with a defined progression. 
+    For an activity without a defined progression, you can use <Titanium.UI.ActivityIndicator>. 
 
     Use the <Titanium.UI.createProgressBar> method to create a progress bar.
 extends: Titanium.Proxy
@@ -10,25 +11,27 @@ since: "0.8"
 platforms: [android, iphone, ipad]
 properties:
   - name: color
-    description: Color of the progress bar text.
+    summary: Color of the progress bar text.
     type: String
   - name: font
-    description: Font for the progress bar text.
+    summary: Font for the progress bar text.
     type: Font
   - name: max
-    description: Maximum value of the progress bar.
+    summary: Maximum value of the progress bar.
     type: Number
   - name: message
-    description: Progress bar text.
+    summary: Progress bar text.
     type: String
   - name: min
-    description: Minimum value of the progress bar.
+    summary: Minimum value of the progress bar.
     type: Number
   - name: style
-    description: Style of the progress bar. For iPhone, progress bar styles are constants defined in [ProgressBarStyle](Titanium.UI.iPhone.ProgressBarStyle).
+    summary: Style of the progress bar. 
+    description: For iOS, progress bar styles are constants defined in 
+        [ProgressBarStyle](Titanium.UI.iPhone.ProgressBarStyle).
     type: Number
   - name: value
-    description: Current value of the progress bar.
+    summary: Current value of the progress bar.
     type: Number
 examples:
   - title: Simple Progress Bar

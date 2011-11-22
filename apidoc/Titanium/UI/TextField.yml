@@ -1,127 +1,154 @@
 ---
 name: Titanium.UI.TextField
-description: A single line text field. Use the <Titanium.UI.createTextField> method to create a text field is a single line field.
+summary: A single line text field. 
+description: Use the <Titanium.UI.createTextField> method to create a text field.
 extends: Titanium.UI.View
 since: "0.8"
 methods:
   - name: blur
-    description: Forces the field to lose focus.
+    summary: Forces the field to lose focus.
   - name: focus
-    description: Forces the field to gain focus.
+    summary: Forces the field to gain focus.
   - name: hasText
-    description: Returns `true` if the field contains text, `false` if it is empty.
+    summary: Returns `true` if the field contains text, `false` if it is empty.
 events:
   - name: blur
-    description: Fired when the field loses focus.
+    summary: Fired when the field loses focus.
     platforms: [android, iphone, ipad]
     properties:
       - name: value
-        description: Value of the field at the time of the event.
+        summary: Value of the field at the time of the event.
   - name: change
-    description: Fired when the field value changes.
+    summary: Fired when the field value changes.
     platforms: [android, iphone, ipad]
     properties:
       - name: value
-        description: New value of the field.
+        summary: New value of the field.
   - name: focus
-    description: Fired when the field gains focus.
+    summary: Fired when the field gains focus.
     platforms: [android, iphone, ipad]
     properties:
       - name: value
-        description: Value of the field at the time of the event.
+        summary: Value of the field at the time of the event.
   - name: return
-    description: Fired when the return key is pressed on the keyboard.
+    summary: Fired when the return key is pressed on the keyboard.
     platforms: [android, iphone, ipad]
 properties:
   - name: autocapitalization
-    description: >
-        Determines how text is capitalized during typing. Specify one of the following constants from <Titanium.UI>: [TEXT_AUTOCAPITALIZATION_NONE](Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE), [TEXT_AUTOCAPITALIZATION_WORDS](Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS), [TEXT_AUTOCAPITALIZATION_SENTENCES](Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES), or [TEXT_AUTOCAPITALIZATION_ALL](Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL).
+    summary: Determines how text is capitalized during typing. 
+    description: Specify one of the following constants from <Titanium.UI>: 
+        [TEXT_AUTOCAPITALIZATION_NONE](Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE), 
+        [TEXT_AUTOCAPITALIZATION_WORDS](Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS), 
+        [TEXT_AUTOCAPITALIZATION_SENTENCES](Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES), or 
+        [TEXT_AUTOCAPITALIZATION_ALL](Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL).
     type: Number
   - name: borderStyle
-    description: Border style for the field. Specify one of the `INPUT_BORDERSTYLE` constants defined in [Titanium.UI](Titanium.UI.INPUT_BORDERSTYLE_BEZEL).
+    summary: Border style for the field. 
+    description: Specify one of the `INPUT_BORDERSTYLE` constants defined in [Titanium.UI](Titanium.UI.INPUT_BORDERSTYLE_BEZEL).
     type: Number
   - name: clearButtonMode
-    description: >
-        When to display the clear button. Specify one of the following  <Titanium.UI> constants: [INPUT_BUTTONMODE_ALWAYS](Titanium.UI.INPUT_BUTTONMODE_ALWAYS), [INPUT_BUTTONMODE_NEVER](Titanium.UI.INPUT_BUTTONMODE_NEVER), [INPUT_BUTTONMODE_ONBLUR](Titanium.UI.INPUT_BUTTONMODE_ONBLUR), or [INPUT_BUTTONMODE_ONFOCUS](Titanium.UI.INPUT_BUTTONMODE_ONFOCUS).
+    summary: When to display the clear button. 
+    description: Specify one of the following  <Titanium.UI> constants: 
+        [INPUT_BUTTONMODE_ALWAYS](Titanium.UI.INPUT_BUTTONMODE_ALWAYS), 
+        [INPUT_BUTTONMODE_NEVER](Titanium.UI.INPUT_BUTTONMODE_NEVER), 
+        [INPUT_BUTTONMODE_ONBLUR](Titanium.UI.INPUT_BUTTONMODE_ONBLUR), or 
+        [INPUT_BUTTONMODE_ONFOCUS](Titanium.UI.INPUT_BUTTONMODE_ONFOCUS).
     type: Number
     platforms: [android, iphone, ipad]
   - name: clearOnEdit
-    description: Should the value of the field be cleared when the user starts editing?
+    summary: Should the value of the field be cleared when the user starts editing?
     type: Boolean
   - name: editable
-    description: Is the field editable?
+    summary: Is the field editable?
     type: Boolean
   - name: enabled
-    description: Is the field enabled?
+    summary: Is the field enabled?
     type: Boolean
   - name: hintText
-    description: Hint text to display when the field is unfocused.
+    summary: Hint text to display when the field is unfocused.
     type: String
   - name: keyboardToolbar
-    description: Array of toolbar button objects to be used when the keyboard is displayed.
+    summary: Array of toolbar button objects to be used when the keyboard is displayed.
     type: Array<Object>
     platforms: [iphone, ipad]
   - name: keyboardToolbarColor
-    description: Color of the keyboard toolbar.
+    summary: Color of the keyboard toolbar.
     type: String
     platforms: [iphone, ipad]
   - name: keyboardToolbarHeight
-    description: Height of the keyboard toolbar.
+    summary: Height of the keyboard toolbar.
     type: Number
     platforms: [iphone, ipad]
   - name: leftButton
-    description: Left button view. Using an object other than a [Button](Titanium.UI.Button) may have unpredictable results.
+    summary: Left button view. Using an object other than a [Button](Titanium.UI.Button) may have unpredictable results.
     type: Object
     platforms: [iphone, ipad]
   - name: leftButtonMode
-    description: |
-        When to display the left button view. Specify one of the following  <Titanium.UI> constants: [INPUT_BUTTONMODE_ALWAYS](Titanium.UI.INPUT_BUTTONMODE_ALWAYS), [INPUT_BUTTONMODE_NEVER](Titanium.UI.INPUT_BUTTONMODE_NEVER), [INPUT_BUTTONMODE_ONBLUR](Titanium.UI.INPUT_BUTTONMODE_ONBLUR), or [INPUT_BUTTONMODE_ONFOCUS](Titanium.UI.INPUT_BUTTONMODE_ONFOCUS).
+    summary: When to display the left button view. 
+    description: Specify one of the following  <Titanium.UI> constants: 
+        [INPUT_BUTTONMODE_ALWAYS](Titanium.UI.INPUT_BUTTONMODE_ALWAYS), 
+        [INPUT_BUTTONMODE_NEVER](Titanium.UI.INPUT_BUTTONMODE_NEVER), 
+        [INPUT_BUTTONMODE_ONBLUR](Titanium.UI.INPUT_BUTTONMODE_ONBLUR), or 
+        [INPUT_BUTTONMODE_ONFOCUS](Titanium.UI.INPUT_BUTTONMODE_ONFOCUS).
     type: Number
     platforms: [iphone, ipad]
   - name: leftButtonPadding
-    description: Padding between the left button and the edge of the field.
+    summary: Padding between the left button and the edge of the field.
     type: Number
     platforms: [android, iphone, ipad]
   - name: minimumFontSize
-    description: Minimum size of the font when the font is sized based on the contents.  Enables font scaling to fit.
+    summary: Minimum size of the font when the font is sized based on the contents.  Enables font scaling to fit.
     type: Number
     platforms: [iphone, ipad]
   - name: paddingLeft
-    description: Left padding of the text field.
+    summary: Left padding of the text field.
     type: Number
   - name: paddingRight
-    description: Right padding of the text field.
+    summary: Right padding of the text field.
     type: Number
   - name: passwordMask
-    description: |
-        Set to `true` to hide entered characters. Note: on iOS, `passwordMask` *must* be specified when the text field is created.
+    summary: Set to `true` to hide entered characters. 
+    description: Note: on iOS, `passwordMask` *must* be specified when the text field is created.
     type: Boolean
     default: false
   - name: rightButton
-    description: Right button view. Using an object other than a [Button](Titanium.UI.Button) may have unpredictable results.
+    summary: Right button view. 
+    description: Using an object other than a [Button](Titanium.UI.Button) may have 
+        unpredictable results.
     type: Object
     platforms: [iphone, ipad]
   - name: rightButtonMode
+    summary: When to display the right button view. 
     description: |
-        When to display the right button view. Specify one of the following  <Titanium.UI> constants: [INPUT_BUTTONMODE_ALWAYS](Titanium.UI.INPUT_BUTTONMODE_ALWAYS), [INPUT_BUTTONMODE_NEVER](Titanium.UI.INPUT_BUTTONMODE_NEVER), [INPUT_BUTTONMODE_ONBLUR](Titanium.UI.INPUT_BUTTONMODE_ONBLUR), or [INPUT_BUTTONMODE_ONFOCUS](Titanium.UI.INPUT_BUTTONMODE_ONFOCUS).
+        Specify one of the following  <Titanium.UI> constants: 
+        [INPUT_BUTTONMODE_ALWAYS](Titanium.UI.INPUT_BUTTONMODE_ALWAYS),     
+        [INPUT_BUTTONMODE_NEVER](Titanium.UI.INPUT_BUTTONMODE_NEVER), 
+        [INPUT_BUTTONMODE_ONBLUR](Titanium.UI.INPUT_BUTTONMODE_ONBLUR), or 
+        [INPUT_BUTTONMODE_ONFOCUS](Titanium.UI.INPUT_BUTTONMODE_ONFOCUS).
     type: Number
     platforms: [iphone, ipad]
   - name: rightButtonPadding
-    description: Padding between the right button and the edge of the field.
+    summary: Padding between the right button and the edge of the field.
     type: Number
     platforms: [iphone, ipad]
   - name: suppressReturn
-    description: Should the return key should be suppressed during entry?
+    summary: Should the return key should be suppressed during entry?
     type: Boolean
   - name: value
-    description: Value of the field.
+    summary: Value of the field.
     type: String
   - name: verticalAlign
-    description: |
-        Vertical alignment for the text field, specified using a string ('top', 'center', 'bottom') or one of the vertical alignment constants from <Titanium.UI>: [TEXT_VERTICAL_ALIGNMENT_BOTTOM](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM), [TEXT_VERTICAL_ALIGNMENT_CENTER](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER), or [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
+    summary: Vertical alignment for the text field, specified using a string ('top', 
+        'center', 'bottom') or one of the vertical alignment constants from <Titanium.UI>: 
+        [TEXT_VERTICAL_ALIGNMENT_BOTTOM](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM), 
+        [TEXT_VERTICAL_ALIGNMENT_CENTER](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER), or 
+        [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
     type: [Number,String]
   - name: maxLength
-    description: Maximum length of text field input. Any attempt to input text beyond this length (including pasting a string larger than `maxLength`) will not edit the field's contents. A value of -1 indicates unlimited length.
+    summary: Maximum length of text field input. 
+    description: Any attempt to input text beyond this length (including pasting a string 
+        larger than `maxLength`) will not edit the field's contents. A value of -1 
+        indicates unlimited length.
     default: -1
     type: Number
     platforms: [iphone]

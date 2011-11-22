@@ -7,41 +7,46 @@ extends: Titanium.UI.View
 since: "0.8"
 properties:
   - name: color
-    description: Default button text color.
+    summary: Default button text color.
     type: String
   - name: enabled
-    description: Set to `true` to enable the button, `false` to disable the button.
+    summary: Set to `true` to enable the button, `false` to disable the button.
     type: Boolean
   - name: font
-    description: Font to use for the button text.
+    summary: Font to use for the button text.
     type: Font
   - name: image
-    description: Image to display on the button to the left of the title.
+    summary: Image to display on the button to the left of the title.
     type: String
   - name: selectedColor
-    description: Button text color used to indicate the selected state.
+    summary: Button text color used to indicate the selected state.
     type: String
   - name: style
-    description: Style constant for the button.
+    summary: Style constant for the button.
     type: Number
   - name: title
-    description: Button title.
+    summary: Button title.
     type: String
   - name: titleid
-    description: Key identifying a string from the locale file to use for the button title. Only one of `title` or `titleid` should be specified.
+    summary: Key identifying a string from the locale file to use for the button title. 
+    description: Only one of `title` or `titleid` should be specified.
     type: String
     since: "1.5"
   - name: backgroundImage
-    description: Background image for the button in its normal state, specified as a local file path or URL. Also sets the background image for the other button states (disabled, focused, selected), unless they've been specified explicitly.
+    summary: Background image for the button in its normal state, specified as a local file path or URL. 
+    description: Also sets the background image for the other button states (disabled, focused, selected), unless they've been specified explicitly.
     type: String
   - name: backgroundDisabledImage
-    description: Background image for the button in its disabled state, specified as a local file path or URL. Also sets the background image for the other button states (normal, focused, selected), unless they've been specified explicitly.
+    summary: Background image for the button in its disabled state, specified as a local file path or URL. 
+    description: Also sets the background image for the other button states (normal, focused, selected), unless they've been specified explicitly.
     type: String
   - name: backgroundFocusedImage
-    description: Background image for the button in its focused state, specified as a local file path or URL. Focusable must be true for normal views. Sets the background image for the focused state only.
+    summary: Background image for the button in its focused state, specified as a local file path or URL. 
+    description: Focusable must be true for normal views. Sets the background image for the focused state only.
     type: String
   - name: backgroundSelectedImage
-    description: Background image for the button in its selected state, specified as a local file path or URL. Focusable must be true for normal views. Sets the background image for the selected state only.
+    summary: Background image for the button in its selected state, specified as a local file path or URL. 
+    description: Focusable must be true for normal views. Sets the background image for the selected state only.
     type: String
 examples:
   - title: Simple Button Example

@@ -1,17 +1,18 @@
 ---
 name: Titanium.UI.PickerRow
-description: A picker row, representing a selectable item in a <Titanium.UI.Picker>. Use the <Titanium.UI.createPickerRow> method to create a picker row.
+summary: A picker row, representing a selectable item in a <Titanium.UI.Picker>. 
+description: Use the <Titanium.UI.createPickerRow> method to create a picker row.
 extends: Titanium.UI.View
 since: "0.9"
 properties:
   - name: fontSize
-    description: Font size for displaying item text. Ignored when using a custom view.
+    summary: Font size for displaying item text. Ignored when using a custom view.
     type: Number
   - name: selected
-    description: When set to `true` in the `createPickerRow` method, sets the row to selected on initial display.
+    summary: When set to `true` in the `createPickerRow` method, sets the row to selected on initial display.
     type: Boolean
   - name: title
-    description: Item text.
+    summary: Item text.
     type: String
 examples:
   - title: Custom Views for a Picker Row
