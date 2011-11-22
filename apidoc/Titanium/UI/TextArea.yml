@@ -121,6 +121,12 @@ properties:
     description: true (default) if textarea can be scrolled.
     platforms: [iphone, ipad]
     type: Boolean
+  - name: returnKeyType
+    description: the return key constant defined in Titanium.UI.
+    type: Number
+  - name: keyboardType
+    description: the keyboard type constant defined in Titanium.UI.
+    type: Number
 notes: |
     Both Text Areas and Text Fields can control the buttons displayed in a button bar above the keyboard when it's visible.
     
