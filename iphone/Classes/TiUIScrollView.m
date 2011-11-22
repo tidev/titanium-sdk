@@ -123,6 +123,12 @@
 	[(TiViewProxy *)[self proxy] layoutChildren:NO];
 }
 
+-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)visibleBounds
+{
+	//Treat this as a size change
+	[(TiViewProxy *)[self proxy] willChangeSize];
+}
+
 -(void)setContentWidth_:(id)value
 {
 	contentWidth = [TiUtils dimensionValue:value];
