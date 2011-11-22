@@ -159,7 +159,7 @@ properties:
     description: Enable plugins in <Titanium.UI.WebView>.
     type: Number
     permission: read-only
-  - name: WEBVIEW_PLUGINS_OFF
+  - name: WEBVIEW_PLUGINS_ON_DEMAND
     description: Display a placeholder and only load plugins when user selects placeholder.
     type: Number
     permission: read-only

@@ -1,46 +1,34 @@
 ---
 name: Titanium.UI.Button
-description: A Button is created by the method <Titanium.UI.createButton>.
+summary: A Button created by the method <Titanium.UI.createButton>.
 extends: Titanium.UI.View
 since: "0.8"
 properties:
   - name: color
-    description: the foreground color of the button text
+    summary: the foreground color of the button text
     type: String
   - name: enabled
-    description: boolean that indicates if the button is enabled or not
+    summary: boolean that indicates if the button is enabled or not
     type: Boolean
   - name: font
-    description: the font properties of the button
+    summary: the font properties of the button
     type: Object
   - name: image
-    description: the image to display on the button to the left of the title
+    summary: the image to display on the button to the left of the title
     type: String
   - name: selectedColor
-    description: the selected color of the button text when the button is in the selected state
+    summary: the selected color of the button text when the button is in the selected state
     type: String
   - name: style
-    description: style constant for the type of button
+    summary: style constant for the type of button
     type: Number
   - name: title
-    description: button title
+    summary: button title
     type: String
   - name: titleid
-    description: the key in the locale file to use for the title property
+    summary: the key in the locale file to use for the title property
     type: String
     since: "1.5"
-  - name: backgroundImage
-    description: the background image url of the view. Sets the background image for all four (normal, disabled, focused, selected) states of the button unless overridden.
-    type: String
-  - name: backgroundDisabledImage
-    description: the disabled background image url of the view. Sets the background image for all four (normal, disabled, focused, selected) states of the button unless overridden.
-    type: String
-  - name: backgroundFocusedImage
-    description: the focused background image url of the view. Focusable must be true for normal views. Sets the background image for focused state only.
-    type: String
-  - name: backgroundSelectedImage
-    description: the selected background image url of the view. Focusable must be true for normal views. Sets the background image for selected state only
-    type: String
 examples:
   - title: Simple Button Example
     example: |
