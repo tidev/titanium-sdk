@@ -25,7 +25,7 @@
 				_tLastShake = currentTime;
 				
 				api.fireEvent('update', {
-					source: ev.source,
+					source: event.source,
 					timestamp: timeDifference,
 					type: 'update',
 					x: accel.x,
