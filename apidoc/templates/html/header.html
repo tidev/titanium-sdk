@@ -2,10 +2,12 @@
 
 <%
     name = data.name
-    if data.typestr == "method":
+    if data.typestr in ("method", "property", "event"):
         name = "%s.%s" % (data.parent.name, name)
 %>
+
 <h1 class="namespace">${name}</h1>
+
 % if data.deprecated:
     <div class="deprecation_warning">Deprecated
         % if "since" in data.deprecated:
@@ -18,7 +20,14 @@
 % endif
 
 <%include file="parent_info.html"/>
+
 <%include file="platforms.html"/>
 
-<div class="description">${data.description_html}</div>
+<h3 id="summary">Summary</h3>
+<div class="summary">${data.summary_html}</div>
+
+<%include file="description.html"/>
+
+<%include file="examples.html"/>
+
 
