@@ -1,39 +1,39 @@
 ---
 name: Titanium.API
-description: The top level API module.  The API module is mainly used for logging.
+summary: The top level API module.  The API module is mainly used for logging.
 extends: Titanium.Module
 since: "0.1"
 methods:
   - name: debug
-    description: function for logging debug messages
+    summary: function for logging debug messages
     parameters:
       - name: message
-        description: the message to log
+        summary: the message to log
         type: String
   - name: error
-    description: function for logging error messages
+    summary: function for logging error messages
     parameters:
       - name: message
-        description: the message to log
+        summary: the message to log
         type: String
   - name: info
-    description: function for logging informational messages
+    summary: function for logging informational messages
     parameters:
       - name: message
-        description: the message to log
+        summary: the message to log
         type: String
   - name: log
-    description: function for logging custom severity messages
+    summary: function for logging custom severity messages
     parameters:
       - name: level
-        description: the log level
+        summary: the log level
         type: String
       - name: message
-        description: the message to log
+        summary: the message to log
         type: String
   - name: warn
-    description: function for logging warning messages
+    summary: function for logging warning messages
     parameters:
       - name: message
-        description: the message to log
+        summary: the message to log
         type: String

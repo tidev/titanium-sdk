@@ -1,81 +1,81 @@
 ---
 name: Titanium.App
-description: The top level App module.  The App module is mainly used for accessing information about the application at runtime.
+summary: The top level App module.  The App module is mainly used for accessing information about the application at runtime.
 extends: Titanium.Module
 since: "0.1"
 methods:
   - name: getArguments
-    description: return the arguments passed to the application on startup as a dictionary
+    summary: return the arguments passed to the application on startup as a dictionary
     platforms: [android, iphone, ipad]
     returns:
         type: Object
 events:
   - name: proximity
-    description: fired when a proximity state changes
+    summary: fired when a proximity state changes
     properties:
       - name: state
-        description: the proximity state value
+        summary: the proximity state value
     platforms: [android, iphone, ipad]
   - name: resume
-    description: fired when an iOS application will enter the foreground due to iOS 4's multitasking.
+    summary: fired when an iOS application will enter the foreground due to iOS 4's multitasking.
         This does not include pauses due to notifications or calls. See
         [applicationWillEnterForeground](http://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIApplication_Class/Reference/Reference.html#//apple_ref/doc/uid/TP40006728-CH3-SW108) for
         the exact behavior that triggers this event.
     platforms: [iphone, ipad]
   - name: resumed
-    description: fired when an iOS application will return to being the focus. This does include not
+    summary: fired when an iOS application will return to being the focus. This does include not
         only the events that trigger resume, but pauses due to notifications or calls. See
         [applicationDidBecomeActive](http://developer.apple.com/library/ios/documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW10) for
         the exact behavior that triggers this event.
     platforms: [iphone, ipad]
   - name: pause
-    description: fired when an iOS application will stop being the focus. This does include not
+    summary: fired when an iOS application will stop being the focus. This does include not
         only the user leaving the application, but pauses due to notifications or calls. See
         [applicationWillResignActive](http://developer.apple.com/library/ios/documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW10) for
         the exact behavior that triggers this event.
     platforms: [iphone, ipad]
 properties:
   - name: copyright
-    description: the application's copyright
+    summary: the application's copyright
     type: String
     permission: read-only
   - name: description
-    description: the application's description
+    summary: the application's description
     type: String
     permission: read-only
   - name: guid
-    description: the application's globally unique id (this is system generated and consistent through all versions)
+    summary: the application's globally unique id (this is system generated and consistent through all versions)
     type: String
     permission: read-only
   - name: id
-    description: the application's app id as specified in Titanium Developer or Titanium Studio
+    summary: the application's app id as specified in Titanium Developer or Titanium Studio
     type: String
     permission: read-only
   - name: idleTimerDisabled
-    description: property for controlling whether the phone screen will be locked on idle time. Can be set to true to disable the timer
+    summary: property for controlling whether the phone screen will be locked on idle time. Can be set to true to disable the timer
     type: Boolean
     platforms: [iphone, ipad]
   - name: name
-    description: the application's name
+    summary: the application's name
     type: String
     permission: read-only
   - name: proximityDetection
-    description: a boolean to indicate whether proximity detection is enabled
+    summary: a boolean to indicate whether proximity detection is enabled
     type: Boolean
     platforms: [iphone, ipad]
   - name: proximityState
-    description: the state of the device's proximity detector
+    summary: the state of the device's proximity detector
     type: Number
     platforms: [iphone, ipad]
   - name: publisher
-    description: the application's publisher
+    summary: the application's publisher
     type: String
     permission: read-only
   - name: url
-    description: the application url
+    summary: the application url
     type: String
     permission: read-only
   - name: version
-    description: the application's version
+    summary: the application's version
     type: String
     permission: read-only
