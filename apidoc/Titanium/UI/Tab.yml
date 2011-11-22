@@ -26,7 +26,7 @@ description: |
     On Android, calling [open](Titanium.UI.Tab.open) opens a new, heavyweight window, which 
     by default covers the tab group entirely. This seems quite different from the iOS model,
     but it is the standard model for Android applications. Users can use the **Back** button 
-    to return to the tab group.
+    to close the tab and return to the tab group.
     
 extends: Titanium.UI.View
 since: "0.8"
@@ -38,69 +38,73 @@ methods:
         heavyweight window, obscuring the tab group.
     parameters: 
       - name: window
-        description: Window to open.
+        summary: Window to open.
         type: Titanium.UI.Window
       - name: options
-        description: Dictionary of display and animation settings to use when opening the window. Identical to the `options` parameter to [Window.open](Titanium.UI.Window.open).
+        summary: Dictionary of display and animation settings to use when opening the window. Identical to the `options` parameter to [Window.open](Titanium.UI.Window.open).
         type: Object
   - name: close
-    description: Closes the top-level window for this tab. 
+    summary: Closes the top-level window for this tab. 
     parameters: 
       - name: options
-        description: Dictionary of display and animation settings to use when opening the window. Identical to the `options` parameter to [Window.close](Titanium.UI.Window.close).
+        summary: Dictionary of display and animation settings to use when opening the window. Identical to the `options` parameter to [Window.close](Titanium.UI.Window.close).
         type: Object
 properties:
   - name: active
+    summary: |
+        `true` if this tab is active, `false` if it is not. 
     description: |
-        `true` if this tab is active, `false` if it is not. The tab can be activated by setting the property, but since this propery is platform-specific, using [TabGroup.setActiveTab](Titanium.UI.TabGroup.setActiveTab) is recommended instead.
+         The tab can be activated by setting the property, but since this propery is 
+         platform-specific, using [TabGroup.setActiveTab](Titanium.UI.TabGroup.setActiveTab) 
+         is recommended instead.
     type: Boolean
     platforms: [iphone,ipad]
   - name: badge
-    description: Badge value for this tab. `null` indicates no badge.
+    summary: Badge value for this tab. `null` indicates no badge.
     type: String
     platforms: [iphone,ipad]
   - name: icon
-    description: Icon URL for this tab.
+    summary: Icon URL for this tab.
     type: String
   - name: title
-    description: Title for this tab.
+    summary: Title for this tab.
     type: String
   - name: titleid
-    description: Key identifying a string from the locale file to use for the tab title. Only one of `title` or `titleid` should be specified.
+    summary: Key identifying a string from the locale file to use for the tab title. Only one of `title` or `titleid` should be specified.
     type: String
   - name: window
-    description: Root level tab window.  All tabs must have at least one root level tab window.
+    summary: Root level tab window.  All tabs must have at least one root level tab window.
     type: Titanium.UI.Window
 events: 
   - name: blur
-    description: Fired when the tab loses focus.
+    summary: Fired when the tab loses focus.
     properties:
       - name: index
-        description: Index of the current active tab.
+        summary: Index of the current active tab.
         type: Number
       - name: previousIndex
-        description: Index of the previous active tab.
+        summary: Index of the previous active tab.
         type: Number
       - name: tab
-        description: Current active tab object.
+        summary: Current active tab object.
         type: Titanium.UI.Tab
       - name: previousTab
-        description: Previous active tab object.
+        summary: Previous active tab object.
         type: Titanium.UI.Tab
   - name: focus
-    description: Fired when the tab gains focus.
+    summary: Fired when the tab gains focus.
     properties:
       - name: index
-        description: Index of the current active tab.
+        summary: Index of the current active tab.
         type: Number
       - name: previousIndex
-        description: Index of the previous active tab.
+        summary: Index of the previous active tab.
         type: Number
       - name: tab
-        description: Current active tab object.
+        summary: Current active tab object.
         type: Titanium.UI.Tab
       - name: previousTab
-        description: Previous active tab object.
+        summary: Previous active tab object.
         type: Titanium.UI.Tab
 examples:
   - title: Simple Tab Example
