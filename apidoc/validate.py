@@ -227,6 +227,9 @@ def validateEvent(typeTracker, event):
 	validateRequired(tracker, event, ['name', 'summary'])
 	validateCommon(tracker, event)
 	if 'properties' in event:
+		if type(event['properties']) != list:
+			tracker.trackError('"properties" specified, but isn\'t a list')
+			return
 		for p in event['properties']:
 			pTracker = ErrorTracker(p['name'], tracker)
 			validateRequired(pTracker, p, ['name', 'summary'])
@@ -272,16 +275,25 @@ def validateType(typeDoc):
 		validateExamples(tracker, typeDoc['examples'])
 
 	if 'methods' in typeDoc:
-		for method in typeDoc['methods']:
-			validateMethod(tracker, method)
+		if type(typeDoc['methods']) != list:
+			tracker.trackError('"methods" specified, but isn\'t a list')
+		else:
+			for method in typeDoc['methods']:
+				validateMethod(tracker, method)
 
 	if 'properties' in typeDoc:
-		for property in typeDoc['properties']:
-			validateProperty(tracker, property)
+		if type(typeDoc['properties']) != list:
+			tracker.trackError('"properties" specified, but isn\'t a list')
+		else:
+			for property in typeDoc['properties']:
+				validateProperty(tracker, property)
 
 	if 'events' in typeDoc:
-		for event in typeDoc['events']:
-			validateEvent(tracker, event)
+		if type(typeDoc['events']) != list:
+			tracker.trackError('"events" specified, but isn\'t a list')
+		else:
+			for event in typeDoc['events']:
+				validateEvent(tracker, event)
 
 
 def validateTDoc(tdocPath):
