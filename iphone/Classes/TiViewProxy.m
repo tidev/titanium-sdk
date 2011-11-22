@@ -103,13 +103,12 @@
 	else
 	{
 		[self rememberProxy:arg];
-		pthread_rwlock_wrlock(&childrenLock);
 		if (windowOpened)
 		{
-			pthread_rwlock_unlock(&childrenLock);
 			[self performSelectorOnMainThread:@selector(add:) withObject:arg waitUntilDone:NO];
 			return;
 		}
+		pthread_rwlock_wrlock(&childrenLock);
 		if (pendingAdds==nil)
 		{
 			pendingAdds = [[NSMutableArray arrayWithObject:arg] retain];
