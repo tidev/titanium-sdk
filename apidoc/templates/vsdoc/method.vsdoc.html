@@ -29,7 +29,7 @@ ${objectPrefix(d.typestr)}${m['name'].replace('[object]','')} ${propertyAssign(d
 	{
 		///<summary>${d.remove_html_tags(m['value'])}</summary>
 	%for p in m['parameters']:
-		///<param name="${getSafeWord(p['name'])}" type="${d.remove_html_tags(p['type'])}">${d.remove_html_tags(p['description'])}</param>
+		///<param name="${getSafeWord(p['name'])}" type="${d.remove_html_tags(p['type'])}">${d.remove_html_tags(p['summary'])}</param>
 	%endfor
 		///<return type="${d.remove_html_tags(getReturnType(m['value'], m['returntype']))}"/>
 		return ${d.vsdoc_return_type(d.remove_html_tags(getTypeInstance(m['value'], d.vsdoc_return_type(m['returntype']))))};
