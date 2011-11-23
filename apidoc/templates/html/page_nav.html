@@ -1,13 +1,27 @@
 <div class="page-nav">
 	<ul>
+		<li>
+			% if data.summary_html and len(data.summary_html) > 0:
+				<a href="#summary">Summary</a>
+			% else:
+				Summary
+			% endif
+		</li>
+		<li>
+			% if data.description_html and len(data.description_html) > 0:
+				<a href="#description">Description</a>
+			% else:
+				Description
+			% endif
+		</li>
+		<li>
+			% if data.examples_html and len(data.examples_html) > 0:
+				<a href="#examples">Examples</a>
+			% else:
+				Examples
+			% endif
+		</li>
 		% if data.typestr in ("object", "module", "proxy"):
-			<li>
-				% if data.notes_html and len(data.notes_html) > 0:
-					<a href="#notes">Notes</a>
-				% else:
-					Notes
-				% endif
-			</li>
 			% if data.typestr == "module":
 				<li>
 				% if data.member_proxies and len(data.member_proxies)>0:
@@ -27,6 +41,11 @@
 				<a href="#events">Events</a>
 			</li>
 		% endif
+		% if data.typestr in ("event"):
+			<li>
+				<a href="#properties">Properties</a>
+			</li>
+		% endif
 		% if data.typestr == "method":
 			<li>
 				<a href="#arguments">Arguments</a>
@@ -34,21 +53,7 @@
 			<li>
 				<a href="#returns">Return Type</a>
 			</li>
-			<li>
-				% if data.notes_html and len(data.notes_html) > 0:
-					<a href="#notes">Notes</a>
-				% else:
-					Notes
-				% endif
-			</li>
 		% endif
 
-		<li>
-			% if data.examples_html and len(data.examples_html) > 0:
-				<a href="#examples">Examples</a>
-			% else:
-				Examples
-			% endif
-		</li>
 	</ul>
 </div>

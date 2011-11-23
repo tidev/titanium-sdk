@@ -147,7 +147,7 @@ public class TypeConverter
 		int length = value.length;
 		Object[] jsArray = new Object[length];
 		for (int i = 0; i < length; i++) {
-			jsArray[i] = value;
+			jsArray[i] = value[i];
 		}
 		return Context.getCurrentContext().newArray(scope, jsArray);
 	}
@@ -161,7 +161,7 @@ public class TypeConverter
 		int length = value.length;
 		Object[] jsArray = new Object[length];
 		for (int i = 0; i < length; i++) {
-			jsArray[i] = value;
+			jsArray[i] = value[i];
 		}
 		return Context.getCurrentContext().newArray(scope, jsArray);
 	}

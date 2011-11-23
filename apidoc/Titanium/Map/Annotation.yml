@@ -1,46 +1,46 @@
 ---
 name: Titanium.Map.Annotation
-description: An Annotation object that is created by the method <Titanium.Map.createAnnotation>. This object gives you low level control over annotations that can be added to a Map View.
+summary: An Annotation object that is created by the method <Titanium.Map.createAnnotation>. This object gives you low level control over annotations that can be added to a Map View.
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [android, iphone, ipad]
 properties:
   - name: animate
-    description: boolean to indicate whether the pin should animate when dropped
+    summary: boolean to indicate whether the pin should animate when dropped
     type: Boolean
   - name: image
-    description: image for the pin instead of default image.
+    summary: image for the pin instead of default image.
     type: String
   - name: leftButton
-    description: the left button image on the annotation. must either be a button type constant or url
+    summary: the left button image on the annotation. must either be a button type constant or url
     type: [Number,String]
   - name: leftView
-    description: a left view that is displayed on the annotation
+    summary: a left view that is displayed on the annotation
     type: Object
   - name: pinImage
-    description: Use <Titanium.Map.Annotation.image> property instead.
+    summary: Use <Titanium.Map.Annotation.image> property instead.
     deprecated:
         since: "1.4"
     platforms: [android]
     type: String
   - name: pincolor
-    description: the pin color as one of <Titanium.Map.ANNOTATION_RED>, <Titanium.Map.ANNOTATION_GREEN> or <Titanium.Map.ANNOTATION_PURPLE>.
+    summary: the pin color as one of <Titanium.Map.ANNOTATION_RED>, <Titanium.Map.ANNOTATION_GREEN> or <Titanium.Map.ANNOTATION_PURPLE>.
     type: Number
   - name: rightButton
-    description: the right button image on the annotation. must either be a button type constant or url
+    summary: the right button image on the annotation. must either be a button type constant or url
     type: [Number,String]
   - name: rightView
-    description: a right view that is displayed on the annotation
+    summary: a right view that is displayed on the annotation
     type: Object
   - name: subtitle
-    description: the secondary title of the annotation view
+    summary: the secondary title of the annotation view
     type: String
   - name: subtitleid
-    description: the key in the locale file to use for the subtitle property
+    summary: the key in the locale file to use for the subtitle property
     type: String
   - name: title
-    description: the primary title of the annotation view
+    summary: the primary title of the annotation view
     type: String
   - name: titleid
-    description: the key in the locale file to use for the title property
+    summary: the key in the locale file to use for the title property
     type: String

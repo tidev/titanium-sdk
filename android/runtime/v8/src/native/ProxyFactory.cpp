@@ -209,5 +209,10 @@ void ProxyFactory::registerProxyPair(jclass javaProxyClass, FunctionTemplate* v8
 	factories[javaProxyClass] = info;
 }
 
+void ProxyFactory::dispose()
+{
+	factories.clear();
+}
+
 }
 

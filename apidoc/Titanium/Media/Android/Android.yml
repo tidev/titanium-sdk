@@ -1,28 +1,28 @@
 ---
 name: Titanium.Media.Android
-description: Android-specific media-related functionality.
+summary: Android-specific media-related functionality.
 extends: Titanium.Module
 since: "1.7.0"
 platforms: [android]
 methods:
   - name: scanMediaFiles
-    description: Use the [Android MediaScannerConnection](http://developer.android.com/reference/android/media/MediaScannerConnection.html) to request immediate scan of particular files so that they become available to the appropriate media providers (Gallery, etc.).
+    summary: Use the [Android MediaScannerConnection](http://developer.android.com/reference/android/media/MediaScannerConnection.html) to request immediate scan of particular files so that they become available to the appropriate media providers (Gallery, etc.).
     parameters:
       - name: paths
-        description: Array of paths to the files you want to be scanned.
+        summary: Array of paths to the files you want to be scanned.
         type: Array<String>
       - name: mimeTypes
-        description: Array of mime types for the files in the paths parameter.  Can be null, in which case the mime type will be inferred at scan time.
+        summary: Array of mime types for the files in the paths parameter.  Can be null, in which case the mime type will be inferred at scan time.
         type: Array<String>
       - name: callback
-        description: A function that will be called when each file is finished being scanned.  Check the callback argument's "path" and "uri" properties to see the path that was scanned and the resulting content uri.
+        summary: A function that will be called when each file is finished being scanned.  Check the callback argument's "path" and "uri" properties to see the path that was scanned and the resulting content uri.
         type: Callback<Object>
   - name: setSystemWallpaper
-    description: Set the system homescreen wallpaper
+    summary: Set the system homescreen wallpaper
     parameters:
       - name: image
-        description: Image blob such as what can be retrieved via callbacks for <Titanium.Media.openPhotoGallery> and <Titanium.Media.showCamera>, as well as from the return value of <Titanium.Filesystem.File.read>.
+        summary: Image blob such as what can be retrieved via callbacks for <Titanium.Media.openPhotoGallery> and <Titanium.Media.showCamera>, as well as from the return value of <Titanium.Filesystem.File.read>.
         type: Object
       - name: scale
-        description: Set to true if you want the image to be scaled with respect to the system wallpaper desired width, or false to leave it as-is.
+        summary: Set to true if you want the image to be scaled with respect to the system wallpaper desired width, or false to leave it as-is.
         type: Boolean

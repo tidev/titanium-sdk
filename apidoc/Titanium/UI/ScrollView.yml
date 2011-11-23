@@ -1,118 +1,21 @@
 ---
 name: Titanium.UI.ScrollView
+summary: |
+    A Scroll View is used to create a scrollable region of content.  
 description: |
-    A Scroll View is used to create a scrollable region of content.  Views added to the Scroll View will be scrolled based on the content size of the Scroll View. The Scroll View is created by the method <Titanium.UI.createScrollView>. Note: In Android, Scroll Views can only scroll in one direction, either vertical or horizontal, but not both at the same time. See the <Titanium.UI.ScrollView.scrollType> property
-extends: Titanium.UI.View
-since: "0.9"
-methods:
-  - name: scrollTo
-    description: scrollTo a particular point
-    parameters:
-      - name: x
-        description: the x point within the view
-        type: Number
-      - name: y
-        description: the y point within the view
-        type: Number
-events:
-  - name: scale
-    description: fired when the zoom scale factor changes
-    platforms: [android, iphone, ipad]
-    properties:
-      - name: scale
-        description: the new scale as a float
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-  - name: scroll
-    description: fired when the view is scrolled
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: dragging
-        description: boolean to indicate if the scroll is based on a dragging gesture
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: decelerating
-        description: boolean to indicate if the scroll is decelerating
-  - name: dragStart
-    description: fired when the scroll view is about to start scrolling the content.
-    platforms: [iphone, ipad]
-  - name: dragEnd
-    description: fired when when dragging ended in the scroll view.
-    platforms: [iphone, ipad]
-    properties:
-      - name: decelerate
-        description: boolean. YES if the scrolling movement will continue, but decelerate, after a touch-up gesture during a dragging operation. If the value is NO, scrolling stops immediately upon touch-up.    
-properties:
-  - name: canCancelEvents
-    description: boolean to indicate if the scroll view can cancel subview touches in order to scroll instead. Default of true
-    type: Boolean
-    platforms: [iphone, ipad, mobileweb]
-  - name: contentHeight
-    description: the height of the scrollable area
-    type: Number
-  - name: contentOffset
-    description: an object (with x and y properties) to indicate the offset of the content area
-    type: Object
-  - name: contentWidth
-    description: the width of the scrollable area
-    type: Number
-  - name: disableBounce
-    description: disable view bouncing.
-    type: Boolean
-    platforms: [iphone, ipad]
-  - name: horizontalBounce
-    description: boolean to control the horizontal bounce during scrolling
-    type: Boolean
-    platforms: [iphone, ipad]
-  - name: maxZoomScale
-    description: the maximum scale of the content
-    type: Number
-    platforms: [iphone, ipad]
-  - name: minZoomScale
-    description: the minimum scale of the content
-    type: Number
-    platforms: [iphone, ipad]
-  - name: scrollType
-    description: |
-        For explicitly setting the direction -- "vertical" or "horizontal" -- in which the ScrollView will scroll.
-        See also the documentation notes for more information concerning how Android deduces the scroll
-        direction when this property is *not* set.
-    type: String
-    platforms: [android]
-  - name: showHorizontalScrollIndicator
-    description: boolean to indicate whether the horizontal scroll indicator is visible
-    type: Boolean
-  - name: showVerticalScrollIndicator
-    description: boolean to indicate whether the vertical scroll indicator is visible
-    type: Boolean
-  - name: verticalBounce
-    description: boolean to control the vertical bounce during scrolling
-    type: Boolean
-    platforms: [iphone, ipad]
-  - name: zoomScale
-    description: set the zoom scale for the current content area
-    type: Number
-    platforms: [iphone, ipad]
-notes: |
+    Views added to the Scroll View will be scrolled based on the content size of the 
+    Scroll View. The Scroll View is created by the method <Titanium.UI.createScrollView>. 
+
     If your scrollable region fits within the size of the content area the scroll view will not scroll.
+
+    #### Android Implementation Notes
+    In Android, Scroll Views can only scroll in one direction, either vertical 
+    or horizontal, but not both at the same time. Use the <Titanium.UI.ScrollView.scrollType> 
+    property to set the scroll direction explicitly.
+
     
-    **Android Note**: Android ScrollViews can only scroll in one direction,
-    vertical or horizontal.  We provide the `scrollType` property so you can
-    explicitly set the scroll direction.  If that property is *not* set, we
-    attempt to deduce the scroll direction based on some of the other
+    If the `scrollType` property is *not* set, the scroll view
+    attempts to deduce the scroll direction based on some of the other
     properties that have been set.  Specifically, if `contentWidth` and `width`
     are both set and are equal to each other, or if they are both set *and*
     `showVerticalScrollIndicator` is set to `true`, then the scroll direction
@@ -120,6 +23,110 @@ notes: |
     equal, or if they are both set and `showHorizontalScrollIndicator` is set
     to `true`, then the scroll direction is set to "horizontal".  If
     `scrollType` is set, it overrides the deduced setting.
+extends: Titanium.UI.View
+since: "0.9"
+methods:
+  - name: scrollTo
+    summary: scrollTo a particular point
+    parameters:
+      - name: x
+        summary: the x point within the view
+        type: Number
+      - name: y
+        summary: the y point within the view
+        type: Number
+events:
+  - name: scale
+    summary: fired when the zoom scale factor changes
+    platforms: [android, iphone, ipad]
+    properties:
+      - name: scale
+        summary: the new scale as a float
+      - name: y
+        summary: the y point of the event, in receiving view coordinates
+      - name: x
+        summary: the x point of the event in receiving view coordiantes
+      - name: globalPoint
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
+  - name: scroll
+    summary: fired when the view is scrolled
+    properties:
+      - name: y
+        summary: the y point of the event, in receiving view coordinates
+      - name: x
+        summary: the x point of the event in receiving view coordiantes
+      - name: dragging
+        summary: boolean to indicate if the scroll is based on a dragging gesture
+      - name: globalPoint
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
+      - name: decelerating
+        summary: boolean to indicate if the scroll is decelerating
+  - name: dragStart
+    summary: fired when the scroll view is about to start scrolling the content.
+    platforms: [iphone, ipad]
+  - name: dragEnd
+    summary: fired when when dragging ended in the scroll view.
+    platforms: [iphone, ipad]
+    properties:
+      - name: decelerate
+        summary: boolean. YES if the scrolling movement will continue, but decelerate, after a touch-up gesture during a dragging operation. If the value is NO, scrolling stops immediately upon touch-up.    
+properties:
+  - name: canCancelEvents
+    summary: boolean to indicate if the scroll view can cancel subview touches in order to scroll instead. Default of true
+    type: Boolean
+    platforms: [iphone, ipad, mobileweb]
+  - name: contentHeight
+    summary: the height of the scrollable area
+    type: Number
+  - name: contentOffset
+    summary: an object (with x and y properties) to indicate the offset of the content area
+    type: Object
+  - name: contentWidth
+    summary: the width of the scrollable area
+    type: Number
+  - name: disableBounce
+    summary: disable view bouncing.
+    type: Boolean
+    platforms: [iphone, ipad]
+  - name: horizontalBounce
+    summary: boolean to control the horizontal bounce during scrolling
+    type: Boolean
+    platforms: [iphone, ipad]
+  - name: maxZoomScale
+    summary: the maximum scale of the content
+    type: Number
+    platforms: [iphone, ipad]
+  - name: minZoomScale
+    summary: the minimum scale of the content
+    type: Number
+    platforms: [iphone, ipad]
+  - name: scrollType
+    summary: |
+        For explicitly setting the direction -- "vertical" or "horizontal" -- in which the ScrollView will scroll.
+        See also the documentation notes for more information concerning how Android deduces the scroll
+        direction when this property is *not* set.
+    type: String
+    platforms: [android]
+  - name: showHorizontalScrollIndicator
+    summary: boolean to indicate whether the horizontal scroll indicator is visible
+    type: Boolean
+  - name: showVerticalScrollIndicator
+    summary: boolean to indicate whether the vertical scroll indicator is visible
+    type: Boolean
+  - name: verticalBounce
+    summary: boolean to control the vertical bounce during scrolling
+    type: Boolean
+    platforms: [iphone, ipad]
+  - name: zoomScale
+    summary: set the zoom scale for the current content area
+    type: Number
+    platforms: [iphone, ipad]
 examples:
   - title: Simple Scroll View
     example: |
