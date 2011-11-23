@@ -10,7 +10,7 @@ methods:
     returns:
         type: Boolean
   - name: createFile
-    description: create a file path at the path for the file object
+    description: create a file path at the path for the file object. (only implemented on iOS, the workaround on Android for the time being is to use write() which creates a file if it does not exsist already). 
     returns:
         type: Boolean
   - name: createTimestamp
