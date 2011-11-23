@@ -56,7 +56,6 @@ events:
         description: error message
   - name: interrupted
     description: called when the audio is interrupted by the device. this is typically called during an interruption due to an incoming phone call.
-    properties:
   - name: resume
     description: called when the audio is resumed after an interruption.
     properties:

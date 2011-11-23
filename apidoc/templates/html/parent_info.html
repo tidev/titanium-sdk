@@ -10,8 +10,18 @@
 			typestr = "Object"
 		elif data.typestr == "method":
 			typestr = "Function"
+		elif data.typestr == "property":
+			typestr = "Property"
+		elif data.typestr == "event":
+			typestr = "Event"
+		elif data.typestr == "parameter":
+			typestr = "Parameter"
 	%>
-	% if len(typestr) > 0 and data.parent is not None:
+	% if typestr == "Property" and data.parent.typestr == "event":
+		${typestr} of <a href="${data.parent.filename_html}.html">${data.parent.parent.name}.${data.parent.name}</a> event callback.
+	% elif typestr == "Parameter":
+		${typestr} of <a href="${data.parent.filename_html}.html">${data.parent.parent.name}.${data.parent.name}</a> method.
+	% elif len(typestr) > 0 and data.parent is not None:
 		${typestr} of <a href="${data.parent.filename_html}.html">${data.parent.name}</a>.
 	% else:
 		${typestr}
