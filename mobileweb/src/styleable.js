@@ -476,8 +476,16 @@
 				},animation.duration + animation.delay);
 			}
 			
+			var _curve = "ease";
+			switch(animation.curve) {
+				case Ti.UI.ANIMATION_CURVE_LINEAR: _curve = "linear"; break;
+				case Ti.UI.ANIMATION_CURVE_EASE_IN: _curve = "ease-in"; break;
+				case Ti.UI.ANIMATION_CURVE_EASE_OUT: _curve = "ease-out"; break;
+				case Ti.UI.ANIMATION_CURVE_EASE_IN_OUT: _curve = "ease-in-out"; break;
+			}
+			
 			// Create the transition, must be set before setting the other properties
-			var transitionValue = "all " + animation.duration + "ms linear";
+			var transitionValue = "all " + animation.duration + "ms " + _curve;
 			animation.delay && (transitionValue += " " + animation.delay + "ms");
 			obj._setPrefixedCSSRule(obj,"Transition", transitionValue);
 			
