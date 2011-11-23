@@ -1,12 +1,12 @@
 ---
 name: Titanium.Event
-description: The base for all events
+summary: The base for all events
 since: "0.1"
 platforms: [android, iphone, ipad]
 properties:
   - name: source
-    description: the source object that fired the event
+    summary: the source object that fired the event
     type: Object
   - name: type
-    description: the name of the event fired
+    summary: the name of the event fired
     type: String

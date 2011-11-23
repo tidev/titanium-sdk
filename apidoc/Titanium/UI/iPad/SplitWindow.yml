@@ -1,47 +1,52 @@
 ---
 name: Titanium.UI.iPad.SplitWindow
-description: A SplitWindow is a window that manages the presentation of two side-by-side view controllers. You use this class to implement a master-detail interface, in which the left-side view presents a list of items and the right-side presents details of the selected item. The SplitView is for use exclusively on iPad devices. The SplitWindow is created by the method <Titanium.UI.iPad.createSplitWindow>.
+summary: |
+    A SplitWindow is a window that manages the presentation of two side-by-side view 
+    controllers. You use this class to implement a master-detail interface, in which the 
+    left-side view presents a list of items and the right-side presents details of the 
+    selected item. The SplitView is for use exclusively on iPad devices. The SplitWindow 
+    is created by the method <Titanium.UI.iPad.createSplitWindow>.
     
+    The SplitWindow inherits its methods and properties from <Titanium.UI.Window>.
+    
+    The `masterView` and `detailView` properties are required in the constructor of the 
+    SplitWindow and cannot be changed once set.
+    
+    The SplitWindow is a top-level window and cannot be contained within another window or view.
     ![splitview](http://img.skitch.com/20100406-1f85bm9cx8t768xgsjqax1ng6y.png)
 extends: Titanium.UI.View
 platforms: [ipad]
 since: "1.2"
 events:
   - name: visible
-    description: fired when the masterView or detailView becomes visible.
+    summary: fired when the masterView or detailView becomes visible.
     properties:
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: the y point of the event, in receiving view coordinates
       - name: button
-        description: for `view` view type, the button that is automatically wired to control the master view popover
+        summary: for `view` view type, the button that is automatically wired to control the master view popover
       - name: popover
-        description: for either `popover` or `detail` view types, the popover instance
+        summary: for either `popover` or `detail` view types, the popover instance
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        summary: the x point of the event in receiving view coordiantes
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: view
-        description: the type of view becoming visible. either `master`, `popover` or `detail`.
+        summary: the type of view becoming visible. either `master`, `popover` or `detail`.
 properties:
   - name: detailView
-    description: view for the detail view section of the SplitWindow
+    summary: view for the detail view section of the SplitWindow
     type: Object
   - name: masterView
-    description: view for the master view section of the SplitWindow
+    summary: view for the master view section of the SplitWindow
     type: Object
   - name: showMasterInPortrait
-    description: Whether or not to show the master view in portrait. Default is 'false'.
+    summary: Whether or not to show the master view in portrait. Default is 'false'.
     type: Boolean
     since: 1.7.2
-notes: |
-    The SplitWindow inherits its methods and properties from <Titanium.UI.Window>.
-    
-    The `masterView` and `detailView` properties are required in the constructor of the SplitWindow and cannot be changed once set.
-    
-    The SplitWindow is a top-level window and cannot be contained within another window or view.
 examples:
   - title: Split Window Example
     example: |

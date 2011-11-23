@@ -1,23 +1,23 @@
 ---
 name: Titanium.UI.TableViewSection
-description: A TableView section object created by the method <Titanium.UI.createTableViewSection>.
+summary: A TableView section object created by the method <Titanium.UI.createTableViewSection>.
 extends: Titanium.UI.View
 since: "0.9"
 properties:
   - name: footerTitle
-    description: the title of the section footer
+    summary: the title of the section footer
     type: String
   - name: footerView
-    description: a view to use instead of the default label when rendering the section footer
+    summary: a view to use instead of the default label when rendering the section footer
     type: Object
   - name: headerTitle
-    description: the title of the section header
+    summary: the title of the section header
     type: String
   - name: headerView
-    description: a view to use instead of the default label when rendering the section header
+    summary: a view to use instead of the default label when rendering the section header
     type: Object
   - name: rowCount
-    description: the number of rows in the section
+    summary: the number of rows in the section
     type: Number
     permission: read-only
 examples:
