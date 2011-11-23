@@ -15,8 +15,8 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiEventHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
-import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
+import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.ScrollableViewProxy;
 import android.app.Activity;
@@ -27,8 +27,8 @@ import android.support.v4.view.ViewPager;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 public class TiUIScrollableView extends TiUIView

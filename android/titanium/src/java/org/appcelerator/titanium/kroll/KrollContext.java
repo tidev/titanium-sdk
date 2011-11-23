@@ -6,12 +6,10 @@
  */
 package org.appcelerator.titanium.kroll;
 
-import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
-import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 

@@ -108,6 +108,8 @@ public:
 		return static_cast<Proxy*>(ptr);
 	}
 
+	static void dispose();
+
 private:
 	static v8::Handle<v8::Value> proxyConstructor(const v8::Arguments& args);
 	static v8::Handle<v8::Value> proxyOnPropertiesChanged(const v8::Arguments& args);

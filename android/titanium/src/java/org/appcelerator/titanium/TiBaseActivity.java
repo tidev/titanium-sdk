@@ -9,6 +9,7 @@ package org.appcelerator.titanium;
 import java.lang.ref.WeakReference;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
@@ -298,6 +299,9 @@ public abstract class TiBaseActivity extends Activity
 
 		// create the activity proxy here so that it is accessible from the activity in all cases
 		activityProxy = new ActivityProxy(this);
+
+		// Increment the reference count so we correctly clean up when all of our activities have been destroyed
+		KrollRuntime.incrementActivityRefCount();
 
 		Intent intent = getIntent();
 		if (intent != null) {
@@ -783,6 +787,8 @@ public abstract class TiBaseActivity extends Activity
 			activityProxy.release();
 			activityProxy = null;
 		}
+
+		KrollRuntime.decrementActivityRefCount();
 	}
 
 	// called in order to ensure that the onDestroy call is only acted upon once.

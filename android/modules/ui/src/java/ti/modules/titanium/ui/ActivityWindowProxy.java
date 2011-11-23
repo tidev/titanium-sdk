@@ -10,7 +10,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
-import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiActivityWindow;
 import org.appcelerator.titanium.TiActivityWindows;
 import org.appcelerator.titanium.TiApplication;
@@ -19,12 +18,10 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiOrientationHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.PixelFormat;
 import android.os.Message;
 import android.os.Messenger;
 
