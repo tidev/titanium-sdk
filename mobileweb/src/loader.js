@@ -1006,8 +1006,7 @@ require.cache({
 				},
 
 				load: function (name, require, onLoad, config) {
-					var path = /^\//.test(name) ? name : "./" + name,
-						url = require.toUrl(path, stack.length ? { name: stack[stack.length-1] } : null),
+					var url = require.toUrl(/^\//.test(name) ? name : "./" + name, stack.length ? { name: stack[stack.length-1] } : null),
 						c = cache[url] || require.cache(url),
 						x;
 
