@@ -67,6 +67,7 @@ public class TiUIVideoView extends TiUIView
 		videoView.setOnPreparedListener(this);
 		videoView.setOnCompletionListener(this);
 		videoView.setOnErrorListener(this);
+		videoView.setOnPlaybackListener(this);
 		videoView.setOnTouchListener(new OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent event)
@@ -77,7 +78,7 @@ public class TiUIVideoView extends TiUIView
 		});
 	}
 
-	private void seekIf()
+	public void seekIfNeeded()
 	{
 		if (videoView == null) {
 			return;
@@ -123,7 +124,7 @@ public class TiUIVideoView extends TiUIView
 		}
 		if (url != null) {
 			videoView.setVideoURI(Uri.parse(proxy.resolveUrl(null, url)));
-			seekIf();
+			seekIfNeeded();
 		}
 
 		// Proxy holds the scaling mode directly.
@@ -143,7 +144,7 @@ public class TiUIVideoView extends TiUIView
 		if (key.equals(TiC.PROPERTY_URL) || key.equals(TiC.PROPERTY_CONTENT_URL)) {
 			getPlayerProxy().fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
 			videoView.setVideoURI(Uri.parse(proxy.resolveUrl(null, TiConvert.toString(newValue))));
-			seekIf();
+			seekIfNeeded();
 			if (key.equals(TiC.PROPERTY_CONTENT_URL)) {
 				Log.w(TAG, "contentURL is deprecated, use url instead");
 				proxy.setProperty(TiC.PROPERTY_URL, newValue);
@@ -232,7 +233,7 @@ public class TiUIVideoView extends TiUIView
 			}
 			getPlayerProxy().fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
 			videoView.setVideoURI(Uri.parse(proxy.resolveUrl(null, TiConvert.toString(urlObj))));
-			seekIf();
+			seekIfNeeded();
 		}
 
 		videoView.start();

@@ -390,7 +390,7 @@ if (Ti.App.Properties.getBool('showNotice', true)){
 		buttonNames: ['OK', 'Visit docs', 'Don\'t show again'],
 		cancel:0,
 		title: 'Notice',
-		message: 'While this KitchenSink provides an extensive demonstration of the Titanium API\'s options, its structure is not recommended for production apps. Please refer to our documentation for the reasons for this.'
+		message: 'While this KitchenSink provides an extensive demonstration of the Titanium API, its structure is not recommended for production apps. Please refer to our documentation for more details.'
 	});
 	alertNotice.show();
 	alertNotice.addEventListener('click', function(e){

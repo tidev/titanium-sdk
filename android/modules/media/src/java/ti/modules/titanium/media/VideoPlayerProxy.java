@@ -55,9 +55,15 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	private static final int MSG_HIDE_MEDIA_CONTROLLER = MSG_FIRST_ID + 110;
 	private static final int MSG_SET_VIEW_FROM_ACTIVITY = MSG_FIRST_ID + 111;
 
-	// The player doesn't automatically preserve its current location and restart from
-	// there when being resumed.  This internal property lets us track that and use it.
+	// Keeping these out of TiC because I believe we'll stop supporting them
+	// in favor of the documented property, which is "mediaControlStyle".
+	private static final String PROPERTY_MOVIE_CONTROL_MODE = "movieControlMode";
+	private static final String PROPERTY_MOVIE_CONTROL_STYLE = "movieControlStyle";
+
+	// The player doesn't automatically preserve its current location and seek back to
+	// there when being resumed.  This internal property lets us track that.
 	public static final String PROPERTY_SEEK_TO_ON_RESUME = "__seek_to_on_resume__";
+
 
 	protected int mediaControlStyle = MediaModule.VIDEO_CONTROL_DEFAULT;
 	protected int scalingMode = MediaModule.VIDEO_SCALING_ASPECT_FIT;
@@ -122,6 +128,22 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	{
 		super.handleCreationDict(options);
 
+		Object mcStyle = options.get(TiC.PROPERTY_MEDIA_CONTROL_STYLE);
+		Object mcModeDeprecated = options.get(PROPERTY_MOVIE_CONTROL_MODE);
+		Object mcStyleDeprecated = options.get(PROPERTY_MOVIE_CONTROL_STYLE);
+		if (mcStyle != null) {
+			mediaControlStyle = TiConvert.toInt(mcStyle);
+		} else if (mcModeDeprecated != null) {
+			mediaControlStyle = TiConvert.toInt(mcModeDeprecated);
+		} else if (mcStyleDeprecated != null) {
+			mediaControlStyle = TiConvert.toInt(mcStyleDeprecated);
+		}
+
+		Object sMode = options.get(TiC.PROPERTY_SCALING_MODE);
+		if (sMode != null) {
+			scalingMode = TiConvert.toInt(sMode);
+		}
+
 		// "fullscreen" in the creation dict determines
 		// whether we use a TiVideoActivity versus a standard
 		// embedded view.  Setting "fullscreen" after this currently
@@ -169,7 +191,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 						// wrong place since the screen flipped), hide it.
 						if (view != null) {
 							if (TiApplication.isUIThread()) {
-								((TiUIVideoView) view).hideMediaController();
+								getVideoView().hideMediaController();
 							} else {
 								getMainHandler().sendEmptyMessage(MSG_HIDE_MEDIA_CONTROLLER);
 							}
@@ -217,7 +239,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 			return;
 		}
 
-		TiUIVideoView vv = (TiUIVideoView) view;
+		TiUIVideoView vv = getVideoView();
 
 		switch (action) {
 			case MSG_PLAY:
@@ -239,6 +261,15 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	public void play()
 	{
 		control(MSG_PLAY);
+	}
+
+	/**
+	 * Backwards-compatibility
+	 */
+	@Kroll.method
+	public void start()
+	{
+		play();
 	}
 
 	
@@ -263,7 +294,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 
 		if (view != null) {
 			if (TiApplication.isUIThread()) {
-				((TiUIVideoView) view).releaseVideoView();
+				getVideoView().releaseVideoView();
 			} else {
 				TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_RELEASE_RESOURCES));
 			}
@@ -274,7 +305,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	public boolean getPlaying()
 	{
 		if (view != null) {
-			return ((TiUIVideoView) view).isPlaying();
+			return getVideoView().isPlaying();
 		} else {
 			return false;
 		}
@@ -311,7 +342,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		}
 
 		boolean handled = false;
-		TiUIVideoView vv = (TiUIVideoView) view;
+		TiUIVideoView vv = getVideoView();
 		switch (msg.what) {
 			case MSG_MEDIA_CONTROL_CHANGE:
 				if (vv != null) {
@@ -384,7 +415,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		mediaControlStyle = style;
 		if (alert && view != null) {
 			if (TiApplication.isUIThread()) {
-				((TiUIVideoView) view).setMediaControlStyle(style);
+				getVideoView().setMediaControlStyle(style);
 			} else {
 				getMainHandler().sendEmptyMessage(MSG_MEDIA_CONTROL_CHANGE);
 			}
@@ -436,7 +467,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		scalingMode = mode;
 		if (alert && view != null) {
 			if (TiApplication.isUIThread()) {
-				((TiUIVideoView) view).setScalingMode(mode);
+				getVideoView().setScalingMode(mode);
 			} else {
 				getMainHandler().sendEmptyMessage(MSG_SCALING_CHANGE);
 			}
@@ -458,7 +489,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	{
 		if (view != null) {
 			if (TiApplication.isUIThread()) {
-				return ((TiUIVideoView) view).getCurrentPlaybackTime();
+				return getVideoView().getCurrentPlaybackTime();
 			} else {
 				Object result = TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GET_PLAYBACK_TIME));
 				if (result instanceof Number) {
@@ -481,7 +512,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 
 		if (view != null) {
 			if (TiApplication.isUIThread()) {
-				((TiUIVideoView) view).seek(milliseconds);
+				getVideoView().seek(milliseconds);
 			} else {
 				Message msg = getMainHandler().obtainMessage(MSG_SET_PLAYBACK_TIME);
 				msg.arg1 = milliseconds;
@@ -599,24 +630,28 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	@Override
 	public void onResume(Activity activity)
 	{
-		// The TiVideoActivity has resumed.  Was it playing when it was paused earlier?
-		// If so, start playing again.
-		boolean play = false;
-		if (hasProperty(PROPERTY_SEEK_TO_ON_RESUME)) {
-			play = TiConvert.toInt(getProperty(PROPERTY_SEEK_TO_ON_RESUME)) > 0;
-		}
-		if (view != null && play) {
-			play();
+		if (view != null) {
+			// Maybe we were paused in the middle of video. Should at least
+			// seek back to that position.
+			getVideoView().seekIfNeeded();
 		}
 	}
 
 	@Override
 	public void onPause(Activity activity)
 	{
-		if (view != null) {
-			int seekToOnResume = getCurrentPlaybackTime();
-			setProperty(PROPERTY_SEEK_TO_ON_RESUME, seekToOnResume);
-			pause();
+		if (activity.isFinishing()) {
+			// Forget any saved positions
+			setProperty(PROPERTY_SEEK_TO_ON_RESUME, 0);
+		} else {
+			// We're not finishing, so we might be coming back. Remember where we are.
+			if (view != null) {
+				int seekToOnResume = getCurrentPlaybackTime();
+				setProperty(PROPERTY_SEEK_TO_ON_RESUME, seekToOnResume);
+				if (getPlaying()) {
+					pause();
+				}
+			}
 		}
 	}
 
@@ -637,7 +672,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		// Stop the video and cleanup.
 		if (view != null) {
 			if (TiApplication.isUIThread()) {
-				((TiUIVideoView) view).release();
+				getVideoView().release();
 			} else {
 				TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_RELEASE));
 			}
@@ -647,4 +682,8 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		}
 	}
 
+	private TiUIVideoView getVideoView()
+	{
+		return (TiUIVideoView) view;
+	}
 }
