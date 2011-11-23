@@ -121,6 +121,9 @@ Handle<Object> KrollBindings::getBinding(Handle<String> binding)
 	return Handle<Object>();
 }
 
+// Dispose of all static function templates
+// in the generated and native bindings. This
+// clears out the module lookup cache
 void KrollBindings::dispose()
 {
 	HandleScope scope;

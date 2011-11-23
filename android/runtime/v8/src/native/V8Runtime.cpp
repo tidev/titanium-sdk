@@ -223,25 +223,47 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativePr
 #endif
 }
 
-/*
- * Class:     org_appcelerator_kroll_runtime_v8_V8Runtime
- * Method:    nativeDispose
- * Signature: ()V
- */
+// This method disposes of all native resources used by V8 when
+// all activities have been destroyed by the application.
+//
+// When a Persistent handle is Dispose()'d in V8, the internal
+// pointer is not changed, handle->IsEmpty() returns false. 
+// As a consequence, we have to explicitly reset the handle
+// to an empty handle using Persistent<Type>()
+//
+// Since we use lazy initialization in a lot of our code,
+// there's probably not an easier way (unless we use boolean flags)
+
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDispose(JNIEnv *env, jobject runtime)
 {
 	JNIScope jniScope(env);
 
+	// We use a new scope here so any new handles we create
+	// while disposing are cleaned up before our global context
+	// is disposed below.
 	{
 		HandleScope scope;
+
+		// Any module that has been require()'d or opened via Window URL
+		// will be cleaned up here. We setup the initial "moduleContexts"
+		// Array and expose it on kroll above in nativeInit, and
+		// module.js will insert module contexts into this array in
+		// Module.prototype._runScript
 		uint32_t length = V8Runtime::moduleContexts->Length();
 		for (uint32_t i = 0; i < length; ++i) {
 			Handle<Value> moduleContext = V8Runtime::moduleContexts->Get(i);
+
+			// WrappedContext is simply a C++ wrapper for the V8 Context object,
+			// and is used to expose the Context to javascript. See ScriptsModule for
+			// implementation details
 			WrappedContext *wrappedContext = NativeObject::Unwrap<WrappedContext>(moduleContext->ToObject());
+
+			// Detach each context's global object, and dispose the context
 			wrappedContext->GetV8Context()->DetachGlobal();
 			wrappedContext->GetV8Context().Dispose();
 		}
 
+		// KrollBindings
 		KrollBindings::dispose();
 		EventEmitter::dispose();
 
@@ -251,6 +273,8 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDi
 		V8Runtime::globalContext->DetachGlobal();
 
 	}
+
+	// Dispose of each class' static cache / resources
 
 	V8Util::dispose();
 	ProxyFactory::dispose();
@@ -264,9 +288,9 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDi
 	V8Runtime::krollGlobalObject.Dispose();
 
 	V8Runtime::globalContext->Exit();
-
 	V8Runtime::globalContext.Dispose();
 
+	// Removes the retained global reference to the V8Runtime 
 	env->DeleteGlobalRef(V8Runtime::javaInstance);
 
 	V8Runtime::javaInstance = NULL;
