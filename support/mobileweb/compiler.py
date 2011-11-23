@@ -178,8 +178,7 @@ class Compiler(object):
 	appDescription: '${app_description | jsQuoteEscapeFilter}',\n\
 	appCopyright: '${app_copyright | jsQuoteEscapeFilter}',\n\
 	appGuid: '${app_guid | jsQuoteEscapeFilter}',\n\
-	tiVersion: '${ti_version | jsQuoteEscapeFilter}',\n\
-	baseUrl: './'\n\
+	tiVersion: '${ti_version | jsQuoteEscapeFilter}'\n\
 };\n".encode('utf-8') + self.load_api(os.path.join(src_dir,"loader.js"))
 		
 		titanium_js = HEADER + loader_js + titanium_js + FOOTER

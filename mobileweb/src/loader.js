@@ -22,7 +22,7 @@
 		// the number of seconds to wait for a script to load before timing out
 		waitSeconds = (cfg.waitSeconds || 7) * 1000,
 
-		baseUrl = cfg.baseUrl || "/",
+		baseUrl = cfg.baseUrl || "./",
 
 		// CommonJS paths
 		paths = cfg.paths || {},
