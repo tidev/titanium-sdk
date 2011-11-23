@@ -1,12 +1,12 @@
 ---
 name: Titanium.App.Android
-description: A module used to access the Android's [Application Resources](http://developer.android.com/guide/topics/resources/index.html)
+summary: A module used to access the Android's [Application Resources](http://developer.android.com/guide/topics/resources/index.html)
 extends: Titanium.Module
 since: "1.5"
 platforms: [android]
 properties:
   - name: R
-    description: The R namespace for Application Resources
+    summary: The R namespace for Application Resources
     type: Titanium.App.Android.R
     permission: read-only
 examples:

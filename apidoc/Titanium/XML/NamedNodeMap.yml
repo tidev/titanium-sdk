@@ -1,7 +1,7 @@
 ---
 name: Titanium.XML.NamedNodeMap
 extends: Titanium.Proxy
-description: >
+summary: >
     A key-value paired map that maps String objects to 
     <Titanium.XML.Node> objects. This conforms to the 
     [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html)
@@ -11,79 +11,79 @@ createable: false
 platforms: [android, iphone, ipad]
 methods:
   - name: getNamedItem
-    description: Retrieves a node specified by name. 
+    summary: Retrieves a node specified by name. 
     returns:
         type: Titanium.XML.Node
-        description: The specified node, or `null` if no node with the name is in the map
+        summary: The specified node, or `null` if no node with the name is in the map
     parameters: 
       - name: name
-        description: The name of the node to retrieve.
+        summary: The name of the node to retrieve.
         type: String
   - name: setNamedItem
-    description: >
+    summary: >
         Adds a node using its `nodeName` attribute. If a node with that
         name is already present, it is replaced. 
         Throws an exception if the argument is from a different document,
         the map is read-only, or the argument is an attribute of another element.
     returns:
         type: Titanium.XML.Node
-        description: The node replaced, or `null` if no node was replaced.
+        summary: The node replaced, or `null` if no node was replaced.
     parameters:
       - name: node
-        description: The node to insert into the map.
+        summary: The node to insert into the map.
         type: Titanium.XML.Node
   - name: removeNamedItem
-    description: >
+    summary: >
         Removes a node from the map specified by name. When this map
         contains attributes attached to an element, if the removed attribtue is
         known to have a default, it is replaced with that value.
     returns:
         type: Titanium.XML.Node
-        description: The node removed from the map, or `null` if nothing removed.
+        summary: The node removed from the map, or `null` if nothing removed.
     parameters:
       - name: name
-        description: The name of the node to remove.
+        summary: The name of the node to remove.
         type: String
   - name: item
-    description: >
+    summary: >
         Retrieves the node at the specified index of the map.
         Note that NamedNodeMaps are not ordered.
     returns:
         type: Titanium.XML.Node
-        description: The node at the specified index, or `null` if the index is invalid
+        summary: The node at the specified index, or `null` if the index is invalid
     parameters:
       - name: index
-        description: The index of the node to retrieve.
+        summary: The index of the node to retrieve.
         type: Number
   - name: getNamedItemNS
-    description: >
+    summary: >
         Retrieves a node specified by name and namespace.
         Returns `null` if no matching node is in the map.
     returns:
         type: Titanium.XML.Node
-        description: The specified node, or `null` if there is no matching node.
+        summary: The specified node, or `null` if there is no matching node.
     parameters:
       - name: namespaceURI
-        description: The namespace URI of the node to retrieve.
+        summary: The namespace URI of the node to retrieve.
         type: String
       - name: localName
-        description: The local name of the node within the namespace to retrieve.
+        summary: The local name of the node within the namespace to retrieve.
         type: String
   - name: setNamedItemNS
-    description: >
+    summary: >
         Adds a node using its `namespaceURI` and `localName` attributes.
         If a node with that name is already present, it is replaced.
         Throws an exception if the argument is from a different document,
         the map is read-only, or the argument is an attribute of another element.
     returns:
         type: Titanium.XML.Node
-        description: Returns the node replaced, or `null`.
+        summary: Returns the node replaced, or `null`.
     parameters:
       - name: node
-        description: The node to insert into the map.
+        summary: The node to insert into the map.
         type: Titanium.XML.Node
   - name: removeNamedItemNS
-    description: >
+    summary: >
         Removes a node from the map specified by local name and namespace URI. 
         When this map contains attributes attached to an element, if the removed
         attribtue is known to have a default, it is replaced with that value.
@@ -91,17 +91,17 @@ methods:
         corresponding node.
     returns:
         type: Titanium.XML.Node
-        description: The node removed from the map, or `null` if nothing removed.
+        summary: The node removed from the map, or `null` if nothing removed.
     parameters:
       - name: namespaceURI
-        description: The namespace URI of the node to remove.
+        summary: The namespace URI of the node to remove.
         type: String
       - name: localName
-        description: The local name of the node within the namespace to remove.
+        summary: The local name of the node within the namespace to remove.
         type: String
 properties:
   - name: length
-    description: >
+    summary: >
         The number of nodes in the map. The valid range of child node
         indices is 0-`length`-1, inclusive.
     type: Number
