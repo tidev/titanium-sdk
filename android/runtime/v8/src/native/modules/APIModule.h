@@ -17,6 +17,8 @@ class APIModule
 {
 public:
 	static void Initialize(Handle<Object> target);
+	static void Dispose();
+
 	static Handle<Value> logDebug(const Arguments& args);
 	static Handle<Value> logInfo(const Arguments& args);
 	static Handle<Value> logWarn(const Arguments& args);

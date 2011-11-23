@@ -1,80 +1,80 @@
 ---
 name: Titanium.Android.Menu
-description: The Titanium binding of an [Android Menu](http://developer.android.com/reference/android/view/Menu.html)
+summary: The Titanium binding of an [Android Menu](http://developer.android.com/reference/android/view/Menu.html)
 extends: Titanium.Proxy
 platforms: [android]
 createable: false
 since: "1.5"
 methods:
   - name: add
-    description: creates a <Titanium.Android.MenuItem> from the passed creation options.
+    summary: creates a <Titanium.Android.MenuItem> from the passed creation options.
     returns:
         type: Titanium.Android.MenuItem
     parameters:
       - name: options
-        description: creation options. Supported options are itemId, groupId, title, and order.
+        summary: creation options. Supported options are itemId, groupId, title, and order.
         type: Object
   - name: clear
-    description: clear all items from the menu. You should release all references you have retained to <Titanium.Android.MenuItem> previously created.
+    summary: clear all items from the menu. You should release all references you have retained to <Titanium.Android.MenuItem> previously created.
   - name: close
-    description: close the menu if visible
+    summary: close the menu if visible
   - name: findItem
-    description: locate a <Titanium.Android.MenuItem>
+    summary: locate a <Titanium.Android.MenuItem>
     returns:
         type: Titanium.Android.MenuItem
     parameters:
       - name: item
-        description: integer itemId or <Titanium.Android.MenuItem>
+        summary: integer itemId or <Titanium.Android.MenuItem>
         type: Object
   - name: getItem
-    description: return the <Titanium.Android.MenuItem> at a specific index
+    summary: return the <Titanium.Android.MenuItem> at a specific index
     returns:
         type: Titanium.Android.MenuItem
     parameters:
       - name: index
-        description: item at index where index < size()
+        summary: item at index where index < size()
         type: Number
   - name: hasVisibleItems
-    description: query for any visible menu items
+    summary: query for any visible menu items
     returns:
         type: Boolean
   - name: removeGroup
-    description: remove all <Titanium.Android.MenuItem> with the specified groupId
+    summary: remove all <Titanium.Android.MenuItem> with the specified groupId
     parameters:
       - name: groupId
-        description: groupId of items to remove.
+        summary: groupId of items to remove.
         type: Number
   - name: removeItem
-    description: remove a specific <Titanium.Android.MenuItem> by the specified itemId
+    summary: remove a specific <Titanium.Android.MenuItem> by the specified itemId
     parameters:
       - name: itemId
-        description: itemId of item to remove.
+        summary: itemId of item to remove.
         type: Number
   - name: setGroupEnabled
-    description: enable or disable a group of <Titanium.Android.MenuItem> by groupId
+    summary: enable or disable a group of <Titanium.Android.MenuItem> by groupId
     parameters:
       - name: groupId
-        description: groupId to enable or disable
+        summary: groupId to enable or disable
         type: Number
       - name: enabled
-        description: true to enable, false to disable.
+        summary: true to enable, false to disable.
         type: Boolean
   - name: setGroupVisible
-    description: show or hide a group of <Titanium.Android.MenuItem> by groupId
+    summary: show or hide a group of <Titanium.Android.MenuItem> by groupId
     parameters:
       - name: groupId
-        description: groupId to enable or disable
+        summary: groupId to enable or disable
         type: Number
       - name: visible
-        description: true to show, false to hide
+        summary: true to show, false to hide
         type: Boolean
   - name: size
-    description: number of <Titanium.Android.MenuItem> in this menu
+    summary: number of <Titanium.Android.MenuItem> in this menu
     returns:
         type: Number
 properties:
   - name: items
-    description: array of <Titanium.Android.MenuItem>
+    summary: array of <Titanium.Android.MenuItem>
     type: Array<Titanium.Android.MenuItem>
     permission: read-only
 examples:

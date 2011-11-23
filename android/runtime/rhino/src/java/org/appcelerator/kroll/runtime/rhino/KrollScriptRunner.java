@@ -36,6 +36,11 @@ public class KrollScriptRunner
 		return _instance;
 	}
 
+	public static void dispose()
+	{
+		_instance = null;
+	}
+
 	// Called by the compiled JS class, we pass it 1 argument: the script class name
 	public static void main(Script script, String[] args)
 	{

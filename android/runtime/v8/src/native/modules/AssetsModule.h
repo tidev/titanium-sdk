@@ -18,6 +18,7 @@ class AssetsModule
 {
 public:
 	static void Initialize(Handle<Object> target);
+
 	static Handle<Value> readAsset(const Arguments& args);
 	static Handle<Value> readFile(const Arguments& args);
 };

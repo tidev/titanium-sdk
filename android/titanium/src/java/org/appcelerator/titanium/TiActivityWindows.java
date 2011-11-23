@@ -32,4 +32,9 @@ public class TiActivityWindows
 			windows.remove(windowId);
 		}
 	}
+
+	public static void dispose()
+	{
+		windows.clear();
+	}
 }

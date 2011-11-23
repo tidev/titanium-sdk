@@ -1,6 +1,6 @@
 ---
 name: Titanium.Buffer
-description: Buffer is a container for raw data. A buffer is created by the method `Titanium.createBuffer`.
+summary: Buffer is a container for raw data. A buffer is created by the method `Titanium.createBuffer`.
 extends: Titanium.Proxy
 since: "1.7"
 platforms: [android, iphone, ipad]
@@ -8,148 +8,148 @@ platforms: [android, iphone, ipad]
 properties:
   - name: length
     type: Number
-    description: The length of the buffer in bytes. When `length` is modified the buffer will be re-sized while preserving existing data where possible. If the new buffer length is smaller than the length of the existing data then the existing data will be truncated down to the size of the new buffer.  Resizing the buffer via setting length should be used sparingly due to the associated overhead.
+    summary: The length of the buffer in bytes. When `length` is modified the buffer will be re-sized while preserving existing data where possible. If the new buffer length is smaller than the length of the existing data then the existing data will be truncated down to the size of the new buffer.  Resizing the buffer via setting length should be used sparingly due to the associated overhead.
     default: 0, unless `value` is specified, at which case the length of the encoded data is used
   - name: value
     type: [Number, String]
     availability: creation
-    description: Data to be encoded. If `value` is a Number, `type` must also be set. (this is simply a convenient way of calling <Titanium.Codec.encodeString> or <Titanium.Codec.encodeNumber>).
+    summary: Data to be encoded. If `value` is a Number, `type` must also be set. (this is simply a convenient way of calling <Titanium.Codec.encodeString> or <Titanium.Codec.encodeNumber>).
   - name:  type
     type: String
     availability: creation
-    description: The type of data encoding to use with `value`. Required when `value` is a Number. When `value` is a String, <Titanium.Codec.CHARSET_UTF8> is the default.
+    summary: The type of data encoding to use with `value`. Required when `value` is a Number. When `value` is a String, <Titanium.Codec.CHARSET_UTF8> is the default.
   - name: byteOrder
     type: Number
     availability: creation
-    description: The byte order of this buffer. The OS native byte order is used by default.
+    summary: The byte order of this buffer. The OS native byte order is used by default.
 
 methods:
   - name: append
     returns:
         type: Number
-        description: The number of bytes appended.
-    description: appends `sourceBuffer` to the current buffer.  Buffer is grown dynamically to accommodate the additional data if need be.
+        summary: The number of bytes appended.
+    summary: appends `sourceBuffer` to the current buffer.  Buffer is grown dynamically to accommodate the additional data if need be.
     parameters:
       - name: sourceBuffer
-        description: buffer to append to current buffer
+        summary: buffer to append to current buffer
         type: Titanium.Buffer
   - name: append
     returns:
         type: Number
-        description: The number of bytes appended.
-    description: same as normal append except this allows appending only `sourceLength` bytes from the `sourceBuffer` starting at `sourceOffset`.
+        summary: The number of bytes appended.
+    summary: same as normal append except this allows appending only `sourceLength` bytes from the `sourceBuffer` starting at `sourceOffset`.
     parameters:
       - name: sourceBuffer
-        description: buffer to append to current buffer
+        summary: buffer to append to current buffer
         type: Titanium.Buffer
       - name: sourceOffset
-        description: offset to start reading buffer data from
+        summary: offset to start reading buffer data from
         type: Number
       - name: sourceLength
-        description: length of data to read from buffer
+        summary: length of data to read from buffer
         type: Number
   - name: insert
     returns:
         type: Number
-        description: The number of bytes inserted.
-    description: inserts `sourceBuffer` into the current buffer at `offset`.  Buffer is grown to accommodate the new data.
+        summary: The number of bytes inserted.
+    summary: inserts `sourceBuffer` into the current buffer at `offset`.  Buffer is grown to accommodate the new data.
     parameters:
       - name: sourceBuffer
-        description: buffer to insert into current buffer
+        summary: buffer to insert into current buffer
         type: Titanium.Buffer
       - name: offset
-        description: offset to insert new buffer at
+        summary: offset to insert new buffer at
         type: Number
   - name: insert
     returns:
         type: Number
-        description: The number of bytes inserted.
-    description: inserts `sourceLength` amount of data starting at `sourceOffset` from `sourceBuffer` into current buffer at `offset`.  Buffer is grown to accommodate the new data.
+        summary: The number of bytes inserted.
+    summary: inserts `sourceLength` amount of data starting at `sourceOffset` from `sourceBuffer` into current buffer at `offset`.  Buffer is grown to accommodate the new data.
     parameters:
       - name: sourceBuffer
-        description: buffer to insert into current buffer
+        summary: buffer to insert into current buffer
         type: Titanium.Buffer
       - name: offset
-        description: offset to insert new buffer at
+        summary: offset to insert new buffer at
         type: Number
       - name: sourceOffset
-        description: offset of sourceBuffer to insert data from
+        summary: offset of sourceBuffer to insert data from
         type: Number
       - name: sourceLength
-        description: length of data from sourceBuffer to insert
+        summary: length of data from sourceBuffer to insert
         type: Number
   - name: copy
     returns:
         type: Number
-        description: The number of bytes copied.
-    description: copies the contents of `sourceBuffer` into the current buffer at `offset`.  will not expand buffer if there is not enough room in the current buffer to accomodate all the requested data from `sourceBuffer`.
+        summary: The number of bytes copied.
+    summary: copies the contents of `sourceBuffer` into the current buffer at `offset`.  will not expand buffer if there is not enough room in the current buffer to accomodate all the requested data from `sourceBuffer`.
     parameters:
       - name: sourceBuffer
-        description: buffer to copy into current buffer
+        summary: buffer to copy into current buffer
         type: Titanium.Buffer
       - name: offset
-        description: offset to copy new buffer at
+        summary: offset to copy new buffer at
         type: Number
   - name: copy
     returns:
         type: Number
-        description: The number of bytes copied.
-    description: copies `sourceLength` contents from `sourceBuffer` starting at `sourceOffset` into the current buffer at `offset`.  will not expand buffer if there is not enough room in the current buffer to accomodate all the request data from `sourceBuffer`.
+        summary: The number of bytes copied.
+    summary: copies `sourceLength` contents from `sourceBuffer` starting at `sourceOffset` into the current buffer at `offset`.  will not expand buffer if there is not enough room in the current buffer to accomodate all the request data from `sourceBuffer`.
     parameters:
       - name: sourceBuffer
-        description: buffer to copy into current buffer
+        summary: buffer to copy into current buffer
         type: Titanium.Buffer
       - name: offset
-        description: offset to copy new buffer at
+        summary: offset to copy new buffer at
         type: Number
       - name: sourceOffset
-        description: offset of sourceBuffer to copy data from
+        summary: offset of sourceBuffer to copy data from
         type: Number
       - name: sourceLength
-        description: length of data from sourceBuffer to copy
+        summary: length of data from sourceBuffer to copy
         type: Number
   - name: clone
     returns:
         type: Titanium.Buffer
-    description: create new copy of the current buffer
+    summary: create new copy of the current buffer
   - name: clone
     returns:
         type: Titanium.Buffer
-    description: Creates a new buffer from the original buffer contents starting at `offset` and ending at `offset` + `length`
+    summary: Creates a new buffer from the original buffer contents starting at `offset` and ending at `offset` + `length`
     parameters:
       - name: offset
-        description: offset of buffer to start clone
+        summary: offset of buffer to start clone
         type: Number
       - name: length
-        description: length of buffer data starting at offset to clone
+        summary: length of buffer data starting at offset to clone
         type: Number
   - name: fill
-    description: fills buffer with `fillByte`
+    summary: fills buffer with `fillByte`
     parameters:
       - name: fillByte
-        description: byte to fill buffer with
+        summary: byte to fill buffer with
         type: Number
   - name: fill
-    description: fills buffer starting from `offset` until `length` number of `fillByte` has been written or the end of the buffer is reached
+    summary: fills buffer starting from `offset` until `length` number of `fillByte` has been written or the end of the buffer is reached
     parameters:
       - name: fillByte
-        description: byte to fill buffer with
+        summary: byte to fill buffer with
         type: Number
       - name: offset
-        description: offset of where to start fill
+        summary: offset of where to start fill
         type: Number
       - name: length
-        description: number of bytes to fill
+        summary: number of bytes to fill
         type: Number
   - name: clear
-    description: Clears buffer contents but does not change the size of the buffer
+    summary: Clears buffer contents but does not change the size of the buffer
   - name: release
-    description: Releases the space allocated to the buffer, sets length to 0.  This is effectively the same as `buffer.length = 0`
+    summary: Releases the space allocated to the buffer, sets length to 0.  This is effectively the same as `buffer.length = 0`
   - name: toString
     returns:
         type: String
-    description: Converts this buffer to a String
+    summary: Converts this buffer to a String
   - name: toBlob
     returns:
         type: Titanium.Blob
-    description: Converts this buffer to a <Titanium.Blob>
+    summary: Converts this buffer to a <Titanium.Blob>

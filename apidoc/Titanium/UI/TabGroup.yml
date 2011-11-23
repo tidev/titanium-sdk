@@ -35,90 +35,90 @@ extends: Titanium.UI.View
 since: "0.9"
 methods:
   - name: addTab
-    description: Adds a tab to the tab group.
+    summary: Adds a tab to the tab group.
     parameters:
       - name: tab
-        description: Tab to add.
+        summary: Tab to add.
         type: Titanium.UI.Tab
   - name: close
-    description: Closes the tab group and removes it from the UI.
+    summary: Closes the tab group and removes it from the UI.
   - name: open
-    description: Opens the tab group and makes it visible.
+    summary: Opens the tab group and makes it visible.
   - name: removeTab
-    description: Removes a tab from the tab group.
+    summary: Removes a tab from the tab group.
     platforms: [iphone,ipad,mobileweb]
     parameters:
       - name: tab
-        description: Tab to remove.
+        summary: Tab to remove.
         type: Titanium.UI.Tab
   - name: setActiveTab
-    description: Selects the currently active tab in a tab group.
+    summary: Selects the currently active tab in a tab group.
     parameters:
       - name: indexOrObject
-        description: Tab object to switch to, or the index of the tab object to switch to. 
+        summary: Tab object to switch to, or the index of the tab object to switch to. 
         type: [Number,Titanium.UI.Tab]
   - name: getTabs
-    description: Returns an array of tab objects that are managed by the tab group.
+    summary: Returns an array of tab objects that are managed by the tab group.
     returns: 
         type: Array<Titanium.UI.Tab>
 events:
   - name: blur
-    description: Fired when the tab group loses focus.
+    summary: Fired when the tab group loses focus.
     properties:
       - name: index
-        description: Index of the current active tab.
+        summary: Index of the current active tab.
         type: Number
       - name: previousIndex
-        description: Index of the previous active tab.
+        summary: Index of the previous active tab.
         type: Number
       - name: tab
-        description: Active tab.
+        summary: Active tab.
         type: Titanium.UI.Tab
       - name: previousTab
-        description: Previous active tab.
+        summary: Previous active tab.
         type: Titanium.UI.Tab
   - name: close
-    description: Fired when the tab group is closed.
+    summary: Fired when the tab group is closed.
   - name: focus
-    description: Fired when the tab group gains focus.
+    summary: Fired when the tab group gains focus.
     properties:
       - name: index
-        description: Index of the current active tab.
+        summary: Index of the current active tab.
         type: Number
       - name: previousIndex
-        description: Index of the previous active tab.
+        summary: Index of the previous active tab.
         type: Number
       - name: tab
-        description: Active tab.
+        summary: Active tab.
         type: Titanium.UI.Tab
       - name: previousTab
-        description: Previous active tab.
+        summary: Previous active tab.
         type: Titanium.UI.Tab
   - name: open
-    description: fired when the tab group is opened
+    summary: fired when the tab group is opened
 properties:
   - name: activeTab
-    description: Active tab.
+    summary: Active tab.
     type: Titanium.UI.Tab
   - name: allowUserCustomization
-    description: Set to `true` to allow the user to reorder tabs in the tab group, `false` to prevent reordering. When customization is enabled, the user can reorder tabs using the **Edit**  button on the **More** tab.
+    summary: Set to `true` to allow the user to reorder tabs in the tab group, `false` to prevent reordering. When customization is enabled, the user can reorder tabs using the **Edit**  button on the **More** tab.
     platforms: [iphone,ipad]
     type: Boolean
   - name: barColor
-    description: Default navigation bar color (typically for the **More** tab).
+    summary: Default navigation bar color (typically for the **More** tab).
     type: String
     platforms: [iphone,ipad]
   - name: editButtonTitle
-    description: Title for the edit button on the **More** tab.
+    summary: Title for the edit button on the **More** tab.
     platforms: [iphone,ipad]
     type: String
   - name: tabs
-    description: |
+    summary: |
         Array of tab objects that are managed by the tab group. This property is not supported across all platforms: use [getTabs](Titanium.UI.TabGroup.getTabs) instead.
     type: Array<Titanium.UI.Tab>
     platforms: [iphone,ipad]
   - name: windowSoftInputMode
-    description: |
+    summary: |
         Determines how the tab group is treated when a soft input method (such as a virtual keyboard) is displayed. One of [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN), [SOFT_INPUT_ADJUST_RESIZE](Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE), or [SOFT_INPUT_ADJUST_UNSPECIFIED](Ti.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED). For more information see the Android API Reference: [Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int)).
     type: Number
     platforms: [android]
