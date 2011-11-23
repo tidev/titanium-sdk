@@ -51,6 +51,17 @@ public class RhinoRuntime extends KrollRuntime implements ErrorReporter
 	@Override
 	public void doDispose()
 	{
+		globalScope = null;
+		globalKrollObject = null;
+		moduleObject = null;
+		runModuleFunction = null;
+		errorReporter = null;
+
+		EventEmitter.dispose();
+		KrollBindings.dispose();
+		KrollWith.dispose();
+		Proxy.dispose();
+		ProxyFactory.dispose();
 	}
 
 	@Override
@@ -109,6 +120,8 @@ public class RhinoRuntime extends KrollRuntime implements ErrorReporter
 
 		EventEmitter.init(globalKrollObject);
 		GlobalSandbox.init(globalKrollObject);
+
+		KrollBindings.initJsBindings();
 
 		Script krollScript = KrollBindings.getJsBinding("kroll");
 		Object result = krollScript.exec(context, globalScope);

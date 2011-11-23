@@ -1,14 +1,14 @@
 ---
 name: Titanium.App.iOS.BackgroundService
-description: The BackgroundService is created by <Titanium.App.iOS.registerBackgroundService>.
+summary: The BackgroundService is created by <Titanium.App.iOS.registerBackgroundService>.
 extends: Titanium.Proxy
 platforms: [iphone,ipad]
 since: "1.5"
 methods:
   - name: stop
-    description: stop the service from the current background session to conserve resources
+    summary: stop the service from the current background session to conserve resources
   - name: unregister
-    description: unregister the background service
-notes: The background service runs when the Application is placed in the background and will continue to run until the service is stopped with the `stop` method or the `unregister` method.
+    summary: unregister the background service
+description: The background service runs when the Application is placed in the background and will continue to run until the service is stopped with the `stop` method or the `unregister` method.
     
     Stopping a running background service will converse resources while its running in the background. However, if the application is foregrounded and then backgrounded again, it will run again.  If you want to permanently stop running the background service, you must call `unregister`.

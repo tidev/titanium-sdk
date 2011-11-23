@@ -79,8 +79,9 @@ def addToInitTable(proxy):
 	headers += "#include \"%s.h\"\n" % proxy
 	fullApi = fullApi.replace("Titanium.", "")
 	initFunction = "%s::%s::bindProxy" % (namespace, className)
+	disposeFunction = "%s::%s::dispose" % (namespace, className)
 
-	initTable.append("%s, %s" % (proxy, initFunction))
+	initTable.append("%s, %s, %s" % (proxy, initFunction, disposeFunction))
 
 Kroll_DEFAULT = "org.appcelerator.kroll.annotations.Kroll.DEFAULT"
 
@@ -199,7 +200,8 @@ def isBoundMethod(proxyMap, methodName):
 		if proxyMap["methods"][method]["name"] ==  methodName: return True
 	return False
 
-topLevelJS = ""
+globalsJS = ""
+invocationJS = ""
 genAPITree = True
 modulesWithCreate = []
 
@@ -305,7 +307,7 @@ def genBootstrap(node, namespace = "", indent = 0):
 		js += "		}\n";
 		js += "		%s.__propertiesDefined__ = true;\n" % var
 
-	global topLevelJS
+	global globalsJS, invocationJS
 	if "topLevelMethods" in proxyMap:
 		for method in proxyMap["topLevelMethods"]:
 			ns = namespace
@@ -313,10 +315,10 @@ def genBootstrap(node, namespace = "", indent = 0):
 				ns = "Titanium." + ns
 			topLevelNames = proxyMap["topLevelMethods"][method]
 			for name in topLevelNames:
-				topLevelJS += JS_DEFINE_TOP_LEVEL % {"name": name, "mapping": method, "namespace": ns}
+				globalsJS += JS_DEFINE_TOP_LEVEL % {"name": name, "mapping": method, "namespace": ns}
 
 	for api in invocationAPIs:
-		topLevelJS += JS_INVOCATION_API % { "namespace": namespace, "api": api["apiName"] }
+		invocationJS += JS_INVOCATION_API % { "namespace": namespace, "api": api["apiName"] }
 
 	if needsReturn and genAPITree:
 		js += "		return %s;\n" % var
@@ -335,9 +337,8 @@ def main():
 	global genAPITree
 	genAPITree = options.apiTree
 
-	global apiTree
+	global apiTree, globalsJS, invocationJS
 	bootstrapJS = genBootstrap(apiTree)
-	bootstrapJS = topLevelJS + bootstrapJS
 
 	jsTemplate = open(os.path.join(thisDir, "bootstrap.js")).read()
 	gperfTemplate = open(os.path.join(thisDir, "bootstrap.gperf")).read()
@@ -348,10 +349,21 @@ def main():
 		bootstrap = options.output
 
 	genBindings = os.path.join(genDir, "KrollGeneratedBindings.gperf")
-	open(bootstrap, "w").write(
-		jsTemplate % { "bootstrap": bootstrapJS, "modulesWithCreate": json.dumps(modulesWithCreate) })
-	open(genBindings, "w").write(
-		gperfTemplate % { "headers": headers, "bindings": "\n".join(initTable) })
+
+	bootstrapContext = {
+		"globalsJS": globalsJS,
+		"invocationJS": invocationJS,
+		"bootstrapJS": bootstrapJS,
+		"modulesWithCreate": json.dumps(modulesWithCreate)
+	}
+
+	gperfContext = {
+		"headers": headers,
+		"bindings": "\n".join(initTable)
+	}
+
+	open(bootstrap, "w").write(jsTemplate % bootstrapContext)
+	open(genBindings, "w").write(gperfTemplate % gperfContext)
 
 if __name__ == "__main__":
 	main()

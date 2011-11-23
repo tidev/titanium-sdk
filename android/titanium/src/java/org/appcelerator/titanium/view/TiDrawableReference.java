@@ -33,7 +33,6 @@ import org.appcelerator.titanium.util.TiDownloadListener;
 import org.appcelerator.titanium.util.TiDownloadManager;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
-import org.appcelerator.titanium.util.TiUrl;
 
 import android.app.Activity;
 import android.content.res.Resources;
