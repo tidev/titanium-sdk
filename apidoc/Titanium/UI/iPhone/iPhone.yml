@@ -1,78 +1,78 @@
 ---
 name: Titanium.UI.iPhone
-description: The iPhone/iPad specific UI capabilities.  All properties, methods and events in this namespace will only work on the Apple iPhone or iPad related devices.
+summary: The iPhone/iPad specific UI capabilities.  All properties, methods and events in this namespace will only work on the Apple iPhone or iPad related devices.
 extends: Titanium.Module
 since: "0.5"
 platforms: [iphone, ipad]
 methods:
   - name: hideStatusBar
-    description: convenience method to hide the status bar
+    summary: convenience method to hide the status bar
     parameters:
       - name: animated
-        description: boolean to indicate if the action should be animated
+        summary: boolean to indicate if the action should be animated
         type: Boolean
       - name: animationStyle
-        description: the animation style
+        summary: the animation style
         type: Number
   - name: showStatusBar
-    description: convenience method to show the status bar
+    summary: convenience method to show the status bar
     parameters:
       - name: animated
-        description: boolean to indicate if the action should be animated
+        summary: boolean to indicate if the action should be animated
         type: Boolean
       - name: animationStyle
-        description: the animation style
+        summary: the animation style
         type: Number
 properties:
   - name: MODAL_PRESENTATION_CURRENT_CONTEXT
-    description: The view is presented using the same style as its parent window.
+    summary: The view is presented using the same style as its parent window.
     type: Number
     osver: {ios: {min: "3.2"}}
     permission: read-only
   - name: MODAL_PRESENTATION_FORMSHEET
-    description: The width and height of the presented window are smaller than those of the screen and the view is centered on the screen. If the device is in a landscape orientation and the keyboard is visible, the position of the view is adjusted upward so that the view remains visible. All uncovered areas are dimmed to prevent the user from interacting with them.
+    summary: The width and height of the presented window are smaller than those of the screen and the view is centered on the screen. If the device is in a landscape orientation and the keyboard is visible, the position of the view is adjusted upward so that the view remains visible. All uncovered areas are dimmed to prevent the user from interacting with them.
     type: Number
     permission: read-only
     osver: {ios: {min: "3.2"}}
   - name: MODAL_PRESENTATION_FULLSCREEN
-    description: The presented window covers the screen.
+    summary: The presented window covers the screen.
     type: Number
     permission: read-only
     osver: {ios: {min: "3.2"}}
   - name: MODAL_PRESENTATION_PAGESHEET
-    description: The height of the presented window is set to the height of the screen and the view's width is set to the width of the screen in a portrait orientation. Any uncovered areas are dimmed to prevent the user from interacting with them. (In portrait orientations, this option is essentially the same as <Titanium.UI.iPhone.MODAL_PRESENTATION_FULLSCREEN>).
+    summary: The height of the presented window is set to the height of the screen and the view's width is set to the width of the screen in a portrait orientation. Any uncovered areas are dimmed to prevent the user from interacting with them. (In portrait orientations, this option is essentially the same as <Titanium.UI.iPhone.MODAL_PRESENTATION_FULLSCREEN>).
     type: Number
     permission: read-only
     osver: {ios: {min: "3.2"}}
   - name: MODAL_TRANSITION_STYLE_COVER_VERTICAL
-    description: When the window is presented, its view slides up from the bottom of the screen. On dismissal, the view slides back down. This is the default transition style.
+    summary: When the window is presented, its view slides up from the bottom of the screen. On dismissal, the view slides back down. This is the default transition style.
     type: Number
     permission: read-only
     osver: {ios: {min: "3.2"}}
   - name: MODAL_TRANSITION_STYLE_CROSS_DISSOLVE
-    description: When the window is presented, the current view fades out while the new view fades in at the same time. On dismissal, a similar type of cross-fade is used to return to the original view.
+    summary: When the window is presented, the current view fades out while the new view fades in at the same time. On dismissal, a similar type of cross-fade is used to return to the original view.
     type: Number
     permission: read-only
     osver: {ios: {min: "3.2"}}
   - name: MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL
-    description: When the window is presented, the current view initiates a horizontal 3D flip from right-to-left, resulting in the revealing of the new view as if it were on the back of the previous view. On dismissal, the flip occurs from left-to-right, returning to the original view.
+    summary: When the window is presented, the current view initiates a horizontal 3D flip from right-to-left, resulting in the revealing of the new view as if it were on the back of the previous view. On dismissal, the flip occurs from left-to-right, returning to the original view.
     type: Number
     permission: read-only
     osver: {ios: {min: "3.2"}}
   - name: MODAL_TRANSITION_STYLE_PARTIAL_CURL
-    description: When the window is presented, one corner of the current view curls up to reveal the modal view underneath. On dismissal, the curled up page unfurls itself back on top of the modal view. A modal view presented using this transition is itself prevented from presenting any additional modal views. This transition style is supported only if the window is presenting a <Titanium.UI.iPhone.MODAL_PRESENTATION_FULLSCREEN> modal presentation style.
+    summary: When the window is presented, one corner of the current view curls up to reveal the modal view underneath. On dismissal, the curled up page unfurls itself back on top of the modal view. A modal view presented using this transition is itself prevented from presenting any additional modal views. This transition style is supported only if the window is presenting a <Titanium.UI.iPhone.MODAL_PRESENTATION_FULLSCREEN> modal presentation style.
     type: Number
     permission: read-only
     osver: {ios: {min: "3.2"}}
   - name: appBadge
-    description: set the application badge for the application's icon in the springboard
+    summary: set the application badge for the application's icon in the springboard
     type: String
   - name: appSupportsShakeToEdit
-    description: control whether the shake to edit system wide capability is enabled
+    summary: control whether the shake to edit system wide capability is enabled
     type: Boolean
   - name: statusBarHidden
-    description: control the status bar visibility
+    summary: control the status bar visibility
     type: Boolean
   - name: statusBarStyle
-    description: constant that controls the status bar color style
+    summary: constant that controls the status bar color style
     type: Number

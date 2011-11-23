@@ -1,60 +1,8 @@
 ---
 name: Titanium
-description: The top level Titanium module.
-since: "0.1"
-extends: Titanium.Module
+summary: The top level Titanium module.
+description: |
 
-properties:
-  - name: userAgent
-    type: String
-    description: the user-agent string used by Titanium
-  - name: version
-    type: Number
-    description: the version of Titanium that is executing
-    permission: read-only
-  - name: buildDate
-    type: String
-    description: The date of the Titanium build
-    permission: read-only
-  - name: buildHash
-    type: String
-    description: The git hash of the Titanium build
-    permission: read-only
-methods:
-  - name: include
-    description: a filename to include as if the Javascript code was written in place.  This is similar to a C `#include` function.
-    parameters:
-      - name: name
-        description:  filename to include
-        type: String
-
-  - name: createBuffer
-    description: creates a new buffer based on the params
-    parameters:
-      - name: params
-        description: creation arguments
-        type: CreateBufferArgs
-    returns:
-        type: Titanium.Buffer
-        description: The new buffer.
-    platforms: [android, iphone, ipad]
-    examples:
-      - title: Create a buffer with 1K bytes
-        example: |
-            
-                var buffer = Ti.createBuffer({ length: 1024 });
-      - title: Create a buffer with string
-        example: |
-            Create a buffer with the string "hello world" encoded in UTF-8
-            
-                var buffer = Ti.createBuffer({ value: "hello world" });
-      - title: Create a buffer with encoded float
-        example: |
-            Create a buffer with the encoded value of the double-precision floating point number 1.234567 in Big Endian (network) byte order
-            
-                var buffer = Ti.createBuffer({ value: 1.234567, type: Ti.Codec.TYPE_DOUBLE, byteOrder: Ti.Codec.BIG_ENDIAN });
-
-notes: |
     Titanium provides a number of built-in objects in the Javascript that are not part of the Titanium namespace.  Specifically, the following are available.
 
     #### JSON
@@ -87,33 +35,86 @@ notes: |
 
     `String.formatCurrency`: format a number into a locale specific currency format.
 
+since: "0.1"
+extends: Titanium.Module
+
+properties:
+  - name: userAgent
+    type: String
+    summary: the user-agent string used by Titanium
+  - name: version
+    type: Number
+    summary: the version of Titanium that is executing
+    permission: read-only
+  - name: buildDate
+    type: String
+    summary: The date of the Titanium build
+    permission: read-only
+  - name: buildHash
+    type: String
+    summary: The git hash of the Titanium build
+    permission: read-only
+methods:
+  - name: include
+    summary: a filename to include as if the Javascript code was written in place.  This is similar to a C `#include` function.
+    parameters:
+      - name: name
+        summary:  filename to include
+        type: String
+
+  - name: createBuffer
+    summary: creates a new buffer based on the params
+    parameters:
+      - name: params
+        summary: creation arguments
+        type: CreateBufferArgs
+    returns:
+        type: Titanium.Buffer
+        summary: The new buffer.
+    platforms: [android, iphone, ipad]
+    examples:
+      - title: Create a buffer with 1K bytes
+        example: |
+            
+                var buffer = Ti.createBuffer({ length: 1024 });
+      - title: Create a buffer with string
+        example: |
+            Create a buffer with the string "hello world" encoded in UTF-8
+            
+                var buffer = Ti.createBuffer({ value: "hello world" });
+      - title: Create a buffer with encoded float
+        example: |
+            Create a buffer with the encoded value of the double-precision floating point number 1.234567 in Big Endian (network) byte order
+            
+                var buffer = Ti.createBuffer({ value: 1.234567, type: Ti.Codec.TYPE_DOUBLE, byteOrder: Ti.Codec.BIG_ENDIAN });
+
 
 
 
 ---
 name: CreateBufferArgs
-description: Arguments to be passed to createBuffer
+summary: Arguments to be passed to createBuffer
 since: "1.7"
 platforms: [android, iphone, ipad]
 
 properties:
   - name: value
     type: [String, Number]
-    description: An initial value which will be encoded and placed in the buffer. If value is a Number, type must also be set. (this is simply a convenient way of calling <Titanium.Codec.encodeString> or <Titanium.Codec.encodeNumber> and placing the encoded value in the returned buffer.)
+    summary: An initial value which will be encoded and placed in the buffer. If value is a Number, type must also be set. (this is simply a convenient way of calling <Titanium.Codec.encodeString> or <Titanium.Codec.encodeNumber> and placing the encoded value in the returned buffer.)
     optional: true
   - name: length
     type: Number
-    description: The length of the buffer.
+    summary: The length of the buffer.
     optional: true
     default: 0, unless `value` is specified, in which case the length of the encoded data is used.
   - name: type
     type: String
-    description: The type of data encoding to use with `value`.
+    summary: The type of data encoding to use with `value`.
     optional: true
     default: <Titanium.Codec.CHARSET_UTF8> if `value` is a String, If `value` is a Number, this argument is required
   - name: byteOrder
     type: Number
-    description: The byte order of this buffer.
+    summary: The byte order of this buffer.
     optional: true
     default: The OS native byte order is used by default. See <Titanium.Codec.getNativeByteOrder>
 
