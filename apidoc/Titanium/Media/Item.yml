@@ -1,64 +1,64 @@
 ---
 name: Titanium.Media.Item
-description: A representation of a media item returned by the music picker as part of the `items` array in the dictionary passed to its `success` function.
+summary: A representation of a media item returned by the music picker as part of the `items` array in the dictionary passed to its `success` function.
 extends: Titanium.Proxy
 since: "1.4.0"
 platforms: [iphone, ipad]
 properties:
   - name: albumArtist
-    description: the artist for the album of the item
+    summary: the artist for the album of the item
     type: String
   - name: albumTitle
-    description: the album title of the item
+    summary: the album title of the item
     type: String
   - name: albumTrackCount
-    description: the number of tracks for the album of the item
+    summary: the number of tracks for the album of the item
     type: Number
   - name: albumTrackNumber
-    description: the track number of the item
+    summary: the track number of the item
     type: Number
   - name: artist
-    description: the artist of the item
+    summary: the artist of the item
     type: String
   - name: artwork
-    description: a blob object containing the image for the item's artwork, or null if none
+    summary: a blob object containing the image for the item's artwork, or null if none
     type: Object
   - name: composer
-    description: the composer of the item
+    summary: the composer of the item
     type: String
   - name: discCount
-    description: the total number of discs of the item
+    summary: the total number of discs of the item
     type: Number
   - name: discNumber
-    description: the disc number of the item
+    summary: the disc number of the item
     type: Number
   - name: genre
-    description: the genre of the item
+    summary: the genre of the item
     type: String
   - name: isCompilation
-    description: true if the item is part of a compilation album
+    summary: true if the item is part of a compilation album
     type: Boolean
   - name: lyrics
-    description: the lyrics of the item
+    summary: the lyrics of the item
     type: String
   - name: mediaType
-    description: the type of the item
+    summary: the type of the item
     type: Number
   - name: playCount
-    description: the number of times the item has been played
+    summary: the number of times the item has been played
     type: Number
   - name: playbackDuration
-    description: the length (in seconds) of the item
+    summary: the length (in seconds) of the item
     type: Number
   - name: podcastTitle
-    description: the title of a podcast item.  Only for media types of <Titanium.Media.MUSIC_MEDIA_TYPE_PODCAST>.
+    summary: the title of a podcast item.  Only for media types of <Titanium.Media.MUSIC_MEDIA_TYPE_PODCAST>.
     type: String
   - name: rating
-    description: the rating of the item
+    summary: the rating of the item
     type: Number
   - name: skipCount
-    description: the number of times the item has been skipped
+    summary: the number of times the item has been skipped
     type: Number
   - name: title
-    description: the title of the item
+    summary: the title of the item
     type: String

@@ -1,92 +1,92 @@
 ---
 name: Titanium.Media.Sound
-description: The Sound object is returned by <Titanium.Media.createSound> and is useful for playing basic sounds. The Sound object loads the entire media resource in memory before playing.  If you need to support streaming, use the <Titanium.Media.createAudioPlayer> API.
+summary: The Sound object is returned by <Titanium.Media.createSound> and is useful for playing basic sounds. The Sound object loads the entire media resource in memory before playing.  If you need to support streaming, use the <Titanium.Media.createAudioPlayer> API.
 extends: Titanium.Proxy
 since: "0.8"
 platforms: [android, iphone, ipad]
 methods:
   - name: getTime
-    description: return the current time position of the audio
+    summary: return the current time position of the audio
     returns:
         type: Number
   - name: getVolume
-    description: return the value of the audio
+    summary: return the value of the audio
     returns:
         type: Number
   - name: isLooping
-    description: returns true if the audio will loop
+    summary: returns true if the audio will loop
     returns:
         type: Boolean
   - name: isPaused
-    description: returns true if the audio is paused
+    summary: returns true if the audio is paused
     returns:
         type: Boolean
   - name: isPlaying
-    description: returns true if the audio is playing
+    summary: returns true if the audio is playing
     returns:
         type: Boolean
   - name: pause
-    description: temporarily pause the audio. to resume, invoke `play`.
+    summary: temporarily pause the audio. to resume, invoke `play`.
   - name: play
-    description: starting playing the source. if paused, will resume.
+    summary: starting playing the source. if paused, will resume.
   - name: release
-    description: release all internal resources. this is typically unnecessary but can be useful if you load a large audio file in `app.js` and play it only once and you would like to release all releases after your final play to reduce memory.
+    summary: release all internal resources. this is typically unnecessary but can be useful if you load a large audio file in `app.js` and play it only once and you would like to release all releases after your final play to reduce memory.
   - name: reset
-    description: reset the audio to the beginning.
+    summary: reset the audio to the beginning.
   - name: setLooping
-    description: control whether the audio should loop
+    summary: control whether the audio should loop
   - name: setPaused
-    description: control whether the audio is paused
+    summary: control whether the audio is paused
   - name: setTime
-    description: set the time position of the audio
+    summary: set the time position of the audio
   - name: setVolume
-    description: set the volume of the audio
+    summary: set the volume of the audio
   - name: stop
-    description: stop playing the audio and reset it to the beginning.
+    summary: stop playing the audio and reset it to the beginning.
 events:
   - name: complete
-    description: fired when the audio has completed
+    summary: fired when the audio has completed
     properties:
       - name: success
-        description: boolean to indicate if the sound was successfully played
+        summary: boolean to indicate if the sound was successfully played
   - name: error
-    description: called when an error is received playing the audio.
+    summary: called when an error is received playing the audio.
     properties:
       - name: message
-        description: error message
+        summary: error message
   - name: interrupted
-    description: called when the audio is interrupted by the device. this is typically called during an interruption due to an incoming phone call.
+    summary: called when the audio is interrupted by the device. this is typically called during an interruption due to an incoming phone call.
   - name: resume
-    description: called when the audio is resumed after an interruption.
+    summary: called when the audio is resumed after an interruption.
     properties:
       - name: interruption
-        description: boolean to indicate if the resume was from an interruption
+        summary: boolean to indicate if the resume was from an interruption
 properties:
   - name: allowBackground
-    description: boolean to indicate if audio should continue playing even if Activity is paused
+    summary: boolean to indicate if audio should continue playing even if Activity is paused
     since: "1.3.0"
     platforms: [android]
     type: Boolean
   - name: duration
-    description: the duration of the audio.
+    summary: the duration of the audio.
     type: Number
   - name: looping
-    description: boolean to indicate if the audio should loop upon completion
+    summary: boolean to indicate if the audio should loop upon completion
     type: Boolean
   - name: paused
-    description: boolean to indicate if the audio is paused
+    summary: boolean to indicate if the audio is paused
     type: Boolean
   - name: playing
-    description: boolean to indicate if the audio is playing
+    summary: boolean to indicate if the audio is playing
     type: Boolean
   - name: time
-    description: the time position of the audio.
+    summary: the time position of the audio.
     type: Number
   - name: url
-    description: url to the audio
+    summary: url to the audio
     type: String
   - name: volume
-    description: the volume of the audio. this volume only affects the media, not the device audio.
+    summary: the volume of the audio. this volume only affects the media, not the device audio.
     type: Number
 examples:
   - title: Simple Example

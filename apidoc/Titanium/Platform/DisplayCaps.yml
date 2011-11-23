@@ -1,20 +1,20 @@
 ---
 name: Titanium.Platform.DisplayCaps
-description: The Display Caps object returned by the <Titanium.Platform.displayCaps> property.
+summary: The Display Caps object returned by the <Titanium.Platform.displayCaps> property.
+description: On iPhone, the `density` property will return `high` for retina devices and `medium` otherwise, the `dpi` property will return `160`. For iPad, the `density` property will return `medium` and the `dpi` property will return `130`.  For Android, these values are device specific.
 extends: Titanium.Proxy
 since: "0.8"
 createable: false
 properties:
   - name: density
-    description: returns the density property of the display device.
+    summary: returns the density property of the display device.
     type: String
   - name: dpi
-    description: the DPI of the display device.
+    summary: the DPI of the display device.
     type: Number
   - name: platformHeight
-    description: the height of the device screen
+    summary: the height of the device screen
     type: Number
   - name: platformWidth
-    description: the width of the device screen
+    summary: the width of the device screen
     type: Number
-notes: On iPhone, the `density` property will return `high` for retina devices and `medium` otherwise, the `dpi` property will return `160`. For iPad, the `density` property will return `medium` and the `dpi` property will return `130`.  For Android, these values are device specific.
