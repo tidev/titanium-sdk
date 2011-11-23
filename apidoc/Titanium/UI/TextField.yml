@@ -63,9 +63,11 @@ properties:
   - name: editable
     summary: Is the field editable?
     type: Boolean
+    default: true
   - name: enabled
     summary: Is the field enabled?
     type: Boolean
+    default: true
   - name: hintText
     summary: Hint text to display when the field is unfocused.
     type: String
@@ -138,17 +140,23 @@ properties:
   - name: suppressReturn
     summary: Should the return key should be suppressed during entry?
     type: Boolean
+  - name: textAlign
+    summary: |
+        Text alignment, specified using one of the <Titanium.UI> text alignment constants: [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
+    type: [String,Number]
+    default: <Titanium.UI.TEXT_ALIGNMENT_LEFT>
   - name: value
     summary: Value of the field.
     type: String
   - name: verticalAlign
     summary: |
-        Vertical alignment for the text field, specified using a string ('top', 
-        'center', 'bottom') or one of the vertical alignment constants from <Titanium.UI>: 
+        Vertical alignment for the text field, specified using one of the 
+        vertical alignment constants from <Titanium.UI>: 
         [TEXT_VERTICAL_ALIGNMENT_BOTTOM](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM), 
         [TEXT_VERTICAL_ALIGNMENT_CENTER](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER), or 
         [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
     type: [Number,String]
+    default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
   - name: maxLength
     summary: Maximum length of text field input. 
     description: Any attempt to input text beyond this length (including pasting a string 

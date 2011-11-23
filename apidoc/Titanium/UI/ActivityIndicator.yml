@@ -3,11 +3,21 @@ name: Titanium.UI.ActivityIndicator
 summary: An activity indicator that lets the user know an action is taking place. 
     
 description:  |
-    An activity indicator can be used to show the progress of an operation in the UI to let the user know some action is taking place. An activity indicator consists of a spinning animation and an optional text message, and is used to indicate an ongoing activity of indeterminate length. To show progress, use <Titanium.UI.ProgressBar> instead.
+    An activity indicator can be used to show the progress of an operation in the UI to 
+    let the user know some action is taking place. An activity indicator consists of a 
+    spinning animation and an optional text message, and is used to indicate an ongoing 
+    activity of indeterminate length. To show progress, use <Titanium.UI.ProgressBar> instead.
 
     Use the <Titanium.UI.createActivityIndicator> method to create an Activity Indicator. 
     
-    Activity indicators must be used differently on Android and iOS. On Android, the activity indicator is a modal dialog that blocks the UI. Calling `show` displays the indicator, and calling `hide` removes it. On iOS, the activity indicator is a view like any other view, and must be added to a window or other top-level view before it can be shown.
+    Activity indicators must be used differently on Android and iOS:
+    
+    * On Android, the activity indicator is a modal dialog that blocks the UI. Calling 
+      `show` displays the indicator, and calling `hide` removes it. 
+    
+    * On iOS, the activity indicator is a view like any other view, and must be added 
+      to a window or other top-level view before it can be shown. Note that unlike most views, 
+      the activity indicator is hidden by default and must be shown explicitly.
 extends: Titanium.Proxy
 since: "0.8"
 methods:

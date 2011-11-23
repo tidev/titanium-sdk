@@ -56,9 +56,11 @@ properties:
   - name: editable
     summary: Is the text area editable?
     type: Boolean
+    default: true
   - name: enabled
     summary: Is the text area enabled?
     type: Boolean
+    default: true
   - name: keyboardToolbar
     summary: Array of toolbar button objects to be used when the keyboard is displayed.
     type: Array<Object>
@@ -74,6 +76,11 @@ properties:
   - name: suppressReturn
     summary: Should the return key be suppressed during entry?
     type: Boolean
+  - name: textAlign
+    summary: |
+        Text alignment, specified using one of the <Titanium.UI> text alignment constants: [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
+    type: [String,Number]
+    default: <Titanium.UI.TEXT_ALIGNMENT_LEFT>
   - name: value
     summary: Value of the text area.
     type: String

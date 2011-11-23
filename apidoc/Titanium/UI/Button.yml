@@ -12,6 +12,7 @@ properties:
   - name: enabled
     summary: Set to `true` to enable the button, `false` to disable the button.
     type: Boolean
+    default: true
   - name: font
     summary: Font to use for the button text.
     type: Font
@@ -53,7 +54,10 @@ examples:
     example: |
         
             var button = Titanium.UI.createButton({
-               title: 'Hello'
+               title: 'Hello',
+               top: 10,
+               width: 100,
+               height: 50
             });
             button.addEventListener('click',function(e)
             {
