@@ -52,23 +52,22 @@ function TitaniumWrapper(context) {
 
 	// Special version of include to handle relative paths based on sourceUrl.
 	this.include = function() {
-		var baseUrl, context;
+		var baseUrl, scopeVars;
 		var fileCount = arguments.length;
-
 		var info = arguments[fileCount - 1];
-		var baseUrl, context;
+
 		if (info instanceof Array) {
 			fileCount--;
 			baseUrl = info[0];
-			context = info[1];
+			scopeVars = info[1];
 		} else {
 			baseUrl = sourceUrl;
-			context = {};
+			scopeVars = context || {};
 		}
 
-		context.global = self.global;
+		scopeVars.global = self.global;
 		for (var i = 0; i < fileCount; i++) {
-			TiInclude(arguments[i], baseUrl, context);
+			TiInclude(arguments[i], baseUrl, scopeVars);
 		}
 	}
 

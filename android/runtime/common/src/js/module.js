@@ -68,8 +68,6 @@ Module.runMainModule = function (source, filename) {
 //
 // Returns the exports object of the loaded module if successful.
 Module.prototype.load = function (filename, source) {
-	kroll.log(TAG, 'Loading module: "' + filename + '"');
-
 	if (this.loaded) {
 		throw new Error("Module already loaded.");
 	}
@@ -103,7 +101,7 @@ Module.prototype.require = function (request, context, useCache) {
 	var id = resolved[0];
 	var filename = resolved[1];
 
-	kroll.log(TAG, 'Loading module "' + request + '" using filename: "' + filename + '"');
+	kroll.log(TAG, 'Loading module: ' + request + ' -> ' + filename);
 
 	if (useCache) {
 		var cachedModule = Module.cache[filename];
@@ -129,8 +127,6 @@ Module.prototype.require = function (request, context, useCache) {
 Module.prototype._runScript = function (source, filename) {
 	var self = this;
 	var url = "app://" + filename.replace("Resources/", "");
-
-	kroll.log(TAG, "in _runScript: " + filename + ", id = " + self.id);
 
 	try {
 		function require(path, context) {
