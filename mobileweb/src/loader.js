@@ -343,7 +343,7 @@
 				_t.pluginCfg = cfg[match[1]];
 				_t.deps.push(match[1]);
 			} else if (name) {
-				name = compactPath((isRelative ? refModule.name + "/../" : "") + name);
+				name = _t.name = compactPath((isRelative ? refModule.name + "/../" : "") + name);
 
 				if (/^\./.test(name)) {
 					throw new Error("Irrational path \"" + name + "\"");
