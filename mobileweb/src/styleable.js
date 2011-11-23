@@ -451,8 +451,18 @@
 				}
 			}
 		});
-		obj.animate = function(val) {
-			var duration = null;
+		obj._setPrefixedCSSRule = function(styleableObject,rule,value) {
+			var style = styleableObject.dom.style,
+				possibleRuleNames = ["Moz" + rule,"Webkit" + rule,"O" + rule,"ms" + rule,rule];
+			for (var i = 0; i < 5; i++) {
+				var prefixedRule = possibleRuleNames[i];
+				if (prefixedRule in style) {
+					style[prefixedRule] = value;
+				}
+			}
+		}
+		obj.animate = function(animation) {
+			/*var duration = null;
 			var props = [];
 			for (prop in val) {
 				if (prop == 'duration') {
@@ -479,7 +489,10 @@
 				if (prop != 'duration') {
 					obj.dom.style[prop] = val[prop];
 				}
-			}
+			}*/
+			obj._setPrefixedCSSRule(obj,"Transition", "all " + animation.duration + "ms linear");
+			obj._setPrefixedCSSRule(obj,"Transform",animation.transform._toCSS());
+			obj._setPrefixedCSSRule(obj,"TransformOrigin","center center");
 		};
 		
 		if (args['unselectable']) {

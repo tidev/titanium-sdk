@@ -1,7 +1,7 @@
 Ti._5.createClass('Titanium.UI.Animation', function(args){
 	var obj = this;
+	
 	// Interfaces
-	Ti._5.DOMView(this, 'animation', args, 'Animation');
 	Ti._5.Positionable(this, args);
 
 	// Properties
@@ -81,15 +81,6 @@ Ti._5.createClass('Titanium.UI.Animation', function(args){
 	Object.defineProperty(this, 'zIndex', {
 		get: function(){return _zIndex;},
 		set: function(val){return _zIndex = val;}
-	});
-
-
-	// Events
-	this.addEventListener('complete', function(){
-		console.debug('Event "complete" is not implemented yet.');
-	});
-	this.addEventListener('start', function(){
-		console.debug('Event "start" is not implemented yet.');
 	});
 
 	Ti._5.presetUserDefinedElements(this, args);
