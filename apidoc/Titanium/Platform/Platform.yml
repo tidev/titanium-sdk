@@ -121,7 +121,9 @@ properties:
     type: Number
     permission: read-only
   - name: runtime
-    description: a short name for the JavaScript runtime in use. On iOS this will return "javascriptcore", on Android either "v8" or "rhino", on Mobile Web any number of things depending on the browser that is being used.
+    summary: Short name for the JavaScript runtime in use. 
+    description: On iOS this returns "javascriptcore", on Android either "v8" or "rhino". 
+        On Mobile Web the return value depends on the browser that is being used.
     type: String
     permission: read-only
   - name: username

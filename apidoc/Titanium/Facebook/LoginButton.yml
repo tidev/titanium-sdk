@@ -13,5 +13,6 @@ since: "0.8"
 platforms: [android, iphone, ipad]
 properties:
   - name: style
-    summary: set to "wide" to show a wider version of the button that displays "Connect with Facebook" instead of just "Connect".
+    summary: Sets the login button style.
+    description: For iPhone use "Ti.Facebook.BUTTON_STYLE_WIDE" to show a wider version of the button that displays "Connect with Facebook" and "Ti.Facebook.BUTTON_STYLE_NORMAL" shows just "Connect". For Android use "wide" to show a wider version of the button that displays "Connect with Facebook" and "normal" for showing just "Connect".
     type: String
