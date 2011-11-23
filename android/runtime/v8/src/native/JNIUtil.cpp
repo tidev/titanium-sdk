@@ -47,6 +47,7 @@ jclass JNIUtil::krollInvocationClass = NULL;
 jclass JNIUtil::krollObjectClass = NULL;
 jclass JNIUtil::krollProxyClass = NULL;
 jclass JNIUtil::krollAssetHelperClass = NULL;
+jclass JNIUtil::krollLoggingClass = NULL;
 
 jclass JNIUtil::tiJsErrorDialogClass = NULL;
 
@@ -85,6 +86,7 @@ jmethodID JNIUtil::krollProxyGetIndexedPropertyMethod = NULL;
 jmethodID JNIUtil::krollProxyOnPropertyChangedMethod = NULL;
 jmethodID JNIUtil::krollProxyOnPropertiesChangedMethod = NULL;
 jmethodID JNIUtil::krollAssetHelperReadAssetMethod = NULL;
+jmethodID JNIUtil::krollLoggingLogWithDefaultLoggerMethod = NULL;
 
 jmethodID JNIUtil::openErrorDialogMethod = NULL;
 
@@ -275,6 +277,7 @@ void JNIUtil::initCache()
 	krollObjectClass = findClass("org/appcelerator/kroll/KrollObject");
 	krollProxyClass = findClass("org/appcelerator/kroll/KrollProxy");
 	krollAssetHelperClass = findClass("org/appcelerator/kroll/util/KrollAssetHelper");
+	krollLoggingClass = findClass("org/appcelerator/kroll/KrollLogging");
 	tiJsErrorDialogClass = findClass("org/appcelerator/kroll/common/TiJSErrorDialog");
 
 	classGetNameMethod = getMethodID(classClass, "getName", "()Ljava/lang/String;", false);
@@ -326,6 +329,7 @@ void JNIUtil::initCache()
 	openErrorDialogMethod = getMethodID(tiJsErrorDialogClass, "openErrorDialog", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;I)V",true);
 	krollAssetHelperReadAssetMethod = getMethodID(krollAssetHelperClass, "readAsset", "(Ljava/lang/String;)Ljava/lang/String;", true);
 
+	krollLoggingLogWithDefaultLoggerMethod = getMethodID(krollLoggingClass, "logWithDefaultLogger", "(ILjava/lang/String;)V", true);
 }
 
 } // namespace titanium

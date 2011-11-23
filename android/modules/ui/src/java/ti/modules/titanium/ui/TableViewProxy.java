@@ -21,6 +21,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUITableView;
@@ -453,6 +454,7 @@ public class TableViewProxy extends TiViewProxy
 
 			if (rowDict != null) {
 				rowProxy = new TableViewRowProxy();
+				rowProxy.setCreationUrl(creationUrl.getNormalizedUrl());
 				rowProxy.handleCreationDict(rowDict);
 				rowProxy.setProperty(TiC.PROPERTY_CLASS_NAME, CLASSNAME_NORMAL);
 				rowProxy.setProperty(TiC.PROPERTY_ROW_DATA, row);

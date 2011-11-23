@@ -25,14 +25,16 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.common.TiDeployData;
+import org.appcelerator.kroll.common.TiFastDev;
 import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.kroll.util.TiTempFileHelper;
 import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.analytics.TiAnalyticsModel;
 import org.appcelerator.titanium.analytics.TiAnalyticsService;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiResponseCache;
-import org.appcelerator.titanium.util.TiTempFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
@@ -179,11 +181,11 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 		systemProperties = new TiProperties(getApplicationContext(), "system", true);
 
 		if (getDeployType().equals(DEPLOY_TYPE_DEVELOPMENT)) {
-			deployData = new TiDeployData();
+			deployData = new TiDeployData(this);
 		}
 		tempFileHelper = new TiTempFileHelper(this);
 	}
-	
+
 	@Override
 	public void onTerminate()
 	{
@@ -194,6 +196,7 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 	public void postAppInfo()
 	{
 		TiPlatformHelper.initialize();
+		TiFastDev.initFastDev(this);
 	}
 
 	public void postOnCreate()
@@ -359,7 +362,12 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 	{
 		return appInfo;
 	}
-	
+
+	public String getAppGUID()
+	{
+		return getAppInfo().getGUID();
+	}
+
 	public KrollDict getStylesheet(String basename, Collection<String> classes, String objectId)
 	{
 		if (stylesheet != null) {
@@ -580,7 +588,12 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 	{
 		TiUIHelper.waitForCurrentActivity(l);
 	}
-	
+
+	public boolean isDebuggerEnabled()
+	{
+		return getDeployData().isDebuggerEnabled();
+	}
+
 	private void startExternalStorageMonitor()
 	{
 		externalStorageReceiver = new BroadcastReceiver()

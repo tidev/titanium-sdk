@@ -24,6 +24,7 @@ import android.util.Log;
 public class RhinoRuntime extends KrollRuntime implements ErrorReporter
 {
 	private static final String TAG = "RhinoRuntime";
+	private static final String NAME = "rhino";
 
 	private Scriptable globalScope;
 	private Scriptable globalKrollObject;
@@ -149,6 +150,12 @@ public class RhinoRuntime extends KrollRuntime implements ErrorReporter
 	{
 		TiJSErrorDialog.openErrorDialog("Runtime Error", message, sourceName, line, lineSource, lineOffset);
 		return new EvaluatorException(message, sourceName, line, lineSource, lineOffset);
+	}
+
+	@Override
+	public String getRuntimeName()
+	{
+		return NAME;
 	}
 
 	@Override
