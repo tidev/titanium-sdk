@@ -1,23 +1,23 @@
 ---
 name: Titanium.XML.Attr
 extends: Titanium.XML.Node
-description: Proxy representing an attribute of an [Element](Titanium.XML.Element), as defined
+summary: Proxy representing an attribute of an [Element](Titanium.XML.Element), as defined
     in the [DOM Level 2 specification](http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-637646024).
 createable: false
 platforms: [android, iphone, ipad]
 properties:
   - name: name
     type: String
-    description: Attribute name
+    summary: Attribute name
     permission: read-only
   - name: ownerElement
     type: Titanium.XML.Element
-    description: The <Titanium.XML.Element> to which the attribute belongs.
+    summary: The <Titanium.XML.Element> to which the attribute belongs.
     permission: read-only
   - name: specified
     type: Boolean
-    description: True if this attribute was explicitly given a value in the instance document, false otherwise.
+    summary: True if this attribute was explicitly given a value in the instance document, false otherwise.
     permission: read-only
   - name: value
     type: String
-    description: The attribute value as a string.
+    summary: The attribute value as a string.

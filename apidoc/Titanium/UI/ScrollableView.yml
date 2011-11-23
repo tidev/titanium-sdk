@@ -1,73 +1,73 @@
 ---
 name: Titanium.UI.ScrollableView
-description: The Scrollable View provides a view that supports horizontal scrolling on one or more views in a gesture motion.  The Scrollable View also optionally supports a visual paging control to indicate the page that the view is visible. The Scrollable View is created by the method <Titanium.UI.createScrollableView>.
+summary: The Scrollable View provides a view that supports horizontal scrolling on one or more views in a gesture motion.  The Scrollable View also optionally supports a visual paging control to indicate the page that the view is visible. The Scrollable View is created by the method <Titanium.UI.createScrollableView>.
 extends: Titanium.UI.View
 since: "0.8"
 platforms: [android, iphone, ipad]
 methods:
   - name: addView
-    description: add a new view to the Scrollable View
+    summary: add a new view to the Scrollable View
     parameters:
       - name: view
-        description: the view to add
+        summary: the view to add
         type: Object
   - name: removeView
-    description: remove an existing view from the Scrollable View
+    summary: remove an existing view from the Scrollable View
     parameters:
       - name: view
-        description: the view to remove
+        summary: the view to remove
         type: Object
   - name: scrollToView
-    description: scroll to a specific view
+    summary: scroll to a specific view
     parameters:
       - name: view
-        description: either an integer index or the view object to bring into view as the currentPage
+        summary: either an integer index or the view object to bring into view as the currentPage
         type: [Number,Object]
 events:
   - name: scroll
-    description: fired when the scroll view is scrolled
+    summary: fired when the scroll view is scrolled
     properties:
       - name: currentPage
-        description: the current page index
+        summary: the current page index
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: the y point of the event, in receiving view coordinates
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        summary: the x point of the event in receiving view coordiantes
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: view
-        description: the current page view
+        summary: the current page view
 properties:
   - name: cacheSize
-    description: The number of views to cache (prerender).  Views are rendered in the range (currentPage +/- (cacheSize - 1)/2), ROUNDED DOWN for even values (i.e. cacheSize=4 renders 3 views into the cache).  Keep in mind that improved performance (larger cache) will lead to faster performance, but more memory usage.
+    summary: The number of views to cache (prerender).  Views are rendered in the range (currentPage +/- (cacheSize - 1)/2), ROUNDED DOWN for even values (i.e. cacheSize=4 renders 3 views into the cache).  Keep in mind that improved performance (larger cache) will lead to faster performance, but more memory usage.
     type: Number
     platforms: [iphone,ipad]
   - name: currentPage
-    description: the current page visible in the view
+    summary: the current page visible in the view
     type: Number
   - name: disableBounce
-    description: disable view bouncing.
+    summary: disable view bouncing.
     platforms: [iphone, ipad]
     type: Boolean
   - name: pagingControlColor
-    description: the color of the paging control. defaults to black.
+    summary: the color of the paging control. defaults to black.
     type: String
   - name: pagingControlHeight
-    description: the height in pixels of the paging control, if visible. defaults to 20
+    summary: the height in pixels of the paging control, if visible. defaults to 20
     type: Number
   - name: showPagingControl
-    description: boolean to indicate whether the paging control UI is visible
+    summary: boolean to indicate whether the paging control UI is visible
     type: Boolean
   - name: pagingControlTimeout
-    description: number of milliseconds to wait before hiding the paging control. Less than or equal to 0 disables timeout keeping controls displayed.
+    summary: number of milliseconds to wait before hiding the paging control. Less than or equal to 0 disables timeout keeping controls displayed.
     platforms: [android]
     availability: creation
     type: Number
   - name: views
-    description: array of view objects to place in the view
+    summary: array of view objects to place in the view
     type: Array<Object>
 examples:
   - title: Simple Scrollable View with 3 Views
