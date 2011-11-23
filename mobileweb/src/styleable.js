@@ -461,38 +461,49 @@
 				}
 			}
 		}
-		obj.animate = function(animation) {
-			/*var duration = null;
-			var props = [];
-			for (prop in val) {
-				if (prop == 'duration') {
-					duration = val[prop]
-				} else {
-					props.push(prop);
-				}
+		obj.animate = function(animation,callback) {
+			
+			// Set default values
+			animation.duration = (animation.duration ? animation.duration : 0);
+			animation.delay = (animation.delay ? animation.delay : 0);
+			
+			if(callback) {
+				// Note: no IE9 support for transitions, so instead we just set a timer that matches the duration so things don't break
+				setTimeout(function(){
+					// Clear the transform so future modifications in these areas are not animated
+					obj._setPrefixedCSSRule(obj,"Transition", "");
+					callback();
+				},animation.duration + animation.delay);
 			}
-			if ('Firefox' == Titanium.Platform.name) {
-				duration = duration || 0;
-				var sProperty = '';
-				for (var iCounter=0; iCounter < props.length; iCounter++) {
-					sProperty += sProperty ? ', ' : '';
-					sProperty += props[iCounter] + ' ' + duration + 'ms ease 0s';
-				}
-				obj.dom.style.MozTransition= sProperty;
-			} else {
-				obj.dom.style['-webkit-transition-property'] = props;
-				if (duration != null) {
-					obj.dom.style['-webkit-transition-duration'] = duration;
-				}
-			}
-			for (prop in val) {
-				if (prop != 'duration') {
-					obj.dom.style[prop] = val[prop];
-				}
-			}*/
-			obj._setPrefixedCSSRule(obj,"Transition", "all " + animation.duration + "ms linear");
-			obj._setPrefixedCSSRule(obj,"Transform",animation.transform._toCSS());
-			obj._setPrefixedCSSRule(obj,"TransformOrigin","center center");
+			
+			// Create the transition, must be set before setting the other properties
+			var transitionValue = "all " + animation.duration + "ms linear";
+			animation.delay && (transitionValue += " " + animation.delay + "ms");
+			obj._setPrefixedCSSRule(obj,"Transition", transitionValue);
+			
+			// Set the color and opacity properties
+			var _style = obj.dom.style;
+			animation.backgroundColor && (_style.backgroundColor = animation.backgroundColor);
+			animation.color && (_style.color = animation.color);
+			(animation.opaque === true || animation.visible === true) && (_style.opacity = 1.0);
+			(animation.opaque === false || animation.visible === false) && (_style.opacity = 0.0);
+			animation.opacity && (_style.opacity = animation.opacity);
+			
+			// Set the position and size properties
+			animation.center && (_style.center = animation.center);
+			animation.top && (_style.top = animation.top);
+			animation.bottom && (_style.bottom = animation.bottom);
+			animation.left && (_style.left = animation.left);
+			animation.right && (_style.right = animation.right);
+			animation.height && (_style.height = animation.height);
+			animation.width && (_style.width = animation.width);
+			
+			// Set the z-order
+			animation.zIndex && (_style.zIndex = animation.zIndex);
+			
+			// Set the affine transformation properties
+			animation.transform && obj._setPrefixedCSSRule(obj,"Transform",animation.transform._toCSS());
+			animation.transform && obj._setPrefixedCSSRule(obj,"TransformOrigin","center center");
 		};
 		
 		if (args['unselectable']) {
