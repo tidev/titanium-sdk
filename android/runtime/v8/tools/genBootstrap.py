@@ -176,8 +176,7 @@ JS_INVOCATION_API = \
 """
 
 JS_DEFINE_TOP_LEVEL = \
-"""	kroll.log("bootstrap", "global.%(name)s");
-	global.%(name)s = function() {
+"""	global.%(name)s = function() {
 		return %(namespace)s.%(mapping)s.apply(%(namespace)s, arguments);
 	}
 """

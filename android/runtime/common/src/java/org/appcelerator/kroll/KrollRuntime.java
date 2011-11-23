@@ -219,7 +219,7 @@ public abstract class KrollRuntime implements Handler.Callback
 		}
 	}
 
-	// The runtime instance keep an internal reference count of all Titanium activities
+	// The runtime instance keeps an internal reference count of all Titanium activities
 	// that have been opened by the TiApplication. When the ref count drops to 0,
 	// (i.e. all activities have been destroyed), we dispose of all runtime data.
 	public static void incrementActivityRefCount()
@@ -228,9 +228,9 @@ public abstract class KrollRuntime implements Handler.Callback
 		if (activityRefCount == 1 && instance != null) {
 			waitForInit();
 
-			// On re-entry when the process is reused, initialized is set to false
-			// Even though the KrollRuntime instance / thread still exists, so we
-			// need to re-initialize the runtime here.
+			// When the process is re-entered, "initialized" is set to false.
+			// Even though the KrollRuntime instance / thread still exists,
+			// we still need to re-initialize the runtime here.
 			if (!instance.initialized.get()) {
 				instance.initLatch = new CountDownLatch(1);
 				instance.handler.sendEmptyMessage(MSG_INIT);
