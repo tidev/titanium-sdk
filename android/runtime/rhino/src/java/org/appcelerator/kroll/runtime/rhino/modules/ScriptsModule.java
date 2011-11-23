@@ -12,6 +12,7 @@ import org.appcelerator.kroll.runtime.rhino.RhinoRuntime;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.Undefined;
@@ -157,12 +158,20 @@ public class ScriptsModule extends ScriptableObject
 		public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 		{
 			if (args.length < 1) {
-				throw new IllegalArgumentException("createContext requires 1 arg: contextGlobal");
+				throw new IllegalArgumentException("createContext requires 1 arg: contextGlobal[, initCallback]");
 			}
 
 			Scriptable contextGlobal = (Scriptable) args[0];
 			contextGlobal.setParentScope(null);
 			cx.initStandardObjects((ScriptableObject) contextGlobal);
+
+			if (args.length > 1) {
+				Object initCallbackArg = args[1];
+				if (initCallbackArg instanceof Function) {
+					Function initCallback = (Function) initCallbackArg;
+					initCallback.call(cx, scope, thisObj, new Object[] { null, contextGlobal });
+				}
+			}
 
 			return contextGlobal;
 		}

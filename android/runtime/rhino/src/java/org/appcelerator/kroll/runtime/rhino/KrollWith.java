@@ -34,6 +34,11 @@ public class KrollWith extends NativeWith
 		withStack.pop();
 	}
 
+	public static void dispose()
+	{
+		withStack.clear();
+	}
+
 	public KrollWith(Scriptable parent, Scriptable prototype)
 	{
 		super(null, prototype);

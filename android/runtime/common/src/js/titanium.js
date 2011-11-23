@@ -1,9 +1,11 @@
 /**
  * Appcelerator Titanium Mobile
+
  * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+
 var tiBinding = kroll.binding('Titanium'),
 	Titanium = tiBinding.Titanium,
 	Proxy = tiBinding.Proxy,
@@ -12,8 +14,6 @@ var tiBinding = kroll.binding('Titanium'),
 	bootstrap = require('bootstrap'),
 	path = require('path'),
 	url = require('url');
-
-var TAG = "Titanium";
 
 //the app entry point
 Titanium.sourceUrl = "app://app.js";

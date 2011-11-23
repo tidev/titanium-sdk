@@ -18,6 +18,7 @@
 #include "JNIUtil.h"
 #include "JSException.h"
 #include "KrollBindings.h"
+#include "ProxyFactory.h"
 #include "ScriptsModule.h"
 #include "TypeConverter.h"
 #include "V8Util.h"
@@ -32,6 +33,8 @@ namespace titanium {
 
 Persistent<Context> V8Runtime::globalContext;
 Persistent<Object> V8Runtime::krollGlobalObject;
+Persistent<Array> V8Runtime::moduleContexts;
+
 jobject V8Runtime::javaInstance;
 bool V8Runtime::debuggerEnabled = false;
 
@@ -69,14 +72,17 @@ static Handle<Value> krollLog(const Arguments& args)
 /* static */
 void V8Runtime::bootstrap(Local<Object> global)
 {
-	EventEmitter::Initialize();
+	EventEmitter::initTemplate();
+
 	krollGlobalObject = Persistent<Object>::New(Object::New());
+	moduleContexts = Persistent<Array>::New(Array::New());
 
 	DEFINE_METHOD(krollGlobalObject, "log", krollLog);
 	DEFINE_METHOD(krollGlobalObject, "binding", KrollBindings::getBinding);
 	DEFINE_TEMPLATE(krollGlobalObject, "EventEmitter", EventEmitter::constructorTemplate);
 
 	krollGlobalObject->Set(String::NewSymbol("runtime"), String::New("v8"));
+	krollGlobalObject->Set(String::NewSymbol("moduleContexts"), moduleContexts);
 
 	LOG_TIMER(TAG, "Executing kroll.js");
 
@@ -149,7 +155,6 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 	V8::AddMessageListener(logV8Exception);
 	V8::SetCaptureStackTraceForUncaughtExceptions(true);
 
-	LOGD(TAG, "nativeInit");
 	JavaObject::useGlobalRefs = useGlobalRefs;
 	V8Runtime::debuggerEnabled = debuggerEnabled;
 
@@ -158,6 +163,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 
 	Persistent<Context> context = Persistent<Context>::New(Context::New());
 	context->Enter();
+
 
 #ifdef V8_DEBUGGER
 	jclass v8RuntimeClass = env->FindClass("org/appcelerator/kroll/runtime/v8/V8Runtime");
@@ -201,6 +207,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRu
 
 	Handle<Value> args[] = { jsSource, jsFilename, jsActivity };
 	TryCatch tryCatch;
+
 	runModuleFunction->Call(moduleObject, 3, args);
 
 	if (tryCatch.HasCaught()) {
@@ -225,15 +232,43 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDi
 {
 	JNIScope jniScope(env);
 
-	LOGE(TAG, "Disposing global context");
+	{
+		HandleScope scope;
+		uint32_t length = V8Runtime::moduleContexts->Length();
+		for (uint32_t i = 0; i < length; ++i) {
+			Handle<Value> moduleContext = V8Runtime::moduleContexts->Get(i);
+			WrappedContext *wrappedContext = NativeObject::Unwrap<WrappedContext>(moduleContext->ToObject());
+			wrappedContext->GetV8Context()->DetachGlobal();
+			wrappedContext->GetV8Context().Dispose();
+		}
+
+		KrollBindings::dispose();
+		EventEmitter::dispose();
+
+		V8Runtime::moduleContexts.Dispose();
+		V8Runtime::moduleContexts = Persistent<Array>();
+
+		V8Runtime::globalContext->DetachGlobal();
+
+	}
+
+	V8Util::dispose();
+	ProxyFactory::dispose();
+
 	moduleObject.Dispose();
+	moduleObject = Persistent<Object>();
+
 	runModuleFunction.Dispose();
+	runModuleFunction = Persistent<Function>();
 
 	V8Runtime::krollGlobalObject.Dispose();
+
 	V8Runtime::globalContext->Exit();
+
 	V8Runtime::globalContext.Dispose();
 
 	env->DeleteGlobalRef(V8Runtime::javaInstance);
+
 	V8Runtime::javaInstance = NULL;
 }
 

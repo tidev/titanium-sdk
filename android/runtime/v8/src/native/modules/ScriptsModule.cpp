@@ -10,6 +10,7 @@
 #include "AndroidUtil.h"
 #include "NativeObject.h"
 #include "ScriptsModule.h"
+#include "V8Runtime.h"
 #include "V8Util.h"
 #include "JNIUtil.h"
 #include "TypeConverter.h"
@@ -150,8 +151,8 @@ Handle<Value> WrappedScript::CreateContext(const Arguments& args)
 			context->Set(key, value);
 		}
 
-		if (args.Length() > 1 && args[0]->IsFunction()) {
-			wrappedContext->SetInitCallback(Persistent<Function>::New(args[0].As<Function>()));
+		if (args.Length() > 1 && args[1]->IsFunction()) {
+			wrappedContext->SetInitCallback(Persistent<Function>::New(Handle<Function>::Cast(args[1])));
 		}
 	}
 
@@ -241,7 +242,7 @@ Handle<Value> WrappedScript::EvalMachine(const Arguments& args)
 	} else if (context_flag == userContext) {
 		// Use the passed in context
 		contextArg = args[sandbox_index]->ToObject();
-		nContext = NativeObject::Unwrap<WrappedContext>(sandbox);
+		nContext = NativeObject::Unwrap<WrappedContext>(contextArg);
 		context = nContext->GetV8Context();
 	}
 
@@ -339,6 +340,11 @@ Handle<Value> WrappedScript::EvalMachine(const Arguments& args)
 		context->Exit();
 	}
 
+	if (result->IsObject()) {
+		Local<Context> creation = result->ToObject()->CreationContext();
+		LOGE(TAG, "creation is global context? %d", creation == V8Runtime::globalContext);
+	}
+
 	return result == args.This() ? result : scope.Close(result);
 }
 
@@ -347,6 +353,12 @@ void ScriptsModule::Initialize(Handle<Object> target)
 	HandleScope scope;
 	WrappedContext::Initialize(target);
 	WrappedScript::Initialize(target);
+}
+
+void ScriptsModule::Dispose()
+{
+	WrappedScript::constructor_template.Dispose();
+	WrappedContext::constructor_template.Dispose();
 }
 
 Handle<Object> ScriptsModule::WrapContext(Persistent<Context> context)

@@ -6,8 +6,7 @@
  */
 (function(kroll) {
 	var TAG = "kroll";
-
-	global = this;
+	var global = this;
 
 	function startup() {
 		startup.globalVariables();

@@ -7,6 +7,7 @@
 package org.appcelerator.kroll;
 
 import java.lang.ref.WeakReference;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.common.TiMessenger;
@@ -18,7 +19,18 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
-
+/**
+ * The common Javascript runtime instance that Titanium interacts with.
+ * 
+ * The runtime instance itself is static and lives with the Android process.
+ * KrollRuntime use activity reference counting to tear down the runtime state
+ * when all of the application's Titanium activities have been destroyed.
+ * 
+ * Even after all of the activities have been destroyed, Android can (and usually does)
+ * keep the application process running. When the application is re-entered from
+ * this "torn down" state, we simply re-initialize again, this time from the first
+ * activity ref increment (TiBaseActivity.onCreate), instead of TiApplication.onCreate
+ */
 public abstract class KrollRuntime implements Handler.Callback
 {
 	private static final String TAG = "KrollRuntime";
@@ -36,6 +48,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	private KrollRuntimeThread thread;
 	private long threadId;
 	private AtomicBoolean initialized = new AtomicBoolean(false);
+	private CountDownLatch initLatch = new CountDownLatch(1);
 
 	protected Handler handler;
 
@@ -81,6 +94,9 @@ public abstract class KrollRuntime implements Handler.Callback
 			// NOTE: this must occur after threadId is set and before initRuntime() is called
 			TiMessenger.getMessenger();
 
+			// initialize the runtime
+			runtime.doInit();
+
 			// start handling messages for this thread
 			Looper.loop();
 		}
@@ -88,13 +104,15 @@ public abstract class KrollRuntime implements Handler.Callback
 
 	public static void init(Context context, KrollRuntime runtime)
 	{
-		if (instance == null) {
+		if (!runtime.initialized.get()) {
 			int stackSize = runtime.getThreadStackSize(context);
 			runtime.krollApplication = new WeakReference<KrollApplication>((KrollApplication) context);
 			runtime.thread = new KrollRuntimeThread(runtime, stackSize);
+
 			instance = runtime; // make sure this is set before the runtime thread is started
 			runtime.thread.start();
 		}
+
 		KrollAssetHelper.init(context);
 	}
 
@@ -126,12 +144,13 @@ public abstract class KrollRuntime implements Handler.Callback
 		// initializer for the specific runtime implementation (V8, Rhino, etc)
 		initRuntime();
 		initialized.set(true);
+		initLatch.countDown();
 	}
 
 	public void dispose()
 	{
 		if (isRuntimeThread()) {
-			doDispose();
+			internalDispose();
 
 		} else {
 			handler.sendEmptyMessage(MSG_DISPOSE);
@@ -176,7 +195,7 @@ public abstract class KrollRuntime implements Handler.Callback
 				return true;
 
 			case MSG_DISPOSE:
-				doDispose();
+				internalDispose();
 				return true;
 
 			case MSG_RUN_MODULE:
@@ -191,12 +210,32 @@ public abstract class KrollRuntime implements Handler.Callback
 		return false;
 	}
 
+	private static void waitForInit()
+	{
+		try {
+			instance.initLatch.await();
+		} catch (InterruptedException e) {
+			Log.e(TAG, "Interrupted while waiting for runtime to initialize", e);
+		}
+	}
+
+	// The runtime instance keep an internal reference count of all Titanium activities
+	// that have been opened by the TiApplication. When the ref count drops to 0,
+	// (i.e. all activities have been destroyed), we dispose of all runtime data.
 	public static void incrementActivityRefCount()
 	{
 		activityRefCount++;
-		if (activityRefCount == 1) {
-			instance.handler.sendEmptyMessage(MSG_INIT);
+		if (activityRefCount == 1 && instance != null) {
+			waitForInit();
 
+			// On re-entry when the process is reused, initialized is set to false
+			// Even though the KrollRuntime instance / thread still exists, so we
+			// need to re-initialize the runtime here.
+			if (!instance.initialized.get()) {
+				instance.initLatch = new CountDownLatch(1);
+				instance.handler.sendEmptyMessage(MSG_INIT);
+				waitForInit();
+			}
 		}
 	}
 
@@ -208,6 +247,18 @@ public abstract class KrollRuntime implements Handler.Callback
 		}
 
 		instance.dispose();
+	}
+
+	private void internalDispose()
+	{
+		doDispose();
+
+		KrollApplication app = krollApplication.get();
+		if (app != null) {
+			app.dispose();
+		}
+
+		initialized.set(false);
 	}
 
 	public abstract void initRuntime();

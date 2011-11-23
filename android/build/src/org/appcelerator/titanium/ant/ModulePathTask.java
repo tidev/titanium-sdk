@@ -8,7 +8,6 @@ package org.appcelerator.titanium.ant;
 
 import java.io.File;
 import java.util.List;
-import java.util.ListIterator;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;

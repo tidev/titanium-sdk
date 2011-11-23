@@ -10,7 +10,6 @@ import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
-import org.mozilla.javascript.Undefined;
 
 /**
  * A wrapper sandbox that delegates correctly to the passed in context global object

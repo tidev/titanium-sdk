@@ -79,8 +79,9 @@ def addToInitTable(proxy):
 	headers += "#include \"%s.h\"\n" % proxy
 	fullApi = fullApi.replace("Titanium.", "")
 	initFunction = "%s::%s::bindProxy" % (namespace, className)
+	disposeFunction = "%s::%s::dispose" % (namespace, className)
 
-	initTable.append("%s, %s" % (proxy, initFunction))
+	initTable.append("%s, %s, %s" % (proxy, initFunction, disposeFunction))
 
 Kroll_DEFAULT = "org.appcelerator.kroll.annotations.Kroll.DEFAULT"
 

@@ -9,16 +9,12 @@ package org.appcelerator.titanium;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
-//import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.util.TiWeakList;
-//import org.mozilla.javascript.ErrorReporter;
-//import org.mozilla.javascript.EvaluatorException;
-//import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
 import android.app.Service;

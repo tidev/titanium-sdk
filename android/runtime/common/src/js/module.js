@@ -33,13 +33,6 @@ Module.paths = [ 'Resources/' ];
 Module.wrap = NativeModule.wrap;
 
 Module.runModule = function (source, filename, activity) {
-	/*kroll.log("runModule", "run module: " + filename);
-	if (filename === "Resources/app.js") {
-		// TODO this is a bandaid for the time being
-		// we need to clean up state in the app gracefully
-		Module.cache = [];
-		Module.main = null;
-	}*/
 
 	var id = filename;
 	if (!Module.main) {
@@ -180,7 +173,7 @@ Module.prototype._runScript = function (source, filename) {
 	
 		// We initialize the context with the standard Javascript APIs and globals first before running the script
 		var newContext = context.global = ti.global = Script.createContext(contextGlobal, initContext);
-	
+
 		if (kroll.runtime == "rhino") {
 			// The Rhino version of this API takes a custom global object but uses the same Rhino "Context".
 			// It's not possible to create more than 1 Context per thread in Rhino, so contextGlobal
@@ -191,6 +184,7 @@ Module.prototype._runScript = function (source, filename) {
 			// The V8 version of this API creates a brand new V8 top-level context that's associated
 			// with a new global object. Script.createContext copies all of our context-specific data
 			// into a new ContextWrapper that doubles as the global object for the context itself.
+			kroll.moduleContexts.push(newContext);
 			return Script.runInContext(source, newContext, filename, true);
 		}
 	} catch (e) {

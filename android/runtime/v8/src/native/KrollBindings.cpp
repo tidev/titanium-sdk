@@ -58,6 +58,14 @@ void KrollBindings::initTitanium(Handle<Object> exports)
 	TitaniumModule::bindProxy(exports);
 }
 
+void KrollBindings::disposeTitanium()
+{
+	Proxy::dispose();
+	KrollProxy::dispose();
+	KrollModule::dispose();
+	TitaniumModule::dispose();
+}
+
 static Persistent<Object> bindingCache;
 
 Handle<Value> KrollBindings::getBinding(const Arguments& args)
@@ -68,7 +76,6 @@ Handle<Value> KrollBindings::getBinding(const Arguments& args)
 		return JSException::Error("Invalid arguments to binding, expected String");
 	}
 
-	String::Utf8Value b(args[0]);
 	Handle<Object> binding = getBinding(args[0]->ToString());
 	if (binding.IsEmpty()) {
 		return Undefined();
@@ -90,28 +97,55 @@ Handle<Object> KrollBindings::getBinding(Handle<String> binding)
 	}
 
 	int length = bindingValue.length();
+
 	struct bindings::BindEntry *native = bindings::native::lookupBindingInit(*bindingValue, length);
 
 	if (native) {
 		Local<Object> exports = Object::New();
 		native->bind(exports);
-
 		bindingCache->Set(binding, exports);
+
 		return exports;
 	}
 
 	struct bindings::BindEntry* generated = bindings::generated::lookupGeneratedInit(*bindingValue, length);
+
 	if (generated) {
 		Local<Object> exports = Object::New();
-
 		generated->bind(exports);
-
 		bindingCache->Set(binding, exports);
-		//LOG_STACK_TRACE(TAG, "returning exports");
+
 		return exports;
 	}
 
 	return Handle<Object>();
+}
+
+void KrollBindings::dispose()
+{
+	HandleScope scope;
+	Local<Array> propertyNames = bindingCache->GetPropertyNames();
+	uint32_t length = propertyNames->Length();
+
+	for (uint32_t i = 0; i < length; i++) {
+		String::Utf8Value binding(propertyNames->Get(i));
+		int bindingLength = binding.length();
+
+		struct titanium::bindings::BindEntry *generated = bindings::generated::lookupGeneratedInit(*binding, bindingLength);
+		if (generated && generated->dispose) {
+			generated->dispose();
+			continue;
+		}
+
+		struct titanium::bindings::BindEntry *native = bindings::native::lookupBindingInit(*binding, bindingLength);
+		if (native && native->dispose) {
+			native->dispose();
+			continue;
+		}
+	}
+
+	bindingCache.Dispose();
+	bindingCache = Persistent<Object>();
 }
 
 Handle<String> KrollBindings::getMainSource()
