@@ -18,6 +18,7 @@ import android.util.Log;
 public final class V8Runtime extends KrollRuntime implements Handler.Callback
 {
 	private static final String TAG = "KrollV8Runtime";
+	private static final String NAME = "v8";
 	private static final String DEVICE_LIB = "kroll-v8-device";
 	private static final String EMULATOR_LIB = "kroll-v8-emulator";
 	private static final int MSG_PROCESS_DEBUG_MESSAGES = KrollRuntime.MSG_LAST_ID + 100;
@@ -75,6 +76,12 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		}
 
 		return super.handleMessage(message);
+	}
+
+	@Override
+	public String getRuntimeName()
+	{
+		return NAME;
 	}
 
 	protected void dispatchDebugMessages()

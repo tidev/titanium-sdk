@@ -1,147 +1,118 @@
 ---
 name: Titanium.UI.TextArea
-description: A Text Area is created by the method <Titanium.UI.createTextArea>. The Text Area is a multiline field.
+summary: A multiline text field that supports editing and scrolling. 
+description: Use the <Titanium.UI.createTextArea> method to create a text area. 
 extends: Titanium.UI.View
 since: "0.8"
 methods:
   - name: blur
-    description: force the field to lose focus
+    summary: Forces the text area to lose focus.
   - name: focus
-    description: force the field to gain focus
+    summary: Forces the text area to gain focus.
   - name: hasText
-    description: return boolean (true) if the field has text
+    summary: Returns `true` if the text area contains text, `false` if it is empty.
 events:
   - name: blur
-    description: fired when the field loses focus
-    platforms: [android, iphone, ipad]
+    summary: Fired when the text area loses focus.
     properties:
       - name: value
-        description: the value of the field upon blur
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
+        summary: Value of the text area at the time of the event.
   - name: change
-    description: fired when the field value changes
+    summary: Fired when the text area value changes.
     properties:
       - name: value
-        description: the value of the field upon change
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
+        summary: New value of the text area.
   - name: focus
-    description: fired when the field gains focus
-    platforms: [android, iphone, ipad]
+    summary: Fired when the text area gains focus.
     properties:
       - name: value
-        description: the value of the field upon focus
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
+        summary: Value of the text area at the time of the event.
   - name: return
-    description: fired when the field return key is pressed on the keyboard
-    platforms: [android, iphone, ipad]
+    summary: Fired when the return key is pressed on the keyboard.
     properties:
       - name: value
-        description: the value of the field upon return
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
+        summary: Value of the text area at the time of the event.
   - name: selected
-    description: fired when the text in the field is selected
+    summary: Fired when text in the text area is selected.
     properties:
       - name: range
-        description: the range of text. range is an object with the properties `location` and `length`.
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
+        summary: A range of text. The range is an object with the properties `location` and `length`.
 properties:
   - name: autoLink
-    description: whether or not to convert text within this area to clickable links.
+    summary: Automatically convert text within this area to clickable links. 
+    description: Specify which type of items should be converted using the `AUTODETECT` constants defined in <Titanium.UI>.
     platforms: [iphone, ipad]
     type: Number
   - name: autocapitalization
-    description: One of <Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE>, <Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS>, <Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES>, or <Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL> to indicate how the field should be capitalized during typing.
-    platforms: [android, mobileweb]
+    summary: Specifies how text should be capitalized during typing. 
+    description: |
+        Specify one of the following constants from <Titanium.UI>: 
+        [TEXT_AUTOCAPITALIZATION_NONE](Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE), 
+        [TEXT_AUTOCAPITALIZATION_WORDS](Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS), 
+        [TEXT_AUTOCAPITALIZATION_SENTENCES](Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES), or 
+        [TEXT_AUTOCAPITALIZATION_ALL](Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL).
+    platforms: [android,iphone,ipad]
     type: Number
   - name: editable
-    description: boolean indicating if the field is editable
+    summary: Is the text area editable?
     type: Boolean
+    default: true
   - name: enabled
-    description: boolean indicating the enabled state of the field
+    summary: Is the text area enabled?
     type: Boolean
+    default: true
   - name: keyboardToolbar
-    description: array of toolbar button objects to be used when the keyboard is displayed
+    summary: Array of toolbar button objects to be used when the keyboard is displayed.
     type: Array<Object>
-    platforms: [android, iphone, ipad]
+    platforms: [iphone,ipad]
   - name: keyboardToolbarColor
-    description: the color of the keyboard toolbar
+    summary: Color of the keyboard toolbar.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [iphone,ipad]
   - name: keyboardToolbarHeight
-    description: the height of the keyboard toolbar
+    summary: Height of the keyboard toolbar.
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [iphone,ipad]
   - name: suppressReturn
-    description: boolean to indicate if the return key should be suppressed during entry
+    summary: Should the return key be suppressed during entry?
     type: Boolean
+  - name: textAlign
+    summary: |
+        Text alignment, specified using one of the <Titanium.UI> text alignment constants: [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
+    type: [String,Number]
+    default: <Titanium.UI.TEXT_ALIGNMENT_LEFT>
   - name: value
-    description: value of the field
+    summary: Value of the text area.
     type: String
   - name: scrollable
-    description: true (default) if textarea can be scrolled.
+    summary: Can the text area be scrolled?
     platforms: [iphone, ipad]
     type: Boolean
-notes: |
-    Both Text Areas and Text Fields can control the buttons displayed in a button bar above the keyboard when it's visible.
-    
-    Example using a custom keyboard toolbar:
-    
-        var textfield = Titanium.UI.createTextField({
-        	color:'#336699',
-        	value:'Focus to see keyboard w/ toolbar',
-        	height:35,
-        	width:300,
-        	top:10,
-        	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
-        	keyboardToolbar:[flexSpace,camera, flexSpace,tf,flexSpace, send,flexSpace],
-        	keyboardToolbarColor: '#999',	
-        	keyboardToolbarHeight: 40,
-        });
+    default: true
+
 examples:
+  - title: Text Area with Custom Keyboard Toolbar
+    example: |
+  
+        Both Text Areas and Text Fields can control the buttons displayed in a button bar above the keyboard when it's visible.
+    
+        Example using a custom keyboard toolbar:
+    
+            var textfield = Titanium.UI.createTextField({
+                color:'#336699',
+        	    value:'Focus to see keyboard w/ toolbar',
+        	    height:35,
+        	    width:300,
+        	    top:10,
+        	    borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
+        	    keyboardToolbar:[flexSpace,camera, flexSpace,tf,flexSpace, send,flexSpace],
+        	    keyboardToolbarColor: '#999',	
+        	    keyboardToolbarHeight: 40,
+            });
+
   - title: Basic Text Area with Customizations
     example: |
-        
-        This example created a highly customized text area.
+        This example creates a highly customized text area.
         
             var ta1 = Titanium.UI.createTextArea({
             	value:'I am a textarea',
@@ -158,5 +129,4 @@ examples:
             	borderColor:'#bbb',
             	borderRadius:5
             });
-        
         
