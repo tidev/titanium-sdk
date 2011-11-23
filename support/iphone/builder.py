@@ -1078,7 +1078,7 @@ def main(args):
 			try:		
 				os.chdir(iphone_dir)
 
-				# we always target backwards to 3.1 even when we use a later
+				# we always target backwards to 4.0 even when we use a later
 				# version iOS SDK. this ensures our code will run on old devices
 				# no matter which SDK we compile with
 				deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=4.0"
