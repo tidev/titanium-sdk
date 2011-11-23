@@ -23,6 +23,7 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	private static final String EMULATOR_LIB = "kroll-v8-emulator";
 	private static final int MSG_PROCESS_DEBUG_MESSAGES = KrollRuntime.MSG_LAST_ID + 100;
 
+	private boolean libLoaded = false;
 
 	@Override
 	public void initRuntime()
@@ -38,7 +39,11 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 
 		boolean debuggerEnabled = getKrollApplication().isDebuggerEnabled();
 
-		System.loadLibrary(libName);
+		if (!libLoaded) {
+			System.loadLibrary(libName);
+			libLoaded = true;
+		}
+
 		nativeInit(useGlobalRefs, debuggerEnabled);
 	}
 
