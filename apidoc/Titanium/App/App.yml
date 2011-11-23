@@ -6,7 +6,7 @@ since: "0.1"
 methods:
   - name: getArguments
     summary: return the arguments passed to the application on startup as a dictionary
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
     returns:
         type: Object
 events:

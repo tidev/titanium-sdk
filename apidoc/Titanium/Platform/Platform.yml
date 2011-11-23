@@ -120,6 +120,10 @@ properties:
     summary: the number of processors the device reports
     type: Number
     permission: read-only
+  - name: runtime
+    description: a short name for the JavaScript runtime in use. On iOS this will return "javascriptcore", on Android either "v8" or "rhino", on Mobile Web any number of things depending on the browser that is being used.
+    type: String
+    permission: read-only
   - name: username
     summary: the username of the device, if set
     type: String

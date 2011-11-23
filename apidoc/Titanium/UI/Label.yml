@@ -64,7 +64,8 @@ properties:
     summary: Label text.
     type: String
   - name: textAlign
-    summary: Text alignment, specified as a string value such as `left`, `center` or `right` or as a text alignment constant such as <Titanium.UI.TEXT_ALIGNMENT_CENTER>.
+    summary: |
+        Text alignment, specified using one of the <Titanium.UI> text alignment constants: [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
     type: [String,Number]
   - name: textid
     summary: Key identifying a string from the locale file to use for the label text. 
