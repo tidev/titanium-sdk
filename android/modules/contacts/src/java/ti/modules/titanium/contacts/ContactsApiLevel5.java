@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Intent;
@@ -196,8 +197,12 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		
 		CommonContactsApi.LightPerson person = null;
 
+		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+		if (currentActivity == null) {
+			currentActivity = TiApplication.getInstance().getRootActivity();
+		}
 		// Basic person data.
-		Cursor cursor = TiApplication.getInstance().getCurrentActivity().managedQuery(
+		Cursor cursor = currentActivity.managedQuery(
 				ContentUris.withAppendedId(ContactsUri, id),
 				PEOPLE_PROJECTION, null, null, null);
 		
@@ -216,7 +221,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		String condition = "mimetype IN " + INConditionForKinds +
 			" AND contact_id = ?";
 		
-		cursor = TiApplication.getInstance().getCurrentActivity().managedQuery(
+		cursor = currentActivity.managedQuery(
 				DataUri, 
 				DATA_PROJECTION, 
 				condition, 
