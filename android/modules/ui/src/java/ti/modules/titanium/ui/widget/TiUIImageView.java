@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -159,7 +159,9 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					// via the "old way" (not relying on cache).
 					synchronized (imageTokenGenerator) {
 						token = imageTokenGenerator.incrementAndGet();
-						imageSources.get(0).getBitmapAsync(new BgImageLoader(requestedWidth, requestedHeight, token));
+						if (imageSources != null && imageSources.size() > 0) {
+							imageSources.get(0).getBitmapAsync(new BgImageLoader(requestedWidth, requestedHeight, token));
+						}
 					}
 				} else {
 					firedLoad = false;
