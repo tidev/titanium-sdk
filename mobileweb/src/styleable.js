@@ -1,3 +1,4 @@
+var spinningAngle = 0;
 (function(oParentNamespace) {
 	// Create object
 	oParentNamespace.Styleable = function(obj, args) {
@@ -451,13 +452,24 @@
 				}
 			}
 		});
-		obj._setPrefixedCSSRule = function(styleableObject,rule,value) {
-			var style = styleableObject.dom.style,
+		obj._setPrefixedCSSRule = function(rule,value) {
+			var style = obj.dom.style,
 				possibleRuleNames = ["Moz" + rule,"Webkit" + rule,"O" + rule,"ms" + rule,rule];
 			for (var i = 0; i < 5; i++) {
 				var prefixedRule = possibleRuleNames[i];
 				if (prefixedRule in style) {
+					console.debug("Setting " + prefixedRule + " to " + value);
 					style[prefixedRule] = value;
+				}
+			}
+		}
+		obj._getPrefixedCSSRuleValue = function(rule) {
+			var style = obj.dom.style,
+				possibleRuleNames = ["Moz" + rule,"Webkit" + rule,"O" + rule,"ms" + rule,rule];
+			for (var i = 0; i < 5; i++) {
+				var prefixedRule = possibleRuleNames[i];
+				if (prefixedRule in style) {
+					return style[prefixedRule];
 				}
 			}
 		}
@@ -466,15 +478,6 @@
 			// Set default values
 			animation.duration = (animation.duration ? animation.duration : 0);
 			animation.delay = (animation.delay ? animation.delay : 0);
-			
-			if(callback) {
-				// Note: no IE9 support for transitions, so instead we just set a timer that matches the duration so things don't break
-				setTimeout(function(){
-					// Clear the transform so future modifications in these areas are not animated
-					obj._setPrefixedCSSRule(obj,"Transition", "");
-					callback();
-				},animation.duration + animation.delay);
-			}
 			
 			var _curve = "ease";
 			switch(animation.curve) {
@@ -487,7 +490,7 @@
 			// Create the transition, must be set before setting the other properties
 			var transitionValue = "all " + animation.duration + "ms " + _curve;
 			animation.delay && (transitionValue += " " + animation.delay + "ms");
-			obj._setPrefixedCSSRule(obj,"Transition", transitionValue);
+			obj._setPrefixedCSSRule("Transition", transitionValue);
 			
 			// Set the color and opacity properties
 			var _style = obj.dom.style;
@@ -510,8 +513,26 @@
 			animation.zIndex && (_style.zIndex = animation.zIndex);
 			
 			// Set the affine transformation properties
-			animation.transform && obj._setPrefixedCSSRule(obj,"Transform",animation.transform._toCSS());
-			animation.transform && obj._setPrefixedCSSRule(obj,"TransformOrigin","center center");
+			if (animation.transform) {
+				
+				// Update the current transform on the object
+				if (obj._currentTransform) {
+					obj._currentTransform = obj._currentTransform.multiply(animation.transform);
+					obj._currentTransform._rotationAngle += animation.transform._rotationAngle;
+				} else {
+					obj._currentTransform = animation.transform;
+				}
+				obj._setPrefixedCSSRule("Transform",obj._currentTransform._toCSS());
+			}
+			
+			if(callback) {
+				// Note: no IE9 support for transitions, so instead we just set a timer that matches the duration so things don't break
+				setTimeout(function(){
+					// Clear the transform so future modifications in these areas are not animated
+					obj._setPrefixedCSSRule("Transition", "");
+					callback();
+				},animation.duration + animation.delay + 10);
+			}
 		};
 		
 		if (args['unselectable']) {
