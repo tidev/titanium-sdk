@@ -1,57 +1,57 @@
 ---
 name: Titanium.UI.iOS.AdView
-description: The AdView is a view for display Apple iAds. The View is created by the method <Titanium.UI.iOS.createAdView>.
+summary: The AdView is a view for display Apple iAds. The View is created by the method <Titanium.UI.iOS.createAdView>.
 extends: Titanium.UI.View
 since: "1.4"
 platforms: ["iphone", "ipad"]
 methods:
   - name: cancelAction
-    description: A banner view action can cover your application's user interface. However, your application continues to run, and receives events normally. If your application receives an event that requires the user's attention, it can programmatically cancel the action and uncover its interface by calling cancelAction. Canceling actions frequently can cause a loss of revenue for your application.
+    summary: A banner view action can cover your application's user interface. However, your application continues to run, and receives events normally. If your application receives an event that requires the user's attention, it can programmatically cancel the action and uncover its interface by calling cancelAction. Canceling actions frequently can cause a loss of revenue for your application.
 events:
   - name: action
-    description: called when a banner action is performed
+    summary: called when a banner action is performed
     properties:
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: the y point of the event, in receiving view coordinates
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        summary: the x point of the event in receiving view coordiantes
   - name: error
-    description: called when a banner could not be loaded
+    summary: called when a banner could not be loaded
     properties:
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: the y point of the event, in receiving view coordinates
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        summary: the x point of the event in receiving view coordiantes
       - name: message
-        description: the error message
+        summary: the error message
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
   - name: load
-    description: called when a banner is loaded and displayed
+    summary: called when a banner is loaded and displayed
     properties:
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: the y point of the event, in receiving view coordinates
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        summary: the x point of the event in receiving view coordiantes
 properties:
   - name: SIZE_320x50
-    description: constant for 320x50 ad sizes
+    summary: constant for 320x50 ad sizes
     type: String
     permission: read-only
   - name: SIZE_480x32
-    description: constant for 480x32 ad sizes
+    summary: constant for 480x32 ad sizes
     type: String
     permission: read-only

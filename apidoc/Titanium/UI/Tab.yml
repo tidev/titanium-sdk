@@ -1,27 +1,111 @@
 ---
 name: Titanium.UI.Tab
-description: A TabGroup Tab instance.  Each Tab instance maintains a stack of tab windows. Only one window 
-    within in the Tab can be visible at a time.  When a window is closed, either by the user or 
-    by code, the window is removed from the stack, make the previous window visible. The root tab 
-    window cannot be removed. The Tab Group is created by the method <Titanium.UI.createTab>.
+summary: A tab instance for a [TabGroup](Titanium.UI.TabGroup).
+description: |
+    A `TabGroup` tab instance. Each tab includes a button and one or more windows, which 
+    holds the "contents" of the tab. Users can select a tab by clicking on the tab button.
+
+    Use [TabGroup.setActiveTab](Titanium.UI.TabGroup.setActiveTab) to switch between tabs 
+    in a tab group. The <Titanium.UI.currentTab> property provides a global reference to 
+    the currently active tab. Use the <Titanium.UI.createTab> method to create a tab.
+    
+    #### Platform Implementation Notes
+    The behavior of tabs and tab groups follows the platform's native navigation style, 
+    which varies significantly between platforms.
+
+    On iOS, the tab maintains a stack of windows. Windows on top of the stack can partially 
+    or totally obscure windows lower in the stack.  Calling [open](Titanium.UI.Tab.open) 
+    opens a new window on top of the window stack. When a window is closed, either by the 
+    user or by code, the window is removed from the stack, making the previous window 
+    visible. The root tab window cannot be removed. On iOS the tab controls are generally 
+    kept on screen to allow a user to navigate inside the app. Tab controls are hidden 
+    when the user is performing a modal task (for example, composing a message). In this case,
+    the app should open the new window as modal and provide a button in the navigation 
+    bar to return to the previous screen.
+
+    On Android, calling [open](Titanium.UI.Tab.open) opens a new, heavyweight window, which 
+    by default covers the tab group entirely. This seems quite different from the iOS model,
+    but it is the standard model for Android applications. Users can use the **Back** button 
+    to close the tab and return to the tab group.
+    
 extends: Titanium.UI.View
 since: "0.8"
+methods:
+  - name: open
+    summary: Opens a new window.
+    description: On iOS, the new window is opened as the top window 
+        in the tab's window stack. On Android, the new window is opened as a new, 
+        heavyweight window, obscuring the tab group.
+    parameters: 
+      - name: window
+        summary: Window to open.
+        type: Titanium.UI.Window
+      - name: options
+        summary: Dictionary of display and animation settings to use when opening the window. Identical to the `options` parameter to [Window.open](Titanium.UI.Window.open).
+        type: Object
+  - name: close
+    summary: Closes the top-level window for this tab. 
+    parameters: 
+      - name: options
+        summary: Dictionary of display and animation settings to use when opening the window. Identical to the `options` parameter to [Window.close](Titanium.UI.Window.close).
+        type: Object
 properties:
+  - name: active
+    summary: |
+        `true` if this tab is active, `false` if it is not. 
+    description: |
+         The tab can be activated by setting the property, but since this propery is 
+         platform-specific, using [TabGroup.setActiveTab](Titanium.UI.TabGroup.setActiveTab) 
+         is recommended instead.
+    type: Boolean
+    platforms: [iphone,ipad]
   - name: badge
-    description: the badge value for the tab group for this tab. null indicates no badge is value
+    summary: Badge value for this tab. `null` indicates no badge.
     type: String
+    platforms: [iphone,ipad]
   - name: icon
-    description: the icon url for the tab group for this tab
+    summary: Icon URL for this tab.
     type: String
   - name: title
-    description: the title for the tab group for this tab
+    summary: Title for this tab.
     type: String
   - name: titleid
-    description: the key in the locale file to use for the title property
+    summary: Key identifying a string from the locale file to use for the tab title. Only one of `title` or `titleid` should be specified.
     type: String
   - name: window
-    description: the root level tab window.  all tabs must have at least one root level tab window.
-    type: Object
+    summary: Root level tab window.  All tabs must have at least one root level tab window.
+    type: Titanium.UI.Window
+events: 
+  - name: blur
+    summary: Fired when the tab loses focus.
+    properties:
+      - name: index
+        summary: Index of the current active tab.
+        type: Number
+      - name: previousIndex
+        summary: Index of the previous active tab.
+        type: Number
+      - name: tab
+        summary: Current active tab object.
+        type: Titanium.UI.Tab
+      - name: previousTab
+        summary: Previous active tab object.
+        type: Titanium.UI.Tab
+  - name: focus
+    summary: Fired when the tab gains focus.
+    properties:
+      - name: index
+        summary: Index of the current active tab.
+        type: Number
+      - name: previousIndex
+        summary: Index of the previous active tab.
+        type: Number
+      - name: tab
+        summary: Current active tab object.
+        type: Titanium.UI.Tab
+      - name: previousTab
+        summary: Previous active tab object.
+        type: Titanium.UI.Tab
 examples:
   - title: Simple Tab Example
     example: |
@@ -34,5 +118,3 @@ examples:
             	icon:'myicon.png'
             });
             tabGroup.addTab(tab);
-        
-        

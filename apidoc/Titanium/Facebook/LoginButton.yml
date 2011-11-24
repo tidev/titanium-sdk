@@ -1,11 +1,18 @@
 ---
 name: Titanium.Facebook.LoginButton
-description: The Login Button created by <Titanium.Facebook.createLoginButton>.  This is a Facebook-themed button that does not require a click event handler or any listeners.  It "just works" and changes its label to reflect the current state of the Facebook session.  For example, if the user is already logged in, this button will show "Logout".
+summary: A Facebook login button.
+description: |
+    The Login Button created by <Titanium.Facebook.createLoginButton>.  This is a 
+    Facebook-themed button that does not require a click event handler or any listeners.  
+    It "just works" and changes its label to reflect the current state of the Facebook 
+    session.  For example, if the user is already logged in, this button will show "Logout".
+
+    See the examples in the <Titanium.Facebook> documentation.
 extends: Titanium.UI.View
 since: "0.8"
 platforms: [android, iphone, ipad]
 properties:
   - name: style
-    description: For iphone use "Ti.Facebook.BUTTON_STYLE_WIDE" to show a wider version of the button that displays "Connect with Facebook" and "Ti.Facebook.BUTTON_STYLE_NORMAL" shows just "Connect". For Android use "wide" to show a wider version of the button that displays "Connect with Facebook" and "normal" for showing just "Connect".
+    summary: Sets the login button style.
+    description: For iPhone use "Ti.Facebook.BUTTON_STYLE_WIDE" to show a wider version of the button that displays "Connect with Facebook" and "Ti.Facebook.BUTTON_STYLE_NORMAL" shows just "Connect". For Android use "wide" to show a wider version of the button that displays "Connect with Facebook" and "normal" for showing just "Connect".
     type: String
-notes: See the examples in the <Titanium.Facebook> documentation.

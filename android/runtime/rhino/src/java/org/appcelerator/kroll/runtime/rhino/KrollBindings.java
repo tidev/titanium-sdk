@@ -48,18 +48,13 @@ public class KrollBindings
 	private static HashMap<String, Scriptable> bindingCache = new HashMap<String, Scriptable>();
 	private static HashMap<String, Script> jsBindings = new HashMap<String, Script>();
 
-	static
-	{
-		initJsBindings();
-	}
-
 	private static void addJsBinding(String name, Class<?> jsBinding)
 	{
 		KrollScript script = KrollScriptRunner.getInstance().getOrCreateScript(jsBinding);
 		jsBindings.put(name, script.script);
 	}
 
-	private static void initJsBindings()
+	public static void initJsBindings()
 	{
 		// TODO this should be generated
 		addJsBinding("bootstrap", bootstrap.class);
@@ -94,6 +89,15 @@ public class KrollBindings
 		Proxy.init(context, exports, "Titanium",
 			KrollGeneratedBindings.getBindingClass(
 				"ti.modules.titanium.TitaniumModule"));
+	}
+
+	public static void dispose()
+	{
+		KrollScriptRunner.dispose();
+		KrollGeneratedBindings.dispose();
+
+		bindingCache.clear();
+		jsBindings.clear();
 	}
 
 	public static Script getJsBinding(String name)
