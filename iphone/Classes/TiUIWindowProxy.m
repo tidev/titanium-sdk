@@ -656,6 +656,7 @@
 					// detach existing one
 					UIBarButtonItem *item = [proxy barButtonItem];
 					[array addObject:item];
+					[self rememberProxy:proxy];
 				}
 				else
 				{
