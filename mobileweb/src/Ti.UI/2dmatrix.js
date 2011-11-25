@@ -8,7 +8,6 @@ Ti._5.createClass('Titanium.UI.2DMatrix', function(args){
 	obj._d = 1,
 	obj._tx = 0,
 	obj._ty = 0;
-	obj._rotationAngle = 0;
 	
 	// Internal methods
 	function _multiplyInternal(_a2,_b2,_c2,_d2,_tx2,_ty2) {
@@ -19,7 +18,6 @@ Ti._5.createClass('Titanium.UI.2DMatrix', function(args){
 		newMatrix._d = obj._c * _b2 + obj._d * _d2;
 		newMatrix._tx = obj._a * _tx2 + obj._b * _ty2 + obj._tx;
 		newMatrix._ty = obj._c * _tx2 + obj._d * _ty2 + obj._ty;
-		newMatrix._rotationAngle = obj._rotationAngle;
 		return newMatrix;
 	}
 	
@@ -33,7 +31,7 @@ Ti._5.createClass('Titanium.UI.2DMatrix', function(args){
 			roundedValues[4] += "px";
 			roundedValues[5] += "px";
 		}
-		return "matrix(" + roundedValues.join(",") + ") rotate(" + obj._rotationAngle + "deg)";
+		return "matrix(" + roundedValues.join(",") + ")";
 	}
 	this._fromCSS = function(matrixString) {
 		parsedString = matrixString.substring(7,matrixString.length - 1).split(",");
@@ -53,12 +51,9 @@ Ti._5.createClass('Titanium.UI.2DMatrix', function(args){
 		return _multiplyInternal(t2._a,t2._b,t2._c,t2._d,t2._tx,t2._ty);
 	};
 	this.rotate = function(angle){
-		
-		// Multiply the identity matrix by the current matrix to create a copy of the current matrix.
-		var newMatrix = Ti.UI.create2DMatrix();
-		newMatrix = newMatrix.multiply(obj);
-		newMatrix._rotationAngle = obj._rotationAngle + angle;
-		return newMatrix;
+		// Math.xxx trig functions take radians, so convert from degrees first
+        angleInRadians = angle * Math.PI / 180;
+		return _multiplyInternal(Math.cos(angleInRadians),Math.sin(angleInRadians),-Math.sin(angleInRadians),Math.cos(angleInRadians),0,0);
 	};
 	this.scale = function(sx,sy){
 		return _multiplyInternal(sx,0,0,sy,0,0);

@@ -458,7 +458,6 @@ var spinningAngle = 0;
 			for (var i = 0; i < 5; i++) {
 				var prefixedRule = possibleRuleNames[i];
 				if (prefixedRule in style) {
-					console.debug("Setting " + prefixedRule + " to " + value);
 					style[prefixedRule] = value;
 				}
 			}
@@ -512,18 +511,25 @@ var spinningAngle = 0;
 			// Set the z-order
 			animation.zIndex && (_style.zIndex = animation.zIndex);
 			
-			// Set the affine transformation properties
+			// Set the transform properties
+			var transform = "";
+			if (animation.rotation) {
+				if(obj._currentRotation) {
+					obj._currentRotation += animation.rotation;
+				} else {
+					obj._currentRotation = animation.rotation;
+				}
+				transform += "rotate(" + obj._currentRotation + "deg) ";
+			}
 			if (animation.transform) {
-				
-				// Update the current transform on the object
 				if (obj._currentTransform) {
 					obj._currentTransform = obj._currentTransform.multiply(animation.transform);
-					obj._currentTransform._rotationAngle += animation.transform._rotationAngle;
 				} else {
 					obj._currentTransform = animation.transform;
 				}
-				obj._setPrefixedCSSRule("Transform",obj._currentTransform._toCSS());
+				transform += obj._currentTransform._toCSS();
 			}
+			obj._setPrefixedCSSRule("Transform",transform);
 			
 			if(callback) {
 				// Note: no IE9 support for transitions, so instead we just set a timer that matches the duration so things don't break
@@ -531,7 +537,7 @@ var spinningAngle = 0;
 					// Clear the transform so future modifications in these areas are not animated
 					obj._setPrefixedCSSRule("Transition", "");
 					callback();
-				},animation.duration + animation.delay + 10);
+				},animation.duration + animation.delay + 1);
 			}
 		};
 		

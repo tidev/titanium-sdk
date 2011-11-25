@@ -67,6 +67,12 @@ Ti._5.createClass('Titanium.UI.Animation', function(args){
 		get: function(){return _transition;},
 		set: function(val){return _transition = val;}
 	});
+	
+	var _rotation = null;
+	Object.defineProperty(this, 'rotation', {
+		get: function(){return _rotation;},
+		set: function(val){return _rotation = val;}
+	});
 
 	var _visible = null;
 	Object.defineProperty(this, 'visible', {
