@@ -1078,10 +1078,10 @@ def main(args):
 			try:		
 				os.chdir(iphone_dir)
 
-				# we always target backwards to 3.1 even when we use a later
+				# we always target backwards to 4.0 even when we use a later
 				# version iOS SDK. this ensures our code will run on old devices
 				# no matter which SDK we compile with
-				deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.1"
+				deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=4.0"
 				device_target = 'TARGETED_DEVICE_FAMILY=1'  # this is non-sensical, but you can't pass empty string
 
 				# clean means we need to nuke the build 
@@ -1128,9 +1128,6 @@ def main(args):
 					# Meet the minimum requirements for ipad when necessary
 					if devicefamily == 'ipad' or devicefamily == 'universal':
 						device_target="TARGETED_DEVICE_FAMILY=2"
-						# iPad requires at a minimum 3.2 (not 3.1 default)
-						if devicefamily == 'ipad':
-							deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.2"
 						# NOTE: this is very important to run on device -- i dunno why
 						# xcode warns that 3.2 needs only armv7, but if we don't pass in 
 						# armv6 we get crashes on device
