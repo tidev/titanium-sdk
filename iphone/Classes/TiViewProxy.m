@@ -185,14 +185,18 @@
 
 -(void)show:(id)arg
 {
-	[self setHidden:NO withArgs:arg];
-	[self replaceValue:NUMBOOL(YES) forKey:@"visible" notification:YES];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self setHidden:NO withArgs:arg];
+        [self replaceValue:NUMBOOL(YES) forKey:@"visible" notification:YES];
+    });
 }
  
 -(void)hide:(id)arg
 {
-	[self setHidden:YES withArgs:arg];
-	[self replaceValue:NUMBOOL(NO) forKey:@"visible" notification:YES];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self setHidden:YES withArgs:arg];
+        [self replaceValue:NUMBOOL(NO) forKey:@"visible" notification:YES];
+    });
 }
 
 -(void)animate:(id)arg
