@@ -1,88 +1,88 @@
 ---
 name: Titanium.UI.Slider
-description: A Slider is created by the method <Titanium.UI.createSlider>.
+summary: A Slider is created by the method <Titanium.UI.createSlider>.
 extends: Titanium.UI.View
 since: "0.8"
 events:
   - name: change
-    description: fired when the value of the slider changes
+    summary: fired when the value of the slider changes
     properties:
       - name: value
-        description: the new value of the slider
+        summary: the new value of the slider
       - name: thumbSize
-        description: a dictionary with properties width and height of the size of the thumb. Available with custom thumb image.  (Android)
+        summary: a dictionary with properties width and height of the size of the thumb. Available with custom thumb image.  (Android)
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: the y point of the event, in receiving view coordinates
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        summary: the x point of the event in receiving view coordiantes
       - name: thumbOffset
-        description: a dictionary with properties x and y of the thumbs left-top corner in the control Available with custom thumb image. (Android)
+        summary: a dictionary with properties x and y of the thumbs left-top corner in the control Available with custom thumb image. (Android)
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
 properties:
   - name: disabledLeftTrackImage
-    description: the image url of the slider left track when in the disabled state
+    summary: the image url of the slider left track when in the disabled state
     type: String
     platforms: [android, iphone, ipad]
   - name: disabledRightTrackImage
-    description: the image url of the slider right track when in the disabled state
+    summary: the image url of the slider right track when in the disabled state
     type: String
     platforms: [android, iphone, ipad]
   - name: disabledThumbImage
-    description: the image url of the slider thumb when in the disabled state
+    summary: the image url of the slider thumb when in the disabled state
     type: String
     platforms: [android, iphone, ipad]
   - name: enabled
-    description: boolean to indicate the enabled state of the slider
+    summary: boolean to indicate the enabled state of the slider
     type: Boolean
   - name: highlightedLeftTrackImage
-    description: the image url of the slider left track when in the highlighted state
+    summary: the image url of the slider left track when in the highlighted state
     type: String
     platforms: [android, iphone, ipad]
   - name: highlightedRightTrackImage
-    description: the image url of the slider right track when in the highlighted state
+    summary: the image url of the slider right track when in the highlighted state
     type: String
     platforms: [android, iphone, ipad]
   - name: highlightedThumbImage
-    description: the image url of the slider thumb when in the highlighted state
+    summary: the image url of the slider thumb when in the highlighted state
     type: String
     platforms: [android, iphone, ipad]
   - name: leftTrackImage
-    description: the image url of the slider left track
+    summary: the image url of the slider left track
     type: String
     platforms: [android, iphone, ipad]
   - name: max
-    description: the maximum slider value
+    summary: the maximum slider value
     type: Number
   - name: maxRange
-    description: value can't be moved higher than maxRange. maxRange equals max by default. (Android)
+    summary: value can't be moved higher than maxRange. maxRange equals max by default. (Android)
     type: Number
     platforms: [android]
   - name: min
-    description: the minimum slider value
+    summary: the minimum slider value
     type: Number
   - name: minRange
-    description: value can't be moved lower than minRange. minRange equals min by default. (Android)
+    summary: value can't be moved lower than minRange. minRange equals min by default. (Android)
     platforms: [android]
     type: Number
   - name: rightTrackImage
-    description: the image url of the slider right track
+    summary: the image url of the slider right track
     type: String
   - name: selectedLeftTrackImage
-    description: the image url of the slider left track when in the selected state
+    summary: the image url of the slider left track when in the selected state
     type: String
   - name: selectedRightTrackImage
-    description: the image url of the slider right track when in the selected state
+    summary: the image url of the slider right track when in the selected state
     type: String
   - name: selectedThumbImage
-    description: the image url of the slider thumb when in the selected state
+    summary: the image url of the slider thumb when in the selected state
     type: String
   - name: thumbImage
-    description: the image url to the slider thumb
+    summary: the image url to the slider thumb
     type: String
   - name: value
-    description: the value of the slider
+    summary: the value of the slider
     type: String

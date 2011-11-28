@@ -42,6 +42,8 @@ public:
 
 	// The generic constructor for all proxies
 	static v8::Handle<v8::Value> proxyConstructor(const v8::Arguments& args);
+
+	static void dispose();
 };
 
 }

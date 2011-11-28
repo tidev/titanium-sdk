@@ -1,37 +1,39 @@
 ---
 name: Titanium.UI.iPad
-description: The iPad specific UI capabilities.  All properties, methods and events in this namespace will only work on the Apple iPad related devices.  To develop for iPad, you will need the Apple iPhone SDK 3.2 or later and Titanium Mobile SDK 1.2 or later. 
+summary: iPad specific UI capabilities.  
+description: |
+    All properties, methods and events in this namespace will only work on the Apple iPad 
+    related devices.  To develop for iPad, you will need the Apple iPhone SDK 3.2 or later 
+    and Titanium Mobile SDK 1.2 or later. 
     
-    For iPad UI programming guidelines, please review the [iPad Human Interface Guidelines](http://developer.apple.com/iphone/library/documentation/General/Conceptual/iPadHIG/Introduction/Introduction.html).
+    For iPad UI programming guidelines, please review the [iPad Human Interface Guidelines]
+    (http://developer.apple.com/iphone/library/documentation/General/Conceptual/iPadHIG/Introduction/Introduction.html).
 extends: Titanium.Module
 since: "1.2"
 platforms: ['ipad']
 properties:
   - name: POPOVER_ARROW_DIRECTION_ANY
-    description: An arrow that points in any direction.
+    summary: An arrow that points in any direction.
     type: Number
     permission: read-only
   - name: POPOVER_ARROW_DIRECTION_DOWN
-    description: An arrow that points downward.
+    summary: An arrow that points downward.
     type: Number
     permission: read-only
   - name: POPOVER_ARROW_DIRECTION_LEFT
-    description: An arrow that points toward the left.
+    summary: An arrow that points toward the left.
     type: Number
     permission: read-only
   - name: POPOVER_ARROW_DIRECTION_RIGHT
-    description: An arrow that points toward the right.
+    summary: An arrow that points toward the right.
     type: Number
     permission: read-only
   - name: POPOVER_ARROW_DIRECTION_UNKNOWN
-    description: The status of the arrow is currently unknown.
+    summary: The status of the arrow is currently unknown.
     type: Number
     permission: read-only
   - name: POPOVER_ARROW_DIRECTION_UP
-    description: An arrow that points upward.
+    summary: An arrow that points upward.
     type: Number
     permission: read-only
-notes: |
-    ### Custom Fonts
     
-    The iPad supports the ability to embed your own fonts in your iPad application. To add your own fonts, you should add the

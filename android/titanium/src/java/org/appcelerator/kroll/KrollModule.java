@@ -12,6 +12,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
+import org.appcelerator.titanium.TiRootActivity;
 
 import android.app.Activity;
 
@@ -37,10 +38,16 @@ public class KrollModule extends KrollProxy
 	@Override
 	protected void initActivity(Activity activity)
 	{
-		super.initActivity(activity);
+		Activity moduleActivity = TiApplication.getInstance().getRootActivity();
+		if (moduleActivity == null) {
+			// this should only occur in case such as JS activities etc where root 
+			// activity will not be available
+			moduleActivity = activity;
+		}
 
-		if (activity instanceof TiBaseActivity) {
-			((TiBaseActivity) getActivity()).addOnLifecycleEventListener(this);
+		super.initActivity(moduleActivity);
+		if (moduleActivity instanceof TiBaseActivity) {
+			((TiBaseActivity)moduleActivity).addOnLifecycleEventListener(this);
 		}
 	}
 

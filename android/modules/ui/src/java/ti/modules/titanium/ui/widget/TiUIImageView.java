@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -159,7 +159,9 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					// via the "old way" (not relying on cache).
 					synchronized (imageTokenGenerator) {
 						token = imageTokenGenerator.incrementAndGet();
-						imageSources.get(0).getBitmapAsync(new BgImageLoader(requestedWidth, requestedHeight, token));
+						if (imageSources != null && imageSources.size() > 0) {
+							imageSources.get(0).getBitmapAsync(new BgImageLoader(requestedWidth, requestedHeight, token));
+						}
 					}
 				} else {
 					firedLoad = false;
@@ -738,15 +740,23 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			view.setEnableZoomControls(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLE_ZOOM_CONTROLS));
 		}
 		if (d.containsKey(TiC.PROPERTY_DEFAULT_IMAGE)) {
+			Object defaultImage = d.get(TiC.PROPERTY_DEFAULT_IMAGE);
 			try {
-				String propertyImage = d.getString(TiC.PROPERTY_IMAGE);
-				URI propertyImageURI = new URI(propertyImage);
-				
-				if (!d.containsKey(TiC.PROPERTY_IMAGE)
-					|| (URLUtil.isNetworkUrl(propertyImage) && !TiResponseCache.peek(propertyImageURI)))
-					setDefaultImageSource(d.get(TiC.PROPERTY_DEFAULT_IMAGE));
+				Object image = d.get(TiC.PROPERTY_IMAGE);
+
+				if (image instanceof String) {
+					String imageUrl = (String) image;
+					URI imageUri = new URI(imageUrl);
+					if (URLUtil.isNetworkUrl(imageUrl) && !TiResponseCache.peek(imageUri)) {
+						setDefaultImageSource(defaultImage);
+					}
+
+				} else if (image == null) {
+					setDefaultImageSource(defaultImage);
+				}
+
 			} catch (URISyntaxException e) {
-				setDefaultImageSource(d.get(TiC.PROPERTY_DEFAULT_IMAGE));
+				setDefaultImageSource(defaultImage);
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
