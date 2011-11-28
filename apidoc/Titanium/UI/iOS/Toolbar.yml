@@ -1,11 +1,17 @@
 ---
 name: Titanium.UI.iOS.Toolbar
 summary: An iOS toolbar, which can contain buttons and certain other controls.
-description: 
+description: |
+    A toolbar can contain buttons, as well as certain other widgets, including 
+    text fields and labels.
+
+    To provide spacing between items in the toolbar, you can use the special iOS system
+    button types, FIXED_SPACE and FLEXIBLE_SPACE.
+    
     Note that toolbars are positioned like other views (using the `top` and `bottom properties, 
     for example), but the iOS Human Interface Guidelines have specific requirements for
     placing toolbars: on iPhone, a toolbar should be at the bottom 
-    of the window. On the iPad, a toolbar can appear on the top or bottom of a window.
+    of the window. On the iPad, a toolbar can appear at the top or bottom of a window.
 
     Use the <Titanium.UI.iOS.createToolbar> method to create a toolbar.
 extends: Titanium.UI.View
@@ -16,6 +22,25 @@ properties:
     summary: Background color for the toolbar.
     type: [Number, String]
   - name: items
+    summary: An array of buttons (or other widgets) contained in the toolbar.
+    type: Array<Titanium.UI.View>
   - name: topBorder
+    summary: Display top border on the toolbar?
+    type: Boolean
+    default: true
   - name: bottomBorder
+    summary: Display bottom border on the toolbar?
+    type: Boolean
+    default: true
   - name: translucent
+    summary: Use a translucent background color for the tab bar?
+    type: Boolean
+    default: false
+examples: 
+  - title: Simple Toolbar
+    example: |
+        The following code snippet shows a simple toolbar, placed at the bottom of the
+        window.
+
+
+
