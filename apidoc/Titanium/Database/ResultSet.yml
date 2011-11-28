@@ -1,64 +1,64 @@
 ---
 name: Titanium.Database.ResultSet
-description: The ResultSet instance returned by invoking a database SQL `execute`.
+summary: The ResultSet instance returned by invoking a database SQL `execute`.
 extends: Titanium.Proxy
 since: "0.1"
 createable: false
 methods:
   - name: close
-    description: close the result set and release resources. once closed, this result set must no longer be used
+    summary: close the result set and release resources. once closed, this result set must no longer be used
   - name: field
-    description: retrieve a row value by field index
+    summary: retrieve a row value by field index
     returns:
         type: Object
     parameters:
       - name: index
-        description: column index (which is zero based)
+        summary: column index (which is zero based)
         type: Number
       - name: type
-        description: |
+        summary: |
             One of (<Titanium.Database.FIELD_TYPE_STRING> | <Titanium.Database.FIELD_TYPE_INT> | <Titanium.Database.FIELD_TYPE_FLOAT> | <Titanium.Database.FIELD_TYPE_DOUBLE>)
         type: Number
         optional: true
   - name: fieldByName
-    description: retrieve a row value by field name
+    summary: retrieve a row value by field name
     returns:
         type: Object
     parameters:
       - name: name
-        description: column name from SQL query
+        summary: column name from SQL query
         type: String
       - name: type
-        description: |
+        summary: |
             One of (<Titanium.Database.FIELD_TYPE_STRING> | <Titanium.Database.FIELD_TYPE_INT> | <Titanium.Database.FIELD_TYPE_FLOAT> | <Titanium.Database.FIELD_TYPE_DOUBLE>)
         type: Number
         optional: true
   - name: fieldCount
-    description: return the number of columns in the result set
+    summary: return the number of columns in the result set
     returns:
         type: Number
   - name: fieldName
-    description: return the field name for field index
+    summary: return the field name for field index
     returns:
         type: String
     parameters:
       - name: index
-        description: field name column index (which is zero based)
+        summary: field name column index (which is zero based)
         type: Number
   - name: isValidRow
-    description: return true if the row is a valid row
+    summary: return true if the row is a valid row
     returns:
         type: Boolean
   - name: next
-    description: iterate to the next row in the result set.
+    summary: iterate to the next row in the result set.
     returns:
         type: Boolean
-        description: |
+        summary: |
             If the next operation goes past the final row, this returns false.  Else true.
 properties:
   - name: rowCount
-    description: the number of rows in the result set
+    summary: the number of rows in the result set
     type: Number
   - name: validRow
-    description: returns true if the current row is still valid
+    summary: returns true if the current row is still valid
     type: Boolean

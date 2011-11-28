@@ -13,7 +13,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
-import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiActivityWindow;
 import org.appcelerator.titanium.TiActivityWindows;

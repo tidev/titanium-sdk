@@ -12,6 +12,8 @@
 #include "AndroidUtil.h"
 
 #include "APIModule.h"
+#include "JNIUtil.h"
+#include "V8Runtime.h"
 #include "V8Util.h"
 #include "org.appcelerator.kroll.KrollModule.h"
 
@@ -115,9 +117,29 @@ Handle<Value> APIModule::logFatal(const Arguments& args)
 	return Undefined();
 }
 
+static void debugLog(int logLevel, const char* message)
+{
+	JNIEnv* env = JNIScope::getEnv();
+	if (env == NULL) {
+		LOGE(LCAT, "Failed to get JNI environment.");
+		return;
+	}
+
+	jstring javaMessage = env->NewStringUTF(message);
+	env->CallStaticVoidMethod(JNIUtil::krollLoggingClass,
+	                          JNIUtil::krollLoggingLogWithDefaultLoggerMethod,
+	                          logLevel,
+	                          javaMessage);
+	env->DeleteLocalRef(javaMessage);
+}
 
 void APIModule::logInternal(int logLevel, const char *messageTag, const char *message)
 {
+	if (V8Runtime::debuggerEnabled) {
+		debugLog(logLevel, message);
+		return;
+	}
+
 	if (logLevel == LOG_LEVEL_TRACE) {
 		LOG(VERBOSE, messageTag, message);
 	} else if (logLevel < LOG_LEVEL_INFO) {
@@ -158,6 +180,11 @@ Handle<Value> APIModule::log(const Arguments& args)
 	}
 
 	return Undefined();
+}
+
+void APIModule::Dispose()
+{
+	constructorTemplate.Dispose();
 }
 
 }

@@ -28,7 +28,9 @@ var refresh = Titanium.UI.createButton({
 refresh.addEventListener('click', function()
 {
 	showScrollIndicators = !showScrollIndicators;
-	tv.setShowVerticalScrollIndicator(showScrollIndicators);
+	if (Ti.Platform.name == 'iPhone OS') {
+		tv.setShowVerticalScrollIndicator(showScrollIndicators);
+	}
 	tv.setData([]);
 	setTimeout(function()
 	{

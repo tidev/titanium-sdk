@@ -81,9 +81,6 @@
 
 -(void)prepareForReuse
 {
-    // If we're reusing a cell, it obviously isn't attached to a proxy.
-    [self setProxy:nil];
-    
 	[super prepareForReuse];
 	
 	// TODO: HACK: In the case of abnormally large table view cells, we have to reset the size.
@@ -171,7 +168,14 @@
 	[gradientLayer setGradient:currentGradient];
 	if([gradientLayer superlayer] != ourLayer)
 	{
-		[ourLayer insertSublayer:gradientLayer below:[[self contentView] layer]];
+        CALayer* contentLayer = [[self contentView] layer];
+		[ourLayer insertSublayer:gradientLayer below:contentLayer];
+        
+        // If we're working with a row that just has a label drawn on it, we need to
+        // set the background color of the label explicitly
+        if ([[self textLabel] text] != nil) {
+            [[self textLabel] setBackgroundColor:[UIColor clearColor]];
+        }
 	}
 	[gradientLayer setNeedsDisplay];
 }
@@ -1556,14 +1560,6 @@ if(ourTableView != tableview)	\
         // Have to reset the proxy on the cell, and the row's callback cell, as it may have been cleared in reuse operations (or reassigned)
         [(TiUITableViewCell*)cell setProxy:row];
         [row setCallbackCell:(TiUITableViewCell*)cell];
-        
-		/*
-		 * Old-school style:
-		// in the case of a reuse, we need to tell the row proxy to update the data
-		// in the re-used cell with this proxy's contents
-		[row renderTableViewCell:cell];
-		 *
-		 */
 	}
 	[row initializeTableViewCell:cell];
 	
@@ -1905,7 +1901,6 @@ if(ourTableView != tableview)	\
 	TiUIView *view = [self sectionView:section forLocation:@"headerView" section:&sectionProxy];
 	TiViewProxy *viewProxy = (TiViewProxy *)[view proxy];
 	CGFloat size = 0;
-	BOOL hasTitle = NO;
 	if (viewProxy!=nil)
 	{
 		LayoutConstraint *viewLayout = [viewProxy layoutProperties];
@@ -1923,28 +1918,26 @@ if(ourTableView != tableview)	\
 		}
 	}
     /*
-     * Keeping this code in for historical reasons, because:
-     *
-     * Prior to iOS 5, this method (tableView:heightForHeaderInSection:) had its return value IGNORED
-     * for sections which returned `nil` for tableView:viewForHeaderInSection: -
-     * meaning that it was dead code.
-     *
-     * But in iOS 5, if this method is here, then it is ALWAYS called, even if that return value
-     * is nil; meaning we were previously providing the default spacing (which, contrary to
-     * our HEADERFOOTER_HEIGHT constant, is apparently not 20px and also apparently not 
-     * -[UITableView sectionHeaderHeight]).
-     *
-     * Returning a value of 0 coereces the table into rendering the section of "empty" header height,
-     * which is the behavior consistent with iOS <5.0 behavior.
+     * This behavior is slightly more complex between iOS 4 and iOS 5 than you might believe, and Apple's
+     * documentation is once again misleading. It states that in iOS 4 this value was "ignored if
+     * -[delegate tableView:viewForHeaderInSection:] returned nil" but apparently a non-nil value for
+     * -[delegate tableView:titleForHeaderInSection:] is considered a valid value for height handling as well,
+     * provided it is NOT the empty string.
+     * 
+     * So for parity with iOS 4, iOS 5 must similarly treat the empty string header as a 'nil' value and
+     * return a 0.0 height that is overridden by the system.
+     */
 	else if ([sectionProxy headerTitle]!=nil)
 	{
-		hasTitle = YES;
-		size = [tableview sectionHeaderHeight];
+        if ([TiUtils isIOS5OrGreater] && [[sectionProxy headerTitle] isEqualToString:@""]) {
+            return size;
+        }
+		size+=[tableview sectionHeaderHeight];
+        
         if (size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT) {
-            size = DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+            size += DEFAULT_SECTION_HEADERFOOTER_HEIGHT;            
         }
 	}
-     */
 	return size;
 }
 

@@ -20,10 +20,10 @@ import java.util.List;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.common.TiFastDev;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiFastDev;
 import org.appcelerator.titanium.util.TiFileHelper2;
 
 import android.content.Context;

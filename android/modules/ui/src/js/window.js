@@ -7,7 +7,9 @@
 var EventEmitter = require("events").EventEmitter,
 	assets = kroll.binding("assets"),
 	vm = require("vm"),
-	url = require("url");
+	url = require("url"),
+	Script = kroll.binding('evals').Script;
+
 var TAG = "Window";
 
 exports.bootstrapWindow = function(Titanium) {
@@ -80,7 +82,6 @@ exports.bootstrapWindow = function(Titanium) {
 				return this.getActivityDecorView().getOrientationModes();
 			}
 		}
-
 		return this.cachedOrientationModes;
 	}
 	var orientationModesSetter = function(value) {
@@ -152,7 +153,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 		if (!options) {
 			options = {};
-		} else {
+		} else if (!(options instanceof UI.Animation)) {
 			this._properties.extend(options);
 		}
 
@@ -200,7 +201,7 @@ exports.bootstrapWindow = function(Titanium) {
 				self.postOpen();
 			});
 
-			this.window.open();
+			this.window.open(options);
 
 		} else {
 			this.postOpen();
@@ -231,33 +232,58 @@ exports.bootstrapWindow = function(Titanium) {
 		if ("url" in this._properties) {
 			this.loadUrl();
 		}
-
+		
+		// Set view and model listener after the window opens
 		this.setWindowView(this.view);
+		
+		// Add event listeners and update the source of events after the window opens
+		for (var event in this._events) { 
+			var listeners = this.listeners(event); 
+		 	for (var i = 0; i < listeners.length; i++) { 
+		 		this.addWrappedListener(event, listeners[i]); 
+		 	} 
+		}
+
 		this.currentState = this.state.opened;
 		this.fireEvent("open");
 	}
-	
+
+	Window.prototype.runWindowUrl = function(scopeVars) {
+		var parent = this._module || kroll.Module.main;
+		var moduleId = this.url;
+
+		if (this.url.indexOf(".js") == this.url.length - 3) {
+			moduleId = this.url.substring(0, this.url.length - 3);
+		}
+
+		parent.require(moduleId, scopeVars, false);
+	}
+
 	Window.prototype.loadUrl = function() {
 		if (this.url == null) {
 			return;
 		}
 
 		kroll.log(TAG, "Loading window with URL: " + this.url);
-		
-		// Reset creationUrl of the window based on this._sourceUrl and this.url
+
+		// Reset creationUrl of the window
 		var currentUrl = url.resolve(this._sourceUrl, this.url);
 		this.window.setCreationUrl(currentUrl.href);
-		
-		Titanium.include(this.url, this._sourceUrl, {
+
+		var scopeVars = {
 			currentWindow: this,
 			currentActivity: this.window.activity,
 			currentTab: this.tab,
 			currentTabGroup: this.tabGroup
-		});
+		};
+		scopeVars = Titanium.initScopeVars(scopeVars, currentUrl);
+
+		this.runWindowUrl(scopeVars);
 	}
 
 	Window.prototype.close = function(options) {
 		// if the window is not opened, do not close
+
 		if (this.currentState != this.state.opened) {
 			kroll.log(TAG, "unable to close, window is not opened");
 			return;
@@ -356,8 +382,19 @@ exports.bootstrapWindow = function(Titanium) {
 			EventEmitter.prototype.addEventListener.call(this, event, listener);
 
 		} else {
-			this.window.addEventListener(event, listener);
+			this.addWrappedListener(event, listener); 
 		}
+	}
+	
+	// Add event listener to this.window and update the source of event to this.
+	Window.prototype.addWrappedListener = function(event, listener) {
+		var self = this;
+		self.window.addEventListener(event, function(e) {
+			if (e.source == self.window) {
+				e.source = self;
+			}
+			listener(e);
+		});
 	}
 
 	Window.prototype.removeEventListener = function(event, listener) {
@@ -395,6 +432,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 		window._sourceUrl = scopeVars.sourceUrl;
 		window._currentActivity = scopeVars.currentActivity; // don't think we are using this, remove?
+		window._module = scopeVars.module;
 
 		return window;
 	}

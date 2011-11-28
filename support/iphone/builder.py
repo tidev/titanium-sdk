@@ -617,7 +617,7 @@ def main(args):
 			else:
 				iphone_version = dequote(args[3].decode("utf-8"))
 			project_dir = os.path.expanduser(dequote(args[2].decode("utf-8")))
-			iphonesim = os.path.abspath(os.path.join(template_dir,'iphonesim'))
+			iphonesim = os.path.abspath(os.path.join(template_dir,'ios-sim'))
 			iphone_dir = os.path.abspath(os.path.join(project_dir,'build','iphone'))
 			tiapp_xml = os.path.join(project_dir,'tiapp.xml')
 			ti = TiAppXML(tiapp_xml)
@@ -626,7 +626,7 @@ def main(args):
 			command = 'simulator' # switch it so that the rest of the stuff works
 		else:
 			iphone_version = dequote(args[2].decode("utf-8"))
-			iphonesim = os.path.abspath(os.path.join(template_dir,'iphonesim'))
+			iphonesim = os.path.abspath(os.path.join(template_dir,'ios-sim'))
 			project_dir = os.path.expanduser(dequote(args[3].decode("utf-8")))
 			appid = dequote(args[4].decode("utf-8"))
 			name = dequote(args[5].decode("utf-8"))
@@ -841,6 +841,11 @@ def main(args):
 				ird = os.path.join(project_dir,'Resources','iphone')
 				if os.path.exists(ird): 
 					module_asset_dirs.append([ird,app_dir])
+					
+				# We also need to copy over the contents of 'platform/iphone'
+				platform_iphone = os.path.join(project_dir,'platform','iphone')
+				if os.path.exists(platform_iphone):
+					module_asset_dirs.append([platform_iphone,app_dir])
 				
 				for ext in ('ttf','otf'):
 					for f in glob.glob('%s/*.%s' % (os.path.join(project_dir,'Resources'),ext)):
@@ -1073,10 +1078,10 @@ def main(args):
 			try:		
 				os.chdir(iphone_dir)
 
-				# we always target backwards to 3.1 even when we use a later
+				# we always target backwards to 4.0 even when we use a later
 				# version iOS SDK. this ensures our code will run on old devices
 				# no matter which SDK we compile with
-				deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.1"
+				deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=4.0"
 				device_target = 'TARGETED_DEVICE_FAMILY=1'  # this is non-sensical, but you can't pass empty string
 
 				# clean means we need to nuke the build 
@@ -1123,9 +1128,6 @@ def main(args):
 					# Meet the minimum requirements for ipad when necessary
 					if devicefamily == 'ipad' or devicefamily == 'universal':
 						device_target="TARGETED_DEVICE_FAMILY=2"
-						# iPad requires at a minimum 3.2 (not 3.1 default)
-						if devicefamily == 'ipad':
-							deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.2"
 						# NOTE: this is very important to run on device -- i dunno why
 						# xcode warns that 3.2 needs only armv7, but if we don't pass in 
 						# armv6 we get crashes on device
@@ -1320,10 +1322,20 @@ def main(args):
 					os.putenv('DYLD_FRAMEWORK_PATH', iphoneprivateframeworkspath)
 
 					# launch the simulator
+					
+					# Awkard arg handling; we need to take 'retina' to be a device type,
+					# even though it's really not (it's a combination of device type and configuration).
+					# So we translate it into two args:
+					if simtype == 'retina':
+						# Manually overrule retina type if we're an ipad
+						if devicefamily == 'ipad':
+							simtype = 'ipad'
+						else:
+							simtype = 'iphone --retina'
 					if devicefamily==None:
-						sim = subprocess.Popen("\"%s\" launch \"%s\" %s iphone" % (iphonesim,app_dir,iphone_version),shell=True)
+						sim = subprocess.Popen("\"%s\" launch \"%s\" --sdk %s" % (iphonesim,app_dir,iphone_version),shell=True,cwd=template_dir)
 					else:
-						sim = subprocess.Popen("\"%s\" launch \"%s\" %s %s" % (iphonesim,app_dir,iphone_version,simtype),shell=True)
+						sim = subprocess.Popen("\"%s\" launch \"%s\" --sdk %s --family %s" % (iphonesim,app_dir,iphone_version,simtype),shell=True,cwd=template_dir)
 
 					# activate the simulator window - we use a OSA script to 
 					# cause the simulator window to come into the foreground (otherwise

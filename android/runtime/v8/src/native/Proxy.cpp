@@ -423,4 +423,28 @@ Handle<Value> Proxy::proxyOnPropertiesChanged(const Arguments& args)
 	return Undefined();
 }
 
+void Proxy::dispose()
+{
+	baseProxyTemplate.Dispose();
+	baseProxyTemplate = Persistent<FunctionTemplate>();
+
+	javaClassSymbol.Dispose();
+	javaClassSymbol = Persistent<String>();
+
+	constructorSymbol.Dispose();
+	constructorSymbol = Persistent<String>();
+
+	inheritSymbol.Dispose();
+	inheritSymbol = Persistent<String>();
+
+	propertiesSymbol.Dispose();
+	propertiesSymbol = Persistent<String>();
+
+	lengthSymbol.Dispose();
+	lengthSymbol = Persistent<String>();
+
+	sourceUrlSymbol.Dispose();
+	sourceUrlSymbol = Persistent<String>();
+}
+
 } // namespace titanium

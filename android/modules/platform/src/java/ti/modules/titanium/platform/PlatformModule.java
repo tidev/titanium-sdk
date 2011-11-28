@@ -9,6 +9,7 @@ package ti.modules.titanium.platform;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
@@ -194,6 +195,12 @@ public class PlatformModule extends KrollModule
 	public double getBatteryLevel()
 	{
 		return batteryLevel;
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public String getRuntime()
+	{
+		return KrollRuntime.getInstance().getRuntimeName();
 	}
 
 	protected void registerBatteryStateReceiver()

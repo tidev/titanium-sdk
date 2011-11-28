@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Properties;
@@ -25,15 +24,18 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.common.TiDeployData;
+import org.appcelerator.kroll.common.TiFastDev;
 import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.kroll.util.TiTempFileHelper;
 import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.analytics.TiAnalyticsModel;
 import org.appcelerator.titanium.analytics.TiAnalyticsService;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiResponseCache;
-import org.appcelerator.titanium.util.TiTempFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiWeakList;
 
 import android.app.Activity;
 import android.app.Application;
@@ -76,7 +78,7 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 	private String baseUrl;
 	private String startUrl;
 	private HashMap<String, SoftReference<KrollProxy>> proxyMap;
-	private ArrayList<KrollProxy> appEventProxies = new ArrayList<KrollProxy>();
+	private TiWeakList<KrollProxy> appEventProxies = new TiWeakList<KrollProxy>();
 	private WeakReference<TiRootActivity> rootActivity;
 	private TiProperties appProperties;
 	private TiProperties systemProperties;
@@ -179,11 +181,11 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 		systemProperties = new TiProperties(getApplicationContext(), "system", true);
 
 		if (getDeployType().equals(DEPLOY_TYPE_DEVELOPMENT)) {
-			deployData = new TiDeployData();
+			deployData = new TiDeployData(this);
 		}
 		tempFileHelper = new TiTempFileHelper(this);
 	}
-	
+
 	@Override
 	public void onTerminate()
 	{
@@ -194,6 +196,7 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 	public void postAppInfo()
 	{
 		TiPlatformHelper.initialize();
+		TiFastDev.initFastDev(this);
 	}
 
 	public void postOnCreate()
@@ -325,7 +328,7 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 	{
 		Log.e(LCAT, "APP PROXY: " + appEventProxy);
 		if (appEventProxy != null && !appEventProxies.contains(appEventProxy)) {
-			appEventProxies.add(appEventProxy);
+			appEventProxies.add(new WeakReference<KrollProxy>(appEventProxy));
 		}
 	}
 
@@ -337,7 +340,12 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 	public boolean fireAppEvent(String eventName, KrollDict data)
 	{
 		boolean handled = false;
-		for (KrollProxy appEventProxy : appEventProxies) {
+		for (WeakReference<KrollProxy> weakProxy : appEventProxies) {
+			KrollProxy appEventProxy = weakProxy.get();
+			if (appEventProxy == null) {
+				continue;
+			}
+
 			boolean proxyHandled = appEventProxy.fireEvent(eventName, data);
 			handled = handled || proxyHandled;
 		}
@@ -359,7 +367,12 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 	{
 		return appInfo;
 	}
-	
+
+	public String getAppGUID()
+	{
+		return getAppInfo().getGUID();
+	}
+
 	public KrollDict getStylesheet(String basename, Collection<String> classes, String objectId)
 	{
 		if (stylesheet != null) {
@@ -580,7 +593,12 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 	{
 		TiUIHelper.waitForCurrentActivity(l);
 	}
-	
+
+	public boolean isDebuggerEnabled()
+	{
+		return getDeployData().isDebuggerEnabled();
+	}
+
 	private void startExternalStorageMonitor()
 	{
 		externalStorageReceiver = new BroadcastReceiver()
@@ -617,5 +635,9 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 		unregisterReceiver(externalStorageReceiver);
 	}
 
+	public void dispose()
+	{
+		TiActivityWindows.dispose();
+	}
 }
 

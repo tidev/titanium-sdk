@@ -1,73 +1,73 @@
 ---
 name: Titanium.UI.DashboardView
-description: The Dashboard View provides a view that supports the ability to have Springboard-like view of icons which can be reordered by dragging and can contain multiple pages of icons in a scrollable view. The Dashboard View is created by the method <Titanium.UI.createDashboardView>.
+summary: The Dashboard View provides a view that supports the ability to have Springboard-like view of icons which can be reordered by dragging and can contain multiple pages of icons in a scrollable view. The Dashboard View is created by the method <Titanium.UI.createDashboardView>.
 extends: Titanium.UI.View
 since: "1.2"
 platforms: [iphone, ipad]
 methods:
   - name: startEditing
-    description: put the dashboard in edit mode
+    summary: put the dashboard in edit mode
   - name: stopEditing
-    description: cancel editing
+    summary: cancel editing
 events:
   - name: commit
-    description: fired when editing ends
+    summary: fired when editing ends
     properties:
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: the y point of the event, in receiving view coordinates
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        summary: the x point of the event in receiving view coordiantes
   - name: delete
-    description: fired when a  <Titanium.UI.DashboardItem> is deleted during editings
+    summary: fired when a  <Titanium.UI.DashboardItem> is deleted during editings
     properties:
       - name: item
-        description: the <Titanium.UI.DashboardItem> that was deleted
+        summary: the <Titanium.UI.DashboardItem> that was deleted
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: the y point of the event, in receiving view coordinates
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        summary: the x point of the event in receiving view coordiantes
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
   - name: edit
-    description: fired when editing begins
+    summary: fired when editing begins
     properties:
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: the y point of the event, in receiving view coordinates
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        summary: the x point of the event in receiving view coordiantes
   - name: move
-    description: fired when a  <Titanium.UI.DashboardItem> is moved during editing
+    summary: fired when a  <Titanium.UI.DashboardItem> is moved during editing
     properties:
       - name: item
-        description: the <Titanium.UI.DashboardItem> that was moved
+        summary: the <Titanium.UI.DashboardItem> that was moved
       - name: items
-        description: the pending data array in the new order (uncommitted)
+        summary: the pending data array in the new order (uncommitted)
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: the y point of the event, in receiving view coordinates
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        summary: the x point of the event in receiving view coordiantes
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
 properties:
   - name: data
-    description: an array of <Titanium.UI.DashboardItem> objects to display in the view
+    summary: an array of <Titanium.UI.DashboardItem> objects to display in the view
     type: Array<Object>
   - name: wobble
-    description: true (default) to wobble during edit, false to disable wobble effect
+    summary: true (default) to wobble during edit, false to disable wobble effect
     type: Boolean

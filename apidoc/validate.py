@@ -109,6 +109,11 @@ def validateIsOneOf(tracker, name, value, validValues):
 	if value not in validValues:
 		tracker.trackError('"%s" should be one of %s, but was %s' % (name, ", ".join(validValues), value))
 
+def validateAllowedKeys(tracker, name, actualKeys, allowedKeys):
+	for k in actualKeys:
+		if k not in allowedKeys:
+			tracker.trackError('"%s" should only contain %s, but "%s" is present' % (name, ", ".join(allowedKeys), k))
+
 def validateMarkdown(tracker, mdData, name):
 	try:
 		html = markdown.markdown(mdData)
@@ -171,6 +176,9 @@ def validateCommon(tracker, map):
 	if 'optional' in map:
 		validateIsBool(tracker, 'optional', map['optional'])
 
+	if 'notes' in map:
+		tracker.trackError('"notes" field is no longer valid')
+
 def validateMethod(typeTracker, method):
 	tracker = ErrorTracker(method['name'], typeTracker)
 	validateRequired(tracker, method, ['name'])
@@ -189,7 +197,9 @@ def validateMethod(typeTracker, method):
 			tracker.trackError('"parameters" must be a list')
 		for param in method['parameters']:
 			pTracker = ErrorTracker(param['name'], tracker)
-			validateRequired(pTracker, param, ['name', 'description', 'type'])
+			validateRequired(pTracker, param, ['name', 'summary', 'type'])
+			validateCommon(pTracker, param)
+			validateAllowedKeys(pTracker, param['name'], param.keys(), ('name', 'type', 'summary', 'optional', 'default'))
 
 	if 'examples' in method:
 		validateExamples(tracker, method['examples'])
@@ -197,7 +207,7 @@ def validateMethod(typeTracker, method):
 def validateProperty(typeTracker, property):
 	tracker = ErrorTracker(property['name'], typeTracker)
 
-	validateRequired(tracker, property, ['name', 'description', 'type'])
+	validateRequired(tracker, property, ['name', 'summary', 'type'])
 	validateCommon(tracker, property)
 
 	if 'examples' in property:
@@ -214,8 +224,17 @@ def validateProperty(typeTracker, property):
 
 def validateEvent(typeTracker, event):
 	tracker = ErrorTracker(event['name'], typeTracker)
-	validateRequired(tracker, event, ['name', 'description'])
+	validateRequired(tracker, event, ['name', 'summary'])
 	validateCommon(tracker, event)
+	if 'properties' in event:
+		if type(event['properties']) != list:
+			tracker.trackError('"properties" specified, but isn\'t a list')
+			return
+		for p in event['properties']:
+			pTracker = ErrorTracker(p['name'], tracker)
+			validateRequired(pTracker, p, ['name', 'summary'])
+			validateCommon(pTracker, p)
+			validateAllowedKeys(pTracker, p['name'], p.keys(), ('name', 'summary', 'type', 'deprecated', 'platforms'))
 
 def validateExamples(tracker, examples):
 	if not isinstance(examples, list):
@@ -226,32 +245,55 @@ def validateExamples(tracker, examples):
 			tracker.trackError('each example must be a dict with "title" and "example" members: %s' % example)
 			continue
 		validateMarkdown(tracker, example['example'], 'example')
+		
+def validateExcludes(tracker, excludes):
+	if not isinstance(excludes, dict):
+		tracker.trackError('"excludes" must be a dict and cannot be empty')
+		return
+	for category in excludes:
+		if category not in ['events','properties','methods']:
+			tracker.trackError('only "events","properties", and "methods" are allowed in "excludes": %s' % category)
+			continue
+		if not isinstance(excludes[category], list):
+			tracker.trackError('"%s" must be a list' % category)
+			continue
 
 def validateType(typeDoc):
 	typeName = typeDoc['name']
 	errorTrackers[typeName] = ErrorTracker(typeName)
 	tracker = errorTrackers[typeName]
 
-	validateRequired(tracker, typeDoc, ['name', 'description'])
+	validateRequired(tracker, typeDoc, ['name', 'summary'])
 	validateCommon(tracker, typeDoc)
+	if 'excludes' in typeDoc:
+		validateExcludes(tracker, typeDoc['excludes'])
 
-	if 'notes' in typeDoc:
-		validateMarkdown(tracker, typeDoc['notes'], 'notes')
+	if 'description' in typeDoc:
+		validateMarkdown(tracker, typeDoc['description'], 'description')
 
 	if 'examples' in typeDoc:
 		validateExamples(tracker, typeDoc['examples'])
 
 	if 'methods' in typeDoc:
-		for method in typeDoc['methods']:
-			validateMethod(tracker, method)
+		if type(typeDoc['methods']) != list:
+			tracker.trackError('"methods" specified, but isn\'t a list')
+		else:
+			for method in typeDoc['methods']:
+				validateMethod(tracker, method)
 
 	if 'properties' in typeDoc:
-		for property in typeDoc['properties']:
-			validateProperty(tracker, property)
+		if type(typeDoc['properties']) != list:
+			tracker.trackError('"properties" specified, but isn\'t a list')
+		else:
+			for property in typeDoc['properties']:
+				validateProperty(tracker, property)
 
 	if 'events' in typeDoc:
-		for event in typeDoc['events']:
-			validateEvent(tracker, event)
+		if type(typeDoc['events']) != list:
+			tracker.trackError('"events" specified, but isn\'t a list')
+		else:
+			for event in typeDoc['events']:
+				validateEvent(tracker, event)
 
 
 def validateTDoc(tdocPath):

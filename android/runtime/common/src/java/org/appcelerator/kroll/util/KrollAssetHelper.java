@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 
+import org.appcelerator.kroll.common.TiFastDev;
+
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.util.Log;
@@ -32,6 +34,17 @@ public class KrollAssetHelper
 
 	public static String readAsset(String path)
 	{
+
+		if (TiFastDev.isFastDevEnabled()) {
+			if (path != null && path.startsWith("Resources/")) {
+
+				String resourcePath = path.replace("Resources/", "");
+				Log.d(TAG, "Fetching \"" + resourcePath + "\" with Fastdev...");
+				InputStream stream = TiFastDev.getInstance().openInputStream(resourcePath);
+				return KrollStreamHelper.toString(stream);
+			}
+		}
+
 		try {
 			AssetManager assetManager = manager.get();
 			if (assetManager == null) {
@@ -43,15 +56,19 @@ public class KrollAssetHelper
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			byte buffer[] = new byte[1024];
 			int count = 0;
+
 			while ((count = in.read(buffer)) != -1) {
 				if (out != null) {
 					out.write(buffer, 0, count);
 				}
 			}
+
 			return out.toString();
+
 		} catch (IOException e) {
 			Log.e(TAG, "Error while reading asset \"" + path + "\":", e);
 		}
+
 		return null;
 	}
 
@@ -62,17 +79,22 @@ public class KrollAssetHelper
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			byte buffer[] = new byte[1024];
 			int count = 0;
+
 			while ((count = in.read(buffer)) != -1) {
 				if (out != null) {
 					out.write(buffer, 0, count);
 				}
 			}
+
 			return out.toString();
+
 		} catch (FileNotFoundException e) {
 			Log.e(TAG, "File not found: " + path, e);
+
 		} catch (IOException e) {
 			Log.e(TAG, "Error while reading file: " + path, e);
 		}
+
 		return null;
 	}
 

@@ -24,6 +24,7 @@ import android.util.Log;
 public class RhinoRuntime extends KrollRuntime implements ErrorReporter
 {
 	private static final String TAG = "RhinoRuntime";
+	private static final String NAME = "rhino";
 
 	private Scriptable globalScope;
 	private Scriptable globalKrollObject;
@@ -50,6 +51,17 @@ public class RhinoRuntime extends KrollRuntime implements ErrorReporter
 	@Override
 	public void doDispose()
 	{
+		globalScope = null;
+		globalKrollObject = null;
+		moduleObject = null;
+		runModuleFunction = null;
+		errorReporter = null;
+
+		EventEmitter.dispose();
+		KrollBindings.dispose();
+		KrollWith.dispose();
+		Proxy.dispose();
+		ProxyFactory.dispose();
 	}
 
 	@Override
@@ -109,6 +121,8 @@ public class RhinoRuntime extends KrollRuntime implements ErrorReporter
 		EventEmitter.init(globalKrollObject);
 		GlobalSandbox.init(globalKrollObject);
 
+		KrollBindings.initJsBindings();
+
 		Script krollScript = KrollBindings.getJsBinding("kroll");
 		Object result = krollScript.exec(context, globalScope);
 
@@ -149,6 +163,12 @@ public class RhinoRuntime extends KrollRuntime implements ErrorReporter
 	{
 		TiJSErrorDialog.openErrorDialog("Runtime Error", message, sourceName, line, lineSource, lineOffset);
 		return new EvaluatorException(message, sourceName, line, lineSource, lineOffset);
+	}
+
+	@Override
+	public String getRuntimeName()
+	{
+		return NAME;
 	}
 
 	@Override

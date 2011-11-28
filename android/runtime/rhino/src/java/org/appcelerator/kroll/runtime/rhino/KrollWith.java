@@ -34,6 +34,11 @@ public class KrollWith extends NativeWith
 		withStack.pop();
 	}
 
+	public static void dispose()
+	{
+		withStack.clear();
+	}
+
 	public KrollWith(Scriptable parent, Scriptable prototype)
 	{
 		super(null, prototype);
@@ -47,7 +52,10 @@ public class KrollWith extends NativeWith
 		public WithScope(ScriptableObject parent)
 		{
 			this.parent = parent;
-			this.associateValue("ClassCache", parent.getAssociatedValue("ClassCache"));
+			Object classCache = parent.getAssociatedValue("ClassCache");
+			if (classCache != null) {
+				this.associateValue("ClassCache", classCache);
+			}
 		}
 
 		public KrollWith getKrollWith()

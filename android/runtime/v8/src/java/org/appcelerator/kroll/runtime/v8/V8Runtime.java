@@ -18,10 +18,12 @@ import android.util.Log;
 public final class V8Runtime extends KrollRuntime implements Handler.Callback
 {
 	private static final String TAG = "KrollV8Runtime";
+	private static final String NAME = "v8";
 	private static final String DEVICE_LIB = "kroll-v8-device";
 	private static final String EMULATOR_LIB = "kroll-v8-emulator";
 	private static final int MSG_PROCESS_DEBUG_MESSAGES = KrollRuntime.MSG_LAST_ID + 100;
 
+	private boolean libLoaded = false;
 
 	@Override
 	public void initRuntime()
@@ -35,8 +37,14 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 			useGlobalRefs = false;
 		}
 
-		System.loadLibrary(libName);
-		nativeInit(useGlobalRefs);
+		boolean debuggerEnabled = getKrollApplication().isDebuggerEnabled();
+
+		if (!libLoaded) {
+			System.loadLibrary(libName);
+			libLoaded = true;
+		}
+
+		nativeInit(useGlobalRefs, debuggerEnabled);
 	}
 
 	@Override
@@ -70,6 +78,12 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		return super.handleMessage(message);
 	}
 
+	@Override
+	public String getRuntimeName()
+	{
+		return NAME;
+	}
+
 	protected void dispatchDebugMessages()
 	{
 		handler.sendEmptyMessage(MSG_PROCESS_DEBUG_MESSAGES);
@@ -77,7 +91,7 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 
 
 	// JNI method prototypes
-	private native void nativeInit(boolean useGlobalRefs);
+	private native void nativeInit(boolean useGlobalRefs, boolean debuggerActive);
 	private native void nativeRunModule(String source, String filename, KrollProxySupport activityProxy);
 	private native void nativeProcessDebugMessages();
 	private native void nativeDispose();
