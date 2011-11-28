@@ -12,4 +12,8 @@ public class KrollGeneratedBindings
 	{
 		return null;
 	}
+
+	public static void dispose()
+	{
+	}
 }

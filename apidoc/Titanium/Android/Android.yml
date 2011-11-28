@@ -1,777 +1,782 @@
 ---
 name: Titanium.Android
-description: The top level Android module. <Ti.Android.currentActivity> provides each context an Activity. This object cannot be created directly.
+summary: The top level Android module. <Ti.Android.currentActivity> provides each context an Activity. This object cannot be created directly.
 extends: Titanium.Module
 platforms: [android]
 since: "1.5"
 methods:
   - name: createBroadcastIntent
-    description: Create a <Titanium.Android.Intent> to be used to start a Broadcast.
+    summary: Create a <Titanium.Android.Intent> to be used to start a Broadcast.
     returns:
         type: Titanium.Android.Intent
   - name: createIntent
-    description: Create a <Titanium.Android.Intent>. Used to start other Activities and for marshaling data.
+    summary: Create a <Titanium.Android.Intent>. Used to start other Activities and for marshaling data.
     returns:
         type: Titanium.Android.Intent
   - name: createIntentChooser
-    description: Display chooser interface to allow selection of desired target.
+    summary: Display chooser interface to allow selection of desired target.
     returns:
         type: Titanium.Android.Intent
   - name: createNotification
-    description: Create a <Titanium.Android.Notification>. Used to notify the user of an event.
+    summary: Create a <Titanium.Android.Notification>. Used to notify the user of an event.
     returns:
         type: Titanium.Android.Notification
     parameters:
       - name: options
-        description: Options dictionary
+        summary: Options dictionary
         type: Dictionary<Titanium.Android.Notification>
   - name: createPendingIntent
-    description: Create a <Titanium.Android.PendingIntent> to be used inside a <Titanium.Android.Notification>
+    summary: Create a <Titanium.Android.PendingIntent> to be used inside a <Titanium.Android.Notification>
     returns:
         type: Titanium.Android.PendingIntent
     parameters:
       - name: intent
-        description: The Intent that will be executed
+        summary: The Intent that will be executed
         type: Titanium.Android.Intent
       - name: flags
         default: 0
         optional: true
-        description: |
+        summary: |
             Can be any of <Titanium.Android.FLAG_CANCEL_CURRENT>, <Titanium.Android.FLAG_NO_CREATE>, <Titanium.Android.FLAG_ONE_SHOT>, <Titanium.Android.FLAG_UPDATE_CURRENT>
         type: Number
   - name: createService
-    description: Create a <Titanium.Android.Service> so you can start/stop it and listen for events from it.
+    summary: Create a <Titanium.Android.Service> so you can start/stop it and listen for events from it.
     returns:
         type: Titanium.Android.Service
     parameters:
       - name: intent
-        description: An Intent created with <Titanium.Android.createServiceIntent> which specifies the service to be instantiated.
+        summary: An Intent created with <Titanium.Android.createServiceIntent> which specifies the service to be instantiated.
         type: Titanium.Android.Intent
   - name: createServiceIntent
-    description: Create an <Titanium.Android.Intent> to be used to start a Service.
+    summary: Create an <Titanium.Android.Intent> to be used to start a Service.
     returns:
         type: Titanium.Android.Intent
     parameters:
       - name: options
-        description: Options dictionary -- pass in a `url` option to specify the path to a javascript-based service you create.
+        summary: Options dictionary -- pass in a `url` option to specify the path to a javascript-based service you create.
         type: Object
   - name: isServiceRunning
-    description: Check on state of Service.
+    summary: Check on state of Service.
     returns:
         type: Boolean
     parameters:
       - name: intent
-        description: An Intent created with <Titanium.Android.createServiceIntent> which specifies the service to check.
+        summary: An Intent created with <Titanium.Android.createServiceIntent> which specifies the service to check.
         type: Titanium.Android.Intent
   - name: startService
-    description: Start a simple service
+    summary: Start a simple service
     parameters:
       - name: intent
-        description: An Intent created with <Titanium.Android.createServiceIntent> which specifies the service to start.
+        summary: An Intent created with <Titanium.Android.createServiceIntent> which specifies the service to start.
         type: Titanium.Android.Intent
   - name: stopService
-    description: Stop a simple service that was started with `startService`.
+    summary: Stop a simple service that was started with `startService`.
     parameters:
       - name: intent
-        description: An Intent created with <Titanium.Android.createServiceIntent> which specifies the service to stop.
+        summary: An Intent created with <Titanium.Android.createServiceIntent> which specifies the service to stop.
         type: Titanium.Android.Intent
 properties:
   - name: ACTION_AIRPLANE_MODE_CHANGED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_ALL_APPS
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_ANSWER
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_ATTACH_DATA
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_BATTERY_CHANGED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_BATTERY_LOW
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_BATTERY_OKAY
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_BOOT_COMPLETED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_BUG_REPORT
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_CALL
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_CALL_BUTTON
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_CAMERA_BUTTON
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_CHOOSER
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_CLOSE_SYSTEM_DIALOGS
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_CONFIGURATION_CHANGED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_CREATE_SHORTCUT
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_DATE_CHANGED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_DEFAULT
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_DELETE
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_DEVICE_STORAGE_LOW
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_DIAL
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_EDIT
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_GET_CONTENT
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_GTALK_SERVICE_CONNECTED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_GTALK_SERVICE_DISCONNECTED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_HEADSET_PLUG
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_INPUT_METHOD_CHANGED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_INSERT
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_INSERT_OR_EDIT
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_MAIN
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_MANAGE_PACKAGE_STORAGE
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_MEDIA_BAD_REMOVAL
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_MEDIA_BUTTON
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_MEDIA_CHECKING
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_MEDIA_EJECT
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_MEDIA_MOUNTED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_MEDIA_NOFS
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_MEDIA_REMOVED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_MEDIA_SCANNER_FINISHED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_MEDIA_SCANNER_SCAN_FILE
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_MEDIA_SCANNER_STARTED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_MEDIA_SHARED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_MEDIA_UNMOUNTABLE
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_MEDIA_UNMOUNTED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_NEW_OUTGOING_CALL
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_PACKAGE_ADDED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_PACKAGE_CHANGED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_PACKAGE_DATA_CLEARED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_PACKAGE_INSTALL
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_PACKAGE_REMOVED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_PACKAGE_REPLACED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_PACKAGE_RESTARTED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_PICK
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_PICK_ACTIVITY
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_POWER_CONNECTED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_POWER_DISCONNECTED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_POWER_USAGE_SUMMARY
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_PROVIDER_CHANGED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_REBOOT
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_RUN
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_SCREEN_OFF
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_SCREEN_ON
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_SEARCH
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_SEARCH_LONG_PRESS
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_SEND
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_SENDTO
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_SEND_MULTIPLE
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_SET_WALLPAPER
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_SHUTDOWN
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_SYNC
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_SYSTEM_TUTORIAL
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_TIME_CHANGED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_TIME_TICK
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_UID_REMOVED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_UMS_CONNECTED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_UMS_DISCONNECTED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_USER_PRESENT
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_VIEW
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_VOICE_COMMAND
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_WALLPAPER_CHANGED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: ACTION_WEB_SEARCH
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: CATEGORY_ALTERNATIVE
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: CATEGORY_BROWSABLE
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: CATEGORY_DEFAULT
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: CATEGORY_DEVELOPMENT_PREFERENCE
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: CATEGORY_EMBED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: CATEGORY_FRAMEWORK_INSTRUMENTATION_TEST
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: CATEGORY_HOME
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: CATEGORY_INFO
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: CATEGORY_LAUNCHER
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: CATEGORY_MONKEY
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: CATEGORY_OPENABLE
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: CATEGORY_PREFERENCE
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: CATEGORY_SAMPLE_CODE
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: CATEGORY_SELECTED_ALTERNATIVE
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: CATEGORY_TAB
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: CATEGORY_TEST
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: CATEGORY_UNIT_TEST
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: DEFAULT_ALL
-    description: Use all default values (where applicable).
+    summary: Use all default values (where applicable).
     type: Number
     permission: read-only
   - name: DEFAULT_LIGHTS
-    description: Use the default notification lights.
+    summary: Use the default notification lights.
     type: Number
     permission: read-only
   - name: DEFAULT_SOUND
-    description: Use the default notification sound.
+    summary: Use the default notification sound.
     type: Number
     permission: read-only
   - name: DEFAULT_VIBRATE
-    description: Use the default notification vibrate.
+    summary: Use the default notification vibrate.
     type: Number
     permission: read-only
   - name: EXTRA_ALARM_COUNT
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: EXTRA_BCC
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: EXTRA_CC
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: EXTRA_DATA_REMOVED
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: EXTRA_DONT_KILL_APP
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: EXTRA_EMAIL
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: EXTRA_INTENT
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: EXTRA_KEY_EVENT
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: EXTRA_PHONE_NUMBER
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: EXTRA_REPLACING
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: EXTRA_SHORTCUT_ICON
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: EXTRA_SHORTCUT_ICON_RESOURCE
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: EXTRA_SHORTCUT_INTENT
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: EXTRA_SHORTCUT_NAME
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: EXTRA_STREAM
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: EXTRA_SUBJECT
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: EXTRA_TEMPLATE
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: EXTRA_TEXT
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: EXTRA_TITLE
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: EXTRA_UID
-    description: 
+    summary: 
     type: String
     permission: read-only
   - name: FILL_IN_ACTION
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FILL_IN_CATEGORIES
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FILL_IN_COMPONENT
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FILL_IN_DATA
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FILL_IN_PACKAGE
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FLAG_ACTIVITY_BROUGHT_TO_FRONT
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FLAG_ACTIVITY_CLEAR_TOP
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FLAG_ACTIVITY_FORWARD_RESULT
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FLAG_ACTIVITY_MULTIPLE_TASK
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FLAG_ACTIVITY_NEW_TASK
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FLAG_ACTIVITY_NO_ANIMATION
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FLAG_ACTIVITY_NO_HISTORY
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FLAG_ACTIVITY_NO_USER_ACTION
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FLAG_ACTIVITY_PREVIOUS_IS_TOP
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FLAG_ACTIVITY_REORDER_TO_FRONT
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FLAG_ACTIVITY_SINGLE_TOP
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FLAG_AUTO_CANCEL
-    description: Bit to be bitwise-ored into the flags field that should be set if the notification should be canceled when it is clicked by the user.
+    summary: Bit to be bitwise-ored into the flags field that should be set if the notification should be canceled when it is clicked by the user.
     type: Number
     permission: read-only
   - name: FLAG_CANCEL_CURRENT
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FLAG_DEBUG_LOG_RESOLUTION
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FLAG_FROM_BACKGROUND
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FLAG_GRANT_READ_URI_PERMISSION
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FLAG_GRANT_WRITE_URI_PERMISSION
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FLAG_INSISTENT
-    description: Bit to be bitwise-ored into the flags field that if set, the audio will be repeated until the notification is cancelled or the notification window is opened.
+    summary: Bit to be bitwise-ored into the flags field that if set, the audio will be repeated until the notification is cancelled or the notification window is opened.
     type: Number
     permission: read-only
   - name: FLAG_NO_CLEAR
-    description: Bit to be bitwise-ored into the flags field that should be set if the notification should not be canceled when the user clicks the Clear all button.
+    summary: Bit to be bitwise-ored into the flags field that should be set if the notification should not be canceled when the user clicks the Clear all button.
     type: Number
     permission: read-only
   - name: FLAG_NO_CREATE
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FLAG_ONE_SHOT
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FLAG_ONGOING_EVENT
-    description: Bit to be bitwise-ored into the flags field that should be set if this notification is in reference to something that is ongoing, like a phone call.
+    summary: Bit to be bitwise-ored into the flags field that should be set if this notification is in reference to something that is ongoing, like a phone call.
     type: Number
     permission: read-only
   - name: FLAG_ONLY_ALERT_ONCE
-    description: Bit to be bitwise-ored into the flags field that should be set if you want the sound and/or vibration play each time the notification is sent, even if it has not been canceled before that.
+    summary: Bit to be bitwise-ored into the flags field that should be set if you want the sound and/or vibration play each time the notification is sent, even if it has not been canceled before that.
     type: Number
     permission: read-only
   - name: FLAG_RECEIVER_REGISTERED_ONLY
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: FLAG_SHOW_LIGHTS
-    description: Bit to be bitwise-ored into the flags field that should be set if you want the LED on for this notification.
+    summary: Bit to be bitwise-ored into the flags field that should be set if you want the LED on for this notification.
     type: Number
     permission: read-only
   - name: FLAG_UPDATE_CURRENT
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: PENDING_INTENT_FOR_ACTIVITY
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: PENDING_INTENT_FOR_BROADCAST
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: PENDING_INTENT_FOR_SERVICE
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: PENDING_INTENT_MAX_VALUE
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: R
-    description: Accessor for android resources
+    summary: Accessor for android resources
     type: Object
     permission: read-only
   - name: RESULT_CANCELED
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: RESULT_FIRST_USER
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: RESULT_OK
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: SCREEN_ORIENTATION_BEHIND
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: SCREEN_ORIENTATION_LANDSCAPE
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: SCREEN_ORIENTATION_NOSENSOR
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: SCREEN_ORIENTATION_PORTRAIT
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: SCREEN_ORIENTATION_SENSOR
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: SCREEN_ORIENTATION_UNSPECIFIED
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: SCREEN_ORIENTATION_USER
-    description: 
+    summary: 
     type: Number
     permission: read-only
   - name: STREAM_DEFAULT
-    description: Use this constant as the value for audioStreamType to request that the default stream type for notifications be used.
+    summary: Use this constant as the value for audioStreamType to request that the default stream type for notifications be used.
     type: Number
     permission: read-only
   - name: URI_INTENT_SCHEME
-    description: 
+    summary: 
     type: Number
     permission: read-only
-notes: Several (almost all) of the constants you see above are directly taken from Android.  So if we've failed to document all of them, have a look online at the [Android SDK reference pages](http://developer.android.com/reference/android/app/Service.html).
+description: |
+    Almost all of the constants defined in this module are directly taken from Android.  
+    So if we've failed to document all of them, have a look online at the 
+    [Android SDK reference pages](http://developer.android.com/reference/android/app/Service.html).
     
-    The most important page there will be the [Intent reference](http://developer.android.com/reference/android/content/Intent.html), which will give you the meaning of those ACTION, EXTRA and CATEGORY constants.
+    The most important page there will be the 
+    [Intent reference](http://developer.android.com/reference/android/content/Intent.html), 
+    which will give you the meaning of those ACTION, EXTRA and CATEGORY constants.

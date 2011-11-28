@@ -6,8 +6,6 @@
  */
 package org.appcelerator.titanium;
 
-import org.appcelerator.kroll.common.Log;
-
 import android.content.Intent;
 import android.os.Bundle;
 

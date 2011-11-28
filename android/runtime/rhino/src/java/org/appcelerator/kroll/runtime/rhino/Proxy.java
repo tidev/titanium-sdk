@@ -30,7 +30,6 @@ public class Proxy extends EventEmitter
 	private static final String TAG = PROXY_TAG;
 
 	private static Proxy prototype;
-	private static Function setProperty, getProperty;
 
 	private Scriptable properties;
 	private KrollProxySupport proxy;
@@ -89,6 +88,11 @@ public class Proxy extends EventEmitter
 			prototype = new Proxy();
 		}
 		return prototype;
+	}
+
+	public static void dispose()
+	{
+		prototype = null;
 	}
 
 	public Proxy()

@@ -81,8 +81,6 @@ function loadAppModules() {
 	}
 }
 
-loadAppModules();
-
 function addInvocationAPI(Titanium, namespace, api) {
 	var apiInfo = { namespace: namespace, api: api };
 
@@ -101,9 +99,21 @@ function addInvocationAPI(Titanium, namespace, api) {
 	}
 }
 
-exports.bootstrap = function(Titanium) {
-	// Below this is where the generated code
-	// from genBootstrap.py goes
+function bootstrapGlobals(global, Titanium) {
+	// Below this is where generated global bindings go
 	// ----
-	%(bootstrap)s
+
+	%(globalsJS)s
+}
+exports.bootstrapGlobals = bootstrapGlobals;
+
+exports.bootstrap = function(Titanium) {
+	loadAppModules();
+	bootstrapGlobals(global, Titanium);
+
+	// Below this is where generated Titanium-specific bindings go
+	// ----
+
+	%(invocationJS)s
+	%(bootstrapJS)s
 }
