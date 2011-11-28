@@ -721,7 +721,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 	//TODO: check canEditVideoAtPath
 	
-	UIViewController *root = [[TiApp app] controller];
+	/*UIViewController *root = */ [[TiApp app] controller]; // TODO; assignment eliminated for static analysis.  Does the controller call provide a meaningful side effect?
 	editor = [[UIVideoEditorController alloc] init];
 	editor.delegate = self; 
 	editor.videoQuality = [TiUtils intValue:@"videoQuality" properties:args def:UIImagePickerControllerQualityTypeMedium];
@@ -1055,7 +1055,6 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 -(NSArray*)queryMusicLibrary:(id)arg
 {
     ENSURE_SINGLE_ARG(arg, NSDictionary);
-    MPMediaGrouping grouping = [TiUtils intValue:[arg valueForKey:@"grouping"] def:MPMediaGroupingTitle];
     
     NSMutableSet* predicates = [NSMutableSet set];
     for (NSString* prop in [MediaModule filterableItemProperties]) {

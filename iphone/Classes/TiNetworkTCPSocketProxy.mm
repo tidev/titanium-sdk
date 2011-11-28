@@ -105,8 +105,9 @@ const CFOptionFlags writeStreamEventFlags =
             [self throwException:[NSString stringWithFormat:@"Couldn't resolve host %@: %d", hostName, h_errno]
                        subreason:nil
                         location:CODELOCATION];
-        }
-        memcpy(&address.sin_addr.s_addr, host->h_addr_list[0], host->h_length);
+        } else {
+			memcpy(&address.sin_addr.s_addr, host->h_addr_list[0], host->h_length);
+		}
     }
     
     return CFDataCreate(kCFAllocatorDefault,
@@ -507,8 +508,8 @@ const CFOptionFlags writeStreamEventFlags =
     signature.address = [self createAddressData]; // Follows create rule; clean up later
     
     
-    CFReadStreamRef inputStream;
-    CFWriteStreamRef outputStream;
+    CFReadStreamRef inputStream = NULL;
+    CFWriteStreamRef outputStream = NULL;
     
     CFStreamCreatePairWithPeerSocketSignature(NULL, 
                                               &signature, 
@@ -640,19 +641,25 @@ const CFOptionFlags writeStreamEventFlags =
         
         SocketStreams* streams = (SocketStreams*)[streamData bytes];
         
-        if (streams->writeBuffer == nil) {
-            [configureCondition lock];
-            [configureCondition wait];
-            [configureCondition unlock];
-        }
-        
-        [streams->writeLock lock];
-        [streams->writeBuffer addObject:data];
-        
-        if (CFWriteStreamCanAcceptBytes(streams->outputStream)) {
-            [self writeToStream:(NSOutputStream*)(streams->outputStream)];
-        }
-        [streams->writeLock unlock];
+		if (!streams) {
+            [self throwException:[NSString stringWithFormat:@"Invalid [streamData bytes]"]
+                       subreason:nil
+                        location:CODELOCATION];
+		} else {
+			if (streams->writeBuffer == nil) {
+				[configureCondition lock];
+				[configureCondition wait];
+				[configureCondition unlock];
+			}
+			
+			[streams->writeLock lock];
+			[streams->writeBuffer addObject:data];
+			
+			if (CFWriteStreamCanAcceptBytes(streams->outputStream)) {
+				[self writeToStream:(NSOutputStream*)(streams->outputStream)];
+			}
+			[streams->writeLock unlock];
+		}
     } while (broadcast && (key = [keyEnum nextObject]));
 }
 
@@ -668,8 +675,8 @@ void handleSocketConnection(CFSocketRef socket, CFSocketCallBackType type,
             TiNetworkTCPSocketProxy* hostSocket = (TiNetworkTCPSocketProxy*)info;
 			CFSocketNativeHandle sock = *(CFSocketNativeHandle*)data;
 			
-            CFReadStreamRef inputStream;
-            CFWriteStreamRef outputStream;
+            CFReadStreamRef inputStream = NULL;
+            CFWriteStreamRef outputStream = NULL;
             
             SocketMode mode = (SocketMode)[[hostSocket mode] intValue];
             CFStreamCreatePairWithSocket(kCFAllocatorDefault,

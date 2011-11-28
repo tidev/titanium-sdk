@@ -417,8 +417,12 @@ DEFINE_EXCEPTIONS
 							 interpolationQuality:kCGInterpolationNone image:resultImage hires:NO];
 	}
 
+	CGSize contentSize = {0, 0};
+	if (resultImage) {
+		contentSize = [resultImage size];
+	}
 	[self backgroundImageLayer].contents = (id)resultImage.CGImage;
-	[self backgroundImageLayer].contentsCenter = TiDimensionLayerContentCenter(topCap, leftCap, topCap, leftCap, [resultImage size]);
+	[self backgroundImageLayer].contentsCenter = TiDimensionLayerContentCenter(topCap, leftCap, topCap, leftCap, contentSize);
 	self.clipsToBounds = image!=nil;
     self.backgroundImage = image;
 }

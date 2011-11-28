@@ -447,7 +447,8 @@
 	if (!points) {
 		[self throwException:@"missing required points key" subreason:nil location:CODELOCATION];
 	}
-    if (![points count]) {
+	NSUInteger pointsCount = [points count];
+    if (!pointsCount) {
 		[self throwException:@"missing required points data" subreason:nil location:CODELOCATION];
     }
 	NSString *name = [TiUtils stringValue:@"name" properties:args];
@@ -457,29 +458,32 @@
     TiColor* color = [TiUtils colorValue:@"color" properties:args];
     float width = [TiUtils floatValue:@"width" properties:args def:2];
 
+	size_t mallocSize = sizeof(CLLocationCoordinate2D) * pointsCount;
     // construct the MKPolyline 
-    MKMapPoint* pointArray = malloc(sizeof(CLLocationCoordinate2D) * [points count]);
-    for (int i = 0; i < [points count]; ++i) {
-        NSDictionary* entry = [points objectAtIndex:i];
-        CLLocationDegrees lat = [TiUtils doubleValue:[entry objectForKey:@"latitude"]];
-        CLLocationDegrees lon = [TiUtils doubleValue:[entry objectForKey:@"longitude"]];
-        CLLocationCoordinate2D coord = CLLocationCoordinate2DMake(lat, lon);
-        MKMapPoint pt = MKMapPointForCoordinate(coord);
-        pointArray[i] = pt;             
-    }
-    MKPolyline* routeLine = [[MKPolyline polylineWithPoints:pointArray count:[points count]] autorelease];
-    free(pointArray);
-    
-	// construct the MKPolylineView
-    MKPolylineView* routeView = [[MKPolylineView alloc] initWithPolyline:routeLine];
-    routeView.fillColor = routeView.strokeColor = color ? [color _color] : [UIColor blueColor];
-    routeView.lineWidth = width;
-    
-    // update our mappings
-    CFDictionaryAddValue(mapName2Line, name, routeLine);
-    CFDictionaryAddValue(mapLine2View, routeLine, routeView);
-    // finally add our new overlay
-    [map addOverlay:routeLine];
+	if (mallocSize) {
+		MKMapPoint* pointArray = malloc(mallocSize);
+		for (int i = 0; i < pointsCount; ++i) {
+			NSDictionary* entry = [points objectAtIndex:i];
+			CLLocationDegrees lat = [TiUtils doubleValue:[entry objectForKey:@"latitude"]];
+			CLLocationDegrees lon = [TiUtils doubleValue:[entry objectForKey:@"longitude"]];
+			CLLocationCoordinate2D coord = CLLocationCoordinate2DMake(lat, lon);
+			MKMapPoint pt = MKMapPointForCoordinate(coord);
+			pointArray[i] = pt;             
+		}
+		MKPolyline* routeLine = [[MKPolyline polylineWithPoints:pointArray count:pointsCount] autorelease];
+		free(pointArray);
+		
+		// construct the MKPolylineView
+		MKPolylineView* routeView = [[MKPolylineView alloc] initWithPolyline:routeLine];
+		routeView.fillColor = routeView.strokeColor = color ? [color _color] : [UIColor blueColor];
+		routeView.lineWidth = width;
+		
+		// update our mappings
+		CFDictionaryAddValue(mapName2Line, name, routeLine);
+		CFDictionaryAddValue(mapLine2View, routeLine, routeView);
+		// finally add our new overlay
+		[map addOverlay:routeLine];
+	}
 }
 
 -(void)removeRoute:(id)args

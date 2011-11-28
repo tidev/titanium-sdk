@@ -67,7 +67,6 @@
 	UITableViewController *tableController;
 	UISearchDisplayController *searchController;
 	BOOL searchHiddenSet;
-	NSInteger frameChanges;
 }
 
 #pragma mark Framework

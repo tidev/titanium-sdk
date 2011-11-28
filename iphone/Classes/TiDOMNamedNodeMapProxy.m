@@ -52,8 +52,8 @@
 {
     ENSURE_ARG_COUNT(args, 2);
     
-    NSString* name;
-    NSObject* theURI;
+    NSString* name = nil;
+    NSObject* theURI = nil;
     ENSURE_ARG_AT_INDEX(theURI, args, 0, NSObject);
     ENSURE_ARG_AT_INDEX(name, args, 1, NSString);
 	
@@ -260,8 +260,8 @@
 -(id)removeNamedItemNS:(id)args
 {
 	ENSURE_ARG_COUNT(args, 2);
-    NSString* name;
-    NSString* theURI;
+    NSString* name = nil;
+    NSString* theURI = nil;
     ENSURE_ARG_AT_INDEX(theURI, args, 0, NSString);
     ENSURE_ARG_AT_INDEX(name, args, 1, NSString);
     TiDOMAttrProxy* result = nil;

@@ -464,7 +464,6 @@ NSArray * tableKeySequence;
 	
 	TiUITableViewRowProxy *newrow = [self tableRowFromArg:data];
     TiUITableViewActionType actionType = TiUITableViewActionInsertRowBefore;
-    TiUITableViewSectionProxy *actionSection = section;
     id header = [newrow valueForKey:@"header"];
     if (header != nil) {
         TiUITableViewSectionProxy *newSection = [self sectionWithHeader:header table:table];
@@ -493,7 +492,6 @@ NSArray * tableKeySequence;
         
         // Configure the action
         actionType = TiUITableViewActionInsertSectionBefore;
-        actionSection = newSection;
     }
     else {
 		[section rememberProxy:newrow];	//If we wait until the main thread, it'll be too late!
@@ -544,7 +542,6 @@ NSArray * tableKeySequence;
 	
 	TiUITableViewRowProxy *newrow = [self tableRowFromArg:data];
     TiUITableViewActionType actionType = TiUITableViewActionInsertRowAfter;
-    TiUITableViewSectionProxy *actionSection = section;
     id header = [newrow valueForKey:@"header"];
     if (header != nil) {
         TiUITableViewSectionProxy *newSection = [self sectionWithHeader:header table:table];
@@ -570,7 +567,6 @@ NSArray * tableKeySequence;
         
         // Configure the action
         actionType = TiUITableViewActionInsertSectionAfter;
-        actionSection = newSection;
     }
     else {
 		[section rememberProxy:newrow];	//If we wait until the main thread, it'll be too late!

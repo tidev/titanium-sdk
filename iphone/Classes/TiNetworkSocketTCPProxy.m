@@ -708,20 +708,19 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
             switch (type) {
                 case TO_BUFFER: {
                     name = @"read";
-                    
                     event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(0),@"errorState",@"",@"errorDescription",NUMINT(-1),@"bytesProcessed",self,@"source", nil];
                     break;
                 }
                 case TO_STREAM: {
                     name = @"writeStream";
                     id<TiStreamInternal> stream = [info valueForKey:@"destination"];
-                    
                     event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(0),@"errorState",@"",@"errorDescription",NUMINT(-1),@"bytesProcessed",self,@"fromStream",stream,@"toStream", nil];
+                    break;
                 }
                 case TO_CALLBACK: {
-                    name = @"pump";
-                    
+                    name = @"pump";                    
                     event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(0),@"errorState",@"",@"errorDescription",NUMINT(-1),@"bytesProcessed",self,@"source",NUMINT(readDataLength),@"totalBytesProcessed",[NSNull null],@"buffer",nil];
+                    break;
                 }
                 default: {
                     name = @"write";

@@ -42,10 +42,9 @@ NSString * TitaniumModuleRequireFormat = @"(function(exports){"
 	[module setHost:host_];
 	[module _setBaseURL:baseURL_];
 	
-	pageContext = pageContext_;
-	
 	if (self = [super initWithTarget:module context:context_])
 	{
+		pageContext = pageContext_;
 		modules = [[NSMutableDictionary alloc] init];
 		host = [host_ retain];
 		[(KrollBridge *)pageContext_ registerProxy:module krollObject:self];

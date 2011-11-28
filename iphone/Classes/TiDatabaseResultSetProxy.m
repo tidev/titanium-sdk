@@ -227,7 +227,6 @@
 		}
 		// we cache it
 		rowCount = [results fullCount];
-		reset = NO;
 		[results next];
 		return NUMINT(rowCount); 
 	}
