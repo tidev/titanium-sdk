@@ -315,6 +315,13 @@ DEPRECATED_REPLACED(api,in,removed,newapi)\
 return [NSNumber numberWithInt:map];\
 }\
 
+#define MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(name,map,api,in,removed) \
+-(NSNumber*)name \
+{\
+DEPRECATED(api,in,removed)\
+return [NSNumber numberWithInt:map];\
+}\
+
 #define MAKE_SYSTEM_PROP_DBL(name,map) \
 -(NSNumber*)name \
 {\
