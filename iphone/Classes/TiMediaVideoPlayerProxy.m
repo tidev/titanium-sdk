@@ -45,6 +45,7 @@
 
 @interface TiMediaVideoPlayerProxy ()
 @property(nonatomic,readwrite,copy)	NSNumber*	movieControlStyle;
+@property(nonatomic,readwrite,copy)	NSNumber*	mediaControlStyle;
 @end
 
 NSArray* moviePlayerKeys = nil;
@@ -330,6 +331,7 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)setMovieControlStyle:(NSNumber *)value
 {
+	NSLog(@"[WARN] 'Titanium.Media.VideoPlayer.movieControlStyle' is deprecated; use 'Titanium.Media.VideoPlayer.mediaControlStyle'");
 	if (movie != nil) {
 		[self performSelectorOnMainThread:@selector(updateControlStyle:) withObject:value waitUntilDone:NO];
 	} else {
@@ -338,6 +340,23 @@ NSArray* moviePlayerKeys = nil;
 }
 
 -(NSNumber*)movieControlStyle
+{
+	NSLog(@"[WARN] 'Titanium.Media.VideoPlayer.movieControlStyle' is deprecated; use 'Titanium.Media.VideoPlayer.mediaControlStyle'");
+	return NUMINT([[self player] controlStyle]);
+}
+
+-(void)setMediaControlStyle:(NSNumber *)value
+{
+	if (movie != nil) {
+		dispatch_async(dispatch_get_main_queue(), ^{
+			[[self player] setControlStyle:[TiUtils intValue:value def:MPMovieControlStyleDefault]];
+		});
+	} else {
+		[loadProperties setValue:value forKey:@"mediaControlStyle"];
+	}
+}
+
+-(NSNumber*)mediaControlStyle
 {
 	return NUMINT([[self player] controlStyle]);
 }
