@@ -24,7 +24,7 @@ examples:
 
 methods:
 - name: show 
-summary: Show the notification.
+  summary: Show the notification.
 properties:
   - name: message 
     summary: Notification text to display.
@@ -32,7 +32,7 @@ properties:
   - name: duration
     summary: Determines how long the notification stays on screen.
     description: |
-        Specify one of: [NOTIFICATION_DURATION_SHORT](Titanium.UI.NOTIFICATION_DURATION_SHORT)
+        Specify either [NOTIFICATION_DURATION_SHORT](Titanium.UI.NOTIFICATION_DURATION_SHORT) or 
         [NOTIFICATION_DURATION_LONG](Titanium.UI.NOTIFICATION_DURATION_LONG).
     type: Number
     default: <Titanium.UI.NOTIFICATION_DURATION_SHORT>
