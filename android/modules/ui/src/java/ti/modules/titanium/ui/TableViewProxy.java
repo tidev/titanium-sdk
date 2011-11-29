@@ -457,7 +457,7 @@ public class TableViewProxy extends TiViewProxy
 				rowProxy.setCreationUrl(creationUrl.getNormalizedUrl());
 				rowProxy.handleCreationDict(rowDict);
 				rowProxy.setProperty(TiC.PROPERTY_CLASS_NAME, CLASSNAME_NORMAL);
-				rowProxy.setProperty(TiC.PROPERTY_ROW_DATA, rowDict);
+				rowProxy.setProperty(TiC.PROPERTY_ROW_DATA, row);
 				rowProxy.setActivity(getActivity());
 			}
 		}
