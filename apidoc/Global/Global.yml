@@ -14,7 +14,8 @@ description: |
 
     #### Alert
 
-    Titanium has a built-in convenience function `alert` which can be used as a shortcut to <Titanium.UI.createAlertDialog> for creating a message box.  Note that unlike a web browser-based version of `alert`, the method is asynchronous. However, only one alert dialog will be visible and modal at a time.
+    Titanium has a built-in convenience function [alert](Global.alert) which can be used 
+    as a shortcut to create and show a simple [AlertDialog](Titanium.UI.AlertDialog).
 
     #### Locale
 
@@ -37,10 +38,25 @@ description: |
 methods:
   - name: alert
     summary: Displays a pop-up alert dialog with the passed in `message`.
+    description: |
+        This function is a shorcut for creating and displaying an
+        [AlertDialog](Titanium.UI.AlertDialog). The code:
+
+            alert('Danger, Will Robinson!');
+
+        Is equivalent to:
+
+            Ti.UI.createAlertDialog({ message: 'Danger, Will Robinson!'}).show();
+
+        Note that unlike a web browser-based version of `alert`, the method is 
+        asynchronous. However, only one alert dialog will be visible and modal at a time.
+
+        This method is likely to be removed in the future.
+
     parameters:
       - name: message
         type: String
-        summary: The message to alert.
+        summary: The message to show in the alert.
   - name: clearInterval
     summary: Clear an interval timer from being fired.
     parameters:
