@@ -48,14 +48,18 @@ public class FacebookModule extends KrollModule
 	protected static final String LCAT = "FacebookModule";
 	protected static final boolean DBG = TiConfig.LOGD;
 	protected Facebook facebook = null;
-	
+	protected String uid = null;
+
 	private boolean loggedIn = false;
 	private ArrayList<TiFacebookStateListener> stateListeners = new ArrayList<TiFacebookStateListener>();
 	private SessionListener sessionListener = null;
 	private AsyncFacebookRunner fbrunner;
-	
-	// Constructors
-	public FacebookModule() {
+	private String appid = null;
+	private String[] permissions = new String[]{};
+	private boolean forceDialogAuth = true;
+
+	public FacebookModule()
+	{
 		super();
 		sessionListener = new SessionListener(this);
 		SessionEvents.addAuthListener(sessionListener);
@@ -80,8 +84,7 @@ public class FacebookModule extends KrollModule
 	{
 		this();
 	}
-	
-	// Public Properties with accessors
+
 	@Kroll.getProperty @Kroll.method
 	public boolean getLoggedIn()
 	{
@@ -97,13 +100,13 @@ public class FacebookModule extends KrollModule
 			return null;
 		}
 	}
-	
-	private String appid = null;
+
 	@Kroll.getProperty @Kroll.method
 	public String getAppid()
 	{
 		return appid;
 	}
+
 	@Kroll.setProperty @Kroll.method
 	public void setAppid(String appid)
 	{
@@ -121,26 +124,25 @@ public class FacebookModule extends KrollModule
 			facebook = new Facebook(appid);
 		}
 	}
-	
-	protected String uid = null;
+
 	@Kroll.getProperty @Kroll.method
 	public String getUid()
 	{
 		return uid;
 	}
-	
-	private String[] permissions = new String[]{};
+
 	@Kroll.getProperty @Kroll.method
 	public String[] getPermissions()
 	{
 		return permissions;
 	}
+
 	@Kroll.setProperty @Kroll.method
 	public void setPermissions(String[] permissions)
 	{
 		this.permissions = permissions;
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
 	public Date getExpirationDate()
 	{
@@ -150,31 +152,29 @@ public class FacebookModule extends KrollModule
 			return new Date(0);
 		}
 	}
-	
-	private boolean forceDialogAuth = true;
+
 	@Kroll.getProperty @Kroll.method
 	public boolean getForceDialogAuth()
 	{
 		return forceDialogAuth;
 	}
+
 	@Kroll.setProperty @Kroll.method
 	public void setForceDialogAuth(boolean value)
 	{
 		this.forceDialogAuth = value;
 	}
-	
-	// Public Methods
+
 	@Kroll.method
 	public TiFacebookModuleLoginButtonProxy createLoginButton(@Kroll.argument(optional=true) KrollDict options)
 	{
 		TiFacebookModuleLoginButtonProxy login = new TiFacebookModuleLoginButtonProxy(this);
 		if (options != null) {
-			// TODO
-			//login.extend(options);
+			login.extend(options);
 		}
 		return login;
 	}
-	
+
 	@Kroll.method
 	public void authorize()
 	{
@@ -184,22 +184,22 @@ public class FacebookModule extends KrollModule
 			debug("Already logged in, ignoring authorize() request");
 			return;
 		}
-		
+
 		if (appid == null) {
 			Log.w(LCAT, "authorize() called without appid being set; throwing...");
 			throw new IllegalStateException("missing appid");
 		}
-		
+
 		// forget session in case this fails.
 		SessionStore.clear(TiApplication.getInstance());
-		
+
 		if (facebook == null) {
 			facebook = new Facebook(appid);
 		}
-		
-		executeAuthorize(getActivity());
+
+		executeAuthorize(TiApplication.getInstance().getCurrentActivity());
 	}
-	
+
 	@Kroll.method
 	public void logout()
 	{
@@ -207,10 +207,10 @@ public class FacebookModule extends KrollModule
 		destroyFacebookSession();
 		if (facebook != null && wasLoggedIn) {
 			SessionEvents.onLogoutBegin();
-			executeLogout(getActivity());
+			executeLogout(TiApplication.getInstance().getCurrentActivity());
 		}
 	}
-	
+
 	@Kroll.method
 	public void requestWithGraphPath(String path, KrollDict params, String httpMethod, KrollFunction callback)
 	{
@@ -225,7 +225,7 @@ public class FacebookModule extends KrollModule
 		}
 		runner.request(path, paramBundle, httpMethod.toUpperCase(), new TiRequestListener(this, path, true, callback));
 	}
-	
+
 	@Kroll.method
 	public void request(String method, KrollDict params, KrollFunction callback)
 	{
@@ -233,7 +233,7 @@ public class FacebookModule extends KrollModule
 			Log.w(LCAT, "request called without Facebook being instantiated.  Have you set appid?");
 			return;
 		}
-		
+
 		String httpMethod = "GET";
 		if (params != null) {
 			for (Object v : params.values()) {
@@ -243,25 +243,41 @@ public class FacebookModule extends KrollModule
 				}
 			}
 		}
-		
+
 		Bundle bundle = Utils.mapToBundle(params);
 		if (!bundle.containsKey("method")) {
 			bundle.putString("method", method);
 		}
 		getFBRunner().request(null, bundle, httpMethod, new TiRequestListener(this, method, false, callback));
 	}
-	
-	@Kroll.method(runOnUiThread=true)
+
+	@Kroll.method
 	public void dialog(String action, KrollDict params, KrollFunction callback)
 	{
 		if (facebook == null) {
 			Log.w(LCAT, "dialog called without Facebook being instantiated.  Have you set appid?");
 			return;
 		}
-		facebook.dialog(getActivity(), action, Utils.mapToBundle(params), new TiDialogListener(this, callback, action));
+
+		final Activity activity = TiApplication.getInstance().getCurrentActivity();
+		if (activity == null) {
+			// There should always be a current activity.
+			throw new IllegalStateException("TiApplication getCurrentActivity() is null");
+		}
+
+		final String fAction = action;
+		final Bundle fBundle = Utils.mapToBundle(params);
+		final KrollFunction fCallback = callback;
+		activity.runOnUiThread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				facebook.dialog(activity, fAction, fBundle, new TiDialogListener(FacebookModule.this, fCallback, fAction));
+			}
+		});
 	}
 
-	// Protected methods
 	protected void completeLogin()
 	{
 		getFBRunner().request("me", new RequestListener()
@@ -271,25 +287,25 @@ public class FacebookModule extends KrollModule
 			{
 				loginError(e);
 			}
-			
+
 			@Override
 			public void onIOException(IOException e)
 			{
 				loginError(e);
 			}
-			
+
 			@Override
 			public void onFileNotFoundException(FileNotFoundException e)
 			{
 				loginError(e);
 			}
-			
+
 			@Override
 			public void onFacebookError(FacebookError e)
 			{
 				loginError(e);
 			}
-			
+
 			@Override
 			public void onComplete(String response)
 			{
@@ -314,33 +330,33 @@ public class FacebookModule extends KrollModule
 			}
 		});
 	}
-	
+
 	protected void completeLogout()
 	{
 		destroyFacebookSession();
 		fireLoginChange();
 		fireEvent("logout", new KrollDict());
 	}
-	
+
 	protected void debug(String message)
 	{
 		if (DBG) {
 			Log.d(LCAT, message);
 		}
 	}
-	
+
 	protected void addListener(TiFacebookStateListener listener)
 	{
 		if (!stateListeners.contains(listener)) {
 			stateListeners.add(listener);
 		}
 	}
-	
+
 	protected void removeListener(TiFacebookStateListener listener)
 	{
 		stateListeners.remove(listener);
 	}
-	
+
 	protected void executeAuthorize(Activity activity)
 	{
 		int activityCode = Facebook.FORCE_DIALOG_AUTH;
@@ -370,18 +386,17 @@ public class FacebookModule extends KrollModule
 					resultHandler);
 		}
 	}
-	
+
 	protected void executeLogout(Activity activity)
 	{
 		getFBRunner().logout(activity, new LogoutRequestListener());
 	}
-	
-	// Private methods
+
 	private boolean isLoggedIn()
 	{
 		return loggedIn && facebook != null && facebook.isSessionValid();
 	}
-	
+
 	private void loginError(Throwable t)
 	{
 		Log.e(LCAT, t.getMessage(), t);
@@ -392,7 +407,7 @@ public class FacebookModule extends KrollModule
 		data.put("error", t.getMessage());
 		fireEvent("login", data);
 	}
-	
+
 	private void loginCancel()
 	{
 		debug("login canceled");
@@ -402,7 +417,7 @@ public class FacebookModule extends KrollModule
 		data.put("success", false);
 		fireEvent("login", data);
 	}
-	
+
 	private AsyncFacebookRunner getFBRunner()
 	{
 		if (fbrunner == null) {
@@ -410,14 +425,14 @@ public class FacebookModule extends KrollModule
 		}
 		return fbrunner;
 	}
-	
+
 	private void destroyFacebookSession()
 	{
 		SessionStore.clear(TiApplication.getInstance());
 		uid = null;
 		loggedIn = false;
 	}
-	
+
 	private void fireLoginChange()
 	{
 		for (TiFacebookStateListener listener : stateListeners) {
@@ -428,29 +443,44 @@ public class FacebookModule extends KrollModule
 			}
 		}
 	}
-	
-	// Private classes
-	private final class LoginDialogListener implements DialogListener {
-        public void onComplete(Bundle values) {
-        	debug("LoginDialogListener onComplete");
-            SessionEvents.onLoginSuccess();
-        }
 
-        public void onFacebookError(FacebookError error) {
-        	Log.e(LCAT, "LoginDialogListener onFacebookError: " + error.getMessage(), error);
-            SessionEvents.onLoginError(error.getMessage());
-        }
-        
-        public void onError(DialogError error) {
-        	Log.e(LCAT, "LoginDialogListener onError: " + error.getMessage(), error);
-            SessionEvents.onLoginError(error.getMessage());
-        }
+	@Override
+	public void onDestroy(Activity activity)
+	{
+		super.onDestroy(activity);
+		if (sessionListener != null) {
+			SessionEvents.removeAuthListener(sessionListener);
+			SessionEvents.removeLogoutListener(sessionListener);
+			sessionListener = null;
+		}
+	}
 
-        public void onCancel() {
-        	FacebookModule.this.loginCancel();
-        }
-    }
-	
+	private final class LoginDialogListener implements DialogListener
+	{
+		public void onComplete(Bundle values)
+		{
+			debug("LoginDialogListener onComplete");
+			SessionEvents.onLoginSuccess();
+		}
+
+		public void onFacebookError(FacebookError error)
+		{
+			Log.e(LCAT, "LoginDialogListener onFacebookError: " + error.getMessage(), error);
+			SessionEvents.onLoginError(error.getMessage());
+		}
+
+		public void onError(DialogError error)
+		{
+			Log.e(LCAT, "LoginDialogListener onError: " + error.getMessage(), error);
+			SessionEvents.onLoginError(error.getMessage());
+		}
+
+		public void onCancel()
+		{
+			FacebookModule.this.loginCancel();
+		}
+	}
+
 	private final class LogoutRequestListener implements RequestListener
 	{
 		@Override
@@ -485,15 +515,4 @@ public class FacebookModule extends KrollModule
 		}
 	}
 
-	// KrollModule Overrides
-	@Override
-	public void onDestroy(Activity activity)
-	{
-		super.onDestroy(activity);
-		if (sessionListener != null) {
-			SessionEvents.removeAuthListener(sessionListener);
-			SessionEvents.removeLogoutListener(sessionListener);
-			sessionListener = null;
-		}
-	}
 }
