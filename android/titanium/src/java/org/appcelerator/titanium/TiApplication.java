@@ -21,6 +21,7 @@ import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
@@ -201,6 +202,14 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 
 	public void postOnCreate()
 	{
+		KrollRuntime runtime = KrollRuntime.getInstance();
+		if (runtime != null) {
+			Log.i(LCAT, "Titanium Javascript runtime: " + runtime.getRuntimeName());
+		} else {
+			// This ought not to be possible.
+			Log.w(LCAT, "Titanium Javascript runtime: unknown");
+		}
+
 		TiConfig.LOGD = systemProperties.getBool("ti.android.debug", false);
 
 		startExternalStorageMonitor();
