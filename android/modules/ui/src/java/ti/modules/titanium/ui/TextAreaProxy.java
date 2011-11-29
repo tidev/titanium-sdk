@@ -38,6 +38,7 @@ public class TextAreaProxy extends TiViewProxy
 	public TextAreaProxy()
 	{
 		super();
+		defaultValues.put(TiC.PROPERTY_VALUE, "");
 	}
 
 	public TextAreaProxy(TiContext tiContext)

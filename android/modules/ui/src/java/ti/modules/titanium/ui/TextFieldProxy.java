@@ -38,6 +38,7 @@ public class TextFieldProxy extends TiViewProxy
 	public TextFieldProxy()
 	{
 		super();
+		defaultValues.put(TiC.PROPERTY_VALUE, "");
 	}
 
 	public TextFieldProxy(TiContext tiContext)
