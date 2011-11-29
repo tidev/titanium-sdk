@@ -7,3 +7,4 @@ since: "0.8"
 platforms: [iphone, ipad, mobileweb]
 deprecated:
     since: "1.8.0"
+    removed: "1.9.0"

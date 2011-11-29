@@ -25,16 +25,16 @@ properties:
   - name: items
     summary: An array of buttons (or other widgets) contained in the toolbar.
     type: Array<Titanium.UI.View>
-  - name: topBorder
-    summary: Display top border on the toolbar?
+  - name: borderTop
+    summary: If `true`, a border is drawn on the top of the toolbar.
     type: Boolean
     default: true
-  - name: bottomBorder
-    summary: Display bottom border on the toolbar?
+  - name: borderBottom
+    summary: If `true`, a border is drawn on the bottom of the toolbar.
     type: Boolean
     default: true
   - name: translucent
-    summary: Use a translucent background color for the toolbar?
+    summary: If `true`, a translucent background color is used for the toolbar.
     type: Boolean
     default: false
 examples: 
