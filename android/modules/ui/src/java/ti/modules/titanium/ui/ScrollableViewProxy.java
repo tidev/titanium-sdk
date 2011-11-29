@@ -25,13 +25,12 @@ import ti.modules.titanium.ui.widget.TiUIScrollableView;
 import android.app.Activity;
 import android.os.Message;
 
-@Kroll.proxy(creatableInModule=UIModule.class)
+@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={TiC.PROPERTY_SHOW_PAGING_CONTROL})
 public class ScrollableViewProxy extends TiViewProxy
 {
 	private static final String TAG = "TiScrollableView";
 
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
-	public static final int MSG_SHOW_PAGER = MSG_FIRST_ID + 100;
 	public static final int MSG_HIDE_PAGER = MSG_FIRST_ID + 101;
 	public static final int MSG_MOVE_PREV = MSG_FIRST_ID + 102;
 	public static final int MSG_MOVE_NEXT = MSG_FIRST_ID + 103;
@@ -50,6 +49,7 @@ public class ScrollableViewProxy extends TiViewProxy
 	{
 		super();
 		inScroll = new AtomicBoolean(false);
+		defaultValues.put(TiC.PROPERTY_SHOW_PAGING_CONTROL, false);
 	}
 
 	public ScrollableViewProxy(TiContext context)
@@ -73,9 +73,6 @@ public class ScrollableViewProxy extends TiViewProxy
 		boolean handled = false;
 
 		switch(msg.what) {
-			case MSG_SHOW_PAGER:
-				getView().showPager();
-				break;
 			case MSG_HIDE_PAGER:
 				getView().hidePager();
 				handled = true;
@@ -207,19 +204,6 @@ public class ScrollableViewProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.setProperty @Kroll.method
-	public void setShowPagingControl(boolean showPagingControl)
-	{
-		getView().setShowPagingControl(showPagingControl);
-		if (!showPagingControl) {
-			//getView().hidePager();
-			getMainHandler().sendEmptyMessage(MSG_HIDE_PAGER);
-		} else {
-			//getView().showPager();
-			getMainHandler().sendEmptyMessage(MSG_SHOW_PAGER);
-		}
-	}
-
 	public void fireScroll(int to)
 	{
 		if (hasListeners(TiC.EVENT_SCROLL)) {
@@ -247,7 +231,6 @@ public class ScrollableViewProxy extends TiViewProxy
 	@Override
 	public void releaseViews()
 	{
-		getMainHandler().removeMessages(MSG_SHOW_PAGER);
 		getMainHandler().removeMessages(MSG_HIDE_PAGER);
 		super.releaseViews();
 	}

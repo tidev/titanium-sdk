@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiEventHelper;
@@ -34,9 +35,6 @@ import android.widget.RelativeLayout;
 public class TiUIScrollableView extends TiUIView
 {
 	private static final String TAG = "TiUIScrollableView";
-	private static final String PROPERTY_SHOW_PAGING_CONTROL = "showPagingControl";
-	private static final String PROPERTY_VIEWS = "views";
-	private static final String PROPERTY_CURRENT_PAGE = "currentPage";
 
 	private static final int PAGE_LEFT = 200;
 	private static final int PAGE_RIGHT = 201;
@@ -48,7 +46,6 @@ public class TiUIScrollableView extends TiUIView
 	private final RelativeLayout mPagingControl;
 
 	private int mCurIndex = -1;
-	private boolean mShowPagingControl = false;
 
 	public TiUIScrollableView(ScrollableViewProxy proxy)
 	{
@@ -96,12 +93,22 @@ public class TiUIScrollableView extends TiUIView
 						((ScrollableViewProxy)proxy).fireScroll(mCurIndex);
 					}
 				}
-				if (mShowPagingControl) {
+				if (shouldShowPager()) {
 					showPager();
 				}
 			}
 		});
 		return pager;
+	}
+
+	private boolean shouldShowPager()
+	{
+		Object showPagingControl = proxy.getProperty(TiC.PROPERTY_SHOW_PAGING_CONTROL);
+		if (showPagingControl != null) {
+			return TiConvert.toBoolean(showPagingControl);
+		} else {
+			return false;
+		}
 	}
 
 	private TiCompositeLayout.LayoutParams buildFillLayoutParams()
@@ -158,14 +165,12 @@ public class TiUIScrollableView extends TiUIView
 	@Override
 	public void processProperties(KrollDict d)
 	{
-		if (d.containsKey(PROPERTY_VIEWS)) {
-			setViews(d.get(PROPERTY_VIEWS));
+		if (d.containsKey(TiC.PROPERTY_VIEWS)) {
+			setViews(d.get(TiC.PROPERTY_VIEWS));
 		} 
-		if (d.containsKey(PROPERTY_SHOW_PAGING_CONTROL)) {
-			mShowPagingControl = TiConvert.toBoolean(d, PROPERTY_SHOW_PAGING_CONTROL);
-		}
-		if (d.containsKey(PROPERTY_CURRENT_PAGE)) {
-			int page = TiConvert.toInt(d, PROPERTY_CURRENT_PAGE);
+
+		if (d.containsKey(TiC.PROPERTY_CURRENT_PAGE)) {
+			int page = TiConvert.toInt(d, TiC.PROPERTY_CURRENT_PAGE);
 			if (page > 0) {
 				setCurrentPage(page);
 			} else {
@@ -175,27 +180,32 @@ public class TiUIScrollableView extends TiUIView
 			mCurIndex = 0;
 		}
 
+		if (d.containsKey(TiC.PROPERTY_SHOW_PAGING_CONTROL)) {
+			if (TiConvert.toBoolean(d, TiC.PROPERTY_SHOW_PAGING_CONTROL)) {
+				showPager();
+			}
+		}
+
 		super.processProperties(d);
 
-		if (mShowPagingControl) {
-			showPager();
-		}
 	}
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue,
 			KrollProxy proxy)
 	{
-		if(PROPERTY_CURRENT_PAGE.equals(key)) {
+		if (TiC.PROPERTY_CURRENT_PAGE.equals(key)) {
 			setCurrentPage(TiConvert.toInt(newValue));
+		} else if (TiC.PROPERTY_SHOW_PAGING_CONTROL.equals(key)) {
+			boolean show = TiConvert.toBoolean(newValue);
+			if (show) {
+				showPager();
+			} else {
+				hidePager();
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
-	}
-
-	public void setShowPagingControl(boolean show)
-	{
-		mShowPagingControl = show;
 	}
 
 	public void addView(TiViewProxy proxy)
@@ -327,11 +337,9 @@ public class TiUIScrollableView extends TiUIView
 
 	public static class ViewPagerAdapter extends PagerAdapter
 	{
-		private final Activity mActivity;
 		private final ArrayList<TiViewProxy> mViewProxies;
 		public ViewPagerAdapter(Activity activity, ArrayList<TiViewProxy> viewProxies)
 		{
-			mActivity = activity;
 			mViewProxies = viewProxies;
 		}
 
@@ -412,7 +420,7 @@ public class TiUIScrollableView extends TiUIView
 		public boolean onTrackballEvent(MotionEvent event)
 		{
 			// Any trackball activity should show the pager.
-			if (mShowPagingControl && mPagingControl.getVisibility() != View.VISIBLE) {
+			if (shouldShowPager() && mPagingControl.getVisibility() != View.VISIBLE) {
 				showPager();
 			}
 			return super.onTrackballEvent(event);
