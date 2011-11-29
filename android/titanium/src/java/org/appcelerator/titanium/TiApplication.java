@@ -301,12 +301,12 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 		if (rootActivity != null) {
 			return (Activity)(rootActivity.get());
 		}
-		else if (currentActivity != null) {
+		
+		if (currentActivity != null) {
 			return currentActivity.get();
 		}
-		else {
-			return null;
-		}
+		
+		return null;
 	}
 
 	public void setCurrentActivity(Activity callingActivity, Activity newValue)
