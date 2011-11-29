@@ -9,7 +9,7 @@ description: |
     button types, [FIXED_SPACE](Titanium.UI.iPhone.SystemButton.FIXED_SPACE) and 
     [FLEXIBLE_SPACE](Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE).
     
-    Note that toolbars are positioned like other views (using the `top` and `bottom properties, 
+    Note that toolbars are positioned like other views (using the `top` and `bottom` properties, 
     for example), but the iOS Human Interface Guidelines have specific requirements for
     placing toolbars: on iPhone, a toolbar should be at the bottom 
     of the window. On the iPad, a toolbar should appear at the top or bottom of a window.
@@ -21,7 +21,7 @@ platforms: [iphone, ipad]
 properties:
   - name: barColor
     summary: Background color for the toolbar.
-    type: [Number, String]
+    type: String
   - name: items
     summary: An array of buttons (or other widgets) contained in the toolbar.
     type: Array<Titanium.UI.View>
@@ -34,19 +34,14 @@ properties:
     type: Boolean
     default: true
   - name: translucent
-    summary: Use a translucent background color for the tab bar?
+    summary: Use a translucent background color for the toolbar?
     type: Boolean
     default: false
 examples: 
   - title: Simple Toolbar
     example: |
-        The following code snippet creates a simple toolbar, placed at the bottom of the
+        The following code excerpt creates a simple toolbar, placed at the bottom of the
         window. 
-        
-        Note the use of the flexible space for positioning the toolbar buttons -- the 
-        `FLEXIBLE_SPACE` button doesn't appear as a button, but a variable space between the
-        controls on either side of it. Available space in the toolbar is divided between 
-        all of the flexible space buttons in the toolbar. 
 
             var send = Titanium.UI.createButton({
                 title: 'Send',
@@ -72,4 +67,11 @@ examples:
                 borderBottom:false
             }); 
             win.add(toolbar);
+        
+        Note the use of the flexible space for positioning the toolbar buttons -- the 
+        `FLEXIBLE_SPACE` button doesn't appear as a button, but a variable space between the
+        controls on either side of it. Available space in the toolbar is divided between 
+        all of the flexible space buttons in the toolbar. Without the flexible spaces in
+        this example, the toolbar buttons would be grouped tightly together on the left 
+        side of the toolbar.
 
