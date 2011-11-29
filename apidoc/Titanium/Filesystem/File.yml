@@ -122,3 +122,15 @@ properties:
     summary: returns the fully resolved native path
     type: String
     permission: read-only
+  - name: remoteBackup
+    summary: Value indicating whether or not to back up to a cloud service.
+    description: 
+        Some apps may be rejected by Apple for backing up specific files; if this
+        is the case, ensure that this value is set to `false` for them. This
+        value should only need to be set once by your app, but setting it
+        multiple times will not cause problems. For files distributed with your
+        app, this will need to be set on boot.
+    default: true
+    type: Boolean
+    platforms: [iphone,ipad]
+    since: "1.8.0"

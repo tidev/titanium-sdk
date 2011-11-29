@@ -7,6 +7,8 @@
 
 #ifdef USE_TI_FILESYSTEM
 
+#include <sys/xattr.h>
+
 #import "TiUtils.h"
 #import "TiBlob.h"
 #import "TiFilesystemFileProxy.h"
@@ -14,6 +16,8 @@
 
 #define FILE_TOSTR(x) \
 	([x isKindOfClass:[TiFilesystemFileProxy class]]) ? [(TiFilesystemFileProxy*)x nativePath] : [TiUtils stringValue:x]
+
+static const char* backupAttr = "com.apple.MobileBackup";
 
 @implementation TiFilesystemFileProxy
 
@@ -442,6 +446,38 @@ FILENOOP(setHidden:(id)x);
 	}
 	
 	return [[[TiFilesystemFileProxy alloc] initWithFile:resultPath] autorelease];
+}
+
+-(NSNumber*)remoteBackup
+{
+    u_int8_t value;
+    const char* fullPath = [[self path] UTF8String];
+    
+    int result = getxattr(fullPath, backupAttr, &value, sizeof(value), 0, 0);
+    if (result == -1) {
+        // Doesn't matter what errno is set to; this means that we're backing up.
+        return [NSNumber numberWithBool:YES];
+    }
+
+    // A value of 0 means backup, so:
+    return [NSNumber numberWithBool:!value];
+}
+
+-(void)setRemoteBackup:(NSNumber *)remoteBackup
+{
+    // Value of 1 means nobackup
+    u_int8_t value = ![TiUtils boolValue:remoteBackup def:YES];
+    const char* fullPath = [[self path] UTF8String];
+    
+    int result = setxattr(fullPath, backupAttr, &value, sizeof(value), 0, 0);
+    if (result != 0) {
+        // Throw an exception with the errno
+        char* errmsg = strerror(errno);
+        [self throwException:@"Error setting remote backup flag:" 
+                   subreason:[NSString stringWithUTF8String:errmsg] 
+                    location:CODELOCATION];
+        return;
+    }
 }
 
 @end
