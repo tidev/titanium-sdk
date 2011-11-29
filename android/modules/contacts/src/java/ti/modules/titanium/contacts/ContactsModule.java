@@ -95,6 +95,11 @@ public class ContactsModule extends KrollModule
 	@Kroll.method
 	public void showContacts(@Kroll.argument(optional=true) KrollDict d)
 	{
+		if (TiApplication.getInstance() == null) {
+			Log.e(LCAT, "Could not showContacts, application is null");
+			return;
+		}
+		
 		Activity launchingActivity = TiApplication.getInstance().getCurrentActivity();
 		if (launchingActivity == null) {
 			Log.e(LCAT, "Could not showContacts, current activity is null.");

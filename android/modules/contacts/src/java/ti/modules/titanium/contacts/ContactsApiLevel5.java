@@ -139,7 +139,12 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			return null;
 		}*/
 		
-		Activity activity = getActivity();
+		if (TiApplication.getInstance() == null) {
+			Log.e(LCAT, "Could not getPeople, application is null");
+			return null;
+		}
+		
+		Activity activity = TiApplication.getInstance().getRootOrCurrentActivity();
 		if (activity == null) {
 			Log.e(LCAT, "Could not getPeople, activity is null");
 			return null;
@@ -202,7 +207,12 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 		*/
 		
-		Activity activity = getActivity();
+		if (TiApplication.getInstance() == null) {
+			Log.e(LCAT, "Could not getPersonById, application is null");
+			return null;
+		}
+		
+		Activity activity = TiApplication.getInstance().getRootOrCurrentActivity();
 		if (activity == null) {
 			Log.e(LCAT, "Could not getPersonById, activity is null");
 			return null;
@@ -287,14 +297,4 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 		return bm;
 	}
-	
-	private Activity getActivity()
-	{
-		Activity activity = TiApplication.getInstance().getRootActivity();
-		if (activity == null) {
-			activity = TiApplication.getInstance().getCurrentActivity();
-		}
-		return activity;
-	}
-
 }
