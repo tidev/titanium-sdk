@@ -4,38 +4,50 @@
 	
 	var _lastOrient = null;
 	
-	window.addEventListener("orientationchange", function(event) {
-		var orient = Ti.UI.UNKNOWN;
-		switch(window.orientation) {
-			case 0:
-				orient = Ti.UI.PORTRAIT;
-				break;
+	var _orientation = Ti.UI.UNKNOWN;
+	Object.defineProperty(api, 'orientation', {
+		get: function(){return _orientation;},
+		set: function(val){return _orientation = val;}
+	});
+
+	function getWindowOrientation() {
+		_orientation = Ti.UI.PORTRAIT;
+		switch (window.orientation) {
 			case 90:
-				orient = Ti.UI.LANDSCAPE_LEFT;
+				_orientation = Ti.UI.LANDSCAPE_LEFT;
 				break;
 			case -90:
-				orient = Ti.UI.LANDSCAPE_RIGHT;
+				_orientation = Ti.UI.LANDSCAPE_RIGHT;
 				break;
 			case 180:
-				orient = Ti.UI.UPSIDE_PORTRAIT;
+				_orientation = Ti.UI.UPSIDE_PORTRAIT;
 				break;
 		}
-		if (_lastOrient != orient) {
-			_lastOrient = orient;
+		return _orientation;
+	}
+	getWindowOrientation();
+
+	window.addEventListener("orientationchange", function(event) {
+		getWindowOrientation();
+		if (_lastOrient != _orientation) {
+			_lastOrient = _orientation;
 			api.fireEvent('orientationchange', {
-				orientation: orient,
+				orientation: _orientation,
 				source: event.source,
 				type: 'orientationchange'
 			})
 		}
 	}, false);
+
 	window.addEventListener("deviceorientation", function(event) {
-		var orient = null, _deltaOrient = 5, _deltaTop = 170;
-		var angles = {
-			alpha: event.alpha || event.x,
-			beta: event.beta || event.y,
-			gamma: event.gamma || event.z
-		};
+		var orient = null,
+			_deltaOrient = 5,
+			_deltaTop = 170,
+			angles = {
+				alpha: event.alpha || event.x,
+				beta: event.beta || event.y,
+				gamma: event.gamma || event.z
+			};
 		if (
 			Math.abs(angles.beta) < _deltaOrient &&
 			Math.abs(angles.gamma) > _deltaTop
@@ -64,10 +76,10 @@
 			});
 		}
     }, false);
-	
-	var _tLastShake = new Date(), _lastAccel = {}; 
-	// need some delta for coordinates changed
-	var _delta = 10;
+
+	var _tLastShake = new Date(),
+		_lastAccel = {},
+		_delta = 10; // need some delta for coordinates changed
 	window.addEventListener("devicemotion", function(event) {
 		var e = event.acceleration || event.accelerationIncludingGravity,
 			accel = e && {
