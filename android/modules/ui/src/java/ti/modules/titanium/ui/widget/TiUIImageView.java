@@ -367,7 +367,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 						e.printStackTrace();
 					}
 					catch (NullPointerException n) {
-						Log.w(LCAT,  "NullPointerException");
+						Log.w(LCAT, "NullPointerException");
 					}
 					repeatIndex++;
 				}
