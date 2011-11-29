@@ -21,7 +21,7 @@ var movieLabel = Titanium.UI.createLabel({
 	width:'auto',
 	height:35,
 	color:'white',
-	font:{fontSize:24,fontFamily:'Helvetica Neue'}
+	font:{fontSize:12,fontFamily:'Helvetica Neue'}
 });
 
 // add label to view
@@ -31,6 +31,10 @@ activeMovie.add(movieLabel);
 movieLabel.addEventListener('click',function()
 {
 	movieLabel.text = "You clicked the video label. Sweet!";
+	movieLabel.text = "mediaControlStyle = " + activeMovie.mediaControlStyle;
+	if (Titanium.Platform.name == 'iPhone OS') {
+		movieLabel.text = movieLabel.text + " movieControlStyle = " + activeMovie.movieControlStyle;
+	}
 });
 
 activeMovie.addEventListener('load', function()
