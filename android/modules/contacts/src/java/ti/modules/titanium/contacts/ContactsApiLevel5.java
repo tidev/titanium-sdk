@@ -138,6 +138,13 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			Log.d(LCAT , "Could not getPeople, context is GC'd");
 			return null;
 		}*/
+		
+		Activity activity = getActivity();
+		if (activity == null) {
+			Log.e(LCAT, "Could not getPeople, activity is null");
+			return null;
+		}
+		
 		LinkedHashMap<Long, CommonContactsApi.LightPerson> persons = new LinkedHashMap<Long, LightPerson>();
 		
 		String condition = "mimetype IN " + INConditionForKinds +
@@ -147,11 +154,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			condition += " AND " + additionalCondition;
 		}
 		
-		Activity rootActivity = TiApplication.getInstance().getRootActivity();
-		if (rootActivity == null) {
-			rootActivity = TiApplication.getInstance().getCurrentActivity();
-		}
-		Cursor cursor = rootActivity.managedQuery(
+		Cursor cursor = activity.managedQuery(
 				DataUri, 
 				DATA_PROJECTION, 
 				condition, 
@@ -199,14 +202,16 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 		*/
 		
-		CommonContactsApi.LightPerson person = null;
-
-		Activity rootActivity = TiApplication.getInstance().getRootActivity();
-		if (rootActivity == null) {
-			rootActivity = TiApplication.getInstance().getCurrentActivity();
+		Activity activity = getActivity();
+		if (activity == null) {
+			Log.e(LCAT, "Could not getPersonById, activity is null");
+			return null;
 		}
+		
+		CommonContactsApi.LightPerson person = null;
+		
 		// Basic person data.
-		Cursor cursor = rootActivity.managedQuery(
+		Cursor cursor = activity.managedQuery(
 				ContentUris.withAppendedId(ContactsUri, id),
 				PEOPLE_PROJECTION, null, null, null);
 		
@@ -225,7 +230,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		String condition = "mimetype IN " + INConditionForKinds +
 			" AND contact_id = ?";
 		
-		cursor = rootActivity.managedQuery(
+		cursor = activity.managedQuery(
 				DataUri, 
 				DATA_PROJECTION, 
 				condition, 
@@ -257,6 +262,11 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 		*/
 		
+		if (TiApplication.getInstance() == null) {
+			Log.e(LCAT, "Could not getInternalContactImage, application is null");
+			return null;
+		}
+		
 		Uri uri = ContentUris.withAppendedId(ContactsUri, id);
 		ContentResolver cr = TiApplication.getInstance().getContentResolver();
 		InputStream stream = null;
@@ -276,6 +286,15 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			Log.d(LCAT, "Unable to close stream from openContactPhotoInputStream: " + e.getMessage(), e);
 		}
 		return bm;
+	}
+	
+	private Activity getActivity()
+	{
+		Activity activity = TiApplication.getInstance().getRootActivity();
+		if (activity == null) {
+			activity = TiApplication.getInstance().getCurrentActivity();
+		}
+		return activity;
 	}
 
 }
