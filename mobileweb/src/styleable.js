@@ -1,3 +1,4 @@
+var spinningAngle = 0;
 (function(oParentNamespace) {
 	// Create object
 	oParentNamespace.Styleable = function(obj, args) {
@@ -451,34 +452,92 @@
 				}
 			}
 		});
-		obj.animate = function(val) {
-			var duration = null;
-			var props = [];
-			for (prop in val) {
-				if (prop == 'duration') {
-					duration = val[prop]
+		obj._setPrefixedCSSRule = function(rule,value) {
+			var style = obj.dom.style,
+				possibleRuleNames = ["Moz" + rule,"Webkit" + rule,"O" + rule,"ms" + rule,rule];
+			for (var i = 0; i < 5; i++) {
+				var prefixedRule = possibleRuleNames[i];
+				if (prefixedRule in style) {
+					style[prefixedRule] = value;
+				}
+			}
+		}
+		obj._getPrefixedCSSRuleValue = function(rule) {
+			var style = obj.dom.style,
+				possibleRuleNames = ["Moz" + rule,"Webkit" + rule,"O" + rule,"ms" + rule,rule];
+			for (var i = 0; i < 5; i++) {
+				var prefixedRule = possibleRuleNames[i];
+				if (prefixedRule in style) {
+					return style[prefixedRule];
+				}
+			}
+		}
+		obj.animate = function(animation,callback) {
+			
+			// Set default values
+			animation.duration = (animation.duration ? animation.duration : 0);
+			animation.delay = (animation.delay ? animation.delay : 0);
+			
+			var _curve = "ease";
+			switch(animation.curve) {
+				case Ti.UI.ANIMATION_CURVE_LINEAR: _curve = "linear"; break;
+				case Ti.UI.ANIMATION_CURVE_EASE_IN: _curve = "ease-in"; break;
+				case Ti.UI.ANIMATION_CURVE_EASE_OUT: _curve = "ease-out"; break;
+				case Ti.UI.ANIMATION_CURVE_EASE_IN_OUT: _curve = "ease-in-out"; break;
+			}
+			
+			// Create the transition, must be set before setting the other properties
+			var transitionValue = "all " + animation.duration + "ms " + _curve;
+			animation.delay && (transitionValue += " " + animation.delay + "ms");
+			obj._setPrefixedCSSRule("Transition", transitionValue);
+			
+			// Set the color and opacity properties
+			var _style = obj.dom.style;
+			animation.backgroundColor && (_style.backgroundColor = animation.backgroundColor);
+			animation.color && (_style.color = animation.color);
+			(animation.opaque === true || animation.visible === true) && (_style.opacity = 1.0);
+			(animation.opaque === false || animation.visible === false) && (_style.opacity = 0.0);
+			animation.opacity && (_style.opacity = animation.opacity);
+			
+			// Set the position and size properties
+			animation.center && (_style.center = animation.center);
+			animation.top && (_style.top = animation.top);
+			animation.bottom && (_style.bottom = animation.bottom);
+			animation.left && (_style.left = animation.left);
+			animation.right && (_style.right = animation.right);
+			animation.height && (_style.height = animation.height);
+			animation.width && (_style.width = animation.width);
+			
+			// Set the z-order
+			animation.zIndex && (_style.zIndex = animation.zIndex);
+			
+			// Set the transform properties
+			var transform = "";
+			if (animation.rotation) {
+				if(obj._currentRotation) {
+					obj._currentRotation += animation.rotation;
 				} else {
-					props.push(prop);
+					obj._currentRotation = animation.rotation;
 				}
+				transform += "rotate(" + obj._currentRotation + "deg) ";
 			}
-			if ('Firefox' == Titanium.Platform.name) {
-				duration = duration || 0;
-				var sProperty = '';
-				for (var iCounter=0; iCounter < props.length; iCounter++) {
-					sProperty += sProperty ? ', ' : '';
-					sProperty += props[iCounter] + ' ' + duration + 'ms ease 0s';
+			if (animation.transform) {
+				if (obj._currentTransform) {
+					obj._currentTransform = obj._currentTransform.multiply(animation.transform);
+				} else {
+					obj._currentTransform = animation.transform;
 				}
-				obj.dom.style.MozTransition= sProperty;
-			} else {
-				obj.dom.style['-webkit-transition-property'] = props;
-				if (duration != null) {
-					obj.dom.style['-webkit-transition-duration'] = duration;
-				}
+				transform += obj._currentTransform._toCSS();
 			}
-			for (prop in val) {
-				if (prop != 'duration') {
-					obj.dom.style[prop] = val[prop];
-				}
+			obj._setPrefixedCSSRule("Transform",transform);
+			
+			if(callback) {
+				// Note: no IE9 support for transitions, so instead we just set a timer that matches the duration so things don't break
+				setTimeout(function(){
+					// Clear the transform so future modifications in these areas are not animated
+					obj._setPrefixedCSSRule("Transition", "");
+					callback();
+				},animation.duration + animation.delay + 1);
 			}
 		};
 		

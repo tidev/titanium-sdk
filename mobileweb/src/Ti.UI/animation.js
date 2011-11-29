@@ -1,8 +1,5 @@
 Ti._5.createClass('Titanium.UI.Animation', function(args){
 	var obj = this;
-	// Interfaces
-	Ti._5.DOMView(this, 'animation', args, 'Animation');
-	Ti._5.Positionable(this, args);
 
 	// Properties
 	var _autoreverse = null;
@@ -70,6 +67,12 @@ Ti._5.createClass('Titanium.UI.Animation', function(args){
 		get: function(){return _transition;},
 		set: function(val){return _transition = val;}
 	});
+	
+	var _rotation = null;
+	Object.defineProperty(this, 'rotation', {
+		get: function(){return _rotation;},
+		set: function(val){return _rotation = val;}
+	});
 
 	var _visible = null;
 	Object.defineProperty(this, 'visible', {
@@ -82,14 +85,47 @@ Ti._5.createClass('Titanium.UI.Animation', function(args){
 		get: function(){return _zIndex;},
 		set: function(val){return _zIndex = val;}
 	});
-
-
-	// Events
-	this.addEventListener('complete', function(){
-		console.debug('Event "complete" is not implemented yet.');
+	
+	var _top = null;
+	Object.defineProperty(obj, 'top', {
+		get: function(){return _top;},
+		set: function(val){return _top = val;}
 	});
-	this.addEventListener('start', function(){
-		console.debug('Event "start" is not implemented yet.');
+
+	var _bottom;
+	Object.defineProperty(obj, 'bottom', {
+		get: function(){return _bottom;},
+		set: function(val){return _bottom = val;}
+	});
+
+	var _left;
+	Object.defineProperty(obj, 'left', {
+		get: function(){return _left;},
+		set: function(val){return _left = val;}
+	});		
+
+	var _right;
+	Object.defineProperty(obj, 'right', {
+		get: function(){return _right;},
+		set: function(val){return _right = val;}
+	});	
+	
+	var _width;
+	Object.defineProperty(obj, 'width', {
+		get: function(){return _width;},
+		set: function(val){return _width = val;}
+	});	
+	
+	var _height;
+	Object.defineProperty(obj, 'height', {
+		get: function(){return _height;},
+		set: function(val){return _height = val;}
+	});
+
+	var _center, isAdded = false;
+	Object.defineProperty(obj, 'center', {
+		get: function(){return _center;},
+		set: function(val){return _center = val;}
 	});
 
 	Ti._5.presetUserDefinedElements(this, args);
