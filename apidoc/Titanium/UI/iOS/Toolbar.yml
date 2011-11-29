@@ -6,12 +6,13 @@ description: |
     text fields and labels.
 
     To provide spacing between items in the toolbar, you can use the special iOS system
-    button types, FIXED_SPACE and FLEXIBLE_SPACE.
+    button types, [FIXED_SPACE](Titanium.UI.iPhone.SystemButton.FIXED_SPACE) and 
+    [FLEXIBLE_SPACE](Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE).
     
     Note that toolbars are positioned like other views (using the `top` and `bottom properties, 
     for example), but the iOS Human Interface Guidelines have specific requirements for
     placing toolbars: on iPhone, a toolbar should be at the bottom 
-    of the window. On the iPad, a toolbar can appear at the top or bottom of a window.
+    of the window. On the iPad, a toolbar should appear at the top or bottom of a window.
 
     Use the <Titanium.UI.iOS.createToolbar> method to create a toolbar.
 extends: Titanium.UI.View
@@ -39,8 +40,36 @@ properties:
 examples: 
   - title: Simple Toolbar
     example: |
-        The following code snippet shows a simple toolbar, placed at the bottom of the
-        window.
+        The following code snippet creates a simple toolbar, placed at the bottom of the
+        window. 
+        
+        Note the use of the flexible space for positioning the toolbar buttons -- the 
+        `FLEXIBLE_SPACE` button doesn't appear as a button, but a variable space between the
+        controls on either side of it. Available space in the toolbar is divided between 
+        all of the flexible space buttons in the toolbar. 
 
+            var send = Titanium.UI.createButton({
+                title: 'Send',
+                style: Titanium.UI.iPhone.SystemButtonStyle.DONE,
+            });
+            
+            var camera = Titanium.UI.createButton({
+                systemButton: Titanium.UI.iPhone.SystemButton.CAMERA,
+            });
+            
+            var cancel = Titanium.UI.createButton({
+                systemButton: Titanium.UI.iPhone.SystemButton.CANCEL
+            });
 
+            flexSpace = Titanium.UI.createButton({
+                systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+            });
+            
+            var toolbar = Titanium.UI.createToolbar({
+                items:[send, flexSpace, camera, flexSpace, cancel],
+                bottom:0,
+                borderTop:true,
+                borderBottom:false
+            }); 
+            win.add(toolbar);
 
