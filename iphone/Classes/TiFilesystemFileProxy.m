@@ -451,7 +451,7 @@ FILENOOP(setHidden:(id)x);
 -(NSNumber*)remoteBackup
 {
     u_int8_t value;
-    const char* fullPath = [[self path] UTF8String];
+    const char* fullPath = [[self path] fileSystemRepresentation];
     
     int result = getxattr(fullPath, backupAttr, &value, sizeof(value), 0, 0);
     if (result == -1) {
@@ -467,7 +467,7 @@ FILENOOP(setHidden:(id)x);
 {
     // Value of 1 means nobackup
     u_int8_t value = ![TiUtils boolValue:remoteBackup def:YES];
-    const char* fullPath = [[self path] UTF8String];
+    const char* fullPath = [[self path] fileSystemRepresentation];
     
     int result = setxattr(fullPath, backupAttr, &value, sizeof(value), 0, 0);
     if (result != 0) {
