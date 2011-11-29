@@ -50,7 +50,6 @@ public class TextAreaProxy extends TiViewProxy
 	{
 		super.handleCreationArgs(createdInModule, args);
 
-		setProperty(TiC.PROPERTY_VALUE, "");
 	}
 
 	@Override

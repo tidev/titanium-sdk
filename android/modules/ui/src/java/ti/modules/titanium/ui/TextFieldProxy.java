@@ -49,7 +49,6 @@ public class TextFieldProxy extends TiViewProxy
 	public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
 		super.handleCreationArgs(createdInModule, args);
 
-		setProperty(TiC.PROPERTY_VALUE, "");
 	}
 
 	@Override
