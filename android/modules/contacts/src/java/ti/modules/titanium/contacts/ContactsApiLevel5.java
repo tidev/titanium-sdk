@@ -147,7 +147,11 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			condition += " AND " + additionalCondition;
 		}
 		
-		Cursor cursor = TiApplication.getInstance().getCurrentActivity().managedQuery(
+		Activity rootActivity = TiApplication.getInstance().getRootActivity();
+		if (rootActivity == null) {
+			rootActivity = TiApplication.getInstance().getCurrentActivity();
+		}
+		Cursor cursor = rootActivity.managedQuery(
 				DataUri, 
 				DATA_PROJECTION, 
 				condition, 
@@ -197,12 +201,12 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		
 		CommonContactsApi.LightPerson person = null;
 
-		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-		if (currentActivity == null) {
-			currentActivity = TiApplication.getInstance().getRootActivity();
+		Activity rootActivity = TiApplication.getInstance().getRootActivity();
+		if (rootActivity == null) {
+			rootActivity = TiApplication.getInstance().getCurrentActivity();
 		}
 		// Basic person data.
-		Cursor cursor = currentActivity.managedQuery(
+		Cursor cursor = rootActivity.managedQuery(
 				ContentUris.withAppendedId(ContactsUri, id),
 				PEOPLE_PROJECTION, null, null, null);
 		
@@ -221,7 +225,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		String condition = "mimetype IN " + INConditionForKinds +
 			" AND contact_id = ?";
 		
-		cursor = currentActivity.managedQuery(
+		cursor = rootActivity.managedQuery(
 				DataUri, 
 				DATA_PROJECTION, 
 				condition, 
@@ -252,8 +256,9 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			return null;
 		}
 		*/
+		
 		Uri uri = ContentUris.withAppendedId(ContactsUri, id);
-		ContentResolver cr = TiApplication.getInstance().getCurrentActivity().getContentResolver();
+		ContentResolver cr = TiApplication.getInstance().getContentResolver();
 		InputStream stream = null;
 		try {
 			stream = (InputStream) openContactPhotoInputStream.invoke(null, cr, uri);
