@@ -1,7 +1,7 @@
 Ti._5.createClass('Titanium.UI.Button', function(args){
 	var obj = this;
 	// Interfaces
-	Ti._5.DOMView(this, 'div', args, 'Button');
+	Ti._5.DOMView(this, 'button', args, 'Button');
 	Ti._5.Clickable(this);
 	Ti._5.Touchable(this, args);
 	Ti._5.Styleable(this, args);
@@ -192,5 +192,5 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 		"backgroundDisabledColor", "enabled"
 	], args);
 	
-	Ti._5.presetUserDefinedElements(this, args);
+	Ti._5.presetUserArguments(this, args);
 });

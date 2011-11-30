@@ -263,6 +263,18 @@ function($window, args){
 			}
 		}
 	};
+	
+	Ti._5.presetUserArguments = function(obj,args) {
+		if(!args){
+			return;
+		}
+
+		for(prop in args){
+			if (prop in obj) {
+				obj[prop] = args[prop];
+			}
+		}
+	}
 
 	Ti._5.createClass = function(className, value){
 		var classes = className.split(".");
