@@ -295,6 +295,19 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 
 		return currentActivity.get();
 	}
+	
+	public Activity getRootOrCurrentActivity()
+	{
+		if (rootActivity != null) {
+			return (Activity)(rootActivity.get());
+		}
+		
+		if (currentActivity != null) {
+			return currentActivity.get();
+		}
+		
+		return null;
+	}
 
 	public void setCurrentActivity(Activity callingActivity, Activity newValue)
 	{
