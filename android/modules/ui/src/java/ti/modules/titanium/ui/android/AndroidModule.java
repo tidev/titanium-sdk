@@ -8,12 +8,14 @@ package ti.modules.titanium.ui.android;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.webview.TiUIWebView;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.text.util.Linkify;
@@ -96,12 +98,17 @@ public class AndroidModule extends KrollModule
 		}
 	}
 
-	// TODO grab the activity off the invocation?
+	// TODO Need to be revisited to hide keyboard based on specific view
 	@Kroll.method
 	public void hideSoftKeyboard()
 	{
-		if (activity != null) {
+		Activity currActivity = TiApplication.getInstance().getCurrentActivity();
+		if (currActivity!= null) {
+			TiUIHelper.showSoftKeyboard(currActivity.getWindow().getDecorView(), false);
+		} else if (activity != null) {
 			TiUIHelper.showSoftKeyboard(getActivity().getWindow().getDecorView(), false);
+		} else {
+			Log.w(LCAT, "Unable to hide soft keyboard. Activity is null");
 		}
 	}
 }
