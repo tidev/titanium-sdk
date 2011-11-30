@@ -1,6 +1,6 @@
 ---
 name: Titanium.UI.Window
-summary: The Window is an empty drawing surface or container. The Window is created by the method <Titanium.UI.createWindow>. Unlike [Views](Titanium.UI.View-object), Windows can be opened and closed and can have special display properties such as `fullscreen` or `modal`.
+summary: The Window is an empty drawing surface or container. 
 extends: Titanium.UI.View
 since: "0.9"
 
@@ -309,22 +309,46 @@ properties:
     since: "1.8.0"
 
 description: |
-    ### Sub-contexts
+    The Window is created by the method <Titanium.UI.createWindow>. Unlike [Views](Titanium.UI.View-object), Windows can be opened and closed and can have special display properties such as `fullscreen` or `modal`.
+    <a id="contexts"/>
+    #### Sub-contexts
     
-    Windows can be loaded from another Javascript file by specifying the property `url` and reference a file relative to your application `Resources` folder.  It's important to note that Titanium will refuse to load Javascript files from a remote URL. Loading remote Javascript from a URL and providing it with the full capabilities of the Titanium API would be very dangerous. 
+    Windows can be loaded from another JavaScript file by specifying the property `url`,
+    referencing a file relative to your application `Resources` folder.  It's important 
+    to note that Titanium will refuse to load JavaScript files from a remote URL. Loading 
+    remote Javascript from a URL and providing it with the full capabilities of the Titanium 
+    API would be very dangerous. 
     
-    When you Window is loaded from a separate Javascript file, the code will be executed in a separate Javascript context (called a "sub-context") than your `app.js` global context.  It will also execute in its own separate thread.  
+    When you Window is loaded from a separate JavaScript file, the code will be executed in 
+    a separate Javascript context (called a "sub-context") than your `app.js` global context.  
+    It will also execute in its own separate thread.  
     
-    The special property <Titanium.UI.currentWindow> is available inside a sub-context that points to the Javascript instance by reference in the global context.  
+    The special property <Titanium.UI.currentWindow> is available inside a sub-context that 
+    points to the Javascript instance by reference in the global context.  
     
     
-    ### Passing Data
+    <a id="passingdata"/>
+    #### Passing Data Between Contexts
     
-    By default, sub-context variables cannot access Javascript references in the global context.  However, the global context can allow its sub-contexts the ability to have access to properties in the global context by reference assignment.  An example best illustrates how to do this.
+    By default, sub-context variables cannot access Javascript references in the global context. 
+    There are two ways to pass data between the global context and the sub-context:
+
+    - Shared references
+    - Events
+
+    **Note that in both cases, you cannot pass functions between contexts, only serializable data.**
+    *Serializable data* includes any JavaScript primitive or simple object composed 
+    of JavaScript primitives.
+
+    ##### Passing Data with Shared References
+
+    You can allow a sub-context access to 
+    properties in the global context by reference assignment.  An example best illustrates 
+    how to do this.
     
-    In `app.js`, you could define a property.
+    In `app.js`, you could define a property:
     
-        var a = "Hi world!";
+        var message = "Hi world!";
     
     Now, you can create a new Window - let's call it `foo.js` - in your `app.js`.
     
@@ -332,20 +356,25 @@ description: |
         	url:'foo.js'
         });
     
-    To _give_ your new window access to `a`, you would need to assign it to the 
-    new window reference `w`.
+    To _give_ your new window access to `message`, you would need to assign it to a
+    property on the new window reference, `w`.
     
-        w.a = a;
+        w.alertMessage = message;
     
-    Of course, you could give it a different name than their original name.  However, what name you give it in your `app.js` is how you will reference them in `foo.js`.  Now, let's look at the code for `foo.js`.
+    This creates a new `alertMessage` property on the new window that holds a reference to the 
+    `message` property in the global context.  Now, let's look at the code for `foo.js`.
     
-        alert(Titanium.UI.currentWindow.a);
+        alert(Titanium.UI.currentWindow.alertMessage);
     
-    In the above code, the `foo.js` will alert the value of the `a` property in the global context and return the result. 
+    In the above code, the `foo.js` will show an alert containing the text from the `message` 
+    property in the global context. 
     
-    ### Events
+    ##### Passing Data with Events
     
-    If you'd like to send events to a window from the global context and vice versa, you could use the built-in event mechanism.  For example, you could define a custom event called `foo`. The window could listen for this event and then respond with some action.  For example, in your sub-context you might define:
+    If you'd like to send events to a window from the global context and vice versa, you could 
+    use the built-in event mechanism.  For example, you could define a custom event called `foo`. 
+    The window could listen for this event and then respond with some action. For example, in 
+    your sub-context you might define:
     
         Titanium.UI.currentWindow.addEventListener('foo',function(e)
         {
@@ -362,11 +391,16 @@ description: |
     
     It's worth noting two important limitations of the example above:
     
-    * You must open the window before you can send events to it. You also may have to fire the event after a specified amount of time if you intend to immediately send data to the window.  This is because windows are opened asynchronously and on a separate thread than the caller thread.
-    * You can only send JSON-serializable data in a fireEvent.  If you attempt to send objects that have function references, they will be null.
+    * You must open the window before you can send events to it. You also may have to fire 
+      the event after a specified amount of time if you intend to immediately send data to 
+      the window. This is because windows are opened asynchronously and on a separate thread 
+      than the caller thread.
+
+    * You can only send JSON-serializable data in `fireEvent`. If you attempt to send objects 
+      that have function references, they will be null.
     
     
-    ### Animations
+    #### Animations
     
     Windows can be animated like any normal [View](Titanium.UI.View).  To transition between 2 windows, you can use the `transition` property on an animation.  For example, to flip right-to-left between two windows, you could do the following:
     
@@ -407,7 +441,7 @@ description: |
         	w.animate({transform:t2, duration:200});
         });
     
-    ### iPad Modal Windows
+    #### iPad Modal Windows
     
     For iPad, iPhone SDK 3.2 and Titanium 1.2 introduced several new ways of presenting modal windows.  
     
@@ -424,7 +458,7 @@ description: |
         	modalStyle: Ti.UI.iPhone.MODAL_PRESENTATION_FORMSHEET
         })
     
-    ### Android "root" Windows
+    #### Android "root" Windows
     
     In Android, you may wish to specify that a window which you create (such as the first window) should be considered the root window and that the application should exit when the back button is pressed from that window.  This is particularly useful if your application is not using a Tab Group and therefore the splash screen window is appearing whenever you press the back button from your lowest window on the stack.
     
