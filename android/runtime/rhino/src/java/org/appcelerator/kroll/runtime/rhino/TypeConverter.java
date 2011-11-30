@@ -128,13 +128,20 @@ public class TypeConverter
 		}
 		return Context.getCurrentContext().newArray(scope, jsArray);
 	}
+
 	
 	public static Scriptable javaStringArrayToJsArray(String[] value, Scriptable scope)
 	{
 		if (value == null) {
 			return null;
 		}
-		return Context.getCurrentContext().newArray(scope, value);
+
+		int length = value.length;
+		Object[] jsArray = new Object[length];
+		for (int i = 0; i < length; i++) {
+			jsArray[i] = value[i];
+		}
+		return Context.getCurrentContext().newArray(scope, jsArray);
 	}
 
 
