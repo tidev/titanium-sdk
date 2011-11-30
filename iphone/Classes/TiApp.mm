@@ -178,7 +178,6 @@ void MyUncaughtExceptionHandler(NSException *exception)
 //To load application Defaults 
 - (void) loadUserDefaults
 {
-	[[NSUserDefaults standardUserDefaults] setPersistentDomain:[NSDictionary dictionary] forName:[[NSBundle mainBundle] bundleIdentifier]];
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	NSDictionary *appDefaults = [[NSDictionary alloc] initWithDictionary:[ApplicationDefaults copyDefaults]];
 	if(appDefaults)
@@ -555,9 +554,13 @@ void MyUncaughtExceptionHandler(NSException *exception)
 -(void)hideModalController:(UIViewController*)modalController animated:(BOOL)animated
 {
 	UIViewController *navController = [modalController parentViewController];
-	if (navController==nil)
+
+	//	As of iOS 5, Apple is phasing out the modal concept in exchange for
+	//	'presenting', making all non-Ti modal view controllers claim to have
+	//	no parent view controller.
+	if (navController==nil && [modalController respondsToSelector:@selector(presentingViewController)])
 	{
-//		navController = [controller currentNavController];
+		navController = [modalController presentingViewController];
 	}
 	[controller windowClosed:modalController];
 	if (navController!=nil)

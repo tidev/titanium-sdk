@@ -1001,7 +1001,15 @@ static BOOL isiPhoneOS2;
 		}
 		[[self connectionInfo] setObject:[self requestID] forKey:@"request"];		
 		[[self connectionInfo] setObject:[self readStream] forKey:@"stream"];
-		CFReadStreamSetProperty((CFReadStreamRef)[self readStream],  kCFStreamPropertyHTTPAttemptPersistentConnection, kCFBooleanTrue);
+        
+        // SPT: This feature has a behavior change in iOS 5.0 - it turns out that the system likes to clean up these
+        // types of connections at different times now, or simply not persist them "appropriately" in some other fashion.
+        //
+        // Note that this could also be an ASI issue, due to how the persistent connection pool is managed... but because of how
+        // it's cleaned up with the start of each new request (possibly what introduces this problem in the first place), this
+        // "simple" fix should not be introducing any issues until we can replace ASI.
+        
+//		CFReadStreamSetProperty((CFReadStreamRef)[self readStream],  kCFStreamPropertyHTTPAttemptPersistentConnection, kCFBooleanTrue);
 		
 		#if DEBUG_PERSISTENT_CONNECTIONS
 		NSLog(@"Request #%@ will use connection #%hi",[self requestID],[[[self connectionInfo] objectForKey:@"id"] intValue]);
