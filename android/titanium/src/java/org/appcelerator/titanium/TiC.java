@@ -154,6 +154,7 @@ public class TiC
 	public static final String PROPERTY_COUNT = "count";
 	public static final String PROPERTY_COUNTRY = "country";
 	public static final String PROPERTY_COUNTRY_CODE = "country_code"; // TIMOB-4478
+	public static final String PROPERTY_CURRENT_PAGE = "currentPage";
 	public static final String PROPERTY_DATA = "data";
 	public static final String PROPERTY_DEFAULT_IMAGE = "defaultImage";
 	public static final String PROPERTY_DEFAULTS = "defaults";
@@ -287,6 +288,7 @@ public class TiC
 	public static final String PROPERTY_SELECTED_INDEX = "selectedIndex";
 	public static final String PROPERTY_SELECTION_INDICATOR = "selectionIndicator";
 	public static final String PROPERTY_SEPARATOR_COLOR = "separatorColor";
+	public static final String PROPERTY_SHOW_PAGING_CONTROL = "showPagingControl";
 	public static final String PROPERTY_SIZE = "size";
 	public static final String PROPERTY_SOFT_KEYBOARD_ON_FOCUS = "softKeyboardOnFocus";
 	public static final String PROPERTY_SOUND = "sound";
@@ -332,6 +334,7 @@ public class TiC
 	public static final String PROPERTY_VISIBLE = "visible";
 	public static final String PROPERTY_VISIBLE_ITEMS = "visibleItems";
 	public static final String PROPERTY_VIEW = "view";
+	public static final String PROPERTY_VIEWS = "views";
 	public static final String PROPERTY_WHEN = "when";
 	public static final String PROPERTY_WIDTH = "width";
 	public static final String PROPERTY_WINDOW = "window";

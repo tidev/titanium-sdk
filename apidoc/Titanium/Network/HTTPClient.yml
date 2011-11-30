@@ -123,3 +123,13 @@ properties:
   - name: validatesSecureCertificate
     summary: set this to control how SSL certification validation is performed on connection.  defaults to false if in simulator or device testing and true if release for distribution mode.
     type: Boolean
+  - name: tlsVersion
+    summary: Sets the TLS version to use for handshakes. 
+    description: If you experience handshake failures, set this value to a lower
+        version using the TLS constants in <Titanium.Network>. 'undefined', 'null', or
+        unsupported values use the default behavior for that iOS version.
+    default:  undefined. For iOS 4, this is effectively [TLS_VERSION_1_0](Titanium.Network.TLS_VERSION_1_0).
+        For iOS 5 and greater, this is [TLS_VERSION_1_2](Titanium.Network.TLS_VERSION_1_2).
+    type: Number
+    since: "1.8.0"
+    platforms: [iphone, ipad]
