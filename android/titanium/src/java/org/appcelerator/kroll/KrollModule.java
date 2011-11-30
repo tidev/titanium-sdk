@@ -6,6 +6,7 @@
  */
 package org.appcelerator.kroll;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.appcelerator.kroll.annotations.Kroll;
@@ -25,6 +26,19 @@ public class KrollModule extends KrollProxy
 
 	@Deprecated
 	protected TiContext tiContext;
+
+	protected static ArrayList<KrollModuleInfo> customModuleInfoList = new ArrayList<KrollModuleInfo>();
+
+
+	public static void addCustomModuleInfo(KrollModuleInfo customModuleInfo)
+	{
+		customModuleInfoList.add(customModuleInfo);
+	}
+
+	public static ArrayList<KrollModuleInfo> getCustomModuleInfoList()
+	{
+		return customModuleInfoList;
+	}
 
 	public KrollModule()
 	{

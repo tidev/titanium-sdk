@@ -5,23 +5,25 @@
  */
 package ${config['appid']};
 
-import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.kroll.runtime.rhino.KrollBindings;
-import org.appcelerator.kroll.KrollModule;
-import org.appcelerator.kroll.KrollModuleInfo;
-import org.appcelerator.kroll.KrollRuntime;
-
 % if runtime == "v8":
 import org.appcelerator.kroll.runtime.v8.V8Runtime;
 % else:
 import org.appcelerator.kroll.runtime.rhino.RhinoRuntime;
 % endif
 
+import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollModuleInfo;
+import org.appcelerator.kroll.KrollRuntime;
+import org.appcelerator.kroll.runtime.rhino.KrollBindings;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiRootActivity;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.util.Log;
+
 
 public final class ${config['classname']}Application extends TiApplication
 {
@@ -64,20 +66,19 @@ public final class ${config['classname']}Application extends TiApplication
 		${onAppCreate(module)} \
 		% endfor
 
-/*
 		% if len(custom_modules) > 0:
+		// Custom modules
 		KrollModuleInfo moduleInfo;
 		% endif
-*/
 
-		% for  module in custom_modules:
+		% for module in custom_modules:
 		${onAppCreate(module)} \
 
 		<% manifest = module['manifest'] %>
 		KrollBindings.addExternalBinding("${manifest.moduleid}", ${module['class_name']}Prototype.class);
 		${manifest.moduleid}.${manifest.name}GeneratedBindings.init();
 
-/*
+		<% manifest = module['manifest'] %>
 		moduleInfo = new KrollModuleInfo(
 			"${manifest.name}", "${manifest.moduleid}", "${manifest.guid}", "${manifest.version}",
 			"${manifest.description}", "${manifest.author}", "${manifest.license}",
@@ -87,9 +88,16 @@ public final class ${config['classname']}Application extends TiApplication
 		moduleInfo.setLicenseKey("${manifest.licensekey}");
 		% endif
 
-		KrollModule.addModuleInfo(moduleInfo);
-*/
-
+		KrollModule.addCustomModuleInfo(moduleInfo);
 		% endfor
+	}
+
+	@Override
+	public void verifyCustomModules(TiRootActivity rootActivity)
+	{
+		% if config['deploy_type'] != 'production':
+		org.appcelerator.titanium.TiVerify verify = new org.appcelerator.titanium.TiVerify(rootActivity, this);
+		verify.verify();
+		% endif
 	}
 }
