@@ -248,17 +248,15 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 	private void setImage(final Bitmap bitmap)
 	{
-		if (bitmap != null) {
-			if (!TiApplication.isUIThread()) {
-				TiMessenger.sendBlockingMainMessage(handler.obtainMessage(SET_IMAGE), bitmap);
-			} else {
-				TiImageView view = getView();
-				if (view != null) {
-					view.setImageBitmap(bitmap);
-				}
+		if (!TiApplication.isUIThread()) {
+			TiMessenger.sendBlockingMainMessage(handler.obtainMessage(SET_IMAGE), bitmap);
+		} else {
+			TiImageView view = getView();
+			if (view != null) {
+				view.setImageBitmap(bitmap);
 			}
-			imageViewProxy.onBitmapChanged(this, bitmap);
 		}
+		imageViewProxy.onBitmapChanged(this, bitmap);
 	}
 
 	private class BitmapWithIndex
