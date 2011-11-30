@@ -97,6 +97,17 @@ Module.prototype.require = function (request, context, useCache) {
 		return NativeModule.require(request);
 	}
 
+	// get external binding
+	var externalBinding = kroll.externalBinding(request);
+	if (externalBinding) {
+		var bindingKey = Object.keys(externalBinding)[0];
+		if (bindingKey) {
+			return externalBinding[bindingKey];
+		}
+
+		kroll.log(TAG, "unable to find the external module" + request);
+	}
+
 	var resolved = resolveFilename(request, this);
 	var id = resolved[0];
 	var filename = resolved[1];

@@ -53,7 +53,7 @@ import android.util.DisplayMetrics;
 /**
  * The main application entry point for all Titanium applications and services
  */
-public class TiApplication extends Application implements Handler.Callback, KrollApplication
+public abstract class TiApplication extends Application implements Handler.Callback, KrollApplication
 {
 	private static final String LCAT = "TiApplication";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -88,7 +88,6 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 	private boolean needsStartEvent;
 	private boolean needsEnrollEvent;
 	private String buildVersion = "", buildTimestamp = "", buildHash = "";
-	private HashMap<String, WeakReference<KrollModule>> modules;
 	private TiResponseCache responseCache;
 	private BroadcastReceiver externalStorageReceiver;
 
@@ -99,6 +98,7 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 	protected TiTempFileHelper tempFileHelper;
 	protected ITiAppInfo appInfo;
 	protected TiStylesheet stylesheet;
+	protected HashMap<String, WeakReference<KrollModule>> modules;
 
 	public CountDownLatch rootActivityLatch = new CountDownLatch(1);
 
@@ -648,5 +648,7 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 	{
 		TiActivityWindows.dispose();
 	}
+
+	public abstract void verifyCustomModules(TiRootActivity rootActivity);
 }
 
