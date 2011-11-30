@@ -115,6 +115,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		return null;
 	}
 
+	/*
+	 * This method exists so that it can be used in the situations (mainly custom modules) where a proxy
+	 * is being created with the old TiContext argument.
+	 */
 	public static KrollProxy createDeprecatedProxy(Class<? extends KrollProxy> proxyClass,
 		KrollObject object, Object[] creationArguments, String creationUrl)
 	{
