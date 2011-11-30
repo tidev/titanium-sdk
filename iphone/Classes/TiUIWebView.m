@@ -248,15 +248,10 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 
 -(id)url
 {
-	if (webview!=nil)
+	NSString * result =[[[webview request] URL] absoluteString];
+	if (result!=nil)
 	{
-		NSString * requestString =[[[webview request] URL] absoluteString];
-		if(requestString == nil)
-		{
-			return url;
-		}
-		return requestString;
-
+		return result;
 	}
 	return url;
 }
