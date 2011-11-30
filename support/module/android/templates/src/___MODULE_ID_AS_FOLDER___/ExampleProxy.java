@@ -16,22 +16,27 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
+import ti.modules.titanium.ui.ViewProxy;
+
+
 // This proxy can be created by calling ___MODULE_NAME_CAMEL___.createExample({message: "hello world"})
 @Kroll.proxy(creatableInModule=___MODULE_NAME_CAMEL___Module.class)
-public class ExampleProxy extends KrollProxy
+public class ExampleProxy extends ViewProxy
 {
 	// Standard Debugging variables
 	private static final String LCAT = "ExampleProxy";
 	private static final boolean DBG = TiConfig.LOGD;
 	
 	// Constructor
-	public ExampleProxy(TiContext tiContext) {
+	public ExampleProxy(TiContext tiContext)
+	{
 		super(tiContext);
 	}
 	
 	// Handle creation options
 	@Override
-	public void handleCreationDict(KrollDict options) {
+	public void handleCreationDict(KrollDict options)
+	{
 		super.handleCreationDict(options);
 		
 		if (options.containsKey("message")) {
@@ -41,7 +46,21 @@ public class ExampleProxy extends KrollProxy
 	
 	// Methods
 	@Kroll.method
-	public void printMessage(String message) {
+	public void printMessage(String message)
+	{
 		Log.d(LCAT, "printing message: " + message);
+	}
+
+
+	@Kroll.getProperty @Kroll.method
+	public String getMessage()
+	{
+        return "Hello World from my module";
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setMessage(String message)
+	{
+	    Log.d(LCAT, "Tried setting module message to: " + message);
 	}
 }

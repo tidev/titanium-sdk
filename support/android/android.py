@@ -212,6 +212,7 @@ class Android(object):
 			for module_class in module_bindings['modules'].keys():
 				module_proxy = module_bindings['proxies'][module_class]
 				module_id = module_proxy['proxyAttrs']['id']
+				module_proxy_class_name = module_proxy['proxyClassName']
 				module_onAppCreate = None
 				if 'onAppCreate' in module_proxy:
 					module_onAppCreate = module_proxy['onAppCreate']
@@ -220,6 +221,8 @@ class Android(object):
 				if module_id == module.manifest.moduleid:
 					print '[DEBUG] appending module: %s' % module_class
 					self.custom_modules.append({
+						'module_id': module_id,
+						'proxy_name': module_proxy_class_name,
 						'class_name': module_class,
 						'manifest': module.manifest,
 						'on_app_create': module_onAppCreate

@@ -6,6 +6,7 @@
 package ${config['appid']};
 
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.kroll.runtime.rhino.KrollBindings;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollModuleInfo;
 import org.appcelerator.kroll.KrollRuntime;
@@ -63,31 +64,20 @@ public final class ${config['classname']}Application extends TiApplication
 		${onAppCreate(module)} \
 		% endfor
 
-		% for module in custom_modules:
-		${onAppCreate(module)} \
-		% endfor
-	}
-
-	/*
-	@Override
-	protected void bootModules(TiContext context)
-	{
-		% for module in app_modules:
-		// ${module['api_name']} module
-		modules.add(new ${module['class_name']}(context));
-			% for child_module in module['external_child_modules']:
-		// ${module['api_name']}.${child_module['name']}
-		KrollModule.addExternalChildModule(${module['class_name']}.class, ${child_module['proxyClassName']}.class);
-			% endfor
-		% endfor
-
+/*
 		% if len(custom_modules) > 0:
-		// Custom modules
 		KrollModuleInfo moduleInfo;
 		% endif
+*/
 
-		% for module in custom_modules:
+		% for  module in custom_modules:
+		${onAppCreate(module)} \
+
 		<% manifest = module['manifest'] %>
+		KrollBindings.addExternalBinding("${manifest.moduleid}", ${module['class_name']}Prototype.class);
+		${manifest.moduleid}.${manifest.name}GeneratedBindings.init();
+
+/*
 		moduleInfo = new KrollModuleInfo(
 			"${manifest.name}", "${manifest.moduleid}", "${manifest.guid}", "${manifest.version}",
 			"${manifest.description}", "${manifest.author}", "${manifest.license}",
@@ -98,37 +88,8 @@ public final class ${config['classname']}Application extends TiApplication
 		% endif
 
 		KrollModule.addModuleInfo(moduleInfo);
+*/
+
 		% endfor
-
-		% if config['deploy_type'] != 'production':
-		org.appcelerator.titanium.TiVerify verify = new org.appcelerator.titanium.TiVerify(context.getActivity(), this);
-		verify.verify();
-		modules.add(new ti.modules.titanium.debug.DebugModule(context));
-		% endif
 	}
-
-	% if len(custom_modules) > 0:
-	@Override
-	public KrollModule requireModule(TiContext context, KrollModuleInfo info)
-	{
-		KrollModule module = super.requireModule(context, info);
-		if (module != null) {
-			return module;
-		}
-
-		String id = info.getId();
-		% for module in custom_modules:
-		if ("${module['manifest'].moduleid}".equals(id)) {
-			module = new ${module['class_name']}(context);
-		}
-		% endfor
-
-		if (module != null) {
-			modules.add(module);
-			return module;
-		}
-		return null;
-	}
-	% endif
-	*/
 }
