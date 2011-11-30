@@ -17,6 +17,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
@@ -26,6 +27,7 @@ import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -252,28 +254,27 @@ public class FacebookModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void dialog(String action, KrollDict params, KrollFunction callback)
+	public void dialog(final String action, final KrollDict params, final KrollFunction callback)
 	{
 		if (facebook == null) {
 			Log.w(LCAT, "dialog called without Facebook being instantiated.  Have you set appid?");
 			return;
 		}
 
-		final Activity activity = TiApplication.getInstance().getCurrentActivity();
-		if (activity == null) {
-			// There should always be a current activity.
-			throw new IllegalStateException("TiApplication getCurrentActivity() is null");
-		}
-
-		final String fAction = action;
-		final Bundle fBundle = Utils.mapToBundle(params);
-		final KrollFunction fCallback = callback;
-		activity.runOnUiThread(new Runnable()
-		{
+		TiUIHelper.waitForCurrentActivity(new CurrentActivityListener() {
 			@Override
-			public void run()
+			public void onCurrentActivityReady(Activity activity)
 			{
-				facebook.dialog(activity, fAction, fBundle, new TiDialogListener(FacebookModule.this, fCallback, fAction));
+				final Activity fActivity = activity;
+				fActivity.runOnUiThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						facebook.dialog(fActivity, action, Utils.mapToBundle(params),
+							new TiDialogListener(FacebookModule.this, callback, action));
+					}
+				});
 			}
 		});
 	}
