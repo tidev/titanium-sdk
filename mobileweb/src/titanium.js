@@ -270,9 +270,7 @@ function($window, args){
 		}
 
 		for(prop in args){
-			if (prop in obj) {
-				obj[prop] = args[prop];
-			}
+			obj[prop] = args[prop];
 		}
 	}
 
