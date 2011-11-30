@@ -81,6 +81,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private TiDrawableReference defaultImageSource;
 	private TiDownloadListener downloadListener;
 	private int decodeRetries = 0;
+	private Object releasedLock = new Object();
 
 	private class BgImageLoader extends TiBackgroundImageLoadTask
 	{
@@ -360,15 +361,17 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 						break topLoop;
 					}
 					try {
-						Bitmap b = imageSources.get(j).getBitmap();
-						bitmapQueue.offer(new BitmapWithIndex(b, j), (int) getDuration() * imageSources.size(),
-								TimeUnit.MILLISECONDS);
+						synchronized(lock) {
+							if (imageSources != null) {
+							Bitmap b = imageSources.get(j).getBitmap();
+							bitmapQueue.offer(new BitmapWithIndex(b, j), (int) getDuration() * imageSources.size(), TimeUnit.MILLISECONDS);
+							}
+							else {
+								break;
+							}
+						}
 					} catch (InterruptedException e) {
 						Log.w(LCAT, "Interrupted while adding Bitmap into bitmapQueue");
-					}
-					catch (NullPointerException n) {
-						Log.w(LCAT, "NullPointerException");
-						break;
 					}
 					repeatIndex++;
 				}
@@ -905,7 +908,9 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		if (imageSources != null) {
 			imageSources.clear();
 		}
-		imageSources = null;
+		synchronized(lock) {
+			imageSources = null;
+		}
 		defaultImageSource = null;
 	}
 }
