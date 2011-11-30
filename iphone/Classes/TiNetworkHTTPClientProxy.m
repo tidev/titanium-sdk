@@ -537,6 +537,9 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	
 	// allow self-signed certs (NO) or required valid SSL (YES)    
 	[request setValidatesSecureCertificate:[validatesSecureCertificate boolValue]];
+    
+    // set the TLS version if needed
+    [request setTlsVersion:[TiUtils intValue:[self valueForUndefinedKey:@"tlsVersion"]]];
 	
 	if (async)
 	{
