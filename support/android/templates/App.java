@@ -43,6 +43,10 @@ public final class ${config['classname']}Application extends TiApplication
 		KrollRuntime.init(this, new RhinoRuntime());
 		% endif
 
+		% if config['deploy_type'] != 'production':
+			registerModuleInstance("debug", new ti.modules.titanium.debug.DebugModule());
+		% endif
+
 		stylesheet = new ApplicationStylesheet();
 		postOnCreate();
 
