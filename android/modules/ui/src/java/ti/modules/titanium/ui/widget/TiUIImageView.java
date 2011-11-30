@@ -361,10 +361,10 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 						break topLoop;
 					}
 					try {
-						synchronized(lock) {
+						synchronized(releasedLock) {
 							if (imageSources != null) {
-							Bitmap b = imageSources.get(j).getBitmap();
-							bitmapQueue.offer(new BitmapWithIndex(b, j), (int) getDuration() * imageSources.size(), TimeUnit.MILLISECONDS);
+								Bitmap b = imageSources.get(j).getBitmap();
+								bitmapQueue.offer(new BitmapWithIndex(b, j), (int) getDuration() * imageSources.size(), TimeUnit.MILLISECONDS);
 							}
 							else {
 								break;
@@ -908,7 +908,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		if (imageSources != null) {
 			imageSources.clear();
 		}
-		synchronized(lock) {
+		synchronized(releasedLock) {
 			imageSources = null;
 		}
 		defaultImageSource = null;
