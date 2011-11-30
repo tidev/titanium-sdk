@@ -16,6 +16,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.content.Intent;
@@ -40,6 +41,11 @@ public class IntentProxy extends KrollProxy
 
 	protected Intent intent;
 	protected int type = TYPE_ACTIVITY;
+
+	public IntentProxy(TiContext tiContext)
+	{
+		this();
+	}
 
 	public IntentProxy()
 	{	

@@ -21,6 +21,7 @@ import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiOrientationHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -76,6 +77,11 @@ public abstract class TiWindowProxy extends TiViewProxy
 	{
 		if (waitingForOpen == null) return null;
 		return waitingForOpen.get();
+	}
+
+	public TiWindowProxy(TiContext tiContext)
+	{
+		this();
 	}
 
 	public TiWindowProxy()
