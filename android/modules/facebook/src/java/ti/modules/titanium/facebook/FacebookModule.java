@@ -9,6 +9,7 @@ package ti.modules.titanium.facebook;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,6 +33,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -51,6 +53,7 @@ public class FacebookModule extends KrollModule
 	protected static final boolean DBG = TiConfig.LOGD;
 	protected Facebook facebook = null;
 	protected String uid = null;
+	protected WeakReference<Context> loginContext = null; // Facebook authorize and logout should use same context.
 
 	private boolean loggedIn = false;
 	private ArrayList<TiFacebookStateListener> stateListeners = new ArrayList<TiFacebookStateListener>();
@@ -199,7 +202,14 @@ public class FacebookModule extends KrollModule
 			facebook = new Facebook(appid);
 		}
 
-		executeAuthorize(TiApplication.getInstance().getCurrentActivity());
+		// Important to be done on the current activity since it will display dialog.
+		TiUIHelper.waitForCurrentActivity(new CurrentActivityListener() {
+			@Override
+			public void onCurrentActivityReady(Activity activity)
+			{
+				executeAuthorize(activity);
+			}
+		});
 	}
 
 	@Kroll.method
@@ -209,7 +219,9 @@ public class FacebookModule extends KrollModule
 		destroyFacebookSession();
 		if (facebook != null && wasLoggedIn) {
 			SessionEvents.onLogoutBegin();
-			executeLogout(TiApplication.getInstance().getCurrentActivity());
+			executeLogout();
+		} else {
+			loginContext = null;
 		}
 	}
 
@@ -335,6 +347,7 @@ public class FacebookModule extends KrollModule
 	protected void completeLogout()
 	{
 		destroyFacebookSession();
+		loginContext = null;
 		fireLoginChange();
 		fireEvent("logout", new KrollDict());
 	}
@@ -360,6 +373,7 @@ public class FacebookModule extends KrollModule
 
 	protected void executeAuthorize(Activity activity)
 	{
+		loginContext = new WeakReference<Context>(activity);
 		int activityCode = Facebook.FORCE_DIALOG_AUTH;
 		if (forceDialogAuth) {
 			facebook.authorize(activity, permissions, activityCode, new LoginDialogListener());
@@ -388,9 +402,24 @@ public class FacebookModule extends KrollModule
 		}
 	}
 
-	protected void executeLogout(Activity activity)
+	protected void executeLogout()
 	{
-		getFBRunner().logout(activity, new LogoutRequestListener());
+		Context logoutContext = null;
+
+		// Try to use the same context as was used for login.
+		if (loginContext != null) {
+			logoutContext = loginContext.get();
+		}
+
+		if (logoutContext == null) {
+			// Fallback by using the application context.  The reason facebook.authorize and facebook.logout
+			// want a Context is because they use the CookieSyncManager, which needs a Context.
+			// The CookieSyncManager anyway takes that Context and calls context.getApplicationContext()
+			// for its use.
+			logoutContext = TiApplication.getInstance().getApplicationContext();
+		}
+
+		getFBRunner().logout(logoutContext, new LogoutRequestListener());
 	}
 
 	private boolean isLoggedIn()
@@ -467,17 +496,20 @@ public class FacebookModule extends KrollModule
 		public void onFacebookError(FacebookError error)
 		{
 			Log.e(LCAT, "LoginDialogListener onFacebookError: " + error.getMessage(), error);
+			loginContext = null;
 			SessionEvents.onLoginError(error.getMessage());
 		}
 
 		public void onError(DialogError error)
 		{
 			Log.e(LCAT, "LoginDialogListener onError: " + error.getMessage(), error);
+			loginContext = null;
 			SessionEvents.onLoginError(error.getMessage());
 		}
 
 		public void onCancel()
 		{
+			loginContext = null;
 			FacebookModule.this.loginCancel();
 		}
 	}
