@@ -1,13 +1,28 @@
-# Android.mk for @PROJECT_SHORT_NAME@
+# Android.mk for @MODULE_ID@
 LOCAL_PATH := $(call my-dir)
+THIS_DIR := $(LOCAL_PATH)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := @PROJECT_SHORT_NAME@
-LOCAL_CFLAGS := -g -I$(TI_ANDROID_NATIVE)/include
-LOCAL_LDLIBS :=  -L$(SYSROOT)/usr/lib -ldl -llog -L$(TARGET_OUT) -L$(TI_ANDROID_NATIVE)/libs/$(TARGET_ARCH_ABI) -lkroll-v8
+THIS_DIR = $(LOCAL_PATH)
+LOCAL_MODULE := @MODULE_ID@
+LOCAL_CFLAGS := -g -I$(TI_MOBILE_SDK)/android/native/include -I$(SYSROOT)/usr/include
+LOCAL_LDLIBS :=  -L$(SYSROOT)/usr/lib -ldl -llog -L$(TARGET_OUT) -L$(TI_MOBILE_SDK)/android/native/libs/$(TARGET_ARCH_ABI) -lkroll-v8
 
 ABS_SRC_FILES := $(wildcard $(LOCAL_PATH)/*.cpp)
-LOCAL_SRC_FILES := $(patsubst $(LOCAL_PATH)/%,%,$(ABS_SRC_FILES))
+LOCAL_SRC_FILES := $(patsubst $(LOCAL_PATH)/%,%,$(ABS_SRC_FILES)) \
+	bootstrap.cpp
+
+GEN_DIR := $(realpath .)
+GEN_JNI_DIR := $(GEN_DIR)/jni
+
+jni/bootstrap.cpp: $(GEN_DIR)/KrollGeneratedBindings.cpp $(GEN_DIR)/BootstrapJS.cpp
+	cat $(TI_MOBILE_SDK)/module/android/templates/bootstrap.cpp | sed 's/%(CLASS_NAME)/@CLASS_NAME@/g' > $(GEN_JNI_DIR)/bootstrap.cpp
+
+$(GEN_DIR)/KrollGeneratedBindings.cpp:
+	gperf -L C++ -E -t $(GEN_DIR)/KrollGeneratedBindings.gperf > $(GEN_DIR)/KrollGeneratedBindings.cpp
+
+$(GEN_DIR)/BootstrapJS.cpp:
+	$(TI_MOBILE_SDK)/module/android/js2c.py $(GEN_DIR)/BootstrapJS.cpp $(GEN_DIR)/bootstrap.js
 
 include $(BUILD_SHARED_LIBRARY)

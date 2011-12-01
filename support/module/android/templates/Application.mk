@@ -1,5 +1,6 @@
-# Main NDK build script for @PROJECT_SHORT_NAME@
+# Main NDK build script for @MODULE_ID@
 
-APP_BUILD_SCRIPT := Android.mk
+APP_BUILD_SCRIPT := jni/Android.mk
 TARGET_PLATFORM := android-8
+APP_STL := stlport_static
 APP_ABI := armeabi armeabi-v7a

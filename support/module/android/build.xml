@@ -3,10 +3,10 @@
 
 	<property file="${ti.module.root}/build.properties"/>
 	<property name="ti.module.support.dir" location="${titanium.platform}/../module"/>
-	
+
 	<!-- the manifest format seems to be compatible w/ the properties format -->
 	<property file="${ti.module.root}/manifest" prefix="manifest"/>
-	
+
 	<taskdef classname="org.appcelerator.titanium.ant.StringTask" name="ti.string" classpath="${ti.module.support.dir}/android/ant-tasks.jar"/>
 	<taskdef resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
@@ -18,6 +18,7 @@
 	<property name="build" location="${ti.module.root}/build"/>
 	<property name="gen" location="${build}/generated"/>
 	<property name="genjson" location="${build}/generated/json"/>
+	<property name="genjava" location="${build}/generated/java"/>
 	<property name="genjni" location="${build}/generated/jni"/>
 	<property name="classes" location="${build}/classes"/>
 	<property name="docs" location="${build}/docs"/>
@@ -45,10 +46,12 @@
 		<mkdir dir="${gen}"/>
 		<mkdir dir="${dist}"/>
 	</target>
-	
+
+
 	<target name="process.annotations" depends="init"
 		description="Processes @Kroll.proxy and @Kroll.module annotations">
 		<mkdir dir="${genjson}"/>
+
 		<javac 
 			srcdir="${src}" 
 			destdir="${classes}"
@@ -58,32 +61,58 @@
 				<compilerarg value="org.appcelerator.kroll.annotations.generator.KrollJSONGenerator"/>
 				<compilerarg value="-s"/>
 				<compilerarg value="${genjson}"/>
-				<compilerarg line="-Akroll.jsonFile=${ant.project.name}.json"/>
+				<compilerarg line="-Akroll.jsonFile=${manifest.name}.json"/>
 				<compilerarg line="-Akroll.jsonPackage=org.appcelerator.titanium.bindings"/>
 				<compilerarg line="-Akroll.checkTiContext=true"/>
 				<classpath refid="project.classpath"/>
 		</javac>
+	</target>
 
-<!--
-		<java classname="org.appcelerator.kroll.annotations.generator.KrollBindingGenerator" classpathref="project.classpath">
-			<arg value="v8"/>
-			<arg value="${genjni}"/>
-			<arg value="${genjson}/org/appcelerator/titanium/bindings/${ant.project.name}.json"/>
-		</java>
--->
-		<java classname="org.appcelerator.kroll.annotations.generator.KrollBindingGenerator" classpathref="project.classpath">
-			<arg value="rhino"/>
-			<arg value="${gen}"/>
-			<!-- isModule -->
-			<arg value="true"/>
-			<!-- modulePackage -->
-			<arg value="${manifest.moduleid}"/>
-			<!-- moduleClassName -->
-			<arg value="${manifest.name}GeneratedBindings"/>
-			<arg value="${gen}/org/appcelerator/titanium/bindings/${ant.project.name}.json"/>
-		</java>
+	<macrodef name="generate.runtime.bindings">
+		<attribute name="runtime"/>
+		<attribute name="outdir"/>
+		<sequential>
+			<java classname="org.appcelerator.kroll.annotations.generator.KrollBindingGenerator" classpathref="project.classpath">
+				<!-- runtime to generate for -->
+				<arg value="@{runtime}"/>
+				<!-- output directory -->
+				<arg value="@{outdir}"/>
+				<!-- isModule -->
+				<arg value="true"/>
+				<!-- modulePackage -->
+				<arg value="${manifest.moduleid}"/>
+				<!-- moduleClassName -->
+				<arg value="${manifest.name}GeneratedBindings"/>
 
+				<!-- binding json -->
+				<arg value="${genjson}/org/appcelerator/titanium/bindings/${manifest.name}.json"/>
+			</java>
+		</sequential>
+	</macrodef>
+
+	<target name="generate.rhino.bindings">
+		<generate.runtime.bindings runtime="rhino" outdir="${genjava}"/>
 		<antcall target="generate.rhino.idswitch"/>
+	</target>
+
+	<target name="generate.v8.bindings">
+		<generate.runtime.bindings runtime="v8" outdir="${genjni}"/>
+		<property name="bootstrap.py" location="${ti.module.support.dir}/android/bootstrap.py"/>
+		<property name="js2c.py" location="${ti.module.support.dir}/android/js2c.py"/>
+
+		<exec executable="${bootstrap.py}">
+			<!-- module id -->
+			<arg value="${manifest.moduleid}"/>
+			<!-- module name -->
+			<arg value="${ant.project.name}"/>
+			<!-- binding json -->
+			<arg value="${genjson}/org/appcelerator/titanium/bindings/${manifest.name}.json"/>
+			<!-- output dir -->
+			<arg value="${gen}"/>
+		</exec>
+	</target>
+
+	<target name="generate.bindings" depends="generate.rhino.bindings,generate.v8.bindings">
 	</target>
 
 	<property name="rhino.idswitch" value="org.mozilla.javascript.tools.idswitch.Main"/>
@@ -118,10 +147,7 @@
 	<target name="pre.compile">
 	</target>
 
-<!--
-	<target name="compile" depends="process.annotations,ndk.build,pre.compile"
--->
-	<target name="compile" depends="process.annotations,pre.compile" description="Compile this module's source code">
+	<target name="compile" depends="process.annotations,generate.bindings,pre.compile,ndk.build" description="Compile this module's source code">
 		<javac 
 			destdir="${classes}"
 			debug="${javac.debug}"
@@ -168,8 +194,18 @@
 		<property name="module.template.dir"
 			location="${titanium.platform}/../module/android/templates"/>
 
+		<ti.string property="class.rhs"
+			string="${ant.project.name}" substring="1"/>
+		<ti.string property="class.lhs1"
+			string="${ant.project.name}" substring="0:1"/>
+		<ti.string property="class.lhs2"
+			string="${class.lhs1}" touppercase="true"/>
+		<property name="module.classname" value="${class.lhs2}${class.rhs}"/>
+
 		<filterset id="ndk.filter">
-			<filter token="PROJECT_SHORT_NAME" value="${ant.project.name}"/>
+			<filter token="MODULE_ID" value="${manifest.moduleid}"/>
+			<filter token="MODULE_NAME" value="${ant.project.name}"/>
+			<filter token="CLASS_NAME" value="${module.classname}"/>
 		</filterset>
 
 		<copy todir="${gen}"
@@ -182,10 +218,17 @@
 			<filterset refid="ndk.filter"/>
 		</copy>
 
-		<exec executable="${ndk.build}" dir="${gen}">
-			<arg line="TI_ANDROID_NATIVE=${titanium.platform}/native"/>
-			<arg line="V=1"/>
+		<property name="mobilesdk.dir" location="${titanium.platform}/.."/>
+
+		<exec executable="${ndk.build}" dir="${gen}" failonerror="true">
+			<arg line="TI_MOBILE_SDK=${mobilesdk.dir}"/>
+			<arg line="NDK_PROJECT_PATH=${gen}"/>
+			<arg line="NDK_APPLICATION_MK=${gen}/Application.mk"/>
 		</exec>
+
+		<copy todir="${libs}">
+			<fileset dir="${gen}/libs" includes="**/*"/>
+		</copy>
 	</target>
 
 	<target name="libs.check">
@@ -249,13 +292,10 @@
 	<target name="post.clean">
 	</target>
 
-	<target name="ndk.clean" if="module.ndkbuild">
-		<check.ndk/>
-		<property name="ndk.build" location="${ndk.path}/ndk-build"/>
-		<exec executable="${ndk.build}" dir="${jni}">
-			<arg line="V=1"/>
-			<arg line="clean"/>
-		</exec>
+	<target name="ndk.clean">
+		<delete includeemptydirs="true" failonerror="false">
+			<fileset dir="${libs}" includes="**/*"/>
+		</delete>
 	</target>
 	
 	<property name="titanium.py" location="${titanium.platform}/../titanium.py"/>

@@ -14,8 +14,16 @@
 		startup.runMain();
 	}
 
+	// Used just to differentiate scope vars on java side by checking
+	// constructor name
+	function ScopeVars(sourceUrl, currentActivity) {
+		this.sourceUrl = sourceUrl;
+		this.currentActivity = currentActivity;
+	}
+
 	startup.globalVariables = function() {
 		global.kroll = kroll;
+		kroll.ScopeVars = ScopeVars;
 
 		NativeModule.require('events');
 		global.Ti = global.Titanium = NativeModule.require('titanium');

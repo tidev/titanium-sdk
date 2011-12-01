@@ -70,12 +70,20 @@ public final class ${config['classname']}Application extends TiApplication
 		% endif
 */
 
-		% for  module in custom_modules:
+		% if runtime == "v8" and len(custom_modules) > 0:
+		V8Runtime runtime = (V8Runtime) KrollRuntime.getInstance();
+		% endif
+
+		% for module in custom_modules:
 		${onAppCreate(module)} \
 
 		<% manifest = module['manifest'] %>
+		% if runtime == "v8":
+		runtime.addExternalBinding("${manifest.moduleid}", "${manifest.name}");
+		% else:
 		KrollBindings.addExternalBinding("${manifest.moduleid}", ${module['class_name']}Prototype.class);
 		${manifest.moduleid}.${manifest.name}GeneratedBindings.init();
+		% endif
 
 /*
 		moduleInfo = new KrollModuleInfo(
@@ -89,7 +97,6 @@ public final class ${config['classname']}Application extends TiApplication
 
 		KrollModule.addModuleInfo(moduleInfo);
 */
-
 		% endfor
 	}
 }

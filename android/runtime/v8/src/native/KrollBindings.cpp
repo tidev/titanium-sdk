@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#include <map>
 #include <string.h>
 #include <v8.h>
 
@@ -31,6 +32,9 @@
 
 namespace titanium {
 using namespace v8;
+
+std::map<const char *, const char *> KrollBindings::externalModules;
+std::map<const char *, bindings::BindEntry*> KrollBindings::externalBindings;
 
 void KrollBindings::initNatives(Handle<Object> exports)
 {

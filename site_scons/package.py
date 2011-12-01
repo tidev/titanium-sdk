@@ -82,7 +82,7 @@ def zip_dir(zf,dir,basepath,subs=None,cb=None):
 def zip_android(zf, basepath):
 	android_dist_dir = os.path.join(top_dir, 'dist', 'android')
 	zip_dir(zf, os.path.join(cur_dir,'simplejson'), os.path.join(basepath, 'android', 'simplejson'))
-	
+
 	for jar in ['titanium.jar', 'kroll-apt.jar', 'kroll-common.jar', 'kroll-v8.jar', 'kroll-rhino.jar']:
 		jar_path = os.path.join(android_dist_dir, jar)
 		zf.write(jar_path, '%s/android/%s' % (basepath, jar))
@@ -95,10 +95,14 @@ def zip_android(zf, basepath):
 			header_path = os.path.join(dir, header)
 			zf.write(header_path, '%s/android/native/include/%s' % (basepath, header))
 
-	v8_src_native_dir = os.path.join(top_dir, 'android', 'runtime', 'v8', 'src', 'native')
+	android_runtime_dir = os.path.join(top_dir, 'android', 'runtime')
+	android_runtime_v8_dir = os.path.join(android_runtime_dir, 'v8')
+	android_runtime_rhino_dir = os.path.join(android_runtime_dir, 'rhino')
+
+	v8_src_native_dir = os.path.join(android_runtime_v8_dir, 'src', 'native')
 	add_headers(v8_src_native_dir)
 
-	v8_gen_dir = os.path.join(top_dir, 'android', 'runtime', 'v8', 'generated')
+	v8_gen_dir = os.path.join(android_runtime_v8_dir, 'generated')
 	add_headers(v8_gen_dir)
 
 	import ant
@@ -109,7 +113,13 @@ def zip_android(zf, basepath):
 	v8_include_dir = os.path.join(android_dist_dir, 'libv8', libv8_version, libv8_mode, 'include')
 	add_headers(v8_include_dir)
 
-	js_jar = os.path.join(top_dir, 'android', 'runtime', 'rhino', 'lib', 'js.jar')
+	# add js2c.py for js -> C embedding
+	js2c_py = os.path.join(android_runtime_v8_dir, 'tools', 'js2c.py')
+	jsmin_py = os.path.join(android_runtime_v8_dir, 'tools', 'jsmin.py')
+	zf.write(js2c_py, '%s/module/android/js2c.py' % basepath)
+	zf.write(jsmin_py, '%s/module/android/jsmin.py' % basepath)
+
+	js_jar = os.path.join(android_runtime_rhino_dir, 'lib', 'js.jar')
 	zf.write(js_jar, '%s/android/%s' % (basepath, 'js.jar'))
 
 	# include all native shared libraries

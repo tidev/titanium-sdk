@@ -16,7 +16,7 @@
 
 <#assign className = Proxy.className(proxyClassName)>
 
-class ${className} : public Proxy
+class ${className} : public titanium::Proxy
 {
 public:
 	explicit ${className}(jobject javaObject);

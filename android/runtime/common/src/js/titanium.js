@@ -11,18 +11,22 @@ var tiBinding = kroll.binding('Titanium'),
 	Script = kroll.binding('evals').Script,
 	bootstrap = require('bootstrap'),
 	path = require('path'),
-	url = require('url');
+	url = require('url'),
+	invoker = require('invoker');
 
 var TAG = "Titanium";
 
-//the app entry point
+// The app entry point
 Titanium.sourceUrl = "app://app.js";
 
-//a list of java APIs that need an invocation-specific URL
-//passed in as the first argument
+// A list of java APIs that need an invocation-specific URL
+// passed in as the first argument
 Titanium.invocationAPIs = [];
 
-//Define lazy initializers for all Titanium APIs
+// A list of 3rd party (external) modules
+Titanium.externalModules = [];
+
+// Define lazy initializers for all Titanium APIs
 bootstrap.bootstrap(Titanium);
 
 // Custom JS extensions to Java modules
@@ -31,12 +35,9 @@ require("ui").bootstrap(Titanium);
 var Properties = require("properties");
 Properties.bootstrap(Titanium);
 
-//Custom native modules
+// Custom native modules
 bootstrap.defineLazyBinding(Titanium, "API")
 
-// Used just to differentiate scope vars on java side by checking
-// constructor name
-function ScopeVars() {};
 // Context-bound modules -------------------------------------------------
 //
 // Specialized modules that require binding context specific data
@@ -68,10 +69,7 @@ function TitaniumWrapper(context) {
 	this.Android = new AndroidWrapper(context);
 	this.UI = new UIWrapper(context, this.Android);
 
-	var scopeVars = new ScopeVars();
-	scopeVars.sourceUrl = sourceUrl;
-	scopeVars.currentActivity = this.Android.currentActivity;
-
+	var scopeVars = new kroll.ScopeVars(sourceUrl, this.Android.currentActivity);
 	Titanium.bindInvocationAPIs(this, scopeVars);
 }
 TitaniumWrapper.prototype = Titanium;
@@ -158,71 +156,31 @@ function TiInclude(filename, baseUrl, context) {
 TiInclude.prototype = global;
 Titanium.include = TiInclude;
 
-Titanium.bindInvocationAPIs = function(sandboxTi, scopeVars) {
-	// This loops through all known APIs that require an
-	// Invocation object and wraps them so we can pass a
-	// source URL as the first argument
-
-	function genInvoker(invocationAPI) {
-		var namespace = invocationAPI.namespace;
-		var names = namespace.split(".");
-		var length = names.length;
-		if (namespace == "Titanium") {
-			length = 0;
-		}
-
-		var apiNamespace = sandboxTi;
-		var realAPI = tiBinding.Titanium;
-
-		for (var j = 0, namesLen = length; j < namesLen; ++j) {
-			var name = names[j];
-			var api;
-
-			// Create a module wrapper only if it hasn't been wrapped already.
-			if (apiNamespace.hasOwnProperty(name)) {
-				api = apiNamespace[name];
-			} else {
-				function SandboxAPI() {}
-				SandboxAPI.prototype = apiNamespace[name];
-
-				api = new SandboxAPI();
-				apiNamespace[name] = api;
-			}
-
-			apiNamespace = api;
-			realAPI = realAPI[name];
-		}
-
-		var delegate = realAPI[invocationAPI.api];
-
-		// These invokers form a call hierarchy so we need to
-		// provide a way back to the actual root Titanium / actual impl.
-		while (delegate.__delegate__) {
-			delegate = delegate.__delegate__;
-		}
-
-		function createInvoker(delegate) {
-			var urlInvoker = function invoker() {
-				var args = Array.prototype.slice.call(arguments);
-				args.splice(0, 0, invoker.scopeVars);
-
-				return delegate.apply(invoker.__thisObj__, args);
-			}
-
-			urlInvoker.scopeVars = scopeVars;
-			urlInvoker.__delegate__ = delegate;
-			urlInvoker.__thisObj__ = realAPI;
-
-			return urlInvoker;
-		}
-
-		apiNamespace[invocationAPI.api] = createInvoker(delegate);
-	}
-
+// This loops through all known APIs that require an
+// Invocation object and wraps them so we can pass a
+// source URL as the first argument
+Titanium.bindInvocationAPIs = function(wrapperTi, scopeVars) {
 	var len = Titanium.invocationAPIs.length;
 	for (var i = 0; i < len; ++i) {
 		// separate each invoker into it's own private scope
-		genInvoker(Titanium.invocationAPIs[i]);
+		invoker.genInvoker(wrapperTi, tiBinding.Titanium,
+			"Titanium", Titanium.invocationAPIs[i], scopeVars);
+	}
+
+	len = Titanium.externalModules.length;
+	for (var i = 0; i < len; ++i) {
+		var externalModule = Titanium.externalModules[i];
+
+		function ModuleWrapper() {}
+		ModuleWrapper.prototype = externalModule;
+
+		var wrapper = new ModuleWrapper();
+		var invocationsLen = externalModule.invocationAPIs.length;
+		for (var j = 0; j < invocationsLen; ++j) {
+			invoker.genInvoker(wrapper,
+				externalModule, externalModule.apiName,
+				externalModule.invocationAPIs[j], scopeVars);
+		}
 	}
 }
 

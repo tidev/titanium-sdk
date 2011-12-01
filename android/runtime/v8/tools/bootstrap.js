@@ -81,27 +81,29 @@ function loadAppModules() {
 	}
 }
 
-loadAppModules();
-
-function addInvocationAPI(Titanium, namespace, api) {
+function addInvocationAPI(module, moduleNamespace, namespace, api) {
 	var apiInfo = { namespace: namespace, api: api };
 
-	// Always push Titanium module APIs.
-	if (namespace == 'Titanium') {
-		Titanium.invocationAPIs.push(apiInfo);
+	// Always push module APIs.
+	if (namespace == moduleNamespace) {
+		module.invocationAPIs.push(apiInfo);
 		return;
 	}
 
 	var len = appModules.length;
 	for (var i = 0; i < len; i++) {
 		if (namespace.indexOf(appModules[i]) == 0) {
-			Titanium.invocationAPIs.push(apiInfo);
+			module.invocationAPIs.push(apiInfo);
 			break;
 		}
 	}
 }
+exports.addInvocationAPI = addInvocationAPI;
 
 exports.bootstrap = function(Titanium) {
+	loadAppModules();
+	var module = Titanium;
+
 	// Below this is where the generated code
 	// from genBootstrap.py goes
 	// ----
