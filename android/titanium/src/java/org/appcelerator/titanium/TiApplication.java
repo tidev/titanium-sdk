@@ -21,6 +21,7 @@ import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
@@ -128,6 +129,16 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 
 		return tiApp.get();
 	}
+	
+	//This is a convenience method to avoid having to check TiApplication.getInstance() is not null every time we need to grab the current activity
+	public static Activity getCurrentInstanceActivity()
+	{
+		TiApplication tiApp = getInstance();
+		if (tiApp == null) {
+			return null;
+		}
+		return tiApp.getCurrentActivity();
+	}
 
 	protected void loadBuildProperties()
 	{
@@ -201,6 +212,14 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 
 	public void postOnCreate()
 	{
+		KrollRuntime runtime = KrollRuntime.getInstance();
+		if (runtime != null) {
+			Log.i(LCAT, "Titanium Javascript runtime: " + runtime.getRuntimeName());
+		} else {
+			// This ought not to be possible.
+			Log.w(LCAT, "Titanium Javascript runtime: unknown");
+		}
+
 		TiConfig.LOGD = systemProperties.getBool("ti.android.debug", false);
 
 		startExternalStorageMonitor();
@@ -285,6 +304,19 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 		}
 
 		return currentActivity.get();
+	}
+	
+	public Activity getRootOrCurrentActivity()
+	{
+		if (rootActivity != null) {
+			return (Activity)(rootActivity.get());
+		}
+		
+		if (currentActivity != null) {
+			return currentActivity.get();
+		}
+		
+		return null;
 	}
 
 	public void setCurrentActivity(Activity callingActivity, Activity newValue)

@@ -267,6 +267,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 		this.currentState = this.state.opened;
 		this.fireEvent("open");
+		this.fireEvent("focus");
 	}
 
 	Window.prototype.runWindowUrl = function(scopeVars) {

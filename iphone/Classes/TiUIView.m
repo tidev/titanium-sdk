@@ -471,7 +471,7 @@ DEFINE_EXCEPTIONS
 //	Redraw ourselves if changing from invisible to visible, to handle any changes made
 	if (!self.hidden) {
 		TiViewProxy* viewProxy = (TiViewProxy*)[self proxy];
-		[viewProxy reposition];
+        [viewProxy willEnqueue];
 	}
 }
 
