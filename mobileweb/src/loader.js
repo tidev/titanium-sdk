@@ -1,3 +1,20 @@
+/**
+ * Titanium Mobile Web Platform
+ *
+ * Supported Browsers: IE9+, FF3+, Safari 5+, Chrome 5+, Opera 12+, iOS 4+, Android 2.2+
+ *
+ * Borrows code & ideas from:
+ *  - Dojo Toolkit (AFL, BSD) <http://dojotoolkit.org>
+ *  - require.js (BSD, MIT) <http://requirejs.org>
+ *  - curl.js (MIT) <https://github.com/unscriptable/curl>
+ *  - has.js (AFL, BSD, MIT) <https://github.com/phiggins42/has.js>
+ *  - es5-shim (MIT) <https://github.com/kriskowal/es5-shim>
+ *
+ * This loader is a CommonJS and AMD compatible resource loader. It is comprised
+ * of two main functions: require() and define().
+ *
+ */
+
 (function (global) {
 
 	"use strict";
@@ -47,27 +64,34 @@
 		waiting = {},
 
 		// map of module ids to module resource definitions
-		modules = {};
+		modules = {},
+
+		// mixin of common functions
+		fnMixin;
 
 	/******************************************************************************
 	 * Utility functions
 	 *****************************************************************************/
 
-	/*
-	function mix(dest, src) {
+	function _mix(dest, src) {
+		for (var p in src) {
+			src.hasOwnProperty(p) && (dest[p] = src[p]);
+		}
+		return dest;
+	}
+
+	function mix(dest) {
 		// summary:
 		//		Copies properties by reference from a source object to a destination
 		//		object, then returns the destination object. To be clear, this will
 		//		modify the dest being passed in.
-		var p;
-		for (p in src) {
-			if (src.hasOwnProperty(p)) {
-				dest[p] = src[p];
-			}
+		var i = 1;
+		dest || (dest = {});
+		while (i < arguments.length) {
+			_mix(dest, arguments[i++]);
 		}
 		return dest;
 	}
-	*/
 
 	function each(a, fn) {
 		// summary:
@@ -99,17 +123,38 @@
 		return !it || (!it.call && !p);
 	}
 
-	function evaluate(str, vars, globally) {
-		var r = globally
-				?	global.eval(str)
-				:	(function (v, t) {
-						// this trick will run the eval inside a sandbox where we must expose
-						// any variables to the local scope, then capture them again.
-						var f = new Function("__vars", "__js", "return eval('for(var i in __vars){this[i]=__vars[i];}'+__js+'for(i in __vars){__vars[i]=this[i];}__vars;');");
-						return f(v, t);
-					}(vars, str));
-		// Firebug for some reason sometimes returns "_firebugIgnore" instead of
-		// undefined or null, so force the value to null
+	function evaluate(code, sandboxVariables, globally) {
+		// summary:
+		//		Evaluates code globally or in a sandbox.
+		//
+		// code: String
+		//		The code to evaluate
+		//
+		// sandboxVariables: Object?
+		//		When "globally" is false, an object of names => values to initialize in
+		//		the sandbox. The variable names must NOT contain '-' characters.
+		//
+		// globally: Boolean?
+		//		When true, evaluates the code in the global namespace, generally "window".
+		//		If false, then it will evaluate the code in a sandbox.
+
+		var i,
+			vars = [],
+			vals = [],
+			r;
+
+		if (globally) {
+			r = global.eval(code);
+		} else {
+			for (i in sandboxVariables) {
+				vars.push(i + "=__vars." + i);
+				vals.push(i + ":" + i);
+			}
+			r = (new Function("__vars", (vars.length ? "var " + vars.join(',') + ";\n" : "") + code + "\n;return {" + vals.join(',') + "};"))(sandboxVariables);
+		}
+
+		// if the last line of a module is a console.*() call, Firebug for some reason
+		// sometimes returns "_firebugIgnore" instead of undefined or null
 		return r === "_firebugIgnore" ? null : r;
 	}
 
@@ -172,8 +217,6 @@
 		return now && has(name);
 	};
 
-	has.add("ie-event-behavior", doc.attachEvent && (typeof opera === "undefined" || !is(opera, "Opera")));
-
 	/******************************************************************************
 	 * Event handling
 	 *****************************************************************************/
@@ -189,21 +232,10 @@
 
 		// TODO: fix touch events?
 
-		if (has("ie-event-behavior")) {
-			/^on/.test(type) || (type = "on" + type);
-
-			// TODO: fix memory leak fix for IE8/Vista and older using the DOM0 hack
-
-			target.attachEvent(type, listener);
-			return function () {
-				target.detachEvent(type, listener);
-			};
-		} else {
-			target.addEventListener(type, listener, false);
-			return function () {
-				target.removeEventListener(type, listener, false);
-			};
-		}
+		target.addEventListener(type, listener, false);
+		return function () {
+			target.removeEventListener(type, listener, false);
+		};
 	}
 
 	on.once = function (target, type, listener) {
@@ -259,7 +291,7 @@
 	 * Module functionality
 	 *****************************************************************************/
 
-	function ResourceDef(name, refMap, deps, rawDef) {
+	function ResourceDef(name, refModule, deps, rawDef) {
 		// summary:
 		//		A resource definition that describes a file or module being loaded.
 		//
@@ -282,14 +314,15 @@
 		// rawDef: Object? | Function? | String?
 		//		The object, function, or string that defines the resource.
 		//
-		// refMap: Object?
+		// refModule: Object?
 		//		A reference map used for resolving module URLs.
 
 		var match = name && name.match(/^(.+?)\!(.*)$/),
 			isRelative = /^\./.test(name),
-			exports = this.exports = {},
-			url,
-			pkg = null;
+			exports = {},
+			pkg = null,
+			cjs,
+			_t = this;
 
 		// name could be:
 		//  - a plugin		text!/some/file.html or include!/some/file.js
@@ -297,41 +330,63 @@
 		//  - a js file		/some/file.js
 		//  - a url			http://www.google.com/
 
-		this.name = name;
-		this.deps = deps || [];
-		this.plugin = null;
+		_t.name = name;
+		_t.deps = deps || [];
+		_t.plugin = null;
+		_t.callbacks = [];
 
-		if (/(^\/)|(\:)|(\.js$)/.test(name) || (isRelative && !refMap)) {
-			this.url = name;
+		if (!match && (/(^\/)|(\:)|(\.js$)/.test(name) || (isRelative && !refModule))) {
+			_t.url = name;
 		} else {
 			if (match) {
-				this.plugin = this.deps.length;
-				this.deps.push(match[1]);
+				_t.plugin = _t.deps.length;
+				_t.pluginArgs = match[2];
+				_t.pluginCfg = cfg[match[1]];
+				_t.deps.push(match[1]);
 			} else if (name) {
-				// TODO: need to handle package names/paths and relative paths
+				name = _t.name = compactPath((isRelative ? refModule.name + "/../" : "") + name);
+
+				if (/^\./.test(name)) {
+					throw new Error("Irrational path \"" + name + "\"");
+				}
+
+				// TODO: if this is a package, then we need to transform the URL into the module's path
+				// MUST set pkg to anything other than null, even if this module isn't in a package
 				pkg = "";
 
-				url = name;
+				/(^\/)|(\:)/.test(name) || (name = baseUrl + name);
 
-				/(^\/)|(\:)/.test(url) || (url = baseUrl + url);
-
-				is(pkg, "String") && (url += ".js");
-
-				this.url = compactPath(url);
+				_t.url = name + ".js";
 			}
 		}
 
-		this.pkg = pkg;
-		this.rawDef = rawDef;
-		this.loaded = !!rawDef;
-		this.refMap = refMap;
-		this.module = {
-			exports: exports
-		};
-		this.require = function () {
+		_t.pkg = pkg;
+		_t.rawDef = rawDef;
+		_t.loaded = !!rawDef;
+		_t.refModule = refModule;
+
+		// our scoped require()
+		function scopedRequire() {
 			var args = Array.prototype.slice.call(arguments, 0);
-			args.push(refMap);
+			args.length > 1 || (args[1] = 0);
+			args[2] = _t;
 			return req.apply(null, args);
+		}
+		scopedRequire.toUrl = function () {
+			var args = Array.prototype.slice.call(arguments, 0);
+			_t.plugin === null && (args[1] = _t);
+			return toUrl.apply(null, args);
+		};
+		mix(scopedRequire, fnMixin, {
+			cache: req.cache
+		});
+
+		_t.cjs = {
+			require: scopedRequire,
+			exports: exports,
+			module: {
+				exports: exports
+			}
 		};
 	}
 
@@ -350,41 +405,52 @@
 			x,
 			disconnector,
 			_t = this,
-			dc = defCache[_t.name],
+			cached = defCache[_t.name],
+			fireCallbacks = function () {
+				each(_t.callbacks, function (c) { c(_t); });
+			},
 			onLoad = function (rawDef) {
 				_t.loaded = 1;
 				if (_t.rawDef = rawDef) {
 					if (is(rawDef, "String")) {
+						// if rawDef is a string, then it's either a cached string or xhr response
 						if (/\.js$/.test(_t.url)) {
-							rawDef = evaluate(rawDef, {
-								require: _t.require,
-								exports: _t.exports,
-								module: _t.module
-							});
-							_t.def = !isEmpty(rawDef.exports) ? rawDef.exports : (!isEmpty(rawDef.module.exports) ? rawDef.module.exports : null);
+							rawDef = evaluate(rawDef, _t.cjs);
+							_t.def = _t.rawDef = !isEmpty(rawDef.exports) ? rawDef.exports : (rawDef.module && !isEmpty(rawDef.module.exports) ? rawDef.module.exports : null);
+							_t.def === null && (_t.rawDef = rawDef);
 						} else {
 							_t.def = rawDef;
 							_t.executed = 1;
 						}
+					} else if (is(rawDef, "Function")) {
+						// if rawDef is a function, then it's a cached module definition
+						waiting[_t.name] = _t;
+						rawDef();
 					}
 				}
 				processDefQ(_t);
-				callback && callback(_t);
+				fireCallbacks();
 				return 1;
 			};
 
 		_t.sync = sync;
+		callback && _t.callbacks.push(callback);
 
 		// if we don't have a url, then I suppose we're loaded
 		if (!_t.url) {
 			_t.loaded = 1;
-			callback && callback(_t);
+			fireCallbacks();
+			return;
+		}
+
+		// if we're already waiting, then we can just return and our callback will be fired
+		if (waiting[_t.name]) {
 			return;
 		}
 
 		// if we're already loaded or the definition has been cached, then just return now
-		if (_t.loaded || dc) {
-			return onLoad(dc);
+		if (_t.loaded || cached) {
+			return onLoad(cached);
 		}
 
 		// mark this module as waiting to be loaded so that anonymous modules can be
@@ -408,7 +474,7 @@
 			x.charset = "utf-8";
 			x.async = true;
 
-			disconnector = on(x, has("ie-event-behavior") ? "readystatechange" : "load", function (e) {
+			disconnector = on(x, "load", function (e) {
 				e = e || global.event;
 				var node = e.target || e.srcElement;
 				if (e.type === "load" || /complete|loaded/.test(node.readyState)) {
@@ -425,15 +491,12 @@
 		}
 	};
 
-	ResourceDef.prototype.execute = function (callback, evalGlobally) {
+	ResourceDef.prototype.execute = function (callback) {
 		// summary:
 		//		Executes the resource's rawDef which defines the module.
 		//
-		// description:
-		//
-		// evalGlobally: Boolean
-		//		If true and the rawDef is a string, then evals the rawDef in a sandboxed
-		//		closure instead of the global namespace.
+		// callback: Function?
+		//		A function to call after the module has been executed.
 
 		var _t = this;
 
@@ -447,19 +510,21 @@
 			var i,
 				p,
 				r = _t.rawDef,
-				d = {
-					require: _t.require,
-					exports: _t.exports,
-					module: _t.module
-				},
-				q = defQ.slice(0); // backup the defQ
+				q = defQ.slice(0), // backup the defQ
+				finish = function () {
+					_t.executed = 1;
+					callback && callback();
+				};
 
 			// need to wipe out the defQ
 			defQ = [];
 
+			// make sure we have ourself in the waiting queue
+			//waiting[_t.name] = _t;
+
 			_t.def = _t.def
 				||	(r && (is(r, "String")
-						? evaluate(r, d, evalGlobally)
+						? evaluate(r, _t.cjs)
 						: is(r, "Function")
 							? r.apply(null, deps)
 							: is(r, "Object")
@@ -468,11 +533,11 @@
 											this[i] = vars[i];
 										}
 										return obj;
-									}).call({}, r, d)
+									}).call({}, r, _t.cjs)
 								: null
 						)
 					)
-				||	_t.exports;
+				||	_t.cjs.exports;
 
 			// we might have just executed code above that could have caused a couple
 			// define()'s to queue up
@@ -485,35 +550,49 @@
 			// to invoke
 			if (_t.plugin !== null) {
 				p = deps[_t.plugin];
-				p.load && p.load(_t.name, _t.require, function (val) {
-					_t.def = val;
-				});
+
+				// the plugin's content is dynamic, so just remove from the module cache
+				if (p.dynamic) {
+					delete modules[_t.name];
+				}
+
+				// if the plugin has a load function, then invoke it!
+				p.load && p.load(_t.pluginArgs, _t.cjs.require, function (v) {
+					_t.def = v;
+					finish();
+				}, _t.pluginCfg);
 			}
 
-			_t.executed = 1;
-
-			callback && callback();
+			finish();
 		}, function (ex) {
 			throw ex;
-		}, _t.refMap, _t.sync);
+		}, _t.refModule, _t.sync);
 	};
 
-	function getResourceDef(name, refMap, deps, rawDef) {
+	function getResourceDef(name, refModule, deps, rawDef, dontCache) {
 		// summary:
 		//		Creates a new resource definition or returns an existing one from cache.
 
-		var module = new ResourceDef(name, refMap, deps, rawDef);
+		var module = new ResourceDef(name, refModule, deps, rawDef);
 
-		if (/^(require|exports|module)$/.test(name)) {
+		if (name in module.cjs) {
 			module.def = module[name];
 			module.loaded = module.executed = 1;
 			return module;
 		}
 
-		return module.name ? modules[module.name] || (modules[module.name] = module) : module;
+		return dontCache ? module : (module.name ? modules[module.name] || (modules[module.name] = module) : module);
 	}
 
 	function processDefQ(module) {
+		// summary:
+		//		Executes all modules sitting in the define queue.
+		//
+		// description:
+		//		When a resource is loaded, the remote AMD resource is fetched, it's
+		//		possible that one of the define() calls was anonymous, so it should
+		//		be sitting in the defQ waiting to be executed.
+
 		var m,
 			q = defQ.slice(0);
 		defQ = [];
@@ -539,7 +618,7 @@
 		delete waiting[module.name];
 	}
 
-	function fetch(deps, success, failure, refMap, sync) {
+	function fetch(deps, success, failure, refModule, sync) {
 		// summary:
 		//		Fetches all dependents and fires callback when finished or on error.
 		//
@@ -560,7 +639,7 @@
 		//		A callback function fired when the loader is unable to load a module. The
 		//		function is passed the exception.
 		//
-		// refMap: Object?
+		// refModule: Object?
 		//		A reference map used for resolving module URLs.
 		//
 		// sync: Boolean?
@@ -579,7 +658,7 @@
 
 		for (i = 0, l = count = deps.length; i < l; i++) {
 			deps[i] && (function (idx, name) {
-				getResourceDef(deps[idx], refMap).load(!!sync, function (m) {
+				getResourceDef(deps[idx], refModule).load(!!sync, function (m) {
 					m.execute(function () {
 						deps[idx] = m.def;
 						if (--count === 0) {
@@ -750,17 +829,6 @@
 				});
 		}
 
-		// check all scripts we're waiting for to see there are any interactive
-		if (has("ie-event-behavior") && !name) {
-			for (i in waiting) {
-				module = waiting[i];
-				if (module && module.node && module.node.readyState === "interactive") {
-					name = module.name;
-					break;
-				}
-			}
-		}
-
 		module = getResourceDef(name, 0, deps, rawDef);
 
 		// if not waiting for this module to be loaded, then the define() call was
@@ -786,7 +854,7 @@
 		plugins: true
 	};
 
-	function toUrl(name, refMap) {
+	function toUrl(name, refModule) {
 		// summary:
 		//		Converts a module name including extension to a URL path.
 		//
@@ -803,13 +871,14 @@
 		//		|	});
 
 		var	match = name.match(/(.+)(\.[^\/\.]+?)$/),
-			module = getResourceDef((match && match[1]) || name, refMap),
+			module = getResourceDef((match && match[1]) || name, refModule, 0, 0, 1),
 			url = module.url;
-		is(module.pkg, "String") && (url = url.substring(0, url.length - 3));
+
+		module.pkg !== null && (url = url.substring(0, url.length - 3));
 		return url + ((match && match[2]) || "");
 	}
 
-	function req(deps, callback, refMap) {
+	function req(deps, callback, refModule) {
 		// summary:
 		//		Fetches a module, caches its definition, and returns the module. If an
 		//		array of modules is specified, then after all of them have been
@@ -822,7 +891,7 @@
 		//		Optional. A function that is fired after all dependencies have been
 		//		loaded. Only applicable if deps is an array.
 		//
-		// refMap: Object?
+		// refModule: Object?
 		//		A reference map used for resolving module URLs.
 		//
 		// returns: Object | Function
@@ -846,14 +915,19 @@
 			callback && callback.apply(null, deps);
 		}, function (ex) {
 			throw ex;
-		}, refMap) || req;
+		}, refModule) || req;
 	}
 
-	req.has = has;
-	req.on = on;
 	req.toUrl = toUrl;
+	mix(req, fnMixin = {
+		evaluate: evaluate,
+		has: has,
+		is: is,
+		mix: mix,
+		on: on
+	});
 
-	req.cache = function(defs) {
+	req.cache = function(subject) {
 		// summary:
 		//		Copies module definitions into the definition cache.
 		//
@@ -867,8 +941,9 @@
 		//		the module definition.  Modules not defined or cached will be fetched
 		//		remotely.
 		//
-		// defs: Object
-		//		An object with module id => function where each function wraps a module.
+		// subject: String | Object
+		//		When a string, returns the cached object or undefined otherwise an object
+		//		with module id => function where each function wraps a module.
 		//
 		// example:
 		//		This shows what build system would generate. You should not need to do this.
@@ -886,13 +961,17 @@
 		//		|		}
 		//		|	});
 		var p, m, re = /^url\:(.+)/;
-		for (p in defs) {
-			m = p.match(re);
-			if (m) {
-				defCache[toUrl(m[1])] = defs[p];
-			} else {
-				m = getResourceDef(p);
-				defCache[m.name] = defs[p];
+		if (is(subject, "String")) {
+			return defCache[subject];
+		} else {
+			for (p in subject) {
+				m = p.match(re);
+				if (m) {
+					defCache[toUrl(m[1])] = subject[p];
+				} else {
+					m = getResourceDef(p, 0, 0, subject[p], 1);
+					defCache[m.name] = m.rawDef;
+				}
 			}
 		}
 	};
@@ -901,77 +980,46 @@
 	global.require = req;
 	global.define = def;
 
-/*	graveyard...
-
-	function defineModule(name, def) {
-		var m = modules[name] = new ResourceDef(name);
-		m.def = def;
-		m.loaded = m.executed = 1;
-	}
-
-	defineModule("require", req);
-
-	// define modules we already know about
-	// need to define after require has been defined
-	function defineModule(name, val) {
-		defined[name] = {
-			name: name
-		};
-	}
-
-	if the rawDef is an object, need to wrap and pass in deps as a map!
-			definition = (function (obj, vars) {
-				for (var i in vars){
-					this[i] = vars[i];
-				}
-				return obj;
-			}(rawDef, moduleMapThinger));
-
-	this nugget is for evaling xhr text responses:
-			(function (v, t) {
-				var f = new Function("__vars", "__js", "return eval('for(var i in __vars){this[i]=__vars[i];}'+__js);");
-				return f(v, t);
-			}({
-				"exports": this.exports
-				// TODO: need to pass in "require" and "module"
-			}, this.rawDef));
-
-
-	each(["require", "exports", "module"], defineModule);
-
-	defined = {
-		"require": req,
-		"exports": {},
-		"module": {} // TODO: need to initialize
-		"has": ???
-	};
-	
-
-	this is from fetch() sync path	
-			// "deps" is really the "name"
-			module = getResourceDef(deps, refMap);
-
-			if (has("fetch-single-module")) {
-				// non-standard: if the module isn't loaded, try loading it via XHR
-				module.loaded || module.load(1); // let exceptions bubble up
-			}
-
-			if (module.loaded && (module.executed || module.execute())) {
-				success && success([module]); // non-standard, but harmless
-				return module.def;
-			}
-
-			failure('Module "' + deps + '" failed to load and execute');
-
-
-	original define() invoke now code:
-			// TODO: define the module name, rawDef, fullname, url, etc
-			// TODO: need to define a refMap for 4th arg???
-			fetch(deps, function (deps) {
-				// TODO: execute *this* module with the deps
-			}, function (ex) {
-				throw ex;
-			});
-
-*/
 }(window));
+
+require.cache({
+	"include": function () {
+		define(function () {
+			var cache = {},
+				stack = [];
+
+			return {
+				dynamic: true, // prevent the loader from caching the result
+
+				normalize: function (name, normalize) {
+					var parts = name.split("!"),
+						url = parts[0];
+					return (/^\./.test(url) ? normalize(url) : url) + (parts[1] ? "!" + parts[1] : "");
+				},
+
+				load: function (name, require, onLoad, config) {
+					var url = require.toUrl(/^\//.test(name) ? name : "./" + name, stack.length ? { name: stack[stack.length-1] } : null),
+						c = cache[url] || require.cache(url),
+						x;
+
+					if (!c) {
+						x = new XMLHttpRequest();
+						x.open("GET", url, false);
+						x.send(null);
+						if (x.status === 200) {
+							c = x.responseText;
+						} else {
+							throw new Error("Failed to load include \"" + url + "\": " + x.status);
+						}
+					}
+
+					stack.push(url);
+					require.evaluate(cache[url] = c, 0, true);
+					stack.pop();
+
+					onLoad(c);
+				}
+			};
+		});
+	}
+});
