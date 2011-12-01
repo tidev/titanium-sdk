@@ -15,6 +15,15 @@
  */
 
 /*
+ * MODIFICATIONS
+ *
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+
+/*
  * NOTES
  * This file was modified from the Facebook original.  Modifications:
  * - In createCrossImage, fetch the "cross" (close.png) drawable resource id
@@ -85,29 +94,29 @@ public class FbDialog extends Dialog {
         mSpinner = new ProgressDialog(getContext());
         mSpinner.requestWindowFeature(Window.FEATURE_NO_TITLE);
         mSpinner.setMessage("Loading...");
-        
+
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         mContent = new FrameLayout(getContext());
 
         /* Create the 'x' image, but don't add to the mContent layout yet
-         * at this point, we only need to know its drawable width and height 
+         * at this point, we only need to know its drawable width and height
          * to place the webview
          */
         createCrossImage();
-        
-        /* Now we know 'x' drawable width and height, 
+
+        /* Now we know 'x' drawable width and height,
          * layout the webivew and add it the mContent layout
          */
         int crossWidth = mCrossImage.getDrawable().getIntrinsicWidth();
         setUpWebView(crossWidth / 2);
-        
+
         /* Finally add the 'x' image to the mContent layout and
          * add mContent to the Dialog view
          */
         mContent.addView(mCrossImage, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
         addContentView(mContent, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
     }
-    
+
     private void createCrossImage() {
         mCrossImage = new ImageView(getContext());
         // Dismiss the dialog when user click on the 'x'
@@ -122,12 +131,12 @@ public class FbDialog extends Dialog {
 
         // ** TITANIUM
         if (mCrossDrawableId == -1) {
-        	// First attempt at looking it up.
-        	mCrossDrawableId = getContext().getResources().getIdentifier("close", "drawable", getContext().getPackageName());
+            // First attempt at looking it up.
+            mCrossDrawableId = getContext().getResources().getIdentifier("close", "drawable", getContext().getPackageName());
         }
         if (mCrossDrawableId > 0) {
             mCrossImage.setImageDrawable(
-            	getContext().getResources().getDrawable(mCrossDrawableId)
+                getContext().getResources().getDrawable(mCrossDrawableId)
             );
         }
         //mCrossImage.setImageDrawable(crossDrawable);
@@ -149,7 +158,7 @@ public class FbDialog extends Dialog {
         mWebView.loadUrl(mUrl);
         mWebView.setLayoutParams(FILL);
         mWebView.setVisibility(View.INVISIBLE);
-        
+
         webViewContainer.setPadding(margin, margin, margin, margin);
         webViewContainer.addView(mWebView);
         mContent.addView(webViewContainer);
@@ -212,9 +221,9 @@ public class FbDialog extends Dialog {
         public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
             mSpinner.dismiss();
-            /* 
+            /*
              * Once webview is fully loaded, set the mContent background to be transparent
-             * and make visible the 'x' image. 
+             * and make visible the 'x' image.
              */
             mContent.setBackgroundColor(Color.TRANSPARENT);
             mWebView.setVisibility(View.VISIBLE);
