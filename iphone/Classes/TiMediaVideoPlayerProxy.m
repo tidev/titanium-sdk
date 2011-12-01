@@ -309,42 +309,29 @@ NSArray* moviePlayerKeys = nil;
     }
 }
 
-// < 3.2 functions for controls
--(void)updateControlMode:(id)value
-{
-}
-
+// < 3.2 functions for controls - deprecated
 -(void)setMovieControlMode:(NSNumber *)value
 {
     DEPRECATED_REPLACED(@"Ti.Media.VideoPlayer.movieControlMode", @"1.8.0", @"1.9.0", @"Ti.Media.VideoPlayer.mediaControlStyle");    
-	[self setMovieControlStyle:value];
+	[self setMediaControlStyle:value];
 }
 
 -(NSNumber*)movieControlMode
 {
     DEPRECATED_REPLACED(@"Ti.Media.VideoPlayer.movieControlMode", @"1.8.0", @"1.9.0", @"Ti.Media.VideoPlayer.mediaControlStyle");        
-	return [self movieControlStyle];
-}
-
--(void)updateControlStyle:(id)value
-{
-	[[self player] setControlStyle:[TiUtils intValue:value def:MPMovieControlStyleDefault]];
+	return [self mediaControlStyle];
 }
 
 -(void)setMovieControlStyle:(NSNumber *)value
 {
     DEPRECATED_REPLACED(@"Ti.Media.VideoPlayer.movieControlStyle", @"1.8.0", @"1.9.0", @"Ti.Media.VideoPlayer.mediaControlStyle");
-	if (movie != nil) {
-		[self performSelectorOnMainThread:@selector(updateControlStyle:) withObject:value waitUntilDone:NO];
-	} else {
-		[loadProperties setValue:value forKey:@"movieControlStyle"];
-	}
+    [self setMediaControlStyle:value];
 }
 
 -(NSNumber*)movieControlStyle
 {
     DEPRECATED_REPLACED(@"Ti.Media.VideoPlayer.movieControlStyle", @"1.8.0", @"1.9.0", @"Ti.Media.VideoPlayer.mediaControlStyle");
-	return NUMINT([[self player] controlStyle]);
+    return [self mediaControlStyle];
 }
 
 -(void)setMediaControlStyle:(NSNumber *)value
