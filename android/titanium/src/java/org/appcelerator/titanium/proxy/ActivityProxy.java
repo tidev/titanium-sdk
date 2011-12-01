@@ -15,7 +15,6 @@ import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
@@ -38,21 +37,11 @@ public class ActivityProxy extends KrollProxy
 	protected DecorViewProxy savedDecorViewProxy;
 
 	private KrollFunction resultCallback;
-
-
-	public ActivityProxy(TiContext tiContext)
-	{
-		this();
-	}
-
+	
 	public ActivityProxy()
 	{
 	}
 
-	public ActivityProxy(TiContext tiContext, Activity activity)
-	{
-		this(activity);
-	}
 
 	public ActivityProxy(Activity activity)
 	{

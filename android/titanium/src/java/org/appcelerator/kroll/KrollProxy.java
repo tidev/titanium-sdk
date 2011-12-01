@@ -25,7 +25,6 @@ import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.util.TiUrl;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 
@@ -658,11 +657,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		if (krollObject != null) {
 			krollObject.release();
 		}
-	}
-
-	public Context getContext()
-	{
-		return getActivity();
 	}
 
 	// TODO RM_TICONTEXT

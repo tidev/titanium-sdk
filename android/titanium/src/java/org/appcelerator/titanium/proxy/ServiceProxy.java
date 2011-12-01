@@ -9,7 +9,6 @@ package org.appcelerator.titanium.proxy;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.TiConfig;
-import org.appcelerator.titanium.TiContext;
 
 import android.app.Service;
 import android.content.Intent;
@@ -26,12 +25,7 @@ public class ServiceProxy extends KrollProxy
 	private ServiceConnection serviceConnection = null; // Set only if the service is started via bindService as opposed to startService
 	private static final boolean DBG = TiConfig.LOGD;
 	private static final String LCAT = "TiServiceProxy";
-
-	public ServiceProxy(TiContext tiContext)
-	{
-		this();
-	}
-
+	
 	public ServiceProxy()
 	{
 	}
