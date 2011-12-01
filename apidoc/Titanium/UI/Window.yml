@@ -333,9 +333,12 @@ description: |
     remote JavaScript from a URL and providing it with the full capabilities of the Titanium
     API would be very dangerous.
 
-    When you Window is loaded from a separate JavaScript file, the code will be executed in
+    When your Window is loaded from a separate JavaScript file, the code will be executed in
     a separate JavaScript context (called a "sub-context") than your `app.js` global context.
     It will also execute in its own separate thread.
+
+    On Android, a new context is also created when you create a heavyweight window. See the
+    section, "Android Heavyweight and Lightweight Windows" for more information.
 
     The special property <Titanium.UI.currentWindow> is available inside a sub-context that
     points to the JavaScript instance by reference in the global context.
@@ -487,6 +490,29 @@ description: |
         	modalTransitionStyle: Ti.UI.iPhone.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL,
         	modalStyle: Ti.UI.iPhone.MODAL_PRESENTATION_FORMSHEET
         })
+
+    #### Android Heavyweight and Lightweight Windows
+
+    In Android, Titanium windows can be heavyweight or lightweight:
+
+    - A *heavyweight* window is associated with a new Android [Activity]
+      (Titanium.Android.Activity). Creating a heavyweight window always 
+      creates a new JavaScript context.
+
+    - A *lightweight* window is a fullscreen view, and runs in the same Android Activity 
+      as the code that created it. Creating a lightweight window creates a new 
+      JavaScript context if it was created with the 'url' property set.
+
+    The [createWindow](Titanium.UI.createWindow) call creates a heavyweight window 
+    if any of the following properties are true on creation:
+
+    * `fullscreen`
+    * `navBarHidden`
+    * `modal`
+    * `windowSoftInputMode`
+
+    A heavyweight window is always created when you open a new window from inside a [TabGroup]
+    (Titanium.UI.TabGroup).
 
     #### Android "root" Windows
 
