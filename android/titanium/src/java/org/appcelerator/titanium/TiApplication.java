@@ -130,7 +130,7 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 		return tiApp.get();
 	}
 	
-	//This method is a convenience method for AndroidModule.hideSoftKeyboard()
+	//This is a convenience method to avoid having to check TiApplication.getInstance() is not null every time we need to grab the current activity
 	public static Activity getCurrentInstanceActivity()
 	{
 		TiApplication tiApp = getInstance();
