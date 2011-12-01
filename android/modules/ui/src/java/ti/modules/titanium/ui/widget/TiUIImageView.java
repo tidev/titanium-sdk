@@ -237,11 +237,9 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	{
 		if (msg.what == SET_IMAGE) {
 			AsyncResult result = (AsyncResult) msg.obj;
-			TiImageView view = getView();
-			if (view != null) {
-				view.setImageBitmap((Bitmap) result.getArg());
-				result.setResult(null);
-			}
+			handleSetImage((Bitmap) result.getArg());
+			result.setResult(null);
+			return true;
 		}
 		return false;
 	}
@@ -251,11 +249,18 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		if (!TiApplication.isUIThread()) {
 			TiMessenger.sendBlockingMainMessage(handler.obtainMessage(SET_IMAGE), bitmap);
 		} else {
-			TiImageView view = getView();
-			if (view != null) {
-				view.setImageBitmap(bitmap);
-			}
+			handleSetImage(bitmap);
 		}
+	}
+
+	private void handleSetImage(final Bitmap bitmap)
+	{
+		TiImageView view = getView();
+		if (view != null) {
+			view.setImageBitmap(bitmap);
+		}
+		// Let this run even if view doesn't exist. It just tells the proxy
+		// what the current bitmap should be.
 		imageViewProxy.onBitmapChanged(this, bitmap);
 	}
 
@@ -350,6 +355,11 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 								loader.wait();
 							}
 							Log.i(LCAT, "Waking from pause.");
+							// In the meantime, while paused, user could have backed out, which leads
+							// to release(), which in turn leads to nullified imageSources.
+							if (imageSources == null) {
+								break topLoop;
+							}
 						} catch (InterruptedException e) {
 							Log.w(LCAT, "Interrupted from paused state.");
 						}
@@ -608,8 +618,12 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 	private void setImage(boolean recycle)
 	{
-		if (imageSources == null || imageSources.size() == 0) {
-			setImage(null);
+		if (imageSources == null || imageSources.size() == 0 || imageSources.get(0) == null || imageSources.get(0).isTypeNull()) {
+			if (defaultImageSource != null) {
+				setDefaultImage();
+			} else {
+				setImage(null);
+			}
 			return;
 		}
 		if (imageSources.size() == 1) {
@@ -797,6 +811,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		} else if (key.equals(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
 			view.setEnableZoomControls(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_URL)) {
+			Log.w(LCAT, "The url property of ImageView is deprecated, use image instead.");
 			setImageSource(newValue);
 			firedLoad = false;
 			setImage(true);
