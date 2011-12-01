@@ -1,5 +1,5 @@
 ---
-name: Titanium.Map.MapView
+name: Titanium.Map.View
 summary: Map view is used for embedding native mapping capabilities as a view in your application.  
 description: |
     With native maps, you can control the mapping location, the type of map, the zoom level 
