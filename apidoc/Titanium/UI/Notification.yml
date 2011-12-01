@@ -1,0 +1,58 @@
+---
+name: Titanium.UI.Notification
+summary: An Android Toast-style notification.
+description: |
+    A Toast notification is an unobtrusive, pop-up notification that doesn't 
+    block the UI. Use the <Titanium.UI.createNotification> method to create a Toast notification.
+
+    By default, a Toast notification appears centered on the bottom half of the screen.
+
+    This object will be moved to the Android namespace in a future release.
+extends: Titanium.UI.View
+since: "0.8"
+platforms: [android]
+examples: 
+  - title: Simple Toast Notification
+    example: |
+        The simplest use case is also the most common.
+
+            var toast = Ti.UI.createNotification({
+                message:"Please Stand By",
+                duration: Ti.UI.NOTIFICATION_DURATION_LONG
+            });
+            toast.show();
+
+methods:
+- name: show 
+  summary: Show the notification.
+properties:
+  - name: message 
+    summary: Notification text to display.
+    type: String
+  - name: duration
+    summary: Determines how long the notification stays on screen.
+    description: |
+        Specify either [NOTIFICATION_DURATION_SHORT](Titanium.UI.NOTIFICATION_DURATION_SHORT) or 
+        [NOTIFICATION_DURATION_LONG](Titanium.UI.NOTIFICATION_DURATION_LONG).
+    type: Number
+    default: <Titanium.UI.NOTIFICATION_DURATION_SHORT>
+  - name: xOffset
+    summary: X offset from the default position, in pixels.
+    type: Number
+    default: 0
+  - name: yOffset
+    summary: Y offset from the default position, in pixels.
+    type: Number
+    default: 0
+  - name: horizontalMargin
+    summary: Horizontal placement of the notification, *as a fraction of the screen width*. 
+    description: Useful values range from -0.5 (far left) to 0.5 (far right). A value 
+        of zero indicates default placement.
+    type: Number
+    default: 0
+  - name: verticalMargin
+    summary: Vertical placement of the notifcation, *as a fraction of the screen height*.
+    description: Useful values range from -0.5 (top) to 0.5 (bottom). A value 
+        of zero indicates default placement.
+    type: Number
+    default: 0
