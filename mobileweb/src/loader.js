@@ -8,7 +8,6 @@
  *  - require.js (BSD, MIT) <http://requirejs.org>
  *  - curl.js (MIT) <https://github.com/unscriptable/curl>
  *  - has.js (AFL, BSD, MIT) <https://github.com/phiggins42/has.js>
- *  - uber.js (AFL, BSD) <https://github.com/phiggins42/uber.js>
  *  - es5-shim (MIT) <https://github.com/kriskowal/es5-shim>
  *
  * This loader is a CommonJS and AMD compatible resource loader. It is comprised
