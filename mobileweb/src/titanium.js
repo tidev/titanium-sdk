@@ -338,10 +338,6 @@ function($window, args){
 		return val + (typeof val == 'number' ? 'px' : '');
 	};
 
-	Ti._5.parseLength = function(val){
-		return val + (typeof val == 'number' ? 'px' : '');
-	};
-
 	Ti._5.createUUID = function(){
 		/*!
 		Math.uuid.js (v1.4)
