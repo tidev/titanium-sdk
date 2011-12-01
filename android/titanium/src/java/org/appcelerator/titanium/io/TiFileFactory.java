@@ -12,6 +12,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiFileHelper;
 
 import android.net.Uri;
@@ -21,9 +22,20 @@ public class TiFileFactory
 	private static final String LCAT = "TiFileFactory";
 	private static final boolean DBG = TiConfig.LOGD;
 
+
+	public static TiBaseFile createTitaniumFile(TiContext tiContext, String path, boolean stream)
+	{
+		return createTitaniumFile(path, stream);
+	}
+
 	public static TiBaseFile createTitaniumFile(String path, boolean stream)
 	{
 		String[] parts = { path };
+		return createTitaniumFile(parts, stream);
+	}
+
+	public static TiBaseFile createTitaniumFile(TiContext tiContext, String[] parts, boolean stream)
+	{
 		return createTitaniumFile(parts, stream);
 	}
 
