@@ -79,7 +79,8 @@ class Bootstrap(object):
 		self.apiTree = {}
 		self.initTable = []
 		self.headers = ""
-		self.topLevelJS = ""
+		self.globalsJS = ""
+		self.invocationJS = ""
 		self.modulesWithCreate = []
 		self.moduleId = moduleId
 		self.moduleName = moduleName
@@ -121,8 +122,9 @@ class Bootstrap(object):
 
 		self.headers += "#include \"%s.h\"\n" % proxy
 		initFunction = "::%s::%s::bindProxy" % (namespace, className)
+		disposeFunction = "::%s::%s::dispose" % (namespace, className)
 
-		self.initTable.append("%s, %s" % (proxy, initFunction))
+		self.initTable.append("%s, %s, %s" % (proxy, initFunction, disposeFunction))
 
 	def getParentModuleClass(self, proxyMap):
 		creatableInModule = proxyMap["proxyAttrs"].get("creatableInModule", None)
@@ -280,10 +282,10 @@ class Bootstrap(object):
 					ns = "Titanium." + ns
 				topLevelNames = proxyMap["topLevelMethods"][method]
 				for name in topLevelNames:
-					self.topLevelJS += JS_DEFINE_TOP_LEVEL % {"name": name, "mapping": method, "namespace": ns}
+					self.globalsJS += JS_DEFINE_TOP_LEVEL % {"name": name, "mapping": method, "namespace": ns}
 
 		for api in invocationAPIs:
-			self.topLevelJS += JS_INVOCATION_API % { "moduleNamespace": self.moduleName, "namespace": namespace, "api": api["apiName"] }
+			self.invocationJS += JS_INVOCATION_API % { "moduleNamespace": self.moduleName, "namespace": namespace, "api": api["apiName"] }
 
 		if needsReturn and self.genAPITree:
 			js += "		return %s;\n" % var
@@ -300,14 +302,15 @@ class Bootstrap(object):
 			#tree = tree[namespace]
 
 		bootstrapJS = self.processNode(tree, namespace)
-		bootstrapJS = self.topLevelJS + bootstrapJS
 
 		bootstrap = os.path.join(outDir, "bootstrap.js")
 		genBindings = os.path.join(outDir, "KrollGeneratedBindings.gperf")
 
 		moduleClass = self.apiTree["_className"]
 		bootstrapContext = {
-			"bootstrap": bootstrapJS,
+			"globalsJS": self.globalsJS,
+			"invocationJS": self.invocationJS,
+			"bootstrapJS": bootstrapJS,
 			"modulesWithCreate": json.dumps(self.modulesWithCreate),
 			"moduleClass": moduleClass,
 			"moduleName": self.moduleName
@@ -315,9 +318,11 @@ class Bootstrap(object):
 
 		open(bootstrap, "w").write(jsTemplate % bootstrapContext)
 
-		gperfContext = { "headers": self.headers,
+		gperfContext = {
+			"headers": self.headers,
 			"bindings": "\n".join(self.initTable),
-			"moduleName": self.moduleName }
+			"moduleName": self.moduleName
+		}
 
 		open(genBindings, "w").write(gperfTemplate % gperfContext)
 

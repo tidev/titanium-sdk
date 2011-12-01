@@ -66,4 +66,9 @@ public class ProxyFactory
 	{
 		proxyConstructors.put(proxyClassName, constructor);
 	}
+
+	public static void dispose()
+	{
+		proxyConstructors.clear();
+	}
 }

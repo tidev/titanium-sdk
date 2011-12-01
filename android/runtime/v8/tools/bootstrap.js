@@ -100,12 +100,24 @@ function addInvocationAPI(module, moduleNamespace, namespace, api) {
 }
 exports.addInvocationAPI = addInvocationAPI;
 
+function bootstrapGlobals(global, Titanium) {
+	// Below this is where generated global bindings go
+	// ----
+
+	%(globalsJS)s
+}
+exports.bootstrapGlobals = bootstrapGlobals;
+
 exports.bootstrap = function(Titanium) {
 	loadAppModules();
 	var module = Titanium;
 
+	bootstrapGlobals(global, Titanium);
+
 	// Below this is where the generated code
 	// from genBootstrap.py goes
 	// ----
-	%(bootstrap)s
+
+	%(invocationJS)s
+	%(bootstrapJS)s
 }

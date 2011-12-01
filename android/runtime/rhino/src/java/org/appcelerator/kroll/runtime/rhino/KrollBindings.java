@@ -12,6 +12,7 @@ import org.appcelerator.kroll.KrollLogging;
 import org.appcelerator.kroll.runtime.rhino.KrollScriptRunner.KrollScript;
 import org.appcelerator.kroll.runtime.rhino.js.bootstrap;
 import org.appcelerator.kroll.runtime.rhino.js.events;
+import org.appcelerator.kroll.runtime.rhino.js.invoker;
 import org.appcelerator.kroll.runtime.rhino.js.kroll;
 import org.appcelerator.kroll.runtime.rhino.js.module;
 import org.appcelerator.kroll.runtime.rhino.js.path;
@@ -49,11 +50,6 @@ public class KrollBindings
 	private static HashMap<String, Script> jsBindings = new HashMap<String, Script>();
 	private static HashMap<String, Class<? extends Proxy>> externalBindings = new HashMap<String, Class<? extends Proxy>>();
 
-	static
-	{
-		initJsBindings();
-	}
-
 	private static void addJsBinding(String name, Class<?> jsBinding)
 	{
 		KrollScript script = KrollScriptRunner.getInstance().getOrCreateScript(jsBinding);
@@ -65,11 +61,12 @@ public class KrollBindings
 		externalBindings.put(name, jsBinding);
 	}
 
-	private static void initJsBindings()
+	public static void initJsBindings()
 	{
 		// TODO this should be generated
 		addJsBinding("bootstrap", bootstrap.class);
 		addJsBinding("events", events.class);
+		addJsBinding("invoker", invoker.class);
 		addJsBinding("kroll", kroll.class);
 		addJsBinding("module", module.class);
 		addJsBinding("path", path.class);
@@ -100,6 +97,15 @@ public class KrollBindings
 		Proxy.init(context, exports, "Titanium",
 			KrollGeneratedBindings.getBindingClass(
 				"ti.modules.titanium.TitaniumModule"));
+	}
+
+	public static void dispose()
+	{
+		KrollScriptRunner.dispose();
+		KrollGeneratedBindings.dispose();
+
+		bindingCache.clear();
+		jsBindings.clear();
 	}
 
 	public static Script getJsBinding(String name)

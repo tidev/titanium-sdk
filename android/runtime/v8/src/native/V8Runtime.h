@@ -18,6 +18,8 @@ class V8Runtime
 public:
 	static Persistent<Context> globalContext;
 	static Persistent<Object> krollGlobalObject;
+	static Persistent<Array> moduleContexts;
+
 	static jobject javaInstance;
 
 	static void collectWeakRef(Persistent<Value> ref, void *parameter);

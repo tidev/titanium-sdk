@@ -1,79 +1,78 @@
 ---
 name: Titanium.UI.EmailDialog
-description: The Email Dialog is created by <Titanium.UI.createEmailDialog> and allows you to send in 
+summary: The Email Dialog is created by <Titanium.UI.createEmailDialog> and allows you to send in 
     application emails on behalf of the application user.
 extends: Titanium.Proxy
 since: "0.8"
 platforms: [android, iphone, ipad]
 methods:
   - name: addAttachment
-    description: |
+    summary: |
         add an attachment to the email. The attachment can either be a Blob or File object. Note: Versions before 1.7.1 will only support one attachment in Android.  Since version 1.7.1, our Android implementation will accept multiple attachments, but multiple attachments will only work if the user chooses to send via the Android Gmail app; the Android "Mail" app (which is anyway not available on some handsets) will only accept one attachment from a Titanium app.  K9 has also been tested successfully with multiple attachments.
     parameters:
       - name: attachment
-        description: attachment object as either a Blob or File object
+        summary: attachment object as either a Blob or File object
         type: Object
   - name: isSupported
-    description: return whether or not sending email is supported
+    summary: return whether or not sending email is supported
   - name: open
-    description: open the email dialog. the email dialog itself is a modal window
+    summary: open the email dialog. the email dialog itself is a modal window
     parameters:
       - name: properties
-        description: object of animation properties. pass `animated` property (as boolean) to indicate if the dialog should be animated on open.
+        summary: object of animation properties. pass `animated` property (as boolean) to indicate if the dialog should be animated on open.
         type: Object
 events:
   - name: complete
-    description: fired when the email dialog has completed sending the email
+    summary: fired when the email dialog has completed sending the email
     properties:
       - name: result
-        description: |
+        summary: |
                 result status either as SENT, SAVED, CANCELLED or FAILED. (Note: Android result will be SENT even if user discards or saves the message.  SAVED and CANCELLED are not supported on Android.)
       - name: success
-        description: boolean to indicate if the email was successfully sent
+        summary: boolean to indicate if the email was successfully sent
       - name: error
-        description: string message of the error or null if successfully sent
+        summary: string message of the error or null if successfully sent
 properties:
   - name: CANCELLED
-    description: constant for the CANCELLED status result
+    summary: constant for the CANCELLED status result
     type: Number
     permission: read-only
   - name: FAILED
-    description: constant for the FAILED status result
+    summary: constant for the FAILED status result
     type: Number
     permission: read-only
   - name: SAVED
-    description: constant for the SAVED status result
+    summary: constant for the SAVED status result
     type: Number
     permission: read-only
   - name: SENT
-    description: constant for the SENT status result
+    summary: constant for the SENT status result
     type: Number
     permission: read-only
   - name: barColor
-    description: the bar color of the email dialog window when opened
+    summary: the bar color of the email dialog window when opened
     type: String
   - name: bccRecipients
-    description: |
+    summary: |
         array of email BCC: recipients
     type: Array<Object>
   - name: ccRecipients
-    description: |
+    summary: |
         array of email CC: recipients
     type: Array<Object>
   - name: html
-    description: |
+    summary: |
         boolean to indicate whether the email messageBody should be sent as HTML content type. defaults to false. (Android note: you should not use html messages in 1.6: after that is okay.)
     type: Boolean
   - name: messageBody
-    description: the email message body
+    summary: the email message body
     type: String
   - name: subject
-    description: the subject line for the email
+    summary: the subject line for the email
     type: String
   - name: toRecipients
-    description: array of email recipients
+    summary: array of email recipients
     type: Array<Object>
-notes: |
     
 examples:
   - title: Simple Email Dialog with Attachment

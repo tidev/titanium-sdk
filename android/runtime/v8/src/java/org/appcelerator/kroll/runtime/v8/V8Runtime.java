@@ -18,7 +18,10 @@ import android.util.Log;
 public final class V8Runtime extends KrollRuntime implements Handler.Callback
 {
 	private static final String TAG = "KrollV8Runtime";
+	private static final String NAME = "v8";
 	private static final int MSG_PROCESS_DEBUG_MESSAGES = KrollRuntime.MSG_LAST_ID + 100;
+
+	private boolean libLoaded = false;
 
 	@Override
 	public void initRuntime()
@@ -31,7 +34,12 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		}
 
 		boolean debuggerEnabled = getKrollApplication().isDebuggerEnabled();
-		System.loadLibrary("kroll-v8");
+
+		if (!libLoaded) {
+			System.loadLibrary("kroll-v8");
+			libLoaded = true;
+		}
+
 		nativeInit(useGlobalRefs, debuggerEnabled);
 	}
 
@@ -64,6 +72,12 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		}
 
 		return super.handleMessage(message);
+	}
+
+	@Override
+	public String getRuntimeName()
+	{
+		return NAME;
 	}
 
 	protected void dispatchDebugMessages()

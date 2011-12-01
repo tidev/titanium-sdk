@@ -7,7 +7,9 @@
 var EventEmitter = require("events").EventEmitter,
 	assets = kroll.binding("assets"),
 	vm = require("vm"),
-	url = require("url");
+	url = require("url"),
+	Script = kroll.binding('evals').Script;
+
 var TAG = "Window";
 
 exports.bootstrapWindow = function(Titanium) {
@@ -80,7 +82,6 @@ exports.bootstrapWindow = function(Titanium) {
 				return this.getActivityDecorView().getOrientationModes();
 			}
 		}
-
 		return this.cachedOrientationModes;
 	}
 	var orientationModesSetter = function(value) {
@@ -152,7 +153,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 		if (!options) {
 			options = {};
-		} else {
+		} else if (!(options instanceof UI.Animation)) {
 			this._properties.extend(options);
 		}
 
@@ -200,7 +201,7 @@ exports.bootstrapWindow = function(Titanium) {
 				self.postOpen();
 			});
 
-			this.window.open();
+			this.window.open(options);
 
 		} else {
 			this.postOpen();
@@ -245,29 +246,45 @@ exports.bootstrapWindow = function(Titanium) {
 
 		this.currentState = this.state.opened;
 		this.fireEvent("open");
+		this.fireEvent("focus");
 	}
-	
+
+	Window.prototype.runWindowUrl = function(scopeVars) {
+		var parent = this._module || kroll.Module.main;
+		var moduleId = this.url;
+
+		if (this.url.indexOf(".js") == this.url.length - 3) {
+			moduleId = this.url.substring(0, this.url.length - 3);
+		}
+
+		parent.require(moduleId, scopeVars, false);
+	}
+
 	Window.prototype.loadUrl = function() {
 		if (this.url == null) {
 			return;
 		}
 
 		kroll.log(TAG, "Loading window with URL: " + this.url);
-		
+
 		// Reset creationUrl of the window
 		var currentUrl = url.resolve(this._sourceUrl, this.url);
 		this.window.setCreationUrl(currentUrl.href);
-		
-		Titanium.include(this.url, this._sourceUrl, {
+
+		var scopeVars = {
 			currentWindow: this,
 			currentActivity: this.window.activity,
 			currentTab: this.tab,
 			currentTabGroup: this.tabGroup
-		});
+		};
+		scopeVars = Titanium.initScopeVars(scopeVars, currentUrl);
+
+		this.runWindowUrl(scopeVars);
 	}
 
 	Window.prototype.close = function(options) {
 		// if the window is not opened, do not close
+
 		if (this.currentState != this.state.opened) {
 			kroll.log(TAG, "unable to close, window is not opened");
 			return;
@@ -416,6 +433,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 		window._sourceUrl = scopeVars.sourceUrl;
 		window._currentActivity = scopeVars.currentActivity; // don't think we are using this, remove?
+		window._module = scopeVars.module;
 
 		return window;
 	}

@@ -6,18 +6,18 @@
  */
 (function(kroll) {
 	var TAG = "kroll";
-
-	global = this;
+	var global = this;
 
 	function startup() {
 		startup.globalVariables();
 		startup.runMain();
 	}
 
-	// Used just to differentiate scope vars on java side by checking
-	// constructor name
-	function ScopeVars(sourceUrl, currentActivity) {
+	// Used just to differentiate scope vars on java side by
+	// using a unique constructor name
+	function ScopeVars(sourceUrl, module, currentActivity) {
 		this.sourceUrl = sourceUrl;
+		this.module = module;
 		this.currentActivity = currentActivity;
 	}
 

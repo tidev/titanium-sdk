@@ -45,6 +45,7 @@
 
 @interface TiMediaVideoPlayerProxy ()
 @property(nonatomic,readwrite,copy)	NSNumber*	movieControlStyle;
+@property(nonatomic,readwrite,copy)	NSNumber*	mediaControlStyle;
 @end
 
 NSArray* moviePlayerKeys = nil;
@@ -308,36 +309,43 @@ NSArray* moviePlayerKeys = nil;
     }
 }
 
-// < 3.2 functions for controls
--(void)updateControlMode:(id)value
-{
-}
-
+// < 3.2 functions for controls - deprecated
 -(void)setMovieControlMode:(NSNumber *)value
 {
-	[self setMovieControlStyle:value];
+    DEPRECATED_REPLACED(@"Ti.Media.VideoPlayer.movieControlMode", @"1.8.0", @"1.9.0", @"Ti.Media.VideoPlayer.mediaControlStyle");    
+	[self setMediaControlStyle:value];
 }
 
 -(NSNumber*)movieControlMode
 {
-	return [self movieControlStyle];
-}
-
--(void)updateControlStyle:(id)value
-{
-	[[self player] setControlStyle:[TiUtils intValue:value def:MPMovieControlStyleDefault]];
+    DEPRECATED_REPLACED(@"Ti.Media.VideoPlayer.movieControlMode", @"1.8.0", @"1.9.0", @"Ti.Media.VideoPlayer.mediaControlStyle");        
+	return [self mediaControlStyle];
 }
 
 -(void)setMovieControlStyle:(NSNumber *)value
 {
-	if (movie != nil) {
-		[self performSelectorOnMainThread:@selector(updateControlStyle:) withObject:value waitUntilDone:NO];
-	} else {
-		[loadProperties setValue:value forKey:@"movieControlStyle"];
-	}
+    DEPRECATED_REPLACED(@"Ti.Media.VideoPlayer.movieControlStyle", @"1.8.0", @"1.9.0", @"Ti.Media.VideoPlayer.mediaControlStyle");
+    [self setMediaControlStyle:value];
 }
 
 -(NSNumber*)movieControlStyle
+{
+    DEPRECATED_REPLACED(@"Ti.Media.VideoPlayer.movieControlStyle", @"1.8.0", @"1.9.0", @"Ti.Media.VideoPlayer.mediaControlStyle");
+    return [self mediaControlStyle];
+}
+
+-(void)setMediaControlStyle:(NSNumber *)value
+{
+	if (movie != nil) {
+		dispatch_async(dispatch_get_main_queue(), ^{
+			[[self player] setControlStyle:[TiUtils intValue:value def:MPMovieControlStyleDefault]];
+		});
+	} else {
+		[loadProperties setValue:value forKey:@"mediaControlStyle"];
+	}
+}
+
+-(NSNumber*)mediaControlStyle
 {
 	return NUMINT([[self player] controlStyle]);
 }

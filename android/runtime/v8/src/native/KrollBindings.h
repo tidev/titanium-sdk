@@ -14,10 +14,12 @@ namespace titanium {
 
 namespace bindings {
 	typedef void (*BindCallback)(v8::Handle<v8::Object> exports);
+	typedef void (*DisposeCallback)();
 
 	struct BindEntry {
 		const char *name;
 		BindCallback bind;
+		DisposeCallback dispose;
 	};
 
 } // namespace bindings
@@ -31,6 +33,7 @@ private:
 public:
 	static void initNatives(v8::Handle<v8::Object> exports);
 	static void initTitanium(v8::Handle<v8::Object> exports);
+	static void disposeTitanium();
 
 	static v8::Handle<v8::String> getMainSource();
 
@@ -46,6 +49,8 @@ public:
 	{
 		externalBindings[name] = binding;
 	}
+
+	static void dispose();
 };
 
 } // namespace titanium

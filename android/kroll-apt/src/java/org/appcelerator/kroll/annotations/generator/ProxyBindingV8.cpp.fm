@@ -67,6 +67,19 @@ void ${className}::bindProxy(Handle<Object> exports)
 	</#if>
 }
 
+void ${className}::dispose()
+{
+	LOGD(TAG, "dispose()");
+	if (!proxyTemplate.IsEmpty()) {
+		proxyTemplate.Dispose();
+		proxyTemplate = Persistent<FunctionTemplate>();
+	}
+
+	<#if superProxyClassName??>
+	${superProxyClassName?replace("BindingGen", "")}::dispose();
+	</#if>
+}
+
 Handle<FunctionTemplate> ${className}::getProxyTemplate()
 {
 	if (!proxyTemplate.IsEmpty()) {

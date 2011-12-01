@@ -248,6 +248,22 @@
 		"typeValidation":false,
 		"defaultValue": "null"
 	},
+	"java.lang.String[]":{
+		"jsType":"Array",
+		"jsHandleCast":"Array",
+		"jsToJavaConverter":"jsArrayToJavaArray",
+		"javaToJsConverter":"javaArrayToJsArray",
+		"jvalue":"l", "signature":"[Ljava/lang/String;",
+		"javaCallMethodType":"Object",
+		"javaReturnType":"jobjectArray",
+		"javaValidation": true,
+		"javaDeleteLocalRef":true,
+		"rhinoType":"Scriptable",
+		"rhinoJsCast":true,
+		"rhinoToJavaConverter":"jsArrayToJavaStringArray",
+		"javaToRhinoConverter":"javaStringArrayToJsArray",
+		"defaultValue": "null"
+	},
 	"java.lang.Object":{
 		"jsType":"Value",
 		"jsConvertType":"Value",

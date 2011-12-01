@@ -21,7 +21,6 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUITableView;
@@ -442,7 +441,8 @@ public class TableViewProxy extends TiViewProxy
 		TableViewRowProxy rowProxy = null;
 		if (row instanceof TableViewRowProxy) {
 			rowProxy = (TableViewRowProxy) row;
-
+			rowProxy.setProperty(TiC.PROPERTY_ROW_DATA, new KrollDict(rowProxy.getProperties()));
+			
 		} else {
 			KrollDict rowDict = null;
 			if (row instanceof KrollDict) {

@@ -1,39 +1,131 @@
 ---
 name: Titanium.UI
-description: The main <Titanium.UI> module.  The UI module is responsible for native user-interface components and interaction inside Titanium.  The goal of the UI module is to provide a native experience along with native performance by compiling Javascript code into their native counterparts as part of the build process.
+summary: The main <Titanium.UI> module.  
+description:  |
+    The UI module is responsible for native user-interface components and interaction inside 
+    Titanium.  The goal of the UI module is to provide a native experience along with native 
+    performance by compiling Javascript code into their native counterparts as part of the 
+    build process.
+
+    #### Design
+    
+    The UI module is broken down into 3 major area:
+
+    * **Views** - [Views](Titanium.UI.View-object.html) are containers that
+    host visual elements such as controls or other views.  Views can have
+    their properties customized, such as their border color and radius, can
+    fire events such as swipe events or touches, and can optionally contain a
+    hierarchy or other views as children. In Titanium, most views are
+    specialized to perform both a visual function and set of interaction
+    behaviors such as [Table View](Titanium.UI.TableView-object.html) or
+    [Coverflow View](Titanium.UI.CoverFlowView-object.html).  Views are always
+    named with the suffix `View`.
+
+    * **Controls** - controls, or sometimes referred as widgets, are visual
+    elements such as [sliders](Titanium.UI.Slider-object.html),
+    [buttons](Titanium.UI.Button-object.html) and
+    [switches](Titanium.UI.Switch-object.html). They provide a visual element
+    which has a defined behavior and typical have special configuration and
+    special events.  Controls themselves are views and also inherit a views
+    properties, functions and events.
+
+    * **Windows** - [Windows](Titanium.UI.Window-object.html) are typically
+    top-level visual constructs that are the main part of your interface. An
+    application will always have at least one window and windows can take
+    different shapes and sizes, can have display and interaction properties
+    such as fullscreen or modal and can be customized, such as changing their
+    opacity or background color. Windows themselves are views and also inherit
+    a views properties, functions and events. There are a few specialization
+    of Windows such as a [Tab Group](Titanium.UI.TabGroup-object.html) which
+    offer additional behavior beyond the basic Window.
+
+
+    Titanium uses the [Factory
+    Pattern](http://en.wikipedia.org/wiki/Factory_method_pattern) for
+    constructing objects and a general naming pattern for APIs.  For example,
+    to construct a [Alert Dialog](Titanium.UI.AlertDialog-object.html), you
+    call the method <Titanium.UI.createAlertDialog>.  To create a
+    [TextArea](Titanium.UI.TextArea-object.html), you call the method
+    <Titanium.UI.createTextArea>.  Once an object is created, it will be
+    available until it goes out of scope.
+
+    ### Optimizations
+
+    UI objects are optimized by Titanium to not be realized into the drawing
+    context and placed into the device UI surface until needed.  That means that
+    you can create UI objects, set their properties and add them to their
+    hierarchy without much worry about memory or performance.  When the native
+    drawing surface needs to render a specific view or control, Titanium will
+    automatically create the view as needed.  Additionally, Titanium is
+    optimized to also release memory once the view is no longer needed, on
+    screen or in low memory situations.  However, it's a good idea to help
+    Titanium along in certain cases where you are no longer using objects.  For
+    example, you should call `close` on a
+    [Window](Titanium.UI.Window-object.html) instance when you are no longer
+    using it.  You can safely call `open` on the
+    [Window](Titanium.UI.Window-object.html) again to re-open it.
+
+    ### Global Context and Threading
+
+    Be careful with the objects that are created in `app.js` but only used once.
+    Since the `app.js` context is global and generally is not garbage collected
+    until the application exits, you should think about the design of your
+    application as it relates to this fact.
+    [Window](Titanium.UI.Window-object.html) objects that are opened up with the
+    `url` property to another Javascript file contain a nice way to decompose
+    your application into smaller units.  The other benefit is that when a
+    [Window](Titanium.UI.Window-object.html) is closed, its resources can be
+    immediately cleaned up, saving resources such as memory and CPU.
+    Additionally, [Window](Titanium.UI.Window-object.html) objects run in a
+    separate Javascript context and Thread. While all UI processing is done on
+    the main UI thread, other processing inside a Window or the `app.js` that
+    does not have UI interaction will run in its own thread.
+
+
+    ### Portability
+    
+    Titanium components are designed to be portable across as many platforms as
+    it supports.  However, there are cases where a device either does not
+    support a specific feature or capability or where it support additional
+    functionality.  For cases where the device OS supports capabilities that
+    other platforms do not, we attempt to place those capabilities in a separate
+    namespace, such as [Titanium.UI.iPhone](Titanium.UI.iPhone-module.html).
+    However, in cases where the control is in a common namespace and support
+    additional features, we continue to place that functionality directly on the
+    object.
 extends: Titanium.Module
 since: "0.4"
 properties:
   - name: ANIMATION_CURVE_EASE_IN
-    description: animation curve constant
+    summary: animation curve constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: ANIMATION_CURVE_EASE_IN_OUT
-    description: animation curve constant
+    summary: animation curve constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: ANIMATION_CURVE_EASE_OUT
-    description: animation curve constant
+    summary: animation curve constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: ANIMATION_CURVE_LINEAR
-    description: animation curve constant
+    summary: animation curve constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: AUTODETECT_ADDRESS
-    description: text autodetection constant (iOS 4.0+)
+    summary: text autodetection constant (iOS 4.0+)
     platforms: [iphone, ipad]
     osver: {ios: {min: "4.0"}}
     permission: read-only
@@ -41,14 +133,14 @@ properties:
     deprecated:
         since: "1.8.0"
   - name: AUTODETECT_ALL
-    description: text autodetection constant (iOS)
+    summary: text autodetection constant (iOS)
     platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: AUTODETECT_CALENDAR
-    description: text autodetection constant (iOS 4.0+)
+    summary: text autodetection constant (iOS 4.0+)
     platforms: [iphone, ipad]
     osver: {ios: {min: "4.0"}}
     type: Number
@@ -56,525 +148,501 @@ properties:
     deprecated:
         since: "1.8.0"
   - name: AUTODETECT_LINK
-    description: text autodetection constant (iOS)
+    summary: text autodetection constant (iOS)
     platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: AUTODETECT_NONE
-    description: text autodetection constant (iOS)
+    summary: text autodetection constant (iOS)
     platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: AUTODETECT_PHONE
-    description: text autodetection constant (iOS)
+    summary: text autodetection constant (iOS)
     platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_CLEAR
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_COLOR
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_COLOR_BURN
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_COLOR_DODGE
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_COPY
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_DARKEN
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_DESTINATION_ATOP
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_DESTINATION_IN
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: BLEND_MODE_DESTINATION_OUT
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_DESTINATION_OVER
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_DIFFERENCE
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_EXCLUSION
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_HARD_LIGHT
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_HUE
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_LIGHTEN
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     deprecated:
         since: "1.8.0"
     permission: read-only
   - name: BLEND_MODE_LUMINOSITY
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_MULTIPLY
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_NORMAL
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_OVERLAY
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_PLUS_DARKER
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_PLUS_LIGHTER
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_SATURATION
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_SCREEN
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_SOFT_LIGHT
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_SOURCE_ATOP
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_SOURCE_IN
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_SOURCE_OUT
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_XOR
-    description: image mode constant
+    summary: image mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: FACE_DOWN
-    description: orientation constant
+    summary: orientation constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: FACE_UP
-    description: orientation constant
+    summary: orientation constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: INPUT_BORDERSTYLE_BEZEL
-    description: input border style constant
+    summary: input border style constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: INPUT_BORDERSTYLE_LINE
-    description: input border style constant
+    summary: input border style constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: INPUT_BORDERSTYLE_NONE
-    description: input border style constant
+    summary: input border style constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: INPUT_BORDERSTYLE_ROUNDED
-    description: input border style constant
+    summary: input border style constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: INPUT_BUTTONMODE_ALWAYS
-    description: input button mode constant
+    summary: input button mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: INPUT_BUTTONMODE_NEVER
-    description: input button mode constant
+    summary: input button mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: INPUT_BUTTONMODE_ONBLUR
-    description: input button mode constant
+    summary: input button mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: INPUT_BUTTONMODE_ONFOCUS
-    description: input button mode constant
+    summary: input button mode constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: KEYBOARD_APPEARANCE_ALERT
-    description: textfield keyboard appearance constant
+    summary: textfield keyboard appearance constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: KEYBOARD_APPEARANCE_DEFAULT
-    description: textfield keyboard appearance constant
+    summary: textfield keyboard appearance constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: KEYBOARD_ASCII
-    description: textfield keyboard constant
+    summary: textfield keyboard constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: KEYBOARD_DEFAULT
-    description: textfield keyboard constant
+    summary: textfield keyboard constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: KEYBOARD_EMAIL
-    description: textfield keyboard constant
+    summary: textfield keyboard constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: KEYBOARD_NAMEPHONE_PAD
-    description: textfield keyboard constant
+    summary: textfield keyboard constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: KEYBOARD_NUMBERS_PUNCTUATION
-    description: textfield keyboard constant
+    summary: textfield keyboard constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: KEYBOARD_NUMBER_PAD
-    description: textfield keyboard constant
+    summary: textfield keyboard constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: KEYBOARD_PHONE_PAD
-    description: textfield keyboard constant
+    summary: textfield keyboard constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: KEYBOARD_URL
-    description: textfield keyboard constant
+    summary: textfield keyboard constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: LANDSCAPE_LEFT
-    description: orientation (home button on left) constant
+    summary: orientation (home button on left) constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: LANDSCAPE_RIGHT
-    description: orientation (home button on right) constant
+    summary: orientation (home button on right) constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: NOTIFICATION_DURATION_LONG
-    description: Duration of the notification
-    platforms: [android, iphone, ipad]
+    summary: Specifies a long duration for an Android Toast notification (<Titanium.UI.Notification>).
+    platforms: [android]
     type: Number
     permission: read-only
   - name: NOTIFICATION_DURATION_SHORT
-    description: Duration of the notification
-    platforms: [android, iphone, ipad]
+    summary: Specifies a short duration for an Android Toast notification (<Titanium.UI.Notification>).
+    platforms: [android]
     type: Number
     permission: read-only
   - name: PICKER_TYPE_COUNT_DOWN_TIMER
-    description: picker type constant
+    summary: picker type constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: PICKER_TYPE_DATE
-    description: picker type constant
+    summary: picker type constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: PICKER_TYPE_DATE_AND_TIME
-    description: picker type constant
+    summary: picker type constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: PICKER_TYPE_PLAIN
-    description: picker type constant
+    summary: picker type constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: PICKER_TYPE_TIME
-    description: picker type constant
+    summary: picker type constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: PORTRAIT
-    description: orientation (home button on bottom) constant
+    summary: orientation (home button on bottom) constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: RETURNKEY_DEFAULT
-    description: textfield return key constant
+    summary: textfield return key constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: RETURNKEY_DONE
-    description: textfield return key constant
+    summary: textfield return key constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: RETURNKEY_EMERGENCY_CALL
-    description: textfield return key constant
+    summary: textfield return key constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: RETURNKEY_GO
-    description: textfield return key constant
+    summary: textfield return key constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: RETURNKEY_GOOGLE
-    description: textfield return key constant
+    summary: textfield return key constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: RETURNKEY_JOIN
-    description: textfield return key constant
+    summary: textfield return key constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: RETURNKEY_NEXT
-    description: textfield return key constant
+    summary: textfield return key constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: RETURNKEY_ROUTE
-    description: textfield return key constant
+    summary: textfield return key constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: RETURNKEY_SEARCH
-    description: textfield return key constant
+    summary: textfield return key constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: RETURNKEY_SEND
-    description: textfield return key constant
+    summary: textfield return key constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: RETURNKEY_YAHOO
-    description: textfield return key constant
+    summary: textfield return key constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_ALIGNMENT_CENTER
-    description: text align constant
+    summary: text align constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_ALIGNMENT_LEFT
-    description: text align constant
+    summary: text align constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_ALIGNMENT_RIGHT
-    description: text align constant
+    summary: text align constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_AUTOCAPITALIZATION_ALL
-    description: text capitalization constant
+    summary: text capitalization constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_AUTOCAPITALIZATION_NONE
-    description: text capitalization constant
+    summary: text capitalization constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_AUTOCAPITALIZATION_SENTENCES
-    description: text capitalization constant
+    summary: text capitalization constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_AUTOCAPITALIZATION_WORDS
-    description: text capitalization constant
+    summary: text capitalization constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_VERTICAL_ALIGNMENT_BOTTOM
-    description: text vertical align constant
+    summary: text vertical align constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_VERTICAL_ALIGNMENT_CENTER
-    description: text vertical align constant
+    summary: text vertical align constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_VERTICAL_ALIGNMENT_TOP
-    description: text vertical align constant
+    summary: text vertical align constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: UNKNOWN
-    description: orientation constant
+    summary: orientation constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: UPSIDE_PORTRAIT
-    description: orientation (home button on top) constant
+    summary: orientation (home button on top) constant
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: backgroundColor
-    description: this sets the background color of the master UIView (when there are no windows/tab groups on it)
+    summary: this sets the background color of the master UIView (when there are no windows/tab groups on it)
     platforms: [android, iphone, ipad]
     type: String
     permission: read-only
   - name: backgroundImage
-    description: path/url to an image file for setting a background for the master UIView (when there are no windows/tab groups on it).
+    summary: path/url to an image file for setting a background for the master UIView (when there are no windows/tab groups on it).
     platforms: [android, iphone, ipad]
     type: String
   - name: currentWindow
-    description: The active window associated with the executing Javascript context.
+    summary: The active window associated with the executing Javascript context.
     platforms: [android, iphone, ipad]
     type: Titanium.UI.Window
     permission: read-only
   - name: orientation
     deprecated: {since: "1.7.2"}
-    description: To set an orientation, it is suggested to instead set <Titanium.Window.orientationModes> to the specific orientation desired.  When set, this will update the orientation of the current window to the specified orientation value.
+    summary: To set an orientation, it is suggested to instead set <Titanium.Window.orientationModes> to the specific orientation desired.  When set, this will update the orientation of the current window to the specified orientation value.
     platforms: [android, iphone, ipad]
     type: Number
-notes: |
-    ### Design
-    
-    The UI module is broken down into 3 major area:
-    
-    * **Views** - [Views](Titanium.UI.View-object.html) are containers that host visual elements such as controls or other views.  Views can have their properties customized, such as their border color and radius, can fire events such as swipe events or touches, and can optionally contain a hierarchy or other views as children. In Titanium, most views are specialized to perform both a visual function and set of interaction behaviors such as [Table View](Titanium.UI.TableView-object.html) or [Coverflow View](Titanium.UI.CoverFlowView-object.html).  Views are always named with the suffix `View`.
-    * **Controls** - controls, or sometimes referred as widgets, are visual elements such as [sliders](Titanium.UI.Slider-object.html), [buttons](Titanium.UI.Button-object.html) and [switches](Titanium.UI.Switch-object.html). They provide a visual element which has a defined behavior and typical have special configuration and special events.  Controls themselves are views and also inherit a views properties, functions and events.
-    * **Windows** - [Windows](Titanium.UI.Window-object.html) are typically top-level visual constructs that are the main part of your interface. An application will always have at least one window and windows can take different shapes and sizes, can have display and interaction properties such as fullscreen or modal and can be customized, such as changing their opacity or background color. Windows themselves are views and also inherit a views properties, functions and events. There are a few specialization of Windows such as a [Tab Group](Titanium.UI.TabGroup-object.html) which offer additional behavior beyond the basic Window.
-    
-    
-    Titanium uses the [Factory Pattern](http://en.wikipedia.org/wiki/Factory_method_pattern) for constructing objects and a general naming pattern for APIs.  For example, to construct a [Alert Dialog](Titanium.UI.AlertDialog-object.html), you call the method <Titanium.UI.createAlertDialog>.  To create a [TextArea](Titanium.UI.TextArea-object.html), you call the method <Titanium.UI.createTextArea>.  Once an object is created, it will be available until it goes out of scope.
-    
-    ### Optimizations
-    
-    UI objects are optimized by Titanium to not be realized into the drawing context and placed into the device UI surface until needed.  That means that you can create UI objects, set their properties and add them to their hierarchy without much worry about memory or performance.  When the native drawing surface needs to render a specific view or control, Titanium will automatically create the view as needed.  Additionally, Titanium is optimized to also release memory once the view is no longer needed, on screen or in low memory situations.  However, it's a good idea to help Titanium along in certain cases where you are no longer using objects.  For example, you should call `close` on a [Window](Titanium.UI.Window-object.html) instance when you are no longer using it.  You can safely call `open` on the [Window](Titanium.UI.Window-object.html) again to re-open it.  
-    
-    ### Global Context and Threading
-    
-    Be careful with the objects that are created in `app.js` but only used once.  Since the `app.js` context is global and generally is not garbage collected until the application exits, you should think about the design of your application as it relates to this fact.  [Window](Titanium.UI.Window-object.html) objects that are opened up with the `url` property to another Javascript file contain a nice way to decompose your application into smaller units.  The other benefit is that when a [Window](Titanium.UI.Window-object.html) is closed, its resources can be immediately cleaned up, saving resources such as memory and CPU.  Additionally, [Window](Titanium.UI.Window-object.html) objects run in a separate Javascript context and Thread. While all UI processing is done on the main UI thread, other processing inside a Window or the `app.js` that does not have UI interaction will run in its own thread.
-    
-    
-    ### Portability
-    
-    Titanium components are designed to be portable across as many platforms as it supports.  However, there are cases where a device either does not support a specific feature or capability or where it support additional functionality.  For cases where the device OS supports capabilities that other platforms do not, we attempt to place those capabilities in a separate namespace, such as [Titanium.UI.iPhone](Titanium.UI.iPhone-module.html). However, in cases where the control is in a common namespace and support additional features, we continue to place that functionality directly on the object.

@@ -1,7 +1,7 @@
 ---
 name: Titanium.XML.Node
 extends: Titanium.Proxy
-description: >
+summary: >
     A single node in the [Document|Titanium.XML.Document] tree. For full property and method description,
     see the [DOM Level 2 API|http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-1950641247].
 createable: false
@@ -9,191 +9,191 @@ platforms: [android, iphone, ipad]
 properties:
   - name: ELEMENT_NODE
     type: Number
-    description: The value of <nodeType> when this node is a <Titanium.XML.Element>
+    summary: The value of <nodeType> when this node is a <Titanium.XML.Element>
     permission: read-only
     value: 1
   - name: ATTRIBUTE_NODE
     type: Number
-    description: The value of <nodeType> when this node is a <Titanium.XML.Attr>
+    summary: The value of <nodeType> when this node is a <Titanium.XML.Attr>
     permission: read-only
     value: 2
   - name: TEXT_NODE
     type: Number
-    description: The value of <nodeType> when this node is a <Titanium.XML.Text>
+    summary: The value of <nodeType> when this node is a <Titanium.XML.Text>
     permission: read-only
     value: 3
   - name: CDATA_SECTION_NODE
     type: Number
-    description: The value of <nodeType> when this node is a CData section (a type of <Titanium.XML.Text>)
+    summary: The value of <nodeType> when this node is a CData section (a type of <Titanium.XML.Text>)
     permission: read-only
     value: 4
   - name: ENTITY_REFERENCE_NODE
     type: Number
-    description: The value of <nodeType> when this node is an [Entity reference](http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-11C98490) (a type of <Titanium.XML.Node>)
+    summary: The value of <nodeType> when this node is an [Entity reference](http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-11C98490) (a type of <Titanium.XML.Node>)
     permission: read-only
     value: 5
   - name: ENTITY_NODE
     type: Number
-    description: The value of <nodeType> when this node is a <Titanium.XML.Entity>
+    summary: The value of <nodeType> when this node is a <Titanium.XML.Entity>
     permission: read-only
     value: 6
   - name: PROCESSING_INSTRUCTION_NODE
     type: Number
-    description: The value of <nodeType> when this node is a <Titanium.XML.ProcessingInstruction>
+    summary: The value of <nodeType> when this node is a <Titanium.XML.ProcessingInstruction>
     permission: read-only
     value: 7
   - name: COMMENT_NODE
     type: Number
-    description: The value of <nodeType> when this node is a <Titanium.XML.Comment>
+    summary: The value of <nodeType> when this node is a <Titanium.XML.Comment>
     permission: read-only
     value: 8
   - name: DOCUMENT_NODE
     type: Number
-    description: The value of <nodeType> when this node is a <Titanium.XML.Document>
+    summary: The value of <nodeType> when this node is a <Titanium.XML.Document>
     permission: read-only
     value: 9
   - name: DOCUMENT_TYPE_NODE
     type: Number
-    description: The value of <nodeType> when this node is a <Titanium.XML.DocumentType>
+    summary: The value of <nodeType> when this node is a <Titanium.XML.DocumentType>
     permission: read-only
     value: 10
   - name: DOCUMENT_FRAGMENT_NODE
     type: Number
-    description: The value of <nodeType> when this node is a <Titanium.XML.DocumentFragment>
+    summary: The value of <nodeType> when this node is a <Titanium.XML.DocumentFragment>
     permission: read-only
     value: 11
   - name: NOTATION_NODE
     type: Number
-    description: The value of <nodeType> when this node is a <Titanium.XML.Notation>
+    summary: The value of <nodeType> when this node is a <Titanium.XML.Notation>
     permission: read-only
     value: 12
   - name: nodeName
     type: String
-    description: The name of this node
+    summary: The name of this node
     permission: read-only
   - name: nodeValue
     type: String
-    description: The content (value) of this node
+    summary: The content (value) of this node
     permission: read-only
   - name: nodeType
     type: Number
-    description: >
+    summary: >
         This node's type. One of <ELEMENT_NODE>, <ATTRIBUTE_NODE>, <TEXT_NODE>, <CDATA_SECTION_NODE>,
         <ENTITY_REFERENCE_NODE>, <ENTITY_NODE>, <PROCESSING_INSTRUCTION_NODE>, <COMMENT_NODE>,
         <DOCUMENT_NODE>, <DOCUMENT_TYPE_NODE>, <DOCUMENT_FRAGMENT_NODE>, <NOTATION_NODE>
     permission: read-only
   - name: parentNode
     type:  Titanium.XML.Node
-    description: This node's parent node
+    summary: This node's parent node
     permission: read-only
   - name: childNodes
     type: Titanium.XML.NodeList
-    description: A <Titanium.XML.NodeList> of this node's children
+    summary: A <Titanium.XML.NodeList> of this node's children
     permission: read-only
   - name: firstChild
     type: Titanium.XML.Node
-    description: This node's first child
+    summary: This node's first child
     permission: read-only
   - name: lastChild
     type: Titanium.XML.Node
-    description: This node's last child
+    summary: This node's last child
     permission: read-only
   - name: previousSibling
     type: Titanium.XML.Node
-    description: This node's previous sibling
+    summary: This node's previous sibling
     permission: read-only
   - name: nextSibling
     type: Titanium.XML.Node
-    description: This node's next sibling
+    summary: This node's next sibling
     permission: read-only
   - name: attributes
     type: Titanium.XML.NamedNodeMap
-    description: A map of this node's attributes
+    summary: A map of this node's attributes
     permission: read-only
   - name: ownerDocument
     type: Titanium.XML.Document
-    description: This node's owning Document
+    summary: This node's owning Document
     permission: read-only
   - name: namespaceURI
     type: String
-    description: The namespace URI of this node
+    summary: The namespace URI of this node
     permission: read-only
   - name: prefix
     type: String
-    description: The namespace prefix of this node
+    summary: The namespace prefix of this node
     permission: read-only
   - name: localName
     type: String
-    description: The local part of the qualified name of this node
+    summary: The local part of the qualified name of this node
 methods:
   - name: appendChild
-    description: Appends the node `newChild` as a child of this node
+    summary: Appends the node `newChild` as a child of this node
     parameters:
       - name: newChild
         type: Titanium.XML.Node
-        description: The new node to append
+        summary: The new node to append
     returns:
         type: Titanium.XML.Node
-        description: The appended node
+        summary: The appended node
   - name: cloneNode
-    description: Returns a duplicate of this node
+    summary: Returns a duplicate of this node
     parameters:
       - name: deep
         type: Boolean
-        description: Whether or not to perform a deep copy of this node
+        summary: Whether or not to perform a deep copy of this node
     returns:
         type: Titanium.XML.Node
-        description: The appended node
+        summary: The appended node
   - name: hasAttributes
-    description: Whether or not this node has attributes
+    summary: Whether or not this node has attributes
     returns:
         type: Boolean
   - name: hasChildNodes
-    description: Whether or not this node has child nodes
+    summary: Whether or not this node has child nodes
     returns:
         type: Boolean
   - name: insertBefore
     parameters:
       - name: newChild
         type: Titanium.XML.Node
-        description: The node to insert
+        summary: The node to insert
       - name : refChild
         type: Titanium.XML.Node
-        description: The node to insert `newChild` before
+        summary: The node to insert `newChild` before
     returns:
         type: Titanium.XML.Node
-        description: The inserted node
+        summary: The inserted node
   - name: isSupported
-    description: Tests whether the DOM implementation supports a specific feature
+    summary: Tests whether the DOM implementation supports a specific feature
     parameters:
       - name: feature
         type: String
-        description: The name of the feature
+        summary: The name of the feature
       - name: version
         type: String
-        description: The version number of the feature
+        summary: The version number of the feature
     returns:
         type: Boolean
-        description: Whether or not the feature is supported
+        summary: Whether or not the feature is supported
   - name: normalize
-    description: Normalizes text and attribute nodes in this node's child hierarchy
+    summary: Normalizes text and attribute nodes in this node's child hierarchy
   - name: removeChild
-    description: Removes a child node from this node
+    summary: Removes a child node from this node
     parameters:
       - name: oldChild
         type: Titanium.XML.Node
-        description: The node to remove
+        summary: The node to remove
     returns:
         type: Titanium.XML.Node
-        description: The node that was removed
+        summary: The node that was removed
   - name: replaceChild
-    description: Replaces the node `oldChild` with the node `newChild`
+    summary: Replaces the node `oldChild` with the node `newChild`
     parameters:
       - name: newChild
         type: Titanium.XML.Node
-        description: The new node
+        summary: The new node
       - name: oldChild
         type: Titanium.XML.Node
-        description: The node being replaced
+        summary: The node being replaced
 
 

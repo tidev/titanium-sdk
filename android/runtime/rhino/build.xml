@@ -61,6 +61,7 @@
 							</header>
 							<path path="@{js.file}"/>
 							<footer filtering="no">
+								return exports;
 							});</footer>
 						</concat>
 					</then>

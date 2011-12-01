@@ -1,11 +1,11 @@
 ---
 name: Titanium.XML
-description: The top level XML module.  The XML module is used parsing and processing XML-based content.
+summary: The top level XML module.  The XML module is used parsing and processing XML-based content.
 extends: Titanium.Module
 since: "0.9"
 methods:
   - name: parseString
-    description: > 
+    summary: > 
         Parses an XML string into a <Titanium.XML.Document> object.
         Throws an exception if the string is unable to be parsed into a valid
         document.
@@ -13,13 +13,13 @@ methods:
         type: Titanium.XML.Document
     parameters:
       - name: xml
-        description: the XML content as a string
+        summary: the XML content as a string
         type: String
   - name: serializeToString
-    description: Serializes a <Titanium.XML.Document> object into a string.
+    summary: Serializes a <Titanium.XML.Document> object into a string.
     returns:
         type: String
     parameters:
       - name: node
-        description: The XML DOMNode or DOMDocument to serialize
+        summary: The XML DOMNode or DOMDocument to serialize
         type: Titanium.XML.Node

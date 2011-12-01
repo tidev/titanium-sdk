@@ -30,7 +30,6 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.WebViewProxy;
-
 import android.content.Context;
 import android.graphics.Color;
 import android.net.Uri;

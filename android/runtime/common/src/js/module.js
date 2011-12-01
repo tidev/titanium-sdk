@@ -5,10 +5,13 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-var NativeModule = require('native_module');
-var assets = kroll.binding('assets');
-var path = require('path');
-var runInThisContext = require('vm').runInThisContext;
+var NativeModule = require('native_module'),
+	assets = kroll.binding('assets'),
+	path = require('path'),
+	Script = kroll.binding('evals').Script,
+	runInThisContext = require('vm').runInThisContext,
+	bootstrap = require('bootstrap');
+
 var TAG = "Module";
 
 function Module(id, parent, context) {
@@ -30,6 +33,7 @@ Module.paths = [ 'Resources/' ];
 Module.wrap = NativeModule.wrap;
 
 Module.runModule = function (source, filename, activity) {
+
 	var id = filename;
 	if (!Module.main) {
 		id = ".";
@@ -64,13 +68,12 @@ Module.runMainModule = function (source, filename) {
 //
 // Returns the exports object of the loaded module if successful.
 Module.prototype.load = function (filename, source) {
-	kroll.log(TAG, 'Loading module: "' + filename + '"');
-
 	if (this.loaded) {
 		throw new Error("Module already loaded.");
 	}
 
 	this.filename = filename;
+	this.paths = [path.dirname(filename)];
 
 	if (!source) {
 		source = assets.readAsset(filename);
@@ -85,8 +88,8 @@ Module.prototype.load = function (filename, source) {
 // This parent module's path is appended to the search paths
 // when loading the child. Returns the exports object
 // of the child module.
-Module.prototype.require = function (request, context) {
-	kroll.log(TAG, 'Requesting module: "' + request + '"');
+Module.prototype.require = function (request, context, useCache) {
+	useCache = useCache === undefined ? true : useCache;
 
 	// Delegate native module requests.
 	if (NativeModule.exists(request)) {
@@ -109,19 +112,23 @@ Module.prototype.require = function (request, context) {
 	var id = resolved[0];
 	var filename = resolved[1];
 
-	kroll.log(TAG, 'Loading module "' + request + '" using filename: "' + filename + '"');
+	kroll.log(TAG, 'Loading module: ' + request + ' -> ' + filename);
 
-	var cachedModule = Module.cache[filename];
-	if (cachedModule) {
-		return cachedModule.exports;
+	if (useCache) {
+		var cachedModule = Module.cache[filename];
+		if (cachedModule) {
+			return cachedModule.exports;
+		}
 	}
 
 	// Create and attempt to load the module.
 	var module = new Module(id, this, context);
 	module.load(filename);
 
-	// Cache the module for future requests.
-	Module.cache[filename] = module;
+	if (useCache) {
+		// Cache the module for future requests.
+		Module.cache[filename] = module;
+	}
 
 	return module.exports;
 }
@@ -147,21 +154,57 @@ Module.prototype._runScript = function (source, filename) {
 	// Create context-bound modules.
 	var context = self.context || {};
 	context.sourceUrl = url;
+	context.module = this;
+
+	// Create a "context global" that's specific to each module
+	var contextGlobal = context.global = {
+		exports: this.exports,
+		require: require,
+		module: this,
+		__filename: filename,
+		__dirname: path.dirname(filename),
+		kroll: kroll
+	};
+	contextGlobal.global = contextGlobal;
 
 	var ti = new Titanium.Wrapper(context);
+	contextGlobal.Ti = contextGlobal.Titanium = ti;
 
-	// Execute the module inside a wrapper to prevent
-	// globals from leaking into the global scope.
-	var wrapper = Module.wrap(source);
-	var compiledWrapper = runInThisContext(wrapper, filename, true);
-	var args = [self.exports, require, self, filename, path.dirname(filename), ti, ti, global, kroll];
-	return compiledWrapper.apply(self.exports, args);
+	// This function is called by the context when it is finished initializing
+	// the builtin Javascript APIs
+	function initContext(ctx, contextGlobal) {
+		// Bootstrap Titanium global APIs onto the new context global
+		bootstrap.bootstrapGlobals(contextGlobal, Titanium);
+	}
+
+	// We initialize the context with the standard Javascript APIs and globals first before running the script
+	var newContext = context.global = ti.global = Script.createContext(contextGlobal, initContext);
+
+	if (kroll.runtime == "rhino") {
+		// The Rhino version of this API takes a custom global object but uses the same Rhino "Context".
+		// It's not possible to create more than 1 Context per thread in Rhino, so contextGlobal
+		// is essentially a detached global object that mimics a new context.
+		return runInThisContext(source, filename, true, newContext);
+
+	} else {
+		// The V8 version of this API creates a brand new V8 top-level context that's associated
+		// with a new global object. Script.createContext copies all of our context-specific data
+		// into a new ContextWrapper that doubles as the global object for the context itself.
+		kroll.moduleContexts.push(newContext);
+		return Script.runInContext(source, newContext, filename, true);
+	}
 }
 
 // Determine the paths where the requested module could live.
 // Returns [id, paths]  where id is the module ID and paths
 // is the list of path names.
 function resolveLookupPaths(request, parentModule) {
+
+	// "absolute" in Titanium is relative to the Resources folder
+	if (request.charAt(0) === '/') {
+		request = request.substring(1);
+	}
+
 	var start = request.substring(0, 2);
 	if (start !== './' && start !== '..') {
 		var paths = Module.paths;
@@ -180,6 +223,7 @@ function resolveLookupPaths(request, parentModule) {
 	//     path.id = "a/b" if non-index
 	var isIndex = /^index\.\w+?$/.test(path.basename(parentModule.filename));
 	var parentIdPath = isIndex ? parentModule.id : path.dirname(parentModule.id);
+
 	var id = path.resolve(parentIdPath, request);
 
 	// make sure require('./path') and require('path') get distinct ids, even
@@ -188,13 +232,15 @@ function resolveLookupPaths(request, parentModule) {
 		id = './' + id;
 	}
 
-	return [id, [path.dirname(parentModule.filename)]];
+	// The module ID is resolved now, so we use the root "Module.paths" as the lookup base
+	return [id, Module.paths];
 }
 
 // Determine the filename that contains the request
 // module's source code. If no file is found an exception
 // will be thrown.
 function resolveFilename(request, parentModule) {
+
 	var resolvedModule = resolveLookupPaths(request, parentModule);
 	var id = resolvedModule[0];
 	var paths = resolvedModule[1];

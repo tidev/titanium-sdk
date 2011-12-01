@@ -30,22 +30,23 @@ jsonDir = os.path.abspath(os.path.join(androidDir, "..", "dist", "android", "jso
 sys.path.append(androidModuleDir)
 import bootstrap
 
-bindingPaths = []
+def loadBindings():
+	bindingPaths = []
+	bindings = { "proxies": {}, "modules": {} }
+	for module in os.listdir(jsonDir):
+		bindingsDir = os.path.join(jsonDir, "org", "appcelerator", "titanium", "bindings")
+		for binding in os.listdir(bindingsDir):
+			jsonPath = os.path.join(bindingsDir, binding)
+			if os.path.exists(jsonPath):
+				bindingPaths.append(jsonPath)
 
-for module in os.listdir(jsonDir):
-	bindingsDir = os.path.join(jsonDir, "org", "appcelerator", "titanium", "bindings")
-	for binding in os.listdir(bindingsDir):
-		jsonPath = os.path.join(bindingsDir, binding)
-		if os.path.exists(jsonPath):
-			bindingPaths.append(jsonPath)
+	for bindingPath in bindingPaths:
+		moduleName = os.path.basename(bindingPath).replace(".json", "")
+		binding = json.load(open(bindingPath))
+		bindings["proxies"].update(binding["proxies"])
+		bindings["modules"].update(binding["modules"])
 
-bindings = { "proxies": {}, "modules": {} }
-
-for bindingPath in bindingPaths:
-	moduleName = os.path.basename(bindingPath).replace(".json", "")
-	binding = json.load(open(bindingPath))
-	bindings["proxies"].update(binding["proxies"])
-	bindings["modules"].update(binding["modules"])
+	return bindings
 
 def main():
 	parser = optparse.OptionParser()
@@ -56,9 +57,11 @@ def main():
 
 	(options, args) = parser.parse_args()
 
-	global bindings
+	bindings = loadBindings()
+
 	genAPITree = options.apiTree
-	b = bootstrap.Bootstrap(bindings, genAPITree, moduleId="titanium", moduleName="Titanium")
+	b = bootstrap.Bootstrap(bindings, genAPITree,
+		moduleId="titanium", moduleName="Titanium")
 
 	jsTemplate = open(os.path.join(thisDir, "bootstrap.js")).read()
 	gperfTemplate = open(os.path.join(thisDir, "bootstrap.gperf")).read()
