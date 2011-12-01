@@ -76,7 +76,7 @@ void ${className}::dispose()
 	}
 
 	<#if superProxyClassName??>
-	${superProxyClassName?replace("BindingGen", "")}::dispose();
+	<@Proxy.superNamespace/>${superProxyClassName}::dispose();
 	</#if>
 }
 

@@ -17,7 +17,8 @@ extModule.invocationAPIs = [];
 extModule.apiName = "%(moduleName)s";
 
 function bootstrapModule(module) {
-	%(bootstrap)s
+	%(invocationJS)s
+	%(bootstrapJS)s
 }
 
 bootstrapModule(extModule);
