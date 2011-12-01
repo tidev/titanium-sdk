@@ -604,9 +604,8 @@ NSArray * tableKeySequence;
 		TiUITableViewSectionProxy* section = [sections lastObject];
 		if (header != nil) {
 			section = [self sectionWithHeader:header table:table];	
-			//Ensure all table dispatch actions are completed before we get the section count
-			[self performSelectorOnMainThread:@selector(description) withObject:nil waitUntilDone:YES];
-			section.section = [sections count];
+			//Ensure we get the section count on the main thread
+			[self performSelectorOnMainThread:@selector(sectionCount:) withObject:section waitUntilDone:YES];
 			actionType = TiUITableViewActionAppendRowWithSection;
 		}
 		row.section = section;
@@ -622,6 +621,12 @@ NSArray * tableKeySequence;
 			[section add:row];
 		}
 	}	
+}
+
+-(void)sectionCount:(id)args
+{
+	ENSURE_TYPE(args, TiUITableViewSectionProxy);
+	((TiUITableViewSectionProxy*)args).section = [sections count];
 }
 
 -(void)setData:(id)args withObject:(id)properties immediate:(BOOL)immediate
