@@ -1,52 +1,58 @@
 ---
 name: Titanium.UI.iPad.Popover
 platforms: [ipad]
-description: A Popover is used to manage the presentation of content in a popover. You use popovers to present information temporarily but in a way that does not take over the entire screen like a modal view does. The popover content is layered on top of your existing content in a special type of window. The popover remains visible until the user taps outside of the popover window or you explicitly dismiss it. The Popover is created by the method <Titanium.UI.iPad.createPopover>.
+summary: A Popover is used to manage the presentation of content in a popover. 
+description: |
+    You use popovers to present information temporarily but in a way that does not take over 
+    the entire screen like a modal view does. The popover content is layered on top of your 
+    existing content in a special type of window. The popover remains visible until the user 
+    taps outside of the popover window or you explicitly dismiss it. The Popover is created 
+    by the method <Titanium.UI.iPad.createPopover>.
     
     ![popover](http://img.skitch.com/20100406-pmssjk1a3a65s6ui8qnbqi59c4.png)
 extends: Titanium.UI.View
 since: "1.2"
 methods:
   - name: setHeight
-    description: change the height of the popover
+    summary: change the height of the popover
     parameters:
       - name: height
-        description: height of the popover
+        summary: height of the popover
         type: [Number,String]
   - name: setPassthroughViews
-    description: set the passthrough views for the popover
+    summary: set the passthrough views for the popover
     parameters:
       - name: passthroughViews
-        description: array of views which the user can interact with while the popover is open (i.e. clicking on these views will interact with these views, and not dismiss the popover).
+        summary: array of views which the user can interact with while the popover is open (i.e. clicking on these views will interact with these views, and not dismiss the popover).
         type: Array<Object>
   - name: setWidth
-    description: change the width of the popover
+    summary: change the width of the popover
     parameters:
       - name: width
-        description: width of the popover
+        summary: width of the popover
         type: [Number,String]
 events:
   - name: hide
-    description: fired when the popover is hidden
+    summary: fired when the popover is hidden
     properties:
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: the y point of the event, in receiving view coordinates
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        summary: the x point of the event in receiving view coordiantes
 properties:
   - name: arrowDirection
-    description: return the arrow direction of the popover
+    summary: return the arrow direction of the popover
     type: Number
   - name: leftNavButton
-    description: the left button in the nav area of the popover
+    summary: the left button in the nav area of the popover
     type: Object
   - name: title
-    description: the title of the nav area of the popover
+    summary: the title of the nav area of the popover
     type: String
 examples:
   - title: Simple Popover

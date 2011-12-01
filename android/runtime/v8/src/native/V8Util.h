@@ -145,6 +145,7 @@ public:
 	static v8::Handle<v8::String> jsonStringify(v8::Handle<v8::Value> value);
 	static bool constructorNameMatches(v8::Handle<v8::Object>, const char* name);
 	static bool isNaN(v8::Handle<v8::Value> value);
+	static void dispose();
 };
 
 }

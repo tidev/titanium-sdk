@@ -44,4 +44,11 @@ public class KrollGeneratedBindings
 		}
 		return null;
 	}
+
+	public static void dispose()
+	{
+		<#list bindings as binding>
+		${binding.class}Prototype.dispose();
+		</#list>
+	}
 }

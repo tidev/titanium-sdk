@@ -1,126 +1,126 @@
 ---
 name: Titanium.App.Properties
-description: The App Properties module is used for storing application related property/value pairs which persist beyond application sessions.
+summary: The App Properties module is used for storing application related property/value pairs which persist beyond application sessions.
 extends: Titanium.Module
 since: "0.5"
 methods:
   - name: getBool
-    description: return a boolean value
+    summary: return a boolean value
     returns:
         type: Boolean
     parameters:
       - name: property
-        description: return a boolean value for property
+        summary: return a boolean value for property
         type: String
       - name: default
-        description: optional default value if property is not found
+        summary: optional default value if property is not found
         type: Boolean
   - name: getDouble
-    description: return a double value
+    summary: return a double value
     returns:
         type: Number
     parameters:
       - name: property
-        description: return a double value for property
+        summary: return a double value for property
         type: String
       - name: default
-        description: optional default value if property is not found
+        summary: optional default value if property is not found
         type: Number
   - name: getInt
-    description: return an integer value
+    summary: return an integer value
     returns:
         type: Number
     parameters:
       - name: property
-        description: return a integer value for property
+        summary: return a integer value for property
         type: String
       - name: default
-        description: optional default value if property is not found
+        summary: optional default value if property is not found
         type: Number
   - name: getList
-    description: return a value as an array
+    summary: return a value as an array
     returns:
         type: Array<Object>
     parameters:
       - name: property
-        description: return an array value for property
+        summary: return an array value for property
         type: String
       - name: default
-        description: optional default value if property is not found
+        summary: optional default value if property is not found
         type: Array<Object>
   - name: getString
-    description: return a string value
+    summary: return a string value
     returns:
         type: String
     parameters:
       - name: property
-        description: return a string value for property
+        summary: return a string value for property
         type: String
       - name: default
-        description: optional default value if property is not found
+        summary: optional default value if property is not found
         type: String
   - name: hasProperty
-    description: returns true if the property exists
+    summary: returns true if the property exists
     returns:
         type: Boolean
     parameters:
       - name: property
-        description: property name to check
+        summary: property name to check
         type: String
   - name: listProperties
-    description: return an array of property propertys
+    summary: return an array of property propertys
     returns:
         type: Array<Object>
   - name: removeProperty
-    description: remove an existing property
+    summary: remove an existing property
     parameters:
       - name: property
-        description: property name to remove
+        summary: property name to remove
         type: String
   - name: setBool
-    description: set a property as a boolean value
+    summary: set a property as a boolean value
     parameters:
       - name: property
-        description: property name
+        summary: property name
         type: String
       - name: value
-        description: value
+        summary: value
         type: Boolean
   - name: setDouble
-    description: set a property as a double value
+    summary: set a property as a double value
     parameters:
       - name: property
-        description: property name
+        summary: property name
         type: String
       - name: value
-        description: value
+        summary: value
         type: Number
   - name: setInt
-    description: set a property as an integer value
+    summary: set a property as an integer value
     parameters:
       - name: property
-        description: property name
+        summary: property name
         type: String
       - name: value
-        description: value
+        summary: value
         type: Number
   - name: setList
-    description: set a property as an array value
+    summary: set a property as an array value
     parameters:
       - name: property
-        description: property name
+        summary: property name
         type: String
       - name: value
-        description: value
+        summary: value
         type: Array<Object>
   - name: setString
-    description: set a property as a string value
+    summary: set a property as a string value
     parameters:
       - name: property
-        description: property name
+        summary: property name
         type: String
       - name: value
-        description: value
+        summary: value
         type: String
 examples:
   - title: Store a property

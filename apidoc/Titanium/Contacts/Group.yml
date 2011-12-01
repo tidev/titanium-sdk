@@ -1,31 +1,31 @@
 ---
 name: Titanium.Contacts.Group
-description: An object which represents a group in the contacts database.
+summary: An object which represents a group in the contacts database.
 extends: Titanium.Proxy
 since: "1.4.0"
 platforms: [iphone, ipad]
 methods:
   - name: add
-    description: Adds a person to the group
+    summary: Adds a person to the group
     parameters:
       - name: person
-        description: <Titanium.Contacts.Person> object to add to the group
+        summary: <Titanium.Contacts.Person> object to add to the group
         type: Titanium.Contacts.Person
   - name: members
-    description: The complete list of members of the group
+    summary: The complete list of members of the group
   - name: remove
-    description: Removes a person from the group
+    summary: Removes a person from the group
     parameters:
       - name: person
-        description: <Titanium.Contacts.Person> object to remove from the group
+        summary: <Titanium.Contacts.Person> object to remove from the group
         type: Titanium.Contacts.Person
   - name: sortedMembers
-    description: A list of sorted members
+    summary: A list of sorted members
     parameters:
       - name: sortBy
-        description: Method for sorting.  Must be one of  <Titanium.Contacts.CONTACTS_SORT_FIRST_NAME> or <Titanium.Contacts.CONTACTS_SORT_LAST_NAME>
+        summary: Method for sorting.  Must be one of  <Titanium.Contacts.CONTACTS_SORT_FIRST_NAME> or <Titanium.Contacts.CONTACTS_SORT_LAST_NAME>
         type: Number
 properties:
   - name: name
-    description: The name of the group
+    summary: The name of the group
     type: String

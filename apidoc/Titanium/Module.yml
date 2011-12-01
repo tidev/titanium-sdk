@@ -1,6 +1,6 @@
 ---
 name: Titanium.Module
-description: The base for all module types
+summary: The base for all module types
 extends: Titanium.Proxy
 since: "0.1"
 platforms: [android, iphone, ipad]

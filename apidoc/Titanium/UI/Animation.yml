@@ -1,83 +1,82 @@
 ---
 name: Titanium.UI.Animation
-description: The Animation object is used for specifying lower-level animation properties and more low-level control of events during an animation. The Animation is created by the method <Titanium.UI.createAnimation>.
+summary: The Animation object is used for specifying lower-level animation properties and more low-level control of events during an animation. The Animation is created by the method <Titanium.UI.createAnimation>.
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [android, iphone, ipad]
 events:
   - name: complete
-    description: fired when the animation completes
+    summary: fired when the animation completes
   - name: start
-    description: fired when the animation starts
+    summary: fired when the animation starts
 properties:
   - name: autoreverse
-    description: the property specifies if the animation should be replayed in reverse upon completion
+    summary: the property specifies if the animation should be replayed in reverse upon completion
     type: Boolean
   - name: backgroundColor
-    description: value of the backgroundColor property to change during animation
+    summary: value of the backgroundColor property to change during animation
     type: String
     platforms: [iphone, ipad]
   - name: bottom
-    description: value of the bottom property to change during animation
+    summary: value of the bottom property to change during animation
     type: Number
   - name: center
-    description: value of the center property to change during animation
+    summary: value of the center property to change during animation
     type: Object
   - name: color
-    description: value of the color property to change during animation
+    summary: value of the color property to change during animation
     type: String
     platforms: [iphone, ipad]
   - name: curve
-    description: the curve of the animation
+    summary: the curve of the animation
     type: Number
     platforms: [iphone, ipad]
   - name: delay
-    description: the duration of time in milliseconds before starting the animation
+    summary: the duration of time in milliseconds before starting the animation
     type: Number
   - name: duration
-    description: the duration of time in milliseconds to perform the animation
+    summary: the duration of time in milliseconds to perform the animation
     type: Number
   - name: height
-    description: value of the height property to change during animation
+    summary: value of the height property to change during animation
     type: Number
   - name: left
-    description: value of the left property to change during animation
+    summary: value of the left property to change during animation
     type: Number
   - name: opacity
-    description: value of the opacity property to change during animation
+    summary: value of the opacity property to change during animation
     type: Number
   - name: opaque
-    description: value of the opaque property to change during animation
+    summary: value of the opaque property to change during animation
     type: Boolean
     platforms: [iphone, ipad]
   - name: repeat
-    description: the number of times the animation should be performed
+    summary: the number of times the animation should be performed
     type: Number
   - name: right
-    description: value of the right property to change during animation
+    summary: value of the right property to change during animation
     type: Number
   - name: top
-    description: value of the top property to change during animation
+    summary: value of the top property to change during animation
     type: Number
   - name: transform
-    description: value of the transform property to change during animation
+    summary: value of the transform property to change during animation
     type: Object
   - name: transition
-    description: during a transition animation, this is the constant to the type of transition to use
+    summary: during a transition animation, this is the constant to the type of transition to use
     type: Number
     platforms: [iphone, ipad]
   - name: visible
-    description: value of the visible property to change during animation
+    summary: value of the visible property to change during animation
     type: Boolean
     platforms: [iphone, ipad]
   - name: width
-    description: value of the width property to change during animation
+    summary: value of the width property to change during animation
     type: Number
   - name: zIndex
-    description: value of the zIndex property to change during animation
+    summary: value of the zIndex property to change during animation
     type: Number
     platforms: [iphone, ipad]
-notes: |
     
 examples:
   - title: Animation applied to a view

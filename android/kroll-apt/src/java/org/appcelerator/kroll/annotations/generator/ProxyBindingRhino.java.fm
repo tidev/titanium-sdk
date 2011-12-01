@@ -64,6 +64,11 @@ public class ${className}Prototype extends ${superProxy}
 		return ${protoVar};
 	}
 
+	public static void dispose()
+	{
+		${protoVar} = null;
+	}
+
 	public ${className}Prototype()
 	{
 		if (${protoVar} == null && getClass().equals(${className}Prototype.class)) {

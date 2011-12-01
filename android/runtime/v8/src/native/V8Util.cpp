@@ -210,4 +210,16 @@ bool V8Util::isNaN(Handle<Value> value)
 
 }
 
+void V8Util::dispose()
+{
+	nameSymbol.Dispose();
+	nameSymbol = Persistent<String>();
+
+	messageSymbol.Dispose();
+	messageSymbol = Persistent<String>();
+
+	isNaNFunction.Dispose();
+	isNaNFunction = Persistent<Function>();
+}
+
 }

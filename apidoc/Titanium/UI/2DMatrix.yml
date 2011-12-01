@@ -1,74 +1,75 @@
 ---
 name: Titanium.UI.2DMatrix
-description: The 2DMatrix is created by <Titanium.UI.create2DMatrix>.  The 2D Matrix is an object for holding values for an affine transformation matrix. A 2D matrix is used to rotate, scale, translate, or skew the objects in a two-dimensional space. A 2D matrix is represented by a 3 by 3 matrix. Because the third column is always (0,0,1), the data structure contains values for only the first two columns.
+summary: The 2D Matrix is an object for holding values for an affine transformation matrix.
+description: The 2DMatrix is created by <Titanium.UI.create2DMatrix>. A 2D matrix is used to rotate, scale, translate, or skew the objects in a two-dimensional space. A 2D matrix is represented by a 3 by 3 matrix. Because the third column is always (0,0,1), the data structure contains values for only the first two columns.
+
+    You create an `identity matrix` by creating a 2D Matrix with an empty constructor.
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [android, iphone, ipad]
 methods:
   - name: invert
-    description: Returns a matrix constructed by inverting an existing matrix
+    summary: Returns a matrix constructed by inverting an existing matrix
   - name: multiply
-    description: Returns a matrix constructed by combining two existing matrix.
+    summary: Returns a matrix constructed by combining two existing matrix.
     returns:
         type: Object
     parameters:
       - name: t2
-        description: The second matrix. This matrix is concatenated to the matrix instance against which the function is invoked.  The result of this function is the first matrix multiplied by the second matrix. You might perform several multiplications in order to create a single matrix that contains the cumulative effects of several transformations. Note that matrix operations are not commutative - the order in which you concatenate matrices is important. That is, the result of multiplying matrix t1 by matrix t2 does not necessarily equal the result of multiplying matrix t2 by matrix t1.
+        summary: The second matrix. This matrix is concatenated to the matrix instance against which the function is invoked.  The result of this function is the first matrix multiplied by the second matrix. You might perform several multiplications in order to create a single matrix that contains the cumulative effects of several transformations. Note that matrix operations are not commutative - the order in which you concatenate matrices is important. That is, the result of multiplying matrix t1 by matrix t2 does not necessarily equal the result of multiplying matrix t2 by matrix t1.
         type: Object
   - name: rotate
-    description: Returns a matrix constructed by rotating an existing matrix
+    summary: Returns a matrix constructed by rotating an existing matrix
     returns:
         type: Object
     parameters:
       - name: angle
-        description: The angle, in degrees, by which to rotate the matrix. A positive value specifies counterclockwise rotation and a negative value specifies clockwise rotation.
+        summary: The angle, in degrees, by which to rotate the matrix. A positive value specifies counterclockwise rotation and a negative value specifies clockwise rotation.
         type: Number
   - name: scale
-    description: Returns a matrix constructed by scaling an existing matrix
+    summary: Returns a matrix constructed by scaling an existing matrix
     returns:
         type: Object
     parameters:
       - name: sx
-        description: The value by which to scale x values of the matrix
+        summary: The value by which to scale x values of the matrix
         type: Number
       - name: sy
-        description: The value by which to scale y values of the matrix
+        summary: The value by which to scale y values of the matrix
         type: Number
   - name: translate
-    description: Returns a matrix constructed by translating an existing matrix
+    summary: Returns a matrix constructed by translating an existing matrix
     returns:
         type: Object
     parameters:
       - name: tx
-        description: The value by which to move x values with the matrix
+        summary: The value by which to move x values with the matrix
         type: Number
       - name: ty
-        description: The value by which to move y values with the matrix
+        summary: The value by which to move y values with the matrix
         type: Number
 properties:
   - name: a
-    description: The entry at position [1,1] in the matrix.
+    summary: The entry at position [1,1] in the matrix.
     type: Number
     platforms: [iphone, ipad]
   - name: b
-    description: The entry at position [1,2] in the matrix.
+    summary: The entry at position [1,2] in the matrix.
     type: Number
     platforms: [iphone, ipad]
   - name: c
-    description: The entry at position [2,1] in the matrix.
+    summary: The entry at position [2,1] in the matrix.
     type: Number
     platforms: [iphone, ipad]
   - name: d
-    description: The entry at position [2,2] in the matrix.
+    summary: The entry at position [2,2] in the matrix.
     type: Number
     platforms: [iphone, ipad]
   - name: tx
-    description: The entry at position [3,1] in the matrix.
+    summary: The entry at position [3,1] in the matrix.
     type: Number
     platforms: [iphone, ipad]
   - name: ty
-    description: The entry at position [3,2] in the matrix.
+    summary: The entry at position [3,2] in the matrix.
     type: Number
     platforms: [iphone, ipad]
-notes: |
-    You create an `identity matrix` by creating a 2D Matrix with an empty constructor.

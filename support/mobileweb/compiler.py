@@ -4,11 +4,12 @@
 # Project Compiler
 #
 
-import os, sys, re, shutil, time, base64, sgmllib, codecs, xml, json
+import os, sys, re, shutil, time, base64, sgmllib, codecs, xml
 
 # Add the Android support dir, since mako is located there, and import mako
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),"..", "android")))
 import mako.template
+import simplejson as json
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 from tiapp import *
