@@ -129,6 +129,16 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 
 		return tiApp.get();
 	}
+	
+	//This method is a convenience method for AndroidModule.hideSoftKeyboard()
+	public static Activity getCurrentInstanceActivity()
+	{
+		TiApplication tiApp = getInstance();
+		if (tiApp == null) {
+			return null;
+		}
+		return tiApp.getCurrentActivity();
+	}
 
 	protected void loadBuildProperties()
 	{

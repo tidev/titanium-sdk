@@ -102,7 +102,7 @@ public class AndroidModule extends KrollModule
 	@Kroll.method
 	public void hideSoftKeyboard()
 	{
-		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+		Activity currentActivity = TiApplication.getCurrentInstanceActivity();
 		if (currentActivity != null) {
 			TiUIHelper.showSoftKeyboard(currentActivity.getWindow().getDecorView(), false);
 		} else if (activity != null) {
