@@ -111,7 +111,7 @@ exports.bootstrapWindow = function(Titanium) {
 	// activity getter (account for scenario when heavy weight window's activity is not created yet) 
 	var activityProxyGetter = function () {
 		if (this.currentState == this.state.open || this.currentState == this.state.opeing) {
-			return this.window.activity;
+			return this.window._internalActivity;
 		}
    
 		if (this.cachedActivityProxy == null) {
@@ -121,7 +121,7 @@ exports.bootstrapWindow = function(Titanium) {
 		return this.cachedActivityProxy;
 	}
 
-	Window.prototype.getActivityProxy = activityProxyGetter;
+	Window.prototype.getActivity = activityProxyGetter;
 	Object.defineProperty(Window.prototype, "activity", { get: activityProxyGetter });
 
 	// set windowPixelFormat access
@@ -191,10 +191,6 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 		
 		if (this.cachedActivityProxy) {
-			// for (var p in this.cachedActivityProxy) {
-			// 	temp = p + ': ' + this.cachedActivityProxy[p] + '\n';
-			// 	out +=temp;
-			// }
 			this._properties['activity'] = this.cachedActivityProxy;
 		}
 
@@ -297,7 +293,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 		var scopeVars = {
 			currentWindow: this,
-			currentActivity: this.window.activity,
+			currentActivity: this.window._internalActivity,
 			currentTab: this.tab,
 			currentTabGroup: this.tabGroup
 		};
