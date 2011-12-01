@@ -473,13 +473,13 @@ properties:
     type: Number
     permission: read-only
   - name: NOTIFICATION_DURATION_LONG
-    summary: Duration of the notification
-    platforms: [android, iphone, ipad]
+    summary: Specifies a long duration for an Android Toast notification (<Titanium.UI.Notification>).
+    platforms: [android]
     type: Number
     permission: read-only
   - name: NOTIFICATION_DURATION_SHORT
-    summary: Duration of the notification
-    platforms: [android, iphone, ipad]
+    summary: Specifies a short duration for an Android Toast notification (<Titanium.UI.Notification>).
+    platforms: [android]
     type: Number
     permission: read-only
   - name: PICKER_TYPE_COUNT_DOWN_TIMER
