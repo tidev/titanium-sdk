@@ -599,15 +599,15 @@ NSArray * tableKeySequence;
 	}
 	else
 	{
-        id header = [row valueForKey:@"header"];
-        TiUITableViewActionType actionType = TiUITableViewActionAppendRow;
+		id header = [row valueForKey:@"header"];
+		TiUITableViewActionType actionType = TiUITableViewActionAppendRow;
 		TiUITableViewSectionProxy* section = [sections lastObject];
-        if (header != nil) {
-			section = [self sectionWithHeader:header table:table];			
-            section.section = [sections count];
-            
-            actionType = TiUITableViewActionAppendRowWithSection;
-        }
+		if (header != nil) {
+			section = [self sectionWithHeader:header table:table];	
+			//Ensure we get the section count on the main thread
+			[self performSelectorOnMainThread:@selector(sectionCount:) withObject:section waitUntilDone:YES];
+			actionType = TiUITableViewActionAppendRowWithSection;
+		}
 		row.section = section;
 		row.parent = section;
 		
@@ -621,6 +621,12 @@ NSArray * tableKeySequence;
 			[section add:row];
 		}
 	}	
+}
+
+-(void)sectionCount:(id)args
+{
+	ENSURE_TYPE(args, TiUITableViewSectionProxy);
+	((TiUITableViewSectionProxy*)args).section = [sections count];
 }
 
 -(void)setData:(id)args withObject:(id)properties immediate:(BOOL)immediate
