@@ -875,6 +875,7 @@ NSArray* moviePlayerKeys = nil;
 		[self fireEvent:@"fullscreen" withObject:event];
 	}	
 	hasRotated = NO;
+    statusBarWasHidden = [[UIApplication sharedApplication] isStatusBarHidden];
 }
 
 -(void)handleFullscreenExitNotification:(NSNotification*)note
@@ -888,7 +889,10 @@ NSArray* moviePlayerKeys = nil;
 		[self fireEvent:@"fullscreen" withObject:event];
 	}	
 	if (hasRotated) {
-		[[[TiApp app] controller] resizeView];
+        // Because of the way that status bar visibility could be toggled by going in/out of fullscreen mode in video player,
+        // (and depends on whether or not DONE is clicked as well) we have to manually calculate and set the root controller's
+        // frame based on whether or not the status bar was visible when we entered fullscreen mode.
+        [[[TiApp app] controller] resizeViewForStatusBarHidden:statusBarWasHidden];
 		[[[TiApp app] controller] repositionSubviews];
 	}
 	hasRotated = NO;

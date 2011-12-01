@@ -541,6 +541,25 @@
 	return [[self view] bounds];
 }
 
+// Some controllers (like MPVideoPlayerController) manually hide/show the bar
+// based on whether or not they enter a "fullscreen" mode, and upon exiting,
+// the root view size needs to be adjusted based on any status bar differences.
+-(CGRect)resizeViewForStatusBarHidden:(BOOL)statusBarHidden
+{
+    CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
+    BOOL currentlyHiding = [[UIApplication sharedApplication] isStatusBarHidden];
+    if (statusBarHidden != currentlyHiding) {
+        // Modify the app frame before setting it manually
+        if (currentlyHiding) { // Bar was previously visible
+            appFrame.size.width -= TI_STATUSBAR_HEIGHT;
+        }
+        else { // Bar was previously invisible
+            appFrame.size.width += TI_STATUSBAR_HEIGHT;
+        }
+    }
+    [[self view] setFrame:appFrame];    
+    return [[self view] bounds];
+}
 
 -(void)repositionSubviews
 {
