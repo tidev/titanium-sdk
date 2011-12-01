@@ -129,6 +129,16 @@ public abstract class TiApplication extends Application implements Handler.Callb
 
 		return tiApp.get();
 	}
+	
+	//This is a convenience method to avoid having to check TiApplication.getInstance() is not null every time we need to grab the current activity
+	public static Activity getCurrentInstanceActivity()
+	{
+		TiApplication tiApp = getInstance();
+		if (tiApp == null) {
+			return null;
+		}
+		return tiApp.getCurrentActivity();
+	}
 
 	protected void loadBuildProperties()
 	{
@@ -294,6 +304,19 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		}
 
 		return currentActivity.get();
+	}
+	
+	public Activity getRootOrCurrentActivity()
+	{
+		if (rootActivity != null) {
+			return (Activity)(rootActivity.get());
+		}
+		
+		if (currentActivity != null) {
+			return currentActivity.get();
+		}
+		
+		return null;
 	}
 
 	public void setCurrentActivity(Activity callingActivity, Activity newValue)
