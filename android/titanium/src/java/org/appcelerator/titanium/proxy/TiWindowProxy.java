@@ -184,6 +184,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		opened = false;
 
 		// TODO ?
+		fireEvent("closeFromActivity", null);
 		activity = null;
 	}
 
