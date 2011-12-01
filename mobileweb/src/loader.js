@@ -1,3 +1,20 @@
+/**
+ * Titanium Mobile Web Platform
+ *
+ * Supported Browsers: IE9+, FF3+, Safari 5+, Chrome 5+, Opera 12+, iOS 4+, Android 2.2+
+ *
+ * Borrows code & ideas from:
+ *  - Dojo Toolkit (AFL, BSD) <http://dojotoolkit.org>
+ *  - require.js (BSD, MIT) <http://requirejs.org>
+ *  - curl.js (MIT) <https://github.com/unscriptable/curl>
+ *  - has.js (AFL, BSD, MIT) <https://github.com/phiggins42/has.js>
+ *  - es5-shim (MIT) <https://github.com/kriskowal/es5-shim>
+ *
+ * This loader is a CommonJS and AMD compatible resource loader. It is comprised
+ * of two main functions: require() and define().
+ *
+ */
+
 (function (global) {
 
 	"use strict";
@@ -58,9 +75,7 @@
 
 	function _mix(dest, src) {
 		for (var p in src) {
-			if (src.hasOwnProperty(p)) {
-				dest[p] = src[p];
-			}
+			src.hasOwnProperty(p) && (dest[p] = src[p]);
 		}
 		return dest;
 	}
@@ -108,35 +123,34 @@
 		return !it || (!it.call && !p);
 	}
 
-	function evaluate(code, vars, globally) {
+	function evaluate(code, sandboxVariables, globally) {
 		// summary:
 		//		Evaluates code globally or in a sandbox.
 		//
 		// code: String
 		//		The code to evaluate
 		//
-		// vars: Object?
+		// sandboxVariables: Object?
 		//		When "globally" is false, an object of names => values to initialize in
-		//		the sandbox.
+		//		the sandbox. The variable names must NOT contain '-' characters.
 		//
 		// globally: Boolean?
 		//		When true, evaluates the code in the global namespace, generally "window".
 		//		If false, then it will evaluate the code in a sandbox.
 
 		var i,
-			a = [],
-			b = [],
+			vars = [],
+			vals = [],
 			r;
 
 		if (globally) {
 			r = global.eval(code);
 		} else {
-			// Q: Should we add "window", "document", and friends so a module can't really screw things up
-			for (i in vars) {
-				a.push(i + "=__vars." + i);
-				b.push(i + ":" + i);
+			for (i in sandboxVariables) {
+				vars.push(i + "=__vars." + i);
+				vals.push(i + ":" + i);
 			}
-			r = (new Function("__vars", (a.length ? "var " + a.join(',') + ";\n" : "") + code + "\n;return {" + b.join(',') + "}"))(vars);
+			r = (new Function("__vars", (vars.length ? "var " + vars.join(',') + ";\n" : "") + code + "\n;return {" + vals.join(',') + "};"))(sandboxVariables);
 		}
 
 		// if the last line of a module is a console.*() call, Firebug for some reason
@@ -203,8 +217,6 @@
 		return now && has(name);
 	};
 
-	has.add("ie-event-behavior", doc.attachEvent && (typeof opera === "undefined" || !is(opera, "Opera")));
-
 	/******************************************************************************
 	 * Event handling
 	 *****************************************************************************/
@@ -220,21 +232,10 @@
 
 		// TODO: fix touch events?
 
-		if (has("ie-event-behavior")) {
-			/^on/.test(type) || (type = "on" + type);
-
-			// TODO: fix memory leak fix for IE8/Vista and older using the DOM0 hack
-
-			target.attachEvent(type, listener);
-			return function () {
-				target.detachEvent(type, listener);
-			};
-		} else {
-			target.addEventListener(type, listener, false);
-			return function () {
-				target.removeEventListener(type, listener, false);
-			};
-		}
+		target.addEventListener(type, listener, false);
+		return function () {
+			target.removeEventListener(type, listener, false);
+		};
 	}
 
 	on.once = function (target, type, listener) {
@@ -473,7 +474,7 @@
 			x.charset = "utf-8";
 			x.async = true;
 
-			disconnector = on(x, has("ie-event-behavior") ? "readystatechange" : "load", function (e) {
+			disconnector = on(x, "load", function (e) {
 				e = e || global.event;
 				var node = e.target || e.srcElement;
 				if (e.type === "load" || /complete|loaded/.test(node.readyState)) {
@@ -828,17 +829,6 @@
 				});
 		}
 
-		// check all scripts we're waiting for to see there are any interactive
-		if (has("ie-event-behavior") && !name) {
-			for (i in waiting) {
-				module = waiting[i];
-				if (module && module.node && module.node.readyState === "interactive") {
-					name = module.name;
-					break;
-				}
-			}
-		}
-
 		module = getResourceDef(name, 0, deps, rawDef);
 
 		// if not waiting for this module to be loaded, then the define() call was
@@ -932,6 +922,8 @@
 	mix(req, fnMixin = {
 		evaluate: evaluate,
 		has: has,
+		is: is,
+		mix: mix,
 		on: on
 	});
 
@@ -1027,7 +1019,7 @@ require.cache({
 
 					onLoad(c);
 				}
-			}
+			};
 		});
 	}
 });
