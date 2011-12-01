@@ -192,5 +192,5 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 		"backgroundDisabledColor", "enabled"
 	], args);
 	
-	Ti._5.presetUserDefinedElements(this, args);
+	Ti._5.presetUserArguments(this, args);
 });
