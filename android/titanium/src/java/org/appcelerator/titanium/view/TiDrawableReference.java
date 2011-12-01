@@ -24,7 +24,6 @@ import org.appcelerator.kroll.common.TiFastDev;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -118,11 +117,6 @@ public class TiDrawableReference
 		return ref;
 	}
 
-	public static TiDrawableReference fromBlob(TiContext tiContext, TiBlob blob)
-	{
-		return fromBlob(tiContext.getActivity(), blob);
-	}
-
 	public static TiDrawableReference fromBlob(Activity activity, TiBlob blob)
 	{
 		TiDrawableReference ref = new TiDrawableReference(activity, DrawableReferenceType.BLOB);
@@ -133,11 +127,6 @@ public class TiDrawableReference
 	public static TiDrawableReference fromUrl(KrollProxy proxy, String url)
 	{
 		return fromUrl(proxy.getActivity(), proxy.resolveUrl(null, url));
-	}
-
-	public static TiDrawableReference fromUrl(TiContext tiContext, String url)
-	{
-		return fromUrl(tiContext.getActivity(), url);
 	}
 
 	public static TiDrawableReference fromUrl(Activity activity, String url)

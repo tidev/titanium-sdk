@@ -436,12 +436,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		return (TiUIView) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETVIEW), 0);
 	}
 
-	// module compatibility
-	protected TiUIView getView()
-	{
-		return handleGetView();
-	}
-
 	protected TiUIView handleGetView()
 	{
 		if (view == null) {
