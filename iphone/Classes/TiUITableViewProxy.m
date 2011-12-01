@@ -624,7 +624,9 @@ NSArray * tableKeySequence;
         TiUITableViewSectionProxy* section = [sections lastObject];
         if (header != nil) {
             section = [self sectionWithHeader:header table:table];		
-            TiThreadPerformOnMainThread(^{section.section = [sections count];}, YES);
+            TiThreadPerformOnMainThread(^{
+                section.section = [sections count];
+            }, YES);
             actionType = TiUITableViewActionAppendRowWithSection;
         }
         row.section = section;
