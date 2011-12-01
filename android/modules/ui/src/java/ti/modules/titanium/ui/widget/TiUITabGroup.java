@@ -80,6 +80,18 @@ public class TiUITabGroup extends TiUIView
 				tabHost.setVisibility(View.INVISIBLE);
 			}
 		}
+
+        for (int i=0;i<tabHost.getTabWidget().getTabCount();i++) {
+            final int myTabIndex = i;
+            tabHost.getTabWidget().getChildAt(i).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(android.view.View v) {
+                    getTabHost().setCurrentTab(myTabIndex);
+                    proxy.fireEvent(TiC.EVENT_CLICK, ((TabGroupProxy) proxy).buildClickEvent(myTabIndex));
+                }
+            });
+        }
+
 	}
 
 	public void setActiveTab(int index)
@@ -164,6 +176,10 @@ public class TiUITabGroup extends TiUIView
 			return -1;
 		}
 	}
+
+	public TabHost getTabHost() {
+        return tabHost;
+    }
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
