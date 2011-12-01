@@ -33,5 +33,5 @@ define(function () {
 
 			onLoad(c);
 		}
-	}
+	};
 });
