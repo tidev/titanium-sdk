@@ -308,7 +308,7 @@ def anchor_for_object_or_member(obj_specifier, text=None, language="markdown"):
 	if obj_specifier in all_annotated_apis:
 		obj = all_annotated_apis[obj_specifier]
 		if hasattr(obj, "filename_html"):
-			return template.replace("#", "%s.html" % obj.filename_html), True
+			return (template.replace("#", "%s.html" % obj.filename_html), True)
 	else:
 		# Maybe a method, property or event
 		parts = obj_specifier.split(".")
@@ -322,7 +322,7 @@ def anchor_for_object_or_member(obj_specifier, text=None, language="markdown"):
 					if hasattr(obj, list_name) and type(getattr(obj, list_name)) == list:
 						for m in getattr(obj, list_name):
 							if m.name == member_name and hasattr(m, "filename_html"):
-								return template.replace("#", "%s.html" % m.filename_html), True
+								return (template.replace("#", "%s.html" % m.filename_html), True)
 	# Didn't find it. At least send it back styled like code.
 	if language == "markdown":
 		return "`%s`" % obj_specifier, False
