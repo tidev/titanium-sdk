@@ -129,6 +129,16 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 
 		return tiApp.get();
 	}
+	
+	//This is a convenience method to avoid having to check TiApplication.getInstance() is not null every time we need to grab the current activity
+	public static Activity getCurrentInstanceActivity()
+	{
+		TiApplication tiApp = getInstance();
+		if (tiApp == null) {
+			return null;
+		}
+		return tiApp.getCurrentActivity();
+	}
 
 	protected void loadBuildProperties()
 	{
