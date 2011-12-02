@@ -198,37 +198,56 @@ properties:
 
         `orientationModes` must be set **before** opening the window.
 
-        On Android, the orientation modes that can be set are dependent on the Android SDK level
-        of the device itself.  It should be noted that, the definition of portrait or
-        landscape mode can vary based on the physical orientation of the device.  For example,
+        #### Android Orientation Modes
+
+        On Android, orientation behavior is dependent on the Android SDK level
+        of the device itself. Devices running Android 2.3 and above support "sensor portait
+        mode" and "sensor landscape mode," in these modes, the device is locked into
+        either a portrait or landscape orientation, but can switch between the normal and reverse
+        orientations (for example, between PORTRAIT and UPSIDE_PORTRAIT).
+
+        In addition, the definition of portrait or
+        landscape mode can vary based on the physical design of the device. For example,
         on some devices <Titanium.UI.LANDSCAPE_LEFT> represents the top of the device being at
         the 270 degree position but other devices may (based on camera position for example)
-        treat this position as <Titanium.UI.LANDSCAPE_RIGHT>.  In general, applications for
+        treat this position as <Titanium.UI.LANDSCAPE_RIGHT>. In general, applications for
         Android that need to be aware of orientation should try and limit their orientation
         logic to handling either portrait or landscape rather than worrying about the reverse
         modes. This approach will allow the orientation modes to adopt a more natural feel for
         the specific device.
 
-        The following list breaks down the orientation behavior on Android:
+        The following list breaks down the orientation behavior on Android based on the contents
+        of the `orientationModes` array:
 
-        1) (<Titanium.UI.PORTRAIT> OR <Titanium.UI.UPSIDE_PORTRAIT>) AND
-           (<Titanium.UI.LANDSCAPE_LEFT> OR <Titanium.UI.LANDSCAPE_RIGHT>) - Enables full
-           sensor which lets the operating system control the orientation of the screen based
-           on the sensor inside the device.
-        2) <Titanium.UI.PORTRAIT> OR <Titanium.UI.UPSIDE_PORTRAIT> - Enables sensor portrait
-           mode on Android 2.3 and above.  Sensor portrait mode on Android means the screen
-           will shift between both portrait modes according to the sensor inside the device.
-           If the Android version is less than 2.3, then normal portrait mode is locked.
-        3) <Titanium.UI.LANDSCAPE_LEFT> OR <Titanium.UI.LANDSCAPE_RIGHT> - Enables sensor
-           landscape mode on Android 2.3 and above.  Sensor landscape mode on Android means
-           the screen will shift between both landscape modes according to the sensor inside
-           the device.  If the Android version is less than 2.3, then normal landscape mode
-           is locked.
-        4) <Titanium.UI.PORTRAIT> - Locks screen orientation to portrait mode.
-        5) <Titanium.UI.LANDSCAPE> - Locks screen orientation to landscape mode.
-        6) empty array - Resets the orientation to default sensor control.
+        1.  Empty array. Enables orientation to be fully controlled by the device sensor.
+
+        2.  Array includes one or both portrait modes **and** one or both landscape modes.
+            Enables full sensor control (identical to an empty array).
+
+        3.  Array contains PORTRAIT **and** UPSIDE_PORTRAIT. On Android 2.3 and above,
+            enables sensor portrait mode. This means the screen will shift between
+            both portrait modes according to the sensor inside the device.
+
+            On Android versions below 2.3, locks screen orientation in normal portrait mode.
+
+        4.  Array contains LANDSCAPE_LEFT **and** LANDSCAPE_RIGHT. On Android 2.3 and above,
+            enables sensor landscape mode. This means the screen will shift between both
+            landscape modes according to the sensor inside the device.
+
+            On Android versions below 2.3, locks screen orientation in normal landscape mode.
+
+        5.  Array contains **only** [PORTRAIT](Titanium.UI.PORTRAIT). Locks screen orientation
+            to normal portrait mode.
+
+        6.  Array contains **only** [LANDSCAPE_LEFT](Titanium.UI.LANDSCAPE_LEFT). Locks screen
+            orientation to normal landscape mode.
+
+        Note that specifying either [UPSIDE_PORTRAIT](Titanium.UI.UPSIDE_PORTRAIT) or
+        [LANDSCAPE_RIGHT](Titanium.UI.LANDSCAPE_RIGHT) alone has undefined results on Android.
+
     platforms: [android, iphone, ipad]
     type: Array<Number>
+    default: empty array
 
   - name: orientation
     summary: Current orientation of the window.
