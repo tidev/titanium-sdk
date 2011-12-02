@@ -279,8 +279,8 @@
 		return [NSNull null];
 	}
 		
-	if ([prefix compare:@"xml"] == 0) {
-		if ([theURI compare:@"http://www.w3.org/XML/1998/namespace"] != 0) {
+	if ( prefix != nil && ([prefix compare:@"xml"] == 0) ) {
+		if (theURI == nil || ([theURI compare:@"http://www.w3.org/XML/1998/namespace"] != 0) ) {
 			[self throwException:@"Invalid URI for prefix xml" subreason:nil location:CODELOCATION];
 			return [NSNull null];
 		}
