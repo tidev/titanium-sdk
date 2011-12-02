@@ -10,7 +10,7 @@ Ti._5.createClass('Titanium.UI.AlertDialog', function(args){
 
 	// Properties
 	var _buttonNames = null;
-	Object.defineProperty(this, 'buttonNames', {
+	Ti._5.prop(this, 'buttonNames', {
 		get: function(){return _buttonNames;},
 		set: function(val) {
 			if(val && 1 < val.length) {
@@ -21,7 +21,7 @@ Ti._5.createClass('Titanium.UI.AlertDialog', function(args){
 	});
 
 	var _cancel = null;
-	Object.defineProperty(this, 'cancel', {
+	Ti._5.prop(this, 'cancel', {
 		get: function(){return _cancel;},
 		set: function(val){
 			if(parseInt(val) == val) {
@@ -31,26 +31,13 @@ Ti._5.createClass('Titanium.UI.AlertDialog', function(args){
 		}
 	});
 
-	var _message = '';
-	Object.defineProperty(this, 'message', {
-		get: function(){return _message;},
-		set: function(val){return _message = val;}
-	});
+	Ti._5.member(this, 'message', '');
 
-	var _messageid = null;
-	Object.defineProperty(this, 'messageid', {
-		get: function(){return _messageid;},
-		set: function(val){return _messageid = val;}
-	});
+	Ti._5.member(this, 'messageid', null);
 
-	var _title = null;
-	Object.defineProperty(this, 'title', {
-		get: function(){return _title;},
-		set: function(val){return _title = val;}
-	});
+	Ti._5.member(this, 'title', null);
 	
-	Ti._5.preset(this, ["buttonNames", "cancel", "message"], args);
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 
 	// Methods
 	this.hide = function(){

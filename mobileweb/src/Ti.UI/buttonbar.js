@@ -7,23 +7,11 @@ Ti._5.createClass('Titanium.UI.ButtonBar', function(args){
 	Ti._5.Positionable(this, args);
 
 	// Properties
-	var _index = null;
-	Object.defineProperty(this, 'index', {
-		get: function(){return _index;},
-		set: function(val){return _index = val;}
-	});
+	Ti._5.member(this, 'index', null);
 
-	var _labels = null;
-	Object.defineProperty(this, 'labels', {
-		get: function(){return _labels;},
-		set: function(val){return _labels = val;}
-	});
+	Ti._5.member(this, 'labels', null);
 
-	var _style = null;
-	Object.defineProperty(this, 'style', {
-		get: function(){return _style;},
-		set: function(val){return _style = val;}
-	});
+	Ti._5.member(this, 'style', null);
 
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });

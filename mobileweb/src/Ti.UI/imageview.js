@@ -42,52 +42,28 @@ Ti._5.createClass('Titanium.UI.ImageView', function(args){
 	}
 
 	// Properties
-	var _animating = null;
-	Object.defineProperty(this, 'animating', {
-		get: function(){return _animating;},
-		set: function(val){return _animating = val;}
-	});
+	Ti._5.member(this, 'animating', null);
 
-	var _duration = null;
-	Object.defineProperty(this, 'duration', {
-		get: function(){return _duration;},
-		set: function(val){return _duration = val;}
-	});
+	Ti._5.member(this, 'duration', null);
 	
-	var _paused = null;
-	Object.defineProperty(this, 'paused', {
-		get: function(){return _paused;},
-		set: function(val){return _paused = val;}
-	});
+	Ti._5.member(this, 'paused', null);
 	
-	var _repeatCount = 0;
-	Object.defineProperty(this, 'repeatCount', {
-		get: function(){return _repeatCount;},
-		set: function(val){return _repeatCount = val;}
-	});
+	Ti._5.member(this, 'repeatCount', 0);
 
 	var _reverse = false;
-	Object.defineProperty(this, 'reverse', {
+	Ti._5.prop(this, 'reverse', {
 		get: function(){return _reverse;},
 		set: function(val){return _reverse = val ? true : false;}
 	});
 
-	var _enableZoomControls = true;
-	Object.defineProperty(this, 'enableZoomControls', {
-		get: function(){return _enableZoomControls;},
-		set: function(val){return _enableZoomControls = val;}
-	});
+	Ti._5.member(this, 'enableZoomControls', true);
 
 	// indicates whether or not the source image is in 2x resolution for retina displays. 
 	// Use for remote images ONLY. (iOS)
-	var _hires = null;
-	Object.defineProperty(this, 'hires', {
-		get: function(){return _hires;},
-		set: function(val){return false;}
-	});
+	Ti._5.member(this, 'hires', false);
 	
 	var _canScale = true;
-	Object.defineProperty(this, 'canScale', {
+	Ti._5.prop(this, 'canScale', {
 		get: function(){return _canScale;},
 		set: function(val){
 			_canScale = val ? true : false;
@@ -98,20 +74,16 @@ Ti._5.createClass('Titanium.UI.ImageView', function(args){
 		}
 	});
 
-	var _defaultImage = "";
-	Object.defineProperty(this, 'defaultImage', {
-		get: function(){return _defaultImage;},
-		set: function(val){return _defaultImage = val;}
-	});
+	Ti._5.member(this, 'defaultImage', '');
 	
 	var _src = "";
-	Object.defineProperty(this, 'image', {
+	Ti._5.prop(this, 'image', {
 		get: function(){return _src;},
 		set: function(val){_src = val; _loadImages([val]);}
 	});
 
 	var _images = [];
-	Object.defineProperty(this, 'images', {
+	Ti._5.prop(this, 'images', {
 		get: function(){return _images;},
 		set: function(val){
 			_images = -1 != val.constructor.toString().indexOf('Array') ? val : [val];
@@ -120,18 +92,18 @@ Ti._5.createClass('Titanium.UI.ImageView', function(args){
 	});
 
 	var _preventDefaultImage = false;
-	Object.defineProperty(this, 'preventDefaultImage', {
+	Ti._5.prop(this, 'preventDefaultImage', {
 		get: function(){return _preventDefaultImage;},
 		set: function(val){return _preventDefaultImage = val ? true : false;}
 	});
 
 	// deprecated since 1.5.0
-	Object.defineProperty(this, 'url', {
+	Ti._5.prop(this, 'url', {
 		get: function(){return obj.image;},
 		set: function(val){obj.image = val;}
 	});
    
-	Object.defineProperty(this, 'size', {
+	Ti._5.prop(this, 'size', {
 		get: function() {
 			return {
 				width	: obj.width,
@@ -148,7 +120,7 @@ Ti._5.createClass('Titanium.UI.ImageView', function(args){
 		}
 	});
 	
-	Object.defineProperty(this, 'width', {
+	Ti._5.prop(this, 'width', {
 		get: function() {
 			if (!obj.dom.style.width || !obj.canScale) {
 				return '';
@@ -163,7 +135,7 @@ Ti._5.createClass('Titanium.UI.ImageView', function(args){
 	});	
 	
 	var _height;
-	Object.defineProperty(this, 'height', {
+	Ti._5.prop(this, 'height', {
 		get: function() {
 			return _height;
 		},
@@ -173,9 +145,7 @@ Ti._5.createClass('Titanium.UI.ImageView', function(args){
 		}
 	});
 	
-	Ti._5.preset(this, ["preventDefaultImage", "defaultImage", "image", "images", "url", "size",
-		"canScale", "height", "width"], args);	
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 
 	// Methods
 	this.pause = function(){

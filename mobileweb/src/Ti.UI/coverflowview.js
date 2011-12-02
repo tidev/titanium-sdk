@@ -7,17 +7,9 @@ Ti._5.createClass('Titanium.UI.CoverFlowView', function(args){
 	Ti._5.Positionable(this, args);
 
 	// Properties
-	var _images = null;
-	Object.defineProperty(this, 'images', {
-		get: function(){return _images;},
-		set: function(val){return _images = val;}
-	});
+	Ti._5.member(this, 'images', null);
 
-	var _selected = null;
-	Object.defineProperty(this, 'selected', {
-		get: function(){return _selected;},
-		set: function(val){return _selected = val;}
-	});
+	Ti._5.member(this, 'selected', null);
 
 	// Methods
 	this.setImage = function(){
@@ -29,5 +21,5 @@ Ti._5.createClass('Titanium.UI.CoverFlowView', function(args){
 		console.debug('Event "change" is not implemented yet.');
 	});
 
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });

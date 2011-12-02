@@ -4,71 +4,27 @@ Ti._5.createClass('Titanium.UI.EmailDialog', function(args){
 	Ti._5.DOMView(this, 'emaildialog', args, 'EmailDialog');
 
 	// Properties
-	var _CANCELLED = null;
-	Object.defineProperty(this, 'CANCELLED', {
-		get: function(){return _CANCELLED;},
-		set: function(val){return _CANCELLED = val;}
-	});
+	Ti._5.member(this, 'CANCELLED', null);
 
-	var _FAILED = null;
-	Object.defineProperty(this, 'FAILED', {
-		get: function(){return _FAILED;},
-		set: function(val){return _FAILED = val;}
-	});
+	Ti._5.member(this, 'FAILED', null);
 
-	var _SAVED = null;
-	Object.defineProperty(this, 'SAVED', {
-		get: function(){return _SAVED;},
-		set: function(val){return _SAVED = val;}
-	});
+	Ti._5.member(this, 'SAVED', null);
 
-	var _SENT = null;
-	Object.defineProperty(this, 'SENT', {
-		get: function(){return _SENT;},
-		set: function(val){return _SENT = val;}
-	});
+	Ti._5.member(this, 'SENT', null);
 
-	var _barColor = null;
-	Object.defineProperty(this, 'barColor', {
-		get: function(){return _barColor;},
-		set: function(val){return _barColor = val;}
-	});
+	Ti._5.member(this, 'barColor', null);
 
-	var _bccRecipients = null;
-	Object.defineProperty(this, 'bccRecipients', {
-		get: function(){return _bccRecipients;},
-		set: function(val){return _bccRecipients = val;}
-	});
+	Ti._5.member(this, 'bccRecipients', null);
 
-	var _ccRecipients = null;
-	Object.defineProperty(this, 'ccRecipients', {
-		get: function(){return _ccRecipients;},
-		set: function(val){return _ccRecipients = val;}
-	});
+	Ti._5.member(this, 'ccRecipients', null);
 
-	var _html = null;
-	Object.defineProperty(this, 'html', {
-		get: function(){return _html;},
-		set: function(val){return _html = val;}
-	});
+	Ti._5.member(this, 'html', null);
 
-	var _messageBody = null;
-	Object.defineProperty(this, 'messageBody', {
-		get: function(){return _messageBody;},
-		set: function(val){return _messageBody = val;}
-	});
+	Ti._5.member(this, 'messageBody', null);
 
-	var _subject = null;
-	Object.defineProperty(this, 'subject', {
-		get: function(){return _subject;},
-		set: function(val){return _subject = val;}
-	});
+	Ti._5.member(this, 'subject', null);
 
-	var _toRecipients = null;
-	Object.defineProperty(this, 'toRecipients', {
-		get: function(){return _toRecipients;},
-		set: function(val){return _toRecipients = val;}
-	});
+	Ti._5.member(this, 'toRecipients', null);
 
 	// Methods
 	this.addAttachment = function(){
@@ -86,5 +42,5 @@ Ti._5.createClass('Titanium.UI.EmailDialog', function(args){
 		console.debug('Event "complete" is not implemented yet.');
 	});
 
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });
