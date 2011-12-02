@@ -110,10 +110,10 @@ exports.bootstrapWindow = function(Titanium) {
 
 	// activity getter (account for scenario when heavy weight window's activity is not created yet) 
 	var activityProxyGetter = function () {
-		if (this.currentState == this.state.open || this.currentState == this.state.opeing) {
+		if (this.currentState == this.state.open || this.currentState == this.state.opening) {
 			return this.window._internalActivity;
 		}
-   
+
 		if (this.cachedActivityProxy == null) {
 			this.cachedActivityProxy = {};
 		}
@@ -173,7 +173,7 @@ exports.bootstrapWindow = function(Titanium) {
 		} else if (!(options instanceof UI.Animation)) {
 			this._properties.extend(options);
 		}
-		
+
 		// Determine if we should create a heavy or light weight window.
 		newActivityRequiredKeys.forEach(function(key) {
 			if (key in this._properties) {
@@ -189,7 +189,7 @@ exports.bootstrapWindow = function(Titanium) {
 		if (this.propertyCache) {
 			this._properties.extend(this.propertyCache);
 		}
-		
+
 		if (this.cachedActivityProxy) {
 			this._properties['activity'] = this.cachedActivityProxy;
 		}

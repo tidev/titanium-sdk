@@ -410,12 +410,13 @@ public class TiUIActivityWindow extends TiUIView
 
 		if (d.containsKey(TiC.PROPERTY_ACTIVITY)) {
 			Object activityObject = d.get(TiC.PROPERTY_ACTIVITY);
-			if (activityObject instanceof HashMap) {
+			ActivityProxy activityProxy = getProxy().getActivityProxy();
+			if (activityObject instanceof HashMap && activityProxy != null) {
 				KrollDict options = new KrollDict((HashMap) activityObject);
-				getProxy().getActivityProxy().handleCreationDict(options);
+				activityProxy.handleCreationDict(options);
 			}
 		}
-		
+
 		// Don't allow default processing.
 		d.remove(TiC.PROPERTY_BACKGROUND_IMAGE);
 		d.remove(TiC.PROPERTY_BACKGROUND_COLOR);
