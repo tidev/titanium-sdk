@@ -11,6 +11,7 @@
 #import "TiDOMNodeListProxy.h"
 #import "TiDOMAttrProxy.h"
 #import "TiUtils.h"
+#import "TiDOMValidator.h"
 
 @implementation TiDOMElementProxy
 
@@ -148,19 +149,23 @@
 
 	NSString *val = [args objectAtIndex:1];
 	ENSURE_STRING_OR_NIL(val);
+	
+	if (val == nil) {
+		val = @"";
+	}
 
-	if (name != nil && val != nil)
-	{
-        GDataXMLNode * attributeNode = [element attributeForName:name];
-        if(attributeNode != nil)
-        {
+	if (![TiDOMValidator checkAttributeName:name]) {
+		[self throwException:@"Invalid attribute name" subreason:nil location:CODELOCATION];
+		return;
+	}
+	GDataXMLNode * attributeNode = [element attributeForName:name];
+	if(attributeNode != nil) {
             [attributeNode setStringValue:val];
-        }
-        else
-        {
-            [element addAttribute: [GDataXMLNode attributeWithName: name stringValue: val]];
-        }
-        
+	}
+	else {
+		GDataXMLNode* resultNode = (GDataXMLNode*)[GDataXMLElement attributeWithName:name stringValue:val];
+		[resultNode setShouldFreeXMLNode:NO];
+		[element addAttribute: resultNode];
 	}
 }
 
@@ -176,22 +181,93 @@
 	NSString *val = [args objectAtIndex:2];
 	ENSURE_STRING_OR_NIL(val);
     
-	if (theURI != nil && name != nil && val != nil)
-	{
-		GDataXMLNode * attributeNode = [element attributeForLocalName:[GDataXMLNode localNameForName:name] URI:theURI];
-		if(attributeNode != nil)
-		{
-			//Retain it here so that the node does not get freed when cached values are released
-			[attributeNode retain];
-			//Switch the flag here so that the node is freed only when the object is freed
-			[attributeNode setShouldFreeXMLNode:YES];
-			[element removeChild:attributeNode];
-			//Release now and this will free the underlying memory
-			[attributeNode release];
-			
-		}
-		[element addAttribute: [GDataXMLNode attributeWithName:name URI:theURI stringValue:val]];
+	if (name == nil) {
+		[self throwException:@"could not create attribute with null qualified name" subreason:nil location:CODELOCATION];
+		return [NSNull null];
 	}
+
+	NSString* prefix = [GDataXMLNode prefixForName:name];
+	NSString* localName = [GDataXMLNode localNameForName:name];
+	
+	if ([name compare:@"xmlns"] != 0) {
+		//Check name validity
+		if (![TiDOMValidator checkAttributeName:localName]) {
+			[self throwException:@"Invalid attribute name" subreason:nil location:CODELOCATION];
+			return [NSNull null];
+		}
+		
+		if (prefix != nil && ((theURI == nil)||([theURI length]==0)) ) {
+			[self throwException:@"Can not have a prefix with a null URI" subreason:nil location:CODELOCATION];
+			return [NSNull null];
+		}
+		
+		if ( prefix != nil && ([prefix compare:@"xml"] == 0) ) {
+			if (theURI == nil || ([theURI compare:@"http://www.w3.org/XML/1998/namespace"] != 0) ) {
+				[self throwException:@"Invalid URI for prefix xml" subreason:nil location:CODELOCATION];
+				return [NSNull null];
+			}
+		}
+		else {
+			//Check prefix validity
+			if (![TiDOMValidator checkNamespacePrefix:prefix]) {
+				[self throwException:@"Invalid prefix" subreason:nil location:CODELOCATION];
+				return [NSNull null];
+			}
+			//Check URI validity
+			if (![TiDOMValidator checkNamespaceURI:theURI]) {
+				[self throwException:@"Invalid URI" subreason:nil location:CODELOCATION];
+				return [NSNull null];
+			}
+		}
+		
+	}
+	else {
+		if (theURI == nil || ([theURI compare:@"http://www.w3.org/2000/xmlns/"] != 0) ) {
+			[self throwException:@"Invalid URI for qualified name xmlns" subreason:nil location:CODELOCATION];
+			return [NSNull null];
+		}
+	}
+
+	
+	if (val == nil) {
+		val = @"";
+	}
+	
+	GDataXMLNode* resultNode = (GDataXMLNode*)[GDataXMLElement attributeWithName:localName stringValue:val];
+	//Set this to false since we will be adding it to the element
+	[resultNode setShouldFreeXMLNode:NO];
+	xmlChar *href;
+	xmlChar *pre;
+    
+	if (theURI != nil)
+		href = (xmlChar*)[theURI UTF8String];
+	else
+		href = NULL;
+	
+	if ([prefix length] > 0) {
+		pre = (xmlChar*)[prefix UTF8String];
+	} else {
+		// default namespace is represented by a nil prefix
+		pre = NULL;
+	}
+	
+	xmlNsPtr theNewNs = xmlNewNs(NULL, // parent node
+								 href, pre);
+	[resultNode XMLNode]->ns = theNewNs;
+
+	//Remove the old node if it exists
+	GDataXMLNode * attributeNode = [element attributeForLocalName:[GDataXMLNode localNameForName:name] URI:theURI];
+	if(attributeNode != nil)
+	{
+		//Retain it here so that the node does not get freed when cached values are released
+		[attributeNode retain];
+		//Switch the flag here so that the node is freed only when the object is freed
+		[attributeNode setShouldFreeXMLNode:YES];
+		[element removeChild:attributeNode];
+		//Release now and this will free the underlying memory
+		[attributeNode release];
+	}
+	[element addAttribute: resultNode];
 }
 
 
@@ -308,9 +384,9 @@
         {
             GDataXMLElement *owner = [attProxy ownerElement];
         
-            if( (owner != nil)&&([node isEqual:owner] == NO) )
+            if (owner != nil)
             {
-                [self throwException:@"mismatched owner elements" subreason:nil location:CODELOCATION];
+                [self throwException:@"Attribute in use" subreason:nil location:CODELOCATION];
                 return [NSNull null];
             }
         }
@@ -378,9 +454,9 @@
         {
             GDataXMLElement *owner = [attProxy ownerElement];
             
-            if( (owner != nil)&&([node isEqual:owner] == NO) )
+            if (owner != nil)
             {
-                [self throwException:@"mismatched owner elements" subreason:nil location:CODELOCATION];
+                [self throwException:@"Attribute in use" subreason:nil location:CODELOCATION];
                 return [NSNull null];
             }
         }
