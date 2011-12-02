@@ -9,12 +9,12 @@ package ${config['appid']};
 import org.appcelerator.kroll.runtime.v8.V8Runtime;
 % else:
 import org.appcelerator.kroll.runtime.rhino.RhinoRuntime;
+import org.appcelerator.kroll.runtime.rhino.KrollBindings;
 % endif
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollModuleInfo;
 import org.appcelerator.kroll.KrollRuntime;
-import org.appcelerator.kroll.runtime.rhino.KrollBindings;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiRootActivity;
 
