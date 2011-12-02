@@ -285,7 +285,7 @@ function($window, args){
 		
 		// Verify that both the getter and setter were defined, and if not provide a default implementation	
 		!descriptor.get && (descriptor.get = function () {return null;});
-		!descriptor.set && (descriptor.set = function () {});
+		!descriptor.set && (descriptor.set = function () {return null;});
 		
 		// Create the property
 		Object.defineProperty(obj, propertyName, descriptor	);
@@ -293,7 +293,7 @@ function($window, args){
 		// Create the getxxx and setxxx accessor methods
 		var capitalizedName = propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1);
 		obj["get" + capitalizedName] = function(){ return descriptor.get.call(obj); };
-		obj["set" + capitalizedName] = function(val){ descriptor.set.call(obj, val); };
+		obj["set" + capitalizedName] = function(val){ return descriptor.set.call(obj, val); };
 	};
 
 	Ti._5.createClass = function(className, value){
