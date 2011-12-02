@@ -115,14 +115,24 @@
 
 	// Methods
 	api.canOpenURL = function(url){
-		return true;
+		// Lots of stuff going on here. Basically we want to match any protocol urls ie: http, ftp, etc.
+		// including urls without a specified protocol ie: www.test.com, sub.domain.com, test.com, etc. 
+		// and pass on any internal process urls ie: mailto, sms, tel, etc.
+		// Sometime in the future, we'd like to replace this with platform specific tests for valid urls
+		return /^(\w*:\/\/|[\w\d-]+^:[\w\d]+|[\w\d]+[\.@][\w\d]+)/.test(url);
 	};
 	api.createUUID = function(){
 		return Ti._5.createUUID();
 	};
 
 	api.openURL = function(url){
-		window.open(url);
+		if (api.canOpenURL(url)) {
+			window.open(url);
+		} else {
+			setTimeout(function () {
+    			window.location.href = url;
+			}, 1);
+		}
 	};
 	
 	var _id = localStorage && localStorage.getItem("html5_titaniumPlatformId") ?
