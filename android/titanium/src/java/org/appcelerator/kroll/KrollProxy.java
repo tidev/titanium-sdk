@@ -479,7 +479,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		message.sendToTarget();
 	}
 
-	@Kroll.method(name="getActivity") @Kroll.getProperty(name="activity")
 	public ActivityProxy getActivityProxy()
 	{
 		Activity activity = getActivity();
