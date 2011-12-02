@@ -75,10 +75,11 @@ public final class ${config['classname']}Application extends TiApplication
 		${onAppCreate(module)} \
 
 		<% manifest = module['manifest'] %>
+		% if runtime == "rhino":
 		KrollBindings.addExternalBinding("${manifest.moduleid}", ${module['class_name']}Prototype.class);
 		${manifest.moduleid}.${manifest.name}GeneratedBindings.init();
+		% endif
 
-		<% manifest = module['manifest'] %>
 		moduleInfo = new KrollModuleInfo(
 			"${manifest.name}", "${manifest.moduleid}", "${manifest.guid}", "${manifest.version}",
 			"${manifest.description}", "${manifest.author}", "${manifest.license}",
