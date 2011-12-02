@@ -488,28 +488,33 @@ var spinningAngle = 0;
 			
 			// Create the transition, must be set before setting the other properties
 			var transitionValue = "all " + animation.duration + "ms " + _curve;
-			animation.delay && (transitionValue += " " + animation.delay + "ms");
+			isDefined(animation.delay) && (transitionValue += " " + animation.delay + "ms");
 			obj._setPrefixedCSSRule("Transition", transitionValue);
+			
+			// We need to explicitly test if a variable is defined because 0 or false can be a legitimate value
+			function isDefined(value) {
+				return (typeof value !== "undefined");
+			}
 			
 			// Set the color and opacity properties
 			var _style = obj.dom.style;
-			animation.backgroundColor && (_style.backgroundColor = animation.backgroundColor);
-			animation.color && (_style.color = animation.color);
+			isDefined(animation.backgroundColor) && (_style.backgroundColor = animation.backgroundColor);
+			isDefined(animation.color) && (_style.color = animation.color);
 			(animation.opaque === true || animation.visible === true) && (_style.opacity = 1.0);
 			(animation.opaque === false || animation.visible === false) && (_style.opacity = 0.0);
-			animation.opacity && (_style.opacity = animation.opacity);
+			isDefined(animation.opacity) && (_style.opacity = animation.opacity);
 			
 			// Set the position and size properties
-			animation.center && (_style.center = animation.center);
-			animation.top && (_style.top = animation.top);
-			animation.bottom && (_style.bottom = animation.bottom);
-			animation.left && (_style.left = animation.left);
-			animation.right && (_style.right = animation.right);
-			animation.height && (_style.height = animation.height);
-			animation.width && (_style.width = animation.width);
+			isDefined(animation.center) && (_style.center = animation.center);
+			isDefined(animation.top) && (_style.top = animation.top);
+			isDefined(animation.bottom) && (_style.bottom = animation.bottom);
+			isDefined(animation.left) && (_style.left = animation.left);
+			isDefined(animation.right) && (_style.right = animation.right);
+			isDefined(animation.height) && (_style.height = animation.height);
+			isDefined(animation.width) && (_style.width = animation.width);
 			
 			// Set the z-order
-			animation.zIndex && (_style.zIndex = animation.zIndex);
+			isDefined(animation.zIndex) && (_style.zIndex = animation.zIndex);
 			
 			// Set the transform properties
 			var transform = "";
