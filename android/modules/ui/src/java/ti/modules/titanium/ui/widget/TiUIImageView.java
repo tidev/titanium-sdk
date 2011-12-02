@@ -366,7 +366,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 								Bitmap b = imageSources.get(j).getBitmap();
 								bitmapQueue.offer(new BitmapWithIndex(b, j), (int) getDuration() * imageSources.size(), TimeUnit.MILLISECONDS);
 							} else {
-								break;
+								break topLoop;
 							}
 						}
 					} catch (InterruptedException e) {
