@@ -130,14 +130,44 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		return tiApp.get();
 	}
 	
-	//This is a convenience method to avoid having to check TiApplication.getInstance() is not null every time we need to grab the current activity
-	public static Activity getCurrentInstanceActivity()
+	// This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
+	// time we need to grab the current activity
+	public static Activity getAppCurrentActivity()
 	{
 		TiApplication tiApp = getInstance();
 		if (tiApp == null) {
+			Log.e(LCAT, "unable to get the TiApplication instance");
 			return null;
 		}
-		return tiApp.getCurrentActivity();
+
+		if (tiApp.currentActivity != null) {
+			return tiApp.currentActivity.get();
+		}
+
+		Log.e(LCAT, "no valid current activity found for application");
+		return null;
+	}
+
+	// This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
+	// time we need to grab the root or current activity
+	public static Activity getAppRootOrCurrentActivity()
+	{
+		TiApplication tiApp = getInstance();
+		if (tiApp == null) {
+			Log.e(LCAT, "unable to get the TiApplication instance");
+			return null;
+		}
+
+		if (tiApp.rootActivity != null) {
+			return tiApp.rootActivity.get();
+		}
+		
+		if (tiApp.currentActivity != null) {
+			return tiApp.currentActivity.get();
+		}
+
+		Log.e(LCAT, "no valid root or current activity found for application");
+		return null;		
 	}
 
 	protected void loadBuildProperties()
