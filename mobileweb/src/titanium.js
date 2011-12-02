@@ -263,6 +263,29 @@ function($window, args){
 			}
 		}
 	};
+	
+	Ti._5.presetUserArguments = function(obj,args) {
+		for(var prop in args){
+			obj[prop] = args[prop];
+		}
+	}
+	
+	Ti._5.prop = function(obj, propertyName, defaultValue, getter, setter) {
+		
+		// Note: Value is only used when a getter and setter are not defined. When a getter and setter 
+		// are defined, this value is ignored
+		var capitalizedName = propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1),
+			value = require.is(defaultValue,undefined) ? null : defaultValue,
+			args = {
+				get: getter || function() { return value; },
+				set: setter || function(val) { value = val; }
+			};
+		
+		obj["get" + capitalizedName] = function(){ return args.get.call(obj); };
+		obj["set" + capitalizedName] = function(val){ args.set.call(obj, val); };
+		
+		Object.defineProperty(obj, propertyName, args);
+	}
 
 	Ti._5.createClass = function(className, value){
 		var classes = className.split(".");

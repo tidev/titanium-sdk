@@ -1,30 +1,33 @@
 Ti._5.createClass('Titanium.UI.Button', function(args){
 	var obj = this;
 	// Interfaces
-	Ti._5.DOMView(this, 'button', args, 'Button');
-	Ti._5.Clickable(this);
-	Ti._5.Touchable(this, args);
-	Ti._5.Styleable(this, args);
-	Ti._5.Positionable(this, args);
+	Ti._5.DOMView(obj, 'button', args, 'Button');
+	Ti._5.Clickable(obj);
+	Ti._5.Touchable(obj, args);
+	Ti._5.Styleable(obj, args);
+	Ti._5.Positionable(obj, args);
 
 	// Properties
 	var _title = '', _titleObj;
-	Object.defineProperty(this, 'title', {
-		get: function() {return _title ? _title : obj.dom.innerHTML;},
-		set: function(val) {
+	Ti._5.prop(obj, 'title', '',
+		function() {
+			return _title ? _title : obj.dom.innerHTML;
+		},
+		function(val) {
 			_title = val;
 			if(_titleObj) {
 				obj.dom.removeChild(_titleObj);
 			}
 			_titleObj = document.createTextNode(_title);
 			obj.dom.appendChild(_titleObj);
-		}
-	});
+		});
 	
-	var _image, _imageObj;
-	Object.defineProperty(this, 'image', {
-		get: function() {return _image;},
-		set: function(val){
+	var _image = null, _imageObj;
+	Ti._5.prop(obj, 'image', null,
+		function() {
+			return _image;
+		},
+		function(val){
 			if (_imageObj == null) {
 				_imageObj = document.createElement('img');
 				if(_titleObj){
@@ -36,16 +39,15 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 			}
 			_image = Ti._5.getAbsolutePath(val);
 			_imageObj.src = _image;
-		}
-	});
+		});
 
 	var _backgroundImage = null;
 	var _borderWidthCache = '', _backgroundImageCache = '', _backgroundColorCache = '';
-	Object.defineProperty(obj, 'backgroundImage', {
-		get: function() {
+	Ti._5.prop(obj, 'backgroundImage', null,
+		function() {
 			return _backgroundImage;
 		},
-		set: function(val) {
+		function(val) {
 			_backgroundImage = val;
 
 			if (val) {
@@ -60,14 +62,14 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 				obj.dom.style.backgroundColor = _backgroundColorCache;
 				obj.dom.style.backgroundImage = '';
 			}
-		},
-		configurable: true
-	});
+		});
 
 	var _enabled = true;
-	Object.defineProperty(this, 'enabled', {
-		get: function(){return _enabled;},
-		set: function(val) {
+	Ti._5.prop(obj, 'enabled', null,
+		function() {
+			return _enabled;
+		},
+		function(val) {
 			// do nothing if widget is already in this state
 			if(_enabled == val){
 				return;
@@ -99,50 +101,48 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 					obj.backgroundColor = _backgroundDisabledColor;
 				}
 			}
-		}
-	});
+		});
 	
 	var _backgroundDisabledImage = null;
-	Object.defineProperty(obj, 'backgroundDisabledImage', {
-		get: function() {
+	Ti._5.prop(obj, 'backgroundDisabledImage', null,
+		function() {
 			return _backgroundDisabledImage ? _backgroundDisabledImage : '';
 		},
-		set: function(val) {
+		function(val) {
 			_backgroundDisabledImage = val;
-		}
-	});
+		});
 	
 	var _backgroundDisabledColor = null;
-	Object.defineProperty(obj, 'backgroundDisabledColor', {
-		get: function() {
+	Ti._5.prop(obj, 'backgroundDisabledColor', null,
+		function() {
 			return _backgroundDisabledColor ? _backgroundDisabledColor : '';
 		},
-		set: function(val) {
+		function(val) {
 			_backgroundDisabledColor = val;
-		}
-	});
+		});
 	
-	Object.defineProperty(this, 'size', {
-		get: function() {
+	Ti._5.prop(obj, 'size', null,
+		function() {
 			return {
 				width	: obj.width,
 				height	: obj.height
 			}
 		},
-		set: function(val) {
+		function(val) {
 			if (val.width) {
 				obj.width = val.width;
 			}
 			if (val.height) {
 				obj.height = val.height;
 			}
-		}
-	});
+		});
 
 	var _selectedColor = null, _prevTextColor = null, _selectedColorLoaded = false;
-	Object.defineProperty(this, 'selectedColor', {
-		get: function(){return _selectedColor;},
-		set: function(val) {
+	Ti._5.prop(obj, 'selectedColor', null,
+		function() {
+			return _selectedColor;
+		},
+		function(val) {
 			_selectedColor = val;
 			if (!_selectedColorLoaded) {
 				_selectedColorLoaded = true;
@@ -156,22 +156,21 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 					}
 				}, false);
 			}
-		}
-	});
+		});
 	
-	var _style = null;
-	Object.defineProperty(this, 'style', {
-		get: function(){return _style;},
-		set: function(val){return _style = val;}
-	});
+	Ti._5.prop(obj, 'style');
 
 	var _titleid = null;
-	Object.defineProperty(this, 'titleid', {
-		get: function(){return _titleid;},
-		set: function(val){_titleid = val; return obj.title = L(_titleid)}
-	});
+	Ti._5.prop(obj, 'titleid', null,
+		function() {
+			return _titleid;
+		},
+		function(val) {
+			_titleid = val;
+			return obj.title = L(_titleid);
+		});
 		
-	this.add = function(view) {
+	obj.add = function(view) {
 		obj._children = obj._children || [];
 		obj._children.push(view);
 		
@@ -186,11 +185,6 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 		}
 		obj.render(null);
 	};
-
-	Ti._5.preset(this, [
-		"image", "title", "size", "selectedColor", "backgroundDisabledImage",
-		"backgroundDisabledColor", "enabled"
-	], args);
 	
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(obj, args);
 });
