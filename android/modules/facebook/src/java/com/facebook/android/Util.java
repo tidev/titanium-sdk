@@ -31,8 +31,9 @@
  * 	 to avoid our Http cache
  * 
  * Original file this is based on:
- * https://github.com/facebook/facebook-android-sdk/blob/ac14a5fe46e477d5503c95cea1c6db1c6d3e51cc/facebook/src/com/facebook/android/Util.java
+ * https://github.com/facebook/facebook-android-sdk/blob/9cbf3474866d0e62fe5cf56afe416ba57622d35c/facebook/src/com/facebook/android/Util.java
  */
+
 package com.facebook.android;
 
 import java.io.BufferedOutputStream;
@@ -166,7 +167,7 @@ public final class Util {
         Log.d("Facebook-Util", method + " URL: " + url);
         HttpURLConnection conn =
             (HttpURLConnection) new URL(url).openConnection();
-        conn.setUseCaches(false);
+        conn.setUseCaches(false); // TITANIUM
         conn.setRequestProperty("User-Agent", System.getProperties().
                 getProperty("http.agent") + " FacebookAndroidSDK");
         if (!method.equals("GET")) {
