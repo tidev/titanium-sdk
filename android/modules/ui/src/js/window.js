@@ -110,7 +110,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 	// activity getter (account for scenario when heavy weight window's activity is not created yet) 
 	var activityProxyGetter = function () {
-		if (this.currentState == this.state.open || this.currentState == this.state.opening) {
+		if (this.currentState == this.state.opened || this.currentState == this.state.opening) {
 			return this.window._internalActivity;
 		}
 
