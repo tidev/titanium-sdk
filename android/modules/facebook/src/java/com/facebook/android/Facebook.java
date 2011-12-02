@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /*
  * MODIFICATIONS
  * 
@@ -448,6 +449,10 @@ public class Facebook {
                         Log.d("Facebook-authorize", "Login canceled by user.");
                         mAuthDialogListener.onCancel();
                     } else {
+                        String description = data.getStringExtra("error_description");
+                        if (description != null) {
+                            error = error + ":" + description;
+                        }
                         Log.d("Facebook-authorize", "Login failed: " + error);
                         mAuthDialogListener.onFacebookError(
                                 new FacebookError(error));

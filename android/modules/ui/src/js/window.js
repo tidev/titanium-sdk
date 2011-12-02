@@ -30,6 +30,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 	// cached orientation modes for window that are not part of the normal properties map for the proxy
 	Window.prototype.cachedOrientationModes = null;
+	Window.prototype.cachedActivityProxy = null;
 
 	// this is mainly used when we need to perform an operation on an activity and our
 	// window does not have its own activity.  IE:  setting orientation on a window opened 
@@ -107,6 +108,22 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.setOrientationModes = orientationModesSetter;
 	Object.defineProperty(Window.prototype, "orientationModes", { get: orientationModesGetter, set: orientationModesSetter});
 
+	// activity getter (account for scenario when heavy weight window's activity is not created yet) 
+	var activityProxyGetter = function () {
+		if (this.currentState == this.state.open || this.currentState == this.state.opening) {
+			return this.window._internalActivity;
+		}
+
+		if (this.cachedActivityProxy == null) {
+			this.cachedActivityProxy = {};
+		}
+
+		return this.cachedActivityProxy;
+	}
+
+	Window.prototype.getActivity = activityProxyGetter;
+	Object.defineProperty(Window.prototype, "activity", { get: activityProxyGetter });
+
 	// set windowPixelFormat access
 	var windowPixelFormatGetter = function() {
 		if (this.isActivity) {
@@ -150,7 +167,7 @@ exports.bootstrapWindow = function(Titanium) {
 			return;
 		}
 		this.currentState = this.state.opening;
-
+		
 		if (!options) {
 			options = {};
 		} else if (!(options instanceof UI.Animation)) {
@@ -171,6 +188,10 @@ exports.bootstrapWindow = function(Titanium) {
 		// Set any cached properties on the properties given to the "true" view
 		if (this.propertyCache) {
 			this._properties.extend(this.propertyCache);
+		}
+
+		if (this.cachedActivityProxy) {
+			this._properties['activity'] = this.cachedActivityProxy;
 		}
 
 		var needsOpen = false;
@@ -243,6 +264,12 @@ exports.bootstrapWindow = function(Titanium) {
 		 		this.addWrappedListener(event, listeners[i]); 
 		 	} 
 		}
+		var self = this;
+		this.addWrappedListener("closeFromActivity", function(e) {
+			self.window = null;
+			self.view = null;
+			self.currentState = self.state.closed;
+		});
 
 		this.currentState = this.state.opened;
 		this.fireEvent("open");
@@ -273,7 +300,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 		var scopeVars = {
 			currentWindow: this,
-			currentActivity: this.window.activity,
+			currentActivity: this.window._internalActivity,
 			currentTab: this.tab,
 			currentTabGroup: this.tabGroup
 		};
@@ -284,7 +311,6 @@ exports.bootstrapWindow = function(Titanium) {
 
 	Window.prototype.close = function(options) {
 		// if the window is not opened, do not close
-
 		if (this.currentState != this.state.opened) {
 			kroll.log(TAG, "unable to close, window is not opened");
 			return;
@@ -391,7 +417,7 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.addWrappedListener = function(event, listener) {
 		var self = this;
 		self.window.addEventListener(event, function(e) {
-			if (e.source == self.window) {
+			if (e.source == self.view) {
 				e.source = self;
 			}
 			listener(e);

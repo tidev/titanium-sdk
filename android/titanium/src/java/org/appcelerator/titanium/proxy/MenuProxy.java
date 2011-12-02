@@ -70,12 +70,12 @@ public class MenuProxy extends KrollProxy
 				return true;
 			}
 			case MSG_REMOVE_GROUP: {
-				handleRemoveGroup(msg.arg1);
+				handleRemoveGroup((Integer) result.getArg());
 				result.setResult(null);
 				return true;
 			}
 			case MSG_REMOVE_ITEM: {
-				handleRemoveItem(msg.arg1);
+				handleRemoveItem((Integer) result.getArg());
 				result.setResult(null);
 				return true;
 			}
@@ -104,8 +104,12 @@ public class MenuProxy extends KrollProxy
 			mip = handleAdd(d);
 			return mip;
 		}
+		
+		if (!(d instanceof KrollDict) && (d instanceof HashMap)) {
+			d = new KrollDict(d);
+		}
 
-		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ADD), d);
+		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ADD), (KrollDict) d);
 	}
 
 	public MenuItemProxy handleAdd(KrollDict d) 

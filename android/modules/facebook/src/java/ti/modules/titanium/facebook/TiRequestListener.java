@@ -80,31 +80,31 @@ public class TiRequestListener implements RequestListener
 
 	// AsyncFacebookRunner.RequestListener implementation
 	@Override
-	public void onComplete(String result)
+	public void onComplete(String result, Object state)
 	{
 		complete(result);
 	}
 
 	@Override
-	public void onFacebookError(FacebookError e)
+	public void onFacebookError(FacebookError e, Object state)
 	{
 		complete(e);
 	}
 
 	@Override
-	public void onFileNotFoundException(FileNotFoundException e)
+	public void onFileNotFoundException(FileNotFoundException e, Object state)
 	{
 		complete(e);
 	}
 
 	@Override
-	public void onIOException(IOException e)
+	public void onIOException(IOException e, Object state)
 	{
 		complete(e);
 	}
 
 	@Override
-	public void onMalformedURLException(MalformedURLException e)
+	public void onMalformedURLException(MalformedURLException e, Object state)
 	{
 		complete(e);
 	}
