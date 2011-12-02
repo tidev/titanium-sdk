@@ -22,8 +22,9 @@
 }
 
 -(void)dealloc{
-	[item release];
-	item = nil;
+	item.userData = nil;
+	item.view = nil;
+	RELEASE_TO_NIL(item);
 	[super dealloc];
 }
 
