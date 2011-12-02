@@ -1,14 +1,12 @@
 (function(api){
 
 	// Properties
-	Object.defineProperty(api, 'NONE', {
-		value: 0,
-		writable: false
+	Ti._5.prop(api, 'NONE', {
+		get: function() { return 0; }
 	});
 
-	Object.defineProperty(api, 'SINGLE_LINE', {
-		value: 1,
-		writable: false
+	Ti._5.prop(api, 'SINGLE_LINE', {
+		get: function() { return 1; }
 	});
 
 })(Ti._5.createClass('Titanium.UI.iPhone.TableViewSeparatorStyle'));

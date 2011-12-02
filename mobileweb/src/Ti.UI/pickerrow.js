@@ -15,13 +15,13 @@ Ti._5.createClass('Titanium.UI.PickerRow', function(args){
 	Ti._5.Positionable(this, args);
 
 	// Properties
-	Object.defineProperty(this, 'selected', {
+	Ti._5.prop(this, 'selected', {
 		get: function(){return obj.dom.selected;},
 		set: function(val){obj.dom.selected = val ? true: false;}
 	});
 
 	var _title = null;
-	Object.defineProperty(this, 'title', {
+	Ti._5.prop(this, 'title', {
 		get: function(){return _title;},
 		set: function(val){
 			_title = val; 
@@ -30,7 +30,7 @@ Ti._5.createClass('Titanium.UI.PickerRow', function(args){
 		}
 	});
 	
-	Object.defineProperty(this, 'size', {
+	Ti._5.prop(this, 'size', {
 		get: function() {
 			return {
 				width	: obj.width,
@@ -71,6 +71,5 @@ Ti._5.createClass('Titanium.UI.PickerRow', function(args){
 		}
 	};
 	
-	Ti._5.preset(obj, ["selected", "title", "size"], args);
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });

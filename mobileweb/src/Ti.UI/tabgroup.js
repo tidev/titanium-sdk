@@ -27,11 +27,7 @@ Ti._5.createClass('Titanium.UI.TabGroup', function(args){
 		set: function(val){obj.setActiveTab(val);}
 	});
 
-	var _allowUserCustomization = null;
-	Object.defineProperty(this, 'allowUserCustomization', {
-		get: function(){return _allowUserCustomization;},
-		set: function(val){return _allowUserCustomization = val;}
-	});
+	Ti._5.member(this, 'allowUserCustomization');
 
 	var _barColor = null;
 	Object.defineProperty(this, 'barColor', {
@@ -54,11 +50,7 @@ Ti._5.createClass('Titanium.UI.TabGroup', function(args){
 		}
 	});
 
-	var _editButtonTitle = null;
-	Object.defineProperty(this, 'editButtonTitle', {
-		get: function(){return _editButtonTitle;},
-		set: function(val){return _editButtonTitle = val;}
-	});
+	Ti._5.member(this, 'editButtonTitle');
 
 	// Methods
 	this.addTab = function(tab){
@@ -206,5 +198,5 @@ Ti._5.createClass('Titanium.UI.TabGroup', function(args){
 		});
 	};
 
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });

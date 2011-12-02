@@ -7,23 +7,11 @@ Ti._5.createClass('Titanium.UI.iPad.Popover', function(args){
 	Ti._5.Positionable(this, args);
 
 	// Properties
-	var _arrowDirection = null;
-	Object.defineProperty(this, 'arrowDirection', {
-		get: function(){return _arrowDirection;},
-		set: function(val){return _arrowDirection = val;}
-	});
+	Ti._5.member(this, 'arrowDirection');
 
-	var _leftNavButton = null;
-	Object.defineProperty(this, 'leftNavButton', {
-		get: function(){return _leftNavButton;},
-		set: function(val){return _leftNavButton = val;}
-	});
+	Ti._5.member(this, 'leftNavButton');
 
-	var _title = null;
-	Object.defineProperty(this, 'title', {
-		get: function(){return _title;},
-		set: function(val){return _title = val;}
-	});
+	Ti._5.member(this, 'title');
 
 	// Methods
 	this.setHeight = function(){
@@ -38,5 +26,5 @@ Ti._5.createClass('Titanium.UI.iPad.Popover', function(args){
 		console.debug('Event "hide" is not implemented yet.');
 	});
 
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });

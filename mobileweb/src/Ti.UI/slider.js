@@ -13,27 +13,15 @@ Ti._5.createClass('Titanium.UI.Slider', function(args){
 	Ti._5.Positionable(this, args);
 
 	// Properties
-	var _disabledLeftTrackImage = null;
-	Object.defineProperty(this, 'disabledLeftTrackImage', {
-		get: function(){return _disabledLeftTrackImage;},
-		set: function(val){return _disabledLeftTrackImage = val;}
-	});
+	Ti._5.member(this, 'disabledLeftTrackImage');
 
-	var _disabledRightTrackImage = null;
-	Object.defineProperty(this, 'disabledRightTrackImage', {
-		get: function(){return _disabledRightTrackImage;},
-		set: function(val){return _disabledRightTrackImage = val;}
-	});
+	Ti._5.member(this, 'disabledRightTrackImage');
 
-	var _disabledThumbImage = null;
-	Object.defineProperty(this, 'disabledThumbImage', {
-		get: function(){return _disabledThumbImage;},
-		set: function(val){return _disabledThumbImage = val;}
-	});
+	Ti._5.member(this, 'disabledThumbImage');
 
 	var _backgroundDisabledImage = '', _backgroundImage = ''; 
 	var	_backgroundDisabledColor = '', _backgroundColor = '';
-	Object.defineProperty(this, 'enabled', {
+	Ti._5.prop(this, 'enabled', {
 		get: function(){return !obj.dom.disabled;},
 		set: function(val) {
 			if (!_backgroundImage && obj.backgroundImage) {
@@ -58,7 +46,7 @@ Ti._5.createClass('Titanium.UI.Slider', function(args){
 		}
 	});
 	
-	Object.defineProperty(obj, 'backgroundDisabledImage', {
+	Ti._5.prop(obj, 'backgroundDisabledImage', {
 		get: function() {
 			return _backgroundDisabledImage ? _backgroundDisabledImage : '';
 		},
@@ -67,7 +55,7 @@ Ti._5.createClass('Titanium.UI.Slider', function(args){
 		}
 	});
 	
-	Object.defineProperty(obj, 'backgroundDisabledColor', {
+	Ti._5.prop(obj, 'backgroundDisabledColor', {
 		get: function() {
 			return _backgroundDisabledColor ? _backgroundDisabledColor : '';
 		},
@@ -76,86 +64,42 @@ Ti._5.createClass('Titanium.UI.Slider', function(args){
 		}
 	});
 
-	var _highlightedLeftTrackImage = null;
-	Object.defineProperty(this, 'highlightedLeftTrackImage', {
-		get: function(){return _highlightedLeftTrackImage;},
-		set: function(val){return _highlightedLeftTrackImage = val;}
-	});
+	Ti._5.member(this, 'highlightedLeftTrackImage');
 
-	var _highlightedRightTrackImage = null;
-	Object.defineProperty(this, 'highlightedRightTrackImage', {
-		get: function(){return _highlightedRightTrackImage;},
-		set: function(val){return _highlightedRightTrackImage = val;}
-	});
+	Ti._5.member(this, 'highlightedRightTrackImage');
 
-	var _highlightedThumbImage = null;
-	Object.defineProperty(this, 'highlightedThumbImage', {
-		get: function(){return _highlightedThumbImage;},
-		set: function(val){return _highlightedThumbImage = val;}
-	});
+	Ti._5.member(this, 'highlightedThumbImage');
 
-	var _leftTrackImage = null;
-	Object.defineProperty(this, 'leftTrackImage', {
-		get: function(){return _leftTrackImage;},
-		set: function(val){return _leftTrackImage = val;}
-	});
+	Ti._5.member(this, 'leftTrackImage');
 
 	var _max = null;
-	Object.defineProperty(this, 'max', {
+	Ti._5.prop(this, 'max', {
 		get: function(){return obj.dom.max;},
 		set: function(val){return obj.dom.max = parseFloat(val);}
 	});
 
-	var _maxRange = null;
-	Object.defineProperty(this, 'maxRange', {
-		get: function(){return _maxRange;},
-		set: function(val){return _maxRange = val;}
-	});
+	Ti._5.member(this, 'maxRange');
 
 	var _min = null;
-	Object.defineProperty(this, 'min', {
+	Ti._5.prop(this, 'min', {
 		get: function(){return obj.dom.min;},
 		set: function(val){return obj.dom.min = parseFloat(val);}
 	});
 
-	var _minRange = null;
-	Object.defineProperty(this, 'minRange', {
-		get: function(){return _minRange;},
-		set: function(val){return _minRange = val;}
-	});
+	Ti._5.member(this, 'minRange');
 
-	var _rightTrackImage = null;
-	Object.defineProperty(this, 'rightTrackImage', {
-		get: function(){return _rightTrackImage;},
-		set: function(val){return _rightTrackImage = val;}
-	});
+	Ti._5.member(this, 'rightTrackImage');
 
-	var _selectedLeftTrackImage = null;
-	Object.defineProperty(this, 'selectedLeftTrackImage', {
-		get: function(){return _selectedLeftTrackImage;},
-		set: function(val){return _selectedLeftTrackImage = val;}
-	});
+	Ti._5.member(this, 'selectedLeftTrackImage');
 
-	var _selectedRightTrackImage = null;
-	Object.defineProperty(this, 'selectedRightTrackImage', {
-		get: function(){return _selectedRightTrackImage;},
-		set: function(val){return _selectedRightTrackImage = val;}
-	});
+	Ti._5.member(this, 'selectedRightTrackImage');
 
-	var _selectedThumbImage = null;
-	Object.defineProperty(this, 'selectedThumbImage', {
-		get: function(){return _selectedThumbImage;},
-		set: function(val){return _selectedThumbImage = val;}
-	});
+	Ti._5.member(this, 'selectedThumbImage');
 
-	var _thumbImage = null;
-	Object.defineProperty(this, 'thumbImage', {
-		get: function(){return _thumbImage;},
-		set: function(val){return _thumbImage = val;}
-	});
+	Ti._5.member(this, 'thumbImage');
 
 	var _value = '';
-	Object.defineProperty(this, 'value', {
+	Ti._5.prop(this, 'value', {
 		get: function(){return _value;},
 		set: function(val){
 			_value = val;
@@ -171,7 +115,7 @@ Ti._5.createClass('Titanium.UI.Slider', function(args){
 		}
 	});
 	
-	Object.defineProperty(this, 'size', {
+	Ti._5.prop(this, 'size', {
 		get: function() {
 			return {
 				width	: obj.width,
@@ -188,11 +132,7 @@ Ti._5.createClass('Titanium.UI.Slider', function(args){
 		}
 	});
 	
-	Ti._5.preset(this, [
-		"enabled", "backgroundDisabledImage", "backgroundDisabledColor",
-		"max", "min", "value", "size"
-	], args);
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 
 
 	// Events

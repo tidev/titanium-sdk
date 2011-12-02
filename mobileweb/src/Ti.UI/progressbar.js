@@ -25,5 +25,5 @@ Ti._5.createClass('Titanium.UI.ProgressBar', function(args){
 		console.debug('Method "Titanium.UI.ProgressBar#.value" is not implemented yet.');
 	};
 	
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });

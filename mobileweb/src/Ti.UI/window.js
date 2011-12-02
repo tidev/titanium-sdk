@@ -26,41 +26,29 @@ Ti._5.createClass('Titanium.UI.Window', function(args){
 	this.exitOnClose = null;
 	this.fullscreen = false;
 	this.leftNavButton = null;
-	var _modal = null;
-	Object.defineProperty(this, 'modal', {
-		get: function(){return _modal;},
-		set: function(val){return _modal = val;}
-	});
+	Ti._5.member(this, 'modal');
 
-	var _navBarHidden = null;
-	Object.defineProperty(this, 'navBarHidden', {
-		get: function(){return _navBarHidden;},
-		set: function(val){return _navBarHidden = val;}
-	});
+	Ti._5.member(this, 'navBarHidden');
 
 	this.orientationModes = [];
 
 	this.rightNavButton = null;
 	this.softInputMode = null;
 
-	var _tabBarHidden = null;
-	Object.defineProperty(this, 'tabBarHidden', {
-		get: function(){return _tabBarHidden;},
-		set: function(val){return _tabBarHidden = val;}
-	});
+	(this, 'tabBarHidden');
 
 	this.titleControl = null;
 	this.titleImage = null;
 	this.titlePrompt = null;
 
 	var _titleid = null;
-	Object.defineProperty(this, 'titleid', {
+	Ti._5.prop(this, 'titleid', {
 		get: function(){return _titleid;},
 		set: function(val){_titleid = val; obj.title = L(val);}
 	});
 
 	var _titlepromptid = null;
-	Object.defineProperty(this, 'titlepromptid', {
+	Ti._5.prop(this, 'titlepromptid', {
 		get: function(){return _titlepromptid;},
 		set: function(val){
 			obj.titlePrompt = L(val);
@@ -72,7 +60,7 @@ Ti._5.createClass('Titanium.UI.Window', function(args){
 	this.translucent = null;
 
 	var _url = null;
-	Object.defineProperty(this, 'url', {
+	Ti._5.prop(this, 'url', {
 		get: function(){return _url;},
 		set: function(val){
 			_url = val;
@@ -126,7 +114,7 @@ Ti._5.createClass('Titanium.UI.Window', function(args){
 		obj.screen_close();
 	};
 
-	Object.defineProperty(this, 'size', {
+	Ti._5.prop(this, 'size', {
 		get: function() {
 			return {
 				width	: obj.width,
@@ -150,7 +138,7 @@ Ti._5.createClass('Titanium.UI.Window', function(args){
 	};
 	
 	var _title;
-	Object.defineProperty(this, 'title', {
+	Ti._5.prop(this, 'title', {
 		get: function() {
 			return _title;
 		},
@@ -160,8 +148,7 @@ Ti._5.createClass('Titanium.UI.Window', function(args){
 		}
 	});
 
-	Ti._5.preset(this, ["url", "size", "title"], args);
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 	
 	function _setMinHeight(oSource) {
 		oSource = oSource || obj;

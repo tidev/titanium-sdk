@@ -273,7 +273,7 @@ function($window, args){
 	Ti._5.member = function(obj,memberName,defaultValue) {
 		
 		// Set the default value
-		obj[memberName] = defaultValue;
+		obj[memberName] = require.is(defaultValue,"Undefined") ? null : defaultValue;
 		
 		// Create the getxxx and setxxx accessor methods
 		var capitalizedName = memberName.substring(0, 1).toUpperCase() + memberName.substring(1);

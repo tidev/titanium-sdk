@@ -14,7 +14,7 @@ Ti._5.createClass('Titanium.UI.View', function(args){
 	Ti._5.Positionable(this, args);
 	this.dom.style.overflow = '100%' == args.height || 'auto' == args.height ? "" : "hidden";
 
-	Object.defineProperty(this, 'size', {
+	Ti._5.prop(this, 'size', {
 		get: function(){
 			return {
 				width: obj.width,
@@ -32,7 +32,7 @@ Ti._5.createClass('Titanium.UI.View', function(args){
 		}
 	});
 	
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 	
 	obj.dom._calcHeight = false;
 	obj.addEventListener('html5_added', function(){

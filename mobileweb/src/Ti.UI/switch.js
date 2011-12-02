@@ -17,7 +17,7 @@ Ti._5.createClass('Titanium.UI.Switch', function(args){
 
 	// Properties
 	var _touchEnabled = true;
-	Object.defineProperty(this, 'touchEnabled', {
+	Ti._5.prop(this, 'touchEnabled', {
 		get: function() {
 			return _touchEnabled ? _touchEnabled : '';
 		},
@@ -34,7 +34,7 @@ Ti._5.createClass('Titanium.UI.Switch', function(args){
 	var _enabled = true;
 	var _backgroundDisabledImage = '', _backgroundImage = ''; 
 	var	_backgroundDisabledColor = '', _backgroundColor = '';
-	Object.defineProperty(this, 'enabled', {
+	Ti._5.prop(this, 'enabled', {
 		get: function(){return !_checkBox.disabled;},
 		set: function(val) {
 			_enabled = val ? true : false;
@@ -60,7 +60,7 @@ Ti._5.createClass('Titanium.UI.Switch', function(args){
 		}
 	});
 	
-	Object.defineProperty(obj, 'backgroundDisabledImage', {
+	Ti._5.prop(obj, 'backgroundDisabledImage', {
 		get: function() {
 			return _backgroundDisabledImage ? _backgroundDisabledImage : '';
 		},
@@ -69,7 +69,7 @@ Ti._5.createClass('Titanium.UI.Switch', function(args){
 		}
 	});
 	
-	Object.defineProperty(obj, 'backgroundDisabledColor', {
+	Ti._5.prop(obj, 'backgroundDisabledColor', {
 		get: function() {
 			return _backgroundDisabledColor ? _backgroundDisabledColor : '';
 		},
@@ -78,14 +78,10 @@ Ti._5.createClass('Titanium.UI.Switch', function(args){
 		}
 	});
 
-	var _style = Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON;
-	Object.defineProperty(this, 'style', {
-		get: function(){return _style;},
-		set: function(val){return _style = val;}
-	});
+	Ti._5.member(this, 'style', Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON);
 	
 	var _title = '';
-	Object.defineProperty(this, 'title', {
+	Ti._5.prop(this, 'title', {
 		get: function() {return _title ? _title : obj.dom.innerHTML;},
 		set: function(val) {
 			if (obj.style == Ti.UI.Android.SWITCH_STYLE_CHECKBOX) {
@@ -99,7 +95,7 @@ Ti._5.createClass('Titanium.UI.Switch', function(args){
 	});
 
 	var _titleOff = null;
-	Object.defineProperty(this, 'titleOff', {
+	Ti._5.prop(this, 'titleOff', {
 		get: function(){return _titleOff;},
 		set: function(val){
 			_titleOff = val;
@@ -110,7 +106,7 @@ Ti._5.createClass('Titanium.UI.Switch', function(args){
 	});
 
 	var _titleOn = null;
-	Object.defineProperty(this, 'titleOn', {
+	Ti._5.prop(this, 'titleOn', {
 		get: function(){return _titleOn;},
 		set: function(val){
 			_titleOn = val; 
@@ -120,12 +116,12 @@ Ti._5.createClass('Titanium.UI.Switch', function(args){
 		}
 	});
 
-	Object.defineProperty(this, 'value', {
+	Ti._5.prop(this, 'value', {
 		get: function(){return _checkBox.checked;},
 		set: function(val){_checkBox.checked = val;_checking(null);}
 	});
 	
-	Object.defineProperty(this, 'size', {
+	Ti._5.prop(this, 'size', {
 		get: function() {
 			return {
 				width	: obj.width,
@@ -142,11 +138,7 @@ Ti._5.createClass('Titanium.UI.Switch', function(args){
 		}
 	});
 	
-	Ti._5.preset(this, [
-		"touchEnabled", "style", "title", "backgroundDisabledImage", "backgroundDisabledColor", "enabled",
-		"size", "value", "titleOff", "titleOn"
-	], args);
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 
 	// Events
 	obj.dom.addEventListener('click', function(event) {

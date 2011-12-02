@@ -30,34 +30,34 @@ Ti._5.createClass('Titanium.UI.Label', function(args){
 	var _setBGPosition = function(){
 	};
 
-	Object.defineProperty(this, 'backgroundPaddingBottom', {});
+	Ti._5.prop(this, 'backgroundPaddingBottom', {});
 
-	Object.defineProperty(this, 'backgroundPaddingLeft', {
+	Ti._5.prop(this, 'backgroundPaddingLeft', {
 		get: function(){return obj.dom.style.backgroundPositionX;},
 		set: function(val){obj.dom.style.backgroundPositionX = val + "px"}
 	});
 
-	Object.defineProperty(this, 'backgroundPaddingRight', {});
+	Ti._5.prop(this, 'backgroundPaddingRight', {});
 
-	Object.defineProperty(this, 'backgroundPaddingTop', {
+	Ti._5.prop(this, 'backgroundPaddingTop', {
 		get: function(){return obj.dom.style.backgroundPositionY;},
 		set: function(val){obj.dom.style.backgroundPositionY = val + "px";}
 	});
 
-	Object.defineProperty(this, 'ellipsize', {
+	Ti._5.prop(this, 'ellipsize', {
 		get: function(){return false;}
 	});
 
-	Object.defineProperty(this, 'highlightedColor', {
+	Ti._5.prop(this, 'highlightedColor', {
 		get: function(){return null;}
 	});
 
-	Object.defineProperty(this, 'html', {
+	Ti._5.prop(this, 'html', {
 		get: function(){return obj.text},
 		set: function(val){obj.text = val;}
 	});
 
-	Object.defineProperty(this, 'minimumFontSize', {
+	Ti._5.prop(this, 'minimumFontSize', {
 		get: function(){return null;}
 	});
 
@@ -68,19 +68,19 @@ Ti._5.createClass('Titanium.UI.Label', function(args){
 	};
 
 	var _shadowColor = null;
-	Object.defineProperty(this, 'shadowColor', {
+	Ti._5.prop(this, 'shadowColor', {
 		get: function(){return _shadowColor;},
 		set: function(val){_shadowColor = val;_setShadow();}
 	});
 
 	var _shadowOffset = null;
-	Object.defineProperty(this, 'shadowOffset', {
+	Ti._5.prop(this, 'shadowOffset', {
 		get: function(){return _shadowOffset;},
 		set: function(val){_shadowOffset = val;_setShadow();}
 	});
 
 	var _title = '';
-	Object.defineProperty(this, 'text', {
+	Ti._5.prop(this, 'text', {
 		get: function(){return _title ? _title : obj.dom.innerHTML;},
 		set: function(val){
 			_title = ''+val; 
@@ -98,23 +98,23 @@ Ti._5.createClass('Titanium.UI.Label', function(args){
 		}
 	});
 
-	Object.defineProperty(this, 'textAlign', {
+	Ti._5.prop(this, 'textAlign', {
 		get: function(){return obj.dom.style.textAlign;},
 		set: function(val){return obj.dom.style.textAlign = val;}
 	});
 
 	var _textid = null;
-	Object.defineProperty(this, 'textid', {
+	Ti._5.prop(this, 'textid', {
 		get: function(){return _textid;},
 		set: function(val){_textid = val; text = L(textid);}
 	});
 
-	Object.defineProperty(this, 'wordWrap', {
+	Ti._5.prop(this, 'wordWrap', {
 		get: function(){return true;}
 	});
 	
 	var _selectedColor = null, _prevTextColor = null, _selectedColorLoaded = false;
-	Object.defineProperty(this, 'selectedColor', {
+	Ti._5.prop(this, 'selectedColor', {
 		get: function(){return _selectedColor;},
 		set: function(val) {
 			_selectedColor = val;
@@ -133,7 +133,7 @@ Ti._5.createClass('Titanium.UI.Label', function(args){
 		}
 	});
 	
-	Object.defineProperty(this, 'size', {
+	Ti._5.prop(this, 'size', {
 		get: function() {
 			return {
 				width	: obj.width,
@@ -150,7 +150,5 @@ Ti._5.createClass('Titanium.UI.Label', function(args){
 		}
 	});
 
-	Ti._5.preset(this, ["backgroundPaddingBottom", "backgroundPaddingLeft", "backgroundPaddingRight", "backgroundPaddingTop", "shadowColor", "shadowOffset", "textAlign", "text", "html", "textid", "size", "selectedColor"], args);
-	
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });

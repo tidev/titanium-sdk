@@ -42,11 +42,11 @@ Ti._5.createClass('Titanium.UI.ImageView', function(args){
 	}
 
 	// Properties
-	Ti._5.member(this, 'animating', null);
+	Ti._5.member(this, 'animating');
 
-	Ti._5.member(this, 'duration', null);
+	Ti._5.member(this, 'duration');
 	
-	Ti._5.member(this, 'paused', null);
+	Ti._5.member(this, 'paused');
 	
 	Ti._5.member(this, 'repeatCount', 0);
 

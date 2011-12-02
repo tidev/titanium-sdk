@@ -102,7 +102,7 @@
 	api.UNKNOWN = 0;
 
 	var _backgroundColor = null;
-	Object.defineProperty(api, 'backgroundColor', {
+	Ti._5.prop(api, 'backgroundColor', {
 		get: function(){return _backgroundColor;},
 		set: function(val){
 			_backgroundColor = val;
@@ -111,7 +111,7 @@
 	});
 
 	var _backgroundImage = null;
-	Object.defineProperty(api, 'backgroundImage', {
+	Ti._5.prop(api, 'backgroundImage', {
 		get: function(){return _backgroundImage;},
 		set: function(val){
 			_backgroundImage = val;

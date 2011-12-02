@@ -7,9 +7,9 @@ Ti._5.createClass('Titanium.UI.CoverFlowView', function(args){
 	Ti._5.Positionable(this, args);
 
 	// Properties
-	Ti._5.member(this, 'images', null);
+	Ti._5.member(this, 'images');
 
-	Ti._5.member(this, 'selected', null);
+	Ti._5.member(this, 'selected');
 
 	// Methods
 	this.setImage = function(){

@@ -27,62 +27,34 @@ Ti._5.createClass('Titanium.UI.Picker', function(args){
 	Ti._5.Positionable(this, args);
 	
 	// Properties
-	Object.defineProperty(this, 'type', {
+	Ti._5.prop(this, 'type', {
 		get: function(){return _type;},
-		set: function(val){_type = val;}
+		set: function(val){return _type = val;}
 	});
 
-	var _columns = [];
-	Object.defineProperty(this, 'columns', {
-		get: function(){return _columns;},
-		set: function(val){return _columns = val;}
-	});
+	Ti._5.member(this, 'columns', []);
 
-	var _countDownDuration = 0;
-	Object.defineProperty(this, 'countDownDuration', {
-		get: function(){return _countDownDuration;},
-		set: function(val){return _countDownDuration = val;}
-	});
+	Ti._5.member(this, 'countDownDuration', 0);
 
-	var _locale = null;
-	Object.defineProperty(this, 'locale', {
-		get: function(){return _locale;},
-		set: function(val){return _locale = val;}
-	});
+	Ti._5.member(this, 'locale');
 
-	var _minDate = null;
-	Object.defineProperty(this, 'minDate', {
-		get: function(){return _minDate;},
-		set: function(val){return _minDate = val;}
-	});
+	Ti._5.member(this, 'minDate');
 
 	var _minuteInterval = 1;
-	Object.defineProperty(this, 'minuteInterval', {
+	Ti._5.prop(this, 'minuteInterval', {
 		get: function(){return _minuteInterval;},
 		set: function(val){_minuteInterval = 30 < val ? 30 : 1 > val ? 1 : val;}
 	});
 
-	var _selectionIndicator = false;
-	Object.defineProperty(this, 'selectionIndicator', {
-		get: function(){return _selectionIndicator;},
-		set: function(val){return _selectionIndicator = val;}
-	});
+	Ti._5.member(this, 'selectionIndicator', false);
 
-	var _useSpinner = false;
-	Object.defineProperty(this, 'useSpinner', {
-		get: function(){return _useSpinner;},
-		set: function(val){return _useSpinner = val;}
-	});
+	Ti._5.member(this, 'useSpinner');
 
-	var _value = null;
-	Object.defineProperty(this, 'value', {
-		get: function(){return _value;},
-		set: function(val){return _value = val;}
-	});
+	Ti._5.member(this, 'value');
 
 	// Note: this is relevant only if you set `useSpinner` to `true`
 	var _visibleItems = null;
-	Object.defineProperty(this, 'visibleItems', {
+	Ti._5.prop(this, 'visibleItems', {
 		get: function(){return obj.dom.size;},
 		set: function(val){ 
 			// We need this for setting 'size' property in constructor
@@ -93,8 +65,7 @@ Ti._5.createClass('Titanium.UI.Picker', function(args){
 		}
 	});
 	
-	Ti._5.preset(obj, ["columns", "countDownDuration", "visibleItems"], args);
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 	
 	// Methods
 	var _rows = null;

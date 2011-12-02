@@ -159,7 +159,7 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 		}
 	});
 	
-	Ti._5.member(this, 'style', null);
+	Ti._5.member(this, 'style');
 
 	var _titleid = null;
 	Ti._5.prop(this, 'titleid', {

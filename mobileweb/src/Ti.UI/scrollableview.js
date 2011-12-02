@@ -11,7 +11,7 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 
 	// Properties
 	var _currentPage = args.currentPage || -1;
-	Object.defineProperty(this, 'currentPage', {
+	Ti._5.prop(this, 'currentPage', {
 		get: function(){return _currentPage;},
 		set: function(val){
 			if (val >= 0 && val < _views.length) {
@@ -21,41 +21,17 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 		}
 	});
 
-	var _maxZoomScale = null;
-	Object.defineProperty(this, 'maxZoomScale', {
-		get: function(){return _maxZoomScale;},
-		set: function(val){return _maxZoomScale = val;}
-	});
+	Ti._5.member(this, 'maxZoomScale');
 
-	var _minZoomScale = null;
-	Object.defineProperty(this, 'minZoomScale', {
-		get: function(){return _minZoomScale;},
-		set: function(val){return _minZoomScale = val;}
-	});
+	Ti._5.member(this, 'minZoomScale');
 
-	var _pagingControlColor = null;
-	Object.defineProperty(this, 'pagingControlColor', {
-		get: function(){return _pagingControlColor;},
-		set: function(val){return _pagingControlColor = val;}
-	});
+	Ti._5.member(this, 'pagingControlColor');
 
-	var _pagingControlHeight = null;
-	Object.defineProperty(this, 'pagingControlHeight', {
-		get: function(){return _pagingControlHeight;},
-		set: function(val){return _pagingControlHeight = val;}
-	});
+	Ti._5.member(this, 'pagingControlHeight');
 
-	var _showPagingControl = null;
-	Object.defineProperty(this, 'showPagingControl', {
-		get: function(){return _showPagingControl;},
-		set: function(val){return _showPagingControl = val;}
-	});
+	Ti._5.member(this, 'showPagingControl');
 
-	var _views = args.views || [];
-	Object.defineProperty(this, 'views', {
-		get: function(){return _views;},
-		set: function(val){return _views = val;}
-	});
+	Ti._5.member(this, 'views', []);
 
 	// Methods
 	this.addView = function(view){
@@ -231,5 +207,5 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 		console.debug('Event "scroll" is not implemented yet.');
 	});
 
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });

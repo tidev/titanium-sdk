@@ -50,13 +50,9 @@ Ti._5.createClass('Titanium.UI.WebView', function(args){
 	
 	// Properties
 	// NOT IMPLEMENTED
-	var _data = null;
-	Object.defineProperty(this, 'data', {
-		get: function(){return _data;},
-		set: function(val){return _data = val;}
-	});
+	Ti._5.member(this, 'data');
 
-	Object.defineProperty(this, 'html', {
+	Ti._5.prop(this, 'html', {
 		get: function() {
 			try {
 				return obj.dom.contentWindow.document.body.innerHTML;
@@ -84,19 +80,16 @@ Ti._5.createClass('Titanium.UI.WebView', function(args){
 	});
 
 	var _loading = false;
-	Object.defineProperty(this, 'loading', {
+	Ti._5.prop(this, 'loading', {
 		get: function(){return _loading;},
 		set: function(val){return false;}
 	});
 
 	// NOT IMPLEMENTED
-	Object.defineProperty(this, 'scalesPageToFit', {
-		get: function(){return _scalesPageToFit;},
-		set: function(val){return _scalesPageToFit = val;}
-	});
+	Ti._5.member(this, 'scalesPageToFit');
 	
 	var _url = "";
-	Object.defineProperty(this, 'url', {
+	Ti._5.prop(this, 'url', {
 		get: function(){return _url;},
 		set: function(val){
 			if (val.substring(0,1) == '/'){
@@ -116,7 +109,7 @@ Ti._5.createClass('Titanium.UI.WebView', function(args){
 		}
 	});
 	
-	Object.defineProperty(this, 'size', {
+	Ti._5.prop(this, 'size', {
 		get: function() {
 			return {
 				width	: obj.width,
@@ -133,8 +126,7 @@ Ti._5.createClass('Titanium.UI.WebView', function(args){
 		}
 	});
 	
-	Ti._5.preset(this, ["url", "loading", "size", "html"], args);
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 
 	// Methods
 	this.canGoBack = function() {

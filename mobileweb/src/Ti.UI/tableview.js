@@ -171,21 +171,13 @@ Ti._5.createClass('Titanium.UI.TableView', function(args){
 	};
 
 	// Properties
-	var _allowsSelection = true;
-	Object.defineProperty(this, 'allowsSelection', {
-		get: function(){return _allowsSelection;},
-		set: function(val){return _allowsSelection = val;}
-	});
+	Ti._5.member(this, 'allowsSelection', true);
 
-	var _allowsSelectionDuringEditing = true;
-	Object.defineProperty(this, 'allowsSelectionDuringEditing', {
-		get: function(){return _allowsSelectionDuringEditing;},
-		set: function(val){return _allowsSelectionDuringEditing = val;}
-	});
+	Ti._5.member(this, 'allowsSelectionDuringEditing', true);
 
 	// Block rendering rows to improve performance  
 	var bBlockRender = false;
-	Object.defineProperty(this, 'data', {
+	Ti._5.prop(this, 'data', {
 		get: function(){return _data;},
 		set: function(val){
 			// clean all the data we have
@@ -212,32 +204,16 @@ Ti._5.createClass('Titanium.UI.TableView', function(args){
 		}
 	});
 	
-	var _editable = null;
-	Object.defineProperty(this, 'editable', {
-		get: function(){return _editable;},
-		set: function(val){return _editable = val;}
-	});
+	Ti._5.member(this, 'editable');
 
-	var _editing = null;
-	Object.defineProperty(this, 'editing', {
-		get: function(){return _editing;},
-		set: function(val){return _editing = val;}
-	});
+	Ti._5.member(this, 'editing');
 
-	var _filterAttribute = null;
-	Object.defineProperty(this, 'filterAttribute', {
-		get: function(){return _filterAttribute;},
-		set: function(val){return _filterAttribute = val;}
-	});
+	Ti._5.member(this, 'filterAttribute');
 
-	var _filterCaseInsensitive = null;
-	Object.defineProperty(this, 'filterCaseInsensitive', {
-		get: function(){return _filterCaseInsensitive;},
-		set: function(val){return _filterCaseInsensitive = val;}
-	});
+	Ti._5.member(this, 'filterCaseInsensitive');
 
 	var _footerTitle = '';
-	Object.defineProperty(this, 'footerTitle', {
+	Ti._5.prop(this, 'footerTitle', {
 		get: function(){return _footerTitle;},
 		set: function(val){
 			_footerTitle = val;
@@ -260,7 +236,7 @@ Ti._5.createClass('Titanium.UI.TableView', function(args){
 		}
 	});
 
-	Object.defineProperty(this, 'footerView', {
+	Ti._5.prop(this, 'footerView', {
 		get: function(){return _oFooter;},
 		set: function(val){
 			if (val && val.dom) {
@@ -273,7 +249,7 @@ Ti._5.createClass('Titanium.UI.TableView', function(args){
 	});
 
 	var _headerTitle = '';
-	Object.defineProperty(this, 'headerTitle', {
+	Ti._5.prop(this, 'headerTitle', {
 		get: function(){return _headerTitle;},
 		set: function(val){
 			_headerTitle = val;
@@ -304,7 +280,7 @@ Ti._5.createClass('Titanium.UI.TableView', function(args){
 		}
 	});
 
-	Object.defineProperty(this, 'headerView', {
+	Ti._5.prop(this, 'headerView', {
 		get: function(){return _oHeader;},
 		set: function(val){
 			if (val && val.dom) {
@@ -316,38 +292,18 @@ Ti._5.createClass('Titanium.UI.TableView', function(args){
 		}
 	});
 
-	var _index = null;
-	Object.defineProperty(this, 'index', {
-		get: function(){return _index;},
-		set: function(val){return _index = val;}
-	});
+	Ti._5.member(this, 'index');
 
-	var _maxRowHeight = "";
-	Object.defineProperty(this, 'maxRowHeight', {
-		get: function(){return _maxRowHeight;},
-		set: function(val){return _maxRowHeight = val;}
-	});
+	Ti._5.member(this, 'maxRowHeight', "");
 
-	var _minRowHeight = 1;
-	Object.defineProperty(this, 'minRowHeight', {
-		get: function(){return _minRowHeight;},
-		set: function(val){return _minRowHeight = val;}
-	});
+	Ti._5.member(this, 'minRowHeight', 1);
 
-	var _moving = null;
-	Object.defineProperty(this, 'moving', {
-		get: function(){return _moving;},
-		set: function(val){return _moving = val;}
-	});
+	Ti._5.member(this, 'moving');
 
-	var _rowHeight = null;
-	Object.defineProperty(this, 'rowHeight', {
-		get: function(){return _rowHeight;},
-		set: function(val){return _rowHeight = val;}
-	});
+	Ti._5.member(this, 'rowHeight');
 
 	var _scrollable = true;
-	Object.defineProperty(this, 'scrollable', {
+	Ti._5.prop(this, 'scrollable', {
 		get: function(){return _scrollable;},
 		set: function(val){
 			_scrollable = val;
@@ -359,26 +315,18 @@ Ti._5.createClass('Titanium.UI.TableView', function(args){
 		}
 	});
 
-	var _search = null;
-	Object.defineProperty(this, 'search', {
-		get: function(){return _search;},
-		set: function(val){return _search = val;}
-	});
+	Ti._5.member(this, 'search');
 
 	var _searchHidden = true;
-	Object.defineProperty(this, 'searchHidden', {
+	Ti._5.prop(this, 'searchHidden', {
 		get: function(){return _searchHidden;},
 		set: function(val){return _searchHidden = val ? true : false;}
 	});
 
-	var _separatorColor = '#e0e0e0';
-	Object.defineProperty(this, 'separatorColor', {
-		get: function(){return _separatorColor;},
-		set: function(val){return _separatorColor = val;}
-	});
+	Ti._5.member(this, 'separatorColor', '#e0e0e0');
 
 	var _separatorStyle = Titanium.UI.iPhone.TableViewSeparatorStyle.SINGLE_LINE;
-	Object.defineProperty(this, 'separatorStyle', {
+	Ti._5.prop(this, 'separatorStyle', {
 		get: function(){return _separatorStyle;},
 		set: function(val){
 			if (Titanium.UI.iPhone.TableViewSeparatorStyle.NONE == val) {
@@ -400,13 +348,9 @@ Ti._5.createClass('Titanium.UI.TableView', function(args){
 		}
 	});
 
-	var _style = null;
-	Object.defineProperty(this, 'style', {
-		get: function(){return _style;},
-		set: function(val){return _style = val;}
-	});
+	Ti._5.member(this, 'style');
 	
-	Object.defineProperty(this, 'size', {
+	Ti._5.prop(this, 'size', {
 		get: function() {
 			return {
 				width	: obj.width,
@@ -423,12 +367,7 @@ Ti._5.createClass('Titanium.UI.TableView', function(args){
 		}
 	});
 	
-	Ti._5.preset(this, [
-		"data", "rowHeight", "scrollable", "separatorColor", "separatorStyle", "size", 
-		"maxRowHeight", "minRowHeight", "allowsSelection", "allowsSelectionDuringEditing",
-		"headerTitle", "headerView", "footerTitle", "footerView"
-	], args);
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 	
 	this.dom.addEventListener('click', function(event) {
 		// If tableview has children they will fire this event

@@ -50,14 +50,10 @@ Ti._5.createClass('Titanium.UI.Tab', function(args){
 	};
 
 	// Properties
-	var _badge = null;
-	Object.defineProperty(this, 'badge', {
-		get: function(){return _badge;},
-		set: function(val){return _badge = val;}
-	});
+	Ti._5.member(this, 'badge');
 
 	var _icon = null;
-	Object.defineProperty(this, 'icon', {
+	Ti._5.prop(this, 'icon', {
 		get: function(){return _icon;},
 		set: function(val){
 			if(val == null || val == ''){
@@ -71,7 +67,7 @@ Ti._5.createClass('Titanium.UI.Tab', function(args){
 	});
 
 	var _title = null;
-	Object.defineProperty(this, 'title', {
+	Ti._5.prop(this, 'title', {
 		get: function(){return _title;},
 		set: function(val){
 			obj._header.innerHTML = val;
@@ -80,7 +76,7 @@ Ti._5.createClass('Titanium.UI.Tab', function(args){
 	});
 
 	var _titleid = null;
-	Object.defineProperty(this, 'titleid', {
+	Ti._5.prop(this, 'titleid', {
 		get: function(){return _titleid;},
 		set: function(val){
 			obj.title = L(val);
@@ -89,7 +85,7 @@ Ti._5.createClass('Titanium.UI.Tab', function(args){
 	});
 
 	var _window = null;
-	Object.defineProperty(this, 'window', {
+	Ti._5.prop(this, 'window', {
 		get: function(){return _window;},
 		set: function(val){
 			_window = val;
@@ -97,11 +93,10 @@ Ti._5.createClass('Titanium.UI.Tab', function(args){
 		}
 	});
 
-	Object.defineProperty(this, 'win', {
+	Ti._5.prop(this, 'win', {
 		get: function(){return obj.window;},
 		set: function(val){return obj.window = val;}
 	});
 
-	Ti._5.preset(this, ['window', 'win', 'title', 'titleid', 'icon', 'badge'], args);
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });
