@@ -270,22 +270,31 @@ function($window, args){
 		}
 	}
 	
-	Ti._5.prop = function(obj, propertyName, defaultValue, getter, setter) {
+	Ti._5.member = function(obj,memberName,defaultValue) {
 		
-		// Note: Value is only used when a getter and setter are not defined. When a getter and setter 
-		// are defined, this value is ignored
-		var capitalizedName = propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1),
-			value = require.is(defaultValue,undefined) ? null : defaultValue,
-			args = {
-				get: getter || function() { return value; },
-				set: setter || function(val) { value = val; }
-			};
+		// Set the default value
+		obj[memberName] = defaultValue;
 		
-		obj["get" + capitalizedName] = function(){ return args.get.call(obj); };
-		obj["set" + capitalizedName] = function(val){ args.set.call(obj, val); };
+		// Create the getxxx and setxxx accessor methods
+		var capitalizedName = memberName.substring(0, 1).toUpperCase() + memberName.substring(1);
+		obj["get" + capitalizedName] = function(){ return obj[memberName]; };
+		obj["set" + capitalizedName] = function(val){ obj[memberName] = val };
+	};
+	
+	Ti._5.prop = function(obj, propertyName, descriptor) {
 		
-		Object.defineProperty(obj, propertyName, args);
-	}
+		// Verify that both the getter and setter were defined, and if not provide a default implementation	
+		!descriptor.get && (descriptor.get = function () {return null;});
+		!descriptor.set && (descriptor.set = function () {});
+		
+		// Create the property
+		Object.defineProperty(obj, propertyName, descriptor	);
+		
+		// Create the getxxx and setxxx accessor methods
+		var capitalizedName = propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1);
+		obj["get" + capitalizedName] = function(){ return descriptor.get.call(obj); };
+		obj["set" + capitalizedName] = function(val){ descriptor.set.call(obj, val); };
+	};
 
 	Ti._5.createClass = function(className, value){
 		var classes = className.split(".");

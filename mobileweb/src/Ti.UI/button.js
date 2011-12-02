@@ -1,33 +1,30 @@
 Ti._5.createClass('Titanium.UI.Button', function(args){
 	var obj = this;
 	// Interfaces
-	Ti._5.DOMView(obj, 'button', args, 'Button');
-	Ti._5.Clickable(obj);
-	Ti._5.Touchable(obj, args);
-	Ti._5.Styleable(obj, args);
-	Ti._5.Positionable(obj, args);
+	Ti._5.DOMView(this, 'button', args, 'Button');
+	Ti._5.Clickable(this);
+	Ti._5.Touchable(this, args);
+	Ti._5.Styleable(this, args);
+	Ti._5.Positionable(this, args);
 
 	// Properties
 	var _title = '', _titleObj;
-	Ti._5.prop(obj, 'title', '',
-		function() {
-			return _title ? _title : obj.dom.innerHTML;
-		},
-		function(val) {
+	Ti._5.prop(this, 'title', {
+		get: function() {return _title ? _title : obj.dom.innerHTML;},
+		set: function(val) {
 			_title = val;
 			if(_titleObj) {
 				obj.dom.removeChild(_titleObj);
 			}
 			_titleObj = document.createTextNode(_title);
 			obj.dom.appendChild(_titleObj);
-		});
+		}
+	});
 	
-	var _image = null, _imageObj;
-	Ti._5.prop(obj, 'image', null,
-		function() {
-			return _image;
-		},
-		function(val){
+	var _image, _imageObj;
+	Ti._5.prop(this, 'image', {
+		get: function() {return _image;},
+		set: function(val){
 			if (_imageObj == null) {
 				_imageObj = document.createElement('img');
 				if(_titleObj){
@@ -39,15 +36,16 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 			}
 			_image = Ti._5.getAbsolutePath(val);
 			_imageObj.src = _image;
-		});
+		}
+	});
 
 	var _backgroundImage = null;
 	var _borderWidthCache = '', _backgroundImageCache = '', _backgroundColorCache = '';
-	Ti._5.prop(obj, 'backgroundImage', null,
-		function() {
+	Ti._5.prop(obj, 'backgroundImage', {
+		get: function() {
 			return _backgroundImage;
 		},
-		function(val) {
+		set: function(val) {
 			_backgroundImage = val;
 
 			if (val) {
@@ -62,14 +60,14 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 				obj.dom.style.backgroundColor = _backgroundColorCache;
 				obj.dom.style.backgroundImage = '';
 			}
-		});
+		},
+		configurable: true
+	});
 
 	var _enabled = true;
-	Ti._5.prop(obj, 'enabled', null,
-		function() {
-			return _enabled;
-		},
-		function(val) {
+	Ti._5.prop(this, 'enabled', {
+		get: function(){return _enabled;},
+		set: function(val) {
 			// do nothing if widget is already in this state
 			if(_enabled == val){
 				return;
@@ -101,48 +99,50 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 					obj.backgroundColor = _backgroundDisabledColor;
 				}
 			}
-		});
+		}
+	});
 	
 	var _backgroundDisabledImage = null;
-	Ti._5.prop(obj, 'backgroundDisabledImage', null,
-		function() {
+	Ti._5.prop(obj, 'backgroundDisabledImage', {
+		get: function() {
 			return _backgroundDisabledImage ? _backgroundDisabledImage : '';
 		},
-		function(val) {
+		set: function(val) {
 			_backgroundDisabledImage = val;
-		});
+		}
+	});
 	
 	var _backgroundDisabledColor = null;
-	Ti._5.prop(obj, 'backgroundDisabledColor', null,
-		function() {
+	Ti._5.prop(obj, 'backgroundDisabledColor', {
+		get: function() {
 			return _backgroundDisabledColor ? _backgroundDisabledColor : '';
 		},
-		function(val) {
+		set: function(val) {
 			_backgroundDisabledColor = val;
-		});
+		}
+	});
 	
-	Ti._5.prop(obj, 'size', null,
-		function() {
+	Ti._5.prop(this, 'size', {
+		get: function() {
 			return {
 				width	: obj.width,
 				height	: obj.height
 			}
 		},
-		function(val) {
+		set: function(val) {
 			if (val.width) {
 				obj.width = val.width;
 			}
 			if (val.height) {
 				obj.height = val.height;
 			}
-		});
+		}
+	});
 
 	var _selectedColor = null, _prevTextColor = null, _selectedColorLoaded = false;
-	Ti._5.prop(obj, 'selectedColor', null,
-		function() {
-			return _selectedColor;
-		},
-		function(val) {
+	Ti._5.prop(this, 'selectedColor', {
+		get: function(){return _selectedColor;},
+		set: function(val) {
 			_selectedColor = val;
 			if (!_selectedColorLoaded) {
 				_selectedColorLoaded = true;
@@ -156,21 +156,18 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 					}
 				}, false);
 			}
-		});
+		}
+	});
 	
-	Ti._5.prop(obj, 'style');
+	Ti._5.member(this, 'style', null);
 
 	var _titleid = null;
-	Ti._5.prop(obj, 'titleid', null,
-		function() {
-			return _titleid;
-		},
-		function(val) {
-			_titleid = val;
-			return obj.title = L(_titleid);
-		});
+	Ti._5.prop(this, 'titleid', {
+		get: function(){return _titleid;},
+		set: function(val){_titleid = val; return obj.title = L(_titleid)}
+	});
 		
-	obj.add = function(view) {
+	this.add = function(view) {
 		obj._children = obj._children || [];
 		obj._children.push(view);
 		
@@ -185,6 +182,6 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 		}
 		obj.render(null);
 	};
-	
-	require.mix(obj, args);
+
+	require.mix(this, args);
 });
