@@ -1,3 +1,11 @@
+/**
+ * This file contains source code from the following:
+ *
+ * es5-shim
+ * Copyright 2009, 2010 Kristopher Michael Kowal
+ * <https://github.com/kriskowal/es5-shim>
+ */
+
 function($window, args){
 	function is(it, type) {
 		return ({}).toString.call(it).indexOf('[object ' + type) === 0;
