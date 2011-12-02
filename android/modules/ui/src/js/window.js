@@ -391,7 +391,7 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.addWrappedListener = function(event, listener) {
 		var self = this;
 		self.window.addEventListener(event, function(e) {
-			if (e.source == self.view) {
+			if (e.source == self.window) {
 				e.source = self;
 			}
 			listener(e);
