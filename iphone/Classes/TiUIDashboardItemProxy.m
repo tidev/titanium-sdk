@@ -15,8 +15,16 @@
 
 -(void)_destroy
 {
+	item.userData = nil;
+	item.view = nil;
 	RELEASE_TO_NIL(item);
 	[super _destroy];
+}
+
+-(void)dealloc{
+	[item release];
+	item = nil;
+	[super dealloc];
 }
 
 -(void)setItem:(LauncherItem*)item_
@@ -24,6 +32,7 @@
 	if (item!=nil)
 	{
 		item.userData = nil;
+		item.view = nil;
 		RELEASE_TO_NIL(item);
 	}
 	item = [item_ retain];
