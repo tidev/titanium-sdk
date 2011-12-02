@@ -264,6 +264,12 @@ exports.bootstrapWindow = function(Titanium) {
 		 		this.addWrappedListener(event, listeners[i]); 
 		 	} 
 		}
+		var self = this;
+		this.addWrappedListener("closeFromActivity", function(e) {
+			self.window = null;
+			self.view = null;
+			self.currentState = self.state.closed;
+		});
 
 		this.currentState = this.state.opened;
 		this.fireEvent("open");
@@ -305,7 +311,6 @@ exports.bootstrapWindow = function(Titanium) {
 
 	Window.prototype.close = function(options) {
 		// if the window is not opened, do not close
-
 		if (this.currentState != this.state.opened) {
 			kroll.log(TAG, "unable to close, window is not opened");
 			return;
