@@ -3,6 +3,7 @@
  *
  * es5-shim
  * Copyright 2009, 2010 Kristopher Michael Kowal
+ * MIT License
  * <https://github.com/kriskowal/es5-shim>
  */
 

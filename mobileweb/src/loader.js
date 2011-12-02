@@ -3,14 +3,17 @@
  *
  * Dojo Toolkit
  * Copyright (c) 2005-2011, The Dojo Foundation
+ * New BSD License
  * <http://dojotoolkit.org>
  *
  * require.js
  * Copyright (c) 2010-2011, The Dojo Foundation
+ * New BSD License / MIT License
  * <http://requirejs.org>
  * 
  * curl.js
  * Copyright (c) 2011 unscriptable.com / John Hann
+ * MIT License
  * <https://github.com/unscriptable/curl>
  */
 
