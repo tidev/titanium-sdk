@@ -159,9 +159,16 @@ properties:
   - name: opacity
     summary: The opacity from 0.0-1.0.
     description: |
+        iOS Notes: For modal windows that cover the previous window, the previous window is 
+        removed from the render stack after the modal window finishes opening. If the 
+        modal window is semi-transparent, the underlying window will be visible during the 
+        transition animation, but disappear as soon as the animation is completed. (In general 
+        all modal windows cover the previous window, except for iPad modal windows using the 
+        Page sheet or Form sheet style.)
+
         Android Notes: If you set any of `windowSoftInputMode`, `fullscreen`, or `navBarHidden`,
         *and* you wish to use the `opacity` property at any time during the window's lifetime,
-        be sure to set an `opacity` value before opening the window.  You can later change that
+        be sure to set an `opacity` value **before** opening the window.  You can later change that
         value -- and you can set it to 1 for full opacity if you wish -- but the important thing
         is that you set it to a value before opening the window if you will want to set it at
         any time during the window's lifetime.
@@ -239,9 +246,12 @@ properties:
 
   - name: tabBarHidden
     summary: |
-        Boolean value indicating if the tab bar should be hidden. This is only valid
-        when the window is the child of a tab.
-    platforms: [android, iphone, ipad]
+        Boolean value indicating if the tab bar should be hidden. 
+    description: |
+        `tabBarHidden` must be set **before** opening the window.
+
+        This property is only valid when the window is the child of a tab.
+    platforms: [iphone,ipad]
     type: Boolean
 
   - name: title
