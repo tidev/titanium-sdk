@@ -663,8 +663,9 @@ class Builder(object):
 					relative_path = relative_path.replace("\\", "/")
 					self.run_adb('push', delta.get_path(), "%s/%s" % (self.sdcard_resources, relative_path))
 
-		if len(self.project_deltas) > 0:
-			requireIndex.generateJSON(self.assets_dir, os.path.join(self.assets_dir, "index.json"))
+		index_json_path = os.path.join(self.assets_dir, "index.json")
+		if len(self.project_deltas) > 0 or not os.path.exists(index_json_path):
+			requireIndex.generateJSON(self.assets_dir, index_json_path)
 
 	def generate_android_manifest(self,compiler):
 

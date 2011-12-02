@@ -15,7 +15,8 @@ def generateJSON(projectDir, outFile):
 	for dirpath, dirnames, filenames in os.walk(projectDir):
 		for name in filenames:
 			relative_path = dirpath[len(projectDir)+1:].replace("\\", "/")
-			index["/".join([relative_path , name])] = 1
+			file_path = "/".join([relative_path , name])
+			index[file_path] = 1
 	simplejson.dump(index, open(outFile, "w"))
 
 if __name__ == "__main__":
