@@ -208,7 +208,9 @@ class Builder(object):
 		self.sdk = AndroidSDK(sdk, self.tool_api_level)
 		self.tiappxml = temp_tiapp
 
-		self.runtime = self.tiappxml.app_properties.get('ti.android.runtime', 'rhino')
+		json_contents = open(os.path.join(template_dir,'dependency.json')).read()
+		self.depends_map = simplejson.loads(json_contents)
+		self.runtime = self.tiappxml.app_properties.get('ti.android.runtime', self.depends_map['runtimes']['defaultRuntime'])
 
 		self.set_java_commands()
 		# start in 1.4, you no longer need the build/android directory
