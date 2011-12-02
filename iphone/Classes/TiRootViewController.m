@@ -40,7 +40,7 @@
 - (UIView *)keyboardAccessoryViewForProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy withView:(UIView **)proxyView;
 
 -(void)updateBackground;
--(UIInterfaceOrientation) lastValidOrientation;
+-(void)updateOrientationHistory:(UIInterfaceOrientation)newOrientation;
 
 @property (nonatomic,readwrite,assign)	UIInterfaceOrientation windowOrientation;
 
@@ -386,6 +386,11 @@
     {
         [keyboardFocusedProxy blur:nil];
         [ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
+        
+        // Because this is only triggered when we update to a new orientation manually
+        // (Not in a rotation event!) we should be updating the orientation history here.
+        [self updateOrientationHistory:newOrientation];
+        
         [keyboardFocusedProxy focus:nil];
     }
 
@@ -444,6 +449,13 @@
 		return;
 	}
 
+    [self updateOrientationHistory:newOrientation];
+    
+	[self performSelector:@selector(refreshOrientation) withObject:nil afterDelay:0.0];
+}
+
+-(void)updateOrientationHistory:(UIInterfaceOrientation)newOrientation
+{
 	/*
 	 *	And now, to push the orientation onto the history stack. This could be
 	 *	expressed as a for loop, but the loop is so small that it might as well
@@ -464,8 +476,6 @@
 		i--;
 	}
 	orientationHistory[0] = newOrientation;
-
-	[self performSelector:@selector(refreshOrientation) withObject:nil afterDelay:0.0];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 

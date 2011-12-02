@@ -73,6 +73,7 @@
 -(void)refreshOrientationWithDuration:(NSTimeInterval) duration;
 -(NSTimeInterval)suggestedRotationDuration;
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration;
+-(UIInterfaceOrientation)lastValidOrientation;
 
 - (void)openWindow:(TiWindowProxy *)window withObject:(id)args;
 - (void)closeWindow:(TiWindowProxy *)window withObject:(id)args;
