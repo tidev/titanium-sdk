@@ -105,7 +105,7 @@ Module.prototype.require = function (request, context, useCache) {
 			return externalBinding[bindingKey];
 		}
 
-		kroll.log(TAG, "unable to find the external module" + request);
+		kroll.log(TAG, "unable to find the external module: " + request);
 	}
 
 	var resolved = resolveFilename(request, this);
