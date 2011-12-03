@@ -36,7 +36,7 @@ public class ___MODULE_NAME_CAMEL___Module extends KrollModule
 	public static void onAppCreate(TiApplication app)
 	{
 		Log.d(LCAT, "inside onAppCreate");
-		// put the module init logic here
+		// put module init code that needs to run when the application is created
 	}
 
 	// Methods
