@@ -42,7 +42,7 @@
 	UIButton *badge;
 }
 
-@property(nonatomic,readwrite,assign) LauncherItem *item;
+@property(nonatomic,readwrite,retain) LauncherItem *item;
 @property(nonatomic,readonly) UIButton *closeButton;
 
 @property(nonatomic) BOOL dragging;
