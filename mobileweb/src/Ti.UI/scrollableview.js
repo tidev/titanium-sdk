@@ -18,6 +18,7 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 				obj._scrollToViewPosition(val);
 				return _currentPage = val;
 			}
+			return null;
 		}
 	});
 

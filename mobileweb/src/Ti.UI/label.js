@@ -34,14 +34,14 @@ Ti._5.createClass('Titanium.UI.Label', function(args){
 
 	Ti._5.prop(this, 'backgroundPaddingLeft', {
 		get: function(){return obj.dom.style.backgroundPositionX;},
-		set: function(val){obj.dom.style.backgroundPositionX = val + "px"}
+		set: function(val){return obj.dom.style.backgroundPositionX = val + "px"}
 	});
 
 	Ti._5.prop(this, 'backgroundPaddingRight', {});
 
 	Ti._5.prop(this, 'backgroundPaddingTop', {
 		get: function(){return obj.dom.style.backgroundPositionY;},
-		set: function(val){obj.dom.style.backgroundPositionY = val + "px";}
+		set: function(val){return obj.dom.style.backgroundPositionY = val + "px";}
 	});
 
 	Ti._5.prop(this, 'ellipsize', {
@@ -54,7 +54,7 @@ Ti._5.createClass('Titanium.UI.Label', function(args){
 
 	Ti._5.prop(this, 'html', {
 		get: function(){return obj.text},
-		set: function(val){obj.text = val;}
+		set: function(val){return obj.text = val;}
 	});
 
 	Ti._5.prop(this, 'minimumFontSize', {
@@ -70,13 +70,13 @@ Ti._5.createClass('Titanium.UI.Label', function(args){
 	var _shadowColor = null;
 	Ti._5.prop(this, 'shadowColor', {
 		get: function(){return _shadowColor;},
-		set: function(val){_shadowColor = val;_setShadow();}
+		set: function(val){_shadowColor = val; return _setShadow();}
 	});
 
 	var _shadowOffset = null;
 	Ti._5.prop(this, 'shadowOffset', {
 		get: function(){return _shadowOffset;},
-		set: function(val){_shadowOffset = val;_setShadow();}
+		set: function(val){_shadowOffset = val; return _setShadow();}
 	});
 
 	var _title = '';
@@ -92,9 +92,10 @@ Ti._5.createClass('Titanium.UI.Label', function(args){
 				!obj.dom.offsetHeight && !obj.dom.offsetWidth || 
 				!obj.parent.dom.offsetHeight && !obj.parent.dom.offsetWidth
 			) {
-				return;
+				return _title;
 			}
 			obj.render(null);
+			return _title;
 		}
 	});
 
@@ -106,7 +107,7 @@ Ti._5.createClass('Titanium.UI.Label', function(args){
 	var _textid = null;
 	Ti._5.prop(this, 'textid', {
 		get: function(){return _textid;},
-		set: function(val){_textid = val; text = L(textid);}
+		set: function(val){_textid = val; return text = L(textid);}
 	});
 
 	Ti._5.prop(this, 'wordWrap', {
@@ -130,6 +131,7 @@ Ti._5.createClass('Titanium.UI.Label', function(args){
 					}
 				}, false);
 			}
+			return _selectedColor;
 		}
 	});
 	
@@ -147,6 +149,7 @@ Ti._5.createClass('Titanium.UI.Label', function(args){
 			if (val.height) {
 				obj.height = Ti._5.parseLength(val.height);
 			}
+			return val;
 		}
 	});
 

@@ -76,6 +76,7 @@ Ti._5.createClass('Titanium.UI.WebView', function(args){
 					_loading = false;
 				}, 0);
 			};
+			return val;
 		}
 	});
 
@@ -106,6 +107,7 @@ Ti._5.createClass('Titanium.UI.WebView', function(args){
 			_executeWhenLoaded = function () {
 				_loading = false;
 			};
+			return val;
 		}
 	});
 	
@@ -123,6 +125,7 @@ Ti._5.createClass('Titanium.UI.WebView', function(args){
 			if (val.height) {
 				obj.height = Ti._5.parseLength(val.height);
 			}
+			return val;
 		}
 	});
 	

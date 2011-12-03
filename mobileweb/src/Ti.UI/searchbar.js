@@ -26,6 +26,7 @@ Ti._5.createClass('Titanium.UI.SearchBar', function(args){
 				}, false);
 			}
 			obj.value = Titanium.UI._capitalizeValue(_autocapitalization, obj.value);
+			return _autocapitalization;
 		}
 	});
 
@@ -36,14 +37,14 @@ Ti._5.createClass('Titanium.UI.SearchBar', function(args){
 	Ti._5.prop(this, 'hintText', {
 		get: function() {return obj.dom.placeholder;},
 		set: function(val) {
-			obj.dom.placeholder = Titanium.UI._capitalizeValue(_autocapitalization, val);
+			return obj.dom.placeholder = Titanium.UI._capitalizeValue(_autocapitalization, val);
 		}
 	});
 
 	var _hinttextid = null;
 	Ti._5.prop(this, 'hinttextid', {
 		get: function(){return _hinttextid;},
-		set: function(val){return _hinttextid = val; obj.hintText = L(val);}
+		set: function(val){_hinttextid = val; return obj.hintText = L(val);}
 	});
 
 	Ti._5.member(this, 'keyboardType');
@@ -53,14 +54,14 @@ Ti._5.createClass('Titanium.UI.SearchBar', function(args){
 	var _promptid = null;
 	Ti._5.prop(this, 'promptid', {
 		get: function(){return _promptid;},
-		set: function(val){return _promptid = val; obj.prompt = L(val);}
+		set: function(val){_promptid = val; return obj.prompt = L(val);}
 	});
 
 	Ti._5.member(this, 'showCancel');
 
 	Ti._5.prop(this, 'value', {
 		get: function() {return obj.dom.value;},
-		set: function(val) {obj.dom.value = val ? Titanium.UI._capitalizeValue(_autocapitalization, val) : '';}
+		set: function(val) {return obj.dom.value = val ? Titanium.UI._capitalizeValue(_autocapitalization, val) : '';}
 	});
 	
 	Ti._5.prop(this, 'size', {
@@ -77,6 +78,7 @@ Ti._5.createClass('Titanium.UI.SearchBar', function(args){
 			if (val.height) {
 				obj.height = Ti._5.parseLength(val.height);
 			}
+			return val;
 		}
 	});
 	

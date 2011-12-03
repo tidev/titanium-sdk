@@ -107,6 +107,7 @@
 		set: function(val){
 			_backgroundColor = val;
 			api.setBackgroundColor(_backgroundColor);
+			return _backgroundColor;
 		}
 	});
 
@@ -116,6 +117,7 @@
 		set: function(val){
 			_backgroundImage = val;
 			api.setBackgroundImage(_backgroundImage);
+			return _backgroundImage;
 		}
 	});
 

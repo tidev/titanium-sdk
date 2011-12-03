@@ -30,7 +30,7 @@ Ti._5.createClass('Titanium.UI.ScrollView', function(args){
 	var _contentHeight;
 	Ti._5.prop(this, 'contentHeight', {
 		get: function(){return _contentHeight;},
-		set: function(val){_contentHeight = val; this._getAddContainer().style.height = Ti._5.parseLength(val);}
+		set: function(val){_contentHeight = val; return this._getAddContainer().style.height = Ti._5.parseLength(val);}
 	});
 
 	var _contentOffset = null;
@@ -44,13 +44,14 @@ Ti._5.createClass('Titanium.UI.ScrollView', function(args){
 			if(typeof val.y !== 'undefined'){
 				obj.dom.style.paddingTop = Ti._5.parseLength(val.y);
 			}
+			return _contentOffset;
 		}
 	});
 
 	var _contentWidth;
 	Ti._5.prop(this, 'contentWidth', {
 		get: function(){return _contentWidth;},
-		set: function(val){_contentWidth = val; this._getAddContainer().style.width = Ti._5.parseLength(val);}
+		set: function(val){_contentWidth = val; return this._getAddContainer().style.width = Ti._5.parseLength(val);}
 	});
 
 	this.disableBounce = false;
@@ -62,13 +63,13 @@ Ti._5.createClass('Titanium.UI.ScrollView', function(args){
 	var _showHorizontalScrollIndicator = null;
 	Ti._5.prop(this, 'showHorizontalScrollIndicator', {
 		get: function(){return _showHorizontalScrollIndicator;},
-		set: function(val){_showHorizontalScrollIndicator = val; obj.dom.style.overflowX = _showHorizontalScrollIndicator ? "scroll" : "hidden";}
+		set: function(val){_showHorizontalScrollIndicator = val; return obj.dom.style.overflowX = _showHorizontalScrollIndicator ? "scroll" : "hidden";}
 	});
 
 	var _showVerticalScrollIndicator = null;
 	Ti._5.prop(this, 'showVerticalScrollIndicator', {
 		get: function(){return _showVerticalScrollIndicator;},
-		set: function(val){_showVerticalScrollIndicator = val; obj.dom.style.overflowY = _showVerticalScrollIndicator ? "scroll" : "hidden";}
+		set: function(val){_showVerticalScrollIndicator = val; return obj.dom.style.overflowY = _showVerticalScrollIndicator ? "scroll" : "hidden";}
 	});
 
 	var _size;
@@ -81,6 +82,7 @@ Ti._5.createClass('Titanium.UI.ScrollView', function(args){
 			if(val != null && val.height != null){
 				_innerContainer.style.height = Ti._5.parseLength(val.height);
 			}
+			return val;
 		}
 	});
 

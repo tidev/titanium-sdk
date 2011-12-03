@@ -44,7 +44,7 @@ Ti._5.createClass('Titanium.UI.Window', function(args){
 	var _titleid = null;
 	Ti._5.prop(this, 'titleid', {
 		get: function(){return _titleid;},
-		set: function(val){_titleid = val; obj.title = L(val);}
+		set: function(val){_titleid = val; return obj.title = L(val);}
 	});
 
 	var _titlepromptid = null;
@@ -75,6 +75,7 @@ Ti._5.createClass('Titanium.UI.Window', function(args){
 					Ti.UI.currentWindow = prevWindow;
 				}, 0); 
 			}
+			return _url;
 		}
 	});
 
@@ -128,6 +129,7 @@ Ti._5.createClass('Titanium.UI.Window', function(args){
 			if (val.height) {
 				obj.height = val.height;
 			}
+			return val;
 		}
 	});
 
@@ -145,6 +147,7 @@ Ti._5.createClass('Titanium.UI.Window', function(args){
 		set: function(val) {
 			_title = val;
 			_setTitle();
+			return _title;
 		}
 	});
 

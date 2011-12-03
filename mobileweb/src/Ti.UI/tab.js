@@ -90,6 +90,7 @@ Ti._5.createClass('Titanium.UI.Tab', function(args){
 		set: function(val){
 			_window = val;
 			obj.add(_window);
+			return _window;
 		}
 	});
 

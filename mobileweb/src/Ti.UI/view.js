@@ -29,6 +29,7 @@ Ti._5.createClass('Titanium.UI.View', function(args){
 			if(val != null && val.height != null){
 				obj.height = val.height;
 			}
+			return val;
 		}
 	});
 	

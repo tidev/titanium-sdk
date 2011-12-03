@@ -29,7 +29,7 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 		get: function(){return _colorRow;},
 		set: function(val){
 			_colorRow = val;
-			obj.dom.style.color = val;
+			return obj.dom.style.color = val;
 		}
 	});
 
@@ -87,6 +87,7 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 			} else {
 				_removeState('hasCheck');
 			}
+			return _hasCheck;
 		}
 	});
 
@@ -100,6 +101,7 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 			} else {
 				_removeState('hasChild');
 			}
+			return _hasChild;
 		}
 	});
 
@@ -113,6 +115,7 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 			} else {
 				_removeState('hasDetail');
 			}
+			return _hasDetail;
 		}
 	});
 
@@ -146,6 +149,7 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 				img.src = Ti._5.getAbsolutePath(_leftImage);
 				obj.dom.appendChild(_leftImageObj);
 			}
+			return _leftImage;
 		}
 	});
 
@@ -173,6 +177,7 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 				obj.dom.appendChild(_rightImageObj);
 				obj.dom.className += ' hasRightImage';
 			}
+			return _rightImage;
 		}
 	});
 
@@ -191,7 +196,8 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 				if ("undeined" != typeof obj[sProp]) {
 					obj[sProp] = val[sProp];
 				}
-			}				
+			}
+			return _selectionStyle;
 		}
 	});
 
@@ -202,7 +208,7 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 		get: function(){return _title;},
 		set: function(val) {
 			_title = val;
-			_titleObj.innerHTML = Ti._5._changeTextToHTML(val);
+			return _titleObj.innerHTML = Ti._5._changeTextToHTML(val);
 		}
 	});
 	
@@ -212,7 +218,7 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 		},
 		set: function(val) {
 			obj.dom.style.paddingBottom = '';
-			obj.dom.style.paddingTop = Ti._5.parseLength(val);
+			return obj.dom.style.paddingTop = Ti._5.parseLength(val);
 		}
 	});
 	
@@ -222,7 +228,7 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 		},
 		set: function(val) {
 			obj.dom.style.paddingTop = '';
-			obj.dom.style.paddingBottom = Ti._5.parseLength(val);
+			return obj.dom.style.paddingBottom = Ti._5.parseLength(val);
 		}
 	});
 	
@@ -232,7 +238,7 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 		},
 		set: function(val) {
 			obj.dom.style.paddingRight = '';
-			obj.dom.style.paddingLeft = Ti._5.parseLength(val);
+			return obj.dom.style.paddingLeft = Ti._5.parseLength(val);
 		}
 	});
 	
@@ -242,7 +248,7 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 		},
 		set: function(val) {
 			obj.dom.style.paddingLeft = '';
-			obj.dom.style.paddingRight = Ti._5.parseLength(val);
+			return obj.dom.style.paddingRight = Ti._5.parseLength(val);
 		}
 	});
 	
@@ -260,6 +266,7 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 			if (val.height) {
 				obj.height = Ti._5.parseLength(val.height);
 			}
+			return val;
 		}
 	});
 	
@@ -271,7 +278,7 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 		set: function(val) {
 			_height = val;
 			obj.dom.style.height =  val + (/^\d+$/.test(val) ? 'px' : "");
-			obj.dom.style.lineHeight =  obj.dom.style.height;
+			return obj.dom.style.lineHeight =  obj.dom.style.height;
 		}
 	});
 	
@@ -282,6 +289,7 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 			if (obj.parent && obj.parent instanceof Ti.UI.TableViewSection) {
 				obj.parent.headerTitle = val;
 			}
+			return val;
 		}
 	});
 	
@@ -292,6 +300,7 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 			if (obj.parent && obj.parent instanceof Ti.UI.TableViewSection) {
 				obj.parent.footerTitle = val;
 			}
+			return val;
 		}
 	});
 

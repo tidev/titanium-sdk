@@ -15,8 +15,9 @@ Ti._5.createClass('Titanium.UI.AlertDialog', function(args){
 		set: function(val) {
 			if(val && 1 < val.length) {
 				_type = 'dialog';	
-				_buttonNames = val;
+				return _buttonNames = val;
 			}
+			return null;
 		}
 	});
 
@@ -26,8 +27,9 @@ Ti._5.createClass('Titanium.UI.AlertDialog', function(args){
 		set: function(val){
 			if(parseInt(val) == val) {
 				_type = 'dialog';	
-				_cancel = val;
+				return _cancel = val;
 			}
+			return null;
 		}
 	});
 

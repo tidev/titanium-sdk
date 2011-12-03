@@ -11,14 +11,14 @@ Ti._5.createClass('Titanium.UI.ActivityIndicator', function(args){
 	Ti._5.prop(this, 'color', {
 		get: function(){return obj.dom.style.color;},
 		set: function(val) {
-			obj.dom.style.color = val;
+			return obj.dom.style.color = val;
 		}
 	});
 	
 	var _message = '';
 	Ti._5.prop(this, 'message', {
 		get: function(){return _message;},
-		set: function(val){_message = val; obj.dom.innerHTML = _message;}
+		set: function(val){_message = val; return obj.dom.innerHTML = _message;}
 	});
 
 	Ti._5.member(this, 'messageid', '');
@@ -40,6 +40,7 @@ Ti._5.createClass('Titanium.UI.ActivityIndicator', function(args){
 						break;
 				}
 			}
+			return val;
 		}
 	});
 	
@@ -50,6 +51,7 @@ Ti._5.createClass('Titanium.UI.ActivityIndicator', function(args){
 		},
 		set: function(val) {
 			val ? obj.show() : obj.hide();
+			return val;
 		}
 	});
 

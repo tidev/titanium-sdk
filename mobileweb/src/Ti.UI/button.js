@@ -18,6 +18,7 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 			}
 			_titleObj = document.createTextNode(_title);
 			obj.dom.appendChild(_titleObj);
+			return _titleObj;
 		}
 	});
 	
@@ -36,6 +37,7 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 			}
 			_image = Ti._5.getAbsolutePath(val);
 			_imageObj.src = _image;
+			return _image;
 		}
 	});
 
@@ -60,8 +62,8 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 				obj.dom.style.backgroundColor = _backgroundColorCache;
 				obj.dom.style.backgroundImage = '';
 			}
-		},
-		configurable: true
+			return val;
+		}
 	});
 
 	var _enabled = true;
@@ -70,7 +72,7 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 		set: function(val) {
 			// do nothing if widget is already in this state
 			if(_enabled == val){
-				return;
+				return val;
 			}
 			_enabled = val;
 			if(_enabled) {
@@ -99,6 +101,7 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 					obj.backgroundColor = _backgroundDisabledColor;
 				}
 			}
+			return _enabled;
 		}
 	});
 	
@@ -108,7 +111,7 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 			return _backgroundDisabledImage ? _backgroundDisabledImage : '';
 		},
 		set: function(val) {
-			_backgroundDisabledImage = val;
+			return _backgroundDisabledImage = val;
 		}
 	});
 	
@@ -118,7 +121,7 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 			return _backgroundDisabledColor ? _backgroundDisabledColor : '';
 		},
 		set: function(val) {
-			_backgroundDisabledColor = val;
+			return _backgroundDisabledColor = val;
 		}
 	});
 	
@@ -136,6 +139,7 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 			if (val.height) {
 				obj.height = val.height;
 			}
+			return val;
 		}
 	});
 
@@ -156,6 +160,7 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 					}
 				}, false);
 			}
+			return _selectedColor;
 		}
 	});
 	

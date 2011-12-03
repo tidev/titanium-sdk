@@ -24,20 +24,20 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 					Titanium.UI._updateText(obj);
 				}, false);
 			}
-			obj.value = Titanium.UI._capitalizeValue(_autocapitalization, obj.value);
+			return obj.value = Titanium.UI._capitalizeValue(_autocapitalization, obj.value);
 		}
 	});
 	
 	Ti._5.prop(this, 'value', {
 		get: function() {return obj.dom.value;},
 		set: function(val) {
-			obj.dom.value = val ? Titanium.UI._capitalizeValue(_autocapitalization, val) : '';
+			return obj.dom.value = val ? Titanium.UI._capitalizeValue(_autocapitalization, val) : '';
 		}
 	});
 	
 	Ti._5.prop(this, 'editable', {
 		get: function() { return obj.enabled; },
-		set: function(val) {obj.dom.disabled = !val ? 'disabled' : '';}
+		set: function(val) {return obj.dom.disabled = !val ? 'disabled' : '';}
 	});
 
 	var _backgroundDisabledImage = '', _backgroundImage = ''; 
@@ -64,6 +64,7 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 				obj.backgroundImage = _backgroundImage;
 				obj.backgroundColor = _backgroundColor;
 			}
+			return val;
 		}
 	});
 	
@@ -89,6 +90,7 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 					obj.dom.style.borderStyle = "solid";
 					break;
 			}
+			return _borderStyle;
 		}
 	});
 
@@ -97,7 +99,7 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 			return _backgroundDisabledImage ? _backgroundDisabledImage : '';
 		},
 		set: function(val) {
-			_backgroundDisabledImage = val;
+			return _backgroundDisabledImage = val;
 		}
 	});
 
@@ -106,7 +108,7 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 			return _backgroundDisabledColor ? _backgroundDisabledColor : '';
 		},
 		set: function(val) {
-			_backgroundDisabledColor = val;
+			return _backgroundDisabledColor = val;
 		}
 	});
 	
@@ -124,13 +126,14 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 					}
 				}, false);
 			}
+			return _clearOnEdit;
 		}
 	});
 
 	Ti._5.prop(this, 'hintText', {
 		get: function() {return obj.dom.placeholder;},
 		set: function(val) {
-			obj.dom.placeholder = val;
+			return obj.dom.placeholder = val;
 		}
 	});
 	
@@ -154,13 +157,13 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 	var _paddingLeft = null;
 	Ti._5.prop(this, 'paddingLeft', {
 		get: function() {return parseInt(obj.dom.style.paddingLeft);},
-		set: function(val) {obj.dom.style.paddingLeft = parseInt(val)+"px";}
+		set: function(val) {return obj.dom.style.paddingLeft = parseInt(val)+"px";}
 	});
 
 	var _paddingRight = null;
 	Ti._5.prop(this, 'paddingRight', {
 		get: function() {return parseInt(obj.dom.style.paddingRight);},
-		set: function(val) {obj.dom.style.paddingRight = parseInt(val)+"px";}
+		set: function(val) {return obj.dom.style.paddingRight = parseInt(val)+"px";}
 	});
 	
 	// iPhone spes
@@ -188,6 +191,7 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 					}
 				}, false);
 			}
+			return _suppressLoaded;
 		}
 	});
 
@@ -215,6 +219,7 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 						obj.dom.style.lineHeight = 'auto';
 				}
 			}
+			return val;
 		}
 	});
 	
@@ -232,6 +237,7 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 			if (val.height) {
 				obj.height = Ti._5.parseLength(val.height);
 			}
+			return val;
 		}
 	});
 

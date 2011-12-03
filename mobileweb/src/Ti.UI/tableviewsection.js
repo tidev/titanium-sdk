@@ -122,20 +122,21 @@ Ti._5.createClass('Titanium.UI.TableViewSection', function(args){
 			_footerTitle = val;
 			if ('undefined' != typeof _oFooter.html) {
 				_oFooter.html = _footerTitle;
-				return;
+				return _footerTitle;
 			}
 			if ('undefined' != typeof _oFooter.text) {
 				_oFooter.text = _footerTitle;
-				return;
+				return _footerTitle;
 			}
 			if ('undefined' != typeof _oFooter.title) {
 				_oFooter.title = _footerTitle;
-				return;
+				return _footerTitle;
 			}
 			if ('undefined' != typeof _oFooter.message) {
 				_oFooter.message = _footerTitle;
-				return;
+				return _footerTitle;
 			}
+			return null;
 		}
 	});
 
@@ -147,7 +148,9 @@ Ti._5.createClass('Titanium.UI.TableViewSection', function(args){
 				_oFooter = val;
 				obj.dom.innerHTML = '';
 				obj.render(null);
+				return val;
 			}
+			return null;
 		}
 	});
 
@@ -166,20 +169,21 @@ Ti._5.createClass('Titanium.UI.TableViewSection', function(args){
 			_oHeader.dom.style.borderBottomWidth = 0;
 			if ('undefined' != typeof _oHeader.html) {
 				_oHeader.html = _headerTitle;
-				return;
+				return _headerTitle;
 			}
 			if ('undefined' != typeof _oHeader.text) {
 				_oHeader.text = _headerTitle;
-				return;
+				return _headerTitle;
 			}
 			if ('undefined' != typeof _oHeader.title) {
 				_oHeader.title = _headerTitle;
-				return;
+				return _headerTitle;
 			}
 			if ('undefined' != typeof _oHeader.message) {
 				_oHeader.message = _headerTitle;
-				return;
+				return _headerTitle;
 			}
+			return null;
 		}
 	});
 
@@ -191,7 +195,9 @@ Ti._5.createClass('Titanium.UI.TableViewSection', function(args){
 				_oHeader = val;
 				obj.dom.innerHTML = '';
 				obj.render(null);
+				return val;
 			}
+			return null;
 		}
 	});
 

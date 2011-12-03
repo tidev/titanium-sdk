@@ -43,6 +43,7 @@ Ti._5.createClass('Titanium.UI.Slider', function(args){
 				obj.backgroundImage = _backgroundImage;
 				obj.backgroundColor = _backgroundColor;
 			}
+			return obj.dom.disabled;
 		}
 	});
 	
@@ -51,7 +52,7 @@ Ti._5.createClass('Titanium.UI.Slider', function(args){
 			return _backgroundDisabledImage ? _backgroundDisabledImage : '';
 		},
 		set: function(val) {
-			_backgroundDisabledImage = val;
+			return _backgroundDisabledImage = val;
 		}
 	});
 	
@@ -60,7 +61,7 @@ Ti._5.createClass('Titanium.UI.Slider', function(args){
 			return _backgroundDisabledColor ? _backgroundDisabledColor : '';
 		},
 		set: function(val) {
-			_backgroundDisabledColor = val;
+			return _backgroundDisabledColor = val;
 		}
 	});
 
@@ -112,6 +113,7 @@ Ti._5.createClass('Titanium.UI.Slider', function(args){
 				value		: obj.value
 			};
 			obj.fireEvent('change', oEvent);
+			return _value;
 		}
 	});
 	
@@ -129,6 +131,7 @@ Ti._5.createClass('Titanium.UI.Slider', function(args){
 			if (val.height) {
 				obj.height = val.height;
 			}
+			return val;
 		}
 	});
 	

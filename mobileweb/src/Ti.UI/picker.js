@@ -43,7 +43,7 @@ Ti._5.createClass('Titanium.UI.Picker', function(args){
 	var _minuteInterval = 1;
 	Ti._5.prop(this, 'minuteInterval', {
 		get: function(){return _minuteInterval;},
-		set: function(val){_minuteInterval = 30 < val ? 30 : 1 > val ? 1 : val;}
+		set: function(val){return _minuteInterval = 30 < val ? 30 : 1 > val ? 1 : val;}
 	});
 
 	Ti._5.member(this, 'selectionIndicator', false);
@@ -62,6 +62,7 @@ Ti._5.createClass('Titanium.UI.Picker', function(args){
 				function() {
 					obj.dom.size = parseInt(val);
 			}, 10);
+			return val;
 		}
 	});
 	

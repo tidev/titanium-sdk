@@ -28,6 +28,7 @@ Ti._5.createClass('Titanium.UI.Switch', function(args){
 			} else {
 				obj.enabled = _enabled;
 			}
+			return _touchEnabled;
 		}
 	});
 	
@@ -57,6 +58,7 @@ Ti._5.createClass('Titanium.UI.Switch', function(args){
 				obj.backgroundImage = _backgroundImage;
 				obj.backgroundColor = _backgroundColor;
 			}
+			return _enabled;
 		}
 	});
 	
@@ -65,7 +67,7 @@ Ti._5.createClass('Titanium.UI.Switch', function(args){
 			return _backgroundDisabledImage ? _backgroundDisabledImage : '';
 		},
 		set: function(val) {
-			_backgroundDisabledImage = val;
+			return _backgroundDisabledImage = val;
 		}
 	});
 	
@@ -74,7 +76,7 @@ Ti._5.createClass('Titanium.UI.Switch', function(args){
 			return _backgroundDisabledColor ? _backgroundDisabledColor : '';
 		},
 		set: function(val) {
-			_backgroundDisabledColor = val;
+			return _backgroundDisabledColor = val;
 		}
 	});
 
@@ -91,6 +93,7 @@ Ti._5.createClass('Titanium.UI.Switch', function(args){
 				obj.dom.appendChild(document.createTextNode(Ti._5._changeTextToHTML(val)));
 				obj.render(null);
 			}
+			return _title;
 		}
 	});
 
@@ -102,6 +105,7 @@ Ti._5.createClass('Titanium.UI.Switch', function(args){
 			if (!obj.dom.checked && obj.style == Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON) {
 				obj.title = _titleOff;
 			}
+			return _titleOff;
 		}
 	});
 
@@ -113,12 +117,13 @@ Ti._5.createClass('Titanium.UI.Switch', function(args){
 			if (obj.dom.checked && obj.style == Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON) {
 				obj.title = _titleOn;
 			}
+			return _titleOn;
 		}
 	});
 
 	Ti._5.prop(this, 'value', {
 		get: function(){return _checkBox.checked;},
-		set: function(val){_checkBox.checked = val;_checking(null);}
+		set: function(val){_checkBox.checked = val;_checking(null); return val;}
 	});
 	
 	Ti._5.prop(this, 'size', {
@@ -135,6 +140,7 @@ Ti._5.createClass('Titanium.UI.Switch', function(args){
 			if (val.height) {
 				obj.height = val.height;
 			}
+			return val;
 		}
 	});
 	

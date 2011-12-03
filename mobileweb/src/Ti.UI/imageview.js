@@ -71,6 +71,7 @@ Ti._5.createClass('Titanium.UI.ImageView', function(args){
 				obj.dom.style.width = 'auto';
 				obj.dom.style.height = 'auto';
 			}
+			return _canScale;
 		}
 	});
 
@@ -79,7 +80,7 @@ Ti._5.createClass('Titanium.UI.ImageView', function(args){
 	var _src = "";
 	Ti._5.prop(this, 'image', {
 		get: function(){return _src;},
-		set: function(val){_src = val; _loadImages([val]);}
+		set: function(val){_src = val; return _loadImages([val]);}
 	});
 
 	var _images = [];
@@ -88,6 +89,7 @@ Ti._5.createClass('Titanium.UI.ImageView', function(args){
 		set: function(val){
 			_images = -1 != val.constructor.toString().indexOf('Array') ? val : [val];
 			_loadImages(_images);
+			return _images;
 		}
 	});
 
@@ -100,7 +102,7 @@ Ti._5.createClass('Titanium.UI.ImageView', function(args){
 	// deprecated since 1.5.0
 	Ti._5.prop(this, 'url', {
 		get: function(){return obj.image;},
-		set: function(val){obj.image = val;}
+		set: function(val){return obj.image = val;}
 	});
    
 	Ti._5.prop(this, 'size', {
@@ -117,6 +119,7 @@ Ti._5.createClass('Titanium.UI.ImageView', function(args){
 			if (val.height) {
 				obj.height = Ti._5.parseLength(val.height);
 			}
+			return val;
 		}
 	});
 	
@@ -131,6 +134,7 @@ Ti._5.createClass('Titanium.UI.ImageView', function(args){
 			if (obj.canScale) {
 				obj.dom.style.width = /%/.test(val+'') ? parseInt(val) + '%' : parseInt(val) + 'px';
 			}
+			return val;
 		}
 	});	
 	
@@ -142,6 +146,7 @@ Ti._5.createClass('Titanium.UI.ImageView', function(args){
 		set: function(val) {
 			_height = val;
 			obj.dom.style.height =  val + (/^\d+$/.test(val) ? 'px' : "");
+			return obj.dom.style.height;
 		}
 	});
 	

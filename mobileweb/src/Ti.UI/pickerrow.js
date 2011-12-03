@@ -17,7 +17,7 @@ Ti._5.createClass('Titanium.UI.PickerRow', function(args){
 	// Properties
 	Ti._5.prop(this, 'selected', {
 		get: function(){return obj.dom.selected;},
-		set: function(val){obj.dom.selected = val ? true: false;}
+		set: function(val){return obj.dom.selected = val ? true: false;}
 	});
 
 	var _title = null;
@@ -27,6 +27,7 @@ Ti._5.createClass('Titanium.UI.PickerRow', function(args){
 			_title = val; 
 			obj.dom.innerHTML = Ti._5._changeTextToHTML(_title); 
 			obj.render(null);
+			return _title;
 		}
 	});
 	
@@ -44,6 +45,7 @@ Ti._5.createClass('Titanium.UI.PickerRow', function(args){
 			if (val.height) {
 				obj.height = val.height;
 			}
+			return val;
 		}
 	});
 	
