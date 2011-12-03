@@ -531,7 +531,7 @@
 	}
 	UIInterfaceOrientation newOrientation = [self lastValidOrientation];	
 	if ((newOrientation == windowOrientation) &&
-		(oldFlags == allowedOrientations))
+		(oldFlags & allowedOrientations))
 	{
 		//Nothing to do here.
 		return;
