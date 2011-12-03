@@ -7,6 +7,7 @@
 package org.appcelerator.kroll.runtime.rhino;
 
 import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollRuntime;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.RhinoException;
@@ -34,9 +35,7 @@ public class RhinoObject extends KrollObject
 	@Override
 	protected void setProperty(String name, Object value)
 	{
-		Context context = Context.enter();
-		context.setOptimizationLevel(-1);
-		context.setErrorReporter(RhinoRuntime.getErrorReporter());
+		((RhinoRuntime) KrollRuntime.getInstance()).enterContext();
 
 		try {
 			ScriptableObject.putProperty(proxy.getProperties(), name, 
@@ -50,9 +49,7 @@ public class RhinoObject extends KrollObject
 	@Override
 	protected boolean fireEvent(String type, Object data)
 	{
-		Context context = Context.enter();
-		context.setOptimizationLevel(-1);
-		context.setErrorReporter(RhinoRuntime.getErrorReporter());
+		Context context = ((RhinoRuntime) KrollRuntime.getInstance()).enterContext();
 
 		try {
 			if (emitFunction == null) {
@@ -94,9 +91,7 @@ public class RhinoObject extends KrollObject
 	@Override
 	protected void doSetWindow(Object windowProxy)
 	{
-		Context context = Context.enter();
-		context.setOptimizationLevel(-1);
-		context.setErrorReporter(RhinoRuntime.getErrorReporter());
+		Context context = ((RhinoRuntime) KrollRuntime.getInstance()).enterContext();
 
 		try {
 			if (setWindowFunction == null) {
