@@ -37,6 +37,11 @@ public final class ${config['classname']}Application extends TiApplication
 		appInfo = new ${config['classname']}AppInfo(this);
 		postAppInfo();
 
+		% if config['deploy_type'] != 'production':
+			ti.modules.titanium.debug.DebugModule debugger = new ti.modules.titanium.debug.DebugModule();
+			registerModuleInstance("debug", debugger);
+		% endif
+
 		% if runtime == "v8":
 		KrollRuntime.init(this, new V8Runtime());
 		% else:
@@ -44,7 +49,7 @@ public final class ${config['classname']}Application extends TiApplication
 		% endif
 
 		% if config['deploy_type'] != 'production':
-			registerModuleInstance("debug", new ti.modules.titanium.debug.DebugModule());
+			debugger.startDebugger();
 		% endif
 
 		stylesheet = new ApplicationStylesheet();
