@@ -82,6 +82,11 @@ public class Proxy extends EventEmitter
 		return null;
 	}
 
+	public boolean isModule()
+	{
+		return isModule;
+	}
+
 	public static Proxy getProxyPrototype()
 	{
 		if (prototype == null) {
