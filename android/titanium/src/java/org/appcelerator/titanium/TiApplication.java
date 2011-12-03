@@ -123,11 +123,15 @@ public abstract class TiApplication extends Application implements Handler.Callb
 
 	public static TiApplication getInstance()
 	{
-		if (tiApp == null) {
-			return null;
+		if (tiApp != null) {
+			TiApplication tiAppRef = tiApp.get();
+			if (tiAppRef != null) {
+				return tiAppRef;
+			}
 		}
 
-		return tiApp.get();
+		Log.e(LCAT, "unable to get the TiApplication instance");
+		return null;
 	}
 	
 	// This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
@@ -136,16 +140,10 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	{
 		TiApplication tiApp = getInstance();
 		if (tiApp == null) {
-			Log.e(LCAT, "unable to get the TiApplication instance");
 			return null;
 		}
 
-		if (tiApp.currentActivity != null) {
-			return tiApp.currentActivity.get();
-		}
-
-		Log.e(LCAT, "no valid current activity found for application");
-		return null;
+		return tiApp.getCurrentActivity();
 	}
 
 	// This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
@@ -154,20 +152,45 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	{
 		TiApplication tiApp = getInstance();
 		if (tiApp == null) {
-			Log.e(LCAT, "unable to get the TiApplication instance");
 			return null;
 		}
 
-		if (tiApp.rootActivity != null) {
-			return tiApp.rootActivity.get();
-		}
-		
-		if (tiApp.currentActivity != null) {
-			return tiApp.currentActivity.get();
+		return tiApp.getRootOrCurrentActivity();
+	}
+
+	public Activity getCurrentActivity()
+	{
+		Activity activity;
+		if (currentActivity != null) {
+			activity = currentActivity.get();
+			if (activity != null) {
+				return activity;
+			}
 		}
 
-		Log.e(LCAT, "no valid root or current activity found for application");
-		return null;		
+		Log.e(LCAT, "no valid current activity found for application instance");
+		return null;
+	}
+	
+	public Activity getRootOrCurrentActivity()
+	{
+		Activity activity;
+		if (rootActivity != null) {
+			activity = rootActivity.get();
+			if (activity != null) {
+				return activity;
+			}
+		}
+		
+		if (currentActivity != null) {
+			activity = currentActivity.get();
+			if (activity != null) {
+				return activity;
+			}
+		}
+
+		Log.e(LCAT, "no valid root or current activity found for application instance");
+		return null;
 	}
 
 	protected void loadBuildProperties()
@@ -325,28 +348,6 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		}
 
 		return rootActivity.get();
-	}
-
-	public Activity getCurrentActivity()
-	{
-		if (currentActivity == null) {
-			return null;
-		}
-
-		return currentActivity.get();
-	}
-	
-	public Activity getRootOrCurrentActivity()
-	{
-		if (rootActivity != null) {
-			return (Activity)(rootActivity.get());
-		}
-		
-		if (currentActivity != null) {
-			return currentActivity.get();
-		}
-		
-		return null;
 	}
 
 	public void setCurrentActivity(Activity callingActivity, Activity newValue)
