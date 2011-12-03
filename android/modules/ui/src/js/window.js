@@ -405,7 +405,7 @@ exports.bootstrapWindow = function(Titanium) {
 	}
 
 	Window.prototype.addEventListener = function(event, listener) {
-		if (["open", "close"].indexOf(event) >= 0 || this.window == null) {
+		if (["open", "close"].indexOf(event) >= 0 || this.view == null) {
 			EventEmitter.prototype.addEventListener.call(this, event, listener);
 
 		} else {
@@ -416,7 +416,7 @@ exports.bootstrapWindow = function(Titanium) {
 	// Add event listener to this.window and update the source of event to this.
 	Window.prototype.addWrappedListener = function(event, listener) {
 		var self = this;
-		self.window.addEventListener(event, function(e) {
+		self.view.addEventListener(event, function(e) {
 			if (e.source == self.view) {
 				e.source = self;
 			}
@@ -429,7 +429,7 @@ exports.bootstrapWindow = function(Titanium) {
 			EventEmitter.prototype.removeEventListener.call(this, event, listener);
 
 		} else {
-			this.window.removeEventListener(event, listener);
+			this.view.removeEventListener(event, listener);
 		}
 	}
 
@@ -438,7 +438,7 @@ exports.bootstrapWindow = function(Titanium) {
 			EventEmitter.prototype.fireEvent.call(this, event, data);
 
 		} else {
-			this.window.fireEvent(event, data);
+			this.view.fireEvent(event, data);
 		}
 	}
 
