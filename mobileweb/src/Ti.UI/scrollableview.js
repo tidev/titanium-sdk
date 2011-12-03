@@ -14,7 +14,7 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 	Ti._5.prop(this, 'currentPage', {
 		get: function(){return _currentPage;},
 		set: function(val){
-			if (val >= 0 && val < _views.length) {
+			if (val >= 0 && val < obj.views.length) {
 				obj._scrollToViewPosition(val);
 				return _currentPage = val;
 			}
@@ -40,7 +40,7 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 		// Sanity check
 		var undef; 
 		if (view !== undef && view !== null) {
-			_views.push(view);
+			obj.views.push(view);
 			
 			// Check if any children have been added yet, and if not load this view
 			if (_currentPage == -1) {
@@ -52,7 +52,7 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 	this._removeViewFromList = function(viewIndex) {
 		
 		// Remove the view
-		_views.splice(viewIndex,1);
+		obj.views.splice(viewIndex,1);
 		
 		// Update the current view if necessary
 		if (viewIndex < _currentPage){
@@ -62,7 +62,7 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 	this.removeView = function(view){
 		
 		// Get and validate the location of the view
-		var viewIndex = _views.indexOf(view);
+		var viewIndex = obj.views.indexOf(view);
 		if (viewIndex == -1) {
 			return;
 		}
@@ -70,24 +70,24 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 		// Update the view if this view was currently visible
 		if (viewIndex == _currentPage) {
 			this._viewToRemoveAfterScroll = viewIndex;
-			if (_views.length == 1) {
+			if (obj.views.length == 1) {
 				obj._removeViewFromList(viewIndex);
 				obj.dom.removeChild(obj.dom.firstChild);
 			} else {
-			    obj._scrollToViewPosition(viewIndex == _views.length -1 ? --viewIndex : ++viewIndex);
+			    obj._scrollToViewPosition(viewIndex == obj.views.length -1 ? --viewIndex : ++viewIndex);
 			}
 		} else {
 			obj._removeViewFromList(viewIndex);
 		}
 	};
 	this.scrollToView = function(view){
-		this._scrollToViewPosition(_views.indexOf(view))
+		this._scrollToViewPosition(obj.views.indexOf(view))
 	};
 	var _interval = null;
 	this._scrollToViewPosition = function(viewIndex){
 		
 		// Sanity check
-		if (viewIndex < 0 || viewIndex >= _views.length || viewIndex == _currentPage) {
+		if (viewIndex < 0 || viewIndex >= obj.views.length || viewIndex == _currentPage) {
 			return;
 		}
 		
@@ -111,7 +111,7 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 		// At the same time, it doesn't matter since the user won't see it anyways. So we just append the new
 		// element and don't show the transition animation.
 		if (!obj.dom.offsetWidth) {
-			obj._attachFinalView(_views[viewIndex].dom);
+			obj._attachFinalView(obj.views[viewIndex].dom);
 		} else {
 			
 			// Stop the previous timer if it is running (i.e. we are in the middle of an animation)
@@ -129,11 +129,11 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 				_initialPosition = 0;
 			if (viewIndex > _currentPage) {
 				for (var i = _currentPage; i <= viewIndex; i++) {
-					_viewsToScroll.push(_views[i].dom);
+					_viewsToScroll.push(obj.views[i].dom);
 				}
 			} else {
 				for (var i = viewIndex; i <= _currentPage; i++) {
-					_viewsToScroll.push(_views[i].dom);
+					_viewsToScroll.push(obj.views[i].dom);
 				}
 				_initialPosition = -(_viewsToScroll.length - 1) * _w;
 				_scrollingDirection = 1;
@@ -187,7 +187,7 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 				if (_currentTime >= _duration) {
 					clearInterval(_interval);
 					_interval = null;
-					obj._attachFinalView(_views[viewIndex].dom);
+					obj._attachFinalView(obj.views[viewIndex].dom);
 					if (obj._viewToRemoveAfterScroll != -1) {
 						obj._removeViewFromList(obj._viewToRemoveAfterScroll);
 						obj._viewToRemoveAfterScroll = -1;
@@ -199,7 +199,7 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 	};
 	
 	// If some views were defined via args, process them now
-	if (_views.length > 0) {
+	if (obj.views.length > 0) {
 		this._scrollToViewPosition(_currentPage != -1 ? _currentPage : 0);
 	}
 

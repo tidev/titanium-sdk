@@ -345,13 +345,13 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 	window.addEventListener('resize', function () {obj.dom._calcHeight = false; _setRowHeight();}, false);
 	
 	function setColoredStyle() {
-		if (_selectedBackgroundImage) {
-			obj.dom.style.backgroundImage = 'url("' + Ti._5.getAbsolutePath(_selectedBackgroundImage) + '")';
+		if (obj.selectedBackgroundImage) {
+			obj.dom.style.backgroundImage = 'url("' + Ti._5.getAbsolutePath(obj.selectedBackgroundImage) + '")';
 			obj.dom.style.backgroundRepeat = "no-repeat";
-		} else if (_selectedBackgroundColor) {
-			obj.dom.style.backgroundColor = _selectedBackgroundColor;
-		} else if (_selectedColor){
-			obj.dom.style.color = _selectedColor;
+		} else if (obj.selectedBackgroundColor) {
+			obj.dom.style.backgroundColor = obj.selectedBackgroundColor;
+		} else if (obj.selectedColor){
+			obj.dom.style.color = obj.selectedColor;
 		}
 	}
 	

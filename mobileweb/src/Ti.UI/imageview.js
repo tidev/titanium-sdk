@@ -15,7 +15,7 @@ Ti._5.createClass('Titanium.UI.ImageView', function(args){
 	function _loadImages (aImages) {
 		_isError = false;
 		if (!_preventDefaultImage) {
-			obj.dom.src = Ti._5.getAbsolutePath(_defaultImage);
+			obj.dom.src = Ti._5.getAbsolutePath(obj.defaultImage);
 		}
 		// create object
 		var oImage = new Image();

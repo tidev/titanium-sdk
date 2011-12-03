@@ -26,6 +26,7 @@ Ti._5.createClass('Titanium.UI.Window', function(args){
 	this.exitOnClose = null;
 	this.fullscreen = false;
 	this.leftNavButton = null;
+	
 	Ti._5.member(this, 'modal');
 
 	Ti._5.member(this, 'navBarHidden');
@@ -35,7 +36,7 @@ Ti._5.createClass('Titanium.UI.Window', function(args){
 	this.rightNavButton = null;
 	this.softInputMode = null;
 
-	(this, 'tabBarHidden');
+	Ti._5.member(this, 'tabBarHidden');
 
 	this.titleControl = null;
 	this.titleImage = null;

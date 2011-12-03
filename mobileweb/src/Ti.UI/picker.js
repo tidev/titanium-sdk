@@ -106,8 +106,8 @@ Ti._5.createClass('Titanium.UI.Picker', function(args){
 		var oEvent = {
 			source			: obj,
 			type			: "change",
-			value			: _value,
-			column			: _columns[_columnIndex], 
+			value			: obj.value,
+			column			: obj.columns[_columnIndex], 
 			columnIndex		: _columnIndex,
 			selectedValue	: _rows[obj.dom.selectedIndex].title,
 			rowIndex		: obj.dom.selectedIndex,
@@ -143,8 +143,8 @@ Ti._5.createClass('Titanium.UI.Picker', function(args){
 		var oEvent = {
 			source			: obj,
 			type			: event.type,
-			value			: _value,
-			column			: _columns[_columnIndex], 
+			value			: obj.value,
+			column			: obj.columns[_columnIndex], 
 			columnIndex		: _columnIndex,
 			selectedValue	: 'undefined' != typeof obj.dom.selectedIndex ? _rows[obj.dom.selectedIndex].title : obj.dom.value,
 			rowIndex		: obj.dom.selectedIndex,
