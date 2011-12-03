@@ -143,16 +143,24 @@
 	    }
 	};
 	
-	_canOpenURL.options.strictMode = true;
-
 	// Methods
-	api.canOpenURL = function(url){
-		// Lots of stuff going on here. Basically we want to match any protocol urls ie: http, ftp, etc.
-		// including urls without a specified protocol ie: www.test.com, sub.domain.com, test.com, etc. 
-		// and pass on any internal process urls ie: mailto, sms, tel, etc.
-		// Sometime in the future, we'd like to replace this with platform specific tests for valid urls
-		return /^(\w*:\/\/|[\w\d-]+^:[\w\d]+|[\w\d]+[\.@][\w\d]+)/.test(url);
-	};
+    api.canOpenURL = function(url){
+		// quickly cover the protocols we know how to handle
+        if (/^(https?|ftp|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/.test(url)) {
+            return true;
+        }
+        if (/^([tel|sms|mailto])/.test(url)) { return false; }
+
+		// if none of the above, parse the uri and use the parts to determine how its handled.
+		// this is how we'll deal with custom url schemes ie:  my-app:someappname'
+        var uri = _canOpenURL(url);
+        if (typeof uri !== "object") {return true;}
+        if (uri.protocol === "") {
+            return true;
+        } else {
+            return /^([\/?#]|[\w\d-]+^:[\w\d]+^@)/.test(uri.protocol);
+        }
+    };
 	api.createUUID = function(){
 		return Ti._5.createUUID();
 	};
