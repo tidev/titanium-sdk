@@ -81,6 +81,7 @@
 
 -(void)prepareForReuse
 {
+	[self setProxy:nil];
 	[super prepareForReuse];
 	
 	// TODO: HACK: In the case of abnormally large table view cells, we have to reset the size.
