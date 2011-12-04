@@ -7,33 +7,33 @@ Ti._5.createClass('Titanium.Network.TCPSocket', function(args){
 	
 	// Properties
 	var _hostName = '';
-	Object.defineProperty(api, 'hostName', {
+	Ti._5.prop(api, 'hostName', {
 		get: function(){return _hostName;},
 		set: function(val){_hostName = val;}
 	});
 	obj.hostName = args && args[0] ? args[0] : '';
 
-	Object.defineProperty(api, 'isValid', {
+	Ti._5.prop(api, 'isValid', {
 		get: function() {return _socket && _socket.close ? true : false;},
 		set: function(val){ ; /* Do nothing  */}
 	});
 
 	var _mode = 0;
-	Object.defineProperty(api, 'mode', {
+	Ti._5.prop(api, 'mode', {
 		get: function(){return _mode;},
 		set: function(val){_mode = val ? val : Titanium.Network.READ_WRITE_MODE;}
 	});
 	obj.mode =  args && args[2] ? args[2] : 0;
 
 	var _port = 0;
-	Object.defineProperty(api, 'port', {
+	Ti._5.prop(api, 'port', {
 		get: function(){return _port;},
 		set: function(val){_port = val ? val : 81;}
 	});
 	obj.port =  args && args[1] ? args[1] : 0;
 
 	var _stripTerminator = false;
-	Object.defineProperty(api, 'stripTerminator', {
+	Ti._5.prop(api, 'stripTerminator', {
 		get: function(){return _stripTerminator;},
 		set: function(val){return _stripTerminator = val;}
 	});

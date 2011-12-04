@@ -15,7 +15,7 @@ Ti._5.createClass('Titanium.UI.TextArea', function(args){
 
 	// Properties
 	var _autoLink = null, _autoLinkLoaded = false;
-	Object.defineProperty(this, 'autoLink', {
+	Ti._5.prop(this, 'autoLink', {
 		get: function() {return _autoLink;},
 		set: function(val) { _autoLink = val; }
 	});
@@ -34,7 +34,7 @@ Ti._5.createClass('Titanium.UI.TextArea', function(args){
 	
 	var _autocapitalization = 0;
 	var _autocapitalizationLoaded = false;
-	Object.defineProperty(this, 'autocapitalization', {
+	Ti._5.prop(this, 'autocapitalization', {
 		get: function() {return _autocapitalization;},
 		set: function(val) {
 			_autocapitalization = val;
@@ -43,25 +43,25 @@ Ti._5.createClass('Titanium.UI.TextArea', function(args){
 					Titanium.UI._updateText(obj);
 				}, false);
 			}
-			obj.value = Titanium.UI._capitalizeValue(_autocapitalization, obj.value);
+			return obj.value = Titanium.UI._capitalizeValue(_autocapitalization, obj.value);
 		}
 	});
 	
-	Object.defineProperty(this, 'value', {
+	Ti._5.prop(this, 'value', {
 		get: function() {return obj.dom.value;},
 		set: function(val) {
-			obj.dom.value = val ? Titanium.UI._capitalizeValue(_autocapitalization, val) : '';
+			return obj.dom.value = val ? Titanium.UI._capitalizeValue(_autocapitalization, val) : '';
 		}
 	});
 	
-	Object.defineProperty(this, 'editable', {
+	Ti._5.prop(this, 'editable', {
 		get: function() { return obj.enabled; },
-		set: function(val) {obj.dom.disabled = !val ? 'disabled' : '';}
+		set: function(val) {return obj.dom.disabled = !val ? 'disabled' : '';}
 	});
 
 	var _backgroundDisabledImage = '', _backgroundImage = ''; 
 	var	_backgroundDisabledColor = '', _backgroundColor = '';
-	Object.defineProperty(this, 'enabled', {
+	Ti._5.prop(this, 'enabled', {
 		get: function(){return !obj.dom.disabled;},
 		set: function(val) {
 			if (!_backgroundImage && obj.backgroundImage) {
@@ -83,47 +83,36 @@ Ti._5.createClass('Titanium.UI.TextArea', function(args){
 				obj.backgroundImage = _backgroundImage;
 				obj.backgroundColor = _backgroundColor;
 			}
+			return val;
 		}
 	});
 	
-	Object.defineProperty(obj, 'backgroundDisabledImage', {
+	Ti._5.prop(obj, 'backgroundDisabledImage', {
 		get: function() {
 			return _backgroundDisabledImage ? _backgroundDisabledImage : '';
 		},
 		set: function(val) {
-			_backgroundDisabledImage = val;
+			return _backgroundDisabledImage = val;
 		}
 	});
 	
-	Object.defineProperty(obj, 'backgroundDisabledColor', {
+	Ti._5.prop(obj, 'backgroundDisabledColor', {
 		get: function() {
 			return _backgroundDisabledColor ? _backgroundDisabledColor : '';
 		},
 		set: function(val) {
-			_backgroundDisabledColor = val;
+			return _backgroundDisabledColor = val;
 		}
 	});
 	
-	var _keyboardToolbar = null;
-	Object.defineProperty(this, 'keyboardToolbar', {
-		get: function(){return _keyboardToolbar;},
-		set: function(val){return _keyboardToolbar = val;}
-	});
+	Ti._5.member(this, 'keyboardToolbar');
 	
-	var _keyboardToolbarColor = null;
-	Object.defineProperty(this, 'keyboardToolbarColor', {
-		get: function(){return _keyboardToolbarColor;},
-		set: function(val){return _keyboardToolbarColor = val;}
-	});
+	Ti._5.member(this, 'keyboardToolbarColor');
 
-	var _keyboardToolbarHeight = null;
-	Object.defineProperty(this, 'keyboardToolbarHeight', {
-		get: function(){return _keyboardToolbarHeight;},
-		set: function(val){return _keyboardToolbarHeight = val;}
-	});
+	Ti._5.member(this, 'keyboardToolbarHeight');
 
 	var _suppressReturn = null, _suppressLoaded = false;
-	Object.defineProperty(this, 'suppressReturn', {
+	Ti._5.prop(this, 'suppressReturn', {
 		get: function() {return _suppressReturn;},
 		set: function(val) {
 			_suppressReturn = val;
@@ -138,10 +127,11 @@ Ti._5.createClass('Titanium.UI.TextArea', function(args){
 					}
 				}, false);
 			}
+			return _suppressReturn;
 		}
 	});
 	
-	Object.defineProperty(this, 'size', {
+	Ti._5.prop(this, 'size', {
 		get: function() {
 			return {
 				width	: obj.width,
@@ -155,15 +145,11 @@ Ti._5.createClass('Titanium.UI.TextArea', function(args){
 			if (val.height) {
 				obj.height = Ti._5.parseLength(val.height);
 			}
+			return val;
 		}
 	});
    
-	Ti._5.preset(this, [
-		"autoLink", "autocapitalization", "value", "editable", "keyboardToolbar", 
-		"keyboardToolbarColor", "keyboardToolbarHeight", "suppressReturn", "backgroundDisabledImage",
-		"backgroundDisabledColor", "size", "enabled"
-	], args);
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 	
 	// Methods
 	this.blur = function(){

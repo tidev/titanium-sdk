@@ -3,53 +3,21 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	var _allowBackground = null;
-	Object.defineProperty(api, 'allowBackground', {
-		get: function(){return _allowBackground;},
-		set: function(val){return _allowBackground = val;}
-	});
+	Ti._5.member(api, 'allowBackground');
 
-	var _duration = null;
-	Object.defineProperty(api, 'duration', {
-		get: function(){return _duration;},
-		set: function(val){return _duration = val;}
-	});
+	Ti._5.member(api, 'duration');
 
-	var _looping = null;
-	Object.defineProperty(api, 'looping', {
-		get: function(){return _looping;},
-		set: function(val){return _looping = val;}
-	});
+	Ti._5.member(api, 'looping');
 
-	var _paused = null;
-	Object.defineProperty(api, 'paused', {
-		get: function(){return _paused;},
-		set: function(val){return _paused = val;}
-	});
+	Ti._5.member(api, 'paused');
 
-	var _playing = null;
-	Object.defineProperty(api, 'playing', {
-		get: function(){return _playing;},
-		set: function(val){return _playing = val;}
-	});
+	Ti._5.member(api, 'playing');
 
-	var _time = null;
-	Object.defineProperty(api, 'time', {
-		get: function(){return _time;},
-		set: function(val){return _time = val;}
-	});
+	Ti._5.member(api, 'time');
 
-	var _url = null;
-	Object.defineProperty(api, 'url', {
-		get: function(){return _url;},
-		set: function(val){return _url = val;}
-	});
+	Ti._5.member(api, 'url');
 
-	var _volume = null;
-	Object.defineProperty(api, 'volume', {
-		get: function(){return _volume;},
-		set: function(val){return _volume = val;}
-	});
+	Ti._5.member(api, 'volume');
 
 	// Methods
 	api.getTime = function(){

@@ -8,27 +8,23 @@ Ti._5.createClass('Titanium.UI.ActivityIndicator', function(args){
 	Ti._5.Styleable(this, args);
 	
 	// Properties
-	Object.defineProperty(this, 'color', {
+	Ti._5.prop(this, 'color', {
 		get: function(){return obj.dom.style.color;},
 		set: function(val) {
-			obj.dom.style.color = val;
+			return obj.dom.style.color = val;
 		}
 	});
 	
-	var _message = null;
-	Object.defineProperty(this, 'message', {
+	var _message = '';
+	Ti._5.prop(this, 'message', {
 		get: function(){return _message;},
-		set: function(val){_message = val; obj.dom.innerHTML = _message;}
+		set: function(val){_message = val; return obj.dom.innerHTML = _message;}
 	});
 
-	var _messageid = null;
-	Object.defineProperty(this, 'messageid', {
-		get: function(){return _messageid;},
-		set: function(val){return _messageid = val;}
-	});
+	Ti._5.member(this, 'messageid', '');
 
 	var _style = null;
-	Object.defineProperty(this, 'style', {
+	Ti._5.prop(this, 'style', {
 		get: function(){return _style;},
 		set: function(val){
 			_style = val;
@@ -44,16 +40,18 @@ Ti._5.createClass('Titanium.UI.ActivityIndicator', function(args){
 						break;
 				}
 			}
+			return val;
 		}
 	});
 	
 	var _visible = false;
-	Object.defineProperty(obj, 'visible', {
+	Ti._5.prop(obj, 'visible', {
 		get: function() {
 			return _visible;
 		},
 		set: function(val) {
 			val ? obj.show() : obj.hide();
+			return val;
 		}
 	});
 
@@ -75,8 +73,6 @@ Ti._5.createClass('Titanium.UI.ActivityIndicator', function(args){
 		obj.dom.style.left = (args['left'] || (oWinSizes.width - parseInt(obj.dom.offsetWidth)) * 0.5) + "px";
 		obj.fireEvent('html5_shown');
 	};
-	
-	Ti._5.preset(this, ["color", "font", "message", "messageid", "style", "visible"], args);
 
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });

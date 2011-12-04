@@ -1,10 +1,6 @@
 (function(api){
 	// Properties
-	var _items = null;
-	Object.defineProperty(api, 'items', {
-		get: function(){return _items;},
-		set: function(val){return _items = val;}
-	});
+	Ti._5.member(api, 'items');
 
 	// Methods
 	api.add = function(){

@@ -3,35 +3,15 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	var _compression = null;
-	Object.defineProperty(api, 'compression', {
-		get: function(){return _compression;},
-		set: function(val){return _compression = val;}
-	});
+	Ti._5.member(api, 'compression');
 
-	var _format = null;
-	Object.defineProperty(api, 'format', {
-		get: function(){return _format;},
-		set: function(val){return _format = val;}
-	});
+	Ti._5.member(api, 'format');
 
-	var _paused = null;
-	Object.defineProperty(api, 'paused', {
-		get: function(){return _paused;},
-		set: function(val){return _paused = val;}
-	});
+	Ti._5.member(api, 'paused');
 
-	var _recording = null;
-	Object.defineProperty(api, 'recording', {
-		get: function(){return _recording;},
-		set: function(val){return _recording = val;}
-	});
+	Ti._5.member(api, 'recording');
 
-	var _stopped = null;
-	Object.defineProperty(api, 'stopped', {
-		get: function(){return _stopped;},
-		set: function(val){return _stopped = val;}
-	});
+	Ti._5.member(api, 'stopped');
 
 	// Methods
 	api.pause = function(){

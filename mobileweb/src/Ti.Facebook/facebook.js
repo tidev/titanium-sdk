@@ -3,11 +3,7 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	var _accessToken = null;
-	Object.defineProperty(api, 'accessToken', {
-		get: function(){return _accessToken;},
-		set: function(val){return _accessToken = val;}
-	});
+	Ti._5.member(api, 'accessToken');
 	
 	var _facebookInitialized = false;
 	var _loginAfterInitialization = false;
@@ -29,7 +25,7 @@
 	}
 
 	var _appid = null;
-	Object.defineProperty(api, 'appid', {
+	Ti._5.prop(api, 'appid', {
 		get: function(){return _appid;},
 		set: function(val){
 			if (_facebookLoaded) {
@@ -39,34 +35,22 @@
 		}
 	});
 
-	var _expirationDate = null;
-	Object.defineProperty(api, 'expirationDate', {
-		get: function(){return _expirationDate;},
-		set: function(val){return _expirationDate = val;}
-	});
+	Ti._5.member(api, 'expirationDate');
 
-	Object.defineProperty(api, 'forceDialogAuth', {
+	Ti._5.prop(api, 'forceDialogAuth', {
 		get: function(){return true;},
 		set: function(val){return true;}
 	});
 
 	var _loggedIn = false;
-	Object.defineProperty(api, 'loggedIn', {
+	Ti._5.prop(api, 'loggedIn', {
 		get: function(){return _loggedIn;},
 		set: function(val){return _loggedIn = val;}
 	});
 
-	var _permissions = null;
-	Object.defineProperty(api, 'permissions', {
-		get: function(){return _permissions;},
-		set: function(val){return _permissions = val;}
-	});
+	Ti._5.member(api, 'permissions');
 
-	var _uid = null;
-	Object.defineProperty(api, 'uid', {
-		get: function(){return _uid;},
-		set: function(val){return _uid = val;}
-	});
+	Ti._5.member(api, 'uid');
 	
 	var _notLoggedInMessage = "not logged in";
 	
@@ -75,8 +59,8 @@
 		if (ar) {
 			// Set the various status members
 			_loggedIn = true;
-			_uid = ar.userID;
-			_expirationDate = new Date((new Date()).getTime() + ar.expiresIn * 1000);
+			api.uid = ar.userID;
+			api.expirationDate = new Date((new Date()).getTime() + ar.expiresIn * 1000);
 			
 			// Set a timeout to match when the token expires
 			ar.expiresIn && setTimeout(function(){ 
@@ -88,7 +72,7 @@
 				cancelled	: false,
 				data		: response,
 				success		: true,
-				uid			: _uid,
+				uid			: api.uid,
 				source		: api
 			});
 
@@ -142,7 +126,7 @@
 				uid			: response.id,
 				source		: api
 			});
-		}, {'scope':_permissions.join()});
+		}, {'scope':api.permissions.join()});
 	}
 
 	// Methods

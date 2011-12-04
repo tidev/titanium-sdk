@@ -22,29 +22,25 @@ Ti._5.createClass('Titanium.UI.TabGroup', function(args){
 	this.dom.appendChild(_tabsContent);
 
 	// Properties
-	Object.defineProperty(this, 'activeTab', {
+	Ti._5.prop(this, 'activeTab', {
 		get: function(){return obj._tabs[_activeTabIndex];},
-		set: function(val){obj.setActiveTab(val);}
+		set: function(val){obj.setActiveTab(val); return val;}
 	});
 
-	var _allowUserCustomization = null;
-	Object.defineProperty(this, 'allowUserCustomization', {
-		get: function(){return _allowUserCustomization;},
-		set: function(val){return _allowUserCustomization = val;}
-	});
+	Ti._5.member(this, 'allowUserCustomization');
 
 	var _barColor = null;
-	Object.defineProperty(this, 'barColor', {
+	Ti._5.prop(this, 'barColor', {
 		get: function(){return _barColor;},
 		set: function(val){
 			_barColor = val;
-			_tabsHeaders.style.backgroundColor = _barColor;
+			return _tabsHeaders.style.backgroundColor = _barColor;
 		}
 	});
 
 	// private internal property
 	this._tabs = [];
-	Object.defineProperty(this, 'tabs', {
+	Ti._5.prop(this, 'tabs', {
 		get: function(){
 			var res = [];
 			for(var ii = 0; ii < obj._tabs.length; ii++){
@@ -54,11 +50,7 @@ Ti._5.createClass('Titanium.UI.TabGroup', function(args){
 		}
 	});
 
-	var _editButtonTitle = null;
-	Object.defineProperty(this, 'editButtonTitle', {
-		get: function(){return _editButtonTitle;},
-		set: function(val){return _editButtonTitle = val;}
-	});
+	Ti._5.member(this, 'editButtonTitle');
 
 	// Methods
 	this.addTab = function(tab){
@@ -206,5 +198,5 @@ Ti._5.createClass('Titanium.UI.TabGroup', function(args){
 		});
 	};
 
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });

@@ -16,7 +16,7 @@
 	api.READ_WRITE_MODE = 2;
 	api.WRITE_MODE = 1;
 	
-	Object.defineProperty(api, 'networkType', {
+	Ti._5.prop(api, 'networkType', {
 		get: function() {
 			if (!api.online) {
 				return api.NETWORK_NONE;
@@ -40,7 +40,7 @@
 		set: function() { return false; }
 	});
 	
-	Object.defineProperty(api, 'networkTypeName', {
+	Ti._5.prop(api, 'networkTypeName', {
 		get: function() {
 			if (!api.online) {
 				return 'NONE';
@@ -64,7 +64,7 @@
 		set: function() { return false; }
 	});
 		
-	Object.defineProperty(api, 'online', {
+	Ti._5.prop(api, 'online', {
 		get: function() {return navigator.onLine},
 		set: function() { return false; }
 	});

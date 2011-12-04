@@ -1,117 +1,41 @@
 (function(api){
 	// Properties
-	var _albumArtist = null;
-	Object.defineProperty(api, 'albumArtist', {
-		get: function(){return _albumArtist;},
-		set: function(val){return _albumArtist = val;}
-	});
+	Ti._5.member(api, 'albumArtist');
 
-	var _albumTitle = null;
-	Object.defineProperty(api, 'albumTitle', {
-		get: function(){return _albumTitle;},
-		set: function(val){return _albumTitle = val;}
-	});
+	Ti._5.member(api, 'albumTitle');
 
-	var _albumTrackCount = null;
-	Object.defineProperty(api, 'albumTrackCount', {
-		get: function(){return _albumTrackCount;},
-		set: function(val){return _albumTrackCount = val;}
-	});
+	Ti._5.member(api, 'albumTrackCount');
 
-	var _albumTrackNumber = null;
-	Object.defineProperty(api, 'albumTrackNumber', {
-		get: function(){return _albumTrackNumber;},
-		set: function(val){return _albumTrackNumber = val;}
-	});
+	Ti._5.member(api, 'albumTrackNumber');
 
-	var _artist = null;
-	Object.defineProperty(api, 'artist', {
-		get: function(){return _artist;},
-		set: function(val){return _artist = val;}
-	});
+	Ti._5.member(api, 'artist');
 
-	var _artwork = null;
-	Object.defineProperty(api, 'artwork', {
-		get: function(){return _artwork;},
-		set: function(val){return _artwork = val;}
-	});
+	Ti._5.member(api, 'artwork');
 
-	var _composer = null;
-	Object.defineProperty(api, 'composer', {
-		get: function(){return _composer;},
-		set: function(val){return _composer = val;}
-	});
+	Ti._5.member(api, 'composer');
 
-	var _discCount = null;
-	Object.defineProperty(api, 'discCount', {
-		get: function(){return _discCount;},
-		set: function(val){return _discCount = val;}
-	});
+	Ti._5.member(api, 'discCount');
 
-	var _discNumber = null;
-	Object.defineProperty(api, 'discNumber', {
-		get: function(){return _discNumber;},
-		set: function(val){return _discNumber = val;}
-	});
+	Ti._5.member(api, 'discNumber');
 
-	var _genre = null;
-	Object.defineProperty(api, 'genre', {
-		get: function(){return _genre;},
-		set: function(val){return _genre = val;}
-	});
+	Ti._5.member(api, 'genre');
 
-	var _isCompilation = null;
-	Object.defineProperty(api, 'isCompilation', {
-		get: function(){return _isCompilation;},
-		set: function(val){return _isCompilation = val;}
-	});
+	Ti._5.member(api, 'isCompilation');
 
-	var _lyrics = null;
-	Object.defineProperty(api, 'lyrics', {
-		get: function(){return _lyrics;},
-		set: function(val){return _lyrics = val;}
-	});
+	Ti._5.member(api, 'lyrics');
 
-	var _mediaType = null;
-	Object.defineProperty(api, 'mediaType', {
-		get: function(){return _mediaType;},
-		set: function(val){return _mediaType = val;}
-	});
+	Ti._5.member(api, 'mediaType');
 
-	var _playCount = null;
-	Object.defineProperty(api, 'playCount', {
-		get: function(){return _playCount;},
-		set: function(val){return _playCount = val;}
-	});
+	Ti._5.member(api, 'playCount');
 
-	var _playbackDuration = null;
-	Object.defineProperty(api, 'playbackDuration', {
-		get: function(){return _playbackDuration;},
-		set: function(val){return _playbackDuration = val;}
-	});
+	Ti._5.member(api, 'playbackDuration');
 
-	var _podcastTitle = null;
-	Object.defineProperty(api, 'podcastTitle', {
-		get: function(){return _podcastTitle;},
-		set: function(val){return _podcastTitle = val;}
-	});
+	Ti._5.member(api, 'podcastTitle');
 
-	var _rating = null;
-	Object.defineProperty(api, 'rating', {
-		get: function(){return _rating;},
-		set: function(val){return _rating = val;}
-	});
+	Ti._5.member(api, 'rating');
 
-	var _skipCount = null;
-	Object.defineProperty(api, 'skipCount', {
-		get: function(){return _skipCount;},
-		set: function(val){return _skipCount = val;}
-	});
+	Ti._5.member(api, 'skipCount');
 
-	var _title = null;
-	Object.defineProperty(api, 'title', {
-		get: function(){return _title;},
-		set: function(val){return _title = val;}
-	});
+	Ti._5.member(api, 'title');
 
 })(Ti._5.createClass('Titanium.Media.Item'));

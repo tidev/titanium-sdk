@@ -25,41 +25,17 @@
 	api.PROVIDER_GPS = 1;
 	api.PROVIDER_NETWORK = 2;
 
-	var _accuracy = api.ACCURACY_BEST;
-	Object.defineProperty(api, 'accuracy', {
-		get: function(){return _accuracy;},
-		set: function(val){return _accuracy = val;}
-	});
+	Ti._5.member(api, 'accuracy', api.ACCURACY_BEST);
 
-	var _locationServicesAuthorization = null;
-	Object.defineProperty(api, 'locationServicesAuthorization', {
-		get: function(){return _locationServicesAuthorization;},
-		set: function(val){return _locationServicesAuthorization = val;}
-	});
+	Ti._5.member(api, 'locationServicesAuthorization');
 
-	var _locationServicesEnabled = null;
-	Object.defineProperty(api, 'locationServicesEnabled', {
-		get: function(){return _locationServicesEnabled;},
-		set: function(val){return _locationServicesEnabled = val;}
-	});
+	Ti._5.member(api, 'locationServicesEnabled');
 
-	var _preferredProvider = null;
-	Object.defineProperty(api, 'preferredProvider', {
-		get: function(){return _preferredProvider;},
-		set: function(val){return _preferredProvider = val;}
-	});
+	Ti._5.member(api, 'preferredProvider');
 
-	var _purpose = null;
-	Object.defineProperty(api, 'purpose', {
-		get: function(){return _purpose;},
-		set: function(val){return _purpose = val;}
-	});
+	Ti._5.member(api, 'purpose');
 
-	var _showCalibration = true;
-	Object.defineProperty(api, 'showCalibration', {
-		get: function(){return _showCalibration;},
-		set: function(val){return _showCalibration = val;}
-	});
+	Ti._5.member(api, 'showCalibration', true);
 
 	// Methods
 	api.getCurrentPosition = function(callbackFunc) {

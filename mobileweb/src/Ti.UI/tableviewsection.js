@@ -116,30 +116,31 @@ Ti._5.createClass('Titanium.UI.TableViewSection', function(args){
 	
 	// Properties
 	var _footerTitle = '';
-	Object.defineProperty(this, 'footerTitle', {
+	Ti._5.prop(this, 'footerTitle', {
 		get: function(){return _footerTitle;},
 		set: function(val){
 			_footerTitle = val;
 			if ('undefined' != typeof _oFooter.html) {
 				_oFooter.html = _footerTitle;
-				return;
+				return _footerTitle;
 			}
 			if ('undefined' != typeof _oFooter.text) {
 				_oFooter.text = _footerTitle;
-				return;
+				return _footerTitle;
 			}
 			if ('undefined' != typeof _oFooter.title) {
 				_oFooter.title = _footerTitle;
-				return;
+				return _footerTitle;
 			}
 			if ('undefined' != typeof _oFooter.message) {
 				_oFooter.message = _footerTitle;
-				return;
+				return _footerTitle;
 			}
+			return null;
 		}
 	});
 
-	Object.defineProperty(this, 'footerView', {
+	Ti._5.prop(this, 'footerView', {
 		get: function(){return _oFooter;},
 		set: function(val){
 			if (val && val.dom) {
@@ -147,12 +148,14 @@ Ti._5.createClass('Titanium.UI.TableViewSection', function(args){
 				_oFooter = val;
 				obj.dom.innerHTML = '';
 				obj.render(null);
+				return val;
 			}
+			return null;
 		}
 	});
 
 	var _headerTitle = '';
-	Object.defineProperty(this, 'headerTitle', {
+	Ti._5.prop(this, 'headerTitle', {
 		get: function(){return _headerTitle;},
 		set: function(val){
 			_headerTitle = val;
@@ -166,24 +169,25 @@ Ti._5.createClass('Titanium.UI.TableViewSection', function(args){
 			_oHeader.dom.style.borderBottomWidth = 0;
 			if ('undefined' != typeof _oHeader.html) {
 				_oHeader.html = _headerTitle;
-				return;
+				return _headerTitle;
 			}
 			if ('undefined' != typeof _oHeader.text) {
 				_oHeader.text = _headerTitle;
-				return;
+				return _headerTitle;
 			}
 			if ('undefined' != typeof _oHeader.title) {
 				_oHeader.title = _headerTitle;
-				return;
+				return _headerTitle;
 			}
 			if ('undefined' != typeof _oHeader.message) {
 				_oHeader.message = _headerTitle;
-				return;
+				return _headerTitle;
 			}
+			return null;
 		}
 	});
 
-	Object.defineProperty(this, 'headerView', {
+	Ti._5.prop(this, 'headerView', {
 		get: function(){return _oHeader;},
 		set: function(val){
 			if (val && val.dom) {
@@ -191,11 +195,13 @@ Ti._5.createClass('Titanium.UI.TableViewSection', function(args){
 				_oHeader = val;
 				obj.dom.innerHTML = '';
 				obj.render(null);
+				return val;
 			}
+			return null;
 		}
 	});
 
-	Object.defineProperty(this, 'rowCount', {
+	Ti._5.prop(this, 'rowCount', {
 		get: function() {
 			var _rowCount = 0;
 			for (var iCounter = 0; iCounter < _oRowsArea._children.length; iCounter++) {
@@ -209,8 +215,7 @@ Ti._5.createClass('Titanium.UI.TableViewSection', function(args){
 	});
 
 	
-	Ti._5.preset(this, ["footerTitle", "footerView", "headerTitle", "headerView", "rowCount"], args);
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 	
 	var bBlockRender = false;
 	var _data = null;

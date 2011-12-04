@@ -9,7 +9,7 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 
 	// Properties
 	var _title = '', _titleObj;
-	Object.defineProperty(this, 'title', {
+	Ti._5.prop(this, 'title', {
 		get: function() {return _title ? _title : obj.dom.innerHTML;},
 		set: function(val) {
 			_title = val;
@@ -18,11 +18,12 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 			}
 			_titleObj = document.createTextNode(_title);
 			obj.dom.appendChild(_titleObj);
+			return _titleObj;
 		}
 	});
 	
 	var _image, _imageObj;
-	Object.defineProperty(this, 'image', {
+	Ti._5.prop(this, 'image', {
 		get: function() {return _image;},
 		set: function(val){
 			if (_imageObj == null) {
@@ -36,12 +37,13 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 			}
 			_image = Ti._5.getAbsolutePath(val);
 			_imageObj.src = _image;
+			return _image;
 		}
 	});
 
 	var _backgroundImage = null;
 	var _borderWidthCache = '', _backgroundImageCache = '', _backgroundColorCache = '';
-	Object.defineProperty(obj, 'backgroundImage', {
+	Ti._5.prop(obj, 'backgroundImage', {
 		get: function() {
 			return _backgroundImage;
 		},
@@ -60,17 +62,17 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 				obj.dom.style.backgroundColor = _backgroundColorCache;
 				obj.dom.style.backgroundImage = '';
 			}
-		},
-		configurable: true
+			return val;
+		}
 	});
 
 	var _enabled = true;
-	Object.defineProperty(this, 'enabled', {
+	Ti._5.prop(this, 'enabled', {
 		get: function(){return _enabled;},
 		set: function(val) {
 			// do nothing if widget is already in this state
 			if(_enabled == val){
-				return;
+				return val;
 			}
 			_enabled = val;
 			if(_enabled) {
@@ -99,30 +101,31 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 					obj.backgroundColor = _backgroundDisabledColor;
 				}
 			}
+			return _enabled;
 		}
 	});
 	
 	var _backgroundDisabledImage = null;
-	Object.defineProperty(obj, 'backgroundDisabledImage', {
+	Ti._5.prop(obj, 'backgroundDisabledImage', {
 		get: function() {
 			return _backgroundDisabledImage ? _backgroundDisabledImage : '';
 		},
 		set: function(val) {
-			_backgroundDisabledImage = val;
+			return _backgroundDisabledImage = val;
 		}
 	});
 	
 	var _backgroundDisabledColor = null;
-	Object.defineProperty(obj, 'backgroundDisabledColor', {
+	Ti._5.prop(obj, 'backgroundDisabledColor', {
 		get: function() {
 			return _backgroundDisabledColor ? _backgroundDisabledColor : '';
 		},
 		set: function(val) {
-			_backgroundDisabledColor = val;
+			return _backgroundDisabledColor = val;
 		}
 	});
 	
-	Object.defineProperty(this, 'size', {
+	Ti._5.prop(this, 'size', {
 		get: function() {
 			return {
 				width	: obj.width,
@@ -136,11 +139,12 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 			if (val.height) {
 				obj.height = val.height;
 			}
+			return val;
 		}
 	});
 
 	var _selectedColor = null, _prevTextColor = null, _selectedColorLoaded = false;
-	Object.defineProperty(this, 'selectedColor', {
+	Ti._5.prop(this, 'selectedColor', {
 		get: function(){return _selectedColor;},
 		set: function(val) {
 			_selectedColor = val;
@@ -156,17 +160,14 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 					}
 				}, false);
 			}
+			return _selectedColor;
 		}
 	});
 	
-	var _style = null;
-	Object.defineProperty(this, 'style', {
-		get: function(){return _style;},
-		set: function(val){return _style = val;}
-	});
+	Ti._5.member(this, 'style');
 
 	var _titleid = null;
-	Object.defineProperty(this, 'titleid', {
+	Ti._5.prop(this, 'titleid', {
 		get: function(){return _titleid;},
 		set: function(val){_titleid = val; return obj.title = L(_titleid)}
 	});
@@ -187,10 +188,5 @@ Ti._5.createClass('Titanium.UI.Button', function(args){
 		obj.render(null);
 	};
 
-	Ti._5.preset(this, [
-		"image", "title", "size", "selectedColor", "backgroundDisabledImage",
-		"backgroundDisabledColor", "enabled"
-	], args);
-	
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });

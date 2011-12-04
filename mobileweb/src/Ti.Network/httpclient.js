@@ -10,9 +10,9 @@ Ti._5.createClass('Titanium.Network.HTTPClient', function(args){
 	var _requestComplete = false;
 	
 	var _callErrorFunc = function(error) {
-		_responseText = '';
-		_responseXML = '';
-		_responseData = '';
+		obj.responseText = '';
+		obj.responseXML = '';
+		obj.responseData = '';
 		if ('object' != typeof error) {
 			error = {message : error};
 		}
@@ -22,28 +22,28 @@ Ti._5.createClass('Titanium.Network.HTTPClient', function(args){
 		if (0 == parseInt(error.error)) {
 			error.error = "Can`t reach host";
 		}
-		if ('function' == typeof _onerror) {
-			_onerror(error);
+		if ('function' == typeof obj.onerror) {
+			obj.onerror(error);
 		}
 	};
 	_xhr.ontimeout = function(error) {
 		_callErrorFunc(error);
 	};
 	_xhr.onreadystatechange = function() {
-		if ('function' == typeof _onreadystatechange) {
-			_onreadystatechange();
+		if ('function' == typeof obj.onreadystatechange) {
+			obj.onreadystatechange();
 		}
 		if (_xhr.readyState == 4) {
 			if (_xhr.status == 200) {
-				_connected = true;
-				_responseText = _xhr.responseText;
-				_responseXML = _xhr.responseXML;
-				_responseData = _xhr.responceHeader;
-				if ('function' == typeof _onload) {
-					_onload();
+				obj.connected = true;
+				obj.responseText = _xhr.responseText;
+				obj.responseXML = _xhr.responseXML;
+				obj.responseData = _xhr.responceHeader;
+				if ('function' == typeof obj.onload) {
+					obj.onload();
 				}
 			} else {
-				_connected = false;
+				obj.connected = false;
 			}
 			_requestComplete = true;
 		}
@@ -64,8 +64,8 @@ Ti._5.createClass('Titanium.Network.HTTPClient', function(args){
 			// Unable to compute progress information since the total size is unknown
 			evt.progress = false;
 		}
-		if ('function' == typeof _onsendstream) {
-			_ondatastream(evt);
+		if ('function' == typeof obj.onsendstream) {
+			obj.ondatastream(evt);
 		}
 	}, false);
 	_xhr.upload.addEventListener("progress", function(evt) {
@@ -75,130 +75,73 @@ Ti._5.createClass('Titanium.Network.HTTPClient', function(args){
 			// Unable to compute progress information since the total size is unknown
 			evt.progress = false;
 		}
-		if ('function' == typeof _onsendstream) {
-			_onsendstream(evt);
+		if ('function' == typeof obj.onsendstream) {
+			obj.onsendstream(evt);
 		}
 	}, false);
 	
 	// Properties
-	Object.defineProperty(this, 'DONE', {
-		get: function() {return _xml.DONE;},
-		set: function(val) { ; /* Do nothing  */ }
+	Ti._5.prop(this, 'DONE', {
+		get: function() {return _xml.DONE;}
 	});
 
-	Object.defineProperty(this, 'HEADERS_RECEIVED', {
-		get: function(){return _xml.HEADERS_RECEIVED;},
-		set: function(val) { ; /* Do nothing  */ }
+	Ti._5.prop(this, 'HEADERS_RECEIVED', {
+		get: function(){return _xml.HEADERS_RECEIVED;}
 	});
 
-	Object.defineProperty(this, 'LOADING', {
-		get: function(){return _xml.LOADING;},
-		set: function(val) { ; /* Do nothing  */ }
+	Ti._5.prop(this, 'LOADING', {
+		get: function(){return _xml.LOADING;}
 	});
 
-	Object.defineProperty(this, 'OPENED', {
-		get: function(){return _xml.OPENED;},
-		set: function(val) { ; /* Do nothing  */ }
+	Ti._5.prop(this, 'OPENED', {
+		get: function(){return _xml.OPENED;}
 	});
 
-	Object.defineProperty(this, 'UNSENT', {
-		get: function(){return _xml.UNSENT;},
-		_set: function(val) { ; /* Do nothing  */ }
+	Ti._5.prop(this, 'UNSENT', {
+		get: function(){return _xml.UNSENT;}
 	});
 
-	var _connected = false;
-	Object.defineProperty(this, 'connected', {
-		get: function() {return _connected;},
-		set: function(val) {return _connected = val;}
-	});
+	Ti._5.member(this, 'connected', false);
 
-	var _connectionType = null;
-	Object.defineProperty(this, 'connectionType', {
-		get: function() {return _connectionType;},
-		set: function(val) {return _connectionType = val;}
-	});
+	Ti._5.member(this, 'connectionType');
 
-	var _file = null;
-	Object.defineProperty(this, 'file', { 
-		get: function() {return _file;},
-		set: function(val) {return _file = val;}
-	});
+	Ti._5.member(this, 'file');
 
-	var _location = null;
-	Object.defineProperty(this, 'location', {
-		get: function(){return _location;},
-		set: function(val){return _location = val;}
-	});
+	Ti._5.member(this, 'location');
 
-	var _ondatastream = null;
-	Object.defineProperty(this, 'ondatastream', {
-		get: function() {return _ondatastream;},
-		set: function(val) {return _ondatastream = val;}
-	});
+	Ti._5.member(this, 'ondatastream');
 
-	var _onerror = null;
-	Object.defineProperty(this, 'onerror', {
-		get: function() {return _onerror;},
-		set: function(val) {return _onerror = val;}
-	});
+	Ti._5.member(this, 'onerror');
 
-	var _onload = null;
-	Object.defineProperty(this, 'onload', {
-		get: function() {return _onload;},
-		set: function(val) {return _onload = val;}
-	});
+	Ti._5.member(this, 'onload');
 
-	var _onreadystatechange = null;
-	Object.defineProperty(this, 'onreadystatechange', {
-		get: function() {return _onreadystatechange;},
-		set: function(val) {return _onreadystatechange = val;}
-	});
+	Ti._5.member(this, 'onreadystatechange');
 
-	var _onsendstream = null;
-	Object.defineProperty(this, 'onsendstream', {
-		get: function() {return _onsendstream;},
-		set: function(val) {return _onsendstream = val;}
-	});
+	Ti._5.member(this, 'onsendstream');
 
-	Object.defineProperty(this, 'readyState', {
+	Ti._5.prop(this, 'readyState', {
 		get: function()  {return _xhr.readyState;},
 		set: function(val) {return false;}
 	});
 
-	var _responseHeader = null;
-	Object.defineProperty(this, 'responseData', {
-		get: function(){return _responseHeader;},
-		set: function(val){return _responseHeader = val;}
-	});
+	Ti._5.member(this, 'responseData');
 
-	var _responseText = null;
-	Object.defineProperty(this, 'responseText', {
-		get: function() {return _responseText;},
-		set: function(val) {return _responseText = val;}
-	});
+	Ti._5.member(this, 'responseText');
 
-	var _responseXML = null;
-	Object.defineProperty(this, 'responseXML', {
-		get: function() {return _responseXML;},
-		set: function(val) {return _responseXML = val;}
-	});
+	Ti._5.member(this, 'responseXML');
 
-	Object.defineProperty(this, 'status', {
+	Ti._5.prop(this, 'status', {
 		get: function() {return _xhr.status;},
 		set: function(val) {return false;}
 	});
 
 	_xhr.timeout = 60000; // Default timeout = 1 minute
-	Object.defineProperty(this, 'timeout', {
+	Ti._5.prop(this, 'timeout', {
 		get: function() {return _xhr.timeout;},
 		set: function(val) {return _xhr.timeout = val;}
 	});
 
-	var _validatesSecureCertificate = false; 
-	Object.defineProperty(this, 'validatesSecureCertificate', {
-		get: function() {return _validatesSecureCertificate;},
-		set: function(val) {return _validatesSecureCertificate = val;}
-	});
+	Ti._5.member(this, 'validatesSecureCertificate', false);
 
 	// Methods
 	this.abort = function() {
@@ -213,21 +156,21 @@ Ti._5.createClass('Titanium.Network.HTTPClient', function(args){
 	};
 	this.open = function(method, url, async) {
 		_requestComplete = false;
-		_connectionType = method;
-		_location = Ti._5.getAbsolutePath(url);
+		obj.connectionType = method;
+		obj.location = Ti._5.getAbsolutePath(url);
 		if ('undefined' == typeof async) {
 			async = true;
 		}
-		_xhr.open(_connectionType,_location,async);
+		_xhr.open(obj.connectionType,obj.location,async);
 		//_xhr.setRequestHeader("UserAgent","Appcelerator Titanium/${ti_version | jsQuoteEscapeFilter} ("+navigator.userAgent+")");
 		//_xhr.setRequestHeader("Access-Control-Allow-Origin","*");
 		//_xhr.setRequestHeader("Content-Type", "text/xml; charset=utf-8");
 	};
 	this.send = function(args){
 		_requestComplete = false;
-		_responseText = '';
-		_responseXML = '';
-		_responseData = '';
+		obj.responseText = '';
+		obj.responseXML = '';
+		obj.responseData = '';
 		try {
 			_xhr.send(args ? args : null);
 		} catch (error) {

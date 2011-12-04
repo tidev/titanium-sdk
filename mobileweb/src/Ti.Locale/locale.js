@@ -3,23 +3,11 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	var _currentCountry = null;
-	Object.defineProperty(api, 'currentCountry', {
-		get: function(){return _currentCountry;},
-		set: function(val){return _currentCountry = val;}
-	});
+	Ti._5.member(api, 'currentCountry');
 
-	var _currentLanguage = 'en';
-	Object.defineProperty(api, 'currentLanguage', {
-		get: function(){return _currentLanguage;},
-		set: function(val){return _currentLanguage = val;}
-	});
+	Ti._5.member(api, 'currentLanguage', 'en');
 
-	var _currentLocale = null;
-	Object.defineProperty(api, 'currentLocale', {
-		get: function(){return _currentLocale;},
-		set: function(val){return _currentLocale = val;}
-	});
+	Ti._5.member(api, 'currentLocale');
 
 	// Methods
 	api.formatTelephoneNumber = function(){

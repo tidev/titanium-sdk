@@ -3,23 +3,11 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	var _domain = null;
-	Object.defineProperty(api, 'domain', {
-		get: function(){return _domain;},
-		set: function(val){return _domain = val;}
-	});
+	Ti._5.member(api, 'domain');
 
-	var _isSearching = null;
-	Object.defineProperty(api, 'isSearching', {
-		get: function(){return _isSearching;},
-		set: function(val){return _isSearching = val;}
-	});
+	Ti._5.member(api, 'isSearching');
 
-	var _serviceType = null;
-	Object.defineProperty(api, 'serviceType', {
-		get: function(){return _serviceType;},
-		set: function(val){return _serviceType = val;}
-	});
+	Ti._5.member(api, 'serviceType');
 
 	// Methods
 	api.search = function(){

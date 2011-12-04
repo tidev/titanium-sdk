@@ -1,46 +1,18 @@
 (function(api){
 	// Properties
-	var _action = null;
-	Object.defineProperty(api, 'action', {
-		get: function(){return _action;},
-		set: function(val){return _action = val;}
-	});
+	Ti._5.member(api, 'action');
 
-	var _className = null;
-	Object.defineProperty(api, 'className', {
-		get: function(){return _className;},
-		set: function(val){return _className = val;}
-	});
+	Ti._5.member(api, 'className');
 
-	var _data = null;
-	Object.defineProperty(api, 'data', {
-		get: function(){return _data;},
-		set: function(val){return _data = val;}
-	});
+	Ti._5.member(api, 'data');
 
-	var _flags = null;
-	Object.defineProperty(api, 'flags', {
-		get: function(){return _flags;},
-		set: function(val){return _flags = val;}
-	});
+	Ti._5.member(api, 'flags');
 
-	var _packageName = null;
-	Object.defineProperty(api, 'packageName', {
-		get: function(){return _packageName;},
-		set: function(val){return _packageName = val;}
-	});
+	Ti._5.member(api, 'packageName');
 
-	var _type = null;
-	Object.defineProperty(api, 'type', {
-		get: function(){return _type;},
-		set: function(val){return _type = val;}
-	});
+	Ti._5.member(api, 'type');
 
-	var _url = null;
-	Object.defineProperty(api, 'url', {
-		get: function(){return _url;},
-		set: function(val){return _url = val;}
-	});
+	Ti._5.member(api, 'url');
 
 	// Methods
 	api.addCategory = function(){

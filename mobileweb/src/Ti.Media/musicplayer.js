@@ -1,41 +1,17 @@
 (function(api){
 	Ti._5.EventDriven(api);
 	// Properties
-	var _currentPlaybackTime = null;
-	Object.defineProperty(api, 'currentPlaybackTime', {
-		get: function(){return _currentPlaybackTime;},
-		set: function(val){return _currentPlaybackTime = val;}
-	});
+	Ti._5.member(api, 'currentPlaybackTime');
 
-	var _nowPlaying = null;
-	Object.defineProperty(api, 'nowPlaying', {
-		get: function(){return _nowPlaying;},
-		set: function(val){return _nowPlaying = val;}
-	});
+	Ti._5.member(api, 'nowPlaying');
 
-	var _playbackState = null;
-	Object.defineProperty(api, 'playbackState', {
-		get: function(){return _playbackState;},
-		set: function(val){return _playbackState = val;}
-	});
+	Ti._5.member(api, 'playbackState');
 
-	var _repeatMode = null;
-	Object.defineProperty(api, 'repeatMode', {
-		get: function(){return _repeatMode;},
-		set: function(val){return _repeatMode = val;}
-	});
+	Ti._5.member(api, 'repeatMode');
 
-	var _shuffleMode = null;
-	Object.defineProperty(api, 'shuffleMode', {
-		get: function(){return _shuffleMode;},
-		set: function(val){return _shuffleMode = val;}
-	});
+	Ti._5.member(api, 'shuffleMode');
 
-	var _volume = null;
-	Object.defineProperty(api, 'volume', {
-		get: function(){return _volume;},
-		set: function(val){return _volume = val;}
-	});
+	Ti._5.member(api, 'volume');
 
 	// Methods
 	api.pause = function(){

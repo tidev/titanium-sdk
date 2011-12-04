@@ -7,5 +7,5 @@ Ti._5.createClass('Titanium.UI.iOS', function(args){
 		console.debug('Method "Titanium.UI.iOS#.createAdView" is not implemented yet.');
 	};
 
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });

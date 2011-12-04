@@ -16,7 +16,7 @@ Ti._5.createClass('Titanium.UI.SearchBar', function(args){
 	// Properties
 	var _autocapitalization = 0;
 	var _autocapitalizationLoaded = false;
-	Object.defineProperty(this, 'autocapitalization', {
+	Ti._5.prop(this, 'autocapitalization', {
 		get: function() {return _autocapitalization;},
 		set: function(val) {
 			_autocapitalization = val;
@@ -26,64 +26,45 @@ Ti._5.createClass('Titanium.UI.SearchBar', function(args){
 				}, false);
 			}
 			obj.value = Titanium.UI._capitalizeValue(_autocapitalization, obj.value);
+			return _autocapitalization;
 		}
 	});
 
-	var _autocorrect = null;
-	Object.defineProperty(this, 'autocorrect', {
-		get: function(){return _autocorrect;},
-		set: function(val){return _autocorrect = val;}
-	});
+	Ti._5.member(this, 'autocorrect');
 
-	var _barColor = null;
-	Object.defineProperty(this, 'barColor', {
-		get: function(){return _barColor;},
-		set: function(val){return _barColor = val;}
-	});
+	Ti._5.member(this, 'barColor');
 
-	Object.defineProperty(this, 'hintText', {
+	Ti._5.prop(this, 'hintText', {
 		get: function() {return obj.dom.placeholder;},
 		set: function(val) {
-			obj.dom.placeholder = Titanium.UI._capitalizeValue(_autocapitalization, val);
+			return obj.dom.placeholder = Titanium.UI._capitalizeValue(_autocapitalization, val);
 		}
 	});
 
 	var _hinttextid = null;
-	Object.defineProperty(this, 'hinttextid', {
+	Ti._5.prop(this, 'hinttextid', {
 		get: function(){return _hinttextid;},
-		set: function(val){return _hinttextid = val; obj.hintText = L(val);}
+		set: function(val){_hinttextid = val; return obj.hintText = L(val);}
 	});
 
-	var _keyboardType = null;
-	Object.defineProperty(this, 'keyboardType', {
-		get: function(){return _keyboardType;},
-		set: function(val){return _keyboardType = val;}
-	});
+	Ti._5.member(this, 'keyboardType');
 
-	var _prompt = null;
-	Object.defineProperty(this, 'prompt', {
-		get: function(){return _prompt;},
-		set: function(val){return _prompt = val;}
-	});
+	Ti._5.member(this, 'prompt');
 
 	var _promptid = null;
-	Object.defineProperty(this, 'promptid', {
+	Ti._5.prop(this, 'promptid', {
 		get: function(){return _promptid;},
-		set: function(val){return _promptid = val; obj.prompt = L(val);}
+		set: function(val){_promptid = val; return obj.prompt = L(val);}
 	});
 
-	var _showCancel = null;
-	Object.defineProperty(this, 'showCancel', {
-		get: function(){return _showCancel;},
-		set: function(val){return _showCancel = val;}
-	});
+	Ti._5.member(this, 'showCancel');
 
-	Object.defineProperty(this, 'value', {
+	Ti._5.prop(this, 'value', {
 		get: function() {return obj.dom.value;},
-		set: function(val) {obj.dom.value = val ? Titanium.UI._capitalizeValue(_autocapitalization, val) : '';}
+		set: function(val) {return obj.dom.value = val ? Titanium.UI._capitalizeValue(_autocapitalization, val) : '';}
 	});
 	
-	Object.defineProperty(this, 'size', {
+	Ti._5.prop(this, 'size', {
 		get: function() {
 			return {
 				width	: obj.width,
@@ -97,11 +78,11 @@ Ti._5.createClass('Titanium.UI.SearchBar', function(args){
 			if (val.height) {
 				obj.height = Ti._5.parseLength(val.height);
 			}
+			return val;
 		}
 	});
 	
-	Ti._5.preset(this, ["value", "autocapitalization", "hintText", "size"], args);
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 
 	// Methods
 	obj.focus = function(ev) {

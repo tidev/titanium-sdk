@@ -11,7 +11,7 @@
 		};
 		
 		var _top = null;
-		Object.defineProperty(obj, 'top', {
+		Ti._5.prop(obj, 'top', {
 			get: function() {
 				return _top;
 			},
@@ -26,7 +26,7 @@
 		});
 
 		var _bottom;
-		Object.defineProperty(obj, 'bottom', {
+		Ti._5.prop(obj, 'bottom', {
 			get: function() {
 				return _bottom;
 			},
@@ -41,7 +41,7 @@
 		});
 
 		var _left;
-		Object.defineProperty(obj, 'left', {
+		Ti._5.prop(obj, 'left', {
 			get: function() {
 				return _left;
 			},
@@ -57,7 +57,7 @@
 		});		
 
 		var _right;
-		Object.defineProperty(obj, 'right', {
+		Ti._5.prop(obj, 'right', {
 			get: function() {
 				return _right;
 			},
@@ -73,7 +73,7 @@
 		});	
 		
 		var _width;
-		Object.defineProperty(obj, 'width', {
+		Ti._5.prop(obj, 'width', {
 			get: function() {
 				return _width;
 			},
@@ -85,7 +85,7 @@
 		});	
 		
 		var _height;
-		Object.defineProperty(obj, 'height', {
+		Ti._5.prop(obj, 'height', {
 			get: function() {
 				return _height;
 			},
@@ -97,7 +97,7 @@
 		});
 
 		var _center, isAdded = false;
-		Object.defineProperty(obj, 'center', {
+		Ti._5.prop(obj, 'center', {
 			get: function() {
 				return _center;
 			},

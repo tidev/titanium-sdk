@@ -3,77 +3,29 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	var _MODAL_PRESENTATION_CURRENT_CONTEXT = null;
-	Object.defineProperty(api, 'MODAL_PRESENTATION_CURRENT_CONTEXT', {
-		get: function(){return _MODAL_PRESENTATION_CURRENT_CONTEXT;},
-		set: function(val){return _MODAL_PRESENTATION_CURRENT_CONTEXT = val;}
-	});
+	Ti._5.member(api, 'MODAL_PRESENTATION_CURRENT_CONTEXT');
 
-	var _MODAL_PRESENTATION_FORMSHEET = null;
-	Object.defineProperty(api, 'MODAL_PRESENTATION_FORMSHEET', {
-		get: function(){return _MODAL_PRESENTATION_FORMSHEET;},
-		set: function(val){return _MODAL_PRESENTATION_FORMSHEET = val;}
-	});
+	Ti._5.member(api, 'MODAL_PRESENTATION_FORMSHEET');
 
-	var _MODAL_PRESENTATION_FULLSCREEN = null;
-	Object.defineProperty(api, 'MODAL_PRESENTATION_FULLSCREEN', {
-		get: function(){return _MODAL_PRESENTATION_FULLSCREEN;},
-		set: function(val){return _MODAL_PRESENTATION_FULLSCREEN = val;}
-	});
+	Ti._5.member(api, 'MODAL_PRESENTATION_FULLSCREEN');
 
-	var _MODAL_PRESENTATION_PAGESHEET = null;
-	Object.defineProperty(api, 'MODAL_PRESENTATION_PAGESHEET', {
-		get: function(){return _MODAL_PRESENTATION_PAGESHEET;},
-		set: function(val){return _MODAL_PRESENTATION_PAGESHEET = val;}
-	});
+	Ti._5.member(api, 'MODAL_PRESENTATION_PAGESHEET');
 
-	var _MODAL_TRANSITION_STYLE_COVER_VERTICAL = null;
-	Object.defineProperty(api, 'MODAL_TRANSITION_STYLE_COVER_VERTICAL', {
-		get: function(){return _MODAL_TRANSITION_STYLE_COVER_VERTICAL;},
-		set: function(val){return _MODAL_TRANSITION_STYLE_COVER_VERTICAL = val;}
-	});
+	Ti._5.member(api, 'MODAL_TRANSITION_STYLE_COVER_VERTICAL');
 
-	var _MODAL_TRANSITION_STYLE_CROSS_DISSOLVE = null;
-	Object.defineProperty(api, 'MODAL_TRANSITION_STYLE_CROSS_DISSOLVE', {
-		get: function(){return _MODAL_TRANSITION_STYLE_CROSS_DISSOLVE;},
-		set: function(val){return _MODAL_TRANSITION_STYLE_CROSS_DISSOLVE = val;}
-	});
+	Ti._5.member(api, 'MODAL_TRANSITION_STYLE_CROSS_DISSOLVE');
 
-	var _MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL = null;
-	Object.defineProperty(api, 'MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL', {
-		get: function(){return _MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL;},
-		set: function(val){return _MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL = val;}
-	});
+	Ti._5.member(api, 'MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL');
 
-	var _MODAL_TRANSITION_STYLE_PARTIAL_CURL = null;
-	Object.defineProperty(api, 'MODAL_TRANSITION_STYLE_PARTIAL_CURL', {
-		get: function(){return _MODAL_TRANSITION_STYLE_PARTIAL_CURL;},
-		set: function(val){return _MODAL_TRANSITION_STYLE_PARTIAL_CURL = val;}
-	});
+	Ti._5.member(api, 'MODAL_TRANSITION_STYLE_PARTIAL_CURL');
 
-	var _appBadge = null;
-	Object.defineProperty(api, 'appBadge', {
-		get: function(){return _appBadge;},
-		set: function(val){return _appBadge = val;}
-	});
+	Ti._5.member(api, 'appBadge');
 
-	var _appSupportsShakeToEdit = null;
-	Object.defineProperty(api, 'appSupportsShakeToEdit', {
-		get: function(){return _appSupportsShakeToEdit;},
-		set: function(val){return _appSupportsShakeToEdit = val;}
-	});
+	Ti._5.member(api, 'appSupportsShakeToEdit');
 
-	var _statusBarHidden = null;
-	Object.defineProperty(api, 'statusBarHidden', {
-		get: function(){return _statusBarHidden;},
-		set: function(val){return _statusBarHidden = val;}
-	});
+	Ti._5.member(api, 'statusBarHidden');
 
-	var _statusBarStyle = null;
-	Object.defineProperty(api, 'statusBarStyle', {
-		get: function(){return _statusBarStyle;},
-		set: function(val){return _statusBarStyle = val;}
-	});
+	Ti._5.member(api, 'statusBarStyle');
 
 	// Methods
 	api.createNavigationGroup = function(){

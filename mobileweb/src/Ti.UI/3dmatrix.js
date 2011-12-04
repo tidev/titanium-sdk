@@ -19,5 +19,5 @@ Ti._5.createClass('Titanium.UI.3DMatrix', function(args){
 		console.debug('Method "Titanium.UI.3DMatrix#.translate" is not implemented yet.');
 	};
 
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });

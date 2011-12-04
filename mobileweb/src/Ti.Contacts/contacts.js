@@ -3,29 +3,13 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	var _CONTACTS_KIND_ORGANIZATION = null;
-	Object.defineProperty(api, 'CONTACTS_KIND_ORGANIZATION', {
-		get: function(){return _CONTACTS_KIND_ORGANIZATION;},
-		set: function(val){return _CONTACTS_KIND_ORGANIZATION = val;}
-	});
+	Ti._5.member(api, 'CONTACTS_KIND_ORGANIZATION');
 
-	var _CONTACTS_KIND_PERSON = null;
-	Object.defineProperty(api, 'CONTACTS_KIND_PERSON', {
-		get: function(){return _CONTACTS_KIND_PERSON;},
-		set: function(val){return _CONTACTS_KIND_PERSON = val;}
-	});
+	Ti._5.member(api, 'CONTACTS_KIND_PERSON');
 
-	var _CONTACTS_SORT_FIRST_NAME = null;
-	Object.defineProperty(api, 'CONTACTS_SORT_FIRST_NAME', {
-		get: function(){return _CONTACTS_SORT_FIRST_NAME;},
-		set: function(val){return _CONTACTS_SORT_FIRST_NAME = val;}
-	});
+	Ti._5.member(api, 'CONTACTS_SORT_FIRST_NAME');
 
-	var _CONTACTS_SORT_LAST_NAME = null;
-	Object.defineProperty(api, 'CONTACTS_SORT_LAST_NAME', {
-		get: function(){return _CONTACTS_SORT_LAST_NAME;},
-		set: function(val){return _CONTACTS_SORT_LAST_NAME = val;}
-	});
+	Ti._5.member(api, 'CONTACTS_SORT_LAST_NAME');
 
 	// Methods
 	api.createGroup = function(){
