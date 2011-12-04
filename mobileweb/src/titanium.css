@@ -19,3 +19,15 @@
 	float: left;
 	position: relative;
 }
+
+.HTML5_VideoPlayer {
+	position: relative;
+}
+
+.HTML5_VideoPlayer video {
+	position: absolute;
+}
+
+.HTML5_VideoPlayer video.fullscreen {
+	position: fixed;
+}

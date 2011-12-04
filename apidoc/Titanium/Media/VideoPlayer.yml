@@ -3,7 +3,6 @@ name: Titanium.Media.VideoPlayer
 summary: The VideoPlayer object is returned by <Titanium.Media.createVideoPlayer> and is useful for playing videos.
 extends: Titanium.UI.View
 since: "0.9"
-platforms: [android, iphone, ipad]
 methods:
   - name: cancelAllThumbnailImageRequests
     summary: Cancels all pending asynchronous thumbnail requests.
@@ -70,7 +69,7 @@ events:
         summary: reason for error as string
   - name: fullscreen
     summary: fired when a movie changes from fullscreen view
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     properties:
       - name: entering
         summary: true to indicate entering fullscreen, false to indicate leaving fullscreen
@@ -204,7 +203,7 @@ properties:
     permission: read-only
   - name: repeatMode
     summary: Determines how the movie player repeats when reaching the end of playback. Defaults to <Titanium.Media.VIDEO_REPEAT_MODE_NONE>.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     type: Number
   - name: scalingMode
     summary: Determines how the content scales to fit the view. Defaults to <Titanium.Media.VIDEO_SCALING_ASPECT_FIT>.
