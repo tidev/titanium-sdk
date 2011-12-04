@@ -214,14 +214,7 @@ Ti._5.createClass('Titanium.Network.HTTPClient', function(args){
 	this.open = function(method, url, async) {
 		
 		var httpURLFormatter = Ti.Network.httpURLFormatter;
-		if (httpURLFormatter) {
-			var formattedUrl = httpURLFormatter(url);
-			if (!formattedUrl) {
-				_callErrorFunc("Could not format url " + url);
-				return;
-			}
-			url = formattedUrl;
-		}
+		httpURLFormatter && (url = httpURLFormatter(url));
 		
 		_requestComplete = false;
 		_connectionType = method;
