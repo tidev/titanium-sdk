@@ -112,15 +112,17 @@ Module.prototype.require = function (request, context, useCache) {
 		return NativeModule.require(request);
 	}
 
-	// get external binding
-	var externalBinding = kroll.externalBinding(request);
-	if (externalBinding) {
-		var bindingKey = Object.keys(externalBinding)[0];
-		if (bindingKey) {
-			return externalBinding[bindingKey];
-		}
+	// get external binding - TODO remove this check on V8 modules are in place
+	if (kroll.runtime == 'rhino') {
+		var externalBinding = kroll.externalBinding(request);
+		if (externalBinding) {
+			var bindingKey = Object.keys(externalBinding)[0];
+			if (bindingKey) {
+				return externalBinding[bindingKey];
+			}
 
-		kroll.log(TAG, "unable to find the external module: " + request);
+			kroll.log(TAG, "unable to find the external module: " + request);
+		}
 	}
 
 	var resolved = resolveFilename(request, this);

@@ -250,12 +250,12 @@ exports.bootstrapWindow = function(Titanium) {
 	}
 
 	Window.prototype.postOpen = function() {
+		// Set view and model listener after the window opens
+		this.setWindowView(this.view);
+		
 		if ("url" in this._properties) {
 			this.loadUrl();
 		}
-		
-		// Set view and model listener after the window opens
-		this.setWindowView(this.view);
 		
 		// Add event listeners and update the source of events after the window opens
 		for (var event in this._events) { 
