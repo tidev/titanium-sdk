@@ -41,6 +41,7 @@
 - (BOOL)shouldShowMaster;
 - (NSString *)nameOfInterfaceOrientation:(UIInterfaceOrientation)theOrientation;
 - (void)reconfigureForMasterInPopover:(BOOL)inPopover;
+- (BOOL) currentOrientation;
 
 @end
 
@@ -75,10 +76,15 @@
 	return orientationName;
 }
 
+-(BOOL)currentOrientation
+{
+    return [[[TiApp app] controller] lastValidOrientation];
+}
+
 
 - (BOOL)isLandscape
 {
-	return UIInterfaceOrientationIsLandscape(currentOrientation);
+	return UIInterfaceOrientationIsLandscape([self currentOrientation]);
 }
 
 
@@ -91,7 +97,7 @@
 
 - (BOOL)shouldShowMaster
 {
-	return [self shouldShowMasterForInterfaceOrientation:currentOrientation];
+	return [self shouldShowMasterForInterfaceOrientation:[self currentOrientation]];
 }
 
 
@@ -180,7 +186,6 @@
 {
 	[self.masterViewController willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
 	[self.detailViewController willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    currentOrientation = toInterfaceOrientation;
 }
 
 
@@ -205,7 +210,6 @@
 	// Re-tile views.
 	_reconfigurePopup = YES;
 	[self layoutSubviewsForInterfaceOrientation:toInterfaceOrientation withAnimation:YES];
-    currentOrientation = toInterfaceOrientation;
 }
 
 
@@ -503,13 +507,13 @@
 
 - (void)layoutSubviewsWithAnimation:(BOOL)animate
 {
-	[self layoutSubviewsForInterfaceOrientation:currentOrientation withAnimation:animate];
+	[self layoutSubviewsForInterfaceOrientation:[self currentOrientation] withAnimation:animate];
 }
 
 
 - (void)layoutSubviews
 {
-	[self layoutSubviewsForInterfaceOrientation:currentOrientation withAnimation:YES];
+	[self layoutSubviewsForInterfaceOrientation:[self currentOrientation] withAnimation:YES];
 }
 
 
@@ -880,7 +884,7 @@
 	// Check to see if delegate wishes to constrain the position.
 	float newPosn = posn;
 	BOOL constrained = NO;
-	CGSize fullSize = [self splitViewSizeForOrientation:currentOrientation];
+	CGSize fullSize = [self splitViewSizeForOrientation:[self currentOrientation]];
 	if (_delegate && [_delegate respondsToSelector:@selector(splitViewController:constrainSplitPosition:splitViewSize:)]) {
 		newPosn = [_delegate splitViewController:self constrainSplitPosition:newPosn splitViewSize:fullSize];
 		constrained = YES; // implicitly trust delegate's response.

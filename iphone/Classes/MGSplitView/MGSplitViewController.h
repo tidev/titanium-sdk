@@ -35,7 +35,6 @@ typedef enum _MGSplitViewDividerStyle {
 	float _splitPosition;
 	BOOL _reconfigurePopup;
 	MGSplitViewDividerStyle _dividerStyle; // Meta-setting which configures several aspects of appearance and behaviour.
-    UIInterfaceOrientation currentOrientation; // Need this because of our controller mismanagement
 }
 
 @property (nonatomic, assign) IBOutlet id <MGSplitViewControllerDelegate> delegate;
