@@ -1,94 +1,34 @@
 (function(api){
 	// Properties
-	var _audioStreamType = null;
-	Object.defineProperty(api, 'audioStreamType', {
-		get: function(){return _audioStreamType;},
-		set: function(val){return _audioStreamType = val;}
-	});
+	Ti._5.member(api, 'audioStreamType');
 
-	var _contentIntent = null;
-	Object.defineProperty(api, 'contentIntent', {
-		get: function(){return _contentIntent;},
-		set: function(val){return _contentIntent = val;}
-	});
+	Ti._5.member(api, 'contentIntent');
 
-	var _contentText = null;
-	Object.defineProperty(api, 'contentText', {
-		get: function(){return _contentText;},
-		set: function(val){return _contentText = val;}
-	});
+	Ti._5.member(api, 'contentText');
 
-	var _contentTitle = null;
-	Object.defineProperty(api, 'contentTitle', {
-		get: function(){return _contentTitle;},
-		set: function(val){return _contentTitle = val;}
-	});
+	Ti._5.member(api, 'contentTitle');
 
-	var _defaults = null;
-	Object.defineProperty(api, 'defaults', {
-		get: function(){return _defaults;},
-		set: function(val){return _defaults = val;}
-	});
+	Ti._5.member(api, 'defaults');
 
-	var _deleteIntent = null;
-	Object.defineProperty(api, 'deleteIntent', {
-		get: function(){return _deleteIntent;},
-		set: function(val){return _deleteIntent = val;}
-	});
+	Ti._5.member(api, 'deleteIntent');
 
-	var _flags = null;
-	Object.defineProperty(api, 'flags', {
-		get: function(){return _flags;},
-		set: function(val){return _flags = val;}
-	});
+	Ti._5.member(api, 'flags');
 
-	var _icon = null;
-	Object.defineProperty(api, 'icon', {
-		get: function(){return _icon;},
-		set: function(val){return _icon = val;}
-	});
+	Ti._5.member(api, 'icon');
 
-	var _ledARGB = null;
-	Object.defineProperty(api, 'ledARGB', {
-		get: function(){return _ledARGB;},
-		set: function(val){return _ledARGB = val;}
-	});
+	Ti._5.member(api, 'ledARGB');
 
-	var _ledOffMS = null;
-	Object.defineProperty(api, 'ledOffMS', {
-		get: function(){return _ledOffMS;},
-		set: function(val){return _ledOffMS = val;}
-	});
+	Ti._5.member(api, 'ledOffMS');
 
-	var _ledOnMS = null;
-	Object.defineProperty(api, 'ledOnMS', {
-		get: function(){return _ledOnMS;},
-		set: function(val){return _ledOnMS = val;}
-	});
+	Ti._5.member(api, 'ledOnMS');
 
-	var _number = null;
-	Object.defineProperty(api, 'number', {
-		get: function(){return _number;},
-		set: function(val){return _number = val;}
-	});
+	Ti._5.member(api, 'number');
 
-	var _sound = null;
-	Object.defineProperty(api, 'sound', {
-		get: function(){return _sound;},
-		set: function(val){return _sound = val;}
-	});
+	Ti._5.member(api, 'sound');
 
-	var _tickerText = null;
-	Object.defineProperty(api, 'tickerText', {
-		get: function(){return _tickerText;},
-		set: function(val){return _tickerText = val;}
-	});
+	Ti._5.member(api, 'tickerText');
 
-	var _when = null;
-	Object.defineProperty(api, 'when', {
-		get: function(){return _when;},
-		set: function(val){return _when = val;}
-	});
+	Ti._5.member(api, 'when');
 
 	// Methods
 	api.setLatestEventInfo = function(){

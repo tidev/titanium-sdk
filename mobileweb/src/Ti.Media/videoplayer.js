@@ -7,125 +7,45 @@ Ti._5.createClass('Titanium.Media.VideoPlayer', function(api){
 	Ti._5.Positionable(this, args);
 
 	// Properties
-	var _autoplay = null;
-	Object.defineProperty(this, 'autoplay', {
-		get: function(){return _autoplay;},
-		set: function(val){return _autoplay = val;}
-	});
+	Ti._5.member(this, 'autoplay');
 
-	var _contentURL = null;
-	Object.defineProperty(this, 'contentURL', {
-		get: function(){return _contentURL;},
-		set: function(val){return _contentURL = val;}
-	});
+	Ti._5.member(this, 'contentURL');
 
-	var _duration = null;
-	Object.defineProperty(this, 'duration', {
-		get: function(){return _duration;},
-		set: function(val){return _duration = val;}
-	});
+	Ti._5.member(this, 'duration');
 
-	var _endPlaybackTime = null;
-	Object.defineProperty(this, 'endPlaybackTime', {
-		get: function(){return _endPlaybackTime;},
-		set: function(val){return _endPlaybackTime = val;}
-	});
+	Ti._5.member(this, 'endPlaybackTime');
 
-	var _fullscreen = null;
-	Object.defineProperty(this, 'fullscreen', {
-		get: function(){return _fullscreen;},
-		set: function(val){return _fullscreen = val;}
-	});
+	Ti._5.member(this, 'fullscreen');
 
-	var _initialPlaybackTime = null;
-	Object.defineProperty(this, 'initialPlaybackTime', {
-		get: function(){return _initialPlaybackTime;},
-		set: function(val){return _initialPlaybackTime = val;}
-	});
+	Ti._5.member(this, 'initialPlaybackTime');
 
-	var _loadState = null;
-	Object.defineProperty(this, 'loadState', {
-		get: function(){return _loadState;},
-		set: function(val){return _loadState = val;}
-	});
+	Ti._5.member(this, 'loadState');
 
-	var _media = null;
-	Object.defineProperty(this, 'media', {
-		get: function(){return _media;},
-		set: function(val){return _media = val;}
-	});
+	Ti._5.member(this, 'media');
 
-	var _mediaControlStyle = null;
-	Object.defineProperty(this, 'mediaControlStyle', {
-		get: function(){return _mediaControlStyle;},
-		set: function(val){return _mediaControlStyle = val;}
-	});
+	Ti._5.member(this, 'mediaControlStyle');
 
-	var _mediaTypes = null;
-	Object.defineProperty(this, 'mediaTypes', {
-		get: function(){return _mediaTypes;},
-		set: function(val){return _mediaTypes = val;}
-	});
+	Ti._5.member(this, 'mediaTypes');
 
-	var _movieControlMode = null;
-	Object.defineProperty(this, 'movieControlMode', {
-		get: function(){return _movieControlMode;},
-		set: function(val){return _movieControlMode = val;}
-	});
+	Ti._5.member(this, 'movieControlMode');
 
-	var _naturalSize = null;
-	Object.defineProperty(this, 'naturalSize', {
-		get: function(){return _naturalSize;},
-		set: function(val){return _naturalSize = val;}
-	});
+	Ti._5.member(this, 'naturalSize');
 
-	var _playableDuration = null;
-	Object.defineProperty(this, 'playableDuration', {
-		get: function(){return _playableDuration;},
-		set: function(val){return _playableDuration = val;}
-	});
+	Ti._5.member(this, 'playableDuration');
 
-	var _playbackState = null;
-	Object.defineProperty(this, 'playbackState', {
-		get: function(){return _playbackState;},
-		set: function(val){return _playbackState = val;}
-	});
+	Ti._5.member(this, 'playbackState');
 
-	var _playing = null;
-	Object.defineProperty(this, 'playing', {
-		get: function(){return _playing;},
-		set: function(val){return _playing = val;}
-	});
+	Ti._5.member(this, 'playing');
 
-	var _repeatMode = null;
-	Object.defineProperty(this, 'repeatMode', {
-		get: function(){return _repeatMode;},
-		set: function(val){return _repeatMode = val;}
-	});
+	Ti._5.member(this, 'repeatMode');
 
-	var _scalingMode = null;
-	Object.defineProperty(this, 'scalingMode', {
-		get: function(){return _scalingMode;},
-		set: function(val){return _scalingMode = val;}
-	});
+	Ti._5.member(this, 'scalingMode');
 
-	var _sourceType = null;
-	Object.defineProperty(this, 'sourceType', {
-		get: function(){return _sourceType;},
-		set: function(val){return _sourceType = val;}
-	});
+	Ti._5.member(this, 'sourceType');
 
-	var _url = null;
-	Object.defineProperty(this, 'url', {
-		get: function(){return _url;},
-		set: function(val){return _url = val;}
-	});
+	Ti._5.member(this, 'url');
 
-	var _useApplicationAudioSession = null;
-	Object.defineProperty(this, 'useApplicationAudioSession', {
-		get: function(){return _useApplicationAudioSession;},
-		set: function(val){return _useApplicationAudioSession = val;}
-	});
+	Ti._5.member(this, 'useApplicationAudioSession');
 
 	// Methods
 	this.cancelAllThumbnailImageRequests = function(){

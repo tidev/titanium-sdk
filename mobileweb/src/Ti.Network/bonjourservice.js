@@ -1,34 +1,14 @@
 (function(api){
 	// Properties
-	var _domain = null;
-	Object.defineProperty(api, 'domain', {
-		get: function(){return _domain;},
-		set: function(val){return _domain = val;}
-	});
+	Ti._5.member(api, 'domain');
 
-	var _isLocal = null;
-	Object.defineProperty(api, 'isLocal', {
-		get: function(){return _isLocal;},
-		set: function(val){return _isLocal = val;}
-	});
+	Ti._5.member(api, 'isLocal');
 
-	var _name = null;
-	Object.defineProperty(api, 'name', {
-		get: function(){return _name;},
-		set: function(val){return _name = val;}
-	});
+	Ti._5.member(api, 'name');
 
-	var _socket = null;
-	Object.defineProperty(api, 'socket', {
-		get: function(){return _socket;},
-		set: function(val){return _socket = val;}
-	});
+	Ti._5.member(api, 'socket');
 
-	var _type = null;
-	Object.defineProperty(api, 'type', {
-		get: function(){return _type;},
-		set: function(val){return _type = val;}
-	});
+	Ti._5.member(api, 'type');
 
 	// Methods
 	api.publish = function(){

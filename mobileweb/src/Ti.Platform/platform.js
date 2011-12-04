@@ -10,105 +10,73 @@
 	api.BATTERY_STATE_UNKNOWN = -1;
 	api.BATTERY_STATE_UNPLUGGED = 0;
 	
-	var _address = null;
-	Object.defineProperty(api, 'address', {
-		get: function(){return _address;},
-		set: function(val){return _address = val;}
-	});
+	Ti._5.member(api, 'address');
 
-	var _architecture = null;
-	Object.defineProperty(api, 'architecture', {
-		get: function(){return _architecture;},
-		set: function(val){return _architecture = val;}
-	});
+	Ti._5.member(api, 'architecture');
 
-	var _availableMemory = null;
-	Object.defineProperty(api, 'availableMemory', {
-		get: function(){return _availableMemory;},
-		set: function(val){return _availableMemory = val;}
-	});
+	Ti._5.member(api, 'availableMemory');
 
-	var _batteryLevel = null;
-	Object.defineProperty(api, 'batteryLevel', {
-		get: function(){return _batteryLevel;},
-		set: function(val){return _batteryLevel = val;}
-	});
+	Ti._5.member(api, 'batteryLevel');
 
 	var _batteryMonitoring = false;
-	Object.defineProperty(api, 'batteryMonitoring', {
+	Ti._5.prop(api, 'batteryMonitoring', {
 		get: function(){return _batteryMonitoring;},
 		set: function(val){return _batteryMonitoring=val ? true : false;}
 	});
 	
 	var _batteryState = api.BATTERY_STATE_UNKNOWN;
-	Object.defineProperty(api, 'batteryState', {
+	Ti._5.prop(api, 'batteryState', {
 		get: function(){return _batteryState;},
 		set: function(val){return false;}
 	});
 
-	Object.defineProperty(api, 'displayCaps', {
+	Ti._5.prop(api, 'displayCaps', {
 		get: function(){return Titanium.Platform.DisplayCaps;},
 		set: function(val){return false;}
 	});
 
-	Object.defineProperty(api, 'locale', {
+	Ti._5.prop(api, 'locale', {
 		get: function(){return navigator.language;},
 		set: function(val){return false;}
 	});
 
-	var _macaddress = null;
-	Object.defineProperty(api, 'macaddress', {
-		get: function(){return _macaddress;},
-		set: function(val){return _macaddress = val;}
-	});
+	Ti._5.member(api, 'macaddress');
 
 	var _model = null;
-	Object.defineProperty(api, 'model', {
+	Ti._5.prop(api, 'model', {
 		get: function(){return _model;},
 		set: function(val){return false;}
 	});
 
-	Object.defineProperty(api, 'name', {
+	Ti._5.prop(api, 'name', {
 		get: function(){return navigator.userAgent;},
 		set: function(val){return false;}
 	});
 
-	var _netmask = null;
-	Object.defineProperty(api, 'netmask', {
-		get: function(){return _netmask;},
-		set: function(val){return _netmask = val;}
-	});
+	Ti._5.member(api, 'netmask');
 
-	Object.defineProperty(api, 'osname', {
+	Ti._5.prop(api, 'osname', {
 		get: function(){return "mobileweb";},
 		set: function(val){return false;}
 	});
 
-	Object.defineProperty(api, 'ostype', {
+	Ti._5.prop(api, 'ostype', {
 		get: function(){return navigator.platform;},
 		set: function(val){return false;}
 	});
 
 	var match = navigator.userAgent.toLowerCase().match(/(webkit|gecko|trident|presto)/),
 		runtime = match ? match[0] : "unknown";
-	Object.defineProperty(api, 'runtime', {
+	Ti._5.prop(api, 'runtime', {
 		get: function(){return runtime;},
 		set: function(val){return false;}
 	});
 
-	var _processorCount = null;
-	Object.defineProperty(api, 'processorCount', {
-		get: function(){return _processorCount;},
-		set: function(val){return _processorCount = val;}
-	});
+	Ti._5.member(api, 'processorCount');
 
-	var _username = null;
-	Object.defineProperty(api, 'username', {
-		get: function(){return _username;},
-		set: function(val){return _username = val;}
-	});
+	Ti._5.member(api, 'username');
 
-	Object.defineProperty(api, 'version', {
+	Ti._5.prop(api, 'version', {
 		get: function(){return Ti.version;},
 		set: function(val){return false;}
 	});
@@ -128,7 +96,7 @@
 	var _id = localStorage && localStorage.getItem("html5_titaniumPlatformId") ?
 		localStorage.getItem("html5_titaniumPlatformId") : api.createUUID();
 	localStorage.setItem("html5_titaniumPlatformId", _id);
-	Object.defineProperty(api, 'id', {
+	Ti._5.prop(api, 'id', {
 		get: function(){return _id;},
 		set: function(val){return false;}
 	});

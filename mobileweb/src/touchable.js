@@ -28,7 +28,7 @@
 		}
 		
 		var _touchEnabled = true;
-		Object.defineProperty(obj, 'touchEnabled', {
+		Ti._5.prop(obj, 'touchEnabled', {
 			get: function() {
 				return _touchEnabled ? _touchEnabled : '';
 			},

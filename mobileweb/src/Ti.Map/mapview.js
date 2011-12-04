@@ -7,47 +7,19 @@ Ti._5.createClass('Titanium.Map.MapView', function(api){
 	Ti._5.Positionable(this, args);
 
 	// Properties
-	var _animate = null;
-	Object.defineProperty(this, 'animate', {
-		get: function(){return _animate;},
-		set: function(val){return _animate = val;}
-	});
+	Ti._5.member(this, 'animate');
 
-	var _annotations = null;
-	Object.defineProperty(this, 'annotations', {
-		get: function(){return _annotations;},
-		set: function(val){return _annotations = val;}
-	});
+	Ti._5.member(this, 'annotations');
 
-	var _location = null;
-	Object.defineProperty(this, 'location', {
-		get: function(){return _location;},
-		set: function(val){return _location = val;}
-	});
+	Ti._5.member(this, 'location');
 
-	var _mapType = null;
-	Object.defineProperty(this, 'mapType', {
-		get: function(){return _mapType;},
-		set: function(val){return _mapType = val;}
-	});
+	Ti._5.member(this, 'mapType');
 
-	var _region = null;
-	Object.defineProperty(this, 'region', {
-		get: function(){return _region;},
-		set: function(val){return _region = val;}
-	});
+	Ti._5.member(this, 'region');
 
-	var _regionFit = null;
-	Object.defineProperty(this, 'regionFit', {
-		get: function(){return _regionFit;},
-		set: function(val){return _regionFit = val;}
-	});
+	Ti._5.member(this, 'regionFit');
 
-	var _userLocation = null;
-	Object.defineProperty(this, 'userLocation', {
-		get: function(){return _userLocation;},
-		set: function(val){return _userLocation = val;}
-	});
+	Ti._5.member(this, 'userLocation');
 
 	// Methods
 	this.addAnnotation = function(){

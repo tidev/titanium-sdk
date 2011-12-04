@@ -13,7 +13,7 @@
 		}
 
 		var _backgroundColor = null;
-		Object.defineProperty(obj, 'backgroundColor', {
+		Ti._5.prop(obj, 'backgroundColor', {
 			get: function() {
 				return _backgroundColor ? _backgroundColor : '';
 			},
@@ -24,7 +24,7 @@
 		});
 
 		var _focusable = false;
-		Object.defineProperty(obj, 'focusable', {
+		Ti._5.prop(obj, 'focusable', {
 			get: function() {
 				return _focusable;
 			},
@@ -34,7 +34,7 @@
 		});
 
 		var _backgroundImage = null;
-		Object.defineProperty(obj, 'backgroundImage', {
+		Ti._5.prop(obj, 'backgroundImage', {
 			get: function() {
 				return _backgroundImage;
 			},
@@ -47,7 +47,7 @@
 		
 		var _backgroundSelectedColor = '', _backgroundSelectedColorLoaded = false,
 			_backgroundSelPrevColor = '', _isFocusSelColorFired = false;
-		Object.defineProperty(obj, 'backgroundSelectedColor', {
+		Ti._5.prop(obj, 'backgroundSelectedColor', {
 			get: function() {
 				return _backgroundSelectedColor ? _backgroundSelectedColor : '';
 			},
@@ -74,7 +74,7 @@
 		
 		var _backgroundSelectedImage = '', _backgroundSelPrevImage = '', 
 			_backgroundSelectedImageLoaded = false, _isFocusSelImgFired = false;
-		Object.defineProperty(obj, 'backgroundSelectedImage', {
+		Ti._5.prop(obj, 'backgroundSelectedImage', {
 			get: function() {
 				return _backgroundSelectedImage ? _backgroundSelectedImage : '';
 			},
@@ -101,7 +101,7 @@
 		
 		var _backgroundFocusedColor = '', _backgroundFocusedColorLoaded = false,
 			_backgroundFocPrevColor = '', _isFocusFocColFired = false;
-		Object.defineProperty(obj, 'backgroundFocusedColor', {
+		Ti._5.prop(obj, 'backgroundFocusedColor', {
 			get: function() {
 				return _backgroundFocusedColor ? _backgroundFocusedColor : '';
 			},
@@ -128,7 +128,7 @@
 		
 		var _backgroundFocusedImage = '', _backgroundFocusedImageLoaded = false, 
 			_backgroundFocPrevImage = '', _isFocusFocImgFired = false;
-		Object.defineProperty(obj, 'backgroundFocusedImage', {
+		Ti._5.prop(obj, 'backgroundFocusedImage', {
 			get: function() {
 				return _backgroundFocusedImage ? _backgroundFocusedImage : '';
 			},
@@ -154,7 +154,7 @@
 		});
 		
 		var _borderWidth = null;
-		Object.defineProperty(obj, 'borderWidth', {
+		Ti._5.prop(obj, 'borderWidth', {
 			get: function() {
 				return _borderWidth;
 			},
@@ -169,7 +169,7 @@
 		});
 		
 		var _borderColor;
-		Object.defineProperty(obj, 'borderColor', {
+		Ti._5.prop(obj, 'borderColor', {
 			get: function() {
 				return _borderColor;
 			},
@@ -187,7 +187,7 @@
 			}
 		});
 
-		Object.defineProperty(obj, 'borderRadius', {
+		Ti._5.prop(obj, 'borderRadius', {
 			get: function() {
 				return obj.dom.style.borderRadius ? parseInt(obj.dom.style.borderRadius) : '';
 			},
@@ -196,7 +196,7 @@
 			}
 		});
 		
-		Object.defineProperty(obj, 'font', {
+		Ti._5.prop(obj, 'font', {
 			get: function() {
 				return {'fontVariant':_fontVariant, 'fontStyle':_fontStyle, 'fontWeight':_fontWeight, 'fontSize':_fontSize, 'fontFamily':_fontFamily};
 			},
@@ -224,7 +224,7 @@
 		});
 		
 		var _fontVariant;
-		Object.defineProperty(obj, 'fontVariant', {
+		Ti._5.prop(obj, 'fontVariant', {
 			get: function() {
 				return _fontVariant;
 			},
@@ -235,7 +235,7 @@
 		});
 
 		var _fontStyle;
-		Object.defineProperty(obj, 'fontStyle', {
+		Ti._5.prop(obj, 'fontStyle', {
 			get: function() {
 				return _fontStyle;
 			},
@@ -246,7 +246,7 @@
 		});
 
 		var _fontWeight;
-		Object.defineProperty(obj, 'fontWeight', {
+		Ti._5.prop(obj, 'fontWeight', {
 			get: function() {
 				return _fontWeight;
 			},
@@ -257,7 +257,7 @@
 		});
 
 		var _fontSize;
-		Object.defineProperty(obj, 'fontSize', {
+		Ti._5.prop(obj, 'fontSize', {
 			get: function() {
 				return _fontSize;
 			},
@@ -268,7 +268,7 @@
 		});
 
 		var _fontFamily;
-		Object.defineProperty(obj, 'fontFamily', {
+		Ti._5.prop(obj, 'fontFamily', {
 			get: function() {
 				return _fontFamily;
 			},
@@ -278,7 +278,7 @@
 			}
 		});
 		
-		Object.defineProperty(obj, 'opacity', {
+		Ti._5.prop(obj, 'opacity', {
 			get: function() {
 				return obj.dom.style.opacity ? parseInt(obj.dom.style.opacity) : '';
 			},
@@ -287,7 +287,7 @@
 			}
 		});
 		
-		Object.defineProperty(obj, 'zIndex', {
+		Ti._5.prop(obj, 'zIndex', {
 			get: function() {
 				return obj.dom.style.zIndex;
 			},
@@ -300,7 +300,7 @@
 		});
 		
 		var _gradient = {};
-		Object.defineProperty(obj, 'backgroundGradient', {
+		Ti._5.prop(obj, 'backgroundGradient', {
 			get: function() {
 				return _gradient ? _gradient : obj.dom.style['background'];
 			},
@@ -382,7 +382,7 @@
 		});
 		
 		var _visible = true;
-		Object.defineProperty(obj, 'visible', {
+		Ti._5.prop(obj, 'visible', {
 			get: function() {
 				return _visible;
 			},
@@ -392,7 +392,7 @@
 			configurable: true
 		});
 		
-		Object.defineProperty(obj, 'color', {
+		Ti._5.prop(obj, 'color', {
 			get: function() {return obj.dom.style.color ? obj.dom.style.color : '';},
 			set: function(val) {obj.dom.style.color = val;},
 			configurable: true

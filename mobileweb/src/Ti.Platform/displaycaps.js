@@ -1,7 +1,7 @@
 (function(api){
 	// Properties
 	var _density = null;
-	Object.defineProperty(api, 'density', {
+	Ti._5.prop(api, 'density', {
 		get: function(){
 			switch (navigator.userAgent.toLowerCase()) {
 				case 'iphone':
@@ -16,7 +16,7 @@
 	});
 
 	var _dpi = null;
-	Object.defineProperty(api, 'dpi', {
+	Ti._5.prop(api, 'dpi', {
 		get: function(){
 			switch (navigator.userAgent.toLowerCase()) {
 				case 'iphone':
@@ -30,12 +30,12 @@
 		set: function(val){return false;}
 	});
 
-	Object.defineProperty(api, 'platformHeight', {
+	Ti._5.prop(api, 'platformHeight', {
 		get: function(){return window.innerHeight;},
 		set: function(val){return false;}
 	});
 
-	Object.defineProperty(api, 'platformWidth', {
+	Ti._5.prop(api, 'platformWidth', {
 		get: function(){return window.innerWidth;},
 		set: function(val){return false;}
 	});

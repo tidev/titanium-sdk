@@ -3,101 +3,37 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	var _STATE_PAUSED = null;
-	Object.defineProperty(api, 'STATE_PAUSED', {
-		get: function(){return _STATE_PAUSED;},
-		set: function(val){return _STATE_PAUSED = val;}
-	});
+	Ti._5.member(api, 'STATE_PAUSED');
 
-	var _STATE_PLAYING = null;
-	Object.defineProperty(api, 'STATE_PLAYING', {
-		get: function(){return _STATE_PLAYING;},
-		set: function(val){return _STATE_PLAYING = val;}
-	});
+	Ti._5.member(api, 'STATE_PLAYING');
 
-	var _STATE_STARTING = null;
-	Object.defineProperty(api, 'STATE_STARTING', {
-		get: function(){return _STATE_STARTING;},
-		set: function(val){return _STATE_STARTING = val;}
-	});
+	Ti._5.member(api, 'STATE_STARTING');
 
-	var _STATE_STOPPED = null;
-	Object.defineProperty(api, 'STATE_STOPPED', {
-		get: function(){return _STATE_STOPPED;},
-		set: function(val){return _STATE_STOPPED = val;}
-	});
+	Ti._5.member(api, 'STATE_STOPPED');
 
-	var _STATE_STOPPING = null;
-	Object.defineProperty(api, 'STATE_STOPPING', {
-		get: function(){return _STATE_STOPPING;},
-		set: function(val){return _STATE_STOPPING = val;}
-	});
+	Ti._5.member(api, 'STATE_STOPPING');
 
-	var _STATE_WAITING_FOR_DATA = null;
-	Object.defineProperty(api, 'STATE_WAITING_FOR_DATA', {
-		get: function(){return _STATE_WAITING_FOR_DATA;},
-		set: function(val){return _STATE_WAITING_FOR_DATA = val;}
-	});
+	Ti._5.member(api, 'STATE_WAITING_FOR_DATA');
 
-	var _STATE_WAITING_FOR_QUEUE = null;
-	Object.defineProperty(api, 'STATE_WAITING_FOR_QUEUE', {
-		get: function(){return _STATE_WAITING_FOR_QUEUE;},
-		set: function(val){return _STATE_WAITING_FOR_QUEUE = val;}
-	});
+	Ti._5.member(api, 'STATE_WAITING_FOR_QUEUE');
 
-	var _allowBackground = null;
-	Object.defineProperty(api, 'allowBackground', {
-		get: function(){return _allowBackground;},
-		set: function(val){return _allowBackground = val;}
-	});
+	Ti._5.member(api, 'allowBackground');
 
-	var _bitRate = null;
-	Object.defineProperty(api, 'bitRate', {
-		get: function(){return _bitRate;},
-		set: function(val){return _bitRate = val;}
-	});
+	Ti._5.member(api, 'bitRate');
 
-	var _idle = null;
-	Object.defineProperty(api, 'idle', {
-		get: function(){return _idle;},
-		set: function(val){return _idle = val;}
-	});
+	Ti._5.member(api, 'idle');
 
-	var _paused = null;
-	Object.defineProperty(api, 'paused', {
-		get: function(){return _paused;},
-		set: function(val){return _paused = val;}
-	});
+	Ti._5.member(api, 'paused');
 
-	var _playing = null;
-	Object.defineProperty(api, 'playing', {
-		get: function(){return _playing;},
-		set: function(val){return _playing = val;}
-	});
+	Ti._5.member(api, 'playing');
 
-	var _progress = null;
-	Object.defineProperty(api, 'progress', {
-		get: function(){return _progress;},
-		set: function(val){return _progress = val;}
-	});
+	Ti._5.member(api, 'progress');
 
-	var _state = null;
-	Object.defineProperty(api, 'state', {
-		get: function(){return _state;},
-		set: function(val){return _state = val;}
-	});
+	Ti._5.member(api, 'state');
 
-	var _url = null;
-	Object.defineProperty(api, 'url', {
-		get: function(){return _url;},
-		set: function(val){return _url = val;}
-	});
+	Ti._5.member(api, 'url');
 
-	var _waiting = null;
-	Object.defineProperty(api, 'waiting', {
-		get: function(){return _waiting;},
-		set: function(val){return _waiting = val;}
-	});
+	Ti._5.member(api, 'waiting');
 
 	// Methods
 	api.pause = function(){

@@ -22,7 +22,7 @@ Ti._5.createClass('Titanium.UI.TabGroup', function(args){
 	this.dom.appendChild(_tabsContent);
 
 	// Properties
-	Object.defineProperty(this, 'activeTab', {
+	Ti._5.prop(this, 'activeTab', {
 		get: function(){return obj._tabs[_activeTabIndex];},
 		set: function(val){obj.setActiveTab(val); return val;}
 	});
@@ -30,7 +30,7 @@ Ti._5.createClass('Titanium.UI.TabGroup', function(args){
 	Ti._5.member(this, 'allowUserCustomization');
 
 	var _barColor = null;
-	Object.defineProperty(this, 'barColor', {
+	Ti._5.prop(this, 'barColor', {
 		get: function(){return _barColor;},
 		set: function(val){
 			_barColor = val;
@@ -40,7 +40,7 @@ Ti._5.createClass('Titanium.UI.TabGroup', function(args){
 
 	// private internal property
 	this._tabs = [];
-	Object.defineProperty(this, 'tabs', {
+	Ti._5.prop(this, 'tabs', {
 		get: function(){
 			var res = [];
 			for(var ii = 0; ii < obj._tabs.length; ii++){
