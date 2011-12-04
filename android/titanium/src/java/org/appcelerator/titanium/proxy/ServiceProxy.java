@@ -162,4 +162,14 @@ public class ServiceProxy extends KrollProxy
 
 		tiService.start(this);
 	}
+
+	@Override
+	public void release()
+	{
+		super.release();
+		if (DBG) {
+			Log.d(LCAT, "Nullifying wrapped service");
+		}
+		this.service = null;
+	}
 }

@@ -44,6 +44,9 @@ public class TiJSService extends TiBaseService
 	public void onStart(Intent intent, int startId)
 	{
 		super.onStart(intent, startId);
+		if (DBG) {
+			Log.d(LCAT, "onStart");
+		}
 		finalizeUrl(intent);
 		ServiceProxy proxy = createProxy(intent);
 		start(proxy);

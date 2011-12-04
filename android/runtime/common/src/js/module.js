@@ -32,7 +32,7 @@ Module.main = null;
 Module.paths = [ 'Resources/' ];
 Module.wrap = NativeModule.wrap;
 
-Module.runModule = function (source, filename, androidContext) {
+Module.runModule = function (source, filename, activityOrService) {
 	var id = filename;
 	if (!Module.main) {
 		id = ".";
@@ -41,21 +41,21 @@ Module.runModule = function (source, filename, androidContext) {
 	var module;
 	var isService = false;
 
-	if (androidContext.getServiceInstanceId) {
+	if (activityOrService.getServiceInstanceId) {
 		isService = true;
 	}
 
 	if (isService) {
 		module = new Module(id, null, {
-			currentService: androidContext,
+			currentService: activityOrService,
 			currentActivity: null,
 			currentWindow: null
 		});
 	} else {
 		module = new Module(id, null, {
 			currentService: null,
-			currentActivity: androidContext,
-			currentWindow: androidContext ? androidContext.window : null
+			currentActivity: activityOrService,
+			currentWindow: activityOrService ? activityOrService.window : null
 		});
 	}
 

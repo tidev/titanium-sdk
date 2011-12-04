@@ -117,11 +117,14 @@ public class TiJSIntervalService extends TiJSService
 			Log.w(LCAT, "Thrown while clearing interval service runners: " + t.getMessage(), t);
 		}
 	}
-	
-	
+
+
 	@Override
 	public void onDestroy()
 	{
+		if (DBG) {
+			Log.d(LCAT, "onDestroy");
+		}
 		destroyRunners();
 		super.onDestroy();
 	}
