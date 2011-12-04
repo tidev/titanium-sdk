@@ -272,6 +272,38 @@ function($window, args){
 			}
 		}
 	};
+	
+	Ti._5.presetUserArguments = function(obj,args) {
+		for(var prop in args){
+			obj[prop] = args[prop];
+		}
+	}
+	
+	Ti._5.member = function(obj,memberName,defaultValue) {
+		
+		// Set the default value
+		obj[memberName] = require.is(defaultValue,"Undefined") ? null : defaultValue;
+		
+		// Create the getxxx and setxxx accessor methods
+		var capitalizedName = memberName.substring(0, 1).toUpperCase() + memberName.substring(1);
+		obj["get" + capitalizedName] = function(){ return obj[memberName]; };
+		obj["set" + capitalizedName] = function(val){ obj[memberName] = val };
+	};
+	
+	Ti._5.prop = function(obj, propertyName, descriptor) {
+		
+		// Verify that both the getter and setter were defined, and if not provide a default implementation	
+		!descriptor.get && (descriptor.get = function () {return null;});
+		!descriptor.set && (descriptor.set = function () {return null;});
+		
+		// Create the property
+		Object.defineProperty(obj, propertyName, descriptor	);
+		
+		// Create the getxxx and setxxx accessor methods
+		var capitalizedName = propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1);
+		obj["get" + capitalizedName] = function(){ return descriptor.get.call(obj); };
+		obj["set" + capitalizedName] = function(val){ return descriptor.set.call(obj, val); };
+	};
 
 	Ti._5.createClass = function(className, value){
 		var classes = className.split(".");

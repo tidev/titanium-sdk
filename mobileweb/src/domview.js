@@ -59,7 +59,7 @@
 		};
 
 		var _layout;
-		Object.defineProperty(obj, 'layout', {
+		Ti._5.prop(obj, 'layout', {
 			get: function() {
 				return _layout;
 			},

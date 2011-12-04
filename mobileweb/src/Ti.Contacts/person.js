@@ -1,159 +1,55 @@
 (function(api){
 	// Properties
-	var _URL = null;
-	Object.defineProperty(api, 'URL', {
-		get: function(){return _URL;},
-		set: function(val){return _URL = val;}
-	});
+	Ti._5.member(api, 'URL');
 
-	var _address = null;
-	Object.defineProperty(api, 'address', {
-		get: function(){return _address;},
-		set: function(val){return _address = val;}
-	});
+	Ti._5.member(api, 'address');
 
-	var _birthday = null;
-	Object.defineProperty(api, 'birthday', {
-		get: function(){return _birthday;},
-		set: function(val){return _birthday = val;}
-	});
+	Ti._5.member(api, 'birthday');
 
-	var _created = null;
-	Object.defineProperty(api, 'created', {
-		get: function(){return _created;},
-		set: function(val){return _created = val;}
-	});
+	Ti._5.member(api, 'created');
 
-	var _date = null;
-	Object.defineProperty(api, 'date', {
-		get: function(){return _date;},
-		set: function(val){return _date = val;}
-	});
+	Ti._5.member(api, 'date');
 
-	var _department = null;
-	Object.defineProperty(api, 'department', {
-		get: function(){return _department;},
-		set: function(val){return _department = val;}
-	});
+	Ti._5.member(api, 'department');
 
-	var _email = null;
-	Object.defineProperty(api, 'email', {
-		get: function(){return _email;},
-		set: function(val){return _email = val;}
-	});
+	Ti._5.member(api, 'email');
 
-	var _firstName = null;
-	Object.defineProperty(api, 'firstName', {
-		get: function(){return _firstName;},
-		set: function(val){return _firstName = val;}
-	});
+	Ti._5.member(api, 'firstName');
 
-	var _firstPhonetic = null;
-	Object.defineProperty(api, 'firstPhonetic', {
-		get: function(){return _firstPhonetic;},
-		set: function(val){return _firstPhonetic = val;}
-	});
+	Ti._5.member(api, 'firstPhonetic');
 
-	var _fullName = null;
-	Object.defineProperty(api, 'fullName', {
-		get: function(){return _fullName;},
-		set: function(val){return _fullName = val;}
-	});
+	Ti._5.member(api, 'fullName');
 
-	var _image = null;
-	Object.defineProperty(api, 'image', {
-		get: function(){return _image;},
-		set: function(val){return _image = val;}
-	});
+	Ti._5.member(api, 'image');
 
-	var _instantMessage = null;
-	Object.defineProperty(api, 'instantMessage', {
-		get: function(){return _instantMessage;},
-		set: function(val){return _instantMessage = val;}
-	});
+	Ti._5.member(api, 'instantMessage');
 
-	var _jobTitle = null;
-	Object.defineProperty(api, 'jobTitle', {
-		get: function(){return _jobTitle;},
-		set: function(val){return _jobTitle = val;}
-	});
+	Ti._5.member(api, 'jobTitle');
 
-	var _kind = null;
-	Object.defineProperty(api, 'kind', {
-		get: function(){return _kind;},
-		set: function(val){return _kind = val;}
-	});
+	Ti._5.member(api, 'kind');
 
-	var _lastName = null;
-	Object.defineProperty(api, 'lastName', {
-		get: function(){return _lastName;},
-		set: function(val){return _lastName = val;}
-	});
+	Ti._5.member(api, 'lastName');
 
-	var _lastPhonetic = null;
-	Object.defineProperty(api, 'lastPhonetic', {
-		get: function(){return _lastPhonetic;},
-		set: function(val){return _lastPhonetic = val;}
-	});
+	Ti._5.member(api, 'lastPhonetic');
 
-	var _middleName = null;
-	Object.defineProperty(api, 'middleName', {
-		get: function(){return _middleName;},
-		set: function(val){return _middleName = val;}
-	});
+	Ti._5.member(api, 'middleName');
 
-	var _middlePhonetic = null;
-	Object.defineProperty(api, 'middlePhonetic', {
-		get: function(){return _middlePhonetic;},
-		set: function(val){return _middlePhonetic = val;}
-	});
+	Ti._5.member(api, 'middlePhonetic');
 
-	var _modified = null;
-	Object.defineProperty(api, 'modified', {
-		get: function(){return _modified;},
-		set: function(val){return _modified = val;}
-	});
+	Ti._5.member(api, 'modified');
 
-	var _nickname = null;
-	Object.defineProperty(api, 'nickname', {
-		get: function(){return _nickname;},
-		set: function(val){return _nickname = val;}
-	});
+	Ti._5.member(api, 'nickname');
 
-	var _note = null;
-	Object.defineProperty(api, 'note', {
-		get: function(){return _note;},
-		set: function(val){return _note = val;}
-	});
+	Ti._5.member(api, 'note');
 
-	var _organization = null;
-	Object.defineProperty(api, 'organization', {
-		get: function(){return _organization;},
-		set: function(val){return _organization = val;}
-	});
+	Ti._5.member(api, 'organization');
 
-	var _phone = null;
-	Object.defineProperty(api, 'phone', {
-		get: function(){return _phone;},
-		set: function(val){return _phone = val;}
-	});
+	Ti._5.member(api, 'phone');
 
-	var _prefix = null;
-	Object.defineProperty(api, 'prefix', {
-		get: function(){return _prefix;},
-		set: function(val){return _prefix = val;}
-	});
+	Ti._5.member(api, 'prefix');
 
-	var _relatedNames = null;
-	Object.defineProperty(api, 'relatedNames', {
-		get: function(){return _relatedNames;},
-		set: function(val){return _relatedNames = val;}
-	});
+	Ti._5.member(api, 'relatedNames');
 
-	var _suffix = null;
-	Object.defineProperty(api, 'suffix', {
-		get: function(){return _suffix;},
-		set: function(val){return _suffix = val;}
-	});
+	Ti._5.member(api, 'suffix');
 
 })(Ti._5.createClass('Titanium.Contacts.Person'));

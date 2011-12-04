@@ -4,24 +4,12 @@ Ti._5.createClass('Titanium.UI.iPhone.ProgressBarStyle', function(args){
 	Ti._5.DOMView(this, 'iphone.progressbarstyle', args, 'iPhone.ProgressBarStyle');
 
 	// Properties
-	var _BAR = null;
-	Object.defineProperty(this, 'BAR', {
-		get: function(){return _BAR;},
-		set: function(val){return _BAR = val;}
-	});
+	Ti._5.member(this, 'BAR');
 
-	var _DEFAULT = null;
-	Object.defineProperty(this, 'DEFAULT', {
-		get: function(){return _DEFAULT;},
-		set: function(val){return _DEFAULT = val;}
-	});
+	Ti._5.member(this, 'DEFAULT');
 
-	var _PLAIN = null;
-	Object.defineProperty(this, 'PLAIN', {
-		get: function(){return _PLAIN;},
-		set: function(val){return _PLAIN = val;}
-	});
+	Ti._5.member(this, 'PLAIN');
 
 
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });

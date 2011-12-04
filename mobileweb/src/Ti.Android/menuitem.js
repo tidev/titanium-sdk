@@ -1,47 +1,19 @@
 (function(api){
 	Ti._5.EventDriven(api);
 	// Properties
-	var _enabled = null;
-	Object.defineProperty(api, 'enabled', {
-		get: function(){return _enabled;},
-		set: function(val){return _enabled = val;}
-	});
+	Ti._5.member(api, 'enabled');
 
-	var _groupId = null;
-	Object.defineProperty(api, 'groupId', {
-		get: function(){return _groupId;},
-		set: function(val){return _groupId = val;}
-	});
+	Ti._5.member(api, 'groupId');
 
-	var _itemId = null;
-	Object.defineProperty(api, 'itemId', {
-		get: function(){return _itemId;},
-		set: function(val){return _itemId = val;}
-	});
+	Ti._5.member(api, 'itemId');
 
-	var _order = null;
-	Object.defineProperty(api, 'order', {
-		get: function(){return _order;},
-		set: function(val){return _order = val;}
-	});
+	Ti._5.member(api, 'order');
 
-	var _title = null;
-	Object.defineProperty(api, 'title', {
-		get: function(){return _title;},
-		set: function(val){return _title = val;}
-	});
+	Ti._5.member(api, 'title');
 
-	var _titleCondensed = null;
-	Object.defineProperty(api, 'titleCondensed', {
-		get: function(){return _titleCondensed;},
-		set: function(val){return _titleCondensed = val;}
-	});
+	Ti._5.member(api, 'titleCondensed');
 
-	var _visible = null;
-	Object.defineProperty(api, 'visible', {
-		get: function(){return _visible;},
-		set: function(val){return _visible = val;}
-	});
+	Ti._5.member(api, 'visible');
 
 	// Methods
 	api.getCondensedTitle = function(){

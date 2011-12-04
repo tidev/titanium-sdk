@@ -7,17 +7,9 @@ Ti._5.createClass('Titanium.UI.iOS.AdView', function(args){
 	Ti._5.Positionable(this, args);
 
 	// Properties
-	var _SIZE_320x50 = null;
-	Object.defineProperty(this, 'SIZE_320x50', {
-		get: function(){return _SIZE_320x50;},
-		set: function(val){return _SIZE_320x50 = val;}
-	});
+	Ti._5.member(this, 'SIZE_320x50');
 
-	var _SIZE_480x32 = null;
-	Object.defineProperty(this, 'SIZE_480x32', {
-		get: function(){return _SIZE_480x32;},
-		set: function(val){return _SIZE_480x32 = val;}
-	});
+	Ti._5.member(this, 'SIZE_480x32');
 
 	// Methods
 	this.cancelAction = function(){
@@ -35,5 +27,5 @@ Ti._5.createClass('Titanium.UI.iOS.AdView', function(args){
 		console.debug('Event "load" is not implemented yet.');
 	});
 
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });

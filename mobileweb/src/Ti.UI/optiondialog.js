@@ -4,47 +4,19 @@ Ti._5.createClass('Titanium.UI.OptionDialog', function(args){
 	Ti._5.DOMView(this, 'optiondialog', args, 'OptionDialog');
 
 	// Properties
-	var _androidView = null;
-	Object.defineProperty(this, 'androidView', {
-		get: function(){return _androidView;},
-		set: function(val){return _androidView = val;}
-	});
+	Ti._5.member(this, 'androidView');
 
-	var _cancel = null;
-	Object.defineProperty(this, 'cancel', {
-		get: function(){return _cancel;},
-		set: function(val){return _cancel = val;}
-	});
+	Ti._5.member(this, 'cancel');
 
-	var _destructive = null;
-	Object.defineProperty(this, 'destructive', {
-		get: function(){return _destructive;},
-		set: function(val){return _destructive = val;}
-	});
+	Ti._5.member(this, 'destructive');
 
-	var _options = null;
-	Object.defineProperty(this, 'options', {
-		get: function(){return _options;},
-		set: function(val){return _options = val;}
-	});
+	Ti._5.member(this, 'options');
 
-	var _selectedIndex = null;
-	Object.defineProperty(this, 'selectedIndex', {
-		get: function(){return _selectedIndex;},
-		set: function(val){return _selectedIndex = val;}
-	});
+	Ti._5.member(this, 'selectedIndex');
 
-	var _title = null;
-	Object.defineProperty(this, 'title', {
-		get: function(){return _title;},
-		set: function(val){return _title = val;}
-	});
+	Ti._5.member(this, 'title');
 
-	var _titleid = null;
-	Object.defineProperty(this, 'titleid', {
-		get: function(){return _titleid;},
-		set: function(val){return _titleid = val;}
-	});
+	Ti._5.member(this, 'titleid');
 
 	// Methods
 	this.show = function(){
@@ -56,5 +28,5 @@ Ti._5.createClass('Titanium.UI.OptionDialog', function(args){
 		console.debug('Event "click" is not implemented yet.');
 	});
 
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });

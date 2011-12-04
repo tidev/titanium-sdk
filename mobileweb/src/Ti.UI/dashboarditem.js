@@ -4,29 +4,13 @@ Ti._5.createClass('Titanium.UI.DashboardItem', function(args){
 	Ti._5.DOMView(this, 'dashboarditem', args, 'DashboardItem');
 
 	// Properties
-	var _badge = null;
-	Object.defineProperty(this, 'badge', {
-		get: function(){return _badge;},
-		set: function(val){return _badge = val;}
-	});
+	Ti._5.member(this, 'badge');
 
-	var _canDelete = null;
-	Object.defineProperty(this, 'canDelete', {
-		get: function(){return _canDelete;},
-		set: function(val){return _canDelete = val;}
-	});
+	Ti._5.member(this, 'canDelete');
 
-	var _image = null;
-	Object.defineProperty(this, 'image', {
-		get: function(){return _image;},
-		set: function(val){return _image = val;}
-	});
+	Ti._5.member(this, 'image');
 
-	var _selectedImage = null;
-	Object.defineProperty(this, 'selectedImage', {
-		get: function(){return _selectedImage;},
-		set: function(val){return _selectedImage = val;}
-	});
+	Ti._5.member(this, 'selectedImage');
 
 
 	// Events
@@ -40,5 +24,5 @@ Ti._5.createClass('Titanium.UI.DashboardItem', function(args){
 		console.debug('Event "move" is not implemented yet.');
 	});
 
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });

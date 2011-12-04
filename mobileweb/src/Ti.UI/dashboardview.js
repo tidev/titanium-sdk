@@ -7,17 +7,9 @@ Ti._5.createClass('Titanium.UI.DashboardView', function(args){
 	Ti._5.Positionable(this, args);
 
 	// Properties
-	var _data = null;
-	Object.defineProperty(this, 'data', {
-		get: function(){return _data;},
-		set: function(val){return _data = val;}
-	});
+	Ti._5.member(this, 'data');
 
-	var _wobble = null;
-	Object.defineProperty(this, 'wobble', {
-		get: function(){return _wobble;},
-		set: function(val){return _wobble = val;}
-	});
+	Ti._5.member(this, 'wobble');
 
 	// Methods
 	this.startEditing = function(){
@@ -41,5 +33,5 @@ Ti._5.createClass('Titanium.UI.DashboardView', function(args){
 		console.debug('Event "move" is not implemented yet.');
 	});
 
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });

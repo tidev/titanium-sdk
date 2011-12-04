@@ -15,7 +15,7 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 	// Properties
 	var _autocapitalization = 0;
 	var _autocapitalizationLoaded = false;
-	Object.defineProperty(this, 'autocapitalization', {
+	Ti._5.prop(this, 'autocapitalization', {
 		get: function() {return _autocapitalization;},
 		set: function(val) {
 			_autocapitalization = val;
@@ -24,25 +24,25 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 					Titanium.UI._updateText(obj);
 				}, false);
 			}
-			obj.value = Titanium.UI._capitalizeValue(_autocapitalization, obj.value);
+			return obj.value = Titanium.UI._capitalizeValue(_autocapitalization, obj.value);
 		}
 	});
 	
-	Object.defineProperty(this, 'value', {
+	Ti._5.prop(this, 'value', {
 		get: function() {return obj.dom.value;},
 		set: function(val) {
-			obj.dom.value = val ? Titanium.UI._capitalizeValue(_autocapitalization, val) : '';
+			return obj.dom.value = val ? Titanium.UI._capitalizeValue(_autocapitalization, val) : '';
 		}
 	});
 	
-	Object.defineProperty(this, 'editable', {
+	Ti._5.prop(this, 'editable', {
 		get: function() { return obj.enabled; },
-		set: function(val) {obj.dom.disabled = !val ? 'disabled' : '';}
+		set: function(val) {return obj.dom.disabled = !val ? 'disabled' : '';}
 	});
 
 	var _backgroundDisabledImage = '', _backgroundImage = ''; 
 	var	_backgroundDisabledColor = '', _backgroundColor = '';
-	Object.defineProperty(this, 'enabled', {
+	Ti._5.prop(this, 'enabled', {
 		get: function(){return !obj.dom.disabled;},
 		set: function(val) {
 			if (!_backgroundImage && obj.backgroundImage) {
@@ -64,11 +64,12 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 				obj.backgroundImage = _backgroundImage;
 				obj.backgroundColor = _backgroundColor;
 			}
+			return val;
 		}
 	});
 	
 	var _borderStyle = Titanium.UI.INPUT_BORDERSTYLE_LINE;
-	Object.defineProperty(obj, 'borderStyle', {
+	Ti._5.prop(obj, 'borderStyle', {
 		get: function() {
 			return _backgroundDisabledImage ? _backgroundDisabledImage : '';
 		},
@@ -89,35 +90,32 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 					obj.dom.style.borderStyle = "solid";
 					break;
 			}
+			return _borderStyle;
 		}
 	});
 
-	Object.defineProperty(obj, 'backgroundDisabledImage', {
+	Ti._5.prop(obj, 'backgroundDisabledImage', {
 		get: function() {
 			return _backgroundDisabledImage ? _backgroundDisabledImage : '';
 		},
 		set: function(val) {
-			_backgroundDisabledImage = val;
+			return _backgroundDisabledImage = val;
 		}
 	});
 
-	Object.defineProperty(obj, 'backgroundDisabledColor', {
+	Ti._5.prop(obj, 'backgroundDisabledColor', {
 		get: function() {
 			return _backgroundDisabledColor ? _backgroundDisabledColor : '';
 		},
 		set: function(val) {
-			_backgroundDisabledColor = val;
+			return _backgroundDisabledColor = val;
 		}
 	});
 	
-	var _clearButtonMode = null;
-	Object.defineProperty(this, 'clearButtonMode', {
-		get: function(){return _clearButtonMode;},
-		set: function(val){return _clearButtonMode = val;}
-	});
+	Ti._5.member(this, 'clearButtonMode');
 
 	var _clearOnEdit = null, _clearOnEditLoaded = false;
-	Object.defineProperty(this, 'clearOnEdit', {
+	Ti._5.prop(this, 'clearOnEdit', {
 		get: function(){return _clearOnEdit;},
 		set: function(val) {
 			_clearOnEdit = val;
@@ -128,96 +126,57 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 					}
 				}, false);
 			}
+			return _clearOnEdit;
 		}
 	});
 
-	Object.defineProperty(this, 'hintText', {
+	Ti._5.prop(this, 'hintText', {
 		get: function() {return obj.dom.placeholder;},
 		set: function(val) {
-			obj.dom.placeholder = val;
+			return obj.dom.placeholder = val;
 		}
 	});
 	
-	var _keyboardToolbar = null;
-	Object.defineProperty(this, 'keyboardToolbar', {
-		get: function(){return _keyboardToolbar;},
-		set: function(val){return _keyboardToolbar = val;}
-	});
+	Ti._5.member(this, 'keyboardToolbar');
 	
-	var _keyboardToolbarColor = null;
-	Object.defineProperty(this, 'keyboardToolbarColor', {
-		get: function(){return _keyboardToolbarColor;},
-		set: function(val){return _keyboardToolbarColor = val;}
-	});
+	Ti._5.member(this, 'keyboardToolbarColor');
 
-	var _keyboardToolbarHeight = null;
-	Object.defineProperty(this, 'keyboardToolbarHeight', {
-		get: function(){return _keyboardToolbarHeight;},
-		set: function(val){return _keyboardToolbarHeight = val;}
-	});
+	Ti._5.member(this, 'keyboardToolbarHeight');
 	
 	// iPhone spes
-	var _leftButton = null;
-	Object.defineProperty(this, 'leftButton', {
-		get: function(){return _leftButton;},
-		set: function(val){return _leftButton = val;}
-	});
+	Ti._5.member(this, 'leftButton');
 	
 	// iPhone spes
-	var _leftButtonMode = null;
-	Object.defineProperty(this, 'leftButtonMode', {
-		get: function(){return _leftButtonMode;},
-		set: function(val){return _leftButtonMode = val;}
-	});
+	Ti._5.member(this, 'leftButtonMode');
 
 	// iPhone spes
-	var _leftButtonPadding = null;
-	Object.defineProperty(this, 'leftButtonPadding', {
-		get: function(){return _leftButtonPadding;},
-		set: function(val){return _leftButtonPadding = val;}
-	});
+	Ti._5.member(this, 'leftButtonPadding');
 
-	var _minimumFontSize = null;
-	Object.defineProperty(this, 'minimumFontSize', {
-		get: function() {return _minimumFontSize;},
-		set: function(val) {_minimumFontSize = val;}
-	});
+	Ti._5.member(this, 'minimumFontSize');
 
 	var _paddingLeft = null;
-	Object.defineProperty(this, 'paddingLeft', {
+	Ti._5.prop(this, 'paddingLeft', {
 		get: function() {return parseInt(obj.dom.style.paddingLeft);},
-		set: function(val) {obj.dom.style.paddingLeft = parseInt(val)+"px";}
+		set: function(val) {return obj.dom.style.paddingLeft = parseInt(val)+"px";}
 	});
 
 	var _paddingRight = null;
-	Object.defineProperty(this, 'paddingRight', {
+	Ti._5.prop(this, 'paddingRight', {
 		get: function() {return parseInt(obj.dom.style.paddingRight);},
-		set: function(val) {obj.dom.style.paddingRight = parseInt(val)+"px";}
+		set: function(val) {return obj.dom.style.paddingRight = parseInt(val)+"px";}
 	});
 	
 	// iPhone spes
-	var _rightButton = null;
-	Object.defineProperty(this, 'rightButton', {
-		get: function(){return _rightButton;},
-		set: function(val){return _rightButton = val;}
-	});
+	Ti._5.member(this, 'rightButton');
 	
 	// iPhone spes
-	var _rightButtonMode = null;
-	Object.defineProperty(this, 'rightButtonMode', {
-		get: function(){return _rightButtonMode;},
-		set: function(val){return _rightButtonMode = val;}
-	});
+	Ti._5.member(this, 'rightButtonMode');
 
 	// iPhone spes
-	var _rightButtonPadding = null;
-	Object.defineProperty(this, 'rightButtonPadding', {
-		get: function(){return _rightButtonPadding;},
-		set: function(val){return _rightButtonPadding = val;}
-	});
+	Ti._5.member(this, 'rightButtonPadding');
 
 	var _suppressReturn = null, _suppressLoaded = false;
-	Object.defineProperty(this, 'suppressReturn', {
+	Ti._5.prop(this, 'suppressReturn', {
 		get: function() {return _suppressReturn;},
 		set: function(val) {
 			_suppressReturn = val;
@@ -232,11 +191,12 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 					}
 				}, false);
 			}
+			return _suppressLoaded;
 		}
 	});
 
 	var _vertAlign = 'auto';
-	Object.defineProperty(this, 'verticalAlign', {
+	Ti._5.prop(this, 'verticalAlign', {
 		get: function(){return _vertAlign;},
 		set: function(val){
 			if (parseInt(val) == val) {
@@ -259,10 +219,11 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 						obj.dom.style.lineHeight = 'auto';
 				}
 			}
+			return val;
 		}
 	});
 	
-	Object.defineProperty(this, 'size', {
+	Ti._5.prop(this, 'size', {
 		get: function() {
 			return {
 				width	: obj.width,
@@ -276,15 +237,11 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 			if (val.height) {
 				obj.height = Ti._5.parseLength(val.height);
 			}
+			return val;
 		}
 	});
 
-	Ti._5.preset(this, [
-		"value", "autocapitalization", "editable", "clearOnEdit", "suppressReturn",
-		"hintText", "paddingLeft", "paddingRight", "borderStyle", "backgroundDisabledImage",
-		"backgroundDisabledColor", "verticalAlign", "size", "enabled"
-	], args);
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 
 	// Methods
 	obj.focus = function(ev) {

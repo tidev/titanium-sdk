@@ -28,13 +28,13 @@ Ti._5.createClass('Titanium.UI.ScrollView', function(args){
 	// Properties
 	this.canCancelEvents = true;
 	var _contentHeight;
-	Object.defineProperty(this, 'contentHeight', {
+	Ti._5.prop(this, 'contentHeight', {
 		get: function(){return _contentHeight;},
-		set: function(val){_contentHeight = val; this._getAddContainer().style.height = Ti._5.parseLength(val);}
+		set: function(val){_contentHeight = val; return this._getAddContainer().style.height = Ti._5.parseLength(val);}
 	});
 
 	var _contentOffset = null;
-	Object.defineProperty(this, 'contentOffset', {
+	Ti._5.prop(this, 'contentOffset', {
 		get: function(){return _contentOffset;},
 		set: function(val){
 			_contentOffset = val;
@@ -44,13 +44,14 @@ Ti._5.createClass('Titanium.UI.ScrollView', function(args){
 			if(typeof val.y !== 'undefined'){
 				obj.dom.style.paddingTop = Ti._5.parseLength(val.y);
 			}
+			return _contentOffset;
 		}
 	});
 
 	var _contentWidth;
-	Object.defineProperty(this, 'contentWidth', {
+	Ti._5.prop(this, 'contentWidth', {
 		get: function(){return _contentWidth;},
-		set: function(val){_contentWidth = val; this._getAddContainer().style.width = Ti._5.parseLength(val);}
+		set: function(val){_contentWidth = val; return this._getAddContainer().style.width = Ti._5.parseLength(val);}
 	});
 
 	this.disableBounce = false;
@@ -60,19 +61,19 @@ Ti._5.createClass('Titanium.UI.ScrollView', function(args){
 	this.scrollType = null;
 
 	var _showHorizontalScrollIndicator = null;
-	Object.defineProperty(this, 'showHorizontalScrollIndicator', {
+	Ti._5.prop(this, 'showHorizontalScrollIndicator', {
 		get: function(){return _showHorizontalScrollIndicator;},
-		set: function(val){_showHorizontalScrollIndicator = val; obj.dom.style.overflowX = _showHorizontalScrollIndicator ? "scroll" : "hidden";}
+		set: function(val){_showHorizontalScrollIndicator = val; return obj.dom.style.overflowX = _showHorizontalScrollIndicator ? "scroll" : "hidden";}
 	});
 
 	var _showVerticalScrollIndicator = null;
-	Object.defineProperty(this, 'showVerticalScrollIndicator', {
+	Ti._5.prop(this, 'showVerticalScrollIndicator', {
 		get: function(){return _showVerticalScrollIndicator;},
-		set: function(val){_showVerticalScrollIndicator = val; obj.dom.style.overflowY = _showVerticalScrollIndicator ? "scroll" : "hidden";}
+		set: function(val){_showVerticalScrollIndicator = val; return obj.dom.style.overflowY = _showVerticalScrollIndicator ? "scroll" : "hidden";}
 	});
 
 	var _size;
-	Object.defineProperty(this, 'size', {
+	Ti._5.prop(this, 'size', {
 		get: function(){return _size;},
 		set: function(val){
 			if(val != null && val.width != null){
@@ -81,6 +82,7 @@ Ti._5.createClass('Titanium.UI.ScrollView', function(args){
 			if(val != null && val.height != null){
 				_innerContainer.style.height = Ti._5.parseLength(val.height);
 			}
+			return val;
 		}
 	});
 
@@ -110,6 +112,5 @@ Ti._5.createClass('Titanium.UI.ScrollView', function(args){
 		};
 		obj.fireEvent('scroll', oEvent);
 	}, false);
-	Ti._5.preset(this, ['contentHeight', 'contentWidth', 'contentOffset', 'showHorizontalScrollIndicator', 'showVerticalScrollIndicator', 'size'], args)
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });
