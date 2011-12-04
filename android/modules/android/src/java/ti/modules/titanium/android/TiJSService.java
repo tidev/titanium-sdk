@@ -1,19 +1,19 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.android;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.TiBaseService;
-import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.kroll.KrollContext;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.ServiceProxy;
-import org.appcelerator.titanium.util.TiBindingHelper;
 
 import android.content.Intent;
 
@@ -22,14 +22,13 @@ public class TiJSService extends TiBaseService
 	protected String url = null;
 	private static final String LCAT = "TiJSService";
 	private static final boolean DBG = TiConfig.LOGD;
-	
-	
+
 	public TiJSService(String url)
 	{
 		super();
 		this.url = url;
 	}
-	
+
 	private void finalizeUrl(Intent intent)
 	{
 		if (url == null) {
@@ -49,10 +48,9 @@ public class TiJSService extends TiBaseService
 		ServiceProxy proxy = createProxy(intent);
 		start(proxy);
 	}
-	
+
 	protected void executeServiceCode(ServiceProxy proxy)
 	{
-		//final TiContext ftiContext = proxy.getTiContext();
 		String fullUrl = url;
 		if (!fullUrl.contains("://") && !fullUrl.startsWith("/") && proxy.getCreationUrl().baseUrl != null) {
 			fullUrl = proxy.getCreationUrl().baseUrl + fullUrl;
@@ -64,21 +62,19 @@ public class TiJSService extends TiBaseService
 				Log.d(LCAT, "Eval JS Service:" + url);
 			}
 		}
-		final String ffullUrl = fullUrl;
-		final ServiceProxy fProxy = proxy;
-		new Thread(new Runnable(){
-			@Override
-			public void run() {
-				try {
-					fProxy.fireEvent("resume", new KrollDict());
-					KrollContext.getKrollContext().evalFile(ffullUrl);
-					fProxy.fireEvent("pause", new KrollDict());
-					fProxy.fireEvent("stop", new KrollDict()); // this basic JS Service class only runs once.
-				} catch (Throwable e) {
-					Log.e(LCAT, "Failure evaluating service JS " + url + ": " + e.getMessage(), e);
-				}
-			}
-		}).start();
+
+		if (fullUrl.startsWith(TiC.URL_APP_PREFIX)) {
+			fullUrl = fullUrl.replaceAll("app:/", "Resources");
+
+		} else if (fullUrl.startsWith(TiC.URL_ANDROID_ASSET_RESOURCES)) {
+			fullUrl = fullUrl.replaceAll("file:///android_asset/", "");
+		}
+
+		proxy.fireEvent("resume", new KrollDict());
+		KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(fullUrl), fullUrl, proxy);
+		proxy.fireEvent("pause", new KrollDict());
+		proxy.fireEvent("stop", new KrollDict()); // this basic JS Service class only runs once.
+
 	}
 
 	@Override
@@ -90,12 +86,10 @@ public class TiJSService extends TiBaseService
 		if (baseUrl.length() == 0) {
 			baseUrl = null;
 		}
-		//TiContext context = createTiContext(intent, baseUrl);
 		ServiceProxy proxy = new ServiceProxy(this, intent, proxyCounter.incrementAndGet());
-		TiBindingHelper.bindCurrentService(proxy);
 		return proxy;
 	}
-	
+
 	@Override
 	public void start(ServiceProxy proxy)
 	{
@@ -103,24 +97,4 @@ public class TiJSService extends TiBaseService
 		executeServiceCode(proxy);
 	}
 
-	// TODO
-	public int registerBoundTiContext(int serviceIntentId, TiContext tiContext)
-	{
-		return registerBoundTiContext(serviceIntentId);
-	}
-
-	public int registerBoundTiContext(int serviceIntentId)
-	{
-		if (url != null) {
-			int lastSlash = url.lastIndexOf('/');
-			String baseUrl = url.substring(0, lastSlash+1);
-			if (baseUrl.length() == 0) {
-				baseUrl = null;
-			}
-			//tiContext.setBaseUrl(baseUrl);
-		}
-		//return super.registerBoundTiContext(serviceIntentId, tiContext);
-		return -1;
-	}
 }
-

@@ -78,6 +78,7 @@ function TitaniumWrapper(context) {
 	scopeVars.sourceUrl = sourceUrl;
 	scopeVars.module = context.module;
 	scopeVars.currentActivity = this.Android.currentActivity;
+	scopeVars.currentService = this.Android.currentService;
 
 	Titanium.bindInvocationAPIs(this, scopeVars);
 }
@@ -97,6 +98,7 @@ UIWrapper.prototype = Titanium.UI;
 
 function AndroidWrapper(context) {
 	this.currentActivity = context.currentActivity;
+	this.currentService = context.currentService;
 	var currentWindow = context.currentWindow;
 
 	if (!this.currentActivity) {
