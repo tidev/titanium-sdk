@@ -22,7 +22,8 @@ public class TiBaseService extends Service
 
 	public class TiServiceBinder extends Binder
 	{
-		public Service getService() {
+		public Service getService()
+		{
 			return TiBaseService.this;
 		}
 	}

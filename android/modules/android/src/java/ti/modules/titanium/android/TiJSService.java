@@ -73,10 +73,10 @@ public class TiJSService extends TiBaseService
 			fullUrl = fullUrl.replaceAll("file:///android_asset/", "");
 		}
 
-		proxy.fireEvent("resume", new KrollDict());
+		proxy.fireEvent(TiC.EVENT_RESUME, new KrollDict());
 		KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(fullUrl), fullUrl, proxy);
-		proxy.fireEvent("pause", new KrollDict());
-		proxy.fireEvent("stop", new KrollDict()); // this basic JS Service class only runs once.
+		proxy.fireEvent(TiC.EVENT_PAUSE, new KrollDict());
+		proxy.fireEvent(TiC.EVENT_STOP, new KrollDict()); // this basic JS Service class only runs once.
 
 	}
 
@@ -96,7 +96,7 @@ public class TiJSService extends TiBaseService
 	@Override
 	public void start(ServiceProxy proxy)
 	{
-		proxy.fireEvent("start", new KrollDict());
+		proxy.fireEvent(TiC.EVENT_START, new KrollDict());
 		executeServiceCode(proxy);
 	}
 

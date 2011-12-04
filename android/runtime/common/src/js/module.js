@@ -39,11 +39,7 @@ Module.runModule = function (source, filename, activityOrService) {
 	}
 
 	var module;
-	var isService = false;
-
-	if (activityOrService.getServiceInstanceId) {
-		isService = true;
-	}
+	var isService = (activityOrService instanceof Titanium.Service);
 
 	if (isService) {
 		module = new Module(id, null, {

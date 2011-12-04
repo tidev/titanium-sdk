@@ -191,7 +191,7 @@ public class TiJSIntervalService extends TiJSService
 				Log.d(LCAT, "stop runner");
 			}
 			if (proxy != null) {
-				proxy.fireEvent("stop", new KrollDict());
+				proxy.fireEvent(TiC.EVENT_STOP, new KrollDict());
 			}
 			destroyTimer();
 		}
@@ -211,9 +211,9 @@ public class TiJSIntervalService extends TiJSService
 						TiBindingHelper.bindCurrentService(proxy);
 						KrollDict event = new KrollDict();
 						event.put("iteration", iteration);
-						proxy.fireEvent("resume", event);
+						proxy.fireEvent(TiC.EVENT_RESUME, event);
 						KrollRuntime.getInstance().runModule(source, url, proxy) ;
-						proxy.fireEvent("pause", event);
+						proxy.fireEvent(TiC.EVENT_PAUSE, event);
 					} catch (Throwable e) {
 						Log.e(LCAT, "Failure evaluating service JS " + url + ": " + e.getMessage(), e);
 					}
