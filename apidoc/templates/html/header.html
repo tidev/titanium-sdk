@@ -19,6 +19,16 @@
     </div>
 % endif
 
+% if data.availability:
+	<div class="availability">Availability: ${data.availability}</div>
+% endif
+
+% if data.permission:
+	<div class="permission">Permission: ${data.permission}</div>
+% else:
+	<div class="permission">Permission: read-write</div>
+% endif
+
 <%include file="parent_info.html"/>
 
 <%include file="platforms.html"/>
