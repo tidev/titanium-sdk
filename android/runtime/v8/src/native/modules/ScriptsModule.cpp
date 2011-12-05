@@ -342,7 +342,6 @@ Handle<Value> WrappedScript::EvalMachine(const Arguments& args)
 
 	if (result->IsObject()) {
 		Local<Context> creation = result->ToObject()->CreationContext();
-		LOGE(TAG, "creation is global context? %d", creation == V8Runtime::globalContext);
 	}
 
 	return result == args.This() ? result : scope.Close(result);
