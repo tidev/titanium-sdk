@@ -10,7 +10,8 @@ var NativeModule = require('native_module'),
 	path = require('path'),
 	Script = kroll.binding('evals').Script,
 	runInThisContext = require('vm').runInThisContext,
-	bootstrap = require('bootstrap');
+	bootstrap = require('bootstrap'),
+	invoker = require('invoker');
 
 var TAG = "Module";
 
@@ -24,6 +25,7 @@ function Module(id, parent, context) {
 	this.loaded = false;
 	this.exited = false;
 	this.children = [];
+	this.wrapperCache = {};
 }
 kroll.Module = module.exports = Module;
 
@@ -84,6 +86,81 @@ Module.prototype.load = function (filename, source) {
 	this.loaded = true;
 }
 
+
+// Generates a context-specific module wrapper, and wraps
+// each invocation API in an external (3rd party) module
+// See invoker.js for more info
+Module.prototype.createModuleWrapper = function(externalModule, sourceUrl) {
+
+	// The module wrapper forwards on using the original as a prototype
+	function ModuleWrapper() {}
+	ModuleWrapper.prototype = externalModule;
+
+	var wrapper = new ModuleWrapper();
+	var invocationAPIs = externalModule.invocationAPIs;
+	var invocationsLen = invocationAPIs.length;
+
+	for (var j = 0; j < invocationsLen; ++j) {
+		var api = invocationAPIs[j].api;
+		var delegate = externalModule[api];
+		if (!delegate) {
+			continue;
+		}
+
+		wrapper[api] = invoker.createInvoker(externalModule, delegate, new kroll.ScopeVars(sourceUrl, this));
+	}
+
+	return wrapper;
+}
+
+// Loads a native / external (3rd party) module
+Module.prototype.loadExternalModule = function(id, externalBinding, context) {
+
+	var sourceUrl = context.sourceUrl;
+	var externalModule;
+
+	if (kroll.runtime === "v8") {
+		externalModule = Module.cache[id];
+
+		if (!externalModule) {
+			// Get the compiled bootstrap JS
+			var source = externalBinding.bootstrap;
+	
+			// Load the native module's bootstrap JS
+			var module = new Module(id, this, context);
+			module.load(id + "/bootstrap.js", source);
+
+			// Bootstrap and load the module using the native bindings
+			var result = module.exports.bootstrap(externalBinding);
+
+			// Cache the external module instance
+			externalModule = Module.cache[id] = result;
+		}
+
+	} else {
+		var bindingKey = Object.keys(externalBinding)[0];
+		if (bindingKey) {
+			externalModule = externalBinding[bindingKey];
+		}
+	}
+
+	if (externalModule) {
+		// We cache each context-specific module wrapper
+		// on the parent module, rather than in the Module.cache
+		var wrapper = this.wrapperCache[id];
+		if (wrapper) {
+			return wrapper;
+		}
+
+		wrapper = this.createModuleWrapper(externalModule, sourceUrl);
+		this.wrapperCache[id] = wrapper;
+
+		return wrapper;
+	}
+
+	kroll.log(TAG, "Unable to load external module: " + id);
+}
+
 // Require another module as a child of this module.
 // This parent module's path is appended to the search paths
 // when loading the child. Returns the exports object
@@ -99,13 +176,9 @@ Module.prototype.require = function (request, context, useCache) {
 
 	// get external binding
 	var externalBinding = kroll.externalBinding(request);
-	if (externalBinding) {
-		var bindingKey = Object.keys(externalBinding)[0];
-		if (bindingKey) {
-			return externalBinding[bindingKey];
-		}
 
-		kroll.log(TAG, "unable to find the external module" + request);
+	if (externalBinding) {
+		return this.loadExternalModule(request, externalBinding, context);
 	}
 
 	var resolved = resolveFilename(request, this);

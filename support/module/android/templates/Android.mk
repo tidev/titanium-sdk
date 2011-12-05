@@ -10,14 +10,12 @@ LOCAL_CFLAGS := -g -I$(TI_MOBILE_SDK)/android/native/include -I$(SYSROOT)/usr/in
 LOCAL_LDLIBS :=  -L$(SYSROOT)/usr/lib -ldl -llog -L$(TARGET_OUT) -L$(TI_MOBILE_SDK)/android/native/libs/$(TARGET_ARCH_ABI) -lkroll-v8
 
 ABS_SRC_FILES := $(wildcard $(LOCAL_PATH)/*.cpp)
-LOCAL_SRC_FILES := $(patsubst $(LOCAL_PATH)/%,%,$(ABS_SRC_FILES)) \
-	bootstrap.cpp
+LOCAL_SRC_FILES := $(patsubst $(LOCAL_PATH)/%,%,$(ABS_SRC_FILES))
 
 GEN_DIR := $(realpath .)
 GEN_JNI_DIR := $(GEN_DIR)/jni
 
-jni/bootstrap.cpp: $(GEN_DIR)/KrollGeneratedBindings.cpp $(GEN_DIR)/BootstrapJS.cpp
-	cat $(TI_MOBILE_SDK)/module/android/templates/bootstrap.cpp | sed 's/%(CLASS_NAME)/@CLASS_NAME@/g' > $(GEN_JNI_DIR)/bootstrap.cpp
+$(LOCAL_PATH)/@CLASS_NAME@Bootstrap.cpp: $(GEN_DIR)/KrollGeneratedBindings.cpp $(GEN_DIR)/BootstrapJS.cpp
 
 $(GEN_DIR)/KrollGeneratedBindings.cpp:
 	gperf -L C++ -E -t $(GEN_DIR)/KrollGeneratedBindings.gperf > $(GEN_DIR)/KrollGeneratedBindings.cpp

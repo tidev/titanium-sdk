@@ -5,6 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+var TAG = "invoker";
+
 /**
  * Generates a wrapped invoker function for a specific API
  * This lets us pass in context-specific data to a function
@@ -34,6 +36,7 @@
  * invocationAPI: The actual API to generate an invoker for
  * scopeVars: A map that is passed into each invoker
  */
+
 function genInvoker(wrapperAPI, realAPI, apiName, invocationAPI, scopeVars) {
 	var namespace = invocationAPI.namespace;
 	var names = namespace.split(".");
@@ -72,21 +75,26 @@ function genInvoker(wrapperAPI, realAPI, apiName, invocationAPI, scopeVars) {
 		delegate = delegate.__delegate__;
 	}
 
-	function createInvoker(delegate) {
-		var urlInvoker = function invoker() {
-			var args = Array.prototype.slice.call(arguments);
-			args.splice(0, 0, invoker.scopeVars);
-
-			return delegate.apply(invoker.__thisObj__, args);
-		}
-
-		urlInvoker.scopeVars = scopeVars;
-		urlInvoker.__delegate__ = delegate;
-		urlInvoker.__thisObj__ = realAPI;
-
-		return urlInvoker;
-	}
-
-	apiNamespace[invocationAPI.api] = createInvoker(delegate);
+	apiNamespace[invocationAPI.api] = createInvoker(realAPI, delegate, scopeVars);
 }
 exports.genInvoker = genInvoker;
+
+/**
+ * Creates and returns a single invoker function that wraps
+ * a delegate function, thisObj, and scopeVars
+ */
+function createInvoker(thisObj, delegate, scopeVars) {
+	var urlInvoker = function invoker() {
+		var args = Array.prototype.slice.call(arguments);
+		args.splice(0, 0, invoker.__scopeVars__);
+
+		return delegate.apply(invoker.__thisObj__, args);
+	}
+
+	urlInvoker.__delegate__ = delegate;
+	urlInvoker.__thisObj__ = thisObj;
+	urlInvoker.__scopeVars__ = scopeVars;
+
+	return urlInvoker;
+}
+exports.createInvoker = createInvoker;

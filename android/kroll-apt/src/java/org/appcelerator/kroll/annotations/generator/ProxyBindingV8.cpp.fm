@@ -106,7 +106,12 @@ Handle<FunctionTemplate> ${className}::getProxyTemplate()
 	proxyTemplate->Set(titanium::Proxy::inheritSymbol,
 		FunctionTemplate::New(titanium::Proxy::inherit<${className}>)->GetFunction());
 
+	<#if (useTiContext!false)>
+	<#-- this proxy has a TiContext constructor, use the deprecated TiContext for compatibility -->
+	titanium::ProxyFactory::registerProxyPair(javaClass, *proxyTemplate, true);
+	<#else>
 	titanium::ProxyFactory::registerProxyPair(javaClass, *proxyTemplate);
+	</#if>
 
 	// Method bindings --------------------------------------------------------
 	<@Proxy.listMethods ; isFirst, name, method, signature>

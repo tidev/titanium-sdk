@@ -8,6 +8,7 @@
 #define KROLL_BINDINGS_H
 
 #include <map>
+#include <string>
 #include <v8.h>
 
 namespace titanium {
@@ -27,10 +28,11 @@ namespace bindings {
 class KrollBindings
 {
 private:
-	static std::map<const char *, const char *> externalModules;
-	static std::map<const char *, bindings::BindEntry*> externalBindings;
+	static std::map<std::string, bindings::BindEntry*> externalBindings;
 
 public:
+	static void initFunctions(v8::Handle<v8::Object> exports);
+
 	static void initNatives(v8::Handle<v8::Object> exports);
 	static void initTitanium(v8::Handle<v8::Object> exports);
 	static void disposeTitanium();
@@ -40,15 +42,8 @@ public:
 	static v8::Handle<v8::Value> getBinding(const v8::Arguments& args);
 	static v8::Handle<v8::Object> getBinding(v8::Handle<v8::String> binding);
 
-	static void addExternalModule(const char *moduleId, const char *libName)
-	{
-		externalModules[moduleId] = libName;
-	}
-
-	static void addExternalBinding(const char *name, bindings::BindEntry *binding)
-	{
-		externalBindings[name] = binding;
-	}
+	static v8::Handle<v8::Value> getExternalBinding(const v8::Arguments& args);
+	static void addExternalBinding(const char *name, bindings::BindEntry *binding);
 
 	static void dispose();
 };

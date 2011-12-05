@@ -7,18 +7,27 @@
  * Warning: This file is GENERATED, and should not be modified
  */
 var bootstrap = require("bootstrap"),
-	lazyGet = bootstrap.lazyGet,
-	addInvocationAPI = bootstrap.addInvocationAPI,
-	invoker = require("invoker");
+	invoker = require("invoker"),
+	Titanium = kroll.binding("Titanium").Titanium;
 
-var extModule = module.exports = kroll.externalModule("%(moduleClass)s");
+function moduleBootstrap(moduleBinding) {
+	function lazyGet(object, binding, name, namespace) {
+		return bootstrap.lazyGet(object, binding,
+			name, namespace, moduleBinding.getBinding);
+	}
 
-extModule.invocationAPIs = [];
-extModule.apiName = "%(moduleName)s";
+	var module = moduleBinding.getBinding("%(moduleClass)s");
+	var invocationAPIs = module.invocationAPIs = [];
+	module.apiName = "%(moduleName)s";
 
-function bootstrapModule(module) {
+	function addInvocationAPI(module, moduleNamespace, namespace, api) {
+		invocationAPIs.push({ namespace: namespace, api: api });
+	}
+
+	//Titanium.externalModules.push(module);
+
 	%(invocationJS)s
 	%(bootstrapJS)s
+	return module;
 }
-
-bootstrapModule(extModule);
+exports.bootstrap = moduleBootstrap;

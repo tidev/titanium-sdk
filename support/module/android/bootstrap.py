@@ -73,9 +73,10 @@ JS_CLOSE_GETTER = \
 """
 
 class Bootstrap(object):
-	def __init__(self, bindings, genAPITree=True, moduleId=None, moduleName=None):
+	def __init__(self, runtime, bindings, moduleId=None, moduleName=None):
+		self.runtime = runtime
 		self.bindings = bindings
-		self.genAPITree = genAPITree
+		self.genAPITree = runtime == "v8"
 		self.apiTree = {}
 		self.initTable = []
 		self.headers = ""
@@ -326,6 +327,28 @@ class Bootstrap(object):
 
 		open(genBindings, "w").write(gperfTemplate % gperfContext)
 
+	def generateNative(self, javaTemplate, cppTemplate, javaDir, cppDir):
+		jniPackage = self.moduleId.replace(".", "_")
+		className = self.moduleName[0:1].upper() + self.moduleName[1:]
+
+		context = {
+			"moduleId": self.moduleId,
+			"className": className,
+			"jniPackage": jniPackage,
+			"runtime": self.runtime
+		}
+
+		if self.runtime == "v8":
+			bootstrapJava = os.path.join(javaDir, self.moduleId.replace(".", os.sep),
+				className + "Bootstrap.java")
+
+			bootstrapCpp = os.path.join(cppDir, className + "Bootstrap.cpp")
+
+			open(bootstrapJava, "w").write(javaTemplate % context)
+			open(bootstrapCpp, "w").write(cppTemplate % context)
+		else: # TODO rhino
+			pass
+
 def main():
 	thisDir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 	sdkDir = os.path.abspath(os.path.join(thisDir, "..", ".."))
@@ -333,25 +356,34 @@ def main():
 
 	from manifest import Manifest
 
-	if len(sys.argv) < 4:
-		print >>sys.stderr, "Usage: %s <moduleId> <moduleName> <moduleJSON> <outDir>" % sys.argv[0]
+	if len(sys.argv) < 6:
+		print >>sys.stderr, "Usage: %s <runtime> <moduleId> <moduleName> <moduleJSON> <outDir>" % sys.argv[0]
 		sys.exit(1)
 
-	moduleId = sys.argv[1]
-	moduleName = sys.argv[2]
-	moduleJSON = sys.argv[3]
-	outDir = sys.argv[4]
+	runtime = sys.argv[1]
+	moduleId = sys.argv[2]
+	moduleName = sys.argv[3]
+	moduleJSON = sys.argv[4]
+	outDir = sys.argv[5]
 
 	moduleBindings = json.load(open(moduleJSON))
 	moduleClassName = moduleBindings["modules"].keys()[0]
 	moduleName = moduleBindings["modules"][moduleClassName]["apiName"]
 
-	b = Bootstrap(moduleBindings, genAPITree=True, moduleId=moduleId, moduleName=moduleName)
+	b = Bootstrap(runtime, moduleBindings, moduleId=moduleId, moduleName=moduleName)
 
 	jsTemplate = open(os.path.join(thisDir, "templates", "bootstrap.js")).read()
 	gperfTemplate = open(os.path.join(thisDir, "templates", "bootstrap.gperf")).read()
 
 	b.generateJS(jsTemplate, gperfTemplate, outDir)
+
+	javaTemplate = open(os.path.join(thisDir, "templates", "Bootstrap.java")).read()
+	cppTemplate = open(os.path.join(thisDir, "templates", "Bootstrap.cpp")).read()
+
+	javaDir = os.path.join(outDir, "java")
+	cppDir = os.path.join(outDir, "jni")
+
+	b.generateNative(javaTemplate, cppTemplate, javaDir, cppDir)
 
 if __name__ == "__main__":
 	main()

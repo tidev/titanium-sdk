@@ -261,10 +261,10 @@ public abstract class KrollRuntime implements Handler.Callback
 		initialized.set(false);
 	}
 
-	public abstract void initRuntime();
 	public abstract void doDispose();
 	public abstract void doRunModule(String source, String filename, KrollProxySupport activityProxy);
-	public abstract void initObject(KrollProxySupport proxy);
 	public abstract String getRuntimeName();
+	public abstract void initRuntime();
+	public abstract void initObject(KrollProxySupport proxy);
 }
 

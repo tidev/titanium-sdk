@@ -6,7 +6,6 @@
 package ${config['appid']};
 
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.kroll.runtime.rhino.KrollBindings;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollModuleInfo;
 import org.appcelerator.kroll.KrollRuntime;
@@ -15,6 +14,7 @@ import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.runtime.v8.V8Runtime;
 % else:
 import org.appcelerator.kroll.runtime.rhino.RhinoRuntime;
+import org.appcelerator.kroll.runtime.rhino.KrollBindings;
 % endif
 
 import java.util.List;
@@ -36,10 +36,21 @@ public final class ${config['classname']}Application extends TiApplication
 		postAppInfo();
 
 		% if runtime == "v8":
-		KrollRuntime.init(this, new V8Runtime());
+		V8Runtime runtime = new V8Runtime();
 		% else:
-		KrollRuntime.init(this, new RhinoRuntime());
+		RhinoRuntime runtime = new RhinoRuntime();
 		% endif
+
+		% if runtime == "v8":
+
+		% for module in custom_modules:
+		<% manifest = module['manifest'] %>
+		runtime.addExternalModule("${manifest.moduleid}", ${module['class_name']}Bootstrap.class);
+		% endfor
+
+		% endif
+
+		KrollRuntime.init(this, runtime);
 
 		stylesheet = new ApplicationStylesheet();
 		postOnCreate();
@@ -70,17 +81,11 @@ public final class ${config['classname']}Application extends TiApplication
 		% endif
 */
 
-		% if runtime == "v8" and len(custom_modules) > 0:
-		V8Runtime runtime = (V8Runtime) KrollRuntime.getInstance();
-		% endif
-
 		% for module in custom_modules:
 		${onAppCreate(module)} \
 
 		<% manifest = module['manifest'] %>
-		% if runtime == "v8":
-		runtime.addExternalBinding("${manifest.moduleid}", "${manifest.name}");
-		% else:
+		% if runtime == "rhino":
 		KrollBindings.addExternalBinding("${manifest.moduleid}", ${module['class_name']}Prototype.class);
 		${manifest.moduleid}.${manifest.name}GeneratedBindings.init();
 		% endif

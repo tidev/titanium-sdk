@@ -50,17 +50,19 @@ def loadBindings():
 
 def main():
 	parser = optparse.OptionParser()
-	parser.add_option("", "--disable-api-tree", dest="apiTree",
-		action="store_false", default=True)
-	parser.add_option("-o", "--output",
-		dest="output", default=None)
+	parser.add_option("-r", "--runtime", dest="runtime", default=None)
+	parser.add_option("-o", "--output", dest="output", default=None)
 
 	(options, args) = parser.parse_args()
 
+	if not options.runtime:
+		print >>sys.stderr, "Error: --runtime is required"
+		sys.exit(1)
+
+	runtime = options.runtime
 	bindings = loadBindings()
 
-	genAPITree = options.apiTree
-	b = bootstrap.Bootstrap(bindings, genAPITree,
+	b = bootstrap.Bootstrap(runtime, bindings,
 		moduleId="titanium", moduleName="Titanium")
 
 	jsTemplate = open(os.path.join(thisDir, "bootstrap.js")).read()

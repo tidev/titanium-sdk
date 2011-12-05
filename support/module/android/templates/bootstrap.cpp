@@ -9,22 +9,25 @@
 #include <jni.h>
 #include <v8.h>
 
+#include <AndroidUtil.h>
 #include <KrollBindings.h>
 #include <V8Util.h>
 
 #include "../BootstrapJS.cpp"
 #include "../KrollGeneratedBindings.cpp"
 
+#define TAG "%(moduleId)s"
+
 using namespace v8;
 
 static Persistent<Object> bindingCache;
 
-Handle<Value> %(CLASS_NAME)_getBinding(const Arguments& args)
+static Handle<Value> %(className)s_getBinding(const Arguments& args)
 {
 	HandleScope scope;
 
 	if (args.Length() == 0) {
-		return ThrowException(Exception::Error(String::New("%(CLASS_NAME).getBinding requires 1 argument: binding")));
+		return ThrowException(Exception::Error(String::New("%(className)s.getBinding requires 1 argument: binding")));
 	}
 
 	if (bindingCache.IsEmpty()) {
@@ -39,10 +42,13 @@ Handle<Value> %(CLASS_NAME)_getBinding(const Arguments& args)
 
 	String::Utf8Value bindingValue(binding);
 
-	titanium::bindings::BindEntry *extBinding = ::%(CLASS_NAME)Bindings::lookupGeneratedInit(
+	LOGD(TAG, "Looking up binding: %%s", *bindingValue);
+
+	titanium::bindings::BindEntry *extBinding = ::%(className)sBindings::lookupGeneratedInit(
 		*bindingValue, bindingValue.length());
 
 	if (!extBinding) {
+		LOGE(TAG, "Couldn't find binding: %%s, returning undefined", *bindingValue);
 		return Undefined();
 	}
 
@@ -53,7 +59,7 @@ Handle<Value> %(CLASS_NAME)_getBinding(const Arguments& args)
 	return exports;
 }
 
-extern "C" void init(Handle<Object> exports)
+static void %(className)s_init(Handle<Object> exports)
 {
 	HandleScope scope;
 
@@ -65,5 +71,41 @@ extern "C" void init(Handle<Object> exports)
 		exports->Set(name, source);
 	}
 
-	exports->Set(String::New("getBinding"), FunctionTemplate::New(%(CLASS_NAME)_getBinding)->GetFunction());
+	exports->Set(String::New("getBinding"), FunctionTemplate::New(%(className)s_getBinding)->GetFunction());
+}
+
+static void %(className)s_dispose()
+{
+	HandleScope scope;
+	Local<Array> propertyNames = bindingCache->GetPropertyNames();
+	uint32_t length = propertyNames->Length();
+
+	for (uint32_t i = 0; i < length; ++i) {
+		String::Utf8Value binding(propertyNames->Get(i));
+		int bindingLength = binding.length();
+
+		titanium::bindings::BindEntry *extBinding =
+			::%(className)sBindings::lookupGeneratedInit(*binding, bindingLength);
+
+		if (extBinding && extBinding->dispose) {
+			extBinding->dispose();
+		}
+	}
+
+	bindingCache.Dispose();
+	bindingCache = Persistent<Object>();
+}
+
+static titanium::bindings::BindEntry %(className)sBinding = {
+	"%(moduleId)s",
+	%(className)s_init,
+	%(className)s_dispose
+};
+
+// Main module entry point
+extern "C" JNIEXPORT void JNICALL
+Java_%(jniPackage)s_%(className)sBootstrap_nativeBootstrap
+	(JNIEnv *env, jobject self)
+{
+	titanium::KrollBindings::addExternalBinding("%(moduleId)s", &%(className)sBinding);
 }

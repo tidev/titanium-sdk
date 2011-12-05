@@ -79,6 +79,7 @@ jint JNIUtil::krollRuntimeDontIntercept = -1;
 jmethodID JNIUtil::krollInvocationInitMethod = NULL;
 jmethodID JNIUtil::krollObjectSetHasListenersForEventTypeMethod = NULL;
 jmethodID JNIUtil::krollProxyCreateProxyMethod = NULL;
+jmethodID JNIUtil::krollProxyCreateDeprecatedProxyMethod = NULL;
 jfieldID JNIUtil::krollProxyKrollObjectField = NULL;
 jfieldID JNIUtil::krollProxyModelListenerField = NULL;
 jmethodID JNIUtil::krollProxySetIndexedPropertyMethod = NULL;
@@ -315,8 +316,10 @@ void JNIUtil::initCache()
 	krollObjectSetHasListenersForEventTypeMethod = getMethodID(krollObjectClass, "setHasListenersForEventType",
 		"(Ljava/lang/String;Z)V");
 
-	krollProxyCreateProxyMethod = getMethodID(krollProxyClass, "createProxy",
-		"(Ljava/lang/Class;Lorg/appcelerator/kroll/KrollObject;[Ljava/lang/Object;Ljava/lang/String;)Lorg/appcelerator/kroll/KrollProxy;", true);
+	const char *createProxySignature = "(Ljava/lang/Class;Lorg/appcelerator/kroll/KrollObject;[Ljava/lang/Object;Ljava/lang/String;)Lorg/appcelerator/kroll/KrollProxy;";
+	krollProxyCreateProxyMethod = getMethodID(krollProxyClass, "createProxy", createProxySignature, true);
+	krollProxyCreateDeprecatedProxyMethod = getMethodID(krollProxyClass, "createDeprecatedProxy", createProxySignature, true);
+
 	krollProxyKrollObjectField = getFieldID(krollProxyClass, "krollObject", "Lorg/appcelerator/kroll/KrollObject;");
 	krollProxyModelListenerField = getFieldID(krollProxyClass, "modelListener", "Lorg/appcelerator/kroll/KrollProxyListener;");
 	krollProxySetIndexedPropertyMethod = getMethodID(krollProxyClass, "setIndexedProperty", "(ILjava/lang/Object;)V");

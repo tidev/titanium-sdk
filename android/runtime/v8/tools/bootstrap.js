@@ -6,12 +6,20 @@
  */
 var customProperties = {};
 
-function lazyGet(object, binding, name, namespace) {
+function lazyGet(object, binding, name, namespace, bindingGetter) {
 	delete object[name];
 	delete object.__proto__[name];
 
+	// This allows overriding of the "binding" lookup
+	// which is mostly used for 3rd party modules
+	if (bindingGetter === undefined) {
+		bindingGetter = kroll.binding;
+	}
+
 	// deal with "value" here so we don't accidentally re-invoke the getter
-	var value = object[name] = object.__proto__[name] = kroll.binding(binding)[name];
+	var value = bindingGetter(binding)[name];
+	object[name] = object.__proto__[name] = value;
+
 	if (namespace && namespace in customProperties) {
 		Object.defineProperties(value, customProperties[namespace]);
 	}

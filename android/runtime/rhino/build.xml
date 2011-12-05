@@ -27,7 +27,7 @@
 
 		<exec executable="${python}">
 			<arg file="${kroll.v8.project.dir}/tools/genBootstrap.py"/>
-			<arg value="--disable-api-tree"/>
+			<arg value="--runtime=rhino"/>
 			<arg value="-o"/>
 			<arg file="${kroll.rhino.project.dir}/generated"/>
 		</exec>

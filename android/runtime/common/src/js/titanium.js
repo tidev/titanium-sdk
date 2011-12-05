@@ -111,14 +111,34 @@ AndroidWrapper.prototype = Titanium.Android;
 
 // -----------------------------------------------------------------------
 
-function createSandbox(ti) {
-	var sandbox = { Ti: ti, Titanium: ti };
+function createSandbox(ti, sourceUrl) {
+	var newSandbox = { Ti: ti, Titanium: ti };
 
 	if (kroll.runtime == "rhino") {
-		return kroll.createSandbox(sandbox, ti.global);
+		newSandbox = kroll.createSandbox(newSandbox, ti.global);
 	}
 
-	return sandbox;
+
+	// The require function we want to wrap for this context
+	var contextRequire = global.require;
+	if (ti.global) {
+		contextRequire = ti.global.require;
+	}
+
+	// Wrap require in Ti.include contexts so the relative sourceUrl is correct
+	newSandbox.require = function(path, context) {
+		if (context === undefined) {
+			context = {};
+		}
+
+		if (!context.sourceUrl) {
+			context.sourceUrl = sourceUrl;
+		}
+
+		return contextRequire(path, context, sourceUrl);
+	}
+
+	return newSandbox;
 }
 
 // Initializes a ScopeVars object with a
@@ -173,9 +193,12 @@ function TiInclude(filename, baseUrl, scopeVars) {
 	// Create a context-bound Titanium module.
 	var ti = new TitaniumWrapper(scopeVars);
 
+	// This is called "localSandbox" so we don't overshadow the "sandbox" on global scope
+	var localSandbox = createSandbox(ti, scopeVars.sourceUrl);
+
 	if (kroll.runtime == 'rhino') {
 		// In Rhino we use a different code path to support pre-compiled JS
-		return require("rhino").include(filename, baseUrl, createSandbox(ti));
+		return require("rhino").include(filename, baseUrl, localSandbox);
 
 	} else {
 		var source = getUrlSource(filename, sourceUrl);
@@ -184,13 +207,13 @@ function TiInclude(filename, baseUrl, scopeVars) {
 
 		if (contextGlobal) {
 			// We're running inside another window or module, so we run against it's context
-			contextGlobal.sandbox = createSandbox(ti);
+			contextGlobal.sandbox = localSandbox;
 			return Script.runInContext(wrappedSource, contextGlobal, sourceUrl.href, true);
 
 		} else {
 			// We're running in the main module (app.js), so we use the global V8 Context directly.
 			// Put sandbox on the global scope
-			sandbox = createSandbox(ti);
+			sandbox = localSandbox;
 			return Script.runInThisContext(wrappedSource, sourceUrl.href, true);
 		}
 	}
@@ -207,22 +230,6 @@ Titanium.bindInvocationAPIs = function(wrapperTi, scopeVars) {
 		// separate each invoker into it's own private scope
 		invoker.genInvoker(wrapperTi, tiBinding.Titanium,
 			"Titanium", Titanium.invocationAPIs[i], scopeVars);
-	}
-
-	len = Titanium.externalModules.length;
-	for (var i = 0; i < len; ++i) {
-		var externalModule = Titanium.externalModules[i];
-
-		function ModuleWrapper() {}
-		ModuleWrapper.prototype = externalModule;
-
-		var wrapper = new ModuleWrapper();
-		var invocationsLen = externalModule.invocationAPIs.length;
-		for (var j = 0; j < invocationsLen; ++j) {
-			invoker.genInvoker(wrapper,
-				externalModule, externalModule.apiName,
-				externalModule.invocationAPIs[j], scopeVars);
-		}
 	}
 }
 

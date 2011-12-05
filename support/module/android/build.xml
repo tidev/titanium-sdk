@@ -101,6 +101,8 @@
 		<property name="js2c.py" location="${ti.module.support.dir}/android/js2c.py"/>
 
 		<exec executable="${bootstrap.py}">
+			<!-- js runtime -->
+			<arg value="v8"/>
 			<!-- module id -->
 			<arg value="${manifest.moduleid}"/>
 			<!-- module name -->
@@ -153,13 +155,13 @@
 			debug="${javac.debug}"
 			includeantruntime="false">
 			<src path="${src}" />
-			<src path="${gen}" />
+			<src path="${genjava}" />
 			<include name="**/*.java" />
 			
 			<classpath refid="project.classpath" />
 		</javac>
 		<copy todir="${classes}">
-			<fileset dir="${gen}" includes="**/*.json"/>
+			<fileset dir="${genjson}" includes="**/*.json"/>
 		</copy>
 		<antcall target="post.compile"/>
 	</target>
