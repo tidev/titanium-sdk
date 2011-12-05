@@ -15,7 +15,9 @@ import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollDict;
@@ -33,6 +35,8 @@ import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.analytics.TiAnalyticsModel;
 import org.appcelerator.titanium.analytics.TiAnalyticsService;
+import org.appcelerator.titanium.proxy.TiWindowProxy;
+import org.appcelerator.titanium.proxy.TiWindowProxy.PostOpenListener;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -99,7 +103,32 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	protected ITiAppInfo appInfo;
 	protected TiStylesheet stylesheet;
 	protected HashMap<String, WeakReference<KrollModule>> modules;
+	
+	public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
+	protected static Vector<ActivityTransitionListener> activityTransitionListeners = new Vector<ActivityTransitionListener>();
 
+
+	public static interface ActivityTransitionListener
+	{
+		public void onActivityTransitionFinished();
+	}
+
+	public static void registerActivityTransitionListener(ActivityTransitionListener a)
+	{
+		activityTransitionListeners.add(a);
+	}
+	
+	public static void removeActivityTransitionListener(ActivityTransitionListener a)
+	{
+		activityTransitionListeners.remove(a);
+	}
+	
+	public static void finishActivityTransition()
+	{
+		for (int i = 0; i < activityTransitionListeners.size(); ++i) {
+			activityTransitionListeners.get(i).onActivityTransitionFinished();
+		}
+	}
 	public CountDownLatch rootActivityLatch = new CountDownLatch(1);
 
 

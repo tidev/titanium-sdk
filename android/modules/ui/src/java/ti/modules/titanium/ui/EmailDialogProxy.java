@@ -16,6 +16,8 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiApplication.ActivityTransitionListener;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.io.TiBaseFile;
@@ -39,7 +41,7 @@ import android.text.Html;
 
 @Kroll.proxy(creatableInModule=UIModule.class,
 	propertyAccessors={"bccRecipients", "ccRecipients", "html", "messageBody", "subject", "toRecipients"})
-public class EmailDialogProxy extends TiViewProxy {
+public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionListener {
 
 	private static final String LCAT = "EmailDialogProxy";
 	private static final boolean DBG = TiConfig.LOGD;	
@@ -72,7 +74,7 @@ public class EmailDialogProxy extends TiViewProxy {
 	@Kroll.method
 	public boolean isSupported() {
 		boolean supported = false;
-		Activity activity = getActivity();
+		Activity activity = TiApplication.getAppRootOrCurrentActivity();
 		if (activity != null) {
 			PackageManager pm = activity.getPackageManager();
 			if (pm != null) {
@@ -141,13 +143,21 @@ public class EmailDialogProxy extends TiViewProxy {
 
 		return sendIntent;
 	}
-
+	
 	@Kroll.method
-	public void open(){
+	public void open() {
+		if (TiApplication.isActivityTransition.get()) {
+			TiApplication.registerActivityTransitionListener(this);
+		} else {
+			onActivityTransitionFinished();
+		}
+	}
+
+	public void openHelper(){
 		Intent sendIntent = buildIntent();
 		Intent choosingIntent = Intent.createChooser(sendIntent, "Send");
 
-		Activity activity = getActivity();
+		Activity activity = TiApplication.getAppCurrentActivity();
 		TiActivitySupport activitySupport = (TiActivitySupport) activity;
 		final int code = activitySupport.getUniqueResultCode();
 
@@ -330,5 +340,10 @@ public class EmailDialogProxy extends TiViewProxy {
 			}
 		}
 		return false;
+	}
+
+	public void onActivityTransitionFinished() {
+		openHelper();
+		TiApplication.removeActivityTransitionListener(this);
 	}
 }

@@ -7,6 +7,7 @@
 package org.appcelerator.titanium;
 
 import java.lang.ref.WeakReference;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollRuntime;
@@ -587,6 +588,7 @@ public abstract class TiBaseActivity extends Activity
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onPause");
 		}
+		getTiApp().isActivityTransition.set(true);
 
 		getTiApp().setCurrentActivity(this, null);
 
@@ -616,7 +618,8 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		getTiApp().setCurrentActivity(this, this);
-
+		getTiApp().isActivityTransition.set(false);
+		getTiApp().finishActivityTransition();
 		if (activityProxy != null) {
 			activityProxy.fireSyncEvent(TiC.EVENT_RESUME, null);
 		}
