@@ -382,7 +382,7 @@
 		[UIView setAnimationDuration:duration];
 	}
     
-    if (newOrientation != oldOrientation)
+    if (newOrientation != oldOrientation && isCurrentlyVisible)
     {
         [keyboardFocusedProxy blur:nil];
         [ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
@@ -528,6 +528,11 @@
 	if ((newOrientation == windowOrientation) &&
 		(oldFlags & allowedOrientations))
 	{
+        // If it's the case that the window orientation doesn't match the status bar orientation,
+        // move the status bar into the right place.
+        if (windowOrientation != [[UIApplication sharedApplication] statusBarOrientation]) {
+            [[UIApplication sharedApplication] setStatusBarOrientation:windowOrientation animated:NO];
+        }
 		//Nothing to do here.
 		return;
 	}
