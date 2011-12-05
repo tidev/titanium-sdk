@@ -12,6 +12,14 @@ methods:
         summary: Optional animation or display properties to use when closing the window.
         type: Object
         optional: true
+  - name: hideTabBar
+    summary: Hides the tab bar. Must be called before opening the window.
+    description: |
+        To hide the tab bar when opening a window as a child of a tab, call
+        `hideTabBar` or set `tabBarHidden` to `true` **before** opening the window.
+
+        If the window is not a child of a tab, this method has no effect.
+    platforms: [iphone,ipad]
   - name: open
     summary: Opens the window.
     parameters:
