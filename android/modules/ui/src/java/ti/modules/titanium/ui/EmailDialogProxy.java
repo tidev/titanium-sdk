@@ -145,15 +145,18 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 	}
 	
 	@Kroll.method
-	public void open() {
+	public void open() 
+	{
 		if (TiApplication.isActivityTransition.get()) {
 			TiApplication.registerActivityTransitionListener(this);
+			
 		} else {
-			onActivityTransitionFinished();
+			doOpen();
 		}
 	}
 
-	public void openHelper(){
+	public void doOpen() 
+	{
 		Intent sendIntent = buildIntent();
 		Intent choosingIntent = Intent.createChooser(sendIntent, "Send");
 
@@ -342,8 +345,11 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 		return false;
 	}
 
-	public void onActivityTransitionFinished() {
-		openHelper();
-		TiApplication.removeActivityTransitionListener(this);
+	public void onActivityTransition(boolean state) 
+	{
+		if (!state) {
+			doOpen();
+			TiApplication.unregisterActivityTransitionListener(this);
+		}
 	}
 }

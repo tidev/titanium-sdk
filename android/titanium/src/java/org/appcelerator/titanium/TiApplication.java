@@ -35,8 +35,6 @@ import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.analytics.TiAnalyticsModel;
 import org.appcelerator.titanium.analytics.TiAnalyticsService;
-import org.appcelerator.titanium.proxy.TiWindowProxy;
-import org.appcelerator.titanium.proxy.TiWindowProxy.PostOpenListener;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -110,7 +108,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 
 	public static interface ActivityTransitionListener
 	{
-		public void onActivityTransitionFinished();
+		public void onActivityTransition(boolean state);
 	}
 
 	public static void registerActivityTransitionListener(ActivityTransitionListener a)
@@ -118,16 +116,18 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		activityTransitionListeners.add(a);
 	}
 	
-	public static void removeActivityTransitionListener(ActivityTransitionListener a)
+	public static void unregisterActivityTransitionListener(ActivityTransitionListener a)
 	{
 		activityTransitionListeners.remove(a);
 	}
 	
-	public static void finishActivityTransition()
+	public static void updateActivityTransitionState(boolean state)
 	{
+		isActivityTransition.set(state);
 		for (int i = 0; i < activityTransitionListeners.size(); ++i) {
-			activityTransitionListeners.get(i).onActivityTransitionFinished();
+			activityTransitionListeners.get(i).onActivityTransition(state);
 		}
+		
 	}
 	public CountDownLatch rootActivityLatch = new CountDownLatch(1);
 
