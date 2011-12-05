@@ -7,6 +7,8 @@
 package org.appcelerator.kroll;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -34,6 +36,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	private static final int INDEX_NAME = 0;
 	private static final int INDEX_OLD_VALUE = 1;
 	private static final int INDEX_VALUE = 2;
+
+	private static final String ERROR_CREATING_PROXY = "Error creating proxy";
 
 	protected static final int MSG_MODEL_PROPERTY_CHANGE = KrollObject.MSG_LAST_ID + 100;
 	protected static final int MSG_LISTENER_ADDED = KrollObject.MSG_LAST_ID + 101;
@@ -64,6 +68,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	public static final String PROXY_ID_PREFIX = "proxy$";
 
 
+	public KrollProxy(TiContext tiContext)
+	{
+		this();
+	}
+
 	public KrollProxy()
 	{
 		this("");
@@ -74,33 +83,58 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		creationUrl = new TiUrl(baseCreationUrl);
 	}
 
+	private void setupProxy(KrollObject object, Object[] creationArguments, TiUrl creationUrl)
+	{
+		// Store reference to the native object that represents this proxy so we can drive changes to the JS 
+		// object
+		krollObject = object;
+		object.setProxySupport(this);
+		this.creationUrl = creationUrl;
+
+		// Associate the activity with the proxy.  if the proxy needs activity association delayed until a 
+		// later point then initActivity should be overridden to be a no-op and then call setActivity directly
+		// at the appropriate time
+		initActivity(TiApplication.getInstance().getCurrentActivity());
+
+		// Setup the proxy according to the creation arguments TODO - pass in createdInModule
+		handleCreationArgs(null, creationArguments);
+	}
+
 	// entry point for generator code
 	public static KrollProxy createProxy(Class<? extends KrollProxy> proxyClass, KrollObject object, Object[] creationArguments, String creationUrl)
 	{
 		try {
 			KrollProxy proxyInstance = proxyClass.newInstance();
-
-			// Store reference to the native object that represents this proxy so we can drive changes to the JS 
-			// object
-			proxyInstance.krollObject = object;
-			object.setProxySupport(proxyInstance);
-			proxyInstance.creationUrl = TiUrl.createProxyUrl(creationUrl);
-
-			// Associate the activity with the proxy.  if the proxy needs activity association delayed until a 
-			// later point then initActivity should be overridden to be a no-op and then call setActivity directly
-			// at the appropriate time
-			proxyInstance.initActivity(TiApplication.getInstance().getCurrentActivity());
-
-			// Setup the proxy according to the creation arguments TODO - pass in createdInModule
-			proxyInstance.handleCreationArgs(null, creationArguments);
-
+			proxyInstance.setupProxy(object, creationArguments, TiUrl.createProxyUrl(creationUrl));
 			return proxyInstance;
 
-		} catch (IllegalAccessException e) {
-			Log.e(TAG, "Error creating proxy: " + e.getMessage(), e);
+		} catch (Exception e) {
+			Log.e(TAG, ERROR_CREATING_PROXY, e);
+		}
 
-		} catch (InstantiationException e) {
-			Log.e(TAG, "Error creating proxy: " + e.getMessage(), e);
+		return null;
+	}
+
+	/*
+	 * This method exists so that it can be used in the situations (mainly custom modules) where a proxy
+	 * is being created with the old TiContext argument.
+	 */
+	public static KrollProxy createDeprecatedProxy(Class<? extends KrollProxy> proxyClass,
+		KrollObject object, Object[] creationArguments, String creationUrl)
+	{
+		try {
+			Constructor<? extends KrollProxy> oldConstructor = proxyClass.getConstructor(TiContext.class);
+
+			TiUrl url = TiUrl.createProxyUrl(creationUrl);
+			TiContext tiContext = new TiContext(TiApplication.getInstance().getCurrentActivity(), url.baseUrl);
+			KrollProxy proxyInstance = oldConstructor.newInstance(tiContext);
+
+			proxyInstance.setupProxy(object, creationArguments, url);
+			return proxyInstance;
+
+		} catch (Exception e) {
+			// Reflection, you my only friend
+			Log.e(TAG, ERROR_CREATING_PROXY, e);
 		}
 
 		return null;
@@ -479,7 +513,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		message.sendToTarget();
 	}
 
-	@Kroll.method(name="getActivity") @Kroll.getProperty(name="activity")
 	public ActivityProxy getActivityProxy()
 	{
 		Activity activity = getActivity();

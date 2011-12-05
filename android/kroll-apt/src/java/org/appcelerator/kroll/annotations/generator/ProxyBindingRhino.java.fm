@@ -102,7 +102,11 @@ public class ${className}Prototype extends ${superProxy}
 
 	protected KrollProxySupport createProxy(String creationUrl, Object[] args)
 	{
-		return KrollProxy.createProxy(${className}.class, getRhinoObject(), args, creationUrl); 
+		<#if useTiContext!false>
+		return KrollProxy.createDeprecatedProxy(${className}.class, getRhinoObject(), args, creationUrl);
+		<#else>
+		return KrollProxy.createProxy(${className}.class, getRhinoObject(), args, creationUrl);
+		</#if> 
 	}
 
 	// Methods

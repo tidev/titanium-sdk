@@ -298,7 +298,7 @@ def load_file_markdown(file_specifier, obj):
 	else:
 		return open(filename, "r").read()
 
-def anchor_for_object_or_method(obj_specifier, text=None, language="markdown"):
+def anchor_for_object_or_member(obj_specifier, text=None, language="markdown"):
 	if language == "markdown":
 		label = text or ("`%s`" % obj_specifier)
 		template = "[%s](#)" % label
@@ -308,19 +308,21 @@ def anchor_for_object_or_method(obj_specifier, text=None, language="markdown"):
 	if obj_specifier in all_annotated_apis:
 		obj = all_annotated_apis[obj_specifier]
 		if hasattr(obj, "filename_html"):
-			return template.replace("#", "%s.html" % obj.filename_html), True
+			return (template.replace("#", "%s.html" % obj.filename_html), True)
 	else:
-		# Maybe a method
+		# Maybe a method, property or event
 		parts = obj_specifier.split(".")
 		if len(parts) > 0:
 			parent = ".".join(parts[:-1])
-			method_name = parts[-1]
+			member_name = parts[-1]
 			if parent in all_annotated_apis:
 				obj = all_annotated_apis[parent]
-				if hasattr(obj, "methods"):
-					for m in obj.methods:
-						if m.name == method_name and hasattr(m, "filename_html"):
-							return template.replace("#", "%s.html" % m.filename_html), True
+				list_names = ("methods", "properties", "events")
+				for list_name in list_names:
+					if hasattr(obj, list_name) and type(getattr(obj, list_name)) == list:
+						for m in getattr(obj, list_name):
+							if m.name == member_name and hasattr(m, "filename_html"):
+								return (template.replace("#", "%s.html" % m.filename_html), True)
 	# Didn't find it. At least send it back styled like code.
 	if language == "markdown":
 		return "`%s`" % obj_specifier, False
@@ -332,12 +334,12 @@ def replace_with_link(full_string, link_info):
 	obj_specifier = link_info
 	if obj_specifier.startswith("<"):
 		obj_specifier = obj_specifier[1:-1]
-		anchor, found_type = anchor_for_object_or_method(obj_specifier)
+		anchor, found_type = anchor_for_object_or_member(obj_specifier)
 		if found_type:
 			return s.replace(link_info, anchor)
 		else:
 			# if it at least looks like a Titanium type (but perhaps one
-			# that is not documented), return the styled result from anchor_for_object_or_method.
+			# that is not documented), return the styled result from anchor_for_object_or_member.
 			if obj_specifier.startswith("Ti") and "." in obj_specifier and not " " in obj_specifier:
 				return s.replace(link_info, anchor)
 
@@ -345,7 +347,7 @@ def replace_with_link(full_string, link_info):
 	prog = re.compile(pattern)
 	match = prog.match(link_info)
 	if match:
-		anchor, found_type = anchor_for_object_or_method(match.groups()[1], text=match.groups()[0])
+		anchor, found_type = anchor_for_object_or_member(match.groups()[1], text=match.groups()[0])
 		if found_type:
 			return s.replace(link_info, anchor)
 	# fallback
@@ -388,16 +390,16 @@ def data_type_to_html(type_spec):
 		one_type = one_type.strip()
 		one_type_html = one_type
 		if one_type in all_annotated_apis:
-			one_type_html, found_type = anchor_for_object_or_method(one_type, language="html")
+			one_type_html, found_type = anchor_for_object_or_member(one_type, language="html")
 		elif "." in one_type and ".".join(one_type.split(".")[:-1]) in all_annotated_apis:
-			one_type_html, found_type = anchor_for_object_or_method(one_type, language="html")
+			one_type_html, found_type = anchor_for_object_or_member(one_type, language="html")
 		else:
 			match = re.match(pattern, one_type)
 			if match is None or match.groups() is None or len(match.groups()) != 2:
 				one_type_html = one_type_html.replace("<", "&lt;").replace(">", "&gt;")
 			else:
 				raw_type = match.groups()[1]
-				type_link, found_type = anchor_for_object_or_method(raw_type, language="html")
+				type_link, found_type = anchor_for_object_or_member(raw_type, language="html")
 				one_type_html = one_type_html.replace("<%s>" % raw_type, link_placeholder)
 				one_type_html = one_type_html.replace("<", "&lt;").replace(">", "&gt;")
 				one_type_html = one_type_html.replace(link_placeholder, "<%s>" % type_link)
