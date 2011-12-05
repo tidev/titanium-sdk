@@ -39,6 +39,8 @@ public class TiRootActivity extends TiLaunchActivity
 		app.setRootActivity(this);
 
 		super.onCreate(savedInstanceState);
+
+		TiApplication.getInstance().verifyCustomModules(this);
 	}
 
 	@Override

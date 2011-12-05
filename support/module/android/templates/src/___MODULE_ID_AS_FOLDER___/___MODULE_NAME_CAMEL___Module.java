@@ -12,9 +12,8 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
 
 
 @Kroll.module(name="___MODULE_NAME_CAMEL___", id="__MODULE_ID__")
@@ -28,16 +27,16 @@ public class ___MODULE_NAME_CAMEL___Module extends KrollModule
 	// You can define constants with @Kroll.constant, for example:
 	// @Kroll.constant public static final String EXTERNAL_NAME = value;
 	
-	public ___MODULE_NAME_CAMEL___Module(TiContext tiContext)
+	public ___MODULE_NAME_CAMEL___Module()
 	{
-		super(tiContext);
+		super();
 	}
 
 	@Kroll.onAppCreate
 	public static void onAppCreate(TiApplication app)
 	{
 		Log.d(LCAT, "inside onAppCreate");
-		// put the module init logic here
+		// put module init code that needs to run when the application is created
 	}
 
 	// Methods

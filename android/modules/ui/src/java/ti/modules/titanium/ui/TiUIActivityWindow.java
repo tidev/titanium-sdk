@@ -408,6 +408,15 @@ public class TiUIActivityWindow extends TiUIView
 			handleWindowPixelFormat(TiConvert.toInt(d, TiC.PROPERTY_WINDOW_PIXEL_FORMAT));
 		}
 
+		if (d.containsKey(TiC.PROPERTY_ACTIVITY)) {
+			Object activityObject = d.get(TiC.PROPERTY_ACTIVITY);
+			ActivityProxy activityProxy = getProxy().getActivityProxy();
+			if (activityObject instanceof HashMap && activityProxy != null) {
+				KrollDict options = new KrollDict((HashMap) activityObject);
+				activityProxy.handleCreationDict(options);
+			}
+		}
+
 		// Don't allow default processing.
 		d.remove(TiC.PROPERTY_BACKGROUND_IMAGE);
 		d.remove(TiC.PROPERTY_BACKGROUND_COLOR);

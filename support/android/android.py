@@ -242,7 +242,9 @@ class Android(object):
 		resource_dir = os.path.join(project_dir, 'Resources')
 		self.config['ti_resources_dir'] = resource_dir
 
-		runtime = "rhino"
+		json_contents = open(os.path.join(template_dir,'dependency.json')).read()
+		depends_map = simplejson.loads(json_contents)
+		runtime = depends_map['runtimes']['defaultRuntime']
 		if self.tiapp.has_app_property("ti.android.runtime"):
 			requested_runtime = self.tiapp.get_app_property("ti.android.runtime")
 			if requested_runtime == "rhino" or requested_runtime == "v8":

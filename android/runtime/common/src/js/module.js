@@ -174,7 +174,7 @@ Module.prototype.require = function (request, context, useCache) {
 		return NativeModule.require(request);
 	}
 
-	// get external binding
+	// get external binding (for external / 3rd party modules)
 	var externalBinding = kroll.externalBinding(request);
 
 	if (externalBinding) {

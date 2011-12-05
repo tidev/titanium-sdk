@@ -223,7 +223,10 @@ public class KrollJSONGenerator extends AbstractProcessor {
 
 				proxyProperties = getProxyProperties(packageName, proxyClassName);
 
-				checkProxyConstructor(element);
+				// only check the constructor if we need to check for TiContext
+				if (checkTiContext) {
+					checkProxyConstructor(element);
+				}
 
 				String genClassName = proxyClassName + "BindingGen";
 				String sourceName = String.format("%s.%s", packageName, genClassName);

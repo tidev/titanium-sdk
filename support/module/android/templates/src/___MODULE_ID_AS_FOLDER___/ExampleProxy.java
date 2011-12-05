@@ -11,28 +11,66 @@ package __MODULE_ID__;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-
-import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
+import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.ViewProxy;
+import android.app.Activity;
 
 
 // This proxy can be created by calling ___MODULE_NAME_CAMEL___.createExample({message: "hello world"})
 @Kroll.proxy(creatableInModule=___MODULE_NAME_CAMEL___Module.class)
-public class ExampleProxy extends ViewProxy
+public class ExampleProxy extends TiViewProxy
 {
 	// Standard Debugging variables
 	private static final String LCAT = "ExampleProxy";
 	private static final boolean DBG = TiConfig.LOGD;
-	
-	// Constructor
-	public ExampleProxy(TiContext tiContext)
+
+	private class ExampleView extends TiUIView
 	{
-		super(tiContext);
+		public ExampleView(TiViewProxy proxy) {
+			super(proxy);
+			LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
+
+			if (proxy.hasProperty(TiC.PROPERTY_LAYOUT)) {
+				String layoutProperty = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_LAYOUT));
+				if (layoutProperty.equals(TiC.LAYOUT_HORIZONTAL)) {
+					arrangement = LayoutArrangement.HORIZONTAL;
+				} else if (layoutProperty.equals(TiC.LAYOUT_VERTICAL)) {
+					arrangement = LayoutArrangement.VERTICAL;
+				}
+			}
+			setNativeView(new TiCompositeLayout(proxy.getActivity(), arrangement));
+		}
+
+		@Override
+		public void processProperties(KrollDict d)
+		{
+			super.processProperties(d);
+		}
 	}
-	
+
+
+	// Constructor
+	public ExampleProxy()
+	{
+		super();
+	}
+
+	@Override
+	public TiUIView createView(Activity activity)
+	{
+		TiUIView view = new ExampleView(this);
+		view.getLayoutParams().autoFillsHeight = true;
+		view.getLayoutParams().autoFillsWidth = true;
+		return view;
+	}
+
 	// Handle creation options
 	@Override
 	public void handleCreationDict(KrollDict options)

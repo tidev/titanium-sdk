@@ -67,6 +67,7 @@
 -(void)windowClosed:(UIViewController *)closedViewController;
 
 -(CGRect)resizeView;
+-(CGRect)resizeViewForStatusBarHidden:(BOOL)statusBarHidden;
 -(void)repositionSubviews;
 
 -(void)refreshOrientationWithDuration:(NSTimeInterval) duration;
