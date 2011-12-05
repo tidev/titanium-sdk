@@ -119,7 +119,16 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 	var sourceUrl = context.sourceUrl;
 	var externalModule;
 
-	if (kroll.runtime === "v8") {
+	if (kroll.runtime === "rhino") {
+		// TODO -- add support for context specific invokers in Rhino
+		var bindingKey = Object.keys(externalBinding)[0];
+		if (bindingKey) {
+			externalModule = externalBinding[bindingKey];
+		}
+
+		return externalModule;
+
+	} else {
 		externalModule = Module.cache[id];
 
 		if (!externalModule) {
@@ -137,25 +146,19 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 			externalModule = Module.cache[id] = result;
 		}
 
-	} else {
-		var bindingKey = Object.keys(externalBinding)[0];
-		if (bindingKey) {
-			externalModule = externalBinding[bindingKey];
-		}
-	}
-
-	if (externalModule) {
-		// We cache each context-specific module wrapper
-		// on the parent module, rather than in the Module.cache
-		var wrapper = this.wrapperCache[id];
-		if (wrapper) {
+		if (externalModule) {
+			// We cache each context-specific module wrapper
+			// on the parent module, rather than in the Module.cache
+			var wrapper = this.wrapperCache[id];
+			if (wrapper) {
+				return wrapper;
+			}
+	
+			wrapper = this.createModuleWrapper(externalModule, sourceUrl);
+			this.wrapperCache[id] = wrapper;
+	
 			return wrapper;
 		}
-
-		wrapper = this.createModuleWrapper(externalModule, sourceUrl);
-		this.wrapperCache[id] = wrapper;
-
-		return wrapper;
 	}
 
 	kroll.log(TAG, "Unable to load external module: " + id);
