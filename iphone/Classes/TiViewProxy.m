@@ -103,13 +103,12 @@
 	else
 	{
 		[self rememberProxy:arg];
-		pthread_rwlock_wrlock(&childrenLock);
 		if (windowOpened)
 		{
-			pthread_rwlock_unlock(&childrenLock);
 			[self performSelectorOnMainThread:@selector(add:) withObject:arg waitUntilDone:NO];
 			return;
 		}
+		pthread_rwlock_wrlock(&childrenLock);
 		if (pendingAdds==nil)
 		{
 			pendingAdds = [[NSMutableArray arrayWithObject:arg] retain];
@@ -185,14 +184,18 @@
 
 -(void)show:(id)arg
 {
-	[self setHidden:NO withArgs:arg];
-	[self replaceValue:NUMBOOL(YES) forKey:@"visible" notification:YES];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self setHidden:NO withArgs:arg];
+        [self replaceValue:NUMBOOL(YES) forKey:@"visible" notification:YES];
+    });
 }
  
 -(void)hide:(id)arg
 {
-	[self setHidden:YES withArgs:arg];
-	[self replaceValue:NUMBOOL(NO) forKey:@"visible" notification:YES];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self setHidden:YES withArgs:arg];
+        [self replaceValue:NUMBOOL(NO) forKey:@"visible" notification:YES];
+    });
 }
 
 -(void)animate:(id)arg

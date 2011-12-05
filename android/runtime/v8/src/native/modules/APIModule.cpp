@@ -182,4 +182,9 @@ Handle<Value> APIModule::log(const Arguments& args)
 	return Undefined();
 }
 
+void APIModule::Dispose()
+{
+	constructorTemplate.Dispose();
+}
+
 }

@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Properties;
@@ -22,6 +21,7 @@ import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
@@ -36,6 +36,7 @@ import org.appcelerator.titanium.analytics.TiAnalyticsService;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiWeakList;
 
 import android.app.Activity;
 import android.app.Application;
@@ -52,7 +53,7 @@ import android.util.DisplayMetrics;
 /**
  * The main application entry point for all Titanium applications and services
  */
-public class TiApplication extends Application implements Handler.Callback, KrollApplication
+public abstract class TiApplication extends Application implements Handler.Callback, KrollApplication
 {
 	private static final String LCAT = "TiApplication";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -78,7 +79,7 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 	private String baseUrl;
 	private String startUrl;
 	private HashMap<String, SoftReference<KrollProxy>> proxyMap;
-	private ArrayList<KrollProxy> appEventProxies = new ArrayList<KrollProxy>();
+	private TiWeakList<KrollProxy> appEventProxies = new TiWeakList<KrollProxy>();
 	private WeakReference<TiRootActivity> rootActivity;
 	private TiProperties appProperties;
 	private TiProperties systemProperties;
@@ -87,7 +88,6 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 	private boolean needsStartEvent;
 	private boolean needsEnrollEvent;
 	private String buildVersion = "", buildTimestamp = "", buildHash = "";
-	private HashMap<String, WeakReference<KrollModule>> modules;
 	private TiResponseCache responseCache;
 	private BroadcastReceiver externalStorageReceiver;
 
@@ -98,6 +98,7 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 	protected TiTempFileHelper tempFileHelper;
 	protected ITiAppInfo appInfo;
 	protected TiStylesheet stylesheet;
+	protected HashMap<String, WeakReference<KrollModule>> modules;
 
 	public CountDownLatch rootActivityLatch = new CountDownLatch(1);
 
@@ -122,11 +123,74 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 
 	public static TiApplication getInstance()
 	{
+		if (tiApp != null) {
+			TiApplication tiAppRef = tiApp.get();
+			if (tiAppRef != null) {
+				return tiAppRef;
+			}
+		}
+
+		Log.e(LCAT, "unable to get the TiApplication instance");
+		return null;
+	}
+	
+	// This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
+	// time we need to grab the current activity
+	public static Activity getAppCurrentActivity()
+	{
+		TiApplication tiApp = getInstance();
 		if (tiApp == null) {
 			return null;
 		}
 
-		return tiApp.get();
+		return tiApp.getCurrentActivity();
+	}
+
+	// This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
+	// time we need to grab the root or current activity
+	public static Activity getAppRootOrCurrentActivity()
+	{
+		TiApplication tiApp = getInstance();
+		if (tiApp == null) {
+			return null;
+		}
+
+		return tiApp.getRootOrCurrentActivity();
+	}
+
+	public Activity getCurrentActivity()
+	{
+		Activity activity;
+		if (currentActivity != null) {
+			activity = currentActivity.get();
+			if (activity != null) {
+				return activity;
+			}
+		}
+
+		Log.e(LCAT, "no valid current activity found for application instance");
+		return null;
+	}
+	
+	public Activity getRootOrCurrentActivity()
+	{
+		Activity activity;
+		if (rootActivity != null) {
+			activity = rootActivity.get();
+			if (activity != null) {
+				return activity;
+			}
+		}
+		
+		if (currentActivity != null) {
+			activity = currentActivity.get();
+			if (activity != null) {
+				return activity;
+			}
+		}
+
+		Log.e(LCAT, "no valid root or current activity found for application instance");
+		return null;
 	}
 
 	protected void loadBuildProperties()
@@ -201,6 +265,14 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 
 	public void postOnCreate()
 	{
+		KrollRuntime runtime = KrollRuntime.getInstance();
+		if (runtime != null) {
+			Log.i(LCAT, "Titanium Javascript runtime: " + runtime.getRuntimeName());
+		} else {
+			// This ought not to be possible.
+			Log.w(LCAT, "Titanium Javascript runtime: unknown");
+		}
+
 		TiConfig.LOGD = systemProperties.getBool("ti.android.debug", false);
 
 		startExternalStorageMonitor();
@@ -278,15 +350,6 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 		return rootActivity.get();
 	}
 
-	public Activity getCurrentActivity()
-	{
-		if (currentActivity == null) {
-			return null;
-		}
-
-		return currentActivity.get();
-	}
-
 	public void setCurrentActivity(Activity callingActivity, Activity newValue)
 	{
 		synchronized (this) {
@@ -328,7 +391,7 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 	{
 		Log.e(LCAT, "APP PROXY: " + appEventProxy);
 		if (appEventProxy != null && !appEventProxies.contains(appEventProxy)) {
-			appEventProxies.add(appEventProxy);
+			appEventProxies.add(new WeakReference<KrollProxy>(appEventProxy));
 		}
 	}
 
@@ -340,7 +403,12 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 	public boolean fireAppEvent(String eventName, KrollDict data)
 	{
 		boolean handled = false;
-		for (KrollProxy appEventProxy : appEventProxies) {
+		for (WeakReference<KrollProxy> weakProxy : appEventProxies) {
+			KrollProxy appEventProxy = weakProxy.get();
+			if (appEventProxy == null) {
+				continue;
+			}
+
 			boolean proxyHandled = appEventProxy.fireEvent(eventName, data);
 			handled = handled || proxyHandled;
 		}
@@ -630,5 +698,11 @@ public class TiApplication extends Application implements Handler.Callback, Krol
 		unregisterReceiver(externalStorageReceiver);
 	}
 
+	public void dispose()
+	{
+		TiActivityWindows.dispose();
+	}
+
+	public abstract void verifyCustomModules(TiRootActivity rootActivity);
 }
 

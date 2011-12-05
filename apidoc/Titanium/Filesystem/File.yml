@@ -1,124 +1,137 @@
 ---
 name: Titanium.Filesystem.File
-description: The File object which support various filesystem based operations.
+summary: The File object which support various filesystem based operations.
 extends: Titanium.Proxy
 since: "0.1"
 platforms: [android, iphone, ipad]
 methods:
   - name: createDirectory
-    description: create a directory at the path for the file object
+    summary: create a directory at the path for the file object
     returns:
         type: Boolean
   - name: createFile
-    description: create a file path at the path for the file object
+    summary: create a file path at the path for the file object
     returns:
         type: Boolean
   - name: createTimestamp
-    description: return the created timestamp for the file
+    summary: return the created timestamp for the file
     returns:
         type: Number
   - name: deleteDirectory
-    description: delete the file directory path
+    summary: delete the file directory path
     returns:
         type: Boolean
     parameters:
       - name: recursive
-        description: pass true to recursively delete any contents. defaults to false
+        summary: pass true to recursively delete any contents. defaults to false
         type: Boolean
         default: false
   - name: deleteFile
-    description: delete the file
+    summary: delete the file
     returns:
         type: Boolean
   - name: executable
-    description: returns true if the file is executable
+    summary: returns true if the file is executable
     returns:
         type: Boolean
-        description: Returns true if file is executable.
+        summary: Returns true if file is executable.
   - name: exists
-    description: returns true if the file or directory exists on the device
+    summary: returns true if the file or directory exists on the device
     returns:
         type: Boolean
   - name: extension
-    description: return the file extension
+    summary: return the file extension
     returns:
         type: String
   - name: getDirectoryListing
-    description: return an array of paths in the directory of the file object
+    summary: return an array of paths in the directory of the file object
     returns:
         type: Array<String>
   - name: getParent
-    description: return the file parent
+    summary: return the file parent
     returns:
         type: Titanium.Filesystem.File
   - name: hidden
-    description: returns true if the file is hidden
+    summary: returns true if the file is hidden
     returns:
         type: Boolean
   - name: modificationTimestamp
-    description: return the last modification timestamp for the file
+    summary: return the last modification timestamp for the file
     returns:
         type: Number
   - name: move
-    description: move the file to another path
+    summary: move the file to another path
     returns:
         type: Boolean
     parameters:
       - name: newpath
-        description: new location
+        summary: new location
         type: [String,Object]
   - name: name
-    description: the name of the file
+    summary: the name of the file
     returns:
         type: String
   - name: read
-    description: return the contents of file as blob
+    summary: return the contents of file as blob
     returns:
         type: Titanium.Blob
   - name: readonly
-    description: returns true if the file is readonly
+    summary: returns true if the file is readonly
     returns:
         type: Boolean
   - name: rename
-    description: rename the file
+    summary: rename the file
     returns:
         type: Boolean
     parameters:
       - name: newname
-        description: new name
+        summary: new name
         type: String
   - name: setExecutable
-    description: make the file executable
+    summary: make the file executable
   - name: setHidden
-    description: make the file hidden
+    summary: make the file hidden
   - name: setReadonly
-    description: make the file readonly
+    summary: make the file readonly
   - name: spaceAvailable
-    description: return boolean to indicate if the path has space available for storage
+    summary: return boolean to indicate if the path has space available for storage
     returns:
         type: Boolean
   - name: symbolicLink
-    description: returns true if the file points to a symbolic link
+    summary: returns true if the file points to a symbolic link
     returns:
         type: Boolean
   - name: write
-    description: write the contents to file.
+    summary: write the contents to file.
     returns:
         type: Boolean
     parameters:
       - name: contents
-        description: write the contents of string, blob or <Titanium.Filesystem.File> to file
+        summary: write the contents of string, blob or <Titanium.Filesystem.File> to file
         type: [String, Titanium.Filesystem.File, Titanium.Blob]
       - name: append
-        description: (optional) append the string to the end of the file.
+        summary: (optional) append the string to the end of the file.
         type: Boolean
         optional: true
   - name: writeable
-    description: returns true if the file is writeable
+    summary: returns true if the file is writeable
     returns:
         type: Boolean
 properties:
   - name: nativePath
-    description: returns the fully resolved native path
+    summary: returns the fully resolved native path
     type: String
     permission: read-only
+  - name: remoteBackup
+    summary: Value indicating whether or not to back up to a cloud service.
+    description: 
+        Some apps may be rejected by Apple for backing up specific files; if this
+        is the case, ensure that this value is set to `false` for them. This
+        value should only need to be set once by your app, but setting it
+        multiple times will not cause problems. For files distributed with your
+        app, this will need to be set on boot. This flag will only affect iOS
+        versions 5.0.1 and later, but is safe to set on earlier versions.
+    default: true
+    type: Boolean
+    platforms: [iphone,ipad]
+    since: "1.8.0"

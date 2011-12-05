@@ -1,130 +1,136 @@
 ---
 name: Titanium.Platform
-description: The top level Platform module.  The Platform module is used accessing the device's platform
+summary: The top level Platform module.  The Platform module is used accessing the device's platform
     related functionality.
 extends: Titanium.Module
 since: "0.1"
 methods:
   - name: canOpenURL
-    description: returns whether or not a system URL can be opened.
+    summary: returns whether or not a system URL can be opened.
     platforms: [iphone, ipad, mobileweb]
     parameters:
       - name: url
-        description: the url to check
+        summary: the url to check
         type: String
   - name: createUUID
-    description: create a globally unique identifier
+    summary: create a globally unique identifier
     returns:
         type: String
   - name: openURL
-    description: open a URL in the system default manner
+    summary: open a URL in the system default manner
     parameters:
       - name: url
-        description: the url to open
+        summary: the url to open
         type: String
   - name: is24HourTimeFormat
-    description: Whether device settings are set to show times in 24-hour format.
+    summary: Whether device settings are set to show times in 24-hour format.
     returns:
         type: Boolean
     platforms: [android, iphone, ipad]
 events:
   - name: battery
-    description: fired when the battery state changes.  the battery state changes are only tracked on iPhone/iPad at 5% increments.
+    summary: fired when the battery state changes.  the battery state changes are only tracked on iPhone/iPad at 5% increments.
     properties:
       - name: state
-        description: the new battery state
+        summary: the new battery state
       - name: level
-        description: the new battery level
+        summary: the new battery level
     platforms: [android, iphone, ipad]
 properties:
   - name: BATTERY_STATE_CHARGING
-    description: the device is plugged in and currently being charged
+    summary: the device is plugged in and currently being charged
     type: Number
     permission: read-only
   - name: BATTERY_STATE_FULL
-    description: the battery is fully charged
+    summary: the battery is fully charged
     type: Number
     permission: read-only
   - name: BATTERY_STATE_UNKNOWN
-    description: the battery state is unknown or not monitoring is not enabled
+    summary: the battery state is unknown or not monitoring is not enabled
     type: Number
     permission: read-only
   - name: BATTERY_STATE_UNPLUGGED
-    description: the device is unplugged
+    summary: the device is unplugged
     type: Number
     permission: read-only
   - name: address
-    description: the ip address that the device reports (only applicable on WIFI network)
+    summary: the ip address that the device reports (only applicable on WIFI network)
     type: String
     permission: read-only
   - name: architecture
-    description: the processor architecture that the device reports
+    summary: the processor architecture that the device reports
     type: String
     permission: read-only
   - name: availableMemory
-    description: return the amount of memory available on the device in bytes
+    summary: return the amount of memory available on the device in bytes
     type: Number
     permission: read-only
   - name: batteryLevel
-    description: the current device battery level. this property is only accessible if `batteryMonitoring` is enabled. on iPhone, this level only changes at 5% intervals.
+    summary: the current device battery level. this property is only accessible if `batteryMonitoring` is enabled. on iPhone, this level only changes at 5% intervals.
     type: Number
     permission: read-only
   - name: batteryMonitoring
-    description: boolean to indicate if battery monitoring is enabled
+    summary: boolean to indicate if battery monitoring is enabled
     type: Boolean
     permission: read-only
   - name: batteryState
-    description: constant that represents the state of the battery. this property is only accessible if `batteryMonitoring` is enabled
+    summary: constant that represents the state of the battery. this property is only accessible if `batteryMonitoring` is enabled
     type: Number
     permission: read-only
   - name: displayCaps
-    description: return the DisplayCaps object for platform
+    summary: return the DisplayCaps object for platform
     type: Titanium.Platform.DisplayCaps
     permission: read-only
   - name: id
-    description: the unique id of the device
+    summary: the unique id of the device
     type: String
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: locale
-    description: the primary language of the device that the user has enabled
+    summary: the primary language of the device that the user has enabled
     type: String
     permission: read-only
   - name: macaddress
-    description: this property will return a unique identifier for the device
+    summary: this property will return a unique identifier for the device
     type: String
     permission: read-only
   - name: model
-    description: the model of the phone that the device reports
+    summary: the model of the phone that the device reports
     type: String
     permission: read-only
     platforms: [android, iphone, ipad]
   - name: name
-    description: the name of the platform returned by the device
+    summary: the name of the platform returned by the device
     type: String
     permission: read-only
   - name: netmask
-    description: the network mask that the device reports (only applicable on WIFI network)
+    summary: the network mask that the device reports (only applicable on WIFI network)
     type: String
     permission: read-only
   - name: osname
-    description: the shortname of the operating system. for example, on an iPhone, will return `iphone`, iPad will return `ipad`, Android will return `android` and Mobile Web will return `mobileweb`.
+    summary: the shortname of the operating system. for example, on an iPhone, will return `iphone`, iPad will return `ipad`, Android will return `android` and Mobile Web will return `mobileweb`.
     type: String
     permission: read-only
   - name: ostype
-    description: the OS architecture, such as 32 bit
+    summary: the OS architecture, such as 32 bit
     type: String
     permission: read-only
   - name: processorCount
-    description: the number of processors the device reports
+    summary: the number of processors the device reports
     type: Number
     permission: read-only
+  - name: runtime
+    summary: Short name for the JavaScript runtime in use. 
+    description: On iOS this returns "javascriptcore", on Android either "v8" or "rhino". 
+        On Mobile Web the return value depends on the browser that is being used.
+    type: String
+    permission: read-only
   - name: username
-    description: the username of the device, if set
+    summary: the username of the device, if set
     type: String
     permission: read-only
   - name: version
-    description: the version of the platform returned by the device
+    summary: the version of the platform returned by the device
     type: String
     permission: read-only

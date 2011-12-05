@@ -30,7 +30,6 @@ public class Proxy extends EventEmitter
 	private static final String TAG = PROXY_TAG;
 
 	private static Proxy prototype;
-	private static Function setProperty, getProperty;
 
 	private Scriptable properties;
 	private KrollProxySupport proxy;
@@ -89,6 +88,11 @@ public class Proxy extends EventEmitter
 			prototype = new Proxy();
 		}
 		return prototype;
+	}
+
+	public static void dispose()
+	{
+		prototype = null;
 	}
 
 	public Proxy()
@@ -261,6 +265,26 @@ public class Proxy extends EventEmitter
 		((Proxy) thisObj).rhinoObject.setHasListenersForEventType(event, hasListeners);
 	}
 
+	protected void onEventFired(Scriptable thisObj, Object[] args)
+	{
+		if (args.length < 2) {
+			throw new IllegalArgumentException("_onEventFired requires 2 args: event, data");
+		}
+
+		if (!(args[0] instanceof String)) {
+			throw new IllegalArgumentException("event type must be a String");
+		}
+
+		if (!(args[1] instanceof Object)) {
+			throw new IllegalArgumentException("data must be an Object");
+		}
+
+		String event = (String) args[0];
+		Object data = TypeConverter.jsObjectToJavaObject(args[1], thisObj);
+
+		((Proxy) thisObj).rhinoObject.onEventFired(event, data);
+	}
+
 	protected void onPropertiesChanged(Scriptable thisObj, Object[] args)
 	{
 		if (args.length < 1 || !ScriptRuntime.isArrayObject(args[0])) {
@@ -301,20 +325,23 @@ public class Proxy extends EventEmitter
 	private static final int
 		Id_constructor = 1,
 		Id__hasListenersForEventType = 2,
-		Id_onPropertiesChanged = 3;
+		Id_onPropertiesChanged = 3,
+		Id__onEventFired = 4;
 
-	public static final int MAX_PROTOTYPE_ID = Id_onPropertiesChanged;
+	public static final int MAX_PROTOTYPE_ID = Id__onEventFired;
 
 	@Override
 	protected int findPrototypeId(String s)
 	{
 		int id = 0;
-// #generated# Last update: 2011-10-12 12:41:38 CDT
+// #generated# Last update: 2011-12-04 19:47:20 PST
         L0: { id = 0; String X = null;
-            int s_length = s.length();
-            if (s_length==11) { X="constructor";id=Id_constructor; }
-            else if (s_length==19) { X="onPropertiesChanged";id=Id_onPropertiesChanged; }
-            else if (s_length==25) { X="_hasListenersForEventType";id=Id__hasListenersForEventType; }
+            L: switch (s.length()) {
+            case 11: X="constructor";id=Id_constructor; break L;
+            case 13: X="_onEventFired";id=Id__onEventFired; break L;
+            case 19: X="onPropertiesChanged";id=Id_onPropertiesChanged; break L;
+            case 25: X="_hasListenersForEventType";id=Id__hasListenersForEventType; break L;
+            }
             if (X!=null && X!=s && !X.equals(s)) id = 0;
             break L0;
         }
@@ -343,6 +370,10 @@ public class Proxy extends EventEmitter
 			case Id_onPropertiesChanged:
 				arity = 1;
 				name = "onPropertiesChanged";
+				break;
+			case Id__onEventFired:
+				arity = 2;
+				name = "_onEventFired";
 				break;
 			default:
 				super.initPrototypeId(id);
@@ -375,6 +406,9 @@ public class Proxy extends EventEmitter
 				return Undefined.instance;
 			case Id_onPropertiesChanged:
 				onPropertiesChanged(thisObj, args);
+				return Undefined.instance;
+			case Id__onEventFired:
+				onEventFired(thisObj, args);
 				return Undefined.instance;
 			default:
 				throw new IllegalArgumentException(String.valueOf(id));

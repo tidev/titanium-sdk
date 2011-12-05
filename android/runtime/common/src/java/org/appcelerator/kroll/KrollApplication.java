@@ -32,4 +32,6 @@ public interface KrollApplication
 	public String getAppGUID();
 
 	public boolean isDebuggerEnabled();
+
+	public void dispose();
 }

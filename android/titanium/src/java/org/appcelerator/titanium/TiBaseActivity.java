@@ -9,11 +9,11 @@ package org.appcelerator.titanium;
 import java.lang.ref.WeakReference;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
-import org.appcelerator.titanium.TiLifecycle.OnServiceLifecycleEvent;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
@@ -53,7 +53,6 @@ public abstract class TiBaseActivity extends Activity
 	private boolean onDestroyFired = false;
 	private int originalOrientationMode = -1;
 	private TiWeakList<OnLifecycleEvent> lifecycleListeners = new TiWeakList<OnLifecycleEvent>();
-	private TiWeakList<OnServiceLifecycleEvent> serviceLifecycleListeners;
 
 	protected TiCompositeLayout layout;
 	protected TiActivitySupportHelper supportHelper;
@@ -298,6 +297,9 @@ public abstract class TiBaseActivity extends Activity
 
 		// create the activity proxy here so that it is accessible from the activity in all cases
 		activityProxy = new ActivityProxy(this);
+
+		// Increment the reference count so we correctly clean up when all of our activities have been destroyed
+		KrollRuntime.incrementActivityRefCount();
 
 		Intent intent = getIntent();
 		if (intent != null) {
@@ -565,16 +567,6 @@ public abstract class TiBaseActivity extends Activity
 		// TODO stub
 	}
 
-	public void addOnServiceLifecycleEventListener(OnServiceLifecycleEvent listener)
-	{
-		serviceLifecycleListeners.add(new WeakReference<OnServiceLifecycleEvent>(listener));
-	}
-
-	public void removeOnServiceLifecycleEventListener(OnServiceLifecycleEvent listener)
-	{
-		serviceLifecycleListeners.remove(listener);
-	}
-
 	@Override
 	protected void onPause() 
 	{
@@ -783,6 +775,8 @@ public abstract class TiBaseActivity extends Activity
 			activityProxy.release();
 			activityProxy = null;
 		}
+
+		KrollRuntime.decrementActivityRefCount();
 	}
 
 	// called in order to ensure that the onDestroy call is only acted upon once.

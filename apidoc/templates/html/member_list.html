@@ -5,7 +5,7 @@
 	% if is_property_list:
 	<th>Type</th>
 	% endif
-	<th>Description</th>
+	<th>Summary</th>
 </tr> 
 % for item in item_list:
     % if item.name not in ("Titanium.Proxy", "Titanium.Module"):
@@ -13,15 +13,15 @@
 	<% platform_names = ", ".join([p["pretty_name"] for p in item.platforms]) %>
 	<% append_cell_class = " deprecated" if item.deprecated else "" %>
 	<%
-		description = item.description_html
+		summary = item.summary_html
 		was_para_close = False
-		if description.endswith("</p>"):
-			description = description[:-4] # we'll put it back later, promise
+		if summary.endswith("</p>"):
+			summary = summary[:-4] # we'll put it back later, promise
 			was_para_close = True
 	%>
 
 	<tr class="${row_class}">
-		% if is_property_list or item.typestr == "event":
+		% if item.typestr=="parameter" or (item.typestr=="property" and item.parent.typestr=="event"):
 			<td class="name${append_cell_class}">${item.name}</td>
 		% else:
 			<td class="name${append_cell_class}"><a href="${item.filename_html}.html">${item.name}</a></td>
@@ -29,34 +29,25 @@
 		% if is_property_list:
 			<td class="type${append_cell_class}">${item.type_html}</td>
 		% endif
-			<td class="description${append_cell_class}">${description}
+			<td class="summary${append_cell_class}">
+				% if item.deprecated is not None:
+					<%
+						if summary.startswith("<p>"):
+							summary = '%s<span class="deprecation_warning">Deprecated</span>&nbsp;%s' % (summary[:3],summary[3:])
+					%>
+				% endif			
+				${summary}
 				% if len(item.platforms) < platform_count:
 					<span class="platform_warning">(${platform_names} only.)</span>
 				% endif
-                % if item.deprecated is not None:
-                    <%
-                        deprecation_info = ""
-                        if "since" in item.deprecated:
-                            deprecation_info = " since %s" % item.deprecated["since"]
-                        if "removed" in item.deprecated:
-                            if len(deprecation_info) > 0:
-                                deprecation_info += ", "
-                            else:
-                                deprecation_info += " and "
-                            deprecation_info += ("removed in %s" % item.deprecated["removed"])
-                    %>
-                    <span class="deprecation_warning">(Deprecated${deprecation_info}.)</span>
-                % endif
+				% if item.permission is not None:
+					<span class="permission_warning">${item.permission}</span>
+				% endif
+				% if item.availability is not None:
+					<span class="availability_warning">${item.availability}</span>
+				% endif
 				% if was_para_close:
 					</p>
-				% endif
-				% if item.typestr == "event" and item.properties is not None and len(item.properties)>0:
-					<h4>Event properties</h4>
-					<table class="event">
-					% for prop in item.properties:
-						<tr><td class="name">${prop.name}</td><td>${prop.description_html}</td></tr>
-					% endfor
-					</table>
 				% endif
 			</td>
 	</tr>

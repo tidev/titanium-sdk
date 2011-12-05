@@ -1,6 +1,6 @@
 ---
 name: Global.String
-description: The Javascript built-in String type. The APIs here are Titanium specific extensions. TODO this is just a placeholder
+summary: The Javascript built-in String type. The APIs here are Titanium specific extensions. TODO this is just a placeholder
 platforms: [android, iphone, ipad]
 methods:
   - name: format

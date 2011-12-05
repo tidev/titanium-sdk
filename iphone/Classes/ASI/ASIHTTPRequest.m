@@ -137,6 +137,13 @@ static NSThread *networkThread = nil;
 
 static NSOperationQueue *sharedQueue = nil;
 
+// SPT - See the following Apple technical note for why we need to define these
+// http://developer.apple.com/library/ios/#technotes/tn2287/_index.html#//apple_ref/doc/uid/DTS40011309
+
+static NSString* ASI_TLS_VERSION_1_0 = @"kCFStreamSocketSecurityLevelTLSv1_0SSLv3";
+static NSString* ASI_TLS_VERSION_1_1 = @"kCFStreamSocketSecurityLevelTLSv1_1SSLv3";
+static NSString* ASI_TLS_VERSION_1_2 = @"kCFStreamSocketSecurityLevelTLSv1_2SSLv3";
+
 // Private stuff
 @interface ASIHTTPRequest ()
 
@@ -1221,6 +1228,24 @@ static NSOperationQueue *sharedQueue = nil;
 			}
             [sslProperties setObject:certificates forKey:(NSString *)kCFStreamSSLCertificates];
         }
+        
+        if (tlsVersion) {
+            NSString* sslVersion = nil;
+            switch (tlsVersion) {
+                case TLS_VERSION_1_0:
+                    sslVersion = ASI_TLS_VERSION_1_0;
+                    break;
+                case TLS_VERSION_1_1:
+                    sslVersion = ASI_TLS_VERSION_1_1;
+                    break;
+                case TLS_VERSION_1_2:
+                    sslVersion = ASI_TLS_VERSION_1_2;
+                    break;
+            }
+            if (sslVersion != nil) {
+                [sslProperties setObject:sslVersion forKey:(NSString*)kCFStreamSSLLevel];
+            }
+        }
 
         CFReadStreamSetProperty((CFReadStreamRef)[self readStream], kCFStreamPropertySSLSettings, sslProperties);
     }
@@ -1627,6 +1652,7 @@ static NSOperationQueue *sharedQueue = nil;
 	[headRequest setTimeOutSeconds:[self timeOutSeconds]];
 	[headRequest setUseHTTPVersionOne:[self useHTTPVersionOne]];
 	[headRequest setValidatesSecureCertificate:[self validatesSecureCertificate]];
+    [headRequest setTlsVersion:[self tlsVersion]];
     [headRequest setClientCertificateIdentity:clientCertificateIdentity];
 	[headRequest setClientCertificates:[[clientCertificates copy] autorelease]];
 	[headRequest setPACurl:[self PACurl]];
@@ -4086,6 +4112,7 @@ static NSOperationQueue *sharedQueue = nil;
 	[newRequest setUseHTTPVersionOne:[self useHTTPVersionOne]];
 	[newRequest setShouldRedirect:[self shouldRedirect]];
 	[newRequest setValidatesSecureCertificate:[self validatesSecureCertificate]];
+    [newRequest setTlsVersion:[self tlsVersion]];
     [newRequest setClientCertificateIdentity:clientCertificateIdentity];
 	[newRequest setClientCertificates:[[clientCertificates copy] autorelease]];
 	[newRequest setPACurl:[self PACurl]];
@@ -5086,4 +5113,5 @@ static NSOperationQueue *sharedQueue = nil;
 @synthesize PACFileData;
 
 @synthesize isSynchronous;
+@synthesize tlsVersion;
 @end

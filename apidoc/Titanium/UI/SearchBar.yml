@@ -1,106 +1,105 @@
 ---
 name: Titanium.UI.SearchBar
-description: A Search Bar is created by the method <Titanium.UI.createSearchBar>.
+summary: A Search Bar is created by the method <Titanium.UI.createSearchBar>.
 extends: Titanium.UI.View
 since: "0.8"
 methods:
   - name: blur
-    description: called to force the search bar to lose focus
+    summary: called to force the search bar to lose focus
   - name: focus
-    description: called to force the search bar to focus
+    summary: called to force the search bar to focus
 events:
   - name: blur
-    description: fired when the search bar loses focus
+    summary: fired when the search bar loses focus
     properties:
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: the y point of the event, in receiving view coordinates
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        summary: the x point of the event in receiving view coordiantes
   - name: cancel
-    description: fired when the cancel button is pressed
+    summary: fired when the cancel button is pressed
     properties:
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: the y point of the event, in receiving view coordinates
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        summary: the x point of the event in receiving view coordiantes
   - name: change
-    description: fired when the value of the search bar changes
+    summary: fired when the value of the search bar changes
     properties:
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: the y point of the event, in receiving view coordinates
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        summary: the x point of the event in receiving view coordiantes
   - name: focus
-    description: fired when the search bar gains focus
+    summary: fired when the search bar gains focus
     properties:
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: the y point of the event, in receiving view coordinates
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        summary: the x point of the event in receiving view coordiantes
   - name: return
-    description: fired when keyboard search button is pressed
+    summary: fired when keyboard search button is pressed
     properties:
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: the y point of the event, in receiving view coordinates
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        summary: the x point of the event in receiving view coordiantes
 properties:
   - name: autocapitalization
-    description: One of <Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE>, <Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS>, <Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES>, or <Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL> to indicate how the field should be capitalized during typing.
+    summary: One of <Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE>, <Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS>, <Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES>, or <Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL> to indicate how the field should be capitalized during typing.
     type: Number
   - name: autocorrect
-    description: boolean to indicate if the text in the field should be autocorrected as typed
+    summary: boolean to indicate if the text in the field should be autocorrected as typed
     type: Boolean
   - name: barColor
-    description: the bar color of the search bar view
+    summary: the bar color of the search bar view
     type: String
   - name: hintText
-    description: the text to show when the search bar field is not focused
+    summary: the text to show when the search bar field is not focused
     type: String
   - name: hinttextid
-    description: the key in the locale file to use for the hintText property
+    summary: the key in the locale file to use for the hintText property
     type: String
   - name: keyboardType
-    description: the keyboard type constant to use when the field is focused
+    summary: the keyboard type constant to use when the field is focused
     type: Number
   - name: prompt
-    description: a single line of text displayed at the top of the search bar
+    summary: a single line of text displayed at the top of the search bar
     type: String
   - name: promptid
-    description: the key in the locale file to use for the prompt property
+    summary: the key in the locale file to use for the prompt property
     type: String
   - name: showCancel
-    description: boolean indicates whether the cancel button is displayed
+    summary: boolean indicates whether the cancel button is displayed
     type: Boolean
   - name: value
-    description: the value of the search bar
+    summary: the value of the search bar
     type: String
-notes: |
     
 examples:
   - title: Simple Search Bar

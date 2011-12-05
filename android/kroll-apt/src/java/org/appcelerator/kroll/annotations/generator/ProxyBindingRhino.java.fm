@@ -64,6 +64,11 @@ public class ${className}Prototype extends ${superProxy}
 		return ${protoVar};
 	}
 
+	public static void dispose()
+	{
+		${protoVar} = null;
+	}
+
 	public ${className}Prototype()
 	{
 		if (${protoVar} == null && getClass().equals(${className}Prototype.class)) {
@@ -97,7 +102,11 @@ public class ${className}Prototype extends ${superProxy}
 
 	protected KrollProxySupport createProxy(String creationUrl, Object[] args)
 	{
-		return KrollProxy.createProxy(${className}.class, getRhinoObject(), args, creationUrl); 
+		<#if useTiContext!false>
+		return KrollProxy.createDeprecatedProxy(${className}.class, getRhinoObject(), args, creationUrl);
+		<#else>
+		return KrollProxy.createProxy(${className}.class, getRhinoObject(), args, creationUrl);
+		</#if> 
 	}
 
 	// Methods
@@ -317,7 +326,7 @@ public class ${className}Prototype extends ${superProxy}
 			}
 		}
 
-		return result;
+		return TypeConverter.javaObjectToJsObject(result, start);
 	}
 	</#if>
 

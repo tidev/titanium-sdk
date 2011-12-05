@@ -13,7 +13,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
-import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiActivityWindow;
 import org.appcelerator.titanium.TiActivityWindows;
@@ -408,6 +407,15 @@ public class TiUIActivityWindow extends TiUIView
 
 		if (d.containsKey(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
 			handleWindowPixelFormat(TiConvert.toInt(d, TiC.PROPERTY_WINDOW_PIXEL_FORMAT));
+		}
+
+		if (d.containsKey(TiC.PROPERTY_ACTIVITY)) {
+			Object activityObject = d.get(TiC.PROPERTY_ACTIVITY);
+			ActivityProxy activityProxy = getProxy().getActivityProxy();
+			if (activityObject instanceof HashMap && activityProxy != null) {
+				KrollDict options = new KrollDict((HashMap) activityObject);
+				activityProxy.handleCreationDict(options);
+			}
 		}
 
 		// Don't allow default processing.

@@ -1,9 +1,9 @@
 ---
 name: Titanium.App.iOS.LocalNotification
-description: The LocalNotification is created by <Titanium.App.iOS.scheduleLocalNotification>.
+summary: The LocalNotification is created by <Titanium.App.iOS.scheduleLocalNotification>.
 extends: Titanium.Proxy
 since: "1.5"
 platforms: [iphone,ipad]
 methods:
   - name: cancel
-    description: cancel the pending notification
+    summary: cancel the pending notification

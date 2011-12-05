@@ -1,125 +1,135 @@
 ---
 name: Titanium.Network.HTTPClient
-description: The HttpClient instance returned from <Titanium.Network.createHTTPClient>. This object (mostly) implements the XMLHttpRequest specification.
+summary: The HttpClient instance returned from <Titanium.Network.createHTTPClient>. This object (mostly) implements the XMLHttpRequest specification.
+description: Mobile web requires cross-domain origin policies to be configured on the web servers in order for cross-domain connections to work.
 extends: Titanium.Proxy
 since: "0.1"
 methods:
   - name: abort
-    description: abort a pending request
+    summary: abort a pending request
   - name: getResponseHeader
-    description: return the response header.
+    summary: return the response header.
     returns:
         type: String
     parameters:
       - name: name
-        description: the header name
+        summary: the header name
         type: String
   - name: open
-    description: open the request and ready the connection
+    summary: open the request and ready the connection
     parameters:
       - name: method
-        description: the HTTP method
+        summary: the HTTP method
         type: String
       - name: url
-        description: the URL for the request
+        summary: the URL for the request
         type: String
       - name: async
-        description: optional property to indicate if asynchronous (default) or not
+        summary: optional property to indicate if asynchronous (default) or not
         type: Boolean
         default: true
   - name: send
-    description: send the request (Only async is currently supported)
+    summary: send the request (Only async is currently supported)
     parameters:
       - name: data
-        description: the data to send in the request. can either be null, dictionary, string, File object or Blob.
+        summary: the data to send in the request. can either be null, dictionary, string, File object or Blob.
         type: Object
   - name: setRequestHeader
-    description: set the request header. Must be called after `open` but before `send`.
+    summary: set the request header. Must be called after `open` but before `send`.
     parameters:
       - name: name
-        description: name of the header
+        summary: name of the header
         type: String
       - name: value
-        description: value of the header. May be null to clearing out a property, such as X-Requested-With
+        summary: value of the header. May be null to clearing out a property, such as X-Requested-With
         type: String
   - name: setTimeout
-    description: set the request timeout
+    summary: set the request timeout
     parameters:
       - name: timeout
-        description: the timeout in milliseconds
+        summary: the timeout in milliseconds
         type: Number
 properties:
   - name: DONE
-    description: the DONE readyState constant
+    summary: the DONE readyState constant
     type: Number
     permission: read-only
   - name: HEADERS_RECEIVED
-    description: the HEADERS_RECEIVED readyState constant
+    summary: the HEADERS_RECEIVED readyState constant
     type: Number
     permission: read-only
   - name: LOADING
-    description: the LOADING readyState constant
+    summary: the LOADING readyState constant
     type: Number
     permission: read-only
   - name: OPENED
-    description: the OPENED readyState constant
+    summary: the OPENED readyState constant
     type: Number
     permission: read-only
   - name: UNSENT
-    description: the UNSET readyState constant
+    summary: the UNSET readyState constant
     type: Number
     permission: read-only
   - name: connected
-    description: boolean to indicate that the response was successful
+    summary: boolean to indicate that the response was successful
     type: Boolean
   - name: connectionType
-    description: the connection type, normally either `GET` or `POST`.
+    summary: the connection type, normally either `GET` or `POST`.
     type: String
   - name: file
-    description: file to download contents to.  Can only be set after calling open.
+    summary: file to download contents to.  Can only be set after calling open.
     type: String
     platforms: [iphone, ipad]
   - name: location
-    description: the absolute URL of the request
+    summary: the absolute URL of the request
     type: String
   - name: ondatastream
-    description: set this to a function before calling open to cause the function to be called at regular intervals as the request data is being received. the `progress` property of the event will contain a value from 0.0-1.0 with the progress.
+    summary: set this to a function before calling open to cause the function to be called at regular intervals as the request data is being received. the `progress` property of the event will contain a value from 0.0-1.0 with the progress.
     type: Callback<Object>
   - name: onerror
-    description: set this to a function before calling open to cause the function to be called upon a error response
+    summary: set this to a function before calling open to cause the function to be called upon a error response
     type: Callback<Object>
   - name: onload
-    description: set this to a function before calling open to cause the function to be called upon a successful response
+    summary: set this to a function before calling open to cause the function to be called upon a successful response
     type: Callback<Object>
   - name: onreadystatechange
-    description: set this to a function before calling open to cause the function to be called for each readyState change
+    summary: set this to a function before calling open to cause the function to be called for each readyState change
     type: Callback<Object>
   - name: onsendstream
-    description: set this to a function before calling open to cause the function to be called at regular intervals as the request data is being transmitted. the `progress` property of the event will contain a value from 0.0-1.0 with the progress.
+    summary: set this to a function before calling open to cause the function to be called at regular intervals as the request data is being transmitted. the `progress` property of the event will contain a value from 0.0-1.0 with the progress.
     type: Callback<Object>
   - name: readyState
-    description: the readyState value
+    summary: the readyState value
     type: Number
   - name: responseData
-    description: the response data as a Blob object.
+    summary: the response data as a Blob object.
     type: Titanium.Blob
     permission: read-only
   - name: responseText
-    description: the response as text or null if an error was received or no data was returned
+    summary: the response as text or null if an error was received or no data was returned
     type: String
     permission: read-only
   - name: responseXML
-    description: the response object as an XML DOMDocument object. returns null if the content type returned by the server was not XML or the content could not be parsed
+    summary: the response object as an XML DOMDocument object. returns null if the content type returned by the server was not XML or the content could not be parsed
     type: Titanium.XML.Document
     permission: read-only
   - name: status
-    description: the response HTTP status code
+    summary: the response HTTP status code
     type: Number
     permission: read-only
   - name: timeout
-    description: timeout is milliseconds when the connection should be aborted
+    summary: timeout is milliseconds when the connection should be aborted
     type: Number
   - name: validatesSecureCertificate
-    description: set this to control how SSL certification validation is performed on connection.  defaults to false if in simulator or device testing and true if release for distribution mode.
+    summary: set this to control how SSL certification validation is performed on connection.  defaults to false if in simulator or device testing and true if release for distribution mode.
     type: Boolean
-notes: Mobile web requires cross-domain origin policies to be configured on the web servers in order for cross-domain connections to work.
+  - name: tlsVersion
+    summary: Sets the TLS version to use for handshakes. 
+    description: If you experience handshake failures, set this value to a lower
+        version using the TLS constants in <Titanium.Network>. 'undefined', 'null', or
+        unsupported values use the default behavior for that iOS version.
+    default:  undefined. For iOS 4, this is effectively [TLS_VERSION_1_0](Titanium.Network.TLS_VERSION_1_0).
+        For iOS 5 and greater, this is [TLS_VERSION_1_2](Titanium.Network.TLS_VERSION_1_2).
+    type: Number
+    since: "1.8.0"
+    platforms: [iphone, ipad]

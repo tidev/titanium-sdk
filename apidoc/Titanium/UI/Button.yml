@@ -1,52 +1,63 @@
 ---
 name: Titanium.UI.Button
-description: A Button is created by the method <Titanium.UI.createButton>.
+summary: A button widget.
+description: |
+    A button widget that has four states, normal, disabled, focused and selected. You can specify background images for each state, as well as button text and a button icon. Use the <Titanium.UI.createButton> method to create a button. 
 extends: Titanium.UI.View
 since: "0.8"
 properties:
   - name: color
-    description: the foreground color of the button text
+    summary: Default button text color.
     type: String
   - name: enabled
-    description: boolean that indicates if the button is enabled or not
+    summary: Set to `true` to enable the button, `false` to disable the button.
     type: Boolean
+    default: true
   - name: font
-    description: the font properties of the button
-    type: Object
+    summary: Font to use for the button text.
+    type: Font
   - name: image
-    description: the image to display on the button to the left of the title
+    summary: Image to display on the button to the left of the title.
     type: String
   - name: selectedColor
-    description: the selected color of the button text when the button is in the selected state
+    summary: Button text color used to indicate the selected state.
     type: String
   - name: style
-    description: style constant for the type of button
+    summary: Style constant for the button.
     type: Number
   - name: title
-    description: button title
+    summary: Button title.
     type: String
   - name: titleid
-    description: the key in the locale file to use for the title property
+    summary: Key identifying a string from the locale file to use for the button title. 
+    description: Only one of `title` or `titleid` should be specified.
     type: String
     since: "1.5"
   - name: backgroundImage
-    description: the background image url of the view. Sets the background image for all four (normal, disabled, focused, selected) states of the button unless overridden.
+    summary: Background image for the button in its normal state, specified as a local file path or URL. 
+    description: Also sets the background image for the other button states (disabled, focused, selected), unless they've been specified explicitly.
     type: String
   - name: backgroundDisabledImage
-    description: the disabled background image url of the view. Sets the background image for all four (normal, disabled, focused, selected) states of the button unless overridden.
+    summary: Background image for the button in its disabled state, specified as a local file path or URL. 
+    description: Also sets the background image for the other button states (normal, focused, selected), unless they've been specified explicitly.
     type: String
   - name: backgroundFocusedImage
-    description: the focused background image url of the view. Focusable must be true for normal views. Sets the background image for focused state only.
+    summary: Background image for the button in its focused state, specified as a local file path or URL. 
+    description: Focusable must be true for normal views. Sets the background image for the focused state only.
     type: String
   - name: backgroundSelectedImage
-    description: the selected background image url of the view. Focusable must be true for normal views. Sets the background image for selected state only
+    summary: Background image for the button in its selected state, specified as a local file path or URL. 
+    description: Focusable must be true for normal views. Sets the background image for the selected state only.
     type: String
 examples:
   - title: Simple Button Example
     example: |
         
             var button = Titanium.UI.createButton({
-               title: 'Hello'
+               title: 'Hello',
+               top: 10,
+               width: 100,
+               height: 50
             });
             button.addEventListener('click',function(e)
             {

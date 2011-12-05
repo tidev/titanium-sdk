@@ -17,9 +17,16 @@ var plist = []; // list of known FB permissions as of Jan 2011 (see bottom)
 // Login Button
 //
 var fbButton = Titanium.Facebook.createLoginButton({
-	style:'wide',
 	top: 10
 });
+if(Titanium.Platform.name == 'iPhone OS')
+{
+	fbButton.style = Ti.Facebook.BUTTON_STYLE_NORMAL;
+}
+else
+{
+	fbButton.style ='normal';
+}
 sv.add(fbButton);
 
 var b1 = Ti.UI.createButton({
