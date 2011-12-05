@@ -41,7 +41,6 @@
 
 -(void)updateBackground;
 -(void)updateOrientationHistory:(UIInterfaceOrientation)newOrientation;
--(CGAffineTransform)transformForOrientation:(UIInterfaceOrientation)orientation;
 
 @property (nonatomic,readwrite,assign)	UIInterfaceOrientation windowOrientation;
 
@@ -352,57 +351,47 @@
 
 #pragma mark Performing orientation rotations
 
--(CGAffineTransform)transformForOrientation:(UIInterfaceOrientation)orientation
-{
-	switch (orientation)
-	{
-        case UIInterfaceOrientationPortrait:
-            return CGAffineTransformIdentity;
-            break;
-		case UIInterfaceOrientationPortraitUpsideDown:
-			return CGAffineTransformMakeRotation(M_PI);
-			break;
-		case UIInterfaceOrientationLandscapeLeft:
-			return CGAffineTransformMakeRotation(-M_PI_2);
-			break;
-		case UIInterfaceOrientationLandscapeRight:
-			return CGAffineTransformMakeRotation(M_PI_2);
-			break;
-    }
-    
-    return CGAffineTransformIdentity;
-}
-
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration
 {
 	UIApplication * ourApp = [UIApplication sharedApplication];
 	UIInterfaceOrientation oldOrientation = [ourApp statusBarOrientation];
-	CGAffineTransform transform = [self transformForOrientation:newOrientation];
+	CGAffineTransform transform;
 
-    // Have to batch all of the commands together in case anything animates, 
-    // so that it doesn't look funky
+	switch (newOrientation)
+	{
+		case UIInterfaceOrientationPortraitUpsideDown:
+			transform = CGAffineTransformMakeRotation(M_PI);
+			break;
+		case UIInterfaceOrientationLandscapeLeft:
+			transform = CGAffineTransformMakeRotation(-M_PI_2);
+			break;
+		case UIInterfaceOrientationLandscapeRight:
+			transform = CGAffineTransformMakeRotation(M_PI_2);
+			break;
+		default:
+			transform = CGAffineTransformIdentity;
+			break;
+	}
+
+	[self willRotateToInterfaceOrientation:newOrientation duration:duration];
+	
+    // Have to batch all of the animations together, so that it doesn't look funky
     if (duration > 0.0)
 	{
 		[UIView beginAnimations:@"orientation" context:nil];
 		[UIView setAnimationDuration:duration];
 	}
-	
-    [self willRotateToInterfaceOrientation:newOrientation duration:duration];
     
-    if (newOrientation != oldOrientation)
+    if (newOrientation != oldOrientation && isCurrentlyVisible)
     {
-        if (isCurrentlyVisible) {
-            [keyboardFocusedProxy blur:nil];
-        }
+        [keyboardFocusedProxy blur:nil];
         [ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
         
         // Because this is only triggered when we update to a new orientation manually
         // (Not in a rotation event!) we should be updating the orientation history here.
         [self updateOrientationHistory:newOrientation];
-
-        if (isCurrentlyVisible) {
-            [keyboardFocusedProxy focus:nil];
-        }
+        
+        [keyboardFocusedProxy focus:nil];
     }
 
 	UIView * ourView = [self view];
@@ -413,12 +402,13 @@
 
     //Propigate this to everyone else. This has to be done INSIDE the animation.
     [self repositionSubviews];
-	[self didRotateFromInterfaceOrientation:oldOrientation];
-    
+	
 	if (duration > 0.0)
 	{
 		[UIView commitAnimations];
 	}
+	
+	[self didRotateFromInterfaceOrientation:oldOrientation];
 }
 
 -(NSTimeInterval)suggestedRotationDuration
@@ -554,7 +544,11 @@
 
 -(CGRect)resizeView
 {
-    return [self resizeViewForStatusBarHidden:[[UIApplication sharedApplication] isStatusBarHidden]];
+	CGRect rect = [[UIScreen mainScreen] applicationFrame];
+//	VerboseLog(@"(%f,%f),(%fx%f)",rect.origin.x,rect.origin.y,rect.size.width,rect.size.height);
+	[[self view] setFrame:rect];
+	//Because of the transition in landscape orientation, TiUtils can't be used here... SetFrame compensates for it.
+	return [[self view] bounds];
 }
 
 // Some controllers (like MPVideoPlayerController) manually hide/show the bar
