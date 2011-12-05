@@ -305,8 +305,10 @@ DEFINE_EXCEPTIONS
 	if (imageView==nil)
 	{
 		imageView = [[UIImageView alloc] initWithFrame:[self bounds]];
-		[imageView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-		[imageView setContentMode:UIViewContentModeScaleAspectFit];
+        if(canScale) {
+            [imageView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+            [imageView setContentMode:UIViewContentModeScaleAspectFit];
+        }
 		[self addSubview:imageView];
 	}
 	return imageView;
@@ -325,8 +327,10 @@ DEFINE_EXCEPTIONS
 	iv.image = image;
 	if (placeholderLoading)
 	{
-		iv.autoresizingMask = UIViewAutoresizingNone;
-		iv.contentMode = UIViewContentModeScaleAspectFit;
+        if(canScale) {
+            iv.autoresizingMask = UIViewAutoresizingNone;
+            iv.contentMode = UIViewContentModeScaleAspectFit;
+        }
 		iv.alpha = 0;
 		
 		[(TiViewProxy *)[self proxy] contentsWillChange];
@@ -624,6 +628,11 @@ DEFINE_EXCEPTIONS
 	{
 		[self.proxy fireEvent:@"pause" withObject:nil];
 	}
+}
+
+-(void)setCanScale_:(id)isScallable
+{
+	canScale = [TiUtils boolValue: isScallable];
 }
 
 -(void)setWidth_:(id)width_

@@ -31,6 +31,7 @@
 	BOOL reverse;
 	BOOL paused;
 	BOOL placeholderLoading;
+    BOOL canScale;
 	TiDimension width;
 	TiDimension height;
 	CGFloat autoHeight;
