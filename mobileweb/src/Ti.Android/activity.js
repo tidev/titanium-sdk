@@ -2,13 +2,13 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	Ti._5.member(api, 'intent');
+	Ti._5.prop(api, 'intent');
 
-	Ti._5.member(api, 'onCreateOptionsMenu');
+	Ti._5.prop(api, 'onCreateOptionsMenu');
 
-	Ti._5.member(api, 'onPrepareOptionsMenu');
+	Ti._5.prop(api, 'onPrepareOptionsMenu');
 
-	Ti._5.member(api, 'requestedOrientation');
+	Ti._5.prop(api, 'requestedOrientation');
 
 	// Methods
 	api.finish = function(){

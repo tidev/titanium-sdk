@@ -7,9 +7,9 @@ Ti._5.createClass('Titanium.UI.iOS.AdView', function(args){
 	Ti._5.Positionable(this, args);
 
 	// Properties
-	Ti._5.member(this, 'SIZE_320x50');
+	Ti._5.prop(this, 'SIZE_320x50');
 
-	Ti._5.member(this, 'SIZE_480x32');
+	Ti._5.prop(this, 'SIZE_480x32');
 
 	// Methods
 	this.cancelAction = function(){

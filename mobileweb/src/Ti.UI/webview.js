@@ -50,7 +50,7 @@ Ti._5.createClass('Titanium.UI.WebView', function(args){
 	
 	// Properties
 	// NOT IMPLEMENTED
-	Ti._5.member(this, 'data');
+	Ti._5.prop(this, 'data');
 
 	Ti._5.prop(this, 'html', {
 		get: function() {
@@ -82,12 +82,11 @@ Ti._5.createClass('Titanium.UI.WebView', function(args){
 
 	var _loading = false;
 	Ti._5.prop(this, 'loading', {
-		get: function(){return _loading;},
-		set: function(val){return false;}
+		get: function(){return _loading;}
 	});
 
 	// NOT IMPLEMENTED
-	Ti._5.member(this, 'scalesPageToFit');
+	Ti._5.prop(this, 'scalesPageToFit');
 	
 	var _url = "";
 	Ti._5.prop(this, 'url', {
@@ -119,12 +118,8 @@ Ti._5.createClass('Titanium.UI.WebView', function(args){
 			}
 		},
 		set: function(val) {
-			if (val.width) {
-				obj.width = Ti._5.parseLength(val.width);
-			}
-			if (val.height) {
-				obj.height = Ti._5.parseLength(val.height);
-			}
+			val.width && (obj.width = Ti._5.parseLength(val.width));
+			val.height && (obj.height = Ti._5.parseLength(val.height));
 			return val;
 		}
 	});

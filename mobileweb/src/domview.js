@@ -59,7 +59,7 @@
 		};
 
 		var _layout;
-		Ti._5.prop(obj, 'layout', {
+		Ti._5.prop(obj, 'layout', args.layout, {
 			get: function() {
 				return _layout;
 			},
@@ -77,12 +77,6 @@
 			},
 			configurable: true
 		});
-		
-		//
-		// setup getters/setters
-		//
-		Ti._5.preset(obj, ['layout'], args);
-		
 		
 		// API Methods
 		obj.render = function(parent) {

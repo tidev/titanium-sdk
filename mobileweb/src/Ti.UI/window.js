@@ -27,16 +27,16 @@ Ti._5.createClass('Titanium.UI.Window', function(args){
 	this.fullscreen = false;
 	this.leftNavButton = null;
 	
-	Ti._5.member(this, 'modal');
+	Ti._5.prop(this, 'modal');
 
-	Ti._5.member(this, 'navBarHidden');
+	Ti._5.prop(this, 'navBarHidden');
 
 	this.orientationModes = [];
 
 	this.rightNavButton = null;
 	this.softInputMode = null;
 
-	Ti._5.member(this, 'tabBarHidden');
+	Ti._5.prop(this, 'tabBarHidden');
 
 	this.titleControl = null;
 	this.titleImage = null;
@@ -45,15 +45,14 @@ Ti._5.createClass('Titanium.UI.Window', function(args){
 	var _titleid = null;
 	Ti._5.prop(this, 'titleid', {
 		get: function(){return _titleid;},
-		set: function(val){_titleid = val; return obj.title = L(val);}
+		set: function(val){return obj.title = L(_titleid = val);}
 	});
 
 	var _titlepromptid = null;
 	Ti._5.prop(this, 'titlepromptid', {
 		get: function(){return _titlepromptid;},
 		set: function(val){
-			obj.titlePrompt = L(val);
-			return _titlepromptid = val;
+			return obj.titlePrompt = L(_titlepromptid = val);
 		}
 	});
 

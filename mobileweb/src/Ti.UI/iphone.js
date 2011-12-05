@@ -3,29 +3,29 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	Ti._5.member(api, 'MODAL_PRESENTATION_CURRENT_CONTEXT');
+	Ti._5.prop(api, 'MODAL_PRESENTATION_CURRENT_CONTEXT');
 
-	Ti._5.member(api, 'MODAL_PRESENTATION_FORMSHEET');
+	Ti._5.prop(api, 'MODAL_PRESENTATION_FORMSHEET');
 
-	Ti._5.member(api, 'MODAL_PRESENTATION_FULLSCREEN');
+	Ti._5.prop(api, 'MODAL_PRESENTATION_FULLSCREEN');
 
-	Ti._5.member(api, 'MODAL_PRESENTATION_PAGESHEET');
+	Ti._5.prop(api, 'MODAL_PRESENTATION_PAGESHEET');
 
-	Ti._5.member(api, 'MODAL_TRANSITION_STYLE_COVER_VERTICAL');
+	Ti._5.prop(api, 'MODAL_TRANSITION_STYLE_COVER_VERTICAL');
 
-	Ti._5.member(api, 'MODAL_TRANSITION_STYLE_CROSS_DISSOLVE');
+	Ti._5.prop(api, 'MODAL_TRANSITION_STYLE_CROSS_DISSOLVE');
 
-	Ti._5.member(api, 'MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL');
+	Ti._5.prop(api, 'MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL');
 
-	Ti._5.member(api, 'MODAL_TRANSITION_STYLE_PARTIAL_CURL');
+	Ti._5.prop(api, 'MODAL_TRANSITION_STYLE_PARTIAL_CURL');
 
-	Ti._5.member(api, 'appBadge');
+	Ti._5.prop(api, 'appBadge');
 
-	Ti._5.member(api, 'appSupportsShakeToEdit');
+	Ti._5.prop(api, 'appSupportsShakeToEdit');
 
-	Ti._5.member(api, 'statusBarHidden');
+	Ti._5.prop(api, 'statusBarHidden');
 
-	Ti._5.member(api, 'statusBarStyle');
+	Ti._5.prop(api, 'statusBarStyle');
 
 	// Methods
 	api.createNavigationGroup = function(){

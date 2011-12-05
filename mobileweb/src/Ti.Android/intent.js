@@ -1,18 +1,18 @@
 (function(api){
 	// Properties
-	Ti._5.member(api, 'action');
+	Ti._5.prop(api, 'action');
 
-	Ti._5.member(api, 'className');
+	Ti._5.prop(api, 'className');
 
-	Ti._5.member(api, 'data');
+	Ti._5.prop(api, 'data');
 
-	Ti._5.member(api, 'flags');
+	Ti._5.prop(api, 'flags');
 
-	Ti._5.member(api, 'packageName');
+	Ti._5.prop(api, 'packageName');
 
-	Ti._5.member(api, 'type');
+	Ti._5.prop(api, 'type');
 
-	Ti._5.member(api, 'url');
+	Ti._5.prop(api, 'url');
 
 	// Methods
 	api.addCategory = function(){

@@ -1,19 +1,19 @@
 (function(api){
 	Ti._5.EventDriven(api);
 	// Properties
-	Ti._5.member(api, 'enabled');
+	Ti._5.prop(api, 'enabled');
 
-	Ti._5.member(api, 'groupId');
+	Ti._5.prop(api, 'groupId');
 
-	Ti._5.member(api, 'itemId');
+	Ti._5.prop(api, 'itemId');
 
-	Ti._5.member(api, 'order');
+	Ti._5.prop(api, 'order');
 
-	Ti._5.member(api, 'title');
+	Ti._5.prop(api, 'title');
 
-	Ti._5.member(api, 'titleCondensed');
+	Ti._5.prop(api, 'titleCondensed');
 
-	Ti._5.member(api, 'visible');
+	Ti._5.prop(api, 'visible');
 
 	// Methods
 	api.getCondensedTitle = function(){

@@ -50,7 +50,7 @@ Ti._5.createClass('Titanium.UI.Tab', function(args){
 	};
 
 	// Properties
-	Ti._5.member(this, 'badge');
+	Ti._5.prop(this, 'badge');
 
 	var _icon = null;
 	Ti._5.prop(this, 'icon', {
@@ -70,8 +70,7 @@ Ti._5.createClass('Titanium.UI.Tab', function(args){
 	Ti._5.prop(this, 'title', {
 		get: function(){return _title;},
 		set: function(val){
-			obj._header.innerHTML = val;
-			return _title = val;
+			return obj._header.innerHTML = _title = val;
 		}
 	});
 
@@ -79,8 +78,7 @@ Ti._5.createClass('Titanium.UI.Tab', function(args){
 	Ti._5.prop(this, 'titleid', {
 		get: function(){return _titleid;},
 		set: function(val){
-			obj.title = L(val);
-			return _titleid = val;
+			return obj.title = L(_titleid = val);
 		}
 	});
 

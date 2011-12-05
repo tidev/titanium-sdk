@@ -33,11 +33,11 @@ Ti._5.createClass('Titanium.UI.AlertDialog', function(args){
 		}
 	});
 
-	Ti._5.member(this, 'message', '');
+	Ti._5.prop(this, 'message', '');
 
-	Ti._5.member(this, 'messageid');
+	Ti._5.prop(this, 'messageid');
 
-	Ti._5.member(this, 'title');
+	Ti._5.prop(this, 'title');
 	
 	require.mix(this, args);
 

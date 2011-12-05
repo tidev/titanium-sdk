@@ -22,17 +22,17 @@ Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 		}
 	});
 
-	Ti._5.member(this, 'maxZoomScale');
+	Ti._5.prop(this, 'maxZoomScale');
 
-	Ti._5.member(this, 'minZoomScale');
+	Ti._5.prop(this, 'minZoomScale');
 
-	Ti._5.member(this, 'pagingControlColor');
+	Ti._5.prop(this, 'pagingControlColor');
 
-	Ti._5.member(this, 'pagingControlHeight');
+	Ti._5.prop(this, 'pagingControlHeight');
 
-	Ti._5.member(this, 'showPagingControl');
+	Ti._5.prop(this, 'showPagingControl');
 
-	Ti._5.member(this, 'views', []);
+	Ti._5.prop(this, 'views', []);
 
 	// Methods
 	this.addView = function(view){

@@ -28,8 +28,7 @@
 		var _nodes = [];
 
 		Ti._5.prop(this, 'length', {
-			get: function() {return _nodes.length},
-			set: function() {return false}
+			get: function() {return _nodes.length}
 		});
 	
 		this.item = function (iIndex) {

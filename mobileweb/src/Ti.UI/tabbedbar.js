@@ -10,11 +10,11 @@ Ti._5.createClass('Titanium.UI.TabbedBar', function(args){
 	Ti._5.Positionable(this, args);
 
 	// Properties
-	Ti._5.member(this, 'index');
+	Ti._5.prop(this, 'index');
 
-	Ti._5.member(this, 'labels');
+	Ti._5.prop(this, 'labels');
 
-	Ti._5.member(this, 'style');
+	Ti._5.prop(this, 'style');
 
 	require.mix(this, args);
 });

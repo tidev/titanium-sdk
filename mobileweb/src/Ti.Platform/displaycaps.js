@@ -1,4 +1,6 @@
 (function(api){
+	Titanium.Platform.displayCaps = api;
+
 	// Properties
 	var _density = null;
 	Ti._5.prop(api, 'density', {
@@ -11,8 +13,7 @@
 				default:
 					return '';
 			}
-		},
-		set: function(val){return false;}
+		}
 	});
 
 	var _dpi = null;
@@ -26,18 +27,11 @@
 				default:
 					return 0;
 			}
-		},
-		set: function(val){return false;}
+		}
 	});
 
-	Ti._5.prop(api, 'platformHeight', {
-		get: function(){return window.innerHeight;},
-		set: function(val){return false;}
-	});
+	Ti._5.propReadOnly(api, 'platformHeight', window.innerHeight);
 
-	Ti._5.prop(api, 'platformWidth', {
-		get: function(){return window.innerWidth;},
-		set: function(val){return false;}
-	});
+	Ti._5.propReadOnly(api, 'platformWidth', window.innerWidth);
 
 })(Ti._5.createClass('Titanium.Platform.DisplayCaps'));

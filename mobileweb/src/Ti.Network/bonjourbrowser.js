@@ -3,11 +3,11 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	Ti._5.member(api, 'domain');
+	Ti._5.prop(api, 'domain');
 
-	Ti._5.member(api, 'isSearching');
+	Ti._5.prop(api, 'isSearching');
 
-	Ti._5.member(api, 'serviceType');
+	Ti._5.prop(api, 'serviceType');
 
 	// Methods
 	api.search = function(){

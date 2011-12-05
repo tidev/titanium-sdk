@@ -42,25 +42,25 @@ Ti._5.createClass('Titanium.UI.ImageView', function(args){
 	}
 
 	// Properties
-	Ti._5.member(this, 'animating');
+	Ti._5.prop(this, 'animating');
 
-	Ti._5.member(this, 'duration');
+	Ti._5.prop(this, 'duration');
 	
-	Ti._5.member(this, 'paused');
+	Ti._5.prop(this, 'paused');
 	
-	Ti._5.member(this, 'repeatCount', 0);
+	Ti._5.prop(this, 'repeatCount', 0);
 
 	var _reverse = false;
 	Ti._5.prop(this, 'reverse', {
 		get: function(){return _reverse;},
-		set: function(val){return _reverse = val ? true : false;}
+		set: function(val){return _reverse = !!val;}
 	});
 
-	Ti._5.member(this, 'enableZoomControls', true);
+	Ti._5.prop(this, 'enableZoomControls', true);
 
 	// indicates whether or not the source image is in 2x resolution for retina displays. 
 	// Use for remote images ONLY. (iOS)
-	Ti._5.member(this, 'hires', false);
+	Ti._5.prop(this, 'hires', false);
 	
 	var _canScale = true;
 	Ti._5.prop(this, 'canScale', {
@@ -75,12 +75,12 @@ Ti._5.createClass('Titanium.UI.ImageView', function(args){
 		}
 	});
 
-	Ti._5.member(this, 'defaultImage', '');
+	Ti._5.prop(this, 'defaultImage', '');
 	
 	var _src = "";
 	Ti._5.prop(this, 'image', {
 		get: function(){return _src;},
-		set: function(val){_src = val; return _loadImages([val]);}
+		set: function(val){return _loadImages([_src = val]);}
 	});
 
 	var _images = [];
@@ -96,7 +96,7 @@ Ti._5.createClass('Titanium.UI.ImageView', function(args){
 	var _preventDefaultImage = false;
 	Ti._5.prop(this, 'preventDefaultImage', {
 		get: function(){return _preventDefaultImage;},
-		set: function(val){return _preventDefaultImage = val ? true : false;}
+		set: function(val){return _preventDefaultImage = !!val;}
 	});
 
 	// deprecated since 1.5.0
@@ -113,12 +113,8 @@ Ti._5.createClass('Titanium.UI.ImageView', function(args){
 			}
 		},
 		set: function(val) {
-			if (val.width) {
-				obj.width = Ti._5.parseLength(val.width);
-			}
-			if (val.height) {
-				obj.height = Ti._5.parseLength(val.height);
-			}
+			val.width && (obj.width = Ti._5.parseLength(val.width));
+			val.height && (obj.height = Ti._5.parseLength(val.height));
 			return val;
 		}
 	});

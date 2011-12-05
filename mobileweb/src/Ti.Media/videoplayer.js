@@ -7,45 +7,45 @@ Ti._5.createClass('Titanium.Media.VideoPlayer', function(api){
 	Ti._5.Positionable(this, args);
 
 	// Properties
-	Ti._5.member(this, 'autoplay');
+	Ti._5.prop(this, 'autoplay');
 
-	Ti._5.member(this, 'contentURL');
+	Ti._5.prop(this, 'contentURL');
 
-	Ti._5.member(this, 'duration');
+	Ti._5.prop(this, 'duration');
 
-	Ti._5.member(this, 'endPlaybackTime');
+	Ti._5.prop(this, 'endPlaybackTime');
 
-	Ti._5.member(this, 'fullscreen');
+	Ti._5.prop(this, 'fullscreen');
 
-	Ti._5.member(this, 'initialPlaybackTime');
+	Ti._5.prop(this, 'initialPlaybackTime');
 
-	Ti._5.member(this, 'loadState');
+	Ti._5.prop(this, 'loadState');
 
-	Ti._5.member(this, 'media');
+	Ti._5.prop(this, 'media');
 
-	Ti._5.member(this, 'mediaControlStyle');
+	Ti._5.prop(this, 'mediaControlStyle');
 
-	Ti._5.member(this, 'mediaTypes');
+	Ti._5.prop(this, 'mediaTypes');
 
-	Ti._5.member(this, 'movieControlMode');
+	Ti._5.prop(this, 'movieControlMode');
 
-	Ti._5.member(this, 'naturalSize');
+	Ti._5.prop(this, 'naturalSize');
 
-	Ti._5.member(this, 'playableDuration');
+	Ti._5.prop(this, 'playableDuration');
 
-	Ti._5.member(this, 'playbackState');
+	Ti._5.prop(this, 'playbackState');
 
-	Ti._5.member(this, 'playing');
+	Ti._5.prop(this, 'playing');
 
-	Ti._5.member(this, 'repeatMode');
+	Ti._5.prop(this, 'repeatMode');
 
-	Ti._5.member(this, 'scalingMode');
+	Ti._5.prop(this, 'scalingMode');
 
-	Ti._5.member(this, 'sourceType');
+	Ti._5.prop(this, 'sourceType');
 
-	Ti._5.member(this, 'url');
+	Ti._5.prop(this, 'url');
 
-	Ti._5.member(this, 'useApplicationAudioSession');
+	Ti._5.prop(this, 'useApplicationAudioSession');
 
 	// Methods
 	this.cancelAllThumbnailImageRequests = function(){

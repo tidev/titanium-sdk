@@ -30,9 +30,9 @@ Ti._5.createClass('Titanium.UI.SearchBar', function(args){
 		}
 	});
 
-	Ti._5.member(this, 'autocorrect');
+	Ti._5.prop(this, 'autocorrect');
 
-	Ti._5.member(this, 'barColor');
+	Ti._5.prop(this, 'barColor');
 
 	Ti._5.prop(this, 'hintText', {
 		get: function() {return obj.dom.placeholder;},
@@ -44,20 +44,20 @@ Ti._5.createClass('Titanium.UI.SearchBar', function(args){
 	var _hinttextid = null;
 	Ti._5.prop(this, 'hinttextid', {
 		get: function(){return _hinttextid;},
-		set: function(val){_hinttextid = val; return obj.hintText = L(val);}
+		set: function(val){return obj.hintText = L(_hinttextid = val);}
 	});
 
-	Ti._5.member(this, 'keyboardType');
+	Ti._5.prop(this, 'keyboardType');
 
-	Ti._5.member(this, 'prompt');
+	Ti._5.prop(this, 'prompt');
 
 	var _promptid = null;
 	Ti._5.prop(this, 'promptid', {
 		get: function(){return _promptid;},
-		set: function(val){_promptid = val; return obj.prompt = L(val);}
+		set: function(val){return obj.prompt = L(_promptid = val);}
 	});
 
-	Ti._5.member(this, 'showCancel');
+	Ti._5.prop(this, 'showCancel');
 
 	Ti._5.prop(this, 'value', {
 		get: function() {return obj.dom.value;},

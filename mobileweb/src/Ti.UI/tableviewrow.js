@@ -22,14 +22,13 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 	this.dom.style.lineHeight = args['height'] ? args['height'] : '50px';
 
 	// Properties
-	Ti._5.member(this, 'className');
+	Ti._5.prop(this, 'className');
 
 	var _colorRow = '#000000';
 	Ti._5.prop(this, 'color', {
 		get: function(){return _colorRow;},
 		set: function(val){
-			_colorRow = val;
-			return obj.dom.style.color = val;
+			return obj.dom.style.color = _colorRow = val;
 		}
 	});
 
@@ -77,8 +76,8 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 		}
 	};
 
-	var _hasCheck = false;
-	Ti._5.prop(this, 'hasCheck', {
+	var _hasCheck;
+	Ti._5.prop(this, 'hasCheck', false, {
 		get: function(){return _hasCheck;},
 		set: function(val){
 			_hasCheck = val;
@@ -91,8 +90,8 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 		}
 	});
 
-	var _hasChild = false;
-	Ti._5.prop(this, 'hasChild', {
+	var _hasChild;
+	Ti._5.prop(this, 'hasChild', false, {
 		get: function(){return _hasChild;},
 		set: function(val){
 			_hasChild = val;
@@ -105,8 +104,8 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 		}
 	});
 
-	var _hasDetail = false;
-	Ti._5.prop(this, 'hasDetail', {
+	var _hasDetail;
+	Ti._5.prop(this, 'hasDetail', false, {
 		get: function(){return _hasDetail;},
 		set: function(val){
 			_hasDetail = val;
@@ -125,7 +124,7 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 		set: function(val){return _indentionLevel = parseInt(val);}
 	});
 
-	Ti._5.member(this, 'layout');
+	Ti._5.prop(this, 'layout');
 
 	var _leftImage = null, _leftImageObj = null;
 	Ti._5.prop(this, 'leftImage', {
@@ -181,11 +180,11 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 		}
 	});
 
-	Ti._5.member(this, 'selectedBackgroundColor', '#cccccc');
+	Ti._5.prop(this, 'selectedBackgroundColor', '#cccccc');
 
-	Ti._5.member(this, 'selectedBackgroundImage');
+	Ti._5.prop(this, 'selectedBackgroundImage');
 
-	Ti._5.member(this, 'selectedColor', obj.color);
+	Ti._5.prop(this, 'selectedColor', obj.color);
 
 	var _selectionStyle = null;
 	Ti._5.prop(this, 'selectionStyle', {
@@ -207,8 +206,7 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 	Ti._5.prop(this, 'title', {
 		get: function(){return _title;},
 		set: function(val) {
-			_title = val;
-			return _titleObj.innerHTML = Ti._5._changeTextToHTML(val);
+			return _titleObj.innerHTML = Ti._5._changeTextToHTML(_title = val);
 		}
 	});
 	
@@ -260,12 +258,8 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 			}
 		},
 		set: function(val) {
-			if (val.width) {
-				obj.width = Ti._5.parseLength(val.width);
-			}
-			if (val.height) {
-				obj.height = Ti._5.parseLength(val.height);
-			}
+			val.width && (obj.width = Ti._5.parseLength(val.width));
+			val.height && (obj.height = Ti._5.parseLength(val.height));
 			return val;
 		}
 	});
@@ -277,8 +271,8 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 		},
 		set: function(val) {
 			_height = val;
-			obj.dom.style.height =  val + (/^\d+$/.test(val) ? 'px' : "");
-			return obj.dom.style.lineHeight =  obj.dom.style.height;
+			obj.dom.style.height = val + (/^\d+$/.test(val) ? 'px' : "");
+			return obj.dom.style.lineHeight = obj.dom.style.height;
 		}
 	});
 	

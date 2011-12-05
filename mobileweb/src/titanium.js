@@ -278,31 +278,35 @@ function($window, args){
 			obj[prop] = args[prop];
 		}
 	}
-	
-	Ti._5.member = function(obj,memberName,defaultValue) {
-		
-		// Set the default value
-		obj[memberName] = require.is(defaultValue,"Undefined") ? null : defaultValue;
-		
-		// Create the getxxx and setxxx accessor methods
-		var capitalizedName = memberName.substring(0, 1).toUpperCase() + memberName.substring(1);
-		obj["get" + capitalizedName] = function(){ return obj[memberName]; };
-		obj["set" + capitalizedName] = function(val){ obj[memberName] = val };
+
+	Ti._5.prop = function(obj, property, defaultValue, descriptor) {
+		var skipSet,
+			capitalizedName = property.substring(0, 1).toUpperCase() + property.substring(1);
+
+		// if we only have 3 args, so need to check if it's a default value or a descriptor
+		if (arguments.length === 3 && require.is(defaultValue, "Object") && (defaultValue.get || defaultValue.set)) {
+			descriptor = defaultValue;
+			// we don't have a default value, so skip the set
+			skipSet = 1;
+		}
+
+		// if we have a descriptor, then defineProperty
+		if (descriptor) {
+			// if the descriptor has a "value", then it'll get set when we defineProperty, so skip the set below
+			!skipSet && descriptor.value === skipSet || (skipSet = 1);
+			Object.defineProperty(obj, property, descriptor);
+		}
+
+		// create the get/set functions
+		obj["get" + capitalizedName] = function(){ return obj[property]; };
+		obj["set" + capitalizedName] = function(val){ return obj[property] = val; };
+
+		// if there's no default value or it's already been set with defineProperty(), then we skip setting it
+		skipSet || (obj[property] = defaultValue);
 	};
-	
-	Ti._5.prop = function(obj, propertyName, descriptor) {
-		
-		// Verify that both the getter and setter were defined, and if not provide a default implementation	
-		!descriptor.get && (descriptor.get = function () {return null;});
-		!descriptor.set && (descriptor.set = function () {return null;});
-		
-		// Create the property
-		Object.defineProperty(obj, propertyName, descriptor	);
-		
-		// Create the getxxx and setxxx accessor methods
-		var capitalizedName = propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1);
-		obj["get" + capitalizedName] = function(){ return descriptor.get.call(obj); };
-		obj["set" + capitalizedName] = function(val){ return descriptor.set.call(obj, val); };
+
+	Ti._5.propReadOnly = function(obj, property, defaultValue) {
+		Ti._5.prop(obj, property, null, { value: defaultValue || null });
 	};
 
 	Ti._5.createClass = function(className, value){

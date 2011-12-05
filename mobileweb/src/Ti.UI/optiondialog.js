@@ -4,19 +4,19 @@ Ti._5.createClass('Titanium.UI.OptionDialog', function(args){
 	Ti._5.DOMView(this, 'optiondialog', args, 'OptionDialog');
 
 	// Properties
-	Ti._5.member(this, 'androidView');
+	Ti._5.prop(this, 'androidView');
 
-	Ti._5.member(this, 'cancel');
+	Ti._5.prop(this, 'cancel');
 
-	Ti._5.member(this, 'destructive');
+	Ti._5.prop(this, 'destructive');
 
-	Ti._5.member(this, 'options');
+	Ti._5.prop(this, 'options');
 
-	Ti._5.member(this, 'selectedIndex');
+	Ti._5.prop(this, 'selectedIndex');
 
-	Ti._5.member(this, 'title');
+	Ti._5.prop(this, 'title');
 
-	Ti._5.member(this, 'titleid');
+	Ti._5.prop(this, 'titleid');
 
 	// Methods
 	this.show = function(){

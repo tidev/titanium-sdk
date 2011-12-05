@@ -3,15 +3,15 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	Ti._5.member(api, 'compression');
+	Ti._5.prop(api, 'compression');
 
-	Ti._5.member(api, 'format');
+	Ti._5.prop(api, 'format');
 
-	Ti._5.member(api, 'paused');
+	Ti._5.prop(api, 'paused');
 
-	Ti._5.member(api, 'recording');
+	Ti._5.prop(api, 'recording');
 
-	Ti._5.member(api, 'stopped');
+	Ti._5.prop(api, 'stopped');
 
 	// Methods
 	api.pause = function(){

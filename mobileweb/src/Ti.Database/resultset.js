@@ -7,13 +7,13 @@ Ti._5.createClass('Titanium.Database.ResultSet', function(args){
 	
 	// Properties
 	var _rowCount = null;
-	Ti._5.member(this, 'rowCount', {
+	Ti._5.prop(this, 'rowCount', {
 		get: function() {return aRows.length;},
 		set: function(val) {return null;}
 	});
 
-	Ti._5.member(this, 'validRow', {
-		get: function() {return _currentRow >= aRows.length ? false : true;},
+	Ti._5.prop(this, 'validRow', {
+		get: function() {return _currentRow < aRows.length;},
 		set: function(val) {return null;}
 	});
 

@@ -4,11 +4,11 @@ Ti._5.createClass('Titanium.UI.iPhone.ScrollIndicatorStyle', function(args){
 	Ti._5.DOMView(this, 'iphone.scrollindicatorstyle', args, 'iPhone.ScrollIndicatorStyle');
 
 	// Properties
-	Ti._5.member(this, 'BLACK');
+	Ti._5.prop(this, 'BLACK');
 
-	Ti._5.member(this, 'DEFAULT');
+	Ti._5.prop(this, 'DEFAULT');
 
-	Ti._5.member(this, 'WHITE');
+	Ti._5.prop(this, 'WHITE');
 
 	require.mix(this, args);
 });

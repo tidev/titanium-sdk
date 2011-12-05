@@ -40,29 +40,21 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 		set: function(val) {return obj.dom.disabled = !val ? 'disabled' : '';}
 	});
 
-	var _backgroundDisabledImage = '', _backgroundImage = ''; 
-	var	_backgroundDisabledColor = '', _backgroundColor = '';
+	var _backgroundImage = '',
+		_backgroundColor = '';
 	Ti._5.prop(this, 'enabled', {
 		get: function(){return !obj.dom.disabled;},
 		set: function(val) {
-			if (!_backgroundImage && obj.backgroundImage) {
-				_backgroundImage = obj.backgroundImage;
-			}
-			if (!_backgroundColor && obj.backgroundColor) {
-				_backgroundColor = obj.backgroundColor;
-			}
-			if (!val) {
-				obj.dom.disabled = 'disabled';
-				if (_backgroundDisabledImage) {
-					obj.backgroundImage = _backgroundDisabledImage;
-				}
-				if (_backgroundDisabledColor) {
-					obj.backgroundColor = _backgroundDisabledColor;
-				}
-			} else {
+			_backgroundImage || (_backgroundImage = obj.backgroundImage);
+			_backgroundColor || (_backgroundColor = obj.backgroundColor);
+			if (val) {
 				obj.dom.disabled = '';
 				obj.backgroundImage = _backgroundImage;
 				obj.backgroundColor = _backgroundColor;
+			} else {
+				obj.dom.disabled = 'disabled';
+				obj.backgroundDisabledImage && (obj.backgroundImage = obj.backgroundDisabledImage);
+				obj.backgroundDisabledColor && (obj.backgroundColor = obj.backgroundDisabledColor);
 			}
 			return val;
 		}
@@ -71,11 +63,10 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 	var _borderStyle = Titanium.UI.INPUT_BORDERSTYLE_LINE;
 	Ti._5.prop(obj, 'borderStyle', {
 		get: function() {
-			return _backgroundDisabledImage ? _backgroundDisabledImage : '';
+			return _borderStyle ? _borderStyle : '';
 		},
 		set: function(val) {
-			_borderStyle = val;
-			switch(val){
+			switch(_borderStyle = val){
 				case Titanium.UI.INPUT_BORDERSTYLE_NONE:
 					obj.dom.style.borderStyle = "none";
 					break;
@@ -94,25 +85,11 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 		}
 	});
 
-	Ti._5.prop(obj, 'backgroundDisabledImage', {
-		get: function() {
-			return _backgroundDisabledImage ? _backgroundDisabledImage : '';
-		},
-		set: function(val) {
-			return _backgroundDisabledImage = val;
-		}
-	});
+	Ti._5.prop(obj, 'backgroundDisabledImage', '');
 
-	Ti._5.prop(obj, 'backgroundDisabledColor', {
-		get: function() {
-			return _backgroundDisabledColor ? _backgroundDisabledColor : '';
-		},
-		set: function(val) {
-			return _backgroundDisabledColor = val;
-		}
-	});
+	Ti._5.prop(obj, 'backgroundDisabledColor', '');
 	
-	Ti._5.member(this, 'clearButtonMode');
+	Ti._5.prop(this, 'clearButtonMode');
 
 	var _clearOnEdit = null, _clearOnEditLoaded = false;
 	Ti._5.prop(this, 'clearOnEdit', {
@@ -137,22 +114,22 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 		}
 	});
 	
-	Ti._5.member(this, 'keyboardToolbar');
+	Ti._5.prop(this, 'keyboardToolbar');
 	
-	Ti._5.member(this, 'keyboardToolbarColor');
+	Ti._5.prop(this, 'keyboardToolbarColor');
 
-	Ti._5.member(this, 'keyboardToolbarHeight');
-	
-	// iPhone spes
-	Ti._5.member(this, 'leftButton');
+	Ti._5.prop(this, 'keyboardToolbarHeight');
 	
 	// iPhone spes
-	Ti._5.member(this, 'leftButtonMode');
+	Ti._5.prop(this, 'leftButton');
+	
+	// iPhone spes
+	Ti._5.prop(this, 'leftButtonMode');
 
 	// iPhone spes
-	Ti._5.member(this, 'leftButtonPadding');
+	Ti._5.prop(this, 'leftButtonPadding');
 
-	Ti._5.member(this, 'minimumFontSize');
+	Ti._5.prop(this, 'minimumFontSize');
 
 	var _paddingLeft = null;
 	Ti._5.prop(this, 'paddingLeft', {
@@ -167,13 +144,13 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 	});
 	
 	// iPhone spes
-	Ti._5.member(this, 'rightButton');
+	Ti._5.prop(this, 'rightButton');
 	
 	// iPhone spes
-	Ti._5.member(this, 'rightButtonMode');
+	Ti._5.prop(this, 'rightButtonMode');
 
 	// iPhone spes
-	Ti._5.member(this, 'rightButtonPadding');
+	Ti._5.prop(this, 'rightButtonPadding');
 
 	var _suppressReturn = null, _suppressLoaded = false;
 	Ti._5.prop(this, 'suppressReturn', {
@@ -203,7 +180,7 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 				obj.dom.style.lineHeight = val + 'px';
 			} else {
 				switch (val) {
-					case 'top': 
+					case 'top':
 						_vertAlign = 'top';
 						obj.dom.style.lineHeight = 'auto';
 						break;
@@ -211,11 +188,8 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 						_vertAlign = 'bottom';
 						obj.dom.style.lineHeight = (obj.height + ((obj.height  - obj.fontSize) * 0.5)) + 'px';
 						break;
-					case 'middle':
-						_vertAlign = 'middle';
-					case 'auto':
-					default : 
-						_vertAlign = 'auto';
+					default:
+						_vertAlign = val || "auto";
 						obj.dom.style.lineHeight = 'auto';
 				}
 			}
@@ -231,12 +205,8 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 			}
 		},
 		set: function(val) {
-			if (val.width) {
-				obj.width = Ti._5.parseLength(val.width);
-			}
-			if (val.height) {
-				obj.height = Ti._5.parseLength(val.height);
-			}
+			val.width && (obj.width = Ti._5.parseLength(val.width));
+			val.height && (obj.height = Ti._5.parseLength(val.height));
 			return val;
 		}
 	});
@@ -251,6 +221,6 @@ Ti._5.createClass('Titanium.UI.TextField', function(args){
 		obj.dom.blur(ev);
 	}
 	obj.hasText = function() {
-		return obj.value ? true : false;
+		return !!obj.value;
 	}
 });

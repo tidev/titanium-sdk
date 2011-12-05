@@ -1,17 +1,17 @@
 (function(api){
 	Ti._5.EventDriven(api);
 	// Properties
-	Ti._5.member(api, 'currentPlaybackTime');
+	Ti._5.prop(api, 'currentPlaybackTime');
 
-	Ti._5.member(api, 'nowPlaying');
+	Ti._5.prop(api, 'nowPlaying');
 
-	Ti._5.member(api, 'playbackState');
+	Ti._5.prop(api, 'playbackState');
 
-	Ti._5.member(api, 'repeatMode');
+	Ti._5.prop(api, 'repeatMode');
 
-	Ti._5.member(api, 'shuffleMode');
+	Ti._5.prop(api, 'shuffleMode');
 
-	Ti._5.member(api, 'volume');
+	Ti._5.prop(api, 'volume');
 
 	// Methods
 	api.pause = function(){

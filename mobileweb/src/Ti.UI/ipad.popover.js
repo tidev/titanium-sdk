@@ -7,11 +7,11 @@ Ti._5.createClass('Titanium.UI.iPad.Popover', function(args){
 	Ti._5.Positionable(this, args);
 
 	// Properties
-	Ti._5.member(this, 'arrowDirection');
+	Ti._5.prop(this, 'arrowDirection');
 
-	Ti._5.member(this, 'leftNavButton');
+	Ti._5.prop(this, 'leftNavButton');
 
-	Ti._5.member(this, 'title');
+	Ti._5.prop(this, 'title');
 
 	// Methods
 	this.setHeight = function(){

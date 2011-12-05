@@ -7,9 +7,9 @@ Ti._5.createClass('Titanium.UI.DashboardView', function(args){
 	Ti._5.Positionable(this, args);
 
 	// Properties
-	Ti._5.member(this, 'data');
+	Ti._5.prop(this, 'data');
 
-	Ti._5.member(this, 'wobble');
+	Ti._5.prop(this, 'wobble');
 
 	// Methods
 	this.startEditing = function(){

@@ -27,14 +27,13 @@ Ti._5.createClass('Titanium.UI.TabGroup', function(args){
 		set: function(val){obj.setActiveTab(val); return val;}
 	});
 
-	Ti._5.member(this, 'allowUserCustomization');
+	Ti._5.prop(this, 'allowUserCustomization');
 
 	var _barColor = null;
 	Ti._5.prop(this, 'barColor', {
 		get: function(){return _barColor;},
 		set: function(val){
-			_barColor = val;
-			return _tabsHeaders.style.backgroundColor = _barColor;
+			return _tabsHeaders.style.backgroundColor = _barColor = val;
 		}
 	});
 
@@ -50,7 +49,7 @@ Ti._5.createClass('Titanium.UI.TabGroup', function(args){
 		}
 	});
 
-	Ti._5.member(this, 'editButtonTitle');
+	Ti._5.prop(this, 'editButtonTitle');
 
 	// Methods
 	this.addTab = function(tab){

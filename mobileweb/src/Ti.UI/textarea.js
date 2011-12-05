@@ -59,8 +59,8 @@ Ti._5.createClass('Titanium.UI.TextArea', function(args){
 		set: function(val) {return obj.dom.disabled = !val ? 'disabled' : '';}
 	});
 
-	var _backgroundDisabledImage = '', _backgroundImage = ''; 
-	var	_backgroundDisabledColor = '', _backgroundColor = '';
+	var _backgroundImage = '',
+		_backgroundColor = '';
 	Ti._5.prop(this, 'enabled', {
 		get: function(){return !obj.dom.disabled;},
 		set: function(val) {
@@ -72,12 +72,8 @@ Ti._5.createClass('Titanium.UI.TextArea', function(args){
 			}
 			if (!val) {
 				obj.dom.disabled = 'disabled';
-				if (_backgroundDisabledImage) {
-					obj.backgroundImage = _backgroundDisabledImage;
-				}
-				if (_backgroundDisabledColor) {
-					obj.backgroundColor = _backgroundDisabledColor;
-				}
+				obj.backgroundDisabledImage && (obj.backgroundImage = obj.backgroundDisabledImage);
+				obj.backgroundDisabledColor && (obj.backgroundColor = obj.backgroundDisabledColor);
 			} else {
 				obj.dom.disabled = '';
 				obj.backgroundImage = _backgroundImage;
@@ -87,29 +83,15 @@ Ti._5.createClass('Titanium.UI.TextArea', function(args){
 		}
 	});
 	
-	Ti._5.prop(obj, 'backgroundDisabledImage', {
-		get: function() {
-			return _backgroundDisabledImage ? _backgroundDisabledImage : '';
-		},
-		set: function(val) {
-			return _backgroundDisabledImage = val;
-		}
-	});
+	Ti._5.prop(obj, 'backgroundDisabledImage', '');
 	
-	Ti._5.prop(obj, 'backgroundDisabledColor', {
-		get: function() {
-			return _backgroundDisabledColor ? _backgroundDisabledColor : '';
-		},
-		set: function(val) {
-			return _backgroundDisabledColor = val;
-		}
-	});
+	Ti._5.prop(obj, 'backgroundDisabledColor', '');
 	
-	Ti._5.member(this, 'keyboardToolbar');
+	Ti._5.prop(this, 'keyboardToolbar');
 	
-	Ti._5.member(this, 'keyboardToolbarColor');
+	Ti._5.prop(this, 'keyboardToolbarColor');
 
-	Ti._5.member(this, 'keyboardToolbarHeight');
+	Ti._5.prop(this, 'keyboardToolbarHeight');
 
 	var _suppressReturn = null, _suppressLoaded = false;
 	Ti._5.prop(this, 'suppressReturn', {
@@ -139,12 +121,8 @@ Ti._5.createClass('Titanium.UI.TextArea', function(args){
 			}
 		},
 		set: function(val) {
-			if (val.width) {
-				obj.width = Ti._5.parseLength(val.width);
-			}
-			if (val.height) {
-				obj.height = Ti._5.parseLength(val.height);
-			}
+			val.width && (obj.width = Ti._5.parseLength(val.width));
+			val.height && (obj.height = Ti._5.parseLength(val.height));
 			return val;
 		}
 	});

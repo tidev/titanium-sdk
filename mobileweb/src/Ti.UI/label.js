@@ -44,22 +44,16 @@ Ti._5.createClass('Titanium.UI.Label', function(args){
 		set: function(val){return obj.dom.style.backgroundPositionY = val + "px";}
 	});
 
-	Ti._5.prop(this, 'ellipsize', {
-		get: function(){return false;}
-	});
+	Ti._5.propReadOnly(this, 'ellipsize', false);
 
-	Ti._5.prop(this, 'highlightedColor', {
-		get: function(){return null;}
-	});
+	Ti._5.prop(this, 'highlightedColor', null);
 
 	Ti._5.prop(this, 'html', {
 		get: function(){return obj.text},
 		set: function(val){return obj.text = val;}
 	});
 
-	Ti._5.prop(this, 'minimumFontSize', {
-		get: function(){return null;}
-	});
+	Ti._5.prop(this, 'minimumFontSize', null);
 
 	var _setShadow = function(){
 		obj.dom.style["-webkit-box-shadow"] = (_shadowColor || "#000") + " " + 
@@ -107,7 +101,7 @@ Ti._5.createClass('Titanium.UI.Label', function(args){
 	var _textid = null;
 	Ti._5.prop(this, 'textid', {
 		get: function(){return _textid;},
-		set: function(val){_textid = val; return text = L(textid);}
+		set: function(val){return text = L(_textid = val);}
 	});
 
 	Ti._5.prop(this, 'wordWrap', {

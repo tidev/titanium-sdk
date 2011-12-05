@@ -3,37 +3,37 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	Ti._5.member(api, 'STATE_PAUSED');
+	Ti._5.prop(api, 'STATE_PAUSED');
 
-	Ti._5.member(api, 'STATE_PLAYING');
+	Ti._5.prop(api, 'STATE_PLAYING');
 
-	Ti._5.member(api, 'STATE_STARTING');
+	Ti._5.prop(api, 'STATE_STARTING');
 
-	Ti._5.member(api, 'STATE_STOPPED');
+	Ti._5.prop(api, 'STATE_STOPPED');
 
-	Ti._5.member(api, 'STATE_STOPPING');
+	Ti._5.prop(api, 'STATE_STOPPING');
 
-	Ti._5.member(api, 'STATE_WAITING_FOR_DATA');
+	Ti._5.prop(api, 'STATE_WAITING_FOR_DATA');
 
-	Ti._5.member(api, 'STATE_WAITING_FOR_QUEUE');
+	Ti._5.prop(api, 'STATE_WAITING_FOR_QUEUE');
 
-	Ti._5.member(api, 'allowBackground');
+	Ti._5.prop(api, 'allowBackground');
 
-	Ti._5.member(api, 'bitRate');
+	Ti._5.prop(api, 'bitRate');
 
-	Ti._5.member(api, 'idle');
+	Ti._5.prop(api, 'idle');
 
-	Ti._5.member(api, 'paused');
+	Ti._5.prop(api, 'paused');
 
-	Ti._5.member(api, 'playing');
+	Ti._5.prop(api, 'playing');
 
-	Ti._5.member(api, 'progress');
+	Ti._5.prop(api, 'progress');
 
-	Ti._5.member(api, 'state');
+	Ti._5.prop(api, 'state');
 
-	Ti._5.member(api, 'url');
+	Ti._5.prop(api, 'url');
 
-	Ti._5.member(api, 'waiting');
+	Ti._5.prop(api, 'waiting');
 
 	// Methods
 	api.pause = function(){

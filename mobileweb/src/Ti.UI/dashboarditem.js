@@ -4,13 +4,13 @@ Ti._5.createClass('Titanium.UI.DashboardItem', function(args){
 	Ti._5.DOMView(this, 'dashboarditem', args, 'DashboardItem');
 
 	// Properties
-	Ti._5.member(this, 'badge');
+	Ti._5.prop(this, 'badge');
 
-	Ti._5.member(this, 'canDelete');
+	Ti._5.prop(this, 'canDelete');
 
-	Ti._5.member(this, 'image');
+	Ti._5.prop(this, 'image');
 
-	Ti._5.member(this, 'selectedImage');
+	Ti._5.prop(this, 'selectedImage');
 
 
 	// Events

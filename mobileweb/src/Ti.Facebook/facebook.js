@@ -3,7 +3,7 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	Ti._5.member(api, 'accessToken');
+	Ti._5.prop(api, 'accessToken');
 	
 	var _facebookInitialized = false;
 	var _loginAfterInitialization = false;
@@ -35,22 +35,18 @@
 		}
 	});
 
-	Ti._5.member(api, 'expirationDate');
+	Ti._5.prop(api, 'expirationDate');
 
 	Ti._5.prop(api, 'forceDialogAuth', {
 		get: function(){return true;},
-		set: function(val){return true;}
+		set: function(){return true;}
 	});
 
-	var _loggedIn = false;
-	Ti._5.prop(api, 'loggedIn', {
-		get: function(){return _loggedIn;},
-		set: function(val){return _loggedIn = val;}
-	});
+	Ti._5.prop(api, 'loggedIn', false);
 
-	Ti._5.member(api, 'permissions');
+	Ti._5.prop(api, 'permissions');
 
-	Ti._5.member(api, 'uid');
+	Ti._5.prop(api, 'uid');
 	
 	var _notLoggedInMessage = "not logged in";
 	

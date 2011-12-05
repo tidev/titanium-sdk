@@ -3,11 +3,11 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	Ti._5.member(api, 'currentCountry');
+	Ti._5.prop(api, 'currentCountry');
 
-	Ti._5.member(api, 'currentLanguage', 'en');
+	Ti._5.prop(api, 'currentLanguage', 'en');
 
-	Ti._5.member(api, 'currentLocale');
+	Ti._5.prop(api, 'currentLocale');
 
 	// Methods
 	api.formatTelephoneNumber = function(){

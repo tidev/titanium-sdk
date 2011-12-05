@@ -1,6 +1,6 @@
 (function(api){
 	// Properties
-	Ti._5.member(api, 'items');
+	Ti._5.prop(api, 'items');
 
 	// Methods
 	api.add = function(){

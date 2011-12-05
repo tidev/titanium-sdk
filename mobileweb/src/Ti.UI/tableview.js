@@ -171,9 +171,9 @@ Ti._5.createClass('Titanium.UI.TableView', function(args){
 	};
 
 	// Properties
-	Ti._5.member(this, 'allowsSelection', true);
+	Ti._5.prop(this, 'allowsSelection', true);
 
-	Ti._5.member(this, 'allowsSelectionDuringEditing', true);
+	Ti._5.prop(this, 'allowsSelectionDuringEditing', true);
 
 	// Block rendering rows to improve performance  
 	var bBlockRender = false;
@@ -205,13 +205,13 @@ Ti._5.createClass('Titanium.UI.TableView', function(args){
 		}
 	});
 	
-	Ti._5.member(this, 'editable');
+	Ti._5.prop(this, 'editable');
 
-	Ti._5.member(this, 'editing');
+	Ti._5.prop(this, 'editing');
 
-	Ti._5.member(this, 'filterAttribute');
+	Ti._5.prop(this, 'filterAttribute');
 
-	Ti._5.member(this, 'filterCaseInsensitive');
+	Ti._5.prop(this, 'filterCaseInsensitive');
 
 	var _footerTitle = '';
 	Ti._5.prop(this, 'footerTitle', {
@@ -299,39 +299,35 @@ Ti._5.createClass('Titanium.UI.TableView', function(args){
 		}
 	});
 
-	Ti._5.member(this, 'index');
+	Ti._5.prop(this, 'index');
 
-	Ti._5.member(this, 'maxRowHeight', "");
+	Ti._5.prop(this, 'maxRowHeight', "");
 
-	Ti._5.member(this, 'minRowHeight', 1);
+	Ti._5.prop(this, 'minRowHeight', 1);
 
-	Ti._5.member(this, 'moving');
+	Ti._5.prop(this, 'moving');
 
-	Ti._5.member(this, 'rowHeight');
+	Ti._5.prop(this, 'rowHeight');
 
 	var _scrollable = true;
 	Ti._5.prop(this, 'scrollable', {
 		get: function(){return _scrollable;},
 		set: function(val){
 			_scrollable = val;
-			if (_scrollable) {
-				this.dom.style.overflow = 'auto';
-			} else {
-				this.dom.style.overflow = 'hidden';
-			}
+			this.dom.style.overflow = _scrollable ? "auto" : "hidden";
 			return _scrollable;
 		}
 	});
 
-	Ti._5.member(this, 'search');
+	Ti._5.prop(this, 'search');
 
 	var _searchHidden = true;
 	Ti._5.prop(this, 'searchHidden', {
 		get: function(){return _searchHidden;},
-		set: function(val){return _searchHidden = val ? true : false;}
+		set: function(val){return _searchHidden = !!val;}
 	});
 
-	Ti._5.member(this, 'separatorColor', '#e0e0e0');
+	Ti._5.prop(this, 'separatorColor', '#e0e0e0');
 
 	var _separatorStyle = Titanium.UI.iPhone.TableViewSeparatorStyle.SINGLE_LINE;
 	Ti._5.prop(this, 'separatorStyle', {
@@ -357,7 +353,7 @@ Ti._5.createClass('Titanium.UI.TableView', function(args){
 		}
 	});
 
-	Ti._5.member(this, 'style');
+	Ti._5.prop(this, 'style');
 	
 	Ti._5.prop(this, 'size', {
 		get: function() {

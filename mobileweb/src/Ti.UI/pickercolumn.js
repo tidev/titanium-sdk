@@ -7,9 +7,9 @@ Ti._5.createClass('Titanium.UI.PickerColumn', function(args){
 	Ti._5.Positionable(this, args);
 
 	// Properties
-	Ti._5.member(this, 'rowCount');
+	Ti._5.prop(this, 'rowCount');
 
-	Ti._5.member(this, 'rows');
+	Ti._5.prop(this, 'rows');
 
 	// Methods
 	this.addRow = function(){

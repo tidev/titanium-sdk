@@ -3,27 +3,27 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	Ti._5.member(api, 'DEFAULT_ALL');
+	Ti._5.prop(api, 'DEFAULT_ALL');
 
-	Ti._5.member(api, 'DEFAULT_LIGHTS');
+	Ti._5.prop(api, 'DEFAULT_LIGHTS');
 
-	Ti._5.member(api, 'DEFAULT_SOUND');
+	Ti._5.prop(api, 'DEFAULT_SOUND');
 
-	Ti._5.member(api, 'DEFAULT_VIBRATE');
+	Ti._5.prop(api, 'DEFAULT_VIBRATE');
 
-	Ti._5.member(api, 'FLAG_AUTO_CANCEL');
+	Ti._5.prop(api, 'FLAG_AUTO_CANCEL');
 
-	Ti._5.member(api, 'FLAG_INSISTENT');
+	Ti._5.prop(api, 'FLAG_INSISTENT');
 
-	Ti._5.member(api, 'FLAG_NO_CLEAR');
+	Ti._5.prop(api, 'FLAG_NO_CLEAR');
 
-	Ti._5.member(api, 'FLAG_ONGOING_EVENT');
+	Ti._5.prop(api, 'FLAG_ONGOING_EVENT');
 
-	Ti._5.member(api, 'FLAG_ONLY_ALERT_ONCE');
+	Ti._5.prop(api, 'FLAG_ONLY_ALERT_ONCE');
 
-	Ti._5.member(api, 'FLAG_SHOW_LIGHTS');
+	Ti._5.prop(api, 'FLAG_SHOW_LIGHTS');
 
-	Ti._5.member(api, 'STREAM_DEFAULT');
+	Ti._5.prop(api, 'STREAM_DEFAULT');
 
 	// Methods
 	api.cancel = function(){

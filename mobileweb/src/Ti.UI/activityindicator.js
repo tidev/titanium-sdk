@@ -18,10 +18,10 @@ Ti._5.createClass('Titanium.UI.ActivityIndicator', function(args){
 	var _message = '';
 	Ti._5.prop(this, 'message', {
 		get: function(){return _message;},
-		set: function(val){_message = val; return obj.dom.innerHTML = _message;}
+		set: function(val){return obj.dom.innerHTML = _message = val;}
 	});
 
-	Ti._5.member(this, 'messageid', '');
+	Ti._5.prop(this, 'messageid', '');
 
 	var _style = null;
 	Ti._5.prop(this, 'style', {

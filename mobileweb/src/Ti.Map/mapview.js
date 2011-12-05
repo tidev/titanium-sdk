@@ -7,19 +7,19 @@ Ti._5.createClass('Titanium.Map.MapView', function(api){
 	Ti._5.Positionable(this, args);
 
 	// Properties
-	Ti._5.member(this, 'animate');
+	Ti._5.prop(this, 'animate');
 
-	Ti._5.member(this, 'annotations');
+	Ti._5.prop(this, 'annotations');
 
-	Ti._5.member(this, 'location');
+	Ti._5.prop(this, 'location');
 
-	Ti._5.member(this, 'mapType');
+	Ti._5.prop(this, 'mapType');
 
-	Ti._5.member(this, 'region');
+	Ti._5.prop(this, 'region');
 
-	Ti._5.member(this, 'regionFit');
+	Ti._5.prop(this, 'regionFit');
 
-	Ti._5.member(this, 'userLocation');
+	Ti._5.prop(this, 'userLocation');
 
 	// Methods
 	this.addAnnotation = function(){

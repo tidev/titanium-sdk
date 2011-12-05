@@ -32,13 +32,13 @@ Ti._5.createClass('Titanium.UI.Picker', function(args){
 		set: function(val){return _type = val;}
 	});
 
-	Ti._5.member(this, 'columns', []);
+	Ti._5.prop(this, 'columns', []);
 
-	Ti._5.member(this, 'countDownDuration', 0);
+	Ti._5.prop(this, 'countDownDuration', 0);
 
-	Ti._5.member(this, 'locale');
+	Ti._5.prop(this, 'locale');
 
-	Ti._5.member(this, 'minDate');
+	Ti._5.prop(this, 'minDate');
 
 	var _minuteInterval = 1;
 	Ti._5.prop(this, 'minuteInterval', {
@@ -46,11 +46,11 @@ Ti._5.createClass('Titanium.UI.Picker', function(args){
 		set: function(val){return _minuteInterval = 30 < val ? 30 : 1 > val ? 1 : val;}
 	});
 
-	Ti._5.member(this, 'selectionIndicator', false);
+	Ti._5.prop(this, 'selectionIndicator', false);
 
-	Ti._5.member(this, 'useSpinner');
+	Ti._5.prop(this, 'useSpinner');
 
-	Ti._5.member(this, 'value');
+	Ti._5.prop(this, 'value');
 
 	// Note: this is relevant only if you set `useSpinner` to `true`
 	var _visibleItems = null;

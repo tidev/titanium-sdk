@@ -101,38 +101,36 @@ Ti._5.createClass('Titanium.Network.HTTPClient', function(args){
 		get: function(){return _xml.UNSENT;}
 	});
 
-	Ti._5.member(this, 'connected', false);
+	Ti._5.prop(this, 'connected', false);
 
-	Ti._5.member(this, 'connectionType');
+	Ti._5.prop(this, 'connectionType');
 
-	Ti._5.member(this, 'file');
+	Ti._5.prop(this, 'file');
 
-	Ti._5.member(this, 'location');
+	Ti._5.prop(this, 'location');
 
-	Ti._5.member(this, 'ondatastream');
+	Ti._5.prop(this, 'ondatastream');
 
-	Ti._5.member(this, 'onerror');
+	Ti._5.prop(this, 'onerror');
 
-	Ti._5.member(this, 'onload');
+	Ti._5.prop(this, 'onload');
 
-	Ti._5.member(this, 'onreadystatechange');
+	Ti._5.prop(this, 'onreadystatechange');
 
-	Ti._5.member(this, 'onsendstream');
+	Ti._5.prop(this, 'onsendstream');
 
 	Ti._5.prop(this, 'readyState', {
-		get: function()  {return _xhr.readyState;},
-		set: function(val) {return false;}
+		get: function() { return _xhr.readyState; }
 	});
 
-	Ti._5.member(this, 'responseData');
+	Ti._5.prop(this, 'responseData');
 
-	Ti._5.member(this, 'responseText');
+	Ti._5.prop(this, 'responseText');
 
-	Ti._5.member(this, 'responseXML');
+	Ti._5.prop(this, 'responseXML');
 
 	Ti._5.prop(this, 'status', {
-		get: function() {return _xhr.status;},
-		set: function(val) {return false;}
+		get: function() { return _xhr.status; }
 	});
 
 	_xhr.timeout = 60000; // Default timeout = 1 minute
@@ -141,7 +139,7 @@ Ti._5.createClass('Titanium.Network.HTTPClient', function(args){
 		set: function(val) {return _xhr.timeout = val;}
 	});
 
-	Ti._5.member(this, 'validatesSecureCertificate', false);
+	Ti._5.prop(this, 'validatesSecureCertificate', false);
 
 	// Methods
 	this.abort = function() {

@@ -80,7 +80,7 @@ Ti._5.createClass('Titanium.UI.Switch', function(args){
 		}
 	});
 
-	Ti._5.member(this, 'style', Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON);
+	Ti._5.prop(this, 'style', Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON);
 	
 	var _title = '';
 	Ti._5.prop(this, 'title', {

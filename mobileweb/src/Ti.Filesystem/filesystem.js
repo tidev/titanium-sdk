@@ -3,23 +3,23 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	Ti._5.member(api, 'MODE_APPEND');
+	Ti._5.prop(api, 'MODE_APPEND');
 
-	Ti._5.member(api, 'MODE_READ');
+	Ti._5.prop(api, 'MODE_READ');
 
-	Ti._5.member(api, 'MODE_WRITE');
+	Ti._5.prop(api, 'MODE_WRITE');
 
-	Ti._5.member(api, 'applicationDataDirectory', "/");
+	Ti._5.prop(api, 'applicationDataDirectory', "/");
 
-	Ti._5.member(api, 'applicationDirectory', "/");
+	Ti._5.prop(api, 'applicationDirectory', "/");
 
-	Ti._5.member(api, 'lineEnding');
+	Ti._5.prop(api, 'lineEnding');
 
-	Ti._5.member(api, 'resourcesDirectory', "/");
+	Ti._5.prop(api, 'resourcesDirectory', "/");
 
-	Ti._5.member(api, 'separator', "/");
+	Ti._5.prop(api, 'separator', "/");
 
-	Ti._5.member(api, 'tempDirectory');
+	Ti._5.prop(api, 'tempDirectory');
 
 	// Methods
 	api.createFile = function(){

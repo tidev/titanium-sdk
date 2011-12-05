@@ -13,11 +13,11 @@ Ti._5.createClass('Titanium.UI.Slider', function(args){
 	Ti._5.Positionable(this, args);
 
 	// Properties
-	Ti._5.member(this, 'disabledLeftTrackImage');
+	Ti._5.prop(this, 'disabledLeftTrackImage');
 
-	Ti._5.member(this, 'disabledRightTrackImage');
+	Ti._5.prop(this, 'disabledRightTrackImage');
 
-	Ti._5.member(this, 'disabledThumbImage');
+	Ti._5.prop(this, 'disabledThumbImage');
 
 	var _backgroundDisabledImage = '', _backgroundImage = ''; 
 	var	_backgroundDisabledColor = '', _backgroundColor = '';
@@ -65,13 +65,13 @@ Ti._5.createClass('Titanium.UI.Slider', function(args){
 		}
 	});
 
-	Ti._5.member(this, 'highlightedLeftTrackImage');
+	Ti._5.prop(this, 'highlightedLeftTrackImage');
 
-	Ti._5.member(this, 'highlightedRightTrackImage');
+	Ti._5.prop(this, 'highlightedRightTrackImage');
 
-	Ti._5.member(this, 'highlightedThumbImage');
+	Ti._5.prop(this, 'highlightedThumbImage');
 
-	Ti._5.member(this, 'leftTrackImage');
+	Ti._5.prop(this, 'leftTrackImage');
 
 	var _max = null;
 	Ti._5.prop(this, 'max', {
@@ -79,7 +79,7 @@ Ti._5.createClass('Titanium.UI.Slider', function(args){
 		set: function(val){return obj.dom.max = parseFloat(val);}
 	});
 
-	Ti._5.member(this, 'maxRange');
+	Ti._5.prop(this, 'maxRange');
 
 	var _min = null;
 	Ti._5.prop(this, 'min', {
@@ -87,17 +87,17 @@ Ti._5.createClass('Titanium.UI.Slider', function(args){
 		set: function(val){return obj.dom.min = parseFloat(val);}
 	});
 
-	Ti._5.member(this, 'minRange');
+	Ti._5.prop(this, 'minRange');
 
-	Ti._5.member(this, 'rightTrackImage');
+	Ti._5.prop(this, 'rightTrackImage');
 
-	Ti._5.member(this, 'selectedLeftTrackImage');
+	Ti._5.prop(this, 'selectedLeftTrackImage');
 
-	Ti._5.member(this, 'selectedRightTrackImage');
+	Ti._5.prop(this, 'selectedRightTrackImage');
 
-	Ti._5.member(this, 'selectedThumbImage');
+	Ti._5.prop(this, 'selectedThumbImage');
 
-	Ti._5.member(this, 'thumbImage');
+	Ti._5.prop(this, 'thumbImage');
 
 	var _value = '';
 	Ti._5.prop(this, 'value', {

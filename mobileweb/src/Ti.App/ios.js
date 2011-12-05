@@ -3,13 +3,13 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	Ti._5.member(api, 'cancelAllLocalNotifications');
+	Ti._5.prop(api, 'cancelAllLocalNotifications');
 
-	Ti._5.member(api, 'cancelLocalNotification');
+	Ti._5.prop(api, 'cancelLocalNotification');
 
-	Ti._5.member(api, 'registerBackgroundService');
+	Ti._5.prop(api, 'registerBackgroundService');
 
-	Ti._5.member(api, 'scheduleLocalNotification');
+	Ti._5.prop(api, 'scheduleLocalNotification');
 
 	// Methods
 	api.createBackgroundService = function(){

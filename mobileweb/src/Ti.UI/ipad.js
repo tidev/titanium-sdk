@@ -4,17 +4,17 @@ Ti._5.createClass('Titanium.UI.iPad', function(args){
 	Ti._5.DOMView(this, 'ipad', args, 'iPad');
 
 	// Properties
-	Ti._5.member(this, 'POPOVER_ARROW_DIRECTION_ANY');
+	Ti._5.prop(this, 'POPOVER_ARROW_DIRECTION_ANY');
 
-	Ti._5.member(this, 'POPOVER_ARROW_DIRECTION_DOWN');
+	Ti._5.prop(this, 'POPOVER_ARROW_DIRECTION_DOWN');
 
-	Ti._5.member(this, 'POPOVER_ARROW_DIRECTION_LEFT');
+	Ti._5.prop(this, 'POPOVER_ARROW_DIRECTION_LEFT');
 
-	Ti._5.member(this, 'POPOVER_ARROW_DIRECTION_RIGHT');
+	Ti._5.prop(this, 'POPOVER_ARROW_DIRECTION_RIGHT');
 
-	Ti._5.member(this, 'POPOVER_ARROW_DIRECTION_UNKNOWN');
+	Ti._5.prop(this, 'POPOVER_ARROW_DIRECTION_UNKNOWN');
 
-	Ti._5.member(this, 'POPOVER_ARROW_DIRECTION_UP');
+	Ti._5.prop(this, 'POPOVER_ARROW_DIRECTION_UP');
 
 	// Methods
 	this.createPopover = function(){

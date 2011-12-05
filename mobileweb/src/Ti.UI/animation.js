@@ -5,31 +5,31 @@ Ti._5.createClass('Titanium.UI.Animation', function(args){
 	Ti._5.Positionable(this, args);
 
 	// Properties
-	Ti._5.member(this, 'autoreverse');
+	Ti._5.prop(this, 'autoreverse');
 
-	Ti._5.member(this, 'backgroundColor');
+	Ti._5.prop(this, 'backgroundColor');
 
-	Ti._5.member(this, 'color');
+	Ti._5.prop(this, 'color');
 
-	Ti._5.member(this, 'curve');
+	Ti._5.prop(this, 'curve');
 
-	Ti._5.member(this, 'delay');
+	Ti._5.prop(this, 'delay');
 
-	Ti._5.member(this, 'duration');
+	Ti._5.prop(this, 'duration');
 
-	Ti._5.member(this, 'opacity');
+	Ti._5.prop(this, 'opacity');
 
-	Ti._5.member(this, 'opaque');
+	Ti._5.prop(this, 'opaque');
 
-	Ti._5.member(this, 'repeat');
+	Ti._5.prop(this, 'repeat');
 
-	Ti._5.member(this, 'transform');
+	Ti._5.prop(this, 'transform');
 
-	Ti._5.member(this, 'transition');
+	Ti._5.prop(this, 'transition');
 
-	Ti._5.member(this, 'visible');
+	Ti._5.prop(this, 'visible');
 
-	Ti._5.member(this, 'zIndex');
+	Ti._5.prop(this, 'zIndex');
 
 
 	// Events

@@ -1,55 +1,55 @@
 (function(api){
 	// Properties
-	Ti._5.member(api, 'URL');
+	Ti._5.prop(api, 'URL');
 
-	Ti._5.member(api, 'address');
+	Ti._5.prop(api, 'address');
 
-	Ti._5.member(api, 'birthday');
+	Ti._5.prop(api, 'birthday');
 
-	Ti._5.member(api, 'created');
+	Ti._5.prop(api, 'created');
 
-	Ti._5.member(api, 'date');
+	Ti._5.prop(api, 'date');
 
-	Ti._5.member(api, 'department');
+	Ti._5.prop(api, 'department');
 
-	Ti._5.member(api, 'email');
+	Ti._5.prop(api, 'email');
 
-	Ti._5.member(api, 'firstName');
+	Ti._5.prop(api, 'firstName');
 
-	Ti._5.member(api, 'firstPhonetic');
+	Ti._5.prop(api, 'firstPhonetic');
 
-	Ti._5.member(api, 'fullName');
+	Ti._5.prop(api, 'fullName');
 
-	Ti._5.member(api, 'image');
+	Ti._5.prop(api, 'image');
 
-	Ti._5.member(api, 'instantMessage');
+	Ti._5.prop(api, 'instantMessage');
 
-	Ti._5.member(api, 'jobTitle');
+	Ti._5.prop(api, 'jobTitle');
 
-	Ti._5.member(api, 'kind');
+	Ti._5.prop(api, 'kind');
 
-	Ti._5.member(api, 'lastName');
+	Ti._5.prop(api, 'lastName');
 
-	Ti._5.member(api, 'lastPhonetic');
+	Ti._5.prop(api, 'lastPhonetic');
 
-	Ti._5.member(api, 'middleName');
+	Ti._5.prop(api, 'middleName');
 
-	Ti._5.member(api, 'middlePhonetic');
+	Ti._5.prop(api, 'middlePhonetic');
 
-	Ti._5.member(api, 'modified');
+	Ti._5.prop(api, 'modified');
 
-	Ti._5.member(api, 'nickname');
+	Ti._5.prop(api, 'nickname');
 
-	Ti._5.member(api, 'note');
+	Ti._5.prop(api, 'note');
 
-	Ti._5.member(api, 'organization');
+	Ti._5.prop(api, 'organization');
 
-	Ti._5.member(api, 'phone');
+	Ti._5.prop(api, 'phone');
 
-	Ti._5.member(api, 'prefix');
+	Ti._5.prop(api, 'prefix');
 
-	Ti._5.member(api, 'relatedNames');
+	Ti._5.prop(api, 'relatedNames');
 
-	Ti._5.member(api, 'suffix');
+	Ti._5.prop(api, 'suffix');
 
 })(Ti._5.createClass('Titanium.Contacts.Person'));

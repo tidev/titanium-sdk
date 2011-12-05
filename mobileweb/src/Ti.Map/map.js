@@ -3,11 +3,11 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	Ti._5.member(api, 'HYBRID_TYPE');
+	Ti._5.prop(api, 'HYBRID_TYPE');
 
-	Ti._5.member(api, 'SATELLITE_TYPE');
+	Ti._5.prop(api, 'SATELLITE_TYPE');
 
-	Ti._5.member(api, 'STANDARD_TYPE');
+	Ti._5.prop(api, 'STANDARD_TYPE');
 
 	// Methods
 	api.createAnnotation = function(){

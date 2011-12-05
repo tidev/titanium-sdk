@@ -3,39 +3,39 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	Ti._5.member(api, 'METHOD_ALERT');
+	Ti._5.prop(api, 'METHOD_ALERT');
 
-	Ti._5.member(api, 'METHOD_DEFAULT');
+	Ti._5.prop(api, 'METHOD_DEFAULT');
 
-	Ti._5.member(api, 'METHOD_EMAIL');
+	Ti._5.prop(api, 'METHOD_EMAIL');
 
-	Ti._5.member(api, 'METHOD_SMS');
+	Ti._5.prop(api, 'METHOD_SMS');
 
-	Ti._5.member(api, 'STATE_DISMISSED');
+	Ti._5.prop(api, 'STATE_DISMISSED');
 
-	Ti._5.member(api, 'STATE_FIRED');
+	Ti._5.prop(api, 'STATE_FIRED');
 
-	Ti._5.member(api, 'STATE_SCHEDULED');
+	Ti._5.prop(api, 'STATE_SCHEDULED');
 
-	Ti._5.member(api, 'STATUS_CANCELED');
+	Ti._5.prop(api, 'STATUS_CANCELED');
 
-	Ti._5.member(api, 'STATUS_CONFIRMED');
+	Ti._5.prop(api, 'STATUS_CONFIRMED');
 
-	Ti._5.member(api, 'STATUS_TENTATIVE');
+	Ti._5.prop(api, 'STATUS_TENTATIVE');
 
-	Ti._5.member(api, 'VISIBILITY_CONFIDENTIAL');
+	Ti._5.prop(api, 'VISIBILITY_CONFIDENTIAL');
 
-	Ti._5.member(api, 'VISIBILITY_DEFAULT');
+	Ti._5.prop(api, 'VISIBILITY_DEFAULT');
 
-	Ti._5.member(api, 'VISIBILITY_PRIVATE');
+	Ti._5.prop(api, 'VISIBILITY_PRIVATE');
 
-	Ti._5.member(api, 'VISIBILITY_PUBLIC');
+	Ti._5.prop(api, 'VISIBILITY_PUBLIC');
 
-	Ti._5.member(api, 'allAlerts');
+	Ti._5.prop(api, 'allAlerts');
 
-	Ti._5.member(api, 'allCalendars');
+	Ti._5.prop(api, 'allCalendars');
 
-	Ti._5.member(api, 'selectableCalendars');
+	Ti._5.prop(api, 'selectableCalendars');
 
 	// Methods
 	api.createAlert = function(){

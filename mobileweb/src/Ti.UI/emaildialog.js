@@ -4,27 +4,27 @@ Ti._5.createClass('Titanium.UI.EmailDialog', function(args){
 	Ti._5.DOMView(this, 'emaildialog', args, 'EmailDialog');
 
 	// Properties
-	Ti._5.member(this, 'CANCELLED');
+	Ti._5.prop(this, 'CANCELLED');
 
-	Ti._5.member(this, 'FAILED');
+	Ti._5.prop(this, 'FAILED');
 
-	Ti._5.member(this, 'SAVED');
+	Ti._5.prop(this, 'SAVED');
 
-	Ti._5.member(this, 'SENT');
+	Ti._5.prop(this, 'SENT');
 
-	Ti._5.member(this, 'barColor');
+	Ti._5.prop(this, 'barColor');
 
-	Ti._5.member(this, 'bccRecipients');
+	Ti._5.prop(this, 'bccRecipients');
 
-	Ti._5.member(this, 'ccRecipients');
+	Ti._5.prop(this, 'ccRecipients');
 
-	Ti._5.member(this, 'html');
+	Ti._5.prop(this, 'html');
 
-	Ti._5.member(this, 'messageBody');
+	Ti._5.prop(this, 'messageBody');
 
-	Ti._5.member(this, 'subject');
+	Ti._5.prop(this, 'subject');
 
-	Ti._5.member(this, 'toRecipients');
+	Ti._5.prop(this, 'toRecipients');
 
 	// Methods
 	this.addAttachment = function(){

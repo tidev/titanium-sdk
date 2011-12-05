@@ -4,17 +4,17 @@ Ti._5.createClass('Titanium.UI.iPhone.RowAnimationStyle', function(args){
 	Ti._5.DOMView(this, 'iphone.rowanimationstyle', args, 'iPhone.RowAnimationStyle');
 
 	// Properties
-	Ti._5.member(this, 'BOTTOM');
+	Ti._5.prop(this, 'BOTTOM');
 
-	Ti._5.member(this, 'FADE');
+	Ti._5.prop(this, 'FADE');
 
-	Ti._5.member(this, 'LEFT');
+	Ti._5.prop(this, 'LEFT');
 
-	Ti._5.member(this, 'NONE');
+	Ti._5.prop(this, 'NONE');
 
-	Ti._5.member(this, 'RIGHT');
+	Ti._5.prop(this, 'RIGHT');
 
-	Ti._5.member(this, 'TOP');
+	Ti._5.prop(this, 'TOP');
 
 	require.mix(this, args);
 });

@@ -3,13 +3,13 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	Ti._5.member(api, 'CONTACTS_KIND_ORGANIZATION');
+	Ti._5.prop(api, 'CONTACTS_KIND_ORGANIZATION');
 
-	Ti._5.member(api, 'CONTACTS_KIND_PERSON');
+	Ti._5.prop(api, 'CONTACTS_KIND_PERSON');
 
-	Ti._5.member(api, 'CONTACTS_SORT_FIRST_NAME');
+	Ti._5.prop(api, 'CONTACTS_SORT_FIRST_NAME');
 
-	Ti._5.member(api, 'CONTACTS_SORT_LAST_NAME');
+	Ti._5.prop(api, 'CONTACTS_SORT_LAST_NAME');
 
 	// Methods
 	api.createGroup = function(){

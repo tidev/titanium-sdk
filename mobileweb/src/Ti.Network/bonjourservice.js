@@ -1,14 +1,14 @@
 (function(api){
 	// Properties
-	Ti._5.member(api, 'domain');
+	Ti._5.prop(api, 'domain');
 
-	Ti._5.member(api, 'isLocal');
+	Ti._5.prop(api, 'isLocal');
 
-	Ti._5.member(api, 'name');
+	Ti._5.prop(api, 'name');
 
-	Ti._5.member(api, 'socket');
+	Ti._5.prop(api, 'socket');
 
-	Ti._5.member(api, 'type');
+	Ti._5.prop(api, 'type');
 
 	// Methods
 	api.publish = function(){

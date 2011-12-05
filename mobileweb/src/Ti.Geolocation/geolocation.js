@@ -25,17 +25,17 @@
 	api.PROVIDER_GPS = 1;
 	api.PROVIDER_NETWORK = 2;
 
-	Ti._5.member(api, 'accuracy', api.ACCURACY_BEST);
+	Ti._5.prop(api, 'accuracy', api.ACCURACY_BEST);
 
-	Ti._5.member(api, 'locationServicesAuthorization');
+	Ti._5.prop(api, 'locationServicesAuthorization');
 
-	Ti._5.member(api, 'locationServicesEnabled');
+	Ti._5.prop(api, 'locationServicesEnabled');
 
-	Ti._5.member(api, 'preferredProvider');
+	Ti._5.prop(api, 'preferredProvider');
 
-	Ti._5.member(api, 'purpose');
+	Ti._5.prop(api, 'purpose');
 
-	Ti._5.member(api, 'showCalibration', true);
+	Ti._5.prop(api, 'showCalibration', true);
 
 	// Methods
 	api.getCurrentPosition = function(callbackFunc) {

@@ -29,7 +29,7 @@
 				return _focusable;
 			},
 			set: function(val) {
-				_focusable = val ? true : false;
+				_focusable = !!val;
 			}
 		});
 

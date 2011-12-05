@@ -3,21 +3,21 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	Ti._5.member(api, 'allowBackground');
+	Ti._5.prop(api, 'allowBackground');
 
-	Ti._5.member(api, 'duration');
+	Ti._5.prop(api, 'duration');
 
-	Ti._5.member(api, 'looping');
+	Ti._5.prop(api, 'looping');
 
-	Ti._5.member(api, 'paused');
+	Ti._5.prop(api, 'paused');
 
-	Ti._5.member(api, 'playing');
+	Ti._5.prop(api, 'playing');
 
-	Ti._5.member(api, 'time');
+	Ti._5.prop(api, 'time');
 
-	Ti._5.member(api, 'url');
+	Ti._5.prop(api, 'url');
 
-	Ti._5.member(api, 'volume');
+	Ti._5.prop(api, 'volume');
 
 	// Methods
 	api.getTime = function(){

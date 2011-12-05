@@ -7,9 +7,9 @@ Ti._5.createClass('Titanium.Facebook.LoginButton', function(args){
 	Ti._5.Positionable(this, args);
 
 	// Properties
-	Ti._5.member(this, 'style');
+	Ti._5.prop(this, 'style');
 
-	Ti._5.member(this, 'click');
+	Ti._5.prop(this, 'click');
 
 
 	// Events

@@ -1,12 +1,12 @@
 (function(api){
 	// Properties
-	Ti._5.member(api, 'hidden');
+	Ti._5.prop(api, 'hidden');
 
-	Ti._5.member(api, 'id');
+	Ti._5.prop(api, 'id');
 
-	Ti._5.member(api, 'name');
+	Ti._5.prop(api, 'name');
 
-	Ti._5.member(api, 'selected');
+	Ti._5.prop(api, 'selected');
 
 	// Methods
 	api.createEvent = function(){

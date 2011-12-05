@@ -213,7 +213,6 @@ Ti._5.createClass('Titanium.UI.TableViewSection', function(args){
 		},
 		set: function(val){return false;}
 	});
-
 	
 	require.mix(this, args);
 	

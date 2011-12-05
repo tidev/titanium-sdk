@@ -36,8 +36,7 @@
 			}
 			
 			return api.NETWORK_UNKNOWN;
-		},
-		set: function() { return false; }
+		}
 	});
 	
 	Ti._5.prop(api, 'networkTypeName', {
@@ -60,13 +59,11 @@
 			}
 			
 			return 'UNKNOWN';
-		},
-		set: function() { return false; }
+		}
 	});
 		
 	Ti._5.prop(api, 'online', {
-		get: function() {return navigator.onLine},
-		set: function() { return false; }
+		get: function() {return navigator.onLine}
 	});
 	// IPhone
 	api.remoteDeviceUUID = null;

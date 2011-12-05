@@ -7,9 +7,9 @@ Ti._5.createClass('Titanium.UI.iPad.SplitWindow', function(args){
 	Ti._5.Positionable(this, args);
 
 	// Properties
-	Ti._5.member(this, 'detailView');
+	Ti._5.prop(this, 'detailView');
 
-	Ti._5.member(this, 'masterView');
+	Ti._5.prop(this, 'masterView');
 
 
 	// Events

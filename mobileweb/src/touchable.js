@@ -27,25 +27,11 @@
 			bEmulate = false;
 		}
 		
-		var _touchEnabled = true;
-		Ti._5.prop(obj, 'touchEnabled', {
-			get: function() {
-				return _touchEnabled ? _touchEnabled : '';
-			},
-			set: function(val) {
-				_touchEnabled = val;
-			},
-			configurable: true
-		});
-		
-		//
-		// setup getters/setters
-		//
-		oParentNamespace.preset(obj, ["touchEnabled"], args);
+		Ti._5.prop(obj, 'touchEnabled', !!args.touchEnabled);
 		
 		var _startPoint = null;
 		function _fTouchStart (event) {
-			if (!_touchEnabled) {
+			if (!obj.touchEnabled) {
 				return true;
 			}
 			var xCoord = event.touches ? event.touches[0].pageX : event.pageX;
@@ -75,7 +61,7 @@
 		
 		var _endPoint = null;
 		function _fTouchMove (event) {
-			if (!_touchEnabled || bEmulate && !_startPoint) {
+			if (!obj.touchEnabled || bEmulate && !_startPoint) {
 				return true;
 			}
 			var xCoord = event.touches ? event.touches[0].pageX : event.pageX;
@@ -93,7 +79,7 @@
 		obj.dom.addEventListener(bEmulate ? 'mousemove' : 'touchmove', _fTouchMove, false);
 		
 		function _fTouchEnd (event) {
-			if (!_touchEnabled) {
+			if (!obj.touchEnabled) {
 				return true;
 			}
 			if (!_endPoint) {
@@ -122,7 +108,7 @@
 		obj.dom.addEventListener(bEmulate ? 'mouseup' : 'touchend', _fTouchEnd, false);
 
 		obj.dom.addEventListener('touchcancel', function(event) {
-			if (!_touchEnabled) {
+			if (!obj.touchEnabled) {
 				return true;
 			}
 			var oEvent = {
@@ -137,7 +123,7 @@
 		
 		var _isDoubleTap = false;
 		obj.dom.addEventListener('click', function(event) {
-			if (!_touchEnabled) {
+			if (!obj.touchEnabled) {
 				return true;
 			}
 			var oEvent = {
