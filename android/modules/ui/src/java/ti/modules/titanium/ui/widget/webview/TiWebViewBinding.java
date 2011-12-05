@@ -135,7 +135,6 @@ public class TiWebViewBinding {
 		}
 	}
 	
-	@SuppressWarnings("rawtypes")
 	private class WebViewCallback implements KrollEventCallback
 	{
 		private int id;
@@ -145,13 +144,16 @@ public class TiWebViewBinding {
 			this.id = id;
 		}
 
-		public void call(Object[] args)
+		public void call(String data)
 		{
-			if (args != null && args.length > 0 && args[0] instanceof HashMap) {
-				HashMap data = (HashMap) args[0];
-				String code = "Ti.executeListener(" + id + ", " + data.toString() + ");";
-				evalJS(code);
+			if(data == null) {
+				data = "";
+			} else {
+				data = ", " + data;
 			}
+			
+			String code = "Ti.executeListener(" + id + data + ");";
+			evalJS(code);
 		}
 	}
 

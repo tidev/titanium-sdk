@@ -72,8 +72,8 @@ Object.defineProperty(EventEmitter.prototype, "emit", {
 		}*/
 
         if (this._hasJavaListener) { 
-            kroll.log(TAG, "---------we have java listeners");
-            this._onEventFired( type, arguments[1] || null); 
+            var data =  arguments[1] || {};
+            this._onEventFired( type, JSON.stringify(data)); 
         }
 
 		if (!this._events) {

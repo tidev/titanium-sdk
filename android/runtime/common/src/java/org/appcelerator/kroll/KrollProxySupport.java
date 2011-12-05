@@ -26,5 +26,5 @@ public interface KrollProxySupport
 
 	public void onHasListenersChanged(String event, boolean hasListeners);
 	
-	public void onEventFired(String event, Object[] args);
+	public void onEventFired(String event, String data);
 }

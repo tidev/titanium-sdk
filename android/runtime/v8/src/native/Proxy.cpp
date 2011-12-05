@@ -258,13 +258,14 @@ Handle<Value> Proxy::onEventFired(const Arguments& args)
 	Proxy* proxy = NativeObject::Unwrap<Proxy>(args.Holder());
 
 	Local<String> eventType = args[0]->ToString();
-	Local<Array> eventArgs = Local<Array>::Cast(args[1]);
+	Local<String> eventData = args[1]->ToString();
 
 	jobject javaProxy = proxy->getJavaObject();
 	jobject krollObject = env->GetObjectField(javaProxy, JNIUtil::krollProxyKrollObjectField);
 
 	jstring javaEventType = TypeConverter::jsStringToJavaString(eventType);
-	jarray javaEventArgs = TypeConverter::jsArrayToJavaArray(eventArgs);
+	jstring javaEventData = TypeConverter::jsStringToJavaString(eventData);
+
 
 	if (!JavaObject::useGlobalRefs) {
 		env->DeleteLocalRef(javaProxy);
@@ -273,11 +274,11 @@ Handle<Value> Proxy::onEventFired(const Arguments& args)
 	env->CallVoidMethod(krollObject,
 		JNIUtil::krollObjectOnEventFiredMethod,
 		javaEventType,
-		javaEventArgs);
+		javaEventData);
 
 	env->DeleteLocalRef(krollObject);
 	env->DeleteLocalRef(javaEventType);
-	env->DeleteLocalRef(javaEventArgs);
+	env->DeleteLocalRef(javaEventData);
 
 	return Undefined();
 }

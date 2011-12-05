@@ -56,10 +56,10 @@ public abstract class KrollObject implements Handler.Callback
 		}
 	}
 	
-	public void onEventFired(String event, Object[] args)
+	public void onEventFired(String event, String data)
 	{
 		if(proxySupport != null) {
-			proxySupport.onEventFired(event, args);
+			proxySupport.onEventFired(event, data);
 		}
 	}
 
