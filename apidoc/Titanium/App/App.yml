@@ -29,10 +29,16 @@ events:
         the exact behavior that triggers this event.
     platforms: [iphone, ipad]
   - name: pause
-    summary: fired when an iOS application will stop being the focus. This does include not
-        only the user leaving the application, but pauses due to notifications or calls. See
-        [applicationWillResignActive](http://developer.apple.com/library/ios/documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW10) for
-        the exact behavior that triggers this event.
+    summary: fired when an iOS application will stop being the focus. 
+    description: |
+        This includes not only the user leaving the application, 
+        but also pauses due to notifications or calls. See [applicationWillResignActive](http://developer.apple.com/library/ios/documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW10) 
+        for the exact behavior that triggers this event.
+        
+        Note that making calls to functions which modify the UI during this
+        event may cause execution UP TO the UI call before the suspension,
+        but then execute the REMAINDER of the callback after the application is
+        resumed (but before the resume event is triggered).
     platforms: [iphone, ipad]
 properties:
   - name: copyright
