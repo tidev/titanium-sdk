@@ -29,7 +29,14 @@
 		% if is_property_list:
 			<td class="type${append_cell_class}">${item.type_html}</td>
 		% endif
-			<td class="summary${append_cell_class}">${summary}
+			<td class="summary${append_cell_class}">
+				% if item.deprecated is not None:
+					<%
+						if summary.startswith("<p>"):
+							summary = '%s<span class="deprecation_warning">Deprecated</span>&nbsp;%s' % (summary[:3],summary[3:])
+					%>
+				% endif			
+				${summary}
 				% if len(item.platforms) < platform_count:
 					<span class="platform_warning">(${platform_names} only.)</span>
 				% endif
@@ -38,9 +45,6 @@
 				% endif
 				% if item.availability is not None:
 					<span class="availability_warning">${item.availability}</span>
-				% endif
- 				% if item.deprecated is not None:
-					<span class="deprecation_warning">Deprecated</span>
 				% endif
 				% if was_para_close:
 					</p>

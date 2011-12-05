@@ -8,6 +8,10 @@
 
 <h1 class="namespace">${name}</h1>
 
+<%include file="parent_info.html"/>
+
+<%include file="platforms.html"/>
+
 % if data.deprecated:
     <div class="deprecation_warning">Deprecated
         % if "since" in data.deprecated:
@@ -31,12 +35,13 @@
 	% endif
 % endif
 
-<%include file="parent_info.html"/>
-
-<%include file="platforms.html"/>
-
 <h3 id="summary">Summary</h3>
 <div class="summary">${data.summary_html}</div>
+
+% if data.typestr == "property":
+    <h3 id="type">Type</h3>
+    <div class="type">${data.type_html}</div>
+% endif
 
 <%include file="description.html"/>
 
