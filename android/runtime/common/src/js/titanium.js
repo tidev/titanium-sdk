@@ -76,7 +76,12 @@ function TitaniumWrapper(context) {
 	this.Android = new AndroidWrapper(context);
 	this.UI = new UIWrapper(context, this.Android);
 
-	var scopeVars = new kroll.ScopeVars(sourceUrl, context.module, this.Android.currentActivity);
+	var scopeVars = new kroll.ScopeVars({
+		sourceUrl: sourceUrl,
+		module: context.module,
+		currentActivity: this.Android.currentActivity,
+		currentService: this.Android.currentService
+	});
 	Titanium.bindInvocationAPIs(this, scopeVars);
 }
 TitaniumWrapper.prototype = Titanium;
@@ -95,6 +100,7 @@ UIWrapper.prototype = Titanium.UI;
 
 function AndroidWrapper(context) {
 	this.currentActivity = context.currentActivity;
+	this.currentService = context.currentService;
 	var currentWindow = context.currentWindow;
 
 	if (!this.currentActivity) {

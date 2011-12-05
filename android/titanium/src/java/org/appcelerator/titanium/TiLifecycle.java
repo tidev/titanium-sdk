@@ -7,7 +7,6 @@
 package org.appcelerator.titanium;
 
 import android.app.Activity;
-import android.app.Service;
 
 
 public class TiLifecycle
@@ -24,10 +23,6 @@ public class TiLifecycle
 		public void onPause(Activity activity);
 		public void onStop(Activity activity);
 		public void onDestroy(Activity activity);
-	}
-
-	public static interface OnServiceLifecycleEvent {
-		void onDestroy(Service service);
 	}
 
 	public static void fireLifecycleEvent(Activity activity, OnLifecycleEvent listener, int which)

@@ -15,10 +15,14 @@
 
 	// Used just to differentiate scope vars on java side by
 	// using a unique constructor name
-	function ScopeVars(sourceUrl, module, currentActivity) {
-		this.sourceUrl = sourceUrl;
-		this.module = module;
-		this.currentActivity = currentActivity;
+	function ScopeVars(vars) {
+		var keys = Object.keys(vars);
+		var length = keys.length;
+
+		for (var i = 0; i < length; ++i) {
+			var key = keys[i];
+			this[key] = vars[key];
+		}
 	}
 
 	startup.globalVariables = function() {
