@@ -39,7 +39,7 @@
 -(void)layoutSubviews
 {
     if (!layingOut && !singleLayout) {
-        [controller layoutSubviewsForInterfaceOrientation:[[[TiApp app] controller] lastValidOrientation]  withAnimation:YES];
+        [controller layoutSubviewsForInterfaceOrientation:[[[TiApp app] controller] windowOrientation]  withAnimation:YES];
     }
     else {
         [super layoutSubviews];

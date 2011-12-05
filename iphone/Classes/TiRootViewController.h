@@ -31,9 +31,9 @@
 	
 //Orientation handling:
 	TiOrientationFlags	allowedOrientations;
-	UIInterfaceOrientation orientationHistory[4];
+	UIInterfaceOrientation orientationHistory[4]; // Physical device orientation history
 
-	UIInterfaceOrientation windowOrientation;
+	UIInterfaceOrientation windowOrientation; // Current emulated orientation
 
 	BOOL isCurrentlyVisible;
 
@@ -56,6 +56,7 @@
 
 @property(nonatomic,readonly) BOOL keyboardVisible;
 @property(nonatomic,readonly) UIImageView * defaultImageView;
+@property(nonatomic,readonly) UIInterfaceOrientation windowOrientation;
 -(void)dismissDefaultImageView;
 
 @property(nonatomic,readwrite,retain)	UIColor * backgroundColor;

@@ -382,15 +382,10 @@
 		[UIView setAnimationDuration:duration];
 	}
     
-    if (newOrientation != oldOrientation && isCurrentlyVisible)
+    if (newOrientation != oldOrientation)
     {
         [keyboardFocusedProxy blur:nil];
         [ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
-        
-        // Because this is only triggered when we update to a new orientation manually
-        // (Not in a rotation event!) we should be updating the orientation history here.
-        [self updateOrientationHistory:newOrientation];
-        
         [keyboardFocusedProxy focus:nil];
     }
 
