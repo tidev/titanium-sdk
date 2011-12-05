@@ -115,20 +115,20 @@
 	NSString* prefix = [GDataXMLNode prefixForName:tagName];
 	NSString* localName = [GDataXMLNode localNameForName:tagName];
 	
-	if ([tagName compare:@"xmlns"] != 0) {
+	if (![[tagName lowercaseString] isEqualToString:@"xmlns"]) {
 		//Check name validity
 		if (![TiDOMValidator checkAttributeName:localName]) {
 			[self throwException:@"Invalid attribute name" subreason:nil location:CODELOCATION];
 			return [NSNull null];
 		}
 	
-		if (prefix != nil && ((theURI == nil)||([theURI length]==0)) ) {
+		if (prefix != nil && ([theURI length]==0) ) {
 			[self throwException:@"Can not have a prefix with a null URI" subreason:nil location:CODELOCATION];
 			return [NSNull null];
 		}
 		
-		if ( prefix != nil && ([prefix compare:@"xml"] == 0) ) {
-			if (theURI == nil || ([theURI compare:@"http://www.w3.org/XML/1998/namespace"] != 0) ) {
+		if ( [prefix isEqualToString:@"xml"] ) {
+			if (![theURI isEqualToString:@"http://www.w3.org/XML/1998/namespace"]) {
 				[self throwException:@"Invalid URI for prefix xml" subreason:nil location:CODELOCATION];
 				return [NSNull null];
 			}
@@ -148,7 +148,7 @@
 			
 	}
 	else {
-		if (theURI == nil || ([theURI compare:@"http://www.w3.org/2000/xmlns/"] != 0) ) {
+		if (![theURI isEqualToString:@"http://www.w3.org/2000/xmlns/"]) {
 			[self throwException:@"Invalid URI for qualified name xmlns" subreason:nil location:CODELOCATION];
 			return [NSNull null];
 		}
@@ -274,13 +274,13 @@
 		return [NSNull null];
 	}
 		
-	if (prefix != nil && ((theURI == nil)||([theURI length]==0)) ) {
+	if (prefix != nil && ([theURI length]==0) ) {
 		[self throwException:@"Can not have a prefix with a null URI" subreason:nil location:CODELOCATION];
 		return [NSNull null];
 	}
 		
-	if ( prefix != nil && ([prefix compare:@"xml"] == 0) ) {
-		if (theURI == nil || ([theURI compare:@"http://www.w3.org/XML/1998/namespace"] != 0) ) {
+	if ( [prefix isEqualToString:@"xml"] ) {
+		if (![theURI isEqualToString:@"http://www.w3.org/XML/1998/namespace"]) {
 			[self throwException:@"Invalid URI for prefix xml" subreason:nil location:CODELOCATION];
 			return [NSNull null];
 		}
