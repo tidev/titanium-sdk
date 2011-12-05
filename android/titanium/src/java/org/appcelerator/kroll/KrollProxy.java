@@ -645,7 +645,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 	public void removeEventListener(String eventName, int listenerId)
 	{
-		if (eventName != null) {
+		if (eventName == null) {
 			throw new IllegalStateException("removeEventListener expects a non-null eventName");
 		}
 
