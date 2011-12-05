@@ -25,10 +25,11 @@ import org.json.JSONObject;
 
 import android.webkit.WebView;
 
-public class TiWebViewBinding {
+public class TiWebViewBinding
+{
 
 	private static final String LCAT = "TiWebViewBinding";
-	// This is based on binding.min.js.  If you have to change anything...
+	// This is based on binding.min.js. If you have to change anything...
 	// - change binding.js
 	// - minify binding.js to create binding.min.js
 	protected final static String SCRIPT_INJECTION_ID = "__ti_injection";
@@ -60,7 +61,7 @@ public class TiWebViewBinding {
 	private WebView webView;
 	private KrollLogging apiBinding;
 	private AppBinding appBinding;
-	
+
 	public TiWebViewBinding(WebView webView)
 	{
 		this.webView = webView;
@@ -77,17 +78,19 @@ public class TiWebViewBinding {
 		this(webView);
 	}
 
-	public void destroy() {
+	public void destroy()
+	{
 	}
-	
+
 	private static StringBuilder readResourceFile(String fileName)
 	{
-		InputStream stream = TiWebViewBinding.class.getClassLoader().getResourceAsStream("ti/modules/titanium/ui/widget/webview/" + fileName);
+		InputStream stream = TiWebViewBinding.class.getClassLoader().getResourceAsStream(
+			"ti/modules/titanium/ui/widget/webview/" + fileName);
 		BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
 		StringBuilder code = new StringBuilder();
 		try {
 			for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-				code.append(line+"\n");
+				code.append(line + "\n");
 			}
 		} catch (IOException e) {
 			Log.e(LCAT, "Error reading input stream", e);
@@ -103,18 +106,20 @@ public class TiWebViewBinding {
 		}
 		return code;
 	}
-	
+
 	private void evalJS(String code)
 	{
-		webView.loadUrl("javascript:"+code);
+		webView.loadUrl("javascript:" + code);
 	}
-	
+
 	private Semaphore returnSemaphore = new Semaphore(0);
 	private String returnValue;
+
 	public String getJSValue(String expression)
 	{
-		String code = "javascript:_TiReturn.setValue((function(){try{return "+expression+"+\"\";}catch(ti_eval_err){return '';}})());";
-		Log.d(LCAT, "getJSValue:"+code);
+		String code = "javascript:_TiReturn.setValue((function(){try{return " + expression
+			+ "+\"\";}catch(ti_eval_err){return '';}})());";
+		Log.d(LCAT, "getJSValue:" + code);
 		webView.loadUrl(code);
 		try {
 			returnSemaphore.acquire();
@@ -124,17 +129,19 @@ public class TiWebViewBinding {
 		}
 		return null;
 	}
-	
+
 	@SuppressWarnings("unused")
-	private class TiReturn {
-		public void setValue(String value) {
+	private class TiReturn
+	{
+		public void setValue(String value)
+		{
 			if (value != null) {
 				returnValue = value;
 			}
 			returnSemaphore.release();
 		}
 	}
-	
+
 	private class WebViewCallback implements KrollEventCallback
 	{
 		private int id;
@@ -144,54 +151,22 @@ public class TiWebViewBinding {
 			this.id = id;
 		}
 
-		public void call(String data)
+		public void call(Object data)
 		{
-			if(data == null) {
-				data = "";
+			String dataString;
+			if (data == null) {
+				dataString = "";
+			} else if (data instanceof HashMap) {
+				JSONObject json = new JSONObject((HashMap) data);
+				dataString = ", " + json.toString();
 			} else {
-				data = ", " + data;
+				dataString = ", " + data;
 			}
-			
-			String code = "Ti.executeListener(" + id + data + ");";
+
+			String code = "Ti.executeListener(" + id + dataString + ");";
 			evalJS(code);
 		}
 	}
-
-	/*@SuppressWarnings("unused")
-	private class APIBinding
-	{
-		private APIModule module;
-		public APIBinding() {
-			module = (APIModule) TiApplication.getInstance().getModuleByName("API");
-		}
-		public void critical(String msg) {
-			module.critical(msg);
-		}
-		public void debug(String msg) {
-			module.debug(msg);
-		}
-		public void error(String msg) {
-			module.error(msg);
-		}
-		public void fatal(String msg) {
-			module.fatal(msg);
-		}
-		public void info(String msg) {
-			module.info(msg);
-		}
-		public void log(String level, String msg) {
-			module.log(level, msg);
-		}
-		public void notice(String msg) {
-			module.notice(msg);
-		}
-		public void trace(String msg) {
-			module.trace(msg);
-		}
-		public void warn(String msg) {
-			module.warn(msg);
-		}
-	}*/
 
 	@SuppressWarnings("unused")
 	private class AppBinding

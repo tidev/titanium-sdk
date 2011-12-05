@@ -258,13 +258,13 @@ Handle<Value> Proxy::onEventFired(const Arguments& args)
 	Proxy* proxy = NativeObject::Unwrap<Proxy>(args.Holder());
 
 	Local<String> eventType = args[0]->ToString();
-	Local<String> eventData = args[1]->ToString();
+	Local<Value> eventData = args[1];
 
 	jobject javaProxy = proxy->getJavaObject();
 	jobject krollObject = env->GetObjectField(javaProxy, JNIUtil::krollProxyKrollObjectField);
 
 	jstring javaEventType = TypeConverter::jsStringToJavaString(eventType);
-	jstring javaEventData = TypeConverter::jsStringToJavaString(eventData);
+	jobject javaEventData = TypeConverter::jsValueToJavaObject(eventData);
 
 
 	if (!JavaObject::useGlobalRefs) {

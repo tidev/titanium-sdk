@@ -401,7 +401,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		}
 
 		if (!eventListeners.isEmpty()) {
-			onEventFired(event, data.toString());
+			onEventFired(event, data);
 		}
 
 		return getKrollObject().fireEvent(event, data);
@@ -615,32 +615,29 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	{
 		int listenerId = -1;
 
-		if (eventName != null) {
-			if (callback != null) {
-				synchronized (eventListeners) {
-					if (eventListeners.isEmpty()) {
-						setProperty(PROPERTY_HAS_JAVA_LISTENER, true);
-					}
+		if (eventName == null) {
+			throw new IllegalStateException("addEventListener expects a non-null eventName");
 
-					HashMap<Integer, KrollEventCallback> listeners = eventListeners.get(eventName);
-					if (listeners == null) {
-						listeners = new HashMap<Integer, KrollEventCallback>();
-						eventListeners.put(eventName, listeners);
-					}
+		} else if (callback == null) {
+			throw new IllegalStateException("addEventListener expects a non-null listener");
+		}
 
-					if (DBG) {
-						Log.d(TAG, "Added for eventName '" + eventName + "' with id " + listenerId);
-					}
-					listenerId = listenerIdGenerator.incrementAndGet();
-					listeners.put(listenerId, callback);
-				}
-
-			} else {
-				throw new IllegalStateException("addEventListener expects a non-null listener");
+		synchronized (eventListeners) {
+			if (eventListeners.isEmpty()) {
+				setProperty(PROPERTY_HAS_JAVA_LISTENER, true);
 			}
 
-		} else {
-			throw new IllegalStateException("addEventListener expects a non-null eventName");
+			HashMap<Integer, KrollEventCallback> listeners = eventListeners.get(eventName);
+			if (listeners == null) {
+				listeners = new HashMap<Integer, KrollEventCallback>();
+				eventListeners.put(eventName, listeners);
+			}
+
+			if (DBG) {
+				Log.d(TAG, "Added for eventName '" + eventName + "' with id " + listenerId);
+			}
+			listenerId = listenerIdGenerator.incrementAndGet();
+			listeners.put(listenerId, callback);
 		}
 
 		return listenerId;
@@ -649,29 +646,29 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	public void removeEventListener(String eventName, int listenerId)
 	{
 		if (eventName != null) {
-			synchronized (eventListeners) {
-				HashMap<Integer, KrollEventCallback> listeners = eventListeners.get(eventName);
-				if (listeners != null) {
-					if (listeners.remove(listenerId) == null) {
-						if (DBG) {
-							Log.d(TAG, "listenerId " + listenerId + " not for eventName '" + eventName + "'");
-						}
-					}
-					if (listeners.isEmpty()) {
-						eventListeners.remove(eventName);
-					}
-					if (eventListeners.isEmpty()) {
-						// If we don't have any java listeners, we set the property to false
-						setProperty(PROPERTY_HAS_JAVA_LISTENER, false);
+			throw new IllegalStateException("removeEventListener expects a non-null eventName");
+		}
+
+		synchronized (eventListeners) {
+			HashMap<Integer, KrollEventCallback> listeners = eventListeners.get(eventName);
+			if (listeners != null) {
+				if (listeners.remove(listenerId) == null) {
+					if (DBG) {
+						Log.d(TAG, "listenerId " + listenerId + " not for eventName '" + eventName + "'");
 					}
 				}
+				if (listeners.isEmpty()) {
+					eventListeners.remove(eventName);
+				}
+				if (eventListeners.isEmpty()) {
+					// If we don't have any java listeners, we set the property to false
+					setProperty(PROPERTY_HAS_JAVA_LISTENER, false);
+				}
 			}
-		} else {
-			throw new IllegalStateException("removeEventListener expects a non-null eventName");
 		}
 	}
 
-	public void onEventFired(String event, String data)
+	public void onEventFired(String event, Object data)
 	{
 		HashMap<Integer, KrollEventCallback> listeners = eventListeners.get(event);
 		if (listeners != null) {
@@ -683,7 +680,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			}
 		}
 	}
-	
+
 	public String resolveUrl(String scheme, String path)
 	{
 		return TiUrl.resolve(creationUrl.baseUrl, path, scheme);

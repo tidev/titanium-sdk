@@ -71,9 +71,8 @@ Object.defineProperty(EventEmitter.prototype, "emit", {
 			}
 		}*/
 
-        if (this._hasJavaListener) { 
-            var data =  arguments[1] || {};
-            this._onEventFired( type, JSON.stringify(data)); 
+        if (this._hasJavaListener) {
+            this._onEventFired( type,  arguments[1] || {});
         }
 
 		if (!this._events) {
