@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,11 +10,18 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.concurrent.Semaphore;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollEventCallback;
 import org.appcelerator.kroll.KrollLogging;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.webkit.WebView;
 
@@ -52,17 +59,15 @@ public class TiWebViewBinding {
 
 	private WebView webView;
 	private KrollLogging apiBinding;
-	//private AppBinding appBinding;
+	private AppBinding appBinding;
 	
 	public TiWebViewBinding(WebView webView)
 	{
 		this.webView = webView;
 
 		apiBinding = KrollLogging.getDefault();
-		/*apiBinding = new APIBinding();
 		appBinding = new AppBinding();
-		webView.addJavascriptInterface(apiBinding, "TiAPI");
-		webView.addJavascriptInterface(appBinding, "TiApp");*/
+		webView.addJavascriptInterface(appBinding, "TiApp");
 		webView.addJavascriptInterface(apiBinding, "TiAPI");
 		webView.addJavascriptInterface(new TiReturn(), "_TiReturn");
 	}
@@ -130,24 +135,25 @@ public class TiWebViewBinding {
 		}
 	}
 	
-	/*@SuppressWarnings("serial")
-	private class WebViewCallback implements KrollFunction
+	@SuppressWarnings("rawtypes")
+	private class WebViewCallback implements KrollEventCallback
 	{
 		private int id;
-		public WebViewCallback(int id) {
+
+		public WebViewCallback(int id)
+		{
 			this.id = id;
 		}
-		
-		@Override
-		public Object call(KrollObject thisObject, Object[] args) {
-			if (args.length > 0 && args[0] instanceof KrollDict) {
-				KrollDict data = (KrollDict) args[0];
-				String code = "Ti.executeListener("+id+", "+data.toString()+");";
+
+		public void call(Object[] args)
+		{
+			if (args != null && args.length > 0 && args[0] instanceof HashMap) {
+				HashMap data = (HashMap) args[0];
+				String code = "Ti.executeListener(" + id + ", " + data.toString() + ");";
 				evalJS(code);
 			}
-			return 0; // TODO: return undefined instead
 		}
-	}*/
+	}
 
 	/*@SuppressWarnings("unused")
 	private class APIBinding
@@ -185,16 +191,16 @@ public class TiWebViewBinding {
 		}
 	}*/
 
-	/*@SuppressWarnings("unused")
+	@SuppressWarnings("unused")
 	private class AppBinding
 	{
-		private AppModule module;
-		
+		private KrollModule module;
+
 		public AppBinding()
 		{
-			module = (AppModule) TiApplication.getInstance().getModuleByName("App");
+			module = TiApplication.getInstance().getModuleByName("App");
 		}
-		
+
 		public void fireEvent(String event, String json)
 		{
 			try {
@@ -207,20 +213,15 @@ public class TiWebViewBinding {
 				Log.e(LCAT, "Error parsing event JSON", e);
 			}
 		}
-		
+
 		public int addEventListener(String event, int id)
 		{
-			KrollInvocation invocation = KrollInvocation.createMethodInvocation(module.getTiContext(), module.getTiContext().getScope(), null, "addEventListener", null, module);
-			int listenerId = module.addEventListener(invocation, event, new WebViewCallback(id));
-			invocation.recycle();
-			return listenerId;
+			return module.addEventListener(event, new WebViewCallback(id));
 		}
-		
+
 		public void removeEventListener(String event, int id)
 		{
-			KrollInvocation invocation = KrollInvocation.createMethodInvocation(module.getTiContext(), module.getTiContext().getScope(), null, "removeEventListener", null, module);
-			module.removeEventListener(invocation, event, id);
-			invocation.recycle();
+			module.removeEventListener(event, id);
 		}
-	}*/
+	}
 }

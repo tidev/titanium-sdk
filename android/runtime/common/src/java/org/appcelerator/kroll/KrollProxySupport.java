@@ -25,4 +25,6 @@ public interface KrollProxySupport
 	public void setIndexedProperty(int index, Object value);
 
 	public void onHasListenersChanged(String event, boolean hasListeners);
+	
+	public void onEventFired(String event, Object[] args);
 }

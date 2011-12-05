@@ -55,6 +55,13 @@ public abstract class KrollObject implements Handler.Callback
 			proxySupport.onHasListenersChanged(event, hasListeners);
 		}
 	}
+	
+	public void onEventFired(String event, Object[] args)
+	{
+		if(proxySupport != null) {
+			proxySupport.onEventFired(event, args);
+		}
+	}
 
 	protected void release()
 	{

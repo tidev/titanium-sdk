@@ -8,12 +8,15 @@ package org.appcelerator.kroll;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -30,6 +33,7 @@ import android.os.Message;
 @Kroll.proxy(name="KrollProxy")
 public class KrollProxy implements Handler.Callback, KrollProxySupport
 {
+	private static final boolean DBG = TiConfig.LOGD;
 	private static final String TAG = "KrollProxy";
 	private static final int INDEX_NAME = 0;
 	private static final int INDEX_OLD_VALUE = 1;
@@ -46,9 +50,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	protected static final int MSG_FIRE_SYNC_EVENT = KrollObject.MSG_LAST_ID + 108;
 	protected static final int MSG_LAST_ID = MSG_FIRE_SYNC_EVENT;
 	protected static final String PROPERTY_NAME = "name";
+	protected static final String PROPERTY_HAS_JAVA_LISTENER = "_hasJavaListener";
 
 	protected static AtomicInteger proxyCounter = new AtomicInteger();
+	protected AtomicInteger listenerIdGenerator;
 
+	protected Map<String, HashMap<Integer, KrollEventCallback>> eventListeners;
 	protected KrollObject krollObject;
 	protected WeakReference<Activity> activity;
 	protected String proxyId;
@@ -72,6 +79,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	public KrollProxy(String baseCreationUrl)
 	{
 		creationUrl = new TiUrl(baseCreationUrl);
+		this.listenerIdGenerator = new AtomicInteger(0);
+		this.eventListeners = Collections.synchronizedMap(new HashMap<String, HashMap<Integer, KrollEventCallback>>());
 	}
 
 	// entry point for generator code
@@ -375,19 +384,29 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		}
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public boolean doFireEvent(String event, Object data)
 	{
+
+		HashMap<String, Object> dict;
+
 		if (data == null) {
 			data = new KrollDict();
 		}
 
 		if (data instanceof HashMap) {
-			HashMap<String, Object> dict = (HashMap) data;
+			dict = (HashMap) data;
 
 			Object source = dict.get(TiC.EVENT_PROPERTY_SOURCE);
 			if (source == null) {
 				dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
 			}
+		} else {
+			dict = new HashMap<String, Object>();
+		}
+
+		if (!eventListeners.isEmpty()) {
+			onEventFired(event, new Object[] { dict });
 		}
 
 		return getKrollObject().fireEvent(event, data);
@@ -499,7 +518,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		return createdInModule;
 	}
 
-	@SuppressWarnings("unchecked")
 	public boolean handleMessage(Message msg)
 	{
 		switch (msg.what) {
@@ -598,6 +616,79 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		}
 	}
 
+	public int addEventListener(String eventName, KrollEventCallback callback)
+	{
+		int listenerId = -1;
+
+		if (eventName != null) {
+			if (callback != null) {
+				synchronized (eventListeners) {
+					if (eventListeners.isEmpty()) {
+						setProperty(PROPERTY_HAS_JAVA_LISTENER, true);
+					}
+
+					HashMap<Integer, KrollEventCallback> listeners = eventListeners.get(eventName);
+					if (listeners == null) {
+						listeners = new HashMap<Integer, KrollEventCallback>();
+						eventListeners.put(eventName, listeners);
+					}
+
+					if (DBG) {
+						Log.d(TAG, "Added for eventName '" + eventName + "' with id " + listenerId);
+					}
+					listenerId = listenerIdGenerator.incrementAndGet();
+					listeners.put(listenerId, callback);
+				}
+
+			} else {
+				throw new IllegalStateException("addEventListener expects a non-null listener");
+			}
+
+		} else {
+			throw new IllegalStateException("addEventListener expects a non-null eventName");
+		}
+
+		return listenerId;
+	}
+
+	public void removeEventListener(String eventName, int listenerId)
+	{
+		if (eventName != null) {
+			synchronized (eventListeners) {
+				HashMap<Integer, KrollEventCallback> listeners = eventListeners.get(eventName);
+				if (listeners != null) {
+					if (listeners.remove(listenerId) == null) {
+						if (DBG) {
+							Log.d(TAG, "listenerId " + listenerId + " not for eventName '" + eventName + "'");
+						}
+					}
+					if (listeners.isEmpty()) {
+						eventListeners.remove(eventName);
+					}
+					if (eventListeners.isEmpty()) {
+						// If we don't have any java listeners, we set the property to false
+						setProperty(PROPERTY_HAS_JAVA_LISTENER, false);
+					}
+				}
+			}
+		} else {
+			throw new IllegalStateException("removeEventListener expects a non-null eventName");
+		}
+	}
+
+	public void onEventFired(String event, Object[] args)
+	{
+		HashMap<Integer, KrollEventCallback> listeners = eventListeners.get(event);
+		if (listeners != null) {
+			for (Integer listenerId : listeners.keySet()) {
+				KrollEventCallback callback = listeners.get(listenerId);
+				if (callback != null) {
+					callback.call(args);
+				}
+			}
+		}
+	}
+	
 	public String resolveUrl(String scheme, String path)
 	{
 		return TiUrl.resolve(creationUrl.baseUrl, path, scheme);
