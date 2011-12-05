@@ -12,10 +12,10 @@ import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Properties;
-import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -103,7 +103,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	protected HashMap<String, WeakReference<KrollModule>> modules;
 	
 	public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
-	protected static Vector<ActivityTransitionListener> activityTransitionListeners = new Vector<ActivityTransitionListener>();
+	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<ActivityTransitionListener>();
 
 
 	public static interface ActivityTransitionListener
@@ -111,12 +111,12 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		public void onActivityTransition(boolean state);
 	}
 
-	public static void registerActivityTransitionListener(ActivityTransitionListener a)
+	public static void addActivityTransitionListener(ActivityTransitionListener a)
 	{
 		activityTransitionListeners.add(a);
 	}
 	
-	public static void unregisterActivityTransitionListener(ActivityTransitionListener a)
+	public static void removeActivityTransitionListener(ActivityTransitionListener a)
 	{
 		activityTransitionListeners.remove(a);
 	}

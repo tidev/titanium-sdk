@@ -148,7 +148,7 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 	public void open() 
 	{
 		if (TiApplication.isActivityTransition.get()) {
-			TiApplication.registerActivityTransitionListener(this);
+			TiApplication.addActivityTransitionListener(this);
 			
 		} else {
 			doOpen();
@@ -161,12 +161,13 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 		Intent choosingIntent = Intent.createChooser(sendIntent, "Send");
 
 		Activity activity = TiApplication.getAppCurrentActivity();
-		TiActivitySupport activitySupport = (TiActivitySupport) activity;
-		final int code = activitySupport.getUniqueResultCode();
+		if (activity != null) {
+			TiActivitySupport activitySupport = (TiActivitySupport) activity;
+			final int code = activitySupport.getUniqueResultCode();
 
-		activitySupport.launchActivityForResult(choosingIntent, code, 
-			new TiActivityResultHandler() {
-				
+			activitySupport.launchActivityForResult(choosingIntent, code, 
+					new TiActivityResultHandler() {
+
 				@Override
 				public void onResult(Activity activity, int requestCode, int resultCode,
 						Intent data) {
@@ -188,6 +189,10 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 					fireEvent("complete", result);
 				}
 			});
+			
+		} else {
+			Log.e(LCAT, "Current activity is null");
+		}
 			
 	}
 
@@ -349,7 +354,7 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 	{
 		if (!state) {
 			doOpen();
-			TiApplication.unregisterActivityTransitionListener(this);
+			TiApplication.removeActivityTransitionListener(this);
 		}
 	}
 }
