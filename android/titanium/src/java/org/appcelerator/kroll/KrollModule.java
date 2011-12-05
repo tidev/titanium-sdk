@@ -6,11 +6,13 @@
  */
 package org.appcelerator.kroll;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiRootActivity;
 
@@ -22,17 +24,39 @@ public class KrollModule extends KrollProxy
 {
 	private static final String TAG = "KrollModule";
 
-	public KrollModule() {
-		super();
+	@Deprecated
+	protected TiContext tiContext;
 
+	protected static ArrayList<KrollModuleInfo> customModuleInfoList = new ArrayList<KrollModuleInfo>();
+
+
+	public static void addCustomModuleInfo(KrollModuleInfo customModuleInfo)
+	{
+		customModuleInfoList.add(customModuleInfo);
+	}
+
+	public static ArrayList<KrollModuleInfo> getCustomModuleInfoList()
+	{
+		return customModuleInfoList;
+	}
+
+	public KrollModule()
+	{
+		super();
 		modelListener = this;
 	}
 
-	public KrollModule(String name) {
+	public KrollModule(String name)
+	{
 		this();
-
 		// Register module with TiApplication if a name is provided.
 		TiApplication.getInstance().registerModuleInstance(name, this);
+	}
+
+	public KrollModule(TiContext tiContext)
+	{
+		this();
+		this.tiContext = tiContext;
 	}
 
 	@Override

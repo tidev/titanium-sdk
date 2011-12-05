@@ -47,11 +47,17 @@ public class KrollBindings
 
 	private static HashMap<String, Scriptable> bindingCache = new HashMap<String, Scriptable>();
 	private static HashMap<String, Script> jsBindings = new HashMap<String, Script>();
+	private static HashMap<String, Class<? extends Proxy>> externalBindings = new HashMap<String, Class<? extends Proxy>>();
 
 	private static void addJsBinding(String name, Class<?> jsBinding)
 	{
 		KrollScript script = KrollScriptRunner.getInstance().getOrCreateScript(jsBinding);
 		jsBindings.put(name, script.script);
+	}
+
+	public static void addExternalBinding(String name, Class<? extends Proxy> jsBinding)
+	{
+		externalBindings.put(name, jsBinding);
 	}
 
 	public static void initJsBindings()
@@ -105,6 +111,19 @@ public class KrollBindings
 		return jsBindings.get(name);
 	}
 
+	public static Scriptable getExternalBinding(Context context, Scriptable scope, String name)
+	{
+		Class<? extends Proxy> externalBindingClass = externalBindings.get(name);
+		if (externalBindingClass != null) {
+			Scriptable exports = context.newObject(scope);
+			Proxy.init(context, exports, name, externalBindingClass);
+			bindingCache.put(name, exports);
+			return exports;
+		}
+
+		return null;
+	}
+
 	public static Scriptable getBinding(Context context, Scriptable scope, String name)
 	{
 		Scriptable binding = bindingCache.get(name);
@@ -148,9 +167,7 @@ public class KrollBindings
 			return exports;
 		}
 
-		Class<? extends Proxy> genBinding =
-			KrollGeneratedBindings.getBindingClass(name);
-
+		Class<? extends Proxy> genBinding = KrollGeneratedBindings.getBindingClass(name);
 		if (genBinding != null) {
 			Scriptable exports = context.newObject(scope);
 			String bindingName = KrollGeneratedBindings.getBindingName(name);

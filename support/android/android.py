@@ -212,6 +212,7 @@ class Android(object):
 			for module_class in module_bindings['modules'].keys():
 				module_proxy = module_bindings['proxies'][module_class]
 				module_id = module_proxy['proxyAttrs']['id']
+				module_proxy_class_name = module_proxy['proxyClassName']
 				module_onAppCreate = None
 				if 'onAppCreate' in module_proxy:
 					module_onAppCreate = module_proxy['onAppCreate']
@@ -220,6 +221,8 @@ class Android(object):
 				if module_id == module.manifest.moduleid:
 					print '[DEBUG] appending module: %s' % module_class
 					self.custom_modules.append({
+						'module_id': module_id,
+						'proxy_name': module_proxy_class_name,
 						'class_name': module_class,
 						'manifest': module.manifest,
 						'on_app_create': module_onAppCreate
@@ -239,7 +242,9 @@ class Android(object):
 		resource_dir = os.path.join(project_dir, 'Resources')
 		self.config['ti_resources_dir'] = resource_dir
 
-		runtime = "rhino"
+		json_contents = open(os.path.join(template_dir,'dependency.json')).read()
+		depends_map = simplejson.loads(json_contents)
+		runtime = depends_map['runtimes']['defaultRuntime']
 		if self.tiapp.has_app_property("ti.android.runtime"):
 			requested_runtime = self.tiapp.get_app_property("ti.android.runtime")
 			if requested_runtime == "rhino" or requested_runtime == "v8":
