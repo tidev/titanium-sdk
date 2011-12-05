@@ -146,6 +146,11 @@ properties:
         a translucent window cannot appear above the status bar.  I.e., even though
         you set `fullscreen:true`, the status bar will still be visible *if* it was visible
         in the previous window.  `navBarHidden` and `modal` do work fine together, however.
+        
+        iOS note: modal windows should not support orientation modes that the
+        window they are opened over do not support. Doing otherwise *may* cause
+        bad visual/redraw behavior after the modal is dismissed, due to how
+        iOS manages modal transitions.
     platforms: [android, iphone, ipad]
     type: Boolean
     default: false
