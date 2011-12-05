@@ -12,7 +12,6 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.RProxy;
@@ -279,39 +278,23 @@ public class AndroidModule extends KrollModule
 	@Kroll.method
 	public void startService(IntentProxy intentProxy)
 	{
-		Activity activity = TiApplication.getInstance().getCurrentActivity();
-		if (activity != null) {
-			activity.startService(intentProxy.getIntent());
-			return;
+		TiApplication app = TiApplication.getInstance();
+		if (app != null) {
+			app.startService(intentProxy.getIntent());
+		} else {
+			Log.w(TAG, "Application instance no longer available. Unable to startService.");
 		}
-		// In case the activity was null, try context->application
-		/*
-		TiContext tiContext = invocation.getTiContext();
-		if (tiContext != null && tiContext.getTiApp() != null) {
-			tiContext.getTiApp().startService(intentProxy.getIntent());
-			return;
-		}*/
-		TiApplication.getInstance().startService(intentProxy.getIntent());
-		Log.w(TAG, "Could not locate non-null activity/context/application with which to start service.");
 	}
 
 	@Kroll.method
 	public void stopService(IntentProxy intentProxy)
 	{
-		Activity activity = TiApplication.getInstance().getCurrentActivity();
-		if (activity != null) {
-			activity.stopService(intentProxy.getIntent());
-			return;
+		TiApplication app = TiApplication.getInstance();
+		if (app != null) {
+			app.stopService(intentProxy.getIntent());
+		} else {
+			Log.w(TAG, "Application instance no longer available. Unable to stopService.");
 		}
-		// In case the activity was null, try context->application
-		/*
-		TiContext tiContext = invocation.getTiContext();
-		if (tiContext != null && tiContext.getTiApp() != null) {
-			tiContext.getTiApp().stopService(intentProxy.getIntent());
-			return;
-		}*/
-		TiApplication.getInstance().stopService(intentProxy.getIntent());
-		Log.w(TAG, "Could not locate non-null activity/context/application with which to stop service.");
 	}
 
 	@Kroll.method
@@ -322,9 +305,14 @@ public class AndroidModule extends KrollModule
 			Log.w(TAG, "isServiceRunning called with empty intent.  Will return false, but value is meaningless.");
 			return false;
 		}
-		Context context = TiApplication.getInstance().getRootActivity();
-		//Context context = invocation.getTiContext().getAndroidContext();
-		ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+
+		TiApplication app = TiApplication.getInstance();
+		if (app == null) {
+			Log.w(TAG, "Application instance is no longer available. Unable to check isServiceRunning. Returning false though value is meaningless.");
+			return false;
+		}
+
+		ActivityManager am = (ActivityManager) app.getApplicationContext().getSystemService(Context.ACTIVITY_SERVICE);
 		if (am != null) {
 			List<RunningServiceInfo> services = am.getRunningServices(Integer.MAX_VALUE);
 			for (RunningServiceInfo service : services) {
@@ -336,25 +324,12 @@ public class AndroidModule extends KrollModule
 		return false;
 	}
 
+	/**
+	 * A "bound" service instance. Returns the proxy so that .start and .stop can be called directly on the service.
+	 */
 	@Kroll.method
 	public ServiceProxy createService(IntentProxy intentProxy)
 	{
-		// Create a new context for the service proxy
-		TiApplication app = TiApplication.getInstance();
-		Activity rootActivity = app.getRootActivity();
-
-		String url = null;
-		Object urlProperty = intentProxy.getProperty(TiC.PROPERTY_URL);
-		if (urlProperty != null) {
-			url = urlProperty.toString();
-		}
-
-		// TODO
-		/*
-		TiContext tiContext = TiContext.createTiContext(rootActivity, TiC.URL_APP_PREFIX, url);
-		tiContext.setServiceContext(true);
 		return new ServiceProxy(intentProxy);
-		*/
-		return new ServiceProxy();
 	}
 }
