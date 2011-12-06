@@ -6,7 +6,6 @@
 		}
 		
 		var _position = function(p, val) {
-			obj.dom.style.position = 'absolute';
 			obj.dom.style[p] = Ti._5.parseLength(val);
 		};
 		
@@ -106,7 +105,6 @@
 				if(val == null || val.x == null && val.y == null || obj.parent == null){
 					return;
 				}
-				obj.dom.style.position = 'absolute';
 				var width = obj.dom.clientWidth;
 				var height = obj.dom.clientHeight;
 				if(val.x != null){

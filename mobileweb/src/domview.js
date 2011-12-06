@@ -95,18 +95,21 @@
 					obj.dom.style.marginLeft = (obj.args) ? obj.args['left'] : '';
 					obj.dom.style.left = '';
 					obj.dom.style.marginTop = '';
+					obj.dom.style.display = 'inline-block';
+					obj.dom.style.position = '';
 				} else if (parent.layout == 'vertical') {
 					// handle vertical layout
 					obj.dom.style.cssFloat = obj.args && 'undefined' != typeof obj.args['right'] ? 'right' : '';
 					obj.dom.style.marginLeft = '';
 					obj.dom.style.top = '';
 					obj.dom.style.marginTop = (obj.args) ? obj.args['top'] : '';
-					if (obj.visible) {
-						obj.dom.style.display = 'block';
-					}
+					obj.dom.style.display = '';
+					obj.dom.style.position = '';
 				}
 				parent._getAddContainer().appendChild(obj.dom);
 				obj.fireEvent('html5_added', parent);
+			} else {
+				obj.dom.style.position = 'absolute';
 			}
 
 			if (obj._children) {
