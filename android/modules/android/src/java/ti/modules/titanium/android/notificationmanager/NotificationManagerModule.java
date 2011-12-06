@@ -19,8 +19,6 @@ import android.app.NotificationManager;
 @Kroll.module(parentModule=AndroidModule.class)
 public class NotificationManagerModule extends KrollModule
 {
-	private static final String LCAT = "TiNotificationManager";
-
 	protected static final int PENDING_INTENT_FOR_ACTIVITY = 0;
 	protected static final int PENDING_INTENT_FOR_SERVICE = 1;
 	protected static final int PENDING_INTENT_FOR_BROADCAST = 2;

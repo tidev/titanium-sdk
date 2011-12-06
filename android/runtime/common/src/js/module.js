@@ -32,23 +32,34 @@ Module.main = null;
 Module.paths = [ 'Resources/' ];
 Module.wrap = NativeModule.wrap;
 
-Module.runModule = function (source, filename, activity) {
-
+Module.runModule = function (source, filename, activityOrService) {
 	var id = filename;
 	if (!Module.main) {
 		id = ".";
 	}
 
-	var module = new Module(id, null, {
-		currentActivity: activity,
-		currentWindow: activity ? activity.window : null
-	});
+	var module;
+	var isService = (activityOrService instanceof Titanium.Service);
+
+	if (isService) {
+		module = new Module(id, null, {
+			currentService: activityOrService,
+			currentActivity: null,
+			currentWindow: null
+		});
+	} else {
+		module = new Module(id, null, {
+			currentService: null,
+			currentActivity: activityOrService,
+			currentWindow: activityOrService ? activityOrService.window : null
+		});
+	}
 
 	if (!Module.main) {
 		Module.main = module;
 	}
 
-	module.load(filename, source, activity);
+	module.load(filename, source)
 	return module;
 }
 
@@ -97,15 +108,17 @@ Module.prototype.require = function (request, context, useCache) {
 		return NativeModule.require(request);
 	}
 
-	// get external binding
-	var externalBinding = kroll.externalBinding(request);
-	if (externalBinding) {
-		var bindingKey = Object.keys(externalBinding)[0];
-		if (bindingKey) {
-			return externalBinding[bindingKey];
-		}
+	// get external binding - TODO remove this check on V8 modules are in place
+	if (kroll.runtime == 'rhino') {
+		var externalBinding = kroll.externalBinding(request);
+		if (externalBinding) {
+			var bindingKey = Object.keys(externalBinding)[0];
+			if (bindingKey) {
+				return externalBinding[bindingKey];
+			}
 
-		kroll.log(TAG, "unable to find the external module: " + request);
+			kroll.log(TAG, "unable to find the external module: " + request);
+		}
 	}
 
 	var resolved = resolveFilename(request, this);
