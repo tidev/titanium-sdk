@@ -322,9 +322,11 @@ function($window, args){
 			Ti._5.sendAnalytics();
 		}
 
-		Ti.UI.createWindow({
-			title: args.projectName
-		}).open();
+		Ti._5.containerDiv = document.createElement('div');
+		Ti._5.containerDiv.style.width = window.innerWidth + "px";
+		Ti._5.containerDiv.style.height = window.innerHeight + "px";
+		Ti._5.containerDiv.style.overflow = "hidden";
+		document.body.appendChild(Ti._5.containerDiv);
 	};
 
 	Ti._5.getAbsolutePath = function(path){

@@ -27,7 +27,7 @@
 
 			// this is top level window - it has no parent - need to add it into DOM
 			if(obj.parent == null) {
-				document.body.appendChild(obj.dom);
+				Ti._5.containerDiv.appendChild(obj.dom);
 			}
 
 			obj.show();
