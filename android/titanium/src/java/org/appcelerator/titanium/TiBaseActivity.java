@@ -323,21 +323,28 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		super.onCreate(savedInstanceState);
+		
+		TiApplication tiApp = getTiApp();
+		Activity tempCurrentActivity = tiApp.getCurrentActivity();
+		tiApp.setCurrentActivity(this, this);
+
 		windowCreated();
 
 		if (activityProxy != null) {
 			// we only want to set the current activity for good in the resume state but we need it right now.
 			// save off the existing current activity, set ourselves to be the new current activity temporarily 
 			// so we don't run into problems when we give the proxy the event
-			TiApplication tiApp = getTiApp();
-			Activity tempCurrentActivity = tiApp.getCurrentActivity();
-			tiApp.setCurrentActivity(this, this);
+			//TiApplication tiApp = getTiApp();
+			//Activity tempCurrentActivity = tiApp.getCurrentActivity();
+			//tiApp.setCurrentActivity(this, this);
 
 			activityProxy.fireSyncEvent(TiC.EVENT_CREATE, null);
 
 			// set the current activity back to what it was originally
-			tiApp.setCurrentActivity(this, tempCurrentActivity);
+			//tiApp.setCurrentActivity(this, tempCurrentActivity);
 		}
+
+		tiApp.setCurrentActivity(this, tempCurrentActivity);
 
 		setContentView(layout);
 

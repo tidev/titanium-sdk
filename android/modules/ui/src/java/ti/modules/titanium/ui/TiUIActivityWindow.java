@@ -135,8 +135,8 @@ public class TiUIActivityWindow extends TiUIView
 	{
 		windowActivity = activity;
 		proxy.setActivity(activity);
-		proxy.fireSyncEvent("windowCreated", null);
 		bindProxies();
+		proxy.fireSyncEvent("windowCreated", null);
 	}
 
 	protected ActivityProxy bindWindowActivity(Activity activity)
