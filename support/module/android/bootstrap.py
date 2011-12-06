@@ -372,18 +372,17 @@ def main():
 
 	b = Bootstrap(runtime, moduleBindings, moduleId=moduleId, moduleName=moduleName)
 
-	jsTemplate = open(os.path.join(thisDir, "templates", "bootstrap.js")).read()
-	gperfTemplate = open(os.path.join(thisDir, "templates", "bootstrap.gperf")).read()
+	jsTemplate = open(os.path.join(thisDir, "generated", "bootstrap.js")).read()
+	gperfTemplate = open(os.path.join(thisDir, "generated", "bootstrap.gperf")).read()
 
 	b.generateJS(jsTemplate, gperfTemplate, outDir)
 
-	javaTemplate = open(os.path.join(thisDir, "templates", "Bootstrap.java")).read()
-	cppTemplate = open(os.path.join(thisDir, "templates", "Bootstrap.cpp")).read()
+	javaTemplate = open(os.path.join(thisDir, "generated", "Bootstrap.java")).read()
+	cppTemplate = open(os.path.join(thisDir, "generated", "bootstrap.cpp")).read()
 
 	javaDir = os.path.join(outDir, "java")
-	cppDir = os.path.join(outDir, "jni")
 
-	b.generateNative(javaTemplate, cppTemplate, javaDir, cppDir)
+	b.generateNative(javaTemplate, cppTemplate, javaDir, outDir)
 
 if __name__ == "__main__":
 	main()

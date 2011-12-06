@@ -193,8 +193,8 @@
 		<property name="ndk.build" location="${ndk.path}/ndk-build"/>
 
 		<mkdir dir="${genjni}"/>
-		<property name="module.template.dir"
-			location="${titanium.platform}/../module/android/templates"/>
+		<property name="module.generated.dir"
+			location="${titanium.platform}/../module/android/generated"/>
 
 		<ti.string property="class.rhs"
 			string="${ant.project.name}" substring="1"/>
@@ -211,21 +211,23 @@
 		</filterset>
 
 		<copy todir="${gen}"
-			file="${module.template.dir}/Application.mk">
+			file="${module.generated.dir}/Application.mk">
 			<filterset refid="ndk.filter"/>
 		</copy>
 
 		<copy todir="${genjni}"
-			file="${module.template.dir}/Android.mk">
+			file="${module.generated.dir}/Android.mk">
 			<filterset refid="ndk.filter"/>
 		</copy>
 
 		<property name="mobilesdk.dir" location="${titanium.platform}/.."/>
+		<property name="ndk.verbose" value="0"/>
 
 		<exec executable="${ndk.build}" dir="${gen}" failonerror="true">
-			<arg line="TI_MOBILE_SDK=${mobilesdk.dir}"/>
-			<arg line="NDK_PROJECT_PATH=${gen}"/>
-			<arg line="NDK_APPLICATION_MK=${gen}/Application.mk"/>
+			<arg value="TI_MOBILE_SDK=${mobilesdk.dir}"/>
+			<arg value="NDK_PROJECT_PATH=${gen}"/>
+			<arg value="NDK_APPLICATION_MK=${gen}/Application.mk"/>
+			<arg value="V=${ndk.verbose}"/>
 		</exec>
 
 		<copy todir="${libs}">

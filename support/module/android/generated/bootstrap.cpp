@@ -13,8 +13,8 @@
 #include <KrollBindings.h>
 #include <V8Util.h>
 
-#include "../BootstrapJS.cpp"
-#include "../KrollGeneratedBindings.cpp"
+#include "BootstrapJS.cpp"
+#include "KrollGeneratedBindings.cpp"
 
 #define TAG "%(moduleId)s"
 
