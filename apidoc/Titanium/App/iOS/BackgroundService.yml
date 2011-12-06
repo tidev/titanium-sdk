@@ -1,14 +1,34 @@
 ---
 name: Titanium.App.iOS.BackgroundService
-summary: The BackgroundService is created by <Titanium.App.iOS.registerBackgroundService>.
+summary: A background service that runs when the application is placed in the background.
 extends: Titanium.Proxy
 platforms: [iphone,ipad]
 since: "1.5"
+createable: false
+properties:
+  - name: url
+    summary: A local URL to a JavaScript file containing the code to run in the background.
+    type: String
+    availability: creation
+    default: none
 methods:
   - name: stop
-    summary: stop the service from the current background session to conserve resources
+    summary: Stops the service from running during the current background session to conserve resources.
+    description: |
+        Calling `stop` halts the current execution of the background service, but does *not* 
+        unregister it. The service will run again the next time the application is placed in
+        the background.
   - name: unregister
-    summary: unregister the background service
-description: The background service runs when the Application is placed in the background and will continue to run until the service is stopped with the `stop` method or the `unregister` method.
+    summary: Unregisters the background service.
+description: |
+    The BackgroundService is created by <Titanium.App.iOS.registerBackgroundService>. When
+    creating a background service, you specify a local URL to a JavaScript file. The code
+    in the JavaScript file is executed each time the background service runs.
+
+    The background service runs when the Application is placed in the background and will 
+    continue to run until the service is stopped with the `stop` method or the `unregister` method.
     
-    Stopping a running background service will converse resources while its running in the background. However, if the application is foregrounded and then backgrounded again, it will run again.  If you want to permanently stop running the background service, you must call `unregister`.
+    Stopping a running background service will conserve resources while it's running in the 
+    background. However, if the application is foregrounded and then backgrounded again, it 
+    will run again.  If you want to permanently stop running the background service, you must 
+    call `unregister`.
