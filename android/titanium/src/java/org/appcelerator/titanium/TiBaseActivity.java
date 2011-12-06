@@ -582,7 +582,8 @@ public abstract class TiBaseActivity extends Activity
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onPause");
 		}
-
+		
+		TiApplication.updateActivityTransitionState(true);
 		getTiApp().setCurrentActivity(this, null);
 
 		if (activityProxy != null) {
@@ -611,7 +612,8 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		getTiApp().setCurrentActivity(this, this);
-
+		TiApplication.updateActivityTransitionState(false);
+		
 		if (activityProxy != null) {
 			activityProxy.fireSyncEvent(TiC.EVENT_RESUME, null);
 		}
