@@ -87,6 +87,27 @@ def zip_android(zf, basepath):
 		jar_path = os.path.join(android_dist_dir, jar)
 		zf.write(jar_path, '%s/android/%s' % (basepath, jar))
 
+	def add_headers(dir):
+		for header in os.listdir(dir):
+			if not header.endswith('.h'):
+				continue
+			header_path = os.path.join(dir, header)
+			zf.write(header_path, '%s/android/native/include/%s' % (basepath, header))
+
+	v8_src_native_dir = os.path.join(top_dir, 'android', 'runtime', 'v8', 'src', 'native')
+	add_headers(v8_src_native_dir)
+
+	v8_gen_dir = os.path.join(top_dir, 'android', 'runtime', 'v8', 'generated')
+	add_headers(v8_gen_dir)
+
+	import ant
+	libv8_properties = ant.read_properties(open(os.path.join(top_dir, 'android', 'build', 'libv8.properties')))
+	libv8_version = libv8_properties['libv8.version']
+	libv8_mode = libv8_properties['libv8.mode']
+
+	v8_include_dir = os.path.join(android_dist_dir, 'libv8', libv8_version, libv8_mode, 'include')
+	add_headers(v8_include_dir)
+
 	js_jar = os.path.join(top_dir, 'android', 'runtime', 'rhino', 'lib', 'js.jar')
 	zf.write(js_jar, '%s/android/%s' % (basepath, 'js.jar'))
 
@@ -100,6 +121,9 @@ def zip_android(zf, basepath):
 
 	ant_tasks_jar = os.path.join(android_dist_dir, 'ant-tasks.jar')
 	zf.write(ant_tasks_jar, '%s/module/android/ant-tasks.jar' % basepath)
+
+	ant_contrib_jar = os.path.join(top_dir, 'android', 'build', 'lib', 'ant-contrib-1.0b3.jar')
+	zf.write(ant_contrib_jar, '%s/module/android/ant-contrib-1.0b3.jar' % basepath)
 	
 	kroll_apt_lib_dir = os.path.join(top_dir, 'android', 'kroll-apt', 'lib')
 	for jar in os.listdir(kroll_apt_lib_dir):
