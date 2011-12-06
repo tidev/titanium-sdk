@@ -31,12 +31,67 @@ types = {}
 errorTrackers = {}
 options = None
 
-def printCheck(str, indent=1):
-	print u'%s\u2713 \033[92m%s\033[0m' % ('\t' * indent, str)
+def string_from(error):
+	if isinstance(error, basestring):
+		return error
+	elif isinstance(error, dict):
+		return "returns - " + str(error)
+	else:
+		return error.name
+		
+class PrettyPrinter:
+	def printCheck(self, error, indent=1):
+		if not options.onlyFailures:
+			print u'%s\u2713 \033[92m%s\033[0m' % ('\t' * indent, string_from(error))
 
-def printError(str, indent=1):
-	print >>sys.stderr, u'%s\u0078 \033[91m%s\033[0m' % ('\t' * indent, str)
+	def printError(self, error, indent=1):
+		print >>sys.stderr, u'%s\u0078 \033[91m%s\033[0m' % ('\t' * indent, string_from(error))
+		
+	def printStatus(self, path, error):
+		if not options.onlyFailures or error.hasErrors():
+			print '%s:' % path		
+		self.printTrackerStatus(error)
+		
+	def printTrackerStatus(self, error, indent=1):
+		if error.hasErrors():
+			self.printError(error, indent)
+		elif options.verbose or indent == 1:
+			self.printCheck(error, indent)
 
+		for msg in error.errors:
+			self.printError(msg, indent + 1)
+		for child in error.children:
+			self.printTrackerStatus(child, indent + 1)
+		
+class SimplePrinter:
+
+	def printStatus(self, path, error):
+		self.printTrackerStatus(error, path)
+
+	def addField(self, line, field):
+		if len(line) > 0:
+			line += " : "
+		line += string_from(field)
+		return line
+		
+	def printTrackerStatus(self, error, line = ""):
+		line = self.addField(line, error.name)
+
+		for msg in error.errors:
+			self.printError(self.addField(line, msg))
+		if len(error.children) > 0:
+			for child in error.children:
+				self.printTrackerStatus(child, line)
+		else:
+			self.printCheck(line)
+
+	def printCheck(self, msg):
+		if not options.onlyFailures:
+			print "PASS: " + msg
+			
+	def printError(self, msg):
+		print "FAIL: " + msg
+	
 class ErrorTracker(object):
 	def __init__(self, name, parent=None):
 		self.name = name
@@ -62,17 +117,6 @@ class ErrorTracker(object):
 			if child.hasErrors():
 				return True
 		return False
-
-	def printStatus(self, indent=1):
-		if self.hasErrors():
-			printError(self.name, indent)
-		elif options.verbose or indent == 1:
-			printCheck(self.name, indent)
-
-		for error in self.errors:
-			printError(error, indent + 1)
-		for child in self.children:
-			child.printStatus(indent + 1)
 
 def validateRequired(tracker, map, required):
 	for r in required:
@@ -361,15 +405,19 @@ def validateDir(dir):
 	validateRefs()
 
 def printStatus(dir=None):
+	if options.format == 'pretty':
+		printer = PrettyPrinter()
+	else:
+		printer = SimplePrinter()
+		
 	keys = types.keys()
 	keys.sort()
 	for key in keys:
 		tdocPath = key
 		tdocTypes = types[key]
 		if dir: tdocPath = tdocPath[len(dir)+1:]
-		print '%s:' % tdocPath
 		for type in tdocTypes:
-			errorTrackers[type["name"]].printStatus()
+			printer.printStatus(tdocPath, errorTrackers[type["name"]])
 
 def main(args):
 	parser = optparse.OptionParser()
@@ -381,6 +429,10 @@ def main(args):
 		default=None, help='specific TDoc2 file to validate (overrides -d/--dir)')
 	parser.add_option('-p', '--parseonly', dest='parseonly',
 		action='store_true', default=False, help='only check yaml parse-ability')
+	parser.add_option('--format', dest='format',
+		default='pretty', help='pretty (default) or plain')
+	parser.add_option('--only-failures', dest='onlyFailures',
+		action='store_true', default=False, help='only emit failed validations')
 	global options
 	(options, args) = parser.parse_args(args)
 
