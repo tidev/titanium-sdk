@@ -61,6 +61,7 @@
     if (exists && !isDirectory) {
         NSLog(@"[WARN] Recreating file %@... should be a directory and isn't.", dbPath);
         [fm removeItemAtPath:dbPath error:nil];
+        exists = NO;
     }
 
 	// create folder, and migrate the old one if necessary    
