@@ -5,10 +5,25 @@ extends: Titanium.Proxy
 since: "0.9"
 methods:
   - name: add
-    summary: add a child to the view hierarchy
+    summary: Adds a child to this view's hierarchy.
+    description: |
+        There are certain top-level containers that are not intended to be added 
+        as the children of other views. These top-level containers include 
+        [Window](Titanium.UI.Window), [SplitWindow](Titanium.UI.iPad.SplitWindow) 
+        and [TabGroup](Titanium.UI.TabGroup). Other types of views must be added
+        to a top-level container in order to be displayed on screen.
+
+        The special containers [NavigationGroup](Titanium.UI.iPhone.NavigationGroup), 
+        [SplitWindow](Titanium.UI.iPad.SplitWindow), and [TabGroup](Titanium.UI.TabGroup)
+        manage windows. These managed windows may be referred to as *children* of the 
+        container, but they are not added using the `add` method.
+        
+        Note that although a `NavigationGroup`
+        manages windows, it is not itself top-level container.  It must be added to a 
+        `Window` in order to be displayed.
     parameters:
       - name: view
-        summary: the view to add to this views hiearchy
+        summary: The view to add to this view's hierarchy.
         type: Titanium.UI.View
   - name: animate
     summary: animate the view
