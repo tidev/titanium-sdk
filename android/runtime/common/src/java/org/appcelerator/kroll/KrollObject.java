@@ -17,7 +17,6 @@ import android.os.Message;
 
 public abstract class KrollObject implements Handler.Callback
 {
-	private static final String TAG = "KrollObject";
 
 	protected static final int MSG_RELEASE = 100;
 	protected static final int MSG_SET_WINDOW = 101;
@@ -53,6 +52,13 @@ public abstract class KrollObject implements Handler.Callback
 		hasListenersForEventType.put(event, hasListeners);
 		if (proxySupport != null) {
 			proxySupport.onHasListenersChanged(event, hasListeners);
+		}
+	}
+
+	public void onEventFired(String event, Object data)
+	{
+		if (proxySupport != null) {
+			proxySupport.onEventFired(event, data);
 		}
 	}
 

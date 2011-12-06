@@ -12,7 +12,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
@@ -34,7 +33,6 @@ import android.net.Uri;
 public class NotificationProxy extends KrollProxy 
 {
 	private static final String LCAT = "TiNotification";
-	private static boolean DBG = TiConfig.LOGD;
 
 	protected Notification notification;
 

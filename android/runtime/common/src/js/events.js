@@ -71,6 +71,10 @@ Object.defineProperty(EventEmitter.prototype, "emit", {
 			}
 		}*/
 
+        if (this._hasJavaListener) {
+            this._onEventFired( type,  arguments[1] || {});
+        }
+
 		if (!this._events) {
 			//kroll.log(TAG, "no events for " + type + ", not emitting");
 			return false;
