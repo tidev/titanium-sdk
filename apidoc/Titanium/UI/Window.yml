@@ -5,18 +5,6 @@ extends: Titanium.UI.View
 since: "0.9"
 
 methods:
-  - name: add
-    summary: Adds a child to this window's hierarchy.
-    description: |
-        A window is not intended to contain another top-level container such as  a window or 
-        tab group. Adding a window to another window causes an exception on Android.
-        Adding a window to another window current works on iOS, but this is not guaranteed 
-        to be supported in the future. Neither iOS nor Android supports adding a tab group 
-        to a window.
-    parameters:
-      - name: view
-        summary: View to add to this view's hierarchy
-        type: Titanium.UI.View
   - name: close
     summary: Closes the window.
     parameters:
@@ -139,7 +127,7 @@ properties:
     description: |
         A fullscreen window occupies all of the screen space, hiding elements
         such as the iOS nav bar or the Android status bar. Must be specified
-        at creation time or in the `options` dict passed to the 
+        at creation time or in the `options` dictionary passed to the 
         [Window.open](Titanium.UI.Window.open) method.
     platforms: [android, iphone, ipad]
     type: Boolean
@@ -366,9 +354,14 @@ description: |
     views to be added to the application's render stack, on top of any previously opened 
     windows. Closing a window removes the window and its children from the render stack.
 
-    Windows can be contained in a [TabGroup](Titanium.UI.TabGroup). Other than this 
-    special case, other views don't contain windows.
-   
+    Windows *contain* other views, but in general they are not *contained* inside
+    other views. There are a few specialized top-level views that manage windows,
+    including:
+    
+    * [NavigationGroup](Titanium.UI.iPhone.NavigationGroup)
+    * [SplitWindow](Titanium.UI.iPad.SplitWindow)
+    * [TabGroup](Titanium.UI.TabGroup). 
+
     By default, windows occupy the entire screen except for the navigation bar, 
     status bar, and in the case of windows contained in tab groups, the tab bar.
     To take up the entire screen, covering any other UI, specify `fullscreen:true`
