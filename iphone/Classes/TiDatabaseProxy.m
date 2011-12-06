@@ -47,18 +47,37 @@
 
 -(NSString*)dbDir
 {
-	NSString *rootDir = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-	NSString *dbPath = [[rootDir stringByAppendingPathComponent:@"database"] retain];
+    // See this apple tech note for why this changed: https://developer.apple.com/library/ios/#qa/qa1719/_index.html
+    // Apparently following these guidelines is now required for app submission
+    
+	NSString *rootDir = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+	NSString *dbPath = [[rootDir stringByAppendingPathComponent:@"Private Documents"] retain];
 	NSFileManager *fm = [NSFileManager defaultManager];
 	
 	BOOL isDirectory;
 	BOOL exists = [fm fileExistsAtPath:dbPath isDirectory:&isDirectory];
 	
-	// create folder
+	// create folder, and migrate the old one if necessary
 	if (!exists) 
 	{
-		[fm createDirectoryAtPath:dbPath withIntermediateDirectories:YES attributes:nil error:nil];
-	}
+        [fm createDirectoryAtPath:dbPath withIntermediateDirectories:YES attributes:nil error:nil];
+    }
+    
+    // Migrate any old data if available
+    NSString* oldRoot = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+    NSString* oldPath = [oldRoot stringByAppendingString:@"database"];
+    BOOL oldCopyExists = [fm fileExistsAtPath:oldPath isDirectory:&isDirectory];
+    if (oldCopyExists) {
+        NSDirectoryEnumerator* contents = [fm enumeratorAtPath:oldPath];
+        
+        NSString* oldFile;
+        while (oldFile = [contents nextObject]) {
+            [fm moveItemAtPath:oldFile toPath:[dbPath stringByAppendingPathComponent:[oldFile lastPathComponent]] error:nil];
+        }
+        
+        // Remove the old copy after migrating everything
+        [fm removeItemAtPath:oldPath error:nil];
+    }
 	
 	return [dbPath autorelease];
 }
