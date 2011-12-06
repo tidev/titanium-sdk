@@ -347,33 +347,6 @@ function($window, args){
 		return val + (typeof val == 'number' ? 'px' : '');
 	};
 
-	if(typeof Object.defineProperty == 'undefined'){
-		// trying to emulate missing defineProperty
-		try{
-			Object.defineProperty = function(obj, prop, desc){
-				if(obj == null || prop == null){
-					throw "Object.defineProperty: object and property name are required parameters";
-				}
-				if(desc == null){
-					desc = {};
-				}
-
-				if(desc.set){
-					obj.__defineSetter__(prop, desc.set);
-				}
-				if(desc.get && desc.writable !== false){
-					obj.__defineGetter__(prop, desc.get);
-				}
-			};
-		} catch(e){
-			console.error(e);
-		}
-	}
-
-		Ti._5.parseLength = function(val){
-		return val + (typeof val == 'number' ? 'px' : '');
-	};
-
 	Ti._5.createUUID = function(){
 		/*!
 		Math.uuid.js (v1.4)
