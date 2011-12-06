@@ -51,7 +51,7 @@
     // Apparently following these guidelines is now required for app submission
     
 	NSString *rootDir = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-	NSString *dbPath = [[rootDir stringByAppendingPathComponent:@"Private Documents"] retain];
+	NSString *dbPath = [rootDir stringByAppendingPathComponent:@"Private Documents"];
 	NSFileManager *fm = [NSFileManager defaultManager];
 	
 	BOOL isDirectory;
@@ -70,8 +70,7 @@
     if (oldCopyExists) {
         NSDirectoryEnumerator* contents = [fm enumeratorAtPath:oldPath];
         
-        NSString* oldFile;
-        while (oldFile = [contents nextObject]) {
+        for (NSString* oldFile in contents) {
             [fm moveItemAtPath:oldFile toPath:[dbPath stringByAppendingPathComponent:[oldFile lastPathComponent]] error:nil];
         }
         
@@ -79,7 +78,7 @@
         [fm removeItemAtPath:oldPath error:nil];
     }
 	
-	return [dbPath autorelease];
+	return dbPath;
 }
 
 -(NSString*)dbPath:(NSString*)name_
