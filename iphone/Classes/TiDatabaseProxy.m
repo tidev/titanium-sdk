@@ -57,7 +57,13 @@
 	BOOL isDirectory;
 	BOOL exists = [fm fileExistsAtPath:dbPath isDirectory:&isDirectory];
 	
-	// create folder, and migrate the old one if necessary
+    // Because of sandboxing, this should never happen, but we still need to handle it.
+    if (exists && !isDirectory) {
+        NSLog(@"[WARN] Recreating file %@... should be a directory and isn't.", dbPath);
+        [fm removeItemAtPath:dbPath error:nil];
+    }
+
+	// create folder, and migrate the old one if necessary    
 	if (!exists) 
 	{
         [fm createDirectoryAtPath:dbPath withIntermediateDirectories:YES attributes:nil error:nil];
@@ -67,7 +73,7 @@
     NSString* oldRoot = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0];
     NSString* oldPath = [oldRoot stringByAppendingString:@"database"];
     BOOL oldCopyExists = [fm fileExistsAtPath:oldPath isDirectory:&isDirectory];
-    if (oldCopyExists) {
+    if (oldCopyExists && isDirectory) {
         NSDirectoryEnumerator* contents = [fm enumeratorAtPath:oldPath];
         
         for (NSString* oldFile in contents) {
