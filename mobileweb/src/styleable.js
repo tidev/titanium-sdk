@@ -487,94 +487,10 @@ var spinningAngle = 0;
 			}
 			
 			// Determine which coordinates are valid and combine with previous coordinates where appropriate.
-			var shouldClearPositions = true;
 			var _style = obj.dom.style;
 			if (isDefined(animation.center)) {
-				
-				// Check horizontal properties
-				if (isDefined(animation.width)) {
-					delete animation.right;
-					animation.left = animation.center.x - animation.width / 2;
-				} else if (isDefined(animation.left)) {
-					delete animation.right;
-					animation.width = (animation.center.x - animation.left) * 2 + animation.left;
-				} else if (isDefined(animation.right)) {
-					animation.width = (animation.right - animation.center.x) * 2;
-				} else {
-					// In this case we don't have enough information to calculate the horizontal parameters, 
-					//  so we take a more hands-off approach and hope the dev knows what they are doing
-					shouldClearPositions = false;
-				}
-				
-				// Check vertical properties
-				if (isDefined(animation.height)) {
-					delete animation.bottom;
-					animation.top = animation.center.y - animation.height / 2;
-				} else if (isDefined(animation.top)) {
-					delete animation.bottom;
-					animation.height = (animation.center.y - animation.top) * 2 + animation.top;
-				} else if (isDefined(animation.bottom)) {
-					animation.height = (animation.bottom - animation.center.y) * 2;
-				} else {
-					// In this case we don't have enough information to calculate the horizontal parameters, 
-					//  so we take a more hands-off approach and hope the dev knows what they are doing
-					shouldClearPositions = false;
-				}
-			} else {
-				
-				// Check horizontal properties
-				isDefined(animation.width) && isDefined(animation.left) && (delete animation.right);
-				if (isDefined(animation.width)) {
-					if(!isDefined(animation.left) && !isDefined(animation.right)) {
-						// In this case we don't have enough information to calculate the horizontal parameters, 
-						//  so we take a more hands-off approach and hope the dev knows what they are doing
-						shouldClearPositions = false;
-					}
-				} else if (isDefined(animation.left)) {
-					if (isDefined(animation.right)) {
-						animation.width = animation.right - animation.left;
-						delete animation.right;
-					} else {
-						// In this case we don't have enough information to calculate the horizontal parameters, 
-						//  so we take a more hands-off approach and hope the dev knows what they are doing
-						shouldClearPositions = false;
-					}
-				} else {
-					// In this case we don't have enough information to calculate the horizontal parameters, 
-					//  so we take a more hands-off approach and hope the dev knows what they are doing
-					shouldClearPositions = false;
-				}
-				
-				// Check vertical properties
-				isDefined(animation.height) && isDefined(animation.top) && (delete animation.bottom);
-				if (isDefined(animation.height)) {
-					if(!isDefined(animation.top) && !isDefined(animation.bottom)) {
-						// In this case we don't have enough information to calculate the horizontal parameters, 
-						//  so we take a more hands-off approach and hope the dev knows what they are doing
-						shouldClearPositions = false;
-					}
-				} else if (isDefined(animation.top)) {
-					if (isDefined(animation.bottom)) {
-						animation.width = animation.bottom - animation.top;
-						delete animation.bottom;
-					} else {
-						// In this case we don't have enough information to calculate the horizontal parameters, 
-						//  so we take a more hands-off approach and hope the dev knows what they are doing
-						shouldClearPositions = false;
-					}
-				} else {
-					// In this case we don't have enough information to calculate the horizontal parameters, 
-					//  so we take a more hands-off approach and hope the dev knows what they are doing
-					shouldClearPositions = false;
-				}
-			}
-			if(shouldClearPositions) {
-				_style.top = "";
-				_style.bottom = "";
-				_style.left = "";
-				_style.right = "";
-				_style.width = "";
-				_style.height = "";
+				animation.left = animation.center.x - obj.dom.offsetWidth / 2;
+				animation.top = animation.center.y - obj.dom.offsetHeight / 2;
 			}
 			
 			// Create the transition, must be set before setting the other properties
