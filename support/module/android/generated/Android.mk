@@ -13,10 +13,12 @@ GEN_DIR := $(realpath .)
 GEN_JNI_DIR := $(GEN_DIR)/jni
 
 ABS_SRC_FILES := $(wildcard $(LOCAL_PATH)/*.cpp)
-LOCAL_SRC_FILES := $(patsubst $(LOCAL_PATH)/%,%,$(ABS_SRC_FILES)) \
-	../@CLASS_NAME@Bootstrap.cpp
+BOOTSTRAP_CPP := $(wildcard $(LOCAL_PATH)/../*Bootstrap.cpp)
 
-$(LOCAL_PATH)/../@CLASS_NAME@Bootstrap.cpp: $(GEN_DIR)/KrollGeneratedBindings.cpp $(GEN_DIR)/BootstrapJS.cpp
+LOCAL_SRC_FILES := $(patsubst $(LOCAL_PATH)/%,%,$(ABS_SRC_FILES)) \
+	$(patsubst $(LOCAL_PATH)/%,%,$(BOOTSTRAP_CPP))
+
+$(BOOTSTRAP_CPP): $(GEN_DIR)/KrollGeneratedBindings.cpp $(GEN_DIR)/BootstrapJS.cpp
 
 $(GEN_DIR)/KrollGeneratedBindings.cpp:
 	gperf -L C++ -E -t "$(GEN_DIR)/KrollGeneratedBindings.gperf" > "$(GEN_DIR)/KrollGeneratedBindings.cpp"
