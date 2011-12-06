@@ -36,9 +36,8 @@ events:
     summary: Fired when the animation starts.
   - name: stop
     summary: Fired when the animation stops.
-    properties:
   - name: error
-    summary: Fired when the image fails to load.
+    summary: Fired when an image fails to load.
     properties:
       - name: image
         summary: The url of the image that failed to load.
