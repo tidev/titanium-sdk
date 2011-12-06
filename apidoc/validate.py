@@ -273,7 +273,7 @@ def validateType(typeDoc):
 		constantRegex = r'^[A-Z].*\.$'
 		match = re.match(constantRegex, summary)
 		if match is None:
-			tracker.trackError('summary fields should start with a capital letter and end with a period.')
+			tracker.trackError('summary fields should start with a capital letter and end with a period. summary: %s' % summary)
 		
 	if 'description' in typeDoc:
 		validateMarkdown(tracker, typeDoc['description'], 'description')
