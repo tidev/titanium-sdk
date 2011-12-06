@@ -186,7 +186,7 @@ events:
         summary: X coordinate of the event, in the `source` view's coordinates.
         type: Number
   - name: swipe
-    summary: Fired when the device detects a swipe gesture (left or right) against the view
+    summary: Fired when the device detects a swipe gesture (left or right) against the view.
     platforms: [iphone,ipad,mobileweb]
     properties:
       - name: direction
