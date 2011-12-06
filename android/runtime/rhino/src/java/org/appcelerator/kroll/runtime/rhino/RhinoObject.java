@@ -7,6 +7,7 @@
 package org.appcelerator.kroll.runtime.rhino;
 
 import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.common.Log;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.RhinoException;
@@ -17,6 +18,8 @@ import org.mozilla.javascript.ScriptableObject;
  */
 public class RhinoObject extends KrollObject
 {
+	private static final String TAG = "RhinoObject";
+	
 	private Proxy proxy;
 	private Function emitFunction, setWindowFunction;
 
@@ -73,6 +76,7 @@ public class RhinoObject extends KrollObject
 			return TypeConverter.jsObjectToJavaBoolean(result, proxy);
 
 		} catch (Exception e) {
+			Log.e(TAG,e.getMessage(), e);
 			if (e instanceof RhinoException) {
 				RhinoException re = (RhinoException) e;
 				Context.reportRuntimeError(re.getMessage(), re.sourceName(), re.lineNumber(), re.lineSource(),

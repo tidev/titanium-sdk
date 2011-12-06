@@ -12,10 +12,12 @@ import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollDict;
@@ -99,7 +101,34 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	protected ITiAppInfo appInfo;
 	protected TiStylesheet stylesheet;
 	protected HashMap<String, WeakReference<KrollModule>> modules;
+	
+	public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
+	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<ActivityTransitionListener>();
 
+
+	public static interface ActivityTransitionListener
+	{
+		public void onActivityTransition(boolean state);
+	}
+
+	public static void addActivityTransitionListener(ActivityTransitionListener a)
+	{
+		activityTransitionListeners.add(a);
+	}
+	
+	public static void removeActivityTransitionListener(ActivityTransitionListener a)
+	{
+		activityTransitionListeners.remove(a);
+	}
+	
+	public static void updateActivityTransitionState(boolean state)
+	{
+		isActivityTransition.set(state);
+		for (int i = 0; i < activityTransitionListeners.size(); ++i) {
+			activityTransitionListeners.get(i).onActivityTransition(state);
+		}
+		
+	}
 	public CountDownLatch rootActivityLatch = new CountDownLatch(1);
 
 
