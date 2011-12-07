@@ -245,14 +245,9 @@
 {
 	return name;
 }
--(TiFilesystemFileProxy*)fullPath
+-(TiFilesystemFileProxy*)file
 {
-	NSString *path = [self dbDir];
-	if([path length] != 0)
-	{
-		return [[TiFilesystemFileProxy alloc] initWithFile:[[path stringByAppendingPathComponent:name] stringByAppendingPathExtension:@"sql"]];
-	}
-	return NULL;
+	return [[TiFilesystemFileProxy alloc] initWithFile:[self dbPath:name]];
 }
 
 #pragma mark Internal
