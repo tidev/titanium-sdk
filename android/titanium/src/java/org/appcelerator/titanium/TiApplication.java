@@ -199,11 +199,15 @@ public abstract class TiApplication extends Application implements Handler.Callb
 
 	public Activity getCurrentActivity()
 	{
-		int stackSize = activityStack.size();
-		if (stackSize > 0) {
-			Activity activity = (activityStack.get(stackSize - 1)).get();
+		int activityStackSize;
+
+		while ((activityStackSize = activityStack.size()) > 0) {
+			Activity activity = (activityStack.get(activityStackSize - 1)).get();
 			if (activity == null) {
-				throw new Error("null activity found on top of the activity stack");
+				Log.i(LCAT, "activity reference is invalid, removing from activity stack");
+				activityStack.remove(activityStackSize -1);
+
+				continue;
 			}
 
 			return activity;
