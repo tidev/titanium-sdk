@@ -454,7 +454,8 @@ var spinningAngle = 0;
 		});
 		obj._setPrefixedCSSRule = function(rule,value) {
 			var style = obj.dom.style,
-				possibleRuleNames = ["Moz" + rule,"Webkit" + rule,"O" + rule,"ms" + rule,rule];
+				upperCaseRule = rule[0].toUpperCase() + rule.substring(1),
+				possibleRuleNames = ["Moz" + upperCaseRule,"Webkit" + upperCaseRule,"O" + upperCaseRule,"ms" + upperCaseRule,rule];
 			for (var i = 0; i < 5; i++) {
 				var prefixedRule = possibleRuleNames[i];
 				if (prefixedRule in style) {
@@ -464,7 +465,8 @@ var spinningAngle = 0;
 		}
 		obj._getPrefixedCSSRuleValue = function(rule) {
 			var style = obj.dom.style,
-				possibleRuleNames = ["Moz" + rule,"Webkit" + rule,"O" + rule,"ms" + rule,rule];
+				upperCaseRule = rule[0].toUpperCase() + rule.substring(1),
+				possibleRuleNames = ["Moz" + upperCaseRule,"Webkit" + upperCaseRule,"O" + upperCaseRule,"ms" + upperCaseRule,rule];
 			for (var i = 0; i < 5; i++) {
 				var prefixedRule = possibleRuleNames[i];
 				if (prefixedRule in style) {
@@ -496,7 +498,7 @@ var spinningAngle = 0;
 			// Create the transition, must be set before setting the other properties
 			var transitionValue = "all " + animation.duration + "ms " + _curve;
 			isDefined(animation.delay) && (transitionValue += " " + animation.delay + "ms");
-			obj._setPrefixedCSSRule("Transition", transitionValue);
+			obj._setPrefixedCSSRule("transition", transitionValue);
 			
 			// We need to explicitly test if a variable is defined because 0 or false can be a legitimate value
 			function isDefined(value) {
@@ -539,13 +541,13 @@ var spinningAngle = 0;
 				}
 				transform += obj._currentTransform._toCSS();
 			}
-			obj._setPrefixedCSSRule("Transform",transform);
+			obj._setPrefixedCSSRule("transform",transform);
 			
 			if(callback) {
 				// Note: no IE9 support for transitions, so instead we just set a timer that matches the duration so things don't break
 				setTimeout(function(){
 					// Clear the transform so future modifications in these areas are not animated
-					obj._setPrefixedCSSRule("Transition", "");
+					obj._setPrefixedCSSRule("transition", "");
 					callback();
 				},animation.duration + animation.delay + 1);
 			}
