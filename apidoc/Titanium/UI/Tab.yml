@@ -91,6 +91,8 @@ events:
       - name: previousTab
         summary: Previous active tab object.
         type: Titanium.UI.Tab
+  - name: click
+    summary: Fired when the tab group is clicked.
   - name: focus
     summary: Fired when the tab gains focus.
     properties:
