@@ -20,6 +20,7 @@
 #import "TIDOMDocumentTypeProxy.h"
 #import "TiDOMEntityRefProxy.h"
 #import "TiUtils.h"
+#import "TiDOMValidator.h"
 
 @implementation TiDOMDocumentProxy
 
@@ -68,11 +69,17 @@
 	return [NSNull null];
 }
 
--(TiDOMAttrProxy *)createAttribute:(id)args
+-(id)createAttribute:(id)args
 {
 	ENSURE_ARG_COUNT(args, 1);
 	NSString * tagName;
 	ENSURE_ARG_AT_INDEX(tagName, args, 0, NSString);
+	//Check name validity
+	if (![TiDOMValidator checkAttributeName:tagName]) {
+		[self throwException:@"Invalid attribute name" subreason:nil location:CODELOCATION];
+		return [NSNull null];
+	}
+	
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
 
 	TiDOMAttrProxy *result = [[[TiDOMAttrProxy alloc] _initWithPageContext:context] autorelease];
@@ -85,40 +92,80 @@
 	return result;
 }
 
--(TiDOMAttrProxy *)createAttributeNS:(id)args
+-(id)createAttributeNS:(id)args
 {
 	ENSURE_ARG_COUNT(args, 2);
-    NSObject* obj1;
-    NSObject* obj2;
-    NSString * theURI;
+	NSObject* obj1;
+	NSObject* obj2;
+	NSString * theURI;
 	NSString * tagName;
     
 	ENSURE_ARG_AT_INDEX(obj1, args, 0, NSObject);
 	ENSURE_ARG_AT_INDEX(obj2, args, 1, NSObject);
     
-    theURI = [TiUtils stringValue:obj1];
-    tagName = [TiUtils stringValue:obj2];
+	theURI = [TiUtils stringValue:obj1];
+	tagName = [TiUtils stringValue:obj2];
 	
-    if (tagName == nil)
-    {
-        [self throwException:@"could not create attribute with null qualified name" subreason:nil location:CODELOCATION];
-        return nil;
-    }
+	if (tagName == nil) {
+		[self throwException:@"could not create attribute with null qualified name" subreason:nil location:CODELOCATION];
+		return [NSNull null];
+	}
+	//THIS WILL NOT WORK UNTIL ADD CHILD IS CALLED SO CREATE A NAMESPACE POINTER AND SET IT EXPLICITLY
+	//GDataXMLNode* resultNode = (GDataXMLNode*)[GDataXMLElement attributeWithName:tagName URI:theURI stringValue:@""];
+	NSString* prefix = [GDataXMLNode prefixForName:tagName];
+	NSString* localName = [GDataXMLNode localNameForName:tagName];
+	
+	if (![[tagName lowercaseString] isEqualToString:@"xmlns"]) {
+		//Check name validity
+		if (![TiDOMValidator checkAttributeName:localName]) {
+			[self throwException:@"Invalid attribute name" subreason:nil location:CODELOCATION];
+			return [NSNull null];
+		}
+	
+		if (prefix != nil && ([theURI length]==0) ) {
+			[self throwException:@"Can not have a prefix with a null URI" subreason:nil location:CODELOCATION];
+			return [NSNull null];
+		}
+		
+		if ( [prefix isEqualToString:@"xml"] ) {
+			if (![theURI isEqualToString:@"http://www.w3.org/XML/1998/namespace"]) {
+				[self throwException:@"Invalid URI for prefix xml" subreason:nil location:CODELOCATION];
+				return [NSNull null];
+			}
+		}
+		else {
+			//Check prefix validity
+			if (![TiDOMValidator checkNamespacePrefix:prefix]) {
+				[self throwException:@"Invalid prefix" subreason:nil location:CODELOCATION];
+				return [NSNull null];
+			}
+			//Check URI validity
+			if (![TiDOMValidator checkNamespaceURI:theURI]) {
+				[self throwException:@"Invalid URI" subreason:nil location:CODELOCATION];
+				return [NSNull null];
+			}
+		}
+			
+	}
+	else {
+		if (![theURI isEqualToString:@"http://www.w3.org/2000/xmlns/"]) {
+			[self throwException:@"Invalid URI for qualified name xmlns" subreason:nil location:CODELOCATION];
+			return [NSNull null];
+		}
+	}
+	
+
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
     
 	TiDOMAttrProxy *result = [[[TiDOMAttrProxy alloc] _initWithPageContext:context] autorelease];
-    //THIS WILL NOT WORK UNTIL ADD CHILD IS CALLED SO CREATE A NAMESPACE POINTER AND SET IT EXPLICITLY
-    //GDataXMLNode* resultNode = (GDataXMLNode*)[GDataXMLElement attributeWithName:tagName URI:theURI stringValue:@""];
-    NSString* prefix = [GDataXMLNode prefixForName:tagName];
-    NSString* localName = [GDataXMLNode localNameForName:tagName];
 	GDataXMLNode* resultNode = (GDataXMLNode*)[GDataXMLElement attributeWithName:localName stringValue:@""];
-    xmlChar *href;
+	xmlChar *href;
 	xmlChar *pre;
     
-    if (theURI != nil)
-        href = (xmlChar*)[theURI UTF8String];
-    else
-        href = NULL;
+	if (theURI != nil)
+		href = (xmlChar*)[theURI UTF8String];
+	else
+		href = NULL;
 	
 	if ([prefix length] > 0) {
 		pre = (xmlChar*)[prefix UTF8String];
@@ -129,13 +176,13 @@
 	
 	xmlNsPtr theNewNs = xmlNewNs(NULL, // parent node
 								 href, pre);
-    [resultNode XMLNode]->ns = theNewNs;
-    [result setDocument:[self document]];
-    [result setNode:resultNode];
-    [result setAttribute:tagName value:@"" owner:nil];
-    [result setIsSpecified:NO];
-    [TiDOMNodeProxy setNode:result forXMLNode:[resultNode XMLNode]];
-    return result;
+	[resultNode XMLNode]->ns = theNewNs;
+	[result setDocument:[self document]];
+	[result setNode:resultNode];
+	[result setAttribute:tagName value:@"" owner:nil];
+	[result setIsSpecified:NO];
+	[TiDOMNodeProxy setNode:result forXMLNode:[resultNode XMLNode]];
+	return result;
 }
 
 -(TiDOMCDATANodeProxy *)createCDATASection:(id)args
@@ -178,12 +225,16 @@
 	return result;
 }
 
--(TiDOMElementProxy *)createElement:(id)args
+-(id)createElement:(id)args
 {
 	ENSURE_ARG_COUNT(args, 1);
 	NSString * tagName;
 	ENSURE_ARG_AT_INDEX(tagName, args, 0, NSString);
     
+	if (![TiDOMValidator checkElementName:tagName]) {
+		[self throwException:@"Invalid element name" subreason:nil location:CODELOCATION];
+		return [NSNull null];
+	}
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
 	TiDOMElementProxy * result = [[[TiDOMElementProxy alloc] _initWithPageContext:context] autorelease];
 	GDataXMLElement * resultElement = [GDataXMLElement elementWithName:tagName];
@@ -193,32 +244,63 @@
 	return result;
 }
 
--(TiDOMElementProxy *)createElementNS:(id)args
+-(id)createElementNS:(id)args
 {
 	ENSURE_ARG_COUNT(args, 2);
-    NSObject* obj1;
-    NSObject* obj2;
-    NSString * theURI;
+	NSObject* obj1;
+	NSObject* obj2;
+	NSString * theURI;
 	NSString * tagName;
 
 	ENSURE_ARG_AT_INDEX(obj1, args, 0, NSObject);
 	ENSURE_ARG_AT_INDEX(obj2, args, 1, NSObject);
     
-    theURI = [TiUtils stringValue:obj1];
-    tagName = [TiUtils stringValue:obj2];
+	theURI = [TiUtils stringValue:obj1];
+	tagName = [TiUtils stringValue:obj2];
     
-    if (tagName == nil)
-    {
-        [self throwException:@"could not create element with null qualified name" subreason:nil location:CODELOCATION];
-        return nil;
-    }
-    
-	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-	TiDOMElementProxy * result = [[[TiDOMElementProxy alloc] _initWithPageContext:context] autorelease];
-    //THIS WILL NOT WORK UNTIL ADD CHILD IS CALLED SO CREATE A NAMESPACE POINTER AND SET IT EXPLICITLY
-    //GDataXMLElement * resultElement = [GDataXMLElement elementWithName:tagName URI:theURI];
+	if (tagName == nil)
+	{
+		[self throwException:@"could not create element with null qualified name" subreason:nil location:CODELOCATION];
+		return [NSNull null];
+	}
+	//THIS WILL NOT WORK UNTIL ADD CHILD IS CALLED SO CREATE A NAMESPACE POINTER AND SET IT EXPLICITLY
+	//GDataXMLElement * resultElement = [GDataXMLElement elementWithName:tagName URI:theURI];
 	NSString* prefix = [GDataXMLNode prefixForName:tagName];
 	NSString* localName = [GDataXMLNode localNameForName:tagName];
+
+	//Check name validity
+	if (![TiDOMValidator checkAttributeName:localName]) {
+		[self throwException:@"Invalid attribute name" subreason:nil location:CODELOCATION];
+		return [NSNull null];
+	}
+		
+	if (prefix != nil && ([theURI length]==0) ) {
+		[self throwException:@"Can not have a prefix with a null URI" subreason:nil location:CODELOCATION];
+		return [NSNull null];
+	}
+		
+	if ( [prefix isEqualToString:@"xml"] ) {
+		if (![theURI isEqualToString:@"http://www.w3.org/XML/1998/namespace"]) {
+			[self throwException:@"Invalid URI for prefix xml" subreason:nil location:CODELOCATION];
+			return [NSNull null];
+		}
+	}
+	else {
+		//Check prefix validity
+		if (![TiDOMValidator checkNamespacePrefix:prefix]) {
+			[self throwException:@"Invalid prefix" subreason:nil location:CODELOCATION];
+			return [NSNull null];
+		}
+		//Check URI validity
+		if (![TiDOMValidator checkNamespaceURI:theURI]) {
+			[self throwException:@"Invalid URI" subreason:nil location:CODELOCATION];
+			return [NSNull null];
+		}
+	}
+		
+	
+	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+	TiDOMElementProxy * result = [[[TiDOMElementProxy alloc] _initWithPageContext:context] autorelease];
 	GDataXMLElement * resultElement = [GDataXMLElement elementWithName:localName];
 	xmlChar *href;
 	xmlChar *pre;

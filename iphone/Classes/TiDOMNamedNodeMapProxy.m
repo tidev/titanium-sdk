@@ -97,9 +97,9 @@
         if(![ownerObj isKindOfClass:[NSNull class]])
         {
             GDataXMLElement *owner = [attProxy ownerElement];
-            if( (owner != nil)&&([element isEqual:owner] == NO) )
+            if (owner != nil)
             {
-                [self throwException:@"mismatched owner elements" subreason:nil location:CODELOCATION];
+                [self throwException:@"Attribute in use" subreason:nil location:CODELOCATION];
                 return [NSNull null];
             }
         }
@@ -166,9 +166,9 @@
         if(![ownerObj isKindOfClass:[NSNull class]])
         {
             GDataXMLElement *owner = [attProxy ownerElement];
-            if( (owner != nil)&&([element isEqual:owner] == NO) )
+            if (owner != nil)
             {
-                [self throwException:@"mismatched owner elements" subreason:nil location:CODELOCATION];
+                [self throwException:@"Attribute in use" subreason:nil location:CODELOCATION];
                 return [NSNull null];
             }
         }
