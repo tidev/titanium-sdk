@@ -293,13 +293,13 @@ function($window, args){
 		// if we have a descriptor, then defineProperty
 		if (descriptor) {
 			// if the descriptor has a "value", then it'll get set when we defineProperty, so skip the set below
-			!skipSet && descriptor.value === skipSet || (skipSet = 1);
+			!skipSet && descriptor.value !== skipSet && (skipSet = 2);
 			Object.defineProperty(obj, property, descriptor);
 		}
 
 		// create the get/set functions
 		obj["get" + capitalizedName] = function(){ return obj[property]; };
-		obj["set" + capitalizedName] = function(val){ return obj[property] = val; };
+		(skipSet | 0) < 2 && (obj["set" + capitalizedName] = function(val){ return obj[property] = val; });
 
 		// if there's no default value or it's already been set with defineProperty(), then we skip setting it
 		skipSet || (obj[property] = defaultValue);
