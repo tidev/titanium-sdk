@@ -44,7 +44,10 @@ public class TiTabActivity extends TabActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		TiApplication.addToActivityStack(this);
+
 		super.onCreate(savedInstanceState);
+
 		int layoutResId = getResources().getIdentifier("titanium_tabgroup", "layout", getPackageName());
 		if (layoutResId == 0) {
 			throw new IllegalStateException("titanium_tabgroup layout resource not found.  TabGroup cannot be created.");
@@ -190,7 +193,10 @@ public class TiTabActivity extends TabActivity
 	@Override
 	protected void onDestroy()
 	{
+		TiApplication.removeFromActivityStack(this);
+
 		super.onDestroy();
+
 		if (!isFinishing())
 		{
 			// Our Activities are currently unable to recover from Android-forced restarts,
