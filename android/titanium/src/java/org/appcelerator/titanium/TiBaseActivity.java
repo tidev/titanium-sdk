@@ -295,7 +295,16 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onCreate");
 		}
 
-		TiApplication.addToActivityStack(this);
+		boolean isTab = false;
+		if (this instanceof TiActivity) {
+			if (((TiActivity)this).isTab()) {
+				isTab = true;
+			}
+		}
+
+		if (!isTab) {
+			TiApplication.addToActivityStack(this);
+		}
 
 		// create the activity proxy here so that it is accessible from the activity in all cases
 		activityProxy = new ActivityProxy(this);
@@ -740,7 +749,16 @@ public abstract class TiBaseActivity extends Activity
 			}
 		}
 
-		TiApplication.removeFromActivityStack(this);
+		boolean isTab = false;
+		if (this instanceof TiActivity) {
+			if (((TiActivity)this).isTab()) {
+				isTab = true;
+			}
+		}
+
+		if (!isTab) {
+			TiApplication.removeFromActivityStack(this);
+		}
 
 		super.onDestroy();
 
