@@ -22,6 +22,10 @@ The File object which support various filesystem based operations.
 
 android, iphone, ipad
 
+- properties
+
+remoteBackup[boolean]: Indicates whether or not to perform backup to iCloud or iTunes of a file. Default is true; only affects iOS devices of version 5.0.1. or later.
+
 - methods
 
 nativePath: returns the fully resolved native path
