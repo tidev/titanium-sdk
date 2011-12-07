@@ -44,7 +44,7 @@
 
 		obj.screen_close = function(){
 			obj.fireEvent('screen_close');
-			document.body.removeChild(obj.dom);
+			Ti._5.containerDiv.removeChild(obj.dom);
 			// go prev state
 			window.history.go(-1);
 		};

@@ -14,6 +14,7 @@ Ti._5.createClass('Titanium.UI.TabGroup', function(args){
 	Ti._5.Touchable(this, args);
 	Ti._5.Styleable(this, args);
 	Ti._5.Positionable(this, args);
+	this.dom.position = 'absolute';
 
 	// create DOM sctructure for the instance
 	// lets store tab headers as table - this is much more easy to resize and rewrap rather then do it manually
@@ -25,7 +26,8 @@ Ti._5.createClass('Titanium.UI.TabGroup', function(args){
 	var _tabsContent = document.createElement("div");
 	_tabsContent.className = "tabsContent";
 	_tabsContent.style.width = "100%";
-	_tabsContent.style.height = "100%";
+	_tabsContent.style.height = "90%";
+	_tabsContent.style.position = "absolute";
 	this.dom.appendChild(_headerTable);
 	this.dom.appendChild(_tabsContent);
 
