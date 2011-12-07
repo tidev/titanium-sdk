@@ -371,7 +371,7 @@ examples:
         
 ---
 name: Point
-summary: A pair of coordinates used to describe the location of a <Titanium.UI.View>
+summary: A pair of coordinates used to describe the location of a <Titanium.UI.View>.
 since: "1.8.0"
 platforms: [android, iphone, ipad]
 properties:
