@@ -73,6 +73,7 @@ var l3 = Titanium.UI.createLabel({
 	height:40,
 	top:190
 });
+win.add(l3);
 if (Ti.Platform.osname !== 'android')
 {
 	win.add(l3);
