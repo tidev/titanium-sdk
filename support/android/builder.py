@@ -1867,7 +1867,7 @@ class Builder(object):
 
 				if self.deploy_type != 'production':
 					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'))
-				#	dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-debug.jar'))
+					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-debug.jar'))
 					# the verifier depends on Ti.Network classes, so we may need to inject it
 					has_network_jar = False
 					for jar in self.android_jars:

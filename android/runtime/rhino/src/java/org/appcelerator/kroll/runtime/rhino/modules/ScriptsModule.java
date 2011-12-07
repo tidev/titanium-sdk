@@ -6,6 +6,8 @@
  */
 package org.appcelerator.kroll.runtime.rhino.modules;
 
+import org.appcelerator.kroll.KrollEvaluator;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.runtime.rhino.KrollScriptRunner;
 import org.appcelerator.kroll.runtime.rhino.KrollWith;
 import org.appcelerator.kroll.runtime.rhino.RhinoRuntime;
@@ -60,7 +62,13 @@ public class ScriptsModule extends ScriptableObject
 
 	private static Object runSource(Context context, Scriptable scope, String source, String path, boolean displayError)
 	{
+		KrollEvaluator evaluator = KrollRuntime.getInstance().getEvaluator();
+
 		try {
+			if (evaluator != null) {
+				return evaluator.evaluateString(scope, source, path);
+			}
+
 			return context.evaluateString(scope, source, path, 1, null);
 
 		} catch (Throwable throwable) {
