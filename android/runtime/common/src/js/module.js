@@ -130,7 +130,7 @@ Module.prototype.createModuleWrapper = function(externalModule, sourceUrl) {
 // Loads a native / external (3rd party) module
 Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 
-	var sourceUrl = context.sourceUrl;
+	var sourceUrl = context === undefined ? "app://app.js" : context.sourceUrl;
 	var externalModule;
 
 	if (kroll.runtime === "rhino") {
