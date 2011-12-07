@@ -104,7 +104,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	
 	public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
 	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<ActivityTransitionListener>();
-
+	protected static TiWeakList<Activity> activityStack = new TiWeakList<Activity>();
 
 	public static interface ActivityTransitionListener
 	{
@@ -163,6 +163,16 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		return null;
 	}
 
+	public static void addToActivityStack(Activity activity)
+	{
+		activityStack.add(new WeakReference<Activity>(activity));
+	}
+
+	public static void removeFromActivityStack(Activity activity)
+	{
+		activityStack.remove(activity);
+	}
+
 	// This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
 	// time we need to grab the current activity
 	public static Activity getAppCurrentActivity()
@@ -189,15 +199,21 @@ public abstract class TiApplication extends Application implements Handler.Callb
 
 	public Activity getCurrentActivity()
 	{
-		Activity activity;
-		if (currentActivity != null) {
-			activity = currentActivity.get();
-			if (activity != null) {
-				return activity;
+		int activityStackSize;
+
+		while ((activityStackSize = activityStack.size()) > 0) {
+			Activity activity = (activityStack.get(activityStackSize - 1)).get();
+			if (activity == null) {
+				Log.i(LCAT, "activity reference is invalid, removing from activity stack");
+				activityStack.remove(activityStackSize -1);
+
+				continue;
 			}
+
+			return activity;
 		}
 
-		Log.e(LCAT, "no valid current activity found for application instance");
+		Log.w(LCAT, "activity stack is emtpy, unable to get current activity");
 		return null;
 	}
 	

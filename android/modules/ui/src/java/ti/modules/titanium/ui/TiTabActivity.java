@@ -45,9 +45,11 @@ public class TiTabActivity extends TabActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		TiApplication.addToActivityStack(this);
+		KrollRuntime.incrementActivityRefCount();
+
 		super.onCreate(savedInstanceState);
 
-		KrollRuntime.incrementActivityRefCount();
 
 		int layoutResId = getResources().getIdentifier("titanium_tabgroup", "layout", getPackageName());
 		if (layoutResId == 0) {
@@ -194,7 +196,10 @@ public class TiTabActivity extends TabActivity
 	@Override
 	protected void onDestroy()
 	{
+		TiApplication.removeFromActivityStack(this);
+
 		super.onDestroy();
+
 		if (!isFinishing())
 		{
 			// Our Activities are currently unable to recover from Android-forced restarts,
