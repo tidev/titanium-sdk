@@ -71,9 +71,22 @@ var l3 = Titanium.UI.createLabel({
 	text:'unicode placeholder',
 	width:300,
 	height:40,
-	top:160
+	top:190
 });
 win.add(l3);
+    var b3 = Titanium.UI.createButton({
+	title:'Check DB FullPath',
+	width:200,
+	height:40,
+	top:150
+});
+b3.addEventListener('click', function()
+{
+	var path = db.fullPath;
+	alert("mysql.db fullpath : \n \nType :" + path +"\n\nFullPath: "+path.nativePath);	
+});
+win.add(b3);
+
 var db = Titanium.Database.open('mydb');
 
 db.execute('CREATE TABLE IF NOT EXISTS DATABASETEST  (ID INTEGER, NAME TEXT)');

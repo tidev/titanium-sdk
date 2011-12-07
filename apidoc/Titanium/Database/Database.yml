@@ -41,3 +41,7 @@ properties:
     summary: constant for requesting a column's value returned in string form.
     type: Number
     permission: read-only
+  - name: fullPath
+    summary: Retreives the fullpath of the database and return it as <Titanium.Filesystem.File> object.
+    type: Titanium.Filesystem.File
+    permission: read-only

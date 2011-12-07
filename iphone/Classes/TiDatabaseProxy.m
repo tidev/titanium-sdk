@@ -9,7 +9,7 @@
 #import "TiDatabaseProxy.h"
 #import "TiDatabaseResultSetProxy.h"
 #import "TiUtils.h"
-
+#import "TiFilesystemFileProxy.h"
 
 @implementation TiDatabaseProxy
 
@@ -244,6 +244,15 @@
 -(NSString*)name
 {
 	return name;
+}
+-(TiFilesystemFileProxy*)fullPath
+{
+	NSString *path = [self dbDir];
+	if([path length] != 0)
+	{
+		return [[TiFilesystemFileProxy alloc] initWithFile:[[path stringByAppendingPathComponent:name] stringByAppendingPathExtension:@"sql"]];
+	}
+	return NULL;
 }
 
 #pragma mark Internal
