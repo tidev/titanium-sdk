@@ -578,91 +578,119 @@
 
 -(id)insertBefore:(id)args
 {
-    ENSURE_ARG_COUNT(args, 2);
-    TiDOMNodeProxy* newChild;
-    TiDOMNodeProxy* refChild;
+	ENSURE_ARG_COUNT(args, 2);
+	TiDOMNodeProxy* newChild;
+	TiDOMNodeProxy* refChild;
     
-    ENSURE_ARG_AT_INDEX(newChild, args, 0, TiDOMNodeProxy);
+	ENSURE_ARG_AT_INDEX(newChild, args, 0, TiDOMNodeProxy);
 	ENSURE_ARG_AT_INDEX(refChild, args, 1, TiDOMNodeProxy);
-    
-    NSArray* children = [node children];
-    GDataXMLNode* refChildNode = [refChild node];
-    GDataXMLNode* actualRefChildNode = nil;
-    
-    for(GDataXMLNode* childNode in children)
-    {
-        if ([childNode XMLNode] == [refChildNode XMLNode])
-        {
-            actualRefChildNode = childNode;
-            break;
-        }
-    }
-    
-    if(actualRefChildNode != nil)
-    {
-        xmlNodePtr returnNode = xmlAddPrevSibling([actualRefChildNode XMLNode], [[newChild node] XMLNode]);
-        if(returnNode != NULL)
-        {
-            [[self node]releaseCachedValues];
-            if (returnNode == [[newChild node] XMLNode])
-            {
-                //Now it is part of the tree so switch flag to ensur it gets freed when doc is released
-                [[newChild node]setShouldFreeXMLNode:NO];
-                return newChild;
+	
+	xmlNodePtr refNodePtr = [[refChild node]XMLNode];
+	xmlNodePtr newNodePtr = [[newChild node]XMLNode];
+	if (newNodePtr == refNodePtr)
+		return;
+	
+	TiDOMNodeListProxy* nodeList = [self childNodes];
+	
+	
+	TiDOMNodeProxy* cur= nil;
+	int max = [TiUtils intValue:[nodeList length]];
+	BOOL found = NO;
+	for (int i=0; i<max && !found; i++) {
+		cur = (TiDOMNodeProxy*)[nodeList item:[NSNumber numberWithInt:i]];
+		if ([[cur node]XMLNode] == refNodePtr) {
+			found = YES;
+		}
+	}
+	
+	if (found) {
+		[[self node]releaseCachedValues];
+		xmlNodePtr returnNodePtr = xmlAddPrevSibling(refNodePtr, newNodePtr);
+		[[newChild node]setShouldFreeXMLNode:NO];
+		if (returnNodePtr != nil) {
+			if (returnNodePtr == newNodePtr) {
+				return newChild;
 			}
-            GDataXMLNode* retVal = [GDataXMLNode nodeBorrowingXMLNode:returnNode];
-            id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-            return [TiDOMNodeProxy makeNode:retVal context:context];
-        }
-        return [NSNull null];
-    }
-    
-	return [NSNull null];
+			else {
+				//This should not happen
+				id result = [TiDOMNodeProxy nodeForXMLNode:returnNodePtr];
+				if (result == nil) {
+					GDataXMLNode* retVal = [GDataXMLNode nodeConsumingXMLNode:returnNodePtr];
+					id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+					result = [self makeNode:retVal context:context];
+				}
+				return result;
+			}
+			
+		}
+		else {
+			//Will get here if there in an internal API error
+			return [NSNull null];
+		}
+	}
+	else {
+		[self throwException:@"node is not part of children nodes" subreason:nil location:CODELOCATION];
+		return [NSNull null];
+	}
 }
 
 -(id)replaceChild:(id)args
 {
-    ENSURE_ARG_COUNT(args, 2);
-    TiDOMNodeProxy* newChild;
-    TiDOMNodeProxy* refChild;
+	ENSURE_ARG_COUNT(args, 2);
+	TiDOMNodeProxy* newChild;
+	TiDOMNodeProxy* refChild;
     
-    ENSURE_ARG_AT_INDEX(newChild, args, 0, TiDOMNodeProxy);
-    ENSURE_ARG_AT_INDEX(refChild, args, 1, TiDOMNodeProxy);
-    
-    if(newChild == refChild)
+	ENSURE_ARG_AT_INDEX(newChild, args, 0, TiDOMNodeProxy);
+	ENSURE_ARG_AT_INDEX(refChild, args, 1, TiDOMNodeProxy);
+	
+	xmlNodePtr refNodePtr = [[refChild node]XMLNode];
+	xmlNodePtr newNodePtr = [[newChild node]XMLNode];
+	if (newNodePtr == refNodePtr)
 		return;
 	
-    NSArray* children = [node children];
-    GDataXMLNode* refChildNode = [refChild node];
-    GDataXMLNode* actualRefChildNode = nil;
-    
-    for(GDataXMLNode* childNode in children)
-    {
-        if ([childNode XMLNode] == [refChildNode XMLNode])
-        {
-            actualRefChildNode = childNode;
-            break;
-        }
-    }
-    if(actualRefChildNode != nil)
-    {
-        xmlNodePtr returnNode = xmlReplaceNode([actualRefChildNode XMLNode], [[newChild node]XMLNode]);
-        if(returnNode != nil)
-        {
-            //No longer part of tree. Set to free node ptr on object dealloc
-            [[self node]releaseCachedValues];
-            if (returnNode == [[refChild node] XMLNode])
-            {
-                [[refChild node]setShouldFreeXMLNode:YES];
-                return refChild;
-            }
-            GDataXMLNode* retVal = [GDataXMLNode nodeConsumingXMLNode:returnNode];
-            id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-            return [TiDOMNodeProxy makeNode:retVal context:context];
-        }
-        return [NSNull null];
-    }
-    return [NSNull null];
+	TiDOMNodeListProxy* nodeList = [self childNodes];
+	
+	
+	TiDOMNodeProxy* cur= nil;
+	int max = [TiUtils intValue:[nodeList length]];
+	BOOL found = NO;
+	for (int i=0; i<max && !found; i++) {
+		cur = (TiDOMNodeProxy*)[nodeList item:[NSNumber numberWithInt:i]];
+		if ([[cur node]XMLNode] == refNodePtr) {
+			found = YES;
+		}
+	}
+	
+	if (found) {
+		[[self node]releaseCachedValues];
+		xmlNodePtr returnNodePtr = xmlReplaceNode(refNodePtr, newNodePtr);
+		if (returnNodePtr != nil) {
+			[[newChild node]setShouldFreeXMLNode:NO];
+			if (returnNodePtr == refNodePtr) {
+				[[refChild node]setShouldFreeXMLNode:YES];
+				return refChild;
+			}
+			else {
+				//This should not happen
+				id result = [TiDOMNodeProxy nodeForXMLNode:returnNodePtr];
+				if (result == nil) {
+					GDataXMLNode* retVal = [GDataXMLNode nodeConsumingXMLNode:returnNodePtr];
+					id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+					result = [self makeNode:retVal context:context];
+				}
+				return result;
+			}
+			
+		}
+		else {
+			//Will get here if there in an internal API error
+			return [NSNull null];
+		}
+	}
+	else {
+		[self throwException:@"no node found to replace" subreason:nil location:CODELOCATION];
+		return [NSNull null];
+	}
 }
 
 -(id)removeChild:(id)args
@@ -682,16 +710,19 @@
     }
     if(actualRefChildNode != nil)
     {
+		[actualRefChildNode retain];
         [actualRefChildNode setShouldFreeXMLNode:YES];
-        if ([oldChild isKindOfClass:[TiDOMElementProxy class]])
-        {
-            [(TiDOMElementProxy*)oldChild setElement:(GDataXMLElement*)actualRefChildNode];
-        }
-        else
-        {
-            [oldChild setNode:actualRefChildNode];
-        }
         [element removeChild:actualRefChildNode];
+		
+		[[oldChild node]setShouldFreeXMLNode:NO];
+
+		if ([oldChild isKindOfClass:[TiDOMElementProxy class]]) {
+			[(TiDOMElementProxy*)oldChild setElement:(GDataXMLElement*)actualRefChildNode];
+		}
+		else {
+			[oldChild setNode:actualRefChildNode];
+		}
+		[actualRefChildNode release];
         return oldChild;
     }
     else
