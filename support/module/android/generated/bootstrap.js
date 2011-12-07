@@ -16,7 +16,7 @@ function moduleBootstrap(moduleBinding) {
 			name, namespace, moduleBinding.getBinding);
 	}
 
-	var module = moduleBinding.getBinding("%(moduleClass)s");
+	var module = moduleBinding.getBinding("%(moduleClass)s")["%(moduleName)s"];
 	var invocationAPIs = module.invocationAPIs = [];
 	module.apiName = "%(moduleName)s";
 
@@ -24,10 +24,7 @@ function moduleBootstrap(moduleBinding) {
 		invocationAPIs.push({ namespace: namespace, api: api });
 	}
 
-	//Titanium.externalModules.push(module);
-
 	%(invocationJS)s
 	%(bootstrapJS)s
-	return module;
 }
 exports.bootstrap = moduleBootstrap;
