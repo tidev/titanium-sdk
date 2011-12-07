@@ -15,6 +15,7 @@ import java.io.InputStreamReader;
 import java.io.Writer;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -233,7 +234,15 @@ public class KrollBindingGenerator
 	{
 		// Load the binding JSON data from the titanium.jar relative to the kroll-apt.jar
 		// where this class is defined in the MobileSDK
-		URL krollAptJarUrl = getClass().getProtectionDomain().getCodeSource().getLocation();
+
+		// According to JavaDoc, getCodeSource() is the only possible "null" part of this chain
+		CodeSource codeSource = getClass().getProtectionDomain().getCodeSource();
+		if (codeSource == null) {
+			System.err.println("Error: No code source found on the ClassLoader's protection domain");
+			System.exit(1);
+		}
+
+		URL krollAptJarUrl = codeSource.getLocation();
 		String mobileAndroidDir = new File(krollAptJarUrl.toURI()).getParent();
 
 		JarFile titaniumJar = new JarFile(new File(mobileAndroidDir, "titanium.jar"));

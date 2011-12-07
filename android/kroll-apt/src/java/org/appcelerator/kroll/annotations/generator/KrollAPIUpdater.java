@@ -73,16 +73,15 @@ public class KrollAPIUpdater
 	{
 		String superClassName = (String) proxy.get("superProxyClassName");
 		String superPackageName = (String) proxy.get("superPackageName");
-		String superApiName = null;
 
 		Map<String, Object> superProxy = findParent(superPackageName + "." + superClassName);
 
 		if (superProxy != null) {
-			superApiName = (String) jsonUtils.getStringMap(superProxy, "proxyAttrs").get("fullAPIName");
-		}
+			String superApiName = (String) jsonUtils.getStringMap(superProxy, "proxyAttrs").get("fullAPIName");
 
-		if (superApiName != null) {
-			proxy.put("superAPIName", superApiName);
+			if (superApiName != null) {
+				proxy.put("superAPIName", superApiName);
+			}
 		}
 	}
 
