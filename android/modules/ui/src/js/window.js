@@ -218,7 +218,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 		if (needsOpen) {
 			var self = this;
-			this.window.on("open", function () {
+			this.window.on("windowCreated", function () {
 				self.postOpen();
 			});
 
