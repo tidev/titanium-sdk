@@ -517,6 +517,9 @@ def main(args):
 			else:
 				# non-simulator + release build indicates package for distribution
 				deploytype = 'production'
+		#Ensure the localization files are copied in the application directory
+		out_dir = os.path.join(os.environ['TARGET_BUILD_DIR'],os.environ['CONTENTS_FOLDER_PATH'])
+		localecompiler.LocaleCompiler(name,project_dir,devicefamily,deploytype,out_dir).compile()
 		compiler = Compiler(project_dir,appid,name,deploytype,xcode_build,devicefamily,iphone_version)
 		script_ok = True
 		sys.exit(0)
