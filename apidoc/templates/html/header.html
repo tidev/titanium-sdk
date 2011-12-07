@@ -41,6 +41,11 @@
 % if data.typestr == "property":
     <h3 id="type">Type</h3>
     <div class="type">${data.type_html}</div>
+
+	% if data.default is not None:
+		<h3 id="default">Default</h3>
+		<div class="default">${data.default_html}</div>
+	% endif
 % endif
 
 <%include file="description.html"/>

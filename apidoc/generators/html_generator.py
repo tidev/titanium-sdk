@@ -207,6 +207,8 @@ def annotate(annotated_obj):
 	if annotated_obj.typestr == "property":
 		annotated_obj.filename_html = clean_for_filename("%s.%s-%s" % (annotated_obj.parent.name, annotated_obj.name, "property"))
 		annotated_obj.template_html = "property"
+		if annotated_obj.default is not None:
+			annotated_obj.default_html = markdown_to_html(str(annotated_obj.default))
 	# Override for "property" that is an event callback property
 	if annotated_obj.typestr == "property" and annotated_obj.parent.typestr == "event":
 		annotated_obj.filename_html = clean_for_filename("%s.%s.%s-%s" % (annotated_obj.parent.parent.name, annotated_obj.parent.name, annotated_obj.name, "callback-property"))
@@ -214,6 +216,8 @@ def annotate(annotated_obj):
 	if annotated_obj.typestr == "parameter":
 		annotated_obj.filename_html = clean_for_filename("%s.%s-param" % (annotated_obj.parent.filename_html, annotated_obj.name))
 		annotated_obj.template_html = "property"
+		if annotated_obj.default is not None:
+			annotated_obj.default_html = markdown_to_html(str(annotated_obj.default))
 	if annotated_obj.typestr == "event":
 		annotated_obj.filename_html = clean_for_filename("%s.%s-%s" % (annotated_obj.parent.name, annotated_obj.name, "event"))
 		annotated_obj.template_html = "event"
