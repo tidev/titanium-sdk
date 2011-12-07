@@ -295,14 +295,7 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onCreate");
 		}
 
-		boolean isTab = false;
-		if (this instanceof TiActivity) {
-			if (((TiActivity)this).isTab()) {
-				isTab = true;
-			}
-		}
-
-		if (!isTab) {
+		if (!isTabActivity()) {
 			TiApplication.addToActivityStack(this);
 		}
 
@@ -749,14 +742,7 @@ public abstract class TiBaseActivity extends Activity
 			}
 		}
 
-		boolean isTab = false;
-		if (this instanceof TiActivity) {
-			if (((TiActivity)this).isTab()) {
-				isTab = true;
-			}
-		}
-
-		if (!isTab) {
+		if (!isTabActivity()) {
 			TiApplication.removeFromActivityStack(this);
 		}
 
@@ -846,6 +832,18 @@ public abstract class TiBaseActivity extends Activity
 		if (!animate) {
 			TiUIHelper.overridePendingTransition(this);
 		}
+	}
+
+	protected boolean isTabActivity()
+	{
+		boolean isTab = false;
+		if (this instanceof TiActivity) {
+			if (((TiActivity)this).isTab()) {
+				isTab = true;
+			}
+		}
+
+		return isTab;
 	}
 }
 
