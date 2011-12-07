@@ -1856,7 +1856,16 @@ if(ourTableView != tableview)	\
 
 - (void)tableView:(UITableView *)ourTableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
 {
-	[self triggerActionForIndexPath:indexPath fromPath:nil tableView:ourTableView wasAccessory:YES search:NO name:@"click"];
+	BOOL search = NO;
+	if (allowsSelectionSet==NO || [ourTableView allowsSelection]==NO)
+	{
+		[ourTableView deselectRowAtIndexPath:indexPath animated:YES];
+	}
+	if(ourTableView != tableview)
+	{
+		search = YES;
+	}
+	[self triggerActionForIndexPath:indexPath fromPath:nil tableView:ourTableView wasAccessory:YES search:search name:@"click"];
 }
 
 - (NSInteger)tableView:(UITableView *)ourTableView indentationLevelForRowAtIndexPath:(NSIndexPath *)indexPath
