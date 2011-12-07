@@ -206,7 +206,7 @@ properties:
     platforms: [iphone, ipad, mobileweb]
     type: Number
   - name: scalingMode
-    summary: Determines how the content scales to fit the view. Defaults to <Titanium.Media.VIDEO_SCALING_ASPECT_FIT>.
+    summary: Determines how the content scales to fit the view. Defaults to <Titanium.Media.VIDEO_SCALING_ASPECT_FIT>. Mobile web only supports <Titanium.Media.VIDEO_SCALING_NONE> and <Titanium.Media.VIDEO_SCALING_ASPECT_FIT>.
     type: Number
   - name: sourceType
     summary: The playback type of the movie. Defaults to <Titanium.Media.VIDEO_SOURCE_TYPE_UNKNOWN>. Specifying a playback type before playing the movie can result in faster load times.
