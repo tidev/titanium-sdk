@@ -43,10 +43,24 @@ public final class ${config['classname']}Application extends TiApplication
 		% endif
 
 		% if runtime == "v8":
-		KrollRuntime.init(this, new V8Runtime());
+		V8Runtime runtime = new V8Runtime();
 		% else:
-		KrollRuntime.init(this, new RhinoRuntime());
+		RhinoRuntime runtime = new RhinoRuntime();
 		% endif
+
+		% if runtime == "v8":
+
+		% for module in custom_modules:
+		<%
+		manifest = module['manifest']
+		className = manifest.name[0:1].upper() + manifest.name[1:]
+		%>
+		runtime.addExternalModule("${manifest.moduleid}", ${manifest.moduleid}.${className}Bootstrap.class);
+		% endfor
+
+		% endif
+
+		KrollRuntime.init(this, runtime);
 
 		% if config['deploy_type'] != 'production' and runtime == "rhino":
 			debugger.startDebugger();
