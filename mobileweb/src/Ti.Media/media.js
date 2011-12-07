@@ -8,9 +8,6 @@
 	api.NO_CAMERA = 2;
 	api.NO_VIDEO = 3;
 
-	api.MEDIA_TYPE_PHOTO = "public.image";
-	api.MEDIA_TYPE_VIDEO = "public.video";
-
 	api.VIDEO_CONTROL_DEFAULT = 4;
 	api.VIDEO_CONTROL_EMBEDDED = 5;
 	api.VIDEO_CONTROL_FULLSCREEN = 6;
@@ -33,6 +30,10 @@
 
 	api.VIDEO_REPEAT_MODE_NONE = 19;
 	api.VIDEO_REPEAT_MODE_ONE = 20;
+
+	api.VIDEO_FINISH_REASON_PLAYBACK_ENDED = 21;
+	api.VIDEO_FINISH_REASON_PLAYBACK_ERROR = 22;
+	api.VIDEO_FINISH_REASON_USER_EXITED = 23;
 
 	// Methods
 	api.beep = function(){

@@ -25,9 +25,47 @@
 }
 
 .HTML5_VideoPlayer video {
+	left: 0;
 	position: absolute;
+	top: 0;
+}
+
+.HTML5_VideoPlayer.scaling-none {
+	overflow: hidden;
+}
+
+.HTML5_VideoPlayer.scaling-mode-fill video {
+	height: 100%;
+	max-height: 100%;
+	max-width: 100%;
+	width: 100%;
+}
+
+/* TODO: needs to preserve aspect */
+.HTML5_VideoPlayer.scaling-aspect-fill video {
+	height: 100%;
+	max-height: 100%;
+	max-width: 100%;
+	width: 100%;
+}
+
+/* TODO: needs to preserve aspect */
+.HTML5_VideoPlayer.scaling-aspect-fit video {
+	height: 100%;
+	max-height: 100%;
+	max-width: 100%;
+	width: 100%;
 }
 
 .HTML5_VideoPlayer video.fullscreen {
+	background-color: #000;
 	position: fixed;
+}
+
+.HTML5_VideoPlayer video:-webkit-full-screen {
+	max-height: 100%;
+}
+
+.HTML5_VideoPlayer video:-moz-full-screen {
+	max-height: 100%;
 }

@@ -101,7 +101,7 @@ events:
         type: Number
   - name: playing
     summary: fired when the currently playing movie changes
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     properties:
       - name: url
         summary: url of the media
@@ -171,7 +171,7 @@ properties:
     platforms: [iphone, ipad]
     type: Object
   - name: mediaControlStyle
-    summary: The style of the playback controls. Defaults to <Titanium.Media.VIDEO_CONTROL_DEFAULT>
+    summary: The style of the playback controls. Defaults to <Titanium.Media.VIDEO_CONTROL_DEFAULT>. Mobile web only supports <Titanium.Media.VIDEO_CONTROL_NONE> and <Titanium.Media.VIDEO_CONTROL_DEFAULT>.
     type: Number
   - name: mediaTypes
     summary: The types of media in the movie, or <Titanium.Media.VIDEO_MEDIA_TYPE_NONE> if not known.

@@ -2,8 +2,26 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 	args = args || {};
 
 	var self = this,
+		on = require.on,
+		handles,
 		video = document.createElement("video"),
-		supportsFullscreen = (function(s){ return !s || s(); }(video.webkitSupportsFullscreen));
+		nativeFullscreen,
+		fakeFullscreen = true,
+		mimeTypes = {
+			"m4v": "video/mp4",
+			"mov": "video/quicktime",
+			"mp4": "video/mp4",
+			"ogg": "video/ogg",
+			"ogv": "video/ogg",
+			"webm": "video/webm"
+		},
+
+		// TODO: Add check for Firefox <http://www.thecssninja.com/javascript/fullscreen>
+		_fullscreen = (function(s){ return args.fullscreen || s && s(); }(video.webkitDisplayingFullscreen)),
+
+		_scalingMode = args.scalingMode || Ti.Media.VIDEO_SCALING_ASPECT_FIT,
+		_mediaControlStyle = args.mediaControlStyle || Ti.Media.VIDEO_CONTROL_DEFAULT,
+		_url = args.url;
 
 	// Interfaces
 	Ti._5.DOMView(self, "div", args, "VideoPlayer");
@@ -13,31 +31,44 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 	Ti._5.Positionable(self, args);
 
 	// Properties
-	self.autoplay = !!args.autoplay;
-	self.mediaControlStyle = Ti.Media.VIDEO_CONTROL_NONE;
 	self.playbackState = Ti.Media.VIDEO_PLAYBACK_STATE_STOPPED;
 	self.playing = false;
-	self.duration = self.endPlaybackTime = 0;
+	self.initialPlaybackTime = self.currentPlaybackTime = 0;
 	self.loadState = Ti.Media.VIDEO_LOAD_STATE_UNKNOWN;
+	self.autoplay = !!args.autoplay;
 	self.repeatMode = args.repeatMode || Ti.Media.VIDEO_REPEAT_MODE_NONE;
 
-	var _fullscreen = (function(s){ return args.fullscreen || s && s(); }(video.webkitDisplayingFullscreen));
+	function setDuration(t) {
+		self.duration = self.playableDuration = self.endPlaybackTime = t;
+	}
+	setDuration(0.0);
+
 	Object.defineProperty(self, "fullscreen", {
 		get: function(){ return _fullscreen; },
 		set: function(fs){
-			_fullscreen = !!fs;
+			var h;
 
-			if (supportsFullscreen) {
+			fs = !!fs;
+			if (nativeFullscreen) {
 				try {
-					if (_fullscreen) {
+					if (fs) {
 						video.webkitEnterFullscreen();
 					} else {
 						video.webkitExitFullscreen();
 					}
 				} catch(ex) {}
-			} else {
-				// TODO: fake fullscreen
+			} else if (fakeFullscreen) {
+				video.className = fs ? "fullscreen" : "";
+				fs && (h = on(window, "keydown", function(e){
+					if (e.keyCode === 27) {
+						self.fullscreen = 0;
+						h();
+					}
+				}));
 			}
+
+			// need to set this after we've already switched to fullscreen
+			_fullscreen = fs;
 
 			self.fireEvent("fullscreen", {
 				entering: _fullscreen,
@@ -46,29 +77,17 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 		}
 	});
 
-	var _initialPlaybackTime = null;
-	Object.defineProperty(self, "initialPlaybackTime", {
-		get: function(){return _initialPlaybackTime;},
-		set: function(val){return _initialPlaybackTime = val;}
-	});
-
-	var _playableDuration = null;
-	Object.defineProperty(self, "playableDuration", {
-		get: function(){return _playableDuration;},
-		set: function(val){return _playableDuration = val;}
-	});
-
-	var _scalingMode = Ti.Media.VIDEO_SCALING_ASPECT_FIT;
 	Object.defineProperty(self, "scalingMode", {
 		get: function() {
 			return _scalingMode;
 		},
 		set: function(val) {
-			return setSize(_scalingMode = val);
+			_scalingMode = val;
+			setSize();
+			return val;
 		}
 	});
 
-	var _url = args.url;
 	Object.defineProperty(self, "url", {
 		get: function() { return _url; },
 		set: function(val) {
@@ -78,56 +97,24 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 		}
 	});
 
-	function setSize(val) {
-		switch (val) {
-			case Ti.Media.VIDEO_SCALING_NONE:
-				break;
-			case Ti.Media.VIDEO_SCALING_MODE_FIT:
-				break;
-			case Ti.Media.VIDEO_SCALING_ASPECT_FILL:
-				break;
-			default: // VIDEO_SCALING_ASPECT_FIT
+	Object.defineProperty(self, "mediaControlStyle", {
+		get: function() { return _mediaControlStyle; },
+		set: function(val) {
+			video.controls = val === Ti.Media.VIDEO_CONTROL_DEFAULT;
+			return _mediaControlStyle = val;
 		}
-		return val;
+	});
+
+	function setSize() {
+		var cls = "scaling-aspect-fit";
+		switch (_scalingMode) {
+			case Ti.Media.VIDEO_SCALING_NONE: 			cls = "scaling-none";			break;
+			case Ti.Media.VIDEO_SCALING_MODE_FILL:		cls = "scaling-mode-fill";		break;
+			case Ti.Media.VIDEO_SCALING_ASPECT_FILL:	cls = "scaling-aspect-fill";	break;
+		}
+		self.dom.className = self.dom.className.replace(/(scaling\-[\w\-]+)/, "") + ' ' + cls;
 	}
 
-	function createVideo() {
-		var d = self.dom,
-			p = video.parentNode;
-		p && p.removeChild(video);
-		video = document.createElement("video");
-		video.id = "myvid";
-		video.style.position = "absolute";
-		video.style.left = "0px";
-		video.style.top = "0px";
-		video.style.width = "100%";
-		video.style.height = "100%";
-		self.autoplay && (video.autoplay = true);
-console.debug(self.repeatMode, Ti.Media.VIDEO_REPEAT_MODE_ONE);
-		self.repeatMode === Ti.Media.VIDEO_REPEAT_MODE_ONE && (video.loop = true);
-		d.appendChild(video);
-		video.src = self.url;
-	}
-
-	// Methods
-	self.pause = function(){
-		video.pause();
-	};
-	self.play = function(){
-		video.play();
-	};
-	self.release = function(){
-		// do anything?
-	};
-	self.setUrl = function(url){
-		self.url = url;
-	};
-	self.stop = function(){
-		video.pause();
-		video.currentTime = 0;
-	};
-
-	// Events
 	function setPlaybackState(state) {
 		self.fireEvent("playbackState", {
 			playbackState: self.playbackState = state,
@@ -135,76 +122,169 @@ console.debug(self.repeatMode, Ti.Media.VIDEO_REPEAT_MODE_ONE);
 		});
 	}
 
-	function setLoadState(ls) {
+	function setLoadState(state) {
 		self.fireEvent("loadstate", {
-			loadState: self.loadState = ls,
+			loadState: self.loadState = state,
 			source: self
 		});
 	}
-
-	video.addEventListener("play", function () {
-		self.playing = true;
-		setPlaybackState(Ti.Media.VIDEO_PLAYBACK_STATE_PLAYING);
-	}, false);
-
-	video.addEventListener("pause", function () {
-		self.playing = false;
-		setPlaybackState(this.currentTime == 0 ? Ti.Media.VIDEO_PLAYBACK_STATE_STOPPED : Ti.Media.VIDEO_PLAYBACK_STATE_PAUSED);
-	}, false);
-
-	video.addEventListener("canplay", function () {
-		setLoadState(Ti.Media.VIDEO_LOAD_STATE_PLAYABLE);
-	}, false);
-
-	video.addEventListener("canplaythrough", function () {
-		setLoadState(Ti.Media.VIDEO_LOAD_STATE_PLAYTHROUGH_OK);
-		self.fireEvent("preload", {
-			source: self
-		});
-	}, false);
-
-	video.addEventListener("loadeddata", function () {
-		self.fireEvent("load", {
-			source: self
-		});
-	}, false);
-
-	video.addEventListener("durationChange", function () {
-		if (!self.duration && this.duration) {
-			self.fireEvent("durationAvailable", {
-				duration: this.duration,
-				source: self
-			});
-		}
-		self.duration = this.duration;
-	}, false);
-
-	video.addEventListener("error", function () {
-		setLoadState(Ti.Media.VIDEO_LOAD_STATE_UNKNOWN);
-		self.fireEvent("error", {
-			message: this.error,
-			source: self
-		});
-	}, false);
-
-	video.addEventListener("suspend", function () {
-		setLoadState(Ti.Media.VIDEO_LOAD_STATE_UNKNOWN);
-	}, false);
 
 	function complete(evt) {
+		var ended = evt.type === "ended";
+		self.playing = false;
 		self.fireEvent("complete", {
-			reason: evt.type,
+			reason: ended ? Ti.Media.VIDEO_FINISH_REASON_PLAYBACK_ENDED : Ti.Media.VIDEO_FINISH_REASON_USER_EXITED,
 			source: self
 		});
+		ended && self.repeatMode === Ti.Media.VIDEO_REPEAT_MODE_ONE && this.play();
 	}
-	video.addEventListener("abort", complete, false);
-	video.addEventListener("ended", complete, false);
 
 	function stalled() {
+		self.playing = false;
 		setLoadState(Ti.Media.VIDEO_LOAD_STATE_STALLED);
 	}
-	video.addEventListener("stalled", stalled, false);
-	video.addEventListener("waiting", stalled, false);
+
+	function fullscreenChange(e) {
+		_fullscreen && (_fullscreen = !_fullscreen);
+	}
+
+	function metaDataLoaded() {
+		// TODO: Add check for Firefox <http://www.thecssninja.com/javascript/fullscreen>
+		nativeFullscreen = this.webkitSupportsFullscreen;
+		durationChange();
+	}
+
+	function durationChange() {
+		var d = this.duration;
+		if (d !== Infinity) {
+			self.duration || self.fireEvent("durationAvailable", {
+				duration: d,
+				source: self
+			});
+			setDuration(d);
+		}
+	}
+
+	function createVideo(dontCreate) {
+		var i, src, match,
+			url = self.url;
+
+		if (video && video.parentNode && dontCreate) {
+			return video;
+		}
+
+		self.release();
+
+		video = document.createElement("video");
+		video.tabindex = 0;
+		_mediaControlStyle === Ti.Media.VIDEO_CONTROL_DEFAULT && (video.controls = 1);
+
+		handles = [
+			on(video, "playing", function() {
+				self.playing = true;
+				self.fireEvent("playing", {
+					url: video.currentSrc,
+					source: self
+				});
+				setPlaybackState(Ti.Media.VIDEO_PLAYBACK_STATE_PLAYING);
+			}),
+			on(video, "pause", function() {
+				self.playing = false;
+				setPlaybackState(this.currentTime == 0 ? Ti.Media.VIDEO_PLAYBACK_STATE_STOPPED : Ti.Media.VIDEO_PLAYBACK_STATE_PAUSED);
+			}),
+			on(video, "canplay", function() {
+				setLoadState(Ti.Media.VIDEO_LOAD_STATE_PLAYABLE);
+				self.autoplay && video.play();
+			}),
+			on(video, "canplaythrough", function() {
+				setLoadState(Ti.Media.VIDEO_LOAD_STATE_PLAYTHROUGH_OK);
+				self.fireEvent("preload", {
+					source: self
+				});
+			}),
+			on(video, "loadeddata", function() {
+				self.fireEvent("load", {
+					source: self
+				});
+			}),
+			on(video, "loadedmetadata", metaDataLoaded),
+			on(video, "durationchange", durationChange),
+			on(video, "timeupdate", function(){
+				self.currentPlaybackTime = Math.round(this.currentTime);
+			}),
+			on(video, "error", function() {
+				var msg = "Unknown error";
+				switch (this.error.code) {
+					case 1: msg = "Aborted"; break;
+					case 2: msg = "Decode error"; break;
+					case 3: msg = "Network error"; break;
+					case 4: msg = "Unsupported format";
+				}
+				self.playing = false;
+				setLoadState(Ti.Media.VIDEO_LOAD_STATE_UNKNOWN);
+				self.fireEvent("error", {
+					message: msg,
+					source: self
+				});
+				self.fireEvent("complete", {
+					reason: Ti.Media.VIDEO_FINISH_REASON_PLAYBACK_ERROR,
+					source: self
+				});
+			}),
+			on(video, "suspend", function() {
+				self.playing = false;
+				setLoadState(Ti.Media.VIDEO_LOAD_STATE_UNKNOWN);
+			}),
+			on(video, "abort", complete),
+			on(video, "ended", complete),
+			on(video, "stalled", stalled),
+			on(video, "waiting", stalled),
+			on(video, "mozfullscreenchange", fullscreenChange),
+			on(video, "webkitfullscreenchange", fullscreenChange)
+		];
+
+		setSize();
+		self.dom.appendChild(video);
+
+		require.is(url, "Array") || (url = [url]);
+
+		for (i = 0; i < url.length; i++) {
+			src = document.createElement("source");
+			src.src = url[i];
+			match = url[i].match(/.+\.([^\/\.]+?)$/);
+			match && mimeTypes[match[1]] && (src.type = mimeTypes[match[1]]);
+			video.appendChild(src);
+		}
+
+		return video;
+	}
+
+	// Methods
+	self.pause = function(){
+		createVideo(1).pause();
+	};
+
+	self.play = function(){
+		createVideo(1).play();
+	};
+
+	self.release = function(){
+		var i,
+			parent = video && video.parentNode;
+		if (parent) {
+			for (i = 0; i < handles.length; i++) {
+				handles[i]();
+			}
+			parent.removeChild(video);
+		}
+		video = null;
+	};
+
+	self.stop = function(){
+		var v = createVideo(1);
+		v.pause();
+		v.currentTime = 0;
+	};
 
 	// if we have a url, then create the video
 	self.url && createVideo();
