@@ -269,10 +269,8 @@ def validateType(typeDoc):
 		validateExcludes(tracker, typeDoc['excludes'])
 
 	if 'summary' in typeDoc:
-		summary = typeDoc['summary']
-		constantRegex = r'^[A-Z].*\.$'
-		match = re.match(constantRegex, summary)
-		if match is None:
+		summary = typeDoc['summary'].strip()
+		if not summary[0].isupper or summary[-1] != ".":
 			tracker.trackError('summary fields should start with a capital letter and end with a period. summary: %s' % summary)
 		
 	if 'description' in typeDoc:
