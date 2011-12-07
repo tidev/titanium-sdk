@@ -41,5 +41,5 @@ methods:
         summary: Name of the event.
         type: String
       - name: event
-        summary: Event object.
-        type: Titanium.Event
+        summary: A dictionary of keys and values to pass to the listeners.
+        type: Dictionary
