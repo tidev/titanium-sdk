@@ -4,6 +4,7 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 	var self = this,
 		on = require.on,
 		handles,
+		stopping,
 		video = document.createElement("video"),
 		nativeFullscreen,
 		fakeFullscreen = true,
@@ -181,6 +182,42 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 
 		handles = [
 			on(video, "playing", function() {
+				var videoRatio, containerRatio, w, h, x = 1, y = 1;
+
+console.debug("playing", this.offsetWidth, this.videoWidth, this.offsetHeight, this.videoHeight);
+				switch (_scalingMode) {
+					case Ti.Media.VIDEO_SCALING_MODE_FILL:
+						// stretch
+						videoRatio = this.videoWidth / this.videoHeight;
+console.debug("video ratio = " + videoRatio + " container ratio = " + containerRatio);
+						w = (this.videoWidth * this.offsetHeight) / this.videoHeight;
+						h = (this.videoHeight * this.offsetWidth) / this.videoWidth;
+						if (videoRatio > 1) {
+							// width > height
+							if (h > this.offsetHeight) {
+								x = this.offsetWidth / w;
+							} else if (h < this.offsetHeight) {
+								y = this.offsetHeight / h;
+							}
+						} else if (videoRatio < 1) {
+							// height > width
+							if (w > this.offsetWidth) {
+								y = this.offsetHeight / h;
+							} else if (w < this.offsetWidth) {
+								x = this.offsetWidth / w;
+							}
+						}
+						break;
+					case Ti.Media.VIDEO_SCALING_ASPECT_FILL:
+						// scale until smallest dimension equals the container size
+						break;
+				}
+				// if w / h > 1, then w > h
+				// 300 x 250
+				// 1280 x 720
+console.debug("Setting scale to", x, y);
+				//self._setPrefixedCSSRule("Transform", "scaleX(" + x + ") scaleY(" + y + ")");
+
 				self.playing = true;
 				self.fireEvent("playing", {
 					url: video.currentSrc,
@@ -190,17 +227,23 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 			}),
 			on(video, "pause", function() {
 				self.playing = false;
-				setPlaybackState(this.currentTime == 0 ? Ti.Media.VIDEO_PLAYBACK_STATE_STOPPED : Ti.Media.VIDEO_PLAYBACK_STATE_PAUSED);
+				setPlaybackState(stopping ? Ti.Media.VIDEO_PLAYBACK_STATE_STOPPED : Ti.Media.VIDEO_PLAYBACK_STATE_PAUSED);
 			}),
 			on(video, "canplay", function() {
-				setLoadState(Ti.Media.VIDEO_LOAD_STATE_PLAYABLE);
-				self.autoplay && video.play();
+				if (!stopping) {
+					setLoadState(Ti.Media.VIDEO_LOAD_STATE_PLAYABLE);
+					self.playing = true;
+					self.autoplay && video.play();
+				}
+				stopping = 0;
 			}),
 			on(video, "canplaythrough", function() {
-				setLoadState(Ti.Media.VIDEO_LOAD_STATE_PLAYTHROUGH_OK);
-				self.fireEvent("preload", {
-					source: self
-				});
+				if (!stopping) {
+					setLoadState(Ti.Media.VIDEO_LOAD_STATE_PLAYTHROUGH_OK);
+					self.fireEvent("preload", {
+						source: self
+					});
+				}
 			}),
 			on(video, "loadeddata", function() {
 				self.fireEvent("load", {
@@ -231,11 +274,11 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 					source: self
 				});
 			}),
-			on(video, "suspend", function() {
+/*			on(video, "suspend", function() {
 				self.playing = false;
 				setLoadState(Ti.Media.VIDEO_LOAD_STATE_UNKNOWN);
 			}),
-			on(video, "abort", complete),
+*/				on(video, "abort", complete),
 			on(video, "ended", complete),
 			on(video, "stalled", stalled),
 			on(video, "waiting", stalled),
@@ -282,6 +325,7 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 
 	self.stop = function(){
 		var v = createVideo(1);
+		stopping = 1;
 		v.pause();
 		v.currentTime = 0;
 	};
