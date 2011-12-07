@@ -238,3 +238,7 @@ properties:
     summary: returns true if remote notifications have been enabled.
     platforms: [iphone, ipad]
     type: Boolean
+  - name: httpURLFormatter
+    summary: user-defined function that is called everytime HTTPClient connects to a remote resource. The url to connect to is passed in as the only function argument, and the function is expected to return a url. If an error occurs, return null. This function allows urls to be formatted to handle things like proxying to get around cross-domain issues, etc.
+    type: Callback<Object>
+    platforms: [mobileweb]
