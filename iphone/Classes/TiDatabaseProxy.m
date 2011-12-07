@@ -9,7 +9,7 @@
 #import "TiDatabaseProxy.h"
 #import "TiDatabaseResultSetProxy.h"
 #import "TiUtils.h"
-
+#import "TiFilesystemFileProxy.h"
 
 @implementation TiDatabaseProxy
 
@@ -244,6 +244,10 @@
 -(NSString*)name
 {
 	return name;
+}
+-(TiFilesystemFileProxy*)file
+{
+	return [[TiFilesystemFileProxy alloc] initWithFile:[self dbPath:name]];
 }
 
 #pragma mark Internal
