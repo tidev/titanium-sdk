@@ -290,6 +290,10 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onCreate");
 		}
 
+		if (!isTabActivity()) {
+			TiApplication.addToActivityStack(this);
+		}
+
 		// create the activity proxy here so that it is accessible from the activity in all cases
 		activityProxy = new ActivityProxy(this);
 
@@ -734,6 +738,10 @@ public abstract class TiBaseActivity extends Activity
 			}
 		}
 
+		if (!isTabActivity()) {
+			TiApplication.removeFromActivityStack(this);
+		}
+
 		super.onDestroy();
 
 		// Our Activities are currently unable to recover from Android-forced restarts,
@@ -822,6 +830,18 @@ public abstract class TiBaseActivity extends Activity
 		}
 	}
 
+	protected boolean isTabActivity()
+	{
+		boolean isTab = false;
+		if (this instanceof TiActivity) {
+			if (((TiActivity)this).isTab()) {
+				isTab = true;
+			}
+		}
+
+		return isTab;
+	}
+
 	// These activityOnXxxx are all used by TiLaunchActivity when
 	// the android bug 2373 is detected and the app is being re-started.
 	// By calling these from inside its on onXxxx handlers, TiLaunchActivity
@@ -856,6 +876,5 @@ public abstract class TiBaseActivity extends Activity
 	{
 		super.onCreate(savedInstanceState);
 	}
-
 }
 
