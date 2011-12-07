@@ -1,6 +1,12 @@
 Ti._5.createClass('Titanium.UI.TabGroup', function(args){
 	var obj = this;
 	var _activeTabIndex = null;
+	
+	// Set defaults
+	args = Ti._5.extend({}, args);
+	args.unselectable = true;
+	args.width = args.width || '100%';
+	args.height = args.height || '100%';
 
 	// Interfaces
 	Ti._5.DOMView(this, 'div', args, 'TabGroup');
@@ -18,6 +24,8 @@ Ti._5.createClass('Titanium.UI.TabGroup', function(args){
 	_headerTable.appendChild(_tabsHeaders);
 	var _tabsContent = document.createElement("div");
 	_tabsContent.className = "tabsContent";
+	_tabsContent.style.width = "100%";
+	_tabsContent.style.height = "100%";
 	this.dom.appendChild(_headerTable);
 	this.dom.appendChild(_tabsContent);
 

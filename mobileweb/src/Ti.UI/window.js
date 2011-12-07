@@ -1,9 +1,12 @@
 Ti._5.createClass('Titanium.UI.Window', function(args){
 	var obj = this;
 	this._isBack = false;
-	// set defaults
+	
+	// Set defaults
 	args = Ti._5.extend({}, args);
 	args.unselectable = true;
+	args.width = args.width || '100%';
+	args.height = args.height || '100%';
 
 	var _isHTMLPage = function(url){
 		return _url != null && (_url.indexOf('htm') != -1 || _url.indexOf('http') != -1);
