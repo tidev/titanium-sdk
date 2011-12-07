@@ -32,23 +32,34 @@ Module.main = null;
 Module.paths = [ 'Resources/' ];
 Module.wrap = NativeModule.wrap;
 
-Module.runModule = function (source, filename, activity) {
-
+Module.runModule = function (source, filename, activityOrService) {
 	var id = filename;
 	if (!Module.main) {
 		id = ".";
 	}
 
-	var module = new Module(id, null, {
-		currentActivity: activity,
-		currentWindow: activity ? activity.window : null
-	});
+	var module;
+	var isService = (activityOrService instanceof Titanium.Service);
+
+	if (isService) {
+		module = new Module(id, null, {
+			currentService: activityOrService,
+			currentActivity: null,
+			currentWindow: null
+		});
+	} else {
+		module = new Module(id, null, {
+			currentService: null,
+			currentActivity: activityOrService,
+			currentWindow: activityOrService ? activityOrService.window : null
+		});
+	}
 
 	if (!Module.main) {
 		Module.main = module;
 	}
 
-	module.load(filename, source, activity);
+	module.load(filename, source)
 	return module;
 }
 

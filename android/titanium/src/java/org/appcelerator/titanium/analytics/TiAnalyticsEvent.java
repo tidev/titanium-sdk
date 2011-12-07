@@ -1,12 +1,13 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.titanium.analytics;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -32,11 +33,13 @@ public class TiAnalyticsEvent
 {
 	private static final String LCAT = "TitaniumAnalyticsEvent";
 
-	private static TimeZone utc = TimeZone.getTimeZone("utc");
+	private static TimeZone utc = TimeZone.getTimeZone("UTC");
 	private static SimpleDateFormat isoDateFormatter =
 		new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 	static {
-		isoDateFormatter.setTimeZone(utc);
+		// Workaround for setting the timezone since there is a bug in android 2.2 and earlier
+		// http://code.google.com/p/android/issues/detail?id=8258
+		isoDateFormatter.setCalendar(Calendar.getInstance(utc));
 	}
 
 	private String eventType;

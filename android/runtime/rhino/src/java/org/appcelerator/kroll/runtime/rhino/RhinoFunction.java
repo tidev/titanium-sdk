@@ -62,9 +62,7 @@ public class RhinoFunction implements KrollFunction, Handler.Callback
 		RhinoObject rhinoObject = (RhinoObject) krollObject;
 		Scriptable nativeObject = (Scriptable) rhinoObject.getNativeObject();
 
-		Context context = Context.enter();
-		context.setOptimizationLevel(-1);
-		context.setErrorReporter(RhinoRuntime.getErrorReporter());
+		Context context = ((RhinoRuntime) KrollRuntime.getInstance()).enterContext();
 
 		try {
 			for (int i = 0; i < args.length; i++) {
