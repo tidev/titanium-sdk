@@ -8,17 +8,16 @@
 
 #import "TiProxy.h"
 #import "GDataXMLNode.h"
+#import "TiDOMElementProxy.h"
 
 @interface TiDOMNamedNodeMapProxy : TiProxy {
 @private
-	GDataXMLElement *element;
-	GDataXMLDocument *document;
+	TiDOMElementProxy* element;
 }
 
-@property(nonatomic,retain)	GDataXMLDocument *document;
 @property(nonatomic,readonly) NSNumber* length;
 
--(void)setElement:(GDataXMLElement*)element;
+-(void)setElement:(TiDOMElementProxy*)element;
 
 @end
 

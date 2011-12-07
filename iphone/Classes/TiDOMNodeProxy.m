@@ -14,6 +14,13 @@
 #import "TiDOMNodeListProxy.h"
 #import "TiDOMAttrProxy.h"
 #import "TiDOMCDATANodeProxy.h"
+#import "TiDOMCommentProxy.h"
+#import "TIDOMDocumentTypeProxy.h"
+#import "TiDOMDocFragProxy.h"
+#import "TiDOMPIProxy.h"
+#import "TiDOMEntityProxy.h"
+#import "TiDOMEntityRefProxy.h"
+#import "TiDOMNotationProxy.h"
 #import "TiUtils.h"
 #include <libkern/OSAtomic.h>
 
@@ -152,6 +159,13 @@ CFHashCode	simpleHash(const void *value)
 			[TiDOMNodeProxy setNode:proxy forXMLNode:childXmlNode];
 			return proxy;
 		}
+		case XML_COMMENT_NODE:
+		{
+			TiDOMCommentProxy *proxy = [[[TiDOMCommentProxy alloc] _initWithPageContext:context] autorelease];
+			[proxy setNode:child];
+			[TiDOMNodeProxy setNode:proxy forXMLNode:childXmlNode];
+			return proxy;
+		}
         case XML_CDATA_SECTION_NODE:
         {
             TiDOMCDATANodeProxy *proxy = [[[TiDOMCDATANodeProxy alloc] _initWithPageContext:context] autorelease];
@@ -159,6 +173,49 @@ CFHashCode	simpleHash(const void *value)
 			[TiDOMNodeProxy setNode:proxy forXMLNode:childXmlNode];
             return proxy;
         }
+		case XML_DOCUMENT_TYPE_NODE:
+		case XML_DTD_NODE:
+		{
+			TIDOMDocumentTypeProxy *proxy = [[[TIDOMDocumentTypeProxy alloc] _initWithPageContext:context]autorelease];
+			[proxy setNode:child];
+			[TiDOMNodeProxy setNode:proxy forXMLNode:childXmlNode];
+            return proxy;
+		}
+		case XML_DOCUMENT_FRAG_NODE:
+		{
+			TiDOMDocFragProxy *proxy = [[[TiDOMDocFragProxy alloc] _initWithPageContext:context]autorelease];
+			[proxy setNode:child];
+			[TiDOMNodeProxy setNode:proxy forXMLNode:childXmlNode];
+            return proxy;
+		}
+		case XML_PI_NODE:
+		{
+			TiDOMPIProxy *proxy = [[[TiDOMPIProxy alloc] _initWithPageContext:context]autorelease];
+			[proxy setNode:child];
+			[TiDOMNodeProxy setNode:proxy forXMLNode:childXmlNode];
+            return proxy;			
+		}
+		case XML_ENTITY_REF_NODE:
+		{
+			TiDOMEntityRefProxy *proxy = [[[TiDOMEntityRefProxy alloc] _initWithPageContext:context]autorelease];
+			[proxy setNode:child];
+			[TiDOMNodeProxy setNode:proxy forXMLNode:childXmlNode];
+            return proxy;			
+		}
+		case XML_ENTITY_NODE:
+		{
+			TiDOMEntityProxy *proxy = [[[TiDOMEntityProxy alloc] _initWithPageContext:context] autorelease];
+			[proxy setNode:child];
+			[TiDOMNodeProxy setNode:proxy forXMLNode:childXmlNode];
+            return proxy;
+		}
+		case XML_NOTATION_NODE:
+		{
+			TiDOMNotationProxy *proxy = [[[TiDOMNotationProxy alloc] _initWithPageContext:context] autorelease];
+			[proxy setNode:child];
+			[TiDOMNodeProxy setNode:proxy forXMLNode:childXmlNode];
+            return proxy;			
+		}
 		default:
 		{
 			TiDOMNodeProxy *element = [[[TiDOMNodeProxy alloc] _initWithPageContext:context] autorelease];
@@ -226,15 +283,16 @@ CFHashCode	simpleHash(const void *value)
 -(id)childNodes
 {
     [node releaseCachedValues];
-	NSMutableArray *children = [NSMutableArray array];
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-	for (GDataXMLNode* child in [node children])
-	{
-		[children addObject:[self makeNode:child context:context]];
+	NSMutableArray *proxyArray = nil;
+	if ([node children] != nil) {
+		proxyArray = [NSMutableArray array];
+		for (GDataXMLNode* child in [node children]) {
+			[proxyArray addObject:[self makeNode:child context:context]];
+		}
 	}
 	TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:context] autorelease];
-	[proxy setDocument:[self document]];
-	[proxy setNodes:children];
+	[proxy setNodes:proxyArray];
 	return proxy;
 }
 
@@ -284,15 +342,6 @@ CFHashCode	simpleHash(const void *value)
 
 -(id)attributes
 {
-    xmlElementType realType = [node XMLNode]->type;
-    if (realType == XML_ELEMENT_NODE)
-    {
-        id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-        TiDOMNamedNodeMapProxy *proxy = [[[TiDOMNamedNodeMapProxy alloc] _initWithPageContext:context] autorelease];
-        [proxy setDocument:[self document]];
-        [proxy setElement:(GDataXMLElement*)node];
-        return proxy;
-    }
     return [NSNull null];
 }
 
