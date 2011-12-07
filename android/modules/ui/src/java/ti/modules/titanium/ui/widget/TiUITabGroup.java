@@ -81,13 +81,16 @@ public class TiUITabGroup extends TiUIView
 				tabHost.setVisibility(View.INVISIBLE);
 			}
 		}
-		int tabCount = tabHost.getTabWidget().getTabCount();
+		final int tabCount = tabHost.getTabWidget().getTabCount();
 		if (tabCount > 0) {
 			tabHost.getTabWidget().getChildTabViewAt(tabCount - 1).setOnClickListener(new OnClickListener()
 			{
 				@Override
 				public void onClick(View v)
 				{
+					// We have the set the current tab here to restore the widget's default behavior since
+					// setOnClickListener seems to overwrite it
+					tabHost.setCurrentTab(tabCount - 1);
 					tabProxy.fireEvent(TiC.EVENT_CLICK, null);
 				}
 			});
