@@ -4,7 +4,7 @@ summary: The base for all proxy types.
 since: "0.1"
 methods:
   - name: addEventListener
-    summary: Adds an event listener for the instance to receive triggered events.
+    summary: Adds the specified callback as an event listener for the named event.
     parameters:
       - name: name
         summary: Name of the event.
@@ -41,5 +41,6 @@ methods:
         summary: Name of the event.
         type: String
       - name: event
-        summary: A dictionary of keys and values to pass to the listeners.
+        summary: A dictionary of keys and values to add to the <Titanium.Event> object
+            sent to the listeners.
         type: Dictionary
