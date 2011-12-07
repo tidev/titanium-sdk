@@ -339,9 +339,11 @@ class Bootstrap(object):
 		}
 
 		if self.runtime == "v8":
-			bootstrapJava = os.path.join(javaDir, self.moduleId.replace(".", os.sep),
-				className + "Bootstrap.java")
+			bootstrapPath = os.path.join(javaDir, self.moduleId.replace(".", os.sep),)
+			if not os.path.exists(bootstrapPath):
+				os.makedirs(bootstrapPath)
 
+			bootstrapJava = os.path.join(bootstrapPath, className + "Bootstrap.java")
 			bootstrapCpp = os.path.join(cppDir, className + "Bootstrap.cpp")
 
 			open(bootstrapJava, "w").write(javaTemplate % context)
