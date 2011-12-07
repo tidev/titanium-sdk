@@ -104,8 +104,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	
 	public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
 	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<ActivityTransitionListener>();
-	protected static ArrayList<Activity> activityStack = new ArrayList<Activity>();
-
+	protected static TiWeakList<Activity> activityStack = new TiWeakList<Activity>();
 
 	public static interface ActivityTransitionListener
 	{
@@ -166,7 +165,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 
 	public static void addToActivityStack(Activity activity)
 	{
-		activityStack.add(activity);
+		activityStack.add(new WeakReference<Activity>(activity));
 	}
 
 	public static void removeFromActivityStack(Activity activity)
@@ -202,9 +201,9 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	{
 		int stackSize = activityStack.size();
 		if (stackSize > 0) {
-			Activity activity = activityStack.get(stackSize - 1);
+			Activity activity = (activityStack.get(stackSize - 1)).get();
 			if (activity == null) {
-				throw new Error("No activity found on the activity stack");
+				throw new Error("null activity found on top of the activity stack");
 			}
 
 			return activity;
