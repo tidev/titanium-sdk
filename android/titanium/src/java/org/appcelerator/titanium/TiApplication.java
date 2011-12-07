@@ -104,7 +104,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	
 	public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
 	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<ActivityTransitionListener>();
-	protected static ArrayList<Activity> acstac = new ArrayList<Activity>();
+	protected static ArrayList<Activity> activityStack = new ArrayList<Activity>();
 
 
 	public static interface ActivityTransitionListener
@@ -163,7 +163,17 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		Log.e(LCAT, "unable to get the TiApplication instance");
 		return null;
 	}
-	
+
+	public static void addToActivityStack(Activity activity)
+	{
+		activityStack.add(activity);
+	}
+
+	public static void removeFromActivityStack(Activity activity)
+	{
+		activityStack.remove(activity);
+	}
+
 	// This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
 	// time we need to grab the current activity
 	public static Activity getAppCurrentActivity()
@@ -188,44 +198,20 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		return tiApp.getRootOrCurrentActivity();
 	}
 
-	public static void acstacAdd(Activity activity)
-	{
-		acstac.add(activity);
-	}
-
-	public static void acstacRemove(Activity activity)
-	{
-		acstac.remove(activity);
-	}
-
 	public Activity getCurrentActivity()
 	{
-		if (true) {
-			int acstacSize = acstac.size();
-			if (acstacSize > 0) {
-				Activity acstacItem = acstac.get(acstacSize - 1);
-				if (acstacItem == null) {
-					Log.d(LCAT, "Ruh Roh!  How is this null?");
-				}
-				Log.d(LCAT, ">>>> RETURNING ACTIVITY: " + acstacItem);
-
-				return acstacItem;
-			}
-			Log.d(LCAT, "acstac is empty");
-			return null;
-
-		} else {
-			Activity activity;
-			if (currentActivity != null) {
-				activity = currentActivity.get();
-				if (activity != null) {
-					return activity;
-				}
+		int stackSize = activityStack.size();
+		if (stackSize > 0) {
+			Activity activity = activityStack.get(stackSize - 1);
+			if (activity == null) {
+				throw new Error("No activity found on the activity stack");
 			}
 
-			Log.e(LCAT, "no valid current activity found for application instance");
-			return null;
+			return activity;
 		}
+
+		Log.w(LCAT, "activity stack is emtpy, unable to get current activity");
+		return null;
 	}
 	
 	public Activity getRootOrCurrentActivity()

@@ -44,10 +44,9 @@ public class TiTabActivity extends TabActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		super.onCreate(savedInstanceState);
+		TiApplication.addToActivityStack(this);
 
-		// put me somewhere better?
-		TiApplication.acstacAdd(this);
+		super.onCreate(savedInstanceState);
 
 		int layoutResId = getResources().getIdentifier("titanium_tabgroup", "layout", getPackageName());
 		if (layoutResId == 0) {
@@ -194,10 +193,9 @@ public class TiTabActivity extends TabActivity
 	@Override
 	protected void onDestroy()
 	{
-		super.onDestroy();
+		TiApplication.removeFromActivityStack(this);
 
-		// put me somewhere better?
-		TiApplication.acstacRemove(this);
+		super.onDestroy();
 
 		if (!isFinishing())
 		{

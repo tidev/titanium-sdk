@@ -295,8 +295,7 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onCreate");
 		}
 
-		// put me somewhere better?
-		TiApplication.acstacAdd(this);
+		TiApplication.addToActivityStack(this);
 
 		// create the activity proxy here so that it is accessible from the activity in all cases
 		activityProxy = new ActivityProxy(this);
@@ -730,9 +729,6 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onDestroy");
 		}
 
-		// put me somewhere better?
-		TiApplication.acstacRemove(this);
-
 		synchronized (lifecycleListeners.synchronizedList()) {
 			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
 				try {
@@ -743,6 +739,8 @@ public abstract class TiBaseActivity extends Activity
 				}
 			}
 		}
+
+		TiApplication.removeFromActivityStack(this);
 
 		super.onDestroy();
 
