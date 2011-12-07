@@ -37,10 +37,19 @@ public final class ${config['classname']}Application extends TiApplication
 		appInfo = new ${config['classname']}AppInfo(this);
 		postAppInfo();
 
+		% if config['deploy_type'] != 'production' and runtime == "rhino":
+			ti.modules.titanium.debug.DebugModule debugger = new ti.modules.titanium.debug.DebugModule();
+			registerModuleInstance("debug", debugger);
+		% endif
+
 		% if runtime == "v8":
 		KrollRuntime.init(this, new V8Runtime());
 		% else:
 		KrollRuntime.init(this, new RhinoRuntime());
+		% endif
+
+		% if config['deploy_type'] != 'production' and runtime == "rhino":
+			debugger.startDebugger();
 		% endif
 
 		stylesheet = new ApplicationStylesheet();

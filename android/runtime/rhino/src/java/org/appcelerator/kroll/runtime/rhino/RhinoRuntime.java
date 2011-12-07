@@ -10,6 +10,7 @@ import org.appcelerator.kroll.KrollProxySupport;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.TiJSErrorDialog;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.ErrorReporter;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Function;
@@ -30,12 +31,13 @@ public class RhinoRuntime extends KrollRuntime implements ErrorReporter
 	private Scriptable globalKrollObject;
 	private Scriptable moduleObject;
 	private Function runModuleFunction;
+	private Context context;
 	private static ErrorReporter errorReporter;
 
 	@Override
 	public void initRuntime()
 	{
-		Context context = Context.enter();
+		context = Context.enter();
 		context.setOptimizationLevel(-1);
 		context.setErrorReporter(getErrorReporter());
 
@@ -67,9 +69,7 @@ public class RhinoRuntime extends KrollRuntime implements ErrorReporter
 	@Override
 	public void doRunModule(String source, String filename, KrollProxySupport activityProxy)
 	{
-		Context context = Context.enter();
-		context.setOptimizationLevel(-1);
-		context.setErrorReporter(getErrorReporter());
+		Context context = ((RhinoRuntime) KrollRuntime.getInstance()).enterContext();
 
 		try {
 			if (moduleObject == null) {
@@ -95,9 +95,7 @@ public class RhinoRuntime extends KrollRuntime implements ErrorReporter
 	@Override
 	public void initObject(KrollProxySupport proxy)
 	{
-		Context context = Context.enter();
-		context.setOptimizationLevel(-1);
-		context.setErrorReporter(getErrorReporter());
+		Context context = ((RhinoRuntime) KrollRuntime.getInstance()).enterContext();
 
 		try {
 			Proxy rhinoProxy = ProxyFactory.createRhinoProxy(context, globalScope, proxy);
@@ -106,6 +104,13 @@ public class RhinoRuntime extends KrollRuntime implements ErrorReporter
 		} finally {
 			Context.exit();
 		}
+	}
+
+	// Enter the context for this runtime thread.
+	// When done with context, just call Context.exit().
+	public Context enterContext()
+	{
+		return ContextFactory.getGlobal().enterContext(context);
 	}
 
 	public static Scriptable getGlobalScope()

@@ -43,7 +43,13 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	private static final int FINISH_DELAY = 500;
 
 	protected TiUrl url;
-	protected AlertDialog noLaunchCategoryAlert;
+
+	// For restarting due to android bug 2373 detection.
+	private boolean noLaunchCategoryDetected = false;
+	private AlertDialog noLaunchCategoryAlert;
+	private PendingIntent restartPendingIntent = null;
+	private AlarmManager restartAlarmManager = null;
+	private int restartDelay = 0;
 
 	/**
 	 * @return The Javascript URL that this Activity should run
@@ -91,23 +97,11 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		Intent intent = getIntent();
-		if (intent != null) {
-			TiProperties systemProperties = getTiApp().getSystemProperties();
-			boolean detectionDisabled = systemProperties.getBool("ti.android.bug2373.disableDetection", false);
-			if (!detectionDisabled && checkMissingLauncher(intent, savedInstanceState)) {
-				return;
-			}
+		if (noLaunchCategoryDetected || checkMissingLauncher(savedInstanceState)) {
+			return;
 		}
 
 		url = TiUrl.normalizeWindowUrl(getUrl());
-
-		// removed with the change to create the activity proxy in the onCreate of TiBaseActivity
-		/*
-		if (activityProxy == null) {
-			setActivityProxy(new ActivityProxy(this));
-		}
-		*/
 
 		// we only want to set the current activity for good in the resume state but we need it right now.
 		// save off the existing current activity, set ourselves to be the new current activity temporarily 
@@ -115,9 +109,6 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		TiApplication tiApp = getTiApp();
 		Activity tempCurrentActivity = tiApp.getCurrentActivity();
 		tiApp.setCurrentActivity(this, this);
-
-		// TODO this isnt used anymore, remove?
-		//TiBindingHelper.bindCurrentActivity(activityProxy);
 
 		// set the current activity back to what it was originally
 		tiApp.setCurrentActivity(this, tempCurrentActivity);
@@ -134,26 +125,38 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		scriptLoaded();
 	}
 
+	protected boolean checkMissingLauncher(Bundle savedInstanceState)
+	{
+		Intent intent = getIntent();
+		if (intent != null) {
+			TiProperties systemProperties = getTiApp().getSystemProperties();
+			boolean detectionDisabled = systemProperties.getBool("ti.android.bug2373.disableDetection", false);
+			if (!detectionDisabled) {
+				return checkMissingLauncher(intent, savedInstanceState);
+			}
+		}
+		return false;
+	}
+
 	protected boolean checkMissingLauncher(Intent intent, Bundle savedInstanceState)
 	{
+		noLaunchCategoryDetected = false;
 		String action = intent.getAction();
 		if (action != null && action.equals(Intent.ACTION_MAIN)) {
 			Set<String> categories = intent.getCategories();
-			boolean b2373Detected = true; // Absence of LAUNCHER is the problem.
+			noLaunchCategoryDetected = true; // Absence of LAUNCHER is the problem.
 
 			if (categories != null) {
 				for(String category : categories) {
 					if (category.equals(Intent.CATEGORY_LAUNCHER)) {
-						b2373Detected = false;
-
+						noLaunchCategoryDetected = false;
 						break;
 					}
 				}
 			}
-			
-			if(b2373Detected) {
-				// removed call to setInstanceCount in log statement below.  Method is gone beginning in api 11.
-				Log.e(TAG, "Android issue 2373 detected (missing intent CATEGORY_LAUNCHER), restarting app.");
+
+			if (noLaunchCategoryDetected) {
+				Log.e(TAG, "Android issue 2373 detected (missing intent CATEGORY_LAUNCHER), restarting app. " + this);
 				layout = new TiCompositeLayout(this);
 				setContentView(layout);
 				TiProperties systemProperties = getTiApp().getSystemProperties();
@@ -177,7 +180,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		String message = systemProperties.getString("ti.android.bug2373.message", "An application restart is required");
 		final int restartDelay = systemProperties.getInt("ti.android.bug2373.restartDelay", RESTART_DELAY);
 		final int finishDelay = systemProperties.getInt("ti.android.bug2373.finishDelay", FINISH_DELAY);
-		
+
 		if (systemProperties.getBool("ti.android.bug2373.skipAlert", false)) {
 			if (message != null && message.length() > 0) {
 				Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
@@ -185,7 +188,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			restartActivity(restartDelay, finishDelay);
 		} else {
 			OnClickListener restartListener = new OnClickListener() 
-			{	
+			{
 				public void onClick(DialogInterface arg0, int arg1) {
 					restartActivity(restartDelay, finishDelay);
 				}
@@ -206,37 +209,50 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	{
 		restartActivity(delay, 0);
 	}
-	
+
 	protected void restartActivity(int delay, int finishDelay)
 	{
 		Intent relaunch = new Intent(getApplicationContext(), getClass());
 		relaunch.setAction(Intent.ACTION_MAIN);
 		relaunch.addCategory(Intent.CATEGORY_LAUNCHER);
 
-		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-		if (am != null) {
-			PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, relaunch, PendingIntent.FLAG_ONE_SHOT);
-			am.set(AlarmManager.RTC, System.currentTimeMillis() + delay, pi);
+		restartAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+		if (restartAlarmManager != null) {
+			restartPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, relaunch, PendingIntent.FLAG_ONE_SHOT);
+			restartDelay = delay;
 		}
-		
+
 		if (finishDelay > 0) {
 			Handler handler = new Handler() 
-			{	
+			{
 				@Override
 				public void handleMessage(Message msg) 
-				{					
+				{
 					if (msg.what == MSG_FINISH) {
-						finish();		
+						doFinishForRestart();
 					} else {
 						super.handleMessage(msg);
 					}
-				}			
+				}
 			};
-			
+
 			handler.sendEmptyMessageDelayed(MSG_FINISH, finishDelay);
 		} else {
+			doFinishForRestart();
+		}
+	}
+
+	private void doFinishForRestart()
+	{
+		if (noLaunchCategoryAlert != null && noLaunchCategoryAlert.isShowing()) {
+			noLaunchCategoryAlert.cancel();
+			noLaunchCategoryAlert = null;
+		}
+
+		if (!isFinishing()) {
 			finish();
 		}
+
 	}
 
 	@Override
@@ -255,38 +271,59 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onPause()
 	{
-		// TODO - enable this
-		/*
-		if (tiContext == null) {
-			// Not in a good state. Let's get out.
-			if (noLaunchCategoryAlert != null && noLaunchCategoryAlert.isShowing()) {
-				noLaunchCategoryAlert.cancel();
-				noLaunchCategoryAlert = null;
-			}
-
-			finish();
-
-		} else {
-			tiContext.fireLifecycleEvent(this, TiContext.LIFECYCLE_ON_PAUSE);	
+		if (noLaunchCategoryDetected) {
+			doFinishForRestart();
+			activityOnPause();
+			return;
 		}
-		*/
 
 		super.onPause();
 	}
 
 	@Override
+	protected void onStop()
+	{
+		if (noLaunchCategoryDetected) {
+			activityOnStop();
+			return;
+		}
+		super.onStop();
+	}
+
+	@Override
+	protected void onStart()
+	{
+		if (noLaunchCategoryDetected) {
+			activityOnStart();
+			return;
+		}
+		super.onStart();
+	}
+
+	@Override
+	protected void onResume()
+	{
+		if (noLaunchCategoryDetected) {
+			alertMissingLauncher(); // This also kicks off the finish() and restart.
+			activityOnResume();
+			return;
+		}
+
+		super.onResume();
+	}
+
+	@Override
 	protected void onDestroy()
 	{
-		// TODO - enable this
-		/*
-		if (tiContext != null) {
-			tiContext.fireLifecycleEvent(this, TiContext.LIFECYCLE_ON_DESTROY);
-			TiApplication tiApp = tiContext.getTiApp();
-			if (tiApp != null) {
-				tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppEndEvent());
-			}
+		if (noLaunchCategoryDetected) {
+			activityOnDestroy();
+			restartAlarmManager.set(AlarmManager.RTC, System.currentTimeMillis() + restartDelay, restartPendingIntent);
+			restartPendingIntent = null;
+			restartAlarmManager = null;
+			noLaunchCategoryAlert = null;
+			noLaunchCategoryDetected = false;
+			return;
 		}
-		*/
 
 		TiApplication tiApp = TiApplication.getInstance();
 		if (tiApp != null) {
