@@ -45,6 +45,10 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		}
 
 		nativeInit(useGlobalRefs, debuggerEnabled);
+
+		if (debuggerEnabled) {
+			dispatchDebugMessages();
+		}
 	}
 
 	@Override
@@ -71,6 +75,7 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		switch (message.what) {
 			case MSG_PROCESS_DEBUG_MESSAGES:
 				nativeProcessDebugMessages();
+				dispatchDebugMessages();
 
 				return true;
 		}
