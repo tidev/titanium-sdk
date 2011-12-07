@@ -723,12 +723,11 @@ Outputs the complete statement that performs the JNI call and
 stores the return value in "result". A nested section can
 beprovided to handle the result.
 ---------------------------------------------------------------->
-<#macro callJNIMethod methodArgs hasInvocation returnType methodID jobjectVar argsVar>
+<#macro callJNIMethod methodArgs hasInvocation returnType methodID jobjectVar argsVar hasResult>
 	<#local info = getTypeInfo(returnType)
 			callExpr = "Call${info.javaCallMethodType}MethodA"
 			argExpr = "${jobjectVar}, ${methodID}, ${argsVar}"
-			resultExpr = "${info.javaReturnType} jResult = (${info.javaReturnType})"
-			hasResult = info.javaReturnType != "void">
+			resultExpr = "${info.javaReturnType} jResult = (${info.javaReturnType})">
 	<#if hasResult>
 	${resultExpr}env->${callExpr}(${argExpr});
 
