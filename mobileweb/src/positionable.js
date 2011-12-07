@@ -18,6 +18,9 @@
 				if (obj.dom.style['bottom']) {
 					obj.dom.style['bottom'] = '';
 				}
+				if (typeof val === "number") {
+					val += "px";
+				}
 				_top = val;
 				_position('top', val);
 			},
@@ -33,6 +36,9 @@
 				if (obj.dom.style['top']) {
 					obj.dom.style['top'] = '';
 				}
+				if (typeof val === "number") {
+					val += "px";
+				}
 				_bottom = val;
 				_position('bottom', val);
 			},
@@ -47,6 +53,9 @@
 			set: function(val) {
 				if (obj.dom.style['right']) {
 					obj.dom.style['right'] = '';
+				}
+				if (typeof val === "number") {
+					val += "px";
 				}
 				obj.dom.style.cssFloat = '';
 				_left = val;
@@ -64,6 +73,9 @@
 				if (obj.dom.style['left']) {
 					obj.dom.style['left'] = '';
 				}
+				if (typeof val === "number") {
+					val += "px";
+				}
 				obj.dom.style.cssFloat = 'right';
 				_right = val;
 				_position('right', val);
@@ -77,6 +89,9 @@
 				return _width;
 			},
 			set: function(val) {
+				if (typeof val === "number") {
+					val += "px";
+				}
 				_width = val;
 				obj.dom.style.width = Ti._5.parseLength(val);
 			},
@@ -89,6 +104,9 @@
 				return _height;
 			},
 			set: function(val) {
+				if (typeof val === "number") {
+					val += "px";
+				}
 				_height = val;
 				obj.dom.style.height =  Ti._5.parseLength(val);
 			},
