@@ -44,5 +44,5 @@ FIELD_TYPE_STRING[int]: constant for requesting a column's value returned in str
 FIELD_TYPE_INT[int]: constant for requesting a column's value returned in integer form.
 FIELD_TYPE_FLOAT[int]: constant for requesting a column's value returned in float form.
 FIELD_TYPE_DOUBLE[int]: constant for requesting a column's value returned in double form.
-
+file[Ti.FileSystem.File]: Returns a object representing the database itself.(NOTE: not supported on Android.)
 - events
