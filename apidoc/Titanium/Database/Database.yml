@@ -41,3 +41,9 @@ properties:
     summary: constant for requesting a column's value returned in string form.
     type: Number
     permission: read-only
+  - name: file
+    summary:  Returns a object representing the database itself.
+    type: Titanium.Filesystem.File
+    permission: read-only
+    since: "1.9"
+    platforms: [iphone,ipad]
