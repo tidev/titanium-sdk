@@ -239,6 +239,10 @@ properties:
     platforms: [iphone, ipad]
     type: Boolean
   - name: httpURLFormatter
-    summary: user-defined function that is called everytime HTTPClient connects to a remote resource. The url to connect to is passed in as the only function argument, and the function is expected to return a url. If an error occurs, return null. This function allows urls to be formatted to handle things like proxying to get around cross-domain issues, etc.
-    type: Callback<Object>
+    summary: User-defined function that is called everytime HTTPClient connects to a remote resource. 
+    description: |
+        The URL to connect to is passed in as the only function argument, and the function is expected to return a URL. 
+        The function should return null if an error occurs, which will cancel the HTTP request. This function allows URLs 
+        to be formatted for use with the application's proxy to get around cross domain issues.
+    type: Callback<String>
     platforms: [mobileweb]
