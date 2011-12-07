@@ -20,6 +20,7 @@ import ti.modules.titanium.ui.TabProxy;
 import ti.modules.titanium.ui.TiTabActivity;
 import android.graphics.drawable.ColorDrawable;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabHost.TabSpec;
@@ -63,7 +64,7 @@ public class TiUITabGroup extends TiUIView
 		return tabHost.newTabSpec(id);
 	}
 
-	public void addTab(TabSpec tab)
+	public void addTab(TabSpec tab, final TabProxy tabProxy)
 	{
 		addingTab = true;
 		tabHost.addTab(tab);
@@ -78,6 +79,21 @@ public class TiUITabGroup extends TiUIView
 			} else {
 				tabHost.setVisibility(View.INVISIBLE);
 			}
+		}
+		
+		final int tabCount = tabHost.getTabWidget().getTabCount();
+		if (tabCount > 0) {
+			tabHost.getTabWidget().getChildTabViewAt(tabCount - 1).setOnClickListener(new OnClickListener()
+			{
+				@Override
+				public void onClick(View v)
+				{
+					// We have to set the current tab here to restore the widget's default behavior since
+					// setOnClickListener seems to overwrite it
+					tabHost.setCurrentTab(tabCount - 1);
+					tabProxy.fireEvent(TiC.EVENT_CLICK, null);
+				}
+			});
 		}
 	}
 
