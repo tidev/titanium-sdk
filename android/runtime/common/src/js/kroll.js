@@ -16,6 +16,10 @@
 	// Used just to differentiate scope vars on java side by
 	// using a unique constructor name
 	function ScopeVars(vars) {
+		if (!vars) {
+			return this;
+		}
+
 		var keys = Object.keys(vars);
 		var length = keys.length;
 

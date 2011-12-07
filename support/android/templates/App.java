@@ -46,8 +46,11 @@ public final class ${config['classname']}Application extends TiApplication
 		% if runtime == "v8":
 
 		% for module in custom_modules:
-		<% manifest = module['manifest'] %>
-		runtime.addExternalModule("${manifest.moduleid}", ${module['class_name']}Bootstrap.class);
+		<%
+		manifest = module['manifest']
+		className = manifest.name[0:1].upper() + manifest.name[1:]
+		%>
+		runtime.addExternalModule("${manifest.moduleid}", ${manifest.moduleid}.${className}Bootstrap.class);
 		% endfor
 
 		% endif

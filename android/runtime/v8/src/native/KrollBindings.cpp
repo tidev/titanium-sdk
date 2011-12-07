@@ -172,6 +172,20 @@ Handle<Object> KrollBindings::getBinding(Handle<String> binding)
 void KrollBindings::dispose()
 {
 	HandleScope scope;
+
+	// Dispose all external bindings
+	std::map<std::string, bindings::BindEntry *>::iterator iter;
+	for (iter = externalBindings.begin(); iter != externalBindings.end(); ++iter) {
+		bindings::BindEntry *external = iter->second;
+		if (external && external->dispose) {
+			external->dispose();
+		}
+	}
+
+	if (bindingCache.IsEmpty()) {
+		return;
+	}
+
 	Local<Array> propertyNames = bindingCache->GetPropertyNames();
 	uint32_t length = propertyNames->Length();
 
@@ -189,15 +203,6 @@ void KrollBindings::dispose()
 		if (native && native->dispose) {
 			native->dispose();
 			continue;
-		}
-	}
-
-	// Dispose all external bindings
-	std::map<std::string, bindings::BindEntry *>::iterator iter;
-	for (iter = externalBindings.begin(); iter != externalBindings.end(); ++iter) {
-		bindings::BindEntry *external = iter->second;
-		if (external->dispose) {
-			external->dispose();
 		}
 	}
 

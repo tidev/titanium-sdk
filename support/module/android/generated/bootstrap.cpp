@@ -77,6 +77,10 @@ static void %(className)s_init(Handle<Object> exports)
 static void %(className)s_dispose()
 {
 	HandleScope scope;
+	if (bindingCache.IsEmpty()) {
+		return;
+	}
+
 	Local<Array> propertyNames = bindingCache->GetPropertyNames();
 	uint32_t length = propertyNames->Length();
 

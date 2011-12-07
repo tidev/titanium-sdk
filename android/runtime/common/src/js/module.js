@@ -118,7 +118,10 @@ Module.prototype.createModuleWrapper = function(externalModule, sourceUrl) {
 			continue;
 		}
 
-		wrapper[api] = invoker.createInvoker(externalModule, delegate, new kroll.ScopeVars(sourceUrl, this));
+		wrapper[api] = invoker.createInvoker(externalModule, delegate, new kroll.ScopeVars({
+			sourceUrl: sourceUrl,
+			module: this
+		}));
 	}
 
 	return wrapper;
