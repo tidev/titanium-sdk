@@ -31,7 +31,7 @@ types = {}
 errorTrackers = {}
 options = None
 
-def string_from(error):
+def stringFrom(error):
 	if isinstance(error, basestring):
 		return error
 	elif isinstance(error, dict):
@@ -41,14 +41,14 @@ def string_from(error):
 		
 class PrettyPrinter:
 	def printCheck(self, error, indent=1):
-		if not options.onlyFailures:
-			print u'%s\u2713 \033[92m%s\033[0m' % ('\t' * indent, string_from(error))
+		if not options.errorsOnly:
+			print u'%s\u2713 \033[92m%s\033[0m' % ('\t' * indent, stringFrom(error))
 
 	def printError(self, error, indent=1):
-		print >>sys.stderr, u'%s\u0078 \033[91m%s\033[0m' % ('\t' * indent, string_from(error))
+		print >>sys.stderr, u'%s\u0078 \033[91m%s\033[0m' % ('\t' * indent, stringFrom(error))
 		
 	def printStatus(self, path, error):
-		if not options.onlyFailures or error.hasErrors():
+		if not options.errorsOnly or error.hasErrors():
 			print '%s:' % path		
 		self.printTrackerStatus(error)
 		
@@ -71,7 +71,7 @@ class SimplePrinter:
 	def addField(self, line, field):
 		if len(line) > 0:
 			line += " : "
-		line += string_from(field)
+		line += stringFrom(field)
 		return line
 		
 	def printTrackerStatus(self, error, line = ""):
@@ -86,7 +86,7 @@ class SimplePrinter:
 			self.printCheck(line)
 
 	def printCheck(self, msg):
-		if not options.onlyFailures:
+		if not options.errorsOnly:
 			print "PASS: " + msg
 			
 	def printError(self, msg):
@@ -342,7 +342,7 @@ def validateType(typeDoc):
 
 def validateTDoc(tdocPath):
 	tdocTypes = [type for type in yaml.load_all(codecs.open(tdocPath, 'r', 'utf8').read())]
-	if options.parseonly:
+	if options.parseOnly:
 		return
 
 	for type in tdocTypes:
@@ -407,8 +407,11 @@ def validateDir(dir):
 def printStatus(dir=None):
 	if options.format == 'pretty':
 		printer = PrettyPrinter()
-	else:
+	elif options.format == 'simple':
 		printer = SimplePrinter()
+	else:
+		print >> sys.stderr, "Invalid output style: %s. Use 'pretty' or 'simple'" % options.format
+		sys.exit(1)
 		
 	keys = types.keys()
 	keys.sort()
@@ -427,11 +430,11 @@ def main(args):
 		default=None, help='directory to recursively validate *.yml TDoc2 files')
 	parser.add_option('-f', '--file', dest='file',
 		default=None, help='specific TDoc2 file to validate (overrides -d/--dir)')
-	parser.add_option('-p', '--parseonly', dest='parseonly',
+	parser.add_option('-p', '--parse-only', dest='parseOnly',
 		action='store_true', default=False, help='only check yaml parse-ability')
-	parser.add_option('--format', dest='format',
-		default='pretty', help='pretty (default) or plain')
-	parser.add_option('--only-failures', dest='onlyFailures',
+	parser.add_option('-s', '--style', dest='format',
+		default='pretty', help='output style: pretty (default) or simple.')
+	parser.add_option('-e', '--errors-only', dest='errorsOnly',
 		action='store_true', default=False, help='only emit failed validations')
 	global options
 	(options, args) = parser.parse_args(args)
