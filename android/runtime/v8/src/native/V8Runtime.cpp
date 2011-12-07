@@ -132,6 +132,13 @@ static void dispatchHandler()
 	env->CallVoidMethod(V8Runtime::javaInstance, dispatchDebugMessage);
 }
 
+static void DebugBreakMessageHandler(const Debug::Message& message)
+{
+	// Do nothing with debug messages.
+	// The message handler will get changed by DebuggerAgent::CreateSession in
+	// debug-agent.cc of v8/src when a new session is created.
+}
+
 } // namespace titanium
 
 #ifdef __cplusplus
@@ -163,16 +170,21 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 	Persistent<Context> context = Persistent<Context>::New(Context::New());
 	context->Enter();
 
+	V8Runtime::globalContext = context;
+	V8Runtime::bootstrap(context->Global());
+
 	if (debuggerEnabled) {
 		jclass v8RuntimeClass = env->FindClass("org/appcelerator/kroll/runtime/v8/V8Runtime");
 		dispatchDebugMessage = env->GetMethodID(v8RuntimeClass, "dispatchDebugMessages", "()V");
 
 		Debug::SetDebugMessageDispatchHandler(dispatchHandler);
-		Debug::EnableAgent("titanium", V8_DEBUGGER_PORT, true);
-	}
+		Debug::EnableAgent("titanium", V8_DEBUGGER_PORT);
 
-	V8Runtime::globalContext = context;
-	V8Runtime::bootstrap(context->Global());
+		// Set up an empty handler so v8 will not continue until a debugger
+		// attaches. This is the same behavior as Debug::EnableAgent(_,_,true)
+		// except we don't break at the beginning of the script.
+		Debug::SetMessageHandler2(DebugBreakMessageHandler);
+	}
 
 	LOG_HEAP_STATS(TAG);
 }
