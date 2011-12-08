@@ -1,9 +1,12 @@
 Ti._5.createClass('Titanium.UI.Window', function(args){
 	var obj = this;
 	this._isBack = false;
-	// set defaults
+	
+	// Set defaults
 	args = Ti._5.extend({}, args);
 	args.unselectable = true;
+	args.width = args.width || '100%';
+	args.height = args.height || '100%';
 
 	var _isHTMLPage = function(url){
 		return _url != null && (_url.indexOf('htm') != -1 || _url.indexOf('http') != -1);
@@ -90,12 +93,6 @@ Ti._5.createClass('Titanium.UI.Window', function(args){
 		}
 	});
 
-	var _oldShow = this.show;
-	this.show = function(){
-		_oldShow();
-		_setMinHeight();
-	};
-
 	var _oldHide = this.hide;
 	this.hide = function(){
 		obj.fireEvent("blur", {source: obj.dom, type: "blur"});
@@ -162,40 +159,4 @@ Ti._5.createClass('Titanium.UI.Window', function(args){
 
 	Ti._5.preset(this, ["url", "size", "title"], args);
 	Ti._5.presetUserDefinedElements(this, args);
-	
-	function _setMinHeight(oSource) {
-		oSource = oSource || obj;
-		if (!oSource.dom) {
-			return;
-		}
-		// Set min window height for preventing window heights be smaller then sum of all window children heights  
-		var oElOffset = Ti._5._getElementOffset(oSource.dom);
-		//obj.dom.style.minHeight = (oElOffset.height - oElOffset.top) + 'px';
-		obj.dom.style.minHeight = oElOffset.height + 'px';
-	}
-
-	var _oldRender = obj.render;
-	obj.render = function(parent) {
-		_oldRender(parent);
-		// Get first element margin
-		var _maxChildrenHeight = 0;
-		if (obj._children) {
-			var _padding = 0;
-			if (obj._children[0] && obj._children[0].dom) {
-				_padding = parseInt(obj._children[0].dom.style.marginTop);
-			}
-			obj.dom.style.paddingTop = _padding + 'px';
-			for (var c=0;c<obj._children.length;c++) {
-				obj._children[c].render(obj);
-			}
-		}
-		_setMinHeight(obj);
-	};
-	
-	obj.addEventListener('html5_child_rendered', function () {
-		// Give some time to browser to render the page
-		setTimeout(_setMinHeight, 100);
-	}, false);
-	window.addEventListener('resize', function () {_setMinHeight();}, false);
-	window.addEventListener('load', function () {_setMinHeight();}, false);
 });
