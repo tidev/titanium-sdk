@@ -1284,7 +1284,7 @@ describe("Ti.XML tests", {
 			elements.item(1).setAttributeNode(newAttributeNode);
 		}).shouldNotThrowException();
 		valueOf(function() {
-			elements.item(1).setAttributeNode(existAttr);
+			elements.item(2).setAttributeNode(newAttributeNode);
 		}).shouldThrowException();
 		var newAttributeWrong = xml2.createAttribute("testing");
 		newAttributeWrong.value = "exception";
@@ -1372,7 +1372,7 @@ describe("Ti.XML tests", {
 			elementsNS.item(1).setAttributeNode(newAttributeNodeNS);
 		}).shouldNotThrowException();
 		valueOf(function() {
-			elementsNS.item(1).setAttributeNode(existAttrNS);
+			elementsNS.item(2).setAttributeNode(newAttributeNodeNS);
 		}).shouldThrowException();
 		
 		var newAttributeNSWrong = xml2.createAttributeNS(namespace2, "toy:color");
