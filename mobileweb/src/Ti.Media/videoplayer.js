@@ -2,9 +2,18 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 	args = args || {};
 
 	var self = this,
+		media = Ti.Media,
 		on = require.on,
 		handles,
-		state = 0, // 0 stopped, 1 playing, 2 paused
+		/*STOPPED = "stopped",
+		STOPPING = "stopping",
+		PAUSED = "paused",
+		PLAYING = "playing",*/
+		STOPPED = 0,
+		STOPPING = 1,
+		PAUSED = 2,
+		PLAYING = 3,
+		currentState = STOPPED,
 		video = document.createElement("video"),
 		nativeFullscreen,
 		fakeFullscreen = true,
@@ -20,8 +29,8 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 		// TODO: Add check for Firefox <http://www.thecssninja.com/javascript/fullscreen>
 		_fullscreen = (function(s){ return args.fullscreen || s && s(); }(video.webkitDisplayingFullscreen)),
 
-		_scalingMode = args.scalingMode || Ti.Media.VIDEO_SCALING_ASPECT_FIT,
-		_mediaControlStyle = args.mediaControlStyle || Ti.Media.VIDEO_CONTROL_DEFAULT,
+		_scalingMode = args.scalingMode || media.VIDEO_SCALING_ASPECT_FIT,
+		_mediaControlStyle = args.mediaControlStyle || media.VIDEO_CONTROL_DEFAULT,
 		_url = args.url;
 
 	// Interfaces
@@ -32,12 +41,12 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 	Ti._5.Positionable(self, args);
 
 	// Properties
-	self.playbackState = Ti.Media.VIDEO_PLAYBACK_STATE_STOPPED;
+	self.playbackState = media.VIDEO_PLAYBACK_STATE_STOPPED;
 	self.playing = false;
 	self.initialPlaybackTime = self.currentPlaybackTime = 0;
-	self.loadState = Ti.Media.VIDEO_LOAD_STATE_UNKNOWN;
+	self.loadState = media.VIDEO_LOAD_STATE_UNKNOWN;
 	self.autoplay = !!args.autoplay;
-	self.repeatMode = args.repeatMode || Ti.Media.VIDEO_REPEAT_MODE_NONE;
+	self.repeatMode = args.repeatMode || media.VIDEO_REPEAT_MODE_NONE;
 
 	function setDuration(t) {
 		self.duration = self.playableDuration = self.endPlaybackTime = t;
@@ -72,8 +81,7 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 			_fullscreen = fs;
 
 			self.fireEvent("fullscreen", {
-				entering: _fullscreen,
-				source: self
+				entering: _fullscreen
 			});
 		}
 	});
@@ -101,44 +109,40 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 	Object.defineProperty(self, "mediaControlStyle", {
 		get: function() { return _mediaControlStyle; },
 		set: function(val) {
-			video.controls = val === Ti.Media.VIDEO_CONTROL_DEFAULT;
+			video.controls = val === media.VIDEO_CONTROL_DEFAULT;
 			return _mediaControlStyle = val;
 		}
 	});
 
 	function setSize() {
 		self.dom.className = self.dom.className.replace(/(scaling\-[\w\-]+)/, "") + ' '
-			+ (_scalingMode === Ti.Media.VIDEO_SCALING_NONE ? "scaling-none" : "scaling-aspect-fit");
+			+ (_scalingMode === media.VIDEO_SCALING_NONE ? "scaling-none" : "scaling-aspect-fit");
 	}
 
 	function setPlaybackState(state) {
 		self.fireEvent("playbackState", {
-			playbackState: self.playbackState = state,
-			source: self
+			playbackState: self.playbackState = state
 		});
 	}
 
 	function setLoadState(state) {
 		self.fireEvent("loadstate", {
-			loadState: self.loadState = state,
-			source: self
+			loadState: self.loadState = state
 		});
 	}
 
 	function complete(evt) {
 		var ended = evt.type === "ended";
 		self.playing = false;
-		state = 0;
+		currentState = STOPPED;
 		self.fireEvent("complete", {
-			reason: ended ? Ti.Media.VIDEO_FINISH_REASON_PLAYBACK_ENDED : Ti.Media.VIDEO_FINISH_REASON_USER_EXITED,
-			source: self
+			reason: ended ? media.VIDEO_FINISH_REASON_PLAYBACK_ENDED : media.VIDEO_FINISH_REASON_USER_EXITED
 		});
-		ended && self.repeatMode === Ti.Media.VIDEO_REPEAT_MODE_ONE && this.play();
+		ended && self.repeatMode === media.VIDEO_REPEAT_MODE_ONE && setTimeout(function(){ video.play(); }, 1);
 	}
 
 	function stalled() {
-		self.playing = false;
-		setLoadState(Ti.Media.VIDEO_LOAD_STATE_STALLED);
+		setLoadState(media.VIDEO_LOAD_STATE_STALLED);
 	}
 
 	function fullscreenChange(e) {
@@ -155,26 +159,29 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 		var d = this.duration;
 		if (d !== Infinity) {
 			self.duration || self.fireEvent("durationAvailable", {
-				duration: d,
-				source: self
+				duration: d
 			});
 			setDuration(d);
 		}
 	}
 
 	function paused() {
+		var pbs = media.VIDEO_PLAYBACK_STATE_STOPPED;
 		self.playing = false;
-console.debug("paused (state " + state + ")");
-		state && (state = 2);
-		state === 0 && (video.currentTime = 0);
-		setPlaybackState(!state ? Ti.Media.VIDEO_PLAYBACK_STATE_STOPPED : Ti.Media.VIDEO_PLAYBACK_STATE_PAUSED);
+		if (currentState === PLAYING) {
+			currentState = PAUSED;
+			pbs = media.VIDEO_PLAYBACK_STATE_PAUSED;
+		} else if (currentState === STOPPING) {
+			video.currentTime = 0;
+		}
+		setPlaybackState(pbs);
 	}
 
 	function createVideo(dontCreate) {
 		var i, src, match,
 			url = self.url;
 
-		if (video && video.parentNode && dontCreate) {
+		if (dontCreate && video && video.parentNode) {
 			return video;
 		}
 
@@ -182,48 +189,34 @@ console.debug("paused (state " + state + ")");
 
 		video = document.createElement("video");
 		video.tabindex = 0;
-video.id="vid";
-		_mediaControlStyle === Ti.Media.VIDEO_CONTROL_DEFAULT && (video.controls = 1);
+		_mediaControlStyle === media.VIDEO_CONTROL_DEFAULT && (video.controls = 1);
 
 		handles = [
 			on(video, "playing", function() {
-console.debug("playing");
-				state = 1;
+				currentState = PLAYING;
 				self.playing = true;
 				self.fireEvent("playing", {
-					url: video.currentSrc,
-					source: self
+					url: video.currentSrc
 				});
-				setPlaybackState(Ti.Media.VIDEO_PLAYBACK_STATE_PLAYING);
+				setPlaybackState(media.VIDEO_PLAYBACK_STATE_PLAYING);
 			}),
-			//on(video, "pause", paused),
+			on(video, "pause", paused),
 			on(video, "canplay", function() {
-console.debug("canplay (state " + state + ")");
-				if (state === 1) {
-					setLoadState(Ti.Media.VIDEO_LOAD_STATE_PLAYABLE);
-self.autoplay && console.debug("canplay is playing video again");
-					self.autoplay && video.play();
-				} else {
-					this.pause();
-				}
+				setLoadState(media.VIDEO_LOAD_STATE_PLAYABLE);
+				currentState === STOPPED && self.autoplay && video.play();
 			}),
 			on(video, "canplaythrough", function() {
-				if (state) {
-					setLoadState(Ti.Media.VIDEO_LOAD_STATE_PLAYTHROUGH_OK);
-					self.fireEvent("preload", {
-						source: self
-					});
-				}
+				setLoadState(media.VIDEO_LOAD_STATE_PLAYTHROUGH_OK);
+				self.fireEvent("preload");
 			}),
 			on(video, "loadeddata", function() {
-				self.fireEvent("load", {
-					source: self
-				});
+				self.fireEvent("load");
 			}),
 			on(video, "loadedmetadata", metaDataLoaded),
 			on(video, "durationchange", durationChange),
 			on(video, "timeupdate", function(){
 				self.currentPlaybackTime = Math.round(this.currentTime);
+				currentState === STOPPING && this.pause();
 			}),
 			on(video, "error", function() {
 				var msg = "Unknown error";
@@ -234,14 +227,12 @@ self.autoplay && console.debug("canplay is playing video again");
 					case 4: msg = "Unsupported format";
 				}
 				self.playing = false;
-				setLoadState(Ti.Media.VIDEO_LOAD_STATE_UNKNOWN);
+				setLoadState(media.VIDEO_LOAD_STATE_UNKNOWN);
 				self.fireEvent("error", {
-					message: msg,
-					source: self
+					message: msg
 				});
 				self.fireEvent("complete", {
-					reason: Ti.Media.VIDEO_FINISH_REASON_PLAYBACK_ERROR,
-					source: self
+					reason: media.VIDEO_FINISH_REASON_PLAYBACK_ERROR
 				});
 			}),
 			on(video, "abort", complete),
@@ -270,13 +261,11 @@ self.autoplay && console.debug("canplay is playing video again");
 
 	// Methods
 	self.play = function(){
-console.debug("playing (playing " + self.playing + ")");
-		state === 1 || createVideo(1).play();
+		currentState !== PLAYING && createVideo(1).play();
 	};
 
 	self.pause = function(){
-console.debug("pausing (playing " + self.playing + ")");
-		state === 1 && createVideo(1).pause();
+		currentState === PLAYING && createVideo(1).pause();
 	};
 
 	self.release = function(){
@@ -292,21 +281,11 @@ console.debug("pausing (playing " + self.playing + ")");
 	};
 
 	self.stop = function(){
-console.debug("stopping (state " + state + ", playing " + self.playing + ")");
-		if (state !== 0) {
-			state = 0;
-			if (self.playing) {
-				createVideo(1).pause();
-			} else {
-				paused();
-			}
-		} else {
-			video.pause();
-			video.currentTime = 0;
-		}
+		currentState = STOPPING;
+		video.pause();
+		video.currentTime = 0;
 	};
 
 	// if we have a url, then create the video
-	self.autoplay && (state = 1);
 	self.url && createVideo();
 });
