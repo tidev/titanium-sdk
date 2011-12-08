@@ -499,7 +499,7 @@ var spinningAngle = 0;
 			
 			// We need to explicitly test if a variable is defined because 0 or false can be a legitimate value
 			function isDefined(value) {
-				return (typeof value !== "undefined");
+				return !require.is(value,"Undefined");
 			}
 			
 			// Set the color and opacity properties
@@ -511,7 +511,7 @@ var spinningAngle = 0;
 			
 			// Set the position and size properties
 			function setUnits(value) {
-				return typeof value == "number" ? value + "px" : value
+				return require.is(value,"Number") ? value + "px" : value
 			}
 			isDefined(animation.top) && (_style.top = setUnits(animation.top));
 			isDefined(animation.bottom) && (_style.bottom = setUnits(animation.bottom));
