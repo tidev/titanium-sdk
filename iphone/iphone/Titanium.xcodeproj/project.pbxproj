@@ -502,6 +502,9 @@
 		2BDEA4F514490546004EC750 /* TiUIiOSTabbedBarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEA4F21448FFB7004EC750 /* TiUIiOSTabbedBarProxy.m */; };
 		2BDEA4F614490547004EC750 /* TiUIiOSTabbedBarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEA4F21448FFB7004EC750 /* TiUIiOSTabbedBarProxy.m */; };
 		4D3033A3136239B30034640F /* TiFilesystemFileStreamProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D3033A2136239B30034640F /* TiFilesystemFileStreamProxy.m */; };
+		844E1F7E14883A3700F5424C /* TiDOMValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 844E1F7D14883A3700F5424C /* TiDOMValidator.m */; };
+		844E1F7F14883A3700F5424C /* TiDOMValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 844E1F7D14883A3700F5424C /* TiDOMValidator.m */; };
+		844E1F8014883A3700F5424C /* TiDOMValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 844E1F7D14883A3700F5424C /* TiDOMValidator.m */; };
 		848C2594145F37A300E1B0F1 /* TiDOMCDATANodeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 848C2593145F37A300E1B0F1 /* TiDOMCDATANodeProxy.m */; };
 		848C2595145F37A300E1B0F1 /* TiDOMCDATANodeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 848C2593145F37A300E1B0F1 /* TiDOMCDATANodeProxy.m */; };
 		848C2596145F37A300E1B0F1 /* TiDOMCDATANodeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 848C2593145F37A300E1B0F1 /* TiDOMCDATANodeProxy.m */; };
@@ -1404,6 +1407,8 @@
 		32CA4F630368D1EE00C91783 /* Titanium_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Titanium_Prefix.pch; sourceTree = "<group>"; };
 		4D3033A1136239B30034640F /* TiFilesystemFileStreamProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TiFilesystemFileStreamProxy.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		4D3033A2136239B30034640F /* TiFilesystemFileStreamProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = TiFilesystemFileStreamProxy.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		844E1F7C14883A3700F5424C /* TiDOMValidator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMValidator.h; sourceTree = "<group>"; };
+		844E1F7D14883A3700F5424C /* TiDOMValidator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDOMValidator.m; sourceTree = "<group>"; };
 		848C2592145F37A200E1B0F1 /* TiDOMCDATANodeProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMCDATANodeProxy.h; sourceTree = "<group>"; };
 		848C2593145F37A300E1B0F1 /* TiDOMCDATANodeProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDOMCDATANodeProxy.m; sourceTree = "<group>"; };
 		848C2598145F3FE100E1B0F1 /* TiDOMCommentProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMCommentProxy.h; sourceTree = "<group>"; };
@@ -2686,6 +2691,8 @@
 				848C259E145F46C200E1B0F1 /* TiDOMPIProxy.m */,
 				24813711115A852800E3A9BA /* TiDOMTextNodeProxy.h */,
 				24813712115A852800E3A9BA /* TiDOMTextNodeProxy.m */,
+				844E1F7C14883A3700F5424C /* TiDOMValidator.h */,
+				844E1F7D14883A3700F5424C /* TiDOMValidator.m */,
 			);
 			name = DOM;
 			sourceTree = "<group>";
@@ -3426,6 +3433,7 @@
 				84D541A81460B3C9005338D1 /* TiDOMEntityProxy.m in Sources */,
 				84D541AD1460B3EE005338D1 /* TiDOMEntityRefProxy.m in Sources */,
 				2BDEA4F31448FFB7004EC750 /* TiUIiOSTabbedBarProxy.m in Sources */,
+				844E1F7E14883A3700F5424C /* TiDOMValidator.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3707,6 +3715,7 @@
 				84D541A91460B3C9005338D1 /* TiDOMEntityProxy.m in Sources */,
 				84D541AE1460B3EE005338D1 /* TiDOMEntityRefProxy.m in Sources */,
 				2BDEA4F514490546004EC750 /* TiUIiOSTabbedBarProxy.m in Sources */,
+				844E1F7F14883A3700F5424C /* TiDOMValidator.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3988,6 +3997,7 @@
 				84D541AA1460B3C9005338D1 /* TiDOMEntityProxy.m in Sources */,
 				84D541AF1460B3EE005338D1 /* TiDOMEntityRefProxy.m in Sources */,
 				2BDEA4F614490547004EC750 /* TiUIiOSTabbedBarProxy.m in Sources */,
+				844E1F8014883A3700F5424C /* TiDOMValidator.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
