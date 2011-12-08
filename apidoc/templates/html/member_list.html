@@ -46,6 +46,18 @@
 				% if item.availability is not None:
 					<span class="availability_warning">${item.availability}</span>
 				% endif
+				% if item.typestr=="parameter":
+					% if item.optional is not None:
+						<span class="optional">Optional.</span>
+					% endif
+					% if item.default is not None:
+						<%
+							if item.default_html.startswith("<p>"):
+								item.default_html = item.default_html[3:-4]
+						%>
+						<span class="default">Default: ${item.default_html}</span>
+					% endif
+				% endif
 				% if was_para_close:
 					</p>
 				% endif

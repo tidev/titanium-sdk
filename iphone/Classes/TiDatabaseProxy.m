@@ -9,7 +9,7 @@
 #import "TiDatabaseProxy.h"
 #import "TiDatabaseResultSetProxy.h"
 #import "TiUtils.h"
-
+#import "TiFilesystemFileProxy.h"
 
 @implementation TiDatabaseProxy
 
@@ -47,20 +47,45 @@
 
 -(NSString*)dbDir
 {
-	NSString *rootDir = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-	NSString *dbPath = [[rootDir stringByAppendingPathComponent:@"database"] retain];
+    // See this apple tech note for why this changed: https://developer.apple.com/library/ios/#qa/qa1719/_index.html
+    // Apparently following these guidelines is now required for app submission
+    
+	NSString *rootDir = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+	NSString *dbPath = [rootDir stringByAppendingPathComponent:@"Private Documents"];
 	NSFileManager *fm = [NSFileManager defaultManager];
 	
 	BOOL isDirectory;
 	BOOL exists = [fm fileExistsAtPath:dbPath isDirectory:&isDirectory];
 	
-	// create folder
+    // Because of sandboxing, this should never happen, but we still need to handle it.
+    if (exists && !isDirectory) {
+        NSLog(@"[WARN] Recreating file %@... should be a directory and isn't.", dbPath);
+        [fm removeItemAtPath:dbPath error:nil];
+        exists = NO;
+    }
+
+	// create folder, and migrate the old one if necessary    
 	if (!exists) 
 	{
-		[fm createDirectoryAtPath:dbPath withIntermediateDirectories:YES attributes:nil error:nil];
-	}
+        [fm createDirectoryAtPath:dbPath withIntermediateDirectories:YES attributes:nil error:nil];
+    }
+    
+    // Migrate any old data if available
+    NSString* oldRoot = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+    NSString* oldPath = [oldRoot stringByAppendingString:@"database"];
+    BOOL oldCopyExists = [fm fileExistsAtPath:oldPath isDirectory:&isDirectory];
+    if (oldCopyExists && isDirectory) {
+        NSDirectoryEnumerator* contents = [fm enumeratorAtPath:oldPath];
+        
+        for (NSString* oldFile in contents) {
+            [fm moveItemAtPath:oldFile toPath:[dbPath stringByAppendingPathComponent:[oldFile lastPathComponent]] error:nil];
+        }
+        
+        // Remove the old copy after migrating everything
+        [fm removeItemAtPath:oldPath error:nil];
+    }
 	
-	return [dbPath autorelease];
+	return dbPath;
 }
 
 -(NSString*)dbPath:(NSString*)name_
@@ -219,6 +244,10 @@
 -(NSString*)name
 {
 	return name;
+}
+-(TiFilesystemFileProxy*)file
+{
+	return [[TiFilesystemFileProxy alloc] initWithFile:[self dbPath:name]];
 }
 
 #pragma mark Internal

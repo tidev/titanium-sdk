@@ -31,6 +31,11 @@ public class TiRootActivity extends TiLaunchActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		if (checkMissingLauncher(savedInstanceState)) {
+			// Android bug 2373 detected and we're going to restart.
+			return;
+		}
+
 		getTiApp().setCurrentActivity(this, this);
 
 		Log.checkpoint(LCAT, "checkpoint, on root activity create, savedInstanceState: " + savedInstanceState);
@@ -88,22 +93,7 @@ public class TiRootActivity extends TiLaunchActivity
 		if (DBG) {
 			Log.d(LCAT, "root activity onDestroy, activity = " + this);
 		}
-		/*
-		if (tiContext != null) {
-			TiApplication app = tiContext.getTiApp();
-			if (app != null) {
-				app.releaseModules();
-			}
-			tiContext.release();
-		}
-		*/
 		TiFastDev.onDestroy();
 	}
 
-	/*
-	public TiContext getTiContext()
-	{
-		return tiContext;
-	}
-	*/
 }

@@ -173,6 +173,16 @@ public class TableViewRowProxy extends TiViewProxy
 		return super.fireEvent(eventName, data);
 	}
 
+	@Override
+	public void firePropertyChanged(String name, Object oldValue, Object newValue)
+	{
+		super.firePropertyChanged(name, oldValue, newValue);
+		TableViewProxy table = getTable();
+		if (table != null) {
+			table.updateView();
+		}
+	}
+
 	public void setLabelsClickable(boolean clickable) {
 		if (controls != null) {
 			for (TiViewProxy control : controls) {

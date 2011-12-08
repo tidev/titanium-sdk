@@ -1396,17 +1396,10 @@ class Builder(object):
 			add_native_libs(module.get_resource('libs'))
 
 		# add sdk runtime native libraries
-		sdk_native_libs = os.path.join(template_dir, 'native', 'libs', 'armeabi')
-		libkroll_v8_device = os.path.join(sdk_native_libs, 'libkroll-v8-device.so')
-		libkroll_v8_emulator = os.path.join(sdk_native_libs, 'libkroll-v8-emulator.so')
-
-		if self.runtime == "v8":
-			if self.deploy_type == "development":
-				apk_zip.write(libkroll_v8_emulator, 'lib/armeabi/libkroll-v8-emulator.so')
-				self.apk_updated = True
-			else:
-				apk_zip.write(libkroll_v8_device, 'lib/armeabi/libkroll-v8-device.so')
-				self.apk_updated = True
+		sdk_native_libs = os.path.join(template_dir, 'native', 'libs')
+		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libkroll-v8.so'), 'lib/armeabi/libkroll-v8.so')
+		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libkroll-v8.so'), 'lib/armeabi-v7a/libkroll-v8.so')
+		self.apk_updated = True
 
 		apk_zip.close()
 		return unsigned_apk
@@ -1874,7 +1867,7 @@ class Builder(object):
 
 				if self.deploy_type != 'production':
 					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'))
-				#	dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-debug.jar'))
+					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-debug.jar'))
 					# the verifier depends on Ti.Network classes, so we may need to inject it
 					has_network_jar = False
 					for jar in self.android_jars:

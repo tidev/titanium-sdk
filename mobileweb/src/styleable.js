@@ -452,27 +452,24 @@ var spinningAngle = 0;
 				}
 			}
 		});
-		obj._setPrefixedCSSRule = function(rule,value) {
+		obj._getPrefixedCSSRuleName = function(rule) {
 			var style = obj.dom.style,
 				upperCaseRule = rule[0].toUpperCase() + rule.substring(1),
 				possibleRuleNames = ["Moz" + upperCaseRule,"Webkit" + upperCaseRule,"O" + upperCaseRule,"ms" + upperCaseRule,rule];
 			for (var i = 0; i < 5; i++) {
 				var prefixedRule = possibleRuleNames[i];
 				if (prefixedRule in style) {
-					style[prefixedRule] = value;
+					return prefixedRule;
 				}
 			}
 		}
+		obj._setPrefixedCSSRule = function(rule,value) {
+			var prefixedRule = obj._getPrefixedCSSRuleName(rule);
+			prefixedRule && (obj.dom.style[prefixedRule] = value);
+		}
 		obj._getPrefixedCSSRuleValue = function(rule) {
-			var style = obj.dom.style,
-				upperCaseRule = rule[0].toUpperCase() + rule.substring(1),
-				possibleRuleNames = ["Moz" + upperCaseRule,"Webkit" + upperCaseRule,"O" + upperCaseRule,"ms" + upperCaseRule,rule];
-			for (var i = 0; i < 5; i++) {
-				var prefixedRule = possibleRuleNames[i];
-				if (prefixedRule in style) {
-					return style[prefixedRule];
-				}
-			}
+			var prefixedRule = obj._getPrefixedCSSRuleName(rule);
+			return prefixedRule && obj.dom.style[prefixedRule];
 		}
 		obj.animate = function(animation,callback) {
 			
@@ -502,7 +499,7 @@ var spinningAngle = 0;
 			
 			// We need to explicitly test if a variable is defined because 0 or false can be a legitimate value
 			function isDefined(value) {
-				return (typeof value !== "undefined");
+				return !require.is(value,"Undefined");
 			}
 			
 			// Set the color and opacity properties
@@ -513,12 +510,15 @@ var spinningAngle = 0;
 			(animation.opaque === false || animation.visible === false) && (_style.opacity = 0.0);
 			
 			// Set the position and size properties
-			isDefined(animation.top) && (_style.top = animation.top + "px");
-			isDefined(animation.bottom) && (_style.bottom = animation.bottom + "px");
-			isDefined(animation.left) && (_style.left = animation.left + "px");
-			isDefined(animation.right) && (_style.right = animation.right + "px");
-			isDefined(animation.height) && (_style.height = animation.height + "px");
-			isDefined(animation.width) && (_style.width = animation.width + "px");
+			function setUnits(value) {
+				return require.is(value,"Number") ? value + "px" : value
+			}
+			isDefined(animation.top) && (_style.top = setUnits(animation.top));
+			isDefined(animation.bottom) && (_style.bottom = setUnits(animation.bottom));
+			isDefined(animation.left) && (_style.left = setUnits(animation.left));
+			isDefined(animation.right) && (_style.right = setUnits(animation.right));
+			isDefined(animation.height) && (_style.height = setUnits(animation.height));
+			isDefined(animation.width) && (_style.width = setUnits(animation.width));
 			
 			// Set the z-order
 			isDefined(animation.zIndex) && (_style.zIndex = animation.zIndex);

@@ -12,10 +12,12 @@ import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollDict;
@@ -99,7 +101,34 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	protected ITiAppInfo appInfo;
 	protected TiStylesheet stylesheet;
 	protected HashMap<String, WeakReference<KrollModule>> modules;
+	
+	public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
+	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<ActivityTransitionListener>();
+	protected static TiWeakList<Activity> activityStack = new TiWeakList<Activity>();
 
+	public static interface ActivityTransitionListener
+	{
+		public void onActivityTransition(boolean state);
+	}
+
+	public static void addActivityTransitionListener(ActivityTransitionListener a)
+	{
+		activityTransitionListeners.add(a);
+	}
+	
+	public static void removeActivityTransitionListener(ActivityTransitionListener a)
+	{
+		activityTransitionListeners.remove(a);
+	}
+	
+	public static void updateActivityTransitionState(boolean state)
+	{
+		isActivityTransition.set(state);
+		for (int i = 0; i < activityTransitionListeners.size(); ++i) {
+			activityTransitionListeners.get(i).onActivityTransition(state);
+		}
+		
+	}
 	public CountDownLatch rootActivityLatch = new CountDownLatch(1);
 
 
@@ -133,7 +162,17 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		Log.e(LCAT, "unable to get the TiApplication instance");
 		return null;
 	}
-	
+
+	public static void addToActivityStack(Activity activity)
+	{
+		activityStack.add(new WeakReference<Activity>(activity));
+	}
+
+	public static void removeFromActivityStack(Activity activity)
+	{
+		activityStack.remove(activity);
+	}
+
 	// This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
 	// time we need to grab the current activity
 	public static Activity getAppCurrentActivity()
@@ -160,15 +199,21 @@ public abstract class TiApplication extends Application implements Handler.Callb
 
 	public Activity getCurrentActivity()
 	{
-		Activity activity;
-		if (currentActivity != null) {
-			activity = currentActivity.get();
-			if (activity != null) {
-				return activity;
+		int activityStackSize;
+
+		while ((activityStackSize = activityStack.size()) > 0) {
+			Activity activity = (activityStack.get(activityStackSize - 1)).get();
+			if (activity == null) {
+				Log.i(LCAT, "activity reference is invalid, removing from activity stack");
+				activityStack.remove(activityStackSize -1);
+
+				continue;
 			}
+
+			return activity;
 		}
 
-		Log.e(LCAT, "no valid current activity found for application instance");
+		Log.w(LCAT, "activity stack is emtpy, unable to get current activity");
 		return null;
 	}
 	
