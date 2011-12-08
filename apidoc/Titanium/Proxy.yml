@@ -1,32 +1,46 @@
 ---
 name: Titanium.Proxy
-summary: The base for all proxy types
+summary: The base for all proxy types.
 since: "0.1"
 methods:
   - name: addEventListener
-    summary: add an event listener for the instance to receive triggered events
+    summary: Adds the specified callback as an event listener for the named event.
     parameters:
       - name: name
-        summary: name of the event
+        summary: Name of the event.
         type: String
       - name: callback
-        summary: callback function to invoke when the event is fired
+        summary: Callback function to invoke when the event is fired.
         type: Callback<Object>
   - name: removeEventListener
-    summary: remove a previously added event listener
+    summary: Removes the specified callback as an event listener for the named event.
+    description: |
+        Multiple listeners can be registered for the same event, so the 
+        `callback` parameter is used to determine which listener to remove. 
+        
+        When adding a listener, you must save a reference to the callback function
+        in order to remove the listener later:
+
+            var listener = function() { Ti.API.info("Event listener called.); }
+            window.addEventListener('click', listener);
+            
+        To remove the listener, pass in a reference to the callback function:
+
+            window.removeEventListener('click', listener);
     parameters:
       - name: name
-        summary: name of the event
+        summary: Name of the event.
         type: String
       - name: callback
-        summary: callback function passed in addEventListener
+        summary: Callback function to remove. Must be the same function passed to `addEventListener`.
         type: Callback<Object>
   - name: fireEvent
-    summary: fire a synthesized event to the views listener
+    summary: Fires a synthesized event to any registered listeners.
     parameters:
       - name: name
-        summary: name of the event.
+        summary: Name of the event.
         type: String
       - name: event
-        summary: event object
-        type: Object
+        summary: A dictionary of keys and values to add to the <Titanium.Event> object
+            sent to the listeners.
+        type: Dictionary
