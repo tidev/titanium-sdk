@@ -1016,8 +1016,13 @@ require.cache({
 					}
 
 					stack.push(url);
-					require.evaluate(cache[url] = c, 0, true);
-					stack.pop();
+					try {
+						require.evaluate(cache[url] = c, 0, true);
+					} catch (e) {
+						throw e;
+					} finally {
+						stack.pop();
+					}
 
 					onLoad(c);
 				}
