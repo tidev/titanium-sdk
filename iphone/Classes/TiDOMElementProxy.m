@@ -697,39 +697,29 @@
 {
 	ENSURE_SINGLE_ARG(args, TiDOMNodeProxy);
 	TiDOMNodeProxy * oldChild = (TiDOMNodeProxy*)args;
-    NSArray* children = [node children];
-    GDataXMLNode* refChildNode = [oldChild node];
-    GDataXMLNode* actualRefChildNode = nil;
-    for(GDataXMLNode* childNode in children)
-    {
-        if ([childNode XMLNode] == [refChildNode XMLNode])
-        {
-            actualRefChildNode = childNode;
-            break;
-        }
-    }
-    if(actualRefChildNode != nil)
-    {
-		[actualRefChildNode retain];
-        [actualRefChildNode setShouldFreeXMLNode:YES];
-        [element removeChild:actualRefChildNode];
-		
-		[[oldChild node]setShouldFreeXMLNode:NO];
-
-		if ([oldChild isKindOfClass:[TiDOMElementProxy class]]) {
-			[(TiDOMElementProxy*)oldChild setElement:(GDataXMLElement*)actualRefChildNode];
+	
+	xmlNodePtr refNodePtr = [[oldChild node]XMLNode];
+	
+	TiDOMNodeListProxy* nodeList = [self childNodes];
+	TiDOMNodeProxy*cur = nil;
+	int max = [TiUtils intValue:[nodeList length]];
+	BOOL found = NO;
+	for (int i=0; i<max && !found; i++) {
+		cur = (TiDOMNodeProxy*)[nodeList item:[NSNumber numberWithInt:i]];
+		if ([[cur node]XMLNode] == refNodePtr) {
+			found = YES;
 		}
-		else {
-			[oldChild setNode:actualRefChildNode];
-		}
-		[actualRefChildNode release];
-        return oldChild;
-    }
-    else
-    {
-        [self throwException:@"no node found to remove" subreason:nil location:CODELOCATION];
-        return [NSNull null];
-    }
+	}
+	
+	if (found) {
+		[[oldChild node]setShouldFreeXMLNode:YES];
+		[element removeChild:[oldChild node]];
+		return oldChild;
+	}
+	else {
+		[self throwException:@"no node found to remove" subreason:nil location:CODELOCATION];
+		return [NSNull null];
+	}
 }
 
 -(id)appendChild:(id)args
