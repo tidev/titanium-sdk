@@ -1,6 +1,8 @@
 (function(oParentNamespace) {
 	// Create interface
 	oParentNamespace.Touchable = function(obj, args, bEmulate) {
+		args = args || {};
+
 		if ('function' != typeof obj.addEventListener) {
 			oParentNamespace.EventDriven(obj);
 		}

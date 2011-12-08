@@ -9,7 +9,7 @@
 		}
 		obj.dom = document.createElement(type);
 		obj.dom.className = 'HTML5_' + typename + ' HTML5_DOMElement';
-		obj.args = args;
+		obj.args = args = args || {};
 		// Object for previous style rules
 		obj.prevStyle = {};
 		obj.parent = null;
