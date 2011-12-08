@@ -251,7 +251,7 @@
 	NSString* localName = [GDataXMLNode localNameForName:tagName];
 
 	//Check name validity
-	if (![TiDOMValidator checkAttributeName:localName]) {
+	if (![TiDOMValidator checkElementName:localName]) {
 		[self throwException:@"Invalid element name" subreason:[NSString stringWithFormat:@"Offending localName %@",localName] location:CODELOCATION];
 		return [NSNull null];
 	}
