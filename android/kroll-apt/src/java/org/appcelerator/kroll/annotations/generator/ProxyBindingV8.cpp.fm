@@ -45,7 +45,7 @@ using namespace v8;
 Persistent<FunctionTemplate> ${className}::proxyTemplate = Persistent<FunctionTemplate>();
 jclass ${className}::javaClass = NULL;
 
-${className}::${className}(jobject javaObject) : Proxy(javaObject)
+${className}::${className}(jobject javaObject) : titanium::Proxy(javaObject)
 {
 }
 
@@ -76,7 +76,7 @@ void ${className}::dispose()
 	}
 
 	<#if superProxyClassName??>
-	${superProxyClassName?replace("BindingGen", "")}::dispose();
+	<@Proxy.superNamespace/>${superProxyClassName}::dispose();
 	</#if>
 }
 
@@ -89,24 +89,29 @@ Handle<FunctionTemplate> ${className}::getProxyTemplate()
 	LOGD(TAG, "GetProxyTemplate");
 
 	<#-- Query the class for the Java proxy -->
-	javaClass = JNIUtil::findClass("${packageName?replace('.','/')}/${className}");
+	javaClass = titanium::JNIUtil::findClass("${packageName?replace('.','/')}/${className}");
 	HandleScope scope;
 
 	// use symbol over string for efficiency
 	Handle<String> nameSymbol = String::NewSymbol("${proxyAttrs.name}");
 
-	Handle<FunctionTemplate> t = Proxy::inheritProxyTemplate(
+	Handle<FunctionTemplate> t = titanium::Proxy::inheritProxyTemplate(
 	<#if superProxyClassName??>
-		${superProxyClassName?replace("BindingGen", "")}::getProxyTemplate()
+		<@Proxy.superNamespace/>${superProxyClassName}::getProxyTemplate()
 	<#else>
-		Proxy::baseProxyTemplate
+		titanium::Proxy::baseProxyTemplate
 	</#if>, javaClass, nameSymbol);
 
 	proxyTemplate = Persistent<FunctionTemplate>::New(t);
-	proxyTemplate->Set(Proxy::inheritSymbol,
-		FunctionTemplate::New(Proxy::inherit<${className}>)->GetFunction());
+	proxyTemplate->Set(titanium::Proxy::inheritSymbol,
+		FunctionTemplate::New(titanium::Proxy::inherit<${className}>)->GetFunction());
 
-	ProxyFactory::registerProxyPair(javaClass, *proxyTemplate);
+	<#if (useTiContext!false)>
+	<#-- this proxy has a TiContext constructor, use the deprecated TiContext for compatibility -->
+	titanium::ProxyFactory::registerProxyPair(javaClass, *proxyTemplate, true);
+	<#else>
+	titanium::ProxyFactory::registerProxyPair(javaClass, *proxyTemplate);
+	</#if>
 
 	// Method bindings --------------------------------------------------------
 	<@Proxy.listMethods ; isFirst, name, method, signature>
@@ -117,8 +122,8 @@ Handle<FunctionTemplate> ${className}::getProxyTemplate()
 	Local<ObjectTemplate> instanceTemplate = proxyTemplate->InstanceTemplate();
 
 	// Delegate indexed property get and set to the Java proxy.
-	instanceTemplate->SetIndexedPropertyHandler(Proxy::getIndexedProperty,
-	                                            Proxy::setIndexedProperty);
+	instanceTemplate->SetIndexedPropertyHandler(titanium::Proxy::getIndexedProperty,
+		titanium::Proxy::setIndexedProperty);
 
 	// Constants --------------------------------------------------------------
 	<#if constants??>
@@ -140,12 +145,12 @@ Handle<FunctionTemplate> ${className}::getProxyTemplate()
 		<#if property.get>
 			${className}::getter_${name}
 		<#else>
-			Proxy::getProperty
+			titanium::Proxy::getProperty
 		</#if>
 		<#if property.set>
 			, ${className}::setter_${name}
 		<#else>
-			, Proxy::onPropertyChanged
+			, titanium::Proxy::onPropertyChanged
 		</#if>, Handle<Value>(), DEFAULT);
 	</@Proxy.listDynamicProperties>
 
@@ -153,11 +158,11 @@ Handle<FunctionTemplate> ${className}::getProxyTemplate()
 	<@Proxy.listPropertyAccessors ; isFirst, name, getter, setter>
 	instanceTemplate->SetAccessor(
 		String::NewSymbol("${name}"),
-		Proxy::getProperty,
-		Proxy::onPropertyChanged,
+		titanium::Proxy::getProperty,
+		titanium::Proxy::onPropertyChanged,
 		Handle<Value>(), DEFAULT);
-	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "${getter}", Proxy::getProperty);
-	DEFINE_PROTOTYPE_METHOD_DATA(proxyTemplate, "${setter}", Proxy::onPropertyChanged, String::NewSymbol("${name}"));
+	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "${getter}", titanium::Proxy::getProperty);
+	DEFINE_PROTOTYPE_METHOD_DATA(proxyTemplate, "${setter}", titanium::Proxy::onPropertyChanged, String::NewSymbol("${name}"));
 	</@Proxy.listPropertyAccessors>
 
 	<#if interceptor??>
@@ -176,7 +181,7 @@ Handle<Value> ${className}::${method.apiName}(const Arguments& args)
 	<@Proxy.initJNIEnv/>
 	<@Proxy.initMethodID className=className name=name signature=signature logOnly=false/>
 
-	Proxy* proxy = Proxy::unwrap(args.Holder());
+	titanium::Proxy* proxy = titanium::Proxy::unwrap(args.Holder());
 
 	<#if method.args?size &gt; 0>
 	<@Proxy.verifyAndConvertArguments method.args method />
@@ -210,7 +215,7 @@ Handle<Value> ${className}::getter_${name}(Local<String> property, const Accesso
 	<@Proxy.initJNIEnv/>
 	<@Proxy.initMethodID className=className name=property.getMethodName signature=getSignature logOnly=false/>
 
-	Proxy* proxy = Proxy::unwrap(info.Holder());
+	titanium::Proxy* proxy = titanium::Proxy::unwrap(info.Holder());
 
 	if (!proxy) {
 		return Undefined();
@@ -234,7 +239,7 @@ void ${className}::setter_${name}(Local<String> property, Local<Value> value, co
 	LOGD(TAG, "set ${name}");
 	HandleScope scope;
 
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = titanium::JNIScope::getEnv();
 	if (!env) {
 		LOGE(TAG, "Failed to get environment, ${name} wasn't set");
 		return;
@@ -242,7 +247,7 @@ void ${className}::setter_${name}(Local<String> property, Local<Value> value, co
 
 	<@Proxy.initMethodID className=className name=property.setMethodName signature=setSignature logOnly=true />
 
-	Proxy* proxy = Proxy::unwrap(info.Holder());
+	titanium::Proxy* proxy = titanium::Proxy::unwrap(info.Holder());
 	if (!proxy) {
 		return;
 	}
@@ -277,14 +282,14 @@ Handle<Value> ${className}::interceptor(Local<String> property, const AccessorIn
 	<@Proxy.initJNIEnv/>
 	<@Proxy.initMethodID className=className name=interceptor.name signature="(Ljava/lang/String;)Ljava/lang/Object;" logOnly=false/>
 
-	Proxy* proxy = Proxy::unwrap(info.Holder());
+	titanium::Proxy* proxy = titanium::Proxy::unwrap(info.Holder());
 
 	if (!proxy) {
 		return Undefined();
 	}
 
 	jobject javaProxy = proxy->getJavaObject();
-	jstring javaProperty = TypeConverter::jsStringToJavaString(property);
+	jstring javaProperty = titanium::TypeConverter::jsStringToJavaString(property);
 	jobject jResult = (jobject) env->CallObjectMethod(javaProxy, methodID, javaProperty);
 
 	if (!JavaObject::useGlobalRefs) {
@@ -293,7 +298,7 @@ Handle<Value> ${className}::interceptor(Local<String> property, const AccessorIn
 	env->DeleteLocalRef(javaProperty);
 
 	if (env->ExceptionCheck()) {
-		Handle<Value> jsException = JSException::fromJavaException();
+		Handle<Value> jsException = titanium::JSException::fromJavaException();
 		env->ExceptionClear();
 		return jsException;
 	}
@@ -302,10 +307,15 @@ Handle<Value> ${className}::interceptor(Local<String> property, const AccessorIn
 		return Null();
 	}
 
-	Handle<Value> v8Result = TypeConverter::javaObjectToJsValue(jResult);
+	Handle<Value> v8Result = titanium::TypeConverter::javaObjectToJsValue(jResult);
 	env->DeleteLocalRef(jResult);
-	if (v8Result->IsNumber() && v8Result->Int32Value() == JNIUtil::krollRuntimeDontIntercept) {
-		return Handle<Value>();
+
+	if (v8Result->IsNumber()) {
+		int32_t intResult = v8Result->Int32Value();
+
+		if (intResult == titanium::JNIUtil::krollRuntimeDontIntercept) {
+			return Handle<Value>();
+		}
 	}
 
 	return v8Result;

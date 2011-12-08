@@ -262,16 +262,18 @@ function($window, args){
 	};
 
 	Ti._5.presetUserDefinedElements = function(obj, args){
-		if(!args){
-			return;
-		}
-
-		for(prop in args){
+		for(var prop in args){
 			if(typeof obj[prop] == 'undefined'){
 				obj[prop] = args[prop];
 			}
 		}
 	};
+	
+	Ti._5.presetUserArguments = function(obj,args) {
+		for(var prop in args){
+			obj[prop] = args[prop];
+		}
+	}
 
 	Ti._5.createClass = function(className, value){
 		var classes = className.split(".");

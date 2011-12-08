@@ -77,8 +77,9 @@ void V8Runtime::bootstrap(Local<Object> global)
 	krollGlobalObject = Persistent<Object>::New(Object::New());
 	moduleContexts = Persistent<Array>::New(Array::New());
 
+	KrollBindings::initFunctions(krollGlobalObject);
+
 	DEFINE_METHOD(krollGlobalObject, "log", krollLog);
-	DEFINE_METHOD(krollGlobalObject, "binding", KrollBindings::getBinding);
 	DEFINE_TEMPLATE(krollGlobalObject, "EventEmitter", EventEmitter::constructorTemplate);
 
 	krollGlobalObject->Set(String::NewSymbol("runtime"), String::New("v8"));
