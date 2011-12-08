@@ -233,6 +233,7 @@ Geolocation.showCalibration=geolocation.js
 Geolocation.calibration=geolocation.js
 Geolocation.heading=geolocation.js
 Geolocation.location=geolocation.js
+Gesture.orientation=gesture.js
 Gesture.addEventListener=gesture.js
 Gesture.fireEvent=gesture.js
 Gesture.removeEventListener=gesture.js
