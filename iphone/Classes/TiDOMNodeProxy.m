@@ -14,7 +14,15 @@
 #import "TiDOMNodeListProxy.h"
 #import "TiDOMAttrProxy.h"
 #import "TiDOMCDATANodeProxy.h"
+#import "TiDOMCommentProxy.h"
+#import "TIDOMDocumentTypeProxy.h"
+#import "TiDOMDocFragProxy.h"
+#import "TiDOMPIProxy.h"
+#import "TiDOMEntityProxy.h"
+#import "TiDOMEntityRefProxy.h"
+#import "TiDOMNotationProxy.h"
 #import "TiUtils.h"
+#import "TiDOMValidator.h"
 #include <libkern/OSAtomic.h>
 
 /*
@@ -99,6 +107,110 @@ CFHashCode	simpleHash(const void *value)
     OSSpinLockUnlock(&nodeRegistryLock);
 }
 
+-(id)makeNodeListProxyFromArray:(NSArray*)nodes context:(id<TiEvaluator>)context
+{
+	NSMutableArray *proxyArray = nil;
+	if (nodes != nil) {
+		proxyArray = [NSMutableArray array];
+		for (GDataXMLNode* child in nodes) {
+			[proxyArray addObject:[self makeNode:child context:context]];
+		}
+	}
+	
+	TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:context] autorelease];
+	[proxy setNodes:proxyArray];
+	return proxy;
+	
+}
+
+-(void)validateAttributeParameters:(NSString*)tagName withUri:(NSString*)theURI reason:(NSString**)error subreason:(NSString**)suberror
+{
+	NSString* prefix = [GDataXMLNode prefixForName:tagName];
+	NSString* localName = [GDataXMLNode localNameForName:tagName];
+	
+	if (![[tagName lowercaseString] isEqualToString:@"xmlns"]) {
+		//Check name validity
+		if (![TiDOMValidator checkAttributeName:localName]) {
+			*error = @"Invalid attribute name" ;
+			*suberror = [NSString stringWithFormat:@"Offending localName %@",localName];
+			return;
+		}
+		
+		if (prefix != nil && ([theURI length]==0) ) {
+			*error = @"Can not have a prefix with a nil or empty URI" ;
+			return;
+		}
+		
+		if ( [prefix isEqualToString:@"xml"] ) {
+			if (![theURI isEqualToString:@"http://www.w3.org/XML/1998/namespace"]) {
+				*error = @"Invalid URI for prefix";
+				*suberror = [NSString stringWithFormat:@"%@:%@",prefix,theURI];
+				return;
+			}
+		}
+		else {
+			//Check prefix validity
+			if (![TiDOMValidator checkNamespacePrefix:prefix]) {
+				*error = @"Invalid prefix" ;
+				*suberror = [NSString stringWithFormat:@"Offending prefix %@",prefix];
+				return;
+			}
+			//Check URI validity
+			if (![TiDOMValidator checkNamespaceURI:theURI]) {
+				*error = @"Invalid URI" ;
+				*suberror = [NSString stringWithFormat:@"Offending URI %@",theURI];
+				return;
+			}
+		}
+		
+	}
+	else {
+		if (![theURI isEqualToString:@"http://www.w3.org/2000/xmlns/"]) {
+			*error = @"Invalid URI for qualified name xmlns" ;
+			*suberror = [NSString stringWithFormat:@"%@:%@",tagName,theURI];
+		}
+	}
+}
+
+-(void)validateElementParameters:(NSString*)tagName withUri:(NSString*)theURI reason:(NSString**)error subreason:(NSString**)suberror
+{
+	NSString* prefix = [GDataXMLNode prefixForName:tagName];
+	NSString* localName = [GDataXMLNode localNameForName:tagName];
+	
+	//Check name validity
+	if (![TiDOMValidator checkElementName:localName]) {
+		*error = @"Invalid element name" ;
+		*suberror = [NSString stringWithFormat:@"Offending localName %@",localName];
+		return;
+	}
+	
+	if (prefix != nil && ([theURI length]==0) ) {
+		*error = @"Can not have a prefix with a nil or empty URI" ;
+		return;
+	}
+	
+	if ( [prefix isEqualToString:@"xml"] ) {
+		if (![theURI isEqualToString:@"http://www.w3.org/XML/1998/namespace"]) {
+			*error = @"Invalid URI for prefix xml" ;
+			*suberror = [NSString stringWithFormat:@"%@:%@",prefix,theURI];
+			return;
+		}
+	}
+	else {
+		//Check prefix validity
+		if (![TiDOMValidator checkNamespacePrefix:prefix]) {
+			*error = @"Invalid prefix" ;
+			*suberror = [NSString stringWithFormat:@"Offending prefix %@",prefix];
+			return;
+		}
+		//Check URI validity
+		if (![TiDOMValidator checkNamespaceURI:theURI]) {
+			*error = @"Invalid URI" ;
+			*suberror = [NSString stringWithFormat:@"Offending URI %@",theURI];
+			return;
+		}
+	}	
+}
 
 -(id)makeNode:(id)child context:(id<TiEvaluator>)context
 {
@@ -152,6 +264,13 @@ CFHashCode	simpleHash(const void *value)
 			[TiDOMNodeProxy setNode:proxy forXMLNode:childXmlNode];
 			return proxy;
 		}
+		case XML_COMMENT_NODE:
+		{
+			TiDOMCommentProxy *proxy = [[[TiDOMCommentProxy alloc] _initWithPageContext:context] autorelease];
+			[proxy setNode:child];
+			[TiDOMNodeProxy setNode:proxy forXMLNode:childXmlNode];
+			return proxy;
+		}
         case XML_CDATA_SECTION_NODE:
         {
             TiDOMCDATANodeProxy *proxy = [[[TiDOMCDATANodeProxy alloc] _initWithPageContext:context] autorelease];
@@ -159,6 +278,49 @@ CFHashCode	simpleHash(const void *value)
 			[TiDOMNodeProxy setNode:proxy forXMLNode:childXmlNode];
             return proxy;
         }
+		case XML_DOCUMENT_TYPE_NODE:
+		case XML_DTD_NODE:
+		{
+			TIDOMDocumentTypeProxy *proxy = [[[TIDOMDocumentTypeProxy alloc] _initWithPageContext:context]autorelease];
+			[proxy setNode:child];
+			[TiDOMNodeProxy setNode:proxy forXMLNode:childXmlNode];
+            return proxy;
+		}
+		case XML_DOCUMENT_FRAG_NODE:
+		{
+			TiDOMDocFragProxy *proxy = [[[TiDOMDocFragProxy alloc] _initWithPageContext:context]autorelease];
+			[proxy setNode:child];
+			[TiDOMNodeProxy setNode:proxy forXMLNode:childXmlNode];
+            return proxy;
+		}
+		case XML_PI_NODE:
+		{
+			TiDOMPIProxy *proxy = [[[TiDOMPIProxy alloc] _initWithPageContext:context]autorelease];
+			[proxy setNode:child];
+			[TiDOMNodeProxy setNode:proxy forXMLNode:childXmlNode];
+            return proxy;			
+		}
+		case XML_ENTITY_REF_NODE:
+		{
+			TiDOMEntityRefProxy *proxy = [[[TiDOMEntityRefProxy alloc] _initWithPageContext:context]autorelease];
+			[proxy setNode:child];
+			[TiDOMNodeProxy setNode:proxy forXMLNode:childXmlNode];
+            return proxy;			
+		}
+		case XML_ENTITY_NODE:
+		{
+			TiDOMEntityProxy *proxy = [[[TiDOMEntityProxy alloc] _initWithPageContext:context] autorelease];
+			[proxy setNode:child];
+			[TiDOMNodeProxy setNode:proxy forXMLNode:childXmlNode];
+            return proxy;
+		}
+		case XML_NOTATION_NODE:
+		{
+			TiDOMNotationProxy *proxy = [[[TiDOMNotationProxy alloc] _initWithPageContext:context] autorelease];
+			[proxy setNode:child];
+			[TiDOMNodeProxy setNode:proxy forXMLNode:childXmlNode];
+            return proxy;			
+		}
 		default:
 		{
 			TiDOMNodeProxy *element = [[[TiDOMNodeProxy alloc] _initWithPageContext:context] autorelease];
@@ -225,17 +387,9 @@ CFHashCode	simpleHash(const void *value)
 
 -(id)childNodes
 {
-    [node releaseCachedValues];
-	NSMutableArray *children = [NSMutableArray array];
+	[node releaseCachedValues];
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-	for (GDataXMLNode* child in [node children])
-	{
-		[children addObject:[self makeNode:child context:context]];
-	}
-	TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:context] autorelease];
-	[proxy setDocument:[self document]];
-	[proxy setNodes:children];
-	return proxy;
+	return [self makeNodeListProxyFromArray:[node children] context:context];
 }
 
 -(id)firstChild
@@ -284,15 +438,6 @@ CFHashCode	simpleHash(const void *value)
 
 -(id)attributes
 {
-    xmlElementType realType = [node XMLNode]->type;
-    if (realType == XML_ELEMENT_NODE)
-    {
-        id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-        TiDOMNamedNodeMapProxy *proxy = [[[TiDOMNamedNodeMapProxy alloc] _initWithPageContext:context] autorelease];
-        [proxy setDocument:[self document]];
-        [proxy setElement:(GDataXMLElement*)node];
-        return proxy;
-    }
     return [NSNull null];
 }
 

@@ -6,21 +6,13 @@
  */
 #if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
 
-#import "TiProxy.h"
-#import "GDataXMLNode.h"
+#import <Foundation/Foundation.h>
 
-@interface TiDOMNodeListProxy : TiProxy {
-@private
-	NSArray *nodes;
-}
+@interface TiDOMValidator : NSObject
 
-@property(nonatomic,readonly) NSNumber *length;
--(void)setNodes:(NSArray*)nodes_;
--(id)item:(id)args;
--(NSNumber*)length;
-
-
-
++(BOOL)checkElementName:(NSString*)pName;
++(BOOL)checkAttributeName:(NSString*)pName;
++(BOOL)checkNamespacePrefix:(NSString*)pName;
++(BOOL)checkNamespaceURI:(NSString*)pName;
 @end
-
 #endif
