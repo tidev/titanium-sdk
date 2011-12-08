@@ -282,18 +282,9 @@ CFHashCode	simpleHash(const void *value)
 
 -(id)childNodes
 {
-    [node releaseCachedValues];
+	[node releaseCachedValues];
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-	NSMutableArray *proxyArray = nil;
-	if ([node children] != nil) {
-		proxyArray = [NSMutableArray array];
-		for (GDataXMLNode* child in [node children]) {
-			[proxyArray addObject:[self makeNode:child context:context]];
-		}
-	}
-	TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:context] autorelease];
-	[proxy setNodes:proxyArray];
-	return proxy;
+	return [TiDOMNodeListProxy makeNodeListProxyFromArray:[node children] document:[self document] context:context];
 }
 
 -(id)firstChild

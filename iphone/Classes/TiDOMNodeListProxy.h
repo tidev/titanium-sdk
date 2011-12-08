@@ -15,10 +15,11 @@
 }
 
 @property(nonatomic,readonly) NSNumber *length;
-
 -(void)setNodes:(NSArray*)nodes_;
 -(id)item:(id)args;
 -(NSNumber*)length;
+
++(id)makeNodeListProxyFromArray:(NSArray*)nodes document:(id)document context:(id<TiEvaluator>)context;
 
 @end
 

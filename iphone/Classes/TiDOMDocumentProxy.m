@@ -416,16 +416,7 @@
     if(error == nil)
     {
         id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-		NSMutableArray *proxyArray = nil;
-		if (nodes != nil) {
-			proxyArray = [NSMutableArray array];
-			for (GDataXMLNode* child in nodes) {
-				[proxyArray addObject:[self makeNode:child context:context]];
-			}
-		}
-        TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:context] autorelease];
-		[proxy setNodes:proxyArray];
-		return proxy;
+        return [TiDOMNodeListProxy makeNodeListProxyFromArray:nodes document:[self document] context:context];
 	}
 	if (error!=nil)
 	{
@@ -451,16 +442,7 @@
 	if(error == nil)
     {
         id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-		NSMutableArray *proxyArray = nil;
-		if (nodes != nil) {
-			proxyArray = [NSMutableArray array];
-			for (GDataXMLNode* child in nodes) {
-				[proxyArray addObject:[self makeNode:child context:context]];
-			}
-		}
-        TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:context] autorelease];
-		[proxy setNodes:proxyArray];
-        return proxy;
+        return [TiDOMNodeListProxy makeNodeListProxyFromArray:nodes document:[self document] context:context];
     }
     else
     {
@@ -503,17 +485,7 @@
 	if (error==nil)
 	{
 		id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-		NSMutableArray *proxyArray = nil;
-		if (nodes != nil) {
-			proxyArray = [NSMutableArray array];
-			for (GDataXMLNode* child in nodes) {
-				[proxyArray addObject:[self makeNode:child context:context]];
-			}
-		}
-		
-		TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:context] autorelease];
-		[proxy setNodes:proxyArray];
-		return proxy;
+		return [TiDOMNodeListProxy makeNodeListProxyFromArray:nodes document:[self document] context:context];
 	}
 	return [NSNull null];
 }
