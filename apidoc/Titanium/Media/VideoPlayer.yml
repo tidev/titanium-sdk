@@ -171,7 +171,9 @@ properties:
     platforms: [iphone, ipad]
     type: Object
   - name: mediaControlStyle
-    summary: The style of the playback controls. Defaults to <Titanium.Media.VIDEO_CONTROL_DEFAULT>. Mobile web only supports <Titanium.Media.VIDEO_CONTROL_NONE> and <Titanium.Media.VIDEO_CONTROL_DEFAULT>.
+    summary: The style of the playback controls.
+    description: |
+    	Defaults to <Titanium.Media.VIDEO_CONTROL_DEFAULT>. Mobile web only supports <Titanium.Media.VIDEO_CONTROL_NONE> and <Titanium.Media.VIDEO_CONTROL_DEFAULT>.
     type: Number
   - name: mediaTypes
     summary: The types of media in the movie, or <Titanium.Media.VIDEO_MEDIA_TYPE_NONE> if not known.
@@ -206,7 +208,9 @@ properties:
     platforms: [iphone, ipad, mobileweb]
     type: Number
   - name: scalingMode
-    summary: Determines how the content scales to fit the view. Defaults to <Titanium.Media.VIDEO_SCALING_ASPECT_FIT>. Mobile web only supports <Titanium.Media.VIDEO_SCALING_NONE> and <Titanium.Media.VIDEO_SCALING_ASPECT_FIT>.
+    summary: Determines how the content scales to fit the view.
+    description: |
+    	Defaults to <Titanium.Media.VIDEO_SCALING_ASPECT_FIT>. Mobile web only supports <Titanium.Media.VIDEO_SCALING_NONE> and <Titanium.Media.VIDEO_SCALING_ASPECT_FIT>.
     type: Number
   - name: sourceType
     summary: The playback type of the movie. Defaults to <Titanium.Media.VIDEO_SOURCE_TYPE_UNKNOWN>. Specifying a playback type before playing the movie can result in faster load times.
