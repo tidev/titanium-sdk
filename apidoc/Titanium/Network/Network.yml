@@ -199,6 +199,21 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad, mobileweb]
+  - name: TLS_VERSION_1_0
+    summary: constant value specifying TLS version 1.0 for SSL
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+  - name: TLS_VERSION_1_1
+    summary: constant value specifying TLS version 1.1 for SSL
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+  - name: TLS_VERSION_1_2
+    summary: constant value specifying TLS version 1.2 for SSL
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
   - name: networkType
     summary: the network type value as a constant.
     type: Number
@@ -223,3 +238,11 @@ properties:
     summary: returns true if remote notifications have been enabled.
     platforms: [iphone, ipad]
     type: Boolean
+  - name: httpURLFormatter
+    summary: User-defined function that is called everytime HTTPClient connects to a remote resource. 
+    description: |
+        The URL to connect to is passed in as the only function argument, and the function is expected to return a URL. 
+        The function should return null if an error occurs, which will cancel the HTTP request. This function allows URLs 
+        to be formatted for use with the application's proxy to get around cross domain issues.
+    type: Callback<String>
+    platforms: [mobileweb]

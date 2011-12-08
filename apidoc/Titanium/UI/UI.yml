@@ -49,7 +49,7 @@ description:  |
     <Titanium.UI.createTextArea>.  Once an object is created, it will be
     available until it goes out of scope.
 
-    ### Optimizations
+    #### Optimizations
 
     UI objects are optimized by Titanium to not be realized into the drawing
     context and placed into the device UI surface until needed.  That means that
@@ -62,27 +62,32 @@ description:  |
     Titanium along in certain cases where you are no longer using objects.  For
     example, you should call `close` on a
     [Window](Titanium.UI.Window-object.html) instance when you are no longer
-    using it.  You can safely call `open` on the
-    [Window](Titanium.UI.Window-object.html) again to re-open it.
+    using it.  You can safely call `open` on the window again to re-open it.
 
-    ### Global Context and Threading
+    #### Global Context and Threading
 
     Be careful with the objects that are created in `app.js` but only used once.
     Since the `app.js` context is global and generally is not garbage collected
     until the application exits, you should think about the design of your
     application as it relates to this fact.
+
     [Window](Titanium.UI.Window-object.html) objects that are opened up with the
-    `url` property to another Javascript file contain a nice way to decompose
-    your application into smaller units.  The other benefit is that when a
-    [Window](Titanium.UI.Window-object.html) is closed, its resources can be
-    immediately cleaned up, saving resources such as memory and CPU.
-    Additionally, [Window](Titanium.UI.Window-object.html) objects run in a
-    separate Javascript context and Thread. While all UI processing is done on
+    `url` property to another JavaScript file provide a nice way to decompose
+    your application into smaller units. 
+    
+    Additionally, Window objects created with a `url` value run in a
+    separate JavaScript context and thread. While all UI processing is done on
     the main UI thread, other processing inside a Window or the `app.js` that
     does not have UI interaction will run in its own thread.
 
+    The other benefit of using the `url` property is that when the
+    window is closed, resources allocated in the window's context can be
+    immediately cleaned up, saving resources such as memory and CPU.
 
-    ### Portability
+    For more information, see the sections "Sub-contexts" and "Passing Data Between Contexts"
+    on the [Window](Titanium.UI.Window) reference page.
+
+    #### Portability
     
     Titanium components are designed to be portable across as many platforms as
     it supports.  However, there are cases where a device either does not
@@ -473,13 +478,13 @@ properties:
     type: Number
     permission: read-only
   - name: NOTIFICATION_DURATION_LONG
-    summary: Duration of the notification
-    platforms: [android, iphone, ipad]
+    summary: Specifies a long duration for an Android Toast notification (<Titanium.UI.Notification>).
+    platforms: [android]
     type: Number
     permission: read-only
   - name: NOTIFICATION_DURATION_SHORT
-    summary: Duration of the notification
-    platforms: [android, iphone, ipad]
+    summary: Specifies a short duration for an Android Toast notification (<Titanium.UI.Notification>).
+    platforms: [android]
     type: Number
     permission: read-only
   - name: PICKER_TYPE_COUNT_DOWN_TIMER

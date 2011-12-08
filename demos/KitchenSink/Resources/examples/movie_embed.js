@@ -9,7 +9,7 @@ var statusLabel = Titanium.UI.createLabel({
 win.add(statusLabel);
 
 var activeMovie = Titanium.Media.createVideoPlayer({
-	url:'movie.mp4',
+	url:'../movie.mp4',
 	backgroundColor:'#111',
 	movieControlMode: Titanium.Media.VIDEO_CONTROL_EMBEDDED, // See TIMOB-2802, which may change this property name
 	scalingMode:Titanium.Media.VIDEO_SCALING_MODE_FILL,
