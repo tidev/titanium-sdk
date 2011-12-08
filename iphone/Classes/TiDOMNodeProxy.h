@@ -21,6 +21,7 @@
 -(NSString *)XMLString;
 -(id)makeNode:(id)child context:(id<TiEvaluator>)context;
 +(id)makeNode:(id)child context:(id<TiEvaluator>)context;
+-(id)makeNodeListProxyFromArray:(NSArray*)nodes context:(id<TiEvaluator>)context;
 +(id)nodeForXMLNode:(xmlNodePtr) nodePtr;
 +(void)setNode:(id)node forXMLNode:(xmlNodePtr) nodePtr;
 +(void)removeNodeForXMLNode:(xmlNodePtr)nodePtr;

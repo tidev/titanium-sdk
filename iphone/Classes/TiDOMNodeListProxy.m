@@ -41,23 +41,7 @@
     return NUMINT([nodes count]);
 }
 
-+(id)makeNodeListProxyFromArray:(NSArray*)nodes document:(id)document context:(id<TiEvaluator>)context
-{
-	NSMutableArray *proxyArray = nil;
-	if (nodes != nil) {
-		proxyArray = [NSMutableArray array];
-		for (GDataXMLNode* child in nodes) {
-			TiDOMNodeProxy* theProxy = (TiDOMNodeProxy*)[TiDOMNodeProxy makeNode:child context:context];
-			[theProxy setDocument:document];
-			[proxyArray addObject:theProxy];
-		}
-	}
-	
-	TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:context] autorelease];
-	[proxy setNodes:proxyArray];
-	return proxy;
 
-}
 
 @end
 

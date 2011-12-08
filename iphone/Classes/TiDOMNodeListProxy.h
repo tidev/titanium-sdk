@@ -19,7 +19,7 @@
 -(id)item:(id)args;
 -(NSNumber*)length;
 
-+(id)makeNodeListProxyFromArray:(NSArray*)nodes document:(id)document context:(id<TiEvaluator>)context;
+
 
 @end
 

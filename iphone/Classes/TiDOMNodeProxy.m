@@ -106,6 +106,21 @@ CFHashCode	simpleHash(const void *value)
     OSSpinLockUnlock(&nodeRegistryLock);
 }
 
+-(id)makeNodeListProxyFromArray:(NSArray*)nodes context:(id<TiEvaluator>)context
+{
+	NSMutableArray *proxyArray = nil;
+	if (nodes != nil) {
+		proxyArray = [NSMutableArray array];
+		for (GDataXMLNode* child in nodes) {
+			[proxyArray addObject:[self makeNode:child context:context]];
+		}
+	}
+	
+	TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:context] autorelease];
+	[proxy setNodes:proxyArray];
+	return proxy;
+	
+}
 
 -(id)makeNode:(id)child context:(id<TiEvaluator>)context
 {
@@ -284,7 +299,7 @@ CFHashCode	simpleHash(const void *value)
 {
 	[node releaseCachedValues];
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-	return [TiDOMNodeListProxy makeNodeListProxyFromArray:[node children] document:[self document] context:context];
+	return [self makeNodeListProxyFromArray:[node children] context:context];
 }
 
 -(id)firstChild

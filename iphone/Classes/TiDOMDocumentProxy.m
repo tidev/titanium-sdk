@@ -416,7 +416,7 @@
     if(error == nil)
     {
         id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-        return [TiDOMNodeListProxy makeNodeListProxyFromArray:nodes document:[self document] context:context];
+        return [self makeNodeListProxyFromArray:nodes context:context];
 	}
 	if (error!=nil)
 	{
@@ -442,7 +442,7 @@
 	if(error == nil)
     {
         id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-        return [TiDOMNodeListProxy makeNodeListProxyFromArray:nodes document:[self document] context:context];
+        return [self makeNodeListProxyFromArray:nodes context:context];
     }
     else
     {
@@ -485,7 +485,7 @@
 	if (error==nil)
 	{
 		id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-		return [TiDOMNodeListProxy makeNodeListProxyFromArray:nodes document:[self document] context:context];
+		return [self makeNodeListProxyFromArray:nodes context:context];
 	}
 	return [NSNull null];
 }
