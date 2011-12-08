@@ -323,8 +323,8 @@ function($window, args){
 		}
 
 		Ti._5.containerDiv = document.createElement('div');
-		Ti._5.containerDiv.style.width = window.innerWidth + "px";
-		Ti._5.containerDiv.style.height = window.innerHeight + "px";
+		Ti._5.containerDiv.style.width = "100%";
+		Ti._5.containerDiv.style.height = "100%";
 		Ti._5.containerDiv.style.overflow = "hidden";
 		Ti._5.containerDiv.style.position = "absolute"; // Absolute so that any children that are absolute positioned will respect this DIVs height and width.
 		document.body.appendChild(Ti._5.containerDiv);
