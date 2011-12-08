@@ -18,7 +18,7 @@
 				if (obj.dom.style['bottom']) {
 					obj.dom.style['bottom'] = '';
 				}
-				if (typeof val === "number") {
+				if (require.is(val,"Number")) {
 					val += "px";
 				}
 				_top = val;
@@ -36,7 +36,7 @@
 				if (obj.dom.style['top']) {
 					obj.dom.style['top'] = '';
 				}
-				if (typeof val === "number") {
+				if (require.is(val,"Number")) {
 					val += "px";
 				}
 				_bottom = val;
@@ -54,7 +54,7 @@
 				if (obj.dom.style['right']) {
 					obj.dom.style['right'] = '';
 				}
-				if (typeof val === "number") {
+				if (require.is(val,"Number")) {
 					val += "px";
 				}
 				obj.dom.style.cssFloat = '';
@@ -73,7 +73,7 @@
 				if (obj.dom.style['left']) {
 					obj.dom.style['left'] = '';
 				}
-				if (typeof val === "number") {
+				if (require.is(val,"Number")) {
 					val += "px";
 				}
 				obj.dom.style.cssFloat = 'right';
@@ -89,7 +89,7 @@
 				return _width;
 			},
 			set: function(val) {
-				if (typeof val === "number") {
+				if (require.is(val,"Number")) {
 					val += "px";
 				}
 				_width = val;
@@ -104,7 +104,7 @@
 				return _height;
 			},
 			set: function(val) {
-				if (typeof val === "number") {
+				if (require.is(val,"Number")) {
 					val += "px";
 				}
 				_height = val;
