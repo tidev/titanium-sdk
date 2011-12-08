@@ -22,6 +22,7 @@
 #import "TiDOMEntityRefProxy.h"
 #import "TiDOMNotationProxy.h"
 #import "TiUtils.h"
+#import "TiDOMValidator.h"
 #include <libkern/OSAtomic.h>
 
 /*
@@ -120,6 +121,95 @@ CFHashCode	simpleHash(const void *value)
 	[proxy setNodes:proxyArray];
 	return proxy;
 	
+}
+
+-(void)validateAttributeParameters:(NSString*)tagName withUri:(NSString*)theURI reason:(NSString**)error subreason:(NSString**)suberror
+{
+	NSString* prefix = [GDataXMLNode prefixForName:tagName];
+	NSString* localName = [GDataXMLNode localNameForName:tagName];
+	
+	if (![[tagName lowercaseString] isEqualToString:@"xmlns"]) {
+		//Check name validity
+		if (![TiDOMValidator checkAttributeName:localName]) {
+			*error = @"Invalid attribute name" ;
+			*suberror = [NSString stringWithFormat:@"Offending localName %@",localName];
+			return;
+		}
+		
+		if (prefix != nil && ([theURI length]==0) ) {
+			*error = @"Can not have a prefix with a nil or empty URI" ;
+			return;
+		}
+		
+		if ( [prefix isEqualToString:@"xml"] ) {
+			if (![theURI isEqualToString:@"http://www.w3.org/XML/1998/namespace"]) {
+				*error = @"Invalid URI for prefix";
+				*suberror = [NSString stringWithFormat:@"%@:%@",prefix,theURI];
+				return;
+			}
+		}
+		else {
+			//Check prefix validity
+			if (![TiDOMValidator checkNamespacePrefix:prefix]) {
+				*error = @"Invalid prefix" ;
+				*suberror = [NSString stringWithFormat:@"Offending prefix %@",prefix];
+				return;
+			}
+			//Check URI validity
+			if (![TiDOMValidator checkNamespaceURI:theURI]) {
+				*error = @"Invalid URI" ;
+				*suberror = [NSString stringWithFormat:@"Offending URI %@",theURI];
+				return;
+			}
+		}
+		
+	}
+	else {
+		if (![theURI isEqualToString:@"http://www.w3.org/2000/xmlns/"]) {
+			*error = @"Invalid URI for qualified name xmlns" ;
+			*suberror = [NSString stringWithFormat:@"%@:%@",tagName,theURI];
+		}
+	}
+}
+
+-(void)validateElementParameters:(NSString*)tagName withUri:(NSString*)theURI reason:(NSString**)error subreason:(NSString**)suberror
+{
+	NSString* prefix = [GDataXMLNode prefixForName:tagName];
+	NSString* localName = [GDataXMLNode localNameForName:tagName];
+	
+	//Check name validity
+	if (![TiDOMValidator checkElementName:localName]) {
+		*error = @"Invalid element name" ;
+		*suberror = [NSString stringWithFormat:@"Offending localName %@",localName];
+		return;
+	}
+	
+	if (prefix != nil && ([theURI length]==0) ) {
+		*error = @"Can not have a prefix with a nil or empty URI" ;
+		return;
+	}
+	
+	if ( [prefix isEqualToString:@"xml"] ) {
+		if (![theURI isEqualToString:@"http://www.w3.org/XML/1998/namespace"]) {
+			*error = @"Invalid URI for prefix xml" ;
+			*suberror = [NSString stringWithFormat:@"%@:%@",prefix,theURI];
+			return;
+		}
+	}
+	else {
+		//Check prefix validity
+		if (![TiDOMValidator checkNamespacePrefix:prefix]) {
+			*error = @"Invalid prefix" ;
+			*suberror = [NSString stringWithFormat:@"Offending prefix %@",prefix];
+			return;
+		}
+		//Check URI validity
+		if (![TiDOMValidator checkNamespaceURI:theURI]) {
+			*error = @"Invalid URI" ;
+			*suberror = [NSString stringWithFormat:@"Offending URI %@",theURI];
+			return;
+		}
+	}	
 }
 
 -(id)makeNode:(id)child context:(id<TiEvaluator>)context
