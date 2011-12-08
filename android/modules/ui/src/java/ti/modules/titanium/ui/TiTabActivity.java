@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
@@ -45,8 +46,10 @@ public class TiTabActivity extends TabActivity
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		TiApplication.addToActivityStack(this);
+		KrollRuntime.incrementActivityRefCount();
 
 		super.onCreate(savedInstanceState);
+
 
 		int layoutResId = getResources().getIdentifier("titanium_tabgroup", "layout", getPackageName());
 		if (layoutResId == 0) {
@@ -216,9 +219,11 @@ public class TiTabActivity extends TabActivity
 			proxy.closeFromActivity();
 			proxy = null;
 		}
-		
+
+		KrollRuntime.decrementActivityRefCount();
 		handler = null;
 	}
+
 	private boolean shouldFinishRootActivity()
 	{
 		Intent intent = getIntent();

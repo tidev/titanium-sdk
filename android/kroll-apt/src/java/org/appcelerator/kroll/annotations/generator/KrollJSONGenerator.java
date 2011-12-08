@@ -654,11 +654,14 @@ public class KrollJSONGenerator extends AbstractProcessor {
 	{
 		String creatableInModule = (String) proxy.get("creatableInModule");
 		String parentModule = (String) proxy.get("parentModule");
+
 		if (creatableInModule != null && !creatableInModule.equals(Kroll_DEFAULT)) {
 			return creatableInModule;
+
 		} else if (parentModule != null && !parentModule.equals(Kroll_DEFAULT)) {
 			return parentModule;
 		}
+
 		return null;
 	}
 
@@ -667,6 +670,7 @@ public class KrollJSONGenerator extends AbstractProcessor {
 		// Parent module name wasn't found because it exists in another source round (probably another module)
 		// We can manually pull the annotation name here instead
 		String parentModuleClass = getParentModuleClass(proxy);
+
 		if (parentModuleClass != null) {
 			TypeElement type = processingEnv.getElementUtils().getTypeElement(parentModuleClass);
 			HashMap<String, Object> moduleParams = utils.getAnnotationParams(type, Kroll_module);
@@ -678,53 +682,61 @@ public class KrollJSONGenerator extends AbstractProcessor {
 			}
 
 			if (moduleParams.containsKey("name") && !moduleParams.get("name").equals(DEFAULT_NAME)) {
-				apiName = (String)moduleParams.get("name");
+				apiName = (String) moduleParams.get("name");
 			}
 			return apiName;
 		}
+
 		return null;
 	}
 
-	protected void generateFullAPIName(Map<String, Object> proxy) {
-		Map<String, Object> childProxy = proxy;
-		String fullAPIName = (String) proxy.get("name");
+	protected void generateFullAPIName(Map<String, Object> proxyAttrs)
+	{
+		Map<String, Object> childProxyAttrs = proxyAttrs;
+		String fullAPIName = (String) proxyAttrs.get("name");
 		Map<String, Object> modules = (Map<String, Object>) properties.get("modules");
 		Map<String, Object> proxies = (Map<String, Object>) properties.get("proxies");
 
 		for (int i = 0; i < 10; i++) {
-			if (childProxy == null) break;
-
-			String name = (String) childProxy.get("name");
-			if (name == null) {
-				name = (String) childProxy.get("apiName");
+			if (childProxyAttrs == null) {
+				break;
 			}
-			String moduleClassName = getParentModuleClass(childProxy);
-			String apiName = null;
 
+			String name = (String) childProxyAttrs.get("name");
+			if (name == null) {
+				name = (String) childProxyAttrs.get("apiName");
+			}
+
+			String moduleClassName = getParentModuleClass(childProxyAttrs);
+			String apiName = null;
 			Map<String, Object> module = ((Map<String, Object>) modules.get(moduleClassName));
 			if (module != null) {
 				apiName = (String) module.get("apiName");
 			}
+
 			if (apiName == null && module != null) {
 				apiName = findParentModuleName(module);
 			}
+
 			if (apiName == null) {
 				break;
 			}
+
 			fullAPIName = apiName + "." + fullAPIName;
 
 			Map<String, Object> proxyMap = (Map<String, Object>) proxies.get(moduleClassName);
-			childProxy = (Map<String, Object>) proxyMap.get("proxyAttrs");
+			childProxyAttrs = (Map<String, Object>) proxyMap.get("proxyAttrs");
 		}
-		proxy.put("fullAPIName", fullAPIName);
+
+		proxyAttrs.put("fullAPIName", fullAPIName);
 	}
-	
+
 	protected void generateJSON() {
 		try {
-			Map<String,Object> proxies = (Map<String,Object>) properties.get("proxies");
+			Map<String,Object> proxies = jsonUtils.getStringMap(properties, "proxies");
 			for (String proxyName : proxies.keySet()) {
-				Map<String,Object> proxy = (Map<String,Object>)proxies.get(proxyName);
-				generateFullAPIName((Map<String,Object>)proxy.get("proxyAttrs"));
+				Map<String,Object> proxy = jsonUtils.getStringMap(proxies, proxyName);
+				generateFullAPIName(jsonUtils.getStringMap(proxy, "proxyAttrs"));
 			}
 
 			FileObject file = processingEnv.getFiler().createResource(
