@@ -494,7 +494,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				setImage(b.bitmap);
 				fireChange(b.index);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				Log.e(LCAT, "Loader interrupted");
 			}
 		}
 	}
@@ -573,7 +573,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			try {
 				loaderThread.join();
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				Log.e(LCAT, "loaderThread termination interrupted");
 			}
 			loaderThread = null;
 		}
