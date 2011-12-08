@@ -262,23 +262,13 @@ function($window, args){
 	};
 
 	Ti._5.presetUserDefinedElements = function(obj, args){
-		if(!args){
-			return;
-		}
-
-		for(prop in args){
+		for(var prop in args){
 			if(typeof obj[prop] == 'undefined'){
 				obj[prop] = args[prop];
 			}
 		}
 	};
 	
-	Ti._5.presetUserArguments = function(obj,args) {
-		for(var prop in args){
-			obj[prop] = args[prop];
-		}
-	}
-
 	Ti._5.prop = function(obj, property, defaultValue, descriptor) {
 		var skipSet,
 			capitalizedName = property.substring(0, 1).toUpperCase() + property.substring(1);

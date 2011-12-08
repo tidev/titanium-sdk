@@ -61,6 +61,12 @@
 			return 'UNKNOWN';
 		}
 	});
+	
+	var _httpURLFormatter = null;
+	Object.defineProperty(api, 'httpURLFormatter', {
+		get: function() {return _httpURLFormatter;},
+		set: function(val) {return _httpURLFormatter = val;}
+	});
 		
 	Ti._5.prop(api, 'online', {
 		get: function() {return navigator.onLine}

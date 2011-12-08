@@ -153,6 +153,10 @@ Ti._5.createClass('Titanium.Network.HTTPClient', function(args){
 		}
 	};
 	this.open = function(method, url, async) {
+		
+		var httpURLFormatter = Ti.Network.httpURLFormatter;
+		httpURLFormatter && (url = httpURLFormatter(url));
+		
 		_requestComplete = false;
 		obj.connectionType = method;
 		obj.location = Ti._5.getAbsolutePath(url);

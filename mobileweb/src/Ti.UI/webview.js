@@ -81,7 +81,7 @@ Ti._5.createClass('Titanium.UI.WebView', function(args){
 	});
 
 	var _loading = false;
-	Ti._5.prop(this, 'loading', {
+	Ti._5.propReadOnly(this, 'loading', {
 		get: function(){return _loading;}
 	});
 

@@ -27,24 +27,21 @@ Ti._5.createClass('Titanium.UI.Label', function(args){
 	// Properties
 	this.autoLink = null;
 
-	var _setBGPosition = function(){
-	};
-
 	Ti._5.prop(this, 'backgroundPaddingBottom', {});
 
 	Ti._5.prop(this, 'backgroundPaddingLeft', {
 		get: function(){return obj.dom.style.backgroundPositionX;},
-		set: function(val){return obj.dom.style.backgroundPositionX = val + "px"}
+		set: function(val){return obj.dom.style.backgroundPositionX = Ti._5.parseLength(val);}
 	});
 
 	Ti._5.prop(this, 'backgroundPaddingRight', {});
 
 	Ti._5.prop(this, 'backgroundPaddingTop', {
 		get: function(){return obj.dom.style.backgroundPositionY;},
-		set: function(val){return obj.dom.style.backgroundPositionY = val + "px";}
+		set: function(val){return obj.dom.style.backgroundPositionY = Ti._5.parseLength(val);}
 	});
 
-	Ti._5.propReadOnly(this, 'ellipsize', false);
+	Ti._5.prop(this, 'ellipsize', false);
 
 	Ti._5.prop(this, 'highlightedColor', null);
 
@@ -137,12 +134,8 @@ Ti._5.createClass('Titanium.UI.Label', function(args){
 			}
 		},
 		set: function(val) {
-			if (val.width) {
-				obj.width = Ti._5.parseLength(val.width);
-			}
-			if (val.height) {
-				obj.height = Ti._5.parseLength(val.height);
-			}
+			val.width && (obj.width = Ti._5.parseLength(val.width));
+			val.height && (obj.height = Ti._5.parseLength(val.height));
 			return val;
 		}
 	});

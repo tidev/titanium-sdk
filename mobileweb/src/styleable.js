@@ -1,3 +1,4 @@
+var spinningAngle = 0;
 (function(oParentNamespace) {
 	// Create object
 	oParentNamespace.Styleable = function(obj, args) {
@@ -451,34 +452,104 @@
 				}
 			}
 		});
-		obj.animate = function(val) {
-			var duration = null;
-			var props = [];
-			for (prop in val) {
-				if (prop == 'duration') {
-					duration = val[prop]
+		obj._getPrefixedCSSRuleName = function(rule) {
+			var style = obj.dom.style,
+				upperCaseRule = rule[0].toUpperCase() + rule.substring(1),
+				possibleRuleNames = ["Moz" + upperCaseRule,"Webkit" + upperCaseRule,"O" + upperCaseRule,"ms" + upperCaseRule,rule];
+			for (var i = 0; i < 5; i++) {
+				var prefixedRule = possibleRuleNames[i];
+				if (prefixedRule in style) {
+					return prefixedRule;
+				}
+			}
+		}
+		obj._setPrefixedCSSRule = function(rule,value) {
+			var prefixedRule = obj._getPrefixedCSSRuleName(rule);
+			prefixedRule && (obj.dom.style[prefixedRule] = value);
+		}
+		obj._getPrefixedCSSRuleValue = function(rule) {
+			var prefixedRule = obj._getPrefixedCSSRuleName(rule);
+			return prefixedRule && obj.dom.style[prefixedRule];
+		}
+		obj.animate = function(animation,callback) {
+			
+			// Set default values
+			animation.duration = (animation.duration ? animation.duration : 0);
+			animation.delay = (animation.delay ? animation.delay : 0);
+			
+			var _curve = "ease";
+			switch(animation.curve) {
+				case Ti.UI.ANIMATION_CURVE_LINEAR: _curve = "linear"; break;
+				case Ti.UI.ANIMATION_CURVE_EASE_IN: _curve = "ease-in"; break;
+				case Ti.UI.ANIMATION_CURVE_EASE_OUT: _curve = "ease-out"; break;
+				case Ti.UI.ANIMATION_CURVE_EASE_IN_OUT: _curve = "ease-in-out"; break;
+			}
+			
+			// Determine which coordinates are valid and combine with previous coordinates where appropriate.
+			var _style = obj.dom.style;
+			if (isDefined(animation.center)) {
+				animation.left = animation.center.x - obj.dom.offsetWidth / 2;
+				animation.top = animation.center.y - obj.dom.offsetHeight / 2;
+			}
+			
+			// Create the transition, must be set before setting the other properties
+			var transitionValue = "all " + animation.duration + "ms " + _curve;
+			isDefined(animation.delay) && (transitionValue += " " + animation.delay + "ms");
+			obj._setPrefixedCSSRule("transition", transitionValue);
+			
+			// We need to explicitly test if a variable is defined because 0 or false can be a legitimate value
+			function isDefined(value) {
+				return !require.is(value,"Undefined");
+			}
+			
+			// Set the color and opacity properties
+			isDefined(animation.backgroundColor) && (_style.backgroundColor = animation.backgroundColor);
+			isDefined(animation.color) && (_style.color = animation.color);
+			isDefined(animation.opacity) && (_style.opacity = animation.opacity);
+			(animation.opaque === true || animation.visible === true) && (_style.opacity = 1.0);
+			(animation.opaque === false || animation.visible === false) && (_style.opacity = 0.0);
+			
+			// Set the position and size properties
+			function setUnits(value) {
+				return require.is(value,"Number") ? value + "px" : value
+			}
+			isDefined(animation.top) && (_style.top = setUnits(animation.top));
+			isDefined(animation.bottom) && (_style.bottom = setUnits(animation.bottom));
+			isDefined(animation.left) && (_style.left = setUnits(animation.left));
+			isDefined(animation.right) && (_style.right = setUnits(animation.right));
+			isDefined(animation.height) && (_style.height = setUnits(animation.height));
+			isDefined(animation.width) && (_style.width = setUnits(animation.width));
+			
+			// Set the z-order
+			isDefined(animation.zIndex) && (_style.zIndex = animation.zIndex);
+			
+			// Set the transform properties
+			var transform = "";
+			if (animation.rotation) {
+				if(obj._currentRotation) {
+					obj._currentRotation += animation.rotation;
 				} else {
-					props.push(prop);
+					obj._currentRotation = animation.rotation;
 				}
+				transform += "rotate(" + obj._currentRotation + "deg) ";
 			}
-			if ('Firefox' == Titanium.Platform.name) {
-				duration = duration || 0;
-				var sProperty = '';
-				for (var iCounter=0; iCounter < props.length; iCounter++) {
-					sProperty += sProperty ? ', ' : '';
-					sProperty += props[iCounter] + ' ' + duration + 'ms ease 0s';
+			if (animation.transform) {
+				if (obj._currentTransform) {
+					obj._currentTransform = obj._currentTransform.multiply(animation.transform);
+				} else {
+					obj._currentTransform = animation.transform;
 				}
-				obj.dom.style.MozTransition= sProperty;
-			} else {
-				obj.dom.style['-webkit-transition-property'] = props;
-				if (duration != null) {
-					obj.dom.style['-webkit-transition-duration'] = duration;
-				}
+				transform += obj._currentTransform._toCSS();
 			}
-			for (prop in val) {
-				if (prop != 'duration') {
-					obj.dom.style[prop] = val[prop];
-				}
+			obj._setPrefixedCSSRule("transform",transform);
+			
+			if(callback) {
+				// Note: no IE9 support for transitions, so instead we just set a timer that matches the duration so things don't break
+				setTimeout(function(){
+					// Clear the transform so future modifications in these areas are not animated
+					obj._setPrefixedCSSRule("transition", "");
+					callback();
+				},animation.duration + animation.delay + 1);
 			}
 		};
 		

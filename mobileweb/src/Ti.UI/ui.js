@@ -131,8 +131,8 @@
 		//document.body.style.backgroundRepeat = "no-repeat";
 	};
 	
-	api.create2DMatrix = function(){
-		console.debug('Method "Titanium.UI.create2DMatrix" is not implemented yet.');
+	api.create2DMatrix = function(args){
+		return new Titanium.UI["2DMatrix"](args);
 	};
 	api.create3DMatrix = function(){
 		console.debug('Method "Titanium.UI.create3DMatrix" is not implemented yet.');
@@ -143,8 +143,8 @@
 	api.createAlertDialog = function(args){
 		return new Ti.UI.AlertDialog(args);
 	};
-	api.createAnimation = function(){
-		console.debug('Method "Titanium.UI.createAnimation" is not implemented yet.');
+	api.createAnimation = function(args){
+		return new Ti.UI.Animation(args);
 	};
 	api.createButton = function(args) {
 		return new Ti.UI.Button(args);
