@@ -5,10 +5,6 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 		media = Ti.Media,
 		on = require.on,
 		handles,
-		/*STOPPED = "stopped",
-		STOPPING = "stopping",
-		PAUSED = "paused",
-		PLAYING = "playing",*/
 		STOPPED = 0,
 		STOPPING = 1,
 		PAUSED = 2,
