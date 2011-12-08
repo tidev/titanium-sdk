@@ -114,11 +114,37 @@ methods:
         The `require` function takes a module identifier as its argument
         and returns an object with references to the module's exported symbols.
 
-        To load a native Titanium module, use its its module ID.
+        To load a native Titanium module, use its module ID.
 
-        To load a local CommonJS module, use the local path to the file,
-        *minus* the `.js` extension. (Local paths are relative to the 
-        application's `Resources` directory.)
+        To load a local CommonJS module, use the relative path to the file,
+        *minus* the `.js` extension. The file path is relative to the 
+        location of the file calling `require`.
+
+        Note that the appropriate *platform-specific* Resources subdirectory 
+        is merged into the main Resources directory at build time. For example,
+        suppose you have the following files:
+
+        * `Resources/app.js`
+        * `Resources/ui/MainWindow.js`
+        * `Resources/iphone/ui/TaskWindow.js`
+        * `Resources/android/ui/TaskWindow.js`
+
+        At build time, the appropriate `TaskWindow.js` file is moved into the `Resources/ui`
+        directory of the built application. To include both the MainWindow module and 
+        the platform-specific TaskWindow module, you could use code like this in your 
+        `app.js` file:
+
+             // load main window module from ui subdirectory
+             var mainWindow = require('ui/MainWindow');
+
+             // load platform-specific task window module
+             var taskWindow = require('ui/TaskWindow'); 
+
+        On the other hand, to include the TaskWindow module from the 
+        `Resources/ui/MainWindow.js` file, you'd use:
+
+             // load task window module
+             var taskWindow = require('TaskWindow'); 
 
         For more information about CommonJS modules, see the CommonJS module specification:
         
@@ -126,7 +152,7 @@ methods:
     parameters:
       - name: moduleId
         type: String
-        summary: native module ID, or local path to a JavaScript file, *minus* the `.js` extension.
+        summary: Native module ID, or local path to a JavaScript file, *minus* the `.js` extension.
     returns:
         type: Object
         summary: The `exports` object of the required module.
@@ -149,6 +175,9 @@ methods:
   - name: setInterval
     summary: Creates an interval timer that calls `function` every `delay` milliseconds.
     description: |
+        Note that interval is not guaranteed to be exact. The interval between calls
+        will be *at least* `delay` milliseconds.
+
         For more information, see the [MDN docs for setInterval](https://developer.mozilla.org/en/DOM/window.setInterval).
     parameters:
       - name: function
@@ -175,6 +204,9 @@ methods:
   - name: setTimeout
     summary: Creates a timer that calls `function` once after `delay` milliseconds.
     description: |
+        Note that it is impossible to guarantee the exact callback time. The function
+        is called after *at least* `delay` milliseconds.
+
         For more details, see the [MDN docs for setTimeout](https://developer.mozilla.org/en/DOM/window.setTimeout).
     parameters:
       - name: function
