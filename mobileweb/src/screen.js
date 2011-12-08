@@ -27,7 +27,7 @@
 
 			// this is top level window - it has no parent - need to add it into DOM
 			if(obj.parent == null) {
-				document.body.appendChild(obj.dom);
+				Ti._5.containerDiv.appendChild(obj.dom);
 			}
 
 			obj.show();
@@ -44,7 +44,7 @@
 
 		obj.screen_close = function(){
 			obj.fireEvent('screen_close');
-			document.body.removeChild(obj.dom);
+			Ti._5.containerDiv.removeChild(obj.dom);
 			// go prev state
 			window.history.go(-1);
 		};

@@ -1,5 +1,12 @@
 Ti._5.createClass('Titanium.UI.ScrollableView', function(args){
 	var obj = this;
+	
+	// Set defaults
+	args = Ti._5.extend({}, args);
+	args.unselectable = true;
+	args.width = args.width || '100%';
+	args.height = args.height || '100%';
+	
 	// Interfaces
 	Ti._5.DOMView(this, 'div', args, 'ScrollableView');
 	Ti._5.Touchable(this, args);
