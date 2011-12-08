@@ -948,8 +948,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		
 		if (timer != null) {
 			timer.cancel();
+			timer = null;
 		}
-		timer = null;
 		defaultImageSource = null;
 	}
 }
