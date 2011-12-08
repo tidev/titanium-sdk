@@ -104,6 +104,7 @@ public:
 	static jmethodID krollObjectSetHasListenersForEventTypeMethod;
 	static jmethodID krollObjectOnEventFiredMethod;
 	static jmethodID krollProxyCreateProxyMethod;
+	static jmethodID krollProxyCreateDeprecatedProxyMethod;
 	static jfieldID krollProxyKrollObjectField;
 	static jfieldID krollProxyModelListenerField;
 	static jmethodID krollProxySetIndexedPropertyMethod;
