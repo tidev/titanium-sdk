@@ -941,9 +941,9 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		synchronized(releasedLock) {
 			if (imageSources != null) {
 				imageSources.clear();
+				imageSources = null;
 			}
-
-			imageSources = null;
+			
 		}
 		
 		if (timer != null) {
