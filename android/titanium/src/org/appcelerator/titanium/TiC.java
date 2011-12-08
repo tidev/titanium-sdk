@@ -128,11 +128,13 @@ public class TiC
 	public static final String PROPERTY_CODE = "code";
 	public static final String PROPERTY_COLOR = "color";
 	public static final String PROPERTY_COORDS = "coords";
+	public static final String PROPERTY_CONTENT_HEIGHT = "contentHeight";
 	public static final String PROPERTY_CONTENT_INTENT = "contentIntent";
 	public static final String PROPERTY_CONTENT_TEXT = "contentText";
 	public static final String PROPERTY_CONTENT_TITLE = "contentTitle";
 	public static final String PROPERTY_CONTENT_URL = "contentURL";
 	public static final String PROPERTY_CONTENT_VIEW = "contentView";
+	public static final String PROPERTY_CONTENT_WIDTH = "contentWidth";
 	public static final String PROPERTY_COUNTRY = "country";
 	public static final String PROPERTY_COUNTRY_CODE = "countryCode";
 	public static final String PROPERTY_DATA = "data";
