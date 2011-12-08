@@ -6,12 +6,20 @@
  */
 var customProperties = {};
 
-function lazyGet(object, binding, name, namespace) {
+function lazyGet(object, binding, name, namespace, bindingGetter) {
 	delete object[name];
 	delete object.__proto__[name];
 
+	// This allows overriding of the "binding" lookup
+	// which is mostly used for 3rd party modules
+	if (bindingGetter === undefined) {
+		bindingGetter = kroll.binding;
+	}
+
 	// deal with "value" here so we don't accidentally re-invoke the getter
-	var value = object[name] = object.__proto__[name] = kroll.binding(binding)[name];
+	var value = bindingGetter(binding)[name];
+	object[name] = object.__proto__[name] = value;
+
 	if (namespace && namespace in customProperties) {
 		Object.defineProperties(value, customProperties[namespace]);
 	}
@@ -81,23 +89,24 @@ function loadAppModules() {
 	}
 }
 
-function addInvocationAPI(Titanium, namespace, api) {
+function addInvocationAPI(module, moduleNamespace, namespace, api) {
 	var apiInfo = { namespace: namespace, api: api };
 
-	// Always push Titanium module APIs.
-	if (namespace == 'Titanium') {
-		Titanium.invocationAPIs.push(apiInfo);
+	// Always push module APIs.
+	if (namespace == moduleNamespace) {
+		module.invocationAPIs.push(apiInfo);
 		return;
 	}
 
 	var len = appModules.length;
 	for (var i = 0; i < len; i++) {
 		if (namespace.indexOf(appModules[i]) == 0) {
-			Titanium.invocationAPIs.push(apiInfo);
+			module.invocationAPIs.push(apiInfo);
 			break;
 		}
 	}
 }
+exports.addInvocationAPI = addInvocationAPI;
 
 function bootstrapGlobals(global, Titanium) {
 	// Below this is where generated global bindings go
@@ -109,9 +118,12 @@ exports.bootstrapGlobals = bootstrapGlobals;
 
 exports.bootstrap = function(Titanium) {
 	loadAppModules();
+	var module = Titanium;
+
 	bootstrapGlobals(global, Titanium);
 
-	// Below this is where generated Titanium-specific bindings go
+	// Below this is where the generated code
+	// from genBootstrap.py goes
 	// ----
 
 	%(invocationJS)s
