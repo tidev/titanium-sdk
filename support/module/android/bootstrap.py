@@ -86,6 +86,7 @@ class Bootstrap(object):
 		self.moduleId = moduleId
 		self.moduleName = moduleName
 		self.moduleNamespace = moduleId.lower()
+		self.needsReturn = False
 
 		for proxy in self.bindings["proxies"]:
 			self.addToApiTree(proxy)
@@ -223,7 +224,8 @@ class Bootstrap(object):
 		hasInvocationAPIs = len(invocationAPIs) > 0
 
 		needsReturn = hasChildren or \
-			hasCreateProxies or hasInvocationAPIs
+			hasCreateProxies or hasInvocationAPIs or \
+			self.needsReturn
 
 		if namespace != self.moduleName and self.genAPITree:
 			decl = "var %s =" % var
@@ -373,6 +375,7 @@ def main():
 	moduleName = moduleBindings["modules"][moduleClassName]["apiName"]
 
 	b = Bootstrap(runtime, moduleBindings, moduleId=moduleId, moduleName=moduleName)
+	b.needsReturn = True
 
 	jsTemplate = open(os.path.join(thisDir, "generated", "bootstrap.js")).read()
 	gperfTemplate = open(os.path.join(thisDir, "generated", "bootstrap.gperf")).read()

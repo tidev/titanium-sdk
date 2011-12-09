@@ -135,8 +135,8 @@ properties:
     description: |
         A fullscreen window occupies all of the screen space, hiding elements
         such as the iOS nav bar or the Android status bar. Must be specified
-        at creation time or in the `options` dict passed to the [Window.open]
-        (Titanium.UI.Window.open) method
+        at creation time or in the `options` dictionary passed to the 
+        [Window.open](Titanium.UI.Window.open) method.
     platforms: [android, iphone, ipad]
     type: Boolean
     default: false
@@ -344,8 +344,8 @@ properties:
         [SOFT_INPUT_ADJUST_RESIZE](Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE),
         or [SOFT_INPUT_ADJUST_UNSPECIFIED](Ti.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED).
 
-        For more information see the Android API Reference: [Window.setSoftInputMode]
-        (http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int)).
+        For more information see the Android API Reference: 
+        [Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int)).
     platforms: [android]
     type: Number
     availability: creation
@@ -355,16 +355,32 @@ properties:
         The property is ignored on a Titanium "lightweight" Window. Use one of the
         <Ti.UI.Android>.PIXEL_FORMAT constants to set the format.
 
-        For more information on pixel formats, see [Android SDK Window.setFormat]
-        (http://developer.android.com/reference/android/view/Window.html#setFormat(int))
+        For more information on pixel formats, see 
+        [Android SDK Window.setFormat](http://developer.android.com/reference/android/view/Window.html#setFormat(int))
     platforms: [android]
     type: Number
     since: "1.8.0"
 
 description: |
-    The Window is created by the method <Titanium.UI.createWindow>. Unlike [Views]
-    (Titanium.UI.View), Windows can be opened and closed and can have special display
-    properties such as `fullscreen` or `modal`.
+    A window is a top-level container which can contain other views. Windows can
+    be *opened* and *closed*.  Opening a window causes the window and its child 
+    views to be added to the application's render stack, on top of any previously opened 
+    windows. Closing a window removes the window and its children from the render stack.
+
+    Windows *contain* other views, but in general they are not *contained* inside
+    other views. There are a few specialized top-level views that manage windows,
+    including:
+    
+    * [NavigationGroup](Titanium.UI.iPhone.NavigationGroup)
+    * [SplitWindow](Titanium.UI.iPad.SplitWindow)
+    * [TabGroup](Titanium.UI.TabGroup). 
+
+    By default, windows occupy the entire screen except for the navigation bar, 
+    status bar, and in the case of windows contained in tab groups, the tab bar.
+    To take up the entire screen, covering any other UI, specify `fullscreen:true`
+    when creating the window.
+
+    Use the <Titanium.UI.createWindow> method to create a window.
 
     <a id="contexts"/>
     #### Sub-contexts
@@ -537,8 +553,8 @@ description: |
 
     In Android, Titanium windows can be heavyweight or lightweight:
 
-    - A *heavyweight* window is associated with a new Android [Activity]
-      (Titanium.Android.Activity). Creating a heavyweight window always 
+    - A *heavyweight* window is associated with a new Android 
+      [Activity](Titanium.Android.Activity). Creating a heavyweight window always 
       creates a new JavaScript context.
 
     - A *lightweight* window is a fullscreen view, and runs in the same Android Activity 
@@ -553,8 +569,8 @@ description: |
     * `modal`
     * `windowSoftInputMode`
 
-    A heavyweight window is always created when you open a new window from inside a [TabGroup]
-    (Titanium.UI.TabGroup).
+    A heavyweight window is always created when you open a new window from inside a 
+    [TabGroup](Titanium.UI.TabGroup).
 
     #### Android "root" Windows
 

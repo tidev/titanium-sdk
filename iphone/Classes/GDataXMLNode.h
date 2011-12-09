@@ -124,6 +124,7 @@ typedef NSUInteger GDataXMLNodeKind;
 + (id)namespaceWithName:(NSString *)name stringValue:(NSString *)value;
 
 + (id)textWithStringValue:(NSString *)value;
++ (id)cDataSectionWithStringValue:(NSString *)value;
 
 - (NSString *)stringValue;
 - (void)setStringValue:(NSString *)str;

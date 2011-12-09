@@ -1119,6 +1119,7 @@
 	if(leavingAccessoryView != nil)
 	{
 		NSLog(@"[WARN] Trying to blur out %@, but %@ is already leaving focus.",accessoryView,leavingAccessoryView);
+        [leavingAccessoryView removeFromSuperview];
 		RELEASE_TO_NIL_AUTORELEASE(leavingAccessoryView);
 	}
 

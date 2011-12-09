@@ -248,6 +248,19 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix) {
 	return nil;
 }
 
++ (id)cDataSectionWithStringValue:(NSString *)value
+{
+	xmlChar* cdata = GDataGetXMLString(value);
+	int len = 0;
+	if (cdata != NULL)
+		len = xmlStrlen(cdata);
+	xmlNodePtr theCdataBlock = xmlNewCDataBlock(NULL, cdata, len);
+	if (theCdataBlock) {
+		return [self nodeConsumingXMLNode:theCdataBlock];
+	}
+	return nil;
+}
+
 + (id)commentWithStringValue:(NSString *)value
 {
 	xmlNodePtr theNewText = xmlNewComment(GDataGetXMLString(value));
