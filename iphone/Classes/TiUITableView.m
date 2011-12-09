@@ -337,7 +337,10 @@
 		tableview.delegate = self;
 		tableview.dataSource = self;
 		tableview.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-		
+		if (TiDimensionIsPixels(rowHeight))
+		{
+			[tableview setRowHeight:rowHeight.value];
+		}		
 		[self setBackgroundColor:[TiUtils colorValue:[[self proxy] valueForKey:@"backgroundColor"]] onTable:tableview];
 		
 		[self updateSearchView];
