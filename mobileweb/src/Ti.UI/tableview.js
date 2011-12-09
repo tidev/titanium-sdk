@@ -3,10 +3,12 @@ Ti._5.createClass('Titanium.UI.TableView', function(args){
 	var _data = [];
 	var activeSection = null;
 	
+	// Set defaults
 	args = Ti._5.extend({}, args);
 	args.unselectable = true;
 	args.layout = 'vertical';
 	args.width = args.width || '100%';
+	args.height = args.height || '100%';
 	
 	// Interfaces
 	Ti._5.DOMView(this, 'div', args, 'TableView');

@@ -262,16 +262,18 @@ function($window, args){
 	};
 
 	Ti._5.presetUserDefinedElements = function(obj, args){
-		if(!args){
-			return;
-		}
-
-		for(prop in args){
+		for(var prop in args){
 			if(typeof obj[prop] == 'undefined'){
 				obj[prop] = args[prop];
 			}
 		}
 	};
+	
+	Ti._5.presetUserArguments = function(obj,args) {
+		for(var prop in args){
+			obj[prop] = args[prop];
+		}
+	}
 
 	Ti._5.createClass = function(className, value){
 		var classes = className.split(".");
@@ -322,9 +324,12 @@ function($window, args){
 			Ti._5.sendAnalytics();
 		}
 
-		Ti.UI.createWindow({
-			title: args.projectName
-		}).open();
+		Ti._5.containerDiv = document.createElement('div');
+		Ti._5.containerDiv.style.width = "100%";
+		Ti._5.containerDiv.style.height = "100%";
+		Ti._5.containerDiv.style.overflow = "hidden";
+		Ti._5.containerDiv.style.position = "absolute"; // Absolute so that any children that are absolute positioned will respect this DIVs height and width.
+		document.body.appendChild(Ti._5.containerDiv);
 	};
 
 	Ti._5.getAbsolutePath = function(path){

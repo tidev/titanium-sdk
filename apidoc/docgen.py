@@ -235,6 +235,14 @@ class AnnotatedApi(object):
 			self.availability = api_obj["availability"]
 		else:
 			self.availability = None
+		if "default" in api_obj:
+			self.default = api_obj["default"]
+		else:
+			self.default = None
+		if "optional" in api_obj:
+			self.optional = api_obj["optional"]
+		else:
+			self.optional = None
 
 	@lazyproperty
 	def platforms(self):
