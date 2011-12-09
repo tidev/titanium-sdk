@@ -84,23 +84,40 @@
 				return;
 			}
 			if (parent) {
-				// handle horizontal layout
+				var convertToMargins = true;
 				if (parent.layout == 'horizontal') {
-					obj.dom.style.marginLeft = (obj.args) ? obj.args['left'] : '';
-					obj.dom.style.left = '';
-					obj.dom.style.marginTop = '';
+					obj.dom.style.display = 'inline-block';
+					obj.dom.style.position = '';
 				} else if (parent.layout == 'vertical') {
-					// handle vertical layout
-					obj.dom.style.cssFloat = obj.args && 'undefined' != typeof obj.args['right'] ? 'right' : '';
-					obj.dom.style.marginLeft = '';
-					obj.dom.style.top = '';
-					obj.dom.style.marginTop = (obj.args) ? obj.args['top'] : '';
-					if (obj.visible) {
-						obj.dom.style.display = 'block';
+					obj.dom.style.display = '';
+					obj.dom.style.position = '';
+				} else {
+					convertToMargins = false;
+					obj.dom.style.position = 'absolute';
+				}
+				if (convertToMargins) {
+					// Note: we use margins instead of the actual left/right/top/bottom because margins play much nicer with our layout techniques.
+					if (obj.left) {
+						obj.dom.style.marginLeft = obj.left;
 					}
+					if (obj.top) {
+						obj.dom.style.marginTop = obj.top;
+					}
+					if (obj.right) {
+						obj.dom.style.marginRight = obj.right;
+					}
+					if (obj.bottom) {
+						obj.dom.style.marginBottom = obj.bottom;
+					}
+					obj.dom.style.left = '';
+					obj.dom.style.right = '';
+					obj.dom.style.top = '';
+					obj.dom.style.bottom = '';
 				}
 				parent._getAddContainer().appendChild(obj.dom);
 				obj.fireEvent('html5_added', parent);
+			} else {
+				obj.dom.style.position = 'absolute';
 			}
 
 			if (obj._children) {

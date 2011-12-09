@@ -6,7 +6,6 @@
 		}
 		
 		var _position = function(p, val) {
-			obj.dom.style.position = 'absolute';
 			obj.dom.style[p] = Ti._5.parseLength(val);
 		};
 		
@@ -18,6 +17,9 @@
 			set: function(val) {
 				if (obj.dom.style['bottom']) {
 					obj.dom.style['bottom'] = '';
+				}
+				if (require.is(val,"Number")) {
+					val += "px";
 				}
 				_top = val;
 				_position('top', val);
@@ -34,6 +36,9 @@
 				if (obj.dom.style['top']) {
 					obj.dom.style['top'] = '';
 				}
+				if (require.is(val,"Number")) {
+					val += "px";
+				}
 				_bottom = val;
 				_position('bottom', val);
 			},
@@ -48,6 +53,9 @@
 			set: function(val) {
 				if (obj.dom.style['right']) {
 					obj.dom.style['right'] = '';
+				}
+				if (require.is(val,"Number")) {
+					val += "px";
 				}
 				obj.dom.style.cssFloat = '';
 				_left = val;
@@ -65,6 +73,9 @@
 				if (obj.dom.style['left']) {
 					obj.dom.style['left'] = '';
 				}
+				if (require.is(val,"Number")) {
+					val += "px";
+				}
 				obj.dom.style.cssFloat = 'right';
 				_right = val;
 				_position('right', val);
@@ -78,6 +89,9 @@
 				return _width;
 			},
 			set: function(val) {
+				if (require.is(val,"Number")) {
+					val += "px";
+				}
 				_width = val;
 				obj.dom.style.width = Ti._5.parseLength(val);
 			},
@@ -90,6 +104,9 @@
 				return _height;
 			},
 			set: function(val) {
+				if (require.is(val,"Number")) {
+					val += "px";
+				}
 				_height = val;
 				obj.dom.style.height =  Ti._5.parseLength(val);
 			},
@@ -106,7 +123,6 @@
 				if(val == null || val.x == null && val.y == null || obj.parent == null){
 					return;
 				}
-				obj.dom.style.position = 'absolute';
 				var width = obj.dom.clientWidth;
 				var height = obj.dom.clientHeight;
 				if(val.x != null){

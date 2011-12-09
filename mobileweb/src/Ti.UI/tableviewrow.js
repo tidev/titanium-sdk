@@ -1,16 +1,17 @@
 Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 	this._rowData = args || {};
 	var obj = this;
-
+	
+	// Set defaults
 	args = Ti._5.extend({}, args);
-	// Set some default values
+	args.unselectable = true;
+	args.width = args.width || '100%';
 	args['backgroundColor'] = args['backgroundColor'] ? args['backgroundColor'] : 'transparent';
 	if (!args['font']) {
 		args['fontSize'] = args['fontSize'] ? args['fontSize'] : 20;
 		args['fontWeight'] = args['fontWeight'] ? args['fontWeight'] : 'bold';
 		args['fontFamily'] = args['fontFamily'] ? args['fontFamily'] : 'Helvetica';
 	}
-	args.unselectable = true;
 		
 	// Interfaces
 	Ti._5.DOMView(this, 'li', args, 'TableViewRow');
