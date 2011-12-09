@@ -26,7 +26,7 @@ public:
 	static void bootstrap(Local<Object> global);
 
 	static bool debuggerEnabled;
-    static bool DBG;
+	static bool DBG;
 };
 }
 ;

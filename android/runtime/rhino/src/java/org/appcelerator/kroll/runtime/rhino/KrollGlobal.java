@@ -31,7 +31,7 @@ public class KrollGlobal extends IdScriptableObject
 	public static Function init(Scriptable scope)
 	{
 		KrollGlobal kroll = new KrollGlobal();
-		if (KrollRuntime.getInstance().getKrollApplication().getDeployType() == "production") {
+		if (KrollRuntime.getInstance().getKrollApplication().getDeployType().equals("production")) {
 			DBG = false;
 		}
 		return kroll.exportAsJSClass(MAX_PROTOTYPE_ID, scope, false);

@@ -84,7 +84,7 @@ void V8Runtime::bootstrap(Local<Object> global)
 	DEFINE_TEMPLATE(krollGlobalObject, "EventEmitter", EventEmitter::constructorTemplate);
 
 	krollGlobalObject->Set(String::NewSymbol("runtime"), String::New("v8"));
-    krollGlobalObject->Set(String::NewSymbol("DBG"), v8::Boolean::New(V8Runtime::DBG));
+	krollGlobalObject->Set(String::NewSymbol("DBG"), v8::Boolean::New(V8Runtime::DBG));
 	krollGlobalObject->Set(String::NewSymbol("moduleContexts"), moduleContexts);
 
 	LOG_TIMER(TAG, "Executing kroll.js");
@@ -160,7 +160,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 
 	JavaObject::useGlobalRefs = useGlobalRefs;
 	V8Runtime::debuggerEnabled = debuggerEnabled;
-    V8Runtime::DBG = DBG;
+	V8Runtime::DBG = DBG;
 
 	V8Runtime::javaInstance = env->NewGlobalRef(self);
 	JNIUtil::initCache();
