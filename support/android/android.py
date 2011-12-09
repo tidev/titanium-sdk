@@ -223,12 +223,12 @@ class Android(object):
 					try:
 						module_api_version = int(module.manifest.apiversion)
 						if module_api_version < 2:
-							print "[ERROR] The 'apiversion' in the module manifest is less than version 2.  The module was likely built against a Titanium SDK pre 1.8.0.1.  Please use a version of the module that has 'apiversion' 2 or greater"
+							print "[ERROR] The 'apiversion' for '%s' in the module manifest is less than version 2.  The module was likely built against a Titanium SDK pre 1.8.0.1.  Please use a version of the module that has 'apiversion' 2 or greater" % module_id
 							touch_tiapp_xml(os.path.join(self.project_dir, 'tiapp.xml'))
 							sys.exit(1)
 
 					except(TypeError, ValueError):
-						print "[ERROR] The 'apiversion' in the module manifest is not a valid value.  Please use a version of the module that has an 'apiversion' value of 2 or greater set in it's manifest file"
+						print "[ERROR] The 'apiversion' for '%s' in the module manifest is not a valid value.  Please use a version of the module that has an 'apiversion' value of 2 or greater set in it's manifest file" % module_id
 						touch_tiapp_xml(os.path.join(self.project_dir, 'tiapp.xml'))
 						sys.exit(1)
  
