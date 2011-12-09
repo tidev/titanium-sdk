@@ -6,6 +6,7 @@
  */
 package org.appcelerator.kroll.runtime.rhino;
 
+import org.appcelerator.kroll.KrollRuntime;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.IdFunctionObject;
@@ -24,11 +25,15 @@ public class KrollGlobal extends IdScriptableObject
 	private static final long serialVersionUID = 724917364689500034L;
 
 	private static final String RUNTIME_RHINO = "rhino";
+	private static boolean DBG = true;
 	private static final String KROLL_TAG = "Kroll";
 
 	public static Function init(Scriptable scope)
 	{
 		KrollGlobal kroll = new KrollGlobal();
+		if (KrollRuntime.getInstance().getKrollApplication().getDeployType() == "production") {
+			DBG = false;
+		}
 		return kroll.exportAsJSClass(MAX_PROTOTYPE_ID, scope, false);
 	}
 
@@ -174,6 +179,7 @@ public class KrollGlobal extends IdScriptableObject
 
 	private static final int
 		Id_runtime = 1,
+		Id_debug = 2,
 		MAX_INSTANCE_ID = Id_runtime;
 
 	@Override
@@ -189,6 +195,9 @@ public class KrollGlobal extends IdScriptableObject
 		if ("runtime".equals(name)) {
 			return Id_runtime;
 		}
+		if ("DBG".equals(name)) {
+			return Id_debug;
+		}
 		return super.findInstanceIdInfo(name);
 	}
 
@@ -198,6 +207,8 @@ public class KrollGlobal extends IdScriptableObject
 		switch (id) {
 			case Id_runtime:
 				return "runtime";
+			case Id_debug:
+				return "DBG";
 		}
 		return super.getInstanceIdName(id);
 	}
@@ -208,6 +219,8 @@ public class KrollGlobal extends IdScriptableObject
 		switch (id) {
 			case Id_runtime:
 				return RUNTIME_RHINO;
+			case Id_debug:
+				return DBG;
 		}
 		return super.getInstanceIdValue(id);
 	}

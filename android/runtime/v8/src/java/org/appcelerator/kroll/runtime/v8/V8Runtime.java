@@ -49,8 +49,14 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 			System.loadLibrary("kroll-v8");
 			libLoaded = true;
 		}
-
-		nativeInit(useGlobalRefs, debuggerEnabled);
+		
+		boolean DBG = true;
+		String deployType = getKrollApplication().getDeployType();
+		if (deployType.equals("production")) {
+			DBG = false;
+		}
+		
+		nativeInit(useGlobalRefs, debuggerEnabled, DBG);
 		loadExternalModules();
 	}
 
@@ -129,7 +135,7 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	}
 
 	// JNI method prototypes
-	private native void nativeInit(boolean useGlobalRefs, boolean debuggerActive);
+	private native void nativeInit(boolean useGlobalRefs, boolean debuggerActive, boolean DBG);
 	private native void nativeRunModule(String source, String filename, KrollProxySupport activityProxy);
 	private native void nativeProcessDebugMessages();
 	private native void nativeDispose();
