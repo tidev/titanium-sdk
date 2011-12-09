@@ -33,7 +33,7 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 
 	[[proxy view] setAutoresizingMask:UIViewAutoresizingNone];
 
-	return [[[TiViewController alloc] initWithViewProxy:proxy] autorelease];
+	return [[[TiViewController alloc] initWithViewProxy:(TiViewProxy<TiUIViewController>*)proxy] autorelease];
 }
 
 

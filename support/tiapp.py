@@ -38,6 +38,10 @@ def get_window_properties(node):
 			wp[w.nodeName]=getText(w.childNodes)
 	return wp
 
+def touch_tiapp_xml(tiapp_xml):
+	print "[DEBUG] touching tiapp.xml to force rebuild next time: " + tiapp_xml
+	os.utime(tiapp_xml, None)
+
 			
 class TiAppXML(object):
 	def __init__(self, file, parse_only=False):
@@ -327,10 +331,10 @@ class TiAppXML(object):
 
 	def has_app_property(self, property):
 		return property in self.app_properties
-	
+
 	def get_app_property(self, property):
 		return self.app_properties[property]
-	
+
 	def to_bool(self, value):
 		return value in ['true', 'True', 'TRUE', 'yes', 'Yes', 'YES', 'y', 't', '1']
 	

@@ -151,7 +151,7 @@ extern NSString *const kReachabilityChangedNotification;
 + (Reachability *) reachabilityWithHostName: (NSString*) hostName;
 
 // Use to check the reachability of a particular IP address. 
-+ (Reachability *) reachabilityWithAddress: (const struct sockaddr_in*) hostAddress;
++ (Reachability *) reachabilityWithAddress: (const void*) hostAddress;
 
 // Use to check whether the default route is available.  
 // Should be used to, at minimum, establish network connectivity.

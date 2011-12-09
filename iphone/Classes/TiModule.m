@@ -203,14 +203,10 @@
 
 -(id)bindCommonJSModule:(NSString*)code
 {
-	NSMutableString *js = [NSMutableString string];
-	
-	[js appendString:@"(function(exports){"];
-	[js appendString:code];
-	[js appendString:@"return exports;"];
-	[js appendString:@"})({})"];
+	NSString *js = [[NSString alloc] initWithFormat:TitaniumModuleRequireFormat,code];
 	
 	id result = [[self pageContext] evalJSAndWait:js];
+	[js release];
 	if ([result isKindOfClass:[NSDictionary class]])
 	{
 		for (id key in result)

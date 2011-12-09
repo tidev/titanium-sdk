@@ -195,7 +195,7 @@ static NSDictionary* TI_filterableItemProperties;
 	TiApp * tiApp = [TiApp app];
 	if ([TiUtils isIPad]==NO)
 	{
-		[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait];
+		[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait duration:[[tiApp controller] suggestedRotationDuration]];
 	}
 	[tiApp showModalController:picker_ animated:animatedPicker];
 }
@@ -205,7 +205,7 @@ static NSDictionary* TI_filterableItemProperties;
 	TiApp * tiApp = [TiApp app];
 	if ([TiUtils isIPad]==NO)
 	{
-		[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait];
+		[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait duration:[[tiApp controller] suggestedRotationDuration]];
 		[tiApp showModalController:picker_ animated:animatedPicker];
 	}
 	else
@@ -447,15 +447,23 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,MediaModuleErrorNoMusicPlayer);
 
 
 // >=3.2 dependent value; this one isn't deprecated
--(NSNumber*)VIDEO_CONTROL_DEFAULT
+MAKE_SYSTEM_PROP(VIDEO_CONTROL_DEFAULT, MPMovieControlStyleDefault);
+
+// Deprecated old-school video control modes, mapped to the new values
+-(NSNumber*)VIDEO_CONTROL_VOLUME_ONLY
 {
-	return NUMINT(MPMovieControlStyleDefault);
+    DEPRECATED_REPLACED(@"Ti.Media.VIDEO_CONTROL_VOLUME_ONLY", @"1.8.0", @"1.9.0", @"Ti.Media.VIDEO_CONTROL_EMBEDDED");
+    return [self VIDEO_CONTROL_EMBEDDED];
 }
 
-// these have been deprecated in 3.2 but we need them for older devices
-MAKE_SYSTEM_PROP(VIDEO_CONTROL_VOLUME_ONLY,MPMovieControlModeVolumeOnly);
-MAKE_SYSTEM_PROP(VIDEO_CONTROL_HIDDEN,MPMovieControlModeHidden);
- 
+-(NSNumber*)VIDEO_CONTROL_HIDDEN
+{
+    // This constant is still available in a non-deprecated manner in Android for 1.8; we should keep it around
+    // until there's a parity discussion.
+    // TODO: Does this need to be deprecated? For now, return the right value.
+    return [self VIDEO_CONTROL_NONE];
+}
+
 MAKE_SYSTEM_PROP(VIDEO_SCALING_NONE,MPMovieScalingModeNone);
 MAKE_SYSTEM_PROP(VIDEO_SCALING_ASPECT_FIT,MPMovieScalingModeAspectFit);
 MAKE_SYSTEM_PROP(VIDEO_SCALING_ASPECT_FILL,MPMovieScalingModeAspectFill);
@@ -750,7 +758,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	}
 	
 	TiApp * tiApp = [TiApp app];
-	[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait];
+	[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait duration:[[tiApp controller] suggestedRotationDuration]];
 	[tiApp showModalController:editor animated:animated];
 }
 

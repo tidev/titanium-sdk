@@ -1,110 +1,111 @@
 ---
 name: Titanium.Media.AudioPlayer
-description: The AudioPlayer object is returned by <Titanium.Media.createAudioPlayer> and is used for streaming audio to the device and low-level control of the audio playback.
+summary: The AudioPlayer object is returned by <Titanium.Media.createAudioPlayer> and is used for streaming audio to the device and low-level control of the audio playback.
 extends: Titanium.Proxy
 since: "0.9"
+platforms: [android, iphone, ipad]
 methods:
   - name: pause
-    description: pause playback
+    summary: pause playback
   - name: setPaused
-    description: control the playback of the audio
+    summary: control the playback of the audio
     parameters:
       - name: paused
-        description: pass true to pause the current playback temporarily, false to unpause it
+        summary: pass true to pause the current playback temporarily, false to unpause it
         type: Boolean
   - name: setUrl
-    description: change the url of the audio playback
+    summary: change the url of the audio playback
     parameters:
       - name: url
-        description: the new url
+        summary: the new url
         type: String
   - name: start
-    description: start playback
+    summary: start playback
   - name: stateDescription
-    description: convert a state into a textual description suitable for display
+    summary: convert a state into a textual description suitable for display
     returns:
         type: String
   - name: stop
-    description: stop playback
+    summary: stop playback
 events:
   - name: change
-    description: fired when the state of the playback changes
+    summary: fired when the state of the playback changes
     properties:
       - name: state
-        description: current state of playback
+        summary: current state of playback
       - name: description
-        description: textual description of the state of playback
+        summary: textual description of the state of playback
   - name: progress
-    description: fired once per second with the current progress during playback
+    summary: fired once per second with the current progress during playback
     properties:
       - name: progress
-        description: current progress value
+        summary: current progress value
 properties:
   - name: STATE_BUFFERING
-    description: current playback is in the buffering from the network state
+    summary: current playback is in the buffering from the network state
     type: Number
     permission: read-only
   - name: STATE_INITIALIZED
-    description: current playback is in the initialization state
+    summary: current playback is in the initialization state
     type: Number
     permission: read-only
   - name: STATE_PAUSED
-    description: current playback is in the paused state
+    summary: current playback is in the paused state
     type: Number
     permission: read-only
   - name: STATE_PLAYING
-    description: current playback is in the playing state
+    summary: current playback is in the playing state
     type: Number
     permission: read-only
   - name: STATE_STARTING
-    description: current playback is in the starting playback state
+    summary: current playback is in the starting playback state
     type: Number
     permission: read-only
   - name: STATE_STOPPED
-    description: current playback is in the stopped state
+    summary: current playback is in the stopped state
     type: Number
     permission: read-only
   - name: STATE_STOPPING
-    description: current playback is in the stopping state
+    summary: current playback is in the stopping state
     type: Number
     permission: read-only
   - name: STATE_WAITING_FOR_DATA
-    description: current playback is in the waiting for audio data from the network state
+    summary: current playback is in the waiting for audio data from the network state
     type: Number
     permission: read-only
   - name: STATE_WAITING_FOR_QUEUE
-    description: current playback is in the waiting for audio data to fill the queue state
+    summary: current playback is in the waiting for audio data to fill the queue state
     type: Number
     permission: read-only
   - name: allowBackground
-    description: boolean to indicate if audio should continue playing even if Activity is paused
+    summary: boolean to indicate if audio should continue playing even if Activity is paused
     type: Boolean
     platforms: [android]
   - name: bitRate
-    description: bit rate of the current playback stream
+    summary: bit rate of the current playback stream
     type: Number
   - name: idle
-    description: returns boolean indicating if the playback is idle
+    summary: returns boolean indicating if the playback is idle
     type: Boolean
   - name: paused
-    description: returns boolean indicating if the playback is paused
+    summary: returns boolean indicating if the playback is paused
     type: Boolean
   - name: playing
-    description: returns boolean indicating if the playback is streaming audio
+    summary: returns boolean indicating if the playback is streaming audio
     type: Boolean
   - name: progress
-    description: returns the current playback progress. Will return zero if sampleRate has not yet been detected
+    summary: returns the current playback progress. Will return zero if sampleRate has not yet been detected
     type: Number
   - name: state
-    description: returns int for the current state of playback
+    summary: returns int for the current state of playback
     type: Number
   - name: url
-    description: returns the url for the current playback
+    summary: returns the url for the current playback
     type: String
   - name: waiting
-    description: returns boolean indicating if the playback is waiting for audio data from the network
+    summary: returns boolean indicating if the playback is waiting for audio data from the network
     type: Boolean
   - name: bufferSize
-    description: the size of the buffer used for streaming, in bytes
+    summary: the size of the buffer used for streaming, in bytes
     type: Number
     platforms: [iphone, ipad]

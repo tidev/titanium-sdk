@@ -1,20 +1,20 @@
 ---
 name: Titanium.UI.iPhone.ActivityIndicatorStyle
-description: A set of constants for the styles available for <Titanium.UI.ActivityIndicator> objects.
+summary: A set of constants for the styles available for <Titanium.UI.ActivityIndicator> objects.
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [iphone, ipad]
 createable: false
 properties:
   - name: BIG
-    description: The large white style of indicator.
+    summary: The large white style of indicator.
     type: Number
     permission: read-only
   - name: DARK
-    description: The standard gray style of indicator.
+    summary: The standard gray style of indicator.
     type: Number
     permission: read-only
   - name: PLAIN
-    description: The standard white style of indicator (the default).
+    summary: The standard white style of indicator (the default).
     type: Number
     permission: read-only

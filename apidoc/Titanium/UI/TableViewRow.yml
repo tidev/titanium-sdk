@@ -1,6 +1,6 @@
 ---
 name: Titanium.UI.TableViewRow
-description: A TableView row object created by the method <Titanium.UI.createTableViewRow>.
+summary: A TableView row object created by the method <Titanium.UI.createTableViewRow>.
 extends: Titanium.UI.View
 since: "0.9"
 excludes:
@@ -9,52 +9,54 @@ excludes:
     events: []
 properties:
   - name: className
-    description: the class name of the table. each table view cell must have a unique class name if the cell layout is different. however, use the same name for rows that have the same structural layout (even if the content is different) to provide maximum rendering performance.
+    summary: the class name of the table. each table view cell must have a unique class name if the cell layout is different. however, use the same name for rows that have the same structural layout (even if the content is different) to provide maximum rendering performance.
     type: String
   - name: color
-    description: default color of the row when not selected
+    summary: default color of the row when not selected
     type: String
   - name: editable
-    description: whether or not the row can be deleted
+    summary: whether or not the row can be deleted
     type: Boolean
     platforms: [iphone, ipad]
   - name: hasCheck
-    description: render a system provided check mark in the right image area of the row cell
+    summary: render a system provided check mark in the right image area of the row cell
     type: Boolean
   - name: hasChild
-    description: render a system provided right arrow in the right image area of the row cell
+    summary: render a system provided right arrow in the right image area of the row cell
     type: Boolean
   - name: hasDetail
-    description: render a system provided blue indicator icon in the right image area of the row cell
+    summary: render a system provided blue indicator icon in the right image area of the row cell
     type: Boolean
   - name: indentionLevel
-    description: the indention level for the cell (defaults to 0)
+    summary: the indention level for the cell (defaults to 0)
     type: Number
+    platforms: [android, iphone, ipad]
   - name: layout
-    description: the layout algorithm to use for the layout. either absolute (default) or vertical.
+    summary: the layout algorithm to use for the layout. either absolute (default) or vertical.
     type: String
+    platforms: [android, iphone, ipad]
   - name: leftImage
-    description: image url to render in the left image area of the row cell
+    summary: image url to render in the left image area of the row cell
     type: String
   - name: rightImage
-    description: image url to render in the right image area of the row cell
+    summary: image url to render in the right image area of the row cell
     type: String
   - name: selectedBackgroundColor
-    description: the background color to render when the row cell is selected
+    summary: the background color to render when the row cell is selected
     type: String
   - name: selectedBackgroundImage
-    description: the background image to render when the row cell is selected
+    summary: the background image to render when the row cell is selected
     type: String
   - name: selectedColor
-    description: color of the row during selection
+    summary: color of the row during selection
     type: String
   - name: selectionStyle
-    description: a selection style constant to control the selection color. For iPhone, use the constants from Titanium.UI.iPhone.TableViewCellSelectionStyle
+    summary: a selection style constant to control the selection color. For iPhone, use the constants from Titanium.UI.iPhone.TableViewCellSelectionStyle
     type: Number
   - name: title
-    description: the title cell value. do not specify if using views as children of the row
+    summary: the title cell value. do not specify if using views as children of the row
     type: String
-notes: |
+description: |
     Make sure you set the tableClass on each row instance if using more than one type of row layout. You can use the same value for each instance of a row where the layout is the same - even if the value of the elements inside the row have different values.  For example, if the text is the only thing different between two cells but the layout is the same, both row instances should have the same value for tableClass.
     
     You can listen for table row events on all rows by adding an event listener to the table view instance.  Events automatically propagate to parent views.

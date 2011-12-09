@@ -34,6 +34,7 @@ from css import csscompiler
 from module import ModuleDetector
 import localecompiler
 import fastdev
+import requireIndex
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn', 'CVS'];
@@ -52,7 +53,7 @@ uncompressed_types = [
 ]
 
 
-MIN_API_LEVEL = 7
+MIN_API_LEVEL = 8
 
 def render_template_with_tiapp(template_text, tiapp_obj):
 	t = Template(template_text)
@@ -206,6 +207,10 @@ class Builder(object):
 			self.tool_api_level = MIN_API_LEVEL
 		self.sdk = AndroidSDK(sdk, self.tool_api_level)
 		self.tiappxml = temp_tiapp
+
+		json_contents = open(os.path.join(template_dir,'dependency.json')).read()
+		self.depends_map = simplejson.loads(json_contents)
+		self.runtime = self.tiappxml.app_properties.get('ti.android.runtime', self.depends_map['runtimes']['defaultRuntime'])
 
 		self.set_java_commands()
 		# start in 1.4, you no longer need the build/android directory
@@ -659,7 +664,11 @@ class Builder(object):
 						relative_path = make_relative(delta.get_path(), resources_dir)
 					relative_path = relative_path.replace("\\", "/")
 					self.run_adb('push', delta.get_path(), "%s/%s" % (self.sdcard_resources, relative_path))
-		
+
+		index_json_path = os.path.join(self.assets_dir, "index.json")
+		if len(self.project_deltas) > 0 or not os.path.exists(index_json_path):
+			requireIndex.generateJSON(self.assets_dir, index_json_path)
+
 	def generate_android_manifest(self,compiler):
 
 		self.generate_localizations()
@@ -1117,14 +1126,17 @@ class Builder(object):
 
 		if self.res_changed or manifest_changed:
 			res_dir = os.path.join(self.project_dir, 'res')
-			output = run.run([self.aapt, 'package', '-m', '-J', self.project_gen_dir, '-M', android_manifest, '-S', res_dir, '-I', self.android_jar],
-				warning_regex=r'skipping')
-		
+			output = run.run([self.aapt, 'package', '-m',
+				'-J', self.project_gen_dir,
+				'-M', android_manifest,
+				'-S', res_dir,
+				'-I', self.android_jar], warning_regex=r'skipping')
+
 		r_file = os.path.join(self.project_gen_dir, self.app_id.replace('.', os.sep), 'R.java')
 		if not os.path.exists(r_file) or (self.res_changed and output == None):
 			error("Error generating R.java from manifest")
 			sys.exit(1)
-		
+
 		return manifest_changed
 
 	def generate_stylesheet(self):
@@ -1383,6 +1395,12 @@ class Builder(object):
 		for module in self.modules:
 			add_native_libs(module.get_resource('libs'))
 
+		# add sdk runtime native libraries
+		sdk_native_libs = os.path.join(template_dir, 'native', 'libs')
+		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libkroll-v8.so'), 'lib/armeabi/libkroll-v8.so')
+		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libkroll-v8.so'), 'lib/armeabi-v7a/libkroll-v8.so')
+		self.apk_updated = True
+
 		apk_zip.close()
 		return unsigned_apk
 
@@ -1394,7 +1412,6 @@ class Builder(object):
 
 	def package_and_deploy(self):
 		ap_ = os.path.join(self.project_dir, 'bin', 'app.ap_')
-		rhino_jar = os.path.join(self.support_dir, 'js.jar')
 
 		# This is only to check if this has been overridden in production
 		has_compile_js = self.tiappxml.has_app_property("ti.android.compilejs")
@@ -1406,7 +1423,9 @@ class Builder(object):
 			non_js_assets = os.path.join(self.project_dir, 'bin', 'non-js-assets')
 			if not os.path.exists(non_js_assets):
 				os.mkdir(non_js_assets)
-			copy_all(self.assets_dir, non_js_assets, ignore_exts=[".js"])
+			#TODO: Decide whether we need to add 'ignore_exts=[".js"]' back to the copy_all() method once we are able to package with rhino
+			# For now, we leave the js files in for v8 packaging
+			copy_all(self.assets_dir, non_js_assets)
 			pkg_assets_dir = non_js_assets
 
 		run.run([self.aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', pkg_assets_dir,
@@ -1779,7 +1798,7 @@ class Builder(object):
 			self.compiled_files = compiler.compiled_files
 			self.android_jars = compiler.jar_libraries
 			self.merge_internal_module_resources()
-			
+
 			if not os.path.exists(self.assets_dir):
 				os.makedirs(self.assets_dir)
 
@@ -1845,6 +1864,7 @@ class Builder(object):
 				dex_args += ['--dex', '--output='+self.classes_dex, self.classes_dir]
 				dex_args += self.android_jars
 				dex_args += self.module_jars
+
 				if self.deploy_type != 'production':
 					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'))
 					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-debug.jar'))
@@ -1857,12 +1877,6 @@ class Builder(object):
 					if not has_network_jar:
 						dex_args.append(os.path.join(self.support_dir, 'modules', 'titanium-network.jar'))
 
-					# substitute for the debugging js jar in non production mode
-					for jar in self.android_jars:
-						if jar.endswith('js.jar'):
-							dex_args.remove(jar)
-							dex_args.append(os.path.join(self.support_dir, 'js-debug.jar'))
-	
 				info("Compiling Android Resources... This could take some time")
 				# TODO - Document Exit message
 				run_result = run.run(dex_args, warning_regex=r'warning: ')
@@ -1908,6 +1922,13 @@ class Builder(object):
 					info("Relaunched %s ... Application should be running." % self.name)
 
 			self.post_build()
+
+			# Enable port forwarding for debugger if application
+			# acts as the server. Currently only V8 runtime uses this mode.
+			if debugger_enabled and self.runtime == 'v8':
+				info('Forwarding host port %s to device for debugging.' % self.debugger_port)
+				forwardPort = 'tcp:%s' % self.debugger_port
+				self.sdk.run_adb(['forward', forwardPort, 'tcp:9999'])
 
 			#intermediary code for on-device debugging (later)
 			#if debugger_host != None:

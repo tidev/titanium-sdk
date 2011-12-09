@@ -23,7 +23,7 @@
 #define BitRateEstimationMinPackets 50
 
 @interface AudioStreamerCUR ()
-@property (readwrite) TI_AudioStreamerState state;
+@property (nonatomic, readwrite) TI_AudioStreamerState state;
 
 - (void)handlePropertyChangeForFileStream:(AudioFileStreamID)inAudioFileStream
 	fileStreamPropertyID:(AudioFileStreamPropertyID)inPropertyID

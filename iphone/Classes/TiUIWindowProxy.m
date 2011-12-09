@@ -113,7 +113,7 @@
 
 -(void)_destroy
 {
-    if (![self closing]) {
+    if (![self closing] && [[self opened] boolValue]) {
         [self performSelectorOnMainThread:@selector(close:) withObject:nil waitUntilDone:YES];
     }
     
@@ -618,71 +618,68 @@
 
 -(void)setToolbar:(id)items withObject:(id)properties
 {
-	ENSURE_UI_THREAD_WITH_OBJ(setToolbar,items,properties);
-    if (properties == nil) {
+	ENSURE_TYPE_OR_NIL(items,NSArray);
+	if (properties == nil)
+	{
         properties = [self valueForKey:@"toolbarSettings"];
     }
-    else {
+    else 
+	{
         [self setValue:properties forKey:@"toolbarSettings"];
     }
-    
-	if (controller!=nil)
+	NSArray * oldarray = [self valueForUndefinedKey:@"toolbar"];
+	if((id)oldarray == [NSNull null])
 	{
-		ENSURE_TYPE_OR_NIL(items,NSArray);
-		[self replaceValue:items forKey:@"toolbar" notification:NO];
-		
-		// detatch the current ones
-		NSArray *existing = [controller toolbarItems];
-		UINavigationController * ourNC = [controller navigationController];
-		if (existing!=nil)
+		oldarray = nil;
+	}
+	for(TiViewProxy * oldProxy in oldarray)
+	{
+		if(![items containsObject:oldProxy])
 		{
-			for (id current in existing)
+			[self forgetProxy:oldProxy];
+		}
+	}
+	for (TiViewProxy *proxy in items)
+	{
+		[self rememberProxy:proxy];
+	}
+	[self replaceValue:items forKey:@"toolbar" notification:NO];
+	TiThreadPerformOnMainThread( ^{
+		if (controller!=nil)
+		{
+			NSArray *existing = [controller toolbarItems];
+			UINavigationController * ourNC = [controller navigationController];
+			if (existing!=nil)
 			{
-				if ([current respondsToSelector:@selector(proxy)])
+				for (id current in existing)
 				{
-					TiViewProxy* p = (TiViewProxy*)[current performSelector:@selector(proxy)];
-					[p removeBarButtonView];
+					if ([current respondsToSelector:@selector(proxy)])
+					{
+						TiViewProxy* p = (TiViewProxy*)[current performSelector:@selector(proxy)];
+						[p removeBarButtonView];
+					}
 				}
 			}
-		}
-		BOOL translucent = [TiUtils boolValue:@"translucent" properties:properties def:NO];
-		if (items!=nil && [items count] > 0)
-		{
-			NSMutableArray *array = [[NSMutableArray alloc] initWithCapacity:[items count]];
+			NSMutableArray * array = [[NSMutableArray alloc] initWithObjects:nil];
 			for (TiViewProxy *proxy in items)
 			{
-				if ([proxy supportsNavBarPositioning])
+				if([proxy supportsNavBarPositioning])
 				{
-					// detach existing one
 					UIBarButtonItem *item = [proxy barButtonItem];
 					[array addObject:item];
 				}
-				else
-				{
-					NSString *msg = [NSString stringWithFormat:@"%@ doesn't support positioning on the nav bar",proxy];
-					THROW_INVALID_ARG(msg);
-				}
 			}
-			BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
+			hasToolbar = (array != nil && [array count] > 0) ? YES : NO ;
+			BOOL translucent = [TiUtils boolValue:@"translucent" properties:properties def:NO];
+			BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:hasToolbar];
 			[controller setToolbarItems:array animated:animated];
-			[ourNC setToolbarHidden:NO animated:animated];
+			[ourNC setToolbarHidden:(hasToolbar == NO ? YES : NO) animated:animated];
 			[ourNC.toolbar setTranslucent:translucent];
 			[array release];
-			hasToolbar=YES;
+			
 		}
-		else
-		{
-			BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:NO];
-			[controller setToolbarItems:nil animated:animated];
-			[ourNC setToolbarHidden:YES animated:animated];
-			[ourNC.toolbar setTranslucent:translucent];
-			hasToolbar=NO;
-		}
-	}
-	else
-	{
-		[self replaceValue:[[[TiComplexValue alloc] initWithValue:items properties:properties] autorelease] forKey:@"toolbar" notification:NO];
-	}
+	},YES);
+	
 }
 
 

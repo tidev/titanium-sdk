@@ -471,7 +471,7 @@ DEFINE_EXCEPTIONS
 //	Redraw ourselves if changing from invisible to visible, to handle any changes made
 	if (!self.hidden) {
 		TiViewProxy* viewProxy = (TiViewProxy*)[self proxy];
-		[viewProxy reposition];
+        [viewProxy willEnqueue];
 	}
 }
 
@@ -850,14 +850,13 @@ DEFINE_EXCEPTIONS
 		{
 			if (touchDelegate == nil) {
 				[proxy fireEvent:@"click" withObject:evt propagate:YES];
-			}
-			else {
+				return;
+			} else {
 				[touchDelegate touchesBegan:touches withEvent:event];
 			}
-		}
-		else if ([touch tapCount] == 2 && [proxy _hasListeners:@"dblclick"])
-		{
+		} else if ([touch tapCount] == 2 && [proxy _hasListeners:@"dblclick"]) {
 			[proxy fireEvent:@"dblclick" withObject:evt propagate:YES];
+			return;
 		}
 	}
 	[super touchesBegan:touches withEvent:event];

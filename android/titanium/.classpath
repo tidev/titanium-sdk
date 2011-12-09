@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="thirdparty"/>
-	<classpathentry kind="src" path=".apt_generated"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-logging-1.1.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/js.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/ti-commons-codec-1.3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/android-support-v4.jar"/>
-	<classpathentry exported="true" kind="var" path="ANDROID_PLATFORM/android.jar"/>
-	<classpathentry exported="true" kind="var" path="GOOGLE_APIS/libs/maps.jar"/>
-	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="src/java"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="lib" path="/titanium-dist/lib/kroll-apt.jar"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry exported="true" kind="lib" path="lib/android-support-v4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-logging-1.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/thirdparty.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ti-commons-codec-1.3.jar"/>
+	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/kroll-common"/>
+	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

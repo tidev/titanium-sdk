@@ -1,6 +1,6 @@
 // create table view data object
 var data = [
-	{title:'YQL + Flickr', hasChild:true, test:'../examples/yql_flickr.js'}
+	{title:'YQL Local Search', hasChild:true, test:'../examples/yql_local_search.js'}
 
 ];
 

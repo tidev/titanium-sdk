@@ -1,280 +1,281 @@
 ---
 name: Titanium.Stream
-description: Stream module containing stream utility methods
+summary: Stream module containing stream utility methods
 extends: Titanium.Module
 since: "1.7"
+platforms: [android, iphone, ipad]
 
 properties:
   - name: MODE_READ
     type: Number
-    description: read only mode value
+    summary: read only mode value
     permission: read-only
   - name: MODE_WRITE
     type: Number
-    description: write mode value
+    summary: write mode value
     permission: read-only
   - name: MODE_APPEND
     type: Number
-    description: append mode value. 
+    summary: append mode value. 
     permission: read-only
 
 methods:
   - name: createStream
     returns:
         type: Titanium.IOStream
-    description: Creates stream from specified container.  Returns `Titanium.BufferStream` or `Titanium.BlobStream` depending on whether a Buffer or Blob is provided as the 'source' property in params.  Write and append mode only applies to Buffer as Blob is read only.
+    summary: Creates stream from specified container.  Returns `Titanium.BufferStream` or `Titanium.BlobStream` depending on whether a Buffer or Blob is provided as the 'source' property in params.  Write and append mode only applies to Buffer as Blob is read only.
     parameters:
       - name: params
-        description: creation arguments
+        summary: creation arguments
         type: CreateStreamArgs
         
   - name: read
-    description: Async version of read on `Titanium.IOStream`
+    summary: Async version of read on `Titanium.IOStream`
     parameters:
       - name: sourceStream
-        description: Stream to read from
+        summary: Stream to read from
         type: Titanium.IOStream
       - name: buffer
-        description: Buffer to read into
+        summary: Buffer to read into
         type: Titanium.Buffer
       - name: resultsCallback
-        description: called with result of the read operation
+        summary: called with result of the read operation
         type: Callback<ReadCallbackArgs>
 
   - name: read
-    description: Async version of read on `Titanium.IOStream` that takes offset and length
+    summary: Async version of read on `Titanium.IOStream` that takes offset and length
     parameters:
       - name: sourceStream
-        description: Stream to read from
+        summary: Stream to read from
         type: Titanium.IOStream
       - name: buffer
-        description: Buffer to read into
+        summary: Buffer to read into
         type: Titanium.Buffer
       - name: offset
-        description: offset to start reading buffer data from
+        summary: offset to start reading buffer data from
         type: Number
       - name: length
-        description: length of data to read from buffer
+        summary: length of data to read from buffer
         type: Number
       - name: resultsCallback
-        description: called with result of the read operation
+        summary: called with result of the read operation
         type: Callback<ReadCallbackArgs>
 
   - name: readAll
-    description: reads all data from `Titanium.IOStream`
+    summary: reads all data from `Titanium.IOStream`
     returns:
         type: Titanium.Buffer
     parameters:
       - name: sourceStream
-        description: Stream to read from
+        summary: Stream to read from
         type: Titanium.IOStream
 
   - name: readAll
-    description: Async version of readAll
+    summary: Async version of readAll
     parameters:
       - name: sourceStream
-        description: Stream to read from
+        summary: Stream to read from
         type: Titanium.IOStream
       - name: buffer
-        description: Buffer to read into
+        summary: Buffer to read into
         type: Titanium.Buffer
       - name: resultsCallback
-        description: called with result of the read operation
+        summary: called with result of the read operation
         type: Callback<ReadCallbackArgs>
 
   - name: write
-    description: Async version of write on `Titanium.IOStream`
+    summary: Async version of write on `Titanium.IOStream`
     parameters:
       - name: outputStream
-        description: Stream to write to
+        summary: Stream to write to
         type: Titanium.IOStream
       - name: buffer
-        description: Buffer to write from
+        summary: Buffer to write from
         type: Titanium.Buffer
       - name: resultsCallback
-        description: called with result of the write operation
+        summary: called with result of the write operation
         type: Callback<WriteCallbackArgs>
 
   - name: write
-    description: Async version of write on `Titanium.IOStream` that takes offset and length
+    summary: Async version of write on `Titanium.IOStream` that takes offset and length
     parameters:
       - name: outputStream
-        description: Stream to write to
+        summary: Stream to write to
         type: Titanium.IOStream
       - name: buffer
-        description: Buffer to write from
+        summary: Buffer to write from
         type: Titanium.Buffer
       - name: offset
-        description: offset to start writing buffer data from
+        summary: offset to start writing buffer data from
         type: Number
       - name: length
-        description: length of data to write from buffer
+        summary: length of data to write from buffer
         type: Number
       - name: resultsCallback
-        description: called with result of the write operation
+        summary: called with result of the write operation
         type: Callback<WriteCallbackArgs>
 
   - name: writeStream
-    description: Writes all data from input stream to output stream
+    summary: Writes all data from input stream to output stream
     returns:
         type: Number
-        description: Number of bytes written
+        summary: Number of bytes written
     parameters:
       - name: inputStream
-        description: Stream to read from
+        summary: Stream to read from
         type: Titanium.IOStream
       - name: outputStream
-        description: Stream to write to
+        summary: Stream to write to
         type: Titanium.IOStream
       - name: maxChunkSize
-        description: max size of data to write from inputStream to ouputStream at once
+        summary: max size of data to write from inputStream to ouputStream at once
         type: Number
 
   - name: writeStream
-    description: Async version of writeStream
+    summary: Async version of writeStream
     parameters:
       - name: inputStream
-        description: Stream to read from
+        summary: Stream to read from
         type: Titanium.IOStream
       - name: outputStream
-        description: Stream to write to
+        summary: Stream to write to
         type: Titanium.IOStream
       - name: maxChunkSize
-        description: max size of data to write from inputStream to ouputStream at once
+        summary: max size of data to write from inputStream to ouputStream at once
         type: Number
       - name: resultsCallback
-        description: called with result of the writeStream operation
+        summary: called with result of the writeStream operation
         type: Callback<WriteStreamCallbackArgs>
 
   - name: pump
-    description: Pumps data from input stream to handler method
+    summary: Pumps data from input stream to handler method
     parameters:
       - name: inputStream
-        description: Stream to pump from
+        summary: Stream to pump from
         type: Titanium.IOStream
       - name: handler
-        description: handler method that will receive the pumped data
+        summary: handler method that will receive the pumped data
         type: Callback<PumpCallbackArgs>
       - name: maxChunkSize
-        description: max size of data to pump from inputStream to the handler method at once
+        summary: max size of data to pump from inputStream to the handler method at once
         type: Number
 
   - name: pump
-    description: Variant of pump that allows for setting the async mode
+    summary: Variant of pump that allows for setting the async mode
     parameters:
       - name: inputStream
-        description: Stream to pump from
+        summary: Stream to pump from
         type: Titanium.IOStream
       - name: handler
-        description: handler method that will receive the pumped data
+        summary: handler method that will receive the pumped data
         type: Callback<PumpCallbackArgs>
       - name: maxChunkSize
-        description: max size of data to pump from inputStream to the handler method at once
+        summary: max size of data to pump from inputStream to the handler method at once
         type: Number
       - name: isAsync
-        description: true is pump operation should be async, false is not
+        summary: true is pump operation should be async, false is not
         type: Boolean
 
 
 ---
 name: CreateStreamArgs
-description: Arguments to be passed to createStream
+summary: Arguments to be passed to createStream
 since: "1.7"
 
 properties:
   - name: source
-    description: Object to create stream around
+    summary: Object to create stream around
     type: [Titanium.Blob, Titanium.Buffer]
   - name: mode
-    description: mode for the stream to be opened in. Can be `Titanium.Stream.MODE_READ`,  `Titanium.Stream.MODE_WRITE` or `Titanium.Stream.MODE_APPEND`
+    summary: mode for the stream to be opened in. Can be `Titanium.Stream.MODE_READ`,  `Titanium.Stream.MODE_WRITE` or `Titanium.Stream.MODE_APPEND`
     type: Number
 
 
 ---
 name: ReadCallbackArgs
-description: The callback to be fired when a async read operation finishes
+summary: The callback to be fired when a async read operation finishes
 since: "1.7"
 
 properties:
   - name: source
-    description: Stream being read
+    summary: Stream being read
     type: Titanium.IOStream
   - name: bytesProcessed
-    description: number of bytes processed
+    summary: number of bytes processed
     type: Number
   - name: errorState
-    description: state representing error
+    summary: state representing error
     type: String
   - name: errorDescription
-    description: description of the error
+    summary: description of the error
     type: String
 
 
 ---
 name: WriteCallbackArgs
-description: The callback to be fired when a async write operation finishes
+summary: The callback to be fired when a async write operation finishes
 since: "1.7"
 
 properties:
   - name: source
-    description: Stream being write
+    summary: Stream being write
     type: Titanium.IOStream
   - name: bytesProcessed
-    description: number of bytes processed
+    summary: number of bytes processed
     type: Number
   - name: errorState
-    description: state representing error
+    summary: state representing error
     type: String
   - name: errorDescription
-    description: description of the error
+    summary: description of the error
     type: String
 
 
 ---
 name: WriteStreamCallbackArgs
-description: The callback to be fired when writeStream operation finishes
+summary: The callback to be fired when writeStream operation finishes
 since: "1.7"
 
 properties:
   - name: fromStream
-    description: Stream being read from
+    summary: Stream being read from
     type: Titanium.IOStream
   - name: toStream
-    description: Stream being written to
+    summary: Stream being written to
     type: Titanium.IOStream
   - name: bytesProcessed
-    description: number of bytes processed
+    summary: number of bytes processed
     type: Number
   - name: errorState
-    description: state representing error
+    summary: state representing error
     type: String
   - name: errorDescription
-    description: description of the error
+    summary: description of the error
     type: String
 
 
 ---
 name: PumpCallbackArgs
-description: The callback to be fired when writeStream operation finishes
+summary: The callback to be fired when writeStream operation finishes
 since: "1.7"
 
 properties:
   - name: source
-    description: Stream being read from
+    summary: Stream being read from
     type: Titanium.IOStream
   - name: buffer
-    description: Buffer object holding the data currently being pumped to the handler method
+    summary: Buffer object holding the data currently being pumped to the handler method
     type: Titanium.Buffer
   - name: bytesProcessed
-    description: number of bytes processed in the current pump segment
+    summary: number of bytes processed in the current pump segment
     type: Number
   - name: totalBytesProcessed
-    description: total number of bytes processed in the overall pump operation so far
+    summary: total number of bytes processed in the overall pump operation so far
     type: Number
   - name: errorState
-    description: state representing error
+    summary: state representing error
     type: String
   - name: errorDescription
-    description: description of the error
+    summary: description of the error
     type: String
 

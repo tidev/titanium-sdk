@@ -264,7 +264,7 @@ NSArray * tableKeySequence;
 	{
 		// Set up the new section
 		result.table = table;
-		result.parent = [table proxy];
+		result.parent = (TiViewProxy*)[table proxy];
 	}
 	if (newHeader != nil)
 	{
@@ -623,9 +623,10 @@ NSArray * tableKeySequence;
         TiUITableViewActionType actionType = TiUITableViewActionAppendRow;
         TiUITableViewSectionProxy* section = [sections lastObject];
         if (header != nil) {
-            section = [self sectionWithHeader:header table:table];			
-            section.section = [sections count];
-            
+            section = [self sectionWithHeader:header table:table];		
+            TiThreadPerformOnMainThread(^{
+                section.section = [sections count];
+            }, YES);
             actionType = TiUITableViewActionAppendRowWithSection;
         }
         row.section = section;

@@ -355,6 +355,15 @@ static void getAddrInternal(char* macAddress, const char* ifName) {
         id xVal = [value objectForKey:@"x"];
         id yVal = [value objectForKey:@"y"];
         if (xVal && yVal) {
+            if (![xVal respondsToSelector:@selector(floatValue)] ||
+                ![yVal respondsToSelector:@selector(floatValue)]) 
+            {
+                if (isValid) {
+                    *isValid = NO;
+                }
+                return CGPointMake(0.0, 0.0);
+            }
+            
             if (isValid) {
                 *isValid = YES;
             }
@@ -1176,11 +1185,11 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 //	TODO: A previous bug was DeviceOrientationUnknown == 0, which is always true. Uncomment this when pushing.
 	if (UIDeviceOrientationUnknown == orient) 
 	{
-		return UIDeviceOrientationPortrait;
+		return (UIInterfaceOrientation)UIDeviceOrientationPortrait;
 	} 
 	else 
 	{
-		return orient;
+		return (UIInterfaceOrientation)orient;
 	}
 }
 

@@ -1,34 +1,34 @@
 ---
 name: Titanium.Database.DB
-description: The Database instance returned by <Titanium.Database.open> or <Titanium.Database.install>.
+summary: The Database instance returned by <Titanium.Database.open> or <Titanium.Database.install>.
 extends: Titanium.Proxy
 since: "0.1"
 createable: false
 methods:
   - name: close
-    description: close the database and release resources from memory. once closed, this instance is no longer valid and must no longer be used.
+    summary: close the database and release resources from memory. once closed, this instance is no longer valid and must no longer be used.
   - name: execute
-    description: execute a SQL statement against the database and returns a ResultSet
+    summary: execute a SQL statement against the database and returns a ResultSet
     returns:
         type: Object
     parameters:
       - name: sql
-        description: the SQL to execute
+        summary: the SQL to execute
         type: String
       - name: vararg
-        description: one or more optional variable arguments passed to this function or an array of objects to be replaced in the query using `?` substitution.
+        summary: one or more optional variable arguments passed to this function or an array of objects to be replaced in the query using `?` substitution.
         type: Array<Object>
         optional: true
   - name: remove
-    description: |
+    summary: |
         remove the database files for this instance from disk. WARNING: this is a destructive operation and cannot be reversed. All data in the database will be lost upon calling this function. Use with caution.
 properties:
   - name: lastInsertRowId
-    description: the last row identifier by the last INSERT query
+    summary: the last row identifier by the last INSERT query
     type: Number
   - name: name
-    description: the name of the database
+    summary: the name of the database
     type: String
   - name: rowsAffected
-    description: the number of rows affected by the last query
+    summary: the number of rows affected by the last query
     type: Number

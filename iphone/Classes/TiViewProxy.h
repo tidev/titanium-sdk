@@ -91,7 +91,6 @@ enum
 @property(nonatomic,readwrite,assign) int zIndex;
 @property(nonatomic,readwrite,assign) BOOL parentVisible; // For tableview magic ONLY
 @property(nonatomic,readonly) NSArray *children;
-@property(nonatomic,readonly) TiPoint *center;
 
 -(void)add:(id)arg;
 -(void)remove:(id)arg;
@@ -112,6 +111,7 @@ enum
 
 -(void)setSize:(id)value;
 -(void)setCenter:(id)value;
+-(TiPoint*)center;
 -(id)animatedCenter;
 
 -(void)setBackgroundGradient:(id)arg;
@@ -119,7 +119,7 @@ enum
 
 
 #pragma mark nonpublic accessors not related to Housecleaning
-@property(assign) TiViewProxy *parent;
+@property(nonatomic, assign) TiViewProxy *parent;
 //TODO: make this a proper readwrite property declaration.
 
 @property(nonatomic,readonly,assign) LayoutConstraint * layoutProperties;

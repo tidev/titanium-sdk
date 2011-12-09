@@ -46,7 +46,10 @@ w.add(harnessConsole);
 
 // in Android, we run tests through the custom Activity
 if (isAndroid) {
-	TestHarnessActivity.onRunnerReady(runTests);
+	Ti.Android.currentActivity.addEventListener("instrumentationReady", function(e) {
+		DrillbitTest.instrumentation = e.instrumentation;
+		runTests();
+	});
 } else {
 	w.addEventListener("open", function(e) {
 		runTests();
