@@ -583,6 +583,10 @@ public abstract class TiUIView
 	public void focus()
 	{
 		if (nativeView != null) {
+			InputMethodManager imm = getIMM();
+			if (imm != null) {
+				imm.showSoftInput(nativeView, 0);
+			}
 			nativeView.requestFocus();
 		}
 	}
