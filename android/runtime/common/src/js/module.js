@@ -175,9 +175,8 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 		}
 	}
 
-	if (kroll.DBG) {
-		kroll.log(TAG, "Unable to load external module: " + id);
-	}
+	kroll.log(TAG, "Unable to load external module: " + id);
+	
 }
 
 // Require another module as a child of this module.
