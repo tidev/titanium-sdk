@@ -859,7 +859,8 @@ def main(args):
 				version = ti.properties['version']
 				# we want to make sure in debug mode the version always changes
 				version = "%s.%d" % (version,time.time())
-				ti.properties['version']=version
+				if (deploytype != 'production'):
+					ti.properties['version'] = version
 				pp = os.path.expanduser("~/Library/MobileDevice/Provisioning Profiles/%s.mobileprovision" % appuuid)
 				provisioning_profile = read_provisioning_profile(pp,o)
 	
