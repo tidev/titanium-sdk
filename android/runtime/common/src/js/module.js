@@ -92,7 +92,7 @@ Module.prototype.load = function (filename, source) {
 		source = assets.readAsset(filename);
 	}
 
-	this._runScript(source, filename);
+	this._runScript(source, filename.replace("Resources/", ""));
 
 	this.loaded = true;
 }
@@ -227,7 +227,7 @@ Module.prototype.require = function (request, context, useCache) {
 // Returns the result of the executed script.
 Module.prototype._runScript = function (source, filename) {
 	var self = this;
-	var url = "app://" + filename.replace("Resources/", "");
+	var url = "app://" + filename;
 
 	function require(path, context) {
 		return self.require(path, context);
