@@ -1,0 +1,89 @@
+Titanium Mobile 1.8.0.1 - 12/09/2011
+==================================
+
+This release includes new features for Android, iOS, and APIDocs, a new platform, MobileWeb, and many bug fixes. Please note, the shipping version of the platform is versioned as *1.8.0.1*. All references to 1.8.0 below apply to the shipped 1.8.0.1 release.
+
+Please see the updated [Titanium Mobile Reference Documentation for 1.8.0](/apidoc/mobile/1.8.0.1). 
+
+[Full list of Issues that were addressed in 1.8.0](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12036) 
+
+Significant on Titanium Mobile
+-------------------------------
+
+- [Several changes for platform parity](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12128)
+- V8 is the default runtime for Android devices providing a higher level of performance than the Rhino engine
+- We no longer support Android 2.1 (API 7)
+- We no longer support iOS versions less than 4.0
+- Replace deprecated API `globalPoint` with a member function on View called 'convertPointToView' [Android-TIMOB-5122](http://jira.appcelerator.org/browse/TIMOB-5122), [iOS-TIMOB-5121](http://jira.appcelerator.org/browse/TIMOB-5121)
+- `Titanium.Platform.id` is deprecated in this release. A future release will provide alternative API(s).
+- `Titanium.UI.create3DMatrix is deprecated, use `Titanium.UI.iOS.create3DMatrix` instead.
+- New API for detecting runtimes - `Titanium.Platform.runtime`. [TIMOB-6007](http://jira.appcelerator.org/browse/TIMOB-6007)
+
+
+Introducing MobileWeb (Beta)
+-----------------------------
+
+This version of Titanium Mobile now ships with a beta version of our MobileWeb platform. The MobileWeb platform allows you to use the Titanium tooling and APIs you are familiar with to target devices that support HTML5. [JIRA list of MobileWeb issues](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12123)
+
+APIDoc Changes
+--------------
+
+Another exciting addition to our product is an improved documentation system for our APIDocs. We published our [TDoc Specification](http://wiki.appcelerator.org/display/guides/TDoc+Specification) for our APIDoc and have been reworking the docs to comply with the spec. While the real magic is hidden in the source, we’re able to actually use the documentation as the specification for the Titanium Mobile API. Our documentation now gets used as an HTML reference, in content assist, provides coverage data for platform parity analysis, and may be generated in other formats as required. Another gain is that we can annotate APIs to the method and property level with supported platforms, versions supported, deprecations, exclusions, and more. We have also worked on content changes and clarifications for many APIs. 
+
+[JIRA List of APIDoc changes](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12039)
+
+Android Changes
+---------------
+We addressed a significant number of [issues](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12037), including: 
+
+*Features:*
+
+- The big feature for Android this release is dual-runtime support. We added support for V8 as a runtime and have made it the default.
+- Debugging support in V8 [TIMOB-6190](http://jira.appcelerator.org/browse/TIMOB-6190)
+- Animation of backgroundColor [TIMOB-5460](http://jira.appcelerator.org/browse/TIMOB-5460)
+- Allow multiple attachments to Email Dialog [TIMOB-837](http://jira.appcelerator.org/browse/TIMOB-837)
+- Support for long press event [TIMOB-1653](http://jira.appcelerator.org/browse/TIMOB-1653)
+- Support gzip and deflate encodings on HTTPClient [TIMOB-2698](http://jira.appcelerator.org/browse/TIMOB-2698)
+- Expose Window Pixel Format on Heavyweight Windows [TIMOB-4104](http://jira.appcelerator.org/browse/TIMOB-4104)
+- Enable plugins for WebViews [TIMOB-1607](http://jira.appcelerator.org/browse/TIMOB-1607)
+- Expose Keep Screen On for Views [TIMOB-2102](http://jira.appcelerator.org/browse/TIMOB-2102)
+- [JIRA List of all Android Features](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12124)
+
+*Bug Fixes:*
+
+- Change zIndex at runtime [TIMOB-1729](http://jira.appcelerator.org/browse/TIMOB-1729)
+- Embedded video support. Parity with iOS [TIMOB-2565](http://jira.appcelerator.org/browse/TIMOB-2565) - Previous default behavior, since we couldn't add the player to a parent view, was that fullscreen would be true. That's not the case for iOS, and for parity's sake it's no longer the case for Android now that we can put the player on a view. So if fullscreen is desired now in Android, you must specifically set fullscreen to true.
+- Support devices w/o sdcards [TIMOB-2613](http://jira.appcelerator.org/browse/TIMOB-2613)
+- Updates to opacity and animation [TIMOB-2851](http://jira.appcelerator.org/browse/TIMOB-2851)
+- Build failures with Subversion [TIMOB-3021](http://jira.appcelerator.org/browse/TIMOB-3021)
+- Scroll view doesn't scroll horizontally [TIMOB-3296](http://jira.appcelerator.org/browse/TIMOB-3296)
+- XML.parseString not detected [TIMOB-3465](http://jira.appcelerator.org/browse/TIMOB-3465)
+- Webview crashes on reopen [TIMOB-4357](http://jira.appcelerator.org/browse/TIMOB-4357)
+- [JIRA List of over 200 Android bug fixes](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12127) 
+
+
+iOS Changes
+-----------
+
+We addressed a significant number of [issues](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12038), including:
+
+*Features:*
+
+- Pinch gesture on views [TIMOB-4508](http://jira.appcelerator.org/browse/TIMOB-4508)
+- Register a file type with an app [TIMOB-4258](http://jira.appcelerator.org/browse/TIMOB-4258)
+- Disable bounce for Scrollable View [TIMOB-4312](http://jira.appcelerator.org/browse/TIMOB-4312)
+- High Density Screenshots [TIMOB-4466](http://jira.appcelerator.org/browse/TIMOB-4466)
+- Support "do not back up" flag for iOS 5.0.1 [TIMOB-6286](http://jira.appcelerator.org/browse/TIMOB-6286)
+- Iteration on proxy keys and values [TIMOB-3299](http://jira.appcelerator.org/browse/TIMOB-3299)
+- [JIRA List of all iOS Features](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12125)
+
+*Bug Fixes:*
+
+- Device resource folder not working in simulator [TIMOB-1177](http://jira.appcelerator.org/browse/TIMOB-1177)
+- SearchBar doesn't correctly display background image [TIMOB-1689](http://jira.appcelerator.org/browse/TIMOB-1689)
+- Remove Dashboard row height limit [TIMOB-1871](http://jira.appcelerator.org/browse/TIMOB-1871)
+- Fire errors on HTTPClient for 4xx and 5xx response codes [TIMOB-2383](http://jira.appcelerator.org/browse/TIMOB-2383)
+- Route disappears on map when zooming [TIMOB-2898](http://jira.appcelerator.org/browse/TIMOB-2898)
+- Handle exceptions thrown in simulator [TIMOB-3561](http://jira.appcelerator.org/browse/TIMOB-3561)
+- Single evaluation with require [TIMOB-4845](http://jira.appcelerator.org/browse/TIMOB-4845)
+- [JIRA list of over 200 iOS bug fixes](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12126)
