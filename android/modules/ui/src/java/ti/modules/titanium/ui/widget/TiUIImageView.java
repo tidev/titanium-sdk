@@ -546,11 +546,11 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		}
 	}
 
-	public void pause()
+	public void pause() 
 	{
 		paused = true;
 	}
-
+	
 	public void resume()
 	{
 		paused = false;
@@ -562,6 +562,20 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	}
 
 	public void stop()
+	{
+		if (!TiApplication.isUIThread()) {
+			proxy.getActivity().runOnUiThread(new Runnable()
+			{
+				public void run()
+				{
+					handleStop();
+				}
+			});
+		} else {
+			handleStop();
+		}
+	}
+	public void handleStop()
 	{
 		if (timer != null) {
 			timer.cancel();
