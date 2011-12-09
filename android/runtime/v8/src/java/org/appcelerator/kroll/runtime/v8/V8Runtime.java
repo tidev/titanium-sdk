@@ -57,6 +57,11 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		}
 		
 		nativeInit(useGlobalRefs, debuggerEnabled, DBG);
+		
+		if (debuggerEnabled) {
+			dispatchDebugMessages();
+		}
+		
 		loadExternalModules();
 	}
 
