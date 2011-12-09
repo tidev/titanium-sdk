@@ -14,7 +14,7 @@ Significant on Titanium Mobile
 - V8 is the default runtime for Android devices providing a higher level of performance than the Rhino engine. If you would rather use Rhino, see the [tiapp.xml guide](http://wiki.appcelerator.org/display/guides/tiapp.xml+and+timodule.xml+Reference) and look for `ti.android.runtime`. Set it to `rhino` in your tiapp.xml.
 - We no longer support Android 2.1 (API 7)
 - We no longer support iOS versions less than 4.0
-- The new Android runtime support required updating modules support. Modules will have to be ported to `apiversion` 2. A modules porting guide will be provided.
+- The new Android runtime support required updating modules support. Modules will have to be ported to `apiversion` 2. [Android Modules Porting Guide](http://wiki.appcelerator.org/display/guides/Android+Module+Porting+Guide+for+1.8.0.1)
 - Replace deprecated API `globalPoint` with a member function on View called 'convertPointToView' [Android-TIMOB-5122](http://jira.appcelerator.org/browse/TIMOB-5122), [iOS-TIMOB-5121](http://jira.appcelerator.org/browse/TIMOB-5121)
 - `Titanium.Platform.id` is deprecated in this release. A future release will provide alternative API(s). [TIMOB-5980]((http://jira.appcelerator.org/browse/TIMOB-5980)
 - `Titanium.UI.create3DMatrix` is deprecated, use `Titanium.UI.iOS.create3DMatrix` instead. [TIMOB-4990]((http://jira.appcelerator.org/browse/TIMOB-4990)
@@ -85,6 +85,7 @@ We addressed a significant number of [issues](http://jira.appcelerator.org/secur
 - Scroll view doesn't scroll horizontally [TIMOB-3296](http://jira.appcelerator.org/browse/TIMOB-3296)
 - XML.parseString not detected [TIMOB-3465](http://jira.appcelerator.org/browse/TIMOB-3465)
 - Webview crashes on reopen [TIMOB-4357](http://jira.appcelerator.org/browse/TIMOB-4357)
+- Support for SDK Tools r14/r15 style add-on folders [TIMOB-6135](http://jira.appcelerator.org/browse/TIMOB-6135)
 - [JIRA List of over 200 Android bug fixes](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12127) 
 
 
