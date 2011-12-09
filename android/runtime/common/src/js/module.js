@@ -176,6 +176,7 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 	}
 
 	kroll.log(TAG, "Unable to load external module: " + id);
+	
 }
 
 // Require another module as a child of this module.
@@ -187,7 +188,9 @@ Module.prototype.require = function (request, context, useCache) {
 
 	// Delegate native module requests.
 	if (NativeModule.exists(request)) {
-		kroll.log(TAG, 'Found native module: "' + request + '"');
+		if (kroll.DBG) {
+			kroll.log(TAG, 'Found native module: "' + request + '"');
+		}
 		return NativeModule.require(request);
 	}
 
@@ -202,7 +205,9 @@ Module.prototype.require = function (request, context, useCache) {
 	var id = resolved[0];
 	var filename = resolved[1];
 
-	kroll.log(TAG, 'Loading module: ' + request + ' -> ' + filename);
+	if (kroll.DBG) {
+		kroll.log(TAG, 'Loading module: ' + request + ' -> ' + filename);
+	}
 
 	if (useCache) {
 		var cachedModule = Module.cache[filename];
