@@ -57,6 +57,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private static final AtomicInteger imageTokenGenerator = new AtomicInteger(0);
 	private static final int FRAME_QUEUE_SIZE = 5;
 	public static final int INFINITE = 0;
+	public static final int MIN_DURATION = 30;
 
 	// TIMOB-3599: A bug in Gingerbread forces us to retry decoding bitmaps when they initially fail
 	private static final String PROPERTY_DECODE_RETRIES = "decodeRetries";
@@ -426,7 +427,13 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	public double getDuration()
 	{
 		if (proxy.getProperty(TiC.PROPERTY_DURATION) != null) {
-			return TiConvert.toDouble(proxy.getProperty(TiC.PROPERTY_DURATION));
+			double duration = TiConvert.toDouble(proxy.getProperty(TiC.PROPERTY_DURATION));
+			if (duration < MIN_DURATION) {
+				return MIN_DURATION;
+			} else {
+				return duration;
+			}
+			
 		}
 
 		if (images != null) {
@@ -535,9 +542,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 
 			int duration = (int) getDuration();
-			if (duration == 0) {
-				duration = 1;
-			}
 
 			fireStart();
 			timer.schedule(animator, duration, duration);
