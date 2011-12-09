@@ -263,8 +263,7 @@ var spinningAngle = 0;
 				return _fontSize;
 			},
 			set: function(val) {
-				_fontSize = val;
-				obj.dom.style.fontSize = val;
+				obj.dom.style.fontSize = _fontSize = Ti._5.parseLength(val);
 			}
 		});
 
