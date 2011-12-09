@@ -3,7 +3,7 @@
 # during compilation, packaging, distribution, etc.
 #
 version: 0.1
-apiversion: 2.0
+apiversion: 2
 description: My module
 author: Your Name
 license: Specify your license
