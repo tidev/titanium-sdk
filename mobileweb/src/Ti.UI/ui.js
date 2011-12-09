@@ -121,12 +121,11 @@
 
 	// Methods
 	api.setBackgroundColor = function(args) {
-		document.body.style.backgroundColor = args;
+		Ti._5.containerDiv.style.backgroundColor = args;
 	};
 	
 	api.setBackgroundImage = function(args) {
-		document.body.style.backgroundImage = 'url("' + Ti._5.getAbsolutePath(args) + '")';
-		//document.body.style.backgroundRepeat = "no-repeat";
+		Ti._5.containerDiv.style.backgroundImage = 'url("' + Ti._5.getAbsolutePath(args) + '")';
 	};
 	
 	api.create2DMatrix = function(args){
