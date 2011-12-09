@@ -25,6 +25,7 @@ public class KrollGlobal extends IdScriptableObject
 	private static final long serialVersionUID = 724917364689500034L;
 
 	private static final String RUNTIME_RHINO = "rhino";
+	private static final String DEPLOY_DEBUG = "DBG";
 	private static boolean DBG = true;
 	private static final String KROLL_TAG = "Kroll";
 
@@ -195,7 +196,7 @@ public class KrollGlobal extends IdScriptableObject
 		if ("runtime".equals(name)) {
 			return Id_runtime;
 		}
-		if ("DBG".equals(name)) {
+		if (DEPLOY_DEBUG.equals(name)) {
 			return Id_debug;
 		}
 		return super.findInstanceIdInfo(name);
@@ -208,7 +209,7 @@ public class KrollGlobal extends IdScriptableObject
 			case Id_runtime:
 				return "runtime";
 			case Id_debug:
-				return "DBG";
+				return DEPLOY_DEBUG;
 		}
 		return super.getInstanceIdName(id);
 	}
