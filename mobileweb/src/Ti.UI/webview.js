@@ -1,8 +1,11 @@
 Ti._5.createClass('Titanium.UI.WebView', function(args){
 	var obj = this;
 	
+	// Set defaults
 	args = Ti._5.extend({}, args);
 	args.unselectable = true;
+	args.width = args.width || '100%';
+	args.height = args.height || '100%';
 		
 	// Interfaces
 	Ti._5.DOMView(this, 'iframe', args, 'WebView');

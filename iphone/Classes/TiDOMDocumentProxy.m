@@ -20,6 +20,7 @@
 #import "TIDOMDocumentTypeProxy.h"
 #import "TiDOMEntityRefProxy.h"
 #import "TiUtils.h"
+#import "TiDOMValidator.h"
 
 @implementation TiDOMDocumentProxy
 
@@ -68,11 +69,17 @@
 	return [NSNull null];
 }
 
--(TiDOMAttrProxy *)createAttribute:(id)args
+-(id)createAttribute:(id)args
 {
 	ENSURE_ARG_COUNT(args, 1);
 	NSString * tagName;
 	ENSURE_ARG_AT_INDEX(tagName, args, 0, NSString);
+	//Check name validity
+	if (![TiDOMValidator checkAttributeName:tagName]) {
+		[self throwException:@"Invalid attribute name" subreason:[NSString stringWithFormat:@"Offending tagName %@",tagName] location:CODELOCATION];
+		return [NSNull null];
+	}
+	
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
 
 	TiDOMAttrProxy *result = [[[TiDOMAttrProxy alloc] _initWithPageContext:context] autorelease];
@@ -85,40 +92,40 @@
 	return result;
 }
 
--(TiDOMAttrProxy *)createAttributeNS:(id)args
+-(id)createAttributeNS:(id)args
 {
 	ENSURE_ARG_COUNT(args, 2);
-    NSObject* obj1;
-    NSObject* obj2;
-    NSString * theURI;
+
+	NSString * theURI;
 	NSString * tagName;
     
-	ENSURE_ARG_AT_INDEX(obj1, args, 0, NSObject);
-	ENSURE_ARG_AT_INDEX(obj2, args, 1, NSObject);
-    
-    theURI = [TiUtils stringValue:obj1];
-    tagName = [TiUtils stringValue:obj2];
+	ENSURE_ARG_OR_NIL_AT_INDEX(theURI, args, 0, NSString);
+	ENSURE_ARG_AT_INDEX(tagName, args, 1, NSString);
 	
-    if (tagName == nil)
-    {
-        [self throwException:@"could not create attribute with null qualified name" subreason:nil location:CODELOCATION];
-        return nil;
-    }
+	NSString *error = nil;
+	NSString *suberror = nil;
+	
+	[self validateAttributeParameters:tagName withUri:theURI reason:&error subreason:&suberror];
+	if (error != nil) {
+		[self throwException:error subreason:suberror location:CODELOCATION];
+	}
+    
+	//THIS WILL NOT WORK UNTIL ADD CHILD IS CALLED SO CREATE A NAMESPACE POINTER AND SET IT EXPLICITLY
+	//GDataXMLNode* resultNode = (GDataXMLNode*)[GDataXMLElement attributeWithName:tagName URI:theURI stringValue:@""];
+	NSString* prefix = [GDataXMLNode prefixForName:tagName];
+	NSString* localName = [GDataXMLNode localNameForName:tagName];
+	
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
     
 	TiDOMAttrProxy *result = [[[TiDOMAttrProxy alloc] _initWithPageContext:context] autorelease];
-    //THIS WILL NOT WORK UNTIL ADD CHILD IS CALLED SO CREATE A NAMESPACE POINTER AND SET IT EXPLICITLY
-    //GDataXMLNode* resultNode = (GDataXMLNode*)[GDataXMLElement attributeWithName:tagName URI:theURI stringValue:@""];
-    NSString* prefix = [GDataXMLNode prefixForName:tagName];
-    NSString* localName = [GDataXMLNode localNameForName:tagName];
 	GDataXMLNode* resultNode = (GDataXMLNode*)[GDataXMLElement attributeWithName:localName stringValue:@""];
-    xmlChar *href;
+	xmlChar *href;
 	xmlChar *pre;
     
-    if (theURI != nil)
-        href = (xmlChar*)[theURI UTF8String];
-    else
-        href = NULL;
+	if (theURI != nil)
+		href = (xmlChar*)[theURI UTF8String];
+	else
+		href = NULL;
 	
 	if ([prefix length] > 0) {
 		pre = (xmlChar*)[prefix UTF8String];
@@ -129,13 +136,13 @@
 	
 	xmlNsPtr theNewNs = xmlNewNs(NULL, // parent node
 								 href, pre);
-    [resultNode XMLNode]->ns = theNewNs;
-    [result setDocument:[self document]];
-    [result setNode:resultNode];
-    [result setAttribute:tagName value:@"" owner:nil];
-    [result setIsSpecified:NO];
-    [TiDOMNodeProxy setNode:result forXMLNode:[resultNode XMLNode]];
-    return result;
+	[resultNode XMLNode]->ns = theNewNs;
+	[result setDocument:[self document]];
+	[result setNode:resultNode];
+	[result setAttribute:tagName value:@"" owner:nil];
+	[result setIsSpecified:NO];
+	[TiDOMNodeProxy setNode:result forXMLNode:[resultNode XMLNode]];
+	return result;
 }
 
 -(TiDOMCDATANodeProxy *)createCDATASection:(id)args
@@ -145,8 +152,7 @@
 	ENSURE_ARG_AT_INDEX(textData, args, 0, NSString);
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
 	TiDOMCDATANodeProxy * result = [[[TiDOMCDATANodeProxy alloc] _initWithPageContext:context] autorelease];
-	GDataXMLNode * resultElement = [GDataXMLNode textWithStringValue:textData];
-	[resultElement XMLNode]->type = XML_CDATA_SECTION_NODE;
+	GDataXMLNode * resultElement = [GDataXMLNode cDataSectionWithStringValue:textData];
 	[result setDocument:[self document]];
 	[result setNode:resultElement];
 	[TiDOMNodeProxy setNode:result forXMLNode:[resultElement XMLNode]];
@@ -178,12 +184,16 @@
 	return result;
 }
 
--(TiDOMElementProxy *)createElement:(id)args
+-(id)createElement:(id)args
 {
 	ENSURE_ARG_COUNT(args, 1);
 	NSString * tagName;
 	ENSURE_ARG_AT_INDEX(tagName, args, 0, NSString);
     
+	if (![TiDOMValidator checkElementName:tagName]) {
+		[self throwException:@"Invalid element name" subreason:[NSString stringWithFormat:@"Offending tagName %@",tagName] location:CODELOCATION];
+		return [NSNull null];
+	}
 	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
 	TiDOMElementProxy * result = [[[TiDOMElementProxy alloc] _initWithPageContext:context] autorelease];
 	GDataXMLElement * resultElement = [GDataXMLElement elementWithName:tagName];
@@ -193,32 +203,30 @@
 	return result;
 }
 
--(TiDOMElementProxy *)createElementNS:(id)args
+-(id)createElementNS:(id)args
 {
 	ENSURE_ARG_COUNT(args, 2);
-    NSObject* obj1;
-    NSObject* obj2;
-    NSString * theURI;
+
+	NSString * theURI;
 	NSString * tagName;
 
-	ENSURE_ARG_AT_INDEX(obj1, args, 0, NSObject);
-	ENSURE_ARG_AT_INDEX(obj2, args, 1, NSObject);
+	ENSURE_ARG_OR_NIL_AT_INDEX(theURI, args, 0, NSString);
+	ENSURE_ARG_AT_INDEX(tagName, args, 1, NSString);
     
-    theURI = [TiUtils stringValue:obj1];
-    tagName = [TiUtils stringValue:obj2];
-    
-    if (tagName == nil)
-    {
-        [self throwException:@"could not create element with null qualified name" subreason:nil location:CODELOCATION];
-        return nil;
-    }
-    
-	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-	TiDOMElementProxy * result = [[[TiDOMElementProxy alloc] _initWithPageContext:context] autorelease];
-    //THIS WILL NOT WORK UNTIL ADD CHILD IS CALLED SO CREATE A NAMESPACE POINTER AND SET IT EXPLICITLY
-    //GDataXMLElement * resultElement = [GDataXMLElement elementWithName:tagName URI:theURI];
+	NSString *error = nil;
+	NSString *suberror = nil;
+	[self validateElementParameters:tagName withUri:theURI reason:&error subreason:&suberror];
+	if (error != nil) {
+		[self throwException:error subreason:suberror location:CODELOCATION];
+	}
+
+	//THIS WILL NOT WORK UNTIL ADD CHILD IS CALLED SO CREATE A NAMESPACE POINTER AND SET IT EXPLICITLY
+	//GDataXMLElement * resultElement = [GDataXMLElement elementWithName:tagName URI:theURI];
 	NSString* prefix = [GDataXMLNode prefixForName:tagName];
 	NSString* localName = [GDataXMLNode localNameForName:tagName];
+
+	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+	TiDOMElementProxy * result = [[[TiDOMElementProxy alloc] _initWithPageContext:context] autorelease];
 	GDataXMLElement * resultElement = [GDataXMLElement elementWithName:localName];
 	xmlChar *href;
 	xmlChar *pre;
@@ -352,10 +360,7 @@
     if(error == nil)
     {
         id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-        TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:context] autorelease];
-		[proxy setDocument:[self document]];
-		[proxy setNodes:nodes];
-		return proxy;
+        return [self makeNodeListProxyFromArray:nodes context:context];
 	}
 	if (error!=nil)
 	{
@@ -381,10 +386,7 @@
 	if(error == nil)
     {
         id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-        TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:context] autorelease];
-		[proxy setDocument:[self document]];
-		[proxy setNodes:nodes];
-        return proxy;
+        return [self makeNodeListProxyFromArray:nodes context:context];
     }
     else
     {
@@ -427,10 +429,7 @@
 	if (error==nil)
 	{
 		id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-		TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:context] autorelease];
-		[proxy setDocument:[self document]];
-		[proxy setNodes:nodes];
-		return proxy;
+		return [self makeNodeListProxyFromArray:nodes context:context];
 	}
 	return [NSNull null];
 }

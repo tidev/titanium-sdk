@@ -1,8 +1,11 @@
 Ti._5.createClass('Titanium.UI.ScrollView', function(args){
 	var obj = this;
 	
+	// Set defaults
 	args = Ti._5.extend({}, args);
 	args.unselectable = true;
+	args.width = args.width || '100%';
+	args.height = args.height || '100%';
 		
 	// Interfaces
 	// outer container
