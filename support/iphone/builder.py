@@ -343,11 +343,15 @@ def distribute_xc4(name, icon, log):
 	project_info_plist = plistlib.readPlist(os.path.join(archive_bundle,'Info.xml.plist'))
 	appbundle = "Applications/%s.app" % name
 	# NOTE: We chop off the end '.' of 'CFBundleVersion' to provide the 'short' version
+	version = project_info_plist['CFBundleVersion']
+	app_version_ = version.split('.')
+	if(len(app_version_) > 3):
+		version = app_version_[0]+app_version_[1]+app_version_[2]	
 	archive_info = {
 		'ApplicationProperties' : {
 			'ApplicationPath' : appbundle,
 			'CFBundleIdentifier' : project_info_plist['CFBundleIdentifier'],
-			'CFBundleShortVersionString' : project_info_plist['CFBundleVersion'].rsplit('.',1)[0],
+			'CFBundleShortVersionString' : version,
 			'IconPaths' : [os.path.join(appbundle,icon), os.path.join(appbundle,icon)]
 		},
 		'ArchiveVersion' : float(1),
