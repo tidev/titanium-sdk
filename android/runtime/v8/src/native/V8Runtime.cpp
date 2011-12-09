@@ -8,9 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <v8.h>
-#ifdef V8_DEBUGGER
-# include <v8-debug.h>
-#endif
+#include <v8-debug.h>
 
 #include "AndroidUtil.h"
 #include "EventEmitter.h"
@@ -28,6 +26,9 @@
 #include "org_appcelerator_kroll_runtime_v8_V8Runtime.h"
 
 #define TAG "V8Runtime"
+
+// The port number on which the V8 debugger will listen on.
+#define V8_DEBUGGER_PORT 9999
 
 namespace titanium {
 
@@ -120,7 +121,6 @@ static void logV8Exception(Handle<Message> msg, Handle<Value> data)
 		*String::Utf8Value(msg->GetSourceLine()));
 }
 
-#ifdef V8_DEBUGGER
 static jmethodID dispatchDebugMessage = NULL;
 
 static void dispatchHandler()
@@ -132,7 +132,13 @@ static void dispatchHandler()
 
 	env->CallVoidMethod(V8Runtime::javaInstance, dispatchDebugMessage);
 }
-#endif
+
+static void DebugBreakMessageHandler(const Debug::Message& message)
+{
+	// Do nothing with debug messages.
+	// The message handler will get changed by DebuggerAgent::CreateSession in
+	// debug-agent.cc of v8/src when a new session is created.
+}
 
 } // namespace titanium
 
@@ -165,17 +171,21 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 	Persistent<Context> context = Persistent<Context>::New(Context::New());
 	context->Enter();
 
-
-#ifdef V8_DEBUGGER
-	jclass v8RuntimeClass = env->FindClass("org/appcelerator/kroll/runtime/v8/V8Runtime");
-	dispatchDebugMessage = env->GetMethodID(v8RuntimeClass, "dispatchDebugMessages", "()V");
-
-	Debug::SetDebugMessageDispatchHandler(dispatchHandler);
-	Debug::EnableAgent("titanium", 9999, true);
-#endif
-
 	V8Runtime::globalContext = context;
 	V8Runtime::bootstrap(context->Global());
+
+	if (debuggerEnabled) {
+		jclass v8RuntimeClass = env->FindClass("org/appcelerator/kroll/runtime/v8/V8Runtime");
+		dispatchDebugMessage = env->GetMethodID(v8RuntimeClass, "dispatchDebugMessages", "()V");
+
+		Debug::SetDebugMessageDispatchHandler(dispatchHandler);
+		Debug::EnableAgent("titanium", V8_DEBUGGER_PORT);
+
+		// Set up an empty handler so v8 will not continue until a debugger
+		// attaches. This is the same behavior as Debug::EnableAgent(_,_,true)
+		// except we don't break at the beginning of the script.
+		Debug::SetMessageHandler2(DebugBreakMessageHandler);
+	}
 
 	LOG_HEAP_STATS(TAG);
 }
@@ -219,9 +229,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRu
 
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeProcessDebugMessages(JNIEnv *env, jobject self)
 {
-#ifdef V8_DEBUGGER
 	v8::Debug::ProcessDebugMessages();
-#endif
 }
 
 // This method disposes of all native resources used by V8 when
