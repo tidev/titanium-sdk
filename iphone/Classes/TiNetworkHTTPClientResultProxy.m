@@ -121,7 +121,18 @@
     
 	id result = [delegate getResponseHeader:args];
 	if (result == nil) {
-        NSString* header = [TiUtils caseCorrect:args];
+        NSString* header;
+        if (![TiUtils isIOS5OrGreater]) {
+            // In pre-iOS 5, it looks like response headers were mangled to be case-correct
+            // (i.e. WWW-Authenticate became Www-Authenticate). So we have to perform
+            // our own case correction to get the RIGHT header back.
+            //
+            // Note that we assume that Apple mangles all 'xxx-xxx' headers like this.
+            header = [TiUtils caseCorrect:args];
+        }
+        else {
+            header = args;
+        }
 		result = [responseHeaders objectForKey:header];
 	}
 	return result;
