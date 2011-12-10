@@ -50,11 +50,6 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 			libLoaded = true;
 		}
 
-		nativeInit(useGlobalRefs, debuggerEnabled);
-
-		if (debuggerEnabled) {
-			dispatchDebugMessages();
-		}
 
 		
 		boolean DBG = true;
@@ -64,6 +59,9 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		}
 		
 		nativeInit(useGlobalRefs, debuggerEnabled, DBG);
+		if (debuggerEnabled) {
+			dispatchDebugMessages();
+		}
 		loadExternalModules();
 	}
 
