@@ -31,7 +31,9 @@ propertyAccessors = {
 	TiC.PROPERTY_LAYOUT,
 	TiC.PROPERTY_LEFT_IMAGE,
 	TiC.PROPERTY_RIGHT_IMAGE,
-	TiC.PROPERTY_TITLE
+	TiC.PROPERTY_TITLE,
+	TiC.PROPERTY_HEADER,
+	TiC.PROPERTY_FOOTER
 })
 public class TableViewRowProxy extends TiViewProxy
 {
@@ -158,18 +160,28 @@ public class TableViewRowProxy extends TiViewProxy
 		data.put(TiC.EVENT_PROPERTY_DETAIL, false);
 	}
 
-	/* TODO @Override
+	 
 	public boolean fireEvent(String eventName, Object data) {
 		if (eventName.equals(TiC.EVENT_CLICK) || eventName.equals(TiC.EVENT_LONGCLICK)) {
 			// inject row click data for events coming from row children
 			TableViewProxy table = getTable();
 			Item item = tableViewItem.getRowData();
-			if (table != null && item != null) {
-				fillClickEvent(data, table.getTableView().getModel(), item);
+			if (table != null && item != null && data instanceof KrollDict) {
+				fillClickEvent((KrollDict) data, table.getTableView().getModel(), item);
 			}
 		}
 		return super.fireEvent(eventName, data);
-	}*/
+	}
+
+	@Override
+	public void firePropertyChanged(String name, Object oldValue, Object newValue)
+	{
+		super.firePropertyChanged(name, oldValue, newValue);
+		TableViewProxy table = getTable();
+		if (table != null) {
+			table.updateView();
+		}
+	}
 
 	public void setLabelsClickable(boolean clickable) {
 		if (controls != null) {

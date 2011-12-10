@@ -10,6 +10,7 @@
 #include "AndroidUtil.h"
 #include "NativeObject.h"
 #include "ScriptsModule.h"
+#include "V8Runtime.h"
 #include "V8Util.h"
 #include "JNIUtil.h"
 #include "TypeConverter.h"
@@ -58,6 +59,9 @@ WrappedContext::WrappedContext(Persistent<Context> context)
 WrappedContext::~WrappedContext()
 {
 	context_.Dispose();
+	if (!initCallback_.IsEmpty()) {
+		initCallback_.Dispose();
+	}
 }
 
 Local<Object> WrappedContext::NewInstance()
@@ -69,6 +73,16 @@ Local<Object> WrappedContext::NewInstance()
 Persistent<Context> WrappedContext::GetV8Context()
 {
 	return context_;
+}
+
+Persistent<Function> WrappedContext::GetInitCallback()
+{
+	return initCallback_;
+}
+
+void WrappedContext::SetInitCallback(Persistent<Function> initCallback)
+{
+	initCallback_ = initCallback;
 }
 
 Handle<Object> WrappedContext::WrapContext(Persistent<Context> context)
@@ -122,6 +136,8 @@ Handle<Value> WrappedScript::CreateContext(const Arguments& args)
 {
 	HandleScope scope;
 	Local<Object> context = WrappedContext::NewInstance();
+	WrappedContext *wrappedContext = NativeObject::Unwrap<WrappedContext>(context);
+
 	if (args.Length() > 0) {
 		Local<Object> sandbox = args[0]->ToObject();
 		Local<Array> keys = sandbox->GetPropertyNames();
@@ -134,7 +150,14 @@ Handle<Value> WrappedScript::CreateContext(const Arguments& args)
 			}
 			context->Set(key, value);
 		}
+
+		if (args.Length() > 1 && args[1]->IsFunction()) {
+			wrappedContext->SetInitCallback(Persistent<Function>::New(Handle<Function>::Cast(args[1])));
+		}
 	}
+
+	wrappedContext->GetV8Context()->SetSecurityToken(
+		Context::GetCurrent()->GetSecurityToken());
 
 	return scope.Close(context);
 }
@@ -194,9 +217,14 @@ Handle<Value> WrappedScript::EvalMachine(const Arguments& args)
 		sandbox = args[sandbox_index]->ToObject();
 	}
 
-	const int filename_index = sandbox_index + (context_flag == newContext ? 1 : 0);
+	int filename_offset = 1;
+	if (context_flag == thisContext) {
+		filename_offset = 0;
+	}
+
+	const int filename_index = sandbox_index + filename_offset;
 	Local<String> filename =
-			args.Length() > filename_index ? args[filename_index]->ToString() : String::New("evalmachine.<anonymous>");
+		args.Length() > filename_index ? args[filename_index]->ToString() : String::New("evalmachine.<anonymous>");
 
 	const int display_error_index = args.Length() - 1;
 	bool display_error = false;
@@ -209,14 +237,17 @@ Handle<Value> WrappedScript::EvalMachine(const Arguments& args)
 
 	Local<Array> keys;
 	unsigned int i;
+	WrappedContext *nContext = NULL;
+	Local<Object> contextArg;
+
 	if (context_flag == newContext) {
 		// Create the new context
 		context = Context::New();
 
 	} else if (context_flag == userContext) {
 		// Use the passed in context
-		Local<Object> contextArg = args[sandbox_index]->ToObject();
-		WrappedContext *nContext = NativeObject::Unwrap<WrappedContext>(sandbox);
+		contextArg = args[sandbox_index]->ToObject();
+		nContext = NativeObject::Unwrap<WrappedContext>(contextArg);
 		context = nContext->GetV8Context();
 	}
 
@@ -224,6 +255,16 @@ Handle<Value> WrappedScript::EvalMachine(const Arguments& args)
 	if (context_flag == userContext || context_flag == newContext) {
 		// Enter the context
 		context->Enter();
+
+		// Call the initCallback, if it exists
+		if (nContext) {
+			Persistent<Function> initCallback = nContext->GetInitCallback();
+
+			if (!initCallback.IsEmpty()) {
+				Handle<Value> callbackArgs[] = { contextArg, context->Global() };
+				initCallback->Call(contextArg, 2, callbackArgs);
+			}
+		}
 
 		// Copy everything from the passed in sandbox (either the persistent
 		// context for runInContext(), or the sandbox arg to runInNewContext()).
@@ -304,6 +345,10 @@ Handle<Value> WrappedScript::EvalMachine(const Arguments& args)
 		context->Exit();
 	}
 
+	if (result->IsObject()) {
+		Local<Context> creation = result->ToObject()->CreationContext();
+	}
+
 	return result == args.This() ? result : scope.Close(result);
 }
 
@@ -312,6 +357,12 @@ void ScriptsModule::Initialize(Handle<Object> target)
 	HandleScope scope;
 	WrappedContext::Initialize(target);
 	WrappedScript::Initialize(target);
+}
+
+void ScriptsModule::Dispose()
+{
+	WrappedScript::constructor_template.Dispose();
+	WrappedContext::constructor_template.Dispose();
 }
 
 Handle<Object> ScriptsModule::WrapContext(Persistent<Context> context)

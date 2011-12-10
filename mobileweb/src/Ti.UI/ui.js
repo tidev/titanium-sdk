@@ -121,16 +121,15 @@
 
 	// Methods
 	api.setBackgroundColor = function(args) {
-		document.body.style.backgroundColor = args;
+		Ti._5.containerDiv.style.backgroundColor = args;
 	};
 	
 	api.setBackgroundImage = function(args) {
-		document.body.style.backgroundImage = 'url("' + Ti._5.getAbsolutePath(args) + '")';
-		//document.body.style.backgroundRepeat = "no-repeat";
+		Ti._5.containerDiv.style.backgroundImage = 'url("' + Ti._5.getAbsolutePath(args) + '")';
 	};
 	
-	api.create2DMatrix = function(){
-		console.debug('Method "Titanium.UI.create2DMatrix" is not implemented yet.');
+	api.create2DMatrix = function(args){
+		return new Titanium.UI["2DMatrix"](args);
 	};
 	api.create3DMatrix = function(){
 		console.debug('Method "Titanium.UI.create3DMatrix" is not implemented yet.');
@@ -141,8 +140,8 @@
 	api.createAlertDialog = function(args){
 		return new Ti.UI.AlertDialog(args);
 	};
-	api.createAnimation = function(){
-		console.debug('Method "Titanium.UI.createAnimation" is not implemented yet.');
+	api.createAnimation = function(args){
+		return new Ti.UI.Animation(args);
 	};
 	api.createButton = function(args) {
 		return new Ti.UI.Button(args);
@@ -186,8 +185,8 @@
 	api.createScrollView = function(args) {
 		return new Ti.UI.ScrollView(args);
 	};
-	api.createScrollableView = function(){
-		console.debug('Method "Titanium.UI.createScrollableView" is not implemented yet.');
+	api.createScrollableView = function(args){
+		return new Ti.UI.ScrollableView(args);
 	};
 	api.createSearchBar = function(args){
 		return new Ti.UI.SearchBar(args);

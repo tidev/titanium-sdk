@@ -1,48 +1,53 @@
 ---
 name: Titanium.UI.OptionDialog
-description: The Option Dialog is created by <Titanium.UI.createOptionDialog> and allows you to show a modal dialog of one or more options to the user.
+summary: The Option Dialog is created by <Titanium.UI.createOptionDialog> and allows you to show a modal dialog of one or more options to the user.
 extends: Titanium.Proxy
 since: "0.8"
 platforms: [android, iphone, ipad]
 methods:
   - name: show
-    description: cause the dialog to become visible
+    summary: cause the dialog to become visible
+    parameters:
+      - name: view
+        summary: name of the view the OptionDialog needs to be attached to. Only used on iPad.
+        type: Titanium.UI.View
+        optional: true
 events:
   - name: click
-    description: fired when a button in the dialog is clicked
+    summary: fired when a button in the dialog is clicked
     properties:
       - name: index
-        description: the button index that was pressed
+        summary: the button index that was pressed
       - name: button
-        description: boolean to indicate that the index refers to a button on the dialog and not an item.
+        summary: boolean to indicate that the index refers to a button on the dialog and not an item.
         platforms: [android]
       - name: cancel
-        description: the index of the cancel button
+        summary: the index of the cancel button
       - name: destructive
-        description: the index of the destructive button
+        summary: the index of the destructive button
 properties:
   - name: androidView
-    description: A Titanium.UI.View. Allows for arbitrary contents inside a native dialog. Works for any dialog.
+    summary: A Titanium.UI.View. Allows for arbitrary contents inside a native dialog. Works for any dialog.
     platforms: [android]
     type: Object
   - name: cancel
-    description: an index to indicate which button should be the cancel button. If no button should be the cancel button, use -1. If there is a cancel button, it MUST be the last button for use on iPad.
+    summary: an index to indicate which button should be the cancel button. If no button should be the cancel button, use -1. If there is a cancel button, it MUST be the last button for use on iPad.
     type: Number
   - name: destructive
-    description: the destructive button (indicated by a visual clue in the UI)
+    summary: the destructive button (indicated by a visual clue in the UI)
     type: Number
   - name: options
-    description: array of button names as strings
+    summary: array of button names as strings
     type: Array<Object>
   - name: selectedIndex
-    description: set an initially selected option. Only valid when options has been specified.
+    summary: set an initially selected option. Only valid when options has been specified.
     platforms: [android]
     type: Number
   - name: title
-    description: the title of the dialog
+    summary: the title of the dialog
     type: String
   - name: titleid
-    description: the key in the locale file to use for the title property
+    summary: the key in the locale file to use for the title property
     type: String
 examples:
   - title: Simple Options Dialog with 2 Options

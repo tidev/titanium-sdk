@@ -1,32 +1,32 @@
 ---
 name: Titanium.App.iOS
-description: The top level App iOS module.  The App iOS module is only available on iOS based devices.
+summary: The top level App iOS module.  The App iOS module is only available on iOS based devices.
 extends: Titanium.Module
 platforms: [iphone,ipad]
 since: "1.5"
 methods:
   - name: cancelAllLocalNotifications
-    description: cancel all scheduled local notifications
+    summary: cancel all scheduled local notifications
   - name: cancelLocalNotification
-    description: cancel a specific local notification
+    summary: cancel a specific local notification
   - name: registerBackgroundService
-    description: register a background service to run when the app is backgrounded
+    summary: register a background service to run when the app is backgrounded
     returns:
         type: Object
     parameters:
       - name: params
-        description: dictionary of key/values that are used to create the service. the `url` property should point to a local JavaScript url that will be executed when the app is backgrounded.
+        summary: dictionary of key/values that are used to create the service. the `url` property should point to a local JavaScript url that will be executed when the app is backgrounded.
         type: Object
   - name: scheduleLocalNotification
-    description: schedule a local notification
+    summary: schedule a local notification
     returns:
         type: Object
     parameters:
       - name: params
-        description: |
+        summary: |
             dictionary of key/values that are used to create the notification. the `date` property is when the notification should fire, `repeat` is an optional property of one of: `weekly`, `daily`, `yearly,` `monthly`, `alertBody` is an optional property that is the body of the alert when the notification is displayed, `alertAction` is an optional property that represents the alert button text or the 'slide to unlock...' slider in place of unlock, `alertLaunchImage` is an optional property that specifies the launch image to display instead of Default.png when launching the application, `badge` is the optional badge value for the application, `sound` is the optional property to specify the sound to play when the notification is triggered and `userInfo` is the optional property which specifies data passed to the application upon launch when the notification is triggered.
         type: Object
 events:
   - name: notification
-    description: |
+    summary: |
         fired when a local notification is received by the app.  the following event properties are available: `date`, `timezone`, `alertBody`, `alertAction`, `alertLaunchImage`, `sound`, `bound`, `userInfo`.

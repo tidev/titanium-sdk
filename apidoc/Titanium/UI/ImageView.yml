@@ -1,137 +1,113 @@
 ---
 name: Titanium.UI.ImageView
-description: An Image View is used to display an image or a series of images in an animation. The Image View is created by the method <Titanium.UI.createImageView>.
+summary: An Image View is used to display an image or a series of images in an animation. 
+description: |
+    If you specify a `width` and/or `height` property for the image view, the image will be 
+    scaled to fit into this space while maintaining its original aspect ratio.
+
+    Use the <Titanium.UI.createImageView> method to create an image view.
 extends: Titanium.UI.View
 since: "0.9"
 methods:
   - name: pause
-    description: pause a started animation.
+    summary: Pause a running animation.
     platforms: [android, iphone, ipad]
   - name: start
-    description: start the image animation. this method only works if you set multiple images
+    summary: Start the image animation. This method only works if you set multiple images.
     platforms: [android, iphone, ipad]
   - name: stop
-    description: stop a started animation and reset the index to the first image
+    summary: Stop a running animation and reset the index to the first image.
     platforms: [android, iphone, ipad]
   - name: toBlob
-    description: return the image as a Blob object
+    summary: Return the image as a Blob object.
     platforms: [android, iphone, ipad]
 events:
   - name: change
-    description: fired for each frame changed during an animation
+    summary: Fired for each frame changed during an animation.
     properties:
       - name: index
-        description: the index of the image frame being displayed
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
+        summary: the index of the image frame being displayed
   - name: load
-    description: fired when either the initial image and/or all of the images in an animation are loaded
+    summary: Fired when either the initial image and/or all of the images in an animation are loaded.
     properties:
       - name: state
-        description: either `url` to indicate the url property is loaded or `images` when all the images are loaded
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad, mobileweb]
-        deprecated:
-            since: "1.8.0"
+        summary: either `url` to indicate the url property is loaded or `images` when all the images are loaded
   - name: start
-    description: fired when the animation starts
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
+    summary: Fired when the animation starts.
   - name: stop
-    description: fired when the animation stops
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-        type: String
+    summary: Fired when the animation stops.
   - name: error
-    description: fired when the image fails to load
+    summary: Fired when an image fails to load.
     properties:
       - name: image
-        description: the url of the image that failed to load
+        summary: The url of the image that failed to load.
 properties:
   - name: animating
-    description: boolean to indicate if the animation is animating
+    summary: |
+        `true` if the animation is running.
     type: Boolean
     permission: read-only
   - name: canScale
-    description: allow image to scale
+    summary: Allow the user to scale the image (using pinch-zoom or the optional zoom controls).
+    description: See also [enableZoomControls](Titanium.UI.ImageView.enableZoomControls).
     type: Boolean
-    platforms: [android, mobileweb]
+    default: false
+    platforms: [android]
   - name: decodeRetries
-    description: |
-        number of times to retry decoding the bitmap at this URL
+    summary: |
+        Number of times to retry decoding the bitmap at this URL.
     default: 5
     platforms: [android]
     since: "1.7.0"
     type: Number
   - name: defaultImage
-    description: url to the default image to display while loading a remote image
+    summary: url to the default image to display while loading a remote image
     type: String
   - name: duration
-    description: amount of time in milliseconds to animate one cycle
+    summary: amount of time in milliseconds to animate one cycle
     type: Number
   - name: enableZoomControls
-    description: enable zoom controls on Android. Default is true for backward compatibility. (1.3.0)
+    summary: Show zoom controls when the user touches the image view.
+    description: |
+        Zoom controls are only displayed if [canScale](Titanium.UI.ImageView.canScale) 
+        is `true`.
     type: Boolean
     platforms: [android]
     since: "1.3.0"
+    default: true
   - name: hires
-    description: indicates whether or not the source image is in 2x resolution for retina displays.  Use for remote images ONLY.
+    summary: |
+        Indicates whether or not the source image is in 2x resolution for Retina displays. 
+        Use for remote images ONLY.
     platforms: [iphone, ipad, mobileweb]
     type: Boolean
   - name: image
-    description: image to display either as string url, Blob or File
-    type: Object
+    summary: | 
+        Image to display. Specify using a local file path or URL, or pass a `Blob` or 
+        `File` object containing image data.
+    type: [ String, Titanium.Blob, Titanium.Filesystem.File ]
   - name: images
-    description: array of images (either as string url, Blob or File) to display in an animation
+    summary: Array of images to display in an animation. Accepts the same types as `image`.
     type: Array<Object>
   - name: paused
-    description: boolean to indicate if the animation is paused
+    summary: Boolean value indicating if the animation is paused.
     type: Boolean
     permission: read-only
   - name: preventDefaultImage
-    description: boolean to indicate if the default image should be displaying while loading a remote image
+    summary: Set to `true` to **disable** display of the default image while loading a remote image.
     type: Boolean
   - name: repeatCount
-    description: number of times to repeat the image animation
+    summary: Number of times to repeat the image animation.
     type: Number
   - name: reverse
-    description: boolean to indicate if the animation should happen in reverse (from last to first)
+    summary: Boolean value indicating if the animation should happen in reverse (from last to first).
     type: Boolean
+    default: false
   - name: url
-    description: |
-        url to the image to display (NOTE: this property is deprecated. use image instead)
+    summary: |
+        URL to the image to display. Deprecated: use [image](Titanium.UI.ImageView.image) instead.
     type: String
     deprecated: {since: "1.5.0"}
-notes: |
-    If you specify a `width` and/or `height` property on the image, the image will be scaled to fit into this space if the image is larger.
 examples:
   - title: Basic Image View
     example: |

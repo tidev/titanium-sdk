@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.zip.GZIPInputStream;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -74,6 +75,7 @@ import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.util.TiTempFileHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiFileProxy;
@@ -81,7 +83,6 @@ import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
-import org.appcelerator.titanium.util.TiTempFileHelper;
 
 import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
@@ -196,6 +197,7 @@ public class TiHTTPClient
 		{
 			connected = true;
 			String clientResponse = null;
+			Header contentEncoding = null;
 
 			if (client != null) {
 				TiHTTPClient c = client.get();
@@ -225,11 +227,16 @@ public class TiHTTPClient
 				}
 
 				entity = response.getEntity();
+				contentEncoding = response.getFirstHeader("Content-Encoding");
 				if (entity != null) {
 					if (entity.getContentType() != null) {
 						contentType = entity.getContentType().getValue();
 					}
-					is = entity.getContent();
+					if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip")) {
+						is = new GZIPInputStream(entity.getContent());
+					} else {
+						is = entity.getContent();
+					}
 					charset = EntityUtils.getContentCharSet(entity);
 				} else {
 					is = null;

@@ -208,8 +208,9 @@ class Builder(object):
 		self.sdk = AndroidSDK(sdk, self.tool_api_level)
 		self.tiappxml = temp_tiapp
 
-		# TODO switch default to Rhino
-		self.runtime = self.tiappxml.app_properties.get('ti.android.runtime', 'v8')
+		json_contents = open(os.path.join(template_dir,'dependency.json')).read()
+		self.depends_map = simplejson.loads(json_contents)
+		self.runtime = self.tiappxml.app_properties.get('ti.android.runtime', self.depends_map['runtimes']['defaultRuntime'])
 
 		self.set_java_commands()
 		# start in 1.4, you no longer need the build/android directory
@@ -664,8 +665,9 @@ class Builder(object):
 					relative_path = relative_path.replace("\\", "/")
 					self.run_adb('push', delta.get_path(), "%s/%s" % (self.sdcard_resources, relative_path))
 
-		if len(self.project_deltas) > 0:
-			requireIndex.generateJSON(self.assets_dir, os.path.join(self.assets_dir, "index.json"))
+		index_json_path = os.path.join(self.assets_dir, "index.json")
+		if len(self.project_deltas) > 0 or not os.path.exists(index_json_path):
+			requireIndex.generateJSON(self.assets_dir, index_json_path)
 
 	def generate_android_manifest(self,compiler):
 
@@ -1267,10 +1269,10 @@ class Builder(object):
 			# kroll-apt.jar is needed for modules
 			classpath = os.pathsep.join([classpath, self.kroll_apt_jar])
 
-		#if self.deploy_type != 'production':
-		#	classpath = os.pathsep.join([classpath,
-		#		os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'),
-		#		os.path.join(self.support_dir, 'lib', 'titanium-debug.jar')])
+		if self.deploy_type != 'production':
+			classpath = os.pathsep.join([classpath,
+				os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'),
+				os.path.join(self.support_dir, 'lib', 'titanium-debug.jar')])
 
 		debug("Building Java Sources: " + " ".join(src_list))
 		javac_command = [self.javac, '-encoding', 'utf8',
@@ -1394,17 +1396,10 @@ class Builder(object):
 			add_native_libs(module.get_resource('libs'))
 
 		# add sdk runtime native libraries
-		sdk_native_libs = os.path.join(template_dir, 'native', 'libs', 'armeabi')
-		libkroll_v8_device = os.path.join(sdk_native_libs, 'libkroll-v8-device.so')
-		libkroll_v8_emulator = os.path.join(sdk_native_libs, 'libkroll-v8-emulator.so')
-
-		if self.runtime == "v8":
-			if self.deploy_type == "development":
-				apk_zip.write(libkroll_v8_emulator, 'lib/armeabi/libkroll-v8-emulator.so')
-				self.apk_updated = True
-			else:
-				apk_zip.write(libkroll_v8_device, 'lib/armeabi/libkroll-v8-device.so')
-				self.apk_updated = True
+		sdk_native_libs = os.path.join(template_dir, 'native', 'libs')
+		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libkroll-v8.so'), 'lib/armeabi/libkroll-v8.so')
+		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libkroll-v8.so'), 'lib/armeabi-v7a/libkroll-v8.so')
+		self.apk_updated = True
 
 		apk_zip.close()
 		return unsigned_apk
@@ -1869,17 +1864,18 @@ class Builder(object):
 				dex_args += ['--dex', '--output='+self.classes_dex, self.classes_dir]
 				dex_args += self.android_jars
 				dex_args += self.module_jars
-				#if self.deploy_type != 'production':
-				#	dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'))
-				#	dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-debug.jar'))
-				#	# the verifier depends on Ti.Network classes, so we may need to inject it
-				#	has_network_jar = False
-				#	for jar in self.android_jars:
-				#		if jar.endswith('titanium-network.jar'):
-				#			has_network_jar = True
-				#			break
-				#	if not has_network_jar:
-				#		dex_args.append(os.path.join(self.support_dir, 'modules', 'titanium-network.jar'))
+
+				if self.deploy_type != 'production':
+					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'))
+					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-debug.jar'))
+					# the verifier depends on Ti.Network classes, so we may need to inject it
+					has_network_jar = False
+					for jar in self.android_jars:
+						if jar.endswith('titanium-network.jar'):
+							has_network_jar = True
+							break
+					if not has_network_jar:
+						dex_args.append(os.path.join(self.support_dir, 'modules', 'titanium-network.jar'))
 
 				info("Compiling Android Resources... This could take some time")
 				# TODO - Document Exit message
@@ -1926,6 +1922,13 @@ class Builder(object):
 					info("Relaunched %s ... Application should be running." % self.name)
 
 			self.post_build()
+
+			# Enable port forwarding for debugger if application
+			# acts as the server. Currently only V8 runtime uses this mode.
+			if debugger_enabled and self.runtime == 'v8':
+				info('Forwarding host port %s to device for debugging.' % self.debugger_port)
+				forwardPort = 'tcp:%s' % self.debugger_port
+				self.sdk.run_adb(['forward', forwardPort, 'tcp:9999'])
 
 			#intermediary code for on-device debugging (later)
 			#if debugger_host != None:

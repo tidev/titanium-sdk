@@ -1,9 +1,11 @@
 /**
  * Appcelerator Titanium Mobile
+
  * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+
 var tiBinding = kroll.binding('Titanium'),
 	Titanium = tiBinding.Titanium,
 	Proxy = tiBinding.Proxy,
@@ -11,18 +13,22 @@ var tiBinding = kroll.binding('Titanium'),
 	Script = kroll.binding('evals').Script,
 	bootstrap = require('bootstrap'),
 	path = require('path'),
-	url = require('url');
+	url = require('url'),
+	invoker = require('invoker');
 
 var TAG = "Titanium";
 
-//the app entry point
+// The app entry point
 Titanium.sourceUrl = "app://app.js";
 
-//a list of java APIs that need an invocation-specific URL
-//passed in as the first argument
+// A list of java APIs that need an invocation-specific URL
+// passed in as the first argument
 Titanium.invocationAPIs = [];
 
-//Define lazy initializers for all Titanium APIs
+// A list of 3rd party (external) modules
+Titanium.externalModules = [];
+
+// Define lazy initializers for all Titanium APIs
 bootstrap.bootstrap(Titanium);
 
 // Custom JS extensions to Java modules
@@ -31,12 +37,9 @@ require("ui").bootstrap(Titanium);
 var Properties = require("properties");
 Properties.bootstrap(Titanium);
 
-//Custom native modules
+// Custom native modules
 bootstrap.defineLazyBinding(Titanium, "API")
 
-// Used just to differentiate scope vars on java side by checking
-// constructor name
-function ScopeVars() {};
 // Context-bound modules -------------------------------------------------
 //
 // Specialized modules that require binding context specific data
@@ -45,33 +48,40 @@ function ScopeVars() {};
 function TitaniumWrapper(context) {
 	var sourceUrl = this.sourceUrl = context.sourceUrl;
 
+	// The "context" specific global object
+	this.global = context.global;
+	var self = this;
+
 	// Special version of include to handle relative paths based on sourceUrl.
 	this.include = function() {
-		var baseUrl, context;
+		var baseUrl, scopeVars;
 		var fileCount = arguments.length;
-
 		var info = arguments[fileCount - 1];
-		var baseUrl, context;
+
 		if (info instanceof Array) {
 			fileCount--;
 			baseUrl = info[0];
-			context = info[1];
+			scopeVars = info[1];
 		} else {
 			baseUrl = sourceUrl;
+			scopeVars = context || {};
 		}
 
+		scopeVars.global = self.global;
 		for (var i = 0; i < fileCount; i++) {
-			TiInclude(arguments[i], baseUrl, context);
+			TiInclude(arguments[i], baseUrl, scopeVars);
 		}
 	}
 
 	this.Android = new AndroidWrapper(context);
 	this.UI = new UIWrapper(context, this.Android);
 
-	var scopeVars = new ScopeVars();
-	scopeVars.sourceUrl = sourceUrl;
-	scopeVars.currentActivity = this.Android.currentActivity;
-
+	var scopeVars = new kroll.ScopeVars({
+		sourceUrl: sourceUrl,
+		module: context.module,
+		currentActivity: this.Android.currentActivity,
+		currentService: this.Android.currentService
+	});
 	Titanium.bindInvocationAPIs(this, scopeVars);
 }
 TitaniumWrapper.prototype = Titanium;
@@ -90,16 +100,15 @@ UIWrapper.prototype = Titanium.UI;
 
 function AndroidWrapper(context) {
 	this.currentActivity = context.currentActivity;
+	this.currentService = context.currentService;
 	var currentWindow = context.currentWindow;
 
 	if (!this.currentActivity) {
 		var topActivity;
 		if (currentWindow && currentWindow.window && currentWindow.window.activity) {
-			//Titanium.API.debug("getting activity from currentWindow: " + currentWindow.activity);
 			this.currentActivity = currentWindow.activity;
 
 		} else if (topActivity = Titanium.App.Android.getTopActivity()) {
-			//Titanium.API.debug("getting activity from top activity: " + topActivity);
 			this.currentActivity = topActivity;
 		}
 	}
@@ -108,35 +117,53 @@ AndroidWrapper.prototype = Titanium.Android;
 
 // -----------------------------------------------------------------------
 
-function createSandbox(ti) {
-	var sandbox = { Ti: ti, Titanium: ti };
+function createSandbox(ti, sourceUrl) {
+	var newSandbox = { Ti: ti, Titanium: ti };
 
 	if (kroll.runtime == "rhino") {
-		return kroll.createSandbox(sandbox);
+		newSandbox = kroll.createSandbox(newSandbox, ti.global);
 	}
 
-	return sandbox;
+
+	// The require function we want to wrap for this context
+	var contextRequire = global.require;
+	if (ti.global) {
+		contextRequire = ti.global.require;
+	}
+
+	// Wrap require in Ti.include contexts so the relative sourceUrl is correct
+	newSandbox.require = function(path, context) {
+		if (context === undefined) {
+			context = {};
+		}
+
+		if (!context.sourceUrl) {
+			context.sourceUrl = sourceUrl;
+		}
+
+		return contextRequire(path, context, sourceUrl);
+	}
+
+	return newSandbox;
 }
 
-function TiInclude(filename, baseUrl, context) {
-	var sourceUrl = url.resolve(baseUrl || Titanium.sourceUrl, filename);
+// Initializes a ScopeVars object with a
+// passed in sourceURL (resolved from url.resolve)
+function initScopeVars(scopeVars, sourceUrl) {
 	var contextUrl = sourceUrl.href;
 
-	// Create a context-bound Titanium module.
 	if (kroll.runtime == "rhino") {
 		contextUrl = require("rhino").getSourceUrl(sourceUrl);
 	}
 
-	var context = context || {};
-	context.sourceUrl = contextUrl;
-	var ti = new TitaniumWrapper(context);
+	scopeVars = scopeVars || {};
+	scopeVars.sourceUrl = contextUrl;
+	return scopeVars;
+}
+Titanium.initScopeVars = initScopeVars;
 
-	sandbox = createSandbox(ti);
-
-	if (kroll.runtime == 'rhino') {
-		return require("rhino").include(filename, baseUrl, sandbox);
-	}
-
+// Gets the source string for a specified URL / filename combo
+function getUrlSource(filename, sourceUrl) {
 	var source;
 
 	// Load the source code for the script.
@@ -151,78 +178,65 @@ function TiInclude(filename, baseUrl, context) {
 	} else {
 		throw new Error("Unable to load source for filename: " + filename);
 	}
+	return source;
+}
+Titanium.getUrlSource = getUrlSource;
 
-	var wrappedSource = "with(sandbox) { " + source + "\n }";
-	return Script.runInThisContext(wrappedSource, sourceUrl.href, true);
+// This is the implementation of Ti.include (and it's wrappers/delegates)
+// Ti.include executes code in the current "context", and
+// also supports relative paths based on the current file.
+//
+// We have some complicated code to get this working, namely:
+// - Every "context" (i.e. window with a URL, or app.js) is actually a CommonJS module in disguise, with caching disabled
+// - Every "context" has it's own top level / global object
+// - Ti.include code is executed in the context that it's called from
+// - Each "context" and each Ti.include file gets it's own version of Ti.include / require that wraps this implementation, passing a different baseUrl
+// - We use TitaniumWrapper as the base for all context / scope-specific APIs
+function TiInclude(filename, baseUrl, scopeVars) {
+	var sourceUrl = url.resolve(baseUrl, filename);
+	scopeVars = initScopeVars(scopeVars, sourceUrl);
+
+	// Create a context-bound Titanium module.
+	var ti = new TitaniumWrapper(scopeVars);
+
+	// This is called "localSandbox" so we don't overshadow the "sandbox" on global scope
+	var localSandbox = createSandbox(ti, scopeVars.sourceUrl);
+
+	if (kroll.runtime == 'rhino') {
+		// In Rhino we use a different code path to support pre-compiled JS
+		return require("rhino").include(filename, baseUrl, localSandbox);
+
+	} else {
+		var source = getUrlSource(filename, sourceUrl);
+		var wrappedSource = "with(sandbox) { " + source + "\n }";
+		var contextGlobal = ti.global;
+		var filePath = sourceUrl.href.replace("app://", "");
+
+		if (contextGlobal) {
+			// We're running inside another window or module, so we run against it's context
+			contextGlobal.sandbox = localSandbox;
+			return Script.runInContext(wrappedSource, contextGlobal, filePath, true);
+
+		} else {
+			// We're running in the main module (app.js), so we use the global V8 Context directly.
+			// Put sandbox on the global scope
+			sandbox = localSandbox;
+			return Script.runInThisContext(wrappedSource, filePath, true);
+		}
+	}
 }
 TiInclude.prototype = global;
 Titanium.include = TiInclude;
 
-Titanium.bindInvocationAPIs = function(sandboxTi, scopeVars) {
-	// This loops through all known APIs that require an
-	// Invocation object and wraps them so we can pass a
-	// source URL as the first argument
-
-	function genInvoker(invocationAPI) {
-		var namespace = invocationAPI.namespace;
-		var names = namespace.split(".");
-		var length = names.length;
-		if (namespace == "Titanium") {
-			length = 0;
-		}
-
-		var apiNamespace = sandboxTi;
-		var realAPI = tiBinding.Titanium;
-
-		for (var j = 0, namesLen = length; j < namesLen; ++j) {
-			var name = names[j];
-			var api;
-
-			// Create a module wrapper only if it hasn't been wrapped already.
-			if (apiNamespace.hasOwnProperty(name)) {
-				api = apiNamespace[name];
-			} else {
-				function SandboxAPI() {}
-				SandboxAPI.prototype = apiNamespace[name];
-
-				api = new SandboxAPI();
-				apiNamespace[name] = api;
-			}
-
-			apiNamespace = api;
-			realAPI = realAPI[name];
-		}
-
-		var delegate = realAPI[invocationAPI.api];
-
-		// These invokers form a call hierarchy so we need to
-		// provide a way back to the actual root Titanium / actual impl.
-		while (delegate.__delegate__) {
-			delegate = delegate.__delegate__;
-		}
-
-		function createInvoker(delegate) {
-			var urlInvoker = function invoker() {
-				var args = Array.prototype.slice.call(arguments);
-				args.splice(0, 0, invoker.scopeVars);
-
-				return delegate.apply(invoker.__thisObj__, args);
-			}
-
-			urlInvoker.scopeVars = scopeVars;
-			urlInvoker.__delegate__ = delegate;
-			urlInvoker.__thisObj__ = realAPI;
-
-			return urlInvoker;
-		}
-
-		apiNamespace[invocationAPI.api] = createInvoker(delegate);
-	}
-
+// This loops through all known APIs that require an
+// Invocation object and wraps them so we can pass a
+// source URL as the first argument
+Titanium.bindInvocationAPIs = function(wrapperTi, scopeVars) {
 	var len = Titanium.invocationAPIs.length;
 	for (var i = 0; i < len; ++i) {
 		// separate each invoker into it's own private scope
-		genInvoker(Titanium.invocationAPIs[i]);
+		invoker.genInvoker(wrapperTi, tiBinding.Titanium,
+			"Titanium", Titanium.invocationAPIs[i], scopeVars);
 	}
 }
 

@@ -217,7 +217,7 @@ public class TabGroupProxy extends TiWindowProxy
 
 			tspec.setContent(intent);
 
-			tg.addTab(tspec);
+			tg.addTab(tspec, tab);
 		}
 	}
 

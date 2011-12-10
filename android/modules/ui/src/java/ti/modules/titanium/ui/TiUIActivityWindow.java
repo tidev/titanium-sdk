@@ -13,7 +13,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
-import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiActivityWindow;
 import org.appcelerator.titanium.TiActivityWindows;
@@ -137,6 +136,7 @@ public class TiUIActivityWindow extends TiUIView
 		windowActivity = activity;
 		proxy.setActivity(activity);
 		bindProxies();
+		proxy.fireSyncEvent("windowCreated", null);
 	}
 
 	protected ActivityProxy bindWindowActivity(Activity activity)
@@ -214,8 +214,12 @@ public class TiUIActivityWindow extends TiUIView
 
 	public void close(KrollDict options) 
 	{
-		Object animated = options.get(TiC.PROPERTY_ANIMATED);
 		boolean animateOnClose = animate;
+
+		Object animated = null;
+		if (options != null) {
+			animated = options.get(TiC.PROPERTY_ANIMATED);
+		}
 
 		if (animated != null) {
 			animateOnClose = TiConvert.toBoolean(animated);
@@ -405,6 +409,15 @@ public class TiUIActivityWindow extends TiUIView
 			handleWindowPixelFormat(TiConvert.toInt(d, TiC.PROPERTY_WINDOW_PIXEL_FORMAT));
 		}
 
+		if (d.containsKey(TiC.PROPERTY_ACTIVITY)) {
+			Object activityObject = d.get(TiC.PROPERTY_ACTIVITY);
+			ActivityProxy activityProxy = getProxy().getActivityProxy();
+			if (activityObject instanceof HashMap && activityProxy != null) {
+				KrollDict options = new KrollDict((HashMap) activityObject);
+				activityProxy.handleCreationDict(options);
+			}
+		}
+
 		// Don't allow default processing.
 		d.remove(TiC.PROPERTY_BACKGROUND_IMAGE);
 		d.remove(TiC.PROPERTY_BACKGROUND_COLOR);
@@ -426,7 +439,7 @@ public class TiUIActivityWindow extends TiUIView
 			handleBackgroundColor(newValue, false);
 
 		} else if (key.equals(TiC.PROPERTY_WIDTH) || key.equals(TiC.PROPERTY_HEIGHT)) {
-			Window w = proxy.getActivity().getWindow();
+			Window w = windowActivity.getWindow();
 			int width = lastWidth;
 			int height = lastHeight;
 

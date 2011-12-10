@@ -319,7 +319,7 @@ DrillbitTest.Subject.prototype.shouldBeFunction = function(expected,lineNumber)
 {
 	this.lineNumber = lineNumber;
 	DrillbitTest.assertion(this);
-	if (!(this.target instanceof Function))
+	if ((typeof(this.target) != 'function') && !(this.target instanceof Function))
 	{
 		throw new DrillbitTest.Error('should be a function, was: '+typeof(this.target),lineNumber);
 	}
@@ -329,7 +329,7 @@ DrillbitTest.Subject.prototype.shouldBeObject = function(expected,lineNumber)
 {
 	this.lineNumber = lineNumber;
 	DrillbitTest.assertion(this);
-	if (!(this.target instanceof Object))
+	if ((typeof(this.target) != 'object') && !(this.target instanceof Object))
 	{
 		throw new DrillbitTest.Error('should be a object, was: ' + this.target,lineNumber);
 	}
@@ -474,18 +474,6 @@ DrillbitTest.Subject.prototype.shouldBeLessThanEqual = function(expected, lineNu
 
 DrillbitTest.Subject.prototype.shouldThrowException = function(expected,lineNumber)
 {
-	if (Titanium.Platform.name == 'iPhone OS' || Titanium.Platform.name == 'iOS')
-	{
-		// iOS 4.0+ Simulator doesn't correctly propagate exceptions, so we ignore
-		// for iOS and issue a warning. Ticket:
-		// http://jira.appcelerator.org/browse/TIMOB-3561
-		Ti.API.warn("Not running test: ignoring shouldThrowException on line " + lineNumber + " in iOS, see http://jira.appcelerator.org/browse/TIMOB-3561");
-		
-		this.lineNumber = lineNumber;
-		DrillbitTest.assertion(this);
-		return;
-	}
-
 	this.lineNumber = lineNumber;
 	DrillbitTest.assertion(this);
 	if (typeof(this.target) == 'function')

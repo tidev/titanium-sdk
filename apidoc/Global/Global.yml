@@ -1,105 +1,194 @@
 ---
 name: Global
-description: APIs that live on the global scope.
+summary: APIs that live in the global scope.
+description: |
+    Titanium provides a number of global built-in objects. 
+
+    #### JSON
+
+    Titanium has a built-in JSON parser with two main functions: `parse` and `stringify`.  `JSON.parse` will safely evaluate a string encoded as JavaScript into a JavaScript object.  `JSON.stringify` will encode a JavaScript object into a string.
+
+    #### Timers
+
+    Titanium has built-in support for one-shot and repeating timers with two main functions: `setTimeout` and `setInterval`.  `setTimeout` takes 2 arguments: function and timeout in milliseconds after which the function should be executed and returns a timer handle that can be used to cancel a pending timer with `clearTimeout`.  `setInterval` takes 2 arguments: function and timeout in milliseconds for how often the function should be executed until cancelled and returns a timer handle that can be used to cancel a timer with `clearInterval`.
+
+    #### Alert
+
+    Titanium has a built-in convenience function [alert](Global.alert) which can be used 
+    as a shortcut to create and show a simple [AlertDialog](Titanium.UI.AlertDialog).
+
+    #### Locale
+
+    The macro `L` can also be used which aliases the method <Titanium.Locale.getString>.
+
+    #### String Formatting
+
+    The following are built-in functions available on the [String](Global.String) class which are Titanium specific and will aid in formatting data into locale-specific strings. These include:
+
+    `String.format`: format a generic string using the [IEEE printf specification](http://www.opengroup.org/onlinepubs/009695399/functions/printf.html).
+
+    `String.formatDate`: format a date into a locale specific date format. Optionally pass a second argument (string) as either "short" (default), "medium" or "long" for controlling the date format.
+
+    `String.formatTime`: format a date into a locale specific time format.
+
+    `String.formatDecimal`: format a number into a locale specific decimal format.
+
+    `String.formatCurrency`: format a number into a locale specific currency format.
 
 methods:
   - name: alert
-    description: Displays a pop-up alert dialog with the passed in `message`.
+    summary: Displays a pop-up alert dialog with the passed in `message`.
+    description: |
+        This function is a shortcut for creating and displaying an
+        [AlertDialog](Titanium.UI.AlertDialog). The code:
+
+            alert('Danger, Will Robinson!');
+
+        Is equivalent to:
+
+            Ti.UI.createAlertDialog({ message: 'Danger, Will Robinson!'}).show();
+
+        Note that unlike a web browser-based version of `alert`, the method is 
+        asynchronous. However, only one alert dialog will be visible and modal at a time.
+
+        This method is likely to be removed in the future.
+
     parameters:
       - name: message
         type: String
-        description: The message to alert.
+        summary: The message to show in the alert.
   - name: clearInterval
-    description: Clear an interval timer from being fired.
+    summary: Clear an interval timer from being fired.
     parameters:
       - name: timerId
         type: Number
-        description: The timer ID returned by <Global.setInterval>
+        summary: The timer ID returned by <Global.setInterval>
   - name: clearTimeout
-    description: Clear a timeout timer from being fired.
+    summary: Clear a timeout timer from being fired.
     parameters:
       - name: timerId
         type: Number
-        description: The timer ID returned by <Global.setTimeout>
+        summary: The timer ID returned by <Global.setTimeout>
   - name: decodeURIComponent
-    description:
-        Replaces each URI encoded escape sequence in the passed in `encodedURI`
-        with the character that it represents. See the
+    summary: Replaces each URI encoded escape sequence in the passed in `encodedURI`
+        with the character that it represents. 
+    description: | 
+        For more information, see the
         [MDN docs for decodeURIComponent](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/decodeURIComponent).
     parameters:
       - name: encodedURI
         type: String
-        description: A URI string with encoded escape sequences.
+        summary: URI string with encoded escape sequences.
     returns:
         type: String
-        description: The decoded URI String.
+        summary: Decoded URI String.
   - name: encodeURIComponent
-    description:
-        Replaces all URI special characters in the passed in `string` with
-        URI escape codes. See the [MDN docs for encodeURIComponent](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/encodeURIComponent)
+    summary: Replaces all URI special characters in the passed in `string` with
+        URI escape codes. 
+    description: |
+        For more information, see the 
+        [MDN docs for encodeURIComponent](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/encodeURIComponent).
     parameters:
       - name: string
         type: String
-        description: "A URI component that needs it's special characters encoded."
+        summary: URI component that needs its special characters encoded.
     returns:
         type: String
-        description: An encoded URI.
+        summary: Encoded URI.
   - name: L
-    description: An alias for <Titanium.Locale.getString>
+    summary: An alias for <Titanium.Locale.getString>.
     parameters:
       - name: key
         type: String
-        description: The lookup key for the localization string
+        summary: The lookup key for the localization string.
       - name: hint
         type: String
-        description: The text to use if `key` is not found.
+        summary: The text to use if `key` is not found.
         optional: true
     returns:
         type: String
-        description: The value of the localized string defined by `key`.
+        summary: The value of the localized string defined by `key`.
   - name: require
-    description:
-        Loads either a native Titanium module, or a
-        [CommonJS module](http://wiki.commonjs.org/wiki/Modules/1.1).
-        Titanium modules can be loaded by using their module ID, and JS
-        can be loaded by using their `app://` relative path.
+    summary: Loads either a native Titanium module, or a CommonJS module.
+    description: |
+        The `require` function takes a module identifier as its argument
+        and returns an object with references to the module's exported symbols.
+
+        To load a native Titanium module, use its module ID.
+
+        To load a local CommonJS module, use the relative path to the file,
+        *minus* the `.js` extension. The file path is relative to the 
+        location of the file calling `require`.
+
+        Note that the appropriate *platform-specific* Resources subdirectory 
+        is merged into the main Resources directory at build time. For example,
+        suppose you have the following files:
+
+        * `Resources/app.js`
+        * `Resources/ui/MainWindow.js`
+        * `Resources/iphone/ui/TaskWindow.js`
+        * `Resources/android/ui/TaskWindow.js`
+
+        At build time, the appropriate `TaskWindow.js` file is moved into the `Resources/ui`
+        directory of the built application. To include both the MainWindow module and 
+        the platform-specific TaskWindow module, you could use code like this in your 
+        `app.js` file:
+
+             // load main window module from ui subdirectory
+             var mainWindow = require('ui/MainWindow');
+
+             // load platform-specific task window module
+             var taskWindow = require('ui/TaskWindow'); 
+
+        On the other hand, to include the TaskWindow module from the 
+        `Resources/ui/MainWindow.js` file, you'd use:
+
+             // load task window module
+             var taskWindow = require('TaskWindow'); 
+
+        For more information about CommonJS modules, see the CommonJS module specification:
+        
+          <http://wiki.commonjs.org/wiki/Modules/1.1>
     parameters:
       - name: moduleId
         type: String
-        description: The module ID or `app://` relative path.
+        summary: Native module ID, or local path to a JavaScript file, *minus* the `.js` extension.
     returns:
         type: Object
-        description: The `exports` object of the required module.
+        summary: The `exports` object of the required module.
     examples:
-      - title: Require a native module
+      - title: Require a Native Module
         example: |
-            Require a native module with the ID `com.mycompany.module`
+            To load a native module with the ID `com.mycompany.module`:
             
-                var module = require('com.mycompany.module')
-      - title: Require a javascript module
+                var module = require('com.mycompany.module');
+      - title: Require a JavaScript Module
         example: |
-            myModule.js:
+            `myModule.js`:
             
                 exports.message = "hello world";
             
-            app.js:
+            `app.js`:
             
                 var myModule = require('myModule');
                 alert(myModule.message);
   - name: setInterval
-    description:
-        Creates an interval timer that calls `function` every `delay` milliseconds.
-        See the [MDN docs for setInterval](https://developer.mozilla.org/en/DOM/window.setInterval)
+    summary: Creates an interval timer that calls `function` every `delay` milliseconds.
+    description: |
+        Note that interval is not guaranteed to be exact. The interval between calls
+        will be *at least* `delay` milliseconds.
+
+        For more information, see the [MDN docs for setInterval](https://developer.mozilla.org/en/DOM/window.setInterval).
     parameters:
       - name: function
         type: Callback
-        description: The function that this interval timer will call.
+        summary: The function that this interval timer will call.
       - name: delay
         type: Number
-        description: How long the timer will wait between calls to `function`.
+        summary: How long the timer will wait between calls to `function`.
     returns:
         type: Number
-        description: A unique timer ID.
+        summary: A unique timer ID.
     examples:
       - title: Update a label every second, stop updating at 10 seconds
         example: |
@@ -113,19 +202,22 @@ methods:
                     }
                 }, 1000);
   - name: setTimeout
-    description:
-        Creates a timer that calls `function` once after `delay` milliseconds.
-        See the [MDN docs for setTimeout](https://developer.mozilla.org/en/DOM/window.setTimeout)
+    summary: Creates a timer that calls `function` once after `delay` milliseconds.
+    description: |
+        Note that it is impossible to guarantee the exact callback time. The function
+        is called after *at least* `delay` milliseconds.
+
+        For more details, see the [MDN docs for setTimeout](https://developer.mozilla.org/en/DOM/window.setTimeout).
     parameters:
       - name: function
         type: Callback
-        description: The function that the timer will call.
+        summary: The function that the timer will call.
       - name: delay
         type: Number
-        description: How long the timer will wait before calling `function`.
+        summary: How long the timer will wait before calling `function`.
     returns:
         type: Number
-        description: A unique timer ID.
+        summary: A unique timer ID.
     examples:
       - title: Execute a function in 500 milliseconds
         example: |

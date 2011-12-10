@@ -6,9 +6,16 @@ var win = Ti.UI.currentWindow;
 Titanium.Facebook.appid = "134793934930";
 Titanium.Facebook.permissions = ['publish_stream', 'read_stream'];
 var fbButton = Titanium.Facebook.createLoginButton({
-	'style':'wide',
 	bottom:10
 });
+if(Titanium.Platform.name == 'iPhone OS')
+{
+	fbButton.style = Ti.Facebook.BUTTON_STYLE_NORMAL;
+}
+else
+{
+	fbButton.style ='normal';
+}
 win.add(fbButton);
 
 var b1 = Ti.UI.createButton({

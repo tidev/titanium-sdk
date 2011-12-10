@@ -1,16 +1,16 @@
 ---
 name: Titanium.UI.iPhone.TableViewSeparatorStyle
-description: A set of constants for the style that can be used for the `separatorStyle` property of <Titanium.UI.TableView>.
+summary: A set of constants for the style that can be used for the `separatorStyle` property of <Titanium.UI.TableView>.
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [iphone, ipad]
 createable: false
 properties:
   - name: NONE
-    description: The separator cell has no distinct style.
+    summary: The separator cell has no distinct style.
     type: Number
     permission: read-only
   - name: SINGLE_LINE
-    description: The separator cell has a single line running across its width. This is the default value.
+    summary: The separator cell has a single line running across its width. This is the default value.
     type: Number
     permission: read-only

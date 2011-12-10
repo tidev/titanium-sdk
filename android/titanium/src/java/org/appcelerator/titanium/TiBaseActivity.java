@@ -9,11 +9,11 @@ package org.appcelerator.titanium;
 import java.lang.ref.WeakReference;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
-import org.appcelerator.titanium.TiLifecycle.OnServiceLifecycleEvent;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
@@ -53,7 +53,6 @@ public abstract class TiBaseActivity extends Activity
 	private boolean onDestroyFired = false;
 	private int originalOrientationMode = -1;
 	private TiWeakList<OnLifecycleEvent> lifecycleListeners = new TiWeakList<OnLifecycleEvent>();
-	private TiWeakList<OnServiceLifecycleEvent> serviceLifecycleListeners;
 
 	protected TiCompositeLayout layout;
 	protected TiActivitySupportHelper supportHelper;
@@ -90,11 +89,6 @@ public abstract class TiBaseActivity extends Activity
 	public static interface ConfigurationChangedListener
 	{
 		public void onConfigurationChanged(TiBaseActivity activity, Configuration newConfig);
-	}
-
-	public void activityOnCreate(Bundle savedInstanceState)
-	{
-		super.onCreate(savedInstanceState);
 	}
 
 	public TiApplication getTiApp()
@@ -296,8 +290,15 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onCreate");
 		}
 
+		if (!isTabActivity()) {
+			TiApplication.addToActivityStack(this);
+		}
+
 		// create the activity proxy here so that it is accessible from the activity in all cases
 		activityProxy = new ActivityProxy(this);
+
+		// Increment the reference count so we correctly clean up when all of our activities have been destroyed
+		KrollRuntime.incrementActivityRefCount();
 
 		Intent intent = getIntent();
 		if (intent != null) {
@@ -321,21 +322,22 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		super.onCreate(savedInstanceState);
+		
+		// we only want to set the current activity for good in the resume state but we need it right now.
+		// save off the existing current activity, set ourselves to be the new current activity temporarily 
+		// so we don't run into problems when we give the proxy the event
+		TiApplication tiApp = getTiApp();
+		Activity tempCurrentActivity = tiApp.getCurrentActivity();
+		tiApp.setCurrentActivity(this, this);
+
 		windowCreated();
 
 		if (activityProxy != null) {
-			// we only want to set the current activity for good in the resume state but we need it right now.
-			// save off the existing current activity, set ourselves to be the new current activity temporarily 
-			// so we don't run into problems when we give the proxy the event
-			TiApplication tiApp = getTiApp();
-			Activity tempCurrentActivity = tiApp.getCurrentActivity();
-			tiApp.setCurrentActivity(this, this);
-
 			activityProxy.fireSyncEvent(TiC.EVENT_CREATE, null);
-
-			// set the current activity back to what it was originally
-			tiApp.setCurrentActivity(this, tempCurrentActivity);
 		}
+
+		// set the current activity back to what it was originally
+		tiApp.setCurrentActivity(this, tempCurrentActivity);
 
 		setContentView(layout);
 
@@ -565,16 +567,6 @@ public abstract class TiBaseActivity extends Activity
 		// TODO stub
 	}
 
-	public void addOnServiceLifecycleEventListener(OnServiceLifecycleEvent listener)
-	{
-		serviceLifecycleListeners.add(new WeakReference<OnServiceLifecycleEvent>(listener));
-	}
-
-	public void removeOnServiceLifecycleEventListener(OnServiceLifecycleEvent listener)
-	{
-		serviceLifecycleListeners.remove(listener);
-	}
-
 	@Override
 	protected void onPause() 
 	{
@@ -583,7 +575,8 @@ public abstract class TiBaseActivity extends Activity
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onPause");
 		}
-
+		
+		TiApplication.updateActivityTransitionState(true);
 		getTiApp().setCurrentActivity(this, null);
 
 		if (activityProxy != null) {
@@ -612,7 +605,8 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		getTiApp().setCurrentActivity(this, this);
-
+		TiApplication.updateActivityTransitionState(false);
+		
 		if (activityProxy != null) {
 			activityProxy.fireSyncEvent(TiC.EVENT_RESUME, null);
 		}
@@ -744,6 +738,10 @@ public abstract class TiBaseActivity extends Activity
 			}
 		}
 
+		if (!isTabActivity()) {
+			TiApplication.removeFromActivityStack(this);
+		}
+
 		super.onDestroy();
 
 		// Our Activities are currently unable to recover from Android-forced restarts,
@@ -783,6 +781,8 @@ public abstract class TiBaseActivity extends Activity
 			activityProxy.release();
 			activityProxy = null;
 		}
+
+		KrollRuntime.decrementActivityRefCount();
 	}
 
 	// called in order to ensure that the onDestroy call is only acted upon once.
@@ -828,6 +828,53 @@ public abstract class TiBaseActivity extends Activity
 		if (!animate) {
 			TiUIHelper.overridePendingTransition(this);
 		}
+	}
+
+	protected boolean isTabActivity()
+	{
+		boolean isTab = false;
+		if (this instanceof TiActivity) {
+			if (((TiActivity)this).isTab()) {
+				isTab = true;
+			}
+		}
+
+		return isTab;
+	}
+
+	// These activityOnXxxx are all used by TiLaunchActivity when
+	// the android bug 2373 is detected and the app is being re-started.
+	// By calling these from inside its on onXxxx handlers, TiLaunchActivity
+	// can avoid calling super.onXxxx (super being TiBaseActivity), which would
+	// result in a bunch of Titanium-specific code running when we don't need it
+	// since we are restarting the app as fast as possible. Calling these methods
+	// allows TiLaunchActivity to fulfill the requirement that the Android built-in
+	// Activity's onXxxx must be called. (Think of these as something like super.super.onXxxx
+	// from inside TiLaunchActivity.)
+	protected void activityOnPause()
+	{
+		super.onPause();
+	}
+	protected void activityOnResume()
+	{
+		super.onResume();
+	}
+	protected void activityOnStop()
+	{
+		super.onStop();
+	}
+	protected void activityOnStart()
+	{
+		super.onStart();
+	}
+	protected void activityOnDestroy()
+	{
+		super.onDestroy();
+	}
+
+	public void activityOnCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
 	}
 }
 

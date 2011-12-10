@@ -9,19 +9,14 @@ package org.appcelerator.titanium;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
-//import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.util.TiWeakList;
-//import org.mozilla.javascript.ErrorReporter;
-//import org.mozilla.javascript.EvaluatorException;
-//import org.mozilla.javascript.Scriptable;
 
 import android.app.Activity;
-import android.app.Service;
 import android.content.ContextWrapper;
 import android.os.Looper;
 import android.os.Message;
@@ -46,7 +41,6 @@ public class TiContext// implements ErrorReporter
 	private TiUrl baseUrl;
 	private String currentUrl;
 	private boolean launchContext;
-	private boolean serviceContext; // Contexts created for Ti services won't have associated activities.
 
 	private WeakReference<Activity> weakActivity;
 	private TiApplication tiApp;
@@ -54,7 +48,6 @@ public class TiContext// implements ErrorReporter
 	//protected KrollBridge krollBridge;
 
 	private TiWeakList<OnLifecycleEvent> lifecycleListeners;
-	private TiWeakList<OnServiceLifecycleEvent> serviceLifecycleListeners;
 
 
 	public static interface OnLifecycleEvent {
@@ -63,10 +56,6 @@ public class TiContext// implements ErrorReporter
 		void onPause(Activity activity);
 		void onStop(Activity activity);
 		void onDestroy(Activity activity);
-	}
-
-	public static interface OnServiceLifecycleEvent {
-		void onDestroy(Service service);
 	}
 
 	public TiContext(Activity activity, String baseUrl)
@@ -239,19 +228,9 @@ public class TiContext// implements ErrorReporter
 		lifecycleListeners.add(new WeakReference<OnLifecycleEvent>(listener));
 	}
 
-	public void addOnServiceLifecycleEventListener(OnServiceLifecycleEvent listener)
-	{
-		serviceLifecycleListeners.add(new WeakReference<OnServiceLifecycleEvent>(listener));
-	}
-
 	public void removeOnLifecycleEventListener(OnLifecycleEvent listener)
 	{
 		lifecycleListeners.remove(listener);
-	}
-
-	public void removeOnServiceLifecycleEventListener(OnServiceLifecycleEvent listener)
-	{
-		serviceLifecycleListeners.remove(listener);
 	}
 
 	public void fireLifecycleEvent(Activity activity, int which)
@@ -275,19 +254,6 @@ public class TiContext// implements ErrorReporter
 			case LIFECYCLE_ON_PAUSE: listener.onPause(activity); break;
 			case LIFECYCLE_ON_STOP: listener.onStop(activity); break;
 			case LIFECYCLE_ON_DESTROY: listener.onDestroy(activity); break;
-		}
-	}
-
-	public void dispatchOnServiceDestroy(Service service)
-	{
-		synchronized (serviceLifecycleListeners) {
-			for (OnServiceLifecycleEvent listener : serviceLifecycleListeners.nonNull()) {
-				try {
-					listener.onDestroy(service);
-				} catch (Throwable t) {
-					Log.e(LCAT, "Error dispatching service onDestroy  event: " + t.getMessage(), t);
-				}
-			}
 		}
 	}
 
@@ -360,22 +326,6 @@ public class TiContext// implements ErrorReporter
 		*/
 		if (lifecycleListeners != null) {
 			lifecycleListeners.clear();
-		}
-		if (serviceLifecycleListeners != null) {
-			serviceLifecycleListeners.clear();
-		}
-	}
-
-	public boolean isServiceContext() 
-	{
-		return serviceContext;
-	}
-
-	public void setServiceContext(boolean value)
-	{
-		serviceContext = true;
-		if (value && serviceLifecycleListeners == null ) {
-			serviceLifecycleListeners = new TiWeakList<OnServiceLifecycleEvent>(true);
 		}
 	}
 

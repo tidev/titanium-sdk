@@ -12,34 +12,10 @@
 	};
 	
 	api.include = function(files){
-		var head = document.getElementsByTagName('head')[0];
-		if(head == null){
-			head = document;
-		}
-
-		for (var i = 0; i < arguments.length; i++){
-			var location = arguments[i];
-
-			var script = Ti._5.getLoadedScript(location);
-			if ('undefined' != typeof script) {
-				return Ti._5.execLoadedScript(location);
-			}
-
-			var absLocation = Ti._5.getAbsolutePath(location);
-			var xhr = new XMLHttpRequest();
-			xhr.onreadystatechange = function() {
-				if (xhr.readyState == 4) {
-					if (xhr.status == 200) {
-						Ti._5.addLoadedScript(location, xhr.responseText);
-						return Ti._5.execLoadedScript(location);
-					}
-				}
-			};
-			xhr.open("POST", absLocation, false);
-			xhr.setRequestHeader("Access-Control-Allow-Origin","*");
-			xhr.setRequestHeader("Content-Type", "text/xml; charset=utf-8");
-			xhr.send(null);
-			xhr = null;
+		var i = 0;
+		typeof files === "array" || (files = [].concat(Array.prototype.slice.call(arguments, 0)));
+		for (; i < files.length; i++) {
+			require("include!" + files[i]);
 		}
 	};
 })(Ti);

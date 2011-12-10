@@ -77,6 +77,7 @@ public class TabProxy extends TiViewProxy
 
 	public void setTabGroup(TabGroupProxy tabGroupProxy) 
 	{
+		setParent(tabGroupProxy);
 		this.tabGroupProxy = tabGroupProxy;
 	}
 

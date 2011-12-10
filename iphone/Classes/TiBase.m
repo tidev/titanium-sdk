@@ -98,6 +98,7 @@ void TiExceptionThrowWithNameAndReason(NSString * exceptionName, NSString * mess
 
 void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 {
+	BOOL alreadyOnMainThread = [NSThread isMainThread];
 	__block NSException * caughtException = nil;
 	void (^wrapperBlock)() = ^{
 		BOOL exceptionsWereSafe = TiExceptionIsSafeOnMainThread;
@@ -106,7 +107,7 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 			mainBlock();
 		}
 		@catch (NSException *exception) {
-			if (waitForFinish) {
+			if (waitForFinish && (!alreadyOnMainThread || exceptionsWereSafe)) {
 				caughtException = [exception retain];
 			}
 		}
@@ -115,7 +116,14 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 	
 	if (waitForFinish)
 	{
-		dispatch_sync(dispatch_get_main_queue(), (dispatch_block_t)wrapperBlock);
+		if (alreadyOnMainThread)
+		{
+			wrapperBlock();
+		}
+		else
+		{
+			dispatch_sync(dispatch_get_main_queue(), (dispatch_block_t)wrapperBlock);
+		}
 	}
 	else
 	{

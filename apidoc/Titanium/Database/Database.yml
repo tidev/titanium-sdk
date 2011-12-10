@@ -1,43 +1,49 @@
 ---
 name: Titanium.Database
-description: The top level Database module.  The Database module is used for creating and accessing the in-application Database.
+summary: The top level Database module.  The Database module is used for creating and accessing the in-application Database.
 extends: Titanium.Module
 since: "0.1"
 methods:
   - name: install
-    description: install a database from the application Resources folder (at build time) and return a reference to the opened database. it is safe to call this method multiple times since this method will only install once if it doesn't already exist on the device.
+    summary: install a database from the application Resources folder (at build time) and return a reference to the opened database. it is safe to call this method multiple times since this method will only install once if it doesn't already exist on the device.
     returns:
         type: Titanium.Database.DB
     parameters:
       - name: path
-        description: the path (relative to the main application Resources folder at build time) to the db to install. this file must be in the SQLite 3 file format.
+        summary: the path (relative to the main application Resources folder at build time) to the db to install. this file must be in the SQLite 3 file format.
         type: String
       - name: name
-        description: the name of the database
+        summary: the name of the database
         type: String
     platforms: [android, iphone, ipad]
   - name: open
-    description: open a database. if it doesn't yet exist, create it.
+    summary: open a database. if it doesn't yet exist, create it.
     returns:
         type: Titanium.Database.DB
     parameters:
       - name: name
-        description: the name of the database
+        summary: the name of the database
         type: String
 properties:
   - name: FIELD_TYPE_DOUBLE
-    description: constant for requesting a column's value returned in double form.
+    summary: constant for requesting a column's value returned in double form.
     type: Number
     permission: read-only
   - name: FIELD_TYPE_FLOAT
-    description: constant for requesting a column's value returned in float form.
+    summary: constant for requesting a column's value returned in float form.
     type: Number
     permission: read-only
   - name: FIELD_TYPE_INT
-    description: constant for requesting a column's value returned in integer form.
+    summary: constant for requesting a column's value returned in integer form.
     type: Number
     permission: read-only
   - name: FIELD_TYPE_STRING
-    description: constant for requesting a column's value returned in string form.
+    summary: constant for requesting a column's value returned in string form.
     type: Number
     permission: read-only
+  - name: file
+    summary:  Returns a object representing the database itself.
+    type: Titanium.Filesystem.File
+    permission: read-only
+    since: "1.9"
+    platforms: [iphone,ipad]
