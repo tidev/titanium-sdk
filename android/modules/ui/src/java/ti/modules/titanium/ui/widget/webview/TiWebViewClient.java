@@ -66,6 +66,17 @@ public class TiWebViewClient extends WebViewClient
 		//TODO report this to the user
 		String text = "Javascript Error("+errorCode+"): " + description;
 		Log.e(LCAT, "Received on error" + text);
+		
+		// Kosso : Dec 10, 2011
+		// fire the error event!!!
+		KrollDict data = new KrollDict();
+		data.put("url", failingUrl);
+		data.put("description", description);
+		data.put("errorCode", errorCode);
+		data.put("message", description);
+		data.put("type", errorCode);
+		webView.getProxy().fireEvent("error", data);
+		
 	}
 
 	@Override
