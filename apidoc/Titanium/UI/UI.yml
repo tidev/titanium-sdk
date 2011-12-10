@@ -94,7 +94,7 @@ description:  |
     support a specific feature or capability or where it support additional
     functionality.  For cases where the device OS supports capabilities that
     other platforms do not, we attempt to place those capabilities in a separate
-    namespace, such as [Titanium.UI.iPhone](Titanium.UI.iPhone-module.html).
+    namespace, such as <Titanium.UI.iPhone>.
     However, in cases where the control is in a common namespace and support
     additional features, we continue to place that functionality directly on the
     object.
@@ -102,35 +102,35 @@ extends: Titanium.Module
 since: "0.4"
 properties:
   - name: ANIMATION_CURVE_EASE_IN
-    summary: animation curve constant
-    platforms: [android, iphone, ipad]
+    summary: Use the animation curve constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: ANIMATION_CURVE_EASE_IN_OUT
-    summary: animation curve constant
-    platforms: [android, iphone, ipad]
+    summary: Use the animation curve constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: ANIMATION_CURVE_EASE_OUT
-    summary: animation curve constant
-    platforms: [android, iphone, ipad]
+    summary: Use the animation curve constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: ANIMATION_CURVE_LINEAR
-    summary: animation curve constant
-    platforms: [android, iphone, ipad]
+    summary: Use the animation curve constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: AUTODETECT_ADDRESS
-    summary: text autodetection constant (iOS 4.0+)
+    summary: Use the text auto-detection constants in <Titanium.UI.iOS> instead.
     platforms: [iphone, ipad]
     osver: {ios: {min: "4.0"}}
     permission: read-only
@@ -138,14 +138,14 @@ properties:
     deprecated:
         since: "1.8.0"
   - name: AUTODETECT_ALL
-    summary: text autodetection constant (iOS)
+    summary: Use the text auto-detection constants in <Titanium.UI.iOS> instead.
     platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: AUTODETECT_CALENDAR
-    summary: text autodetection constant (iOS 4.0+)
+    summary: Use the text auto-detection constants in <Titanium.UI.iOS> instead.
     platforms: [iphone, ipad]
     osver: {ios: {min: "4.0"}}
     type: Number
@@ -153,327 +153,329 @@ properties:
     deprecated:
         since: "1.8.0"
   - name: AUTODETECT_LINK
-    summary: text autodetection constant (iOS)
+    summary: Use the text auto-detection constants in <Titanium.UI.iOS> instead.
     platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: AUTODETECT_NONE
-    summary: text autodetection constant (iOS)
+    summary: Use the text auto-detection constants in <Titanium.UI.iOS> instead.
     platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: AUTODETECT_PHONE
-    summary: text autodetection constant (iOS)
+    summary: Use the text auto-detection constants in <Titanium.UI.iOS> instead.
     platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_CLEAR
-    summary: image mode constant
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_COLOR
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_COLOR_BURN
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_COLOR_DODGE
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_COPY
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_DARKEN
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_DESTINATION_ATOP
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_DESTINATION_IN
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
+    deprecated:
+        since: "1.8.0"
   - name: BLEND_MODE_DESTINATION_OUT
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_DESTINATION_OVER
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_DIFFERENCE
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_EXCLUSION
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_HARD_LIGHT
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_HUE
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_LIGHTEN
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     deprecated:
         since: "1.8.0"
     permission: read-only
   - name: BLEND_MODE_LUMINOSITY
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_MULTIPLY
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_NORMAL
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_OVERLAY
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_PLUS_DARKER
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_PLUS_LIGHTER
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_SATURATION
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_SCREEN
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_SOFT_LIGHT
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_SOURCE_ATOP
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_SOURCE_IN
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_SOURCE_OUT
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: BLEND_MODE_XOR
-    summary: image mode constant
-    platforms: [android, iphone, ipad]
+    summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
     deprecated:
         since: "1.8.0"
   - name: FACE_DOWN
-    summary: orientation constant
+    summary: Constant value for face-down orientation.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: FACE_UP
-    summary: orientation constant
+    summary: Constant value for face-up orientation.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: INPUT_BORDERSTYLE_BEZEL
-    summary: input border style constant
+    summary: Use a bezel-style border on the input field.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: INPUT_BORDERSTYLE_LINE
-    summary: input border style constant
+    summary: Use a simple line border on the input field.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: INPUT_BORDERSTYLE_NONE
-    summary: input border style constant
+    summary: Use no border on the input field.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: INPUT_BORDERSTYLE_ROUNDED
-    summary: input border style constant
+    summary: Use a rounded-rectangle border on the input field.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: INPUT_BUTTONMODE_ALWAYS
-    summary: input button mode constant
+    summary: Always show buttons on the input field.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: INPUT_BUTTONMODE_NEVER
-    summary: input button mode constant
+    summary: Never show buttons on the input field.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: INPUT_BUTTONMODE_ONBLUR
-    summary: input button mode constant
+    summary: Show buttons on the input field when it loses focus.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: INPUT_BUTTONMODE_ONFOCUS
-    summary: input button mode constant
+    summary: Show buttons on the input field when it gains focus.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: KEYBOARD_APPEARANCE_ALERT
-    summary: textfield keyboard appearance constant
+    summary: Use a keyboard appearance suitable for entering text on an alert.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: KEYBOARD_APPEARANCE_DEFAULT
-    summary: textfield keyboard appearance constant
+    summary: Use the default keyboard appearance.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: KEYBOARD_ASCII
-    summary: textfield keyboard constant
+    summary: Use an ASCII keyboard.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: KEYBOARD_DEFAULT
-    summary: textfield keyboard constant
+    summary: Use the default keyboard.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: KEYBOARD_EMAIL
-    summary: textfield keyboard constant
+    summary: Use a keyboard suitable for composing email.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: KEYBOARD_NAMEPHONE_PAD
-    summary: textfield keyboard constant
+    summary: Use a keyboard suitable for entering names and phone numbers.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: KEYBOARD_NUMBERS_PUNCTUATION
-    summary: textfield keyboard constant
+    summary: Use a keyboard with numbers and punctuation only.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: KEYBOARD_NUMBER_PAD
-    summary: textfield keyboard constant
+    summary: Use a keyboard with a number pad only.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: KEYBOARD_PHONE_PAD
-    summary: textfield keyboard constant
+    summary: Use a keyboard with a phone-style number pad.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: KEYBOARD_URL
-    summary: textfield keyboard constant
+    summary: Use an keyboard optimized for entering URLs.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: LANDSCAPE_LEFT
-    summary: orientation (home button on left) constant
+    summary: Standard landscape orientation (home button on left).
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: LANDSCAPE_RIGHT
-    summary: orientation (home button on right) constant
+    summary: Reverse landscape orientation (home button on right).
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
@@ -488,166 +490,183 @@ properties:
     type: Number
     permission: read-only
   - name: PICKER_TYPE_COUNT_DOWN_TIMER
-    summary: picker type constant
+    summary: Use a picker with a countdown timer appearance, showing hours and minutes.
+    description: |
+        For an actual countdown timer, the application is responsible for setting a timer 
+        to update the picker values.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: PICKER_TYPE_DATE
-    summary: picker type constant
+    summary: Use a date picker.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: PICKER_TYPE_DATE_AND_TIME
-    summary: picker type constant
+    summary: Use a date and time picker.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: PICKER_TYPE_PLAIN
-    summary: picker type constant
+    summary: Use a plain picker (for values other than date or time).
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: PICKER_TYPE_TIME
-    summary: picker type constant
+    summary: Use a time picker.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: PORTRAIT
-    summary: orientation (home button on bottom) constant
+    summary: Orientation constant for portrait mode orientation.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: RETURNKEY_DEFAULT
-    summary: textfield return key constant
+    summary: Use the default return key on the virtual keyboard.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: RETURNKEY_DONE
-    summary: textfield return key constant
+    summary: Set the return key text to "Done".
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: RETURNKEY_EMERGENCY_CALL
-    summary: textfield return key constant
+    summary: Set the return key text to "Emergency Call".
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: RETURNKEY_GO
-    summary: textfield return key constant
+    summary: Set the return key text to "Go".
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: RETURNKEY_GOOGLE
-    summary: textfield return key constant
+    summary: Set the return key text to "Google".
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: RETURNKEY_JOIN
-    summary: textfield return key constant
+    summary: Set the return key text to "Join".
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: RETURNKEY_NEXT
-    summary: textfield return key constant
+    summary: Set the return key text to "Next".
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: RETURNKEY_ROUTE
-    summary: textfield return key constant
+    summary: Set the return key text to "Route".
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: RETURNKEY_SEARCH
-    summary: textfield return key constant
+    summary: Set the return key text to "Search".
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: RETURNKEY_SEND
-    summary: textfield return key constant
+    summary: Set the return key text to "Send".
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: RETURNKEY_YAHOO
-    summary: textfield return key constant
+    summary: Set the return key text to "Yahoo".
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_ALIGNMENT_CENTER
-    summary: text align constant
+    summary: Center align text.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_ALIGNMENT_LEFT
-    summary: text align constant
+    summary: Left align text.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_ALIGNMENT_RIGHT
-    summary: text align constant
+    summary: Right align text.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_AUTOCAPITALIZATION_ALL
-    summary: text capitalization constant
+    summary: Auto-capitalize all text in the input field.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_AUTOCAPITALIZATION_NONE
-    summary: text capitalization constant
+    summary: Do not auto-capitalize.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_AUTOCAPITALIZATION_SENTENCES
-    summary: text capitalization constant
+    summary: Use sentence-style auto-capitalization in the input field.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_AUTOCAPITALIZATION_WORDS
-    summary: text capitalization constant
+    summary: Auto-capitalize the first letter of each word in the input field.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_VERTICAL_ALIGNMENT_BOTTOM
-    summary: text vertical align constant
+    summary: Align text to the bottom of the view.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_VERTICAL_ALIGNMENT_CENTER
-    summary: text vertical align constant
+    summary: Vertically align text to the center of the view.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_VERTICAL_ALIGNMENT_TOP
-    summary: text vertical align constant
+    summary: Align text to the top of the view.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: UNKNOWN
-    summary: orientation constant
+    summary: Orientation constant representing an unknown orientation.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: UPSIDE_PORTRAIT
-    summary: orientation (home button on top) constant
+    summary: Orientation constant for inverted portait orientation.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: backgroundColor
-    summary: this sets the background color of the master UIView (when there are no windows/tab groups on it)
+    summary: Sets the background color of the master UIView (when there are no windows or other top-level controls displayed).
+    description: |
+        The default background color may also show through if you use semi-transparent 
+        windows.
     platforms: [android, iphone, ipad]
     type: String
     permission: read-only
   - name: backgroundImage
-    summary: path/url to an image file for setting a background for the master UIView (when there are no windows/tab groups on it).
+    summary: Local path or url to an image file for setting a background for the master UIView (when there are no windows or other top-level controls displayed).
+    description: |
+        The default background image may also show through if you use semi-transparent 
+        windows.
     platforms: [android, iphone, ipad]
     type: String
+  - name: currentTab
+    summary: The currently active tab, if a tab group is open.
+    description: |
+        If not tab group is open, this value is undefined.
+    type: Titanium.UI.Tab
   - name: currentWindow
-    summary: The active window associated with the executing Javascript context.
+    summary: The active window associated with the executing JavaScript context.
     platforms: [android, iphone, ipad]
     type: Titanium.UI.Window
     permission: read-only
   - name: orientation
     deprecated: {since: "1.7.2"}
-    summary: To set an orientation, it is suggested to instead set <Titanium.Window.orientationModes> to the specific orientation desired.  When set, this will update the orientation of the current window to the specified orientation value.
+    summary: Use <Titanium.Window.orientationModes> instead.
+    description:  |
+        When set, this will update the orientation of the current window to the specified 
+        orientation value.
     platforms: [android, iphone, ipad]
     type: Number
