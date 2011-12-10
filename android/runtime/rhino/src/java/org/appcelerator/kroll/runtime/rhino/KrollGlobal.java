@@ -197,7 +197,6 @@ public class KrollGlobal extends IdScriptableObject
 		if ("runtime".equals(name)) {
 			return Id_runtime;
 		}
-
 		if (DEPLOY_DEBUG.equals(name)) {
 			return Id_debug;
 		}
@@ -210,10 +209,8 @@ public class KrollGlobal extends IdScriptableObject
 		switch (id) {
 			case Id_runtime:
 				return "runtime";
-
 			case Id_debug:
 				return DEPLOY_DEBUG;
-
 		}
 		return super.getInstanceIdName(id);
 	}
