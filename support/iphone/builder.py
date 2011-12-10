@@ -346,7 +346,7 @@ def distribute_xc4(name, icon, log):
 	version = project_info_plist['CFBundleVersion']
 	app_version_ = version.split('.')
 	if(len(app_version_) > 3):
-		version = app_version_[0]+app_version_[1]+app_version_[2]	
+		version = app_version_[0]+','+app_version_[1]+'.'+app_version_[2]	
 	archive_info = {
 		'ApplicationProperties' : {
 			'ApplicationPath' : appbundle,
