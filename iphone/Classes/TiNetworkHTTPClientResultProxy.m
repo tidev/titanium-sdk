@@ -115,24 +115,14 @@
 	return (id)[NSNull null];
 }
 
+// See comment in TiNetworkHTTPClientProxy about case-correction pre-iOS 5
 -(id)getResponseHeader:(id)args
 {
     ENSURE_SINGLE_ARG(args, NSString);
     
 	id result = [delegate getResponseHeader:args];
 	if (result == nil) {
-        NSString* header;
-        if (![TiUtils isIOS5OrGreater]) {
-            // In pre-iOS 5, it looks like response headers were mangled to be case-correct
-            // (i.e. WWW-Authenticate became Www-Authenticate). So we have to perform
-            // our own case correction to get the RIGHT header back.
-            //
-            // Note that we assume that Apple mangles all 'xxx-xxx' headers like this.
-            header = [TiUtils caseCorrect:args];
-        }
-        else {
-            header = args;
-        }
+        NSString* header = [TiUtils caseCorrect:args];
 		result = [responseHeaders objectForKey:header];
 	}
 	return result;
