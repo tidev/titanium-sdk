@@ -113,66 +113,24 @@
 		set: function(val){return false;}
 	});
 
-
-	function _canOpenURL(str) {
-	    var o   = _canOpenURL.options,
-	        m   = o.parser[o.strictMode ? "strict" : "loose"].exec(str),
-	        uri = {},
-	        i   = 14;
-	
-	    while (i--) uri[o.key[i]] = m[i] || "";
-	
-	    uri[o.q.name] = {};
-	    uri[o.key[12]].replace(o.q.parser, function ($0, $1, $2) {
-	        if ($1) uri[o.q.name][$1] = $2;
-	    });
-	
-	    return uri;
-	};
-	
-	_canOpenURL.options = {
-	    strictMode: false,
-	    key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
-	    q:   {
-	        name:   "queryKey",
-	        parser: /(?:^|&)([^&=]*)=?([^&]*)/g
-	    },
-	    parser: {
-	        strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
-	        loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
-	    }
-	};
 	
 	// Methods
     api.canOpenURL = function(url){
-		// quickly cover the protocols we know how to handle
-        if (/^(https?|ftp|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/.test(url)) {
-            return true;
-        }
-        if (/^([tel|sms|mailto])/.test(url)) { return false; }
-
-		// if none of the above, parse the uri and use the parts to determine how its handled.
-		// this is how we'll deal with custom url schemes ie:  my-app:someappname'
-        var uri = _canOpenURL(url);
-        if (typeof uri !== "object") {return true;}
-        if (uri.protocol === "") {
-            return true;
-        } else {
-            return /^([\/?#]|[\w\d-]+^:[\w\d]+^@)/.test(uri.protocol);
-        }
+		true;
     };
 	api.createUUID = function(){
 		return Ti._5.createUUID();
 	};
 
 	api.openURL = function(url){
-		if (api.canOpenURL(url)) {
-			window.open(url);
-		} else {
-			setTimeout(function () {
+        var m = /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?/.exec(url);
+    	if ( (/^([tel|sms|mailto])/.test(url) || /^([\/?#]|[\w\d-]+^:[\w\d]+^@)/.test(m[1])) && !/^(localhost)/.test(url) ) { 
+        	setTimeout(function () {
     			window.location.href = url;
-			}, 1);
-		}
+			}, 1); 
+        } else {
+        	window.open(url);
+        }
 	};
 	
 	var _id = localStorage && localStorage.getItem("html5_titaniumPlatformId") ?
