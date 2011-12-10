@@ -1,6 +1,7 @@
 Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 	this._rowData = args || {};
-	var obj = this;
+	var obj = this,
+		px = Ti._5.px;
 	
 	// Set defaults
 	args = Ti._5.extend({}, args);
@@ -217,7 +218,7 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 		},
 		set: function(val) {
 			obj.dom.style.paddingBottom = '';
-			return obj.dom.style.paddingTop = Ti._5.parseLength(val);
+			return obj.dom.style.paddingTop = px(val);
 		}
 	});
 	
@@ -227,7 +228,7 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 		},
 		set: function(val) {
 			obj.dom.style.paddingTop = '';
-			return obj.dom.style.paddingBottom = Ti._5.parseLength(val);
+			return obj.dom.style.paddingBottom = px(val);
 		}
 	});
 	
@@ -237,7 +238,7 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 		},
 		set: function(val) {
 			obj.dom.style.paddingRight = '';
-			return obj.dom.style.paddingLeft = Ti._5.parseLength(val);
+			return obj.dom.style.paddingLeft = px(val);
 		}
 	});
 	
@@ -247,7 +248,7 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 		},
 		set: function(val) {
 			obj.dom.style.paddingLeft = '';
-			return obj.dom.style.paddingRight = Ti._5.parseLength(val);
+			return obj.dom.style.paddingRight = px(val);
 		}
 	});
 	
@@ -259,8 +260,8 @@ Ti._5.createClass('Titanium.UI.TableViewRow', function(args){
 			}
 		},
 		set: function(val) {
-			val.width && (obj.width = Ti._5.parseLength(val.width));
-			val.height && (obj.height = Ti._5.parseLength(val.height));
+			val.width && (obj.width = px(val.width));
+			val.height && (obj.height = px(val.height));
 			return val;
 		}
 	});

@@ -3,215 +3,39 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	Ti._5.prop(api, 'AUDIO_FILEFORMAT_3GP2');
-
-	Ti._5.prop(api, 'AUDIO_FILEFORMAT_3GPP');
-
-	Ti._5.prop(api, 'AUDIO_FILEFORMAT_AIFF');
-
-	Ti._5.prop(api, 'AUDIO_FILEFORMAT_AMR');
-
-	Ti._5.prop(api, 'AUDIO_FILEFORMAT_CAF');
-
-	Ti._5.prop(api, 'AUDIO_FILEFORMAT_MP3');
-
-	Ti._5.prop(api, 'AUDIO_FILEFORMAT_MP4');
-
-	Ti._5.prop(api, 'AUDIO_FILEFORMAT_MP4A');
-
-	Ti._5.prop(api, 'AUDIO_FILEFORMAT_WAVE');
-
-	Ti._5.prop(api, 'AUDIO_FORMAT_AAC');
-
-	Ti._5.prop(api, 'AUDIO_FORMAT_ALAW');
-
-	Ti._5.prop(api, 'AUDIO_FORMAT_APPLE_LOSSLESS');
-
-	Ti._5.prop(api, 'AUDIO_FORMAT_ILBC');
-
-	Ti._5.prop(api, 'AUDIO_FORMAT_IMA4');
-
-	Ti._5.prop(api, 'AUDIO_FORMAT_LINEAR_PCM');
-
-	Ti._5.prop(api, 'AUDIO_FORMAT_ULAW');
-
-	Ti._5.prop(api, 'AUDIO_HEADPHONES');
-
-	Ti._5.prop(api, 'AUDIO_HEADPHONES_AND_MIC');
-
-	Ti._5.prop(api, 'AUDIO_HEADSET_INOUT');
-
-	Ti._5.prop(api, 'AUDIO_LINEOUT');
-
-	Ti._5.prop(api, 'AUDIO_MICROPHONE');
-
-	Ti._5.prop(api, 'AUDIO_MUTED');
-
-	Ti._5.prop(api, 'AUDIO_RECEIVER_AND_MIC');
-
-	Ti._5.prop(api, 'AUDIO_SESSION_MODE_AMBIENT');
-
-	Ti._5.prop(api, 'AUDIO_SESSION_MODE_PLAYBACK');
-
-	Ti._5.prop(api, 'AUDIO_SESSION_MODE_PLAY_AND_RECORD');
-
-	Ti._5.prop(api, 'AUDIO_SESSION_MODE_RECORD');
-
-	Ti._5.prop(api, 'AUDIO_SESSION_MODE_SOLO_AMBIENT');
-
-	Ti._5.prop(api, 'AUDIO_SPEAKER');
-
-	Ti._5.prop(api, 'AUDIO_UNAVAILABLE');
-
-	Ti._5.prop(api, 'AUDIO_UNKNOWN');
-
-	Ti._5.prop(api, 'DEVICE_BUSY');
-
-	Ti._5.prop(api, 'MEDIA_TYPE_PHOTO');
-
-	Ti._5.prop(api, 'MEDIA_TYPE_VIDEO');
-
-	Ti._5.prop(api, 'MUSIC_MEDIA_TYPE_ALL');
-
-	Ti._5.prop(api, 'MUSIC_MEDIA_TYPE_ANY_AUDIO');
-
-	Ti._5.prop(api, 'MUSIC_MEDIA_TYPE_AUDIOBOOK');
-
-	Ti._5.prop(api, 'MUSIC_MEDIA_TYPE_MUSIC');
-
-	Ti._5.prop(api, 'MUSIC_MEDIA_TYPE_PODCAST');
-
-	Ti._5.prop(api, 'MUSIC_PLAYER_REPEAT_ALL');
-
-	Ti._5.prop(api, 'MUSIC_PLAYER_REPEAT_DEFAULT');
-
-	Ti._5.prop(api, 'MUSIC_PLAYER_REPEAT_NONE');
-
-	Ti._5.prop(api, 'MUSIC_PLAYER_REPEAT_ONE');
-
-	Ti._5.prop(api, 'MUSIC_PLAYER_SHUFFLE_ALBUMS');
-
-	Ti._5.prop(api, 'MUSIC_PLAYER_SHUFFLE_DEFAULT');
-
-	Ti._5.prop(api, 'MUSIC_PLAYER_SHUFFLE_NONE');
-
-	Ti._5.prop(api, 'MUSIC_PLAYER_SHUFFLE_SONGS');
-
-	Ti._5.prop(api, 'MUSIC_PLAYER_STATE_INTERRUPTED');
-
-	Ti._5.prop(api, 'MUSIC_PLAYER_STATE_PAUSED');
-
-	Ti._5.prop(api, 'MUSIC_PLAYER_STATE_PLAYING');
-
-	Ti._5.prop(api, 'MUSIC_PLAYER_STATE_SEEK_BACKWARD');
-
-	Ti._5.prop(api, 'MUSIC_PLAYER_STATE_SKEEK_FORWARD');
-
-	Ti._5.prop(api, 'MUSIC_PLAYER_STATE_STOPPED');
-
-	Ti._5.prop(api, 'NO_CAMERA');
-
-	Ti._5.prop(api, 'NO_VIDEO');
-
-	Ti._5.prop(api, 'QUALITY_HIGH');
-
-	Ti._5.prop(api, 'QUALITY_LOW');
-
-	Ti._5.prop(api, 'QUALITY_MEDIUM');
-
-	Ti._5.prop(api, 'UNKNOWN_ERROR');
-
-	Ti._5.prop(api, 'VIDEO_CONTROL_DEFAULT');
-
-	Ti._5.prop(api, 'VIDEO_CONTROL_EMBEDDED');
-
-	Ti._5.prop(api, 'VIDEO_CONTROL_FULLSCREEN');
-
-	Ti._5.prop(api, 'VIDEO_CONTROL_HIDDEN');
-
-	Ti._5.prop(api, 'VIDEO_CONTROL_NONE');
-
-	Ti._5.prop(api, 'VIDEO_CONTROL_VOLUME_ONLY');
-
-	Ti._5.prop(api, 'VIDEO_FINISH_REASON_PLAYBACK_ENDED');
-
-	Ti._5.prop(api, 'VIDEO_FINISH_REASON_PLAYBACK_ERROR');
-
-	Ti._5.prop(api, 'VIDEO_FINISH_REASON_USER_EXITED');
-
-	Ti._5.prop(api, 'VIDEO_LOAD_STATE_PLAYABLE');
-
-	Ti._5.prop(api, 'VIDEO_LOAD_STATE_PLAYTHROUGH_OK');
-
-	Ti._5.prop(api, 'VIDEO_LOAD_STATE_STALLED');
-
-	Ti._5.prop(api, 'VIDEO_LOAD_STATE_UNKNOWN');
-
-	Ti._5.prop(api, 'VIDEO_MEDIA_TYPE_AUDIO');
-
-	Ti._5.prop(api, 'VIDEO_MEDIA_TYPE_NONE');
-
-	Ti._5.prop(api, 'VIDEO_MEDIA_TYPE_VIDEO');
-
-	Ti._5.prop(api, 'VIDEO_PLAYBACK_STATE_INTERRUPTED');
-
-	Ti._5.prop(api, 'VIDEO_PLAYBACK_STATE_PAUSED');
-
-	Ti._5.prop(api, 'VIDEO_PLAYBACK_STATE_PLAYING');
-
-	Ti._5.prop(api, 'VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD');
-
-	Ti._5.prop(api, 'VIDEO_PLAYBACK_STATE_SEEKING_FORWARD');
-
-	Ti._5.prop(api, 'VIDEO_PLAYBACK_STATE_STOPPED');
-
-	Ti._5.prop(api, 'VIDEO_REPEAT_MODE_NONE');
-
-	Ti._5.prop(api, 'VIDEO_REPEAT_MODE_ONE');
-
-	Ti._5.prop(api, 'VIDEO_SCALING_ASPECT_FILL');
-
-	Ti._5.prop(api, 'VIDEO_SCALING_ASPECT_FIT');
-
-	Ti._5.prop(api, 'VIDEO_SCALING_MODE_FILL');
-
-	Ti._5.prop(api, 'VIDEO_SCALING_NONE');
-
-	Ti._5.prop(api, 'VIDEO_SOURCE_TYPE_FILE');
-
-	Ti._5.prop(api, 'VIDEO_SOURCE_TYPE_STREAMING');
-
-	Ti._5.prop(api, 'VIDEO_SOURCE_TYPE_UNKNOWN');
-
-	Ti._5.prop(api, 'VIDEO_TIME_OPTION_EXACT');
-
-	Ti._5.prop(api, 'VIDEO_TIME_OPTION_NEAREST_KEYFRAME');
-
-	Ti._5.prop(api, 'appMusicPlayer');
-
-	Ti._5.prop(api, 'audioLineType');
-
-	Ti._5.prop(api, 'audioPlaying');
-
-	Ti._5.prop(api, 'audioSessionMode');
-
-	Ti._5.prop(api, 'availableCameraMediaTypes');
-
-	Ti._5.prop(api, 'availablePhotoGalleryMediaTypes');
-
-	Ti._5.prop(api, 'availablePhotoMediaTypes');
-
-	Ti._5.prop(api, 'averageMicrophonePower');
-
-	Ti._5.prop(api, 'canRecord');
-
-	Ti._5.prop(api, 'isCameraSupported');
-
-	Ti._5.prop(api, 'peakMicrophonePower');
-
-	Ti._5.prop(api, 'systemMusicPlayer');
-
-	Ti._5.prop(api, 'volume');
+	Ti._5.propReadOnly(api, {
+		"UNKNOWN_ERROR": 0,
+		"DEVICE_BUSY": 1,
+		"NO_CAMERA": 2,
+		"NO_VIDEO": 3,
+
+		"VIDEO_CONTROL_DEFAULT": 4,
+		"VIDEO_CONTROL_EMBEDDED": 5,
+		"VIDEO_CONTROL_FULLSCREEN": 6,
+		"VIDEO_CONTROL_NONE": 7,
+		"VIDEO_CONTROL_HIDDEN": 8,
+
+		"VIDEO_SCALING_NONE": 9,
+		"VIDEO_SCALING_ASPECT_FILL": 10,
+		"VIDEO_SCALING_ASPECT_FIT": 11,
+		"VIDEO_SCALING_MODE_FILL": 12,
+
+		"VIDEO_PLAYBACK_STATE_STOPPED": 13,
+		"VIDEO_PLAYBACK_STATE_PLAYING": 14,
+		"VIDEO_PLAYBACK_STATE_PAUSED": 15,
+
+		"VIDEO_LOAD_STATE_PLAYABLE": 16,
+		"VIDEO_LOAD_STATE_PLAYTHROUGH_OK": 17,
+		"VIDEO_LOAD_STATE_STALLED": 18,
+		"VIDEO_LOAD_STATE_UNKNOWN": 19,
+
+		"VIDEO_REPEAT_MODE_NONE": 20,
+		"VIDEO_REPEAT_MODE_ONE": 21,
+
+		"VIDEO_FINISH_REASON_PLAYBACK_ENDED": 22,
+		"VIDEO_FINISH_REASON_PLAYBACK_ERROR": 23,
+		"VIDEO_FINISH_REASON_USER_EXITED": 24
+	});
 
 	// Methods
 	api.beep = function(){
@@ -232,54 +56,7 @@
 	api.createSound = function(){
 		console.debug('Method "Titanium.Media.createSound" is not implemented yet.');
 	};
-	api.createVideoPlayer = function(){
-		console.debug('Method "Titanium.Media.createVideoPlayer" is not implemented yet.');
+	api.createVideoPlayer = function(args){
+		return new Ti.Media.VideoPlayer(args);
 	};
-	api.hideCamera = function(){
-		console.debug('Method "Titanium.Media.hideCamera" is not implemented yet.');
-	};
-	api.hideMusicLibrary = function(){
-		console.debug('Method "Titanium.Media.hideMusicLibrary" is not implemented yet.');
-	};
-	api.isMediaTypeSupported = function(){
-		console.debug('Method "Titanium.Media.isMediaTypeSupported" is not implemented yet.');
-	};
-	api.openPhotoGallery = function(){
-		console.debug('Method "Titanium.Media.openPhotoGallery" is not implemented yet.');
-	};
-	api.saveToPhotoGallery = function(){
-		console.debug('Method "Titanium.Media.saveToPhotoGallery" is not implemented yet.');
-	};
-	api.showCamera = function(){
-		console.debug('Method "Titanium.Media.showCamera" is not implemented yet.');
-	};
-	api.showMusicLibrary = function(){
-		console.debug('Method "Titanium.Media.showMusicLibrary" is not implemented yet.');
-	};
-	api.startMicrophoneMonitor = function(){
-		console.debug('Method "Titanium.Media.startMicrophoneMonitor" is not implemented yet.');
-	};
-	api.stopMicrophoneMonitor = function(){
-		console.debug('Method "Titanium.Media.stopMicrophoneMonitor" is not implemented yet.');
-	};
-	api.takePicture = function(){
-		console.debug('Method "Titanium.Media.takePicture" is not implemented yet.');
-	};
-	api.takeScreenshot = function(){
-		console.debug('Method "Titanium.Media.takeScreenshot" is not implemented yet.');
-	};
-	api.vibrate = function(){
-		console.debug('Method "Titanium.Media.vibrate" is not implemented yet.');
-	};
-
-	// Events
-	api.addEventListener('linechange', function(){
-		console.debug('Event "linechange" is not implemented yet.');
-	});
-	api.addEventListener('recordinginput', function(){
-		console.debug('Event "recordinginput" is not implemented yet.');
-	});
-	api.addEventListener('volume', function(){
-		console.debug('Event "volume" is not implemented yet.');
-	});
 })(Ti._5.createClass('Titanium.Media'));

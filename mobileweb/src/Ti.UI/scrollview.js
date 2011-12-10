@@ -1,5 +1,6 @@
 Ti._5.createClass('Titanium.UI.ScrollView', function(args){
-	var obj = this;
+	var obj = this,
+		px = Ti._5.px;
 	
 	// Set defaults
 	args = Ti._5.extend({}, args);
@@ -33,7 +34,7 @@ Ti._5.createClass('Titanium.UI.ScrollView', function(args){
 	var _contentHeight;
 	Ti._5.prop(this, 'contentHeight', {
 		get: function(){return _contentHeight;},
-		set: function(val){_contentHeight = val; return this._getAddContainer().style.height = Ti._5.parseLength(val);}
+		set: function(val){_contentHeight = val; return this._getAddContainer().style.height = px(val);}
 	});
 
 	var _contentOffset = null;
@@ -42,10 +43,10 @@ Ti._5.createClass('Titanium.UI.ScrollView', function(args){
 		set: function(val){
 			_contentOffset = val;
 			if(typeof val.x !== 'undefined'){
-				obj.dom.style.paddingLeft = Ti._5.parseLength(val.x);
+				obj.dom.style.paddingLeft = px(val.x);
 			}
 			if(typeof val.y !== 'undefined'){
-				obj.dom.style.paddingTop = Ti._5.parseLength(val.y);
+				obj.dom.style.paddingTop = px(val.y);
 			}
 			return _contentOffset;
 		}
@@ -54,7 +55,7 @@ Ti._5.createClass('Titanium.UI.ScrollView', function(args){
 	var _contentWidth;
 	Ti._5.prop(this, 'contentWidth', {
 		get: function(){return _contentWidth;},
-		set: function(val){_contentWidth = val; return this._getAddContainer().style.width = Ti._5.parseLength(val);}
+		set: function(val){_contentWidth = val; return this._getAddContainer().style.width = px(val);}
 	});
 
 	this.disableBounce = false;
@@ -80,10 +81,10 @@ Ti._5.createClass('Titanium.UI.ScrollView', function(args){
 		get: function(){return _size;},
 		set: function(val){
 			if(val != null && val.width != null){
-				_innerContainer.style.width = Ti._5.parseLength(val.width);
+				_innerContainer.style.width = px(val.width);
 			}
 			if(val != null && val.height != null){
-				_innerContainer.style.height = Ti._5.parseLength(val.height);
+				_innerContainer.style.height = px(val.height);
 			}
 			return val;
 		}

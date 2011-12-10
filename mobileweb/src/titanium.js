@@ -7,21 +7,10 @@
  * <https://github.com/kriskowal/es5-shim>
  */
 
-function($window, args){
-	function is(it, type) {
-		return ({}).toString.call(it).indexOf('[object ' + type) === 0;
-	}
-
-	function each(a, fn) {
-		var i = 0,
-			l = (a && a.length) || 0,
-			args = Array.prototype.slice.call(arguments, 0);
-		args.shift();
-		while (i < l) {
-			args[0] = a[i++];
-			fn.apply(null, args);
-		}
-	}
+function(global, args){
+	var cfg = require.config,
+		is = require.is,
+		each = require.is;
 
 	// Object.defineProperty() shim
 	if (!Object.defineProperty || !(function (obj) {
@@ -194,17 +183,20 @@ function($window, args){
 		};
 	}
 
+	// make sure we have some vendor prefixes defined
+	cfg.vendorPrefixes || (cfg.vendorPrefixes = ["", "Moz", "Webkit", "O", "ms"]);
+
 	console.info("[INFO] Appcelerator Titanium " + (args['tiVersion'] || "") + " for Mobile Web");
 
 	var Ti = {};
-	$window.Titanium = Ti; $window.Ti = Ti;
+	global.Ti = global.Titanium = Ti = {};
 
 	Ti._5 = {};
-	var loaded = false;
-	var loaders = [];
+	var loaded = false,
+		loaders = [];
 
 	// public function for onload notification
-	$window.onloaded = function(f){
+	global.onloaded = function(f){
 		onload(f);
 	};
 
@@ -220,14 +212,14 @@ function($window, args){
 	function beforeonload() {
 		document.body.style.margin = "0";
 		document.body.style.padding = "0";
-		$window.scrollTo(0, 1);
+		global.scrollTo(0, 1);
 	}
 
 	function afteronload() {
 	}
 
 	// TODO use DOMContentLoaded event instead
-	$window.onload = function() {
+	global.onload = function() {
 		loaded = true;
 		beforeonload();
 		for (var c=0 ; c < loaders.length; c++) {
@@ -237,7 +229,7 @@ function($window, args){
 		afteronload();
 	};
 
-	$window.onbeforeunload = function() {
+	global.onbeforeunload = function() {
 		Ti.App.fireEvent('close');
 		Ti._5.addAnalyticsEvent('ti.end', 'ti.end');
 
@@ -270,33 +262,56 @@ function($window, args){
 	};
 	
 	Ti._5.prop = function(obj, property, defaultValue, descriptor) {
-		var skipSet,
-			capitalizedName = property.substring(0, 1).toUpperCase() + property.substring(1);
+		if (require.is(property, "Object")) {
+			for (var i in property) {
+				Ti._5.prop(obj, i, property[i]);
+			}
+		} else {
+			var skipSet,
+				capitalizedName = property.substring(0, 1).toUpperCase() + property.substring(1);
 
-		// if we only have 3 args, so need to check if it's a default value or a descriptor
-		if (arguments.length === 3 && require.is(defaultValue, "Object") && (defaultValue.get || defaultValue.set)) {
-			descriptor = defaultValue;
-			// we don't have a default value, so skip the set
-			skipSet = 1;
+			// if we only have 3 args, so need to check if it's a default value or a descriptor
+			if (arguments.length === 3 && require.is(defaultValue, "Object") && (defaultValue.get || defaultValue.set)) {
+				descriptor = defaultValue;
+				// we don't have a default value, so skip the set
+				skipSet = 1;
+			}
+
+			// if we have a descriptor, then defineProperty
+			if (descriptor) {
+				if ("value" in descriptor) {
+					skipSet = 2;
+					if (descriptor.get || descriptor.set) {
+						// we have a value, but since there's a custom setter/getter, we can't have a value
+						defaultValue = descriptor.value;
+						delete descriptor.value;
+						defaultValue !== undefined && (skipSet = 0);
+					} else {
+						descriptor.writable = true;
+					}
+				}
+				descriptor.configurable = true;
+				descriptor.enumerable = true;
+				Object.defineProperty(obj, property, descriptor);
+			}
+
+			// create the get/set functions
+			obj["get" + capitalizedName] = function(){ return obj[property]; };
+			(skipSet | 0) < 2 && (obj["set" + capitalizedName] = function(val){ return obj[property] = val; });
+
+			// if there's no default value or it's already been set with defineProperty(), then we skip setting it
+			skipSet || (obj[property] = defaultValue);
 		}
-
-		// if we have a descriptor, then defineProperty
-		if (descriptor) {
-			// if the descriptor has a "value", then it'll get set when we defineProperty, so skip the set below
-			!skipSet && descriptor.value !== skipSet && (skipSet = 2);
-			Object.defineProperty(obj, property, descriptor);
-		}
-
-		// create the get/set functions
-		obj["get" + capitalizedName] = function(){ return obj[property]; };
-		(skipSet | 0) < 2 && (obj["set" + capitalizedName] = function(val){ return obj[property] = val; });
-
-		// if there's no default value or it's already been set with defineProperty(), then we skip setting it
-		skipSet || (obj[property] = defaultValue);
 	};
 
 	Ti._5.propReadOnly = function(obj, property, defaultValue) {
-		Ti._5.prop(obj, property, null, { value: defaultValue || null });
+		if (require.is(property, "Object")) {
+			for (var i in property) {
+				Ti._5.propReadOnly(obj, i, property[i]);
+			}
+		} else {
+			Ti._5.prop(obj, property, null, require.is(defaultValue, "Function") ? { get: defaultValue } : { value: defaultValue || null });
+		}
 	};
 
 	Ti._5.createClass = function(className, value){
@@ -372,7 +387,7 @@ function($window, args){
 		}
 	};
 
-	Ti._5.parseLength = function(val){
+	Ti._5.px = function(val){
 		return val + (typeof val == 'number' ? 'px' : '');
 	};
 
@@ -515,7 +530,7 @@ function($window, args){
 		hidden.name = 'content';
 		hidden.value = jsonStrs.join("\n");
 		form.appendChild(hidden);
-		$window[fname] = function(response){
+		global[fname] = function(response){
 			if(response && response.success){
 				// remove sent events on successful sent
 				var storage = localStorage.getItem(ANALYTICS_STORAGE);

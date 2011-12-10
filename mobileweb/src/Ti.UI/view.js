@@ -23,8 +23,8 @@ Ti._5.createClass('Titanium.UI.View', function(args){
 			}
 		},
 		set: function(val){
-			val.width && (obj.width = Ti._5.parseLength(val.width));
-			val.height && (obj.height = Ti._5.parseLength(val.height));
+			val.width && (obj.width = Ti._5.px(val.width));
+			val.height && (obj.height = Ti._5.px(val.height));
 			return val;
 		}
 	});

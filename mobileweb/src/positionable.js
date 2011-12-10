@@ -1,180 +1,139 @@
 (function(oParentNamespace) {
 	// Create interface
 	oParentNamespace.Positionable = function(obj, args) {
-		if ('function' != typeof obj.addEventListener) {
-			oParentNamespace.EventDriven(obj);
-		}
-		
-		var _position = function(p, val) {
-			obj.dom.style[p] = Ti._5.parseLength(val);
-		};
-		
-		var _top = null;
-		Ti._5.prop(obj, 'top', {
-			get: function() {
-				return _top;
-			},
-			set: function(val) {
-				if (obj.dom.style['bottom']) {
-					obj.dom.style['bottom'] = '';
-				}
-				if (require.is(val,"Number")) {
-					val += "px";
-				}
-				_top = val;
-				_position('top', val);
-			},
-			configurable: true
-		});
+		obj.addEventListener || oParentNamespace.EventDriven(obj);
 
-		var _bottom;
-		Ti._5.prop(obj, 'bottom', {
-			get: function() {
-				return _bottom;
-			},
-			set: function(val) {
-				if (obj.dom.style['top']) {
-					obj.dom.style['top'] = '';
-				}
-				if (require.is(val,"Number")) {
-					val += "px";
-				}
-				_bottom = val;
-				_position('bottom', val);
-			},
-			configurable: true
-		});
+		var domNode = obj.dom,
+			domStyle = domNode.style,
+			px = Ti._5.px,
+			_top,
+			_bottom,
+			_left,
+			_right,
+			_width,
+			_height,
+			_center,
+			isAdded;
 
-		var _left;
-		Ti._5.prop(obj, 'left', {
-			get: function() {
-				return _left;
-			},
-			set: function(val) {
-				if (obj.dom.style['right']) {
-					obj.dom.style['right'] = '';
+		Ti._5.prop(obj, {
+			"top": {
+				value: args.top,
+				get: function() {
+					return _top;
+				},
+				set: function(val) {
+					domStyle.bottom && (domStyle.bottom = "");
+					domStyle.top = _top = px(val);
 				}
-				if (require.is(val,"Number")) {
-					val += "px";
-				}
-				obj.dom.style.cssFloat = '';
-				_left = val;
-				_position('left', val);
 			},
-			configurable: true
-		});		
+			"bottom": {
+				value: args.bottom,
+				get: function() {
+					return _bottom;
+				},
+				set: function(val) {
+					domStyle.top && (domStyle.top = "");
+					domStyle.bottom = _bottom = px(val);
+				}
+			},
+			"left": {
+				value: args.left,
+				get: function() {
+					return _left;
+				},
+				set: function(val) {
+					domStyle.right && (domStyle.right = "");
+					domStyle.left = _left = px(val);
+				}
+			},
+			"right": {
+				value: args.right,
+				get: function() {
+					return _right;
+				},
+				set: function(val) {
+					domStyle.left && (domStyle.left = "");
+					domStyle.right = _right = px(val);
+				}
+			},
+			"width": {
+				value: args.width,
+				get: function() {
+					return _width;
+				},
+				set: function(val) {
+					domStyle.width = _width = px(val);
+				}
+			},
+			"height": {
+				value: args.height,
+				get: function() {
+					return _height;
+				},
+				set: function(val) {
+					domStyle.height = _height = px(val);
+				}
+			},
+			"center": {
+				value: args.center,
+				get: function() {
+					return _center;
+				},
+				set: function(val) {
+					_center = val;
 
-		var _right;
-		Ti._5.prop(obj, 'right', {
-			get: function() {
-				return _right;
-			},
-			set: function(val) {
-				if (obj.dom.style['left']) {
-					obj.dom.style['left'] = '';
-				}
-				if (require.is(val,"Number")) {
-					val += "px";
-				}
-				obj.dom.style.cssFloat = 'right';
-				_right = val;
-				_position('right', val);
-			},
-			configurable: true
-		});	
-		
-		var _width;
-		Ti._5.prop(obj, 'width', {
-			get: function() {
-				return _width;
-			},
-			set: function(val) {
-				if (require.is(val,"Number")) {
-					val += "px";
-				}
-				_width = val;
-				obj.dom.style.width = Ti._5.parseLength(val);
-			},
-			configurable: true
-		});	
-		
-		var _height;
-		Ti._5.prop(obj, 'height', {
-			get: function() {
-				return _height;
-			},
-			set: function(val) {
-				if (require.is(val,"Number")) {
-					val += "px";
-				}
-				_height = val;
-				obj.dom.style.height =  Ti._5.parseLength(val);
-			},
-			configurable: true
-		});
-
-		var _center, isAdded = false;
-		Ti._5.prop(obj, 'center', {
-			get: function() {
-				return _center;
-			},
-			set: function(val) {
-				_center = val;
-				if(val == null || val.x == null && val.y == null || obj.parent == null){
-					return;
-				}
-				var width = obj.dom.clientWidth;
-				var height = obj.dom.clientHeight;
-				if(val.x != null){
-					var left = val.x;
-					if(left.toString().indexOf('%') > 0){
-						left = obj.parent.dom.clientWidth * (parseFloat(left) / 100);
+					if (!val || (val.x === null && val.y === null) || !obj.parent) {
+						return;
 					}
-					_position('left', left - width/2);
-				}
-				if(val.y != null){
-					var top = val.y;
-					if(top.toString().indexOf('%') > 0){
-						top = obj.parent.dom.clientHeight * (parseFloat(top) / 100);
+
+					var width = domNode.clientWidth,
+						height = domNode.clientHeight,
+						left = val.x,
+						top = val.y;
+
+					if (left !== null) {
+						/\%$/.test(left) && (left = obj.parent.dom.clientWidth * parseFloat(left) / 100);
+						domStyle.left = (left - width / 2) + "px";
 					}
-					_position('top', top - height/2);
+
+					if(top !== null){
+						/\%$/.test(top) && (top = obj.parent.dom.clientHeight * parseFloat(top) / 100);
+						domStyle.top = (top - height / 2) + "px";
+					}
+
+					if (!isAdded) {
+						// recalculate center positioning on window resize
+						require.on(window, "resize", function() {
+							obj.center = _center;
+						});
+						isAdded = 1;
+					}
 				}
-				if (!isAdded) {
-					// recalculate center positioning on window resize
-					window.addEventListener('resize', function(){obj.center = obj.center}, false);
-					isAdded = true;
-				}
-			},
-			configurable: true
+			}
 		});
 
-		obj.addEventListener('html5_added', function(parent){
-			// reset coordinates when element is added somewhere
-			obj.center = _center;
-		});
-		
-		obj.addEventListener('html5_shown', function(parent){
-			// reset coordinates when element is added somewhere
-			obj.center = _center;
-		});
-		
-		obj.addEventListener('html5_child_rendered', function(parent){
+		obj.addEventListener("html5_added", function(){
 			// reset coordinates when element is added somewhere
 			obj.center = _center;
 		});
 
-		if(args && args.center != null) {
-			// ignore other position properties when 'center' is passed
+		obj.addEventListener("html5_shown", function(){
+			// reset coordinates when element is added somewhere
+			obj.center = _center;
+		});
+
+		obj.addEventListener("html5_child_rendered", function(){
+			// reset coordinates when element is added somewhere
+			obj.center = _center;
+		});
+
+		if(args && args.center) {
+			// ignore other position properties when "center" is passed
 			delete args.top;
 			delete args.bottom;
 			delete args.left;
 			delete args.right;
 		}
-
-		//
-		// setup getters/setters
-		//
-		oParentNamespace.preset(obj, ['top', 'bottom', 'left', 'right', 'center', 'width', 'height'], args);
 	}
-	
-})(Ti._5);	
+
+})(Ti._5);

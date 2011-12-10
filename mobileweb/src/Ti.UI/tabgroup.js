@@ -140,34 +140,34 @@ Ti._5.createClass('Titanium.UI.TabGroup', function(args){
 			// tab not found - add new
 			obj.addTab(indexOrObject);
 			obj.setActiveTab(obj._tabs.length - 1);
-			return;
-		}
-		if(_activeTabIndex != null){
-			obj.fireEvent('blur', {
+		} else if (indexOrObject !== _activeTabIndex) {
+			if(_activeTabIndex != null){
+				obj.fireEvent('blur', {
+					globalPoint: {x: null, y: null},
+					source: obj,
+					type: 'blur',
+					x: null,
+					y: null,
+					previousIndex: _activeTabIndex,
+					previousTab: obj._tabs[_activeTabIndex],
+					tab: obj._tabs[indexOrObject]
+				});
+				_hideTab(_activeTabIndex);
+			}
+
+			obj.fireEvent('focus', {
 				globalPoint: {x: null, y: null},
 				source: obj,
 				type: 'blur',
 				x: null,
 				y: null,
 				previousIndex: _activeTabIndex,
-				previousTab: obj._tabs[_activeTabIndex],
+				previousTab: _activeTabIndex != null && _activeTabIndex < obj._tabs.length ? obj._tabs[_activeTabIndex] : null,
 				tab: obj._tabs[indexOrObject]
 			});
-			_hideTab(_activeTabIndex);
+			_activeTabIndex = indexOrObject;
+			_showTab(_activeTabIndex);
 		}
-
-		obj.fireEvent('focus', {
-			globalPoint: {x: null, y: null},
-			source: obj,
-			type: 'blur',
-			x: null,
-			y: null,
-			previousIndex: _activeTabIndex,
-			previousTab: _activeTabIndex != null && _activeTabIndex < obj._tabs.length ? obj._tabs[_activeTabIndex] : null,
-			tab: obj._tabs[indexOrObject]
-		});
-		_activeTabIndex = indexOrObject;
-		_showTab(_activeTabIndex);
 	};
 
 	this.open = function(){

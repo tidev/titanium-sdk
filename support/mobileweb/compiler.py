@@ -4,7 +4,7 @@
 # Project Compiler
 #
 
-import os, sys, re, shutil, time, base64, sgmllib, codecs, xml
+import os, sys, re, shutil, time, base64, sgmllib, codecs, xml, datetime
 
 # Add the Android support dir, since mako is located there, and import mako
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),"..", "android")))
@@ -18,13 +18,22 @@ import jspacker
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn','CVS','android','iphone'];
 
+year = datetime.datetime.now().year
+
+HTML_HEADER = """<!--
+	Appcelerator Titanium Mobile Web SDK - http://appcelerator.com
+	This is generated code. Do not modify. Your changes *will* be lost.
+	Generated code is Copyright (c) %d by Appcelerator, Inc.
+	All Rights Reserved.
+	-->""" % year
+
 HEADER = """/**
  * Appcelerator Titanium Mobile Web SDK - http://appcelerator.com
  * This is generated code. Do not modify. Your changes *will* be lost.
- * Generated code is Copyright (c) 2011 by Appcelerator, Inc.
+ * Generated code is Copyright (c) %d by Appcelerator, Inc.
  * All Rights Reserved.
  */
-"""
+""" % year
 
 FOOTER = """"""
 
@@ -167,23 +176,23 @@ class Compiler(object):
 		titanium_js += ";\nTi._5.setLoadedScripts(" + json.dumps(self.ti_includes) + ");"
 		
 		loader_js = "var require={\n\
-	projectName: '${project_name | jsQuoteEscapeFilter}',\n\
-	projectId: '${project_id | jsQuoteEscapeFilter}',\n\
-	deployType: '${deploy_type | jsQuoteEscapeFilter}',\n\
-	appId: '${app_name | jsQuoteEscapeFilter}',\n\
-	appAnalytics: '${app_analytics | jsQuoteEscapeFilter}',\n\
-	appPublisher: '${app_publisher | jsQuoteEscapeFilter}',\n\
-	appUrl: '${app_url | jsQuoteEscapeFilter}',\n\
-	appName: '${app_name | jsQuoteEscapeFilter}',\n\
-	appVersion: '${app_version | jsQuoteEscapeFilter}',\n\
-	appDescription: '${app_description | jsQuoteEscapeFilter}',\n\
-	appCopyright: '${app_copyright | jsQuoteEscapeFilter}',\n\
-	appGuid: '${app_guid | jsQuoteEscapeFilter}',\n\
-	tiVersion: '${ti_version | jsQuoteEscapeFilter}'\n\
+	projectName: \"${project_name | jsQuoteEscapeFilter}\",\n\
+	projectId: \"${project_id | jsQuoteEscapeFilter}\",\n\
+	deployType: \"${deploy_type | jsQuoteEscapeFilter}\",\n\
+	appId: \"${app_name | jsQuoteEscapeFilter}\",\n\
+	appAnalytics: \"${app_analytics | jsQuoteEscapeFilter}\",\n\
+	appPublisher: \"${app_publisher | jsQuoteEscapeFilter}\",\n\
+	appUrl: \"${app_url | jsQuoteEscapeFilter}\",\n\
+	appName: \"${app_name | jsQuoteEscapeFilter}\",\n\
+	appVersion: \"${app_version | jsQuoteEscapeFilter}\",\n\
+	appDescription: \"${app_description | jsQuoteEscapeFilter}\",\n\
+	appCopyright: \"${app_copyright | jsQuoteEscapeFilter}\",\n\
+	appGuid: \"${app_guid | jsQuoteEscapeFilter}\",\n\
+	tiVersion: \"${ti_version | jsQuoteEscapeFilter}\",\n\
+	vendorPrefixes: [\"\", \"Webkit\", \"Moz\", \"ms\", \"O\"]\n\
 };\n".encode('utf-8') + self.load_api(os.path.join(src_dir,"loader.js"))
 		
-		titanium_js = HEADER + loader_js + titanium_js + FOOTER
-		titanium_js = mako.template.Template(titanium_js).render(
+		titanium_js = loader_js + mako.template.Template(titanium_js).render(
 				ti_version=sdk_version,
 				project_name=self.project_name,
 				project_id=self.appid,
@@ -205,13 +214,11 @@ class Compiler(object):
 			pass
 		
 		o = codecs.open(os.path.join(ti_dir,'titanium.js'),'w',encoding='utf-8')
-		o.write(titanium_js)
+		o.write(HEADER + titanium_js + FOOTER)
 		o.close()
 
-		titanium_css = HEADER + titanium_css + FOOTER
-
 		o = codecs.open(os.path.join(ti_dir,'titanium.css'), 'w', encoding='utf-8')
-		o.write(titanium_css)
+		o.write(HEADER + titanium_css + FOOTER)
 		o.close()
 
 		try:
@@ -245,6 +252,8 @@ class Compiler(object):
 				app_description=ti.properties['description'],
 				app_copyright=ti.properties['copyright'],
 				app_guid=ti.properties['guid'],
+				ti_header=HTML_HEADER,
+				ti_css=titanium_css,
 				ti_js=titanium_js)
 
 		index_file = os.path.join(self.build_dir,'index.html')

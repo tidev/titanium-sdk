@@ -1,5 +1,6 @@
 Ti._5.createClass('Titanium.UI.Label', function(args){
-	var obj = this;
+	var obj = this,
+		px = Ti._5.px;
 	
 	// Set some default values to label for prevent inheriting style  
 	args = Ti._5.extend({}, args);
@@ -31,14 +32,14 @@ Ti._5.createClass('Titanium.UI.Label', function(args){
 
 	Ti._5.prop(this, 'backgroundPaddingLeft', {
 		get: function(){return obj.dom.style.backgroundPositionX;},
-		set: function(val){return obj.dom.style.backgroundPositionX = Ti._5.parseLength(val);}
+		set: function(val){return obj.dom.style.backgroundPositionX = px(val);}
 	});
 
 	Ti._5.prop(this, 'backgroundPaddingRight', {});
 
 	Ti._5.prop(this, 'backgroundPaddingTop', {
 		get: function(){return obj.dom.style.backgroundPositionY;},
-		set: function(val){return obj.dom.style.backgroundPositionY = Ti._5.parseLength(val);}
+		set: function(val){return obj.dom.style.backgroundPositionY = px(val);}
 	});
 
 	Ti._5.prop(this, 'ellipsize', false);
@@ -134,8 +135,8 @@ Ti._5.createClass('Titanium.UI.Label', function(args){
 			}
 		},
 		set: function(val) {
-			val.width && (obj.width = Ti._5.parseLength(val.width));
-			val.height && (obj.height = Ti._5.parseLength(val.height));
+			val.width && (obj.width = px(val.width));
+			val.height && (obj.height = px(val.height));
 			return val;
 		}
 	});

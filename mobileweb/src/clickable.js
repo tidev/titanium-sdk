@@ -1,31 +1,20 @@
 (function(oParentNamespace) {
 	// Create interface
 	oParentNamespace.Clickable = function(obj) {
-		if ('function' != typeof obj.addEventListener) {
-			oParentNamespace.EventDriven(obj);
-		}
+		obj.addEventListener || oParentNamespace.EventDriven(obj);
 
-		obj.dom.addEventListener('click', function(event) {
-			var oEvent = {
-				globalPoint	: { x:event.pageX, y:event.pageY }, 
-				source		: obj,
-				type		: event.type,
-				x			: event.pageX,
-				y			: event.pageY
-			};
-			obj.fireEvent('click', oEvent);
-		}, false);
-		
-		obj.dom.addEventListener('dblclick', function(event) {
-			var oEvent = {
-				globalPoint	: { x:event.pageX, y:event.pageY }, 
-				source		: obj,
-				type		: event.type,
-				x			: event.pageX,
-				y			: event.pageY
-			};
-			obj.fireEvent('dblclick', oEvent);
-		}, false);
+		require.on(obj.dom, "click", function(evt) {
+			obj.fireEvent("click", {
+				x: evt.pageX,
+				y: evt.pageY
+			});
+		});
+
+		require.on(obj.dom, "dblclick", function(evt) {
+			obj.fireEvent("dblclick", {
+				x: evt.pageX,
+				y: evt.pageY
+			});
+		});
 	}
-	
 })(Ti._5);	

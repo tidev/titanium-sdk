@@ -1,572 +1,413 @@
-var spinningAngle = 0;
 (function(oParentNamespace) {
+
 	// Create object
 	oParentNamespace.Styleable = function(obj, args) {
 		args = args || {};
-		
+
 		if (!obj.dom) {
 			return;
 		}
-		obj.dom.className += ' HTML5_Styleable';
 
-		if ('function' != typeof obj.addEventListener) {
-			oParentNamespace.EventDriven(obj);
+		var undef,
+			on = require.on,
+			domNode = obj.dom,
+			domStyle = domNode.style,
+			ui = Ti.UI,
+			px = Ti._5.px,
+			curRotation,
+			curTransform,
+			_backgroundColor,
+			_backgroundImage,
+			_backgroundFocusPrevColor,
+			_backgroundFocusPrevImage,
+			_backgroundSelectedPrevColor,
+			_backgroundSelectedPrevImage,
+			_gradient,
+			_visible,
+			_prevDisplay = "";
+
+		domNode.className += " HTML5_Styleable";
+
+		obj.addEventListener || oParentNamespace.EventDriven(obj);
+
+		function cssUrl(url) {
+			return /^url\(/.test(url) ? url : "url(" + Ti._5.getAbsolutePath(url) + ")";
 		}
 
-		var _backgroundColor = null;
-		Ti._5.prop(obj, 'backgroundColor', {
-			get: function() {
-				return _backgroundColor ? _backgroundColor : '';
-			},
-			set: function(val) {
-				_backgroundColor = val;
-				obj.dom.style.backgroundColor = _backgroundColor;
-			}
-		});
+		function font(val) {
+			val = val || {};
+			require.each(["fontVariant", "fontStyle", "fontWeight", "fontSize", "fontFamily"], function(f) {
+				val[f] = f in val ? domStyle[f] = (f === "fontSize" ? px(val[f]) : val[f]) : domStyle[f];
+			});
+			return val;
+		}
 
-		var _focusable = false;
-		Ti._5.prop(obj, 'focusable', {
-			get: function() {
-				return _focusable;
-			},
-			set: function(val) {
-				_focusable = !!val;
-			}
-		});
-
-		var _backgroundImage = null;
-		Ti._5.prop(obj, 'backgroundImage', {
-			get: function() {
-				return _backgroundImage;
-			},
-			set: function(val) {
-				_backgroundImage = val;
-				obj.dom.style.backgroundImage = val ? 'url("' + Ti._5.getAbsolutePath(val) + '")' : '';
-			},
-			configurable: true
-		});
-		
-		var _backgroundSelectedColor = '', _backgroundSelectedColorLoaded = false,
-			_backgroundSelPrevColor = '', _isFocusSelColorFired = false;
-		Ti._5.prop(obj, 'backgroundSelectedColor', {
-			get: function() {
-				return _backgroundSelectedColor ? _backgroundSelectedColor : '';
-			},
-			set: function(val) {
-				_backgroundSelectedColor = val;
-				if (!_backgroundSelectedColorLoaded) {
-					_backgroundSelectedColorLoaded = true;
-					obj.dom.addEventListener('focus', function() {
-						if (obj.focusable && !_isFocusSelColorFired) {
-							_backgroundSelPrevColor = obj.backgroundColor;
-							obj.dom.style.backgroundColor = _backgroundSelectedColor;
-						}
-						_isFocusSelColorFired = true;
-					}, true);
-					obj.dom.addEventListener('blur', function() {
-						if (obj.focusable) {
-							obj.dom.style.backgroundColor = _backgroundSelPrevColor;
-						}
-						_isFocusSelColorFired = false;
-					}, true);
+		Ti._5.prop(obj, {
+			"backgroundColor": {
+				// we keep the backgroundColor in a variable because we later change it
+				// when focusing or selecting, so we can't just report the current value
+				value: args.backgroundColor,
+				get: function() {
+					return _backgroundColor || (_backgroundColor = domStyle.backgroundColor);
+				},
+				set: function(val) {
+					return domStyle.backgroundColor = _backgroundColor = val;
 				}
-			}
-		});
-		
-		var _backgroundSelectedImage = '', _backgroundSelPrevImage = '', 
-			_backgroundSelectedImageLoaded = false, _isFocusSelImgFired = false;
-		Ti._5.prop(obj, 'backgroundSelectedImage', {
-			get: function() {
-				return _backgroundSelectedImage ? _backgroundSelectedImage : '';
 			},
-			set: function(val) {
-				_backgroundSelectedImage = val;
-				if (!_backgroundSelectedImageLoaded) {
-					_backgroundSelectedImageLoaded = true;
-					obj.dom.addEventListener('focus', function() {
-						if (_focusable && !_isFocusSelImgFired) {
-							_backgroundSelPrevImage = obj.backgroundImage;
-							obj.backgroundImage = _backgroundSelectedImage;
-						}
-						_isFocusSelImgFired = true;
-					}, true);
-					obj.dom.addEventListener('blur', function() {
-						if (_focusable) {
-							obj.backgroundImage = _backgroundSelPrevImage;
-						}
-						_isFocusSelImgFired = false;
-					}, true);
-				}
-			}
-		});
-		
-		var _backgroundFocusedColor = '', _backgroundFocusedColorLoaded = false,
-			_backgroundFocPrevColor = '', _isFocusFocColFired = false;
-		Ti._5.prop(obj, 'backgroundFocusedColor', {
-			get: function() {
-				return _backgroundFocusedColor ? _backgroundFocusedColor : '';
-			},
-			set: function(val) {
-				_backgroundFocusedColor = val;
-				if (!_backgroundFocusedColorLoaded) {
-					_backgroundFocusedColorLoaded = true;
-					obj.dom.addEventListener('focus', function() {
-						if (_focusable && !_isFocusFocColFired) {
-							_backgroundFocPrevColor = obj.backgroundColor;
-							obj.dom.style.backgroundColor = _backgroundFocusedColor;
-						}
-						_isFocusFocColFired = false;
-					}, true);
-					obj.dom.addEventListener('blur', function() {
-						if (_focusable) {
-							obj.dom.style.backgroundColor = _backgroundFocPrevColor;
-						}
-						_isFocusFocColFired = false;
-					}, true);
-				}
-			}
-		});
-		
-		var _backgroundFocusedImage = '', _backgroundFocusedImageLoaded = false, 
-			_backgroundFocPrevImage = '', _isFocusFocImgFired = false;
-		Ti._5.prop(obj, 'backgroundFocusedImage', {
-			get: function() {
-				return _backgroundFocusedImage ? _backgroundFocusedImage : '';
-			},
-			set: function(val) {
-				_backgroundFocusedImage = val;
-				if (!_backgroundFocusedImageLoaded) {
-					_backgroundFocusedImageLoaded = true;
-					obj.dom.addEventListener('focus', function() {
-						if (_focusable && !_isFocusFocImgFired) {
-							_backgroundFocPrevImage = obj.backgroundImage;
-							obj.backgroundImage = _backgroundFocusedImage;
-						}
-						_isFocusFocImgFired = false;
-					}, true);
-					obj.dom.addEventListener('blur', function() {
-						if (_focusable) {
-							obj.backgroundImage = _backgroundFocPrevImage;
-						}
-						_isFocusFocImgFired = false;
-					}, true);
-				}
-			}
-		});
-		
-		var _borderWidth = null;
-		Ti._5.prop(obj, 'borderWidth', {
-			get: function() {
-				return _borderWidth;
-			},
-			set: function(val) {
-				_borderWidth = val;
-				obj.dom.style.borderWidth = val + 'px';
-				if(_borderColor == null){
-					obj.dom.style.borderColor = 'black';
-				}
-				obj.dom.style.borderStyle = 'solid';
-			}
-		});
-		
-		var _borderColor;
-		Ti._5.prop(obj, 'borderColor', {
-			get: function() {
-				return _borderColor;
-			},
-			set: function(val) {
-				_borderColor = val;
-				obj.dom.style.borderColor = _borderColor;
-				if(_borderWidth == null){
-					obj.dom.style.borderWidth = '1px';
-				}
-				if(!_borderColor) {
-					obj.dom.style.borderWidth = '';
-				} else {
-					obj.dom.style.borderStyle = 'solid';
-				}
-			}
-		});
-
-		Ti._5.prop(obj, 'borderRadius', {
-			get: function() {
-				return obj.dom.style.borderRadius ? parseInt(obj.dom.style.borderRadius) : '';
-			},
-			set: function(val) {
-				obj.dom.style.borderRadius = parseInt(val) + 'px';
-			}
-		});
-		
-		Ti._5.prop(obj, 'font', {
-			get: function() {
-				return {'fontVariant':_fontVariant, 'fontStyle':_fontStyle, 'fontWeight':_fontWeight, 'fontSize':_fontSize, 'fontFamily':_fontFamily};
-			},
-			set: function(val) {
-				if(val == null){
-					return;
-				}
-
-				if(val.fontVariant){
-					obj.fontVariant = val.fontVariant;
-				}
-				if(val.fontStyle){
-					obj.fontStyle = val.fontStyle;
-				}
-				if(val.fontWeight){
-					obj.fontWeight = val.fontWeight;
-				}
-				if(val.fontSize){
-					obj.fontSize = val.fontSize;
-				}
-				if(val.fontFamily){
-					obj.fontFamily = val.fontFamily;
-				}
-			}
-		});
-		
-		var _fontVariant;
-		Ti._5.prop(obj, 'fontVariant', {
-			get: function() {
-				return _fontVariant;
-			},
-			set: function(val) {
-				_fontVariant = val;
-				obj.dom.style.fontVariant = val;
-			}
-		});
-
-		var _fontStyle;
-		Ti._5.prop(obj, 'fontStyle', {
-			get: function() {
-				return _fontStyle;
-			},
-			set: function(val) {
-				_fontStyle = val;
-				obj.dom.style.fontStyle = val;
-			}
-		});
-
-		var _fontWeight;
-		Ti._5.prop(obj, 'fontWeight', {
-			get: function() {
-				return _fontWeight;
-			},
-			set: function(val) {
-				_fontWeight = val;
-				obj.dom.style.fontWeight = val;
-			}
-		});
-
-		var _fontSize;
-		Ti._5.prop(obj, 'fontSize', {
-			get: function() {
-				return _fontSize;
-			},
-			set: function(val) {
-				_fontSize = val;
-				obj.dom.style.fontSize = val;
-			}
-		});
-
-		var _fontFamily;
-		Ti._5.prop(obj, 'fontFamily', {
-			get: function() {
-				return _fontFamily;
-			},
-			set: function(val) {
-				_fontFamily = val;
-				obj.dom.style.fontFamily = val;
-			}
-		});
-		
-		Ti._5.prop(obj, 'opacity', {
-			get: function() {
-				return obj.dom.style.opacity ? parseInt(obj.dom.style.opacity) : '';
-			},
-			set: function(val) {
-				obj.dom.style.opacity = val;
-			}
-		});
-		
-		Ti._5.prop(obj, 'zIndex', {
-			get: function() {
-				return obj.dom.style.zIndex;
-			},
-			set: function(val) {
-				if (val != obj.zIndex) {
-					obj.dom.style.position = 'absolute';
-					obj.dom.style.zIndex = val;
-				}
-			}
-		});
-		
-		var _gradient = {};
-		Ti._5.prop(obj, 'backgroundGradient', {
-			get: function() {
-				return _gradient ? _gradient : obj.dom.style['background'];
-			},
-			set: function(val) {
-				if (!val) {
-					return;
-				}
-				var type = val['type'] ? val['type']+',' : 'linear,';
-				if ('Firefox' == Titanium.Platform.name) {
-					var startPoint = val['startPoint'] ? val['startPoint'].x+'%' : '0%';
-				} else {
-					startPoint = val['startPoint'] ? val['startPoint'].x+' '+val['startPoint'].y+',' : '0% 0%,';
-				}
-				if ('Firefox' == Titanium.Platform.name) {
-					var endPoint = val['endPoint'] ? val['endPoint'].y+'%,' : '100%';
-				} else {
-					endPoint = val['endPoint'] ? val['endPoint'].x+' '+val['endPoint'].y+',' : '100% 100%,';
-				}
-				var startRadius = val['startRadius'] ? val['startRadius']+',' : '';
-				var endRadius = val['endRadius'] ? val['endRadius']+',' : '';
-				var colors = '';
-				if (val['colors']) {
-					var iStep = 0;
-					for (var iCounter=0; iCounter < val['colors'].length; iCounter++) {
-						if ('Firefox' == Titanium.Platform.name) {
-							colors += 0 < colors.length ? ','+val['colors'][iCounter] : val['colors'][iCounter];
-						} else {
-							if ('undefined' != typeof val['colors'][iCounter]['position']) {
-								colors += 'color-stop('+val['colors'][iCounter]['position']+','+val['colors'][iCounter]['color']+'), ';
+			"backgroundFocusedColor": args.backgroundFocusedColor,
+			"backgroundFocusedImage": args.backgroundFocusedImage,
+			"backgroundGradient": {
+				value: args.backgroundGradient,
+				get: function() {
+					if (!_gradient) {
+						// domStyle.backgroundImage
+						_gradient = {
+							//
+						};
+					}
+					return _gradient;
+				},
+				set: function(val) {
+					return _gradient = val;
+					/*
+					if (!val) {
+						return;
+					}
+					var type = val["type"] ? val["type"]+"," : "linear,";
+					if ("Firefox" == Titanium.Platform.name) {
+						var startPoint = val["startPoint"] ? val["startPoint"].x+"%" : "0%";
+					} else {
+						startPoint = val["startPoint"] ? val["startPoint"].x+" "+val["startPoint"].y+"," : "0% 0%,";
+					}
+					if ("Firefox" == Titanium.Platform.name) {
+						var endPoint = val["endPoint"] ? val["endPoint"].y+"%," : "100%";
+					} else {
+						endPoint = val["endPoint"] ? val["endPoint"].x+" "+val["endPoint"].y+"," : "100% 100%,";
+					}
+					var startRadius = val["startRadius"] ? val["startRadius"]+"," : "";
+					var endRadius = val["endRadius"] ? val["endRadius"]+"," : "";
+					var colors = "";
+					if (val["colors"]) {
+						var iStep = 0;
+						for (var iCounter=0; iCounter < val["colors"].length; iCounter++) {
+							if ("Firefox" == Titanium.Platform.name) {
+								colors += 0 < colors.length ? ","+val["colors"][iCounter] : val["colors"][iCounter];
 							} else {
-								iStep = 1 < val['colors'].length ? iCounter/(val['colors'].length-1) : 0;
-								colors += 'color-stop('+iStep+','+val['colors'][iCounter]+'), ';
+								if ("undefined" != typeof val["colors"][iCounter]["position"]) {
+									colors += "color-stop("+val["colors"][iCounter]["position"]+","+val["colors"][iCounter]["color"]+"), ";
+								} else {
+									iStep = 1 < val["colors"].length ? iCounter/(val["colors"].length-1) : 0;
+									colors += "color-stop("+iStep+","+val["colors"][iCounter]+"), ";
+								}
 							}
 						}
+						_gradient = {colors : val["colors"]};
 					}
-					_gradient = {colors : val['colors']};
-				}
-				_gradient.type = type;
-				_gradient.startPoint = startPoint;
-				_gradient.endPoint = endPoint;
-				_gradient.startRadius = null;
-				_gradient.endRadius = null;
-				if ('linear,' == type) {
-					_gradient = {
-						type		: type,
-						startPoint	: startPoint,
-						endPoint	: endPoint,
-						startRadius	: startRadius,
-						endRadius	: endRadius,
-						
-					};
-					var sStyle = [type, startPoint, endPoint, colors].join(' ').replace(/,\s$/g, '');
-				} else {
-					_gradient.startRadius = startRadius;
-					_gradient.endRadius = endRadius;
-					var sStyle = [type, startPoint, startRadius, endPoint, endRadius, colors].join(' ').replace(/,\s$/g, '');
-				}
-				
-				if ('Firefox' == Titanium.Platform.name) {
-					if (-1 < type.indexOf('linear')) {
-						sStyle = [startPoint, endPoint, colors].join(' ').replace(/,\s$/g, '');
-						obj.dom.style['background'] = '-moz-linear-gradient(' + sStyle + ')';
+					_gradient.type = type;
+					_gradient.startPoint = startPoint;
+					_gradient.endPoint = endPoint;
+					_gradient.startRadius = null;
+					_gradient.endRadius = null;
+					if ("linear," == type) {
+						_gradient = {
+							type		: type,
+							startPoint	: startPoint,
+							endPoint	: endPoint,
+							startRadius	: startRadius,
+							endRadius	: endRadius,
+							
+						};
+						var sStyle = [type, startPoint, endPoint, colors].join(" ").replace(/,\s$/g, "");
 					} else {
-						sStyle = [startRadius.replace(/,$/g, ''), endRadius, colors].join(' ').replace(/,\s$/g, '');
-						obj.dom.style['background'] = '-moz-radial-gradient(' + sStyle + ')';
+						_gradient.startRadius = startRadius;
+						_gradient.endRadius = endRadius;
+						var sStyle = [type, startPoint, startRadius, endPoint, endRadius, colors].join(" ").replace(/,\s$/g, "");
 					}
-				} else {
-					obj.dom.style['background'] = '-webkit-gradient(' + sStyle + ')';
+					
+					if ("Firefox" == Titanium.Platform.name) {
+						if (-1 < type.indexOf("linear")) {
+							sStyle = [startPoint, endPoint, colors].join(" ").replace(/,\s$/g, "");
+							domStyle["background"] = "-moz-linear-gradient(" + sStyle + ")";
+						} else {
+							sStyle = [startRadius.replace(/,$/g, ""), endRadius, colors].join(" ").replace(/,\s$/g, "");
+							domStyle["background"] = "-moz-radial-gradient(" + sStyle + ")";
+						}
+					} else {
+						domStyle["background"] = "-webkit-gradient(" + sStyle + ")";
+					}
+					// If gradient removed, we need to return background color and image
+					if (
+						"linear," == type && "0% 0%," == startPoint && "100% 100%," == endPoint &&
+						"" == colors
+					) {
+						obj.backgroundColor = domStyle.backgroundColor;
+						obj.backgroundImage = obj.backgroundImage;
+					}
+					*/
 				}
-				// If gradient removed, we need to return background color and image
-				if (
-					'linear,' == type && '0% 0%,' == startPoint && '100% 100%,' == endPoint &&
-					'' == colors
-				) {
-					obj.backgroundColor = _backgroundColor;
-					obj.backgroundImage = obj.backgroundImage;
+			},
+			"backgroundImage": {
+				// we keep the backgroundImage in a variable because we later change it
+				// when focusing or selecting, so we can't just report the current value
+				value: args.backgroundImage,
+				get: function() {
+					return _backgroundImage = (_backgroundImage = domStyle.backgroundImage);
+				},
+				set: function(val) {
+					return domStyle.backgroundImage = _backgroundImage = val ? cssUrl(val) : "";
+				}
+			},
+			"backgroundSelectedColor": args.backgroundSelectedColor,
+			"backgroundSelectedImage": args.backgroundSelectedImage,
+			"borderColor": {
+				value: args.borderColor,
+				get: function() {
+					return domStyle.borderColor;
+				},
+				set: function(val) {
+					if (domStyle.borderColor = val) {
+						domStyle.borderWidth || (obj.borderWidth = 1);
+						domStyle.borderStyle = "solid";
+					} else {
+						obj.borderWidth = 0;
+					}
+					return val;
+				}
+			},
+			"borderRadius": {
+				value: args.borderRadius,
+				get: function() {
+					return domStyle.borderRadius || "";
+				},
+				set: function(val) {
+					return domStyle.borderRadius = px(val);
+				}
+			},
+			"borderWidth": {
+				value: args.borderWidth,
+				get: function() {
+					return domStyle.borderWidth;
+				},
+				set: function(val) {
+					domStyle.borderWidth = val = px(val);
+					domStyle.borderColor || (domStyle.borderColor = "black");
+					domStyle.borderStyle = "solid";
+					return val;
+				}
+			},
+			"color": {
+				value: args.color,
+				get: function() {
+					return domStyle.color;
+				},
+				set: function(val) {
+					return domStyle.color = val;
+				}
+			},
+			"focusable": args.focusable,
+			"font": {
+				value: args.font,
+				get: function() {
+					return font();
+				},
+				set: function(val) {
+					return font(val);
+				}
+			},
+			"opacity": {
+				value: args.opacity,
+				get: function() {
+					return domStyle.opacity;
+				},
+				set: function(val) {
+					return domStyle.opacity = val;
+				}
+			},
+			"visible": {
+				value: args.visible,
+				get: function() {
+					return _visible;
+				},
+				set: function(val) {
+					return val ? obj.show() : obj.hide();
+				}
+			},
+			"zIndex": {
+				value: args.zIndex,
+				get: function() {
+					return domStyle.zIndex;
+				},
+				set: function(val) {
+					val !== domStyle.zIndex && domStyle.position === "static" && (domStyle.position = "absolute");
+					return domStyle.zIndex = val;
 				}
 			}
 		});
-		
-		var _visible = true;
-		Ti._5.prop(obj, 'visible', {
-			get: function() {
-				return _visible;
-			},
-			set: function(val) {
-				val ? obj.show() : obj.hide();
-			},
-			configurable: true
+
+		on(domNode, "focus", function() {
+			if (obj.focusable) {
+				if (obj.backgroundSelectedColor) {
+					_backgroundSelectedPrevColor || (_backgroundSelectedPrevColor = obj.backgroundColor);
+					domStyle.backgroundColor = obj.backgroundSelectedColor;
+				}
+
+				if (obj.backgroundSelectedImage) {
+					_backgroundSelectedPrevImage || (_backgroundSelectedPrevImage = obj.backgroundImage);
+					domStyle.backgroundImage = cssUrl(obj.backgroundSelectedImage);
+				}
+
+				if (obj.backgroundFocusedColor) {
+					_backgroundFocusPrevColor || (_backgroundFocusPrevColor = obj.backgroundFocusedColor);
+					domStyle.backgroundColor = obj.backgroundFocusedColor;
+				}
+
+				if (obj.backgroundFocusedImage) {
+					_backgroundFocusPrevImage || (_backgroundFocusPrevImage = obj.backgroundImage);
+					domStyle.backgroundImage = cssUrl(obj.backgroundFocusedImage);
+				}
+			}
 		});
-		
-		Ti._5.prop(obj, 'color', {
-			get: function() {return obj.dom.style.color ? obj.dom.style.color : '';},
-			set: function(val) {obj.dom.style.color = val;},
-			configurable: true
+
+		on(domNode, "blur", function() {
+			if (obj.focusable) {
+				if (_backgroundSelectedPrevColor) {
+					domStyle.backgroundColor = _backgroundSelectedPrevColor;
+					_backgroundSelectedPrevColor = 0;
+				}
+
+				if (_backgroundSelectedPrevImage) {
+					domStyle.backgroundImage = cssUrl(_backgroundSelectedPrevImage);
+					_backgroundSelectedPrevImage = 0;
+				}
+
+				if (_backgroundFocusPrevColor) {
+					domStyle.backgroundColor = _backgroundFocusPrevColor;
+					_backgroundFocusPrevColor = 0;
+				}
+
+				if (_backgroundFocusPrevImage) {
+					domStyle.backgroundImage = cssUrl(_backgroundFocusPrevImage);
+					_backgroundFocusPrevImage = 0;
+				}
+			}
 		});
-	
+
 		//
 		// API Methods
 		//
 		obj.add = function(view) {
-			obj._children = obj._children || [];
-
-			// creating cross-link
 			obj._children.push(view);
 			view.parent = obj;
+			obj.render();
+		};
 
-			obj.render(null);
-		};
 		obj.remove = function(view) {
-			if(obj.dom != null && view.dom.parentNode){
-				obj.dom.removeChild(view.dom);
+			domNode && view.dom.parentNode && domNode.removeChild(view.dom);
+			for (var i = 0; i < obj._children.length; i++) {
+				view === obj._children[ii] && obj._children.splice(i, 1);
 			}
-			for(var ii = 0; ii < obj._children.length; ii++){
-				if(view === obj._children[ii]){
-					obj._children.splice(ii, 1);
-				}
-			}
-			obj.render(null);
+			obj.render();
 		};
-		var _prevDisplay = '';
+
 		obj.show = function() {
-			obj.dom.style.display = _prevDisplay ? _prevDisplay : '';
-			_visible = true;
-			obj.fireEvent('html5_shown');
+			domStyle.display = _prevDisplay || "";
+			obj.fireEvent("html5_shown");
+			return _visible = true;
 		};
+
 		// Fire event for all children
-		obj.addEventListener('html5_shown', function(){
-			if (obj._children) {
-				for (var iCounter=0; iCounter < obj._children.length; iCounter++) {
-					obj._children[iCounter].fireEvent('html5_shown');
-				}
-			}
+		obj.addEventListener("html5_shown", function() {
+			require.each(obj._children, function(c) { c.fireEvent("html5_shown"); });
 		});
+
 		obj.hide = function() {
-			if ('none' != obj.dom.style.display) {
-				_prevDisplay = obj.dom.style.display;
-				obj.dom.style.display = 'none';
+			if (domStyle.display !== "none") {
+				_prevDisplay = domStyle.display;
+				domStyle.display = "none";
 			}
-			_visible = false;
-			obj.fireEvent('html5_hidden');
+			obj.fireEvent("html5_hidden");
+			return _visible = false;
 		};
+
 		// Fire event for all children
-		obj.addEventListener('html5_hidden', function(){
-			if (obj._children) {
-				for (var iCounter=0; iCounter < obj._children.length; iCounter++) {
-					obj._children[iCounter].fireEvent('html5_hidden');
-				}
-			}
+		obj.addEventListener("html5_hidden", function(){
+			require.each(obj._children, function(c) { c.fireEvent("html5_hidden"); });
 		});
-		obj._getPrefixedCSSRuleName = function(rule) {
-			var style = obj.dom.style,
+
+		obj.css = function(rule, value) {
+			var i = 0,
+				r,
 				upperCaseRule = rule[0].toUpperCase() + rule.substring(1),
-				possibleRuleNames = ["Moz" + upperCaseRule,"Webkit" + upperCaseRule,"O" + upperCaseRule,"ms" + upperCaseRule,rule];
-			for (var i = 0; i < 5; i++) {
-				var prefixedRule = possibleRuleNames[i];
-				if (prefixedRule in style) {
-					return prefixedRule;
+				vp = require.config.vendorPrefixes;
+
+			for (; i < vp.length; i++) {
+				r = vp[i];
+				r += r ? upperCaseRule : rule;
+				if (r in domStyle) {
+					return value !== undefined ? domStyle[r] = value : domStyle[r];
 				}
-			}
-		}
-		obj._setPrefixedCSSRule = function(rule,value) {
-			var prefixedRule = obj._getPrefixedCSSRuleName(rule);
-			prefixedRule && (obj.dom.style[prefixedRule] = value);
-		}
-		obj._getPrefixedCSSRuleValue = function(rule) {
-			var prefixedRule = obj._getPrefixedCSSRuleName(rule);
-			return prefixedRule && obj.dom.style[prefixedRule];
-		}
-		obj.animate = function(animation,callback) {
-			
-			// Set default values
-			animation.duration = (animation.duration ? animation.duration : 0);
-			animation.delay = (animation.delay ? animation.delay : 0);
-			
-			var _curve = "ease";
-			switch(animation.curve) {
-				case Ti.UI.ANIMATION_CURVE_LINEAR: _curve = "linear"; break;
-				case Ti.UI.ANIMATION_CURVE_EASE_IN: _curve = "ease-in"; break;
-				case Ti.UI.ANIMATION_CURVE_EASE_OUT: _curve = "ease-out"; break;
-				case Ti.UI.ANIMATION_CURVE_EASE_IN_OUT: _curve = "ease-in-out"; break;
-			}
-			
-			// Determine which coordinates are valid and combine with previous coordinates where appropriate.
-			var _style = obj.dom.style;
-			if (isDefined(animation.center)) {
-				animation.left = animation.center.x - obj.dom.offsetWidth / 2;
-				animation.top = animation.center.y - obj.dom.offsetHeight / 2;
-			}
-			
-			// Create the transition, must be set before setting the other properties
-			var transitionValue = "all " + animation.duration + "ms " + _curve;
-			isDefined(animation.delay) && (transitionValue += " " + animation.delay + "ms");
-			obj._setPrefixedCSSRule("transition", transitionValue);
-			
-			// We need to explicitly test if a variable is defined because 0 or false can be a legitimate value
-			function isDefined(value) {
-				return !require.is(value,"Undefined");
-			}
-			
-			// Set the color and opacity properties
-			isDefined(animation.backgroundColor) && (_style.backgroundColor = animation.backgroundColor);
-			isDefined(animation.color) && (_style.color = animation.color);
-			isDefined(animation.opacity) && (_style.opacity = animation.opacity);
-			(animation.opaque === true || animation.visible === true) && (_style.opacity = 1.0);
-			(animation.opaque === false || animation.visible === false) && (_style.opacity = 0.0);
-			
-			// Set the position and size properties
-			function setUnits(value) {
-				return require.is(value,"Number") ? value + "px" : value
-			}
-			isDefined(animation.top) && (_style.top = setUnits(animation.top));
-			isDefined(animation.bottom) && (_style.bottom = setUnits(animation.bottom));
-			isDefined(animation.left) && (_style.left = setUnits(animation.left));
-			isDefined(animation.right) && (_style.right = setUnits(animation.right));
-			isDefined(animation.height) && (_style.height = setUnits(animation.height));
-			isDefined(animation.width) && (_style.width = setUnits(animation.width));
-			
-			// Set the z-order
-			isDefined(animation.zIndex) && (_style.zIndex = animation.zIndex);
-			
-			// Set the transform properties
-			var transform = "";
-			if (animation.rotation) {
-				if(obj._currentRotation) {
-					obj._currentRotation += animation.rotation;
-				} else {
-					obj._currentRotation = animation.rotation;
-				}
-				transform += "rotate(" + obj._currentRotation + "deg) ";
-			}
-			if (animation.transform) {
-				if (obj._currentTransform) {
-					obj._currentTransform = obj._currentTransform.multiply(animation.transform);
-				} else {
-					obj._currentTransform = animation.transform;
-				}
-				transform += obj._currentTransform._toCSS();
-			}
-			obj._setPrefixedCSSRule("transform",transform);
-			
-			if(callback) {
-				// Note: no IE9 support for transitions, so instead we just set a timer that matches the duration so things don't break
-				setTimeout(function(){
-					// Clear the transform so future modifications in these areas are not animated
-					obj._setPrefixedCSSRule("transition", "");
-					callback();
-				},animation.duration + animation.delay + 1);
 			}
 		};
-		
-		if (args['unselectable']) {
-			obj.dom.style['-webkit-tap-highlight-color'] = 'rgba(0,0,0,0)';
-		}
-	
-		// 
-		// setup getters/setters
-		//
-		oParentNamespace.preset(obj, [
-			'color', 'border', 'borderWidth', 'borderColor', 'borderRadius',
-			'backgroundColor', 'backgroundImage', 'backgroundGradient', 
-			'backgroundSelectedColor', 'backgroundFocusedColor', 
-			'backgroundSelectedImage', 'backgroundFocusedImage', 
-			'fontStyle', 'fontWeight', 'fontSize', 'fontFamily', 'font', 'opacity', 'zIndex', 
-			'visible', 'focusable'
-		], args);
+
+		obj.animate = function(anim, callback) {
+			var curve = "ease",
+				transform = "";
+
+			switch (anim.curve) {
+				case ui.ANIMATION_CURVE_LINEAR: curve = "linear"; break;
+				case ui.ANIMATION_CURVE_EASE_IN: curve = "ease-in"; break;
+				case ui.ANIMATION_CURVE_EASE_OUT: curve = "ease-out"; break
+				case ui.ANIMATION_CURVE_EASE_IN_OUT: curve = "ease-in-out";
+			}
+
+			anim.duration = anim.duration || 0;
+			anim.delay = anim.delay || 0;
+
+			// Determine which coordinates are valid and combine with previous coordinates where appropriate.
+			if (anim.center) {
+				anim.left = anim.center.x - domNode.offsetWidth / 2;
+				anim.top = anim.center.y - domNode.offsetHeight / 2;
+			}
+
+			// Create the transition, must be set before setting the other properties
+			obj.css("transition", "all " + anim.duration + "ms " + curve + (anim.delay ? " " + anim.delay + "ms" : ""));
+
+			// Set the color and opacity properties
+			anim.backgroundColor !== undef && (obj.backgroundColor = anim.backgroundColor);
+
+			domStyle.opacity = anim.opaque && anim.visible ? 1.0 : 0.0;
+
+			// Set the position and size properties
+			require.each(["top", "bottom", "left", "right", "height", "width"], function(p) {
+				anim[p] !== undef && (domStyle[p] = px(anim[p]));
+			});
+
+			// Set the z-order
+			anim.zIndex !== undef && (domStyle.zIndex = anim.zIndex);
+
+			// Set the transform properties
+			if (anim.rotation) {
+				curRotation = curRotation | 0 + anim.rotation;
+				transform += "rotate(" + curRotation + "deg) ";
+			}
+
+			if (anim.transform) {
+				curTransform = curTransform ? curTransform.multiply(anim.transform) : anim.transform;
+				transform += curTransform.toCSS();
+			}
+
+			obj.css("transform", transform);
+
+			if (callback) {
+				// Note: no IE9 support for transitions, so instead we just set a timer that matches the duration so things don"t break
+				setTimeout(function() {
+					// Clear the transform so future modifications in these areas are not animated
+					obj.css("transition", "");
+					callback();
+				}, anim.duration + anim.delay + 1);
+			}
+		};
+
+		args["unselectable"] && (domStyle["-webkit-tap-highlight-color"] = "rgba(0,0,0,0)");
 	};
 })(Ti._5);	
