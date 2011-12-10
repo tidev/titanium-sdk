@@ -553,13 +553,24 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	}
 }
 
+// Checked with Apache project to see if this is a known bug for them; it's
+// not, so this must be a client-side issue with Apple.
+//
+// Turns out Apple has a bug where they seem to case-correct headers;
+// this turns WWW-Authenticate into Www-Authenticate. We don't have complete
+// information on how response headers are mangled, but assume that
+// they are all case-corrected like this.
+//
+// This occurs in iOS 4 only.
+
 -(id)getResponseHeader:(id)args
 {
+    ENSURE_SINGLE_ARG(args, NSString);
+    
 	if (request!=nil)
 	{
-		id key = [args objectAtIndex:0];
-		ENSURE_TYPE(key,NSString);
-		return [[request responseHeaders] objectForKey:key];
+        NSString* header = [TiUtils caseCorrect:args];
+		return [[request responseHeaders] objectForKey:header];
 	}
 	return nil;
 }
