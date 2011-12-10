@@ -561,7 +561,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 // information on how response headers are mangled, but assume that
 // they are all case-corrected like this.
 //
-// TODO: Investigate the case-correction of HTTP headers and file a bug w/Apple.
+// This occurs in iOS 4 only.
 
 -(id)getResponseHeader:(id)args
 {
