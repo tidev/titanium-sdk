@@ -210,17 +210,18 @@ function TiInclude(filename, baseUrl, scopeVars) {
 		var source = getUrlSource(filename, sourceUrl);
 		var wrappedSource = "with(sandbox) { " + source + "\n }";
 		var contextGlobal = ti.global;
+		var filePath = sourceUrl.href.replace("app://", "");
 
 		if (contextGlobal) {
 			// We're running inside another window or module, so we run against it's context
 			contextGlobal.sandbox = localSandbox;
-			return Script.runInContext(wrappedSource, contextGlobal, sourceUrl.href, true);
+			return Script.runInContext(wrappedSource, contextGlobal, filePath, true);
 
 		} else {
 			// We're running in the main module (app.js), so we use the global V8 Context directly.
 			// Put sandbox on the global scope
 			sandbox = localSandbox;
-			return Script.runInThisContext(wrappedSource, sourceUrl.href, true);
+			return Script.runInThisContext(wrappedSource, filePath, true);
 		}
 	}
 }

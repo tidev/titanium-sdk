@@ -113,13 +113,15 @@ public class TiUIWebView extends TiUIView
 		webView.setWebViewClient(client);
 		webView.client = client;
 
-		WebViewProxy webProxy = (WebViewProxy) proxy;
-		String username = webProxy.getBasicAuthenticationUserName();
-		String password = webProxy.getBasicAuthenticationPassword();
-		if (username != null && password != null) {
-			setBasicAuthentication(username, password);
+		if (proxy instanceof WebViewProxy) {
+			WebViewProxy webProxy = (WebViewProxy) proxy;
+			String username = webProxy.getBasicAuthenticationUserName();
+			String password = webProxy.getBasicAuthenticationPassword();
+			if (username != null && password != null) {
+				setBasicAuthentication(username, password);
+			}
+			webProxy.clearBasicAuthentication();
 		}
-		webProxy.clearBasicAuthentication();
 
 		TiCompositeLayout.LayoutParams params = getLayoutParams();
 		params.autoFillsHeight = true;
