@@ -1,25 +1,27 @@
-Ti._5.createClass('Titanium.UI.CoverFlowView', function(args){
+Ti._5.createClass("Titanium.UI.CoverFlowView", function(args){
 	var obj = this;
+
 	// Interfaces
-	Ti._5.DOMView(this, 'coverflowview', args, 'CoverFlowView');
-	Ti._5.Touchable(this, args);
-	Ti._5.Styleable(this, args);
-	Ti._5.Positionable(this, args);
+	Ti._5.DOMView(obj, "coverflowview", args, "CoverFlowView");
+	Ti._5.Touchable(obj, args);
+	Ti._5.Styleable(obj, args);
+	Ti._5.Positionable(obj, args);
 
 	// Properties
-	Ti._5.prop(this, 'images');
-
-	Ti._5.prop(this, 'selected');
+	Ti._5.prop(obj, {
+		"images": null,
+		"selected": false
+	});
 
 	// Methods
-	this.setImage = function(){
+	obj.setImage = function(){
 		console.debug('Method "Titanium.UI.CoverFlowView#.setImage" is not implemented yet.');
 	};
 
 	// Events
-	this.addEventListener('change', function(){
+	obj.addEventListener("change", function(){
 		console.debug('Event "change" is not implemented yet.');
 	});
 
-	require.mix(this, args);
+	require.mix(obj, args);
 });

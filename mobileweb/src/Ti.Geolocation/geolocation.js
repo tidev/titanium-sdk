@@ -25,34 +25,32 @@
 	api.PROVIDER_GPS = 1;
 	api.PROVIDER_NETWORK = 2;
 
-	Ti._5.prop(api, 'accuracy', api.ACCURACY_BEST);
+	var undef;
 
-	Ti._5.prop(api, 'locationServicesAuthorization');
-
-	Ti._5.prop(api, 'locationServicesEnabled');
-
-	Ti._5.prop(api, 'preferredProvider');
-
-	Ti._5.prop(api, 'purpose');
-
-	Ti._5.prop(api, 'showCalibration', true);
+	Ti._5.prop(api, {
+		"accuracy": api.ACCURACY_BEST,
+		"locationServicesAuthorization": undef,
+		"locationServicesEnabled": undef,
+		"preferredProvider": undef,
+		"purpose": undef,
+		"showCalibration": true
+	});
 
 	// Methods
 	api.getCurrentPosition = function(callbackFunc) {
-		if (_lastPosition && 'function' == typeof callbackFunc) {
+		if (_lastPosition && require.is(callbackFunc, "Function")) {
 			callbackFunc(_lastPosition);
 			return;
 		}
 		if (_lastError) {
-			if ('function' == typeof callbackFunc) {
-				callbackFunc(_lastError);
-			}
+			require.is(callbackFunc, "Function") && callbackFunc(_lastError);
 			return;
 		}
 		navigator.geolocation.getCurrentPosition(
 			function(oPos){
-				var oResult = {
-					coords : {
+				require.is(callbackFunc, "Function") && callbackFunc({
+					code: 0,
+					coords: {
 						latitude : oPos.coords.latitude,
 						longitude : oPos.coords.longitude,
 						altitude : oPos.coords.altitude,
@@ -61,42 +59,39 @@
 						speed : oPos.coords.speed,
 						altitudeAccuracy : oPos.coords.altitudeAccuracy,
 						timestamp : oPos.timestamp
-					}
-				};
-				oResult.code = 0;
-				oResult.error = '';
-				oResult.success = true;
-
-				if ('function' == typeof callbackFunc) {
-					callbackFunc(oResult);
-				}
+					},
+					error: "",
+					success: true
+				});
 			},
 			function(oError){
-				var oResult = {
-					message : oError.message
-				};
-				oResult.coords = null;
-				oResult.error = oError.message;
-				oResult.success = false;
-
-				if ('function' == typeof callbackFunc) {
-					callbackFunc(oResult);
-				}
+				require.is(callbackFunc, "Function") && callbackFunc({
+					coords: null,
+					error: oError.message,
+					message: oError.message,
+					success: false
+				});
 			},
 			{
-				enableHighAccuracy : _accuracy < 3 || api.ACCURACY_BEST == _accuracy ? true : false
+				enableHighAccuracy : _accuracy < 3 || api.ACCURACY_BEST === _accuracy
 			}
 		);
 	};
 
-	var _watchId;
-	var _oldAddEventListener = api.addEventListener, _lastPosition = null, _lastError = null;
+	var _watchId,
+		_oldAddEventListener = api.addEventListener, // WARNING: this may cause problems
+		_lastPosition = null,
+		_lastError = null;
+
 	api.addEventListener = function(eventType, callback){
 		_oldAddEventListener(eventType, callback);
-		if(eventType == 'location'){
+		if(eventType == "location"){
 			_watchId = navigator.geolocation.watchPosition(
 				function(oPos){
-					var oResult = {
+					_lastError = null;
+
+					api.fireEvent("location", _lastPosition = {
+						code: 0,
 						coords : {
 							latitude : oPos.coords.latitude,
 							longitude : oPos.coords.longitude,
@@ -106,54 +101,43 @@
 							speed : oPos.coords.speed,
 							altitudeAccuracy : oPos.coords.altitudeAccuracy,
 							timestamp : oPos.timestamp
-						}
-					};
-					oResult.code = 0;
-					oResult.error = '';
-					oResult.success = true;
-					oResult.provider = null;
-					oResult.source = api;
-					oResult.type = 'location';
-					_lastPosition = oResult;
-					_lastError = null;
-
-					api.fireEvent('location', oResult);
+						},
+						error: "",
+						provider: null,
+						success: true
+					});
 					/*
 					if (oPos.heading) {
-						api.fireEvent('heading', oPos);
+						api.fireEvent("heading", oPos);
 					}
 					*/
 				},
 				function(oError){
-					var oResult = {
-						message : oError.message
-					};
-					oResult.coords = null;
-					oResult.error = oError.message;
-					oResult.success = false;
-					oResult.provider = null;
-					oResult.source = api;
-					oResult.type = 'location';
 					_lastPosition = null;
-					_lastError = oResult;
 
-					api.fireEvent('location', oResult);
+					api.fireEvent("location", _lastError = {
+						coords: null,
+						error: oError.message,
+						message: oError.message,
+						provider: null,
+						success: false
+					});
 					/*
 					if (oPos.heading) {
-						api.fireEvent('heading', oPos);
+						api.fireEvent("heading", oPos);
 					}
 					*/
 				},
 				{
-					enableHighAccuracy : _accuracy < 3 || api.ACCURACY_BEST == _accuracy ? true : false
+					enableHighAccuracy : _accuracy < 3 || api.ACCURACY_BEST === _accuracy
 				}
 			);
 		}
 	};
-	var _oldRemoveEventlistener = api.removeEventListener;
+	var _oldRemoveEventlistener = api.removeEventListener; // WARNING: this may cause problems
 	api.removeEventListener = function(eventName, cb){
 		_oldRemoveEventlistener(eventName, cb);
-		if(eventName == 'location'){
+		if(eventName == "location"){
 			navigator.geolocation.clearWatch(_watchId);
 		}
 	};
@@ -163,10 +147,10 @@
 	api.reverseGeocoder = function(latitude, longitude, callbackFunc) {};
 	api.setShowCalibration = function(val) {
 		/*
-		if ('undefined' == typeof val) {
+		if ("undefined" == typeof val) {
 			val = true;
 		}
 		*/
-		api.showCalibration = val ? true : false;
+		api.showCalibration = !!val;
 	};
-})(Ti._5.createClass('Ti.Geolocation'));
+})(Ti._5.createClass("Ti.Geolocation"));

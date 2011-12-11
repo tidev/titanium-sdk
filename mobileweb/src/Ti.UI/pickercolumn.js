@@ -1,23 +1,25 @@
 Ti._5.createClass('Titanium.UI.PickerColumn', function(args){
 	var obj = this;
+
 	// Interfaces
-	Ti._5.DOMView(this, 'pickercolumn', args, 'PickerColumn');
-	Ti._5.Touchable(this, args);
-	Ti._5.Styleable(this, args);
-	Ti._5.Positionable(this, args);
+	Ti._5.DOMView(obj, 'pickercolumn', args, 'PickerColumn');
+	Ti._5.Touchable(obj, args);
+	Ti._5.Styleable(obj, args);
+	Ti._5.Positionable(obj, args);
 
 	// Properties
-	Ti._5.prop(this, 'rowCount');
-
-	Ti._5.prop(this, 'rows');
+	Ti._5.prop(obj, {
+		"rowCount": 0,
+		"rows": 0
+	});
 
 	// Methods
-	this.addRow = function(){
+	obj.addRow = function(){
 		console.debug('Method "Titanium.UI.PickerColumn#.addRow" is not implemented yet.');
 	};
-	this.removeRow = function(){
+	obj.removeRow = function(){
 		console.debug('Method "Titanium.UI.PickerColumn#.removeRow" is not implemented yet.');
 	};
 
-	require.mix(this, args);
+	require.mix(obj, args);
 });

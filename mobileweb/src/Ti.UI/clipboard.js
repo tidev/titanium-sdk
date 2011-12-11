@@ -1,13 +1,13 @@
 (function(api){
-	var obj = this;
+	var obj = this,
+		_data = {
+			'text/plain' : "",
+			'text/uri-list' : "",
+			'image' : ""
+		};
+
 	// Interfaces
 	Ti._5.EventDriven(api);
-		
-	var _data = {
-		'text/plain' : "",
-		'text/uri-list' : "",
-		'image' : ""
-	};
 
 	// Methods
 	api.clearData = function(type){
@@ -40,7 +40,7 @@
 		return false;
 	};
 	api.hasText = function(){
-		return _data['text/plain'] ? true : false;
+		return !!_data['text/plain'];
 	};
 	api.setData = function(type, data){
 		if ('text' == type) {

@@ -1,5 +1,5 @@
 Ti._5.createClass('Titanium.UI.ProgressBar', function(args){
-	var obj = this;
+
 	// Interfaces
 	Ti._5.DOMView(this, 'progressbar', args, 'ProgressBar');
 	// Methods

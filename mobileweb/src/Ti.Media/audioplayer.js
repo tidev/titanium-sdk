@@ -3,37 +3,24 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	Ti._5.prop(api, 'STATE_PAUSED');
-
-	Ti._5.prop(api, 'STATE_PLAYING');
-
-	Ti._5.prop(api, 'STATE_STARTING');
-
-	Ti._5.prop(api, 'STATE_STOPPED');
-
-	Ti._5.prop(api, 'STATE_STOPPING');
-
-	Ti._5.prop(api, 'STATE_WAITING_FOR_DATA');
-
-	Ti._5.prop(api, 'STATE_WAITING_FOR_QUEUE');
-
-	Ti._5.prop(api, 'allowBackground');
-
-	Ti._5.prop(api, 'bitRate');
-
-	Ti._5.prop(api, 'idle');
-
-	Ti._5.prop(api, 'paused');
-
-	Ti._5.prop(api, 'playing');
-
-	Ti._5.prop(api, 'progress');
-
-	Ti._5.prop(api, 'state');
-
-	Ti._5.prop(api, 'url');
-
-	Ti._5.prop(api, 'waiting');
+	Ti._5.prop(api, {
+		"STATE_STOPPED": 0,
+		"STATE_STOPPING": 1,
+		"STATE_STARTING": 2,
+		"STATE_PLAYING": 3,
+		"STATE_PAUSED": 4,
+		"STATE_WAITING_FOR_DATA": 5,
+		"STATE_WAITING_FOR_QUEUE": 6,
+		"allowBackground": null,
+		"bitRate": null,
+		"idle": null,
+		"paused": null,
+		"playing": null,
+		"progress": null,
+		"state": null,
+		"url": null,
+		"waiting": null
+	});
 
 	// Methods
 	api.pause = function(){
@@ -62,4 +49,4 @@
 	api.addEventListener('progress', function(){
 		console.debug('Event "progress" is not implemented yet.');
 	});
-})(Ti._5.createClass('Titanium.Media.AudioPlayer'));
+})(Ti._5.createClass("Titanium.Media.AudioPlayer"));

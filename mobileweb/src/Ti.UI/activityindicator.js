@@ -1,78 +1,77 @@
-Ti._5.createClass('Titanium.UI.ActivityIndicator', function(args){
-	var obj = this;
-	args = Ti._5.extend({}, args);
-	args['visible'] = args['visible'] || false;
+Ti._5.createClass("Titanium.UI.ActivityIndicator", function(args){
+	args = require.mix({
+		visible: args.visible || false
+	}, args);
+
+	var obj = this,
+		domNode = Ti._5.DOMView(obj, "div", args, "ActivityIndicator"),
+		domStyle = domStyle,
+		_message = "",
+		_style = null,
+		_visible = false;
+
 	// Interfaces
-	Ti._5.DOMView(this, 'div', args, 'ActivityIndicator');
-	Ti._5.Positionable(this, args);
-	Ti._5.Styleable(this, args);
-	
+	Ti._5.Positionable(obj, args);
+	Ti._5.Styleable(obj, args);
+
 	// Properties
-	Ti._5.prop(this, 'color', {
-		get: function(){return obj.dom.style.color;},
-		set: function(val) {
-			return obj.dom.style.color = val;
-		}
-	});
-	
-	var _message = '';
-	Ti._5.prop(this, 'message', {
-		get: function(){return _message;},
-		set: function(val){return obj.dom.innerHTML = _message = val;}
-	});
-
-	Ti._5.prop(this, 'messageid', '');
-
-	var _style = null;
-	Ti._5.prop(this, 'style', {
-		get: function(){return _style;},
-		set: function(val){
-			_style = val;
-			if (Titanium.UI.iPhone) {
-				obj.dom.className = obj.dom.className.replace(/\bActivityIndicator_(BIG|DARK)\b/g, '');
-
-				switch (_style) {
-					case Titanium.UI.iPhone.ActivityIndicatorStyle.BIG:
-						obj.dom.className += ' ActivityIndicator_BIG';
-						break;
-					case Titanium.UI.iPhone.ActivityIndicatorStyle.DARK:
-						obj.dom.className += ' ActivityIndicator_DARK';
-						break;
+	Ti._5.prop(obj, {
+		"color": {
+			get: function(){return domStyle.color;},
+			set: function(val) {
+				domStyle.color = val;
+			}
+		},
+		"message": {
+			get: function(){return _message;},
+			set: function(val){domNode.innerHTML = _message = val;}
+		},
+		"messageid": "",
+		"style": {
+			get: function(){return _style;},
+			set: function(val){
+				_style = val;
+				if (Titanium.UI.iPhone) {
+					domNode.className = domNode.className.replace(/\bActivityIndicator_(BIG|DARK)\b/g, "");
+					switch (_style) {
+						case Titanium.UI.iPhone.ActivityIndicatorStyle.BIG:
+							domNode.className += " ActivityIndicator_BIG";
+							break;
+						case Titanium.UI.iPhone.ActivityIndicatorStyle.DARK:
+							domNode.className += " ActivityIndicator_DARK";
+							break;
+					}
 				}
 			}
-			return val;
-		}
-	});
-	
-	var _visible = false;
-	Ti._5.prop(obj, 'visible', {
-		get: function() {
-			return _visible;
 		},
-		set: function(val) {
-			val ? obj.show() : obj.hide();
-			return val;
+		"visible": {
+			get: function() {
+				return _visible;
+			},
+			set: function(val) {
+				val ? obj.show() : obj.hide();
+			}
 		}
 	});
 
 	// Methods
-	this.hide = function(){
-		obj.dom.style.display = 'none';
+	obj.hide = function(){
+		domStyle.display = "none";
 		_visible = false;
-		obj.fireEvent('html5_hidden');
+		obj.fireEvent("html5_hidden");
 	};
-	this.show = function(){
+	obj.show = function(){
 		// Append activity indicator to current window, if it was not
 		//if (!(obj.parent instanceof Titanium.UI.Window) && Titanium.UI.currentWindow) {
-		//	Titanium.UI.currentWindow.dom.appendChild(obj.dom);
+		//	Titanium.UI.currentWindow.dom.appendChild(domNode);
 		//}
 		_visible = true;
 		var oWinSizes = Ti._5.getWindowSizes();
-		obj.dom.style.display = 'block';
-		obj.dom.style.top = (args['top'] || (oWinSizes.height - parseInt(obj.dom.offsetHeight)) * 0.5) + "px";
-		obj.dom.style.left = (args['left'] || (oWinSizes.width - parseInt(obj.dom.offsetWidth)) * 0.5) + "px";
-		obj.fireEvent('html5_shown');
+		domStyle.display = "block";
+		domStyle.top = (args["top"] || (oWinSizes.height - parseInt(domNode.offsetHeight)) * 0.5) + "px";
+		domStyle.left = (args["left"] || (oWinSizes.width - parseInt(domNode.offsetWidth)) * 0.5) + "px";
+		obj.fireEvent("html5_shown");
 	};
 
-	require.mix(this, args);
+	require.mix(obj, args);
 });

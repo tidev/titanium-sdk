@@ -124,11 +124,13 @@
 		// "Finished" event must bubbled to all parents
 		obj.addEventListener("html5_child_rendered", function(oSource) {
 			obj.parent && obj.parent.fireEvent("html5_child_rendered", oSource);
-		}, false);
+		});
 
 		obj._getAddContainer = function(){
 			return domNode;
 		};
+
+		return domNode;
 	};
 	
 	oParentNamespace._getElementOffset = function(node) {

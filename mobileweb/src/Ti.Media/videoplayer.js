@@ -97,7 +97,6 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 			set: function(val) {
 				_scalingMode = val;
 				setSize();
-				return val;
 			}
 		},
 		"url": {
@@ -107,14 +106,13 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 				_playing = false;
 				currentState = STOPPED;
 				createVideo();
-				return val;
 			}
 		},
 		"mediaControlStyle": {
 			get: function() { return _mediaControlStyle; },
 			set: function(val) {
 				video.controls = val === media.VIDEO_CONTROL_DEFAULT;
-				return _mediaControlStyle = val;
+				_mediaControlStyle = val;
 			}
 		}
 	});

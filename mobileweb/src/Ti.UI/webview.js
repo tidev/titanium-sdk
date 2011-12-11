@@ -1,157 +1,133 @@
-Ti._5.createClass('Titanium.UI.WebView', function(args){
-	var obj = this;
-	
-	// Set defaults
-	args = Ti._5.extend({}, args);
-	args.unselectable = true;
-	args.width = args.width || '100%';
-	args.height = args.height || '100%';
-		
+Ti._5.createClass("Titanium.UI.WebView", function(args){
+	args = require.mix({
+		height: "100%",
+		unselectable: true,
+		width: "100%"
+	}, args);
+
+	var obj = this,
+		domNode = Ti._5.DOMView(this, "iframe", args, "WebView"),
+		_executeWhenLoaded = null,
+		_loading = false,
+		_url = "";
+
 	// Interfaces
-	Ti._5.DOMView(this, 'iframe', args, 'WebView');
 	Ti._5.Touchable(this, args);
 	Ti._5.Styleable(this, args);
 	Ti._5.Positionable(this, args);
 	Ti._5.Clickable(this);
+
 	// For width & height on iPhone
-	this.dom.scrolling = "no";
-		
-	var _executeWhenLoaded = null;
-	obj.dom.addEventListener('load', function (event) {
-		if (!obj.dom.contentWindow) {
-			obj.fireEvent('error', {
-				sourse	: obj,
-				message	: 'The page couldn`t be found',
-				type	: 'error',
+	domNode.scrolling = "no";
+
+	require.on(domNode, "load", function(evt) {
+		if (!domNode.contentWindow) {
+			obj.fireEvent("error", {
+				message	: "The page couldn`t be found",
 				url		: obj.url
 			});
 		} else {
-			obj.fireEvent('load', {
-				sourse	: obj,
-				type	: 'load',
-				url		: obj.url
+			obj.fireEvent("load", {
+				url: obj.url
 			});
 		}
-		if ('function' == typeof _executeWhenLoaded) {
-			_executeWhenLoaded(event);
+		if (require.is(_executeWhenLoaded, "Function")) {
+			_executeWhenLoaded(evt);
 			_executeWhenLoaded = null;
 		}
-	}, false);
-	
-	obj.dom.addEventListener('error', function (event) {
-		obj.fireEvent('error', {
-			sourse	: obj,
-			message	: 'The page couldn`t be found',
-			type	: 'error',
+	});
+
+	require.on(domNode, "error", function(evt) {
+		obj.fireEvent("error", {
+			message	: "The page couldn't be found",
 			url		: obj.url
 		});
-		if ('function' == typeof _executeWhenLoaded) {
-			_executeWhenLoaded(event);
+		if ("function" == typeof _executeWhenLoaded) {
+			_executeWhenLoaded(evt);
 			_executeWhenLoaded = null;
 		}
-	}, false);
+	});
 	
 	// Properties
 	// NOT IMPLEMENTED
-	Ti._5.prop(this, 'data');
-
-	Ti._5.prop(this, 'html', {
-		get: function() {
-			try {
-				return obj.dom.contentWindow.document.body.innerHTML;
-			} catch (error) {
-				obj.fireEvent('error', {
-					message	: error.description ? error.description : error,
-					sourse	: obj,
-					type	: 'error',
-					url		: obj.url
-				});
-				return "";
-			} 
+	Ti._5.prop(this, {
+		"data": null,
+		"html": {
+			get: function() {
+				try {
+					return domNode.contentWindow.document.body.innerHTML;
+				} catch (ex) {
+					obj.fireEvent("error", {
+						message	: ex.description || ex,
+						url		: obj.url
+					});
+					return "";
+				} 
+			},
+			set: function(val) {
+				domNode.src = "about:blank";
+				_loading = true;
+				_executeWhenLoaded = function () {
+					// We need some delay, when setting window html from constructor
+					setTimeout(function() {
+						domNode.contentWindow.document.body.innerHTML = val;
+						_loading = false;
+					}, 0);
+				};
+			}
 		},
-		set: function(val) {
-			obj.dom.src = 'about:blank';
-			_loading = true;
-			_executeWhenLoaded = function () {
-				// We need some delay, when setting window html from constructor
-				setTimeout(function() {
-					obj.dom.contentWindow.document.body.innerHTML = val;
+		"scalesPageToFit": null,
+		"size": {
+			get: function() {
+				return {
+					width	: obj.width,
+					height	: obj.height
+				}
+			},
+			set: function(val) {
+				val.width && (obj.width = Ti._5.px(val.width));
+				val.height && (obj.height = Ti._5.px(val.height));
+			}
+		},
+		"url": {
+			get: function(){return _url;},
+			set: function(val){
+				if (val.substring(0,1) == "/"){
+					val = val.substring(1);
+				}
+				obj.fireEvent("beforeload", {
+					url: val
+				});
+				_loading = true;
+				domNode.src = Ti._5.getAbsolutePath(val);
+				_executeWhenLoaded = function() {
 					_loading = false;
-				}, 0);
-			};
-			return val;
+				};
+			}
 		}
 	});
 
-	var _loading = false;
-	Ti._5.propReadOnly(this, 'loading', {
+	Ti._5.propReadOnly(this, "loading", {
 		get: function(){return _loading;}
 	});
 
-	// NOT IMPLEMENTED
-	Ti._5.prop(this, 'scalesPageToFit');
-	
-	var _url = "";
-	Ti._5.prop(this, 'url', {
-		get: function(){return _url;},
-		set: function(val){
-			if (val.substring(0,1) == '/'){
-				val = val.substring(1);
-			}
-			obj.fireEvent('beforeload', {
-				sourse	: obj,
-				type	: 'beforeload',
-				url		: val
-			});
-			_loading = true;
-			_url
-			obj.dom.src = Ti._5.getAbsolutePath(val);
-			_executeWhenLoaded = function () {
-				_loading = false;
-			};
-			return val;
-		}
-	});
-	
-	Ti._5.prop(this, 'size', {
-		get: function() {
-			return {
-				width	: obj.width,
-				height	: obj.height
-			}
-		},
-		set: function(val) {
-			val.width && (obj.width = Ti._5.px(val.width));
-			val.height && (obj.height = Ti._5.px(val.height));
-			return val;
-		}
-	});
-	
 	require.mix(this, args);
 
 	// Methods
 	this.canGoBack = function() {
-		return obj.dom.contentWindow && obj.dom.contentWindow.history && obj.url ? true : false;
+		return domNode.contentWindow && domNode.contentWindow.history && !!obj.url;
 	};
 	this.canGoForward = function() {
-		return obj.dom.contentWindow && obj.dom.contentWindow.history && obj.url ? true : false;
+		return domNode.contentWindow && domNode.contentWindow.history && !!obj.url;
 	};
 	this.evalJS = function(sJScript){
-		if (obj.dom.contentWindow.eval) {
-			return obj.dom.contentWindow.eval(sJScript);
-		} else {
-			return "";
-		}
+		return domNode.contentWindow.eval ? domNode.contentWindow.eval(sJScript) : "";
 	};
 	this.goBack = function() {
-		if (this.canGoBack()) {
-			obj.dom.contentWindow.history.back();
-		}
+		this.canGoBack() && domNode.contentWindow.history.back();
 	};
 	this.goForward = function(){
-		if (this.canGoForward()) {
-			obj.dom.contentWindow.history.forward();
-		}
+		this.canGoForward() && domNode.contentWindow.history.forward();
 	};
 	this.reload = function(){
 		if (obj.url) {

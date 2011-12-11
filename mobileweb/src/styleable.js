@@ -51,7 +51,7 @@
 					return _backgroundColor || (_backgroundColor = domStyle.backgroundColor);
 				},
 				set: function(val) {
-					return domStyle.backgroundColor = _backgroundColor = val;
+					domStyle.backgroundColor = _backgroundColor = val;
 				}
 			},
 			"backgroundFocusedColor": args.backgroundFocusedColor,
@@ -68,7 +68,7 @@
 					return _gradient;
 				},
 				set: function(val) {
-					return _gradient = val;
+					_gradient = val;
 					/*
 					if (!val) {
 						return;
@@ -154,7 +154,7 @@
 					return _backgroundImage = (_backgroundImage = domStyle.backgroundImage);
 				},
 				set: function(val) {
-					return domStyle.backgroundImage = _backgroundImage = val ? cssUrl(val) : "";
+					domStyle.backgroundImage = _backgroundImage = val ? cssUrl(val) : "";
 				}
 			},
 			"backgroundSelectedColor": args.backgroundSelectedColor,
@@ -171,7 +171,6 @@
 					} else {
 						obj.borderWidth = 0;
 					}
-					return val;
 				}
 			},
 			"borderRadius": {
@@ -180,7 +179,7 @@
 					return domStyle.borderRadius || "";
 				},
 				set: function(val) {
-					return domStyle.borderRadius = px(val);
+					domStyle.borderRadius = px(val);
 				}
 			},
 			"borderWidth": {
@@ -192,7 +191,6 @@
 					domStyle.borderWidth = val = px(val);
 					domStyle.borderColor || (domStyle.borderColor = "black");
 					domStyle.borderStyle = "solid";
-					return val;
 				}
 			},
 			"color": {
@@ -201,7 +199,7 @@
 					return domStyle.color;
 				},
 				set: function(val) {
-					return domStyle.color = val;
+					domStyle.color = val;
 				}
 			},
 			"focusable": args.focusable,
@@ -211,7 +209,7 @@
 					return font();
 				},
 				set: function(val) {
-					return font(val);
+					font(val);
 				}
 			},
 			"opacity": {
@@ -220,7 +218,7 @@
 					return domStyle.opacity;
 				},
 				set: function(val) {
-					return domStyle.opacity = val;
+					domStyle.opacity = val;
 				}
 			},
 			"visible": {
@@ -229,7 +227,7 @@
 					return _visible;
 				},
 				set: function(val) {
-					return val ? obj.show() : obj.hide();
+					val ? obj.show() : obj.hide();
 				}
 			},
 			"zIndex": {
@@ -239,7 +237,7 @@
 				},
 				set: function(val) {
 					val !== domStyle.zIndex && domStyle.position === "static" && (domStyle.position = "absolute");
-					return domStyle.zIndex = val;
+					domStyle.zIndex = val;
 				}
 			}
 		});

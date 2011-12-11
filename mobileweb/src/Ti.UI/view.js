@@ -1,21 +1,22 @@
-Ti._5.createClass('Titanium.UI.View', function(args){
-	var obj = this;
-	
-	// Set defaults
-	args = Ti._5.extend({}, args);
-	args.unselectable = true;
-	args.width = args.width || '100%';
-	args.height = args.height || '100%';
-	
-	// Interfaces
-	Ti._5.DOMView(this, 'div', args, 'View');
-	Ti._5.Clickable(this);
-	Ti._5.Touchable(this, args);
-	Ti._5.Styleable(this, args);
-	Ti._5.Positionable(this, args);
-	this.dom.style.overflow = '100%' == args.height || 'auto' == args.height ? "" : "hidden";
+Ti._5.createClass("Titanium.UI.View", function(args){
+	args = require.mix({
+		height: "100%",
+		unselectable: true,
+		width: "100%"
+	}, args);
 
-	Ti._5.prop(this, 'size', {
+	var obj = this,
+		domNode = Ti._5.DOMView(obj, "div", args, "View");
+
+	// Interfaces
+	Ti._5.Clickable(obj);
+	Ti._5.Touchable(obj, args);
+	Ti._5.Styleable(obj, args);
+	Ti._5.Positionable(obj, args);
+
+	domNode.style.overflow = args.height === "100%" || args.height === "auto" ? "" : "hidden";
+
+	Ti._5.prop(obj, "size", {
 		get: function(){
 			return {
 				width: obj.width,
@@ -25,47 +26,53 @@ Ti._5.createClass('Titanium.UI.View', function(args){
 		set: function(val){
 			val.width && (obj.width = Ti._5.px(val.width));
 			val.height && (obj.height = Ti._5.px(val.height));
-			return val;
 		}
 	});
-	
-	require.mix(this, args);
-	
-	obj.dom._calcHeight = false;
-	obj.addEventListener('html5_added', function(){
-		obj.dom._calcHeight = false;
+
+	require.mix(obj, args);
+
+	domNode._calcHeight = false;
+	obj.addEventListener("html5_added", function(){
+		domNode._calcHeight = false;
 	});
-	
-	function _getLowestPosition(obj) {
-		var oSizes = Ti._5._getElementOffset(obj.dom);
+
+	function getLowestPosition(obj) {
+		var oSizes = Ti._5._getElementOffset(domNode);
 		var iMaxPos = oSizes.height + (parseInt(obj.top) || 0) + (parseInt(obj.bottom) || 0);
 		if (obj._children) {
 			for (var iCounter = 0; iCounter < obj._children.length; iCounter++) {
-				iPos = _getLowestPosition(obj._children[iCounter]);
+				iPos = getLowestPosition(obj._children[iCounter]);
 				iMaxPos = iMaxPos < iPos ? iPos : iMaxPos;
 			}
 		}
 		return iMaxPos;
 	}
-	
-	function _setViewHeight() {
+
+	function setViewHeight() {
 		if (
-			('undefined' == typeof obj.height || 'auto' == obj.height) &&
-			false === obj.dom._calcHeight &&
+			("undefined" == typeof obj.height || "auto" == obj.height) &&
+			false === domNode._calcHeight &&
 			obj._children && "vertical" != obj.layout
 		) {
 			var iMaxPos = 0;
 			for (var iCounter = 0; iCounter < obj._children.length; iCounter++) {
-				var iPos = _getLowestPosition(obj._children[iCounter]);
+				var iPos = getLowestPosition(obj._children[iCounter]);
 				iMaxPos = iMaxPos < iPos ? iPos : iMaxPos;
 			}
-			obj.dom._calcHeight = iMaxPos;
-			obj.dom.style.height = obj.dom._calcHeight + 'px';
+			domNode._calcHeight = iMaxPos;
+			domNode.style.height = domNode._calcHeight + "px";
 		}
 	}
-	
-	obj.addEventListener('html5_child_rendered', _setViewHeight, false);
-	obj.addEventListener('html5_shown', function () {obj.dom._calcHeight = false; _setViewHeight();}, false);
-	window.addEventListener('resize', function () {obj.dom._calcHeight = false; _setViewHeight();}, false);
+
+	obj.addEventListener("html5_child_rendered", setViewHeight);
+	obj.addEventListener("html5_shown", function() {
+		domNode._calcHeight = false;
+		setViewHeight();
+	});
+
+	require.on(window, "resize", function() {
+		domNode._calcHeight = false;
+		setViewHeight();
+	});
 });
 

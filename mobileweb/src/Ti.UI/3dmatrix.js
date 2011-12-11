@@ -1,7 +1,8 @@
 Ti._5.createClass('Titanium.UI.3DMatrix', function(args){
-	var obj = this;
+
 	// Interfaces
 	Ti._5.DOMView(this, '3dmatrix', args, '3DMatrix');
+
 	// Methods
 	this.invert = function(){
 		console.debug('Method "Titanium.UI.3DMatrix#.invert" is not implemented yet.');

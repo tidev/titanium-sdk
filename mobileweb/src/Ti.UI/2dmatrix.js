@@ -2,7 +2,7 @@ Ti._5.createClass('Titanium.UI.2DMatrix', function(args) {
 	var obj = this;
 
 	// Initialize the matrix to unity
-	require.mix(this, {
+	require.mix(obj, {
 		a: 1,
 		b: 0,
 		c: 0,

@@ -3,11 +3,11 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	Ti._5.prop(api, 'domain');
-
-	Ti._5.prop(api, 'isSearching');
-
-	Ti._5.prop(api, 'serviceType');
+	Ti._5.prop(api, {
+		"domain": null,
+		"isSearching": null,
+		"serviceType": null
+	});
 
 	// Methods
 	api.search = function(){
@@ -18,13 +18,13 @@
 	};
 
 	// Events
-	api.addEventListener('event', function(){
+	api.addEventListener("event", function(){
 		console.debug('Event "event" is not implemented yet.');
 	});
-	api.addEventListener('services', function(){
+	api.addEventListener("services", function(){
 		console.debug('Event "services" is not implemented yet.');
 	});
-	api.addEventListener('updatedServices', function(){
+	api.addEventListener("updatedServices", function(){
 		console.debug('Event "updatedServices" is not implemented yet.');
 	});
-})(Ti._5.createClass('Titanium.Network.BonjourBrowser'));
+})(Ti._5.createClass("Titanium.Network.BonjourBrowser"));

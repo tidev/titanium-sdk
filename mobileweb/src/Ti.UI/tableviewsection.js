@@ -1,18 +1,18 @@
 Ti._5.createClass('Titanium.UI.TableViewSection', function(args){
+	args = require.mix({
+		backgroundColor: "transparent",
+		layout: "vertical",
+		unselectable: true,
+		width: "100%"
+	}, args);
+
 	var obj = this;
 
-	args = Ti._5.extend({}, args);
-	// Set some default values
-	args['backgroundColor'] = args['backgroundColor'] ? args['backgroundColor'] : 'transparent';
-	args['width'] = args['width'] || '100%';
-	args.layout = 'vertical';
-	args.unselectable = true;
-		
 	// Interfaces
-	Ti._5.DOMView(this, 'div', args, 'TableViewSection');
-	Ti._5.Touchable(this, args);
-	Ti._5.Styleable(this, args);
-	Ti._5.Positionable(this, args);
+	Ti._5.DOMView(obj, 'div', args, 'TableViewSection');
+	Ti._5.Touchable(obj, args);
+	Ti._5.Styleable(obj, args);
+	Ti._5.Positionable(obj, args);
 		
 	// Create default header & footer
 	var _oHeader = Titanium.UI.createLabel({
@@ -25,16 +25,14 @@ Ti._5.createClass('Titanium.UI.TableViewSection', function(args){
 	_oHeader.addEventListener('click', function(event) {
 		obj.fireEvent('click', {
 			globalPoint: event.globalPoint,
-			source: obj,
-			type: 'click',
 			x: event.x,
 			y: event.y
 		});
 	});
-	this.add(_oHeader);
+	obj.add(_oHeader);
 	
 	var _oRowsArea = {};
-	this._oRowsArea = _oRowsArea;
+	obj._oRowsArea = _oRowsArea;
 	Ti._5.DOMView(_oRowsArea, 'ul', args, 'TableViewSectionTable');
 	Ti._5.Touchable(_oRowsArea, args);
 	Ti._5.Styleable(_oRowsArea, args);
@@ -58,9 +56,9 @@ Ti._5.createClass('Titanium.UI.TableViewSection', function(args){
 		}
 	});
 	_oRowsArea.addEventListener('click', function(oEvent) {
-		// If tableviewsection has children they will fire this event 
+		// If tableviewsection has children they will fire obj event 
 		if (!obj._children || 0 == obj._children.length) {
-			var oEvent = {
+			oEvent = {
 				detail		: false,
 				globalPoint	: { x:oEvent.pageX, y:oEvent.pageY }, 
 				index		: null,
@@ -76,25 +74,19 @@ Ti._5.createClass('Titanium.UI.TableViewSection', function(args){
 		}
 		obj.fireEvent('click', oEvent);
 		// Fire table view event
-		if (obj.parent) {
-			obj.parent.fireEvent('click', oEvent);
-		}
+		obj.parent && obj.parent.fireEvent('click', oEvent);
 	});
 	_oRowsArea.addEventListener('dblclick', function(event) {
 		var oEvent = {
 			globalPoint	: { x:event.pageX, y:event.pageY }, 
-			source		: obj,
-			type		: event.type,
 			x			: event.pageX,
 			y			: event.pageY
 		};
 		obj.fireEvent('dblclick', oEvent);
 		// Fire table view event
-		if (obj.parent) {
-			obj.parent.fireEvent('dblclick', oEvent);
-		}
+		obj.parent && obj.parent.fireEvent('dblclick', oEvent);
 	});
-	this.add(_oRowsArea);
+	obj.add(_oRowsArea);
 	
 	var _oFooter = Titanium.UI.createLabel({
 		isvisible:true,
@@ -106,41 +98,34 @@ Ti._5.createClass('Titanium.UI.TableViewSection', function(args){
 	_oFooter.addEventListener('click', function(event) {
 		obj.fireEvent('click', {
 			globalPoint: event.globalPoint,
-			source: obj,
-			type: 'click',
 			x: event.x,
 			y: event.y
 		});
 	});
-	this.add(_oFooter);
+	obj.add(_oFooter);
 	
 	// Properties
 	var _footerTitle = '';
-	Ti._5.prop(this, 'footerTitle', {
+	Ti._5.prop(obj, 'footerTitle', {
 		get: function(){return _footerTitle;},
 		set: function(val){
 			_footerTitle = val;
 			if ('undefined' != typeof _oFooter.html) {
 				_oFooter.html = _footerTitle;
-				return _footerTitle;
 			}
 			if ('undefined' != typeof _oFooter.text) {
 				_oFooter.text = _footerTitle;
-				return _footerTitle;
 			}
 			if ('undefined' != typeof _oFooter.title) {
 				_oFooter.title = _footerTitle;
-				return _footerTitle;
 			}
 			if ('undefined' != typeof _oFooter.message) {
 				_oFooter.message = _footerTitle;
-				return _footerTitle;
 			}
-			return null;
 		}
 	});
 
-	Ti._5.prop(this, 'footerView', {
+	Ti._5.prop(obj, 'footerView', {
 		get: function(){return _oFooter;},
 		set: function(val){
 			if (val && val.dom) {
@@ -148,14 +133,12 @@ Ti._5.createClass('Titanium.UI.TableViewSection', function(args){
 				_oFooter = val;
 				obj.dom.innerHTML = '';
 				obj.render(null);
-				return val;
 			}
-			return null;
 		}
 	});
 
 	var _headerTitle = '';
-	Ti._5.prop(this, 'headerTitle', {
+	Ti._5.prop(obj, 'headerTitle', {
 		get: function(){return _headerTitle;},
 		set: function(val){
 			_headerTitle = val;
@@ -169,25 +152,20 @@ Ti._5.createClass('Titanium.UI.TableViewSection', function(args){
 			_oHeader.dom.style.borderBottomWidth = 0;
 			if ('undefined' != typeof _oHeader.html) {
 				_oHeader.html = _headerTitle;
-				return _headerTitle;
 			}
 			if ('undefined' != typeof _oHeader.text) {
 				_oHeader.text = _headerTitle;
-				return _headerTitle;
 			}
 			if ('undefined' != typeof _oHeader.title) {
 				_oHeader.title = _headerTitle;
-				return _headerTitle;
 			}
 			if ('undefined' != typeof _oHeader.message) {
 				_oHeader.message = _headerTitle;
-				return _headerTitle;
 			}
-			return null;
 		}
 	});
 
-	Ti._5.prop(this, 'headerView', {
+	Ti._5.prop(obj, 'headerView', {
 		get: function(){return _oHeader;},
 		set: function(val){
 			if (val && val.dom) {
@@ -195,13 +173,11 @@ Ti._5.createClass('Titanium.UI.TableViewSection', function(args){
 				_oHeader = val;
 				obj.dom.innerHTML = '';
 				obj.render(null);
-				return val;
 			}
-			return null;
 		}
 	});
 
-	Ti._5.prop(this, 'rowCount', {
+	Ti._5.prop(obj, 'rowCount', {
 		get: function() {
 			var _rowCount = 0;
 			for (var iCounter = 0; iCounter < _oRowsArea._children.length; iCounter++) {
@@ -210,15 +186,14 @@ Ti._5.createClass('Titanium.UI.TableViewSection', function(args){
 				}
 			}
 			return _rowCount;
-		},
-		set: function(val){return false;}
+		}
 	});
 	
-	require.mix(this, args);
+	require.mix(obj, args);
 	
 	var bBlockRender = false;
 	var _data = null;
-	this.add = function(view) {
+	obj.add = function(view) {
 		if (view instanceof Ti.UI.TableViewRow) {
 			_oRowsArea.add(view);
 		} else {

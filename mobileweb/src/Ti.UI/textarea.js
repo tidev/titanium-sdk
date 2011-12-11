@@ -1,195 +1,168 @@
-Ti._5.createClass('Titanium.UI.TextArea', function(args){
-	var obj = this;
-	
-	args = Ti._5.extend({}, args);
-	args.unselectable = true;
-		
+Ti._5.createClass("Titanium.UI.TextArea", function(args){
+	args = require.mix({
+		unselectable: true
+	}, args);
+
+	var obj = this,
+		on = require.on,
+		domNode = Ti._5.DOMView(obj, "textarea", args, "TextArea"),
+		_autoLink = null,
+		_autoLinkLoaded = false,
+		_autocapitalization = 0,
+		_autocapitalizationLoaded = false,
+		_backgroundImage = "",
+		_backgroundColor = "",
+		_suppressReturn = null,
+		_suppressLoaded = false,
+		isIOS = /(iphone|ipod|ipad)/i.test(Ti.Platform.ostype),
+		timeoutId  = null;
+
 	// Interfaces
-	Ti._5.DOMView(this, 'textarea', args, 'TextArea');
-	Ti._5.Clickable(this);
-	Ti._5.Interactable(this);
-	Ti._5.Touchable(this, args, true);
-	Ti._5.Styleable(this, args);
-	Ti._5.Positionable(this, args);
-	this.dom.style.resize = 'none';
+	Ti._5.Clickable(obj);
+	Ti._5.Interactable(obj);
+	Ti._5.Touchable(obj, args, true);
+	Ti._5.Styleable(obj, args);
+	Ti._5.Positionable(obj, args);
+
+	domNode.style.resize = "none";
 
 	// Properties
-	var _autoLink = null, _autoLinkLoaded = false;
-	Ti._5.prop(this, 'autoLink', {
-		get: function() {return _autoLink;},
-		set: function(val) { _autoLink = val; }
+	Ti._5.prop(obj, {
+		"autoLink": {
+			get: function() {return _autoLink;},
+			set: function(val) { _autoLink = val; }
+		},
+		"autocapitalization": {
+			get: function() {return _autocapitalization;},
+			set: function(val) {
+				_autocapitalization = val;
+				_autocapitalizationLoaded || on(domNode, "keyup", function() {
+					Titanium.UI._updateText(obj);
+				});
+				obj.value = Titanium.UI._capitalizeValue(_autocapitalization, obj.value);
+			}
+		},
+	Ti._5.prop(obj, "backgroundDisabledImage", "");
+	Ti._5.prop(obj, "backgroundDisabledColor", "");
+		"editable": {
+			get: function() { return obj.enabled; },
+			set: function(val) {domNode.disabled = !val ? "disabled" : "";}
+		},
+		"enabled": {
+			get: function(){return !domNode.disabled;},
+			set: function(val) {
+				if (!_backgroundImage && obj.backgroundImage) {
+					_backgroundImage = obj.backgroundImage;
+				}
+				if (!_backgroundColor && obj.backgroundColor) {
+					_backgroundColor = obj.backgroundColor;
+				}
+				if (!val) {
+					domNode.disabled = "disabled";
+					obj.backgroundDisabledImage && (obj.backgroundImage = obj.backgroundDisabledImage);
+					obj.backgroundDisabledColor && (obj.backgroundColor = obj.backgroundDisabledColor);
+				} else {
+					domNode.disabled = "";
+					obj.backgroundImage = _backgroundImage;
+					obj.backgroundColor = _backgroundColor;
+				}
+			}
+		},
+		"keyboardToolbar": null,
+		"keyboardToolbarColor": null,
+		"keyboardToolbarHeight": null,
+		"size": {
+			get: function() {
+				return {
+					width: obj.width,
+					height: obj.height
+				}
+			},
+			set: function(val) {
+				val.width && (obj.width = Ti._5.px(val.width));
+				val.height && (obj.height = Ti._5.px(val.height));
+			}
+		},
+		"suppressReturn": {
+			get: function() {return _suppressReturn;},
+			set: function(val) {
+				_suppressReturn = val;
+				if (!_suppressLoaded) {
+					_suppressLoaded = true;
+					on(domNode, "keyup", function(evt) {
+						if (_suppressReturn && evt.keyCode == 13) {
+							evt.preventDefault && evt.preventDefault();
+							return false;
+						}
+						return true;
+					});
+				}
+			}
+		},
+		"value": {
+			get: function() {return domNode.value;},
+			set: function(val) {
+				domNode.value = val ? Titanium.UI._capitalizeValue(_autocapitalization, val) : "";
+			}
+		}
 	});
 
 	// Improve change event for textarea
-	obj.dom.addEventListener('keyup', function(event) {
-		var oEvent = {
-			source		: event.target,
-			type		: event.type
-		};
-		if (obj.dom && 'undefined' != typeof obj.dom.value) {
-			oEvent.value = obj.dom.value;
-		}
-		obj.fireEvent('change', oEvent);
-	}, false);
-	
-	var _autocapitalization = 0;
-	var _autocapitalizationLoaded = false;
-	Ti._5.prop(this, 'autocapitalization', {
-		get: function() {return _autocapitalization;},
-		set: function(val) {
-			_autocapitalization = val;
-			if (!_autocapitalizationLoaded) {
-				obj.dom.addEventListener('keyup', function(event) {
-					Titanium.UI._updateText(obj);
-				}, false);
-			}
-			return obj.value = Titanium.UI._capitalizeValue(_autocapitalization, obj.value);
-		}
-	});
-	
-	Ti._5.prop(this, 'value', {
-		get: function() {return obj.dom.value;},
-		set: function(val) {
-			return obj.dom.value = val ? Titanium.UI._capitalizeValue(_autocapitalization, val) : '';
-		}
-	});
-	
-	Ti._5.prop(this, 'editable', {
-		get: function() { return obj.enabled; },
-		set: function(val) {return obj.dom.disabled = !val ? 'disabled' : '';}
+	on(domNode, "keyup", function(evt) {
+		obj.fireEvent("change", {
+			source: evt.target,
+			type: evt.type,
+			value: domNode && domNode.value
+		});
 	});
 
-	var _backgroundImage = '',
-		_backgroundColor = '';
-	Ti._5.prop(this, 'enabled', {
-		get: function(){return !obj.dom.disabled;},
-		set: function(val) {
-			if (!_backgroundImage && obj.backgroundImage) {
-				_backgroundImage = obj.backgroundImage;
-			}
-			if (!_backgroundColor && obj.backgroundColor) {
-				_backgroundColor = obj.backgroundColor;
-			}
-			if (!val) {
-				obj.dom.disabled = 'disabled';
-				obj.backgroundDisabledImage && (obj.backgroundImage = obj.backgroundDisabledImage);
-				obj.backgroundDisabledColor && (obj.backgroundColor = obj.backgroundDisabledColor);
-			} else {
-				obj.dom.disabled = '';
-				obj.backgroundImage = _backgroundImage;
-				obj.backgroundColor = _backgroundColor;
-			}
-			return val;
-		}
-	});
-	
-	Ti._5.prop(obj, 'backgroundDisabledImage', '');
-	
-	Ti._5.prop(obj, 'backgroundDisabledColor', '');
-	
-	Ti._5.prop(this, 'keyboardToolbar');
-	
-	Ti._5.prop(this, 'keyboardToolbarColor');
+	require.mix(obj, args);
 
-	Ti._5.prop(this, 'keyboardToolbarHeight');
-
-	var _suppressReturn = null, _suppressLoaded = false;
-	Ti._5.prop(this, 'suppressReturn', {
-		get: function() {return _suppressReturn;},
-		set: function(val) {
-			_suppressReturn = val;
-			if (!_suppressLoaded) {
-				_suppressLoaded = true;
-				obj.dom.addEventListener('keyup', function(event) {
-					if (_suppressReturn && event.keyCode == 13) {
-						if (event.preventDefault) event.preventDefault();
-						return false;
-					} else {
-						return true;
-					}
-				}, false);
-			}
-			return _suppressReturn;
-		}
-	});
-	
-	Ti._5.prop(this, 'size', {
-		get: function() {
-			return {
-				width	: obj.width,
-				height	: obj.height
-			}
-		},
-		set: function(val) {
-			val.width && (obj.width = Ti._5.px(val.width));
-			val.height && (obj.height = Ti._5.px(val.height));
-			return val;
-		}
-	});
-   
-	require.mix(this, args);
-	
 	// Methods
-	this.blur = function(){
-		obj.dom.blur();
+	obj.blur = function(){
+		domNode.blur();
 	};
-	this.focus = function(){
-		obj.dom.focus();
+	obj.focus = function(){
+		domNode.focus();
 	};
-	this.hasText = function(){
-		return obj.value ? true : false;
+	obj.hasText = function(){
+		return !!obj.value;
 	};
 	
-	function _check_sel(event, isMouse) {
-		var startPos = obj.dom.selectionStart;
-		var endPos = obj.dom.selectionEnd;
+	function isSelected(event, isMouse) {
+		var startPos = domNode.selectionStart,
+			endPos = domNode.selectionEnd;
 		if (obj.value.substring(startPos,endPos).length != 0 && (!event.shiftKey || isMouse)){
-			var oEvent = {
-				range		: {
-					location	: startPos,
-					length		: obj.value.substring(startPos,endPos).length
-				},
-				source		: obj,
-				type		: 'selected'
-			};
-			obj.fireEvent('selected', oEvent);
+			obj.fireEvent("selected", {
+				range: {
+					location: startPos,
+					length: obj.value.substring(startPos,endPos).length
+				}
+			});
 			return true;
 		}
 		return false;
 	}
 	
-	var _isIOS = false;
-	if (
-		-1 < Titanium.Platform.osname.indexOf('iphone') ||
-		-1 < Titanium.Platform.osname.indexOf('ipod') ||
-		-1 < Titanium.Platform.osname.indexOf('ipad') 
-	) {
-		_isIOS = true;
-	}
-	
-	var _timeoutId  = null;
-	function _iOSFix () {
-		if (_timeoutId) {
+	function iOSFix() {
+		if (timeoutId) {
 			return;
 		}
-		_timeoutId = setTimeout(function() {
-			_timeoutId = null;
-			if (!_check_sel({shiftKey: false}, true)) {
-				_iOSFix();
+		timeoutId = setTimeout(function() {
+			timeoutId = null;
+			if (!isSelected({shiftKey: false}, true)) {
+				iOSFix();
 			} 
 		}, 500);
 	};
 	
-	obj.dom.addEventListener('keyup', function(event) {
-		_check_sel(event, false);
-		if (_isIOS) {
-			_iOSFix();
-		}
-	}, false);
-	obj.dom.addEventListener('mouseup', function(event) {
-		_check_sel(event, true);
-		if (_isIOS) {
-			_iOSFix();
-		}
-	}, false);
+	on(domNode, "keyup", function(evt) {
+		isSelected(evt, false);
+		isIOS && iOSFix();
+	});
+
+	on(domNode, "mouseup", function(evt) {
+		isSelected(evt, true);
+		isIOS && iOSFix();
+	});
 });

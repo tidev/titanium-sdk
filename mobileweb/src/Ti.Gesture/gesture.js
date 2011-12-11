@@ -1,7 +1,7 @@
 (function(api){
 	var on = require.on,
 		lastOrient = null,
-		lastShake = new Date(),
+		lastShake = (new Date()).getTime(),
 		lastAccel = {};
 
 	// Interfaces
@@ -66,7 +66,7 @@
 			};
 
 		if (accel) {
-			if (lastAccel.x || lastAccel.y || lastAccel.z) {
+			if (x in lastAccel) {
 				x = Math.abs(lastAccel.x - accel.x) > 10;
 				y = Math.abs(lastAccel.y - accel.y) > 10;
 				z = Math.abs(lastAccel.z - accel.z) > 10;

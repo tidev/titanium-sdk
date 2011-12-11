@@ -1,19 +1,24 @@
 Ti._5.createClass('Titanium.UI.Tab', function(args){
-	var obj = this;
-	
-	// Set default values
-	args.width = args.width || '100%';
-	args.height = args.height || '100%';
+	args = require.mix({
+		height: "100%",
+		width: "100%"
+	}, args);
+
+	var obj = this,
+		_icon = null,
+		_title = null,
+		_titleid = null,
+		_window = null;
 
 	// Interfaces
-	Ti._5.DOMView(this, 'div', args, 'Tab');
-	Ti._5.Touchable(this, args);
-	Ti._5.Styleable(this, args);
-	Ti._5.Positionable(this, args);
+	Ti._5.DOMView(obj, 'div', args, 'Tab');
+	Ti._5.Touchable(obj, args);
+	Ti._5.Styleable(obj, args);
+	Ti._5.Positionable(obj, args);
 
-	this._header = document.createElement("td");
-	this._header.className = 'tabHeader';
-	this._header.onclick = function(){
+	obj._header = document.createElement("td");
+	obj._header.className = 'tabHeader';
+	obj._header.onclick = function(){
 		if(obj._tabGroup == null){
 			return;
 		}
@@ -27,10 +32,10 @@ Ti._5.createClass('Titanium.UI.Tab', function(args){
 	};
 	
 	// reference to tabGroup object that holds current tab
-	this._tabGroup = null;
+	obj._tabGroup = null;
 
-	var _oldShow = this.show;
-	this.show = function(){
+	var _oldShow = obj.show; // WARNING: this may cause problems
+	obj.show = function(){
 		_oldShow();
 		if(_window){
 			_window.show();
@@ -38,8 +43,8 @@ Ti._5.createClass('Titanium.UI.Tab', function(args){
 		Ti.UI.currentTab = obj;
 	};
 
-	var _oldHide = this.hide;
-	this.hide = function(){
+	var _oldHide = obj.hide; // WARNING: this may cause problems
+	obj.hide = function(){
 		_oldHide();
 		if(_window){
 			_window.hide();
@@ -49,15 +54,14 @@ Ti._5.createClass('Titanium.UI.Tab', function(args){
 		}
 	};
 
-	this.open = function(win, args){
+	obj.open = function(win, args){
 		win.open(args);
 	};
 
 	// Properties
-	Ti._5.prop(this, 'badge');
+	Ti._5.prop(obj, 'badge');
 
-	var _icon = null;
-	Ti._5.prop(this, 'icon', {
+	Ti._5.prop(obj, 'icon', {
 		get: function(){return _icon;},
 		set: function(val){
 			if(val == null || val == ''){
@@ -66,39 +70,36 @@ Ti._5.createClass('Titanium.UI.Tab', function(args){
 			} else {
 				obj._header.style.backgroundImage = 'url(' + Ti._5.getAbsolutePath(val) + ')';
 			}
-			return _icon = val;
+			_icon = val;
 		}
 	});
 
-	var _title = null;
-	Ti._5.prop(this, 'title', {
+	Ti._5.prop(obj, 'title', {
 		get: function(){return _title;},
 		set: function(val){
-			return obj._header.innerHTML = _title = val;
+			obj._header.innerHTML = _title = val;
 		}
 	});
 
-	var _titleid = null;
-	Ti._5.prop(this, 'titleid', {
+	Ti._5.prop(obj, 'titleid', {
 		get: function(){return _titleid;},
 		set: function(val){
-			return obj.title = L(_titleid = val);
+			obj.title = L(_titleid = val);
 		}
 	});
 
-	var _window = null;
-	Ti._5.prop(this, 'window', {
+	Ti._5.prop(obj, 'window', {
 		get: function(){return _window;},
 		set: function(val){
 			_window = val;
 			obj.add(_window);
-			return _window;
+			_window;
 		}
 	});
 
-	Ti._5.prop(this, 'win', {
+	Ti._5.prop(obj, 'win', {
 		get: function(){return obj.window;},
-		set: function(val){return obj.window = val;}
+		set: function(val){obj.window = val;}
 	});
 
 	require.mix(this, args);

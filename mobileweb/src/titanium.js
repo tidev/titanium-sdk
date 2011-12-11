@@ -7,10 +7,12 @@
  * <https://github.com/kriskowal/es5-shim>
  */
 
-function(global, args){
+(function(global){
 	var cfg = require.config,
 		is = require.is,
 		each = require.is;
+
+	console.info("[INFO] Appcelerator Titanium " + (cfg.tiVersion || "") + " Mobile Web");
 
 	// Object.defineProperty() shim
 	if (!Object.defineProperty || !(function (obj) {
@@ -186,8 +188,6 @@ function(global, args){
 	// make sure we have some vendor prefixes defined
 	cfg.vendorPrefixes || (cfg.vendorPrefixes = ["", "Moz", "Webkit", "O", "ms"]);
 
-	console.info("[INFO] Appcelerator Titanium " + (args['tiVersion'] || "") + " for Mobile Web");
-
 	var Ti = {};
 	global.Ti = global.Titanium = Ti = {};
 
@@ -329,20 +329,20 @@ function(global, args){
 
 	// do some actions when framework is loaded
 	Ti._5.frameworkLoaded = function(){
-		if(args.appAnalytics === 'true'){
+		if(cfg.appAnalytics === 'true'){
 			// enroll event
 			if(localStorage.getItem("html5_enrollSent") == null){
 				// setup enroll event
 				Ti._5.addAnalyticsEvent('ti.enroll', 'ti.enroll', {
 					mac_addr: null,
 					oscpu: null,
-					app_name: args.appName,
+					app_name: cfg.appName,
 					platform: Ti.Platform.name,
-					app_id: args.appId,
+					app_id: cfg.appId,
 					ostype: Ti.Platform.osname,
 					osarch: Ti.Platform.architecture,
 					model: Ti.Platform.model,
-					deploytype: args.deployType
+					deploytype: cfg.deployType
 				});
 				localStorage.setItem("html5_enrollSent", true)
 			}
@@ -350,12 +350,12 @@ function(global, args){
 			// app start event
 			Ti._5.addAnalyticsEvent('ti.start', 'ti.start', {
 				tz: (new Date()).getTimezoneOffset(),
-				deploytype: args.deployType,
+				deploytype: cfg.deployType,
 				os: Ti.Platform.osname,
 				osver: Ti.Platform.ostype,
-				version: args.tiVersion,
+				version: cfg.tiVersion,
 				un: null,
-				app_version: args.appVersion,
+				app_version: cfg.appVersion,
 				nettype: null
 			});
 
@@ -408,7 +408,7 @@ function(global, args){
 	};
 
 	Ti._5.getArguments = function(){
-		return args;
+		return cfg;
 	};
 
 	var _sessionId = sessionStorage.getItem('html5_sessionId');
@@ -419,7 +419,7 @@ function(global, args){
 
 	var ANALYTICS_STORAGE = "html5_analyticsEvents";
 	Ti._5.addAnalyticsEvent = function(eventType, eventEvent, data, isUrgent){
-		if(args.appAnalytics !== 'true'){
+		if(cfg.appAnalytics !== 'true'){
 			return;
 		}
 		// store event
@@ -475,7 +475,7 @@ function(global, args){
 
 	// collect and send Ti.Analytics notifications
 	Ti._5.sendAnalytics = function(isUrgent){
-		if(args.appAnalytics !== 'true'){
+		if(cfg.appAnalytics !== 'true'){
 			return;
 		}
 		// store event
@@ -507,7 +507,7 @@ function(global, args){
 				ts: ev.eventTimestamp,
 				mid: Ti.Platform.id,
 				sid: _sessionId,
-				aguid: args.guid,
+				aguid: cfg.guid,
 				data: typeof ev.eventPayload == 'object' ? JSON.stringify(ev.eventPayload) : ev.eventPayload
 			};
 
@@ -639,4 +639,4 @@ function(global, args){
 		script.innerHTML = code;
 		head.appendChild(script);
 	};
-}
+}(window));

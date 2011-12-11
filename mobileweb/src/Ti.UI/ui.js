@@ -102,22 +102,20 @@
 	api.UNKNOWN = 0;
 
 	var _backgroundColor = null;
-	Ti._5.prop(api, 'backgroundColor', {
+	Ti._5.prop(api, "backgroundColor", {
 		get: function(){return _backgroundColor;},
 		set: function(val){
 			_backgroundColor = val;
 			api.setBackgroundColor(_backgroundColor);
-			return _backgroundColor;
 		}
 	});
 
 	var _backgroundImage = null;
-	Ti._5.prop(api, 'backgroundImage', {
+	Ti._5.prop(api, "backgroundImage", {
 		get: function(){return _backgroundImage;},
 		set: function(val){
 			_backgroundImage = val;
 			api.setBackgroundImage(_backgroundImage);
-			return _backgroundImage;
 		}
 	});
 
@@ -127,7 +125,7 @@
 	};
 	
 	api.setBackgroundImage = function(args) {
-		Ti._5.containerDiv.style.backgroundImage = 'url("' + Ti._5.getAbsolutePath(args) + '")';
+		Ti._5.containerDiv.style.backgroundImage = "url(" + Ti._5.getAbsolutePath(args) + ")";
 	};
 	
 	api.create2DMatrix = function(args){
@@ -235,4 +233,4 @@
 	api.createWindow = function(args) {
 		return new Ti.UI.Window(args);
 	};
-})(Ti._5.createClass('Titanium.UI'));
+})(Ti._5.createClass("Titanium.UI"));

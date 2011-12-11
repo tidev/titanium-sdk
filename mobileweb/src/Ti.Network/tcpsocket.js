@@ -14,28 +14,27 @@ Ti._5.createClass('Titanium.Network.TCPSocket', function(args){
 	obj.hostName = args && args[0] ? args[0] : '';
 
 	Ti._5.prop(api, 'isValid', {
-		get: function() {return _socket && _socket.close ? true : false;},
-		set: function(val){ ; /* Do nothing  */}
+		get: function() {return _socket && !!_socket.close;}
 	});
 
 	var _mode = 0;
 	Ti._5.prop(api, 'mode', {
 		get: function(){return _mode;},
-		set: function(val){_mode = val ? val : Titanium.Network.READ_WRITE_MODE;}
+		set: function(val){_mode = val || Titanium.Network.READ_WRITE_MODE;}
 	});
 	obj.mode =  args && args[2] ? args[2] : 0;
 
 	var _port = 0;
 	Ti._5.prop(api, 'port', {
 		get: function(){return _port;},
-		set: function(val){_port = val ? val : 81;}
+		set: function(val){_port = val || 81;}
 	});
 	obj.port =  args && args[1] ? args[1] : 0;
 
 	var _stripTerminator = false;
 	Ti._5.prop(api, 'stripTerminator', {
 		get: function(){return _stripTerminator;},
-		set: function(val){return _stripTerminator = val;}
+		set: function(val){_stripTerminator = val;}
 	});
 
 	// Methods
@@ -52,13 +51,12 @@ Ti._5.createClass('Titanium.Network.TCPSocket', function(args){
 	};
 	api.listen = function(){
 		_socket.addEventListener("message", function(event) {
-			var oEvent = {
+			obj.fireEvent('read', {
 				data		: event && event.data ? event.data : null, 
 				from		: _socket,
 				source		: event.target,
 				type		: event.type
-			};
-			obj.fireEvent('read', oEvent);
+			});
 		}, false);
 	};
 	api.write = function(val){
@@ -68,7 +66,6 @@ Ti._5.createClass('Titanium.Network.TCPSocket', function(args){
 			obj.fireEvent("writeError", {
 				code		: 0, 
 				error		: 'Sockets does not supported',
-				source		: obj,
 				type		: ''
 			});
 		}

@@ -1,28 +1,27 @@
-Ti._5.createClass('Titanium.UI.DashboardItem', function(args){
+Ti._5.createClass("Titanium.UI.DashboardItem", function(args){
 	var obj = this;
+
 	// Interfaces
-	Ti._5.DOMView(this, 'dashboarditem', args, 'DashboardItem');
+	Ti._5.DOMView(obj, "dashboarditem", args, "DashboardItem");
 
 	// Properties
-	Ti._5.prop(this, 'badge');
-
-	Ti._5.prop(this, 'canDelete');
-
-	Ti._5.prop(this, 'image');
-
-	Ti._5.prop(this, 'selectedImage');
-
+	Ti._5.prop(obj, {
+		"badge": null,
+		"canDelete": null,
+		"image": null,
+		"selectedImage": null
+	});
 
 	// Events
-	this.addEventListener('click', function(){
+	obj.addEventListener("click", function(){
 		console.debug('Event "click" is not implemented yet.');
 	});
-	this.addEventListener('delete', function(){
+	obj.addEventListener("delete", function(){
 		console.debug('Event "delete" is not implemented yet.');
 	});
-	this.addEventListener('move', function(){
+	obj.addEventListener("move", function(){
 		console.debug('Event "move" is not implemented yet.');
 	});
 
-	require.mix(this, args);
+	require.mix(obj, args);
 });

@@ -1,17 +1,15 @@
 (function(api){
 	Ti._5.EventDriven(api);
+
 	// Properties
-	Ti._5.prop(api, 'currentPlaybackTime');
-
-	Ti._5.prop(api, 'nowPlaying');
-
-	Ti._5.prop(api, 'playbackState');
-
-	Ti._5.prop(api, 'repeatMode');
-
-	Ti._5.prop(api, 'shuffleMode');
-
-	Ti._5.prop(api, 'volume');
+	Ti._5.prop(api, {
+		"currentPlaybackTime": null,
+		"nowPlaying": null,
+		"playbackState": null,
+		"repeatMode": null,
+		"shuffleMode": null,
+		"volume": null
+	});
 
 	// Methods
 	api.pause = function(){
@@ -55,4 +53,4 @@
 	api.addEventListener('volumeChange', function(){
 		console.debug('Event "volumeChange" is not implemented yet.');
 	});
-})(Ti._5.createClass('Titanium.Media.MusicPlayer'));
+})(Ti._5.createClass("Titanium.Media.MusicPlayer"));

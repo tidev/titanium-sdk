@@ -3,21 +3,16 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	Ti._5.prop(api, 'allowBackground');
-
-	Ti._5.prop(api, 'duration');
-
-	Ti._5.prop(api, 'looping');
-
-	Ti._5.prop(api, 'paused');
-
-	Ti._5.prop(api, 'playing');
-
-	Ti._5.prop(api, 'time');
-
-	Ti._5.prop(api, 'url');
-
-	Ti._5.prop(api, 'volume');
+	Ti._5.prop(api, {
+		"allowBackground": null,
+		"duration": null,
+		"looping": null,
+		"paused": null,
+		"playing": null,
+		"time": null,
+		"url": null,
+		"volume": null
+	});
 
 	// Methods
 	api.getTime = function(){
@@ -64,16 +59,16 @@
 	};
 
 	// Events
-	api.addEventListener('complete', function(){
+	api.addEventListener("complete", function(){
 		console.debug('Event "complete" is not implemented yet.');
 	});
-	api.addEventListener('error', function(){
+	api.addEventListener("error", function(){
 		console.debug('Event "error" is not implemented yet.');
 	});
-	api.addEventListener('interrupted', function(){
+	api.addEventListener("interrupted", function(){
 		console.debug('Event "interrupted" is not implemented yet.');
 	});
-	api.addEventListener('resume', function(){
+	api.addEventListener("resume", function(){
 		console.debug('Event "resume" is not implemented yet.');
 	});
-})(Ti._5.createClass('Titanium.Media.Sound'));
+})(Ti._5.createClass("Titanium.Media.Sound"));

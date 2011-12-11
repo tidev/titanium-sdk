@@ -16,7 +16,7 @@
 	api.READ_WRITE_MODE = 2;
 	api.WRITE_MODE = 1;
 	
-	Ti._5.prop(api, 'networkType', {
+	Ti._5.prop(api, "networkType", {
 		get: function() {
 			if (!api.online) {
 				return api.NETWORK_NONE;
@@ -39,36 +39,36 @@
 		}
 	});
 	
-	Ti._5.prop(api, 'networkTypeName', {
+	Ti._5.prop(api, "networkTypeName", {
 		get: function() {
 			if (!api.online) {
-				return 'NONE';
+				return "NONE";
 			}		
 			if (navigator.connection && navigator.connection.type == navigator.connection.WIFI) {
-				return 'WIFI';
+				return "WIFI";
 			}
 			if (navigator.connection && navigator.connection.type == navigator.connection.ETHERNET) {
-				return 'LAN';
+				return "LAN";
 			}
 			if (
 				navigator.connection &&
 				(navigator.connection.type == navigator.connection.CELL_2G ||
 				navigator.connection.type == navigator.connection.CELL_3G)			
 			) {
-				return 'MOBILE';
+				return "MOBILE";
 			}
 			
-			return 'UNKNOWN';
+			return "UNKNOWN";
 		}
 	});
 	
 	var _httpURLFormatter = null;
-	Object.defineProperty(api, 'httpURLFormatter', {
+	Object.defineProperty(api, "httpURLFormatter", {
 		get: function() {return _httpURLFormatter;},
-		set: function(val) {return _httpURLFormatter = val;}
+		set: function(val) {_httpURLFormatter = val;}
 	});
 		
-	Ti._5.prop(api, 'online', {
+	Ti._5.prop(api, "online", {
 		get: function() {return navigator.onLine}
 	});
 	// IPhone
@@ -118,34 +118,25 @@
 	};
 
 	// Events
-	window.addEventListener('online', function(event) {
-		var oEvent = {
+	require.on(window, "online", function(evt) {
+		api.online || api.fireEvent("change", {
 			networkType		: api.networkType,
 			networkTypeName	: api.networkTypeName,
 			online			: true,
-			source			: event.target,
-			type			: event.type
-		};
-		if (!api.online) {
-			api.fireEvent('change', oEvent);
-		}
+			source			: evt.target,
+			type			: evt.type
+		});
 		api.online = true;
-	}, false);
+	});
 	
-	window.addEventListener('offline', function(event) {
-		var oEvent = {
+	require.on(window, "offline", function(evt) {
+		api.online && api.fireEvent("change", {
 			networkType		: api.networkType,
 			networkTypeName	: api.networkTypeName,
 			online			: false,
-			source			: event.target,
-			type			: event.type
-		};
-		if (!api.online) {
-			api.fireEvent('change', oEvent);
-		}
-		if (api.online) {
-			api.fireEvent('change', oEvent);
-		}
+			source			: evt.target,
+			type			: evt.type
+		});
 		api.online = false;
-	}, false);
-})(Ti._5.createClass('Ti.Network'));
+	});
+})(Ti._5.createClass("Ti.Network"));

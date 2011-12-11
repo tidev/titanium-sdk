@@ -1,46 +1,39 @@
-Ti._5.createClass('Titanium.UI.EmailDialog', function(args){
+Ti._5.createClass("Titanium.UI.EmailDialog", function(args){
 	var obj = this;
+
 	// Interfaces
-	Ti._5.DOMView(this, 'emaildialog', args, 'EmailDialog');
+	Ti._5.DOMView(obj, "emaildialog", args, "EmailDialog");
 
 	// Properties
-	Ti._5.prop(this, 'CANCELLED');
-
-	Ti._5.prop(this, 'FAILED');
-
-	Ti._5.prop(this, 'SAVED');
-
-	Ti._5.prop(this, 'SENT');
-
-	Ti._5.prop(this, 'barColor');
-
-	Ti._5.prop(this, 'bccRecipients');
-
-	Ti._5.prop(this, 'ccRecipients');
-
-	Ti._5.prop(this, 'html');
-
-	Ti._5.prop(this, 'messageBody');
-
-	Ti._5.prop(this, 'subject');
-
-	Ti._5.prop(this, 'toRecipients');
+	Ti._5.prop(obj, {
+		"CANCELLED": 0,
+		"FAILED": 1,
+		"SAVED": 2,
+		"SENT": 3,
+		"barColor": null,
+		"bccRecipients": null,
+		"ccRecipients": null,
+		"html": null,
+		"messageBody": null,
+		"subject": null,
+		"toRecipients": null
+	});
 
 	// Methods
-	this.addAttachment = function(){
+	obj.addAttachment = function(){
 		console.debug('Method "Titanium.UI.EmailDialog#.addAttachment" is not implemented yet.');
 	};
-	this.isSupported = function(){
+	obj.isSupported = function(){
 		console.debug('Method "Titanium.UI.EmailDialog#.isSupported" is not implemented yet.');
 	};
-	this.open = function(){
+	obj.open = function(){
 		console.debug('Method "Titanium.UI.EmailDialog#.open" is not implemented yet.');
 	};
 
 	// Events
-	this.addEventListener('complete', function(){
+	obj.addEventListener("complete", function(){
 		console.debug('Event "complete" is not implemented yet.');
 	});
 
-	require.mix(this, args);
+	require.mix(obj, args);
 });

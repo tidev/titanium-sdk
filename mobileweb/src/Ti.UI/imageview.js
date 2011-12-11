@@ -1,151 +1,124 @@
-Ti._5.createClass('Titanium.UI.ImageView', function(args){
-	var obj = this;
-	
-	args = Ti._5.extend({}, args);
-	args.unselectable = true;
-		
+Ti._5.createClass("Titanium.UI.ImageView", function(args){
+	args = require.mix({
+		unselectable: true
+	}, args);
+
+	var obj = this,
+		domNode = Ti._5.DOMView(this, "img", args, "ImageView"),
+		domStyle = domNode.Style,
+		isError = false,
+		_reverse = false,
+		_canScale = true,
+		_src = "",
+		_images = [],
+		_preventDefaultImage = false,
+		_height;
+
 	// Interfaces
-	Ti._5.DOMView(this, 'img', args, 'ImageView');
 	Ti._5.Touchable(this, args);
 	Ti._5.Styleable(this, args);
 	Ti._5.Positionable(this, args);
 	Ti._5.Clickable(this, args);
-	
-	var _isError = false;
-	function _loadImages (aImages) {
-		_isError = false;
-		if (!_preventDefaultImage) {
-			obj.dom.src = Ti._5.getAbsolutePath(obj.defaultImage);
-		}
-		// create object
-		var oImage = new Image();
-		var _loaded = function () {
-			if (iCounter < aImages.length) return true;
-			obj.dom.src = Ti._5.getAbsolutePath(aImages[0]);
-			oImage.removeEventListener('load', _loaded, false);
-			obj.fireEvent('load', {
-				source	: obj,
-				state	: 2 < aImages.length ? obj.image : obj.images,
-				type	: 'load'
-			});
-		};
-		oImage.addEventListener('error',  function () {
-			_isError = true;
-			oImage.removeEventListener('load', _loaded, false);
-		}, false);
-		oImage.addEventListener('load', _loaded, false);
+
+	function loadImages(images) {
+		isError = false;
+		_preventDefaultImage || (domNode.src = Ti._5.getAbsolutePath(obj.defaultImage));
+
+		var img = new Image();
+			h = require.on(img, "load", function () {
+				if (iCounter < images.length) return true;
+				domNode.src = Ti._5.getAbsolutePath(images[0]);
+				h && h();
+				obj.fireEvent("load", {
+					state: 2 < images.length ? obj.image : obj.images
+				});
+			};
+
+		require.on(img, "error",  function () {
+			isError = true;
+			h && h();
+		});
 
 		// start preloading
-		for(var iCounter=0; iCounter < aImages.length; iCounter++) {
-			oImage.src = Ti._5.getAbsolutePath(aImages[iCounter]);
-		}
+		require.each(images, function(i) {
+			img.src = Ti._5.getAbsolutePath(i);
+		});
 	}
 
 	// Properties
-	Ti._5.prop(this, 'animating');
-
-	Ti._5.prop(this, 'duration');
-	
-	Ti._5.prop(this, 'paused');
-	
-	Ti._5.prop(this, 'repeatCount', 0);
-
-	var _reverse = false;
-	Ti._5.prop(this, 'reverse', {
-		get: function(){return _reverse;},
-		set: function(val){return _reverse = !!val;}
-	});
-
-	Ti._5.prop(this, 'enableZoomControls', true);
-
-	// indicates whether or not the source image is in 2x resolution for retina displays. 
-	// Use for remote images ONLY. (iOS)
-	Ti._5.prop(this, 'hires', false);
-	
-	var _canScale = true;
-	Ti._5.prop(this, 'canScale', {
-		get: function(){return _canScale;},
-		set: function(val){
-			_canScale = val ? true : false;
-			if (!_canScale) {
-				obj.dom.style.width = 'auto';
-				obj.dom.style.height = 'auto';
-			}
-			return _canScale;
-		}
-	});
-
-	Ti._5.prop(this, 'defaultImage', '');
-	
-	var _src = "";
-	Ti._5.prop(this, 'image', {
-		get: function(){return _src;},
-		set: function(val){return _loadImages([_src = val]);}
-	});
-
-	var _images = [];
-	Ti._5.prop(this, 'images', {
-		get: function(){return _images;},
-		set: function(val){
-			_images = -1 != val.constructor.toString().indexOf('Array') ? val : [val];
-			_loadImages(_images);
-			return _images;
-		}
-	});
-
-	var _preventDefaultImage = false;
-	Ti._5.prop(this, 'preventDefaultImage', {
-		get: function(){return _preventDefaultImage;},
-		set: function(val){return _preventDefaultImage = !!val;}
-	});
-
-	// deprecated since 1.5.0
-	Ti._5.prop(this, 'url', {
-		get: function(){return obj.image;},
-		set: function(val){return obj.image = val;}
-	});
-   
-	Ti._5.prop(this, 'size', {
-		get: function() {
-			return {
-				width	: obj.width,
-				height	: obj.height
+	Ti._5.prop(this, {
+		"animating": null,
+		"canScale": {
+			get: function(){return _canScale;},
+			set: function(val){
+				_canScale = !!val;
+				if (!_canScale) {
+					domStyle.width = "auto";
+					domStyle.height = "auto";
+				}
 			}
 		},
-		set: function(val) {
-			val.width && (obj.width = Ti._5.px(val.width));
-			val.height && (obj.height = Ti._5.px(val.height));
-			return val;
+		"defaultImage": "",
+		"duration": null,
+		"enableZoomControls": true,
+		"height": {
+			get: function() {
+				return _height;
+			},
+			set: function(val) {
+				_height = val;
+				domStyle.height = Ti._5.px(val);
+			}
+		},
+		// indicates whether or not the source image is in 2x resolution for retina displays. 
+		// Use for remote images ONLY. (iOS)
+		"hires": false,
+		"image": {
+			get: function(){return _src;},
+			set: function(val){loadImages([_src = val]);}
+		},
+		"images": {
+			get: function(){return _images;},
+			set: function(val){
+				_images = -1 != val.constructor.toString().indexOf("Array") ? val : [val];
+				loadImages(_images);
+			}
+		},
+		"paused": null,
+		"preventDefaultImage": {
+			get: function(){return _preventDefaultImage;},
+			set: function(val){_preventDefaultImage = !!val;}
+		},
+		"repeatCount": 0,
+		"reverse": {
+			get: function(){return _reverse;},
+			set: function(val){_reverse = !!val;}
+		},
+		"size": {
+			get: function() {
+				return {
+					width	: obj.width,
+					height	: obj.height
+				}
+			},
+			set: function(val) {
+				val.width && (obj.width = Ti._5.px(val.width));
+				val.height && (obj.height = Ti._5.px(val.height));
+			}
+		},
+		"width": {
+			get: function() {
+				if (!domStyle.width || !obj.canScale) {
+					return "";
+				}
+				return /%/.test(domStyle.width) ? parseInt(domStyle.width)+"%" : parseInt(domStyle.width);
+			},
+			set: function(val) {
+				obj.canScale && (domStyle.width = /%/.test(val+"") ? parseInt(val) + "%" : parseInt(val) + "px");
+			}
 		}
 	});
-	
-	Ti._5.prop(this, 'width', {
-		get: function() {
-			if (!obj.dom.style.width || !obj.canScale) {
-				return '';
-			}
-			return /%/.test(obj.dom.style.width) ? parseInt(obj.dom.style.width)+'%' : parseInt(obj.dom.style.width);
-		},
-		set: function(val) {
-			if (obj.canScale) {
-				obj.dom.style.width = /%/.test(val+'') ? parseInt(val) + '%' : parseInt(val) + 'px';
-			}
-			return val;
-		}
-	});	
-	
-	var _height;
-	Ti._5.prop(this, 'height', {
-		get: function() {
-			return _height;
-		},
-		set: function(val) {
-			_height = val;
-			obj.dom.style.height =  val + (/^\d+$/.test(val) ? 'px' : "");
-			return obj.dom.style.height;
-		}
-	});
-	
+
 	require.mix(this, args);
 
 	// Methods
@@ -163,13 +136,13 @@ Ti._5.createClass('Titanium.UI.ImageView', function(args){
 	};
 
 	// Events
-	this.addEventListener('change', function(){
+	this.addEventListener("change", function(){
 		console.debug('Event "change" is not implemented yet.');
 	});
-	this.addEventListener('start', function(){
+	this.addEventListener("start", function(){
 		console.debug('Event "start" is not implemented yet.');
 	});
-	this.addEventListener('stop', function(){
+	this.addEventListener("stop", function(){
 		console.debug('Event "stop" is not implemented yet.');
 	});
 });

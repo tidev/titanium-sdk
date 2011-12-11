@@ -1,77 +1,66 @@
-Ti._5.createClass('Titanium.UI.Picker', function(args){
-	var obj = this;
-	var _columnIndex = 0;
-	args = Ti._5.extend({}, args);
-	args.unselectable = true;
+Ti._5.createClass("Titanium.UI.Picker", function(args){
+	args = require.mix({
+		unselectable: true
+	}, args);
+
+	var obj = this,
+		domNode,
+		_columnIndex = 0,
+		_type = args.type || Titanium.UI.PICKER_TYPE_PLAIN,
+		_minuteInterval = 1,
+		_visibleItems = null,
+		_rows = null;
+
 	// Interfaces
-	var _type = args && args.type ? args.type : Titanium.UI.PICKER_TYPE_PLAIN;
 	switch (_type) {
 		case Titanium.UI.PICKER_TYPE_DATE_AND_TIME:
-			Ti._5.DOMView(this, 'input', args, 'Picker');
-			this.dom.type = 'datetime';
+			(domNode = Ti._5.DOMView(obj, "input", args, "Picker")).type = "datetime";
 			break;
 		case Titanium.UI.PICKER_TYPE_DATE:
-			Ti._5.DOMView(this, 'input', args, 'Picker');
-			this.dom.type = 'date';
-			break;
 		case Titanium.UI.PICKER_TYPE_COUNT_DOWN_TIMER:
 		case Titanium.UI.PICKER_TYPE_TIME:
-			Ti._5.DOMView(this, 'input', args, 'Picker');
-			this.dom.type = 'date';
+			(domNode = Ti._5.DOMView(obj, "input", args, "Picker")).type = "date";
 			break;
 		case Titanium.UI.PICKER_TYPE_PLAIN:
 		default:
-			Ti._5.DOMView(this, 'select', args, 'Picker');
+			domNode = Ti._5.DOMView(obj, "select", args, "Picker");
 	}
-	Ti._5.Styleable(this, args);
-	Ti._5.Positionable(this, args);
+	Ti._5.Styleable(obj, args);
+	Ti._5.Positionable(obj, args);
 	
 	// Properties
-	Ti._5.prop(this, 'type', {
-		get: function(){return _type;},
-		set: function(val){return _type = val;}
-	});
-
-	Ti._5.prop(this, 'columns', []);
-
-	Ti._5.prop(this, 'countDownDuration', 0);
-
-	Ti._5.prop(this, 'locale');
-
-	Ti._5.prop(this, 'minDate');
-
-	var _minuteInterval = 1;
-	Ti._5.prop(this, 'minuteInterval', {
-		get: function(){return _minuteInterval;},
-		set: function(val){return _minuteInterval = 30 < val ? 30 : 1 > val ? 1 : val;}
-	});
-
-	Ti._5.prop(this, 'selectionIndicator', false);
-
-	Ti._5.prop(this, 'useSpinner');
-
-	Ti._5.prop(this, 'value');
-
-	// Note: this is relevant only if you set `useSpinner` to `true`
-	var _visibleItems = null;
-	Ti._5.prop(this, 'visibleItems', {
-		get: function(){return obj.dom.size;},
-		set: function(val){ 
-			// We need this for setting 'size' property in constructor
-			setTimeout(
-				function() {
-					obj.dom.size = parseInt(val);
-			}, 10);
-			return val;
+	Ti._5.prop(obj, {
+		"columns": [],
+		"countDownDuration": 0,
+		"locale": null,
+		"minDate": null,
+		"minuteInterval": {
+			get: function(){return _minuteInterval;},
+			set: function(val){_minuteInterval = Math.max(Math.min(val, 30), 1);}
+		},
+		"selectionIndicator": false,
+		"type": {
+			get: function(){return _type;},
+			set: function(val){_type = val;}
+		},
+		"useSpinner": null,
+		"value": null,
+		"visibleItems": {
+			get: function(){return domNode.size;},
+			set: function(val){ 
+				// We need this for setting "size" property in constructor
+				setTimeout(function() {
+					domNode.size = parseInt(val);
+				}, 1);
+			}
 		}
 	});
-	
-	require.mix(this, args);
-	
+
+	require.mix(obj, args);
+
 	// Methods
-	var _rows = null;
-	this.add = function(rows){
-		if (-1 == rows.constructor.toString().indexOf('Array')) {
+	obj.add = function(rows){
+		if (-1 == rows.constructor.toString().indexOf("Array")) {
 			rows = [rows];
 		}
 		if (!_rows) {
@@ -85,13 +74,13 @@ Ti._5.createClass('Titanium.UI.Picker', function(args){
 
 		obj.render(null);
 	};
-	this.getSelectedRow = function(col){
-		return _rows[obj.dom.selectedIndex];
+	obj.getSelectedRow = function(col){
+		return _rows[domNode.selectedIndex];
 	};
-	this.reloadColumn = function(){
+	obj.reloadColumn = function(){
 		console.debug('Method "Titanium.UI.Picker#.reloadColumn" is not implemented yet.');
 	};
-	this.setSelectedRow = function(col, row, animated){
+	obj.setSelectedRow = function(col, row, animated){
 		if (Titanium.UI.PICKER_TYPE_PLAIN != obj.type) {
 			return;
 		}
@@ -100,29 +89,25 @@ Ti._5.createClass('Titanium.UI.Picker', function(args){
 			obj.animate({"props": "opacity", "duration": "2s"});
 		}
 		*/
-		obj.dom.selectedIndex = row;
+		domNode.selectedIndex = row;
 		// The onchange event does not fire when the selected option of the
 		// select object is changed programatically
-		var oEvent = {
-			source			: obj,
-			type			: "change",
+		obj.fireEvent("change", {
 			value			: obj.value,
 			column			: obj.columns[_columnIndex], 
 			columnIndex		: _columnIndex,
-			selectedValue	: _rows[obj.dom.selectedIndex].title,
-			rowIndex		: obj.dom.selectedIndex,
-			row				: _rows[obj.dom.selectedIndex]
-		};
-		obj.fireEvent('change', oEvent);
+			selectedValue	: _rows[domNode.selectedIndex].title,
+			rowIndex		: domNode.selectedIndex,
+			row				: _rows[domNode.selectedIndex]
+		});
 	};
 
 	// Events
-	obj.dom.addEventListener('change', function(event) {
-		var selectedRow = _rows[obj.dom.selectedIndex];
+	require.on(domNode, "change", function() {
+		var selectedRow = _rows[domNode.selectedIndex];
 		// Copy some style rules
-		//*
-		if (_rows[obj.dom.selectedIndex].dom.style.backgroundColor) {
-			obj.backgroundColor = _rows[obj.dom.selectedIndex].backgroundColor;
+		if (_rows[domNode.selectedIndex].dom.style.backgroundColor) {
+			obj.backgroundColor = _rows[domNode.selectedIndex].backgroundColor;
 		}
 		if (selectedRow.dom.style.color) {
 			obj.color = selectedRow.color;
@@ -138,18 +123,14 @@ Ti._5.createClass('Titanium.UI.Picker', function(args){
 		if (selectedRow.dom.style.backgroundGradient) {
 			obj.backgroundGradient = selectedRow.backgroundGradient;
 		}
-		//*/
 
-		var oEvent = {
-			source			: obj,
-			type			: event.type,
+		obj.fireEvent("change", {
 			value			: obj.value,
 			column			: obj.columns[_columnIndex], 
 			columnIndex		: _columnIndex,
-			selectedValue	: 'undefined' != typeof obj.dom.selectedIndex ? _rows[obj.dom.selectedIndex].title : obj.dom.value,
-			rowIndex		: obj.dom.selectedIndex,
-			row				: 'undefined' != typeof obj.dom.selectedIndex ? _rows[obj.dom.selectedIndex] : null
-		};
-		obj.fireEvent('change', oEvent);
-	}, false);
+			selectedValue	: "undefined" != typeof domNode.selectedIndex ? _rows[domNode.selectedIndex].title : domNode.value,
+			rowIndex		: domNode.selectedIndex,
+			row				: "undefined" != typeof domNode.selectedIndex ? _rows[domNode.selectedIndex] : null
+		});
+	});
 });

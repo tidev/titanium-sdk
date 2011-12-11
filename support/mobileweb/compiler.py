@@ -112,25 +112,41 @@ class Compiler(object):
 					compile_js(from_,to_)
 				else:
 					shutil.copy(from_,to_)
-		titanium_js = "<%!\n\
+		
+		titanium_js = mako.template.Template("<%!\n\
 	def jsQuoteEscapeFilter(str):\n\
 		return str.replace(\"\\\"\",\"\\\\\\\"\")\n\
-%>\n" + "(%s\n\
-)(window, {\n\
-	projectName: '${project_name | jsQuoteEscapeFilter}',\n\
-	projectId: '${project_id | jsQuoteEscapeFilter}',\n\
-	deployType: '${deploy_type | jsQuoteEscapeFilter}',\n\
-	appId: '${app_name | jsQuoteEscapeFilter}',\n\
-	appAnalytics: '${app_analytics | jsQuoteEscapeFilter}',\n\
-	appPublisher: '${app_publisher | jsQuoteEscapeFilter}',\n\
-	appUrl: '${app_url | jsQuoteEscapeFilter}',\n\
-	appName: '${app_name | jsQuoteEscapeFilter}',\n\
-	appVersion: '${app_version | jsQuoteEscapeFilter}',\n\
-	appDescription: '${app_description | jsQuoteEscapeFilter}',\n\
-	appCopyright: '${app_copyright | jsQuoteEscapeFilter}',\n\
-	appGuid: '${app_guid | jsQuoteEscapeFilter}',\n\
-	tiVersion: '${ti_version | jsQuoteEscapeFilter}'\n\
-});\n".encode('utf-8') % (self.load_api(os.path.join(src_dir,"titanium.js")))
+%>\n" + "var require={\n\
+	projectName: \"${project_name | jsQuoteEscapeFilter}\",\n\
+	projectId: \"${project_id | jsQuoteEscapeFilter}\",\n\
+	deployType: \"${deploy_type | jsQuoteEscapeFilter}\",\n\
+	appId: \"${app_name | jsQuoteEscapeFilter}\",\n\
+	appAnalytics: \"${app_analytics | jsQuoteEscapeFilter}\",\n\
+	appPublisher: \"${app_publisher | jsQuoteEscapeFilter}\",\n\
+	appUrl: \"${app_url | jsQuoteEscapeFilter}\",\n\
+	appName: \"${app_name | jsQuoteEscapeFilter}\",\n\
+	appVersion: \"${app_version | jsQuoteEscapeFilter}\",\n\
+	appDescription: \"${app_description | jsQuoteEscapeFilter}\",\n\
+	appCopyright: \"${app_copyright | jsQuoteEscapeFilter}\",\n\
+	appGuid: \"${app_guid | jsQuoteEscapeFilter}\",\n\
+	tiVersion: \"${ti_version | jsQuoteEscapeFilter}\",\n\
+	vendorPrefixes: [\"\", \"Webkit\", \"Moz\", \"ms\", \"O\"]\n\
+};\n".encode('utf-8')).render(
+				ti_version=sdk_version,
+				project_name=self.project_name,
+				project_id=self.appid,
+				deploy_type=deploytype,
+				app_id=self.appid,
+				app_analytics=ti.properties['analytics'],
+				app_publisher=ti.properties['publisher'],
+				app_url=ti.properties['url'],
+				app_name=ti.properties['name'],
+				app_version=ti.properties['version'],
+				app_description=ti.properties['description'],
+				app_copyright=ti.properties['copyright'],
+				app_guid=ti.properties['guid']
+			) + self.load_api(os.path.join(src_dir,"loader.js")) + self.load_api(os.path.join(src_dir,"titanium.js"))
+		
 		if deploytype == 'all':
 			print "Deploy type is 'all' - all modules will be included into dist"
 			for root, dirs, files in os.walk(src_dir):
@@ -162,7 +178,7 @@ class Compiler(object):
 			else:
 				print "[DEBUG] found: %s" % api_file
 				if api_file.find('.js') != -1:
-					titanium_js+='%s;\n' % self.load_api(api_file, api)
+					titanium_js += '%s;\n' % self.load_api(api_file, api)
 				elif api_file.find('.css') != -1:
 					titanium_css +='%s\n\n' % self.load_api(api_file, api)
 				else:
@@ -173,39 +189,6 @@ class Compiler(object):
 						pass
 
 					open(target_file,'wb').write(open(api_file,'rb').read())
-		titanium_js += ";\nTi._5.setLoadedScripts(" + json.dumps(self.ti_includes) + ");"
-		
-		loader_js = "var require={\n\
-	projectName: \"${project_name | jsQuoteEscapeFilter}\",\n\
-	projectId: \"${project_id | jsQuoteEscapeFilter}\",\n\
-	deployType: \"${deploy_type | jsQuoteEscapeFilter}\",\n\
-	appId: \"${app_name | jsQuoteEscapeFilter}\",\n\
-	appAnalytics: \"${app_analytics | jsQuoteEscapeFilter}\",\n\
-	appPublisher: \"${app_publisher | jsQuoteEscapeFilter}\",\n\
-	appUrl: \"${app_url | jsQuoteEscapeFilter}\",\n\
-	appName: \"${app_name | jsQuoteEscapeFilter}\",\n\
-	appVersion: \"${app_version | jsQuoteEscapeFilter}\",\n\
-	appDescription: \"${app_description | jsQuoteEscapeFilter}\",\n\
-	appCopyright: \"${app_copyright | jsQuoteEscapeFilter}\",\n\
-	appGuid: \"${app_guid | jsQuoteEscapeFilter}\",\n\
-	tiVersion: \"${ti_version | jsQuoteEscapeFilter}\",\n\
-	vendorPrefixes: [\"\", \"Webkit\", \"Moz\", \"ms\", \"O\"]\n\
-};\n".encode('utf-8') + self.load_api(os.path.join(src_dir,"loader.js"))
-		
-		titanium_js = loader_js + mako.template.Template(titanium_js).render(
-				ti_version=sdk_version,
-				project_name=self.project_name,
-				project_id=self.appid,
-				deploy_type=deploytype,
-				app_id=self.appid,
-				app_analytics=ti.properties['analytics'],
-				app_publisher=ti.properties['publisher'],
-				app_url=ti.properties['url'],
-				app_name=ti.properties['name'],
-				app_version=ti.properties['version'],
-				app_description=ti.properties['description'],
-				app_copyright=ti.properties['copyright'],
-				app_guid=ti.properties['guid'])
 		
 		ti_dir = os.path.join(self.build_dir,'titanium')
 		try:
