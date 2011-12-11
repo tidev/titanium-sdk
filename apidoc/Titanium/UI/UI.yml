@@ -638,7 +638,7 @@ properties:
     type: Number
     permission: read-only
   - name: backgroundColor
-    summary: Sets the background color of the master UIView (when there are no windows or other top-level controls displayed).
+    summary: Sets the background color of the master view (when there are no windows or other top-level controls displayed).
     description: |
         The default background color may also show through if you use semi-transparent 
         windows.
@@ -646,7 +646,7 @@ properties:
     type: String
     permission: read-only
   - name: backgroundImage
-    summary: Local path or url to an image file for setting a background for the master UIView (when there are no windows or other top-level controls displayed).
+    summary: Local path or URL to an image file for setting a background for the master view (when there are no windows or other top-level controls displayed).
     description: |
         The default background image may also show through if you use semi-transparent 
         windows.
