@@ -34,4 +34,6 @@ public interface KrollApplication
 	public boolean isDebuggerEnabled();
 
 	public void dispose();
+	
+	public String getDeployType();
 }

@@ -40,7 +40,7 @@
 - (UIView *)keyboardAccessoryViewForProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy withView:(UIView **)proxyView;
 
 -(void)updateBackground;
--(UIInterfaceOrientation) lastValidOrientation;
+-(void)updateOrientationHistory:(UIInterfaceOrientation)newOrientation;
 
 @property (nonatomic,readwrite,assign)	UIInterfaceOrientation windowOrientation;
 
@@ -444,6 +444,13 @@
 		return;
 	}
 
+    [self updateOrientationHistory:newOrientation];
+    
+	[self performSelector:@selector(refreshOrientation) withObject:nil afterDelay:0.0];
+}
+
+-(void)updateOrientationHistory:(UIInterfaceOrientation)newOrientation
+{
 	/*
 	 *	And now, to push the orientation onto the history stack. This could be
 	 *	expressed as a for loop, but the loop is so small that it might as well
@@ -464,8 +471,6 @@
 		i--;
 	}
 	orientationHistory[0] = newOrientation;
-
-	[self performSelector:@selector(refreshOrientation) withObject:nil afterDelay:0.0];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
@@ -521,8 +526,13 @@
 	}
 	UIInterfaceOrientation newOrientation = [self lastValidOrientation];	
 	if ((newOrientation == windowOrientation) &&
-		(oldFlags == allowedOrientations))
+		(oldFlags & allowedOrientations))
 	{
+        // If it's the case that the window orientation doesn't match the status bar orientation,
+        // move the status bar into the right place.
+        if (windowOrientation != [[UIApplication sharedApplication] statusBarOrientation]) {
+            [[UIApplication sharedApplication] setStatusBarOrientation:windowOrientation animated:NO];
+        }
 		//Nothing to do here.
 		return;
 	}
@@ -1109,6 +1119,7 @@
 	if(leavingAccessoryView != nil)
 	{
 		NSLog(@"[WARN] Trying to blur out %@, but %@ is already leaving focus.",accessoryView,leavingAccessoryView);
+        [leavingAccessoryView removeFromSuperview];
 		RELEASE_TO_NIL_AUTORELEASE(leavingAccessoryView);
 	}
 

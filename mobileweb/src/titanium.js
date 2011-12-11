@@ -1,3 +1,12 @@
+/**
+ * This file contains source code from the following:
+ *
+ * es5-shim
+ * Copyright 2009, 2010 Kristopher Michael Kowal
+ * MIT License
+ * <https://github.com/kriskowal/es5-shim>
+ */
+
 function($window, args){
 	function is(it, type) {
 		return ({}).toString.call(it).indexOf('[object ' + type) === 0;
@@ -253,16 +262,18 @@ function($window, args){
 	};
 
 	Ti._5.presetUserDefinedElements = function(obj, args){
-		if(!args){
-			return;
-		}
-
-		for(prop in args){
+		for(var prop in args){
 			if(typeof obj[prop] == 'undefined'){
 				obj[prop] = args[prop];
 			}
 		}
 	};
+	
+	Ti._5.presetUserArguments = function(obj,args) {
+		for(var prop in args){
+			obj[prop] = args[prop];
+		}
+	}
 
 	Ti._5.createClass = function(className, value){
 		var classes = className.split(".");
@@ -313,9 +324,12 @@ function($window, args){
 			Ti._5.sendAnalytics();
 		}
 
-		Ti.UI.createWindow({
-			title: args.projectName
-		}).open();
+		Ti._5.containerDiv = document.createElement('div');
+		Ti._5.containerDiv.style.width = "100%";
+		Ti._5.containerDiv.style.height = "100%";
+		Ti._5.containerDiv.style.overflow = "hidden";
+		Ti._5.containerDiv.style.position = "absolute"; // Absolute so that any children that are absolute positioned will respect this DIVs height and width.
+		document.body.appendChild(Ti._5.containerDiv);
 	};
 
 	Ti._5.getAbsolutePath = function(path){
@@ -335,33 +349,6 @@ function($window, args){
 	};
 
 	Ti._5.parseLength = function(val){
-		return val + (typeof val == 'number' ? 'px' : '');
-	};
-
-	if(typeof Object.defineProperty == 'undefined'){
-		// trying to emulate missing defineProperty
-		try{
-			Object.defineProperty = function(obj, prop, desc){
-				if(obj == null || prop == null){
-					throw "Object.defineProperty: object and property name are required parameters";
-				}
-				if(desc == null){
-					desc = {};
-				}
-
-				if(desc.set){
-					obj.__defineSetter__(prop, desc.set);
-				}
-				if(desc.get && desc.writable !== false){
-					obj.__defineGetter__(prop, desc.get);
-				}
-			};
-		} catch(e){
-			console.error(e);
-		}
-	}
-
-		Ti._5.parseLength = function(val){
 		return val + (typeof val == 'number' ? 'px' : '');
 	};
 

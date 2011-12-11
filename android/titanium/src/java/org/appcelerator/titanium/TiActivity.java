@@ -35,6 +35,26 @@ public class TiActivity extends TiBaseActivity
 		super.onDestroy();
 	}
 
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+
+		if (isTab()) {
+			TiApplication.addToActivityStack(this);
+		}
+	}
+
+	@Override
+	protected void onPause()
+	{
+		super.onPause();
+
+		if (isTab()) {
+			TiApplication.removeFromActivityStack(this);
+		}
+	}
+
 	public boolean isTab()
 	{
 		return isTab;
