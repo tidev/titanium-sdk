@@ -115,22 +115,21 @@
 
 	
 	// Methods
-    api.canOpenURL = function(url){
-		true;
-    };
 	api.createUUID = function(){
 		return Ti._5.createUUID();
 	};
-
+	api.canOpenURL = function(url){
+		true;
+	};
 	api.openURL = function(url){
-        var m = /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?/.exec(url);
-    	if ( (/^([tel|sms|mailto])/.test(url) || /^([\/?#]|[\w\d-]+^:[\w\d]+^@)/.test(m[1])) && !/^(localhost)/.test(url) ) { 
-        	setTimeout(function () {
-    			window.location.href = url;
-			}, 1); 
-        } else {
-        	window.open(url);
-        }
+		var m = /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?/.exec(url);
+		if ( (/^([tel|sms|mailto])/.test(url) || /^([\/?#]|[\w\d-]+^:[\w\d]+^@)/.test(m[1])) && !/^(localhost)/.test(url) ) {
+			setTimeout(function () {
+				window.location.href = url;
+			}, 1);
+		} else {
+			window.open(url);
+		}
 	};
 	
 	var _id = localStorage && localStorage.getItem("html5_titaniumPlatformId") ?
