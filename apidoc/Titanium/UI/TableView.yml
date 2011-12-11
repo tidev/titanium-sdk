@@ -173,26 +173,31 @@ methods:
         type: TableViewAnimationProperties
 events:
   - name: click
-    summary: Fired when a table row is deleted by the user.
+    summary: Fired when a table row is clicked by the user.
     platform: [android, iphone, ipad]
     properties:
       - name: index
         summary: Row index.
         type: Number
       - name: section
-        summary: Table view section object, if the deleted row is contained in a section.
+        summary: Table view section object, if the clicked row is contained in a section.
         type: Titanium.UI.TableViewSection
       - name: detail
-        summary: Boolean to indicate if the right area was clicked.
+        summary: Boolean to indicate if the detail button was clicked. Only `true` if 
+            `row.hasDetail` is `true` and the detail button was clicked.
+        type: Boolean
       - name: searchMode
         summary: Boolean to indicate if the table is in search mode.
+        type: Boolean
       - name: rowData
         summary: Dictionary containing the properties set on the row.
         type: Dictionary<Titanium.UI.TableViewRow>
       - name: y
         summary: Y coordinate of the event, in the `source` view's coordinates.
+        type: Number
       - name: x
         summary: X coordinate of the event, in the `source` view's coordinates.
+        type: Number
       - name: globalPoint
         summary: Dictionary with properties `x` and `y` describing the location of the event in screen coordinates.
         platforms: [iphone, ipad]
@@ -213,16 +218,20 @@ events:
         summary: Table view section object, if the deleted row is contained in a section.
         type: Titanium.UI.TableViewSection
       - name: detail
-        summary: Boolean to indicate if the right area was clicked.
+        summary: Boolean to indicate if the delete button was clicked. Always `false` for this event.
+        type: Boolean
       - name: searchMode
-        summary: Boolean to indicate if the table is in search mode.
+        summary: Boolean to indicate if the table is in search mode. Always `false` for this event.
+        type: Boolean
       - name: rowData
         summary: Dictionary containing the properties set on the row.
         type: Dictionary<Titanium.UI.TableViewRow>
       - name: y
         summary: Y coordinate of the event, in the `source` view's coordinates.
+        type: Number
       - name: x
         summary: X coordinate of the event, in the `source` view's coordinates.
+        type: Number
       - name: globalPoint
         summary: Dictionary with properties `x` and `y` describing the location of the event in screen coordinates.
         platforms: [iphone, ipad]
@@ -243,16 +252,20 @@ events:
         summary: Table view section object, if the deleted row is contained in a section.
         type: Titanium.UI.TableViewSection
       - name: detail
-        summary: Boolean to indicate if the right area was clicked.
+        summary: Boolean to indicate if the right area was clicked. Always `false` for this event.
+        type: Boolean
       - name: searchMode
-        summary: Boolean to indicate if the table is in search mode.
+        summary: Boolean to indicate if the table is in search mode. Always `false` for this event.
+        type: Boolean
       - name: rowData
         summary: Dictionary containing the properties set on the row.
         type: Dictionary<Titanium.UI.TableViewRow>
       - name: y
         summary: Y coordinate of the event, in the `source` view's coordinates.
+        type: Number
       - name: x
         summary: X coordinate of the event, in the `source` view's coordinates.
+        type: Number
       - name: globalPoint
         summary: Dictionary with properties `x` and `y` describing the location of the event in screen coordinates.
         platforms: [iphone, ipad]
@@ -268,9 +281,11 @@ events:
       - name: firstVisibleItem
         summary: Row index of the topmost visible row in the view.
         platforms: [android, mobileweb]
+        type: Number
       - name: visibleItemCount
         summary: Number of rows currently visible in the view.
         platforms: [android, mobileweb]
+        type: Number
       - name: contentOffset
         summary: Dictionary with `x` and `y` properties containing the content offset.
         platforms: [iphone, ipad, mobileweb]
@@ -278,6 +293,7 @@ events:
       - name: totalItemCount
         summary: Total number of rows in the view.
         platforms: [android, mobileweb]
+        type: Number
       - name: y
         summary: Y coordinate of the event, in the `source` view's coordinates.
         type: Number
@@ -285,6 +301,7 @@ events:
       - name: x
         summary: X coordinate of the event, in the `source` view's coordinates.
         platforms: [android, iphone, ipad]
+        type: Number
       - name: contentSize
         summary: Dictionary with `width` and `height` properties containing the size of the content (regardless of the display size in the case of scrolling).
         platforms: [iphone, ipad, mobileweb]
@@ -446,18 +463,19 @@ summary: A simple object for specifying the animation properties to use when ins
 description: |
     These properties are only used on iOS. Not all properties apply to all methods.
 
-    `animationStyle` only applies to row insertions and deletions.
+    `animationStyle` does not apply to the `scrollToTop` or `scrollToIndex` methods.
 
     `positon` only applies to the `scrollToIndex` method.
 properties:
   - name: animated
-    summary: Whether this table change should be animated.
+    summary: Whether this table change should be animated. Ignored if any `animationStyle` value is specified.
     type: Boolean
     default: true
   - name: animationStyle
     summary: Type of animation to use for row insertions and deletions. One of the animation style constants defined in <Titanium.UI.iPhone.RowAnimationStyles>.
     type: Number
-    default: <Titanium.UI.iPhone.RowAnimationStyles.FADE>
+    default: If `animated` is `true` but no `animationStyle` is specified, 
+        the style defaults to [FADE](Titanium.UI.iPhone.RowAnimationStyles.FADE).
   - name: position
     summary: Specifies what position to scroll the selected row to. One of the position constants from <Titanium.UI.iPhone.TableViewScrollPosition>.
     type: Number
