@@ -13,14 +13,10 @@ MODULES_DIR := $(LOCAL_PATH)/../../../../modules
 UI_JS_DIR := $(MODULES_DIR)/ui/src/ti/modules/titanium/ui
 PROPERTIES_JS_DIR := $(MODULES_DIR)/app/src/ti/modules/titanium/app/properties
 
-CFLAGS := -I$(GENERATED_DIR) -I$(LOCAL_PATH)/modules
+CFLAGS := -I$(GENERATED_DIR) -I$(LOCAL_PATH)/modules -DV8_SHARED=1
 
 ifeq ($(TI_DEBUG),1)
 CFLAGS += -DTI_DEBUG=1 -g
-endif
-
-ifeq ($(V8_DEBUGGER),1)
-CFLAGS += -DV8_DEBUGGER=1
 endif
 
 LDLIBS := -L$(SYSROOT)/usr/lib -ldl -llog -L$(TARGET_OUT)

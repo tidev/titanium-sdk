@@ -8,9 +8,11 @@ package org.appcelerator.titanium.proxy;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiUrl;
 
 import android.graphics.drawable.Drawable;
 import android.view.MenuItem;
@@ -99,9 +101,10 @@ public class MenuItemProxy extends KrollProxy
 		if (icon != null) {
 			if (icon instanceof String) {
 				String iconPath = TiConvert.toString(icon);
+				TiUrl iconUrl = new TiUrl(iconPath);
 				if (iconPath != null) {
-					TiFileHelper tfh = new TiFileHelper(getActivity());
-					Drawable d = tfh.loadDrawable(iconPath, false);
+					TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
+					Drawable d = tfh.loadDrawable(iconUrl.resolve(), false);
 					if (d != null) {
 						item.setIcon(d);
 					}

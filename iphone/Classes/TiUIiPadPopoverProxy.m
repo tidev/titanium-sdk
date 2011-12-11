@@ -231,6 +231,10 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 
 -(void)updatePopover:(NSNotification *)notification;
 {
+	//This may be due to a possible race condition of rotating the iPad while another popover is coming up.
+	if ((currentlyDisplaying != self)) {
+		return;
+	}
 	[self performSelector:@selector(updatePopoverNow) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration] inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 }
 

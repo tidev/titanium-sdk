@@ -217,9 +217,14 @@ Handle<Value> WrappedScript::EvalMachine(const Arguments& args)
 		sandbox = args[sandbox_index]->ToObject();
 	}
 
-	const int filename_index = sandbox_index + (context_flag == newContext ? 1 : 0);
+	int filename_offset = 1;
+	if (context_flag == thisContext) {
+		filename_offset = 0;
+	}
+
+	const int filename_index = sandbox_index + filename_offset;
 	Local<String> filename =
-			args.Length() > filename_index ? args[filename_index]->ToString() : String::New("evalmachine.<anonymous>");
+		args.Length() > filename_index ? args[filename_index]->ToString() : String::New("evalmachine.<anonymous>");
 
 	const int display_error_index = args.Length() - 1;
 	bool display_error = false;

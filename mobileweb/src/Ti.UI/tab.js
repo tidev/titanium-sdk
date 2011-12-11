@@ -1,5 +1,9 @@
 Ti._5.createClass('Titanium.UI.Tab', function(args){
 	var obj = this;
+	
+	// Set default values
+	args.width = args.width || '100%';
+	args.height = args.height || '100%';
 
 	// Interfaces
 	Ti._5.DOMView(this, 'div', args, 'Tab');

@@ -74,6 +74,8 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 		self.rowCount = 0;
 		self.currentPageIndex = 0;
         self.editable = YES;
+        
+        renderingButtons = NO;
 		
 		scrollView = [[LauncherScrollView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height - kLauncherViewPagerHeight - 30)];
 		scrollView.delegate = self;
@@ -247,6 +249,14 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 
 - (void)recreateButtons 
 {
+    if (![NSThread isMainThread]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self recreateButtons];
+        });
+        return;
+    }
+    
+    renderingButtons = YES;
 	[self layoutIfNeeded];
 	
 	NSInteger curIndex = self.currentPageIndex;
@@ -269,6 +279,7 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 			[buttonPage addObject:button];
 		}
 	}
+    renderingButtons = NO;
     
 	[self layoutButtons];
 	
@@ -317,7 +328,7 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	
 	pager.frame = CGRectMake(0, scrollView.frame.size.height, self.frame.size.width, kLauncherViewPagerHeight);
 	
-	if (buttons==nil) 
+	if (buttons==nil && !renderingButtons) 
 	{
 		[self recreateButtons];
 	}

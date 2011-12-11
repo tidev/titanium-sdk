@@ -10,7 +10,9 @@
 #import "TiDOMNodeProxy.h"
 #import "TiDOMNodeListProxy.h"
 #import "TiDOMAttrProxy.h"
+#import "TiDOMNamedNodeMapProxy.h"
 #import "TiUtils.h"
+#import "TiDOMValidator.h"
 
 @implementation TiDOMElementProxy
 
@@ -47,10 +49,7 @@
 	if (error==nil)
 	{
 		id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-		TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:context] autorelease];
-		[proxy setNodes:nodes];
-		[proxy setDocument:[self document]];
-		return proxy;
+		return [self makeNodeListProxyFromArray:nodes context:context];
 	}
 	return [NSNull null];
 }
@@ -70,10 +69,7 @@
 	if (error==nil)
 	{
 		id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-		TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:context] autorelease];
-		[proxy setNodes:nodes];
-		[proxy setDocument:[self document]];
-		return proxy;
+		return [self makeNodeListProxyFromArray:nodes context:context];
 	}
 	else
 	{
@@ -99,10 +95,7 @@
 	if (error==nil)
 	{
 		id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-		TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:context] autorelease];
-		[proxy setNodes:nodes];
-		[proxy setDocument:[self document]];
-		return proxy;
+		return [self makeNodeListProxyFromArray:nodes context:context];
 	}
 	else
 	{
@@ -143,54 +136,96 @@
 {
 	ENSURE_ARG_COUNT(args, 2);
 
-	NSString *name = [args objectAtIndex:0];
-	ENSURE_STRING_OR_NIL(name);
+	NSString *name;
+	NSString *val;
+	
+	ENSURE_ARG_AT_INDEX(name, args, 0, NSString);
+	ENSURE_ARG_OR_NIL_AT_INDEX(val, args, 1, NSString);
 
-	NSString *val = [args objectAtIndex:1];
-	ENSURE_STRING_OR_NIL(val);
+	if (val == nil) {
+		val = @"";
+	}
 
-	if (name != nil && val != nil)
-	{
-        GDataXMLNode * attributeNode = [element attributeForName:name];
-        if(attributeNode != nil)
-        {
-            [attributeNode setStringValue:val];
-        }
-        else
-        {
-            [element addAttribute: [GDataXMLNode attributeWithName: name stringValue: val]];
-        }
-        
+	if (![TiDOMValidator checkAttributeName:name]) {
+		[self throwException:@"Invalid attribute name" subreason:[NSString stringWithFormat:@"Offending tagName %@",name] location:CODELOCATION];
+		return;
+	}
+	GDataXMLNode * attributeNode = [element attributeForName:name];
+	if(attributeNode != nil) {
+		xmlNodePtr oldNodePtr = [attributeNode XMLNode];
+		TiDOMAttrProxy* result = [TiDOMNodeProxy nodeForXMLNode:oldNodePtr];
+		if (result != nil) {
+			[result setValue:val];
+		}
+		else {
+			[attributeNode setStringValue:val];
+		}
+	}
+	else {
+		GDataXMLNode* resultNode = (GDataXMLNode*)[GDataXMLElement attributeWithName:name stringValue:val];
+		[element addAttribute: resultNode];
 	}
 }
 
 -(void)setAttributeNS:(id)args
 {
 	ENSURE_ARG_COUNT(args, 3);
-    NSString *theURI = [args objectAtIndex:0];
-    ENSURE_STRING_OR_NIL(theURI);
-    
-	NSString *name = [args objectAtIndex:1];
-	ENSURE_STRING_OR_NIL(name);
-    
-	NSString *val = [args objectAtIndex:2];
-	ENSURE_STRING_OR_NIL(val);
-    
-	if (theURI != nil && name != nil && val != nil)
-	{
-		GDataXMLNode * attributeNode = [element attributeForLocalName:[GDataXMLNode localNameForName:name] URI:theURI];
-		if(attributeNode != nil)
-		{
-			//Retain it here so that the node does not get freed when cached values are released
-			[attributeNode retain];
-			//Switch the flag here so that the node is freed only when the object is freed
-			[attributeNode setShouldFreeXMLNode:YES];
-			[element removeChild:attributeNode];
-			//Release now and this will free the underlying memory
-			[attributeNode release];
-			
+	NSString *theURI;
+	NSString *name;
+	NSString *val;
+
+	ENSURE_ARG_OR_NIL_AT_INDEX(theURI, args, 0, NSString);
+	ENSURE_ARG_AT_INDEX(name, args, 1, NSString);
+	ENSURE_ARG_OR_NIL_AT_INDEX(val, args, 2, NSString);
+	
+	NSString *error = nil;
+	NSString *suberror = nil;
+	
+	[self validateAttributeParameters:name withUri:theURI reason:&error subreason:&suberror];
+	if (error != nil) {
+		[self throwException:error subreason:suberror location:CODELOCATION];
+	}
+
+	NSString* prefix = [GDataXMLNode prefixForName:name];
+	NSString* localName = [GDataXMLNode localNameForName:name];
+
+	if (val == nil) {
+		val = @"";
+	}
+	
+	GDataXMLNode * attributeNode = [element attributeForLocalName:[GDataXMLNode localNameForName:name] URI:theURI];
+	if (attributeNode != nil) {
+		xmlNodePtr oldNodePtr = [attributeNode XMLNode];
+		TiDOMAttrProxy* result = [TiDOMNodeProxy nodeForXMLNode:oldNodePtr];
+		if (result != nil) {
+			[result setValue:val];
 		}
-		[element addAttribute: [GDataXMLNode attributeWithName:name URI:theURI stringValue:val]];
+		else {
+			[attributeNode setStringValue:val];
+		}
+	}
+	else {
+		GDataXMLNode* resultNode = (GDataXMLNode*)[GDataXMLElement attributeWithName:localName stringValue:val];
+
+		xmlChar *href;
+		xmlChar *pre;
+		
+		if (theURI != nil)
+			href = (xmlChar*)[theURI UTF8String];
+		else
+			href = NULL;
+		
+		if ([prefix length] > 0) {
+			pre = (xmlChar*)[prefix UTF8String];
+		} else {
+			// default namespace is represented by a nil prefix
+			pre = NULL;
+		}
+		
+		xmlNsPtr theNewNs = xmlNewNs(NULL, // parent node
+									 href, pre);
+		[resultNode XMLNode]->ns = theNewNs;
+		[element addAttribute: resultNode];
 	}
 }
 
@@ -202,12 +237,22 @@
 	GDataXMLNode * attributeNode = [element attributeForName:args];
 	if (attributeNode != nil)
 	{
+		xmlNodePtr oldNodePtr = [attributeNode XMLNode];
+		TiDOMAttrProxy* result = [TiDOMNodeProxy nodeForXMLNode:oldNodePtr];
+		
 		//Retain it here so that the node does not get freed when cached values are released
 		[attributeNode retain];
 		//Switch the flag here so that the node is freed only when the object is freed
 		[attributeNode setShouldFreeXMLNode:YES];
 		[element removeChild:attributeNode];
-		//Release now and this will free the underlying memory
+		
+		if (result != nil) {
+			[[result node]setShouldFreeXMLNode:NO];
+			[result setNode:attributeNode];
+			[result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
+		}
+		
+		//Release now and this will free the underlying memory if result is nil
 		[attributeNode release];
 	}
 }
@@ -227,12 +272,20 @@
 		GDataXMLNode * attributeNode = [element attributeForLocalName:name URI:theURI];
 		if (attributeNode != nil)
 		{
+			xmlNodePtr oldNodePtr = [attributeNode XMLNode];
+			TiDOMAttrProxy* result = [TiDOMNodeProxy nodeForXMLNode:oldNodePtr];
+			
 			//Retain it here so that the node does not get freed when cached values are released
 			[attributeNode retain];
 			//Switch the flag here so that the node is freed only when the object is freed
 			[attributeNode setShouldFreeXMLNode:YES];
 			[element removeChild:attributeNode];
-			//Release now and this will free the underlying memory
+			if (result != nil) {
+				[[result node]setShouldFreeXMLNode:NO];
+				[result setNode:attributeNode];
+				[result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
+			}
+			//Release now and this will free the underlying memory if result is nil
 			[attributeNode release];
 		}
 	}
@@ -297,141 +350,124 @@
 -(id)setAttributeNode:(id)args
 {
 	ENSURE_SINGLE_ARG(args, TiDOMAttrProxy);
-    TiDOMAttrProxy* attProxy = (TiDOMAttrProxy*)args;
-    NSString* name = [[attProxy node]name];
-    NSString* val = [attProxy value];
-    TiDOMAttrProxy* result = nil;
-    if(name != nil && val != nil)
-    {
-        NSObject* ownerObj = [attProxy ownerElement];
-        if(![ownerObj isKindOfClass:[NSNull class]])
-        {
-            GDataXMLElement *owner = [attProxy ownerElement];
-        
-            if( (owner != nil)&&([node isEqual:owner] == NO) )
-            {
-                [self throwException:@"mismatched owner elements" subreason:nil location:CODELOCATION];
-                return [NSNull null];
-            }
-        }
-        if ([attProxy document] != [self document])
-        {
-            [self throwException:@"mismatched documents" subreason:nil location:CODELOCATION];
-            return [NSNull null];
-        }
-        GDataXMLNode * attributeNode = [element attributeForName:name];
-        if (attributeNode != nil) 
-        {
-            //Switch the flag here so that the node is freed only when the object is freed
-            [attributeNode setShouldFreeXMLNode:YES];
-            xmlNodePtr oldNodePtr = [attributeNode XMLNode];
-            result = [TiDOMNodeProxy nodeForXMLNode:oldNodePtr];
-            if(result == nil)
-            {
-                NSString* nodeString = [attributeNode stringValue];
-                //Need to return the old attribute node
-                id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-                result = [[[TiDOMAttrProxy alloc] _initWithPageContext:context] autorelease];
-                [result setAttribute:[attributeNode name] value:nodeString owner:element];
-                [result setNode:attributeNode];
-                [result setDocument:[self document]];
-                [TiDOMNodeProxy setNode:result forXMLNode:[attributeNode XMLNode]];
-            }
-            else
-            {
-                [TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
-                [TiDOMNodeProxy setNode:result forXMLNode:[attributeNode XMLNode]];
-                [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
-                [result setNode:attributeNode];
-                [result setDocument:[self document]];
-            }
-            [element removeChild:attributeNode];
-        }
-        xmlNodePtr oldNodePtr = [[attProxy node]XMLNode];
-        if(oldNodePtr != NULL)
-        {
-            [TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
-        }
-        [element addAttribute: [attProxy node]];
-        attributeNode = [element attributeForName:name];
-        [attProxy setNode:attributeNode];
-        [attProxy setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
-        [TiDOMNodeProxy setNode:attProxy forXMLNode:[attributeNode XMLNode]];
-    }
-    if(result == nil)
-        return [NSNull null];
-    return result;
+	TiDOMAttrProxy* attProxy = (TiDOMAttrProxy*)args;
+	NSString* name = [[attProxy node]name];
+
+	TiDOMAttrProxy* result = nil;
+	if (name != nil) {
+		xmlNodePtr oldNodePtr = [[attProxy node]XMLNode];
+		
+		if (oldNodePtr->parent != NULL) {
+			[self throwException:@"Attribute in use" subreason:nil location:CODELOCATION];
+			return [NSNull null];
+		}
+       
+		if ([attProxy document] != [self document]) {
+			[self throwException:@"mismatched documents" subreason:nil location:CODELOCATION];
+			return [NSNull null];
+		}
+
+		GDataXMLNode * attributeNode = [element attributeForName:name];
+		if (attributeNode != nil) {
+			[attributeNode retain];
+			[attributeNode setShouldFreeXMLNode:YES];
+			oldNodePtr = [attributeNode XMLNode];
+			result = [TiDOMNodeProxy nodeForXMLNode:oldNodePtr];
+			//Remove Child Now
+			[element removeChild:attributeNode];
+			if (result == nil) {
+				//Need to return the old attribute node
+				id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+				result = [[[TiDOMAttrProxy alloc] _initWithPageContext:context] autorelease];
+				[result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
+				[result setNode:attributeNode];
+				[result setDocument:[self document]];
+			}
+			else {
+				[[result node]setShouldFreeXMLNode:NO];
+				[result setNode:attributeNode];
+				[result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
+			}
+			//Release now and this will free the underlying memory when proxy is released
+			[attributeNode release];
+		}
+		
+		oldNodePtr = [[attProxy node]XMLNode];
+		if(oldNodePtr != NULL) {
+			[TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
+		}
+		//This adds by copying
+		[element addAttribute: [attProxy node]];
+		attributeNode = [element attributeForName:name];
+		[attProxy setNode:attributeNode];
+		[attProxy setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
+		[TiDOMNodeProxy setNode:attProxy forXMLNode:[attributeNode XMLNode]];
+	}
+			
+	if(result == nil)
+		return [NSNull null];
+	return result;
 }
 
 -(id)setAttributeNodeNS:(id)args
 {
 	ENSURE_SINGLE_ARG(args, TiDOMAttrProxy);
-    TiDOMAttrProxy* attProxy = (TiDOMAttrProxy*)args;
-    NSString* name = [[attProxy node]name];
-    NSString* val = [attProxy value];
-    NSString* theURI = [[attProxy node]URI];
-    TiDOMAttrProxy* result = nil;
-    if(name != nil && val != nil)
-    {
-        NSObject* ownerObj = [attProxy ownerElement];
-        if(![ownerObj isKindOfClass:[NSNull class]])
-        {
-            GDataXMLElement *owner = [attProxy ownerElement];
-            
-            if( (owner != nil)&&([node isEqual:owner] == NO) )
-            {
-                [self throwException:@"mismatched owner elements" subreason:nil location:CODELOCATION];
-                return [NSNull null];
-            }
-        }
-        if ([attProxy document] != [self document])
-        {
-            [self throwException:@"mismatched documents" subreason:nil location:CODELOCATION];
-            return [NSNull null];
-        }
-        GDataXMLNode * attributeNode = [element attributeForLocalName:[GDataXMLNode localNameForName:name] URI:theURI];
-        if (attributeNode != nil) 
-        {
-            //Switch the flag here so that the node is freed only when the object is freed
-            [attributeNode setShouldFreeXMLNode:YES];
-            xmlNodePtr oldNodePtr = [attributeNode XMLNode];
-            result = [TiDOMNodeProxy nodeForXMLNode:oldNodePtr];
-            if(result == nil)
-            {
-                NSString* nodeString = [attributeNode stringValue];
-                id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-                //Need to return the old attribute node
-                result = [[[TiDOMAttrProxy alloc] _initWithPageContext:context] autorelease];
-                [result setAttribute:[attributeNode name] value:nodeString owner:nil];
-                [result setNode:attributeNode];
-                [result setDocument:[self document]];
-                [TiDOMNodeProxy setNode:result forXMLNode:[attributeNode XMLNode]];
-            }
-            else
-            {
-                [TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
-                [TiDOMNodeProxy setNode:result forXMLNode:[attributeNode XMLNode]];
-                [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
-                [result setNode:attributeNode];
-                [result setDocument:[self document]];
-            }
-            [element removeChild:attributeNode];
-        }
-        xmlNodePtr oldNodePtr = [[attProxy node]XMLNode];
-        if(oldNodePtr != NULL)
-        {
-            [TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
-        }
-        [element addAttribute: [attProxy node]];
-        attributeNode = [element attributeForLocalName:[GDataXMLNode localNameForName:name] URI:theURI];
-        [attProxy setNode:attributeNode];
-        [attProxy setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
-        [TiDOMNodeProxy setNode:attProxy forXMLNode:[attributeNode XMLNode]];
+	TiDOMAttrProxy* attProxy = (TiDOMAttrProxy*)args;
+	NSString* name = [[attProxy node]name];
 
-    } 
-    if(result == nil)
-        return [NSNull null];
-    return result;
+	NSString* theURI = [[attProxy node]URI];
+	TiDOMAttrProxy* result = nil;
+	if (name != nil) {
+		xmlNodePtr oldNodePtr = [[attProxy node]XMLNode];
+		
+		if (oldNodePtr->parent != NULL) {
+			[self throwException:@"Attribute in use" subreason:nil location:CODELOCATION];
+			return [NSNull null];
+		}
+
+		if ([attProxy document] != [self document]) {
+			[self throwException:@"mismatched documents" subreason:nil location:CODELOCATION];
+			return [NSNull null];
+		}
+		GDataXMLNode * attributeNode = [element attributeForLocalName:[GDataXMLNode localNameForName:name] URI:theURI];
+		if (attributeNode != nil) {
+			[attributeNode retain];
+			[attributeNode setShouldFreeXMLNode:YES];
+			oldNodePtr = [attributeNode XMLNode];
+			result = [TiDOMNodeProxy nodeForXMLNode:oldNodePtr];
+			//Remove Child Now
+			[element removeChild:attributeNode];
+			if (result == nil) {
+				//Need to return the old attribute node
+				id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+				result = [[[TiDOMAttrProxy alloc] _initWithPageContext:context] autorelease];
+				[result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
+				[result setNode:attributeNode];
+				[result setDocument:[self document]];
+			}
+			else {
+				[[result node]setShouldFreeXMLNode:NO];
+				[result setNode:attributeNode];
+				[result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
+			}
+			//Release now and this will free the underlying memory when proxy is released
+			[attributeNode release];
+		}
+
+		oldNodePtr = [[attProxy node]XMLNode];
+		if(oldNodePtr != NULL) {
+			[TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
+		}
+		//This adds by copying
+		[element addAttribute: [attProxy node]];
+		attributeNode = [element attributeForName:name];
+		[attProxy setNode:attributeNode];
+		[attProxy setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
+		[TiDOMNodeProxy setNode:attProxy forXMLNode:[attributeNode XMLNode]];
+	}		
+	if(result == nil)
+		return [NSNull null];
+	return result;
 }
 
 -(id)removeAttributeNode:(id)args
@@ -463,8 +499,11 @@
         else
         {
             //Switch the flag here so that the node is freed only when the object is freed
-            [[attProxy node]setShouldFreeXMLNode:YES];
+			[nodeToRemove retain];
+			[nodeToRemove setShouldFreeXMLNode:YES];
             [element removeChild:nodeToRemove];
+            [[attProxy node]setShouldFreeXMLNode:NO];
+			[attProxy setNode:nodeToRemove];
             return attProxy;
         }
     }
@@ -478,127 +517,148 @@
 
 -(id)insertBefore:(id)args
 {
-    ENSURE_ARG_COUNT(args, 2);
-    TiDOMNodeProxy* newChild;
-    TiDOMNodeProxy* refChild;
+	ENSURE_ARG_COUNT(args, 2);
+	TiDOMNodeProxy* newChild;
+	TiDOMNodeProxy* refChild;
     
-    ENSURE_ARG_AT_INDEX(newChild, args, 0, TiDOMNodeProxy);
+	ENSURE_ARG_AT_INDEX(newChild, args, 0, TiDOMNodeProxy);
 	ENSURE_ARG_AT_INDEX(refChild, args, 1, TiDOMNodeProxy);
-    
-    NSArray* children = [node children];
-    GDataXMLNode* refChildNode = [refChild node];
-    GDataXMLNode* actualRefChildNode = nil;
-    
-    for(GDataXMLNode* childNode in children)
-    {
-        if ([childNode XMLNode] == [refChildNode XMLNode])
-        {
-            actualRefChildNode = childNode;
-            break;
-        }
-    }
-    
-    if(actualRefChildNode != nil)
-    {
-        xmlNodePtr returnNode = xmlAddPrevSibling([actualRefChildNode XMLNode], [[newChild node] XMLNode]);
-        if(returnNode != NULL)
-        {
-            [[self node]releaseCachedValues];
-            if (returnNode == [[newChild node] XMLNode])
-            {
-                //Now it is part of the tree so switch flag to ensur it gets freed when doc is released
-                [[newChild node]setShouldFreeXMLNode:NO];
-                return newChild;
+	
+	xmlNodePtr refNodePtr = [[refChild node]XMLNode];
+	xmlNodePtr newNodePtr = [[newChild node]XMLNode];
+	if (newNodePtr == refNodePtr)
+		return;
+	
+	TiDOMNodeListProxy* nodeList = [self childNodes];
+	
+	
+	TiDOMNodeProxy* cur= nil;
+	int max = [TiUtils intValue:[nodeList length]];
+	BOOL found = NO;
+	for (int i=0; i<max && !found; i++) {
+		cur = (TiDOMNodeProxy*)[nodeList item:[NSNumber numberWithInt:i]];
+		if ([[cur node]XMLNode] == refNodePtr) {
+			found = YES;
+		}
+	}
+	
+	if (found) {
+		[[self node]releaseCachedValues];
+		xmlNodePtr returnNodePtr = xmlAddPrevSibling(refNodePtr, newNodePtr);
+		[[newChild node]setShouldFreeXMLNode:NO];
+		if (returnNodePtr != nil) {
+			if (returnNodePtr == newNodePtr) {
+				return newChild;
 			}
-            GDataXMLNode* retVal = [GDataXMLNode nodeBorrowingXMLNode:returnNode];
-            id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-            return [TiDOMNodeProxy makeNode:retVal context:context];
-        }
-        return [NSNull null];
-    }
-    
-	return [NSNull null];
+			else {
+				//This should not happen
+				id result = [TiDOMNodeProxy nodeForXMLNode:returnNodePtr];
+				if (result == nil) {
+					GDataXMLNode* retVal = [GDataXMLNode nodeConsumingXMLNode:returnNodePtr];
+					id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+					result = [self makeNode:retVal context:context];
+				}
+				return result;
+			}
+			
+		}
+		else {
+			//Will get here if there in an internal API error
+			return [NSNull null];
+		}
+	}
+	else {
+		[self throwException:@"node is not part of children nodes" subreason:nil location:CODELOCATION];
+		return [NSNull null];
+	}
 }
 
 -(id)replaceChild:(id)args
 {
-    ENSURE_ARG_COUNT(args, 2);
-    TiDOMNodeProxy* newChild;
-    TiDOMNodeProxy* refChild;
+	ENSURE_ARG_COUNT(args, 2);
+	TiDOMNodeProxy* newChild;
+	TiDOMNodeProxy* refChild;
     
-    ENSURE_ARG_AT_INDEX(newChild, args, 0, TiDOMNodeProxy);
-    ENSURE_ARG_AT_INDEX(refChild, args, 1, TiDOMNodeProxy);
-    
-    if(newChild == refChild)
+	ENSURE_ARG_AT_INDEX(newChild, args, 0, TiDOMNodeProxy);
+	ENSURE_ARG_AT_INDEX(refChild, args, 1, TiDOMNodeProxy);
+	
+	xmlNodePtr refNodePtr = [[refChild node]XMLNode];
+	xmlNodePtr newNodePtr = [[newChild node]XMLNode];
+	if (newNodePtr == refNodePtr)
 		return;
 	
-    NSArray* children = [node children];
-    GDataXMLNode* refChildNode = [refChild node];
-    GDataXMLNode* actualRefChildNode = nil;
-    
-    for(GDataXMLNode* childNode in children)
-    {
-        if ([childNode XMLNode] == [refChildNode XMLNode])
-        {
-            actualRefChildNode = childNode;
-            break;
-        }
-    }
-    if(actualRefChildNode != nil)
-    {
-        xmlNodePtr returnNode = xmlReplaceNode([actualRefChildNode XMLNode], [[newChild node]XMLNode]);
-        if(returnNode != nil)
-        {
-            //No longer part of tree. Set to free node ptr on object dealloc
-            [[self node]releaseCachedValues];
-            if (returnNode == [[refChild node] XMLNode])
-            {
-                [[refChild node]setShouldFreeXMLNode:YES];
-                return refChild;
-            }
-            GDataXMLNode* retVal = [GDataXMLNode nodeConsumingXMLNode:returnNode];
-            id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-            return [TiDOMNodeProxy makeNode:retVal context:context];
-        }
-        return [NSNull null];
-    }
-    return [NSNull null];
+	TiDOMNodeListProxy* nodeList = [self childNodes];
+	
+	
+	TiDOMNodeProxy* cur= nil;
+	int max = [TiUtils intValue:[nodeList length]];
+	BOOL found = NO;
+	for (int i=0; i<max && !found; i++) {
+		cur = (TiDOMNodeProxy*)[nodeList item:[NSNumber numberWithInt:i]];
+		if ([[cur node]XMLNode] == refNodePtr) {
+			found = YES;
+		}
+	}
+	
+	if (found) {
+		[[self node]releaseCachedValues];
+		xmlNodePtr returnNodePtr = xmlReplaceNode(refNodePtr, newNodePtr);
+		if (returnNodePtr != nil) {
+			[[newChild node]setShouldFreeXMLNode:NO];
+			if (returnNodePtr == refNodePtr) {
+				[[refChild node]setShouldFreeXMLNode:YES];
+				return refChild;
+			}
+			else {
+				//This should not happen
+				id result = [TiDOMNodeProxy nodeForXMLNode:returnNodePtr];
+				if (result == nil) {
+					GDataXMLNode* retVal = [GDataXMLNode nodeConsumingXMLNode:returnNodePtr];
+					id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+					result = [self makeNode:retVal context:context];
+				}
+				return result;
+			}
+			
+		}
+		else {
+			//Will get here if there in an internal API error
+			return [NSNull null];
+		}
+	}
+	else {
+		[self throwException:@"no node found to replace" subreason:nil location:CODELOCATION];
+		return [NSNull null];
+	}
 }
 
 -(id)removeChild:(id)args
 {
 	ENSURE_SINGLE_ARG(args, TiDOMNodeProxy);
 	TiDOMNodeProxy * oldChild = (TiDOMNodeProxy*)args;
-    NSArray* children = [node children];
-    GDataXMLNode* refChildNode = [oldChild node];
-    GDataXMLNode* actualRefChildNode = nil;
-    for(GDataXMLNode* childNode in children)
-    {
-        if ([childNode XMLNode] == [refChildNode XMLNode])
-        {
-            actualRefChildNode = childNode;
-            break;
-        }
-    }
-    if(actualRefChildNode != nil)
-    {
-        [actualRefChildNode setShouldFreeXMLNode:YES];
-        if ([oldChild isKindOfClass:[TiDOMElementProxy class]])
-        {
-            [(TiDOMElementProxy*)oldChild setElement:(GDataXMLElement*)actualRefChildNode];
-        }
-        else
-        {
-            [oldChild setNode:actualRefChildNode];
-        }
-        [element removeChild:actualRefChildNode];
-        return oldChild;
-    }
-    else
-    {
-        [self throwException:@"no node found to remove" subreason:nil location:CODELOCATION];
-        return [NSNull null];
-    }
+	
+	xmlNodePtr refNodePtr = [[oldChild node]XMLNode];
+	
+	TiDOMNodeListProxy* nodeList = [self childNodes];
+	TiDOMNodeProxy*cur = nil;
+	int max = [TiUtils intValue:[nodeList length]];
+	BOOL found = NO;
+	for (int i=0; i<max && !found; i++) {
+		cur = (TiDOMNodeProxy*)[nodeList item:[NSNumber numberWithInt:i]];
+		if ([[cur node]XMLNode] == refNodePtr) {
+			found = YES;
+		}
+	}
+	
+	if (found) {
+		[[oldChild node]setShouldFreeXMLNode:YES];
+		[element removeChild:[oldChild node]];
+		return oldChild;
+	}
+	else {
+		[self throwException:@"no node found to remove" subreason:nil location:CODELOCATION];
+		return [NSNull null];
+	}
 }
 
 -(id)appendChild:(id)args
@@ -633,6 +693,13 @@
 	}
 }
 
+-(id)attributes
+{
+	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+	TiDOMNamedNodeMapProxy *proxy = [[[TiDOMNamedNodeMapProxy alloc] _initWithPageContext:context] autorelease];
+	[proxy setElement:self];
+	return proxy;
+}
 
 
 -(id)hasAttribute:(id)args

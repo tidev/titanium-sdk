@@ -32,6 +32,7 @@
 	"runtimes":
 	{
 		"v8":["kroll-v8.jar"],
-		"rhino":["kroll-rhino.jar","js.jar"]
+		"rhino":["kroll-rhino.jar","js.jar"],
+		"defaultRuntime":"v8"
 	}
 }

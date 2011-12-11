@@ -23,7 +23,7 @@ import bindings
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 module_dir = os.path.join(os.path.dirname(template_dir), 'module')
 sys.path.extend([os.path.dirname(template_dir), module_dir])
-from tiapp import TiAppXML
+from tiapp import TiAppXML, touch_tiapp_xml
 from manifest import Manifest
 from module import ModuleDetector
 import simplejson
@@ -212,18 +212,36 @@ class Android(object):
 			for module_class in module_bindings['modules'].keys():
 				module_proxy = module_bindings['proxies'][module_class]
 				module_id = module_proxy['proxyAttrs']['id']
+				module_proxy_class_name = module_proxy['proxyClassName']
 				module_onAppCreate = None
 				if 'onAppCreate' in module_proxy:
 					module_onAppCreate = module_proxy['onAppCreate']
 
 				print '[DEBUG] module_id = %s' % module_id
 				if module_id == module.manifest.moduleid:
+					# make sure that the module was not built before 1.8.0.1
+					try:
+						module_api_version = int(module.manifest.apiversion)
+						if module_api_version < 2:
+							print "[ERROR] The 'apiversion' for '%s' in the module manifest is less than version 2.  The module was likely built against a Titanium SDK pre 1.8.0.1.  Please use a version of the module that has 'apiversion' 2 or greater" % module_id
+							touch_tiapp_xml(os.path.join(self.project_dir, 'tiapp.xml'))
+							sys.exit(1)
+
+					except(TypeError, ValueError):
+						print "[ERROR] The 'apiversion' for '%s' in the module manifest is not a valid value.  Please use a version of the module that has an 'apiversion' value of 2 or greater set in it's manifest file" % module_id
+						touch_tiapp_xml(os.path.join(self.project_dir, 'tiapp.xml'))
+						sys.exit(1)
+ 
+
 					print '[DEBUG] appending module: %s' % module_class
 					self.custom_modules.append({
+						'module_id': module_id,
+						'proxy_name': module_proxy_class_name,
 						'class_name': module_class,
 						'manifest': module.manifest,
 						'on_app_create': module_onAppCreate
 					})
+
 		
 	def create(self, dir, build_time=False, project_dir=None, include_all_ti_modules=False):
 		template_dir = os.path.dirname(sys._getframe(0).f_code.co_filename)
@@ -239,7 +257,9 @@ class Android(object):
 		resource_dir = os.path.join(project_dir, 'Resources')
 		self.config['ti_resources_dir'] = resource_dir
 
-		runtime = "rhino"
+		json_contents = open(os.path.join(template_dir,'dependency.json')).read()
+		depends_map = simplejson.loads(json_contents)
+		runtime = depends_map['runtimes']['defaultRuntime']
 		if self.tiapp.has_app_property("ti.android.runtime"):
 			requested_runtime = self.tiapp.get_app_property("ti.android.runtime")
 			if requested_runtime == "rhino" or requested_runtime == "v8":

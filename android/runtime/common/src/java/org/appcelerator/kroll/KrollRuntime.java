@@ -49,6 +49,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	private long threadId;
 	private AtomicBoolean initialized = new AtomicBoolean(false);
 	private CountDownLatch initLatch = new CountDownLatch(1);
+	private KrollEvaluator evaluator;
 
 	protected Handler handler;
 
@@ -261,10 +262,20 @@ public abstract class KrollRuntime implements Handler.Callback
 		initialized.set(false);
 	}
 
-	public abstract void initRuntime();
+	public KrollEvaluator getEvaluator()
+	{
+		return evaluator;
+	}
+
+	public void setEvaluator(KrollEvaluator eval)
+	{
+		evaluator = eval;
+	}
+
 	public abstract void doDispose();
 	public abstract void doRunModule(String source, String filename, KrollProxySupport activityProxy);
-	public abstract void initObject(KrollProxySupport proxy);
 	public abstract String getRuntimeName();
+	public abstract void initRuntime();
+	public abstract void initObject(KrollProxySupport proxy);
 }
 

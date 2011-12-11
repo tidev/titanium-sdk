@@ -6,6 +6,7 @@
  */
 package org.appcelerator.kroll.runtime.rhino;
 
+import org.appcelerator.kroll.KrollRuntime;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.IdFunctionObject;
@@ -24,11 +25,16 @@ public class KrollGlobal extends IdScriptableObject
 	private static final long serialVersionUID = 724917364689500034L;
 
 	private static final String RUNTIME_RHINO = "rhino";
+	private static final String DEPLOY_DEBUG = "DBG";
+	private static boolean DBG = true;
 	private static final String KROLL_TAG = "Kroll";
 
 	public static Function init(Scriptable scope)
 	{
 		KrollGlobal kroll = new KrollGlobal();
+		if (KrollRuntime.getInstance().getKrollApplication().getDeployType().equals("production")) {
+			DBG = false;
+		}
 		return kroll.exportAsJSClass(MAX_PROTOTYPE_ID, scope, false);
 	}
 
@@ -56,6 +62,18 @@ public class KrollGlobal extends IdScriptableObject
 		return KrollBindings.getBinding(context, scope, args[0].toString());
 	}
 
+	private Object externalBinding(Context context, Scriptable scope, Object[] args)
+	{
+		if (args.length < 1) {
+			throw new IllegalArgumentException("kroll.externalBinding requires a binding name");
+		}
+		if (args[0] == null) {
+			throw new IllegalArgumentException("externalBinding must not be null");
+		}
+
+		return KrollBindings.getExternalBinding(context, scope, args[0].toString());
+	}
+
 	private void requireNative(Context context, Scriptable scope, Object[] args)
 	{
 		if (args.length < 1) {
@@ -80,20 +98,22 @@ public class KrollGlobal extends IdScriptableObject
 		Id_constructor = 1,
 		Id_log = 2,
 		Id_binding = 3,
-		Id_requireNative = 4,
+		Id_externalBinding = 4,
+		Id_requireNative = 5,
 		MAX_PROTOTYPE_ID = Id_requireNative;
 
 	@Override
 	protected int findPrototypeId(String s)
 	{
 		int id = 0;
-// #generated# Last update: 2011-10-14 02:39:59 CDT
+// #generated# Last update: 2011-11-17 23:44:15 CST
         L0: { id = 0; String X = null;
             L: switch (s.length()) {
             case 3: X="log";id=Id_log; break L;
             case 7: X="binding";id=Id_binding; break L;
             case 11: X="constructor";id=Id_constructor; break L;
             case 13: X="requireNative";id=Id_requireNative; break L;
+            case 15: X="externalBinding";id=Id_externalBinding; break L;
             }
             if (X!=null && X!=s && !X.equals(s)) id = 0;
             break L0;
@@ -117,6 +137,9 @@ public class KrollGlobal extends IdScriptableObject
 				break;
 			case Id_binding:
 				arity = 1; name = "binding";
+				break;
+			case Id_externalBinding:
+				arity = 1; name = "externalBinding";
 				break;
 			case Id_requireNative:
 				arity = 2; name = "requireNative";
@@ -145,6 +168,8 @@ public class KrollGlobal extends IdScriptableObject
 				return Undefined.instance;
 			case Id_binding:
 				return binding(cx, scope, args);
+			case Id_externalBinding:
+				return externalBinding(cx, scope, args);
 			case Id_requireNative:
 				requireNative(cx, scope, args);
 				return Undefined.instance;
@@ -155,6 +180,7 @@ public class KrollGlobal extends IdScriptableObject
 
 	private static final int
 		Id_runtime = 1,
+		Id_debug = 2,
 		MAX_INSTANCE_ID = Id_runtime;
 
 	@Override
@@ -170,6 +196,9 @@ public class KrollGlobal extends IdScriptableObject
 		if ("runtime".equals(name)) {
 			return Id_runtime;
 		}
+		if (DEPLOY_DEBUG.equals(name)) {
+			return Id_debug;
+		}
 		return super.findInstanceIdInfo(name);
 	}
 
@@ -179,6 +208,8 @@ public class KrollGlobal extends IdScriptableObject
 		switch (id) {
 			case Id_runtime:
 				return "runtime";
+			case Id_debug:
+				return DEPLOY_DEBUG;
 		}
 		return super.getInstanceIdName(id);
 	}
@@ -189,6 +220,8 @@ public class KrollGlobal extends IdScriptableObject
 		switch (id) {
 			case Id_runtime:
 				return RUNTIME_RHINO;
+			case Id_debug:
+				return DBG;
 		}
 		return super.getInstanceIdValue(id);
 	}

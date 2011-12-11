@@ -52,7 +52,7 @@
 {
 	if (TiDimensionIsAuto(contentWidth) || TiDimensionIsAuto(contentHeight))
 	{
-		[self performSelector:@selector(setNeedsHandleContentSize) withObject:nil afterDelay:.1];
+		[self setNeedsHandleContentSize];
 	}
 }
 

@@ -28,6 +28,7 @@ methods:
     platforms: [iphone, ipad]
   - name: openPhotoGallery
     summary: open the photo gallery picker
+    platforms: [iphone, ipad, android]
     parameters:
       - name: options
         summary: |
@@ -35,6 +36,7 @@ methods:
         type: Object
   - name: saveToPhotoGallery
     summary: save media to photo gallery / camera roll
+    platforms: [iphone, ipad, android]
     parameters:
       - name: media
         summary: save the media passed to the cameras photo roll/media gallery. must be one of Blob object or File object or an error will be generated.
@@ -45,6 +47,7 @@ methods:
         type: Object
   - name: showCamera
     summary: show the camera
+    platforms: [iphone, ipad, android]
     parameters:
       - name: options
         summary: |
@@ -75,27 +78,33 @@ methods:
     platforms: [iphone, ipad]
   - name: takePicture
     summary: use the device camera to capture a photo. this must be called after calling `showCamera` and only when `autohide` is set to false. this method will cause the media capture device to capture a photo and call the `success` callback.
+    platforms: [iphone, ipad, android]
   - name: takeScreenshot
     summary: take a screen shot of the visible UI on the device
     parameters:
       - name: callback
         summary: function that will be called upon capture. the event property `media` will contain an image Blob object of the screenshot
         type: Callback<Object>
+    platforms: [iphone, ipad, android]
   - name: vibrate
     summary: play a device vibration
+    platforms: [iphone, ipad, android]
 events:
   - name: linechange
     summary: fired when a audio line type change is detected
+    platforms: [iphone, ipad, android]
   - name: recordinginput
     summary: fired when availablity of recording input changes
     properties:
       - name: available
         summary: bool indicating availability of recording device
+    platforms: [iphone, ipad, android]
   - name: volume
     summary: fired when the volume output changes
     properties:
       - name: volume
         summary: float of the new volume in dB
+    platforms: [iphone, ipad, android]
 properties:
   - name: AUDIO_FILEFORMAT_3GP2
     summary: audio file format 3GPP-2
@@ -444,14 +453,17 @@ properties:
     summary: Controls for an embedded view. Used in conjunction with movieControlStyle property of <Titanium.Media.VideoPlayer> in iPhone 3.2+
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
   - name: VIDEO_CONTROL_FULLSCREEN
     summary: Controls for fullscreen. Used in conjunction with movieControlStyle property of <Titanium.Media.VideoPlayer> in iPhone 3.2+
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
   - name: VIDEO_CONTROL_HIDDEN
     summary: constant for video controls hidden
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
   - name: VIDEO_CONTROL_NONE
     summary: No controls. Used in conjunction with movieControlStyle property of <Titanium.Media.VideoPlayer> in iPhone 3.2+
     type: Number
@@ -481,22 +493,22 @@ properties:
     summary: the current media is playable
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: VIDEO_LOAD_STATE_PLAYTHROUGH_OK
     summary: playback will be automatically started in this state when `autoplay` is true
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: VIDEO_LOAD_STATE_STALLED
     summary: playback will be automatically paused in this state, if started
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: VIDEO_LOAD_STATE_UNKNOWN
     summary: the current load state is not known
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: VIDEO_MEDIA_TYPE_AUDIO
     summary: A audio type of media in the movie returned by <Titanium.Media.VideoPlayer> `mediaTypes` property
     type: Number
@@ -521,12 +533,12 @@ properties:
     summary: playback is paused
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: VIDEO_PLAYBACK_STATE_PLAYING
     summary: playback is playing
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD
     summary: playback is rewinding
     type: Number
@@ -541,21 +553,22 @@ properties:
     summary: playback has stopped
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: VIDEO_REPEAT_MODE_NONE
     summary: constant for repeating no videos (IE, the one video will NOT repeat) during playback
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: VIDEO_REPEAT_MODE_ONE
     summary: constant for repeating one video (IE, the one video will repeat constantly) during playback
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: VIDEO_SCALING_ASPECT_FILL
     summary: constant for video aspect where the movie will be scaled until the movie fills the entire screen. Content at the edges of the larger of the two dimensions is clipped so that the other dimension fits the screen exactly. The aspect ratio of the movie is preserved.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
   - name: VIDEO_SCALING_ASPECT_FIT
     summary: constant for video aspect fit where the movie will be scaled until one dimension fits on the screen exactly. In the other dimension, the region between the edge of the movie and the edge of the screen is filled with a black bar. The aspect ratio of the movie is preserved.
     type: Number
@@ -564,6 +577,7 @@ properties:
     summary: constant for video aspect where the movie will be scaled until both dimensions fit the screen exactly. The aspect ratio of the movie is not preserved.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
   - name: VIDEO_SCALING_NONE
     summary: constant for video scaling where the scaling is turn off. The movie will not be scaled.
     type: Number
