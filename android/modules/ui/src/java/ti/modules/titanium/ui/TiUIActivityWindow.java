@@ -136,6 +136,7 @@ public class TiUIActivityWindow extends TiUIView
 		windowActivity = activity;
 		proxy.setActivity(activity);
 		bindProxies();
+		proxy.fireSyncEvent("windowCreated", null);
 	}
 
 	protected ActivityProxy bindWindowActivity(Activity activity)
@@ -406,6 +407,15 @@ public class TiUIActivityWindow extends TiUIView
 
 		if (d.containsKey(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
 			handleWindowPixelFormat(TiConvert.toInt(d, TiC.PROPERTY_WINDOW_PIXEL_FORMAT));
+		}
+
+		if (d.containsKey(TiC.PROPERTY_ACTIVITY)) {
+			Object activityObject = d.get(TiC.PROPERTY_ACTIVITY);
+			ActivityProxy activityProxy = getProxy().getActivityProxy();
+			if (activityObject instanceof HashMap && activityProxy != null) {
+				KrollDict options = new KrollDict((HashMap) activityObject);
+				activityProxy.handleCreationDict(options);
+			}
 		}
 
 		// Don't allow default processing.

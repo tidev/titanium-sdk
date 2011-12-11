@@ -227,6 +227,22 @@ class AnnotatedApi(object):
 			self.deprecated = api_obj["deprecated"]
 		else:
 			self.deprecated = None
+		if "permission" in api_obj:
+			self.permission = api_obj["permission"]
+		else:
+			self.permission = None
+		if "availability" in api_obj:
+			self.availability = api_obj["availability"]
+		else:
+			self.availability = None
+		if "default" in api_obj:
+			self.default = api_obj["default"]
+		else:
+			self.default = None
+		if "optional" in api_obj:
+			self.optional = api_obj["optional"]
+		else:
+			self.optional = None
 
 	@lazyproperty
 	def platforms(self):

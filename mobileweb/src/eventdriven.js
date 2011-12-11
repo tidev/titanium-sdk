@@ -43,8 +43,9 @@
 				if (events != null) {
 					var ev = eventData ? Ti._5.extend({}, eventData) : {};
 					ev.type = eventName;
+					ev.source || (ev.source = obj);
 					for (var ii = 0; ii < events.length; ii++) {
-						events[ii](ev);
+						events[ii].call(obj, ev);
 					}
 				}
 			}

@@ -63,6 +63,12 @@
 		},
 		set: function() { return false; }
 	});
+	
+	var _httpURLFormatter = null;
+	Object.defineProperty(api, 'httpURLFormatter', {
+		get: function() {return _httpURLFormatter;},
+		set: function(val) {return _httpURLFormatter = val;}
+	});
 		
 	Object.defineProperty(api, 'online', {
 		get: function() {return navigator.onLine},

@@ -355,6 +355,15 @@ static void getAddrInternal(char* macAddress, const char* ifName) {
         id xVal = [value objectForKey:@"x"];
         id yVal = [value objectForKey:@"y"];
         if (xVal && yVal) {
+            if (![xVal respondsToSelector:@selector(floatValue)] ||
+                ![yVal respondsToSelector:@selector(floatValue)]) 
+            {
+                if (isValid) {
+                    *isValid = NO;
+                }
+                return CGPointMake(0.0, 0.0);
+            }
+            
             if (isValid) {
                 *isValid = YES;
             }
@@ -1635,4 +1644,29 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     NSString* uid = [TiUtils oldUUID];
     return uid;
 }
+
+// In pre-iOS 5, it looks like response headers were mangled to be case-correct
+// (i.e. WWW-Authenticate became Www-Authenticate). So we have to perform
+// our own case correction to get the RIGHT header back.
+//
+// Note that we assume that Apple mangles all 'xxx-xxx' headers like this.
+
++(NSString*)caseCorrect:(NSString *)str
+{
+    if (![TiUtils isIOS5OrGreater]) {
+        if ([str rangeOfString:@"-"].location != NSNotFound) {
+            NSArray* substrings = [str componentsSeparatedByString:@"-"];
+            NSMutableString* header = [NSMutableString stringWithString:[[substrings objectAtIndex:0] capitalizedString]];
+            for (int i=1; i < [substrings count]; i++) {
+                NSString* substr = [substrings objectAtIndex:i];
+                [(NSMutableString*)header appendFormat:@"-%@",[substr capitalizedString]];
+            }
+            
+            return header;
+        }
+    }
+    
+    return str;
+}
+
 @end

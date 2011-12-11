@@ -22,7 +22,7 @@ exports.bootstrapWindow = function(Titanium) {
 	var ActivityWindow = UI.ActivityWindow;
 	var Proxy = Titanium.Proxy;
 	var TiWindow = Titanium.TiWindow;
-
+		
 	Window.prototype.isActivity = false;
 
 	// set constants for representing states for the window
@@ -30,6 +30,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 	// cached orientation modes for window that are not part of the normal properties map for the proxy
 	Window.prototype.cachedOrientationModes = null;
+	Window.prototype.cachedActivityProxy = null;
 
 	// this is mainly used when we need to perform an operation on an activity and our
 	// window does not have its own activity.  IE:  setting orientation on a window opened 
@@ -39,8 +40,10 @@ exports.bootstrapWindow = function(Titanium) {
 		if (topActivity) {
 			return topActivity.getDecorView();
 		}
-
-		kroll.log(TAG, "unable to find valid activity for decor view");
+		
+		if (kroll.DBG) {
+			kroll.log(TAG, "unable to find valid activity for decor view");
+		}
 		return null;
 	}
 
@@ -98,7 +101,7 @@ exports.bootstrapWindow = function(Titanium) {
 				this.cachedOrientationModes = value;
 			}
 
-		} else {
+		} else if (kroll.DBG) { 
 			kroll.log(TAG, "not allowed to set orientationModes to null");
 		}
 	}
@@ -106,6 +109,22 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.getOrientationModes = orientationModesGetter;
 	Window.prototype.setOrientationModes = orientationModesSetter;
 	Object.defineProperty(Window.prototype, "orientationModes", { get: orientationModesGetter, set: orientationModesSetter});
+
+	// activity getter (account for scenario when heavy weight window's activity is not created yet) 
+	var activityProxyGetter = function () {
+		if (this.currentState == this.state.opened || this.currentState == this.state.opening) {
+			return this.window._internalActivity;
+		}
+
+		if (this.cachedActivityProxy == null) {
+			this.cachedActivityProxy = {};
+		}
+
+		return this.cachedActivityProxy;
+	}
+
+	Window.prototype.getActivity = activityProxyGetter;
+	Object.defineProperty(Window.prototype, "activity", { get: activityProxyGetter });
 
 	// set windowPixelFormat access
 	var windowPixelFormatGetter = function() {
@@ -146,11 +165,14 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.open = function(options) {
 		// if the window is not closed, do not open
 		if (this.currentState != this.state.closed) {
-			kroll.log(TAG, "unable to open, window is not closed");
+			if (kroll.DBG) {
+				kroll.log(TAG, "unable to open, window is not closed");
+				
+			}
 			return;
 		}
 		this.currentState = this.state.opening;
-
+		
 		if (!options) {
 			options = {};
 		} else if (!(options instanceof UI.Animation)) {
@@ -171,6 +193,10 @@ exports.bootstrapWindow = function(Titanium) {
 		// Set any cached properties on the properties given to the "true" view
 		if (this.propertyCache) {
 			this._properties.extend(this.propertyCache);
+		}
+
+		if (this.cachedActivityProxy) {
+			this._properties['activity'] = this.cachedActivityProxy;
 		}
 
 		var needsOpen = false;
@@ -197,7 +223,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 		if (needsOpen) {
 			var self = this;
-			this.window.on("open", function () {
+			this.window.on("windowCreated", function () {
 				self.postOpen();
 			});
 
@@ -229,12 +255,12 @@ exports.bootstrapWindow = function(Titanium) {
 	}
 
 	Window.prototype.postOpen = function() {
+		// Set view and model listener after the window opens
+		this.setWindowView(this.view);
+		
 		if ("url" in this._properties) {
 			this.loadUrl();
 		}
-		
-		// Set view and model listener after the window opens
-		this.setWindowView(this.view);
 		
 		// Add event listeners and update the source of events after the window opens
 		for (var event in this._events) { 
@@ -243,6 +269,12 @@ exports.bootstrapWindow = function(Titanium) {
 		 		this.addWrappedListener(event, listeners[i]); 
 		 	} 
 		}
+		var self = this;
+		this.addWrappedListener("closeFromActivity", function(e) {
+			self.window = null;
+			self.view = null;
+			self.currentState = self.state.closed;
+		});
 
 		this.currentState = this.state.opened;
 		this.fireEvent("open");
@@ -265,7 +297,9 @@ exports.bootstrapWindow = function(Titanium) {
 			return;
 		}
 
-		kroll.log(TAG, "Loading window with URL: " + this.url);
+		if (kroll.DBG) {
+			kroll.log(TAG, "Loading window with URL: " + this.url);
+		}
 
 		// Reset creationUrl of the window
 		var currentUrl = url.resolve(this._sourceUrl, this.url);
@@ -273,7 +307,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 		var scopeVars = {
 			currentWindow: this,
-			currentActivity: this.window.activity,
+			currentActivity: this.window._internalActivity,
 			currentTab: this.tab,
 			currentTabGroup: this.tabGroup
 		};
@@ -284,9 +318,10 @@ exports.bootstrapWindow = function(Titanium) {
 
 	Window.prototype.close = function(options) {
 		// if the window is not opened, do not close
-
 		if (this.currentState != this.state.opened) {
-			kroll.log(TAG, "unable to close, window is not opened");
+			if (kroll.DBG) {
+				kroll.log(TAG, "unable to close, window is not opened");
+			}
 			return;
 		}
 		this.currentState = this.state.closing;
@@ -373,13 +408,13 @@ exports.bootstrapWindow = function(Titanium) {
 				this.view.animate(options);
 			}
 
-		} else {
+		} else if (kroll.DBG) {
 			kroll.log(TAG, "unable to call animate, view is undefined");
 		}
 	}
 
 	Window.prototype.addEventListener = function(event, listener) {
-		if (["open", "close"].indexOf(event) >= 0 || this.window == null) {
+		if (["open", "close"].indexOf(event) >= 0 || this.view == null) {
 			EventEmitter.prototype.addEventListener.call(this, event, listener);
 
 		} else {
@@ -390,8 +425,8 @@ exports.bootstrapWindow = function(Titanium) {
 	// Add event listener to this.window and update the source of event to this.
 	Window.prototype.addWrappedListener = function(event, listener) {
 		var self = this;
-		self.window.addEventListener(event, function(e) {
-			if (e.source == self.window) {
+		self.view.addEventListener(event, function(e) {
+			if (e.source == self.view) {
 				e.source = self;
 			}
 			listener(e);
@@ -403,7 +438,7 @@ exports.bootstrapWindow = function(Titanium) {
 			EventEmitter.prototype.removeEventListener.call(this, event, listener);
 
 		} else {
-			this.window.removeEventListener(event, listener);
+			this.view.removeEventListener(event, listener);
 		}
 	}
 
@@ -412,7 +447,7 @@ exports.bootstrapWindow = function(Titanium) {
 			EventEmitter.prototype.fireEvent.call(this, event, data);
 
 		} else {
-			this.window.fireEvent(event, data);
+			this.view.fireEvent(event, data);
 		}
 	}
 

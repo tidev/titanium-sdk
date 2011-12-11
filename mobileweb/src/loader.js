@@ -1,18 +1,20 @@
 /**
- * Titanium Mobile Web Platform
+ * This file contains source code from the following:
  *
- * Supported Browsers: IE9+, FF3+, Safari 5+, Chrome 5+, Opera 12+, iOS 4+, Android 2.2+
+ * Dojo Toolkit
+ * Copyright (c) 2005-2011, The Dojo Foundation
+ * New BSD License
+ * <http://dojotoolkit.org>
  *
- * Borrows code & ideas from:
- *  - Dojo Toolkit (AFL, BSD) <http://dojotoolkit.org>
- *  - require.js (BSD, MIT) <http://requirejs.org>
- *  - curl.js (MIT) <https://github.com/unscriptable/curl>
- *  - has.js (AFL, BSD, MIT) <https://github.com/phiggins42/has.js>
- *  - es5-shim (MIT) <https://github.com/kriskowal/es5-shim>
- *
- * This loader is a CommonJS and AMD compatible resource loader. It is comprised
- * of two main functions: require() and define().
- *
+ * require.js
+ * Copyright (c) 2010-2011, The Dojo Foundation
+ * New BSD License / MIT License
+ * <http://requirejs.org>
+ * 
+ * curl.js
+ * Copyright (c) 2011 unscriptable.com / John Hann
+ * MIT License
+ * <https://github.com/unscriptable/curl>
  */
 
 (function (global) {
@@ -919,6 +921,7 @@
 	}
 
 	req.toUrl = toUrl;
+	req.config = cfg;
 	mix(req, fnMixin = {
 		evaluate: evaluate,
 		has: has,
@@ -1014,8 +1017,13 @@ require.cache({
 					}
 
 					stack.push(url);
-					require.evaluate(cache[url] = c, 0, true);
-					stack.pop();
+					try {
+						require.evaluate(cache[url] = c, 0, true);
+					} catch (e) {
+						throw e;
+					} finally {
+						stack.pop();
+					}
 
 					onLoad(c);
 				}

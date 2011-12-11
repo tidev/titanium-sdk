@@ -13,9 +13,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Writer;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
@@ -30,20 +35,30 @@ public class KrollBindingGenerator
 	private static final String RUNTIME_RHINO = "rhino";
 	private static final String Kroll_DEFAULT = "org.appcelerator.kroll.annotations.Kroll.DEFAULT";
 
-	private String runtime, outPath;
+	private String runtime, outPath, moduleId, bindingsClassName;
+	private boolean isModule;
 	private Configuration fmConfig;
 	private Template v8SourceTemplate, v8HeaderTemplate;
-	private Template rhinoSourceTemplate, rhinoBindingsTemplate;
+	private Template rhinoSourceTemplate, rhinoGeneratedBindingsTemplate, rhinoModuleBindingsTemplate;
 	private ArrayList<HashMap<String, String>> rhinoBindings = new ArrayList<HashMap<String, String>>();
 	private HashMap<String, Object> apiTree = new HashMap<String, Object>();
 	private HashMap<String, Object> proxies = new HashMap<String, Object>();
 	private HashMap<String, Object> modules = new HashMap<String, Object>();
+
+	// These maps are used so we can load up Titanium JSON metadata when generating source for 3rd party modules
+	private HashMap<String, Object> tiProxies = new HashMap<String, Object>();
+	private HashMap<String, Object> tiModules = new HashMap<String, Object>();
+
 	private JSONUtils jsonUtils;
 
-	public KrollBindingGenerator(String runtime, String outPath)
+	public KrollBindingGenerator(String runtime, String outPath, boolean isModule, String moduleId, String bindingsClassName)
 	{
 		this.runtime = runtime;
 		this.outPath = outPath;
+		this.isModule = isModule;
+		this.moduleId = moduleId;
+		this.bindingsClassName = bindingsClassName;
+
 		this.jsonUtils = new JSONUtils();
 
 		initTemplates();
@@ -75,16 +90,22 @@ public class KrollBindingGenerator
 
 			} else if (RUNTIME_RHINO.equals(runtime)) {
 				InputStream rhinoSourceStream = loader.getResourceAsStream(templatePackage + "ProxyBindingRhino.java.fm");
-				InputStream rhinoBindingsStream = loader.getResourceAsStream(templatePackage + "KrollGeneratedBindingsRhino.java.fm");
+				InputStream rhinoGeneratedBindingsStream = loader.getResourceAsStream(templatePackage + "KrollGeneratedBindingsRhino.java.fm");
+				InputStream rhinoModuleBindingsStream = loader.getResourceAsStream(templatePackage + "KrollModuleBindingsRhino.java.fm");
 
 				rhinoSourceTemplate = new Template(
 					"ProxyBindingRhino.java.fm",
 					new InputStreamReader(rhinoSourceStream),
 					fmConfig);
 
-				rhinoBindingsTemplate = new Template(
+				rhinoGeneratedBindingsTemplate = new Template(
 					"KrollGeneratedBindingsRhino.java.fm",
-					new InputStreamReader(rhinoBindingsStream),
+					new InputStreamReader(rhinoGeneratedBindingsStream),
+					fmConfig);
+
+				rhinoModuleBindingsTemplate = new Template(
+					"KrollModuleBindingsRhino.java.fm",
+					new InputStreamReader(rhinoModuleBindingsStream),
 					fmConfig);
 			}
 		} catch (IOException e) {
@@ -106,13 +127,16 @@ public class KrollBindingGenerator
 
 			writer = new FileWriter(file);
 			template.process(root, writer);
+
 		} catch (Exception e) {
 			e.printStackTrace();
+
 		} finally {
 			if (writer != null) {
 				try {
 					writer.flush();
 					writer.close();
+
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -125,11 +149,14 @@ public class KrollBindingGenerator
 	{
 		String creatableInModule = (String) jsonUtils.getStringMap(proxy, "proxyAttrs").get("creatableInModule");
 		String parentModule = (String) jsonUtils.getStringMap(proxy, "proxyAttrs").get("parentModule");
+
 		if (creatableInModule != null && !creatableInModule.equals(Kroll_DEFAULT)) {
 			return creatableInModule;
+
 		} else if (parentModule != null && !parentModule.equals(Kroll_DEFAULT)) {
 			return parentModule;
 		}
+
 		return null;
 	}
 
@@ -137,6 +164,7 @@ public class KrollBindingGenerator
 	{
 		String fullApiName = (String) jsonUtils.getStringMap(proxy, "proxyAttrs").get("name");
 		String parentModuleClass = getParentModuleClass(proxy);
+
 		while (parentModuleClass != null) {
 			Map<String, Object> parent = jsonUtils.getStringMap(proxies, parentModuleClass);
 			String parentName = (String) jsonUtils.getStringMap(parent, "proxyAttrs").get("name");
@@ -188,14 +216,46 @@ public class KrollBindingGenerator
 	protected void loadBindings(String jsonPath)
 		throws ParseException, IOException
 	{
+		FileReader reader = new FileReader(jsonPath);
 		Map<String, Object> properties = (Map<String, Object>)
-			JSONValue.parseWithException(new FileReader(jsonPath));
+			JSONValue.parseWithException(reader);
+		reader.close();
 
 		Map<String, Object> proxies = jsonUtils.getStringMap(properties, "proxies");
 		Map<String, Object> modules = jsonUtils.getStringMap(properties, "modules");
 
 		this.proxies.putAll(proxies);
 		this.modules.putAll(modules);
+	}
+
+	@SuppressWarnings("unchecked")
+	protected void loadTitaniumBindings()
+		throws ParseException, IOException, URISyntaxException
+	{
+		// Load the binding JSON data from the titanium.jar relative to the kroll-apt.jar
+		// where this class is defined in the MobileSDK
+
+		// According to JavaDoc, getCodeSource() is the only possible "null" part of this chain
+		CodeSource codeSource = getClass().getProtectionDomain().getCodeSource();
+		if (codeSource == null) {
+			System.err.println("Error: No code source found on the ClassLoader's protection domain");
+			System.exit(1);
+		}
+
+		URL krollAptJarUrl = codeSource.getLocation();
+		String mobileAndroidDir = new File(krollAptJarUrl.toURI()).getParent();
+
+		JarFile titaniumJar = new JarFile(new File(mobileAndroidDir, "titanium.jar"));
+		ZipEntry jsonEntry = titaniumJar.getEntry("org/appcelerator/titanium/bindings/titanium.json");
+		InputStream jsonStream = titaniumJar.getInputStream(jsonEntry);
+
+		Map<String, Object> properties = (Map<String, Object>)
+			JSONValue.parseWithException(new InputStreamReader(jsonStream));
+		jsonStream.close();
+		titaniumJar.close();
+
+		tiProxies.putAll(jsonUtils.getStringMap(properties, "proxies"));
+		tiModules.putAll(jsonUtils.getStringMap(properties, "modules"));
 	}
 
 	protected void generateApiTree()
@@ -216,6 +276,11 @@ public class KrollBindingGenerator
 
 			HashMap<Object, Object> root = new HashMap<Object, Object>(proxy);
 			root.put("allModules", modules);
+			root.put("allProxies", proxies);
+			root.put("moduleId", moduleId);
+
+			root.put("tiProxies", tiProxies);
+			root.put("tiModules", tiModules);
 
 			if (RUNTIME_V8.equals(runtime)) {
 				String v8ProxyHeader = proxyName + ".h";
@@ -245,16 +310,25 @@ public class KrollBindingGenerator
 		HashMap<Object, Object> root = new HashMap<Object, Object>();
 		root.put("bindings", rhinoBindings);
 
-		saveTypeTemplate(rhinoBindingsTemplate,
-			"org/appcelerator/kroll/runtime/rhino/KrollGeneratedBindings.java",
-			root);
+		if (isModule) {
+			String path = moduleId.replaceAll(".", "/");
+			root.put("packageName", moduleId);
+			root.put("className", bindingsClassName);
+
+			saveTypeTemplate(rhinoModuleBindingsTemplate, path + "/" + bindingsClassName + ".java", root);
+
+		} else {
+			saveTypeTemplate(rhinoGeneratedBindingsTemplate,
+				"org/appcelerator/kroll/runtime/rhino/KrollGeneratedBindings.java",
+				root);
+		}
 	}
 
 	public static void main(String[] args)
 		throws Exception
 	{
-		if (args.length < 3) {
-			System.err.println("Usage: KrollBindingGenerator <runtime> <outdir> <binding.json> [<binding.json> ...]");
+		if (args.length < 6) {
+			System.err.println("Usage: KrollBindingGenerator <runtime> <outdir> <isModule> <modulePackage> <moduleClassName> <binding.json> [<binding.json> ...]");
 			System.exit(1);
 		}
 
@@ -266,11 +340,19 @@ public class KrollBindingGenerator
 		}
 
 		String outDir = args[1];
-		KrollBindingGenerator generator = new KrollBindingGenerator(runtime, outDir);
+		boolean isModule = "true".equalsIgnoreCase(args[2]);
+		String packageName = args[3];
+		String className = args[4];
+
+		KrollBindingGenerator generator = new KrollBindingGenerator(runtime, outDir, isModule, packageName, className);
 
 		// First pass to generate the entire API tree
-		for (int i = 2; i < args.length; i++) {
+		for (int i = 5; i < args.length; i++) {
 			generator.loadBindings(args[i]);
+		}
+
+		if (isModule) {
+			generator.loadTitaniumBindings();
 		}
 
 		generator.generateApiTree();
