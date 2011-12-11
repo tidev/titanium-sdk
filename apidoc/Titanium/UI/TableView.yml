@@ -3,18 +3,16 @@ name: Titanium.UI.TableView
 summary: A Table View allows you to create a scrollable table of content in a list-based fashion.
 description: |
      A table view can contain a set of [TableViewRow](Titanium.UI.TableViewRow)s, each displaying 
-     an item of data. Each row may contain text, as well as optional images on the left and 
-     right, and various system-provided indicators, such as check marks.
+     an item of data. The default `TableViewRow` has properties for adding text, as well as 
+     optional images on the left and right sides, and various system-provided indicators, 
+     such as check marks. Table view rows can also be fully customized by adding child views, 
+     such as labels, buttons, or image views.
 
      When adding rows to a table view, each row can be passed as a 
      [TableViewRow](Titanium.UI.TableViewRow) object, or as dictionary specifying 
      the properties for a table row, in which case the `TableView` will create 
      `TableViewRow` objects as needed. 
      
-     Note that for large tables, the table view reuses a limited number of `TableViewRow`
-     objects to represent the visible rows, rather than creating objects for each 
-     row. 
-
      Use the <Titanium.UI.createTableView> method to create a table view.
 extends: Titanium.UI.View
 since: "0.8"
@@ -47,7 +45,7 @@ methods:
         parameter.
     parameters:
       - name: row
-        summary: Index of row to delete.
+        summary: Index of the row to delete.
         type: Number
       - name: properties
         summary: Animation properties. Only used on iOS.
@@ -129,9 +127,6 @@ methods:
         the top. A positive value scrolls it down, and a negative value scrolls the list up
         above the first item.
 
-        Positive values of `top` scroll the list down from the top. Negative values of 
-        `top` scroll the list up above the first item.
-
         On iOS, specify a <TableViewAnimationProperties> object with `animated` set to `false` to 
         disable the scrolling animation.
     parameters:
@@ -209,7 +204,7 @@ events:
         type: Titanium.UI.TableViewRow
   - name: delete
     summary: Fired when a table row is deleted by the user.
-    platform: [android, iphone, ipad]
+    platform: [iphone, ipad]
     properties:
       - name: index
         summary: Row index.
@@ -239,7 +234,7 @@ events:
         type: Titanium.UI.TableViewRow
   - name: move
     summary: Fired when a table row is moved by the user.
-    platform: [android, iphone, ipad]
+    platform: [iphone, ipad]
     properties:
       - name: index
         summary: Row index.
@@ -335,6 +330,8 @@ properties:
   - name: allowsSelection
     summary: True if the rows can be selected.
     type: Boolean
+    default: true
+    platforms: [iphone, ipad]
   - name: allowsSelectionDuringEditing
     summary: True if the rows can be selected while editing the table.
     platforms: [iphone, ipad]
@@ -406,6 +403,7 @@ properties:
     summary: If true (default) if tableview can be scrolled
     type: Boolean
     default: true
+    platforms: [iphone,ipad]
   - name: search
     summary: Search field to use for the table view.
     type: Titanium.UI.SearchBar
@@ -414,7 +412,7 @@ properties:
     summary: Boolean to control the visibility of the search field.
     type: Boolean
     default: false (search field visible)
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
   - name: separatorColor
     summary: Separator color between rows, specified as a hex or named value.
     type: String
