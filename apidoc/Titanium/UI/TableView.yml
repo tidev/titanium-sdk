@@ -417,7 +417,7 @@ properties:
     summary: Default row height for table view rows.
     type: Number
   - name: scrollable
-    summary: If true (default) if tableview can be scrolled
+    summary: If `true`, the tableview can be scrolled.
     type: Boolean
     default: true
     platforms: [iphone,ipad]
