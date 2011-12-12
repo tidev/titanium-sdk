@@ -4,11 +4,9 @@ summary: Use <Titanium.UI.iOS.3DMatrix> instead.
 description: |
     The 3D Matrix is an object for holding values for an affine transformation matrix. 
 
-    The 3DMatrix is created by <Titanium.UI.iOS.create3DMatrix>.  A 3D matrix is
+    The 3DMatrix is created by <Titanium.UI.create3DMatrix>. A 3D matrix is
     used to rotate, scale, translate, or skew the objects in a three-dimensional
-    space. A 3D matrix is represented by a 4 by 4 matrix. Because the forth
-    column is always (0,0,1), the data structure contains values for only the
-    first three columns.
+    space. A 3D matrix is represented by a 4 by 4 matrix. 
 
     You create an `identity matrix` by creating a 3D Matrix with an empty
     constructor.
@@ -23,15 +21,15 @@ methods:
   - name: multiply
     summary: Returns a matrix constructed by combining two existing matrix.
     returns:
-        type: Titanium.UI.iOS.3DMatrix
+        type: Titanium.UI.3DMatrix
     parameters:
       - name: t2
         summary: The second matrix. This matrix is concatenated to the matrix instance against which the function is invoked.  The result of this function is the first matrix multiplied by the second matrix. You might perform several multiplications in order to create a single matrix that contains the cumulative effects of several transformations. Note that matrix operations are not commutative - the order in which you concatenate matrices is important. That is, the result of multiplying matrix t1 by matrix t2 does not necessarily equal the result of multiplying matrix t2 by matrix t1.
-        type: Titanium.UI.iOS.3DMatrix
+        type: Titanium.UI.3DMatrix
   - name: rotate
     summary: Returns a matrix constructed by rotating an existing matrix
     returns:
-        type: Titanium.UI.iOS.3DMatrix
+        type: Titanium.UI.3DMatrix
     parameters:
       - name: angle
         summary: The angle, in degrees, by which to rotate the matrix. A positive value specifies counterclockwise rotation and a negative value specifies clockwise rotation.
@@ -48,7 +46,7 @@ methods:
   - name: scale
     summary: Returns a matrix constructed by scaling an existing matrix
     returns:
-        type: Titanium.UI.iOS.3DMatrix
+        type: Titanium.UI.3DMatrix
     parameters:
       - name: sx
         summary: The value by which to scale x values of the matrix
@@ -62,7 +60,7 @@ methods:
   - name: translate
     summary: Returns a matrix constructed by translating an existing matrix
     returns:
-        type: Titanium.UI.iOS.3DMatrix
+        type: Titanium.UI.3DMatrix
     parameters:
       - name: tx
         summary: The value by which to move x values with the matrix
