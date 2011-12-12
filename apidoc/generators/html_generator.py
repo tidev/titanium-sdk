@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2011 Appcelerator, Inc. All Rights Reserved.
 # Licensed under the Apache Public License (version 2)
-import os, sys, re
+import os, sys, re, codecs
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(this_dir, "..")))
@@ -139,8 +139,8 @@ def generate(raw_apis, annotated_apis, options):
 	if not os.path.exists(changelog_mdoc):
 		log.warn("%s wasn't found, skipping changelog.html generation." % changelog_mdoc)
 	else:
-		changelog = open(changelog_mdoc).read()
-		out = open(os.path.join(options.output, "changelog.html"), "w+")
+		changelog = codecs.open(changelog_mdoc, "r", "utf8").read()
+		out = codecs.open(os.path.join(options.output, "changelog.html"), "w+", "utf8")
 		out.write(markdown.markdown(changelog))
 		out.close()
 
