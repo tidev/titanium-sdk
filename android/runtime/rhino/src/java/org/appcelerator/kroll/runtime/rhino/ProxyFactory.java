@@ -42,7 +42,12 @@ public class ProxyFactory
 
 			if (exports != null) {
 				String bindingName = KrollGeneratedBindings.getBindingName(proxyClassName);
-				constructor = (Function) exports.get(bindingName, exports);
+				if (bindingName == null) {
+					constructor = (Function) exports.get(proxyClassName, exports);
+
+				} else {
+					constructor = (Function) exports.get(bindingName, exports);
+				}
 
 			} else {
 				// Fall back to our external / 3rd party modules
