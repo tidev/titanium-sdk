@@ -46,6 +46,7 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		boolean debuggerEnabled = getKrollApplication().isDebuggerEnabled();
 
 		if (!libLoaded) {
+			System.loadLibrary("stlport_shared");
 			System.loadLibrary("kroll-v8");
 			libLoaded = true;
 		}
