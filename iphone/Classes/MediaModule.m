@@ -47,6 +47,7 @@ static NSDictionary* TI_itemProperties;
 static NSDictionary* TI_filterableItemProperties;
 
 @implementation MediaModule
+@synthesize popoverView;
 
 #pragma mark Internal
 
@@ -113,6 +114,7 @@ static NSDictionary* TI_filterableItemProperties;
 	[self destroyPicker];
 	RELEASE_TO_NIL(systemMusicPlayer);
 	RELEASE_TO_NIL(appMusicPlayer);
+	RELEASE_TO_NIL(popoverView);
 	[super dealloc];
 }
 
@@ -228,9 +230,34 @@ static NSDictionary* TI_filterableItemProperties;
 			poFrame.size.height = 50;
 		}
 
+		//FROM APPLE DOCS
+		//If you presented the popover from a target rectangle in a view, the popover controller does not attempt to reposition the popover. 
+		//In thosecases, you must manually hide the popover or present it again from an appropriate new position.
+		//We will register for interface change notification for this purpose
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+		
+		arrowDirection = arrow;
+		popoverView = poView;
 		popover = [[UIPopoverController alloc] initWithContentViewController:picker_];
 		[popover setDelegate:self];
 		[popover presentPopoverFromRect:poFrame inView:poView permittedArrowDirections:arrow animated:animatedPicker];
+	}
+}
+
+-(void)updatePopover:(NSNotification *)notification;
+{
+	[self performSelector:@selector(updatePopoverNow) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration] inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+}
+
+-(void)updatePopoverNow
+{
+	if (popover) {
+		//GO AHEAD AND RE-PRESENT THE POPOVER NOW 
+		CGRect popOverRect = [popoverView bounds];
+		if (popoverView == [[TiApp app] controller].view) {
+			popOverRect.size.height = 50;
+		}
+		[popover presentPopoverFromRect:popOverRect inView:popoverView permittedArrowDirections:arrowDirection animated:animatedPicker];
 	}
 }
 
@@ -255,6 +282,8 @@ static NSDictionary* TI_filterableItemProperties;
 	
 	RELEASE_TO_NIL(popover);
 	[self destroyPicker];
+	//Unregister for interface change notification 
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
 }
 
 -(void)showPicker:(NSDictionary*)args isCamera:(BOOL)isCamera
