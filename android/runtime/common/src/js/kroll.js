@@ -104,7 +104,10 @@
 			var source = NativeModule.getSource(this.id);
 			source = NativeModule.wrap(source);
 
-			var fn = runInThisContext(source, this.filename, true);
+			// All native modules have their filename prefixed with ti:/
+			var filename = 'ti:/' + this.filename;
+
+			var fn = runInThisContext(source, filename, true);
 			fn(this.exports, NativeModule.require, this, this.filename, null, global.Ti, global.Ti, global, kroll);
 		}
 
