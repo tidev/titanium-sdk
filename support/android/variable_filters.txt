@@ -16,8 +16,8 @@ encode
 parseFloat
 Number
 URIError
-encodedURIComponent
-decodedURIComponent
+encodeURIComponent
+decodeURIComponent
 RangeError
 ReferenceError
 RegExp
