@@ -504,7 +504,7 @@ fails, a JS exception is returned.
 		<#local type = "Local<Number>">
 		<#local valueExpr = expr + "->ToNumber()">
 		<#local stringExpr = expr + "->ToString()">
-		<#local postAssignmentCheck = "V8Util::isNaN(" + current_arg + ")">
+		<#local postAssignmentCheck = "titanium::V8Util::isNaN(" + current_arg + ")">
 	<#elseif info?keys?seq_contains("jsHandleCast")>
 		<#local type = "Local<" + info.jsType + ">">
 		<#local valueExpr = "Local<" + info.jsType + ">::Cast(" + expr + ")">
