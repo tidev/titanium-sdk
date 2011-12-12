@@ -1,4 +1,4 @@
-Ti._5.createClass("Titanium.UI.View", function(args){
+Ti._5.createClass("Ti.UI.View", function(args){
 	args = require.mix({
 		height: "100%",
 		unselectable: true,

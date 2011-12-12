@@ -1,4 +1,4 @@
-Ti._5.createClass('Titanium.UI.3DMatrix', function(args){
+Ti._5.createClass('Ti.UI.3DMatrix', function(args){
 
 	// Interfaces
 	Ti._5.DOMView(this, '3dmatrix', args, '3DMatrix');

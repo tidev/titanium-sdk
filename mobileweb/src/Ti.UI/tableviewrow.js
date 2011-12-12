@@ -1,4 +1,4 @@
-Ti._5.createClass("Titanium.UI.TableViewRow", function(args){
+Ti._5.createClass("Ti.UI.TableViewRow", function(args){
 	args = require.mix({
 		backgroundColor: "transparent",
 		font: require.mix({
@@ -12,7 +12,8 @@ Ti._5.createClass("Titanium.UI.TableViewRow", function(args){
 		width: "100%"
 	}, args);
 
-	var obj = this,
+	var undef,
+		obj = this,
 		domNode = Ti._5.DOMView(obj, "li", args, "TableViewRow"),
 		domStyle = domNode.style,
 		on = require.on,
@@ -93,18 +94,16 @@ Ti._5.createClass("Titanium.UI.TableViewRow", function(args){
 
 	// Properties
 	Ti._5.prop(obj, {
-		"backgroundDisabledColor": args.backgroundDisabledColor,
-		"backgroundDisabledImage": args.backgroundDisabledImage,
-		"className": args.className,
-		"color": {
-			value: args.color,
+		backgroundDisabledColor: undef,
+		backgroundDisabledImage: undef,
+		className: undef,
+		color: {
 			get: function(){return _colorRow;},
 			set: function(val){
 				domStyle.color = _colorRow = val;
 			}
 		},
-		"hasCheck": {
-			value: !!args.hasCheck,
+		hasCheck: {
 			get: function(){return _hasCheck;},
 			set: function(val){
 				_hasCheck = val;
@@ -115,8 +114,7 @@ Ti._5.createClass("Titanium.UI.TableViewRow", function(args){
 				}
 			}
 		},
-		"hasChild": {
-			value: !!args.hasChild,
+		hasChild: {
 			get: function(){return _hasChild;},
 			set: function(val){
 				_hasChild = val;
@@ -127,8 +125,7 @@ Ti._5.createClass("Titanium.UI.TableViewRow", function(args){
 				}
 			}
 		},
-		"hasDetail": {
-			value: !!args.hasDetail,
+		hasDetail: {
 			get: function(){return _hasDetail;},
 			set: function(val){
 				_hasDetail = val;
@@ -139,12 +136,12 @@ Ti._5.createClass("Titanium.UI.TableViewRow", function(args){
 				}
 			}
 		},
-		"indentionLevel": {
+		indentionLevel: {
 			get: function(){return _indentionLevel;},
 			set: function(val){_indentionLevel = parseInt(val);}
 		},
-		"layout": args.layout,
-		"leftImage": {
+		layout: undef,
+		leftImage: {
 			get: function(){return _leftImage;},
 			set: function(val){
 				_leftImage = val;
@@ -167,7 +164,7 @@ Ti._5.createClass("Titanium.UI.TableViewRow", function(args){
 				}
 			}
 		},
-		"rightImage": {
+		rightImage: {
 			get: function(){return _rightImage;},
 			set: function(val){
 				_rightImage = val;
@@ -192,11 +189,10 @@ Ti._5.createClass("Titanium.UI.TableViewRow", function(args){
 				}
 			}
 		},
-		"selectedBackgroundColor": args.selectedBackgroundColor || "#cccccc",
-		"selectedBackgroundImage": args.selectedBackgroundImage,
-		"selectedColor": args.selectedColor || obj.color,
-		"selectionStyle": {
-			value: args.selectionStyle,
+		selectedBackgroundColor: "#cccccc",
+		selectedBackgroundImage: undef,
+		selectedColor: obj.color,
+		selectionStyle: {
 			get: function(){return _selectionStyle;},
 			set: function(val){
 				_selectionStyle = val;
@@ -207,15 +203,13 @@ Ti._5.createClass("Titanium.UI.TableViewRow", function(args){
 				}
 			}
 		},
-		"title": {
-			value: args.title,
+		title: {
 			get: function(){return _title;},
 			set: function(val) {
 				_titleObj.innerHTML = Ti._5._changeTextToHTML(_title = val);
 			}
 		},
-		"top": {
-			value: args.top,
+		top: {
 			get: function() {
 				return domStyle.paddingTop ? parseInt(domStyle.paddingTop) : "";
 			},
@@ -224,8 +218,7 @@ Ti._5.createClass("Titanium.UI.TableViewRow", function(args){
 				domStyle.paddingTop = px(val);
 			}
 		},
-		"bottom": {
-			value: args.bottom,
+		bottom: {
 			get: function() {
 				return domStyle.paddingBottom ? parseInt(domStyle.paddingBottom) : "";
 			},
@@ -234,8 +227,7 @@ Ti._5.createClass("Titanium.UI.TableViewRow", function(args){
 				domStyle.paddingBottom = px(val);
 			}
 		},
-		"left": {
-			value: args.left,
+		left: {
 			get: function() {
 				return domStyle.paddingLeft ? parseInt(domStyle.paddingLeft) : "";
 			},
@@ -244,8 +236,7 @@ Ti._5.createClass("Titanium.UI.TableViewRow", function(args){
 				domStyle.paddingLeft = px(val);
 			}
 		},
-		"right": {
-			value: args.right,
+		right: {
 			get: function() {
 				return domStyle.paddingRight ? parseInt(domStyle.paddingRight) : "";
 			},
@@ -254,8 +245,7 @@ Ti._5.createClass("Titanium.UI.TableViewRow", function(args){
 				domStyle.paddingRight = px(val);
 			}
 		},
-		"size": {
-			value: args.size,
+		size: {
 			get: function() {
 				return {
 					width	: obj.width,
@@ -267,8 +257,7 @@ Ti._5.createClass("Titanium.UI.TableViewRow", function(args){
 				val.height && (obj.height = px(val.height));
 			}
 		},
-		"height": {
-			value: args.height,
+		height: {
 			get: function() {
 				return _height;
 			},
@@ -276,8 +265,7 @@ Ti._5.createClass("Titanium.UI.TableViewRow", function(args){
 				domStyle.lineHeight = domStyle.height = _height = val + (/^\d+$/.test(val) ? "px" : "");
 			}
 		},
-		"header": {
-			value: args.header,
+		header: {
 			get: function(){return obj._rowData.header;},
 			set: function(val) {
 				obj._rowData.header = val;
@@ -286,8 +274,7 @@ Ti._5.createClass("Titanium.UI.TableViewRow", function(args){
 				}
 			}
 		},
-		"footer": {
-			value: args.footer,
+		footer: {
 			get: function(){return obj._rowData.footer;},
 			set: function(val) {
 				obj._rowData.footer = val;
@@ -297,6 +284,8 @@ Ti._5.createClass("Titanium.UI.TableViewRow", function(args){
 			}
 		}
 	});
+
+	require.mix(obj, args);
 
 	domNode._calcHeight = false;
 	obj.addEventListener("html5_added", function(){
@@ -341,7 +330,7 @@ Ti._5.createClass("Titanium.UI.TableViewRow", function(args){
 
 	function setColoredStyle() {
 		if (obj.selectedBackgroundImage) {
-			domStyle.backgroundImage = "url("" + Ti._5.getAbsolutePath(obj.selectedBackgroundImage) + "")";
+			domStyle.backgroundImage = "url(" + Ti._5.getAbsolutePath(obj.selectedBackgroundImage) + ")";
 			domStyle.backgroundRepeat = "no-repeat";
 		} else if (obj.selectedBackgroundColor) {
 			domStyle.backgroundColor = obj.selectedBackgroundColor;
@@ -352,7 +341,7 @@ Ti._5.createClass("Titanium.UI.TableViewRow", function(args){
 
 	function setStatusQuo() {
 		if(obj.backgroundImage != null){
-			domStyle.backgroundImage = "url("" + Ti._5.getAbsolutePath(obj.backgroundImage) + "")";
+			domStyle.backgroundImage = "url(" + Ti._5.getAbsolutePath(obj.backgroundImage) + ")";
 		}
 		if(obj.backgroundColor != null){
 			domStyle.backgroundColor = obj.backgroundColor;
@@ -422,7 +411,6 @@ Ti._5.createClass("Titanium.UI.TableViewRow", function(args){
 		obj.fireEvent("click", oEvent);
 		// Fire section event
 		obj.parent && obj.parent.fireEvent("click", oEvent);
-		}
 	});
 
 	on(domNode, "dblclick", function(event) {

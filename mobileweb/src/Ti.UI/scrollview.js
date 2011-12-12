@@ -1,4 +1,4 @@
-Ti._5.createClass("Titanium.UI.ScrollView", function(args){
+Ti._5.createClass("Ti.UI.ScrollView", function(args){
 	args = require.mix({
 		height: "100%",
 		unselectable: true,
@@ -38,15 +38,15 @@ Ti._5.createClass("Titanium.UI.ScrollView", function(args){
 
 	// Properties
 	Ti._5.prop(obj, {
-		"canCancelEvents": true,
-		"contentHeight": {
+		canCancelEvents: true,
+		contentHeight: {
 			get: function(){return _contentHeight;},
 			set: function(val){
 				_contentHeight = val;
 				obj._getAddContainer().style.height = px(val);
 			}
 		},
-		"contentOffset": {
+		contentOffset: {
 			get: function(){return _contentOffset;},
 			set: function(val){
 				_contentOffset = val;
@@ -54,33 +54,33 @@ Ti._5.createClass("Titanium.UI.ScrollView", function(args){
 				y in val && (domStyle.paddingTop = px(val.y));
 			}
 		},
-		"contentWidth": {
+		contentWidth: {
 			get: function(){return _contentWidth;},
 			set: function(val){
 				_contentWidth = val;
 				obj._getAddContainer().style.width = px(val);
 			}
 		},
-		"disableBounce": false,
-		"horizontalBounce": false,
-		"maxZoomScale": null,
-		"minZoomScale": null,
-		"scrollType": null,
-		"showHorizontalScrollIndicator": {
+		disableBounce: false,
+		horizontalBounce: false,
+		maxZoomScale: null,
+		minZoomScale: null,
+		scrollType: null,
+		showHorizontalScrollIndicator: {
 			get: function(){return _showHorizontalScrollIndicator;},
 			set: function(val){
 				_showHorizontalScrollIndicator = val;
 				domStyle.overflowX = _showHorizontalScrollIndicator ? "scroll" : "hidden";
 			}
 		},
-		"showVerticalScrollIndicator": {
+		showVerticalScrollIndicator: {
 			get: function(){return _showVerticalScrollIndicator;},
 			set: function(val){
 				_showVerticalScrollIndicator = val;
 				domStyle.overflowY = _showVerticalScrollIndicator ? "scroll" : "hidden";
 			}
 		},
-		"size": {
+		size: {
 			get: function(){return _size;},
 			set: function(val){
 				if (val != null && val.width != null) {
@@ -91,8 +91,8 @@ Ti._5.createClass("Titanium.UI.ScrollView", function(args){
 				}
 			}
 		},
-		"verticalBounce": null,
-		"zoomScale": null
+		verticalBounce: null,
+		zoomScale: null
 	});
 
 	// Methods

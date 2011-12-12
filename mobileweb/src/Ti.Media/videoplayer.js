@@ -1,4 +1,4 @@
-Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
+Ti._5.createClass("Ti.Media.VideoPlayer", function(args){
 	args = args || {};
 
 	var self = this,
@@ -45,20 +45,20 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 
 	// Properties
 	Ti._5.propReadOnly(this, {
-		"playbackState": function(){ return _playbackState; },
-		"playing": function(){ return _playing; },
-		"initialPlaybackTime": 0,
-		"currentPlaybackTime": function(){ return _currentPlaybackTime; },
-		"endPlaybackTime": function(){ return _endPlaybackTime; },
-		"playableDuration": function(){ return _playableDuration; },
-		"loadState": function(){ return _loadState; },
-		"duration": function(){ return _duration; }
+		playbackState: function(){ return _playbackState; },
+		playing: function(){ return _playing; },
+		initialPlaybackTime: 0,
+		currentPlaybackTime: function(){ return _currentPlaybackTime; },
+		endPlaybackTime: function(){ return _endPlaybackTime; },
+		playableDuration: function(){ return _playableDuration; },
+		loadState: function(){ return _loadState; },
+		duration: function(){ return _duration; }
 	});
 
 	Ti._5.prop(this, {
-		"autoplay": !!args.autoplay,
-		"repeatMode": args.repeatMode === media.VIDEO_REPEAT_MODE_ONE ? media.VIDEO_REPEAT_MODE_ONE : media.VIDEO_REPEAT_MODE_NONE,
-		"fullscreen": {
+		autoplay: !!args.autoplay,
+		repeatMode: args.repeatMode === media.VIDEO_REPEAT_MODE_ONE ? media.VIDEO_REPEAT_MODE_ONE : media.VIDEO_REPEAT_MODE_NONE,
+		fullscreen: {
 			get: function(){ return _fullscreen; },
 			set: function(fs){
 				var h;
@@ -90,7 +90,7 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 				});
 			}
 		},
-		"scalingMode": {
+		scalingMode: {
 			get: function() {
 				return _scalingMode;
 			},
@@ -99,7 +99,7 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 				setSize();
 			}
 		},
-		"url": {
+		url: {
 			get: function() { return _url; },
 			set: function(val) {
 				_url = val;
@@ -108,7 +108,7 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 				createVideo();
 			}
 		},
-		"mediaControlStyle": {
+		mediaControlStyle: {
 			get: function() { return _mediaControlStyle; },
 			set: function(val) {
 				video.controls = val === media.VIDEO_CONTROL_DEFAULT;

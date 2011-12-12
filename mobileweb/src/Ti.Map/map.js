@@ -3,11 +3,11 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	Ti._5.prop(api, 'HYBRID_TYPE');
-
-	Ti._5.prop(api, 'SATELLITE_TYPE');
-
-	Ti._5.prop(api, 'STANDARD_TYPE');
+	Ti._5.propReadOnly(api, {
+		HYBRID_TYPE: 0,
+		SATELLITE_TYPE: 1,
+		STANDARD_TYPE: 2
+	});
 
 	// Methods
 	api.createAnnotation = function(){
@@ -16,4 +16,4 @@
 	api.createMapView = function(){
 		console.debug('Method "Titanium.Map.createMapView" is not implemented yet.');
 	};
-})(Ti._5.createClass('Titanium.Map'));
+})(Ti._5.createClass('Ti.Map'));

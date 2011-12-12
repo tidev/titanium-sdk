@@ -1,4 +1,4 @@
-Ti._5.createClass("Titanium.Map.MapView", function(api){
+Ti._5.createClass("Ti.Map.MapView", function(api){
     var obj = this;
 
 	// Interfaces
@@ -9,13 +9,13 @@ Ti._5.createClass("Titanium.Map.MapView", function(api){
 
 	// Properties
 	Ti._5.prop(obj, {
-		"animate": null,
-		"annotations": null,
-		"location": null,
-		"mapType": null,
-		"region": null,
-		"regionFit": null,
-		"userLocation": null
+		animate: null,
+		annotations: null,
+		location: null,
+		mapType: null,
+		region: null,
+		regionFit: null,
+		userLocation: null
 	});
 
 	// Methods

@@ -3,13 +3,12 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	Ti._5.prop(api, 'CONTACTS_KIND_ORGANIZATION');
-
-	Ti._5.prop(api, 'CONTACTS_KIND_PERSON');
-
-	Ti._5.prop(api, 'CONTACTS_SORT_FIRST_NAME');
-
-	Ti._5.prop(api, 'CONTACTS_SORT_LAST_NAME');
+	Ti._5.propReadOnly(api, {
+		CONTACTS_KIND_ORGANIZATION: 0,
+		CONTACTS_KIND_PERSON: 1,
+		CONTACTS_SORT_FIRST_NAME: 2,
+		CONTACTS_SORT_LAST_NAME: 3
+	});
 
 	// Methods
 	api.createGroup = function(){
@@ -48,4 +47,4 @@
 	api.showContacts = function(){
 		console.debug('Method "Titanium.Contacts.showContacts" is not implemented yet.');
 	};
-})(Ti._5.createClass('Titanium.Contacts'));
+})(Ti._5.createClass("Ti.Contacts"));

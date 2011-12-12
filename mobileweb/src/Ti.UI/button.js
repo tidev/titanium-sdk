@@ -1,4 +1,4 @@
-Ti._5.createClass("Titanium.UI.Button", function(args){
+Ti._5.createClass("Ti.UI.Button", function(args){
 	var obj = this,
 		domNode = Ti._5.DOMView(obj, "button", args, "Button"),
 		_title = "",
@@ -25,7 +25,7 @@ Ti._5.createClass("Titanium.UI.Button", function(args){
 
 	// Properties
 	Ti._5.prop(obj, {
-		"backgroundDisabledColor": {
+		backgroundDisabledColor: {
 			get: function() {
 				return _backgroundDisabledColor ? _backgroundDisabledColor : "";
 			},
@@ -33,7 +33,7 @@ Ti._5.createClass("Titanium.UI.Button", function(args){
 				_backgroundDisabledColor = val;
 			}
 		},
-		"backgroundDisabledImage": {
+		backgroundDisabledImage: {
 			get: function() {
 				return _backgroundDisabledImage ? _backgroundDisabledImage : "";
 			},
@@ -41,7 +41,7 @@ Ti._5.createClass("Titanium.UI.Button", function(args){
 				_backgroundDisabledImage = val;
 			}
 		},
-		"backgroundImage": {
+		backgroundImage: {
 			get: function() {
 				return _backgroundImage;
 			},
@@ -62,7 +62,7 @@ Ti._5.createClass("Titanium.UI.Button", function(args){
 				}
 			}
 		},
-		"enabled": {
+		enabled: {
 			get: function(){return _enabled;},
 			set: function(val) {
 				// do nothing if widget is already in obj state
@@ -97,7 +97,7 @@ Ti._5.createClass("Titanium.UI.Button", function(args){
 				}
 			}
 		},
-		"image": {
+		image: {
 			get: function() {return _image;},
 			set: function(val){
 				if (_imageObj == null) {
@@ -113,7 +113,7 @@ Ti._5.createClass("Titanium.UI.Button", function(args){
 				_imageObj.src = _image;
 			}
 		},
-		"selectedColor": {
+		selectedColor: {
 			get: function(){return _selectedColor;},
 			set: function(val) {
 				_selectedColor = val;
@@ -129,7 +129,7 @@ Ti._5.createClass("Titanium.UI.Button", function(args){
 				}
 			}
 		},
-		"size": {
+		size: {
 			get: function() {
 				return {
 					width: obj.width,
@@ -141,8 +141,8 @@ Ti._5.createClass("Titanium.UI.Button", function(args){
 				val.height && (obj.height = Ti._5.px(val.height));
 			}
 		},
-		"style": null,
-		"title": {
+		style: null,
+		title: {
 			get: function() {return _title || obj.dom.innerHTML;},
 			set: function(val) {
 				_title = val;
@@ -151,7 +151,7 @@ Ti._5.createClass("Titanium.UI.Button", function(args){
 				obj.dom.appendChild(_titleObj);
 			}
 		},
-		"titleid": {
+		titleid: {
 			get: function(){return _titleid;},
 			set: function(val){obj.title = L(_titleid = val);}
 		}

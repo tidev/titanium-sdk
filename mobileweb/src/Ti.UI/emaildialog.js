@@ -1,4 +1,4 @@
-Ti._5.createClass("Titanium.UI.EmailDialog", function(args){
+Ti._5.createClass("Ti.UI.EmailDialog", function(args){
 	var obj = this;
 
 	// Interfaces
@@ -6,17 +6,17 @@ Ti._5.createClass("Titanium.UI.EmailDialog", function(args){
 
 	// Properties
 	Ti._5.prop(obj, {
-		"CANCELLED": 0,
-		"FAILED": 1,
-		"SAVED": 2,
-		"SENT": 3,
-		"barColor": null,
-		"bccRecipients": null,
-		"ccRecipients": null,
-		"html": null,
-		"messageBody": null,
-		"subject": null,
-		"toRecipients": null
+		CANCELLED: 0,
+		FAILED: 1,
+		SAVED: 2,
+		SENT: 3,
+		barColor: null,
+		bccRecipients: null,
+		ccRecipients: null,
+		html: null,
+		messageBody: null,
+		subject: null,
+		toRecipients: null
 	});
 
 	// Methods

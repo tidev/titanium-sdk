@@ -1,4 +1,4 @@
-Ti._5.createClass("Titanium.UI.AlertDialog", function(args){
+Ti._5.createClass("Ti.UI.AlertDialog", function(args){
 	var obj = this,
 		_type = "alert",
 		_buttonNames = null,
@@ -14,7 +14,7 @@ Ti._5.createClass("Titanium.UI.AlertDialog", function(args){
 
 	// Properties
 	Ti._5.prop(obj, {
-		"buttonNames": {
+		buttonNames: {
 			get: function(){return _buttonNames;},
 			set: function(val) {
 				if (val && val.length > 1) {
@@ -23,7 +23,7 @@ Ti._5.createClass("Titanium.UI.AlertDialog", function(args){
 				}
 			}
 		},
-		"cancel": {
+		cancel: {
 			get: function(){return _cancel;},
 			set: function(val){
 				if (parseInt(val) == val) {
@@ -32,9 +32,9 @@ Ti._5.createClass("Titanium.UI.AlertDialog", function(args){
 				}
 			}
 		},
-		"message": "",
-		"messageid": "",
-		"title": ""
+		message: "",
+		messageid: "",
+		title: ""
 	});
 
 	require.mix(obj, args);

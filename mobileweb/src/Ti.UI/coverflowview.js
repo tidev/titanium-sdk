@@ -1,4 +1,4 @@
-Ti._5.createClass("Titanium.UI.CoverFlowView", function(args){
+Ti._5.createClass("Ti.UI.CoverFlowView", function(args){
 	var obj = this;
 
 	// Interfaces
@@ -9,8 +9,8 @@ Ti._5.createClass("Titanium.UI.CoverFlowView", function(args){
 
 	// Properties
 	Ti._5.prop(obj, {
-		"images": null,
-		"selected": false
+		images: null,
+		selected: false
 	});
 
 	// Methods

@@ -1,37 +1,31 @@
 (function(api){
-	Titanium.Platform.displayCaps = api;
+
+	Ti.Platform.displayCaps = api;
 
 	// Properties
-	var _density = null;
-	Ti._5.prop(api, 'density', {
-		get: function(){
+	Ti._5.propReadOnly(api, {
+		density: function(){
 			switch (navigator.userAgent.toLowerCase()) {
-				case 'iphone':
-					return 'medium';
-				case 'ipad':
-					return 'medium';
+				case "iphone":
+					return "medium";
+				case "ipad":
+					return "medium";
 				default:
-					return '';
+					return "";
 			}
-		}
-	});
-
-	var _dpi = null;
-	Ti._5.prop(api, 'dpi', {
-		get: function(){
+		},
+		dpi: function(){
 			switch (navigator.userAgent.toLowerCase()) {
-				case 'iphone':
+				case "iphone":
 					return 160;
-				case 'ipad':
+				case "ipad":
 					return 130;
 				default:
 					return 0;
 			}
-		}
+		},
+		platformHeight: window.innerHeight,
+		platformWidth: window.innerWidth
 	});
 
-	Ti._5.propReadOnly(api, 'platformHeight', window.innerHeight);
-
-	Ti._5.propReadOnly(api, 'platformWidth', window.innerWidth);
-
-})(Ti._5.createClass('Titanium.Platform.DisplayCaps'));
+})(Ti._5.createClass("Ti.Platform.DisplayCaps"));

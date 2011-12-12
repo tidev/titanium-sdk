@@ -1,4 +1,4 @@
-Ti._5.createClass('Titanium.UI.DashboardView', function(args){
+Ti._5.createClass('Ti.UI.DashboardView', function(args){
 	var obj = this;
 
 	// Interfaces
@@ -9,8 +9,8 @@ Ti._5.createClass('Titanium.UI.DashboardView', function(args){
 
 	// Properties
 	Ti._5.prop(obj, {
-		"data": null,
-		"wobble": null
+		data: null,
+		wobble: null
 	});
 
 	// Methods

@@ -1,4 +1,4 @@
-Ti._5.createClass("Titanium.UI.TextField", function(args){
+Ti._5.createClass("Ti.UI.TextField", function(args){
 	args = require.mix({
 		unselectable: true
 	}, args);
@@ -12,7 +12,7 @@ Ti._5.createClass("Titanium.UI.TextField", function(args){
 		_autocapitalizationLoaded = false,
 		_backgroundImage = "",
 		_backgroundColor = "",
-		_borderStyle = Titanium.UI.INPUT_BORDERSTYLE_LINE,
+		_borderStyle = Ti.UI.INPUT_BORDERSTYLE_LINE,
 		_clearOnEdit = null,
 		_clearOnEditLoaded = false,
 		_paddingLeft = null,
@@ -30,44 +30,44 @@ Ti._5.createClass("Titanium.UI.TextField", function(args){
 
 	// Properties
 	Ti._5.prop(obj, {
-		"autocapitalization": {
+		autocapitalization: {
 			get: function() {return _autocapitalization;},
 			set: function(val) {
 				_autocapitalization = val;
 				if (!_autocapitalizationLoaded) {
 					on(domNode, "keyup", function() {
-						Titanium.UI._updateText(obj);
+						Ti.UI._updateText(obj);
 					});
 				}
-				obj.value = Titanium.UI._capitalizeValue(_autocapitalization, obj.value);
+				obj.value = Ti.UI._capitalizeValue(_autocapitalization, obj.value);
 			}
 		},
-		"backgroundDisabledColor": "",
-		"backgroundDisabledImage": "",
-		"borderStyle": {
+		backgroundDisabledColor: "",
+		backgroundDisabledImage: "",
+		borderStyle: {
 			get: function() {
 				return _borderStyle ? _borderStyle : "";
 			},
 			set: function(val) {
 				switch(_borderStyle = val){
-					case Titanium.UI.INPUT_BORDERSTYLE_NONE:
+					case Ti.UI.INPUT_BORDERSTYLE_NONE:
 						domStyle.borderStyle = "none";
 						break;
-					case Titanium.UI.INPUT_BORDERSTYLE_LINE:
+					case Ti.UI.INPUT_BORDERSTYLE_LINE:
 						domStyle.borderStyle = "solid";
 						break;
-					case Titanium.UI.INPUT_BORDERSTYLE_ROUNDED:
+					case Ti.UI.INPUT_BORDERSTYLE_ROUNDED:
 						domStyle.borderStyle = "rounded";
 						domStyle.borderRadius = domStyle.borderRadius ? domStyle.borderRadius : domStyle.borderWidth;
 						break;
-					case Titanium.UI.INPUT_BORDERSTYLE_BEZEL:
+					case Ti.UI.INPUT_BORDERSTYLE_BEZEL:
 						domStyle.borderStyle = "solid";
 						break;
 				}
 			}
 		},
-		"clearButtonMode": undef,
-		"clearOnEdit": {
+		clearButtonMode: undef,
+		clearOnEdit: {
 			get: function(){return _clearOnEdit;},
 			set: function(val) {
 				_clearOnEdit = val;
@@ -76,11 +76,11 @@ Ti._5.createClass("Titanium.UI.TextField", function(args){
 				});
 			}
 		},
-		"editable": {
+		editable: {
 			get: function() { return obj.enabled; },
 			set: function(val) {domNode.disabled = !val ? "disabled" : "";}
 		},
-		"enabled": {
+		enabled: {
 			get: function(){return !domNode.disabled;},
 			set: function(val) {
 				_backgroundImage || (_backgroundImage = obj.backgroundImage);
@@ -96,31 +96,31 @@ Ti._5.createClass("Titanium.UI.TextField", function(args){
 				}
 			}
 		},
-		"hintText": {
+		hintText: {
 			get: function() {return domNode.placeholder;},
 			set: function(val) {
 				domNode.placeholder = val;
 			}
 		},
-		"keyboardToolbar": undef,
-		"keyboardToolbarColor": undef,
-		"keyboardToolbarHeight": undef,
-		"leftButton": undef,
-		"leftButtonMode": undef,
-		"leftButtonPadding": undef,
-		"minimumFontSize": undef,
-		"paddingLeft": {
+		keyboardToolbar: undef,
+		keyboardToolbarColor: undef,
+		keyboardToolbarHeight: undef,
+		leftButton: undef,
+		leftButtonMode: undef,
+		leftButtonPadding: undef,
+		minimumFontSize: undef,
+		paddingLeft: {
 			get: function() {return parseInt(domStyle.paddingLeft);},
-			set: function(val) {domStyle.paddingLeft = parseInt(val)+"px";}
+			set: function(val) {domStyle.paddingLeft = Ti._5.px(val);}
 		},
-		"paddingRight": {
+		paddingRight: {
 			get: function() {return parseInt(domStyle.paddingRight);},
-			set: function(val) {domStyle.paddingRight = parseInt(val)+"px";}
+			set: function(val) {domStyle.paddingRight = Ti._5.px(val);}
 		},
-		"rightButton": undef,
-		"rightButtonMode": undef,
-		"rightButtonPadding": undef,
-		"size": {
+		rightButton: undef,
+		rightButtonMode: undef,
+		rightButtonPadding: undef,
+		size: {
 			get: function() {
 				return {
 					width	: obj.width,
@@ -132,7 +132,7 @@ Ti._5.createClass("Titanium.UI.TextField", function(args){
 				val.height && (obj.height = Ti._5.px(val.height));
 			}
 		},
-		"suppressReturn": {
+		suppressReturn: {
 			get: function() {return _suppressReturn;},
 			set: function(val) {
 				_suppressReturn = val;
@@ -148,13 +148,13 @@ Ti._5.createClass("Titanium.UI.TextField", function(args){
 				}
 			}
 		},
-		"value": {
+		value: {
 			get: function() {return domNode.value;},
 			set: function(val) {
-				domNode.value = val ? Titanium.UI._capitalizeValue(_autocapitalization, val) : "";
+				domNode.value = val ? Ti.UI._capitalizeValue(_autocapitalization, val) : "";
 			}
 		},
-		"verticalAlign": {
+		verticalAlign: {
 			get: function(){return _vertAlign;},
 			set: function(val){
 				if (parseInt(val) == val) {

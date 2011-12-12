@@ -1,4 +1,4 @@
-Ti._5.createClass("Titanium.UI.SearchBar", function(args){
+Ti._5.createClass("Ti.UI.SearchBar", function(args){
 	args = require.mix({
 		unselectable: true
 	}, args);
@@ -21,38 +21,38 @@ Ti._5.createClass("Titanium.UI.SearchBar", function(args){
 
 	// Properties
 	Ti._5.prop(obj, {
-		"autocapitalization": {
+		autocapitalization: {
 			get: function() {return _autocapitalization;},
 			set: function(val) {
 				_autocapitalization = val;
 				if (!_autocapitalizationLoaded) {
 					require.on(domNode, "keyup", function() {
-						Titanium.UI._updateText(obj);
+						Ti.UI._updateText(obj);
 					});
 				}
-				obj.value = Titanium.UI._capitalizeValue(_autocapitalization, obj.value);
+				obj.value = Ti.UI._capitalizeValue(_autocapitalization, obj.value);
 			}
 		},
-		"autocorrect": false,
-		"barColor": null,
-		"hintText": {
+		autocorrect: false,
+		barColor: null,
+		hintText: {
 			get: function() {return domNode.placeholder;},
 			set: function(val) {
-				domNode.placeholder = Titanium.UI._capitalizeValue(_autocapitalization, val);
+				domNode.placeholder = Ti.UI._capitalizeValue(_autocapitalization, val);
 			}
 		},
-		"hinttextid": {
+		hinttextid: {
 			get: function(){return _hinttextid;},
 			set: function(val){obj.hintText = L(_hinttextid = val);}
 		},
-		"keyboardType": null,
-		"prompt": "",
-		"promptid": {
+		keyboardType: null,
+		prompt: "",
+		promptid: {
 			get: function(){return _promptid;},
 			set: function(val){obj.prompt = L(_promptid = val);}
 		},
-		"showCancel": false,
-		"size", {
+		showCancel: false,
+		size: {
 			get: function() {
 				return {
 					width	: obj.width,
@@ -64,9 +64,9 @@ Ti._5.createClass("Titanium.UI.SearchBar", function(args){
 				val.height && (obj.height = Ti._5.px(val.height));
 			}
 		},
-		"value": {
+		value: {
 			get: function() {return domNode.value;},
-			set: function(val) {domNode.value = val ? Titanium.UI._capitalizeValue(_autocapitalization, val) : "";}
+			set: function(val) {domNode.value = val ? Ti.UI._capitalizeValue(_autocapitalization, val) : "";}
 		}
 	});
 

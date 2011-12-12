@@ -120,4 +120,4 @@
 			return val.toString();
 		});
 	};
-})(Ti._5.createClass('Titanium.App.Properties'));
+})(Ti._5.createClass('Ti.App.Properties'));

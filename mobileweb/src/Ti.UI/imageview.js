@@ -1,10 +1,10 @@
-Ti._5.createClass("Titanium.UI.ImageView", function(args){
+Ti._5.createClass("Ti.UI.ImageView", function(args){
 	args = require.mix({
 		unselectable: true
 	}, args);
 
 	var obj = this,
-		domNode = Ti._5.DOMView(this, "img", args, "ImageView"),
+		domNode = Ti._5.DOMView(obj, "img", args, "ImageView"),
 		domStyle = domNode.Style,
 		isError = false,
 		_reverse = false,
@@ -15,24 +15,26 @@ Ti._5.createClass("Titanium.UI.ImageView", function(args){
 		_height;
 
 	// Interfaces
-	Ti._5.Touchable(this, args);
-	Ti._5.Styleable(this, args);
-	Ti._5.Positionable(this, args);
-	Ti._5.Clickable(this, args);
+	Ti._5.Touchable(obj, args);
+	Ti._5.Styleable(obj, args);
+	Ti._5.Positionable(obj, args);
+	Ti._5.Clickable(obj, args);
 
 	function loadImages(images) {
 		isError = false;
 		_preventDefaultImage || (domNode.src = Ti._5.getAbsolutePath(obj.defaultImage));
 
-		var img = new Image();
+		var img = new Image(),
 			h = require.on(img, "load", function () {
-				if (iCounter < images.length) return true;
+				if (iCounter < images.length) {
+					return true;
+				}
 				domNode.src = Ti._5.getAbsolutePath(images[0]);
 				h && h();
 				obj.fireEvent("load", {
-					state: 2 < images.length ? obj.image : obj.images
+					state: images.length > 1 ? obj.images : obj.image
 				});
-			};
+			});
 
 		require.on(img, "error",  function () {
 			isError = true;
@@ -46,9 +48,9 @@ Ti._5.createClass("Titanium.UI.ImageView", function(args){
 	}
 
 	// Properties
-	Ti._5.prop(this, {
-		"animating": null,
-		"canScale": {
+	Ti._5.prop(obj, {
+		animating: null,
+		canScale: {
 			get: function(){return _canScale;},
 			set: function(val){
 				_canScale = !!val;
@@ -58,10 +60,10 @@ Ti._5.createClass("Titanium.UI.ImageView", function(args){
 				}
 			}
 		},
-		"defaultImage": "",
-		"duration": null,
-		"enableZoomControls": true,
-		"height": {
+		defaultImage: "",
+		duration: null,
+		enableZoomControls: true,
+		height: {
 			get: function() {
 				return _height;
 			},
@@ -72,29 +74,29 @@ Ti._5.createClass("Titanium.UI.ImageView", function(args){
 		},
 		// indicates whether or not the source image is in 2x resolution for retina displays. 
 		// Use for remote images ONLY. (iOS)
-		"hires": false,
-		"image": {
+		hires: false,
+		image: {
 			get: function(){return _src;},
 			set: function(val){loadImages([_src = val]);}
 		},
-		"images": {
+		images: {
 			get: function(){return _images;},
 			set: function(val){
 				_images = -1 != val.constructor.toString().indexOf("Array") ? val : [val];
 				loadImages(_images);
 			}
 		},
-		"paused": null,
-		"preventDefaultImage": {
+		paused: null,
+		preventDefaultImage: {
 			get: function(){return _preventDefaultImage;},
 			set: function(val){_preventDefaultImage = !!val;}
 		},
-		"repeatCount": 0,
-		"reverse": {
+		repeatCount: 0,
+		reverse: {
 			get: function(){return _reverse;},
 			set: function(val){_reverse = !!val;}
 		},
-		"size": {
+		size: {
 			get: function() {
 				return {
 					width	: obj.width,
@@ -106,7 +108,7 @@ Ti._5.createClass("Titanium.UI.ImageView", function(args){
 				val.height && (obj.height = Ti._5.px(val.height));
 			}
 		},
-		"width": {
+		width: {
 			get: function() {
 				if (!domStyle.width || !obj.canScale) {
 					return "";
@@ -119,30 +121,30 @@ Ti._5.createClass("Titanium.UI.ImageView", function(args){
 		}
 	});
 
-	require.mix(this, args);
+	require.mix(obj, args);
 
 	// Methods
-	this.pause = function(){
+	obj.pause = function(){
 		console.debug('Method "Titanium.UI.ImageView#.pause" is not implemented yet.');
 	};
-	this.start = function(){
+	obj.start = function(){
 		console.debug('Method "Titanium.UI.ImageView#.start" is not implemented yet.');
 	};
-	this.stop = function(){
+	obj.stop = function(){
 		console.debug('Method "Titanium.UI.ImageView#.stop" is not implemented yet.');
 	};
-	this.toBlob = function(){
+	obj.toBlob = function(){
 		console.debug('Method "Titanium.UI.ImageView#.toBlob" is not implemented yet.');
 	};
 
 	// Events
-	this.addEventListener("change", function(){
+	obj.addEventListener("change", function(){
 		console.debug('Event "change" is not implemented yet.');
 	});
-	this.addEventListener("start", function(){
+	obj.addEventListener("start", function(){
 		console.debug('Event "start" is not implemented yet.');
 	});
-	this.addEventListener("stop", function(){
+	obj.addEventListener("stop", function(){
 		console.debug('Event "stop" is not implemented yet.');
 	});
 });

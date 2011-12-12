@@ -1,4 +1,4 @@
-Ti._5.createClass('Titanium.Database.DB', function(args){
+Ti._5.createClass('Ti.Database.DB', function(args){
 	var obj = this;
 	var isIndexedDB = false, _db = null;
 	
@@ -52,7 +52,7 @@ Ti._5.createClass('Titanium.Database.DB', function(args){
 				}
 				
 				if (callback) {
-					callback(new Titanium.Database.ResultSet(results));
+					callback(new Ti.Database.ResultSet(results));
 				}
 			}, 
 			// error callback

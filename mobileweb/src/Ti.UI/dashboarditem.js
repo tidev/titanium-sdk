@@ -1,4 +1,4 @@
-Ti._5.createClass("Titanium.UI.DashboardItem", function(args){
+Ti._5.createClass("Ti.UI.DashboardItem", function(args){
 	var obj = this;
 
 	// Interfaces
@@ -6,10 +6,10 @@ Ti._5.createClass("Titanium.UI.DashboardItem", function(args){
 
 	// Properties
 	Ti._5.prop(obj, {
-		"badge": null,
-		"canDelete": null,
-		"image": null,
-		"selectedImage": null
+		badge: null,
+		canDelete: null,
+		image: null,
+		selectedImage: null
 	});
 
 	// Events

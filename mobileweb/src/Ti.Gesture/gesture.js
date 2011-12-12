@@ -1,5 +1,6 @@
 (function(api){
-	var on = require.on,
+	var undef,
+		on = require.on,
 		lastOrient = null,
 		lastShake = (new Date()).getTime(),
 		lastAccel = {};
@@ -7,7 +8,7 @@
 	// Interfaces
 	Ti._5.EventDriven(api);
 
-	Ti._5.prop(api, 'orientation', Ti.UI.UNKNOWN);
+	Ti._5.prop(api, "orientation", Ti.UI.UNKNOWN);
 
 	function getWindowOrientation() {
 		api.orientation = Ti.UI.PORTRAIT;
@@ -66,7 +67,7 @@
 			};
 
 		if (accel) {
-			if (x in lastAccel) {
+			if (lastAccel.x !== undef) {
 				x = Math.abs(lastAccel.x - accel.x) > 10;
 				y = Math.abs(lastAccel.y - accel.y) > 10;
 				z = Math.abs(lastAccel.z - accel.z) > 10;
@@ -82,4 +83,4 @@
 		}
 	});
 
-})(Ti._5.createClass('Titanium.Gesture'));
+})(Ti._5.createClass('Ti.Gesture'));

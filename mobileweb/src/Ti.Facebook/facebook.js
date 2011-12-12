@@ -53,22 +53,22 @@
 
 	// Properties
 	Ti._5.prop(api, {
-		"accessToken": undef,
-		"appid": {
+		accessToken: undef,
+		appid: {
 			get: function(){return appid;},
 			set: function(val){
 				facebookLoaded && initFacebook();
 				appid = val;
 			}
 		},
-		"expirationDate": undef,
-		"forceDialogAuth": {
+		expirationDate: undef,
+		forceDialogAuth: {
 			get: function(){return true;},
 			set: function(){}
 		},
-		"loggedIn": false,
-		"permissions": undef,
-		"uid": undef
+		loggedIn: false,
+		permissions: undef,
+		uid: undef
 	});
 
 	// Create the div required by Facebook
@@ -130,7 +130,7 @@
 		}
 	};
 	api.createLoginButton = function(parameters) {
-		throw new Error("Method "Titanium.Facebook.createLoginButton" is not implemented yet.");
+		throw new Error('Method "Titanium.Facebook.createLoginButton" is not implemented yet.');
 	};
 	api.dialog = function(action, params, callback) {
 		if (loggedIn) {
@@ -185,4 +185,4 @@
 			});
 		}
 	};
-})(Ti._5.createClass("Titanium.Facebook"));
+})(Ti._5.createClass("Ti.Facebook"));

@@ -10,29 +10,29 @@
 
 	// Properties
 	Ti._5.propReadOnly(api, {
-		"BATTERY_STATE_CHARGING": 1,
-		"BATTERY_STATE_FULL": 2,
-		"BATTERY_STATE_UNKNOWN": -1,
-		"BATTERY_STATE_UNPLUGGED": 0,
-		"address": null,
-		"architecture": null,
-		"availableMemory": null,
-		"batteryLevel": null,
-		"batteryMonitoring": null,
-		"batteryState": api.BATTERY_STATE_UNKNOWN,
-		"id": id,
-		"isBrowser": true,
-		"locale": navigator.language,
-		"macaddress": null,
-		"model": null,
-		"name": navigator.userAgent,
-		"netmask": null,
-		"osname": "mobileweb",
-		"ostype": navigator.platform,
-		"runtime": runtime,
-		"processorCount": null,
-		"username": null,
-		"version": require.config.tiVersion
+		BATTERY_STATE_CHARGING: 1,
+		BATTERY_STATE_FULL: 2,
+		BATTERY_STATE_UNKNOWN: -1,
+		BATTERY_STATE_UNPLUGGED: 0,
+		address: null,
+		architecture: null,
+		availableMemory: null,
+		batteryLevel: null,
+		batteryMonitoring: null,
+		batteryState: api.BATTERY_STATE_UNKNOWN,
+		id: id,
+		isBrowser: true,
+		locale: navigator.language,
+		macaddress: null,
+		model: null,
+		name: navigator.userAgent,
+		netmask: null,
+		osname: "mobileweb",
+		ostype: navigator.platform,
+		runtime: runtime,
+		processorCount: null,
+		username: null,
+		version: require.config.ti.version
 	});
 
 	// Methods
@@ -49,4 +49,4 @@
 
 	localStorage.setItem("html5_titaniumPlatformId", id);
 
-})(Ti._5.createClass("Titanium.Platform"));
+})(Ti._5.createClass("Ti.Platform"));

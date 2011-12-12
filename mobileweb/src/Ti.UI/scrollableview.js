@@ -1,4 +1,4 @@
-Ti._5.createClass("Titanium.UI.ScrollableView", function(args){
+Ti._5.createClass("Ti.UI.ScrollableView", function(args){
 	args = require.mix({
 		height: "100%",
 		unselectable: true,
@@ -20,7 +20,7 @@ Ti._5.createClass("Titanium.UI.ScrollableView", function(args){
 
 	// Properties
 	Ti._5.prop(obj, {
-		"currentPage": {
+		currentPage: {
 			get: function(){return _currentPage;},
 			set: function(val){
 				if (val >= 0 && val < obj.views.length) {
@@ -29,12 +29,12 @@ Ti._5.createClass("Titanium.UI.ScrollableView", function(args){
 				}
 			}
 		},
-		"maxZoomScale": null,
-		"minZoomScale": null,
-		"pagingControlColor": null,
-		"pagingControlHeight": null,
-		"showPagingControl": null,
-		"views": []
+		maxZoomScale: null,
+		minZoomScale: null,
+		pagingControlColor: null,
+		pagingControlHeight: null,
+		showPagingControl: null,
+		views: []
 	});
 
 	// Methods
@@ -195,7 +195,7 @@ Ti._5.createClass("Titanium.UI.ScrollableView", function(args){
 
 	// Events
 	obj.addEventListener("scroll", function() {
-		console.debug("Event "scroll" is not implemented yet.");
+		console.debug('Event "scroll" is not implemented yet.');
 	});
 
 	require.mix(obj, args);

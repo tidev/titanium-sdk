@@ -4,14 +4,14 @@
 
 	// Properties
 	Ti._5.prop(api, {
-		"allowBackground": null,
-		"duration": null,
-		"looping": null,
-		"paused": null,
-		"playing": null,
-		"time": null,
-		"url": null,
-		"volume": null
+		allowBackground: null,
+		duration: null,
+		looping: null,
+		paused: null,
+		playing: null,
+		time: null,
+		url: null,
+		volume: null
 	});
 
 	// Methods
@@ -71,4 +71,4 @@
 	api.addEventListener("resume", function(){
 		console.debug('Event "resume" is not implemented yet.');
 	});
-})(Ti._5.createClass("Titanium.Media.Sound"));
+})(Ti._5.createClass("Ti.Media.Sound"));

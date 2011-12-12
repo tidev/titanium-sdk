@@ -54,4 +54,4 @@
 		api.setData('text/plain', text);
 	};
 
-})(Ti._5.createClass('Titanium.UI.Clipboard'));
+})(Ti._5.createClass('Ti.UI.Clipboard'));

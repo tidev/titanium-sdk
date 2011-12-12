@@ -1,4 +1,4 @@
-Ti._5.createClass("Titanium.UI.PickerRow", function(args){
+Ti._5.createClass("Ti.UI.PickerRow", function(args){
 	args = require.mix({
 		backgroundColor: "white",
 		font: require.mix({
@@ -24,28 +24,28 @@ Ti._5.createClass("Titanium.UI.PickerRow", function(args){
 
 	// Properties
 	Ti._5.prop(obj, {
-		"selected": {
+		selected: {
 			get: function(){return domNode.selected;},
 			set: function(val){domNode.selected = !!val;}
 		},
-		"title": {
-			get: function(){return _title;},
-			set: function(val){
-				_title = val; 
-				domNode.innerHTML = Ti._5._changeTextToHTML(_title); 
-				obj.render(null);
-			}
-		},
-		"size": {
+		size: {
 			get: function() {
 				return {
-					width	: obj.width,
-					height	: obj.height
+					width: obj.width,
+					height: obj.height
 				}
 			},
 			set: function(val) {
 				val.width && (obj.width = Ti._5.px(val.width));
 				val.height && (obj.height = Ti._5.px(val.height));
+			}
+		},
+		title: {
+			get: function(){return _title;},
+			set: function(val){
+				_title = val; 
+				domNode.innerHTML = Ti._5._changeTextToHTML(_title); 
+				obj.render(null);
 			}
 		}
 	});

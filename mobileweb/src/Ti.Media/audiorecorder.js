@@ -3,15 +3,13 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	Ti._5.prop(api, 'compression');
-
-	Ti._5.prop(api, 'format');
-
-	Ti._5.prop(api, 'paused');
-
-	Ti._5.prop(api, 'recording');
-
-	Ti._5.prop(api, 'stopped');
+	Ti._5.prop(api, {
+		compression: null,
+		format: null,
+		paused: null,
+		recording: null,
+		stopped: null
+	});
 
 	// Methods
 	api.pause = function(){
@@ -26,4 +24,4 @@
 	api.stop = function(){
 		console.debug('Method "Titanium.Media.AudioRecorder.stop" is not implemented yet.');
 	};
-})(Ti._5.createClass('Titanium.Media.AudioRecorder'));
+})(Ti._5.createClass('Ti.Media.AudioRecorder'));

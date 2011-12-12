@@ -116,4 +116,4 @@
 		return sResult;
 	}
 	
-})(Ti._5.createClass('Titanium.XML'));
+})(Ti._5.createClass('Ti.XML'));

@@ -2,12 +2,14 @@
 	// Interfaces
 	Ti._5.EventDriven(api);
 
+	var lang = navigator.language.split("-");
+
 	// Properties
-	Ti._5.prop(api, 'currentCountry');
-
-	Ti._5.prop(api, 'currentLanguage', 'en');
-
-	Ti._5.prop(api, 'currentLocale');
+	Ti._5.propReadOnly(api, {
+		currentCountry: "",
+		currentLanguage: lang[0],
+		currentLocale: ""
+	});
 
 	// Methods
 	api.formatTelephoneNumber = function(){
@@ -31,27 +33,28 @@
 		}
 		return str;
 	};
-})(Ti._5.createClass('Titanium.Locale'));
-L=Titanium.Locale.getString;
+})(Ti._5.createClass('Ti.Locale'));
+
+L = Ti.Locale.getString; // QUESTION: should this really be in the global namespace?
 
 (function(api){
 	api.format = function(){
-			console.debug('Method "String.format" is not implemented yet.');
+		console.debug('Method "String.format" is not implemented yet.');
 	};
 
 	api.formatDate = function(){
-			console.debug('Method "String.formatDate" is not implemented yet.');
+		console.debug('Method "String.formatDate" is not implemented yet.');
 	};
 
 	api.formatTime = function(){
-			console.debug('Method "String.formatTime" is not implemented yet.');
+		console.debug('Method "String.formatTime" is not implemented yet.');
 	};
 
 	api.formatCurrency = function(){
-			console.debug('Method "String.formatCurrency" is not implemented yet.');
+		console.debug('Method "String.formatCurrency" is not implemented yet.');
 	};
 
 	api.formatDecimal = function(){
-			console.debug('Method "String.formatDecimal" is not implemented yet.');
+		console.debug('Method "String.formatDecimal" is not implemented yet.');
 	};
 })(String);

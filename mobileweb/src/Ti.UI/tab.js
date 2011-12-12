@@ -1,23 +1,24 @@
-Ti._5.createClass('Titanium.UI.Tab', function(args){
+Ti._5.createClass("Ti.UI.Tab", function(args){
 	args = require.mix({
 		height: "100%",
 		width: "100%"
 	}, args);
 
-	var obj = this,
+	var undef,
+		obj = this,
 		_icon = null,
 		_title = null,
 		_titleid = null,
 		_window = null;
 
 	// Interfaces
-	Ti._5.DOMView(obj, 'div', args, 'Tab');
+	Ti._5.DOMView(obj, "div", args, "Tab");
 	Ti._5.Touchable(obj, args);
 	Ti._5.Styleable(obj, args);
 	Ti._5.Positionable(obj, args);
 
 	obj._header = document.createElement("td");
-	obj._header.className = 'tabHeader';
+	obj._header.className = "tabHeader";
 	obj._header.onclick = function(){
 		if(obj._tabGroup == null){
 			return;
@@ -59,48 +60,45 @@ Ti._5.createClass('Titanium.UI.Tab', function(args){
 	};
 
 	// Properties
-	Ti._5.prop(obj, 'badge');
-
-	Ti._5.prop(obj, 'icon', {
-		get: function(){return _icon;},
-		set: function(val){
-			if(val == null || val == ''){
-				// remove icon
-				obj._header.style.backgroundImage = '';
-			} else {
-				obj._header.style.backgroundImage = 'url(' + Ti._5.getAbsolutePath(val) + ')';
+	Ti._5.prop(obj, {
+		"badge": undef,
+		"icon": {
+			get: function(){return _icon;},
+			set: function(val){
+				if(val == null || val == ''){
+					// remove icon
+					obj._header.style.backgroundImage = '';
+				} else {
+					obj._header.style.backgroundImage = 'url(' + Ti._5.getAbsolutePath(val) + ')';
+				}
+				_icon = val;
 			}
-			_icon = val;
+		},
+		"title": {
+			get: function(){return _title;},
+			set: function(val){
+				obj._header.innerHTML = _title = val;
+			}
+		},
+		"titleid": {
+			get: function(){return _titleid;},
+			set: function(val){
+				obj.title = L(_titleid = val);
+			}
+		},
+		"win": {
+			get: function(){return obj.window;},
+			set: function(val){obj.window = val;}
+		},
+		"window": {
+			get: function(){return _window;},
+			set: function(val){
+				_window = val;
+				obj.add(_window);
+				_window;
+			}
 		}
 	});
 
-	Ti._5.prop(obj, 'title', {
-		get: function(){return _title;},
-		set: function(val){
-			obj._header.innerHTML = _title = val;
-		}
-	});
-
-	Ti._5.prop(obj, 'titleid', {
-		get: function(){return _titleid;},
-		set: function(val){
-			obj.title = L(_titleid = val);
-		}
-	});
-
-	Ti._5.prop(obj, 'window', {
-		get: function(){return _window;},
-		set: function(val){
-			_window = val;
-			obj.add(_window);
-			_window;
-		}
-	});
-
-	Ti._5.prop(obj, 'win', {
-		get: function(){return obj.window;},
-		set: function(val){obj.window = val;}
-	});
-
-	require.mix(this, args);
+	require.mix(obj, args);
 });

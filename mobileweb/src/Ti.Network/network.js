@@ -2,22 +2,23 @@
 	// Interfaces
 	Ti._5.EventDriven(api);
 
+	var _httpURLFormatter = null;
+
 	// Properties
-	api.INADDR_ANY = null;
-	api.NETWORK_LAN = 1;
-	api.NETWORK_MOBILE = 3;
-	api.NETWORK_NONE = 0;
-	api.NETWORK_UNKNOWN = -1;
-	api.NETWORK_WIFI = 2;
-	api.NOTIFICATION_TYPE_ALERT = null;
-	api.NOTIFICATION_TYPE_BADGE = null;
-	api.NOTIFICATION_TYPE_SOUND = null;
-	api.READ_MODE = 0;
-	api.READ_WRITE_MODE = 2;
-	api.WRITE_MODE = 1;
-	
-	Ti._5.prop(api, "networkType", {
-		get: function() {
+	Ti._5.propReadOnly(api, {
+		INADDR_ANY: null,
+		NETWORK_LAN: 1,
+		NETWORK_MOBILE: 3,
+		NETWORK_NONE: 0,
+		NETWORK_UNKNOWN: -1,
+		NETWORK_WIFI: 2,
+		NOTIFICATION_TYPE_ALERT: 0,
+		NOTIFICATION_TYPE_BADGE: 1,
+		NOTIFICATION_TYPE_SOUND: 2,
+		READ_MODE: 0,
+		READ_WRITE_MODE: 2,
+		WRITE_MODE: 1,
+		networkType: function() {
 			if (!api.online) {
 				return api.NETWORK_NONE;
 			}		
@@ -36,11 +37,8 @@
 			}
 			
 			return api.NETWORK_UNKNOWN;
-		}
-	});
-	
-	Ti._5.prop(api, "networkTypeName", {
-		get: function() {
+		},
+		networkTypeName: function() {
 			if (!api.online) {
 				return "NONE";
 			}		
@@ -59,50 +57,26 @@
 			}
 			
 			return "UNKNOWN";
+		},
+		online: function() {
+			return navigator.onLine;
 		}
 	});
 	
-	var _httpURLFormatter = null;
-	Object.defineProperty(api, "httpURLFormatter", {
+	Ti._5.prop(api, "httpURLFormatter", {
 		get: function() {return _httpURLFormatter;},
 		set: function(val) {_httpURLFormatter = val;}
 	});
-		
-	Ti._5.prop(api, "online", {
-		get: function() {return navigator.onLine}
-	});
-	// IPhone
-	api.remoteDeviceUUID = null;
-	// IPhone
-	api.remoteNotificationTypes = null;
-	// IPhone
-	api.remoteNotificationsEnabled = null;
 
 	// Methods
 	api.createHTTPClient = function(args) {
 		return new Ti.Network.HTTPClient(args);
 	};
 
-	// deprecated since 1.7.0
-	api.addConnectivityListener = function(){
-		console.debug('Method "Titanium.Network.addConnectivityListener" is not implemented yet.');
-	};
-
-	api.createBonjourBrowser = function(args) {
-		console.debug('Method "Titanium.Network.createBonjourBrowser" is not implemented yet.');
-	};
-	api.createBonjourService = function(args) {
-		console.debug('Method "Titanium.Network.createBonjourService" is not implemented yet.');
-	};
-	
-	// deprecated since 1.7.0
-	api.createTCPSocket = function(args){
-		return new Ti.Network.TCPSocket(args);
-	};
-
 	api.decodeURIComponent = function(value) {
 		return decodeURIComponent(value);
 	};
+
 	api.encodeURIComponent = function(value) {
 		return encodeURIComponent(value);
 	};

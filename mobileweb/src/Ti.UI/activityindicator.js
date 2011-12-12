@@ -1,4 +1,4 @@
-Ti._5.createClass("Titanium.UI.ActivityIndicator", function(args){
+Ti._5.createClass("Ti.UI.ActivityIndicator", function(args){
 	args = require.mix({
 		visible: args.visible || false
 	}, args);
@@ -16,35 +16,35 @@ Ti._5.createClass("Titanium.UI.ActivityIndicator", function(args){
 
 	// Properties
 	Ti._5.prop(obj, {
-		"color": {
+		color: {
 			get: function(){return domStyle.color;},
 			set: function(val) {
 				domStyle.color = val;
 			}
 		},
-		"message": {
+		message: {
 			get: function(){return _message;},
 			set: function(val){domNode.innerHTML = _message = val;}
 		},
-		"messageid": "",
-		"style": {
+		messageid: "",
+		style: {
 			get: function(){return _style;},
 			set: function(val){
 				_style = val;
-				if (Titanium.UI.iPhone) {
+				if (Ti.UI.iPhone) {
 					domNode.className = domNode.className.replace(/\bActivityIndicator_(BIG|DARK)\b/g, "");
 					switch (_style) {
-						case Titanium.UI.iPhone.ActivityIndicatorStyle.BIG:
+						case Ti.UI.iPhone.ActivityIndicatorStyle.BIG:
 							domNode.className += " ActivityIndicator_BIG";
 							break;
-						case Titanium.UI.iPhone.ActivityIndicatorStyle.DARK:
+						case Ti.UI.iPhone.ActivityIndicatorStyle.DARK:
 							domNode.className += " ActivityIndicator_DARK";
 							break;
 					}
 				}
 			}
 		},
-		"visible": {
+		visible: {
 			get: function() {
 				return _visible;
 			},
@@ -62,8 +62,8 @@ Ti._5.createClass("Titanium.UI.ActivityIndicator", function(args){
 	};
 	obj.show = function(){
 		// Append activity indicator to current window, if it was not
-		//if (!(obj.parent instanceof Titanium.UI.Window) && Titanium.UI.currentWindow) {
-		//	Titanium.UI.currentWindow.dom.appendChild(domNode);
+		//if (!(obj.parent instanceof Ti.UI.Window) && Ti.UI.currentWindow) {
+		//	Ti.UI.currentWindow.dom.appendChild(domNode);
 		//}
 		_visible = true;
 		var oWinSizes = Ti._5.getWindowSizes();

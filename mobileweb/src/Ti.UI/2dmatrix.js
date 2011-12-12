@@ -1,4 +1,4 @@
-Ti._5.createClass('Titanium.UI.2DMatrix', function(args) {
+Ti._5.createClass('Ti.UI.2DMatrix', function(args) {
 	var obj = this;
 
 	// Initialize the matrix to unity

@@ -1,4 +1,4 @@
-Ti._5.createClass("Titanium.UI.Slider", function(args){
+Ti._5.createClass("Ti.UI.Slider", function(args){
 	args = require.mix({
 		unselectable: true,
 		width: "100%"
@@ -23,10 +23,10 @@ Ti._5.createClass("Titanium.UI.Slider", function(args){
 
 	// Properties
 	Ti._5.prop(obj, {
-		"disabledLeftTrackImage": null,
-		"disabledRightTrackImage": null,
-		"disabledThumbImage": null,
-		"enabled": {
+		disabledLeftTrackImage: null,
+		disabledRightTrackImage: null,
+		disabledThumbImage: null,
+		enabled: {
 			get: function(){return !domNode.disabled;},
 			set: function(val) {
 				if (!_backgroundImage && obj.backgroundImage) {
@@ -50,7 +50,7 @@ Ti._5.createClass("Titanium.UI.Slider", function(args){
 				}
 			}
 		},
-		"backgroundDisabledImage": {
+		backgroundDisabledImage: {
 			get: function() {
 				return _backgroundDisabledImage ? _backgroundDisabledImage : "";
 			},
@@ -58,7 +58,7 @@ Ti._5.createClass("Titanium.UI.Slider", function(args){
 				_backgroundDisabledImage = val;
 			}
 		},
-		"backgroundDisabledColor": {
+		backgroundDisabledColor: {
 			get: function() {
 				return _backgroundDisabledColor ? _backgroundDisabledColor : "";
 			},
@@ -66,26 +66,26 @@ Ti._5.createClass("Titanium.UI.Slider", function(args){
 				_backgroundDisabledColor = val;
 			}
 		},
-		"highlightedLeftTrackImage": null,
-		"highlightedRightTrackImage": null,
-		"highlightedThumbImage": null,
-		"leftTrackImage": null,
-		"max": {
+		highlightedLeftTrackImage: null,
+		highlightedRightTrackImage: null,
+		highlightedThumbImage: null,
+		leftTrackImage: null,
+		max: {
 			get: function(){return domNode.max;},
 			set: function(val){domNode.max = parseFloat(val);}
-		});
-		"maxRange": null,
-		"min": {
+		},
+		maxRange: null,
+		min: {
 			get: function(){return domNode.min;},
 			set: function(val){domNode.min = parseFloat(val);}
-		});
-		"minRange": null,
-		"rightTrackImage": null,
-		"selectedLeftTrackImage": null,
-		"selectedRightTrackImage": null,
-		"selectedThumbImage": null,
-		"thumbImage": null,
-		"value": {
+		},
+		minRange: null,
+		rightTrackImage: null,
+		selectedLeftTrackImage: null,
+		selectedRightTrackImage: null,
+		selectedThumbImage: null,
+		thumbImage: null,
+		value: {
 			get: function(){return _value;},
 			set: function(val){
 				_value = val;
@@ -97,7 +97,7 @@ Ti._5.createClass("Titanium.UI.Slider", function(args){
 				});
 			}
 		},
-		"size": {
+		size: {
 			get: function() {
 				return {
 					width: obj.width,

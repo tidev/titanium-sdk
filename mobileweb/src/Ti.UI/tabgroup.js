@@ -1,13 +1,15 @@
-Ti._5.createClass("Titanium.UI.TabGroup", function(args){
+Ti._5.createClass("Ti.UI.TabGroup", function(args){
 	args = require.mix({
 		height: "100%",
 		unselectable: true,
 		width: "100%"
 	}, args);
 
-	var obj = this;
+	var undef,
+		obj = this;
 		domNode = Ti._5.DOMView(obj, "div", args, "TabGroup"),
-		_activeTabIndex = null;
+		_activeTabIndex = null,
+		_barColor = null;
 
 	// Interfaces
 	Ti._5.Screen(obj, args);
@@ -32,35 +34,32 @@ Ti._5.createClass("Titanium.UI.TabGroup", function(args){
 	domNode.appendChild(_headerTable);
 	domNode.appendChild(_tabsContent);
 
-	// Properties
-	Ti._5.prop(obj, "activeTab", {
-		get: function(){return obj._tabs[_activeTabIndex];},
-		set: function(val){obj.setActiveTab(val);}
-	});
-
-	Ti._5.prop(obj, "allowUserCustomization");
-
-	var _barColor = null;
-	Ti._5.prop(obj, "barColor", {
-		get: function(){return _barColor;},
-		set: function(val){
-			_tabsHeaders.style.backgroundColor = _barColor = val;
-		}
-	});
-
-	// private internal property
 	obj._tabs = [];
-	Ti._5.prop(obj, "tabs", {
-		get: function(){
-			var res = [];
-			for(var ii = 0; ii < obj._tabs.length; ii++){
-				res.push(obj._tabs[ii]);
+
+	// Properties
+	Ti._5.prop(obj, {
+		activeTab: {
+			get: function(){return obj._tabs[_activeTabIndex];},
+			set: function(val){obj.setActiveTab(val);}
+		},
+		allowUserCustomization: undef,
+		barColor: {
+			get: function(){return _barColor;},
+			set: function(val){
+				_tabsHeaders.style.backgroundColor = _barColor = val;
 			}
-			return res;
+		},
+		editButtonTitle: undef,
+		tabs: {
+			get: function(){
+				var res = [];
+				for(var ii = 0; ii < obj._tabs.length; ii++){
+					res.push(obj._tabs[ii]);
+				}
+				return res;
+			}
 		}
 	});
-
-	Ti._5.prop(obj, "editButtonTitle");
 
 	// Methods
 	obj.addTab = function(tab){
@@ -107,7 +106,7 @@ Ti._5.createClass("Titanium.UI.TabGroup", function(args){
 		}
 	};
 
-	var _hideTab = function(tabIndex){
+	function hideTab(tabIndex){
 		if(tabIndex == null && tabIndex > obj._tabs.length){
 			return;
 		}
@@ -116,9 +115,9 @@ Ti._5.createClass("Titanium.UI.TabGroup", function(args){
 		tab._header.className = tab._header.className.replace(/\bactiveTabHeader\b/, "");
 		tab.dom.style.display = "none";
 		tab.hide();
-	};
+	}
 
-	var _showTab = function(tabIndex){
+	function showTab(tabIndex){
 		if(tabIndex == null && tabIndex > obj._tabs.length){
 			return;
 		}
@@ -127,7 +126,7 @@ Ti._5.createClass("Titanium.UI.TabGroup", function(args){
 		tab._header.className += " activeTabHeader";
 		tab.dom.style.display = "";
 		tab.show();
-	};
+	}
 
 	obj.setActiveTab = function(indexOrObject){
 		if(typeof indexOrObject === "object"){
@@ -151,7 +150,7 @@ Ti._5.createClass("Titanium.UI.TabGroup", function(args){
 					previousTab: obj._tabs[_activeTabIndex],
 					tab: obj._tabs[indexOrObject]
 				});
-				_hideTab(_activeTabIndex);
+				hideTab(_activeTabIndex);
 			}
 
 			obj.fireEvent("focus", {
@@ -163,7 +162,7 @@ Ti._5.createClass("Titanium.UI.TabGroup", function(args){
 				tab: obj._tabs[indexOrObject]
 			});
 			_activeTabIndex = indexOrObject;
-			_showTab(_activeTabIndex);
+			showTab(_activeTabIndex);
 		}
 	};
 

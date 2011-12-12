@@ -1,4 +1,4 @@
-Ti._5.createClass("Titanium.UI.Window", function(args){
+Ti._5.createClass("Ti.UI.Window", function(args){
 	args = require.mix({
 		height: "100%",
 		unselectable: true,
@@ -27,18 +27,18 @@ Ti._5.createClass("Titanium.UI.Window", function(args){
 
 	// Properties
 	Ti._5.prop(obj, {
-		"backButtonTitle": null,
-		"backButtonTitleImage": null,
-		"barColor": null,
-		"barImage": null,
-		"exitOnClose": null,
-		"fullscreen": false,
-		"leftNavButton": null,
-		"modal": null,
-		"navBarHidden": null,
-		"orientationModes": [],
-		"rightNavButton": null,
-		"size": {
+		backButtonTitle: null,
+		backButtonTitleImage: null,
+		barColor: null,
+		barImage: null,
+		exitOnClose: null,
+		fullscreen: false,
+		leftNavButton: null,
+		modal: null,
+		navBarHidden: null,
+		orientationModes: [],
+		rightNavButton: null,
+		size: {
 			get: function() {
 				return {
 					width: obj.width,
@@ -50,10 +50,10 @@ Ti._5.createClass("Titanium.UI.Window", function(args){
 				val.height && (obj.height = Ti._5.px(val.height));
 			}
 		},
-		"softInputMode": null,
-		"tabBarHidden": null,
-		"titleControl": null,
-		"title": {
+		softInputMode: null,
+		tabBarHidden: null,
+		titleControl: null,
+		title: {
 			get: function() {
 				return _title;
 			},
@@ -62,21 +62,21 @@ Ti._5.createClass("Titanium.UI.Window", function(args){
 				setTitle();
 			}
 		},
-		"titleid": {
+		titleid: {
 			get: function(){return _titleid;},
 			set: function(val){obj.title = L(_titleid = val);}
 		},
-		"titleImage": null,
-		"titlePrompt": null,
-		"titlepromptid": {
+		titleImage: null,
+		titlePrompt: null,
+		titlepromptid: {
 			get: function(){return _titlepromptid;},
 			set: function(val){
 				obj.titlePrompt = L(_titlepromptid = val);
 			}
 		},
-		"toolbar": null,
-		"translucent": null,
-		"url": {
+		toolbar: null,
+		translucent: null,
+		url: {
 			get: function(){return _url;},
 			set: function(val){
 				_url = val;
@@ -95,8 +95,8 @@ Ti._5.createClass("Titanium.UI.Window", function(args){
 		}
 	});
 
-	var _oldHide = this.hide; // WARNING: this may cause problems
-	this.hide = function() {
+	var _oldHide = obj.hide; // WARNING: this may cause problems
+	obj.hide = function() {
 		obj.fireEvent("blur", {source: domNode});
 		_oldHide();
 	};
@@ -106,14 +106,14 @@ Ti._5.createClass("Titanium.UI.Window", function(args){
 	}
 
 	// Methods
-	this.addEventListener("screen_open", function() {
+	obj.addEventListener("screen_open", function() {
 		Ti.UI.currentWindow = obj;
 		obj.render(null);
 		setTitle();
 		obj.fireEvent("open", {source: null});
 		obj.fireEvent("focus", {source: domNode});
 	});
-	this.addEventListener("screen_close", function() {
+	obj.addEventListener("screen_close", function() {
 		obj.fireEvent("blur", {source: domNode});
 		obj.fireEvent("close", {source: null});
 		if(!isHTMLPage()){
@@ -122,15 +122,15 @@ Ti._5.createClass("Titanium.UI.Window", function(args){
 			head.removeChild(head.children[head.children.length - 1]);
 		}
 	});
-	this.open = function(){
+	obj.open = function(){
 		obj.screen_open();
 	};
 
-	this.close = function(){
+	obj.close = function(){
 		obj.screen_close();
 	};
 
-	require.mix(this, args);
+	require.mix(obj, args);
 
 	function setMinHeight(oSource) {
 		oSource = oSource || obj;

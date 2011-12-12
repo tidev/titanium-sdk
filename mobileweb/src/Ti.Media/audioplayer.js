@@ -4,22 +4,22 @@
 
 	// Properties
 	Ti._5.prop(api, {
-		"STATE_STOPPED": 0,
-		"STATE_STOPPING": 1,
-		"STATE_STARTING": 2,
-		"STATE_PLAYING": 3,
-		"STATE_PAUSED": 4,
-		"STATE_WAITING_FOR_DATA": 5,
-		"STATE_WAITING_FOR_QUEUE": 6,
-		"allowBackground": null,
-		"bitRate": null,
-		"idle": null,
-		"paused": null,
-		"playing": null,
-		"progress": null,
-		"state": null,
-		"url": null,
-		"waiting": null
+		STATE_STOPPED: 0,
+		STATE_STOPPING: 1,
+		STATE_STARTING: 2,
+		STATE_PLAYING: 3,
+		STATE_PAUSED: 4,
+		STATE_WAITING_FOR_DATA: 5,
+		STATE_WAITING_FOR_QUEUE: 6,
+		allowBackground: null,
+		bitRate: null,
+		idle: null,
+		paused: null,
+		playing: null,
+		progress: null,
+		state: null,
+		url: null,
+		waiting: null
 	});
 
 	// Methods
@@ -43,10 +43,12 @@
 	};
 
 	// Events
+	/* TODO: these should be *defining* events, not listening for them
 	api.addEventListener('change', function(){
 		console.debug('Event "change" is not implemented yet.');
 	});
 	api.addEventListener('progress', function(){
 		console.debug('Event "progress" is not implemented yet.');
 	});
-})(Ti._5.createClass("Titanium.Media.AudioPlayer"));
+	*/
+})(Ti._5.createClass("Ti.Media.AudioPlayer"));

@@ -1,4 +1,4 @@
-Ti._5.createClass("Titanium.UI.Switch", function(args){
+Ti._5.createClass("Ti.UI.Switch", function(args){
 	args = require.mix({
 		unselectable: true
 	}, args);
@@ -28,7 +28,7 @@ Ti._5.createClass("Titanium.UI.Switch", function(args){
 
 	// Properties
 	Ti._5.prop(obj, {
-		"backgroundDisabledColor": {
+		backgroundDisabledColor: {
 			get: function() {
 				return _backgroundDisabledColor ? _backgroundDisabledColor : "";
 			},
@@ -36,7 +36,7 @@ Ti._5.createClass("Titanium.UI.Switch", function(args){
 				_backgroundDisabledColor = val;
 			}
 		},
-		"backgroundDisabledImage": {
+		backgroundDisabledImage: {
 			get: function() {
 				return _backgroundDisabledImage ? _backgroundDisabledImage : "";
 			},
@@ -44,7 +44,7 @@ Ti._5.createClass("Titanium.UI.Switch", function(args){
 				_backgroundDisabledImage = val;
 			}
 		},
-		"enabled": {
+		enabled: {
 			get: function(){return !checkboxNode.disabled;},
 			set: function(val) {
 				_enabled = !!val;
@@ -69,7 +69,7 @@ Ti._5.createClass("Titanium.UI.Switch", function(args){
 				}
 			}
 		},
-		"size": {
+		size: {
 			get: function() {
 				return {
 					width	: obj.width,
@@ -81,8 +81,8 @@ Ti._5.createClass("Titanium.UI.Switch", function(args){
 				val.height && (obj.height = Ti._5.px(val.height));
 			}
 		},
-		"style": Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON,
-		"title": {
+		style: Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON,
+		title: {
 			get: function() {return _title ? _title : domNode.innerHTML;},
 			set: function(val) {
 				if (obj.style == Ti.UI.Android.SWITCH_STYLEcheckboxNode) {
@@ -94,7 +94,7 @@ Ti._5.createClass("Titanium.UI.Switch", function(args){
 				}
 			}
 		},
-		"titleOff": {
+		titleOff: {
 			get: function(){return _titleOff;},
 			set: function(val){
 				_titleOff = val;
@@ -103,7 +103,7 @@ Ti._5.createClass("Titanium.UI.Switch", function(args){
 				}
 			}
 		},
-		"titleOn": {
+		titleOn: {
 			get: function(){return _titleOn;},
 			set: function(val){
 				_titleOn = val; 
@@ -112,7 +112,7 @@ Ti._5.createClass("Titanium.UI.Switch", function(args){
 				}
 			}
 		},
-		"touchEnabled": {
+		touchEnabled: {
 			get: function() {
 				return _touchEnabled ? _touchEnabled : "";
 			},
@@ -125,7 +125,7 @@ Ti._5.createClass("Titanium.UI.Switch", function(args){
 				}
 			}
 		},
-		"value": {
+		value: {
 			get: function(){return checkboxNode.checked;},
 			set: function(val){checkboxNode.checked = val;onCheck(null);}
 		}

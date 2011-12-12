@@ -3,12 +3,12 @@
 
 	// Properties
 	Ti._5.prop(api, {
-		"currentPlaybackTime": null,
-		"nowPlaying": null,
-		"playbackState": null,
-		"repeatMode": null,
-		"shuffleMode": null,
-		"volume": null
+		currentPlaybackTime: null,
+		nowPlaying: null,
+		playbackState: null,
+		repeatMode: null,
+		shuffleMode: null,
+		volume: null
 	});
 
 	// Methods
@@ -53,4 +53,4 @@
 	api.addEventListener('volumeChange', function(){
 		console.debug('Event "volumeChange" is not implemented yet.');
 	});
-})(Ti._5.createClass("Titanium.Media.MusicPlayer"));
+})(Ti._5.createClass("Ti.Media.MusicPlayer"));

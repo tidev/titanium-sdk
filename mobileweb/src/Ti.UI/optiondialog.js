@@ -1,4 +1,4 @@
-Ti._5.createClass("Titanium.UI.OptionDialog", function(args){
+Ti._5.createClass("Ti.UI.OptionDialog", function(args){
 	var obj = this;
 
 	// Interfaces
@@ -6,13 +6,13 @@ Ti._5.createClass("Titanium.UI.OptionDialog", function(args){
 
 	// Properties
 	Ti._5.prop(obj, {
-		"androidView": null,
-		"cancel": null,
-		"destructive": null,
-		"options": null,
-		"selectedIndex": null,
-		"title": null,
-		"titleid": null
+		androidView: null,
+		cancel: null,
+		destructive: null,
+		options: null,
+		selectedIndex: null,
+		title: null,
+		titleid: null
 	});
 
 	// Methods

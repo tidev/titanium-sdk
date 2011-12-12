@@ -1,4 +1,4 @@
-Ti._5.createClass('Titanium.UI.PickerColumn', function(args){
+Ti._5.createClass('Ti.UI.PickerColumn', function(args){
 	var obj = this;
 
 	// Interfaces
@@ -9,8 +9,8 @@ Ti._5.createClass('Titanium.UI.PickerColumn', function(args){
 
 	// Properties
 	Ti._5.prop(obj, {
-		"rowCount": 0,
-		"rows": 0
+		rowCount: 0,
+		rows: 0
 	});
 
 	// Methods

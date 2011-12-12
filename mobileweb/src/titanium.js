@@ -12,8 +12,6 @@
 		is = require.is,
 		each = require.is;
 
-	console.info("[INFO] Appcelerator Titanium " + (cfg.tiVersion || "") + " Mobile Web");
-
 	// Object.defineProperty() shim
 	if (!Object.defineProperty || !(function (obj) {
 			try {
@@ -185,6 +183,9 @@
 		};
 	}
 
+	// print the Titanium version *after* the console shim
+	console.info("[INFO] Appcelerator Titanium " + cfg.ti.version + " Mobile Web");
+
 	// make sure we have some vendor prefixes defined
 	cfg.vendorPrefixes || (cfg.vendorPrefixes = ["", "Moz", "Webkit", "O", "ms"]);
 
@@ -261,7 +262,7 @@
 		}
 	};
 	
-	Ti._5.prop = function(obj, property, defaultValue, descriptor) {
+	Ti._5.prop = function(obj, property, value, descriptor) {
 		if (require.is(property, "Object")) {
 			for (var i in property) {
 				Ti._5.prop(obj, i, property[i]);
@@ -271,8 +272,8 @@
 				capitalizedName = property.substring(0, 1).toUpperCase() + property.substring(1);
 
 			// if we only have 3 args, so need to check if it's a default value or a descriptor
-			if (arguments.length === 3 && require.is(defaultValue, "Object") && (defaultValue.get || defaultValue.set)) {
-				descriptor = defaultValue;
+			if (arguments.length === 3 && require.is(value, "Object") && (value.get || value.set)) {
+				descriptor = value;
 				// we don't have a default value, so skip the set
 				skipSet = 1;
 			}
@@ -283,9 +284,9 @@
 					skipSet = 2;
 					if (descriptor.get || descriptor.set) {
 						// we have a value, but since there's a custom setter/getter, we can't have a value
-						defaultValue = descriptor.value;
+						value = descriptor.value;
 						delete descriptor.value;
-						defaultValue !== undefined && (skipSet = 0);
+						value !== undefined && (skipSet = 0);
 					} else {
 						descriptor.writable = true;
 					}
@@ -300,17 +301,17 @@
 			(skipSet | 0) < 2 && (obj["set" + capitalizedName] = function(val){ return obj[property] = val; });
 
 			// if there's no default value or it's already been set with defineProperty(), then we skip setting it
-			skipSet || (obj[property] = defaultValue);
+			skipSet || (obj[property] = value);
 		}
 	};
 
-	Ti._5.propReadOnly = function(obj, property, defaultValue) {
+	Ti._5.propReadOnly = function(obj, property, value) {
 		if (require.is(property, "Object")) {
 			for (var i in property) {
 				Ti._5.propReadOnly(obj, i, property[i]);
 			}
 		} else {
-			Ti._5.prop(obj, property, null, require.is(defaultValue, "Function") ? { get: defaultValue } : { value: defaultValue || null });
+			Ti._5.prop(obj, property, null, require.is(value, "Function") ? { get: value } : { value: value || null });
 		}
 	};
 
@@ -328,8 +329,8 @@
 	};
 
 	// do some actions when framework is loaded
-	Ti._5.frameworkLoaded = function(){
-		if(cfg.appAnalytics === 'true'){
+	Ti._5.frameworkLoaded = function() {
+		if (cfg.analytics) {
 			// enroll event
 			if(localStorage.getItem("html5_enrollSent") == null){
 				// setup enroll event

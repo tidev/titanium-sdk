@@ -1,9 +1,10 @@
-Ti._5.createClass("Titanium.UI.TextArea", function(args){
+Ti._5.createClass("Ti.UI.TextArea", function(args){
 	args = require.mix({
 		unselectable: true
 	}, args);
 
-	var obj = this,
+	var undef,
+		obj = this,
 		on = require.on,
 		domNode = Ti._5.DOMView(obj, "textarea", args, "TextArea"),
 		_autoLink = null,
@@ -28,27 +29,27 @@ Ti._5.createClass("Titanium.UI.TextArea", function(args){
 
 	// Properties
 	Ti._5.prop(obj, {
-		"autoLink": {
+		autoLink: {
 			get: function() {return _autoLink;},
 			set: function(val) { _autoLink = val; }
 		},
-		"autocapitalization": {
+		autocapitalization: {
 			get: function() {return _autocapitalization;},
 			set: function(val) {
 				_autocapitalization = val;
 				_autocapitalizationLoaded || on(domNode, "keyup", function() {
-					Titanium.UI._updateText(obj);
+					Ti.UI._updateText(obj);
 				});
-				obj.value = Titanium.UI._capitalizeValue(_autocapitalization, obj.value);
+				obj.value = Ti.UI._capitalizeValue(_autocapitalization, obj.value);
 			}
 		},
-	Ti._5.prop(obj, "backgroundDisabledImage", "");
-	Ti._5.prop(obj, "backgroundDisabledColor", "");
-		"editable": {
+		backgroundDisabledImage: undef,
+		backgroundDisabledColor: undef,
+		editable: {
 			get: function() { return obj.enabled; },
 			set: function(val) {domNode.disabled = !val ? "disabled" : "";}
 		},
-		"enabled": {
+		enabled: {
 			get: function(){return !domNode.disabled;},
 			set: function(val) {
 				if (!_backgroundImage && obj.backgroundImage) {
@@ -68,10 +69,10 @@ Ti._5.createClass("Titanium.UI.TextArea", function(args){
 				}
 			}
 		},
-		"keyboardToolbar": null,
-		"keyboardToolbarColor": null,
-		"keyboardToolbarHeight": null,
-		"size": {
+		keyboardToolbar: undef,
+		keyboardToolbarColor: undef,
+		keyboardToolbarHeight: undef,
+		size: {
 			get: function() {
 				return {
 					width: obj.width,
@@ -83,7 +84,7 @@ Ti._5.createClass("Titanium.UI.TextArea", function(args){
 				val.height && (obj.height = Ti._5.px(val.height));
 			}
 		},
-		"suppressReturn": {
+		suppressReturn: {
 			get: function() {return _suppressReturn;},
 			set: function(val) {
 				_suppressReturn = val;
@@ -99,10 +100,10 @@ Ti._5.createClass("Titanium.UI.TextArea", function(args){
 				}
 			}
 		},
-		"value": {
+		value: {
 			get: function() {return domNode.value;},
 			set: function(val) {
-				domNode.value = val ? Titanium.UI._capitalizeValue(_autocapitalization, val) : "";
+				domNode.value = val ? Ti.UI._capitalizeValue(_autocapitalization, val) : "";
 			}
 		}
 	});

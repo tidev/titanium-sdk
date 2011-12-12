@@ -4,9 +4,9 @@
 
 	// Properties
 	Ti._5.prop(api, {
-		"domain": null,
-		"isSearching": null,
-		"serviceType": null
+		domain: null,
+		isSearching: null,
+		serviceType: null
 	});
 
 	// Methods
@@ -27,4 +27,4 @@
 	api.addEventListener("updatedServices", function(){
 		console.debug('Event "updatedServices" is not implemented yet.');
 	});
-})(Ti._5.createClass("Titanium.Network.BonjourBrowser"));
+})(Ti._5.createClass("Ti.Network.BonjourBrowser"));

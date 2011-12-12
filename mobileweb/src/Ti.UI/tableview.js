@@ -1,4 +1,4 @@
-Ti._5.createClass("Titanium.UI.TableView", function(args){
+Ti._5.createClass("Ti.UI.TableView", function(args){
 	args = require.mix({
 		height: "100%",
 		layout: "vertical",
@@ -8,18 +8,18 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 
 	var undef,
 		obj = this,
-		domNode = Ti._5.DOMView(this, "div", args, "TableView"),
+		domNode = Ti._5.DOMView(obj, "div", args, "TableView"),
 		on = require.on,
 		_data = [],
 		activeSection = null;
 
 	// Interfaces
-	Ti._5.Touchable(this, args);
-	Ti._5.Styleable(this, args);
-	Ti._5.Positionable(this, args);
+	Ti._5.Touchable(obj, args);
+	Ti._5.Styleable(obj, args);
+	Ti._5.Positionable(obj, args);
 
 	function _createActiveSection(header, footer) {
-		activeSection = Titanium.UI.createTableViewSection({
+		activeSection = Ti.UI.createTableViewSection({
 			headerTitle: header || "",
 			footerTitle: footer || "",
 		});
@@ -32,7 +32,7 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 			return;
 		}
 		for (var ii = 0; ii < activeSection._children.length; ii++) {
-			if (activeSection._children[ii] instanceof Titanium.UI.TableViewSection) {
+			if (activeSection._children[ii] instanceof Ti.UI.TableViewSection) {
 				activeSection._children.splice(ii, 1);
 			}
 		}
@@ -41,7 +41,7 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 
 	// Create default header & footer
 	obj._children = obj._children || [];
-	var _oHeader = Titanium.UI.createLabel({
+	var _oHeader = Ti.UI.createLabel({
 		isvisible:true,
 		textAlign:"left",
 		backgroundColor:"#424542",
@@ -58,7 +58,7 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 	obj._children.push(_oHeader);
 	_oHeader.parent = obj;
 
-	var _oFooter = Titanium.UI.createLabel({
+	var _oFooter = Ti.UI.createLabel({
 		isvisible:true,
 		textAlign:"left",
 		backgroundColor:"#424542",
@@ -81,13 +81,13 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 		var iChildIndex = {x:-1,y:-1,oRow:null,oSection:null}, iRowCounter = -1;
 		// Search in sections
 		for (var iCounter = 0; iCounter < obj._children.length; iCounter++) {
-			if (obj._children[iCounter] instanceof Titanium.UI.TableViewSection) {
+			if (obj._children[iCounter] instanceof Ti.UI.TableViewSection) {
 				var oSection = obj._children[iCounter];
 				// Search in section children
 				if (
 					oSection._children[1] &&
 					oSection._children[1]._children &&
-					oSection._children[1]._children[0] instanceof Titanium.UI.TableViewRow
+					oSection._children[1]._children[0] instanceof Ti.UI.TableViewRow
 				) {
 					var oSectionRows = oSection._children[1];
 					// Search in section rows
@@ -113,12 +113,12 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 	}
 	
 	var needNewSection = false;
-	this.add = function(view) {
+	obj.add = function(view) {
 		var aData = view instanceof Array ? view : [view];
 		for (var ii = 0; ii < aData.length; ii++) {
 			var row = aData[ii];
 			// creating cross-link
-			if (row instanceof Titanium.UI.TableViewRow) {
+			if (row instanceof Ti.UI.TableViewRow) {
 				if (row.header || needNewSection) {
 					_createActiveSection(row.header, row.footer);
 				} else if (!activeSection) {
@@ -140,8 +140,8 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 			}
 				
 			if (
-				row instanceof Titanium.UI.TableViewRow ||
-				row instanceof Titanium.UI.TableViewSection
+				row instanceof Ti.UI.TableViewRow ||
+				row instanceof Ti.UI.TableViewSection
 			) {
 				_data.push(row._rowData || row.args);
 			} else {
@@ -153,8 +153,8 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 		}
 	};
 	
-	this._addRowAdditionalData = function (row) {
-		if (Titanium.UI.iPhone.TableViewSeparatorStyle.SINGLE_LINE == obj.separatorStyle) {
+	obj._addRowAdditionalData = function (row) {
+		if (Ti.UI.iPhone.TableViewSeparatorStyle.SINGLE_LINE == obj.separatorStyle) {
 			row.dom.style.borderBottom = "1px solid " + obj.separatorColor;
 		} else {
 			row.dom.style.borderBottom = "none";
@@ -176,14 +176,13 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 		_headerTitle = "",
 		_scrollable = true,
 		_searchHidden = true,
-		_separatorStyle = Titanium.UI.iPhone.TableViewSeparatorStyle.SINGLE_LINE;
+		_separatorStyle = Ti.UI.iPhone.TableViewSeparatorStyle.SINGLE_LINE;
 
 	// Properties
 	Ti._5.prop(obj, {
-		"allowsSelection": args.allowsSelection || true,
-		"allowsSelectionDuringEditing": args.allowsSelectionDuringEditing || true,
-		"data": {
-			value: args.data,
+		allowsSelection: true,
+		allowsSelectionDuringEditing: true,
+		data: {
 			get: function(){return _data;},
 			set: function(val){
 				// clean all the data we have
@@ -195,10 +194,10 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 				val = val instanceof Array ? val : [val];
 				for (var ii = 0; ii < val.length; ii++) {
 					var row = val[ii];
-					if (!(row instanceof Titanium.UI.TableViewRow) && !(row instanceof Titanium.UI.TableViewSection)) {
-						row = Titanium.UI.createTableViewRow(row);
+					if (!(row instanceof Ti.UI.TableViewRow) && !(row instanceof Ti.UI.TableViewSection)) {
+						row = Ti.UI.createTableViewRow(row);
 					}
-					if (row instanceof Titanium.UI.TableViewRow) {
+					if (row instanceof Ti.UI.TableViewRow) {
 						row = obj._addRowAdditionalData(row);
 					}
 					obj.add(row);
@@ -209,12 +208,11 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 				}
 			}
 		},
-		"editable": undef,
-		"editing": undef,
-		"filterAttribute": undef,
-		"filterCaseInsensitive": undef,
-		"footerTitle": {
-			value: args.footerTitle,
+		editable: undef,
+		editing: undef,
+		filterAttribute: undef,
+		filterCaseInsensitive: undef,
+		footerTitle: {
 			get: function(){return _footerTitle;},
 			set: function(val){
 				_footerTitle = val;
@@ -224,8 +222,7 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 				_oFooter.message !== undef && (_oFooter.message = _footerTitle);
 			}
 		},
-		"footerView": {
-			value: args.footerView,
+		footerView: {
 			get: function(){return _oFooter;},
 			set: function(val){
 				if (val && val.dom) {
@@ -236,8 +233,7 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 				}
 			}
 		},
-		"headerTitle": {
-			value: args.headerTitle,
+		headerTitle: {
 			get: function(){return _headerTitle;},
 			set: function(val){
 				_headerTitle = val;
@@ -252,8 +248,7 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 				_oHeader.message !== undef && (_oHeader.message = _headerTitle);
 			}
 		},
-		"headerView": {
-			value: args.headerView,
+		headerView: {
 			get: function(){return _oHeader;},
 			set: function(val){
 				if (val && val.dom) {
@@ -264,39 +259,37 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 				}
 			}
 		},
-		"index": undef,
-		"maxRowHeight": args.maxRowHeight || "",
-		"minRowHeight": args.minRowHeight || 1,
-		"moving": undef,
-		"rowHeight": args.rowHeight,
-		"scrollable": {
-			value: args.scrollable,
+		index: undef,
+		maxRowHeight: "",
+		minRowHeight: 1,
+		moving: undef,
+		rowHeight: args.rowHeight,
+		scrollable: {
 			get: function(){return _scrollable;},
 			set: function(val){
 				_scrollable = val;
 				domNode.style.overflow = _scrollable ? "auto" : "hidden";
 			}
 		},
-		"search": undef,
-		"searchHidden": {
+		search: undef,
+		searchHidden: {
 			get: function(){return _searchHidden;},
 			set: function(val){_searchHidden = !!val;}
 		},
-		"separatorColor": args.separatorColor || "#e0e0e0",
-		"separatorStyle": {
-			value: args.separatorStyle,
+		separatorColor: "#e0e0e0",
+		separatorStyle: {
 			get: function(){return _separatorStyle;},
 			set: function(val){
-				if (Titanium.UI.iPhone.TableViewSeparatorStyle.NONE == val) {
-					_separatorStyle = Titanium.UI.iPhone.TableViewSeparatorStyle.NONE;
+				if (Ti.UI.iPhone.TableViewSeparatorStyle.NONE == val) {
+					_separatorStyle = Ti.UI.iPhone.TableViewSeparatorStyle.NONE;
 				} else {
-					_separatorStyle = Titanium.UI.iPhone.TableViewSeparatorStyle.SINGLE_LINE;
+					_separatorStyle = Ti.UI.iPhone.TableViewSeparatorStyle.SINGLE_LINE;
 				}
 				if (obj._children && obj._children.length) {
 					for (var iCounter = obj._children.length; iCounter >= 0; iCounter--) {
 						if (obj._children[iCounter] instanceof Ti.UI.TableViewSection) {
 							for (var jCounter = obj._children[iCounter]._children.length; jCounter >= 0; jCounter--) {
-								if (obj._children[iCounter]._children[jCounter] instanceof Titanium.UI.TableViewRow) {
+								if (obj._children[iCounter]._children[jCounter] instanceof Ti.UI.TableViewRow) {
 									obj._addRowAdditionalData(obj._children[iCounter]._children[jCounter]);
 								}  
 							}
@@ -305,13 +298,12 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 				}
 			}
 		},
-		"style": undef,
-		"size": {
-			value: args.size,
+		style: undef,
+		size: {
 			get: function() {
 				return {
-					width	: obj.width,
-					height	: obj.height
+					width: obj.width,
+					height: obj.height
 				}
 			},
 			set: function(val) {
@@ -320,6 +312,8 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 			}
 		}
 	});
+
+	require.mix(obj, args);
 
 	on(domNode, "click", function(event) {
 		// If tableview has children they will fire this event
@@ -354,14 +348,14 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 	});
 
 	// Methods
-	this.appendRow = function(row, properties){
+	obj.appendRow = function(row, properties){
 		if (row instanceof Ti.UI.TableViewRow) {
 			obj.add(obj._addRowAdditionalData(row));
 		} else {
-			obj.add(obj._addRowAdditionalData(Titanium.UI.createTableViewRow(row)));
+			obj.add(obj._addRowAdditionalData(Ti.UI.createTableViewRow(row)));
 		}
 	};
-	this.deleteRow = function(row, properties){
+	obj.deleteRow = function(row, properties){
 		var oIndex = _searchForRowByIndex(row);
 		// if row was found
 		if (0 > oIndex.y) {
@@ -385,7 +379,7 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 			type		: "delete"
 		});
 	};
-	this.insertRowAfter = function(index, row, properties){
+	obj.insertRowAfter = function(index, row, properties){
 		var oIndex = _searchForRowByIndex(index);
 		// if row was found
 		if (0 > oIndex.y) {
@@ -399,7 +393,7 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 		obj._children[oIndex.x]._children[1]._children.splice(oIndex.y + 1, 0, row);
 		obj.render(null);
 	};
-	this.insertRowBefore = function(index, row, properties){
+	obj.insertRowBefore = function(index, row, properties){
 		var oIndex = _searchForRowByIndex(index);
 		// if row was found
 		if (0 > oIndex.y) {
@@ -413,7 +407,7 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 		obj._children[oIndex.x]._children[1]._children.splice(oIndex.y, 0, row);
 		obj.render(null);
 	};
-	this.updateRow = function(index, row, properties){
+	obj.updateRow = function(index, row, properties){
 		var oIndex = _searchForRowByIndex(index);
 		// if row was found
 		if (0 > oIndex.y) {
@@ -427,7 +421,7 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 		obj._children[oIndex.x]._children[1].dom.innerHTML = "";
 		obj._children[oIndex.x]._children[1].render(null);
 	};
-	this.scrollToIndex = function(index, properties) {
+	obj.scrollToIndex = function(index, properties) {
 		var oIndex = _searchForRowByIndex(index);
 		// if row was found
 		if (0 > oIndex.y) {
@@ -435,21 +429,21 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 		}
 		domNode.scrollTop = parseInt(Ti._5._getElementOffset(oIndex.oRow.dom).top);
 	};
-	this.scrollToTop = function(yCoord, properties) {
+	obj.scrollToTop = function(yCoord, properties) {
 		domNode.scrollTop = parseFloat(yCoord);
 	};
-	this.selectRow = function(row){
+	obj.selectRow = function(row){
 		if (!obj.allowsSelection) {
 			return false;
 		}
 		for (var iCounter=0; iCounter < obj._children.length; iCounter++) {
-			if (obj._children[iCounter] instanceof Titanium.UI.TableViewSection) {
+			if (obj._children[iCounter] instanceof Ti.UI.TableViewSection) {
 				var oSection = obj._children[iCounter];
 				// Search in section children
 				if (
 					oSection._children[1] &&
 					oSection._children[1]._children &&
-					oSection._children[1]._children[0] instanceof Titanium.UI.TableViewRow
+					oSection._children[1]._children[0] instanceof Ti.UI.TableViewRow
 				) {
 					var oSectionRows = oSection._children[1];
 					// Search in section rows
@@ -466,7 +460,7 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 		}
 		obj._children[oIndex.x]._children[1]._children[oIndex.y]._selectRow();
 	};
-	this.deselectRow = function(row){
+	obj.deselectRow = function(row){
 		if (!obj.allowsSelection) {
 			return false;
 		}
@@ -477,7 +471,7 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 		}
 		obj._children[oIndex.x]._children[1]._children[oIndex.y]._deselectRow();
 	};
-	this.setData = function(data, properties) {
+	obj.setData = function(data, properties) {
 //		if (data == null || data.length == 0) {
 //			_data = [];
 //			obj._children = [];
@@ -488,11 +482,11 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 	};
 
 	// Events
-	this.addEventListener("delete", function(){
-		console.debug("Event "delete" is not implemented yet.");
+	obj.addEventListener("delete", function(){
+		console.debug('Event "delete" is not implemented yet.');
 	});
-	this.addEventListener("move", function(){
-		console.debug("Event "move" is not implemented yet.");
+	obj.addEventListener("move", function(){
+		console.debug('Event "move" is not implemented yet.');
 	});
 	
 	var _scrollTimer = null;
@@ -502,13 +496,13 @@ Ti._5.createClass("Titanium.UI.TableView", function(args){
 		var iHeight = domNode.offsetHeight;
 		var iTop = Ti._5._getElementOffset(domNode).top;
 		for (var iCounter=0; iCounter < obj._children.length; iCounter++) {
-			if (obj._children[iCounter] instanceof Titanium.UI.TableViewSection) {
+			if (obj._children[iCounter] instanceof Ti.UI.TableViewSection) {
 				var oSection = obj._children[iCounter];
 				// Search in section children
 				if (
 					oSection._children[1] &&
 					oSection._children[1]._children &&
-					oSection._children[1]._children[0] instanceof Titanium.UI.TableViewRow
+					oSection._children[1]._children[0] instanceof Ti.UI.TableViewRow
 				) {
 					var oSectionRows = oSection._children[1];
 					// Search in section rows

@@ -1,4 +1,4 @@
-Ti._5.createClass("Titanium.Network.HTTPClient", function(args){
+Ti._5.createClass("Ti.Network.HTTPClient", function(args){
 	var obj = this,
 		on = require.on,
 		xhr = new XMLHttpRequest(),
@@ -48,44 +48,33 @@ Ti._5.createClass("Titanium.Network.HTTPClient", function(args){
 
 	// Properties
 	Ti._5.prop(obj, {
-		"DONE": {
-			get: function() {return _xml.DONE;}
-		},
-		"HEADERS_RECEIVED": {
-			get: function(){return _xml.HEADERS_RECEIVED;}
-		},
-		"LOADING": {
-			get: function(){return _xml.LOADING;}
-		},
-		"OPENED": {
-			get: function(){return _xml.OPENED;}
-		},
-		"UNSENT": {
-			get: function(){return _xml.UNSENT;}
-		},
-		"connected": false,
-		"connectionType": null,
-		"file": null,
-		"location": null,
-		"ondatastream": null,
-		"onerror": null,
-		"onload": null,
-		"onreadystatechange": null,
-		"onsendstream": null,
-		"readyState": {
-			get: function() { return xhr.readyState; }
-		},
-		"responseData": null,
-		"responseText": null,
-		"responseXML": null,
-		"status": {
-			get: function() { return xhr.status; }
-		},
-		"timeout": {
+		DONE: function() {return _xml.DONE;},
+		HEADERS_RECEIVED: function(){return _xml.HEADERS_RECEIVED;},
+		LOADING: function(){return _xml.LOADING;},
+		OPENED: function(){return _xml.OPENED;},
+		UNSENT: function(){return _xml.UNSENT;},
+		readyState: function() { return xhr.readyState; },
+		status: function() { return xhr.status; }
+	});
+
+	Ti._5.prop(obj, {
+		connected: false,
+		connectionType: null,
+		file: null,
+		location: null,
+		ondatastream: null,
+		onerror: null,
+		onload: null,
+		onreadystatechange: null,
+		onsendstream: null,
+		responseData: null,
+		responseText: null,
+		responseXML: null,
+		timeout: {
 			get: function() {return xhr.timeout;},
 			set: function(val) {xhr.timeout = val;}
 		},
-		"validatesSecureCertificate": false
+		validatesSecureCertificate: false
 	});
 
 	// Methods
@@ -107,7 +96,7 @@ Ti._5.createClass("Titanium.Network.HTTPClient", function(args){
 		async === u && (async = true);
 
 		xhr.open(obj.connectionType, obj.location, async);
-		xhr.setRequestHeader("UserAgent", "Appcelerator Titanium/" + require.config.tiVersion + " (" + navigator.userAgent + ")");
+		xhr.setRequestHeader("UserAgent", Ti.userAgent);
 		//xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
 		//xhr.setRequestHeader("Content-Type", "text/xml; charset=utf-8");
 	};

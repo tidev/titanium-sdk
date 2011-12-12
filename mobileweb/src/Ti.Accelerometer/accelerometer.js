@@ -2,7 +2,8 @@
 	// Interfaces
 	Ti._5.EventDriven(api);
 
-	var lastShake = (new Date()).getTime(),
+	var undef,
+		lastShake = (new Date()).getTime(),
 		lastAccel = {};
 
 	require.on(window, "devicemotion", function(evt) {
@@ -15,7 +16,7 @@
 				source: evt.source
 			};
 		if (accel) {
-			if (x in lastAccel && (
+			if (lastAccel.x !== undef && (
 				Math.abs(lastAccel.x - accel.x) > 0.2 || 
 				Math.abs(lastAccel.y - accel.y) > 0.2 ||
 				Math.abs(lastAccel.z - accel.z) > 0.2
@@ -28,5 +29,5 @@
 			lastAccel = accel;
 		}
 	});
-	
-})(Ti._5.createClass("Titanium.Accelerometer"));
+
+})(Ti._5.createClass("Ti.Accelerometer"));

@@ -1,4 +1,4 @@
-Ti._5.createClass("Titanium.UI.Picker", function(args){
+Ti._5.createClass("Ti.UI.Picker", function(args){
 	args = require.mix({
 		unselectable: true
 	}, args);
@@ -6,22 +6,22 @@ Ti._5.createClass("Titanium.UI.Picker", function(args){
 	var obj = this,
 		domNode,
 		_columnIndex = 0,
-		_type = args.type || Titanium.UI.PICKER_TYPE_PLAIN,
+		_type = args.type || Ti.UI.PICKER_TYPE_PLAIN,
 		_minuteInterval = 1,
 		_visibleItems = null,
 		_rows = null;
 
 	// Interfaces
 	switch (_type) {
-		case Titanium.UI.PICKER_TYPE_DATE_AND_TIME:
+		case Ti.UI.PICKER_TYPE_DATE_AND_TIME:
 			(domNode = Ti._5.DOMView(obj, "input", args, "Picker")).type = "datetime";
 			break;
-		case Titanium.UI.PICKER_TYPE_DATE:
-		case Titanium.UI.PICKER_TYPE_COUNT_DOWN_TIMER:
-		case Titanium.UI.PICKER_TYPE_TIME:
+		case Ti.UI.PICKER_TYPE_DATE:
+		case Ti.UI.PICKER_TYPE_COUNT_DOWN_TIMER:
+		case Ti.UI.PICKER_TYPE_TIME:
 			(domNode = Ti._5.DOMView(obj, "input", args, "Picker")).type = "date";
 			break;
-		case Titanium.UI.PICKER_TYPE_PLAIN:
+		case Ti.UI.PICKER_TYPE_PLAIN:
 		default:
 			domNode = Ti._5.DOMView(obj, "select", args, "Picker");
 	}
@@ -30,22 +30,22 @@ Ti._5.createClass("Titanium.UI.Picker", function(args){
 	
 	// Properties
 	Ti._5.prop(obj, {
-		"columns": [],
-		"countDownDuration": 0,
-		"locale": null,
-		"minDate": null,
-		"minuteInterval": {
+		columns: [],
+		countDownDuration: 0,
+		locale: null,
+		minDate: null,
+		minuteInterval: {
 			get: function(){return _minuteInterval;},
 			set: function(val){_minuteInterval = Math.max(Math.min(val, 30), 1);}
 		},
-		"selectionIndicator": false,
-		"type": {
+		selectionIndicator: false,
+		type: {
 			get: function(){return _type;},
 			set: function(val){_type = val;}
 		},
-		"useSpinner": null,
-		"value": null,
-		"visibleItems": {
+		useSpinner: null,
+		value: null,
+		visibleItems: {
 			get: function(){return domNode.size;},
 			set: function(val){ 
 				// We need this for setting "size" property in constructor
@@ -78,10 +78,10 @@ Ti._5.createClass("Titanium.UI.Picker", function(args){
 		return _rows[domNode.selectedIndex];
 	};
 	obj.reloadColumn = function(){
-		console.debug('Method "Titanium.UI.Picker#.reloadColumn" is not implemented yet.');
+		console.debug('Method "Ti.UI.Picker#.reloadColumn" is not implemented yet.');
 	};
 	obj.setSelectedRow = function(col, row, animated){
-		if (Titanium.UI.PICKER_TYPE_PLAIN != obj.type) {
+		if (Ti.UI.PICKER_TYPE_PLAIN != obj.type) {
 			return;
 		}
 		/*

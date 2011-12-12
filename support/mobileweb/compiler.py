@@ -117,34 +117,40 @@ class Compiler(object):
 	def jsQuoteEscapeFilter(str):\n\
 		return str.replace(\"\\\"\",\"\\\\\\\"\")\n\
 %>\n" + "var require={\n\
-	projectName: \"${project_name | jsQuoteEscapeFilter}\",\n\
-	projectId: \"${project_id | jsQuoteEscapeFilter}\",\n\
+	analytics: ${app_analytics | jsQuoteEscapeFilter},\n\
+	app: {\n\
+		copyright: \"${app_copyright | jsQuoteEscapeFilter}\",\n\
+		description: \"${app_description | jsQuoteEscapeFilter}\",\n\
+		guid: \"${app_guid | jsQuoteEscapeFilter}\",\n\
+		id: \"${app_name | jsQuoteEscapeFilter}\",\n\
+		name: \"${app_name | jsQuoteEscapeFilter}\",\n\
+		publisher: \"${app_publisher | jsQuoteEscapeFilter}\",\n\
+		url: \"${app_url | jsQuoteEscapeFilter}\",\n\
+		version: \"${app_version | jsQuoteEscapeFilter}\"\n\
+	},\n\
 	deployType: \"${deploy_type | jsQuoteEscapeFilter}\",\n\
-	appId: \"${app_name | jsQuoteEscapeFilter}\",\n\
-	appAnalytics: \"${app_analytics | jsQuoteEscapeFilter}\",\n\
-	appPublisher: \"${app_publisher | jsQuoteEscapeFilter}\",\n\
-	appUrl: \"${app_url | jsQuoteEscapeFilter}\",\n\
-	appName: \"${app_name | jsQuoteEscapeFilter}\",\n\
-	appVersion: \"${app_version | jsQuoteEscapeFilter}\",\n\
-	appDescription: \"${app_description | jsQuoteEscapeFilter}\",\n\
-	appCopyright: \"${app_copyright | jsQuoteEscapeFilter}\",\n\
-	appGuid: \"${app_guid | jsQuoteEscapeFilter}\",\n\
-	tiVersion: \"${ti_version | jsQuoteEscapeFilter}\",\n\
+	project: {\n\
+		id: \"${project_id | jsQuoteEscapeFilter}\",\n\
+		name: \"${project_name | jsQuoteEscapeFilter}\"\n\
+	},\n\
+	ti: {\n\
+		version: \"${ti_version | jsQuoteEscapeFilter}\"\n\
+	},\n\
 	vendorPrefixes: [\"\", \"Webkit\", \"Moz\", \"ms\", \"O\"]\n\
 };\n".encode('utf-8')).render(
-				ti_version=sdk_version,
 				project_name=self.project_name,
 				project_id=self.appid,
 				deploy_type=deploytype,
 				app_id=self.appid,
-				app_analytics=ti.properties['analytics'],
+				app_analytics='true' if ti.properties['analytics']=='true' else 'false',
 				app_publisher=ti.properties['publisher'],
 				app_url=ti.properties['url'],
 				app_name=ti.properties['name'],
 				app_version=ti.properties['version'],
 				app_description=ti.properties['description'],
 				app_copyright=ti.properties['copyright'],
-				app_guid=ti.properties['guid']
+				app_guid=ti.properties['guid'],
+				ti_version=sdk_version
 			) + self.load_api(os.path.join(src_dir,"loader.js")) + self.load_api(os.path.join(src_dir,"titanium.js"))
 		
 		if deploytype == 'all':
