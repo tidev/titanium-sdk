@@ -655,7 +655,7 @@ properties:
   - name: currentTab
     summary: The currently active tab, if a tab group is open.
     description: |
-        If not tab group is open, this value is undefined.
+        If no tab group is open, this value is undefined.
     type: Titanium.UI.Tab
   - name: currentWindow
     summary: The active window associated with the executing JavaScript context.
