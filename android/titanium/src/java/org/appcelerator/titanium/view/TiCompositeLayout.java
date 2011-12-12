@@ -223,21 +223,13 @@ public class TiCompositeLayout extends ViewGroup
 			}
 
 			if (isHorizontalArrangement()) {
-				LayoutParams p = (LayoutParams) child.getLayoutParams();
 				maxWidth += childWidth;
-				if (p.optionLeft != null) {
-					maxWidth += p.optionLeft.getAsPixels(this);  // I think this is wrong -- getViewWidthPadding above has already done this, I believe
-				}
 			} else {
 				maxWidth = Math.max(maxWidth, childWidth);
 			}
 
 			if (isVerticalArrangement()) {
-				LayoutParams p = (LayoutParams) child.getLayoutParams();
 				maxHeight += childHeight;
-				if (p.optionTop != null) {
-					maxHeight += p.optionTop.getAsPixels(this);
-				}
 			} else {
 				maxHeight = Math.max(maxHeight, childHeight);
 			}
