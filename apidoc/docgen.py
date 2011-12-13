@@ -39,6 +39,7 @@ import markdown
 
 DEFAULT_PLATFORMS = ["android", "iphone", "ipad", "mobileweb"]
 DEFAULT_SINCE = "0.8"
+DEFAULT_MOBILEWEB_SINCE = "1.8"
 apis = {} # raw conversion from yaml
 annotated_apis = {} # made friendlier for templates, etc.
 current_api = None
@@ -116,11 +117,18 @@ def combine_platforms_and_since(annotated_obj):
 		one_platform = {"name": name, "pretty_name": pretty_platform_name(name)}
 		if not since_is_dict:
 			one_platform["since"] = since
+			if one_platform["name"] == "mobileweb":
+				if len(since) >= 3:
+					if float(since[0:3]) < float(DEFAULT_MOBILEWEB_SINCE[0:3]):
+						one_platform["since"] = DEFAULT_MOBILEWEB_SINCE
 		else:
 			if name in since:
 				one_platform["since"] = since[name]
 			else:
-				one_platform["since"] = DEFAULT_SINCE
+				if one_platform["name"] == "mobileweb":
+					one_platform["since"] = DEFAULT_MOBILEWEB_SINCE
+				else:
+					one_platform["since"] = DEFAULT_SINCE
 		result.append(one_platform)
 
 	return result

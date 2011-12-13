@@ -378,7 +378,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			<arg line="${ndk.build.args}"/>
 		</exec>
 		<copy todir="${dist.dir}">
-			<fileset dir="${kroll.v8.project.dir}" includes="libs/armeabi*/libkroll-v8.so"/>
+			<fileset dir="${kroll.v8.project.dir}" includes="libs/armeabi*/lib*.so"/>
 		</copy>
 	</target>
 
