@@ -62,6 +62,7 @@ public abstract class TiBaseActivity extends Activity
 	protected Messenger messenger;
 	protected int msgActivityCreatedId = -1;
 	protected int msgId = -1;
+	protected static int previousOrientation = -1;
 
 
 	// could use a normal ConfigurationChangedListener but since only orientation changes are
@@ -481,6 +482,14 @@ public abstract class TiBaseActivity extends Activity
 		return menuHelper.onPrepareOptionsMenu(super.onPrepareOptionsMenu(menu), menu);
 	}
 
+	public static void callOrientationChangedListener(Configuration newConfig)
+	{
+		if (orientationChangedListener != null && previousOrientation != newConfig.orientation) {
+			previousOrientation = newConfig.orientation;
+			orientationChangedListener.onOrientationChanged(newConfig.orientation);
+		}
+	}
+	
 	@Override
 	public void onConfigurationChanged(Configuration newConfig)
 	{
