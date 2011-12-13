@@ -11,7 +11,7 @@ Ti._5.Styleable = function(obj, args) {
 		domStyle = domNode.style,
 		ui = Ti.UI,
 		px = Ti._5.px,
-		vp = require.config.vendorPrefixes,
+		vendorPrefixes = require.config.vendorPrefixes,
 		curRotation,
 		curTransform,
 		_backgroundColor,
@@ -275,11 +275,11 @@ Ti._5.Styleable = function(obj, args) {
 	obj.css = function(rule, value) {
 		var i = 0,
 			r,
-			v = vendorPrefixes.dom,
+			vp = vendorPrefixes.dom,
 			upperCaseRule = rule[0].toUpperCase() + rule.substring(1);
 
-		for (; i < v.length; i++) {
-			r = v[i];
+		for (; i < vp.length; i++) {
+			r = vp[i];
 			r += r ? upperCaseRule : rule;
 			if (r in domStyle) {
 				return value !== undefined ? domStyle[r] = value : domStyle[r];
