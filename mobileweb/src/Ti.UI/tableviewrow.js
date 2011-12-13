@@ -292,40 +292,42 @@ Ti._5.createClass("Ti.UI.TableViewRow", function(args){
 		domNode._calcHeight = false;
 	});
 
-	function _getLowestPosition(obj) {
-		var oSizes = Ti._5._getElementOffset(domNode);
-		var iMaxPos = oSizes.height + (parseInt(obj.top) || 0) + (parseInt(obj.bottom) || 0);
-		//var iMaxPos = oSizes.height + oSizes.top;
-		if (obj._children) {
-			for (var iCounter = 0; iCounter < obj._children.length; iCounter++) {
-				iPos = _getLowestPosition(obj._children[iCounter]);
-				iMaxPos = iMaxPos < iPos ? iPos : iMaxPos;
-			}
+	function getLowestPosition(obj) {
+		var i,
+			pos,
+			maxPos = oSizes.height + (parseInt(obj.top) || 0) + (parseInt(obj.bottom) || 0),
+			children = obj._children,
+			len = children.length,
+			oSizes = Ti._5._getElementOffset(domNode);
+		//var maxPos = oSizes.height + oSizes.top;
+		for (i = 0; i < len; i++) {
+			pos = getLowestPosition(children[i]);
+			maxPos = Math.max(maxPos, pos);
 		}
-		return iMaxPos;
+		return maxPos;
 	}
-	
-	function _setRowHeight() {
-		if (
-			("undefined" == typeof obj.height || "auto" == obj.height) &&
-			false === domNode._calcHeight &&
-			obj._children
-		) {
-			var iMaxPos = 0;
-			for (var iCounter = 0; iCounter < obj._children.length; iCounter++) {
-				var iPos = _getLowestPosition(obj._children[iCounter]);
-				iMaxPos = iMaxPos < iPos ? iPos : iMaxPos;
+
+	function setRowHeight() {
+		var i,
+			pos,
+			maxPos = 0,
+			children = obj._children,
+			len = children.length;
+		if ((obj.height === undef || obj.height === "auto") && domNode._calcHeight === false && len) {
+			for (i = 0; i < len; i++) {
+				pos = getLowestPosition(children[i]);
+				maxPos = Math.max(maxPos, pos);
 			}
-			domNode._calcHeight = iMaxPos;
+			domNode._calcHeight = maxPos;
 			domStyle.height = domNode._calcHeight + "px";
 		}
 	}
 
-	obj.addEventListener("html5_child_rendered", _setRowHeight);
-	obj.addEventListener("html5_shown", function () {domNode._calcHeight = false; _setRowHeight();});
+	obj.addEventListener("html5_child_rendered", setRowHeight);
+	obj.addEventListener("html5_shown", function () {domNode._calcHeight = false; setRowHeight();});
 	on(window, "resize", function() {
 		domNode._calcHeight = false;
-		_setRowHeight();
+		setRowHeight();
 	});
 
 	function setColoredStyle() {
