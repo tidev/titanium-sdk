@@ -55,6 +55,7 @@
 	BOOL editing;
 	BOOL springing;	
     BOOL editable;
+    BOOL renderingButtons;
 }
 
 @property(nonatomic) NSInteger columnCount;
