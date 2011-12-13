@@ -155,7 +155,7 @@ using namespace titanium;
  * Method:    nativeInit
  * Signature: (Lorg/appcelerator/kroll/runtime/v8/V8Runtime;)J
  */
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jobject self, jboolean useGlobalRefs, jboolean debuggerEnabled, jboolean DBG)
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jobject self, jboolean useGlobalRefs, jint debuggerPort, jboolean DBG)
 {
 	HandleScope scope;
 	titanium::JNIScope jniScope(env);
@@ -165,7 +165,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 	V8::SetCaptureStackTraceForUncaughtExceptions(true);
 
 	JavaObject::useGlobalRefs = useGlobalRefs;
-	V8Runtime::debuggerEnabled = debuggerEnabled;
+	V8Runtime::debuggerEnabled = debuggerPort >= 0;
 	V8Runtime::DBG = DBG;
 
 	V8Runtime::javaInstance = env->NewGlobalRef(self);
@@ -177,17 +177,12 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 	V8Runtime::globalContext = context;
 	V8Runtime::bootstrap(context->Global());
 
-	if (debuggerEnabled) {
+	if (V8Runtime::debuggerEnabled) {
 		jclass v8RuntimeClass = env->FindClass("org/appcelerator/kroll/runtime/v8/V8Runtime");
 		dispatchDebugMessage = env->GetMethodID(v8RuntimeClass, "dispatchDebugMessages", "()V");
 
 		Debug::SetDebugMessageDispatchHandler(dispatchHandler);
-		Debug::EnableAgent("titanium", V8_DEBUGGER_PORT);
-
-		// Set up an empty handler so v8 will not continue until a debugger
-		// attaches. This is the same behavior as Debug::EnableAgent(_,_,true)
-		// except we don't break at the beginning of the script.
-		Debug::SetMessageHandler2(DebugBreakMessageHandler);
+		Debug::EnableAgent("titanium", debuggerPort, true);
 	}
 
 	LOG_HEAP_STATS(TAG);

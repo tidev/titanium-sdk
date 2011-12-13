@@ -1928,7 +1928,7 @@ class Builder(object):
 			if debugger_enabled and self.runtime == 'v8':
 				info('Forwarding host port %s to device for debugging.' % self.debugger_port)
 				forwardPort = 'tcp:%s' % self.debugger_port
-				self.sdk.run_adb(['forward', forwardPort, 'tcp:9999'])
+				self.sdk.run_adb(['forward', forwardPort, forwardPort])
 
 			#intermediary code for on-device debugging (later)
 			#if debugger_host != None:
