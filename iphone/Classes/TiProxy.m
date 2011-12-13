@@ -622,7 +622,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	}
 	if (bridgeCount < 1)
 	{
-		NSLog(@"[FATAL] Orphaned %@ is trying to remember %@.",self,rememberedProxy);
+		NSLog(@"[DEBUG] Orphaned %@ is trying to remember %@.",self,rememberedProxy);
 		return;
 	}
 	
@@ -661,7 +661,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	}
 	if (bridgeCount < 1)
 	{
-		NSLog(@"[FATAL] Orphaned %@ is trying to forget %@.",self,forgottenProxy);
+		NSLog(@"[DEBUG] Orphaned %@ is trying to forget %@.",self,forgottenProxy);
 		return;
 	}
 
