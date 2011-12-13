@@ -11,6 +11,7 @@ Ti._5.Styleable = function(obj, args) {
 		domStyle = domNode.style,
 		ui = Ti.UI,
 		px = Ti._5.px,
+		vp = require.config.vendorPrefixes,
 		curRotation,
 		curTransform,
 		_backgroundColor,
@@ -39,6 +40,10 @@ Ti._5.Styleable = function(obj, args) {
 		return val;
 	}
 
+	function unitize(x) {
+		return isNaN(x-0) || x-0 != x ? x : x + "px"; // note: must be != and not !==
+	}
+
 	Ti._5.prop(obj, {
 		backgroundColor: {
 			// we keep the backgroundColor in a variable because we later change it
@@ -54,91 +59,40 @@ Ti._5.Styleable = function(obj, args) {
 		backgroundFocusedImage: undef,
 		backgroundGradient: {
 			get: function() {
-				if (!_gradient) {
-					// domStyle.backgroundImage
-					_gradient = {
-						//
-					};
-				}
 				return _gradient;
 			},
 			set: function(val) {
-				_gradient = val;
-				/*
-				if (!val) {
+				var val = _gradient = val || {},
+					output = [],
+					colors = val.colors || [],
+					type = val.type,
+					start = val.startPoint,
+					end = val.endPoint;
+
+				if (type === "linear") {
+					start && end && start.x != end.x && start.y != end.y && output.concat([
+						unitize(val.startPoint.x) + " " + unitize(val.startPoint.y),
+						unitize(val.endPoint.x) + " " + unitize(val.startPoint.y)
+					]);
+				} else if (type === "radial") {
+					start = val.startRadius;
+					end = val.endRadius;
+					start && end && output.push(unitize(start) + " " + unitize(end));
+					output.push("ellipse closest-side");
+				} else {
+					domStyle.backgroundImage = "none";
 					return;
 				}
-				var type = val["type"] ? val["type"]+"," : "linear,";
-				if ("Firefox" == Ti.Platform.name) {
-					var startPoint = val["startPoint"] ? val["startPoint"].x+"%" : "0%";
-				} else {
-					startPoint = val["startPoint"] ? val["startPoint"].x+" "+val["startPoint"].y+"," : "0% 0%,";
-				}
-				if ("Firefox" == Ti.Platform.name) {
-					var endPoint = val["endPoint"] ? val["endPoint"].y+"%," : "100%";
-				} else {
-					endPoint = val["endPoint"] ? val["endPoint"].x+" "+val["endPoint"].y+"," : "100% 100%,";
-				}
-				var startRadius = val["startRadius"] ? val["startRadius"]+"," : "";
-				var endRadius = val["endRadius"] ? val["endRadius"]+"," : "";
-				var colors = "";
-				if (val["colors"]) {
-					var iStep = 0;
-					for (var iCounter=0; iCounter < val["colors"].length; iCounter++) {
-						if ("Firefox" == Ti.Platform.name) {
-							colors += 0 < colors.length ? ","+val["colors"][iCounter] : val["colors"][iCounter];
-						} else {
-							if ("undefined" != typeof val["colors"][iCounter]["position"]) {
-								colors += "color-stop("+val["colors"][iCounter]["position"]+","+val["colors"][iCounter]["color"]+"), ";
-							} else {
-								iStep = 1 < val["colors"].length ? iCounter/(val["colors"].length-1) : 0;
-								colors += "color-stop("+iStep+","+val["colors"][iCounter]+"), ";
-							}
-						}
-					}
-					_gradient = {colors : val["colors"]};
-				}
-				_gradient.type = type;
-				_gradient.startPoint = startPoint;
-				_gradient.endPoint = endPoint;
-				_gradient.startRadius = null;
-				_gradient.endRadius = null;
-				if ("linear," == type) {
-					_gradient = {
-						type		: type,
-						startPoint	: startPoint,
-						endPoint	: endPoint,
-						startRadius	: startRadius,
-						endRadius	: endRadius,
-						
-					};
-					var sStyle = [type, startPoint, endPoint, colors].join(" ").replace(/,\s$/g, "");
-				} else {
-					_gradient.startRadius = startRadius;
-					_gradient.endRadius = endRadius;
-					var sStyle = [type, startPoint, startRadius, endPoint, endRadius, colors].join(" ").replace(/,\s$/g, "");
-				}
-				
-				if ("Firefox" == Ti.Platform.name) {
-					if (-1 < type.indexOf("linear")) {
-						sStyle = [startPoint, endPoint, colors].join(" ").replace(/,\s$/g, "");
-						domStyle["background"] = "-moz-linear-gradient(" + sStyle + ")";
-					} else {
-						sStyle = [startRadius.replace(/,$/g, ""), endRadius, colors].join(" ").replace(/,\s$/g, "");
-						domStyle["background"] = "-moz-radial-gradient(" + sStyle + ")";
-					}
-				} else {
-					domStyle["background"] = "-webkit-gradient(" + sStyle + ")";
-				}
-				// If gradient removed, we need to return background color and image
-				if (
-					"linear," == type && "0% 0%," == startPoint && "100% 100%," == endPoint &&
-					"" == colors
-				) {
-					obj.backgroundColor = domStyle.backgroundColor;
-					obj.backgroundImage = obj.backgroundImage;
-				}
-				*/
+
+				require.each(colors, function(c) {
+					output.push(c.color ? c.color + " " + (c.position * 100) + "%" : c);
+				});
+
+				output = type + "-gradient(" + output.join(",") + ")";
+
+				require.each(vendorPrefixes.css, function(p) {
+					domStyle.backgroundImage = p + output;
+				});
 			}
 		},
 		backgroundImage: {
@@ -322,7 +276,7 @@ Ti._5.Styleable = function(obj, args) {
 		var i = 0,
 			r,
 			upperCaseRule = rule[0].toUpperCase() + rule.substring(1),
-			vp = require.config.vendorPrefixes;
+			vp = vendorPrefixes.dom;
 
 		for (; i < vp.length; i++) {
 			r = vp[i];

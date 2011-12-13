@@ -136,7 +136,10 @@ class Compiler(object):
 	ti: {\n\
 		version: \"${ti_version | jsQuoteEscapeFilter}\"\n\
 	},\n\
-	vendorPrefixes: [\"\", \"Webkit\", \"Moz\", \"ms\", \"O\"]\n\
+	vendorPrefixes: {\n\
+		css: [\"\", \"-webkit-\", \"-moz-\", \"-ms-\", \"-o-\", \"-khtml-\"],\n\
+		dom: [\"\", \"Webkit\", \"Moz\", \"ms\", \"O\", \"Khtml\"]\n\
+	}\n\
 };\n".encode('utf-8')).render(
 				project_name=self.project_name,
 				project_id=self.appid,
