@@ -3,7 +3,7 @@
 #
 # tiapp parser
 # 
-import os, types, uuid
+import os, types, uuid , fnmatch
 import codecs, time, sys
 from xml.dom.minidom import parseString
 from StringIO import StringIO
@@ -364,7 +364,7 @@ class TiAppXML(object):
 	
 		# we want the icon without the extension for the plist
 		iconname = os.path.splitext(icon)[0]
-			
+		
 		self.infoplist_properties = {}	
 		for p in self.properties:
 			value = self.properties[p]
@@ -426,9 +426,29 @@ class TiAppXML(object):
 				propertyValue += '</array>'
 				
 				self.infoplist_properties[propertyName]=propertyValue
-		
+
 		plist = codecs.open(file,'r','utf-8','replace').read()
 		plist = plist.replace('__APPICON__',iconname)
+
+		#Creating proper CFBundleIconFiles rather than hard coding the values in there
+		propertyName = 'CFBundleIconFiles'
+		propertyValue = '<array>\n'
+		iconsdir  = os.path.join(project_dir,'Resources','iphone')
+		for iconfile in os.listdir(iconsdir):
+			if fnmatch.fnmatch(iconfile, iconname+'.png'):
+				propertyValue += "\t<string>%s</string>\n" %(iconname+'.png')
+			elif fnmatch.fnmatch(iconfile, iconname+'@2x.png'):
+				propertyValue += "\t<string>%s</string>\n" %(iconname+'@2x.png')
+			elif fnmatch.fnmatch(iconfile, iconname+'-72.png'):
+				propertyValue += "\t<string>%s</string>\n" %(iconname+'-72.png')
+			elif fnmatch.fnmatch(iconfile, iconname+'-Small-50.png'):
+				propertyValue += "\t<string>%s</string>\n" %(iconname+'-Small-50.png')
+			elif fnmatch.fnmatch(iconfile, iconname+'-Small.png'):
+				propertyValue += "\t<string>%s</string>\n" %(iconname+'-Small.png')
+			elif fnmatch.fnmatch(iconfile, iconname+'-Small@2x.png'):
+				propertyValue += "\t<string>%s</string>\n" %(iconname+'-Small@2x.png')
+		propertyValue += '</array>\n'
+		self.infoplist_properties[propertyName]=propertyValue
 
 		# replace the bundle id with the app id 
 		# in case it's changed
