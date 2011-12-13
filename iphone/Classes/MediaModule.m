@@ -235,7 +235,6 @@ static NSDictionary* TI_filterableItemProperties;
 		//In thosecases, you must manually hide the popover or present it again from an appropriate new position.
 		//We will register for interface change notification for this purpose
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
-		
 		arrowDirection = arrow;
 		popoverView = poView;
 		popover = [[UIPopoverController alloc] initWithContentViewController:picker_];
@@ -246,7 +245,21 @@ static NSDictionary* TI_filterableItemProperties;
 
 -(void)updatePopover:(NSNotification *)notification;
 {
-	[self performSelector:@selector(updatePopoverNow) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration] inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+	UIInterfaceOrientation oldOrientation = [[UIApplication sharedApplication]statusBarOrientation];
+	NSTimeInterval delay = [[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
+	UIInterfaceOrientation newOrientation = [[notification.userInfo valueForKey:UIApplicationStatusBarOrientationUserInfoKey] integerValue];
+	
+	if (oldOrientation == newOrientation) {
+		return;
+	}
+	//Set up the right delay
+	if ( (oldOrientation == UIInterfaceOrientationPortrait) && (newOrientation == UIInterfaceOrientationPortraitUpsideDown) ){
+		delay*=2.0;
+	}
+	else if ( (oldOrientation == UIInterfaceOrientationLandscapeLeft) && (newOrientation == UIInterfaceOrientationLandscapeRight) ){
+		delay *=2.0;
+	}
+	[self performSelector:@selector(updatePopoverNow) withObject:nil afterDelay:delay inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 }
 
 -(void)updatePopoverNow
@@ -257,7 +270,7 @@ static NSDictionary* TI_filterableItemProperties;
 		if (popoverView == [[TiApp app] controller].view) {
 			popOverRect.size.height = 50;
 		}
-		[popover presentPopoverFromRect:popOverRect inView:popoverView permittedArrowDirections:arrowDirection animated:animatedPicker];
+		[popover presentPopoverFromRect:popOverRect inView:popoverView permittedArrowDirections:arrowDirection animated:NO];
 	}
 }
 
