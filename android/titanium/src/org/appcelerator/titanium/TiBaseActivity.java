@@ -499,11 +499,7 @@ public abstract class TiBaseActivity extends Activity
 				listener.get().onConfigurationChanged(this, newConfig);
 			}
 		}
-
-		if (orientationChangedListener != null)
-		{
-			orientationChangedListener.onOrientationChanged (newConfig.orientation);
-		}
+		callOrientationChangedListener(newConfig);
 	}
 
 	@Override
