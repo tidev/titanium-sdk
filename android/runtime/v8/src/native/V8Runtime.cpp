@@ -135,13 +135,6 @@ static void dispatchHandler()
 	env->CallVoidMethod(V8Runtime::javaInstance, dispatchDebugMessage);
 }
 
-static void DebugBreakMessageHandler(const Debug::Message& message)
-{
-	// Do nothing with debug messages.
-	// The message handler will get changed by DebuggerAgent::CreateSession in
-	// debug-agent.cc of v8/src when a new session is created.
-}
-
 } // namespace titanium
 
 #ifdef __cplusplus
@@ -182,12 +175,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 		dispatchDebugMessage = env->GetMethodID(v8RuntimeClass, "dispatchDebugMessages", "()V");
 
 		Debug::SetDebugMessageDispatchHandler(dispatchHandler);
-		Debug::EnableAgent("titanium", V8_DEBUGGER_PORT);
-
-		// Set up an empty handler so v8 will not continue until a debugger
-		// attaches. This is the same behavior as Debug::EnableAgent(_,_,true)
-		// except we don't break at the beginning of the script.
-		Debug::SetMessageHandler2(DebugBreakMessageHandler);
+		Debug::EnableAgent("titanium", V8_DEBUGGER_PORT, true);
 	}
 
 	LOG_HEAP_STATS(TAG);
