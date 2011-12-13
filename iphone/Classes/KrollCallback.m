@@ -158,6 +158,19 @@ static NSLock *callbackLock;
 	return val;
 }
 
+- (void)replaceValue:(id)value forKey:(NSString*)key notification:(BOOL)notify
+{	/*
+	 *	This is to be used ONLY from KrollBridge's require call, due to some
+	 *	JS files assigning exports to a function instead of a standard
+	 *	JS object.
+	 */
+	
+	TiValueRef valueRef = [KrollObject toValue:context value:value];
+	TiStringRef keyRef = TiStringCreateWithCFString((CFStringRef) key);
+	TiObjectSetProperty(jsContext, function, keyRef, valueRef, kTiPropertyAttributeReadOnly, NULL);
+	TiStringRelease(keyRef);
+}
+
 -(TiObjectRef)function
 {
 	return function;

@@ -231,7 +231,10 @@
 		</exec>
 
 		<copy todir="${libs}">
-			<fileset dir="${gen}/libs" includes="**/*"/>
+			<fileset dir="${gen}/libs">
+				<include name="**/*"/>
+				<exclude name="**/libstlport_shared.so"/>
+			</fileset>
 		</copy>
 	</target>
 
@@ -243,7 +246,9 @@
 
 	<target name="zip.libs" depends="libs.check" if="libs.exists">
 		<zip destfile="${dist}/${module.id}-android-${manifest.version}.zip" update="true">
-			<zipfileset dir="${libs}" includes="**/*.so" prefix="${zip.prefix}/libs"/>
+			<zipfileset dir="${libs}" prefix="${zip.prefix}/libs">
+				<include name="**/*.so"/>
+			</zipfileset>
 		</zip>
 	</target>
 

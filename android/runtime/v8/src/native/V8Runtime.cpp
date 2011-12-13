@@ -135,13 +135,6 @@ static void dispatchHandler()
 	env->CallVoidMethod(V8Runtime::javaInstance, dispatchDebugMessage);
 }
 
-static void DebugBreakMessageHandler(const Debug::Message& message)
-{
-	// Do nothing with debug messages.
-	// The message handler will get changed by DebuggerAgent::CreateSession in
-	// debug-agent.cc of v8/src when a new session is created.
-}
-
 } // namespace titanium
 
 #ifdef __cplusplus
