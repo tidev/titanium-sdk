@@ -186,14 +186,6 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 Module.prototype.require = function (request, context, useCache) {
 	useCache = useCache === undefined ? true : useCache;
 
-	// Delegate native module requests.
-	if (NativeModule.exists(request)) {
-		if (kroll.DBG) {
-			kroll.log(TAG, 'Found native module: "' + request + '"');
-		}
-		return NativeModule.require(request);
-	}
-
 	// get external binding (for external / 3rd party modules)
 	var externalBinding = kroll.externalBinding(request);
 
