@@ -195,6 +195,7 @@ Handle<Value> APIModule::log(const Arguments& args)
 Handle<Value> APIModule::terminate(const Arguments& args)
 {
 	kill(getpid(), 9);
+	return Undefined();
 }
 
 void APIModule::Dispose()
