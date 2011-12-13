@@ -242,7 +242,7 @@ Ti._5.Styleable = function(obj, args) {
 	obj.remove = function(view) {
 		domNode && view.dom.parentNode && domNode.removeChild(view.dom);
 		for (var i = 0; i < obj._children.length; i++) {
-			view === obj._children[ii] && obj._children.splice(i, 1);
+			view === obj._children[i] && obj._children.splice(i, 1);
 		}
 		obj.render();
 	};
