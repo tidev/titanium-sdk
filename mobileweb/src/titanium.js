@@ -306,12 +306,13 @@
 	};
 
 	Ti._5.propReadOnly = function(obj, property, value) {
+		var undef;
 		if (require.is(property, "Object")) {
 			for (var i in property) {
 				Ti._5.propReadOnly(obj, i, property[i]);
 			}
 		} else {
-			Ti._5.prop(obj, property, null, require.is(value, "Function") ? { get: value } : { value: value || null });
+			Ti._5.prop(obj, property, undef, require.is(value, "Function") ? { get: value, value: undef } : { value: value });
 		}
 	};
 

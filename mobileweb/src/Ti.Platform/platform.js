@@ -2,8 +2,9 @@
 
 	var match = navigator.userAgent.toLowerCase().match(/(webkit|gecko|trident|presto)/),
 		runtime = match ? match[0] : "unknown",
+		createUUID = Ti._5.createUUID,
 		id = localStorage && localStorage.getItem("html5_titaniumPlatformId") ?
-			localStorage.getItem("html5_titaniumPlatformId") : api.createUUID();
+			localStorage.getItem("html5_titaniumPlatformId") : createUUID();
 
 	// Interfaces
 	Ti._5.EventDriven(api);
@@ -39,9 +40,8 @@
 	api.canOpenURL = function(url){
 		return true;
 	};
-	api.createUUID = function(){
-		return Ti._5.createUUID();
-	};
+
+	api.createUUID = createUUID;
 
 	api.openURL = function(url){
 		window.open(url);
