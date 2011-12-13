@@ -17,6 +17,7 @@ sys.path.append(path.join(cwd,"support","android"))
 import titanium_version, ant
 from androidsdk import AndroidSDK
 version = titanium_version.version
+module_apiversion = titanium_version.module_apiversion
 
 # allow it to be overriden on command line or in env
 if os.environ.has_key('PRODUCT_VERSION'):
@@ -161,9 +162,9 @@ def package_sdk(target, source, env):
 	version_tag = ARGUMENTS.get('version_tag', version)
 	print "Packaging MobileSDK (%s)..." % version_tag
 	if package_all:
-		package.Packager().build_all_platforms(os.path.abspath('dist'), version, android, iphone, ipad, mobileweb, version_tag)
+		package.Packager().build_all_platforms(os.path.abspath('dist'), version, module_apiversion, android, iphone, ipad, mobileweb, version_tag)
 	else:
-		package.Packager().build(os.path.abspath('dist'), version, android, iphone, ipad, mobileweb, version_tag)
+		package.Packager().build(os.path.abspath('dist'), version, module_apiversion, android, iphone, ipad, mobileweb, version_tag)
 	if install and not clean:
 		install_mobilesdk(version_tag)
 

@@ -175,7 +175,7 @@ def validateMarkdown(tracker, mdData, name):
 		tracker.trackError('Error parsing markdown block "%s": %s' % (name, e))
 
 def findType(tracker, typeName, name):
-	if typeName in ['Boolean', 'Number', 'String', 'Date', 'Object', 'Callback']: return
+	if typeName in ['Dictionary', 'Boolean', 'Number', 'String', 'Date', 'Object', 'Callback']: return
 
 	containerRegex = r'(Dictionary|Callback|Array)\<([^\>]+)\>'
 	match = re.match(containerRegex, typeName)
