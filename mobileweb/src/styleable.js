@@ -275,11 +275,11 @@ Ti._5.Styleable = function(obj, args) {
 	obj.css = function(rule, value) {
 		var i = 0,
 			r,
-			upperCaseRule = rule[0].toUpperCase() + rule.substring(1),
-			vp = vendorPrefixes.dom;
+			v = vendorPrefixes.dom,
+			upperCaseRule = rule[0].toUpperCase() + rule.substring(1);
 
-		for (; i < vp.length; i++) {
-			r = vp[i];
+		for (; i < v.length; i++) {
+			r = v[i];
 			r += r ? upperCaseRule : rule;
 			if (r in domStyle) {
 				return value !== undefined ? domStyle[r] = value : domStyle[r];
