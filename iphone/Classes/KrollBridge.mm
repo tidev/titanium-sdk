@@ -706,18 +706,21 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 {
 	NSString *js = [[NSString alloc] initWithFormat:TitaniumModuleRequireFormat,code];
 	
-	NSDictionary *result = [self evalJSAndWait:js];
+	id result = [self evalJSAndWait:js];
 	[js release];
-	TiProxy *proxy = [[TiProxy alloc] _initWithPageContext:self];
-	for (id key in result)
-	{
-		[proxy setValue:[result objectForKey:key] forUndefinedKey:key];
+	if ([result conformsToProtocol:@protocol(NSFastEnumeration)]) {
+		TiProxy *proxy = [[TiProxy alloc] _initWithPageContext:self];
+		for (id key in result)
+		{
+			[proxy setValue:[result objectForKey:key] forUndefinedKey:key];
+		}
+		result = [proxy autorelease];
 	}
 	
 	// register it
-	[modules setObject:proxy forKey:path];
+	[modules setObject:result forKey:path];
 	
-	return [proxy autorelease];
+	return result;
 }
 
 -(NSString*)pathToModuleClassName:(NSString*)path
