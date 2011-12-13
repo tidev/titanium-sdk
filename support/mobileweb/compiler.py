@@ -83,11 +83,14 @@ class Compiler(object):
 			self.defines.append("Ti.Platform/platform.js")
 
 		def compile_js(from_,to_):
-			js = Compiler.make_function_from_file(from_,self)
-			o = codecs.open(to_,'w',encoding='utf-8')
-			o.write(js)
-			o.close()
-			self.count+=1
+			try:
+				js = Compiler.make_function_from_file(from_,self)
+				o = codecs.open(to_,'w',encoding='utf-8')
+				o.write(js)
+				o.close()
+				self.count+=1
+			except:
+				pass
 
 		source = self.resources_dir
 		target = self.build_dir
