@@ -708,17 +708,25 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	
 	id result = [self evalJSAndWait:js];
 	[js release];
-	if ([result conformsToProtocol:@protocol(NSFastEnumeration)]) {
+	bool resultIsArray = [result isKindOfClass:[NSArray class]];
+	bool resultIsDict = [result isKindOfClass:[NSDictionary class]];
+
+	if (resultIsArray || resultIsDict) {
 		TiProxy *proxy = [[TiProxy alloc] _initWithPageContext:self];
-		for (id key in result)
+		int keyIndex = 0;
+		for (id currentObject in result)
 		{
-			[proxy setValue:[result objectForKey:key] forUndefinedKey:key];
+			if (resultIsDict)
+			{
+				[proxy setValue:[result objectForKey:currentObject] forUndefinedKey:currentObject];
+			}
+			else
+			{
+				[proxy setValue:currentObject forKey:[NSString stringWithFormat:@"%d",keyIndex++]];
+			}
 		}
 		result = [proxy autorelease];
 	}
-	
-	// register it
-	[modules setObject:result forKey:path];
 	
 	return result;
 }
@@ -802,12 +810,20 @@ CFMutableSetRef	krollBridgeRegistry = nil;
             TiDebuggerBeginScript([self krollContext],urlCString);
         }
         
-		module = [self loadCommonJSModule:[[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease] withPath:path];
-        
+		NSString * dataContents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+		module = [self loadCommonJSModule:dataContents withPath:path];
+        [dataContents release];
+		
         if ([[self host] debugMode]) {
             TiDebuggerEndScript([self krollContext]);
         }
         
+		if (![module respondsToSelector:@selector(replaceValue:forKey:notification:)]) {
+			@throw [NSException exceptionWithName:@"org.appcelerator.kroll" reason:[NSString stringWithFormat:@"Module \"%@\" failed to leave a valid exports object",path] userInfo:nil];
+		}
+		
+		// register it
+		[modules setObject:module forKey:path];
 		if (filepath!=nil && module!=nil)
 		{
 			// uri is optional but we point it to where we loaded it
