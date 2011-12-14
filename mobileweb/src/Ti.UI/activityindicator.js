@@ -5,7 +5,7 @@ Ti._5.createClass("Ti.UI.ActivityIndicator", function(args){
 
 	var obj = this,
 		domNode = Ti._5.DOMView(obj, "div", args, "ActivityIndicator"),
-		domStyle = domStyle,
+		domStyle = domNode.style,
 		_message = "",
 		_style = null,
 		_visible = false;
