@@ -42,9 +42,9 @@
 		lastTouchUp = [[NSDate alloc] init];
 		lastTimeInterval = 1.0; // Short-circuit so that we don't ignore the first fire
 		
-		thumbImageState = 0;
-		leftTrackImageState = 0;
-		rightTrackImageState = 0;
+		thumbImageState = UIControlStateNormal;
+		leftTrackImageState = UIControlStateNormal;
+		rightTrackImageState = UIControlStateNormal;
 	}
 	return sliderView;
 }
