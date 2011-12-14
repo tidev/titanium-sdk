@@ -77,4 +77,4 @@
 	api.writeable = function(){
 		console.debug('Method "Titanium.Filesystem.File.writeable" is not implemented yet.');
 	};
-})(Ti._5.createClass('Titanium.Filesystem.File'));
+})(Ti._5.createClass('Ti.Filesystem.File'));

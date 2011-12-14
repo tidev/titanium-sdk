@@ -4,29 +4,13 @@ Ti._5.createClass('Titanium.UI.iPhone.StatusBar', function(args){
 	Ti._5.DOMView(this, 'iphone.statusbar', args, 'iPhone.StatusBar');
 
 	// Properties
-	var _DEFAULT = null;
-	Object.defineProperty(this, 'DEFAULT', {
-		get: function(){return _DEFAULT;},
-		set: function(val){return _DEFAULT = val;}
-	});
+	Ti._5.prop(this, 'DEFAULT');
 
-	var _GRAY = null;
-	Object.defineProperty(this, 'GRAY', {
-		get: function(){return _GRAY;},
-		set: function(val){return _GRAY = val;}
-	});
+	Ti._5.prop(this, 'GRAY');
 
-	var _OPAQUE_BLACK = null;
-	Object.defineProperty(this, 'OPAQUE_BLACK', {
-		get: function(){return _OPAQUE_BLACK;},
-		set: function(val){return _OPAQUE_BLACK = val;}
-	});
+	Ti._5.prop(this, 'OPAQUE_BLACK');
 
-	var _TRANSLUCENT_BLACK = null;
-	Object.defineProperty(this, 'TRANSLUCENT_BLACK', {
-		get: function(){return _TRANSLUCENT_BLACK;},
-		set: function(val){return _TRANSLUCENT_BLACK = val;}
-	});
+	Ti._5.prop(this, 'TRANSLUCENT_BLACK');
 
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });

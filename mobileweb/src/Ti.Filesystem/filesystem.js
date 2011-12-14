@@ -3,58 +3,16 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	var _MODE_APPEND = null;
-	Object.defineProperty(api, 'MODE_APPEND', {
-		get: function(){return _MODE_APPEND;},
-		set: function(val){return _MODE_APPEND = val;}
-	});
-
-	var _MODE_READ = null;
-	Object.defineProperty(api, 'MODE_READ', {
-		get: function(){return _MODE_READ;},
-		set: function(val){return _MODE_READ = val;}
-	});
-
-	var _MODE_WRITE = null;
-	Object.defineProperty(api, 'MODE_WRITE', {
-		get: function(){return _MODE_WRITE;},
-		set: function(val){return _MODE_WRITE = val;}
-	});
-
-	var _applicationDataDirectory = "/";
-	Object.defineProperty(api, 'applicationDataDirectory', {
-		get: function(){return _applicationDataDirectory;},
-		set: function(val){return _applicationDataDirectory = val;}
-	});
-
-	var _applicationDirectory = "/";
-	Object.defineProperty(api, 'applicationDirectory', {
-		get: function(){return _applicationDirectory;},
-		set: function(val){return _applicationDirectory = val;}
-	});
-
-	var _lineEnding = null;
-	Object.defineProperty(api, 'lineEnding', {
-		get: function(){return _lineEnding;},
-		set: function(val){return _lineEnding = val;}
-	});
-
-	var _resourcesDirectory = "/";
-	Object.defineProperty(api, 'resourcesDirectory', {
-		get: function(){return _resourcesDirectory;},
-		set: function(val){return _resourcesDirectory = val;}
-	});
-
-	var _separator = "/";
-	Object.defineProperty(api, 'separator', {
-		get: function(){return _separator;},
-		set: function(val){return _separator = val;}
-	});
-
-	var _tempDirectory = null;
-	Object.defineProperty(api, 'tempDirectory', {
-		get: function(){return _tempDirectory;},
-		set: function(val){return _tempDirectory = val;}
+	Ti._5.propReadOnly(api, {
+		MODE_APPEND: 1,
+		MODE_READ: 2,
+		MODE_WRITE: 3,
+		applicationDataDirectory: "/",
+		applicationDirectory: "/",
+		lineEnding: "\n",
+		resourcesDirectory: "/",
+		separator: "/",
+		tempDirectory: null
 	});
 
 	// Methods
@@ -74,4 +32,4 @@
 	api.isExternalStoragePresent = function(){
 		console.debug('Method "Titanium.Filesystem.isExternalStoragePresent" is not implemented yet.');
 	};
-})(Ti._5.createClass('Titanium.Filesystem'));
+})(Ti._5.createClass('Ti.Filesystem'));
