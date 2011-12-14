@@ -1,40 +1,14 @@
 (function(api){
 	Ti._5.EventDriven(api);
+
 	// Properties
-	var _currentPlaybackTime = null;
-	Object.defineProperty(api, 'currentPlaybackTime', {
-		get: function(){return _currentPlaybackTime;},
-		set: function(val){return _currentPlaybackTime = val;}
-	});
-
-	var _nowPlaying = null;
-	Object.defineProperty(api, 'nowPlaying', {
-		get: function(){return _nowPlaying;},
-		set: function(val){return _nowPlaying = val;}
-	});
-
-	var _playbackState = null;
-	Object.defineProperty(api, 'playbackState', {
-		get: function(){return _playbackState;},
-		set: function(val){return _playbackState = val;}
-	});
-
-	var _repeatMode = null;
-	Object.defineProperty(api, 'repeatMode', {
-		get: function(){return _repeatMode;},
-		set: function(val){return _repeatMode = val;}
-	});
-
-	var _shuffleMode = null;
-	Object.defineProperty(api, 'shuffleMode', {
-		get: function(){return _shuffleMode;},
-		set: function(val){return _shuffleMode = val;}
-	});
-
-	var _volume = null;
-	Object.defineProperty(api, 'volume', {
-		get: function(){return _volume;},
-		set: function(val){return _volume = val;}
+	Ti._5.prop(api, {
+		currentPlaybackTime: null,
+		nowPlaying: null,
+		playbackState: null,
+		repeatMode: null,
+		shuffleMode: null,
+		volume: null
 	});
 
 	// Methods
@@ -79,4 +53,4 @@
 	api.addEventListener('volumeChange', function(){
 		console.debug('Event "volumeChange" is not implemented yet.');
 	});
-})(Ti._5.createClass('Titanium.Media.MusicPlayer'));
+})(Ti._5.createClass("Ti.Media.MusicPlayer"));

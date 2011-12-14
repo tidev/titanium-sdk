@@ -3,100 +3,23 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	var _STATE_PAUSED = null;
-	Object.defineProperty(api, 'STATE_PAUSED', {
-		get: function(){return _STATE_PAUSED;},
-		set: function(val){return _STATE_PAUSED = val;}
-	});
-
-	var _STATE_PLAYING = null;
-	Object.defineProperty(api, 'STATE_PLAYING', {
-		get: function(){return _STATE_PLAYING;},
-		set: function(val){return _STATE_PLAYING = val;}
-	});
-
-	var _STATE_STARTING = null;
-	Object.defineProperty(api, 'STATE_STARTING', {
-		get: function(){return _STATE_STARTING;},
-		set: function(val){return _STATE_STARTING = val;}
-	});
-
-	var _STATE_STOPPED = null;
-	Object.defineProperty(api, 'STATE_STOPPED', {
-		get: function(){return _STATE_STOPPED;},
-		set: function(val){return _STATE_STOPPED = val;}
-	});
-
-	var _STATE_STOPPING = null;
-	Object.defineProperty(api, 'STATE_STOPPING', {
-		get: function(){return _STATE_STOPPING;},
-		set: function(val){return _STATE_STOPPING = val;}
-	});
-
-	var _STATE_WAITING_FOR_DATA = null;
-	Object.defineProperty(api, 'STATE_WAITING_FOR_DATA', {
-		get: function(){return _STATE_WAITING_FOR_DATA;},
-		set: function(val){return _STATE_WAITING_FOR_DATA = val;}
-	});
-
-	var _STATE_WAITING_FOR_QUEUE = null;
-	Object.defineProperty(api, 'STATE_WAITING_FOR_QUEUE', {
-		get: function(){return _STATE_WAITING_FOR_QUEUE;},
-		set: function(val){return _STATE_WAITING_FOR_QUEUE = val;}
-	});
-
-	var _allowBackground = null;
-	Object.defineProperty(api, 'allowBackground', {
-		get: function(){return _allowBackground;},
-		set: function(val){return _allowBackground = val;}
-	});
-
-	var _bitRate = null;
-	Object.defineProperty(api, 'bitRate', {
-		get: function(){return _bitRate;},
-		set: function(val){return _bitRate = val;}
-	});
-
-	var _idle = null;
-	Object.defineProperty(api, 'idle', {
-		get: function(){return _idle;},
-		set: function(val){return _idle = val;}
-	});
-
-	var _paused = null;
-	Object.defineProperty(api, 'paused', {
-		get: function(){return _paused;},
-		set: function(val){return _paused = val;}
-	});
-
-	var _playing = null;
-	Object.defineProperty(api, 'playing', {
-		get: function(){return _playing;},
-		set: function(val){return _playing = val;}
-	});
-
-	var _progress = null;
-	Object.defineProperty(api, 'progress', {
-		get: function(){return _progress;},
-		set: function(val){return _progress = val;}
-	});
-
-	var _state = null;
-	Object.defineProperty(api, 'state', {
-		get: function(){return _state;},
-		set: function(val){return _state = val;}
-	});
-
-	var _url = null;
-	Object.defineProperty(api, 'url', {
-		get: function(){return _url;},
-		set: function(val){return _url = val;}
-	});
-
-	var _waiting = null;
-	Object.defineProperty(api, 'waiting', {
-		get: function(){return _waiting;},
-		set: function(val){return _waiting = val;}
+	Ti._5.prop(api, {
+		STATE_STOPPED: 0,
+		STATE_STOPPING: 1,
+		STATE_STARTING: 2,
+		STATE_PLAYING: 3,
+		STATE_PAUSED: 4,
+		STATE_WAITING_FOR_DATA: 5,
+		STATE_WAITING_FOR_QUEUE: 6,
+		allowBackground: null,
+		bitRate: null,
+		idle: null,
+		paused: null,
+		playing: null,
+		progress: null,
+		state: null,
+		url: null,
+		waiting: null
 	});
 
 	// Methods
@@ -120,10 +43,12 @@
 	};
 
 	// Events
+	/* TODO: these should be *defining* events, not listening for them
 	api.addEventListener('change', function(){
 		console.debug('Event "change" is not implemented yet.');
 	});
 	api.addEventListener('progress', function(){
 		console.debug('Event "progress" is not implemented yet.');
 	});
-})(Ti._5.createClass('Titanium.Media.AudioPlayer'));
+	*/
+})(Ti._5.createClass("Ti.Media.AudioPlayer"));

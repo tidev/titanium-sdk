@@ -1,23 +1,26 @@
-Ti._5.createClass('Titanium.UI.TabGroup', function(args){
-	var obj = this;
-	var _activeTabIndex = null;
-	
-	// Set defaults
-	args = Ti._5.extend({}, args);
-	args.unselectable = true;
-	args.width = args.width || '100%';
-	args.height = args.height || '100%';
+Ti._5.createClass("Ti.UI.TabGroup", function(args){
+	args = require.mix({
+		height: "100%",
+		unselectable: true,
+		width: "100%"
+	}, args);
+
+	var undef,
+		obj = this;
+		domNode = Ti._5.DOMView(obj, "div", args, "TabGroup"),
+		_activeTabIndex = null,
+		_barColor = null;
 
 	// Interfaces
-	Ti._5.DOMView(this, 'div', args, 'TabGroup');
-	Ti._5.Screen(this, args);
-	Ti._5.Touchable(this, args);
-	Ti._5.Styleable(this, args);
-	Ti._5.Positionable(this, args);
-	this.dom.position = 'absolute';
+	Ti._5.Screen(obj, args);
+	Ti._5.Touchable(obj, args);
+	Ti._5.Styleable(obj, args);
+	Ti._5.Positionable(obj, args);
+
+	domNode.position = "absolute";
 
 	// create DOM sctructure for the instance
-	// lets store tab headers as table - this is much more easy to resize and rewrap rather then do it manually
+	// lets store tab headers as table - obj is much more easy to resize and rewrap rather then do it manually
 	var _headerTable = document.createElement("table");
 	_headerTable.cellSpacing = 0;
 	_headerTable.className = "tabsHeaders";
@@ -28,50 +31,38 @@ Ti._5.createClass('Titanium.UI.TabGroup', function(args){
 	_tabsContent.style.width = "100%";
 	_tabsContent.style.height = "90%";
 	_tabsContent.style.position = "absolute";
-	this.dom.appendChild(_headerTable);
-	this.dom.appendChild(_tabsContent);
+	domNode.appendChild(_headerTable);
+	domNode.appendChild(_tabsContent);
+
+	obj._tabs = [];
 
 	// Properties
-	Object.defineProperty(this, 'activeTab', {
-		get: function(){return obj._tabs[_activeTabIndex];},
-		set: function(val){obj.setActiveTab(val);}
-	});
-
-	var _allowUserCustomization = null;
-	Object.defineProperty(this, 'allowUserCustomization', {
-		get: function(){return _allowUserCustomization;},
-		set: function(val){return _allowUserCustomization = val;}
-	});
-
-	var _barColor = null;
-	Object.defineProperty(this, 'barColor', {
-		get: function(){return _barColor;},
-		set: function(val){
-			_barColor = val;
-			_tabsHeaders.style.backgroundColor = _barColor;
-		}
-	});
-
-	// private internal property
-	this._tabs = [];
-	Object.defineProperty(this, 'tabs', {
-		get: function(){
-			var res = [];
-			for(var ii = 0; ii < obj._tabs.length; ii++){
-				res.push(obj._tabs[ii]);
+	Ti._5.prop(obj, {
+		activeTab: {
+			get: function(){return obj._tabs[_activeTabIndex];},
+			set: function(val){obj.setActiveTab(val);}
+		},
+		allowUserCustomization: undef,
+		barColor: {
+			get: function(){return _barColor;},
+			set: function(val){
+				_tabsHeaders.style.backgroundColor = _barColor = val;
 			}
-			return res;
+		},
+		editButtonTitle: undef,
+		tabs: {
+			get: function(){
+				var res = [];
+				for(var ii = 0; ii < obj._tabs.length; ii++){
+					res.push(obj._tabs[ii]);
+				}
+				return res;
+			}
 		}
-	});
-
-	var _editButtonTitle = null;
-	Object.defineProperty(this, 'editButtonTitle', {
-		get: function(){return _editButtonTitle;},
-		set: function(val){return _editButtonTitle = val;}
 	});
 
 	// Methods
-	this.addTab = function(tab){
+	obj.addTab = function(tab){
 		_tabsHeaders.appendChild(tab._header);
 		_tabsContent.appendChild(tab.dom);
 
@@ -86,7 +77,7 @@ Ti._5.createClass('Titanium.UI.TabGroup', function(args){
 		tab.render();
 	};
 
-	this.removeTab = function(tabObj){
+	obj.removeTab = function(tabObj){
 		for(var ii = obj._tabs.length - 1; ii >= 0; ii--){
 			var tab = obj._tabs[ii];
 			if(tab == tabObj){
@@ -101,7 +92,7 @@ Ti._5.createClass('Titanium.UI.TabGroup', function(args){
 
 					// after removing tab array length is decremented
 					if(ii == obj._tabs.length){
-						// this was last tab - open previous
+						// obj was last tab - open previous
 						obj.setActiveTab(obj._tabs.length - 1);
 					} else {
 						// show tab after removed one
@@ -115,30 +106,30 @@ Ti._5.createClass('Titanium.UI.TabGroup', function(args){
 		}
 	};
 
-	var _hideTab = function(tabIndex){
+	function hideTab(tabIndex){
 		if(tabIndex == null && tabIndex > obj._tabs.length){
 			return;
 		}
 
 		var tab = obj._tabs[tabIndex];
-		tab._header.className = tab._header.className.replace(/\bactiveTabHeader\b/, '');
-		tab.dom.style.display = 'none';
+		tab._header.className = tab._header.className.replace(/\bactiveTabHeader\b/, "");
+		tab.dom.style.display = "none";
 		tab.hide();
-	};
+	}
 
-	var _showTab = function(tabIndex){
+	function showTab(tabIndex){
 		if(tabIndex == null && tabIndex > obj._tabs.length){
 			return;
 		}
 
 		var tab = obj._tabs[tabIndex];
-		tab._header.className += ' activeTabHeader';
-		tab.dom.style.display = '';
+		tab._header.className += " activeTabHeader";
+		tab.dom.style.display = "";
 		tab.show();
-	};
+	}
 
-	this.setActiveTab = function(indexOrObject){
-		if(typeof indexOrObject === 'object'){
+	obj.setActiveTab = function(indexOrObject){
+		if(typeof indexOrObject === "object"){
 			for(var ii = obj._tabs.length - 1; ii >= 0; ii--){
 				if(obj._tabs[ii] === indexOrObject){
 					obj.setActiveTab(ii);
@@ -149,37 +140,33 @@ Ti._5.createClass('Titanium.UI.TabGroup', function(args){
 			// tab not found - add new
 			obj.addTab(indexOrObject);
 			obj.setActiveTab(obj._tabs.length - 1);
-			return;
-		}
-		if(_activeTabIndex != null){
-			obj.fireEvent('blur', {
+		} else if (indexOrObject !== _activeTabIndex) {
+			if(_activeTabIndex != null){
+				obj.fireEvent("blur", {
+					globalPoint: {x: null, y: null},
+					x: null,
+					y: null,
+					previousIndex: _activeTabIndex,
+					previousTab: obj._tabs[_activeTabIndex],
+					tab: obj._tabs[indexOrObject]
+				});
+				hideTab(_activeTabIndex);
+			}
+
+			obj.fireEvent("focus", {
 				globalPoint: {x: null, y: null},
-				source: obj,
-				type: 'blur',
 				x: null,
 				y: null,
 				previousIndex: _activeTabIndex,
-				previousTab: obj._tabs[_activeTabIndex],
+				previousTab: _activeTabIndex != null && _activeTabIndex < obj._tabs.length ? obj._tabs[_activeTabIndex] : null,
 				tab: obj._tabs[indexOrObject]
 			});
-			_hideTab(_activeTabIndex);
+			_activeTabIndex = indexOrObject;
+			showTab(_activeTabIndex);
 		}
-
-		obj.fireEvent('focus', {
-			globalPoint: {x: null, y: null},
-			source: obj,
-			type: 'blur',
-			x: null,
-			y: null,
-			previousIndex: _activeTabIndex,
-			previousTab: _activeTabIndex != null && _activeTabIndex < obj._tabs.length ? obj._tabs[_activeTabIndex] : null,
-			tab: obj._tabs[indexOrObject]
-		});
-		_activeTabIndex = indexOrObject;
-		_showTab(_activeTabIndex);
 	};
 
-	this.open = function(){
+	obj.open = function(){
 		obj.screen_open();
 		if(_activeTabIndex > obj.tabs.length){
 			_activeTabIndex = null;
@@ -188,33 +175,29 @@ Ti._5.createClass('Titanium.UI.TabGroup', function(args){
 		Ti.UI.currentTabGroup = obj;
 		obj.show();
 		if(obj._tabs.length > 0){
-			this.setActiveTab(_activeTabIndex || 0);
+			obj.setActiveTab(_activeTabIndex || 0);
 		}
 
-		obj.fireEvent('open', {
+		obj.fireEvent("open", {
 			globalPoint: {x: null, y: null},
-			source: obj,
-			type: 'open',
 			x: null,
 			y: null
 		});
 	};
 
-	this.close = function(){
+	obj.close = function(){
 		obj.screen_close();
-		this.hide();
+		obj.hide();
 		if(Ti.UI.currentTabGroup == obj){
 			Ti.UI.currentTabGroup = null;
 		}
 
-		obj.fireEvent('close', {
+		obj.fireEvent("close", {
 			globalPoint: {x: null, y: null},
-			source: obj,
-			type: 'close',
 			x: null,
 			y: null
 		});
 	};
 
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(obj, args);
 });
