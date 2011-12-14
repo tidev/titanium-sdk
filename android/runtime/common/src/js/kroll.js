@@ -32,6 +32,7 @@
 	startup.globalVariables = function() {
 		global.kroll = kroll;
 		kroll.ScopeVars = ScopeVars;
+		kroll.NativeModule = NativeModule; // So external module bootstrap.js can call NativeModule.require directly.
 
 		NativeModule.require('events');
 		global.Ti = global.Titanium = NativeModule.require('titanium');

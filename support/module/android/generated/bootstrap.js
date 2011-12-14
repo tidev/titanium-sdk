@@ -6,8 +6,8 @@
  *
  * Warning: This file is GENERATED, and should not be modified
  */
-var bootstrap = require("bootstrap"),
-	invoker = require("invoker"),
+var bootstrap = kroll.NativeModule.require("bootstrap"),
+	invoker = kroll.NativeModule.require("invoker"),
 	Titanium = kroll.binding("Titanium").Titanium;
 
 function moduleBootstrap(moduleBinding) {
