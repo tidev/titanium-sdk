@@ -1,28 +1,12 @@
 (function(api){
 	// Properties
-	var _hidden = null;
-	Object.defineProperty(api, 'hidden', {
-		get: function(){return _hidden;},
-		set: function(val){return _hidden = val;}
-	});
+	Ti._5.prop(api, 'hidden');
 
-	var _id = null;
-	Object.defineProperty(api, 'id', {
-		get: function(){return _id;},
-		set: function(val){return _id = val;}
-	});
+	Ti._5.prop(api, 'id');
 
-	var _name = null;
-	Object.defineProperty(api, 'name', {
-		get: function(){return _name;},
-		set: function(val){return _name = val;}
-	});
+	Ti._5.prop(api, 'name');
 
-	var _selected = null;
-	Object.defineProperty(api, 'selected', {
-		get: function(){return _selected;},
-		set: function(val){return _selected = val;}
-	});
+	Ti._5.prop(api, 'selected');
 
 	// Methods
 	api.createEvent = function(){

@@ -117,4 +117,4 @@
 			return val !== null ? ""+val : null;
 		});
 	};
-})(Ti._5.createClass('Titanium.App.Properties'));
+})(Ti._5.createClass('Ti.App.Properties'));

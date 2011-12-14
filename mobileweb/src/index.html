@@ -3,6 +3,8 @@
 <head>
 	<meta charset="utf-8">
 
+	${ti_header}
+
 	<title>${project_name | h,trim}</title>
 	<meta name="description" content="${app_description | h,trim}">
 	<meta name="author" content="${app_publisher | h,trim}">
@@ -15,12 +17,16 @@
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="${ti_statusbar_style | h,trim}">
 
+	<style>
+	${ti_css}
+	</style>
+
+	<!--
 	<link rel="stylesheet" href="titanium/titanium.css">
 	<link rel="apple-touch-startup-image" href="img/l/splash.png">
 	<link rel="apple-touch-icon" href="appicon.png">
 	<link rel="apple-touch-startup-image" href="Default.png">
 
-	<!--
 	<link rel="apple-touch-icon-precomposed" sizes="114x114" href="img/h/apple-touch-icon.png">
 	<link rel="apple-touch-icon-precomposed" sizes="72x72" href="img/m/apple-touch-icon.png">
 	<link rel="apple-touch-icon-precomposed" href="img/l/apple-touch-icon-precomposed.png">
