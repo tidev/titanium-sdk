@@ -76,12 +76,12 @@
 	TiAppiOSBackgroundServiceProxy *proxy = [backgroundServices objectForKey:urlString];
 	
 	if (proxy == nil) {
-		proxy = [[TiAppiOSBackgroundServiceProxy alloc] _initWithPageContext:[self executionContext] args:args];
+		proxy = [[[TiAppiOSBackgroundServiceProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 		[backgroundServices setValue:proxy forKey:urlString];
 	}
 	
 	[[TiApp app] registerBackgroundService:proxy];
-	return [proxy autorelease];
+	return proxy;
 }
 
 -(id)scheduleLocalNotification:(id)args
