@@ -324,7 +324,7 @@ class Bootstrap(object):
 		gperfContext = {
 			"headers": self.headers,
 			"bindings": "\n".join(self.initTable),
-			"moduleName": self.moduleName
+			"moduleName": self.moduleName[0].upper() + self.moduleName[1:]
 		}
 
 		open(genBindings, "w").write(gperfTemplate % gperfContext)
