@@ -15,9 +15,9 @@ methods:
   - name: stop
     summary: Stops the service from running during the current background session to conserve resources.
     description: |
-        Calling `stop` halts the current execution of the background service, but does *not* 
-        unregister it. The service will run again the next time the application is placed in
-        the background.
+        Currently, calling `stop` both halts the current execution of the background 
+        service, **and** unregisters it, so that it will not run again unless it is re-registered.
+        This is a known issue.
   - name: unregister
     summary: Unregisters the background service.
 description: |
@@ -25,10 +25,33 @@ description: |
     creating a background service, you specify a local URL to a JavaScript file. The code
     in the JavaScript file is executed each time the background service runs.
 
-    The background service runs when the Application is placed in the background and will 
-    continue to run until the service is stopped with the `stop` method or the `unregister` method.
+    Note that there are several issues with the current implementation of 
+    background services:
+
+    * The background service runs when the Application is placed in the background and will 
+      continue to run until the service is stopped with the `stop` method, however, this also
+      unregisters the service.
+
+    * Calling `unregister` on the background service *unregisters* the task, but does not stop
+      the task if it is currently running in the background.
+
+    * Calling `register` multiple times with the same URL results in multiple instances of
+      the same service being run.
     
-    Stopping a running background service will conserve resources while it's running in the 
-    background. However, if the application is foregrounded and then backgrounded again, it 
-    will run again.  If you want to permanently stop running the background service, you must 
-    call `unregister`.
+    These issues will be addressed in a future release. To work around these issues, the
+    application must:
+
+    * Explicitly terminate the background service by calling `stop` from inside 
+      the background service task.
+
+    * Unregister the background service when the application resumes.
+
+    * Re-register the background service when the application pauses.
+    
+    Note that even with these workarounds, the background service is subject to limitations
+    imposed by the operating system. In particular:
+
+    * The OS limits the total amount of time the background service can run for after the 
+      application is suspended, typically to no more than 10 minutes.
+
+    * The OS may terminate the background service at any point to reclaim resources.
