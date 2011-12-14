@@ -446,7 +446,7 @@ class TiAppXML(object):
 					propertyValue += "\t<string>%s</string>\n" %type
 		propertyValue += '</array>\n'
 		self.infoplist_properties[propertyName]=propertyValue
-
+		
 		# replace the bundle id with the app id 
 		# in case it's changed
 		i = plist.index('CFBundleIdentifier')
