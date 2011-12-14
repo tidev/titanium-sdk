@@ -29,17 +29,6 @@ var isArray = Array.isArray;
 //10 listeners are added to it. This is a useful default which
 //helps finding memory leaks.
 
-//Obviously not all Emitters should be limited to 10. This function allows
-//that to be increased. Set to zero for unlimited.
-var defaultMaxListeners = 10;
-Object.defineProperty(EventEmitter.prototype, "setMaxListeners", {
-	value: function(n) {
-		if (!this._events) this._events = {};
-		this._events.maxListeners = n;
-	},
-	enumerable: false
-});
-
 Object.defineProperty(EventEmitter.prototype, "callHandler", {
 	value: function(handler, type, data) {
 		//kroll.log(TAG, "calling event handler: type:" + type + ", data: " + data + ", handler: " + handler);
@@ -154,24 +143,6 @@ Object.defineProperty(EventEmitter.prototype, "addListener", {
 
 			// If we've already got an array, just append.
 			this._events[type].push(listener);
-			// Check for listener leak
-			if (!this._events[type].warned) {
-				var m;
-				if (this._events.maxListeners !== undefined) {
-					m = this._events.maxListeners;
-				} else {
-					m = defaultMaxListeners;
-				}
-
-				if (m && m > 0 && this._events[type].length > m) {
-					this._events[type].warned = true;
-					Ti.API.error('warning: possible EventEmitter memory ' +
-						'leak detected. %d listeners added. ' +
-						'Use emitter.setMaxListeners() to increase limit.',
-						this._events[type].length);
-					//TODO console.trace();
-				}
-			}
 		} else {
 			// Adding the second element, need to change to array.
 			this._events[type] = [this._events[type], listener];
