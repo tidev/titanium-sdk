@@ -713,12 +713,6 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	focused = newFocused;
 }
 
--(void)ignoringRotationToOrientation:(UIInterfaceOrientation)orientation
-{
-    // For subclasses
-}
-
-
 #pragma mark TIUIViewController methods
 /*
  *	Over time, we should move focus and blurs to be triggered by standard
