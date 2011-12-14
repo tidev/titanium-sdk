@@ -50,9 +50,6 @@
 	api.createItem = function(){
 		console.debug('Method "Titanium.Media.createItem" is not implemented yet.');
 	};
-	api.createMusicPlayer = function(){
-		console.debug('Method "Titanium.Media.createMusicPlayer" is not implemented yet.');
-	};
 	api.createSound = function(){
 		console.debug('Method "Titanium.Media.createSound" is not implemented yet.');
 	};

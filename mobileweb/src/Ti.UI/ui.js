@@ -91,9 +91,6 @@
 	api.create2DMatrix = function(args){
 		return new Ti.UI["2DMatrix"](args);
 	};
-	api.create3DMatrix = function(){
-		console.debug('Method "Titanium.UI.create3DMatrix" is not implemented yet.');
-	};
 	api.createActivityIndicator = function(args){
 		return new Ti.UI.ActivityIndicator(args);
 	};
@@ -108,9 +105,6 @@
 	};
 	api.createButtonBar = function(){
 		console.debug('Method "Titanium.UI.createButtonBar" is not implemented yet.');
-	};
-	api.createCoverFlowView = function(){
-		console.debug('Method "Titanium.UI.createCoverFlowView" is not implemented yet.');
 	};
 	api.createDashboardItem = function(){
 		console.debug('Method "Titanium.UI.createDashboardItem" is not implemented yet.');
@@ -163,9 +157,6 @@
 	api.createTabGroup = function(args){
 		return new Ti.UI.TabGroup(args);
 	};
-	api.createTabbedBar = function(){
-		console.debug('Method "Titanium.UI.createTabbedBar" is not implemented yet.');
-	};
 	api.createTableView = function(args) {
 		return new Ti.UI.TableView(args);
 	};
@@ -180,9 +171,6 @@
 	};
 	api.createTextField = function(args) {
 		return new Ti.UI.TextField(args);
-	};
-	api.createToolbar = function(){
-		console.debug('Method "Titanium.UI.createToolbar" is not implemented yet.');
 	};
 	api.createView = function(args) {
 		return new Ti.UI.View(args);

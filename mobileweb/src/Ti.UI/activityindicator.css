@@ -7,11 +7,3 @@
 	vertical-align: middle;
 	background-image: url('images/progressIndicator.gif');
 }
-
-.HTML5_ActivityIndicator.ActivityIndicator_BIG {
-	background-image: url('images/progressIndicatorBig.gif') !important;
-}
-
-.HTML5_ActivityIndicator.ActivityIndicator_DARK {
-	background-image: url('images/progressIndicatorDark.gif') !important;
-}
