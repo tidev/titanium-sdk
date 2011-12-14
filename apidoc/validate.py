@@ -39,7 +39,15 @@ def stringFrom(error):
 	else:
 		return error.name
 		
-class PrettyPrinter:
+class Printer:
+	def __init__(self):
+		self.error_count = 0;
+		
+	def errorCount(self):
+		return self.error_count;
+	
+class PrettyPrinter(Printer):
+	
 	def printCheck(self, error, indent=1):
 		if not options.errorsOnly:
 			print u'%s\u2713 \033[92m%s\033[0m' % ('\t' * indent, stringFrom(error))
@@ -60,11 +68,12 @@ class PrettyPrinter:
 
 		for msg in error.errors:
 			self.printError(msg, indent + 1)
+			self.error_count += 1
 		for child in error.children:
 			self.printTrackerStatus(child, indent + 1)
 		
-class SimplePrinter:
-
+class SimplePrinter(Printer):
+	
 	def printStatus(self, path, error):
 		self.printTrackerStatus(error, path)
 
@@ -91,6 +100,7 @@ class SimplePrinter:
 			
 	def printError(self, msg):
 		print "FAIL: " + msg
+		self.error_count += 1
 	
 class ErrorTracker(object):
 	def __init__(self, name, parent=None):
@@ -222,10 +232,21 @@ def validateCommon(tracker, map):
 
 	if 'notes' in map:
 		tracker.trackError('"notes" field is no longer valid')
+		
+	if options.validateSummary:
+		if 'summary' in map:
+			summary = map['summary']
+			if not summary is None and not len(summary.strip()) == 0:
+				summary = summary.strip()
+				if not summary[0].isupper or summary[-1] != ".":
+					tracker.trackError('summary fields should start with a capital letter and end with a period. summary: %s' % summary)
+			else:
+				tracker.trackError('summary missing required text.')
+		
 
 def validateMethod(typeTracker, method):
 	tracker = ErrorTracker(method['name'], typeTracker)
-	validateRequired(tracker, method, ['name'])
+	validateRequired(tracker, method, ['name', 'summary'])
 	validateCommon(tracker, method)
 
 	if 'returns' in method:
@@ -312,11 +333,6 @@ def validateType(typeDoc):
 	if 'excludes' in typeDoc:
 		validateExcludes(tracker, typeDoc['excludes'])
 
-	if 'summary' in typeDoc:
-		summary = typeDoc['summary'].strip()
-		if not summary[0].isupper or summary[-1] != ".":
-			tracker.trackError('summary fields should start with a capital letter and end with a period. summary: %s' % summary)
-		
 	if 'description' in typeDoc:
 		validateMarkdown(tracker, typeDoc['description'], 'description')
 
@@ -406,7 +422,7 @@ def validateDir(dir):
 				try:
 					validateTDoc(absolutePath)
 				except Exception, e:
-					printError("Error parsing %s: %s:" % (os.path.join(root,file), str(e)))
+					print >> sys.stderr, ("Error parsing %s: %s:" % (os.path.join(root,file), str(e)))
 	validateRefs()
 
 def printStatus(dir=None):
@@ -426,6 +442,8 @@ def printStatus(dir=None):
 		if dir: tdocPath = tdocPath[len(dir)+1:]
 		for type in tdocTypes:
 			printer.printStatus(tdocPath, errorTrackers[type["name"]])
+			
+	print "Errors encountered: %s" % printer.errorCount()
 
 def main(args):
 	parser = optparse.OptionParser()
@@ -441,6 +459,8 @@ def main(args):
 		default='pretty', help='output style: pretty (default) or simple.')
 	parser.add_option('-e', '--errors-only', dest='errorsOnly',
 		action='store_true', default=False, help='only emit failed validations')
+	parser.add_option('--warn-summary', dest='validateSummary',
+		action='store_true', default=False, help='validate summary field')
 	global options
 	(options, args) = parser.parse_args(args)
 
