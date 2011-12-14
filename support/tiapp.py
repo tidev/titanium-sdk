@@ -433,8 +433,12 @@ class TiAppXML(object):
 		#Creating proper CFBundleIconFiles rather than hard coding the values in there
 		propertyName = 'CFBundleIconFiles'
 		propertyValue = '<array>\n'
-		iconsdir  = os.path.join(project_dir,'Resources','iphone')
-		for iconfile in os.listdir(iconsdir):
+		iconsdir1 = os.path.join(project_dir,'Resources','iphone')
+		iconsdir2 = os.path.join(project_dir,'Resources')
+		tempiconslist = sorted(os.listdir(iconsdir1))
+		tempiconslist += (sorted(os.listdir(iconsdir2)))
+		iconslist = list(set(sorted(tempiconslist)))
+		for iconfile in iconslist:
 			if fnmatch.fnmatch(iconfile, iconname+'.png'):
 				propertyValue += "\t<string>%s</string>\n" %(iconname+'.png')
 			elif fnmatch.fnmatch(iconfile, iconname+'@2x.png'):
@@ -447,6 +451,7 @@ class TiAppXML(object):
 				propertyValue += "\t<string>%s</string>\n" %(iconname+'-Small.png')
 			elif fnmatch.fnmatch(iconfile, iconname+'-Small@2x.png'):
 				propertyValue += "\t<string>%s</string>\n" %(iconname+'-Small@2x.png')
+		
 		propertyValue += '</array>\n'
 		self.infoplist_properties[propertyName]=propertyValue
 
