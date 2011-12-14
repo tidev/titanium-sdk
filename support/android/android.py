@@ -210,6 +210,7 @@ class Android(object):
 			if module_bindings is None: continue
 			
 			for module_class in module_bindings['modules'].keys():
+				module_apiName = module_bindings['modules'][module_class]['apiName']
 				module_proxy = module_bindings['proxies'][module_class]
 				module_id = module_proxy['proxyAttrs']['id']
 				module_proxy_class_name = module_proxy['proxyClassName']
@@ -236,6 +237,7 @@ class Android(object):
 					print '[DEBUG] appending module: %s' % module_class
 					self.custom_modules.append({
 						'module_id': module_id,
+						'module_apiName': module_apiName,
 						'proxy_name': module_proxy_class_name,
 						'class_name': module_class,
 						'manifest': module.manifest,
