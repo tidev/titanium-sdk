@@ -440,9 +440,9 @@ class TiAppXML(object):
 		iconslist = list(set(sorted(tempiconslist)))
 		iconorder = list([iconname+".png",iconname+"@2x.png",iconname+"-72.png",iconname+"-Small-50.png",iconname+"-Small.png",iconname+"-Small@2x.png"])
 		for type in iconorder:
-			for icon in iconslist:
-				if type == icon:
-					propertyValue += "\t<string>%s</string>\n" %icon
+			for nexticon in iconslist:
+				if type == nexticon:
+					propertyValue += "\t<string>%s</string>\n" % nexticon
 		propertyValue += '</array>\n'
 		self.infoplist_properties[propertyName]=propertyValue
 		
