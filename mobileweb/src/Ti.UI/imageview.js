@@ -5,7 +5,7 @@ Ti._5.createClass("Ti.UI.ImageView", function(args){
 
 	var obj = this,
 		domNode = Ti._5.DOMView(obj, "img", args, "ImageView"),
-		domStyle = domNode.Style,
+		domStyle = domNode.style,
 		isError = false,
 		_reverse = false,
 		_canScale = true,
