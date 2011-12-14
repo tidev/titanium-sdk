@@ -3,7 +3,7 @@
 #
 # tiapp parser
 # 
-import os, types, uuid
+import os, types, uuid , fnmatch
 import codecs, time, sys
 from xml.dom.minidom import parseString
 from StringIO import StringIO
@@ -364,7 +364,7 @@ class TiAppXML(object):
 	
 		# we want the icon without the extension for the plist
 		iconname = os.path.splitext(icon)[0]
-			
+		
 		self.infoplist_properties = {}	
 		for p in self.properties:
 			value = self.properties[p]
@@ -426,10 +426,26 @@ class TiAppXML(object):
 				propertyValue += '</array>'
 				
 				self.infoplist_properties[propertyName]=propertyValue
-		
+
 		plist = codecs.open(file,'r','utf-8','replace').read()
 		plist = plist.replace('__APPICON__',iconname)
 
+		#Creating proper CFBundleIconFiles rather than hard coding the values in there
+		propertyName = 'CFBundleIconFiles'
+		propertyValue = '<array>\n'
+		iconsdir1 = os.path.join(project_dir,'Resources','iphone')
+		iconsdir2 = os.path.join(project_dir,'Resources')
+		tempiconslist = sorted(os.listdir(iconsdir1))
+		tempiconslist += sorted(os.listdir(iconsdir2))
+		iconslist = list(set(sorted(tempiconslist)))
+		iconorder = list([iconname+".png",iconname+"@2x.png",iconname+"-72.png",iconname+"-Small-50.png",iconname+"-Small.png",iconname+"-Small@2x.png"])
+		for type in iconorder:
+			for icon in iconslist:
+				if type == icon:
+					propertyValue += "\t<string>%s</string>\n" %icon
+		propertyValue += '</array>\n'
+		self.infoplist_properties[propertyName]=propertyValue
+		
 		# replace the bundle id with the app id 
 		# in case it's changed
 		i = plist.index('CFBundleIdentifier')
