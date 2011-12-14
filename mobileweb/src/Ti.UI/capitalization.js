@@ -82,7 +82,7 @@ Ti.UI._capitalizeValue = function (_autocapitalization, sValue) {
 Ti.UI._updateText = function(obj) {
 	var _selectionStart = obj.dom.selectionStart;
 	var _selectionEnd = obj.dom.selectionEnd;
-	obj.value = api._capitalizeValue(obj.autocapitalization, obj.value);
+	obj.value = Ti.UI._capitalizeValue(obj.autocapitalization, obj.value);
 	obj.dom.selectionStart = _selectionStart;
 	obj.dom.selectionEnd = _selectionEnd;
 };

@@ -21,17 +21,13 @@ ignoreDirs = ['.git','.svn','_svn','CVS','android','iphone'];
 year = datetime.datetime.now().year
 
 HTML_HEADER = """<!--
-	Appcelerator Titanium Mobile Web SDK - http://appcelerator.com
-	This is generated code. Do not modify. Your changes *will* be lost.
-	Generated code is Copyright (c) %d by Appcelerator, Inc.
-	All Rights Reserved.
+	WARNING: this is generated code and will be lost if changes are made.
+	This generated source code is Copyright (c) 2010-%d by Appcelerator, Inc. All Rights Reserved.
 	-->""" % year
 
 HEADER = """/**
- * Appcelerator Titanium Mobile Web SDK - http://appcelerator.com
- * This is generated code. Do not modify. Your changes *will* be lost.
- * Generated code is Copyright (c) %d by Appcelerator, Inc.
- * All Rights Reserved.
+ * WARNING: this is generated code and will be lost if changes are made.
+ * This generated source code is Copyright (c) 2010-%d by Appcelerator, Inc. All Rights Reserved.
  */
 """ % year
 

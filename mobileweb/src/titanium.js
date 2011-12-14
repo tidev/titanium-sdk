@@ -333,7 +333,7 @@
 	Ti._5.frameworkLoaded = function() {
 		if (cfg.analytics) {
 			// enroll event
-			if(localStorage.getItem("html5_enrollSent") == null){
+			if(localStorage.getItem("mobileweb_enrollSent") == null){
 				// setup enroll event
 				Ti._5.addAnalyticsEvent('ti.enroll', 'ti.enroll', {
 					mac_addr: null,
@@ -346,7 +346,7 @@
 					model: Ti.Platform.model,
 					deploytype: cfg.deployType
 				});
-				localStorage.setItem("html5_enrollSent", true)
+				localStorage.setItem("mobileweb_enrollSent", true)
 			}
 
 			// app start event
@@ -413,13 +413,13 @@
 		return cfg;
 	};
 
-	var _sessionId = sessionStorage.getItem('html5_sessionId');
+	var _sessionId = sessionStorage.getItem('mobileweb_sessionId');
 	if(_sessionId == null){
 		_sessionId = Ti._5.createUUID();
-		sessionStorage.setItem('html5_sessionId', _sessionId);
+		sessionStorage.setItem('mobileweb_sessionId', _sessionId);
 	}
 
-	var ANALYTICS_STORAGE = "html5_analyticsEvents";
+	var ANALYTICS_STORAGE = "mobileweb_analyticsEvents";
 	Ti._5.addAnalyticsEvent = function(eventType, eventEvent, data, isUrgent){
 		if (!cfg.analytics) {
 			return;
@@ -480,82 +480,91 @@
 		if (!cfg.analytics) {
 			return;
 		}
-		// store event
-		var storage = localStorage.getItem(ANALYTICS_STORAGE);
-		if(storage == null){
+
+		var i,
+			evt,
+			storage = JSON.parse(localStorage.getItem(ANALYTICS_STORAGE)),
+			now = (new Date()).getTime(),
+			jsonStrs = [],
+			ids = [],
+			body = document.body,
+			iframe,
+			form,
+			hidden,
+			rand = Math.floor(Math.random() * 1e6),
+			iframeName = "analytics" + rand,
+			callback = "mobileweb_jsonp" + rand;
+
+		if (storage == null || (!isUrgent && _analyticsLastSent !== null && now - _analyticsLastSent < ANALYTICS_WAIT)) {
 			return;
-		} else {
-			storage = JSON.parse(storage);
 		}
 
-		var now = (new Date()).getTime();
-
-		if(isUrgent !== true && _analyticsLastSent != null && now - _analyticsLastSent < ANALYTICS_WAIT){
-			return;
-		}
-
-		var jsonStrs = [];
-		var ids = [];
-
-		for(var ii = 0; ii < storage.length; ii++){
-			var ev = storage[ii];
-			ids.push(ev.eventId);
-			var res = {
+		for (i = 0; i < storage.length; i++) {
+			evt = storage[i];
+			ids.push(evt.eventId);
+			jsonStrs.push(JSON.stringify({
 				seq: eventSeq++,
-				ver: '2',
-				id: ev.eventId,
-				type: ev.eventType,
-				event: ev.eventEvent,
-				ts: ev.eventTimestamp,
+				ver: "2",
+				id: evt.eventId,
+				type: evt.eventType,
+				event: evt.eventEvent,
+				ts: evt.eventTimestamp,
 				mid: Ti.Platform.id,
 				sid: _sessionId,
 				aguid: cfg.guid,
-				data: typeof ev.eventPayload == 'object' ? JSON.stringify(ev.eventPayload) : ev.eventPayload
-			};
-
-			jsonStrs.push(JSON.stringify(res));
+				data: require.is(evt.eventPayload, "object") ? JSON.stringify(evt.eventPayload) : evt.eventPayload
+			}));
 		}
 
-		var iframe = document.createElement("iframe");
-		iframe.style.display = 'none';
-		iframe.id = "analytics" + Math.random();
-		var form = document.createElement("form");
-		form.style.display = 'none';
-		form.target = iframe.id;
-		form.method = 'POST';
-		var fname = "html5_jsonp"+Math.floor(Math.random() * 1e6);
-		form.action = 'https://api.appcelerator.net/p/v2/mobile-track?callback=' + fname;
-		document.body.appendChild(iframe);
-		document.body.appendChild(form);
-		var hidden = document.createElement("input");
-		hidden.type = 'hidden';
-		hidden.name = 'content';
-		hidden.value = jsonStrs.join("\n");
+		function onIframeLoaded() {
+			body.removeChild(form);
+			body.removeChild(iframe);
+		}
+
+		iframe = document.createElement("iframe");
+		iframe.style.display = "none";
+		iframe.onload = onIframeLoaded;
+		iframe.onerror = onIframeLoaded;
+		iframe.id = iframe.name = iframeName;
+
+		form = document.createElement("form");
+		form.style.display = "none";
+		form.target = iframeName;
+		form.method = "POST";
+		form.action = "https://api.appcelerator.net/p/v2/mobile-track?callback=" + callback;
+
+		hidden = document.createElement("input");
+		hidden.type = "hidden";
+		hidden.name = "content";
+		hidden.value = "[" + jsonStrs.join(",") + "]";
+
+		body.appendChild(iframe);
+		body.appendChild(form);
 		form.appendChild(hidden);
-		global[fname] = function(response){
+
+		global[callback] = function(response){
 			if(response && response.success){
 				// remove sent events on successful sent
-				var storage = localStorage.getItem(ANALYTICS_STORAGE);
-				var evs = [];
-				for(var ii = 0; ii < storage.length; ii++){
-					var ev = storage[ii];
-					var found = false;
-					for(var jj = 0; jj < ids.length; jj++){
-						if(ev.eventId == ids[jj]){
-							found = true;
-							ids.splice(jj, 1);
+				var j, k, found,
+					storage = localStorage.getItem(ANALYTICS_STORAGE),
+					ev,
+					evs = [];
+
+				for(j = 0; j < storage.length; j++){
+					ev = storage[j];
+					found = 0;
+					for (k = 0; k < ids.length; k++) {
+						if (ev.eventId == ids[k]) {
+							found = 1;
+							ids.splice(k, 1);
 							break;
 						}
 					}
-
-					if(!found){
-						evs.push(ev);
-					}
+					found || evs.push(ev);
 				}
 
 				localStorage.setItem(ANALYTICS_STORAGE, JSON.stringify(evs));
-				document.body.removeChild(form);
-				document.body.removeChild(iframe);
+				
 			}
 		};
 		form.submit();
