@@ -63,7 +63,7 @@
 	NSDictionary* a;
 	ENSURE_ARG_AT_INDEX(a, args, 0, NSDictionary)
 	
-	NSString* urlString = [a objectForKey:@"url"];
+	NSString* urlString = [[TiUtils toURL:[a objectForKey:@"url"] proxy:self]absoluteString];
 	
 	if ([urlString length] == 0) {
 		return;
