@@ -664,7 +664,7 @@ properties:
     permission: read-only
   - name: orientation
     deprecated: {since: "1.7.2"}
-    summary: Use <Titanium.Window.orientationModes> instead.
+    summary: Use <Titanium.UI.Window.orientationModes> instead.
     description:  |
         When set, this will update the orientation of the current window to the specified 
         orientation value.
