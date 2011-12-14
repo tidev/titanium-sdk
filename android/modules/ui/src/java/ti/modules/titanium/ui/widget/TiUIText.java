@@ -32,6 +32,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
@@ -213,7 +214,21 @@ public class TiUIText extends TiUIView
 		proxy.setProperty(TiC.PROPERTY_VALUE, value);
 		proxy.fireEvent(TiC.EVENT_CHANGE, data);
 	}
-
+	
+	@Override
+	public void focus()
+	{
+		if (nativeView != null) {
+			Object editable = proxy.getProperty(TiC.PROPERTY_EDITABLE);
+			if (editable == null || ((Boolean)editable).booleanValue() == true) {
+				InputMethodManager imm = getIMM();
+				if (imm != null) {
+					imm.showSoftInput(nativeView, 0);
+				}
+			}
+		}
+		super.focus();
+	}
 
 	@Override
 	public void onFocusChange(View v, boolean hasFocus)
