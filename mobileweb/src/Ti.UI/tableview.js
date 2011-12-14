@@ -311,7 +311,7 @@ Ti._5.createClass("Ti.UI.TableView", function(args){
 			return true;
 		}
 		obj.fireEvent("dblclick", {
-			type		: event.type,
+			type		: event.type,
 			x			: event.pageX,
 			y			: event.pageY
 		});
