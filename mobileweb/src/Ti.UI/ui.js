@@ -1,136 +1,95 @@
 (function(api){
+	var _backgroundColor = null,
+		_backgroundImage = null;
+
 	api.currentWindow = null;
 	api.currentTab = null;
-	
+
 	// Properties
-	api.ANIMATION_CURVE_EASE_IN = 2;		// deprecated since 1.8.0
-	api.ANIMATION_CURVE_EASE_IN_OUT = 4;	// deprecated since 1.8.0
-	api.ANIMATION_CURVE_EASE_OUT = 3;		// deprecated since 1.8.0
-	api.ANIMATION_CURVE_LINEAR = 1;			// deprecated since 1.8.0
-	api.AUTODETECT_ADDRESS = 1;				// deprecated since 1.8.0
-	api.AUTODETECT_ALL = 0;					// deprecated since 1.8.0
-	api.AUTODETECT_CALENDAR = 2;			// deprecated since 1.8.0
-	api.AUTODETECT_LINK = 3;				// deprecated since 1.8.0
-	api.AUTODETECT_NONE = -1;				// deprecated since 1.8.0
-	api.AUTODETECT_PHONE = 4;				// deprecated since 1.8.0
-	api.BLEND_MODE_CLEAR = -1;				// deprecated since 1.8.0
-	api.BLEND_MODE_COLOR = 1;				// deprecated since 1.8.0
-	api.BLEND_MODE_COLOR_BURN = 2;			// deprecated since 1.8.0
-	api.BLEND_MODE_COLOR_DODGE = 3;			// deprecated since 1.8.0
-	api.BLEND_MODE_COPY = 4;				// deprecated since 1.8.0
-	api.BLEND_MODE_DARKEN = 5;				// deprecated since 1.8.0
-	api.BLEND_MODE_DESTINATION_ATOP = 6;	// deprecated since 1.8.0
-	api.BLEND_MODE_DESTINATION_IN = 7;
-	api.BLEND_MODE_DESTINATION_OUT = 8;		// deprecated since 1.8.0
-	api.BLEND_MODE_DESTINATION_OVER = 9;	// deprecated since 1.8.0
-	api.BLEND_MODE_DIFFERENCE = 10;			// deprecated since 1.8.0
-	api.BLEND_MODE_EXCLUSION = 11;			// deprecated since 1.8.0
-	api.BLEND_MODE_HARD_LIGHT = 12;			// deprecated since 1.8.0
-	api.BLEND_MODE_HUE = 13;				// deprecated since 1.8.0
-	api.BLEND_MODE_LIGHTEN = 14;			// deprecated since 1.8.0
-	api.BLEND_MODE_LUMINOSITY = 15;			// deprecated since 1.8.0
-	api.BLEND_MODE_MULTIPLY = 16;			// deprecated since 1.8.0
-	api.BLEND_MODE_NORMAL = 0;				// deprecated since 1.8.0
-	api.BLEND_MODE_OVERLAY = 17;			// deprecated since 1.8.0
-	api.BLEND_MODE_PLUS_DARKER = 18;		// deprecated since 1.8.0
-	api.BLEND_MODE_PLUS_LIGHTER = 19;		// deprecated since 1.8.0
-	api.BLEND_MODE_SATURATION = 20;			// deprecated since 1.8.0
-	api.BLEND_MODE_SCREEN = 21;				// deprecated since 1.8.0
-	api.BLEND_MODE_SOFT_LIGHT = 22;			// deprecated since 1.8.0
-	api.BLEND_MODE_PLUS_LIGHTER = 23;		// deprecated since 1.8.0
-	api.BLEND_MODE_SATURATION = 24;			// deprecated since 1.8.0
-	api.BLEND_MODE_SCREEN = 25;				// deprecated since 1.8.0
-	api.BLEND_MODE_SOFT_LIGHT = 26;			// deprecated since 1.8.0
-	api.BLEND_MODE_SOURCE_ATOP = 27;		// deprecated since 1.8.0
-	api.BLEND_MODE_SOURCE_IN = 28;			// deprecated since 1.8.0
-	api.BLEND_MODE_SOURCE_OUT = 29;			// deprecated since 1.8.0
-	api.BLEND_MODE_XOR = 30;				// deprecated since 1.8.0
-
-	api.FACE_DOWN = 1;
-	api.FACE_UP = 2;
-	api.PORTRAIT = 3;
-	api.UPSIDE_PORTRAIT = 4;
-	api.LANDSCAPE_LEFT = 5;
-	api.LANDSCAPE_RIGHT = 6;
-
-	api.INPUT_BORDERSTYLE_BEZEL = 3;
-	api.INPUT_BORDERSTYLE_LINE = 1;
-	api.INPUT_BORDERSTYLE_NONE = 0;
-	api.INPUT_BORDERSTYLE_ROUNDED = 2;
-	api.INPUT_BUTTONMODE_ALWAYS = 1;
-	api.INPUT_BUTTONMODE_NEVER = 0;
-	api.INPUT_BUTTONMODE_ONBLUR = 0;
-	api.INPUT_BUTTONMODE_ONFOCUS = 1;
-	api.KEYBOARD_APPEARANCE_ALERT = 1;
-	api.KEYBOARD_APPEARANCE_DEFAULT = 0;
-	api.KEYBOARD_ASCII = 1;
-	api.KEYBOARD_DEFAULT = 2;
-	api.KEYBOARD_EMAIL = 3;
-	api.KEYBOARD_NAMEPHONE_PAD = 4;
-	api.KEYBOARD_NUMBERS_PUNCTUATION = 5;
-	api.KEYBOARD_NUMBER_PAD = 6;
-	api.KEYBOARD_PHONE_PAD = 7;
-	api.KEYBOARD_URL = 8;
-	api.NOTIFICATION_DURATION_LONG = 1;
-	api.NOTIFICATION_DURATION_SHORT = 2;
-	api.PICKER_TYPE_COUNT_DOWN_TIMER = 1;
-	api.PICKER_TYPE_DATE = 2;
-	api.PICKER_TYPE_DATE_AND_TIME = 3;
-	api.PICKER_TYPE_PLAIN = 4;
-	api.PICKER_TYPE_TIME = 5;
-	api.RETURNKEY_DEFAULT = 0;
-	api.RETURNKEY_DONE = 1;
-	api.RETURNKEY_EMERGENCY_CALL = 2;
-	api.RETURNKEY_GO = 3;
-	api.RETURNKEY_GOOGLE = 4;
-	api.RETURNKEY_JOIN = 5;
-	api.RETURNKEY_NEXT = 6;
-	api.RETURNKEY_ROUTE = 7;
-	api.RETURNKEY_SEARCH = 8;
-	api.RETURNKEY_SEND = 9;
-	api.RETURNKEY_YAHOO = 10;
-	api.TEXT_ALIGNMENT_CENTER = 1;
-	api.TEXT_ALIGNMENT_RIGHT = 2;
-	api.TEXT_ALIGNMENT_LEFT = 3;
-	api.TEXT_AUTOCAPITALIZATION_ALL = 3;
-	api.TEXT_AUTOCAPITALIZATION_NONE = 0;
-	api.TEXT_AUTOCAPITALIZATION_SENTENCES = 2;
-	api.TEXT_AUTOCAPITALIZATION_WORDS = 1;
-	api.TEXT_VERTICAL_ALIGNMENT_BOTTOM = 2;
-	api.TEXT_VERTICAL_ALIGNMENT_CENTER = 1;
-	api.TEXT_VERTICAL_ALIGNMENT_TOP = 3;
-	api.UNKNOWN = 0;
-
-	var _backgroundColor = null;
-	Object.defineProperty(api, 'backgroundColor', {
-		get: function(){return _backgroundColor;},
-		set: function(val){
-			_backgroundColor = val;
-			api.setBackgroundColor(_backgroundColor);
-		}
+	Ti._5.propReadOnly(api, {
+		UNKNOWN: 0,
+		FACE_DOWN: 1,
+		FACE_UP: 2,
+		PORTRAIT: 3,
+		UPSIDE_PORTRAIT: 4,
+		LANDSCAPE_LEFT: 5,
+		LANDSCAPE_RIGHT: 6,
+		INPUT_BORDERSTYLE_BEZEL: 3,
+		INPUT_BORDERSTYLE_LINE: 1,
+		INPUT_BORDERSTYLE_NONE: 0,
+		INPUT_BORDERSTYLE_ROUNDED: 2,
+		INPUT_BUTTONMODE_ALWAYS: 1,
+		INPUT_BUTTONMODE_NEVER: 0,
+		INPUT_BUTTONMODE_ONBLUR: 0,
+		INPUT_BUTTONMODE_ONFOCUS: 1,
+		KEYBOARD_APPEARANCE_ALERT: 1,
+		KEYBOARD_APPEARANCE_DEFAULT: 0,
+		KEYBOARD_ASCII: 1,
+		KEYBOARD_DEFAULT: 2,
+		KEYBOARD_EMAIL: 3,
+		KEYBOARD_NAMEPHONE_PAD: 4,
+		KEYBOARD_NUMBERS_PUNCTUATION: 5,
+		KEYBOARD_NUMBER_PAD: 6,
+		KEYBOARD_PHONE_PAD: 7,
+		KEYBOARD_URL: 8,
+		NOTIFICATION_DURATION_LONG: 1,
+		NOTIFICATION_DURATION_SHORT: 2,
+		PICKER_TYPE_COUNT_DOWN_TIMER: 1,
+		PICKER_TYPE_DATE: 2,
+		PICKER_TYPE_DATE_AND_TIME: 3,
+		PICKER_TYPE_PLAIN: 4,
+		PICKER_TYPE_TIME: 5,
+		RETURNKEY_DEFAULT: 0,
+		RETURNKEY_DONE: 1,
+		RETURNKEY_EMERGENCY_CALL: 2,
+		RETURNKEY_GO: 3,
+		RETURNKEY_GOOGLE: 4,
+		RETURNKEY_JOIN: 5,
+		RETURNKEY_NEXT: 6,
+		RETURNKEY_ROUTE: 7,
+		RETURNKEY_SEARCH: 8,
+		RETURNKEY_SEND: 9,
+		RETURNKEY_YAHOO: 10,
+		TEXT_ALIGNMENT_CENTER: 1,
+		TEXT_ALIGNMENT_RIGHT: 2,
+		TEXT_ALIGNMENT_LEFT: 3,
+		TEXT_AUTOCAPITALIZATION_ALL: 3,
+		TEXT_AUTOCAPITALIZATION_NONE: 0,
+		TEXT_AUTOCAPITALIZATION_SENTENCES: 2,
+		TEXT_AUTOCAPITALIZATION_WORDS: 1,
+		TEXT_VERTICAL_ALIGNMENT_BOTTOM: 2,
+		TEXT_VERTICAL_ALIGNMENT_CENTER: 1,
+		TEXT_VERTICAL_ALIGNMENT_TOP: 3
 	});
 
-	var _backgroundImage = null;
-	Object.defineProperty(api, 'backgroundImage', {
-		get: function(){return _backgroundImage;},
-		set: function(val){
-			_backgroundImage = val;
-			api.setBackgroundImage(_backgroundImage);
+	Ti._5.prop(api, {
+		backgroundColor: {
+			get: function(){return _backgroundColor;},
+			set: function(val){
+				_backgroundColor = val;
+				api.setBackgroundColor(_backgroundColor);
+			}
+		},
+		backgroundImage: {
+			get: function(){return _backgroundImage;},
+			set: function(val){
+				_backgroundImage = val;
+				api.setBackgroundImage(_backgroundImage);
+			}
 		}
 	});
 
 	// Methods
 	api.setBackgroundColor = function(args) {
-		document.body.style.backgroundColor = args;
+		Ti._5.containerDiv.style.backgroundColor = args;
 	};
 	
 	api.setBackgroundImage = function(args) {
-		document.body.style.backgroundImage = 'url("' + Ti._5.getAbsolutePath(args) + '")';
-		//document.body.style.backgroundRepeat = "no-repeat";
+		Ti._5.containerDiv.style.backgroundImage = "url(" + Ti._5.getAbsolutePath(args) + ")";
 	};
 	
-	api.create2DMatrix = function(){
-		console.debug('Method "Titanium.UI.create2DMatrix" is not implemented yet.');
+	api.create2DMatrix = function(args){
+		return new Ti.UI["2DMatrix"](args);
 	};
 	api.create3DMatrix = function(){
 		console.debug('Method "Titanium.UI.create3DMatrix" is not implemented yet.');
@@ -141,8 +100,8 @@
 	api.createAlertDialog = function(args){
 		return new Ti.UI.AlertDialog(args);
 	};
-	api.createAnimation = function(){
-		console.debug('Method "Titanium.UI.createAnimation" is not implemented yet.');
+	api.createAnimation = function(args){
+		return new Ti.UI.Animation(args);
 	};
 	api.createButton = function(args) {
 		return new Ti.UI.Button(args);
@@ -234,4 +193,4 @@
 	api.createWindow = function(args) {
 		return new Ti.UI.Window(args);
 	};
-})(Ti._5.createClass('Titanium.UI'));
+})(Ti._5.createClass("Ti.UI"));

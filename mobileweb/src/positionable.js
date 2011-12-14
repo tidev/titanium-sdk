@@ -1,164 +1,130 @@
-(function(oParentNamespace) {
-	// Create interface
-	oParentNamespace.Positionable = function(obj, args) {
-		if ('function' != typeof obj.addEventListener) {
-			oParentNamespace.EventDriven(obj);
-		}
-		
-		var _position = function(p, val) {
-			obj.dom.style.position = 'absolute';
-			obj.dom.style[p] = Ti._5.parseLength(val);
-		};
-		
-		var _top = null;
-		Object.defineProperty(obj, 'top', {
+Ti._5.Positionable = function(obj, args) {
+	obj.addEventListener || oParentNamespace.EventDriven(obj);
+
+	var domNode = obj.dom,
+		domStyle = domNode.style,
+		px = Ti._5.px,
+		_top,
+		_bottom,
+		_left,
+		_right,
+		_width,
+		_height,
+		_center,
+		isAdded;
+
+	Ti._5.prop(obj, {
+		top: {
 			get: function() {
 				return _top;
 			},
 			set: function(val) {
-				if (obj.dom.style['bottom']) {
-					obj.dom.style['bottom'] = '';
-				}
-				_top = val;
-				_position('top', val);
-			},
-			configurable: true
-		});
-
-		var _bottom;
-		Object.defineProperty(obj, 'bottom', {
+				domStyle.bottom && (domStyle.bottom = "");
+				domStyle.top = _top = px(val);
+			}
+		},
+		bottom: {
 			get: function() {
 				return _bottom;
 			},
 			set: function(val) {
-				if (obj.dom.style['top']) {
-					obj.dom.style['top'] = '';
-				}
-				_bottom = val;
-				_position('bottom', val);
-			},
-			configurable: true
-		});
-
-		var _left;
-		Object.defineProperty(obj, 'left', {
+				domStyle.top && (domStyle.top = "");
+				domStyle.bottom = _bottom = px(val);
+			}
+		},
+		left: {
 			get: function() {
 				return _left;
 			},
 			set: function(val) {
-				if (obj.dom.style['right']) {
-					obj.dom.style['right'] = '';
-				}
-				obj.dom.style.cssFloat = '';
-				_left = val;
-				_position('left', val);
-			},
-			configurable: true
-		});		
-
-		var _right;
-		Object.defineProperty(obj, 'right', {
+				domStyle.right && (domStyle.right = "");
+				domStyle.left = _left = px(val);
+			}
+		},
+		right: {
 			get: function() {
 				return _right;
 			},
 			set: function(val) {
-				if (obj.dom.style['left']) {
-					obj.dom.style['left'] = '';
-				}
-				obj.dom.style.cssFloat = 'right';
-				_right = val;
-				_position('right', val);
-			},
-			configurable: true
-		});	
-		
-		var _width;
-		Object.defineProperty(obj, 'width', {
+				domStyle.left && (domStyle.left = "");
+				domStyle.right = _right = px(val);
+			}
+		},
+		width: {
 			get: function() {
 				return _width;
 			},
 			set: function(val) {
-				_width = val;
-				obj.dom.style.width = Ti._5.parseLength(val);
-			},
-			configurable: true
-		});	
-		
-		var _height;
-		Object.defineProperty(obj, 'height', {
+				domStyle.width = _width = px(val);
+			}
+		},
+		height: {
 			get: function() {
 				return _height;
 			},
 			set: function(val) {
-				_height = val;
-				obj.dom.style.height =  Ti._5.parseLength(val);
-			},
-			configurable: true
-		});
-
-		var _center, isAdded = false;
-		Object.defineProperty(obj, 'center', {
+				domStyle.height = _height = px(val);
+			}
+		},
+		center: {
 			get: function() {
 				return _center;
 			},
 			set: function(val) {
 				_center = val;
-				if(val == null || val.x == null && val.y == null || obj.parent == null){
+
+				if (!val || (val.x === null && val.y === null) || !obj.parent) {
 					return;
 				}
-				obj.dom.style.position = 'absolute';
-				var width = obj.dom.clientWidth;
-				var height = obj.dom.clientHeight;
-				if(val.x != null){
-					var left = val.x;
-					if(left.toString().indexOf('%') > 0){
-						left = obj.parent.dom.clientWidth * (parseFloat(left) / 100);
-					}
-					_position('left', left - width/2);
+
+				var width = domNode.clientWidth,
+					height = domNode.clientHeight,
+					left = val.x,
+					top = val.y;
+
+				if (left !== null) {
+					/\%$/.test(left) && (left = obj.parent.dom.clientWidth * parseFloat(left) / 100);
+					domStyle.left = (left - width / 2) + "px";
 				}
-				if(val.y != null){
-					var top = val.y;
-					if(top.toString().indexOf('%') > 0){
-						top = obj.parent.dom.clientHeight * (parseFloat(top) / 100);
-					}
-					_position('top', top - height/2);
+
+				if(top !== null){
+					/\%$/.test(top) && (top = obj.parent.dom.clientHeight * parseFloat(top) / 100);
+					domStyle.top = (top - height / 2) + "px";
 				}
+
 				if (!isAdded) {
 					// recalculate center positioning on window resize
-					window.addEventListener('resize', function(){obj.center = obj.center}, false);
-					isAdded = true;
+					require.on(window, "resize", function() {
+						obj.center = _center;
+					});
+					isAdded = 1;
 				}
-			},
-			configurable: true
-		});
-
-		obj.addEventListener('html5_added', function(parent){
-			// reset coordinates when element is added somewhere
-			obj.center = _center;
-		});
-		
-		obj.addEventListener('html5_shown', function(parent){
-			// reset coordinates when element is added somewhere
-			obj.center = _center;
-		});
-		
-		obj.addEventListener('html5_child_rendered', function(parent){
-			// reset coordinates when element is added somewhere
-			obj.center = _center;
-		});
-
-		if(args && args.center != null) {
-			// ignore other position properties when 'center' is passed
-			delete args.top;
-			delete args.bottom;
-			delete args.left;
-			delete args.right;
+			}
 		}
+	});
 
-		//
-		// setup getters/setters
-		//
-		oParentNamespace.preset(obj, ['top', 'bottom', 'left', 'right', 'center', 'width', 'height'], args);
+	obj.addEventListener("html5_added", function(){
+		// reset coordinates when element is added somewhere
+		obj.center = _center;
+	});
+
+	obj.addEventListener("html5_shown", function(){
+		// reset coordinates when element is added somewhere
+		obj.center = _center;
+	});
+
+	obj.addEventListener("html5_child_rendered", function(){
+		// reset coordinates when element is added somewhere
+		obj.center = _center;
+	});
+
+	if(args && args.center) {
+		// ignore other position properties when "center" is passed
+		delete args.top;
+		delete args.bottom;
+		delete args.left;
+		delete args.right;
 	}
-	
-})(Ti._5);	
+
+	require.mix(obj, args);
+};

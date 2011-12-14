@@ -1,75 +1,27 @@
 (function(api){
 	// Properties
-	var _anim = null;
-	Object.defineProperty(api, 'anim', {
-		get: function(){return _anim;},
-		set: function(val){return _anim = val;}
-	});
+	Ti._5.prop(api, 'anim');
 
-	var _array = null;
-	Object.defineProperty(api, 'array', {
-		get: function(){return _array;},
-		set: function(val){return _array = val;}
-	});
+	Ti._5.prop(api, 'array');
 
-	var _attr = null;
-	Object.defineProperty(api, 'attr', {
-		get: function(){return _attr;},
-		set: function(val){return _attr = val;}
-	});
+	Ti._5.prop(api, 'attr');
 
-	var _color = null;
-	Object.defineProperty(api, 'color', {
-		get: function(){return _color;},
-		set: function(val){return _color = val;}
-	});
+	Ti._5.prop(api, 'color');
 
-	var _dimen = null;
-	Object.defineProperty(api, 'dimen', {
-		get: function(){return _dimen;},
-		set: function(val){return _dimen = val;}
-	});
+	Ti._5.prop(api, 'dimen');
 
-	var _drawable = null;
-	Object.defineProperty(api, 'drawable', {
-		get: function(){return _drawable;},
-		set: function(val){return _drawable = val;}
-	});
+	Ti._5.prop(api, 'drawable');
 
-	var _id = null;
-	Object.defineProperty(api, 'id', {
-		get: function(){return _id;},
-		set: function(val){return _id = val;}
-	});
+	Ti._5.prop(api, 'id');
 
-	var _integer = null;
-	Object.defineProperty(api, 'integer', {
-		get: function(){return _integer;},
-		set: function(val){return _integer = val;}
-	});
+	Ti._5.prop(api, 'integer');
 
-	var _layout = null;
-	Object.defineProperty(api, 'layout', {
-		get: function(){return _layout;},
-		set: function(val){return _layout = val;}
-	});
+	Ti._5.prop(api, 'layout');
 
-	var _string = null;
-	Object.defineProperty(api, 'string', {
-		get: function(){return _string;},
-		set: function(val){return _string = val;}
-	});
+	Ti._5.prop(api, 'string');
 
-	var _style = null;
-	Object.defineProperty(api, 'style', {
-		get: function(){return _style;},
-		set: function(val){return _style = val;}
-	});
+	Ti._5.prop(api, 'style');
 
-	var _styleable = null;
-	Object.defineProperty(api, 'styleable', {
-		get: function(){return _styleable;},
-		set: function(val){return _styleable = val;}
-	});
+	Ti._5.prop(api, 'styleable');
 
 })(Ti._5.createClass('Titanium.Android.R'));

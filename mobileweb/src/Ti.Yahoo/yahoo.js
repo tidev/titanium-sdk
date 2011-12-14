@@ -5,4 +5,4 @@
 	api.yql = function(){
 		console.debug('Method "Titanium.Yahoo.yql" is not implemented yet.');
 	};
-})(Ti._5.createClass('Titanium.Yahoo'));
+})(Ti._5.createClass('Ti.Yahoo'));

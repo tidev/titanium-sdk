@@ -1,15 +1,25 @@
-Ti._5.createClass('Titanium.UI.Tab', function(args){
-	var obj = this;
+Ti._5.createClass("Ti.UI.Tab", function(args){
+	args = require.mix({
+		height: "100%",
+		width: "100%"
+	}, args);
+
+	var undef,
+		obj = this,
+		_icon = null,
+		_title = null,
+		_titleid = null,
+		_window = null;
 
 	// Interfaces
-	Ti._5.DOMView(this, 'div', args, 'Tab');
-	Ti._5.Touchable(this, args);
-	Ti._5.Styleable(this, args);
-	Ti._5.Positionable(this, args);
+	Ti._5.DOMView(obj, "div", args, "Tab");
+	Ti._5.Touchable(obj, args);
+	Ti._5.Styleable(obj, args);
+	Ti._5.Positionable(obj, args);
 
-	this._header = document.createElement("td");
-	this._header.className = 'tabHeader';
-	this._header.onclick = function(){
+	obj._header = document.createElement("td");
+	obj._header.className = "tabHeader";
+	obj._header.onclick = function(){
 		if(obj._tabGroup == null){
 			return;
 		}
@@ -23,10 +33,10 @@ Ti._5.createClass('Titanium.UI.Tab', function(args){
 	};
 	
 	// reference to tabGroup object that holds current tab
-	this._tabGroup = null;
+	obj._tabGroup = null;
 
-	var _oldShow = this.show;
-	this.show = function(){
+	var _oldShow = obj.show; // WARNING: this may cause problems
+	obj.show = function(){
 		_oldShow();
 		if(_window){
 			_window.show();
@@ -34,8 +44,8 @@ Ti._5.createClass('Titanium.UI.Tab', function(args){
 		Ti.UI.currentTab = obj;
 	};
 
-	var _oldHide = this.hide;
-	this.hide = function(){
+	var _oldHide = obj.hide; // WARNING: this may cause problems
+	obj.hide = function(){
 		_oldHide();
 		if(_window){
 			_window.hide();
@@ -45,63 +55,50 @@ Ti._5.createClass('Titanium.UI.Tab', function(args){
 		}
 	};
 
-	this.open = function(win, args){
+	obj.open = function(win, args){
 		win.open(args);
 	};
 
 	// Properties
-	var _badge = null;
-	Object.defineProperty(this, 'badge', {
-		get: function(){return _badge;},
-		set: function(val){return _badge = val;}
-	});
-
-	var _icon = null;
-	Object.defineProperty(this, 'icon', {
-		get: function(){return _icon;},
-		set: function(val){
-			if(val == null || val == ''){
-				// remove icon
-				obj._header.style.backgroundImage = '';
-			} else {
-				obj._header.style.backgroundImage = 'url(' + Ti._5.getAbsolutePath(val) + ')';
+	Ti._5.prop(obj, {
+		"badge": undef,
+		"icon": {
+			get: function(){return _icon;},
+			set: function(val){
+				if(val == null || val == ''){
+					// remove icon
+					obj._header.style.backgroundImage = '';
+				} else {
+					obj._header.style.backgroundImage = 'url(' + Ti._5.getAbsolutePath(val) + ')';
+				}
+				_icon = val;
 			}
-			return _icon = val;
+		},
+		"title": {
+			get: function(){return _title;},
+			set: function(val){
+				obj._header.innerHTML = _title = val;
+			}
+		},
+		"titleid": {
+			get: function(){return _titleid;},
+			set: function(val){
+				obj.title = L(_titleid = val);
+			}
+		},
+		"win": {
+			get: function(){return obj.window;},
+			set: function(val){obj.window = val;}
+		},
+		"window": {
+			get: function(){return _window;},
+			set: function(val){
+				_window = val;
+				obj.add(_window);
+				_window;
+			}
 		}
 	});
 
-	var _title = null;
-	Object.defineProperty(this, 'title', {
-		get: function(){return _title;},
-		set: function(val){
-			obj._header.innerHTML = val;
-			return _title = val;
-		}
-	});
-
-	var _titleid = null;
-	Object.defineProperty(this, 'titleid', {
-		get: function(){return _titleid;},
-		set: function(val){
-			obj.title = L(val);
-			return _titleid = val;
-		}
-	});
-
-	var _window = null;
-	Object.defineProperty(this, 'window', {
-		get: function(){return _window;},
-		set: function(val){
-			_window = val;
-			obj.add(_window);
-		}
-	});
-
-	Object.defineProperty(this, 'win', {
-		get: function(){return obj.window;},
-		set: function(val){return obj.window = val;}
-	});
-
-	Ti._5.preset(this, ['window', 'win', 'title', 'titleid', 'icon', 'badge'], args);
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(obj, args);
 });

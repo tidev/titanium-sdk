@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#include <dlfcn.h>
+#include <map>
 #include <string.h>
 #include <v8.h>
 
@@ -31,6 +33,14 @@
 
 namespace titanium {
 using namespace v8;
+
+std::map<std::string, bindings::BindEntry*> KrollBindings::externalBindings;
+
+void KrollBindings::initFunctions(Handle<Object> exports)
+{
+	DEFINE_METHOD(exports, "binding", KrollBindings::getBinding);
+	DEFINE_METHOD(exports, "externalBinding", KrollBindings::getExternalBinding);
+}
 
 void KrollBindings::initNatives(Handle<Object> exports)
 {
@@ -84,6 +94,41 @@ Handle<Value> KrollBindings::getBinding(const Arguments& args)
 	return scope.Close(binding);
 }
 
+Handle<Value> KrollBindings::getExternalBinding(const Arguments& args)
+{
+	HandleScope scope;
+
+	if (args.Length() == 0 || !args[0]->IsString()) {
+		return JSException::Error("Invalid arguments to externalBinding, expected String");
+	}
+
+	Handle<String> binding = args[0]->ToString();
+
+	if (bindingCache->Has(binding)) {
+		return bindingCache->Get(binding)->ToObject();
+	}
+
+	String::AsciiValue bindingValue(binding);
+	std::string key(*bindingValue);
+
+	struct bindings::BindEntry *externalBinding = externalBindings[key];
+
+	if (externalBinding) {
+		Local<Object> exports = Object::New();
+		externalBinding->bind(exports);
+		bindingCache->Set(binding, exports);
+
+		return scope.Close(exports);
+	}
+
+	return Undefined();
+}
+
+void KrollBindings::addExternalBinding(const char *name, struct bindings::BindEntry *binding)
+{
+	externalBindings[std::string(name)] = binding;
+}
+
 Handle<Object> KrollBindings::getBinding(Handle<String> binding)
 {
 	if (bindingCache.IsEmpty()) {
@@ -127,6 +172,20 @@ Handle<Object> KrollBindings::getBinding(Handle<String> binding)
 void KrollBindings::dispose()
 {
 	HandleScope scope;
+
+	// Dispose all external bindings
+	std::map<std::string, bindings::BindEntry *>::iterator iter;
+	for (iter = externalBindings.begin(); iter != externalBindings.end(); ++iter) {
+		bindings::BindEntry *external = iter->second;
+		if (external && external->dispose) {
+			external->dispose();
+		}
+	}
+
+	if (bindingCache.IsEmpty()) {
+		return;
+	}
+
 	Local<Array> propertyNames = bindingCache->GetPropertyNames();
 	uint32_t length = propertyNames->Length();
 

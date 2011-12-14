@@ -1,43 +1,31 @@
 (function(api){
+
+	Ti.Platform.displayCaps = api;
+
 	// Properties
-	var _density = null;
-	Object.defineProperty(api, 'density', {
-		get: function(){
+	Ti._5.propReadOnly(api, {
+		density: function(){
 			switch (navigator.userAgent.toLowerCase()) {
-				case 'iphone':
-					return 'medium';
-				case 'ipad':
-					return 'medium';
+				case "iphone":
+					return "medium";
+				case "ipad":
+					return "medium";
 				default:
-					return '';
+					return "";
 			}
 		},
-		set: function(val){return false;}
-	});
-
-	var _dpi = null;
-	Object.defineProperty(api, 'dpi', {
-		get: function(){
+		dpi: function(){
 			switch (navigator.userAgent.toLowerCase()) {
-				case 'iphone':
+				case "iphone":
 					return 160;
-				case 'ipad':
+				case "ipad":
 					return 130;
 				default:
 					return 0;
 			}
 		},
-		set: function(val){return false;}
+		platformHeight: window.innerHeight,
+		platformWidth: window.innerWidth
 	});
 
-	Object.defineProperty(api, 'platformHeight', {
-		get: function(){return window.innerHeight;},
-		set: function(val){return false;}
-	});
-
-	Object.defineProperty(api, 'platformWidth', {
-		get: function(){return window.innerWidth;},
-		set: function(val){return false;}
-	});
-
-})(Ti._5.createClass('Titanium.Platform.DisplayCaps'));
+})(Ti._5.createClass("Ti.Platform.DisplayCaps"));

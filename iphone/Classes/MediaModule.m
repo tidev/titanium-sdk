@@ -834,17 +834,9 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	ENSURE_SINGLE_ARG(arg,KrollCallback);
 
     // Create a graphics context with the target size
-    // On iOS 4 and later, use UIGraphicsBeginImageContextWithOptions to take the scale into consideration
-    // On iOS prior to 4, fall back to use UIGraphicsBeginImageContext
-
-    float systemVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
 
  	CGSize imageSize = [[UIScreen mainScreen] bounds].size;
-
- 	if (systemVersion >= 4.0f)
-		UIGraphicsBeginImageContextWithOptions(imageSize, NO, 0);
-	else
-		UIGraphicsBeginImageContext(imageSize);
+	UIGraphicsBeginImageContextWithOptions(imageSize, NO, 0);
 
 	CGContextRef context = UIGraphicsGetCurrentContext();
 
@@ -878,6 +870,21 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
     UIGraphicsEndImageContext();
 
+	UIInterfaceOrientation windowOrientation = [[TiApp controller] windowOrientation];
+	switch (windowOrientation) {
+		case UIInterfaceOrientationPortraitUpsideDown:
+			image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationDown];
+			break;
+		case UIInterfaceOrientationLandscapeLeft:
+			image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationRight];
+			break;
+		case UIInterfaceOrientationLandscapeRight:
+			image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationLeft];
+			break;
+		default:
+			break;
+	}
+	
 	TiBlob *blob = [[[TiBlob alloc] initWithImage:image] autorelease];
 	NSDictionary *event = [NSDictionary dictionaryWithObject:blob forKey:@"media"];
 	[self _fireEventToListener:@"screenshot" withObject:event listener:arg thisObject:nil];

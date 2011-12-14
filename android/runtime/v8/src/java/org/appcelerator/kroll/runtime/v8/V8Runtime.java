@@ -6,45 +6,91 @@
  */
 package org.appcelerator.kroll.runtime.v8;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.appcelerator.kroll.KrollExternalModule;
 import org.appcelerator.kroll.KrollProxySupport;
 import org.appcelerator.kroll.KrollRuntime;
+import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.common.TiDeployData;
 
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-
 public final class V8Runtime extends KrollRuntime implements Handler.Callback
 {
 	private static final String TAG = "KrollV8Runtime";
+	private static final boolean DBG = TiConfig.LOGD;
 	private static final String NAME = "v8";
-	private static final String DEVICE_LIB = "kroll-v8-device";
-	private static final String EMULATOR_LIB = "kroll-v8-emulator";
 	private static final int MSG_PROCESS_DEBUG_MESSAGES = KrollRuntime.MSG_LAST_ID + 100;
 
 	private boolean libLoaded = false;
+
+	private HashMap<String, Class<? extends KrollExternalModule>> externalModules = new HashMap<String, Class<? extends KrollExternalModule>>();
+	private ArrayList<String> loadedLibs = new ArrayList<String>();
 
 	@Override
 	public void initRuntime()
 	{
 		boolean useGlobalRefs = true;
-		String libName = DEVICE_LIB;
+		TiDeployData deployData = getKrollApplication().getDeployData();
 
-		if (Build.PRODUCT.equals("sdk") || Build.PRODUCT.equals("google_sdk")) {
-			Log.i(TAG, "Loading emulator version of kroll-v8");
-			libName = EMULATOR_LIB;
+		if (Build.PRODUCT.equals("sdk") || Build.PRODUCT.equals("google_sdk") || Build.FINGERPRINT.startsWith("generic")) {
+			if (DBG) {
+				Log.d(TAG, "Emulator detected, storing global references in a global Map");
+			}
 			useGlobalRefs = false;
 		}
 
-		boolean debuggerEnabled = getKrollApplication().isDebuggerEnabled();
-
 		if (!libLoaded) {
-			System.loadLibrary(libName);
+			System.loadLibrary("stlport_shared");
+			System.loadLibrary("kroll-v8");
 			libLoaded = true;
 		}
+		
+		boolean DBG = true;
+		String deployType = getKrollApplication().getDeployType();
+		if (deployType.equals("production")) {
+			DBG = false;
+		}
 
-		nativeInit(useGlobalRefs, debuggerEnabled);
+		nativeInit(useGlobalRefs, deployData.getDebuggerPort(), DBG);
+		
+		if (deployData.isDebuggerEnabled()) {
+			dispatchDebugMessages();
+		}
+		
+		loadExternalModules();
+	}
+
+	private void loadExternalModules()
+	{
+		for (String libName : externalModules.keySet()) {
+			if (DBG) {
+				Log.d(TAG, "Bootstrapping module: " + libName);
+			}
+
+			if (!loadedLibs.contains(libName)) {
+				System.loadLibrary(libName);
+				loadedLibs.add(libName);
+			}
+
+			Class<? extends KrollExternalModule> moduleClass = externalModules.get(libName);
+
+			try {
+				KrollExternalModule module = moduleClass.newInstance();
+				module.bootstrap();
+
+			} catch (IllegalAccessException e) {
+				Log.e(TAG, "Error bootstrapping external module: " + e.getMessage(), e);
+
+			} catch (InstantiationException e) {
+				Log.e(TAG, "Error bootstrapping external module: " + e.getMessage(), e);
+			}
+		}
 	}
 
 	@Override
@@ -71,6 +117,7 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		switch (message.what) {
 			case MSG_PROCESS_DEBUG_MESSAGES:
 				nativeProcessDebugMessages();
+				dispatchDebugMessages();
 
 				return true;
 		}
@@ -89,9 +136,13 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		handler.sendEmptyMessage(MSG_PROCESS_DEBUG_MESSAGES);
 	}
 
+	public void addExternalModule(String libName, Class<? extends KrollExternalModule> moduleClass)
+	{
+		externalModules.put(libName, moduleClass);
+	}
 
 	// JNI method prototypes
-	private native void nativeInit(boolean useGlobalRefs, boolean debuggerActive);
+	private native void nativeInit(boolean useGlobalRefs, int debuggerPort, boolean DBG);
 	private native void nativeRunModule(String source, String filename, KrollProxySupport activityProxy);
 	private native void nativeProcessDebugMessages();
 	private native void nativeDispose();

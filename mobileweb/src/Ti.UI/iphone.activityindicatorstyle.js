@@ -1,18 +1,9 @@
 (function(api){
 	// Properties
-	Object.defineProperty(api, 'BIG', {
-		value: 3,
-		writable: false
-	});
-
-	Object.defineProperty(api, 'DARK', {
-		value: 2,
-		writable: false
-	});
-
-	Object.defineProperty(api, 'PLAIN', {
-		value: 1,
-		writable: false
+	require.mix(api, {
+		"BIG": 3,
+		"DARK": 2,
+		"PLAIN": 1
 	});
 
 })(Ti._5.createClass('Titanium.UI.iPhone.ActivityIndicatorStyle'));

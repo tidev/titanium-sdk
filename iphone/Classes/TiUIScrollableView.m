@@ -415,7 +415,7 @@
 
 -(void)manageRotation
 {
-    if ([scrollview isDecelerating]) {
+    if ([scrollview isDecelerating] || [scrollview isDragging]) {
         rotatedWhileScrolling = YES;
     }
 }

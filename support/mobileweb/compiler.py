@@ -4,7 +4,7 @@
 # Project Compiler
 #
 
-import os, sys, re, shutil, time, base64, sgmllib, codecs, xml
+import os, sys, re, shutil, time, base64, sgmllib, codecs, xml, datetime
 
 # Add the Android support dir, since mako is located there, and import mako
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),"..", "android")))
@@ -18,13 +18,18 @@ import jspacker
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn','CVS','android','iphone'];
 
+year = datetime.datetime.now().year
+
+HTML_HEADER = """<!--
+	WARNING: this is generated code and will be lost if changes are made.
+	This generated source code is Copyright (c) 2010-%d by Appcelerator, Inc. All Rights Reserved.
+	-->""" % year
+
 HEADER = """/**
- * Appcelerator Titanium Mobile Web SDK - http://appcelerator.com
- * This is generated code. Do not modify. Your changes *will* be lost.
- * Generated code is Copyright (c) 2011 by Appcelerator, Inc.
- * All Rights Reserved.
+ * WARNING: this is generated code and will be lost if changes are made.
+ * This generated source code is Copyright (c) 2010-%d by Appcelerator, Inc. All Rights Reserved.
  */
-"""
+""" % year
 
 FOOTER = """"""
 
@@ -74,11 +79,14 @@ class Compiler(object):
 			self.defines.append("Ti.Platform/platform.js")
 
 		def compile_js(from_,to_):
-			js = Compiler.make_function_from_file(from_,self)
-			o = codecs.open(to_,'w',encoding='utf-8')
-			o.write(js)
-			o.close()
-			self.count+=1
+			try:
+				js = Compiler.make_function_from_file(from_,self)
+				o = codecs.open(to_,'w',encoding='utf-8')
+				o.write(js)
+				o.close()
+				self.count+=1
+			except:
+				pass
 
 		source = self.resources_dir
 		target = self.build_dir
@@ -103,25 +111,50 @@ class Compiler(object):
 					compile_js(from_,to_)
 				else:
 					shutil.copy(from_,to_)
-		titanium_js = "<%!\n\
+		
+		titanium_js = mako.template.Template("<%!\n\
 	def jsQuoteEscapeFilter(str):\n\
 		return str.replace(\"\\\"\",\"\\\\\\\"\")\n\
-%>\n" + "(%s\n\
-)(window, {\n\
-	projectName: '${project_name | jsQuoteEscapeFilter}',\n\
-	projectId: '${project_id | jsQuoteEscapeFilter}',\n\
-	deployType: '${deploy_type | jsQuoteEscapeFilter}',\n\
-	appId: '${app_name | jsQuoteEscapeFilter}',\n\
-	appAnalytics: '${app_analytics | jsQuoteEscapeFilter}',\n\
-	appPublisher: '${app_publisher | jsQuoteEscapeFilter}',\n\
-	appUrl: '${app_url | jsQuoteEscapeFilter}',\n\
-	appName: '${app_name | jsQuoteEscapeFilter}',\n\
-	appVersion: '${app_version | jsQuoteEscapeFilter}',\n\
-	appDescription: '${app_description | jsQuoteEscapeFilter}',\n\
-	appCopyright: '${app_copyright | jsQuoteEscapeFilter}',\n\
-	appGuid: '${app_guid | jsQuoteEscapeFilter}',\n\
-	tiVersion: '${ti_version | jsQuoteEscapeFilter}'\n\
-});\n".encode('utf-8') % (self.load_api(os.path.join(src_dir,"titanium.js")))
+%>\n" + "var require={\n\
+	analytics: ${app_analytics | jsQuoteEscapeFilter},\n\
+	app: {\n\
+		copyright: \"${app_copyright | jsQuoteEscapeFilter}\",\n\
+		description: \"${app_description | jsQuoteEscapeFilter}\",\n\
+		guid: \"${app_guid | jsQuoteEscapeFilter}\",\n\
+		id: \"${app_name | jsQuoteEscapeFilter}\",\n\
+		name: \"${app_name | jsQuoteEscapeFilter}\",\n\
+		publisher: \"${app_publisher | jsQuoteEscapeFilter}\",\n\
+		url: \"${app_url | jsQuoteEscapeFilter}\",\n\
+		version: \"${app_version | jsQuoteEscapeFilter}\"\n\
+	},\n\
+	deployType: \"${deploy_type | jsQuoteEscapeFilter}\",\n\
+	project: {\n\
+		id: \"${project_id | jsQuoteEscapeFilter}\",\n\
+		name: \"${project_name | jsQuoteEscapeFilter}\"\n\
+	},\n\
+	ti: {\n\
+		version: \"${ti_version | jsQuoteEscapeFilter}\"\n\
+	},\n\
+	vendorPrefixes: {\n\
+		css: [\"\", \"-webkit-\", \"-moz-\", \"-ms-\", \"-o-\", \"-khtml-\"],\n\
+		dom: [\"\", \"Webkit\", \"Moz\", \"ms\", \"O\", \"Khtml\"]\n\
+	}\n\
+};\n".encode('utf-8')).render(
+				project_name=self.project_name,
+				project_id=self.appid,
+				deploy_type=deploytype,
+				app_id=self.appid,
+				app_analytics='true' if ti.properties['analytics']=='true' else 'false',
+				app_publisher=ti.properties['publisher'],
+				app_url=ti.properties['url'],
+				app_name=ti.properties['name'],
+				app_version=ti.properties['version'],
+				app_description=ti.properties['description'],
+				app_copyright=ti.properties['copyright'],
+				app_guid=ti.properties['guid'],
+				ti_version=sdk_version
+			) + self.load_api(os.path.join(src_dir,"loader.js")) + self.load_api(os.path.join(src_dir,"titanium.js"))
+		
 		if deploytype == 'all':
 			print "Deploy type is 'all' - all modules will be included into dist"
 			for root, dirs, files in os.walk(src_dir):
@@ -153,7 +186,7 @@ class Compiler(object):
 			else:
 				print "[DEBUG] found: %s" % api_file
 				if api_file.find('.js') != -1:
-					titanium_js+='%s;\n' % self.load_api(api_file, api)
+					titanium_js += '%s;\n' % self.load_api(api_file, api)
 				elif api_file.find('.css') != -1:
 					titanium_css +='%s\n\n' % self.load_api(api_file, api)
 				else:
@@ -164,39 +197,6 @@ class Compiler(object):
 						pass
 
 					open(target_file,'wb').write(open(api_file,'rb').read())
-		titanium_js += ";\nTi._5.setLoadedScripts(" + json.dumps(self.ti_includes) + ");"
-		
-		loader_js = "var require={\n\
-	projectName: '${project_name | jsQuoteEscapeFilter}',\n\
-	projectId: '${project_id | jsQuoteEscapeFilter}',\n\
-	deployType: '${deploy_type | jsQuoteEscapeFilter}',\n\
-	appId: '${app_name | jsQuoteEscapeFilter}',\n\
-	appAnalytics: '${app_analytics | jsQuoteEscapeFilter}',\n\
-	appPublisher: '${app_publisher | jsQuoteEscapeFilter}',\n\
-	appUrl: '${app_url | jsQuoteEscapeFilter}',\n\
-	appName: '${app_name | jsQuoteEscapeFilter}',\n\
-	appVersion: '${app_version | jsQuoteEscapeFilter}',\n\
-	appDescription: '${app_description | jsQuoteEscapeFilter}',\n\
-	appCopyright: '${app_copyright | jsQuoteEscapeFilter}',\n\
-	appGuid: '${app_guid | jsQuoteEscapeFilter}',\n\
-	tiVersion: '${ti_version | jsQuoteEscapeFilter}'\n\
-};\n".encode('utf-8') + self.load_api(os.path.join(src_dir,"loader.js"))
-		
-		titanium_js = HEADER + loader_js + titanium_js + FOOTER
-		titanium_js = mako.template.Template(titanium_js).render(
-				ti_version=sdk_version,
-				project_name=self.project_name,
-				project_id=self.appid,
-				deploy_type=deploytype,
-				app_id=self.appid,
-				app_analytics=ti.properties['analytics'],
-				app_publisher=ti.properties['publisher'],
-				app_url=ti.properties['url'],
-				app_name=ti.properties['name'],
-				app_version=ti.properties['version'],
-				app_description=ti.properties['description'],
-				app_copyright=ti.properties['copyright'],
-				app_guid=ti.properties['guid'])
 		
 		ti_dir = os.path.join(self.build_dir,'titanium')
 		try:
@@ -205,13 +205,11 @@ class Compiler(object):
 			pass
 		
 		o = codecs.open(os.path.join(ti_dir,'titanium.js'),'w',encoding='utf-8')
-		o.write(titanium_js)
+		o.write(HEADER + titanium_js + FOOTER)
 		o.close()
 
-		titanium_css = HEADER + titanium_css + FOOTER
-
 		o = codecs.open(os.path.join(ti_dir,'titanium.css'), 'w', encoding='utf-8')
-		o.write(titanium_css)
+		o.write(HEADER + titanium_css + FOOTER)
 		o.close()
 
 		try:
@@ -245,6 +243,8 @@ class Compiler(object):
 				app_description=ti.properties['description'],
 				app_copyright=ti.properties['copyright'],
 				app_guid=ti.properties['guid'],
+				ti_header=HTML_HEADER,
+				ti_css=titanium_css,
 				ti_js=titanium_js)
 
 		index_file = os.path.join(self.build_dir,'index.html')

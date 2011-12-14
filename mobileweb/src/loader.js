@@ -921,7 +921,9 @@
 	}
 
 	req.toUrl = toUrl;
+	req.config = cfg;
 	mix(req, fnMixin = {
+		each: each,
 		evaluate: evaluate,
 		has: has,
 		is: is,
@@ -996,13 +998,25 @@ require.cache({
 				normalize: function (name, normalize) {
 					var parts = name.split("!"),
 						url = parts[0];
-					return (/^\./.test(url) ? normalize(url) : url) + (parts[1] ? "!" + parts[1] : "");
+					parts.shift();
+					return (/^\./.test(url) ? normalize(url) : url) + (parts.length ? "!" + parts.join("!") : "");
 				},
 
 				load: function (name, require, onLoad, config) {
-					var url = require.toUrl(/^\//.test(name) ? name : "./" + name, stack.length ? { name: stack[stack.length-1] } : null),
-						c = cache[url] || require.cache(url),
-						x;
+					var c,
+						x,
+						parts = name.split("!"),
+						len = parts.length,
+						url,
+						sandbox;
+
+					if (sandbox = len > 1 && parts[0] === "sandbox") {
+						parts.shift();
+						name = parts.join("!");
+					}
+
+					url = require.toUrl(/^\//.test(name) ? name : "./" + name, stack.length ? { name: stack[stack.length-1] } : null);
+					c = cache[url] || require.cache(url);
 
 					if (!c) {
 						x = new XMLHttpRequest();
@@ -1016,8 +1030,13 @@ require.cache({
 					}
 
 					stack.push(url);
-					require.evaluate(cache[url] = c, 0, true);
-					stack.pop();
+					try {
+						require.evaluate(cache[url] = c, 0, !sandbox);
+					} catch (e) {
+						throw e;
+					} finally {
+						stack.pop();
+					}
 
 					onLoad(c);
 				}

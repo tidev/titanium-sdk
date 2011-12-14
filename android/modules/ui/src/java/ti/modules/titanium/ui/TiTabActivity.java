@@ -6,8 +6,10 @@
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -15,6 +17,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
 import android.app.TabActivity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -45,8 +48,10 @@ public class TiTabActivity extends TabActivity
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		TiApplication.addToActivityStack(this);
+		KrollRuntime.incrementActivityRefCount();
 
 		super.onCreate(savedInstanceState);
+
 
 		int layoutResId = getResources().getIdentifier("titanium_tabgroup", "layout", getPackageName());
 		if (layoutResId == 0) {
@@ -216,9 +221,17 @@ public class TiTabActivity extends TabActivity
 			proxy.closeFromActivity();
 			proxy = null;
 		}
-		
+
+		KrollRuntime.decrementActivityRefCount();
 		handler = null;
 	}
+
+	public void onConfigurationChanged(Configuration newConfig)
+	{
+		super.onConfigurationChanged(newConfig);
+		TiBaseActivity.callOrientationChangedListener(newConfig);
+	}
+	
 	private boolean shouldFinishRootActivity()
 	{
 		Intent intent = getIntent();

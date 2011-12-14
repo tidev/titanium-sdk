@@ -151,10 +151,38 @@
 	</#list>
 </#macro>
 
+<#macro superNamespace>
+<#compress>
+	<#local superFullClassName = superPackageName + "." + superProxyClassName>
+
+	<#if moduleId != "titanium">
+		<#if tiProxies?keys?seq_contains(superFullClassName)>
+			titanium::<@Proxy.namespace tiProxies[superFullClassName].proxyAttrs.fullAPIName/>
+
+		<#elseif allProxies?keys?seq_contains(superFullClassName)>
+			<@Proxy.namespace allProxies[superFullClassName].proxyAttrs.fullAPIName/>
+
+		</#if>
+	</#if>
+</#compress>
+</#macro>
+
+<#macro openModuleNamespace>
+	<#list moduleId?split(".") as ns>
+		namespace ${ns?lower_case} {
+	</#list>
+</#macro>
+
+<#macro closeModuleNamespace>
+	<#list moduleId?split(".")?reverse as ns>
+		} // ${ns?lower_case}
+	</#list>
+</#macro>
+
 <#macro openNamespace>
-namespace titanium {
+<@openModuleNamespace/>
 	<#list proxyAttrs.fullAPIName?split(".") as ns>
-		<#if ns_has_next && ns?lower_case != "titanium">
+		<#if ns_has_next && ns?lower_case != moduleId?lower_case>
 			namespace ${ns?lower_case} {
 		</#if>
 	</#list>
@@ -162,17 +190,17 @@ namespace titanium {
 
 <#macro closeNamespace>
 	<#list proxyAttrs.fullAPIName?split(".")?reverse as ns>
-		<#if ns_index != 0 && ns?lower_case != "titanium">
+		<#if ns_index != 0 && ns?lower_case != moduleId?lower_case>
 			} // namespace ${ns?lower_case}
 		</#if>
 	</#list>
-} // namespace titanium
+<@closeModuleNamespace/>
 </#macro>
 
-<#macro namespace proxy>
+<#macro namespace apiName>
 <#compress>
-titanium::<#list proxy.fullAPIName?split(".") as ns>
-		<#if ns_has_next && ns?lower_case != "titanium">
+	<#list apiName?split(".") as ns>
+		<#if ns_has_next>
 			${ns?lower_case}::
 		</#if>
 	</#list>
@@ -449,7 +477,7 @@ fails, a JS exception is returned.
 		const char *error = "Invalid value, expected type ${info.jsType}.";
 		LOGE(TAG, error);
 		<#if !(logOnly!false)>
-		return JSException::Error(error);
+		return titanium::JSException::Error(error);
 		</#if>
 	}
 	</#if>
@@ -476,7 +504,7 @@ fails, a JS exception is returned.
 		<#local type = "Local<Number>">
 		<#local valueExpr = expr + "->ToNumber()">
 		<#local stringExpr = expr + "->ToString()">
-		<#local postAssignmentCheck = "V8Util::isNaN(" + current_arg + ")">
+		<#local postAssignmentCheck = "titanium::V8Util::isNaN(" + current_arg + ")">
 	<#elseif info?keys?seq_contains("jsHandleCast")>
 		<#local type = "Local<" + info.jsType + ">">
 		<#local valueExpr = "Local<" + info.jsType + ">::Cast(" + expr + ")">
@@ -492,13 +520,13 @@ fails, a JS exception is returned.
 			const char *error = "Invalid value, expected type ${info.jsType}.";
 			LOGE(TAG, error);
 			<#if !(logOnly!false)>
-			return JSException::Error(error);
+			return titanium::JSException::Error(error);
 			</#if>
 		}
 	</#if>
 <#t>
 	jArguments[${index}].${info.jvalue} =
-		TypeConverter::${info.jsToJavaConverter}(arg_${index}<#if checkNew>, &isNew_${index}</#if>);
+		titanium::TypeConverter::${info.jsToJavaConverter}(arg_${index}<#if checkNew>, &isNew_${index}</#if>);
 <#t>
 	<#if isOptional>
 	}
@@ -511,10 +539,10 @@ fails, a JS exception is returned.
 		length = 0;
 	}
 
-	jobjectArray varArgs = env->NewObjectArray(length, JNIUtil::objectClass, NULL);
+	jobjectArray varArgs = env->NewObjectArray(length, titanium::JNIUtil::objectClass, NULL);
 	for (uint32_t i = 0; i < length; ++i) {
 		bool isNew;
-		jobject arg = TypeConverter::jsValueToJavaObject(args[i+${start}], &isNew);
+		jobject arg = titanium::TypeConverter::jsValueToJavaObject(args[i+${start}], &isNew);
 		env->SetObjectArrayElement(varArgs, i, arg);
 		if (isNew) {
 			env->DeleteLocalRef(arg);
@@ -549,7 +577,9 @@ fails, a JS exception is returned.
 	<#if method.hasInvocation>
 	Handle<Object> scopeVars = args[0]->ToObject();
 	Handle<Value> sourceUrl = scopeVars->Get(Proxy::sourceUrlSymbol);
-	jArguments[0].l = env->NewObject(JNIUtil::krollInvocationClass, JNIUtil::krollInvocationInitMethod, TypeConverter::jsValueToJavaString(sourceUrl));
+	jArguments[0].l = env->NewObject(titanium::JNIUtil::krollInvocationClass,
+		titanium::JNIUtil::krollInvocationInitMethod,
+		titanium::TypeConverter::jsValueToJavaString(sourceUrl));
 	</#if>
 
 	<@Proxy.listMethodArguments args=args ; index, info, type, isOptional>
@@ -718,7 +748,7 @@ beprovided to handle the result.
 	<@Proxy.cleanupMethodArguments args=methodArgs hasInvocation=hasInvocation/>
 
 	if (env->ExceptionCheck()) {
-		<#if hasResult>Handle<Value> jsException = </#if>JSException::fromJavaException();
+		<#if hasResult>Handle<Value> jsException = </#if>titanium::JSException::fromJavaException();
 		env->ExceptionClear();
 		<#if hasResult>
 		return jsException;
@@ -732,7 +762,7 @@ beprovided to handle the result.
 	</#if>
 
 	<#if hasResult>
-	Handle<${jsType}> v8Result = TypeConverter::${info.javaToJsConverter}(jResult);
+	Handle<${jsType}> v8Result = titanium::TypeConverter::${info.javaToJsConverter}(jResult);
 
 	<#if info.javaDeleteLocalRef!false>
 	env->DeleteLocalRef(jResult);
@@ -774,9 +804,9 @@ beprovided to handle the result.
 </#macro>
 
 <#macro initJNIEnv>
-	JNIEnv *env = JNIScope::getEnv();
+	JNIEnv *env = titanium::JNIScope::getEnv();
 	if (!env) {
-		return JSException::GetJNIEnvironmentError();
+		return titanium::JSException::GetJNIEnvironmentError();
 	}
 </#macro>
 
@@ -789,7 +819,7 @@ beprovided to handle the result.
 			const char *error = "Couldn't find proxy method '${name}' with signature '${signature}'";
 			LOGE(TAG, error);
 			<#if !(logOnly!false)>
-				return JSException::Error(error);
+				return titanium::JSException::Error(error);
 			</#if>
 		}
 	}

@@ -82,11 +82,12 @@ def zip_dir(zf,dir,basepath,subs=None,cb=None):
 def zip_android(zf, basepath):
 	android_dist_dir = os.path.join(top_dir, 'dist', 'android')
 	zip_dir(zf, os.path.join(cur_dir,'simplejson'), os.path.join(basepath, 'android', 'simplejson'))
-	
+
 	for jar in ['titanium.jar', 'kroll-apt.jar', 'kroll-common.jar', 'kroll-v8.jar', 'kroll-rhino.jar']:
 		jar_path = os.path.join(android_dist_dir, jar)
 		zf.write(jar_path, '%s/android/%s' % (basepath, jar))
 
+	# include headers for v8 3rd party module building
 	def add_headers(dir):
 		for header in os.listdir(dir):
 			if not header.endswith('.h'):
@@ -94,10 +95,14 @@ def zip_android(zf, basepath):
 			header_path = os.path.join(dir, header)
 			zf.write(header_path, '%s/android/native/include/%s' % (basepath, header))
 
-	v8_src_native_dir = os.path.join(top_dir, 'android', 'runtime', 'v8', 'src', 'native')
+	android_runtime_dir = os.path.join(top_dir, 'android', 'runtime')
+	android_runtime_v8_dir = os.path.join(android_runtime_dir, 'v8')
+	android_runtime_rhino_dir = os.path.join(android_runtime_dir, 'rhino')
+
+	v8_src_native_dir = os.path.join(android_runtime_v8_dir, 'src', 'native')
 	add_headers(v8_src_native_dir)
 
-	v8_gen_dir = os.path.join(top_dir, 'android', 'runtime', 'v8', 'generated')
+	v8_gen_dir = os.path.join(android_runtime_v8_dir, 'generated')
 	add_headers(v8_gen_dir)
 
 	import ant
@@ -108,9 +113,16 @@ def zip_android(zf, basepath):
 	v8_include_dir = os.path.join(android_dist_dir, 'libv8', libv8_version, libv8_mode, 'include')
 	add_headers(v8_include_dir)
 
-	js_jar = os.path.join(top_dir, 'android', 'runtime', 'rhino', 'lib', 'js.jar')
+	# add js2c.py for js -> C embedding
+	js2c_py = os.path.join(android_runtime_v8_dir, 'tools', 'js2c.py')
+	jsmin_py = os.path.join(android_runtime_v8_dir, 'tools', 'jsmin.py')
+	zf.write(js2c_py, '%s/module/android/js2c.py' % basepath)
+	zf.write(jsmin_py, '%s/module/android/jsmin.py' % basepath)
+
+	js_jar = os.path.join(android_runtime_rhino_dir, 'lib', 'js.jar')
 	zf.write(js_jar, '%s/android/%s' % (basepath, 'js.jar'))
 
+	# include all native shared libraries
 	libs_dir = os.path.join(android_dist_dir, 'libs')
 	for lib_dir in os.listdir(libs_dir):
 		arch_dir = os.path.join(libs_dir, lib_dir)
@@ -124,7 +136,7 @@ def zip_android(zf, basepath):
 
 	ant_contrib_jar = os.path.join(top_dir, 'android', 'build', 'lib', 'ant-contrib-1.0b3.jar')
 	zf.write(ant_contrib_jar, '%s/module/android/ant-contrib-1.0b3.jar' % basepath)
-	
+
 	kroll_apt_lib_dir = os.path.join(top_dir, 'android', 'kroll-apt', 'lib')
 	for jar in os.listdir(kroll_apt_lib_dir):
 		if jar.endswith('.jar'):
@@ -133,16 +145,16 @@ def zip_android(zf, basepath):
 
 	android_depends = os.path.join(top_dir, 'android', 'dependency.json')
 	zf.write(android_depends, '%s/android/dependency.json' % basepath)
-	
+
 	android_modules = os.path.join(android_dist_dir, 'modules.json')
 	zf.write(android_modules, '%s/android/modules.json' % basepath)
-	
+
 	titanium_lib_dir = os.path.join(top_dir, 'android', 'titanium', 'lib')
 	for thirdparty_jar in os.listdir(titanium_lib_dir):
 		if thirdparty_jar == "commons-logging-1.1.1.jar": continue
 		jar_path = os.path.join(top_dir, 'android', 'titanium', 'lib', thirdparty_jar)
 		zf.write(jar_path, '%s/android/%s' % (basepath, thirdparty_jar))
-	
+
 	# include all module lib dependencies
 	modules_dir = os.path.join(top_dir, 'android', 'modules')
 	for module_dir in os.listdir(modules_dir):
@@ -162,7 +174,7 @@ def zip_android(zf, basepath):
 	for android_module_res_zip in android_module_res_zips:
 		zipname = os.path.split(android_module_res_zip)[1]
 		zf.write(android_module_res_zip, '%s/android/modules/%s' % (basepath, zipname))
-	
+
 def resolve_source_imports(platform):
 	sys.path.append(iphone_dir)
 	import run,prereq
@@ -259,13 +271,14 @@ def create_platform_zip(platform,dist_dir,osname,version,version_tag):
 	zf = zipfile.ZipFile(sdkzip, 'w', zipfile.ZIP_DEFLATED)
 	return (zf,basepath)
 
-def zip_mobilesdk(dist_dir,osname,version,android,iphone,ipad,mobileweb,version_tag):
+def zip_mobilesdk(dist_dir,osname,version,module_apiversion,android,iphone,ipad,mobileweb,version_tag):
 	zf, basepath = create_platform_zip('mobilesdk',dist_dir,osname,version,version_tag)
 
 	version_txt = """version=%s
+module_apiversion=%s
 timestamp=%s
 githash=%s
-""" % (version,ts,githash)
+""" % (version,module_apiversion,ts,githash)
 
 	zf.writestr('%s/version.txt' % basepath,version_txt)
 	jsca = generate_jsca()
@@ -281,23 +294,23 @@ githash=%s
 	
 	zf.close()
 				
-def zip_it(dist_dir,osname,version,android,iphone,ipad,mobileweb,version_tag):
-	zip_mobilesdk(dist_dir,osname,version,android,iphone,ipad,mobileweb,version_tag)
+def zip_it(dist_dir,osname,version,module_apiversion,android,iphone,ipad,mobileweb,version_tag):
+	zip_mobilesdk(dist_dir,osname,version,module_apiversion,android,iphone,ipad,mobileweb,version_tag)
 
 class Packager(object):
 	def __init__(self):
 		self.os_names = { "Windows":"win32", "Linux":"linux", "Darwin":"osx" }
 	 
-	def build(self,dist_dir,version,android=True,iphone=True,ipad=True,mobileweb=True,version_tag=None):
+	def build(self,dist_dir,version,module_apiversion,android=True,iphone=True,ipad=True,mobileweb=True,version_tag=None):
 		if version_tag == None:
 			version_tag = version
-		zip_it(dist_dir,self.os_names[platform.system()],version,android,iphone,ipad,mobileweb,version_tag)
+		zip_it(dist_dir,self.os_names[platform.system()],version,module_apiversion,android,iphone,ipad,mobileweb,version_tag)
 
-	def build_all_platforms(self,dist_dir,version,android=True,iphone=True,ipad=True,mobileweb=True,version_tag=None):
+	def build_all_platforms(self,dist_dir,version,module_apiversion,android=True,iphone=True,ipad=True,mobileweb=True,version_tag=None):
 		if version_tag == None:
 			version_tag = version
 		for os in self.os_names.values():
-			zip_it(dist_dir,os,version,android,iphone,ipad,mobileweb,version_tag)
+			zip_it(dist_dir,os,version,module_apiversion,android,iphone,ipad,mobileweb,version_tag)
 		
 if __name__ == '__main__':
 	Packager().build(os.path.abspath('../dist'), "1.1.0")
