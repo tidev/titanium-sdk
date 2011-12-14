@@ -25,6 +25,18 @@ description: |
     creating a background service, you specify a local URL to a JavaScript file. The code
     in the JavaScript file is executed each time the background service runs.
 
+    The background service runs when the application is placed in the background and will 
+    continue to run until one of the following occurs:
+    
+    * The application resumes.
+
+    * The service is stopped with the `stop` method.
+    
+    * The OS terminates the service for one of the reasons discussed in 
+      "Background Service Limitations", below.
+
+    #### Known Issues 
+
     Note that there are several issues with the current implementation of 
     background services:
 
@@ -32,8 +44,9 @@ description: |
       continue to run until the service is stopped with the `stop` method, however, this also
       unregisters the service.
 
-    * Calling `unregister` on the background service *unregisters* the task, but does not stop
-      the task if it is currently running in the background.
+    * Calling `unregister` on the background service *unregisters* the service, but does not
+      stop the background task under which the service was launched. This can lead to having
+      multiple tasks running in the background.
 
     * Calling `register` multiple times with the same URL results in multiple instances of
       the same service being run.
@@ -41,13 +54,12 @@ description: |
     These issues will be addressed in a future release. To work around these issues, the
     application must:
 
-    * Explicitly terminate the background service by calling `stop` from inside 
-      the background service task.
-
     * Unregister the background service when the application resumes.
 
     * Re-register the background service when the application pauses.
     
+    #### Background Service Limitations
+
     Note that even with these workarounds, the background service is subject to limitations
     imposed by the operating system. In particular:
 
