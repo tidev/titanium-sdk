@@ -16,6 +16,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.AsyncResult;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiOrientationHelper;
 import org.appcelerator.titanium.util.TiPropertyResolver;
@@ -111,7 +112,12 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Kroll.method
 	public void open(@Kroll.argument(optional = true) Object arg)
 	{
-		if (opened || opening) { return; }
+		if (opened || opening) { 
+			Log.w(LCAT, "opened: " + opened);
+			Log.w(LCAT, "opening: " + opening);
+			return; 
+			}
+		Log.i(LCAT, "open called");
 
 		waitingForOpen = new WeakReference<TiWindowProxy>(this);
 		opening = true;
@@ -138,7 +144,11 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Kroll.method
 	public void close(@Kroll.argument(optional = true) Object arg)
 	{
-		if (!opened) { return; }
+		if (!opened) { 
+			Log.w(LCAT, "Cannot close. window is not open");
+			return; 
+		}
+		Log.i(LCAT, "closing");
 
 		KrollDict options = null;
 		TiAnimation animation = null;
@@ -163,10 +173,13 @@ public abstract class TiWindowProxy extends TiViewProxy
 	public void closeFromActivity()
 	{
 		if (!opened) { return; }
+		Log.i(LCAT, "closeFromActivity");
 		releaseViews();
 		opened = false;
 		TiContext context = getTiContext();
 		if (creatingContext != null && context != null && !creatingContext.equals(context)) {
+			Log.i(LCAT, "closeFromActivity- switchToCreatingContext: creatingContext: " + creatingContext + "context: " + context);
+			
 			switchToCreatingContext();
 		}
 	}

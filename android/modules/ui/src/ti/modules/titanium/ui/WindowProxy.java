@@ -95,6 +95,7 @@ public class WindowProxy extends TiWindowProxy
 			Log.d(LCAT, "handleOpen");
 		}
 
+		Log.i(LCAT, "handleOpen: this =" + this);
 		Messenger messenger = new Messenger(getUIHandler());
 		view = new TiUIWindow(this, options, messenger, MSG_FINISH_OPEN);
 
@@ -136,10 +137,12 @@ public class WindowProxy extends TiWindowProxy
 		// null and making checking after close is called impossible
 		boolean isLightweight = false;
 		if(window.lightWeight) {
+			Log.i(LCAT, "handleClose- LW");
 			isLightweight = true;
 		}
 
 		if (window != null) {
+			Log.i(LCAT, "window.close(options)");
 			window.close(options);
 		}
 		releaseViews();

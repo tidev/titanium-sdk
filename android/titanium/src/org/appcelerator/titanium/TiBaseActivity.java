@@ -387,6 +387,7 @@ public abstract class TiBaseActivity extends Activity
 	@Override
 	public void removeWindow(View v)
 	{
+		Log.d(TAG, "removeWindow");
 		layout.removeView(v);
 	}
 
