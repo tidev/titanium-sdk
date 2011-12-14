@@ -20,6 +20,7 @@
 -(void)dealloc
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
+	RELEASE_TO_NIL(backgroundServices);
 	[super dealloc];
 }
 
@@ -59,7 +60,26 @@
 
 -(id)registerBackgroundService:(id)args
 {
-	TiAppiOSBackgroundServiceProxy *proxy = [[TiAppiOSBackgroundServiceProxy alloc] _initWithPageContext:[self executionContext] args:args];
+	NSDictionary* a;
+	ENSURE_ARG_AT_INDEX(a, args, 0, NSDictionary)
+	
+	NSString* urlString = [a objectForKey:@"url"];
+	
+	if ([urlString length] == 0) {
+		return;
+	}
+	
+	if (backgroundServices == nil) {
+		backgroundServices = [[NSMutableDictionary alloc]init];
+	}
+	
+	TiAppiOSBackgroundServiceProxy *proxy = [backgroundServices objectForKey:urlString];
+	
+	if (proxy == nil) {
+		proxy = [[TiAppiOSBackgroundServiceProxy alloc] _initWithPageContext:[self executionContext] args:args];
+		[backgroundServices setValue:proxy forKey:urlString];
+	}
+	
 	[[TiApp app] registerBackgroundService:proxy];
 	return [proxy autorelease];
 }
