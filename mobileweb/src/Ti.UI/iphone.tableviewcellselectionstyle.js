@@ -1,16 +1,13 @@
 (function(api){
 	// Properties
-	Object.defineProperty(api, 'BLUE', {
-		value: {selectedBackgroundColor: 'blue'},
-		writable: false
+	Ti._5.prop(api, 'BLUE', {
+		get: function() { return {selectedBackgroundColor: 'blue'}; }
 	});
-	Object.defineProperty(api, 'GRAY', {
-		value: {selectedBackgroundColor: 'gray'},
-		writable: false
+	Ti._5.prop(api, 'GRAY', {
+		get: function() { return {selectedBackgroundColor: 'gray'}; }
 	});
-	Object.defineProperty(api, 'NONE', {
-		value: {selectedColor: '', selectedBackgroundImage: '', selectedBackgroundColor: ''},
-		writable: false
+	Ti._5.prop(api, 'NONE', {
+		get: function() { return {selectedColor: '', selectedBackgroundImage: '', selectedBackgroundColor: ''}; }
 	});
 
 })(Ti._5.createClass('Titanium.UI.iPhone.TableViewCellSelectionStyle'));

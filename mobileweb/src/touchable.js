@@ -1,168 +1,112 @@
-(function(oParentNamespace) {
-	// Create interface
-	oParentNamespace.Touchable = function(obj, args, bEmulate) {
-		if ('function' != typeof obj.addEventListener) {
-			oParentNamespace.EventDriven(obj);
-		}
-		
-		// Check for OS that does not support touch events
-		if (
-			-1 < Titanium.Platform.ostype.indexOf('Win') || 
-			-1 < Titanium.Platform.ostype.indexOf('Linux') ||
-			-1 < Titanium.Platform.ostype.indexOf('Mac')
-		) {
-			bEmulate = true;
-		}
-		
-		// Android and iOS5 support touch events
-		if (-1 < Titanium.Platform.osname.indexOf('android') ||
-		    (
-		    (-1 < Titanium.Platform.osname.indexOf('iphone') ||
-		     -1 < Titanium.Platform.osname.indexOf('ipad') ||
-		     -1 < Titanium.Platform.osname.indexOf('ipod') 	
-		    ) && 
-		     navigator.userAgent[navigator.userAgent.indexOf('OS')+3] >= 5
-		    )
-		){
-			bEmulate = false;
-		}
-		
-		var _touchEnabled = true;
-		Object.defineProperty(obj, 'touchEnabled', {
-			get: function() {
-				return _touchEnabled ? _touchEnabled : '';
-			},
-			set: function(val) {
-				_touchEnabled = val;
-			},
-			configurable: true
-		});
-		
-		//
-		// setup getters/setters
-		//
-		oParentNamespace.preset(obj, ["touchEnabled"], args);
-		
-		var _startPoint = null;
-		function _fTouchStart (event) {
-			if (!_touchEnabled) {
-				return true;
-			}
-			var xCoord = event.touches ? event.touches[0].pageX : event.pageX;
-			var yCoord = event.touches ? event.touches[0].pageY : event.pageY;
-			var oEvent = {
-				globalPoint: { x:xCoord, y:yCoord },
-				source: obj,
-				type: 'touchstart',
-				x: xCoord,
-				y: yCoord
-			};
-			_startPoint = oEvent.globalPoint;
-			_startPoint.source = event.target;
-			_endPoint = oEvent.globalPoint;
-			obj.fireEvent('touchstart', oEvent);
-			if (event.touches && 2 == event.touches.length) {
-				obj.fireEvent('twofingertap',  {
-					globalPoint: { x:xCoord, y:yCoord },
-					source: obj,
-					type: 'twofingertap',
-					x: xCoord,
-					y: yCoord
-				});
-			}
-		}
-		obj.dom.addEventListener(bEmulate ? 'mousedown' : 'touchstart', _fTouchStart, false);
-		
-		var _endPoint = null;
-		function _fTouchMove (event) {
-			if (!_touchEnabled || bEmulate && !_startPoint) {
-				return true;
-			}
-			var xCoord = event.touches ? event.touches[0].pageX : event.pageX;
-			var yCoord = event.touches ? event.touches[0].pageY : event.pageY;
-			var oEvent = {
-				globalPoint: { x:xCoord, y:yCoord },
-				source: obj,
-				type: 'touchmove',
-				x: xCoord,
-				y: yCoord
-			};
-			_endPoint = oEvent.globalPoint;
-			obj.fireEvent('touchmove', oEvent);
-		}
-		obj.dom.addEventListener(bEmulate ? 'mousemove' : 'touchmove', _fTouchMove, false);
-		
-		function _fTouchEnd (event) {
-			if (!_touchEnabled) {
-				return true;
-			}
-			if (!_endPoint) {
-				_endPoint = {
-					x: event.pageX, 
-					y: event.pageY 
-				}
-			}
-			var oEvent = {
-				globalPoint: { x:_endPoint.x, y:_endPoint.y },
-				source: obj,
-				type: 'touchend',
-				x: _endPoint.x,
-				y: _endPoint.y
-			};
-			obj.fireEvent('touchend', oEvent);
-			if (_startPoint && _startPoint.source) {
-				if (_startPoint.source == event.target && 50 <= Math.abs(_endPoint.x - _startPoint.x)) {
-					oEvent.direction = _endPoint.x > _startPoint.x ? 'right' : 'left';
-					obj.fireEvent('swipe', oEvent);
-				}
-			}
-			_startPoint = null;
-			_endPoint = null;
-		}
-		obj.dom.addEventListener(bEmulate ? 'mouseup' : 'touchend', _fTouchEnd, false);
+Ti._5.Touchable = function(obj, args) {
+	obj.addEventListener || oParentNamespace.EventDriven(obj);
 
-		obj.dom.addEventListener('touchcancel', function(event) {
-			if (!_touchEnabled) {
-				return true;
-			}
-			var oEvent = {
-				globalPoint: { x:event.pageX, y:event.pageY },
-				source: obj,
-				type: 'touchcancel',
-				x: event.pageX,
-				y: event.pageY
-			};
-			obj.fireEvent('touchcancel', oEvent);
-		}, false);
+	var on = require.on,
+		domNode = obj.dom,
+		bEmulate = !("ontouchstart" in window),
+		_startPoint = null,
+		_endPoint = null,
+		_isDoubleTap = false;
+
+	Ti._5.prop(obj, "touchEnabled", args && !!args.touchEnabled);
+
+	on(domNode, bEmulate ? "mousedown" : "touchstart", function(evt) {
+		if (!obj.touchEnabled) {
+			return true;
+		}
 		
-		var _isDoubleTap = false;
-		obj.dom.addEventListener('click', function(event) {
-			if (!_touchEnabled) {
-				return true;
-			}
-			var oEvent = {
-				globalPoint: { x:event.pageX, y:event.pageY },
-				source: obj,
-				type: 'singletap',
-				x: event.pageX,
-				y: event.pageY
+		var touches = evt.touches ? evt.touches : [evt],
+			xCoord = touches[0].pageX,
+			yCoord = touches[0].pageY,
+			oevt = {
+				globalPoint: { x:xCoord, y:yCoord },
+				x: xCoord,
+				y: yCoord
 			};
-			obj.fireEvent('singletap', oEvent);
-			if (_isDoubleTap) {
+
+		_startPoint = oevt.globalPoint;
+		_startPoint.source = evt.target;
+		_endPoint = oevt.globalPoint;
+		obj.fireEvent("touchstart", oevt);
+
+		if (touches.length > 1) {
+			obj.fireEvent("twofingertap",  {
+				globalPoint: { x:xCoord, y:yCoord },
+				x: xCoord,
+				y: yCoord
+			});
+		}
+	});
+
+	on(domNode, bEmulate ? "mousemove" : "touchmove", function(evt) {
+		if (!obj.touchEnabled || bEmulate && !_startPoint) {
+			return true;
+		}
+
+		var touches = evt.touches ? evt.touches : [evt],
+			xCoord = touches[0].pageX,
+			yCoord = touches[0].pageY,
+			oevt = {
+				globalPoint: { x:xCoord, y:yCoord },
+				x: xCoord,
+				y: yCoord
+			};
+
+		_endPoint = oevt.globalPoint;
+		obj.fireEvent("touchmove", oevt);
+	});
+
+	on(domNode, bEmulate ? "mouseup" : "touchend", function(evt) {
+		if (!obj.touchEnabled) {
+			return true;
+		}
+
+		_endPoint || (_endPoint = { x: evt.pageX, y: evt.pageY });
+
+		var oevt = {
+			globalPoint: { x:_endPoint.x, y:_endPoint.y },
+			x: _endPoint.x,
+			y: _endPoint.y
+		};
+		obj.fireEvent("touchend", oevt);
+
+		if (_startPoint && _startPoint.source && _startPoint.source == evt.target && Math.abs(_endPoint.x - _startPoint.x) >= 50) {
+			oevt.direction = _endPoint.x > _startPoint.x ? "right" : "left";
+			obj.fireEvent("swipe", oevt);
+		}
+		_startPoint = _endPoint = null;
+	});
+
+	on(domNode, "touchcancel", function(evt) {
+		if (!obj.touchEnabled) {
+			return true;
+		}
+
+		obj.fireEvent("touchcancel", {
+			globalPoint: { x:evt.pageX, y:evt.pageY },
+			x: evt.pageX,
+			y: evt.pageY
+		});
+	});
+
+	on(domNode, "click", function(evt) {
+		if (!obj.touchEnabled) {
+			return true;
+		}
+
+		var oevt = {
+			globalPoint: { x:evt.pageX, y:evt.pageY },
+			x: evt.pageX,
+			y: evt.pageY
+		};
+		obj.fireEvent("singletap", oevt);
+
+		if (_isDoubleTap = !_isDoubleTap) {
+			setTimeout(function() { 
 				_isDoubleTap = false;
-				obj.fireEvent('doubletap', {
-					globalPoint: { x:event.pageX, y:event.pageY },
-					source: obj,
-					type: 'doubletap',
-					x: event.pageX,
-					y: event.pageY
-				});
-			} else {
-				_isDoubleTap = true;
-				setTimeout(function() { 
-					_isDoubleTap = false;
-				}, 400);
-			}
-		}, false);
-	}
-})(Ti._5);
+			}, 400);
+		} else {
+			obj.fireEvent("doubletap", oevt);
+		}
+	});
+};

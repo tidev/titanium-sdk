@@ -3,29 +3,13 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	var _cancelAllLocalNotifications = null;
-	Object.defineProperty(api, 'cancelAllLocalNotifications', {
-		get: function(){return _cancelAllLocalNotifications;},
-		set: function(val){return _cancelAllLocalNotifications = val;}
-	});
+	Ti._5.prop(api, 'cancelAllLocalNotifications');
 
-	var _cancelLocalNotification = null;
-	Object.defineProperty(api, 'cancelLocalNotification', {
-		get: function(){return _cancelLocalNotification;},
-		set: function(val){return _cancelLocalNotification = val;}
-	});
+	Ti._5.prop(api, 'cancelLocalNotification');
 
-	var _registerBackgroundService = null;
-	Object.defineProperty(api, 'registerBackgroundService', {
-		get: function(){return _registerBackgroundService;},
-		set: function(val){return _registerBackgroundService = val;}
-	});
+	Ti._5.prop(api, 'registerBackgroundService');
 
-	var _scheduleLocalNotification = null;
-	Object.defineProperty(api, 'scheduleLocalNotification', {
-		get: function(){return _scheduleLocalNotification;},
-		set: function(val){return _scheduleLocalNotification = val;}
-	});
+	Ti._5.prop(api, 'scheduleLocalNotification');
 
 	// Methods
 	api.createBackgroundService = function(){

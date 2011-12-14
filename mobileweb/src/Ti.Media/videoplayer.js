@@ -1,4 +1,4 @@
-Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
+Ti._5.createClass("Ti.Media.VideoPlayer", function(args){
 	args = args || {};
 
 	var self = this,
@@ -25,90 +25,102 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 		// TODO: Add check for Firefox <http://www.thecssninja.com/javascript/fullscreen>
 		_fullscreen = (function(s){ return args.fullscreen || s && s(); }(video.webkitDisplayingFullscreen)),
 
+		_playbackState = media.VIDEO_PLAYBACK_STATE_STOPPED,
+		_playing = false,
+		_currentPlaybackTime = 0,
+		_endPlaybackTime = 0,
+		_playableDuration = 0,
+		_duration = 0,
+		_loadState = media.VIDEO_LOAD_STATE_UNKNOWN,
 		_scalingMode = args.scalingMode || media.VIDEO_SCALING_ASPECT_FIT,
 		_mediaControlStyle = args.mediaControlStyle || media.VIDEO_CONTROL_DEFAULT,
 		_url = args.url;
 
 	// Interfaces
-	Ti._5.DOMView(self, "div", args, "VideoPlayer");
-	Ti._5.Touchable(self);
-	Ti._5.Styleable(self, args);
-	Ti._5.EventDriven(self);
-	Ti._5.Positionable(self, args);
+	Ti._5.DOMView(this, "div", args, "VideoPlayer");
+	Ti._5.Touchable(this);
+	Ti._5.Styleable(this, args);
+	Ti._5.EventDriven(this);
+	Ti._5.Positionable(this, args);
 
 	// Properties
-	self.playbackState = media.VIDEO_PLAYBACK_STATE_STOPPED;
-	self.playing = false;
-	self.initialPlaybackTime = self.currentPlaybackTime = 0;
-	self.loadState = media.VIDEO_LOAD_STATE_UNKNOWN;
-	self.autoplay = !!args.autoplay;
-	self.repeatMode = args.repeatMode || media.VIDEO_REPEAT_MODE_NONE;
+	Ti._5.propReadOnly(this, {
+		playbackState: function(){ return _playbackState; },
+		playing: function(){ return _playing; },
+		initialPlaybackTime: 0,
+		currentPlaybackTime: function(){ return _currentPlaybackTime; },
+		endPlaybackTime: function(){ return _endPlaybackTime; },
+		playableDuration: function(){ return _playableDuration; },
+		loadState: function(){ return _loadState; },
+		duration: function(){ return _duration; }
+	});
+
+	Ti._5.prop(this, {
+		autoplay: !!args.autoplay,
+		repeatMode: args.repeatMode === media.VIDEO_REPEAT_MODE_ONE ? media.VIDEO_REPEAT_MODE_ONE : media.VIDEO_REPEAT_MODE_NONE,
+		fullscreen: {
+			get: function(){ return _fullscreen; },
+			set: function(fs){
+				var h;
+	
+				fs = !!fs;
+				if (nativeFullscreen) {
+					try {
+						if (fs) {
+							video.webkitEnterFullscreen();
+						} else {
+							video.webkitExitFullscreen();
+						}
+					} catch(ex) {}
+				} else if (fakeFullscreen) {
+					video.className = fs ? "fullscreen" : "";
+					fs && (h = on(window, "keydown", function(e){
+						if (e.keyCode === 27) {
+							this.fullscreen = 0;
+							h();
+						}
+					}));
+				}
+	
+				// need to set this after we've already switched to fullscreen
+				_fullscreen = fs;
+	
+				this.fireEvent("fullscreen", {
+					entering: _fullscreen
+				});
+			}
+		},
+		scalingMode: {
+			get: function() {
+				return _scalingMode;
+			},
+			set: function(val) {
+				_scalingMode = val;
+				setSize();
+			}
+		},
+		url: {
+			get: function() { return _url; },
+			set: function(val) {
+				_url = val;
+				_playing = false;
+				currentState = STOPPED;
+				createVideo();
+			}
+		},
+		mediaControlStyle: {
+			get: function() { return _mediaControlStyle; },
+			set: function(val) {
+				video.controls = val === media.VIDEO_CONTROL_DEFAULT;
+				_mediaControlStyle = val;
+			}
+		}
+	});
 
 	function setDuration(t) {
-		self.duration = self.playableDuration = self.endPlaybackTime = t;
+		_duration = _playableDuration = _endPlaybackTime = t;
 	}
 	setDuration(0.0);
-
-	Object.defineProperty(self, "fullscreen", {
-		get: function(){ return _fullscreen; },
-		set: function(fs){
-			var h;
-
-			fs = !!fs;
-			if (nativeFullscreen) {
-				try {
-					if (fs) {
-						video.webkitEnterFullscreen();
-					} else {
-						video.webkitExitFullscreen();
-					}
-				} catch(ex) {}
-			} else if (fakeFullscreen) {
-				video.className = fs ? "fullscreen" : "";
-				fs && (h = on(window, "keydown", function(e){
-					if (e.keyCode === 27) {
-						self.fullscreen = 0;
-						h();
-					}
-				}));
-			}
-
-			// need to set this after we've already switched to fullscreen
-			_fullscreen = fs;
-
-			self.fireEvent("fullscreen", {
-				entering: _fullscreen
-			});
-		}
-	});
-
-	Object.defineProperty(self, "scalingMode", {
-		get: function() {
-			return _scalingMode;
-		},
-		set: function(val) {
-			_scalingMode = val;
-			setSize();
-			return val;
-		}
-	});
-
-	Object.defineProperty(self, "url", {
-		get: function() { return _url; },
-		set: function(val) {
-			_url = val;
-			createVideo();
-			return val;
-		}
-	});
-
-	Object.defineProperty(self, "mediaControlStyle", {
-		get: function() { return _mediaControlStyle; },
-		set: function(val) {
-			video.controls = val === media.VIDEO_CONTROL_DEFAULT;
-			return _mediaControlStyle = val;
-		}
-	});
 
 	function setSize() {
 		self.dom.className = self.dom.className.replace(/(scaling\-[\w\-]+)/, "") + ' '
@@ -117,19 +129,19 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 
 	function setPlaybackState(state) {
 		self.fireEvent("playbackState", {
-			playbackState: self.playbackState = state
+			playbackState: _playbackState = state
 		});
 	}
 
 	function setLoadState(state) {
 		self.fireEvent("loadstate", {
-			loadState: self.loadState = state
+			loadState: _loadState = state
 		});
 	}
 
 	function complete(evt) {
 		var ended = evt.type === "ended";
-		self.playing = false;
+		_playing = false;
 		currentState = STOPPED;
 		self.fireEvent("complete", {
 			reason: ended ? media.VIDEO_FINISH_REASON_PLAYBACK_ENDED : media.VIDEO_FINISH_REASON_USER_EXITED
@@ -163,7 +175,7 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 
 	function paused() {
 		var pbs = media.VIDEO_PLAYBACK_STATE_STOPPED;
-		self.playing = false;
+		_playing = false;
 		if (currentState === PLAYING) {
 			currentState = PAUSED;
 			pbs = media.VIDEO_PLAYBACK_STATE_PAUSED;
@@ -190,7 +202,7 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 		handles = [
 			on(video, "playing", function() {
 				currentState = PLAYING;
-				self.playing = true;
+				_playing = true;
 				self.fireEvent("playing", {
 					url: video.currentSrc
 				});
@@ -211,7 +223,7 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 			on(video, "loadedmetadata", metaDataLoaded),
 			on(video, "durationchange", durationChange),
 			on(video, "timeupdate", function(){
-				self.currentPlaybackTime = Math.round(this.currentTime);
+				_currentPlaybackTime = Math.round(this.currentTime);
 				currentState === STOPPING && this.pause();
 			}),
 			on(video, "error", function() {
@@ -222,7 +234,7 @@ Ti._5.createClass("Titanium.Media.VideoPlayer", function(args){
 					case 3: msg = "Network error"; break;
 					case 4: msg = "Unsupported format";
 				}
-				self.playing = false;
+				_playing = false;
 				setLoadState(media.VIDEO_LOAD_STATE_UNKNOWN);
 				self.fireEvent("error", {
 					message: msg

@@ -7,17 +7,9 @@ Ti._5.createClass('Titanium.UI.iPad.SplitWindow', function(args){
 	Ti._5.Positionable(this, args);
 
 	// Properties
-	var _detailView = null;
-	Object.defineProperty(this, 'detailView', {
-		get: function(){return _detailView;},
-		set: function(val){return _detailView = val;}
-	});
+	Ti._5.prop(this, 'detailView');
 
-	var _masterView = null;
-	Object.defineProperty(this, 'masterView', {
-		get: function(){return _masterView;},
-		set: function(val){return _masterView = val;}
-	});
+	Ti._5.prop(this, 'masterView');
 
 
 	// Events
@@ -25,5 +17,5 @@ Ti._5.createClass('Titanium.UI.iPad.SplitWindow', function(args){
 		console.debug('Event "visible" is not implemented yet.');
 	});
 
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });

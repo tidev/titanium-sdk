@@ -2,29 +2,13 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	var _intent = null;
-	Object.defineProperty(api, 'intent', {
-		get: function(){return _intent;},
-		set: function(val){return _intent = val;}
-	});
+	Ti._5.prop(api, 'intent');
 
-	var _onCreateOptionsMenu = null;
-	Object.defineProperty(api, 'onCreateOptionsMenu', {
-		get: function(){return _onCreateOptionsMenu;},
-		set: function(val){return _onCreateOptionsMenu = val;}
-	});
+	Ti._5.prop(api, 'onCreateOptionsMenu');
 
-	var _onPrepareOptionsMenu = null;
-	Object.defineProperty(api, 'onPrepareOptionsMenu', {
-		get: function(){return _onPrepareOptionsMenu;},
-		set: function(val){return _onPrepareOptionsMenu = val;}
-	});
+	Ti._5.prop(api, 'onPrepareOptionsMenu');
 
-	var _requestedOrientation = null;
-	Object.defineProperty(api, 'requestedOrientation', {
-		get: function(){return _requestedOrientation;},
-		set: function(val){return _requestedOrientation = val;}
-	});
+	Ti._5.prop(api, 'requestedOrientation');
 
 	// Methods
 	api.finish = function(){

@@ -3,52 +3,15 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	var _allowBackground = null;
-	Object.defineProperty(api, 'allowBackground', {
-		get: function(){return _allowBackground;},
-		set: function(val){return _allowBackground = val;}
-	});
-
-	var _duration = null;
-	Object.defineProperty(api, 'duration', {
-		get: function(){return _duration;},
-		set: function(val){return _duration = val;}
-	});
-
-	var _looping = null;
-	Object.defineProperty(api, 'looping', {
-		get: function(){return _looping;},
-		set: function(val){return _looping = val;}
-	});
-
-	var _paused = null;
-	Object.defineProperty(api, 'paused', {
-		get: function(){return _paused;},
-		set: function(val){return _paused = val;}
-	});
-
-	var _playing = null;
-	Object.defineProperty(api, 'playing', {
-		get: function(){return _playing;},
-		set: function(val){return _playing = val;}
-	});
-
-	var _time = null;
-	Object.defineProperty(api, 'time', {
-		get: function(){return _time;},
-		set: function(val){return _time = val;}
-	});
-
-	var _url = null;
-	Object.defineProperty(api, 'url', {
-		get: function(){return _url;},
-		set: function(val){return _url = val;}
-	});
-
-	var _volume = null;
-	Object.defineProperty(api, 'volume', {
-		get: function(){return _volume;},
-		set: function(val){return _volume = val;}
+	Ti._5.prop(api, {
+		allowBackground: null,
+		duration: null,
+		looping: null,
+		paused: null,
+		playing: null,
+		time: null,
+		url: null,
+		volume: null
 	});
 
 	// Methods
@@ -96,16 +59,16 @@
 	};
 
 	// Events
-	api.addEventListener('complete', function(){
+	api.addEventListener("complete", function(){
 		console.debug('Event "complete" is not implemented yet.');
 	});
-	api.addEventListener('error', function(){
+	api.addEventListener("error", function(){
 		console.debug('Event "error" is not implemented yet.');
 	});
-	api.addEventListener('interrupted', function(){
+	api.addEventListener("interrupted", function(){
 		console.debug('Event "interrupted" is not implemented yet.');
 	});
-	api.addEventListener('resume', function(){
+	api.addEventListener("resume", function(){
 		console.debug('Event "resume" is not implemented yet.');
 	});
-})(Ti._5.createClass('Titanium.Media.Sound'));
+})(Ti._5.createClass("Ti.Media.Sound"));
