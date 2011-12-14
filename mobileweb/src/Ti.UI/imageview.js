@@ -24,21 +24,22 @@ Ti._5.createClass("Ti.UI.ImageView", function(args){
 		isError = false;
 		_preventDefaultImage || (domNode.src = Ti._5.getAbsolutePath(obj.defaultImage));
 
-		var img = new Image(),
+		var counter = 0,
+			img = new Image(),
 			h = require.on(img, "load", function () {
-				if (iCounter < images.length) {
-					return true;
-				}
-				domNode.src = Ti._5.getAbsolutePath(images[0]);
 				h && h();
-				obj.fireEvent("load", {
-					state: images.length > 1 ? obj.images : obj.image
-				});
+				if (++counter < images.length) {
+					domNode.src = Ti._5.getAbsolutePath(images[0]);
+					obj.fireEvent("load", {
+						state: images.length > 1 ? obj.images : obj.image
+					});
+				}
 			});
 
 		require.on(img, "error",  function () {
 			isError = true;
 			h && h();
+			counter++;
 		});
 
 		// start preloading
