@@ -4,6 +4,7 @@ Ti._5.createClass("Ti.UI.Switch", function(args){
 	}, args);
 
 	var obj = this,
+		on = require.on,
 		domNode = Ti._5.DOMView(obj, "div", args, "Switch"),
 		checkboxNode = document.createElement("input"),
 		_titleContainer = document.createTextNode(""),
