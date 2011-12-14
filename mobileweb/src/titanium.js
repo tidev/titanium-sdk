@@ -421,7 +421,7 @@
 
 	var ANALYTICS_STORAGE = "html5_analyticsEvents";
 	Ti._5.addAnalyticsEvent = function(eventType, eventEvent, data, isUrgent){
-		if(cfg.appAnalytics !== 'true'){
+		if (!cfg.analytics) {
 			return;
 		}
 		// store event
@@ -477,7 +477,7 @@
 
 	// collect and send Ti.Analytics notifications
 	Ti._5.sendAnalytics = function(isUrgent){
-		if(cfg.appAnalytics !== 'true'){
+		if (!cfg.analytics) {
 			return;
 		}
 		// store event
