@@ -37,14 +37,21 @@
 	});
 
 	// Methods
+	api.createUUID = createUUID;
+
 	api.canOpenURL = function(url){
 		return true;
 	};
 
-	api.createUUID = createUUID;
-
 	api.openURL = function(url){
-		window.open(url);
+		var m = /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?/.exec(url);
+		if ( (/^([tel|sms|mailto])/.test(url) || /^([\/?#]|[\w\d-]+^:[\w\d]+^@)/.test(m[1])) && !/^(localhost)/.test(url) ) {
+			setTimeout(function () {
+				window.location.href = url;
+			}, 1);
+		} else {
+			window.open(url);
+		}
 	};
 
 	localStorage.setItem("html5_titaniumPlatformId", id);

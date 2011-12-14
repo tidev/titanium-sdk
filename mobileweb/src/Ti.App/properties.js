@@ -114,10 +114,7 @@
 	};
 	api.setString = function(prop, val){
 		_setProp(prop, val, function(val){
-			if(typeof val === 'string'){
-				return val;
-			}
-			return val.toString();
+			return val !== null ? ""+val : null;
 		});
 	};
 })(Ti._5.createClass('Ti.App.Properties'));
