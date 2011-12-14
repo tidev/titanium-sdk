@@ -1,6 +1,6 @@
 Ti._5.createClass("Ti.UI.ActivityIndicator", function(args){
 	args = require.mix({
-		visible: args.visible || false
+		visible: false
 	}, args);
 
 	var obj = this,
