@@ -13,7 +13,7 @@ Ti._5.createClass("Ti.UI.Window", function(args){
 		_url = null,
 		_title;
 
-	function isHTMLPage(url){
+	function isHTMLPage(){
 		return _url != null && (_url.indexOf("htm") != -1 || _url.indexOf("http") != -1);
 	}
 
@@ -87,9 +87,9 @@ Ti._5.createClass("Ti.UI.Window", function(args){
 					setTimeout(function(){
 						var prevWindow = Ti.UI.currentWindow;
 						Ti.UI.currentWindow = obj;
-						Ti.include(_url);
+						require("include!sandbox!" + _url);
 						Ti.UI.currentWindow = prevWindow;
-					}, 1); 
+					}, 1);
 				}
 			}
 		}
