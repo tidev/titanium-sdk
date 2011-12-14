@@ -318,6 +318,7 @@ class AnnotatedProxy(AnnotatedApi):
 					new_since[k] = '"%s"' % since[k]
 			return new_since
 
+		existing_method_names = [m.name for m in methods]
 		for p in self.properties:
 			if p.name.upper() == p.name:
 				continue # no constants
@@ -345,7 +346,8 @@ class AnnotatedProxy(AnnotatedApi):
 				annotated_method = AnnotatedMethod(generated_method, self)
 				annotated_method.getter_for = p
 				annotated_method.inherited_from = p.inherited_from
-				methods.append(annotated_method)
+				if annotated_method.name not in existing_method_names:
+					methods.append(annotated_method)
 			if setter_ok:
 				if dict_has_non_empty_member(p.api_obj, "since"):
 					if getter_ok and dict_has_non_empty_member(p.api_obj, "since_for_getter_template"):
@@ -356,8 +358,8 @@ class AnnotatedProxy(AnnotatedApi):
 				annotated_method = AnnotatedMethod(generated_method, self)
 				annotated_method.setter_for = p
 				annotated_method.inherited_from = p.inherited_from
-				methods.append(annotated_method)
-
+				if annotated_method.name not in existing_method_names:
+					methods.append(annotated_method)
 
 	def append_inherited_attributes(self, att_list, att_list_name):
 		if not "extends" in self.api_obj:
