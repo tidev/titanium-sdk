@@ -2,4 +2,4 @@
 	api.imageAsThumbnail = function(){
 		console.debug('Method "Titanium.Blob.imageAsThumbnail" is not implemented yet.');
 	};
-})(Ti._5.createClass('Titanium.Blob'));
+})(Ti._5.createClass('Ti.Blob'));

@@ -4,41 +4,17 @@ Ti._5.createClass('Titanium.UI.iPad', function(args){
 	Ti._5.DOMView(this, 'ipad', args, 'iPad');
 
 	// Properties
-	var _POPOVER_ARROW_DIRECTION_ANY = null;
-	Object.defineProperty(this, 'POPOVER_ARROW_DIRECTION_ANY', {
-		get: function(){return _POPOVER_ARROW_DIRECTION_ANY;},
-		set: function(val){return _POPOVER_ARROW_DIRECTION_ANY = val;}
-	});
+	Ti._5.prop(this, 'POPOVER_ARROW_DIRECTION_ANY');
 
-	var _POPOVER_ARROW_DIRECTION_DOWN = null;
-	Object.defineProperty(this, 'POPOVER_ARROW_DIRECTION_DOWN', {
-		get: function(){return _POPOVER_ARROW_DIRECTION_DOWN;},
-		set: function(val){return _POPOVER_ARROW_DIRECTION_DOWN = val;}
-	});
+	Ti._5.prop(this, 'POPOVER_ARROW_DIRECTION_DOWN');
 
-	var _POPOVER_ARROW_DIRECTION_LEFT = null;
-	Object.defineProperty(this, 'POPOVER_ARROW_DIRECTION_LEFT', {
-		get: function(){return _POPOVER_ARROW_DIRECTION_LEFT;},
-		set: function(val){return _POPOVER_ARROW_DIRECTION_LEFT = val;}
-	});
+	Ti._5.prop(this, 'POPOVER_ARROW_DIRECTION_LEFT');
 
-	var _POPOVER_ARROW_DIRECTION_RIGHT = null;
-	Object.defineProperty(this, 'POPOVER_ARROW_DIRECTION_RIGHT', {
-		get: function(){return _POPOVER_ARROW_DIRECTION_RIGHT;},
-		set: function(val){return _POPOVER_ARROW_DIRECTION_RIGHT = val;}
-	});
+	Ti._5.prop(this, 'POPOVER_ARROW_DIRECTION_RIGHT');
 
-	var _POPOVER_ARROW_DIRECTION_UNKNOWN = null;
-	Object.defineProperty(this, 'POPOVER_ARROW_DIRECTION_UNKNOWN', {
-		get: function(){return _POPOVER_ARROW_DIRECTION_UNKNOWN;},
-		set: function(val){return _POPOVER_ARROW_DIRECTION_UNKNOWN = val;}
-	});
+	Ti._5.prop(this, 'POPOVER_ARROW_DIRECTION_UNKNOWN');
 
-	var _POPOVER_ARROW_DIRECTION_UP = null;
-	Object.defineProperty(this, 'POPOVER_ARROW_DIRECTION_UP', {
-		get: function(){return _POPOVER_ARROW_DIRECTION_UP;},
-		set: function(val){return _POPOVER_ARROW_DIRECTION_UP = val;}
-	});
+	Ti._5.prop(this, 'POPOVER_ARROW_DIRECTION_UP');
 
 	// Methods
 	this.createPopover = function(){
@@ -48,5 +24,5 @@ Ti._5.createClass('Titanium.UI.iPad', function(args){
 		console.debug('Method "Titanium.UI.iPad#.createSplitWindow" is not implemented yet.');
 	};
 
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });

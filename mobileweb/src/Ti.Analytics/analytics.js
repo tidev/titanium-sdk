@@ -28,4 +28,4 @@
 	api.userEvent = function(name, data){
 		Ti._5.addAnalyticsEvent('app.user', name, data);
 	};
-})(Ti._5.createClass('Titanium.Analytics'));
+})(Ti._5.createClass('Ti.Analytics'));

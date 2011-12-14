@@ -3,71 +3,27 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	var _DEFAULT_ALL = null;
-	Object.defineProperty(api, 'DEFAULT_ALL', {
-		get: function(){return _DEFAULT_ALL;},
-		set: function(val){return _DEFAULT_ALL = val;}
-	});
+	Ti._5.prop(api, 'DEFAULT_ALL');
 
-	var _DEFAULT_LIGHTS = null;
-	Object.defineProperty(api, 'DEFAULT_LIGHTS', {
-		get: function(){return _DEFAULT_LIGHTS;},
-		set: function(val){return _DEFAULT_LIGHTS = val;}
-	});
+	Ti._5.prop(api, 'DEFAULT_LIGHTS');
 
-	var _DEFAULT_SOUND = null;
-	Object.defineProperty(api, 'DEFAULT_SOUND', {
-		get: function(){return _DEFAULT_SOUND;},
-		set: function(val){return _DEFAULT_SOUND = val;}
-	});
+	Ti._5.prop(api, 'DEFAULT_SOUND');
 
-	var _DEFAULT_VIBRATE = null;
-	Object.defineProperty(api, 'DEFAULT_VIBRATE', {
-		get: function(){return _DEFAULT_VIBRATE;},
-		set: function(val){return _DEFAULT_VIBRATE = val;}
-	});
+	Ti._5.prop(api, 'DEFAULT_VIBRATE');
 
-	var _FLAG_AUTO_CANCEL = null;
-	Object.defineProperty(api, 'FLAG_AUTO_CANCEL', {
-		get: function(){return _FLAG_AUTO_CANCEL;},
-		set: function(val){return _FLAG_AUTO_CANCEL = val;}
-	});
+	Ti._5.prop(api, 'FLAG_AUTO_CANCEL');
 
-	var _FLAG_INSISTENT = null;
-	Object.defineProperty(api, 'FLAG_INSISTENT', {
-		get: function(){return _FLAG_INSISTENT;},
-		set: function(val){return _FLAG_INSISTENT = val;}
-	});
+	Ti._5.prop(api, 'FLAG_INSISTENT');
 
-	var _FLAG_NO_CLEAR = null;
-	Object.defineProperty(api, 'FLAG_NO_CLEAR', {
-		get: function(){return _FLAG_NO_CLEAR;},
-		set: function(val){return _FLAG_NO_CLEAR = val;}
-	});
+	Ti._5.prop(api, 'FLAG_NO_CLEAR');
 
-	var _FLAG_ONGOING_EVENT = null;
-	Object.defineProperty(api, 'FLAG_ONGOING_EVENT', {
-		get: function(){return _FLAG_ONGOING_EVENT;},
-		set: function(val){return _FLAG_ONGOING_EVENT = val;}
-	});
+	Ti._5.prop(api, 'FLAG_ONGOING_EVENT');
 
-	var _FLAG_ONLY_ALERT_ONCE = null;
-	Object.defineProperty(api, 'FLAG_ONLY_ALERT_ONCE', {
-		get: function(){return _FLAG_ONLY_ALERT_ONCE;},
-		set: function(val){return _FLAG_ONLY_ALERT_ONCE = val;}
-	});
+	Ti._5.prop(api, 'FLAG_ONLY_ALERT_ONCE');
 
-	var _FLAG_SHOW_LIGHTS = null;
-	Object.defineProperty(api, 'FLAG_SHOW_LIGHTS', {
-		get: function(){return _FLAG_SHOW_LIGHTS;},
-		set: function(val){return _FLAG_SHOW_LIGHTS = val;}
-	});
+	Ti._5.prop(api, 'FLAG_SHOW_LIGHTS');
 
-	var _STREAM_DEFAULT = null;
-	Object.defineProperty(api, 'STREAM_DEFAULT', {
-		get: function(){return _STREAM_DEFAULT;},
-		set: function(val){return _STREAM_DEFAULT = val;}
-	});
+	Ti._5.prop(api, 'STREAM_DEFAULT');
 
 	// Methods
 	api.cancel = function(){

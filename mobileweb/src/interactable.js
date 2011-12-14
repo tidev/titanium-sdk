@@ -1,60 +1,31 @@
-(function(oParentNamespace) {
-	// Create interface
-	oParentNamespace.Interactable = function(obj, isNotSearch) {
-		if ('function' != typeof obj.addEventListener) {
-			oParentNamespace.EventDriven(obj);
-		}
-		
-		obj.dom.addEventListener('focus', function(event) {
-			var oEvent = {
-				source: obj,
-				type: event.type
-			};
-			if (obj.dom && 'undefined' != typeof obj.dom.value) {
-				oEvent.value = obj.dom.value;
-			}
-			obj.fireEvent('focus', oEvent);
-		}, true);
-		
-		obj.dom.addEventListener('blur', function(event) {
-			var oEvent = {
-				source: obj,
-				type: event.type
-			};
-			if (obj.dom && 'undefined' != typeof obj.dom.value) {
-				oEvent.value = obj.dom.value;
-			}
-			obj.fireEvent('blur', oEvent);
-		}, true);
+Ti._5.Interactable = function(obj, isNotSearch) {
+	obj.addEventListener || oParentNamespace.EventDriven(obj);
 
-		var _changeListener = function(event) {
-			var oEvent = {
-				source: obj,
-				type: 'change'
-			};
-			if (obj.dom && 'undefined' != typeof obj.dom.value) {
-				oEvent.value = obj.dom.value;
-			}
-			obj.fireEvent('change', oEvent);
-		};
-		
-		obj.dom.addEventListener('change', _changeListener, false);
-		obj.dom.addEventListener('input', _changeListener, false);
-		obj.dom.addEventListener('paste', _changeListener, false);
+	var on = require.on,
+		domNode = obj.dom;
 
-		if (!isNotSearch) {
-			obj.dom.addEventListener('keyup', function(event) {
-				if (!obj.suppressReturn && !event.altKey && !event.ctrlKeyKey && event.keyCode && 13 == event.keyCode) {
-					var oEvent = {
-						source: event.target,
-						type: event.type
-					};
-					if (obj.dom && 'undefined' != typeof obj.dom.value) {
-						oEvent.value = obj.dom.value;
-					}
-					obj.fireEvent('return', oEvent);
-				}
-			}, false);
-		}
+	function fire(eventName) {
+		var v = domNode && domNode.value;
+		obj.fireEvent(eventName, v !== undefined && { value: v });
 	}
-})(Ti._5);
+
+	on(domNode, "focus", function() {
+		fire("focus");
+	});
+
+	on(domNode, "blur", function() {
+		fire("blur");
+	});
+
+	function change() {
+		fire("change");
+	}
+
+	on(domNode, "change", change);
+	on(domNode, "input", change);
+	on(domNode, "paste", change);
+
+	isNotSearch || on(domNode, "keyup", function(evt) {
+		!obj.suppressReturn && !evt.altKey && !evt.ctrlKey && evt.keyCode === 13 && fire("return");
+	});
+};

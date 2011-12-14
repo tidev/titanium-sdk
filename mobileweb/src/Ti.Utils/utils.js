@@ -302,4 +302,4 @@
 		return temp.toLowerCase();
 
 	};
-})(Ti._5.createClass('Titanium.Utils'));
+})(Ti._5.createClass('Ti.Utils'));

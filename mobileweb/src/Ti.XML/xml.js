@@ -27,9 +27,8 @@
 	function _NodeList() {
 		var _nodes = [];
 
-		Object.defineProperty(this, 'length', {
-			get: function() {return _nodes.length},
-			set: function() {return false}
+		Ti._5.prop(this, 'length', {
+			get: function() {return _nodes.length}
 		});
 	
 		this.item = function (iIndex) {
@@ -117,4 +116,4 @@
 		return sResult;
 	}
 	
-})(Ti._5.createClass('Titanium.XML'));
+})(Ti._5.createClass('Ti.XML'));
