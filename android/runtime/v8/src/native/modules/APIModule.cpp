@@ -7,6 +7,7 @@
 
 #include <android/log.h>
 #include <v8.h>
+#include <v8-debug.h>
 #include <string.h>
 #include <signal.h>
 #include <unistd.h>
@@ -56,6 +57,7 @@ void APIModule::Initialize(Handle<Object> target)
 	// when it wants the application to terminate immediately.
 	if (V8Runtime::debuggerEnabled) {
 		DEFINE_PROTOTYPE_METHOD(constructorTemplate, "terminate", terminate);
+		DEFINE_PROTOTYPE_METHOD(constructorTemplate, "debugBreak", debugBreak);
 	}
 
 	constructorTemplate->Inherit(KrollModule::proxyTemplate);
@@ -195,6 +197,11 @@ Handle<Value> APIModule::log(const Arguments& args)
 Handle<Value> APIModule::terminate(const Arguments& args)
 {
 	kill(getpid(), 9);
+}
+
+Handle<Value> APIModule::debugBreak(const Arguments& args)
+{
+	Debug::DebugBreak();
 	return Undefined();
 }
 
