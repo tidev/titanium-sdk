@@ -344,6 +344,7 @@ class AnnotatedProxy(AnnotatedApi):
 				generated_method = yaml.load(AnnotatedProxy.render_getter_method(p))
 				annotated_method = AnnotatedMethod(generated_method, self)
 				annotated_method.getter_for = p
+				annotated_method.inherited_from = p.inherited_from
 				methods.append(annotated_method)
 			if setter_ok:
 				if dict_has_non_empty_member(p.api_obj, "since"):
@@ -354,6 +355,7 @@ class AnnotatedProxy(AnnotatedApi):
 				generated_method = yaml.load(AnnotatedProxy.render_setter_method(p))
 				annotated_method = AnnotatedMethod(generated_method, self)
 				annotated_method.setter_for = p
+				annotated_method.inherited_from = p.inherited_from
 				methods.append(annotated_method)
 
 
