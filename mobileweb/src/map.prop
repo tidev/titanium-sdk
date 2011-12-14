@@ -143,7 +143,6 @@ Facebook.LoginButton.visible=loginbutton.js
 Facebook.LoginButton.width=loginbutton.js
 Facebook.LoginButton.zIndex=loginbutton.js
 Facebook.LoginButton.click=loginbutton.js
-Facebook.LoginButton.globalPoint=loginbutton.js
 Facebook.LoginButton.dblclick=loginbutton.js
 Facebook.LoginButton.doubletap=loginbutton.js
 Facebook.LoginButton.singletap=loginbutton.js

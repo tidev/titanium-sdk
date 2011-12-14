@@ -26,7 +26,6 @@ Ti._5.createClass("Ti.UI.TableViewSection", function(args){
 	_oHeader.dom.style.paddingLeft = "10px";
 	_oHeader.addEventListener("click", function(event) {
 		obj.fireEvent("click", {
-			globalPoint: event.globalPoint,
 			x: event.x,
 			y: event.y
 		});
@@ -62,7 +61,6 @@ Ti._5.createClass("Ti.UI.TableViewSection", function(args){
 		if (!obj._children || 0 == obj._children.length) {
 			oEvent = {
 				detail		: false,
-				globalPoint	: { x:oEvent.pageX, y:oEvent.pageY }, 
 				index		: null,
 				row			: null,
 				rowData		: null,
@@ -80,7 +78,6 @@ Ti._5.createClass("Ti.UI.TableViewSection", function(args){
 	});
 	_oRowsArea.addEventListener("dblclick", function(event) {
 		var oEvent = {
-			globalPoint	: { x:event.pageX, y:event.pageY }, 
 			x			: event.pageX,
 			y			: event.pageY
 		};
@@ -99,7 +96,6 @@ Ti._5.createClass("Ti.UI.TableViewSection", function(args){
 	_oFooter.dom.style.paddingLeft = "10px";
 	_oFooter.addEventListener("click", function(event) {
 		obj.fireEvent("click", {
-			globalPoint: event.globalPoint,
 			x: event.x,
 			y: event.y
 		});
