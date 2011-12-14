@@ -53,7 +53,7 @@ public final class ${config['classname']}Application extends TiApplication
 		% for module in custom_modules:
 		<%
 		manifest = module['manifest']
-		className = manifest.name[0:1].upper() + manifest.name[1:]
+		className = module['module_apiName']
 		%>
 		runtime.addExternalModule("${manifest.moduleid}", ${manifest.moduleid}.${className}Bootstrap.class);
 		% endfor

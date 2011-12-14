@@ -345,6 +345,7 @@ class AnnotatedProxy(AnnotatedApi):
 				generated_method = yaml.load(AnnotatedProxy.render_getter_method(p))
 				annotated_method = AnnotatedMethod(generated_method, self)
 				annotated_method.getter_for = p
+				annotated_method.inherited_from = p.inherited_from
 				if annotated_method.name not in existing_method_names:
 					methods.append(annotated_method)
 			if setter_ok:
@@ -356,9 +357,9 @@ class AnnotatedProxy(AnnotatedApi):
 				generated_method = yaml.load(AnnotatedProxy.render_setter_method(p))
 				annotated_method = AnnotatedMethod(generated_method, self)
 				annotated_method.setter_for = p
+				annotated_method.inherited_from = p.inherited_from
 				if annotated_method.name not in existing_method_names:
 					methods.append(annotated_method)
-
 
 	def append_inherited_attributes(self, att_list, att_list_name):
 		if not "extends" in self.api_obj:
