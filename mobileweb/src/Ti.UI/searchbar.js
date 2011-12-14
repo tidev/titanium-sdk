@@ -73,6 +73,6 @@ Ti._5.createClass("Ti.UI.SearchBar", function(args){
 	require.mix(obj, args);
 
 	// Methods
-	obj.focus = domNode.focus;
-	obj.blur = domNode.blur;
+	obj.focus = function(){ domNode.focus(); };
+	obj.blur = function(){ domNode.blur(); };
 });
