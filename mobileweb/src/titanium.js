@@ -7,21 +7,10 @@
  * <https://github.com/kriskowal/es5-shim>
  */
 
-function($window, args){
-	function is(it, type) {
-		return ({}).toString.call(it).indexOf('[object ' + type) === 0;
-	}
-
-	function each(a, fn) {
-		var i = 0,
-			l = (a && a.length) || 0,
-			args = Array.prototype.slice.call(arguments, 0);
-		args.shift();
-		while (i < l) {
-			args[0] = a[i++];
-			fn.apply(null, args);
-		}
-	}
+(function(global){
+	var cfg = require.config,
+		is = require.is,
+		each = require.is;
 
 	// Object.defineProperty() shim
 	if (!Object.defineProperty || !(function (obj) {
@@ -194,17 +183,21 @@ function($window, args){
 		};
 	}
 
-	console.info("[INFO] Appcelerator Titanium " + (args['tiVersion'] || "") + " for Mobile Web");
+	// print the Titanium version *after* the console shim
+	console.info("[INFO] Appcelerator Titanium " + cfg.ti.version + " Mobile Web");
+
+	// make sure we have some vendor prefixes defined
+	cfg.vendorPrefixes || (cfg.vendorPrefixes = ["", "Moz", "Webkit", "O", "ms"]);
 
 	var Ti = {};
-	$window.Titanium = Ti; $window.Ti = Ti;
+	global.Ti = global.Titanium = Ti = {};
 
 	Ti._5 = {};
-	var loaded = false;
-	var loaders = [];
+	var loaded = false,
+		loaders = [];
 
 	// public function for onload notification
-	$window.onloaded = function(f){
+	global.onloaded = function(f){
 		onload(f);
 	};
 
@@ -220,14 +213,14 @@ function($window, args){
 	function beforeonload() {
 		document.body.style.margin = "0";
 		document.body.style.padding = "0";
-		$window.scrollTo(0, 1);
+		global.scrollTo(0, 1);
 	}
 
 	function afteronload() {
 	}
 
 	// TODO use DOMContentLoaded event instead
-	$window.onload = function() {
+	global.onload = function() {
 		loaded = true;
 		beforeonload();
 		for (var c=0 ; c < loaders.length; c++) {
@@ -237,7 +230,7 @@ function($window, args){
 		afteronload();
 	};
 
-	$window.onbeforeunload = function() {
+	global.onbeforeunload = function() {
 		Ti.App.fireEvent('close');
 		Ti._5.addAnalyticsEvent('ti.end', 'ti.end');
 
@@ -262,14 +255,64 @@ function($window, args){
 	};
 
 	Ti._5.presetUserDefinedElements = function(obj, args){
-		if(!args){
-			return;
-		}
-
-		for(prop in args){
+		for(var prop in args){
 			if(typeof obj[prop] == 'undefined'){
 				obj[prop] = args[prop];
 			}
+		}
+	};
+	
+	Ti._5.prop = function(obj, property, value, descriptor) {
+		if (require.is(property, "Object")) {
+			for (var i in property) {
+				Ti._5.prop(obj, i, property[i]);
+			}
+		} else {
+			var skipSet,
+				capitalizedName = property.substring(0, 1).toUpperCase() + property.substring(1);
+
+			// if we only have 3 args, so need to check if it's a default value or a descriptor
+			if (arguments.length === 3 && require.is(value, "Object") && (value.get || value.set)) {
+				descriptor = value;
+				// we don't have a default value, so skip the set
+				skipSet = 1;
+			}
+
+			// if we have a descriptor, then defineProperty
+			if (descriptor) {
+				if ("value" in descriptor) {
+					skipSet = 2;
+					if (descriptor.get || descriptor.set) {
+						// we have a value, but since there's a custom setter/getter, we can't have a value
+						value = descriptor.value;
+						delete descriptor.value;
+						value !== undefined && (skipSet = 0);
+					} else {
+						descriptor.writable = true;
+					}
+				}
+				descriptor.configurable = true;
+				descriptor.enumerable = true;
+				Object.defineProperty(obj, property, descriptor);
+			}
+
+			// create the get/set functions
+			obj["get" + capitalizedName] = function(){ return obj[property]; };
+			(skipSet | 0) < 2 && (obj["set" + capitalizedName] = function(val){ return obj[property] = val; });
+
+			// if there's no default value or it's already been set with defineProperty(), then we skip setting it
+			skipSet || (obj[property] = value);
+		}
+	};
+
+	Ti._5.propReadOnly = function(obj, property, value) {
+		var undef;
+		if (require.is(property, "Object")) {
+			for (var i in property) {
+				Ti._5.propReadOnly(obj, i, property[i]);
+			}
+		} else {
+			Ti._5.prop(obj, property, undef, require.is(value, "Function") ? { get: value, value: undef } : { value: value });
 		}
 	};
 
@@ -287,34 +330,34 @@ function($window, args){
 	};
 
 	// do some actions when framework is loaded
-	Ti._5.frameworkLoaded = function(){
-		if(args.appAnalytics === 'true'){
+	Ti._5.frameworkLoaded = function() {
+		if (cfg.analytics) {
 			// enroll event
-			if(localStorage.getItem("html5_enrollSent") == null){
+			if(localStorage.getItem("mobileweb_enrollSent") == null){
 				// setup enroll event
 				Ti._5.addAnalyticsEvent('ti.enroll', 'ti.enroll', {
 					mac_addr: null,
 					oscpu: null,
-					app_name: args.appName,
+					app_name: cfg.appName,
 					platform: Ti.Platform.name,
-					app_id: args.appId,
+					app_id: cfg.appId,
 					ostype: Ti.Platform.osname,
 					osarch: Ti.Platform.architecture,
 					model: Ti.Platform.model,
-					deploytype: args.deployType
+					deploytype: cfg.deployType
 				});
-				localStorage.setItem("html5_enrollSent", true)
+				localStorage.setItem("mobileweb_enrollSent", true)
 			}
 
 			// app start event
 			Ti._5.addAnalyticsEvent('ti.start', 'ti.start', {
 				tz: (new Date()).getTimezoneOffset(),
-				deploytype: args.deployType,
+				deploytype: cfg.deployType,
 				os: Ti.Platform.osname,
 				osver: Ti.Platform.ostype,
-				version: args.tiVersion,
+				version: cfg.tiVersion,
 				un: null,
-				app_version: args.appVersion,
+				app_version: cfg.appVersion,
 				nettype: null
 			});
 
@@ -322,9 +365,12 @@ function($window, args){
 			Ti._5.sendAnalytics();
 		}
 
-		Ti.UI.createWindow({
-			title: args.projectName
-		}).open();
+		Ti._5.containerDiv = document.createElement('div');
+		Ti._5.containerDiv.style.width = "100%";
+		Ti._5.containerDiv.style.height = "100%";
+		Ti._5.containerDiv.style.overflow = "hidden";
+		Ti._5.containerDiv.style.position = "absolute"; // Absolute so that any children that are absolute positioned will respect this DIVs height and width.
+		document.body.appendChild(Ti._5.containerDiv);
 	};
 
 	Ti._5.getAbsolutePath = function(path){
@@ -343,7 +389,7 @@ function($window, args){
 		}
 	};
 
-	Ti._5.parseLength = function(val){
+	Ti._5.px = function(val){
 		return val + (typeof val == 'number' ? 'px' : '');
 	};
 
@@ -364,18 +410,18 @@ function($window, args){
 	};
 
 	Ti._5.getArguments = function(){
-		return args;
+		return cfg;
 	};
 
-	var _sessionId = sessionStorage.getItem('html5_sessionId');
+	var _sessionId = sessionStorage.getItem('mobileweb_sessionId');
 	if(_sessionId == null){
 		_sessionId = Ti._5.createUUID();
-		sessionStorage.setItem('html5_sessionId', _sessionId);
+		sessionStorage.setItem('mobileweb_sessionId', _sessionId);
 	}
 
-	var ANALYTICS_STORAGE = "html5_analyticsEvents";
+	var ANALYTICS_STORAGE = "mobileweb_analyticsEvents";
 	Ti._5.addAnalyticsEvent = function(eventType, eventEvent, data, isUrgent){
-		if(args.appAnalytics !== 'true'){
+		if (!cfg.analytics) {
 			return;
 		}
 		// store event
@@ -431,85 +477,94 @@ function($window, args){
 
 	// collect and send Ti.Analytics notifications
 	Ti._5.sendAnalytics = function(isUrgent){
-		if(args.appAnalytics !== 'true'){
-			return;
-		}
-		// store event
-		var storage = localStorage.getItem(ANALYTICS_STORAGE);
-		if(storage == null){
-			return;
-		} else {
-			storage = JSON.parse(storage);
-		}
-
-		var now = (new Date()).getTime();
-
-		if(isUrgent !== true && _analyticsLastSent != null && now - _analyticsLastSent < ANALYTICS_WAIT){
+		if (!cfg.analytics) {
 			return;
 		}
 
-		var jsonStrs = [];
-		var ids = [];
+		var i,
+			evt,
+			storage = JSON.parse(localStorage.getItem(ANALYTICS_STORAGE)),
+			now = (new Date()).getTime(),
+			jsonStrs = [],
+			ids = [],
+			body = document.body,
+			iframe,
+			form,
+			hidden,
+			rand = Math.floor(Math.random() * 1e6),
+			iframeName = "analytics" + rand,
+			callback = "mobileweb_jsonp" + rand;
 
-		for(var ii = 0; ii < storage.length; ii++){
-			var ev = storage[ii];
-			ids.push(ev.eventId);
-			var res = {
+		if (storage == null || (!isUrgent && _analyticsLastSent !== null && now - _analyticsLastSent < ANALYTICS_WAIT)) {
+			return;
+		}
+
+		for (i = 0; i < storage.length; i++) {
+			evt = storage[i];
+			ids.push(evt.eventId);
+			jsonStrs.push(JSON.stringify({
 				seq: eventSeq++,
-				ver: '2',
-				id: ev.eventId,
-				type: ev.eventType,
-				event: ev.eventEvent,
-				ts: ev.eventTimestamp,
+				ver: "2",
+				id: evt.eventId,
+				type: evt.eventType,
+				event: evt.eventEvent,
+				ts: evt.eventTimestamp,
 				mid: Ti.Platform.id,
 				sid: _sessionId,
-				aguid: args.guid,
-				data: typeof ev.eventPayload == 'object' ? JSON.stringify(ev.eventPayload) : ev.eventPayload
-			};
-
-			jsonStrs.push(JSON.stringify(res));
+				aguid: cfg.guid,
+				data: require.is(evt.eventPayload, "object") ? JSON.stringify(evt.eventPayload) : evt.eventPayload
+			}));
 		}
 
-		var iframe = document.createElement("iframe");
-		iframe.style.display = 'none';
-		iframe.id = "analytics" + Math.random();
-		var form = document.createElement("form");
-		form.style.display = 'none';
-		form.target = iframe.id;
-		form.method = 'POST';
-		var fname = "html5_jsonp"+Math.floor(Math.random() * 1e6);
-		form.action = 'https://api.appcelerator.net/p/v2/mobile-track?callback=' + fname;
-		document.body.appendChild(iframe);
-		document.body.appendChild(form);
-		var hidden = document.createElement("input");
-		hidden.type = 'hidden';
-		hidden.name = 'content';
-		hidden.value = jsonStrs.join("\n");
+		function onIframeLoaded() {
+			body.removeChild(form);
+			body.removeChild(iframe);
+		}
+
+		iframe = document.createElement("iframe");
+		iframe.style.display = "none";
+		iframe.onload = onIframeLoaded;
+		iframe.onerror = onIframeLoaded;
+		iframe.id = iframe.name = iframeName;
+
+		form = document.createElement("form");
+		form.style.display = "none";
+		form.target = iframeName;
+		form.method = "POST";
+		form.action = "https://api.appcelerator.net/p/v2/mobile-track?callback=" + callback;
+
+		hidden = document.createElement("input");
+		hidden.type = "hidden";
+		hidden.name = "content";
+		hidden.value = "[" + jsonStrs.join(",") + "]";
+
+		body.appendChild(iframe);
+		body.appendChild(form);
 		form.appendChild(hidden);
-		$window[fname] = function(response){
+
+		global[callback] = function(response){
 			if(response && response.success){
 				// remove sent events on successful sent
-				var storage = localStorage.getItem(ANALYTICS_STORAGE);
-				var evs = [];
-				for(var ii = 0; ii < storage.length; ii++){
-					var ev = storage[ii];
-					var found = false;
-					for(var jj = 0; jj < ids.length; jj++){
-						if(ev.eventId == ids[jj]){
-							found = true;
-							ids.splice(jj, 1);
+				var j, k, found,
+					storage = localStorage.getItem(ANALYTICS_STORAGE),
+					ev,
+					evs = [];
+
+				for(j = 0; j < storage.length; j++){
+					ev = storage[j];
+					found = 0;
+					for (k = 0; k < ids.length; k++) {
+						if (ev.eventId == ids[k]) {
+							found = 1;
+							ids.splice(k, 1);
 							break;
 						}
 					}
-
-					if(!found){
-						evs.push(ev);
-					}
+					found || evs.push(ev);
 				}
 
 				localStorage.setItem(ANALYTICS_STORAGE, JSON.stringify(evs));
-				document.body.removeChild(form);
-				document.body.removeChild(iframe);
+				
 			}
 		};
 		form.submit();
@@ -595,4 +650,4 @@ function($window, args){
 		script.innerHTML = code;
 		head.appendChild(script);
 	};
-}
+}(window));

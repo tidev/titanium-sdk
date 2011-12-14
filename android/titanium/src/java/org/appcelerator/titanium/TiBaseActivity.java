@@ -65,6 +65,7 @@ public abstract class TiBaseActivity extends Activity
 	protected Messenger messenger;
 	protected int msgActivityCreatedId = -1;
 	protected int msgId = -1;
+	protected static int previousOrientation = -1;
 
 	public TiWindowProxy lwWindow;
 
@@ -89,11 +90,6 @@ public abstract class TiBaseActivity extends Activity
 	public static interface ConfigurationChangedListener
 	{
 		public void onConfigurationChanged(TiBaseActivity activity, Configuration newConfig);
-	}
-
-	public void activityOnCreate(Bundle savedInstanceState)
-	{
-		super.onCreate(savedInstanceState);
 	}
 
 	public TiApplication getTiApp()
@@ -295,6 +291,10 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onCreate");
 		}
 
+		if (!isTabActivity()) {
+			TiApplication.addToActivityStack(this);
+		}
+
 		// create the activity proxy here so that it is accessible from the activity in all cases
 		activityProxy = new ActivityProxy(this);
 
@@ -323,21 +323,22 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		super.onCreate(savedInstanceState);
+		
+		// we only want to set the current activity for good in the resume state but we need it right now.
+		// save off the existing current activity, set ourselves to be the new current activity temporarily 
+		// so we don't run into problems when we give the proxy the event
+		TiApplication tiApp = getTiApp();
+		Activity tempCurrentActivity = tiApp.getCurrentActivity();
+		tiApp.setCurrentActivity(this, this);
+
 		windowCreated();
 
 		if (activityProxy != null) {
-			// we only want to set the current activity for good in the resume state but we need it right now.
-			// save off the existing current activity, set ourselves to be the new current activity temporarily 
-			// so we don't run into problems when we give the proxy the event
-			TiApplication tiApp = getTiApp();
-			Activity tempCurrentActivity = tiApp.getCurrentActivity();
-			tiApp.setCurrentActivity(this, this);
-
 			activityProxy.fireSyncEvent(TiC.EVENT_CREATE, null);
-
-			// set the current activity back to what it was originally
-			tiApp.setCurrentActivity(this, tempCurrentActivity);
 		}
+
+		// set the current activity back to what it was originally
+		tiApp.setCurrentActivity(this, tempCurrentActivity);
 
 		setContentView(layout);
 
@@ -522,6 +523,14 @@ public abstract class TiBaseActivity extends Activity
 	{
 		return menuHelper.onPrepareOptionsMenu(super.onPrepareOptionsMenu(menu), menu);
 	}
+	
+	public static void callOrientationChangedListener(Configuration newConfig) 
+	{
+		if (orientationChangedListener != null && previousOrientation != newConfig.orientation) {
+			previousOrientation = newConfig.orientation;
+			orientationChangedListener.onOrientationChanged (newConfig.orientation);
+		}
+	}
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig)
@@ -534,10 +543,7 @@ public abstract class TiBaseActivity extends Activity
 			}
 		}
 
-		if (orientationChangedListener != null)
-		{
-			orientationChangedListener.onOrientationChanged (newConfig.orientation);
-		}
+		callOrientationChangedListener(newConfig);
 	}
 
 	@Override
@@ -575,7 +581,8 @@ public abstract class TiBaseActivity extends Activity
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onPause");
 		}
-
+		
+		TiApplication.updateActivityTransitionState(true);
 		getTiApp().setCurrentActivity(this, null);
 
 		if (activityProxy != null) {
@@ -604,7 +611,8 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		getTiApp().setCurrentActivity(this, this);
-
+		TiApplication.updateActivityTransitionState(false);
+		
 		if (activityProxy != null) {
 			activityProxy.fireSyncEvent(TiC.EVENT_RESUME, null);
 		}
@@ -736,6 +744,10 @@ public abstract class TiBaseActivity extends Activity
 			}
 		}
 
+		if (!isTabActivity()) {
+			TiApplication.removeFromActivityStack(this);
+		}
+
 		super.onDestroy();
 
 		// Our Activities are currently unable to recover from Android-forced restarts,
@@ -822,6 +834,53 @@ public abstract class TiBaseActivity extends Activity
 		if (!animate) {
 			TiUIHelper.overridePendingTransition(this);
 		}
+	}
+
+	protected boolean isTabActivity()
+	{
+		boolean isTab = false;
+		if (this instanceof TiActivity) {
+			if (((TiActivity)this).isTab()) {
+				isTab = true;
+			}
+		}
+
+		return isTab;
+	}
+
+	// These activityOnXxxx are all used by TiLaunchActivity when
+	// the android bug 2373 is detected and the app is being re-started.
+	// By calling these from inside its on onXxxx handlers, TiLaunchActivity
+	// can avoid calling super.onXxxx (super being TiBaseActivity), which would
+	// result in a bunch of Titanium-specific code running when we don't need it
+	// since we are restarting the app as fast as possible. Calling these methods
+	// allows TiLaunchActivity to fulfill the requirement that the Android built-in
+	// Activity's onXxxx must be called. (Think of these as something like super.super.onXxxx
+	// from inside TiLaunchActivity.)
+	protected void activityOnPause()
+	{
+		super.onPause();
+	}
+	protected void activityOnResume()
+	{
+		super.onResume();
+	}
+	protected void activityOnStop()
+	{
+		super.onStop();
+	}
+	protected void activityOnStart()
+	{
+		super.onStart();
+	}
+	protected void activityOnDestroy()
+	{
+		super.onDestroy();
+	}
+
+	public void activityOnCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
 	}
 }
 

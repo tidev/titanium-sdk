@@ -22,7 +22,7 @@ exports.bootstrapWindow = function(Titanium) {
 	var ActivityWindow = UI.ActivityWindow;
 	var Proxy = Titanium.Proxy;
 	var TiWindow = Titanium.TiWindow;
-
+		
 	Window.prototype.isActivity = false;
 
 	// set constants for representing states for the window
@@ -40,8 +40,10 @@ exports.bootstrapWindow = function(Titanium) {
 		if (topActivity) {
 			return topActivity.getDecorView();
 		}
-
-		kroll.log(TAG, "unable to find valid activity for decor view");
+		
+		if (kroll.DBG) {
+			kroll.log(TAG, "unable to find valid activity for decor view");
+		}
 		return null;
 	}
 
@@ -99,7 +101,7 @@ exports.bootstrapWindow = function(Titanium) {
 				this.cachedOrientationModes = value;
 			}
 
-		} else {
+		} else if (kroll.DBG) { 
 			kroll.log(TAG, "not allowed to set orientationModes to null");
 		}
 	}
@@ -163,7 +165,10 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.open = function(options) {
 		// if the window is not closed, do not open
 		if (this.currentState != this.state.closed) {
-			kroll.log(TAG, "unable to open, window is not closed");
+			if (kroll.DBG) {
+				kroll.log(TAG, "unable to open, window is not closed");
+				
+			}
 			return;
 		}
 		this.currentState = this.state.opening;
@@ -218,7 +223,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 		if (needsOpen) {
 			var self = this;
-			this.window.on("open", function () {
+			this.window.on("windowCreated", function () {
 				self.postOpen();
 			});
 
@@ -292,7 +297,9 @@ exports.bootstrapWindow = function(Titanium) {
 			return;
 		}
 
-		kroll.log(TAG, "Loading window with URL: " + this.url);
+		if (kroll.DBG) {
+			kroll.log(TAG, "Loading window with URL: " + this.url);
+		}
 
 		// Reset creationUrl of the window
 		var currentUrl = url.resolve(this._sourceUrl, this.url);
@@ -312,7 +319,9 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.close = function(options) {
 		// if the window is not opened, do not close
 		if (this.currentState != this.state.opened) {
-			kroll.log(TAG, "unable to close, window is not opened");
+			if (kroll.DBG) {
+				kroll.log(TAG, "unable to close, window is not opened");
+			}
 			return;
 		}
 		this.currentState = this.state.closing;
@@ -399,7 +408,7 @@ exports.bootstrapWindow = function(Titanium) {
 				this.view.animate(options);
 			}
 
-		} else {
+		} else if (kroll.DBG) {
 			kroll.log(TAG, "unable to call animate, view is undefined");
 		}
 	}

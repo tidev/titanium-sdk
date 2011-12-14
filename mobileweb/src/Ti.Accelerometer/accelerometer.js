@@ -1,40 +1,33 @@
 (function(api){
 	// Interfaces
 	Ti._5.EventDriven(api);
-	
-	var _tLastShake = new Date(), _lastAccel = null; 
-	// need some delta for coordinates changed
-	var _delta = 0.2;
-	
-	window.addEventListener("devicemotion", function (event) {
-		var e = event.acceleration || event.accelerationIncludingGravity,
+
+	var undef,
+		lastShake = (new Date()).getTime(),
+		lastAccel = {};
+
+	require.on(window, "devicemotion", function(evt) {
+		var e = evt.acceleration || evt.accelerationIncludingGravity,
+			currentTime,
 			accel = e && {
 				x: e.x,
 				y: e.y,
-				z: e.z
+				z: e.z,
+				source: evt.source
 			};
 		if (accel) {
-			_lastAccel = null == _lastAccel ? accel : _lastAccel;
-			if (
-				Math.abs(_lastAccel.x - accel.x) > _delta || 
-				Math.abs(_lastAccel.y - accel.y) > _delta ||
-				Math.abs(_lastAccel.z - accel.z) > _delta
-			) {
-				var currentTime = new Date();
-				var timeDifference = currentTime.getTime() - _tLastShake.getTime();
-				_tLastShake = currentTime;
-				
-				api.fireEvent('update', {
-					source: event.source,
-					timestamp: timeDifference,
-					type: 'update',
-					x: accel.x,
-					y: accel.y,
-					z: accel.z
-				});
+			if (lastAccel.x !== undef && (
+				Math.abs(lastAccel.x - accel.x) > 0.2 || 
+				Math.abs(lastAccel.y - accel.y) > 0.2 ||
+				Math.abs(lastAccel.z - accel.z) > 0.2
+			)) {
+				currentTime = (new Date()).getTime();
+				accel.timestamp = currentTime - lastShake;
+				lastShake = currentTime;
+				api.fireEvent("update", accel);
 			}
-			_lastAccel = accel;
+			lastAccel = accel;
 		}
-	}, false);
-	
-})(Ti._5.createClass('Titanium.Accelerometer'));
+	});
+
+})(Ti._5.createClass("Ti.Accelerometer"));

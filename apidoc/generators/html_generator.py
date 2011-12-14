@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2011 Appcelerator, Inc. All Rights Reserved.
 # Licensed under the Apache Public License (version 2)
-import os, sys, re
+import os, sys, re, codecs
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(this_dir, "..")))
@@ -139,8 +139,8 @@ def generate(raw_apis, annotated_apis, options):
 	if not os.path.exists(changelog_mdoc):
 		log.warn("%s wasn't found, skipping changelog.html generation." % changelog_mdoc)
 	else:
-		changelog = open(changelog_mdoc).read()
-		out = open(os.path.join(options.output, "changelog.html"), "w+")
+		changelog = codecs.open(changelog_mdoc, "r", "utf8").read()
+		out = codecs.open(os.path.join(options.output, "changelog.html"), "w+", "utf8")
 		out.write(markdown.markdown(changelog))
 		out.close()
 
@@ -207,6 +207,8 @@ def annotate(annotated_obj):
 	if annotated_obj.typestr == "property":
 		annotated_obj.filename_html = clean_for_filename("%s.%s-%s" % (annotated_obj.parent.name, annotated_obj.name, "property"))
 		annotated_obj.template_html = "property"
+		if annotated_obj.default is not None:
+			annotated_obj.default_html = markdown_to_html(str(annotated_obj.default))
 	# Override for "property" that is an event callback property
 	if annotated_obj.typestr == "property" and annotated_obj.parent.typestr == "event":
 		annotated_obj.filename_html = clean_for_filename("%s.%s.%s-%s" % (annotated_obj.parent.parent.name, annotated_obj.parent.name, annotated_obj.name, "callback-property"))
@@ -214,6 +216,8 @@ def annotate(annotated_obj):
 	if annotated_obj.typestr == "parameter":
 		annotated_obj.filename_html = clean_for_filename("%s.%s-param" % (annotated_obj.parent.filename_html, annotated_obj.name))
 		annotated_obj.template_html = "property"
+		if annotated_obj.default is not None:
+			annotated_obj.default_html = markdown_to_html(str(annotated_obj.default))
 	if annotated_obj.typestr == "event":
 		annotated_obj.filename_html = clean_for_filename("%s.%s-%s" % (annotated_obj.parent.name, annotated_obj.name, "event"))
 		annotated_obj.template_html = "event"
@@ -298,12 +302,18 @@ def load_file_markdown(file_specifier, obj):
 	else:
 		return open(filename, "r").read()
 
-def anchor_for_object_or_member(obj_specifier, text=None, language="markdown"):
+def anchor_for_object_or_member(obj_specifier, text=None, language="markdown", suppress_code_formatting=False):
 	if language == "markdown":
-		label = text or ("`%s`" % obj_specifier)
+		if not suppress_code_formatting:
+			label = text or ("`%s`" % obj_specifier)
+		else:
+			label = text or obj_specifier
 		template = "[%s](#)" % label
 	else:
-		label = text or ("<code>%s</code>" % obj_specifier)
+		if not suppress_code_formatting:
+			label = text or ("<code>%s</code>" % obj_specifier)
+		else:
+			label = text or (obj_specifier)
 		template = '<a href="#">%s</a>' % label
 	if obj_specifier in all_annotated_apis:
 		obj = all_annotated_apis[obj_specifier]
@@ -323,11 +333,17 @@ def anchor_for_object_or_member(obj_specifier, text=None, language="markdown"):
 						for m in getattr(obj, list_name):
 							if m.name == member_name and hasattr(m, "filename_html"):
 								return (template.replace("#", "%s.html" % m.filename_html), True)
-	# Didn't find it. At least send it back styled like code.
+	# Didn't find it. At least send it back styled like code (unless that's suppressed).
 	if language == "markdown":
-		return "`%s`" % obj_specifier, False
+		if not suppress_code_formatting:
+			return "`%s`" % obj_specifier, False
+		else:
+			return obj_specifier, False
 	else:
-		return "<code>%s</code>" % obj_specifier, False
+		if not suppress_code_formatting:
+			return "<code>%s</code>" % obj_specifier, False
+		else:
+			return obj_specifier, False
 
 def replace_with_link(full_string, link_info):
 	s = full_string
@@ -376,7 +392,7 @@ def markdown_to_html(s, obj=None):
 def data_type_to_html(type_spec):
 	result = ""
 	type_specs = []
-	pattern = r"(Dictionary|Array|Callback)\<([^\>]+)\>"
+	pattern = r"(Dictionary|Array|Callback)(\<.+\>)"
 	link_placeholder = "||link here||"
 	if hasattr(type_spec, "append"):
 		type_specs = type_spec
@@ -394,18 +410,40 @@ def data_type_to_html(type_spec):
 		elif "." in one_type and ".".join(one_type.split(".")[:-1]) in all_annotated_apis:
 			one_type_html, found_type = anchor_for_object_or_member(one_type, language="html")
 		else:
+			one_type_html = ""
+			parts = []
 			match = re.match(pattern, one_type)
-			if match is None or match.groups() is None or len(match.groups()) != 2:
-				one_type_html = one_type_html.replace("<", "&lt;").replace(">", "&gt;")
+			if match is None:
+				parts.append(one_type)
 			else:
-				raw_type = match.groups()[1]
-				type_link, found_type = anchor_for_object_or_member(raw_type, language="html")
-				one_type_html = one_type_html.replace("<%s>" % raw_type, link_placeholder)
-				one_type_html = one_type_html.replace("<", "&lt;").replace(">", "&gt;")
-				one_type_html = one_type_html.replace(link_placeholder, "<%s>" % type_link)
+				while match is not None and match.groups() is not None and len(match.groups()) == 2:
+					parts.append(match.groups()[0])
+					new_search = match.groups()[1][1:-1]
+					match = re.match(pattern, new_search)
+					if match is None:
+						parts.append(new_search)
+
+			for i in range(0, len(parts)):
+				p = parts[i]
+				html_link, found = anchor_for_object_or_member(p, language="html")
+
+				# We don't make it look code-like if it's just String or Object,
+				# or if it's Array/Dictionary/Callback
+				if (not found and i==0) or (p in ("Array", "Callback", "Dictionary")):
+					html_link = html_link.replace("<code>", "").replace("</code>", "")
+
+				one_type_html += html_link
+
+				if i != len(parts) - 1:
+					one_type_html += "&lt;"
+
+			if len(parts) > 1:
+				one_type_html += ("&gt;" * (len(parts) - 1))
+
 		if len(result) > 0:
 			result += " or "
 		result += one_type_html
+
 	return result
 
 def clean_for_filename(s):

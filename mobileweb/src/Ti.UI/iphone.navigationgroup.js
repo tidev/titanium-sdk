@@ -13,5 +13,5 @@ Ti._5.createClass('Titanium.UI.iPhone.NavigationGroup', function(args){
 		console.debug('Method "Titanium.UI.iPhone.NavigationGroup#.open" is not implemented yet.');
 	};
 
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });

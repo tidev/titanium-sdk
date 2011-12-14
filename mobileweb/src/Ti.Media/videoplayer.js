@@ -1,205 +1,299 @@
-Ti._5.createClass('Titanium.Media.VideoPlayer', function(api){
-    var obj = this;
+Ti._5.createClass("Ti.Media.VideoPlayer", function(args){
+	args = args || {};
+
+	var self = this,
+		media = Ti.Media,
+		on = require.on,
+		handles,
+		STOPPED = 0,
+		STOPPING = 1,
+		PAUSED = 2,
+		PLAYING = 3,
+		currentState = STOPPED,
+		video = document.createElement("video"),
+		nativeFullscreen,
+		fakeFullscreen = true,
+		mimeTypes = {
+			"m4v": "video/mp4",
+			"mov": "video/quicktime",
+			"mp4": "video/mp4",
+			"ogg": "video/ogg",
+			"ogv": "video/ogg",
+			"webm": "video/webm"
+		},
+
+		// TODO: Add check for Firefox <http://www.thecssninja.com/javascript/fullscreen>
+		_fullscreen = (function(s){ return args.fullscreen || s && s(); }(video.webkitDisplayingFullscreen)),
+
+		_playbackState = media.VIDEO_PLAYBACK_STATE_STOPPED,
+		_playing = false,
+		_currentPlaybackTime = 0,
+		_endPlaybackTime = 0,
+		_playableDuration = 0,
+		_duration = 0,
+		_loadState = media.VIDEO_LOAD_STATE_UNKNOWN,
+		_scalingMode = args.scalingMode || media.VIDEO_SCALING_ASPECT_FIT,
+		_mediaControlStyle = args.mediaControlStyle || media.VIDEO_CONTROL_DEFAULT,
+		_url = args.url;
+
 	// Interfaces
-	Ti._5.DOMView(this, 'div', args, 'VideoPlayer');
+	Ti._5.DOMView(this, "div", args, "VideoPlayer");
 	Ti._5.Touchable(this);
 	Ti._5.Styleable(this, args);
+	Ti._5.EventDriven(this);
 	Ti._5.Positionable(this, args);
 
 	// Properties
-	var _autoplay = null;
-	Object.defineProperty(this, 'autoplay', {
-		get: function(){return _autoplay;},
-		set: function(val){return _autoplay = val;}
+	Ti._5.propReadOnly(this, {
+		playbackState: function(){ return _playbackState; },
+		playing: function(){ return _playing; },
+		initialPlaybackTime: 0,
+		currentPlaybackTime: function(){ return _currentPlaybackTime; },
+		endPlaybackTime: function(){ return _endPlaybackTime; },
+		playableDuration: function(){ return _playableDuration; },
+		loadState: function(){ return _loadState; },
+		duration: function(){ return _duration; }
 	});
 
-	var _contentURL = null;
-	Object.defineProperty(this, 'contentURL', {
-		get: function(){return _contentURL;},
-		set: function(val){return _contentURL = val;}
+	Ti._5.prop(this, {
+		autoplay: !!args.autoplay,
+		repeatMode: args.repeatMode === media.VIDEO_REPEAT_MODE_ONE ? media.VIDEO_REPEAT_MODE_ONE : media.VIDEO_REPEAT_MODE_NONE,
+		fullscreen: {
+			get: function(){ return _fullscreen; },
+			set: function(fs){
+				var h;
+	
+				fs = !!fs;
+				if (nativeFullscreen) {
+					try {
+						if (fs) {
+							video.webkitEnterFullscreen();
+						} else {
+							video.webkitExitFullscreen();
+						}
+					} catch(ex) {}
+				} else if (fakeFullscreen) {
+					video.className = fs ? "fullscreen" : "";
+					fs && (h = on(window, "keydown", function(e){
+						if (e.keyCode === 27) {
+							this.fullscreen = 0;
+							h();
+						}
+					}));
+				}
+	
+				// need to set this after we've already switched to fullscreen
+				_fullscreen = fs;
+	
+				this.fireEvent("fullscreen", {
+					entering: _fullscreen
+				});
+			}
+		},
+		scalingMode: {
+			get: function() {
+				return _scalingMode;
+			},
+			set: function(val) {
+				_scalingMode = val;
+				setSize();
+			}
+		},
+		url: {
+			get: function() { return _url; },
+			set: function(val) {
+				_url = val;
+				_playing = false;
+				currentState = STOPPED;
+				createVideo();
+			}
+		},
+		mediaControlStyle: {
+			get: function() { return _mediaControlStyle; },
+			set: function(val) {
+				video.controls = val === media.VIDEO_CONTROL_DEFAULT;
+				_mediaControlStyle = val;
+			}
+		}
 	});
 
-	var _duration = null;
-	Object.defineProperty(this, 'duration', {
-		get: function(){return _duration;},
-		set: function(val){return _duration = val;}
-	});
+	function setDuration(t) {
+		_duration = _playableDuration = _endPlaybackTime = t;
+	}
+	setDuration(0.0);
 
-	var _endPlaybackTime = null;
-	Object.defineProperty(this, 'endPlaybackTime', {
-		get: function(){return _endPlaybackTime;},
-		set: function(val){return _endPlaybackTime = val;}
-	});
+	function setSize() {
+		self.dom.className = self.dom.className.replace(/(scaling\-[\w\-]+)/, "") + ' '
+			+ (_scalingMode === media.VIDEO_SCALING_NONE ? "scaling-none" : "scaling-aspect-fit");
+	}
 
-	var _fullscreen = null;
-	Object.defineProperty(this, 'fullscreen', {
-		get: function(){return _fullscreen;},
-		set: function(val){return _fullscreen = val;}
-	});
+	function setPlaybackState(state) {
+		self.fireEvent("playbackState", {
+			playbackState: _playbackState = state
+		});
+	}
 
-	var _initialPlaybackTime = null;
-	Object.defineProperty(this, 'initialPlaybackTime', {
-		get: function(){return _initialPlaybackTime;},
-		set: function(val){return _initialPlaybackTime = val;}
-	});
+	function setLoadState(state) {
+		self.fireEvent("loadstate", {
+			loadState: _loadState = state
+		});
+	}
 
-	var _loadState = null;
-	Object.defineProperty(this, 'loadState', {
-		get: function(){return _loadState;},
-		set: function(val){return _loadState = val;}
-	});
+	function complete(evt) {
+		var ended = evt.type === "ended";
+		_playing = false;
+		currentState = STOPPED;
+		self.fireEvent("complete", {
+			reason: ended ? media.VIDEO_FINISH_REASON_PLAYBACK_ENDED : media.VIDEO_FINISH_REASON_USER_EXITED
+		});
+		ended && self.repeatMode === media.VIDEO_REPEAT_MODE_ONE && setTimeout(function(){ video.play(); }, 1);
+	}
 
-	var _media = null;
-	Object.defineProperty(this, 'media', {
-		get: function(){return _media;},
-		set: function(val){return _media = val;}
-	});
+	function stalled() {
+		setLoadState(media.VIDEO_LOAD_STATE_STALLED);
+	}
 
-	var _mediaControlStyle = null;
-	Object.defineProperty(this, 'mediaControlStyle', {
-		get: function(){return _mediaControlStyle;},
-		set: function(val){return _mediaControlStyle = val;}
-	});
+	function fullscreenChange(e) {
+		_fullscreen && (_fullscreen = !_fullscreen);
+	}
 
-	var _mediaTypes = null;
-	Object.defineProperty(this, 'mediaTypes', {
-		get: function(){return _mediaTypes;},
-		set: function(val){return _mediaTypes = val;}
-	});
+	function metaDataLoaded() {
+		// TODO: Add check for Firefox <http://www.thecssninja.com/javascript/fullscreen>
+		nativeFullscreen = this.webkitSupportsFullscreen;
+		durationChange();
+	}
 
-	var _movieControlMode = null;
-	Object.defineProperty(this, 'movieControlMode', {
-		get: function(){return _movieControlMode;},
-		set: function(val){return _movieControlMode = val;}
-	});
+	function durationChange() {
+		var d = this.duration;
+		if (d !== Infinity) {
+			self.duration || self.fireEvent("durationAvailable", {
+				duration: d
+			});
+			setDuration(d);
+		}
+	}
 
-	var _naturalSize = null;
-	Object.defineProperty(this, 'naturalSize', {
-		get: function(){return _naturalSize;},
-		set: function(val){return _naturalSize = val;}
-	});
+	function paused() {
+		var pbs = media.VIDEO_PLAYBACK_STATE_STOPPED;
+		_playing = false;
+		if (currentState === PLAYING) {
+			currentState = PAUSED;
+			pbs = media.VIDEO_PLAYBACK_STATE_PAUSED;
+		} else if (currentState === STOPPING) {
+			video.currentTime = 0;
+		}
+		setPlaybackState(pbs);
+	}
 
-	var _playableDuration = null;
-	Object.defineProperty(this, 'playableDuration', {
-		get: function(){return _playableDuration;},
-		set: function(val){return _playableDuration = val;}
-	});
+	function createVideo(dontCreate) {
+		var i, src, match,
+			url = self.url;
 
-	var _playbackState = null;
-	Object.defineProperty(this, 'playbackState', {
-		get: function(){return _playbackState;},
-		set: function(val){return _playbackState = val;}
-	});
+		if (dontCreate && video && video.parentNode) {
+			return video;
+		}
 
-	var _playing = null;
-	Object.defineProperty(this, 'playing', {
-		get: function(){return _playing;},
-		set: function(val){return _playing = val;}
-	});
+		self.release();
 
-	var _repeatMode = null;
-	Object.defineProperty(this, 'repeatMode', {
-		get: function(){return _repeatMode;},
-		set: function(val){return _repeatMode = val;}
-	});
+		video = document.createElement("video");
+		video.tabindex = 0;
+		_mediaControlStyle === media.VIDEO_CONTROL_DEFAULT && (video.controls = 1);
 
-	var _scalingMode = null;
-	Object.defineProperty(this, 'scalingMode', {
-		get: function(){return _scalingMode;},
-		set: function(val){return _scalingMode = val;}
-	});
+		handles = [
+			on(video, "playing", function() {
+				currentState = PLAYING;
+				_playing = true;
+				self.fireEvent("playing", {
+					url: video.currentSrc
+				});
+				setPlaybackState(media.VIDEO_PLAYBACK_STATE_PLAYING);
+			}),
+			on(video, "pause", paused),
+			on(video, "canplay", function() {
+				setLoadState(media.VIDEO_LOAD_STATE_PLAYABLE);
+				currentState === STOPPED && self.autoplay && video.play();
+			}),
+			on(video, "canplaythrough", function() {
+				setLoadState(media.VIDEO_LOAD_STATE_PLAYTHROUGH_OK);
+				self.fireEvent("preload");
+			}),
+			on(video, "loadeddata", function() {
+				self.fireEvent("load");
+			}),
+			on(video, "loadedmetadata", metaDataLoaded),
+			on(video, "durationchange", durationChange),
+			on(video, "timeupdate", function(){
+				_currentPlaybackTime = Math.round(this.currentTime);
+				currentState === STOPPING && this.pause();
+			}),
+			on(video, "error", function() {
+				var msg = "Unknown error";
+				switch (this.error.code) {
+					case 1: msg = "Aborted"; break;
+					case 2: msg = "Decode error"; break;
+					case 3: msg = "Network error"; break;
+					case 4: msg = "Unsupported format";
+				}
+				_playing = false;
+				setLoadState(media.VIDEO_LOAD_STATE_UNKNOWN);
+				self.fireEvent("error", {
+					message: msg
+				});
+				self.fireEvent("complete", {
+					reason: media.VIDEO_FINISH_REASON_PLAYBACK_ERROR
+				});
+			}),
+			on(video, "abort", complete),
+			on(video, "ended", complete),
+			on(video, "stalled", stalled),
+			on(video, "waiting", stalled),
+			on(video, "mozfullscreenchange", fullscreenChange),
+			on(video, "webkitfullscreenchange", fullscreenChange)
+		];
 
-	var _sourceType = null;
-	Object.defineProperty(this, 'sourceType', {
-		get: function(){return _sourceType;},
-		set: function(val){return _sourceType = val;}
-	});
+		setSize();
+		self.dom.appendChild(video);
 
-	var _url = null;
-	Object.defineProperty(this, 'url', {
-		get: function(){return _url;},
-		set: function(val){return _url = val;}
-	});
+		require.is(url, "Array") || (url = [url]);
 
-	var _useApplicationAudioSession = null;
-	Object.defineProperty(this, 'useApplicationAudioSession', {
-		get: function(){return _useApplicationAudioSession;},
-		set: function(val){return _useApplicationAudioSession = val;}
-	});
+		for (i = 0; i < url.length; i++) {
+			src = document.createElement("source");
+			src.src = url[i];
+			match = url[i].match(/.+\.([^\/\.]+?)$/);
+			match && mimeTypes[match[1]] && (src.type = mimeTypes[match[1]]);
+			video.appendChild(src);
+		}
+
+		return video;
+	}
 
 	// Methods
-	this.cancelAllThumbnailImageRequests = function(){
-		console.debug('Method "Titanium.Media.VideoPlayer.cancelAllThumbnailImageRequests" is not implemented yet.');
-	};
-	this.pause = function(){
-		console.debug('Method "Titanium.Media.VideoPlayer.pause" is not implemented yet.');
-	};
-	this.play = function(){
-		console.debug('Method "Titanium.Media.VideoPlayer.play" is not implemented yet.');
-	};
-	this.release = function(){
-		console.debug('Method "Titanium.Media.VideoPlayer.release" is not implemented yet.');
-	};
-	this.requestThumbnailImagesAtTimes = function(){
-		console.debug('Method "Titanium.Media.VideoPlayer.requestThumbnailImagesAtTimes" is not implemented yet.');
-	};
-	this.setBackgroundView = function(){
-		console.debug('Method "Titanium.Media.VideoPlayer.setBackgroundView" is not implemented yet.');
-	};
-	this.setMedia = function(){
-		console.debug('Method "Titanium.Media.VideoPlayer.setMedia" is not implemented yet.');
-	};
-	this.setUrl = function(){
-		console.debug('Method "Titanium.Media.VideoPlayer.setUrl" is not implemented yet.');
-	};
-	this.stop = function(){
-		console.debug('Method "Titanium.Media.VideoPlayer.stop" is not implemented yet.');
-	};
-	this.thumbnailImageAtTime = function(){
-		console.debug('Method "Titanium.Media.VideoPlayer.thumbnailImageAtTime" is not implemented yet.');
+	self.play = function(){
+		currentState !== PLAYING && createVideo(1).play();
 	};
 
-	// Events
-	this.addEventListener('complete', function(){
-		console.debug('Event "complete" is not implemented yet.');
-	});
-	this.addEventListener('durationAvailable', function(){
-		console.debug('Event "durationAvailable" is not implemented yet.');
-	});
-	this.addEventListener('error', function(){
-		console.debug('Event "error" is not implemented yet.');
-	});
-	this.addEventListener('fullscreen', function(){
-		console.debug('Event "fullscreen" is not implemented yet.');
-	});
-	this.addEventListener('load', function(){
-		console.debug('Event "load" is not implemented yet.');
-	});
-	this.addEventListener('loadstate', function(){
-		console.debug('Event "loadstate" is not implemented yet.');
-	});
-	this.addEventListener('mediaTypesAvailable', function(){
-		console.debug('Event "mediaTypesAvailable" is not implemented yet.');
-	});
-	this.addEventListener('naturalSizeAvailable', function(){
-		console.debug('Event "naturalSizeAvailable" is not implemented yet.');
-	});
-	this.addEventListener('playbackState', function(){
-		console.debug('Event "playbackState" is not implemented yet.');
-	});
-	this.addEventListener('playing', function(){
-		console.debug('Event "playing" is not implemented yet.');
-	});
-	this.addEventListener('preload', function(){
-		console.debug('Event "preload" is not implemented yet.');
-	});
-	this.addEventListener('resize', function(){
-		console.debug('Event "resize" is not implemented yet.');
-	});
-	this.addEventListener('sourceChange', function(){
-		console.debug('Event "sourceChange" is not implemented yet.');
-	});
-	this.addEventListener('thumbnail', function(){
-		console.debug('Event "thumbnail" is not implemented yet.');
-	});
+	self.pause = function(){
+		currentState === PLAYING && createVideo(1).pause();
+	};
+
+	self.release = function(){
+		var i,
+			parent = video && video.parentNode;
+		if (parent) {
+			for (i = 0; i < handles.length; i++) {
+				handles[i]();
+			}
+			parent.removeChild(video);
+		}
+		video = null;
+	};
+
+	self.stop = function(){
+		currentState = STOPPING;
+		video.pause();
+		video.currentTime = 0;
+	};
+
+	// if we have a url, then create the video
+	self.url && createVideo();
 });

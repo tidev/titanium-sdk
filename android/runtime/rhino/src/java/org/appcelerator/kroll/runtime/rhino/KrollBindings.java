@@ -12,6 +12,7 @@ import org.appcelerator.kroll.KrollLogging;
 import org.appcelerator.kroll.runtime.rhino.KrollScriptRunner.KrollScript;
 import org.appcelerator.kroll.runtime.rhino.js.bootstrap;
 import org.appcelerator.kroll.runtime.rhino.js.events;
+import org.appcelerator.kroll.runtime.rhino.js.invoker;
 import org.appcelerator.kroll.runtime.rhino.js.kroll;
 import org.appcelerator.kroll.runtime.rhino.js.module;
 import org.appcelerator.kroll.runtime.rhino.js.path;
@@ -65,6 +66,7 @@ public class KrollBindings
 		// TODO this should be generated
 		addJsBinding("bootstrap", bootstrap.class);
 		addJsBinding("events", events.class);
+		addJsBinding("invoker", invoker.class);
 		addJsBinding("kroll", kroll.class);
 		addJsBinding("module", module.class);
 		addJsBinding("path", path.class);

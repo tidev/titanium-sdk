@@ -79,11 +79,17 @@ public class ${className}Prototype extends ${superProxy}
 		isModule = true;
 		</#if>
 		<@Proxy.listConstants ; isFirst, name, constant>
-		<#if constant.type = "java.lang.String">
-		putConst("${name}", this, "${constant.value}");
+
+		<#if (constant.value)??>
+			<#if constant.type = "java.lang.String">
+			putConst("${name}", this, "${constant.value}");
+			<#else>
+			putConst("${name}", this, ${constant.value?c});
+			</#if>
 		<#else>
-		putConst("${name}", this, ${constant.value?c});
+			putConst("${name}", this, ${className}.${constant.name});
 		</#if>
+
 		</@Proxy.listConstants>
 	}
 
@@ -102,7 +108,7 @@ public class ${className}Prototype extends ${superProxy}
 
 	protected KrollProxySupport createProxy(String creationUrl, Object[] args)
 	{
-		<#if useTiContext!false>
+		<#if (useTiContext!false)>
 		return KrollProxy.createDeprecatedProxy(${className}.class, getRhinoObject(), args, creationUrl);
 		<#else>
 		return KrollProxy.createProxy(${className}.class, getRhinoObject(), args, creationUrl);

@@ -4,77 +4,29 @@ Ti._5.createClass('Titanium.UI.iPhone.SystemIcon', function(args){
 	Ti._5.DOMView(this, 'iphone.systemicon', args, 'iPhone.SystemIcon');
 
 	// Properties
-	var _BOOKMARKS = null;
-	Object.defineProperty(this, 'BOOKMARKS', {
-		get: function(){return _BOOKMARKS;},
-		set: function(val){return _BOOKMARKS = val;}
-	});
+	Ti._5.prop(this, 'BOOKMARKS');
 
-	var _CONTACTS = null;
-	Object.defineProperty(this, 'CONTACTS', {
-		get: function(){return _CONTACTS;},
-		set: function(val){return _CONTACTS = val;}
-	});
+	Ti._5.prop(this, 'CONTACTS');
 
-	var _DOWNLOADS = null;
-	Object.defineProperty(this, 'DOWNLOADS', {
-		get: function(){return _DOWNLOADS;},
-		set: function(val){return _DOWNLOADS = val;}
-	});
+	Ti._5.prop(this, 'DOWNLOADS');
 
-	var _FAVORITES = null;
-	Object.defineProperty(this, 'FAVORITES', {
-		get: function(){return _FAVORITES;},
-		set: function(val){return _FAVORITES = val;}
-	});
+	Ti._5.prop(this, 'FAVORITES');
 
-	var _FEATURED = null;
-	Object.defineProperty(this, 'FEATURED', {
-		get: function(){return _FEATURED;},
-		set: function(val){return _FEATURED = val;}
-	});
+	Ti._5.prop(this, 'FEATURED');
 
-	var _HISTORY = null;
-	Object.defineProperty(this, 'HISTORY', {
-		get: function(){return _HISTORY;},
-		set: function(val){return _HISTORY = val;}
-	});
+	Ti._5.prop(this, 'HISTORY');
 
-	var _MORE = null;
-	Object.defineProperty(this, 'MORE', {
-		get: function(){return _MORE;},
-		set: function(val){return _MORE = val;}
-	});
+	Ti._5.prop(this, 'MORE');
 
-	var _MOST_RECENT = null;
-	Object.defineProperty(this, 'MOST_RECENT', {
-		get: function(){return _MOST_RECENT;},
-		set: function(val){return _MOST_RECENT = val;}
-	});
+	Ti._5.prop(this, 'MOST_RECENT');
 
-	var _MOST_VIEWED = null;
-	Object.defineProperty(this, 'MOST_VIEWED', {
-		get: function(){return _MOST_VIEWED;},
-		set: function(val){return _MOST_VIEWED = val;}
-	});
+	Ti._5.prop(this, 'MOST_VIEWED');
 
-	var _RECENTS = null;
-	Object.defineProperty(this, 'RECENTS', {
-		get: function(){return _RECENTS;},
-		set: function(val){return _RECENTS = val;}
-	});
+	Ti._5.prop(this, 'RECENTS');
 
-	var _SEARCH = null;
-	Object.defineProperty(this, 'SEARCH', {
-		get: function(){return _SEARCH;},
-		set: function(val){return _SEARCH = val;}
-	});
+	Ti._5.prop(this, 'SEARCH');
 
-	var _TOP_RATED = null;
-	Object.defineProperty(this, 'TOP_RATED', {
-		get: function(){return _TOP_RATED;},
-		set: function(val){return _TOP_RATED = val;}
-	});
+	Ti._5.prop(this, 'TOP_RATED');
 
-	Ti._5.presetUserDefinedElements(this, args);
+	require.mix(this, args);
 });

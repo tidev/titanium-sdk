@@ -1,69 +1,65 @@
-Ti._5.createClass('Titanium.Database.ResultSet', function(args){
-	var obj = this;
-	
-	var _currentRow = 0;
-	var results = args;
-	var aRows = args.rows;
-	
-	// Properties
-	var _rowCount = null;
-	Object.defineProperty(this, 'rowCount', {
-		get: function() {return aRows.length;},
-		set: function(val) {return null;}
-	});
+Ti._5.createClass("Ti.Database.ResultSet", function(args){
+	var obj = this,
+		currentRow = 0,
+		results = args,
+		aRows = args.rows;
 
-	Object.defineProperty(this, 'validRow', {
-		get: function() {return _currentRow >= aRows.length ? false : true;},
-		set: function(val) {return null;}
+	// Properties
+	Ti._5.propReadOnly(obj, {
+		rowCount: function() {return aRows.length;},
+		validRow: function() {return currentRow < aRows.length;}
 	});
 
 	// Methods
-	this.close = function(){
+	obj.close = function() {
 		results.close();
 	};
-	this.getRowCount = function() {
+	obj.getRowCount = function() {
 		return obj.rowCount;
 	};
-	this.field = function(index){
-		var row = aRows.item(_currentRow);
-		var count = 0;
+	obj.field = function(index){
+		var v,
+			row = aRows.item(currentRow),
+			count = 0;
 		for (v in row){
-			if (count==index){
+			if (count == index) {
 				return row[v];
 			}
 			count++;
 		}
 	};
-	this.fieldByName = function(name) {
-		var row = aRows.item(_currentRow);
+	obj.fieldByName = function(name) {
+		var row = aRows.item(currentRow);
 		return row[name.toUpperCase()];	
 	};
-	this.fieldCount = function(){
-		var row = aRows.item(_currentRow);
-		var count = 0;
+	obj.fieldCount = function() {
+		var v,
+			row = aRows.item(currentRow),
+			count = 0;
 		for (v in row){
 			count++;
 		}
-		console.log(row.length, count);
+		//console.log(row.length, count);
 		return count; 
 	};
-	this.fieldName = function(index) {
-		var row = aRows.item(_currentRow);
-		var count = 0;
+	obj.fieldName = function(index) {
+		var v,
+			row = aRows.item(currentRow),
+			count = 0;
 		for (v in row){
-			if (count==index){
+			if (count == index) {
 				return v;
 			}
 			count++;
 		}
 	};
-	this.isValidRow = function(){
+	obj.isValidRow = function() {
 		return obj.validRow;
 	};
-	this.next = function(){
-		_currentRow++;
+	obj.next = function() {
+		currentRow++;
 	};
-	this.close = function() {
+	obj.close = function() {
 		delete this;
 	}
 });

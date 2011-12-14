@@ -10,6 +10,12 @@
 % for item in item_list:
     % if item.name not in ("Titanium.Proxy", "Titanium.Module"):
 	<% row_class = " ".join(["in_" + p["name"].lower() for p in item.platforms]) %>
+    <%
+		if hasattr(item, "getter_for") or hasattr(item, "setter_for"):
+			row_class += " accessor"
+		if item.inherited_from_obj is not None:
+			row_class += " inherited"
+    %>
 	<% platform_names = ", ".join([p["pretty_name"] for p in item.platforms]) %>
 	<% append_cell_class = " deprecated" if item.deprecated else "" %>
 	<%
@@ -45,6 +51,18 @@
 				% endif
 				% if item.availability is not None:
 					<span class="availability_warning">${item.availability}</span>
+				% endif
+				% if item.typestr=="parameter":
+					% if item.optional is not None:
+						<span class="optional">Optional.</span>
+					% endif
+					% if item.default is not None:
+						<%
+							if item.default_html.startswith("<p>"):
+								item.default_html = item.default_html[3:-4]
+						%>
+						<span class="default">Default: ${item.default_html}</span>
+					% endif
 				% endif
 				% if was_para_close:
 					</p>

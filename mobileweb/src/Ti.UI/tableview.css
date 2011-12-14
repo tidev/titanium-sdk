@@ -10,8 +10,11 @@
 	user-select: none;
 	vertical-align: middle;
 	position: relative;
-	padding-left: 10px;
 	overflow: hidden;
+}
+
+.HTML5_TableViewRow span {
+	padding-left: 10px;
 }
 
 .HTML5_TableViewRow .leftImage, .HTML5_TableViewRow .rightImage {
