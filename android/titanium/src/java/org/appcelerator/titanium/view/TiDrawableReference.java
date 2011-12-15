@@ -363,6 +363,8 @@ public class TiDrawableReference
 			parentWidth, parentHeight;
 		destWidth = destHeight = parentWidth = parentHeight =
 			containerWidth = containerHeight = TiDrawableReference.UNKNOWN;
+		boolean widthSpecified = false;
+		boolean heightSpecified = false;
 
 		if (parent != null) {
 			parentWidth = parent.getWidth();
@@ -374,6 +376,7 @@ public class TiDrawableReference
 			if (destWidthDimension.isUnitAuto()) {
 				containerWidth = srcWidth;
 			} else {
+				widthSpecified = true;
 				containerWidth = destWidthDimension.getAsPixels(parent);
 			}
 		} else {
@@ -391,6 +394,7 @@ public class TiDrawableReference
 			if (destHeightDimension.isUnitAuto()) {
 				containerHeight = srcHeight;
 			} else {
+				heightSpecified = true;
 				containerHeight = destHeightDimension.getAsPixels(parent);
 			}
 		} else {
@@ -406,12 +410,23 @@ public class TiDrawableReference
 
 		float origAspectRatio = (float) srcWidth / (float) srcHeight;
 
-		if (origAspectRatio > 1f) {
+		if (widthSpecified && heightSpecified) {
+			destWidth = containerWidth;
+			destHeight = containerHeight;
+		} else if (widthSpecified) {
 			destWidth = containerWidth;
 			destHeight = (int) ((float) destWidth / origAspectRatio);
-		} else {
+		} else if (heightSpecified) {
 			destHeight = containerHeight;
 			destWidth = (int) ((float) destHeight * origAspectRatio);
+		} else {
+			if (origAspectRatio > 1f) {
+				destWidth = containerWidth;
+				destHeight = (int) ((float) destWidth / origAspectRatio);
+			} else {
+				destHeight = containerHeight;
+				destWidth = (int) ((float) destHeight * origAspectRatio);
+			}
 		}
 
 		bounds.width = destWidth;
@@ -452,6 +467,11 @@ public class TiDrawableReference
 		Bounds destBounds = calcDestSize(srcWidth, srcHeight, destWidthDimension, destHeightDimension, parent);
 		destWidth = destBounds.width;
 		destHeight = destBounds.height;
+
+		// If src and dest width/height are same, no need to go through all the sampling and scaling jazz.
+		if (srcWidth == destWidth && srcHeight == destHeight) {
+			return getBitmap();
+		}
 
 		if (destWidth <= 0 || destHeight <= 0) {
 			// calcDestSize() should actually prevent this from happening, but just in case...
