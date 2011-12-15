@@ -651,7 +651,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		[proxy performSelector:@selector(endBackground)];
 		[runningServices removeObject:proxy];
 	}
-	
+
+	[self checkBackgroundServices];
 	RELEASE_TO_NIL(runningServices);
 }
 
