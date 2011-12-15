@@ -326,7 +326,6 @@ public class TiUIWindow extends TiUIView
 				KrollDict data = new KrollDict();
 				data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
 				proxy.fireSyncEvent(TiC.EVENT_CLOSE, data);
-				ITiWindowHandler windowHandler = proxy.getTiContext().getTiApp().getWindowHandler();
 				((ViewGroup)(lightWindow.getParent())).removeView(lightWindow);
 				lightWindow.removeAllViews();
 				lightWindow = null;
