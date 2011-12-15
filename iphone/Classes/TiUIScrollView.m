@@ -240,8 +240,10 @@
 
 -(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
 {
-	CGRect responderRect = [wrapperView convertRect:[firstResponderView bounds] fromView:firstResponderView];
-	OffsetScrollViewForRect(scrollView,keyboardTop,minimumContentHeight,responderRect);
+    if ([scrollView isScrollEnabled]) {
+        CGRect responderRect = [wrapperView convertRect:[firstResponderView bounds] fromView:firstResponderView];
+        OffsetScrollViewForRect(scrollView,keyboardTop,minimumContentHeight,responderRect);
+    }
 }
 
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop forView:(TiUIView *)firstResponderView
