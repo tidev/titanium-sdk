@@ -44,6 +44,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
@@ -330,10 +331,7 @@ public class TiUIWindow extends TiUIView
 				data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
 				proxy.fireSyncEvent(TiC.EVENT_CLOSE, data);
 				ITiWindowHandler windowHandler = proxy.getTiContext().getTiApp().getWindowHandler();
-				if (windowHandler != null) {
-					Log.d(LCAT, "close- window is LW, windowHandler: " + windowHandler);
-					windowHandler.removeWindow(lightWindow);
-				}
+				((ViewGroup)(lightWindow.getParent())).removeView(lightWindow);
 				lightWindow.removeAllViews();
 				lightWindow = null;
 			}
