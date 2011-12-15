@@ -242,21 +242,6 @@ Titanium.bindInvocationAPIs = function(wrapperTi, scopeVars) {
 
 Titanium.Proxy = Proxy;
 
-// Use defineProperty so we can avoid our custom extensions being enumerated
-Object.defineProperty(Object.prototype, "extend", {
-	value: function(other) {
-		if (!other) return;
-	
-		for (var name in other) {
-			if (other.hasOwnProperty(name)) {
-				this[name] = other[name];
-			}
-		}
-		return this;
-	},
-	enumerable: false
-});
-
 Proxy.defineProperties = function(proxyPrototype, names) {
 	var properties = {};
 	var len = names.length;

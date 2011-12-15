@@ -175,8 +175,9 @@ exports.bootstrapWindow = function(Titanium) {
 		
 		if (!options) {
 			options = {};
+
 		} else if (!(options instanceof UI.Animation)) {
-			this._properties.extend(options);
+			kroll.extend(this._properties, options);
 		}
 
 		// Determine if we should create a heavy or light weight window.
@@ -192,7 +193,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 		// Set any cached properties on the properties given to the "true" view
 		if (this.propertyCache) {
-			this._properties.extend(this.propertyCache);
+			kroll.extend(this._properties, this.propertyCache);
 		}
 
 		if (this.cachedActivityProxy) {
@@ -239,7 +240,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 		// Set any cached properties on the properties given to the "true" view
 		if (this.propertyCache) {
-			this._properties.extend(this.propertyCache);
+			kroll.extend(this._properties, this.propertyCache);
 		}
 
 		this.window = existingWindow;
