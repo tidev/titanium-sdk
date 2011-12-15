@@ -4,6 +4,10 @@ summary: The JavaScript built-in String type.
 description: |
     The following are built-in functions available on the [String](Global.String) class.
     These are Titanium-specific extensions for formatting data into locale-specific strings. 
+
+    Both iOS and Android use the locale configured by the user for locale-specific formatting.
+    The locale is set in device's system Settings. 
+
 platforms: [android, iphone, ipad]
 methods:
   - name: format
