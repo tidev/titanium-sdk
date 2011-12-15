@@ -573,7 +573,8 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		NSLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
 		fflush(stderr);
 		TiStringRelease(js);
-		throw excm;
+
+		@throw excm;
 	}
 	
 	TiStringRelease(js);
