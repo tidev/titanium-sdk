@@ -234,7 +234,13 @@ static NSDictionary* TI_filterableItemProperties;
 		//If you presented the popover from a target rectangle in a view, the popover controller does not attempt to reposition the popover. 
 		//In thosecases, you must manually hide the popover or present it again from an appropriate new position.
 		//We will register for interface change notification for this purpose
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+		
+		//This registration tells us when the rotation begins.
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(manageRotation:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+		
+		//This registration lets us sync with the TiRootViewController's orientation notification (didOrientNotify method)
+		//No need to begin generating these events since the TiRootViewController already does that
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIDeviceOrientationDidChangeNotification object:nil];
 		arrowDirection = arrow;
 		popoverView = poView;
 		popover = [[UIPopoverController alloc] initWithContentViewController:picker_];
@@ -243,35 +249,41 @@ static NSDictionary* TI_filterableItemProperties;
 	}
 }
 
--(void)updatePopover:(NSNotification *)notification;
+-(void)manageRotation:(NSNotification *)notification
 {
-	UIInterfaceOrientation oldOrientation = [[UIApplication sharedApplication]statusBarOrientation];
+	//Capture the old orientation
+	oldOrientation = [[UIApplication sharedApplication]statusBarOrientation];
+}
+-(void)updatePopover:(NSNotification *)notification
+{
+	//Capture the new orientation
+	newOrientation = [[UIApplication sharedApplication]statusBarOrientation];
 	NSTimeInterval delay = [[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
-	UIInterfaceOrientation newOrientation = [[notification.userInfo valueForKey:UIApplicationStatusBarOrientationUserInfoKey] integerValue];
 	
-	if (oldOrientation == newOrientation) {
-		return;
-	}
 	//Set up the right delay
-	if ( (oldOrientation == UIInterfaceOrientationPortrait) && (newOrientation == UIInterfaceOrientationPortraitUpsideDown) ){
+	if ( (oldOrientation == UIInterfaceOrientationPortrait) && (newOrientation == UIInterfaceOrientationPortraitUpsideDown) ){	
 		delay*=2.0;
 	}
 	else if ( (oldOrientation == UIInterfaceOrientationLandscapeLeft) && (newOrientation == UIInterfaceOrientationLandscapeRight) ){
 		delay *=2.0;
 	}
+	
+	//Allow the root view controller to relayout all child view controllers so that we get the correct frame size when we re-present
 	[self performSelector:@selector(updatePopoverNow) withObject:nil afterDelay:delay inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 }
 
 -(void)updatePopoverNow
 {
-	if (popover) {
-		//GO AHEAD AND RE-PRESENT THE POPOVER NOW 
-		CGRect popOverRect = [popoverView bounds];
-		if (popoverView == [[TiApp app] controller].view) {
-			popOverRect.size.height = 50;
+	TiThreadPerformOnMainThread(^{
+		if (popover) {
+			//GO AHEAD AND RE-PRESENT THE POPOVER NOW 
+			CGRect popOverRect = [popoverView bounds];
+			if (popoverView == [[TiApp app] controller].view) {
+				popOverRect.size.height = 50;
+			}
+			[popover presentPopoverFromRect:popOverRect inView:popoverView permittedArrowDirections:arrowDirection animated:NO];
 		}
-		[popover presentPopoverFromRect:popOverRect inView:popoverView permittedArrowDirections:arrowDirection animated:NO];
-	}
+	},YES);
 }
 
 -(void)closeModalPicker:(UIViewController*)picker_
@@ -297,6 +309,7 @@ static NSDictionary* TI_filterableItemProperties;
 	[self destroyPicker];
 	//Unregister for interface change notification 
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
 -(void)showPicker:(NSDictionary*)args isCamera:(BOOL)isCamera

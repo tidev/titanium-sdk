@@ -45,6 +45,8 @@
 	KrollCallback *editorErrorCallback;
 	KrollCallback *editorCancelCallback;
 	UIPopoverArrowDirection arrowDirection;
+	UIInterfaceOrientation oldOrientation;
+	UIInterfaceOrientation newOrientation;
 }
 
 +(NSDictionary*)itemProperties;
