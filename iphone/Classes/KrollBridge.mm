@@ -707,7 +707,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		id excm = [KrollObject toID:context value:exception];
 		NSLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
 		fflush(stderr);
-		throw excm;
+		@throw excm;
 	}
 	/*
 	 *	In order to work around the underlying issue of TIMOB-2392, we must

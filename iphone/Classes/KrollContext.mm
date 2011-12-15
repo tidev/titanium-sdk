@@ -598,8 +598,6 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		id excm = [KrollObject toID:context value:exception];
 		NSLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
 		fflush(stderr);
-		TiStringRelease(js);
-
 		@throw excm;
 	}
 	return [KrollObject toID:context value:result];
