@@ -144,48 +144,48 @@ Ti._5.createClass("Ti.UI.TableViewRow", function(args){
 		leftImage: {
 			get: function(){return _leftImage;},
 			set: function(val){
-				_leftImage = val;
-				var img;
-				if(_leftImageObj == null){
-					_leftImageObj = document.createElement("div");
-					_leftImageObj.className = "leftImage";
-					var inner = document.createElement("div");
-					_leftImageObj.appendChild(inner);
-					img = document.createElement("img");
-					inner.appendChild(img);
+				var div = _leftImageObj, inner, img;
+				if (_leftImage = val) {
+					if (div) {
+						img = div.firstChild.firstChild;
+					} else {
+						div = _leftImageObj = document.createElement("div");
+						div.className = "leftImage";
+						div.appendChild(inner = document.createElement("div"));
+						inner.appendChild(img = document.createElement("img"));
+						domNode.appendChild(div);
+					}
+					img.src = Ti._5.getAbsolutePath(val);
 				} else {
-					img = _leftImageObj.firstChild.firstChild;
-				}
-				if(_leftImage == "" || _leftImage == null){
-					domNode.removeChild(_leftImageObj);
-				} else {
-					img.src = Ti._5.getAbsolutePath(_leftImage);
-					domNode.appendChild(_leftImageObj);
+					if (_leftImageObj) {
+						_leftImageObj.parentNode.removeChild(_leftImageObj);
+						_leftImageObj = null;
+					}
 				}
 			}
 		},
 		rightImage: {
 			get: function(){return _rightImage;},
 			set: function(val){
-				_rightImage = val;
-				var img;
-				if(_rightImageObj == null){
-					_rightImageObj = document.createElement("div");
-					_rightImageObj.className = "rightImage";
-					var inner = document.createElement("div");
-					_rightImageObj.appendChild(inner);
-					img = document.createElement("img");
-					inner.appendChild(img);
+				var div = _rightImageObj, inner, img;
+				if (_rightImage = val) {
+					if (div) {
+						img = div.firstChild.firstChild;
+					} else {
+						div = _rightImageObj = document.createElement("div");
+						div.className = "rightImage";
+						div.appendChild(inner = document.createElement("div"));
+						inner.appendChild(img = document.createElement("img"));
+						domNode.appendChild(div);
+						domNode.className += " hasRightImage";
+					}
+					img.src = Ti._5.getAbsolutePath(val);
 				} else {
-					img = _rightImageObj.firstChild.firstChild;
-				}
-				if(_rightImage == "" || _rightImage == null){
-					domNode.removeChild(_rightImageObj);
-					domNode.className = domNode.className.replace(/\s*hasRightImage/, "");
-				} else {
-					img .src = Ti._5.getAbsolutePath(_rightImage);
-					domNode.appendChild(_rightImageObj);
-					domNode.className += " hasRightImage";
+					if (_rightImageObj) {
+						_rightImageObj.parentNode.removeChild(_rightImageObj);
+						_rightImageObj = null;
+						domNode.className = domNode.className.replace(/\s*hasRightImage/, "");
+					}
 				}
 			}
 		},
