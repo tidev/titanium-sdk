@@ -260,7 +260,6 @@ public class TabGroupProxy extends TiWindowProxy
 		}
 
 		Activity activity = getTiContext().getActivity();
-		Log.i(LCAT, "activity: " + activity);
 		Intent intent = new Intent(activity, TiTabActivity.class);
 		fillIntent(activity, intent);
 		activity.startActivity(intent);

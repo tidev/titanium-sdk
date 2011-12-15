@@ -538,7 +538,6 @@ public class KrollProxy
 	public void switchToCreatingContext()
 	{
 		if (creatingContext != null && context != null && !creatingContext.equals(context)) {
-			Log.i(TAG, "creatingContext: " + creatingContext + " context: " + context);
 			switchContext(creatingContext);
 		}
 	}

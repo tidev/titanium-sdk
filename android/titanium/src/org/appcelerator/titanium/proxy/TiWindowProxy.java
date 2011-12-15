@@ -112,12 +112,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Kroll.method
 	public void open(@Kroll.argument(optional = true) Object arg)
 	{
-		if (opened || opening) { 
-			Log.w(LCAT, "opened: " + opened);
-			Log.w(LCAT, "opening: " + opening);
-			return; 
-			}
-		Log.i(LCAT, "open called");
+		if (opened || opening) { return; }
 
 		waitingForOpen = new WeakReference<TiWindowProxy>(this);
 		opening = true;
@@ -144,11 +139,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Kroll.method
 	public void close(@Kroll.argument(optional = true) Object arg)
 	{
-		if (!opened) { 
-			Log.w(LCAT, "Cannot close. window is not open");
-			return; 
-		}
-		Log.i(LCAT, "closing");
+		if (!opened) { return; }
 
 		KrollDict options = null;
 		TiAnimation animation = null;
@@ -173,13 +164,10 @@ public abstract class TiWindowProxy extends TiViewProxy
 	public void closeFromActivity()
 	{
 		if (!opened) { return; }
-		Log.i(LCAT, "closeFromActivity");
 		releaseViews();
 		opened = false;
 		TiContext context = getTiContext();
 		if (creatingContext != null && context != null && !creatingContext.equals(context)) {
-			Log.i(LCAT, "closeFromActivity- switchToCreatingContext: creatingContext: " + creatingContext + "context: " + context);
-			
 			switchToCreatingContext();
 		}
 	}

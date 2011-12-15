@@ -310,21 +310,17 @@ public class TiUIWindow extends TiUIView
 		}
 
 		if (!lightWeight) {
-			Log.d(LCAT, "close- window is HW");
 			if (windowActivity != null) {
-				Log.d(LCAT, "close- window is HW and windowActivity is not null");
 				if (!animateOnClose) {
 					windowActivity.finish();
 					TiUIHelper.overridePendingTransition(windowActivity);
 				} else {
-					Log.d(LCAT, "not animate on close");
 					windowActivity.finish();
 				}
 				windowActivity = null;
 			}
 		} else {
 			if (lightWindow != null) {
-				Log.d(LCAT, "close- window is LW, and its not null" );
 				// Only fire close event for lightweights.  For heavyweights, the
 				// Activity finish will result in close firing.
 				KrollDict data = new KrollDict();
