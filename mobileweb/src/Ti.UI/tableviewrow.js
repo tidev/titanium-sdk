@@ -295,10 +295,10 @@ Ti._5.createClass("Ti.UI.TableViewRow", function(args){
 	function getLowestPosition(obj) {
 		var i,
 			pos,
+			oSizes = Ti._5._getElementOffset(domNode),
 			maxPos = oSizes.height + (parseInt(obj.top) || 0) + (parseInt(obj.bottom) || 0),
 			children = obj._children,
-			len = children.length,
-			oSizes = Ti._5._getElementOffset(domNode);
+			len = children.length;
 		//var maxPos = oSizes.height + oSizes.top;
 		for (i = 0; i < len; i++) {
 			pos = getLowestPosition(children[i]);
