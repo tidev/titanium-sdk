@@ -97,8 +97,6 @@ Ti._5.createClass("Ti.Network.HTTPClient", function(args){
 
 		xhr.open(obj.connectionType, obj.location, async);
 		xhr.setRequestHeader("UserAgent", Ti.userAgent);
-		//xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
-		//xhr.setRequestHeader("Content-Type", "text/xml; charset=utf-8");
 	};
 	obj.send = function(args){
 		requestComplete = false;
