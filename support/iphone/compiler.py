@@ -207,12 +207,6 @@ class Compiler(object):
 			main_file.write(main_template)
 			main_file.close()
 		
-		if deploytype == 'production':
-			version = ti.properties['version']
-			# we want to make sure in debug mode the version always changes
-			version = "%s.%d" % (version,time.time())
-			ti.properties['version']=version
-
 		resources_dir = os.path.join(project_dir,'Resources')
 		iphone_resources_dir = os.path.join(resources_dir,'iphone')
 
