@@ -132,8 +132,8 @@ Module.prototype.createModuleWrapper = function(externalModule, sourceUrl) {
 		externalModule.removeEventListener.apply(externalModule, arguments);
 	}
 
-	wrapper.fireEventListener = function() {
-		externalModule.fireEventListener.apply(externalModule, arguments);
+	wrapper.fireEvent = function() {
+		externalModule.fireEvent.apply(externalModule, arguments);
 	}
 
 
