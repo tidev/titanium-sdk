@@ -15,7 +15,7 @@
 	function initFacebook() {
 		FB.init({
 			appId: appid, // App ID
-			status: true, // check login status
+			status: false, // do NOT check login status because we're gonna do it after init() anyways
 			cookie: true, // enable cookies to allow the server to access the session
 			oauth: true, // enable OAuth 2.0
 			xfbml: true  // parse XFBML
@@ -57,8 +57,8 @@
 		appid: {
 			get: function(){return appid;},
 			set: function(val){
-				facebookLoaded && initFacebook();
 				appid = val;
+				facebookLoaded && initFacebook();
 			}
 		},
 		expirationDate: undef,
