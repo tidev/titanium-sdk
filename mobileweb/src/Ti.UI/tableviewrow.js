@@ -7,7 +7,7 @@ Ti._5.createClass("Ti.UI.TableViewRow", function(args){
 			fontStyle: "normal",
 			fontVariant: "normal",
 			fontWeight: "bold"
-		}, args.font),
+		}, args && args.font),
 		unselectable: true,
 		width: "100%"
 	}, args);
