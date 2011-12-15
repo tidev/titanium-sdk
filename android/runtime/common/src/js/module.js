@@ -124,6 +124,18 @@ Module.prototype.createModuleWrapper = function(externalModule, sourceUrl) {
 		}));
 	}
 
+	wrapper.addEventListener = function() {
+		externalModule.addEventListener.apply(externalModule, arguments);
+	}
+
+	wrapper.removeEventListener = function() {
+		externalModule.removeEventListener.apply(externalModule, arguments);
+	}
+
+	wrapper.fireEvent = function() {
+		externalModule.fireEvent.apply(externalModule, arguments);
+	}
+
 	return wrapper;
 }
 
