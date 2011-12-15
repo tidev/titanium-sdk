@@ -136,7 +136,6 @@ Module.prototype.createModuleWrapper = function(externalModule, sourceUrl) {
 		externalModule.fireEvent.apply(externalModule, arguments);
 	}
 
-
 	return wrapper;
 }
 
