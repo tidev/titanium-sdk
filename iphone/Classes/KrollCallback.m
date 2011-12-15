@@ -158,19 +158,6 @@ static NSLock *callbackLock;
 	return val;
 }
 
-- (void)replaceValue:(id)value forKey:(NSString*)key notification:(BOOL)notify
-{	/*
-	 *	This is to be used ONLY from KrollBridge's require call, due to some
-	 *	JS files assigning exports to a function instead of a standard
-	 *	JS object.
-	 */
-	
-	TiValueRef valueRef = [KrollObject toValue:context value:value];
-	TiStringRef keyRef = TiStringCreateWithCFString((CFStringRef) key);
-	TiObjectSetProperty(jsContext, function, keyRef, valueRef, kTiPropertyAttributeReadOnly, NULL);
-	TiStringRelease(keyRef);
-}
-
 -(TiObjectRef)function
 {
 	return function;
@@ -192,5 +179,65 @@ static NSLock *callbackLock;
 
 @implementation KrollFunction
 @synthesize remoteFunction, remoteBridge;
+
+/*	NOTE:
+ *	Until KrollFunction takes a more expanded role as a general purpose wrapper,
+ *	protectJsobject is to be used during commonJS inclusion ONLY.
+ *	For example, KrollBridge ensures that this is only done in the JS thread,
+ *	and unlike KrollObject, KrollFunction does not have the infrastructure to
+ *	handle being called outside the JS.
+ */
+
+- (void)dealloc {
+	if (protecting) {
+		[self unprotectJsobject];
+	}
+    [super dealloc];
+}
+
+-(void)protectJsobject
+{
+	if (protecting || ![KrollBridge krollBridgeExists:remoteBridge])
+	{
+		return;
+	}
+
+	if (![[remoteBridge krollContext] isKJSThread])
+	{
+		NSLog(@"[WARN] KrollFunction trying to protect in the wrong thread.%@",CODELOCATION);
+		return;
+	}
+	protecting = YES;
+	TiValueProtect([[remoteBridge krollContext] context],remoteFunction);
+}
+
+-(void)unprotectJsobject
+{
+	if (!protecting || ![KrollBridge krollBridgeExists:remoteBridge])
+	{
+		return;
+	}
+	
+	if (![[remoteBridge krollContext] isKJSThread])
+	{
+		NSLog(@"[WARN] KrollFunction trying to unprotect in the wrong thread.%@",CODELOCATION);
+		return;
+	}
+	protecting = NO;
+	TiValueUnprotect([[remoteBridge krollContext] context],remoteFunction);
+}
+
+- (void)replaceValue:(id)value forKey:(NSString*)key notification:(BOOL)notify
+{	/*
+	 *	This is to be used ONLY from KrollBridge's require call, due to some
+	 *	JS files assigning exports to a function instead of a standard
+	 *	JS object.
+	 */
+	KrollContext * context = [remoteBridge krollContext];
+	TiValueRef valueRef = [KrollObject toValue:context value:value];
+	TiStringRef keyRef = TiStringCreateWithCFString((CFStringRef) key);
+	TiObjectSetProperty([context context], remoteFunction, keyRef, valueRef, kTiPropertyAttributeReadOnly, NULL);
+	TiStringRelease(keyRef);
+}
 
 @end
