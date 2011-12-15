@@ -692,30 +692,34 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 -(id)loadCommonJSModule:(NSString*)code withPath:(NSString*)path
 {
 	NSString *js = [[NSString alloc] initWithFormat:TitaniumModuleRequireFormat,code];
-	
-	id result = [self evalJSAndWait:js];
-	[js release];
-	bool resultIsArray = [result isKindOfClass:[NSArray class]];
-	bool resultIsDict = [result isKindOfClass:[NSDictionary class]];
 
-	if (resultIsArray || resultIsDict) {
-		TiProxy *proxy = [[TiProxy alloc] _initWithPageContext:self];
-		int keyIndex = 0;
-		for (id currentObject in result)
-		{
-			if (resultIsDict)
-			{
-				[proxy setValue:[result objectForKey:currentObject] forUndefinedKey:currentObject];
-			}
-			else
-			{
-				[proxy setValue:currentObject forKey:[NSString stringWithFormat:@"%d",keyIndex++]];
-			}
-		}
-		result = [proxy autorelease];
-	}
+	/* This most likely should be integrated with normal code flow, but to
+	 * minimize impact until a in-depth reconsideration of KrollContext can be
+	 * done, we should have as little footprint 
+	 */
+	KrollEval *eval = [[[KrollEval alloc] initWithCode:js] autorelease];
+	TiValueRef exception = NULL;
+	TiValueRef resultRef = [eval jsInvokeInContext:context exception:&exception];
+	[js release];
+	[eval release];
 	
-	return result;
+	if (exception != NULL) {
+		id excm = [KrollObject toID:context value:exception];
+		NSLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
+		fflush(stderr);
+		throw excm;
+	}
+	/*
+	 *	In order to work around the underlying issue of TIMOB-2392, we must
+	 *	use KrollFunction as a JS wrapper instead of converting it to a proxy
+	 */
+
+	KrollFunction * result = [[KrollFunction alloc] init];
+	[result setRemoteBridge:self];
+	[result setRemoteFunction:(TiObjectRef)resultRef];
+	[result protectJsobject];
+	
+	return [result autorelease];
 }
 
 -(NSString*)pathToModuleClassName:(NSString*)path

@@ -52,15 +52,25 @@
 // KrollCallbacks and KrollObjectProperties will be converted into functions (or TiObjectRefs at
 // any rate)
 
+/*
+ *	TODO: KrollFunction should be made a base class, renamed something akin to
+ *	KrollWrapper, to reflect its larger use as of TIMOB-6688 and for future
+ *	designs where we consolidate various KrollObjects, KrollCallbacks, etc.
+ */
+
 @class KrollBridge;
 
 @interface KrollFunction : NSObject
 {
 	TiObjectRef remoteFunction;
 	KrollBridge * remoteBridge;
+	BOOL	protecting;
 }
 
 @property (nonatomic,readwrite,assign)	TiObjectRef remoteFunction;
 @property (nonatomic,readwrite,assign)	KrollBridge * remoteBridge;
+
+-(void)protectJsobject;
+-(void)unprotectJsobject;
 
 @end
