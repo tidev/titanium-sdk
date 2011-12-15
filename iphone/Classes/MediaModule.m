@@ -253,14 +253,13 @@ static NSDictionary* TI_filterableItemProperties;
 {
 	//Capture the old orientation
 	oldOrientation = [[UIApplication sharedApplication]statusBarOrientation];
+	//Capture the new orientation
+	newOrientation = [[notification.userInfo valueForKey:UIApplicationStatusBarOrientationUserInfoKey] integerValue];
 }
 -(void)updatePopover:(NSNotification *)notification
 {
-	//Capture the new orientation
-	newOrientation = [[UIApplication sharedApplication]statusBarOrientation];
-	NSTimeInterval delay = [[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
-	
 	//Set up the right delay
+	NSTimeInterval delay = [[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
 	if ( (oldOrientation == UIInterfaceOrientationPortrait) && (newOrientation == UIInterfaceOrientationPortraitUpsideDown) ){	
 		delay*=2.0;
 	}
