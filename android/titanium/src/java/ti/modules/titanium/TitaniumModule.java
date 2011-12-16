@@ -36,7 +36,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import android.app.Activity;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.Looper;
 
 @Kroll.module @Kroll.topLevel({"Ti", "Titanium"})
 public class TitaniumModule extends KrollModule
@@ -242,12 +241,12 @@ public class TitaniumModule extends KrollModule
 
 		// FIXME this used to look at the activity / tiContext, but we don't care now
 		if (window != null) {
-			thread = Looper.getMainLooper().getThread();
+			thread = getRuntimeHandler().getLooper().getThread();
 
 		} else {
 			if (activity instanceof TiLaunchActivity) {
 				//TiLaunchActivity launchActivity = (TiLaunchActivity) activity;
-				thread = Looper.getMainLooper().getThread();
+				thread = getRuntimeHandler().getLooper().getThread();
 			}
 		}
 
