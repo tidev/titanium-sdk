@@ -125,7 +125,6 @@ Handle<Value> AssetsModule::readFile(const Arguments& args)
 
 Handle<Value> AssetsModule::fileExists(const Arguments& args)
 {
-
 	if (args.Length() == 0 || args[0]->IsNull() || args[0]->IsUndefined()) {
 		return JSException::Error("assets.fileExists requires a valid filename");
 	}
