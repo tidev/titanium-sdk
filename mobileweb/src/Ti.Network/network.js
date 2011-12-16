@@ -2,7 +2,8 @@
 	// Interfaces
 	Ti._5.EventDriven(api);
 
-	var _httpURLFormatter = null;
+	var _httpURLFormatter = null,
+	    _online = navigator.onLine;
 
 	// Properties
 	Ti._5.propReadOnly(api, {
@@ -19,7 +20,7 @@
 		READ_WRITE_MODE: 2,
 		WRITE_MODE: 1,
 		networkType: function() {
-			if (!api.online) {
+			if (!_online) {
 				return api.NETWORK_NONE;
 			}		
 			if (navigator.connection && navigator.connection.type == navigator.connection.WIFI) {
@@ -39,7 +40,7 @@
 			return api.NETWORK_UNKNOWN;
 		},
 		networkTypeName: function() {
-			if (!api.online) {
+			if (!_online) {
 				return "NONE";
 			}		
 			if (navigator.connection && navigator.connection.type == navigator.connection.WIFI) {
@@ -80,37 +81,29 @@
 	api.encodeURIComponent = function(value) {
 		return encodeURIComponent(value);
 	};
-	
-	// IPhone only
-	api.registerForPushNotifications = function(){
-		console.debug('Method "Titanium.Network.registerForPushNotifications" is not implemented yet.');
-	};
-
-	// deprecated since 1.7.0
-	api.removeConnectivityListener = function(){
-		console.debug('Method "Titanium.Network.removeConnectivityListener" is not implemented yet.');
-	};
 
 	// Events
 	require.on(window, "online", function(evt) {
-		api.online || api.fireEvent("change", {
-			networkType		: api.networkType,
-			networkTypeName	: api.networkTypeName,
-			online			: true,
-			source			: evt.target,
-			type			: evt.type
-		});
-		api.online = true;
+		if (!_online) {
+			_online = true;
+			api.fireEvent("change", {
+				networkType		: api.networkType,
+				networkTypeName	: api.networkTypeName,
+				online			: true,
+				source			: evt.target,
+				type			: evt.type
+			});
+		}
 	});
 	
 	require.on(window, "offline", function(evt) {
-		api.online && api.fireEvent("change", {
+		_online && api.fireEvent("change", {
 			networkType		: api.networkType,
 			networkTypeName	: api.networkTypeName,
 			online			: false,
 			source			: evt.target,
 			type			: evt.type
 		});
-		api.online = false;
+		_online = false;
 	});
 })(Ti._5.createClass("Ti.Network"));
