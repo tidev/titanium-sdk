@@ -115,6 +115,7 @@ public:
 	static jmethodID openErrorDialogMethod;
 
 	static jmethodID krollAssetHelperReadAssetMethod;
+	static jmethodID krollAssetHelperFileExistsMethod;
 
 };
 
