@@ -391,28 +391,27 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					}
 					waitTime = 0;
 					synchronized (releasedLock) {
-						if (imageSources != null && j < imageSources.size()) {
-							while (waitTime < getDuration() * imageSources.size()) {
-								try {
-									Bitmap b = imageSources.get(j).getBitmap();
-									if (!bitmapQueue.offer(new BitmapWithIndex(b, j))) {
-										if (isStopping.get()) {
-											break;
-										} else {
-											Thread.sleep(sleepTime);
-											waitTime += sleepTime;
-										}
-									} else {
+						if (imageSources == null || j >= imageSources.size()) {
+							break topLoop;
+						}
+						while (waitTime < getDuration() * imageSources.size()) {
+							try {
+								Bitmap b = imageSources.get(j).getBitmap();
+								if (!bitmapQueue.offer(new BitmapWithIndex(b, j))) {
+									if (isStopping.get()) {
 										break;
-									}
-									
-								} catch (InterruptedException e) {
-									Log.w(LCAT, "Interrupted while adding Bitmap into bitmapQueue");
+									} 
+									Thread.sleep(sleepTime);
+									waitTime += sleepTime;
+
+								} else {
 									break;
 								}
+
+							} catch (InterruptedException e) {
+								Log.w(LCAT, "Interrupted while adding Bitmap into bitmapQueue");
+								break;
 							}
-						} else {
-							break topLoop;
 						}
 					}
 					repeatIndex++;
