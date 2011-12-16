@@ -44,11 +44,16 @@
 	KrollCallback *editorSuccessCallback;
 	KrollCallback *editorErrorCallback;
 	KrollCallback *editorCancelCallback;
+	UIPopoverArrowDirection arrowDirection;
+	UIInterfaceOrientation oldOrientation;
+	UIInterfaceOrientation newOrientation;
+	BOOL isPresenting;
 }
 
 +(NSDictionary*)itemProperties;
 +(NSDictionary*)filterableItemProperties;
 
+@property(nonatomic,readwrite,retain) UIView *popoverView;
 @property(nonatomic,readonly) CGFloat volume;
 @property(nonatomic,readonly) CGFloat peakMicrophonePower;
 @property(nonatomic,readonly) CGFloat averageMicrophonePower;
