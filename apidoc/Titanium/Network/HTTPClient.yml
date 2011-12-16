@@ -2,10 +2,12 @@
 name: Titanium.Network.HTTPClient
 summary: HTTP client object that (mostly) implements the XMLHttpRequest specification.
 description: |
-    An `HTTPClient` object is used for a single request. Use <Titanium.Network.createHTTPClient> 
-    to create a new `HTTPClient` object for each request.
+    Use <Titanium.Network.createHTTPClient> to create a new `HTTPClient` object.
 
-    There are three steps in making an HTTP request:
+    An `HTTPClient` object is intended to be used for a single request. It may be 
+    possible to re-use an `HTTPClient` object, but this use case is not tested. 
+
+    There are three steps in making a typical HTTP request:
 
     * Creating an `HTTPClient` object.
     * Opening the `HTTPClient` object.
@@ -53,22 +55,26 @@ methods:
         summary: URL for the request.
         type: String
       - name: async
-        summary: Whether the request should be made asynchronously.
+        summary: Whether the request should be made asynchronously. Only used on iOS.
         type: Boolean
         optional: true
         default: true
   - name: send
-    summary: Sends the request (Only async is currently supported).
+    summary: Sends the request.
     description: |
         For POST requests, use the `data` parameter to send POST data.
 
         If you pass a serializable JavaScript object, it is automatically
-        turned into form-encoded POST data. You can also send arbitrary 
-        string or binary data.
+        turned into form-encoded POST data. You can also send an arbitrary 
+        string or binary data (in the form of a Titanium.Blob).
+
+        On iOS, you can specify a synchronous request when you call `open` 
+        by passing `false` for the `async` parameter. In the case of a synchronous
+        request, `send` blocks until the request is complete. 
     parameters:
       - name: data
         summary: Data to send with a POST request. 
-        type: [ Object, String, Titanium.Filesystem.File, Titanium.Blob ]
+        type: [Object, String, Titanium.Filesystem.File, Titanium.Blob]
         optional: true
         default: no data
   - name: setRequestHeader
