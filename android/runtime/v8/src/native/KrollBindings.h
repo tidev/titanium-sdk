@@ -9,6 +9,8 @@
 
 #include <map>
 #include <string>
+#include <vector>
+
 #include <v8.h>
 
 namespace titanium {
@@ -25,10 +27,14 @@ namespace bindings {
 
 } // namespace bindings
 
+typedef bindings::BindEntry* (*LookupFunction)(const char *binding, unsigned int bindingLength);
+
+
 class KrollBindings
 {
 private:
 	static std::map<std::string, bindings::BindEntry*> externalBindings;
+	static std::vector<LookupFunction> externalLookups;
 
 public:
 	static void initFunctions(v8::Handle<v8::Object> exports);
@@ -44,6 +50,7 @@ public:
 
 	static v8::Handle<v8::Value> getExternalBinding(const v8::Arguments& args);
 	static void addExternalBinding(const char *name, bindings::BindEntry *binding);
+	static void addExternalLookup(LookupFunction lookup);
 
 	static void dispose();
 };
