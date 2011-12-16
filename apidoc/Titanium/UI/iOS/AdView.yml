@@ -47,11 +47,13 @@ events:
       - name: x
         summary: the x point of the event in receiving view coordiantes
 properties:
-  - name: SIZE_320x50
-    summary: constant for 320x50 ad sizes
+  - name: size
+    summary: Size of the view as a string indicating a system-allowed size.
+    description: |
+        Apple only allows setting ad views as specific sizes, meaning that
+        traditional view sizing is not allowed for ad views. Ads always
+        display in full-screen mode when a user clicks on them - this
+        size is for the "minimized" ad only. Should be set to either
+        [AD_SIZE_PORTRAIT](Ti.UI.iOS.AD_SIZE_PORTRAIT) or
+        [AD_SIZE_LANDSCAPE](Ti.UI.iOS.AD_SIZE_LANDSCAPE).
     type: String
-    permission: read-only
-  - name: SIZE_480x32
-    summary: constant for 480x32 ad sizes
-    type: String
-    permission: read-only

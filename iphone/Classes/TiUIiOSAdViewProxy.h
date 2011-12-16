@@ -12,12 +12,7 @@
 
 @interface TiUIiOSAdViewProxy : TiUIViewProxy {
 
-@private
-
 }
-
-@property(nonatomic,assign,readonly) NSString *SIZE_320x50;
-@property(nonatomic,assign,readonly) NSString *SIZE_480x32;
 
 @end
 
