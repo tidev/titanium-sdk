@@ -1,6 +1,58 @@
 ---
 name: Titanium.UI.View
 summary: An empty drawing surface or container created by the method <Titanium.UI.createView>.
+description: |
+    The `View` is the base type for all UI widgets in Titanium.
+
+    
+    #### Units and Coordinates
+    
+    Sizes and coordinates are specified using platform-specific units. 
+
+    The default unit on Android is pixels, but users can specify other units, including 
+    pixels (px), points (pt), device-independent pixels (dp or dip), millimeters (mm) or 
+    inches (in). For example, '16pt' is interpreted as 16 points. Points on Android always 
+    refers to the typographical unit of 1/72 of an inch.
+    
+    Android's density-independent pixels (DIPs) maintain a consistent visual size independent 
+    of the display's density. One DIP corresponds to one pixel on a medium density display 
+    (160 DPI).
+    
+    iOS accepts sizes in Apple "points," where one "point" corresponds to one pixel on 
+    non-Retina displays, and two pixels on Retina displays. This unit is rougly equivalent
+    to the Android density-independent pixel, and shouldn't be confused with the typographical
+    unit. 
+    
+    Any unit specifier appended to a size or coordinate value on iOS is ignored: for example, 
+    '16in' is interpreted as 16 Apple "points", as is '16px' or '16mm'. 
+
+    Font sizes on iOS are treated differently than other sizes: font sizes are always 
+    specified in typographical points.
+    
+    Mobile Web accepts all of the standard web units, including 
+    pixels (px), ems (em), points (pt), picas (pc), millimeters (mm) or inches (in). The 
+    default unit is pixels. Note that in Mobile Web, the interpretation of these units 
+    is browser-dependent.
+
+    Some [View](Titanium.UI.View) size fields, such as `height` and `width` accept the 
+    special value `'auto'` to specify that the value should be calculated based on the 
+    view's contents. Sizes and positions can also be specified as a percentage of the 
+    parent, for example, '50%'.
+    
+    #### Size and Position
+    
+    Titanium views are positioned using the `left`, `right`, `top,` `bottom` and `center` 
+    properties, and sized using the `width` and `height` properties. These are
+    input properties, set by the user to specify layout, and not modified by the 
+    system to indicate actual calculated positions and sizes. 
+    
+    How these properties are interpreted depends on the value of the view's `layout` 
+    property. See the description of the [layout](Titanium.UI.View.layout) property 
+    for details.
+    
+    The [size](Titanium.UI.View.size) field is an output field that supplies the *calculated* 
+    size of the view. The `size` field is a dictionary with two properties, `width` and `height`.
+
 extends: Titanium.Proxy
 since: "0.9"
 methods:
@@ -205,6 +257,8 @@ events:
       - name: velocity
         summary: The velocity of the pinch in scale factor per second.
         type: Number
+    platforms: [iphone,ipad]
+    since: "1.8.0"
   - name: singletap
     summary: Fired when the device detects a single tap against the view.
     properties:
