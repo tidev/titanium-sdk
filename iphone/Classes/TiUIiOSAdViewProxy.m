@@ -8,6 +8,7 @@
 #import "TiUIiOSAdViewProxy.h"
 #import "TiUIiOSAdView.h"
 #import "TiUtils.h"
+#import "TiUIiOSProxy.h"
 
 #ifdef USE_TI_UIIOSADVIEW
 
@@ -20,27 +21,31 @@ USE_VIEW_FOR_AUTO_WIDTH
 
 -(void)cancelAction:(id)args
 {
-	[[self view] performSelectorOnMainThread:@selector(cancelAction:) withObject:args waitUntilDone:NO];
+	[self makeViewPerformSelector:@selector(cancelAction:) withObject:args createIfNeeded:YES waitUntilDone:NO];
 }
 
 
-// Overrides the "size" function of view proxies; this view has restricted sizes dictated by constants
--(NSString*)size
+-(NSString*)adSize
 {
-    if (![self viewAttached]) {
-        // Force the creation of the view and the ad before getting the size
-        TiThreadPerformOnMainThread(^{
-            [(TiUIiOSAdView*)[self view] adview];
-        }, YES);
-    }
-
-    return [(TiUIiOSAdView*)[self view] adview].currentContentSizeIdentifier;
+    __block NSString* adSize;
     
+    TiThreadPerformOnMainThread(^{
+        adSize = [[(TiUIiOSAdView*)[self view] adview] currentContentSizeIdentifier];
+    }, YES);
+    
+    return adSize;
 }
 
--(void)setSize:(id)arg
+-(void)setAdSize:(id)arg
 {
 	ENSURE_SINGLE_ARG(arg,NSString);
+    
+    // Sanity check values
+    if (![arg isEqualToString:[TiUIiOSProxy AD_SIZE_PORTRAIT]] || [arg isEqualToString:[TiUIiOSProxy AD_SIZE_LANDSCAPE]]) {
+        [self throwException:@"TiInvalidArg" 
+                   subreason:@"Invalid value for Titanium.UI.iOS.AdView.adSize"
+                    location:CODELOCATION];
+    }
     
     // Need to ensure the size is set on the UI thread
     [self makeViewPerformSelector:@selector(setAdSize:) withObject:arg createIfNeeded:YES waitUntilDone:NO];

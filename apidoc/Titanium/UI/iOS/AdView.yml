@@ -47,13 +47,16 @@ events:
       - name: x
         summary: the x point of the event in receiving view coordiantes
 properties:
-  - name: size
-    summary: Size of the view as a string indicating a system-allowed size.
+  - name: adSize
+    summary: The size of the advertisement when minimized.
     description: |
         Apple only allows setting ad views as specific sizes, meaning that
-        traditional view sizing is not allowed for ad views. Ads always
-        display in full-screen mode when a user clicks on them - this
-        size is for the "minimized" ad only. Should be set to either
-        [AD_SIZE_PORTRAIT](Ti.UI.iOS.AD_SIZE_PORTRAIT) or
-        [AD_SIZE_LANDSCAPE](Ti.UI.iOS.AD_SIZE_LANDSCAPE).
+        traditional view sizing does not affect ad views. Ads always
+        display in full-screen mode when a user clicks on them. 
+        Should be set to either [AD_SIZE_PORTRAIT](Titanium.UI.iOS.AD_SIZE_PORTRAIT)
+        or [AD_SIZE_LANDSCAPE](Titanium.UI.iOS.AD_SIZE_LANDSCAPE).
+        
+        Users are still allowed to set the view's [size](Titanium.UI.View.size),
+        but this does not affect the size of the ad itself. It is recommended
+        That the `auto` value is used, to compute the view's size from the adSize.
     type: String
