@@ -47,6 +47,7 @@
 	UIPopoverArrowDirection arrowDirection;
 	UIInterfaceOrientation oldOrientation;
 	UIInterfaceOrientation newOrientation;
+	BOOL isPresenting;
 }
 
 +(NSDictionary*)itemProperties;

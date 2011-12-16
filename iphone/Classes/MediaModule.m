@@ -258,6 +258,9 @@ static NSDictionary* TI_filterableItemProperties;
 }
 -(void)updatePopover:(NSNotification *)notification
 {
+	if (isPresenting) {
+		return;
+	}
 	//Set up the right delay
 	NSTimeInterval delay = [[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
 	if ( (oldOrientation == UIInterfaceOrientationPortrait) && (newOrientation == UIInterfaceOrientationPortraitUpsideDown) ){	
@@ -273,16 +276,16 @@ static NSDictionary* TI_filterableItemProperties;
 
 -(void)updatePopoverNow
 {
-	TiThreadPerformOnMainThread(^{
-		if (popover) {
-			//GO AHEAD AND RE-PRESENT THE POPOVER NOW 
-			CGRect popOverRect = [popoverView bounds];
-			if (popoverView == [[TiApp app] controller].view) {
-				popOverRect.size.height = 50;
-			}
-			[popover presentPopoverFromRect:popOverRect inView:popoverView permittedArrowDirections:arrowDirection animated:NO];
+	isPresenting = YES;
+	if (popover) {
+		//GO AHEAD AND RE-PRESENT THE POPOVER NOW 
+		CGRect popOverRect = [popoverView bounds];
+		if (popoverView == [[TiApp app] controller].view) {
+			popOverRect.size.height = 50;
 		}
-	},YES);
+		[popover presentPopoverFromRect:popOverRect inView:popoverView permittedArrowDirections:arrowDirection animated:NO];
+	}
+	isPresenting = NO;
 }
 
 -(void)closeModalPicker:(UIViewController*)picker_
