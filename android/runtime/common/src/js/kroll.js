@@ -8,6 +8,22 @@
 	var TAG = "kroll";
 	var global = this;
 
+	kroll.extend = function(thisObject, otherObject)
+	{
+		if (!otherObject) {
+			// extend with what?!  denied!
+			return;
+		}
+
+		for (var name in otherObject) {
+			if (otherObject.hasOwnProperty(name)) {
+				thisObject[name] = otherObject[name];
+			}
+		}
+
+		return thisObject;
+	}
+
 	function startup() {
 		startup.globalVariables();
 		startup.runMain();
