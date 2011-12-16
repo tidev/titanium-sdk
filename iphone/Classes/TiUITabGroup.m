@@ -61,6 +61,7 @@ DEFINE_EXCEPTIONS
 {
 	[super layoutSubviews];
 	UIView *view = [self tabController].view;
+	[view setTransform:CGAffineTransformIdentity];
 	[view setFrame:[self bounds]];
 }
 
