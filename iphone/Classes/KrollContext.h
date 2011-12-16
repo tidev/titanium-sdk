@@ -114,6 +114,7 @@
 	NSString *code;
 }
 -(id)initWithCode:(NSString*)code;
+-(TiValueRef) jsInvokeInContext: (KrollContext*)context exception: (TiValueRef *)exceptionPointer;
 -(void)invoke:(KrollContext*)context;
 -(id)invokeWithResult:(KrollContext*)context;
 @end
