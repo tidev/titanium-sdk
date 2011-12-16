@@ -6,7 +6,6 @@
 # parse out Titanium API documentation templates into a 
 # format that can be used by other documentation generators
 # such as PDF, etc.
-
 import os, sys, traceback
 import re, optparse
 import generators
@@ -30,7 +29,7 @@ from mako.template import Template
 
 # TiLogger is also in support/android
 from tilogger import *
-log = None
+log = TiLogger(None)
 
 # We package the python markdown module already in /support/module/support/markdown.
 module_support_dir = os.path.abspath(os.path.join(this_dir, "..", "support", "module", "support"))
