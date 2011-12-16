@@ -3,8 +3,8 @@
 	var match = navigator.userAgent.toLowerCase().match(/(webkit|gecko|trident|presto)/),
 		runtime = match ? match[0] : "unknown",
 		createUUID = Ti._5.createUUID,
-		id = localStorage && localStorage.getItem("html5_titaniumPlatformId") ?
-			localStorage.getItem("html5_titaniumPlatformId") : createUUID();
+		id = localStorage && localStorage.getItem("ti:titaniumPlatformId") ?
+			localStorage.getItem("ti:titaniumPlatformId") : createUUID();
 
 	// Interfaces
 	Ti._5.EventDriven(api);
@@ -54,6 +54,6 @@
 		}
 	};
 
-	localStorage.setItem("html5_titaniumPlatformId", id);
+	localStorage.setItem("ti:titaniumPlatformId", id);
 
 })(Ti._5.createClass("Ti.Platform"));
