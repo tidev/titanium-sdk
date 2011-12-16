@@ -49,19 +49,18 @@ template_lookup = TemplateLookup(directories=[template_dir])
 
 def generate(raw_apis, annotated_apis, options):
 	log_level = TiLogger.INFO
-	if options.verbose:
+	if not options is None and options.verbose:
 		log_level = TiLogger.TRACE
 	global all_annotated_apis, log
 	all_annotated_apis = annotated_apis
 	log = TiLogger(None, level=log_level, output_stream=sys.stderr)
-	if not hasattr(options, "output") or options.output is None or len(options.output) == 0:
-		log.error("'output' option not provided")
-		sys.exit(1)
-	if not hasattr(options, "version") or options.version is None or len(options.version) == 0:
+	if options is not None and (not hasattr(options, "output") or options.output is None or len(options.output) == 0):
+		log.warn("'output' option not provided")
+	if options is not None and (not hasattr(options, "version") or options.version is None or len(options.version) == 0):
 		log.error("'version' option not provided")
 		sys.exit(1)
 			
-	if not os.path.exists(options.output):
+	if options is not None and not os.path.exists(options.output):
 		os.makedirs(options.output)
 
 	# Add html-specific annotations. Do it twice because the
@@ -79,70 +78,71 @@ def generate(raw_apis, annotated_apis, options):
 			annotate(api)
 
 	# Write the output files
-	log.info("Creating html files in %s" % options.output)
-	for name in annotated_apis:
-		one_type = annotated_apis[name]
-		log.trace("Producing html output for %s" % name)
-		render_template(one_type, options)
-		member_types = ("methods", "properties", "events")
-		for mt in member_types:
-			if hasattr(one_type, mt):
-				for m in getattr(one_type, mt):
-					log.trace("Producing html output for %s.%s" % (name, m.name))
-					render_template(m, options)
+	if options is not None:
+		log.info("Creating html files in %s" % options.output)
+		for name in annotated_apis:
+			one_type = annotated_apis[name]
+			log.trace("Producing html output for %s" % name)
+			render_template(one_type, options)
+			member_types = ("methods", "properties", "events")
+			for mt in member_types:
+				if hasattr(one_type, mt):
+					for m in getattr(one_type, mt):
+						log.trace("Producing html output for %s.%s" % (name, m.name))
+						render_template(m, options)
 
-	# Create the special .json files that the webserver uses.
-	log.info("Creating json files for server")
-	stats = {
-		'modules':0,
-		'objects':0,
-		'properties':0,
-		'methods':0
-	}
-	search_json = []
-	module_names = []
-	for api in all_annotated_apis.values():
-		if api.name in not_real_titanium_types or not api.name.startswith("Titanium"):
-			continue
-		search_item = {"filename": api.name,
-				"type": "module" if api.typestr == "module" else "object",
-				"content": content_for_search_index(api)}
-		search_json.append(search_item)
-		if api.typestr == "module":
-			module_names.append(api.name)
-			stats["modules"] += 1
-			toc = {}
-			toc["methods"] = [m.name for m in api.methods]
-			toc["objects"] = [p.name.split(".")[-1] for p in api.member_proxies]
-			toc["properties"] = [p.name for p in api.properties]
-			for l in toc.values():
-				l.sort()
-			json_to_file(toc, os.path.join(options.output, "toc_%s.json" % api.name))
+		# Create the special .json files that the webserver uses.
+		log.info("Creating json files for server")
+		stats = {
+			'modules':0,
+			'objects':0,
+			'properties':0,
+			'methods':0
+		}
+		search_json = []
+		module_names = []
+		for api in all_annotated_apis.values():
+			if api.name in not_real_titanium_types or not api.name.startswith("Titanium"):
+				continue
+			search_item = {"filename": api.name,
+					"type": "module" if api.typestr == "module" else "object",
+					"content": content_for_search_index(api)}
+			search_json.append(search_item)
+			if api.typestr == "module":
+				module_names.append(api.name)
+				stats["modules"] += 1
+				toc = {}
+				toc["methods"] = [m.name for m in api.methods]
+				toc["objects"] = [p.name.split(".")[-1] for p in api.member_proxies]
+				toc["properties"] = [p.name for p in api.properties]
+				for l in toc.values():
+					l.sort()
+				json_to_file(toc, os.path.join(options.output, "toc_%s.json" % api.name))
+			else:
+				stats["objects"] += 1
+			stats["methods"] += len(api.methods)
+			stats["properties"] += len(api.properties)
+		module_names.sort()
+		json_to_file(module_names, os.path.join(options.output, "toc.json"))
+		json_to_file(search_json, os.path.join(options.output, "search.json"))
+		json_to_file(stats, os.path.join(options.output, "stats.json"))
+		# Generate an index.html, mostly for developers who run docgen and want
+		# to see a table of modules.
+		index_template = template_lookup.get_template("index.html")
+		index_output = index_template.render(config=options, data=all_annotated_apis)
+		index_file = open(os.path.join(options.output, "index.html"), "w")
+		index_file.write(index_output)
+		index_file.close()
+		log.info("An index.html file has been written to %s and contains links to all modules." % os.path.abspath(options.output))
+
+		changelog_mdoc = os.path.abspath(os.path.join(this_dir, "..", "Titanium", "CHANGELOG", "%s.mdoc" % options.version))
+		if not os.path.exists(changelog_mdoc):
+			log.warn("%s wasn't found, skipping changelog.html generation." % changelog_mdoc)
 		else:
-			stats["objects"] += 1
-		stats["methods"] += len(api.methods)
-		stats["properties"] += len(api.properties)
-	module_names.sort()
-	json_to_file(module_names, os.path.join(options.output, "toc.json"))
-	json_to_file(search_json, os.path.join(options.output, "search.json"))
-	json_to_file(stats, os.path.join(options.output, "stats.json"))
-	# Generate an index.html, mostly for developers who run docgen and want
-	# to see a table of modules.
-	index_template = template_lookup.get_template("index.html")
-	index_output = index_template.render(config=options, data=all_annotated_apis)
-	index_file = open(os.path.join(options.output, "index.html"), "w")
-	index_file.write(index_output)
-	index_file.close()
-	log.info("An index.html file has been written to %s and contains links to all modules." % os.path.abspath(options.output))
-
-	changelog_mdoc = os.path.abspath(os.path.join(this_dir, "..", "Titanium", "CHANGELOG", "%s.mdoc" % options.version))
-	if not os.path.exists(changelog_mdoc):
-		log.warn("%s wasn't found, skipping changelog.html generation." % changelog_mdoc)
-	else:
-		changelog = codecs.open(changelog_mdoc, "r", "utf8").read()
-		out = codecs.open(os.path.join(options.output, "changelog.html"), "w+", "utf8")
-		out.write(markdown.markdown(changelog))
-		out.close()
+			changelog = codecs.open(changelog_mdoc, "r", "utf8").read()
+			out = codecs.open(os.path.join(options.output, "changelog.html"), "w+", "utf8")
+			out.write(markdown.markdown(changelog))
+			out.close()
 
 def content_for_search_index(annotated_obj):
 	contents = []
