@@ -7,6 +7,7 @@
 #include <dlfcn.h>
 #include <map>
 #include <string.h>
+#include <vector>
 #include <v8.h>
 
 #include "AndroidUtil.h"
@@ -35,6 +36,7 @@ namespace titanium {
 using namespace v8;
 
 std::map<std::string, bindings::BindEntry*> KrollBindings::externalBindings;
+std::vector<LookupFunction> KrollBindings::externalLookups;
 
 void KrollBindings::initFunctions(Handle<Object> exports)
 {
@@ -129,6 +131,11 @@ void KrollBindings::addExternalBinding(const char *name, struct bindings::BindEn
 	externalBindings[std::string(name)] = binding;
 }
 
+void KrollBindings::addExternalLookup(LookupFunction lookup)
+{
+	externalLookups.push_back(lookup);
+}
+
 Handle<Object> KrollBindings::getBinding(Handle<String> binding)
 {
 	if (bindingCache.IsEmpty()) {
@@ -144,7 +151,6 @@ Handle<Object> KrollBindings::getBinding(Handle<String> binding)
 	int length = bindingValue.length();
 
 	struct bindings::BindEntry *native = bindings::native::lookupBindingInit(*bindingValue, length);
-
 	if (native) {
 		Local<Object> exports = Object::New();
 		native->bind(exports);
@@ -154,13 +160,25 @@ Handle<Object> KrollBindings::getBinding(Handle<String> binding)
 	}
 
 	struct bindings::BindEntry* generated = bindings::generated::lookupGeneratedInit(*bindingValue, length);
-
 	if (generated) {
 		Local<Object> exports = Object::New();
 		generated->bind(exports);
 		bindingCache->Set(binding, exports);
 
 		return exports;
+	}
+
+	for (int i = 0; i < KrollBindings::externalLookups.size(); i++) {
+		titanium::LookupFunction lookupFunction = KrollBindings::externalLookups[i];
+
+		struct bindings::BindEntry* external = (*lookupFunction)(*bindingValue, length);
+		if (external) {
+			Local<Object> exports = Object::New();
+			external->bind(exports);
+			bindingCache->Set(binding, exports);
+
+			return exports;
+		}
 	}
 
 	return Handle<Object>();
