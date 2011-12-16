@@ -489,6 +489,10 @@ properties:
         This is an input property for specifying where the view should be positioned, and does not
         represent the view's calculated position.
     type: Point
+  - name: children
+    summary: Array of this view's child views.
+    type: Array<Titanium.UI.View>
+    permission: read-only
   - name: focusable
     summary: Whether view should be focusable while navigating with the trackball.
     platforms: [android]
