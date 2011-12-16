@@ -97,13 +97,15 @@
 	});
 	
 	require.on(window, "offline", function(evt) {
-		_online && api.fireEvent("change", {
-			networkType		: api.networkType,
-			networkTypeName	: api.networkTypeName,
-			online			: false,
-			source			: evt.target,
-			type			: evt.type
-		});
-		_online = false;
+		if (_online) {
+			_online = false;
+			api.fireEvent("change", {
+				networkType		: api.networkType,
+				networkTypeName	: api.networkTypeName,
+				online			: false,
+				source			: evt.target,
+				type			: evt.type
+			});
+		}
 	});
 })(Ti._5.createClass("Ti.Network"));
