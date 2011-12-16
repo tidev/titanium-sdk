@@ -206,6 +206,7 @@ events:
         summary: The velocity of the pinch in scale factor per second.
         type: Number
     platforms: [iphone,ipad]
+    since: "1.8.0"
   - name: singletap
     summary: Fired when the device detects a single tap against the view.
     properties:
