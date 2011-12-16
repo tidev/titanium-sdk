@@ -43,7 +43,7 @@ description: |
     
     Titanium views are positioned using the `left`, `right`, `top,` `bottom` and `center` 
     properties, and sized using the `width` and `height` properties. These are
-    input properties, set by the user to specify layout, and and not modified by the 
+    input properties, set by the user to specify layout, and not modified by the 
     system to indicate actual calculated positions and sizes. 
     
     How these properties are interpreted depends on the value of the view's `layout` 
