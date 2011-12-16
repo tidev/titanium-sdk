@@ -288,7 +288,7 @@ Ti._5.createClass("Ti.UI.TableViewRow", function(args){
 	require.mix(obj, args);
 
 	domNode._calcHeight = false;
-	obj.addEventListener("html5_added", function(){
+	obj.addEventListener("ti:added", function(){
 		domNode._calcHeight = false;
 	});
 
@@ -323,8 +323,8 @@ Ti._5.createClass("Ti.UI.TableViewRow", function(args){
 		}
 	}
 
-	obj.addEventListener("html5_child_rendered", setRowHeight);
-	obj.addEventListener("html5_shown", function () {domNode._calcHeight = false; setRowHeight();});
+	obj.addEventListener("ti:child_rendered", setRowHeight);
+	obj.addEventListener("ti:shown", function () {domNode._calcHeight = false; setRowHeight();});
 	on(window, "resize", function() {
 		domNode._calcHeight = false;
 		setRowHeight();

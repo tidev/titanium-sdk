@@ -1,4 +1,4 @@
-.HTML5_ActivityIndicator {
+.tiActivityIndicator {
 	position: absolute;
 	padding: 3px;
 	overflow: hidden;
@@ -8,10 +8,10 @@
 	background-image: url('images/progressIndicator.gif');
 }
 
-.HTML5_ActivityIndicator.ActivityIndicator_BIG {
+.tiActivityIndicator.ActivityIndicator_BIG {
 	background-image: url('images/progressIndicatorBig.gif') !important;
 }
 
-.HTML5_ActivityIndicator.ActivityIndicator_DARK {
+.tiActivityIndicator.ActivityIndicator_DARK {
 	background-image: url('images/progressIndicatorDark.gif') !important;
 }

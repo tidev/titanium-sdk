@@ -24,7 +24,7 @@ Ti._5.Styleable = function(obj, args) {
 		_visible,
 		_prevDisplay = "";
 
-	domNode.className += " HTML5_Styleable";
+	domNode.className += " tiStyleable";
 
 	obj.addEventListener || oParentNamespace.EventDriven(obj);
 
@@ -249,13 +249,13 @@ Ti._5.Styleable = function(obj, args) {
 
 	obj.show = function() {
 		domStyle.display = _prevDisplay || "";
-		obj.fireEvent("html5_shown");
+		obj.fireEvent("ti:shown");
 		return _visible = true;
 	};
 
 	// Fire event for all children
-	obj.addEventListener("html5_shown", function() {
-		require.each(obj._children, function(c) { c.fireEvent("html5_shown"); });
+	obj.addEventListener("ti:shown", function() {
+		require.each(obj._children, function(c) { c.fireEvent("ti:shown"); });
 	});
 
 	obj.hide = function() {
@@ -263,13 +263,13 @@ Ti._5.Styleable = function(obj, args) {
 			_prevDisplay = domStyle.display;
 			domStyle.display = "none";
 		}
-		obj.fireEvent("html5_hidden");
+		obj.fireEvent("ti:hidden");
 		return _visible = false;
 	};
 
 	// Fire event for all children
-	obj.addEventListener("html5_hidden", function(){
-		require.each(obj._children, function(c) { c.fireEvent("html5_hidden"); });
+	obj.addEventListener("ti:hidden", function(){
+		require.each(obj._children, function(c) { c.fireEvent("ti:hidden"); });
 	});
 
 	obj.css = function(rule, value) {
