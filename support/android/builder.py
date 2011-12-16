@@ -1398,7 +1398,9 @@ class Builder(object):
 		# add sdk runtime native libraries
 		sdk_native_libs = os.path.join(template_dir, 'native', 'libs')
 		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libkroll-v8.so'), 'lib/armeabi/libkroll-v8.so')
+		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libstlport_shared.so'), 'lib/armeabi/libstlport_shared.so')
 		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libkroll-v8.so'), 'lib/armeabi-v7a/libkroll-v8.so')
+		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libstlport_shared.so'), 'lib/armeabi-v7a/libstlport_shared.so')
 		self.apk_updated = True
 
 		apk_zip.close()
@@ -1928,7 +1930,7 @@ class Builder(object):
 			if debugger_enabled and self.runtime == 'v8':
 				info('Forwarding host port %s to device for debugging.' % self.debugger_port)
 				forwardPort = 'tcp:%s' % self.debugger_port
-				self.sdk.run_adb(['forward', forwardPort, 'tcp:9999'])
+				self.sdk.run_adb(['forward', forwardPort, forwardPort])
 
 			#intermediary code for on-device debugging (later)
 			#if debugger_host != None:

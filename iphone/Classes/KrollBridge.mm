@@ -706,18 +706,29 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 {
 	NSString *js = [[NSString alloc] initWithFormat:TitaniumModuleRequireFormat,code];
 	
-	NSDictionary *result = [self evalJSAndWait:js];
+	id result = [self evalJSAndWait:js];
 	[js release];
-	TiProxy *proxy = [[TiProxy alloc] _initWithPageContext:self];
-	for (id key in result)
-	{
-		[proxy setValue:[result objectForKey:key] forUndefinedKey:key];
+	bool resultIsArray = [result isKindOfClass:[NSArray class]];
+	bool resultIsDict = [result isKindOfClass:[NSDictionary class]];
+
+	if (resultIsArray || resultIsDict) {
+		TiProxy *proxy = [[TiProxy alloc] _initWithPageContext:self];
+		int keyIndex = 0;
+		for (id currentObject in result)
+		{
+			if (resultIsDict)
+			{
+				[proxy setValue:[result objectForKey:currentObject] forUndefinedKey:currentObject];
+			}
+			else
+			{
+				[proxy setValue:currentObject forKey:[NSString stringWithFormat:@"%d",keyIndex++]];
+			}
+		}
+		result = [proxy autorelease];
 	}
 	
-	// register it
-	[modules setObject:proxy forKey:path];
-	
-	return [proxy autorelease];
+	return result;
 }
 
 -(NSString*)pathToModuleClassName:(NSString*)path
@@ -799,12 +810,20 @@ CFMutableSetRef	krollBridgeRegistry = nil;
             TiDebuggerBeginScript([self krollContext],urlCString);
         }
         
-		module = [self loadCommonJSModule:[[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease] withPath:path];
-        
+		NSString * dataContents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+		module = [self loadCommonJSModule:dataContents withPath:path];
+        [dataContents release];
+		
         if ([[self host] debugMode]) {
             TiDebuggerEndScript([self krollContext]);
         }
         
+		if (![module respondsToSelector:@selector(replaceValue:forKey:notification:)]) {
+			@throw [NSException exceptionWithName:@"org.appcelerator.kroll" reason:[NSString stringWithFormat:@"Module \"%@\" failed to leave a valid exports object",path] userInfo:nil];
+		}
+		
+		// register it
+		[modules setObject:module forKey:path];
 		if (filepath!=nil && module!=nil)
 		{
 			// uri is optional but we point it to where we loaded it

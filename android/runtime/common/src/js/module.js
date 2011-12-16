@@ -124,6 +124,18 @@ Module.prototype.createModuleWrapper = function(externalModule, sourceUrl) {
 		}));
 	}
 
+	wrapper.addEventListener = function() {
+		externalModule.addEventListener.apply(externalModule, arguments);
+	}
+
+	wrapper.removeEventListener = function() {
+		externalModule.removeEventListener.apply(externalModule, arguments);
+	}
+
+	wrapper.fireEvent = function() {
+		externalModule.fireEvent.apply(externalModule, arguments);
+	}
+
 	return wrapper;
 }
 
@@ -185,14 +197,6 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 // of the child module.
 Module.prototype.require = function (request, context, useCache) {
 	useCache = useCache === undefined ? true : useCache;
-
-	// Delegate native module requests.
-	if (NativeModule.exists(request)) {
-		if (kroll.DBG) {
-			kroll.log(TAG, 'Found native module: "' + request + '"');
-		}
-		return NativeModule.require(request);
-	}
 
 	// get external binding (for external / 3rd party modules)
 	var externalBinding = kroll.externalBinding(request);
@@ -344,7 +348,7 @@ function resolveFilename(request, parentModule) {
 	// could be located.
 	for (var i = 0, pathCount = paths.length; i < pathCount; ++i) {
 		var filename = path.resolve(paths[i], id) + '.js';
-		if (filenameExists(filename)) {
+		if (filenameExists(filename) || assets.fileExists(filename)) {
 			return [id, filename];
 		}
 	}

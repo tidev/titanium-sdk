@@ -8,6 +8,22 @@
 	var TAG = "kroll";
 	var global = this;
 
+	kroll.extend = function(thisObject, otherObject)
+	{
+		if (!otherObject) {
+			// extend with what?!  denied!
+			return;
+		}
+
+		for (var name in otherObject) {
+			if (otherObject.hasOwnProperty(name)) {
+				thisObject[name] = otherObject[name];
+			}
+		}
+
+		return thisObject;
+	}
+
 	function startup() {
 		startup.globalVariables();
 		startup.runMain();
@@ -32,6 +48,7 @@
 	startup.globalVariables = function() {
 		global.kroll = kroll;
 		kroll.ScopeVars = ScopeVars;
+		kroll.NativeModule = NativeModule; // So external module bootstrap.js can call NativeModule.require directly.
 
 		NativeModule.require('events');
 		global.Ti = global.Titanium = NativeModule.require('titanium');

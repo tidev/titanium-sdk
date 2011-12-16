@@ -13,6 +13,7 @@ import org.appcelerator.kroll.KrollExternalModule;
 import org.appcelerator.kroll.KrollProxySupport;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.common.TiDeployData;
 
 import android.os.Build;
 import android.os.Handler;
@@ -35,6 +36,7 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	public void initRuntime()
 	{
 		boolean useGlobalRefs = true;
+		TiDeployData deployData = getKrollApplication().getDeployData();
 
 		if (Build.PRODUCT.equals("sdk") || Build.PRODUCT.equals("google_sdk") || Build.FINGERPRINT.startsWith("generic")) {
 			if (DBG) {
@@ -43,9 +45,8 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 			useGlobalRefs = false;
 		}
 
-		boolean debuggerEnabled = getKrollApplication().isDebuggerEnabled();
-
 		if (!libLoaded) {
+			System.loadLibrary("stlport_shared");
 			System.loadLibrary("kroll-v8");
 			libLoaded = true;
 		}
@@ -55,10 +56,10 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		if (deployType.equals("production")) {
 			DBG = false;
 		}
+
+		nativeInit(useGlobalRefs, deployData.getDebuggerPort(), DBG);
 		
-		nativeInit(useGlobalRefs, debuggerEnabled, DBG);
-		
-		if (debuggerEnabled) {
+		if (deployData.isDebuggerEnabled()) {
 			dispatchDebugMessages();
 		}
 		
@@ -141,7 +142,7 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	}
 
 	// JNI method prototypes
-	private native void nativeInit(boolean useGlobalRefs, boolean debuggerActive, boolean DBG);
+	private native void nativeInit(boolean useGlobalRefs, int debuggerPort, boolean DBG);
 	private native void nativeRunModule(String source, String filename, KrollProxySupport activityProxy);
 	private native void nativeProcessDebugMessages();
 	private native void nativeDispose();

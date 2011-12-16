@@ -3,28 +3,11 @@
 	Ti._5.EventDriven(api);
 
 	// Properties
-	var _CONTACTS_KIND_ORGANIZATION = null;
-	Object.defineProperty(api, 'CONTACTS_KIND_ORGANIZATION', {
-		get: function(){return _CONTACTS_KIND_ORGANIZATION;},
-		set: function(val){return _CONTACTS_KIND_ORGANIZATION = val;}
-	});
-
-	var _CONTACTS_KIND_PERSON = null;
-	Object.defineProperty(api, 'CONTACTS_KIND_PERSON', {
-		get: function(){return _CONTACTS_KIND_PERSON;},
-		set: function(val){return _CONTACTS_KIND_PERSON = val;}
-	});
-
-	var _CONTACTS_SORT_FIRST_NAME = null;
-	Object.defineProperty(api, 'CONTACTS_SORT_FIRST_NAME', {
-		get: function(){return _CONTACTS_SORT_FIRST_NAME;},
-		set: function(val){return _CONTACTS_SORT_FIRST_NAME = val;}
-	});
-
-	var _CONTACTS_SORT_LAST_NAME = null;
-	Object.defineProperty(api, 'CONTACTS_SORT_LAST_NAME', {
-		get: function(){return _CONTACTS_SORT_LAST_NAME;},
-		set: function(val){return _CONTACTS_SORT_LAST_NAME = val;}
+	Ti._5.propReadOnly(api, {
+		CONTACTS_KIND_ORGANIZATION: 0,
+		CONTACTS_KIND_PERSON: 1,
+		CONTACTS_SORT_FIRST_NAME: 2,
+		CONTACTS_SORT_LAST_NAME: 3
 	});
 
 	// Methods
@@ -64,4 +47,4 @@
 	api.showContacts = function(){
 		console.debug('Method "Titanium.Contacts.showContacts" is not implemented yet.');
 	};
-})(Ti._5.createClass('Titanium.Contacts'));
+})(Ti._5.createClass("Ti.Contacts"));

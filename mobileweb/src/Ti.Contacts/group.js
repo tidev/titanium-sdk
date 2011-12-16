@@ -1,10 +1,6 @@
 (function(api){
 	// Properties
-	var _name = null;
-	Object.defineProperty(api, 'name', {
-		get: function(){return _name;},
-		set: function(val){return _name = val;}
-	});
+	Ti._5.prop(api, "name");
 
 	// Methods
 	api.add = function(){
@@ -19,4 +15,4 @@
 	api.sortedMembers = function(){
 		console.debug('Method "Titanium.Contacts.Group.sortedMembers" is not implemented yet.');
 	};
-})(Ti._5.createClass('Titanium.Contacts.Group'));
+})(Ti._5.createClass("Ti.Contacts.Group"));

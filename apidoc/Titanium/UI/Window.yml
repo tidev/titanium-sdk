@@ -382,7 +382,6 @@ description: |
 
     Use the <Titanium.UI.createWindow> method to create a window.
 
-    <a id="contexts"/>
     #### Sub-contexts
 
     Windows can be loaded from another JavaScript file by specifying the property `url`,
@@ -402,7 +401,6 @@ description: |
     points to the JavaScript instance by reference in the global context.
 
 
-    <a id="passingdata"/>
     #### Passing Data Between Contexts
 
     By default, sub-context variables cannot access JavaScript references in the global context.

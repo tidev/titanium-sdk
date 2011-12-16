@@ -2,39 +2,30 @@
 	// Interfaces
 	Ti._5.EventDriven(api);
 
+	var lang = navigator.language.replace(/^([^\-\_]+)[\-\_](.+)?$/, function(o, l, c){ return l.toLowerCase() + (c && "-" + c.toUpperCase()); }),
+		langParts = lang.split("-");
+
 	// Properties
-	var _currentCountry = null;
-	Object.defineProperty(api, 'currentCountry', {
-		get: function(){return _currentCountry;},
-		set: function(val){return _currentCountry = val;}
-	});
-
-	var _currentLanguage = 'en';
-	Object.defineProperty(api, 'currentLanguage', {
-		get: function(){return _currentLanguage;},
-		set: function(val){return _currentLanguage = val;}
-	});
-
-	var _currentLocale = null;
-	Object.defineProperty(api, 'currentLocale', {
-		get: function(){return _currentLocale;},
-		set: function(val){return _currentLocale = val;}
+	Ti._5.propReadOnly(api, {
+		currentCountry: langParts[1] || "",
+		currentLanguage: langParts[0] || "",
+		currentLocale: lang
 	});
 
 	// Methods
-	api.formatTelephoneNumber = function(){
+	api.formatTelephoneNumber = function() {
 		console.debug('Method "Titanium.Locale.formatTelephoneNumber" is not implemented yet.');
 	};
-	api.getCurrencyCode = function(){
+	api.getCurrencyCode = function() {
 		console.debug('Method "Titanium.Locale.getCurrencyCode" is not implemented yet.');
 	};
-	api.getCurrencySymbol = function(){
+	api.getCurrencySymbol = function() {
 		console.debug('Method "Titanium.Locale.getCurrencySymbol" is not implemented yet.');
 	};
-	api.getLocaleCurrencySymbol = function(){
+	api.getLocaleCurrencySymbol = function() {
 		console.debug('Method "Titanium.Locale.getLocaleCurrencySymbol" is not implemented yet.');
 	};
-	api.getString = function(str, hintText){
+	api.getString = function(str, hintText) {
 		var data = Ti._5.getLocaleData();
 		if(typeof data[api.currentLanguage] != 'undefined' && typeof data[api.currentLanguage][str] != 'undefined') {
 			return data[api.currentLanguage][str];
@@ -43,27 +34,39 @@
 		}
 		return str;
 	};
-})(Ti._5.createClass('Titanium.Locale'));
-L=Titanium.Locale.getString;
+})(Ti._5.createClass("Ti.Locale"));
+
+// L = Ti.Locale.getString;
+Object.defineProperty(window, "L", { value: Ti.Locale.getString, enumarable: true });
 
 (function(api){
-	api.format = function(){
-			console.debug('Method "String.format" is not implemented yet.');
+	// format a generic string using the [IEEE printf specification](http://www.opengroup.org/onlinepubs/009695399/functions/printf.html).
+	api.format = function(s) {
+		console.debug('Method "String.format" is not implemented yet.');
+		return [].concat(Array.prototype.slice.call(arguments, 0)).join(" ");
 	};
 
-	api.formatDate = function(){
-			console.debug('Method "String.formatDate" is not implemented yet.');
+	// format a date into a locale specific date format. Optionally pass a second argument (string) as either "short" (default), "medium" or "long" for controlling the date format.
+	api.formatDate = function(dt, fmt) {
+		console.debug('Method "String.formatDate" is not implemented yet.');
+		return dt.toString();
 	};
 
-	api.formatTime = function(){
-			console.debug('Method "String.formatTime" is not implemented yet.');
+	// format a date into a locale specific time format.
+	api.formatTime = function(dt) {
+		console.debug('Method "String.formatTime" is not implemented yet.');
+		return dt.toString();
 	};
 
-	api.formatCurrency = function(){
-			console.debug('Method "String.formatCurrency" is not implemented yet.');
+	// format a number into a locale specific currency format.
+	api.formatCurrency = function(amt) {
+		console.debug('Method "String.formatCurrency" is not implemented yet.');
+		return amt;
 	};
 
-	api.formatDecimal = function(){
-			console.debug('Method "String.formatDecimal" is not implemented yet.');
+	// format a number into a locale specific decimal format.
+	api.formatDecimal = function(dec) {
+		console.debug('Method "String.formatDecimal" is not implemented yet.');
+		return dec;
 	};
 })(String);

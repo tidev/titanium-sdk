@@ -21,6 +21,9 @@
 @optional
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration;
+
+-(void)ignoringRotationToOrientation:(UIInterfaceOrientation)orientation;
+
 @end
 
 
