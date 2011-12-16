@@ -394,10 +394,11 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 						if (imageSources == null || j >= imageSources.size()) {
 							break topLoop;
 						}
+						Bitmap b = imageSources.get(j).getBitmap();
+						BitmapWithIndex bIndex = new BitmapWithIndex(b,j);
 						while (waitTime < getDuration() * imageSources.size()) {
 							try {
-								Bitmap b = imageSources.get(j).getBitmap();
-								if (!bitmapQueue.offer(new BitmapWithIndex(b, j))) {
+								if (!bitmapQueue.offer(bIndex)) {
 									if (isStopping.get()) {
 										break;
 									} 
