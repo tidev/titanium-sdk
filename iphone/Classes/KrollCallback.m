@@ -177,15 +177,19 @@ static NSLock *callbackLock;
 
 @end
 
-@implementation KrollFunction
-@synthesize remoteFunction, remoteBridge;
+@implementation KrollWrapper
+@synthesize jsobject, bridge;
 
 /*	NOTE:
- *	Until KrollFunction takes a more expanded role as a general purpose wrapper,
+ *	Until KrollWrapper takes a more expanded role as a general purpose wrapper,
  *	protectJsobject is to be used during commonJS inclusion ONLY.
  *	For example, KrollBridge ensures that this is only done in the JS thread,
- *	and unlike KrollObject, KrollFunction does not have the infrastructure to
+ *	and unlike KrollObject, KrollWrapper does not have the infrastructure to
  *	handle being called outside the JS.
+ *	Furthermore, KrollWrapper does not get notified of JSObject finalization,
+ *	etc, etc. The specific cases where KrollWrapper is currently used do not
+ *	make this an issue, but KrollWrapper needs hardening if it is to be a base
+ *	class.
  */
 
 - (void)dealloc {
@@ -197,34 +201,34 @@ static NSLock *callbackLock;
 
 -(void)protectJsobject
 {
-	if (protecting || ![KrollBridge krollBridgeExists:remoteBridge])
+	if (protecting || ![KrollBridge krollBridgeExists:bridge])
 	{
 		return;
 	}
 
-	if (![[remoteBridge krollContext] isKJSThread])
+	if (![[bridge krollContext] isKJSThread])
 	{
-		NSLog(@"[WARN] KrollFunction trying to protect in the wrong thread.%@",CODELOCATION);
+		NSLog(@"[WARN] KrollWrapper trying to protect in the wrong thread.%@",CODELOCATION);
 		return;
 	}
 	protecting = YES;
-	TiValueProtect([[remoteBridge krollContext] context],remoteFunction);
+	TiValueProtect([[bridge krollContext] context],jsobject);
 }
 
 -(void)unprotectJsobject
 {
-	if (!protecting || ![KrollBridge krollBridgeExists:remoteBridge])
+	if (!protecting || ![KrollBridge krollBridgeExists:bridge])
 	{
 		return;
 	}
 	
-	if (![[remoteBridge krollContext] isKJSThread])
+	if (![[bridge krollContext] isKJSThread])
 	{
-		NSLog(@"[WARN] KrollFunction trying to unprotect in the wrong thread.%@",CODELOCATION);
+		NSLog(@"[WARN] KrollWrapper trying to unprotect in the wrong thread.%@",CODELOCATION);
 		return;
 	}
 	protecting = NO;
-	TiValueUnprotect([[remoteBridge krollContext] context],remoteFunction);
+	TiValueUnprotect([[bridge krollContext] context],jsobject);
 }
 
 - (void)replaceValue:(id)value forKey:(NSString*)key notification:(BOOL)notify
@@ -233,10 +237,10 @@ static NSLock *callbackLock;
 	 *	JS files assigning exports to a function instead of a standard
 	 *	JS object.
 	 */
-	KrollContext * context = [remoteBridge krollContext];
+	KrollContext * context = [bridge krollContext];
 	TiValueRef valueRef = [KrollObject toValue:context value:value];
 	TiStringRef keyRef = TiStringCreateWithCFString((CFStringRef) key);
-	TiObjectSetProperty([context context], remoteFunction, keyRef, valueRef, kTiPropertyAttributeReadOnly, NULL);
+	TiObjectSetProperty([context context], jsobject, keyRef, valueRef, kTiPropertyAttributeReadOnly, NULL);
 	TiStringRelease(keyRef);
 }
 
