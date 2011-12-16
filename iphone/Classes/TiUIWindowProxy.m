@@ -794,7 +794,9 @@ else{\
 
 -(void)_tabBeforeBlur
 {
-	[barImageView removeFromSuperview];
+	if ((tab == nil) || ([[tab controller] topViewController] != controller)) {
+		[barImageView removeFromSuperview];
+	}
 	[super _tabBeforeBlur];
 }
 
@@ -816,7 +818,9 @@ else{\
 	if (focused)
 	{
 		[self fireFocus:NO];
-		[barImageView removeFromSuperview];
+		if ((tab == nil) || ([[tab controller] topViewController] != controller)) {
+			[barImageView removeFromSuperview];
+		}
 	}
 	[super _tabBlur];
 }
