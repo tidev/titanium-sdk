@@ -1,10 +1,75 @@
 ---
 name: Global.String
-summary: The Javascript built-in String type. The APIs here are Titanium specific extensions. TODO this is just a placeholder
+summary: The JavaScript built-in String type. 
+description: |
+    The following are built-in functions available on the [String](Global.String) class.
+    These are Titanium-specific extensions for formatting data into locale-specific strings. 
+
+    Both iOS and Android use the locale configured by the user for locale-specific formatting.
+    The locale is set in device's system Settings. 
+
 platforms: [android, iphone, ipad]
 methods:
   - name: format
+    summary: Formats a string using a `printf`-style format string.
+    description: | 
+        The format string follows the IEEE printf specification:
+
+        http://www.opengroup.org/onlinepubs/009695399/functions/printf.html
+
+        One value parameter should be passed for each conversion specification in the
+        format string. For example:
+
+            message = String.formatString("Hello, %s, you are visitor number %d", name, number);
+    parameters:
+      - name: formatString
+        summary: An IEEE `printf` format string.
+        type: String
+      - name: value
+        summary: A value to substitute into the format string. An arbitrary number of value parameters may be specified.
+        type: [ String, Number ]
+        optional: true
+    returns:
+        type: String
+        summary: Formatted string.
   - name: formatCurrency
+    summary: Formats a number into a locale-specific currency format.
+    parameters:
+      - name: value
+        summary: Currency value to format.
+        type: Number
+    returns:
+        type: String
+        summary: The specified value, with a locale-specific currency symbol.
   - name: formatDate
+    summary: Formats a `Date` object in a localized string format.
+    parameters:
+      - name: date
+        summary: Date object to format.
+        type: Date
+      - name: format
+        summary: Date format to use, specified as 'short', 'medium', or 'long'.
+        type: String
+        optional: true
+        default: 'short'
+    returns:
+        type: String
+        summary: String representation of the specified date.
   - name: formatDecimal
+    summary: Formats a number using the locale-specific decimal symbol.
+    parameters:
+      - name: value
+        summary: Value to format.
+        type: Number
+    returns: 
+        type: String
+        summary: String representation of the specified number, using a locale-specific decimal symbol, if required.
   - name: formatTime
+    summary: Formats a `Date` object into a locale-specific time format.
+    parameters:
+      - name: date
+        summary: Date object to format.
+        type: Date
+    returns:
+        type: String
+        summary: String representation of the specified time.
