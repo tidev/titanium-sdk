@@ -348,7 +348,7 @@ function resolveFilename(request, parentModule) {
 	// could be located.
 	for (var i = 0, pathCount = paths.length; i < pathCount; ++i) {
 		var filename = path.resolve(paths[i], id) + '.js';
-		if (filenameExists(filename)) {
+		if (filenameExists(filename) || assets.fileExists(filename)) {
 			return [id, filename];
 		}
 	}
