@@ -12,7 +12,6 @@ Ti._5.Styleable = function(obj, args) {
 		ui = Ti.UI,
 		px = Ti._5.px,
 		vendorPrefixes = require.config.vendorPrefixes,
-		curRotation,
 		curTransform,
 		_backgroundColor,
 		_backgroundImage,
@@ -22,7 +21,14 @@ Ti._5.Styleable = function(obj, args) {
 		_backgroundSelectedPrevImage,
 		_gradient,
 		_visible,
-		_prevDisplay = "";
+		_prevDisplay = "",
+		transitionEvents = {
+			webkit: "webkitTransitionEnd",
+			trident: "msTransitionEnd",
+			gecko: "transitionend",
+			presto: "oTransitionEnd"
+		},
+		transitionEnd = transitionEvents[Ti.Platform.runtime] || "transitionEnd";
 
 	domNode.className += " tiStyleable";
 
@@ -289,7 +295,34 @@ Ti._5.Styleable = function(obj, args) {
 
 	obj.animate = function(anim, callback) {
 		var curve = "ease",
-			transform = "";
+			fn = function(){
+				var transform = "";
+
+				// Set the color and opacity properties
+				anim.backgroundColor !== undef && (obj.backgroundColor = anim.backgroundColor);
+
+				if (anim.opacity !== undef) {
+					domStyle.opacity = anim.opacity; // : (anim.visible !== undef && anim.visible ? 1.0 : 0.0);
+				}
+
+				domStyle.display = (anim.visible !== undef && !anim.visible) || (anim.opacity !== undef && anim.opacity === 0) ? "none" : "";
+
+				// Set the position and size properties
+				require.each(["top", "bottom", "left", "right", "height", "width"], function(p) {
+					anim[p] !== undef && (domStyle[p] = px(anim[p]));
+				});
+
+				// Set the z-order
+				anim.zIndex !== undef && (domStyle.zIndex = anim.zIndex);
+
+				// Set the transform properties
+				if (anim.transform) {
+					curTransform = curTransform ? curTransform.multiply(anim.transform) : anim.transform;
+					transform = curTransform.toCSS();
+				}
+
+				obj.css("transform", transform);
+			};
 
 		switch (anim.curve) {
 			case ui.ANIMATION_CURVE_LINEAR: curve = "linear"; break;
@@ -307,42 +340,21 @@ Ti._5.Styleable = function(obj, args) {
 			anim.top = anim.center.y - domNode.offsetHeight / 2;
 		}
 
+		anim.transform && obj.css("transform", "");
+
 		// Create the transition, must be set before setting the other properties
-		obj.css("transition", "all " + anim.duration + "ms " + curve + (anim.delay ? " " + anim.delay + "ms" : ""));
+		anim.duration && obj.css("transition", "all " + anim.duration + "ms " + curve + (anim.delay ? " " + anim.delay + "ms" : ""));
 
-		// Set the color and opacity properties
-		anim.backgroundColor !== undef && (obj.backgroundColor = anim.backgroundColor);
-
-		domStyle.opacity = anim.opaque && anim.visible ? 1.0 : 0.0;
-
-		// Set the position and size properties
-		require.each(["top", "bottom", "left", "right", "height", "width"], function(p) {
-			anim[p] !== undef && (domStyle[p] = px(anim[p]));
-		});
-
-		// Set the z-order
-		anim.zIndex !== undef && (domStyle.zIndex = anim.zIndex);
-
-		// Set the transform properties
-		if (anim.rotation) {
-			curRotation = curRotation | 0 + anim.rotation;
-			transform += "rotate(" + curRotation + "deg) ";
-		}
-
-		if (anim.transform) {
-			curTransform = curTransform ? curTransform.multiply(anim.transform) : anim.transform;
-			transform += curTransform.toCSS();
-		}
-
-		obj.css("transform", transform);
-
-		if (callback) {
-			// Note: no IE9 support for transitions, so instead we just set a timer that matches the duration so things don"t break
-			setTimeout(function() {
+		if (anim.duration) {
+			callback && on.once(window, transitionEnd, function(e) {
 				// Clear the transform so future modifications in these areas are not animated
 				obj.css("transition", "");
 				callback();
-			}, anim.duration + anim.delay + 1);
+			});
+			setTimeout(fn, 0);
+		} else {
+			fn();
+			callback && callback();
 		}
 	};
 
