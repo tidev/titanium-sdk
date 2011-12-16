@@ -711,12 +711,12 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	}
 	/*
 	 *	In order to work around the underlying issue of TIMOB-2392, we must
-	 *	use KrollFunction as a JS wrapper instead of converting it to a proxy
+	 *	use KrollWrapper as a JS wrapper instead of converting it to a proxy
 	 */
 
-	KrollFunction * result = [[KrollFunction alloc] init];
-	[result setRemoteBridge:self];
-	[result setRemoteFunction:(TiObjectRef)resultRef];
+	KrollWrapper * result = [[KrollWrapper alloc] init];
+	[result setBridge:self];
+	[result setJsobject:(TiObjectRef)resultRef];
 	[result protectJsobject];
 	
 	return [result autorelease];
