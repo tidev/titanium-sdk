@@ -47,6 +47,7 @@ static NSDictionary* TI_itemProperties;
 static NSDictionary* TI_filterableItemProperties;
 
 @implementation MediaModule
+@synthesize popoverView;
 
 #pragma mark Internal
 
@@ -113,6 +114,7 @@ static NSDictionary* TI_filterableItemProperties;
 	[self destroyPicker];
 	RELEASE_TO_NIL(systemMusicPlayer);
 	RELEASE_TO_NIL(appMusicPlayer);
+	RELEASE_TO_NIL(popoverView);
 	[super dealloc];
 }
 
@@ -228,10 +230,62 @@ static NSDictionary* TI_filterableItemProperties;
 			poFrame.size.height = 50;
 		}
 
+		//FROM APPLE DOCS
+		//If you presented the popover from a target rectangle in a view, the popover controller does not attempt to reposition the popover. 
+		//In thosecases, you must manually hide the popover or present it again from an appropriate new position.
+		//We will register for interface change notification for this purpose
+		
+		//This registration tells us when the rotation begins.
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(manageRotation:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+		
+		//This registration lets us sync with the TiRootViewController's orientation notification (didOrientNotify method)
+		//No need to begin generating these events since the TiRootViewController already does that
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIDeviceOrientationDidChangeNotification object:nil];
+		arrowDirection = arrow;
+		popoverView = poView;
 		popover = [[UIPopoverController alloc] initWithContentViewController:picker_];
 		[popover setDelegate:self];
 		[popover presentPopoverFromRect:poFrame inView:poView permittedArrowDirections:arrow animated:animatedPicker];
 	}
+}
+
+-(void)manageRotation:(NSNotification *)notification
+{
+	//Capture the old orientation
+	oldOrientation = [[UIApplication sharedApplication]statusBarOrientation];
+	//Capture the new orientation
+	newOrientation = [[notification.userInfo valueForKey:UIApplicationStatusBarOrientationUserInfoKey] integerValue];
+}
+-(void)updatePopover:(NSNotification *)notification
+{
+	if (isPresenting) {
+		return;
+	}
+	//Set up the right delay
+	NSTimeInterval delay = [[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
+	if ( (oldOrientation == UIInterfaceOrientationPortrait) && (newOrientation == UIInterfaceOrientationPortraitUpsideDown) ){	
+		delay*=2.0;
+	}
+	else if ( (oldOrientation == UIInterfaceOrientationLandscapeLeft) && (newOrientation == UIInterfaceOrientationLandscapeRight) ){
+		delay *=2.0;
+	}
+	
+	//Allow the root view controller to relayout all child view controllers so that we get the correct frame size when we re-present
+	[self performSelector:@selector(updatePopoverNow) withObject:nil afterDelay:delay inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+}
+
+-(void)updatePopoverNow
+{
+	isPresenting = YES;
+	if (popover) {
+		//GO AHEAD AND RE-PRESENT THE POPOVER NOW 
+		CGRect popOverRect = [popoverView bounds];
+		if (popoverView == [[TiApp app] controller].view) {
+			popOverRect.size.height = 50;
+		}
+		[popover presentPopoverFromRect:popOverRect inView:popoverView permittedArrowDirections:arrowDirection animated:NO];
+	}
+	isPresenting = NO;
 }
 
 -(void)closeModalPicker:(UIViewController*)picker_
@@ -255,6 +309,9 @@ static NSDictionary* TI_filterableItemProperties;
 	
 	RELEASE_TO_NIL(popover);
 	[self destroyPicker];
+	//Unregister for interface change notification 
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
 -(void)showPicker:(NSDictionary*)args isCamera:(BOOL)isCamera

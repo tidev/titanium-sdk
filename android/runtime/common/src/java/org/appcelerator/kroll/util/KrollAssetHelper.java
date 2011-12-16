@@ -98,6 +98,18 @@ public class KrollAssetHelper
 		return null;
 	}
 
+	public static boolean fileExists(String path)
+	{
+		if (TiFastDev.isFastDevEnabled()) {
+			if (path != null && path.startsWith("Resources/")) {
+				String resourcePath = path.replace("Resources/", "");
+				return TiFastDev.getInstance().fileExists(resourcePath);
+			}
+		}
+
+		return false;
+	}
+
 	public static String getPackageName()
 	{
 		return packageName;

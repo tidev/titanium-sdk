@@ -21,6 +21,8 @@ public:
 
 	static Handle<Value> readAsset(const Arguments& args);
 	static Handle<Value> readFile(const Arguments& args);
+	static Handle<Value> fileExists(const Arguments& args);
+
 };
 
 }
