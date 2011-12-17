@@ -1135,6 +1135,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 				id lineNumber = [arg objectForKey:@"line"];
 				return [NSString stringWithFormat:@"%@ at %@ (line %@)",message,[source lastPathComponent],lineNumber];
 			}
+            return [NSString stringWithFormat:@"%@ (unknown file)", message];
 		}
 	}
 	return arg;

@@ -112,4 +112,5 @@ Java_%(jniPackage)s_%(className)sBootstrap_nativeBootstrap
 	(JNIEnv *env, jobject self)
 {
 	titanium::KrollBindings::addExternalBinding("%(moduleId)s", &%(className)sBinding);
+	titanium::KrollBindings::addExternalLookup(&(::%(className)sBindings::lookupGeneratedInit));
 }
