@@ -170,8 +170,11 @@ properties:
     description: Note that the fullscreen ad itself may display only as a portrait.
     type: String
     permission: read-only
+    since: "1.9.0"
   - name: AD_SIZE_LANDSCAPE
     summary: Constant for ad size appropriate for "landscape" orientations.
     description: Note that the fullscreen ad itself may display only as a portrait.
     type: String
     permission: read-only
+    since: "1.9.0"
+

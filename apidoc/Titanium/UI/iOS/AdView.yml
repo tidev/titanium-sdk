@@ -50,13 +50,16 @@ properties:
   - name: adSize
     summary: The size of the advertisement when minimized.
     description: |
-        Apple only allows setting ad views as specific sizes, meaning that
-        traditional view sizing does not affect ad views. Ads always
+        Apple only allows setting ads as specific sizes, meaning that
+        traditional view sizing does not affect ads. Ads always
         display in full-screen mode when a user clicks on them. 
         Should be set to either [AD_SIZE_PORTRAIT](Titanium.UI.iOS.AD_SIZE_PORTRAIT)
-        or [AD_SIZE_LANDSCAPE](Titanium.UI.iOS.AD_SIZE_LANDSCAPE).
+        or [AD_SIZE_LANDSCAPE](Titanium.UI.iOS.AD_SIZE_LANDSCAPE). Attempting
+        to set this property to any other value will cause an exception.
         
-        Users are still allowed to set the view's [size](Titanium.UI.View.size),
-        but this does not affect the size of the ad itself. It is recommended
-        That the `auto` value is used, to compute the view's size from the adSize.
+        Users are still allowed to set the view's [width](Titanium.UI.View.width)
+        and [height](Titanium.UI.View.height), but this does not affect the size
+        of the ad itself. It is recommended that the `auto` value is used for
+        these properties instead, to compute the view's size from the adSize.
     type: String
+    since: "1.9.0"
