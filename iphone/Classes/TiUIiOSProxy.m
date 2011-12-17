@@ -31,20 +31,16 @@
 
 #ifdef USE_TI_UIIOSADVIEW
 
+
+
 -(NSString*)AD_SIZE_PORTRAIT 
 {
-	if ([TiUtils isIOS4_2OrGreater]) {
-		return ADBannerContentSizeIdentifierPortrait;
-	}
-	return @"ADBannerContentSize320x50";
+    return [TiUIiOSAdViewProxy portraitSize];
 }
 
 -(NSString*)AD_SIZE_LANDSCAPE 
 {
-	if ([TiUtils isIOS4_2OrGreater]) {
-		return ADBannerContentSizeIdentifierLandscape;
-	}
-	return @"ADBannerContentSize480x32";
+    return [TiUIiOSAdViewProxy landscapeSize];
 }
 
 -(id)createAdView:(id)args

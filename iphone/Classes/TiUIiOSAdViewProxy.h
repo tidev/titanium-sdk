@@ -14,6 +14,11 @@
 
 }
 
+// Need these for sanity checking and constants, so they
+// must be class-available rather than instance-available
++(NSString*)portraitSize;
++(NSString*)landscapeSize;
+
 @end
 
 #endif

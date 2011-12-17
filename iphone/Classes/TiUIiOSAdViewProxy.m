@@ -8,13 +8,28 @@
 #import "TiUIiOSAdViewProxy.h"
 #import "TiUIiOSAdView.h"
 #import "TiUtils.h"
-#import "TiUIiOSProxy.h"
 
 #ifdef USE_TI_UIIOSADVIEW
 
 #import <iAd/iAd.h>
 
 @implementation TiUIiOSAdViewProxy
+
++(NSString*)portraitSize
+{
+	if ([TiUtils isIOS4_2OrGreater]) {
+		return ADBannerContentSizeIdentifierPortrait;
+	}
+	return @"ADBannerContentSize320x50";
+}
+
++(NSString*)landscapeSize
+{
+	if ([TiUtils isIOS4_2OrGreater]) {
+		return ADBannerContentSizeIdentifierLandscape;
+	}
+	return @"ADBannerContentSize480x32";
+}
 
 USE_VIEW_FOR_AUTO_HEIGHT
 USE_VIEW_FOR_AUTO_WIDTH
@@ -41,7 +56,7 @@ USE_VIEW_FOR_AUTO_WIDTH
 	ENSURE_SINGLE_ARG(arg,NSString);
     
     // Sanity check values
-    if (![arg isEqualToString:[TiUIiOSProxy AD_SIZE_PORTRAIT]] || [arg isEqualToString:[TiUIiOSProxy AD_SIZE_LANDSCAPE]]) {
+    if (!([arg isEqualToString:[TiUIiOSAdViewProxy portraitSize]] || [arg isEqualToString:[TiUIiOSAdViewProxy landscapeSize]])) {
         [self throwException:@"TiInvalidArg" 
                    subreason:@"Invalid value for Titanium.UI.iOS.AdView.adSize"
                     location:CODELOCATION];
