@@ -980,6 +980,13 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 					c = ((cIMP)methodFunction)(target,selector);
 					return [NSNumber numberWithChar:c];
 				}
+                else if ([attributes hasPrefix:@"TQ,"])
+                {
+                    unsigned long long ull;
+                    typedef unsigned long long (*ullIMP)(id, SEL, ...);
+                    ull = ((ullIMP)methodFunction)(target,selector);
+                    return [NSNumber numberWithUnsignedLongLong:ull];
+                }
 				else 
 				{
 					// let it fall through and return undefined
