@@ -435,6 +435,9 @@ static NSDictionary* TI_filterableItemProperties;
 		NSDictionary* event = [NSDictionary dictionaryWithObject:path forKey:@"path"];
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"success",event,successCallback,nil]];					
 	}
+    
+    // This object was retained for use in this callback; release it.
+    [saveCallbacks release]; 
 }
 
 #pragma mark Public APIs
@@ -919,9 +922,40 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 		}
 		else if ([mime hasPrefix:@"video/"])
 		{
-			NSString * tempFilePath = [blob path];
-			if (tempFilePath == nil) return;
-			UISaveVideoAtPathToSavedPhotosAlbum(tempFilePath, self, @selector(saveCompletedForVideo:error:contextInfo:), [saveCallbacks retain]);
+            NSString* filePath;
+            switch ([blob type]) {
+                case TiBlobTypeFile: {
+                    filePath = [blob path];
+                    break;
+                }
+                case TiBlobTypeData: {
+                    // In this case, we need to write the blob data to a /tmp file and then load it.
+                    NSArray* typeinfo = [mime componentsSeparatedByString:@"/"];
+                    TiFile* tempFile = [TiUtils createTempFile:[typeinfo objectAtIndex:1]];
+                    filePath = [tempFile path];
+                    
+                    NSError* error = nil;
+                    [blob writeTo:filePath error:&error];
+                    
+                    if (error != nil) {
+                        NSDictionary* event = [NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"problem writing to temporary file %@: %@", filePath, [error localizedDescription]]
+                                                                          forKey:@"error"];
+                        [self dispatchCallback:[NSArray arrayWithObjects:@"error",event,[saveCallbacks valueForKey:@"error"],nil]];
+                        return;
+                    }
+                    
+                    // Have to keep the temp file from being deleted when we leave scope, so add it to the userinfo so it can be cleaned up there
+                    [saveCallbacks setValue:tempFile forKey:@"tempFile"];
+                    break;
+                }
+                default: {
+                    NSDictionary* event = [NSDictionary dictionaryWithObject:@"invalid media format: MIME type was video/, but data is image"
+                                                                      forKey:@"error"];
+                    [self dispatchCallback:[NSArray arrayWithObjects:@"error",event,[saveCallbacks valueForKey:@"error"],nil]];
+                    return;
+                }
+            }
+			UISaveVideoAtPathToSavedPhotosAlbum(filePath, self, @selector(saveCompletedForVideo:error:contextInfo:), [saveCallbacks retain]);
 		}
 	}
 	else if ([image isKindOfClass:[TiFile class]])
