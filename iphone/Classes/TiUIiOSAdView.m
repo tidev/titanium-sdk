@@ -54,15 +54,9 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 	}
 }
 
--(NSString*)size
+-(void)setAdSize:(NSString*)sizeName
 {
-	return [self adview].currentContentSizeIdentifier;
-}
-
--(void)setSize:(id)arg
-{
-	ENSURE_SINGLE_ARG(arg,NSString);
-	[self adview].currentContentSizeIdentifier = arg;
+    [self adview].currentContentSizeIdentifier = sizeName;
 }
 
 #pragma mark Public APIs

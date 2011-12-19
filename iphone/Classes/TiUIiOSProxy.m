@@ -12,6 +12,7 @@
  
 #ifdef USE_TI_UIIOSADVIEW
 	#import "TiUIiOSAdViewProxy.h"
+    #import <iAd/iAd.h>
 #endif
 
 #ifdef USE_TI_UIIOS3DMATRIX
@@ -29,6 +30,18 @@
 @implementation TiUIiOSProxy
 
 #ifdef USE_TI_UIIOSADVIEW
+
+
+
+-(NSString*)AD_SIZE_PORTRAIT 
+{
+    return [TiUIiOSAdViewProxy portraitSize];
+}
+
+-(NSString*)AD_SIZE_LANDSCAPE 
+{
+    return [TiUIiOSAdViewProxy landscapeSize];
+}
 
 -(id)createAdView:(id)args
 {
