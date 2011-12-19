@@ -233,9 +233,9 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
     if(!hasBackgroundForStateDisabled)
         [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateDisabled];
     if(!hasBackgroundForStateFocused)
-        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateHighlighted];
-    if(!hasBackgroundForStateSelected)
         [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateSelected];
+    if(!hasBackgroundForStateSelected)
+        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateHighlighted];
     
 }
 
@@ -251,9 +251,9 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
         self.backgroundImage = value;
     }
     if(!hasBackgroundForStateFocused)
-        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateHighlighted];
-    if(!hasBackgroundForStateSelected)
         [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateSelected];
+    if(!hasBackgroundForStateSelected)
+        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateHighlighted];
 }
 
 -(void)setBackgroundFocusedImage_:(id)value
