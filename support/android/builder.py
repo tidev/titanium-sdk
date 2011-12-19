@@ -1483,10 +1483,10 @@ class Builder(object):
 			try:
 				if self.install:
 					self.wait_for_device('d')
-					info("Installing application on emulator")
+					info("Installing application on device")
 				else:
 					self.wait_for_device('e')
-					info("Installing application on device")
+					info("Installing application on emulator")
 
 				output = self.run_adb('install', '-r', app_apk)
 				#output = run.run(cmd)
