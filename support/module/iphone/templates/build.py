@@ -51,7 +51,10 @@ def generate_doc(config):
 	sdk = config['TITANIUM_SDK']
 	support_dir = os.path.join(sdk,'module','support')
 	sys.path.append(support_dir)
-	import markdown
+	try:
+		import markdown2 as markdown
+	except ImportError:
+		import markdown
 	documentation = []
 	for file in os.listdir(docdir):
 		if file in ignoreFiles or os.path.isdir(os.path.join(docdir, file)):
