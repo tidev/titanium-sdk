@@ -32,18 +32,16 @@ Ti._5.createClass("Ti.UI.View", function(args){
 	require.mix(obj, args);
 
 	domNode._calcHeight = false;
-	obj.addEventListener("html5_added", function(){
+	obj.addEventListener("ti:added", function(){
 		domNode._calcHeight = false;
 	});
 
 	function getLowestPosition(obj) {
-		var oSizes = Ti._5._getElementOffset(domNode);
-		var iMaxPos = oSizes.height + (parseInt(obj.top) || 0) + (parseInt(obj.bottom) || 0);
-		if (obj._children) {
-			for (var iCounter = 0; iCounter < obj._children.length; iCounter++) {
-				iPos = getLowestPosition(obj._children[iCounter]);
-				iMaxPos = iMaxPos < iPos ? iPos : iMaxPos;
-			}
+		var oSizes = Ti._5._getElementOffset(domNode),
+			iMaxPos = oSizes.height + (parseInt(obj.top) || 0) + (parseInt(obj.bottom) || 0);
+		for (var iCounter = 0; iCounter < obj._children.length; iCounter++) {
+			iPos = getLowestPosition(obj._children[iCounter]);
+			iMaxPos = iMaxPos < iPos ? iPos : iMaxPos;
 		}
 		return iMaxPos;
 	}
@@ -52,7 +50,7 @@ Ti._5.createClass("Ti.UI.View", function(args){
 		if (
 			("undefined" == typeof obj.height || "auto" == obj.height) &&
 			false === domNode._calcHeight &&
-			obj._children && "vertical" != obj.layout
+			obj._children && obj.layout !== "vertical"
 		) {
 			var iMaxPos = 0;
 			for (var iCounter = 0; iCounter < obj._children.length; iCounter++) {
@@ -64,8 +62,8 @@ Ti._5.createClass("Ti.UI.View", function(args){
 		}
 	}
 
-	obj.addEventListener("html5_child_rendered", setViewHeight);
-	obj.addEventListener("html5_shown", function() {
+	obj.addEventListener("ti:child_rendered", setViewHeight);
+	obj.addEventListener("ti:shown", function() {
 		domNode._calcHeight = false;
 		setViewHeight();
 	});

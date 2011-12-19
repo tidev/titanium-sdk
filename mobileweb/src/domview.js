@@ -7,10 +7,10 @@
 	oParentNamespace.DOMView = function(obj, type, args, typename) {
 		obj.addEventListener || oParentNamespace.EventDriven(obj);
 
-		typename = typename || "TiDOMNode";
+		typename = typename || "tiDOMNode";
 
 		var domNode = obj.dom = document.createElement(type);
-		domNode.className = "HTML5_" + typename + " HTML5_DOMElement";
+		domNode.className = "ti" + typename + " tiDOMElement";
 
 		obj.args = args = args || {};
 		// Object for previous style rules
@@ -61,7 +61,7 @@
 			set: function(val) {
 				/^(horizontal|vertical)$/.test(val) || (val = "absolute");
 				_layout = val;
-				domNode.className = domNode.className.replace(/\s*HTML5_(vertical|horizontal)Layout\b/, "") + " HTML5_" + _layout + "Layout";
+				domNode.className = domNode.className.replace(/\s*ti(Vertical|Horizontal)Layout\b/, "") + " ti" + Ti._5.capitalize(_layout) + "Layout";
 				// If layout option setted out of the constructor, we need to redraw object
 				if (require.is(obj.render, "Function")) {
 					obj.innerHTML = "";
@@ -70,7 +70,7 @@
 				}
 			}
 		});
-		
+
 		// API Methods
 		obj.render = function(parent) {
 			var c, l,
@@ -100,7 +100,7 @@
 					domStyle.left = domStyle.right = domStyle.top = domStyle.bottom = "auto";
 				}
 				parent._getAddContainer().appendChild(domNode);
-				obj.fireEvent("html5_added", parent);
+				obj.fireEvent("ti:added", parent);
 			} else {
 				pos = "absolute";
 			}
@@ -115,15 +115,15 @@
 			// Give some time to browser to render the page
 			setTimeout(function() {
 				// Fire parent "finished" event 
-				obj.parent && obj.parent.fireEvent("html5_child_rendered", obj);
+				obj.parent && obj.parent.fireEvent("ti:child_rendered", obj);
 				// Fire object "finished" event 
-				obj.fireEvent("html5_rendered");
+				obj.fireEvent("ti:rendered");
 			}, 10);
 		};
 		
 		// "Finished" event must bubbled to all parents
-		obj.addEventListener("html5_child_rendered", function(oSource) {
-			obj.parent && obj.parent.fireEvent("html5_child_rendered", oSource);
+		obj.addEventListener("ti:child_rendered", function(oSource) {
+			obj.parent && obj.parent.fireEvent("ti:child_rendered", oSource);
 		});
 
 		obj._getAddContainer = function(){
