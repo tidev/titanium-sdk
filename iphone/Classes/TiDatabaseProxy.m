@@ -72,13 +72,13 @@
     
     // Migrate any old data if available
     NSString* oldRoot = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-    NSString* oldPath = [oldRoot stringByAppendingString:@"database"];
+    NSString* oldPath = [oldRoot stringByAppendingPathComponent:@"database"];
     BOOL oldCopyExists = [fm fileExistsAtPath:oldPath isDirectory:&isDirectory];
     if (oldCopyExists && isDirectory) {
         NSDirectoryEnumerator* contents = [fm enumeratorAtPath:oldPath];
-        
+        //This gives relative paths. So create full path before moving
         for (NSString* oldFile in contents) {
-            [fm moveItemAtPath:oldFile toPath:[dbPath stringByAppendingPathComponent:[oldFile lastPathComponent]] error:nil];
+            [fm moveItemAtPath:[oldPath stringByAppendingPathComponent:oldFile] toPath:[dbPath stringByAppendingPathComponent:oldFile] error:nil];
         }
         
         // Remove the old copy after migrating everything
