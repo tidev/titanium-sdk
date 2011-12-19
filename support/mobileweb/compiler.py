@@ -45,7 +45,7 @@ class Compiler(object):
 		self.build_dir = os.path.join(self.project_dir,'build','mobileweb')
 		
 		self.resources_dir = os.path.join(self.project_dir,'Resources')
-		self.debug = False
+		self.debug = True # temporarily forcing debug (i.e. development) mode until jsmin is replaced
 		self.count = 0
 		
 		if deploytype == 'development' or deploytype == 'all':
