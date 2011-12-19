@@ -6,6 +6,7 @@
  */
 #import "TiBase.h"
 #import "TiUIiOSAdViewProxy.h"
+#import "TiUIiOSAdView.h"
 #import "TiUtils.h"
 
 #ifdef USE_TI_UIIOSADVIEW
@@ -14,7 +15,7 @@
 
 @implementation TiUIiOSAdViewProxy
 
--(NSString*)SIZE_320x50 
++(NSString*)portraitSize
 {
 	if ([TiUtils isIOS4_2OrGreater]) {
 		return ADBannerContentSizeIdentifierPortrait;
@@ -22,7 +23,7 @@
 	return @"ADBannerContentSize320x50";
 }
 
--(NSString*)SIZE_480x32 
++(NSString*)landscapeSize
 {
 	if ([TiUtils isIOS4_2OrGreater]) {
 		return ADBannerContentSizeIdentifierLandscape;
@@ -35,7 +36,34 @@ USE_VIEW_FOR_AUTO_WIDTH
 
 -(void)cancelAction:(id)args
 {
-	[[self view] performSelectorOnMainThread:@selector(cancelAction:) withObject:args waitUntilDone:NO];
+	[self makeViewPerformSelector:@selector(cancelAction:) withObject:args createIfNeeded:YES waitUntilDone:NO];
+}
+
+
+-(NSString*)adSize
+{
+    __block NSString* adSize;
+    
+    TiThreadPerformOnMainThread(^{
+        adSize = [[(TiUIiOSAdView*)[self view] adview] currentContentSizeIdentifier];
+    }, YES);
+    
+    return adSize;
+}
+
+-(void)setAdSize:(id)arg
+{
+	ENSURE_SINGLE_ARG(arg,NSString);
+    
+    // Sanity check values
+    if (!([arg isEqualToString:[TiUIiOSAdViewProxy portraitSize]] || [arg isEqualToString:[TiUIiOSAdViewProxy landscapeSize]])) {
+        [self throwException:@"TiInvalidArg" 
+                   subreason:@"Invalid value for Titanium.UI.iOS.AdView.adSize"
+                    location:CODELOCATION];
+    }
+    
+    // Need to ensure the size is set on the UI thread
+    [self makeViewPerformSelector:@selector(setAdSize:) withObject:arg createIfNeeded:YES waitUntilDone:NO];
 }
 
 @end

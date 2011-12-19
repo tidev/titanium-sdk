@@ -492,17 +492,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	[newEvent release];
 }
 
--(void)injectPatches
-{
-	// called to inject any Titanium patches in JS before a context is loaded... nice for 
-	// setting up backwards compat type APIs
-	
-	NSMutableString *js = [[NSMutableString alloc] init];
-	[js appendString:@"function alert(msg) { Ti.UI.createAlertDialog({title:'Alert',message:msg}).show(); };"];
-	[self evalJSWithoutResult:js];
-	[js release];
-}
-
 -(void)shutdown:(NSCondition*)condition
 {
 #if KROLLBRIDGE_MEMORY_DEBUG==1
@@ -578,14 +567,12 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 				[ti setStaticValue:ko forKey:key purgable:NO];
 			}
 		}
-		[self injectPatches];
 		[self evalFile:[url path] callback:self selector:@selector(booted)];	
 	}
 	else 
 	{
 		// now load the app.js file and get started
 		NSURL *startURL = [host startURL];
-		[self injectPatches];
 		[self evalFile:[startURL absoluteString] callback:self selector:@selector(booted)];
 	}
 }
