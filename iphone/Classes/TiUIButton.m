@@ -146,6 +146,8 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 		if (style==UIButtonTypeCustom)
 		{
 			[button setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
+			//Enable Touch Highlight with Custom Button Type
+			button.showsTouchWhenHighlighted = YES;
 		}
 		[button addTarget:self action:@selector(clicked:event:) forControlEvents:UIControlEventTouchUpInside];
 		[button addTarget:self action:@selector(highlightOn:) forControlEvents:highlightingTouches];
