@@ -102,7 +102,7 @@ Ti._5.createClass("Ti.UI.Window", function(args){
 	};
 
 	function setTitle() {
-		Ti.UI.currentWindow === obj && (document.title = obj.title != null ? obj.title : Ti._5.getArguments().projectName);
+		Ti.UI.currentWindow === obj && (document.title = obj.title || require.config.project.name);
 	}
 
 	// Methods
@@ -148,7 +148,7 @@ Ti._5.createClass("Ti.UI.Window", function(args){
 		_oldRender(parent);
 		// Get first element margin
 		var _maxChildrenHeight = 0;
-		if (obj._children) {
+		if (obj._children.length) {
 			var _padding = 0;
 			if (obj._children[0] && obj._children[0].dom) {
 				_padding = parseInt(obj._children[0].dom.style.marginTop);
@@ -161,11 +161,11 @@ Ti._5.createClass("Ti.UI.Window", function(args){
 		setMinHeight(obj);
 	};
 	
-	obj.addEventListener("html5_child_rendered", function () {
+	obj.addEventListener("ti:child_rendered", function () {
 		// Give some time to browser to render the page
 		setTimeout(setMinHeight, 100);
 	});
 
-	require.on(window, "resize", function() {setMinHeight();});
-	require.on(window, "load", function() {setMinHeight();});
+	require.on(window, "resize", setMinHeight);
+	require.on(window, "load", setMinHeight);
 });

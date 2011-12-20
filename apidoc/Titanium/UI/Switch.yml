@@ -25,7 +25,7 @@ properties:
   - name: style
     summary: one of <Ti.UI.Android.SWITCH_STYLE_CHECKBOX> or <Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON> (default).
     type: Number
-    platforms: [android, mobileweb]
+    platforms: [android]
   - name: title
     summary: text to display with checkbox. Used if style is <Ti.UI.Android.SWITCH_STYLE_CHECKBOX>
     type: String
@@ -33,11 +33,11 @@ properties:
   - name: titleOff
     summary: text to display when value is `false`. used if style is <Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>
     type: String
-    platforms: [android, mobileweb]
+    platforms: [android]
   - name: titleOn
     summary: text to display when value is `true`. used if style is <Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>
     type: String
-    platforms: [android, mobileweb]
+    platforms: [android]
   - name: value
     summary: boolean value of the switch where true is the switch is `on` and false the switch if `off`
     type: Boolean

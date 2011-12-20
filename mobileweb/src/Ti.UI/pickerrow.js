@@ -7,7 +7,7 @@ Ti._5.createClass("Ti.UI.PickerRow", function(args){
 			fontStyle: "normal",
 			fontVariant: "normal",
 			fontWeight: "normal"
-		}, args.font),
+		}, args && args.font),
 		unselectable: true
 	}, args);
 

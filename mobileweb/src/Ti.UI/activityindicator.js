@@ -7,7 +7,6 @@ Ti._5.createClass("Ti.UI.ActivityIndicator", function(args){
 		domNode = Ti._5.DOMView(obj, "div", args, "ActivityIndicator"),
 		domStyle = domNode.style,
 		_message = "",
-		_style = null,
 		_visible = false;
 
 	// Interfaces
@@ -27,23 +26,6 @@ Ti._5.createClass("Ti.UI.ActivityIndicator", function(args){
 			set: function(val){domNode.innerHTML = _message = val;}
 		},
 		messageid: "",
-		style: {
-			get: function(){return _style;},
-			set: function(val){
-				_style = val;
-				if (Ti.UI.iPhone) {
-					domNode.className = domNode.className.replace(/\bActivityIndicator_(BIG|DARK)\b/g, "");
-					switch (_style) {
-						case Ti.UI.iPhone.ActivityIndicatorStyle.BIG:
-							domNode.className += " ActivityIndicator_BIG";
-							break;
-						case Ti.UI.iPhone.ActivityIndicatorStyle.DARK:
-							domNode.className += " ActivityIndicator_DARK";
-							break;
-					}
-				}
-			}
-		},
 		visible: {
 			get: function() {
 				return _visible;
@@ -58,7 +40,7 @@ Ti._5.createClass("Ti.UI.ActivityIndicator", function(args){
 	obj.hide = function(){
 		domStyle.display = "none";
 		_visible = false;
-		obj.fireEvent("html5_hidden");
+		obj.fireEvent("ti:hidden");
 	};
 	obj.show = function(){
 		// Append activity indicator to current window, if it was not
@@ -70,7 +52,7 @@ Ti._5.createClass("Ti.UI.ActivityIndicator", function(args){
 		domStyle.display = "block";
 		domStyle.top = (args["top"] || (oWinSizes.height - parseInt(domNode.offsetHeight)) * 0.5) + "px";
 		domStyle.left = (args["left"] || (oWinSizes.width - parseInt(domNode.offsetWidth)) * 0.5) + "px";
-		obj.fireEvent("html5_shown");
+		obj.fireEvent("ti:shown");
 	};
 
 	require.mix(obj, args);

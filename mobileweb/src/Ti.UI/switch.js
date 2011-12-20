@@ -14,9 +14,7 @@ Ti._5.createClass("Ti.UI.Switch", function(args){
 		_backgroundImage = "",
 		_backgroundDisabledColor = "",
 		_backgroundColor = "",
-		_title = "",
-		_titleOff = null,
-		_titleOn = null;
+		_title = "";
 
 	// Interfaces
 	Ti._5.Touchable(obj, args, true);
@@ -82,35 +80,14 @@ Ti._5.createClass("Ti.UI.Switch", function(args){
 				val.height && (obj.height = Ti._5.px(val.height));
 			}
 		},
-		style: Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON,
 		title: {
 			get: function() {return _title ? _title : domNode.innerHTML;},
 			set: function(val) {
-				if (obj.style == Ti.UI.Android.SWITCH_STYLEcheckboxNode) {
-					_title = val;
-					domNode.innerHTML = "";
-					domNode.appendChild(checkboxNode);
-					domNode.appendChild(document.createTextNode(Ti._5._changeTextToHTML(val)));
-					obj.render(null);
-				}
-			}
-		},
-		titleOff: {
-			get: function(){return _titleOff;},
-			set: function(val){
-				_titleOff = val;
-				if (!domNode.checked && obj.style == Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON) {
-					obj.title = _titleOff;
-				}
-			}
-		},
-		titleOn: {
-			get: function(){return _titleOn;},
-			set: function(val){
-				_titleOn = val; 
-				if (domNode.checked && obj.style == Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON) {
-					obj.title = _titleOn;
-				}
+				_title = val;
+				domNode.innerHTML = "";
+				domNode.appendChild(checkboxNode);
+				domNode.appendChild(document.createTextNode(Ti._5._changeTextToHTML(val)));
+				obj.render(null);
 			}
 		},
 		touchEnabled: {
@@ -135,12 +112,6 @@ Ti._5.createClass("Ti.UI.Switch", function(args){
 	require.mix(obj, args);
 
 	function onCheck() {
-		if (checkboxNode.checked && _titleOn && obj.style == Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON) {
-			obj.title = _titleOn;
-		}
-		if (!checkboxNode.checked && _titleOff && obj.style == Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON) {
-			obj.title = _titleOff;
-		}
 		obj.fireEvent("change", {
 			value: checkboxNode.checked
 		});
