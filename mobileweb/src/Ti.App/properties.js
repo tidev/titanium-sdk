@@ -1,7 +1,7 @@
 (function(api){
 	// Interfaces
 	Ti._5.EventDriven(api);
-	var STORAGE = "html5_localStorage";
+	var STORAGE = "ti:LocalStorage";
 	var _getProp = function(prop, def, transform){
 		if(prop == null){
 			return;

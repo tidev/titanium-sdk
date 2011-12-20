@@ -1,8 +1,8 @@
-.HTML5_TableView {
+.tiTableView {
 	overflow: auto;
 }
 
-.HTML5_TableViewRow {
+.tiTableViewRow {
 	-webkit-user-select: none;
 	-khtml-user-select: none;
 	-moz-user-select: none;
@@ -13,38 +13,38 @@
 	overflow: hidden;
 }
 
-.HTML5_TableViewRow span {
+.tiTableViewRow span {
 	padding-left: 10px;
 }
 
-.HTML5_TableViewRow .leftImage, .HTML5_TableViewRow .rightImage {
+.tiTableViewRow .leftImage, .tiTableViewRow .rightImage {
 	height: 100%;
 	display: table;
 }
 
-.HTML5_TableViewRow .leftImage {
+.tiTableViewRow .leftImage {
 	float: left;
 }
 
-.HTML5_TableViewRow .rightImage {
+.tiTableViewRow .rightImage {
 	float: right;
 }
 
-.HTML5_TableViewRow .leftImage>div,
-.HTML5_TableViewRow .rightImage>div {
+.tiTableViewRow .leftImage>div,
+.tiTableViewRow .rightImage>div {
 	display: table-cell;
 	vertical-align: middle;
 }
 
-.HTML5_TableViewRow.hasRightImage .hasCheck,
-.HTML5_TableViewRow.hasRightImage .hasChild,
-.HTML5_TableViewRow.hasRightImage .hasDetail {
+.tiTableViewRow.hasRightImage .hasCheck,
+.tiTableViewRow.hasRightImage .hasChild,
+.tiTableViewRow.hasRightImage .hasDetail {
 	display: none;
 }
 
-.HTML5_TableViewRow .hasCheck,
-.HTML5_TableViewRow .hasChild,
-.HTML5_TableViewRow .hasDetail {
+.tiTableViewRow .hasCheck,
+.tiTableViewRow .hasChild,
+.tiTableViewRow .hasDetail {
 	height: 100%;
 	width: 30px;
 	position: absolute;
@@ -53,14 +53,14 @@
 	background-position: center right;
 	background-repeat: no-repeat;
 }
-.HTML5_TableViewRow .hasCheck{
+.tiTableViewRow .hasCheck{
 	background-image: url('images/hasCheck.png');
 }
 
-.HTML5_TableViewRow .hasChild {
+.tiTableViewRow .hasChild {
 	background-image: url('images/hasChild.png');
 }
 
-.HTML5_TableViewRow .hasDetail {
+.tiTableViewRow .hasDetail {
 	background-image: url('images/hasDetail.png');
 }

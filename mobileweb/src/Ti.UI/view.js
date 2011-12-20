@@ -32,7 +32,7 @@ Ti._5.createClass("Ti.UI.View", function(args){
 	require.mix(obj, args);
 
 	domNode._calcHeight = false;
-	obj.addEventListener("html5_added", function(){
+	obj.addEventListener("ti:added", function(){
 		domNode._calcHeight = false;
 	});
 
@@ -64,8 +64,8 @@ Ti._5.createClass("Ti.UI.View", function(args){
 		}
 	}
 
-	obj.addEventListener("html5_child_rendered", setViewHeight);
-	obj.addEventListener("html5_shown", function() {
+	obj.addEventListener("ti:child_rendered", setViewHeight);
+	obj.addEventListener("ti:shown", function() {
 		domNode._calcHeight = false;
 		setViewHeight();
 	});

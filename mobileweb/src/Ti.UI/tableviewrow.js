@@ -7,7 +7,7 @@ Ti._5.createClass("Ti.UI.TableViewRow", function(args){
 			fontStyle: "normal",
 			fontVariant: "normal",
 			fontWeight: "bold"
-		}, args.font),
+		}, args && args.font),
 		unselectable: true,
 		width: "100%"
 	}, args);
@@ -144,48 +144,48 @@ Ti._5.createClass("Ti.UI.TableViewRow", function(args){
 		leftImage: {
 			get: function(){return _leftImage;},
 			set: function(val){
-				_leftImage = val;
-				var img;
-				if(_leftImageObj == null){
-					_leftImageObj = document.createElement("div");
-					_leftImageObj.className = "leftImage";
-					var inner = document.createElement("div");
-					_leftImageObj.appendChild(inner);
-					img = document.createElement("img");
-					inner.appendChild(img);
+				var div = _leftImageObj, inner, img;
+				if (_leftImage = val) {
+					if (div) {
+						img = div.firstChild.firstChild;
+					} else {
+						div = _leftImageObj = document.createElement("div");
+						div.className = "leftImage";
+						div.appendChild(inner = document.createElement("div"));
+						inner.appendChild(img = document.createElement("img"));
+						domNode.appendChild(div);
+					}
+					img.src = Ti._5.getAbsolutePath(val);
 				} else {
-					img = _leftImageObj.firstChild.firstChild;
-				}
-				if(_leftImage == "" || _leftImage == null){
-					domNode.removeChild(_leftImageObj);
-				} else {
-					img.src = Ti._5.getAbsolutePath(_leftImage);
-					domNode.appendChild(_leftImageObj);
+					if (_leftImageObj) {
+						_leftImageObj.parentNode.removeChild(_leftImageObj);
+						_leftImageObj = null;
+					}
 				}
 			}
 		},
 		rightImage: {
 			get: function(){return _rightImage;},
 			set: function(val){
-				_rightImage = val;
-				var img;
-				if(_rightImageObj == null){
-					_rightImageObj = document.createElement("div");
-					_rightImageObj.className = "rightImage";
-					var inner = document.createElement("div");
-					_rightImageObj.appendChild(inner);
-					img = document.createElement("img");
-					inner.appendChild(img);
+				var div = _rightImageObj, inner, img;
+				if (_rightImage = val) {
+					if (div) {
+						img = div.firstChild.firstChild;
+					} else {
+						div = _rightImageObj = document.createElement("div");
+						div.className = "rightImage";
+						div.appendChild(inner = document.createElement("div"));
+						inner.appendChild(img = document.createElement("img"));
+						domNode.appendChild(div);
+						domNode.className += " hasRightImage";
+					}
+					img.src = Ti._5.getAbsolutePath(val);
 				} else {
-					img = _rightImageObj.firstChild.firstChild;
-				}
-				if(_rightImage == "" || _rightImage == null){
-					domNode.removeChild(_rightImageObj);
-					domNode.className = domNode.className.replace(/\s*hasRightImage/, "");
-				} else {
-					img .src = Ti._5.getAbsolutePath(_rightImage);
-					domNode.appendChild(_rightImageObj);
-					domNode.className += " hasRightImage";
+					if (_rightImageObj) {
+						_rightImageObj.parentNode.removeChild(_rightImageObj);
+						_rightImageObj = null;
+						domNode.className = domNode.className.replace(/\s*hasRightImage/, "");
+					}
 				}
 			}
 		},
@@ -288,17 +288,17 @@ Ti._5.createClass("Ti.UI.TableViewRow", function(args){
 	require.mix(obj, args);
 
 	domNode._calcHeight = false;
-	obj.addEventListener("html5_added", function(){
+	obj.addEventListener("ti:added", function(){
 		domNode._calcHeight = false;
 	});
 
 	function getLowestPosition(obj) {
 		var i,
 			pos,
+			oSizes = Ti._5._getElementOffset(domNode),
 			maxPos = oSizes.height + (parseInt(obj.top) || 0) + (parseInt(obj.bottom) || 0),
 			children = obj._children,
-			len = children.length,
-			oSizes = Ti._5._getElementOffset(domNode);
+			len = children.length;
 		//var maxPos = oSizes.height + oSizes.top;
 		for (i = 0; i < len; i++) {
 			pos = getLowestPosition(children[i]);
@@ -323,8 +323,8 @@ Ti._5.createClass("Ti.UI.TableViewRow", function(args){
 		}
 	}
 
-	obj.addEventListener("html5_child_rendered", setRowHeight);
-	obj.addEventListener("html5_shown", function () {domNode._calcHeight = false; setRowHeight();});
+	obj.addEventListener("ti:child_rendered", setRowHeight);
+	obj.addEventListener("ti:shown", function () {domNode._calcHeight = false; setRowHeight();});
 	on(window, "resize", function() {
 		domNode._calcHeight = false;
 		setRowHeight();
@@ -399,7 +399,6 @@ Ti._5.createClass("Ti.UI.TableViewRow", function(args){
 		} 		
 		var oEvent = {
 			detail		: event.srcElement == _stateObj || false,
-			globalPoint	: { x:event.pageX, y:event.pageY }, 
 			index		: index,
 			row			: obj,
 			rowData		: obj._rowData,
@@ -417,7 +416,6 @@ Ti._5.createClass("Ti.UI.TableViewRow", function(args){
 
 	on(domNode, "dblclick", function(event) {
 		var oEvent = {
-			globalPoint	: { x:event.pageX, y:event.pageY }, 
 			source		: obj,
 			type		: event.type,
 			x			: event.pageX,
