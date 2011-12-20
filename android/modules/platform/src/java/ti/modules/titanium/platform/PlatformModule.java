@@ -243,6 +243,7 @@ public class PlatformModule extends KrollModule
 		super.eventListenerRemoved(type, count, proxy);
 		if (TiC.EVENT_BATTERY.equals(type) && count == 0 && batteryStateReceiver != null) {
 			unregisterBatteryStateReceiver();
+			batteryStateReceiver = null;
 		}
 	}
 
