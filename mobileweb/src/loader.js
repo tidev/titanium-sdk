@@ -111,7 +111,13 @@
 
 	function is(it, type) {
 		// summary:
-		//		Tests if anything is a specific type.
+		//		Tests if "it" is a specific "type". If type is omitted, then
+		//		it will return the type.
+		//
+		// returns:
+		//		Boolean if type is passed in
+		//		String of type if type is not passed in
+
 		var t = ({}).toString.call(it),
 			m = t.match(/^\[object (.+)\]$/),
 			v = m ? m[1] : "undefined";

@@ -1,11 +1,11 @@
-define("Ti/Platform", ["Ti/_"], function(_) {
+define("Ti/Platform", ["Ti/_", "Ti/_/Evented"], function(_, Evented) {
 
 	var id = localStorage && localStorage.getItem("ti:titaniumPlatformId") ?
 			localStorage.getItem("ti:titaniumPlatformId") : _.uuid();
 
-	// Interfaces
-	Ti._5.EventDriven(api);
-
+	return require.mix(Ti.Platform, Evented, {
+	});
+/*
 	// Properties
 	Ti._5.propReadOnly(api, {
 		BATTERY_STATE_CHARGING: 1,
@@ -52,5 +52,5 @@ define("Ti/Platform", ["Ti/_"], function(_) {
 	};
 
 	localStorage.setItem("ti:titaniumPlatformId", id);
-
-})(Ti._5.createClass());
+*/
+});

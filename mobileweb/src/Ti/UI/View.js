@@ -1,4 +1,6 @@
-define("Ti/UI/View", ["Ti/_/declare", "Ti/_/dom", "Ti/_/Element", "Ti/_/text"], function(declare, dom, Element, text) {
+define("Ti/UI/View",
+	["Ti/_/declare", "Ti/_/dom", "Ti/_/Element", "Ti/_/text", "Ti/_/Layouts"],
+	function(declare, dom, Element, text, Layouts) {
 
 	return declare("Ti.UI.View", Element, {
 
@@ -31,14 +33,14 @@ define("Ti/UI/View", ["Ti/_/declare", "Ti/_/dom", "Ti/_/Element", "Ti/_/text"], 
 			layout: {
 				set: function(value) {
 					var match = value.toLowerCase().match(/^(horizontal|vertical)$/),
-						value = text.capitalize(match ? match[0] : "absolute");
+						value = match ? match[0] : "absolute";
 
 					if (this._layout) {
 						this._layout.destroy();
 						this._layout = null;
 					}
 
-					this._layout = new Ti._.Layouts[value](this);
+					this._layout = new Layouts[text.capitalize(value)](this);
 
 					return value;
 				}

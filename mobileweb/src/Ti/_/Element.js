@@ -33,17 +33,17 @@ define("Ti/_/Element",
 
 				/* TODO: need to preserve original background
 				on(node, "focus", function() {
+					if (this.backgroundSelectedColor) {
+						bgSelPrevColor || (bgSelPrevColor = this.backgroundColor);
+						style.set(node, "backgroundColor", this.backgroundSelectedColor);
+					}
+
+					if (this.backgroundSelectedImage) {
+						bgSelPrevImage || (bgSelPrevImage = this.backgroundImage);
+						style.set(node, "backgroundImage", style.url(this.backgroundSelectedImage));
+					}
+
 					if (this.focusable) {
-						if (this.backgroundSelectedColor) {
-							bgSelPrevColor || (bgSelPrevColor = this.backgroundColor);
-							style.set(node, "backgroundColor", this.backgroundSelectedColor);
-						}
-
-						if (this.backgroundSelectedImage) {
-							bgSelPrevImage || (bgSelPrevImage = this.backgroundImage);
-							style.set(node, "backgroundImage", style.url(this.backgroundSelectedImage));
-						}
-
 						if (this.backgroundFocusedColor) {
 							bgFocusPrevColor || (bgFocusPrevColor = this.backgroundColor);
 							style.set(node, "backgroundColor", this.backgroundFocusedColor);
@@ -57,17 +57,17 @@ define("Ti/_/Element",
 				});
 
 				on(node, "blur", function() {
+					if (bgSelPrevColor) {
+						style.set(node, "backgroundColor", bgSelPrevColor);
+						bgSelPrevColor = 0;
+					}
+
+					if (bgSelPrevImage) {
+						style.set(node, "backgroundImage", style.url(bgSelPrevImage));
+						bgSelPrevImage = 0;
+					}
+
 					if (this.focusable) {
-						if (bgSelPrevColor) {
-							style.set(node, "backgroundColor", bgSelPrevColor);
-							bgSelPrevColor = 0;
-						}
-
-						if (bgSelPrevImage) {
-							style.set(node, "backgroundImage", style.url(bgSelPrevImage));
-							bgSelPrevImage = 0;
-						}
-
 						if (bgFocusPrevColor) {
 							style.set(node, "backgroundColor", bgFocusPrevColor);
 							bgFocusPrevColor = 0;
@@ -254,12 +254,12 @@ define("Ti/_/Element",
 						/\%$/.test(left) && (left = obj.parent.dom.clientWidth * parseFloat(left) / 100);
 						domStyle.left = (left - width / 2) + "px";
 					}
-	
+
 					if(top !== null){
 						/\%$/.test(top) && (top = obj.parent.dom.clientHeight * parseFloat(top) / 100);
 						domStyle.top = (top - height / 2) + "px";
 					}
-	
+
 					if (!isAdded) {
 						// recalculate center positioning on window resize
 						require.on(window, "resize", function() {

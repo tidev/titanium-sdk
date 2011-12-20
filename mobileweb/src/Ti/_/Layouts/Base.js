@@ -2,8 +2,8 @@ define("Ti/_/Layouts/Base", ["Ti/_/css", "Ti/_/declare"], function(css, declare)
 
 	return declare("Base", null, {
 
-		constuctor: function(view) {
-			this.view = view;
+		constuctor: function(element) {
+			this.element = element;
 			css.add(view.domNode, this.className = "ti" + this.declaredClass + "Layout");
 		},
 

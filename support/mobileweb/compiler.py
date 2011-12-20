@@ -36,39 +36,88 @@ FOOTER = """"""
 class Compiler(object):
 	def __init__(self,project_dir,deploytype):
 		self.project_dir = project_dir
-		self.modules = []
+
+#		self.modules = []
+
 		self.defines = [
 				# these MUST be ordered correctly!
+				
+				# base classes
 				'Ti/_/Evented.js',
 				'Ti/_/Element.js',
 				'Ti/_/Layouts/Base.js',
 				'Ti/_/Layouts/Absolute.js',
 				'Ti/_/Layouts/Horizontal.js',
 				'Ti/_/Layouts/Vertical.js',
-				'Ti/UI/View.js',
-				'Ti/UI/Widget.js',
+				'Ti/_/Layouts.js',
+				
+				# core classes
 				'Ti/ti.js',
-				# everything below will eventually go away :)
-				'screen.js',
-				'interactable.js',
-				'clickable.js',
-				'eventdriven.js',
-				'styleable.js',
-				'touchable.js',
-				'positionable.js',
-				'domview.js',
-				'Ti.App/properties.js',
-				'Ti.Locale/locale.js',
+				'Ti/API.js',
+				'Ti/App.js',
+				'Ti/App/Properties.js',
+				'Ti/Facebook.js',
+				'Ti/Filesystem.js',
+				'Ti/Gesture.js',
+				'Ti/Media.js',
+				'Ti/Media/VideoPlayer.js',
+				'Ti/Network.js',
+				'Ti/Network/HTTPClient.js',
+				'Ti/Platform.js',
+				'Ti/Platform/DisplayCaps.js',
+				
+				# View classes
+				'Ti/UI/View.js',
+				'Ti/UI/TableViewRow.js',
+				
+				# Widget classes
+				'Ti/_/UI/Widget.js',
+				'Ti/UI/ActivityIndicator.js',
+				'Ti/UI/AlertDialog.js',
+				'Ti/UI/Button.js',
+				'Ti/UI/ImageView.js',
+				'Ti/UI/Label.js',
+				'Ti/UI/ScrollableView.js',
+				'Ti/UI/ScrollView.js',
+				'Ti/UI/Slider.js',
+				'Ti/UI/Switch.js',
+				'Ti/UI/TableView.js',
+				'Ti/UI/TableViewSection.js',
+				'Ti/UI/TextArea.js',
+				'Ti/UI/TextField.js',
+				'Ti/UI/WebView.js',
+				'Ti/Utils.js',
+				
+				# SuperView classes
+				'Ti/_/UI/SuperView.js',
+				'Ti/UI/Tab.js',
+				'Ti/UI/TabGroup.js',
+				'Ti/UI/Window.js',
+				
+				# resources
 				'titanium.css'
+
+				# everything below will eventually go away :)
+				#'screen.js',
+				#'interactable.js',
+				#'clickable.js',
+				#'eventdriven.js',
+				#'styleable.js',
+				#'touchable.js',
+				#'positionable.js',
+				#'domview.js',
+				#'Ti.App/properties.js',
+				#'Ti.Locale/locale.js',
 			]
-		self.css_defines = []
-		self.ti_includes = {}
-		self.api_map = {}
+		
+#		self.css_defines = []
+#		self.ti_includes = {}
+#		self.api_map = {}
 		
 		self.build_dir = os.path.join(self.project_dir,'build','mobileweb')
 		
 		self.resources_dir = os.path.join(self.project_dir,'Resources')
-		self.debug = False
+		self.debug = True # temporarily forcing debug (i.e. development) mode until jsmin is replaced
 		self.count = 0
 		
 		if deploytype == 'development' or deploytype == 'all':
@@ -85,11 +134,11 @@ class Compiler(object):
 			pass
 			
 		# load up our API map
-		map_props = open(os.path.join(src_dir,'map.prop')).read()
-		for line in map_props.split("\n"):
-			if line[0:1] == '#' or line[0:1]=='': continue
-			key,value = line.split("=")
-			self.api_map[key.strip()]=value.strip().split()
+#		map_props = open(os.path.join(src_dir,'map.prop')).read()
+#		for line in map_props.split("\n"):
+#			if line[0:1] == '#' or line[0:1]=='': continue
+#			key,value = line.split("=")
+#			self.api_map[key.strip()]=value.strip().split()
 
 		tiapp_xml = os.path.join(project_dir,'tiapp.xml')
 		ti = TiAppXML(tiapp_xml)
@@ -98,18 +147,19 @@ class Compiler(object):
 		self.project_name = ti.properties['name']
 		self.appid = ti.properties['id']
 
-		if ti.properties['analytics']:
-			self.defines.append("Ti.Platform/platform.js")
+# temporarily already being forced, will need to re-enable
+#		if ti.properties['analytics']:
+#			self.defines.append("Ti.Platform/platform.js")
 
-		def compile_js(from_,to_):
-			try:
-				js = Compiler.make_function_from_file(from_,self)
-				o = codecs.open(to_,'w',encoding='utf-8')
-				o.write(js)
-				o.close()
-				self.count+=1
-			except:
-				pass
+#		def compile_js(from_,to_):
+#			try:
+#				js = Compiler.make_function_from_file(from_,self)
+#				o = codecs.open(to_,'w',encoding='utf-8')
+#				o.write(js)
+#				o.close()
+#				self.count+=1
+#			except:
+#				pass
 
 		source = self.resources_dir
 		target = self.build_dir
@@ -131,9 +181,10 @@ class Compiler(object):
 						pass
 				fp = os.path.splitext(file)
 				if fp[1]=='.js':
-					compile_js(from_,to_)
-				else:
-					shutil.copy(from_,to_)
+					self.count+=1
+				#	compile_js(from_,to_)
+				#else:
+				shutil.copy(from_,to_)
 		
 		titanium_js = mako.template.Template("<%!\n\
 	def jsQuoteEscapeFilter(str):\n\
@@ -201,8 +252,13 @@ class Compiler(object):
 							self.defines.index(fname)
 						except:
 							self.defines.append(fname)
-
+		
 		titanium_css = ''
+		
+		try:
+			os.makedirs(os.path.join(self.build_dir, 'Ti'))
+		except:
+			pass
 		
 		for api in self.defines:
 			api_file = os.path.join(src_dir,api)
@@ -211,7 +267,16 @@ class Compiler(object):
 				sys.exit(1)
 			else:
 				print "[DEBUG] found: %s" % api_file
+				
+				dest = os.path.join(self.build_dir, api)
+				try:
+					os.makedirs(os.path.dirname(dest))
+				except:
+					pass
+				shutil.copy(api_file, dest)
+				
 				if api_file.find('.js') != -1:
+					# TODO: it would be nice to detect if we *need* to add a ;
 					titanium_js += '%s;\n' % self.load_api(api_file, api)
 				elif api_file.find('.css') != -1:
 					titanium_css +='%s\n\n' % self.load_api(api_file, api)
@@ -221,8 +286,8 @@ class Compiler(object):
 						os.makedirs(os.path.dirname(target_file))
 					except:
 						pass
-					
-					open(target_file,'wb').write(open(api_file,'rb').read())
+					shutil.copy(api_file, target_file)
+					# open(target_file,'wb').write(open(api_file,'rb').read())
 		
 		if len(ti.app_properties):
 			titanium_js += '(function(p){'
@@ -332,98 +397,98 @@ class Compiler(object):
 		else:
 			return file_contents
 		
-	def add_symbol(self,api):
+#	def add_symbol(self,api):
 #		print "[DEBUG] detected symbol: %s" % api
-		curtoken = ''
-		tokens = api.split(".")
-		if len(tokens) > 1:
-			try:
-				self.modules.index(tokens[0])
-			except:
-				self.modules.append(tokens[0])
-			
-		if self.api_map.has_key(api):
-			for file in self.api_map[api]:
-				if len(tokens) > 1:
-					fn = "Ti.%s/%s" % (tokens[0],file)
-				else:
-					fn = "Ti/%s" % file
-				try:
-					self.defines.index(fn)
-				except:
-					self.defines.append(fn)
-		else:
-			print "[WARN] couldn't find API: %s" % api
-			#sys.exit(1)
+#		curtoken = ''
+#		tokens = api.split(".")
+#		if len(tokens) > 1:
+#			try:
+#				self.modules.index(tokens[0])
+#			except:
+#				self.modules.append(tokens[0])
+#			
+#		if self.api_map.has_key(api):
+#			for file in self.api_map[api]:
+#				if len(tokens) > 1:
+#					fn = "Ti.%s/%s" % (tokens[0],file)
+#				else:
+#					fn = "Ti/%s" % file
+#				try:
+#					self.defines.index(fn)
+#				except:
+#					self.defines.append(fn)
+#		else:
+#			print "[WARN] couldn't find API: %s" % api
+#			#sys.exit(1)
 
-	def extract_tokens(self,sym,line):
-		# sloppy joe parsing coooode
-		# could be prettier and faster but it works and rather reliable
-		c = 0
-		tokens = []
-		search = sym + "."
-		size = len(search)
-		while True:
-			i = line.find(search,c)
-			if i < 0:
-				break
-			found = False
-			buf = ''
-			x = 0
-			for n in line[i+size:]:
-				# look for a terminal - this could probably be easier
-				if n in ['(',')','{','}','=',',',' ',':','!','[',']','+','*','/','~','^','%','\n','\t','\r']:
-					found = True
-					break
-				buf+=n
-				x+=1
-			tokens.append(buf)
-			if found:
-				c = i + x + 1
-				continue
-			break
-		return tokens	
+#	def extract_tokens(self,sym,line):
+#		# sloppy joe parsing coooode
+#		# could be prettier and faster but it works and rather reliable
+#		c = 0
+#		tokens = []
+#		search = sym + "."
+#		size = len(search)
+#		while True:
+#			i = line.find(search,c)
+#			if i < 0:
+#				break
+#			found = False
+#			buf = ''
+#			x = 0
+#			for n in line[i+size:]:
+#				# look for a terminal - this could probably be easier
+#				if n in ['(',')','{','}','=',',',' ',':','!','[',']','+','*','/','~','^','%','\n','\t','\r']:
+#					found = True
+#					break
+#				buf+=n
+#				x+=1
+#			tokens.append(buf)
+#			if found:
+#				c = i + x + 1
+#				continue
+#			break
+#		return tokens	
 
-	def expand_ti_includes(self,line,filename):
-		'''idx = line.find('Ti.include')
-		if idx!=-1:
-			srcs = line[idx+11:-1]
-			for srcQ in srcs.split(','):
-				# remove leading and trailing slashes and spaces
-				src = re.sub(r'\s*([\"\'])([^\1]*)\1[\w\W]*$', r'\2', srcQ, 0, re.M)
+#	def expand_ti_includes(self,line,filename):
+#		'''idx = line.find('Ti.include')
+#		if idx!=-1:
+#			srcs = line[idx+11:-1]
+#			for srcQ in srcs.split(','):
+#				# remove leading and trailing slashes and spaces
+#				src = re.sub(r'\s*([\"\'])([^\1]*)\1[\w\W]*$', r'\2', srcQ, 0, re.M)
+#
+#				# replace dir separator with platform specific
+#				# if first char is / - consider it as absolute to resources dir
+#				if src[0] == '/':
+#					src_path = os.path.join(self.resources_dir,src[1:len(src)])
+#				else:
+#					src_path = os.path.join(os.path.dirname(filename),src)
+#				# normalize path to match all dir separators
+#				src_path = os.path.normpath(src_path)
+#
+#				if not os.path.exists(src_path):
+#					print "[ERROR] Cannot find include file at: %s" % src_path
+#					sys.exit(1)
+#				source = Compiler.make_function_from_file(src_path,self)
+#				self.ti_includes[src] = source'''
 
-				# replace dir separator with platform specific
-				# if first char is / - consider it as absolute to resources dir
-				if src[0] == '/':
-					src_path = os.path.join(self.resources_dir,src[1:len(src)])
-				else:
-					src_path = os.path.join(os.path.dirname(filename),src)
-				# normalize path to match all dir separators
-				src_path = os.path.normpath(src_path)
-
-				if not os.path.exists(src_path):
-					print "[ERROR] Cannot find include file at: %s" % src_path
-					sys.exit(1)
-				source = Compiler.make_function_from_file(src_path,self)
-				self.ti_includes[src] = source'''
-
-	def compile_js(self,file_contents,fn):
-		contents = ""
-		for line in file_contents.split(';'):
-			self.expand_ti_includes(line,fn)
-			if line == None or line=='' or line == '\n': continue
-			for sym in self.extract_tokens('Ti',line):
-				self.add_symbol(sym)
-			contents+='%s;' % line
-		return contents
+#	def compile_js(self,file_contents,fn):
+#		contents = ""
+#		for line in file_contents.split(';'):
+#			self.expand_ti_includes(line,fn)
+#			if line == None or line=='' or line == '\n': continue
+#			for sym in self.extract_tokens('Ti',line):
+#				self.add_symbol(sym)
+#			contents+='%s;' % line
+#		return contents
 	
-	@classmethod
-	def make_function_from_file(cls,file,instance=None):
-		f = os.path.expanduser(file)
-		file_contents = codecs.open(f, 'r', 'utf-8').read()
-		if not instance or not instance.debug:
-			file_contents = jspacker.jsmin(file_contents)
-		file_contents = file_contents.replace('Titanium.','Ti.')
-		if instance:
-			file_contents = instance.compile_js(file_contents, f)
-		return file_contents
+#	@classmethod
+#	def make_function_from_file(cls,file,instance=None):
+#		f = os.path.expanduser(file)
+#		file_contents = codecs.open(f, 'r', 'utf-8').read()
+#		if not instance or not instance.debug:
+#			file_contents = jspacker.jsmin(file_contents)
+#		file_contents = file_contents.replace('Titanium.','Ti.')
+#		if instance:
+#			file_contents = instance.compile_js(file_contents, f)
+#		return file_contents
