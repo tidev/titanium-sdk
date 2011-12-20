@@ -371,11 +371,11 @@ class Builder(object):
 			self.sdcard = own_sdcard
 		if not os.path.exists(self.sdcard):
 			info("Creating 64M SD card for use in Android emulator")
-			run.run([self.sdk.get_mksdcard(), '64M', self.sdcard])
+			run.run([self.sdk.get_mksdcard(), '64M', self.get_sdcard_path()])
 		if not os.path.exists(my_avd):
 			info("Creating new Android Virtual Device (%s %s)" % (avd_id,avd_skin))
 			inputgen = os.path.join(template_dir,'input.py')
-			pipe([sys.executable, inputgen], [self.sdk.get_android(), '--verbose', 'create', 'avd', '--name', name, '--target', avd_id, '-s', avd_skin, '--force', '--sdcard', self.sdcard])
+			pipe([sys.executable, inputgen], [self.sdk.get_android(), '--verbose', 'create', 'avd', '--name', name, '--target', avd_id, '-s', avd_skin, '--force', '--sdcard', self.get_sdcard_path()])
 			inifile = os.path.join(my_avd,'config.ini')
 			inifilec = open(inifile,'r').read()
 			inifiledata = open(inifile,'w')
@@ -417,7 +417,7 @@ class Builder(object):
 			'-port',
 			'5560',
 			'-sdcard',
-			self.sdcard,
+			self.get_sdcard_path(),
 			'-logcat',
 			'*:d,*',
 			'-no-boot-anim',
@@ -472,6 +472,12 @@ class Builder(object):
 		
 	def is_app_installed(self):
 		return self.check_file_exists('/data/app/%s*.apk' % self.app_id)
+	
+	def get_sdcard_path(self):
+		# We need to surround the sd card path in quotes for windows to account for spaces in path
+		if platform.system() == "Windows":
+			return '"' + self.sdcard + '"'
+		return self.sdcard
 
 	def are_resources_installed(self):
 		return self.check_file_exists(self.sdcard_resources+'/app.js')
