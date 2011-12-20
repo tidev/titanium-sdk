@@ -47,7 +47,7 @@ public class Ti2DMatrix extends KrollProxy
 			anchorY = anchorY == DEFAULT_ANCHOR_VALUE ? this.anchorY : anchorY;
 			switch (type) {
 				case TYPE_SCALE:
-					matrix.preScale((interpolatedTime * (scaleToX - scaleFromX)) + scaleFromX, (interpolatedTime * (scaleToX - scaleFromY)) + scaleFromY); break;
+					matrix.preScale((interpolatedTime * (scaleToX - scaleFromX)) + scaleFromX, (interpolatedTime * (scaleToY - scaleFromY)) + scaleFromY); break;
 				case TYPE_TRANSLATE:
 					matrix.preTranslate(interpolatedTime * translateX, interpolatedTime * translateY); break;
 				case TYPE_ROTATE:
@@ -160,7 +160,9 @@ public class Ti2DMatrix extends KrollProxy
 	@Kroll.method
 	public Ti2DMatrix multiply(Ti2DMatrix other)
 	{
-		return new Ti2DMatrix(this, Operation.TYPE_MULTIPLY);
+		Ti2DMatrix newMatrix = new Ti2DMatrix(other, Operation.TYPE_MULTIPLY);
+		newMatrix.op.multiplyWith = this;
+		return newMatrix;
 	}
 
 	public Matrix interpolate(float interpolatedTime, int childWidth, int childHeight, float anchorX, float anchorY)
