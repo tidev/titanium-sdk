@@ -102,11 +102,7 @@ Ti._5.createClass("Ti.UI.Window", function(args){
 	};
 
 	function setTitle() {
-<<<<<<< HEAD
-		Ti.UI.currentWindow === obj && (document.title = obj.title != null ? obj.title : Ti._5.getArguments().projectName);
-=======
 		Ti.UI.currentWindow === obj && (document.title = obj.title || require.config.project.name);
->>>>>>> timob-6758
 	}
 
 	// Methods
