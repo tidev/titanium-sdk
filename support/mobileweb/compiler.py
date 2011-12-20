@@ -199,20 +199,13 @@ class Compiler(object):
 					open(target_file,'wb').write(open(api_file,'rb').read())
 		
 		if len(ti.app_properties):
-			# force Ti.App.Properties to get bundled into the build
-			try:
-				self.defines.index('Ti.App/properties.js')
-			except:
-				self.defines.append('Ti.App/properties.js')
-			
 			titanium_js += '(function(p){'
 			
 			for name in ti.app_properties:
 				prop = ti.app_properties[name]
 				
 				if prop['type'] == 'bool':
-					val = 'true' if prop['value']=='true' else 'false'
-					titanium_js += 'p.setBool("' + name + '",' + val + ');'
+					titanium_js += 'p.setBool("' + name + '",' + prop['value'] + ');'
 				elif prop['type'] == 'int':
 					titanium_js += 'p.setInt("' + name + '",' + prop['value'] + ');'
 				elif prop['type'] == 'double':
