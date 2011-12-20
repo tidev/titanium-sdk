@@ -563,14 +563,22 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	[super dealloc];
 }
 
--(void)invoke:(KrollContext*)context
+-(TiValueRef) jsInvokeInContext: (KrollContext*)context exception: (TiValueRef *)exceptionPointer
 {
 	TiStringRef js = TiStringCreateWithCFString((CFStringRef) code);
 	TiObjectRef global = TiContextGetGlobalObject([context context]);
 	
-	TiValueRef exception = NULL;
+	TiValueRef result = TiEvalScript([context context], js, global, NULL, 1, exceptionPointer);
+		
+	TiStringRelease(js);
 	
-	TiEvalScript([context context], js, global, NULL, 1, &exception);
+	return result;
+}
+
+-(void)invoke:(KrollContext*)context
+{
+	TiValueRef exception = NULL;
+	[self jsInvokeInContext:context exception:&exception];
 
 	if (exception!=NULL)
 	{
@@ -578,31 +586,20 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		NSLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
 		fflush(stderr);
 	}
-	
-	TiStringRelease(js);
 }
 
 -(id)invokeWithResult:(KrollContext*)context
 {
-	TiStringRef js = TiStringCreateWithCFString((CFStringRef) code);
-	TiObjectRef global = TiContextGetGlobalObject([context context]);
-	
 	TiValueRef exception = NULL;
-	
-	TiValueRef result = TiEvalScript([context context], js, global, NULL, 1, &exception);
+	TiValueRef result = [self jsInvokeInContext:context exception:&exception];
 	
 	if (exception!=NULL)
 	{
 		id excm = [KrollObject toID:context value:exception];
 		NSLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
 		fflush(stderr);
-		TiStringRelease(js);
-
 		@throw excm;
 	}
-	
-	TiStringRelease(js);
-	
 	return [KrollObject toID:context value:result];
 }
 
