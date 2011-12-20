@@ -2,7 +2,8 @@
 	// Interfaces
 	Ti._5.EventDriven(api);
 
-	var _httpURLFormatter = null;
+	var _httpURLFormatter = null,
+	    _online = navigator.onLine;
 
 	// Properties
 	Ti._5.propReadOnly(api, {
@@ -19,7 +20,7 @@
 		READ_WRITE_MODE: 2,
 		WRITE_MODE: 1,
 		networkType: function() {
-			if (!api.online) {
+			if (!_online) {
 				return api.NETWORK_NONE;
 			}		
 			if (navigator.connection && navigator.connection.type == navigator.connection.WIFI) {
@@ -39,7 +40,7 @@
 			return api.NETWORK_UNKNOWN;
 		},
 		networkTypeName: function() {
-			if (!api.online) {
+			if (!_online) {
 				return "NONE";
 			}		
 			if (navigator.connection && navigator.connection.type == navigator.connection.WIFI) {
@@ -83,24 +84,28 @@
 
 	// Events
 	require.on(window, "online", function(evt) {
-		api.online || api.fireEvent("change", {
-			networkType		: api.networkType,
-			networkTypeName	: api.networkTypeName,
-			online			: true,
-			source			: evt.target,
-			type			: evt.type
-		});
-		api.online = true;
+		if (!_online) {
+			_online = true;
+			api.fireEvent("change", {
+				networkType		: api.networkType,
+				networkTypeName	: api.networkTypeName,
+				online			: true,
+				source			: evt.target,
+				type			: evt.type
+			});
+		}
 	});
 	
 	require.on(window, "offline", function(evt) {
-		api.online && api.fireEvent("change", {
-			networkType		: api.networkType,
-			networkTypeName	: api.networkTypeName,
-			online			: false,
-			source			: evt.target,
-			type			: evt.type
-		});
-		api.online = false;
+		if (_online) {
+			_online = false;
+			api.fireEvent("change", {
+				networkType		: api.networkType,
+				networkTypeName	: api.networkTypeName,
+				online			: false,
+				source			: evt.target,
+				type			: evt.type
+			});
+		}
 	});
 })(Ti._5.createClass("Ti.Network"));
