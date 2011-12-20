@@ -1,6 +1,17 @@
 (function(api){
-	var _backgroundColor = null,
-		_backgroundImage = null;
+	Ti._5.ready(function(){
+		var containerStyle = Ti._5.containerDiv.style;
+		Ti._5.prop(api, {
+			backgroundColor: {
+				get: function() { return containerStyle.backgroundColor; },
+				set: function(val) { containerStyle.backgroundColor = val; }
+			},
+			backgroundImage: {
+				get: function() { return containerStyle.backgroundImage; },
+				set: function(val) { containerStyle.backgroundImage = val; }
+			}
+		});
+	});
 
 	api.currentWindow = null;
 	api.currentTab = null;
@@ -62,32 +73,7 @@
 		TEXT_VERTICAL_ALIGNMENT_TOP: 3
 	});
 
-	Ti._5.prop(api, {
-		backgroundColor: {
-			get: function(){return _backgroundColor;},
-			set: function(val){
-				_backgroundColor = val;
-				api.setBackgroundColor(_backgroundColor);
-			}
-		},
-		backgroundImage: {
-			get: function(){return _backgroundImage;},
-			set: function(val){
-				_backgroundImage = val;
-				api.setBackgroundImage(_backgroundImage);
-			}
-		}
-	});
-
 	// Methods
-	api.setBackgroundColor = function(args) {
-		Ti._5.containerDiv.style.backgroundColor = args;
-	};
-	
-	api.setBackgroundImage = function(args) {
-		Ti._5.containerDiv.style.backgroundImage = "url(" + Ti._5.getAbsolutePath(args) + ")";
-	};
-	
 	api.create2DMatrix = function(args){
 		return new Ti.UI["2DMatrix"](args);
 	};

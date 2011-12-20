@@ -10,7 +10,25 @@
 (function(global){
 	var cfg = require.config,
 		is = require.is,
-		each = require.is;
+		each = require.is,
+		on = require.on,
+		Ti = {
+			_5: {}
+		},
+		doc = document,
+		body = doc.body,
+		undef,
+		ready,
+		readyStates = { "loaded": 1, "complete": 1 },
+		isReady = !!readyStates[doc.readyState],
+		readyQ = [],
+		capitalize,
+		getAbsolutePath,
+		sessionId,
+		analyticsStorageName = "ti:analyticsEvents",
+		localeData = {},
+		analyticsEventSeq = 1,
+		analyticsLastSent = null;
 
 	// Object.defineProperty() shim
 	if (!Object.defineProperty || !(function (obj) {
@@ -67,8 +85,11 @@
 		};
 	}
 
+	Object.defineProperty(global, "Ti", { value: Ti, writable: false });
+	Object.defineProperty(global, "Titanium", { value: Ti, writable: false });
+
 	// console.*() shim	
-	typeof console !== "undefined" || (console = {});
+	console === undef && (console = {});
 
 	// make sure "log" is always at the end
 	each(["debug", "info", "warn", "error", "log"], function (c) {
@@ -83,7 +104,7 @@
 	});
 
 	// JSON.parse() and JSON.stringify() shim
-	if (typeof JSON === "undefined" || JSON.stringify({a:0}, function(k,v){return v||1;}) !== '{"a":1}') {
+	if (JSON === undef || JSON.stringify({a:0}, function(k,v){return v||1;}) !== '{"a":1}') {
 		function escapeString(s){
 			return ('"' + s.replace(/(["\\])/g, '\\$1') + '"').
 				replace(/[\f]/g, "\\f").replace(/[\b]/g, "\\b").replace(/[\n]/g, "\\n").
@@ -95,7 +116,6 @@
 		};
 	
 		JSON.stringify = function (value, replacer, space) {
-			var undef;
 			if (is(replacer, "String")) {
 				space = replacer;
 				replacer = null;
@@ -189,83 +209,55 @@
 	// make sure we have some vendor prefixes defined
 	cfg.vendorPrefixes || (cfg.vendorPrefixes = ["", "Moz", "Webkit", "O", "ms"]);
 
-	var Ti = {};
-	global.Ti = global.Titanium = Ti = {};
-
-	Ti._5 = {};
-	var loaded = false,
-		loaders = [];
-
 	// expose JSON functions to Ti namespace
 	Ti.parse = JSON.parse;
 	Ti.stringify = JSON.stringify;
 
-	// public function for onload notification
-	global.onloaded = function(f){
-		onload(f);
-	};
+	if (!isReady) {
+		function detectReady(evt) {
+			if (isReady || (evt && evt.type == "readystatechange" && !readyStates[doc.readyState])) {
+				return;
+			}
+			while (readyQ.length) {
+				(readyQ.shift())();
+			}
+			isReady = 1;
+		}
 
-	// private function
-	function onload(f) {
-		if (loaded) {
-			f();
+		readyQ.concat([
+			on(doc, "DOMContentLoaded", detectReady),
+			on(global, "load", detectReady)
+		]);
+
+		if ("onreadystatechange" in doc) {
+			readyQ.push(on(doc, "readystatechange", detectReady));
 		} else {
-			loaders.push(f);
-		}
-	}
-
-	function beforeonload() {
-		document.body.style.margin = "0";
-		document.body.style.padding = "0";
-		global.scrollTo(0, 1);
-	}
-
-	function afteronload() {
-	}
-
-	// TODO use DOMContentLoaded event instead
-	global.onload = function() {
-		loaded = true;
-		beforeonload();
-		for (var c=0 ; c < loaders.length; c++) {
-			loaders[c]();
-		}
-		loaders = null;
-		afteronload();
-	};
-
-	global.onbeforeunload = function() {
-		Ti.App.fireEvent('close');
-		Ti._5.addAnalyticsEvent('ti.end', 'ti.end');
-
-	};
-
-	// run onload
-	Ti._5.run = function(app) {
-		onload(app);
-	};
-
-	Ti._5.preset = function(obj, props, values){
-		if(!values || !obj || !props){
-			return;
-		}
-
-		for(var ii = 0; ii < props.length; ii++){
-			var prop = props[ii];
-			if(typeof values[prop] != 'undefined'){
-				obj[prop] = values[prop];
+			function poller() {
+				readyStates[doc.readyState] ? detectReady() : setTimeout(poller, 30);
 			}
+			poller();
+		}
+	}
+
+	ready = Ti._5.ready = function(context, callback) {
+		var fn = callback ? function(){ callback.call(context); } : context;
+		if (isReady) {
+			fn();
+		} else {
+			readyQ.push(fn);
 		}
 	};
 
-	Ti._5.presetUserDefinedElements = function(obj, args){
-		for(var prop in args){
-			if(typeof obj[prop] == 'undefined'){
-				obj[prop] = args[prop];
-			}
-		}
+	on(global, "beforeunload", function() {
+		Ti.App.fireEvent("close");
+		Ti._5.addAnalyticsEvent("ti.end", "ti.end");
+	});
+
+	capitalize = Ti._5.capitalize = function(s) {
+		s = s || "";
+		return s.substring(0, 1).toUpperCase() + s.substring(1)
 	};
-	
+
 	Ti._5.prop = function(obj, property, value, descriptor) {
 		if (require.is(property, "Object")) {
 			for (var i in property) {
@@ -273,7 +265,7 @@
 			}
 		} else {
 			var skipSet,
-				capitalizedName = property.substring(0, 1).toUpperCase() + property.substring(1);
+				capitalizedName = capitalize(property);
 
 			// if we only have 3 args, so need to check if it's a default value or a descriptor
 			if (arguments.length === 3 && require.is(value, "Object") && (value.get || value.set)) {
@@ -290,7 +282,7 @@
 						// we have a value, but since there's a custom setter/getter, we can't have a value
 						value = descriptor.value;
 						delete descriptor.value;
-						value !== undefined && (skipSet = 0);
+						value !== undef && (skipSet = 0);
 					} else {
 						descriptor.writable = true;
 					}
@@ -310,9 +302,9 @@
 	};
 
 	Ti._5.propReadOnly = function(obj, property, value) {
-		var undef;
+		var i;
 		if (require.is(property, "Object")) {
-			for (var i in property) {
+			for (i in property) {
 				Ti._5.propReadOnly(obj, i, property[i]);
 			}
 		} else {
@@ -321,83 +313,29 @@
 	};
 
 	Ti._5.createClass = function(className, value){
-		var classes = className.split(".");
-		var parent = window;
-		for(var ii = 0; ii < classes.length; ii++){
-			var klass = classes[ii];
-			if(typeof parent[klass] == 'undefined'){
-				parent[klass] = ii == classes.length - 1 && typeof value != 'undefined' ? value : new Object();
-			}
+		var i,
+			classes = className.split("."),
+			klass,
+			parent = global;
+		for (i = 0; i < classes.length; i++) {
+			klass = classes[i];
+			parent[klass] === undef && (parent[klass] = i == classes.length - 1 && value !== undef ? value : new Object());
 			parent = parent[klass];
 		}
 		return parent;
 	};
 
-	// do some actions when framework is loaded
-	Ti._5.frameworkLoaded = function() {
-		if (cfg.analytics) {
-			// enroll event
-			if(localStorage.getItem("mobileweb_enrollSent") == null){
-				// setup enroll event
-				Ti._5.addAnalyticsEvent('ti.enroll', 'ti.enroll', {
-					mac_addr: null,
-					oscpu: null,
-					app_name: cfg.appName,
-					platform: Ti.Platform.name,
-					app_id: cfg.appId,
-					ostype: Ti.Platform.osname,
-					osarch: Ti.Platform.architecture,
-					model: Ti.Platform.model,
-					deploytype: cfg.deployType
-				});
-				localStorage.setItem("mobileweb_enrollSent", true)
-			}
-
-			// app start event
-			Ti._5.addAnalyticsEvent('ti.start', 'ti.start', {
-				tz: (new Date()).getTimezoneOffset(),
-				deploytype: cfg.deployType,
-				os: Ti.Platform.osname,
-				osver: Ti.Platform.ostype,
-				version: cfg.tiVersion,
-				un: null,
-				app_version: cfg.appVersion,
-				nettype: null
-			});
-
-			// try to sent previously sent analytics events on app load
-			Ti._5.sendAnalytics();
-		}
-
-		Ti._5.containerDiv = document.createElement('div');
-		Ti._5.containerDiv.style.width = "100%";
-		Ti._5.containerDiv.style.height = "100%";
-		Ti._5.containerDiv.style.overflow = "hidden";
-		Ti._5.containerDiv.style.position = "absolute"; // Absolute so that any children that are absolute positioned will respect this DIVs height and width.
-		document.body.appendChild(Ti._5.containerDiv);
-	};
-
-	Ti._5.getAbsolutePath = function(path){
-		if(path.indexOf("app://") == 0){
-			path = path.substring(6);
-		}
-
-		if(path.charAt(0) == "/"){
-			path = path.substring(1);
-		}
-
-		if(path.indexOf("://") >= 0){
-			return path;
-		} else {
-			return location.pathname.replace(/(.*)\/.*/, "$1") + "/" + path;
-		}
+	getAbsolutePath = Ti._5.getAbsolutePath = function(path) {
+		/^app\:\/\//.test(path) && (path = path.substring(6));
+		/^\//.test(path) && (path = path.substring(1));
+		return /^\/\//.test(path) || path.indexOf("://") > 0 ? path : location.pathname.replace(/(.*)\/.*/, "$1") + "/" + path;
 	};
 
 	Ti._5.px = function(val){
-		return val + (typeof val == 'number' ? 'px' : '');
+		return val + (typeof val == "number" ? "px" : "");
 	};
 
-	Ti._5.createUUID = function(){
+	createUUID = Ti._5.createUUID = function(){
 		/*!
 		Math.uuid.js (v1.4)
 		http://www.broofa.com
@@ -413,23 +351,15 @@
 		}).toUpperCase();
 	};
 
-	Ti._5.getArguments = function(){
-		return cfg;
-	};
+	sessionId = "sessionStorage" in global && sessionStorage.getItem("mobileweb_sessionId");
+	sessionId || sessionStorage.setItem("mobileweb_sessionId", sessionId = createUUID());
 
-	var _sessionId = sessionStorage.getItem('mobileweb_sessionId');
-	if(_sessionId == null){
-		_sessionId = Ti._5.createUUID();
-		sessionStorage.setItem('mobileweb_sessionId', _sessionId);
-	}
-
-	var ANALYTICS_STORAGE = "mobileweb_analyticsEvents";
 	Ti._5.addAnalyticsEvent = function(eventType, eventEvent, data, isUrgent){
 		if (!cfg.analytics) {
 			return;
 		}
 		// store event
-		var storage = localStorage.getItem(ANALYTICS_STORAGE);
+		var storage = localStorage.getItem(analyticsStorageName);
 		if(storage == null){
 			storage = [];
 		} else {
@@ -471,13 +401,9 @@
 			eventTimestamp: ts,
 			eventPayload: data
 		});
-		localStorage.setItem(ANALYTICS_STORAGE, JSON.stringify(storage));
+		localStorage.setItem(analyticsStorageName, JSON.stringify(storage));
 		Ti._5.sendAnalytics(isUrgent);
 	};
-
-	var ANALYTICS_WAIT = 300000; // 5 minutes
-	var _analyticsLastSent = null;
-	var eventSeq = 1;
 
 	// collect and send Ti.Analytics notifications
 	Ti._5.sendAnalytics = function(isUrgent){
@@ -487,11 +413,10 @@
 
 		var i,
 			evt,
-			storage = JSON.parse(localStorage.getItem(ANALYTICS_STORAGE)),
+			storage = JSON.parse(localStorage.getItem(analyticsStorageName)),
 			now = (new Date()).getTime(),
 			jsonStrs = [],
 			ids = [],
-			body = document.body,
 			iframe,
 			form,
 			hidden,
@@ -499,45 +424,45 @@
 			iframeName = "analytics" + rand,
 			callback = "mobileweb_jsonp" + rand;
 
-		if (storage == null || (!isUrgent && _analyticsLastSent !== null && now - _analyticsLastSent < ANALYTICS_WAIT)) {
+		if (storage === null || (!isUrgent && analyticsLastSent !== null && now - analyticsLastSent < 300000 /* 5 minutes */)) {
 			return;
 		}
+
+		analyticsLastSent = now;
 
 		for (i = 0; i < storage.length; i++) {
 			evt = storage[i];
 			ids.push(evt.eventId);
 			jsonStrs.push(JSON.stringify({
-				seq: eventSeq++,
+				seq: analyticsEventSeq++,
 				ver: "2",
 				id: evt.eventId,
 				type: evt.eventType,
 				event: evt.eventEvent,
 				ts: evt.eventTimestamp,
 				mid: Ti.Platform.id,
-				sid: _sessionId,
+				sid: sessionId,
 				aguid: cfg.guid,
 				data: require.is(evt.eventPayload, "object") ? JSON.stringify(evt.eventPayload) : evt.eventPayload
 			}));
 		}
 
 		function onIframeLoaded() {
-			body.removeChild(form);
-			body.removeChild(iframe);
+			form.parentNode.removeChild(form);
+			iframe.parentNode.removeChild(iframe);
 		}
 
-		iframe = document.createElement("iframe");
+		iframe = doc.createElement("iframe");
 		iframe.style.display = "none";
-		iframe.onload = onIframeLoaded;
-		iframe.onerror = onIframeLoaded;
 		iframe.id = iframe.name = iframeName;
 
-		form = document.createElement("form");
+		form = doc.createElement("form");
 		form.style.display = "none";
 		form.target = iframeName;
 		form.method = "POST";
 		form.action = "https://api.appcelerator.net/p/v2/mobile-track?callback=" + callback;
 
-		hidden = document.createElement("input");
+		hidden = doc.createElement("input");
 		hidden.type = "hidden";
 		hidden.name = "content";
 		hidden.value = "[" + jsonStrs.join(",") + "]";
@@ -550,11 +475,11 @@
 			if(response && response.success){
 				// remove sent events on successful sent
 				var j, k, found,
-					storage = localStorage.getItem(ANALYTICS_STORAGE),
+					storage = localStorage.getItem(analyticsStorageName),
 					ev,
 					evs = [];
 
-				for(j = 0; j < storage.length; j++){
+				for (j = 0; j < storage.length; j++) {
 					ev = storage[j];
 					found = 0;
 					for (k = 0; k < ids.length; k++) {
@@ -567,91 +492,109 @@
 					found || evs.push(ev);
 				}
 
-				localStorage.setItem(ANALYTICS_STORAGE, JSON.stringify(evs));
+				localStorage.setItem(analyticsStorageName, JSON.stringify(evs));
 				
 			}
 		};
-		form.submit();
+
+		// need to delay attaching of iframe events so they aren't prematurely called
+		setTimeout(function() {
+			iframe.onload = onIframeLoaded;
+			iframe.onerror = onIframeLoaded;
+			form.submit();
+		}, 25);
 	};
 
 	Ti._5.extend = function(dest, source){
-		for(var key in source){
+		for (var key in source) {
 			dest[key] = source[key];
 		}
-
 		return dest;
 	};
 
-	var _localeData = {};
 	Ti._5.setLocaleData = function(obj){
-		_localeData = obj;
+		localeData = obj;
 	};
+
 	Ti._5.getLocaleData = function(){
-		return _localeData;
+		return localeData;
 	};
 
 	// Get browser window sizes
 	Ti._5.getWindowSizes = function() {
-		var winW = 630, winH = 460;
-		if (document.body && document.body.offsetWidth) {
-			winW = document.body.offsetWidth;
-			winH = document.body.offsetHeight;
+		var n,
+			docElem = doc.documentElement;
+		if (body.offsetWidth) {
+			n = {
+				width: body.offsetWidth|0,
+				height: body.offsetHeight|0
+			};
+		} else if (doc.compatMode === "CSS1Compat" && docElem && docElem.offsetWidth) {
+			n = {
+				width: docElem.offsetWidth,
+				height: docElem.offsetHeight
+			};
+		} else if (global.innerWidth && global.innerHeight) {
+			n = {
+				width: global.innerWidth,
+				height: global.innerHeight
+			};
 		}
-		if (
-			document.compatMode=='CSS1Compat' &&
-			document.documentElement &&
-			document.documentElement.offsetWidth
-		) {
-			winW = document.documentElement.offsetWidth;
-			winH = document.documentElement.offsetHeight;
-		}
-		if (window.innerWidth && window.innerHeight) {
-			winW = window.innerWidth;
-			winH = window.innerHeight;
-		}
-		return {
-			width: parseInt(winW),
-			height: parseInt(winH)
-		}
+		return n;
 	};
 
-	var _loadedScripts = {};
-	Ti._5.getS = function(){
-		return _loadedScripts;
-	}
-	Ti._5.setLoadedScripts = function(scripts){
-		if(scripts == null){
-			return;
+	ready(function() {
+		body.style.margin = 0;
+		body.style.padding = 0;
+		global.scrollTo(0, 1);
+
+		if (cfg.analytics) {
+			// enroll event
+			if (localStorage.getItem("mobileweb_enrollSent") === null) {
+				// setup enroll event
+				Ti._5.addAnalyticsEvent('ti.enroll', 'ti.enroll', {
+					mac_addr: null,
+					oscpu: null,
+					app_name: cfg.appName,
+					platform: Ti.Platform.name,
+					app_id: cfg.appId,
+					ostype: Ti.Platform.osname,
+					osarch: Ti.Platform.architecture,
+					model: Ti.Platform.model,
+					deploytype: cfg.deployType
+				});
+				localStorage.setItem("mobileweb_enrollSent", true)
+			}
+
+			// app start event
+			Ti._5.addAnalyticsEvent('ti.start', 'ti.start', {
+				tz: (new Date()).getTimezoneOffset(),
+				deploytype: cfg.deployType,
+				os: Ti.Platform.osname,
+				osver: Ti.Platform.ostype,
+				version: cfg.tiVersion,
+				un: null,
+				app_version: cfg.appVersion,
+				nettype: null
+			});
+
+			// try to sent previously sent analytics events on app load
+			Ti._5.sendAnalytics();
 		}
 
-		for(var key in scripts){
-			Ti._5.addLoadedScript(key, scripts[key]);
-		}
-	};
+		var n = Ti._5.containerDiv = doc.createElement('div'),
+			ns = n.style;
+		n.id = "TiContainer";
+		ns.width = "100%";
+		ns.height = "100%";
+		ns.overflow = "hidden";
+		ns.position = "absolute"; // Absolute so that any children that are absolute positioned will respect this DIVs height and width.
+		body.appendChild(n);
 
-	Ti._5.addLoadedScript = function(path, content){
-		path = Ti._5.getAbsolutePath(path);
-		_loadedScripts[path] = content;
-	};
+		// load app.js when ti and dom is ready
+		ready(function() {
+			require(["app.js"]);
+		});
+	});
 
-	Ti._5.getLoadedScript = function(path){
-		path = Ti._5.getAbsolutePath(path);
-		return _loadedScripts[path];
-	};
-
-	Ti._5.execLoadedScript = function(path){
-		var code = Ti._5.getLoadedScript(path);
-		if(typeof code == 'undefined'){
-			return;
-		}
-
-		var head = document.getElementsByTagName('head')[0];
-		if(head == null){
-			head = document;
-		}
-		var script = document.createElement('script');
-		script.type = 'text/javascript';
-		script.innerHTML = code;
-		head.appendChild(script);
-	};
 }(window));
