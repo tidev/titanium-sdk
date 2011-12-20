@@ -177,6 +177,7 @@ public class PlatformModule extends KrollModule
 			registerBatteryStateReceiver();
 		} else if (!monitor && batteryStateReceiver != null) {
 			unregisterBatteryStateReceiver();
+			batteryStateReceiver = null;
 		}
 	}
 	@Kroll.getProperty @Kroll.method
@@ -243,6 +244,7 @@ public class PlatformModule extends KrollModule
 		super.eventListenerRemoved(type, count, proxy);
 		if (TiC.EVENT_BATTERY.equals(type) && count == 0 && batteryStateReceiver != null) {
 			unregisterBatteryStateReceiver();
+			batteryStateReceiver = null;
 		}
 	}
 
@@ -301,6 +303,7 @@ public class PlatformModule extends KrollModule
 		super.onPause(activity);
 		if (batteryStateReceiver != null) {
 			unregisterBatteryStateReceiver();
+			batteryStateReceiver = null;
 		}
 	}
 
