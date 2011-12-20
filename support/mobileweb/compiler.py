@@ -128,6 +128,9 @@ class Compiler(object):
 		version: \"${app_version | jsQuoteEscapeFilter}\"\n\
 	},\n\
 	deployType: \"${deploy_type | jsQuoteEscapeFilter}\",\n\
+	has: {\n\
+		\"declare-property-methods\": true\n\
+	},\n\
 	project: {\n\
 		id: \"${project_id | jsQuoteEscapeFilter}\",\n\
 		name: \"${project_name | jsQuoteEscapeFilter}\"\n\
