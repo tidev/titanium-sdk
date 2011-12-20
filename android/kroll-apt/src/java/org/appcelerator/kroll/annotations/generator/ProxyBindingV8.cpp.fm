@@ -137,42 +137,42 @@ Handle<FunctionTemplate> ${className}::getProxyTemplate()
 
 	<#if (constant.value)??>
 		<#if constant.type = "java.lang.String">
-		DEFINE_STRING_CONSTANT(instanceTemplate, "${name}", "${constant.value}");
+		DEFINE_STRING_CONSTANT(prototypeTemplate, "${name}", "${constant.value}");
 		<#elseif constant.type = "int" || constant.type = "long" || constant.type = "short">
-		DEFINE_INT_CONSTANT(instanceTemplate, "${name}", ${constant.value?c});
+		DEFINE_INT_CONSTANT(prototypeTemplate, "${name}", ${constant.value?c});
 		<#else>
-		DEFINE_NUMBER_CONSTANT(instanceTemplate, "${name}", ${constant.value?c});
+		DEFINE_NUMBER_CONSTANT(prototypeTemplate, "${name}", ${constant.value?c});
 		</#if>
 	<#else>
 		<#if constant.type = "java.lang.String">
 		jfieldID field${constant.name} = env->GetStaticFieldID (javaClass, "${constant.name}", "Ljava/lang/String;");
 		jobject fieldValue${constant.name} = env->GetStaticObjectField(javaClass, field${constant.name});
-		DEFINE_STRING_CONSTANT(instanceTemplate, "${name}", fieldValue${constant.name});
+		DEFINE_STRING_CONSTANT(prototypeTemplate, "${name}", fieldValue${constant.name});
 
 		<#elseif constant.type = "short">
 		jfieldID field${constant.name} = env->GetStaticFieldID (javaClass, "${constant.name}", "S");
 		jshort fieldValue${constant.name} = env->GetStaticShortField(javaClass, field${constant.name});
-		DEFINE_INT_CONSTANT(instanceTemplate, "${name}", fieldValue${constant.name});
+		DEFINE_INT_CONSTANT(prototypeTemplate, "${name}", fieldValue${constant.name});
 
 		<#elseif constant.type = "int">
 		jfieldID field${constant.name} = env->GetStaticFieldID (javaClass, "${constant.name}", "I");
 		jint fieldValue${constant.name} = env->GetStaticIntField(javaClass, field${constant.name});
-		DEFINE_NUMBER_CONSTANT(instanceTemplate, "${name}", fieldValue${constant.name});
+		DEFINE_NUMBER_CONSTANT(prototypeTemplate, "${name}", fieldValue${constant.name});
 
 		<#elseif constant.type = "long">
 		jfieldID field${constant.name} = env->GetStaticFieldID (javaClass, "${constant.name}", "J");
 		jlong fieldValue${constant.name} = env->GetStaticLongField(javaClass, field${constant.name});
-		DEFINE_NUMBER_CONSTANT(instanceTemplate, "${name}", fieldValue${constant.name});
+		DEFINE_NUMBER_CONSTANT(prototypeTemplate, "${name}", fieldValue${constant.name});
 
 		<#elseif constant.type = "float">
 		jfieldID field${constant.name} = env->GetStaticFieldID (javaClass, "${constant.name}", "F");
 		jfloat fieldValue${constant.name} = env->GetStaticFloatField(javaClass, field${constant.name});
-		DEFINE_NUMBER_CONSTANT(instanceTemplate, "${name}", fieldValue${constant.name});
+		DEFINE_NUMBER_CONSTANT(prototypeTemplate, "${name}", fieldValue${constant.name});
 
 		<#elseif constant.type = "double">
 		jfieldID field${constant.name} = env->GetStaticFieldID (javaClass, "${constant.name}", "D");
 		jdouble fieldValue${constant.name} = env->GetStaticDoubleField(javaClass, field${constant.name});
-		DEFINE_NUMBER_CONSTANT(instanceTemplate, "${name}", fieldValue${constant.name});
+		DEFINE_NUMBER_CONSTANT(prototypeTemplate, "${name}", fieldValue${constant.name});
 		</#if>
 	</#if>
 	</@Proxy.listConstants>

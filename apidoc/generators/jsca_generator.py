@@ -219,11 +219,22 @@ def generate(raw_apis, annotated_apis, options):
 
 	if options.stdout:
 		json.dump(result, sys.stdout, sort_keys=False, indent=4)
-	if options.output is not None and len(options.output) > 0:
-		if not os.path.exists(options.output):
-			os.makedirs(options.output)
-		out_path = os.path.join(options.output, "api.jsca")
-		f = open(out_path, "w")
-		json.dump(result, f, sort_keys=False, indent=4)
-		f.close()
-
+	else:
+		output_folder = None
+		if options.output:
+			output_folder = options.output
+		else:
+			dist_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "dist"))
+			if os.path.exists(dist_dir):
+				output_folder = os.path.join(dist_dir, "apidoc")
+				if not os.path.exists(output_folder):
+					os.mkdir(output_folder)
+		if not output_folder:
+			log.warn("No output folder specified and dist path does not exist.  Forcing output to stdout.")
+			json.dump(result, sys.stdout, sort_keys=False, indent=4)
+		else:
+			output_file = os.path.join(output_folder, "api.jsca")
+			f = open(output_file, "w")
+			json.dump(result, f, sort_keys=False, indent=4)
+			f.close()
+			log.info("%s written" % output_file)

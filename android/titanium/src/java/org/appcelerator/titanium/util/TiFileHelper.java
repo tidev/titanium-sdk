@@ -251,26 +251,17 @@ public class TiFileHelper
 		return loadDrawable(path, report, false);
 	}
 
-	/*public Drawable loadDrawable(String path, boolean report, boolean checkForNinePatch)
-	{
-		// getResourceDrawable wants a resolved url
-		String url = path;
-		if (!url.startsWith("file:")) {
-			url = context.resolveUrl(path);
-		}
-		Drawable d = TiUIHelper.getResourceDrawable(context, url);
-		if (d != null) {
-			return d;
-		}
-		
-		return loadDrawable(url, report, checkForNinePatch);
-		
-	}*/
-
 	public Drawable loadDrawable(String path, boolean report, boolean checkForNinePatch)
 	{
 		Drawable d = null;
 		InputStream is = null;
+
+		// Try to get Resource drawable first.
+		d = TiUIHelper.getResourceDrawable(path);
+		if (d != null) {
+			return d;
+		}
+
 		try
 		{
 			if (checkForNinePatch && path != null && !URLUtil.isNetworkUrl(path)) {
