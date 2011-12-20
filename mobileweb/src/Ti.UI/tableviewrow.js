@@ -17,7 +17,7 @@ Ti._5.createClass("Ti.UI.TableViewRow", function(args){
 		domNode = Ti._5.DOMView(obj, "li", args, "TableViewRow"),
 		domStyle = domNode.style,
 		on = require.on,
-		px = Ti._5.px;
+		unitize = require("Ti/_/dom").unitize;
 
 	obj._rowData = args || {};
 
@@ -155,7 +155,7 @@ Ti._5.createClass("Ti.UI.TableViewRow", function(args){
 						inner.appendChild(img = document.createElement("img"));
 						domNode.appendChild(div);
 					}
-					img.src = Ti._5.getAbsolutePath(val);
+					img.src = require("Ti/_").getAbsolutePath(val);
 				} else {
 					if (_leftImageObj) {
 						_leftImageObj.parentNode.removeChild(_leftImageObj);
@@ -179,7 +179,7 @@ Ti._5.createClass("Ti.UI.TableViewRow", function(args){
 						domNode.appendChild(div);
 						domNode.className += " hasRightImage";
 					}
-					img.src = Ti._5.getAbsolutePath(val);
+					img.src = require("Ti/_").getAbsolutePath(val);
 				} else {
 					if (_rightImageObj) {
 						_rightImageObj.parentNode.removeChild(_rightImageObj);
@@ -215,7 +215,7 @@ Ti._5.createClass("Ti.UI.TableViewRow", function(args){
 			},
 			set: function(val) {
 				domStyle.paddingBottom = "";
-				domStyle.paddingTop = px(val);
+				domStyle.paddingTop = unitize(val);
 			}
 		},
 		bottom: {
@@ -224,7 +224,7 @@ Ti._5.createClass("Ti.UI.TableViewRow", function(args){
 			},
 			set: function(val) {
 				domStyle.paddingTop = "";
-				domStyle.paddingBottom = px(val);
+				domStyle.paddingBottom = unitize(val);
 			}
 		},
 		left: {
@@ -233,7 +233,7 @@ Ti._5.createClass("Ti.UI.TableViewRow", function(args){
 			},
 			set: function(val) {
 				domStyle.paddingRight = "";
-				domStyle.paddingLeft = px(val);
+				domStyle.paddingLeft = unitize(val);
 			}
 		},
 		right: {
@@ -242,7 +242,7 @@ Ti._5.createClass("Ti.UI.TableViewRow", function(args){
 			},
 			set: function(val) {
 				domStyle.paddingLeft = "";
-				domStyle.paddingRight = px(val);
+				domStyle.paddingRight = unitize(val);
 			}
 		},
 		size: {
@@ -253,8 +253,8 @@ Ti._5.createClass("Ti.UI.TableViewRow", function(args){
 				}
 			},
 			set: function(val) {
-				val.width && (obj.width = px(val.width));
-				val.height && (obj.height = px(val.height));
+				val.width && (obj.width = unitize(val.width));
+				val.height && (obj.height = unitize(val.height));
 			}
 		},
 		height: {
@@ -332,7 +332,7 @@ Ti._5.createClass("Ti.UI.TableViewRow", function(args){
 
 	function setColoredStyle() {
 		if (obj.selectedBackgroundImage) {
-			domStyle.backgroundImage = "url(" + Ti._5.getAbsolutePath(obj.selectedBackgroundImage) + ")";
+			domStyle.backgroundImage = require("Ti/_/style").url(obj.selectedBackgroundImage);
 			domStyle.backgroundRepeat = "no-repeat";
 		} else if (obj.selectedBackgroundColor) {
 			domStyle.backgroundColor = obj.selectedBackgroundColor;
@@ -343,7 +343,7 @@ Ti._5.createClass("Ti.UI.TableViewRow", function(args){
 
 	function setStatusQuo() {
 		if(obj.backgroundImage != null){
-			domStyle.backgroundImage = "url(" + Ti._5.getAbsolutePath(obj.backgroundImage) + ")";
+			domStyle.backgroundImage = require("Ti/_/style").url(obj.backgroundImage);
 		}
 		if(obj.backgroundColor != null){
 			domStyle.backgroundColor = obj.backgroundColor;

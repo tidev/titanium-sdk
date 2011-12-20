@@ -54,12 +54,11 @@ Ti._5.createClass("Ti.UI.Button", function(args){
 					_backgroundColorCache = obj.dom.style.backgroundColor;
 					obj.dom.style.borderWidth = 0;
 					obj.dom.style.backgroundColor = "transparent";
-					obj.dom.style.backgroundImage = "url(" + Ti._5.getAbsolutePath(val) + ")";
 				} else {
 					obj.dom.style.borderWidth = _borderWidthCache;
 					obj.dom.style.backgroundColor = _backgroundColorCache;
-					obj.dom.style.backgroundImage = "";
 				}
+				obj.dom.style.backgroundImage = require("Ti/_/style").url(val);
 			}
 		},
 		enabled: {
@@ -109,7 +108,7 @@ Ti._5.createClass("Ti.UI.Button", function(args){
 						obj.dom.appendChild(_imageObj);
 					}
 				}
-				_image = Ti._5.getAbsolutePath(val);
+				_image = require("Ti/_").getAbsolutePath(val);
 				_imageObj.src = _image;
 			}
 		},
@@ -137,8 +136,8 @@ Ti._5.createClass("Ti.UI.Button", function(args){
 				}
 			},
 			set: function(val) {
-				val.width && (obj.width = Ti._5.px(val.width));
-				val.height && (obj.height = Ti._5.px(val.height));
+				val.width && (obj.width = require("Ti/_/dom").unitize(val.width));
+				val.height && (obj.height = require("Ti/_/dom").unitize(val.height));
 			}
 		},
 		style: null,

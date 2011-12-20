@@ -84,8 +84,8 @@ Ti._5.createClass("Ti.UI.WebView", function(args){
 				}
 			},
 			set: function(val) {
-				val.width && (obj.width = Ti._5.px(val.width));
-				val.height && (obj.height = Ti._5.px(val.height));
+				val.width && (obj.width = require("Ti/_/dom").unitize(val.width));
+				val.height && (obj.height = require("Ti/_/dom").unitize(val.height));
 			}
 		},
 		url: {
@@ -98,7 +98,7 @@ Ti._5.createClass("Ti.UI.WebView", function(args){
 					url: val
 				});
 				_loading = true;
-				domNode.src = Ti._5.getAbsolutePath(val);
+				domNode.src = require("Ti/_").getAbsolutePath(val);
 				_executeWhenLoaded = function() {
 					_loading = false;
 				};

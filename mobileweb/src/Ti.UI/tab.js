@@ -65,12 +65,7 @@ Ti._5.createClass("Ti.UI.Tab", function(args){
 		"icon": {
 			get: function(){return _icon;},
 			set: function(val){
-				if(val == null || val == ''){
-					// remove icon
-					obj._header.style.backgroundImage = '';
-				} else {
-					obj._header.style.backgroundImage = 'url(' + Ti._5.getAbsolutePath(val) + ')';
-				}
+				obj._header.style.backgroundImage = require("Ti/_/style").url(val);
 				_icon = val;
 			}
 		},

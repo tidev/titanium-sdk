@@ -1,5 +1,5 @@
 (function(api){
-	Ti._5.ready(function(){
+	require("Ti/_/ready").ready(function(){
 		var containerStyle = Ti._5.containerDiv.style;
 		Ti._5.prop(api, {
 			backgroundColor: {

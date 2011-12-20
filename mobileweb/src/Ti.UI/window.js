@@ -46,8 +46,8 @@ Ti._5.createClass("Ti.UI.Window", function(args){
 				}
 			},
 			set: function(val) {
-				val.width && (obj.width = Ti._5.px(val.width));
-				val.height && (obj.height = Ti._5.px(val.height));
+				val.width && (obj.width = require("Ti/_/dom").unitize(val.width));
+				val.height && (obj.height = require("Ti/_/dom").unitize(val.height));
 			}
 		},
 		softInputMode: null,
@@ -81,13 +81,13 @@ Ti._5.createClass("Ti.UI.Window", function(args){
 			set: function(val){
 				_url = val;
 				if (isHTMLPage()) {
-					window.location.href = Ti._5.getAbsolutePath(_url);
+					window.location.href = require("Ti/_").getAbsolutePath(_url);
 				} else {
 					// We need this for proper using window.open in code
 					setTimeout(function(){
 						var prevWindow = Ti.UI.currentWindow;
 						Ti.UI.currentWindow = obj;
-						require("include!sandbox!" + _url);
+						require("Ti/_/include!sandbox!" + _url);
 						Ti.UI.currentWindow = prevWindow;
 					}, 1);
 				}

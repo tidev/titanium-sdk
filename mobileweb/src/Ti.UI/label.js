@@ -9,7 +9,7 @@ Ti._5.createClass("Ti.UI.Label", function(args){
 		obj = this,
 		domNode = Ti._5.DOMView(obj, "div", args, "Label"),
 		domStyle = domNode.style,
-		px = Ti._5.px,
+		unitize = require("Ti/_/dom").unitize,
 		_shadowColor = null,
 		_shadowOffset = null,
 		_title = "",
@@ -39,12 +39,12 @@ Ti._5.createClass("Ti.UI.Label", function(args){
 		backgroundPaddingBottom: undef,
 		backgroundPaddingLeft: {
 			get: function(){return domStyle.backgroundPositionX;},
-			set: function(val){domStyle.backgroundPositionX = px(val);}
+			set: function(val){domStyle.backgroundPositionX = unitize(val);}
 		},
 		backgroundPaddingRight: undef,
 		backgroundPaddingTop: {
 			get: function(){return domStyle.backgroundPositionY;},
-			set: function(val){domStyle.backgroundPositionY = px(val);}
+			set: function(val){domStyle.backgroundPositionY = unitize(val);}
 		},
 		ellipsize: false,
 		highlightedColor: undef,
@@ -85,8 +85,8 @@ Ti._5.createClass("Ti.UI.Label", function(args){
 				}
 			},
 			set: function(val) {
-				val.width && (obj.width = px(val.width));
-				val.height && (obj.height = px(val.height));
+				val.width && (obj.width = unitize(val.width));
+				val.height && (obj.height = unitize(val.height));
 			}
 		},
 		text: {

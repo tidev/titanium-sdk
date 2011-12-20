@@ -1,4 +1,4 @@
-Ti._5.createClass("Ti.UI.2DMatrix", function(prev, matrix) {
+Ti._5.createClass("Ti.UI.2DMatrix", function(matrix) {
 	var obj = this,
 		ti2d = Ti.UI["2DMatrix"],
 		isFF = Ti.Platform.runtime === "gecko";
@@ -10,11 +10,8 @@ Ti._5.createClass("Ti.UI.2DMatrix", function(prev, matrix) {
 		d: 1,
 		tx: 0,
 		ty: 0,
-		rotation: 0,
-		prev: prev
+		rotation: 0
 	}, matrix);
-
-	prev && (prev.next = obj);
 
 	function px(x) {
 		return isFF ? x + "px" : x;
@@ -57,23 +54,23 @@ Ti._5.createClass("Ti.UI.2DMatrix", function(prev, matrix) {
 			}
 		}
 
-		return new ti2d(obj, mult(n[0][0], n[0][1], n[1][0], n[1][1], n[0][2], n[1][2]));
+		return new ti2d(mult(n[0][0], n[0][1], n[1][0], n[1][1], n[0][2], n[1][2]));
 	};
 
 	obj.multiply = function(other) {
-		return new ti2d(obj, mult(other.a, other.b, other.c, other.d, other.tx, other.ty, other.rotation));
+		return new ti2d(mult(other.a, other.b, other.c, other.d, other.tx, other.ty, other.rotation));
 	};
 
 	obj.rotate = function(angle) {
-		return new ti2d(obj, { a: obj.a, b: obj.b, c: obj.c, d: obj.d, tx: obj.tx, ty: obj.ty, rotation: obj.rotation + angle });
+		return new ti2d({ a: obj.a, b: obj.b, c: obj.c, d: obj.d, tx: obj.tx, ty: obj.ty, rotation: obj.rotation + angle });
 	};
 
 	obj.scale = function(x, y) {
-		return new ti2d(obj, mult(x, 0, 0, y, 0, 0));
+		return new ti2d(mult(x, 0, 0, y, 0, 0));
 	};
 
 	obj.translate = function(x, y) {
-		return new ti2d(obj, mult(0, 0, 0, 0, x, y));
+		return new ti2d(mult(0, 0, 0, 0, x, y));
 	};
 
 	obj.toCSS = function() {

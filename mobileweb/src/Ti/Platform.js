@@ -1,8 +1,7 @@
-(function(api){
+define("Ti/Platform", ["Ti/_"], function(_) {
 
-	var createUUID = require("Ti/_").uuid,
-		id = localStorage && localStorage.getItem("ti:titaniumPlatformId") ?
-			localStorage.getItem("ti:titaniumPlatformId") : createUUID();
+	var id = localStorage && localStorage.getItem("ti:titaniumPlatformId") ?
+			localStorage.getItem("ti:titaniumPlatformId") : _.uuid();
 
 	// Interfaces
 	Ti._5.EventDriven(api);
@@ -35,7 +34,7 @@
 	});
 
 	// Methods
-	api.createUUID = createUUID;
+	api.createUUID = _.uuid;
 
 	api.canOpenURL = function(url){
 		return true;
@@ -54,4 +53,4 @@
 
 	localStorage.setItem("ti:titaniumPlatformId", id);
 
-})(Ti._5.createClass("Ti.Platform"));
+})(Ti._5.createClass());

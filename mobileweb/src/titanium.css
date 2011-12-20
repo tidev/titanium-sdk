@@ -1,7 +1,7 @@
 html,body{height:100%;width:100%;}
 body{margin:0;}
 
-.tiDOMElement {}
+.tiElement {}
 
 .tiStyleable {
 	background-repeat: no-repeat;

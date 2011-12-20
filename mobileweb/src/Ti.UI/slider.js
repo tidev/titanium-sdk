@@ -105,8 +105,8 @@ Ti._5.createClass("Ti.UI.Slider", function(args){
 				}
 			},
 			set: function(val) {
-				val.width && (obj.width = Ti._5.px(val.width));
-				val.height && (obj.height = Ti._5.px(val.height));
+				val.width && (obj.width = require("Ti/_/dom").unitize(val.width));
+				val.height && (obj.height = require("Ti/_/dom").unitize(val.height));
 			}
 		}
 	});

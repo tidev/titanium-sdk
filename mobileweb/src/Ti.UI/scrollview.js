@@ -8,7 +8,7 @@ Ti._5.createClass("Ti.UI.ScrollView", function(args){
 	var obj = this,
 		domNode = Ti._5.DOMView(obj, "div", args, "ScrollView"),
 		domStyle = domNode.style,
-		px = Ti._5.px,
+		unitize = require("Ti/_/dom").unitize,
 		_innerContainer = document.createElement("div"),
 		_contentHeight,
 		_contentOffset = null,
@@ -43,22 +43,22 @@ Ti._5.createClass("Ti.UI.ScrollView", function(args){
 			get: function(){return _contentHeight;},
 			set: function(val){
 				_contentHeight = val;
-				obj._getAddContainer().style.height = px(val);
+				obj._getAddContainer().style.height = unitize(val);
 			}
 		},
 		contentOffset: {
 			get: function(){return _contentOffset;},
 			set: function(val){
 				_contentOffset = val;
-				x in val && (domStyle.paddingLeft = px(val.x));
-				y in val && (domStyle.paddingTop = px(val.y));
+				x in val && (domStyle.paddingLeft = unitize(val.x));
+				y in val && (domStyle.paddingTop = unitize(val.y));
 			}
 		},
 		contentWidth: {
 			get: function(){return _contentWidth;},
 			set: function(val){
 				_contentWidth = val;
-				obj._getAddContainer().style.width = px(val);
+				obj._getAddContainer().style.width = unitize(val);
 			}
 		},
 		disableBounce: false,
@@ -84,10 +84,10 @@ Ti._5.createClass("Ti.UI.ScrollView", function(args){
 			get: function(){return _size;},
 			set: function(val){
 				if (val != null && val.width != null) {
-					_innerContainer.style.width = px(val.width);
+					_innerContainer.style.width = unitize(val.width);
 				}
 				if (val != null && val.height != null) {
-					_innerContainer.style.height = px(val.height);
+					_innerContainer.style.height = unitize(val.height);
 				}
 			}
 		},

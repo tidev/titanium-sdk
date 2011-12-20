@@ -22,14 +22,14 @@ Ti._5.createClass("Ti.UI.ImageView", function(args){
 
 	function loadImages(images) {
 		isError = false;
-		_preventDefaultImage || (domNode.src = Ti._5.getAbsolutePath(obj.defaultImage));
+		_preventDefaultImage || (domNode.src = require("Ti/_").getAbsolutePath(obj.defaultImage));
 
 		var counter = 0,
 			img = new Image(),
 			h = require.on(img, "load", function () {
 				h && h();
 				if (++counter < images.length) {
-					domNode.src = Ti._5.getAbsolutePath(images[0]);
+					domNode.src = require("Ti/_").getAbsolutePath(images[0]);
 					obj.fireEvent("load", {
 						state: images.length > 1 ? obj.images : obj.image
 					});
@@ -44,7 +44,7 @@ Ti._5.createClass("Ti.UI.ImageView", function(args){
 
 		// start preloading
 		require.each(images, function(i) {
-			img.src = Ti._5.getAbsolutePath(i);
+			img.src = require("Ti/_").getAbsolutePath(i);
 		});
 	}
 
@@ -70,7 +70,7 @@ Ti._5.createClass("Ti.UI.ImageView", function(args){
 			},
 			set: function(val) {
 				_height = val;
-				domStyle.height = Ti._5.px(val);
+				domStyle.height = require("Ti/_/dom").unitize(val);
 			}
 		},
 		// indicates whether or not the source image is in 2x resolution for retina displays. 
@@ -105,8 +105,8 @@ Ti._5.createClass("Ti.UI.ImageView", function(args){
 				}
 			},
 			set: function(val) {
-				val.width && (obj.width = Ti._5.px(val.width));
-				val.height && (obj.height = Ti._5.px(val.height));
+				val.width && (obj.width = require("Ti/_/dom").unitize(val.width));
+				val.height && (obj.height = require("Ti/_/dom").unitize(val.height));
 			}
 		},
 		width: {

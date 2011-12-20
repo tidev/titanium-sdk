@@ -111,11 +111,11 @@ Ti._5.createClass("Ti.UI.TextField", function(args){
 		minimumFontSize: undef,
 		paddingLeft: {
 			get: function() {return parseInt(domStyle.paddingLeft);},
-			set: function(val) {domStyle.paddingLeft = Ti._5.px(val);}
+			set: function(val) {domStyle.paddingLeft = require("Ti/_/dom").unitize(val);}
 		},
 		paddingRight: {
 			get: function() {return parseInt(domStyle.paddingRight);},
-			set: function(val) {domStyle.paddingRight = Ti._5.px(val);}
+			set: function(val) {domStyle.paddingRight = require("Ti/_/dom").unitize(val);}
 		},
 		rightButton: undef,
 		rightButtonMode: undef,
@@ -128,8 +128,8 @@ Ti._5.createClass("Ti.UI.TextField", function(args){
 				}
 			},
 			set: function(val) {
-				val.width && (obj.width = Ti._5.px(val.width));
-				val.height && (obj.height = Ti._5.px(val.height));
+				val.width && (obj.width = require("Ti/_/dom").unitize(val.width));
+				val.height && (obj.height = require("Ti/_/dom").unitize(val.height));
 			}
 		},
 		suppressReturn: {

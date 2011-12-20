@@ -104,7 +104,7 @@ Ti._5.createClass("Ti.Network.HTTPClient", function(args){
 		obj.abort();
 		xhr.open(
 			obj.connectionType = method,
-			obj.location = Ti._5.getAbsolutePath(httpURLFormatter ? httpURLFormatter(url) : url),
+			obj.location = require("Ti/_").getAbsolutePath(httpURLFormatter ? httpURLFormatter(url) : url),
 			!!async
 		);
 		xhr.setRequestHeader("UserAgent", Ti.userAgent);

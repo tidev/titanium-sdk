@@ -37,7 +37,30 @@ class Compiler(object):
 	def __init__(self,project_dir,deploytype):
 		self.project_dir = project_dir
 		self.modules = []
-		self.defines = ['screen.js', 'interactable.js', 'clickable.js', 'eventdriven.js', 'styleable.js', 'touchable.js', 'positionable.js', 'domview.js', 'Ti/ti.js', 'Ti.App/properties.js', 'Ti.Locale/locale.js', 'titanium.css']
+		self.defines = [
+				# these MUST be ordered correctly!
+				'Ti/_/Evented.js',
+				'Ti/_/Element.js',
+				'Ti/_/Layouts/Base.js',
+				'Ti/_/Layouts/Absolute.js',
+				'Ti/_/Layouts/Horizontal.js',
+				'Ti/_/Layouts/Vertical.js',
+				'Ti/UI/View.js',
+				'Ti/UI/Widget.js',
+				'Ti/ti.js',
+				# everything below will eventually go away :)
+				'screen.js',
+				'interactable.js',
+				'clickable.js',
+				'eventdriven.js',
+				'styleable.js',
+				'touchable.js',
+				'positionable.js',
+				'domview.js',
+				'Ti.App/properties.js',
+				'Ti.Locale/locale.js',
+				'titanium.css'
+			]
 		self.css_defines = []
 		self.ti_includes = {}
 		self.api_map = {}
@@ -198,24 +221,17 @@ class Compiler(object):
 						os.makedirs(os.path.dirname(target_file))
 					except:
 						pass
-
+					
 					open(target_file,'wb').write(open(api_file,'rb').read())
 		
 		if len(ti.app_properties):
-			# force Ti.App.Properties to get bundled into the build
-			try:
-				self.defines.index('Ti.App/properties.js')
-			except:
-				self.defines.append('Ti.App/properties.js')
-			
 			titanium_js += '(function(p){'
 			
 			for name in ti.app_properties:
 				prop = ti.app_properties[name]
 				
 				if prop['type'] == 'bool':
-					val = 'true' if prop['value']=='true' else 'false'
-					titanium_js += 'p.setBool("' + name + '",' + val + ');'
+					titanium_js += 'p.setBool("' + name + '",' + prop['value'] + ');'
 				elif prop['type'] == 'int':
 					titanium_js += 'p.setInt("' + name + '",' + prop['value'] + ');'
 				elif prop['type'] == 'double':
