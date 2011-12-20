@@ -196,8 +196,8 @@ Object.defineProperty(EventEmitter.prototype, "once", {
 
 Object.defineProperty(EventEmitter.prototype, "removeListener", {
 	value: function(type, listener) {
-		if ('function' !== typeof listener) {
-			throw new Error('removeListener only takes instances of Function');
+		if ('function' !== typeof listener && 'number' !== typeof listener) {
+			throw new Error('removeListener only takes instances of Function or indexes/ids');
 		}
 
 		// does not use listeners(), so no side effect of creating _events[type]
@@ -209,7 +209,7 @@ Object.defineProperty(EventEmitter.prototype, "removeListener", {
 		if (isArray(list)) {
 			var position = -1;
 			// Also support listener indexes / ids
-			if (typeof(listener) === 'number') {
+			if (typeof listener === 'number') {
 				position = listener;
 				if (position > list.length || position < 0) {
 					return this;
