@@ -113,11 +113,15 @@ static const NSUInteger kDomainSection = 1;
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
 #endif
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_3_2
-		NSValue *keyboardBoundsValue = [[notification userInfo] objectForKey:UIKeyboardFrameEndUserInfoKey];
-#else
-		NSValue *keyboardBoundsValue = [[notification userInfo] objectForKey:UIKeyboardBoundsUserInfoKey];
-#endif
+		NSValue *keyboardBoundsValue;
+		if([[[UIDevice currentDevice] systemVersion] floatValue] >= 3.2)
+		{
+			keyboardBoundsValue = [[notification userInfo] objectForKey:UIKeyboardFrameEndUserInfoKey];
+		}
+		else
+		{
+			keyboardBoundsValue = [[notification userInfo] objectForKey:UIKeyboardBoundsUserInfoKey];
+		}
 		CGRect keyboardBounds;
 		[keyboardBoundsValue getValue:&keyboardBounds];
 		UIEdgeInsets e = UIEdgeInsetsMake(0, 0, keyboardBounds.size.height, 0);
