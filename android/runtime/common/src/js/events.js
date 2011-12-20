@@ -196,8 +196,8 @@ Object.defineProperty(EventEmitter.prototype, "once", {
 
 Object.defineProperty(EventEmitter.prototype, "removeListener", {
 	value: function(type, listener) {
-		if ('function' !== typeof listener && 'number' !== typeof listener) {
-			throw new Error('removeListener only takes instances of Function or indexes/ids');
+		if ('function' !== typeof listener) {
+			throw new Error('removeListener only takes instances of Function');
 		}
 
 		// does not use listeners(), so no side effect of creating _events[type]
