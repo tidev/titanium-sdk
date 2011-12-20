@@ -196,6 +196,10 @@
 	var loaded = false,
 		loaders = [];
 
+	// expose JSON functions to Ti namespace
+	Ti.parse = JSON.parse;
+	Ti.stringify = JSON.stringify;
+
 	// public function for onload notification
 	global.onloaded = function(f){
 		onload(f);
