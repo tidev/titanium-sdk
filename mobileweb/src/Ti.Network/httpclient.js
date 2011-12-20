@@ -1,126 +1,131 @@
 Ti._5.createClass("Ti.Network.HTTPClient", function(args){
-	var obj = this,
+	var undef,
+		obj = this,
+		is = require.is,
 		on = require.on,
-		xhr = new XMLHttpRequest(),
-		requestComplete = false,
-		_callErrorFunc = function(error) {
-			obj.responseText = obj.responseXML = obj.responseData = "";
-			require.is(error, "Object") || (error = { message: error });
-			error.error || (error.error = error.message ? error.message : xhr.status);
-			parseInt(error.error) || (error.error = "Can`t reach host");
-			require.is(obj.onerror, "Function") && obj.onerror(error);
-		};
+		xhr = new XMLHttpRequest,
+		UNSENT = 0,
+		OPENED = 1,
+		HEADERS_RECEIVED = 2,
+		LOADING = 3,
+		DONE = 4,
+		_readyState = UNSENT, // unsent
+		timeoutTimer;
 
-	//xhr.overrideMimeType("text/xml");
-	xhr.timeout = 60000; // Default timeout = 1 minute
-	xhr.ontimeout = function(error) {
-		_callErrorFunc(error);
-	};
+	function fireStateChange() {
+		is(obj.onreadystatechange, "Function") && obj.onreadystatechange.call(obj);
+	}
+
 	xhr.onreadystatechange = function() {
-		require.is(obj.onreadystatechange, "Function") && obj.onreadystatechange();
-		if (xhr.readyState == 4) {
-			if (xhr.status == 200) {
-				obj.connected = true;
-				obj.responseText = xhr.responseText;
-				obj.responseXML = xhr.responseXML;
-				obj.responseData = xhr.responceHeader;
-				require.is(obj.onload, "Function") && obj.onload();
-			} else {
-				obj.connected = false;
-			}
-			requestComplete = true;
+		switch (xhr.readyState) {
+			case 0: _readyState = UNSENT; break;
+			case 1: _readyState = OPENED; break;
+			case 2: _readyState = LOADING; break;
+			case 3: _readyState = HEADERS_RECEIVED; break;
+			case 4:
+				clearTimeout(timeoutTimer);
+				_readyState = DONE;
+				if (xhr.status == 200) {
+					obj.responseText = xhr.responseText;
+					obj.responseXML = xhr.responseXML;
+					obj.responseData = xhr.responceHeader;
+					is(obj.onload, "Function") && obj.onload.call(obj);
+				} else {
+					xhr.status / 100 | 0 > 3 && onerror();
+				}
 		}
+		fireStateChange();
 	};
-	on(xhr, "error", function(error) {
-		_callErrorFunc(error);
-	});
-	on(xhr.upload, "error", function(error) {
-		_callErrorFunc(error);
-	});
-	on(xhr, "progress", function(evt) {
+
+	function onerror(error) {
+		obj.abort();
+		is(error, "Object") || (error = { message: error });
+		error.error || (error.error = error.message || xhr.status);
+		parseInt(error.error) || (error.error = "Can't reach host");
+		is(obj.onerror, "Function") && obj.onerror.call(obj, error);
+	}
+
+	on(xhr, "error", onerror);
+	on(xhr.upload, "error", onerror);
+
+	function onprogress(evt) {
 		evt.progress = evt.lengthComputable ? evt.loaded / evt.total : false;
-		require.is(obj.onsendstream, "Function") && obj.onsendstream(evt);
-	});
-	on(xhr.upload, "progress", function(evt) {
-		evt.progress = evt.lengthComputable ? evt.loaded / evt.total : false;
-		require.is(obj.onsendstream, "Function") && obj.onsendstream(evt);
-	});
+		is(obj.onsendstream, "Function") && obj.onsendstream.call(obj, evt);
+	}
+
+	on(xhr, "progress", onprogress);
+	on(xhr.upload, "progress", onprogress);
 
 	// Properties
-	Ti._5.prop(obj, {
-		DONE: function() {return _xml.DONE;},
-		HEADERS_RECEIVED: function(){return _xml.HEADERS_RECEIVED;},
-		LOADING: function(){return _xml.LOADING;},
-		OPENED: function(){return _xml.OPENED;},
-		UNSENT: function(){return _xml.UNSENT;},
-		readyState: function() { return xhr.readyState; },
+	Ti._5.propReadOnly(obj, {
+		UNSENT: UNSENT,
+		OPENED: OPENED,
+		HEADERS_RECEIVED: HEADERS_RECEIVED,
+		LOADING: LOADING,
+		DONE: DONE,
+		connected: function() { return _readyState >= OPENED; },
+		readyState: function() { return _readyState; },
 		status: function() { return xhr.status; }
 	});
 
 	Ti._5.prop(obj, {
-		connected: false,
-		connectionType: null,
-		file: null,
-		location: null,
-		ondatastream: null,
-		onerror: null,
-		onload: null,
-		onreadystatechange: null,
-		onsendstream: null,
-		responseData: null,
-		responseText: null,
-		responseXML: null,
-		timeout: {
-			get: function() {return xhr.timeout;},
-			set: function(val) {xhr.timeout = val;}
-		},
+		connectionType: undef,
+		file: undef,
+		location: undef,
+		ondatastream: undef,
+		onerror: undef,
+		onload: undef,
+		onreadystatechange: undef,
+		onsendstream: undef,
+		responseData: "",
+		responseText: "",
+		responseXML: "",
+		timeout: undef,
 		validatesSecureCertificate: false
 	});
 
+	require.mix(args, obj);
+
 	// Methods
 	obj.abort = function() {
-		xhr.abort();
+		obj.responseText = obj.responseXML = obj.responseData = "";
+		clearTimeout(timeoutTimer);
+		obj.connected && xhr.abort();
+		_readyState = UNSENT;
+		fireStateChange();
 	};
+
 	obj.getResponseHeader = function(name) {
 		return xhr.readyState === 2 ? xhr.getResponseHeader(name) : null;
 	};
+
 	obj.open = function(method, url, async) {
-		var u,
-			httpURLFormatter = Ti.Network.httpURLFormatter;
-
-		httpURLFormatter && (url = httpURLFormatter(url));
-
-		requestComplete = false;
-		obj.connectionType = method;
-		obj.location = Ti._5.getAbsolutePath(url);
-		async === u && (async = true);
-
-		xhr.open(obj.connectionType, obj.location, async);
+		var httpURLFormatter = Ti.Network.httpURLFormatter;
+		obj.abort();
+		xhr.open(
+			obj.connectionType = method,
+			obj.location = Ti._5.getAbsolutePath(httpURLFormatter ? httpURLFormatter(url) : url),
+			!!async
+		);
 		xhr.setRequestHeader("UserAgent", Ti.userAgent);
 	};
+
 	obj.send = function(args){
-		requestComplete = false;
-		obj.responseText = "";
-		obj.responseXML = "";
-		obj.responseData = "";
 		try {
 			xhr.send(args || null);
+			clearTimeout(timeoutTimer);
+			obj.timeout && (timeoutTimer = setTimeout(function() {
+				if (obj.connected) {
+					obj.abort();
+					onerror("Request timed out");
+				}
+			}, obj.timeout));
 		} catch (error) {
-			_callErrorFunc(error);
+			onerror(error);
 		}
 	};
+
 	obj.setRequestHeader = function(label,value) {
 		xhr.setRequestHeader(label,value);
-	};
-	obj.setTimeout = function(timeout) {
-		if ("undefined" == typeof timeout) {
-			timeout = _timeout;
-		}
-		setTimeout(function(){
-			if (!requestComplete){
-				xhr.abort();
-				_callErrorFunc("Request was aborted");
-			}
-		}, timeout);
 	};
 });
