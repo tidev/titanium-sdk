@@ -27,7 +27,7 @@ extern "C" {
  * Method:    nativeInvoke
  * Signature: (JJ[Ljava/lang/Object)V
  */
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Function_nativeInvoke(
+JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Function_nativeInvoke(
 	JNIEnv *env, jobject caller, jlong thisPointer, jlong functionPointer, jobjectArray functionArguments)
 {
 	ENTER_V8(V8Runtime::globalContext);
@@ -44,12 +44,19 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Function_nativeI
 		TypeConverter::javaObjectArrayToJsArguments(functionArguments, &length);
 
 	// call into the JS function with the provided argument
-	jsFunction->Call(thisObject, length, jsFunctionArguments);
+	v8::Local<v8::Value> object = jsFunction->Call(thisObject, length, jsFunctionArguments);
 
 	// make sure to delete the arguments since the arguments array is built on the heap
 	if (jsFunctionArguments) {
 		delete jsFunctionArguments;
 	}
+	
+	bool isNew;
+	jobject retVal = TypeConverter::jsValueToJavaObject(object, &isNew);
+	if (isNew) {
+		env->DeleteLocalRef(retVal);
+	}
+	return retVal;
 }
 
 #ifdef __cplusplus
