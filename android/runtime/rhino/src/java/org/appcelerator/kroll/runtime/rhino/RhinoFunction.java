@@ -57,7 +57,11 @@ public class RhinoFunction implements KrollFunction, Handler.Callback
 		}
 	}
 
-	public void callSync(KrollObject krollObject, Object[] args)
+	public Object callSync(KrollObject krollObject, HashMap args) {
+		return callSync(krollObject, new Object[] { args });
+	}
+	
+	public Object callSync(KrollObject krollObject, Object[] args)
 	{
 		RhinoObject rhinoObject = (RhinoObject) krollObject;
 		Scriptable nativeObject = (Scriptable) rhinoObject.getNativeObject();
@@ -80,11 +84,13 @@ public class RhinoFunction implements KrollFunction, Handler.Callback
 				useWith = true;
 			}
 
-			function.call(context, scope, nativeObject, args);
+			Object result = function.call(context, scope, nativeObject, args);
 
 			if (useWith) {
 				KrollWith.leaveWith();
 			}
+			
+			return TypeConverter.jsObjectToJavaObject(result, nativeObject);
 
 		} catch (Exception e) {
 			if (e instanceof RhinoException) {
@@ -97,6 +103,7 @@ public class RhinoFunction implements KrollFunction, Handler.Callback
 		} finally {
 			Context.exit();
 		}
+		return null;
 	}
 
 	public void callAsync(KrollObject krollObject, HashMap args)

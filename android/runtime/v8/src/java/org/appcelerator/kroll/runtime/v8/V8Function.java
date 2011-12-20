@@ -49,9 +49,14 @@ public class V8Function extends V8Object implements KrollFunction, Handler.Callb
 		}
 	}
 
-	public void callSync(KrollObject krollObject, Object[] args)
+	public Object callSync(KrollObject krollObject, HashMap args)
 	{
-		nativeInvoke(((V8Object) krollObject).getPointer(), getPointer(), args);
+		return callSync(krollObject, new Object[] { args });
+	}
+	
+	public Object callSync(KrollObject krollObject, Object[] args)
+	{
+		return nativeInvoke(((V8Object) krollObject).getPointer(), getPointer(), args);
 	}
 
 	public void callAsync(KrollObject krollObject, HashMap args)
@@ -87,6 +92,6 @@ public class V8Function extends V8Object implements KrollFunction, Handler.Callb
 
 
 	// JNI method prototypes
-	private native void nativeInvoke(long thisPointer, long functionPointer, Object[] functionArgs);
+	private native Object nativeInvoke(long thisPointer, long functionPointer, Object[] functionArgs);
 }
 
