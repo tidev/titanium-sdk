@@ -436,7 +436,7 @@ properties:
     default: platform-specific default color
   - name: separatorStyle
     summary: Separator style constant. For iOS specify one of the [TableViewSeparatorStyle](Titanium.UI.iPhone.TableViewSeparatorStyle) constants.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     type: Number
   - name: showVerticalScrollIndicator
     summary: Whether table view displays vertical scroll indicator

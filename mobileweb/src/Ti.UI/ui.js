@@ -1,6 +1,17 @@
 (function(api){
-	var _backgroundColor = null,
-		_backgroundImage = null;
+	Ti._5.ready(function(){
+		var containerStyle = Ti._5.containerDiv.style;
+		Ti._5.prop(api, {
+			backgroundColor: {
+				get: function() { return containerStyle.backgroundColor; },
+				set: function(val) { containerStyle.backgroundColor = val; }
+			},
+			backgroundImage: {
+				get: function() { return containerStyle.backgroundImage; },
+				set: function(val) { containerStyle.backgroundImage = val; }
+			}
+		});
+	});
 
 	api.currentWindow = null;
 	api.currentTab = null;
@@ -62,37 +73,9 @@
 		TEXT_VERTICAL_ALIGNMENT_TOP: 3
 	});
 
-	Ti._5.prop(api, {
-		backgroundColor: {
-			get: function(){return _backgroundColor;},
-			set: function(val){
-				_backgroundColor = val;
-				api.setBackgroundColor(_backgroundColor);
-			}
-		},
-		backgroundImage: {
-			get: function(){return _backgroundImage;},
-			set: function(val){
-				_backgroundImage = val;
-				api.setBackgroundImage(_backgroundImage);
-			}
-		}
-	});
-
 	// Methods
-	api.setBackgroundColor = function(args) {
-		Ti._5.containerDiv.style.backgroundColor = args;
-	};
-	
-	api.setBackgroundImage = function(args) {
-		Ti._5.containerDiv.style.backgroundImage = "url(" + Ti._5.getAbsolutePath(args) + ")";
-	};
-	
 	api.create2DMatrix = function(args){
 		return new Ti.UI["2DMatrix"](args);
-	};
-	api.create3DMatrix = function(){
-		console.debug('Method "Titanium.UI.create3DMatrix" is not implemented yet.');
 	};
 	api.createActivityIndicator = function(args){
 		return new Ti.UI.ActivityIndicator(args);
@@ -108,9 +91,6 @@
 	};
 	api.createButtonBar = function(){
 		console.debug('Method "Titanium.UI.createButtonBar" is not implemented yet.');
-	};
-	api.createCoverFlowView = function(){
-		console.debug('Method "Titanium.UI.createCoverFlowView" is not implemented yet.');
 	};
 	api.createDashboardItem = function(){
 		console.debug('Method "Titanium.UI.createDashboardItem" is not implemented yet.');
@@ -163,9 +143,6 @@
 	api.createTabGroup = function(args){
 		return new Ti.UI.TabGroup(args);
 	};
-	api.createTabbedBar = function(){
-		console.debug('Method "Titanium.UI.createTabbedBar" is not implemented yet.');
-	};
 	api.createTableView = function(args) {
 		return new Ti.UI.TableView(args);
 	};
@@ -180,9 +157,6 @@
 	};
 	api.createTextField = function(args) {
 		return new Ti.UI.TextField(args);
-	};
-	api.createToolbar = function(){
-		console.debug('Method "Titanium.UI.createToolbar" is not implemented yet.');
 	};
 	api.createView = function(args) {
 		return new Ti.UI.View(args);
