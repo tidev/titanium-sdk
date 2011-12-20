@@ -160,8 +160,8 @@ public class Ti2DMatrix extends KrollProxy
 	@Kroll.method
 	public Ti2DMatrix multiply(Ti2DMatrix other)
 	{
-		Ti2DMatrix newMatrix = new Ti2DMatrix(other, Operation.TYPE_MULTIPLY);
-		newMatrix.op.multiplyWith = this;
+		Ti2DMatrix newMatrix = new Ti2DMatrix(this, Operation.TYPE_MULTIPLY);
+		newMatrix.op.multiplyWith = other;
 		return newMatrix;
 	}
 
