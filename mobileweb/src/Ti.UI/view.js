@@ -37,13 +37,11 @@ Ti._5.createClass("Ti.UI.View", function(args){
 	});
 
 	function getLowestPosition(obj) {
-		var oSizes = Ti._5._getElementOffset(domNode);
-		var iMaxPos = oSizes.height + (parseInt(obj.top) || 0) + (parseInt(obj.bottom) || 0);
-		if (obj._children) {
-			for (var iCounter = 0; iCounter < obj._children.length; iCounter++) {
-				iPos = getLowestPosition(obj._children[iCounter]);
-				iMaxPos = iMaxPos < iPos ? iPos : iMaxPos;
-			}
+		var oSizes = Ti._5._getElementOffset(domNode),
+			iMaxPos = oSizes.height + (parseInt(obj.top) || 0) + (parseInt(obj.bottom) || 0);
+		for (var iCounter = 0; iCounter < obj._children.length; iCounter++) {
+			iPos = getLowestPosition(obj._children[iCounter]);
+			iMaxPos = iMaxPos < iPos ? iPos : iMaxPos;
 		}
 		return iMaxPos;
 	}
@@ -52,7 +50,7 @@ Ti._5.createClass("Ti.UI.View", function(args){
 		if (
 			("undefined" == typeof obj.height || "auto" == obj.height) &&
 			false === domNode._calcHeight &&
-			obj._children && "vertical" != obj.layout
+			obj._children && obj.layout !== "vertical"
 		) {
 			var iMaxPos = 0;
 			for (var iCounter = 0; iCounter < obj._children.length; iCounter++) {

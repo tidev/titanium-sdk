@@ -8,15 +8,16 @@ body{margin:0;}
 	background-size: 100% 100%;
 	line-height: normal;
 }
-.tiverticalLayout{
+
+.tiVerticalLayout{
 	clear: both;
 }
 
-.tiverticalLayout > .tiDOMElement {
+.tiVerticalLayout > .tiDOMElement {
 	position: relative !important;
 }
 
-.tihorizontalLayout > .tiDOMElement {
+.tiHorizontalLayout > .tiDOMElement {
 	float: left;
 	position: relative;
 }
