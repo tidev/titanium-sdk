@@ -35,6 +35,13 @@ static BOOL alertShowing = NO;
 	
 	if (alert!=nil)
 	{
+		//Clean up the lock condition now instead of waiting for the delegate callback (didDismissWithButtonIndex)
+		//On IOS5 sometimes the delegate does not get called when hide is called soon after show
+		[alertCondition lock];
+		alertShowing = NO;
+		[alertCondition broadcast];
+		[alertCondition unlock];
+		
 		BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
 		[alert dismissWithClickedButtonIndex:[alert cancelButtonIndex] animated:animated];
 		RELEASE_TO_NIL(alert);
