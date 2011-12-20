@@ -1,67 +1,91 @@
-Ti._5.createClass('Ti.UI.2DMatrix', function(args) {
-	var obj = this;
+Ti._5.createClass("Ti.UI.2DMatrix", function(prev, matrix) {
+	var obj = this,
+		ti2d = Ti.UI["2DMatrix"],
+		isFF = Ti.Platform.runtime === "gecko";
 
-	// Initialize the matrix to unity
 	require.mix(obj, {
 		a: 1,
 		b: 0,
 		c: 0,
 		d: 1,
 		tx: 0,
-		ty: 0
-	}, args);
+		ty: 0,
+		rotation: 0,
+		prev: prev
+	}, matrix);
 
-	// Internal methods
-	function _multiplyInternal(a, b, c, d, tx, ty) {
-		return Ti.UI.create2DMatrix({
+	prev && (prev.next = obj);
+
+	function px(x) {
+		return isFF ? x + "px" : x;
+	}
+
+	function detMinor(y, x, m) {
+		var x1 = x == 0 ? 1 : 0,
+			x2 = x == 2 ? 1 : 2,
+			y1 = y == 0 ? 1 : 0,
+			y2 = y == 2 ? 1 : 2;
+		return (m[y1][x1] * m[y2][x2]) - (m[y1][x2] * m[y2][x1]);
+	}
+
+	function mult(a, b, c, d, tx, ty, r) {
+		return {
 			a: obj.a * a + obj.b * c,
 			b: obj.a * b + obj.b * d,
 			c: obj.c * a + obj.d * c,
 			d: obj.c * b + obj.d * d,
 			tx: obj.a * tx + obj.b * ty + obj.tx,
-			ty: obj.c * tx + obj.d * ty + obj.ty
-		});
+			ty: obj.c * tx + obj.d * ty + obj.ty,
+			rotation: obj.rotation + r
+		};
 	}
-	
-	this.toCSS = function() {
-		// Round off the elements because scientific notation in CSS isn't allowed (apparently)
-		var roundedValues = [obj.a.toFixed(6), obj.b.toFixed(6), obj.c.toFixed(6), obj.d.toFixed(6), obj.tx.toFixed(6), obj.ty.toFixed(6)];
 
-		// Firefox requires tx and ty to have "px" postfixed, but the other browsers require it *not* to be there.
-		if (navigator.userAgent.indexOf("Firefox") !== -1) {
-			roundedValues[4] += "px";
-			roundedValues[5] += "px";
+	obj.invert = function() {
+		var x = 0,
+			y = 0,
+			m = [[obj.a, obj.b, obj.tx], [obj.c, obj.d, obj.ty], [0, 0, 1]],
+			n = m,
+			det = obj.a * detMinor(0, 0, m) - obj.b * detMinor(0, 1, m) + obj.tx * detMinor(0, 2, m);
+
+		if (Math.abs(det) > 1e-10) {
+			det = 1.0 / det;
+			for (; y < 3; y++) {
+				for (; x < 3; x++) {
+					n[y][x] = detMinor(x, y, m) * det;
+					(x + y) % 2 == 1 && (n[y][x] = -n[y][x]);
+				}
+			}
 		}
 
-		return "matrix(" + roundedValues.join(",") + ")";
+		return new ti2d(obj, mult(n[0][0], n[0][1], n[1][0], n[1][1], n[0][2], n[1][2]));
 	};
 
-	this.fromCSS = function(matrixString) {
-		var parsedString = matrixString.replace(/^matrix\((.+)\)$/, function(x, y){ return y; }).split(",");
-		obj.a = parseFloat(parsedString[0] | 0);
-		obj.b = parseFloat(parsedString[1] | 0);
-		obj.c = parseFloat(parsedString[2] | 0);
-		obj.d = parseFloat(parsedString[3] | 0);
-		obj.tx = parseFloat(parsedString[4] | 0);
-		obj.ty = parseFloat(parsedString[5] | 0);
+	obj.multiply = function(other) {
+		return new ti2d(obj, mult(other.a, other.b, other.c, other.d, other.tx, other.ty, other.rotation));
 	};
 
-	// Methods
-	this.invert = function() {
-		console.debug('Method "Titanium.UI.2DMatrix#.invert" is not implemented yet.');
+	obj.rotate = function(angle) {
+		return new ti2d(obj, { a: obj.a, b: obj.b, c: obj.c, d: obj.d, tx: obj.tx, ty: obj.ty, rotation: obj.rotation + angle });
 	};
-	this.multiply = function(m) {
-		return _multiplyInternal(m.a, m.b, m.c, m.d, m.tx, m.ty);
+
+	obj.scale = function(x, y) {
+		return new ti2d(obj, mult(x, 0, 0, y, 0, 0));
 	};
-	this.rotate = function(angle) {
-		// Math.* trig functions take radians, so convert from degrees first
-		var angleInRadians = angle * Math.PI / 180;
-		return _multiplyInternal(Math.cos(angleInRadians), Math.sin(angleInRadians), -Math.sin(angleInRadians), Math.cos(angleInRadians), 0, 0);
+
+	obj.translate = function(x, y) {
+		return new ti2d(obj, mult(0, 0, 0, 0, x, y));
 	};
-	this.scale = function(sx, sy) {
-		return _multiplyInternal(sx, 0, 0, sy, 0, 0);
+
+	obj.toCSS = function() {
+		var i = 0,
+			v = [obj.a, obj.b, obj.c, obj.d, obj.tx, obj.ty];
+
+		for (; i < 6; i++) {
+			v[i] = v[i].toFixed(6);
+			i > 4 && (v[i] = px(v[i]));
+		}
+
+		return "matrix(" + v.join(",") + ") rotate(" + obj.rotation + "deg)";
 	};
-	this.translate = function(tx, ty) {
-		return _multiplyInternal(1, 0, 0, 1, tx, ty);
-	};
+
 });

@@ -171,13 +171,13 @@ class Compiler(object):
 						(path, ddir) = os.path.split(path)
 						if ddir != 'src':
 							fname = ddir + "/" + fname
-
 						try:
 							self.defines.index(fname)
 						except:
 							self.defines.append(fname)
 
 		titanium_css = ''
+		
 		for api in self.defines:
 			api_file = os.path.join(src_dir,api)
 			if not os.path.exists(api_file):
@@ -197,6 +197,23 @@ class Compiler(object):
 						pass
 
 					open(target_file,'wb').write(open(api_file,'rb').read())
+		
+		if len(ti.app_properties):
+			titanium_js += '(function(p){'
+			
+			for name in ti.app_properties:
+				prop = ti.app_properties[name]
+				
+				if prop['type'] == 'bool':
+					titanium_js += 'p.setBool("' + name + '",' + prop['value'] + ');'
+				elif prop['type'] == 'int':
+					titanium_js += 'p.setInt("' + name + '",' + prop['value'] + ');'
+				elif prop['type'] == 'double':
+					titanium_js += 'p.setDouble("' + name + '",' + prop['value'] + ');'
+				else:
+					titanium_js += 'p.setString("' + name + '","' + str(prop['value']).replace('"', '\\"') + '");'
+			
+			titanium_js += '}(Ti.App.Properties));'
 		
 		ti_dir = os.path.join(self.build_dir,'titanium')
 		try:
