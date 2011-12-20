@@ -15,6 +15,8 @@
 #include <pthread.h>
 #import "TiDebugger.h"
 
+#import "TiUIAlertDialogProxy.h"
+
 #ifdef KROLL_COVERAGE
 # import "KrollCoverage.h"
 #endif
@@ -245,6 +247,28 @@ static TiValueRef LCallback (TiContextRef jsContext, TiObjectRef jsFunction, TiO
 		return ThrowException(jsContext, [e reason], exception);
 	}
 }	
+
+static TiValueRef AlertCallback (TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
+                                 const TiValueRef args[], TiValueRef* exception)
+{
+#ifdef KROLL_COVERAGE
+    [KrollCoverageObject incrementTopLevelFunctionCall:TOP_LEVEL name:@"alert"];
+#endif
+    
+    if (argCount < 1) {
+        return ThrowException(jsContext, @"invalid number of arguments", exception);
+    }
+    
+    KrollContext* ctx = GetKrollContext(jsContext);
+    NSString* message = [KrollObject toID:ctx value:args[0]];
+    
+    TiUIAlertDialogProxy* alert = [[[TiUIAlertDialogProxy alloc] _initWithPageContext:(id<TiEvaluator>)[ctx delegate] args:nil] autorelease];
+    [alert setValue:@"Alert" forKey:@"title"];
+    [alert setValue:message forKey:@"message"];
+    [alert show:nil];
+    
+    return TiValueMakeUndefined(jsContext);
+}
 
 static TiValueRef StringFormatCallback (TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
 							 const TiValueRef args[], TiValueRef* exception)
@@ -573,7 +597,8 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		NSLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
 		fflush(stderr);
 		TiStringRelease(js);
-		throw excm;
+
+		@throw excm;
 	}
 	
 	TiStringRelease(js);
@@ -1007,6 +1032,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	[self bindCallback:@"clearInterval" callback:&ClearTimerCallback];
 	[self bindCallback:@"require" callback:&CommonJSRequireCallback];
 	[self bindCallback:@"L" callback:&LCallback];
+    [self bindCallback:@"alert" callback:&AlertCallback];
 
 	prop = TiStringCreateWithUTF8CString("String");
 	

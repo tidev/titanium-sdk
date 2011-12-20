@@ -124,6 +124,18 @@ Module.prototype.createModuleWrapper = function(externalModule, sourceUrl) {
 		}));
 	}
 
+	wrapper.addEventListener = function() {
+		externalModule.addEventListener.apply(externalModule, arguments);
+	}
+
+	wrapper.removeEventListener = function() {
+		externalModule.removeEventListener.apply(externalModule, arguments);
+	}
+
+	wrapper.fireEvent = function() {
+		externalModule.fireEvent.apply(externalModule, arguments);
+	}
+
 	return wrapper;
 }
 
@@ -336,7 +348,7 @@ function resolveFilename(request, parentModule) {
 	// could be located.
 	for (var i = 0, pathCount = paths.length; i < pathCount; ++i) {
 		var filename = path.resolve(paths[i], id) + '.js';
-		if (filenameExists(filename)) {
+		if (filenameExists(filename) || assets.fileExists(filename)) {
 			return [id, filename];
 		}
 	}

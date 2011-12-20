@@ -32,7 +32,7 @@ exports.defineProperties = function(namespace, properties) {
 		customProperties[namespace] = {};
 	}
 
-	customProperties[namespace].extend(properties);
+	kroll.extend(customProperties[namespace], properties);
 }
 
 function defineLazyGetter(namespace, name, getter) {
