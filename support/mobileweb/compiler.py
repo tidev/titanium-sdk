@@ -45,7 +45,7 @@ class Compiler(object):
 		self.build_dir = os.path.join(self.project_dir,'build','mobileweb')
 		
 		self.resources_dir = os.path.join(self.project_dir,'Resources')
-		self.debug = True # temporarily forcing debug (i.e. development) mode until jsmin is replaced
+		self.debug = False
 		self.count = 0
 		
 		if deploytype == 'development' or deploytype == 'all':
@@ -128,6 +128,9 @@ class Compiler(object):
 		version: \"${app_version | jsQuoteEscapeFilter}\"\n\
 	},\n\
 	deployType: \"${deploy_type | jsQuoteEscapeFilter}\",\n\
+	has: {\n\
+		\"declare-property-methods\": true\n\
+	},\n\
 	project: {\n\
 		id: \"${project_id | jsQuoteEscapeFilter}\",\n\
 		name: \"${project_name | jsQuoteEscapeFilter}\"\n\
