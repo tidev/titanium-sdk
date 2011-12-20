@@ -177,6 +177,7 @@ public class PlatformModule extends KrollModule
 			registerBatteryStateReceiver();
 		} else if (!monitor && batteryStateReceiver != null) {
 			unregisterBatteryStateReceiver();
+			batteryStateReceiver = null;
 		}
 	}
 	@Kroll.getProperty @Kroll.method
@@ -302,6 +303,7 @@ public class PlatformModule extends KrollModule
 		super.onPause(activity);
 		if (batteryStateReceiver != null) {
 			unregisterBatteryStateReceiver();
+			batteryStateReceiver = null;
 		}
 	}
 
