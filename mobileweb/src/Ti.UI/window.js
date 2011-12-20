@@ -161,7 +161,7 @@ Ti._5.createClass("Ti.UI.Window", function(args){
 		setMinHeight(obj);
 	};
 	
-	obj.addEventListener("html5_child_rendered", function () {
+	obj.addEventListener("ti:child_rendered", function () {
 		// Give some time to browser to render the page
 		setTimeout(setMinHeight, 100);
 	});

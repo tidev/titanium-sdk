@@ -103,17 +103,17 @@ Ti._5.Positionable = function(obj, args) {
 		}
 	});
 
-	obj.addEventListener("html5_added", function(){
+	obj.addEventListener("ti:added", function(){
 		// reset coordinates when element is added somewhere
 		obj.center = _center;
 	});
 
-	obj.addEventListener("html5_shown", function(){
+	obj.addEventListener("ti:shown", function(){
 		// reset coordinates when element is added somewhere
 		obj.center = _center;
 	});
 
-	obj.addEventListener("html5_child_rendered", function(){
+	obj.addEventListener("ti:child_rendered", function(){
 		// reset coordinates when element is added somewhere
 		obj.center = _center;
 	});
