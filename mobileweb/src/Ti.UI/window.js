@@ -138,9 +138,10 @@ Ti._5.createClass("Ti.UI.Window", function(args){
 			return;
 		}
 		// Set min window height for preventing window heights be smaller then sum of all window children heights  
-		var oElOffset = Ti._5._getElementOffset(oSource.dom);
+		//var oElOffset = Ti._5._getElementOffset(oSource.dom);
 		//domStyle.minHeight = (oElOffset.height - oElOffset.top) + "px";
-		domStyle.minHeight = oElOffset.height + "px";
+		//domStyle.minHeight = oElOffset.height + "px";
+		domStyle.minHeight = (oSource.dom.scrollHeight - oSource.dom.offsetHeight) + "px";
 	}
 
 	var _oldRender = obj.render; // WARNING: this may cause problems
