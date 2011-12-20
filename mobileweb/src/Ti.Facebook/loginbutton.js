@@ -14,10 +14,8 @@ Ti._5.createClass("Ti.Facebook.LoginButton", function(args){
 	});
 
 	// Events
-	obj.addEventListener("globalPoint", function(){
-		console.debug('Event "globalPoint" is not implemented yet.');
-	});
+	/* This should fire the event, not listen for it
 	obj.addEventListener("dblclick", function(){
 		console.debug('Event "dblclick" is not implemented yet.');
-	});
+	});*/
 });

@@ -399,7 +399,6 @@ Ti._5.createClass("Ti.UI.TableViewRow", function(args){
 		} 		
 		var oEvent = {
 			detail		: event.srcElement == _stateObj || false,
-			globalPoint	: { x:event.pageX, y:event.pageY }, 
 			index		: index,
 			row			: obj,
 			rowData		: obj._rowData,
@@ -417,7 +416,6 @@ Ti._5.createClass("Ti.UI.TableViewRow", function(args){
 
 	on(domNode, "dblclick", function(event) {
 		var oEvent = {
-			globalPoint	: { x:event.pageX, y:event.pageY }, 
 			source		: obj,
 			type		: event.type,
 			x			: event.pageX,

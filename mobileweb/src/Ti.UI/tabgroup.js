@@ -143,7 +143,6 @@ Ti._5.createClass("Ti.UI.TabGroup", function(args){
 		} else if (indexOrObject !== _activeTabIndex) {
 			if(_activeTabIndex != null){
 				obj.fireEvent("blur", {
-					globalPoint: {x: null, y: null},
 					x: null,
 					y: null,
 					previousIndex: _activeTabIndex,
@@ -154,7 +153,6 @@ Ti._5.createClass("Ti.UI.TabGroup", function(args){
 			}
 
 			obj.fireEvent("focus", {
-				globalPoint: {x: null, y: null},
 				x: null,
 				y: null,
 				previousIndex: _activeTabIndex,
@@ -179,7 +177,6 @@ Ti._5.createClass("Ti.UI.TabGroup", function(args){
 		}
 
 		obj.fireEvent("open", {
-			globalPoint: {x: null, y: null},
 			x: null,
 			y: null
 		});
@@ -193,7 +190,6 @@ Ti._5.createClass("Ti.UI.TabGroup", function(args){
 		}
 
 		obj.fireEvent("close", {
-			globalPoint: {x: null, y: null},
 			x: null,
 			y: null
 		});

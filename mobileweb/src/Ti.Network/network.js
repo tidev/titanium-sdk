@@ -80,16 +80,6 @@
 	api.encodeURIComponent = function(value) {
 		return encodeURIComponent(value);
 	};
-	
-	// IPhone only
-	api.registerForPushNotifications = function(){
-		console.debug('Method "Titanium.Network.registerForPushNotifications" is not implemented yet.');
-	};
-
-	// deprecated since 1.7.0
-	api.removeConnectivityListener = function(){
-		console.debug('Method "Titanium.Network.removeConnectivityListener" is not implemented yet.');
-	};
 
 	// Events
 	require.on(window, "online", function(evt) {

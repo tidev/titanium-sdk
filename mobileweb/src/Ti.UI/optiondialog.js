@@ -6,7 +6,6 @@ Ti._5.createClass("Ti.UI.OptionDialog", function(args){
 
 	// Properties
 	Ti._5.prop(obj, {
-		androidView: null,
 		cancel: null,
 		destructive: null,
 		options: null,

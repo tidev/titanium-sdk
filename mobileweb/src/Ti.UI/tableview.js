@@ -50,7 +50,6 @@ Ti._5.createClass("Ti.UI.TableView", function(args){
 	_oHeader.dom.style.paddingLeft = "10px";
 	_oHeader.addEventListener("click", function(event) {
 		obj.fireEvent("click", {
-			globalPoint: event.globalPoint,
 			x: event.x,
 			y: event.y
 		});
@@ -67,7 +66,6 @@ Ti._5.createClass("Ti.UI.TableView", function(args){
 	_oFooter.dom.style.paddingLeft = "10px";
 	_oFooter.addEventListener("click", function(event) {
 		obj.fireEvent("click", {
-			globalPoint: event.globalPoint,
 			x: event.x,
 			y: event.y
 		});
@@ -154,11 +152,7 @@ Ti._5.createClass("Ti.UI.TableView", function(args){
 	};
 	
 	obj._addRowAdditionalData = function (row) {
-		if (Ti.UI.iPhone.TableViewSeparatorStyle.SINGLE_LINE == obj.separatorStyle) {
-			row.dom.style.borderBottom = "1px solid " + obj.separatorColor;
-		} else {
-			row.dom.style.borderBottom = "none";
-		}
+		row.dom.style.borderBottom = "1px solid " + obj.separatorColor;
 		row.dom.style.height = obj.rowHeight ? obj.rowHeight + "px" : row.dom.style.height;
 		row.dom.style.minHeight = obj.minRowHeight + "px";
 		row.dom.style.maxHeight = obj.maxRowHeight + "px";
@@ -175,8 +169,7 @@ Ti._5.createClass("Ti.UI.TableView", function(args){
 		_footerTitle = "",
 		_headerTitle = "",
 		_scrollable = true,
-		_searchHidden = true,
-		_separatorStyle = Ti.UI.iPhone.TableViewSeparatorStyle.SINGLE_LINE;
+		_searchHidden = true;
 
 	// Properties
 	Ti._5.prop(obj, {
@@ -277,27 +270,6 @@ Ti._5.createClass("Ti.UI.TableView", function(args){
 			set: function(val){_searchHidden = !!val;}
 		},
 		separatorColor: "#e0e0e0",
-		separatorStyle: {
-			get: function(){return _separatorStyle;},
-			set: function(val){
-				if (Ti.UI.iPhone.TableViewSeparatorStyle.NONE == val) {
-					_separatorStyle = Ti.UI.iPhone.TableViewSeparatorStyle.NONE;
-				} else {
-					_separatorStyle = Ti.UI.iPhone.TableViewSeparatorStyle.SINGLE_LINE;
-				}
-				if (obj._children && obj._children.length) {
-					for (var iCounter = obj._children.length; iCounter >= 0; iCounter--) {
-						if (obj._children[iCounter] instanceof Ti.UI.TableViewSection) {
-							for (var jCounter = obj._children[iCounter]._children.length; jCounter >= 0; jCounter--) {
-								if (obj._children[iCounter]._children[jCounter] instanceof Ti.UI.TableViewRow) {
-									obj._addRowAdditionalData(obj._children[iCounter]._children[jCounter]);
-								}  
-							}
-						}
-					}
-				}
-			}
-		},
 		style: undef,
 		size: {
 			get: function() {
@@ -322,7 +294,6 @@ Ti._5.createClass("Ti.UI.TableView", function(args){
 		}
 		obj.fireEvent("click", {
 			detail		: false,
-			globalPoint	: { x:event.pageX, y:event.pageY }, 
 			index		: null,
 			row			: null,
 			rowData		: null,
@@ -340,7 +311,6 @@ Ti._5.createClass("Ti.UI.TableView", function(args){
 			return true;
 		}
 		obj.fireEvent("dblclick", {
-			globalPoint	: { x:event.pageX, y:event.pageY }, 
 			type		: event.type,
 			x			: event.pageX,
 			y			: event.pageY
