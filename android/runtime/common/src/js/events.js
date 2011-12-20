@@ -209,7 +209,7 @@ Object.defineProperty(EventEmitter.prototype, "removeListener", {
 		if (isArray(list)) {
 			var position = -1;
 			// Also support listener indexes / ids
-			if (typeof(listener) === 'number') {
+			if (typeof listener === 'number') {
 				position = listener;
 				if (position > list.length || position < 0) {
 					return this;
