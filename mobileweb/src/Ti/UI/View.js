@@ -31,6 +31,10 @@ define("Ti/UI/View",
 			dom.destroy(view.domNode);
 		},
 
+		doLayout: function() {
+			console.debug("Doing layout for " + this.declaredClass);
+		},
+
 		destroy: function() {
 			var i = 0,
 				l = this.children.length;

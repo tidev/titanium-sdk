@@ -3,13 +3,7 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/style"], functio
 	return lang.setObject("Ti.UI", Evented, {
 
 		rootNode: dom.create("div", {
-			id: "TiContainer",
-			style: {
-				width: "100%",
-				height: "100%",
-				overflow: "hidden",
-				position: "absolute" // Absolute so that any children that are absolute positioned will respect this DIVs height and width.
-			}
+			className: "TiContainer"
 		}, document.body),
 
 		properties: {

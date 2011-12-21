@@ -1,10 +1,17 @@
 define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI", "Ti/UI/View"], function(declare, dom, UI, View) {
 
-	var windows = [];
+	var windows = [],
+		activeWindow;
 
 	require.on(window, "popstate", function(evt) {
 		var win;
 		evt && evt.state && evt.state.screenIndex !== null && (win = windows[evt.state.windowIdx]) && win.open({ isBack:1 });
+	});
+
+	require.on(window, "resize", function() {
+		for (var i = 0; i < windows.length; i++) {
+			windows[i] && !windows[i].parent && windows[i].doLayout();
+		}
 	});
 
 	return declare("Ti._.UI.SuperView", View, {
@@ -29,6 +36,7 @@ define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI", "Ti/UI/View"],
 				this.show();
 				!arg || !arg.isBack || window.history.pushState({ windowIdx: this._windowIdx }, "", "");
 			}
+			activeWindow = this;
 		},
 
 		close: function() {

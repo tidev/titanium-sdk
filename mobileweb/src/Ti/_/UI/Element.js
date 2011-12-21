@@ -87,12 +87,12 @@ define("Ti/_/UI/Element",
 		},
 
 		show: function() {
-			style.set(this.domNode, "display", "");
+			this.visible || (this.visible = true);
 			//this.fireEvent("ti:shown");
 		},
 
 		hide: function() {
-			style.set(this.domNode, "display", "none");
+			this.visible && (this.visible = false);
 			//obj.fireEvent("ti:hidden");
 		},
 
@@ -318,7 +318,8 @@ define("Ti/_/UI/Element",
 			},
 			visible: {
 				set: function(value) {
-					this[value ? "show" : "hide"]();
+					style.set(this.domNode, "display", !!value ? "" : "none");
+					!!value && this.doLayout();
 					return value;
 				}
 			},
