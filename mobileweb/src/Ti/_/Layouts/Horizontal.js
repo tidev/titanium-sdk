@@ -2,7 +2,12 @@ define("Ti/_/Layouts/Horizontal", ["Ti/_/Layouts/Base", "Ti/_/declare"], functio
 
 	return declare("Ti._.Layouts.Horizontal", Base, {
 
-		doLayout: function() {
+		doLayout: function(element) {
+			
+			// Call the super method to layout the children
+			Base.prototype.doLayout.apply(this, arguments);
+			
+			// Layout this node
 			// TODO
 		}
 

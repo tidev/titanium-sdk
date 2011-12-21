@@ -11,8 +11,13 @@ define("Ti/_/Layouts/Base", ["Ti/_/css", "Ti/_/declare"], function(css, declare)
 			css.remove(this.element.domNode, css.clean(this.declaredClass));
 		},
 
-		doLayout: function() {
-			// stub
+		doLayout: function(element) {
+			console.debug("Doing layout for " + element.declaredClass);
+			if (element.children) {
+				for(var i = 0; i < element.children.length; i++) {
+					element.children[i].doLayout();
+				}
+			}
 		}
 
 	});

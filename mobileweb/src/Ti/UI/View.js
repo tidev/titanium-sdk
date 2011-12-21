@@ -32,10 +32,9 @@ define("Ti/UI/View",
 		},
 
 		doLayout: function() {
-			console.debug("Doing layout for " + this.declaredClass);
 			this._layout && this._layout.doLayout();
 		},
-
+		
 		destroy: function() {
 			var i = 0,
 				l = this.children.length;

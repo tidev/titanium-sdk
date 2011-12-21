@@ -2,7 +2,12 @@ define("Ti/_/Layouts/Absolute", ["Ti/_/Layouts/Base", "Ti/_/declare"], function(
 
 	return declare("Ti._.Layouts.Absolute", Base, {
 
-		doLayout: function() {
+		doLayout: function(element) {
+			
+			// Call the super method to layout the children
+			Base.prototype.doLayout.apply(this, arguments);
+			
+			// Layout this node
 			// TODO
 		}
 
