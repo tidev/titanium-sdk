@@ -291,6 +291,14 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	{
 		CFRelease(oldProxies);
 	}
+
+	for (NSString * thisModuleKey in modules) {
+		id thisModule = [modules objectForKey:thisModuleKey];
+		if ([thisModule respondsToSelector:@selector(unprotectJsobject)]) {
+			[thisModule unprotectJsobject];
+		}
+	}
+	RELEASE_TO_NIL(modules);
 }
 
 -(void)dealloc
@@ -303,7 +311,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	RELEASE_TO_NIL(preload);
 	RELEASE_TO_NIL(context);
 	RELEASE_TO_NIL(titanium);
-	RELEASE_TO_NIL(modules);
 	OSSpinLockLock(&krollBridgeRegistryLock);
 	CFSetRemoveValue(krollBridgeRegistry, self);
 	OSSpinLockUnlock(&krollBridgeRegistryLock);
@@ -618,7 +625,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	RELEASE_TO_NIL(titanium);
 	RELEASE_TO_NIL(context);
 	RELEASE_TO_NIL(preload);
-	RELEASE_TO_NIL(modules);
 	[self autorelease]; // Safe to release now that the context is done
 }
 
