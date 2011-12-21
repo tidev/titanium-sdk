@@ -324,8 +324,6 @@ define("Ti/_/UI/Element",
 			},
 			width: {
 				set: function(value) {
-					console.debug("Setting width to " + unitize(value));
-					console.debug(this.domNode);
 					style.set(this.domNode, "width", unitize(value));
 					return value;
 				}

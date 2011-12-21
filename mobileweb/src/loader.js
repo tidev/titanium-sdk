@@ -1160,7 +1160,8 @@ require.cache({
 						args = a,
 						a0 = a[0],
 						f, i, m, p,
-						l = bases.length, preArgs;
+						l = bases.length,
+						preArgs;
 
 					// 1) call two types of the preamble
 					if (ctorSpecial && (a0 && a0.preamble || this.preamble)) {
