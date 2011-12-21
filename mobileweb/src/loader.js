@@ -1501,7 +1501,7 @@ require.cache({
 										enumerable: true
 									});
 
-									if (require.has("declare-property-methods") && property.toUpperCase() !== property) {
+									if (require.has("declare-property-methods") && (writable || property.toUpperCase() !== property)) {
 										externalDest["get" + capitalizedName] = function() { return internalDest[property]; };
 										writable && (externalDest["set" + capitalizedName] = function(v) { return internalDest[property] = v; });
 									}

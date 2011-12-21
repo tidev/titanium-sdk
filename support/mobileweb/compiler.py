@@ -59,7 +59,6 @@ class Compiler(object):
 				'Ti/App/Properties.js',
 				'Ti/Facebook.js',
 				'Ti/Filesystem.js',
-				'Ti/Gesture.js',
 				'Ti/Media.js',
 				'Ti/Media/VideoPlayer.js',
 				'Ti/Network.js',
@@ -67,6 +66,7 @@ class Compiler(object):
 				'Ti/Platform.js',
 				'Ti/Platform/DisplayCaps.js',
 				'Ti/UI.js',
+				'Ti/Gesture.js',
 				
 				# View classes
 				'Ti/UI/View.js',
