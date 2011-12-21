@@ -1577,7 +1577,7 @@ require.cache({
 												return getter ? getter.call(externalDest, valueDest[property]) : valueDest[property];
 											},
 											set: function(v) {
-												valueDest[property] = setter ? setter.call(externalDest, v) : v;
+												valueDest[property] = setter ? setter.call(externalDest, v, valueDest[property]) : v;
 											},
 											configurable: true,
 											enumerable: true
@@ -1717,6 +1717,10 @@ require.cache({
 			return {
 				url: function(url) {
 					return !url ? "" : /^url\(/.test(url) ? url : "url(" + _.getAbsolutePath(url) + ")";
+				},
+
+				get: function(node, name) {
+					return node.style[name];
 				},
 
 				set: function(node, name, value) {

@@ -87,12 +87,12 @@ define("Ti/_/UI/Element",
 		},
 
 		show: function() {
-			this.visible || (this.visible = true);
+			this.visible = true;
 			//this.fireEvent("ti:shown");
 		},
 
 		hide: function() {
-			this.visible && (this.visible = false);
+			this.visible = false;
 			//obj.fireEvent("ti:hidden");
 		},
 
@@ -317,9 +317,12 @@ define("Ti/_/UI/Element",
 				}
 			},
 			visible: {
-				set: function(value) {
-					style.set(this.domNode, "display", !!value ? "" : "none");
-					!!value && this.doLayout();
+				set: function(value, orig) {
+					if (value !== orig) {
+						!value && (this._lastDisplay = style.get(this.domNode, "display"));
+						style.set(this.domNode, "display", !!value ? this._lastDisplay || "" : "none");
+						!!value && this.doLayout();
+					}
 					return value;
 				}
 			},
