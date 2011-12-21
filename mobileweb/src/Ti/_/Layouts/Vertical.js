@@ -28,7 +28,7 @@ define("Ti/_/Layouts/Vertical", ["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/_/styl
 						} else {
 							top = computeSize(child.center.y) - computeSize(child.height) / 2 + "px";
 						}
-						set(child.domNode, "marginTop", top);
+						top && set(child.domNode, "marginTop", top);
 					}
 					!is(child.top,"Undefined") && set(child.domNode, "marginTop", unitize(child.top));
 					!is(child.height,"Undefined") && set(child.domNode, "height", unitize(child.height));
@@ -44,7 +44,7 @@ define("Ti/_/Layouts/Vertical", ["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/_/styl
 						} else {
 							left = computeSize(child.center.x) - computeSize(child.width) / 2 + "px";
 						}
-						set(child.domNode, "marginLeft", left);
+						left && set(child.domNode, "marginLeft", left);
 					}
 					!is(child.left,"Undefined") && set(child.domNode, "marginLeft", unitize(child.left));
 					!is(child.width,"Undefined") && set(child.domNode, "width", unitize(child.width));
