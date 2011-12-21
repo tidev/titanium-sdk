@@ -17,7 +17,7 @@
 		doc = document,
 		body = doc.body,
 		undef,
-		ready = require("Ti/_/ready").ready,
+		ready = require("Ti/_/ready"),
 		createUUID = require("Ti/_").uuid,
 		sessionId,
 		analyticsStorageName = "ti:analyticsEvents",
@@ -510,15 +510,6 @@
 			// try to sent previously sent analytics events on app load
 			Ti._5.sendAnalytics();
 		}
-
-		var n = Ti._5.containerDiv = doc.createElement('div'),
-			ns = n.style;
-		n.id = "TiContainer";
-		ns.width = "100%";
-		ns.height = "100%";
-		ns.overflow = "hidden";
-		ns.position = "absolute"; // Absolute so that any children that are absolute positioned will respect this DIVs height and width.
-		body.appendChild(n);
 
 		// load app.js when ti and dom is ready
 		ready(function() {

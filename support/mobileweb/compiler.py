@@ -65,6 +65,7 @@ class Compiler(object):
 				'Ti/Network/HTTPClient.js',
 				'Ti/Platform.js',
 				'Ti/Platform/DisplayCaps.js',
+				'Ti/UI.js',
 				
 				# View classes
 				'Ti/UI/View.js',

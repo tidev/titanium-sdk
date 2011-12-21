@@ -1,6 +1,6 @@
 define("Ti/_/Layouts/Base", ["Ti/_/css", "Ti/_/declare"], function(css, declare) {
 
-	return declare("Base", null, {
+	return declare("Ti._.Layouts.Base", null, {
 
 		constuctor: function(element) {
 			this.element = element;

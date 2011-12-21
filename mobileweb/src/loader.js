@@ -1043,7 +1043,7 @@ require.cache({
 		});
 	},
 	"Ti/_/declare": function() {
-		define(["Ti/_/lang", "Ti/_/text"], function(lang, text) {
+		define(["Ti/_/lang"], function(lang) {
 			/**
 			 * declare() functionality based on code from Dojo Toolkit.
 			 *
@@ -1185,65 +1185,6 @@ require.cache({
 				return dest;
 			}
 
-			function mixProps(dest, src) {
-				var d, i, p, v, special = { properties: 1, constants: 0 };
-				for (p in src) {
-					if (src.hasOwnProperty(p) && p !== "constructor" && p in special) {
-						d = dest[p] || (dest[p] = {});
-						d._values || (d._values = {});
-						for (i in src[p]) {
-							(function(property, externalDest, internalDest, valueDest, /* setter/getter, getter, or value */ descriptor, capitalizedName, writable) {
-								var getter,
-									setter;
-
-								if (is(descriptor, "Object") && is(descriptor.get, "Function")) {
-									getter = descriptor.get;
-									is(descriptor.set, "Function") && (setter = descriptor.set);
-									valueDest[property] = descriptor.value;
-								} else if (is(descriptor, "Function")) {
-									getter = descriptor;
-								} else {
-									valueDest[property] = descriptor;
-								}
-
-								// first set the internal private interface
-								Object.defineProperty(internalDest, property, {
-									get: function() {
-										return getter ? getter.call(externalDest, valueDest[property]) : valueDest[property];
-									},
-									set: function(v) {
-										valueDest[property] = setter ? setter.call(externalDest, v) : v;
-									},
-									configurable: true,
-									enumerable: true
-								});
-
-								// this is the public interface
-								Object.defineProperty(dest, property, {
-									get: function() {
-										return internalDest[property];
-									},
-									set: function(v) {
-										if (!writable) {
-											throw new Error('Property "' + property + '" is read only');
-										}
-										internalDest[property] = v;
-									},
-									configurable: true,
-									enumerable: true
-								});
-
-								if (require.has("declare-property-methods")) {
-									externalDest["get" + capitalizedName] = function() { return internalDest[property]; };
-									writable && (externalDest["set" + capitalizedName] = function(v) { return internalDest[property] = v; });
-								}
-							}(i, dest, d, d._values, src[p][i], text.capitalize(i), special[p]));
-						}
-					}
-				}
-				return dest;
-			}
-
 			function declare(className, superclass, definition) {
 				// summary:
 				//		Creates an instantiable class object.
@@ -1337,7 +1278,7 @@ require.cache({
 				});
 
 				// now mix in just the properties and constants
-				mixProps(proto, definition);
+				lang.mixProps(proto, definition);
 
 				// add "standard" methods to the prototype
 				mix(proto, {
@@ -1462,7 +1403,7 @@ require.cache({
 		});
 	},
 	"Ti/_/lang": function() {
-		define(function() {
+		define(["Ti/_/text"], function(text) {
 			/**
 			 * hitch() and setObject() functionality based on code from Dojo Toolkit.
 			 *
@@ -1472,7 +1413,8 @@ require.cache({
 			 * <http://dojotoolkit.org>
 			 */
 
-			var global = this;
+			var global = this,
+				is = require.is;
 
 			function toArray(obj, offset) {
 				return [].concat(Array.prototype.slice.call(obj, offset||0));
@@ -1511,18 +1453,89 @@ require.cache({
 					};
 				},
 
-				setObject: function(name, value) {
+				mixProps: function(dest, src) {
+					var d, i, p, v, special = { properties: 1, constants: 0 };
+					for (p in src) {
+						if (src.hasOwnProperty(p) && p !== "constructor" && p in special) {
+							d = dest[p] || (dest[p] = {});
+							d._values || (d._values = {});
+							for (i in src[p]) {
+								(function(property, externalDest, internalDest, valueDest, /* setter/getter, getter, or value */ descriptor, capitalizedName, writable) {
+									var getter,
+										setter;
+
+									if (is(descriptor, "Object") && is(descriptor.get, "Function")) {
+										getter = descriptor.get;
+										is(descriptor.set, "Function") && (setter = descriptor.set);
+										valueDest[property] = descriptor.value;
+									} else if (is(descriptor, "Function")) {
+										getter = descriptor;
+									} else {
+										valueDest[property] = descriptor;
+									}
+
+									// first set the internal private interface
+									Object.defineProperty(internalDest, property, {
+										get: function() {
+											return getter ? getter.call(externalDest, valueDest[property]) : valueDest[property];
+										},
+										set: function(v) {
+											valueDest[property] = setter ? setter.call(externalDest, v) : v;
+										},
+										configurable: true,
+										enumerable: true
+									});
+
+									// this is the public interface
+									Object.defineProperty(dest, property, {
+										get: function() {
+											return internalDest[property];
+										},
+										set: function(v) {
+											if (!writable) {
+												throw new Error('Property "' + property + '" is read only');
+											}
+											internalDest[property] = v;
+										},
+										configurable: true,
+										enumerable: true
+									});
+
+									if (require.has("declare-property-methods")) {
+										externalDest["get" + capitalizedName] = function() { return internalDest[property]; };
+										writable && (externalDest["set" + capitalizedName] = function(v) { return internalDest[property] = v; });
+									}
+								}(i, dest, d, d._values, src[p][i], text.capitalize(i), special[p]));
+							}
+						}
+					}
+					return dest;
+				},
+
+				setObject: function(name) {
 					var parts = name.split("."),
 						q = parts.pop(),
 						obj = window,
 						i = 0,
-						p = parts[i++];
+						p = parts[i++],
+						value = {};
+
 					if (p) {
 						do {
 							obj = p in obj ? obj[p] : (obj[p] = {});
 						} while (obj && (p = parts[i++]));
 					}
-					return obj && q ? (obj[q] = value) : undefined;
+
+					if (!obj || !q) {
+						return undefined;
+					}
+
+					// need to mix args into values
+					for (i = 1; i < arguments.length; i++) {
+						this.mixProps(value, arguments[i]);
+					}
+
+					return obj[q] = value;
 				}
 			};
 		});
@@ -1569,19 +1582,20 @@ require.cache({
 				}
 			}
 
-			return {
-				load: function(name, require, onLoad) {
-					this.ready(onLoad);
-				},
-				ready: function(context, callback) {
-					var fn = callback ? function(){ callback.call(context); } : context;
-					if (isReady) {
-						fn();
-					} else {
-						readyQ.push(fn);
-					}
+			function ready(context, callback) {
+				var fn = callback ? function(){ callback.call(context); } : context;
+				if (isReady) {
+					fn();
+				} else {
+					readyQ.push(fn);
 				}
+			}
+
+			ready.load = function(name, require, onLoad) {
+				ready(onLoad);
 			};
+
+			return ready;
 		});
 	},
 	"Ti/_/style": function() {
