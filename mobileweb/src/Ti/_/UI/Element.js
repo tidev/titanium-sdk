@@ -85,6 +85,10 @@ define("Ti/_/UI/Element",
 			dom.destroy(this.domNode);
 			this.domNode = null;
 		},
+		
+		doLayout: function() {
+			this._layout && this._layout.doLayout(this);
+		},
 
 		show: function() {
 			this.visible || (this.visible = true);
@@ -157,6 +161,8 @@ define("Ti/_/UI/Element",
 		},
 
 		properties: {
+			
+			// Properties that are handled by the element
 			backgroundColor: {
 				set: function(value) {
 					return style.set(this.domNode, "backgroundColor", value);
@@ -233,45 +239,6 @@ define("Ti/_/UI/Element",
 					return value;
 				}
 			},
-			bottom: {
-				set: function(value) {
-					style.set(this.domNode, "bottom", unitize(value));
-					return value;
-				}
-			},
-			center: {
-				set: function(value) {
-					/* TODO: we need to figure out how to evaluate this AFTER left/right/width/height is set
-					if (require.is(value, "Object") obj.parent) {
-						return;
-					}
-
-					var width = domNode.clientWidth,
-						height = domNode.clientHeight,
-						left = val.x,
-						top = val.y;
-
-					if (left !== null) {
-						/\%$/.test(left) && (left = obj.parent.dom.clientWidth * parseFloat(left) / 100);
-						domStyle.left = (left - width / 2) + "px";
-					}
-
-					if(top !== null){
-						/\%$/.test(top) && (top = obj.parent.dom.clientHeight * parseFloat(top) / 100);
-						domStyle.top = (top - height / 2) + "px";
-					}
-
-					if (!isAdded) {
-						// recalculate center positioning on window resize
-						require.on(window, "resize", function() {
-							obj.center = _center;
-						});
-						isAdded = 1;
-					}
-					*/
-					return value;
-				}
-			},
 			color: {
 				set: function(value) {
 					return style.set(this.domNode, "color", value);
@@ -287,54 +254,28 @@ define("Ti/_/UI/Element",
 					return value;
 				}
 			},
-			height: {
-				set: function(value) {
-					style.set(this.domNode, "height", unitize(value));
-					return value;
-				}
-			},
-			left: {
-				set: function(value) {
-					style.set(this.domNode, "left", unitize(value));
-					return value;
-				}
-			},
 			opacity: {
 				set: function(value) {
 					return this.domNode.style.opacity = value;
 				}
 			},
-			right: {
-				set: function(value) {
-					style.set(this.domNode, "right", unitize(value));
-					return value;
-				}
-			},
-			top: {
-				set: function(value) {
-					style.set(this.domNode, "top", unitize(value));
-					return value;
-				}
-			},
 			visible: {
 				set: function(value) {
 					style.set(this.domNode, "display", !!value ? "" : "none");
-					!!value && this.doLayout();
+					this.doLayout();
 					return value;
 				}
 			},
-			width: {
-				set: function(value) {
-					style.set(this.domNode, "width", unitize(value));
-					return value;
-				}
-			},
-			zIndex: {
-				set: function(value) {
-					value !== this.domNode.style.zIndex && this.domNode.style.position === "static" && (this.domNode.style.position = "absolute");
-					return this.domNode.style.zIndex = value;
-				}
-			}
+			
+			// Properties that are handled by the layout manager
+			bottom: undef,
+			center: undef,
+			height: undef,
+			left: undef,
+			right: undef,
+			top: undef,
+			width: undef,
+			zIndex: undef
 		}
 
 	});
