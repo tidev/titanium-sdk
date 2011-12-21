@@ -1720,6 +1720,12 @@ require.cache({
 				},
 
 				get: function(node, name) {
+					if (require.is(name, "Array")) {
+						for (var i = 0; i < name.length; i++) {
+							name[i] = node.style[name[i]];
+						}
+						return name;
+					}
 					return node.style[name];
 				},
 

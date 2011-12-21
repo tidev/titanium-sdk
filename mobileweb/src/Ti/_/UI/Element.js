@@ -30,55 +30,29 @@ define("Ti/_/UI/Element",
 
 			// TODO: mixin JSS rules (http://jira.appcelerator.org/browse/TIMOB-6780)
 
-			/* TODO: need to preserve original background
-			on(node, "focus", function() {
-				if (this.backgroundSelectedColor) {
-					bgSelPrevColor || (bgSelPrevColor = this.backgroundColor);
-					style.set(node, "backgroundColor", this.backgroundSelectedColor);
-				}
+			on(this.domNode, "focus", lang.hitch(this, function() {
+				var tmp, node = this.domNode;
 
-				if (this.backgroundSelectedImage) {
-					bgSelPrevImage || (bgSelPrevImage = this.backgroundImage);
-					style.set(node, "backgroundImage", style.url(this.backgroundSelectedImage));
-				}
+				this._origBg = style.get(node, ["backgroundColor", "backgroundImage"]);
+
+				(tmp = this.backgroundSelectedColor) && style.set(node, "backgroundColor", tmp);
+				(tmp = this.backgroundSelectedImage) && style.set(node, "backgroundImage", style.url(tmp));
 
 				if (this.focusable) {
-					if (this.backgroundFocusedColor) {
-						bgFocusPrevColor || (bgFocusPrevColor = this.backgroundColor);
-						style.set(node, "backgroundColor", this.backgroundFocusedColor);
-					}
-
-					if (this.backgroundFocusedImage) {
-						bgFocusPrevImage || (bgFocusPrevImage = this.backgroundImage);
-						style.set(node, "backgroundImage", style.url(this.backgroundFocusedImage));
-					}
+					(tmp = this.backgroundFocusedColor) && style.set(node, "backgroundColor", tmp);
+					(tmp = this.backgroundFocusedImage) && style.set(node, "backgroundImage", style.url(tmp));
 				}
+			}));
+
+			on(this.domNode, "blur", function() {
+				var bg = (this._origBg || []).concat([0, 0]);
+
+				this.focusable && this.backgroundSelectedColor && (bg[0] = this.backgroundSelectedColor);
+				bg[0] && style.set(this.domNode, "backgroundColor", bg[0]);
+
+				this.focusable && this.backgroundSelectedImage && (bg[1] = this.backgroundSelectedImage);
+				bg[1] && style.set(this.domNode, "backgroundImage", style.url(bg[1]));
 			});
-
-			on(node, "blur", function() {
-				if (bgSelPrevColor) {
-					style.set(node, "backgroundColor", bgSelPrevColor);
-					bgSelPrevColor = 0;
-				}
-
-				if (bgSelPrevImage) {
-					style.set(node, "backgroundImage", style.url(bgSelPrevImage));
-					bgSelPrevImage = 0;
-				}
-
-				if (this.focusable) {
-					if (bgFocusPrevColor) {
-						style.set(node, "backgroundColor", bgFocusPrevColor);
-						bgFocusPrevColor = 0;
-					}
-
-					if (bgFocusPrevImage) {
-						style.set(node, "backgroundImage", style.url(bgFocusPrevImage));
-						bgFocusPrevImage = 0;
-					}
-				}
-			});
-			*/
 		},
 
 		destroy: function() {
