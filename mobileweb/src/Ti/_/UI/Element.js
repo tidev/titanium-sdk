@@ -252,7 +252,8 @@ define("Ti/_/UI/Element",
 			right: undef,
 			top: undef,
 			width: undef,
-			zIndex: undef
+			zIndex: undef,
+			// TODO figure out size stuff
 		}
 
 	});

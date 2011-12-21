@@ -32,7 +32,7 @@ define("Ti/UI/View",
 		},
 
 		doLayout: function() {
-			this._layout && this._layout.doLayout();
+			this._layout && this._layout.doLayout(this);
 		},
 		
 		destroy: function() {
