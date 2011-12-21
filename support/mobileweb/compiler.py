@@ -41,6 +41,7 @@ class Compiler(object):
 
 		self.defines = [
 				# these MUST be ordered correctly!
+				'eventdriven.js',
 				
 				# base classes
 				'Ti/_/Evented.js',
@@ -96,13 +97,12 @@ class Compiler(object):
 				'Ti/UI/Window.js',
 				
 				# resources
-				'titanium.css'
+				'titanium.css',
 
 				# everything below will eventually go away :)
 				#'screen.js',
 				#'interactable.js',
 				#'clickable.js',
-				#'eventdriven.js',
 				#'styleable.js',
 				#'touchable.js',
 				#'positionable.js',
