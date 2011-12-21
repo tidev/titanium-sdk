@@ -1,4 +1,4 @@
-define("Ti/Utils", ["Ti/_/Evented"], function(Evented) {
+define("Ti/Media/Item", ["Ti/_/Evented"], function(Evented) {
 
 	(function(api){
 		// Properties
