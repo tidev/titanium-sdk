@@ -1,4 +1,4 @@
-define("Ti/Analytics", ["Ti/_/Evented"], function(Evented) {
+define("Ti/Accelerometer", ["Ti/_/Evented"], function(Evented) {
 	
 	(function(api){
 		// Interfaces
