@@ -1,5 +1,13 @@
-define("Ti/UI/AlertDialog", ["Ti/_/Evented"], function(Evented) {
+define("Ti/UI/AlertDialog", ["Ti/_/declare", "Ti/_/Evented"], function(declare, Evented) {
 
-	// manual show/hide
+	return declare("Ti.UI.AlertDialog", Evented, {
+
+		show: function() {
+		},
+
+		hide: function() {
+		}
+
+	});
 
 });

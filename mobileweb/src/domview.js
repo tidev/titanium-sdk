@@ -61,7 +61,7 @@
 			set: function(val) {
 				/^(horizontal|vertical)$/.test(val) || (val = "absolute");
 				_layout = val;
-				domNode.className = domNode.className.replace(/\s*ti(Vertical|Horizontal)Layout\b/, "") + " ti" + require("Ti/_/text").capitalize(_layout) + "Layout";
+				domNode.className = domNode.className.replace(/\s*ti(Vertical|Horizontal)Layout\b/, "") + " ti" + require("Ti/_/string").capitalize(_layout) + "Layout";
 				// If layout option setted out of the constructor, we need to redraw object
 				if (require.is(obj.render, "Function")) {
 					obj.innerHTML = "";

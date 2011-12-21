@@ -1,57 +1,62 @@
 html,body{height:100%;width:100%;}
 body{margin:0;}
 
-.tiElement {}
+.TiUIWindow {
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	height: 100%;
+	width: 100%;
+}
 
-.tiStyleable {
+.TiUIElement {
 	background-repeat: no-repeat;
 	background-size: 100% 100%;
 	line-height: normal;
 }
 
-.tiVerticalLayout{
+.TiLayoutsVertical{
 	clear: both;
 }
 
-.tiVerticalLayout > .tiDOMElement {
+.TiLayoutsVertical > .TiUIElement {
 	position: relative !important;
 }
 
-.tiHorizontalLayout > .tiDOMElement {
+.TiLayoutsHorizontal > .TiUIElement {
 	float: left;
 	position: relative;
 }
 
-.tiVideoPlayer {
+.TiVideoPlayer {
 	position: relative;
 }
 
-.tiVideoPlayer video {
+.TiVideoPlayer video {
 	left: 0;
 	position: absolute;
 	top: 0;
 }
 
-.tiVideoPlayer.scaling-none {
+.TiVideoPlayer.scaling-none {
 	overflow: hidden;
 }
 
-.tiVideoPlayer.scaling-aspect-fit video {
+.TiVideoPlayer.scaling-aspect-fit video {
 	height: 100%;
 	max-height: 100%;
 	max-width: 100%;
 	width: 100%;
 }
 
-.tiVideoPlayer video.fullscreen {
+.TiVideoPlayer video.fullscreen {
 	background-color: #000;
 	position: fixed;
 }
 
-.tiVideoPlayer video:-webkit-full-screen {
+.TiVideoPlayer video:-webkit-full-screen {
 	max-height: 100%;
 }
 
-.tiVideoPlayer video:-moz-full-screen {
+.TiVideoPlayer video:-moz-full-screen {
 	max-height: 100%;
 }

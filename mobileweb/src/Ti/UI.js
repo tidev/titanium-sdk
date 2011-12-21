@@ -1,25 +1,27 @@
-define("Ti/UI", ["Ti/_/Evented", "Ti/_/lang", "Ti/_/style"], function(Evented, lang, style) {
-
-	var container = Ti._5.containerDiv = document.createElement('div');
-	container.id = "TiContainer";
-	style.set(container, {
-		width: "100%",
-		height: "100%",
-		overflow: "hidden",
-		position: "absolute" // Absolute so that any children that are absolute positioned will respect this DIVs height and width.
-	});
-	document.body.appendChild(container);
+define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/style"], function(dom, Evented, lang, style) {
 
 	return lang.setObject("Ti.UI", Evented, {
 
+		rootNode: dom.create("div", {
+			id: "TiContainer",
+			style: {
+				width: "100%",
+				height: "100%",
+				overflow: "hidden",
+				position: "absolute" // Absolute so that any children that are absolute positioned will respect this DIVs height and width.
+			}
+		}, document.body),
+
 		properties: {
 			backgroundColor: {
-				get: function() { return container.style.backgroundColor; },
-				set: function(val) { container.style.backgroundColor = val; }
+				set: function(value) {
+					this.rootNode.style.backgroundColor = value;
+				}
 			},
 			backgroundImage: {
-				get: function() { return container.style.backgroundImage; },
-				set: function(val) { container.style.backgroundImage = val; }
+				set: function(value) {
+					this.rootNode.style.backgroundImage = value;
+				}
 			}
 		},
 

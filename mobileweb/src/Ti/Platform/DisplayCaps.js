@@ -1,9 +1,7 @@
 define("Ti/Platform/DisplayCaps", ["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 
-	var ua = navigator.userAgent.toLowerCase();
-
-	return lang.setObject("Ti.Platform.DisplayCaps", 
-		lang.setObject("Ti.Platform.displayCaps", Evented, {
+	var ua = navigator.userAgent.toLowerCase(),
+		api = lang.setObject("Ti.Platform.DisplayCaps", Evented, {
 
 			constants: {
 				density: function(){
@@ -33,7 +31,8 @@ define("Ti/Platform/DisplayCaps", ["Ti/_/Evented", "Ti/_/lang"], function(Evente
 				platformWidth: window.innerWidth
 			}
 	
-		})
-	);
+		});
+
+	return Ti.Platform.displayCaps = api;
 
 });

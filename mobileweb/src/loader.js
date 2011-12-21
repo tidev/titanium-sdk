@@ -1030,14 +1030,35 @@ require.cache({
 		});
 	},
 	"Ti/_/css": function() {
-		define(function() {
+		define(["Ti/_/string"], function(string) {
+			function processClass(node, cls, adding) {
+				var i = 0, p,
+					cn = " " + node.className + " ",
+					cls = require.is(cls, "Array") ? cls : cls.split(" ");
+
+				for (; i < cls.length; i++) {
+					p = cn.indexOf(" " + cls[i] + " ");
+					if (adding && p === -1) {
+						cn += cls[i] + " ";
+					} else if (!adding && p !== -1) {
+						cn = cn.substring(0, p) + cn.substring(p + cls[i].length + 1);
+					}
+				}
+
+				node.className = string.trim(cn);
+			}
+
 			return {
 				add: function(node, cls) {
-					// TODO
+					processClass(node, cls, 1);
 				},
 
 				remove: function(node, cls) {
-					// TODO
+					processClass(node, cls);
+				},
+
+				clean: function(cls) {
+					return cls.replace(/[^A-Za-z0-9\-]/g, "");
 				}
 			};
 		});
@@ -1138,7 +1159,7 @@ require.cache({
 					var a = arguments,
 						args = a,
 						a0 = a[0],
-						f, i, m,
+						f, i, m, p,
 						l = bases.length, preArgs;
 
 					// 1) call two types of the preamble
@@ -1165,11 +1186,21 @@ require.cache({
 					for (i = l - 1; i >= 0; --i) {
 						f = bases[i];
 						m = f._meta;
-						f = m ? m.ctor : f;
-						f && f.apply(this, preArgs ? preArgs[i] : a);
+						if (m) {
+							f = m.ctor;
+							lang.mixProps(this, m.hidden);
+						}
+						is(f, "Function") && f.apply(this, preArgs ? preArgs[i] : a);
 					}
 
-					// 3) continue the original ritual: call the postscript
+					// 3) mixin args if any
+					if (is(a0, "Object")) {
+						for (p in a0) {
+							a0.hasOwnProperty(p) && (p in this) && (this[p] = a0[p]);
+						}
+					}
+
+					// 4) continue the original ritual: call the postscript
 					f = this.postscript;
 					f && f.apply(this, args);
 				};
@@ -1177,7 +1208,7 @@ require.cache({
 
 			function mixClass(dest, src) {
 				for (var p in src) {
-					if (src.hasOwnProperty(p) && /^(constructor|properties|constants)$/.test(p)) {
+					if (src.hasOwnProperty(p) && !/^(constructor|properties|constants|__values__)$/.test(p)) {
 						is(src[p], "Function") && (src[p].nom = name);
 						dest[p] = src[p];
 					}
@@ -1222,8 +1253,9 @@ require.cache({
 					t = superclass._meta;
 					bases = bases.concat(t ? t.bases : superclass);
 				} else if (superclassType === "Object") {
-					bases = [superclass];
-					superclass = { prototype: superclass };
+					ctor = new Function;
+					mix(ctor.prototype, superclass);
+					bases[0] = superclass = new ctor;
 				} else {
 					superclass = 0;
 				}
@@ -1278,15 +1310,16 @@ require.cache({
 				});
 
 				// now mix in just the properties and constants
-				lang.mixProps(proto, definition);
+				//lang.mixProps(proto, definition);
 
 				// add "standard" methods to the prototype
 				mix(proto, {
 					constructor: ctor,
-					//getInherited: function(name, args) {
+					// TODO: need a nice way of accessing the super method without using arguments.callee
+					// getInherited: function(name, args) {
 					//	return is(name, "String") ? this.inherited(name, args, true) : this.inherited(name, true);
-					//},
-					//inherited: inherited,
+					// },
+					// inherited: inherited,
 					isInstanceOf: function(cls) {
 						var bases = this.constructor._meta.bases,
 							i = 0,
@@ -1313,7 +1346,7 @@ require.cache({
 		});
 	},
 	"Ti/_/dom": function() {
-		define({
+		define(["Ti/_/style"], function(style) {
 			/**
 			 * create(), attr(), place(), & remove() functionality based on code from Dojo Toolkit.
 			 *
@@ -1322,28 +1355,90 @@ require.cache({
 			 * New BSD License
 			 * <http://dojotoolkit.org>
 			 */
-			create: function(tag, attrs, refNode, pos) {
-			},
 
-			attr: function() {
-			},
+			var is = require.is,
+				forcePropNames = {
+					innerHTML:	1,
+					className:	1,
+					value:		1
+				},
+				attrNames = {
+					// original attribute names
+					classname: "class",
+					htmlfor: "for",
+					// for IE
+					tabindex: "tabIndex",
+					readonly: "readOnly"
+				},
+				names = {
+					// properties renamed to avoid clashes with reserved words
+					"class": "className",
+					"for": "htmlFor",
+					// properties written as camelCase
+					tabindex: "tabIndex",
+					readonly: "readOnly",
+					colspan: "colSpan",
+					frameborder: "frameBorder",
+					rowspan: "rowSpan",
+					valuetype: "valueType"
+				};
 
-			place: function() {
-			},
+			return {
+				create: function(tag, attrs, refNode, pos) {
+					var doc = refNode ? refNode.ownerDocument : document;
+					is(tag, "String") && (tag = doc.createElement(tag));
+					attrs && this.attr(tag, attrs);
+					refNode && this.place(tag, refNode, pos);
+					return tag;
+				},
 
-			destroy: function(node) {
-				try {
-					var destroyContainer = node.ownerDocument.createElement("div");
-					destroyContainer.appendChild(node.parentNode ? node.parentNode.removeChild(node) : node);
-					destroyContainer.innerHTML = "";
-				} catch(e) {
-					/* squelch */
+				attr: function(node, name, value) {
+					if (arguments.length === 2) {
+						// the object form of setter: the 2nd argument is a dictionary
+						for (var x in name) {
+							this.attr(node, x, name[x]);
+						}
+						return node;
+					}
+
+					var lc = name.toLowerCase(),
+						propName = names[lc] || name,
+						forceProp = forcePropNames[propName],
+						attrId, h;
+
+					if (propName === "style" && !require.is(value, "String")) {
+						return style.set(node, value);
+					}
+
+					if (forceProp || is(value, "Boolean") || is(value, "Function")) {
+						node[name] = value;
+						return node;
+					}
+
+					// node's attribute
+					node.setAttribute(attrNames[lc] || name, value);
+					return node;
+				},
+
+				place: function(node, refNode, pos) {
+					refNode.appendChild(node);
+					return node;
+				},
+
+				destroy: function(node) {
+					try {
+						var destroyContainer = node.ownerDocument.createElement("div");
+						destroyContainer.appendChild(node.parentNode ? node.parentNode.removeChild(node) : node);
+						destroyContainer.innerHTML = "";
+					} catch(e) {
+						/* squelch */
+					}
+				},
+
+				unitize: function(x) {
+					return isNaN(x-0) || x-0 != x ? x : x + "px"; // note: must be != and not !==
 				}
-			},
-
-			unitize: function(x) {
-				return isNaN(x-0) || x-0 != x ? x : x + "px"; // note: must be != and not !==
-			}
+			};
 		});
 	},
 	"Ti/_/include": function() {
@@ -1403,7 +1498,7 @@ require.cache({
 		});
 	},
 	"Ti/_/lang": function() {
-		define(["Ti/_/text"], function(text) {
+		define(["Ti/_/string"], function(string) {
 			/**
 			 * hitch() and setObject() functionality based on code from Dojo Toolkit.
 			 *
@@ -1453,59 +1548,63 @@ require.cache({
 					};
 				},
 
-				mixProps: function(dest, src) {
+				mixProps: function(dest, src, everything) {
 					var d, i, p, v, special = { properties: 1, constants: 0 };
 					for (p in src) {
-						if (src.hasOwnProperty(p) && p !== "constructor" && p in special) {
-							d = dest[p] || (dest[p] = {});
-							d._values || (d._values = {});
-							for (i in src[p]) {
-								(function(property, externalDest, internalDest, valueDest, /* setter/getter, getter, or value */ descriptor, capitalizedName, writable) {
-									var getter,
-										setter;
+						if (src.hasOwnProperty(p) && !/^(constructor|__values__)$/.test(p)) {
+							if (p in special) {
+								d = dest[p] || (dest[p] = {});
+								d.__values__ || (d.__values__ = {});
+								for (i in src[p]) {
+									(function(property, externalDest, internalDest, valueDest, /* setter/getter, getter, or value */ descriptor, capitalizedName, writable) {
+										var getter,
+											setter;
 
-									if (is(descriptor, "Object") && is(descriptor.get, "Function")) {
-										getter = descriptor.get;
-										is(descriptor.set, "Function") && (setter = descriptor.set);
-										valueDest[property] = descriptor.value;
-									} else if (is(descriptor, "Function")) {
-										getter = descriptor;
-									} else {
-										valueDest[property] = descriptor;
-									}
+										if (is(descriptor, "Object") && ((getter = is(descriptor.get, "Function")) || (setter = is(descriptor.set, "Function")))) {
+											getter && (getter = descriptor.get);
+											setter && (setter = descriptor.set);
+											valueDest[property] = descriptor.value;
+										} else if (is(descriptor, "Function")) {
+											getter = descriptor;
+										} else {
+											valueDest[property] = descriptor;
+										}
 
-									// first set the internal private interface
-									Object.defineProperty(internalDest, property, {
-										get: function() {
-											return getter ? getter.call(externalDest, valueDest[property]) : valueDest[property];
-										},
-										set: function(v) {
-											valueDest[property] = setter ? setter.call(externalDest, v) : v;
-										},
-										configurable: true,
-										enumerable: true
-									});
+										// first set the internal private interface
+										Object.defineProperty(internalDest, property, {
+											get: function() {
+												return getter ? getter.call(externalDest, valueDest[property]) : valueDest[property];
+											},
+											set: function(v) {
+												valueDest[property] = setter ? setter.call(externalDest, v) : v;
+											},
+											configurable: true,
+											enumerable: true
+										});
 
-									// this is the public interface
-									Object.defineProperty(dest, property, {
-										get: function() {
-											return internalDest[property];
-										},
-										set: function(v) {
-											if (!writable) {
-												throw new Error('Property "' + property + '" is read only');
-											}
-											internalDest[property] = v;
-										},
-										configurable: true,
-										enumerable: true
-									});
+										// this is the public interface
+										Object.defineProperty(dest, property, {
+											get: function() {
+												return internalDest[property];
+											},
+											set: function(v) {
+												if (!writable) {
+													throw new Error('Property "' + property + '" is read only');
+												}
+												internalDest[property] = v;
+											},
+											configurable: true,
+											enumerable: true
+										});
 
-									if (require.has("declare-property-methods") && (writable || property.toUpperCase() !== property)) {
-										externalDest["get" + capitalizedName] = function() { return internalDest[property]; };
-										writable && (externalDest["set" + capitalizedName] = function(v) { return internalDest[property] = v; });
-									}
-								}(i, dest, d, d._values, src[p][i], text.capitalize(i), special[p]));
+										if (require.has("declare-property-methods") && (writable || property.toUpperCase() !== property)) {
+											externalDest["get" + capitalizedName] = function() { return internalDest[property]; };
+											writable && (externalDest["set" + capitalizedName] = function(v) { return internalDest[property] = v; });
+										}
+									}(i, dest, d, d.__values__, src[p][i], string.capitalize(i), special[p]));
+								}
+							} else if (everything) {
+								dest[p] = src[p];
 							}
 						}
 					}
@@ -1532,7 +1631,7 @@ require.cache({
 
 					// need to mix args into values
 					for (i = 1; i < arguments.length; i++) {
-						this.mixProps(value, arguments[i]);
+						is(arguments[i], "Object") ? this.mixProps(value, arguments[i], 1) : (value = arguments[i]);
 					}
 
 					return obj[q] = value;
@@ -1598,8 +1697,20 @@ require.cache({
 			return ready;
 		});
 	},
+	"Ti/_/string": function() {
+		define({
+			capitalize: function(s) {
+				s = s || "";
+				return s.substring(0, 1).toUpperCase() + s.substring(1);
+			},
+
+			trim: String.prototype.trim ?
+				function(str){ return str.trim(); } :
+				function(str){ return str.replace(/^\s\s*/, '').replace(/\s\s*$/, ''); }
+		});
+	},
 	"Ti/_/style": function() {
-		define(["Ti/_", "Ti/_/text"], function(_, text) {
+		define(["Ti/_", "Ti/_/string"], function(_, string) {
 			var vp = require.config.vendorPrefixes.dom;
 
 			return {
@@ -1614,7 +1725,7 @@ require.cache({
 					if (arguments.length > 2) {
 						while (i < vp.length) {
 							x = vp[i++];
-							x += x ? uc || (uc = text.capitalize(name)) : name;
+							x += x ? uc || (uc = string.capitalize(name)) : name;
 							if (x in node.style) {
 								return node.style[x] = value;
 							}
@@ -1624,16 +1735,9 @@ require.cache({
 							this.set(node, x, name[x]);
 						}
 					}
+					return node;
 				}
 			};
-		});
-	},
-	"Ti/_/text": function() {
-		define({
-			capitalize: function(s) {
-				s = s || "";
-				return s.substring(0, 1).toUpperCase() + s.substring(1);
-			}
 		});
 	}
 });

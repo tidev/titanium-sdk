@@ -45,7 +45,7 @@ class Compiler(object):
 				
 				# base classes
 				'Ti/_/Evented.js',
-				'Ti/_/Element.js',
+				'Ti/_/UI/Element.js',
 				'Ti/_/Layouts/Base.js',
 				'Ti/_/Layouts/Absolute.js',
 				'Ti/_/Layouts/Horizontal.js',

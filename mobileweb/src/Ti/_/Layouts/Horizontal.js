@@ -1,6 +1,6 @@
-define("Ti/_/Layouts/Horizontal", ["Ti/_/Layouts/Base", "Ti/_/declare"], function(base, declare) {
+define("Ti/_/Layouts/Horizontal", ["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 
-	return declare("Ti._.UI.Horizontal", base, {
+	return declare("Ti._.Layouts.Horizontal", Base, {
 
 		doLayout: function() {
 			// TODO

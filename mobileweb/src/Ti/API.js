@@ -1,16 +1,13 @@
-define("Ti/API", ["Ti/_/Evented"], function(Evented) {
+define("Ti/API", ["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 
-	(function(api){
-		// Interfaces
-		Ti._5.EventDriven(api);
-	
-		// Methods
-		require.each(["debug", "error", "info", "log", "warn"], function(fn) {
-			api[fn] = function(msg) {
-				console[fn]("[" + fn.toUpperCase() + "] " + msg);
-			};
-		});
-	
-	})(Ti._5.createClass('Ti.API'));
+	var api = {};
+
+	require.each(["debug", "error", "info", "log", "warn"], function(fn) {
+		api[fn] = function(msg) {
+			console[fn]("[" + fn.toUpperCase() + "] " + msg);
+		};
+	});
+
+	return lang.setObject("Ti.API", Evented, api);
 
 });

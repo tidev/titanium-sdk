@@ -1,6 +1,6 @@
-define("Ti/_/Element",
-	["Ti/_/browser", "Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/_/style", "Ti/_/Evented", "Ti/_/ready!"],
-	function(browser, declare, dom, lang, style, evented) {
+define("Ti/_/UI/Element",
+	["Ti/_/browser", "Ti/_/css", "Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/_/style", "Ti/_/Evented"],
+	function(browser, css, declare, dom, lang, style, Evented) {
 
 	var undef,
 		unitize = dom.unitize,
@@ -13,74 +13,77 @@ define("Ti/_/Element",
 		},
 		transitionEnd = transitionEvents[browser.runtime] || "transitionEnd";
 
-	return declare("Ti._.Element", evented, {
+	return declare("Ti._.UI.Element", Evented, {
 
 		domType: null,
 		domNode: null,
 		parent: null,
 
 		constructor: function() {
-			if (this.domType) {
-				var bgSelPrevColor,
-					bgSelPrevImage,
-					bgFocusPrevColor,
-					node = this.domNode = document.createElement(this.domType),
-					declaredClass = this.declaredClass;
+			var bgSelPrevColor,
+				bgSelPrevImage,
+				bgFocusPrevColor;
 
-				node.className = "tiElement" + (declaredClass !== "Element" ? " ti" + declaredClass : "");
+			this.domNode = dom.create(this.domType || "div", {
+				className: "TiUIElement " + css.clean(this.declaredClass)
+			});
 
-				// TODO: mixin JSS rules (http://jira.appcelerator.org/browse/TIMOB-6780)
+			// TODO: mixin JSS rules (http://jira.appcelerator.org/browse/TIMOB-6780)
 
-				/* TODO: need to preserve original background
-				on(node, "focus", function() {
-					if (this.backgroundSelectedColor) {
-						bgSelPrevColor || (bgSelPrevColor = this.backgroundColor);
-						style.set(node, "backgroundColor", this.backgroundSelectedColor);
+			/* TODO: need to preserve original background
+			on(node, "focus", function() {
+				if (this.backgroundSelectedColor) {
+					bgSelPrevColor || (bgSelPrevColor = this.backgroundColor);
+					style.set(node, "backgroundColor", this.backgroundSelectedColor);
+				}
+
+				if (this.backgroundSelectedImage) {
+					bgSelPrevImage || (bgSelPrevImage = this.backgroundImage);
+					style.set(node, "backgroundImage", style.url(this.backgroundSelectedImage));
+				}
+
+				if (this.focusable) {
+					if (this.backgroundFocusedColor) {
+						bgFocusPrevColor || (bgFocusPrevColor = this.backgroundColor);
+						style.set(node, "backgroundColor", this.backgroundFocusedColor);
 					}
 
-					if (this.backgroundSelectedImage) {
-						bgSelPrevImage || (bgSelPrevImage = this.backgroundImage);
-						style.set(node, "backgroundImage", style.url(this.backgroundSelectedImage));
+					if (this.backgroundFocusedImage) {
+						bgFocusPrevImage || (bgFocusPrevImage = this.backgroundImage);
+						style.set(node, "backgroundImage", style.url(this.backgroundFocusedImage));
+					}
+				}
+			});
+
+			on(node, "blur", function() {
+				if (bgSelPrevColor) {
+					style.set(node, "backgroundColor", bgSelPrevColor);
+					bgSelPrevColor = 0;
+				}
+
+				if (bgSelPrevImage) {
+					style.set(node, "backgroundImage", style.url(bgSelPrevImage));
+					bgSelPrevImage = 0;
+				}
+
+				if (this.focusable) {
+					if (bgFocusPrevColor) {
+						style.set(node, "backgroundColor", bgFocusPrevColor);
+						bgFocusPrevColor = 0;
 					}
 
-					if (this.focusable) {
-						if (this.backgroundFocusedColor) {
-							bgFocusPrevColor || (bgFocusPrevColor = this.backgroundColor);
-							style.set(node, "backgroundColor", this.backgroundFocusedColor);
-						}
-
-						if (this.backgroundFocusedImage) {
-							bgFocusPrevImage || (bgFocusPrevImage = this.backgroundImage);
-							style.set(node, "backgroundImage", style.url(this.backgroundFocusedImage));
-						}
+					if (bgFocusPrevImage) {
+						style.set(node, "backgroundImage", style.url(bgFocusPrevImage));
+						bgFocusPrevImage = 0;
 					}
-				});
+				}
+			});
+			*/
+		},
 
-				on(node, "blur", function() {
-					if (bgSelPrevColor) {
-						style.set(node, "backgroundColor", bgSelPrevColor);
-						bgSelPrevColor = 0;
-					}
-
-					if (bgSelPrevImage) {
-						style.set(node, "backgroundImage", style.url(bgSelPrevImage));
-						bgSelPrevImage = 0;
-					}
-
-					if (this.focusable) {
-						if (bgFocusPrevColor) {
-							style.set(node, "backgroundColor", bgFocusPrevColor);
-							bgFocusPrevColor = 0;
-						}
-
-						if (bgFocusPrevImage) {
-							style.set(node, "backgroundImage", style.url(bgFocusPrevImage));
-							bgFocusPrevImage = 0;
-						}
-					}
-				});
-				*/
-			}
+		destroy: function() {
+			dom.destroy(this.domNode);
+			this.domNode = null;
 		},
 
 		show: function() {
@@ -155,8 +158,6 @@ define("Ti/_/Element",
 
 		properties: {
 			backgroundColor: {
-				// we keep the backgroundColor in a variable because we later change it
-				// when focusing or selecting, so we can't just report the current value
 				set: function(value) {
 					return style.set(this.domNode, "backgroundColor", value);
 				}
@@ -310,7 +311,7 @@ define("Ti/_/Element",
 				}
 			},
 			top: {
-				set: function(val) {
+				set: function(value) {
 					style.set(this.domNode, "top", unitize(value));
 					return value;
 				}
@@ -322,7 +323,9 @@ define("Ti/_/Element",
 				}
 			},
 			width: {
-				set: function(val) {
+				set: function(value) {
+					console.debug("Setting width to " + unitize(value));
+					console.debug(this.domNode);
 					style.set(this.domNode, "width", unitize(value));
 					return value;
 				}
