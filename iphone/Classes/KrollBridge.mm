@@ -697,7 +697,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	 * minimize impact until a in-depth reconsideration of KrollContext can be
 	 * done, we should have as little footprint 
 	 */
-	KrollEval *eval = [[[KrollEval alloc] initWithCode:js] autorelease];
+	KrollEval *eval = [[KrollEval alloc] initWithCode:js];
 	TiValueRef exception = NULL;
 	TiValueRef resultRef = [eval jsInvokeInContext:context exception:&exception];
 	[js release];
