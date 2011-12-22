@@ -98,14 +98,14 @@ define("Ti/_/UI/Element",
 						transform = curTransform.toCSS();
 					}
 
-					style.set("transform", transform);
+					style.set(this.domNode, "transform", transform);
 				});
 
 			switch (anim.curve) {
-				case Ti.ui.ANIMATION_CURVE_LINEAR: curve = "linear"; break;
-				case Ti.ui.ANIMATION_CURVE_EASE_IN: curve = "ease-in"; break;
-				case Ti.ui.ANIMATION_CURVE_EASE_OUT: curve = "ease-out"; break
-				case Ti.ui.ANIMATION_CURVE_EASE_IN_OUT: curve = "ease-in-out";
+				case Ti.UI.ANIMATION_CURVE_LINEAR: curve = "linear"; break;
+				case Ti.UI.ANIMATION_CURVE_EASE_IN: curve = "ease-in"; break;
+				case Ti.UI.ANIMATION_CURVE_EASE_OUT: curve = "ease-out"; break
+				case Ti.UI.ANIMATION_CURVE_EASE_IN_OUT: curve = "ease-in-out";
 			}
 
 			anim.duration = anim.duration || 0;
@@ -121,10 +121,10 @@ define("Ti/_/UI/Element",
 
 			if (anim.duration > 0) {
 				// Create the transition, must be set before setting the other properties
-				style.set("transition", "all " + anim.duration + "ms " + curve + (anim.delay ? " " + anim.delay + "ms" : ""));
+				style.set(this.domNode, "transition", "all " + anim.duration + "ms " + curve + (anim.delay ? " " + anim.delay + "ms" : ""));
 				callback && on.once(window, transitionEnd, function(e) {
 					// Clear the transform so future modifications in these areas are not animated
-					style.set("transition", "");
+					style.set(this.domNode, "transition", "");
 					callback();
 				});
 				setTimeout(fn, 0);
@@ -252,7 +252,8 @@ define("Ti/_/UI/Element",
 			right: undef,
 			top: undef,
 			width: undef,
-			zIndex: undef
+			zIndex: undef,
+			// TODO figure out size stuff
 		}
 
 	});
