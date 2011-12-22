@@ -14,7 +14,9 @@ define("Ti/Network/HTTPClient", ["Ti/_/Evented"], function(Evented) {
 			DONE = 4,
 			_readyState = UNSENT, // unsent
 			timeoutTimer;
-	
+		
+		Ti._5.EventDriven(obj);
+		
 		function fireStateChange() {
 			is(obj.onreadystatechange, "Function") && obj.onreadystatechange.call(obj);
 		}
@@ -87,7 +89,7 @@ define("Ti/Network/HTTPClient", ["Ti/_/Evented"], function(Evented) {
 			validatesSecureCertificate: false
 		});
 	
-		require.mix(args, obj);
+		require.mix(obj, args);
 	
 		// Methods
 		obj.abort = function() {
