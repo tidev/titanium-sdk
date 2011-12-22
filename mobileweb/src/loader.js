@@ -1438,6 +1438,36 @@ require.cache({
 
 				unitize: function(x) {
 					return isNaN(x-0) || x-0 != x ? x : x + "px"; // note: must be != and not !==
+				},
+				computeSize: function(x,totalLength) {
+					if (isNaN(x-0) || x-0 != x) {
+						var value = parseFloat(x),
+							units = x.substring((value + "").length),
+							dpi = Ti.Platform.DisplayCaps.dpi,
+							undef;
+						
+						function processMM(x) {
+							// Convert mm to in for this calculation
+							return x * 0.03937007874015748 * dpi;
+						}
+						
+						function processIN(x) {
+							return x * dpi;
+						}
+						
+						switch(units) {
+							case "%": return require.is(totalLength,"Undefined") ? undef : value / 100 * totalLength;
+							case "mm": return processMM(value);
+							case "cm": return processMM(value * 10);
+							case "in": return processIN(value);
+							case "pt": return processIN(value / 72);
+							case "pc": return processIN(value / 864);
+							case "px": return value;
+							default: return undef;
+						}
+					} else {
+						return x;
+					}
 				}
 			};
 		});
