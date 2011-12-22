@@ -8,6 +8,7 @@
 #import "TiUIAlertDialogProxy.h"
 #import "TiUtils.h"
 
+static NSMutableArray* alertConditionArray;
 static NSCondition* alertCondition;
 static BOOL alertShowing = NO;
 
@@ -28,6 +29,26 @@ static BOOL alertShowing = NO;
 			nil];
 }
 
+-(void) cleanup
+{
+	if(alert != nil)
+	{
+		if ([alertConditionArray count] > 0) {
+			NSCondition* lockedCondition = [alertConditionArray objectAtIndex:0];
+			//No need to lock since it is locked in show
+			[lockedCondition signal];
+			[alertConditionArray removeObjectAtIndex:0];
+		}
+		else {
+			alertShowing = NO;
+		}
+		[self forgetSelf];
+		[self autorelease];
+		RELEASE_TO_NIL(alert);
+		[[NSNotificationCenter defaultCenter] removeObserver:self];
+	}
+}
+
 -(void)hide:(id)args
 {
 	ENSURE_UI_THREAD_1_ARG(args);
@@ -35,38 +56,36 @@ static BOOL alertShowing = NO;
 	
 	if (alert!=nil)
 	{
-		//Clean up the lock condition now instead of waiting for the delegate callback (didDismissWithButtonIndex)
 		//On IOS5 sometimes the delegate does not get called when hide is called soon after show
-		[alertCondition lock];
-		alertShowing = NO;
-		[alertCondition broadcast];
-		[alertCondition unlock];
+		//So we do the cleanup here itself
 		
+		//Remove ourselves as the delegate. This ensures didDismissWithButtonIndex is not called on dismissWithClickedButtonIndex
+		[alert setDelegate:nil];
 		BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
 		[alert dismissWithClickedButtonIndex:[alert cancelButtonIndex] animated:animated];
-		RELEASE_TO_NIL(alert);
+		[self cleanup];
 	}
 }
 
 -(void)show:(id)args
 {
-	if (alertCondition==nil)
-	{
-		alertCondition = [[NSCondition alloc] init];
+	if (alertConditionArray == nil) {
+		alertConditionArray = [[NSMutableArray alloc]init];
 	}
 	
 	// prevent more than one JS thread from showing an alert box at a time
 	if ([NSThread isMainThread]==NO)
 	{
 		[self rememberSelf];
-		[alertCondition lock];
-		if (alertShowing)
-		{
-			[alertCondition wait];
+		NSCondition *newCondition = [[[NSCondition alloc]init] retain];
+		[newCondition lock];
+		if (alertShowing) {
+			[alertConditionArray addObject:newCondition];
+			[newCondition wait];
 		}
 		alertShowing = YES;
-		[alertCondition unlock];
-		
+		[newCondition unlock];
+		[newCondition release];
 		// alert show should block the JS thread like the browser
 		[self performSelectorOnMainThread:@selector(show:) withObject:args waitUntilDone:YES];
 	}
@@ -113,14 +132,7 @@ static BOOL alertShowing = NO;
 
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
-	[alertCondition lock];
-	alertShowing = NO;
-	[alertCondition broadcast];
-	[alertCondition unlock];
-	[self forgetSelf];
-	[self autorelease];
-	RELEASE_TO_NIL(alert);
-	[[NSNotificationCenter defaultCenter] removeObserver:self];
+	[self cleanup];
 }
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
