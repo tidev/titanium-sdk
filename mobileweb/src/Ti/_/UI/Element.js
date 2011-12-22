@@ -11,7 +11,8 @@ define("Ti/_/UI/Element",
 			gecko: "transitionend",
 			presto: "oTransitionEnd"
 		},
-		transitionEnd = transitionEvents[browser.runtime] || "transitionEnd";
+		transitionEnd = transitionEvents[browser.runtime] || "transitionEnd",
+		curTransform;
 
 	return declare("Ti._.UI.Element", Evented, {
 
@@ -44,7 +45,7 @@ define("Ti/_/UI/Element",
 				}
 			}));
 
-			on(this.domNode, "blur", function() {
+			on(this.domNode, "blur", lang.hitch(this, function() {
 				var bg = (this._origBg || []).concat([0, 0]);
 
 				this.focusable && this.backgroundSelectedColor && (bg[0] = this.backgroundSelectedColor);
@@ -52,7 +53,7 @@ define("Ti/_/UI/Element",
 
 				this.focusable && this.backgroundSelectedImage && (bg[1] = this.backgroundSelectedImage);
 				bg[1] && style.set(this.domNode, "backgroundImage", style.url(bg[1]));
-			});
+			}));
 		},
 
 		destroy: function() {
@@ -85,9 +86,9 @@ define("Ti/_/UI/Element",
 					style.set(this.domNode, "display", anim.visible !== undef && !anim.visible ? "none" : "");
 
 					// Set the position and size properties
-					require.each(["top", "bottom", "left", "right", "height", "width"], function(p) {
+					require.each(["top", "bottom", "left", "right", "height", "width"], lang.hitch(this, function(p) {
 						anim[p] !== undef && style.set(this.domNode, p, unitize(anim[p]));
-					});
+					}));
 
 					// Set the z-order
 					anim.zIndex !== undef && style.set(this.domNode, "zIndex", anim.zIndex);
@@ -122,11 +123,11 @@ define("Ti/_/UI/Element",
 			if (anim.duration > 0) {
 				// Create the transition, must be set before setting the other properties
 				style.set(this.domNode, "transition", "all " + anim.duration + "ms " + curve + (anim.delay ? " " + anim.delay + "ms" : ""));
-				callback && on.once(window, transitionEnd, function(e) {
+				callback && on.once(window, transitionEnd, lang.hitch(this, function(e) {
 					// Clear the transform so future modifications in these areas are not animated
 					style.set(this.domNode, "transition", "");
 					callback();
-				});
+				}));
 				setTimeout(fn, 0);
 			} else {
 				fn();
@@ -222,9 +223,9 @@ define("Ti/_/UI/Element",
 			font: {
 				set: function(value) {
 					value = value || {};
-					require.each(["fontVariant", "fontStyle", "fontWeight", "fontSize", "fontFamily"], function(f) {
+					require.each(["fontVariant", "fontStyle", "fontWeight", "fontSize", "fontFamily"], lang.hitch(this, function(f) {
 						f in value && (value[f] = style.set(this.domNode, f, f === "fontSize" ? unitize(value[f]) : value[f]));
-					});
+					}));
 					return value;
 				}
 			},
