@@ -720,18 +720,23 @@
 	}
 
 	if ([searchController searchResultsTableView] != nil) {
-        [self updateSearchResultIndexes];
+		[self updateSearchResultIndexes];
         
-        // Because -[UITableView reloadData] queues on the main runloop, we need to sync the search
-        // table reload to the same method. The only time we reloadData, though, is when setting the
-        // data, so toggle a flag to indicate what the search should do.
-        if (reloadSearch) {
-            [[searchController searchResultsTableView] reloadData];
-        }
-        else {
-            [[searchController searchResultsTableView] reloadSections:[NSIndexSet indexSetWithIndex:0]
+		// Because -[UITableView reloadData] queues on the main runloop, we need to sync the search
+		// table reload to the same method. The only time we reloadData, though, is when setting the
+		// data, so toggle a flag to indicate what the search should do.
+		if (reloadSearch) {
+			[[searchController searchResultsTableView] reloadData];
+		}
+		else {
+			[[searchController searchResultsTableView] reloadSections:[NSIndexSet indexSetWithIndex:0]
                                                      withRowAnimation:UITableViewRowAnimationFade];
-        }
+		}
+		//On data reload if the search screen is inactive,
+		//make sure that the searchHidden flag is honored
+		if (![searchController isActive]) {
+			[self hideSearchScreen:nil];
+		}
 	}
 }
 
