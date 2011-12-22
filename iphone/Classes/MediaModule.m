@@ -1080,7 +1080,17 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	ENSURE_UI_THREAD(hideCamera,args);
 	if (picker!=nil)
 	{
-		[[TiApp app] hideModalController:picker animated:animatedPicker];
+		if (popover != nil) {
+			[popover dismissPopoverAnimated:animatedPicker];
+			RELEASE_TO_NIL(popover);
+
+			//Unregister for interface change notification 
+			[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+			[[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
+		}
+		else {
+			[[TiApp app] hideModalController:picker animated:animatedPicker];
+		}
 		[self destroyPicker];
 	}
 }
