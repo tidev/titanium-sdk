@@ -28,6 +28,20 @@ define("Ti/_/UI/Element",
 			this.domNode = dom.create(this.domType || "div", {
 				className: "TiUIElement " + css.clean(this.declaredClass)
 			});
+			
+			this.domNode.addEventListener('click',lang.hitch(this,function(evt){
+				this.fireEvent('click',{
+					x: evt.pageX,
+					y: evt.pageY
+				});
+			}));
+			
+			this.domNode.addEventListener('dblclick',lang.hitch(this,function(evt){
+				this.fireEvent('dblclick',{
+					x: evt.pageX,
+					y: evt.pageY
+				});
+			}));
 
 			// TODO: mixin JSS rules (http://jira.appcelerator.org/browse/TIMOB-6780)
 

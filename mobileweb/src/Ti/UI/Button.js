@@ -2,10 +2,23 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css"
 	
 	var set = style.set,
 		undef;
+		
+	function arrayContains(array,object) {
+		for (var i in array) {
+			if (array[i] == object) {
+				return true;
+			}
+		}
+		return false;
+	}
 	
 	return declare("Ti.UI.Button", Widget, {
 		
 		constructor: function(args) {
+			
+			set(this.domNode, "backgroundSize","100% 100%");
+			set(this.domNode, "backgroundRepeat","no-repeat");
+			
 			this.button = dom.create("button", {
 				className: css.clean("TiUIButtonButton")
 			});
@@ -17,11 +30,11 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css"
 				className: css.clean("TiUIButtonContentContainer")
 			});
 			this.button.appendChild(this.contentContainer)
-			style.set(this.contentContainer, "display", "-webkit-box");
-			style.set(this.contentContainer, "display", "-moz-box");
-			style.set(this.contentContainer, "boxOrient", "horizontal");
-			style.set(this.contentContainer, "boxPack", "center");
-			style.set(this.contentContainer, "boxAlign", "center");
+			set(this.contentContainer, "display", "-webkit-box");
+			set(this.contentContainer, "display", "-moz-box");
+			set(this.contentContainer, "boxOrient", "horizontal");
+			set(this.contentContainer, "boxPack", "center");
+			set(this.contentContainer, "boxAlign", "center");
 			
 			this.buttonImage = dom.create("img", {
 				className: css.clean("TiUIButtonImage")
@@ -37,13 +50,26 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css"
 		properties: {
 			backgroundColor: {
 				set: function(value) {
-					this.button.style.color = value;
+					set(this.button,"color",value);
 					return value;
 				}
 			},
 			backgroundImage: {
 				set: function(value) {
-					return style.set(this.button, "backgroundImage", value ? style.url(value) : "");
+					if (value) {
+						set(this.domNode, "backgroundImage", value ? style.url(value) : "");
+						if (arrayContains(this.domNode.children, this.button)) {
+							this.domNode.removeChild(this.button);
+							this.domNode.appendChild(this.contentContainer);
+						}
+					} else {
+						set(this.domNode, "backgroundImage", "");
+						if (arrayContains(this.domNode.children, this.contentContainer)) {
+							this.domNode.removeChild(this.contentContainer);
+							this.domNode.appendChild(this.button);
+						}
+					}
+					return value;
 				}
 			},
 			backgroundLeftCap: {
@@ -60,7 +86,7 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css"
 			},
 			color: {
 				set: function(value) {
-					this.buttonTitle.style.color = value;
+					set(this.buttonTitle,"color",value);
 					return value;
 				}
 			},

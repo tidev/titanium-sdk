@@ -14,7 +14,6 @@ define("Ti/_/Layouts/Base", ["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom
 		},
 
 		doLayout: function(element,isAbsolute) {
-			console.debug("Doing layout for " + element.declaredClass);
 			if (element.children) {
 				
 				var unitize = dom.unitize,
