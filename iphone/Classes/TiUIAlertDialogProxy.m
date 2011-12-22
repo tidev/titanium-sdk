@@ -8,7 +8,6 @@
 #import "TiUIAlertDialogProxy.h"
 #import "TiUtils.h"
 
-static NSMutableArray* alertConditionArray;
 static NSCondition* alertCondition;
 static BOOL alertShowing = NO;
 
@@ -33,15 +32,10 @@ static BOOL alertShowing = NO;
 {
 	if(alert != nil)
 	{
-		if ([alertConditionArray count] > 0) {
-			NSCondition* lockedCondition = [alertConditionArray objectAtIndex:0];
-			//No need to lock since it is locked in show
-			[lockedCondition signal];
-			[alertConditionArray removeObjectAtIndex:0];
-		}
-		else {
-			alertShowing = NO;
-		}
+		[alertCondition lock];
+		alertShowing = NO;
+		[alertCondition signal];
+		[alertCondition unlock];
 		[self forgetSelf];
 		[self autorelease];
 		RELEASE_TO_NIL(alert);
@@ -69,23 +63,23 @@ static BOOL alertShowing = NO;
 
 -(void)show:(id)args
 {
-	if (alertConditionArray == nil) {
-		alertConditionArray = [[NSMutableArray alloc]init];
+	if (alertCondition==nil)
+	{
+		alertCondition = [[NSCondition alloc] init];
 	}
 	
 	// prevent more than one JS thread from showing an alert box at a time
 	if ([NSThread isMainThread]==NO)
 	{
 		[self rememberSelf];
-		NSCondition *newCondition = [[[NSCondition alloc]init] retain];
-		[newCondition lock];
-		if (alertShowing) {
-			[alertConditionArray addObject:newCondition];
-			[newCondition wait];
+		
+		[alertCondition lock];
+		if (alertShowing)
+		{
+			[alertCondition wait];
 		}
 		alertShowing = YES;
-		[newCondition unlock];
-		[newCondition release];
+		[alertCondition unlock];
 		// alert show should block the JS thread like the browser
 		[self performSelectorOnMainThread:@selector(show:) withObject:args waitUntilDone:YES];
 	}
