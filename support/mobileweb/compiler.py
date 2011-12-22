@@ -67,6 +67,7 @@ class Compiler(object):
 				'Ti/Platform/DisplayCaps.js',
 				'Ti/UI.js',
 				'Ti/Gesture.js',
+				'Ti/XML.js',
 				
 				# View classes
 				'Ti/UI/View.js',
