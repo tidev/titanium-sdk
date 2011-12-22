@@ -234,6 +234,8 @@ public class TiUIActivityWindow extends TiUIView
 				windowActivity.finish();
 			}
 
+			// Finishing an activity is not synchronous, so we remove the activity from the activity stack here
+			TiApplication.removeFromActivityStack(windowActivity);
 			windowActivity = null;
 		}
 	}
