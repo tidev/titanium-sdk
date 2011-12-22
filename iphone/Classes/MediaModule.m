@@ -448,7 +448,13 @@ static NSDictionary* TI_filterableItemProperties;
 	}
 	
 	if (isCamera) {
-		[self displayCamera:picker];
+		BOOL inPopOver = [TiUtils boolValue:@"inPopOver" properties:args def:NO];
+		if (inPopOver) {
+			[self displayModalPicker:picker settings:args];
+		}
+		else {
+			[self displayCamera:picker];
+		}
 	} else {
 		[self displayModalPicker:picker settings:args];
 	}
