@@ -123,6 +123,15 @@
 			v = m ? m[1] : "undefined";
 		return type ? type === v : v;
 	}
+	
+	function isDef(it) {
+		// summary:
+		//		Helper function that tests if "it" is defined
+		//
+		// returns:
+		//		Boolean
+		return !is(it,"Undefined");
+	}
 
 	function isEmpty(it) {
 		// summary:
@@ -937,6 +946,7 @@
 		evaluate: evaluate,
 		has: has,
 		is: is,
+		isDef: isDef,
 		mix: mix,
 		on: on
 	});
@@ -1440,6 +1450,9 @@ require.cache({
 					return isNaN(x-0) || x-0 != x ? x : x + "px"; // note: must be != and not !==
 				},
 				computeSize: function(x,totalLength) {
+					if (!require.isDef(x)) {
+						return;
+					}
 					if (isNaN(x-0) || x-0 != x) {
 						var value = parseFloat(x),
 							units = x.substring((value + "").length),
