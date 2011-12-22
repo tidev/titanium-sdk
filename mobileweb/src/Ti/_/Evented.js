@@ -1,10 +1,10 @@
 define("Ti/_/Evented", ["Ti/_/declare"], function(declare) {
 
 	return {
-		listener: null,
+		listeners: null,
 
 		addEventListener: function(name, handler) {
-			this.listener || (this.listener = {});
+			this.listeners || (this.listeners = {});
 			(this.listeners[name] = this.listeners[name] || []).push(handler)
 		},
 
