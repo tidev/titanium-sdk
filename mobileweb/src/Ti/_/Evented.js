@@ -29,12 +29,12 @@ define("Ti/_/Evented", ["Ti/_/declare"], function(declare) {
 				events = this.listeners && this.listeners[name],
 				l = events && events.length,
 				data = require.mix({
-					source: obj,
+					source: this,
 					type: name
 				}, eventData);
 
 			while (i < l) {
-				events[i++].call(obj, data);
+				events[i++].call(this, data);
 			}
 		}
 	};

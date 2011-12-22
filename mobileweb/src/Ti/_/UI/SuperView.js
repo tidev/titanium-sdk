@@ -29,21 +29,30 @@ define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI", "Ti/UI/View"],
 			View.prototype.destroy.apply(this, arguments);
 		},
 
-		open: function(arg) {
+		open: function(args) {
 			if (!this._opened) {
+				// TODO: if args, then do animation on open
 				this._opened = 1;
 				this.parent || UI.rootNode.appendChild(this.domNode);
 				this.show();
-				!arg || !arg.isBack || window.history.pushState({ windowIdx: this._windowIdx }, "", "");
+				(args && args.isBack) || window.history.pushState({ windowIdx: this._windowIdx }, "", "");
 			}
 			activeWindow = this;
 		},
 
-		close: function() {
+		close: function(args) {
 			if (this._opened) {
+				// TODO: if args, then do animation on close
 				this._opened = 0;
 				UI.rootNode.removeChild(this.domNode);
+				window.history.go(-1);
+				this.fireEvent("blur", { source: this.domNode });
 			}
+		},
+
+		setWindowTitle: function(title) {
+			activeWindow === this && (document.title = title || require.config.project.name);
+			return title;
 		}
 
 	});
