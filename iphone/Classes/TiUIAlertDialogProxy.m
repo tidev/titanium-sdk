@@ -34,7 +34,7 @@ static BOOL alertShowing = NO;
 	{
 		[alertCondition lock];
 		alertShowing = NO;
-		[alertCondition signal];
+		[alertCondition broadcast];
 		[alertCondition unlock];
 		[self forgetSelf];
 		[self autorelease];
