@@ -210,6 +210,17 @@
 	[[self scrollView] setCanCancelContentTouches:[TiUtils boolValue:args def:YES]];
 }
 
+//Seems like ScrollView's are _special_ and need some attention otherwise they won't respond to you.
+-(UIView*)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+{
+	UIView *view = [super hitTest:point withEvent:event];
+	if ([self hasTouchableListener])
+	{
+			return self;
+	}
+	return view;
+}
+
 #pragma mark scrollView delegate stuff
 
 
