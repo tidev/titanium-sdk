@@ -56,21 +56,42 @@ body {
 	line-height: normal;
 }
 
-.TiLayoutsAbsolute {
+.TiLayoutsAbsolute > .TiUIElement{
 	position: absolute;
 }
 
 .TiLayoutsVertical {
-	clear: both;
+	display: -webkit-box;
+	display: -moz-box;
+
+	-webkit-box-orient: vertical;
+	-moz-box-orient: vertical;
+	-o-box-orient: vertical;
+
+	-webkit-box-pack: start;
+	-moz-box-pack: start;
+	-o-box-pack: start;
+
+	-webkit-box-align: center;
+	-moz-box-align: center;
+	-o-box-align: center;
 }
 
-.TiLayoutsVertical > .TiUIElement {
-	position: relative !important;
-}
+.TiLayoutsHorizontal {
+	display: -webkit-box;
+	display: -moz-box;
 
-.TiLayoutsHorizontal > .TiUIElement {
-	float: left;
-	position: relative;
+	-webkit-box-orient: horizontal;
+	-moz-box-orient: horizontal;
+	-o-box-orient: horizontal;
+
+	-webkit-box-pack: start;
+	-moz-box-pack: start;
+	-o-box-pack: start;
+
+	-webkit-box-align: start;
+	-moz-box-align: start;
+	-o-box-align: start;
 }
 
 .TiVideoPlayer {
