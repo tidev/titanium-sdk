@@ -22,11 +22,13 @@ define("Ti/UI/TabGroup", ["Ti/_/declare", "Ti/_/UI/SuperView"], function(declare
 					//_tabsHeaders.style.backgroundColor = _barColor = value;
 					return value;
 				}
-			}
+			},
+
+			tabs: null
 		},
 
 		constants: {
-			tabs: function(){
+			tabs: function() {
 				return [].concat(this._tabs);
 			}
 		}
