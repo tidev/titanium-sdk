@@ -1,30 +1,49 @@
 Titanium Mobile 1.8.0.1 - 12/09/2011
 ==================================
 
-This release includes new features for Android, iOS, and APIDocs, a new platform, MobileWeb, and many bug fixes. Please note, the shipping version of the platform is versioned as *1.8.0.1*. All references to 1.8.0 below apply to the shipped 1.8.0.1 release.
+This release includes:
+
+- New features for Android and iOS
+
+- A beta release of our new MobileWeb platform
+
+- Improvements to the APIDocs
+
+- Many bug fixes
+
+Please note, the shipping version of the platform is versioned as *1.8.0.1*. All references to 1.8.0 below apply to the shipped 1.8.0.1 release.
 
 Please see the updated [Titanium Mobile Reference Documentation for 1.8.0](/apidoc/mobile/1.8.0.1). 
 
 [Full list of Issues that were addressed in 1.8.0](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12036) 
 
-Significant on Titanium Mobile
--------------------------------
+Significant Changes In Titanium Mobile
+--------------------------------------
 
-- [Several changes for platform parity](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12128)
-- V8 is the default runtime for Android devices providing a higher level of performance than the Rhino engine. If you would rather use Rhino, see the [tiapp.xml guide](http://wiki.appcelerator.org/display/guides/tiapp.xml+and+timodule.xml+Reference) and look for `ti.android.runtime`. Set it to `rhino` in your tiapp.xml.
-- We no longer support Android 2.1 (API 7)
-- We no longer support iOS versions less than 4.0
+- [Several changes for platform parity.](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12128)
+- V8 is the default runtime for Android devices providing a higher level of performance than the Rhino engine. If you would rather use Rhino, see the [tiapp.xml guide](http://wiki.appcelerator.org/display/guides/tiapp.xml+and+timodule.xml+Reference) and look for `ti.android.runtime`. Set it to `rhino` in your `tiapp.xml` file. Or in Titanium Studio, edit `tiapp.xml` and select a runtime from the Android Runtime list (on the Overview tab of the TiApp editor).
+- We no longer support Android 2.1 (API 7).
+- We no longer support iOS versions less than 4.0.
 - The new Android runtime support required updating modules support. Modules will have to be ported to `apiversion` 2. [Android Modules Porting Guide](http://wiki.appcelerator.org/display/guides/Android+Module+Porting+Guide+for+1.8.0.1)
-- Replace deprecated API `globalPoint` with a member function on View called 'convertPointToView' [Android-TIMOB-5122](http://jira.appcelerator.org/browse/TIMOB-5122), [iOS-TIMOB-5121](http://jira.appcelerator.org/browse/TIMOB-5121)
-- `Titanium.Platform.id` is deprecated in this release. A future release will provide alternative API(s). [TIMOB-5980]((http://jira.appcelerator.org/browse/TIMOB-5980)
-- `Titanium.UI.create3DMatrix` is deprecated, use `Titanium.UI.iOS.create3DMatrix` instead. [TIMOB-4990]((http://jira.appcelerator.org/browse/TIMOB-4990)
-- `Titanium.UI.Toolbar` is deprecated, use `Titanium.UI.iOS.Toolbar` instead. [TIMOB-5166]((http://jira.appcelerator.org/browse/TIMOB-5166)
-- Several iOS specific UI constants in the common namespace have been deprecated and moved under an iOS namespace. [TIMOB-5166]((http://jira.appcelerator.org/browse/TIMOB-5166)
-- `Titanium.UI.TabbedBar` is deprecated, use `Titanium.UI.iOS.TabbedBar` instead. [TIMOB-5171]((http://jira.appcelerator.org/browse/TIMOB-5171)
+- Replace deprecated API `globalPoint` with a member function on View called `convertPointToView`. [Android-TIMOB-5122](http://jira.appcelerator.org/browse/TIMOB-5122), [iOS-TIMOB-5121](http://jira.appcelerator.org/browse/TIMOB-5121)
+- `Titanium.Platform.id` is deprecated in this release. A future release will provide alternative API(s). [TIMOB-5980](http://jira.appcelerator.org/browse/TIMOB-5980)
+- `Titanium.UI.create3DMatrix` is deprecated, use `Titanium.UI.iOS.create3DMatrix` instead. [TIMOB-4990](http://jira.appcelerator.org/browse/TIMOB-4990)
+- `Titanium.UI.CoverFlowView` is deprecated, use `Titanium.UI.iOS.CoverFlowView` instead. [TIMOB-4912](http://jira.appcelerator.org/browse/TIMOB-4912)
+- `Titanium.UI.Toolbar` is deprecated, use `Titanium.UI.iOS.Toolbar` instead. [TIMOB-5166](http://jira.appcelerator.org/browse/TIMOB-5166)
+- Several iOS specific UI constants in the common namespace have been deprecated and moved under an iOS namespace. [TIMOB-5166](http://jira.appcelerator.org/browse/TIMOB-5166)
+- `Titanium.UI.TabbedBar` is deprecated, use `Titanium.UI.iOS.TabbedBar` instead. [TIMOB-5171](http://jira.appcelerator.org/browse/TIMOB-5171)
 - New API for detecting runtimes - `Titanium.Platform.runtime`. [TIMOB-6007](http://jira.appcelerator.org/browse/TIMOB-6007)
 - Android Services are on the Javascript thread - In previous releases, our Android Services implementation would run your Service's Javascript on its own thread to avoid blocking (or being blocked by) the execution of your standard Javascript files such as app.js. In this version, your Service's Javascript runs on the same runtime thread as your other Javascript files. This is a temporary situation that will be addressed in an upcoming version. [TIMOB-6528](http://jira.appcelerator.org/browse/TIMOB-6528)
 - XML Module for iOS and Android are now almost 100% DOM Level 2 compliant.
-- Improvements and parity efforts around commonjs usage.
+- Improvements and parity efforts around CommonJS `require` usage. Modules imported with `require` run in their own contexts, and cannot access the global context. This may require modules to be 
+imported in multiple places.
+
+Known Issues
+------------
+
+The following is a regression in 1.8.0.1:
+
+- On iOS, calling `setRequestHeader` and passing `null` value for the header value does not clear the header, as documented.
 
 
 Introducing MobileWeb (Beta)
@@ -35,7 +54,7 @@ This version of Titanium Mobile now ships with a beta version of our MobileWeb p
 APIDoc Changes
 --------------
 
-Another exciting addition to our product is an improved documentation system for our APIDocs. We published our [TDoc Specification](http://wiki.appcelerator.org/display/guides/TDoc+Specification) for our APIDoc and have been reworking the docs to comply with the spec. While the real magic is hidden in the source, we’re able to actually use the documentation as the specification for the Titanium Mobile API. Our documentation now gets used as an HTML reference, in content assist, provides coverage data for platform parity analysis, and may be generated in other formats as required. Another gain is that we can annotate APIs to the method and property level with supported platforms, versions supported, deprecations, exclusions, and more. We have also worked on content changes and clarifications for many APIs. 
+Another exciting addition to our product is an improved documentation system for our APIDocs. We published our [TDoc Specification](http://wiki.appcelerator.org/display/guides/TDoc+Specification) for our APIDoc and have been reworking the docs to comply with the spec. While the real magic is hidden in the source, we're able to actually use the documentation as the specification for the Titanium Mobile API. Our documentation now gets used as an HTML reference, in content assist, provides coverage data for platform parity analysis, and may be generated in other formats as required. Another gain is that we can annotate APIs to the method and property level with supported platforms, versions supported, deprecations, exclusions, and more. We have also worked on content changes and clarifications for many APIs. 
 
 The new APIDoc format uses some new conventions and annotations which may be unfamiliar. These include new conventions for describing types, and new annotations for describing how properties can be accessed.
 
@@ -77,6 +96,7 @@ We addressed a significant number of [issues](http://jira.appcelerator.org/secur
 
 *Bug Fixes:*
 
+- In Android, CommonJS modules are now sandboxed into their own contexts, so that `Ti.include` and `require()` paths both work in situations where relative paths are used. [TIMOB-6073](http://jira.appcelerator.org/browse/TIMOB-6073)
 - Change zIndex at runtime [TIMOB-1729](http://jira.appcelerator.org/browse/TIMOB-1729)
 - Embedded video support. Parity with iOS [TIMOB-2565](http://jira.appcelerator.org/browse/TIMOB-2565) - Previous default behavior, since we couldn't add the player to a parent view, was that fullscreen would be true. That's not the case for iOS, and for parity's sake it's no longer the case for Android now that we can put the player on a view. So if fullscreen is desired now in Android, you must specifically set fullscreen to true.
 - Support devices w/o sdcards [TIMOB-2613](http://jira.appcelerator.org/browse/TIMOB-2613)
@@ -86,6 +106,7 @@ We addressed a significant number of [issues](http://jira.appcelerator.org/secur
 - XML.parseString not detected [TIMOB-3465](http://jira.appcelerator.org/browse/TIMOB-3465)
 - Webview crashes on reopen [TIMOB-4357](http://jira.appcelerator.org/browse/TIMOB-4357)
 - Support for SDK Tools r14/r15 style add-on folders [TIMOB-6135](http://jira.appcelerator.org/browse/TIMOB-6135)
+- Android emulator fails to launch on Windows if there is a space in the SDCard path. [TIMOB-5393](http://jira.appcelerator.org/browse/TIMOB-5393)
 - [JIRA List of over 200 Android bug fixes](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12127) 
 
 
@@ -122,4 +143,8 @@ We addressed a significant number of [issues](http://jira.appcelerator.org/secur
 - require() does not trigger debugging hooks [TIMOB-4797](http://jira.appcelerator.org/browse/TIMOB-4797)
 - Debugging does not work with apps that have modules [TIMOB-4989](http://jira.appcelerator.org/browse/TIMOB-4989)
 - Local modules are copied into the application bundle [TIMOB-5026](http://jira.appcelerator.org/browse/TIMOB-5026)
+- Disabled timestamping on distribution builds. The addition of a timestamp to the version bundle string can make the string too long for Apple's submission guidelines. This timestamp has been removed from distribution builds, but retained in adhoc and simulator builds. [TIMOB-6293](http://jira.appcelerator.org/browse/TIMOB-6293)
+- CommonJS: Module variables not updated. [TIMOB-6688](http://jira.appcelerator.org/browse/TIMOB-6688)
+- Packaging: Failing to include all optional icons during packaging causes errors in Xcode pre-submission verification. [TIMOB-6575](http://jira.appcelerator.org/browse/TIMOB-6575)
+- Some modules designed for CommonJS not exporting, even with the "export" variable set. [TIMOB-6573](http://jira.appcelerator.org/browse/TIMOB-6573)
 - [JIRA list of over 200 iOS bug fixes](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12126)
