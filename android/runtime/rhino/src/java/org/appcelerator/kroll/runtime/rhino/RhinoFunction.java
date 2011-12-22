@@ -41,26 +41,24 @@ public class RhinoFunction implements KrollFunction, Handler.Callback
 		handler = new Handler(TiMessenger.getRuntimeMessenger().getLooper(), this);
 	}
 
-	public void call(KrollObject krollObject, HashMap args)
+	public Object call(KrollObject krollObject, HashMap args)
 	{
-		call(krollObject, new Object[] { args });
+		return call(krollObject, new Object[] { args });
 	}
 
-	public void call(KrollObject krollObject, Object[] args)
+	public Object call(KrollObject krollObject, Object[] args)
 	{
 		if (KrollRuntime.getInstance().isRuntimeThread())
 		{
-			callSync(krollObject, args);
+			return callSync(krollObject, args);
 
 		} else {
-			TiMessenger.sendBlockingRuntimeMessage(handler.obtainMessage(MSG_CALL_SYNC), new FunctionArgs(krollObject, args));
+			AsyncResult result = (AsyncResult) TiMessenger.sendBlockingRuntimeMessage(handler.obtainMessage(MSG_CALL_SYNC),
+				new FunctionArgs(krollObject, args));
+			return result.getResult();
 		}
 	}
 
-	public Object callSync(KrollObject krollObject, HashMap args) {
-		return callSync(krollObject, new Object[] { args });
-	}
-	
 	public Object callSync(KrollObject krollObject, Object[] args)
 	{
 		RhinoObject rhinoObject = (RhinoObject) krollObject;
