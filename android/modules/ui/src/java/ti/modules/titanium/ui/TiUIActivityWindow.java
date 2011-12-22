@@ -133,6 +133,9 @@ public class TiUIActivityWindow extends TiUIView
 
 	public void windowCreated(TiBaseActivity activity)
 	{
+		// This is the callback when any "heavy weight" (i.e. activity) window
+		// (except for windows associated with a tab) is created.
+
 		windowActivity = activity;
 		proxy.setActivity(activity);
 		bindProxies();
