@@ -1,4 +1,6 @@
 define("Ti/_/Layouts/Base", ["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom"], function(css, declare, style, dom) {
+	
+	var undef;
 
 	return declare("Ti._.Layouts.Base", null, {
 
@@ -12,16 +14,12 @@ define("Ti/_/Layouts/Base", ["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom
 		},
 
 		doLayout: function(element,isAbsolute) {
-			console.debug("Doing layout for " + element.declaredClass);
 			if (element.children) {
-				
-				function isDef(x) {
-					return !require.is(x,"Undefined");
-				}
 				
 				var unitize = dom.unitize,
 					computeSize = dom.computeSize,
 					set = style.set,
+					isDef = require.isDef,
 					elementHeight = isDef(element.height) ?  computeSize(element.height) : element.domNode.clientHeight,
 					elementWidth = isDef(element.width) ?  computeSize(element.width) : element.domNode.clientWidth;
 					
@@ -44,47 +42,92 @@ define("Ti/_/Layouts/Base", ["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom
 					// Layout the child
 					child.doLayout();
 					
-					// Sets the vertical position given a center y value
-					function processCenterX(x) {
-						// TODO Lots of missing edge cases
-						var left;
-						if (isDef(child.width)) {
-							left = computeSize(x,elementWidth) - computeSize(child.width) / 2 + "px";
+					var left = computeSize(child.left,elementWidth),
+						top = computeSize(child.top,elementHeight),
+						right = computeSize(child.right,elementWidth),
+						bottom = computeSize(child.bottom,elementHeight),
+						centerX = isDef(child.center) ? computeSize(child.center.X,elementWidth) : undef,
+						centerY = isDef(child.center) ? computeSize(child.center.Y,elementHeight) : undef,
+						width = computeSize(child.width,elementWidth),
+						height = computeSize(child.height,elementHeight);
+					
+					// Unfortunately css precidence doesn't match the titanium, so we have to handle it ourselves
+					if (isDef(width)) {
+						if (isDef(left)) {
+							right = undef;
+						} else if (isDef(centerX)){
+							left = centerX - width / 2;
+							right = undef;
+						} else if (isDef(right)) {
+							// Do nothing
 						} else {
-							left = computeSize(x,elementWidth) - child.domNode.clientWidth / 2 + "px";
+							// Set the default position if this is an absolute layout
+							isAbsolute && (left = computeSize("50%",elementWidth) - width / 2);
 						}
-						left && set(child.domNode, leftField, left);
+					} else {
+						if (isDef(centerX)) {
+							if (isDef(left)) {
+								width = (centerX - left) * 2;
+								right = undef;
+							} else if (isDef(right)) {
+								width = (right - centerX) * 2;
+							} else {
+								// Set the default position if this is an absolute layout
+								width = child._defaultWidth;
+							}
+						} else {
+							if (isDef(left) && isDef(right)) {
+								// Do nothing
+							} else {
+								width = child._defaultWidth;
+								if(!isDef(left) && !isDef(right) & isAbsolute) {
+									isAbsolute && (left = computeSize("50%",elementWidth) - (width ? width : 0) / 2);
+								}
+							}
+						}
+					}
+					if (isDef(height)) {
+						if (isDef(top)) {
+							bottom = undef;
+						} else if (isDef(centerY)){
+							top = centerY - height / 2;
+							bottom = undef;
+						} else if (isDef(bottom)) {
+							// Do nothing
+						} else {
+							// Set the default position if this is an absolute layout
+							isAbsolute && (top = computeSize("50%",elementHeight) - height / 2);
+						}
+					} else {
+						if (isDef(centerY)) {
+							if (isDef(top)) {
+								height = (centerY - top) * 2;
+								bottom = undef;
+							} else if (isDef(bottom)) {
+								height = (bottom - centerY) * 2;
+							} else {
+								// Set the default position if this is an absolute layout
+								height = child._defaultHeight;
+							}
+						} else {
+							if (isDef(top) && isDef(bottom)) {
+								// Do nothing
+							} else {
+								height = child._defaultHeight;
+								if(!isDef(top) && !isDef(bottom) & isAbsolute) {
+									isAbsolute && (top = computeSize("50%",elementHeight) - (height ? height : 0) / 2);
+								}
+							}
+						}
 					}
 					
-					// Sets the vertical position given a center y value
-					function processCenterY(y) {
-						// TODO Lots of missing edge cases
-						var top;
-						if (isDef(child.height)) {
-							top = computeSize(y,elementHeight) - computeSize(child.height) / 2 + "px";
-						} else {
-							top = computeSize(y,elementHeight) - child.domNode.clientHeight / 2 + "px";
-						}
-						top && set(child.domNode, topField, top);
-					}
-					
-					// Position the child. Note: only set a default position if we are absolutely positioned
-					if (isAbsolute && !isDef(child.center) && !isDef(child.top) && !isDef(child.bottom)) {
-						processCenterY("50%");
-					} else {
-						isDef(child.bottom) && set(child.domNode, bottomField, unitize(child.bottom));
-						isDef(child.center) && processCenterY(child.center.y);
-						isDef(child.top) && set(child.domNode, topField, unitize(child.top));
-					}
-					isDef(child.height) && set(child.domNode, "height", unitize(child.height));
-					if (isAbsolute && !isDef(child.center) && !isDef(child.left) && !isDef(child.right)) {
-						processCenterX("50%");
-					} else {
-						isDef(child.right) && set(child.domNode, rightField, unitize(child.right));
-						isDef(child.center) && processCenterX(child.center.x);
-						isDef(child.left) && set(child.domNode, leftField, unitize(child.left));
-					}
-					isDef(child.width) && set(child.domNode, "width", unitize(child.width));
+					// Set the position, size and z-index
+					isDef(bottom) && set(child.domNode, bottomField, unitize(bottom));
+					isDef(top) && set(child.domNode, topField, unitize(top));
+					isDef(height) && set(child.domNode, "height", unitize(height));
+					isDef(right) && set(child.domNode, rightField, unitize(right));
+					isDef(left) && set(child.domNode, leftField, unitize(left));
+					isDef(width) && set(child.domNode, "width", unitize(width));
 					isDef(child.zIndex) && set(child.domNode, "zIndex", child.zIndex);
 				}
 			}

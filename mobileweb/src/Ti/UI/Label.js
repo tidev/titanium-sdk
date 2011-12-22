@@ -63,7 +63,8 @@ define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css",
 			wordWrap: {
 				set: function(value) {
 					return value;
-				}
+				},
+				value: false
 			}
 		}
 
