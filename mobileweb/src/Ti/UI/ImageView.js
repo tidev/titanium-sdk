@@ -1,6 +1,8 @@
 define("Ti/UI/ImageView", 
 	["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang"], 
 	function(declare, Widget, dom, css, style, lang) {
+		
+	var set = style.set;
 
 	return declare("Ti.UI.ImageView", Widget, {
 		
@@ -9,8 +11,8 @@ define("Ti/UI/ImageView",
 				className: css.clean("TiUIImageDisplay")
 			});
 			this.domNode.appendChild(this.imageDisplay);
-			style.set(this.imageDisplay, "width", "100%");
-			style.set(this.imageDisplay, "height", "100%");
+			set(this.imageDisplay, "width", "100%");
+			set(this.imageDisplay, "height", "100%");
 		},
 		
 		pause: function(){
@@ -25,18 +27,33 @@ define("Ti/UI/ImageView",
 		toBlob: function(){
 			console.debug('Method "Titanium.UI.ImageView#.toBlob" is not implemented yet.');
 		},
+		
+		doLayout: function() {
+			Widget.prototype.doLayout.apply(this);
+			setTimeout(lang.hitch(this, function(){
+				if (this.canScale) {
+					var controlRatio = this.domNode.clientWidth / this.domNode.clientHeight,
+						imageRatio = this.imageDisplay.width / this.imageDisplay.height;
+					if (controlRatio > imageRatio) {
+						set(this.imageDisplay,"width","auto");
+						set(this.imageDisplay,"height","100%");
+					} else {
+						set(this.imageDisplay,"width","100%");
+						set(this.imageDisplay,"height","auto");
+					}
+				} else {
+					set(this.imageDisplay,"width","auto");
+					set(this.imageDisplay,"height","auto");
+				}
+			}),0);
+		},
 
 		properties: {
 			animating: false,
 			canScale: {
-				set: function(value){
-					value = !!value;
-					if (!value) {
-						style.set(this.imageDisplay, "width", "auto");
-						style.set(this.imageDisplay, "height", "auto");
-					} else {
-						style.set(this.imageDisplay, "width", "100%");
-						style.set(this.imageDisplay, "height", "100%");
+				set: function(value, oldValue){
+					if (value !== oldValue) {
+						this.doLayout();
 					}
 					return value;
 				},
@@ -50,6 +67,9 @@ define("Ti/UI/ImageView",
 					var tempImage = new Image();
 					require.on(tempImage, "load", lang.hitch(this, function () {
 						this.imageDisplay.src = value;
+						
+						// Force a layout to take the image size into account
+						this.doLayout();
 					}));
 					tempImage.src = value;
 					return value;
