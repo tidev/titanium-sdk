@@ -111,7 +111,7 @@
 		
 		// close the window if it's not our root window
 		// check to make sure that we're not actually push a window on the stack
-		if (opening==NO && [rootController window]!=currentWindow && [TiUtils boolValue:currentWindow.opened] && currentWindow.closing==NO)
+		if (opening==NO && [rootController window]!=currentWindow && [TiUtils boolValue:currentWindow.opened] && currentWindow.closing==NO && [controllerStack containsObject:viewController])
 		{
 			RELEASE_TO_NIL(closingWindows);
             closingWindows = [[NSMutableArray alloc] init];
@@ -121,6 +121,10 @@
             for (UIViewController* windowController in enumerator) {
                 if (windowController != viewController && [windowController isKindOfClass:[TiUITabController class]]) {
                     TiWindowProxy* window = [(TiUITabController*)windowController window];
+                    if (window == nil)
+                    {
+                        continue;
+                    }
                     [closingWindows addObject:window];
                     [window windowWillClose];
                 }
@@ -236,7 +240,7 @@
 	// TODO: Slap patch.  Views, when opening/added, should check parent visibility (and parent/parent visibility, if possible)
 	[window parentWillShow];
 
-	[self performSelectorOnMainThread:@selector(openOnUIThread:) withObject:args waitUntilDone:NO];
+	[self performSelectorOnMainThread:@selector(openOnUIThread:) withObject:args waitUntilDone:YES];
 }
 
 -(void)openOnUIThread:(NSArray*)args
