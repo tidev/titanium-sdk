@@ -1453,6 +1453,9 @@ require.cache({
 					if (!require.isDef(x)) {
 						return;
 					}
+					if (x == "auto") {
+						return "";
+					}
 					if (isNaN(x-0) || x-0 != x) {
 						var value = parseFloat(x),
 							units = x.substring((value + "").length),

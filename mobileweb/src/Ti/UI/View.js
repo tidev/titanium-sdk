@@ -43,6 +43,8 @@ define("Ti/UI/View",
 		},
 
 		properties: {
+			_defaultWidth: "100%",
+			_defaultHeight: "100%",
 			layout: {
 				set: function(value) {
 					var match = value.toLowerCase().match(/^(horizontal|vertical)$/),

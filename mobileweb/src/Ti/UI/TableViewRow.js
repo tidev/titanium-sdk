@@ -1,8 +1,12 @@
-define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View"], function(declare, View) {
+define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], function(declare, View, dom, css, style) {
+
+	var undef;
 
 	return declare("Ti.UI.TableViewRow", View, {
 
 		properties: {
+			_defaultWidth: "100%",
+			_tableRowHeight: undef,
 			hasCheck: {
 				set: function(value) {
 					console.debug('Property "Titanium.UI.TableViewRow#.hasCheck" is not implemented yet.');
@@ -53,7 +57,7 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View"], function(declare, V
 			},
 			title: {
 				set: function(value) {
-					console.debug('Property "Titanium.UI.TableViewRow#.title" is not implemented yet.');
+					this.domNode.innerHTML = value;
 					return value;
 				}
 			}
