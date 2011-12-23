@@ -33,11 +33,11 @@
 	return wrapperView;
 }
 
--(UIScrollView *)scrollView
+-(TiScrollView *)scrollView
 {
 	if(scrollView == nil)
 	{
-		scrollView = [[UIScrollView alloc] initWithFrame:[self bounds]];
+		scrollView = [[TiScrollView alloc] initWithFrame:[self bounds]];
 		[scrollView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		[scrollView setBackgroundColor:[UIColor clearColor]];
 		[scrollView setShowsHorizontalScrollIndicator:NO];
@@ -210,15 +210,24 @@
 	[[self scrollView] setCanCancelContentTouches:[TiUtils boolValue:args def:YES]];
 }
 
-//Seems like ScrollView's are _special_ and need some attention otherwise they won't respond to you.
--(UIView*)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+#pragma mark scrollView event handler stuff
+
+- (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent *)event 
 {
-	UIView *view = [super hitTest:point withEvent:event];
-	if ([self hasTouchableListener])
-	{
-			return self;
-	}
-	return view;
+	[super touchesBegan:touches withEvent:event];
+	[[self nextResponder] touchesBegan:touches withEvent:event];
+}
+
+- (void)touchesMoved:(NSSet*)touches withEvent:(UIEvent *)event 
+{
+	[super touchesMoved:touches withEvent:event];
+	[[self nextResponder] touchesMoved:touches withEvent:event];
+}
+
+- (void)touchesEnded:(NSSet*)touches withEvent:(UIEvent *)event 
+{
+	[super touchesEnded:touches withEvent:event];
+	[[self nextResponder] touchesEnded:touches withEvent:event];
 }
 
 #pragma mark scrollView delegate stuff

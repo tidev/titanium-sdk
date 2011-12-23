@@ -8,10 +8,12 @@
 
 #import "TiUIView.h"
 
+@class TiScrollView;
+
 @interface TiUIScrollView : TiUIView<TiUIScrollView,UIScrollViewDelegate> {
 
 @private
-	UIScrollView * scrollView;
+	TiScrollView * scrollView;
 	UIView * wrapperView;
 	TiDimension contentWidth;
 	TiDimension contentHeight;
