@@ -17,6 +17,7 @@ define("Ti/UI/View",
 			view.parent = this;
 			this.children.push(view);
 			this.containerNode.appendChild(view.domNode);
+			this.doFullLayout();
 		},
 
 		remove: function(view) {
@@ -29,10 +30,7 @@ define("Ti/UI/View",
 				}
 			}
 			dom.destroy(view.domNode);
-		},
-
-		doLayout: function() {
-			this._layout && this._layout.doLayout(this);
+			this.doFullLayout();
 		},
 		
 		destroy: function() {

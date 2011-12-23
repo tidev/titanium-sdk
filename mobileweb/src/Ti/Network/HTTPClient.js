@@ -87,7 +87,7 @@ define("Ti/Network/HTTPClient", ["Ti/_/Evented"], function(Evented) {
 			validatesSecureCertificate: false
 		});
 	
-		require.mix(args, obj);
+		require.mix(obj, args);
 	
 		// Methods
 		obj.abort = function() {

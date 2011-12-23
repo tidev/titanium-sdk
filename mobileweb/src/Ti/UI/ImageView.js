@@ -53,7 +53,7 @@ define("Ti/UI/ImageView",
 			canScale: {
 				set: function(value, oldValue){
 					if (value !== oldValue) {
-						this.doLayout();
+						this.doFullLayout();
 					}
 					return value;
 				},
@@ -69,7 +69,7 @@ define("Ti/UI/ImageView",
 						this.imageDisplay.src = value;
 						
 						// Force a layout to take the image size into account
-						this.doLayout();
+						this.doFullLayout();
 					}));
 					tempImage.src = value;
 					return value;
