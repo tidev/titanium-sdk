@@ -30,6 +30,8 @@ define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css",
 		},
 		
 		properties: {
+			_defaultWidth: "auto",
+			_defaultHeight: "auto",
 			color: {
 				set: function(value) {
 					this.textContainerDiv.style.color = value;
@@ -38,12 +40,24 @@ define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css",
 			},
 			highlightedColor: undef,
 			shadowColor: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.Label#.shadowColor" is not implemented yet.');
+					return value;
+				},
 				set: function(value) {
+					console.debug('Property "Titanium.UI.Label#.shadowColor" is not implemented yet.');
 					return value;
 				}
 			},
 			shadowOffset: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.Label#.shadowOffset" is not implemented yet.');
+					return value;
+				},
 				set: function(value) {
+					console.debug('Property "Titanium.UI.Label#.shadowOffset" is not implemented yet.');
 					return value;
 				}
 			},
@@ -59,9 +73,25 @@ define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css",
 					return value;
 				}
 			},
-			textid: undef,
-			wordWrap: {
+			textid: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.Label#.textid" is not implemented yet.');
+					return value;
+				},
 				set: function(value) {
+					console.debug('Property "Titanium.UI.Label#.textid" is not implemented yet.');
+					return value;
+				}
+			},
+			wordWrap: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.Label#.wordWrap" is not implemented yet.');
+					return value;
+				},
+				set: function(value) {
+					console.debug('Property "Titanium.UI.Label#.wordWrap" is not implemented yet.');
 					return value;
 				},
 				value: false

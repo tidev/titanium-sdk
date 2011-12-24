@@ -7,10 +7,23 @@ define("Ti/UI/ImageView",
 	return declare("Ti.UI.ImageView", Widget, {
 		
 		constructor: function() {
-			this.imageDisplay = dom.create("img", {
-				className: css.clean("TiUIImageDisplay")
+			
+			var container = dom.create("div", {
+				className: css.clean("TiUIImageViewAligner")
 			});
-			this.domNode.appendChild(this.imageDisplay);
+			set(container, "width", "100%");
+			set(container, "height", "100%");
+			set(container, "display", "-webkit-box");
+			set(container, "display", "-moz-box");
+			set(container, "boxOrient", "horizontal");
+			set(container, "boxPack", "center");
+			set(container, "boxAlign", "center");
+			this.domNode.appendChild(container);
+			
+			this.imageDisplay = dom.create("img", {
+				className: css.clean("TiUIImageViewDisplay")
+			});
+			container.appendChild(this.imageDisplay);
 			set(this.imageDisplay, "width", "100%");
 			set(this.imageDisplay, "height", "100%");
 		},
@@ -78,6 +91,11 @@ define("Ti/UI/ImageView",
 				}
 			},
 			images: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.ImageView#.images" is not implemented yet.');
+					return value;
+				},
 				set: function(value) {
 					// TODO
 					console.debug('Property "Titanium.UI.ImageView#.images" is not implemented yet.');
@@ -85,9 +103,42 @@ define("Ti/UI/ImageView",
 				}
 			},
 			paused: false,
-			preventDefaultImage: false,
-			repeatCount: 0,
-			reverse: false
+			preventDefaultImage: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.ImageView#.preventDefaultImage" is not implemented yet.');
+					return value;
+				},
+				set: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.ImageView#.preventDefaultImage" is not implemented yet.');
+					return value;
+				}
+			},
+			repeatCount: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.ImageView#.repeatCount" is not implemented yet.');
+					return value;
+				},
+				set: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.ImageView#.repeatCount" is not implemented yet.');
+					return value;
+				}
+			},
+			reverse: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.ImageView#.reverse" is not implemented yet.');
+					return value;
+				},
+				set: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.ImageView#.reverse" is not implemented yet.');
+					return value;
+				}
+			}
 		}
 
 	});

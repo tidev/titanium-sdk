@@ -24,22 +24,37 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 		},
 
 		properties: {
-			_defaultHeight: "10%",
+			_defaultHeight: "50px",
 			_defaultWidth: "100%",
 			_tableRowHeight: undef,
 			hasCheck: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.TableViewRow#.hasCheck" is not implemented yet.');
+					return value;
+				},
 				set: function(value) {
 					console.debug('Property "Titanium.UI.TableViewRow#.hasCheck" is not implemented yet.');
 					return value;
 				}
 			},
 			hasChild: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.TableViewRow#.hasChild" is not implemented yet.');
+					return value;
+				},
 				set: function(value) {
 					console.debug('Property "Titanium.UI.TableViewRow#.hasChild" is not implemented yet.');
 					return value;
 				}
 			},
 			hasDetail: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.TableViewRow#.hasDetail" is not implemented yet.');
+					return value;
+				},
 				set: function(value) {
 					console.debug('Property "Titanium.UI.TableViewRow#.hasDetail" is not implemented yet.');
 					return value;
@@ -58,18 +73,33 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 				}
 			},
 			selectedBackgroundColor: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.TableViewRow#.selectedBackgroundColor" is not implemented yet.');
+					return value;
+				},
 				set: function(value) {
 					console.debug('Property "Titanium.UI.TableViewRow#.selectedBackgroundColor" is not implemented yet.');
 					return value;
 				}
 			},
 			selectedBackgroundImage: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.TableViewRow#.selectedBackgroundImage" is not implemented yet.');
+					return value;
+				},
 				set: function(value) {
 					console.debug('Property "Titanium.UI.TableViewRow#.selectedBackgroundImage" is not implemented yet.');
 					return value;
 				}
 			},
 			selectedColor: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.TableViewRow#.selectedColor" is not implemented yet.');
+					return value;
+				},
 				set: function(value) {
 					console.debug('Property "Titanium.UI.TableViewRow#.selectedColor" is not implemented yet.');
 					return value;

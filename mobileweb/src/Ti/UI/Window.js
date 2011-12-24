@@ -17,27 +17,50 @@ define("Ti/UI/Window", ["Ti/_/declare", "Ti/Gesture", "Ti/_/UI/SuperView", "Ti/U
 				}
 			},
 
-			titleid: undef,
+			titleid: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.Window#.titleid" is not implemented yet.');
+					return value;
+				},
+				set: function(value) {
+					console.debug('Property "Titanium.UI.Window#.titleid" is not implemented yet.');
+					return value;
+				}
+			},
 
-			titlePrompt: undef,
+			titlePrompt: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.Window#.titlePrompt" is not implemented yet.');
+					return value;
+				},
+				set: function(value) {
+					console.debug('Property "Titanium.UI.Window#.titlePrompt" is not implemented yet.');
+					return value;
+				}
+			},
 
-			titlepromptid: undef,
+			titlepromptid: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.Window#.titlepromptid" is not implemented yet.');
+					return value;
+				},
+				set: function(value) {
+					console.debug('Property "Titanium.UI.Window#.titlepromptid" is not implemented yet.');
+					return value;
+				}
+			},
 
 			url: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.Window#.url" is not implemented yet.');
+					return value;
+				},
 				set: function(value) {
-					/*
-					if (isHTMLPage()) {
-						window.location.href = require("Ti/_").getAbsolutePath(_url);
-					} else {
-						// We need this for proper using window.open in code
-						setTimeout(function(){
-							var prevWindow = Ti.UI.currentWindow;
-							Ti.UI.currentWindow = obj;
-							require("Ti/_/include!sandbox!" + _url);
-							Ti.UI.currentWindow = prevWindow;
-						}, 1);
-					}
-					*/
+					console.debug('Property "Titanium.UI.Window#.url" is not implemented yet.');
 					return value;
 				}
 			}
