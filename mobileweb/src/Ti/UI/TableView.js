@@ -39,6 +39,21 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 			console.debug('Property "Titanium.UI.TableView#.updateRow" is not implemented yet.');
 		},
 		
+		doLayout: function() {
+			
+			// Update the row height info
+			for (var i in this.data) {
+				var row = this.data[i];
+				if (isDef(row.declaredClass) && row.declaredClass == "Ti.UI.TableViewRow") {
+					row._defaultHeight = this.rowHeight;
+					set(row.domNode,'minHeight',this.minRowHeight);
+					set(row.domNode,'maxHeight',this.maxRowHeight);
+				}
+			}
+			
+			View.prototype.doLayout.apply(this,arguments);
+		},
+		
 		properties: {
 			_defaultWidth: "100%",
 			_defaultHeight: "100%",
@@ -53,7 +68,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 						
 						// Convert any object literals to TableViewRow instances, and update TableViewRow instances with row info
 						for (var i in value) {
-							if (!isDef(value[i].declaredClass) || value[i].declaredClass != "TableViewRow") {
+							if (!isDef(value[i].declaredClass) || value[i].declaredClass != "Ti.UI.TableViewRow") {
 								value[i] = Ti.UI.createTableViewRow(value[i]);
 							}
 						}
@@ -61,6 +76,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 						// Add the new children
 						for (var i in value) {
 							this.rows.add(value[i]);
+							this.rows.add(Ti.UI.createView({height: "1px", width: "100%", backgroundColor: this.separatorColor}));
 						}
 						
 						// Relayout the screen
@@ -117,29 +133,15 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 					return value;
 				}
 			},
-			maxRowHeight: {
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TableView#.maxRowHeight" is not implemented yet.');
-					return value;
-				}
-			},
-			minRowHeight: {
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TableView#.minRowHeight" is not implemented yet.');
-					return value;
-				}
-			},
-			rowHeight: {
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TableView#.rowHeight" is not implemented yet.');
-					return value;
-				}
-			},
+			maxRowHeight: "100%",
+			minRowHeight: "0%",
+			rowHeight: "50px",
 			separatorColor: {
 				set: function(value) {
 					console.debug('Property "Titanium.UI.TableView#.separatorColor" is not implemented yet.');
 					return value;
-				}
+				},
+				value: "lightGrey"
 			},
 			separatorStyle: {
 				set: function(value) {

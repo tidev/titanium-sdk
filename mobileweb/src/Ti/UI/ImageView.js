@@ -49,6 +49,8 @@ define("Ti/UI/ImageView",
 		},
 
 		properties: {
+			_defaultWidth: "auto",
+			_defaultHeight: "auto",
 			animating: false,
 			canScale: {
 				set: function(value, oldValue){

@@ -73,13 +73,13 @@ define("Ti/_/Layouts/Base", ["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom
 								width = (right - centerX) * 2;
 							} else {
 								// Set the default position if this is an absolute layout
-								width = child._defaultWidth;
+								width = computeSize(child._defaultWidth,elementWidth);
 							}
 						} else {
 							if (isDef(left) && isDef(right)) {
 								// Do nothing
 							} else {
-								width = child._defaultWidth;
+								width = computeSize(child._defaultWidth,elementWidth);
 								if(!isDef(left) && !isDef(right) & isAbsolute) {
 									isAbsolute && (left = computeSize("50%",elementWidth) - (width ? width : 0) / 2);
 								}
@@ -107,13 +107,13 @@ define("Ti/_/Layouts/Base", ["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom
 								height = (bottom - centerY) * 2;
 							} else {
 								// Set the default position if this is an absolute layout
-								height = child._defaultHeight;
+								height = computeSize(child._defaultHeight,elementHeight);
 							}
 						} else {
 							if (isDef(top) && isDef(bottom)) {
 								// Do nothing
 							} else {
-								height = child._defaultHeight;
+								height = computeSize(child._defaultHeight,elementHeight);
 								if(!isDef(top) && !isDef(bottom) & isAbsolute) {
 									isAbsolute && (top = computeSize("50%",elementHeight) - (height ? height : 0) / 2);
 								}

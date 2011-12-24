@@ -1454,9 +1454,10 @@ require.cache({
 						return;
 					}
 					if (x == "auto") {
-						return "";
-					}
-					if (isNaN(x-0) || x-0 != x) {
+						return x;
+					} else if(require.is(x,"Number")) {
+						return x;
+					} else {
 						var value = parseFloat(x),
 							units = x.substring((value + "").length),
 							dpi = Ti.Platform.DisplayCaps.dpi,
@@ -1472,17 +1473,14 @@ require.cache({
 						}
 						
 						switch(units) {
-							case "%": return require.is(totalLength,"Undefined") ? undef : value / 100 * totalLength;
+							case "%": return x;
 							case "mm": return processMM(value);
 							case "cm": return processMM(value * 10);
 							case "in": return processIN(value);
 							case "pt": return processIN(value / 72);
 							case "pc": return processIN(value / 864);
 							case "px": return value;
-							default: return undef;
 						}
-					} else {
-						return x;
 					}
 				}
 			};
