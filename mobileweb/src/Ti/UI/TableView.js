@@ -11,6 +11,8 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 			
 			// Create the parts out of Ti controls so we can make use of the layout system
 			this.layout = 'vertical';
+			set(this.domNode,"overflow-x","hidden");
+			set(this.domNode,"overflow-y","auto");
 			
 			// Use horizontal layouts so that the default location is always (0,0)
 			this.header = Ti.UI.createView({height: 'auto', layout: 'horizontal'});

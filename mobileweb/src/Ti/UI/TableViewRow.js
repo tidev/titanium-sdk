@@ -12,14 +12,14 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 			this.leftImageView = Ti.UI.createImageView();
 			this.add(this.leftImageView); 
 			
-			this.titleLabel = Ti.UI.createLabel({width: '100%'});
+			this.titleLabel = Ti.UI.createLabel({width: "auto"});
 			this.add(this.titleLabel);
 			
 			this.rightImageView = Ti.UI.createImageView();
 			this.add(this.rightImageView);
 			
 			// Holds detail, child, or check
-			this.extraView = Ti.UI.createView({width: 'auto'});
+			this.extraView = Ti.UI.createView({width: "auto"});
 			this.add(this.extraView);
 		},
 
