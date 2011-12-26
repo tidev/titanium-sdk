@@ -1473,7 +1473,7 @@ require.cache({
 						}
 						
 						switch(units) {
-							case "%": return x;
+							case "%": return require.isDef(totalLength) ? value / 100 * totalLength : x;
 							case "mm": return processMM(value);
 							case "cm": return processMM(value * 10);
 							case "in": return processIN(value);
