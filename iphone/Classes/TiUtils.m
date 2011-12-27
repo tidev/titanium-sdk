@@ -1647,10 +1647,52 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 }
 
 // In pre-iOS 5, it looks like response headers were mangled to be case-correct
-// (i.e. WWW-Authenticate became Www-Authenticate). So we have to perform
-// our own case correction to get the RIGHT header back.
+// (i.e. WWW-Authenticate became Www-Authenticate). So we have to take this
+// mangling into mind; headers such as FooBar-XYZ may also have been mangled
+// to be case-correct. We can't be certain.
 //
-// Note that we assume that Apple mangles all 'xxx-xxx' headers like this.
+// We also need to handle the case where custom headers do NOT follow the standard naming convention of
+// camelcase/Abc-Xyz but are instead 'abc-xyz'.
+
++(NSString*)getResponseHeader:(NSString *)header fromHeaders:(NSDictionary *)responseHeaders
+{
+    // Note that thanks to Apple's iOS 4 header mangling, if a response lacks a particular header, we must always
+    // go through these steps to ENSURE that it's really missing.
+    
+    if (![TiUtils isIOS5OrGreater]) {
+        // 1. Check for an exact match, which will be the case almost all of the time.
+        NSString* responseHeader = [responseHeaders valueForKey:header];
+        if (responseHeader != nil) {
+            return responseHeader;
+        }
+        
+        // 2. Check for case-correct
+        responseHeader = [responseHeaders valueForKey:[TiUtils caseCorrect:header]];
+        if (responseHeader != nil) {
+            return responseHeader;
+        }   
+        
+        // 3. It's very unlikely that a response header will contain both
+        // 'xyz' and 'Xyz' or a similar variant (or that things are so bad that neither of
+        // the previous tests pass, which means iOS 4 is REALLY screwing things up). 
+        // We do a case-insensitive compare on the keys, and log a warning about the 
+        // ambiguity if there is more than one possible header.
+
+        NSSet* headers = [responseHeaders keysOfEntriesPassingTest:^BOOL(id key, id obj, BOOL* stop) {
+            return ([key localizedCaseInsensitiveCompare:header] == NSOrderedSame);
+        }];
+
+        responseHeader = [headers anyObject];
+        if ([headers count] > 1) {
+            // This should be rare enough that we can log a fairly verbose message.
+            NSLog(@"[WARN] Ambiguious header request %@ for response headers %@; matched %@ and returning value %@",header,responseHeaders,headers,responseHeader);
+        }
+                  
+        return responseHeader;
+    }
+    
+    return [responseHeaders valueForKey:header];
+}
 
 +(NSString*)caseCorrect:(NSString *)str
 {
