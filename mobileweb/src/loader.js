@@ -1450,7 +1450,7 @@ require.cache({
 					return isNaN(x-0) || x-0 != x ? x : x + "px"; // note: must be != and not !==
 				},
 				computeSize: function(x,totalLength) {
-					if (!require.isDef(x)) {
+					if (!require.is(x,"Number") && !require.is(x,"String")) {
 						return;
 					}
 					if (x == "auto") {

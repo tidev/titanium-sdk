@@ -148,7 +148,7 @@ define("Ti/UI/ScrollableView",
 				animationView.animate({
 					duration: 300 + 0.2 * width, // Calculate a weighted duration so that larger views take longer to scroll.
 					left: initialPosition + scrollingDirection * (viewsToScroll.length - 1) * width,
-					// TODO curve: "ease-in-out"
+					curve: Ti.UI.ANIMATION_CURVE_EASE_IN_OUT
 				},lang.hitch(this,function(){
 					clearInterval(this._interval);
 					this._interval = null;
