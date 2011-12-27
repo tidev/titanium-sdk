@@ -5,7 +5,6 @@ define("Ti/UI/View",
 	return declare("Ti.UI.View", Element, {
 
 		parent: null,
-		_layout: null,
 
 		constructor: function() {
 			this.children = [];

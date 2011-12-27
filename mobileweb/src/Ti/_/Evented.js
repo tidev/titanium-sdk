@@ -1,4 +1,4 @@
-define("Ti/_/Evented", ["Ti/_/declare"], function(declare) {
+define("Ti/_/Evented", function() {
 
 	return {
 		listeners: null,
