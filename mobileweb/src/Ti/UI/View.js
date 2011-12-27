@@ -16,6 +16,7 @@ define("Ti/UI/View",
 			view.parent = this;
 			this.children.push(view);
 			this.containerNode.appendChild(view.domNode);
+			this.doFullLayout();
 		},
 
 		remove: function(view) {
@@ -28,10 +29,7 @@ define("Ti/UI/View",
 				}
 			}
 			dom.destroy(view.domNode);
-		},
-
-		doLayout: function() {
-			this._layout && this._layout.doLayout(this);
+			this.doFullLayout();
 		},
 		
 		destroy: function() {
@@ -44,6 +42,8 @@ define("Ti/UI/View",
 		},
 
 		properties: {
+			_defaultWidth: "100%",
+			_defaultHeight: "100%",
 			layout: {
 				set: function(value) {
 					var match = value.toLowerCase().match(/^(horizontal|vertical)$/),

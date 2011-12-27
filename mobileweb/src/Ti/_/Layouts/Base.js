@@ -1,6 +1,10 @@
 define("Ti/_/Layouts/Base", ["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom"], function(css, declare, style, dom) {
 	
-	var undef;
+	var unitize = dom.unitize,
+		computeSize = dom.computeSize,
+		set = style.set,
+		isDef = require.isDef,
+		undef;
 
 	return declare("Ti._.Layouts.Base", null, {
 
@@ -16,11 +20,7 @@ define("Ti/_/Layouts/Base", ["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom
 		doLayout: function(element,isAbsolute) {
 			if (element.children) {
 				
-				var unitize = dom.unitize,
-					computeSize = dom.computeSize,
-					set = style.set,
-					isDef = require.isDef,
-					elementHeight = isDef(element.height) ?  computeSize(element.height) : element.domNode.clientHeight,
+				var elementHeight = isDef(element.height) ?  computeSize(element.height) : element.domNode.clientHeight,
 					elementWidth = isDef(element.width) ?  computeSize(element.width) : element.domNode.clientWidth;
 					
 				if (isAbsolute) {
@@ -42,14 +42,14 @@ define("Ti/_/Layouts/Base", ["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom
 					// Layout the child
 					child.doLayout();
 					
-					var left = computeSize(child.left,elementWidth),
-						top = computeSize(child.top,elementHeight),
-						right = computeSize(child.right,elementWidth),
-						bottom = computeSize(child.bottom,elementHeight),
+					var left = computeSize(child.left),
+						top = computeSize(child.top),
+						right = computeSize(child.right),
+						bottom = computeSize(child.bottom),
 						centerX = isDef(child.center) ? computeSize(child.center.X,elementWidth) : undef,
 						centerY = isDef(child.center) ? computeSize(child.center.Y,elementHeight) : undef,
-						width = computeSize(child.width,elementWidth),
-						height = computeSize(child.height,elementHeight);
+						width = computeSize(child.width),
+						height = computeSize(child.height);
 					
 					// Unfortunately css precidence doesn't match the titanium, so we have to handle it ourselves
 					if (isDef(width)) {
@@ -73,13 +73,13 @@ define("Ti/_/Layouts/Base", ["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom
 								width = (right - centerX) * 2;
 							} else {
 								// Set the default position if this is an absolute layout
-								width = child._defaultWidth;
+								width = computeSize(child._defaultWidth);
 							}
 						} else {
 							if (isDef(left) && isDef(right)) {
 								// Do nothing
 							} else {
-								width = child._defaultWidth;
+								width = computeSize(child._defaultWidth);
 								if(!isDef(left) && !isDef(right) & isAbsolute) {
 									isAbsolute && (left = computeSize("50%",elementWidth) - (width ? width : 0) / 2);
 								}
@@ -107,19 +107,21 @@ define("Ti/_/Layouts/Base", ["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom
 								height = (bottom - centerY) * 2;
 							} else {
 								// Set the default position if this is an absolute layout
-								height = child._defaultHeight;
+								height = computeSize(child._defaultHeight);
 							}
 						} else {
 							if (isDef(top) && isDef(bottom)) {
 								// Do nothing
 							} else {
-								height = child._defaultHeight;
+								height = computeSize(child._defaultHeight);
 								if(!isDef(top) && !isDef(bottom) & isAbsolute) {
 									isAbsolute && (top = computeSize("50%",elementHeight) - (height ? height : 0) / 2);
 								}
 							}
 						}
 					}
+					
+					!isAbsolute && set(child.domNode,"position","relative");
 					
 					// Set the position, size and z-index
 					isDef(bottom) && set(child.domNode, bottomField, unitize(bottom));

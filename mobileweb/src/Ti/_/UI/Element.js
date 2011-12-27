@@ -78,6 +78,14 @@ define("Ti/_/UI/Element",
 		doLayout: function() {
 			this._layout && this._layout.doLayout(this);
 		},
+		
+		doFullLayout: function() {
+			var node = this;
+			while(node.parent) {
+				node = node.parent
+			}
+			node.doLayout();
+		},
 
 		show: function() {
 			this.visible = true;
@@ -253,7 +261,7 @@ define("Ti/_/UI/Element",
 					if (value !== orig) {
 						!value && (this._lastDisplay = style.get(this.domNode, "display"));
 						style.set(this.domNode, "display", !!value ? this._lastDisplay || "" : "none");
-						!!value && this.doLayout();
+						!!value && this.doFullLayout();
 					}
 					return value;
 				}
@@ -268,7 +276,12 @@ define("Ti/_/UI/Element",
 			top: undef,
 			width: undef,
 			zIndex: undef,
-			// TODO figure out size stuff
+			size: {
+				set: function(value) {
+					console.debug('Property "Titanium._.UI.Element#.size" is not implemented yet.');
+					return value;
+				}
+			}
 		}
 
 	});

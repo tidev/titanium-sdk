@@ -48,6 +48,8 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css"
 		},
 
 		properties: {
+			_defaultWidth: "auto",
+			_defaultHeight: "auto",
 			backgroundColor: {
 				set: function(value) {
 					set(this.button,"color",value);
@@ -73,12 +75,22 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css"
 				}
 			},
 			backgroundLeftCap: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.Button#.backgroundLeftCap" is not implemented yet.');
+					return value;
+				},
 				set: function(value) {
 					console.debug('Property "Titanium.UI.Button#.backgroundLeftCap" is not implemented yet.');
 					return value;
 				}
 			},
 			backgroundTopCap: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.Button#.backgroundTopCap" is not implemented yet.');
+					return value;
+				},
 				set: function(value) {
 					console.debug('Property "Titanium.UI.Button#.backgroundTopCap" is not implemented yet.');
 					return value;
@@ -91,6 +103,11 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css"
 				}
 			},
 			enabled: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.Button#.enabled" is not implemented yet.');
+					return value;
+				},
 				set: function(value) {
 					console.debug('Property "Titanium.UI.Button#.enabled" is not implemented yet.');
 					return value;
@@ -98,24 +115,44 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css"
 				value: true
 			},
 			"font-family": {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.Button#.font-family" is not implemented yet.');
+					return value;
+				},
 				set: function(value) {
 					console.debug('Property "Titanium.UI.Button#.font-family" is not implemented yet.');
 					return value;
 				}
 			},
 			"font-size": {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.Button#.font-size" is not implemented yet.');
+					return value;
+				},
 				set: function(value) {
 					console.debug('Property "Titanium.UI.Button#.font-size" is not implemented yet.');
 					return value;
 				}
 			},
 			"font-style": {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.Button#.font-style" is not implemented yet.');
+					return value;
+				},
 				set: function(value) {
 					console.debug('Property "Titanium.UI.Button#.font-style" is not implemented yet.');
 					return value;
 				}
 			},
 			"font-weight": {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.Button#.font-weight" is not implemented yet.');
+					return value;
+				},
 				set: function(value) {
 					console.debug('Property "Titanium.UI.Button#.font-weight" is not implemented yet.');
 					return value;
@@ -128,12 +165,22 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css"
 				}
 			},
 			selectedColor: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.Button#.selectedColor" is not implemented yet.');
+					return value;
+				},
 				set: function(value) {
 					console.debug('Property "Titanium.UI.Button#.selectedColor" is not implemented yet.');
 					return value;
 				}
 			},
 			style: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.Button#.style" is not implemented yet.');
+					return value;
+				},
 				set: function(value) {
 					console.debug('Property "Titanium.UI.Button#.style" is not implemented yet.');
 					return value;
@@ -146,12 +193,22 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css"
 				}
 			},
 			titleid: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.Button#.titleid" is not implemented yet.');
+					return value;
+				},
 				set: function(value) {
 					console.debug('Property "Titanium.UI.Button#.titleid" is not implemented yet.');
 					return value;
 				}
 			},
 			touchEnabled: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.Button#.touchEnabled" is not implemented yet.');
+					return value;
+				},
 				set: function(value) {
 					console.debug('Property "Titanium.UI.Button#.touchEnabled" is not implemented yet.');
 					return value;
