@@ -1,6 +1,10 @@
 define("Ti/_/Layouts/Base", ["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom"], function(css, declare, style, dom) {
 	
-	var undef;
+	var unitize = dom.unitize,
+		computeSize = dom.computeSize,
+		set = style.set,
+		isDef = require.isDef,
+		undef;
 
 	return declare("Ti._.Layouts.Base", null, {
 
@@ -16,11 +20,7 @@ define("Ti/_/Layouts/Base", ["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom
 		doLayout: function(element,isAbsolute) {
 			if (element.children) {
 				
-				var unitize = dom.unitize,
-					computeSize = dom.computeSize,
-					set = style.set,
-					isDef = require.isDef,
-					elementHeight = isDef(element.height) ?  computeSize(element.height) : element.domNode.clientHeight,
+				var elementHeight = isDef(element.height) ?  computeSize(element.height) : element.domNode.clientHeight,
 					elementWidth = isDef(element.width) ?  computeSize(element.width) : element.domNode.clientWidth;
 					
 				if (isAbsolute) {
@@ -120,6 +120,8 @@ define("Ti/_/Layouts/Base", ["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom
 							}
 						}
 					}
+					
+					!isAbsolute && set(child.domNode,"position","relative");
 					
 					// Set the position, size and z-index
 					isDef(bottom) && set(child.domNode, bottomField, unitize(bottom));
