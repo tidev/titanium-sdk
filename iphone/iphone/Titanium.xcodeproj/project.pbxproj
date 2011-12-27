@@ -496,6 +496,9 @@
 		2B94603913F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603513F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m */; };
 		2B94603A13F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603313F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m */; };
 		2B94603B13F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603513F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m */; };
+		2BCA5D7D14A413CE0009F172 /* TiScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BCA5D7C14A413CE0009F172 /* TiScrollView.m */; };
+		2BCA5D7E14A413CE0009F172 /* TiScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BCA5D7C14A413CE0009F172 /* TiScrollView.m */; };
+		2BCA5D7F14A413CE0009F172 /* TiScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BCA5D7C14A413CE0009F172 /* TiScrollView.m */; };
 		2BCD59C51429561D00DEC2E8 /* TiUIiOSToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BCD59C21429561D00DEC2E8 /* TiUIiOSToolbar.m */; };
 		2BCD59C61429561D00DEC2E8 /* TiUIiOSToolbarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BCD59C41429561D00DEC2E8 /* TiUIiOSToolbarProxy.m */; };
 		2BDEA4F31448FFB7004EC750 /* TiUIiOSTabbedBarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEA4F21448FFB7004EC750 /* TiUIiOSTabbedBarProxy.m */; };
@@ -1398,6 +1401,8 @@
 		2B94603313F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSCoverFlowView.m; sourceTree = "<group>"; };
 		2B94603413F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSCoverFlowViewProxy.h; sourceTree = "<group>"; };
 		2B94603513F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSCoverFlowViewProxy.m; sourceTree = "<group>"; };
+		2BCA5D7B14A413CE0009F172 /* TiScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiScrollView.h; sourceTree = "<group>"; };
+		2BCA5D7C14A413CE0009F172 /* TiScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiScrollView.m; sourceTree = "<group>"; };
 		2BCD59C11429561D00DEC2E8 /* TiUIiOSToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSToolbar.h; sourceTree = "<group>"; };
 		2BCD59C21429561D00DEC2E8 /* TiUIiOSToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSToolbar.m; sourceTree = "<group>"; };
 		2BCD59C31429561D00DEC2E8 /* TiUIiOSToolbarProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSToolbarProxy.h; sourceTree = "<group>"; };
@@ -2892,6 +2897,8 @@
 				B4F97B6E111A41B600E2F72C /* TiUIScrollViewProxy.m */,
 				B4F97B71111A41C800E2F72C /* TiUIScrollView.h */,
 				B4F97B72111A41C800E2F72C /* TiUIScrollView.m */,
+				2BCA5D7B14A413CE0009F172 /* TiScrollView.h */,
+				2BCA5D7C14A413CE0009F172 /* TiScrollView.m */,
 			);
 			name = "Scroll View";
 			sourceTree = "<group>";
@@ -3434,6 +3441,7 @@
 				84D541AD1460B3EE005338D1 /* TiDOMEntityRefProxy.m in Sources */,
 				2BDEA4F31448FFB7004EC750 /* TiUIiOSTabbedBarProxy.m in Sources */,
 				844E1F7E14883A3700F5424C /* TiDOMValidator.m in Sources */,
+				2BCA5D7D14A413CE0009F172 /* TiScrollView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3716,6 +3724,7 @@
 				84D541AE1460B3EE005338D1 /* TiDOMEntityRefProxy.m in Sources */,
 				2BDEA4F514490546004EC750 /* TiUIiOSTabbedBarProxy.m in Sources */,
 				844E1F7F14883A3700F5424C /* TiDOMValidator.m in Sources */,
+				2BCA5D7E14A413CE0009F172 /* TiScrollView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3998,6 +4007,7 @@
 				84D541AF1460B3EE005338D1 /* TiDOMEntityRefProxy.m in Sources */,
 				2BDEA4F614490547004EC750 /* TiUIiOSTabbedBarProxy.m in Sources */,
 				844E1F8014883A3700F5424C /* TiDOMValidator.m in Sources */,
+				2BCA5D7F14A413CE0009F172 /* TiScrollView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
