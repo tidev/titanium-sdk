@@ -1,7 +1,8 @@
 define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI", "Ti/UI/View"], function(declare, dom, UI, View) {
 	
 	var container = UI._init(),
-		windows = [];
+		windows = [],
+		activeWindow;
 
 	require.on(window, "popstate", function(evt) {
 		var win;

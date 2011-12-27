@@ -130,7 +130,7 @@ define("Ti/_/Layouts/Base", ["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom
 					isDef(right) && set(child.domNode, rightField, unitize(right));
 					isDef(left) && set(child.domNode, leftField, unitize(left));
 					isDef(width) && set(child.domNode, "width", unitize(width));
-					isDef(child.zIndex) && set(child.domNode, "zIndex", child.zIndex);
+					set(child.domNode, "zIndex", isDef(child.zIndex) ? child.zIndex : 0);
 				}
 			}
 		}

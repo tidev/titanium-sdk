@@ -25,6 +25,7 @@ define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css",
 				className: css.clean("TiUILabelTextContainer")
 			});
 			this.textAlignerDiv.appendChild(this.textContainerDiv);
+			set(this.textContainerDiv,"userSelect","none");
 		},
 
 		toImage: function(callback) {
