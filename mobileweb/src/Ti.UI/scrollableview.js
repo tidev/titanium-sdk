@@ -8,7 +8,8 @@ Ti._5.createClass("Ti.UI.ScrollableView", function(args){
 	var obj = this,
 		domNode = Ti._5.DOMView(obj, "div", args, "ScrollableView"),
 		_currentPage = args.currentPage || -1,
-		_interval = null;
+		_interval = null,
+		_views = [];
 
 	// Interfaces
 	Ti._5.Touchable(obj, args);
@@ -23,7 +24,7 @@ Ti._5.createClass("Ti.UI.ScrollableView", function(args){
 		currentPage: {
 			get: function(){return _currentPage;},
 			set: function(val){
-				if (val >= 0 && val < obj.views.length) {
+				if (val >= 0 && val < _views.length) {
 					obj._scrollToViewPosition(val);
 					_currentPage = val;
 				}
@@ -34,14 +35,24 @@ Ti._5.createClass("Ti.UI.ScrollableView", function(args){
 		pagingControlColor: null,
 		pagingControlHeight: null,
 		showPagingControl: null,
-		views: []
+		views: {
+			get: function() { return _views; },
+			set: function(newViews) {
+				var i = 0;
+				while (domNode.firstChild) {
+					domNode.removeChild(domNode.firstChild);
+				}
+				_views = newViews || [];
+				obj._scrollToViewPosition(_currentPage = newViews.length > 0 ? 0 : -1);
+			}
+		}
 	});
 
 	// Methods
 	obj.addView = function(view) {
 		// Sanity check
 		if (view) {
-			obj.views.push(view);
+			_views.push(view);
 
 			// Check if any children have been added yet, and if not load this view
 			_currentPage === -1 && obj._scrollToViewPosition(0);
@@ -50,7 +61,7 @@ Ti._5.createClass("Ti.UI.ScrollableView", function(args){
 	obj._viewToRemoveAfterScroll = -1;
 	obj._removeViewFromList = function(viewIndex) {
 		// Remove the view
-		obj.views.splice(viewIndex,1);
+		_views.splice(viewIndex,1);
 
 		// Update the current view if necessary
 		if (viewIndex < _currentPage){
@@ -59,7 +70,7 @@ Ti._5.createClass("Ti.UI.ScrollableView", function(args){
 	}
 	obj.removeView = function(view) {
 		// Get and validate the location of the view
-		var viewIndex = obj.views.indexOf(view);
+		var viewIndex = _views.indexOf(view);
 		if (viewIndex == -1) {
 			return;
 		}
@@ -67,22 +78,22 @@ Ti._5.createClass("Ti.UI.ScrollableView", function(args){
 		// Update the view if this view was currently visible
 		if (viewIndex == _currentPage) {
 			obj._viewToRemoveAfterScroll = viewIndex;
-			if (obj.views.length == 1) {
+			if (_views.length == 1) {
 				obj._removeViewFromList(viewIndex);
 				domNode.removeChild(domNode.firstChild);
 			} else {
-			    obj._scrollToViewPosition(viewIndex == obj.views.length -1 ? --viewIndex : ++viewIndex);
+			    obj._scrollToViewPosition(viewIndex == _views.length -1 ? --viewIndex : ++viewIndex);
 			}
 		} else {
 			obj._removeViewFromList(viewIndex);
 		}
 	};
 	obj.scrollToView = function(view) {
-		obj._scrollToViewPosition(obj.views.indexOf(view))
+		obj._scrollToViewPosition(_views.indexOf(view))
 	};
 	obj._scrollToViewPosition = function(viewIndex) {
 		// Sanity check
-		if (viewIndex < 0 || viewIndex >= obj.views.length || viewIndex == _currentPage) {
+		if (viewIndex < 0 || viewIndex >= _views.length || viewIndex == _currentPage) {
 			return;
 		}
 
@@ -105,7 +116,7 @@ Ti._5.createClass("Ti.UI.ScrollableView", function(args){
 		// At the same time, it doesn"t matter since the user won"t see it anyways. So we just append the new
 		// element and don"t show the transition animation.
 		if (!domNode.offsetWidth) {
-			obj._attachFinalView(obj.views[viewIndex].dom);
+			obj._attachFinalView(_views[viewIndex].dom);
 		} else {
 			// Stop the previous timer if it is running (i.e. we are in the middle of an animation)
 			_interval && clearInterval(_interval);
@@ -122,11 +133,11 @@ Ti._5.createClass("Ti.UI.ScrollableView", function(args){
 				_initialPosition = 0;
 			if (viewIndex > _currentPage) {
 				for (var i = _currentPage; i <= viewIndex; i++) {
-					_viewsToScroll.push(obj.views[i].dom);
+					_viewsToScroll.push(_views[i].dom);
 				}
 			} else {
 				for (var i = viewIndex; i <= _currentPage; i++) {
-					_viewsToScroll.push(obj.views[i].dom);
+					_viewsToScroll.push(_views[i].dom);
 				}
 				_initialPosition = -(_viewsToScroll.length - 1) * _w;
 				_scrollingDirection = 1;
@@ -179,7 +190,7 @@ Ti._5.createClass("Ti.UI.ScrollableView", function(args){
 				if (_currentTime >= _duration) {
 					clearInterval(_interval);
 					_interval = null;
-					obj._attachFinalView(obj.views[viewIndex].dom);
+					obj._attachFinalView(_views[viewIndex].dom);
 					if (obj._viewToRemoveAfterScroll != -1) {
 						obj._removeViewFromList(obj._viewToRemoveAfterScroll);
 						obj._viewToRemoveAfterScroll = -1;
