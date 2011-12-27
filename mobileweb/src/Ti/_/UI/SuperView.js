@@ -1,7 +1,7 @@
 define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI", "Ti/UI/View"], function(declare, dom, UI, View) {
-
-	var windows = [],
-		activeWindow;
+	
+	var container = UI._init(),
+		windows = [];
 
 	require.on(window, "popstate", function(evt) {
 		var win;
@@ -9,9 +9,7 @@ define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI", "Ti/UI/View"],
 	});
 
 	require.on(window, "resize", function() {
-		for (var i = 0; i < windows.length; i++) {
-			windows[i] && !windows[i].parent && windows[i].doLayout();
-		}
+		container.doLayout();
 	});
 
 	return declare("Ti._.UI.SuperView", View, {
@@ -33,9 +31,10 @@ define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI", "Ti/UI/View"],
 			if (!this._opened) {
 				// TODO: if args, then do animation on open
 				this._opened = 1;
-				this.parent || UI.rootNode.appendChild(this.domNode);
 				this.show();
+				container.add(this);
 				(args && args.isBack) || window.history.pushState({ windowIdx: this._windowIdx }, "", "");
+				container.doLayout();
 			}
 			activeWindow = this;
 		},
@@ -44,8 +43,9 @@ define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI", "Ti/UI/View"],
 			if (this._opened) {
 				// TODO: if args, then do animation on close
 				this._opened = 0;
-				UI.rootNode.removeChild(this.domNode);
+				container.remove(this);
 				window.history.go(-1);
+				container.doLayout();
 				this.fireEvent("blur", { source: this.domNode });
 			}
 		},

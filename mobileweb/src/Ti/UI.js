@@ -1,20 +1,24 @@
 define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/style"], function(dom, Evented, lang, style) {
 
 	return lang.setObject("Ti.UI", Evented, {
-
-		rootNode: dom.create("div", {
-			className: "TiContainer"
-		}, document.body),
-
+		
+		_init: function() {
+			this._container = Ti.UI.createView({left: 0, right: 0, width: "100%", height: "100%"});
+			document.body.appendChild(this._container.domNode);
+			return this._container;
+		},
+		
+		_container: null,
+		
 		properties: {
 			backgroundColor: {
 				set: function(value) {
-					this.rootNode.style.backgroundColor = value;
+					this._container.backgroundColor = value;
 				}
 			},
 			backgroundImage: {
 				set: function(value) {
-					this.rootNode.style.backgroundImage = value;
+					this._container.backgroundImage = value;
 				}
 			}
 		},
