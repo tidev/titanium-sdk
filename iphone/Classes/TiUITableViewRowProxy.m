@@ -350,6 +350,9 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	{
 		result = [self autoHeightForWidth:width];
 	}
+    if (TiDimensionIsPercent(height)) {
+        result = TiDimensionCalculateValue(height, [self table].bounds.size.height);
+    }
 	return (result == 0) ? [table tableRowHeight:0] : result;
 }
 
