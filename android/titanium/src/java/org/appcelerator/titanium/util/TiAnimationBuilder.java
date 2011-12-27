@@ -226,7 +226,7 @@ public class TiAnimationBuilder
 			addAnimation(as, a);
 		}
 
-		if (tdm != null) {
+		if (tdm != null) { 
 			as.setFillAfter(true);
 			as.setFillEnabled(true);
 			TiMatrixAnimation matrixAnimation = new TiMatrixAnimation(tdm, anchorX, anchorY);
@@ -507,10 +507,11 @@ public class TiAnimationBuilder
 				view.clearAnimation();
 				if (toOpacity.floatValue() == 0) {
 					view.setVisibility(View.INVISIBLE);
-				} else if (toOpacity.floatValue() == 1) {
-					view.setVisibility(View.VISIBLE);
-
+					
 				} else {
+					if (view.getVisibility() == View.INVISIBLE) {
+						view.setVisibility(View.VISIBLE);
+					}
 					// this is apparently the only way to apply an opacity to the entire view and have it stick
 					AlphaAnimation aa = new AlphaAnimation(toOpacity.floatValue(), toOpacity.floatValue());
 					aa.setDuration(1);

@@ -44,7 +44,7 @@ Ti._5.createClass("Ti.UI.ImageView", function(args){
 
 		// start preloading
 		require.each(images, function(i) {
-			img.src = require("Ti/_").getAbsolutePath(i);
+			domNode.src = require("Ti/_").getAbsolutePath(i);
 		});
 	}
 
