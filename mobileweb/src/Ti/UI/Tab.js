@@ -4,29 +4,63 @@ define("Ti/UI/Tab", ["Ti/_/declare", "Ti/_/UI/SuperView"], function(declare, Sup
 
 	return declare("Ti.UI.Tab", SuperView, {
 
-		open: function(win) {
-		},
-
-		close: function(args) {
-			// TODO: if args, then do animation on close
-		},
-
 		properties: {
-			title: {
+			active: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.Tab#.active" is not implemented yet.');
+					return value;
+				},
 				set: function(value) {
-					// TODO: set title
+					console.debug('Property "Titanium.UI.Tab#.active" is not implemented yet.');
 					return value;
 				}
 			},
-
-			titleid: undef,
-
-			window: {
-				get: function() {
-					// TODO: return root-level window
+			
+			icon: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.Tab#.icon" is not implemented yet.');
+					return value;
 				},
 				set: function(value) {
-					// TODO: set root-level window
+					console.debug('Property "Titanium.UI.Tab#.icon" is not implemented yet.');
+					return value;
+				}
+			},
+			
+			title: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.Tab#.title" is not implemented yet.');
+					return value;
+				},
+				set: function(value) {
+					console.debug('Property "Titanium.UI.Tab#.title" is not implemented yet.');
+					return value;
+				}
+			},
+			
+			titleid: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.Tab#.titleid" is not implemented yet.');
+					return value;
+				},
+				set: function(value) {
+					console.debug('Property "Titanium.UI.Tab#.titleid" is not implemented yet.');
+					return value;
+				}
+			},
+			
+			"window": {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.Tab#.window" is not implemented yet.');
+					return value;
+				},
+				set: function(value) {
+					console.debug('Property "Titanium.UI.Tab#.window" is not implemented yet.');
 					return value;
 				}
 			}
