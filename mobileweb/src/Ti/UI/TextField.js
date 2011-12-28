@@ -15,10 +15,10 @@ define("Ti/UI/TextField", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/c
 
 		properties: {
             _defaultWidth: "auto",
-            _defaultHeight: "auto",
+            _defaultHeight: "35px",
 			hintText: {
 				set: function(value) {
-					set(this.input, "placeholder", value);
+					this.textField.placeholder = value;
 					return value;
 				}
 			}
