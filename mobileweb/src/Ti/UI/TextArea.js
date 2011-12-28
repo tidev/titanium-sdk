@@ -27,8 +27,20 @@ define("Ti/UI/TextArea", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/cs
 		properties: {
             _defaultWidth: "auto",
             _defaultHeight: "auto",
-			value: undef,
-			hintText: undef,
+            
+			hintText: {
+				set: function(value) {
+					this.textField.placeholder = value;
+					return value;
+				}
+			},
+			
+			value: {
+				set: function(value) {
+					this.textArea.value = value;
+					return value;
+				}
+			},
 			
 			editable: {
 				get: function(value) {
