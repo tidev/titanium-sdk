@@ -1,81 +1,160 @@
 ---
 name: Titanium.Network.HTTPClient
-summary: The HttpClient instance returned from <Titanium.Network.createHTTPClient>. This object (mostly) implements the XMLHttpRequest specification.
-description: Mobile web requires cross-domain origin policies to be configured on the web servers in order for cross-domain connections to work.
+summary: HTTP client object that (mostly) implements the XMLHttpRequest specification.
+description: |
+    Use <Titanium.Network.createHTTPClient> to create a new `HTTPClient` object.
+
+    An `HTTPClient` object is intended to be used for a single request. It may be 
+    possible to re-use an `HTTPClient` object, but this use case is not tested. 
+
+    There are three steps in making a typical HTTP request:
+
+    * Creating an `HTTPClient` object.
+    * Opening the `HTTPClient` object.
+    * Sending the request.
+
+    Before opening the request, you must define one or more callbacks to handle
+    the HTTP response, as well as errors, progress updates, and other conditions.
+
+    The `HTTPClient` callbacks operate somewhat differently from other
+    Titanium callbacks, in accordance with the XMLHttpRequest specification.
+
+    When the callbacks are invoked, the `this` value is set to either the 
+    original `HTTPClient` object itself, or a response object that holds all
+    of the response-related properties defined for the `HTTPClient` object. So the 
+    callbacks can use code like this to access the response values:
+
+        httpResponse = this.responseText;
+        status = this.status;
+
+    Mobile web requires cross-domain origin policies to be configured on the web servers 
+    in order for cross-domain connections to work.
 extends: Titanium.Proxy
 since: "0.1"
 methods:
   - name: abort
-    summary: abort a pending request
+    summary: Cancels a pending request.
+  - name: clearCookies
+    summary: Clears any cookies stored for this host.
   - name: getResponseHeader
-    summary: return the response header.
+    summary: Returns the value of the specified response header.
     returns:
         type: String
     parameters:
       - name: name
-        summary: the header name
+        summary: Name of the header to retrieve.
         type: String
   - name: open
-    summary: open the request and ready the connection
+    summary: Opens the request and readies the connection.
     parameters:
       - name: method
-        summary: the HTTP method
+        summary: |
+            HTTP method for this request, such as 'GET' or 'POST'.
         type: String
       - name: url
-        summary: the URL for the request
+        summary: URL for the request.
         type: String
       - name: async
-        summary: optional property to indicate if asynchronous (default) or not
+        summary: Whether the request should be made asynchronously. Only used on iOS.
         type: Boolean
+        optional: true
         default: true
   - name: send
-    summary: send the request (Only async is currently supported)
+    summary: Sends the request.
+    description: |
+        For POST requests, use the `data` parameter to send POST data.
+
+        If you pass a serializable JavaScript object, it is automatically
+        turned into form-encoded POST data. You can also send an arbitrary 
+        string or binary data (in the form of a Titanium.Blob).
+
+        On iOS, you can specify a synchronous request when you call `open` 
+        by passing `false` for the `async` parameter. In the case of a synchronous
+        request, `send` blocks until the request is complete. 
     parameters:
       - name: data
-        summary: the data to send in the request. can either be null, dictionary, string, File object or Blob.
-        type: Object
+        summary: Data to send with a POST request. 
+        type: [Object, String, Titanium.Filesystem.File, Titanium.Blob]
+        optional: true
+        default: no data
   - name: setRequestHeader
-    summary: set the request header. Must be called after `open` but before `send`.
+    summary: Sets the value for the specified request header. Must be called after `open` but before `send`.
     parameters:
       - name: name
-        summary: name of the header
+        summary: Name of the header to set.
         type: String
       - name: value
-        summary: value of the header. May be null to clearing out a property, such as X-Requested-With
+        summary: Value to assign to the header. May be `null` to clear a default header value, 
+            such as X-Requested-With.
         type: String
   - name: setTimeout
-    summary: set the request timeout
+    summary: Sets the request timeout.
     parameters:
       - name: timeout
-        summary: the timeout in milliseconds
+        summary: Timeout in milliseconds.
         type: Number
 properties:
   - name: DONE
-    summary: the DONE readyState constant
+    summary: Ready state constant indicating that the request is complete.
+    description: |
+        In this ready state, either the data has been transferred, or an error has occured.
+
+        See also [readyState](Titanium.Network.HTTPClient.readyState).
     type: Number
     permission: read-only
   - name: HEADERS_RECEIVED
-    summary: the HEADERS_RECEIVED readyState constant
+    summary: Ready state constant indicating that response headers have been received.
+    description: |
+        See also [readyState](Titanium.Network.HTTPClient.readyState).
     type: Number
     permission: read-only
   - name: LOADING
-    summary: the LOADING readyState constant
+    summary: Ready state constant indicating that response data is being received from the
+        remote server.
+    description: |
+        See also [readyState](Titanium.Network.HTTPClient.readyState).
     type: Number
     permission: read-only
   - name: OPENED
-    summary: the OPENED readyState constant
+    summary: Ready state constant indicating that the connection has been opened, but the 
+        request has not yet been sent.
+    description: |
+        See also [readyState](Titanium.Network.HTTPClient.readyState).
     type: Number
     permission: read-only
   - name: UNSENT
-    summary: the UNSET readyState constant
+    summary: Ready state constant indicating that HTTPClient request has not been opened or sent.
+    description: |
+        See also [readyState](Titanium.Network.HTTPClient.readyState).
     type: Number
     permission: read-only
+  - name: allResponseHeaders
+    summary: All of the response headers as a single string, or an empty string if no headers are available.
+    description: |
+        See also: [getResponseHeader](Titanium.Network.HTTPClient.getResponseHeader).
+    type: String
+    permission: read-only
+    platforms: [android]
+  - name: autoEncodeUrl
+    summary: Set to `false` to suppress URL-encoding of the specified URL.
+    type: Boolean
+    default: true
+    platforms: [android]
+  - name: autoRedirect
+    summary: Set to `false` to disable automatic handling of HTTP redirects.
+    type: Boolean
+    default: true
   - name: connected
     summary: boolean to indicate that the response was successful
     type: Boolean
   - name: connectionType
     summary: the connection type, normally either `GET` or `POST`.
     type: String
+  - name: enableKeepAlive
+    summary: Determines whether the client should attempt to keep a persistent connection.
+    type: Boolean
+    default: false
+    platforms: [iphone, ipad]
   - name: file
     summary: file to download contents to.  Can only be set after calling open.
     type: String
@@ -84,48 +163,102 @@ properties:
     summary: the absolute URL of the request
     type: String
   - name: ondatastream
-    summary: set this to a function before calling open to cause the function to be called at regular intervals as the request data is being received. the `progress` property of the event will contain a value from 0.0-1.0 with the progress.
+    summary: Function to be called at regular intervals as the request data is being received. 
+    description: |
+        Must be set before calling `open`.
+
+        The `progress` property of the event will contain a value from 0.0-1.0 with 
+        the progress of the request.
     type: Callback<Object>
   - name: onerror
-    summary: set this to a function before calling open to cause the function to be called upon a error response
+    summary: Function to be called upon a error response.
+    description: |
+        Must be set before calling `open`. 
+        
+        The callback's argument is an object with a single 
+        property, `error`, containing the error string.
     type: Callback<Object>
   - name: onload
-    summary: set this to a function before calling open to cause the function to be called upon a successful response
+    summary: Function to be called upon a successful response.
+    description: |
+        Must be set before calling `open`. 
+
+        To access response data and headers, access the `HTTPClient` object itself 
+        (accessible as `this` during the callback, or the
+        `source` property of the callback event).
+
     type: Callback<Object>
   - name: onreadystatechange
-    summary: set this to a function before calling open to cause the function to be called for each readyState change
+    summary: Function to be called for each readyState change.
     type: Callback<Object>
+    description: |
+        Must be set before calling `open`. 
+        
+        When the callback is invoked, `this.readyState` is set to one of the 
+        `HTTPClient` ready state constants,
+        [OPENED](Titanium.Network.HTTPClient.OPENED),
+        [HEADERS_RECEIVED](Titanium.Network.HTTPClient.HEADERS_RECEIVED),
+        [LOADING](Titanium.Network.HTTPClient.LOADING), or 
+        [DONE](Titanium.Network.HTTPClient.DONE).
   - name: onsendstream
-    summary: set this to a function before calling open to cause the function to be called at regular intervals as the request data is being transmitted. the `progress` property of the event will contain a value from 0.0-1.0 with the progress.
+    summary: Function to be called at regular intervals as the request data is being transmitted. 
+    description: |
+        Must be set before calling `open`.
+
+        The `progress` property of the event will contain a value from 0.0-1.0 with the progress of
+        the upload.
     type: Callback<Object>
   - name: readyState
-    summary: the readyState value
+    summary: The current ready state of this HTTP request.
+    description: |
+        The ready state describes the current state of the request. The ready state
+        is set to one of the five `HTTPClient` ready state constants. A typical HTTP
+        request goes through the states in this order:
+
+        * [UNSENT](Titanium.Network.HTTPClient.UNSENT)
+        * [OPENED](Titanium.Network.HTTPClient.OPENED)
+        * [HEADERS_RECEIVED](Titanium.Network.HTTPClient.HEADERS_RECEIVED)
+        * [LOADING](Titanium.Network.HTTPClient.LOADING) 
+        * [DONE](Titanium.Network.HTTPClient.DONE)
+        
+        The `onreadystatechange` callback is invoked each time the ready state changes.
     type: Number
   - name: responseData
-    summary: the response data as a Blob object.
+    summary: Response data as a Blob object.
     type: Titanium.Blob
     permission: read-only
   - name: responseText
-    summary: the response as text or null if an error was received or no data was returned
+    summary: Response as text or `null` if an error was received or no data was returned.
     type: String
     permission: read-only
   - name: responseXML
-    summary: the response object as an XML DOMDocument object. returns null if the content type returned by the server was not XML or the content could not be parsed
+    summary: Response object as an XML DOM Document object. 
+    description: 
+       Set to `null` if the content type returned by the server was not XML or if the 
+       content could not be parsed.
     type: Titanium.XML.Document
     permission: read-only
   - name: status
-    summary: the response HTTP status code
+    summary: Response HTTP status code.
     type: Number
     permission: read-only
+  - name: statusText
+    summary: Human-readable status message associated with the status code.
+    type: String
+    permission: read-only
   - name: timeout
-    summary: timeout is milliseconds when the connection should be aborted
+    summary: Timeout in milliseconds when the connection should be aborted
     type: Number
   - name: validatesSecureCertificate
-    summary: set this to control how SSL certification validation is performed on connection.  defaults to false if in simulator or device testing and true if release for distribution mode.
+    summary: Controls how SSL certification validation is performed on connection.  
+    description: |
+        Note that on iOS, this value is always `false` by default. This is a known issue.
     type: Boolean
+    default: False when running in the simulator or on device in testing mode, and true if built for release in distribution mode.
   - name: tlsVersion
     summary: Sets the TLS version to use for handshakes. 
-    description: If you experience handshake failures, set this value to a lower
+    description: |
+        If you experience handshake failures, set this value to a lower
         version using the TLS constants in <Titanium.Network>. 'undefined', 'null', or
         unsupported values use the default behavior for that iOS version.
     default:  undefined. For iOS 4, this is effectively [TLS_VERSION_1_0](Titanium.Network.TLS_VERSION_1_0).
@@ -133,3 +266,26 @@ properties:
     type: Number
     since: "1.8.0"
     platforms: [iphone, ipad]
+examples:
+  - title: Simple GET Request
+    example: |
+        The following code excerpt does a simple GET request and logs the response text.
+
+             var url = "http://www.appcelerator.com";
+             var client = Ti.Network.createHTTPClient({
+                 // function called when the response data is available
+                 onload : function(e) {
+                     Ti.API.info("Received text: " + this.responseText);
+                     alert('success');
+                 },
+                 // function called when an error occurs, including a timeout
+                 onerror : function(e) {
+                     Ti.API.debug(e.error);
+                     alert('error');
+                 },
+                 timeout : 5000  /* in milliseconds */
+             });
+             // Prepare the connection.
+             client.open("GET", url);
+             // Send the request.
+             client.send(); 
