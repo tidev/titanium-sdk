@@ -124,7 +124,13 @@ public class ActivityWindowProxy extends TiWindowProxy
 			@Override
 			public void windowCreated(TiBaseActivity activity)
 			{
+				// This is the callback when a window associated with a tab is created.
+				// Since TiUIActivityWindow.bindProxies isn't called here, 
+				// we call setWindowProxy directly to make sure the activity->window
+				// association is correctly initialized.
+				activity.setWindowProxy(ActivityWindowProxy.this);
 				view = new TiUIActivityWindow(ActivityWindowProxy.this, activity);
+
 				realizeViews(view);
 				opened = true;
 				fireEvent(TiC.EVENT_OPEN, null);
