@@ -52,11 +52,7 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Function_nati
 	}
 	
 	bool isNew;
-	jobject retVal = TypeConverter::jsValueToJavaObject(object, &isNew);
-	if (isNew) {
-		env->DeleteLocalRef(retVal);
-	}
-	return retVal;
+	return TypeConverter::jsValueToJavaObject(object, &isNew);
 }
 
 #ifdef __cplusplus
