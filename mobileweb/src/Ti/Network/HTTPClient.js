@@ -13,6 +13,7 @@ define("Ti/Network/HTTPClient", ["Ti/_/Evented"], function(Evented) {
 			LOADING = 3,
 			DONE = 4,
 			_readyState = UNSENT, // unsent
+			_completed, // This completed stuff is a hack to get around a non-obvious bug.
 			timeoutTimer;
 		
 		Ti._5.EventDriven(obj);
@@ -29,6 +30,7 @@ define("Ti/Network/HTTPClient", ["Ti/_/Evented"], function(Evented) {
 				case 3: _readyState = HEADERS_RECEIVED; break;
 				case 4:
 					clearTimeout(timeoutTimer);
+					_completed = true;
 					_readyState = DONE;
 					if (xhr.status == 200) {
 						obj.responseText = xhr.responseText;
@@ -94,6 +96,7 @@ define("Ti/Network/HTTPClient", ["Ti/_/Evented"], function(Evented) {
 		// Methods
 		obj.abort = function() {
 			obj.responseText = obj.responseXML = obj.responseData = "";
+			_completed = true;
 			clearTimeout(timeoutTimer);
 			obj.connected && xhr.abort();
 			_readyState = UNSENT;
@@ -116,13 +119,14 @@ define("Ti/Network/HTTPClient", ["Ti/_/Evented"], function(Evented) {
 		};
 	
 		obj.send = function(args){
+			_completed = false;
 			try {
 				xhr.send(args || null);
 				clearTimeout(timeoutTimer);
 				obj.timeout && (timeoutTimer = setTimeout(function() {
 					if (obj.connected) {
 						obj.abort();
-						onerror("Request timed out");
+						!_completed && onerror("Request timed out");
 					}
 				}, obj.timeout));
 			} catch (error) {
