@@ -1,15 +1,16 @@
-define("Ti/UI/TextField", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], function(declare, Widget, dom, css, style) {
+define("Ti/UI/TextField", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], function(declare, FontWidget, dom, css, style) {
 
 	var set = style.set,
         undef;
 
-	return declare("Ti.UI.TextField", Widget, {
+	return declare("Ti.UI.TextField", FontWidget, {
 
 		constructor: function(args) {
 			this.textField = dom.create("input", {
 				className: css.clean("TiUITextFieldField"),
 			});
-			this.domNode.appendChild(this.textField);			
+			this.domNode.appendChild(this.textField);
+			this._addStyleableDomNode(this.textField);			
 		},
 		
 		blur: function() {

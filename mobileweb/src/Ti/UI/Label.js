@@ -1,9 +1,9 @@
-define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], function(declare, Widget, dom, css, style) {
+define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], function(declare, FontWidget, dom, css, style) {
 
 	var set = style.set,
 		undef;
 
-	return declare("Ti.UI.Label", Widget, {
+	return declare("Ti.UI.Label", FontWidget, {
 		
 		constructor: function() {
 			
@@ -26,6 +26,7 @@ define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css",
 			});
 			this.textAlignerDiv.appendChild(this.textContainerDiv);
 			set(this.textContainerDiv,"userSelect","none");
+			this._addStyleableDomNode(this.textContainerDiv);
 		},
 
 		toImage: function(callback) {

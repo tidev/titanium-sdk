@@ -1,9 +1,9 @@
-define("Ti/UI/TextArea", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], function(declare, Widget, dom, css, style) {
+define("Ti/UI/TextArea", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], function(declare, FontWidget, dom, css, style) {
 
     var set = style.set,
         undef;
 
-	return declare("Ti.UI.TextArea", Widget, {
+	return declare("Ti.UI.TextArea", FontWidget, {
 
 		constructor: function(args) {
 			this.textArea = dom.create("textarea", {
