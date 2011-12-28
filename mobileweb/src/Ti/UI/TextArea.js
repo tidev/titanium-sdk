@@ -11,6 +11,11 @@ define("Ti/UI/TextArea", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/
 			});
 			this.domNode.appendChild(this.textArea);
 			this._addStyleableDomNode(this.textArea);
+			set(this.textArea,"resize","none");
+			set(this.textArea,"backgroundColor","transparent");
+			set(this.textArea,"borderStyle","none");
+			set(this.textArea,"width","100%");
+			set(this.textArea,"height","100%");
 		},
 		
 		blur: function() {
