@@ -32,14 +32,13 @@ import java.net.URL;
 import java.util.Map;
 
 import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 
 import ti.modules.titanium.media.MediaModule;
 import ti.modules.titanium.media.TiPlaybackListener;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.media.AudioManager;
@@ -47,6 +46,7 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.net.Uri;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -341,9 +341,10 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	private void setDataSource()
 	{
 		try {
-			if ("http".equals(mUri.getScheme()) || "https".equals(mUri.getScheme())) {
+			if (Build.VERSION.SDK_INT < TiC.API_LEVEL_ICE_CREAM_SANDWICH &&
+					("http".equals(mUri.getScheme()) || "https".equals(mUri.getScheme()))) {
 				// Media player doesn't handle redirects, try to follow them
-				// here
+				// here. (Redirects work fine without this in ICS.)
 				while (true) {
 					// java.net.URL doesn't handle rtsp
 					if (mUri.getScheme() != null && mUri.getScheme().equals("rtsp"))
