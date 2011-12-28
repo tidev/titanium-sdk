@@ -10,7 +10,11 @@ define("Ti/UI/TextField", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti
 				className: css.clean("TiUITextFieldField"),
 			});
 			this.domNode.appendChild(this.textField);
-			this._addStyleableDomNode(this.textField);			
+			this._addStyleableDomNode(this.textField);
+			set(this.textField,"backgroundColor","transparent");
+			set(this.textField,"borderStyle","none");
+			set(this.textField,"width","100%");
+			set(this.textField,"height","100%");
 		},
 		
 		blur: function() {
