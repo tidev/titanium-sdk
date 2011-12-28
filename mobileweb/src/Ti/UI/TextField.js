@@ -37,7 +37,7 @@ define("Ti/UI/TextField", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/c
 			
 			value: {
 				set: function(value) {
-					this.textArea.value = value;
+					this.textField.value = value;
 					return value;
 				}
 			},

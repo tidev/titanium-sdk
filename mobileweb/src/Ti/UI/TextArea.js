@@ -30,7 +30,7 @@ define("Ti/UI/TextArea", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/cs
             
 			hintText: {
 				set: function(value) {
-					this.textField.placeholder = value;
+					this.textArea.placeholder = value;
 					return value;
 				}
 			},
