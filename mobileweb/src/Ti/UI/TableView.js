@@ -16,12 +16,11 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 			
 			// Use horizontal layouts so that the default location is always (0,0)
 			this.header = Ti.UI.createView({height: 'auto', layout: 'horizontal'});
-			this.add(this.header);
-			
 			this.rows = Ti.UI.createView({height: 'auto', layout: 'vertical'});
-			this.add(this.rows);
-			
 			this.footer = Ti.UI.createView({height: 'auto', layout: 'horizontal'});
+			
+			this.add(this.header);
+			this.add(this.rows);
 			this.add(this.footer);
 		},
 
@@ -54,6 +53,9 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 			}
 			
 			View.prototype.doLayout.apply(this,arguments);
+			
+			// TODO HACK: Not sure why this is necessary, but it works. Might indicate a bug in layouts.
+			set(this.rows.domNode,"position","absolute");
 		},
 		
 		properties: {

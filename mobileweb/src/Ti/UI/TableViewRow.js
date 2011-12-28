@@ -6,21 +6,37 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 	return declare("Ti.UI.TableViewRow", View, {
 		
 		constructor: function(args) {
-			this.layout = 'horizontal';
-			set(this.domNode,"boxAlign","center");
+			
+			this.leftView = Ti.UI.createView({
+				left: 0,
+				top: 0,
+				width: "auto",
+				layout: "horizontal"
+			}),
+			set(this.leftView.domNode,"boxAlign","center");
+			this.add(this.leftView);
 			
 			this.leftImageView = Ti.UI.createImageView();
-			this.add(this.leftImageView); 
+			this.leftView.add(this.leftImageView); 
 			
 			this.titleLabel = Ti.UI.createLabel({width: "auto"});
-			this.add(this.titleLabel);
+			this.leftView.add(this.titleLabel);
+			
+			this.rightView = Ti.UI.createView({
+				right: 0,
+				top: 0,
+				width: "auto",
+				layout: "horizontal"
+			}),
+			set(this.rightView.domNode,"boxAlign","center");
+			this.add(this.rightView);
 			
 			this.rightImageView = Ti.UI.createImageView();
-			this.add(this.rightImageView);
+			this.rightView.add(this.rightImageView);
 			
 			// Holds detail, child, or check
 			this.extraView = Ti.UI.createView({width: "auto"});
-			this.add(this.extraView);
+			this.rightView.add(this.extraView);
 		},
 
 		properties: {
