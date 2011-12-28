@@ -75,6 +75,7 @@ class Compiler(object):
 				
 				# Widget classes
 				'Ti/_/UI/Widget.js',
+				'Ti/_/UI/FontWidget.js',
 				'Ti/UI/2DMatrix.js',
 				'Ti/UI/ActivityIndicator.js',
 				'Ti/UI/AlertDialog.js',

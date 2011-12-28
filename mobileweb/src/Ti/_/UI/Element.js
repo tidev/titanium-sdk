@@ -242,15 +242,6 @@ define("Ti/_/UI/Element",
 				}
 			},
 			focusable: undef,
-			font: {
-				set: function(value) {
-					value = value || {};
-					require.each(["fontVariant", "fontStyle", "fontWeight", "fontSize", "fontFamily"], lang.hitch(this, function(f) {
-						f in value && (value[f] = style.set(this.domNode, f, f === "fontSize" ? unitize(value[f]) : value[f]));
-					}));
-					return value;
-				}
-			},
 			opacity: {
 				set: function(value) {
 					return this.domNode.style.opacity = value;

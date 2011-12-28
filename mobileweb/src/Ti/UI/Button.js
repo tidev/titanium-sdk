@@ -1,4 +1,4 @@
-define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], function(declare, Widget, dom, css, style) {
+define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], function(declare, FontWidget, dom, css, style) {
 	
 	var set = style.set,
 		undef;
@@ -12,7 +12,7 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css"
 		return false;
 	}
 	
-	return declare("Ti.UI.Button", Widget, {
+	return declare("Ti.UI.Button", FontWidget, {
 		
 		constructor: function(args) {
 			
@@ -45,6 +45,7 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css"
 				className: css.clean("TiUIButtonTitle")
 			});
 			this.contentContainer.appendChild(this.buttonTitle);
+			this._addStyleableDomNode(this.buttonTitle);
 		},
 
 		properties: {
@@ -122,39 +123,6 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css"
 				},
 				set: function(value) {
 					console.debug('Property "Titanium.UI.Button#.font-family" is not implemented yet.');
-					return value;
-				}
-			},
-			"font-size": {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Button#.font-size" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Button#.font-size" is not implemented yet.');
-					return value;
-				}
-			},
-			"font-style": {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Button#.font-style" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Button#.font-style" is not implemented yet.');
-					return value;
-				}
-			},
-			"font-weight": {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Button#.font-weight" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Button#.font-weight" is not implemented yet.');
 					return value;
 				}
 			},
