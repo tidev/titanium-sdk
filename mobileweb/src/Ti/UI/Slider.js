@@ -3,6 +3,8 @@ define("Ti/UI/Slider", ["Ti/_/declare", "Ti/_/UI/Widget"], function(declare, Wid
 	return declare("Ti.UI.Slider", Widget, {
 
 		properties: {
+			_defaultWidth: "100%",
+			_defaultHeight: "auto",
 			disabledLeftTrackImage: {
 				get: function(value) {
 					// TODO

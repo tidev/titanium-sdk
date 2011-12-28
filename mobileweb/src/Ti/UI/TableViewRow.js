@@ -24,7 +24,7 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 		},
 
 		properties: {
-			_defaultHeight: "50px",
+			_defaultHeight: "auto",
 			_defaultWidth: "100%",
 			_tableRowHeight: undef,
 			hasCheck: {

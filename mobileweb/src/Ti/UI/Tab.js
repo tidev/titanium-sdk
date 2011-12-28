@@ -5,6 +5,8 @@ define("Ti/UI/Tab", ["Ti/_/declare", "Ti/_/UI/SuperView"], function(declare, Sup
 	return declare("Ti.UI.Tab", SuperView, {
 
 		properties: {
+			_defaultWidth: "100%",
+			_defaultHeight: "100%",
 			active: {
 				get: function(value) {
 					// TODO

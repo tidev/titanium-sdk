@@ -7,6 +7,8 @@ define("Ti/UI/ScrollView", ["Ti/_/declare", "Ti/_/UI/Widget"], function(declare,
 		},
 
 		properties: {
+			_defaultWidth: "100%",
+			_defaultHeight: "100%",
 			canCancelEvents: {
 				get: function(value) {
 					// TODO

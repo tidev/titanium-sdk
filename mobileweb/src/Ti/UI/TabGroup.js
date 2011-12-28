@@ -11,6 +11,8 @@ define("Ti/UI/TabGroup", ["Ti/_/declare", "Ti/_/UI/SuperView"], function(declare
 		},
 
 		properties: {
+			_defaultWidth: "100%",
+			_defaultHeight: "100%",
 			activeTab: {
 				get: function(value) {
 					// TODO

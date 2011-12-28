@@ -11,6 +11,8 @@ define("Ti/UI/ActivityIndicator", ["Ti/_/declare", "Ti/_/UI/Element"], function(
 		},
 		
 		properties: {
+			_defaultWidth: "auto",
+			_defaultHeight: "auto",
 			color: {
 				get: function(value) {
 					// TODO

@@ -35,6 +35,8 @@ define("Ti/UI/WebView", ["Ti/_/declare", "Ti/_/UI/Widget"], function(declare, Wi
 		},
 		
 		properties: {
+			_defaultWidth: "100%",
+			_defaultHeight: "100%",
 			data: {
 				get: function(value) {
 					// TODO
