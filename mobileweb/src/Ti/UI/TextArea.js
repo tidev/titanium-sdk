@@ -10,6 +10,7 @@ define("Ti/UI/TextArea", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/
 				className: css.clean("TiUITextAreaTextArea")
 			});
 			this.domNode.appendChild(this.textArea);
+			this._addStyleableDomNode(this.textArea);
 		},
 		
 		blur: function() {
