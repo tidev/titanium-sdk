@@ -2,6 +2,14 @@ define("Ti/UI/Switch", ["Ti/_/declare", "Ti/_/UI/Widget"], function(declare, Wid
 
 	return declare("Ti.UI.Switch", Widget, {
 
+		constructor: function(args) {
+			this.switch = dom.create("input", {
+				className: css.clean("TiUISwitchSwitch")
+			});
+			this.switch.type = "checkbox";
+			this.domNode.appendChild(this.switch);
+		},
+
 		properties: {
 			_defaultWidth: "auto",
             _defaultHeight: "auto",
@@ -44,13 +52,11 @@ define("Ti/UI/Switch", ["Ti/_/declare", "Ti/_/UI/Widget"], function(declare, Wid
 			
             value: {
 				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Switch#.value" is not implemented yet.');
-					return value;
+					return this.switch.value;
 				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.Switch#.value" is not implemented yet.');
-					return value;
+					this.switch.value = value ? true : false
+					return this.switch.value;
 				}
 			}
 		}
