@@ -31,6 +31,7 @@ public class TiUIDialog extends TiUIView
 	protected Builder builder;
 	protected AlertDialog dialog;
 	protected TiUIView view;
+	protected Activity ownerActivity;
 
 	protected class ClickHandler implements DialogInterface.OnClickListener
 	{
@@ -245,7 +246,12 @@ public class TiUIDialog extends TiUIView
 			builder = null;
 		}
 		try {
-			dialog.show();
+			if (ownerActivity != null && !ownerActivity.isFinishing()) {
+				dialog.show();
+			} else {
+				dialog = null;
+				Log.w(LCAT, "dialog activity is destroyed, unable to show dialog");
+			}
 		} catch (Throwable t) {
 			Log.w(LCAT, "Context must have gone away: " + t.getMessage(), t);
 		}
@@ -268,6 +274,7 @@ public class TiUIDialog extends TiUIView
 		Activity currentActivity = getCurrentActivity();
 		this.builder = new AlertDialog.Builder(currentActivity);
 		this.builder.setCancelable(true);
+		ownerActivity = currentActivity;
 	}
 
 	public void handleEvent(int id)
