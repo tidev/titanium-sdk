@@ -1207,8 +1207,6 @@ require.cache({
 					// 3) mixin args if any
 					if (is(a0, "Object")) {
 						for (p in a0) {
-							// Note that NBC expect to be able to set arbitrary properties, including those not in the object this way.
-							//a0.hasOwnProperty(p) && (p in this) && (this[p] = a0[p]);
 							a0.hasOwnProperty(p) && (this[p] = a0[p]);
 						}
 					}
