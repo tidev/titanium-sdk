@@ -181,6 +181,30 @@ public class ViewProxy extends TiViewProxy
 		}
 	}
 
+	@Kroll.method
+	public void addAnnotations(Object annotations)
+	{
+		if (!(annotations.getClass().isArray())) {
+			Log.e(LCAT, "argument to addAnnotation must be an array");
+
+			return;
+		}
+
+		Object[] annotationArray = (Object[])annotations;
+		for (int i = 0; i < annotationArray.length; i++) {
+			if (annotationArray[i] instanceof AnnotationProxy) {
+				this.annotations.add((AnnotationProxy) annotationArray[i]);
+
+			} else {
+				Log.e(LCAT, "unable to add annotation, not a AnnotationProxy");
+			}
+		}
+
+		if(mapView != null) {
+			mapView.updateAnnotations();
+		}
+	}
+
 	protected int findAnnotation(String title)
 	{
 		int existsIndex = -1;
