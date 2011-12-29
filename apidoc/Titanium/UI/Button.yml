@@ -18,7 +18,7 @@ properties:
     type: Font
   - name: image
     summary: Image to display on the button to the left of the title.
-    type: String
+    type: [String, Titanium.Blob]
   - name: selectedColor
     summary: Button text color used to indicate the selected state.
     type: String

@@ -10,7 +10,7 @@ properties:
     type: Boolean
   - name: image
     summary: image for the pin instead of default image.
-    type: String
+    type: [String, Titanium.Blob]
   - name: leftButton
     summary: the left button image on the annotation. must either be a button type constant or url
     type: [Number,String]
