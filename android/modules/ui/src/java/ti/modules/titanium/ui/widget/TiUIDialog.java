@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.lang.ref.WeakReference;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -31,7 +33,7 @@ public class TiUIDialog extends TiUIView
 	protected Builder builder;
 	protected AlertDialog dialog;
 	protected TiUIView view;
-	protected Activity ownerActivity;
+	protected WeakReference<Activity> ownerActivity;
 
 	protected class ClickHandler implements DialogInterface.OnClickListener
 	{
@@ -246,7 +248,8 @@ public class TiUIDialog extends TiUIView
 			builder = null;
 		}
 		try {
-			if (ownerActivity != null && !ownerActivity.isFinishing()) {
+			Activity dialogActivity = ownerActivity.get();
+			if (dialogActivity != null && !dialogActivity.isFinishing()) {
 				dialog.show();
 			} else {
 				dialog = null;
@@ -274,7 +277,7 @@ public class TiUIDialog extends TiUIView
 		Activity currentActivity = getCurrentActivity();
 		this.builder = new AlertDialog.Builder(currentActivity);
 		this.builder.setCancelable(true);
-		ownerActivity = currentActivity;
+		ownerActivity = new WeakReference<Activity>(currentActivity);
 	}
 
 	public void handleEvent(int id)
