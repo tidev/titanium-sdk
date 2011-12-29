@@ -329,8 +329,11 @@ public class TabGroupProxy extends TiWindowProxy
 		}
 		
 		modelListener = null;
-		if (this.weakActivity.get() != null) {
-			this.weakActivity.get().finish();
+		Activity tabActivity = this.weakActivity.get();
+		if (tabActivity != null) {
+			tabActivity.finish();
+			// Finishing an activity is not synchronous, so we remove the activity from the activity stack here
+			TiApplication.removeFromActivityStack(tabActivity);
 		};
 		releaseViews();
 		windowId = null;
