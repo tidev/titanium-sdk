@@ -7,30 +7,6 @@ html {
 }
 
 body {
-	/*
-	display: -webkit-box;
-	display: -moz-box;
-	display: box;
-
-	-moz-box-sizing: border-box;
-	box-sizing: border-box;
-
-	-webkit-box-pack: center;
-	-moz-box-pack: center;
-	-o-box-pack: center;
-	box-pack: center;
-
-	-webkit-box-align: center;
-	-moz-box-align: center;
-	-o-box-align: center;
-	box-align: center;
-
-	-webkit-box-orient: horizontal;
-	-moz-box-orient: horizontal;
-	-o-box-orient: horizontal;
-	box-orient: horizontal;
-	*/
-
 	display: block;
 	height: 100%;
 	margin: 0;
