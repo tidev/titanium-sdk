@@ -186,6 +186,8 @@ public class ViewProxy extends TiViewProxy
 	{
 		if (!(annotations.getClass().isArray())) {
 			Log.e(LCAT, "argument to addAnnotation must be an array");
+
+			return;
 		}
 
 		Object[] annotationArray = (Object[])annotations;
