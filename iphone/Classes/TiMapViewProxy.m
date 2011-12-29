@@ -34,6 +34,33 @@
 	[super _destroy];
 }
 
+-(NSNumber*) longitudeDelta
+{
+	__block CLLocationDegrees delta = 0.0;
+	
+	if ([self viewAttached]) {
+		TiThreadPerformOnMainThread(^{
+			delta = [(TiMapView *)[self view] longitudeDelta];
+		},YES);
+		
+	}
+	return [NSNumber numberWithDouble:delta];
+
+}
+
+-(NSNumber*) latitudeDelta
+{
+	__block CLLocationDegrees delta = 0.0;
+	
+	if ([self viewAttached]) {
+		TiThreadPerformOnMainThread(^{
+			delta = [(TiMapView *)[self view] latitudeDelta];
+		},YES);
+		
+	}
+	return [NSNumber numberWithDouble:delta];
+}
+
 -(void)viewDidAttach
 {
 	ENSURE_UI_THREAD_0_ARGS;
