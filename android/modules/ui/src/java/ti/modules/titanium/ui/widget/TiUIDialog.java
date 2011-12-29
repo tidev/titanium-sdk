@@ -250,7 +250,7 @@ public class TiUIDialog extends TiUIView
 				dialog.show();
 			} else {
 				dialog = null;
-				Log.w(LCAT, "dialog activity is destroyed, unable to show dialog with message: " + proxy.getProperty(TiConvert.toString(TiC.PROPERTY_MESSAGE)));
+				Log.w(LCAT, "dialog activity is destroyed, unable to show dialog with message: " + TiConvert.toString(proxy.getProperty(TiC.PROPERTY_MESSAGE)));
 			}
 		} catch (Throwable t) {
 			Log.w(LCAT, "Context must have gone away: " + t.getMessage(), t);
