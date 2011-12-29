@@ -1,6 +1,17 @@
-define("Ti/UI/Slider", ["Ti/_/declare", "Ti/_/UI/Widget"], function(declare, Widget) {
+define("Ti/UI/Slider", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], function(declare, FontWidget, dom, css, style) {
+
+    var set = style.set,
+        undef;
 
 	return declare("Ti.UI.Slider", Widget, {
+
+		constructor: function(args) {
+			this.slider = dom.create("input", {
+				className: css.clean("TiUISliderSlider")
+			});
+			this.slider.type = "range";
+			this.domNode.addChild(this.slider);
+		},
 
 		properties: {
 			_defaultWidth: "100%",
@@ -91,24 +102,20 @@ define("Ti/UI/Slider", ["Ti/_/declare", "Ti/_/UI/Widget"], function(declare, Wid
 			
 			max: {
 				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Slider#.max" is not implemented yet.');
-					return value;
+					return this.slider.max;
 				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.Slider#.max" is not implemented yet.');
+					this.slider.max = value;
 					return value;
 				}
 			},
 			
 			min: {
 				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Slider#.min" is not implemented yet.');
-					return value;
+					return this.slider.min;
 				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.Slider#.min" is not implemented yet.');
+					this.slider.min = value;
 					return value;
 				}
 			},
@@ -175,12 +182,10 @@ define("Ti/UI/Slider", ["Ti/_/declare", "Ti/_/UI/Widget"], function(declare, Wid
 			
 			value: {
 				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Slider#.value" is not implemented yet.');
-					return value;
+					return this.slider.value;
 				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.Slider#.value" is not implemented yet.');
+					this.slider.value = value;
 					return value;
 				}
 			}
