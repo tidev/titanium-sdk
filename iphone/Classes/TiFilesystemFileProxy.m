@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#ifdef USE_TI_FILESYSTEM
+#if defined(USE_TI_FILESYSTEM) || defined(USE_TI_DATABASE)
 
 #include <sys/xattr.h>
 
