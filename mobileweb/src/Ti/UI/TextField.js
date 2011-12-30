@@ -18,15 +18,15 @@ define("Ti/UI/TextField", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti
 		},
 		
 		blur: function() {
-			console.debug('Method "Titanium.UI.TextArea#.blur" is not implemented yet.');
+			this.textField.blur();
 		},
 		
 		focus: function() {
-			console.debug('Method "Titanium.UI.TextArea#.focus" is not implemented yet.');
+			this.textField.focus();
 		},
 		
 		hasText: function() {
-			console.debug('Method "Titanium.UI.TextArea#.hasText" is not implemented yet.');
+			return (this.textField.value !== "");
 		},
 
 		properties: {
@@ -41,6 +41,7 @@ define("Ti/UI/TextField", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti
 			},
 			
 			value: {
+				get: function() { return this.textField.value; },
 				set: function(value) {
 					this.textField.value = value;
 					return value;
@@ -49,13 +50,11 @@ define("Ti/UI/TextField", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti
 			
 			editable: {
 				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.TextField#.editable" is not implemented yet.');
-					return value;
+					return this.textField.readonly;
 				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.TextField#.editable" is not implemented yet.');
-					return value;
+					this.textField.readonly = value ? true : false;
+					return this.textField.readonly;
 				}
 			},
 			
@@ -85,13 +84,11 @@ define("Ti/UI/TextField", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti
 			
 			passwordMask: {
 				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.TextField#.passwordMask" is not implemented yet.');
-					return value;
+					return (this.textField.type === "password");
 				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.TextField#.passwordMask" is not implemented yet.');
-					return value;
+					this.textField.type = value ? "password" : "text";
+					return (value);
 				}
 			},
 			
