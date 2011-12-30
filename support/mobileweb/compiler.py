@@ -54,11 +54,20 @@ class Compiler(object):
 				
 				# core classes
 				'Ti/ti.js',
+				'Ti/Accelerometer.js',
+				'Ti/Analytics.js',
 				'Ti/API.js',
 				'Ti/App.js',
 				'Ti/App/Properties.js',
+				'Ti/Blob.js',
+				'Ti/Contacts.js',
+				'Ti/Database.js',
 				'Ti/Facebook.js',
 				'Ti/Filesystem.js',
+				'Ti/Geolocation.js',
+				'Ti/Gesture.js',
+				'Ti/Locale.js',
+				'Ti/Map.js',
 				'Ti/Media.js',
 				'Ti/Media/VideoPlayer.js',
 				'Ti/Network.js',
@@ -66,7 +75,7 @@ class Compiler(object):
 				'Ti/Platform.js',
 				'Ti/Platform/DisplayCaps.js',
 				'Ti/UI.js',
-				'Ti/Gesture.js',
+				'Ti/Utils.js',
 				'Ti/XML.js',
 				
 				# View classes
