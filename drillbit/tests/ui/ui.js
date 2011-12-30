@@ -142,9 +142,33 @@ describe("Ti.UI tests", {
 
 	},
 
-	windowOrientation: function() {
+	windowOrientation_as_async: function(callback) {
 		var w = Ti.UI.createWindow();
 		valueOf(w.orientation).shouldBeOneOf([Ti.UI.PORTRAIT, Ti.UI.LANDSCAPE_LEFT]);
+		
+		w.addEventListener('open', function() {
+			
+			w.orientationModes = [Ti.UI.PORTRAIT, Ti.UI.LANDSCAPE_LEFT];
+			valueOf(w.orientationModes).shouldNotBeNull();
+
+			// Make sure the the values are integers
+			valueOf(parseInt(w.orientationModes[0]) == parseFloat(w.orientationModes[0])).shouldBeTrue();
+			valueOf(parseInt(w.orientationModes[1]) == parseFloat(w.orientationModes[1])).shouldBeTrue();
+			valueOf(w.orientationModes[0]).shouldBe(Ti.UI.PORTRAIT);
+			valueOf(w.orientationModes[1]).shouldBe(Ti.UI.LANDSCAPE_LEFT);
+			
+			setTimeout(function(){
+				if (failureTimeout !== null) {
+					clearTimeout(failureTimeout);
+				}
+				callback.passed();
+			}, 1000);
+		});
+		failureTimeout = setTimeout(function(){
+			callback.failed("Test may have crashed app.  Opacity of 1 test.");
+		},3000);
+		
+		w.open();
 	},
 	
 	windowPixelFormat: function() {
