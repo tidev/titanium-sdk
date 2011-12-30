@@ -82,6 +82,7 @@ properties:
     type: String
   - name: thumbImage
     summary: The image for the slider thumb.
+    description: Support for using <Titanium.Blob> for this property is only available on iOS.
     type: [String, Titanium.Blob]
   - name: value
     summary: the value of the slider
