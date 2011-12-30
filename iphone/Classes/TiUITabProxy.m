@@ -22,6 +22,9 @@
 //to the Nav Controller.  So, we do a few things that you'd normally not 
 //have to do in a Proxy/View pattern.
 
+@interface TiUITabProxy ()
+-(void)openOnUIThread:(NSArray*)args;
+@end
 
 @implementation TiUITabProxy
 
@@ -240,7 +243,9 @@
 	// TODO: Slap patch.  Views, when opening/added, should check parent visibility (and parent/parent visibility, if possible)
 	[window parentWillShow];
 
-	[self performSelectorOnMainThread:@selector(openOnUIThread:) withObject:args waitUntilDone:YES];
+	TiThreadPerformOnMainThread(^(){
+		[self openOnUIThread:args];
+	}, YES);
 }
 
 -(void)openOnUIThread:(NSArray*)args
