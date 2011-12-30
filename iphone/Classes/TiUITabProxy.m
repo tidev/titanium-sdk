@@ -22,6 +22,9 @@
 //to the Nav Controller.  So, we do a few things that you'd normally not 
 //have to do in a Proxy/View pattern.
 
+@interface TiUITabProxy ()
+-(void)openOnUIThread:(NSArray*)args;
+@end
 
 @implementation TiUITabProxy
 
@@ -111,7 +114,7 @@
 		
 		// close the window if it's not our root window
 		// check to make sure that we're not actually push a window on the stack
-		if (opening==NO && [rootController window]!=currentWindow && [TiUtils boolValue:currentWindow.opened] && currentWindow.closing==NO)
+		if (opening==NO && [rootController window]!=currentWindow && [TiUtils boolValue:currentWindow.opened] && currentWindow.closing==NO && [controllerStack containsObject:viewController])
 		{
 			RELEASE_TO_NIL(closingWindows);
             closingWindows = [[NSMutableArray alloc] init];
@@ -121,6 +124,10 @@
             for (UIViewController* windowController in enumerator) {
                 if (windowController != viewController && [windowController isKindOfClass:[TiUITabController class]]) {
                     TiWindowProxy* window = [(TiUITabController*)windowController window];
+                    if (window == nil)
+                    {
+                        continue;
+                    }
                     [closingWindows addObject:window];
                     [window windowWillClose];
                 }
@@ -236,7 +243,9 @@
 	// TODO: Slap patch.  Views, when opening/added, should check parent visibility (and parent/parent visibility, if possible)
 	[window parentWillShow];
 
-	[self performSelectorOnMainThread:@selector(openOnUIThread:) withObject:args waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^(){
+		[self openOnUIThread:args];
+	}, YES);
 }
 
 -(void)openOnUIThread:(NSArray*)args
