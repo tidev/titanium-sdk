@@ -33,7 +33,7 @@ define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI/View"], function
 				this._opened = 1;
 				this.show();
 				Ti.UI._addWindow(this);
-				(args && args.isBack) || window.history.pushState({ windowIdx: this._windowIdx }, "", "");
+				(args && args.isBack) || (window.history.pushState && window.history.pushState({ windowIdx: this._windowIdx }, "", ""));
 				Ti.UI._doFullLayout();
 			}
 			activeWindow = this;

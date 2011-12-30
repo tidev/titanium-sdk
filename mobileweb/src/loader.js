@@ -117,10 +117,9 @@
 		// returns:
 		//		Boolean if type is passed in
 		//		String of type if type is not passed in
-
-		var t = ({}).toString.call(it),
+		var t = it === undefined ? "" : ({}).toString.call(it),
 			m = t.match(/^\[object (.+)\]$/),
-			v = m ? m[1] : "undefined";
+			v = m ? m[1] : "Undefined";
 		return type ? type === v : v;
 	}
 	

@@ -114,7 +114,7 @@ define("Ti/_/UI/Element",
 					// Do nothing
 				} else {
 					// Set the default position
-					left = centerHDefault ? computeSize("50%",parentWidth) - width / 2 : 0;
+					left = "calculateAuto";
 				}
 			} else {
 				if (isDef(centerX)) {
@@ -134,7 +134,7 @@ define("Ti/_/UI/Element",
 						width = computeSize(this._defaultWidth,parentWidth);
 						if(!isDef(left) && !isDef(right)) {
 							// Set the default position
-							left = centerHDefault ? computeSize("50%",parentWidth) - (width ? width : 0) / 2 : 0;
+							left = "calculateAuto";
 						}
 					}
 				}
@@ -149,7 +149,7 @@ define("Ti/_/UI/Element",
 					// Do nothing
 				} else {
 					// Set the default position
-					top = centerVDefault ? computeSize("50%",parentHeight) - height / 2 : 0;
+					top = "calculateAuto";
 				}
 			} else {
 				if (isDef(centerY)) {
@@ -170,7 +170,7 @@ define("Ti/_/UI/Element",
 						height = computeSize(this._defaultHeight,parentHeight);
 						if(!isDef(top) && !isDef(bottom)) {
 							// Set the default position
-							top = centerVDefault ? computeSize("50%",parentHeight) - (height ? height : 0) / 2 : 0;
+							top = "calculateAuto";
 						}
 					}
 				}
@@ -196,24 +196,27 @@ define("Ti/_/UI/Element",
 				}
 			}
 			
-			// Apply the origin
-			left += originX;
-			top += originY;
-			
-			// Layout the children, if any exist. Note that if an element has children, it will always have a layout.
-			if (this.children) {
+			// TODO change this once we re-architect the inheritence so that widgets don't have add/remove/layouts
+			if (this.children.length > 0) {
 				var computedSize = this._layout.doLayout(this,width,height);
 				width == "auto" && (width = computedSize.width);
 				height == "auto" && (height = computedSize.height);
 			} else {
-				width == "auto" && (width = this.domNode.clientWidth);
-				height == "auto" && (height = this.domNode.clientHeight);
+				width == "auto" && (width = this._contentWidth);
+				height == "auto" && (height = this._contentHeight);
 			}
 			
-			// TODO remove this debug statement once the layout mechanism is solid
-			if (!is(left,"Number") && !is(top,"Number") && !is(width,"Number") && !is(height,"Number")) {
-				console.debug("Error layouting out object: " + left + " " + top + " " + width + " " + height);
+			// Set the default top/left if need be
+			if (left == "calculateAuto") {
+				left = centerHDefault ? computeSize("50%",parentWidth) - (is(width,"Number") ? width : 0) / 2 : 0;
 			}
+			if (top == "calculateAuto") {
+				top = centerVDefault ? computeSize("50%",parentHeight) - (is(height,"Number") ? height : 0) / 2 : 0;
+			}
+			
+			// Apply the origin
+			left += originX;
+			top += originY;
 					
 			// Set the position, size and z-index
 			isDef(left) && set(this.domNode, "left", unitize(left));
@@ -296,6 +299,24 @@ define("Ti/_/UI/Element",
 		},
 
 		properties: {
+		
+			_contentWidth: {
+				get: function(value) {
+					return this.domNode.clientWidth;
+				},
+				set: function(value) {
+					return this.domNode.clientWidth;
+				}
+			},
+			
+			_contentHeight: {
+				get: function(value) {
+					return this.domNode.clientHeight;
+				},
+				set: function(value) {
+					return this.domNode.clientHeight;
+				}
+			},
 			
 			// Properties that are handled by the element
 			backgroundColor: {

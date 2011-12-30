@@ -33,9 +33,31 @@ define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/c
 			// TODO
 		},
 		
+		doLayout: function(){
+			return FontWidget.prototype.doLayout.apply(this,arguments);
+		},
+		
 		properties: {
 			_defaultWidth: "auto",
 			_defaultHeight: "auto",
+		
+			_contentWidth: {
+				get: function(value) {
+					return this.textContainerDiv.clientWidth;
+				},
+				set: function(value) {
+					return this.textContainerDiv.clientWidth;
+				}
+			},
+			
+			_contentHeight: {
+				get: function(value) {
+					return this.textContainerDiv.clientHeight;
+				},
+				set: function(value) {
+					return this.textContainerDiv.clientHeight;
+				}
+			},
 			color: {
 				set: function(value) {
 					this.textContainerDiv.style.color = value;
