@@ -52,10 +52,12 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 				}
 			}
 			
-			View.prototype.doLayout.apply(this,arguments);
+			var computedSize = View.prototype.doLayout.apply(this,arguments);
 			
 			// TODO HACK: Not sure why this is necessary, but it works. Might indicate a bug in layouts.
 			set(this.rows.domNode,"position","absolute");
+			
+			return computedSize;
 		},
 		
 		properties: {
@@ -84,7 +86,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 						}
 						
 						// Relayout the screen
-						this.doFullLayout();
+						Ti.UI._doFullLayout();
 						
 						return value;
 					} else {
@@ -99,7 +101,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 						this.footerTitleControl && this.footer.remove(this.footerTitleControl);
 						this.footerTitleControl = Ti.UI.createLabel({text: value});
 						this.footer.add(this.footerTitleControl);
-						this.doFullLayout();
+						Ti.UI._doFullLayout();
 					}
 					return value;
 				}
@@ -110,7 +112,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 						this.footerTitleControl && this.footer.remove(this.footerTitleControl);
 						this.footerTitleControl = value;
 						this.footer.add(this.footerTitleControl);
-						this.doFullLayout();
+						Ti.UI._doFullLayout();
 					}
 					return value;
 				}
@@ -121,7 +123,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 						this.headerTitleControl && this.header.remove(this.headerTitleControl);
 						this.headerTitleControl = Ti.UI.createLabel({text: value});
 						this.header.add(this.headerTitleControl);
-						this.doFullLayout();
+						Ti.UI._doFullLayout();
 					}
 					return value;
 				}
@@ -132,7 +134,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 						this.headerTitleControl && this.header.remove(this.headerTitleControl);
 						this.headerTitleControl = value;
 						this.header.add(this.headerTitleControl);
-						this.doFullLayout();
+						Ti.UI._doFullLayout();
 					}
 					return value;
 				}

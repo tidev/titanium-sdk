@@ -30,44 +30,7 @@ body {
 	background-repeat: no-repeat;
 	background-size: 100% 100%;
 	line-height: normal;
-}
-
-.TiLayoutsAbsolute > .TiUIElement{
 	position: absolute;
-}
-
-.TiLayoutsVertical {
-	display: -webkit-box;
-	display: -moz-box;
-
-	-webkit-box-orient: vertical;
-	-moz-box-orient: vertical;
-	-o-box-orient: vertical;
-
-	-webkit-box-pack: start;
-	-moz-box-pack: start;
-	-o-box-pack: start;
-
-	-webkit-box-align: center;
-	-moz-box-align: center;
-	-o-box-align: center;
-}
-
-.TiLayoutsHorizontal {
-	display: -webkit-box;
-	display: -moz-box;
-
-	-webkit-box-orient: horizontal;
-	-moz-box-orient: horizontal;
-	-o-box-orient: horizontal;
-
-	-webkit-box-pack: start;
-	-moz-box-pack: start;
-	-o-box-pack: start;
-
-	-webkit-box-align: start;
-	-moz-box-align: start;
-	-o-box-align: start;
 }
 
 .TiVideoPlayer {

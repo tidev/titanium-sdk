@@ -1,7 +1,6 @@
-define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI", "Ti/UI/View"], function(declare, dom, UI, View) {
+define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI/View"], function(declare, dom, View) {
 	
-	var container = UI._init(),
-		windows = [],
+	var windows = [],
 		activeWindow;
 
 	require.on(window, "popstate", function(evt) {
@@ -10,7 +9,7 @@ define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI", "Ti/UI/View"],
 	});
 
 	require.on(window, "resize", function() {
-		container.doLayout();
+		Ti.UI._doFullLayout();
 	});
 
 	return declare("Ti._.UI.SuperView", View, {
@@ -33,9 +32,9 @@ define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI", "Ti/UI/View"],
 				// TODO: if args, then do animation on open
 				this._opened = 1;
 				this.show();
-				container.add(this);
+				Ti.UI._addWindow(this);
 				(args && args.isBack) || window.history.pushState({ windowIdx: this._windowIdx }, "", "");
-				container.doLayout();
+				Ti.UI._doFullLayout();
 			}
 			activeWindow = this;
 		},
@@ -44,9 +43,9 @@ define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI", "Ti/UI/View"],
 			if (this._opened) {
 				// TODO: if args, then do animation on close
 				this._opened = 0;
-				container.remove(this);
+				Ti.UI._removeWindow(this);
 				window.history.go(-1);
-				container.doLayout();
+				Ti.UI._doFullLayout();
 				this.fireEvent("blur", { source: this.domNode });
 			}
 		},

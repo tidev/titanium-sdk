@@ -1,24 +1,50 @@
 define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/style"], function(dom, Evented, lang, style) {
+	
+	var undef,
+		isDef = require.isDef;
 
 	return lang.setObject("Ti.UI", Evented, {
 		
-		_init: function() {
-			this._container = Ti.UI.createView({left: 0, right: 0, width: "100%", height: "100%"});
-			document.body.appendChild(this._container.domNode);
-			return this._container;
+		_addWindow: function(win) {
+			this._validateContainer();
+			this._container.add(win);
 		},
 		
-		_container: null,
+		_removeWindow: function(win) {
+			this._validateContainer();
+			this._container.remove(win);
+		},
+		
+		_doFullLayout: function() {
+			if (!this._layoutInProgress) {
+				this._layoutInProgress = true;
+				setTimeout(lang.hitch(this, function(){
+					this._validateContainer();
+					this._container.doLayout(0,0,document.body.clientWidth,document.body.clientHeight,true,true);
+					this._layoutInProgress = false;
+				}),25);
+			}
+		},
+		
+		_validateContainer: function() {
+			if (!isDef(this._container)) {
+				this._layoutInProgress = false;
+				this._container = Ti.UI.createView();
+				this._container.left = 0;
+				this._container.top = 0;
+				document.body.appendChild(this._container.domNode);
+			}
+		},
 		
 		properties: {
 			backgroundColor: {
 				set: function(value) {
-					this._container.backgroundColor = value;
+					return style.set(document.body, "backgroundColor", value);
 				}
 			},
 			backgroundImage: {
 				set: function(value) {
-					this._container.backgroundImage = value;
+					return style.set(document.body, "backgroundImage", value ? style.url(value) : "");
 				}
 			}
 		},

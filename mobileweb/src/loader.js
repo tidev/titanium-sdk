@@ -1473,7 +1473,14 @@ require.cache({
 						}
 						
 						switch(units) {
-							case "%": return require.isDef(totalLength) ? value / 100 * totalLength : x;
+							case "%":
+								if(totalLength == "auto") {
+									return "auto";
+								} else if (!require.is(totalLength,"Number")) {
+									console.error("Could not compute percentage size/position of element.");
+									return;
+								} 
+								return value / 100 * totalLength;
 							case "mm": return processMM(value);
 							case "cm": return processMM(value * 10);
 							case "in": return processIN(value);

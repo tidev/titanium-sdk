@@ -4,7 +4,11 @@ define("Ti/_/UI/Element",
 
 	var undef,
 		unitize = dom.unitize,
+		computeSize = dom.computeSize,
 		on = require.on,
+		set = style.set,
+		isDef = require.isDef,
+		is = require.is,
 		transitionEvents = {
 			webkit: "webkitTransitionEnd",
 			trident: "msTransitionEnd",
@@ -75,16 +79,150 @@ define("Ti/_/UI/Element",
 			this.domNode = null;
 		},
 		
-		doLayout: function() {
-			this._layout && this._layout.doLayout(this);
-		},
-		
-		doFullLayout: function() {
-			var node = this;
-			while(node.parent) {
-				node = node.parent
+		doLayout: function(originX,originY,parentWidth,parentHeight,centerHDefault,centerVDefault) {
+			
+			// Compute as many sizes as possible, should be everything except auto
+			var left = computeSize(this.left,parentWidth),
+				top = computeSize(this.top,parentHeight),
+				right = computeSize(this.right,parentWidth),
+				bottom = computeSize(this.bottom,parentHeight),
+				centerX = isDef(this.center) ? computeSize(this.center.X,parentWidth) : undef,
+				centerY = isDef(this.center) ? computeSize(this.center.Y,parentHeight) : undef,
+				width = computeSize(this.width,parentWidth),
+				height = computeSize(this.height,parentHeight);
+			
+			// For our purposes, auto is the same as undefined for position values.
+			left == "auto" && (left = undef);
+			top == "auto" && (top = undef);
+			right == "auto" && (right = undef);
+			bottom == "auto" && (bottom = undef);
+			centerX == "auto" && (centerX = undef);
+			centerY == "auto" && (centerY = undef);
+			
+			// Convert right/bottom coordinates to be with respect to (0,0)
+			isDef(right) && (right = parentWidth - right);
+			isDef(bottom) && (bottom = parentHeight - bottom);
+			
+			// Unfortunately css precidence doesn't match the titanium, so we have to handle precedence and default setting ourselves
+			if (isDef(width)) {
+				if (isDef(left)) {
+					right = undef;
+				} else if (isDef(centerX)){
+					left = centerX - width / 2;
+					right = undef;
+				} else if (isDef(right)) {
+					// Do nothing
+				} else {
+					// Set the default position
+					left = centerHDefault ? computeSize("50%",parentWidth) - width / 2 : 0;
+				}
+			} else {
+				if (isDef(centerX)) {
+					if (isDef(left)) {
+						width = (centerX - left) * 2;
+						right = undef;
+					} else if (isDef(right)) {
+						width = (right - centerX) * 2;
+					} else {
+						// Set the default width
+						width = computeSize(this._defaultWidth,parentWidth);
+					}
+				} else {
+					if (isDef(left) && isDef(right)) {
+						// Do nothing
+					} else {
+						width = computeSize(this._defaultWidth,parentWidth);
+						if(!isDef(left) && !isDef(right)) {
+							// Set the default position
+							left = centerHDefault ? computeSize("50%",parentWidth) - (width ? width : 0) / 2 : 0;
+						}
+					}
+				}
 			}
-			node.doLayout();
+			if (isDef(height)) {
+				if (isDef(top)) {
+					bottom = undef;
+				} else if (isDef(centerY)){
+					top = centerY - height / 2;
+					bottom = undef;
+				} else if (isDef(bottom)) {
+					// Do nothing
+				} else {
+					// Set the default position
+					top = centerVDefault ? computeSize("50%",parentHeight) - height / 2 : 0;
+				}
+			} else {
+				if (isDef(centerY)) {
+					if (isDef(top)) {
+						height = (centerY - top) * 2;
+						bottom = undef;
+					} else if (isDef(bottom)) {
+						height = (bottom - centerY) * 2;
+					} else {
+						// Set the default height
+						height = computeSize(this._defaultHeight,parentHeight);
+					}
+				} else {
+					if (isDef(top) && isDef(bottom)) {
+						// Do nothing
+					} else {
+						// Set the default height
+						height = computeSize(this._defaultHeight,parentHeight);
+						if(!isDef(top) && !isDef(bottom)) {
+							// Set the default position
+							top = centerVDefault ? computeSize("50%",parentHeight) - (height ? height : 0) / 2 : 0;
+						}
+					}
+				}
+			}
+			
+			// Calculate the width/left properties if width is NOT auto
+			if (width != "auto") {
+				if (isDef(right)) {
+					if (isDef(left)) {
+						width = right - left;
+					} else {
+						left = right - width;
+					}
+				}
+			}
+			if (height != "auto") {
+				if (isDef(bottom)) {
+					if (isDef(top)) {
+						height = bottom - top;
+					} else {
+						top = bottom - height;
+					}
+				}
+			}
+			
+			// Apply the origin
+			left += originX;
+			top += originY;
+			
+			// Layout the children, if any exist. Note that if an element has children, it will always have a layout.
+			if (this.children) {
+				var computedSize = this._layout.doLayout(this,width,height);
+				width == "auto" && (width = computedSize.width);
+				height == "auto" && (height = computedSize.height);
+			} else {
+				width == "auto" && (width = this.domNode.clientWidth);
+				height == "auto" && (height = this.domNode.clientHeight);
+			}
+			
+			// TODO remove this debug statement once the layout mechanism is solid
+			if (!is(left,"Number") && !is(top,"Number") && !is(width,"Number") && !is(height,"Number")) {
+				console.debug("Error layouting out object: " + left + " " + top + " " + width + " " + height);
+			}
+					
+			// Set the position, size and z-index
+			isDef(left) && set(this.domNode, "left", unitize(left));
+			isDef(top) && set(this.domNode, "top", unitize(top));
+			isDef(width) && set(this.domNode, "width", unitize(width));
+			isDef(height) && set(this.domNode, "height", unitize(height));
+			set(this.domNode, "zIndex", is(this.zIndex,"Number") ? this.zIndex : 0);
+			
+			return {left: left, top: top, width: width, height: height};
 		},
 
 		show: function() {
@@ -252,21 +390,69 @@ define("Ti/_/UI/Element",
 					if (value !== orig) {
 						!value && (this._lastDisplay = style.get(this.domNode, "display"));
 						style.set(this.domNode, "display", !!value ? this._lastDisplay || "" : "none");
-						!!value && this.doFullLayout();
+						!!value && Ti.UI._doFullLayout();
 					}
 					return value;
 				}
 			},
 			
 			// Properties that are handled by the layout manager
-			bottom: undef,
-			center: undef,
-			height: undef,
-			left: undef,
-			right: undef,
-			top: undef,
-			width: undef,
-			zIndex: undef,
+			bottom: {
+				set: function(value) {
+					Ti.UI._doFullLayout();
+					return value;
+				}
+			},
+			
+			center: {
+				set: function(value) {
+					Ti.UI._doFullLayout();
+					return value;
+				}
+			},
+			
+			height: {
+				set: function(value) {
+					Ti.UI._doFullLayout();
+					return value;
+				}
+			},
+			
+			left: {
+				set: function(value) {
+					Ti.UI._doFullLayout();
+					return value;
+				}
+			},
+			
+			right: {
+				set: function(value) {
+					Ti.UI._doFullLayout();
+					return value;
+				}
+			},
+			
+			top: {
+				set: function(value) {
+					Ti.UI._doFullLayout();
+					return value;
+				}
+			},
+			
+			width: {
+				set: function(value) {
+					Ti.UI._doFullLayout();
+					return value;
+				}
+			},
+			
+			zIndex: {
+				set: function(value) {
+					Ti.UI._doFullLayout();
+					return value;
+				}
+			},
+			
 			size: {
 				set: function(value) {
 					console.debug('Property "Titanium._.UI.Element#.size" is not implemented yet.');

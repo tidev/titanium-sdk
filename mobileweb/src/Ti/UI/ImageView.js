@@ -42,7 +42,7 @@ define("Ti/UI/ImageView",
 		},
 		
 		doLayout: function() {
-			Widget.prototype.doLayout.apply(this);
+			var computedSize = Widget.prototype.doLayout.apply(this);
 			setTimeout(lang.hitch(this, function(){
 				if (this.canScale) {
 					var controlRatio = this.domNode.clientWidth / this.domNode.clientHeight,
@@ -59,6 +59,7 @@ define("Ti/UI/ImageView",
 					set(this.imageDisplay,"height","auto");
 				}
 			}),0);
+			return computedSize;
 		},
 
 		properties: {
@@ -68,7 +69,7 @@ define("Ti/UI/ImageView",
 			canScale: {
 				set: function(value, oldValue){
 					if (value !== oldValue) {
-						this.doFullLayout();
+						Ti.UI._doFullLayout();
 					}
 					return value;
 				},
@@ -84,7 +85,7 @@ define("Ti/UI/ImageView",
 						this.imageDisplay.src = value;
 						
 						// Force a layout to take the image size into account
-						this.doFullLayout();
+						Ti.UI._doFullLayout();
 					}));
 					tempImage.src = value;
 					return value;

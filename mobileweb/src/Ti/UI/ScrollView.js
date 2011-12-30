@@ -1,6 +1,12 @@
-define("Ti/UI/ScrollView", ["Ti/_/declare", "Ti/_/UI/Widget"], function(declare, Widget) {
+define("Ti/UI/ScrollView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style"], function(declare, View, style) {
+	
+	var set = style.set;
 
-	return declare("Ti.UI.ScrollView", Widget, {
+	return declare("Ti.UI.ScrollView", View, {
+		
+		constructor: function(args) {
+			set(this.domNode,"overflow","scroll");
+		},
 		
 		scrollTo: function(x,y) {
 			console.debug('Method "Titanium.UI.ScrollView#.scrollTo" is not implemented yet.');
@@ -53,18 +59,6 @@ define("Ti/UI/ScrollView", ["Ti/_/declare", "Ti/_/UI/Widget"], function(declare,
 				},
 				set: function(value) {
 					console.debug('Property "Titanium.UI.ScrollView#.contentWidth" is not implemented yet.');
-					return value;
-				}
-			},
-			
-			scrollType: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ScrollView#.scrollType" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.ScrollView#.scrollType" is not implemented yet.');
 					return value;
 				}
 			},
