@@ -84,8 +84,8 @@ define("Ti/_/UI/Element",
 			// Compute as many sizes as possible, should be everything except auto
 			var left = computeSize(this.left,parentWidth),
 				top = computeSize(this.top,parentHeight),
-				right = computeSize(this.right,parentWidth),
-				bottom = computeSize(this.bottom,parentHeight),
+				originalRight = computeSize(this.right,parentWidth),
+				originalBottom = computeSize(this.bottom,parentHeight),
 				centerX = isDef(this.center) ? computeSize(this.center.X,parentWidth) : undef,
 				centerY = isDef(this.center) ? computeSize(this.center.Y,parentHeight) : undef,
 				width = computeSize(this.width,parentWidth),
@@ -94,14 +94,14 @@ define("Ti/_/UI/Element",
 			// For our purposes, auto is the same as undefined for position values.
 			left == "auto" && (left = undef);
 			top == "auto" && (top = undef);
-			right == "auto" && (right = undef);
-			bottom == "auto" && (bottom = undef);
+			originalRight == "auto" && (right = undef);
+			originalBottom == "auto" && (bottom = undef);
 			centerX == "auto" && (centerX = undef);
 			centerY == "auto" && (centerY = undef);
 			
 			// Convert right/bottom coordinates to be with respect to (0,0)
-			isDef(right) && (right = parentWidth - right);
-			isDef(bottom) && (bottom = parentHeight - bottom);
+			var right = isDef(originalRight) ? (parentWidth - originalRight) : undef,
+				bottom = isDef(originalBottom) ? (parentHeight - originalBottom) : undef;
 			
 			// Unfortunately css precidence doesn't match the titanium, so we have to handle precedence and default setting ourselves
 			if (isDef(width)) {
@@ -222,7 +222,7 @@ define("Ti/_/UI/Element",
 			isDef(height) && set(this.domNode, "height", unitize(height));
 			set(this.domNode, "zIndex", is(this.zIndex,"Number") ? this.zIndex : 0);
 			
-			return {left: left, top: top, width: width, height: height};
+			return {left: left, top: top, width: width + (isDef(originalRight) ? originalRight : 0), height: height + (isDef(originalBottom) ? originalBottom : 0)};
 		},
 
 		show: function() {
