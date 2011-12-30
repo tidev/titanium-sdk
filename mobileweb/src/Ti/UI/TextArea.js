@@ -19,15 +19,15 @@ define("Ti/UI/TextArea", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/
 		},
 		
 		blur: function() {
-			console.debug('Method "Titanium.UI.TextArea#.blur" is not implemented yet.');
+			this.textArea.blur();
 		},
 		
 		focus: function() {
-			console.debug('Method "Titanium.UI.TextArea#.focus" is not implemented yet.');
+			this.textArea.focus();
 		},
 		
 		hasText: function() {
-			console.debug('Method "Titanium.UI.TextArea#.hasText" is not implemented yet.');
+			return (this.textArea.value !== "");
 		},
 
 		properties: {
@@ -42,6 +42,7 @@ define("Ti/UI/TextArea", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/
 			},
 			
 			value: {
+				get: function() { return this.textArea.value; },
 				set: function(value) {
 					this.textArea.value = value;
 					return value;
@@ -50,13 +51,11 @@ define("Ti/UI/TextArea", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/
 			
 			editable: {
 				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.TextArea#.editable" is not implemented yet.');
-					return value;
+					return this.textArea.readonly;
 				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.TextArea#.editable" is not implemented yet.');
-					return value;
+					his.textArea.readonly = value ? true : false;
+                    return this.textArea.readonly;
 				}
 			},
 			
