@@ -772,7 +772,14 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 +(UIImage *)image:(id)object proxy:(TiProxy*)proxy
 {
-	return [[ImageLoader sharedLoader] loadImmediateImage:[self toURL:object proxy:proxy]];
+    if ([object isKindOfClass:[TiBlob class]]) {
+        return [(TiBlob*)object image];
+    }
+    else if ([object isKindOfClass:[NSString class]]) {
+        return [[ImageLoader sharedLoader] loadImmediateImage:[self toURL:object proxy:proxy]];
+    }
+    
+    return nil;
 }
 
 
