@@ -42,29 +42,44 @@ define("Ti/UI/ImageView",
 		},
 		
 		doLayout: function() {
-			var computedSize = Widget.prototype.doLayout.apply(this);
-			setTimeout(lang.hitch(this, function(){
-				if (this.canScale) {
-					var controlRatio = this.domNode.clientWidth / this.domNode.clientHeight,
-						imageRatio = this.imageDisplay.width / this.imageDisplay.height;
-					if (controlRatio > imageRatio) {
-						set(this.imageDisplay,"width","auto");
-						set(this.imageDisplay,"height","100%");
-					} else {
-						set(this.imageDisplay,"width","100%");
-						set(this.imageDisplay,"height","auto");
-					}
-				} else {
+			Widget.prototype.doLayout.apply(this);
+			if (this.canScale) {
+				var controlRatio = this._measuredWidth / this._measuredHeight,
+					imageRatio = this._contentWidth / this._contentHeight;
+				if (controlRatio > imageRatio) {
 					set(this.imageDisplay,"width","auto");
+					set(this.imageDisplay,"height","100%");
+				} else {
+					set(this.imageDisplay,"width","100%");
 					set(this.imageDisplay,"height","auto");
 				}
-			}),0);
+			} else {
+				set(this.imageDisplay,"width","auto");
+				set(this.imageDisplay,"height","auto");
+			}
 			return computedSize;
 		},
 
 		properties: {
 			_defaultWidth: "auto",
 			_defaultHeight: "auto",
+			_contentWidth: {
+				get: function(value) {
+					return this.imageDisplay.width;
+				},
+				set: function(value) {
+					return this.imageDisplay.width;
+				}
+			},
+			
+			_contentHeight: {
+				get: function(value) {
+					return this.imageDisplay.height;
+				},
+				set: function(value) {
+					return this.imageDisplay.height;
+				}
+			},
 			animating: false,
 			canScale: {
 				set: function(value, oldValue){

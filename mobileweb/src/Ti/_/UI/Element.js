@@ -217,6 +217,13 @@ define("Ti/_/UI/Element",
 			// Apply the origin
 			left += originX;
 			top += originY;
+			
+			this._measuredLeft = left;
+			this._measuredTop = top;
+			this._measuredRightPadding = is(originalRight,"Number") ? originalRight: 0;
+			this._measuredBottomPadding = is(originalBottom,"Number") ? originalBottom: 0;
+			this._measuredWidth = width;
+			this._measuredHeight = height;
 					
 			// Set the position, size and z-index
 			isDef(left) && set(this.domNode, "left", unitize(left));
@@ -224,8 +231,6 @@ define("Ti/_/UI/Element",
 			isDef(width) && set(this.domNode, "width", unitize(width));
 			isDef(height) && set(this.domNode, "height", unitize(height));
 			set(this.domNode, "zIndex", is(this.zIndex,"Number") ? this.zIndex : 0);
-			
-			return {left: left, top: top, width: width + (isDef(originalRight) ? originalRight : 0), height: height + (isDef(originalBottom) ? originalBottom : 0)};
 		},
 
 		show: function() {
@@ -317,6 +322,13 @@ define("Ti/_/UI/Element",
 					return this.domNode.clientHeight;
 				}
 			},
+			
+			_measuredLeft: 0,
+			_measuredTop: 0,
+			_measuredRightPadding: 0,
+			_measuredBottomPadding: 0,
+			_measuredWidth: 0,
+			_measuredHeight: 0,
 			
 			// Properties that are handled by the element
 			backgroundColor: {

@@ -52,12 +52,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 				}
 			}
 			
-			var computedSize = View.prototype.doLayout.apply(this,arguments);
-			
-			// TODO HACK: Not sure why this is necessary, but it works. Might indicate a bug in layouts.
-			set(this.rows.domNode,"position","absolute");
-			
-			return computedSize;
+			View.prototype.doLayout.apply(this,arguments);
 		},
 		
 		properties: {

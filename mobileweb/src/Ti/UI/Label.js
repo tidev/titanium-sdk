@@ -33,10 +33,6 @@ define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/c
 			// TODO
 		},
 		
-		doLayout: function(){
-			return FontWidget.prototype.doLayout.apply(this,arguments);
-		},
-		
 		properties: {
 			_defaultWidth: "auto",
 			_defaultHeight: "auto",

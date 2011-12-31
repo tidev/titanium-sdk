@@ -8,11 +8,12 @@ define("Ti/_/Layouts/Vertical", ["Ti/_/Layouts/Base", "Ti/_/declare"], function(
 			for(var i = 0; i < element.children.length; i++) {
 				
 				// Layout the child
+				var child = element.children[i];
 				var computedParameters = element.children[i].doLayout(0,currentTop,width,height,true,false);
 				
 				// Update the size of the component
-				var rightMostEdge = computedParameters.width + computedParameters.left;
-				currentTop = computedParameters.height + computedParameters.top;
+				var rightMostEdge = child._measuredWidth + child._measuredLeft + child._measuredRightPadding;
+				currentTop = child._measuredHeight + child._measuredTop + child._measuredBottomPadding;
 				rightMostEdge > computedSize.width && (computedSize.width = rightMostEdge);
 				currentTop > computedSize.height && (computedSize.height = currentTop);
 			}

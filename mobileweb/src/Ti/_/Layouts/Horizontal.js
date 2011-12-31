@@ -8,11 +8,12 @@ define("Ti/_/Layouts/Horizontal", ["Ti/_/Layouts/Base", "Ti/_/declare"], functio
 			for(var i = 0; i < element.children.length; i++) {
 				
 				// Layout the child
+				var child = element.children[i];
 				var computedParameters = element.children[i].doLayout(currentLeft,0,width,height,false,false);
 				
 				// Update the size of the component
-				currentLeft += computedParameters.width + computedParameters.left;
-				var bottomMostEdge = computedParameters.height + computedParameters.top;
+				currentLeft += child._measuredWidth + child._measuredLeft + child._measuredRightPadding;
+				var bottomMostEdge = child._measuredHeight + child._measuredTop + child._measuredBottomPadding;
 				currentLeft > computedSize.width && (computedSize.width = currentLeft);
 				bottomMostEdge > computedSize.height && (computedSize.height = bottomMostEdge);
 			}

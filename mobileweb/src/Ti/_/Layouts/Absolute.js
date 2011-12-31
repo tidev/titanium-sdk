@@ -7,11 +7,12 @@ define("Ti/_/Layouts/Absolute", ["Ti/_/Layouts/Base", "Ti/_/declare"], function(
 			for(var i = 0; i < element.children.length; i++) {
 				
 				// Layout the child
-				var computedParameters = element.children[i].doLayout(0,0,width,height,true,true);
+				var child = element.children[i];
+				child.doLayout(0,0,width,height,true,true);
 				
 				// Update the size of the component
-				var rightMostEdge = computedParameters.width + computedParameters.left;
-				var bottomMostEdge = computedParameters.height + computedParameters.top;
+				var rightMostEdge = child._measuredWidth + child._measuredLeft + child._measuredRightPadding;
+				var bottomMostEdge = child._measuredHeight + child._measuredTop + child._measuredBottomPadding;
 				rightMostEdge > computedSize.width && (computedSize.width = rightMostEdge);
 				bottomMostEdge > computedSize.height && (computedSize.height = bottomMostEdge);
 			}

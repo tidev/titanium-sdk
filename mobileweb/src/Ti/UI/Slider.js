@@ -16,6 +16,24 @@ define("Ti/UI/Slider", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css"
 		properties: {
 			_defaultWidth: "100%",
 			_defaultHeight: "auto",
+		
+			_contentWidth: {
+				get: function(value) {
+					return this.slider.clientWidth;
+				},
+				set: function(value) {
+					return this.slider.clientWidth;
+				}
+			},
+			
+			_contentHeight: {
+				get: function(value) {
+					return this.slider.clientHeight;
+				},
+				set: function(value) {
+					return this.slider.clientHeight;
+				}
+			},
 			disabledLeftTrackImage: {
 				get: function(value) {
 					// TODO

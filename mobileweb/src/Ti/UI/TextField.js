@@ -32,6 +32,24 @@ define("Ti/UI/TextField", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti
 		properties: {
             _defaultWidth: "auto",
             _defaultHeight: "auto",
+		
+			_contentWidth: {
+				get: function(value) {
+					return this.textField.clientWidth;
+				},
+				set: function(value) {
+					return this.textField.clientWidth;
+				}
+			},
+			
+			_contentHeight: {
+				get: function(value) {
+					return this.textField.clientHeight;
+				},
+				set: function(value) {
+					return this.textField.clientHeight;
+				}
+			},
             
 			hintText: {
 				set: function(value) {
