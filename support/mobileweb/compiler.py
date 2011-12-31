@@ -65,7 +65,6 @@ class Compiler(object):
 				'Ti/Facebook.js',
 				'Ti/Filesystem.js',
 				'Ti/Geolocation.js',
-				'Ti/Gesture.js',
 				'Ti/Locale.js',
 				'Ti/Map.js',
 				'Ti/Media.js',
