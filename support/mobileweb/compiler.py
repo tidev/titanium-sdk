@@ -74,12 +74,17 @@ class Compiler(object):
 				'Ti/Platform.js',
 				'Ti/Platform/DisplayCaps.js',
 				'Ti/UI.js',
-				'Ti/Utils.js',
 				'Ti/XML.js',
 				
 				# View classes
 				'Ti/UI/View.js',
 				'Ti/UI/TableViewRow.js',
+				
+				# SuperView classes
+				'Ti/_/UI/SuperView.js',
+				'Ti/UI/Tab.js',
+				'Ti/UI/TabGroup.js',
+				'Ti/UI/Window.js',
 				
 				# Widget classes
 				'Ti/_/UI/Widget.js',
@@ -100,12 +105,6 @@ class Compiler(object):
 				'Ti/UI/TextField.js',
 				'Ti/UI/WebView.js',
 				'Ti/Utils.js',
-				
-				# SuperView classes
-				'Ti/_/UI/SuperView.js',
-				'Ti/UI/Tab.js',
-				'Ti/UI/TabGroup.js',
-				'Ti/UI/Window.js',
 				
 				# resources
 				'titanium.css',
