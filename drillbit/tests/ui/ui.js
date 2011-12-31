@@ -403,5 +403,14 @@ describe("Ti.UI tests", {
 		btn.addEventListener("load", listener)
 		w.add( btn );
 		w.open();
-	})
+	}),
+
+	// http://jira.appcelerator.org/browse/TIMOB-6891
+	tabWindowNull: function() {
+		valueOf(function() {
+			Ti.UI.createTab({window: Ti.UI.createWindow()}).
+				window.addEventListener("focus", function(){});
+		}).shouldNotThrowException();
+	}
+
 });
