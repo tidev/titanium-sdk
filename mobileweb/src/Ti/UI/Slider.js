@@ -10,7 +10,12 @@ define("Ti/UI/Slider", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css"
 				className: css.clean("TiUISliderSlider")
 			});
 			this.slider.type = "range";
-			this.domNode.addChild(this.slider);
+			this.domNode.appendChild(this.slider);
+			set(this.slider,"width","100%");
+			set(this.slider,"height","100%");
+			this.slider.min = 0;
+			this.slider.max = 100;
+			this.slider.value = 0;
 		},
 
 		properties: {
