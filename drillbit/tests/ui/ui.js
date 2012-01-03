@@ -411,6 +411,42 @@ describe("Ti.UI tests", {
 			Ti.UI.createTab({window: Ti.UI.createWindow()}).
 				window.addEventListener("focus", function(){});
 		}).shouldNotThrowException();
+	},
+
+	// http://jira.appcelerator.org/browse/TIMOB-6858
+	deleteCorrectRowIndex_as_async: function(callback) {
+		var data = [];
+		for (var i = 0; i < 2; i++) {
+			data.push(Ti.UI.createTableViewRow({title: "row " + i}));
+		}
+		var tv = Ti.UI.createTableView({data: data});
+		var w = Ti.UI.createWindow();
+		w.addEventListener("open", function() {
+			var section = tv.data[0];
+			if (section.rows.length !== 2) {
+				callback.failed("Expected initial data set to contain 2 rows");
+				return;
+			}
+			tv.deleteRow(1);
+			setTimeout(function() {
+				if (section.rows.length !== 1) {
+					callback.failed("Expected table view section to contain 1 row after deleting 1 row");
+					return;
+				}
+				var actual = section.rows[0].title;
+				var expected = "row 0";
+				if (actual !== expected) {
+					callback.failed("Expected remaining row to be '" + expected + "', but it is '" + actual + "'");
+				}
+				w.close();
+				callback.passed();
+			}, 1000);
+		});
+		w.add(tv);
+		w.open();
+		setTimeout(function() {
+			callback.failed("Test timeout");
+		}, 3000);
 	}
 
 });
