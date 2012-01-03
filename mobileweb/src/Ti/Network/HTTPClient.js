@@ -35,7 +35,7 @@ define("Ti/Network/HTTPClient", ["Ti/_/Evented"], function(Evented) {
 					if (xhr.status == 200) {
 						obj.responseText = xhr.responseText;
 						obj.responseXML = xhr.responseXML;
-						obj.responseData = xhr.responceHeader;
+						obj.responseData = xhr.responseHeader;
 						is(obj.onload, "Function") && obj.onload.call(obj);
 					} else {
 						xhr.status / 100 | 0 > 3 && onerror();

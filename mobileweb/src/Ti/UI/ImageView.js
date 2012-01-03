@@ -57,7 +57,6 @@ define("Ti/UI/ImageView",
 				set(this.imageDisplay,"width","auto");
 				set(this.imageDisplay,"height","auto");
 			}
-			return computedSize;
 		},
 
 		properties: {

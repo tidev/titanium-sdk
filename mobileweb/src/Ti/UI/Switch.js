@@ -1,18 +1,41 @@
-define("Ti/UI/Switch", ["Ti/_/declare", "Ti/_/UI/Widget"], function(declare, Widget) {
+define("Ti/UI/Switch", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], function(declare, Widget, dom, css, style) {
+
+	var set = style.set,
+        undef;
 
 	return declare("Ti.UI.Switch", Widget, {
 
 		constructor: function(args) {
-			this.switch = dom.create("input", {
+			this._switch = dom.create("input", {
 				className: css.clean("TiUISwitchSwitch")
 			});
-			this.switch.type = "checkbox";
-			this.domNode.appendChild(this.switch);
+			set(this._switch,"width","100%");
+			set(this._switch,"height","100%");
+			this._switch.type = "checkbox";
+			this.domNode.appendChild(this._switch);
 		},
 
 		properties: {
 			_defaultWidth: "auto",
             _defaultHeight: "auto",
+		
+			_contentWidth: {
+				get: function(value) {
+					return this._switch.clientWidth;
+				},
+				set: function(value) {
+					return this._switch.clientWidth;
+				}
+			},
+			
+			_contentHeight: {
+				get: function(value) {
+					return this.textArea.clientHeight;
+				},
+				set: function(value) {
+					return this.textArea.clientHeight;
+				}
+			},
             
             title: {
 				get: function(value) {
